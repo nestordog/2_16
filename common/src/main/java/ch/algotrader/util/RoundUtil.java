@@ -21,7 +21,8 @@ import java.math.BigDecimal;
 
 import org.apache.commons.math.util.MathUtils;
 
-import ch.algotrader.ServiceLocator;
+import ch.algotrader.config.CommonConfig;
+import ch.algotrader.config.ConfigLocator;
 
 /**
  * Provides general rounding methods.
@@ -31,14 +32,6 @@ import ch.algotrader.ServiceLocator;
  * @version $Revision$ $Date$
  */
 public class RoundUtil {
-
-    private static int portfolioDigits = 2;
-
-    static {
-        if (ServiceLocator.instance().isInitialized()) {
-            portfolioDigits = ServiceLocator.instance().getConfiguration().getInt("misc.portfolioDigits");
-        }
-    }
 
     public static double roundToNextN(double value, double n) {
 
@@ -66,7 +59,8 @@ public class RoundUtil {
             return null;
         } else {
             BigDecimal decimal = new BigDecimal(value);
-            return decimal.setScale(portfolioDigits, BigDecimal.ROUND_HALF_UP);
+            CommonConfig commonConfig = ConfigLocator.instance().getCommonConfig();
+            return decimal.setScale(commonConfig.getPortfolioDigits(), BigDecimal.ROUND_HALF_UP);
         }
     }
 

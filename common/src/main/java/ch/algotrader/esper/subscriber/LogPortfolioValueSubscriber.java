@@ -19,7 +19,8 @@ package ch.algotrader.esper.subscriber;
 
 import org.apache.log4j.Logger;
 
-import ch.algotrader.ServiceLocator;
+import ch.algotrader.config.CommonConfig;
+import ch.algotrader.config.ConfigLocator;
 import ch.algotrader.entity.strategy.PortfolioValue;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.metric.MetricsUtil;
@@ -35,8 +36,6 @@ public class LogPortfolioValueSubscriber {
 
     private static Logger logger = MyLogger.getLogger(LogPortfolioValueSubscriber.class.getName());
 
-    private static long initialBalance = ServiceLocator.instance().getConfiguration().getLong("simulation.initialBalance");
-
     private static boolean initialized = false;
 
     public void update(PortfolioValue portfolioValue) {
@@ -44,7 +43,8 @@ public class LogPortfolioValueSubscriber {
         long startTime = System.nanoTime();
 
         // dont log anything while initialising macd
-        if (portfolioValue.getNetLiqValue().longValue() != initialBalance) {
+        CommonConfig commonConfig = ConfigLocator.instance().getCommonConfig();
+        if (portfolioValue.getNetLiqValue().equals(commonConfig.getSimulationInitialBalance())) {
             initialized = true;
         }
 

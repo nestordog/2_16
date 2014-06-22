@@ -21,7 +21,8 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.Priority;
 import org.apache.log4j.spi.LoggingEvent;
 
-import ch.algotrader.ServiceLocator;
+import ch.algotrader.config.CommonConfig;
+import ch.algotrader.config.ConfigLocator;
 import ch.algotrader.esper.EngineLocator;
 
 /**
@@ -63,18 +64,17 @@ public class MyLogger extends Logger {
     @Override
     protected void forcedLog(String fqcn, Priority level, Object message, Throwable t) {
 
-        // in simulation get date from the Esper Engine belonging to the startedStrateggy
-        if (ServiceLocator.instance().isInitialized()) {
-            if (ServiceLocator.instance().getConfiguration().getSimulation()) {
-                String strategyName = ServiceLocator.instance().getConfiguration().getStartedStrategyName();
-                if (EngineLocator.instance().hasEngine(strategyName)) {
+        // in simulation get date from the Esper Engine belonging to the startedStrategy
+        CommonConfig commonConfig = ConfigLocator.instance().getCommonConfig();
+        if (commonConfig.isSimulation()) {
+            String strategyName = commonConfig.getStrategyName();
+            if (EngineLocator.instance().hasEngine(strategyName)) {
 
-                    long engineTime = EngineLocator.instance().getEngine(strategyName).getCurrentTime();
-                    if (engineTime != 0) {
+                long engineTime = EngineLocator.instance().getEngine(strategyName).getCurrentTime();
+                if (engineTime != 0) {
 
-                        callAppenders(new LoggingEvent(fqcn, this, engineTime, level, message, t));
-                        return;
-                    }
+                    callAppenders(new LoggingEvent(fqcn, this, engineTime, level, message, t));
+                    return;
                 }
             }
         }

@@ -25,7 +25,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Predicate;
@@ -33,6 +32,7 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Value;
 
 import ch.algotrader.ServiceLocator;
+import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.marketData.Bar;
@@ -76,19 +76,20 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     @Override
     protected Date handleGetCurrentTime() throws Exception {
 
-        return new Date(EngineLocator.instance().getEngine(getConfiguration().getStartedStrategyName()).getCurrentTime());
+        String strategyName = getCommonConfig().getStrategyName();
+        return new Date(EngineLocator.instance().getEngine(strategyName).getCurrentTime());
     }
 
     @Override
     protected String handleGetStrategyName() throws Exception {
 
-        return getConfiguration().getStartedStrategyName();
+        return getCommonConfig().getStrategyName();
     }
 
     @Override
     protected BigDecimal handleGetStrategyCashBalance() throws Exception {
 
-        String strategyName = getConfiguration().getStartedStrategyName();
+        String strategyName = getCommonConfig().getStrategyName();
         if (strategyName.equals(StrategyImpl.BASE)) {
             return getPortfolioService().getCashBalance();
         } else {
@@ -99,7 +100,7 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     @Override
     protected BigDecimal handleGetStrategySecuritiesCurrentValue() throws Exception {
 
-        String strategyName = getConfiguration().getStartedStrategyName();
+        String strategyName = getCommonConfig().getStrategyName();
         if (strategyName.equals(StrategyImpl.BASE)) {
             return getPortfolioService().getSecuritiesCurrentValue();
         } else {
@@ -110,7 +111,7 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     @Override
     protected BigDecimal handleGetStrategyMaintenanceMargin() throws Exception {
 
-        String strategyName = getConfiguration().getStartedStrategyName();
+        String strategyName = getCommonConfig().getStrategyName();
         if (strategyName.equals(StrategyImpl.BASE)) {
             return getPortfolioService().getMaintenanceMargin();
         } else {
@@ -121,7 +122,7 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     @Override
     protected BigDecimal handleGetStrategyNetLiqValue() throws Exception {
 
-        String strategyName = getConfiguration().getStartedStrategyName();
+        String strategyName = getCommonConfig().getStrategyName();
         if (strategyName.equals(StrategyImpl.BASE)) {
             return getPortfolioService().getNetLiqValue();
         } else {
@@ -132,7 +133,7 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     @Override
     protected BigDecimal handleGetStrategyAvailableFunds() throws Exception {
 
-        String strategyName = getConfiguration().getStartedStrategyName();
+        String strategyName = getCommonConfig().getStrategyName();
         if (strategyName.equals(StrategyImpl.BASE)) {
             return getPortfolioService().getAvailableFunds();
         } else {
@@ -143,14 +144,14 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     @Override
     protected double handleGetStrategyAllocation() throws Exception {
 
-        String strategyName = getConfiguration().getStartedStrategyName();
+        String strategyName = getCommonConfig().getStrategyName();
         return getLookupService().getStrategyByName(strategyName).getAllocation();
     }
 
     @Override
     protected double handleGetStrategyLeverage() throws Exception {
 
-        String strategyName = getConfiguration().getStartedStrategyName();
+        String strategyName = getCommonConfig().getStrategyName();
         if (strategyName.equals(StrategyImpl.BASE)) {
             return getPortfolioService().getLeverage();
         } else {
@@ -161,7 +162,7 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     @Override
     protected double handleGetStrategyPerformance() throws Exception {
 
-        String strategyName = getConfiguration().getStartedStrategyName();
+        String strategyName = getCommonConfig().getStrategyName();
         if (strategyName.equals(StrategyImpl.BASE)) {
             return getPortfolioService().getPerformance();
         } else {
@@ -173,14 +174,14 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     @Override
     protected List<MarketDataEventVO> handleGetMarketDataEvents() {
 
-        String strategyName = getConfiguration().getStartedStrategyName();
+        String strategyName = getCommonConfig().getStrategyName();
         List<MarketDataEvent> marketDataEvents = EngineLocator.instance().getEngine(strategyName).getAllEventsProperty("CURRENT_MARKET_DATA_EVENT", "marketDataEvent");
 
         List<MarketDataEventVO> marketDataEventVOs = getMarketDataEventVOs(marketDataEvents);
 
         // get all subscribed securities
         List<MarketDataEventVO> processedMarketDataEventVOs = new ArrayList<MarketDataEventVO>();
-        if (getConfiguration().isStartedStrategyBASE()) {
+        if (strategyName.equalsIgnoreCase(StrategyImpl.BASE)) {
 
             // for base iterate over a distinct list of subscribed securities and feedType
             List<Map<String, Object>> subscriptions = getLookupService().getSubscribedSecuritiesAndFeedTypeForAutoActivateStrategiesInclComponents();
@@ -222,14 +223,14 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     @Override
     protected List<PositionVO> handleGetDataPositions() throws Exception {
 
-        return getLookupService().getPositionsVO(getConfiguration().getStartedStrategyName(), this.displayClosedPositions);
+        return getLookupService().getPositionsVO(getCommonConfig().getStrategyName(), this.displayClosedPositions);
     }
 
     @Override
     protected Collection<BalanceVO> handleGetDataBalances() throws Exception {
 
-        String strategyName = getConfiguration().getStartedStrategyName();
-        if (strategyName.equals(StrategyImpl.BASE)) {
+        String strategyName = getCommonConfig().getStrategyName();
+        if (StrategyImpl.BASE.equals(strategyName)) {
             return getPortfolioService().getBalances();
         } else {
             return getPortfolioService().getBalances(strategyName);
@@ -239,38 +240,39 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     @Override
     protected List<TransactionVO> handleGetDataTransactions() throws Exception {
 
-        return getLookupService().getTransactionsVO(getConfiguration().getStartedStrategyName());
+        return getLookupService().getTransactionsVO(getCommonConfig().getStrategyName());
     }
 
     @Override
     protected Collection<OrderStatusVO> handleGetDataOrders() throws Exception {
 
-        return getLookupService().getOpenOrdersVOByStrategy(getConfiguration().getStartedStrategyName());
+        return getLookupService().getOpenOrdersVOByStrategy(getCommonConfig().getStrategyName());
     }
 
     @Override
     protected Map<Object, Object> handleGetProperties() throws Exception {
 
-        return new TreeMap<Object, Object>(getConfiguration().getProperties());
+//        return new TreeMap<Object, Object>(getConfiguration().getProperties());
+        return null; // FIXME!!!!
     }
 
     @Override
     protected void handleDeployStatement(String moduleName, String statementName) throws Exception {
 
-        EngineLocator.instance().getEngine(getConfiguration().getStartedStrategyName()).deployStatement(moduleName, statementName);
+        EngineLocator.instance().getEngine(getCommonConfig().getStrategyName()).deployStatement(moduleName, statementName);
     }
 
     @Override
     protected void handleDeployModule(String moduleName) throws Exception {
 
-        EngineLocator.instance().getEngine(getConfiguration().getStartedStrategyName()).deployModule(moduleName);
+        EngineLocator.instance().getEngine(getCommonConfig().getStrategyName()).deployModule(moduleName);
     }
 
     @Override
     protected void handleSendOrder(String securityString, long quantity, String sideString, String type, String accountName, String propertiesString) throws Exception {
 
         Side side = Side.fromValue(sideString);
-        String strategyName = getConfiguration().getStartedStrategyName();
+        String strategyName = getCommonConfig().getStrategyName();
 
         Strategy strategy = getLookupService().getStrategyByName(strategyName);
         Security security = getLookupService().getSecurity(getSecurityId(securityString));
@@ -359,7 +361,7 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     @Override
     protected void handleReduceCombination(String combination, double ratio) throws Exception {
 
-        getCombinationService().reduceCombination(getSecurityId(combination), getConfiguration().getStartedStrategyName(), ratio);
+        getCombinationService().reduceCombination(getSecurityId(combination), getCommonConfig().getStrategyName(), ratio);
     }
 
     @Override
@@ -377,13 +379,13 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     @Override
     protected void handleSetVariableValue(String variableName, String value) {
 
-        EngineLocator.instance().getEngine(getConfiguration().getStartedStrategyName()).setVariableValueFromString(variableName, value);
+        EngineLocator.instance().getEngine(getCommonConfig().getStrategyName()).setVariableValueFromString(variableName, value);
     }
 
     @Override
     protected void handleSubscribe(String securityString, String feedTypeString) throws Exception {
 
-        String startedStrategyName = getConfiguration().getStartedStrategyName();
+        String startedStrategyName = getCommonConfig().getStrategyName();
         if (!"".equals(feedTypeString)) {
             getSubscriptionService().subscribeMarketDataEvent(startedStrategyName, getSecurityId(securityString), FeedType.fromString(feedTypeString));
         } else {
@@ -394,7 +396,7 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     @Override
     protected void handleUnsubscribe(String securityString, String feedTypeString) throws Exception {
 
-        String startedStrategyName = getConfiguration().getStartedStrategyName();
+        String startedStrategyName = getCommonConfig().getStrategyName();
         if (!"".equals(feedTypeString)) {
             getSubscriptionService().unsubscribeMarketDataEvent(startedStrategyName, getSecurityId(securityString), FeedType.fromString(feedTypeString));
         } else {
@@ -405,7 +407,7 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     @Override
     protected void handleRequestCurrentTicks() throws Exception {
 
-        getMarketDataService().requestCurrentTicks(getConfiguration().getStartedStrategyName());
+        getMarketDataService().requestCurrentTicks(getCommonConfig().getStrategyName());
     }
 
     @Override
@@ -475,7 +477,8 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     protected void handleShutdown() throws Exception {
 
         // cancel all orders if we called from base
-        if (getConfiguration().isStartedStrategyBASE()) {
+        String startedStrategyName = getCommonConfig().getStrategyName();
+        if (StrategyImpl.BASE.equals(startedStrategyName)) {
             ServiceLocator.instance().getOrderService().cancelAllOrders();
         }
 
@@ -573,12 +576,13 @@ public class ManagementServiceImpl extends ManagementServiceBase {
 
         // create an empty MarketDataEventVO if non exists
         if (marketDataEventVO == null) {
-            if (MarketDataType.TICK.equals(getConfiguration().getDataSetType())) {
+            CommonConfig commonConfig = getCommonConfig();
+            if (MarketDataType.TICK.equals(commonConfig.getDataSetType())) {
                 marketDataEventVO = new TickVO();
-            } else if (MarketDataType.BAR.equals(getConfiguration().getDataSetType())) {
+            } else if (MarketDataType.BAR.equals(commonConfig.getDataSetType())) {
                 marketDataEventVO = new BarVO();
             } else {
-                throw new IllegalStateException("unknown dataSetType " + getConfiguration().getDataSetType());
+                throw new IllegalStateException("unknown dataSetType " + commonConfig.getDataSetType());
             }
         }
 

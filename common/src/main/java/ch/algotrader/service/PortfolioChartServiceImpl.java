@@ -42,7 +42,7 @@ public class PortfolioChartServiceImpl extends PortfolioChartServiceBase {
         // only push values if chart is being reset
         if (startDateTime == 0) {
 
-            String strategyName = getConfiguration().getStartedStrategyName();
+            String strategyName = getCommonConfig().getStrategyName();
             for (PortfolioValueVO portfolioValue : getPortfolioService().getPortfolioValuesInclPerformanceSinceDate(strategyName, new Date(startDateTime))) {
 
                 set.add(new IndicatorVO("netLiqValue", portfolioValue.getDateTime(), portfolioValue.getNetLiqValue().doubleValue()));

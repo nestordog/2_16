@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -83,6 +84,9 @@ import com.espertech.esperio.csv.CSVInputAdapter;
 import com.espertech.esperio.csv.CSVInputAdapterSpec;
 
 import ch.algotrader.ServiceLocator;
+import ch.algotrader.config.CommonConfig;
+import ch.algotrader.config.ConfigLocator;
+import ch.algotrader.config.ConfigParams;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.strategy.StrategyImpl;
@@ -119,10 +123,6 @@ public class EngineImpl extends AbstractEngine {
 
     private static final Logger logger = MyLogger.getLogger(EngineImpl.class.getName());
     private static final String newline = System.getProperty("line.separator");
-
-    private static boolean simulation = ServiceLocator.instance().getConfiguration().getSimulation();
-    private static List<String> moduleDeployExcludeStatements = Arrays.asList((ServiceLocator.instance().getConfiguration().getString("misc.moduleDeployExcludeStatements")).split(","));
-    private static int outboundThreads = ServiceLocator.instance().getConfiguration().getInt("misc.outboundThreads");
 
     private EPServiceProvider serviceProvider;
     private AdapterCoordinator coordinator;
@@ -175,13 +175,15 @@ public class EngineImpl extends AbstractEngine {
 
         initVariables(configuration);
 
+        CommonConfig commonConfig = ConfigLocator.instance().getCommonConfig();
         // outbound threading for BASE
-        if (StrategyImpl.BASE.equals(engineName) && !simulation) {
+        if (StrategyImpl.BASE.equals(engineName) && !commonConfig.isSimulation()) {
 
+            ConfigParams configParams = ConfigLocator.instance().getConfigParams();
             Threading threading = configuration.getEngineDefaults().getThreading();
 
             threading.setThreadPoolOutbound(true);
-            threading.setThreadPoolOutboundNumThreads(outboundThreads);
+            threading.setThreadPoolOutboundNumThreads(configParams.getInteger("misc.outboundThreads"));
         }
 
         Strategy strategy = ServiceLocator.instance().getLookupService().getStrategyByName(engineName);
@@ -721,11 +723,12 @@ public class EngineImpl extends AbstractEngine {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     private void initVariables(Configuration configuration) {
 
+        ConfigParams configParams = ConfigLocator.instance().getConfigParams();
         try {
             Map<String, ConfigurationVariable> variables = configuration.getVariables();
             for (Map.Entry<String, ConfigurationVariable> entry : variables.entrySet()) {
                 String variableName = entry.getKey().replace("_", ".");
-                String value = ServiceLocator.instance().getConfiguration().getString(variableName);
+                String value = configParams.getString(variableName);
                 if (value != null) {
                     Class clazz = Class.forName(entry.getValue().getType());
                     Object castedObj = null;
@@ -805,7 +808,8 @@ public class EngineImpl extends AbstractEngine {
         // in live trading stop the statement before attaching (and restart afterwards)
         // to make sure that the subscriber receives the first event
         if (callback != null) {
-            if (simulation) {
+            CommonConfig commonConfig = ConfigLocator.instance().getCommonConfig();
+            if (commonConfig.isSimulation()) {
                 statement.setSubscriber(callback);
             } else {
                 statement.stop();
@@ -879,6 +883,10 @@ public class EngineImpl extends AbstractEngine {
         EngineImportService engineImportService = ((EPServiceProviderSPI) serviceProvider).getEngineImportService();
         Annotation[] annotations = AnnotationUtil.compileAnnotations(annotationDescs, engineImportService, item.getExpression());
 
+        CommonConfig commonConfig = ConfigLocator.instance().getCommonConfig();
+        ConfigParams configParams = ConfigLocator.instance().getConfigParams();
+        Set<String> moduleDeployExcludeStatements = new HashSet<String>(Arrays.asList(configParams.getString("misc.moduleDeployExcludeStatements").split(",")));
+
         for (Annotation annotation : annotations) {
             if (annotation instanceof Name) {
 
@@ -889,11 +897,11 @@ public class EngineImpl extends AbstractEngine {
                     return false;
                 }
 
-            } else if (annotation instanceof RunTimeOnly && simulation) {
+            } else if (annotation instanceof RunTimeOnly && commonConfig.isSimulation()) {
 
                 return false;
 
-            } else if (annotation instanceof SimulationOnly && !simulation) {
+            } else if (annotation instanceof SimulationOnly && !commonConfig.isSimulation()) {
 
                 return false;
 
@@ -901,7 +909,7 @@ public class EngineImpl extends AbstractEngine {
 
                 Condition condition = (Condition) annotation;
                 String key = condition.key();
-                if (!ServiceLocator.instance().getConfiguration().getBoolean(key)) {
+                if (!configParams.getBoolean(key)) {
                     return false;
                 }
             }

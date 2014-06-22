@@ -23,7 +23,7 @@ import java.util.Map;
 import org.apache.commons.lang.ClassUtils;
 import org.apache.log4j.Logger;
 
-import ch.algotrader.ServiceLocator;
+import ch.algotrader.config.ConfigLocator;
 import ch.algotrader.util.MyLogger;
 
 /**
@@ -35,20 +35,21 @@ import ch.algotrader.util.MyLogger;
  */
 public class MetricsUtil {
 
-    private static final boolean metricsEnabled = ServiceLocator.instance().getConfiguration().getBoolean("misc.metricsEnabled");
-    private static final boolean simulation = ServiceLocator.instance().getConfiguration().getSimulation();
-
     private static Logger logger = MyLogger.getLogger(MetricsUtil.class.getName());
 
     private static Map<String, Metric> metrics = new HashMap<String, Metric>();
     private static long startMillis = System.nanoTime();
+
+    private static boolean isMetricsEnabled() {
+        return ConfigLocator.instance().getConfigParams().getBoolean("misc.metricsEnabled", false);
+    }
 
     /**
      * account the given metric by its {@code startMillis} and {@code endMillis}
      */
     public static void account(String metricName, long startMillis, long endMillis) {
 
-        if (metricsEnabled) {
+        if (isMetricsEnabled()) {
             account(metricName, endMillis - startMillis);
         }
     }
@@ -58,7 +59,7 @@ public class MetricsUtil {
      */
     public static void accountEnd(String metricName, long startMillis) {
 
-        if (metricsEnabled) {
+        if (isMetricsEnabled()) {
             account(metricName, System.nanoTime() - startMillis);
         }
     }
@@ -69,7 +70,7 @@ public class MetricsUtil {
      */
     public static void accountEnd(String metricName, Class<?> clazz, long startMillis) {
 
-        if (metricsEnabled) {
+        if (isMetricsEnabled()) {
             account(metricName + "." + ClassUtils.getShortClassName(clazz), System.nanoTime() - startMillis);
         }
     }
@@ -79,7 +80,7 @@ public class MetricsUtil {
      */
     public static void account(String metricName, long millis) {
 
-        if (metricsEnabled) {
+        if (isMetricsEnabled()) {
             getMetric(metricName).addTime(millis);
         }
     }
@@ -89,9 +90,9 @@ public class MetricsUtil {
      */
     public static void logMetrics() {
 
-        if (metricsEnabled) {
+        if (isMetricsEnabled()) {
 
-            if (simulation) {
+            if (ConfigLocator.instance().getCommonConfig().isSimulation()) {
                 logger.info("TotalDuration: " + (System.nanoTime() - startMillis) + " millis");
             }
 

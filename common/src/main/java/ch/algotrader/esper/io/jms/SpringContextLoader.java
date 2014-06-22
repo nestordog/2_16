@@ -24,6 +24,8 @@ import com.espertech.esper.plugin.PluginLoader;
 import com.espertech.esper.plugin.PluginLoaderInitContext;
 
 import ch.algotrader.ServiceLocator;
+import ch.algotrader.config.CommonConfig;
+import ch.algotrader.config.ConfigLocator;
 
 /**
  * Loader for Spring-configured input and output adapters.
@@ -35,7 +37,6 @@ import ch.algotrader.ServiceLocator;
 public class SpringContextLoader implements PluginLoader {
 
     private static final String INPUT_ADAPTER_BEAN_NAME = "inputAdapterBeanName";
-    private static boolean simulation = ServiceLocator.instance().getConfiguration().getSimulation();
 
     private Adapter adapter;
 
@@ -48,8 +49,10 @@ public class SpringContextLoader implements PluginLoader {
     @Override
     public void destroy() {
 
-        if (simulation)
+        CommonConfig commonConfig = ConfigLocator.instance().getCommonConfig();
+        if (commonConfig.isSimulation()) {
             return;
+        }
 
         if (this.adapter.getState() == AdapterState.STARTED) {
             this.adapter.stop();
@@ -62,8 +65,10 @@ public class SpringContextLoader implements PluginLoader {
     @Override
     public void init(PluginLoaderInitContext context) {
 
-        if (simulation)
+        CommonConfig commonConfig = ConfigLocator.instance().getCommonConfig();
+        if (commonConfig.isSimulation()) {
             return;
+        }
 
         String beanName = context.getProperties().getProperty(INPUT_ADAPTER_BEAN_NAME);
 
