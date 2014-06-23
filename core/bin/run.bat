@@ -1,8 +1,9 @@
 SET mypath=%~dp0
 cd %mypath:~0,-1%
+cd ..
 
 java.exe ^
--classpath ..\target\* ^
+-classpath target\* ^
 -DstrategyName=BASE ^
 -Dcom.sun.management.jmxremote.port=1099 ^
 -Dcom.sun.management.jmxremote.authenticate=false ^
