@@ -22,5 +22,6 @@ nohup java \
 -XX:MaxHeapFreeRatio=10 \
 -XX:MinHeapFreeRatio=5 \
 -XX:-UseParallelGC \
+-Dspring.profiles.active=server,pooledDataSource,iBMarketData,iBHistoricalData \
 ch.algotrader.starter.MarketDataStarter \
 > log/nohup.log 2>&1 &
