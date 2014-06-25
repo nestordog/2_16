@@ -23,8 +23,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
-
-import com.ib.client.Contract;
+import java.util.concurrent.TimeUnit;
 
 import ch.algotrader.adapter.ib.IBUtil;
 import ch.algotrader.entity.marketData.Bar;
@@ -33,6 +32,8 @@ import ch.algotrader.enumeration.BarType;
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.enumeration.TimePeriod;
+
+import com.ib.client.Contract;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -128,9 +129,19 @@ public class IBNativeHistoricalDataServiceImpl extends IBNativeHistoricalDataSer
         getIBSession().reqHistoricalData(requestId, contract, dateString, durationString, barSizeString, barTypeString, 1, 1);
 
         // read from the queue until a Bar with no dateTime is received
-        Bar bar;
         List<Bar> barList = new ArrayList<Bar>();
-        while ((bar = this.historicalDataQueue.take()).getDateTime() != null) {
+        while (true) {
+
+            Bar bar = this.historicalDataQueue.poll(10, TimeUnit.SECONDS);
+
+            if (bar == null) {
+                throw new IllegalStateException("timeout waiting for historical bars");
+            }
+
+            // end of transmission bar does not have a DateTime
+            if (bar.getDateTime() == null) {
+                break;
+            }
 
             // set & update fields
             bar.setSecurity(security);
