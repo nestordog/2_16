@@ -27,7 +27,6 @@ import org.springframework.context.access.ContextSingletonBeanFactoryLocator;
 import org.springframework.context.support.AbstractApplicationContext;
 
 import ch.algotrader.service.InitializingServiceI;
-import ch.algotrader.util.spring.Configuration;
 
 /**
  * Locates and provides all available application services.
@@ -110,15 +109,6 @@ public abstract class AbstractServiceLocator {
             this.beanFactoryReference.release();
             this.beanFactoryReference = null;
         }
-    }
-
-    /**
-     * Gets the Configuration
-     * @return getContext().getBean("configuration")
-     */
-    public final Configuration getConfiguration() {
-
-        return getContext().getBean("configuration", Configuration.class);
     }
 
     /**

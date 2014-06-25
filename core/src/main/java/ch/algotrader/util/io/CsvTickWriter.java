@@ -29,7 +29,7 @@ import org.supercsv.io.CsvBeanWriter;
 import org.supercsv.prefs.CsvPreference;
 import org.supercsv.util.CsvContext;
 
-import ch.algotrader.ServiceLocator;
+import ch.algotrader.config.ConfigLocator;
 import ch.algotrader.entity.marketData.Tick;
 
 /**
@@ -65,8 +65,6 @@ public class CsvTickWriter {
     };
     //@formatter:on
 
-    private static String dataSet = ServiceLocator.instance().getConfiguration().getDataSet();
-
     private CsvBeanWriter writer;
 
     public CsvTickWriter(File file) throws IOException {
@@ -82,7 +80,7 @@ public class CsvTickWriter {
 
     public CsvTickWriter(String fileName) throws IOException {
 
-        this(new File("files" + File.separator + "tickdata" + File.separator + dataSet + File.separator + fileName + ".csv"));
+        this(new File("files" + File.separator + "tickdata" + File.separator + ConfigLocator.instance().getCommonConfig().getDataSet() + File.separator + fileName + ".csv"));
     }
 
     private static class DateConverter extends CellProcessorAdaptor {

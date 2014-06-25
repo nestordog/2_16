@@ -31,7 +31,7 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
 
-import ch.algotrader.ServiceLocator;
+import ch.algotrader.config.ConfigLocator;
 
 /**
  * Provides XML-persistence methods.
@@ -42,8 +42,6 @@ import ch.algotrader.ServiceLocator;
  */
 public class XmlUtil {
 
-    private static boolean saveToFile = ServiceLocator.instance().getConfiguration().getBoolean("misc.saveToFile");
-
     /**
      * Writes a {@link Document} to a textFile specified by {@code fileName} and {@code directory}
      * @throws TransformerException
@@ -51,6 +49,7 @@ public class XmlUtil {
      */
     public static void saveDocumentToFile(Document document, String fileName, String directory) throws TransformerException, IOException {
 
+        boolean saveToFile = ConfigLocator.instance().getConfigParams().getBoolean("misc.saveToFile");
         if (!saveToFile) {
             return;
         }

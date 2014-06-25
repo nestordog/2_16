@@ -50,6 +50,7 @@ import org.springframework.beans.factory.annotation.Value;
 import com.espertech.esperio.csv.CSVInputAdapterSpec;
 
 import ch.algotrader.ServiceLocator;
+import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.strategy.Strategy;
@@ -60,7 +61,6 @@ import ch.algotrader.esper.io.CsvTickInputAdapterSpec;
 import ch.algotrader.esper.io.GenericEventInputAdapterSpec;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.metric.MetricsUtil;
-import ch.algotrader.util.spring.Configuration;
 import ch.algotrader.vo.EndOfSimulationVO;
 import ch.algotrader.vo.MaxDrawDownVO;
 import ch.algotrader.vo.OptimizationResultVO;
@@ -167,8 +167,10 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
 
         EngineLocator.instance().getBaseEngine().initCoordination();
 
+        CommonConfig commonConfig = getCommonConfig();
+
         String baseDir = this.dataSetLocation.equals("") ? "files" + File.separator : this.dataSetLocation;
-        String dataSet = getConfiguration().getDataSet();
+        String dataSet = commonConfig.getDataSet();
 
         if (this.feedGenericEvents) {
 
@@ -206,7 +208,7 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
             }
         }
 
-        MarketDataType marketDataType = getConfiguration().getDataSetType();
+        MarketDataType marketDataType = commonConfig.getDataSetType();
         String path = baseDir + marketDataType.toString().toLowerCase() + "data" + File.separator + dataSet + File.separator;
 
         Collection<Security> securities = getLookupService().getSubscribedSecuritiesForAutoActivateStrategies();
@@ -283,7 +285,7 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
         if (MarketDataType.TICK.equals(marketDataType)) {
             spec = new CsvTickInputAdapterSpec(file);
         } else if (MarketDataType.BAR.equals(marketDataType)) {
-            spec = new CsvBarInputAdapterSpec(file, getConfiguration().getBarSize());
+            spec = new CsvBarInputAdapterSpec(file, getCommonConfig().getBarSize());
         } else {
             throw new SimulationServiceException("incorrect parameter for dataSetType: " + marketDataType);
         }
@@ -304,7 +306,7 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
     @Override
     protected void handleSimulateBySingleParam(String parameter, String value) throws Exception {
 
-        getConfiguration().setProperty(parameter, value);
+        System.setProperty(parameter, value);
 
         SimulationResultVO resultVO = runSimulation();
         resultLogger.info("optimize " + parameter + "=" + value + " " + convertStatisticsToShortString(resultVO));
@@ -317,7 +319,7 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
         buffer.append("optimize ");
         for (int i = 0; i < parameters.length; i++) {
             buffer.append(parameters[i] + "=" + values[i] + " ");
-            getConfiguration().setProperty(parameters[i], values[i]);
+            System.setProperty(parameters[i], values[i]);
         }
 
         SimulationResultVO resultVO = runSimulation();
@@ -330,7 +332,7 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
 
         for (double i = min; i <= max; i += increment) {
 
-            getConfiguration().setProperty(parameter, format.format(i));
+            System.setProperty(parameter, format.format(i));
 
             SimulationResultVO resultVO = runSimulation();
             resultLogger.info(parameter + "=" + format.format(i) + " " + convertStatisticsToShortString(resultVO));
@@ -343,7 +345,7 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
 
         for (double value : values) {
 
-            getConfiguration().setProperty(parameter, format.format(value));
+            System.setProperty(parameter, format.format(value));
 
             SimulationResultVO resultVO = runSimulation();
             resultLogger.info(parameter + "=" + format.format(value) + " " + convertStatisticsToShortString(resultVO));
@@ -372,19 +374,18 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
     @Override
     protected void handleOptimizeMultiParamLinear(String parameters[], double[] mins, double[] maxs, double[] increments) throws Exception {
 
-        Configuration configuration = getConfiguration();
         for (double i0 = mins[0]; i0 <= maxs[0]; i0 += increments[0]) {
-            configuration.setProperty(parameters[0], format.format(i0));
+            System.setProperty(parameters[0], format.format(i0));
             String message0 = parameters[0] + "=" + format.format(MathUtils.round(i0, this.roundDigits));
 
             if (parameters.length >= 2) {
                 for (double i1 = mins[1]; i1 <= maxs[1]; i1 += increments[1]) {
-                    configuration.setProperty(parameters[1], format.format(i1));
+                    System.setProperty(parameters[1], format.format(i1));
                     String message1 = parameters[1] + "=" + format.format(MathUtils.round(i1, this.roundDigits));
 
                     if (parameters.length >= 3) {
                         for (double i2 = mins[2]; i2 <= maxs[2]; i2 += increments[2]) {
-                            configuration.setProperty(parameters[2], format.format(i2));
+                            System.setProperty(parameters[2], format.format(i2));
                             String message2 = parameters[2] + "=" + format.format(MathUtils.round(i2, this.roundDigits));
 
                             SimulationResultVO resultVO = runSimulation();
@@ -456,7 +457,7 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
         // assemble the result
         SimulationResultVO resultVO = new SimulationResultVO();
         resultVO.setMins(((double) (System.currentTimeMillis() - startTime)) / 60000);
-        resultVO.setDataSet(getConfiguration().getDataSet());
+        resultVO.setDataSet(getCommonConfig().getDataSet());
         resultVO.setNetLiqValue(getPortfolioService().getNetLiqValueDouble());
         resultVO.setMonthlyPerformances(monthlyPerformances);
         resultVO.setYearlyPerformances(yearlyPerformances);
@@ -529,7 +530,7 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
 
         StringBuffer buffer = new StringBuffer();
         buffer.append("execution time (min): " + (new DecimalFormat("0.00")).format(resultVO.getMins()) + "\r\n");
-        buffer.append("dataSet: " + getConfiguration().getDataSet() + "\r\n");
+        buffer.append("dataSet: " + getCoreConfig().getDataSet() + "\r\n");
 
         double netLiqValue = resultVO.getNetLiqValue();
         buffer.append("netLiqValue=" + twoDigitFormat.format(netLiqValue) + "\r\n");
@@ -655,7 +656,7 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
         @Override
         public double value(double input) throws FunctionEvaluationException {
 
-            ServiceLocator.instance().getConfiguration().setProperty(this.param, String.valueOf(input));
+            System.setProperty(this.param, String.valueOf(input));
 
             SimulationResultVO resultVO = ServiceLocator.instance().getService("simulationService", SimulationService.class).runSimulation();
             double result = resultVO.getPerformanceKeys().getSharpeRatio();
@@ -685,7 +686,7 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
                 String param = this.params[i];
                 double value = input[i];
 
-                ServiceLocator.instance().getConfiguration().setProperty(param, String.valueOf(value));
+                System.setProperty(param, String.valueOf(value));
 
                 buffer.append(param + "=" + SimulationServiceImpl.format.format(value) + " ");
             }

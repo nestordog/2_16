@@ -33,7 +33,7 @@ import org.supercsv.io.CsvBeanReader;
 import org.supercsv.prefs.CsvPreference;
 import org.supercsv.util.CsvContext;
 
-import ch.algotrader.ServiceLocator;
+import ch.algotrader.config.ConfigLocator;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.marketData.TickImpl;
 
@@ -45,8 +45,6 @@ import ch.algotrader.entity.marketData.TickImpl;
  * @version $Revision$ $Date$
  */
 public class CsvTickReader {
-
-    private static String dataSet = ServiceLocator.instance().getConfiguration().getDataSet();
 
     //@formatter:off
     private static CellProcessor[] processor = new CellProcessor[] {
@@ -73,7 +71,7 @@ public class CsvTickReader {
 
     public CsvTickReader(String fileName) throws IOException {
 
-        this(new File("files" + File.separator + "tickdata" + File.separator + dataSet + File.separator + fileName + ".csv"));
+        this(new File("files" + File.separator + "tickdata" + File.separator + ConfigLocator.instance().getCommonConfig().getDataSet() + File.separator + fileName + ".csv"));
     }
 
     private static class ParseDate extends CellProcessorAdaptor {

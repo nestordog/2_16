@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Predicate;
@@ -33,6 +34,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.config.CommonConfig;
+import ch.algotrader.config.ConfigProvider;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.marketData.Bar;
@@ -252,8 +254,14 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     @Override
     protected Map<Object, Object> handleGetProperties() throws Exception {
 
-//        return new TreeMap<Object, Object>(getConfiguration().getProperties());
-        return null; // FIXME!!!!
+        ConfigProvider configProvider = getConfigParams().getConfigProvider();
+        Set<String> names = configProvider.getNames();
+        Map<Object, Object> props = new HashMap<Object, Object>();
+        for (String name: names) {
+
+            props.put(name, configProvider.getParameter(name, String.class));
+        }
+        return props;
     }
 
     @Override
