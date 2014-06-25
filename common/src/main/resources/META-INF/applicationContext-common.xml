@@ -38,8 +38,6 @@
         <constructor-arg index="1" value="ch.algotrader.config.CommonConfig"/>
     </bean>
 
-    <bean id="configuration" class="ch.algotrader.util.spring.Configuration"/>
-
     <bean class="ch.algotrader.util.spring.EntityAnnotationSetter" init-method="init"/>
 
     <bean class="ch.algotrader.util.LogLevelSetter" init-method="init"/>
