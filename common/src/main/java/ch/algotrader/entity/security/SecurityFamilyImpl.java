@@ -75,24 +75,24 @@ public class SecurityFamilyImpl extends SecurityFamily {
     }
 
     @Override
-    public String getBaseSymbol(Broker broker) {
+    public String getSymbolRoot(Broker broker) {
 
         BrokerParameters brokerParams = getBrokerParameters().get(broker.toString());
-        if (brokerParams != null && brokerParams.getBaseSymbol() != null) {
-            return brokerParams.getBaseSymbol();
+        if (brokerParams != null && brokerParams.getSymbolRoot() != null) {
+            return brokerParams.getSymbolRoot();
         } else {
-            return getBaseSymbol();
+            return getSymbolRoot();
         }
     }
 
     @Override
-    public String getMarket(Broker broker) {
+    public String getMarketName(Broker broker) {
 
         BrokerParameters brokerParams = getBrokerParameters().get(broker.toString());
-        if (brokerParams != null && brokerParams.getMarket() != null) {
-            return brokerParams.getMarket();
+        if (brokerParams != null && brokerParams.getMarketName() != null) {
+            return brokerParams.getMarketName();
         } else {
-            return getMarket();
+            return getMarket().getName();
         }
     }
 

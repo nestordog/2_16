@@ -52,7 +52,7 @@ public class IBFixOrderServiceImpl extends IBFixOrderServiceBase implements Init
 
         newOrder.set(new HandlInst('2'));
         newOrder.set(new CustomerOrFirm(0));
-        newOrder.set(new ExDestination(order.getSecurity().getSecurityFamily().getMarket(order.getAccount().getBroker()).toString()));
+        newOrder.set(new ExDestination(order.getSecurity().getSecurityFamily().getMarketName(order.getAccount().getBroker()).toString()));
 
         // handling for accounts
         if (order.getAccount().getExtAccount() != null) {
@@ -84,7 +84,7 @@ public class IBFixOrderServiceImpl extends IBFixOrderServiceBase implements Init
 
         replaceRequest.set(new HandlInst('2'));
         replaceRequest.set(new CustomerOrFirm(0));
-        replaceRequest.set(new ExDestination(order.getSecurity().getSecurityFamily().getMarket(order.getAccount().getBroker()).toString()));
+        replaceRequest.set(new ExDestination(order.getSecurity().getSecurityFamily().getMarketName(order.getAccount().getBroker()).toString()));
 
         // handling for accounts
         if (order.getAccount().getExtAccount() != null) {

@@ -61,7 +61,7 @@ public class OptionSymbol {
         }
 
         StringBuffer buffer = new StringBuffer();
-        buffer.append(family.getBaseSymbol());
+        buffer.append(family.getSymbolRoot());
         buffer.append(week);
         buffer.append(" ");
         buffer.append(includeDay ? dayMonthYearFormat.format(cal.getTime()) : monthYearFormat.format(cal.getTime()).toUpperCase());
@@ -101,7 +101,7 @@ public class OptionSymbol {
 
         StringBuffer buffer = new StringBuffer();
         buffer.append("1O");
-        buffer.append(family.getIsinRoot() != null ? family.getIsinRoot() : family.getBaseSymbol());
+        buffer.append(family.getIsinRoot() != null ? family.getIsinRoot() : family.getSymbolRoot());
         buffer.append(week);
         buffer.append(month);
         buffer.append(year);
@@ -119,7 +119,7 @@ public class OptionSymbol {
         cal.setTime(expiration);
 
         StringBuffer buffer = new StringBuffer();
-        buffer.append(family.getRicRoot() != null ? family.getRicRoot() : family.getBaseSymbol());
+        buffer.append(family.getRicRoot() != null ? family.getRicRoot() : family.getSymbolRoot());
         if (OptionType.CALL.equals(type)) {
             buffer.append(monthCallEnc[cal.get(Calendar.MONTH)]);
         } else {

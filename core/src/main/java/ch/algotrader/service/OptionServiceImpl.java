@@ -285,10 +285,6 @@ public class OptionServiceImpl extends OptionServiceBase {
 
             Option option = (Option) tick.getSecurity();
 
-            if (!tick.isSpreadValid()) {
-                continue;
-            }
-
             double strike = option.getStrike().doubleValue();
             double currentValue = tick.getCurrentValueDouble();
 

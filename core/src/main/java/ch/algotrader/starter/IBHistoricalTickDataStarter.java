@@ -135,8 +135,8 @@ public class IBHistoricalTickDataStarter {
                 Bar bar = it.next();
 
                 // retrieve bars only between marketOpen & close
-                if (DateUtil.compareTime(bar.getDateTime(), security.getSecurityFamily().getMarketClose()) > 0
-                        || DateUtil.compareTime(bar.getDateTime(), security.getSecurityFamily().getMarketOpen()) < 0) {
+                if (DateUtil.compareTime(bar.getDateTime(), security.getSecurityFamily().getMarket().getClose()) > 0
+                        || DateUtil.compareTime(bar.getDateTime(), security.getSecurityFamily().getMarket().getOpen()) < 0) {
 
                     it.remove();
                     continue;

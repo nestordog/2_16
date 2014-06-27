@@ -71,7 +71,7 @@ public class TestRTOrderMessageFactory {
 
         SecurityFamily family = new SecurityFamilyImpl();
         family.setCurrency(Currency.BRL);
-        family.setBaseSymbol("STUFF");
+        family.setSymbolRoot("STUFF");
         family.setContractSize(100.5d);
 
         Option option = new OptionImpl();
@@ -122,7 +122,7 @@ public class TestRTOrderMessageFactory {
 
         SecurityFamily family = new SecurityFamilyImpl();
         family.setCurrency(Currency.BRL);
-        family.setBaseSymbol("STUFF");
+        family.setSymbolRoot("STUFF");
 
         Future future = new FutureImpl();
         future.setSymbol("SOME_STUFF");
@@ -454,7 +454,7 @@ public class TestRTOrderMessageFactory {
 
         SecurityFamily family = new SecurityFamilyImpl();
         family.setCurrency(Currency.BRL);
-        family.setBaseSymbol("STUFF");
+        family.setSymbolRoot("STUFF");
         family.setContractSize(100.5d);
 
         Option option = new OptionImpl();
@@ -502,7 +502,7 @@ public class TestRTOrderMessageFactory {
 
         SecurityFamily family = new SecurityFamilyImpl();
         family.setCurrency(Currency.BRL);
-        family.setBaseSymbol("STUFF");
+        family.setSymbolRoot("STUFF");
 
         Future future = new FutureImpl();
         future.setSymbol("SOME_STUFF");
@@ -828,7 +828,7 @@ public class TestRTOrderMessageFactory {
 
         SecurityFamily family = new SecurityFamilyImpl();
         family.setCurrency(Currency.BRL);
-        family.setBaseSymbol("STUFF");
+        family.setSymbolRoot("STUFF");
         family.setContractSize(100.5d);
 
         Option option = new OptionImpl();
@@ -871,7 +871,7 @@ public class TestRTOrderMessageFactory {
 
         SecurityFamily family = new SecurityFamilyImpl();
         family.setCurrency(Currency.BRL);
-        family.setBaseSymbol("STUFF");
+        family.setSymbolRoot("STUFF");
 
         Future future = new FutureImpl();
         future.setSymbol("SOME_STUFF");

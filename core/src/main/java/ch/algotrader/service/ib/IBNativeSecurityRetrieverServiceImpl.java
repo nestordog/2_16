@@ -71,11 +71,11 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
         int requestId = getIBIdGenerator().getNextRequestId();
         Contract contract = new Contract();
 
-        contract.m_symbol = securityFamily.getBaseSymbol(Broker.IB);
+        contract.m_symbol = securityFamily.getSymbolRoot(Broker.IB);
 
         contract.m_currency = securityFamily.getCurrency().toString();
 
-        contract.m_exchange = securityFamily.getMarket(Broker.IB);
+        contract.m_exchange = securityFamily.getMarketName(Broker.IB);
 
         contract.m_multiplier = String.valueOf(securityFamily.getContractSize());
 
@@ -117,7 +117,7 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
 
         contract.m_currency = securityFamily.getCurrency().toString();
 
-        contract.m_exchange = securityFamily.getMarket(Broker.IB);
+        contract.m_exchange = securityFamily.getMarketName(Broker.IB);
 
         contract.m_secType = "STK";
 

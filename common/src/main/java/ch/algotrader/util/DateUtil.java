@@ -21,8 +21,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-import org.apache.commons.lang.time.DateUtils;
-
+import ch.algotrader.ServiceLocator;
 import ch.algotrader.config.ConfigLocator;
 import ch.algotrader.entity.security.ExpirableFamilyI;
 import ch.algotrader.entity.security.SecurityFamily;
@@ -289,30 +288,7 @@ public class DateUtil {
      */
     public static boolean isMarketOpen(SecurityFamily securityFamily, Date currentDateTime) {
 
-        // market session starting today
-        Date todayOpen = setTime(currentDateTime, securityFamily.getMarketOpen());
-        Date todayClose = setTime(currentDateTime, securityFamily.getMarketClose());
-
-        // close is on the next day
-        if (securityFamily.getMarketOpen().compareTo(securityFamily.getMarketClose()) >= 0) {
-            todayClose = DateUtils.addDays(todayClose, 1);
-        }
-
-        // during todays session
-        if (isTradingDay(securityFamily, todayOpen) && currentDateTime.compareTo(todayOpen) >= 0 && currentDateTime.compareTo(todayClose) <= 0) {
-            return true;
-        }
-
-        // market session starting yesterday
-        Date yesterdayOpen = DateUtils.addDays(todayOpen, -1);
-        Date yesterdayClose = DateUtils.addDays(todayClose, -1);
-
-        // during yesterdays session
-        if (isTradingDay(securityFamily, yesterdayOpen) && currentDateTime.compareTo(yesterdayOpen) >= 0 && currentDateTime.compareTo(yesterdayClose) <= 0) {
-            return true;
-        }
-
-        return false;
+        return ServiceLocator.instance().getCalendarService().isMarketOpen(securityFamily.getMarket().getId(), currentDateTime);
     }
 
     private static Date getNext3rdFriday(Date input) {
@@ -439,25 +415,5 @@ public class DateUtil {
         cal2.add(Calendar.DAY_OF_YEAR, -30);
 
         return cal2.getTime();
-    }
-
-    private static Date setTime(Date date, Date time) {
-
-        Calendar timeCal = Calendar.getInstance();
-        timeCal.setTime(time);
-
-        Calendar dateCal = Calendar.getInstance();
-        dateCal.setTime(date);
-        dateCal.set(Calendar.HOUR_OF_DAY, timeCal.get(Calendar.HOUR_OF_DAY));
-        dateCal.set(Calendar.MINUTE, timeCal.get(Calendar.MINUTE));
-        dateCal.set(Calendar.SECOND, timeCal.get(Calendar.SECOND));
-        dateCal.set(Calendar.MILLISECOND, timeCal.get(Calendar.MILLISECOND));
-
-        return dateCal.getTime();
-    }
-
-    private static boolean isTradingDay(SecurityFamily securityFamily, Date currentDateTime) {
-
-        return toDayOfWeek(currentDateTime.getTime()) >= securityFamily.getMarketOpenDay().getValue() && toDayOfWeek(currentDateTime.getTime()) <= securityFamily.getMarketOpenDay().getValue() + 4;
     }
 }

@@ -17,6 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.entity.security;
 
+import java.text.SimpleDateFormat;
+
 import ch.algotrader.util.ObjectUtil;
 
 /**
@@ -27,11 +29,12 @@ import ch.algotrader.util.ObjectUtil;
 public class EasyToBorrowImpl extends EasyToBorrow {
 
     private static final long serialVersionUID = -5341417499112909950L;
+    private static final SimpleDateFormat dayFormat = new SimpleDateFormat("dd.MM.yyyy");
 
     @Override
     public String toString() {
 
-        return getDate() + " " + getBroker() + " " + getStock() + " " + getQuantity();
+        return dayFormat.format(getDate()) + " " + getBroker() + " " + getStock() + " " + getQuantity();
     }
 
     @Override
