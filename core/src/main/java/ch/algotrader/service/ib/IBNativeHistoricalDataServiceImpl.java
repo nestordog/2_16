@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.log4j.Logger;
+
 import ch.algotrader.adapter.ib.IBUtil;
 import ch.algotrader.entity.marketData.Bar;
 import ch.algotrader.entity.security.Security;
@@ -32,6 +34,7 @@ import ch.algotrader.enumeration.BarType;
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.enumeration.TimePeriod;
+import ch.algotrader.util.MyLogger;
 
 import com.ib.client.Contract;
 
@@ -42,9 +45,12 @@ import com.ib.client.Contract;
  */
 public class IBNativeHistoricalDataServiceImpl extends IBNativeHistoricalDataServiceBase {
 
+    private static final Logger logger = MyLogger.getLogger(IBNativeHistoricalDataServiceImpl.class.getName());
     private static final SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyyMMdd  HH:mm:ss");
+    private static final int pacingMillis = 10 * 1000;
 
     private BlockingQueue<Bar> historicalDataQueue;
+    private long lastTimeStamp = 0;
 
     public void setHistoricalDataQueue(BlockingQueue<Bar> historicalDataQueue) {
         this.historicalDataQueue = historicalDataQueue;
@@ -53,8 +59,17 @@ public class IBNativeHistoricalDataServiceImpl extends IBNativeHistoricalDataSer
     @Override
     protected synchronized List<Bar> handleGetHistoricalBars(int securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, Duration barSize, BarType barType) throws Exception {
 
-        Security security = getSecurityDao().get(securityId);
+        if (!getIBSession().getLifecycle().isSubscribed()) {
+            throw new IBNativeHistoricalDataServiceException("cannot download historical data, because IB is not subscribed");
+        }
 
+        // make sure queue is empty
+        if (this.historicalDataQueue.peek() != null) {
+            this.historicalDataQueue.clear();
+            throw new IllegalStateException("historicalDataQueue is not empty");
+        }
+
+        Security security = getSecurityDao().get(securityId);
         if (security == null) {
             throw new IBNativeHistoricalDataServiceException("security was not found " + securityId);
         }
@@ -125,6 +140,14 @@ public class IBNativeHistoricalDataServiceImpl extends IBNativeHistoricalDataSer
                 throw new IllegalArgumentException("unsupported barType " + barType);
         }
 
+        // avoid pacing violations
+        long gapMillis = System.currentTimeMillis() - this.lastTimeStamp;
+        if (this.lastTimeStamp != 0 && gapMillis < pacingMillis) {
+            long waitMillis = pacingMillis - gapMillis;
+            logger.debug("waiting " + waitMillis + " millis until next historical data request");
+            Thread.sleep(waitMillis);
+        }
+
         // send the request
         getIBSession().reqHistoricalData(requestId, contract, dateString, durationString, barSizeString, barTypeString, 1, 1);
 
@@ -154,6 +177,8 @@ public class IBNativeHistoricalDataServiceImpl extends IBNativeHistoricalDataSer
 
             barList.add(bar);
         }
+
+        this.lastTimeStamp = System.currentTimeMillis();
 
         return barList;
     }
