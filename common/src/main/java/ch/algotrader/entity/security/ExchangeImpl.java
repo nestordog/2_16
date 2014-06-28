@@ -24,7 +24,7 @@ import ch.algotrader.util.ObjectUtil;
  *
  * @version $Revision$ $Date$
  */
-public class MarketImpl extends Market {
+public class ExchangeImpl extends Exchange {
 
     private static final long serialVersionUID = 6764893180734809331L;
 
@@ -39,8 +39,8 @@ public class MarketImpl extends Market {
         if (this == obj) {
             return true;
         }
-        if (obj instanceof Market) {
-            Market that = (Market) obj;
+        if (obj instanceof Exchange) {
+            Exchange that = (Exchange) obj;
             return ObjectUtil.equalsNonNull(this.getName(), that.getName());
         } else {
             return false;

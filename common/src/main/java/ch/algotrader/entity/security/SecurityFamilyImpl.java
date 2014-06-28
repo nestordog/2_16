@@ -86,13 +86,13 @@ public class SecurityFamilyImpl extends SecurityFamily {
     }
 
     @Override
-    public String getMarketName(Broker broker) {
+    public String getExchangeCode(Broker broker) {
 
         BrokerParameters brokerParams = getBrokerParameters().get(broker.toString());
-        if (brokerParams != null && brokerParams.getMarketName() != null) {
-            return brokerParams.getMarketName();
+        if (brokerParams != null && brokerParams.getExchangeCode() != null) {
+            return brokerParams.getExchangeCode();
         } else {
-            return getMarket().getName();
+            return getExchange().getName();
         }
     }
 

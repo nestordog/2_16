@@ -47,7 +47,7 @@ public class JPMFixOrderServiceImpl extends JPMFixOrderServiceBase {
         newOrder.set(new HandlInst('1'));
         newOrder.set(new TransactTime(new Date()));
 
-        String exchange = order.getSecurity().getSecurityFamily().getMarketName(Broker.JPM);
+        String exchange = order.getSecurity().getSecurityFamily().getExchangeCode(Broker.JPM);
         newOrder.set(new ExDestination(exchange));
         newOrder.set(new SecurityExchange(exchange));
     }
@@ -59,7 +59,7 @@ public class JPMFixOrderServiceImpl extends JPMFixOrderServiceBase {
         replaceRequest.set(new HandlInst('1'));
         replaceRequest.set(new TransactTime(new Date()));
 
-        String exchange = order.getSecurity().getSecurityFamily().getMarketName(Broker.JPM);
+        String exchange = order.getSecurity().getSecurityFamily().getExchangeCode(Broker.JPM);
         replaceRequest.set(new ExDestination(exchange));
         replaceRequest.set(new SecurityExchange(exchange));
     }
@@ -70,7 +70,7 @@ public class JPMFixOrderServiceImpl extends JPMFixOrderServiceBase {
         cancelRequest.set(new Account(order.getAccount().getExtAccount()));
         cancelRequest.set(new TransactTime(new Date()));
 
-        String exchange = order.getSecurity().getSecurityFamily().getMarketName(Broker.JPM);
+        String exchange = order.getSecurity().getSecurityFamily().getExchangeCode(Broker.JPM);
         cancelRequest.set(new SecurityExchange(exchange));
     }
 

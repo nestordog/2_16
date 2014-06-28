@@ -131,12 +131,11 @@ CREATE TABLE `broker_parameters` (
   `ID` int(11) NOT NULL AUTO_INCREMENT,
   `BROKER` enum('IB','JPM','DC','RBS','RT','LMAX','FXCM') NOT NULL,
   `SYMBOL_ROOT` varchar(20) DEFAULT NULL,
-  `MARKET` varchar(20) DEFAULT NULL,
+  `EXCHANGE_CODE` varchar(20) DEFAULT NULL,
   `EXECUTION_COMMISSION` decimal(5,2) DEFAULT NULL,
   `CLEARING_COMMISSION` decimal(5,2) DEFAULT NULL,
   `FEE` decimal(5,2) DEFAULT NULL,
   `SECURITY_FAMILY_FK` int(11) NOT NULL,
-  `MARKET_NAME` varchar(255) DEFAULT NULL COMMENT,
   PRIMARY KEY (`ID`),
   UNIQUE KEY `BROKER_SECURITY_FAMILY_UNIQUE` (`BROKER`,`SECURITY_FAMILY_FK`),
   KEY `BROKER_PARAMETERS_SECURITY_FKC` (`SECURITY_FAMILY_FK`),
@@ -262,6 +261,25 @@ CREATE TABLE `easy_to_borrow` (
   KEY `EASY_TO_BORROW_STOCK_FKC` (`STOCK_FK`),
   CONSTRAINT `EASY_TO_BORROW_STOCK_FKC` FOREIGN KEY (`STOCK_FK`) REFERENCES `stock` (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `exchange`
+--
+
+DROP TABLE IF EXISTS `exchange`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `exchange` (
+  `ID` int(11) NOT NULL AUTO_INCREMENT,
+  `NAME` varchar(20) NOT NULL,
+  `CODE` varchar(10) NOT NULL,
+  `OPEN_DAY` enum('SUNDAY','MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY') NOT NULL,
+  `OPEN` time NOT NULL,
+  `CLOSE` time NOT NULL,
+  PRIMARY KEY (`ID`),
+  UNIQUE KEY `NAME` (`NAME`)
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -408,7 +426,7 @@ CREATE TABLE `holiday` (
   `MARKET_FK` int(11) NOT NULL,
   PRIMARY KEY (`ID`),
   KEY `HOLIDAY_MARKET_FKC` (`MARKET_FK`),
-  CONSTRAINT `HOLIDAY_MARKET_FKC` FOREIGN KEY (`MARKET_FK`) REFERENCES `market` (`ID`)
+  CONSTRAINT `HOLIDAY_MARKET_FKC` FOREIGN KEY (`MARKET_FK`) REFERENCES `exchange` (`ID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -461,23 +479,6 @@ CREATE TABLE `intrest_rate` (
   KEY `INTREST_RATEIFKC` (`ID`),
   CONSTRAINT `INTREST_RATEIFKC` FOREIGN KEY (`ID`) REFERENCES `security` (`ID`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `market`
---
-
-DROP TABLE IF EXISTS `market`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `market` (
-  `ID` int(11) NOT NULL AUTO_INCREMENT,
-  `NAME` varchar(20) NOT NULL,
-  `OPEN_DAY` enum('SUNDAY','MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY') NOT NULL,
-  `OPEN` time NOT NULL,
-  `CLOSE` time NOT NULL,
-  PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -704,7 +705,7 @@ CREATE TABLE `security_family` (
   UNIQUE KEY `NAME_UNIQUE` (`NAME`),
   KEY `SECURITY_FAMILY_UNDERLAYING_FKC` (`UNDERLYING_FK`),
   KEY `SECURITY_FAMILY_MARKET_FKC` (`MARKET_FK`),
-  CONSTRAINT `SECURITY_FAMILY_MARKET_FKC` FOREIGN KEY (`MARKET_FK`) REFERENCES `market` (`ID`),
+  CONSTRAINT `SECURITY_FAMILY_MARKET_FKC` FOREIGN KEY (`MARKET_FK`) REFERENCES `exchange` (`ID`),
   CONSTRAINT `SECURITY_FAMILY_UNDERLAYING_FKC` FOREIGN KEY (`UNDERLYING_FK`) REFERENCES `security` (`ID`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -847,4 +848,4 @@ CREATE TABLE `transaction` (
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2014-06-27 19:10:31
+-- Dump completed on 2014-06-28 16:00:55

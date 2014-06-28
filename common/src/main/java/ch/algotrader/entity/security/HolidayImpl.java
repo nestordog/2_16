@@ -41,7 +41,7 @@ public class HolidayImpl extends Holiday {
     public String toString() {
 
         StringBuffer buffer = new StringBuffer();
-        buffer.append(getMarket());
+        buffer.append(getExchange());
         buffer.append(" ");
         buffer.append(dayFormat.format(getDate()));
 
@@ -66,7 +66,7 @@ public class HolidayImpl extends Holiday {
         }
         if (obj instanceof Holiday) {
             Holiday that = (Holiday) obj;
-            return ObjectUtil.equalsNonNull(this.getMarket(), that.getMarket()) && ObjectUtil.equalsNonNull(this.getDate(), that.getDate());
+            return ObjectUtil.equalsNonNull(this.getExchange(), that.getExchange()) && ObjectUtil.equalsNonNull(this.getDate(), that.getDate());
         } else {
             return false;
         }
@@ -76,7 +76,7 @@ public class HolidayImpl extends Holiday {
     public int hashCode() {
 
         int hash = 17;
-        hash = hash * 37 + ObjectUtil.hashCode(getMarket());
+        hash = hash * 37 + ObjectUtil.hashCode(getExchange());
         hash = hash * 37 + ObjectUtil.hashCode(getDate());
         return hash;
     }

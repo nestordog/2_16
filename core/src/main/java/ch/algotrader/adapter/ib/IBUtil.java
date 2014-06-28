@@ -63,7 +63,7 @@ public class IBUtil {
         if (security.getConid() != null) {
 
             contract.m_conId = Integer.parseInt(security.getConid());
-            contract.m_exchange = security.getSecurityFamily().getMarket().getName();
+            contract.m_exchange = security.getSecurityFamily().getExchange().getName();
 
         } else {
 
@@ -76,7 +76,7 @@ public class IBUtil {
                 contract.m_symbol = option.getSecurityFamily().getSymbolRoot(Broker.IB);
                 contract.m_secType = "OPT";
                 contract.m_exchange = "SMART";
-                contract.m_primaryExch = option.getSecurityFamily().getMarketName(Broker.IB);
+                contract.m_primaryExch = option.getSecurityFamily().getExchangeCode(Broker.IB);
                 contract.m_currency = option.getSecurityFamily().getCurrency().toString();
                 contract.m_strike = option.getStrike().doubleValue();
                 contract.m_right = option.getType().toString();
@@ -91,7 +91,7 @@ public class IBUtil {
 
                 contract.m_symbol = future.getSecurityFamily().getSymbolRoot(Broker.IB);
                 contract.m_secType = "FUT";
-                contract.m_exchange = future.getSecurityFamily().getMarketName(Broker.IB);
+                contract.m_exchange = future.getSecurityFamily().getExchangeCode(Broker.IB);
                 contract.m_currency = future.getSecurityFamily().getCurrency().toString();
                 contract.m_expiry = monthFormat.format(future.getExpiration());
 
@@ -99,7 +99,7 @@ public class IBUtil {
 
                 contract.m_symbol = ((Forex) security).getBaseCurrency().getValue();
                 contract.m_secType = "CASH";
-                contract.m_exchange = security.getSecurityFamily().getMarketName(Broker.IB);
+                contract.m_exchange = security.getSecurityFamily().getExchangeCode(Broker.IB);
                 contract.m_currency = security.getSecurityFamily().getCurrency().getValue();
 
             } else if (security instanceof Stock) {
@@ -110,7 +110,7 @@ public class IBUtil {
                 contract.m_symbol = security.getSymbol();
                 contract.m_secType = "STK";
                 contract.m_exchange = "SMART";
-                contract.m_primaryExch = security.getSecurityFamily().getMarketName(Broker.IB);
+                contract.m_primaryExch = security.getSecurityFamily().getExchangeCode(Broker.IB);
 
             } else if (security instanceof Index) {
 
@@ -119,7 +119,7 @@ public class IBUtil {
                 contract.m_currency = security.getSecurityFamily().getCurrency().toString();
                 contract.m_symbol = security.getSymbol();
                 contract.m_secType = "IND";
-                contract.m_exchange = security.getSecurityFamily().getMarketName(Broker.IB);
+                contract.m_exchange = security.getSecurityFamily().getExchangeCode(Broker.IB);
             } else {
 
                 throw new IllegalArgumentException("unsupported security type " + ClassUtils.getShortClassName(security.getClass()));

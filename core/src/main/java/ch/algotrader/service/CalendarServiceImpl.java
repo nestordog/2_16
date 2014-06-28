@@ -25,8 +25,8 @@ import java.util.Map;
 
 import org.apache.commons.lang.time.DateUtils;
 
+import ch.algotrader.entity.security.Exchange;
 import ch.algotrader.entity.security.Holiday;
-import ch.algotrader.entity.security.Market;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -35,38 +35,38 @@ import ch.algotrader.entity.security.Market;
  */
 public class CalendarServiceImpl extends CalendarServiceBase {
 
-    private Map<Market, Map<Date, Holiday>> holidays = new HashMap<Market, Map<Date, Holiday>>();
+    private Map<Exchange, Map<Date, Holiday>> holidays = new HashMap<Exchange, Map<Date, Holiday>>();
 
     @Override
-    protected boolean handleIsMarketOpen(int marketId, Date date) throws Exception {
+    protected boolean handleIsExchangeOpen(int exchangeId, Date date) throws Exception {
 
-        Market market = getMarketDao().get(marketId);
+        Exchange exchange = getExchangeDao().get(exchangeId);
 
         // are we on a trading day?
-        if (!isTradingDay(market, date)) {
+        if (!isTradingDay(exchange, date)) {
             return false;
         }
 
-        // market session starting today
-        Date todayOpen = getOpenTime(market, date);
-        Date todayClose = getCloseTime(market, date);
+        // exchange session starting today
+        Date todayOpen = getOpenTime(exchange, date);
+        Date todayClose = getCloseTime(exchange, date);
 
-        // is close is on the next
-        if (market.getOpen().compareTo(market.getClose()) >= 0) {
+        // is close on the next day?
+        if (exchange.getOpen().compareTo(exchange.getClose()) >= 0) {
             todayClose = DateUtils.addDays(todayClose, 1);
         }
 
         // are we during todays session?
-        if (isTradingDay(market, todayOpen) && date.compareTo(todayOpen) >= 0 && date.compareTo(todayClose) <= 0) {
+        if (date.compareTo(todayOpen) >= 0 && date.compareTo(todayClose) <= 0) {
             return true;
         }
 
-        // market session starting yesterday
+        // exchange session starting yesterday
         Date yesterdayOpen = DateUtils.addDays(todayOpen, -1);
         Date yesterdayClose = DateUtils.addDays(todayClose, -1);
 
         // are we during yesterdays session
-        if (isTradingDay(market, yesterdayOpen) && date.compareTo(yesterdayOpen) >= 0 && date.compareTo(yesterdayClose) <= 0) {
+        if (isTradingDay(exchange, yesterdayOpen) && date.compareTo(yesterdayOpen) >= 0 && date.compareTo(yesterdayClose) <= 0) {
             return true;
         }
 
@@ -74,78 +74,78 @@ public class CalendarServiceImpl extends CalendarServiceBase {
     }
 
     @Override
-    protected boolean handleIsTradingDay(int marketId, Date date) throws Exception {
+    protected boolean handleIsTradingDay(int exchangeId, Date date) throws Exception {
 
-        Market market = getMarketDao().get(marketId);
-        return isTradingDay(market, date);
+        Exchange exchange = getExchangeDao().get(exchangeId);
+        return isTradingDay(exchange, date);
     }
 
-    private boolean isTradingDay(Market market, Date date) {
+    private boolean isTradingDay(Exchange exchange, Date date) {
 
-        Holiday holiday = getHoliday(market, date);
+        Holiday holiday = getHoliday(exchange, date);
         if (holiday != null && !holiday.isPartialOpen()) {
             return false;
         } else {
             int dayOfWeek = toDayOfWeek(date.getTime());
-            int openDay = market.getOpenDay().getValue();
+            int openDay = exchange.getOpenDay().getValue();
             return dayOfWeek >= openDay && dayOfWeek <= openDay + 4;
         }
     }
 
     @Override
-    protected Date handleGetOpenTime(int marketId, Date date) throws Exception {
+    protected Date handleGetOpenTime(int exchangeId, Date date) throws Exception {
 
-        Market market = getMarketDao().get(marketId);
-        return getOpenTime(market, date);
+        Exchange exchange = getExchangeDao().get(exchangeId);
+        return getOpenTime(exchange, date);
     }
 
-    private Date getOpenTime(Market market, Date date) {
+    private Date getOpenTime(Exchange exchange, Date date) {
 
-        if (!isTradingDay(market, date)) {
+        if (!isTradingDay(exchange, date)) {
             return null;
         }
 
-        Holiday holiday = getHoliday(market, date);
+        Holiday holiday = getHoliday(exchange, date);
         if (holiday != null && holiday.getLateOpen() != null) {
             return setTime(date, holiday.getLateOpen());
         } else {
-            return setTime(date, market.getOpen());
+            return setTime(date, exchange.getOpen());
         }
     }
 
     @Override
-    protected Date handleGetCloseTime(int marketId, Date date) throws Exception {
+    protected Date handleGetCloseTime(int exchangeId, Date date) throws Exception {
 
-        Market market = getMarketDao().get(marketId);
-        return getCloseTime(market, date);
+        Exchange exchange = getExchangeDao().get(exchangeId);
+        return getCloseTime(exchange, date);
     }
 
-    private Date getCloseTime(Market market, Date date) {
+    private Date getCloseTime(Exchange exchange, Date date) {
 
-        if (!isTradingDay(market, date)) {
+        if (!isTradingDay(exchange, date)) {
             return null;
         }
 
-        Holiday holiday = getHoliday(market, date);
+        Holiday holiday = getHoliday(exchange, date);
         if (holiday != null && holiday.getEarlyClose() != null) {
             return setTime(date, holiday.getEarlyClose());
         } else {
-            return setTime(date, market.getClose());
+            return setTime(date, exchange.getClose());
         }
     }
 
-    private Holiday getHoliday(Market market, Date date) {
+    private Holiday getHoliday(Exchange exchange, Date date) {
 
-        // load all holidays for this market
-        if (!this.holidays.containsKey(market)) {
+        // load all holidays for this exchange
+        if (!this.holidays.containsKey(exchange)) {
             Map<Date, Holiday> map = new HashMap<Date, Holiday>();
-            for (Holiday holiday : market.getHolidays()) {
+            for (Holiday holiday : exchange.getHolidays()) {
                 map.put(holiday.getDate(), holiday);
             }
-            this.holidays.put(market, map);
+            this.holidays.put(exchange, map);
         }
 
-        return this.holidays.get(market).get(DateUtils.truncate(date, Calendar.DATE));
+        return this.holidays.get(exchange).get(DateUtils.truncate(date, Calendar.DATE));
     }
 
     private int toDayOfWeek(long time) {
