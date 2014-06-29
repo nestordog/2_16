@@ -41,6 +41,8 @@ public final class CommonConfigBuilder {
     private boolean singleVM;
     private int portfolioDigits;
     private Currency portfolioBaseCurrency;
+    private BigDecimal initialMarginMarkup;
+    private boolean validateCrossedSpread;
 
     CommonConfigBuilder() {
         this.strategyName = "BASE";
@@ -52,6 +54,7 @@ public final class CommonConfigBuilder {
         this.singleVM = false;
         this.portfolioDigits = 2;
         this.portfolioBaseCurrency = Currency.USD;
+        this.initialMarginMarkup = new BigDecimal("1.25");
     }
 
     public static CommonConfigBuilder create() {
@@ -103,10 +106,20 @@ public final class CommonConfigBuilder {
         return this;
     }
 
+    public CommonConfigBuilder setInitialMarginMarkup(BigDecimal initialMarginMarkup) {
+        this.initialMarginMarkup = initialMarginMarkup;
+        return this;
+    }
+
+    public CommonConfigBuilder setValidateCrossedSpread(boolean validateCrossedSpread) {
+        this.validateCrossedSpread = validateCrossedSpread;
+        return this;
+    }
+
     public CommonConfig build() {
         return new CommonConfig(
                 strategyName, dataSet, dataSetType, barSize, simulation, simulationInitialBalance, singleVM, portfolioDigits,
-                portfolioBaseCurrency);
+                portfolioBaseCurrency, initialMarginMarkup, validateCrossedSpread);
     }
 
 }

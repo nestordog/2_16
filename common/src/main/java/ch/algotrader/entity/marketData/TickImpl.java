@@ -20,8 +20,8 @@ package ch.algotrader.entity.marketData;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 
-import org.springframework.beans.factory.annotation.Value;
-
+import ch.algotrader.config.CommonConfig;
+import ch.algotrader.config.ConfigLocator;
 import ch.algotrader.enumeration.Direction;
 import ch.algotrader.util.ObjectUtil;
 import ch.algotrader.util.RoundUtil;
@@ -37,8 +37,6 @@ public class TickImpl extends Tick {
 
     private static final SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy kk:mm:ss SSS");
 
-    private static @Value("${simulation}") boolean simulation;
-
     /**
      * Note: ticks that are not valid (i.e. low volume) are not fed into esper, so we don't need to check
      */
@@ -46,7 +44,8 @@ public class TickImpl extends Tick {
     public BigDecimal getCurrentValue() {
 
         int scale = getSecurity().getSecurityFamily().getScale();
-        if (simulation) {
+        CommonConfig commonConfig = ConfigLocator.instance().getCommonConfig();
+        if (commonConfig.isSimulation()) {
             if ((super.getBid().doubleValue() != 0) && (super.getAsk().doubleValue() != 0)) {
                 return RoundUtil.getBigDecimal((getAsk().doubleValue() + getBid().doubleValue()) / 2.0, scale);
             } else {

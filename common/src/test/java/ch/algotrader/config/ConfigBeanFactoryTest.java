@@ -50,6 +50,8 @@ public class ConfigBeanFactoryTest {
         map.put("misc.singleVM", "true");
         map.put("misc.portfolioDigits", "5");
         map.put("misc.portfolioBaseCurrency", "EUR");
+        map.put("misc.initialMarginMarkup", "1.52");
+        map.put("misc.validateCrossedSpread", "true");
 
         ConfigProvider configProvider = new DefaultConfigProvider(map, new DefaultConversionService());
         ConfigParams configParams = new ConfigParams(configProvider);
@@ -66,6 +68,8 @@ public class ConfigBeanFactoryTest {
         Assert.assertTrue(atConfig.isSingleVM());
         Assert.assertEquals(5, atConfig.getPortfolioDigits());
         Assert.assertEquals(Currency.EUR, atConfig.getPortfolioBaseCurrency());
+        Assert.assertEquals(new BigDecimal("1.52"), atConfig.getInitialMarginMarkup());
+        Assert.assertEquals(true, atConfig.isValidateCrossedSpread());
     }
 
     @Test(expected = ConfigBeanCreationException.class)

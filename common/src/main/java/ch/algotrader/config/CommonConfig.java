@@ -41,7 +41,8 @@ public final class CommonConfig {
     private final boolean singleVM;
     private final int portfolioDigits;
     private final Currency portfolioBaseCurrency;
-
+    private final BigDecimal initialMarginMarkup;
+    private final boolean validateCrossedSpread;
 
     public CommonConfig(
             @ConfigName("strategyName") final String strategyName,
@@ -52,7 +53,9 @@ public final class CommonConfig {
             @ConfigName("simulation.initialBalance") final BigDecimal simulationInitialBalance,
             @ConfigName("misc.singleVM") final boolean singleVM,
             @ConfigName("misc.portfolioDigits") final int portfolioDigits,
-            @ConfigName("misc.portfolioBaseCurrency") final Currency portfolioBaseCurrency) {
+            @ConfigName("misc.portfolioBaseCurrency") final Currency portfolioBaseCurrency,
+            @ConfigName("misc.initialMarginMarkup") final BigDecimal initialMarginMarkup,
+            @ConfigName("misc.validateCrossedSpread") final boolean validateCrossedSpread) {
         this.strategyName = strategyName;
         this.dataSet = dataSet;
         this.dataSetType = dataSetType;
@@ -62,6 +65,8 @@ public final class CommonConfig {
         this.singleVM = singleVM;
         this.portfolioDigits = portfolioDigits;
         this.portfolioBaseCurrency = portfolioBaseCurrency;
+        this.initialMarginMarkup = initialMarginMarkup;
+        this.validateCrossedSpread = validateCrossedSpread;
     }
 
     public String getStrategyName() {
@@ -100,6 +105,14 @@ public final class CommonConfig {
         return this.portfolioBaseCurrency;
     }
 
+    public BigDecimal getInitialMarginMarkup() {
+        return this.initialMarginMarkup;
+    }
+
+    public boolean isValidateCrossedSpread() {
+        return this.validateCrossedSpread;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("[");
@@ -112,6 +125,8 @@ public final class CommonConfig {
         sb.append(", singleVM=").append(this.singleVM);
         sb.append(", portfolioDigits=").append(this.portfolioDigits);
         sb.append(", portfolioBaseCurrency=").append(this.portfolioBaseCurrency);
+        sb.append(", initialMarginMarkup=").append(this.initialMarginMarkup);
+        sb.append(", validateCrossedSpread=").append(this.validateCrossedSpread);
         sb.append(']');
         return sb.toString();
     }

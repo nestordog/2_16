@@ -21,10 +21,9 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.springframework.beans.factory.annotation.Value;
-
+import ch.algotrader.config.CommonConfig;
+import ch.algotrader.config.ConfigLocator;
 import ch.algotrader.entity.security.Forex;
-import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.TransactionType;
 import ch.algotrader.util.ObjectUtil;
 import ch.algotrader.util.RoundUtil;
@@ -39,9 +38,6 @@ public class TransactionImpl extends Transaction {
 
     private static final long serialVersionUID = -1528408715199422753L;
 
-    private static @Value("${misc.portfolioDigits}") int portfolioDigits;
-    private static @Value("#{T(ch.algotrader.enumeration.Currency).fromString('${misc.portfolioBaseCurrency}')}") Currency portfolioBaseCurrency;
-
     private Double value = null; // cache getValueDouble because getValue get's called very often
 
     @Override
@@ -51,7 +47,8 @@ public class TransactionImpl extends Transaction {
             int scale = getSecurity().getSecurityFamily().getScale();
             return RoundUtil.getBigDecimal(getGrossValueDouble(), scale);
         } else {
-            return RoundUtil.getBigDecimal(getGrossValueDouble(), portfolioDigits);
+            CommonConfig commonConfig = ConfigLocator.instance().getCommonConfig();
+            return RoundUtil.getBigDecimal(getGrossValueDouble(), commonConfig.getPortfolioDigits());
         }
 
     }
@@ -77,7 +74,8 @@ public class TransactionImpl extends Transaction {
             int scale = getSecurity().getSecurityFamily().getScale();
             return RoundUtil.getBigDecimal(getNetValueDouble(), scale);
         } else {
-            return RoundUtil.getBigDecimal(getNetValueDouble(), portfolioDigits);
+            CommonConfig commonConfig = ConfigLocator.instance().getCommonConfig();
+            return RoundUtil.getBigDecimal(getNetValueDouble(), commonConfig.getPortfolioDigits());
         }
     }
 
@@ -90,7 +88,8 @@ public class TransactionImpl extends Transaction {
     @Override
     public BigDecimal getTotalCharges() {
 
-        return RoundUtil.getBigDecimal(getTotalChargesDouble(), portfolioDigits);
+        CommonConfig commonConfig = ConfigLocator.instance().getCommonConfig();
+        return RoundUtil.getBigDecimal(getTotalChargesDouble(), commonConfig.getPortfolioDigits());
     }
 
     @Override
@@ -124,7 +123,8 @@ public class TransactionImpl extends Transaction {
 
             // execution commission is booked in baseCurrency (this is IB specific!)
             if (getExecutionCommission() != null) {
-                list.add(new CurrencyAmountVO(portfolioBaseCurrency, getExecutionCommission().negate()));
+                CommonConfig commonConfig = ConfigLocator.instance().getCommonConfig();
+                list.add(new CurrencyAmountVO(commonConfig.getPortfolioBaseCurrency(), getExecutionCommission().negate()));
             }
 
             // clearing commission is booked in transaction currency

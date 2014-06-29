@@ -22,12 +22,12 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Hibernate;
-import org.springframework.beans.factory.annotation.Value;
 
 import com.espertech.esper.event.WrapperEventBean;
 import com.espertech.esper.event.bean.BeanEventBean;
 
 import ch.algotrader.ServiceLocator;
+import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.ConfigLocator;
 import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.entity.marketData.Tick;
@@ -47,10 +47,6 @@ public abstract class SecurityImpl extends Security {
     private static final long serialVersionUID = -6631052475125813394L;
 
     private static Logger logger = MyLogger.getLogger(SecurityImpl.class.getName());
-
-    private static @Value("#{T(ch.algotrader.enumeration.Currency).fromString('${misc.portfolioBaseCurrency}')}") Currency portfolioBaseCurrency;
-    private static @Value("${misc.initialMarginMarkup}") double initialMarginMarkup;
-    private static @Value("${misc.validateCrossedSpread}") boolean validateCrossedSpread;
 
     @Override
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -105,7 +101,8 @@ public abstract class SecurityImpl extends Security {
     @Override
     public double getFXRateBase() {
 
-        return getFXRate(portfolioBaseCurrency);
+        CommonConfig commonConfig = ConfigLocator.instance().getCommonConfig();
+        return getFXRate(commonConfig.getPortfolioBaseCurrency());
     }
 
     @Override
@@ -125,7 +122,8 @@ public abstract class SecurityImpl extends Security {
         if (marketDataEvent != null && marketDataEvent.getCurrentValueDouble() > 0.0) {
 
             double contractSize = getSecurityFamily().getContractSize();
-            marginPerContract = marketDataEvent.getCurrentValueDouble() * contractSize / initialMarginMarkup;
+            CommonConfig commonConfig = ConfigLocator.instance().getCommonConfig();
+            marginPerContract = marketDataEvent.getCurrentValueDouble() * contractSize / commonConfig.getInitialMarginMarkup().doubleValue();
         } else {
             logger.warn("no last tick available or currentValue to low to set margin on " + this);
         }
@@ -149,8 +147,9 @@ public abstract class SecurityImpl extends Security {
             return false;
         }
 
-            // spread cannot be crossed
-        if (validateCrossedSpread && tick.getBid() != null && tick.getAsk() != null && tick.getBidAskSpreadDouble() < 0) {
+        // spread cannot be crossed
+        CommonConfig commonConfig = ConfigLocator.instance().getCommonConfig();
+        if (commonConfig.isValidateCrossedSpread() && tick.getBid() != null && tick.getAsk() != null && tick.getBidAskSpreadDouble() < 0) {
             logger.warn("crossed spread: bid " + tick.getBid() + " ask " + tick.getAsk() + " for " + this);
             return false;
         } else {

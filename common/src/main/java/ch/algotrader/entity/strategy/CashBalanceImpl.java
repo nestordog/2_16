@@ -19,10 +19,9 @@ package ch.algotrader.entity.strategy;
 
 import java.math.BigDecimal;
 
-import org.springframework.beans.factory.annotation.Value;
-
 import ch.algotrader.ServiceLocator;
-import ch.algotrader.enumeration.Currency;
+import ch.algotrader.config.CommonConfig;
+import ch.algotrader.config.ConfigLocator;
 import ch.algotrader.util.ObjectUtil;
 import ch.algotrader.util.RoundUtil;
 
@@ -34,8 +33,6 @@ import ch.algotrader.util.RoundUtil;
 public class CashBalanceImpl extends CashBalance {
 
     private static final long serialVersionUID = 735304281192548146L;
-
-    private static @Value("#{T(ch.algotrader.enumeration.Currency).fromString('${misc.portfolioBaseCurrency}')}") Currency portfolioBaseCurrency;
 
     @Override
     public double getAmountDouble() {
@@ -52,7 +49,8 @@ public class CashBalanceImpl extends CashBalance {
     @Override
     public double getAmountBaseDouble() {
 
-        double exchangeRate = ServiceLocator.instance().getLookupService().getForexRateDouble(getCurrency(), portfolioBaseCurrency);
+        CommonConfig commonConfig = ConfigLocator.instance().getCommonConfig();
+        double exchangeRate = ServiceLocator.instance().getLookupService().getForexRateDouble(getCurrency(), commonConfig.getPortfolioBaseCurrency());
 
         return getAmountDouble() * exchangeRate;
     }

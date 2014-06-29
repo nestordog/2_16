@@ -20,8 +20,6 @@ package ch.algotrader.entity.marketData;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 
-import org.springframework.beans.factory.annotation.Value;
-
 import ch.algotrader.enumeration.Direction;
 import ch.algotrader.util.ObjectUtil;
 
@@ -33,11 +31,6 @@ import ch.algotrader.util.ObjectUtil;
 public class BarImpl extends Bar {
 
     private static final long serialVersionUID = 6293029012643523737L;
-
-    private static final SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy kk:mm:ss SSS");
-
-    private static @Value("${simulation}") boolean simulation;
-
 
     @Override
     public BigDecimal getCurrentValue() {
@@ -58,6 +51,7 @@ public class BarImpl extends Bar {
 
         buffer.append(getSecurity());
         buffer.append(",");
+        SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy kk:mm:ss SSS");
         buffer.append(format.format(getDateTime()));
         buffer.append(",open=");
         buffer.append(getOpen());
