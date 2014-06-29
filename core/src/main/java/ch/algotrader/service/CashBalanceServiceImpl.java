@@ -22,7 +22,6 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Value;
 
 import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.strategy.CashBalance;
@@ -41,9 +40,6 @@ import ch.algotrader.vo.CurrencyAmountVO;
 public class CashBalanceServiceImpl extends CashBalanceServiceBase {
 
     private static Logger logger = MyLogger.getLogger(CashBalanceServiceImpl.class.getName());
-
-    private @Value("#{T(ch.algotrader.enumeration.Currency).fromString('${misc.portfolioBaseCurrency}')}") Currency portfolioBaseCurrency;
-    private @Value("${misc.portfolioDigits}") int portfolioDigits;
 
     @Override
     protected void handleProcessTransaction(Transaction transaction) throws Exception {
@@ -104,7 +100,7 @@ public class CashBalanceServiceImpl extends CashBalanceServiceBase {
 
             Strategy strategy = entry.getKey().getFirst();
             Currency currency = entry.getKey().getSecond();
-            BigDecimal amount = entry.getValue().setScale(this.portfolioDigits, BigDecimal.ROUND_HALF_UP);
+            BigDecimal amount = entry.getValue().setScale(getCommonConfig().getPortfolioDigits(), BigDecimal.ROUND_HALF_UP);
 
             CashBalance cashBalance = getCashBalanceDao().findByStrategyAndCurrencyLocked(strategy, currency);
 

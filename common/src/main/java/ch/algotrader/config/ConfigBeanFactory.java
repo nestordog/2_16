@@ -69,7 +69,7 @@ public final class ConfigBeanFactory {
                 throw new ConfigBeanCreationException(clazz.getName() + " config bean parameter does not have mandatory metadata");
             }
             Object paramValue = configParams.getParameter(configName.value(), paramType);
-            if (paramValue == null) {
+            if (paramValue == null && !configName.optional()) {
                 throw new ConfigBeanCreationException("Config parameter '" + configName.value() + "' is undefined");
 
             }

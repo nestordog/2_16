@@ -52,7 +52,6 @@ public class ForexServiceImpl extends ForexServiceBase {
     private static Logger logger = MyLogger.getLogger(ForexServiceImpl.class.getName());
     private static Logger notificationLogger = MyLogger.getLogger("ch.algotrader.service.NOTIFICATION");
 
-    private @Value("#{T(ch.algotrader.enumeration.Currency).fromString('${misc.portfolioBaseCurrency}')}") Currency portfolioBaseCurrency;
     private @Value("${fx.futureHedgeEnabled}") boolean fxFutureHedgeEnabled;
     private @Value("${fx.futureHedgeMinTimeToExpiration}") int fxFutureHedgeMinTimeToExpiration;
     private @Value("${fx.hedgeMinAmount}") int fxHedgeMinAmount;
@@ -116,7 +115,8 @@ public class ForexServiceImpl extends ForexServiceBase {
         Collection<BalanceVO> balances = getPortfolioService().getBalances();
         for (BalanceVO balance : balances) {
 
-            if (balance.getCurrency().equals(this.portfolioBaseCurrency)) {
+            Currency portfolioBaseCurrency = getCommonConfig().getPortfolioBaseCurrency();
+            if (balance.getCurrency().equals(portfolioBaseCurrency)) {
                 continue;
             }
 
@@ -128,9 +128,9 @@ public class ForexServiceImpl extends ForexServiceBase {
             if (Math.abs(netLiqValueBase) >= this.fxHedgeMinAmount) {
 
                 // get the forex
-                Forex forex = getForexDao().getForex(this.portfolioBaseCurrency, balance.getCurrency());
+                Forex forex = getForexDao().getForex(portfolioBaseCurrency, balance.getCurrency());
 
-                double tradeValue = forex.getBaseCurrency().equals(this.portfolioBaseCurrency) ? netLiqValueBase : netLiqValue;
+                double tradeValue = forex.getBaseCurrency().equals(portfolioBaseCurrency) ? netLiqValueBase : netLiqValue;
 
                 // create the order
                 Order order = getLookupService().getOrderByStrategyAndSecurityFamily(StrategyImpl.BASE, forex.getSecurityFamily().getId());
@@ -166,7 +166,7 @@ public class ForexServiceImpl extends ForexServiceBase {
                     qty = (int) RoundUtil.roundToNextN(tradeValue, this.fxHedgeBatchSize);
                 }
 
-                if (forex.getBaseCurrency().equals(this.portfolioBaseCurrency)) {
+                if (forex.getBaseCurrency().equals(portfolioBaseCurrency)) {
 
                     // expected case
                     order.setQuantity(Math.abs(qty));

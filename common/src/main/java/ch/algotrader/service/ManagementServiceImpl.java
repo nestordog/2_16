@@ -30,7 +30,6 @@ import java.util.Set;
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Predicate;
 import org.apache.commons.lang.math.NumberUtils;
-import org.springframework.beans.factory.annotation.Value;
 
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.config.CommonConfig;
@@ -72,8 +71,6 @@ import ch.algotrader.vo.TransactionVO;
  * @version $Revision$ $Date$
  */
 public class ManagementServiceImpl extends ManagementServiceBase {
-
-    private @Value("${misc.displayClosedPositions}") boolean displayClosedPositions;
 
     @Override
     protected Date handleGetCurrentTime() throws Exception {
@@ -225,7 +222,7 @@ public class ManagementServiceImpl extends ManagementServiceBase {
     @Override
     protected List<PositionVO> handleGetDataPositions() throws Exception {
 
-        return getLookupService().getPositionsVO(getCommonConfig().getStrategyName(), this.displayClosedPositions);
+        return getLookupService().getPositionsVO(getCommonConfig().getStrategyName(), getCommonConfig().isDisplayClosedPositions());
     }
 
     @Override

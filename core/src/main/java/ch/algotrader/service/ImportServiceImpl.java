@@ -33,7 +33,6 @@ import java.util.TreeSet;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
-import org.springframework.beans.factory.annotation.Value;
 
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.Option;
@@ -55,12 +54,10 @@ public class ImportServiceImpl extends ImportServiceBase {
 
     private static Logger logger = MyLogger.getLogger(ImportServiceImpl.class.getName());
 
-    private @Value("${dataSource.dataSet}") String dataSet;
-
     @Override
     protected void handleImportTicks(String isin) throws Exception {
 
-        File file = new File("files" + File.separator + "tickdata" + File.separator + this.dataSet + File.separator + isin + ".csv");
+        File file = new File("files" + File.separator + "tickdata" + File.separator + getCommonConfig().getDataSet() + File.separator + isin + ".csv");
 
         if (file.exists()) {
 

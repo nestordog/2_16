@@ -28,4 +28,6 @@ public @interface ConfigName {
 
     String value();
 
+    boolean optional() default false;
+
 }

@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.config;
 
+import java.io.File;
 import java.math.BigDecimal;
 
 import ch.algotrader.enumeration.Currency;
@@ -35,14 +36,19 @@ public final class CommonConfigBuilder {
     private String strategyName;
     private String dataSet;
     private MarketDataType dataSetType;
+    private File dataSetLocation;
     private Duration barSize;
+    private boolean feedGenericEvents;
+    private boolean feedAllMarketDataFiles;
     private boolean simulation;
     private BigDecimal simulationInitialBalance;
+    private boolean simulationLogTransactions;
     private boolean singleVM;
     private int portfolioDigits;
     private Currency portfolioBaseCurrency;
     private BigDecimal initialMarginMarkup;
     private boolean validateCrossedSpread;
+    private boolean displayClosedPositions;
 
     CommonConfigBuilder() {
         this.strategyName = "BASE";
@@ -76,8 +82,23 @@ public final class CommonConfigBuilder {
         return this;
     }
 
+    public CommonConfigBuilder setDataSetLocation(final File dataSetLocation) {
+        this.dataSetLocation = dataSetLocation;
+        return this;
+    }
+
     public CommonConfigBuilder setBarSize(final Duration barSize) {
         this.barSize = barSize;
+        return this;
+    }
+
+    public CommonConfigBuilder setFeedGenericEvents(boolean feedGenericEvents) {
+        this.feedGenericEvents = feedGenericEvents;
+        return this;
+    }
+
+    public CommonConfigBuilder setFeedAllMarketDataFiles(boolean feedAllMarketDataFiles) {
+        this.feedAllMarketDataFiles = feedAllMarketDataFiles;
         return this;
     }
 
@@ -88,6 +109,11 @@ public final class CommonConfigBuilder {
 
     public CommonConfigBuilder setSimulationInitialBalance(final BigDecimal simulationInitialBalance) {
         this.simulationInitialBalance = simulationInitialBalance;
+        return this;
+    }
+
+    public CommonConfigBuilder setSimulationLogTransactions(boolean simulationLogTransactions) {
+        this.simulationLogTransactions = simulationLogTransactions;
         return this;
     }
 
@@ -116,10 +142,16 @@ public final class CommonConfigBuilder {
         return this;
     }
 
+    public CommonConfigBuilder setDisplayClosedPositions(boolean displayClosedPositions) {
+        this.displayClosedPositions = displayClosedPositions;
+        return this;
+    }
+
     public CommonConfig build() {
         return new CommonConfig(
-                strategyName, dataSet, dataSetType, barSize, simulation, simulationInitialBalance, singleVM, portfolioDigits,
-                portfolioBaseCurrency, initialMarginMarkup, validateCrossedSpread);
+                strategyName, dataSet, dataSetType, dataSetLocation, barSize, feedGenericEvents, feedAllMarketDataFiles,
+                simulation, simulationInitialBalance, simulationLogTransactions, singleVM,
+                portfolioDigits, portfolioBaseCurrency, initialMarginMarkup, validateCrossedSpread, displayClosedPositions);
     }
 
 }

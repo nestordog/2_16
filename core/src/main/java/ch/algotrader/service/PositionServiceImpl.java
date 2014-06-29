@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Value;
 
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.Position;
@@ -64,8 +63,6 @@ import ch.algotrader.vo.ExpirePositionVO;
 public class PositionServiceImpl extends PositionServiceBase {
 
     private static Logger logger = MyLogger.getLogger(PositionServiceImpl.class.getName());
-
-    private @Value("${simulation}") boolean simulation;
 
     @Override
     protected void handleCloseAllPositionsByStrategy(String strategyName, boolean unsubscribe) throws Exception {
@@ -142,7 +139,7 @@ public class PositionServiceImpl extends PositionServiceBase {
         order.setSide(side);
 
         // unsubscribe is requested / notify non-full executions in live-trading
-        if (this.simulation) {
+        if (getCommonConfig().isSimulation()) {
             if (unsubscribe) {
                 getMarketDataService().unsubscribe(order.getStrategy().getName(), order.getSecurity().getId());
             }

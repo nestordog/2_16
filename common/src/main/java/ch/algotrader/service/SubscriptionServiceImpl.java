@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 
 import ch.algotrader.config.CommonConfig;
@@ -35,8 +34,6 @@ import ch.algotrader.enumeration.FeedType;
  * @version $Revision$ $Date$
  */
 public class SubscriptionServiceImpl extends SubscriptionServiceBase {
-
-    private @Value("${simulation}") boolean simulation;
 
     public DefaultMessageListenerContainer marketDataMessageListenerContainer;
     public DefaultMessageListenerContainer genericMessageListenerContainer;
@@ -90,7 +87,7 @@ public class SubscriptionServiceImpl extends SubscriptionServiceBase {
     protected void handleInitMarketDataEventSubscriptions() throws Exception {
 
         CommonConfig commonConfig = getCommonConfig();
-        if (this.simulation || StrategyImpl.BASE.equals(commonConfig.getStrategyName()) || commonConfig.isSingleVM())
+        if (commonConfig.isSimulation() || StrategyImpl.BASE.equals(commonConfig.getStrategyName()) || commonConfig.isSingleVM())
             return;
 
         // assemble the message selector
@@ -124,7 +121,7 @@ public class SubscriptionServiceImpl extends SubscriptionServiceBase {
     protected void handleSubscribeGenericEvents(Class[] classes) throws Exception {
 
         CommonConfig commonConfig = getCommonConfig();
-        if (this.simulation || StrategyImpl.BASE.equals(commonConfig.getStrategyName()) || commonConfig.isSingleVM())
+        if (commonConfig.isSimulation() || StrategyImpl.BASE.equals(commonConfig.getStrategyName()) || commonConfig.isSingleVM())
             return;
 
         // assemble the message selector

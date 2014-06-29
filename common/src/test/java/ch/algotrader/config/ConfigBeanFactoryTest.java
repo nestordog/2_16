@@ -17,11 +17,13 @@
  ***********************************************************************************/
 package ch.algotrader.config;
 
+import java.io.File;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.core.convert.support.DefaultConversionService;
 
@@ -37,21 +39,31 @@ import ch.algotrader.enumeration.MarketDataType;
  */
 public class ConfigBeanFactoryTest {
 
-    @Test
-    public void testBaseConfigConstruction() throws Exception {
+    private Map<String, String> map;
 
-        Map<String, String> map = new HashMap<String, String>();
+    @Before
+    public void setup() {
+        map = new HashMap<String, String>();
         map.put("strategyName", "SOME_STRATEGY");
         map.put("dataSource.dataSet", "someDataSet");
         map.put("dataSource.dataSetType", "BAR");
+        map.put("dataSource.dataSetLocation", "stuff/more-stuff");
         map.put("dataSource.barSize", "MIN_5");
+        map.put("dataSource.feedGenericEvents", "true");
+        map.put("dataSource.feedAllMarketDataFiles", "true");
         map.put("simulation", "true");
         map.put("simulation.initialBalance", "500.5");
+        map.put("simulation.logTransactions", "true");
         map.put("misc.singleVM", "true");
         map.put("misc.portfolioDigits", "5");
         map.put("misc.portfolioBaseCurrency", "EUR");
         map.put("misc.initialMarginMarkup", "1.52");
         map.put("misc.validateCrossedSpread", "true");
+        map.put("misc.displayClosedPositions", "true");
+    }
+
+    @Test
+    public void testBaseConfigConstruction() throws Exception {
 
         ConfigProvider configProvider = new DefaultConfigProvider(map, new DefaultConversionService());
         ConfigParams configParams = new ConfigParams(configProvider);
@@ -62,22 +74,38 @@ public class ConfigBeanFactoryTest {
         Assert.assertEquals("SOME_STRATEGY", atConfig.getStrategyName());
         Assert.assertEquals("someDataSet", atConfig.getDataSet());
         Assert.assertEquals(MarketDataType.BAR, atConfig.getDataSetType());
+        Assert.assertEquals(new File("stuff/more-stuff"), atConfig.getDataSetLocation());
         Assert.assertEquals(Duration.MIN_5, atConfig.getBarSize());
+        Assert.assertEquals(true, atConfig.isFeedGenericEvents());
+        Assert.assertEquals(true, atConfig.isFeedAllMarketDataFiles());
         Assert.assertTrue(atConfig.isSimulation());
         Assert.assertEquals(new BigDecimal("500.5"), atConfig.getSimulationInitialBalance());
+        Assert.assertEquals(true, atConfig.isSimulationLogTransactions());
         Assert.assertTrue(atConfig.isSingleVM());
         Assert.assertEquals(5, atConfig.getPortfolioDigits());
         Assert.assertEquals(Currency.EUR, atConfig.getPortfolioBaseCurrency());
         Assert.assertEquals(new BigDecimal("1.52"), atConfig.getInitialMarginMarkup());
         Assert.assertEquals(true, atConfig.isValidateCrossedSpread());
+        Assert.assertEquals(true, atConfig.isDisplayClosedPositions());
+    }
+
+    @Test
+    public void testBaseConfigConstructionOptional() throws Exception {
+
+        map.remove("dataSource.dataSetLocation");
+        ConfigProvider configProvider = new DefaultConfigProvider(map, new DefaultConversionService());
+        ConfigParams configParams = new ConfigParams(configProvider);
+
+        ConfigBeanFactory factory = new ConfigBeanFactory();
+        CommonConfig atConfig = factory.create(configParams, CommonConfig.class);
+        Assert.assertNotNull(atConfig);
+        Assert.assertEquals(null, atConfig.getDataSetLocation());
     }
 
     @Test(expected = ConfigBeanCreationException.class)
     public void testBaseConfigConstructionMissingParam() throws Exception {
 
-        Map<String, String> map = new HashMap<String, String>();
-        map.put("strategyName", "SOME_STRATEGY");
-
+        map.remove("dataSource.dataSet");
         ConfigProvider configProvider = new DefaultConfigProvider(map, new DefaultConversionService());
         ConfigParams configParams = new ConfigParams(configProvider);
 

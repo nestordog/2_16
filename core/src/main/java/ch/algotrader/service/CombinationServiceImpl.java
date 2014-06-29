@@ -23,7 +23,6 @@ import java.util.UUID;
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Predicate;
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Value;
 
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.Subscription;
@@ -48,12 +47,10 @@ public class CombinationServiceImpl extends CombinationServiceBase {
 
     private static Logger logger = MyLogger.getLogger(CombinationServiceImpl.class.getName());
 
-    private @Value("${simulation}") boolean simulation;
-
     @Override
     protected void handleInit() throws Exception {
 
-        if (!this.simulation) {
+        if (!getCommonConfig().isSimulation()) {
             for (Combination combination : getCombinationDao().loadAll()) {
                 insertIntoComponentWindow(combination);
             }

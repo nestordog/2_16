@@ -45,7 +45,6 @@ import org.apache.commons.math.optimization.univariate.BrentOptimizer;
 import org.apache.commons.math.util.MathUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Value;
 
 import com.espertech.esperio.csv.CSVInputAdapterSpec;
 
@@ -84,17 +83,13 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
     private static DateFormat yearFormat = new SimpleDateFormat("   yyyy ");
     private static final NumberFormat format = NumberFormat.getInstance();
 
-    private @Value("${simulation.roundDigits}") int roundDigits;
-    private @Value("${dataSource.dataSetLocation}") String dataSetLocation;
-    private @Value("${dataSource.feedGenericEvents}") boolean feedGenericEvents;
-    private @Value("${dataSource.feedAllMarketDataFiles}") boolean feedAllMarketDataFiles;
-
     @Override
     public void afterPropertiesSet() throws Exception {
 
+        int portfolioDigits = getCommonConfig().getPortfolioDigits();
         format.setGroupingUsed(false);
-        format.setMinimumFractionDigits(this.roundDigits);
-        format.setMaximumFractionDigits(this.roundDigits);
+        format.setMinimumFractionDigits(portfolioDigits);
+        format.setMaximumFractionDigits(portfolioDigits);
     }
 
     @Override
@@ -169,16 +164,18 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
 
         CommonConfig commonConfig = getCommonConfig();
 
-        String baseDir = this.dataSetLocation.equals("") ? "files" + File.separator : this.dataSetLocation;
+        File dataSetLocation = commonConfig.getDataSetLocation();
+        File baseDir = dataSetLocation == null ? new File("files") : dataSetLocation;
         String dataSet = commonConfig.getDataSet();
 
-        if (this.feedGenericEvents) {
+        if (commonConfig.isFeedGenericEvents()) {
 
-            File dir = new File(baseDir + "genericdata" + File.separator + dataSet);
-            if (dir == null || !dir.exists() || !dir.isDirectory()) {
+            File genericdata = new File(baseDir, "genericdata");
+            File dataDir = new File(genericdata, dataSet);
+            if (dataDir == null || !dataDir.exists() || !dataDir.isDirectory()) {
                 logger.warn("no generic events available");
             } else {
-                File[] files = dir.listFiles();
+                File[] files = dataDir.listFiles();
                 File[] sortedFiles = new File[files.length];
 
                 // sort the files according to their order
@@ -209,19 +206,19 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
         }
 
         MarketDataType marketDataType = commonConfig.getDataSetType();
-        String path = baseDir + marketDataType.toString().toLowerCase() + "data" + File.separator + dataSet + File.separator;
+        File marketDataTypeDir = new File(baseDir, marketDataType.toString().toLowerCase() + "data");
+        File dataDir = new File(marketDataTypeDir, dataSet);
 
         Collection<Security> securities = getLookupService().getSubscribedSecuritiesForAutoActivateStrategies();
 
-        if (this.feedAllMarketDataFiles) {
+        if (commonConfig.isFeedAllMarketDataFiles()) {
 
-            File dir = new File(path);
-            if (dir == null || !dir.exists() || !dir.isDirectory()) {
+            if (dataDir == null || !dataDir.exists() || !dataDir.isDirectory()) {
                 logger.warn("no market data events available");
             } else {
 
                 // coordinate all files
-                for (File file : dir.listFiles()) {
+                for (File file : dataDir.listFiles()) {
 
                     feedFile(marketDataType, file);
                 }
@@ -235,31 +232,31 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
                 File file = null;
 
                 if (security.getSymbol() != null) {
-                    file = new File(path + security.getSymbol() + ".csv");
+                    file = new File(dataDir, security.getSymbol() + ".csv");
                 }
 
                 if ((file == null || !file.exists()) && security.getIsin() != null) {
-                    file = new File(path + security.getIsin() + ".csv");
+                    file = new File(dataDir, security.getIsin() + ".csv");
                 }
 
                 if ((file == null || !file.exists()) && security.getBbgid() != null) {
-                    file = new File(path + security.getBbgid() + ".csv");
+                    file = new File(dataDir, security.getBbgid() + ".csv");
                 }
 
                 if ((file == null || !file.exists()) && security.getRic() != null) {
-                    file = new File(path + security.getRic() + ".csv");
+                    file = new File(dataDir, security.getRic() + ".csv");
                 }
 
                 if ((file == null || !file.exists()) && security.getConid() != null) {
-                    file = new File(path + security.getConid() + ".csv");
+                    file = new File(dataDir, security.getConid() + ".csv");
                 }
 
                 if (file == null || !file.exists()) {
-                    file = new File(path + security.getId() + ".csv");
+                    file = new File(dataDir, security.getId() + ".csv");
                 }
 
                 if (file == null || !file.exists()) {
-                    logger.warn("no data available for " + security.getSymbol() + " in " + path);
+                    logger.warn("no data available for " + security.getSymbol() + " in " + dataDir);
                     continue;
                 } else {
                     logger.info("data available for " + security.getSymbol());
@@ -374,19 +371,20 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
     @Override
     protected void handleOptimizeMultiParamLinear(String parameters[], double[] mins, double[] maxs, double[] increments) throws Exception {
 
+        int roundDigits = getCommonConfig().getPortfolioDigits();
         for (double i0 = mins[0]; i0 <= maxs[0]; i0 += increments[0]) {
             System.setProperty(parameters[0], format.format(i0));
-            String message0 = parameters[0] + "=" + format.format(MathUtils.round(i0, this.roundDigits));
+            String message0 = parameters[0] + "=" + format.format(MathUtils.round(i0, roundDigits));
 
             if (parameters.length >= 2) {
                 for (double i1 = mins[1]; i1 <= maxs[1]; i1 += increments[1]) {
                     System.setProperty(parameters[1], format.format(i1));
-                    String message1 = parameters[1] + "=" + format.format(MathUtils.round(i1, this.roundDigits));
+                    String message1 = parameters[1] + "=" + format.format(MathUtils.round(i1, roundDigits));
 
                     if (parameters.length >= 3) {
                         for (double i2 = mins[2]; i2 <= maxs[2]; i2 += increments[2]) {
                             System.setProperty(parameters[2], format.format(i2));
-                            String message2 = parameters[2] + "=" + format.format(MathUtils.round(i2, this.roundDigits));
+                            String message2 = parameters[2] + "=" + format.format(MathUtils.round(i2, roundDigits));
 
                             SimulationResultVO resultVO = runSimulation();
                             resultLogger.info(message0 + " " + message1 + " " + message2 + " " + convertStatisticsToShortString(resultVO));

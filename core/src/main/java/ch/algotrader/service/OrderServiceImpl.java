@@ -26,7 +26,6 @@ import org.apache.commons.collections15.Predicate;
 import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
@@ -58,8 +57,6 @@ public class OrderServiceImpl extends OrderServiceBase implements ApplicationCon
     private static Logger logger = MyLogger.getLogger(OrderServiceImpl.class.getName());
     private static Logger notificationLogger = MyLogger.getLogger("ch.algotrader.service.NOTIFICATION");
 
-    private @Value("${simulation}") boolean simulation;
-
     private ApplicationContext applicationContext;
 
     @Override
@@ -86,7 +83,7 @@ public class OrderServiceImpl extends OrderServiceBase implements ApplicationCon
         Validate.isTrue(order.getSecurity().getSecurityFamily().isTradeable(), order.getSecurity() + " is not tradeable");
 
         // external validation of the order
-        if (!this.simulation && order instanceof SimpleOrder) {
+        if (!getCommonConfig().isSimulation() && order instanceof SimpleOrder) {
             getExternalOrderService(order).validateOrder((SimpleOrder) order);
         }
 
@@ -115,7 +112,7 @@ public class OrderServiceImpl extends OrderServiceBase implements ApplicationCon
         // set the dateTime property
         order.setDateTime(DateUtil.getCurrentEPTime());
 
-        if (this.simulation) {
+        if (getCommonConfig().isSimulation()) {
             sendSimulatedOrder(order);
         } else if (order instanceof AlgoOrder) {
             sendAlgoOrder((AlgoOrder) order);
@@ -313,7 +310,7 @@ public class OrderServiceImpl extends OrderServiceBase implements ApplicationCon
             EngineLocator.instance().sendEvent(orderStatus.getOrder().getStrategy().getName(), orderStatus);
         }
 
-        if (!this.simulation) {
+        if (!getCommonConfig().isSimulation()) {
             logger.debug("propagated orderStatus: " + orderStatus);
         }
     }
@@ -327,7 +324,7 @@ public class OrderServiceImpl extends OrderServiceBase implements ApplicationCon
             EngineLocator.instance().sendEvent(orderCompletion.getOrder().getStrategy().getName(), orderCompletion);
         }
 
-        if (!this.simulation) {
+        if (!getCommonConfig().isSimulation()) {
             logger.debug("propagated orderCompletion: " + orderCompletion);
         }
     }

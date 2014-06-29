@@ -24,9 +24,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Value;
 
 import ch.algotrader.ServiceLocator;
+import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.Transaction;
@@ -62,10 +62,6 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
     private static Logger logger = MyLogger.getLogger(TransactionServiceImpl.class.getName());
     private static Logger mailLogger = MyLogger.getLogger(TransactionServiceImpl.class.getName() + ".MAIL");
     private static Logger simulationLogger = MyLogger.getLogger(SimulationServiceImpl.class.getName() + ".RESULT");
-
-    private @Value("${simulation}") boolean simulation;
-    private @Value("${simulation.logTransactions}") boolean logTransactions;
-    private @Value("${misc.portfolioDigits}") int portfolioDigits;
 
     @Override
     protected void handleCreateTransaction(Fill fill) {
@@ -115,7 +111,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
             throw new IllegalArgumentException("strategy " + strategyName + " was not found");
         }
 
-        int scale = this.portfolioDigits;
+        int scale = getCommonConfig().getPortfolioDigits();
         Security security = getSecurityDao().findById(securityId);
         if (TransactionType.BUY.equals(transactionType) ||
                 TransactionType.SELL.equals(transactionType) ||
@@ -274,6 +270,8 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         // create the transaction
         getTransactionDao().create(transaction);
 
+        CommonConfig commonConfig = getCommonConfig();
+
         // prepare log message and propagate tradePerformance
         String logMessage = "executed transaction: " + transaction;
         if (tradePerformance != null && tradePerformance.getProfit() != 0.0) {
@@ -281,12 +279,12 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
             logMessage += ",profit=" + RoundUtil.getBigDecimal(tradePerformance.getProfit()) + ",profitPct=" + RoundUtil.getBigDecimal(tradePerformance.getProfitPct());
 
             // propagate the TradePerformance event
-            if (this.simulation && EngineLocator.instance().hasBaseEngine()) {
+            if (commonConfig.isSimulation() && EngineLocator.instance().hasBaseEngine()) {
                 EngineLocator.instance().getBaseEngine().sendEvent(tradePerformance);
             }
         }
 
-        if (this.simulation && this.logTransactions) {
+        if (commonConfig.isSimulation() && commonConfig.isSimulationLogTransactions()) {
             simulationLogger.info(logMessage);
         } else {
             logger.info(logMessage);
@@ -304,7 +302,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
             EngineLocator.instance().sendEvent(fill.getOrder().getStrategy().getName(), fill);
         }
 
-        if (!this.simulation) {
+        if (!getCommonConfig().isSimulation()) {
             logger.info("received fill: " + fill + " for order: " + fill.getOrder());
         }
     }
@@ -312,7 +310,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
     @Override
     protected void handleLogFillSummary(List<Fill> fills) {
 
-        if (fills.size() > 0 && !this.simulation) {
+        if (fills.size() > 0 && !getCommonConfig().isSimulation()) {
 
             long totalQuantity = 0;
             double totalPrice = 0.0;
