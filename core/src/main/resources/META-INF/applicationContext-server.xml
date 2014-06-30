@@ -27,6 +27,16 @@
         <constructor-arg index="1" value="ch.algotrader.config.CoreConfig"/>
     </bean>
 
+    <bean id="bbConfig" class="ch.algotrader.config.spring.ConfigBeanFactoryBean">
+        <constructor-arg index="0" ref="configLocator"/>
+        <constructor-arg index="1" value="ch.algotrader.config.BBConfig"/>
+    </bean>
+
+    <bean id="ibConfig" class="ch.algotrader.config.spring.ConfigBeanFactoryBean">
+        <constructor-arg index="0" ref="configLocator"/>
+        <constructor-arg index="1" value="ch.algotrader.config.IBConfig"/>
+    </bean>
+
     <!-- =========================================== JMX ================================================ -->
 
     <!--  MBean Server -->

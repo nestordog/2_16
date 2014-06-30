@@ -22,7 +22,7 @@ import java.math.BigDecimal;
 import ch.algotrader.enumeration.FeedType;
 
 /**
- * Factory for Algotrader standard platform configuration objects.
+ * Factory for Algotrader core platform configuration objects.
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  *
