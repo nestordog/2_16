@@ -39,6 +39,12 @@ public class CashBalanceTest extends EntityTest {
     }
 
     @Test
+    public void testFindindByStrategyAndCurrency() {
+
+        this.cashBalanceDao.findByStrategyAndCurrency(null, null);
+    }
+
+    @Test
     public void testFindindByStrategyAndCurrencyLocked() {
 
         this.cashBalanceDao.findByStrategyAndCurrencyLocked(null, null);

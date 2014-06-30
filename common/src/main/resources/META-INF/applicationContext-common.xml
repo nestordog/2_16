@@ -5,29 +5,13 @@
        xsi:schemaLocation="
        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
 
-    <!-- ============================= Properties Management ============================================ -->
-
-    <bean class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor"/>
-
-    <bean id="properties" class="ch.algotrader.util.spring.SystemPropertiesFactoryBean">
-        <property name="locations">
-            <list>
-                <!--  defining conf.properties will allow overwrites by strategies -->
-                <!--  files have to be defined in a subdirectory of classloader root otherwise they cannot be loaded from jars -->
-                <value>classpath:/META-INF/conf.properties</value>
-                <value>classpath*:/META-INF/conf-**.properties</value>
-            </list>
-        </property>
-        <property name="systemPropertiesModeName"><value>SYSTEM_PROPERTIES_MODE_OVERRIDE</value></property>
-    </bean>
-
-    <!--  PropertyPlaceholderConfigurer to overwrite settings form commandline -->
-    <bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-        <property name="properties" ref="properties" />
-        <property name="systemPropertiesModeName"><value>SYSTEM_PROPERTIES_MODE_NEVER</value></property>
-    </bean>
+    <!-- ============================= Configuration Management & Logging ============================================ -->
 
     <bean id="configParams" class="ch.algotrader.config.spring.ConfigParamsFactoryBean" />
+
+    <bean id="properties" class="ch.algotrader.config.spring.ConfigPropertiesFactoryBean">
+        <constructor-arg index="0" ref="configParams"/>
+    </bean>
 
     <bean id="configLocator" class="ch.algotrader.config.spring.ConfigLocatorFactoryBean">
         <constructor-arg index="0" ref="configParams"/>
@@ -38,7 +22,12 @@
         <constructor-arg index="1" value="ch.algotrader.config.CommonConfig"/>
     </bean>
 
-    <bean class="ch.algotrader.util.spring.EntityAnnotationSetter" init-method="init"/>
+    <bean class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor"/>
+
+    <bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="properties" ref="properties" />
+        <property name="systemPropertiesModeName"><value>SYSTEM_PROPERTIES_MODE_NEVER</value></property>
+    </bean>
 
     <bean class="ch.algotrader.util.LogLevelSetter" init-method="init"/>
 

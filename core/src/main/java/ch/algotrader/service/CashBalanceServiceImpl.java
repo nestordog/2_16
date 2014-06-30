@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 
 import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.strategy.CashBalance;
@@ -41,6 +42,8 @@ public class CashBalanceServiceImpl extends CashBalanceServiceBase {
 
     private static Logger logger = MyLogger.getLogger(CashBalanceServiceImpl.class.getName());
 
+    private @Value("${simulation}") boolean simulation;
+
     @Override
     protected void handleProcessTransaction(Transaction transaction) throws Exception {
 
@@ -54,7 +57,12 @@ public class CashBalanceServiceImpl extends CashBalanceServiceBase {
     protected void handleProcessAmount(String strategyName, CurrencyAmountVO currencyAmount) throws Exception {
 
         Strategy strategy = getStrategyDao().findByName(strategyName);
-        CashBalance cashBalance = getCashBalanceDao().findByStrategyAndCurrencyLocked(strategy, currencyAmount.getCurrency());
+        CashBalance cashBalance;
+        if (this.simulation) {
+            cashBalance = getCashBalanceDao().findByStrategyAndCurrency(strategy, currencyAmount.getCurrency());
+        } else {
+            cashBalance = getCashBalanceDao().findByStrategyAndCurrencyLocked(strategy, currencyAmount.getCurrency());
+        }
 
         // create the cashBalance, if it does not exist yet
         if (cashBalance == null) {
@@ -102,7 +110,12 @@ public class CashBalanceServiceImpl extends CashBalanceServiceBase {
             Currency currency = entry.getKey().getSecond();
             BigDecimal amount = entry.getValue().setScale(getCommonConfig().getPortfolioDigits(), BigDecimal.ROUND_HALF_UP);
 
-            CashBalance cashBalance = getCashBalanceDao().findByStrategyAndCurrencyLocked(strategy, currency);
+            CashBalance cashBalance;
+            if (this.simulation) {
+                cashBalance = getCashBalanceDao().findByStrategyAndCurrency(strategy, currency);
+            } else {
+                cashBalance = getCashBalanceDao().findByStrategyAndCurrencyLocked(strategy, currency);
+            }
 
             if (cashBalance != null) {
 
