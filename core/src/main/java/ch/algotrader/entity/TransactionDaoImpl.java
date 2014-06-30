@@ -19,8 +19,7 @@ package ch.algotrader.entity;
 
 import java.math.BigDecimal;
 
-import org.springframework.beans.factory.annotation.Value;
-
+import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.vo.TransactionVO;
 
@@ -31,7 +30,10 @@ import ch.algotrader.vo.TransactionVO;
  */
 public class TransactionDaoImpl extends TransactionDaoBase {
 
-    private @Value("${misc.portfolioDigits}") int portfolioDigits;
+    private CommonConfig commonConfig;
+    public void setCommonConfig(CommonConfig commonConfig) {
+        this.commonConfig = commonConfig;
+    }
 
     @Override
     public void toTransactionVO(Transaction transaction, TransactionVO transactionVO) {
@@ -60,7 +62,7 @@ public class TransactionDaoImpl extends TransactionDaoBase {
             int scale = security.getSecurityFamily().getScale();
             transactionVO.setPrice(transaction.getPrice().setScale(scale, BigDecimal.ROUND_HALF_UP));
         } else {
-            transactionVO.setPrice(transaction.getPrice().setScale(this.portfolioDigits, BigDecimal.ROUND_HALF_UP));
+            transactionVO.setPrice(transaction.getPrice().setScale(this.commonConfig.getPortfolioDigits(), BigDecimal.ROUND_HALF_UP));
         }
 
         transactionVO.setStrategy(transaction.getStrategy().toString());

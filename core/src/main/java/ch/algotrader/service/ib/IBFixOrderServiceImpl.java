@@ -17,12 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.service.ib;
 
-import org.springframework.beans.factory.annotation.Value;
-
-import ch.algotrader.entity.security.Option;
-import ch.algotrader.entity.trade.SimpleOrder;
-import ch.algotrader.enumeration.OrderServiceType;
-import ch.algotrader.service.InitializingServiceI;
 import quickfix.field.Account;
 import quickfix.field.AllocationGroup;
 import quickfix.field.AllocationMethod;
@@ -35,6 +29,10 @@ import quickfix.field.OpenClose;
 import quickfix.fix42.NewOrderSingle;
 import quickfix.fix42.OrderCancelReplaceRequest;
 import quickfix.fix42.OrderCancelRequest;
+import ch.algotrader.entity.security.Option;
+import ch.algotrader.entity.trade.SimpleOrder;
+import ch.algotrader.enumeration.OrderServiceType;
+import ch.algotrader.service.InitializingServiceI;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -44,8 +42,6 @@ import quickfix.fix42.OrderCancelRequest;
 public class IBFixOrderServiceImpl extends IBFixOrderServiceBase implements InitializingServiceI {
 
     private static final long serialVersionUID = -537844523983750001L;
-
-    private @Value("${ib.faMethod}") String faMethod;
 
     @Override
     protected void handleSendOrder(SimpleOrder order, NewOrderSingle newOrder) {
@@ -62,7 +58,7 @@ public class IBFixOrderServiceImpl extends IBFixOrderServiceBase implements Init
         // handling for financial advisor account groups
         if (order.getAccount().getExtAccountGroup() != null) {
             newOrder.set(new AllocationGroup(order.getAccount().getExtAccountGroup()));
-            newOrder.set(new AllocationMethod(this.faMethod));
+            newOrder.set(new AllocationMethod(this.getIBConfig().getFaMethod()));
 
             // handling for financial advisor allocation profiles
         } else if (order.getAccount().getExtAllocationProfile() != null) {
@@ -94,7 +90,7 @@ public class IBFixOrderServiceImpl extends IBFixOrderServiceBase implements Init
         // handling for financial advisor account groups
         if (order.getAccount().getExtAccountGroup() != null) {
             replaceRequest.set(new AllocationGroup(order.getAccount().getExtAccountGroup()));
-            replaceRequest.set(new AllocationMethod(this.faMethod));
+            replaceRequest.set(new AllocationMethod(this.getIBConfig().getFaMethod()));
 
             // handling for financial advisor allocation profiles
         } else if (order.getAccount().getExtAllocationProfile() != null) {
@@ -118,7 +114,7 @@ public class IBFixOrderServiceImpl extends IBFixOrderServiceBase implements Init
         // handling for financial advisor account groups
         if (order.getAccount().getExtAccountGroup() != null) {
             cancelRequest.set(new AllocationGroup(order.getAccount().getExtAccountGroup()));
-            cancelRequest.set(new AllocationMethod(this.faMethod));
+            cancelRequest.set(new AllocationMethod(this.getIBConfig().getFaMethod()));
 
             // handling for financial advisor allocation profiles
         } else if (order.getAccount().getExtAllocationProfile() != null) {

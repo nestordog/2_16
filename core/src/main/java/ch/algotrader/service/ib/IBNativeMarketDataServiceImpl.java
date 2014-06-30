@@ -19,9 +19,6 @@ package ch.algotrader.service.ib;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.annotation.Value;
-
-import com.ib.client.Contract;
 
 import ch.algotrader.adapter.ib.IBUtil;
 import ch.algotrader.entity.marketData.Tick;
@@ -31,6 +28,8 @@ import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.vo.SubscribeTickVO;
 
+import com.ib.client.Contract;
+
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
@@ -39,8 +38,6 @@ import ch.algotrader.vo.SubscribeTickVO;
 public class IBNativeMarketDataServiceImpl extends IBNativeMarketDataServiceBase implements DisposableBean {
 
     private static Logger logger = MyLogger.getLogger(IBNativeMarketDataServiceImpl.class.getName());
-
-    private @Value("${ib.genericTickList}") String genericTickList;
 
     @Override
     protected void handleInitSubscriptions() {
@@ -72,7 +69,7 @@ public class IBNativeMarketDataServiceImpl extends IBNativeMarketDataServiceBase
         // requestMarketData from IB
         Contract contract = IBUtil.getContract(security);
 
-        getIBSession().reqMktData(tickerId, contract, this.genericTickList, false);
+        getIBSession().reqMktData(tickerId, contract, this.getIBConfig().getGenericTickList(), false);
 
         logger.debug("requested market data for: " + security + " tickerId: " + tickerId);
     }

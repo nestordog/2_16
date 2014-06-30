@@ -27,16 +27,6 @@
         <constructor-arg index="1" value="ch.algotrader.config.CoreConfig"/>
     </bean>
 
-    <bean id="bbConfig" class="ch.algotrader.config.spring.ConfigBeanFactoryBean">
-        <constructor-arg index="0" ref="configLocator"/>
-        <constructor-arg index="1" value="ch.algotrader.config.BBConfig"/>
-    </bean>
-
-    <bean id="ibConfig" class="ch.algotrader.config.spring.ConfigBeanFactoryBean">
-        <constructor-arg index="0" ref="configLocator"/>
-        <constructor-arg index="1" value="ch.algotrader.config.IBConfig"/>
-    </bean>
-
     <!-- =========================================== JMX ================================================ -->
 
     <!--  MBean Server -->
@@ -228,6 +218,11 @@
 
     <beans profile="iBNative,iBMarketData,iBSecurityRetrieval,iBHistoricalData">
 
+        <bean id="ibConfig" class="ch.algotrader.config.spring.ConfigBeanFactoryBean">
+            <constructor-arg index="0" ref="configLocator"/>
+            <constructor-arg index="1" value="ch.algotrader.config.IBConfig"/>
+        </bean>
+
         <bean id="iBSessionAdapter" class="ch.algotrader.adapter.ib.DefaultIBAdapter"/>
 
         <bean id="iBSessionLifecycle" class="ch.algotrader.adapter.ib.DefaultIBSessionLifecycle">
@@ -269,7 +264,14 @@
     <!-- =================================== Bloomberg  ========================================= -->
 
     <beans profile="bBMarketData,bBHistoricalData,bBSecurityRetrieval">
-        <bean id="bBAdapter" class="ch.algotrader.adapter.bb.BBAdapter"/>
+
+        <bean id="bbConfig" class="ch.algotrader.config.spring.ConfigBeanFactoryBean">
+            <constructor-arg index="0" ref="configLocator"/>
+            <constructor-arg index="1" value="ch.algotrader.config.BBConfig"/>
+        </bean>
+        <bean id="bBAdapter" class="ch.algotrader.adapter.bb.BBAdapter">
+          <constructor-arg index="0" ref="bbConfig"/>
+        </bean>
     </beans>
 
     <!-- =================================== Fix  ========================================= -->

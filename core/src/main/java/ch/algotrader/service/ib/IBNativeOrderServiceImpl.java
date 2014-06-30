@@ -21,9 +21,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Value;
-
-import com.ib.client.Contract;
 
 import ch.algotrader.adapter.ib.IBUtil;
 import ch.algotrader.entity.trade.LimitOrderI;
@@ -34,6 +31,8 @@ import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.enumeration.TIF;
 import ch.algotrader.util.MyLogger;
 
+import com.ib.client.Contract;
+
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
@@ -43,8 +42,6 @@ public class IBNativeOrderServiceImpl extends IBNativeOrderServiceBase {
 
     private static Logger logger = MyLogger.getLogger(IBNativeOrderServiceImpl.class.getName());
     private static DateFormat format = new SimpleDateFormat("yyyyMMdd HH:mm:ss");
-
-    private @Value("${ib.faMethod}") String faMethod;
 
     private static boolean firstOrder = true;
 
@@ -138,7 +135,7 @@ public class IBNativeOrderServiceImpl extends IBNativeOrderServiceBase {
         } else if (order.getAccount().getExtAccountGroup() != null) {
 
             ibOrder.m_faGroup = order.getAccount().getExtAccountGroup();
-            ibOrder.m_faMethod = this.faMethod;
+            ibOrder.m_faMethod = this.getIBConfig().getFaMethod();
 
             //            long existingQuantity = 0;
             //            for (Position position : order.getSecurity().getPositions()) {

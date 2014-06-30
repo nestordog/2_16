@@ -58,4 +58,10 @@
             <property name="profilesQueue" ref="profilesQueue"/>]]></to>
         </mapping>
 
+        <!-- add commonConfig to TransactionDAO -->
+        <mapping>
+            <from><![CDATA[<!-- Transaction entity property merge-point -->]]></from>
+            <to><![CDATA[<property name="commonConfig" ref="commonConfig"/>]]></to>
+        </mapping>
+
 </mappings>

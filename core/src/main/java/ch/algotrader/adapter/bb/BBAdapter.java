@@ -20,10 +20,11 @@ package ch.algotrader.adapter.bb;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
+
+import ch.algotrader.config.BBConfig;
 
 import com.bloomberglp.blpapi.SessionOptions;
 
@@ -39,10 +40,12 @@ import com.bloomberglp.blpapi.SessionOptions;
 @ManagedResource(objectName = "ch.algotrader.adapter.bb:name=BBAdapter")
 public class BBAdapter {
 
-    private @Value("${bb.host}") String host;
-    private @Value("${bb.port}") int port;
-
     private Map<String, BBSession> sessions = new HashMap<String, BBSession>();
+    private final BBConfig bbConfig;
+
+    public BBAdapter(BBConfig bbConfig) {
+        this.bbConfig = bbConfig;
+    }
 
     /**
      * Returns an asynchronous market data session using the {@link BBMarketDataMessageHandler}
@@ -69,8 +72,8 @@ public class BBAdapter {
 
         // create the session options
         SessionOptions sessionOptions = new SessionOptions();
-        sessionOptions.setServerHost(this.host);
-        sessionOptions.setServerPort(this.port);
+        sessionOptions.setServerHost(this.bbConfig.getHost());
+        sessionOptions.setServerPort(this.bbConfig.getPort());
 
         // create the session
         BBSession session;
