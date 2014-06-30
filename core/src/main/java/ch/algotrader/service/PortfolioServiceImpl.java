@@ -27,7 +27,6 @@ import java.util.Map;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Value;
 
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.Position;
@@ -57,10 +56,6 @@ import ch.algotrader.vo.PortfolioValueVO;
 public class PortfolioServiceImpl extends PortfolioServiceBase {
 
     private static Logger logger = MyLogger.getLogger(PortfolioServiceImpl.class.getName());
-
-    private @Value("${misc.initialMarginMarkup}") double initialMarginMarkup;
-    private @Value("#{T(ch.algotrader.enumeration.Currency).fromString('${misc.portfolioBaseCurrency}')}") Currency portfolioBaseCurrency;
-    private @Value("${misc.intervalDays}") int intervalDays;
 
     @Override
     protected BigDecimal handleGetCashBalance() {
@@ -178,9 +173,10 @@ public class PortfolioServiceImpl extends PortfolioServiceBase {
 
             Security security = openPosition.getSecurityInitialized();
             if (security instanceof Forex) {
-                List<Tick> ticks = getTickDao().findTicksBySecurityAndMaxDate(1, 1, security.getId(), date, this.intervalDays);
+                int intervalDays = getCoreConfig().getIntervalDays();
+                List<Tick> ticks = getTickDao().findTicksBySecurityAndMaxDate(1, 1, security.getId(), date, intervalDays);
                 if (ticks.isEmpty()) {
-                    ticks = getTickDao().findTicksBySecurityAndMinDate(1, 1, security.getId(), date, this.intervalDays);
+                    ticks = getTickDao().findTicksBySecurityAndMinDate(1, 1, security.getId(), date, intervalDays);
                     if (ticks.isEmpty()) {
                         logger.warn("no tick available for " + security + " on " + date);
                         continue;
@@ -196,7 +192,7 @@ public class PortfolioServiceImpl extends PortfolioServiceBase {
         // convert non baseCurrencies
         double amount = 0.0;
         for (Map.Entry<Currency, Double> entry : map.entrySet()) {
-            double fxRate = getForexDao().getRateDoubleByDate(entry.getKey(), this.portfolioBaseCurrency, date);
+            double fxRate = getForexDao().getRateDoubleByDate(entry.getKey(), getCommonConfig().getPortfolioBaseCurrency(), date);
             amount += entry.getValue() * fxRate;
         }
         return amount;
@@ -310,9 +306,10 @@ public class PortfolioServiceImpl extends PortfolioServiceBase {
 
             Security security = openPosition.getSecurityInitialized();
             if (!(security instanceof Forex)) {
-                List<Tick> ticks = getTickDao().findTicksBySecurityAndMaxDate(1, 1, security.getId(), date, this.intervalDays);
+                int intervalDays = getCoreConfig().getIntervalDays();
+                List<Tick> ticks = getTickDao().findTicksBySecurityAndMaxDate(1, 1, security.getId(), date, intervalDays);
                 if (ticks.isEmpty()) {
-                    ticks = getTickDao().findTicksBySecurityAndMinDate(1, 1, security.getId(), date, this.intervalDays);
+                    ticks = getTickDao().findTicksBySecurityAndMinDate(1, 1, security.getId(), date, intervalDays);
                     if (ticks.isEmpty()) {
                         logger.warn("no tick available for " + security + " on " + date);
                         continue;
@@ -327,7 +324,7 @@ public class PortfolioServiceImpl extends PortfolioServiceBase {
 
         double amount = 0.0;
         for (Map.Entry<Currency, Double> entry : map.entrySet()) {
-            double fxRate = getForexDao().getRateDoubleByDate(entry.getKey(), this.portfolioBaseCurrency, date);
+            double fxRate = getForexDao().getRateDoubleByDate(entry.getKey(), getCommonConfig().getPortfolioBaseCurrency(), date);
             amount += entry.getValue() * fxRate;
         }
         return amount;
@@ -380,13 +377,13 @@ public class PortfolioServiceImpl extends PortfolioServiceBase {
     @Override
     protected double handleGetInitialMarginDouble() {
 
-        return this.initialMarginMarkup * getMaintenanceMarginDouble();
+        return getCommonConfig().getInitialMarginMarkup().doubleValue() * getMaintenanceMarginDouble();
     }
 
     @Override
     protected double handleGetInitialMarginDouble(String strategyName) {
 
-        return this.initialMarginMarkup * getMaintenanceMarginDouble(strategyName);
+        return getCommonConfig().getInitialMarginMarkup().doubleValue() * getMaintenanceMarginDouble(strategyName);
     }
 
     @Override
@@ -643,7 +640,7 @@ public class PortfolioServiceImpl extends PortfolioServiceBase {
             double cash = cashMap.get(currency);
             double securities = securitiesMap.get(currency);
             double netLiqValue = cash + securities;
-            double exchangeRate = ServiceLocator.instance().getLookupService().getForexRateDouble(currency, this.portfolioBaseCurrency);
+            double exchangeRate = ServiceLocator.instance().getLookupService().getForexRateDouble(currency, getCommonConfig().getPortfolioBaseCurrency());
             double cashBase = cash * exchangeRate;
             double securitiesBase = securities * exchangeRate;
             double netLiqValueBase = netLiqValue * exchangeRate;

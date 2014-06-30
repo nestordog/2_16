@@ -19,9 +19,7 @@ package ch.algotrader.config;
 
 import java.math.BigDecimal;
 
-import ch.algotrader.enumeration.Currency;
-import ch.algotrader.enumeration.Duration;
-import ch.algotrader.enumeration.MarketDataType;
+import ch.algotrader.enumeration.FeedType;
 
 /**
  * Factory for Algotrader standard platform configuration objects.
@@ -32,81 +30,93 @@ import ch.algotrader.enumeration.MarketDataType;
  */
 public final class CoreConfigBuilder {
 
-    private String strategyName;
-    private String dataSet;
-    private MarketDataType dataSetType;
-    private Duration barSize;
-    private boolean simulation;
-    private BigDecimal simulationInitialBalance;
-    private boolean singleVM;
-    private int portfolioDigits;
-    private Currency portfolioBaseCurrency;
+    private boolean simulateOptions;
+    private boolean simulateFuturesByUnderlying;
+    private boolean simulateFuturesByGenericFutures;
+    private int transactionDisplayCount;
+    private int intervalDays;
+    private BigDecimal rebalanceMinAmount;
+    private FeedType defaultFeedType;
+    private boolean fxFutureHedgeEnabled;
+    private int fxFutureHedgeMinTimeToExpiration;
+    private int fxHedgeMinAmount;
+    private int fxHedgeBatchSize;
+    private int deltaHedgeMinTimeToExpiration;
 
     CoreConfigBuilder() {
-        this.strategyName = "BASE";
-        this.dataSet = "current";
-        this.dataSetType = MarketDataType.TICK;
-        this.barSize = Duration.MIN_1;
-        this.simulation = false;
-        this.simulationInitialBalance = new BigDecimal(1000000L);
-        this.singleVM = false;
-        this.portfolioDigits = 2;
-        this.portfolioBaseCurrency = Currency.USD;
+        this.rebalanceMinAmount = new BigDecimal("1000");
+        this.defaultFeedType = FeedType.IB;
     }
 
     public static CoreConfigBuilder create() {
         return new CoreConfigBuilder();
     }
 
-    public CoreConfigBuilder setStrategyName(final String strategyName) {
-        this.strategyName = strategyName;
+    public CoreConfigBuilder setSimulateOptions(boolean simulateOptions) {
+        this.simulateOptions = simulateOptions;
         return this;
     }
 
-    public CoreConfigBuilder setDataSet(final String dataSet) {
-        this.dataSet = dataSet;
+    public CoreConfigBuilder setSimulateFuturesByUnderlying(boolean simulateFuturesByUnderlying) {
+        this.simulateFuturesByUnderlying = simulateFuturesByUnderlying;
         return this;
     }
 
-    public CoreConfigBuilder setDataSetType(final MarketDataType dataSetType) {
-        this.dataSetType = dataSetType;
+    public CoreConfigBuilder setSimulateFuturesByGenericFutures(boolean simulateFuturesByGenericFutures) {
+        this.simulateFuturesByGenericFutures = simulateFuturesByGenericFutures;
         return this;
     }
 
-    public CoreConfigBuilder setBarSize(final Duration barSize) {
-        this.barSize = barSize;
+    public CoreConfigBuilder setTransactionDisplayCount(int transactionDisplayCount) {
+        this.transactionDisplayCount = transactionDisplayCount;
         return this;
     }
 
-    public CoreConfigBuilder setSimulation(final boolean simulation) {
-        this.simulation = simulation;
+    public CoreConfigBuilder setIntervalDays(int intervalDays) {
+        this.intervalDays = intervalDays;
         return this;
     }
 
-    public CoreConfigBuilder setSimulationInitialBalance(final BigDecimal simulationInitialBalance) {
-        this.simulationInitialBalance = simulationInitialBalance;
+    public CoreConfigBuilder setRebalanceMinAmount(BigDecimal rebalanceMinAmount) {
+        this.rebalanceMinAmount = rebalanceMinAmount;
         return this;
     }
 
-    public CoreConfigBuilder setSingleVM(boolean singleVM) {
-        this.singleVM = singleVM;
+    public CoreConfigBuilder setDefaultFeedType(FeedType defaultFeedType) {
+        this.defaultFeedType = defaultFeedType;
         return this;
     }
 
-    public CoreConfigBuilder setPortfolioDigits(final int portfolioDigits) {
-        this.portfolioDigits = portfolioDigits;
+    public CoreConfigBuilder setFxFutureHedgeEnabled(boolean fxFutureHedgeEnabled) {
+        this.fxFutureHedgeEnabled = fxFutureHedgeEnabled;
         return this;
     }
 
-    public CoreConfigBuilder setPortfolioBaseCurrency(final Currency portfolioBaseCurrency) {
-        this.portfolioBaseCurrency = portfolioBaseCurrency;
+    public CoreConfigBuilder setFxFutureHedgeMinTimeToExpiration(int fxFutureHedgeMinTimeToExpiration) {
+        this.fxFutureHedgeMinTimeToExpiration = fxFutureHedgeMinTimeToExpiration;
+        return this;
+    }
+
+    public CoreConfigBuilder setFxHedgeMinAmount(int fxHedgeMinAmount) {
+        this.fxHedgeMinAmount = fxHedgeMinAmount;
+        return this;
+    }
+
+    public CoreConfigBuilder setFxHedgeBatchSize(int fxHedgeBatchSize) {
+        this.fxHedgeBatchSize = fxHedgeBatchSize;
+        return this;
+    }
+
+    public CoreConfigBuilder setDeltaHedgeMinTimeToExpiration(int deltaHedgeMinTimeToExpiration) {
+        this.deltaHedgeMinTimeToExpiration = deltaHedgeMinTimeToExpiration;
         return this;
     }
 
     public CoreConfig build() {
-        return new CoreConfig(
-                strategyName, dataSet, dataSetType, barSize, simulation, simulationInitialBalance, singleVM, portfolioDigits,
-                portfolioBaseCurrency);
+        return new CoreConfig(simulateOptions, simulateFuturesByUnderlying, simulateFuturesByGenericFutures, transactionDisplayCount,
+                intervalDays, rebalanceMinAmount, defaultFeedType,
+                fxFutureHedgeEnabled, fxFutureHedgeMinTimeToExpiration, fxHedgeMinAmount, fxHedgeBatchSize,
+                deltaHedgeMinTimeToExpiration);
     }
 
 }

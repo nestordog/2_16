@@ -30,13 +30,11 @@ import org.apache.commons.collections15.keyvalue.MultiKey;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.math.util.MathUtils;
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.support.CronSequenceGenerator;
 
 import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.strategy.PortfolioValue;
 import ch.algotrader.entity.strategy.Strategy;
-import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.TransactionType;
 import ch.algotrader.util.DateUtil;
 import ch.algotrader.util.MyLogger;
@@ -50,10 +48,6 @@ import ch.algotrader.util.RoundUtil;
 public abstract class PortfolioPersistenceServiceImpl extends PortfolioPersistenceServiceBase {
 
     private static Logger logger = MyLogger.getLogger(PortfolioPersistenceServiceImpl.class.getName());
-
-    private @Value("#{T(ch.algotrader.enumeration.Currency).fromString('${misc.portfolioBaseCurrency}')}") Currency portfolioBaseCurrency;
-    private @Value("${misc.rebalanceMinAmount}") double rebalanceMinAmount;
-    private @Value("${simulation}") boolean simulation;
 
     @Override
     protected void handleRebalancePortfolio() throws Exception {
@@ -77,7 +71,7 @@ public abstract class PortfolioPersistenceServiceImpl extends PortfolioPersisten
             double targetNetLiqValue = MathUtils.round(portfolioNetLiqValue * strategy.getAllocation(), 2);
             double rebalanceAmount = targetNetLiqValue - actualNetLiqValue;
 
-            if (Math.abs(rebalanceAmount) >= this.rebalanceMinAmount) {
+            if (Math.abs(rebalanceAmount) >= getCoreConfig().getRebalanceMinAmount().doubleValue()) {
 
                 totalRebalanceAmount += rebalanceAmount;
 
@@ -85,7 +79,7 @@ public abstract class PortfolioPersistenceServiceImpl extends PortfolioPersisten
                 transaction.setDateTime(DateUtil.getCurrentEPTime());
                 transaction.setQuantity(targetNetLiqValue > actualNetLiqValue ? +1 : -1);
                 transaction.setPrice(RoundUtil.getBigDecimal(Math.abs(rebalanceAmount)));
-                transaction.setCurrency(this.portfolioBaseCurrency);
+                transaction.setCurrency(getCommonConfig().getPortfolioBaseCurrency());
                 transaction.setType(TransactionType.REBALANCE);
                 transaction.setStrategy(strategy);
 
@@ -105,7 +99,7 @@ public abstract class PortfolioPersistenceServiceImpl extends PortfolioPersisten
             transaction.setDateTime(DateUtil.getCurrentEPTime());
             transaction.setQuantity((int) Math.signum(-1.0 * totalRebalanceAmount));
             transaction.setPrice(RoundUtil.getBigDecimal(Math.abs(totalRebalanceAmount)));
-            transaction.setCurrency(this.portfolioBaseCurrency);
+            transaction.setCurrency(getCommonConfig().getPortfolioBaseCurrency());
             transaction.setType(TransactionType.REBALANCE);
             transaction.setStrategy(base);
 
@@ -113,7 +107,7 @@ public abstract class PortfolioPersistenceServiceImpl extends PortfolioPersisten
 
         } else {
 
-            logger.info("no rebalancing is performed because all rebalancing amounts are below min amount " + this.rebalanceMinAmount);
+            logger.info("no rebalancing is performed because all rebalancing amounts are below min amount " + getCoreConfig().getRebalanceMinAmount());
         }
 
         for (Transaction transaction : transactions) {
@@ -140,7 +134,7 @@ public abstract class PortfolioPersistenceServiceImpl extends PortfolioPersisten
     protected void handleSavePortfolioValue(Transaction transaction) throws Exception {
 
         // do not save PortfolioValue in simulation
-        if (this.simulation) {
+        if (getCommonConfig().isSimulation()) {
             return;
         }
 

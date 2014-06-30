@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Value;
 
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.config.CommonConfig;
@@ -63,8 +62,6 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
     private static Logger logger = MyLogger.getLogger(TransactionServiceImpl.class.getName());
     private static Logger mailLogger = MyLogger.getLogger(TransactionServiceImpl.class.getName() + ".MAIL");
     private static Logger simulationLogger = MyLogger.getLogger(SimulationServiceImpl.class.getName() + ".RESULT");
-
-    private @Value("${simulation}") boolean simulation;
 
     @Override
     protected void handleCreateTransaction(Fill fill) {
@@ -219,7 +216,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
             // create a new position if necessary
             boolean existingOpenPosition = false;
             Position position;
-            if (this.simulation) {
+            if (getCommonConfig().isSimulation()) {
                 position = getPositionDao().findBySecurityAndStrategyIdLocked(transaction.getSecurity().getId(), transaction.getStrategy().getId());
             } else {
                 position = getPositionDao().findBySecurityAndStrategy(transaction.getSecurity().getId(), transaction.getStrategy().getName());

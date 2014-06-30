@@ -25,8 +25,8 @@ import java.util.List;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.math.util.MathUtils;
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Value;
 
+import ch.algotrader.config.CoreConfig;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.security.Forex;
@@ -52,18 +52,14 @@ public class ForexServiceImpl extends ForexServiceBase {
     private static Logger logger = MyLogger.getLogger(ForexServiceImpl.class.getName());
     private static Logger notificationLogger = MyLogger.getLogger("ch.algotrader.service.NOTIFICATION");
 
-    private @Value("${fx.futureHedgeEnabled}") boolean fxFutureHedgeEnabled;
-    private @Value("${fx.futureHedgeMinTimeToExpiration}") int fxFutureHedgeMinTimeToExpiration;
-    private @Value("${fx.hedgeMinAmount}") int fxHedgeMinAmount;
-    private @Value("${fx.hedgeBatchSize}") int fxHedgeBatchSize;
-
     @Override
     protected void handleHedgeForex() throws Exception {
 
         Strategy base = getStrategyDao().findBase();
 
+        CoreConfig coreConfig = getCoreConfig();
         // potentially close a Forex Future position if it is below the MinTimeToExpiration
-        if (this.fxFutureHedgeEnabled) {
+        if (coreConfig.isFxFutureHedgeEnabled()) {
 
             // get the closing orders
             final List<Order> orders = new ArrayList<Order>();
@@ -85,7 +81,7 @@ public class ForexServiceImpl extends ForexServiceBase {
                     continue;
                 }
 
-                if (future.getTimeToExpiration() < this.fxFutureHedgeMinTimeToExpiration) {
+                if (future.getTimeToExpiration() < coreConfig.getFxFutureHedgeMinTimeToExpiration()) {
 
                     Order order = getLookupService().getOrderByStrategyAndSecurityFamily(StrategyImpl.BASE, future.getSecurityFamily().getId());
                     order.setStrategy(base);
@@ -125,7 +121,7 @@ public class ForexServiceImpl extends ForexServiceBase {
             double netLiqValueBase = balance.getExchangeRate() * netLiqValue;
 
             // check if amount is larger than minimum
-            if (Math.abs(netLiqValueBase) >= this.fxHedgeMinAmount) {
+            if (Math.abs(netLiqValueBase) >= coreConfig.getFxHedgeMinAmount()) {
 
                 // get the forex
                 Forex forex = getForexDao().getForex(portfolioBaseCurrency, balance.getCurrency());
@@ -138,7 +134,7 @@ public class ForexServiceImpl extends ForexServiceBase {
 
                 // if a hedging family is defined for this Forex use it instead of the Forex directly
                 int qty;
-                if (this.fxFutureHedgeEnabled) {
+                if (coreConfig.isFxFutureHedgeEnabled()) {
 
                     Subscription forexSubscription = getSubscriptionDao().findByStrategyAndSecurity(StrategyImpl.BASE, forex.getId());
                     if (!forexSubscription.hasProperty("hedgingFamily")) {
@@ -147,7 +143,7 @@ public class ForexServiceImpl extends ForexServiceBase {
 
                     FutureFamily futureFamily = getFutureFamilyDao().load(forexSubscription.getIntProperty("hedgingFamily"));
 
-                    Date targetDate = DateUtils.addMilliseconds(DateUtil.getCurrentEPTime(), this.fxFutureHedgeMinTimeToExpiration);
+                    Date targetDate = DateUtils.addMilliseconds(DateUtil.getCurrentEPTime(), coreConfig.getFxFutureHedgeMinTimeToExpiration());
                     Future future = getLookupService().getFutureByMinExpiration(futureFamily.getId(), targetDate);
 
                     // make sure the future is subscriped
@@ -163,7 +159,7 @@ public class ForexServiceImpl extends ForexServiceBase {
                     order.setSecurity(forex);
 
                     // round to batchSize
-                    qty = (int) RoundUtil.roundToNextN(tradeValue, this.fxHedgeBatchSize);
+                    qty = (int) RoundUtil.roundToNextN(tradeValue, coreConfig.getFxHedgeBatchSize());
                 }
 
                 if (forex.getBaseCurrency().equals(portfolioBaseCurrency)) {
@@ -184,7 +180,7 @@ public class ForexServiceImpl extends ForexServiceBase {
             } else {
 
                 logger.info("no forex hedge is performed on " + balance.getCurrency() + " because amount " + RoundUtil.getBigDecimal(Math.abs(netLiqValueBase)) + " is below "
-                        + this.fxHedgeMinAmount);
+                        + coreConfig.getFxHedgeMinAmount());
                 continue;
             }
         }

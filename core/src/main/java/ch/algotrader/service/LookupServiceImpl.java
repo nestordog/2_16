@@ -30,7 +30,6 @@ import javax.jms.IllegalStateException;
 
 import org.apache.commons.collections.map.MultiValueMap;
 import org.apache.commons.lang.math.NumberUtils;
-import org.springframework.beans.factory.annotation.Value;
 
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.Position;
@@ -77,13 +76,6 @@ import ch.algotrader.vo.TransactionVO;
  * @version $Revision$ $Date$
  */
 public class LookupServiceImpl extends LookupServiceBase {
-
-    private @Value("${simulation}") boolean simulation;
-    private @Value("${statement.simulateOptions}") boolean simulateOptions;
-    private @Value("${statement.simulateFuturesByUnderlying}") boolean simulateFuturesByUnderlying;
-    private @Value("${statement.simulateFuturesByGenericFutures}") boolean simulateFuturesByGenericFutures;
-    private @Value("${misc.transactionDisplayCount}") int transactionDisplayCount;
-    private @Value("${misc.intervalDays}") int intervalDays;
 
     private Map<String, Integer> securitySymbolMap = new HashMap<String, Integer>();
     private Map<String, Integer> securityIsinMap = new HashMap<String, Integer>();
@@ -307,7 +299,7 @@ public class LookupServiceImpl extends LookupServiceBase {
         Option option = CollectionUtil.getSingleElementOrNull(getOptionDao().findByMinExpirationAndMinStrikeDistance(1, 1, underlyingId, targetExpirationDate, underlyingSpot, optionType));
 
         // if no stock option was found, create it if simulating options
-        if (this.simulation && this.simulateOptions) {
+        if (getCommonConfig().isSimulation() && getCoreConfig().isSimulateOptions()) {
 
             OptionFamily family = getOptionFamilyDao().findByUnderlying(underlyingId);
             if ((option == null) || Math.abs(option.getStrike().doubleValue() - underlyingSpot.doubleValue()) > family.getStrikeDistance()) {
@@ -340,7 +332,7 @@ public class LookupServiceImpl extends LookupServiceBase {
         Option option = CollectionUtil.getSingleElementOrNull(getOptionDao().findByMinExpirationAndStrikeLimit(1, 1, underlyingId, targetExpirationDate, underlyingSpot, optionType));
 
         // if no future was found, create it if simulating options
-        if (this.simulation && this.simulateOptions) {
+        if (getCommonConfig().isSimulation() && getCoreConfig().isSimulateOptions()) {
             if ((option == null) || Math.abs(option.getStrike().doubleValue() - underlyingSpot.doubleValue()) > family.getStrikeDistance()) {
 
                 option = getOptionService().createDummyOption(family.getId(), targetExpirationDate, underlyingSpot, optionType);
@@ -375,7 +367,7 @@ public class LookupServiceImpl extends LookupServiceBase {
         Future future = CollectionUtil.getSingleElementOrNull(getFutureDao().findByMinExpiration(1, 1, futureFamilyId, expirationDate));
 
         // if no future was found, create the missing part of the future-chain
-        if (this.simulation && future == null && (this.simulateFuturesByUnderlying || this.simulateFuturesByGenericFutures)) {
+        if (getCommonConfig().isSimulation() && future == null && (getCoreConfig().isSimulateFuturesByUnderlying() || getCoreConfig().isSimulateFuturesByGenericFutures())) {
 
             getFutureService().createDummyFutures(futureFamilyId);
 
@@ -395,7 +387,7 @@ public class LookupServiceImpl extends LookupServiceBase {
         Future future = getFutureDao().findByExpirationInclSecurityFamily(futureFamilyId, expirationDate);
 
         // if no future was found, create the missing part of the future-chain
-        if (this.simulation && future == null && (this.simulateFuturesByUnderlying || this.simulateFuturesByGenericFutures)) {
+        if (getCommonConfig().isSimulation() && future == null && (getCoreConfig().isSimulateFuturesByUnderlying() || getCoreConfig().isSimulateFuturesByGenericFutures())) {
 
             getFutureService().createDummyFutures(futureFamilyId);
             future = getFutureDao().findByExpirationInclSecurityFamily(futureFamilyId, expirationDate);
@@ -418,7 +410,7 @@ public class LookupServiceImpl extends LookupServiceBase {
         Future future = getFutureDao().findByExpirationInclSecurityFamily(futureFamilyId, expirationDate);
 
         // if no future was found, create the missing part of the future-chain
-        if (this.simulation && future == null && (this.simulateFuturesByUnderlying || this.simulateFuturesByGenericFutures)) {
+        if (getCommonConfig().isSimulation() && future == null && (getCoreConfig().isSimulateFuturesByUnderlying() || getCoreConfig().isSimulateFuturesByGenericFutures())) {
 
             getFutureService().createDummyFutures(futureFamily.getId());
             future = getFutureDao().findByExpirationInclSecurityFamily(futureFamilyId, expirationDate);
@@ -647,10 +639,11 @@ public class LookupServiceImpl extends LookupServiceBase {
     @Override
     protected List<TransactionVO> handleGetTransactionsVO(String strategyName) throws Exception {
 
+        int transactionDisplayCount = getCoreConfig().getTransactionDisplayCount();
         if (strategyName.equals(StrategyImpl.BASE)) {
-            return (List<TransactionVO>) getTransactionDao().findTransactionsDesc(TransactionDao.TRANSFORM_TRANSACTIONVO, 1, this.transactionDisplayCount);
+            return (List<TransactionVO>) getTransactionDao().findTransactionsDesc(TransactionDao.TRANSFORM_TRANSACTIONVO, 1, transactionDisplayCount);
         } else {
-            return (List<TransactionVO>) getTransactionDao().findTransactionsByStrategyDesc(TransactionDao.TRANSFORM_TRANSACTIONVO, 1, this.transactionDisplayCount, strategyName);
+            return (List<TransactionVO>) getTransactionDao().findTransactionsByStrategyDesc(TransactionDao.TRANSFORM_TRANSACTIONVO, 1, transactionDisplayCount, strategyName);
         }
     }
 
@@ -733,7 +726,7 @@ public class LookupServiceImpl extends LookupServiceBase {
     @Override
     protected Tick handleGetLastTick(int securityId) throws Exception {
 
-        Tick tick = CollectionUtil.getSingleElementOrNull(getTickDao().findTicksBySecurityAndMaxDate(1, 1, securityId, DateUtil.getCurrentEPTime(), this.intervalDays));
+        Tick tick = CollectionUtil.getSingleElementOrNull(getTickDao().findTicksBySecurityAndMaxDate(1, 1, securityId, DateUtil.getCurrentEPTime(), getCoreConfig().getIntervalDays()));
 
         if (tick != null) {
             tick.getSecurity().initialize();
@@ -745,13 +738,13 @@ public class LookupServiceImpl extends LookupServiceBase {
     @Override
     protected List<Tick> handleGetTicksByMaxDate(int securityId, Date maxDate) throws Exception {
 
-        return getTickDao().findTicksBySecurityAndMaxDate(securityId, maxDate, this.intervalDays);
+        return getTickDao().findTicksBySecurityAndMaxDate(securityId, maxDate, getCoreConfig().getIntervalDays());
     }
 
     @Override
     protected List<Tick> handleGetTicksByMinDate(int securityId, Date minDate) throws Exception {
 
-        return getTickDao().findTicksBySecurityAndMinDate(securityId, minDate, this.intervalDays);
+        return getTickDao().findTicksBySecurityAndMinDate(securityId, minDate, getCoreConfig().getIntervalDays());
     }
 
     @Override
@@ -851,7 +844,7 @@ public class LookupServiceImpl extends LookupServiceBase {
 
         IntrestRate intrestRate = getIntrestRateDao().findByCurrencyAndDuration(currency, duration);
 
-        List<Tick> ticks = getTickDao().findTicksBySecurityAndMaxDate(1, 1, intrestRate.getId(), date, this.intervalDays);
+        List<Tick> ticks = getTickDao().findTicksBySecurityAndMaxDate(1, 1, intrestRate.getId(), date, getCoreConfig().getIntervalDays());
         if (ticks.isEmpty()) {
             throw new IllegalStateException("cannot get intrestRate for " + currency + " and duration " + duration + " because no last tick is available for date " + date);
         }

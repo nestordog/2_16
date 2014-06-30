@@ -528,7 +528,7 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
 
         StringBuffer buffer = new StringBuffer();
         buffer.append("execution time (min): " + (new DecimalFormat("0.00")).format(resultVO.getMins()) + "\r\n");
-        buffer.append("dataSet: " + getCoreConfig().getDataSet() + "\r\n");
+        buffer.append("dataSet: " + getCommonConfig().getDataSet() + "\r\n");
 
         double netLiqValue = resultVO.getNetLiqValue();
         buffer.append("netLiqValue=" + twoDigitFormat.format(netLiqValue) + "\r\n");

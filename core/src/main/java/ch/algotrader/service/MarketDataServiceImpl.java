@@ -31,10 +31,11 @@ import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.dao.DataIntegrityViolationException;
+
+import com.espertech.esper.collection.Pair;
 
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.Subscription;
@@ -50,8 +51,6 @@ import ch.algotrader.util.io.CsvTickWriter;
 import ch.algotrader.util.metric.MetricsUtil;
 import ch.algotrader.vo.GenericEventVO;
 
-import com.espertech.esper.collection.Pair;
-
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
@@ -60,9 +59,6 @@ import com.espertech.esper.collection.Pair;
 public class MarketDataServiceImpl extends MarketDataServiceBase implements ApplicationContextAware {
 
     private static Logger logger = MyLogger.getLogger(MarketDataServiceImpl.class.getName());
-
-    private @Value("${simulation}") boolean simulation;
-    private @Value("#{T(ch.algotrader.enumeration.FeedType).fromString('${misc.defaultFeedType}')}") FeedType feedType;
 
     private Map<Security, CsvTickWriter> csvWriters = new HashMap<Security, CsvTickWriter>();
     private ApplicationContext applicationContext;
@@ -94,7 +90,7 @@ public class MarketDataServiceImpl extends MarketDataServiceBase implements Appl
     @Override
     protected void handleSubscribe(String strategyName, int securityId) throws Exception {
 
-        subscribe(strategyName, securityId, this.feedType);
+        subscribe(strategyName, securityId, getCoreConfig().getDefaultFeedType());
     }
 
     /**
@@ -110,7 +106,7 @@ public class MarketDataServiceImpl extends MarketDataServiceBase implements Appl
             Security security = getSecurityDao().findByIdInclFamilyAndUnderlying(securityId);
 
             // only external subscribe if nobody was watching the specified security with the specified feedType so far
-            if (!this.simulation) {
+            if (!getCommonConfig().isSimulation()) {
                 List<Subscription> subscriptions = getSubscriptionDao().findBySecurityAndFeedTypeForAutoActivateStrategies(securityId, feedType);
                 if (subscriptions.size() == 0) {
                     if (!security.getSecurityFamily().isSynthetic()) {
@@ -134,7 +130,7 @@ public class MarketDataServiceImpl extends MarketDataServiceBase implements Appl
     @Override
     protected void handleUnsubscribe(String strategyName, int securityId) throws Exception {
 
-        unsubscribe(strategyName, securityId, this.feedType);
+        unsubscribe(strategyName, securityId, getCoreConfig().getDefaultFeedType());
     }
 
     @Override
@@ -151,7 +147,7 @@ public class MarketDataServiceImpl extends MarketDataServiceBase implements Appl
             getSubscriptionDao().remove(subscription);
 
             // only external unsubscribe if nobody is watching this security anymore
-            if (!this.simulation) {
+            if (!getCommonConfig().isSimulation()) {
                 if (security.getSubscriptions().size() == 0) {
                     if (!security.getSecurityFamily().isSynthetic()) {
                         getExternalMarketDataService(feedType).unsubscribe(security);

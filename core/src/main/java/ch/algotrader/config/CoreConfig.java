@@ -20,12 +20,10 @@ package ch.algotrader.config;
 
 import java.math.BigDecimal;
 
-import ch.algotrader.enumeration.Currency;
-import ch.algotrader.enumeration.Duration;
-import ch.algotrader.enumeration.MarketDataType;
+import ch.algotrader.enumeration.FeedType;
 
 /**
- * Algotrader common configuration object.
+ * Algotrader core configuration object.
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  *
@@ -33,86 +31,109 @@ import ch.algotrader.enumeration.MarketDataType;
  */
 public final class CoreConfig {
 
-    private final String strategyName;
-    private final String dataSet;
-    private final MarketDataType dataSetType;
-    private final Duration barSize;
-    private final boolean simulation;
-    private final BigDecimal simulationInitialBalance;
-    private final boolean singleVM;
-    private final int portfolioDigits;
-    private final Currency portfolioBaseCurrency;
-
+    private final boolean simulateOptions;
+    private final boolean simulateFuturesByUnderlying;
+    private final boolean simulateFuturesByGenericFutures;
+    private final int transactionDisplayCount;
+    private final int intervalDays;
+    private final BigDecimal rebalanceMinAmount;
+    private final FeedType defaultFeedType;
+    private final boolean fxFutureHedgeEnabled;
+    private final int fxFutureHedgeMinTimeToExpiration;
+    private final int fxHedgeMinAmount;
+    private final int fxHedgeBatchSize;
+    private final int deltaHedgeMinTimeToExpiration;
 
     public CoreConfig(
-            @ConfigName("strategyName") final String strategyName,
-            @ConfigName("dataSource.dataSet") final String dataSet,
-            @ConfigName("dataSource.dataSetType") final MarketDataType dataSetType,
-            @ConfigName("dataSource.barSize") final Duration barSize,
-            @ConfigName("simulation") final boolean simulation,
-            @ConfigName("simulation.initialBalance") final BigDecimal simulationInitialBalance,
-            @ConfigName("misc.singleVM") final boolean singleVM,
-            @ConfigName("misc.portfolioDigits") final int portfolioDigits,
-            @ConfigName("misc.portfolioBaseCurrency") final Currency portfolioBaseCurrency) {
-        this.strategyName = strategyName;
-        this.dataSet = dataSet;
-        this.dataSetType = dataSetType;
-        this.barSize = barSize;
-        this.simulation = simulation;
-        this.simulationInitialBalance = simulationInitialBalance;
-        this.singleVM = singleVM;
-        this.portfolioDigits = portfolioDigits;
-        this.portfolioBaseCurrency = portfolioBaseCurrency;
+            @ConfigName("statement.simulateOptions") boolean simulateOptions,
+            @ConfigName("statement.simulateFuturesByUnderlying") boolean simulateFuturesByUnderlying,
+            @ConfigName("statement.simulateFuturesByGenericFutures") boolean simulateFuturesByGenericFutures,
+            @ConfigName("misc.transactionDisplayCount") int transactionDisplayCount,
+            @ConfigName("misc.intervalDays") int intervalDays,
+            @ConfigName("misc.rebalanceMinAmount") BigDecimal rebalanceMinAmount,
+            @ConfigName("misc.defaultFeedType") FeedType defaultFeedType,
+            @ConfigName("fx.futureHedgeEnabled") boolean fxFutureHedgeEnabled,
+            @ConfigName("fx.futureHedgeMinTimeToExpiration") int fxFutureHedgeMinTimeToExpiration,
+            @ConfigName("fx.hedgeMinAmount") int fxHedgeMinAmount,
+            @ConfigName("fx.hedgeBatchSize") int fxHedgeBatchSize,
+            @ConfigName("delta.hedgeMinTimeToExpiration") int deltaHedgeMinTimeToExpiration) {
+        this.simulateOptions = simulateOptions;
+        this.simulateFuturesByUnderlying = simulateFuturesByUnderlying;
+        this.simulateFuturesByGenericFutures = simulateFuturesByGenericFutures;
+        this.transactionDisplayCount = transactionDisplayCount;
+        this.intervalDays = intervalDays;
+        this.rebalanceMinAmount = rebalanceMinAmount;
+        this.defaultFeedType = defaultFeedType;
+        this.fxFutureHedgeEnabled = fxFutureHedgeEnabled;
+        this.fxFutureHedgeMinTimeToExpiration = fxFutureHedgeMinTimeToExpiration;
+        this.fxHedgeMinAmount = fxHedgeMinAmount;
+        this.fxHedgeBatchSize = fxHedgeBatchSize;
+        this.deltaHedgeMinTimeToExpiration = deltaHedgeMinTimeToExpiration;
     }
 
-    public String getStrategyName() {
-        return this.strategyName;
+    public boolean isSimulateOptions() {
+        return simulateOptions;
     }
 
-    public String getDataSet() {
-        return this.dataSet;
+    public boolean isSimulateFuturesByUnderlying() {
+        return simulateFuturesByUnderlying;
     }
 
-    public MarketDataType getDataSetType() {
-        return this.dataSetType;
+    public boolean isSimulateFuturesByGenericFutures() {
+        return simulateFuturesByGenericFutures;
     }
 
-    public Duration getBarSize() {
-        return this.barSize;
+    public int getTransactionDisplayCount() {
+        return transactionDisplayCount;
     }
 
-    public boolean isSimulation() {
-        return this.simulation;
+    public int getIntervalDays() {
+        return intervalDays;
     }
 
-    public BigDecimal getSimulationInitialBalance() {
-        return this.simulationInitialBalance;
+    public BigDecimal getRebalanceMinAmount() {
+        return rebalanceMinAmount;
     }
 
-    public boolean isSingleVM() {
-        return this.singleVM;
+    public FeedType getDefaultFeedType() {
+        return defaultFeedType;
     }
 
-    public int getPortfolioDigits() {
-        return this.portfolioDigits;
+    public boolean isFxFutureHedgeEnabled() {
+        return fxFutureHedgeEnabled;
     }
 
-    public Currency getPortfolioBaseCurrency() {
-        return this.portfolioBaseCurrency;
+    public int getFxFutureHedgeMinTimeToExpiration() {
+        return fxFutureHedgeMinTimeToExpiration;
+    }
+
+    public int getFxHedgeMinAmount() {
+        return fxHedgeMinAmount;
+    }
+
+    public int getFxHedgeBatchSize() {
+        return fxHedgeBatchSize;
+    }
+
+    public int getDeltaHedgeMinTimeToExpiration() {
+        return deltaHedgeMinTimeToExpiration;
     }
 
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("[");
-        sb.append("strategyName='").append(this.strategyName).append('\'');
-        sb.append(", dataSet='").append(this.dataSet).append('\'');
-        sb.append(", dataSetType=").append(this.dataSetType);
-        sb.append(", barSize=").append(this.barSize);
-        sb.append(", simulation=").append(this.simulation);
-        sb.append(", simulationInitialBalance=").append(this.simulationInitialBalance);
-        sb.append(", singleVM=").append(this.singleVM);
-        sb.append(", portfolioDigits=").append(this.portfolioDigits);
-        sb.append(", portfolioBaseCurrency=").append(this.portfolioBaseCurrency);
+        sb.append("simulateOptions=").append(simulateOptions);
+        sb.append(", simulateFuturesByUnderlying=").append(simulateFuturesByUnderlying);
+        sb.append(", simulateFuturesByGenericFutures=").append(simulateFuturesByGenericFutures);
+        sb.append(", transactionDisplayCount=").append(transactionDisplayCount);
+        sb.append(", intervalDays=").append(intervalDays);
+        sb.append(", rebalanceMinAmount=").append(rebalanceMinAmount);
+        sb.append(", defaultFeedType=").append(defaultFeedType);
+        sb.append(", fxFutureHedgeEnabled=").append(fxFutureHedgeEnabled);
+        sb.append(", fxFutureHedgeMinTimeToExpiration=").append(fxFutureHedgeMinTimeToExpiration);
+        sb.append(", fxHedgeMinAmount=").append(fxHedgeMinAmount);
+        sb.append(", fxHedgeBatchSize=").append(fxHedgeBatchSize);
+        sb.append(", deltaHedgeMinTimeToExpiration=").append(deltaHedgeMinTimeToExpiration);
         sb.append(']');
         return sb.toString();
     }

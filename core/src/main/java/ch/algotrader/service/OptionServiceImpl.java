@@ -35,7 +35,6 @@ import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.math.MathException;
 import org.apache.commons.math.util.MathUtils;
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Value;
 
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.Subscription;
@@ -76,8 +75,6 @@ public class OptionServiceImpl extends OptionServiceBase {
     private static int advanceMinutes = 10;
     private static SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy.MM.dd kk:mm:ss");
 
-    private @Value("${delta.hedgeMinTimeToExpiration}") int deltaHedgeMinTimeToExpiration;
-
     @Override
     protected void handleHedgeDelta(int underlyingId) throws Exception {
 
@@ -99,7 +96,7 @@ public class OptionServiceImpl extends OptionServiceBase {
 
         final FutureFamily futureFamily = getFutureFamilyDao().load(underlyingSubscription.getIntProperty("hedgingFamily"));
 
-        Date targetDate = DateUtils.addMilliseconds(DateUtil.getCurrentEPTime(), this.deltaHedgeMinTimeToExpiration);
+        Date targetDate = DateUtils.addMilliseconds(DateUtil.getCurrentEPTime(), getCoreConfig().getDeltaHedgeMinTimeToExpiration());
         final Future future = getLookupService().getFutureByMinExpiration(futureFamily.getId(), targetDate);
         final double deltaAdjustedMarketValuePerContract = deltaAdjustedMarketValue / futureFamily.getContractSize();
 

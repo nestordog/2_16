@@ -22,8 +22,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.springframework.beans.factory.annotation.Value;
-
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.Transaction;
@@ -41,10 +39,6 @@ import ch.algotrader.entity.strategy.Strategy;
  * @version $Revision$ $Date$
  */
 public class ResetServiceImpl extends ResetServiceBase {
-
-    private @Value("${statement.simulateOptions}") boolean simulateOptions;
-    private @Value("${statement.simulateFuturesByUnderlying}") boolean simulateFuturesByUnderlying;
-    private @Value("${statement.simulateFuturesByGenericFutures}") boolean simulateFuturesByGenericFutures;
 
     @Override
     @SuppressWarnings("unchecked")
@@ -128,12 +122,12 @@ public class ResetServiceImpl extends ResetServiceBase {
         getMeasurementDao().remove(getMeasurementDao().loadAll());
 
         // delete all Options if they are beeing simulated
-        if (this.simulateOptions) {
+        if (getCoreConfig().isSimulateOptions()) {
             getSecurityDao().remove((Collection<Security>) getOptionDao().loadAll(OptionDao.TRANSFORM_NONE));
         }
 
         // delete all Futures if they are beeing simulated
-        if (this.simulateFuturesByUnderlying || this.simulateFuturesByGenericFutures) {
+        if (getCoreConfig().isSimulateFuturesByUnderlying() || getCoreConfig().isSimulateFuturesByGenericFutures()) {
             getSecurityDao().remove((Collection<Security>) getFutureDao().loadAll(FutureDao.TRANSFORM_NONE));
         }
 

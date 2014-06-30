@@ -63,7 +63,7 @@ public class ConfigBeanFactoryTest {
     }
 
     @Test
-    public void testBaseConfigConstruction() throws Exception {
+    public void testCommonConfigConstruction() throws Exception {
 
         ConfigProvider configProvider = new DefaultConfigProvider(map, new DefaultConversionService());
         ConfigParams configParams = new ConfigParams(configProvider);
@@ -90,7 +90,7 @@ public class ConfigBeanFactoryTest {
     }
 
     @Test
-    public void testBaseConfigConstructionOptional() throws Exception {
+    public void testCommonConfigConstructionOptional() throws Exception {
 
         map.remove("dataSource.dataSetLocation");
         ConfigProvider configProvider = new DefaultConfigProvider(map, new DefaultConversionService());
@@ -103,7 +103,7 @@ public class ConfigBeanFactoryTest {
     }
 
     @Test(expected = ConfigBeanCreationException.class)
-    public void testBaseConfigConstructionMissingParam() throws Exception {
+    public void testCommonConfigConstructionMissingParam() throws Exception {
 
         map.remove("dataSource.dataSet");
         ConfigProvider configProvider = new DefaultConfigProvider(map, new DefaultConversionService());

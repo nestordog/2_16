@@ -22,7 +22,6 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Value;
 
 import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.strategy.CashBalance;
@@ -42,8 +41,6 @@ public class CashBalanceServiceImpl extends CashBalanceServiceBase {
 
     private static Logger logger = MyLogger.getLogger(CashBalanceServiceImpl.class.getName());
 
-    private @Value("${simulation}") boolean simulation;
-
     @Override
     protected void handleProcessTransaction(Transaction transaction) throws Exception {
 
@@ -58,7 +55,7 @@ public class CashBalanceServiceImpl extends CashBalanceServiceBase {
 
         Strategy strategy = getStrategyDao().findByName(strategyName);
         CashBalance cashBalance;
-        if (this.simulation) {
+        if (getCommonConfig().isSimulation()) {
             cashBalance = getCashBalanceDao().findByStrategyAndCurrency(strategy, currencyAmount.getCurrency());
         } else {
             cashBalance = getCashBalanceDao().findByStrategyAndCurrencyLocked(strategy, currencyAmount.getCurrency());
@@ -111,7 +108,7 @@ public class CashBalanceServiceImpl extends CashBalanceServiceBase {
             BigDecimal amount = entry.getValue().setScale(getCommonConfig().getPortfolioDigits(), BigDecimal.ROUND_HALF_UP);
 
             CashBalance cashBalance;
-            if (this.simulation) {
+            if (getCommonConfig().isSimulation()) {
                 cashBalance = getCashBalanceDao().findByStrategyAndCurrency(strategy, currency);
             } else {
                 cashBalance = getCashBalanceDao().findByStrategyAndCurrencyLocked(strategy, currency);
