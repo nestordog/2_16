@@ -218,7 +218,7 @@
 
     <beans profile="iBNative,iBMarketData,iBSecurityRetrieval,iBHistoricalData">
 
-        <bean id="ibConfig" class="ch.algotrader.config.spring.ConfigBeanFactoryBean">
+        <bean id="iBConfig" class="ch.algotrader.config.spring.ConfigBeanFactoryBean">
             <constructor-arg index="0" ref="configLocator"/>
             <constructor-arg index="1" value="ch.algotrader.config.IBConfig"/>
         </bean>
@@ -265,7 +265,7 @@
 
     <beans profile="bBMarketData,bBHistoricalData,bBSecurityRetrieval">
 
-        <bean id="bbConfig" class="ch.algotrader.config.spring.ConfigBeanFactoryBean">
+        <bean id="bBConfig" class="ch.algotrader.config.spring.ConfigBeanFactoryBean">
             <constructor-arg index="0" ref="configLocator"/>
             <constructor-arg index="1" value="ch.algotrader.config.BBConfig"/>
         </bean>
