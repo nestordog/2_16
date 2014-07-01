@@ -17,7 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
-import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Map;
 
@@ -29,17 +28,12 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
-import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.trade.AlgoOrder;
-import ch.algotrader.entity.trade.Fill;
-import ch.algotrader.entity.trade.LimitOrderI;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderCompletion;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.entity.trade.SimpleOrder;
-import ch.algotrader.enumeration.Direction;
 import ch.algotrader.enumeration.OrderServiceType;
-import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.util.BeanUtil;
@@ -72,7 +66,7 @@ public class OrderServiceImpl extends OrderServiceBase implements ApplicationCon
         Validate.isTrue(order.getQuantity() != 0, "quanity cannot be zero for order " + order);
         Validate.isTrue(order.getQuantity() > 0, "quantity has to be positive for order " + order);
 
-        if (!(order instanceof AlgoOrder)) {
+        if (order instanceof SimpleOrder) {
             Validate.notNull(order.getAccount(), "missing account for order " + order);
         }
 
@@ -83,7 +77,7 @@ public class OrderServiceImpl extends OrderServiceBase implements ApplicationCon
         Validate.isTrue(order.getSecurity().getSecurityFamily().isTradeable(), order.getSecurity() + " is not tradeable");
 
         // external validation of the order
-        if (!getCommonConfig().isSimulation() && order instanceof SimpleOrder) {
+        if (order instanceof SimpleOrder) {
             getExternalOrderService(order).validateOrder((SimpleOrder) order);
         }
 
@@ -112,9 +106,7 @@ public class OrderServiceImpl extends OrderServiceBase implements ApplicationCon
         // set the dateTime property
         order.setDateTime(DateUtil.getCurrentEPTime());
 
-        if (getCommonConfig().isSimulation()) {
-            sendSimulatedOrder(order);
-        } else if (order instanceof AlgoOrder) {
+        if (order instanceof AlgoOrder) {
             sendAlgoOrder((AlgoOrder) order);
         } else {
             getExternalOrderService(order).sendOrder((SimpleOrder) order);
@@ -127,53 +119,6 @@ public class OrderServiceImpl extends OrderServiceBase implements ApplicationCon
         for (Order order : orders) {
             sendOrder(order);
         }
-    }
-
-    private void sendSimulatedOrder(Order order) {
-
-        Security security = order.getSecurity();
-
-        // get the price
-        BigDecimal price = new BigDecimal(0);
-        if (order instanceof LimitOrderI) {
-
-            // limitorders are executed at their limit price
-            price = ((LimitOrderI) order).getLimit();
-
-        } else {
-
-            // all other orders are executed the the market
-            price = security.getCurrentMarketDataEvent().getMarketValue(Side.BUY.equals(order.getSide()) ? Direction.SHORT : Direction.LONG)
-                    .setScale(security.getSecurityFamily().getScale(), BigDecimal.ROUND_HALF_UP);
-        }
-
-        // create one fill per order
-        Fill fill = Fill.Factory.newInstance();
-        fill.setDateTime(DateUtil.getCurrentEPTime());
-        fill.setExtDateTime(DateUtil.getCurrentEPTime());
-        fill.setSide(order.getSide());
-        fill.setQuantity(order.getQuantity());
-        fill.setPrice(price);
-        fill.setOrder(order);
-
-        // propagate the fill
-        getTransactionService().propagateFill(fill);
-
-        // create the transaction
-        getTransactionService().createTransaction(fill);
-
-        // create and OrderStatus
-        OrderStatus orderStatus = OrderStatus.Factory.newInstance();
-        orderStatus.setStatus(Status.EXECUTED);
-        orderStatus.setFilledQuantity(order.getQuantity());
-        orderStatus.setRemainingQuantity(0);
-        orderStatus.setOrder(order);
-
-        // send the orderStatus to base
-        EngineLocator.instance().getBaseEngine().sendEvent(orderStatus);
-
-        // propagate the OrderStatus to the strategy
-        propagateOrderStatus(orderStatus);
     }
 
     private void sendAlgoOrder(AlgoOrder order) {
@@ -315,7 +260,6 @@ public class OrderServiceImpl extends OrderServiceBase implements ApplicationCon
         }
     }
 
-
     @Override
     protected void handlePropagateOrderCompletion(OrderCompletion orderCompletion) throws Exception {
 
@@ -335,9 +279,14 @@ public class OrderServiceImpl extends OrderServiceBase implements ApplicationCon
     @SuppressWarnings("unchecked")
     private ExternalOrderService getExternalOrderService(Order order) throws Exception {
 
-        Validate.notNull(order.getAccount(), "missing account for order: " + order);
+        OrderServiceType orderServiceType;
+        if (getCommonConfig().isSimulation()) {
+            orderServiceType = OrderServiceType.SIMULATION;
+        } else {
+            Validate.notNull(order.getAccount(), "missing account for order: " + order);
+            orderServiceType = order.getAccount().getOrderServiceType();
+        }
 
-        OrderServiceType orderServiceType = order.getAccount().getOrderServiceType();
         Class<ExternalOrderService> orderServiceClass = (Class<ExternalOrderService>) Class.forName(orderServiceType.getValue());
 
         Map<String, ExternalOrderService> externalOrderServices = this.applicationContext.getBeansOfType(orderServiceClass);

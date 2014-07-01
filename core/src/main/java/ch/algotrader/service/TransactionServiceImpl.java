@@ -80,8 +80,6 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         SecurityFamily securityFamily = security.getSecurityFamily();
         TransactionType transactionType = Side.BUY.equals(fill.getSide()) ? TransactionType.BUY : TransactionType.SELL;
         long quantity = Side.BUY.equals(fill.getSide()) ? fill.getQuantity() : -fill.getQuantity();
-        BigDecimal executionCommission = RoundUtil.getBigDecimal(Math.abs(quantity * securityFamily.getExecutionCommission(broker).doubleValue()));
-        BigDecimal clearingCommission = securityFamily.getClearingCommission(broker) != null ? RoundUtil.getBigDecimal(Math.abs(quantity * securityFamily.getClearingCommission(broker).doubleValue())) : null;
 
         Transaction transaction = Transaction.Factory.newInstance();
         transaction.setDateTime(fill.getExtDateTime());
@@ -94,9 +92,25 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
         transaction.setSecurity(security);
         transaction.setStrategy(strategy);
         transaction.setCurrency(securityFamily.getCurrency());
-        transaction.setExecutionCommission(executionCommission);
-        transaction.setClearingCommission(clearingCommission);
         transaction.setAccount(order.getAccount());
+
+        if (fill.getExecutionCommission() != null) {
+            transaction.setExecutionCommission(fill.getExecutionCommission());
+        } else {
+            transaction.setExecutionCommission(RoundUtil.getBigDecimal(Math.abs(quantity * securityFamily.getExecutionCommission(broker).doubleValue())));
+        }
+
+        if (fill.getClearingCommission() != null) {
+            transaction.setClearingCommission(fill.getClearingCommission());
+        } else if (securityFamily.getClearingCommission(broker) != null) {
+            transaction.setClearingCommission(RoundUtil.getBigDecimal(Math.abs(quantity * securityFamily.getClearingCommission(broker).doubleValue())));
+        }
+
+        if (fill.getFee() != null) {
+            transaction.setFee(fill.getFee());
+        } else if (securityFamily.getFee(broker) != null) {
+            transaction.setFee(RoundUtil.getBigDecimal(Math.abs(quantity * securityFamily.getFee(broker).doubleValue())));
+        }
 
         processTransaction(transaction);
     }
