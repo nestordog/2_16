@@ -20,18 +20,6 @@ package ch.algotrader.service.fix.fix42;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import ch.algotrader.adapter.fix.FixUtil;
-import ch.algotrader.entity.security.Forex;
-import ch.algotrader.entity.security.Future;
-import ch.algotrader.entity.security.Option;
-import ch.algotrader.entity.security.Security;
-import ch.algotrader.entity.security.Stock;
-import ch.algotrader.entity.trade.LimitOrderI;
-import ch.algotrader.entity.trade.SimpleOrder;
-import ch.algotrader.entity.trade.StopOrderI;
-import ch.algotrader.enumeration.Broker;
-import ch.algotrader.enumeration.OptionType;
-import ch.algotrader.enumeration.TIF;
 import quickfix.field.ClOrdID;
 import quickfix.field.ContractMultiplier;
 import quickfix.field.Currency;
@@ -49,6 +37,18 @@ import quickfix.field.TransactTime;
 import quickfix.fix42.NewOrderSingle;
 import quickfix.fix42.OrderCancelReplaceRequest;
 import quickfix.fix42.OrderCancelRequest;
+import ch.algotrader.adapter.fix.FixUtil;
+import ch.algotrader.entity.security.Forex;
+import ch.algotrader.entity.security.Future;
+import ch.algotrader.entity.security.Option;
+import ch.algotrader.entity.security.Security;
+import ch.algotrader.entity.security.Stock;
+import ch.algotrader.entity.trade.LimitOrderI;
+import ch.algotrader.entity.trade.SimpleOrder;
+import ch.algotrader.entity.trade.StopOrderI;
+import ch.algotrader.enumeration.Broker;
+import ch.algotrader.enumeration.OptionType;
+import ch.algotrader.enumeration.TIF;
 
 /**
  * Generic FIX 4.2 order service
@@ -138,8 +138,8 @@ public abstract class Fix42OrderServiceImpl extends Fix42OrderServiceBase {
         // set TIF
         if (order.getTif() != null) {
             newOrder.set(FixUtil.getTimeInForce(order.getTif()));
-            if (order.getTif() == TIF.GTD && order.getTifDate() != null) {
-                newOrder.set(new ExpireTime(order.getTifDate()));
+            if (order.getTif() == TIF.GTD && order.getTifDateTime() != null) {
+                newOrder.set(new ExpireTime(order.getTifDateTime()));
             }
         }
 
@@ -209,8 +209,8 @@ public abstract class Fix42OrderServiceImpl extends Fix42OrderServiceBase {
         // set TIF
         if (order.getTif() != null) {
             replaceRequest.set(FixUtil.getTimeInForce(order.getTif()));
-            if (order.getTif() == TIF.GTD && order.getTifDate() != null) {
-                replaceRequest.set(new ExpireTime(order.getTifDate()));
+            if (order.getTif() == TIF.GTD && order.getTifDateTime() != null) {
+                replaceRequest.set(new ExpireTime(order.getTifDateTime()));
             }
         }
 

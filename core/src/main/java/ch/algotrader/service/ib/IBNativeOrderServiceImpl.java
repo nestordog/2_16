@@ -196,8 +196,8 @@ public class IBNativeOrderServiceImpl extends IBNativeOrderServiceBase {
             ibOrder.m_tif = order.getTif().getValue();
 
             // set the TIF-Date
-            if (order.getTifDate() != null) {
-                ibOrder.m_goodTillDate = format.format(order.getTifDate());
+            if (order.getTifDateTime() != null) {
+                ibOrder.m_goodTillDate = format.format(order.getTifDateTime());
             }
         }
 

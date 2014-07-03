@@ -20,18 +20,6 @@ package ch.algotrader.adapter.fix.fix44;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import ch.algotrader.adapter.fix.FixUtil;
-import ch.algotrader.entity.security.Forex;
-import ch.algotrader.entity.security.Future;
-import ch.algotrader.entity.security.Option;
-import ch.algotrader.entity.security.Security;
-import ch.algotrader.entity.security.Stock;
-import ch.algotrader.entity.trade.LimitOrderI;
-import ch.algotrader.entity.trade.SimpleOrder;
-import ch.algotrader.entity.trade.StopOrderI;
-import ch.algotrader.enumeration.Broker;
-import ch.algotrader.enumeration.OptionType;
-import ch.algotrader.enumeration.TIF;
 import quickfix.field.CFICode;
 import quickfix.field.ClOrdID;
 import quickfix.field.ContractMultiplier;
@@ -49,6 +37,18 @@ import quickfix.field.TransactTime;
 import quickfix.fix44.NewOrderSingle;
 import quickfix.fix44.OrderCancelReplaceRequest;
 import quickfix.fix44.OrderCancelRequest;
+import ch.algotrader.adapter.fix.FixUtil;
+import ch.algotrader.entity.security.Forex;
+import ch.algotrader.entity.security.Future;
+import ch.algotrader.entity.security.Option;
+import ch.algotrader.entity.security.Security;
+import ch.algotrader.entity.security.Stock;
+import ch.algotrader.entity.trade.LimitOrderI;
+import ch.algotrader.entity.trade.SimpleOrder;
+import ch.algotrader.entity.trade.StopOrderI;
+import ch.algotrader.enumeration.Broker;
+import ch.algotrader.enumeration.OptionType;
+import ch.algotrader.enumeration.TIF;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -69,8 +69,8 @@ public class GenericFix44OrderMessageFactory implements Fix44OrderMessageFactory
         if (date == null) {
             return null;
         }
-        synchronized (monthFormat) {
-            return monthFormat.format(date);
+        synchronized (this.monthFormat) {
+            return this.monthFormat.format(date);
         }
     }
 
@@ -78,8 +78,8 @@ public class GenericFix44OrderMessageFactory implements Fix44OrderMessageFactory
         if (date == null) {
             return null;
         }
-        synchronized (dayFormat) {
-            return dayFormat.format(date);
+        synchronized (this.dayFormat) {
+            return this.dayFormat.format(date);
         }
     }
 
@@ -147,8 +147,8 @@ public class GenericFix44OrderMessageFactory implements Fix44OrderMessageFactory
         // set TIF
         if (order.getTif() != null) {
             message.set(FixUtil.getTimeInForce(order.getTif()));
-            if (order.getTif() == TIF.GTD && order.getTifDate() != null) {
-                message.set(new ExpireTime(order.getTifDate()));
+            if (order.getTif() == TIF.GTD && order.getTifDateTime() != null) {
+                message.set(new ExpireTime(order.getTifDateTime()));
             }
         }
         return message;
@@ -212,8 +212,8 @@ public class GenericFix44OrderMessageFactory implements Fix44OrderMessageFactory
         // set TIF
         if (order.getTif() != null) {
             message.set(FixUtil.getTimeInForce(order.getTif()));
-            if (order.getTif() == TIF.GTD && order.getTifDate() != null) {
-                message.set(new ExpireTime(order.getTifDate()));
+            if (order.getTif() == TIF.GTD && order.getTifDateTime() != null) {
+                message.set(new ExpireTime(order.getTifDateTime()));
             }
         }
 

@@ -956,7 +956,7 @@ public class LookupServiceImpl extends LookupServiceBase {
 
         Map<Date, Object> valuesByDate = new HashMap<Date, Object>();
         for (Measurement measurement : measurements) {
-            valuesByDate.put(measurement.getDate(), measurement.getValue());
+            valuesByDate.put(measurement.getDateTime(), measurement.getValue());
         }
 
         return valuesByDate;
@@ -967,7 +967,7 @@ public class LookupServiceImpl extends LookupServiceBase {
         // group Measurements by date
         MultiValueMap measurementsByDate = new MultiValueMap();
         for (Measurement measurement : measurements) {
-            measurementsByDate.put(measurement.getDate(), measurement);
+            measurementsByDate.put(measurement.getDateTime(), measurement);
         }
 
         // create a nameValuePair Map per date

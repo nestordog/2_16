@@ -12,6 +12,8 @@ core/.settings/
 core/target/
 core/files/
 core/log/
+core/src/main/java/ch/algotrader/test
+core/src/main/java/ch/algotrader/tools
 crud/target/
 crud/.settings/
 doc/target/

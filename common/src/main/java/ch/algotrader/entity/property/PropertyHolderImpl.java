@@ -96,8 +96,8 @@ public abstract class PropertyHolderImpl extends PropertyHolder {
 
         Property property = getPropsInitialized().get(name);
         if (property != null) {
-            if (property.getDateValue() != null) {
-                return property.getDateValue();
+            if (property.getDateTimeValue() != null) {
+                return property.getDateTimeValue();
             } else {
                 throw new IllegalArgumentException("property " + name + " does not have a Date value");
             }

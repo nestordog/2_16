@@ -77,7 +77,7 @@ public class MeasurementImpl extends Measurement {
     @Override
     public String toString() {
 
-        return getName() + "," + getDate() + "," + getValue();
+        return getName() + "," + getDateTime() + "," + getValue();
     }
 
     @Override
@@ -90,7 +90,7 @@ public class MeasurementImpl extends Measurement {
             Measurement that = (Measurement) obj;
             return ObjectUtil.equalsNonNull(this.getStrategy(), that.getStrategy()) &&
                     ObjectUtil.equalsNonNull(this.getName(), that.getName()) &&
-                    ObjectUtil.equalsNonNull(this.getDate(), that.getDate());
+ ObjectUtil.equalsNonNull(this.getDateTime(), that.getDateTime());
         } else {
             return false;
         }
@@ -102,7 +102,7 @@ public class MeasurementImpl extends Measurement {
         int hash = 17;
         hash = hash * 37 + ObjectUtil.hashCode(getStrategy());
         hash = hash * 37 + ObjectUtil.hashCode(getName());
-        hash = hash * 37 + ObjectUtil.hashCode(getDate());
+        hash = hash * 37 + ObjectUtil.hashCode(getDateTime());
         return hash;
     }
 }

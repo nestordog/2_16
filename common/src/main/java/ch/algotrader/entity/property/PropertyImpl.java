@@ -42,8 +42,8 @@ public class PropertyImpl extends Property {
             return getMoneyValue();
         } else if (getTextValue() != null) {
             return getTextValue();
-        } else if (getDateValue() != null) {
-            return getDateValue();
+        } else if (getDateTimeValue() != null) {
+            return getDateTimeValue();
         } else if (getBooleanValue() != null) {
             return getBooleanValue();
         } else {
@@ -59,7 +59,7 @@ public class PropertyImpl extends Property {
         setDoubleValue(null);
         setMoneyValue(null);
         setTextValue(null);
-        setDateValue(null);
+        setDateTimeValue(null);
         setBooleanValue(null);
 
         // set the value of the correct type
@@ -72,7 +72,7 @@ public class PropertyImpl extends Property {
         } else if (value instanceof String) {
             setTextValue((String) value);
         } else if (value instanceof Date) {
-            setDateValue((Date) value);
+            setDateTimeValue((Date) value);
         } else if (value instanceof Boolean) {
             setBooleanValue((Boolean) value);
         } else {
