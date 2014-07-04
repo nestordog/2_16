@@ -29,7 +29,7 @@ import org.mockito.MockitoAnnotations;
 import ch.algotrader.entity.security.Exchange;
 import ch.algotrader.entity.security.ExchangeDao;
 import ch.algotrader.entity.security.Holiday;
-import ch.algotrader.enumeration.WeekDay;
+import ch.algotrader.entity.security.TradingHours;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -54,175 +54,237 @@ public class CalendarServiceTest {
         this.impl = new CalendarServiceImpl();
         this.impl.setExchangeDao(this.exchangeDao);
 
-        Exchange regular = Exchange.Factory.newInstance("regular", null, WeekDay.MONDAY, hourFormat.parse("10:00:00"), hourFormat.parse("16:00:00"));
-        Exchange forex = Exchange.Factory.newInstance("forex", null, WeekDay.SUNDAY, hourFormat.parse("23:15:00"), hourFormat.parse("23:00:00"));
-        Exchange roundTheClock = Exchange.Factory.newInstance("roundTheClock", null, WeekDay.MONDAY, hourFormat.parse("00:00:00"), hourFormat.parse("00:00:00"));
-
-        regular.addHolidays(Holiday.Factory.newInstance(dayFormat.parse("01.01.2013"), regular)); // New Years
-        regular.addHolidays(Holiday.Factory.newInstance(dayFormat.parse("24.12.2013"), null, hourFormat.parse("12:00:00"), regular)); // christmas
+        Exchange regular = Exchange.Factory.newInstance("REGULAR", "REG", "US/Eastern");
+        regular.addTradingHours(TradingHours.Factory.newInstance(hourFormat.parse("08:30:00"), hourFormat.parse("16:00:00"), false, true, true, true, true, true, false, regular));
+        regular.addHolidays(Holiday.Factory.newInstance(dayFormat.parse("31.12.2012"), regular)); // New Years Eve
+        regular.addHolidays(Holiday.Factory.newInstance(dayFormat.parse("01.01.2013"), regular)); // New Year
+        regular.addHolidays(Holiday.Factory.newInstance(dayFormat.parse("24.12.2012"), null, hourFormat.parse("12:00:00"), regular)); // Christmas
         regular.addHolidays(Holiday.Factory.newInstance(dayFormat.parse("02.01.2013"), hourFormat.parse("12:00:00"), null, regular)); // Jan 2nd
 
-        forex.addHolidays(Holiday.Factory.newInstance(dayFormat.parse("01.01.2013"), forex)); // New Years
-        forex.addHolidays(Holiday.Factory.newInstance(dayFormat.parse("24.12.2013"), null, hourFormat.parse("12:00:00"), forex)); // christmas
-        forex.addHolidays(Holiday.Factory.newInstance(dayFormat.parse("02.01.2013"), hourFormat.parse("12:00:00"), null, forex)); // Jan 2nd
+        Exchange forex = Exchange.Factory.newInstance("FOREX", "FX", "Europe/Berlin");
+        forex.addTradingHours(TradingHours.Factory.newInstance(hourFormat.parse("23:15:00"), hourFormat.parse("23:00:00"), true, true, true, true, true, false, false, forex));
+        forex.addHolidays(Holiday.Factory.newInstance(dayFormat.parse("31.12.2012"), forex)); // New Years Eve
+        forex.addHolidays(Holiday.Factory.newInstance(dayFormat.parse("01.01.2013"), forex)); // New Year
+        forex.addHolidays(Holiday.Factory.newInstance(dayFormat.parse("23.12.2012"), null, hourFormat.parse("22:00:00"), forex)); // Christmas
+        forex.addHolidays(Holiday.Factory.newInstance(dayFormat.parse("02.01.2013"), hourFormat.parse("23:30:00"), null, forex)); // Jan 2nd
 
-        roundTheClock.addHolidays(Holiday.Factory.newInstance(dayFormat.parse("01.01.2013"), roundTheClock)); // New Years
-        roundTheClock.addHolidays(Holiday.Factory.newInstance(dayFormat.parse("24.12.2013"), null, hourFormat.parse("12:00:00"), roundTheClock)); // christmas
-        roundTheClock.addHolidays(Holiday.Factory.newInstance(dayFormat.parse("02.01.2013"), hourFormat.parse("12:00:00"), null, roundTheClock)); // Jan 2nd
+        Exchange roundTheClock = Exchange.Factory.newInstance("ROUND_THE_CLOCK", "24H", "Europe/Berlin");
+        roundTheClock.addTradingHours(TradingHours.Factory.newInstance(hourFormat.parse("00:00:00"), hourFormat.parse("23:59:59"), false, true, true, true, true, true, false, roundTheClock));
+
+        Exchange futures = Exchange.Factory.newInstance("FUTURES", "FUT", "Europe/Berlin");
+        futures.addTradingHours(TradingHours.Factory.newInstance(hourFormat.parse("10:00:00"), hourFormat.parse("16:00:00"), false, true, true, true, true, true, false, futures));
+        futures.addTradingHours(TradingHours.Factory.newInstance(hourFormat.parse("17:00:00"), hourFormat.parse("18:00:00"), false, true, true, true, true, true, false, futures));
 
         Mockito.when(this.exchangeDao.get(1)).thenReturn(regular);
         Mockito.when(this.exchangeDao.get(2)).thenReturn(forex);
         Mockito.when(this.exchangeDao.get(3)).thenReturn(roundTheClock);
+        Mockito.when(this.exchangeDao.get(4)).thenReturn(futures);
     }
 
     // Regular
-
     @Test
-    public void testIsExchangeOpenRegularBetween() throws Exception {
-        Assert.assertTrue(this.impl.isExchangeOpen(1, dayTimeFormat.parse("20.11.2013 12:00:00"))); // Wed
+    public void testIsOpenRegularBeforeOpen() throws Exception {
+        Assert.assertFalse(this.impl.isOpen(1, dayTimeFormat.parse("20.11.2013 14:15:00"))); // Wed
     }
 
     @Test
-    public void testIsExchangeOpenRegularBefore() throws Exception {
-        Assert.assertFalse(this.impl.isExchangeOpen(1, dayTimeFormat.parse("20.11.2013 09:00:00"))); // Wed
+    public void testIsOpenRegularAfterOpen() throws Exception {
+        Assert.assertTrue(this.impl.isOpen(1, dayTimeFormat.parse("20.11.2013 14:45:00"))); // Wed
     }
 
     @Test
-    public void testIsExchangeOpenRegularAfter() throws Exception {
-        Assert.assertFalse(this.impl.isExchangeOpen(1, dayTimeFormat.parse("20.11.2013 17:00:00"))); // Wed
+    public void testIsOpenRegularBeforeClose() throws Exception {
+        Assert.assertTrue(this.impl.isOpen(1, dayTimeFormat.parse("20.11.2013 21:45:00"))); // Wed
     }
 
     @Test
-    public void testIsExchangeOpenRegularWeekend() throws Exception {
-        Assert.assertFalse(this.impl.isExchangeOpen(1, dayTimeFormat.parse("23.11.2013 17:00:00"))); // Sat
+    public void testIsOpenRegularAfterClose() throws Exception {
+        Assert.assertFalse(this.impl.isOpen(1, dayTimeFormat.parse("20.11.2013 22:15:00"))); // Wed
+    }
+
+    @Test
+    public void testIsOpenRegularWeekend() throws Exception {
+        Assert.assertFalse(this.impl.isOpen(1, dayTimeFormat.parse("23.11.2013 17:00:00"))); // Sat
+    }
+
+    // Regular Day light savings time
+    @Test
+    public void testIsOpenRegularBeforeOpenDLS() throws Exception {
+        Assert.assertFalse(this.impl.isOpen(1, dayTimeFormat.parse("20.06.2013 14:15:00"))); // Wed
+    }
+
+    @Test
+    public void testIsOpenRegularAfterOpenDLS() throws Exception {
+        Assert.assertTrue(this.impl.isOpen(1, dayTimeFormat.parse("20.06.2013 14:45:00"))); // Wed
+    }
+
+    @Test
+    public void testIsOpenRegularBeforeCloseDLS() throws Exception {
+        Assert.assertTrue(this.impl.isOpen(1, dayTimeFormat.parse("20.06.2013 21:45:00"))); // Wed
+    }
+
+    @Test
+    public void testIsOpenRegularAfterCloseDLSSwitch() throws Exception {
+        Assert.assertFalse(this.impl.isOpen(1, dayTimeFormat.parse("20.06.2013 22:15:00"))); // Wed
+    }
+
+    // Regular Day light savings time switch (USA: march 10th, Europe: march 31st)
+    @Test
+    public void testIsOpenRegularBeforeOpenDLSSwitch() throws Exception {
+        Assert.assertFalse(this.impl.isOpen(1, dayTimeFormat.parse("20.03.2013 13:15:00"))); // Wed
+    }
+
+    @Test
+    public void testIsOpenRegularAfterOpenDLSSwitch() throws Exception {
+        Assert.assertTrue(this.impl.isOpen(1, dayTimeFormat.parse("20.03.2013 13:45:00"))); // Wed
+    }
+
+    @Test
+    public void testIsOpenRegularBeforeCloseDLSSwitch() throws Exception {
+        Assert.assertTrue(this.impl.isOpen(1, dayTimeFormat.parse("20.03.2013 20:45:00"))); // Wed
+    }
+
+    @Test
+    public void testIsOpenRegularAfterCloseDLS() throws Exception {
+        Assert.assertFalse(this.impl.isOpen(1, dayTimeFormat.parse("20.03.2013 21:15:00"))); // Wed
     }
 
     // Regular Holidays
 
     @Test
-    public void testIsExchangeOpenRegularHoliday() throws Exception {
-        Assert.assertFalse(this.impl.isExchangeOpen(1, dayTimeFormat.parse("01.01.2013 12:00:00"))); // New Years
+    public void testIsOpenRegularHoliday() throws Exception {
+        Assert.assertFalse(this.impl.isOpen(1, dayTimeFormat.parse("01.01.2013 12:00:00"))); // New Years
     }
 
     @Test
-    public void testIsExchangeOpenEarlyCloseRegularBefore() throws Exception {
-        Assert.assertTrue(this.impl.isExchangeOpen(1, dayTimeFormat.parse("24.12.2013 11:00:00"))); // Christmas
+    public void testIsOpenEarlyCloseRegularBefore() throws Exception {
+        Assert.assertTrue(this.impl.isOpen(1, dayTimeFormat.parse("24.12.2012 17:30:00"))); // Christmas
     }
 
     @Test
-    public void testIsExchangeOpenEarlyCloseRegularAfter() throws Exception {
-        Assert.assertFalse(this.impl.isExchangeOpen(1, dayTimeFormat.parse("24.12.2013 13:00:00"))); // Christmas
+    public void testIsOpenEarlyCloseRegularAfter() throws Exception {
+        Assert.assertFalse(this.impl.isOpen(1, dayTimeFormat.parse("24.12.2012 19:30:00"))); // Christmas
     }
 
     @Test
-    public void testIsExchangeOpenLateOpenRegularBefore() throws Exception {
-        Assert.assertFalse(this.impl.isExchangeOpen(1, dayTimeFormat.parse("02.01.2013 11:00:00"))); // Jan 2nd
+    public void testIsOpenLateOpenRegularBefore() throws Exception {
+        Assert.assertFalse(this.impl.isOpen(1, dayTimeFormat.parse("02.01.2013 17:30:00"))); // Jan 2nd
     }
 
     @Test
-    public void testIsExchangeOpenLateOpenRegularAfter() throws Exception {
-        Assert.assertTrue(this.impl.isExchangeOpen(1, dayTimeFormat.parse("02.01.2013 13:00:00"))); // Jan 2nd
+    public void testIsOpenLateOpenRegularAfter() throws Exception {
+        Assert.assertTrue(this.impl.isOpen(1, dayTimeFormat.parse("02.01.2013 19:30:00"))); // Jan 2nd
     }
 
     // Forex
 
     @Test
-    public void testIsExchangeOpenForexBetween() throws Exception {
-        Assert.assertTrue(this.impl.isExchangeOpen(2, dayTimeFormat.parse("20.11.2013 12:00:00"))); // Wed
+    public void testIsOpenForexBetween() throws Exception {
+        Assert.assertTrue(this.impl.isOpen(2, dayTimeFormat.parse("20.11.2013 12:00:00"))); // Wed
     }
 
     @Test
-    public void testIsExchangeOpenForexAfter() throws Exception {
-        Assert.assertFalse(this.impl.isExchangeOpen(2, dayTimeFormat.parse("20.11.2013 23:07:00"))); // Wed
+    public void testIsOpenForexAfter() throws Exception {
+        Assert.assertFalse(this.impl.isOpen(2, dayTimeFormat.parse("20.11.2013 23:07:00"))); // Wed
     }
 
     @Test
-    public void testIsExchangeOpenForexWeekend() throws Exception {
-        Assert.assertFalse(this.impl.isExchangeOpen(1, dayTimeFormat.parse("23.11.2013 17:00:00"))); // Sat
+    public void testIsOpenForexWeekend() throws Exception {
+        Assert.assertFalse(this.impl.isOpen(2, dayTimeFormat.parse("23.11.2013 17:00:00"))); // Sat
     }
 
     @Test
-    public void testIsExchangeOpenForexWeekendBetween() throws Exception {
-        Assert.assertTrue(this.impl.isExchangeOpen(2, dayTimeFormat.parse("24.11.2013 23:30:00"))); // Sun
+    public void testIsOpenForexWeekendBetween() throws Exception {
+        Assert.assertTrue(this.impl.isOpen(2, dayTimeFormat.parse("24.11.2013 23:30:00"))); // Sun
     }
 
     @Test
-    public void testIsExchangeOpenForexWeekendAfter() throws Exception {
-        Assert.assertFalse(this.impl.isExchangeOpen(2, dayTimeFormat.parse("22.11.2013 23:20:00"))); // Fri
+    public void testIsOpenForexWeekendAfter() throws Exception {
+        Assert.assertFalse(this.impl.isOpen(2, dayTimeFormat.parse("22.11.2013 23:20:00"))); // Fri
     }
 
     // ForexHolidays
 
     @Test
-    public void testIsExchangeOpenForexHoliday() throws Exception {
-        Assert.assertFalse(this.impl.isExchangeOpen(1, dayTimeFormat.parse("01.01.2013 12:00:00"))); // New Years
+    public void testIsOpenForexHoliday() throws Exception {
+        Assert.assertFalse(this.impl.isOpen(2, dayTimeFormat.parse("01.01.2013 12:00:00"))); // New Years
     }
 
     @Test
-    public void testIsExchangeOpenEarlyCloseForexBefore() throws Exception {
-        Assert.assertTrue(this.impl.isExchangeOpen(1, dayTimeFormat.parse("24.12.2013 11:00:00"))); // Christmas
+    public void testIsOpenForexEarlyCloseBefore() throws Exception {
+        Assert.assertTrue(this.impl.isOpen(2, dayTimeFormat.parse("24.12.2012 21:00:00"))); // Christmas
     }
 
     @Test
-    public void testIsExchangeOpenEarlyCloseForexAfter() throws Exception {
-        Assert.assertFalse(this.impl.isExchangeOpen(1, dayTimeFormat.parse("24.12.2013 13:00:00"))); // Christmas
+    public void testIsOpenForexEarlyCloseAfter() throws Exception {
+        Assert.assertFalse(this.impl.isOpen(2, dayTimeFormat.parse("24.12.2012 23:00:00"))); // Christmas
     }
 
     @Test
-    public void testIsExchangeOpenLateOpenForexBefore() throws Exception {
-        Assert.assertFalse(this.impl.isExchangeOpen(1, dayTimeFormat.parse("02.01.2013 11:00:00"))); // Jan 2nd
+    public void testIsOpenForexLateOpenBefore() throws Exception {
+        Assert.assertFalse(this.impl.isOpen(2, dayTimeFormat.parse("02.01.2013 23:15:00"))); // Jan 2nd
     }
 
     @Test
-    public void testIsExchangeOpenLateOpenForexAfter() throws Exception {
-        Assert.assertTrue(this.impl.isExchangeOpen(1, dayTimeFormat.parse("02.01.2013 13:00:00"))); // Jan 2nd
+    public void testIsOpenForexLateOpenAfter() throws Exception {
+        Assert.assertTrue(this.impl.isOpen(2, dayTimeFormat.parse("02.01.2013 23:45:00"))); // Jan 2nd
+    }
+
+    // Futures
+
+    @Test
+    public void testIsOpenFuturesBeforeOpen() throws Exception {
+        Assert.assertFalse(this.impl.isOpen(4, dayTimeFormat.parse("20.11.2013 09:45:00"))); // Wed
+    }
+
+    @Test
+    public void testIsOpenFuturesAfterOpen() throws Exception {
+        Assert.assertTrue(this.impl.isOpen(4, dayTimeFormat.parse("20.11.2013 10:15:00"))); // Wed
+    }
+
+    @Test
+    public void testIsOpenFuturesBeforeClose() throws Exception {
+        Assert.assertTrue(this.impl.isOpen(4, dayTimeFormat.parse("20.11.2013 15:45:00"))); // Wed
+    }
+
+    @Test
+    public void testIsOpenFuturesAfterClose() throws Exception {
+        Assert.assertFalse(this.impl.isOpen(4, dayTimeFormat.parse("20.11.2013 18:15:00"))); // Wed
+    }
+
+    @Test
+    public void testIsOpenFuturesBeforeGap() throws Exception {
+        Assert.assertTrue(this.impl.isOpen(4, dayTimeFormat.parse("20.11.2013 15:45:00"))); // Wed
+    }
+
+    @Test
+    public void testIsOpenFuturesDuringGap() throws Exception {
+        Assert.assertFalse(this.impl.isOpen(4, dayTimeFormat.parse("20.11.2013 16:30:00"))); // Wed
+    }
+
+    @Test
+    public void testIsOpenFuturesAfterGap() throws Exception {
+        Assert.assertTrue(this.impl.isOpen(4, dayTimeFormat.parse("20.11.2013 17:15:00"))); // Wed
     }
 
     // 24h
 
     @Test
-    public void testIsExchangeOpen24hBetween() throws Exception {
-        Assert.assertTrue(this.impl.isExchangeOpen(3, dayTimeFormat.parse("20.11.2013 12:00:00"))); // Wed
+    public void testIsOpen24hBetween() throws Exception {
+        Assert.assertTrue(this.impl.isOpen(3, dayTimeFormat.parse("20.11.2013 12:00:00"))); // Wed
     }
 
     @Test
-    public void testIsExchangeOpen24hMidnight() throws Exception {
-        Assert.assertTrue(this.impl.isExchangeOpen(3, dayTimeFormat.parse("20.11.2013 24:00:00"))); // Wed
+    public void testIsOpen24hMidnight() throws Exception {
+        Assert.assertTrue(this.impl.isOpen(3, dayTimeFormat.parse("20.11.2013 24:00:00"))); // Wed
     }
 
     @Test
-    public void testIsExchangeOpen24hWeekend() throws Exception {
-        Assert.assertFalse(this.impl.isExchangeOpen(3, dayTimeFormat.parse("23.11.2013 17:00:00"))); // Sat
+    public void testIsOpen24hWeekend() throws Exception {
+        Assert.assertFalse(this.impl.isOpen(3, dayTimeFormat.parse("23.11.2013 17:00:00"))); // Sat
     }
 
-    // 24h Holidays
-
-    @Test
-    public void testIsExchangeOpen24hHoliday() throws Exception {
-        Assert.assertFalse(this.impl.isExchangeOpen(1, dayTimeFormat.parse("01.01.2013 12:00:00"))); // New Years
-    }
-
-    @Test
-    public void testIsExchangeOpenEarlyClose24hBefore() throws Exception {
-        Assert.assertTrue(this.impl.isExchangeOpen(1, dayTimeFormat.parse("24.12.2013 11:00:00"))); // Christmas
-    }
-
-    @Test
-    public void testIsExchangeOpenEarlyClose24hAfter() throws Exception {
-        Assert.assertFalse(this.impl.isExchangeOpen(1, dayTimeFormat.parse("24.12.2013 13:00:00"))); // Christmas
-    }
-
-    @Test
-    public void testIsExchangeOpenLateOpen24hBefore() throws Exception {
-        Assert.assertFalse(this.impl.isExchangeOpen(1, dayTimeFormat.parse("02.01.2013 11:00:00"))); // Jan 2nd
-    }
-
-    @Test
-    public void testIsExchangeOpenLateOpen24hAfter() throws Exception {
-        Assert.assertTrue(this.impl.isExchangeOpen(1, dayTimeFormat.parse("02.01.2013 13:00:00"))); // Jan 2nd
-    }
-
-    // Trading day
+    // is Trading day
 
     @Test
     public void testIsTradingDay() throws Exception {
@@ -243,7 +305,7 @@ public class CalendarServiceTest {
 
     @Test
     public void testOpenTime() throws Exception {
-        Assert.assertEquals(this.impl.getOpenTime(1, dayFormat.parse("20.11.2013")), dayTimeFormat.parseObject("20.11.2013 10:00:00")); // Wed
+        Assert.assertEquals(this.impl.getOpenTime(1, dayFormat.parse("20.11.2013")), dayTimeFormat.parseObject("20.11.2013 14:30:00")); // Wed
     }
 
     @Test
@@ -258,14 +320,14 @@ public class CalendarServiceTest {
 
     @Test
     public void testLateOpenTime() throws Exception {
-        Assert.assertEquals(this.impl.getOpenTime(1, dayFormat.parse("02.01.2013")), dayTimeFormat.parseObject("02.01.2013 12:00:00")); // Jan 2nd
+        Assert.assertEquals(this.impl.getOpenTime(1, dayFormat.parse("02.01.2013")), dayTimeFormat.parseObject("02.01.2013 18:00:00")); // Jan 2nd
     }
 
     // Close Time
 
     @Test
     public void testCloseTime() throws Exception {
-        Assert.assertEquals(this.impl.getCloseTime(1, dayFormat.parse("20.11.2013")), dayTimeFormat.parseObject("20.11.2013 16:00:00")); // Wed
+        Assert.assertEquals(this.impl.getCloseTime(1, dayFormat.parse("20.11.2013")), dayTimeFormat.parseObject("20.11.2013 22:00:00")); // Wed
     }
 
     @Test
@@ -280,7 +342,7 @@ public class CalendarServiceTest {
 
     @Test
     public void testEarlyCloseTime() throws Exception {
-        Assert.assertEquals(this.impl.getCloseTime(1, dayFormat.parse("24.12.2013")), dayTimeFormat.parseObject("24.12.2013 12:00:00")); // Jan 2nd
+        Assert.assertEquals(this.impl.getCloseTime(1, dayFormat.parse("24.12.2012")), dayTimeFormat.parseObject("24.12.2012 18:00:00")); // Jan 2nd
     }
 
 }

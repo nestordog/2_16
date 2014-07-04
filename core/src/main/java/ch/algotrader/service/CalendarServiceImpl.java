@@ -17,157 +17,283 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
+import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.TimeZone;
+import java.util.TreeSet;
 
+import org.apache.commons.collections15.CollectionUtils;
+import org.apache.commons.collections15.Predicate;
 import org.apache.commons.lang.time.DateUtils;
 
 import ch.algotrader.entity.security.Exchange;
 import ch.algotrader.entity.security.Holiday;
+import ch.algotrader.entity.security.TradingHours;
+import ch.algotrader.enumeration.WeekDay;
+import ch.algotrader.util.ObjectUtil;
 
 /**
+ * Java (before JDK8) does not have a separate Date and Time class, therefore parameters are named accordingly.
+ *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
 public class CalendarServiceImpl extends CalendarServiceBase {
 
-    private Map<Exchange, Map<Date, Holiday>> holidays = new HashMap<Exchange, Map<Date, Holiday>>();
-
     @Override
-    protected boolean handleIsExchangeOpen(int exchangeId, Date date) throws Exception {
+    protected boolean handleIsOpen(int exchangeId, Date dateTime) throws Exception {
 
         Exchange exchange = getExchangeDao().get(exchangeId);
-
-        // are we on a trading day?
-        if (!isTradingDay(exchange, date)) {
-            return false;
-        }
-
-        // exchange session starting today
-        Date todayOpen = getOpenTime(exchange, date);
-        Date todayClose = getCloseTime(exchange, date);
-
-        // is close on the next day?
-        if (exchange.getOpen().compareTo(exchange.getClose()) >= 0) {
-            todayClose = DateUtils.addDays(todayClose, 1);
-        }
-
-        // are we during todays session?
-        if (date.compareTo(todayOpen) >= 0 && date.compareTo(todayClose) <= 0) {
-            return true;
-        }
-
-        // exchange session starting yesterday
-        Date yesterdayOpen = DateUtils.addDays(todayOpen, -1);
-        Date yesterdayClose = DateUtils.addDays(todayClose, -1);
-
-        // are we during yesterdays session
-        if (isTradingDay(exchange, yesterdayOpen) && date.compareTo(yesterdayOpen) >= 0 && date.compareTo(yesterdayClose) <= 0) {
-            return true;
-        }
-
-        return false;
+        Date date = DateUtils.truncate(dateTime, Calendar.DATE);
+        TimeIntervals timeIntervals = getTimeIntervalsPlusMinusOneDay(exchange, date);
+        return timeIntervals.contains(dateTime);
     }
 
     @Override
     protected boolean handleIsTradingDay(int exchangeId, Date date) throws Exception {
 
         Exchange exchange = getExchangeDao().get(exchangeId);
+        date = DateUtils.truncate(date, Calendar.DATE);
         return isTradingDay(exchange, date);
-    }
-
-    private boolean isTradingDay(Exchange exchange, Date date) {
-
-        Holiday holiday = getHoliday(exchange, date);
-        if (holiday != null && !holiday.isPartialOpen()) {
-            return false;
-        } else {
-            int dayOfWeek = toDayOfWeek(date.getTime());
-            int openDay = exchange.getOpenDay().getValue();
-            return dayOfWeek >= openDay && dayOfWeek <= openDay + 4;
-        }
     }
 
     @Override
     protected Date handleGetOpenTime(int exchangeId, Date date) throws Exception {
 
         Exchange exchange = getExchangeDao().get(exchangeId);
-        return getOpenTime(exchange, date);
-    }
-
-    private Date getOpenTime(Exchange exchange, Date date) {
-
-        if (!isTradingDay(exchange, date)) {
-            return null;
-        }
-
-        Holiday holiday = getHoliday(exchange, date);
-        if (holiday != null && holiday.getLateOpen() != null) {
-            return setTime(date, holiday.getLateOpen());
-        } else {
-            return setTime(date, exchange.getOpen());
-        }
+        date = DateUtils.truncate(date, Calendar.DATE);
+        TimeIntervals timeIntervals = getTimeIntervals(exchange, date);
+        return timeIntervals.isEmpty() ? null : timeIntervals.first().getFrom();
     }
 
     @Override
     protected Date handleGetCloseTime(int exchangeId, Date date) throws Exception {
 
         Exchange exchange = getExchangeDao().get(exchangeId);
-        return getCloseTime(exchange, date);
+        date = DateUtils.truncate(date, Calendar.DATE);
+        TimeIntervals timeIntervals = getTimeIntervals(exchange, date);
+        return timeIntervals.isEmpty() ? null : timeIntervals.last().getTo();
     }
 
-    private Date getCloseTime(Exchange exchange, Date date) {
+    private boolean isTradingDay(Exchange exchange, Date date) {
 
-        if (!isTradingDay(exchange, date)) {
+        // is this date a holiday?
+        Holiday holiday = getHoliday(exchange, date);
+        if (holiday != null && !holiday.isPartialOpen()) {
+            return false;
+        }
+
+        // check if any of the tradingHours is enabled for this date
+        WeekDay weekDay = getWeekDay(date);
+        for (TradingHours tradingHours : exchange.getTradingHours()) {
+            if (tradingHours.isEnabled(weekDay)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * gets the holiday for this date
+     */
+    private Holiday getHoliday(Exchange exchange, Date dateTime) {
+
+        final Date date = DateUtils.truncate(dateTime, Calendar.DATE);
+
+        return CollectionUtils.find(exchange.getHolidays(), new Predicate<Holiday>() {
+
+            @Override
+            public boolean evaluate(Holiday holiday) {
+                return holiday.getDate().equals(date);
+            }
+        });
+    }
+
+    /**
+     * gets the weekday of the specified date
+     */
+    private WeekDay getWeekDay(Date date) {
+
+        Calendar cal = new GregorianCalendar();
+        cal.setTime(date);
+        return WeekDay.fromValue(cal.get(Calendar.DAY_OF_WEEK));
+    }
+
+    /**
+     * Get all TimeIntervals for this date
+     */
+    private TimeIntervals getTimeIntervals(Exchange exchange, Date date) {
+
+        TimeIntervals timeIntervals = new TimeIntervals();
+        for (TradingHours tradingHours : exchange.getTradingHours()) {
+            timeIntervals.add(getTimeInterval(date, tradingHours));
+        }
+        return timeIntervals;
+    }
+
+    /**
+     * Get all TimeIntervals for this date, the day before and the day after
+     */
+    private TimeIntervals getTimeIntervalsPlusMinusOneDay(Exchange exchange, Date date) {
+
+        TimeIntervals timeIntervals = new TimeIntervals();
+        for (TradingHours tradingHours : exchange.getTradingHours()) {
+            timeIntervals.add(getTimeInterval(DateUtils.addDays(date, -1), tradingHours));
+            timeIntervals.add(getTimeInterval(date, tradingHours));
+            timeIntervals.add(getTimeInterval(DateUtils.addDays(date, +1), tradingHours));
+        }
+        return timeIntervals;
+    }
+
+    /**
+     * Get the TimeInterval for the specified week, tradingHours and weekday
+     * Taking into consideration potential lateOpens and earlyCloses
+     * return null if this day is a full holiday
+     */
+    private TimeInterval getTimeInterval(Date date, TradingHours tradingHours) {
+
+        TimeZone timeZone = tradingHours.getExchange().getTZ();
+        boolean inverse = tradingHours.getOpen().compareTo(tradingHours.getClose()) > 0;
+
+        Date open = getDateTime(timeZone, date, tradingHours.getOpen());
+        Date close = getDateTime(timeZone, date, tradingHours.getClose());
+
+        if (!tradingHours.isEnabled(getWeekDay(open))) {
             return null;
         }
 
-        Holiday holiday = getHoliday(exchange, date);
-        if (holiday != null && holiday.getEarlyClose() != null) {
-            return setTime(date, holiday.getEarlyClose());
-        } else {
-            return setTime(date, exchange.getClose());
-        }
-    }
-
-    private Holiday getHoliday(Exchange exchange, Date date) {
-
-        // load all holidays for this exchange
-        if (!this.holidays.containsKey(exchange)) {
-            Map<Date, Holiday> map = new HashMap<Date, Holiday>();
-            for (Holiday holiday : exchange.getHolidays()) {
-                map.put(holiday.getDate(), holiday);
+        Holiday holiday = getHoliday(tradingHours.getExchange(), open);
+        if (holiday != null) {
+            if (holiday.getLateOpen() != null) {
+                open = getDateTime(timeZone, open, holiday.getLateOpen());
+            } else if (holiday.getEarlyClose() != null) {
+                close = getDateTime(timeZone, close, holiday.getEarlyClose());
+            } else {
+                return null;
             }
-            this.holidays.put(exchange, map);
         }
 
-        return this.holidays.get(exchange).get(DateUtils.truncate(date, Calendar.DATE));
+        if (inverse) {
+            close = DateUtils.addDays(close, 1);
+        }
+
+        return new TimeInterval(open, close);
     }
 
-    private int toDayOfWeek(long time) {
+    /**
+     * takes year, month & day from date
+     * and takes hour_of_day, minute, second & millisecond from time
+     * and takes the specified timeZone
+     */
+    private Date getDateTime(TimeZone timeZone, Date date, Date time) {
 
-        Calendar cal = new GregorianCalendar();
-        cal.setTimeInMillis(time);
-        return cal.get(Calendar.DAY_OF_WEEK);
-    }
-
-    private Date setTime(Date date, Date time) {
+        Calendar dateCal = Calendar.getInstance();
+        dateCal.setTime(date);
 
         Calendar timeCal = Calendar.getInstance();
         timeCal.setTime(time);
 
-        Calendar dateCal = Calendar.getInstance();
-        dateCal.setTime(date);
+        dateCal.setTimeZone(timeZone);
         dateCal.set(Calendar.HOUR_OF_DAY, timeCal.get(Calendar.HOUR_OF_DAY));
         dateCal.set(Calendar.MINUTE, timeCal.get(Calendar.MINUTE));
         dateCal.set(Calendar.SECOND, timeCal.get(Calendar.SECOND));
         dateCal.set(Calendar.MILLISECOND, timeCal.get(Calendar.MILLISECOND));
 
         return dateCal.getTime();
+    }
+
+    public class TimeInterval implements Serializable, Comparable<TimeInterval> {
+
+        private static final long serialVersionUID = 1364116470317584523L;
+
+        private final Date from;
+        private final Date to;
+
+        public TimeInterval(Date from, Date to) {
+            this.from = from;
+            this.to = to;
+        }
+
+        public Date getFrom() {
+            return this.from;
+        }
+
+        public Date getTo() {
+            return this.to;
+        }
+
+        public boolean contains(Date date) {
+
+            return this.from.compareTo(date) <= 0 && this.to.compareTo(date) > 0;
+        }
+
+        @Override
+        public String toString() {
+            return this.from + " - " + this.to;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+
+            if (this == obj) {
+                return true;
+            }
+            if (obj instanceof TimeInterval) {
+                TimeInterval that = (TimeInterval) obj;
+                return ObjectUtil.equalsNonNull(this.getFrom(), that.getFrom()) && ObjectUtil.equalsNonNull(this.getTo(), that.getTo());
+            } else {
+                return false;
+            }
+        }
+
+        @Override
+        public int hashCode() {
+
+            int hash = 17;
+            hash = hash * 37 + ObjectUtil.hashCode(getFrom());
+            hash = hash * 37 + ObjectUtil.hashCode(getTo());
+            return hash;
+        }
+
+        @Override
+        public int compareTo(TimeInterval other) {
+            int comp = this.getFrom().compareTo(other.getFrom());
+            if (comp != 0) {
+                return comp;
+            } else {
+                return this.getTo().compareTo(other.getTo());
+            }
+        }
+    }
+
+    public static class TimeIntervals extends TreeSet<TimeInterval> {
+
+        private static final long serialVersionUID = -1313023804352151004L;
+
+        @Override
+        public boolean add(TimeInterval timeInterval) {
+
+            // do not add null
+            if (timeInterval != null) {
+                return super.add(timeInterval);
+            } else {
+                return false;
+            }
+        }
+
+        public boolean contains(Date date) {
+
+            for (TimeInterval timeInterval : this) {
+                if (timeInterval.contains(date)) {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 
 }

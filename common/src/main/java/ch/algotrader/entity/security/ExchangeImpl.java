@@ -17,6 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.entity.security;
 
+import java.util.TimeZone;
+
 import ch.algotrader.util.ObjectUtil;
 
 /**
@@ -30,7 +32,7 @@ public class ExchangeImpl extends Exchange {
 
     @Override
     public String toString() {
-        return getName();
+        return getName() + " " + getCode();
     }
 
     @Override
@@ -53,5 +55,11 @@ public class ExchangeImpl extends Exchange {
         int hash = 17;
         hash = hash * 37 + ObjectUtil.hashCode(getName());
         return hash;
+    }
+
+    @Override
+    public TimeZone getTZ() {
+
+        return TimeZone.getTimeZone(getTimeZone());
     }
 }

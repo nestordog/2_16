@@ -288,7 +288,7 @@ public class DateUtil {
      */
     public static boolean isMarketOpen(SecurityFamily securityFamily, Date currentDateTime) {
 
-        return ServiceLocator.instance().getCalendarService().isExchangeOpen(securityFamily.getExchange().getId(), currentDateTime);
+        return ServiceLocator.instance().getCalendarService().isOpen(securityFamily.getExchange().getId(), currentDateTime);
     }
 
     private static Date getNext3rdFriday(Date input) {

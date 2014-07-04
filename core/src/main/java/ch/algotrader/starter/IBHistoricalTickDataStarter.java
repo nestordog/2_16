@@ -35,12 +35,13 @@ import org.apache.log4j.Logger;
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.marketData.Bar;
 import ch.algotrader.entity.marketData.Tick;
+import ch.algotrader.entity.security.Exchange;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.BarType;
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.TimePeriod;
+import ch.algotrader.service.CalendarService;
 import ch.algotrader.service.HistoricalDataService;
-import ch.algotrader.util.DateUtil;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.io.CsvTickWriter;
 
@@ -122,22 +123,22 @@ public class IBHistoricalTickDataStarter {
 
         TreeMap<Date, Tick> timeTickMap = new TreeMap<Date, Tick>();
 
+        HistoricalDataService historicalDataService = ServiceLocator.instance().getHistoricalDataService();
+        CalendarService calendarService = ServiceLocator.instance().getCalendarService();
+        Exchange exchange = security.getSecurityFamily().getExchange();
+
         // run all barTypes and get the ticks
         for (BarType barType : barTypes) {
 
-            HistoricalDataService service = ServiceLocator.instance().getService("historicalDataService", HistoricalDataService.class);
-
-            List<Bar> bars = service.getHistoricalBars(security.getId(), date, 1, TimePeriod.DAY, Duration.MIN_1, barType);
+            List<Bar> bars = historicalDataService.getHistoricalBars(security.getId(), date, 1, TimePeriod.DAY, Duration.MIN_1, barType);
 
             // filter Bars by date
             for (Iterator<Bar> it = bars.iterator(); it.hasNext();) {
 
                 Bar bar = it.next();
 
-                // retrieve bars only between marketOpen & close
-                if (DateUtil.compareTime(bar.getDateTime(), security.getSecurityFamily().getExchange().getClose()) > 0
-                        || DateUtil.compareTime(bar.getDateTime(), security.getSecurityFamily().getExchange().getOpen()) < 0) {
-
+                // discard bars outside trading hours
+                if (!calendarService.isOpen(exchange.getId(), bar.getDateTime())) {
                     it.remove();
                     continue;
                 }

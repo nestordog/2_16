@@ -274,12 +274,10 @@ CREATE TABLE `exchange` (
   `ID` int(11) NOT NULL AUTO_INCREMENT,
   `NAME` varchar(50) NOT NULL,
   `CODE` varchar(10) NOT NULL,
-  `OPEN_DAY` enum('SUNDAY','MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY') NOT NULL,
-  `OPEN` time NOT NULL,
-  `CLOSE` time NOT NULL,
+  `TIME_ZONE` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`ID`),
   UNIQUE KEY `NAME` (`NAME`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -406,9 +404,8 @@ CREATE TABLE `generic_tick` (
   `DOUBLE_VALUE` double DEFAULT NULL,
   `INT_VALUE` int(11) DEFAULT NULL,
   PRIMARY KEY (`ID`),
-  KEY `GENERIC_TICK_SECURITY_FKC` (`SECURITY_FK`),
-  CONSTRAINT `GENERIC_TICK_SECURITY_FKC` FOREIGN KEY (`SECURITY_FK`) REFERENCES `security` (`ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  KEY `GENERIC_TICK_SECURITY_FKC` (`SECURITY_FK`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -427,7 +424,7 @@ CREATE TABLE `holiday` (
   PRIMARY KEY (`ID`),
   KEY `HOLIDAY_MARKET_FKC` (`EXCHANGE_FK`),
   CONSTRAINT `HOLIDAY_MARKET_FKC` FOREIGN KEY (`EXCHANGE_FK`) REFERENCES `exchange` (`ID`) ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -801,6 +798,31 @@ CREATE TABLE `tick` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `trading_hours`
+--
+
+DROP TABLE IF EXISTS `trading_hours`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `trading_hours` (
+  `ID` int(11) NOT NULL AUTO_INCREMENT,
+  `OPEN` time NOT NULL,
+  `CLOSE` time NOT NULL,
+  `SUNDAY` bit(1) NOT NULL,
+  `MONDAY` bit(1) NOT NULL,
+  `TUESDAY` bit(1) NOT NULL,
+  `WEDNESDAY` bit(1) NOT NULL,
+  `THURSDAY` bit(1) NOT NULL,
+  `FRIDAY` bit(1) NOT NULL,
+  `SATURDAY` bit(1) NOT NULL,
+  `EXCHANGE_FK` int(11) NOT NULL,
+  PRIMARY KEY (`ID`),
+  KEY `TRADING_HOURS_EXCHANGE_FKC` (`EXCHANGE_FK`),
+  CONSTRAINT `TRADING_HOURS_EXCHANGE_FKC` FOREIGN KEY (`EXCHANGE_FK`) REFERENCES `exchange` (`ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 ;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `transaction`
 --
 
@@ -848,4 +870,4 @@ CREATE TABLE `transaction` (
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2014-07-03 13:47:03
+-- Dump completed on 2014-07-04 13:36:52
