@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
+import org.apache.commons.io.FileUtils;
+
 import ch.algotrader.entity.marketData.Tick;
 
 /**
@@ -44,8 +46,13 @@ public class CsvTickDSTAdjuster {
      */
     public static void adjust(String in, String out) throws IOException {
 
-        CsvTickReader csvReader = new CsvTickReader("files" + File.separator + "tickdata" + File.separator + in);
-        CsvTickWriter csvWriter = new CsvTickWriter("files" + File.separator + "tickdata" + File.separator + out);
+        File parent = new File("files" + File.separator + "tickdata");
+        if (!parent.exists()) {
+            FileUtils.forceMkdir(parent);
+        }
+
+        CsvTickReader csvReader = new CsvTickReader(new File(parent, in));
+        CsvTickWriter csvWriter = new CsvTickWriter(new File(parent, out));
         GregorianCalendar cal = new GregorianCalendar();
 
         Tick tick;

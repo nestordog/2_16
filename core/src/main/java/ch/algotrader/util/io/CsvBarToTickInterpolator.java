@@ -60,7 +60,10 @@ public class CsvBarToTickInterpolator {
      */
     public static void interpolate(String in, String out) throws IOException {
 
-        (new File("files" + File.separator + "bardata" + File.separator + dataSet + File.separator + in)).delete();
+        File file = new File("files" + File.separator + "bardata" + File.separator + dataSet + File.separator + in);
+        if (file.exists()) {
+            file.delete();
+        }
 
         CsvBarVOReader csvReader = new CsvBarVOReader(in);
         CsvTickWriter csvWriter = new CsvTickWriter(out);

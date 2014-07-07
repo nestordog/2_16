@@ -22,6 +22,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
 import org.supercsv.cellprocessor.ift.CellProcessor;
 import org.supercsv.io.CsvMapWriter;
 import org.supercsv.prefs.CsvPreference;
@@ -46,6 +47,11 @@ public class MapReporter {
 
     public MapReporter(File file, String[] header, CellProcessor[] processor) throws IOException {
 
+        File parent = file.getParentFile();
+        if (!parent.exists()) {
+            FileUtils.forceMkdir(parent);
+        }
+
         this.header = header;
         this.processor = processor;
 
@@ -66,10 +72,10 @@ public class MapReporter {
 
     public void write(Map<String,?> row) throws IOException {
 
-        if (processor != null) {
-            this.writer.write(row, header, processor);
+        if (this.processor != null) {
+            this.writer.write(row, this.header, this.processor);
         } else {
-            this.writer.write(row, header);
+            this.writer.write(row, this.header);
         }
     }
 

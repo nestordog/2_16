@@ -52,9 +52,14 @@ public class CsvMerger {
      */
     public static void merge(String a, String b, String c) throws IOException {
 
-        File aDir = new File("files" + File.separator + "tickdata" + File.separator + a + File.separator);
-        File bDir = new File("files" + File.separator + "tickdata" + File.separator + b + File.separator);
-        File cDir = new File("files" + File.separator + "tickdata" + File.separator + c + File.separator);
+        File parent = new File("files" + File.separator + "tickdata");
+        if (!parent.exists()) {
+            FileUtils.forceMkdir(parent);
+        }
+
+        File aDir = new File(parent, a);
+        File bDir = new File(parent, b);
+        File cDir = new File(parent, c);
 
         if (!cDir.exists()) {
             cDir.mkdir();
@@ -76,9 +81,9 @@ public class CsvMerger {
 
             if (aNames.contains(fileName) && bNames.contains(fileName)) {
 
-                CsvTickReader aReader = new CsvTickReader(new File(aDir.getPath() + File.separator + fileName));
-                CsvTickReader bReader = new CsvTickReader(new File(bDir.getPath() + File.separator + fileName));
-                CsvTickWriter csvWriter = new CsvTickWriter(new File(cDir.getPath() + File.separator + fileName));
+                CsvTickReader aReader = new CsvTickReader(new File(aDir, fileName));
+                CsvTickReader bReader = new CsvTickReader(new File(bDir, fileName));
+                CsvTickWriter csvWriter = new CsvTickWriter(new File(cDir, fileName));
 
                 Tick aTick = aReader.readTick();
                 Tick bTick = bReader.readTick();
@@ -120,9 +125,9 @@ public class CsvMerger {
                 csvWriter.close();
 
             } else if (aNames.contains(fileName)) {
-                FileUtils.copyFileToDirectory(new File(aDir.getPath() + File.separator + fileName), cDir);
+                FileUtils.copyFileToDirectory(new File(aDir, fileName), cDir);
             } else if (bNames.contains(fileName)) {
-                FileUtils.copyFileToDirectory(new File(bDir.getPath() + File.separator + fileName), cDir);
+                FileUtils.copyFileToDirectory(new File(bDir, fileName), cDir);
             }
         }
     }

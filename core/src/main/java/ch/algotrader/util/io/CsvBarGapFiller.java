@@ -23,6 +23,7 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.time.DateUtils;
 
 import ch.algotrader.entity.marketData.Bar;
@@ -54,8 +55,13 @@ public class CsvBarGapFiller {
      */
     public static void fill(String a, String b) throws IOException, ParseException {
 
-        File readerFile = new File("files" + File.separator + "bardata" + File.separator + a);
-        File writerFile = new File("files" + File.separator + "bardata" + File.separator + b);
+        File parent = new File("files" + File.separator + "bardata");
+        if (!parent.exists()) {
+            FileUtils.forceMkdir(parent);
+        }
+
+        File readerFile = new File(parent, a);
+        File writerFile = new File(parent, b);
 
         CsvBarReader reader = new CsvBarReader(readerFile);
         CsvBarWriter writer = new CsvBarWriter(writerFile);

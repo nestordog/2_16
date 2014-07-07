@@ -54,7 +54,10 @@ public class CsvLinerarInterpolator {
      */
     public static void interpolate(String in, String out) throws IOException {
 
-        (new File("files" + File.separator + "tickdata" + File.separator + dataSet + File.separator + in + ".csv")).delete();
+        File file = new File("files" + File.separator + "tickdata" + File.separator + dataSet + File.separator + in + ".csv");
+        if (file.exists()) {
+            file.delete();
+        }
 
         CsvTickReader csvReader = new CsvTickReader(in);
         CsvTickWriter csvWriter = new CsvTickWriter(out);

@@ -29,6 +29,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.apache.commons.io.FileUtils;
 import org.w3c.dom.Document;
 
 import ch.algotrader.config.ConfigLocator;
@@ -54,13 +55,18 @@ public class XmlUtil {
             return;
         }
 
+        File parent = new File("files" + File.separator + directory);
+        if (!parent.exists()) {
+            FileUtils.forceMkdir(parent);
+        }
+
         TransformerFactory factory = TransformerFactory.newInstance();
         Transformer transformer = factory.newTransformer();
         transformer.setOutputProperty(OutputKeys.INDENT, "yes");
         transformer.setOutputProperty(OutputKeys.METHOD, "xml");
         transformer.setOutputProperty(OutputKeys.MEDIA_TYPE, "text/xml");
         DOMSource source = new DOMSource(document);
-        OutputStream out = new FileOutputStream("files" + File.separator + directory + File.separator + fileName);
+        OutputStream out = new FileOutputStream(new File(parent, fileName));
 
         try {
             StreamResult result = new StreamResult(out);

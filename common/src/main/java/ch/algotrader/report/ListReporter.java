@@ -22,6 +22,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.supercsv.cellprocessor.ift.CellProcessor;
 import org.supercsv.io.CsvListWriter;
 import org.supercsv.prefs.CsvPreference;
@@ -45,6 +46,11 @@ public class ListReporter {
 
     public ListReporter(File file, String[] header, CellProcessor[] processor) throws IOException {
 
+        File parent = file.getParentFile();
+        if (!parent.exists()) {
+            FileUtils.forceMkdir(parent);
+        }
+
         this.processor = processor;
 
         this.writer = new CsvListWriter(new FileWriter(file, false), CsvPreference.EXCEL_PREFERENCE);
@@ -64,8 +70,8 @@ public class ListReporter {
 
     public void write(List<?> row) throws IOException {
 
-        if (processor != null) {
-            this.writer.write(row, processor);
+        if (this.processor != null) {
+            this.writer.write(row, this.processor);
         } else {
             this.writer.write(row);
         }

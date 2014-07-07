@@ -39,6 +39,7 @@ import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.params.HttpMethodParams;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.xpath.XPathAPI;
 import org.w3c.dom.Document;
@@ -202,7 +203,13 @@ public class IVolatilityDownloader {
             if (status == HttpStatus.SC_OK) {
 
                 BufferedInputStream inputStream = new BufferedInputStream(fileGet.getResponseBodyAsStream());
-                FileOutputStream outputStream = new FileOutputStream("files" + File.separator + "ivol" + File.separator + "file-" + fileFormat.format(date) + ".csv");
+
+                File parent = new File("files" + File.separator + "ivol");
+                if (!parent.exists()) {
+                    FileUtils.forceMkdir(parent);
+                }
+
+                FileOutputStream outputStream = new FileOutputStream(new File(parent, "file-" + fileFormat.format(date) + ".csv"));
 
                 try {
                     int input;

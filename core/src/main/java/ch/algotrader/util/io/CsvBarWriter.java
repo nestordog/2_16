@@ -22,6 +22,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Date;
 
+import org.apache.commons.io.FileUtils;
 import org.supercsv.cellprocessor.CellProcessorAdaptor;
 import org.supercsv.cellprocessor.ift.CellProcessor;
 import org.supercsv.io.CsvBeanWriter;
@@ -63,6 +64,11 @@ public class CsvBarWriter {
     private CsvBeanWriter writer;
 
     public CsvBarWriter(File file) throws IOException {
+
+        File parent = file.getParentFile();
+        if (!parent.exists()) {
+            FileUtils.forceMkdir(parent);
+        }
 
         boolean exists = file.exists();
 
