@@ -9,11 +9,14 @@ client/target/
 common/.settings/
 common/target/
 core/.settings/
+core/data/
 core/target/
 core/files/
+core/lib/
 core/log/
 core/src/main/java/ch/algotrader/test
 core/src/main/java/ch/algotrader/tools
+core/webapps
 crud/target/
 crud/.settings/
 doc/target/
