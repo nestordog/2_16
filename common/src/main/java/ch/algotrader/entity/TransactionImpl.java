@@ -102,7 +102,7 @@ public class TransactionImpl extends Transaction {
         }
 
         if (getClearingCommission() != null) {
-            totalCharges += getExecutionCommission().doubleValue();
+            totalCharges += getClearingCommission().doubleValue();
         }
 
         if (getFee() != null) {
