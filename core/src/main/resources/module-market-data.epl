@@ -28,6 +28,55 @@ select
 from
     SubscribeTickEvent;
 
+@Name('UPDATE_TICK_WINDOW_FROM_TRADE')
+@RunTimeOnly()
+on
+    Trade as trade
+update
+    TickWindow as tickWindow
+set
+    tickWindow.dateTime = trade.lastDateTime,
+    tickWindow.lastDateTime = trade.lastDateTime,
+    tickWindow.last = (case when trade.last = 0 then null else RoundUtil.getBigDecimal(trade.last, tickWindow.security.securityFamily.scale) end),
+    tickWindow.vol = trade.vol,
+    tickWindow.refresh = true
+where
+    tickWindow.feedType = trade.feedType
+and
+    tickWindow.tickerId = trade.tickerId;
+
+@Name('UPDATE_TICK_WINDOW_FROM_BID')
+@RunTimeOnly()
+on
+    Bid as bid
+update
+    TickWindow as tickWindow
+set
+    tickWindow.dateTime = bid.dateTime,
+    tickWindow.bid = (case when bid.bid = 0 then null else RoundUtil.getBigDecimal(bid.bid, tickWindow.security.securityFamily.scale) end),
+    tickWindow.volBid = bid.volBid,
+    tickWindow.refresh = true
+where
+    tickWindow.feedType = bid.feedType
+and
+    tickWindow.tickerId = bid.tickerId;
+
+@Name('UPDATE_TICK_WINDOW_FROM_ASK')
+@RunTimeOnly()
+on
+    Ask as ask
+update
+    TickWindow as tickWindow
+set
+    tickWindow.dateTime = ask.dateTime,
+    tickWindow.ask = (case when ask.ask = 0 then null else RoundUtil.getBigDecimal(ask.ask, tickWindow.security.securityFamily.scale) end),
+    tickWindow.volAsk = ask.volAsk,
+    tickWindow.refresh = true
+where
+    tickWindow.feedType = ask.feedType
+and
+    tickWindow.tickerId = ask.tickerId;
+
 @Name('INSERT_INTO_TICK')
 @RunTimeOnly()
 on

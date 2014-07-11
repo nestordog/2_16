@@ -514,7 +514,7 @@ INSERT INTO `stock` (`ID`, `GICS`) VALUES (166,NULL);
 --
 -- WHERE:  id<1000
 
-INSERT INTO `strategy` (`ID`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `INIT_MODULES`, `RUN_MODULES`, `VERSION`) VALUES (1,'BASE','',0,'market-data,combination,current-values,market-data-simulation,trades,portfolio,performance,algo-slicing,market-data-ib,market-data-dc,market-data-lmax',NULL,0);
+INSERT INTO `strategy` (`ID`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `INIT_MODULES`, `RUN_MODULES`, `VERSION`) VALUES (1,'BASE','',0,'market-data,combination,current-values,market-data-simulation,trades,portfolio,performance,algo-slicing,market-data-ib',NULL,0);
 
 --
 -- Dumping data for table `subscription`

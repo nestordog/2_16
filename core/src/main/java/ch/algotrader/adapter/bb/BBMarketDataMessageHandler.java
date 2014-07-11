@@ -26,6 +26,7 @@ import com.bloomberglp.blpapi.Event;
 import com.bloomberglp.blpapi.Message;
 import com.bloomberglp.blpapi.Session;
 
+import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.vo.AskVO;
@@ -92,7 +93,7 @@ public class BBMarketDataMessageHandler extends BBMessageHandler {
                         vol = (int) fields.getElementAsInt64("VOLUME");
                     }
 
-                    TradeVO tradeVO = new TradeVO(cid, lastDateTime, last, vol);
+                    TradeVO tradeVO = new TradeVO(cid, FeedType.BB, lastDateTime, last, vol);
                     EngineLocator.instance().getBaseEngine().sendEvent(tradeVO);
 
                     // there are no BIDs for indices
@@ -106,7 +107,7 @@ public class BBMarketDataMessageHandler extends BBMessageHandler {
                             volBid = fields.getElementAsInt32("BID_SIZE");
                         }
 
-                        BidVO bidVO = new BidVO(cid, lastDateTime, bid, volBid);
+                        BidVO bidVO = new BidVO(cid, FeedType.BB, lastDateTime, bid, volBid);
                         EngineLocator.instance().getBaseEngine().sendEvent(bidVO);
                     }
 
@@ -121,7 +122,7 @@ public class BBMarketDataMessageHandler extends BBMessageHandler {
                             volAsk = fields.getElementAsInt32("ASK_SIZE");
                         }
 
-                        AskVO askVO = new AskVO(cid, lastDateTime, ask, volAsk);
+                        AskVO askVO = new AskVO(cid, FeedType.BB, lastDateTime, ask, volAsk);
                         EngineLocator.instance().getBaseEngine().sendEvent(askVO);
                     }
                 }
@@ -140,7 +141,7 @@ public class BBMarketDataMessageHandler extends BBMessageHandler {
                         vol = (int) fields.getElementAsInt64("VOLUME");
                     }
 
-                    TradeVO tradeVO = new TradeVO(cid, lastDateTime, last, vol);
+                    TradeVO tradeVO = new TradeVO(cid, FeedType.BB, lastDateTime, last, vol);
                     EngineLocator.instance().getBaseEngine().sendEvent(tradeVO);
                 }
 
@@ -163,7 +164,7 @@ public class BBMarketDataMessageHandler extends BBMessageHandler {
                         volBid = fields.getElementAsInt32("BID_SIZE");
                     }
 
-                    BidVO bidVO = new BidVO(cid, dateTime, bid, volBid);
+                    BidVO bidVO = new BidVO(cid, FeedType.BB, dateTime, bid, volBid);
                     EngineLocator.instance().getBaseEngine().sendEvent(bidVO);
 
                 } else if ("ASK".equals(marketDataEventSubType)) {
@@ -182,7 +183,7 @@ public class BBMarketDataMessageHandler extends BBMessageHandler {
                         volAsk = fields.getElementAsInt32("ASK_SIZE");
                     }
 
-                    AskVO askVO = new AskVO(cid, dateTime, ask, volAsk);
+                    AskVO askVO = new AskVO(cid, FeedType.BB, dateTime, ask, volAsk);
                     EngineLocator.instance().getBaseEngine().sendEvent(askVO);
 
                 } else {

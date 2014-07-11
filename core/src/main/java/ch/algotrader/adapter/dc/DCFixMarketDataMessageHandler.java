@@ -25,6 +25,7 @@ import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 
 import ch.algotrader.adapter.fix.fix44.AbstractFix44MarketDataMessageHandler;
+import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.vo.AskVO;
@@ -79,7 +80,7 @@ public class DCFixMarketDataMessageHandler extends AbstractFix44MarketDataMessag
                             logger.trace(symbol.getValue() + " BID " + size + "@" + price);
                         }
 
-                        BidVO bidVO = new BidVO(tickerId, date, price, (int) size);
+                        BidVO bidVO = new BidVO(tickerId, FeedType.DC, date, price, (int) size);
                         EngineLocator.instance().getBaseEngine().sendEvent(bidVO);
                         break;
                     case MDEntryType.OFFER:
@@ -88,7 +89,7 @@ public class DCFixMarketDataMessageHandler extends AbstractFix44MarketDataMessag
                             logger.trace(symbol.getValue() + " ASK " + size + "@" + price);
                         }
 
-                        AskVO askVO = new AskVO(tickerId, date, price, (int) size);
+                        AskVO askVO = new AskVO(tickerId, FeedType.DC, date, price, (int) size);
 
                         EngineLocator.instance().getBaseEngine().sendEvent(askVO);
                         break;

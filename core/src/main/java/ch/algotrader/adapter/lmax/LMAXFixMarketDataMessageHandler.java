@@ -23,6 +23,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import ch.algotrader.adapter.fix.fix44.AbstractFix44MarketDataMessageHandler;
+import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.vo.AskVO;
@@ -83,7 +84,7 @@ public class LMAXFixMarketDataMessageHandler extends AbstractFix44MarketDataMess
                             logger.trace(lmaxId + " BID " + size + "@" + price);
                         }
 
-                        BidVO bidVO = new BidVO(lmaxId, date, price, (int) size);
+                        BidVO bidVO = new BidVO(lmaxId, FeedType.LMAX, date, price, (int) size);
                         EngineLocator.instance().getBaseEngine().sendEvent(bidVO);
                         break;
                     case MDEntryType.OFFER:
@@ -92,7 +93,7 @@ public class LMAXFixMarketDataMessageHandler extends AbstractFix44MarketDataMess
                             logger.trace(lmaxId + " ASK " + size + "@" + price);
                         }
 
-                        AskVO askVO = new AskVO(lmaxId, date, price, (int) size);
+                        AskVO askVO = new AskVO(lmaxId, FeedType.LMAX, date, price, (int) size);
 
                         EngineLocator.instance().getBaseEngine().sendEvent(askVO);
                         break;
