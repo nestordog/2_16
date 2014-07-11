@@ -42,6 +42,7 @@ import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.Combination;
 import ch.algotrader.entity.security.Component;
 import ch.algotrader.entity.security.EasyToBorrow;
+import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.Future;
 import ch.algotrader.entity.security.FutureFamily;
 import ch.algotrader.entity.security.IntrestRate;
@@ -819,6 +820,12 @@ public class LookupServiceImpl extends LookupServiceBase {
     protected List<Bar> handleGetBarsBySecurityBarSizeAndMinDate(int securityId, Duration barSize, Date minDate) throws Exception {
 
         return getBarDao().findBarsBySecurityBarSizeAndMinDate(securityId, barSize, minDate);
+    }
+
+    @Override
+    protected Forex handleGetForex(Currency baseCurrency, Currency transactionCurrency) throws Exception {
+
+        return getForexDao().getForex(baseCurrency, transactionCurrency);
     }
 
     @Override

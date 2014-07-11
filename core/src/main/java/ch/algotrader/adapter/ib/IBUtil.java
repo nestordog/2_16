@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.ib;
 
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -51,9 +52,10 @@ import com.ib.client.Execution;
  */
 public class IBUtil {
 
-    private static SimpleDateFormat dayFormat = new SimpleDateFormat("yyyyMMdd");
-    private static SimpleDateFormat monthFormat = new SimpleDateFormat("yyyyMM");
-    private static SimpleDateFormat executionFormat = new SimpleDateFormat("yyyyMMdd  HH:mm:ss");
+    private static final SimpleDateFormat dayFormat = new SimpleDateFormat("yyyyMMdd");
+    private static final SimpleDateFormat monthFormat = new SimpleDateFormat("yyyyMM");
+    private static final SimpleDateFormat executionFormat = new SimpleDateFormat("yyyyMMdd  HH:mm:ss");
+    private static final DecimalFormat decimalFormat = new DecimalFormat("#.#######");
 
     public static Contract getContract(Security security) {
 
@@ -63,7 +65,7 @@ public class IBUtil {
         if (security.getConid() != null) {
 
             contract.m_conId = Integer.parseInt(security.getConid());
-            contract.m_exchange = security.getSecurityFamily().getExchange().getName();
+            contract.m_exchange = security.getSecurityFamily().getExchange().getCode();
 
         } else {
 
@@ -80,7 +82,7 @@ public class IBUtil {
                 contract.m_currency = option.getSecurityFamily().getCurrency().toString();
                 contract.m_strike = option.getStrike().doubleValue();
                 contract.m_right = option.getType().toString();
-                contract.m_multiplier = String.valueOf(option.getSecurityFamily().getContractSize());
+                contract.m_multiplier = decimalFormat.format(option.getSecurityFamily().getContractSize());
                 contract.m_expiry = dayFormat.format(option.getExpiration());
 
             } else if (security instanceof Future) {
@@ -93,6 +95,7 @@ public class IBUtil {
                 contract.m_secType = "FUT";
                 contract.m_exchange = future.getSecurityFamily().getExchangeCode(Broker.IB);
                 contract.m_currency = future.getSecurityFamily().getCurrency().toString();
+                contract.m_multiplier = decimalFormat.format(future.getSecurityFamily().getContractSize());
                 contract.m_expiry = monthFormat.format(future.getExpiration());
 
             } else if (security instanceof Forex) {

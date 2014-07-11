@@ -18,6 +18,7 @@
 package ch.algotrader.service.ib;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Comparator;
 import java.util.Date;
@@ -29,9 +30,6 @@ import java.util.TreeSet;
 import java.util.concurrent.BlockingQueue;
 
 import org.apache.log4j.Logger;
-
-import com.ib.client.Contract;
-import com.ib.client.ContractDetails;
 
 import ch.algotrader.entity.security.Future;
 import ch.algotrader.entity.security.FutureFamily;
@@ -47,6 +45,9 @@ import ch.algotrader.option.OptionSymbol;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.RoundUtil;
 
+import com.ib.client.Contract;
+import com.ib.client.ContractDetails;
+
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
@@ -56,6 +57,7 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
 
     private static final Logger logger = MyLogger.getLogger(IBNativeSecurityRetrieverServiceImpl.class.getName());
     private static final SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+    private static final DecimalFormat decimalFormat = new DecimalFormat("#.#######");
 
     private BlockingQueue<ContractDetails> contractDetailsQueue;
 
@@ -77,7 +79,7 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
 
         contract.m_exchange = securityFamily.getExchangeCode(Broker.IB);
 
-        contract.m_multiplier = String.valueOf(securityFamily.getContractSize());
+        contract.m_multiplier = decimalFormat.format(securityFamily.getContractSize());
 
         if (securityFamily instanceof OptionFamily) {
             contract.m_secType = "OPT";
