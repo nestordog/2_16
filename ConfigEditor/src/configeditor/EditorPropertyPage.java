@@ -279,9 +279,14 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
 
     }
 
-    public java.util.Properties getInMemoryData(java.io.File f) {
-        return null;
-
+    public Properties getInMemoryData(File f) {
+        Object[] elements = data.get(f);
+        Properties p = new Properties();
+        for (int i = 0; i < elements.length; i++) {
+            Object[] row = (Object[]) elements[i];
+            p.put(row[0], row[1]);
+        }
+        return p;
     }
 
     @Override
