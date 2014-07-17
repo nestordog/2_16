@@ -18,9 +18,12 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
@@ -49,7 +52,7 @@ import org.eclipse.ui.dialogs.PropertyPage;
 
 public class EditorPropertyPage extends PropertyPage implements IWorkbenchPropertyPage {
 
-    private final class ListContentProvider implements IStructuredContentProvider {
+    private class ListContentProvider implements IStructuredContentProvider {
         List<File> files;
 
         @Override
@@ -89,7 +92,7 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
         }
     }
 
-    private final class TableContentProvider implements IStructuredContentProvider {
+    private class TableContentProvider implements IStructuredContentProvider {
 
         private Object[] elements;
 
@@ -102,20 +105,25 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
             if (newInput == null)
                 elements = null;
             else {
-                PropertiesConfiguration config = null;
-                try {
-                    config = new PropertiesConfiguration((File) newInput);
-                } catch (ConfigurationException e1) {
-                    new RuntimeException(e1);
-                }
+                if (data.containsKey(newInput)) {
+                    elements = data.get(newInput);
+                } else {
+                    PropertiesConfiguration config = null;
+                    try {
+                        config = new PropertiesConfiguration((File) newInput);
+                    } catch (ConfigurationException e1) {
+                        new RuntimeException(e1);
+                    }
 
-                List elementsList = new ArrayList();
-                Iterator<String> it = config.getKeys();
-                while (it.hasNext()) {
-                    String key = it.next();
-                    elementsList.add(new Object[] { key, config.getString(key) });
+                    List elementsList = new ArrayList();
+                    Iterator<String> it = config.getKeys();
+                    while (it.hasNext()) {
+                        String key = it.next();
+                        elementsList.add(new Object[] { key, config.getString(key) });
+                    }
+                    elements = elementsList.toArray();
+                    data.put((File) newInput, elements);
                 }
-                elements = elementsList.toArray();
             }
         }
 
@@ -124,19 +132,9 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
             return elements;
         }
 
-        public void save() {
-            if (elements == null)
-                return;
-            PropertiesConfiguration config = new PropertiesConfiguration();
-            for (int i = 0; i < elements.length; i++) {
-                Object[] row = (Object[]) elements[i];
-                config.setProperty((String) row[0], row[1]);
-            }
-            try {
-                config.save(getSelectedFile());
-            } catch (ConfigurationException e) {
-                throw new RuntimeException(e);
-            }
+        public Properties getData() {
+            return null;
+
         }
     }
 
@@ -175,6 +173,7 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
 
     private TableViewer tableViewer;
     private ListViewer listViewer;
+    private Map<File, Object[]> data = new HashMap<File, Object[]>();
 
     public EditorPropertyPage() {
     }
@@ -245,7 +244,19 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
     }
 
     public void save() {
-        ((TableContentProvider) tableViewer.getContentProvider()).save();
+        for (File file : data.keySet()) {
+            Object[] elements = data.get(file);
+            PropertiesConfiguration config = new PropertiesConfiguration();
+            for (int i = 0; i < elements.length; i++) {
+                Object[] row = (Object[]) elements[i];
+                config.setProperty((String) row[0], row[1]);
+            }
+            try {
+                config.save(file);
+            } catch (ConfigurationException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     public LinkedHashMap<String, Object> getHashMap() {
@@ -256,6 +267,21 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
             m.put((String) row[0], row[1]);
         }
         return m;
+    }
+
+    public Iterable<java.io.File> getFiles() {
+        ListContentProvider t = new ListContentProvider();
+        try {
+            return t.getFiles(((IProjectNature) this.getElement()).getProject());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    public java.util.Properties getInMemoryData(java.io.File f) {
+        return null;
+
     }
 
     @Override
