@@ -10,5 +10,6 @@ core/lib/
 core/src/main/java/ch/algotrader/test
 core/src/main/java/ch/algotrader/tools
 core/webapps
+test/src/main/resources/fix.cfg
 uml/src/main/uml/*.mdr
 uml/src/main/uml/*.uml
