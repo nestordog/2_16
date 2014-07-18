@@ -53,7 +53,7 @@ import org.eclipse.ui.dialogs.PropertyPage;
 public class EditorPropertyPage extends PropertyPage implements IWorkbenchPropertyPage {
 
     private class ListContentProvider implements IStructuredContentProvider {
-        List<File> files;
+        private List<File> files;
 
         @Override
         public void dispose() {
@@ -93,7 +93,6 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
     }
 
     private class TableContentProvider implements IStructuredContentProvider {
-
         private Object[] elements;
 
         @Override
