@@ -1,4 +1,4 @@
-package ch.algotrader.adaptor.rt;
+package ch.algotrader.adapter.rt;
 
 import java.math.BigDecimal;
 import java.util.List;
