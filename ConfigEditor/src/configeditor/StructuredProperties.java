@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -13,12 +14,14 @@ public class StructuredProperties {
     private class ValueStruct {
         private String value;
         private List<String> comments;
-        private String inlineComment;
+        @SuppressWarnings("unused") private String inlineComment;
 
         public ValueStruct() {
+            comments = new ArrayList<String>();
         }
 
         public ValueStruct(String pValue) {
+            comments = new ArrayList<String>();
             value = pValue;
         }
     }
@@ -83,9 +86,10 @@ public class StructuredProperties {
                     value.append(line.charAt(i));
             }
         }
-        n.value = value.toString();
-        n.inlineComment = inlineComment;
-        properties.put(key.toString(), n);
+        n.value = value.toString().trim();
+        if (inlineComment != null)
+            n.inlineComment = inlineComment.trim();
+        properties.put(key.toString().trim(), n);
     }
 
     public void save(File f) {
