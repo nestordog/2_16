@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: ch.algotrader.ConfigEditor
+Bundle-SymbolicName: ch.algotrader.ConfigEditor;singleton:=true
+Bundle-Version: 2.2.0.qualifier
+Bundle-Activator: ch.algotrader.configeditor.Activator
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.eclipse.core.resources
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: .,
+ target/lib/commons-configuration-1.10.jar,
+ target/lib/commons-lang-2.6.jar,
+ target/lib/commons-logging-1.1.3.jar

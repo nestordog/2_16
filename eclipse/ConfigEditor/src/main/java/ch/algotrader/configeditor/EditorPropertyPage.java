@@ -11,7 +11,7 @@
  *
  * AlgoTrader GmbH Badenerstrasse 16 8004 Zurich
  ***********************************************************************************/
-package configeditor;
+package ch.algotrader.configeditor;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -106,7 +106,11 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
                     elements = data.get(newInput);
                 } else {
                     StructuredProperties structProps = new StructuredProperties();
-                    structProps.load((File) newInput);
+                    try {
+                        structProps.load((File) newInput);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
 
                     List elementsList = new ArrayList();
                     for (String key : structProps.getKeys())
@@ -184,7 +188,7 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
             }
         });
 
-        listViewer.setInput(((IProjectNature) this.getElement()).getProject());
+        listViewer.setInput(getProject());
 
         listViewer.addSelectionChangedListener(new ISelectionChangedListener() {
 
@@ -259,7 +263,7 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
     public Iterable<java.io.File> getFiles() {
         ListContentProvider t = new ListContentProvider();
         try {
-            return t.getFiles(((IProjectNature) this.getElement()).getProject());
+            return t.getFiles(getProject());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -274,6 +278,12 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
             p.put(row[0], row[1]);
         }
         return p;
+    }
+
+    public IProject getProject() {
+        if(this.getElement() instanceof IProject)
+            return (IProject)this.getElement();
+        return ((IProjectNature) this.getElement()).getProject();
     }
 
     @Override
@@ -292,5 +302,4 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
         save();
         return super.performOk();
     }
-
 }

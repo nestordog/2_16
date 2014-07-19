@@ -4,8 +4,8 @@
    <extension
          point="org.eclipse.ui.propertyPages">
       <page
-            class="configeditor.EditorPropertyPage"
-            id="ConfigEditor.page"
+            class="ch.algotrader.configeditor.EditorPropertyPage"
+            id="ch.algotrader.configeditor.page"
             name="Config Editor">
          <enabledWhen>
              <or>
