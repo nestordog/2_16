@@ -15,12 +15,12 @@ package ch.algotrader.configeditor;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -28,7 +28,7 @@ public class StructuredProperties {
     private class ValueStruct {
         private String value;
         private List<String> comments;
-        @SuppressWarnings("unused") private String inlineComment;
+        private String inlineComment;
 
         public ValueStruct() {
             comments = new ArrayList<String>();
@@ -43,7 +43,7 @@ public class StructuredProperties {
     private Map<String, ValueStruct> properties;
 
     public StructuredProperties() {
-        properties = new HashMap<String, ValueStruct>();
+        properties = new LinkedHashMap<String, ValueStruct>();
     }
 
     public void load(File f) throws IOException {
@@ -99,7 +99,21 @@ public class StructuredProperties {
         properties.put(key.toString().trim(), n);
     }
 
-    public void save(File f) {
+    public void save(File f) throws IOException {
+        PrintWriter out = new PrintWriter(f);
+        try {
+            for (String key : properties.keySet()) {
+                for (int i = 0; i < properties.get(key).comments.size(); i++) {
+                    out.println("#" + properties.get(key).comments.get(i));
+                }
+                out.print(key + "=" + properties.get(key).value);
+                if (properties.get(key).inlineComment != null)
+                    out.print(" #" + properties.get(key).inlineComment);
+                out.println();
+            }
+        } finally {
+            out.close();
+        }
     }
 
     public Iterable<String> getKeys() {

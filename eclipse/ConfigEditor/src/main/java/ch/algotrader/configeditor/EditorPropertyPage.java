@@ -102,10 +102,11 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
             if (newInput == null)
                 elements = null;
             else {
-                if (data.containsKey(newInput)) {
-                    elements = data.get(newInput);
+                if (editorData.containsKey(newInput)) {
+                    elements = editorData.get(newInput);
                 } else {
                     StructuredProperties structProps = new StructuredProperties();
+                    propMap.put((File) newInput, structProps);
                     try {
                         structProps.load((File) newInput);
                     } catch (IOException e) {
@@ -116,7 +117,7 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
                     for (String key : structProps.getKeys())
                         elementsList.add(new Object[] { key, structProps.getValue(key) });
                     elements = elementsList.toArray();
-                    data.put((File) newInput, elements);
+                    editorData.put((File) newInput, elements);
                 }
             }
         }
@@ -168,7 +169,8 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
 
     private TableViewer tableViewer;
     private ListViewer listViewer;
-    private Map<File, Object[]> data = new HashMap<File, Object[]>();
+    private Map<File, Object[]> editorData = new HashMap<File, Object[]>();
+    private Map<File, StructuredProperties> propMap = new HashMap<File, StructuredProperties>();
 
     public EditorPropertyPage() {
     }
@@ -238,10 +240,10 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
         return (File) ((StructuredSelection) listViewer.getSelection()).getFirstElement();
     }
 
-    public void save() {
-        for (File file : data.keySet()) {
-            Object[] elements = data.get(file);
-            StructuredProperties structuredProps = new StructuredProperties();
+    public void save() throws IOException {
+        for (File file : editorData.keySet()) {
+            Object[] elements = editorData.get(file);
+            StructuredProperties structuredProps = propMap.get(file);
             for (int i = 0; i < elements.length; i++) {
                 Object[] row = (Object[]) elements[i];
                 structuredProps.setValue((String) row[0], (String) row[1]);
@@ -271,7 +273,7 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
     }
 
     public Properties getInMemoryData(File f) {
-        Object[] elements = data.get(f);
+        Object[] elements = editorData.get(f);
         Properties p = new Properties();
         for (int i = 0; i < elements.length; i++) {
             Object[] row = (Object[]) elements[i];
@@ -281,14 +283,18 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
     }
 
     public IProject getProject() {
-        if(this.getElement() instanceof IProject)
-            return (IProject)this.getElement();
+        if (this.getElement() instanceof IProject)
+            return (IProject) this.getElement();
         return ((IProjectNature) this.getElement()).getProject();
     }
 
     @Override
     protected void performApply() {
-        save();
+        try {
+            save();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         super.performApply();
     }
 
@@ -299,7 +305,11 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
 
     @Override
     public boolean performOk() {
-        save();
+        try {
+            save();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         return super.performOk();
     }
 }
