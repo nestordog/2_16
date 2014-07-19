@@ -18,27 +18,11 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 public class StructuredProperties {
-    private class ValueStruct {
-        private String value;
-        private List<String> comments;
-        private String inlineComment;
-
-        public ValueStruct() {
-            comments = new ArrayList<String>();
-        }
-
-        public ValueStruct(String pValue) {
-            comments = new ArrayList<String>();
-            value = pValue;
-        }
-    }
 
     private Map<String, ValueStruct> properties;
 
@@ -125,6 +109,10 @@ public class StructuredProperties {
         if (temp != null)
             return temp.value;
         return null;
+    }
+
+    public ValueStruct getValueStruct(String key) {
+        return properties.get(key);
     }
 
     public void setValue(String key, String value) {

@@ -158,6 +158,10 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
 
         @Override
         protected CellEditor getCellEditor(Object element) {
+            Object[] row = (Object[]) element;
+            FieldModel model = new FieldModel((String) row[0], propMap.get(getSelectedFile()).getValueStruct((String) row[0]));
+
+            System.out.println(model.getWidget());
             return editor;
         }
 
