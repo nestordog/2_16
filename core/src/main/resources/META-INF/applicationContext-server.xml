@@ -356,17 +356,13 @@
 
     <beans profile="dCMarketData,dCFix">
 
-        <bean id="dCLogonMessageHandler" class="ch.algotrader.adapter.dc.DCLogonMessageHandler">
-            <property name="settings" ref="fixSessionSettings"/>
+        <bean id="dCLogonMessageHandler" class="ch.algotrader.adapter.fix.DefaultLogonMessageHandler">
+            <constructor-arg index="0" ref="fixSessionSettings"/>
         </bean>
 
     </beans>
 
     <beans profile="dCMarketData">
-
-        <bean id="dCLogonMessageHandler" class="ch.algotrader.adapter.dc.DCLogonMessageHandler">
-            <property name="settings" ref="fixSessionSettings"/>
-        </bean>
 
         <bean id="dCMarketDataSessionLifeCycle" class="ch.algotrader.adapter.fix.MarketDataFixSessionLifecycle">
             <property name="marketDataService" ref="marketDataService"/>
@@ -405,17 +401,13 @@
 
     <beans profile="lMAXMarketData,lMAXFix">
 
-        <bean id="lMAXLogonMessageHandler" class="ch.algotrader.adapter.lmax.LMAXLogonMessageHandler">
-            <property name="settings" ref="fixSessionSettings"/>
+        <bean id="lMAXLogonMessageHandler" class="ch.algotrader.adapter.fix.DefaultLogonMessageHandler">
+            <constructor-arg index="0" ref="fixSessionSettings"/>
         </bean>
 
     </beans>
 
     <beans profile="lMAXMarketData">
-
-        <bean id="lMAXLogonMessageHandler" class="ch.algotrader.adapter.lmax.LMAXLogonMessageHandler">
-            <property name="settings" ref="fixSessionSettings"/>
-        </bean>
 
         <bean id="lMAXMarketDataSessionLifeCycle" class="ch.algotrader.adapter.fix.MarketDataFixSessionLifecycle">
             <property name="marketDataService" ref="marketDataService"/>

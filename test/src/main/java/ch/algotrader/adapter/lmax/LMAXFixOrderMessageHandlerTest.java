@@ -14,6 +14,7 @@ import org.mockito.Mockito;
 
 import ch.algotrader.adapter.fix.DefaultFixApplication;
 import ch.algotrader.adapter.fix.DefaultFixSessionLifecycle;
+import ch.algotrader.adapter.fix.DefaultLogonMessageHandler;
 import ch.algotrader.adapter.fix.FixConfigUtils;
 import ch.algotrader.adapter.fix.NoopSessionStateListener;
 import ch.algotrader.entity.security.Forex;
@@ -85,8 +86,7 @@ public class LMAXFixOrderMessageHandlerTest {
         SessionSettings settings = FixConfigUtils.loadSettings();
         SessionID sessionId = FixConfigUtils.getSessionID(settings, "LMAXT");
 
-        LMAXLogonMessageHandler logonHandler = new LMAXLogonMessageHandler();
-        logonHandler.setSettings(settings);
+        DefaultLogonMessageHandler logonHandler = new DefaultLogonMessageHandler(settings);
 
         this.lookupService = Mockito.mock(LookupService.class);
         LMAXFixOrderMessageHandler messageHandlerImpl = new LMAXFixOrderMessageHandler();

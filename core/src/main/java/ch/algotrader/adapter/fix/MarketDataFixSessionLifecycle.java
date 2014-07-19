@@ -21,7 +21,7 @@ import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.service.MarketDataService;
 
 /**
- * DukasCopy specific {@link FixSessionLifecycle}
+ * Market Data feed specific {@link FixSessionLifecycle}
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *

@@ -12,6 +12,7 @@ import org.junit.Test;
 
 import ch.algotrader.adapter.fix.DefaultFixApplication;
 import ch.algotrader.adapter.fix.DefaultFixSessionLifecycle;
+import ch.algotrader.adapter.fix.DefaultLogonMessageHandler;
 import ch.algotrader.adapter.fix.FixConfigUtils;
 import ch.algotrader.adapter.fix.NoopSessionStateListener;
 import ch.algotrader.entity.security.Forex;
@@ -68,14 +69,9 @@ public class DCFixFeedMessageHandlerTest {
         SessionSettings settings = FixConfigUtils.loadSettings();
         SessionID sessionId = FixConfigUtils.getSessionID(settings, "DCMD");
 
-        DCLogonMessageHandler dcLogonHandler = new DCLogonMessageHandler();
-        dcLogonHandler.setSettings(settings);
+        DefaultLogonMessageHandler dcLogonHandler = new DefaultLogonMessageHandler(settings);
 
         DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, new DCFixMarketDataMessageHandler(), dcLogonHandler, new DefaultFixSessionLifecycle());
-
-//        Log4FIX log4Fix = Log4FIX.createForLiveUpdates(settings);
-//        LogFactory logFactory = new CompositeLogFactory(new LogFactory[] { new SLF4JLogFactory(settings), log4Fix.getLogFactory() });
-//        log4Fix.show();
 
         LogFactory logFactory = new CompositeLogFactory(new LogFactory[] { new SLF4JLogFactory(settings) });
 

@@ -15,7 +15,9 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.adapter.lmax;
+package ch.algotrader.adapter.fix;
+
+import org.apache.commons.lang.Validate;
 
 import quickfix.ConfigError;
 import quickfix.FieldConvertError;
@@ -26,17 +28,19 @@ import quickfix.field.Username;
 import quickfix.fix44.Logon;
 
 /**
- * LMAX outgoing message handler.
+ * Default outgoing message handler that automatically adds user credentials to the outgoing
+ * logon message.
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  *
  * @version $Revision$ $Date$
  */
-public class LMAXLogonMessageHandler {
+public class DefaultLogonMessageHandler {
 
-    private SessionSettings settings;
+    private final SessionSettings settings;
 
-    public void setSettings(SessionSettings settings) {
+    public DefaultLogonMessageHandler(final SessionSettings settings) {
+        Validate.notNull(settings, "SessionSettings is null");
         this.settings = settings;
     }
 
