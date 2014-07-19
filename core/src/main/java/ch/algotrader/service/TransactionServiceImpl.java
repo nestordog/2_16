@@ -96,7 +96,7 @@ public abstract class TransactionServiceImpl extends TransactionServiceBase {
 
         if (fill.getExecutionCommission() != null) {
             transaction.setExecutionCommission(fill.getExecutionCommission());
-        } else {
+        } else if (securityFamily.getExecutionCommission(broker) != null) {
             transaction.setExecutionCommission(RoundUtil.getBigDecimal(Math.abs(quantity * securityFamily.getExecutionCommission(broker).doubleValue())));
         }
 
