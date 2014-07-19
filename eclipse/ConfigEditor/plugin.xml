@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
+   <extension-point id="CellEditor" name="CellEditor" schema="schema/CellEditor.exsd"/>
    <extension
          point="org.eclipse.ui.propertyPages">
       <page
@@ -18,6 +19,27 @@
             </or>
          </enabledWhen>
       </page>
+   </extension>
+   <extension
+         point="ch.algotrader.ConfigEditor.CellEditor">
+      <CellEditor
+            factory="ch.algotrader.configeditor.TextCellEditorFactory"
+            dataType="String">
+      </CellEditor>
+   </extension>
+   <extension
+         point="ch.algotrader.ConfigEditor.CellEditor">
+      <CellEditor
+            factory="ch.algotrader.configeditor.CheckboxCellEditorFactory"
+            dataType="Boolean">
+      </CellEditor>
+   </extension>
+   <extension
+         point="ch.algotrader.ConfigEditor.CellEditor">
+      <CellEditor
+            dataType="Date"
+            factory="ch.algotrader.configeditor.DateCellEditorFactory">
+      </CellEditor>
    </extension>
 
 </plugin>

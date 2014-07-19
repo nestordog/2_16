@@ -26,6 +26,8 @@ import java.util.Properties;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectNature;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.InvalidRegistryObjectException;
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.EditingSupport;
@@ -109,7 +111,7 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
                     propMap.put((File) newInput, structProps);
                     try {
                         structProps.load((File) newInput);
-                    } catch (IOException e) {
+                    } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
 
@@ -136,11 +138,11 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
 
     class ValueEditor extends EditingSupport {
 
-        private final CellEditor editor;
+        private final CellEditor defaultEditor;
 
         public ValueEditor(TableViewer viewer) {
             super(viewer);
-            this.editor = new TextCellEditor(viewer.getTable());
+            this.defaultEditor = new TextCellEditor(viewer.getTable());
         }
 
         @Override
@@ -160,9 +162,16 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
         protected CellEditor getCellEditor(Object element) {
             Object[] row = (Object[]) element;
             FieldModel model = new FieldModel((String) row[0], propMap.get(getSelectedFile()).getValueStruct((String) row[0]));
+            System.out.println(model.getDatatype());
+            try {
+                CellEditorFactory factory = CellEditorExtensionPoint.createCellEditorFactory(model.getDatatype(), tableViewer.getTable());
+                if (factory == null)
+                    return defaultEditor;
+                return factory.createCellEditor(tableViewer.getTable());
 
-            System.out.println(model.getWidget());
-            return editor;
+            } catch (InvalidRegistryObjectException | CoreException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         @Override
@@ -250,7 +259,8 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
             StructuredProperties structuredProps = propMap.get(file);
             for (int i = 0; i < elements.length; i++) {
                 Object[] row = (Object[]) elements[i];
-                structuredProps.setValue((String) row[0], (String) row[1]);
+                // TODO: take care of date formats!
+                structuredProps.setValue((String) row[0], row[1].toString());
             }
             structuredProps.save(file);
         }

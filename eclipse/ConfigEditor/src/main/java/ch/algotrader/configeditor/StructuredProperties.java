@@ -18,7 +18,12 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.Time;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Collections;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -30,7 +35,7 @@ public class StructuredProperties {
         properties = new LinkedHashMap<String, ValueStruct>();
     }
 
-    public void load(File f) throws IOException {
+    public void load(File f) throws IOException, InstantiationException, IllegalAccessException, ClassNotFoundException, ParseException {
         ValueStruct n = new ValueStruct();
         BufferedReader reader = new BufferedReader(new FileReader(f));
         try {
@@ -49,7 +54,7 @@ public class StructuredProperties {
         }
     }
 
-    private void parseKeyValueLine(ValueStruct n, String line) {
+    private void parseKeyValueLine(ValueStruct n, String line) throws InstantiationException, IllegalAccessException, ClassNotFoundException, ParseException {
         boolean escape = false;
         boolean isKey = true;
         StringBuilder key = new StringBuilder();
@@ -77,7 +82,44 @@ public class StructuredProperties {
                     value.append(line.charAt(i));
             }
         }
-        n.value = value.toString().trim();
+        FieldModel f = new FieldModel(key.toString(), n);
+        String dataType = f.getDatatype();
+        if (dataType.equals("String"))
+            n.value = value.toString().trim();
+        else {
+            String stringValue = value.toString().trim();
+            switch (dataType) {
+                case "Integer":
+                    n.value = new Integer(stringValue);
+                    break;
+                case "Double":
+                    n.value = new Double(stringValue);
+                    break;
+                case "Time": {
+                    DateFormat formatter = new SimpleDateFormat("HH:mm:ss");
+                    Date date = (Date) formatter.parse(stringValue);
+                    n.value = new Time(date.getTime());
+                    break;
+                }
+                case "Date": {
+                    DateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
+                    n.value = (Date) formatter.parse(stringValue);
+                    break;
+                }
+                case "DateTime": {
+                    DateFormat formatter = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+                    n.value = (Date) formatter.parse(stringValue);
+                    break;
+                }
+                case "Boolean":
+                    n.value = new Boolean(stringValue);
+                    break;
+                default:
+                    if (!dataType.contains("."))
+                        dataType = "java.lang." + dataType;
+                    n.value = Class.forName(dataType).newInstance();
+            }
+        }
         if (inlineComment != null)
             n.inlineComment = inlineComment.trim();
         properties.put(key.toString().trim(), n);
@@ -104,7 +146,7 @@ public class StructuredProperties {
         return properties.keySet();
     }
 
-    public String getValue(String key) {
+    public Object getValue(String key) {
         ValueStruct temp = properties.get(key);
         if (temp != null)
             return temp.value;
