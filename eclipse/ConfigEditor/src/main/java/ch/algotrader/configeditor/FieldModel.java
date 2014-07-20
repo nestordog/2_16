@@ -5,11 +5,9 @@ import java.util.Map;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class FieldModel {
-    String key;
     ValueStruct values;
 
-    public FieldModel(String pKey, ValueStruct pValues) {
-        key = pKey;
+    public FieldModel(ValueStruct pValues) {
         values = pValues;
     }
 

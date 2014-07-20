@@ -81,7 +81,7 @@ public class StructuredProperties {
                     value.append(line.charAt(i));
             }
         }
-        FieldModel f = new FieldModel(key.toString(), n);
+        FieldModel f = new FieldModel(n);
         String dataType = f.getDatatype();
         if (dataType.equals("String"))
             n.value = value.toString().trim();
@@ -130,7 +130,7 @@ public class StructuredProperties {
                 for (int i = 0; i < properties.get(key).comments.size(); i++) {
                     out.println("#" + properties.get(key).comments.get(i));
                 }
-                out.print(key + "=" + properties.get(key).value);
+                out.print(key + "=" + properties.get(key).getSaveReadyValue());
                 if (properties.get(key).inlineComment != null)
                     out.print(" #" + properties.get(key).inlineComment);
                 out.println();
@@ -155,7 +155,7 @@ public class StructuredProperties {
         return properties.get(key);
     }
 
-    public void setValue(String key, String value) {
+    public void setValue(String key, Object value) {
         ValueStruct temp = properties.get(key);
         if (temp != null)
             properties.get(key).value = value;

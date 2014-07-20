@@ -172,7 +172,7 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
         @Override
         protected CellEditor getCellEditor(Object element) {
             Object[] row = (Object[]) element;
-            FieldModel model = new FieldModel((String) row[0], propMap.get(getSelectedFile()).getValueStruct((String) row[0]));
+            FieldModel model = new FieldModel(propMap.get(getSelectedFile()).getValueStruct((String) row[0]));
             System.out.println(model.getDatatype() + " editor has been created");
             try {
                 CellEditorFactory factory = CellEditorExtensionPoint.createCellEditorFactory(model.getDatatype());
@@ -241,7 +241,7 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
             @Override
             public String getText(Object element) {
                 Object[] row = (Object[]) element;
-                return (new FieldModel((String) row[0], propMap.get(getSelectedFile()).getValueStruct((String) row[0]))).getLabel();
+                return (new FieldModel(propMap.get(getSelectedFile()).getValueStruct((String) row[0]))).getLabel();
             }
         });
 
@@ -252,7 +252,7 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
             @Override
             public String getText(Object element) {
                 Object[] row = (Object[]) element;
-                String dataType = (new FieldModel((String) row[0], propMap.get(getSelectedFile()).getValueStruct((String) row[0]))).getDatatype();
+                String dataType = (new FieldModel(propMap.get(getSelectedFile()).getValueStruct((String) row[0]))).getDatatype();
                 switch (dataType) {
                     case "Date": {
                         Date d = (Date) row[1];
@@ -292,7 +292,7 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
             for (int i = 0; i < elements.length; i++) {
                 Object[] row = (Object[]) elements[i];
                 // TODO: take care of date formats!
-                structuredProps.setValue((String) row[0], row[1].toString());
+                structuredProps.setValue((String) row[0], row[1]);
             }
             structuredProps.save(file);
         }
