@@ -18,7 +18,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.Time;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -97,8 +96,7 @@ public class StructuredProperties {
                     break;
                 case "Time": {
                     DateFormat formatter = new SimpleDateFormat("HH:mm:ss");
-                    Date date = (Date) formatter.parse(stringValue);
-                    n.value = new Time(date.getTime());
+                    n.value = (Date) formatter.parse(stringValue);
                     break;
                 }
                 case "Date": {
