@@ -1,8 +1,5 @@
 package ch.algotrader.configeditor.editingSupport;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -28,20 +25,13 @@ public class DateCellEditor extends CellEditor {
 
     @Override
     protected Object doGetValue() {
-        String str = null;
-        DateFormat formatter = null;
+        Calendar c = Calendar.getInstance();
         if ((this.getStyle() & SWT.DATE) == 0) {
-            str = String.format("%d.%d.%d", widget.getDay(), widget.getMonth(), widget.getYear());
-            formatter = new SimpleDateFormat("dd.MM.yyyy");
+            c.set(0, 0, 0, widget.getHours(), widget.getMinutes(), widget.getSeconds());
         } else {
-            str = String.format("%d:%d:%d", widget.getHours(), widget.getMinutes(), widget.getSeconds());
-            formatter = new SimpleDateFormat("HH:mm:ss");
+            c.set(widget.getYear(), widget.getMonth(), widget.getDay(), 0, 0, 0);
         }
-        try {
-            return (Date) formatter.parse(str);
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
-        }
+        return c.getTime();
     }
 
     @Override
@@ -51,13 +41,17 @@ public class DateCellEditor extends CellEditor {
 
     @Override
     protected void doSetValue(Object value) {
+        System.out.println("doSetValue Input: " + value);
         Date date = (Date) value;
+        System.out.println("doSetValue Date: " + date);
         Calendar c = Calendar.getInstance();
         c.setTime(date);
+        System.out.println("doSetValue calendar: " + c);
         if ((this.getStyle() & SWT.DATE) == 0) {
-            widget.setDate(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
-        } else {
             widget.setTime(c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), c.get(Calendar.SECOND));
+        } else {
+            System.out.println("calendar output: yyyy=" + c.get(Calendar.YEAR) + ", month=" + c.get(Calendar.MONTH) + ", day=" + c.get(Calendar.DAY_OF_MONTH));
+            widget.setDate(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
         }
     }
 

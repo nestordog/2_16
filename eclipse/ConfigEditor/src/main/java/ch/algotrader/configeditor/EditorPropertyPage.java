@@ -122,8 +122,11 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
                     }
 
                     List elementsList = new ArrayList();
-                    for (String key : structProps.getKeys())
-                        elementsList.add(new Object[] { key, structProps.getValue(key) });
+                    for (String key : structProps.getKeys()) {
+                        Object v = structProps.getValue(key);
+                        System.out.println("ContentProvider inputChanged, key=" + key + ", value-id=" + System.identityHashCode(v) + ", value=" + v);
+                        elementsList.add(new Object[] { key, v });
+                    }
                     elements = elementsList.toArray();
                     editorData.put((File) newInput, elements);
                 }
@@ -154,6 +157,7 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
         @Override
         protected void setValue(Object element, Object value) {
             Object[] row = (Object[]) element;
+            System.out.println("ValueEditor.setValue, value-id: " + System.identityHashCode(value) + ", value: " + value.toString());
             row[1] = value;
             tableViewer.update(element, null);
         }
@@ -161,6 +165,7 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
         @Override
         protected Object getValue(Object element) {
             Object[] row = (Object[]) element;
+            System.out.println("getting value: " + row[1].toString());
             return row[1];
         }
 
@@ -168,11 +173,12 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
         protected CellEditor getCellEditor(Object element) {
             Object[] row = (Object[]) element;
             FieldModel model = new FieldModel((String) row[0], propMap.get(getSelectedFile()).getValueStruct((String) row[0]));
-            System.out.println(model.getDatatype());
+            System.out.println(model.getDatatype() + " editor has been created");
             try {
                 CellEditorFactory factory = CellEditorExtensionPoint.createCellEditorFactory(model.getDatatype(), tableViewer.getTable());
                 if (factory == null)
                     return defaultEditor;
+                System.out.println("and returned");
                 return factory.createCellEditor(tableViewer.getTable());
 
             } catch (InvalidRegistryObjectException | CoreException e) {
