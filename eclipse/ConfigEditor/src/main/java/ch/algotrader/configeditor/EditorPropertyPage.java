@@ -79,13 +79,16 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
 
         @Override
         public Object[] getElements(Object inputElement) {
-            return files.toArray();
+            if (files != null)
+                return files.toArray();
+            else
+                return new Object[0];
         }
 
         private List<File> getFiles(IProject project) throws IOException {
             File file = project.getFile("META-INF/" + project.getName() + ".hierarchy").getLocation().toFile();
             if (!file.exists()) {
-                MessageDialog.openError(getShell(), "hierarchy file missing", "Config Editor was not able to locate META-INF//" + project.getName() + ".hierarchy");
+                MessageDialog.openError(getShell(), "hierarchy file missing", "Config Editor was not able to locate META-INF\\" + project.getName() + ".hierarchy");
                 return null;
             }
             String[] fileNames = null;
