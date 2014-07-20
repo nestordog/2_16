@@ -18,6 +18,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -232,7 +234,7 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
             @Override
             public String getText(Object element) {
                 Object[] row = (Object[]) element;
-                return super.getText(row[0]);
+                return (new FieldModel((String) row[0], propMap.get(getSelectedFile()).getValueStruct((String) row[0]))).getLabel();
             }
         });
 
@@ -243,7 +245,24 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
             @Override
             public String getText(Object element) {
                 Object[] row = (Object[]) element;
-                return super.getText(row[1]);
+                String dataType = (new FieldModel((String) row[0], propMap.get(getSelectedFile()).getValueStruct((String) row[0]))).getDatatype();
+                switch (dataType) {
+                    case "Date": {
+                        Date d = (Date) row[1];
+                        Calendar c = Calendar.getInstance();
+                        c.setTime(d);
+                        return String.format("%d.%d.%d", c.get(Calendar.DAY_OF_MONTH), c.get(Calendar.MONTH), c.get(Calendar.YEAR));
+                    }
+                    case "Time": {
+                        Date d = (Date) row[1];
+                        Calendar c = Calendar.getInstance();
+                        c.setTime(d);
+                        return String.format("%d:%d:%d", c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), c.get(Calendar.SECOND));
+                    }
+                    default: {
+                        return row[1].toString();
+                    }
+                }
             }
         });
         colValue.setEditingSupport(new ValueEditor(tableViewer));

@@ -28,4 +28,18 @@ public class FieldModel {
         return dataType == null ? null : dataType.toString();
     }
 
+    @SuppressWarnings("unchecked")
+    public String getLabel() {
+        Map<String, Object> definition = null;
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            if (values.comments == null || values.comments.isEmpty())
+                return "No Label";
+            definition = mapper.readValue(values.comments.get(0), Map.class);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        Object label = definition.get("label");
+        return label == null ? null : label.toString();
+    }
 }
