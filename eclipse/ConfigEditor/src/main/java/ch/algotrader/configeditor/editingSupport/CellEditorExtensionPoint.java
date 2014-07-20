@@ -1,5 +1,7 @@
 package ch.algotrader.configeditor.editingSupport;
 
+import java.text.MessageFormat;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtensionRegistry;
@@ -32,5 +34,15 @@ public class CellEditorExtensionPoint {
         if (config != null)
             return config.getAttribute("regex");
         return null;
+    }
+
+    public static String getRegexErrorMessage(String dataType, String value) {
+        String regexErrorMessage;
+        IConfigurationElement config = getConfig(dataType);
+        assert config != null;
+        regexErrorMessage = config.getAttribute("regexErrorMessage");
+        if (regexErrorMessage == null)
+            regexErrorMessage = "User input ''{0}'' does not satisfy pattern {1}";
+        return MessageFormat.format(regexErrorMessage, value, config.getAttribute("regex"));
     }
 }

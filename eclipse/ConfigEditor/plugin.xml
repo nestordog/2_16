@@ -55,5 +55,14 @@
             factory="ch.algotrader.configeditor.editingSupport.DateTimeCellEditorFactory">
       </CellEditor>
    </extension>
+   <extension
+         point="ch.algotrader.ConfigEditor.CellEditor">
+      <CellEditor
+            dataType="Integer"
+            factory="ch.algotrader.configeditor.editingSupport.IntegerCellEditorFactory"
+            regex="^\d*$"
+            regexErrorMessage="&apos;&apos;{0}&apos;&apos; is not a valid integer number">
+      </CellEditor>
+   </extension>
 
 </plugin>
