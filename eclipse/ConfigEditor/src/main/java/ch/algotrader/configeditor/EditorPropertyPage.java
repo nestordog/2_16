@@ -17,8 +17,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -249,15 +250,13 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
                 switch (dataType) {
                     case "Date": {
                         Date d = (Date) row[1];
-                        Calendar c = Calendar.getInstance();
-                        c.setTime(d);
-                        return String.format("%d.%d.%d", c.get(Calendar.DAY_OF_MONTH), c.get(Calendar.MONTH), c.get(Calendar.YEAR));
+                        DateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
+                        return formatter.format(d);
                     }
                     case "Time": {
                         Date d = (Date) row[1];
-                        Calendar c = Calendar.getInstance();
-                        c.setTime(d);
-                        return String.format("%d:%d:%d", c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), c.get(Calendar.SECOND));
+                        DateFormat formatter = new SimpleDateFormat("HH:mm:ss");
+                        return formatter.format(d);
                     }
                     default: {
                         return row[1].toString();
