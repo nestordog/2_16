@@ -52,14 +52,16 @@
          <attribute name="dataType" type="string" use="required">
             <annotation>
                <documentation>
-                  
+                  Arbitrary string used for designating property data type, like:
+# { &quot;data-type&quot;: &quot;Boolean&quot;, ... }
+property1=value1
                </documentation>
             </annotation>
          </attribute>
          <attribute name="factory" type="string" use="required">
             <annotation>
                <documentation>
-                  
+                  Factory creating cell editor
                </documentation>
                <appinfo>
                   <meta.attribute kind="java" basedOn=":ch.algotrader.configeditor.CellEditorFactory"/>
@@ -69,7 +71,16 @@
          <attribute name="regex" type="string">
             <annotation>
                <documentation>
-                  
+                  Regular expression for validating user input
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="regexErrorMessage" type="string">
+            <annotation>
+               <documentation>
+                  Error message shown to the user when input does not validate against the specified regex. When omitted, the default message is given:
+&quot;User input {0} does not satisfy pattern {1}&quot;
+where {0} is a placeholder for user input and {1} is a placeholder for the regular expression.
                </documentation>
             </annotation>
          </attribute>
