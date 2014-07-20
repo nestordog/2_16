@@ -1,4 +1,4 @@
-package ch.algotrader.configeditor;
+package ch.algotrader.configeditor.editingSupport;
 
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.CheckboxCellEditor;

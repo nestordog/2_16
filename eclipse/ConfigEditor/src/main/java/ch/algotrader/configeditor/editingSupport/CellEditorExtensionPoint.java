@@ -1,4 +1,4 @@
-package ch.algotrader.configeditor;
+package ch.algotrader.configeditor.editingSupport;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;

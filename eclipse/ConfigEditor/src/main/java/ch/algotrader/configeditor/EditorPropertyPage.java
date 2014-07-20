@@ -49,6 +49,9 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.ui.IWorkbenchPropertyPage;
 import org.eclipse.ui.dialogs.PropertyPage;
 
+import ch.algotrader.configeditor.editingSupport.CellEditorExtensionPoint;
+import ch.algotrader.configeditor.editingSupport.CellEditorFactory;
+
 public class EditorPropertyPage extends PropertyPage implements IWorkbenchPropertyPage {
 
     private class ListContentProvider implements IStructuredContentProvider {

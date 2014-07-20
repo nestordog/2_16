@@ -23,14 +23,14 @@
    <extension
          point="ch.algotrader.ConfigEditor.CellEditor">
       <CellEditor
-            factory="ch.algotrader.configeditor.TextCellEditorFactory"
+            factory="ch.algotrader.configeditor.editingSupport.TextCellEditorFactory"
             dataType="String">
       </CellEditor>
    </extension>
    <extension
          point="ch.algotrader.ConfigEditor.CellEditor">
       <CellEditor
-            factory="ch.algotrader.configeditor.CheckboxCellEditorFactory"
+            factory="ch.algotrader.configeditor.editingSupport.CheckboxCellEditorFactory"
             dataType="Boolean">
       </CellEditor>
    </extension>
@@ -38,21 +38,21 @@
          point="ch.algotrader.ConfigEditor.CellEditor">
       <CellEditor
             dataType="Date"
-            factory="ch.algotrader.configeditor.DateCellEditorFactory">
+            factory="ch.algotrader.configeditor.editingSupport.DateCellEditorFactory">
       </CellEditor>
    </extension>
    <extension
          point="ch.algotrader.ConfigEditor.CellEditor">
       <CellEditor
             dataType="Time"
-            factory="ch.algotrader.configeditor.TimeCellEditorFactory">
+            factory="ch.algotrader.configeditor.editingSupport.TimeCellEditorFactory">
       </CellEditor>
    </extension>
    <extension
          point="ch.algotrader.ConfigEditor.CellEditor">
       <CellEditor
             dataType="DateTime"
-            factory="ch.algotrader.configeditor.DateTimeCellEditorFactory">
+            factory="ch.algotrader.configeditor.editingSupport.DateTimeCellEditorFactory">
       </CellEditor>
    </extension>
 

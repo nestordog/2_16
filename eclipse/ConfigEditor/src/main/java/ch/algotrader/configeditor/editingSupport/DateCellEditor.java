@@ -1,4 +1,4 @@
-package ch.algotrader.configeditor;
+package ch.algotrader.configeditor.editingSupport;
 
 import java.text.DateFormat;
 import java.text.ParseException;
