@@ -31,6 +31,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectNature;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.InvalidRegistryObjectException;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.EditingSupport;
@@ -83,6 +84,10 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
 
         private List<File> getFiles(IProject project) throws IOException {
             File file = project.getFile("META-INF/" + project.getName() + ".hierarchy").getLocation().toFile();
+            if (!file.exists()) {
+                MessageDialog.openError(getShell(), "hierarchy file missing", "Config Editor was not able to locate META-INF//" + project.getName() + ".hierarchy");
+                return null;
+            }
             String[] fileNames = null;
             BufferedReader br = new BufferedReader(new FileReader(file));
             try {
@@ -291,7 +296,6 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
             StructuredProperties structuredProps = propMap.get(file);
             for (int i = 0; i < elements.length; i++) {
                 Object[] row = (Object[]) elements[i];
-                // TODO: take care of date formats!
                 structuredProps.setValue((String) row[0], row[1]);
             }
             structuredProps.save(file);
