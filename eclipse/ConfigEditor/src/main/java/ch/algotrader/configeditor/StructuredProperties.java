@@ -34,7 +34,7 @@ public class StructuredProperties {
         properties = new LinkedHashMap<String, ValueStruct>();
     }
 
-    public void load(File f) throws IOException, InstantiationException, IllegalAccessException, ClassNotFoundException, ParseException {
+    public void load(File f) throws InstantiationException, IllegalAccessException, ClassNotFoundException, ParseException, IOException {
         ValueStruct n = new ValueStruct();
         BufferedReader reader = new BufferedReader(new FileReader(f));
         try {

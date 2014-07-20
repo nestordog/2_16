@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -71,25 +72,41 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
 
         @Override
         public Object[] getElements(Object inputElement) {
-            return files.toArray();
+            if (files != null)
+                return files.toArray();
+            else
+                return new Object[0];
         }
 
         private List<File> getFiles(IProject project) throws IOException {
             File file = project.getFile("META-INF/" + project.getName() + ".hierarchy").getLocation().toFile();
             if (!file.exists()) {
-                MessageDialog.openError(getShell(), "hierarchy file missing", "Config Editor was not able to locate META-INF//" + project.getName() + ".hierarchy");
+                MessageDialog.openError(getShell(), "hierarchy file missing", "Config Editor was not able to locate META-INF\\" + project.getName() + ".hierarchy");
                 return null;
             }
             String[] fileNames = null;
             BufferedReader br = new BufferedReader(new FileReader(file));
             try {
                 fileNames = br.readLine().split(":");
+            } catch (Exception e) {
+                e.printStackTrace();
+                MessageDialog.openWarning(getShell(), "hierarchy file is empty", "this projects hierarchy file is epmty");
+                return Collections.emptyList();
             } finally {
                 br.close();
             }
             List<File> files = new ArrayList<File>();
             for (String fname : fileNames)
-                files.add(project.getFile("META-INF/" + fname + ".properties").getLocation().toFile());
+                if (project.getFile("META-INF/" + fname + ".properties").getLocation().toFile().exists())
+                    files.add(project.getFile("META-INF/" + fname + ".properties").getLocation().toFile());
+                else {
+                    MessageDialog.openError(getShell(), "hierarchy file broken", "Config Editor has encounered problems, while reading META-INF\\" + project.getName() + ".hierarchy");
+                    return Collections.emptyList();
+                }
+            if (files.isEmpty()) {
+                MessageDialog.openWarning(getShell(), "hierarchy file is empty", "this projects hierarchy file is epmty");
+                return Collections.emptyList();
+            }
             return files;
         }
     }
@@ -115,7 +132,7 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
                     try {
                         structProps.load((File) newInput);
                     } catch (Exception e) {
-                        throw new RuntimeException(e);
+                        MessageDialog.openError(getShell(), "error while reading property file", "Error in:\n" + ((File) newInput).getPath() + "\n Caused by: \n" + e.getMessage());
                     }
 
                     List elementsList = new ArrayList();
@@ -145,7 +162,7 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
     TableViewer tableViewer;
     private ListViewer listViewer;
     private Map<File, Object[]> editorData = new HashMap<File, Object[]>();
-    private Map<File, StructuredProperties> propMap = new HashMap<File, StructuredProperties>();
+    Map<File, StructuredProperties> propMap = new HashMap<File, StructuredProperties>();
 
     public EditorPropertyPage() {
     }
@@ -191,7 +208,10 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
             @Override
             public String getText(Object element) {
                 Object[] row = (Object[]) element;
-                return (new FieldModel(propMap.get(getSelectedFile()).getValueStruct((String) row[0]))).getLabel();
+                String label = (new FieldModel(propMap.get(getSelectedFile()).getValueStruct((String) row[0]))).getLabel();
+                if (label == null)
+                    return row[0].toString();
+                return label;
             }
         });
 
