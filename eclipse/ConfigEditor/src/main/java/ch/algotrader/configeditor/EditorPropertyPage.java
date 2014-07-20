@@ -208,7 +208,10 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
             @Override
             public String getText(Object element) {
                 Object[] row = (Object[]) element;
-                return (new FieldModel(propMap.get(getSelectedFile()).getValueStruct((String) row[0]))).getLabel();
+                String label = (new FieldModel(propMap.get(getSelectedFile()).getValueStruct((String) row[0]))).getLabel();
+                if (label == null)
+                    return row[0].toString();
+                return label;
             }
         });
 

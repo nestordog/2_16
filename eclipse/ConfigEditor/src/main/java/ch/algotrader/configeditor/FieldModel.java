@@ -32,7 +32,7 @@ public class FieldModel {
         ObjectMapper mapper = new ObjectMapper();
         try {
             if (values.comments == null || values.comments.isEmpty())
-                return "No Label";
+                return null;
             definition = mapper.readValue(values.comments.get(0), Map.class);
         } catch (Exception e) {
             throw new RuntimeException(e);
