@@ -3,15 +3,15 @@ package ch.algotrader.configeditor.editingSupport;
 import org.eclipse.jface.viewers.TextCellEditor;
 import org.eclipse.swt.widgets.Composite;
 
-class IntegerCellEditor extends TextCellEditor {
+class DoubleCellEditor extends TextCellEditor {
 
-    IntegerCellEditor(Composite parent) {
+    DoubleCellEditor(Composite parent) {
         super(parent);
     }
 
     @Override
     protected Object doGetValue() {
-        return Integer.valueOf((String) super.doGetValue());
+        return Double.valueOf((String) super.doGetValue());
     }
 
     @Override

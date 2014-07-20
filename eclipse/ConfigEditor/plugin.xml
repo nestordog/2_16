@@ -64,5 +64,14 @@
             regexErrorMessage="&apos;&apos;{0}&apos;&apos; is not a valid integer number">
       </CellEditor>
    </extension>
+   <extension
+         point="ch.algotrader.ConfigEditor.CellEditor">
+      <CellEditor
+            dataType="Double"
+            factory="ch.algotrader.configeditor.editingSupport.DoubleCellEditorFactory"
+            regex="^\d*(\.\d*)?$"
+            regexErrorMessage="&apos;&apos;{0}&apos;&apos; is not a valid float number">
+      </CellEditor>
+   </extension>
 
 </plugin>

@@ -92,6 +92,8 @@ public class StructuredProperties {
                     n.value = new Integer(stringValue);
                     break;
                 case "Double":
+                    if (stringValue.contains(","))
+                        stringValue = stringValue.replace(',', '.');
                     n.value = new Double(stringValue);
                     break;
                 case "Time": {
