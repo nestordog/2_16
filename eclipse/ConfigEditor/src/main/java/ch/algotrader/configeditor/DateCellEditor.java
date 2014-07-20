@@ -16,20 +16,27 @@ public class DateCellEditor extends CellEditor {
 
     private DateTime widget;
 
-    DateCellEditor(Composite parent) {
-        super(parent);
+    DateCellEditor(Composite parent, int flag) {
+        super(parent, flag);
     }
 
     @Override
     protected Control createControl(Composite parent) {
-        widget = new DateTime(parent, SWT.DATE | SWT.DROP_DOWN);
+        widget = new DateTime(parent, this.getStyle());
         return widget;
     }
 
     @Override
     protected Object doGetValue() {
-        String str = String.format("%d.%d.%d", widget.getDay(), widget.getMonth(), widget.getYear());
-        DateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
+        String str = null;
+        DateFormat formatter = null;
+        if ((this.getStyle() & SWT.DATE) == 0) {
+            str = String.format("%d.%d.%d", widget.getDay(), widget.getMonth(), widget.getYear());
+            formatter = new SimpleDateFormat("dd.MM.yyyy");
+        } else {
+            str = String.format("%d:%d:%d", widget.getHours(), widget.getMinutes(), widget.getSeconds());
+            formatter = new SimpleDateFormat("HH:mm:ss");
+        }
         try {
             return (Date) formatter.parse(str);
         } catch (ParseException e) {
@@ -47,7 +54,11 @@ public class DateCellEditor extends CellEditor {
         Date date = (Date) value;
         Calendar c = Calendar.getInstance();
         c.setTime(date);
-        widget.setDate(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
+        if ((this.getStyle() & SWT.DATE) == 0) {
+            widget.setDate(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
+        } else {
+            widget.setTime(c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), c.get(Calendar.SECOND));
+        }
     }
 
 }

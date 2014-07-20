@@ -41,5 +41,19 @@
             factory="ch.algotrader.configeditor.DateCellEditorFactory">
       </CellEditor>
    </extension>
+   <extension
+         point="ch.algotrader.ConfigEditor.CellEditor">
+      <CellEditor
+            dataType="Time"
+            factory="ch.algotrader.configeditor.TimeCellEditorFactory">
+      </CellEditor>
+   </extension>
+   <extension
+         point="ch.algotrader.ConfigEditor.CellEditor">
+      <CellEditor
+            dataType="DateTime"
+            factory="ch.algotrader.configeditor.DateTimeCellEditorFactory">
+      </CellEditor>
+   </extension>
 
 </plugin>
