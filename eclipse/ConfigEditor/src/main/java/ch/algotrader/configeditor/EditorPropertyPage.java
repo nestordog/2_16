@@ -162,7 +162,7 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
     TableViewer tableViewer;
     private ListViewer listViewer;
     private Map<File, Object[]> editorData = new HashMap<File, Object[]>();
-    private Map<File, StructuredProperties> propMap = new HashMap<File, StructuredProperties>();
+    Map<File, StructuredProperties> propMap = new HashMap<File, StructuredProperties>();
 
     public EditorPropertyPage() {
     }
