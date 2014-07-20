@@ -29,12 +29,8 @@ import java.util.Properties;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectNature;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.InvalidRegistryObjectException;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
-import org.eclipse.jface.viewers.EditingSupport;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
@@ -43,7 +39,6 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
-import org.eclipse.jface.viewers.TextCellEditor;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
@@ -52,9 +47,6 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.ui.IWorkbenchPropertyPage;
 import org.eclipse.ui.dialogs.PropertyPage;
-
-import ch.algotrader.configeditor.editingSupport.CellEditorExtensionPoint;
-import ch.algotrader.configeditor.editingSupport.CellEditorFactory;
 
 public class EditorPropertyPage extends PropertyPage implements IWorkbenchPropertyPage {
 
@@ -150,54 +142,7 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
         }
     }
 
-    class ValueEditor extends EditingSupport {
-
-        private final CellEditor defaultEditor;
-
-        public ValueEditor(TableViewer viewer) {
-            super(viewer);
-            this.defaultEditor = new TextCellEditor(viewer.getTable());
-        }
-
-        @Override
-        protected void setValue(Object element, Object value) {
-            Object[] row = (Object[]) element;
-            System.out.println("ValueEditor.setValue, value-id: " + System.identityHashCode(value) + ", value: " + value.toString());
-            row[1] = value;
-            tableViewer.update(element, null);
-        }
-
-        @Override
-        protected Object getValue(Object element) {
-            Object[] row = (Object[]) element;
-            System.out.println("getting value: " + row[1].toString());
-            return row[1];
-        }
-
-        @Override
-        protected CellEditor getCellEditor(Object element) {
-            Object[] row = (Object[]) element;
-            FieldModel model = new FieldModel(propMap.get(getSelectedFile()).getValueStruct((String) row[0]));
-            System.out.println(model.getDatatype() + " editor has been created");
-            try {
-                CellEditorFactory factory = CellEditorExtensionPoint.createCellEditorFactory(model.getDatatype());
-                if (factory == null)
-                    return defaultEditor;
-                System.out.println("and returned");
-                return factory.createCellEditor(tableViewer.getTable());
-
-            } catch (InvalidRegistryObjectException | CoreException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        @Override
-        protected boolean canEdit(Object element) {
-            return true;
-        }
-    }
-
-    private TableViewer tableViewer;
+    TableViewer tableViewer;
     private ListViewer listViewer;
     private Map<File, Object[]> editorData = new HashMap<File, Object[]>();
     private Map<File, StructuredProperties> propMap = new HashMap<File, StructuredProperties>();
@@ -280,14 +225,18 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
                 }
             }
         });
-        colValue.setEditingSupport(new ValueEditor(tableViewer));
+        colValue.setEditingSupport(new TableEditingSupport(this));
 
         tableViewer.setContentProvider(new TableContentProvider());
         return sashForm;
     }
 
-    private File getSelectedFile() {
+    File getSelectedFile() {
         return (File) ((StructuredSelection) listViewer.getSelection()).getFirstElement();
+    }
+
+    StructuredProperties getSelectedProperties() {
+        return propMap.get(getSelectedFile());
     }
 
     public void save() throws IOException {

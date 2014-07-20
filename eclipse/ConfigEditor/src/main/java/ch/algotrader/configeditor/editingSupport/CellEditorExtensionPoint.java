@@ -27,7 +27,7 @@ public class CellEditorExtensionPoint {
         return null;
     }
 
-    public static String getRegex(String dataType) throws InvalidRegistryObjectException, CoreException {
+    public static String getRegex(String dataType) {
         IConfigurationElement config = getConfig(dataType);
         if (config != null)
             return config.getAttribute("regex");
