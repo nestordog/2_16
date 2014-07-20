@@ -264,6 +264,11 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
                         DateFormat formatter = new SimpleDateFormat("HH:mm:ss");
                         return formatter.format(d);
                     }
+                    case "DateTime": {
+                        Date d = (Date) row[1];
+                        DateFormat formatter = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+                        return formatter.format(d);
+                    }
                     default: {
                         return row[1].toString();
                     }
