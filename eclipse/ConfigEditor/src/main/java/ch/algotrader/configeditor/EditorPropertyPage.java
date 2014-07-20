@@ -132,15 +132,13 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
                     try {
                         structProps.load((File) newInput);
                     } catch (Exception e) {
+                        e.printStackTrace();
                         MessageDialog.openError(getShell(), "error while reading property file", "Error in:\n" + ((File) newInput).getPath() + "\n Caused by: \n" + e.getMessage());
                     }
 
                     List elementsList = new ArrayList();
-                    for (String key : structProps.getKeys()) {
-                        Object v = structProps.getValue(key);
-                        System.out.println("ContentProvider inputChanged, key=" + key + ", value-id=" + System.identityHashCode(v) + ", value=" + v);
-                        elementsList.add(new Object[] { key, v });
-                    }
+                    for (String key : structProps.getKeys())
+                        elementsList.add(new Object[] { key, structProps.getValue(key) });
                     elements = elementsList.toArray();
                     editorData.put((File) newInput, elements);
                 }

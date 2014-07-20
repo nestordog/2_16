@@ -3,7 +3,7 @@ package ch.algotrader.configeditor.editingSupport;
 import org.eclipse.jface.viewers.TextCellEditor;
 import org.eclipse.swt.widgets.Composite;
 
-class IntegerCellEditor extends TextCellEditor {
+public class IntegerCellEditor extends TextCellEditor {
 
     IntegerCellEditor(Composite parent) {
         super(parent);

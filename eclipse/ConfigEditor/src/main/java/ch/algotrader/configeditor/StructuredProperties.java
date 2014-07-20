@@ -19,7 +19,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
@@ -34,13 +33,15 @@ public class StructuredProperties {
         properties = new LinkedHashMap<String, ValueStruct>();
     }
 
-    public void load(File f) throws InstantiationException, IllegalAccessException, ClassNotFoundException, ParseException, IOException {
+    public void load(File f) throws Exception {
         ValueStruct n = new ValueStruct();
         BufferedReader reader = new BufferedReader(new FileReader(f));
         try {
             String line;
 
             while ((line = reader.readLine()) != null) {
+                if (line.isEmpty())
+                    continue;
                 if (line.charAt(0) == '#') {
                     n.comments.add(line.substring(1));
                 } else {
@@ -53,7 +54,8 @@ public class StructuredProperties {
         }
     }
 
-    private void parseKeyValueLine(ValueStruct n, String line) throws InstantiationException, IllegalAccessException, ClassNotFoundException, ParseException {
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    private void parseKeyValueLine(ValueStruct n, String line) throws Exception {
         boolean escape = false;
         boolean isKey = true;
         StringBuilder key = new StringBuilder();
@@ -117,7 +119,11 @@ public class StructuredProperties {
                 default:
                     if (!dataType.contains("."))
                         dataType = "java.lang." + dataType;
-                    n.value = Class.forName(dataType).newInstance();
+                    Class<?> dataClass = Class.forName(dataType);
+                    if (dataClass.isEnum())
+                        n.value = Enum.valueOf((Class<? extends Enum>) dataClass, stringValue);
+                    else
+                        n.value = dataClass.getDeclaredConstructor(String.class).newInstance(stringValue);
             }
         }
         if (inlineComment != null)

@@ -12,8 +12,12 @@ public class CellEditorExtensionPoint {
 
     public static CellEditorFactory createCellEditorFactory(String dataType) throws InvalidRegistryObjectException, CoreException {
         IConfigurationElement config = getConfig(dataType);
-        if (config != null)
-            return (CellEditorFactory) config.createExecutableExtension("factory");
+        if (config != null) {
+            CellEditorFactory factory = (CellEditorFactory) config.createExecutableExtension("factory");
+            if (factory instanceof ISetDataType)
+                ((ISetDataType) factory).setDataType(dataType);
+            return factory;
+        }
         return null;
     }
 
