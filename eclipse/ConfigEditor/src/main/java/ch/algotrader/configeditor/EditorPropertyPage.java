@@ -175,7 +175,7 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
             FieldModel model = new FieldModel((String) row[0], propMap.get(getSelectedFile()).getValueStruct((String) row[0]));
             System.out.println(model.getDatatype() + " editor has been created");
             try {
-                CellEditorFactory factory = CellEditorExtensionPoint.createCellEditorFactory(model.getDatatype(), tableViewer.getTable());
+                CellEditorFactory factory = CellEditorExtensionPoint.createCellEditorFactory(model.getDatatype());
                 if (factory == null)
                     return defaultEditor;
                 System.out.println("and returned");

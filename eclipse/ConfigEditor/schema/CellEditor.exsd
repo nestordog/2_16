@@ -56,7 +56,7 @@
                </documentation>
             </annotation>
          </attribute>
-         <attribute name="factory" type="string">
+         <attribute name="factory" type="string" use="required">
             <annotation>
                <documentation>
                   
@@ -64,6 +64,13 @@
                <appinfo>
                   <meta.attribute kind="java" basedOn=":ch.algotrader.configeditor.CellEditorFactory"/>
                </appinfo>
+            </annotation>
+         </attribute>
+         <attribute name="regex" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
             </annotation>
          </attribute>
       </complexType>
