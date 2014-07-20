@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -87,12 +88,25 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
             BufferedReader br = new BufferedReader(new FileReader(file));
             try {
                 fileNames = br.readLine().split(":");
+            } catch (Exception e) {
+                e.printStackTrace();
+                MessageDialog.openWarning(getShell(), "hierarchy file is empty", "this projects hierarchy file is epmty");
+                return Collections.emptyList();
             } finally {
                 br.close();
             }
             List<File> files = new ArrayList<File>();
             for (String fname : fileNames)
-                files.add(project.getFile("META-INF/" + fname + ".properties").getLocation().toFile());
+                if (project.getFile("META-INF/" + fname + ".properties").getLocation().toFile().exists())
+                    files.add(project.getFile("META-INF/" + fname + ".properties").getLocation().toFile());
+                else {
+                    MessageDialog.openError(getShell(), "hierarchy file broken", "Config Editor has encounered problems, while reading META-INF\\" + project.getName() + ".hierarchy");
+                    return Collections.emptyList();
+                }
+            if (files.isEmpty()) {
+                MessageDialog.openWarning(getShell(), "hierarchy file is empty", "this projects hierarchy file is epmty");
+                return Collections.emptyList();
+            }
             return files;
         }
     }
@@ -118,7 +132,7 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
                     try {
                         structProps.load((File) newInput);
                     } catch (Exception e) {
-                        throw new RuntimeException(e);
+                        MessageDialog.openError(getShell(), "error while reading property file", "Error in:\n" + ((File) newInput).getPath() + "\n Caused by: \n" + e.getMessage());
                     }
 
                     List elementsList = new ArrayList();
