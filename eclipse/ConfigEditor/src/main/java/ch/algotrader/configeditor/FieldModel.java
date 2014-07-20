@@ -11,33 +11,42 @@ public class FieldModel {
         values = pValues;
     }
 
-    @SuppressWarnings("unchecked")
     public String getDatatype() {
-        Map<String, Object> definition = null;
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            if (values.comments == null || values.comments.isEmpty())
-                return "String";
-            definition = mapper.readValue(values.comments.get(0), Map.class);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        Map<String, Object> definition = getDefinition();
+        if (definition == null)
+            return "String";
         Object dataType = definition.get("data-type");
         return dataType == null ? null : dataType.toString();
     }
 
-    @SuppressWarnings("unchecked")
     public String getLabel() {
+        Map<String, Object> definition = getDefinition();
+        if (definition == null)
+            return null;
+        Object label = definition.get("label");
+        return label == null ? null : label.toString();
+    }
+
+    public boolean getRequired() {
+        Map<String, Object> definition = getDefinition();
+        if (definition == null)
+            return true;
+        Object required = definition.get("required");
+        if (required == null)
+            return true;
+        return (Boolean) required;
+    }
+
+    @SuppressWarnings("unchecked")
+    private Map<String, Object> getDefinition() {
         Map<String, Object> definition = null;
         ObjectMapper mapper = new ObjectMapper();
         try {
-            if (values.comments == null || values.comments.isEmpty())
-                return null;
-            definition = mapper.readValue(values.comments.get(0), Map.class);
+            if (values.comments != null && !values.comments.isEmpty())
+                definition = mapper.readValue(values.comments.get(0), Map.class);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        Object label = definition.get("label");
-        return label == null ? null : label.toString();
+        return definition;
     }
 }
