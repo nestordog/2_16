@@ -53,7 +53,6 @@ public class StructuredProperties {
         }
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     private void parseKeyValueLine(ValueStruct n, String line) throws Exception {
         boolean escape = false;
         boolean isKey = true;
