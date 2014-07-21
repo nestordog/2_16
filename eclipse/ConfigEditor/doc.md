@@ -1,4 +1,4 @@
-= AlgoTrader ConfigEditor Specification
+# AlgoTrader ConfigEditor Specification
 
 ConfigEditor is an Eclipse plugin, providing an editor for hierarchical configuration files.
 
@@ -20,7 +20,7 @@ ConfigEditor binds it's file save function with two standard buttons: "Apply" an
 Whenever "Apply" is clicked, all changed values of all changed files are written back (saved) to the file system and PropertyPage stays on screen.
 Whenever "OK" is clicked, all changed values of all changed files are written back (saved) to the file system and PropertyPage is closed.
 
-== ConfigEditor API
+## ConfigEditor API
 
 ConfigEditor provides access to the unsaved data in the form of API functions:
 
@@ -29,7 +29,7 @@ Iterable<java.io.File> getFiles();
 java.util.Properties getInMemoryData(java.io.File f);
 ```
 
-== ConfigEditor property file format specification
+## ConfigEditor property file format specification
 
 ConfigEditor interprets, in addition to the standard "key=value" pairs, special comments. These comments provide ConfigEditor with the needed information to correctly display the "key=value" data. Example:
 
@@ -67,7 +67,7 @@ JSON property description supports the following attributes: "type" "required" a
 
 "label" attribute is string and describes text label for representing the following "key=value" pair in the table viewer. It is optional attribute and defaults to key.
 
-== PropertyDef extension point
+## PropertyDef extension point
 
 ConfigEditor provides extension point, which allows to define new property definitions. Property definition includes qualified name of the cell editor class for inplace editing and regular expression for validation.
 
@@ -106,7 +106,7 @@ Thus property definition allows to put in properties files:
 email=username@host.com
 ```
 
-== Out-of-the-box property types
+## Out-of-the-box property types
 
 Config Editor implements the following out-of-the-box property types:
 
