@@ -25,7 +25,7 @@
       <PropertyDef
             id="String"
             dataType="java.lang.String"
-            cellEditorFactory="ch.algotrader.configeditor.editingSupport.TextCellEditorFactory">
+            cellEditorFactory="ch.algotrader.configeditor.editingsupport.TextCellEditorFactory">
       </PropertyDef>
    </extension>
    <extension
@@ -33,31 +33,31 @@
       <PropertyDef
             id="Boolean"
             dataType="java.lang.Boolean"
-            cellEditorFactory="ch.algotrader.configeditor.editingSupport.CheckboxCellEditorFactory">
+            cellEditorFactory="ch.algotrader.configeditor.editingsupport.CheckboxCellEditorFactory">
       </PropertyDef>
    </extension>
    <extension
          point="ch.algotrader.ConfigEditor.PropertyDef">
       <PropertyDef
               id="Date"
-            dataType="ch.algotrader.configeditor.editingSupport.DateSerializer"
-            cellEditorFactory="ch.algotrader.configeditor.editingSupport.DateCellEditorFactory">
+            dataType="ch.algotrader.configeditor.editingsupport.DateSerializer"
+            cellEditorFactory="ch.algotrader.configeditor.editingsupport.DateCellEditorFactory">
       </PropertyDef>
    </extension>
    <extension
          point="ch.algotrader.ConfigEditor.PropertyDef">
       <PropertyDef
               id="Time"
-            dataType="ch.algotrader.configeditor.editingSupport.TimeSerializer"
-            cellEditorFactory="ch.algotrader.configeditor.editingSupport.TimeCellEditorFactory">
+            dataType="ch.algotrader.configeditor.editingsupport.TimeSerializer"
+            cellEditorFactory="ch.algotrader.configeditor.editingsupport.TimeCellEditorFactory">
       </PropertyDef>
    </extension>
    <extension
          point="ch.algotrader.ConfigEditor.PropertyDef">
       <PropertyDef
             id="DateTime"
-            dataType="ch.algotrader.configeditor.editingSupport.DateTimeSerializer"
-            cellEditorFactory="ch.algotrader.configeditor.editingSupport.DateTimeCellEditorFactory">
+            dataType="ch.algotrader.configeditor.editingsupport.DateTimeSerializer"
+            cellEditorFactory="ch.algotrader.configeditor.editingsupport.DateTimeCellEditorFactory">
       </PropertyDef>
    </extension>
    <extension
@@ -65,7 +65,7 @@
       <PropertyDef
             id="Integer"
             dataType="java.lang.Integer"
-            cellEditorFactory="ch.algotrader.configeditor.editingSupport.IntegerCellEditorFactory"
+            cellEditorFactory="ch.algotrader.configeditor.editingsupport.IntegerCellEditorFactory"
             regex="^\d*$"
             regexErrorMessage="&apos;&apos;{0}&apos;&apos; is not a valid integer number">
       </PropertyDef>
@@ -74,8 +74,8 @@
          point="ch.algotrader.ConfigEditor.PropertyDef">
       <PropertyDef
               id="Double"
-            dataType="ch.algotrader.configeditor.editingSupport.DoubleSerializer"
-            cellEditorFactory="ch.algotrader.configeditor.editingSupport.DoubleCellEditorFactory"
+            dataType="ch.algotrader.configeditor.editingsupport.DoubleSerializer"
+            cellEditorFactory="ch.algotrader.configeditor.editingsupport.DoubleCellEditorFactory"
             regex="^\d*(\.\d*)?$"
             regexErrorMessage="&apos;&apos;{0}&apos;&apos; is not a valid float number">
       </PropertyDef>

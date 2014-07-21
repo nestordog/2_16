@@ -7,8 +7,8 @@ import org.eclipse.jface.viewers.EditingSupport;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TextCellEditor;
 
-import ch.algotrader.configeditor.editingSupport.PropertyDefExtensionPoint;
-import ch.algotrader.configeditor.editingSupport.CellEditorFactory;
+import ch.algotrader.configeditor.editingsupport.CellEditorFactory;
+import ch.algotrader.configeditor.editingsupport.PropertyDefExtensionPoint;
 
 class TableEditingSupport extends EditingSupport {
 

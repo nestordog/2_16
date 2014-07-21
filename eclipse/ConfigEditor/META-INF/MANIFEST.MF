@@ -15,4 +15,4 @@ Bundle-ClassPath: .,
  target/lib/jackson-annotations-2.4.0.jar
 Eclipse-BuddyPolicy: registered
 Export-Package: ch.algotrader.configeditor,
- ch.algotrader.configeditor.editingSupport
+ ch.algotrader.configeditor.editingsupport

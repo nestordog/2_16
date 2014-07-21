@@ -4,7 +4,7 @@ import java.util.regex.Pattern;
 
 import org.eclipse.jface.viewers.ICellEditorValidator;
 
-import ch.algotrader.configeditor.editingSupport.PropertyDefExtensionPoint;
+import ch.algotrader.configeditor.editingsupport.PropertyDefExtensionPoint;
 
 public class CellEditorValidator implements ICellEditorValidator {
 

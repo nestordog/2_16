@@ -1,4 +1,4 @@
-package ch.algotrader.configeditor.editingSupport;
+package ch.algotrader.configeditor.editingsupport;
 
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.TextCellEditor;

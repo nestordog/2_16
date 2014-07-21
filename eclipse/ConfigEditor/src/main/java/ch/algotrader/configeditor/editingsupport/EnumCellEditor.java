@@ -1,4 +1,4 @@
-package ch.algotrader.configeditor.editingSupport;
+package ch.algotrader.configeditor.editingsupport;
 
 import org.eclipse.jface.viewers.ComboBoxViewerCellEditor;
 import org.eclipse.jface.viewers.IStructuredContentProvider;

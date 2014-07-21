@@ -1,17 +1,17 @@
-package ch.algotrader.configeditor.editingSupport;
+package ch.algotrader.configeditor.editingsupport;
 
 import org.eclipse.jface.viewers.TextCellEditor;
 import org.eclipse.swt.widgets.Composite;
 
-public class DoubleCellEditor extends TextCellEditor {
+public class IntegerCellEditor extends TextCellEditor {
 
-    DoubleCellEditor(Composite parent) {
+    IntegerCellEditor(Composite parent) {
         super(parent);
     }
 
     @Override
     protected Object doGetValue() {
-        return Double.valueOf((String) super.doGetValue());
+        return Integer.valueOf((String) super.doGetValue());
     }
 
     @Override

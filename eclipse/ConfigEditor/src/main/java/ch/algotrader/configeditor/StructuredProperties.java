@@ -18,13 +18,11 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Collections;
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import ch.algotrader.configeditor.editingSupport.PropertyDefExtensionPoint;
+
+import ch.algotrader.configeditor.editingsupport.PropertyDefExtensionPoint;
 
 public class StructuredProperties {
 
@@ -85,16 +83,8 @@ public class StructuredProperties {
             }
         }
         String stringValue = value.toString().trim();
-        FieldModel f = new FieldModel(n);
-        String typeId = f.getType();
-        Class<?> dataClass = Class.forName(PropertyDefExtensionPoint.getType(typeId));
-        if(IPropertySerializer.class.isAssignableFrom(dataClass)) {
-            IPropertySerializer serializer = (IPropertySerializer)dataClass.newInstance();
-            n.value = serializer.deserialize(stringValue);
-        } else if (dataClass.isEnum())
-            n.value = Enum.valueOf((Class<? extends Enum>) dataClass, stringValue);
-        else
-            n.value = dataClass.getDeclaredConstructor(String.class).newInstance(stringValue);
+        String typeId = new FieldModel(n).getType();
+        n.value = PropertyDefExtensionPoint.deserialize(typeId, stringValue);
         if (inlineComment != null)
             n.inlineComment = inlineComment.trim();
         properties.put(key.toString().trim(), n);

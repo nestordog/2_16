@@ -1,10 +1,9 @@
 package ch.algotrader.configeditor;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+
+import ch.algotrader.configeditor.editingsupport.PropertyDefExtensionPoint;
 
 public class ValueStruct {
     public Object value;
@@ -21,26 +20,7 @@ public class ValueStruct {
     }
 
     public String getSaveReadyValue() {
-        FieldModel f = new FieldModel(this);
-        String dataType = f.getType();
-        switch (dataType) {
-            case "Date": {
-                Date d = (Date) value;
-                DateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
-                return formatter.format(d);
-            }
-            case "Time": {
-                Date d = (Date) value;
-                DateFormat formatter = new SimpleDateFormat("HH:mm:ss");
-                return formatter.format(d);
-            }
-            case "DateTime": {
-                Date d = (Date) value;
-                DateFormat formatter = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
-                return formatter.format(d);
-            }
-            default:
-                return value.toString();
-        }
+        String typeId = new FieldModel(this).getType();
+        return PropertyDefExtensionPoint.serialize(typeId, value);
     }
 }

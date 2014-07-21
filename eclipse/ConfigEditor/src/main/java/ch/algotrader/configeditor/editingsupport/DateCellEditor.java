@@ -1,4 +1,4 @@
-package ch.algotrader.configeditor.editingSupport;
+package ch.algotrader.configeditor.editingsupport;
 
 import java.util.Calendar;
 import java.util.Date;

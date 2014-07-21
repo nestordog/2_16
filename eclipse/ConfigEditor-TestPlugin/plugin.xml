@@ -2,10 +2,11 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension
-         point="ch.algotrader.ConfigEditor.CellEditor">
-      <CellEditor
+         point="ch.algotrader.ConfigEditor.PropertyDef">
+      <PropertyDef
+              id="Color"
             dataType="ch.algotrader.configeditor.testplugin.Color"
-            factory="ch.algotrader.configeditor.editingSupport.EnumCellEditorFactory">
-      </CellEditor>
+            cellEditorFactory="ch.algotrader.configeditor.editingsupport.EnumCellEditorFactory">
+      </PropertyDef>
    </extension>
 </plugin>

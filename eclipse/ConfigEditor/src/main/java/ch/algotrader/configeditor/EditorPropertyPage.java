@@ -49,6 +49,8 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.ui.IWorkbenchPropertyPage;
 import org.eclipse.ui.dialogs.PropertyPage;
 
+import ch.algotrader.configeditor.editingsupport.PropertyDefExtensionPoint;
+
 public class EditorPropertyPage extends PropertyPage implements IWorkbenchPropertyPage {
 
     private class ListContentProvider implements IStructuredContentProvider {
@@ -222,27 +224,9 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
             public String getText(Object element) {
                 Object[] row = (Object[]) element;
                 String key = (String) row[0];
-                String dataType = getFieldModel(getSelectedFile(), key).getType();
-                switch (dataType) {
-                    case "Date": {
-                        Date d = (Date) row[1];
-                        DateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
-                        return formatter.format(d);
-                    }
-                    case "Time": {
-                        Date d = (Date) row[1];
-                        DateFormat formatter = new SimpleDateFormat("HH:mm:ss");
-                        return formatter.format(d);
-                    }
-                    case "DateTime": {
-                        Date d = (Date) row[1];
-                        DateFormat formatter = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
-                        return formatter.format(d);
-                    }
-                    default: {
-                        return row[1].toString();
-                    }
-                }
+                Object value = row[1];
+                String typeId = getFieldModel(getSelectedFile(), key).getType();
+                return PropertyDefExtensionPoint.serialize(typeId, value);
             }
         });
         colValue.setEditingSupport(new TableEditingSupport(this));
