@@ -91,11 +91,11 @@ A typical example of PropertyDef extension point looks like this:
 
 ```xml
 <PropertyDef
-        id="Email"
-    dataType="java.lang.String"
-    cellEditorFactory="ch.algotrader.configeditor.editingsupport.TextCellEditorFactory"
-    regex="^.+@.+\.[a-z]{2,4}$"
-    regexErrorMessage="The input {0} is not a valid e-mail">
+  id="Email"
+  dataType="java.lang.String"
+  cellEditorFactory="ch.algotrader.configeditor.editingsupport.TextCellEditorFactory"
+  regex="^.+@.+\.[a-z]{2,4}$"
+  regexErrorMessage="The input {0} is not a valid e-mail">
 </PropertyDef>
 ```
 
