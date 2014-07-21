@@ -17,6 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.cnx;
 
+import java.util.Date;
+
 import org.apache.log4j.Logger;
 
 import ch.algotrader.adapter.fix.fix44.AbstractFix44MarketDataMessageHandler;
@@ -28,11 +30,13 @@ import ch.algotrader.vo.BidVO;
 import quickfix.FieldNotFound;
 import quickfix.Group;
 import quickfix.SessionID;
+import quickfix.UtcTimeStampField;
 import quickfix.field.MDEntryPx;
 import quickfix.field.MDEntrySize;
 import quickfix.field.MDEntryType;
 import quickfix.field.MDReqID;
 import quickfix.field.NoMDEntries;
+import quickfix.field.SendingTime;
 import quickfix.fix44.MarketDataIncrementalRefresh;
 
 /**
@@ -50,6 +54,8 @@ public class CNXFixMarketDataMessageHandler extends AbstractFix44MarketDataMessa
 
         MDReqID mdReqID = marketData.getMDReqID();
         String id = mdReqID.getValue();
+        UtcTimeStampField sendingTime = marketData.getHeader().getField(new SendingTime());
+        Date date = sendingTime.getValue();
 
         int count = marketData.getGroupCount(NoMDEntries.FIELD);
         for (int i = 1; i <= count; i++) {
@@ -69,7 +75,7 @@ public class CNXFixMarketDataMessageHandler extends AbstractFix44MarketDataMessa
                             LOGGER.trace(id + " BID " + size + "@" + price);
                         }
 
-                        BidVO bidVO = new BidVO(id, FeedType.CNX, null, price, (int) size);
+                        BidVO bidVO = new BidVO(id, FeedType.CNX, date, price, (int) size);
                         EngineLocator.instance().getBaseEngine().sendEvent(bidVO);
                         break;
                     case MDEntryType.OFFER:
@@ -78,7 +84,7 @@ public class CNXFixMarketDataMessageHandler extends AbstractFix44MarketDataMessa
                             LOGGER.trace(id + " ASK " + size + "@" + price);
                         }
 
-                        AskVO askVO = new AskVO(id, FeedType.CNX, null, price, (int) size);
+                        AskVO askVO = new AskVO(id, FeedType.CNX, date, price, (int) size);
 
                         EngineLocator.instance().getBaseEngine().sendEvent(askVO);
                         break;
