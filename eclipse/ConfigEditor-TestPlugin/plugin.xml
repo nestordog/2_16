@@ -8,5 +8,19 @@
             dataType="ch.algotrader.configeditor.testplugin.Color"
             cellEditorFactory="ch.algotrader.configeditor.editingsupport.EnumCellEditorFactory">
       </PropertyDef>
+      <PropertyDef
+              id="Email"
+            dataType="java.lang.String"
+            regex="^.+@.+\.[a-z]{2,4}$"
+            regexErrorMessage="The input is not a valid e-mail"
+            cellEditorFactory="ch.algotrader.configeditor.editingsupport.TextCellEditorFactory">
+      </PropertyDef>
+      <PropertyDef
+              id="Password"
+            dataType="java.lang.String"
+            regex="^.{8}.*$"
+            regexErrorMessage="The password must contain at least 8 symbols"
+            cellEditorFactory="ch.algotrader.configeditor.editingsupport.TextCellEditorFactory">
+      </PropertyDef>
    </extension>
 </plugin>
