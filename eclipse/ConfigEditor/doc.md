@@ -85,6 +85,10 @@ PropertyDef supports the following attributes:
 
 **regexErrorMessage** - optional, string, error message shown to the user when input does not validate against the specified regex. When omitted, the default message is given: "User input {0} does not satisfy pattern {1}" where {0} is a placeholder for user input and {1} is a placeholder for the regular expression.
 
+When dataType is derived from ch.algotrader.configeditor.IPropertySerializer, it completely defines conversion of the underlying data type to/from string.
+
+When dataType is not derived from ch.algotrader.configeditor.IPropertySerializer, it is assumed to point to an existing class of the underlying property data type, that could be trivially serialized/deserialized to/from string.
+
 ConfigEditor implements regex-based input validation (one expression per data type). When user input does not conform to the specified regular expression, ConfigEditor shows visual indicator and does not allow to save the file(s).
 
 A typical example of PropertyDef extension point looks like this:
