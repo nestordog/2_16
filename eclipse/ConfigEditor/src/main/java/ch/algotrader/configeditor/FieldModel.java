@@ -11,7 +11,7 @@ public class FieldModel {
         values = pValues;
     }
 
-    public String getType() {
+    public String getPropertyId() {
         Map<String, Object> definition = getDefinition();
         if (definition == null)
             return "String";

@@ -3,13 +3,17 @@
  *
  * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
  *
- * All information contained herein is, and remains the property of AlgoTrader GmbH. The intellectual and technical concepts contained herein are proprietary to
- * AlgoTrader GmbH. Modification, translation, reverse engineering, decompilation, disassembly or reproduction of this material is strictly forbidden unless
- * prior written permission is obtained from AlgoTrader GmbH
+ * All information contained herein is, and remains the property of AlgoTrader GmbH.
+ * The intellectual and technical concepts contained herein are proprietary to
+ * AlgoTrader GmbH. Modification, translation, reverse engineering, decompilation,
+ * disassembly or reproduction of this material is strictly forbidden unless prior
+ * written permission is obtained from AlgoTrader GmbH
  *
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
- * AlgoTrader GmbH Badenerstrasse 16 8004 Zurich
+ * AlgoTrader GmbH
+ * Badenerstrasse 16
+ * 8004 Zurich
  ***********************************************************************************/
 package ch.algotrader.configeditor;
 
@@ -222,8 +226,8 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
                 Object[] row = (Object[]) element;
                 String key = (String) row[0];
                 Object value = row[1];
-                String typeId = getFieldModel(getSelectedFile(), key).getType();
-                return PropertyDefExtensionPoint.serialize(typeId, value);
+                String propertyId = getFieldModel(getSelectedFile(), key).getPropertyId();
+                return PropertyDefExtensionPoint.serialize(propertyId, value);
             }
         });
         colValue.setEditingSupport(new TableEditingSupport(this));

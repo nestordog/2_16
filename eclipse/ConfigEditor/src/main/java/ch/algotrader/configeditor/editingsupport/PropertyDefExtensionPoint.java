@@ -29,10 +29,8 @@ public class PropertyDefExtensionPoint {
             return null;
         try {
             Class<?> dataClass = Class.forName(PropertyDefExtensionPoint.getDataType(propertyId));
-            if(IPropertySerializer.class.isAssignableFrom(dataClass)) {
-                IPropertySerializer serializer = (IPropertySerializer)dataClass.newInstance();
-                return serializer.deserialize(stringValue);
-            }
+            if(IPropertySerializer.class.isAssignableFrom(dataClass))
+                return ((IPropertySerializer)dataClass.newInstance()).deserialize(stringValue);
             if (dataClass.isEnum())
                 return Enum.valueOf((Class<? extends Enum>) dataClass, stringValue);
             return dataClass.getDeclaredConstructor(String.class).newInstance(stringValue);

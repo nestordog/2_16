@@ -82,8 +82,8 @@ public class StructuredProperties {
             }
         }
         String stringValue = value.toString().trim();
-        String typeId = new FieldModel(n).getType();
-        n.value = PropertyDefExtensionPoint.deserialize(typeId, stringValue);
+        String propertyId = new FieldModel(n).getPropertyId();
+        n.value = PropertyDefExtensionPoint.deserialize(propertyId, stringValue);
         if (inlineComment != null)
             n.inlineComment = inlineComment.trim();
         properties.put(key.toString().trim(), n);

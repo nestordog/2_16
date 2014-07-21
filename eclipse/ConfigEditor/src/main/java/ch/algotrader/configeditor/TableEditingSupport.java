@@ -31,12 +31,12 @@ class TableEditingSupport extends EditingSupport {
         FieldModel model = propertyPage.getFieldModel(propertyPage.getSelectedFile(), key);
         try {
             CellEditor editor;
-            CellEditorFactory factory = PropertyDefExtensionPoint.createCellEditorFactory(model.getType());
+            CellEditorFactory factory = PropertyDefExtensionPoint.createCellEditorFactory(model.getPropertyId());
             if (factory == null)
                 editor = new TextCellEditor(getViewer().getTable());
             else
                 editor = factory.createCellEditor(getViewer().getTable());
-            editor.setValidator(new CellEditorValidator(propertyPage, model.getType(), key));
+            editor.setValidator(new CellEditorValidator(propertyPage, model.getPropertyId(), key));
             editor.addListener(new CellEditorListener(propertyPage, editor));
             return editor;
 

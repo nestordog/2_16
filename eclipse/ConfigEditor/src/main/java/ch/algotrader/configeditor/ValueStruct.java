@@ -20,7 +20,7 @@ public class ValueStruct {
     }
 
     public String getSaveReadyValue() {
-        String typeId = new FieldModel(this).getType();
-        return PropertyDefExtensionPoint.serialize(typeId, value);
+        String propertyId = new FieldModel(this).getPropertyId();
+        return PropertyDefExtensionPoint.serialize(propertyId, value);
     }
 }
