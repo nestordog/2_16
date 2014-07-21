@@ -3,7 +3,7 @@
 <schema targetNamespace="ch.algotrader.ConfigEditor" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
       <appinfo>
-         <meta.schema plugin="ch.algotrader.ConfigEditor" id="CellEditor" name="CellEditor"/>
+         <meta.schema plugin="ch.algotrader.ConfigEditor" id="PropertyDef" name="PropertyDef"/>
       </appinfo>
       <documentation>
          [Enter description of this extension point.]
@@ -18,7 +18,7 @@
       </annotation>
       <complexType>
          <sequence minOccurs="1" maxOccurs="unbounded">
-            <element ref="CellEditor"/>
+            <element ref="PropertyDef"/>
          </sequence>
          <attribute name="point" type="string" use="required">
             <annotation>
@@ -47,18 +47,9 @@
       </complexType>
    </element>
 
-   <element name="CellEditor">
+   <element name="PropertyDef">
       <complexType>
-         <attribute name="dataType" type="string" use="required">
-            <annotation>
-               <documentation>
-                  Arbitrary string used for designating property data type, like:
-# { &quot;data-type&quot;: &quot;Boolean&quot;, ... }
-property1=value1
-               </documentation>
-            </annotation>
-         </attribute>
-         <attribute name="factory" type="string" use="required">
+         <attribute name="cellEditorFactory" type="string" use="required">
             <annotation>
                <documentation>
                   Factory creating cell editor
@@ -68,11 +59,33 @@ property1=value1
                </appinfo>
             </annotation>
          </attribute>
+         <attribute name="dataType" type="string" use="required">
+            <annotation>
+               <documentation>
+                  Internal type of deserialized property or implementation of ch.algotrader.configeditor.IPropertySerializer.
+               </documentation>
+               <appinfo>
+                  <meta.attribute kind="java"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+         <attribute name="id" type="string" use="required">
+            <annotation>
+               <documentation>
+                  property type identifier, must match the attribute &quot;type&quot; in property comment:
+# { &quot;type&quot;: &quot;Boolean&quot;, ... }
+someBooleanProperty=true
+               </documentation>
+            </annotation>
+         </attribute>
          <attribute name="regex" type="string">
             <annotation>
                <documentation>
                   Regular expression for validating user input
                </documentation>
+               <appinfo>
+                  <meta.attribute translatable="true"/>
+               </appinfo>
             </annotation>
          </attribute>
          <attribute name="regexErrorMessage" type="string">
@@ -82,6 +95,9 @@ property1=value1
 &quot;User input {0} does not satisfy pattern {1}&quot;
 where {0} is a placeholder for user input and {1} is a placeholder for the regular expression.
                </documentation>
+               <appinfo>
+                  <meta.attribute translatable="true"/>
+               </appinfo>
             </annotation>
          </attribute>
       </complexType>

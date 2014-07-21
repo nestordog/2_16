@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
-   <extension-point id="CellEditor" name="CellEditor" schema="schema/CellEditor.exsd"/>
+   <extension-point id="PropertyDef" name="PropertyDef" schema="schema/PropertyDef.exsd"/>
    <extension
          point="org.eclipse.ui.propertyPages">
       <page
@@ -21,57 +21,64 @@
       </page>
    </extension>
    <extension
-         point="ch.algotrader.ConfigEditor.CellEditor">
-      <CellEditor
-            factory="ch.algotrader.configeditor.editingSupport.TextCellEditorFactory"
-            dataType="String">
-      </CellEditor>
+         point="ch.algotrader.ConfigEditor.PropertyDef">
+      <PropertyDef
+            id="String"
+            dataType="java.lang.String"
+            cellEditorFactory="ch.algotrader.configeditor.editingSupport.TextCellEditorFactory">
+      </PropertyDef>
    </extension>
    <extension
-         point="ch.algotrader.ConfigEditor.CellEditor">
-      <CellEditor
-            factory="ch.algotrader.configeditor.editingSupport.CheckboxCellEditorFactory"
-            dataType="Boolean">
-      </CellEditor>
+         point="ch.algotrader.ConfigEditor.PropertyDef">
+      <PropertyDef
+            id="Boolean"
+            dataType="java.lang.Boolean"
+            cellEditorFactory="ch.algotrader.configeditor.editingSupport.CheckboxCellEditorFactory">
+      </PropertyDef>
    </extension>
    <extension
-         point="ch.algotrader.ConfigEditor.CellEditor">
-      <CellEditor
-            dataType="Date"
-            factory="ch.algotrader.configeditor.editingSupport.DateCellEditorFactory">
-      </CellEditor>
+         point="ch.algotrader.ConfigEditor.PropertyDef">
+      <PropertyDef
+              id="Date"
+            dataType="ch.algotrader.configeditor.editingSupport.DateSerializer"
+            cellEditorFactory="ch.algotrader.configeditor.editingSupport.DateCellEditorFactory">
+      </PropertyDef>
    </extension>
    <extension
-         point="ch.algotrader.ConfigEditor.CellEditor">
-      <CellEditor
-            dataType="Time"
-            factory="ch.algotrader.configeditor.editingSupport.TimeCellEditorFactory">
-      </CellEditor>
+         point="ch.algotrader.ConfigEditor.PropertyDef">
+      <PropertyDef
+              id="Time"
+            dataType="ch.algotrader.configeditor.editingSupport.TimeSerializer"
+            cellEditorFactory="ch.algotrader.configeditor.editingSupport.TimeCellEditorFactory">
+      </PropertyDef>
    </extension>
    <extension
-         point="ch.algotrader.ConfigEditor.CellEditor">
-      <CellEditor
-            dataType="DateTime"
-            factory="ch.algotrader.configeditor.editingSupport.DateTimeCellEditorFactory">
-      </CellEditor>
+         point="ch.algotrader.ConfigEditor.PropertyDef">
+      <PropertyDef
+            id="DateTime"
+            dataType="ch.algotrader.configeditor.editingSupport.DateTimeSerializer"
+            cellEditorFactory="ch.algotrader.configeditor.editingSupport.DateTimeCellEditorFactory">
+      </PropertyDef>
    </extension>
    <extension
-         point="ch.algotrader.ConfigEditor.CellEditor">
-      <CellEditor
-            dataType="Integer"
-            factory="ch.algotrader.configeditor.editingSupport.IntegerCellEditorFactory"
+         point="ch.algotrader.ConfigEditor.PropertyDef">
+      <PropertyDef
+            id="Integer"
+            dataType="java.lang.Integer"
+            cellEditorFactory="ch.algotrader.configeditor.editingSupport.IntegerCellEditorFactory"
             regex="^\d*$"
             regexErrorMessage="&apos;&apos;{0}&apos;&apos; is not a valid integer number">
-      </CellEditor>
+      </PropertyDef>
    </extension>
    <extension
-         point="ch.algotrader.ConfigEditor.CellEditor">
-      <CellEditor
-            dataType="Double"
-            factory="ch.algotrader.configeditor.editingSupport.DoubleCellEditorFactory"
+         point="ch.algotrader.ConfigEditor.PropertyDef">
+      <PropertyDef
+              id="Double"
+            dataType="ch.algotrader.configeditor.editingSupport.DoubleSerializer"
+            cellEditorFactory="ch.algotrader.configeditor.editingSupport.DoubleCellEditorFactory"
             regex="^\d*(\.\d*)?$"
             regexErrorMessage="&apos;&apos;{0}&apos;&apos; is not a valid float number">
-      </CellEditor>
+      </PropertyDef>
    </extension>
 
 </plugin>

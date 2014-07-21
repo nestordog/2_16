@@ -206,7 +206,8 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
             @Override
             public String getText(Object element) {
                 Object[] row = (Object[]) element;
-                String label = (new FieldModel(propMap.get(getSelectedFile()).getValueStruct((String) row[0]))).getLabel();
+                String key = (String) row[0];
+                String label = getFieldModel(getSelectedFile(), key).getLabel();
                 if (label == null)
                     return row[0].toString();
                 return label;
@@ -220,7 +221,8 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
             @Override
             public String getText(Object element) {
                 Object[] row = (Object[]) element;
-                String dataType = (new FieldModel(propMap.get(getSelectedFile()).getValueStruct((String) row[0]))).getDatatype();
+                String key = (String) row[0];
+                String dataType = getFieldModel(getSelectedFile(), key).getType();
                 switch (dataType) {
                     case "Date": {
                         Date d = (Date) row[1];
@@ -247,6 +249,10 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
 
         tableViewer.setContentProvider(new TableContentProvider());
         return sashForm;
+    }
+
+    FieldModel getFieldModel(File file, String key) {
+        return new FieldModel(propMap.get(file).getValueStruct(key));
     }
 
     File getSelectedFile() {

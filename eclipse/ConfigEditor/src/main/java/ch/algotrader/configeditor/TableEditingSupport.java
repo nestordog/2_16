@@ -7,7 +7,7 @@ import org.eclipse.jface.viewers.EditingSupport;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TextCellEditor;
 
-import ch.algotrader.configeditor.editingSupport.CellEditorExtensionPoint;
+import ch.algotrader.configeditor.editingSupport.PropertyDefExtensionPoint;
 import ch.algotrader.configeditor.editingSupport.CellEditorFactory;
 
 class TableEditingSupport extends EditingSupport {
@@ -28,15 +28,15 @@ class TableEditingSupport extends EditingSupport {
     protected CellEditor getCellEditor(Object element) {
         Object[] row = (Object[]) element;
         String key = (String) row[0];
-        FieldModel model = new FieldModel(propertyPage.getSelectedProperties().getValueStruct(key));
+        FieldModel model = propertyPage.getFieldModel(propertyPage.getSelectedFile(), key);
         try {
             CellEditor editor;
-            CellEditorFactory factory = CellEditorExtensionPoint.createCellEditorFactory(model.getDatatype());
+            CellEditorFactory factory = PropertyDefExtensionPoint.createCellEditorFactory(model.getType());
             if (factory == null)
                 editor = new TextCellEditor(getViewer().getTable());
             else
                 editor = factory.createCellEditor(getViewer().getTable());
-            editor.setValidator(new CellEditorValidator(propertyPage, model.getDatatype(), key));
+            editor.setValidator(new CellEditorValidator(propertyPage, model.getType(), key));
             editor.addListener(new CellEditorListener(propertyPage, editor));
             return editor;
 

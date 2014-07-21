@@ -22,7 +22,7 @@ public class ValueStruct {
 
     public String getSaveReadyValue() {
         FieldModel f = new FieldModel(this);
-        String dataType = f.getDatatype();
+        String dataType = f.getType();
         switch (dataType) {
             case "Date": {
                 Date d = (Date) value;

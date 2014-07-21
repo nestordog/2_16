@@ -11,12 +11,12 @@ public class FieldModel {
         values = pValues;
     }
 
-    public String getDatatype() {
+    public String getType() {
         Map<String, Object> definition = getDefinition();
         if (definition == null)
             return "String";
-        Object dataType = definition.get("data-type");
-        return dataType == null ? null : dataType.toString();
+        Object type = definition.get("type");
+        return type == null ? null : type.toString();
     }
 
     public String getLabel() {

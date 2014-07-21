@@ -8,45 +8,52 @@ import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.InvalidRegistryObjectException;
 import org.eclipse.core.runtime.Platform;
 
-public class CellEditorExtensionPoint {
+public class PropertyDefExtensionPoint {
 
-    public static CellEditorFactory createCellEditorFactory(String dataType) throws InvalidRegistryObjectException, CoreException {
-        IConfigurationElement config = getConfig(dataType);
+    public static CellEditorFactory createCellEditorFactory(String id) throws InvalidRegistryObjectException, CoreException {
+        IConfigurationElement config = getConfig(id);
         if (config != null) {
-            CellEditorFactory factory = (CellEditorFactory) config.createExecutableExtension("factory");
+            CellEditorFactory factory = (CellEditorFactory) config.createExecutableExtension("cellEditorFactory");
             if (factory instanceof ISetDataType)
-                ((ISetDataType) factory).setDataType(dataType);
+                ((ISetDataType) factory).setDataType(id);
             return factory;
         }
         return null;
     }
 
-    private static IConfigurationElement getConfig(String dataType) {
+    private static IConfigurationElement getConfig(String id) {
         IExtensionRegistry reg = Platform.getExtensionRegistry();
-        IConfigurationElement[] extensions = reg.getConfigurationElementsFor("ch.algotrader.ConfigEditor.CellEditor");
+        IConfigurationElement[] extensions = reg.getConfigurationElementsFor("ch.algotrader.ConfigEditor.PropertyDef");
         for (int i = 0; i < extensions.length; i++) {
             IConfigurationElement element = extensions[i];
-            if (element.getAttribute("dataType").equals(dataType)) {
+            if (element.getAttribute("id").equals(id)) {
                 return element;
             }
         }
         return null;
     }
 
-    public static String getRegex(String dataType) {
-        IConfigurationElement config = getConfig(dataType);
+    public static String getRegex(String id) {
+        IConfigurationElement config = getConfig(id);
         if (config != null)
             return config.getAttribute("regex");
         return null;
     }
 
-    public static String getRegexErrorMessage(String dataType, String value) {
+    public static String getRegexErrorMessage(String id, String value) {
         String regexErrorMessage;
-        IConfigurationElement config = getConfig(dataType);
+        IConfigurationElement config = getConfig(id);
         assert config != null;
         regexErrorMessage = config.getAttribute("regexErrorMessage");
         if (regexErrorMessage == null)
             regexErrorMessage = "User input ''{0}'' does not satisfy pattern {1}";
         return MessageFormat.format(regexErrorMessage, value, config.getAttribute("regex"));
+    }
+
+    public static String getType(String id) {
+        IConfigurationElement config = getConfig(id);
+        if (config != null)
+            return config.getAttribute("type");
+        return null;
     }
 }

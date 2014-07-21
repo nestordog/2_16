@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import ch.algotrader.configeditor.editingSupport.PropertyDefExtensionPoint;
 
 public class StructuredProperties {
 
@@ -83,49 +84,17 @@ public class StructuredProperties {
                     value.append(line.charAt(i));
             }
         }
+        String stringValue = value.toString().trim();
         FieldModel f = new FieldModel(n);
-        String dataType = f.getDatatype();
-        if (dataType.equals("String"))
-            n.value = value.toString().trim();
-        else {
-            String stringValue = value.toString().trim();
-            switch (dataType) {
-                case "Integer":
-                    n.value = new Integer(stringValue);
-                    break;
-                case "Double":
-                    if (stringValue.contains(","))
-                        stringValue = stringValue.replace(',', '.');
-                    n.value = new Double(stringValue);
-                    break;
-                case "Time": {
-                    DateFormat formatter = new SimpleDateFormat("HH:mm:ss");
-                    n.value = (Date) formatter.parse(stringValue);
-                    break;
-                }
-                case "Date": {
-                    DateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
-                    n.value = (Date) formatter.parse(stringValue);
-                    break;
-                }
-                case "DateTime": {
-                    DateFormat formatter = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
-                    n.value = (Date) formatter.parse(stringValue);
-                    break;
-                }
-                case "Boolean":
-                    n.value = new Boolean(stringValue);
-                    break;
-                default:
-                    if (!dataType.contains("."))
-                        dataType = "java.lang." + dataType;
-                    Class<?> dataClass = Class.forName(dataType);
-                    if (dataClass.isEnum())
-                        n.value = Enum.valueOf((Class<? extends Enum>) dataClass, stringValue);
-                    else
-                        n.value = dataClass.getDeclaredConstructor(String.class).newInstance(stringValue);
-            }
-        }
+        String typeId = f.getType();
+        Class<?> dataClass = Class.forName(PropertyDefExtensionPoint.getType(typeId));
+        if(IPropertySerializer.class.isAssignableFrom(dataClass)) {
+            IPropertySerializer serializer = (IPropertySerializer)dataClass.newInstance();
+            n.value = serializer.deserialize(stringValue);
+        } else if (dataClass.isEnum())
+            n.value = Enum.valueOf((Class<? extends Enum>) dataClass, stringValue);
+        else
+            n.value = dataClass.getDeclaredConstructor(String.class).newInstance(stringValue);
         if (inlineComment != null)
             n.inlineComment = inlineComment.trim();
         properties.put(key.toString().trim(), n);
