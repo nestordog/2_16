@@ -40,9 +40,11 @@ import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.ui.IWorkbenchPropertyPage;
@@ -80,9 +82,9 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
         }
 
         private List<File> getFiles(IProject project) throws IOException {
-            File file = project.getFile("META-INF/" + project.getName() + ".hierarchy").getLocation().toFile();
+            File file = project.getFile("src/main/resources/META-INF/" + project.getName() + ".hierarchy").getLocation().toFile();
             if (!file.exists()) {
-                MessageDialog.openError(getShell(), "hierarchy file missing", "Config Editor was not able to locate META-INF\\" + project.getName() + ".hierarchy");
+                MessageDialog.openError(getShell(), "hierarchy file missing", "Config Editor was not able to locate src\\main\\resources\\META-INF\\" + project.getName() + ".hierarchy");
                 return null;
             }
             String[] fileNames = null;
@@ -98,10 +100,11 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
             }
             List<File> files = new ArrayList<File>();
             for (String fname : fileNames)
-                if (project.getFile("META-INF/" + fname + ".properties").getLocation().toFile().exists())
-                    files.add(project.getFile("META-INF/" + fname + ".properties").getLocation().toFile());
+                if (project.getFile("src/main/resources/META-INF/" + fname + ".properties").getLocation().toFile().exists())
+                    files.add(project.getFile("src/main/resources/META-INF/" + fname + ".properties").getLocation().toFile());
                 else {
-                    MessageDialog.openError(getShell(), "hierarchy file broken", "Config Editor has encounered problems, while reading META-INF\\" + project.getName() + ".hierarchy");
+                    MessageDialog.openError(getShell(), "hierarchy file broken", "Config Editor has encounered problems, while reading src\\main\\resources\\META-INF\\" + project.getName()
+                            + ".hierarchy");
                     return Collections.emptyList();
                 }
             if (files.isEmpty()) {
@@ -171,7 +174,13 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
 
         SashForm sashForm = new SashForm(parent, SWT.HORIZONTAL);
 
-        listViewer = new ListViewer(sashForm, SWT.BORDER);
+        Composite c = new Composite(sashForm, SWT.NONE);
+
+        FillLayout t = new FillLayout();
+        t.type = SWT.VERTICAL;
+        c.setLayout(t);
+
+        listViewer = new ListViewer(c, SWT.BORDER);
 
         listViewer.setContentProvider(new ListContentProvider());
         listViewer.setLabelProvider(new LabelProvider() {
@@ -191,6 +200,9 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
 
             }
         });
+
+        Label l = new Label(c, SWT.BORDER);
+        l.setText("Files are ordered by priority.\n Properties defined in\n the upper file override the\n properties in the lower files");
 
         tableViewer = new TableViewer(sashForm, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER);
 
