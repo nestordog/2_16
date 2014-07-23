@@ -17,6 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.cnx;
 
+import ch.algotrader.adapter.fix.FixApplicationException;
+import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.Security;
 import quickfix.field.AggregatedBook;
 import quickfix.field.MDEntryType;
@@ -38,7 +40,13 @@ public class CNXFixMarketDataRequestFactory {
 
     public MarketDataRequest create(Security security, SubscriptionRequestType type) {
 
-        String cnxSymbol = CNXUtil.getCNXSymbol(security);
+        if (!(security instanceof Forex)) {
+
+            throw new FixApplicationException("Currenex supports forex orders only");
+        }
+        Forex forex = (Forex) security;
+
+        String cnxSymbol = CNXUtil.getCNXSymbol(forex);
 
         MarketDataRequest request = new MarketDataRequest();
         request.set(new MDReqID(cnxSymbol));

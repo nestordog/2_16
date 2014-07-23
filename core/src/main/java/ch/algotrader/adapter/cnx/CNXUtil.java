@@ -17,9 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.cnx;
 
-import ch.algotrader.adapter.fix.FixApplicationException;
 import ch.algotrader.entity.security.Forex;
-import ch.algotrader.entity.security.Security;
 
 /**
  * Currenex utilities
@@ -30,13 +28,7 @@ import ch.algotrader.entity.security.Security;
  */
 public class CNXUtil {
 
-    public static String getCNXSymbol(Security security) {
-
-        if (!(security instanceof Forex)) {
-            throw new FixApplicationException("Currenex supports forex only");
-        }
-
-        Forex forex = (Forex) security;
+    public static String getCNXSymbol(Forex forex) {
         return new StringBuilder()
                 .append(forex.getBaseCurrency()).append('/').append(forex.getTransactionCurrency())
                 .toString();
