@@ -202,16 +202,16 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
             }
         });
 
-        Label listLabel = new Label(listComposite, SWT.WRAP);
+        Label listLabel = new Label(listComposite, SWT.WRAP | SWT.BORDER);
         listLabel.setLayoutData(new GridData(GridData.FILL, GridData.FILL, false, false));
         listLabel.setBackground(getControl().getDisplay().getSystemColor(SWT.COLOR_INFO_BACKGROUND));
         listLabel.setForeground(getControl().getDisplay().getSystemColor(SWT.COLOR_INFO_FOREGROUND));
-        listLabel.setText("Files are ordered by priority.\nProperties defined in the\nupper file override the properties\nin the lower files");
+        listLabel.setText("Files are ordered by priority.\nProperties defined in the\nupper file override the\n properties in the lower files");
         listLabel.setBounds(0, 0, 200, 0);
 
         tableViewer = new TableViewer(sashForm, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER);
 
-        sashForm.setWeights(new int[] { 2, 3 });
+        sashForm.setWeights(new int[] { 2, 5 });
 
         Table table = tableViewer.getTable();
         table.setHeaderVisible(true);
