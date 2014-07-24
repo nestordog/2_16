@@ -221,6 +221,9 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
                 event.height = 24;
             }
         });
+        //TODO 3rd column
+        //TableColumn lastColumn = table.getColumn(table.getColumnCount() - 1);
+        //lastColumn.dispose();
 
         TableViewerColumn colKey = new TableViewerColumn(tableViewer, SWT.NONE);
         colKey.getColumn().setWidth(200);
