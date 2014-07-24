@@ -40,7 +40,8 @@ import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
-import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
@@ -174,13 +175,13 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
 
         SashForm sashForm = new SashForm(parent, SWT.HORIZONTAL);
 
-        Composite c = new Composite(sashForm, SWT.NONE);
+        final Composite listComposite = new Composite(sashForm, SWT.NONE);
 
-        FillLayout t = new FillLayout();
-        t.type = SWT.VERTICAL;
-        c.setLayout(t);
+        GridLayout layout = new GridLayout(1, true);
+        listComposite.setLayout(layout);
 
-        listViewer = new ListViewer(c, SWT.BORDER);
+        listViewer = new ListViewer(listComposite, SWT.BORDER);
+        listViewer.getControl().setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, true));
 
         listViewer.setContentProvider(new ListContentProvider());
         listViewer.setLabelProvider(new LabelProvider() {
@@ -201,12 +202,16 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
             }
         });
 
-        Label l = new Label(c, SWT.BORDER);
-        l.setText("Files are ordered by priority.\n Properties defined in\n the upper file override the\n properties in the lower files");
+        Label listLabel = new Label(listComposite, SWT.WRAP);
+        listLabel.setLayoutData(new GridData(GridData.FILL, GridData.FILL, false, false));
+        listLabel.setBackground(getControl().getDisplay().getSystemColor(SWT.COLOR_INFO_BACKGROUND));
+        listLabel.setForeground(getControl().getDisplay().getSystemColor(SWT.COLOR_INFO_FOREGROUND));
+        listLabel.setText("Files are ordered by priority.\nProperties defined in the\nupper file override the properties\nin the lower files");
+        listLabel.setBounds(0, 0, 200, 0);
 
         tableViewer = new TableViewer(sashForm, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER);
 
-        sashForm.setWeights(new int[] { 1, 2 });
+        sashForm.setWeights(new int[] { 2, 3 });
 
         Table table = tableViewer.getTable();
         table.setHeaderVisible(true);
