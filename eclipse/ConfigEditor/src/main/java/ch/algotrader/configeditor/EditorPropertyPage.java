@@ -279,7 +279,7 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
                 Object[] row = (Object[]) elements[i];
                 String key = (String) row[0];
                 FieldModel model = getFieldModel(file, key);
-                CellEditorValidator validator = new CellEditorValidator(this, model.getPropertyId(), key);
+                CellEditorValidator validator = new CellEditorValidator(key, model);
                 String validationMessage = validator.isValid(row[1]);
                 if (validationMessage != null) {
                     listViewer.setSelection(new StructuredSelection(file));

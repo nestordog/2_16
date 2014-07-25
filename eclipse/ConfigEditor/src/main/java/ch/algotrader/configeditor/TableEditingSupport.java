@@ -47,7 +47,7 @@ class TableEditingSupport extends EditingSupport {
         else {
             editor = factory.createCellEditor(getViewer().getTable());
         }
-        editor.setValidator(new CellEditorValidator(propertyPage, model.getPropertyId(), key));
+        editor.setValidator(new CellEditorValidator(key, model));
         editor.addListener(new CellEditorListener(propertyPage, editor));
         return editor;
     }
