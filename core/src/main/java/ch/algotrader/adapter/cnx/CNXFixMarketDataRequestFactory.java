@@ -15,9 +15,12 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.adapter.dc;
+package ch.algotrader.adapter.cnx;
 
+import ch.algotrader.adapter.fix.FixApplicationException;
+import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.Security;
+import quickfix.field.AggregatedBook;
 import quickfix.field.MDEntryType;
 import quickfix.field.MDReqID;
 import quickfix.field.MDUpdateType;
@@ -27,21 +30,30 @@ import quickfix.field.Symbol;
 import quickfix.fix44.MarketDataRequest;
 
 /**
- * DukasCopy market data request factory.
+ * Currenex market data request factory.
  *
- * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
+ * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  *
  * @version $Revision$ $Date$
  */
-public class DCFixMarketDataRequestFactory {
+public class CNXFixMarketDataRequestFactory {
 
     public MarketDataRequest create(Security security, SubscriptionRequestType type) {
 
-        String dcSymbol = DCUtil.getDCSymbol(security);
+        if (!(security instanceof Forex)) {
+
+            throw new FixApplicationException("Currenex supports forex orders only");
+        }
+        Forex forex = (Forex) security;
+
+        String cnxSymbol = CNXUtil.getCNXSymbol(forex);
 
         MarketDataRequest request = new MarketDataRequest();
+        request.set(new MDReqID(cnxSymbol));
         request.set(type);
-        request.set(new MDReqID(dcSymbol));
+        request.set(new MarketDepth(1)); // top of the book
+        request.set(new MDUpdateType(MDUpdateType.INCREMENTAL_REFRESH));
+        request.set(new AggregatedBook(true));
 
         MarketDataRequest.NoMDEntryTypes bid = new MarketDataRequest.NoMDEntryTypes();
         bid.set(new MDEntryType(MDEntryType.BID));
@@ -52,11 +64,8 @@ public class DCFixMarketDataRequestFactory {
         request.addGroup(offer);
 
         MarketDataRequest.NoRelatedSym symbol = new MarketDataRequest.NoRelatedSym();
-        symbol.set(new Symbol(dcSymbol));
+        symbol.set(new Symbol(cnxSymbol));
         request.addGroup(symbol);
-
-        request.set(new MarketDepth(1));
-        request.set(new MDUpdateType(0));
 
         return request;
     }

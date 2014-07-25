@@ -68,9 +68,14 @@ public class DefaultFixApplicationFactory implements FixApplicationFactory {
         return name;
     }
 
+    protected Application createApplication(SessionID sessionID, Object incomingMessageHandler, Object outgoingMessageHandler, FixSessionLifecycle lifecycleHandler) {
+
+        return new DefaultFixApplication(sessionID, incomingMessageHandler, outgoingMessageHandler, lifecycleHandler);
+    }
+
     @Override
     public Application create(SessionID sessionID, SessionSettings settings) throws ConfigError {
 
-        return new DefaultFixApplication(sessionID, incomingMessageHandler, outgoingMessageHandler, lifecycleHandler);
+        return createApplication(sessionID, incomingMessageHandler, outgoingMessageHandler, lifecycleHandler);
     }
 }

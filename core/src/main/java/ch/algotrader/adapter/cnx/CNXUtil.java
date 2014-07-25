@@ -15,41 +15,22 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.adapter.lmax;
+package ch.algotrader.adapter.cnx;
 
-import quickfix.ConfigError;
-import quickfix.FieldConvertError;
-import quickfix.SessionID;
-import quickfix.SessionSettings;
-import quickfix.field.Password;
-import quickfix.field.Username;
-import quickfix.fix44.Logon;
+import ch.algotrader.entity.security.Forex;
 
 /**
- * LMAX outgoing message handler.
+ * Currenex utilities
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  *
  * @version $Revision$ $Date$
  */
-public class LMAXLogonMessageHandler {
+public class CNXUtil {
 
-    private SessionSettings settings;
-
-    public void setSettings(SessionSettings settings) {
-        this.settings = settings;
-    }
-
-    public void onMessage(Logon logon, SessionID sessionID) throws ConfigError, FieldConvertError {
-
-        String username = this.settings.getString(sessionID, "Username");
-        if (username != null) {
-            logon.set(new Username(username));
-
-            String password = this.settings.getString(sessionID, "Password");
-            if (password != null) {
-                logon.set(new Password(password));
-            }
-        }
+    public static String getCNXSymbol(Forex forex) {
+        return new StringBuilder()
+                .append(forex.getBaseCurrency()).append('/').append(forex.getTransactionCurrency())
+                .toString();
     }
 }

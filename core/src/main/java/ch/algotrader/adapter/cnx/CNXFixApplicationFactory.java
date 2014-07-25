@@ -15,41 +15,25 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.adapter.dc;
+package ch.algotrader.adapter.cnx;
 
-import quickfix.ConfigError;
-import quickfix.FieldConvertError;
+import ch.algotrader.adapter.fix.DefaultFixApplicationFactory;
+import ch.algotrader.adapter.fix.FixSessionLifecycle;
+import quickfix.Application;
 import quickfix.SessionID;
-import quickfix.SessionSettings;
-import quickfix.field.Password;
-import quickfix.field.Username;
-import quickfix.fix44.Logon;
 
 /**
- * DukasCopy outgoing message handler.
+ * Creates a {@link ch.algotrader.adapter.cnx.CNXFixApplication} for the specified {@code sessionId}.
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  *
  * @version $Revision$ $Date$
  */
-public class DCLogonMessageHandler {
+public class CNXFixApplicationFactory extends DefaultFixApplicationFactory {
 
-    private SessionSettings settings;
+    @Override
+    protected Application createApplication(SessionID sessionID, Object incomingMessageHandler, Object outgoingMessageHandler, FixSessionLifecycle lifecycleHandler) {
 
-    public void setSettings(SessionSettings settings) {
-        this.settings = settings;
-    }
-
-    public void onMessage(Logon logon, SessionID sessionID) throws ConfigError, FieldConvertError {
-
-        String username = this.settings.getString(sessionID, "Username");
-        if (username != null) {
-            logon.set(new Username(username));
-
-            String password = this.settings.getString(sessionID, "Password");
-            if (password != null) {
-                logon.set(new Password(password));
-            }
-        }
+        return new CNXFixApplication(sessionID, incomingMessageHandler, outgoingMessageHandler, lifecycleHandler);
     }
 }
