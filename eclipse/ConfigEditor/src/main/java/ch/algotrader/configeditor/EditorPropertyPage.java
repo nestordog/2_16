@@ -244,6 +244,7 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
         colValue.getColumn().setWidth(200);
         colValue.getColumn().setText("Value");
         colValue.setLabelProvider(new ColumnLabelProvider() {
+
             @Override
             public String getText(Object element) {
                 Object[] row = (Object[]) element;
@@ -277,11 +278,12 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
             Object[] elements = editorData.get(file);
             for (int i = 0; i < elements.length; i++) {
                 Object[] row = (Object[]) elements[i];
-                FieldModel model = getFieldModel(file, (String) row[0]);
-                CellEditorValidator validator = new CellEditorValidator(this, model.getPropertyId(), (String) row[0]);
-                if (validator.isValid(model.getLabel()) != null) {
-                    MessageDialog.openWarning(getShell(), "Icorrect data",
-                            "Error in property " + (String) row[0] + " which is a " + model.getPropertyId() + " because:" + validator.isValid(model.getLabel()));
+                String key = (String) row[0];
+                FieldModel model = getFieldModel(file, key);
+                CellEditorValidator validator = new CellEditorValidator(this, model.getPropertyId(), key);
+                String validationMessage = validator.isValid(row[1]);
+                if (validationMessage != null) {
+                    MessageDialog.openWarning(getShell(), "Icorrect data", "Error in property " + (String) row[0] + " which is a " + model.getPropertyId() + " because:" + validationMessage);
                     return false;
                 }
             }
