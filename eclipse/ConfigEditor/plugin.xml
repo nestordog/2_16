@@ -91,4 +91,24 @@
             cellEditorFactory="ch.algotrader.configeditor.editingsupport.TextCellEditorFactory">
       </PropertyDef>
    </extension>
+   <extension
+         point="ch.algotrader.ConfigEditor.PropertyDef">
+      <PropertyDef
+            cellEditorFactory="ch.algotrader.configeditor.editingsupport.TextCellEditorFactory"
+            dataType="java.lang.String"
+            id="URL"
+            regex="^(https?|ftp|file)://[-a-zA-Z0-9+&amp;@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&amp;@#/%=~_|]$"
+            regexErrorMessage="The input is not a valid URL">
+      </PropertyDef>
+   </extension>
+   <extension
+         point="ch.algotrader.ConfigEditor.PropertyDef">
+      <PropertyDef
+            cellEditorFactory="ch.algotrader.configeditor.editingsupport.TextCellEditorFactory"
+            dataType="java.lang.String"
+            id="URI"
+            regex="^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?"
+            regexErrorMessage="The input is not a valid URI">
+      </PropertyDef>
+   </extension>
 </plugin>
