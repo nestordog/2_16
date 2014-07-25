@@ -100,18 +100,36 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
                 br.close();
             }
             List<File> files = new ArrayList<File>();
-            for (String fname : fileNames)
-                if (project.getFile("src/main/resources/META-INF/" + fname + ".properties").getLocation().toFile().exists())
-                    files.add(project.getFile("src/main/resources/META-INF/" + fname + ".properties").getLocation().toFile());
+            for (String fname : fileNames) {
+                File f = project.getFile("src/main/resources/META-INF/" + fname + ".properties").getLocation().toFile();
+                if (f.exists())
+                    files.add(f);
                 else {
-                    MessageDialog.openError(getShell(), "hierarchy file broken", "Config Editor has encounered problems, while reading src\\main\\resources\\META-INF\\" + project.getName()
+                    MessageDialog.openError(getShell(), "hierarchy file broken", "Config Editor has encountered problems, while reading src\\main\\resources\\META-INF\\" + project.getName()
                             + ".hierarchy");
                     return Collections.emptyList();
                 }
+                StructuredProperties structProps = new StructuredProperties();
+                propMap.put(f, structProps);
+                try {
+                    structProps.load(f);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    MessageDialog.openError(getShell(), "error while reading property file", "Error in:\n" + f.getPath() + "\n Caused by: \n" + e.getMessage());
+                    return Collections.emptyList();
+                }
+
+                List<Object[]> elementsList = new ArrayList<Object[]>();
+                for (String key : structProps.getKeys())
+                    elementsList.add(new Object[] { key, structProps.getValue(key) });
+                editorData.put(f, elementsList.toArray());
+            }
+
             if (files.isEmpty()) {
                 MessageDialog.openWarning(getShell(), "hierarchy file is empty", "this projects hierarchy file is epmty");
                 return Collections.emptyList();
             }
+
             return files;
         }
     }
@@ -123,31 +141,12 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
         public void dispose() {
         }
 
-        @SuppressWarnings({ "unchecked", "rawtypes" })
         @Override
         public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
             if (newInput == null)
                 elements = null;
-            else {
-                if (editorData.containsKey(newInput)) {
-                    elements = editorData.get(newInput);
-                } else {
-                    StructuredProperties structProps = new StructuredProperties();
-                    propMap.put((File) newInput, structProps);
-                    try {
-                        structProps.load((File) newInput);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        MessageDialog.openError(getShell(), "error while reading property file", "Error in:\n" + ((File) newInput).getPath() + "\n Caused by: \n" + e.getMessage());
-                    }
-
-                    List elementsList = new ArrayList();
-                    for (String key : structProps.getKeys())
-                        elementsList.add(new Object[] { key, structProps.getValue(key) });
-                    elements = elementsList.toArray();
-                    editorData.put((File) newInput, elements);
-                }
-            }
+            else
+                elements = editorData.get(newInput);
         }
 
         @Override
@@ -283,11 +282,16 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
                 CellEditorValidator validator = new CellEditorValidator(this, model.getPropertyId(), key);
                 String validationMessage = validator.isValid(row[1]);
                 if (validationMessage != null) {
-                    MessageDialog.openWarning(getShell(), "Icorrect data", "Error in property " + (String) row[0] + " which is a " + model.getPropertyId() + " because:" + validationMessage);
+                    listViewer.setSelection(new StructuredSelection(file));
+                    tableViewer.setSelection(new StructuredSelection((Object) row));
+                    tableViewer.getControl().setFocus();
+                    this.setErrorMessage(validationMessage);
                     return false;
                 }
             }
         }
+
+        this.setErrorMessage(null);
 
         for (File file : editorData.keySet()) {
             Object[] elements = editorData.get(file);
