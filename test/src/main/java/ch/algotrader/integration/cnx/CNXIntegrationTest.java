@@ -287,7 +287,7 @@ public class CNXIntegrationTest extends LocalServiceTest {
         order2.setStrategy(base);
         order2.setQuantity(100000L);
         order2.setSide(Side.BUY);
-        order2.setLimit(new BigDecimal(bestBid).multiply(new BigDecimal("1.25")));
+        order2.setLimit(new BigDecimal(bestBid).multiply(new BigDecimal("1.1")).setScale(5, BigDecimal.ROUND_HALF_DOWN));
 
         Mockito.reset(engine);
 
