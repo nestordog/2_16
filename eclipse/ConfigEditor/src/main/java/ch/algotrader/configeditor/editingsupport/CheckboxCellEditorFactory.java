@@ -20,7 +20,6 @@ public class CheckboxCellEditorFactory implements CellEditorFactory {
 
     @Override
     public CellEditor createCellEditor(Composite parent) {
-        System.out.println("checkboxcelleditor Factory created");
         return new CheckboxCellEditor(parent);
     }
 
