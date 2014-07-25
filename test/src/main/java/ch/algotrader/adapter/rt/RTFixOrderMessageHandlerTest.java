@@ -1,6 +1,6 @@
-package ch.algotrader.adapter.lmax;
+package ch.algotrader.adapter.rt;
 
-import java.util.Date;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -14,48 +14,47 @@ import org.mockito.Mockito;
 
 import ch.algotrader.adapter.fix.DefaultFixApplication;
 import ch.algotrader.adapter.fix.DefaultFixSessionLifecycle;
-import ch.algotrader.adapter.fix.DefaultLogonMessageHandler;
 import ch.algotrader.adapter.fix.FixConfigUtils;
 import ch.algotrader.adapter.fix.NoopSessionStateListener;
-import ch.algotrader.entity.security.Forex;
-import ch.algotrader.entity.security.ForexImpl;
+import ch.algotrader.adapter.rt.RTFixOrderMessageFactory;
+import ch.algotrader.adapter.rt.RTFixOrderMessageHandler;
+import ch.algotrader.entity.Account;
+import ch.algotrader.entity.AccountImpl;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.SecurityFamilyImpl;
+import ch.algotrader.entity.security.Stock;
+import ch.algotrader.entity.security.StockImpl;
 import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.entity.trade.Fill;
+import ch.algotrader.entity.trade.LimitOrder;
+import ch.algotrader.entity.trade.LimitOrderImpl;
 import ch.algotrader.entity.trade.MarketOrder;
 import ch.algotrader.entity.trade.MarketOrderImpl;
 import ch.algotrader.entity.trade.OrderStatus;
+import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Currency;
+import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.AbstractEngine;
 import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.service.LookupService;
 import quickfix.DefaultSessionFactory;
+import quickfix.FileStoreFactory;
 import quickfix.LogFactory;
-import quickfix.MemoryStoreFactory;
 import quickfix.ScreenLogFactory;
 import quickfix.Session;
 import quickfix.SessionID;
 import quickfix.SessionSettings;
 import quickfix.SocketInitiator;
-import quickfix.field.ClOrdID;
-import quickfix.field.OrdType;
-import quickfix.field.OrderQty;
-import quickfix.field.OrigClOrdID;
-import quickfix.field.SecurityID;
-import quickfix.field.SecurityIDSource;
-import quickfix.field.Side;
-import quickfix.field.StopPx;
-import quickfix.field.TransactTime;
 import quickfix.fix44.NewOrderSingle;
 import quickfix.fix44.OrderCancelRequest;
 
-public class LMAXFixOrderMessageHandlerTest {
+public class RTFixOrderMessageHandlerTest {
 
     private LinkedBlockingQueue<Object> eventQueue;
     private LookupService lookupService;
-    private LMAXFixOrderMessageHandler messageHandler;
+    private RTFixOrderMessageFactory messageFactory;
+    private RTFixOrderMessageHandler messageHandler;
     private Session session;
     private SocketInitiator socketInitiator;
 
@@ -84,20 +83,20 @@ public class LMAXFixOrderMessageHandlerTest {
 
 
         SessionSettings settings = FixConfigUtils.loadSettings();
-        SessionID sessionId = FixConfigUtils.getSessionID(settings, "LMAXT");
-
-        DefaultLogonMessageHandler logonHandler = new DefaultLogonMessageHandler(settings);
+        SessionID sessionId = FixConfigUtils.getSessionID(settings, "RTT");
 
         this.lookupService = Mockito.mock(LookupService.class);
-        LMAXFixOrderMessageHandler messageHandlerImpl = new LMAXFixOrderMessageHandler();
+        RTFixOrderMessageHandler messageHandlerImpl = new RTFixOrderMessageHandler();
         messageHandlerImpl.setLookupService(lookupService);
         this.messageHandler = Mockito.spy(messageHandlerImpl);
+        this.messageFactory = new RTFixOrderMessageFactory();
 
-        DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, messageHandler, logonHandler, new DefaultFixSessionLifecycle());
+        DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, messageHandler, null, new DefaultFixSessionLifecycle());
 
         LogFactory logFactory = new ScreenLogFactory(true, true, true);
 
-        DefaultSessionFactory sessionFactory = new DefaultSessionFactory(fixApplication, new MemoryStoreFactory(), logFactory);
+        // RealTick does not support SeqNum reset on logon. Need to use persistent store.
+        DefaultSessionFactory sessionFactory = new DefaultSessionFactory(fixApplication, new FileStoreFactory(settings), logFactory);
 
         SocketInitiator socketInitiator = new SocketInitiator(sessionFactory, settings);
         socketInitiator.start();
@@ -129,6 +128,10 @@ public class LMAXFixOrderMessageHandlerTest {
         if (!this.session.isLoggedOn()) {
             Assert.fail("Session logon failed");
         }
+
+        // Purge the queue
+        while (eventQueue.poll(5, TimeUnit.SECONDS) != null) {
+        }
     }
 
     @After
@@ -152,30 +155,28 @@ public class LMAXFixOrderMessageHandlerTest {
 
         String orderId = Long.toHexString(System.currentTimeMillis());
 
-        NewOrderSingle orderSingle = new NewOrderSingle();
-        orderSingle.set(new ClOrdID(orderId));
-        orderSingle.set(new SecurityID("4001"));
-        orderSingle.set(new SecurityIDSource("8"));
-        orderSingle.set(new Side(Side.BUY));
-        orderSingle.set(new TransactTime(new Date()));
-        orderSingle.set(new OrderQty(10.0d));
-        orderSingle.set(new OrdType(OrdType.MARKET));
+        SecurityFamily securityFamily = new SecurityFamilyImpl();
+        securityFamily.setCurrency(Currency.USD);
 
-        SecurityFamily family = new SecurityFamilyImpl();
-        family.setCurrency(Currency.USD);
-        family.setScale(3);
+        Stock stock = new StockImpl();
+        stock.setSymbol("MSFT");
+        stock.setSecurityFamily(securityFamily);
 
-        Forex forex = new ForexImpl();
-        forex.setSymbol("EUR.USD");
-        forex.setBaseCurrency(Currency.EUR);
-        forex.setSecurityFamily(family);
+        Account testAccount = new AccountImpl();
+        testAccount.setBroker(Broker.RT);
+        testAccount.setExtAccount("20580736-2");
 
         MarketOrder order = new MarketOrderImpl();
-        order.setSecurity(forex);
+        order.setAccount(testAccount);
+        order.setSecurity(stock);
+        order.setQuantity(100);
+        order.setSide(Side.BUY);
+
+        NewOrderSingle message = messageFactory.createNewOrderMessage(order, orderId);
 
         Mockito.when(lookupService.getOpenOrderByRootIntId(orderId)).thenReturn(order);
 
-        session.send(orderSingle);
+        session.send(message);
 
         Object event1 = eventQueue.poll(20, TimeUnit.SECONDS);
         Assert.assertTrue(event1 instanceof OrderStatus);
@@ -193,7 +194,7 @@ public class LMAXFixOrderMessageHandlerTest {
         Assert.assertNotNull(orderStatus2.getExtId());
         Assert.assertEquals(Status.EXECUTED, orderStatus2.getStatus());
         Assert.assertSame(order, orderStatus2.getOrder());
-        Assert.assertEquals(100000, orderStatus2.getFilledQuantity());
+        Assert.assertEquals(100, orderStatus2.getFilledQuantity());
 
         Object event3 = eventQueue.poll(20, TimeUnit.SECONDS);
         Assert.assertTrue(event3 instanceof Fill);
@@ -202,7 +203,7 @@ public class LMAXFixOrderMessageHandlerTest {
         Assert.assertSame(order, fill1.getOrder());
         Assert.assertNotNull(fill1.getExtDateTime());
         Assert.assertEquals(ch.algotrader.enumeration.Side.BUY, fill1.getSide());
-        Assert.assertEquals(100000L, fill1.getQuantity());
+        Assert.assertEquals(100L, fill1.getQuantity());
         Assert.assertNotNull(fill1.getPrice());
 
         Object event4 = eventQueue.poll(5, TimeUnit.SECONDS);
@@ -214,51 +215,59 @@ public class LMAXFixOrderMessageHandlerTest {
 
         String orderId = Long.toHexString(System.currentTimeMillis());
 
-        NewOrderSingle orderSingle = new NewOrderSingle();
-        orderSingle.set(new ClOrdID(orderId));
-        orderSingle.set(new SecurityID("99999"));
-        orderSingle.set(new SecurityIDSource("8"));
-        orderSingle.set(new Side(Side.BUY));
-        orderSingle.set(new TransactTime(new Date()));
-        orderSingle.set(new OrderQty(10.0d));
-        orderSingle.set(new OrdType(OrdType.MARKET));
+        SecurityFamily securityFamily = new SecurityFamilyImpl();
+        securityFamily.setCurrency(Currency.USD);
 
-        session.send(orderSingle);
+        Stock stock = new StockImpl();
+        stock.setSymbol("grass");
+        stock.setSecurityFamily(securityFamily);
+
+        Account testAccount = new AccountImpl();
+        testAccount.setBroker(Broker.RT);
+        testAccount.setExtAccount("20580736-2");
+
+        MarketOrder order = new MarketOrderImpl();
+        order.setAccount(testAccount);
+        order.setSecurity(stock);
+        order.setQuantity(100);
+        order.setSide(Side.BUY);
+
+        NewOrderSingle message = messageFactory.createNewOrderMessage(order, orderId);
+
+        session.send(message);
 
         Object event4 = eventQueue.poll(5, TimeUnit.SECONDS);
         Assert.assertNull(event4);
     }
 
     @Test
-    public void testStopOrderCancel() throws Exception {
+    public void testLimitOrderCancel() throws Exception {
 
         String orderId1 = Long.toHexString(System.currentTimeMillis());
 
-        NewOrderSingle orderSingle = new NewOrderSingle();
-        orderSingle.set(new ClOrdID(orderId1));
-        orderSingle.set(new SecurityID("4001"));
-        orderSingle.set(new SecurityIDSource("8"));
-        orderSingle.set(new Side(Side.SELL));
-        orderSingle.set(new TransactTime(new Date()));
-        orderSingle.set(new OrderQty(10.0d));
-        orderSingle.set(new OrdType(OrdType.STOP));
-        orderSingle.set(new StopPx(0.5d));
+        SecurityFamily securityFamily = new SecurityFamilyImpl();
+        securityFamily.setCurrency(Currency.USD);
 
-        SecurityFamily family = new SecurityFamilyImpl();
-        family.setCurrency(Currency.USD);
-        family.setScale(3);
+        Stock stock = new StockImpl();
+        stock.setSymbol("MSFT");
+        stock.setSecurityFamily(securityFamily);
 
-        Forex forex = new ForexImpl();
-        forex.setSymbol("EUR.USD");
-        forex.setBaseCurrency(Currency.EUR);
-        forex.setSecurityFamily(family);
+        Account testAccount = new AccountImpl();
+        testAccount.setBroker(Broker.RT);
+        testAccount.setExtAccount("20580736-2");
 
-        MarketOrder order = new MarketOrderImpl();
-        order.setSecurity(forex);
+        LimitOrder order = new LimitOrderImpl();
+        order.setAccount(testAccount);
+        order.setSecurity(stock);
+        order.setQuantity(100);
+        order.setSide(Side.BUY);
+        order.setLimit(new BigDecimal("35.0"));
+
+        NewOrderSingle message1 = messageFactory.createNewOrderMessage(order, orderId1);
 
         Mockito.when(lookupService.getOpenOrderByRootIntId(orderId1)).thenReturn(order);
 
-        session.send(orderSingle);
+        session.send(message1);
 
         Object event1 = eventQueue.poll(20, TimeUnit.SECONDS);
         Assert.assertTrue(event1 instanceof OrderStatus);
@@ -271,18 +280,12 @@ public class LMAXFixOrderMessageHandlerTest {
 
         String orderId2 = Long.toHexString(System.currentTimeMillis());
 
-        OrderCancelRequest cancelRequest = new OrderCancelRequest();
-        cancelRequest.set(new OrigClOrdID(orderId1));
-        cancelRequest.set(new ClOrdID(orderId2));
-        cancelRequest.set(new SecurityID("4001"));
-        cancelRequest.set(new SecurityIDSource("8"));
-        cancelRequest.set(new Side(Side.SELL));
-        cancelRequest.set(new TransactTime(new Date()));
-        cancelRequest.set(new OrderQty(10.0d));
+        order.setIntId(orderId1);
+        OrderCancelRequest message2 = messageFactory.createOrderCancelMessage(order, orderId2);
 
         Mockito.when(lookupService.getOpenOrderByRootIntId(orderId2)).thenReturn(order);
 
-        session.send(cancelRequest);
+        session.send(message2);
 
         Object event2 = eventQueue.poll(20, TimeUnit.SECONDS);
 
@@ -293,7 +296,7 @@ public class LMAXFixOrderMessageHandlerTest {
         Assert.assertEquals(Status.CANCELED, orderStatus2.getStatus());
         Assert.assertSame(order, orderStatus2.getOrder());
         Assert.assertEquals(0, orderStatus2.getFilledQuantity());
-        Assert.assertEquals(100000, orderStatus2.getRemainingQuantity());
+        Assert.assertEquals(100, orderStatus2.getRemainingQuantity());
 
         Object event3 = eventQueue.poll(5, TimeUnit.SECONDS);
         Assert.assertNull(event3);

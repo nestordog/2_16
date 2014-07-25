@@ -32,6 +32,12 @@
             <to><![CDATA[<property name="fixSessionLifecycle" ref="lMAXMarketDataSessionLifeCycle"/>]]></to>
         </mapping>
 
+        <!-- add fixSessionLifecycle to CNXFixMarketDataService -->
+        <mapping>
+          <from><![CDATA[<!-- CNXFixMarketDataService service property merge-point -->]]></from>
+          <to><![CDATA[<property name="fixSessionLifecycle" ref="cNXMarketDataSessionLifeCycle"/>]]></to>
+        </mapping>
+
         <!-- add fixSessionLifecycle to FXCMFixMarketDataService -->
         <mapping>
             <from><![CDATA[<!-- FXCMFixMarketDataService service property merge-point -->]]></from>

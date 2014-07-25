@@ -15,7 +15,7 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.service.rt;
+package ch.algotrader.integration.rt;
 
 import java.math.BigDecimal;
 import java.util.Collection;

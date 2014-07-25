@@ -276,7 +276,7 @@
 
     <!-- =================================== Fix  ========================================= -->
 
-    <beans profile="jPMFix,iBFix,dCFix,rTFix,dcMarkteData,lMAXFix,lMAXMarketData, fXCMFix,fXCMMarketData">
+    <beans profile="jPMFix,iBFix,dCFix,rTFix,dcMarkteData,lMAXFix,lMAXMarketData,fXCMFix,fXCMMarketData,cNXFix,cNXMarketData">
 
         <bean id="fixSessionSettings" class="ch.algotrader.adapter.fix.FixSessionSettingsFactoryBean"/>
 
@@ -356,17 +356,13 @@
 
     <beans profile="dCMarketData,dCFix">
 
-        <bean id="dCLogonMessageHandler" class="ch.algotrader.adapter.dc.DCLogonMessageHandler">
-            <property name="settings" ref="fixSessionSettings"/>
+        <bean id="dCLogonMessageHandler" class="ch.algotrader.adapter.fix.DefaultLogonMessageHandler">
+            <constructor-arg index="0" ref="fixSessionSettings"/>
         </bean>
 
     </beans>
 
     <beans profile="dCMarketData">
-
-        <bean id="dCLogonMessageHandler" class="ch.algotrader.adapter.dc.DCLogonMessageHandler">
-            <property name="settings" ref="fixSessionSettings"/>
-        </bean>
 
         <bean id="dCMarketDataSessionLifeCycle" class="ch.algotrader.adapter.fix.MarketDataFixSessionLifecycle">
             <property name="marketDataService" ref="marketDataService"/>
@@ -405,17 +401,13 @@
 
     <beans profile="lMAXMarketData,lMAXFix">
 
-        <bean id="lMAXLogonMessageHandler" class="ch.algotrader.adapter.lmax.LMAXLogonMessageHandler">
-            <property name="settings" ref="fixSessionSettings"/>
+        <bean id="lMAXLogonMessageHandler" class="ch.algotrader.adapter.fix.DefaultLogonMessageHandler">
+            <constructor-arg index="0" ref="fixSessionSettings"/>
         </bean>
 
     </beans>
 
     <beans profile="lMAXMarketData">
-
-        <bean id="lMAXLogonMessageHandler" class="ch.algotrader.adapter.lmax.LMAXLogonMessageHandler">
-            <property name="settings" ref="fixSessionSettings"/>
-        </bean>
 
         <bean id="lMAXMarketDataSessionLifeCycle" class="ch.algotrader.adapter.fix.MarketDataFixSessionLifecycle">
             <property name="marketDataService" ref="marketDataService"/>
@@ -478,7 +470,52 @@
 
     </beans>
 
-    <!-- =========================================== RECONCILIATION ================================================ -->
+  <!-- =================================== Currenex  ========================================= -->
+
+  <beans profile="cNXMarketData,cNXFix">
+
+    <bean id="cNXLogonMessageHandler" class="ch.algotrader.adapter.fix.DefaultLogonMessageHandler">
+      <constructor-arg index="0" ref="fixSessionSettings"/>
+    </bean>
+
+  </beans>
+
+  <beans profile="cNXMarketData">
+
+    <bean id="cNXMarketDataSessionLifeCycle" class="ch.algotrader.adapter.fix.MarketDataFixSessionLifecycle">
+      <property name="marketDataService" ref="marketDataService"/>
+      <property name="feedType" value="CNX"/>
+    </bean>
+
+    <bean id="cNXMarketDataApplicationFactory" class="ch.algotrader.adapter.cnx.CNXFixApplicationFactory">
+      <property name="incomingMessageHandler">
+        <bean class="ch.algotrader.adapter.cnx.CNXFixMarketDataMessageHandler"/>
+      </property>
+      <property name="outgoingMessageHandler" ref="cNXLogonMessageHandler"/>
+      <property name="lifecycleHandler" ref="cNXMarketDataSessionLifeCycle"/>
+      <property name="name" value="CNXMD"/>
+    </bean>
+
+  </beans>
+
+  <beans profile="cNXFix">
+
+    <bean id="cNXOrderSessionLifeCycle" class="ch.algotrader.adapter.fix.DefaultFixSessionLifecycle"/>
+
+    <bean id="cNXOrderApplicationFactory" class="ch.algotrader.adapter.cnx.CNXFixApplicationFactory">
+      <property name="incomingMessageHandler">
+        <bean class="ch.algotrader.adapter.cnx.CNXFixOrderMessageHandler">
+          <property name="lookupService" ref="lookupService"/>
+        </bean>
+      </property>
+      <property name="outgoingMessageHandler" ref="cNXLogonMessageHandler"/>
+      <property name="lifecycleHandler" ref="cNXOrderSessionLifeCycle"/>
+      <property name="name" value="CNXT"/>
+    </bean>
+
+  </beans>
+
+  <!-- =========================================== RECONCILIATION ================================================ -->
 
     <beans profile="reconciliation">
 

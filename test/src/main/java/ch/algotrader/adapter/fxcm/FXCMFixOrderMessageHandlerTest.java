@@ -14,9 +14,9 @@ import org.mockito.Mockito;
 
 import ch.algotrader.adapter.fix.DefaultFixApplication;
 import ch.algotrader.adapter.fix.DefaultFixSessionLifecycle;
+import ch.algotrader.adapter.fix.DefaultLogonMessageHandler;
 import ch.algotrader.adapter.fix.FixConfigUtils;
 import ch.algotrader.adapter.fix.NoopSessionStateListener;
-import ch.algotrader.adapter.lmax.LMAXLogonMessageHandler;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.ForexImpl;
 import ch.algotrader.entity.security.SecurityFamily;
@@ -90,8 +90,7 @@ public class FXCMFixOrderMessageHandlerTest {
         SessionID sessionId = FixConfigUtils.getSessionID(settings, "FXCM");
         this.account = "01727399";
 
-        LMAXLogonMessageHandler logonHandler = new LMAXLogonMessageHandler();
-        logonHandler.setSettings(settings);
+        DefaultLogonMessageHandler logonHandler = new DefaultLogonMessageHandler(settings);
 
         this.lookupService = Mockito.mock(LookupService.class);
         FXCMFixOrderMessageHandler messageHandlerImpl = new FXCMFixOrderMessageHandler();
