@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 
@@ -132,7 +133,12 @@ public class DefaultConfigLoader {
 
             String[] modules = resolveModuleHierarchy(strategyName);
             if (modules == null || modules.length == 0) {
-                modules = new String[] { strategyName };
+
+                modules = resolveModuleHierarchy(strategyName.toLowerCase(Locale.ROOT));
+                if (modules == null || modules.length == 0) {
+
+                    modules = new String[] { strategyName };
+                }
             }
 
             for (String module: modules) {
