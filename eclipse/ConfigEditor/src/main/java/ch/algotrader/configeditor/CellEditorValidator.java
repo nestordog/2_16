@@ -3,13 +3,17 @@
  *
  * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
  *
- * All information contained herein is, and remains the property of AlgoTrader GmbH. The intellectual and technical concepts contained herein are proprietary to
- * AlgoTrader GmbH. Modification, translation, reverse engineering, decompilation, disassembly or reproduction of this material is strictly forbidden unless
- * prior written permission is obtained from AlgoTrader GmbH
+ * All information contained herein is, and remains the property of AlgoTrader GmbH.
+ * The intellectual and technical concepts contained herein are proprietary to
+ * AlgoTrader GmbH. Modification, translation, reverse engineering, decompilation,
+ * disassembly or reproduction of this material is strictly forbidden unless prior
+ * written permission is obtained from AlgoTrader GmbH
  *
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
- * AlgoTrader GmbH Badenerstrasse 16 8004 Zurich
+ * AlgoTrader GmbH
+ * Badenerstrasse 16
+ * 8004 Zurich
  ***********************************************************************************/
 package ch.algotrader.configeditor;
 
@@ -19,12 +23,19 @@ import org.eclipse.jface.viewers.ICellEditorValidator;
 
 import ch.algotrader.configeditor.editingsupport.PropertyDefExtensionPoint;
 
+/**
+ * Validator for cell editor, uses FieldModel to deduce validation rules.
+ *
+ * @author <a href="mailto:ahihlovskiy@algotrader.ch">Andrey Hihlovskiy</a>
+ *
+ * @version $Revision$ $Date$
+ */
 public class CellEditorValidator implements ICellEditorValidator {
 
     private final String key;
-    private final FieldModel model;
+    private final PropertyModel model;
 
-    public CellEditorValidator(String key, FieldModel model) {
+    public CellEditorValidator(String key, PropertyModel model) {
         this.key = key;
         this.model = model;
     }

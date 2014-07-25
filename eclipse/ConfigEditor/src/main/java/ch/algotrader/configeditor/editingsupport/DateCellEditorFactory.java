@@ -21,10 +21,17 @@ import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 
+/**
+ * Factory for DateCellEditor
+ *
+ * @author <a href="mailto:ahihlovskiy@algotrader.ch">Andrey Hihlovskiy</a>
+ *
+ * @version $Revision$ $Date$
+ */
 public class DateCellEditorFactory implements CellEditorFactory {
 
-  @Override
-  public CellEditor createCellEditor(Composite parent) {
-    return new DateCellEditor(parent, SWT.DATE | SWT.DROP_DOWN);
-  }
+    @Override
+    public CellEditor createCellEditor(Composite parent) {
+        return new DateCellEditor(parent, SWT.DATE | SWT.DROP_DOWN);
+    }
 }

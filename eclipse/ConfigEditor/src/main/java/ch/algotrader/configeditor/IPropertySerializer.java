@@ -17,9 +17,16 @@
  ***********************************************************************************/
 package ch.algotrader.configeditor;
 
+/**
+ * Interface to property serialization/deserialization.
+ *
+ * @author <a href="mailto:ahihlovskiy@algotrader.ch">Andrey Hihlovskiy</a>
+ *
+ * @version $Revision$ $Date$
+ */
 public interface IPropertySerializer {
 
-  Object deserialize(String propValue);
+    Object deserialize(String propValue);
 
-  String serialize(Object propObject);
+    String serialize(Object propObject);
 }

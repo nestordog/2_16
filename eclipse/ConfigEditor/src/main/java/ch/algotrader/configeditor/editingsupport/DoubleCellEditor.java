@@ -20,19 +20,26 @@ package ch.algotrader.configeditor.editingsupport;
 import org.eclipse.jface.viewers.TextCellEditor;
 import org.eclipse.swt.widgets.Composite;
 
+/**
+ * Cell editor for double (floating-point) values.
+ *
+ * @author <a href="mailto:ahihlovskiy@algotrader.ch">Andrey Hihlovskiy</a>
+ *
+ * @version $Revision$ $Date$
+ */
 public class DoubleCellEditor extends TextCellEditor {
 
-  DoubleCellEditor(Composite parent) {
-    super(parent);
-  }
+    DoubleCellEditor(Composite parent) {
+        super(parent);
+    }
 
-  @Override
-  protected Object doGetValue() {
-    return Double.valueOf((String) super.doGetValue());
-  }
+    @Override
+    protected Object doGetValue() {
+        return Double.valueOf((String) super.doGetValue());
+    }
 
-  @Override
-  protected void doSetValue(Object value) {
-    super.doSetValue(value.toString());
-  }
+    @Override
+    protected void doSetValue(Object value) {
+        super.doSetValue(value.toString());
+    }
 }

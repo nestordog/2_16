@@ -15,31 +15,42 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.configeditor.editingsupport;
+package ch.algotrader.configeditor;
 
-import org.eclipse.jface.viewers.TextCellEditor;
-import org.eclipse.swt.widgets.Composite;
+import org.eclipse.jface.viewers.IStructuredContentProvider;
+import org.eclipse.jface.viewers.Viewer;
 
 /**
- * Cell editor for integer values.
+ * Content provider for property table.
  *
  * @author <a href="mailto:ahihlovskiy@algotrader.ch">Andrey Hihlovskiy</a>
  *
  * @version $Revision$ $Date$
  */
-public class IntegerCellEditor extends TextCellEditor {
+class PropertyTableContentProvider implements IStructuredContentProvider {
 
-    IntegerCellEditor(Composite parent) {
-        super(parent);
+    private final EditorPropertyPage editorPropertyPage;
+
+    PropertyTableContentProvider(EditorPropertyPage editorPropertyPage) {
+        this.editorPropertyPage = editorPropertyPage;
+    }
+
+    private Object[] elements;
+
+    @Override
+    public void dispose() {
     }
 
     @Override
-    protected Object doGetValue() {
-        return Integer.valueOf((String) super.doGetValue());
+    public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+        if (newInput == null)
+            elements = null;
+        else
+            elements = this.editorPropertyPage.editorData.get(newInput);
     }
 
     @Override
-    protected void doSetValue(Object value) {
-        super.doSetValue(value.toString());
+    public Object[] getElements(Object inputElement) {
+        return elements;
     }
 }

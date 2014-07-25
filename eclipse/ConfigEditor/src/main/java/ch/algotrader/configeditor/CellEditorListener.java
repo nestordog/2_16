@@ -21,31 +21,38 @@ import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.ICellEditorListener;
 import org.eclipse.jface.viewers.TextCellEditor;
 
+/**
+ * Trivial CellEditorListener, shows validation errors on property page.
+ *
+ * @author <a href="mailto:ahihlovskiy@algotrader.ch">Andrey Hihlovskiy</a>
+ *
+ * @version $Revision$ $Date$
+ */
 class CellEditorListener implements ICellEditorListener {
 
-  private final EditorPropertyPage propertyPage;
-  private final CellEditor cellEditor;
+    private final EditorPropertyPage propertyPage;
+    private final CellEditor cellEditor;
 
-  CellEditorListener(EditorPropertyPage propertyPage, CellEditor cellEditor) {
-    this.propertyPage = propertyPage;
-    this.cellEditor = cellEditor;
-  }
+    CellEditorListener(EditorPropertyPage propertyPage, CellEditor cellEditor) {
+        this.propertyPage = propertyPage;
+        this.cellEditor = cellEditor;
+    }
 
-  @Override
-  public void applyEditorValue() {
-    propertyPage.setErrorMessage(null);
-  }
+    @Override
+    public void applyEditorValue() {
+        propertyPage.setErrorMessage(null);
+    }
 
-  @Override
-  public void cancelEditor() {
-    propertyPage.setErrorMessage(null);
-  }
+    @Override
+    public void cancelEditor() {
+        propertyPage.setErrorMessage(null);
+    }
 
-  @Override
-  public void editorValueChanged(boolean oldValidState, boolean newValidState) {
-    if (newValidState)
-      propertyPage.setErrorMessage(null);
-    else if (cellEditor instanceof TextCellEditor)
-      propertyPage.setErrorMessage(((TextCellEditor) cellEditor).getErrorMessage());
-  }
+    @Override
+    public void editorValueChanged(boolean oldValidState, boolean newValidState) {
+        if (newValidState)
+            propertyPage.setErrorMessage(null);
+        else if (cellEditor instanceof TextCellEditor)
+            propertyPage.setErrorMessage(((TextCellEditor) cellEditor).getErrorMessage());
+    }
 }
