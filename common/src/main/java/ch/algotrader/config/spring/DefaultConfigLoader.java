@@ -116,7 +116,7 @@ public class DefaultConfigLoader {
         loadResource(paramMap, this.resourceResolver.getResource("classpath:META-INF/conf-core.properties"));
 
         // Load component parameters
-        Resource[] resources = this.resourceResolver.getResources("classpath:META-INF/conf-*.properties");
+        Resource[] resources = this.resourceResolver.getResources("classpath*:META-INF/conf-*.properties");
         for (Resource resource: resources) {
 
             loadResource(paramMap, resource);
