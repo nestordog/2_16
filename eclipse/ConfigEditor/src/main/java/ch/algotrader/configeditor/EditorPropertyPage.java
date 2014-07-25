@@ -271,7 +271,22 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
         return propMap.get(getSelectedFile());
     }
 
-    public void save() throws IOException {
+    public boolean save() throws IOException {
+
+        for (File file : editorData.keySet()) {
+            Object[] elements = editorData.get(file);
+            for (int i = 0; i < elements.length; i++) {
+                Object[] row = (Object[]) elements[i];
+                FieldModel model = getFieldModel(file, (String) row[0]);
+                CellEditorValidator validator = new CellEditorValidator(this, model.getPropertyId(), (String) row[0]);
+                if (validator.isValid(model.getLabel()) != null) {
+                    MessageDialog.openWarning(getShell(), "Icorrect data",
+                            "Error in property " + (String) row[0] + " which is a " + model.getPropertyId() + " because:" + validator.isValid(model.getLabel()));
+                    return false;
+                }
+            }
+        }
+
         for (File file : editorData.keySet()) {
             Object[] elements = editorData.get(file);
             StructuredProperties structuredProps = propMap.get(file);
@@ -281,6 +296,7 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
             }
             structuredProps.save(file);
         }
+        return true;
     }
 
     public LinkedHashMap<String, Object> getHashMap() {
@@ -320,16 +336,6 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
     }
 
     @Override
-    protected void performApply() {
-        try {
-            save();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        super.performApply();
-    }
-
-    @Override
     protected void performDefaults() {
         super.performDefaults();
     }
@@ -337,10 +343,9 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
     @Override
     public boolean performOk() {
         try {
-            save();
+            return save();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return super.performOk();
     }
 }

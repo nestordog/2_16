@@ -22,20 +22,25 @@ import ch.algotrader.configeditor.IPropertySerializer;
 
 public class DateTimeSerializer implements IPropertySerializer {
 
-    private final DateFormat format;
+    private final DateFormat USFormat;
+    private final DateFormat EUFormat;
 
     DateTimeSerializer() {
-        this.format = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss");
+        USFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        EUFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
     }
 
-    DateTimeSerializer(String format) {
-        this.format = new SimpleDateFormat(format);
+    DateTimeSerializer(String USFormat, String EUFormat) {
+        this.USFormat = new SimpleDateFormat(USFormat);
+        this.EUFormat = new SimpleDateFormat(EUFormat);
     }
 
     @Override
     public Object deserialize(String propValue) {
         try {
-            return (Date) format.parse(propValue);
+            if (propValue.split("-").length > 1)
+                return (Date) USFormat.parse(propValue);
+            return (Date) EUFormat.parse(propValue);
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }
@@ -43,6 +48,6 @@ public class DateTimeSerializer implements IPropertySerializer {
 
     @Override
     public String serialize(Object propObject) {
-        return format.format((Date) propObject);
+        return USFormat.format((Date) propObject);
     }
 }

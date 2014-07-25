@@ -16,6 +16,6 @@ package ch.algotrader.configeditor.editingsupport;
 public class DateSerializer extends DateTimeSerializer {
 
     DateSerializer() {
-        super("yyyy.MM.dd");
+        super("yyyy-MM-dd", "dd.MM.yyyy");
     }
 }
