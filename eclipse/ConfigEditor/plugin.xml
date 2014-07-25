@@ -81,5 +81,14 @@
             regexErrorMessage="&apos;&apos;{0}&apos;&apos; is not a valid float number">
       </PropertyDef>
    </extension>
-
+   <extension
+         point="ch.algotrader.ConfigEditor.PropertyDef">
+         <PropertyDef
+              id="Email"
+            dataType="java.lang.String"
+            regex="^.+@.+\.[a-z]{2,4}$"
+            regexErrorMessage="The input is not a valid e-mail"
+            cellEditorFactory="ch.algotrader.configeditor.editingsupport.TextCellEditorFactory">
+      </PropertyDef>
+   </extension>
 </plugin>
