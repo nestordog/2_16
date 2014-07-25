@@ -21,6 +21,7 @@
       </page>
    </extension>
    <extension
+         id="String"
          point="ch.algotrader.ConfigEditor.PropertyDef">
       <PropertyDef
             id="String"

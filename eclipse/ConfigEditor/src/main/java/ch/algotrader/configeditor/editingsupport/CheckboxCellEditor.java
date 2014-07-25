@@ -14,14 +14,40 @@
 package ch.algotrader.configeditor.editingsupport;
 
 import org.eclipse.jface.viewers.CellEditor;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 
-public class CheckboxCellEditorFactory implements CellEditorFactory {
+public class CheckboxCellEditor extends CellEditor {
 
-    @Override
-    public CellEditor createCellEditor(Composite parent) {
-        System.out.println("checkboxcelleditor Factory created");
-        return new CheckboxCellEditor(parent);
+    private Button checkbox;
+
+    CheckboxCellEditor(Composite parent) {
+        super(parent);
     }
 
+    @Override
+    protected Control createControl(Composite parent) {
+        Composite composite = new Composite(parent, SWT.NONE);
+        composite.setLayout(new FillLayout());
+        checkbox = new Button(composite, SWT.CHECK);
+        return composite;
+    }
+
+    @Override
+    protected Object doGetValue() {
+        return checkbox.getSelection();
+    }
+
+    @Override
+    protected void doSetFocus() {
+        checkbox.setFocus();
+    }
+
+    @Override
+    protected void doSetValue(Object value) {
+        checkbox.setSelection(Boolean.parseBoolean(value.toString()));
+    }
 }

@@ -41,11 +41,14 @@ class TableEditingSupport extends EditingSupport {
         String key = (String) row[0];
         FieldModel model = propertyPage.getFieldModel(propertyPage.getSelectedFile(), key);
         CellEditor editor;
+        System.out.println("Creating celleditorfactory for a " + model.getPropertyId());
         CellEditorFactory factory = PropertyDefExtensionPoint.createCellEditorFactory(model.getPropertyId());
         if (factory == null)
             editor = new TextCellEditor(getViewer().getTable());
-        else
+        else {
+            System.out.println("Creating celleditor for a " + model.getPropertyId());
             editor = factory.createCellEditor(getViewer().getTable());
+        }
         editor.setValidator(new CellEditorValidator(propertyPage, model.getPropertyId(), key));
         editor.addListener(new CellEditorListener(propertyPage, editor));
         return editor;
