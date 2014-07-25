@@ -17,8 +17,14 @@
  ***********************************************************************************/
 package ch.algotrader.service.cnx;
 
+import ch.algotrader.adapter.cnx.CNXFixMarketDataRequestFactory;
+import ch.algotrader.adapter.cnx.CNXUtil;
+import ch.algotrader.adapter.fix.FixApplicationException;
+import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.FeedType;
+import quickfix.field.SubscriptionRequestType;
+import quickfix.fix44.MarketDataRequest;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -29,34 +35,49 @@ public class CNXFixMarketDataServiceImpl extends CNXFixMarketDataServiceBase {
 
     private static final long serialVersionUID = 2946126163433296876L;
 
+    private final CNXFixMarketDataRequestFactory requestFactory;
+
+    public CNXFixMarketDataServiceImpl() {
+        this.requestFactory = new CNXFixMarketDataRequestFactory();
+    }
+
     @Override
     protected void handleSendSubscribeRequest(Security security) throws Exception {
-        // TODO Auto-generated method stub
 
-    }
+        MarketDataRequest request = this.requestFactory.create(security, new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES));
 
-    @Override
-    protected void handleSendUnsubscribeRequest(Security security) throws Exception {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    protected String handleGetSessionQualifier() throws Exception {
-        // TODO Auto-generated method stub
-        return null;
+        getFixAdapter().sendMessage(request, getSessionQualifier());
     }
 
     @Override
     protected String handleGetTickerId(Security security) throws Exception {
-        // TODO Auto-generated method stub
-        return null;
+
+        if (!(security instanceof Forex)) {
+
+            throw new FixApplicationException("Currenex supports forex orders only");
+        }
+        Forex forex = (Forex) security;
+        return CNXUtil.getCNXSymbol(forex);
+    }
+
+    @Override
+    protected void handleSendUnsubscribeRequest(Security security) throws Exception {
+
+        MarketDataRequest request = this.requestFactory.create(security, new SubscriptionRequestType(SubscriptionRequestType.DISABLE_PREVIOUS_SNAPSHOT_PLUS_UPDATE_REQUEST));
+
+        getFixAdapter().sendMessage(request, getSessionQualifier());
+    }
+
+    @Override
+    protected String handleGetSessionQualifier() throws Exception {
+
+        return "CNXMD";
     }
 
     @Override
     protected FeedType handleGetFeedType() throws Exception {
-        // TODO Auto-generated method stub
-        return null;
+
+        return FeedType.CNX;
     }
 
 }
