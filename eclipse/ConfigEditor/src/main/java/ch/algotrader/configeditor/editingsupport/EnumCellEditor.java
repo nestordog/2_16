@@ -17,7 +17,10 @@ import org.eclipse.jface.viewers.ComboBoxViewerCellEditor;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 
 public class EnumCellEditor extends ComboBoxViewerCellEditor {
 
@@ -42,5 +45,17 @@ public class EnumCellEditor extends ComboBoxViewerCellEditor {
             }
         });
         this.setInput(Class.forName(enumClassName));
+    }
+
+    @Override
+    protected Control createControl(Composite parent) {
+        Composite composite = new Composite(parent, SWT.NONE);
+        composite.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WHITE));
+        FillLayout l = new FillLayout();
+        l.marginHeight = l.marginWidth = 2;
+        composite.setLayout(l);
+        Control control = super.createControl(composite);
+        control.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WHITE));
+        return composite;
     }
 }

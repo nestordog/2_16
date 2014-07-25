@@ -23,6 +23,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.DateTime;
+import org.eclipse.swt.widgets.Display;
 
 public class DateTimeCellEditor extends CellEditor {
 
@@ -36,6 +37,7 @@ public class DateTimeCellEditor extends CellEditor {
     @Override
     protected Control createControl(Composite parent) {
         Composite composite = new Composite(parent, SWT.NONE);
+        composite.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WHITE));
         GridLayout layout = new GridLayout(2, true);
         layout.horizontalSpacing = layout.verticalSpacing = layout.marginWidth = layout.marginHeight = 0;
         composite.setLayout(layout);

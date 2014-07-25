@@ -19,6 +19,7 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 
 public class CheckboxCellEditor extends CellEditor {
 
@@ -31,8 +32,13 @@ public class CheckboxCellEditor extends CellEditor {
     @Override
     protected Control createControl(Composite parent) {
         Composite composite = new Composite(parent, SWT.NONE);
-        composite.setLayout(new FillLayout());
+        composite.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WHITE));
+        FillLayout l = new FillLayout();
+        l.marginHeight = 2;
+        l.marginWidth = 5;
+        composite.setLayout(l);
         checkbox = new Button(composite, SWT.CHECK);
+        checkbox.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WHITE));
         return composite;
     }
 
