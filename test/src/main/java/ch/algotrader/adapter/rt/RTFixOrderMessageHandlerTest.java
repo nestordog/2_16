@@ -16,8 +16,6 @@ import ch.algotrader.adapter.fix.DefaultFixApplication;
 import ch.algotrader.adapter.fix.DefaultFixSessionLifecycle;
 import ch.algotrader.adapter.fix.FixConfigUtils;
 import ch.algotrader.adapter.fix.NoopSessionStateListener;
-import ch.algotrader.adapter.rt.RTFixOrderMessageFactory;
-import ch.algotrader.adapter.rt.RTFixOrderMessageHandler;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.AccountImpl;
 import ch.algotrader.entity.security.SecurityFamily;
