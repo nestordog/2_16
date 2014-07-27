@@ -71,7 +71,6 @@ public class FXCMFixMarketDataMessageHandler extends AbstractFix44MarketDataMess
 
                 double price = group.getDouble(MDEntryPx.FIELD);
                 double size = group.getDouble(MDEntrySize.FIELD);
-                Date time = group.getUtcTimeOnly(MDEntryTime.FIELD);
 
                 switch (entryType) {
                     case MDEntryType.BID:
