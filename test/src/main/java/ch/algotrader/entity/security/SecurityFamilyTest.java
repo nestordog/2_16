@@ -39,9 +39,9 @@ public class SecurityFamilyTest extends EntityTest {
     }
 
     @Test
-    public void testFindByBaseSymbol() {
+    public void testFindBySymbolRoot() {
 
-        this.securityFamilyDao.findByBaseSymbol(null);
+        this.securityFamilyDao.findBySymbolRoot(null);
     }
 
     @Test
