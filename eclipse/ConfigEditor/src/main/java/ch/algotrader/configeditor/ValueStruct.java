@@ -22,22 +22,30 @@ import java.util.List;
 
 import ch.algotrader.configeditor.editingsupport.PropertyDefExtensionPoint;
 
+/**
+ * Represents structured value (value + comments).
+ *
+ * @author <a href="mailto:ahihlovskiy@algotrader.ch">Andrey Hihlovskiy</a>
+ *
+ * @version $Revision$ $Date$
+ */
 public class ValueStruct {
-  public Object value;
-  public List<String> comments;
-  public String inlineComment;
 
-  public ValueStruct() {
-    comments = new ArrayList<String>();
-  }
+    public Object value;
+    public List<String> comments;
+    public String inlineComment;
 
-  public ValueStruct(Object pValue) {
-    comments = new ArrayList<String>();
-    value = pValue;
-  }
+    public ValueStruct() {
+        comments = new ArrayList<String>();
+    }
 
-  public String getSaveReadyValue() {
-    String propertyId = new FieldModel(this).getPropertyId();
-    return PropertyDefExtensionPoint.serialize(propertyId, value);
-  }
+    public ValueStruct(Object pValue) {
+        comments = new ArrayList<String>();
+        value = pValue;
+    }
+
+    public String getSaveReadyValue() {
+        String propertyId = new PropertyModel(this).getPropertyId();
+        return PropertyDefExtensionPoint.serialize(propertyId, value);
+    }
 }

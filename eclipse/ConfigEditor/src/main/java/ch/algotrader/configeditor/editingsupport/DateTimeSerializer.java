@@ -20,6 +20,13 @@ import java.util.Date;
 
 import ch.algotrader.configeditor.IPropertySerializer;
 
+/**
+ * Serializer for date and time values.
+ *
+ * @author <a href="mailto:ahihlovskiy@algotrader.ch">Andrey Hihlovskiy</a>
+ *
+ * @version $Revision$ $Date$
+ */
 public class DateTimeSerializer implements IPropertySerializer {
 
     private final DateFormat USFormat;
@@ -37,8 +44,6 @@ public class DateTimeSerializer implements IPropertySerializer {
 
     @Override
     public Object deserialize(String propValue) {
-        if (propValue == null || propValue.equals(""))
-            return null;
         try {
             if (propValue.split("-").length > 1)
                 return (Date) USFormat.parse(propValue);

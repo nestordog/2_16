@@ -24,6 +24,13 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 
+/**
+ * Cell editor for date and time values.
+ *
+ * @author <a href="mailto:ahihlovskiy@algotrader.ch">Andrey Hihlovskiy</a>
+ *
+ * @version $Revision$ $Date$
+ */
 public class DateTimeCellEditor extends CellEditor {
 
     private CDateTime widget;

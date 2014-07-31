@@ -23,32 +23,36 @@ import org.eclipse.jface.viewers.ICellEditorValidator;
 
 import ch.algotrader.configeditor.editingsupport.PropertyDefExtensionPoint;
 
+/**
+ * Validator for cell editor, uses FieldModel to deduce validation rules.
+ *
+ * @author <a href="mailto:ahihlovskiy@algotrader.ch">Andrey Hihlovskiy</a>
+ *
+ * @version $Revision$ $Date$
+ */
 public class CellEditorValidator implements ICellEditorValidator {
 
-  private final EditorPropertyPage propertyPage;
-  private final String dataType;
-  private final String key;
+    private final String key;
+    private final PropertyModel model;
 
-  public CellEditorValidator(EditorPropertyPage propertyPage, String dataType, String pKey) {
-    this.propertyPage = propertyPage;
-    this.dataType = dataType;
-    key = pKey;
-  }
-
-  @Override
-  public String isValid(Object value) {
-    FieldModel model = propertyPage.getFieldModel(propertyPage.getSelectedFile(), key);
-    if (model.getRequired() && (value == null || value.toString().equals(""))) {
-      String label = model.getLabel();
-      if (label == null)
-        label = key;
-      return "The property \"" + label + "\" is required";
+    public CellEditorValidator(String key, PropertyModel model) {
+        this.key = key;
+        this.model = model;
     }
-    String regex = PropertyDefExtensionPoint.getRegex(dataType);
-    if (regex == null)
-      return null;
-    if (Pattern.matches(regex, value.toString()))
-      return null;
-    return PropertyDefExtensionPoint.getRegexErrorMessage(dataType, value.toString());
-  }
+
+    @Override
+    public String isValid(Object value) {
+        if (model.getRequired() && (value == null || value.toString().equals(""))) {
+            String label = model.getLabel();
+            if (label == null)
+                label = key;
+            return "The property \"" + label + "\" is required";
+        }
+        String regex = PropertyDefExtensionPoint.getRegex(model.getPropertyId());
+        if (regex == null)
+            return null;
+        if (Pattern.matches(regex, value.toString()))
+            return null;
+        return PropertyDefExtensionPoint.getRegexErrorMessage(model.getPropertyId(), value.toString());
+    }
 }

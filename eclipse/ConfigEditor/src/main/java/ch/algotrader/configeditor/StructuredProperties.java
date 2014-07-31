@@ -28,115 +28,122 @@ import java.util.Map;
 
 import ch.algotrader.configeditor.editingsupport.PropertyDefExtensionPoint;
 
+/**
+ * Represents mapping from property names to structured values (values + comments).
+ *
+ * @author <a href="mailto:ahihlovskiy@algotrader.ch">Andrey Hihlovskiy</a>
+ *
+ * @version $Revision$ $Date$
+ */
 public class StructuredProperties {
 
-  private Map<String, ValueStruct> properties;
+    private Map<String, ValueStruct> properties;
 
-  public StructuredProperties() {
-    properties = new LinkedHashMap<String, ValueStruct>();
-  }
+    public StructuredProperties() {
+        properties = new LinkedHashMap<String, ValueStruct>();
+    }
 
-  public void load(File f) throws Exception {
-    ValueStruct n = new ValueStruct();
-    BufferedReader reader = new BufferedReader(new FileReader(f));
-    try {
-      String line;
+    public void load(File f) throws Exception {
+        ValueStruct n = new ValueStruct();
+        BufferedReader reader = new BufferedReader(new FileReader(f));
+        try {
+            String line;
 
-      while ((line = reader.readLine()) != null) {
-        if (line.isEmpty())
-          continue;
-        if (line.charAt(0) == '#') {
-          n.comments.add(line.substring(1));
-        } else {
-          parseKeyValueLine(n, line);
-          n = new ValueStruct();
+            while ((line = reader.readLine()) != null) {
+                if (line.isEmpty())
+                    continue;
+                if (line.charAt(0) == '#') {
+                    n.comments.add(line.substring(1));
+                } else {
+                    parseKeyValueLine(n, line);
+                    n = new ValueStruct();
+                }
+            }
+        } finally {
+            reader.close();
         }
-      }
-    } finally {
-      reader.close();
     }
-  }
 
-  private void parseKeyValueLine(ValueStruct n, String line) throws Exception {
-    boolean escape = false;
-    boolean isKey = true;
-    StringBuilder key = new StringBuilder();
-    StringBuilder value = new StringBuilder();
-    String inlineComment = null;
-    for (int i = 0; i < line.length(); i++) {
+    private void parseKeyValueLine(ValueStruct n, String line) throws Exception {
+        boolean escape = false;
+        boolean isKey = true;
+        StringBuilder key = new StringBuilder();
+        StringBuilder value = new StringBuilder();
+        String inlineComment = null;
+        for (int i = 0; i < line.length(); i++) {
 
-      if (escape) {
-        escape = false;
-        if (isKey)
-          key.append(line.charAt(i));
-        else
-          value.append(line.charAt(i));
-      } else if (line.charAt(i) == '\\') {
-        escape = true;
-      } else if (line.charAt(i) == '=') {
-        isKey = false;
-      } else if (line.charAt(i) == '#') {
-        inlineComment = line.substring(i + 1);
-        break;
-      } else {
-        if (isKey)
-          key.append(line.charAt(i));
-        else
-          value.append(line.charAt(i));
-      }
-    }
-    String stringValue = value.toString().trim();
-    String propertyId = new FieldModel(n).getPropertyId();
-    n.value = PropertyDefExtensionPoint.deserialize(propertyId, stringValue);
-    if (inlineComment != null)
-      n.inlineComment = inlineComment.trim();
-    properties.put(key.toString().trim(), n);
-  }
-
-  public void save(File f) throws IOException {
-    PrintWriter out = new PrintWriter(f);
-    try {
-      for (String key : properties.keySet()) {
-        for (int i = 0; i < properties.get(key).comments.size(); i++) {
-          out.println("#" + properties.get(key).comments.get(i));
+            if (escape) {
+                escape = false;
+                if (isKey)
+                    key.append(line.charAt(i));
+                else
+                    value.append(line.charAt(i));
+            } else if (line.charAt(i) == '\\') {
+                escape = true;
+            } else if (line.charAt(i) == '=') {
+                isKey = false;
+            } else if (line.charAt(i) == '#') {
+                inlineComment = line.substring(i + 1);
+                break;
+            } else {
+                if (isKey)
+                    key.append(line.charAt(i));
+                else
+                    value.append(line.charAt(i));
+            }
         }
-        out.print(key + "=" + properties.get(key).getSaveReadyValue());
-        if (properties.get(key).inlineComment != null)
-          out.print(" #" + properties.get(key).inlineComment);
-        out.println();
-      }
-    } finally {
-      out.close();
+        String stringValue = value.toString().trim();
+        String propertyId = new PropertyModel(n).getPropertyId();
+        n.value = PropertyDefExtensionPoint.deserialize(propertyId, stringValue);
+        if (inlineComment != null)
+            n.inlineComment = inlineComment.trim();
+        properties.put(key.toString().trim(), n);
     }
-  }
 
-  public Iterable<String> getKeys() {
-    return properties.keySet();
-  }
+    public void save(File f) throws IOException {
+        PrintWriter out = new PrintWriter(f);
+        try {
+            for (String key : properties.keySet()) {
+                for (int i = 0; i < properties.get(key).comments.size(); i++) {
+                    out.println("#" + properties.get(key).comments.get(i));
+                }
+                out.print(key + "=" + properties.get(key).getSaveReadyValue());
+                if (properties.get(key).inlineComment != null)
+                    out.print(" #" + properties.get(key).inlineComment);
+                out.println();
+            }
+        } finally {
+            out.close();
+        }
+    }
 
-  public Object getValue(String key) {
-    ValueStruct temp = properties.get(key);
-    if (temp != null)
-      return temp.value;
-    return null;
-  }
+    public Iterable<String> getKeys() {
+        return properties.keySet();
+    }
 
-  public ValueStruct getValueStruct(String key) {
-    return properties.get(key);
-  }
+    public Object getValue(String key) {
+        ValueStruct temp = properties.get(key);
+        if (temp != null)
+            return temp.value;
+        return null;
+    }
 
-  public void setValue(String key, Object value) {
-    ValueStruct temp = properties.get(key);
-    if (temp != null)
-      properties.get(key).value = value;
-    else
-      properties.put(key, new ValueStruct(value));
-  }
+    public ValueStruct getValueStruct(String key) {
+        return properties.get(key);
+    }
 
-  public Iterable<String> getComments(String key) {
-    ValueStruct temp = properties.get(key);
-    if (temp != null && temp.comments != null)
-      return properties.get(key).comments;
-    return Collections.emptyList();
-  }
+    public void setValue(String key, Object value) {
+        ValueStruct temp = properties.get(key);
+        if (temp != null)
+            properties.get(key).value = value;
+        else
+            properties.put(key, new ValueStruct(value));
+    }
+
+    public Iterable<String> getComments(String key) {
+        ValueStruct temp = properties.get(key);
+        if (temp != null && temp.comments != null)
+            return properties.get(key).comments;
+        return Collections.emptyList();
+    }
 }

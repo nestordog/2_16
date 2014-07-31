@@ -3,41 +3,37 @@
  *
  * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
  *
- * All information contained herein is, and remains the property of AlgoTrader GmbH. The intellectual and technical concepts contained herein are proprietary to
- * AlgoTrader GmbH. Modification, translation, reverse engineering, decompilation, disassembly or reproduction of this material is strictly forbidden unless
- * prior written permission is obtained from AlgoTrader GmbH
+ * All information contained herein is, and remains the property of AlgoTrader GmbH.
+ * The intellectual and technical concepts contained herein are proprietary to
+ * AlgoTrader GmbH. Modification, translation, reverse engineering, decompilation,
+ * disassembly or reproduction of this material is strictly forbidden unless prior
+ * written permission is obtained from AlgoTrader GmbH
  *
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
- * AlgoTrader GmbH Badenerstrasse 16 8004 Zurich
+ * AlgoTrader GmbH
+ * Badenerstrasse 16
+ * 8004 Zurich
  ***********************************************************************************/
 package ch.algotrader.configeditor;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectNature;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
-import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.ListViewer;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
-import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.layout.GridData;
@@ -53,118 +49,19 @@ import org.eclipse.ui.dialogs.PropertyPage;
 
 import ch.algotrader.configeditor.editingsupport.PropertyDefExtensionPoint;
 
+/**
+ * Configuration editor, implemented as PropertyPage.
+ *
+ * @author <a href="mailto:ahihlovskiy@algotrader.ch">Andrey Hihlovskiy</a>
+ *
+ * @version $Revision$ $Date$
+ */
 public class EditorPropertyPage extends PropertyPage implements IWorkbenchPropertyPage {
 
-    private class ListContentProvider implements IStructuredContentProvider {
-        private List<File> files;
-
-        @Override
-        public void dispose() {
-        }
-
-        @Override
-        public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-            if (newInput == null)
-                files = null;
-            else
-                try {
-                    files = getFiles((IProject) newInput);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-        }
-
-        @Override
-        public Object[] getElements(Object inputElement) {
-            if (files != null)
-                return files.toArray();
-            else
-                return new Object[0];
-        }
-
-        private List<File> getFiles(IProject project) throws IOException {
-            File file = project.getFile("src/main/resources/META-INF/" + project.getName() + ".hierarchy").getLocation().toFile();
-            if (!file.exists()) {
-                MessageDialog.openError(getShell(), "hierarchy file missing", "Config Editor was not able to locate src\\main\\resources\\META-INF\\" + project.getName() + ".hierarchy");
-                return null;
-            }
-            String[] fileNames = null;
-            BufferedReader br = new BufferedReader(new FileReader(file));
-            try {
-                fileNames = br.readLine().split(":");
-            } catch (Exception e) {
-                e.printStackTrace();
-                MessageDialog.openWarning(getShell(), "hierarchy file is empty", "this projects hierarchy file is epmty");
-                return Collections.emptyList();
-            } finally {
-                br.close();
-            }
-            List<File> files = new ArrayList<File>();
-            for (String fname : fileNames) {
-                File f = project.getFile("src/main/resources/META-INF/" + fname + ".properties").getLocation().toFile();
-                if (f.exists())
-                    files.add(f);
-                else {
-                    MessageDialog.openError(getShell(), "hierarchy file broken", "Config Editor has encountered problems, while reading src\\main\\resources\\META-INF\\" + project.getName()
-                            + ".hierarchy");
-                    return Collections.emptyList();
-                }
-                StructuredProperties structProps = new StructuredProperties();
-                propMap.put(f, structProps);
-                try {
-                    structProps.load(f);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    MessageDialog.openError(getShell(), "error while reading property file", "Error in:\n" + f.getPath() + "\n Caused by: \n" + e.getMessage());
-                    return Collections.emptyList();
-                }
-
-                List<Object[]> elementsList = new ArrayList<Object[]>();
-                for (String key : structProps.getKeys())
-                    elementsList.add(new Object[] { key, structProps.getValue(key) });
-                editorData.put(f, elementsList.toArray());
-            }
-
-            if (files.isEmpty()) {
-                MessageDialog.openWarning(getShell(), "hierarchy file is empty", "this projects hierarchy file is epmty");
-                return Collections.emptyList();
-            }
-
-            return files;
-        }
-    }
-
-    private class TableContentProvider implements IStructuredContentProvider {
-        private Object[] elements;
-
-        @Override
-        public void dispose() {
-        }
-
-        @Override
-        public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-            if (newInput == null)
-                elements = null;
-            else
-                elements = editorData.get(newInput);
-        }
-
-        @Override
-        public Object[] getElements(Object inputElement) {
-            return elements;
-        }
-
-        @SuppressWarnings("unused")
-        public Properties getData() {
-            return null;
-
-        }
-    }
-
-    TableViewer tableViewer;
-    private ListViewer listViewer;
-    private Map<File, Object[]> editorData = new HashMap<File, Object[]>();
-    Map<File, StructuredProperties> propMap = new HashMap<File, StructuredProperties>();
+    protected ListViewer fileListViewer;
+    protected TableViewer propertyTableViewer;
+    protected Map<File, Object[]> editorData = new HashMap<File, Object[]>();
+    protected Map<File, StructuredProperties> propMap = new HashMap<File, StructuredProperties>();
 
     public EditorPropertyPage() {
     }
@@ -179,25 +76,23 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
         GridLayout layout = new GridLayout(1, true);
         listComposite.setLayout(layout);
 
-        listViewer = new ListViewer(listComposite, SWT.BORDER);
-        listViewer.getControl().setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, true));
+        fileListViewer = new ListViewer(listComposite, SWT.BORDER);
+        fileListViewer.getControl().setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, true));
 
-        listViewer.setContentProvider(new ListContentProvider());
-        listViewer.setLabelProvider(new LabelProvider() {
+        fileListViewer.setContentProvider(new FileListContentProvider(this));
+        fileListViewer.setLabelProvider(new LabelProvider() {
             @Override
             public String getText(Object element) {
                 return ((File) element).getName().split("\\.")[0];
             }
         });
 
-        listViewer.setInput(getProject());
+        fileListViewer.setInput(getProject());
 
-        listViewer.addSelectionChangedListener(new ISelectionChangedListener() {
-
+        fileListViewer.addSelectionChangedListener(new ISelectionChangedListener() {
             @Override
             public void selectionChanged(SelectionChangedEvent event) {
-                tableViewer.setInput(getSelectedFile());
-
+                propertyTableViewer.setInput(getSelectedFile());
             }
         });
 
@@ -208,23 +103,21 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
         listLabel.setText("Files are ordered by priority.\nProperties defined in the\nupper file override the\n properties in the lower files");
         listLabel.setBounds(0, 0, 200, 0);
 
-        tableViewer = new TableViewer(sashForm, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER);
+        propertyTableViewer = new TableViewer(sashForm, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER);
 
         sashForm.setWeights(new int[] { 2, 5 });
 
-        Table table = tableViewer.getTable();
+        Table table = propertyTableViewer.getTable();
         table.setHeaderVisible(true);
         table.setLinesVisible(true);
         table.addListener(SWT.MeasureItem, new Listener() {
             public void handleEvent(Event event) {
+                // tweak table row height
                 event.height = 24;
             }
         });
-        //TODO 3rd column
-        //TableColumn lastColumn = table.getColumn(table.getColumnCount() - 1);
-        //lastColumn.dispose();
 
-        TableViewerColumn colKey = new TableViewerColumn(tableViewer, SWT.NONE);
+        TableViewerColumn colKey = new TableViewerColumn(propertyTableViewer, SWT.NONE);
         colKey.getColumn().setWidth(200);
         colKey.getColumn().setText("Key");
         colKey.setLabelProvider(new ColumnLabelProvider() {
@@ -239,7 +132,7 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
             }
         });
 
-        TableViewerColumn colValue = new TableViewerColumn(tableViewer, SWT.NONE);
+        TableViewerColumn colValue = new TableViewerColumn(propertyTableViewer, SWT.NONE);
         colValue.getColumn().setWidth(200);
         colValue.getColumn().setText("Value");
         colValue.setLabelProvider(new ColumnLabelProvider() {
@@ -253,18 +146,18 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
                 return PropertyDefExtensionPoint.serialize(propertyId, value);
             }
         });
-        colValue.setEditingSupport(new TableEditingSupport(this));
+        colValue.setEditingSupport(new PropertyTableEditingSupport(this));
 
-        tableViewer.setContentProvider(new TableContentProvider());
+        propertyTableViewer.setContentProvider(new PropertyTableContentProvider(this));
         return sashForm;
     }
 
-    FieldModel getFieldModel(File file, String key) {
-        return new FieldModel(propMap.get(file).getValueStruct(key));
+    PropertyModel getFieldModel(File file, String key) {
+        return new PropertyModel(propMap.get(file).getValueStruct(key));
     }
 
     File getSelectedFile() {
-        return (File) ((StructuredSelection) listViewer.getSelection()).getFirstElement();
+        return (File) ((StructuredSelection) fileListViewer.getSelection()).getFirstElement();
     }
 
     StructuredProperties getSelectedProperties() {
@@ -278,19 +171,20 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
             for (int i = 0; i < elements.length; i++) {
                 Object[] row = (Object[]) elements[i];
                 String key = (String) row[0];
-                FieldModel model = getFieldModel(file, key);
-                CellEditorValidator validator = new CellEditorValidator(this, model.getPropertyId(), key);
+                PropertyModel model = getFieldModel(file, key);
+                CellEditorValidator validator = new CellEditorValidator(key, model);
                 String validationMessage = validator.isValid(row[1]);
                 if (validationMessage != null) {
-                    listViewer.setSelection(new StructuredSelection(file));
-                    tableViewer.setSelection(new StructuredSelection((Object) row));
-                    tableViewer.getControl().setFocus();
+                    fileListViewer.setSelection(new StructuredSelection(file));
+                    propertyTableViewer.setSelection(new StructuredSelection((Object) row));
+                    propertyTableViewer.getControl().setFocus();
                     this.setErrorMessage(validationMessage);
                     return false;
                 }
             }
         }
 
+        // if we get here, then all properties were validated without errors
         this.setErrorMessage(null);
 
         for (File file : editorData.keySet()) {
@@ -307,7 +201,7 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
 
     public LinkedHashMap<String, Object> getHashMap() {
         LinkedHashMap<String, Object> m = new LinkedHashMap<String, Object>();
-        Object[] elements = (Object[]) tableViewer.getInput();
+        Object[] elements = (Object[]) propertyTableViewer.getInput();
         for (int i = 0; i < elements.length; i++) {
             Object[] row = (Object[]) elements[i];
             m.put((String) row[0], row[1]);
@@ -316,7 +210,7 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
     }
 
     public Iterable<java.io.File> getFiles() {
-        ListContentProvider t = new ListContentProvider();
+        FileListContentProvider t = new FileListContentProvider(this);
         try {
             return t.getFiles(getProject());
         } catch (IOException e) {
@@ -339,11 +233,6 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
         if (this.getElement() instanceof IProject)
             return (IProject) this.getElement();
         return ((IProjectNature) this.getElement()).getProject();
-    }
-
-    @Override
-    protected void performDefaults() {
-        super.performDefaults();
     }
 
     @Override

@@ -22,6 +22,13 @@ import org.eclipse.core.runtime.Platform;
 
 import ch.algotrader.configeditor.IPropertySerializer;
 
+/**
+ * Eclipse extension point holding property definitions.
+ *
+ * @author <a href="mailto:ahihlovskiy@algotrader.ch">Andrey Hihlovskiy</a>
+ *
+ * @version $Revision$ $Date$
+ */
 public class PropertyDefExtensionPoint {
 
     public static CellEditorFactory createCellEditorFactory(String propertyId) {

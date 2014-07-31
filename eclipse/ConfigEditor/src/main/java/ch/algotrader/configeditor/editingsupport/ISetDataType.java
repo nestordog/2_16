@@ -17,7 +17,14 @@
  ***********************************************************************************/
 package ch.algotrader.configeditor.editingsupport;
 
+/**
+ * Interface for type-parametrized cell editors.
+ *
+ * @author <a href="mailto:ahihlovskiy@algotrader.ch">Andrey Hihlovskiy</a>
+ *
+ * @version $Revision$ $Date$
+ */
 public interface ISetDataType {
 
-  void setDataType(String dataType);
+    void setDataType(String dataType);
 }

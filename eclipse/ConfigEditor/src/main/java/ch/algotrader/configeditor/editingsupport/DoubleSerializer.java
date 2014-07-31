@@ -19,17 +19,24 @@ package ch.algotrader.configeditor.editingsupport;
 
 import ch.algotrader.configeditor.IPropertySerializer;
 
+/**
+ * Serializer for double (floating-point) values.
+ *
+ * @author <a href="mailto:ahihlovskiy@algotrader.ch">Andrey Hihlovskiy</a>
+ *
+ * @version $Revision$ $Date$
+ */
 public class DoubleSerializer implements IPropertySerializer {
 
-  @Override
-  public Object deserialize(String propValue) {
-    if (propValue.contains(","))
-      propValue = propValue.replace(',', '.');
-    return new Double(propValue);
-  }
+    @Override
+    public Object deserialize(String propValue) {
+        if (propValue.contains(","))
+            propValue = propValue.replace(',', '.');
+        return new Double(propValue);
+    }
 
-  @Override
-  public String serialize(Object propObject) {
-    return propObject.toString();
-  }
+    @Override
+    public String serialize(Object propObject) {
+        return propObject.toString();
+    }
 }
