@@ -142,16 +142,17 @@ public class PropertyDefExtensionPoint {
     }
 
     public static String serialize(String propertyId, Object value) {
-        if (value == null)
-            return "null";
         try {
             Class<?> propClass = findClass(propertyId);
             if (propClass == null)
                 propClass = Class.forName(getDataType(propertyId));
+            if (propClass == Date.class) {
+                if (value == null)
+                    return "";
+                return new DateTimeSerializer().serialize(value);
+            }
             if (IPropertySerializer.class.isAssignableFrom(propClass))
                 return ((IPropertySerializer) propClass.newInstance()).serialize(value);
-            if (propClass == Date.class)
-                return new DateTimeSerializer().serialize(value);
             if (propClass == Double.class)
                 return new DoubleSerializer().serialize(value);
         } catch (Exception e) {

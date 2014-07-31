@@ -13,22 +13,20 @@
  ***********************************************************************************/
 package ch.algotrader.configeditor.editingsupport;
 
-import java.util.Calendar;
 import java.util.Date;
 
 import org.eclipse.jface.viewers.CellEditor;
+import org.eclipse.nebula.widgets.cdatetime.CDT;
+import org.eclipse.nebula.widgets.cdatetime.CDateTime;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.DateTime;
 import org.eclipse.swt.widgets.Display;
 
 public class DateTimeCellEditor extends CellEditor {
 
-    private DateTime dateWidget;
-    private DateTime timeWidget;
+    private CDateTime widget;
 
     DateTimeCellEditor(Composite parent) {
         super(parent);
@@ -38,34 +36,26 @@ public class DateTimeCellEditor extends CellEditor {
     protected Control createControl(Composite parent) {
         Composite composite = new Composite(parent, SWT.NONE);
         composite.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WHITE));
-        GridLayout layout = new GridLayout(2, true);
-        layout.horizontalSpacing = layout.verticalSpacing = layout.marginWidth = layout.marginHeight = 0;
-        composite.setLayout(layout);
-        dateWidget = new DateTime(composite, SWT.DATE | SWT.DROP_DOWN);
-        dateWidget.setLayoutData(new GridData(GridData.FILL, GridData.FILL, false, false));
-        timeWidget = new DateTime(composite, SWT.TIME);
-        timeWidget.setLayoutData(new GridData(GridData.FILL, GridData.FILL, false, false));
+        FillLayout l = new FillLayout();
+        l.marginHeight = 2;
+        composite.setLayout(l);
+        widget = new CDateTime(composite, CDT.DROP_DOWN);
+        widget.setPattern("yyyy-MM-dd HH:mm:ss");
         return composite;
     }
 
     @Override
     protected Object doGetValue() {
-        Calendar c = Calendar.getInstance();
-        c.set(dateWidget.getYear(), dateWidget.getMonth(), dateWidget.getDay(), timeWidget.getHours(), timeWidget.getMinutes(), timeWidget.getSeconds());
-        return c.getTime();
+        return widget.getSelection();
     }
 
     @Override
     protected void doSetFocus() {
-        dateWidget.setFocus();
+        widget.setFocus();
     }
 
     @Override
     protected void doSetValue(Object value) {
-        Date date = (Date) value;
-        Calendar c = Calendar.getInstance();
-        c.setTime(date);
-        dateWidget.setDate(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
-        timeWidget.setTime(c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), c.get(Calendar.SECOND));
+        widget.setSelection((Date) value);
     }
 }

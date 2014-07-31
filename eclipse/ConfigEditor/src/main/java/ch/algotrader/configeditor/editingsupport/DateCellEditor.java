@@ -13,18 +13,20 @@
  ***********************************************************************************/
 package ch.algotrader.configeditor.editingsupport;
 
-import java.util.Calendar;
 import java.util.Date;
 
 import org.eclipse.jface.viewers.CellEditor;
+import org.eclipse.nebula.widgets.cdatetime.CDT;
+import org.eclipse.nebula.widgets.cdatetime.CDateTime;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.DateTime;
+import org.eclipse.swt.widgets.Display;
 
 public class DateCellEditor extends CellEditor {
 
-    private DateTime widget;
+    private CDateTime widget;
 
     DateCellEditor(Composite parent, int flag) {
         super(parent, flag);
@@ -32,19 +34,25 @@ public class DateCellEditor extends CellEditor {
 
     @Override
     protected Control createControl(Composite parent) {
-        widget = new DateTime(parent, this.getStyle());
-        return widget;
+        Composite composite = new Composite(parent, SWT.NONE);
+        composite.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WHITE));
+        FillLayout l = new FillLayout();
+        l.marginHeight = 2;
+        composite.setLayout(l);
+        if ((this.getStyle() & SWT.DATE) == 0) {
+            widget = new CDateTime(composite, CDT.NONE);
+            widget.setPattern("HH:mm:ss");
+        } else {
+            widget = new CDateTime(composite, CDT.DROP_DOWN);
+            widget.setPattern("yyyy-MM-dd");
+        }
+        widget.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WHITE));
+        return composite;
     }
 
     @Override
     protected Object doGetValue() {
-        Calendar c = Calendar.getInstance();
-        if ((this.getStyle() & SWT.DATE) == 0) {
-            c.set(0, 0, 0, widget.getHours(), widget.getMinutes(), widget.getSeconds());
-        } else {
-            c.set(widget.getYear(), widget.getMonth(), widget.getDay(), 0, 0, 0);
-        }
-        return c.getTime();
+        return widget.getSelection();
     }
 
     @Override
@@ -54,14 +62,7 @@ public class DateCellEditor extends CellEditor {
 
     @Override
     protected void doSetValue(Object value) {
-        Date date = (Date) value;
-        Calendar c = Calendar.getInstance();
-        c.setTime(date);
-        if ((this.getStyle() & SWT.DATE) == 0) {
-            widget.setTime(c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), c.get(Calendar.SECOND));
-        } else {
-            widget.setDate(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
-        }
+        widget.setSelection((Date) value);
     }
 
 }

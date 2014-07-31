@@ -37,6 +37,8 @@ public class DateTimeSerializer implements IPropertySerializer {
 
     @Override
     public Object deserialize(String propValue) {
+        if (propValue == null || propValue.equals(""))
+            return null;
         try {
             if (propValue.split("-").length > 1)
                 return (Date) USFormat.parse(propValue);
