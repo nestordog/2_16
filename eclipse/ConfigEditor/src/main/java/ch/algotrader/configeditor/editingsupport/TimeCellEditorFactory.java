@@ -32,6 +32,6 @@ public class TimeCellEditorFactory implements CellEditorFactory {
 
     @Override
     public CellEditor createCellEditor(Composite parent) {
-        return new DateCellEditor(parent, SWT.TIME);
+        return new DateTimeCellEditor(parent, SWT.TIME);
     }
 }

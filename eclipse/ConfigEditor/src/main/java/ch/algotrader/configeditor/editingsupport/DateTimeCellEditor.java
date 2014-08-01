@@ -39,8 +39,8 @@ public class DateTimeCellEditor extends CellEditor {
 
     private CDateTime widget;
 
-    DateTimeCellEditor(Composite parent) {
-        super(parent);
+    DateTimeCellEditor(Composite parent, int style) {
+        super(parent, style);
     }
 
     @Override
@@ -48,10 +48,17 @@ public class DateTimeCellEditor extends CellEditor {
         Composite composite = new Composite(parent, SWT.NONE);
         composite.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WHITE));
         FillLayout l = new FillLayout();
-        l.marginHeight = 2;
+        l.marginHeight = l.spacing = 2;
         composite.setLayout(l);
         widget = new CDateTime(composite, CDT.DROP_DOWN);
-        widget.setPattern("yyyy-MM-dd HH:mm:ss");
+        if ((this.getStyle() & (SWT.DATE | SWT.TIME)) == (SWT.DATE | SWT.TIME)) {
+            widget.setPattern("yyyy-MM-dd HH:mm:ss");
+        } else if ((this.getStyle() & SWT.DATE) == SWT.DATE) {
+            widget.setPattern("yyyy-MM-dd");
+        } else if ((this.getStyle() & SWT.TIME) == SWT.TIME) {
+            widget.setPattern("HH:mm:ss");
+        }
+        widget.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WHITE));
         return composite;
     }
 
