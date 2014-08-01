@@ -19,7 +19,7 @@ package ch.algotrader.adapter.ib;
 
 import org.apache.log4j.Logger;
 
-import ch.algotrader.adapter.fix.fix42.Fix42OrderMessageHandler;
+import ch.algotrader.adapter.fix.fix42.GenericFix42OrderMessageHandler;
 import ch.algotrader.service.ib.IBFixAccountService;
 import ch.algotrader.util.MyLogger;
 import quickfix.FieldNotFound;
@@ -43,7 +43,7 @@ import quickfix.fix42.OrderCancelReject;
  *
  * @version $Revision$ $Date$
  */
-public class IBFixOrderMessageHandler extends Fix42OrderMessageHandler {
+public class IBFixOrderMessageHandler extends GenericFix42OrderMessageHandler {
 
     private static Logger logger = MyLogger.getLogger(IBFixOrderMessageHandler.class.getName());
 

@@ -30,8 +30,6 @@ import quickfix.fix44.ExecutionReport;
 /**
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  *
- * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
  * @version $Revision$ $Date$
  */
 public class CNXFixOrderMessageHandler extends GenericFix44OrderMessageHandler {

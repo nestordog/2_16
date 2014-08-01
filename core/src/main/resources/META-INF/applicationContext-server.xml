@@ -307,7 +307,7 @@
 
         <bean id="jPMOrderApplicationFactory" class="ch.algotrader.adapter.fix.DefaultFixApplicationFactory">
             <property name="incomingMessageHandler">
-                <bean class="ch.algotrader.adapter.fix.fix42.Fix42OrderMessageHandler"/>
+                <bean class="ch.algotrader.adapter.fix.fix42.GenericFix42OrderMessageHandler"/>
             </property>
             <property name="lifecycleHandler" ref="jPMOrderSessionLifeCycle"/>
             <property name="name" value="JPMO"/>
@@ -325,6 +325,7 @@
         <bean id="iBOrderApplicationFactory" class="ch.algotrader.adapter.fix.DefaultFixApplicationFactory">
             <property name="incomingMessageHandler">
                 <bean class="ch.algotrader.adapter.ib.IBFixOrderMessageHandler">
+              <property name="lookupService" ref="lookupService"/>
                     <property name="accountService" ref="iBFixAccountService"/>
                 </bean>
             </property>

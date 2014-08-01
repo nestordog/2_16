@@ -15,7 +15,7 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.adapter.fix;
+package ch.algotrader.adapter.fix.fix42;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -31,11 +31,11 @@ import quickfix.SessionID;
 import quickfix.field.BeginString;
 import quickfix.field.SenderCompID;
 import quickfix.field.TargetCompID;
-import quickfix.fix44.Message;
-import quickfix.fix44.MessageFactory;
+import quickfix.fix42.Message;
+import quickfix.fix42.MessageFactory;
 
 /**
- * FIX 4.4 test utilities.
+ * FIX 4.2 test utilities.
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  *
@@ -57,7 +57,7 @@ public class FixTestUtils {
         }
     }
 
-    public static Message parseFix44Message(final String str, final DataDictionary dataDictionary) throws InvalidMessage {
+    public static Message parseFix42Message(final String str, final DataDictionary dataDictionary) throws InvalidMessage {
         String raw;
         if (!str.contains(FIELD_SEPARATOR)) {
             raw = str.replaceAll("\\|", FIELD_SEPARATOR);
@@ -67,24 +67,24 @@ public class FixTestUtils {
         return (Message) MessageUtils.parse(MSG_FACTORY, dataDictionary != null ? dataDictionary : DATA_DICTIONARY, raw);
     }
 
-    public static <T extends Message> T parseFix44Message(final String str, final DataDictionary dataDictionary, final Class<T> clazz) throws InvalidMessage {
-        Message message = parseFix44Message(str, dataDictionary);
+    public static <T extends Message> T parseFix42Message(final String str, final DataDictionary dataDictionary, final Class<T> clazz) throws InvalidMessage {
+        Message message = parseFix42Message(str, dataDictionary);
         if (!clazz.isInstance(message)) {
             throw new InvalidMessage("Expected message type: " + clazz.getName() + "; actual type: " + message.getClass().getName());
         }
         return clazz.cast(message);
     }
 
-    public static <T extends Message> T parseFix44Message(final String str, final Class<T> clazz) throws InvalidMessage {
-        return parseFix44Message(str, null, clazz);
+    public static <T extends Message> T parseFix42Message(final String str, final Class<T> clazz) throws InvalidMessage {
+        return parseFix42Message(str, null, clazz);
     }
 
-    public static Message parseFix44Message(final String str) throws InvalidMessage {
-        return parseFix44Message(str, (DataDictionary) null);
+    public static Message parseFix42Message(final String str) throws InvalidMessage {
+        return parseFix42Message(str, (DataDictionary) null);
     }
 
-    public static SessionID fakeFix44Session() {
-        return new SessionID(new BeginString("FIX.4.4"), new SenderCompID("test"), new TargetCompID("test"), "FAKE");
+    public static SessionID fakeFix42Session() {
+        return new SessionID(new BeginString("FIX.4.2"), new SenderCompID("test"), new TargetCompID("test"), "FAKE");
     }
 
     public static DateFormat getSimpleDateTimeFormat() {

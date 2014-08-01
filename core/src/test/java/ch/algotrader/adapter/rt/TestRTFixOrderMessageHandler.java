@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
@@ -42,6 +43,54 @@ import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.service.LookupService;
+=======
+/***********************************************************************************
+ * AlgoTrader Enterprise Trading Framework
+ *
+ * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ *
+ * All information contained herein is, and remains the property of AlgoTrader GmbH.
+ * The intellectual and technical concepts contained herein are proprietary to
+ * AlgoTrader GmbH. Modification, translation, reverse engineering, decompilation,
+ * disassembly or reproduction of this material is strictly forbidden unless prior
+ * written permission is obtained from AlgoTrader GmbH
+ *
+ * Fur detailed terms and conditions consult the file LICENSE.txt or contact
+ *
+ * AlgoTrader GmbH
+ * Badenerstrasse 16
+ * 8004 Zurich
+ ***********************************************************************************/
+package ch.algotrader.adapter.rt;
+
+import java.math.BigDecimal;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
+
+import ch.algotrader.adapter.fix.fix44.FixTestUtils;
+import ch.algotrader.entity.security.SecurityFamily;
+import ch.algotrader.entity.security.SecurityFamilyImpl;
+import ch.algotrader.entity.security.Stock;
+import ch.algotrader.entity.security.StockImpl;
+import ch.algotrader.entity.trade.Fill;
+import ch.algotrader.entity.trade.MarketOrder;
+import ch.algotrader.entity.trade.MarketOrderImpl;
+import ch.algotrader.entity.trade.OrderStatus;
+import ch.algotrader.enumeration.Side;
+import ch.algotrader.enumeration.Status;
+import ch.algotrader.esper.Engine;
+import ch.algotrader.esper.EngineLocator;
+import ch.algotrader.service.LookupService;
+>>>>>>> Improved FIX/4.2 base infrastructure
 import quickfix.field.ClOrdID;
 import quickfix.field.ExecType;
 import quickfix.fix44.ExecutionReport;

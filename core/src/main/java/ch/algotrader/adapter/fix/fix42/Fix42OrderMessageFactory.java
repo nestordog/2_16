@@ -15,21 +15,21 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.adapter.fix.fix44;
+package ch.algotrader.adapter.fix.fix42;
 
 import ch.algotrader.entity.trade.SimpleOrder;
-import quickfix.fix44.NewOrderSingle;
-import quickfix.fix44.OrderCancelReplaceRequest;
-import quickfix.fix44.OrderCancelRequest;
+import quickfix.fix42.NewOrderSingle;
+import quickfix.fix42.OrderCancelReplaceRequest;
+import quickfix.fix42.OrderCancelRequest;
 
 /**
- * FIX/4.4 order message factory.
+ * FIX/4.2 order message factory.
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  *
  * @version $Revision$ $Date$
  */
-public interface Fix44OrderMessageFactory {
+public interface Fix42OrderMessageFactory {
 
     NewOrderSingle createNewOrderMessage(SimpleOrder order, String intId);
 
