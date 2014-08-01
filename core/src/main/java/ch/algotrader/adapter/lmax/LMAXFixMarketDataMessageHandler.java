@@ -84,7 +84,7 @@ public class LMAXFixMarketDataMessageHandler extends AbstractFix44MarketDataMess
                             logger.trace(lmaxId + " BID " + size + "@" + price);
                         }
 
-                        BidVO bidVO = new BidVO(lmaxId, FeedType.LMAX, date, price, (int) size);
+                        BidVO bidVO = new BidVO(lmaxId, FeedType.LMAX, date, price, (int) size * LMAXConsts.FOREX_CONTRACT_MULTIPLIER);
                         EngineLocator.instance().getBaseEngine().sendEvent(bidVO);
                         break;
                     case MDEntryType.OFFER:
@@ -93,7 +93,7 @@ public class LMAXFixMarketDataMessageHandler extends AbstractFix44MarketDataMess
                             logger.trace(lmaxId + " ASK " + size + "@" + price);
                         }
 
-                        AskVO askVO = new AskVO(lmaxId, FeedType.LMAX, date, price, (int) size);
+                        AskVO askVO = new AskVO(lmaxId, FeedType.LMAX, date, price, (int) size * LMAXConsts.FOREX_CONTRACT_MULTIPLIER);
 
                         EngineLocator.instance().getBaseEngine().sendEvent(askVO);
                         break;
