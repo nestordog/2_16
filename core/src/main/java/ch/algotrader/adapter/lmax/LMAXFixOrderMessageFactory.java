@@ -52,8 +52,6 @@ import quickfix.fix44.OrderCancelRequest;
  */
 public class LMAXFixOrderMessageFactory implements Fix44OrderMessageFactory {
 
-    private static final double MULTPLIER = 10000.0;
-
     protected TimeInForce resolveTimeInForce(final SimpleOrder order) throws FixApplicationException {
 
         TIF tif = order.getTif();
@@ -86,6 +84,10 @@ public class LMAXFixOrderMessageFactory implements Fix44OrderMessageFactory {
 
     protected SecurityID resolveSecurityID(final Security security) throws FixApplicationException {
 
+        if (!(security instanceof Forex)) {
+
+            throw new FixApplicationException("LMAX interface currently only supports FX orders");
+        }
         String lmaxid = security.getLmaxid();
         if (lmaxid == null) {
             throw new FixApplicationException(security + " is not supported by LMAX");
@@ -96,14 +98,10 @@ public class LMAXFixOrderMessageFactory implements Fix44OrderMessageFactory {
     protected OrderQty resolveOrderQty(final SimpleOrder order) {
 
         long quantity = order.getQuantity();
-        if (order.getSecurity() instanceof Forex) {
-            if ((quantity % 1000) != 0) {
-                throw new FixApplicationException("FX orders on LMAX need to be multiples of 1000");
-            } else {
-                return new OrderQty(quantity / MULTPLIER);
-            }
+        if ((quantity % 1000) != 0) {
+            throw new FixApplicationException("FX orders on LMAX need to be multiples of 1000");
         } else {
-            throw new FixApplicationException("LMAX interface currently only supports FX orders");
+            return new OrderQty((double) quantity / LMAXConsts.FOREX_CONTRACT_MULTIPLIER);
         }
     }
 

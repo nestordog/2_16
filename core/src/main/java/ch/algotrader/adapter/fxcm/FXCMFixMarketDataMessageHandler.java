@@ -30,6 +30,7 @@ import ch.algotrader.vo.BidVO;
 import quickfix.FieldNotFound;
 import quickfix.Group;
 import quickfix.SessionID;
+import quickfix.field.ContractMultiplier;
 import quickfix.field.MDEntryDate;
 import quickfix.field.MDEntryPx;
 import quickfix.field.MDEntrySize;
@@ -53,6 +54,11 @@ public class FXCMFixMarketDataMessageHandler extends AbstractFix44MarketDataMess
     public void onMessage(MarketDataSnapshotFullRefresh marketData, SessionID sessionID) throws FieldNotFound {
 
         Symbol symbol = marketData.getSymbol();
+        double contractMultiplier = 1.0d;
+        if (marketData.isSetField(ContractMultiplier.FIELD)) {
+
+            contractMultiplier = marketData.getContractMultiplier().getValue();
+        }
 
         int count = marketData.getGroupCount(NoMDEntries.FIELD);
         for (int i = 1; i <= count; i++) {
@@ -71,7 +77,6 @@ public class FXCMFixMarketDataMessageHandler extends AbstractFix44MarketDataMess
 
                 double price = group.getDouble(MDEntryPx.FIELD);
                 double size = group.getDouble(MDEntrySize.FIELD);
-                Date time = group.getUtcTimeOnly(MDEntryTime.FIELD);
 
                 switch (entryType) {
                     case MDEntryType.BID:
@@ -80,7 +85,7 @@ public class FXCMFixMarketDataMessageHandler extends AbstractFix44MarketDataMess
                             logger.trace(symbol.getValue() + " BID " + size + "@" + price);
                         }
 
-                        BidVO bidVO = new BidVO(symbol.getValue(), FeedType.FXCM, date != null ? date : new Date(), price, (int) size);
+                        BidVO bidVO = new BidVO(symbol.getValue(), FeedType.FXCM, date != null ? date : new Date(), price, (int) (size * contractMultiplier));
                         EngineLocator.instance().getBaseEngine().sendEvent(bidVO);
                         break;
                     case MDEntryType.OFFER:
@@ -89,7 +94,7 @@ public class FXCMFixMarketDataMessageHandler extends AbstractFix44MarketDataMess
                             logger.trace(symbol.getValue() + " ASK " + size + "@" + price);
                         }
 
-                        AskVO askVO = new AskVO(symbol.getValue(), FeedType.FXCM, date != null ? date : new Date(), price, (int) size);
+                        AskVO askVO = new AskVO(symbol.getValue(), FeedType.FXCM, date != null ? date : new Date(), price, (int) (size * contractMultiplier));
 
                         EngineLocator.instance().getBaseEngine().sendEvent(askVO);
                         break;
