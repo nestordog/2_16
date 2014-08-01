@@ -95,14 +95,14 @@ INSERT INTO `future_family` (`ID`, `INTREST`, `DIVIDEND`, `MARGIN_PARAMETER`, `E
 --
 -- WHERE:  id<1000
 
-INSERT INTO `generic_future` (`ID`, `DURATION`) VALUES (21,'MONTH_1');
-INSERT INTO `generic_future` (`ID`, `DURATION`) VALUES (22,'MONTH_2');
-INSERT INTO `generic_future` (`ID`, `DURATION`) VALUES (23,'MONTH_3');
-INSERT INTO `generic_future` (`ID`, `DURATION`) VALUES (24,'MONTH_4');
-INSERT INTO `generic_future` (`ID`, `DURATION`) VALUES (25,'MONTH_5');
-INSERT INTO `generic_future` (`ID`, `DURATION`) VALUES (26,'MONTH_6');
-INSERT INTO `generic_future` (`ID`, `DURATION`) VALUES (27,'MONTH_7');
-INSERT INTO `generic_future` (`ID`, `DURATION`) VALUES (28,'MONTH_8');
+INSERT INTO `generic_future` (`ID`, `DURATION`, `ASSET_CLASS`) VALUES (21,'MONTH_1','VOLATILITY');
+INSERT INTO `generic_future` (`ID`, `DURATION`, `ASSET_CLASS`) VALUES (22,'MONTH_2','VOLATILITY');
+INSERT INTO `generic_future` (`ID`, `DURATION`, `ASSET_CLASS`) VALUES (23,'MONTH_3','VOLATILITY');
+INSERT INTO `generic_future` (`ID`, `DURATION`, `ASSET_CLASS`) VALUES (24,'MONTH_4','VOLATILITY');
+INSERT INTO `generic_future` (`ID`, `DURATION`, `ASSET_CLASS`) VALUES (25,'MONTH_5','VOLATILITY');
+INSERT INTO `generic_future` (`ID`, `DURATION`, `ASSET_CLASS`) VALUES (26,'MONTH_6','VOLATILITY');
+INSERT INTO `generic_future` (`ID`, `DURATION`, `ASSET_CLASS`) VALUES (27,'MONTH_7','VOLATILITY');
+INSERT INTO `generic_future` (`ID`, `DURATION`, `ASSET_CLASS`) VALUES (28,'MONTH_8','VOLATILITY');
 
 --
 -- Dumping data for table `generic_future_family`
@@ -139,24 +139,12 @@ INSERT INTO `implied_volatility` (`ID`, `DURATION`, `MONEYNESS`, `DELTA`, `TYPE`
 --
 -- WHERE:  id<1000
 
-INSERT INTO `index` (`ID`, `TYPE`) VALUES (2,'EQUITY');
-INSERT INTO `index` (`ID`, `TYPE`) VALUES (3,'VOLATILITY');
-INSERT INTO `index` (`ID`, `TYPE`) VALUES (4,'EQUITY');
-INSERT INTO `index` (`ID`, `TYPE`) VALUES (5,'VOLATILITY');
-INSERT INTO `index` (`ID`, `TYPE`) VALUES (12,'EQUITY');
-INSERT INTO `index` (`ID`, `TYPE`) VALUES (29,'VOLATILITY');
-
---
--- Dumping data for table `intrest_rate`
---
--- WHERE:  id<1000
-
-
---
--- Dumping data for table `option`
---
--- WHERE:  id<1000
-
+INSERT INTO `index` (`ID`, `ASSET_CLASS`) VALUES (2,'EQUITY');
+INSERT INTO `index` (`ID`, `ASSET_CLASS`) VALUES (3,'VOLATILITY');
+INSERT INTO `index` (`ID`, `ASSET_CLASS`) VALUES (4,'EQUITY');
+INSERT INTO `index` (`ID`, `ASSET_CLASS`) VALUES (5,'VOLATILITY');
+INSERT INTO `index` (`ID`, `ASSET_CLASS`) VALUES (12,'EQUITY');
+INSERT INTO `index` (`ID`, `ASSET_CLASS`) VALUES (29,'VOLATILITY');
 
 --
 -- Dumping data for table `option_family`
