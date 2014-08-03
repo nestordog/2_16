@@ -63,7 +63,8 @@ public class EnumCellEditor extends ComboBoxViewerCellEditor {
         Composite composite = new Composite(parent, SWT.NONE);
         composite.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WHITE));
         FillLayout l = new FillLayout();
-        l.marginHeight = l.marginWidth = 2;
+        l.marginHeight = 4;
+        l.marginWidth = 2;
         composite.setLayout(l);
         Control control = super.createControl(composite);
         control.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WHITE));

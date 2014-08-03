@@ -48,7 +48,8 @@ public class DateTimeCellEditor extends CellEditor {
         Composite composite = new Composite(parent, SWT.NONE);
         composite.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WHITE));
         FillLayout l = new FillLayout();
-        l.marginHeight = l.spacing = 2;
+        l.marginHeight = 4;
+        l.marginWidth = 2;
         composite.setLayout(l);
         widget = new CDateTime(composite, CDT.DROP_DOWN);
         if ((this.getStyle() & (SWT.DATE | SWT.TIME)) == (SWT.DATE | SWT.TIME)) {
