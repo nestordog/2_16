@@ -18,7 +18,11 @@
 package ch.algotrader.configeditor.editingsupport;
 
 import org.eclipse.jface.viewers.CellEditor;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 
 /**
  * Factory for IntegerCellEditor
@@ -31,6 +35,20 @@ public class IntegerCellEditorFactory implements CellEditorFactory {
 
     @Override
     public CellEditor createCellEditor(Composite parent) {
-        return new IntegerCellEditor(parent);
+        return new IntegerCellEditor(parent) {
+
+            @Override
+            protected Control createControl(Composite parent) {
+                Composite composite = new Composite(parent, SWT.NONE);
+                composite.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WHITE));
+                FillLayout l = new FillLayout();
+                l.marginHeight = 4;
+                l.marginWidth = 2;
+                composite.setLayout(l);
+                super.createControl(composite);
+                return composite;
+            }
+
+        };
     }
 }
