@@ -19,17 +19,21 @@ package ch.algotrader.configeditor;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileReader;
-import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.swt.widgets.Display;
 
 /**
  * Content provider for file list.
@@ -58,8 +62,8 @@ class FileListContentProvider implements IStructuredContentProvider {
             files = null;
         else
             try {
-                files = getFiles((IProject) newInput);
-            } catch (IOException e) {
+                files = getFiles((IJavaProject) newInput);
+            } catch (Exception e) {
                 throw new RuntimeException(e);
             }
     }
@@ -72,55 +76,167 @@ class FileListContentProvider implements IStructuredContentProvider {
             return new Object[0];
     }
 
-    List<File> getFiles(IProject project) throws IOException {
-        File file = project.getFile("src/main/resources/META-INF/" + project.getName() + ".hierarchy").getLocation().toFile();
-        if (!file.exists()) {
-            MessageDialog.openError(Display.getCurrent().getActiveShell(), "hierarchy file missing", "Config Editor was not able to locate src\\main\\resources\\META-INF\\" + project.getName()
-                    + ".hierarchy");
-            return null;
-        }
-        String[] fileNames = null;
-        BufferedReader br = new BufferedReader(new FileReader(file));
-        try {
-            fileNames = br.readLine().split(":");
-        } catch (Exception e) {
-            e.printStackTrace();
-            MessageDialog.openWarning(Display.getCurrent().getActiveShell(), "hierarchy file is empty", "this projects hierarchy file is epmty");
-            return Collections.emptyList();
-        } finally {
-            br.close();
-        }
-        List<File> files = new ArrayList<File>();
-        for (String fname : fileNames) {
-            File f = project.getFile("src/main/resources/META-INF/" + fname + ".properties").getLocation().toFile();
-            if (f.exists())
-                files.add(f);
-            else {
-                MessageDialog.openError(Display.getCurrent().getActiveShell(), "hierarchy file broken", "Config Editor has encountered problems, while reading src\\main\\resources\\META-INF\\"
-                        + project.getName() + ".hierarchy");
-                return Collections.emptyList();
-            }
+    List<File> getFiles(IJavaProject javaProject) throws Exception {
+        List<File> files;
+        File hierarchyFile = getHierarchyFileFromClasspath(javaProject);
+        if (hierarchyFile == null)
+            files = getPropertiesFilesFromClasspath(javaProject);
+        else
+            files = getPropertiesFilesFromHierarchyFile(hierarchyFile, javaProject);
+        for (File f : files) {
             StructuredProperties structProps = new StructuredProperties();
             this.editorPropertyPage.propMap.put(f, structProps);
             try {
                 structProps.load(f);
             } catch (Exception e) {
                 e.printStackTrace();
-                MessageDialog.openError(Display.getCurrent().getActiveShell(), "error while reading property file", "Error in:\n" + f.getPath() + "\n Caused by: \n" + e.getMessage());
-                return Collections.emptyList();
+                String errMessage = MessageFormat.format("Error reading file ''{0}'': {1}", f.getName(), (e.getMessage() == null ? e.getClass().getName() : e.getMessage()));
+                this.editorPropertyPage.setErrorMessage(errMessage);
             }
-
             List<Object[]> elementsList = new ArrayList<Object[]>();
             for (String key : structProps.getKeys())
                 elementsList.add(new Object[] { key, structProps.getValue(key) });
             this.editorPropertyPage.editorData.put(f, elementsList.toArray());
         }
-
-        if (files.isEmpty()) {
-            MessageDialog.openWarning(Display.getCurrent().getActiveShell(), "hierarchy file is empty", "this projects hierarchy file is epmty");
-            return Collections.emptyList();
-        }
-
         return files;
+    }
+
+    File getHierarchyFileFromClasspath(IJavaProject javaProject) throws Exception {
+        IPath workspaceLocation = ResourcesPlugin.getWorkspace().getRoot().getLocation();
+        IProject project = javaProject.getProject();
+        String projectName = project.getName();
+        javaProject.open(null);
+        IClasspathEntry[] classPath = javaProject.getResolvedClasspath(false);
+        for (int i = 0; i < classPath.length; i++) {
+            IClasspathEntry entry = classPath[i];
+            if (entry.getPath().toString().startsWith("/" + projectName)) {
+                File dir = new File(new File(workspaceLocation.toString(), entry.getPath().toString()), "META-INF");
+                File f = new File(dir, project.getName() + ".hierarchy");
+                if (f.exists())
+                    return f;
+            }
+        }
+        for (int i = 0; i < classPath.length; i++) {
+            IClasspathEntry entry = classPath[i];
+            if (entry.getPath().toString().startsWith("/" + projectName)) {
+                File dir = new File(new File(workspaceLocation.toString(), entry.getPath().toString()), "META-INF");
+                File[] files = dir.listFiles(new FileFilter() {
+                    @Override
+                    public boolean accept(File f) {
+                        return f.getName().endsWith(".hierarchy");
+                    }
+                });
+                if (files != null && files.length != 0)
+                    return files[0];
+            }
+        }
+        return null;
+    }
+
+    List<String> getPropertiesFileNamesFromHierarchyFile(File hierarchyFile) throws Exception {
+        List<String> result = new ArrayList<String>();
+        BufferedReader br = new BufferedReader(new FileReader(hierarchyFile));
+        try {
+            for (String s : br.readLine().split(":")) {
+                if (!s.endsWith(".properties"))
+                    s += ".properties";
+                result.add(s);
+            }
+        } finally {
+            br.close();
+        }
+        return result;
+    }
+
+    List<File> getPropertiesFilesFromHierarchyFile(File hierarchyFile, IJavaProject javaProject) throws Exception {
+        return resolvePropertiesFileNamesAgainstClasspath(getPropertiesFileNamesFromHierarchyFile(hierarchyFile), javaProject);
+    }
+
+    List<File> getPropertiesFilesFromClasspath(IJavaProject javaProject) throws Exception {
+        List<File> result = new ArrayList<File>();
+        IPath workspaceLocation = ResourcesPlugin.getWorkspace().getRoot().getLocation();
+        IClasspathEntry[] classPath = javaProject.getResolvedClasspath(false);
+        for (int i = 0; i < classPath.length; i++) {
+            IClasspathEntry entry = classPath[i];
+            String entryPath = entry.getPath().toString();
+            if (entryPath.startsWith("/")) {
+                String projectName = entryPath.substring(1);
+                if (new Path(projectName).segmentCount() == 1) {
+                    IProject proj = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
+                    if (proj.exists()) {
+                        IJavaProject javaProj;
+                        if (proj instanceof IJavaProject)
+                            javaProj = (IJavaProject) proj;
+                        else
+                            javaProj = JavaCore.create(proj);
+                        javaProj.open(null);
+                        result.addAll(getPropertiesFilesFromClasspath(javaProj));
+                    }
+                }
+            }
+            File entryFile = new File(entry.getPath().toOSString());
+            if (!entryFile.exists())
+                entryFile = new File(workspaceLocation.toOSString(), entry.getPath().toString());
+            if (entryFile.isDirectory()) {
+                File dir = new File(entryFile, "META-INF");
+                if (dir.exists())
+                    for (File f : dir.listFiles(new FileFilter() {
+                        @Override
+                        public boolean accept(File f) {
+                            return f.getName().endsWith(".properties");
+                        }
+                    })) {
+                        result.add(f);
+                    }
+            }
+        }
+        return result;
+    }
+
+    File resolvePropertiesFileNameAgainstClasspath(String fileName, IJavaProject javaProject) throws Exception {
+        IPath workspaceLocation = ResourcesPlugin.getWorkspace().getRoot().getLocation();
+        IClasspathEntry[] classPath = javaProject.getResolvedClasspath(false);
+        for (int i = 0; i < classPath.length; i++) {
+            IClasspathEntry entry = classPath[i];
+            String entryPath = entry.getPath().toString();
+            if (entryPath.startsWith("/")) {
+                String projectName = entryPath.substring(1);
+                if (new Path(projectName).segmentCount() == 1) {
+                    IProject proj = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
+                    if (proj.exists()) {
+                        IJavaProject javaProj;
+                        if (proj instanceof IJavaProject)
+                            javaProj = (IJavaProject) proj;
+                        else
+                            javaProj = JavaCore.create(proj);
+                        javaProj.open(null);
+                        File f = resolvePropertiesFileNameAgainstClasspath(fileName, javaProj);
+                        if (f != null)
+                            return f;
+                    }
+                }
+            }
+            File entryFile = new File(entryPath);
+            if (!entryFile.exists())
+                entryFile = new File(workspaceLocation.toOSString(), entryPath);
+            if (entryFile.isDirectory()) {
+                File f = new File(entryFile, "META-INF/" + fileName);
+                if (f.exists())
+                    return f;
+            }
+        }
+        return null;
+    }
+
+    List<File> resolvePropertiesFileNamesAgainstClasspath(List<String> fileNames, IJavaProject javaProject) throws Exception {
+        List<File> result = new ArrayList<File>();
+        for (String fileName : fileNames) {
+            File f = resolvePropertiesFileNameAgainstClasspath(fileName, javaProject);
+            if (f == null)
+                this.editorPropertyPage.setErrorMessage(MessageFormat.format("File ''{0}'' does not exist.", fileName));
+            else
+                result.add(f);
+        }
+        return result;
     }
 }

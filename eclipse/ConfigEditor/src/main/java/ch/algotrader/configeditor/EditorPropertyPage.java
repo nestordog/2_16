@@ -26,6 +26,8 @@ import java.util.Properties;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectNature;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.LabelProvider;
@@ -213,7 +215,7 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
         FileListContentProvider t = new FileListContentProvider(this);
         try {
             return t.getFiles(getProject());
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
@@ -229,10 +231,20 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
         return p;
     }
 
-    public IProject getProject() {
+    public IJavaProject getProject() {
+        IProject project;
         if (this.getElement() instanceof IProject)
-            return (IProject) this.getElement();
-        return ((IProjectNature) this.getElement()).getProject();
+            project = (IProject) this.getElement();
+        else {
+            assert this.getElement() instanceof IProjectNature;
+            project = ((IProjectNature) this.getElement()).getProject();
+        }
+        IJavaProject javaProject;
+        if (project instanceof IJavaProject)
+            javaProject = (IJavaProject) project;
+        else
+            javaProject = JavaCore.create(project);
+        return javaProject;
     }
 
     @Override
