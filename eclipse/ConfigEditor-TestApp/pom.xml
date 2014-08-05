@@ -47,6 +47,7 @@
             <plugin>
                 <groupId>org.eclipse.tycho</groupId>
                 <artifactId>target-platform-configuration</artifactId>
+                <version>${tycho-version}</version>
                 <configuration>
                     <!-- configure the p2 target environments for multi-platform build -->
                     <resolver>p2</resolver>

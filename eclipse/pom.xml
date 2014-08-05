@@ -21,9 +21,14 @@
 
     <repositories>
         <repository>
-            <id>eclipse-kepler</id>
+            <id>eclipse-luna</id>
             <layout>p2</layout>
-            <url>http://download.eclipse.org/releases/kepler</url>
+            <url>http://download.eclipse.org/releases/luna</url>
+        </repository>
+        <repository>
+            <id>nebula</id>
+            <layout>p2</layout>
+            <url>http://download.eclipse.org/technology/nebula/snapshot</url>
         </repository>
     </repositories>
 
@@ -83,51 +88,15 @@
                     </execution>
                 </executions>
             </plugin>
-
-            <plugin>
-                <groupId>org.eclipse.tycho</groupId>
-                <artifactId>target-platform-configuration</artifactId>
-                <version>${tycho-version}</version>
-                <configuration>
-                    <!-- configure the p2 target environments for multi-platform build -->
-                    <resolver>p2</resolver>
-                    <dependency-resolution>
-                        <optionalDependencies>ignore</optionalDependencies>
-                    </dependency-resolution>
-                    <environments>
-                        <environment>
-                            <os>linux</os>
-                            <ws>gtk</ws>
-                            <arch>x86</arch>
-                        </environment>
-                        <environment>
-                            <os>linux</os>
-                            <ws>gtk</ws>
-                            <arch>x86_64</arch>
-                        </environment>
-                        <environment>
-                            <os>win32</os>
-                            <ws>win32</ws>
-                            <arch>x86</arch>
-                        </environment>
-                        <environment>
-                            <os>win32</os>
-                            <ws>win32</ws>
-                            <arch>x86_64</arch>
-                        </environment>
-                        <environment>
-                            <os>macosx</os>
-                            <ws>cocoa</ws>
-                            <arch>x86_64</arch>
-                        </environment>
-                    </environments>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
 
     <modules>
         <module>wrapper</module>
         <module>wizard</module>
+        <module>ConfigEditor</module>
+        <module>ConfigEditor-TestPlugin</module>
+        <module>ConfigEditor.TestFeature</module>
+        <module>ConfigEditor-TestApp</module>
     </modules>
 </project>
