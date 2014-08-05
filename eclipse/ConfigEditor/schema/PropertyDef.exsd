@@ -1,0 +1,143 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Schema file written by PDE -->
+<schema targetNamespace="ch.algotrader.ConfigEditor" xmlns="http://www.w3.org/2001/XMLSchema">
+<annotation>
+      <appinfo>
+         <meta.schema plugin="ch.algotrader.ConfigEditor" id="PropertyDef" name="PropertyDef"/>
+      </appinfo>
+      <documentation>
+         [Enter description of this extension point.]
+      </documentation>
+   </annotation>
+
+   <element name="extension">
+      <annotation>
+         <appinfo>
+            <meta.element />
+         </appinfo>
+      </annotation>
+      <complexType>
+         <sequence minOccurs="1" maxOccurs="unbounded">
+            <element ref="PropertyDef"/>
+         </sequence>
+         <attribute name="point" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="id" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="name" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+               <appinfo>
+                  <meta.attribute translatable="true"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="PropertyDef">
+      <complexType>
+         <attribute name="cellEditorFactory" type="string" use="required">
+            <annotation>
+               <documentation>
+                  Factory creating cell editor
+               </documentation>
+               <appinfo>
+                  <meta.attribute kind="java" basedOn=":ch.algotrader.configeditor.CellEditorFactory"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+         <attribute name="dataType" type="string" use="required">
+            <annotation>
+               <documentation>
+                  Internal type of deserialized property or implementation of ch.algotrader.configeditor.IPropertySerializer.
+               </documentation>
+               <appinfo>
+                  <meta.attribute kind="java"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+         <attribute name="id" type="string" use="required">
+            <annotation>
+               <documentation>
+                  property type identifier, must match the attribute &quot;type&quot; in property comment:
+# { &quot;type&quot;: &quot;Boolean&quot;, ... }
+someBooleanProperty=true
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="regex" type="string">
+            <annotation>
+               <documentation>
+                  Regular expression for validating user input
+               </documentation>
+               <appinfo>
+                  <meta.attribute translatable="true"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+         <attribute name="regexErrorMessage" type="string">
+            <annotation>
+               <documentation>
+                  Error message shown to the user when input does not validate against the specified regex. When omitted, the default message is given:
+&quot;User input {0} does not satisfy pattern {1}&quot;
+where {0} is a placeholder for user input and {1} is a placeholder for the regular expression.
+               </documentation>
+               <appinfo>
+                  <meta.attribute translatable="true"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <annotation>
+      <appinfo>
+         <meta.section type="since"/>
+      </appinfo>
+      <documentation>
+         [Enter the first release in which this extension point appears.]
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appinfo>
+         <meta.section type="examples"/>
+      </appinfo>
+      <documentation>
+         [Enter extension point usage example here.]
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appinfo>
+         <meta.section type="apiinfo"/>
+      </appinfo>
+      <documentation>
+         [Enter API information here.]
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appinfo>
+         <meta.section type="implementation"/>
+      </appinfo>
+      <documentation>
+         [Enter information about supplied implementation of this extension point.]
+      </documentation>
+   </annotation>
+
+
+</schema>
