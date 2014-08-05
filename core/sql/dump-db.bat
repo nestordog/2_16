@@ -32,6 +32,8 @@ mysqldump.exe ^
 --ignore-table=%db%.fund ^
 --ignore-table=%db%.future ^
 --ignore-table=%db%.generic_tick ^
+--ignore-table=%db%.intrest_rate ^
+--ignore-table=%db%.option ^
 --ignore-table=%db%.measurement ^
 --ignore-table=%db%.portfolio_value ^
 --ignore-table=%db%.position ^
