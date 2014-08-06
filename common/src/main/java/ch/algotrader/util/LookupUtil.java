@@ -23,8 +23,6 @@ import java.util.Map;
 
 import org.apache.commons.collections15.map.SingletonMap;
 
-import com.espertech.esper.collection.Pair;
-
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.cache.CacheManager;
 import ch.algotrader.config.ConfigLocator;
@@ -43,6 +41,8 @@ import ch.algotrader.service.PortfolioService;
 import ch.algotrader.util.collection.CollectionUtil;
 import ch.algotrader.vo.RawBarVO;
 import ch.algotrader.vo.RawTickVO;
+
+import com.espertech.esper.collection.Pair;
 
 /**
  * Provides static Lookup methods based mainly on the {@link ch.algotrader.service.LookupService}
@@ -247,7 +247,7 @@ public class LookupUtil {
      */
     public static boolean hasCurrentMarketDataEvents() {
 
-        String startedStrategyName = ConfigLocator.instance().getCommonConfig().getStrategyName();
+        String startedStrategyName = ConfigLocator.instance().getCommonConfig().getStartedStrategyName();
         return (EngineLocator.instance().getEngine(startedStrategyName).getLastEvent("CURRENT_MARKET_DATA_EVENT") != null);
     }
 

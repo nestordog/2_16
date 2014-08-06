@@ -137,7 +137,7 @@ public class EngineLocator {
         } else {
 
             // check if it is the localStrategy
-            if (CONFIG.getStrategyName().equals(engineName)) {
+            if (CONFIG.getStartedStrategyName().equals(engineName)) {
 
                 getEngine(engineName).sendEvent(obj);
 
