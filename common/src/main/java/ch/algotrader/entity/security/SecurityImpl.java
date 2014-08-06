@@ -23,9 +23,6 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.hibernate.Hibernate;
 
-import com.espertech.esper.event.WrapperEventBean;
-import com.espertech.esper.event.bean.BeanEventBean;
-
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.ConfigLocator;
@@ -36,6 +33,9 @@ import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.ObjectUtil;
 import ch.algotrader.util.metric.MetricsUtil;
+
+import com.espertech.esper.event.WrapperEventBean;
+import com.espertech.esper.event.bean.BeanEventBean;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -52,7 +52,7 @@ public abstract class SecurityImpl extends Security {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public MarketDataEvent getCurrentMarketDataEvent() {
 
-        String startedStrategyName = ConfigLocator.instance().getCommonConfig().getStrategyName();
+        String startedStrategyName = ConfigLocator.instance().getCommonConfig().getStartedStrategyName();
         if (EngineLocator.instance().hasEngine(startedStrategyName)) {
             List<Map> events = EngineLocator.instance().getEngine(startedStrategyName).getAllEvents("CURRENT_MARKET_DATA_EVENT");
 

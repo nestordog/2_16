@@ -62,14 +62,15 @@ public class TradingHoursImpl extends TradingHours {
 
         StringBuffer buffer = new StringBuffer();
         buffer.append(getExchange());
+        buffer.append(" ");
 
         for (WeekDay weekDay : WeekDay.values()) {
             if (isEnabled(weekDay)) {
                 buffer.append(weekDay.name());
+                buffer.append(" ");
             }
         }
 
-        buffer.append(" ");
         buffer.append(hourFormat.format(getOpen()));
         buffer.append("-");
         buffer.append(hourFormat.format(getClose()));

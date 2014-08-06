@@ -20,6 +20,7 @@ package ch.algotrader.config;
 import java.io.File;
 import java.math.BigDecimal;
 
+import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.MarketDataType;
@@ -147,6 +148,18 @@ public final class CommonConfig {
 
     public boolean isDisplayClosedPositions() {
         return this.displayClosedPositions;
+    }
+
+    public String getStartedStrategyName() {
+        if (this.simulation) {
+            return StrategyImpl.BASE;
+        } else {
+            return this.strategyName;
+        }
+    }
+
+    public boolean isStartedStrategyBASE() {
+        return StrategyImpl.BASE.equals(getStartedStrategyName());
     }
 
     @Override

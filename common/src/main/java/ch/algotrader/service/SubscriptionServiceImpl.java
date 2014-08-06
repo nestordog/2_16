@@ -25,7 +25,6 @@ import org.springframework.jms.listener.DefaultMessageListenerContainer;
 
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.Subscription;
-import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.enumeration.FeedType;
 
 /**
@@ -87,7 +86,7 @@ public class SubscriptionServiceImpl extends SubscriptionServiceBase {
     protected void handleInitMarketDataEventSubscriptions() throws Exception {
 
         CommonConfig commonConfig = getCommonConfig();
-        if (commonConfig.isSimulation() || StrategyImpl.BASE.equals(commonConfig.getStrategyName()) || commonConfig.isSingleVM())
+        if (commonConfig.isSimulation() || commonConfig.isStartedStrategyBASE() || commonConfig.isSingleVM())
             return;
 
         // assemble the message selector
@@ -121,7 +120,7 @@ public class SubscriptionServiceImpl extends SubscriptionServiceBase {
     protected void handleSubscribeGenericEvents(Class[] classes) throws Exception {
 
         CommonConfig commonConfig = getCommonConfig();
-        if (commonConfig.isSimulation() || StrategyImpl.BASE.equals(commonConfig.getStrategyName()) || commonConfig.isSingleVM())
+        if (commonConfig.isSimulation() || commonConfig.isStartedStrategyBASE() || commonConfig.isSingleVM())
             return;
 
         // assemble the message selector

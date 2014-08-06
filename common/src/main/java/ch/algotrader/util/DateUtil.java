@@ -45,7 +45,7 @@ public class DateUtil {
     public static Date getCurrentEPTime() {
 
         if (ServiceLocator.instance().isInitialized()) {
-            String strategyName = ConfigLocator.instance().getCommonConfig().getStrategyName();
+            String strategyName = ConfigLocator.instance().getCommonConfig().getStartedStrategyName();
             if (EngineLocator.instance().hasEngine(strategyName) && !EngineLocator.instance().getEngine(strategyName).isInternalClock()) {
                 return new Date(EngineLocator.instance().getEngine(strategyName).getCurrentTime());
             }

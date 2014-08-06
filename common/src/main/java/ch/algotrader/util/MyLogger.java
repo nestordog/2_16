@@ -67,7 +67,7 @@ public class MyLogger extends Logger {
         // in simulation get date from the Esper Engine belonging to the startedStrategy
         CommonConfig commonConfig = ConfigLocator.instance().getCommonConfig();
         if (commonConfig.isSimulation()) {
-            String strategyName = commonConfig.getStrategyName();
+            String strategyName = commonConfig.getStartedStrategyName();
             if (EngineLocator.instance().hasEngine(strategyName)) {
 
                 long engineTime = EngineLocator.instance().getEngine(strategyName).getCurrentTime();
