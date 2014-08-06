@@ -47,7 +47,7 @@ public class CalendarServiceImpl extends CalendarServiceBase {
     protected boolean handleIsOpen(int exchangeId, Date dateTime) throws Exception {
 
         Exchange exchange = getExchangeDao().get(exchangeId);
-        Date date = DateUtils.truncate(dateTime, Calendar.DATE);
+        Date date = truncateToDayUsingTimeZone(dateTime, exchange.getTZ());
         TimeIntervals timeIntervals = getTimeIntervalsPlusMinusOneDay(exchange, date);
         return timeIntervals.contains(dateTime);
     }
@@ -87,7 +87,7 @@ public class CalendarServiceImpl extends CalendarServiceBase {
         }
 
         // check if any of the tradingHours is enabled for this date
-        WeekDay weekDay = getWeekDay(date);
+        WeekDay weekDay = getWeekDay(date, TimeZone.getDefault());
         for (TradingHours tradingHours : exchange.getTradingHours()) {
             if (tradingHours.isEnabled(weekDay)) {
                 return true;
@@ -115,10 +115,12 @@ public class CalendarServiceImpl extends CalendarServiceBase {
 
     /**
      * gets the weekday of the specified date
+     * @param timeZone
      */
-    private WeekDay getWeekDay(Date date) {
+    private WeekDay getWeekDay(Date date, TimeZone timeZone) {
 
         Calendar cal = new GregorianCalendar();
+        cal.setTimeZone(timeZone);
         cal.setTime(date);
         return WeekDay.fromValue(cal.get(Calendar.DAY_OF_WEEK));
     }
@@ -162,16 +164,16 @@ public class CalendarServiceImpl extends CalendarServiceBase {
         Date open = getDateTime(timeZone, date, tradingHours.getOpen());
         Date close = getDateTime(timeZone, date, tradingHours.getClose());
 
-        if (!tradingHours.isEnabled(getWeekDay(open))) {
+        if (!tradingHours.isEnabled(getWeekDay(open, timeZone))) {
             return null;
         }
 
-        Holiday holiday = getHoliday(tradingHours.getExchange(), open);
+        Holiday holiday = getHoliday(tradingHours.getExchange(), date);
         if (holiday != null) {
             if (holiday.getLateOpen() != null) {
-                open = getDateTime(timeZone, open, holiday.getLateOpen());
+                open = getDateTime(timeZone, date, holiday.getLateOpen());
             } else if (holiday.getEarlyClose() != null) {
-                close = getDateTime(timeZone, close, holiday.getEarlyClose());
+                close = getDateTime(timeZone, date, holiday.getEarlyClose());
             } else {
                 return null;
             }
@@ -204,6 +206,28 @@ public class CalendarServiceImpl extends CalendarServiceBase {
         dateCal.set(Calendar.MILLISECOND, timeCal.get(Calendar.MILLISECOND));
 
         return dateCal.getTime();
+    }
+
+    /**
+     * truncates the given date by converting it first to the specified timezone and then
+     * taking the year, month, day part and leaving all other fields at zero
+     */
+    private Date truncateToDayUsingTimeZone(Date date, TimeZone tz) {
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        cal.setTimeZone(tz);
+
+        Calendar truncateCal = Calendar.getInstance();
+        truncateCal.set(Calendar.YEAR, cal.get(Calendar.YEAR));
+        truncateCal.set(Calendar.MONTH, cal.get(Calendar.MONTH));
+        truncateCal.set(Calendar.DAY_OF_MONTH, cal.get(Calendar.DAY_OF_MONTH));
+        truncateCal.set(Calendar.HOUR_OF_DAY, 0);
+        truncateCal.set(Calendar.MINUTE, 0);
+        truncateCal.set(Calendar.SECOND, 0);
+        truncateCal.set(Calendar.MILLISECOND, 0);
+
+        return truncateCal.getTime();
     }
 
     public class TimeInterval implements Serializable, Comparable<TimeInterval> {
