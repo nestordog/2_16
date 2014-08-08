@@ -49,7 +49,12 @@ public class ConfigPropertiesFactoryBean implements FactoryBean<Properties> {
         Set<String> names = configProvider.getNames();
         if (names != null) {
             for (String name: names) {
-                props.setProperty(name, configProvider.getParameter(name, String.class));
+
+                String value = configProvider.getParameter(name, String.class);
+                if (value != null) {
+
+                    props.setProperty(name, value);
+                }
             }
         }
         return props;
