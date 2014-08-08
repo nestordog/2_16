@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.util.Assert;
 
@@ -58,6 +59,10 @@ public class DefaultConfigProvider implements ConfigProvider {
 
         Object param = getRawValue(name);
         if (param == null) {
+
+            return null;
+        }
+        if (param instanceof String && StringUtils.isBlank((String) param)) {
 
             return null;
         }
