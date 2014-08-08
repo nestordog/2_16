@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.config.spring;
 
+import java.io.File;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.net.URL;
@@ -50,6 +51,30 @@ public class DefaultConfigProviderTest {
         Assert.assertEquals(new BigDecimal("5"), configProvider.getParameter("int.stuff", BigDecimal.class));
         Assert.assertEquals(new URL("http://localhost/stuff"), configProvider.getParameter("url.stuff", URL.class));
         Assert.assertEquals(new URI("http://localhost/stuff"), configProvider.getParameter("url.stuff", URI.class));
+    }
+
+    @Test
+    public void testTypeConversionNullValues() throws Exception {
+
+        Map<String, String> map = new HashMap<String, String>();
+        ConfigProvider configProvider = new DefaultConfigProvider(map, new DefaultConversionService());
+        Assert.assertEquals(null, configProvider.getParameter("int.stuff", BigDecimal.class));
+        Assert.assertEquals(null, configProvider.getParameter("url.stuff", URL.class));
+        Assert.assertEquals(null, configProvider.getParameter("file.stuff", File.class));
+    }
+
+    @Test
+    public void testTypeConversionEmptyValues() throws Exception {
+
+        Map<String, String> map = new HashMap<String, String>();
+        map.put("int.stuff", "");
+        map.put("url.stuff", "");
+        map.put("file.stuff", "");
+
+        ConfigProvider configProvider = new DefaultConfigProvider(map, new DefaultConversionService());
+        Assert.assertEquals(null, configProvider.getParameter("int.stuff", BigDecimal.class));
+        Assert.assertEquals(null, configProvider.getParameter("url.stuff", URL.class));
+        Assert.assertEquals(null, configProvider.getParameter("file.stuff", File.class));
     }
 
     @Test(expected=ConversionFailedException.class)
