@@ -55,12 +55,14 @@ ConfigEditor properties format
 
 ConfigEditor interprets, in addition to the standard "key=value" pairs, special comments. These comments provide ConfigEditor with the needed information to correctly display the "key=value" data (i.e. the type of data, the widget class it should use for an inplace editor etc.). Example:
 
+```
 #{"type":"String","label":"Last name:"}
 lastName = Mustermann
 #{"type":"String","label":"First name:"}
 surName = Joe
 #{"type":"Date","required":"false","label":"Date of birth:"}
 dateOfBirth = 1980-01-01
+```
 
 ConfigEditor remembers association of each key=value pair with it's special comment. When ConfigEditor saves properties back to properties-file, all key=value pairs are written with their special comments.
 
@@ -88,7 +90,7 @@ DateTime    | org.eclipse.nebula.widgets.cdatetime.CDateTime | CDT.DROP_DOWN | `
 Boolean     | org.eclipse.swt.widgets.Button  | SWT.CHECK | -
 Enumeration | org.eclipse.swt.widgets.Combo   | SWT.READ_ONLY | -
 Email       | org.eclipse.swt.widgets.Text    | SWT.SINGLE | `^.+@.+\.[a-z]{2,4}$`
-URL         | org.eclipse.swt.widgets.Text    | SWT.SINGLE | `^(https?|ftp|file)://[-a-zA-Z0-9+&amp;@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&amp;@#/%=~_|]$`
+URL         | org.eclipse.swt.widgets.Text    | SWT.SINGLE | `^(https?&#124;ftp&#124;file)://[-a-zA-Z0-9+&amp;@#/%?=~_&#124;!:,.;]*[-a-zA-Z0-9+&amp;@#/%=~_&#124;]$`
 URI         | org.eclipse.swt.widgets.Text    | SWT.SINGLE | `^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?`
 
 ConfigEditor input validation
@@ -116,10 +118,10 @@ Here is the detailed explanation of PropertyDef extention point attributes:
 
 - id: string, required. Property type identifier, must match the attribute "type" in property comment:
 
-  ```
-  # { "type": "Boolean", ... }
-  someProperty=true
-  ```
+```
+# { "type": "Boolean", ... }
+someProperty=true
+```
 
 - dataType: fully qualified java class name, required. Internal type of deserialized property or implementation of ch.algotrader.configeditor.IPropertySerializer interface.
 
