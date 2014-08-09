@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="ch.algotrader.feature"
-      label="ch.algotrader.feature"
-      version="2.2.0.qualifier">
+      label="AlgoTrader Plugins"
+      version="2.2.0.qualifier"
+      provider-name="AlgoTrader GmbH">
 
-   <description url="http://www.example.com/description">
-      [Enter Feature Description here.]
+   <description>
+      AlgoTrader Plugins
    </description>
 
    <copyright url="http://www.example.com/copyright">
@@ -32,6 +33,27 @@
 
    <plugin
          id="ch.algotrader.config-editor"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.nebula.widgets.cdatetime"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.jdt.core"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.nebula.cwt"
          download-size="0"
          install-size="0"
          version="0.0.0"

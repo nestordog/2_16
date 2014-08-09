@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!-- Schema file written by PDE -->
-<schema targetNamespace="ch.algotrader.ConfigEditor" xmlns="http://www.w3.org/2001/XMLSchema">
+<schema targetNamespace="ch.algotrader.config-editor" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
       <appinfo>
-         <meta.schema plugin="ch.algotrader.ConfigEditor" id="PropertyDef" name="PropertyDef"/>
+         <meta.schema plugin="ch.algotrader.config-editor" id="PropertyDef" name="PropertyDef"/>
       </appinfo>
       <documentation>
          [Enter description of this extension point.]

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/ch.algotrader.feature_2.2.0.qualifier.jar" id="ch.algotrader.feature" version="2.2.0.qualifier">
+      <category name="ch.algotrader"/>
+   </feature>
+   <category-def name="ch.algotrader" label="AlgoTrader"/>
+</site>

@@ -96,5 +96,6 @@
         <module>wizard</module>
         <module>config-editor</module>
         <module>feature</module>
+        <module>repository</module>
     </modules>
 </project>

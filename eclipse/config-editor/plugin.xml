@@ -22,7 +22,7 @@
    </extension>
    <extension
          id="String"
-         point="ch.algotrader.ConfigEditor.PropertyDef">
+         point="ch.algotrader.config-editor.PropertyDef">
       <PropertyDef
             id="String"
             dataType="java.lang.String"
@@ -30,7 +30,7 @@
       </PropertyDef>
    </extension>
    <extension
-         point="ch.algotrader.ConfigEditor.PropertyDef">
+         point="ch.algotrader.config-editor.PropertyDef">
       <PropertyDef
             id="Boolean"
             dataType="java.lang.Boolean"
@@ -38,7 +38,7 @@
       </PropertyDef>
    </extension>
    <extension
-         point="ch.algotrader.ConfigEditor.PropertyDef">
+         point="ch.algotrader.config-editor.PropertyDef">
       <PropertyDef
               id="Date"
             dataType="ch.algotrader.configeditor.editingsupport.DateSerializer"
@@ -46,7 +46,7 @@
       </PropertyDef>
    </extension>
    <extension
-         point="ch.algotrader.ConfigEditor.PropertyDef">
+         point="ch.algotrader.config-editor.PropertyDef">
       <PropertyDef
               id="Time"
             dataType="ch.algotrader.configeditor.editingsupport.TimeSerializer"
@@ -54,7 +54,7 @@
       </PropertyDef>
    </extension>
    <extension
-         point="ch.algotrader.ConfigEditor.PropertyDef">
+         point="ch.algotrader.config-editor.PropertyDef">
       <PropertyDef
             id="DateTime"
             dataType="ch.algotrader.configeditor.editingsupport.DateTimeSerializer"
@@ -62,7 +62,7 @@
       </PropertyDef>
    </extension>
    <extension
-         point="ch.algotrader.ConfigEditor.PropertyDef">
+         point="ch.algotrader.config-editor.PropertyDef">
       <PropertyDef
             id="Integer"
             dataType="java.lang.Integer"
@@ -72,7 +72,7 @@
       </PropertyDef>
    </extension>
    <extension
-         point="ch.algotrader.ConfigEditor.PropertyDef">
+         point="ch.algotrader.config-editor.PropertyDef">
       <PropertyDef
               id="Double"
             dataType="ch.algotrader.configeditor.editingsupport.DoubleSerializer"
@@ -82,7 +82,7 @@
       </PropertyDef>
    </extension>
    <extension
-         point="ch.algotrader.ConfigEditor.PropertyDef">
+         point="ch.algotrader.config-editor.PropertyDef">
          <PropertyDef
               id="Email"
             dataType="java.lang.String"
@@ -92,7 +92,7 @@
       </PropertyDef>
    </extension>
    <extension
-         point="ch.algotrader.ConfigEditor.PropertyDef">
+         point="ch.algotrader.config-editor.PropertyDef">
       <PropertyDef
             cellEditorFactory="ch.algotrader.configeditor.editingsupport.TextCellEditorFactory"
             dataType="java.lang.String"
@@ -102,7 +102,7 @@
       </PropertyDef>
    </extension>
    <extension
-         point="ch.algotrader.ConfigEditor.PropertyDef">
+         point="ch.algotrader.config-editor.PropertyDef">
       <PropertyDef
             cellEditorFactory="ch.algotrader.configeditor.editingsupport.TextCellEditorFactory"
             dataType="java.lang.String"

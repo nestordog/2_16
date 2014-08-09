@@ -101,7 +101,7 @@ public class PropertyDefExtensionPoint {
 
     private static IConfigurationElement findConfig(String propertyId) {
         IExtensionRegistry reg = Platform.getExtensionRegistry();
-        IConfigurationElement[] extensions = reg.getConfigurationElementsFor("ch.algotrader.ConfigEditor.PropertyDef");
+        IConfigurationElement[] extensions = reg.getConfigurationElementsFor("ch.algotrader.config-editor.PropertyDef");
         for (int i = 0; i < extensions.length; i++) {
             IConfigurationElement element = extensions[i];
             if (element.getAttribute("id").equals(propertyId)) {
