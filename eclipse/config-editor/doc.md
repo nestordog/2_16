@@ -44,9 +44,11 @@ ConfigEditor API
 
 ConfigEditor provides access to the unsaved data in the form of API functions:
 
+```java
 Iterable<java.io.File> getFiles();
 
 java.util.Properties getInMemoryData(java.io.File f);
+```
 
 ConfigEditor properties format
 ------------------------------
