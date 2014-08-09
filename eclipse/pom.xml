@@ -94,9 +94,7 @@
     <modules>
         <module>wrapper</module>
         <module>wizard</module>
-        <module>ConfigEditor</module>
-        <module>ConfigEditor-TestPlugin</module>
-        <module>ConfigEditor.TestFeature</module>
-        <module>ConfigEditor-TestApp</module>
+        <module>config-editor</module>
+        <module>feature</module>
     </modules>
 </project>

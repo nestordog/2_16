@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="ConfigEditor.TestFeature"
-      label="Feature"
+      id="ch.algotrader.feature"
+      label="ch.algotrader.feature"
       version="2.2.0.qualifier">
 
    <description url="http://www.example.com/description">
@@ -17,14 +17,21 @@
    </license>
 
    <plugin
-         id="ch.algotrader.ConfigEditor"
+         id="ch.algotrader.wrapper"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="ch.algotrader.ConfigEditor.TestPlugin"
+         id="ch.algotrader.wizard"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="ch.algotrader.config-editor"
          download-size="0"
          install-size="0"
          version="0.0.0"

@@ -1,15 +1,17 @@
-New project wizard
-==================
+AlgoTrader Eclipse Feature
+==========================
 
 Project structure
 -----------------
 
-wizard-parent
-  - contains common maven declarations
-wizard-wrapper
-  - wraps non-OSGi modules to OSGi bundle
+wrapper
+  - wraps non-OSGi AlgoTrader modules and their dependencies to OSGi bundle
 wizard
   - implements wizard plugin
+config-editor
+  - implements configuration editor
+feature
+  - implements AlgoTrader Feature, including wrapper, wizard and config-editor.
 
 How to compile
 --------------
@@ -23,9 +25,7 @@ How to install and run in Eclipse IDE
 
 1. Start Eclipse IDE.
 
-2. Install two plugins:
-  wizard-wrapper/target/ch.algotrader.wrapper-1.0.0.jar
-  wizard/target/ch.algotrader.wizard-1.0.0.jar
+2. Install the feature ch.algotrader.feature.
 
 3. Invoke menu "File/New/Project...", "algotrader/Neues Projekt".
 

@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: ch.algotrader.ConfigEditor
-Bundle-SymbolicName: ch.algotrader.ConfigEditor;singleton:=true
+Bundle-Name: ch.algotrader.config-editor
+Bundle-SymbolicName: ch.algotrader.config-editor;singleton:=true
 Bundle-Version: 2.2.0.qualifier
 Bundle-Activator: ch.algotrader.configeditor.Activator
 Require-Bundle: org.eclipse.ui,
