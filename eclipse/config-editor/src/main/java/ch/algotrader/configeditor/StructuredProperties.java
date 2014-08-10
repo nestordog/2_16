@@ -22,6 +22,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.text.MessageFormat;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -43,7 +45,7 @@ public class StructuredProperties {
         properties = new LinkedHashMap<String, ValueStruct>();
     }
 
-    public void load(File f) throws Exception {
+    public void load(File f, Collection<String> errorMessages) throws Exception {
         ValueStruct n = new ValueStruct();
         BufferedReader reader = new BufferedReader(new FileReader(f));
         try {
@@ -55,7 +57,14 @@ public class StructuredProperties {
                 if (line.charAt(0) == '#') {
                     n.comments.add(line.substring(1));
                 } else {
-                    parseKeyValueLine(n, line);
+                    try {
+                        parseKeyValueLine(n, line);
+                    } catch (Exception e) {
+                        if (errorMessages == null)
+                            throw e;
+                        String errMessage = MessageFormat.format("Error reading file ''{0}'': {1}", f.getName(), (e.getMessage() == null ? e.getClass().getName() : e.getMessage()));
+                        errorMessages.add(errMessage);
+                    }
                     n = new ValueStruct();
                 }
             }

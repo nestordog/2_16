@@ -25,6 +25,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -89,11 +90,16 @@ class FileListContentProvider implements IStructuredContentProvider {
         for (File f : files) {
             StructuredProperties structProps = new StructuredProperties();
             this.editorPropertyPage.propMap.put(f, structProps);
+            List<String> errorMessages = new ArrayList<String>();
             try {
-                structProps.load(f);
+                structProps.load(f, errorMessages);
             } catch (Exception e) {
                 e.printStackTrace();
                 String errMessage = MessageFormat.format("Error reading file ''{0}'': {1}", f.getName(), (e.getMessage() == null ? e.getClass().getName() : e.getMessage()));
+                errorMessages.add(errMessage);
+            }
+            if (!errorMessages.isEmpty()) {
+                String errMessage = StringUtils.join(errorMessages, "\n");
                 this.editorPropertyPage.setErrorMessage(errMessage);
             }
             List<Object[]> elementsList = new ArrayList<Object[]>();
@@ -162,8 +168,9 @@ class FileListContentProvider implements IStructuredContentProvider {
         for (int i = 0; i < classPath.length; i++) {
             IClasspathEntry entry = classPath[i];
             if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
-                IProject proj = ResourcesPlugin.getWorkspace().getRoot().getProject(entry.toString());
-                if (proj.exists()) {
+                String projectName = entry.getPath().segment(0);
+                IProject proj = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
+                if (proj != null) {
                     IJavaProject javaProj;
                     if (proj instanceof IJavaProject)
                         javaProj = (IJavaProject) proj;
@@ -171,11 +178,10 @@ class FileListContentProvider implements IStructuredContentProvider {
                         javaProj = JavaCore.create(proj);
                     javaProj.open(null);
                     result.addAll(getPropertiesFilesFromClasspath(javaProj));
-                    continue;
                 }
             } else if (entry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
                 IFolder folder = ResourcesPlugin.getWorkspace().getRoot().getFolder(entry.getPath());
-                if (folder.exists()) {
+                if (folder != null) {
                     File entryFile = folder.getLocation().toFile().getAbsoluteFile();
                     File dir = new File(entryFile, "META-INF");
                     if (dir.exists()) {

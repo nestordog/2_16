@@ -19,3 +19,4 @@ Eclipse-BuddyPolicy: registered
 Export-Package: ch.algotrader.configeditor,
  ch.algotrader.configeditor.editingsupport
 Bundle-Vendor: AlgoTrader GmbH
+Import-Package: org.apache.commons.lang
