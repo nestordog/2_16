@@ -25,6 +25,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
@@ -64,6 +65,7 @@ class FileListContentProvider implements IStructuredContentProvider {
             try {
                 files = getFiles((IJavaProject) newInput);
             } catch (Exception e) {
+                e.printStackTrace();
                 throw new RuntimeException(e);
             }
     }
@@ -79,10 +81,11 @@ class FileListContentProvider implements IStructuredContentProvider {
     List<File> getFiles(IJavaProject javaProject) throws Exception {
         List<File> files;
         File hierarchyFile = getHierarchyFileFromClasspath(javaProject);
-        if (hierarchyFile == null)
+        if (hierarchyFile == null) {
             files = getPropertiesFilesFromClasspath(javaProject);
-        else
+        } else {
             files = getPropertiesFilesFromHierarchyFile(hierarchyFile, javaProject);
+        }
         for (File f : files) {
             StructuredProperties structProps = new StructuredProperties();
             this.editorPropertyPage.propMap.put(f, structProps);
@@ -154,40 +157,38 @@ class FileListContentProvider implements IStructuredContentProvider {
 
     List<File> getPropertiesFilesFromClasspath(IJavaProject javaProject) throws Exception {
         List<File> result = new ArrayList<File>();
-        IPath workspaceLocation = ResourcesPlugin.getWorkspace().getRoot().getLocation();
+        // IPath workspaceLocation = ResourcesPlugin.getWorkspace().getRoot().getLocation();
         IClasspathEntry[] classPath = javaProject.getResolvedClasspath(false);
         for (int i = 0; i < classPath.length; i++) {
             IClasspathEntry entry = classPath[i];
-            String entryPath = entry.getPath().toString();
-            if (entryPath.startsWith("/")) {
-                String projectName = entryPath.substring(1);
-                if (new Path(projectName).segmentCount() == 1) {
-                    IProject proj = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
-                    if (proj.exists()) {
-                        IJavaProject javaProj;
-                        if (proj instanceof IJavaProject)
-                            javaProj = (IJavaProject) proj;
-                        else
-                            javaProj = JavaCore.create(proj);
-                        javaProj.open(null);
-                        result.addAll(getPropertiesFilesFromClasspath(javaProj));
+            if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
+                IProject proj = ResourcesPlugin.getWorkspace().getRoot().getProject(entry.toString());
+                if (proj.exists()) {
+                    IJavaProject javaProj;
+                    if (proj instanceof IJavaProject)
+                        javaProj = (IJavaProject) proj;
+                    else
+                        javaProj = JavaCore.create(proj);
+                    javaProj.open(null);
+                    result.addAll(getPropertiesFilesFromClasspath(javaProj));
+                    continue;
+                }
+            } else if (entry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+                IFolder folder = ResourcesPlugin.getWorkspace().getRoot().getFolder(entry.getPath());
+                if (folder.exists()) {
+                    File entryFile = folder.getLocation().toFile().getAbsoluteFile();
+                    File dir = new File(entryFile, "META-INF");
+                    if (dir.exists()) {
+                        for (File f : dir.listFiles(new FileFilter() {
+                            @Override
+                            public boolean accept(File f) {
+                                return f.getName().endsWith(".properties");
+                            }
+                        })) {
+                            result.add(f);
+                        }
                     }
                 }
-            }
-            File entryFile = new File(entry.getPath().toOSString());
-            if (!entryFile.exists())
-                entryFile = new File(workspaceLocation.toOSString(), entry.getPath().toString());
-            if (entryFile.isDirectory()) {
-                File dir = new File(entryFile, "META-INF");
-                if (dir.exists())
-                    for (File f : dir.listFiles(new FileFilter() {
-                        @Override
-                        public boolean accept(File f) {
-                            return f.getName().endsWith(".properties");
-                        }
-                    })) {
-                        result.add(f);
-                    }
             }
         }
         return result;
