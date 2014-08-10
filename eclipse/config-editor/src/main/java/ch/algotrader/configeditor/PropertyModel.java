@@ -64,14 +64,15 @@ public class PropertyModel {
 
     @SuppressWarnings("unchecked")
     private Map<String, Object> getDefinition() {
-        Map<String, Object> definition = null;
         ObjectMapper mapper = new ObjectMapper();
-        try {
-            if (values != null && values.comments != null && !values.comments.isEmpty())
-                definition = mapper.readValue(values.comments.get(0), Map.class);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        return definition;
+        if (values != null && values.comments != null)
+            for (String comment : values.comments) {
+                try {
+                    return mapper.readValue(comment, Map.class);
+                } catch (Exception e) {
+                    // keep reading other comments in case of errors
+                }
+            }
+        return null;
     }
 }
