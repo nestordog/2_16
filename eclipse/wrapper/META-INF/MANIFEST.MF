@@ -131,3 +131,4 @@ Export-Package: ch.algotrader,
  ch.algotrader.vo,
  com.mysql.jdbc
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-Vendor: AlgoTrader GmbH
