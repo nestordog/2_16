@@ -31,7 +31,7 @@ public final class IBConfig {
 
     public IBConfig(
             @ConfigName("ib.faMethod") String faMethod,
-            @ConfigName("ib.genericTickList") String genericTickList) {
+            @ConfigName(value="ib.genericTickList", optional=true) String genericTickList) {
         this.faMethod = faMethod;
         this.genericTickList = genericTickList;
     }

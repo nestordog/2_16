@@ -885,7 +885,12 @@ public class EngineImpl extends AbstractEngine {
 
         CommonConfig commonConfig = ConfigLocator.instance().getCommonConfig();
         ConfigParams configParams = ConfigLocator.instance().getConfigParams();
-        Set<String> moduleDeployExcludeStatements = new HashSet<String>(Arrays.asList(configParams.getString("misc.moduleDeployExcludeStatements").split(",")));
+
+        String excludeStatements = configParams.getString("misc.moduleDeployExcludeStatements");
+        Set<String> moduleDeployExcludeStatements = new HashSet<String>();
+        if (excludeStatements != null) {
+            moduleDeployExcludeStatements.addAll(Arrays.asList(excludeStatements.split(",")));
+        }
 
         for (Annotation annotation : annotations) {
             if (annotation instanceof Name) {
