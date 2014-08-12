@@ -53,7 +53,8 @@ public class SlicingOrderImpl extends SlicingOrder {
             ",qty=" + getMinQuantity() + "-" + getMaxQuantity() +
             ",duration=" + getMinDuration() + "-" + getMaxDuration() +
             ",delay=" + getMinDelay() + "-" + getMaxDelay() +
-            ",currentOffsetTicks=" + this.currentOffsetTicks;
+            ",currentOffsetTicks=" + this.currentOffsetTicks +
+            " " + getOrderProperties();
         //@formatter:on
     }
 

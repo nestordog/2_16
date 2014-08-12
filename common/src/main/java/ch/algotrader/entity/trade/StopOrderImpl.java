@@ -29,7 +29,7 @@ public class StopOrderImpl extends StopOrder {
 
     @Override
     public String getExtDescription() {
-        return "stop=" + getStop();
+        return "stop=" + getStop() + " " + getOrderProperties();
     }
 
     @Override

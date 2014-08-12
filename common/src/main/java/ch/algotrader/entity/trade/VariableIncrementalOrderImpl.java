@@ -53,7 +53,8 @@ public class VariableIncrementalOrderImpl extends VariableIncrementalOrder {
             ",startLimit=" + this.startLimit +
             ",endLimit=" + this.endLimit +
             ",currentLimit=" + this.currentLimit +
-            ",increment=" + RoundUtil.getBigDecimal(this.increment, getSecurity().getSecurityFamily().getScale() + 1);
+            ",increment=" + RoundUtil.getBigDecimal(this.increment, getSecurity().getSecurityFamily().getScale() + 1) +
+            " " + getOrderProperties();
         //@formatter:on
     }
 

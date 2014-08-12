@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
+import java.beans.PropertyDescriptor;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -46,6 +47,7 @@ import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.entity.trade.LimitOrder;
 import ch.algotrader.entity.trade.MarketOrder;
 import ch.algotrader.entity.trade.Order;
+import ch.algotrader.entity.trade.OrderProperty;
 import ch.algotrader.entity.trade.SlicingOrder;
 import ch.algotrader.entity.trade.StopLimitOrder;
 import ch.algotrader.entity.trade.StopOrder;
@@ -325,8 +327,37 @@ public class ManagementServiceImpl extends ManagementServiceBase {
                 properties.put(nameValue.split("=")[0], nameValue.split("=")[1]);
             }
 
-            // populte the properties
-            BeanUtil.populate(order, properties);
+            // separate properties that correspond to actual Order fields from the rest
+            Map<String, String> fields = new HashMap<String, String>();
+            PropertyDescriptor[] pds = BeanUtil.getPropertyDescriptors(order);
+            for (PropertyDescriptor pd : pds) {
+                String name = pd.getName();
+                if (properties.containsKey(name)) {
+                    fields.put(name, properties.get(name));
+                    properties.remove(name);
+                }
+            }
+
+            // populate the fields
+            BeanUtil.populate(order, fields);
+
+            // create OrderProperty Entities for the remaining properties
+            for (Map.Entry<String, String> entry : properties.entrySet()) {
+
+                OrderProperty orderProperty = OrderProperty.Factory.newInstance();
+
+                String name = entry.getKey();
+                if (name.startsWith("fix")) {
+                    name = name.substring(3);
+                    orderProperty.setFix(true);
+                } else {
+                    orderProperty.setFix(false);
+                }
+                orderProperty.setName(name);
+                orderProperty.setValue(entry.getValue());
+
+                order.addOrderProperties(name, orderProperty);
+            }
         }
 
         // send orders

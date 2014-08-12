@@ -38,7 +38,7 @@ public class DistributingOrderImpl extends DistributingOrder {
 
     @Override
     public String getExtDescription() {
-        return "";
+        return getOrderProperties().toString();
     }
 
     @Override

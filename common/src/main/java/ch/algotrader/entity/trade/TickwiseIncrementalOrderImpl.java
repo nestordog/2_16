@@ -51,7 +51,8 @@ public class TickwiseIncrementalOrderImpl extends TickwiseIncrementalOrder {
             ",endOffsetTicks=" + getEndOffsetTicks() +
             (this.startLimit != null ? ",startLimit=" + this.startLimit : "") +
             (this.endLimit != null ? ",endLimit=" + this.endLimit : "") +
-            (this.currentLimit != null ? ",currentLimit=" + this.currentLimit : "");
+            (this.currentLimit != null ? ",currentLimit=" + this.currentLimit : "") +
+            " " + getOrderProperties();
         //@formatter:on
     }
 

@@ -30,7 +30,7 @@ public class StopLimitOrderImpl extends StopLimitOrder {
 
     @Override
     public String getExtDescription() {
-        return "stop=" + getStop() + ",limit=" + getLimit();
+        return "stop=" + getStop() + ",limit=" + getLimit() + " " + getOrderProperties();
     }
 
     @Override

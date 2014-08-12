@@ -28,7 +28,7 @@ public class MarketOrderImpl extends MarketOrder {
 
     @Override
     public String getExtDescription() {
-        return "";
+        return getOrderProperties().toString();
     }
 
     @Override

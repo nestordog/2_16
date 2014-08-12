@@ -30,7 +30,7 @@ public class LimitOrderImpl extends LimitOrder {
 
     @Override
     public String getExtDescription() {
-        return "limit=" + getLimit();
+        return "limit=" + getLimit() + " " + getOrderProperties();
     }
 
     @Override

@@ -28,6 +28,6 @@ public class OrderPropertyImpl extends OrderProperty {
 
     @Override
     public String toString() {
-        return (this.isFix() ? "fix" : "") + this.getName() + "=" + this.getValue();
+        return this.getValue() + (this.isFix() ? "(fix)" : "");
     }
 }

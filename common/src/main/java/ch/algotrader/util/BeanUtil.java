@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.util;
 
+import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 
@@ -49,5 +50,12 @@ public class BeanUtil {
      */
     public static void populate(Object bean, Map<String, ?> properties) throws IllegalAccessException, InvocationTargetException {
         beanUtilsBean.populate(bean, properties);
+    }
+
+    /**
+     * Returns a list of PropertyDescriptiors for the specified bean
+     */
+    public static PropertyDescriptor[] getPropertyDescriptors(Object bean) {
+        return beanUtilsBean.getPropertyUtils().getPropertyDescriptors(bean);
     }
 }
