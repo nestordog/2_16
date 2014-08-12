@@ -18,7 +18,6 @@
 package ch.algotrader.entity.trade;
 
 import java.math.BigDecimal;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -40,7 +39,6 @@ import ch.algotrader.util.collection.Pair;
 public class SlicingOrderImpl extends SlicingOrder {
 
     private static final long serialVersionUID = -9017761050542085585L;
-    private static DecimalFormat twoDigitFormat = new DecimalFormat("#,##0.00");
 
     private static Logger logger = MyLogger.getLogger(SlicingOrderImpl.class.getName());
 
@@ -197,82 +195,5 @@ public class SlicingOrderImpl extends SlicingOrder {
         //@formatter:on
 
         return order;
-    }
-
-    @Override
-    public void done() {
-
-        long totalTime;
-        long totalTimeToFill = 0;
-
-        double orderCount = this.pairs.size();
-        double fillCount = 0;
-        double filledOrderCount = 0;
-
-        double sumOrderQtyToMarketVol = 0;
-        double sumFilledQtyToMarketVol = 0;
-        double sumFilledQtyToOrderQty = 0;
-
-        double sumOffsetOrderToMarket = 0;
-        double sumOffsetFillToOrder = 0;
-
-        // totalTime
-        long startTime = ((Order) this.pairs.get(0).getFirst()).getDateTime().getTime();
-        Order lastOrder = this.pairs.get(this.pairs.size() - 1).getFirst();
-        if (lastOrder.getFills().size() > 0) {
-            Fill lastFill = ((List<Fill>) lastOrder.getFills()).get(lastOrder.getFills().size() - 1);
-            totalTime = lastFill.getDateTime().getTime() - startTime;
-        } else {
-            totalTime = lastOrder.getDateTime().getTime() - startTime;
-        }
-
-        for (Pair<LimitOrder, Tick> pair : this.pairs) {
-
-            Tick tick = pair.getSecond();
-            LimitOrder order = pair.getFirst();
-            SecurityFamily securityFamily = order.getSecurity().getSecurityFamily();
-
-            double marketVol = order.getSide().equals(Side.BUY) ? tick.getVolAsk() : tick.getVolBid();
-            double orderQty = order.getQuantity();
-
-            BigDecimal marketPrice = order.getSide().equals(Side.BUY) ? tick.getAsk() : tick.getBid();
-            BigDecimal orderPrice = order.getLimit();
-
-            sumOrderQtyToMarketVol += order.getQuantity() / marketVol;
-            filledOrderCount = order.getFills().size() > 0 ? ++filledOrderCount : filledOrderCount;
-
-            for (Fill fill : order.getFills()) {
-
-                double filledQty = fill.getQuantity();
-                BigDecimal fillPrice = fill.getPrice();
-
-                fillCount++;
-
-                totalTimeToFill += fill.getDateTime().getTime() - order.getDateTime().getTime();
-
-                sumOrderQtyToMarketVol += orderQty / marketVol;
-                sumFilledQtyToOrderQty += filledQty / orderQty;
-                sumFilledQtyToMarketVol += filledQty / marketVol;
-
-                sumOffsetOrderToMarket += Math.abs(securityFamily.getSpreadTicks(orderPrice, marketPrice));
-                sumOffsetFillToOrder += Math.abs(securityFamily.getSpreadTicks(fillPrice, orderPrice));
-            }
-        }
-
-        //@formatter:off
-        logger.info(getDescription() +
-            " totalTime: " + totalTime + " msec" +
-            " avgTimeToFill: " + (int)(totalTimeToFill / fillCount) + " msec" +
-
-            " orderCount: " + orderCount +
-            " filledOrderCount: " + filledOrderCount + " " + twoDigitFormat.format(filledOrderCount / orderCount * 100.0) + "%" +
-
-            " avgOrderQtyToMarketVol: " + twoDigitFormat.format(sumOrderQtyToMarketVol / fillCount * 100.0) + "%" +
-            " avgFilledQtyToOrderQty: " + twoDigitFormat.format(sumFilledQtyToOrderQty / fillCount * 100.0) + "%" +
-            " avgFilledQtyToMarketVol: " + twoDigitFormat.format(sumFilledQtyToMarketVol / fillCount * 100.0) + "%" +
-
-            " avgOffsetOrderToMarket: " + twoDigitFormat.format(sumOffsetOrderToMarket / fillCount) +
-            " avgOffsetFillToOrder: " + twoDigitFormat.format(sumOffsetFillToOrder / fillCount));
-        //@formatter:on
     }
 }

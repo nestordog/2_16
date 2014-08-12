@@ -546,6 +546,43 @@ CREATE TABLE `option_family` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `order`
+--
+
+DROP TABLE IF EXISTS `order`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `order` (
+  `ID` int(11) NOT NULL AUTO_INCREMENT,
+  `class` varchar(255) NOT NULL,
+  `INT_ID` varchar(30) NOT NULL,
+  `EXT_ID` varchar(30) DEFAULT NULL,
+  `DATE_TIME` datetime NOT NULL,
+  `SIDE` enum('BUY','SELL','SELL_SHORT') NOT NULL,
+  `QUANTITY` bigint(20) NOT NULL,
+  `TIF` enum('DAY','GTC','GTD','IOC','FOK','ATO','ATC') NOT NULL,
+  `TIF_DATE_TIME` datetime DEFAULT NULL,
+  `DIRECT` bit(1) NOT NULL,
+  `LIMIT` decimal(15,6) DEFAULT NULL,
+  `STOP` decimal(15,6) DEFAULT NULL,
+  `ACCOUNT_FK` int(11) NOT NULL,
+  `SECURITY_FK` int(11) NOT NULL,
+  `STRATEGY_FK` int(11) NOT NULL,
+  `PARENT_ORDER_FK` int(11) DEFAULT NULL,
+  `ORDER_CHILD_ORDERS_IDX` int(11) DEFAULT NULL,
+  PRIMARY KEY (`ID`),
+  KEY `ORDER_PARENT_ORDER_FKC` (`PARENT_ORDER_FK`),
+  KEY `ORDER_SECURITY_FKC` (`SECURITY_FK`),
+  KEY `ORDER_ACCOUNT_FKC` (`ACCOUNT_FK`),
+  KEY `ORDER_STRATEGY_FKC` (`STRATEGY_FK`),
+  CONSTRAINT `ORDER_ACCOUNT_FKC` FOREIGN KEY (`ACCOUNT_FK`) REFERENCES `account` (`ID`),
+  CONSTRAINT `ORDER_PARENT_ORDER_FKC` FOREIGN KEY (`PARENT_ORDER_FK`) REFERENCES `order` (`ID`),
+  CONSTRAINT `ORDER_SECURITY_FKC` FOREIGN KEY (`SECURITY_FK`) REFERENCES `security` (`ID`),
+  CONSTRAINT `ORDER_STRATEGY_FKC` FOREIGN KEY (`STRATEGY_FK`) REFERENCES `strategy` (`ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `order_preference`
 --
 
@@ -562,6 +599,51 @@ CREATE TABLE `order_preference` (
   UNIQUE KEY `NAME_UNIQUE` (`NAME`),
   KEY `ORDER_PREFERENCE_DEFAULT_ACCOC` (`DEFAULT_ACCOUNT_FK`),
   CONSTRAINT `ORDER_PREFERENCE_DEFAULT_ACCOC` FOREIGN KEY (`DEFAULT_ACCOUNT_FK`) REFERENCES `account` (`ID`) ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `order_property`
+--
+
+DROP TABLE IF EXISTS `order_property`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `order_property` (
+  `ID` int(11) NOT NULL AUTO_INCREMENT,
+  `NAME` varchar(30) NOT NULL,
+  `VALUE` varchar(30) NOT NULL,
+  `FIX` bit(1) NOT NULL,
+  `ORDER_FK` int(11) DEFAULT NULL,
+  PRIMARY KEY (`ID`),
+  UNIQUE KEY `NAME` (`NAME`),
+  UNIQUE KEY `VALUE` (`VALUE`),
+  UNIQUE KEY `FIX` (`FIX`),
+  KEY `ORDER_PROPERTY_ORDER_FKC` (`ORDER_FK`),
+  CONSTRAINT `ORDER_PROPERTY_ORDER_FKC` FOREIGN KEY (`ORDER_FK`) REFERENCES `order` (`ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `order_status`
+--
+
+DROP TABLE IF EXISTS `order_status`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `order_status` (
+  `ID` int(11) NOT NULL AUTO_INCREMENT,
+  `INT_ID` varchar(30) DEFAULT NULL,
+  `EXT_ID` varchar(30) DEFAULT NULL,
+  `DATE_TIME` datetime NOT NULL,
+  `EXT_DATE_TIME` datetime NOT NULL,
+  `STATUS` enum('OPEN','SUBMITTED','PARTIALLY_EXECUTED','EXECUTED','CANCELED') NOT NULL,
+  `FILLED_QUANTITY` bigint(20) NOT NULL,
+  `REMAINING_QUANTITY` bigint(20) NOT NULL,
+  `ORDER_FK` int(11) NOT NULL,
+  PRIMARY KEY (`ID`),
+  KEY `ORDER_STATUS_ORDER_FKC` (`ORDER_FK`),
+  CONSTRAINT `ORDER_STATUS_ORDER_FKC` FOREIGN KEY (`ORDER_FK`) REFERENCES `order` (`ID`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -697,7 +779,7 @@ CREATE TABLE `security_family` (
   `PERIODICITY` enum('MIN','HOUR','DAY','MONTH') DEFAULT NULL,
   `MAX_GAP` int(11) DEFAULT NULL,
   `UNDERLYING_FK` int(11) DEFAULT NULL,
-  `EXCHANGE_FK` int(11) NOT NULL,
+  `EXCHANGE_FK` int(11) DEFAULT NULL,
   PRIMARY KEY (`ID`),
   UNIQUE KEY `NAME_UNIQUE` (`NAME`),
   KEY `SECURITY_FAMILY_UNDERLAYING_FKC` (`UNDERLYING_FK`),
@@ -870,4 +952,4 @@ CREATE TABLE `transaction` (
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2014-08-05 17:39:59
+-- Dump completed on 2014-08-12 16:12:54

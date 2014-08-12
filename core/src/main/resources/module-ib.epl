@@ -1,3 +1,5 @@
+// ----------------------------------------------- MARKET DATA ----------------------------------------------
+
 @Name('UPDATE_TICK_WINDOW_IB_LAST')
 @RunTimeOnly()
 on
@@ -153,3 +155,31 @@ from
 where
     tickWindow.tickerId = tickPrice.tickerId;
 
+// ----------------------------------------------- ORDER STATUS ----------------------------------------------
+
+@Name('INSERT_INTO_ORDER_STATUS_IB')
+@RunTimeOnly()
+insert into
+    OrderStatus
+select
+    status,
+    filledQuantity,
+    remainingQuantity,
+    extId,
+    `order`
+from
+    ch.algotrader.adapter.ib.IBOrderStatus.std:groupwin(`order`.intId).win:length(2)
+where
+        (prev(1, status) is null
+    or
+        status != prev(1, status)
+    or
+        filledQuantity != prev(1,filledQuantity)
+    or
+        remainingQuantity != prev(1,remainingQuantity)
+    or
+        extId != prev(1,extId))
+and
+        (filledQuantity != 0
+    or
+        remainingQuantity != 0);

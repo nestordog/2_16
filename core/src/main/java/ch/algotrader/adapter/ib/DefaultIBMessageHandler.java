@@ -46,7 +46,6 @@ import com.ib.client.Execution;
 import ch.algotrader.entity.marketData.Bar;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.Order;
-import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.EngineLocator;
@@ -159,7 +158,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
         fill.setExtId(extExecId);
 
         // associate the fill with the order
-        order.addFills(fill);
+        fill.setOrder(order);
 
         logger.debug(EWrapperMsgGenerator.execDetails(reqId, contract, execution));
 
@@ -179,13 +178,10 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
             Status status = IBUtil.getStatus(statusString, filled);
             long filledQuantity = filled;
             long remainingQuantity = remaining;
+            String extId = String.valueOf(permId);
 
-            // assemble the orderStatus
-            OrderStatus orderStatus = OrderStatus.Factory.newInstance();
-            orderStatus.setStatus(status);
-            orderStatus.setFilledQuantity(filledQuantity);
-            orderStatus.setRemainingQuantity(remainingQuantity);
-            orderStatus.setOrder(order);
+            // assemble the IBOrderStatus
+            IBOrderStatus orderStatus = new IBOrderStatus(status, filledQuantity, remainingQuantity, extId, order);
 
             logger.debug(EWrapperMsgGenerator.orderStatus(orderId, statusString, filled, remaining, avgFillPrice, permId, parentId, lastFillPrice, clientId, whyHeld));
 

@@ -18,9 +18,7 @@
 package ch.algotrader.adapter.rt;
 
 import java.math.BigDecimal;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -155,10 +153,6 @@ public class TestRTFixOrderMessageHandler {
         Assert.assertEquals(Side.BUY, fill1.getSide());
         Assert.assertEquals(100L, fill1.getQuantity());
         Assert.assertEquals(new BigDecimal("3.142"), fill1.getPrice());
-
-        Set<Fill> fills = new HashSet<Fill>(order.getFills());
-        Assert.assertEquals(1, fills.size());
-        Assert.assertTrue(fills.contains(fill1));
     }
 
     @Test

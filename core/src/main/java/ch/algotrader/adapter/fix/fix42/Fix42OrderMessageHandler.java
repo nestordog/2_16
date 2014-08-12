@@ -126,7 +126,7 @@ public class Fix42OrderMessageHandler {
                 processFill(executionReport, order, fill);
 
                 // associate the fill with the order
-                order.addFills(fill);
+                fill.setOrder(order);
 
                 EngineLocator.instance().getBaseEngine().sendEvent(fill);
             }

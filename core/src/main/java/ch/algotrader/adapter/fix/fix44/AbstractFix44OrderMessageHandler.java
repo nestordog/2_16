@@ -109,7 +109,7 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
         if (fill != null) {
 
             // associate the fill with the order
-            order.addFills(fill);
+            fill.setOrder(order);
 
             EngineLocator.instance().getBaseEngine().sendEvent(fill);
         }

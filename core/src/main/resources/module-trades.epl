@@ -38,6 +38,20 @@ set
 where
     openOrderWindow.intId = orderStatus.`order`.intId;
 
+@Name('UPDATE_ORDER')
+@RunTimeOnly()
+@Subscriber(className='ch.algotrader.service.OrderService.updateOrderId')
+select
+    orderStatus.`order`.id,
+    orderStatus.intId,
+    orderStatus.extId
+from
+    OrderStatus as orderStatus
+where
+    (orderStatus.intId is not null and (orderStatus.`order`.intId is null or orderStatus.intId != orderStatus.`order`.intId))
+or
+    (orderStatus.extId is not null and (orderStatus.`order`.extId is null or orderStatus.extId != orderStatus.`order`.extId));
+
 @Name('DELETE_FROM_OPEN_ORDER_WINDOW')
 @RunTimeOnly()
 on
@@ -124,14 +138,6 @@ from
     OpenOrderWindow() as openOrderWindow
 where
     openOrderWindow.intId = fill.`order`.parentOrder.intId;
-
-@Name('ALGO_ORDER_DONE')
-@RunTimeOnly
-@Subscriber(className='ch.algotrader.esper.subscriber.VoidSubscriber')
-select
-    cast(`order`, ch.algotrader.entity.trade.AlgoOrder).done()
-from
-    OrderStatus(status = Status.EXECUTED or status = Status.CANCELED, `order`.algoOrder);
 
 // ------------------------------LOGGING / PROPAGATION--------------------------------
 

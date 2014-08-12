@@ -18,6 +18,7 @@
 package ch.algotrader.service;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.Map;
 
 import org.apache.commons.collections15.CollectionUtils;
@@ -29,12 +30,17 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
 import ch.algotrader.entity.trade.AlgoOrder;
+import ch.algotrader.entity.trade.LimitOrder;
+import ch.algotrader.entity.trade.MarketOrder;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderCompletion;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.entity.trade.SimpleOrder;
+import ch.algotrader.entity.trade.StopLimitOrder;
+import ch.algotrader.entity.trade.StopOrder;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.enumeration.Status;
+import ch.algotrader.enumeration.TIF;
 import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.util.BeanUtil;
 import ch.algotrader.util.DateUtil;
@@ -106,10 +112,16 @@ public class OrderServiceImpl extends OrderServiceBase implements ApplicationCon
         // set the dateTime property
         order.setDateTime(DateUtil.getCurrentEPTime());
 
+        // in case no TIF was specified set DAY
+        if (order.getTif() == null) {
+            order.setTif(TIF.DAY);
+        }
+
         if (order instanceof AlgoOrder) {
             sendAlgoOrder((AlgoOrder) order);
         } else {
             getExternalOrderService(order).sendOrder((SimpleOrder) order);
+            persistOrder(order);
         }
     }
 
@@ -226,13 +238,27 @@ public class OrderServiceImpl extends OrderServiceBase implements ApplicationCon
             throw new UnsupportedOperationException("modification of AlgoOrders are not permitted");
         } else {
             getExternalOrderService(order).modifyOrder((SimpleOrder) order);
+            persistOrder(order);
         }
     }
 
-    @Override
-    protected void handleSuggestOrder(Order order) throws Exception {
+    private void persistOrder(Order order) {
 
-        notificationLogger.info("order " + order);
+        // save order to the DB by using the corresponding OrderDao
+        if (order instanceof MarketOrder) {
+            getMarketOrderDao().create((MarketOrder)order);
+        } else if (order instanceof LimitOrder) {
+            getLimitOrderDao().create((LimitOrder)order);
+        } else if (order instanceof StopOrder) {
+            getStopOrderDao().create((StopOrder)order);
+        } else if (order instanceof StopLimitOrder) {
+            getStopLimitOrderDao().create((StopLimitOrder)order);
+        }
+
+        // save order properties
+        if (order.getOrderProperties() != null && order.getOrderProperties().size() != 0) {
+            getOrderPropertyDao().create(order.getOrderProperties().values());
+        }
     }
 
     @Override
@@ -250,6 +276,11 @@ public class OrderServiceImpl extends OrderServiceBase implements ApplicationCon
     @Override
     protected void handlePropagateOrderStatus(OrderStatus orderStatus) throws Exception {
 
+        // ignore OrderStatus with no Order (stemming from emptyOpenOrderWindow)
+        if (orderStatus.getOrder() == null) {
+            return;
+        }
+
         // send the fill to the strategy that placed the corresponding order
         if (orderStatus.getOrder() != null && !orderStatus.getOrder().getStrategy().isBase()) {
             EngineLocator.instance().sendEvent(orderStatus.getOrder().getStrategy().getName(), orderStatus);
@@ -258,6 +289,16 @@ public class OrderServiceImpl extends OrderServiceBase implements ApplicationCon
         if (!getCommonConfig().isSimulation()) {
             logger.debug("propagated orderStatus: " + orderStatus);
         }
+
+        if (orderStatus.getDateTime() == null) {
+            orderStatus.setDateTime(new Date());
+        }
+
+        if (orderStatus.getExtDateTime() == null) {
+            orderStatus.setExtDateTime(new Date());
+        }
+
+        getOrderStatusDao().create(orderStatus);
     }
 
     @Override
@@ -271,6 +312,25 @@ public class OrderServiceImpl extends OrderServiceBase implements ApplicationCon
         if (!getCommonConfig().isSimulation()) {
             logger.debug("propagated orderCompletion: " + orderCompletion);
         }
+    }
+
+    @Override
+    protected void handleUpdateOrderId(int id, String intId, String extId) throws Exception {
+
+        Order order = getOrderDao().load(id);
+        if (intId != null && !intId.equals(order.getIntId())) {
+            order.setIntId(intId);
+        }
+
+        if (extId != null && !extId.equals(order.getExtId())) {
+            order.setExtId(extId);
+        }
+    }
+
+    @Override
+    protected void handleSuggestOrder(Order order) throws Exception {
+
+        notificationLogger.info("order " + order);
     }
 
     /**

@@ -22,13 +22,16 @@ import java.text.SimpleDateFormat;
 
 import org.apache.log4j.Logger;
 
+import ch.algotrader.adapter.ib.IBOrderStatus;
 import ch.algotrader.adapter.ib.IBUtil;
 import ch.algotrader.entity.trade.LimitOrderI;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.entity.trade.StopOrderI;
 import ch.algotrader.enumeration.OrderServiceType;
+import ch.algotrader.enumeration.Status;
 import ch.algotrader.enumeration.TIF;
+import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.util.MyLogger;
 
 import com.ib.client.Contract;
@@ -92,6 +95,12 @@ public class IBNativeOrderServiceImpl extends IBNativeOrderServiceBase {
     protected void handleModifyOrder(SimpleOrder order) throws Exception {
 
         sendOrModifyOrder(order);
+
+        // send a 0:0 OrderStatus to validate the first SUBMITTED OrderStatus just after the modification
+        IBOrderStatus orderStatus = new IBOrderStatus(Status.SUBMITTED, 0, 0, null, order);
+
+        EngineLocator.instance().getBaseEngine().sendEvent(orderStatus);
+
     }
 
     @Override

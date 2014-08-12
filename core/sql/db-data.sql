@@ -501,7 +501,7 @@ INSERT INTO `stock` (`ID`, `GICS`) VALUES (166,NULL);
 --
 -- WHERE:  id<1000
 
-INSERT INTO `strategy` (`ID`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `INIT_MODULES`, `RUN_MODULES`, `VERSION`) VALUES (1,'BASE','',0,'market-data,combination,current-values,market-data-simulation,trades,portfolio,performance,algo-slicing,market-data-ib',NULL,0);
+INSERT INTO `strategy` (`ID`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `INIT_MODULES`, `RUN_MODULES`, `VERSION`) VALUES (1,'BASE','',0,'market-data,combination,current-values,market-data-simulation,trades,portfolio,performance,algo-slicing,ib',NULL,0);
 
 --
 -- Dumping data for table `subscription`
@@ -551,4 +551,4 @@ INSERT INTO `transaction` (`ID`, `EXT_ID`, `INT_ORDER_ID`, `EXT_ORDER_ID`, `DATE
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2014-08-05 17:39:59
+-- Dump completed on 2014-08-12 16:12:54
