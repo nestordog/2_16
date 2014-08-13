@@ -39,7 +39,7 @@
         <dependency>
             <groupId>org.andromda.cartridges</groupId>
             <artifactId>andromda-hibernate-cartridge</artifactId>
-            <version>${andromda.version}-at1</version>
+            <version>${andromda.version}-at2</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
