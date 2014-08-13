@@ -27,7 +27,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +42,37 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+
+import ch.algotrader.ServiceLocator;
+import ch.algotrader.config.CommonConfig;
+import ch.algotrader.config.ConfigLocator;
+import ch.algotrader.config.ConfigParams;
+import ch.algotrader.entity.security.Security;
+import ch.algotrader.entity.strategy.Strategy;
+import ch.algotrader.entity.strategy.StrategyImpl;
+import ch.algotrader.entity.trade.Order;
+import ch.algotrader.enumeration.Duration;
+import ch.algotrader.esper.annotation.Condition;
+import ch.algotrader.esper.annotation.Listeners;
+import ch.algotrader.esper.annotation.RunTimeOnly;
+import ch.algotrader.esper.annotation.SimulationOnly;
+import ch.algotrader.esper.annotation.Subscriber;
+import ch.algotrader.esper.callback.ClosePositionCallback;
+import ch.algotrader.esper.callback.OpenPositionCallback;
+import ch.algotrader.esper.callback.TickCallback;
+import ch.algotrader.esper.callback.TradeCallback;
+import ch.algotrader.esper.io.CollectionInputAdapter;
+import ch.algotrader.esper.io.CsvBarInputAdapter;
+import ch.algotrader.esper.io.CsvBarInputAdapterSpec;
+import ch.algotrader.esper.io.CsvTickInputAdapter;
+import ch.algotrader.esper.io.CsvTickInputAdapterSpec;
+import ch.algotrader.esper.io.CustomSender;
+import ch.algotrader.esper.io.DBBarInputAdapter;
+import ch.algotrader.esper.io.DBTickInputAdapter;
+import ch.algotrader.esper.subscriber.SubscriberCreator;
+import ch.algotrader.util.MyLogger;
+import ch.algotrader.util.collection.CollectionUtil;
+import ch.algotrader.util.metric.MetricsUtil;
 
 import com.espertech.esper.adapter.InputAdapter;
 import com.espertech.esper.client.Configuration;
@@ -82,35 +112,6 @@ import com.espertech.esperio.AdapterCoordinator;
 import com.espertech.esperio.AdapterCoordinatorImpl;
 import com.espertech.esperio.csv.CSVInputAdapter;
 import com.espertech.esperio.csv.CSVInputAdapterSpec;
-
-import ch.algotrader.ServiceLocator;
-import ch.algotrader.config.CommonConfig;
-import ch.algotrader.config.ConfigLocator;
-import ch.algotrader.config.ConfigParams;
-import ch.algotrader.entity.security.Security;
-import ch.algotrader.entity.strategy.Strategy;
-import ch.algotrader.entity.strategy.StrategyImpl;
-import ch.algotrader.entity.trade.Order;
-import ch.algotrader.esper.annotation.Condition;
-import ch.algotrader.esper.annotation.Listeners;
-import ch.algotrader.esper.annotation.RunTimeOnly;
-import ch.algotrader.esper.annotation.SimulationOnly;
-import ch.algotrader.esper.annotation.Subscriber;
-import ch.algotrader.esper.callback.ClosePositionCallback;
-import ch.algotrader.esper.callback.OpenPositionCallback;
-import ch.algotrader.esper.callback.TickCallback;
-import ch.algotrader.esper.callback.TradeCallback;
-import ch.algotrader.esper.io.BatchDBTickInputAdapter;
-import ch.algotrader.esper.io.CollectionInputAdapter;
-import ch.algotrader.esper.io.CsvBarInputAdapter;
-import ch.algotrader.esper.io.CsvBarInputAdapterSpec;
-import ch.algotrader.esper.io.CsvTickInputAdapter;
-import ch.algotrader.esper.io.CsvTickInputAdapterSpec;
-import ch.algotrader.esper.io.CustomSender;
-import ch.algotrader.esper.subscriber.SubscriberCreator;
-import ch.algotrader.util.MyLogger;
-import ch.algotrader.util.collection.CollectionUtil;
-import ch.algotrader.util.metric.MetricsUtil;
 
 /**
  * Esper based implementation of an {@link Engine}
@@ -581,14 +582,19 @@ public class EngineImpl extends AbstractEngine {
         this.coordinator.coordinate(inputAdapter);
     }
 
-
     @Override
-    public void coordinateTicks(Date startDate) {
+    public void coordinateTicks(int batchSize) {
 
-        InputAdapter inputAdapter = new BatchDBTickInputAdapter(this.serviceProvider, startDate);
+        InputAdapter inputAdapter = new DBTickInputAdapter(this.serviceProvider, batchSize);
         this.coordinator.coordinate(inputAdapter);
     }
 
+    @Override
+    public void coordinateBars(int batchSize, Duration barSize) {
+
+        InputAdapter inputAdapter = new DBBarInputAdapter(this.serviceProvider, batchSize, barSize);
+        this.coordinator.coordinate(inputAdapter);
+    }
 
     @Override
     public void startCoordination() {

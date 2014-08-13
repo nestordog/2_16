@@ -29,6 +29,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.sf.ehcache.CacheManager;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.math.ConvergenceException;
@@ -45,8 +47,6 @@ import org.apache.commons.math.optimization.univariate.BrentOptimizer;
 import org.apache.commons.math.util.MathUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
-
-import com.espertech.esperio.csv.CSVInputAdapterSpec;
 
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.config.CommonConfig;
@@ -67,7 +67,8 @@ import ch.algotrader.vo.PerformanceKeysVO;
 import ch.algotrader.vo.PeriodPerformanceVO;
 import ch.algotrader.vo.SimulationResultVO;
 import ch.algotrader.vo.TradesVO;
-import net.sf.ehcache.CacheManager;
+
+import com.espertech.esperio.csv.CSVInputAdapterSpec;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -120,7 +121,7 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
         }
 
         // feed the ticks
-        inputCSV();
+        feedMarketData();
 
         // log metrics in case they have been enabled
         MetricsUtil.logMetrics();
@@ -158,60 +159,82 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
      * {@code feedGenericEvents} they are processed a long Market Data Events. All Events are fed to
      * the system in the correct order defined by their dateTime value.
      */
-    private void inputCSV() {
+    private void feedMarketData() {
 
         EngineLocator.instance().getBaseEngine().initCoordination();
 
-        CommonConfig commonConfig = getCommonConfig();
-
-        File dataSetLocation = commonConfig.getDataSetLocation();
-        File baseDir = dataSetLocation == null ? new File("files") : dataSetLocation;
-        String dataSet = commonConfig.getDataSet();
-
-        if (commonConfig.isFeedGenericEvents()) {
-
-            File genericdata = new File(baseDir, "genericdata");
-            File dataDir = new File(genericdata, dataSet);
-            if (dataDir == null || !dataDir.exists() || !dataDir.isDirectory()) {
-                logger.warn("no generic events available");
-            } else {
-                File[] files = dataDir.listFiles();
-                File[] sortedFiles = new File[files.length];
-
-                // sort the files according to their order
-                for (File file : files) {
-
-                    String fileName = file.getName();
-                    String baseFileName = fileName.substring(0, fileName.lastIndexOf("."));
-                    int order = Integer.parseInt(baseFileName.substring(baseFileName.lastIndexOf(".") + 1));
-                    sortedFiles[order] = file;
-                }
-
-                // coordinate all files
-                for (File file : sortedFiles) {
-
-                    String fileName = file.getName();
-                    String baseFileName = fileName.substring(0, fileName.lastIndexOf("."));
-                    String eventClassName = baseFileName.substring(0, baseFileName.lastIndexOf("."));
-                    String eventTypeName = eventClassName.substring(eventClassName.lastIndexOf(".") + 1);
-
-                    // add the eventType (in case it does not exist yet)
-                    EngineLocator.instance().getBaseEngine().addEventType(eventTypeName, eventClassName);
-
-                    GenericEventInputAdapterSpec spec = new GenericEventInputAdapterSpec(file, eventTypeName);
-                    EngineLocator.instance().getBaseEngine().coordinate(spec);
-                }
-
-            }
-        }
-
-        MarketDataType marketDataType = commonConfig.getDataSetType();
-        File marketDataTypeDir = new File(baseDir, marketDataType.toString().toLowerCase() + "data");
-        File dataDir = new File(marketDataTypeDir, dataSet);
-
         Collection<Security> securities = getLookupService().getSubscribedSecuritiesForAutoActivateStrategies();
 
-        if (commonConfig.isFeedAllMarketDataFiles()) {
+        CommonConfig commonConfig = getCommonConfig();
+        File dataSetLocation = commonConfig.getDataSetLocation();
+        File baseDir = dataSetLocation == null ? new File("files") : dataSetLocation;
+
+        if (commonConfig.isFeedGenericEvents()) {
+            feedGenericEvents(baseDir);
+        }
+
+        if (commonConfig.isFeedCSV()) {
+            feedCSV(securities, baseDir);
+        }
+
+        if (commonConfig.isFeedDB()) {
+            feedDB();
+        }
+
+        // initialize all securityStrings for subscribed securities
+        getLookupService().initSecurityStrings();
+        for (Security security : securities) {
+            getCacheManager().put(security);
+        }
+
+        EngineLocator.instance().getBaseEngine().startCoordination();
+    }
+
+    private void feedGenericEvents(File baseDir) {
+
+        File genericdata = new File(baseDir, "genericdata");
+        File dataDir = new File(genericdata, getCommonConfig().getDataSet());
+        if (dataDir == null || !dataDir.exists() || !dataDir.isDirectory()) {
+            logger.warn("no generic events available");
+        } else {
+            File[] files = dataDir.listFiles();
+            File[] sortedFiles = new File[files.length];
+
+            // sort the files according to their order
+            for (File file : files) {
+
+                String fileName = file.getName();
+                String baseFileName = fileName.substring(0, fileName.lastIndexOf("."));
+                int order = Integer.parseInt(baseFileName.substring(baseFileName.lastIndexOf(".") + 1));
+                sortedFiles[order] = file;
+            }
+
+            // coordinate all files
+            for (File file : sortedFiles) {
+
+                String fileName = file.getName();
+                String baseFileName = fileName.substring(0, fileName.lastIndexOf("."));
+                String eventClassName = baseFileName.substring(0, baseFileName.lastIndexOf("."));
+                String eventTypeName = eventClassName.substring(eventClassName.lastIndexOf(".") + 1);
+
+                // add the eventType (in case it does not exist yet)
+                EngineLocator.instance().getBaseEngine().addEventType(eventTypeName, eventClassName);
+
+                GenericEventInputAdapterSpec spec = new GenericEventInputAdapterSpec(file, eventTypeName);
+                EngineLocator.instance().getBaseEngine().coordinate(spec);
+
+                logger.debug("started feeding file " + file.getName());
+            }
+        }
+    }
+
+    private void feedCSV(Collection<Security> securities, File baseDir) {
+
+        MarketDataType marketDataType = getCommonConfig().getDataSetType();
+        File marketDataTypeDir = new File(baseDir, marketDataType.toString().toLowerCase() + "data");
+        File dataDir = new File(marketDataTypeDir, getCommonConfig().getDataSet());
+
+        if (getCommonConfig().isFeedAllMarketDataFiles()) {
 
             if (dataDir == null || !dataDir.exists() || !dataDir.isDirectory()) {
                 logger.warn("no market data events available");
@@ -219,8 +242,7 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
 
                 // coordinate all files
                 for (File file : dataDir.listFiles()) {
-
-                    feedFile(marketDataType, file);
+                    feedFile(file);
                 }
             }
 
@@ -262,23 +284,15 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
                     logger.info("data available for " + security.getSymbol());
                 }
 
-                feedFile(marketDataType, file);
+                feedFile(file);
             }
         }
-
-        // initialize all securityStrings for subscribed securities
-        getLookupService().initSecurityStrings();
-
-        for (Security security : securities) {
-            getCacheManager().put(security);
-        }
-
-        EngineLocator.instance().getBaseEngine().startCoordination();
     }
 
-    private CSVInputAdapterSpec feedFile(MarketDataType marketDataType, File file) {
+    private void feedFile(File file) {
 
         CSVInputAdapterSpec spec;
+        MarketDataType marketDataType = getCommonConfig().getDataSetType();
         if (MarketDataType.TICK.equals(marketDataType)) {
             spec = new CsvTickInputAdapterSpec(file);
         } else if (MarketDataType.BAR.equals(marketDataType)) {
@@ -289,8 +303,27 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
 
         EngineLocator.instance().getBaseEngine().coordinate(spec);
 
-        logger.debug("started simulation for file " + file.getName());
-        return spec;
+        logger.debug("started feeding file " + file.getName());
+    }
+
+    private void feedDB() {
+
+        MarketDataType marketDataType = getCommonConfig().getDataSetType();
+        int feedBatchSize = getCommonConfig().getFeedBatchSize();
+
+        if (MarketDataType.TICK.equals(marketDataType)) {
+
+            EngineLocator.instance().getBaseEngine().coordinateTicks(feedBatchSize);
+            logger.debug("started feeding ticks from db");
+
+        } else if (MarketDataType.BAR.equals(marketDataType)) {
+
+            EngineLocator.instance().getBaseEngine().coordinateBars(feedBatchSize, getCommonConfig().getBarSize());
+            logger.debug("started feeding bars from db");
+
+        } else {
+            throw new SimulationServiceException("incorrect parameter for dataSetType: " + marketDataType);
+        }
     }
 
     @Override

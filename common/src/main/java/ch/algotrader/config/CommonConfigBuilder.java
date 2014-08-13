@@ -38,8 +38,11 @@ public final class CommonConfigBuilder {
     private MarketDataType dataSetType;
     private File dataSetLocation;
     private Duration barSize;
+    private boolean feedCSV;
+    private boolean feedDB;
     private boolean feedGenericEvents;
     private boolean feedAllMarketDataFiles;
+    private int feedBatchSize;
     private boolean simulation;
     private BigDecimal simulationInitialBalance;
     private boolean simulationLogTransactions;
@@ -55,6 +58,11 @@ public final class CommonConfigBuilder {
         this.dataSet = "current";
         this.dataSetType = MarketDataType.TICK;
         this.barSize = Duration.MIN_1;
+        this.feedCSV = true;
+        this.feedDB = false;
+        this.feedGenericEvents = false;
+        this.feedAllMarketDataFiles = false;
+        this.feedBatchSize = 20;
         this.simulation = false;
         this.simulationInitialBalance = new BigDecimal(1000000L);
         this.singleVM = false;
@@ -149,9 +157,9 @@ public final class CommonConfigBuilder {
 
     public CommonConfig build() {
         return new CommonConfig(
-                strategyName, dataSet, dataSetType, dataSetLocation, barSize, feedGenericEvents, feedAllMarketDataFiles,
-                simulation, simulationInitialBalance, simulationLogTransactions, singleVM,
-                portfolioDigits, portfolioBaseCurrency, initialMarginMarkup, validateCrossedSpread, displayClosedPositions);
+                this.strategyName, this.dataSet, this.dataSetType, this.dataSetLocation, this.barSize, this.feedCSV, this.feedDB, this.feedGenericEvents, this.feedAllMarketDataFiles,
+                this.feedBatchSize, this.simulation, this.simulationInitialBalance, this.simulationLogTransactions, this.singleVM,
+                this.portfolioDigits, this.portfolioBaseCurrency, this.initialMarginMarkup, this.validateCrossedSpread, this.displayClosedPositions);
     }
 
 }

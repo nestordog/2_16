@@ -22,7 +22,7 @@ import com.espertech.esperio.AbstractSendableEvent;
 import com.espertech.esperio.AbstractSender;
 
 /**
- * Used by {@link BatchDBTickInputAdapter} and {@link CollectionInputAdapter}.
+ * Used by {@link DBTickInputAdapter}, {@link DBBarInputAdapter} and {@link CollectionInputAdapter}.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *

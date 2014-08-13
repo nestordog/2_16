@@ -21,17 +21,18 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
-import com.espertech.esper.client.time.CurrentTimeEvent;
-import com.espertech.esperio.csv.CSVInputAdapterSpec;
-
 import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.trade.Order;
+import ch.algotrader.enumeration.Duration;
 import ch.algotrader.esper.callback.ClosePositionCallback;
 import ch.algotrader.esper.callback.OpenPositionCallback;
 import ch.algotrader.esper.callback.TickCallback;
 import ch.algotrader.esper.callback.TradeCallback;
 import ch.algotrader.vo.GenericEventVO;
+
+import com.espertech.esper.client.time.CurrentTimeEvent;
+import com.espertech.esperio.csv.CSVInputAdapterSpec;
 
 @Deprecated
 /**
@@ -315,9 +316,17 @@ public class EsperManager {
     /**
      * Queues subscribed Ticks for coordination with the given Esper Engine.
      */
-    public static void coordinateTicks(String strategyName, Date startDate) {
+    public static void coordinateTicks(String strategyName, Date startDate, int batchSize) {
 
-        EngineLocator.instance().getEngine(strategyName).coordinateTicks(startDate);
+        EngineLocator.instance().getEngine(strategyName).coordinateTicks(batchSize);
+    }
+
+    /**
+     * Queues subscribed Bars for coordination with the given Esper Engine.
+     */
+    public static void coordinateBars(String strategyName, Date startDate, int batchSize, Duration barSize) {
+
+        EngineLocator.instance().getEngine(strategyName).coordinateBars(batchSize, barSize);
     }
 
     /**

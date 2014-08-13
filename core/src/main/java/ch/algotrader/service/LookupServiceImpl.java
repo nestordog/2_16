@@ -795,7 +795,16 @@ public class LookupServiceImpl extends LookupServiceBase {
     @Override
     protected List<Tick> handleGetSubscribedTicksByTimePeriod(Date startDate, Date endDate) throws Exception {
 
-        return getTickDao().findSubscribedByTimePeriod(startDate, endDate);
+        List<Tick> ticks = getTickDao().findSubscribedByTimePeriod(startDate, endDate);
+        for (Tick tick : ticks) {
+            tick.getSecurity().initialize();
+        }
+        return ticks;
+    }
+
+    @Override
+    protected Tick handleGetFirstSubscribedTick() throws Exception {
+        return CollectionUtil.getFirstElementOrNull(getTickDao().findSubscribedByTimePeriod(1, 1, new Date(0), new Date(Long.MAX_VALUE)));
     }
 
     @Override
@@ -820,6 +829,21 @@ public class LookupServiceImpl extends LookupServiceBase {
     protected List<Bar> handleGetBarsBySecurityBarSizeAndMinDate(int securityId, Duration barSize, Date minDate) throws Exception {
 
         return getBarDao().findBarsBySecurityBarSizeAndMinDate(securityId, barSize, minDate);
+    }
+
+    @Override
+    protected List<Bar> handleGetSubscribedBarsByTimePeriodAndBarSize(Date startDate, Date endDate, Duration barSize) throws Exception {
+
+        List<Bar> bars = getBarDao().findSubscribedByTimePeriodAndBarSize(startDate, endDate, barSize);
+        for (Bar bar : bars) {
+            bar.getSecurity().initialize();
+        }
+        return bars;
+    }
+
+    @Override
+    protected Bar handleGetFirstSubscribedBarByBarSize(Duration barSize) throws Exception {
+        return CollectionUtil.getFirstElementOrNull(getBarDao().findSubscribedByTimePeriodAndBarSize(1, 1, new Date(0), new Date(Long.MAX_VALUE), barSize));
     }
 
     @Override

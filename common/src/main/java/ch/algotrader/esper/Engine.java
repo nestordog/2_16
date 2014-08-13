@@ -18,17 +18,17 @@
 package ch.algotrader.esper;
 
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
-
-import com.espertech.esperio.csv.CSVInputAdapterSpec;
 
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.trade.Order;
+import ch.algotrader.enumeration.Duration;
 import ch.algotrader.esper.callback.ClosePositionCallback;
 import ch.algotrader.esper.callback.OpenPositionCallback;
 import ch.algotrader.esper.callback.TickCallback;
 import ch.algotrader.esper.callback.TradeCallback;
+
+import com.espertech.esperio.csv.CSVInputAdapterSpec;
 
 /**
  * Interface representing a CEP Engine.
@@ -186,9 +186,14 @@ public interface Engine {
     public void coordinate(Collection collection, String timeStampProperty);
 
     /**
-     * Queues subscribed Ticks for coordination with the given Engine.
+     * Queues subscribed Ticks from the DB for coordination with the given Engine.
      */
-    public void coordinateTicks(Date startDate);
+    public void coordinateTicks(int batchSize);
+
+    /**
+     * Queues subscribed Bars from the DB for coordination with the given Engine.
+     */
+    public void coordinateBars(int batchSize, Duration barSize);
 
     /**
      * Starts coordination for the given Engine.

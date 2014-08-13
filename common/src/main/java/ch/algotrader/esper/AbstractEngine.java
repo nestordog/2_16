@@ -18,17 +18,17 @@
 package ch.algotrader.esper;
 
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
-
-import com.espertech.esperio.csv.CSVInputAdapterSpec;
 
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.trade.Order;
+import ch.algotrader.enumeration.Duration;
 import ch.algotrader.esper.callback.ClosePositionCallback;
 import ch.algotrader.esper.callback.OpenPositionCallback;
 import ch.algotrader.esper.callback.TickCallback;
 import ch.algotrader.esper.callback.TradeCallback;
+
+import com.espertech.esperio.csv.CSVInputAdapterSpec;
 
 /**
  * Abstract implementation of an {@link Engine}
@@ -119,6 +119,7 @@ public abstract class AbstractEngine implements Engine {
 
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     public List executeQuery(String query) {
 
@@ -143,12 +144,14 @@ public abstract class AbstractEngine implements Engine {
         return null;
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     public List getAllEvents(String statementName) {
 
         return null;
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     public List getAllEventsProperty(String statementName, String property) {
 
@@ -184,12 +187,18 @@ public abstract class AbstractEngine implements Engine {
     }
 
     @Override
+    @SuppressWarnings("rawtypes")
     public void coordinate(Collection collection, String timeStampProperty) {
 
     }
 
     @Override
-    public void coordinateTicks(Date startDate) {
+    public void coordinateTicks(int batchSize) {
+
+    }
+
+    @Override
+    public void coordinateBars(int batchSize, Duration barSize) {
 
     }
 

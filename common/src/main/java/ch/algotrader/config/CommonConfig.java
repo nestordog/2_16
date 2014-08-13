@@ -39,8 +39,11 @@ public final class CommonConfig {
     private final MarketDataType dataSetType;
     private final File dataSetLocation;
     private final Duration barSize;
+    private final boolean feedCSV;
+    private final boolean feedDB;
     private final boolean feedGenericEvents;
     private final boolean feedAllMarketDataFiles;
+    private final int feedBatchSize;
     private final boolean simulation;
     private final BigDecimal simulationInitialBalance;
     private final boolean simulationLogTransactions;
@@ -57,8 +60,11 @@ public final class CommonConfig {
             @ConfigName("dataSource.dataSetType") final MarketDataType dataSetType,
             @ConfigName(value = "dataSource.dataSetLocation", optional = true) final File dataSetLocation,
             @ConfigName("dataSource.barSize") final Duration barSize,
+            @ConfigName("dataSource.feedCSV") final boolean feedCSV,
+            @ConfigName("dataSource.feedDB") final boolean feedDB,
             @ConfigName("dataSource.feedGenericEvents") final boolean feedGenericEvents,
             @ConfigName("dataSource.feedAllMarketDataFiles") final boolean feedAllMarketDataFiles,
+            @ConfigName("dataSource.feedBatchSize") final int feedBatchSize,
             @ConfigName("simulation") final boolean simulation,
             @ConfigName("simulation.initialBalance") final BigDecimal simulationInitialBalance,
             @ConfigName("simulation.logTransactions") final boolean simulationLogTransactions,
@@ -73,8 +79,11 @@ public final class CommonConfig {
         this.dataSetType = dataSetType;
         this.dataSetLocation = dataSetLocation;
         this.barSize = barSize;
+        this.feedCSV = feedCSV;
+        this.feedDB = feedDB;
         this.feedGenericEvents = feedGenericEvents;
         this.feedAllMarketDataFiles = feedAllMarketDataFiles;
+        this.feedBatchSize = feedBatchSize;
         this.simulation = simulation;
         this.simulationInitialBalance = simulationInitialBalance;
         this.simulationLogTransactions = simulationLogTransactions;
@@ -106,12 +115,24 @@ public final class CommonConfig {
         return this.barSize;
     }
 
+    public boolean isFeedCSV() {
+        return this.feedCSV;
+    }
+
+    public boolean isFeedDB() {
+        return this.feedDB;
+    }
+
     public boolean isFeedGenericEvents() {
         return this.feedGenericEvents;
     }
 
     public boolean isFeedAllMarketDataFiles() {
         return this.feedAllMarketDataFiles;
+    }
+
+    public int getFeedBatchSize() {
+        return this.feedBatchSize;
     }
 
     public boolean isSimulation() {
@@ -170,8 +191,11 @@ public final class CommonConfig {
         sb.append(", dataSetType=").append(this.dataSetType);
         sb.append(", dataSetLocation=").append(this.dataSetLocation);
         sb.append(", barSize=").append(this.barSize);
+        sb.append(", feedCSV=").append(this.feedCSV);
+        sb.append(", feedDB=").append(this.feedDB);
         sb.append(", feedGenericEvents=").append(this.feedGenericEvents);
         sb.append(", feedAllMarketDataFiles=").append(this.feedAllMarketDataFiles);
+        sb.append(", feedBatchSize=").append(this.feedBatchSize);
         sb.append(", simulation=").append(this.simulation);
         sb.append(", simulationInitialBalance=").append(this.simulationInitialBalance);
         sb.append(", simulationLogTransactions=").append(this.simulationLogTransactions);
