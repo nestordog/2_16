@@ -49,8 +49,11 @@ public class ConfigBeanFactoryTest {
         map.put("dataSource.dataSetType", "BAR");
         map.put("dataSource.dataSetLocation", "stuff/more-stuff");
         map.put("dataSource.barSize", "MIN_5");
+        map.put("dataSource.feedCSV", "false");
+        map.put("dataSource.feedDB", "false");
         map.put("dataSource.feedGenericEvents", "true");
         map.put("dataSource.feedAllMarketDataFiles", "true");
+        map.put("dataSource.feedBatchSize", "20");
         map.put("simulation", "true");
         map.put("simulation.initialBalance", "500.5");
         map.put("simulation.logTransactions", "true");
