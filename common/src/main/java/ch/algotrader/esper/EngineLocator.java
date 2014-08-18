@@ -190,7 +190,7 @@ public class EngineLocator {
         if (CONFIG.isSimulation() || CONFIG.isSingleVM()) {
             for (Engine engine : this.engines.values()) {
                 String engineName = engine.getName();
-                if (!engineName.equals(StrategyImpl.BASE) && !engineName.equals(event.getStrategyName())) {
+                if (engineName.equals(event.getStrategyName())) {
                     engine.sendEvent(event);
                 }
             }
