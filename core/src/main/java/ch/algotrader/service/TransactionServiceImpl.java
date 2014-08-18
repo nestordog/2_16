@@ -57,7 +57,7 @@ import ch.algotrader.vo.TradePerformanceVO;
  *
  * @version $Revision$ $Date$
  */
-public abstract class TransactionServiceImpl extends TransactionServiceBase {
+public class TransactionServiceImpl extends TransactionServiceBase {
 
     private static Logger logger = MyLogger.getLogger(TransactionServiceImpl.class.getName());
     private static Logger mailLogger = MyLogger.getLogger(TransactionServiceImpl.class.getName() + ".MAIL");

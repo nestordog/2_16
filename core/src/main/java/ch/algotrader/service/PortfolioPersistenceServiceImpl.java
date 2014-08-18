@@ -45,7 +45,7 @@ import ch.algotrader.util.RoundUtil;
  *
  * @version $Revision$ $Date$
  */
-public abstract class PortfolioPersistenceServiceImpl extends PortfolioPersistenceServiceBase {
+public class PortfolioPersistenceServiceImpl extends PortfolioPersistenceServiceBase {
 
     private static Logger logger = MyLogger.getLogger(PortfolioPersistenceServiceImpl.class.getName());
 
