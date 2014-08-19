@@ -71,7 +71,7 @@ public abstract class Fix44OrderServiceImpl extends Fix44OrderServiceBase {
     protected void handleModifyOrder(SimpleOrder order) throws Exception {
 
         // assign a new clOrdID
-        String clOrdID = getFixAdapter().getNextOrderId(order.getAccount());
+        String clOrdID = getFixAdapter().getNextOrderIdVersion(order);
 
         OrderCancelReplaceRequest message = this.messageFactory.createModifyOrderMessage(order, clOrdID);
 
