@@ -37,6 +37,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 
@@ -67,7 +68,11 @@ class FileListContentProvider implements IStructuredContentProvider {
             files = null;
         else
             try {
+                this.editorPropertyPage.setErrorMessage(null);
                 files = getFiles((IJavaProject) newInput);
+            } catch (JavaModelException e) {
+                files = null; // this is not java project
+                this.editorPropertyPage.setErrorMessage(MessageFormat.format("Project ''{0}'' is not java project.", ((IJavaProject) newInput).getProject().getName()));
             } catch (Exception e) {
                 e.printStackTrace();
                 throw new RuntimeException(e);
