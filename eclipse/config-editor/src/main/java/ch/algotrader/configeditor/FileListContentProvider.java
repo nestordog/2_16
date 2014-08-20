@@ -23,7 +23,10 @@ import java.io.FileFilter;
 import java.io.FileReader;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.core.resources.IFolder;
@@ -52,7 +55,7 @@ class FileListContentProvider implements IStructuredContentProvider {
         this.editorPropertyPage = editorPropertyPage;
     }
 
-    private List<File> files;
+    private Collection<File> files;
 
     @Override
     public void dispose() {
@@ -79,8 +82,8 @@ class FileListContentProvider implements IStructuredContentProvider {
             return new Object[0];
     }
 
-    List<File> getFiles(IJavaProject javaProject) throws Exception {
-        List<File> files;
+    Collection<File> getFiles(IJavaProject javaProject) throws Exception {
+        Collection<File> files;
         File hierarchyFile = getHierarchyFileFromClasspath(javaProject);
         if (hierarchyFile == null) {
             files = getPropertiesFilesFromClasspath(javaProject);
@@ -142,8 +145,8 @@ class FileListContentProvider implements IStructuredContentProvider {
         return null;
     }
 
-    List<String> getPropertiesFileNamesFromHierarchyFile(File hierarchyFile) throws Exception {
-        List<String> result = new ArrayList<String>();
+    Collection<String> getPropertiesFileNamesFromHierarchyFile(File hierarchyFile) throws Exception {
+        Set<String> result = new LinkedHashSet<String>();
         BufferedReader br = new BufferedReader(new FileReader(hierarchyFile));
         try {
             for (String s : br.readLine().split(":")) {
@@ -157,12 +160,12 @@ class FileListContentProvider implements IStructuredContentProvider {
         return result;
     }
 
-    List<File> getPropertiesFilesFromHierarchyFile(File hierarchyFile, IJavaProject javaProject) throws Exception {
+    Collection<File> getPropertiesFilesFromHierarchyFile(File hierarchyFile, IJavaProject javaProject) throws Exception {
         return resolvePropertiesFileNamesAgainstClasspath(getPropertiesFileNamesFromHierarchyFile(hierarchyFile), javaProject);
     }
 
-    List<File> getPropertiesFilesFromClasspath(IJavaProject javaProject) throws Exception {
-        List<File> result = new ArrayList<File>();
+    Collection<File> getPropertiesFilesFromClasspath(IJavaProject javaProject) throws Exception {
+        Set<File> result = new LinkedHashSet<File>();
         // IPath workspaceLocation = ResourcesPlugin.getWorkspace().getRoot().getLocation();
         IClasspathEntry[] classPath = javaProject.getResolvedClasspath(false);
         for (int i = 0; i < classPath.length; i++) {
@@ -235,8 +238,8 @@ class FileListContentProvider implements IStructuredContentProvider {
         return null;
     }
 
-    List<File> resolvePropertiesFileNamesAgainstClasspath(List<String> fileNames, IJavaProject javaProject) throws Exception {
-        List<File> result = new ArrayList<File>();
+    Collection<File> resolvePropertiesFileNamesAgainstClasspath(Collection<String> fileNames, IJavaProject javaProject) throws Exception {
+        Set<File> result = new LinkedHashSet<File>();
         for (String fileName : fileNames) {
             File f = resolvePropertiesFileNameAgainstClasspath(fileName, javaProject);
             if (f == null)
