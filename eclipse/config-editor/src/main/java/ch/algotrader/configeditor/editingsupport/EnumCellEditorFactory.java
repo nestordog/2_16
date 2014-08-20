@@ -29,7 +29,7 @@ import org.eclipse.swt.widgets.Composite;
  */
 public class EnumCellEditorFactory implements CellEditorFactory, ISetDataType {
 
-    String enumClass;
+    Class<?> enumClass;
 
     @Override
     public CellEditor createCellEditor(Composite parent) {
@@ -41,7 +41,7 @@ public class EnumCellEditorFactory implements CellEditorFactory, ISetDataType {
     }
 
     @Override
-    public void setDataType(String dataType) {
+    public void setDataType(Class<?> dataType) {
         this.enumClass = dataType;
     }
 }

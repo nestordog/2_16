@@ -21,8 +21,6 @@ import java.util.regex.Pattern;
 
 import org.eclipse.jface.viewers.ICellEditorValidator;
 
-import ch.algotrader.configeditor.editingsupport.PropertyDefExtensionPoint;
-
 /**
  * Validator for cell editor, uses FieldModel to deduce validation rules.
  *

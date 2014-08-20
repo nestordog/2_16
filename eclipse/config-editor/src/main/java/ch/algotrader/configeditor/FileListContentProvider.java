@@ -17,26 +17,14 @@
  ***********************************************************************************/
 package ch.algotrader.configeditor;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileFilter;
-import java.io.FileReader;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.Viewer;
@@ -89,14 +77,14 @@ class FileListContentProvider implements IStructuredContentProvider {
 
     Collection<File> getFiles(IJavaProject javaProject) throws Exception {
         Collection<File> files;
-        File hierarchyFile = getHierarchyFileFromClasspath(javaProject);
+        File hierarchyFile = ProjectUtils.getHierarchyFileFromClasspath(javaProject);
         if (hierarchyFile == null) {
-            files = getPropertiesFilesFromClasspath(javaProject);
+            files = ProjectUtils.getPropertiesFilesFromClasspath(javaProject);
         } else {
-            files = getPropertiesFilesFromHierarchyFile(hierarchyFile, javaProject);
+            files = ProjectUtils.getPropertiesFilesFromHierarchyFile(hierarchyFile, javaProject);
         }
         for (File f : files) {
-            StructuredProperties structProps = new StructuredProperties();
+            StructuredProperties structProps = new StructuredProperties(this.editorPropertyPage);
             this.editorPropertyPage.propMap.put(f, structProps);
             List<String> errorMessages = new ArrayList<String>();
             try {
@@ -116,142 +104,5 @@ class FileListContentProvider implements IStructuredContentProvider {
             this.editorPropertyPage.editorData.put(f, elementsList.toArray());
         }
         return files;
-    }
-
-    File getHierarchyFileFromClasspath(IJavaProject javaProject) throws Exception {
-        IPath workspaceLocation = ResourcesPlugin.getWorkspace().getRoot().getLocation();
-        IProject project = javaProject.getProject();
-        String projectName = project.getName();
-        javaProject.open(null);
-        IClasspathEntry[] classPath = javaProject.getResolvedClasspath(false);
-        for (int i = 0; i < classPath.length; i++) {
-            IClasspathEntry entry = classPath[i];
-            if (entry.getPath().toString().startsWith("/" + projectName)) {
-                File dir = new File(new File(workspaceLocation.toString(), entry.getPath().toString()), "META-INF");
-                File f = new File(dir, project.getName() + ".hierarchy");
-                if (f.exists())
-                    return f;
-            }
-        }
-        for (int i = 0; i < classPath.length; i++) {
-            IClasspathEntry entry = classPath[i];
-            if (entry.getPath().toString().startsWith("/" + projectName)) {
-                File dir = new File(new File(workspaceLocation.toString(), entry.getPath().toString()), "META-INF");
-                File[] files = dir.listFiles(new FileFilter() {
-                    @Override
-                    public boolean accept(File f) {
-                        return f.getName().endsWith(".hierarchy");
-                    }
-                });
-                if (files != null && files.length != 0)
-                    return files[0];
-            }
-        }
-        return null;
-    }
-
-    Collection<String> getPropertiesFileNamesFromHierarchyFile(File hierarchyFile) throws Exception {
-        Set<String> result = new LinkedHashSet<String>();
-        BufferedReader br = new BufferedReader(new FileReader(hierarchyFile));
-        try {
-            for (String s : br.readLine().split(":")) {
-                if (!s.endsWith(".properties"))
-                    s += ".properties";
-                result.add(s);
-            }
-        } finally {
-            br.close();
-        }
-        return result;
-    }
-
-    Collection<File> getPropertiesFilesFromHierarchyFile(File hierarchyFile, IJavaProject javaProject) throws Exception {
-        return resolvePropertiesFileNamesAgainstClasspath(getPropertiesFileNamesFromHierarchyFile(hierarchyFile), javaProject);
-    }
-
-    Collection<File> getPropertiesFilesFromClasspath(IJavaProject javaProject) throws Exception {
-        Set<File> result = new LinkedHashSet<File>();
-        // IPath workspaceLocation = ResourcesPlugin.getWorkspace().getRoot().getLocation();
-        IClasspathEntry[] classPath = javaProject.getResolvedClasspath(false);
-        for (int i = 0; i < classPath.length; i++) {
-            IClasspathEntry entry = classPath[i];
-            if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
-                String projectName = entry.getPath().segment(0);
-                IProject proj = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
-                if (proj != null) {
-                    IJavaProject javaProj;
-                    if (proj instanceof IJavaProject)
-                        javaProj = (IJavaProject) proj;
-                    else
-                        javaProj = JavaCore.create(proj);
-                    javaProj.open(null);
-                    result.addAll(getPropertiesFilesFromClasspath(javaProj));
-                }
-            } else if (entry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
-                IFolder folder = ResourcesPlugin.getWorkspace().getRoot().getFolder(entry.getPath());
-                if (folder != null) {
-                    File entryFile = folder.getLocation().toFile().getAbsoluteFile();
-                    File dir = new File(entryFile, "META-INF");
-                    if (dir.exists()) {
-                        for (File f : dir.listFiles(new FileFilter() {
-                            @Override
-                            public boolean accept(File f) {
-                                return f.getName().endsWith(".properties");
-                            }
-                        })) {
-                            result.add(f);
-                        }
-                    }
-                }
-            }
-        }
-        return result;
-    }
-
-    File resolvePropertiesFileNameAgainstClasspath(String fileName, IJavaProject javaProject) throws Exception {
-        IPath workspaceLocation = ResourcesPlugin.getWorkspace().getRoot().getLocation();
-        IClasspathEntry[] classPath = javaProject.getResolvedClasspath(false);
-        for (int i = 0; i < classPath.length; i++) {
-            IClasspathEntry entry = classPath[i];
-            String entryPath = entry.getPath().toString();
-            if (entryPath.startsWith("/")) {
-                String projectName = entryPath.substring(1);
-                if (new Path(projectName).segmentCount() == 1) {
-                    IProject proj = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
-                    if (proj.exists()) {
-                        IJavaProject javaProj;
-                        if (proj instanceof IJavaProject)
-                            javaProj = (IJavaProject) proj;
-                        else
-                            javaProj = JavaCore.create(proj);
-                        javaProj.open(null);
-                        File f = resolvePropertiesFileNameAgainstClasspath(fileName, javaProj);
-                        if (f != null)
-                            return f;
-                    }
-                }
-            }
-            File entryFile = new File(entryPath);
-            if (!entryFile.exists())
-                entryFile = new File(workspaceLocation.toOSString(), entryPath);
-            if (entryFile.isDirectory()) {
-                File f = new File(entryFile, "META-INF/" + fileName);
-                if (f.exists())
-                    return f;
-            }
-        }
-        return null;
-    }
-
-    Collection<File> resolvePropertiesFileNamesAgainstClasspath(Collection<String> fileNames, IJavaProject javaProject) throws Exception {
-        Set<File> result = new LinkedHashSet<File>();
-        for (String fileName : fileNames) {
-            File f = resolvePropertiesFileNameAgainstClasspath(fileName, javaProject);
-            if (f == null)
-                this.editorPropertyPage.setErrorMessage(MessageFormat.format("File ''{0}'' does not exist.", fileName));
-            else
-                result.add(f);
-        }
-        return result;
     }
 }

@@ -35,7 +35,7 @@ import org.eclipse.swt.widgets.Display;
  */
 public class EnumCellEditor extends ComboBoxViewerCellEditor {
 
-    public EnumCellEditor(Composite parent, final String enumClassName) throws ClassNotFoundException {
+    public EnumCellEditor(Composite parent, final Class<?> enumClass) throws ClassNotFoundException {
         super(parent, SWT.READ_ONLY);
         this.setContentProvider(new IStructuredContentProvider() {
 
@@ -55,7 +55,7 @@ public class EnumCellEditor extends ComboBoxViewerCellEditor {
                 return enumClass.getEnumConstants();
             }
         });
-        this.setInput(Class.forName(enumClassName));
+        this.setInput(enumClass);
     }
 
     @Override

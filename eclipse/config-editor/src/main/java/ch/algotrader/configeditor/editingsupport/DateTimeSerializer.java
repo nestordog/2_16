@@ -36,7 +36,7 @@ public class DateTimeSerializer implements IPropertySerializer {
     private final DateFormat USFormat;
     private final DateFormat EUFormat;
 
-    DateTimeSerializer() {
+    public DateTimeSerializer() {
         USFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         EUFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
     }

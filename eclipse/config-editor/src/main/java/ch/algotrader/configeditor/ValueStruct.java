@@ -20,8 +20,6 @@ package ch.algotrader.configeditor;
 import java.util.ArrayList;
 import java.util.List;
 
-import ch.algotrader.configeditor.editingsupport.PropertyDefExtensionPoint;
-
 /**
  * Represents structured value (value + comments).
  *
@@ -44,8 +42,8 @@ public class ValueStruct {
         value = pValue;
     }
 
-    public String getSaveReadyValue() {
+    public String getSaveReadyValue(ProjectProperties projectProperties) {
         String propertyId = new PropertyModel(this).getPropertyId();
-        return PropertyDefExtensionPoint.serialize(propertyId, value);
+        return projectProperties.serialize(propertyId, value);
     }
 }

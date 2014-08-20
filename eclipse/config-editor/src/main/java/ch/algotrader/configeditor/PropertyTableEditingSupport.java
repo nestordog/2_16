@@ -23,7 +23,6 @@ import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TextCellEditor;
 
 import ch.algotrader.configeditor.editingsupport.CellEditorFactory;
-import ch.algotrader.configeditor.editingsupport.PropertyDefExtensionPoint;
 
 /**
  * Editing support for property table. Uses PropertyDefExtensionPoint to get cell editor factories.
@@ -52,7 +51,7 @@ class PropertyTableEditingSupport extends EditingSupport {
         String key = (String) row[0];
         PropertyModel model = propertyPage.getFieldModel(propertyPage.getSelectedFile(), key);
         CellEditor editor;
-        CellEditorFactory factory = PropertyDefExtensionPoint.createCellEditorFactory(model.getPropertyId());
+        CellEditorFactory factory = propertyPage.projectProperties.createCellEditorFactory(model.getPropertyId());
         if (factory == null)
             editor = new TextCellEditor(getViewer().getTable());
         else {

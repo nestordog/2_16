@@ -49,8 +49,6 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.ui.IWorkbenchPropertyPage;
 import org.eclipse.ui.dialogs.PropertyPage;
 
-import ch.algotrader.configeditor.editingsupport.PropertyDefExtensionPoint;
-
 /**
  * Configuration editor, implemented as PropertyPage.
  *
@@ -64,12 +62,28 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
     protected TableViewer propertyTableViewer;
     protected Map<File, Object[]> editorData = new HashMap<File, Object[]>();
     protected Map<File, StructuredProperties> propMap = new HashMap<File, StructuredProperties>();
+    protected IJavaProject javaProject;
+    protected ProjectProperties projectProperties;
 
     public EditorPropertyPage() {
     }
 
     @Override
     protected Control createContents(Composite parent) {
+
+        IProject project;
+        if (this.getElement() instanceof IProject)
+            project = (IProject) this.getElement();
+        else {
+            assert this.getElement() instanceof IProjectNature;
+            project = ((IProjectNature) this.getElement()).getProject();
+        }
+        if (project instanceof IJavaProject)
+            javaProject = (IJavaProject) project;
+        else
+            javaProject = JavaCore.create(project);
+
+        projectProperties = new ProjectProperties(javaProject);
 
         SashForm sashForm = new SashForm(parent, SWT.HORIZONTAL);
 
@@ -89,7 +103,7 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
             }
         });
 
-        fileListViewer.setInput(getProject());
+        fileListViewer.setInput(javaProject);
 
         fileListViewer.addSelectionChangedListener(new ISelectionChangedListener() {
             @Override
@@ -145,7 +159,7 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
                 String key = (String) row[0];
                 Object value = row[1];
                 String propertyId = getFieldModel(getSelectedFile(), key).getPropertyId();
-                return PropertyDefExtensionPoint.serialize(propertyId, value);
+                return projectProperties.serialize(propertyId, value);
             }
         });
         colValue.setEditingSupport(new PropertyTableEditingSupport(this));
@@ -214,7 +228,7 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
     public Iterable<java.io.File> getFiles() {
         FileListContentProvider t = new FileListContentProvider(this);
         try {
-            return t.getFiles(getProject());
+            return t.getFiles(javaProject);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -229,22 +243,6 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
             p.put(row[0], row[1]);
         }
         return p;
-    }
-
-    public IJavaProject getProject() {
-        IProject project;
-        if (this.getElement() instanceof IProject)
-            project = (IProject) this.getElement();
-        else {
-            assert this.getElement() instanceof IProjectNature;
-            project = ((IProjectNature) this.getElement()).getProject();
-        }
-        IJavaProject javaProject;
-        if (project instanceof IJavaProject)
-            javaProject = (IJavaProject) project;
-        else
-            javaProject = JavaCore.create(project);
-        return javaProject;
     }
 
     @Override

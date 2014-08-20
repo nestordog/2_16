@@ -28,8 +28,6 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import ch.algotrader.configeditor.editingsupport.PropertyDefExtensionPoint;
-
 /**
  * Represents mapping from property names to structured values (values + comments).
  *
@@ -39,10 +37,12 @@ import ch.algotrader.configeditor.editingsupport.PropertyDefExtensionPoint;
  */
 public class StructuredProperties {
 
-    private Map<String, ValueStruct> properties;
+    private final Map<String, ValueStruct> properties;
+    private final EditorPropertyPage propertyPage;
 
-    public StructuredProperties() {
+    public StructuredProperties(EditorPropertyPage propertyPage) {
         properties = new LinkedHashMap<String, ValueStruct>();
+        this.propertyPage = propertyPage;
     }
 
     public void load(File f, Collection<String> errorMessages) throws Exception {
@@ -103,7 +103,7 @@ public class StructuredProperties {
         }
         String stringValue = value.toString().trim();
         String propertyId = new PropertyModel(n).getPropertyId();
-        n.value = PropertyDefExtensionPoint.deserialize(propertyId, stringValue);
+        n.value = propertyPage.projectProperties.deserialize(propertyId, stringValue);
         if (inlineComment != null)
             n.inlineComment = inlineComment.trim();
         properties.put(key.toString().trim(), n);
@@ -116,7 +116,7 @@ public class StructuredProperties {
                 for (int i = 0; i < properties.get(key).comments.size(); i++) {
                     out.println("#" + properties.get(key).comments.get(i));
                 }
-                out.print(key + "=" + properties.get(key).getSaveReadyValue());
+                out.print(key + "=" + properties.get(key).getSaveReadyValue(propertyPage.projectProperties));
                 if (properties.get(key).inlineComment != null)
                     out.print(" #" + properties.get(key).inlineComment);
                 out.println();
