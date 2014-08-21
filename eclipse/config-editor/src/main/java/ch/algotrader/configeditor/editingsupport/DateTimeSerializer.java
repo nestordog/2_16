@@ -49,7 +49,7 @@ public class DateTimeSerializer implements IPropertySerializer {
     @Override
     public Object deserialize(String propValue) {
         try {
-            if (propValue.split("-").length > 1)
+            if (propValue.contains("-"))
                 return (Date) USFormat.parse(propValue);
             return (Date) EUFormat.parse(propValue);
         } catch (ParseException e) {
@@ -59,6 +59,9 @@ public class DateTimeSerializer implements IPropertySerializer {
 
     @Override
     public String serialize(Object propObject) {
+        System.out.println("DateTimeSerializer.serialize " + propObject);
+        if (propObject == null)
+            return "";
         return USFormat.format((Date) propObject);
     }
 }
