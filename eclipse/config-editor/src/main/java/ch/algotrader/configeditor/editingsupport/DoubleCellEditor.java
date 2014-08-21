@@ -29,7 +29,7 @@ import org.eclipse.swt.widgets.Composite;
  */
 public class DoubleCellEditor extends TextCellEditor {
 
-    DoubleCellEditor(Composite parent) {
+    public DoubleCellEditor(Composite parent) {
         super(parent);
     }
 

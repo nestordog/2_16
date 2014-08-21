@@ -36,7 +36,7 @@ public class CheckboxCellEditor extends CellEditor {
 
     private Button checkbox;
 
-    CheckboxCellEditor(Composite parent) {
+    public CheckboxCellEditor(Composite parent) {
         super(parent);
     }
 

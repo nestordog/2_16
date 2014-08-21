@@ -39,7 +39,7 @@ public class DateTimeCellEditor extends CellEditor {
 
     private CDateTime widget;
 
-    DateTimeCellEditor(Composite parent, int style) {
+    public DateTimeCellEditor(Composite parent, int style) {
         super(parent, style);
     }
 

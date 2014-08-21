@@ -26,7 +26,7 @@ package ch.algotrader.configeditor.editingsupport;
  */
 public class TimeSerializer extends DateTimeSerializer {
 
-    TimeSerializer() {
+    public TimeSerializer() {
         super("HH:mm:ss", "HH:mm:ss");
     }
 }

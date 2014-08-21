@@ -29,7 +29,7 @@ import org.eclipse.swt.widgets.Composite;
  */
 public class IntegerCellEditor extends TextCellEditor {
 
-    IntegerCellEditor(Composite parent) {
+    public IntegerCellEditor(Composite parent) {
         super(parent);
     }
 
