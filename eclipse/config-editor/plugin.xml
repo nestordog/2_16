@@ -67,7 +67,7 @@
             id="Integer"
             dataType="java.lang.Integer"
             cellEditorFactory="ch.algotrader.configeditor.editingsupport.IntegerCellEditorFactory"
-            regex="^\d*$"
+            regex="^-?\d*$"
             regexErrorMessage="&apos;&apos;{0}&apos;&apos; is not a valid integer number">
       </PropertyDef>
    </extension>
@@ -77,7 +77,7 @@
               id="Double"
             dataType="ch.algotrader.configeditor.editingsupport.DoubleSerializer"
             cellEditorFactory="ch.algotrader.configeditor.editingsupport.DoubleCellEditorFactory"
-            regex="^\d*(\.\d*)?$"
+            regex="^-?\d*(\.\d*)?$"
             regexErrorMessage="&apos;&apos;{0}&apos;&apos; is not a valid float number">
       </PropertyDef>
    </extension>
