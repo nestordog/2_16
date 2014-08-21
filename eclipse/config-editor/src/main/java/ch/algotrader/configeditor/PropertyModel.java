@@ -59,7 +59,9 @@ public class PropertyModel {
         Object required = definition.get("required");
         if (required == null)
             return true;
-        return (Boolean) required;
+        if (required instanceof Boolean)
+            return (Boolean) required;
+        return Boolean.valueOf(required.toString());
     }
 
     @SuppressWarnings("unchecked")
