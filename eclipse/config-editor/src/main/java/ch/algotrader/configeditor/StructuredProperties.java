@@ -53,8 +53,8 @@ public class StructuredProperties {
 
             while ((line = reader.readLine()) != null) {
                 if (line.isEmpty())
-                    continue;
-                if (line.charAt(0) == '#') {
+                    n.comments.add("");
+                else if (line.charAt(0) == '#') {
                     n.comments.add(line.substring(1));
                 } else {
                     try {
@@ -114,9 +114,12 @@ public class StructuredProperties {
         try {
             for (String key : properties.keySet()) {
                 for (int i = 0; i < properties.get(key).comments.size(); i++) {
-                    out.println("#" + properties.get(key).comments.get(i));
+                    if ((properties.get(key).comments.get(i)).equals(""))
+                        out.println();
+                    else
+                        out.println("#" + properties.get(key).comments.get(i));
                 }
-                out.print(key + "=" + properties.get(key).getSaveReadyValue(propertyPage.projectProperties));
+                out.print(key + " = " + properties.get(key).getSaveReadyValue(propertyPage.projectProperties));
                 if (properties.get(key).inlineComment != null)
                     out.print(" #" + properties.get(key).inlineComment);
                 out.println();
