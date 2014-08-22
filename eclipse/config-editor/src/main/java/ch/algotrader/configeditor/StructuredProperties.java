@@ -55,7 +55,7 @@ public class StructuredProperties {
                 if (line.isEmpty())
                     n.comments.add("");
                 else if (line.charAt(0) == '#') {
-                    n.comments.add(line.substring(1));
+                    n.comments.add(line);
                 } else {
                     try {
                         parseKeyValueLine(n, line);
@@ -117,7 +117,7 @@ public class StructuredProperties {
                     if ((properties.get(key).comments.get(i)).equals(""))
                         out.println();
                     else
-                        out.println("#" + properties.get(key).comments.get(i));
+                        out.println(properties.get(key).comments.get(i));
                 }
                 out.print(key + " = " + properties.get(key).getSaveReadyValue(propertyPage.projectProperties));
                 if (properties.get(key).inlineComment != null)
