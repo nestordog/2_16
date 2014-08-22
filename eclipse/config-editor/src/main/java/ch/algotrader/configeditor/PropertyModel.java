@@ -70,6 +70,9 @@ public class PropertyModel {
         if (values != null && values.comments != null)
             for (String comment : values.comments) {
                 try {
+                    if (comment.startsWith("#"))
+                        comment = comment.substring(1);
+                    comment = comment.trim();
                     return mapper.readValue(comment, Map.class);
                 } catch (Exception e) {
                     // keep reading other comments in case of errors
