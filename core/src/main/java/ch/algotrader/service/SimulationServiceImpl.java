@@ -18,6 +18,7 @@
 package ch.algotrader.service;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -58,6 +59,7 @@ import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.esper.io.CsvBarInputAdapterSpec;
 import ch.algotrader.esper.io.CsvTickInputAdapterSpec;
 import ch.algotrader.esper.io.GenericEventInputAdapterSpec;
+import ch.algotrader.report.ReportManager;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.metric.MetricsUtil;
 import ch.algotrader.vo.EndOfSimulationVO;
@@ -94,7 +96,7 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
     }
 
     @Override
-    protected SimulationResultVO handleRunSimulation() {
+    protected SimulationResultVO handleRunSimulation() throws IOException {
 
         long startTime = System.currentTimeMillis();
 
@@ -145,6 +147,9 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
 
         // clear the second-level cache
         CacheManager.getInstance().clearAll();
+
+        // close all reports
+        ReportManager.closeAll();
 
         // run a garbage collection
         System.gc();

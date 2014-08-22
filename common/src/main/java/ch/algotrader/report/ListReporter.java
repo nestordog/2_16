@@ -34,7 +34,7 @@ import org.supercsv.prefs.CsvPreference;
  *
  * @version $Revision$ $Date$
  */
-public class ListReporter {
+public class ListReporter implements Report {
 
     private CellProcessor[] processor;
     private CsvListWriter writer;
@@ -56,6 +56,8 @@ public class ListReporter {
         this.writer = new CsvListWriter(new FileWriter(file, false), CsvPreference.EXCEL_PREFERENCE);
 
         this.writer.writeHeader(header);
+
+        ReportManager.registerReport(this);
     }
 
     public ListReporter(String fileName, String[] header) throws IOException {
@@ -82,6 +84,7 @@ public class ListReporter {
         this.writer.write(row);
     }
 
+    @Override
     public void close() throws IOException {
 
         this.writer.close();
