@@ -33,6 +33,12 @@ public class ValueStruct {
     public List<String> comments;
     public String inlineComment;
 
+    public String keyLeadingSpaces;
+    public String keyTrailingSpaces;
+
+    public String valueLeadingSpaces;
+    public String valueTrailingSpaces;
+
     public ValueStruct() {
         comments = new ArrayList<String>();
     }

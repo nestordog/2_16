@@ -101,27 +101,67 @@ public class StructuredProperties {
                     value.append(line.charAt(i));
             }
         }
-        String stringValue = value.toString().trim();
+        String stringKey = key.toString();
+        String stringValue = value.toString();
+
+        int firstNonSpaceIndex = stringKey.length();
+        for (int i = 0; i < stringKey.length(); i++)
+            if (!Character.isWhitespace(stringKey.charAt(i))) {
+                firstNonSpaceIndex = i;
+                break;
+            }
+        n.keyLeadingSpaces = stringKey.substring(0, firstNonSpaceIndex);
+        if (firstNonSpaceIndex != stringKey.length()) {
+            int lastNonSpaceIndex = -1;
+            for (int i = stringKey.length() - 1; i >= 0; i--)
+                if (!Character.isWhitespace(stringKey.charAt(i))) {
+                    lastNonSpaceIndex = i;
+                    break;
+                }
+            n.keyTrailingSpaces = stringKey.substring(lastNonSpaceIndex + 1, stringKey.length());
+        } else
+            n.keyTrailingSpaces = "";
+
+        firstNonSpaceIndex = stringValue.length();
+        for (int i = 0; i < stringValue.length(); i++)
+            if (!Character.isWhitespace(stringValue.charAt(i))) {
+                firstNonSpaceIndex = i;
+                break;
+            }
+        n.valueLeadingSpaces = stringValue.substring(0, firstNonSpaceIndex);
+        if (firstNonSpaceIndex != stringValue.length()) {
+            int lastNonSpaceIndex = -1;
+            for (int i = stringValue.length() - 1; i >= 0; i--)
+                if (!Character.isWhitespace(stringValue.charAt(i))) {
+                    lastNonSpaceIndex = i;
+                    break;
+                }
+            n.valueTrailingSpaces = stringValue.substring(lastNonSpaceIndex + 1, stringValue.length());
+        } else
+            n.valueTrailingSpaces = "";
+
         String propertyId = new PropertyModel(n).getPropertyId();
-        n.value = propertyPage.projectProperties.deserialize(propertyId, stringValue);
+        n.value = propertyPage.projectProperties.deserialize(propertyId, stringValue.trim());
         if (inlineComment != null)
             n.inlineComment = inlineComment.trim();
-        properties.put(key.toString().trim(), n);
+        properties.put(stringKey.trim(), n);
     }
 
     public void save(File f) throws IOException {
         PrintWriter out = new PrintWriter(f);
         try {
             for (String key : properties.keySet()) {
-                for (int i = 0; i < properties.get(key).comments.size(); i++) {
-                    if ((properties.get(key).comments.get(i)).equals(""))
+                ValueStruct struct = properties.get(key);
+                for (int i = 0; i < struct.comments.size(); i++) {
+                    if ((struct.comments.get(i)).equals(""))
                         out.println();
                     else
-                        out.println(properties.get(key).comments.get(i));
+                        out.println(struct.comments.get(i));
                 }
-                out.print(key + " = " + properties.get(key).getSaveReadyValue(propertyPage.projectProperties));
-                if (properties.get(key).inlineComment != null)
-                    out.print(" #" + properties.get(key).inlineComment);
+                out.print(struct.keyLeadingSpaces + key + struct.keyTrailingSpaces + "=" + struct.valueLeadingSpaces + struct.getSaveReadyValue(propertyPage.projectProperties)
+                        + struct.valueTrailingSpaces);
+                if (struct.inlineComment != null)
+                    out.print(" #" + struct.inlineComment);
                 out.println();
             }
         } finally {
