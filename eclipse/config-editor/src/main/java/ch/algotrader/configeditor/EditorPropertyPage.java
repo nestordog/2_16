@@ -192,7 +192,7 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
                 String validationMessage = validator.isValid(row[1]);
                 if (validationMessage != null) {
                     fileListViewer.setSelection(new StructuredSelection(file));
-                    propertyTableViewer.setSelection(new StructuredSelection((Object) row));
+                    propertyTableViewer.setSelection(new StructuredSelection((Object) row), true);
                     propertyTableViewer.getControl().setFocus();
                     this.setErrorMessage(validationMessage);
                     return false;
