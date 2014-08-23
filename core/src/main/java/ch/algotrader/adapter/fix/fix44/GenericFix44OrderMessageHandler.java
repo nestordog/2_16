@@ -133,9 +133,11 @@ public class GenericFix44OrderMessageHandler extends AbstractFix44OrderMessageHa
             } else {
                 return Status.PARTIALLY_EXECUTED;
             }
-        } else if (execType.getValue() == ExecType.CANCELED || execType.getValue() == ExecType.REJECTED
-                || execType.getValue() == ExecType.DONE_FOR_DAY || execType.getValue() == ExecType.EXPIRED) {
+        } else if (execType.getValue() == ExecType.CANCELED || execType.getValue() == ExecType.DONE_FOR_DAY
+                || execType.getValue() == ExecType.EXPIRED) {
             return Status.CANCELED;
+        } else if (execType.getValue() == ExecType.REJECTED) {
+            return Status.REJECTED;
         } else if (execType.getValue() == ExecType.REPLACE) {
             if (cumQty.getValue() == 0) {
                 return Status.SUBMITTED;

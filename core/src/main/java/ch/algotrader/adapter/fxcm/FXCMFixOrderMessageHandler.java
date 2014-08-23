@@ -143,8 +143,10 @@ public class FXCMFixOrderMessageHandler extends AbstractFix44OrderMessageHandler
             } else {
                 return Status.PARTIALLY_EXECUTED;
             }
-        } else if (ordStatus.getValue() == OrdStatus.CANCELED || ordStatus.getValue() == OrdStatus.REJECTED) {
+        } else if (ordStatus.getValue() == OrdStatus.CANCELED) {
             return Status.CANCELED;
+        } else if (ordStatus.getValue() == OrdStatus.REJECTED) {
+            return Status.REJECTED;
         } else {
             throw new IllegalArgumentException("unknown orderStatus " + ordStatus.getValue());
         }

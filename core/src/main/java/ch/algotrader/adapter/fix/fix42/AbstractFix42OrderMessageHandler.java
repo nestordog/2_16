@@ -23,6 +23,7 @@ import org.apache.log4j.Logger;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderStatus;
+import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.service.LookupService;
 import ch.algotrader.util.MyLogger;
@@ -79,6 +80,15 @@ public abstract class AbstractFix42OrderMessageHandler extends AbstractFix42Mess
             throw new UnsupportedOperationException("order " + intId + " has received an unsupported ExecTransType of: " + executionReport.getExecTransType().getValue());
         }
 
+        // get the order from the OpenOrderWindow
+        Order order = lookupService.getOpenOrderByRootIntId(intId);
+
+        if (order == null) {
+
+            LOGGER.error("order with intId " + intId + " could not be found for execution " + executionReport);
+            return;
+        }
+
         if (isOrderRejected(executionReport)) {
 
             if (LOGGER.isEnabledFor(Level.ERROR)) {
@@ -91,15 +101,14 @@ public abstract class AbstractFix42OrderMessageHandler extends AbstractFix42Mess
                 }
                 LOGGER.error(buf.toString());
             }
-            return;
-        }
 
-        // get the order from the OpenOrderWindow
-        Order order = lookupService.getOpenOrderByRootIntId(intId);
+            OrderStatus orderStatus = OrderStatus.Factory.newInstance();
+            orderStatus.setStatus(Status.REJECTED);
+            orderStatus.setIntId(intId);
+            orderStatus.setOrder(order);
 
-        if (order == null) {
+            EngineLocator.instance().getBaseEngine().sendEvent(orderStatus);
 
-            LOGGER.error("order with intId " + intId + " could not be found for execution " + executionReport);
             return;
         }
 
@@ -112,7 +121,7 @@ public abstract class AbstractFix42OrderMessageHandler extends AbstractFix42Mess
         if (fill != null) {
 
             // associate the fill with the order
-            order.addFills(fill);
+            fill.setOrder(order);
 
             EngineLocator.instance().getBaseEngine().sendEvent(fill);
         }

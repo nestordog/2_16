@@ -179,10 +179,34 @@ public class TestCNXFixOrderMessageHandler {
         ExecutionReport executionReport = FixTestUtils.parseFix44Message(s, ExecutionReport.class);
         Assert.assertNotNull(executionReport);
 
+        SecurityFamily family = new SecurityFamilyImpl();
+        family.setCurrency(Currency.RUB);
+        family.setScale(5);
+
+        Forex forex = new ForexImpl();
+        forex.setSymbol("EUR.USD");
+        forex.setBaseCurrency(Currency.INR);
+        forex.setSecurityFamily(family);
+
+        MarketOrder order = new MarketOrderImpl();
+        order.setSecurity(forex);
+
+        Mockito.when(lookupService.getOpenOrderByRootIntId("14763e2fd3e")).thenReturn(order);
+
         impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
-        Mockito.verify(lookupService, Mockito.never()).getOpenOrderByRootIntId(Mockito.anyString());
-        Mockito.verify(engine, Mockito.never()).sendEvent(Mockito.any());
+        ArgumentCaptor<Object> argumentCaptor = ArgumentCaptor.forClass(Object.class);
+        Mockito.verify(engine, Mockito.times(1)).sendEvent(argumentCaptor.capture());
+
+        Object event1 = argumentCaptor.getValue();
+        Assert.assertTrue(event1 instanceof OrderStatus);
+        OrderStatus orderStatus1 = (OrderStatus) event1;
+        Assert.assertEquals("14763e2fd3e", orderStatus1.getIntId());
+        Assert.assertEquals(null, orderStatus1.getExtId());
+        Assert.assertEquals(Status.REJECTED, orderStatus1.getStatus());
+        Assert.assertSame(order, orderStatus1.getOrder());
+        Assert.assertEquals(0, orderStatus1.getFilledQuantity());
+        Assert.assertEquals(null, order.getExtId());
     }
 
     @Test

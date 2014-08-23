@@ -23,6 +23,7 @@ import org.apache.log4j.Logger;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderStatus;
+import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.service.LookupService;
 import ch.algotrader.util.MyLogger;
@@ -74,6 +75,17 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
 
         String intId = executionReport.getClOrdID().getValue();
 
+        // get the order from the OpenOrderWindow
+        Order order = getLookupService().getOpenOrderByRootIntId(intId);
+        if (order == null) {
+
+            if (LOGGER.isEnabledFor(Level.ERROR)) {
+
+                LOGGER.error("Order with int ID " + intId + " matching the execution report could not be found");
+            }
+            return;
+        }
+
         if (isOrderRejected(executionReport)) {
 
             if (LOGGER.isEnabledFor(Level.ERROR)) {
@@ -86,17 +98,14 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
                 }
                 LOGGER.error(buf.toString());
             }
-            return;
-        }
 
-        // get the order from the OpenOrderWindow
-        Order order = getLookupService().getOpenOrderByRootIntId(intId);
-        if (order == null) {
+            OrderStatus orderStatus = OrderStatus.Factory.newInstance();
+            orderStatus.setStatus(Status.REJECTED);
+            orderStatus.setIntId(intId);
+            orderStatus.setOrder(order);
 
-            if (LOGGER.isEnabledFor(Level.ERROR)) {
+            EngineLocator.instance().getBaseEngine().sendEvent(orderStatus);
 
-                LOGGER.error("Order with int ID " + intId + " matching the execution report could not be found");
-            }
             return;
         }
 
