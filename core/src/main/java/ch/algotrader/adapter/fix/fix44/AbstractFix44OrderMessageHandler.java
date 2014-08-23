@@ -33,6 +33,7 @@ import quickfix.field.ClOrdID;
 import quickfix.field.OrdStatus;
 import quickfix.field.OrigClOrdID;
 import quickfix.field.Text;
+import quickfix.field.TransactTime;
 import quickfix.fix44.ExecutionReport;
 import quickfix.fix44.OrderCancelReject;
 
@@ -103,6 +104,10 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
             orderStatus.setStatus(Status.REJECTED);
             orderStatus.setIntId(intId);
             orderStatus.setOrder(order);
+            if (executionReport.isSetField(TransactTime.FIELD)) {
+
+                orderStatus.setExtDateTime(executionReport.getTransactTime().getValue());
+            }
 
             EngineLocator.instance().getBaseEngine().sendEvent(orderStatus);
 

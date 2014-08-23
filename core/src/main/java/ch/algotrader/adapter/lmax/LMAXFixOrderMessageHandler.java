@@ -31,6 +31,7 @@ import quickfix.FieldNotFound;
 import quickfix.field.CumQty;
 import quickfix.field.ExecType;
 import quickfix.field.OrderQty;
+import quickfix.field.TransactTime;
 import quickfix.fix44.ExecutionReport;
 
 /**
@@ -81,6 +82,10 @@ public class LMAXFixOrderMessageHandler extends AbstractFix44OrderMessageHandler
         orderStatus.setFilledQuantity(filledQuantity);
         orderStatus.setRemainingQuantity(remainingQuantity);
         orderStatus.setOrder(order);
+        if (executionReport.isSetField(TransactTime.FIELD)) {
+
+            orderStatus.setExtDateTime(executionReport.getTransactTime().getValue());
+        }
 
         String intId = executionReport.getClOrdID().getValue();
         // update intId in case it has changed

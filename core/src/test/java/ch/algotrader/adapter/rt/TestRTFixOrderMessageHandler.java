@@ -103,6 +103,7 @@ public class TestRTFixOrderMessageHandler {
         Assert.assertEquals(Status.SUBMITTED, orderStatus1.getStatus());
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(0, orderStatus1.getFilledQuantity());
+        Assert.assertEquals(FixTestUtils.parseDateTime("20140610-12:56:01.000"), orderStatus1.getExtDateTime());
     }
 
     @Test
@@ -143,6 +144,7 @@ public class TestRTFixOrderMessageHandler {
         Assert.assertEquals(Status.EXECUTED, orderStatus1.getStatus());
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(100, orderStatus1.getFilledQuantity());
+        Assert.assertEquals(FixTestUtils.parseDateTime("20140610-11:27:52.000"), orderStatus1.getExtDateTime());
 
         Object event2 = events.get(1);
         Assert.assertTrue(event2 instanceof Fill);
@@ -245,6 +247,7 @@ public class TestRTFixOrderMessageHandler {
         Assert.assertEquals(Status.REJECTED, orderStatus1.getStatus());
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(0, orderStatus1.getFilledQuantity());
+        Assert.assertEquals(FixTestUtils.parseDateTime("20140610-11:29:36.000"), orderStatus1.getExtDateTime());
     }
 
 }

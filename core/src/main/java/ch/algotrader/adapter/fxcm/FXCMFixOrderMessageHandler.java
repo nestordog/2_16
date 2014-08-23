@@ -32,6 +32,7 @@ import quickfix.FieldNotFound;
 import quickfix.field.CumQty;
 import quickfix.field.ExecType;
 import quickfix.field.OrdStatus;
+import quickfix.field.TransactTime;
 import quickfix.fix44.ExecutionReport;
 
 /**
@@ -86,6 +87,10 @@ public class FXCMFixOrderMessageHandler extends AbstractFix44OrderMessageHandler
         // update intId in case it has changed
         if (!intId.equals(order.getIntId())) {
             orderStatus.setIntId(intId);
+        }
+        if (executionReport.isSetField(TransactTime.FIELD)) {
+
+            orderStatus.setExtDateTime(executionReport.getTransactTime().getValue());
         }
 
         String extId = executionReport.getOrderID().getValue();

@@ -98,7 +98,7 @@ public class TestCNXFixOrderMessageHandler {
         Assert.assertEquals(Status.SUBMITTED, orderStatus1.getStatus());
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(0, orderStatus1.getFilledQuantity());
-
+        Assert.assertEquals(FixTestUtils.parseDateTime("20140722-19:17:24.000"), orderStatus1.getExtDateTime());
         Assert.assertEquals("2537951907", order.getExtId());
     }
 
@@ -141,6 +141,7 @@ public class TestCNXFixOrderMessageHandler {
         Assert.assertEquals(Status.EXECUTED, orderStatus1.getStatus());
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(2000L, orderStatus1.getFilledQuantity());
+        Assert.assertEquals(FixTestUtils.parseDateTime("20140722-19:17:24.000"), orderStatus1.getExtDateTime());
 
         Object event2 = events.get(1);
         Assert.assertTrue(event2 instanceof Fill);
@@ -207,6 +208,7 @@ public class TestCNXFixOrderMessageHandler {
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(0, orderStatus1.getFilledQuantity());
         Assert.assertEquals(null, order.getExtId());
+        Assert.assertEquals(FixTestUtils.parseDateTime("20140723-15:42:06.266"), orderStatus1.getExtDateTime());
     }
 
     @Test
@@ -247,6 +249,7 @@ public class TestCNXFixOrderMessageHandler {
         Assert.assertEquals(Status.CANCELED, orderStatus1.getStatus());
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(0, orderStatus1.getFilledQuantity());
+        Assert.assertEquals(FixTestUtils.parseDateTime("20140723-16:21:32.000"), orderStatus1.getExtDateTime());
     }
 
     @Test
@@ -288,6 +291,7 @@ public class TestCNXFixOrderMessageHandler {
         Assert.assertEquals(Status.SUBMITTED, orderStatus1.getStatus());
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(0, orderStatus1.getFilledQuantity());
+        Assert.assertEquals(FixTestUtils.parseDateTime("20140723-18:45:46.334"), orderStatus1.getExtDateTime());
     }
 
 }

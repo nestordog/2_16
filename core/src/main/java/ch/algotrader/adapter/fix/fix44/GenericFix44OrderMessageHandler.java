@@ -30,6 +30,7 @@ import quickfix.FieldNotFound;
 import quickfix.field.CumQty;
 import quickfix.field.ExecType;
 import quickfix.field.OrderQty;
+import quickfix.field.TransactTime;
 import quickfix.fix44.ExecutionReport;
 
 /**
@@ -80,6 +81,10 @@ public class GenericFix44OrderMessageHandler extends AbstractFix44OrderMessageHa
         orderStatus.setFilledQuantity(filledQuantity);
         orderStatus.setRemainingQuantity(remainingQuantity);
         orderStatus.setOrder(order);
+        if (executionReport.isSetField(TransactTime.FIELD)) {
+
+            orderStatus.setExtDateTime(executionReport.getTransactTime().getValue());
+        }
 
         String intId = executionReport.getClOrdID().getValue();
         // update intId in case it has changed
@@ -101,7 +106,6 @@ public class GenericFix44OrderMessageHandler extends AbstractFix44OrderMessageHa
         if (execType.getValue() == ExecType.TRADE) {
 
             // get the fields
-            Date extDateTime = executionReport.getTransactTime().getValue();
             Side side = FixUtil.getSide(executionReport.getSide());
             long quantity = (long) executionReport.getLastQty().getValue();
             double price = executionReport.getLastPx().getValue();
@@ -110,11 +114,13 @@ public class GenericFix44OrderMessageHandler extends AbstractFix44OrderMessageHa
             // assemble the fill
             Fill fill = Fill.Factory.newInstance();
             fill.setDateTime(new Date());
-            fill.setExtDateTime(extDateTime);
             fill.setSide(side);
             fill.setQuantity(quantity);
             fill.setPrice(RoundUtil.getBigDecimal(price, order.getSecurityInitialized().getSecurityFamilyInitialized().getScale()));
             fill.setExtId(extId);
+            if (executionReport.isSetField(TransactTime.FIELD)) {
+                fill.setExtDateTime(executionReport.getTransactTime().getValue());
+            }
 
             return fill;
         } else {
