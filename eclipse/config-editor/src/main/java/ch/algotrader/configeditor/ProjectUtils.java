@@ -31,9 +31,12 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -179,6 +182,23 @@ public class ProjectUtils {
 
     public static Collection<File> getPropertiesFilesFromHierarchyFile(File hierarchyFile, IJavaProject javaProject) throws Exception {
         return resolvePropertiesFileNamesAgainstClasspath(getPropertiesFileNamesFromHierarchyFile(hierarchyFile), javaProject);
+    }
+
+    public static void refreshContainerOfFile(File file) {
+        String filePath = file.getAbsolutePath();
+        for (IProject project : ResourcesPlugin.getWorkspace().getRoot().getProjects()) {
+            String projectPath = project.getLocation().toOSString();
+            if (filePath.startsWith(projectPath)) {
+                try {
+                    filePath = filePath.substring(projectPath.length());
+                    IContainer container = project.getFile(new Path(filePath)).getParent();
+                    container.refreshLocal(IResource.DEPTH_INFINITE, null);
+                } catch (CoreException e) {
+                    e.printStackTrace();
+                }
+                break;
+            }
+        }
     }
 
     public static File resolvePropertiesFileNameAgainstClasspath(String fileName, IJavaProject javaProject) throws Exception {

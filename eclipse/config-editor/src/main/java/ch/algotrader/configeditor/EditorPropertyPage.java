@@ -211,6 +211,7 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
                 structuredProps.setValue((String) row[0], row[1]);
             }
             structuredProps.save(file);
+            ProjectUtils.refreshContainerOfFile(file);
         }
         return true;
     }
