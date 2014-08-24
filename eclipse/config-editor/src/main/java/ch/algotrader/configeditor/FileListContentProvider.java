@@ -54,17 +54,24 @@ class FileListContentProvider implements IStructuredContentProvider {
     public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
         if (newInput == null)
             files = null;
-        else
+        else {
+            List<String> errorMessages = new ArrayList<String>();
             try {
                 this.editorPropertyPage.setErrorMessage(null);
-                files = getFiles((IJavaProject) newInput);
+                files = getFiles((IJavaProject) newInput, errorMessages);
             } catch (JavaModelException e) {
                 files = null; // this is not java project
                 this.editorPropertyPage.setErrorMessage(MessageFormat.format("Project ''{0}'' is not java project.", ((IJavaProject) newInput).getProject().getName()));
             } catch (Exception e) {
                 e.printStackTrace();
-                throw new RuntimeException(e);
+                String errMessage = e.getMessage() == null ? e.getClass().getName() : e.getMessage();
+                errorMessages.add(errMessage);
             }
+            if (!errorMessages.isEmpty()) {
+                String errMessage = StringUtils.join(errorMessages, ", ");
+                this.editorPropertyPage.setErrorMessage(errMessage);
+            }
+        }
     }
 
     @Override
@@ -75,28 +82,28 @@ class FileListContentProvider implements IStructuredContentProvider {
             return new Object[0];
     }
 
-    Collection<File> getFiles(IJavaProject javaProject) throws Exception {
+    Collection<File> getFiles(IJavaProject javaProject, List<String> errorMessages) throws Exception {
         Collection<File> files;
         File hierarchyFile = ProjectUtils.getHierarchyFileFromClasspath(javaProject);
         if (hierarchyFile == null) {
+            System.out.println("There's no hierarchy file");
             files = ProjectUtils.getPropertiesFilesFromClasspath(javaProject);
         } else {
-            files = ProjectUtils.getPropertiesFilesFromHierarchyFile(hierarchyFile, javaProject);
+            System.out.println("Got hierarchy file: " + hierarchyFile);
+            files = ProjectUtils.getPropertiesFilesFromHierarchyFile(hierarchyFile, javaProject, errorMessages);
+            System.out.println("Got files from hierarchy file: " + files);
         }
         for (File f : files) {
             StructuredProperties structProps = new StructuredProperties(this.editorPropertyPage);
             this.editorPropertyPage.propMap.put(f, structProps);
-            List<String> errorMessages = new ArrayList<String>();
             try {
                 structProps.load(f, errorMessages);
             } catch (Exception e) {
+                if (errorMessages == null)
+                    throw e;
                 e.printStackTrace();
                 String errMessage = MessageFormat.format("Error reading file ''{0}'': {1}", f.getName(), (e.getMessage() == null ? e.getClass().getName() : e.getMessage()));
                 errorMessages.add(errMessage);
-            }
-            if (!errorMessages.isEmpty()) {
-                String errMessage = StringUtils.join(errorMessages, "\n");
-                this.editorPropertyPage.setErrorMessage(errMessage);
             }
             List<Object[]> elementsList = new ArrayList<Object[]>();
             for (String key : structProps.getKeys())

@@ -229,7 +229,7 @@ public class EditorPropertyPage extends PropertyPage implements IWorkbenchProper
     public Iterable<java.io.File> getFiles() {
         FileListContentProvider t = new FileListContentProvider(this);
         try {
-            return t.getFiles(javaProject);
+            return t.getFiles(javaProject, null);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
