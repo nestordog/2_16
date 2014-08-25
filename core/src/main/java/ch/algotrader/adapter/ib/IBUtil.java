@@ -206,9 +206,10 @@ public class IBUtil {
         } else if ("Filled".equals(status)) {
             return Status.EXECUTED;
         } else if ("ApiCancelled".equals(status) ||
-                "Cancelled".equals(status) ||
-                "Inactive".equals(status)) {
+                "Cancelled".equals(status)) {
             return Status.CANCELED;
+        } else if ("Inactive".equals(status)) {
+            return Status.REJECTED;
         } else {
             throw new IllegalArgumentException("unknown orderStatus " + status);
         }

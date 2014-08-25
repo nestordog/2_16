@@ -281,15 +281,6 @@ public class OrderServiceImpl extends OrderServiceBase implements ApplicationCon
             return;
         }
 
-        // send the fill to the strategy that placed the corresponding order
-        if (orderStatus.getOrder() != null && !orderStatus.getOrder().getStrategy().isBase()) {
-            EngineLocator.instance().sendEvent(orderStatus.getOrder().getStrategy().getName(), orderStatus);
-        }
-
-        if (!getCommonConfig().isSimulation()) {
-            logger.debug("propagated orderStatus: " + orderStatus);
-        }
-
         if (orderStatus.getDateTime() == null) {
             orderStatus.setDateTime(new Date());
         }
@@ -298,7 +289,19 @@ public class OrderServiceImpl extends OrderServiceBase implements ApplicationCon
             orderStatus.setExtDateTime(new Date());
         }
 
-        getOrderStatusDao().create(orderStatus);
+        // send the fill to the strategy that placed the corresponding order
+        if (!orderStatus.getOrder().getStrategy().isBase()) {
+            EngineLocator.instance().sendEvent(orderStatus.getOrder().getStrategy().getName(), orderStatus);
+        }
+
+        if (!getCommonConfig().isSimulation()) {
+            logger.debug("propagated orderStatus: " + orderStatus);
+        }
+
+        // only store OrderStatus for non AlgoOrders
+        if (!(orderStatus.getOrder() instanceof AlgoOrder)) {
+            getOrderStatusDao().create(orderStatus);
+        }
     }
 
     @Override

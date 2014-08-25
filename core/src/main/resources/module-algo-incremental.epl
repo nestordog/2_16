@@ -7,7 +7,7 @@ select
     cast(currentOrder.parentOrder, ch.algotrader.entity.trade.IncrementalOrder).modifyOrder()
 from
     pattern [every currentOrder=`Order`(instanceof(parentOrder,ch.algotrader.entity.trade.IncrementalOrder))
-        -> (timer:interval(5 sec) and not OrderStatus(status = Status.EXECUTED or status = Status.CANCELED, `order`.intId = currentOrder.intId))]
+        -> (timer:interval(5 sec) and not OrderStatus(status = Status.EXECUTED or status = Status.CANCELED or status = Status.REJECTED, `order`.intId = currentOrder.intId))]
 where
     cast(currentOrder.parentOrder, ch.algotrader.entity.trade.IncrementalOrder).checkLimit();
 
@@ -18,6 +18,6 @@ select
     currentOrder.parentOrder
 from
     pattern [every currentOrder=`Order`(instanceof(parentOrder,ch.algotrader.entity.trade.IncrementalOrder))
-        -> (timer:interval(5 sec) and not OrderStatus(status = Status.EXECUTED or status = Status.CANCELED, `order`.intId = currentOrder.intId))]
+        -> (timer:interval(5 sec) and not OrderStatus(status = Status.EXECUTED or status = Status.CANCELED or status = Status.REJECTED, `order`.intId = currentOrder.intId))]
 where
     not cast(currentOrder.parentOrder, ch.algotrader.entity.trade.IncrementalOrder).checkLimit();

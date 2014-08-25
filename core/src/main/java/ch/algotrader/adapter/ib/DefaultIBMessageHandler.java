@@ -38,11 +38,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.traversal.NodeIterator;
 import org.xml.sax.InputSource;
 
-import com.ib.client.Contract;
-import com.ib.client.ContractDetails;
-import com.ib.client.EWrapperMsgGenerator;
-import com.ib.client.Execution;
-
 import ch.algotrader.entity.marketData.Bar;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.Order;
@@ -54,6 +49,11 @@ import ch.algotrader.service.LookupService;
 import ch.algotrader.service.ib.IBNativeMarketDataService;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.RoundUtil;
+
+import com.ib.client.Contract;
+import com.ib.client.ContractDetails;
+import com.ib.client.EWrapperMsgGenerator;
+import com.ib.client.Execution;
 
 /**
  * Esper specific MessageHandler.
@@ -364,7 +364,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
 
         // order related error messages will usually come along with a orderStatus=Inactive
         // which will lead to a cancellation of the GenericOrder. If there is no orderStatus=Inactive
-        // coming along, the GenericOrder has to be cancelled by us (potenially creating a "fake" OrderStatus)
+        // coming along, the GenericOrder has to be cancelled by us (potentially creating a "fake" OrderStatus)
 
             case 104:
 
@@ -391,7 +391,8 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
             case 200:
 
                 // No security definition has been found for the request
-                logger.warn(message);
+                orderRejected(id);
+                logger.error(message);
                 break;
 
             case 201:
@@ -411,6 +412,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
                     // The maximum order value of xxx is exceeded
                     // No clearing rule found
                     // etc.
+                    orderRejected(id);
                     logger.error(message);
                 }
                 break;
@@ -435,6 +437,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
                 // The order size cannot be zero
                 // This happens in a closing order using PctChange where the percentage is
                 // small enough to round to zero for each individual client account
+                orderRejected(id);
                 logger.info(message);
                 break;
 
@@ -467,7 +470,6 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
             case 1102:
 
                 // Connectivity between IB and TWS has been restored data maintained.
-
                 if (this.sessionLifecycle.logon(true)) {
                     // initSubscriptions if there is a marketDataService
                     if (this.marketDataService != null) {
@@ -517,6 +519,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
 
             default:
                 if (code < 1000) {
+                    orderRejected(id);
                     logger.error(message);
                 } else {
                     logger.debug(message);
@@ -536,6 +539,20 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
         if (this.clientId == 0) {
             this.iBIdGenerator.initializeOrderId(orderId);
             logger.debug("client: " + this.clientId + " " + EWrapperMsgGenerator.nextValidId(orderId));
+        }
+    }
+
+    private void orderRejected(int orderId) {
+
+        // get the order from the OpenOrderWindow
+        Order order = this.lookupService.getOpenOrderByIntId(String.valueOf(orderId));
+
+        if (order != null) {
+
+            // assemble the IBOrderStatus
+            IBOrderStatus orderStatus = new IBOrderStatus(Status.REJECTED, 0, order.getQuantity(), null, order);
+
+            EngineLocator.instance().getBaseEngine().sendEvent(orderStatus);
         }
     }
 }

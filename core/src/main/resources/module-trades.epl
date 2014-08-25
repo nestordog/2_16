@@ -55,7 +55,7 @@ or
 @Name('DELETE_FROM_OPEN_ORDER_WINDOW')
 @RunTimeOnly()
 on
-    pattern[every orderStatus=OrderStatus(status = Status.EXECUTED or status = Status.CANCELED) -> timer:interval(1 sec)]
+    pattern[every orderStatus=OrderStatus(status = Status.EXECUTED or status = Status.CANCELED  or status = Status.REJECTED) -> timer:interval(1 sec)]
 delete from
     OpenOrderWindow as openOrderWindow
 where

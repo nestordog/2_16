@@ -28,10 +28,10 @@ from
 select
     currentOrder
 from
-    //every Order -> (timer:interval and not OrderStatusEorC)
+    //every Order -> (timer:interval and not OrderStatusEorCorR)
     pattern [every currentOrder=`Order`(instanceof(parentOrder,ch.algotrader.entity.trade.SlicingOrder))
         -> (timer:interval(cast(currentOrder.parentOrder.minDuration?,double) + (cast(currentOrder.parentOrder.maxDuration?,double) - cast(currentOrder.parentOrder.minDuration?,double)) * Math.random())
-            and not OrderStatus(status = Status.EXECUTED or status = Status.CANCELED, `order`.intId = currentOrder.intId))];
+            and not OrderStatus(status = Status.EXECUTED or status = Status.CANCELED or status = Status.REJECTED, `order`.intId = currentOrder.intId))];
 
 @Name('SLICINING_NEXT_ORDER')
 @RunTimeOnly
@@ -49,4 +49,6 @@ where
 and
     openOrderWindow.status != Status.EXECUTED
 and
-    openOrderWindow.status != Status.CANCELED;
+    openOrderWindow.status != Status.CANCELED
+and
+    openOrderWindow.status != Status.REJECTED;

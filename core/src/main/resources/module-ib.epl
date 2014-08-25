@@ -165,6 +165,7 @@ select
     status,
     filledQuantity,
     remainingQuantity,
+    `order`.intId as intId,
     extId,
     `order`
 from

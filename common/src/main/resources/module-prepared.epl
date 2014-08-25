@@ -13,7 +13,7 @@ select
     orderStatus
 from
     pattern[[?] (every-distinct(`order`.security.id)
-        (orderStatus=OrderStatus(status = Status.EXECUTED or status = Status.CANCELED,
+        (orderStatus=OrderStatus(status = Status.EXECUTED or status = Status.CANCELED or status = Status.REJECTED,
             `order`.security.id in (?),
             `order`.strategy.name = ?,
             `order`.algoOrder = ?)))];
