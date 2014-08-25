@@ -7,7 +7,7 @@
       <page
             class="ch.algotrader.configeditor.EditorPropertyPage"
             id="ch.algotrader.configeditor.page"
-            name="Algo Trader">
+            name="AlgoTrader">
          <enabledWhen>
              <or>
                 <instanceof

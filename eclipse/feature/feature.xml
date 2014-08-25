@@ -10,23 +10,21 @@
    </description>
 
    <copyright>
-      /***********************************************************************************
-* AlgoTrader Enterprise Trading Framework
-*
-* Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
-*
-* All information contained herein is, and remains the property of AlgoTrader GmbH.
-* The intellectual and technical concepts contained herein are proprietary to
-* AlgoTrader GmbH. Modification, translation, reverse engineering, decompilation,
-* disassembly or reproduction of this material is strictly forbidden unless prior
-* written permission is obtained from AlgoTrader GmbH
-*
-* Fur detailed terms and conditions consult the file LICENSE.txt or contact
-*
-* AlgoTrader GmbH
-* Badenerstrasse 16
-* 8004 Zurich
-***********************************************************************************/
+      AlgoTrader Enterprise Trading Framework
+
+Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+
+All information contained herein is, and remains the property of AlgoTrader GmbH.
+The intellectual and technical concepts contained herein are proprietary to
+AlgoTrader GmbH. Modification, translation, reverse engineering, decompilation,
+disassembly or reproduction of this material is strictly forbidden unless prior
+written permission is obtained from AlgoTrader GmbH
+
+Fur detailed terms and conditions consult the file LICENSE.txt or contact
+
+AlgoTrader GmbH
+Badenerstrasse 16
+8004 Zurich
    </copyright>
 
    <license url="">
@@ -37,7 +35,7 @@ AlgoTrader GmbH
 Badenerstrasse 16
 8004 Zurich
 Switzerland
-044 291 14 85
++41 44 291 14 85
 info@algotrader.ch
 
 THE TERMS AND CONDITIONS OF THIS END USER LICENSE AGREEMENT (&quot;AGREEMENT&quot;) GOVERN YOUR USE OF THE SOFTWARE UNLESS YOU AND THE LICENSOR HAVE EXECUTED A SEPARATE WRITTEN LICENSE AGREEMENT GOVERNING YOUR USE OF THE SOFTWARE.
@@ -62,21 +60,21 @@ As between the parties, the Software is and will remain the sole and exclusive p
 
 4. TERM
 
-a. In the event you use the Software under the license set forth under Section 1(a), this Agreement will remain in effect for the duration of the evaluation period after the date that you install the Software.
+a. In the event you use the Software under the license set forth under Section 1(a), this Agreement will remain in effect for the duration of the evaluation or development period.
 
-b. In the event you use the Software under the license set forth under Section 1(b) this Agreement will remain in effect for a term of one year after the date the license fee has been paid. The Agreement will renew automatically by one year unless it is terminated with one month prior notice. This Agreement will automatically terminate without notice if you breach any term of this Agreement. Upon termination, you must promptly cease to use the Software and destroy all copies of the Software in your possession or control.
+b. In the event you use the Software under the license set forth under Section 1(b) this Agreement will remain in effect either (a) for a term of one year if purchased as a yearly subscription license or (b) perpetually if purchased as a perpetual license. A yearly subscription license will renew automatically by one year unless it is terminated with one month prior notice. This Agreement will automatically terminate without notice if you breach any term of this Agreement. Upon termination, you must promptly cease to use the Software and destroy all copies of the Software in your possession or control.
 
 5. SUPPORT SERVICES
 
-If you have purchased this license including Support Services these include Maintenance Releases, telephone support and email or web-based support.
+If you have purchased this license including Support Services these include Maintenance Releases (Updates and Upgrades), telephone support and email or web-based support.
 
 a. The Licensor will make commercially reasonable efforts to provide an Update designed to solve or by-pass a reported Error. If such Error has been corrected in a Maintenance Release, Licensee must install and implement the applicable Maintenance Release; otherwise, the Update may be provided in the form of a temporary fix, procedure or routine, to be used until a Maintenance Release containing the permanent Update is available.
 
 b. During the License Agreement Term, the Licensor shall make Maintenance Releases available to Licensee if, as and when the Licensor makes any such Maintenance Releases generally available to its customers. If a question arises as to whether a product offering is an Upgrade or a new product or feature, the Licensor&apos;s opinion will prevail, provided that the Licensor treats the product offering as a new product or feature for its end user customers generally.
 
-c. The Licensor&apos;s obligation to provide Support Services is conditioned upon the following: (a) Licensee makes reasonable efforts to correct the Error after consulting with the Licensor; (b) Licensee provides the Licensor with sufficient information and resources to correct the Error either at the Licensor&apos;s support center or via remote access to Licensee&apos;s site, as well as access to the personnel, hardware, and any additional software involved in discovering the Error; (c) Licensee promptly installs all Maintenance Releases; and (d) Licensee procures, installs and maintains all equipment, communication interfaces and other hardware necessary to operate the Product.
+c. The Licensor&apos;s obligation to provide Support Services is conditioned upon the following: (a) Licensee makes reasonable efforts to correct the Error after consulting with the Licensor; (b) Licensee provides the Licensor with sufficient information and resources to correct the Error either at the Licensor&apos;s site or via remote access to Licensee&apos;s site, as well as access to the personnel, hardware, and any additional software involved in discovering the Error; (c) Licensee promptly installs all Maintenance Releases; and (d) Licensee procures, installs and maintains all equipment, communication interfaces and other hardware necessary to operate the Product.
 
-d. The Licensor is not obligated to provide Support Services in the following situations: (a) the Product has been changed, modified or damaged (except if under the direct supervision of the Licensor); (b) the Error is caused by Licensee&apos;s negligence, hardware malfunction or other causes beyond the reasonable control of the Licensor; (c) the Error is caused by third party software not licensed through the Licensor; (d) Licensee has not installed and implemented Maintenance Release(s) so that the Product is a version supported by the Licensor; or (e) Licensee has not paid the License fees or Support Services fees when due.
+d. The Licensor is not obligated to provide Support Services in the following situations: (a) the Product has been changed, modified or damaged (except if under the direct supervision of the Licensor); (b) the Error is caused by Licensee&apos;s negligence, hardware malfunction or other causes beyond the reasonable control of the Licensor; (c) the Error is caused by third party software not licensed through the Licensor; (d) Licensee has not installed and implemented Maintenance Release(s) so that the Product is a version supported by the Licensor; or (e) Licensee has not paid the License fees or Support Services fees when due. In addition the Licensor is not obligated to provide Support Services for software code written by the client himself based of the Product.
 
 e. The Licensor reserves the right to discontinue the Support Services should the Licensor, in its sole discretion, determine that continued support for any Product is no longer economically practicable. The Licensor will give Licensee at least three (3) months prior written notice of any such discontinuance of Support Services and will refund any un-accrued Support Services fees Licensee may have prepaid with respect to the affected Product. The Licensor has no obligation to support or maintain any version of the Product or underlying third party platforms (including but not limited to software, JVM, operating system or hardware) for which the Product is supported except (i) the then current version of the Product and underlying third party platform, and (ii) the two immediately preceding versions of the Product and operating system for a period of six (6) months after it is first superseded. The Licensor reserves the right to suspend performance of the Support Services if Licensee fails to pay any amount that is payable to the Licensor under the Agreement within thirty (30) days after such amount becomes due.
 
@@ -102,11 +100,13 @@ If any provision of this Agreement shall be held to be invalid or unenforceable,
 
 This Agreement is the complete and exclusive agreement between the parties with respect to the subject matter hereof, superseding and replacing any and all prior agreements, communications and understandings (both written and oral) regarding such subject matter hereof. The parties to this Agreement are independent contractors, and neither has the power to bind the other or to incur obligations on the other&apos;s behalf. No failure of either party to exercise or enforce any of its rights under this Agreement will act as a waiver of such rights. Any terms or conditions contained in any purchase order or other ordering document that are inconsistent with or in addition to the terms and conditions of this Agreement are hereby rejected by the Licensor and will be deemed null and of no effect.
 
+This Agreement will be interpreted and construed in accordance with the laws of Switzerland, without regard to conflict of law principles. The parties hereby consent to the exclusive jurisdiction and venue of courts located in Zurich, Switzerland for resolution of any disputes arising out or relating to this Agreement.
+
 10. DEFINITIONS
 
 &quot;Evaluation Use&quot; means use of the Software solely for evaluation and trial for new applications intended for your Production Use.
 
-&quot;Production Use&quot; means using the Software for internal business purposes only. Production Use does not include the right to reproduce the Software for sublicensing, resale, or distribution, including without limitation, operation on a time sharing or service bureau basis or distributing the Software as part of an ASP, VAR, OEM, distributor or reseller arrangement.
+&quot;Production Use&quot; means using the Software for internal business purposes only. Production Use does not include the right to reproduce the Software for sublicensing, resale, or distribution, including without limitation, operation on a time sharing or distributing the Software as part of an ASP, VAR, OEM, distributor or reseller arrangement.
 
 &quot;Software&quot; means the Licensor&apos;s software and all its components, documentation and examples included by the Licensor.
 
