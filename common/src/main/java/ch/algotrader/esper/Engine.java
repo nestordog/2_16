@@ -22,13 +22,12 @@ import java.util.List;
 
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.trade.Order;
-import ch.algotrader.enumeration.Duration;
 import ch.algotrader.esper.callback.ClosePositionCallback;
 import ch.algotrader.esper.callback.OpenPositionCallback;
 import ch.algotrader.esper.callback.TickCallback;
 import ch.algotrader.esper.callback.TradeCallback;
 
-import com.espertech.esperio.csv.CSVInputAdapterSpec;
+import com.espertech.esperio.CoordinatedAdapter;
 
 /**
  * Interface representing a CEP Engine.
@@ -174,26 +173,9 @@ public interface Engine {
     public void initCoordination();
 
     /**
-     * Queues the specified {@code csvInputAdapterSpec} for coordination with the given Engine.
+     * Coordinates the given InputAdapter.
      */
-    public void coordinate(CSVInputAdapterSpec csvInputAdapterSpec);
-
-    /**
-     * Queues the specified {@code collection} for coordination with the given Engine.
-     * The property by the name of {@code timeStampProperty} is used to identify the current time.
-     */
-    @SuppressWarnings("rawtypes")
-    public void coordinate(Collection collection, String timeStampProperty);
-
-    /**
-     * Queues subscribed Ticks from the DB for coordination with the given Engine.
-     */
-    public void coordinateTicks(int batchSize);
-
-    /**
-     * Queues subscribed Bars from the DB for coordination with the given Engine.
-     */
-    public void coordinateBars(int batchSize, Duration barSize);
+    public void coordinate(CoordinatedAdapter inputAdapter);
 
     /**
      * Starts coordination for the given Engine.

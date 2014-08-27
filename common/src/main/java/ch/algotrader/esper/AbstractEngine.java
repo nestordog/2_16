@@ -22,13 +22,12 @@ import java.util.List;
 
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.trade.Order;
-import ch.algotrader.enumeration.Duration;
 import ch.algotrader.esper.callback.ClosePositionCallback;
 import ch.algotrader.esper.callback.OpenPositionCallback;
 import ch.algotrader.esper.callback.TickCallback;
 import ch.algotrader.esper.callback.TradeCallback;
 
-import com.espertech.esperio.csv.CSVInputAdapterSpec;
+import com.espertech.esperio.CoordinatedAdapter;
 
 /**
  * Abstract implementation of an {@link Engine}
@@ -182,23 +181,7 @@ public abstract class AbstractEngine implements Engine {
     }
 
     @Override
-    public void coordinate(CSVInputAdapterSpec csvInputAdapterSpec) {
-
-    }
-
-    @Override
-    @SuppressWarnings("rawtypes")
-    public void coordinate(Collection collection, String timeStampProperty) {
-
-    }
-
-    @Override
-    public void coordinateTicks(int batchSize) {
-
-    }
-
-    @Override
-    public void coordinateBars(int batchSize, Duration barSize) {
+    public void coordinate(CoordinatedAdapter inputAdapter) {
 
     }
 

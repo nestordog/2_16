@@ -56,8 +56,12 @@ import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.enumeration.MarketDataType;
 import ch.algotrader.esper.EngineLocator;
+import ch.algotrader.esper.io.CsvBarInputAdapter;
 import ch.algotrader.esper.io.CsvBarInputAdapterSpec;
+import ch.algotrader.esper.io.CsvTickInputAdapter;
 import ch.algotrader.esper.io.CsvTickInputAdapterSpec;
+import ch.algotrader.esper.io.DBBarInputAdapter;
+import ch.algotrader.esper.io.DBTickInputAdapter;
 import ch.algotrader.esper.io.GenericEventInputAdapterSpec;
 import ch.algotrader.report.ReportManager;
 import ch.algotrader.util.MyLogger;
@@ -70,7 +74,8 @@ import ch.algotrader.vo.PeriodPerformanceVO;
 import ch.algotrader.vo.SimulationResultVO;
 import ch.algotrader.vo.TradesVO;
 
-import com.espertech.esperio.csv.CSVInputAdapterSpec;
+import com.espertech.esperio.CoordinatedAdapter;
+import com.espertech.esperio.csv.CSVInputAdapter;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -111,6 +116,9 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
 
         // rebalance portfolio (to distribute initial CREDIT to strategies)
         getPortfolioPersistenceService().rebalancePortfolio();
+
+        // init coordination
+        EngineLocator.instance().getBaseEngine().initCoordination();
 
         // init all StrategyServices in the classpath
         for (StrategyService strategyService : ServiceLocator.instance().getServices(StrategyService.class)) {
@@ -165,8 +173,6 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
      * the system in the correct order defined by their dateTime value.
      */
     private void feedMarketData() {
-
-        EngineLocator.instance().getBaseEngine().initCoordination();
 
         Collection<Security> securities = getLookupService().getSubscribedSecuritiesForAutoActivateStrategies();
 
@@ -225,8 +231,8 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
                 // add the eventType (in case it does not exist yet)
                 EngineLocator.instance().getBaseEngine().addEventType(eventTypeName, eventClassName);
 
-                GenericEventInputAdapterSpec spec = new GenericEventInputAdapterSpec(file, eventTypeName);
-                EngineLocator.instance().getBaseEngine().coordinate(spec);
+                CoordinatedAdapter inputAdapter = new CSVInputAdapter(null, new GenericEventInputAdapterSpec(file, eventTypeName));
+                EngineLocator.instance().getBaseEngine().coordinate(inputAdapter);
 
                 logger.debug("started feeding file " + file.getName());
             }
@@ -296,17 +302,17 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
 
     private void feedFile(File file) {
 
-        CSVInputAdapterSpec spec;
+        CoordinatedAdapter inputAdapter;
         MarketDataType marketDataType = getCommonConfig().getDataSetType();
         if (MarketDataType.TICK.equals(marketDataType)) {
-            spec = new CsvTickInputAdapterSpec(file);
+            inputAdapter = new CsvTickInputAdapter(new CsvTickInputAdapterSpec(file));
         } else if (MarketDataType.BAR.equals(marketDataType)) {
-            spec = new CsvBarInputAdapterSpec(file, getCommonConfig().getBarSize());
+            inputAdapter = new CsvBarInputAdapter(new CsvBarInputAdapterSpec(file, getCommonConfig().getBarSize()));
         } else {
             throw new SimulationServiceException("incorrect parameter for dataSetType: " + marketDataType);
         }
 
-        EngineLocator.instance().getBaseEngine().coordinate(spec);
+        EngineLocator.instance().getBaseEngine().coordinate(inputAdapter);
 
         logger.debug("started feeding file " + file.getName());
     }
@@ -318,12 +324,14 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
 
         if (MarketDataType.TICK.equals(marketDataType)) {
 
-            EngineLocator.instance().getBaseEngine().coordinateTicks(feedBatchSize);
+            DBTickInputAdapter inputAdapter = new DBTickInputAdapter(feedBatchSize);
+            EngineLocator.instance().getBaseEngine().coordinate(inputAdapter);
             logger.debug("started feeding ticks from db");
 
         } else if (MarketDataType.BAR.equals(marketDataType)) {
 
-            EngineLocator.instance().getBaseEngine().coordinateBars(feedBatchSize, getCommonConfig().getBarSize());
+            DBBarInputAdapter inputAdapter = new DBBarInputAdapter(feedBatchSize, getCommonConfig().getBarSize());
+            EngineLocator.instance().getBaseEngine().coordinate(inputAdapter);
             logger.debug("started feeding bars from db");
 
         } else {

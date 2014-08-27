@@ -17,14 +17,13 @@
  ***********************************************************************************/
 package ch.algotrader.esper.io;
 
+import ch.algotrader.enumeration.Duration;
+import ch.algotrader.vo.RawBarVO;
+
 import com.espertech.esper.client.EPException;
-import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esperio.SendableBeanEvent;
 import com.espertech.esperio.SendableEvent;
 import com.espertech.esperio.csv.CSVInputAdapter;
-
-import ch.algotrader.enumeration.Duration;
-import ch.algotrader.vo.RawBarVO;
 
 /**
  *  A {@link CSVInputAdapter} used to input {@link ch.algotrader.entity.marketData.Bar Bars}.
@@ -38,9 +37,9 @@ public class CsvBarInputAdapter extends CSVInputAdapter {
 
     private CsvBarInputAdapterSpec spec;
 
-    public CsvBarInputAdapter(EPServiceProvider epService, CsvBarInputAdapterSpec spec) {
+    public CsvBarInputAdapter(CsvBarInputAdapterSpec spec) {
 
-        super(epService, spec);
+        super(null, spec);
         this.spec = spec;
     }
 

@@ -18,13 +18,11 @@
 package ch.algotrader.esper;
 
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 
 import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.trade.Order;
-import ch.algotrader.enumeration.Duration;
 import ch.algotrader.esper.callback.ClosePositionCallback;
 import ch.algotrader.esper.callback.OpenPositionCallback;
 import ch.algotrader.esper.callback.TickCallback;
@@ -32,7 +30,7 @@ import ch.algotrader.esper.callback.TradeCallback;
 import ch.algotrader.vo.GenericEventVO;
 
 import com.espertech.esper.client.time.CurrentTimeEvent;
-import com.espertech.esperio.csv.CSVInputAdapterSpec;
+import com.espertech.esperio.CoordinatedAdapter;
 
 @Deprecated
 /**
@@ -298,35 +296,9 @@ public class EsperManager {
     /**
      * Queues the specified {@code csvInputAdapterSpec} for coordination with the given Esper Engine.
      */
-    public static void coordinate(String strategyName, CSVInputAdapterSpec csvInputAdapterSpec) {
+    public static void coordinate(String strategyName, CoordinatedAdapter inputAdapter) {
 
-        EngineLocator.instance().getEngine(strategyName).coordinate(csvInputAdapterSpec);
-    }
-
-    /**
-     * Queues the specified {@code collection} for coordination with the given Esper Engine.
-     * The property by the name of {@code timeStampProperty} is used to identify the current time.
-     */
-    @SuppressWarnings({ "rawtypes" })
-    public static void coordinate(String strategyName, Collection collection, String timeStampProperty) {
-
-        EngineLocator.instance().getEngine(strategyName).coordinate(collection, timeStampProperty);
-    }
-
-    /**
-     * Queues subscribed Ticks for coordination with the given Esper Engine.
-     */
-    public static void coordinateTicks(String strategyName, Date startDate, int batchSize) {
-
-        EngineLocator.instance().getEngine(strategyName).coordinateTicks(batchSize);
-    }
-
-    /**
-     * Queues subscribed Bars for coordination with the given Esper Engine.
-     */
-    public static void coordinateBars(String strategyName, Date startDate, int batchSize, Duration barSize) {
-
-        EngineLocator.instance().getEngine(strategyName).coordinateBars(batchSize, barSize);
+        EngineLocator.instance().getEngine(strategyName).coordinate(inputAdapter);
     }
 
     /**

@@ -29,7 +29,6 @@ import ch.algotrader.entity.marketData.Tick;
 
 import com.espertech.esper.adapter.AdapterState;
 import com.espertech.esper.client.EPException;
-import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esperio.AbstractCoordinatedAdapter;
 import com.espertech.esperio.SendableEvent;
 
@@ -48,8 +47,8 @@ public class DBTickInputAdapter extends AbstractCoordinatedAdapter {
     private Date startDate;
     private int batchSize;
 
-    public DBTickInputAdapter(EPServiceProvider cep, int batchSize) {
-        super(cep, true, true);
+    public DBTickInputAdapter(int batchSize) {
+        super(null, true, true);
         this.batchSize = batchSize;
 
         Tick tick = ServiceLocator.instance().getLookupService().getFirstSubscribedTick();

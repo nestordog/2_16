@@ -30,7 +30,6 @@ import ch.algotrader.enumeration.Duration;
 
 import com.espertech.esper.adapter.AdapterState;
 import com.espertech.esper.client.EPException;
-import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esperio.AbstractCoordinatedAdapter;
 import com.espertech.esperio.SendableEvent;
 
@@ -50,8 +49,8 @@ public class DBBarInputAdapter extends AbstractCoordinatedAdapter {
     private int batchSize;
     private Duration barSize;
 
-    public DBBarInputAdapter(EPServiceProvider cep, int batchSize, Duration barSize) {
-        super(cep, true, true);
+    public DBBarInputAdapter(int batchSize, Duration barSize) {
+        super(null, true, true);
         this.batchSize = batchSize;
         this.barSize = barSize;
 

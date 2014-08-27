@@ -51,7 +51,6 @@ import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.entity.trade.Order;
-import ch.algotrader.enumeration.Duration;
 import ch.algotrader.esper.annotation.Condition;
 import ch.algotrader.esper.annotation.Listeners;
 import ch.algotrader.esper.annotation.RunTimeOnly;
@@ -61,20 +60,12 @@ import ch.algotrader.esper.callback.ClosePositionCallback;
 import ch.algotrader.esper.callback.OpenPositionCallback;
 import ch.algotrader.esper.callback.TickCallback;
 import ch.algotrader.esper.callback.TradeCallback;
-import ch.algotrader.esper.io.CollectionInputAdapter;
-import ch.algotrader.esper.io.CsvBarInputAdapter;
-import ch.algotrader.esper.io.CsvBarInputAdapterSpec;
-import ch.algotrader.esper.io.CsvTickInputAdapter;
-import ch.algotrader.esper.io.CsvTickInputAdapterSpec;
 import ch.algotrader.esper.io.CustomSender;
-import ch.algotrader.esper.io.DBBarInputAdapter;
-import ch.algotrader.esper.io.DBTickInputAdapter;
 import ch.algotrader.esper.subscriber.SubscriberCreator;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.collection.CollectionUtil;
 import ch.algotrader.util.metric.MetricsUtil;
 
-import com.espertech.esper.adapter.InputAdapter;
 import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.ConfigurationEngineDefaults.Threading;
 import com.espertech.esper.client.ConfigurationOperations;
@@ -110,8 +101,7 @@ import com.espertech.esper.epl.spec.StatementSpecMapper;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esperio.AdapterCoordinator;
 import com.espertech.esperio.AdapterCoordinatorImpl;
-import com.espertech.esperio.csv.CSVInputAdapter;
-import com.espertech.esperio.csv.CSVInputAdapterSpec;
+import com.espertech.esperio.CoordinatedAdapter;
 
 /**
  * Esper based implementation of an {@link Engine}
@@ -561,38 +551,10 @@ public class EngineImpl extends AbstractEngine {
     }
 
     @Override
-    public void coordinate(CSVInputAdapterSpec csvInputAdapterSpec) {
+    public void coordinate(CoordinatedAdapter inputAdapter) {
 
-        InputAdapter inputAdapter;
-        if (csvInputAdapterSpec instanceof CsvTickInputAdapterSpec) {
-            inputAdapter = new CsvTickInputAdapter(this.serviceProvider, (CsvTickInputAdapterSpec) csvInputAdapterSpec);
-        } else if (csvInputAdapterSpec instanceof CsvBarInputAdapterSpec) {
-            inputAdapter = new CsvBarInputAdapter(this.serviceProvider, (CsvBarInputAdapterSpec) csvInputAdapterSpec);
-        } else {
-            inputAdapter = new CSVInputAdapter(this.serviceProvider, csvInputAdapterSpec);
-        }
-        this.coordinator.coordinate(inputAdapter);
-    }
+        inputAdapter.setEPService(this.serviceProvider);
 
-    @Override
-    @SuppressWarnings({ "rawtypes" })
-    public void coordinate(Collection collection, String timeStampProperty) {
-
-        InputAdapter inputAdapter = new CollectionInputAdapter(this.serviceProvider, collection, timeStampProperty);
-        this.coordinator.coordinate(inputAdapter);
-    }
-
-    @Override
-    public void coordinateTicks(int batchSize) {
-
-        InputAdapter inputAdapter = new DBTickInputAdapter(this.serviceProvider, batchSize);
-        this.coordinator.coordinate(inputAdapter);
-    }
-
-    @Override
-    public void coordinateBars(int batchSize, Duration barSize) {
-
-        InputAdapter inputAdapter = new DBBarInputAdapter(this.serviceProvider, batchSize, barSize);
         this.coordinator.coordinate(inputAdapter);
     }
 

@@ -17,13 +17,12 @@
  ***********************************************************************************/
 package ch.algotrader.esper.io;
 
+import ch.algotrader.vo.RawTickVO;
+
 import com.espertech.esper.client.EPException;
-import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esperio.SendableBeanEvent;
 import com.espertech.esperio.SendableEvent;
 import com.espertech.esperio.csv.CSVInputAdapter;
-
-import ch.algotrader.vo.RawTickVO;
 
 /**
  * A {@link CSVInputAdapter} used to input {@link ch.algotrader.entity.marketData.Tick Ticks}.
@@ -37,9 +36,9 @@ public class CsvTickInputAdapter extends CSVInputAdapter {
 
     private CsvTickInputAdapterSpec spec;
 
-    public CsvTickInputAdapter(EPServiceProvider epService, CsvTickInputAdapterSpec spec) {
+    public CsvTickInputAdapter(CsvTickInputAdapterSpec spec) {
 
-        super(epService, spec);
+        super(null, spec);
         this.spec = spec;
     }
 
