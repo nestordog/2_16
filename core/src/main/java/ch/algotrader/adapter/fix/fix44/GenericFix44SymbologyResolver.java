@@ -25,6 +25,7 @@ import ch.algotrader.adapter.fix.FixUtil;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.Future;
 import ch.algotrader.entity.security.Option;
+import ch.algotrader.entity.security.OptionFamily;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.Stock;
 import ch.algotrader.enumeration.Broker;
@@ -85,13 +86,18 @@ public class GenericFix44SymbologyResolver implements Fix44SymbologyResolver {
 
             Option option = (Option) security;
 
+            OptionFamily optionFamily = (OptionFamily)option.getSecurityFamilyInitialized();
             message.set(new SecurityType(SecurityType.OPTION));
-            message.set(new Currency(option.getSecurityFamilyInitialized().getCurrency().toString()));
+            message.set(new Currency(optionFamily.getCurrency().toString()));
             message.set(new CFICode("O" + (OptionType.PUT.equals(option.getType()) ? "P" : "C")));
             message.set(new StrikePrice(option.getStrike().doubleValue()));
             message.set(new ContractMultiplier(option.getSecurityFamilyInitialized().getContractSize()));
             message.set(new MaturityMonthYear(formatYM(option.getExpiration())));
-            message.set(new MaturityDate(formatYMD(option.getExpiration())));
+
+            if (optionFamily.isWeekly()) {
+
+                message.set(new MaturityDate(formatYMD(option.getExpiration())));
+            }
 
         } else if (security instanceof Future) {
 
@@ -100,7 +106,6 @@ public class GenericFix44SymbologyResolver implements Fix44SymbologyResolver {
             message.set(new SecurityType(SecurityType.FUTURE));
             message.set(new Currency(future.getSecurityFamilyInitialized().getCurrency().toString()));
             message.set(new MaturityMonthYear(formatYM(future.getExpiration())));
-            message.set(new MaturityDate(formatYMD(future.getExpiration())));
 
         } else if (security instanceof Forex) {
 
