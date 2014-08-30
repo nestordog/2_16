@@ -1,6 +1,7 @@
 package ch.algotrader.adapter.rt;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -19,6 +20,10 @@ import ch.algotrader.adapter.fix.NoopSessionStateListener;
 import ch.algotrader.adapter.fix.fix44.GenericFix44SymbologyResolver;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.AccountImpl;
+import ch.algotrader.entity.security.Exchange;
+import ch.algotrader.entity.security.ExchangeImpl;
+import ch.algotrader.entity.security.Future;
+import ch.algotrader.entity.security.FutureImpl;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.SecurityFamilyImpl;
 import ch.algotrader.entity.security.Stock;
@@ -37,7 +42,10 @@ import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.AbstractEngine;
 import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.service.LookupService;
+import ch.algotrader.util.Consts;
+import quickfix.CompositeLogFactory;
 import quickfix.DefaultSessionFactory;
+import quickfix.FileLogFactory;
 import quickfix.FileStoreFactory;
 import quickfix.LogFactory;
 import quickfix.ScreenLogFactory;
@@ -50,6 +58,7 @@ import quickfix.fix44.OrderCancelRequest;
 
 public class RTFixOrderMessageHandlerTest {
 
+    private SimpleDateFormat dateFormat;
     private LinkedBlockingQueue<Object> eventQueue;
     private LookupService lookupService;
     private RTFixOrderMessageFactory messageFactory;
@@ -60,6 +69,8 @@ public class RTFixOrderMessageHandlerTest {
     @Before
     public void setup() throws Exception {
 
+        this.dateFormat = new SimpleDateFormat("yyyy-MM");
+        this.dateFormat.setTimeZone(Consts.UTM);
         final LinkedBlockingQueue<Object> queue = new LinkedBlockingQueue<Object>();
         this.eventQueue = queue;
 
@@ -82,7 +93,7 @@ public class RTFixOrderMessageHandlerTest {
 
 
         SessionSettings settings = FixConfigUtils.loadSettings();
-        SessionID sessionId = FixConfigUtils.getSessionID(settings, "RTT");
+        SessionID sessionId = FixConfigUtils.getSessionID(settings, "RT");
 
         this.lookupService = Mockito.mock(LookupService.class);
         RTFixOrderMessageHandler messageHandlerImpl = new RTFixOrderMessageHandler();
@@ -150,7 +161,7 @@ public class RTFixOrderMessageHandlerTest {
     }
 
     @Test
-    public void testMarketOrder() throws Exception {
+    public void testMarketOrderForex() throws Exception {
 
         String orderId = Long.toHexString(System.currentTimeMillis());
 
@@ -208,6 +219,78 @@ public class RTFixOrderMessageHandlerTest {
         Object event4 = eventQueue.poll(5, TimeUnit.SECONDS);
         Assert.assertNull(event4);
     }
+
+    @Test
+    public void testMarketOrderFuture() throws Exception {
+
+        String orderId = Long.toHexString(System.currentTimeMillis());
+
+        Exchange exchange = new ExchangeImpl();
+        exchange.setCode("XEUR");
+
+        SecurityFamily securityFamily = new SecurityFamilyImpl();
+        securityFamily.setSymbolRoot("DU");
+        securityFamily.setExchange(exchange);
+
+        Future future = new FutureImpl();
+        future.setSecurityFamily(securityFamily);
+        future.setExpiration(dateFormat.parse("2014-09"));
+
+        Account testAccount = new AccountImpl();
+        testAccount.setBroker(Broker.UBS);
+
+        long totalQuantity = 10L;
+
+        MarketOrder order = new MarketOrderImpl();
+        order.setAccount(testAccount);
+        order.setSecurity(future);
+        order.setSide(Side.BUY);
+        order.setQuantity(totalQuantity);
+
+        NewOrderSingle message = messageFactory.createNewOrderMessage(order, orderId);
+
+        Mockito.when(lookupService.getOpenOrderByRootIntId(orderId)).thenReturn(order);
+
+        session.send(message);
+
+        Object event1 = eventQueue.poll(1, TimeUnit.MINUTES);
+        Assert.assertTrue(event1 instanceof OrderStatus);
+        OrderStatus orderStatus1 = (OrderStatus) event1;
+        Assert.assertEquals(orderId, orderStatus1.getIntId());
+        Assert.assertEquals(Status.SUBMITTED, orderStatus1.getStatus());
+        Assert.assertNotNull(orderStatus1.getExtId());
+        Assert.assertSame(order, orderStatus1.getOrder());
+        Assert.assertEquals(0, orderStatus1.getFilledQuantity());
+
+        long totalFilled = 0;
+        while (totalFilled < totalQuantity) {
+
+            Object event2 = eventQueue.poll(1, TimeUnit.MINUTES);
+
+            Assert.assertTrue(event2 instanceof OrderStatus);
+            OrderStatus orderStatus2 = (OrderStatus) event2;
+            Assert.assertEquals(orderId, orderStatus2.getIntId());
+            Assert.assertNotNull(orderStatus2.getExtId());
+            Assert.assertTrue(orderStatus2.getStatus() == Status.EXECUTED || orderStatus2.getStatus() == Status.PARTIALLY_EXECUTED);
+            Assert.assertSame(order, orderStatus2.getOrder());
+
+            Object event3 = eventQueue.poll(1, TimeUnit.MINUTES);
+
+            Assert.assertTrue(event3 instanceof Fill);
+            Fill fill1 = (Fill) event3;
+            Assert.assertEquals(orderStatus2.getExtId(), fill1.getExtId());
+            Assert.assertSame(order, fill1.getOrder());
+            Assert.assertNotNull(fill1.getExtDateTime());
+            Assert.assertEquals(Side.BUY, fill1.getSide());
+            Assert.assertNotNull(fill1.getPrice());
+
+            totalFilled += fill1.getQuantity();
+        }
+
+        Object event4 = eventQueue.poll(5, TimeUnit.SECONDS);
+        Assert.assertNull(event4);
+    }
+
 
     @Test
     public void testInvalidOrder() throws Exception {
