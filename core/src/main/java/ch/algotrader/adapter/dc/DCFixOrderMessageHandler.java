@@ -126,8 +126,10 @@ public class DCFixOrderMessageHandler extends AbstractFix44OrderMessageHandler {
             }
         } else if (ordStatus.getValue() == OrdStatus.FILLED) {
             return Status.EXECUTED;
-        } else if (ordStatus.getValue() == OrdStatus.CANCELED || ordStatus.getValue() == OrdStatus.REJECTED) {
+        } else if (ordStatus.getValue() == OrdStatus.CANCELED) {
             return Status.CANCELED;
+        } else if (ordStatus.getValue() == OrdStatus.REJECTED) {
+            return Status.REJECTED;
         } else {
             throw new IllegalArgumentException("unknown orderStatus " + ordStatus.getValue());
         }

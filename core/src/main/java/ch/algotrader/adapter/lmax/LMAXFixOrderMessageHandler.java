@@ -31,6 +31,7 @@ import quickfix.FieldNotFound;
 import quickfix.field.CumQty;
 import quickfix.field.ExecType;
 import quickfix.field.OrderQty;
+import quickfix.field.TransactTime;
 import quickfix.fix44.ExecutionReport;
 
 /**
@@ -81,6 +82,10 @@ public class LMAXFixOrderMessageHandler extends AbstractFix44OrderMessageHandler
         orderStatus.setFilledQuantity(filledQuantity);
         orderStatus.setRemainingQuantity(remainingQuantity);
         orderStatus.setOrder(order);
+        if (executionReport.isSetField(TransactTime.FIELD)) {
+
+            orderStatus.setExtDateTime(executionReport.getTransactTime().getValue());
+        }
 
         String intId = executionReport.getClOrdID().getValue();
         // update intId in case it has changed
@@ -134,8 +139,11 @@ public class LMAXFixOrderMessageHandler extends AbstractFix44OrderMessageHandler
             } else {
                 return Status.PARTIALLY_EXECUTED;
             }
-        } else if (execType.getValue() == ExecType.CANCELED || execType.getValue() == ExecType.REJECTED || execType.getValue() == ExecType.DONE_FOR_DAY || execType.getValue() == ExecType.EXPIRED) {
+        } else if (execType.getValue() == ExecType.CANCELED || execType.getValue() == ExecType.DONE_FOR_DAY
+                || execType.getValue() == ExecType.EXPIRED) {
             return Status.CANCELED;
+        } else if (execType.getValue() == ExecType.REJECTED) {
+            return Status.REJECTED;
         } else if (execType.getValue() == ExecType.REPLACE) {
             if (cumQty.getValue() == 0) {
                 return Status.SUBMITTED;

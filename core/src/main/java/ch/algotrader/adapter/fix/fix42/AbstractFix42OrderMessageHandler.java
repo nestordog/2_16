@@ -15,7 +15,7 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.adapter.fix.fix44;
+package ch.algotrader.adapter.fix.fix42;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -30,24 +30,24 @@ import ch.algotrader.util.MyLogger;
 import quickfix.FieldNotFound;
 import quickfix.SessionID;
 import quickfix.field.ClOrdID;
-import quickfix.field.OrdStatus;
+import quickfix.field.ExecTransType;
 import quickfix.field.OrigClOrdID;
 import quickfix.field.Text;
 import quickfix.field.TransactTime;
-import quickfix.fix44.ExecutionReport;
-import quickfix.fix44.OrderCancelReject;
+import quickfix.fix42.ExecutionReport;
+import quickfix.fix42.OrderCancelReject;
 
 /**
- * Abstract FIX44 order message handler implementing generic functionality common to all broker specific
+ * Abstract FIX/4.2 order message handler implementing generic functionality common to all broker specific
  * interfaces..
  *
- * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44MessageHandler {
+public abstract class AbstractFix42OrderMessageHandler extends AbstractFix42MessageHandler {
 
-    private static Logger LOGGER = MyLogger.getLogger(AbstractFix44OrderMessageHandler.class.getName());
+    private static Logger LOGGER = MyLogger.getLogger(AbstractFix42OrderMessageHandler.class.getName());
 
     private LookupService lookupService;
 
@@ -67,7 +67,7 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
 
     protected abstract Fill createFill(ExecutionReport executionReport, Order order) throws FieldNotFound;
 
-    public void onMessage(final ExecutionReport executionReport, final SessionID sessionID) throws FieldNotFound {
+    public void onMessage(ExecutionReport executionReport, SessionID sessionID) throws FieldNotFound {
 
         if (discardReport(executionReport)) {
 
@@ -76,14 +76,17 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
 
         String intId = executionReport.getClOrdID().getValue();
 
+        // check ExecTransType
+        if (executionReport.isSetExecTransType() && executionReport.getExecTransType().getValue() != ExecTransType.NEW) {
+            throw new UnsupportedOperationException("order " + intId + " has received an unsupported ExecTransType of: " + executionReport.getExecTransType().getValue());
+        }
+
         // get the order from the OpenOrderWindow
-        Order order = getLookupService().getOpenOrderByRootIntId(intId);
+        Order order = lookupService.getOpenOrderByRootIntId(intId);
+
         if (order == null) {
 
-            if (LOGGER.isEnabledFor(Level.ERROR)) {
-
-                LOGGER.error("Order with int ID " + intId + " matching the execution report could not be found");
-            }
+            LOGGER.error("order with intId " + intId + " could not be found for execution " + executionReport);
             return;
         }
 
@@ -131,7 +134,7 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
 
     public void onMessage(final OrderCancelReject reject, final SessionID sessionID) throws FieldNotFound {
 
-        if (LOGGER.isEnabledFor(Level.WARN)) {
+        if (LOGGER.isEnabledFor(Level.ERROR)) {
 
             StringBuilder buf = new StringBuilder();
             buf.append("Order cancel/replace has been rejected");
@@ -147,14 +150,7 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
                 String text = reject.getText().getValue();
                 buf.append(": ").append(text);
             }
-
-            // warning only if order was already filled
-            OrdStatus ordStatus = reject.getOrdStatus();
-            if (ordStatus.getValue() == OrdStatus.FILLED) {
-                LOGGER.warn(buf.toString());
-            } else {
-                LOGGER.error(buf.toString());
-            }
+            LOGGER.error(buf.toString());
         }
     }
 

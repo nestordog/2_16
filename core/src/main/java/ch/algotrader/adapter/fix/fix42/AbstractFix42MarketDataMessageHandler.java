@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.fix.fix42;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import ch.algotrader.util.MyLogger;
@@ -28,30 +29,34 @@ import quickfix.field.Text;
 import quickfix.fix42.MarketDataRequestReject;
 
 /**
- * Generic Fix42MarketDataMessageHandler. Needs to be overwritten by specific broker interfaces.
+ * Base Fix/4.2 market data message handler. Needs to be overwritten by specific broker interfaces.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
- * @version $Revision: 6665 $ $Date: 2014-01-11 18:17:51 +0100 (Sa, 11 Jan 2014) $
+ * @version $Revision$ $Date$
  */
-public class Fix42MarketDataMessageHandler {
+public class AbstractFix42MarketDataMessageHandler extends AbstractFix42MessageHandler {
 
-    private static Logger logger = MyLogger.getLogger(Fix42MarketDataMessageHandler.class.getName());
+    private static Logger LOGGER = MyLogger.getLogger(AbstractFix42MarketDataMessageHandler.class.getName());
 
     public void onMessage(MarketDataRequestReject requestReject, SessionID sessionID) throws FieldNotFound {
 
-        MDReqID reqID = requestReject.getMDReqID();
+        if (LOGGER.isEnabledFor(Level.WARN)) {
 
-        MDReqRejReason reason = requestReject.getMDReqRejReason();
-        String reasonText;
-        if (requestReject.isSetField(Text.FIELD))  {
+            StringBuilder buf = new StringBuilder();
+            MDReqID reqID = requestReject.getMDReqID();
+            buf.append("Subscription request for '").append(reqID.getValue()).append("' was rejected");
 
-            reasonText = requestReject.getText().getValue();
-        } else {
+            if (requestReject.isSetField(Text.FIELD))  {
 
-            reasonText = "code " + reason.getValue();
+                buf.append("; reason given: ").append(requestReject.getText().getValue());
+            } else if (requestReject.isSetField(MDReqRejReason.FIELD)) {
+
+                buf.append("; code: ").append(requestReject.getMDReqRejReason().getValue());
+            }
+
+            LOGGER.warn(buf.toString());
         }
-
-        logger.warn("Subscription request for '" + reqID + "' was rejected; rejection reason - " + reasonText);
     }
+
 }

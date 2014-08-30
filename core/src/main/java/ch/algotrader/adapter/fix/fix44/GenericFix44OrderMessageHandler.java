@@ -30,6 +30,7 @@ import quickfix.FieldNotFound;
 import quickfix.field.CumQty;
 import quickfix.field.ExecType;
 import quickfix.field.OrderQty;
+import quickfix.field.TransactTime;
 import quickfix.fix44.ExecutionReport;
 
 /**
@@ -80,6 +81,10 @@ public class GenericFix44OrderMessageHandler extends AbstractFix44OrderMessageHa
         orderStatus.setFilledQuantity(filledQuantity);
         orderStatus.setRemainingQuantity(remainingQuantity);
         orderStatus.setOrder(order);
+        if (executionReport.isSetField(TransactTime.FIELD)) {
+
+            orderStatus.setExtDateTime(executionReport.getTransactTime().getValue());
+        }
 
         String intId = executionReport.getClOrdID().getValue();
         // update intId in case it has changed
@@ -101,7 +106,6 @@ public class GenericFix44OrderMessageHandler extends AbstractFix44OrderMessageHa
         if (execType.getValue() == ExecType.TRADE) {
 
             // get the fields
-            Date extDateTime = executionReport.getTransactTime().getValue();
             Side side = FixUtil.getSide(executionReport.getSide());
             long quantity = (long) executionReport.getLastQty().getValue();
             double price = executionReport.getLastPx().getValue();
@@ -110,11 +114,13 @@ public class GenericFix44OrderMessageHandler extends AbstractFix44OrderMessageHa
             // assemble the fill
             Fill fill = Fill.Factory.newInstance();
             fill.setDateTime(new Date());
-            fill.setExtDateTime(extDateTime);
             fill.setSide(side);
             fill.setQuantity(quantity);
             fill.setPrice(RoundUtil.getBigDecimal(price, order.getSecurityInitialized().getSecurityFamilyInitialized().getScale()));
             fill.setExtId(extId);
+            if (executionReport.isSetField(TransactTime.FIELD)) {
+                fill.setExtDateTime(executionReport.getTransactTime().getValue());
+            }
 
             return fill;
         } else {
@@ -133,9 +139,11 @@ public class GenericFix44OrderMessageHandler extends AbstractFix44OrderMessageHa
             } else {
                 return Status.PARTIALLY_EXECUTED;
             }
-        } else if (execType.getValue() == ExecType.CANCELED || execType.getValue() == ExecType.REJECTED
-                || execType.getValue() == ExecType.DONE_FOR_DAY || execType.getValue() == ExecType.EXPIRED) {
+        } else if (execType.getValue() == ExecType.CANCELED || execType.getValue() == ExecType.DONE_FOR_DAY
+                || execType.getValue() == ExecType.EXPIRED) {
             return Status.CANCELED;
+        } else if (execType.getValue() == ExecType.REJECTED) {
+            return Status.REJECTED;
         } else if (execType.getValue() == ExecType.REPLACE) {
             if (cumQty.getValue() == 0) {
                 return Status.SUBMITTED;

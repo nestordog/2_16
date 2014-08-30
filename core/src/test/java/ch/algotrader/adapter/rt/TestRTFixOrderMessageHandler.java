@@ -28,7 +28,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import ch.algotrader.adapter.fix.FixTestUtils;
+import ch.algotrader.adapter.fix.fix44.FixTestUtils;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.SecurityFamilyImpl;
 import ch.algotrader.entity.security.Stock;
@@ -103,6 +103,7 @@ public class TestRTFixOrderMessageHandler {
         Assert.assertEquals(Status.SUBMITTED, orderStatus1.getStatus());
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(0, orderStatus1.getFilledQuantity());
+        Assert.assertEquals(FixTestUtils.parseDateTime("20140610-12:56:01.000"), orderStatus1.getExtDateTime());
     }
 
     @Test
@@ -143,6 +144,7 @@ public class TestRTFixOrderMessageHandler {
         Assert.assertEquals(Status.EXECUTED, orderStatus1.getStatus());
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(100, orderStatus1.getFilledQuantity());
+        Assert.assertEquals(FixTestUtils.parseDateTime("20140610-11:27:52.000"), orderStatus1.getExtDateTime());
 
         Object event2 = events.get(1);
         Assert.assertTrue(event2 instanceof Fill);
@@ -218,10 +220,34 @@ public class TestRTFixOrderMessageHandler {
         ExecutionReport executionReport = FixTestUtils.parseFix44Message(s, ExecutionReport.class);
         Assert.assertNotNull(executionReport);
 
+        SecurityFamily family = new SecurityFamilyImpl();
+        family.setScale(3);
+
+        Stock msft = new StockImpl();
+        msft.setSymbol("MSFT");
+        msft.setSecurityFamily(family);
+
+        MarketOrder order = new MarketOrderImpl();
+        order.setSecurity(msft);
+        order.setQuantity(100);
+        order.setSide(Side.BUY);
+
+        Mockito.when(this.lookupService.getOpenOrderByRootIntId("146858a5fa7")).thenReturn(order);
+
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
-        Mockito.verify(this.lookupService, Mockito.never()).getOpenOrderByRootIntId(Mockito.anyString());
-        Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
+        ArgumentCaptor<Object> argumentCaptor = ArgumentCaptor.forClass(Object.class);
+        Mockito.verify(this.engine, Mockito.times(1)).sendEvent(argumentCaptor.capture());
+
+        Object event1 = argumentCaptor.getValue();
+        Assert.assertTrue(event1 instanceof OrderStatus);
+        OrderStatus orderStatus1 = (OrderStatus) event1;
+        Assert.assertEquals("146858a5fa7", orderStatus1.getIntId());
+        Assert.assertEquals(null, orderStatus1.getExtId());
+        Assert.assertEquals(Status.REJECTED, orderStatus1.getStatus());
+        Assert.assertSame(order, orderStatus1.getOrder());
+        Assert.assertEquals(0, orderStatus1.getFilledQuantity());
+        Assert.assertEquals(FixTestUtils.parseDateTime("20140610-11:29:36.000"), orderStatus1.getExtDateTime());
     }
 
 }

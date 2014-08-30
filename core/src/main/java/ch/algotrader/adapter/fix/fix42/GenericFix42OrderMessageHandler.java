@@ -15,43 +15,43 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.adapter.fxcm;
+package ch.algotrader.adapter.fix.fix42;
 
 import java.math.BigDecimal;
 import java.util.Date;
 
+import org.apache.log4j.Logger;
+
 import ch.algotrader.adapter.fix.FixUtil;
-import ch.algotrader.adapter.fix.fix44.AbstractFix44OrderMessageHandler;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
+import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.RoundUtil;
 import quickfix.FieldNotFound;
 import quickfix.field.CumQty;
 import quickfix.field.ExecType;
-import quickfix.field.OrdStatus;
 import quickfix.field.TransactTime;
-import quickfix.fix44.ExecutionReport;
+import quickfix.fix42.ExecutionReport;
 
 /**
- * FXCM specific FIX order message handler.
+ * Generic Fix42OrderMessageHandler. Needs to be overwritten by specific broker interfaces.
  *
- * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class FXCMFixOrderMessageHandler extends AbstractFix44OrderMessageHandler {
+public class GenericFix42OrderMessageHandler extends AbstractFix42OrderMessageHandler {
+
+    private static Logger logger = MyLogger.getLogger(GenericFix42OrderMessageHandler.class.getName());
 
     @Override
     protected boolean discardReport(final ExecutionReport executionReport) throws FieldNotFound {
-
         // ignore PENDING_NEW, PENDING_CANCEL and PENDING_REPLACE
         ExecType execType = executionReport.getExecType();
-
-        if (execType.getValue() == ExecType.PENDING_NEW
-                || execType.getValue() == ExecType.PENDING_REPLACE
+        if (execType.getValue() == ExecType.PENDING_NEW || execType.getValue() == ExecType.PENDING_REPLACE
                 || execType.getValue() == ExecType.PENDING_CANCEL) {
 
             return true;
@@ -63,16 +63,15 @@ public class FXCMFixOrderMessageHandler extends AbstractFix44OrderMessageHandler
 
     @Override
     protected boolean isOrderRejected(final ExecutionReport executionReport) throws FieldNotFound {
-
-        OrdStatus ordStatus = executionReport.getOrdStatus();
-        return ordStatus.getValue() == OrdStatus.REJECTED;
+        ExecType execType = executionReport.getExecType();
+        return execType.getValue() == ExecType.REJECTED;
     }
 
     @Override
     protected OrderStatus createStatus(final ExecutionReport executionReport, final Order order) throws FieldNotFound {
-
         // get the other fields
-        Status status = getStatus(executionReport.getOrdStatus(), executionReport.getExecType(), executionReport.getCumQty());
+        ExecType execType = executionReport.getExecType();
+        Status status = getStatus(execType, executionReport.getCumQty());
         long filledQuantity = (long) executionReport.getCumQty().getValue();
         long remainingQuantity = (long) (executionReport.getOrderQty().getValue() - executionReport.getCumQty().getValue());
 
@@ -82,48 +81,42 @@ public class FXCMFixOrderMessageHandler extends AbstractFix44OrderMessageHandler
         orderStatus.setFilledQuantity(filledQuantity);
         orderStatus.setRemainingQuantity(remainingQuantity);
         orderStatus.setOrder(order);
-
-        String intId = executionReport.getClOrdID().getValue();
-        // update intId in case it has changed
-        if (!intId.equals(order.getIntId())) {
-            orderStatus.setIntId(intId);
-        }
         if (executionReport.isSetField(TransactTime.FIELD)) {
-
             orderStatus.setExtDateTime(executionReport.getTransactTime().getValue());
         }
 
-        String extId = executionReport.getOrderID().getValue();
-        orderStatus.setExtId(extId);
+        // update intId in case it has changed
+        String intId = executionReport.getClOrdID().getValue();
+        if (!intId.equals(order.getIntId())) {
 
+            orderStatus.setIntId(intId);
+        }
         return orderStatus;
     }
 
     @Override
     protected Fill createFill(final ExecutionReport executionReport, final Order order) throws FieldNotFound {
 
-        // only create fills if status is FILLED (Note: FXCM advises to use STOPPED as the order execution confirmation)
-        OrdStatus ordStatus = executionReport.getOrdStatus();
-        CumQty qty = executionReport.getCumQty();
-        if (ordStatus.getValue() == OrdStatus.PARTIALLY_FILLED || (ordStatus.getValue() == OrdStatus.STOPPED && (long) qty.getValue() != 0L)) {
+        // only create fills if status is PARTIALLY_FILLED or FILLED
+        ExecType execType = executionReport.getExecType();
+        if (execType.getValue() == ExecType.PARTIAL_FILL || execType.getValue() == ExecType.FILL) {
 
             // get the fields
-            Date extDateTime = executionReport.getTransactTime().getValue();
             Side side = FixUtil.getSide(executionReport.getSide());
-            long quantity = (long) executionReport.getCumQty().getValue();
-
-            BigDecimal price = RoundUtil.getBigDecimal(executionReport.getAvgPx().getValue(), order.getSecurity().getSecurityFamily().getScale());
-            String extId = executionReport.getOrderID().getValue();
+            long quantity = (long) executionReport.getLastShares().getValue();
+            BigDecimal price = RoundUtil.getBigDecimal(executionReport.getLastPx().getValue(), order.getSecurity().getSecurityFamily().getScale());
+            String extId = executionReport.getExecID().getValue();
 
             // assemble the fill
-            // please note FXCM does not provide a unique exec report attribute
-            // that could be used as a unique extId
             Fill fill = Fill.Factory.newInstance();
             fill.setDateTime(new Date());
-            fill.setExtDateTime(extDateTime);
             fill.setSide(side);
             fill.setQuantity(quantity);
             fill.setPrice(price);
+            fill.setExtId(extId);
+            if (executionReport.isSetField(TransactTime.FIELD)) {
+                fill.setExtDateTime(executionReport.getTransactTime().getValue());
+            }
 
             return fill;
         } else {
@@ -132,29 +125,25 @@ public class FXCMFixOrderMessageHandler extends AbstractFix44OrderMessageHandler
         }
     }
 
-    private static Status getStatus(OrdStatus ordStatus, ExecType execType, CumQty cumQty) {
+    private Status getStatus(ExecType execType, CumQty cumQty) {
 
-        if (ordStatus.getValue() == OrdStatus.NEW || ordStatus.getValue() == OrdStatus.PENDING_NEW || ordStatus.getValue() == OrdStatus.REPLACED) {
+        if (execType.getValue() == ExecType.NEW) {
+            return Status.SUBMITTED;
+        } else if (execType.getValue() == ExecType.PARTIAL_FILL) {
+            return Status.PARTIALLY_EXECUTED;
+        } else if (execType.getValue() == ExecType.FILL) {
+            return Status.EXECUTED;
+        } else if (execType.getValue() == ExecType.CANCELED || execType.getValue() == ExecType.REJECTED
+                || execType.getValue() == ExecType.DONE_FOR_DAY || execType.getValue() == ExecType.EXPIRED) {
+            return Status.CANCELED;
+        } else if (execType.getValue() == ExecType.REPLACE) {
             if (cumQty.getValue() == 0) {
                 return Status.SUBMITTED;
             } else {
                 return Status.PARTIALLY_EXECUTED;
             }
-        } else if (ordStatus.getValue() == OrdStatus.FILLED) {
-            return Status.EXECUTED;
-        } else if (ordStatus.getValue() == OrdStatus.STOPPED) {
-            if (execType.getValue() == ExecType.TRADE) {
-                return Status.EXECUTED;
-            } else {
-                return Status.PARTIALLY_EXECUTED;
-            }
-        } else if (ordStatus.getValue() == OrdStatus.CANCELED) {
-            return Status.CANCELED;
-        } else if (ordStatus.getValue() == OrdStatus.REJECTED) {
-            return Status.REJECTED;
         } else {
-            throw new IllegalArgumentException("unknown orderStatus " + ordStatus.getValue());
+            throw new IllegalArgumentException("unknown execType " + execType.getValue());
         }
     }
-
 }

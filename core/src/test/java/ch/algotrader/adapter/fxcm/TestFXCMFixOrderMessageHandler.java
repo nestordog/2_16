@@ -29,7 +29,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import ch.algotrader.adapter.fix.FixTestUtils;
+import ch.algotrader.adapter.fix.fix44.FixTestUtils;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.ForexImpl;
 import ch.algotrader.entity.security.SecurityFamily;
@@ -109,6 +109,7 @@ public class TestFXCMFixOrderMessageHandler {
         Assert.assertEquals(Status.SUBMITTED, orderStatus1.getStatus());
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(0, orderStatus1.getFilledQuantity());
+        Assert.assertEquals(FixTestUtils.parseDateTime("20140327-20:04:21.000"), orderStatus1.getExtDateTime());
     }
 
     @Test
@@ -149,6 +150,7 @@ public class TestFXCMFixOrderMessageHandler {
         Assert.assertEquals(Status.EXECUTED, orderStatus1.getStatus());
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(1000L, orderStatus1.getFilledQuantity());
+        Assert.assertEquals(FixTestUtils.parseDateTime("20140327-20:04:21.000"), orderStatus1.getExtDateTime());
 
         Object event2 = events.get(1);
         Assert.assertTrue(event2 instanceof Fill);
@@ -199,6 +201,7 @@ public class TestFXCMFixOrderMessageHandler {
         Assert.assertEquals(Status.EXECUTED, orderStatus1.getStatus());
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(1000L, orderStatus1.getFilledQuantity());
+        Assert.assertEquals(FixTestUtils.parseDateTime("20140327-20:04:21.000"), orderStatus1.getExtDateTime());
     }
 
     @Test
@@ -228,10 +231,35 @@ public class TestFXCMFixOrderMessageHandler {
         ExecutionReport executionReport = FixTestUtils.parseFix44Message(s, DATA_DICT, ExecutionReport.class);
         Assert.assertNotNull(executionReport);
 
+        SecurityFamily family = new SecurityFamilyImpl();
+        family.setCurrency(Currency.AUD);
+        family.setScale(3);
+
+        Forex forex = new ForexImpl();
+        forex.setSymbol("RUB.UAH");
+        forex.setBaseCurrency(Currency.RUB);
+        forex.setSecurityFamily(family);
+
+        MarketOrder order = new MarketOrderImpl();
+        order.setSecurity(forex);
+        Mockito.when(lookupService.getOpenOrderByRootIntId("145096a919f")).thenReturn(order);
+
         impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
-        Mockito.verify(lookupService, Mockito.never()).getOpenOrderByRootIntId(Mockito.anyString());
-        Mockito.verify(engine, Mockito.never()).sendEvent(Mockito.any());
+        ArgumentCaptor<Object> argumentCaptor = ArgumentCaptor.forClass(Object.class);
+        Mockito.verify(engine, Mockito.times(1)).sendEvent(argumentCaptor.capture());
+
+        List<Object> events = argumentCaptor.getAllValues();
+        Assert.assertEquals(1, events.size());
+        Object event1 = events.get(0);
+        Assert.assertTrue(event1 instanceof OrderStatus);
+        OrderStatus orderStatus1 = (OrderStatus) event1;
+        Assert.assertEquals("145096a919f", orderStatus1.getIntId());
+        Assert.assertEquals(null, orderStatus1.getExtId());
+        Assert.assertEquals(Status.REJECTED, orderStatus1.getStatus());
+        Assert.assertSame(order, orderStatus1.getOrder());
+        Assert.assertEquals(0L, orderStatus1.getFilledQuantity());
+        Assert.assertEquals(FixTestUtils.parseDateTime("20140328-15:59:10.000"), orderStatus1.getExtDateTime());
     }
 
 
@@ -301,6 +329,7 @@ public class TestFXCMFixOrderMessageHandler {
         Assert.assertEquals(Status.CANCELED, orderStatus1.getStatus());
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(0, orderStatus1.getFilledQuantity());
+        Assert.assertEquals(FixTestUtils.parseDateTime("20140328-16:37:34.000"), orderStatus1.getExtDateTime());
     }
 
     @Test
@@ -341,6 +370,7 @@ public class TestFXCMFixOrderMessageHandler {
         Assert.assertEquals(Status.SUBMITTED, orderStatus1.getStatus());
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(0, orderStatus1.getFilledQuantity());
+        Assert.assertEquals(FixTestUtils.parseDateTime("20140328-17:17:56.000"), orderStatus1.getExtDateTime());
     }
 
     @Test
