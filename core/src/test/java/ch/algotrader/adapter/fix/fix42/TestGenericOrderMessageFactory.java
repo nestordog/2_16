@@ -14,6 +14,8 @@ import ch.algotrader.entity.security.ForexImpl;
 import ch.algotrader.entity.security.Future;
 import ch.algotrader.entity.security.FutureImpl;
 import ch.algotrader.entity.security.Option;
+import ch.algotrader.entity.security.OptionFamily;
+import ch.algotrader.entity.security.OptionFamilyImpl;
 import ch.algotrader.entity.security.OptionImpl;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.SecurityFamilyImpl;
@@ -65,10 +67,11 @@ public class TestGenericOrderMessageFactory {
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
-        SecurityFamily family = new SecurityFamilyImpl();
+        OptionFamily family = new OptionFamilyImpl();
         family.setCurrency(Currency.BRL);
         family.setSymbolRoot("STUFF");
         family.setContractSize(100.5d);
+        family.setWeekly(true);
 
         Option option = new OptionImpl();
         option.setSymbol("SOME_STUFF");
@@ -139,7 +142,6 @@ public class TestGenericOrderMessageFactory {
         Assert.assertEquals(new OrdType(OrdType.MARKET), message.getOrdType());
         Assert.assertEquals(new quickfix.field.Currency("BRL"), message.getCurrency());
         Assert.assertEquals(new SecurityType(SecurityType.FUTURE), message.getSecurityType());
-        Assert.assertEquals(new MaturityDay("31"), message.getMaturityDay());
         Assert.assertEquals(new MaturityMonthYear("201412"), message.getMaturityMonthYear());
     }
 
