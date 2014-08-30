@@ -19,6 +19,7 @@ package ch.algotrader.service.fix.fix42;
 
 import ch.algotrader.adapter.fix.fix42.Fix42OrderMessageFactory;
 import ch.algotrader.adapter.fix.fix42.GenericFix42OrderMessageFactory;
+import ch.algotrader.adapter.fix.fix42.GenericFix42SymbologyResolver;
 import ch.algotrader.entity.trade.SimpleOrder;
 import quickfix.fix42.NewOrderSingle;
 import quickfix.fix42.OrderCancelReplaceRequest;
@@ -45,7 +46,7 @@ public abstract class Fix42OrderServiceImpl extends Fix42OrderServiceBase {
     // TODO: this is a work-around required due to the existing class hierarchy
     // TODO: Implementation class should be injectable through constructor
     protected Fix42OrderMessageFactory createMessageFactory() {
-        return new GenericFix42OrderMessageFactory();
+        return new GenericFix42OrderMessageFactory(new GenericFix42SymbologyResolver());
     }
 
     @Override
