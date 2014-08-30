@@ -105,6 +105,7 @@ public class GenericFix44OrderMessageFactory implements Fix44OrderMessageFactory
         // common info
         message.set(new ClOrdID(clOrdID));
         message.set(new OrigClOrdID(origClOrdID));
+        message.set(new TransactTime(new Date()));
 
         symbologyResolver.resolve(message, security, broker);
 

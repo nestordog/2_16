@@ -63,8 +63,8 @@ public class GenericFix42OrderMessageFactory implements Fix42OrderMessageFactory
         Broker broker = order.getAccountInitialized().getBroker();
 
         // common info
+        message.set(new ClOrdID(clOrdID));
         message.set(new TransactTime(new Date()));
-        message.set(new ClOrdID(String.valueOf(clOrdID)));
 
         symbologyResolver.resolve(message, security, broker);
 
@@ -105,6 +105,7 @@ public class GenericFix42OrderMessageFactory implements Fix42OrderMessageFactory
         // common info
         message.set(new ClOrdID(clOrdID));
         message.set(new OrigClOrdID(origClOrdID));
+        message.set(new TransactTime(new Date()));
 
         symbologyResolver.resolve(message, security, broker);
 
