@@ -19,6 +19,7 @@ package ch.algotrader.adapter.rt;
 
 import java.util.Date;
 
+import ch.algotrader.adapter.fix.fix44.Fix44SymbologyResolver;
 import ch.algotrader.adapter.fix.fix44.GenericFix44OrderMessageFactory;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.trade.SimpleOrder;
@@ -39,6 +40,10 @@ import quickfix.fix44.OrderCancelRequest;
  */
 public class RTFixOrderMessageFactory extends GenericFix44OrderMessageFactory {
 
+
+    public RTFixOrderMessageFactory(final Fix44SymbologyResolver symbologyResolver) {
+        super(symbologyResolver);
+    }
 
     @Override
     public NewOrderSingle createNewOrderMessage(final SimpleOrder order, final String clOrdID) {

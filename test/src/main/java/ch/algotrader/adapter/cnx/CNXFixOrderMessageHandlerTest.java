@@ -151,7 +151,7 @@ public class CNXFixOrderMessageHandlerTest {
     }
 
     @Test
-    public void testMarketOrder() throws Exception {
+    public void testNewOrder() throws Exception {
 
         String orderId = Long.toHexString(System.currentTimeMillis());
 

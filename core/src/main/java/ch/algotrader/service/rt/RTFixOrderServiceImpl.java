@@ -18,6 +18,7 @@
 package ch.algotrader.service.rt;
 
 import ch.algotrader.adapter.fix.fix44.Fix44OrderMessageFactory;
+import ch.algotrader.adapter.fix.fix44.GenericFix44SymbologyResolver;
 import ch.algotrader.adapter.rt.RTFixOrderMessageFactory;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
@@ -38,7 +39,7 @@ public class RTFixOrderServiceImpl extends RTFixOrderServiceBase {
     // TODO: Implementation class should be injectable through constructor
     @Override
     protected Fix44OrderMessageFactory createMessageFactory() {
-        return new RTFixOrderMessageFactory();
+        return new RTFixOrderMessageFactory(new GenericFix44SymbologyResolver());
     }
 
     @Override

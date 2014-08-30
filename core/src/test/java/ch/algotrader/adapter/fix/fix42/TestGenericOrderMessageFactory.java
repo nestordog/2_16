@@ -57,7 +57,7 @@ public class TestGenericOrderMessageFactory {
     @Before
     public void setup() throws Exception {
 
-        this.requestFactory = new GenericFix42OrderMessageFactory();
+        this.requestFactory = new GenericFix42OrderMessageFactory(new GenericFix42SymbologyResolver());
     }
 
     @Test
