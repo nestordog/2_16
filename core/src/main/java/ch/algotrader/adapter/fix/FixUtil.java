@@ -17,6 +17,10 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.fix;
 
+import java.util.Map;
+
+import org.apache.commons.lang.Validate;
+
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.Future;
 import ch.algotrader.entity.security.Option;
@@ -25,11 +29,13 @@ import ch.algotrader.entity.security.Stock;
 import ch.algotrader.entity.trade.LimitOrder;
 import ch.algotrader.entity.trade.MarketOrder;
 import ch.algotrader.entity.trade.Order;
+import ch.algotrader.entity.trade.OrderProperty;
 import ch.algotrader.entity.trade.StopLimitOrder;
 import ch.algotrader.entity.trade.StopOrder;
 import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.TIF;
+import quickfix.FieldMap;
 import quickfix.field.OrdType;
 import quickfix.field.Symbol;
 import quickfix.field.TimeInForce;
@@ -120,4 +126,28 @@ public class FixUtil {
                 throw new IllegalArgumentException("unknown timeInForce " + tif);
         }
     }
+
+    public static void copyOrderProperties(final FieldMap message, final Map<String, OrderProperty> orderPropertyMap) {
+
+        Validate.notNull(message, "Message is null");
+        if (orderPropertyMap == null) {
+
+            return;
+        }
+
+        for (Map.Entry<String, OrderProperty> entry: orderPropertyMap.entrySet()) {
+
+            String key = entry.getKey();
+            OrderProperty orderProperty = entry.getValue();
+            if (orderProperty.isFix()) {
+
+                try {
+                    int field = Integer.parseInt(key);
+                    message.setString(field, orderProperty.getValue());
+                } catch (NumberFormatException ignore) {
+                }
+            }
+        }
+    }
+
 }

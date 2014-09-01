@@ -89,6 +89,9 @@ public class GenericFix44OrderMessageFactory implements Fix44OrderMessageFactory
                 message.set(new ExpireTime(order.getTifDateTime()));
             }
         }
+
+        FixUtil.copyOrderProperties(message, order.getOrderPropertiesInitialized());
+
         return message;
     }
 

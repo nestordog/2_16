@@ -90,6 +90,8 @@ public class GenericFix42OrderMessageFactory implements Fix42OrderMessageFactory
             }
         }
 
+        FixUtil.copyOrderProperties(message, order.getOrderPropertiesInitialized());
+
         return message;
     }
 
