@@ -230,11 +230,12 @@ public class RTFixOrderMessageHandlerTest {
 
         SecurityFamily securityFamily = new SecurityFamilyImpl();
         securityFamily.setSymbolRoot("DU");
+        securityFamily.setCurrency(Currency.EUR);
         securityFamily.setExchange(exchange);
 
         Future future = new FutureImpl();
         future.setSecurityFamily(securityFamily);
-        future.setExpiration(dateFormat.parse("2014-09"));
+        future.setExpiration(dateFormat.parse("2014-12"));
 
         Account testAccount = new AccountImpl();
         testAccount.setBroker(Broker.UBS);
