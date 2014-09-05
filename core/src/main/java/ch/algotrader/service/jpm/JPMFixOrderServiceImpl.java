@@ -21,6 +21,14 @@ import java.util.Date;
 
 import org.apache.commons.lang.Validate;
 
+import ch.algotrader.adapter.fix.FixAdapter;
+import ch.algotrader.adapter.fix.fix42.GenericFix42OrderMessageFactory;
+import ch.algotrader.adapter.fix.fix42.GenericFix42SymbologyResolver;
+import ch.algotrader.entity.trade.SimpleOrder;
+import ch.algotrader.enumeration.Broker;
+import ch.algotrader.enumeration.OrderServiceType;
+import ch.algotrader.service.OrderService;
+import ch.algotrader.service.fix.fix42.Fix42OrderServiceImpl;
 import quickfix.field.Account;
 import quickfix.field.ExDestination;
 import quickfix.field.HandlInst;
@@ -29,12 +37,6 @@ import quickfix.field.TransactTime;
 import quickfix.fix42.NewOrderSingle;
 import quickfix.fix42.OrderCancelReplaceRequest;
 import quickfix.fix42.OrderCancelRequest;
-import ch.algotrader.adapter.fix.FixAdapter;
-import ch.algotrader.entity.trade.SimpleOrder;
-import ch.algotrader.enumeration.Broker;
-import ch.algotrader.enumeration.OrderServiceType;
-import ch.algotrader.service.OrderService;
-import ch.algotrader.service.fix.fix42.Fix42OrderServiceImpl;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -48,7 +50,7 @@ public class JPMFixOrderServiceImpl extends Fix42OrderServiceImpl implements JPM
     public JPMFixOrderServiceImpl(final FixAdapter fixAdapter,
             final OrderService orderService) {
 
-        super(fixAdapter, orderService);
+        super(fixAdapter, orderService, new GenericFix42OrderMessageFactory(new GenericFix42SymbologyResolver()));
     }
 
     @Override

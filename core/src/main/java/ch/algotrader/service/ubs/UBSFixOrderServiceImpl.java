@@ -17,14 +17,16 @@
  ***********************************************************************************/
 package ch.algotrader.service.ubs;
 
-import quickfix.fix42.NewOrderSingle;
-import quickfix.fix42.OrderCancelReplaceRequest;
-import quickfix.fix42.OrderCancelRequest;
 import ch.algotrader.adapter.fix.FixAdapter;
+import ch.algotrader.adapter.fix.fix42.GenericFix42OrderMessageFactory;
+import ch.algotrader.adapter.fix.fix42.GenericFix42SymbologyResolver;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.service.OrderService;
 import ch.algotrader.service.fix.fix42.Fix42OrderServiceImpl;
+import quickfix.fix42.NewOrderSingle;
+import quickfix.fix42.OrderCancelReplaceRequest;
+import quickfix.fix42.OrderCancelRequest;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -38,7 +40,7 @@ public class UBSFixOrderServiceImpl extends Fix42OrderServiceImpl implements UBS
     public UBSFixOrderServiceImpl(final FixAdapter fixAdapter,
             final OrderService orderService) {
 
-        super(fixAdapter, orderService);
+        super(fixAdapter, orderService, new GenericFix42OrderMessageFactory(new GenericFix42SymbologyResolver()));
     }
 
     @Override

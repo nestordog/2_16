@@ -19,16 +19,14 @@ package ch.algotrader.service.fix.fix44;
 
 import org.apache.commons.lang.Validate;
 
-import quickfix.fix44.NewOrderSingle;
-import quickfix.fix44.OrderCancelReplaceRequest;
-import quickfix.fix44.OrderCancelRequest;
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.fix.fix44.Fix44OrderMessageFactory;
-import ch.algotrader.adapter.fix.fix44.GenericFix44OrderMessageFactory;
-import ch.algotrader.adapter.fix.fix44.GenericFix44SymbologyResolver;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.service.OrderService;
 import ch.algotrader.service.fix.FixOrderServiceImpl;
+import quickfix.fix44.NewOrderSingle;
+import quickfix.fix44.OrderCancelReplaceRequest;
+import quickfix.fix44.OrderCancelRequest;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -42,17 +40,14 @@ public abstract class Fix44OrderServiceImpl extends FixOrderServiceImpl implemen
     private final Fix44OrderMessageFactory messageFactory;
 
     public Fix44OrderServiceImpl(final FixAdapter fixAdapter,
-            final OrderService orderService) {
+            final OrderService orderService,
+            final Fix44OrderMessageFactory messageFactory) {
 
         super(fixAdapter, orderService);
 
-        this.messageFactory = createMessageFactory();
-    }
+        Validate.notNull(orderService, "Fix44OrderMessageFactory is null");
 
-    // TODO: this is a work-around required due to the existing class hierarchy
-    // TODO: Implementation class should be injectable through constructor
-    protected Fix44OrderMessageFactory createMessageFactory() {
-        return new GenericFix44OrderMessageFactory(new GenericFix44SymbologyResolver());
+        this.messageFactory = messageFactory;
     }
 
     @Override

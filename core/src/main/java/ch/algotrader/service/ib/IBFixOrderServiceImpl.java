@@ -19,6 +19,16 @@ package ch.algotrader.service.ib;
 
 import org.apache.commons.lang.Validate;
 
+import ch.algotrader.adapter.fix.FixAdapter;
+import ch.algotrader.adapter.fix.fix42.GenericFix42OrderMessageFactory;
+import ch.algotrader.adapter.fix.fix42.GenericFix42SymbologyResolver;
+import ch.algotrader.config.IBConfig;
+import ch.algotrader.entity.security.Option;
+import ch.algotrader.entity.trade.SimpleOrder;
+import ch.algotrader.enumeration.OrderServiceType;
+import ch.algotrader.service.InitializingServiceI;
+import ch.algotrader.service.OrderService;
+import ch.algotrader.service.fix.fix42.Fix42OrderServiceImpl;
 import quickfix.field.Account;
 import quickfix.field.AllocationGroup;
 import quickfix.field.AllocationMethod;
@@ -31,14 +41,6 @@ import quickfix.field.OpenClose;
 import quickfix.fix42.NewOrderSingle;
 import quickfix.fix42.OrderCancelReplaceRequest;
 import quickfix.fix42.OrderCancelRequest;
-import ch.algotrader.adapter.fix.FixAdapter;
-import ch.algotrader.config.IBConfig;
-import ch.algotrader.entity.security.Option;
-import ch.algotrader.entity.trade.SimpleOrder;
-import ch.algotrader.enumeration.OrderServiceType;
-import ch.algotrader.service.InitializingServiceI;
-import ch.algotrader.service.OrderService;
-import ch.algotrader.service.fix.fix42.Fix42OrderServiceImpl;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -55,7 +57,7 @@ public class IBFixOrderServiceImpl extends Fix42OrderServiceImpl implements IBFi
             final FixAdapter fixAdapter,
             final OrderService orderService) {
 
-        super(fixAdapter, orderService);
+        super(fixAdapter, orderService, new GenericFix42OrderMessageFactory(new GenericFix42SymbologyResolver()));
 
         Validate.notNull(iBConfig, "IBConfig is null");
 
