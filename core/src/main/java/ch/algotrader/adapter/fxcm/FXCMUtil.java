@@ -21,7 +21,7 @@ import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.Security;
 
 /**
- * LMAX utilities
+ * FXCM utilities
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
@@ -31,9 +31,11 @@ public class FXCMUtil {
 
     public static String getFXCMSymbol(final Security security) {
         if (security instanceof Forex) {
+
             Forex forex = (Forex) security;
             return forex.getBaseCurrency() + "/" + forex.getTransactionCurrency();
         } else {
+
             return security.getSymbol();
         }
     }

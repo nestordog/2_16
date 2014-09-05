@@ -27,12 +27,14 @@ import ch.algotrader.entity.security.Future;
 import ch.algotrader.entity.security.Option;
 import ch.algotrader.entity.security.OptionFamily;
 import ch.algotrader.entity.security.Security;
+import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.Stock;
 import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.OptionType;
 import quickfix.field.CFICode;
 import quickfix.field.ContractMultiplier;
 import quickfix.field.Currency;
+import quickfix.field.ExDestination;
 import quickfix.field.MaturityDate;
 import quickfix.field.MaturityMonthYear;
 import quickfix.field.SecurityType;
@@ -81,17 +83,19 @@ public class GenericFix44SymbologyResolver implements Fix44SymbologyResolver {
 
         message.set(FixUtil.getFixSymbol(security, broker));
 
+        SecurityFamily securityFamily = security.getSecurityFamilyInitialized();
+
         // populate security information
         if (security instanceof Option) {
 
             Option option = (Option) security;
+            OptionFamily optionFamily = (OptionFamily) securityFamily;
 
-            OptionFamily optionFamily = (OptionFamily)option.getSecurityFamilyInitialized();
             message.set(new SecurityType(SecurityType.OPTION));
             message.set(new Currency(optionFamily.getCurrency().toString()));
             message.set(new CFICode("O" + (OptionType.PUT.equals(option.getType()) ? "P" : "C")));
             message.set(new StrikePrice(option.getStrike().doubleValue()));
-            message.set(new ContractMultiplier(option.getSecurityFamilyInitialized().getContractSize()));
+            message.set(new ContractMultiplier(optionFamily.getContractSize()));
             message.set(new MaturityMonthYear(formatYM(option.getExpiration())));
 
             if (optionFamily.isWeekly()) {
@@ -104,20 +108,24 @@ public class GenericFix44SymbologyResolver implements Fix44SymbologyResolver {
             Future future = (Future) security;
 
             message.set(new SecurityType(SecurityType.FUTURE));
-            message.set(new Currency(future.getSecurityFamilyInitialized().getCurrency().toString()));
+            message.set(new Currency(securityFamily.getCurrency().toString()));
             message.set(new MaturityMonthYear(formatYM(future.getExpiration())));
 
         } else if (security instanceof Forex) {
 
             message.set(new SecurityType(SecurityType.CASH));
-            message.set(new Currency(security.getSecurityFamilyInitialized().getCurrency().getValue()));
+            message.set(new Currency(securityFamily.getCurrency().getValue()));
 
         } else if (security instanceof Stock) {
 
-            Stock stock = (Stock) security;
-
             message.set(new SecurityType(SecurityType.COMMON_STOCK));
-            message.set(new Currency(stock.getSecurityFamilyInitialized().getCurrency().toString()));
+            message.set(new Currency(securityFamily.getCurrency().toString()));
+        }
+
+        String exchangeCode = securityFamily.getExchangeCode(broker);
+        if (exchangeCode != null) {
+
+            message.set(new ExDestination(exchangeCode));
         }
     }
 

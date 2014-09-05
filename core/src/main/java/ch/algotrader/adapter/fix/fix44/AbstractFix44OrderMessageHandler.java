@@ -108,6 +108,10 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
 
                 orderStatus.setExtDateTime(executionReport.getTransactTime().getValue());
             }
+            if (executionReport.isSetField(Text.FIELD)) {
+
+                orderStatus.setRejectReason(executionReport.getText().getValue());
+            }
 
             EngineLocator.instance().getBaseEngine().sendEvent(orderStatus);
 

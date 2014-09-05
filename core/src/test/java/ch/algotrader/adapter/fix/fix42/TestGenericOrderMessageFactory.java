@@ -25,6 +25,7 @@ import ch.algotrader.entity.trade.LimitOrder;
 import ch.algotrader.entity.trade.LimitOrderImpl;
 import ch.algotrader.entity.trade.MarketOrder;
 import ch.algotrader.entity.trade.MarketOrderImpl;
+import ch.algotrader.entity.trade.OrderPropertyImpl;
 import ch.algotrader.entity.trade.StopLimitOrder;
 import ch.algotrader.entity.trade.StopLimitOrderImpl;
 import ch.algotrader.entity.trade.StopOrder;
@@ -783,4 +784,52 @@ public class TestGenericOrderMessageFactory {
         Assert.assertEquals(new SecurityType(SecurityType.CASH), message.getSecurityType());
     }
 
+    @Test
+    public void testMarketOrderWithProperties() throws Exception {
+
+        SecurityFamily family = new SecurityFamilyImpl();
+        family.setCurrency(Currency.USD);
+
+        Forex forex = new ForexImpl();
+        forex.setSymbol("EUR.USD");
+        forex.setBaseCurrency(Currency.EUR);
+        forex.setSecurityFamily(family);
+
+        Account account = new AccountImpl();
+        account.setBroker(Broker.RT);
+
+        MarketOrder order = new MarketOrderImpl();
+        order.setSecurity(forex);
+        order.setSide(Side.BUY);
+        order.setQuantity(2000);
+        order.setAccount(account);
+        OrderPropertyImpl orderProperty1 = new OrderPropertyImpl();
+        orderProperty1.setFix(true);
+        orderProperty1.setValue("this stuff");
+        OrderPropertyImpl orderProperty2 = new OrderPropertyImpl();
+        orderProperty2.setFix(true);
+        orderProperty2.setValue("that stuff");
+        OrderPropertyImpl orderProperty3 = new OrderPropertyImpl();
+        orderProperty3.setFix(false);
+        orderProperty3.setValue("other stuff");
+        order.getOrderProperties().put("1000", orderProperty1);
+        order.getOrderProperties().put("1001", orderProperty2);
+        order.getOrderProperties().put("1002", orderProperty3);
+
+        NewOrderSingle message = this.requestFactory.createNewOrderMessage(order, "test-id");
+
+        Assert.assertNotNull(message);
+        Assert.assertEquals(new ClOrdID("test-id"), message.getClOrdID());
+        Assert.assertNotNull(message.getTransactTime());
+        Assert.assertEquals(new Symbol("EUR"), message.getSymbol());
+        Assert.assertEquals(new quickfix.field.Side(quickfix.field.Side.BUY), message.getSide());
+        Assert.assertEquals(new OrderQty(2000), message.getOrderQty());
+        Assert.assertEquals(new OrdType(OrdType.MARKET), message.getOrdType());
+        Assert.assertEquals(new quickfix.field.Currency("USD"), message.getCurrency());
+        Assert.assertEquals(new SecurityType(SecurityType.CASH), message.getSecurityType());
+
+        Assert.assertEquals("this stuff", message.getString(1000));
+        Assert.assertEquals("that stuff", message.getString(1001));
+        Assert.assertFalse(message.isSetField(1002));
+    }
 }
