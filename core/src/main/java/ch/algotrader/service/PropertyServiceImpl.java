@@ -17,69 +17,110 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
+import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import ch.algotrader.entity.property.Property;
+import ch.algotrader.entity.property.PropertyDao;
 import ch.algotrader.entity.property.PropertyHolder;
+import ch.algotrader.entity.property.PropertyHolderDao;
 import ch.algotrader.util.MyLogger;
+import ch.algotrader.util.spring.HibernateSession;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class PropertyServiceImpl extends PropertyServiceBase {
+@HibernateSession
+public class PropertyServiceImpl implements PropertyService {
 
     private static Logger logger = MyLogger.getLogger(PropertyServiceImpl.class.getName());
 
-    @Override
-    protected PropertyHolder handleAddProperty(int propertyHolderId, String name, Object value, boolean persistent) throws Exception {
+    private final PropertyDao propertyDao;
 
-        // reattach the propertyHolder
-        PropertyHolder propertyHolder = getPropertyHolderDao().load(propertyHolderId);
+    private final PropertyHolderDao propertyHolderDao;
 
-        Property property = propertyHolder.getProps().get(name);
-        if (property == null) {
+    public PropertyServiceImpl(final PropertyDao propertyDao, final PropertyHolderDao propertyHolderDao) {
 
-            // create the property
-            property = Property.Factory.newInstance();
-            property.setName(name);
-            property.setValue(value);
-            property.setPersistent(persistent);
+        Validate.notNull(propertyDao, "PropertyDao is null");
+        Validate.notNull(propertyHolderDao, "PropertyHolderDao is null");
 
-            // associate the propertyHolder
-            property.setPropertyHolder(propertyHolder);
-
-            getPropertyDao().create(property);
-
-            // reverse-associate the propertyHolder (after property has received an id)
-            propertyHolder.getProps().put(name, property);
-
-        } else {
-
-            property.setValue(value);
-        }
-
-        logger.info("added property " + name + " value " + value + " to " + propertyHolder);
-
-        return propertyHolder;
+        this.propertyDao = propertyDao;
+        this.propertyHolderDao = propertyHolderDao;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected PropertyHolder handleRemoveProperty(int propertyHolderId, String name) throws Exception {
+    @Transactional(propagation = Propagation.REQUIRED)
+    public PropertyHolder addProperty(final int propertyHolderId, final String name, final Object value, final boolean persistent) {
 
-        PropertyHolder propertyHolder = getPropertyHolderDao().load(propertyHolderId);
-        Property property = propertyHolder.getProps().get(name);
+        Validate.notEmpty(name, "Name is empty");
+        Validate.notNull(value, "Value is null");
 
-        if (property != null) {
+        try {
+            // reattach the propertyHolder
+            PropertyHolder propertyHolder = this.propertyHolderDao.load(propertyHolderId);
 
-            getPropertyDao().remove(property.getId());
+            Property property = propertyHolder.getProps().get(name);
+            if (property == null) {
 
-            propertyHolder.removeProps(name);
+                // create the property
+                property = Property.Factory.newInstance();
+                property.setName(name);
+                property.setValue(value);
+                property.setPersistent(persistent);
+
+                // associate the propertyHolder
+                property.setPropertyHolder(propertyHolder);
+
+                this.propertyDao.create(property);
+
+                // reverse-associate the propertyHolder (after property has received an id)
+                propertyHolder.getProps().put(name, property);
+
+            } else {
+
+                property.setValue(value);
+            }
+
+            logger.info("added property " + name + " value " + value + " to " + propertyHolder);
+
+            return propertyHolder;
+        } catch (Exception ex) {
+            throw new PropertyServiceException(ex.getMessage(), ex);
         }
+    }
 
-        logger.info("removed property " + name + " from " + propertyHolder);
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED)
+    public PropertyHolder removeProperty(final int propertyHolderId, final String name) {
 
-        return propertyHolder;
+        Validate.notEmpty(name, "Name is empty");
+
+        try {
+            PropertyHolder propertyHolder = this.propertyHolderDao.load(propertyHolderId);
+            Property property = propertyHolder.getProps().get(name);
+
+            if (property != null) {
+
+                this.propertyDao.remove(property.getId());
+
+                propertyHolder.removeProps(name);
+            }
+
+            logger.info("removed property " + name + " from " + propertyHolder);
+
+            return propertyHolder;
+        } catch (Exception ex) {
+            throw new PropertyServiceException(ex.getMessage(), ex);
+        }
     }
 }

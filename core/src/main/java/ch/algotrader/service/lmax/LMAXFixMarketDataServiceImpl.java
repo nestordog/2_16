@@ -17,60 +17,89 @@
  ***********************************************************************************/
 package ch.algotrader.service.lmax;
 
-import ch.algotrader.adapter.lmax.LMAXFixMarketDataRequestFactory;
-import ch.algotrader.entity.security.Security;
-import ch.algotrader.enumeration.FeedType;
+import org.apache.commons.lang.Validate;
+
 import quickfix.field.SubscriptionRequestType;
 import quickfix.fix44.MarketDataRequest;
+import ch.algotrader.adapter.fix.FixAdapter;
+import ch.algotrader.adapter.fix.FixSessionLifecycle;
+import ch.algotrader.adapter.lmax.LMAXFixMarketDataRequestFactory;
+import ch.algotrader.entity.security.Security;
+import ch.algotrader.entity.security.SecurityDao;
+import ch.algotrader.enumeration.FeedType;
+import ch.algotrader.service.fix.fix44.Fix44MarketDataServiceImpl;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class LMAXFixMarketDataServiceImpl extends LMAXFixMarketDataServiceBase {
+public class LMAXFixMarketDataServiceImpl extends Fix44MarketDataServiceImpl implements LMAXFixMarketDataService {
 
     private static final long serialVersionUID = 1144501885597028244L;
 
     private final LMAXFixMarketDataRequestFactory requestFactory;
 
-    public LMAXFixMarketDataServiceImpl() {
+    public LMAXFixMarketDataServiceImpl(final FixSessionLifecycle lifeCycle,
+            final FixAdapter fixAdapter,
+            final SecurityDao securityDao) {
+
+        super(lifeCycle, fixAdapter, securityDao);
+
+        Validate.notNull(fixAdapter, "FixAdapter is null");
 
         this.requestFactory = new LMAXFixMarketDataRequestFactory();
     }
 
     @Override
-    protected FeedType handleGetFeedType() throws Exception {
+    public FeedType getFeedType() {
 
         return FeedType.LMAX;
     }
 
     @Override
-    protected String handleGetSessionQualifier() throws Exception {
+    public String getSessionQualifier() {
 
         return "LMAXMD";
     }
 
     @Override
-    protected void handleSendSubscribeRequest(Security security) throws Exception {
+    public void sendSubscribeRequest(Security security) {
 
-        MarketDataRequest request = this.requestFactory.create(security, new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES));
+        Validate.notNull(security, "Security is null");
 
-        getFixAdapter().sendMessage(request, getSessionQualifier());
+        try {
+            MarketDataRequest request = this.requestFactory.create(security, new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES));
+
+            getFixAdapter().sendMessage(request, getSessionQualifier());
+        } catch (Exception ex) {
+            throw new LMAXFixMarketDataServiceException(ex.getMessage(), ex);
+        }
     }
 
     @Override
-    protected void handleSendUnsubscribeRequest(Security security) throws Exception {
+    public void sendUnsubscribeRequest(Security security) {
 
-        MarketDataRequest request = this.requestFactory.create(security, new SubscriptionRequestType(SubscriptionRequestType.DISABLE_PREVIOUS_SNAPSHOT_PLUS_UPDATE_REQUEST));
+        Validate.notNull(security, "Security is null");
 
-        getFixAdapter().sendMessage(request, getSessionQualifier());
+        try {
+            MarketDataRequest request = this.requestFactory.create(security, new SubscriptionRequestType(SubscriptionRequestType.DISABLE_PREVIOUS_SNAPSHOT_PLUS_UPDATE_REQUEST));
+
+            getFixAdapter().sendMessage(request, getSessionQualifier());
+        } catch (Exception ex) {
+            throw new LMAXFixMarketDataServiceException(ex.getMessage(), ex);
+        }
     }
 
     @Override
-    protected String handleGetTickerId(Security security) throws Exception {
+    public String getTickerId(Security security) {
 
-        return security.getLmaxid();
+        Validate.notNull(security, "Security is null");
+
+        try {
+            return security.getLmaxid();
+        } catch (Exception ex) {
+            throw new LMAXFixMarketDataServiceException(ex.getMessage(), ex);
+        }
     }
-
 }

@@ -17,54 +17,90 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
+import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
 import org.hibernate.Hibernate;
 import org.hibernate.LockOptions;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.collection.AbstractPersistentCollection;
 import org.hibernate.proxy.HibernateProxy;
 
 import ch.algotrader.util.MyLogger;
+import ch.algotrader.util.spring.HibernateSession;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class LazyLoaderServiceImpl extends LazyLoaderServiceBase {
+@HibernateSession
+public class LazyLoaderServiceImpl implements LazyLoaderService {
 
     private static Logger logger = MyLogger.getLogger(LazyLoaderServiceImpl.class.getName());
 
-    @Override
-    public AbstractPersistentCollection handleLazyLoadCollection(Object target, String context, AbstractPersistentCollection col) {
+    private final SessionFactory sessionFactory;
 
-        Session session = this.getSessionFactory().openSession();
+    public LazyLoaderServiceImpl(final SessionFactory sessionFactory) {
 
-        try {
-            session.buildLockRequest(LockOptions.NONE).lock(target);
-            Hibernate.initialize(col);
+        Validate.notNull(sessionFactory, "SessionFactory is null");
 
-            logger.debug("loaded collection: " + context);
-        } finally {
-            session.close();
-        }
-        return col;
+        this.sessionFactory = sessionFactory;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public Object handleLazyLoadProxy(Object target, String context, HibernateProxy proxy) {
+    public AbstractPersistentCollection lazyLoadCollection(final Object target, final String context, final AbstractPersistentCollection col) {
 
-        Session session = this.getSessionFactory().openSession();
+        Validate.notNull(target, "Target is null");
+        Validate.notEmpty(context, "Context is empty");
+        Validate.notNull(col, "Col is null");
 
-        Object implementation;
         try {
-            session.buildLockRequest(LockOptions.NONE).lock(target);
-            implementation = proxy.getHibernateLazyInitializer().getImplementation();
+            Session session = this.sessionFactory.openSession();
 
-            logger.debug("loaded proxy: " + context);
-        } finally {
-            session.close();
+            try {
+                session.buildLockRequest(LockOptions.NONE).lock(target);
+                Hibernate.initialize(col);
+
+                logger.debug("loaded collection: " + context);
+            } finally {
+                session.close();
+            }
+            return col;
+        } catch (Exception ex) {
+            throw new LazyLoaderServiceException(ex.getMessage(), ex);
         }
-        return implementation;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Object lazyLoadProxy(final Object target, final String context, final HibernateProxy proxy) {
+
+        Validate.notNull(target, "Target is null");
+        Validate.notEmpty(context, "Context is empty");
+        Validate.notNull(proxy, "Proxy is null");
+
+        try {
+            Session session = this.sessionFactory.openSession();
+
+            Object implementation;
+            try {
+                session.buildLockRequest(LockOptions.NONE).lock(target);
+                implementation = proxy.getHibernateLazyInitializer().getImplementation();
+
+                logger.debug("loaded proxy: " + context);
+            } finally {
+                session.close();
+            }
+            return implementation;
+        } catch (Exception ex) {
+            throw new LazyLoaderServiceException(ex.getMessage(), ex);
+        }
+    }
+
 }

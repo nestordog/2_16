@@ -17,12 +17,18 @@
  ***********************************************************************************/
 package ch.algotrader.service.dc;
 
-import ch.algotrader.adapter.dc.DCFixMarketDataRequestFactory;
-import ch.algotrader.adapter.dc.DCUtil;
-import ch.algotrader.entity.security.Security;
-import ch.algotrader.enumeration.FeedType;
+import org.apache.commons.lang.Validate;
+
 import quickfix.field.SubscriptionRequestType;
 import quickfix.fix44.MarketDataRequest;
+import ch.algotrader.adapter.dc.DCFixMarketDataRequestFactory;
+import ch.algotrader.adapter.dc.DCUtil;
+import ch.algotrader.adapter.fix.FixAdapter;
+import ch.algotrader.adapter.fix.FixSessionLifecycle;
+import ch.algotrader.entity.security.Security;
+import ch.algotrader.entity.security.SecurityDao;
+import ch.algotrader.enumeration.FeedType;
+import ch.algotrader.service.fix.fix44.Fix44MarketDataServiceImpl;
 
 /**
  * DukasCopy market data service implementation.
@@ -31,49 +37,70 @@ import quickfix.fix44.MarketDataRequest;
  *
  * @version $Revision$ $Date$
  */
-public class DCFixMarketDataServiceImpl extends DCFixMarketDataServiceBase {
+public class DCFixMarketDataServiceImpl extends Fix44MarketDataServiceImpl implements DCFixMarketDataService {
 
     private static final long serialVersionUID = 7765025849172510539L;
 
     private final DCFixMarketDataRequestFactory requestFactory;
 
-    public DCFixMarketDataServiceImpl() {
+    public DCFixMarketDataServiceImpl(final FixSessionLifecycle lifeCycle,
+            final FixAdapter fixAdapter,
+            final SecurityDao securityDao) {
+
+        super(lifeCycle, fixAdapter, securityDao);
 
         this.requestFactory = new DCFixMarketDataRequestFactory();
     }
 
     @Override
-    protected FeedType handleGetFeedType() throws Exception {
+    public FeedType getFeedType() {
 
         return FeedType.DC;
     }
 
     @Override
-    protected String handleGetSessionQualifier() {
+    public String getSessionQualifier() {
 
         return "DCMD";
     }
 
     @Override
-    protected void handleSendSubscribeRequest(Security security) throws Exception {
+    public void sendSubscribeRequest(Security security) {
 
-        MarketDataRequest request = this.requestFactory.create(security, new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES));
+        Validate.notNull(security, "Security is null");
 
-        getFixAdapter().sendMessage(request, getSessionQualifier());
+        try {
+            MarketDataRequest request = this.requestFactory.create(security, new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES));
+
+            getFixAdapter().sendMessage(request, getSessionQualifier());
+        } catch (Exception ex) {
+            throw new DCFixMarketDataServiceException(ex.getMessage(), ex);
+        }
     }
 
     @Override
-    protected void handleSendUnsubscribeRequest(Security security) throws Exception {
+    public void sendUnsubscribeRequest(Security security) {
 
-        MarketDataRequest request = this.requestFactory.create(security, new SubscriptionRequestType(SubscriptionRequestType.DISABLE_PREVIOUS_SNAPSHOT_PLUS_UPDATE_REQUEST));
+        Validate.notNull(security, "Security is null");
 
-        getFixAdapter().sendMessage(request, getSessionQualifier());
+        try {
+            MarketDataRequest request = this.requestFactory.create(security, new SubscriptionRequestType(SubscriptionRequestType.DISABLE_PREVIOUS_SNAPSHOT_PLUS_UPDATE_REQUEST));
+
+            getFixAdapter().sendMessage(request, getSessionQualifier());
+        } catch (Exception ex) {
+            throw new DCFixMarketDataServiceException(ex.getMessage(), ex);
+        }
     }
 
     @Override
-    protected String handleGetTickerId(Security security) throws Exception {
+    public String getTickerId(Security security) {
 
-        return DCUtil.getDCSymbol(security);
+        Validate.notNull(security, "Security is null");
+
+        try {
+            return DCUtil.getDCSymbol(security);
+        } catch (Exception ex) {
+            throw new DCFixMarketDataServiceException(ex.getMessage(), ex);
+        }
     }
-
 }

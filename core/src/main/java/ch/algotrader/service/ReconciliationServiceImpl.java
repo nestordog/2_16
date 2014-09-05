@@ -19,13 +19,24 @@ package ch.algotrader.service;
 
 import java.io.File;
 
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import ch.algotrader.util.spring.HibernateSession;
+
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public abstract class ReconciliationServiceImpl extends ReconciliationServiceBase {
+@HibernateSession
+public abstract class ReconciliationServiceImpl implements ReconciliationService {
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected abstract void handleReconcile(File file) throws Exception;
+    @Transactional(propagation = Propagation.REQUIRED)
+    public abstract void reconcile(final File file);
+
 }

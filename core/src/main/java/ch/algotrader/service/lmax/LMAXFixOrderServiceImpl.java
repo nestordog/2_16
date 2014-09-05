@@ -17,46 +17,55 @@
  ***********************************************************************************/
 package ch.algotrader.service.lmax;
 
+import quickfix.fix44.NewOrderSingle;
+import quickfix.fix44.OrderCancelReplaceRequest;
+import quickfix.fix44.OrderCancelRequest;
+import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.fix.fix44.Fix44OrderMessageFactory;
 import ch.algotrader.adapter.lmax.LMAXFixOrderMessageFactory;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
-import quickfix.fix44.NewOrderSingle;
-import quickfix.fix44.OrderCancelReplaceRequest;
-import quickfix.fix44.OrderCancelRequest;
+import ch.algotrader.service.OrderService;
+import ch.algotrader.service.fix.fix44.Fix44OrderServiceImpl;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class LMAXFixOrderServiceImpl extends LMAXFixOrderServiceBase {
+public class LMAXFixOrderServiceImpl extends Fix44OrderServiceImpl implements LMAXFixOrderService {
 
     private static final long serialVersionUID = 5822672325566918821L;
+
+    public LMAXFixOrderServiceImpl(final FixAdapter fixAdapter,
+            final OrderService orderService) {
+
+        super(fixAdapter, orderService);
+    }
 
     // TODO: this is a work-around required due to the existing class hierarchy
     // TODO: Implementation class should be injectable through constructor
     @Override
     protected Fix44OrderMessageFactory createMessageFactory() {
+
         return new LMAXFixOrderMessageFactory();
     }
 
     @Override
-    protected void handleSendOrder(SimpleOrder order, NewOrderSingle newOrder) throws Exception {
+    public void sendOrder(SimpleOrder order, NewOrderSingle newOrder) {
     }
 
     @Override
-    protected void handleModifyOrder(SimpleOrder order, OrderCancelReplaceRequest replaceRequest) throws Exception {
+    public void modifyOrder(SimpleOrder order, OrderCancelReplaceRequest replaceRequest) {
     }
 
     @Override
-    protected void handleCancelOrder(SimpleOrder order, OrderCancelRequest cancelRequest) throws Exception {
+    public void cancelOrder(SimpleOrder order, OrderCancelRequest cancelRequest) {
     }
 
     @Override
-    protected OrderServiceType handleGetOrderServiceType() throws Exception {
+    public OrderServiceType getOrderServiceType() {
 
         return OrderServiceType.LMAX_FIX;
     }
-
 }

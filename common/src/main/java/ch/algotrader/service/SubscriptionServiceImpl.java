@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.Validate;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 
 import ch.algotrader.config.CommonConfig;
@@ -32,120 +33,195 @@ import ch.algotrader.enumeration.FeedType;
  *
  * @version $Revision$ $Date$
  */
-public class SubscriptionServiceImpl extends SubscriptionServiceBase {
+public class SubscriptionServiceImpl implements SubscriptionService {
 
-    public DefaultMessageListenerContainer marketDataMessageListenerContainer;
-    public DefaultMessageListenerContainer genericMessageListenerContainer;
-    public DefaultMessageListenerContainer strategyMessageListenerContainer;
+    public final DefaultMessageListenerContainer marketDataMessageListenerContainer;
+    public final DefaultMessageListenerContainer genericMessageListenerContainer;
+    public final DefaultMessageListenerContainer strategyMessageListenerContainer;
 
-    public void setMarketDataMessageListenerContainer(DefaultMessageListenerContainer marketDataMessageListenerContainer) {
+    private final CommonConfig commonConfig;
+
+    private final MarketDataService marketDataService;
+
+    private final LookupService lookupService;
+
+    public SubscriptionServiceImpl(
+            final CommonConfig commonConfig,
+            final MarketDataService marketDataService,
+            final LookupService lookupService,
+            final DefaultMessageListenerContainer marketDataMessageListenerContainer,
+            final DefaultMessageListenerContainer genericMessageListenerContainer,
+            final DefaultMessageListenerContainer strategyMessageListenerContainer) {
+
+        Validate.notNull(commonConfig, "CommonConfig is null");
+        Validate.notNull(marketDataService, "MarketDataService is null");
+        Validate.notNull(lookupService, "LookupService is null");
+
         this.marketDataMessageListenerContainer = marketDataMessageListenerContainer;
-    }
-
-    public void setGenericMessageListenerContainer(DefaultMessageListenerContainer genericMessageListenerContainer) {
         this.genericMessageListenerContainer = genericMessageListenerContainer;
-    }
-
-    public void setStrategyMessageListenerContainer(DefaultMessageListenerContainer strategyMessageListenerContainer) {
         this.strategyMessageListenerContainer = strategyMessageListenerContainer;
+        this.commonConfig = commonConfig;
+        this.marketDataService = marketDataService;
+        this.lookupService = lookupService;
+
     }
 
-    @Override
-    protected void handleSubscribeMarketDataEvent(String strategyName, int securityId) throws Exception {
-
-        getMarketDataService().subscribe(strategyName, securityId);
-
-        initMarketDataEventSubscriptions();
+    public SubscriptionServiceImpl(
+            final CommonConfig commonConfig,
+            final MarketDataService marketDataService,
+            final LookupService lookupService) {
+        this(commonConfig, marketDataService, lookupService, null, null, null);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected void handleSubscribeMarketDataEvent(String strategyName, int securityId, FeedType feedType) throws Exception {
+    public void subscribeMarketDataEvent(final String strategyName, final int securityId) {
 
-        getMarketDataService().subscribe(strategyName, securityId, feedType);
+        Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        initMarketDataEventSubscriptions();
-    }
+        try {
+            this.marketDataService.subscribe(strategyName, securityId);
 
-    @Override
-    protected void handleUnsubscribeMarketDataEvent(String strategyName, int securityId) throws Exception {
-
-        getMarketDataService().unsubscribe(strategyName, securityId);
-
-        initMarketDataEventSubscriptions();
-    }
-
-    @Override
-    protected void handleUnsubscribeMarketDataEvent(String strategyName, int securityId, FeedType feedType) throws Exception {
-
-        getMarketDataService().unsubscribe(strategyName, securityId, feedType);
-
-        initMarketDataEventSubscriptions();
-    }
-
-    @Override
-    protected void handleInitMarketDataEventSubscriptions() throws Exception {
-
-        CommonConfig commonConfig = getCommonConfig();
-        if (commonConfig.isSimulation() || commonConfig.isStartedStrategyBASE() || commonConfig.isSingleVM())
-            return;
-
-        // assemble the message selector
-        List<String> selections = new ArrayList<String>();
-        for (Subscription subscription : getLookupService().getSubscriptionsByStrategyInclComponents(commonConfig.getStrategyName())) {
-            selections.add("securityId=" + subscription.getSecurity().getId());
+            initMarketDataEventSubscriptions();
+        } catch (Exception ex) {
+            throw new SubscriptionServiceException(ex.getMessage(), ex);
         }
+    }
 
-        String messageSelector = StringUtils.join(selections, " OR ");
-        if ("".equals(messageSelector)) {
-            messageSelector = "false";
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void subscribeMarketDataEvent(final String strategyName, final int securityId, final FeedType feedType) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+        Validate.notNull(feedType, "Feed type is null");
+
+        try {
+            this.marketDataService.subscribe(strategyName, securityId, feedType);
+
+            initMarketDataEventSubscriptions();
+        } catch (Exception ex) {
+            throw new SubscriptionServiceException(ex.getMessage(), ex);
         }
+    }
 
-        // update the message selector
-        this.marketDataMessageListenerContainer.setMessageSelector(messageSelector);
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void unsubscribeMarketDataEvent(final String strategyName, final int securityId) {
 
-        // restart the container (must do this in a separate thread to prevent dead-locks)
-        (new Thread() {
-            @Override
-            public void run() {
-                SubscriptionServiceImpl.this.marketDataMessageListenerContainer.stop();
-                SubscriptionServiceImpl.this.marketDataMessageListenerContainer.shutdown();
-                SubscriptionServiceImpl.this.marketDataMessageListenerContainer.start();
-                SubscriptionServiceImpl.this.marketDataMessageListenerContainer.initialize();
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+
+        try {
+            this.marketDataService.unsubscribe(strategyName, securityId);
+
+            initMarketDataEventSubscriptions();
+        } catch (Exception ex) {
+            throw new SubscriptionServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void unsubscribeMarketDataEvent(final String strategyName, final int securityId, final FeedType feedType) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+        Validate.notNull(feedType, "Feed type is null");
+
+        try {
+            this.marketDataService.unsubscribe(strategyName, securityId, feedType);
+
+            initMarketDataEventSubscriptions();
+        } catch (Exception ex) {
+            throw new SubscriptionServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void initMarketDataEventSubscriptions() {
+
+        try {
+            CommonConfig commonConfig = this.commonConfig;
+            if (commonConfig.isSimulation() || commonConfig.isStartedStrategyBASE() || commonConfig.isSingleVM())
+                return;
+
+            // assemble the message selector
+            List<String> selections = new ArrayList<String>();
+            for (Subscription subscription : this.lookupService.getSubscriptionsByStrategyInclComponents(commonConfig.getStrategyName())) {
+                selections.add("securityId=" + subscription.getSecurity().getId());
             }
-        }).start();
+
+            String messageSelector = StringUtils.join(selections, " OR ");
+            if ("".equals(messageSelector)) {
+                messageSelector = "false";
+            }
+
+            // update the message selector
+            this.marketDataMessageListenerContainer.setMessageSelector(messageSelector);
+
+            // restart the container (must do this in a separate thread to prevent dead-locks)
+            (new Thread() {
+                @Override
+                public void run() {
+                    SubscriptionServiceImpl.this.marketDataMessageListenerContainer.stop();
+                    SubscriptionServiceImpl.this.marketDataMessageListenerContainer.shutdown();
+                    SubscriptionServiceImpl.this.marketDataMessageListenerContainer.start();
+                    SubscriptionServiceImpl.this.marketDataMessageListenerContainer.initialize();
+                }
+            }).start();
+        } catch (Exception ex) {
+            throw new SubscriptionServiceException(ex.getMessage(), ex);
+        }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    @SuppressWarnings("rawtypes")
-    protected void handleSubscribeGenericEvents(Class[] classes) throws Exception {
+    public void subscribeGenericEvents(final Class[] classes) {
 
-        CommonConfig commonConfig = getCommonConfig();
-        if (commonConfig.isSimulation() || commonConfig.isStartedStrategyBASE() || commonConfig.isSingleVM())
-            return;
+        Validate.notNull(classes, "Classes is null");
 
-        // assemble the message selector
-        List<String> selections = new ArrayList<String>();
-        for (Class<?> clazz : classes) {
-            selections.add("clazz='" + clazz.getName() + "'");
-        }
+        try {
+            CommonConfig commonConfig = this.commonConfig;
+            if (commonConfig.isSimulation() || commonConfig.isStartedStrategyBASE() || commonConfig.isSingleVM())
+                return;
 
-        String messageSelector = StringUtils.join(selections, " OR ");
-        if ("".equals(messageSelector)) {
-            messageSelector = "false";
-        }
-
-        // update the message selector
-        this.genericMessageListenerContainer.setMessageSelector(messageSelector);
-
-        // restart the container (must do this in a separate thread to prevent dead-locks)
-        (new Thread() {
-            @Override
-            public void run() {
-                SubscriptionServiceImpl.this.genericMessageListenerContainer.stop();
-                SubscriptionServiceImpl.this.genericMessageListenerContainer.shutdown();
-                SubscriptionServiceImpl.this.genericMessageListenerContainer.start();
-                SubscriptionServiceImpl.this.genericMessageListenerContainer.initialize();
+            // assemble the message selector
+            List<String> selections = new ArrayList<String>();
+            for (Class<?> clazz : classes) {
+                selections.add("clazz='" + clazz.getName() + "'");
             }
-        }).start();
+
+            String messageSelector = StringUtils.join(selections, " OR ");
+            if ("".equals(messageSelector)) {
+                messageSelector = "false";
+            }
+
+            // update the message selector
+            this.genericMessageListenerContainer.setMessageSelector(messageSelector);
+
+            // restart the container (must do this in a separate thread to prevent dead-locks)
+            (new Thread() {
+                @Override
+                public void run() {
+                    SubscriptionServiceImpl.this.genericMessageListenerContainer.stop();
+                    SubscriptionServiceImpl.this.genericMessageListenerContainer.shutdown();
+                    SubscriptionServiceImpl.this.genericMessageListenerContainer.start();
+                    SubscriptionServiceImpl.this.genericMessageListenerContainer.initialize();
+                }
+            }).start();
+        } catch (Exception ex) {
+            throw new SubscriptionServiceException(ex.getMessage(), ex);
+        }
     }
 }

@@ -17,57 +17,70 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.fix;
 
-import ch.algotrader.entity.security.Security;
-import ch.algotrader.enumeration.FeedType;
-import ch.algotrader.service.fix.fix44.Fix44MarketDataServiceBase;
 import quickfix.field.MDReqID;
 import quickfix.field.SubscriptionRequestType;
 import quickfix.fix44.MarketDataRequest;
+import ch.algotrader.entity.security.Security;
+import ch.algotrader.entity.security.SecurityDao;
+import ch.algotrader.enumeration.FeedType;
+import ch.algotrader.service.fix.fix44.Fix44MarketDataServiceException;
+import ch.algotrader.service.fix.fix44.Fix44MarketDataServiceImpl;
 
 /**
  * Mock FIX 4.4 market data service
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  */
-class FakeFix44MarketDataService extends Fix44MarketDataServiceBase {
+class FakeFix44MarketDataService extends Fix44MarketDataServiceImpl {
 
-
-    @Override
-    protected void handleSendSubscribeRequest(final Security security) throws Exception {
-
-        String symbol = security.getSymbol();
-        MarketDataRequest request = new MarketDataRequest();
-        request.set(new MDReqID(symbol));
-        request.set(new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES));
-        getFixAdapter().sendMessage(request, "FAKE");
+    public FakeFix44MarketDataService(FixSessionLifecycle lifeCycle, FixAdapter fixAdapter, SecurityDao securityDao) {
+        super(lifeCycle, fixAdapter, securityDao);
+        // TODO Auto-generated constructor stub
     }
 
     @Override
-    protected void handleSendUnsubscribeRequest(final Security security) throws Exception {
+    public void sendSubscribeRequest(final Security security) {
 
-        String symbol = security.getSymbol();
-        MarketDataRequest request = new MarketDataRequest();
-        request.set(new MDReqID(symbol));
-        request.set(new SubscriptionRequestType(SubscriptionRequestType.DISABLE_PREVIOUS_SNAPSHOT_PLUS_UPDATE_REQUEST));
-        getFixAdapter().sendMessage(request, "FAKE");
+        try {
+            String symbol = security.getSymbol();
+            MarketDataRequest request = new MarketDataRequest();
+            request.set(new MDReqID(symbol));
+            request.set(new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES));
+            getFixAdapter().sendMessage(request, "FAKE");
+        } catch (Exception ex) {
+            throw new Fix44MarketDataServiceException(ex.getMessage(), ex);
+        }
     }
 
     @Override
-    protected String handleGetSessionQualifier() throws Exception {
+    public void sendUnsubscribeRequest(final Security security) {
+
+        try {
+            String symbol = security.getSymbol();
+            MarketDataRequest request = new MarketDataRequest();
+            request.set(new MDReqID(symbol));
+            request.set(new SubscriptionRequestType(SubscriptionRequestType.DISABLE_PREVIOUS_SNAPSHOT_PLUS_UPDATE_REQUEST));
+            getFixAdapter().sendMessage(request, "FAKE");
+        } catch (Exception ex) {
+            throw new Fix44MarketDataServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    @Override
+    public String getSessionQualifier() {
 
         return "FAKE";
     }
 
     @Override
-    protected String handleGetTickerId(final Security security) throws Exception {
+    public String getTickerId(final Security security) {
 
         return security.getSymbol();
     }
 
     @Override
-    protected FeedType handleGetFeedType() throws Exception {
+    public FeedType getFeedType() {
 
         return FeedType.SIM;
     }
-
 }

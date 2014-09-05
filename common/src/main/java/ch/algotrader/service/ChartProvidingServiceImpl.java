@@ -19,7 +19,12 @@ package ch.algotrader.service;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Set;
+
+import org.apache.commons.lang.Validate;
+import org.springframework.jmx.export.annotation.ManagedAttribute;
+import org.springframework.jmx.export.annotation.ManagedOperation;
+import org.springframework.jmx.export.annotation.ManagedOperationParameter;
+import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 
 import ch.algotrader.vo.AnnotationVO;
 import ch.algotrader.vo.BarVO;
@@ -32,49 +37,112 @@ import ch.algotrader.vo.MarkerVO;
  *
  * @version $Revision$ $Date$
  */
-public class ChartProvidingServiceImpl extends ChartProvidingServiceBase {
+public class ChartProvidingServiceImpl implements ChartProvidingService {
 
     private ChartDefinitionVO diagramDefinition;
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected void handleSetChartDefinition(ChartDefinitionVO diagramDefinition) throws Exception {
+    @ManagedAttribute(description = "Setter method for passing {@link ChartDefinitionVO ChartDefinitions} defined in the Spring Config File.")
+    public void setChartDefinition(final ChartDefinitionVO chartDefinition) {
 
-        this.diagramDefinition = diagramDefinition;
+        Validate.notNull(chartDefinition, "Chart definition is null");
+        Validate.notNull(chartDefinition.getTimePeriod(), "Chart definition time period is null");
+
+        try {
+            this.diagramDefinition = chartDefinition;
+        } catch (Exception ex) {
+            throw new ChartProvidingServiceException(ex.getMessage(), ex);
+        }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected ChartDefinitionVO handleGetChartDefinition() throws Exception {
+    @ManagedAttribute(description = "Return {@link ChartDefinitionVO ChartDefinitions} defined in the Spring Config File. This method can be overwritten to modify/amend ChartDefinitions (e.g. if the Security an Indicator is based on changes over time).")
+    public ChartDefinitionVO getChartDefinition() {
 
-        return this.diagramDefinition;
+        try {
+            return this.diagramDefinition;
+        } catch (Exception ex) {
+            throw new ChartProvidingServiceException(ex.getMessage(), ex);
+        }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected Set<IndicatorVO> handleGetIndicators(long startDateTime) throws Exception {
+    @ManagedOperation(description = "Returns the {@link BarVO Bar Data}")
+    @ManagedOperationParameters({ @ManagedOperationParameter(name = "startDateTime", description = "startDateTime") })
+    public Collection<BarVO> getBars(final long startDateTime) {
 
-        return new HashSet<IndicatorVO>();
+        try {
+            return new HashSet<BarVO>();
+        } catch (Exception ex) {
+            throw new ChartProvidingServiceException(ex.getMessage(), ex);
+        }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected Set<BarVO> handleGetBars(long startDateTime) throws Exception {
+    @ManagedOperation(description = "Returns the {@link IndicatorVO Indicator Data}")
+    @ManagedOperationParameters({ @ManagedOperationParameter(name = "startDateTime", description = "startDateTime") })
+    public Collection<IndicatorVO> getIndicators(final long startDateTime) {
 
-        return new HashSet<BarVO>();
+        try {
+            return new HashSet<IndicatorVO>();
+        } catch (Exception ex) {
+            throw new ChartProvidingServiceException(ex.getMessage(), ex);
+        }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected Set<MarkerVO> handleGetMarkers() throws Exception {
+    @ManagedAttribute(description = "Returns the {@link MarkerVO Marker Data}")
+    public Collection<MarkerVO> getMarkers() {
 
-        return new HashSet<MarkerVO>();
+        try {
+            return new HashSet<MarkerVO>();
+        } catch (Exception ex) {
+            throw new ChartProvidingServiceException(ex.getMessage(), ex);
+        }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected Collection<AnnotationVO> handleGetAnnotations(long startDateTime) throws Exception {
+    @ManagedOperation(description = "Returns {@link AnnotationVO Annotations}")
+    @ManagedOperationParameters({ @ManagedOperationParameter(name = "startDateTime", description = "startDateTime") })
+    public Collection<AnnotationVO> getAnnotations(final long startDateTime) {
 
-        return new HashSet<AnnotationVO>();
+        try {
+            return new HashSet<AnnotationVO>();
+        } catch (Exception ex) {
+            throw new ChartProvidingServiceException(ex.getMessage(), ex);
+        }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected String handleGetDescription() throws Exception {
+    @ManagedAttribute(description = "Returns the Chart Description.")
+    public String getDescription() {
 
-        return null;
+        try {
+            return null;
+        } catch (Exception ex) {
+            throw new ChartProvidingServiceException(ex.getMessage(), ex);
+        }
     }
+
 }

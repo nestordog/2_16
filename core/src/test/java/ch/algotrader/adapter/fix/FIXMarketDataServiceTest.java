@@ -11,6 +11,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import quickfix.fix44.MarketDataRequest;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.marketData.TickDao;
 import ch.algotrader.entity.security.Forex;
@@ -23,10 +24,9 @@ import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineLocator;
-import ch.algotrader.service.ExternalMarketDataServiceException;
+import ch.algotrader.service.fix.FixMarketDataServiceException;
 import ch.algotrader.service.fix.fix44.Fix44MarketDataService;
 import ch.algotrader.vo.SubscribeTickVO;
-import quickfix.fix44.MarketDataRequest;
 
 public class FIXMarketDataServiceTest {
 
@@ -48,11 +48,7 @@ public class FIXMarketDataServiceTest {
 
         MockitoAnnotations.initMocks(this);
 
-        FakeFix44MarketDataService fakeFix44MarketDataService = new FakeFix44MarketDataService();
-        fakeFix44MarketDataService.setFixAdapter(fixAdapter);
-        fakeFix44MarketDataService.setFixSessionLifecycle(sessionLifecycle);
-        fakeFix44MarketDataService.setSecurityDao(securityDao);
-        fakeFix44MarketDataService.setTickDao(tickDao);
+        FakeFix44MarketDataService fakeFix44MarketDataService = new FakeFix44MarketDataService(sessionLifecycle, fixAdapter, securityDao );
 
         impl = Mockito.spy(fakeFix44MarketDataService);
 
@@ -165,7 +161,7 @@ public class FIXMarketDataServiceTest {
         Mockito.verify(engine, Mockito.never()).executeQuery(Mockito.anyString());
     }
 
-    @Test(expected = ExternalMarketDataServiceException.class)
+    @Test(expected = FixMarketDataServiceException.class)
     public void testSubscribeNotLoggedOn() throws Exception {
 
         Mockito.when(sessionLifecycle.isLoggedOn()).thenReturn(Boolean.FALSE);
@@ -199,7 +195,7 @@ public class FIXMarketDataServiceTest {
         Mockito.verify(engine).executeQuery("delete from TickWindow where security.id = 123");
     }
 
-    @Test(expected = ExternalMarketDataServiceException.class)
+    @Test(expected = FixMarketDataServiceException.class)
     public void testUnsubscribeNotSubscribed() throws Exception {
 
         Mockito.when(sessionLifecycle.isLoggedOn()).thenReturn(Boolean.TRUE);

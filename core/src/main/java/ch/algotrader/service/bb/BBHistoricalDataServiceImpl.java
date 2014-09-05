@@ -1,3 +1,20 @@
+/***********************************************************************************
+ * AlgoTrader Enterprise Trading Framework
+ *
+ * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ *
+ * All information contained herein is, and remains the property of AlgoTrader GmbH.
+ * The intellectual and technical concepts contained herein are proprietary to
+ * AlgoTrader GmbH. Modification, translation, reverse engineering, decompilation,
+ * disassembly or reproduction of this material is strictly forbidden unless prior
+ * written permission is obtained from AlgoTrader GmbH
+ *
+ * Fur detailed terms and conditions consult the file LICENSE.txt or contact
+ *
+ * AlgoTrader GmbH
+ * Badenerstrasse 16
+ * 8004 Zurich
+ ***********************************************************************************/
 package ch.algotrader.service.bb;
 
 import java.io.IOException;
@@ -6,9 +23,26 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
+
+import ch.algotrader.adapter.bb.BBAdapter;
+import ch.algotrader.adapter.bb.BBConstants;
+import ch.algotrader.adapter.bb.BBMessageHandler;
+import ch.algotrader.adapter.bb.BBSession;
+import ch.algotrader.entity.marketData.Bar;
+import ch.algotrader.entity.marketData.BarDao;
+import ch.algotrader.entity.security.Security;
+import ch.algotrader.entity.security.SecurityDao;
+import ch.algotrader.enumeration.BarType;
+import ch.algotrader.enumeration.Duration;
+import ch.algotrader.enumeration.FeedType;
+import ch.algotrader.enumeration.TimePeriod;
+import ch.algotrader.service.HistoricalDataServiceImpl;
+import ch.algotrader.util.MyLogger;
+import ch.algotrader.util.RoundUtil;
 
 import com.bloomberglp.blpapi.Element;
 import com.bloomberglp.blpapi.Event;
@@ -17,19 +51,12 @@ import com.bloomberglp.blpapi.Request;
 import com.bloomberglp.blpapi.Service;
 import com.bloomberglp.blpapi.Session;
 
-import ch.algotrader.adapter.bb.BBConstants;
-import ch.algotrader.adapter.bb.BBMessageHandler;
-import ch.algotrader.adapter.bb.BBSession;
-import ch.algotrader.entity.marketData.Bar;
-import ch.algotrader.entity.security.Security;
-import ch.algotrader.enumeration.BarType;
-import ch.algotrader.enumeration.Duration;
-import ch.algotrader.enumeration.FeedType;
-import ch.algotrader.enumeration.TimePeriod;
-import ch.algotrader.util.MyLogger;
-import ch.algotrader.util.RoundUtil;
-
-public class BBHistoricalDataServiceImpl extends BBHistoricalDataServiceBase implements DisposableBean {
+/**
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
+ *
+ * @version $Revision$ $Date$
+ */
+public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl implements BBHistoricalDataService, DisposableBean {
 
     private static final long serialVersionUID = 1339545758324165650L;
 
@@ -39,39 +66,72 @@ public class BBHistoricalDataServiceImpl extends BBHistoricalDataServiceBase imp
     private static Logger logger = MyLogger.getLogger(BBHistoricalDataServiceImpl.class.getName());
     private static BBSession session;
 
-    @Override
-    protected void handleInit() throws Exception {
+    private final BBAdapter bBAdapter;
 
-        session = getBBAdapter().getReferenceDataSession();
+    private final SecurityDao securityDao;
+
+    public BBHistoricalDataServiceImpl(final BBAdapter bBAdapter,
+            final SecurityDao securityDao,
+            final BarDao barDao) {
+
+        super(barDao);
+
+        Validate.notNull(bBAdapter, "BBAdapter is null");
+        Validate.notNull(securityDao, "SecurityDao is null");
+
+        this.bBAdapter = bBAdapter;
+        this.securityDao = securityDao;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void init() {
+
+        try {
+            session = this.bBAdapter.getReferenceDataSession();
+        } catch (Exception ex) {
+            throw new BBHistoricalDataServiceException(ex.getMessage(), ex);
+        }
     }
 
     @Override
-    protected List<Bar> handleGetHistoricalBars(int securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, final Duration barSize, BarType barType) throws Exception {
+    public List<Bar> getHistoricalBars(int securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, final Duration barSize, BarType barType) {
 
-        Security security = getSecurityDao().get(securityId);
-        if (security == null) {
-            throw new BBHistoricalDataServiceException("security was not found " + securityId);
+        Validate.notNull(endDate, "End date is null");
+        Validate.notNull(timePeriod, "Time period is null");
+        Validate.notNull(barSize, "Bar size is null");
+        Validate.notNull(barType, "Bar type is null");
+
+        try {
+            Security security = this.securityDao.get(securityId);
+            if (security == null) {
+                throw new BBHistoricalDataServiceException("security was not found " + securityId);
+            }
+
+            String securityString = "/bbgid/" + security.getBbgid();
+
+            // send the request by using either IntrayBarRequest or HistoricalDataRequest
+            if (barSize.getValue() < Duration.DAY_1.getValue()) {
+                sendIntradayBarRequest(endDate, timePeriodLength, timePeriod, barSize, barType, securityString);
+            } else {
+                sendHistoricalDataRequest(endDate, timePeriodLength, timePeriod, barSize, barType, securityString);
+            }
+
+            // instantiate the message handler
+            BBHistoricalDataMessageHandler messageHandler = new BBHistoricalDataMessageHandler(security, barSize);
+
+            // process responses
+            boolean done = false;
+            while (!done) {
+                done = messageHandler.processEvent(session);
+            }
+
+            return messageHandler.getBarList();
+        } catch (Exception ex) {
+            throw new BBHistoricalDataServiceException(ex.getMessage(), ex);
         }
-
-        String securityString = "/bbgid/" + security.getBbgid();
-
-        // send the request by using either IntrayBarRequest or HistoricalDataRequest
-        if (barSize.getValue() < Duration.DAY_1.getValue()) {
-            sendIntradayBarRequest(endDate, timePeriodLength, timePeriod, barSize, barType, securityString);
-        } else {
-            sendHistoricalDataRequest(endDate, timePeriodLength, timePeriod, barSize, barType, securityString);
-        }
-
-        // instantiate the message handler
-        BBHistoricalDataMessageHandler messageHandler = new BBHistoricalDataMessageHandler(security, barSize);
-
-        // process responses
-        boolean done = false;
-        while (!done) {
-            done = messageHandler.processEvent(session);
-        }
-
-        return messageHandler.getBarList();
     }
 
     private void sendIntradayBarRequest(Date endDate, int timePeriodLength, TimePeriod timePeriod, final Duration barSize, BarType barType, final String securityString) throws IOException {
@@ -201,7 +261,6 @@ public class BBHistoricalDataServiceImpl extends BBHistoricalDataServiceBase imp
     }
 
     private class BBHistoricalDataMessageHandler extends BBMessageHandler {
-
 
         private final Security security;
         private final Duration barSize;

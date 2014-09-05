@@ -17,13 +17,18 @@
  ***********************************************************************************/
 package ch.algotrader.service.fix.fix42;
 
+import org.apache.commons.lang.Validate;
+
+import quickfix.fix42.NewOrderSingle;
+import quickfix.fix42.OrderCancelReplaceRequest;
+import quickfix.fix42.OrderCancelRequest;
+import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.fix.fix42.Fix42OrderMessageFactory;
 import ch.algotrader.adapter.fix.fix42.GenericFix42OrderMessageFactory;
 import ch.algotrader.adapter.fix.fix42.GenericFix42SymbologyResolver;
 import ch.algotrader.entity.trade.SimpleOrder;
-import quickfix.fix42.NewOrderSingle;
-import quickfix.fix42.OrderCancelReplaceRequest;
-import quickfix.fix42.OrderCancelRequest;
+import ch.algotrader.service.OrderService;
+import ch.algotrader.service.fix.FixOrderServiceImpl;
 
 /**
  * Generic FIX 4.2 order service
@@ -32,13 +37,16 @@ import quickfix.fix42.OrderCancelRequest;
  *
  * @version $Revision$ $Date$
  */
-public abstract class Fix42OrderServiceImpl extends Fix42OrderServiceBase {
+public abstract class Fix42OrderServiceImpl extends FixOrderServiceImpl implements Fix42OrderService {
 
     private static final long serialVersionUID = -3694423160435186473L;
 
     private final Fix42OrderMessageFactory messageFactory;
 
-    protected Fix42OrderServiceImpl() {
+    public Fix42OrderServiceImpl(final FixAdapter fixAdapter,
+            final OrderService orderService) {
+
+        super(fixAdapter, orderService);
 
         this.messageFactory = createMessageFactory();
     }
@@ -50,53 +58,93 @@ public abstract class Fix42OrderServiceImpl extends Fix42OrderServiceBase {
     }
 
     @Override
-    protected void handleValidateOrder(SimpleOrder order) throws Exception {
+    public void validateOrder(SimpleOrder order) {
         // to be implememented
     }
 
     @Override
-    protected void handleSendOrder(SimpleOrder order) throws Exception {
+    public void sendOrder(SimpleOrder order) {
 
-        // assign a new clOrdID
-        String clOrdID = getFixAdapter().getNextOrderId(order.getAccount());
-        order.setIntId(clOrdID);
+        Validate.notNull(order, "Order is null");
 
-        NewOrderSingle newOrder = this.messageFactory.createNewOrderMessage(order, clOrdID);
+        try {
 
-        // broker-specific settings
-        sendOrder(order, newOrder);
+            // assign a new clOrdID
+            String clOrdID = getFixAdapter().getNextOrderId(order.getAccount());
+            order.setIntId(clOrdID);
 
-        // send the message
-        sendOrder(order, newOrder, true);
+            NewOrderSingle newOrder = this.messageFactory.createNewOrderMessage(order, clOrdID);
+
+            // broker-specific settings
+            sendOrder(order, newOrder);
+
+            // send the message
+            sendOrder(order, newOrder, true);
+        } catch (Exception ex) {
+            throw new Fix42OrderServiceException(ex.getMessage(), ex);
+        }
     }
 
     @Override
-    protected void handleModifyOrder(SimpleOrder order) throws Exception {
+    public void modifyOrder(SimpleOrder order) {
 
-        // assign a new clOrdID
-        String clOrdID = getFixAdapter().getNextOrderIdVersion(order);
+        Validate.notNull(order, "Order is null");
 
-        OrderCancelReplaceRequest replaceRequest = this.messageFactory.createModifyOrderMessage(order, clOrdID);
+        try {
 
-        // broker-specific settings
-        modifyOrder(order, replaceRequest);
+            // assign a new clOrdID
+            String clOrdID = getFixAdapter().getNextOrderIdVersion(order);
 
-        // send the message
-        sendOrder(order, replaceRequest, true);
+            OrderCancelReplaceRequest replaceRequest = this.messageFactory.createModifyOrderMessage(order, clOrdID);
+
+            // broker-specific settings
+            modifyOrder(order, replaceRequest);
+
+            // send the message
+            sendOrder(order, replaceRequest, true);
+        } catch (Exception ex) {
+            throw new Fix42OrderServiceException(ex.getMessage(), ex);
+        }
     }
 
     @Override
-    protected void handleCancelOrder(SimpleOrder order) throws Exception {
+    public void cancelOrder(SimpleOrder order) {
 
-        // assign a new clOrdID
-        String clOrdID = getFixAdapter().getNextOrderIdVersion(order);
+        Validate.notNull(order, "Order is null");
 
-        OrderCancelRequest cancelRequest = this.messageFactory.createOrderCancelMessage(order, clOrdID);
+        try {
 
-        // broker-specific settings
-        cancelOrder(order, cancelRequest);
+            // assign a new clOrdID
+            String clOrdID = getFixAdapter().getNextOrderIdVersion(order);
 
-        // send the message
-        sendOrder(order, cancelRequest, false);
+            OrderCancelRequest cancelRequest = this.messageFactory.createOrderCancelMessage(order, clOrdID);
+
+            // broker-specific settings
+            cancelOrder(order, cancelRequest);
+
+            // send the message
+            sendOrder(order, cancelRequest, false);
+        } catch (Exception ex) {
+            throw new Fix42OrderServiceException(ex.getMessage(), ex);
+        }
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public abstract void sendOrder(final SimpleOrder order, final NewOrderSingle newOrder);
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public abstract void modifyOrder(final SimpleOrder order, final OrderCancelReplaceRequest replaceRequest);
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public abstract void cancelOrder(final SimpleOrder order, final OrderCancelRequest cancelRequest);
+
 }

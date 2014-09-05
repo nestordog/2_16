@@ -30,10 +30,17 @@ import java.util.Set;
 
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Predicate;
+import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.math.NumberUtils;
+import org.springframework.jmx.export.annotation.ManagedAttribute;
+import org.springframework.jmx.export.annotation.ManagedOperation;
+import org.springframework.jmx.export.annotation.ManagedOperationParameter;
+import org.springframework.jmx.export.annotation.ManagedOperationParameters;
+import org.springframework.jmx.export.annotation.ManagedResource;
 
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.config.CommonConfig;
+import ch.algotrader.config.ConfigParams;
 import ch.algotrader.config.ConfigProvider;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.Subscription;
@@ -72,455 +79,896 @@ import ch.algotrader.vo.TransactionVO;
  *
  * @version $Revision$ $Date$
  */
-public class ManagementServiceImpl extends ManagementServiceBase {
+@ManagedResource(objectName="ch.algotrader.service:name=ManagementService")
+public class ManagementServiceImpl implements ManagementService {
 
-    @Override
-    protected Date handleGetCurrentTime() throws Exception {
+    private final CommonConfig commonConfig;
 
-        String strategyName = getCommonConfig().getStartedStrategyName();
-        return new Date(EngineLocator.instance().getEngine(strategyName).getCurrentTime());
+    private final SubscriptionService subscriptionService;
+
+    private final LookupService lookupService;
+
+    private final PortfolioService portfolioService;
+
+    private final OrderService orderService;
+
+    private final PositionService positionService;
+
+    private final CombinationService combinationService;
+
+    private final PropertyService propertyService;
+
+    private final MarketDataService marketDataService;
+
+    private final ConfigParams configParams;
+
+    public ManagementServiceImpl(final CommonConfig commonConfig,
+            final SubscriptionService subscriptionService,
+            final LookupService lookupService,
+            final PortfolioService portfolioService,
+            final OrderService orderService,
+            final PositionService positionService,
+            final CombinationService combinationService,
+            final PropertyService propertyService,
+            final MarketDataService marketDataService,
+            final ConfigParams configParams) {
+
+        Validate.notNull(commonConfig, "CommonConfig is null");
+        Validate.notNull(subscriptionService, "SubscriptionService is null");
+        Validate.notNull(lookupService, "LookupService is null");
+        Validate.notNull(portfolioService, "PortfolioService is null");
+        Validate.notNull(orderService, "OrderService is null");
+        Validate.notNull(positionService, "PositionService is null");
+        Validate.notNull(combinationService, "CombinationService is null");
+        Validate.notNull(propertyService, "PropertyService is null");
+        Validate.notNull(marketDataService, "MarketDataService is null");
+        Validate.notNull(configParams, "ConfigParams is null");
+
+        this.commonConfig = commonConfig;
+        this.subscriptionService = subscriptionService;
+        this.lookupService = lookupService;
+        this.portfolioService = portfolioService;
+        this.orderService = orderService;
+        this.positionService = positionService;
+        this.combinationService = combinationService;
+        this.propertyService = propertyService;
+        this.marketDataService = marketDataService;
+        this.configParams = configParams;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected String handleGetStrategyName() throws Exception {
+    @ManagedAttribute(description = "Gets the current System Time")
+    public Date getCurrentTime() {
 
-        return getCommonConfig().getStartedStrategyName();
-    }
-
-    @Override
-    protected BigDecimal handleGetStrategyCashBalance() throws Exception {
-
-        String strategyName = getCommonConfig().getStartedStrategyName();
-        if (strategyName.equals(StrategyImpl.BASE)) {
-            return getPortfolioService().getCashBalance();
-        } else {
-            return getPortfolioService().getCashBalance(strategyName);
+        try {
+            String strategyName = this.commonConfig.getStartedStrategyName();
+            return new Date(EngineLocator.instance().getEngine(strategyName).getCurrentTime());
+        } catch (Exception ex) {
+            throw new ManagementServiceException(ex.getMessage(), ex);
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected BigDecimal handleGetStrategySecuritiesCurrentValue() throws Exception {
+    @ManagedAttribute(description = "Gets all available Currency Balances (only available for Base)")
+    public Collection<BalanceVO> getDataBalances() {
 
-        String strategyName = getCommonConfig().getStartedStrategyName();
-        if (strategyName.equals(StrategyImpl.BASE)) {
-            return getPortfolioService().getSecuritiesCurrentValue();
-        } else {
-            return getPortfolioService().getSecuritiesCurrentValue(strategyName);
-        }
-    }
-
-    @Override
-    protected BigDecimal handleGetStrategyMaintenanceMargin() throws Exception {
-
-        String strategyName = getCommonConfig().getStartedStrategyName();
-        if (strategyName.equals(StrategyImpl.BASE)) {
-            return getPortfolioService().getMaintenanceMargin();
-        } else {
-            return getPortfolioService().getMaintenanceMargin(strategyName);
-        }
-    }
-
-    @Override
-    protected BigDecimal handleGetStrategyNetLiqValue() throws Exception {
-
-        String strategyName = getCommonConfig().getStartedStrategyName();
-        if (strategyName.equals(StrategyImpl.BASE)) {
-            return getPortfolioService().getNetLiqValue();
-        } else {
-            return getPortfolioService().getNetLiqValue(strategyName);
-        }
-    }
-
-    @Override
-    protected BigDecimal handleGetStrategyAvailableFunds() throws Exception {
-
-        String strategyName = getCommonConfig().getStartedStrategyName();
-        if (strategyName.equals(StrategyImpl.BASE)) {
-            return getPortfolioService().getAvailableFunds();
-        } else {
-            return getPortfolioService().getAvailableFunds(strategyName);
-        }
-    }
-
-    @Override
-    protected double handleGetStrategyAllocation() throws Exception {
-
-        String strategyName = getCommonConfig().getStartedStrategyName();
-        return getLookupService().getStrategyByName(strategyName).getAllocation();
-    }
-
-    @Override
-    protected double handleGetStrategyLeverage() throws Exception {
-
-        String strategyName = getCommonConfig().getStartedStrategyName();
-        if (strategyName.equals(StrategyImpl.BASE)) {
-            return getPortfolioService().getLeverage();
-        } else {
-            return getPortfolioService().getLeverage(strategyName);
-        }
-    }
-
-    @Override
-    protected double handleGetStrategyPerformance() throws Exception {
-
-        String strategyName = getCommonConfig().getStartedStrategyName();
-        if (strategyName.equals(StrategyImpl.BASE)) {
-            return getPortfolioService().getPerformance();
-        } else {
-            return getPortfolioService().getPerformance(strategyName);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    protected List<MarketDataEventVO> handleGetMarketDataEvents() {
-
-        String strategyName = getCommonConfig().getStartedStrategyName();
-        List<MarketDataEvent> marketDataEvents = EngineLocator.instance().getEngine(strategyName).getAllEventsProperty("CURRENT_MARKET_DATA_EVENT", "marketDataEvent");
-
-        List<MarketDataEventVO> marketDataEventVOs = getMarketDataEventVOs(marketDataEvents);
-
-        // get all subscribed securities
-        List<MarketDataEventVO> processedMarketDataEventVOs = new ArrayList<MarketDataEventVO>();
-        if (strategyName.equalsIgnoreCase(StrategyImpl.BASE)) {
-
-            // for base iterate over a distinct list of subscribed securities and feedType
-            List<Map<String, Object>> subscriptions = getLookupService().getSubscribedSecuritiesAndFeedTypeForAutoActivateStrategiesInclComponents();
-            for (Map<String, Object> subscription : subscriptions) {
-
-                Security security = (Security) subscription.get("security");
-                FeedType feedType = (FeedType) subscription.get("feedType");
-
-                // try to get the processedMarketDataEvent
-                MarketDataEventVO marketDataEventVO = getMarketDataEventVO(marketDataEventVOs, security, feedType);
-
-                processedMarketDataEventVOs.add(marketDataEventVO);
+        try {
+            String strategyName = this.commonConfig.getStartedStrategyName();
+            if (StrategyImpl.BASE.equals(strategyName)) {
+                return this.portfolioService.getBalances();
+            } else {
+                return this.portfolioService.getBalances(strategyName);
             }
+        } catch (Exception ex) {
+            throw new ManagementServiceException(ex.getMessage(), ex);
+        }
+    }
 
-        } else {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @ManagedAttribute(description = "Gets current open Orders")
+    public Collection<OrderStatusVO> getDataOrders() {
 
-            // for strategies iterate over all subscriptions
-            List<Subscription> subscriptions = getLookupService().getSubscriptionsByStrategyInclComponents(strategyName);
-            for (Subscription subscription : subscriptions) {
+        try {
+            return this.lookupService.getOpenOrdersVOByStrategy(this.commonConfig.getStartedStrategyName());
+        } catch (Exception ex) {
+            throw new ManagementServiceException(ex.getMessage(), ex);
+        }
+    }
 
-                Security security = subscription.getSecurity();
-                FeedType feedType = subscription.getFeedType();
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @ManagedAttribute(description = "Gets current open Positions")
+    public List<PositionVO> getDataPositions() {
 
-                MarketDataEventVO marketDataEventVO = getMarketDataEventVO(marketDataEventVOs, security, feedType);
+        try {
+            return this.lookupService.getPositionsVO(this.commonConfig.getStartedStrategyName(), this.commonConfig.isDisplayClosedPositions());
+        } catch (Exception ex) {
+            throw new ManagementServiceException(ex.getMessage(), ex);
+        }
+    }
 
-                // add properties from this strategies subscription
-                Map<String, Property> properties = subscription.getPropsInitialized();
-                if (!properties.isEmpty()) {
-                    marketDataEventVO.setProperties(properties);
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @ManagedAttribute(description = "Gets the latest Transactions")
+    public List<TransactionVO> getDataTransactions() {
+
+        try {
+            return this.lookupService.getTransactionsVO(this.commonConfig.getStartedStrategyName());
+        } catch (Exception ex) {
+            throw new ManagementServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @ManagedAttribute(description = "Gets the latest MarketDataEvents of all subscribed Securities")
+    public List<MarketDataEventVO> getMarketDataEvents() {
+
+        try {
+            String strategyName = this.commonConfig.getStartedStrategyName();
+            List<MarketDataEvent> marketDataEvents = EngineLocator.instance().getEngine(strategyName).getAllEventsProperty("CURRENT_MARKET_DATA_EVENT", "marketDataEvent");
+
+            List<MarketDataEventVO> marketDataEventVOs = getMarketDataEventVOs(marketDataEvents);
+
+            // get all subscribed securities
+            List<MarketDataEventVO> processedMarketDataEventVOs = new ArrayList<MarketDataEventVO>();
+            if (strategyName.equalsIgnoreCase(StrategyImpl.BASE)) {
+
+                // for base iterate over a distinct list of subscribed securities and feedType
+                List<Map<String, Object>> subscriptions = this.lookupService.getSubscribedSecuritiesAndFeedTypeForAutoActivateStrategiesInclComponents();
+                for (Map<String, Object> subscription : subscriptions) {
+
+                    Security security = (Security) subscription.get("security");
+                    FeedType feedType = (FeedType) subscription.get("feedType");
+
+                    // try to get the processedMarketDataEvent
+                    MarketDataEventVO marketDataEventVO = getMarketDataEventVO(marketDataEventVOs, security, feedType);
+
+                    processedMarketDataEventVOs.add(marketDataEventVO);
                 }
 
-                processedMarketDataEventVOs.add(marketDataEventVO);
+            } else {
+
+                // for strategies iterate over all subscriptions
+                List<Subscription> subscriptions = this.lookupService.getSubscriptionsByStrategyInclComponents(strategyName);
+                for (Subscription subscription : subscriptions) {
+
+                    Security security = subscription.getSecurity();
+                    FeedType feedType = subscription.getFeedType();
+
+                    MarketDataEventVO marketDataEventVO = getMarketDataEventVO(marketDataEventVOs, security, feedType);
+
+                    // add properties from this strategies subscription
+                    Map<String, Property> properties = subscription.getPropsInitialized();
+                    if (!properties.isEmpty()) {
+                        marketDataEventVO.setProperties(properties);
+                    }
+
+                    processedMarketDataEventVOs.add(marketDataEventVO);
+                }
             }
-        }
-        return processedMarketDataEventVOs;
-
-    }
-
-    @Override
-    protected List<PositionVO> handleGetDataPositions() throws Exception {
-
-        return getLookupService().getPositionsVO(getCommonConfig().getStartedStrategyName(), getCommonConfig().isDisplayClosedPositions());
-    }
-
-    @Override
-    protected Collection<BalanceVO> handleGetDataBalances() throws Exception {
-
-        String strategyName = getCommonConfig().getStartedStrategyName();
-        if (StrategyImpl.BASE.equals(strategyName)) {
-            return getPortfolioService().getBalances();
-        } else {
-            return getPortfolioService().getBalances(strategyName);
+            return processedMarketDataEventVOs;
+        } catch (Exception ex) {
+            throw new ManagementServiceException(ex.getMessage(), ex);
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected List<TransactionVO> handleGetDataTransactions() throws Exception {
+    @ManagedAttribute(description = "Gets the Properties that are defined for this Strategy (or Base)")
+    public Map getProperties() {
 
-        return getLookupService().getTransactionsVO(getCommonConfig().getStartedStrategyName());
-    }
+        try {
+            ConfigProvider configProvider = this.configParams.getConfigProvider();
+            Set<String> names = configProvider.getNames();
+            Map<Object, Object> props = new HashMap<Object, Object>();
+            for (String name : names) {
 
-    @Override
-    protected Collection<OrderStatusVO> handleGetDataOrders() throws Exception {
-
-        return getLookupService().getOpenOrdersVOByStrategy(getCommonConfig().getStartedStrategyName());
-    }
-
-    @Override
-    protected Map<Object, Object> handleGetProperties() throws Exception {
-
-        ConfigProvider configProvider = getConfigParams().getConfigProvider();
-        Set<String> names = configProvider.getNames();
-        Map<Object, Object> props = new HashMap<Object, Object>();
-        for (String name: names) {
-
-            props.put(name, configProvider.getParameter(name, String.class));
+                props.put(name, configProvider.getParameter(name, String.class));
+            }
+            return props;
+        } catch (Exception ex) {
+            throw new ManagementServiceException(ex.getMessage(), ex);
         }
-        return props;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected void handleDeployStatement(String moduleName, String statementName) throws Exception {
+    @ManagedAttribute(description = "Gets the available Funds of this Strategy (or the entire System if called from the Base)")
+    public BigDecimal getStrategyAvailableFunds() {
 
-        EngineLocator.instance().getEngine(getCommonConfig().getStartedStrategyName()).deployStatement(moduleName, statementName);
-    }
-
-    @Override
-    protected void handleDeployModule(String moduleName) throws Exception {
-
-        EngineLocator.instance().getEngine(getCommonConfig().getStartedStrategyName()).deployModule(moduleName);
-    }
-
-    @Override
-    protected void handleSendOrder(String securityString, long quantity, String sideString, String type, String accountName, String propertiesString) throws Exception {
-
-        Side side = Side.fromValue(sideString);
-        String strategyName = getCommonConfig().getStartedStrategyName();
-
-        Strategy strategy = getLookupService().getStrategyByName(strategyName);
-        Security security = getLookupService().getSecurity(getSecurityId(securityString));
-
-        // instantiate the order
-        Order order;
-        if ("M".equals(type)) {
-            order = MarketOrder.Factory.newInstance();
-        } else if ("L".equals(type)) {
-            order = LimitOrder.Factory.newInstance();
-        } else if ("S".equals(type)) {
-            order = StopOrder.Factory.newInstance();
-        } else if ("SL".equals(type)) {
-            order = StopLimitOrder.Factory.newInstance();
-        } else if ("TI".equals(type)) {
-            order = TickwiseIncrementalOrder.Factory.newInstance();
-        } else if ("VI".equals(type)) {
-            order = VariableIncrementalOrder.Factory.newInstance();
-        } else if ("SLI".equals(type)) {
-            order = SlicingOrder.Factory.newInstance();
-        } else {
-
-            // create the order from an OrderPreference
-            order = getLookupService().getOrderByName(type);
+        try {
+            String strategyName = this.commonConfig.getStartedStrategyName();
+            if (strategyName.equals(StrategyImpl.BASE)) {
+                return this.portfolioService.getAvailableFunds();
+            } else {
+                return this.portfolioService.getAvailableFunds(strategyName);
+            }
+        } catch (Exception ex) {
+            throw new ManagementServiceException(ex.getMessage(), ex);
         }
+    }
 
-        // set common values
-        order.setStrategy(strategy);
-        order.setSecurity(security);
-        order.setQuantity(Math.abs(quantity));
-        order.setSide(side);
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @ManagedAttribute(description = "Gets the Allocation that is assigned to this Strategy (or to the Base)")
+    public double getStrategyAllocation() {
 
-        // set the account (if defined)
-        if (!"".equals(accountName)) {
-            Account account = getLookupService().getAccountByName(accountName);
-            order.setAccount(account);
+        try {
+            String strategyName = this.commonConfig.getStartedStrategyName();
+            return this.lookupService.getStrategyByName(strategyName).getAllocation();
+        } catch (Exception ex) {
+            throw new ManagementServiceException(ex.getMessage(), ex);
         }
+    }
 
-        // set additional properties
-        if (!"".equals(propertiesString)) {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @ManagedAttribute(description = "Gets the Cash Balance of this Strategy (or the entire System if called from the Base)")
+    public BigDecimal getStrategyCashBalance() {
 
+        try {
+            String strategyName = this.commonConfig.getStartedStrategyName();
+            if (strategyName.equals(StrategyImpl.BASE)) {
+                return this.portfolioService.getCashBalance();
+            } else {
+                return this.portfolioService.getCashBalance(strategyName);
+            }
+        } catch (Exception ex) {
+            throw new ManagementServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @ManagedAttribute(description = "Gets the current Leverage of this Strategy")
+    public double getStrategyLeverage() {
+
+        try {
+            String strategyName = this.commonConfig.getStartedStrategyName();
+            if (strategyName.equals(StrategyImpl.BASE)) {
+                return this.portfolioService.getLeverage();
+            } else {
+                return this.portfolioService.getLeverage(strategyName);
+            }
+        } catch (Exception ex) {
+            throw new ManagementServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @ManagedAttribute(description = "Gets the Maintenance Margin of this Strategy (or the entire System if called from the Base)")
+    public BigDecimal getStrategyMaintenanceMargin() {
+
+        try {
+            String strategyName = this.commonConfig.getStartedStrategyName();
+            if (strategyName.equals(StrategyImpl.BASE)) {
+                return this.portfolioService.getMaintenanceMargin();
+            } else {
+                return this.portfolioService.getMaintenanceMargin(strategyName);
+            }
+        } catch (Exception ex) {
+            throw new ManagementServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @ManagedAttribute(description = "Gets the name of this Strategy")
+    public String getStrategyName() {
+
+        try {
+            return this.commonConfig.getStartedStrategyName();
+        } catch (Exception ex) {
+            throw new ManagementServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @ManagedAttribute(description = "Gets the Net-Liquidation-Value of this Strategy (or the entire System if called from the Base)")
+    public BigDecimal getStrategyNetLiqValue() {
+
+        try {
+            String strategyName = this.commonConfig.getStartedStrategyName();
+            if (strategyName.equals(StrategyImpl.BASE)) {
+                return this.portfolioService.getNetLiqValue();
+            } else {
+                return this.portfolioService.getNetLiqValue(strategyName);
+            }
+        } catch (Exception ex) {
+            throw new ManagementServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @ManagedAttribute(description = "Gets the performance since the beginning of the month of this Strategy (or the entire System if called from the Base)")
+    public double getStrategyPerformance() {
+
+        try {
+            String strategyName = this.commonConfig.getStartedStrategyName();
+            if (strategyName.equals(StrategyImpl.BASE)) {
+                return this.portfolioService.getPerformance();
+            } else {
+                return this.portfolioService.getPerformance(strategyName);
+            }
+        } catch (Exception ex) {
+            throw new ManagementServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @ManagedAttribute(description = "Gets the total Market Value of all Positions of this Strategy (or the entire System if called from the Base)")
+    public BigDecimal getStrategySecuritiesCurrentValue() {
+
+        try {
+            String strategyName = this.commonConfig.getStartedStrategyName();
+            if (strategyName.equals(StrategyImpl.BASE)) {
+                return this.portfolioService.getSecuritiesCurrentValue();
+            } else {
+                return this.portfolioService.getSecuritiesCurrentValue(strategyName);
+            }
+        } catch (Exception ex) {
+            throw new ManagementServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @ManagedOperation(description = "Deploy the specified Statement")
+    @ManagedOperationParameters({ @ManagedOperationParameter(name = "moduleName", description = "Name of the module. (e.g. 'signal' for file named 'module-signal.epl')"),
+            @ManagedOperationParameter(name = "statementName", description = "statementName") })
+    public void deployStatement(final String moduleName, final String statementName) {
+
+        Validate.notEmpty(moduleName, "Module name is empty");
+        Validate.notEmpty(statementName, "Statement name is empty");
+
+        try {
+            EngineLocator.instance().getEngine(this.commonConfig.getStartedStrategyName()).deployStatement(moduleName, statementName);
+        } catch (Exception ex) {
+            throw new ManagementServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @ManagedOperation(description = "Deploy the specified Module")
+    @ManagedOperationParameters({ @ManagedOperationParameter(name = "moduleName", description = "Name of the module. (e.g. 'signal' for file named 'module-signal.epl')") })
+    public void deployModule(final String moduleName) {
+
+        Validate.notEmpty(moduleName, "Module name is empty");
+
+        try {
+            EngineLocator.instance().getEngine(this.commonConfig.getStartedStrategyName()).deployModule(moduleName);
+        } catch (Exception ex) {
+            throw new ManagementServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @ManagedOperation(description = "Send an order")
+    @ManagedOperationParameters({
+            @ManagedOperationParameter(name = "security", description = "<ul> <li> securityId (e.g. 123) </li> <li> symbol (e.g. GOOG) </li> <li> isin, prefix with &quot;isin:&quot;, (e.g. &quot;isin:EU0009654078&quot;) </li> <li> bbgid, prefix with &quot;bbgid:&quot;, (e.g. &quot;bbgid:BBG005NHP5P9&quot;) </li> <li> ric, prefix with &quot;ric:&quot;, (e.g. &quot;ric:.SPX&quot;) </li> <li> conid, prefix with &quot;conid:&quot;, (e.g. &quot;conid:12087817&quot;) </li> </ul>"),
+            @ManagedOperationParameter(name = "quantity", description = "The requested quantity (positive value)"),
+            @ManagedOperationParameter(name = "side", description = "Side: <ul> <li> B (BUY) </li> <li> S (SELL) </li> <li> SS (SELL_SHORT) </li> </ul>"),
+            @ManagedOperationParameter(name = "type", description = "Order type: <ul> <li> M (Market) </li> <li> L (Limit) </li> <li> S (Stop) </li> <li> SL (StopLimit) </li> <li> TI (TickwiseIncremental) </li> <li> VI (VariableIncremental) </li> <li> SLI (Slicing) </li> </ul> or order preference (e.g. 'FVIX' or 'OVIX')"),
+            @ManagedOperationParameter(name = "accountName", description = "accountName"),
+            @ManagedOperationParameter(name = "properties", description = "Additional properties to be set on the order as a comma separated list (e.g. stop=12.0,limit=12.5)") })
+    public void sendOrder(final String security, final long quantity, final String side, final String type, final String accountName, final String properties) {
+
+        Validate.notEmpty(security, "Security is empty");
+        Validate.notEmpty(side, "Side is empty");
+        Validate.notEmpty(type, "Type is empty");
+
+        try {
+            Side sideObject = Side.fromValue(side);
+            String strategyName = this.commonConfig.getStartedStrategyName();
+
+            Strategy strategy = this.lookupService.getStrategyByName(strategyName);
+            Security securityObject = this.lookupService.getSecurity(getSecurityId(security));
+
+            // instantiate the order
+            Order order;
+            if ("M".equals(type)) {
+                order = MarketOrder.Factory.newInstance();
+            } else if ("L".equals(type)) {
+                order = LimitOrder.Factory.newInstance();
+            } else if ("S".equals(type)) {
+                order = StopOrder.Factory.newInstance();
+            } else if ("SL".equals(type)) {
+                order = StopLimitOrder.Factory.newInstance();
+            } else if ("TI".equals(type)) {
+                order = TickwiseIncrementalOrder.Factory.newInstance();
+            } else if ("VI".equals(type)) {
+                order = VariableIncrementalOrder.Factory.newInstance();
+            } else if ("SLI".equals(type)) {
+                order = SlicingOrder.Factory.newInstance();
+            } else {
+
+                // create the order from an OrderPreference
+                order = this.lookupService.getOrderByName(type);
+            }
+
+            // set common values
+            order.setStrategy(strategy);
+            order.setSecurity(securityObject);
+            order.setQuantity(Math.abs(quantity));
+            order.setSide(sideObject);
+
+            // set the account (if defined)
+            if (!"".equals(accountName)) {
+                Account account = this.lookupService.getAccountByName(accountName);
+                order.setAccount(account);
+            }
+
+            // set additional properties
+            if (!"".equals(properties)) {
+
+                // get the properties
+                Map<String, String> propertiesMap = new HashMap<String, String>();
+                for (String nameValue : properties.split(",")) {
+                    propertiesMap.put(nameValue.split("=")[0], nameValue.split("=")[1]);
+                }
+
+                // separate properties that correspond to actual Order fields from the rest
+                Map<String, String> fields = new HashMap<String, String>();
+                PropertyDescriptor[] pds = BeanUtil.getPropertyDescriptors(order);
+                for (PropertyDescriptor pd : pds) {
+                    String name = pd.getName();
+                    if (propertiesMap.containsKey(name)) {
+                        fields.put(name, propertiesMap.get(name));
+                        propertiesMap.remove(name);
+                    }
+                }
+
+                // populate the fields
+                BeanUtil.populate(order, fields);
+
+                // create OrderProperty Entities for the remaining properties
+                for (Map.Entry<String, String> entry : propertiesMap.entrySet()) {
+
+                    OrderProperty orderProperty = OrderProperty.Factory.newInstance();
+
+                    String name = entry.getKey();
+                    if (name.startsWith("fix")) {
+                        name = name.substring(3);
+                        orderProperty.setFix(true);
+                    } else {
+                        orderProperty.setFix(false);
+                    }
+                    orderProperty.setName(name);
+                    orderProperty.setValue(entry.getValue());
+
+                    order.addOrderProperties(name, orderProperty);
+                }
+            }
+
+            // send orders
+            this.orderService.sendOrder(order);
+        } catch (Exception ex) {
+            throw new ManagementServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @ManagedOperation(description = "Cancel an Order")
+    @ManagedOperationParameters({ @ManagedOperationParameter(name = "intId", description = "Internal Id of the Order") })
+    public void cancelOrder(final String intId) {
+
+        Validate.notEmpty(intId, "Int id is empty");
+
+        try {
+            this.orderService.cancelOrder(intId);
+        } catch (Exception ex) {
+            throw new ManagementServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @ManagedOperation(description = "Modify an Order")
+    @ManagedOperationParameters({ @ManagedOperationParameter(name = "intId", description = "Internal Id of the Order"),
+            @ManagedOperationParameter(name = "properties", description = "Additional properties to be set on the order as a comma separated list (e.g. stop=12.0,limit=12.5)") })
+    public void modifyOrder(final String intId, final String properties) {
+
+        Validate.notEmpty(intId, "Int id is empty");
+        Validate.notEmpty(properties, "Properties are empty");
+
+        try {
             // get the properties
-            Map<String, String> properties = new HashMap<String, String>();
-            for (String nameValue : propertiesString.split(",")) {
-                properties.put(nameValue.split("=")[0], nameValue.split("=")[1]);
+            Map<String, String> propertiesMap = new HashMap<String, String>();
+            for (String nameValue : properties.split(",")) {
+                propertiesMap.put(nameValue.split("=")[0], nameValue.split("=")[1]);
             }
 
-            // separate properties that correspond to actual Order fields from the rest
-            Map<String, String> fields = new HashMap<String, String>();
-            PropertyDescriptor[] pds = BeanUtil.getPropertyDescriptors(order);
-            for (PropertyDescriptor pd : pds) {
-                String name = pd.getName();
-                if (properties.containsKey(name)) {
-                    fields.put(name, properties.get(name));
-                    properties.remove(name);
-                }
+            this.orderService.modifyOrder(intId, propertiesMap);
+        } catch (Exception ex) {
+            throw new ManagementServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @ManagedOperation(description = "Closes the specified Position by using the defined DefaultOrderPreference")
+    @ManagedOperationParameters({ @ManagedOperationParameter(name = "positionId", description = "positionId") })
+    public void closePosition(final int positionId) {
+
+        try {
+            this.positionService.closePosition(positionId, false);
+        } catch (Exception ex) {
+            throw new ManagementServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @ManagedOperation(description = "Reduces the Position by the specified amount by using the defined DefaultOrderPreference")
+    @ManagedOperationParameters({ @ManagedOperationParameter(name = "positionId", description = "positionId"), @ManagedOperationParameter(name = "quantity", description = "quantity") })
+    public void reducePosition(final int positionId, final int quantity) {
+
+        try {
+            this.positionService.reducePosition(positionId, quantity);
+        } catch (Exception ex) {
+            throw new ManagementServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @ManagedOperation(description = "Reduce the Component quantities and the associated Position by the specified ratio")
+    @ManagedOperationParameters({
+            @ManagedOperationParameter(name = "combination", description = "<ul> <li> securityId (e.g. 123) </li> <li> symbol (e.g. GOOG) </li> <li> isin, prefix with &quot;isin:&quot;, (e.g. &quot;isin:EU0009654078&quot;) </li> <li> bbgid, prefix with &quot;bbgid:&quot;, (e.g. &quot;bbgid:BBG005NHP5P9&quot;) </li> <li> ric, prefix with &quot;ric:&quot;, (e.g. &quot;ric:.SPX&quot;) </li> <li> conid, prefix with &quot;conid:&quot;, (e.g. &quot;conid:12087817&quot;) </li> </ul>"),
+            @ManagedOperationParameter(name = "ratio", description = "ratio") })
+    public void reduceCombination(final String combination, final double ratio) {
+
+        Validate.notEmpty(combination, "Combination is empty");
+
+        try {
+            this.combinationService.reduceCombination(getSecurityId(combination), this.commonConfig.getStartedStrategyName(), ratio);
+        } catch (Exception ex) {
+            throw new ManagementServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @ManagedOperation(description = "Set or modify the ExitValue of the specified Position")
+    @ManagedOperationParameters({ @ManagedOperationParameter(name = "positionId", description = "positionId"), @ManagedOperationParameter(name = "exitValue", description = "exitValue") })
+    public void setExitValue(final int positionId, final double exitValue) {
+
+        try {
+            this.positionService.setExitValue(positionId, new BigDecimal(exitValue), true);
+        } catch (Exception ex) {
+            throw new ManagementServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @ManagedOperation(description = "Remove the ExitValue from the specified Position")
+    @ManagedOperationParameters({ @ManagedOperationParameter(name = "positionId", description = "positionId") })
+    public void removeExitValue(final int positionId) {
+
+        try {
+            this.positionService.removeExitValue(positionId);
+        } catch (Exception ex) {
+            throw new ManagementServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @ManagedOperation(description = "Set the value of the specified Esper variable")
+    @ManagedOperationParameters({ @ManagedOperationParameter(name = "variableName", description = "variableName"), @ManagedOperationParameter(name = "value", description = "value") })
+    public void setVariableValue(final String variableName, final String value) {
+
+        Validate.notEmpty(variableName, "Variable name is empty");
+        Validate.notEmpty(value, "Value is empty");
+
+        try {
+            EngineLocator.instance().getEngine(this.commonConfig.getStartedStrategyName()).setVariableValueFromString(variableName, value);
+        } catch (Exception ex) {
+            throw new ManagementServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @ManagedOperation(description = "Subscribe to the specified Security.    ")
+    @ManagedOperationParameters({
+            @ManagedOperationParameter(name = "security", description = "<ul> <li> securityId (e.g. 123) </li> <li> symbol (e.g. GOOG) </li> <li> isin, prefix with &quot;isin:&quot;, (e.g. &quot;isin:EU0009654078&quot;) </li> <li> bbgid, prefix with &quot;bbgid:&quot;, (e.g. &quot;bbgid:BBG005NHP5P9&quot;) </li> <li> ric, prefix with &quot;ric:&quot;, (e.g. &quot;ric:.SPX&quot;) </li> <li> conid, prefix with &quot;conid:&quot;, (e.g. &quot;conid:12087817&quot;) </li> </ul>"),
+            @ManagedOperationParameter(name = "feedType", description = "The market data feed to use (e.g. IB, BB or DC)") })
+    public void subscribe(final String security, final String feedType) {
+
+        Validate.notEmpty(security, "Security is empty");
+
+        try {
+            String startedStrategyName = this.commonConfig.getStartedStrategyName();
+            if (!"".equals(feedType)) {
+                this.subscriptionService.subscribeMarketDataEvent(startedStrategyName, getSecurityId(security), FeedType.fromString(feedType));
+            } else {
+                this.subscriptionService.subscribeMarketDataEvent(startedStrategyName, getSecurityId(security));
+            }
+        } catch (Exception ex) {
+            throw new ManagementServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @ManagedOperation(description = "Unsubscribe the specified Security")
+    @ManagedOperationParameters({
+            @ManagedOperationParameter(name = "security", description = "<ul> <li> securityId (e.g. 123) </li> <li> symbol (e.g. GOOG) </li> <li> isin, prefix with &quot;isin:&quot;, (e.g. &quot;isin:EU0009654078&quot;) </li> <li> bbgid, prefix with &quot;bbgid:&quot;, (e.g. &quot;bbgid:BBG005NHP5P9&quot;) </li> <li> ric, prefix with &quot;ric:&quot;, (e.g. &quot;ric:.SPX&quot;) </li> <li> conid, prefix with &quot;conid:&quot;, (e.g. &quot;conid:12087817&quot;) </li> </ul>"),
+            @ManagedOperationParameter(name = "feedType", description = "The market data feed to use (e.g. IB, BB or DC)") })
+    public void unsubscribe(final String security, final String feedType) {
+
+        Validate.notEmpty(security, "Security is empty");
+
+        try {
+            String startedStrategyName = this.commonConfig.getStartedStrategyName();
+            if (!"".equals(feedType)) {
+                this.subscriptionService.unsubscribeMarketDataEvent(startedStrategyName, getSecurityId(security), FeedType.fromString(feedType));
+            } else {
+                this.subscriptionService.unsubscribeMarketDataEvent(startedStrategyName, getSecurityId(security));
+            }
+        } catch (Exception ex) {
+            throw new ManagementServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @ManagedOperation(description = "Request the latest Market Data Events of all subscribed Securities")
+    @ManagedOperationParameters({})
+    public void requestCurrentTicks() {
+
+        try {
+            this.marketDataService.requestCurrentTicks(this.commonConfig.getStartedStrategyName());
+        } catch (Exception ex) {
+            throw new ManagementServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @ManagedOperation(description = "Add or modify a Property")
+    @ManagedOperationParameters({
+            @ManagedOperationParameter(name = "propertyHolderId", description = "Id of the PropertyHolder (e.g. Subscription, Position or Strategy)"),
+            @ManagedOperationParameter(name = "name", description = "Name of the Property"),
+            @ManagedOperationParameter(name = "value", description = "value"),
+            @ManagedOperationParameter(name = "type", description = "Type of the value: <ul> <li> INT </li> <li> DOUBLE </li> <li> MONEY </li> <li> TEXT </li> <li> DATE (Format: dd.mm.yyyy hh:mm:ss) </li> <li> BOOLEAN </li> </ul>") })
+    public void addProperty(final int propertyHolderId, final String name, final String value, final String type) {
+
+        Validate.notEmpty(name, "Name is empty");
+        Validate.notEmpty(value, "Value is empty");
+        Validate.notEmpty(type, "Type is empty");
+
+        try {
+            Object obj;
+            if ("INT".equals(type)) {
+                obj = Integer.parseInt(value);
+            } else if ("DOUBLE".equals(type)) {
+                obj = Double.parseDouble(value);
+            } else if ("MONEY".equals(type)) {
+                obj = new BigDecimal(value);
+            } else if ("TEXT".equals(type)) {
+                obj = value;
+            } else if ("DATE".equals(type)) {
+                obj = (new SimpleDateFormat("dd.MM.yyyy HH:mm:ss")).parse(value);
+            } else if ("BOOLEAN".equals(type)) {
+                obj = Boolean.parseBoolean(value);
+            } else {
+                throw new IllegalArgumentException("unknown type " + type);
             }
 
-            // populate the fields
-            BeanUtil.populate(order, fields);
+            this.propertyService.addProperty(propertyHolderId, name, obj, false);
+        } catch (Exception ex) {
+            throw new ManagementServiceException(ex.getMessage(), ex);
+        }
+    }
 
-            // create OrderProperty Entities for the remaining properties
-            for (Map.Entry<String, String> entry : properties.entrySet()) {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @ManagedOperation(description = "Remove the specified property")
+    @ManagedOperationParameters({ @ManagedOperationParameter(name = "propertyHolderId", description = "Id of the PropertyHolder (e.g. Subscription, Position or Strategy)"),
+            @ManagedOperationParameter(name = "name", description = "name of the property") })
+    public void removeProperty(final int propertyHolderId, final String name) {
 
-                OrderProperty orderProperty = OrderProperty.Factory.newInstance();
+        Validate.notEmpty(name, "Name is empty");
 
-                String name = entry.getKey();
-                if (name.startsWith("fix")) {
-                    name = name.substring(3);
-                    orderProperty.setFix(true);
-                } else {
-                    orderProperty.setFix(false);
-                }
-                orderProperty.setName(name);
-                orderProperty.setValue(entry.getValue());
+        try {
+            this.propertyService.removeProperty(propertyHolderId, name);
+        } catch (Exception ex) {
+            throw new ManagementServiceException(ex.getMessage(), ex);
+        }
+    }
 
-                order.addOrderProperties(name, orderProperty);
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @ManagedOperation(description = "creates a Combination of the specified type, securityFamilyId and optional underlying. Returns the id of the newly created combination")
+    @ManagedOperationParameters({
+            @ManagedOperationParameter(name = "combinationType", description = "<ul> <li> VERTICAL_SPREAD </li> <li> COVERED_CALL </li> <li> RATIO_SPREAD </li> <li> STRADDLE </li> <li> STRANGLE </li> <li> BUTTERFLY </li> <li> CALENDAR_SPREAD </li> <li> IRON_CONDOR </li> </ul>"),
+            @ManagedOperationParameter(name = "securityFamilyId", description = "securityFamilyId"),
+            @ManagedOperationParameter(name = "underlying", description = "Underlying Security: <ul> <li> securityId (e.g. 123) </li> <li> symbol (e.g. GOOG) </li> <li> isin, prefix with &quot;isin:&quot;, (e.g. &quot;isin:EU0009654078&quot;) </li> <li> bbgid, prefix with &quot;bbgid:&quot;, (e.g. &quot;bbgid:BBG005NHP5P9&quot;) </li> <li> ric, prefix with &quot;ric:&quot;, (e.g. &quot;ric:.SPX&quot;) </li> <li> conid, prefix with &quot;conid:&quot;, (e.g. &quot;conid:12087817&quot;) </li> </ul>") })
+    public int createCombination(final String combinationType, final int securityFamilyId, final String underlying) {
+
+        Validate.notEmpty(combinationType, "Combination type is empty");
+
+        try {
+            if ("".equals(underlying)) {
+                return this.combinationService.createCombination(CombinationType.fromString(combinationType), securityFamilyId).getId();
+            } else {
+                return this.combinationService.createCombination(CombinationType.fromString(combinationType), securityFamilyId, getSecurityId(underlying)).getId();
             }
-        }
-
-        // send orders
-        getOrderService().sendOrder(order);
-    }
-
-    @Override
-    protected void handleCancelOrder(String intId) throws Exception {
-
-        getOrderService().cancelOrder(intId);
-    }
-
-    @Override
-    protected void handleModifyOrder(String intId, String propertiesString) throws Exception {
-
-        // get the properties
-        Map<String, String> properties = new HashMap<String, String>();
-        for (String nameValue : propertiesString.split(",")) {
-            properties.put(nameValue.split("=")[0], nameValue.split("=")[1]);
-        }
-
-        getOrderService().modifyOrder(intId, properties);
-    }
-
-    @Override
-    protected void handleClosePosition(int positionId) throws Exception {
-
-        getPositionService().closePosition(positionId, false);
-    }
-
-    @Override
-    protected void handleReducePosition(int positionId, int quantity) throws Exception {
-
-        getPositionService().reducePosition(positionId, quantity);
-    }
-
-    @Override
-    protected void handleReduceCombination(String combination, double ratio) throws Exception {
-
-        getCombinationService().reduceCombination(getSecurityId(combination), getCommonConfig().getStartedStrategyName(), ratio);
-    }
-
-    @Override
-    protected void handleSetExitValue(int positionId, double exitValue) throws Exception {
-
-        getPositionService().setExitValue(positionId, new BigDecimal(exitValue), true);
-    }
-
-    @Override
-    protected void handleRemoveExitValue(int positionId) throws Exception {
-
-        getPositionService().removeExitValue(positionId);
-    }
-
-    @Override
-    protected void handleSetVariableValue(String variableName, String value) {
-
-        EngineLocator.instance().getEngine(getCommonConfig().getStartedStrategyName()).setVariableValueFromString(variableName, value);
-    }
-
-    @Override
-    protected void handleSubscribe(String securityString, String feedTypeString) throws Exception {
-
-        String startedStrategyName = getCommonConfig().getStartedStrategyName();
-        if (!"".equals(feedTypeString)) {
-            getSubscriptionService().subscribeMarketDataEvent(startedStrategyName, getSecurityId(securityString), FeedType.fromString(feedTypeString));
-        } else {
-            getSubscriptionService().subscribeMarketDataEvent(startedStrategyName, getSecurityId(securityString));
+        } catch (Exception ex) {
+            throw new ManagementServiceException(ex.getMessage(), ex);
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected void handleUnsubscribe(String securityString, String feedTypeString) throws Exception {
+    @ManagedOperation(description = "Set the quantity of the specified Component")
+    @ManagedOperationParameters({
+            @ManagedOperationParameter(name = "combinationId", description = "the id of the combination"),
+            @ManagedOperationParameter(name = "component", description = "Component: <ul> <li> securityId (e.g. 123) </li> <li> symbol (e.g. GOOG) </li> <li> isin, prefix with &quot;isin:&quot;, (e.g. &quot;isin:EU0009654078&quot;) </li> <li> bbgid, prefix with &quot;bbgid:&quot;, (e.g. &quot;bbgid:BBG005NHP5P9&quot;) </li> <li> ric, prefix with &quot;ric:&quot;, (e.g. &quot;ric:.SPX&quot;) </li> <li> conid, prefix with &quot;conid:&quot;, (e.g. &quot;conid:12087817&quot;) </li> </ul>"),
+            @ManagedOperationParameter(name = "quantitiy", description = "quantitiy") })
+    public void setComponentQuantity(final int combinationId, final String component, final long quantitiy) {
 
-        String startedStrategyName = getCommonConfig().getStartedStrategyName();
-        if (!"".equals(feedTypeString)) {
-            getSubscriptionService().unsubscribeMarketDataEvent(startedStrategyName, getSecurityId(securityString), FeedType.fromString(feedTypeString));
-        } else {
-            getSubscriptionService().unsubscribeMarketDataEvent(startedStrategyName, getSecurityId(securityString));
+        Validate.notEmpty(component, "Component is empty");
+
+        try {
+            this.combinationService.setComponentQuantity(combinationId, getSecurityId(component), quantitiy);
+        } catch (Exception ex) {
+            throw new ManagementServiceException(ex.getMessage(), ex);
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected void handleRequestCurrentTicks() throws Exception {
+    @ManagedOperation(description = "Remove the specified Component from the specified Combination")
+    @ManagedOperationParameters({
+            @ManagedOperationParameter(name = "combinationId", description = "the id of the combination"),
+            @ManagedOperationParameter(name = "component", description = "Component: <ul> <li> securityId (e.g. 123) </li> <li> symbol (e.g. GOOG) </li> <li> isin, prefix with &quot;isin:&quot;, (e.g. &quot;isin:EU0009654078&quot;) </li> <li> bbgid, prefix with &quot;bbgid:&quot;, (e.g. &quot;bbgid:BBG005NHP5P9&quot;) </li> <li> ric, prefix with &quot;ric:&quot;, (e.g. &quot;ric:.SPX&quot;) </li> <li> conid, prefix with &quot;conid:&quot;, (e.g. &quot;conid:12087817&quot;) </li> </ul>") })
+    public void removeComponent(final int combinationId, final String component) {
 
-        getMarketDataService().requestCurrentTicks(getCommonConfig().getStartedStrategyName());
-    }
+        Validate.notEmpty(component, "Component is empty");
 
-    @Override
-    protected void handleAddProperty(int propertyHolderId, String name, String value, String type) throws Exception {
-
-        Object obj;
-        if ("INT".equals(type)) {
-            obj = Integer.parseInt(value);
-        } else if ("DOUBLE".equals(type)) {
-            obj = Double.parseDouble(value);
-        } else if ("MONEY".equals(type)) {
-            obj = new BigDecimal(value);
-        } else if ("TEXT".equals(type)) {
-            obj = value;
-        } else if ("DATE".equals(type)) {
-            obj = (new SimpleDateFormat("dd.MM.yyyy HH:mm:ss")).parse(value);
-        } else if ("BOOLEAN".equals(type)) {
-            obj = Boolean.parseBoolean(value);
-        } else {
-            throw new IllegalArgumentException("unknown type " + type);
-        }
-
-        getPropertyService().addProperty(propertyHolderId, name, obj, false);
-    }
-
-    @Override
-    protected void handleRemoveProperty(int propertyHolderId, String name) throws Exception {
-
-        getPropertyService().removeProperty(propertyHolderId, name);
-    }
-
-    @Override
-    protected int handleCreateCombination(String combinationType, int securityFamilyId, String underlying) throws Exception {
-
-        if ("".equals(underlying)) {
-            return getCombinationService().createCombination(CombinationType.fromString(combinationType), securityFamilyId).getId();
-        } else {
-            return getCombinationService().createCombination(CombinationType.fromString(combinationType), securityFamilyId, getSecurityId(underlying)).getId();
+        try {
+            this.combinationService.removeComponent(combinationId, getSecurityId(component));
+        } catch (Exception ex) {
+            throw new ManagementServiceException(ex.getMessage(), ex);
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected void handleSetComponentQuantity(int combinationId, String component, long quantity) throws Exception {
+    @ManagedOperation(description = "deletes a Combination")
+    @ManagedOperationParameters({ @ManagedOperationParameter(name = "combinationId", description = "the id of the combination") })
+    public void deleteCombination(final int combinationId) {
 
-        getCombinationService().setComponentQuantity(combinationId, getSecurityId(component), quantity);
-    }
-
-    @Override
-    protected void handleRemoveComponent(int combinationId, String component) {
-
-        getCombinationService().removeComponent(combinationId, getSecurityId(component));
-    }
-
-    @Override
-    protected void handleDeleteCombination(int combinationId) throws Exception {
-
-        getCombinationService().deleteCombination(combinationId);
-    }
-
-    @Override
-    protected void handleCheckIsAlive() throws Exception {
-
-        getLookupService().getCurrentDBTime();
-    }
-
-    @Override
-    protected void handleShutdown() throws Exception {
-
-        // cancel all orders if we called from base
-        if (getCommonConfig().isStartedStrategyBASE()) {
-            ServiceLocator.instance().getOrderService().cancelAllOrders();
+        try {
+            this.combinationService.deleteCombination(combinationId);
+        } catch (Exception ex) {
+            throw new ManagementServiceException(ex.getMessage(), ex);
         }
+    }
 
-        ServiceLocator.instance().shutdown();
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @ManagedOperation(description = "Checks if the System is alive")
+    @ManagedOperationParameters({})
+    public void checkIsAlive() {
 
-        // need to force exit because grafefull shutdown of esper-service (and esper-jmx) does not work
-        System.exit(0);
+        try {
+            this.lookupService.getCurrentDBTime();
+        } catch (Exception ex) {
+            throw new ManagementServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @ManagedOperation(description = "Shutdown this JVM")
+    @ManagedOperationParameters({})
+    public void shutdown() {
+
+        try {
+            // cancel all orders if we called from base
+            if (this.commonConfig.isStartedStrategyBASE()) {
+                ServiceLocator.instance().getOrderService().cancelAllOrders();
+            }
+
+            ServiceLocator.instance().shutdown();
+
+            // need to force exit because grafefull shutdown of esper-service (and esper-jmx) does not work
+            System.exit(0);
+        } catch (Exception ex) {
+            throw new ManagementServiceException(ex.getMessage(), ex);
+        }
     }
 
     private int getSecurityId(String securityString) {
@@ -532,15 +980,15 @@ public class ManagementServiceImpl extends ManagementServiceBase {
 
             Security security;
             if (securityString.startsWith("isin:")) {
-                security = getLookupService().getSecurityByIsin(securityString.substring(5));
+                security = this.lookupService.getSecurityByIsin(securityString.substring(5));
             } else if (securityString.startsWith("bbgid:")) {
-                security = getLookupService().getSecurityByBbgid(securityString.substring(6));
+                security = this.lookupService.getSecurityByBbgid(securityString.substring(6));
             } else if (securityString.startsWith("ric:")) {
-                security = getLookupService().getSecurityByRic(securityString.substring(4));
+                security = this.lookupService.getSecurityByRic(securityString.substring(4));
             } else if (securityString.startsWith("conid:")) {
-                security = getLookupService().getSecurityByConid(securityString.substring(6));
+                security = this.lookupService.getSecurityByConid(securityString.substring(6));
             } else {
-                security = getLookupService().getSecurityBySymbol(securityString);
+                security = this.lookupService.getSecurityBySymbol(securityString);
             }
 
             if (security == null) {
@@ -611,7 +1059,7 @@ public class ManagementServiceImpl extends ManagementServiceBase {
 
         // create an empty MarketDataEventVO if non exists
         if (marketDataEventVO == null) {
-            CommonConfig commonConfig = getCommonConfig();
+            CommonConfig commonConfig = this.commonConfig;
             if (MarketDataType.TICK.equals(commonConfig.getDataSetType())) {
                 marketDataEventVO = new TickVO();
             } else if (MarketDataType.BAR.equals(commonConfig.getDataSetType())) {

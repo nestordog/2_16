@@ -53,8 +53,8 @@ public class CalendarServiceTest {
 
         MockitoAnnotations.initMocks(this);
 
-        this.impl = new CalendarServiceImpl();
-        this.impl.setExchangeDao(this.exchangeDao);
+        this.impl = new CalendarServiceImpl(exchangeDao);
+        //this.impl.setExchangeDao(this.exchangeDao);
 
         Exchange regular = Exchange.Factory.newInstance("REGULAR", "REG", "US/Eastern");
         regular.addTradingHours(TradingHours.Factory.newInstance(hourFormat.parse("08:30:00"), hourFormat.parse("16:00:00"), false, true, true, true, true, true, false, regular));

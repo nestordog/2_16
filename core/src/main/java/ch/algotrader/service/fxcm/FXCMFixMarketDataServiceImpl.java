@@ -17,66 +17,98 @@
  ***********************************************************************************/
 package ch.algotrader.service.fxcm;
 
+import org.apache.commons.lang.Validate;
+
+import quickfix.field.SubscriptionRequestType;
+import quickfix.fix44.MarketDataRequest;
+import ch.algotrader.adapter.fix.FixAdapter;
+import ch.algotrader.adapter.fix.FixSessionLifecycle;
 import ch.algotrader.adapter.fxcm.FXCMFixMarketDataRequestFactory;
 import ch.algotrader.adapter.fxcm.FXCMUtil;
 import ch.algotrader.entity.security.Security;
+import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.enumeration.FeedType;
-import quickfix.field.SubscriptionRequestType;
-import quickfix.fix44.MarketDataRequest;
+import ch.algotrader.service.fix.fix44.Fix44MarketDataServiceImpl;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class FXCMFixMarketDataServiceImpl extends FXCMFixMarketDataServiceBase {
+public class FXCMFixMarketDataServiceImpl extends Fix44MarketDataServiceImpl implements FXCMFixMarketDataService {
 
     private static final long serialVersionUID = 4881654181517654955L;
 
     private final FXCMFixMarketDataRequestFactory requestFactory;
 
-    public FXCMFixMarketDataServiceImpl() {
+    public FXCMFixMarketDataServiceImpl(final FixSessionLifecycle lifeCycle,
+            final FixAdapter fixAdapter,
+            final SecurityDao securityDao) {
+
+        super(lifeCycle, fixAdapter, securityDao);
+
         this.requestFactory = new FXCMFixMarketDataRequestFactory();
     }
 
     @Override
-    protected void handleInit() throws Exception {
+    public void init() {
 
-        getFixAdapter().openSession(getSessionQualifier());
+        try {
+            getFixAdapter().openSession(getSessionQualifier());
+        } catch (Exception ex) {
+            throw new FXCMFixMarketDataServiceException(ex.getMessage(), ex);
+        }
     }
 
     @Override
-    protected FeedType handleGetFeedType() throws Exception {
+    public FeedType getFeedType() {
 
         return FeedType.FXCM;
     }
 
     @Override
-    protected String handleGetSessionQualifier() throws Exception {
+    public String getSessionQualifier() {
 
         return "FXCM";
     }
 
     @Override
-    protected void handleSendSubscribeRequest(Security security) throws Exception {
+    public void sendSubscribeRequest(Security security) {
 
-        MarketDataRequest request = this.requestFactory.create(security, new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES));
+        Validate.notNull(security, "Security is null");
 
-        getFixAdapter().sendMessage(request, getSessionQualifier());
+        try {
+            MarketDataRequest request = this.requestFactory.create(security, new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES));
+
+            getFixAdapter().sendMessage(request, getSessionQualifier());
+        } catch (Exception ex) {
+            throw new FXCMFixMarketDataServiceException(ex.getMessage(), ex);
+        }
     }
 
     @Override
-    protected void handleSendUnsubscribeRequest(Security security) throws Exception {
+    public void sendUnsubscribeRequest(Security security) {
 
-        MarketDataRequest request = this.requestFactory.create(security, new SubscriptionRequestType(SubscriptionRequestType.DISABLE_PREVIOUS_SNAPSHOT_PLUS_UPDATE_REQUEST));
+        Validate.notNull(security, "Security is null");
 
-        getFixAdapter().sendMessage(request, getSessionQualifier());
+        try {
+            MarketDataRequest request = this.requestFactory.create(security, new SubscriptionRequestType(SubscriptionRequestType.DISABLE_PREVIOUS_SNAPSHOT_PLUS_UPDATE_REQUEST));
+
+            getFixAdapter().sendMessage(request, getSessionQualifier());
+        } catch (Exception ex) {
+            throw new FXCMFixMarketDataServiceException(ex.getMessage(), ex);
+        }
     }
 
     @Override
-    protected String handleGetTickerId(Security security) throws Exception {
+    public String getTickerId(Security security) {
 
-        return FXCMUtil.getFXCMSymbol(security);
+        Validate.notNull(security, "Security is null");
+
+        try {
+            return FXCMUtil.getFXCMSymbol(security);
+        } catch (Exception ex) {
+            throw new FXCMFixMarketDataServiceException(ex.getMessage(), ex);
+        }
     }
-
 }

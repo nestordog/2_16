@@ -18,7 +18,6 @@
 package ch.algotrader.service;
 
 import java.io.File;
-import java.io.IOException;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -33,8 +32,8 @@ import java.util.Map;
 import net.sf.ehcache.CacheManager;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.time.DateUtils;
-import org.apache.commons.math.ConvergenceException;
 import org.apache.commons.math.FunctionEvaluationException;
 import org.apache.commons.math.analysis.MultivariateRealFunction;
 import org.apache.commons.math.analysis.UnivariateRealFunction;
@@ -82,7 +81,7 @@ import com.espertech.esperio.csv.CSVInputAdapter;
  *
  * @version $Revision$ $Date$
  */
-public class SimulationServiceImpl extends SimulationServiceBase implements InitializingBean {
+public class SimulationServiceImpl implements SimulationService, InitializingBean {
 
     private static Logger logger = MyLogger.getLogger(SimulationServiceImpl.class.getName());
     private static Logger resultLogger = MyLogger.getLogger(SimulationServiceImpl.class.getName() + ".RESULT");
@@ -91,31 +90,74 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
     private static DateFormat yearFormat = new SimpleDateFormat("   yyyy ");
     private static final NumberFormat format = NumberFormat.getInstance();
 
+    private final CommonConfig commonConfig;
+
+    private final PositionService positionService;
+
+    private final ResetService resetService;
+
+    private final TransactionService transactionService;
+
+    private final PortfolioService portfolioService;
+
+    private final LookupService lookupService;
+
+    private final ch.algotrader.cache.CacheManager cacheManager;
+
+    public SimulationServiceImpl(final CommonConfig commonConfig,
+            final PositionService positionService,
+            final ResetService resetService,
+            final TransactionService transactionService,
+            final PortfolioService portfolioService,
+            final LookupService lookupService,
+            final ch.algotrader.cache.CacheManager cacheManager) {
+
+        Validate.notNull(commonConfig, "CommonConfig is null");
+        Validate.notNull(positionService, "PositionService is null");
+        Validate.notNull(resetService, "ResetService is null");
+        Validate.notNull(transactionService, "TransactionService is null");
+        Validate.notNull(portfolioService, "PortfolioService is null");
+        Validate.notNull(lookupService, "LookupService is null");
+        Validate.notNull(cacheManager, "CacheManager is null");
+
+        this.commonConfig = commonConfig;
+        this.positionService = positionService;
+        this.resetService = resetService;
+        this.transactionService = transactionService;
+        this.portfolioService = portfolioService;
+        this.lookupService = lookupService;
+        this.cacheManager = cacheManager;
+    }
+
     @Override
     public void afterPropertiesSet() throws Exception {
 
-        int portfolioDigits = getCommonConfig().getPortfolioDigits();
+        int portfolioDigits = this.commonConfig.getPortfolioDigits();
         format.setGroupingUsed(false);
         format.setMinimumFractionDigits(portfolioDigits);
         format.setMaximumFractionDigits(portfolioDigits);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected SimulationResultVO handleRunSimulation() throws IOException {
+    public SimulationResultVO runSimulation()  {
 
+        try {
         long startTime = System.currentTimeMillis();
 
         // reset the db
-        getResetService().resetDB();
+            this.resetService.resetDB();
 
         // init all activatable strategies
-        Collection<Strategy> strategies = getLookupService().getAutoActivateStrategies();
+            Collection<Strategy> strategies = this.lookupService.getAutoActivateStrategies();
         for (Strategy strategy : strategies) {
             EngineLocator.instance().initEngine(strategy.getName());
         }
 
         // rebalance portfolio (to distribute initial CREDIT to strategies)
-        getPortfolioPersistenceService().rebalancePortfolio();
+        this.transactionService.rebalancePortfolio();
 
         // init coordination
         EngineLocator.instance().getBaseEngine().initCoordination();
@@ -138,8 +180,8 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
         EngineLocator.instance().logStatementMetrics();
 
         // close all open positions that might still exist
-        for (Position position : getLookupService().getOpenTradeablePositions()) {
-            getPositionService().closePosition(position.getId(), false);
+            for (Position position : this.lookupService.getOpenTradeablePositions()) {
+                this.positionService.closePosition(position.getId(), false);
         }
 
         // send the EndOfSimulation event
@@ -163,6 +205,9 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
         System.gc();
 
         return resultVO;
+        } catch (Exception ex) {
+            throw new SimulationServiceException(ex.getMessage(), ex);
+    }
     }
 
     /**
@@ -174,9 +219,9 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
      */
     private void feedMarketData() {
 
-        Collection<Security> securities = getLookupService().getSubscribedSecuritiesForAutoActivateStrategies();
+        Collection<Security> securities = this.lookupService.getSubscribedSecuritiesForAutoActivateStrategies();
 
-        CommonConfig commonConfig = getCommonConfig();
+        CommonConfig commonConfig = this.commonConfig;
         File dataSetLocation = commonConfig.getDataSetLocation();
         File baseDir = dataSetLocation == null ? new File("files") : dataSetLocation;
 
@@ -193,9 +238,9 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
         }
 
         // initialize all securityStrings for subscribed securities
-        getLookupService().initSecurityStrings();
+        this.lookupService.initSecurityStrings();
         for (Security security : securities) {
-            getCacheManager().put(security);
+            this.cacheManager.put(security);
         }
 
         EngineLocator.instance().getBaseEngine().startCoordination();
@@ -204,7 +249,7 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
     private void feedGenericEvents(File baseDir) {
 
         File genericdata = new File(baseDir, "genericdata");
-        File dataDir = new File(genericdata, getCommonConfig().getDataSet());
+        File dataDir = new File(genericdata, this.commonConfig.getDataSet());
         if (dataDir == null || !dataDir.exists() || !dataDir.isDirectory()) {
             logger.warn("no generic events available");
         } else {
@@ -241,11 +286,11 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
 
     private void feedCSV(Collection<Security> securities, File baseDir) {
 
-        MarketDataType marketDataType = getCommonConfig().getDataSetType();
+        MarketDataType marketDataType = this.commonConfig.getDataSetType();
         File marketDataTypeDir = new File(baseDir, marketDataType.toString().toLowerCase() + "data");
-        File dataDir = new File(marketDataTypeDir, getCommonConfig().getDataSet());
+        File dataDir = new File(marketDataTypeDir, this.commonConfig.getDataSet());
 
-        if (getCommonConfig().isFeedAllMarketDataFiles()) {
+        if (this.commonConfig.isFeedAllMarketDataFiles()) {
 
             if (dataDir == null || !dataDir.exists() || !dataDir.isDirectory()) {
                 logger.warn("no market data events available");
@@ -303,11 +348,11 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
     private void feedFile(File file) {
 
         CoordinatedAdapter inputAdapter;
-        MarketDataType marketDataType = getCommonConfig().getDataSetType();
+        MarketDataType marketDataType = this.commonConfig.getDataSetType();
         if (MarketDataType.TICK.equals(marketDataType)) {
             inputAdapter = new CsvTickInputAdapter(new CsvTickInputAdapterSpec(file));
         } else if (MarketDataType.BAR.equals(marketDataType)) {
-            inputAdapter = new CsvBarInputAdapter(new CsvBarInputAdapterSpec(file, getCommonConfig().getBarSize()));
+            inputAdapter = new CsvBarInputAdapter(new CsvBarInputAdapterSpec(file, this.commonConfig.getBarSize()));
         } else {
             throw new SimulationServiceException("incorrect parameter for dataSetType: " + marketDataType);
         }
@@ -319,8 +364,8 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
 
     private void feedDB() {
 
-        MarketDataType marketDataType = getCommonConfig().getDataSetType();
-        int feedBatchSize = getCommonConfig().getFeedBatchSize();
+        MarketDataType marketDataType = this.commonConfig.getDataSetType();
+        int feedBatchSize = this.commonConfig.getFeedBatchSize();
 
         if (MarketDataType.TICK.equals(marketDataType)) {
 
@@ -330,7 +375,7 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
 
         } else if (MarketDataType.BAR.equals(marketDataType)) {
 
-            DBBarInputAdapter inputAdapter = new DBBarInputAdapter(feedBatchSize, getCommonConfig().getBarSize());
+            DBBarInputAdapter inputAdapter = new DBBarInputAdapter(feedBatchSize, this.commonConfig.getBarSize());
             EngineLocator.instance().getBaseEngine().coordinate(inputAdapter);
             logger.debug("started feeding bars from db");
 
@@ -339,25 +384,49 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected void handleSimulateWithCurrentParams() throws Exception {
+    public void simulateWithCurrentParams() {
 
+        try {
         SimulationResultVO resultVO = runSimulation();
         logMultiLineString(convertStatisticsToLongString(resultVO));
+        } catch (Exception ex) {
+            throw new SimulationServiceException(ex.getMessage(), ex);
+        }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected void handleSimulateBySingleParam(String parameter, String value) throws Exception {
+    public void simulateBySingleParam(final String parameter, final String value) {
 
+        Validate.notEmpty(parameter, "Parameter is empty");
+        Validate.notEmpty(value, "Value is empty");
+
+        try {
         System.setProperty(parameter, value);
 
         SimulationResultVO resultVO = runSimulation();
         resultLogger.info("optimize " + parameter + "=" + value + " " + convertStatisticsToShortString(resultVO));
+        } catch (Exception ex) {
+            throw new SimulationServiceException(ex.getMessage(), ex);
+    }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected void handleSimulateByMultiParam(String[] parameters, String[] values) throws Exception {
+    public void simulateByMultiParam(final String[] parameters, final String[] values) {
 
+        Validate.notNull(parameters, "Parameter is null");
+        Validate.notNull(values, "Value is null");
+
+        try {
         StringBuffer buffer = new StringBuffer();
         buffer.append("optimize ");
         for (int i = 0; i < parameters.length; i++) {
@@ -368,11 +437,20 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
         SimulationResultVO resultVO = runSimulation();
         buffer.append(convertStatisticsToShortString(resultVO));
         resultLogger.info(buffer.toString());
+        } catch (Exception ex) {
+            throw new SimulationServiceException(ex.getMessage(), ex);
+    }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected void handleOptimizeSingleParamLinear(String parameter, double min, double max, double increment) throws Exception {
+    public void optimizeSingleParamLinear(final String parameter, final double min, final double max, final double increment) {
 
+        Validate.notEmpty(parameter, "Parameter is empty");
+
+        try {
         for (double i = min; i <= max; i += increment) {
 
             System.setProperty(parameter, format.format(i));
@@ -381,11 +459,21 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
             resultLogger.info(parameter + "=" + format.format(i) + " " + convertStatisticsToShortString(resultVO));
 
         }
+        } catch (Exception ex) {
+            throw new SimulationServiceException(ex.getMessage(), ex);
+        }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected void handleOptimizeSingleParamByValues(String parameter, double[] values) throws Exception {
+    public void optimizeSingleParamByValues(final String parameter, final double[] values) {
 
+        Validate.notEmpty(parameter, "Parameter is empty");
+        Validate.notNull(values, "Value is null");
+
+        try {
         for (double value : values) {
 
             System.setProperty(parameter, format.format(value));
@@ -393,13 +481,20 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
             SimulationResultVO resultVO = runSimulation();
             resultLogger.info(parameter + "=" + format.format(value) + " " + convertStatisticsToShortString(resultVO));
         }
+        } catch (Exception ex) {
+            throw new SimulationServiceException(ex.getMessage(), ex);
+        }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    @SuppressWarnings("deprecation")
-    protected OptimizationResultVO handleOptimizeSingleParam(String parameter, double min, double max, double accuracy)
-            throws ConvergenceException, FunctionEvaluationException {
+    public OptimizationResultVO optimizeSingleParam(final String parameter, final double min, final double max, final double accuracy) {
 
+        Validate.notEmpty(parameter, "Parameter is empty");
+
+        try {
         UnivariateRealFunction function = new UnivariateFunction(parameter);
         UnivariateRealOptimizer optimizer = new BrentOptimizer();
         optimizer.setAbsoluteAccuracy(accuracy);
@@ -412,12 +507,24 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
         optimizationResult.setIterations(optimizer.getIterationCount());
 
         return optimizationResult;
+        } catch (Exception ex) {
+            throw new SimulationServiceException(ex.getMessage(), ex);
+    }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected void handleOptimizeMultiParamLinear(String parameters[], double[] mins, double[] maxs, double[] increments) throws Exception {
+    public void optimizeMultiParamLinear(final String[] parameters, final double[] mins, final double[] maxs, final double[] increments) {
 
-        int roundDigits = getCommonConfig().getPortfolioDigits();
+        Validate.notNull(parameters, "Parameter is null");
+        Validate.notNull(mins, "Mins is null");
+        Validate.notNull(maxs, "Maxs is null");
+        Validate.notNull(increments, "Increments is null");
+
+        try {
+            int roundDigits = this.commonConfig.getPortfolioDigits();
         for (double i0 = mins[0]; i0 <= maxs[0]; i0 += increments[0]) {
             System.setProperty(parameters[0], format.format(i0));
             String message0 = parameters[0] + "=" + format.format(MathUtils.round(i0, roundDigits));
@@ -445,11 +552,21 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
                 resultLogger.info(message0 + " " + convertStatisticsToShortString(resultVO));
             }
         }
+        } catch (Exception ex) {
+            throw new SimulationServiceException(ex.getMessage(), ex);
+        }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected void handleOptimizeMultiParam(String[] parameters, double[] starts) throws ConvergenceException, FunctionEvaluationException {
+    public void optimizeMultiParam(final String[] parameters, final double[] starts) {
 
+        Validate.notNull(parameters, "Parameter is null");
+        Validate.notNull(starts, "Starts is null");
+
+        try {
         MultivariateRealFunction function = new MultivariateFunction(parameters);
         MultivariateRealOptimizer optimizer = new MultiDirectional();
         optimizer.setConvergenceChecker(new SimpleScalarValueChecker(0.0, 0.01));
@@ -459,6 +576,9 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
             resultLogger.info("optimal value for " + parameters[i] + "=" + format.format(result.getPoint()[i]));
         }
         resultLogger.info("functionValue: " + format.format(result.getValue()) + " needed iterations: " + optimizer.getEvaluations() + ")");
+        } catch (Exception ex) {
+            throw new SimulationServiceException(ex.getMessage(), ex);
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -501,8 +621,8 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
         // assemble the result
         SimulationResultVO resultVO = new SimulationResultVO();
         resultVO.setMins(((double) (System.currentTimeMillis() - startTime)) / 60000);
-        resultVO.setDataSet(getCommonConfig().getDataSet());
-        resultVO.setNetLiqValue(getPortfolioService().getNetLiqValueDouble());
+        resultVO.setDataSet(this.commonConfig.getDataSet());
+        resultVO.setNetLiqValue(this.portfolioService.getNetLiqValueDouble());
         resultVO.setMonthlyPerformances(monthlyPerformances);
         resultVO.setYearlyPerformances(yearlyPerformances);
         resultVO.setPerformanceKeys(performanceKeys);
@@ -574,7 +694,7 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
 
         StringBuffer buffer = new StringBuffer();
         buffer.append("execution time (min): " + (new DecimalFormat("0.00")).format(resultVO.getMins()) + "\r\n");
-        buffer.append("dataSet: " + getCommonConfig().getDataSet() + "\r\n");
+        buffer.append("dataSet: " + this.commonConfig.getDataSet() + "\r\n");
 
         double netLiqValue = resultVO.getNetLiqValue();
         buffer.append("netLiqValue=" + twoDigitFormat.format(netLiqValue) + "\r\n");
@@ -705,8 +825,7 @@ public class SimulationServiceImpl extends SimulationServiceBase implements Init
             SimulationResultVO resultVO = ServiceLocator.instance().getService("simulationService", SimulationService.class).runSimulation();
             double result = resultVO.getPerformanceKeys().getSharpeRatio();
 
-            resultLogger.info("optimize on " + this.param + "=" + SimulationServiceImpl.format.format(input) + " "
-                    + SimulationServiceImpl.convertStatisticsToShortString(resultVO));
+            resultLogger.info("optimize on " + this.param + "=" + SimulationServiceImpl.format.format(input) + " " + SimulationServiceImpl.convertStatisticsToShortString(resultVO));
 
             return result;
         }

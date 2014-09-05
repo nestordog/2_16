@@ -25,25 +25,36 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 
 import ch.algotrader.ServiceLocator;
+import ch.algotrader.config.CommonConfig;
+import ch.algotrader.config.CoreConfig;
 import ch.algotrader.entity.Position;
+import ch.algotrader.entity.PositionDao;
 import ch.algotrader.entity.Transaction;
+import ch.algotrader.entity.TransactionDao;
 import ch.algotrader.entity.marketData.Tick;
+import ch.algotrader.entity.marketData.TickDao;
 import ch.algotrader.entity.security.Forex;
+import ch.algotrader.entity.security.ForexDao;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.strategy.CashBalance;
+import ch.algotrader.entity.strategy.CashBalanceDao;
 import ch.algotrader.entity.strategy.PortfolioValue;
 import ch.algotrader.entity.strategy.PortfolioValueDao;
 import ch.algotrader.entity.strategy.Strategy;
+import ch.algotrader.entity.strategy.StrategyDao;
 import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.enumeration.Currency;
+import ch.algotrader.hibernate.GenericDao;
 import ch.algotrader.util.DateUtil;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.collection.DoubleMap;
+import ch.algotrader.util.spring.HibernateSession;
 import ch.algotrader.vo.BalanceVO;
 import ch.algotrader.vo.CurrencyAmountVO;
 import ch.algotrader.vo.PortfolioValueVO;
@@ -53,54 +64,908 @@ import ch.algotrader.vo.PortfolioValueVO;
  *
  * @version $Revision$ $Date$
  */
-public class PortfolioServiceImpl extends PortfolioServiceBase {
+@HibernateSession
+public class PortfolioServiceImpl implements PortfolioService {
 
     private static Logger logger = MyLogger.getLogger(PortfolioServiceImpl.class.getName());
 
-    @Override
-    protected BigDecimal handleGetCashBalance() {
-        return RoundUtil.getBigDecimal(getCashBalanceDouble());
+    private final CommonConfig commonConfig;
+
+    private final CoreConfig coreConfig;
+
+    private final GenericDao genericDao;
+
+    private final StrategyDao strategyDao;
+
+    private final TransactionDao transactionDao;
+
+    private final PositionDao positionDao;
+
+    private final CashBalanceDao cashBalanceDao;
+
+    private final PortfolioValueDao portfolioValueDao;
+
+    private final TickDao tickDao;
+
+    private final ForexDao forexDao;
+
+    public PortfolioServiceImpl(final CommonConfig commonConfig,
+            final CoreConfig coreConfig,
+            final GenericDao genericDao,
+            final StrategyDao strategyDao,
+            final TransactionDao transactionDao,
+            final PositionDao positionDao,
+            final CashBalanceDao cashBalanceDao,
+            final PortfolioValueDao portfolioValueDao,
+            final TickDao tickDao,
+            final ForexDao forexDao) {
+
+        Validate.notNull(commonConfig, "CommonConfig is null");
+        Validate.notNull(coreConfig, "CoreConfig is null");
+        Validate.notNull(genericDao, "GenericDao is null");
+        Validate.notNull(strategyDao, "StrategyDao is null");
+        Validate.notNull(transactionDao, "TransactionDao is null");
+        Validate.notNull(positionDao, "PositionDao is null");
+        Validate.notNull(cashBalanceDao, "CashBalanceDao is null");
+        Validate.notNull(portfolioValueDao, "PortfolioValueDao is null");
+        Validate.notNull(tickDao, "TickDao is null");
+        Validate.notNull(forexDao, "ForexDao is null");
+
+        this.commonConfig = commonConfig;
+        this.coreConfig = coreConfig;
+        this.genericDao = genericDao;
+        this.strategyDao = strategyDao;
+        this.transactionDao = transactionDao;
+        this.positionDao = positionDao;
+        this.cashBalanceDao = cashBalanceDao;
+        this.portfolioValueDao = portfolioValueDao;
+        this.tickDao = tickDao;
+        this.forexDao = forexDao;
+
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected BigDecimal handleGetCashBalance(String strategyName) {
-        return RoundUtil.getBigDecimal(getCashBalanceDouble(strategyName));
+    public BigDecimal getCashBalance() {
+
+        try {
+            return RoundUtil.getBigDecimal(getCashBalanceDouble());
+        } catch (Exception ex) {
+            throw new PortfolioServiceException(ex.getMessage(), ex);
+        }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected BigDecimal handleGetCashBalance(Date date) {
-        return RoundUtil.getBigDecimal(getCashBalanceDouble(date));
+    public BigDecimal getCashBalance(final String strategyName) {
+
+        Validate.notEmpty(strategyName, "Strategy name is nempty");
+
+        try {
+            return RoundUtil.getBigDecimal(getCashBalanceDouble(strategyName));
+        } catch (Exception ex) {
+            throw new PortfolioServiceException(ex.getMessage(), ex);
+        }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected BigDecimal handleGetCashBalance(String strategyName, Date date) {
-        return RoundUtil.getBigDecimal(getCashBalanceDouble(strategyName, date));
+    public BigDecimal getCashBalance(final Date date) {
+
+        Validate.notNull(date, "Date is null");
+
+        try {
+            return RoundUtil.getBigDecimal(getCashBalanceDouble(date));
+        } catch (Exception ex) {
+            throw new PortfolioServiceException(ex.getMessage(), ex);
+        }
     }
 
-    @SuppressWarnings("rawtypes")
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected BigDecimal handleGetCashBalance(String filter, Map namedParameters, Date date) {
-        return RoundUtil.getBigDecimal(getCashBalanceDouble(filter, namedParameters, date));
+    public BigDecimal getCashBalance(final String strategyName, final Date date) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+        Validate.notNull(date, "Date is null");
+
+        try {
+            return RoundUtil.getBigDecimal(getCashBalanceDouble(strategyName, date));
+        } catch (Exception ex) {
+            throw new PortfolioServiceException(ex.getMessage(), ex);
+        }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected double handleGetCashBalanceDouble() {
+    public BigDecimal getCashBalance(final String filter, final Map namedParameters, final Date date) {
 
-        Collection<CashBalance> cashBalances = getCashBalanceDao().loadAll();
+        Validate.notEmpty(filter, "Filter is empty");
+        Validate.notNull(namedParameters, "Named parameters is null");
+        Validate.notNull(date, "Date is null");
 
-        List<Position> positions = getPositionDao().findOpenFXPositionsAggregated();
-
-        return getCashBalanceDoubleInternal(cashBalances, positions);
+        try {
+            return RoundUtil.getBigDecimal(getCashBalanceDouble(filter, namedParameters, date));
+        } catch (Exception ex) {
+            throw new PortfolioServiceException(ex.getMessage(), ex);
+        }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected double handleGetCashBalanceDouble(String strategyName) {
+    public double getCashBalanceDouble() {
 
-        Collection<CashBalance> cashBalances = getCashBalanceDao().findCashBalancesByStrategy(strategyName);
+        try {
+            Collection<CashBalance> cashBalances = this.cashBalanceDao.loadAll();
 
-        List<Position> positions = getPositionDao().findOpenFXPositionsByStrategy(strategyName);
+            List<Position> positions = this.positionDao.findOpenFXPositionsAggregated();
 
-        return getCashBalanceDoubleInternal(cashBalances, positions);
+            return getCashBalanceDoubleInternal(cashBalances, positions);
+        } catch (Exception ex) {
+            throw new PortfolioServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getCashBalanceDouble(final String strategyName) {
+
+        Validate.notEmpty(strategyName, "Strategy name is null");
+
+        try {
+            Collection<CashBalance> cashBalances = this.cashBalanceDao.findCashBalancesByStrategy(strategyName);
+
+            List<Position> positions = this.positionDao.findOpenFXPositionsByStrategy(strategyName);
+
+            return getCashBalanceDoubleInternal(cashBalances, positions);
+        } catch (Exception ex) {
+            throw new PortfolioServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getCashBalanceDouble(final Date date) {
+
+        Validate.notNull(date, "Date is null");
+        try {
+            Collection<Transaction> transactions = this.transactionDao.findByMaxDate(date);
+
+            Collection<Position> openPositions = this.positionDao.findOpenPositionsByMaxDateAggregated(date);
+
+            return getCashBalanceDoubleInternal(transactions, openPositions, date);
+        } catch (Exception ex) {
+            throw new PortfolioServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getCashBalanceDouble(final String strategyName, final Date date) {
+
+        Validate.notEmpty(strategyName, "Strategy name is null");
+        Validate.notNull(date, "Date is null");
+
+        try {
+            Collection<Transaction> transactions = this.transactionDao.findByStrategyAndMaxDate(strategyName, date);
+
+            Collection<Position> openPositions = this.positionDao.findOpenPositionsByStrategyAndMaxDate(strategyName, date);
+
+            return getCashBalanceDoubleInternal(transactions, openPositions, date);
+        } catch (Exception ex) {
+            throw new PortfolioServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getCashBalanceDouble(final String filter, final Map namedParameters, final Date date) {
+
+        Validate.notEmpty(filter, "Filter is empty");
+        Validate.notNull(namedParameters, "Named parameters is null");
+        Validate.notNull(date, "Date is null");
+
+        try {
+            namedParameters.put("maxDate", date);
+
+            //@formatter:off
+            String query =
+                    "from TransactionImpl as t "
+                    + "where " + filter + " "
+                    + "and t.dateTime <= :maxDate";
+
+            Collection<Transaction> transactions = (Collection<Transaction>) this.genericDao.find(query, namedParameters);
+
+            return getCashBalanceDoubleInternal(transactions, new ArrayList<Position>(), date);        }
+        catch (Exception ex)
+        {
+            throw new PortfolioServiceException(ex.getMessage(),ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BigDecimal getSecuritiesCurrentValue() {
+        try {
+            return RoundUtil.getBigDecimal(getSecuritiesCurrentValueDouble());
+        } catch (Exception ex) {
+            throw new PortfolioServiceException(ex.getMessage(),ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BigDecimal getSecuritiesCurrentValue(final String strategyName) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+
+        try {
+            return RoundUtil.getBigDecimal(getSecuritiesCurrentValueDouble(strategyName));
+        } catch (Exception ex) {
+            throw new PortfolioServiceException(ex.getMessage(),ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BigDecimal getSecuritiesCurrentValue(final Date date) {
+
+        Validate.notNull(date, "Date is null");
+
+        try {
+            return RoundUtil.getBigDecimal(getSecuritiesCurrentValueDouble(date));
+        } catch (Exception ex) {
+            throw new PortfolioServiceException(ex.getMessage(),ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BigDecimal getSecuritiesCurrentValue(final String strategyName, final Date date) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+        Validate.notNull(date, "Date is null");
+
+        try {
+            return RoundUtil.getBigDecimal(getSecuritiesCurrentValueDouble(strategyName, date));
+        } catch (Exception ex) {
+            throw new PortfolioServiceException(ex.getMessage(),ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BigDecimal getSecuritiesCurrentValue(final String filter, final Map namedParameters, final Date date) {
+
+        Validate.notEmpty(filter, "Filter is empty");
+        Validate.notNull(namedParameters, "Named parameters is null");
+        Validate.notNull(date, "Date is null");
+
+        try {
+            return RoundUtil.getBigDecimal(getSecuritiesCurrentValueDouble(filter, namedParameters, date));
+        } catch (Exception ex) {
+            throw new PortfolioServiceException(ex.getMessage(),ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getSecuritiesCurrentValueDouble() {
+
+        try {
+            Collection<Position> openPositions = this.positionDao.findOpenTradeablePositionsAggregated();
+
+            return getSecuritiesCurrentValueDoubleInternal(openPositions);
+        } catch (Exception ex) {
+            throw new PortfolioServiceException(ex.getMessage(),ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getSecuritiesCurrentValueDouble(final String strategyName) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+
+        try {
+            List<Position> openPositions = this.positionDao.findOpenTradeablePositionsByStrategy(strategyName);
+
+            return getSecuritiesCurrentValueDoubleInternal(openPositions);
+        } catch (Exception ex) {
+            throw new PortfolioServiceException(ex.getMessage(),ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getSecuritiesCurrentValueDouble(final Date date) {
+
+        Validate.notNull(date, "Date is null");
+
+        try {
+            Collection<Position> openPositions = this.positionDao.findOpenPositionsByMaxDateAggregated(date);
+
+            return getSecuritiesCurrentValueDoubleInternal(openPositions, date);
+        } catch (Exception ex) {
+            throw new PortfolioServiceException(ex.getMessage(),ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getSecuritiesCurrentValueDouble(final String strategyName, final Date date) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+        Validate.notNull(date, "Date is null");
+
+        try {
+            Collection<Position> openPositions = this.positionDao.findOpenPositionsByStrategyAndMaxDate(strategyName, date);
+
+            return getSecuritiesCurrentValueDoubleInternal(openPositions, date);
+        } catch (Exception ex) {
+            throw new PortfolioServiceException(ex.getMessage(),ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getSecuritiesCurrentValueDouble(final String filter, final Map namedParameters, final Date date) {
+
+        Validate.notEmpty(filter, "Filter is empty");
+        Validate.notNull(namedParameters, "Named parameters is null");
+        Validate.notNull(date, "Date is null");
+
+        try {
+            //@formatter:off
+            String queryString =
+                    "select new Position(sum(t.quantity), s) "
+                    + "from TransactionImpl as t "
+                    + "join t.security as s "
+                    + "where s != null "
+                    + "and t.dateTime <= :maxDate "
+                    + "and " + filter + " "
+                    + "group by s.id "
+                    + "having sum(t.quantity) != 0 "
+                    + "order by s.id";
+            //@formatter:on
+
+            namedParameters.put("maxDate", date);
+
+            List<Position> openPositions = (List<Position>) this.genericDao.find(queryString, namedParameters);
+
+            return getSecuritiesCurrentValueDoubleInternal(openPositions, date);
+        } catch (Exception ex) {
+            throw new PortfolioServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BigDecimal getMaintenanceMargin() {
+
+        try {
+            return RoundUtil.getBigDecimal(getMaintenanceMarginDouble());
+        } catch (Exception ex) {
+            throw new PortfolioServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BigDecimal getMaintenanceMargin(final String strategyName) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+
+        try {
+            return RoundUtil.getBigDecimal(getMaintenanceMarginDouble(strategyName));
+        } catch (Exception ex) {
+            throw new PortfolioServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getMaintenanceMarginDouble() {
+
+        try {
+            double margin = 0.0;
+            Collection<Position> positions = this.positionDao.findOpenTradeablePositions();
+            for (Position position : positions) {
+                margin += position.getMaintenanceMarginBaseDouble();
+            }
+            return margin;
+        } catch (Exception ex) {
+            throw new PortfolioServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getMaintenanceMarginDouble(final String strategyName) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+
+        try {
+            double margin = 0.0;
+            List<Position> positions = this.positionDao.findOpenTradeablePositionsByStrategy(strategyName);
+            for (Position position : positions) {
+                margin += position.getMaintenanceMarginBaseDouble();
+            }
+            return margin;
+        } catch (Exception ex) {
+            throw new PortfolioServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BigDecimal getInitialMargin() {
+
+        try {
+            return RoundUtil.getBigDecimal(getInitialMarginDouble());
+        } catch (Exception ex) {
+            throw new PortfolioServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BigDecimal getInitialMargin(final String strategyName) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+
+        try {
+            return RoundUtil.getBigDecimal(getInitialMarginDouble(strategyName));
+        } catch (Exception ex) {
+            throw new PortfolioServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getInitialMarginDouble() {
+
+        try {
+            return this.commonConfig.getInitialMarginMarkup().doubleValue() * getMaintenanceMarginDouble();
+        } catch (Exception ex) {
+            throw new PortfolioServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getInitialMarginDouble(final String strategyName) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+
+        try {
+            return this.commonConfig.getInitialMarginMarkup().doubleValue() * getMaintenanceMarginDouble(strategyName);
+        } catch (Exception ex) {
+            throw new PortfolioServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BigDecimal getNetLiqValue() {
+
+        try {
+            return RoundUtil.getBigDecimal(getNetLiqValueDouble());
+        } catch (Exception ex) {
+            throw new PortfolioServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BigDecimal getNetLiqValue(final String strategyName) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+
+        try {
+            return RoundUtil.getBigDecimal(getNetLiqValueDouble(strategyName));
+        } catch (Exception ex) {
+            throw new PortfolioServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getNetLiqValueDouble() {
+
+        try {
+            return getCashBalanceDouble() + getSecuritiesCurrentValueDouble();
+        } catch (Exception ex) {
+            throw new PortfolioServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getNetLiqValueDouble(final String strategyName) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+
+        try {
+            return getCashBalanceDouble(strategyName) + getSecuritiesCurrentValueDouble(strategyName);
+        } catch (Exception ex) {
+            throw new PortfolioServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BigDecimal getAvailableFunds() {
+
+        try {
+            return RoundUtil.getBigDecimal(getAvailableFundsDouble());
+        } catch (Exception ex) {
+            throw new PortfolioServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BigDecimal getAvailableFunds(final String strategyName) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+
+        try {
+            return RoundUtil.getBigDecimal(getAvailableFundsDouble(strategyName));
+        } catch (Exception ex) {
+            throw new PortfolioServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getAvailableFundsDouble() {
+
+        try {
+            return getNetLiqValueDouble() - getInitialMarginDouble();
+        } catch (Exception ex) {
+            throw new PortfolioServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getAvailableFundsDouble(final String strategyName) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+
+        try {
+            return getNetLiqValueDouble(strategyName) - getInitialMarginDouble(strategyName);
+        } catch (Exception ex) {
+            throw new PortfolioServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getLeverage() {
+
+        try {
+            double exposure = 0.0;
+            Collection<Position> positions = this.positionDao.findOpenTradeablePositions();
+            for (Position position : positions) {
+                exposure += position.getExposure();
+            }
+            return exposure / getNetLiqValueDouble();
+        } catch (Exception ex) {
+            throw new PortfolioServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getLeverage(final String strategyName) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+
+        try {
+            double exposure = 0.0;
+            List<Position> positions = this.positionDao.findOpenTradeablePositionsByStrategy(strategyName);
+            for (Position position : positions) {
+                exposure += position.getExposure();
+            }
+
+            return exposure / getNetLiqValueDouble(strategyName);
+        } catch (Exception ex) {
+            throw new PortfolioServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getPerformance() {
+
+        try {
+            return getPerformance(StrategyImpl.BASE);
+        } catch (Exception ex) {
+            throw new PortfolioServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getPerformance(final String strategyName) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+
+        try {
+            Date date = DateUtils.truncate(new Date(), Calendar.MONTH);
+            List<PortfolioValueVO> portfolioValues = (List<PortfolioValueVO>) getPortfolioValuesInclPerformanceSinceDate(strategyName, date);
+
+            // the performance of the last portfolioValue represents the performance of the entire timeperiod
+            if (portfolioValues.size() > 0) {
+                return portfolioValues.get(portfolioValues.size() - 1).getPerformance();
+            } else {
+                return Double.NaN;
+            }
+        } catch (Exception ex) {
+            throw new PortfolioServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public PortfolioValue getPortfolioValue() {
+
+        try {
+            return getPortfolioValue(StrategyImpl.BASE);
+        } catch (Exception ex) {
+            throw new PortfolioServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public PortfolioValue getPortfolioValue(final String strategyName) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+
+        try {
+            Strategy strategy = this.strategyDao.findByName(strategyName);
+
+            BigDecimal cashBalance;
+            BigDecimal securitiesCurrentValue;
+            BigDecimal maintenanceMargin;
+            double leverage;
+            if (strategy.isBase()) {
+                cashBalance = getCashBalance();
+                securitiesCurrentValue = getSecuritiesCurrentValue();
+                maintenanceMargin = getMaintenanceMargin();
+                leverage = getLeverage();
+
+            } else {
+                cashBalance = getCashBalance(strategy.getName());
+                securitiesCurrentValue = getSecuritiesCurrentValue(strategy.getName());
+                maintenanceMargin = getMaintenanceMargin(strategy.getName());
+                leverage = getLeverage(strategy.getName());
+            }
+
+            PortfolioValue portfolioValue = PortfolioValue.Factory.newInstance();
+
+            portfolioValue.setStrategy(strategy);
+            portfolioValue.setDateTime(DateUtil.getCurrentEPTime());
+            portfolioValue.setCashBalance(cashBalance);
+            portfolioValue.setSecuritiesCurrentValue(securitiesCurrentValue); // might be null if there was no last tick for a particular security
+            portfolioValue.setMaintenanceMargin(maintenanceMargin);
+            portfolioValue.setNetLiqValue(securitiesCurrentValue != null ? cashBalance.add(securitiesCurrentValue) : null); // add here to prevent another lookup
+            portfolioValue.setLeverage(Double.isNaN(leverage) ? 0 : leverage);
+            portfolioValue.setAllocation(strategy.getAllocation());
+
+            return portfolioValue;
+        } catch (Exception ex) {
+            throw new PortfolioServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public PortfolioValue getPortfolioValue(final String strategyName, final Date date) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+        Validate.notNull(date, "Date is null");
+
+        try {
+            Strategy strategy = this.strategyDao.findByName(strategyName);
+
+            BigDecimal cashBalance;
+            BigDecimal securitiesCurrentValue;
+            if (strategy.isBase()) {
+                cashBalance = getCashBalance(date);
+                securitiesCurrentValue = getSecuritiesCurrentValue(date);
+
+            } else {
+                cashBalance = getCashBalance(strategy.getName(), date);
+                securitiesCurrentValue = getSecuritiesCurrentValue(strategy.getName(), date);
+            }
+
+            PortfolioValue portfolioValue = PortfolioValue.Factory.newInstance();
+
+            portfolioValue.setStrategy(strategy);
+            portfolioValue.setDateTime(date);
+            portfolioValue.setCashBalance(cashBalance);
+            portfolioValue.setSecuritiesCurrentValue(securitiesCurrentValue);
+            portfolioValue.setNetLiqValue(cashBalance.add(securitiesCurrentValue)); // add here to prevent another lookup
+            portfolioValue.setMaintenanceMargin(new BigDecimal(0));
+
+            return portfolioValue;
+        } catch (Exception ex) {
+            throw new PortfolioServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Collection<PortfolioValueVO> getPortfolioValuesInclPerformanceSinceDate(final String strategyName, final Date date) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+        Validate.notNull(date, "Date is null");
+
+        try {
+            Collection<PortfolioValueVO> portfolioValues = (Collection<PortfolioValueVO>) this.portfolioValueDao.findByStrategyAndMinDate(PortfolioValueDao.TRANSFORM_PORTFOLIOVALUEVO, strategyName,
+                    date);
+
+            // calculate the performance
+            double lastNetLiqValue = 0;
+            double lastDayNetLiqValue = 0;
+            double performance = 1.0;
+            double dailyPerformance = 1.0;
+            for (PortfolioValueVO portfolioValue : portfolioValues) {
+
+                // for BASE reset performance at the 24:00 based on NetLiqValue of prior day
+                if (StrategyImpl.BASE.equals(strategyName) && DateUtils.getFragmentInHours(portfolioValue.getDateTime(), Calendar.DAY_OF_YEAR) == 0) {
+                    if (lastDayNetLiqValue != 0) {
+                        dailyPerformance = dailyPerformance
+                                * (portfolioValue.getNetLiqValue().doubleValue() / (lastDayNetLiqValue + (portfolioValue.getCashFlow() != null ? portfolioValue.getCashFlow().doubleValue() : 0)));
+                        performance = dailyPerformance;
+                        portfolioValue.setPerformance(performance - 1.0);
+                    }
+
+                    lastDayNetLiqValue = portfolioValue.getNetLiqValue().doubleValue();
+                    lastNetLiqValue = portfolioValue.getNetLiqValue().doubleValue();
+
+                } else {
+                    if (lastNetLiqValue != 0) {
+                        performance = performance
+                                * (portfolioValue.getNetLiqValue().doubleValue() / (lastNetLiqValue + (portfolioValue.getCashFlow() != null ? portfolioValue.getCashFlow().doubleValue() : 0)));
+                        portfolioValue.setPerformance(performance - 1.0);
+                    }
+
+                    lastNetLiqValue = portfolioValue.getNetLiqValue().doubleValue();
+                }
+            }
+
+            return portfolioValues;
+        } catch (Exception ex) {
+            throw new PortfolioServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Collection<BalanceVO> getBalances() {
+
+        try {
+            Collection<Currency> currencies = this.cashBalanceDao.findHeldCurrencies();
+            Collection<CashBalance> cashBalances = this.cashBalanceDao.loadAll();
+            Collection<Position> positions = this.positionDao.findOpenTradeablePositionsAggregated();
+
+            return getBalances(currencies, cashBalances, positions);
+        } catch (Exception ex) {
+            throw new PortfolioServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Collection<BalanceVO> getBalances(final String strategyName) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+
+        try {
+            Collection<Currency> currencies = this.cashBalanceDao.findHeldCurrenciesByStrategy(strategyName);
+            Collection<CashBalance> cashBalances = this.cashBalanceDao.findCashBalancesByStrategy(strategyName);
+            Collection<Position> positions = this.positionDao.findOpenTradeablePositionsByStrategy(strategyName);
+
+            return getBalances(currencies, cashBalances, positions);
+        } catch (Exception ex) {
+            throw new PortfolioServiceException(ex.getMessage(), ex);
+        }
     }
 
     private double getCashBalanceDoubleInternal(Collection<CashBalance> cashBalances, List<Position> positions) {
@@ -117,43 +982,6 @@ public class PortfolioServiceImpl extends PortfolioServiceBase {
         }
 
         return amount;
-    }
-
-    @Override
-    protected double handleGetCashBalanceDouble(Date date) {
-
-        Collection<Transaction> transactions = getTransactionDao().findByMaxDate(date);
-
-        Collection<Position> openPositions = getPositionDao().findOpenPositionsByMaxDateAggregated(date);
-
-        return getCashBalanceDoubleInternal(transactions, openPositions, date);
-    }
-
-    @Override
-    protected double handleGetCashBalanceDouble(String strategyName, Date date) {
-
-        Collection<Transaction> transactions = getTransactionDao().findByStrategyAndMaxDate(strategyName, date);
-
-        Collection<Position> openPositions = getPositionDao().findOpenPositionsByStrategyAndMaxDate(strategyName, date);
-
-        return getCashBalanceDoubleInternal(transactions, openPositions, date);
-    }
-
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    @Override
-    protected double handleGetCashBalanceDouble(String filter, Map namedParameters, Date date) {
-
-        namedParameters.put("maxDate", date);
-
-        //@formatter:off
-        String query =
-                "from TransactionImpl as t "
-                + "where " + filter + " "
-                + "and t.dateTime <= :maxDate";
-
-        Collection<Transaction> transactions = (Collection<Transaction>) getGenericDao().find(query, namedParameters);
-
-        return getCashBalanceDoubleInternal(transactions, new ArrayList<Position>(), date);
     }
 
     private double getCashBalanceDoubleInternal(Collection<Transaction> transactions, Collection<Position> openPositions, Date date) {
@@ -173,10 +1001,10 @@ public class PortfolioServiceImpl extends PortfolioServiceBase {
 
             Security security = openPosition.getSecurityInitialized();
             if (security instanceof Forex) {
-                int intervalDays = getCoreConfig().getIntervalDays();
-                List<Tick> ticks = getTickDao().findTicksBySecurityAndMaxDate(1, 1, security.getId(), date, intervalDays);
+                int intervalDays = this.coreConfig.getIntervalDays();
+                List<Tick> ticks = this.tickDao.findTicksBySecurityAndMaxDate(1, 1, security.getId(), date, intervalDays);
                 if (ticks.isEmpty()) {
-                    ticks = getTickDao().findTicksBySecurityAndMinDate(1, 1, security.getId(), date, intervalDays);
+                    ticks = this.tickDao.findTicksBySecurityAndMinDate(1, 1, security.getId(), date, intervalDays);
                     if (ticks.isEmpty()) {
                         logger.warn("no tick available for " + security + " on " + date);
                         continue;
@@ -192,55 +1020,10 @@ public class PortfolioServiceImpl extends PortfolioServiceBase {
         // convert non baseCurrencies
         double amount = 0.0;
         for (Map.Entry<Currency, Double> entry : map.entrySet()) {
-            double fxRate = getForexDao().getRateDoubleByDate(entry.getKey(), getCommonConfig().getPortfolioBaseCurrency(), date);
+            double fxRate = this.forexDao.getRateDoubleByDate(entry.getKey(), this.commonConfig.getPortfolioBaseCurrency(), date);
             amount += entry.getValue() * fxRate;
         }
         return amount;
-    }
-
-    @Override
-    protected BigDecimal handleGetSecuritiesCurrentValue() {
-        return RoundUtil.getBigDecimal(getSecuritiesCurrentValueDouble());
-    }
-
-    @Override
-    protected BigDecimal handleGetSecuritiesCurrentValue(String strategyName) {
-
-        return RoundUtil.getBigDecimal(getSecuritiesCurrentValueDouble(strategyName));
-    }
-
-    @Override
-    protected BigDecimal handleGetSecuritiesCurrentValue(Date date) {
-        return RoundUtil.getBigDecimal(getSecuritiesCurrentValueDouble(date));
-    }
-
-    @Override
-    protected BigDecimal handleGetSecuritiesCurrentValue(String strategyName, Date date) {
-
-        return RoundUtil.getBigDecimal(getSecuritiesCurrentValueDouble(strategyName, date));
-    }
-
-    @SuppressWarnings("rawtypes")
-    @Override
-    protected BigDecimal handleGetSecuritiesCurrentValue(String filter, Map namedParameters, Date date) throws Exception {
-
-        return RoundUtil.getBigDecimal(getSecuritiesCurrentValueDouble(filter, namedParameters, date));
-    }
-
-    @Override
-    protected double handleGetSecuritiesCurrentValueDouble() {
-
-        Collection<Position> openPositions = getPositionDao().findOpenTradeablePositionsAggregated();
-
-        return getSecuritiesCurrentValueDoubleInternal(openPositions);
-    }
-
-    @Override
-    protected double handleGetSecuritiesCurrentValueDouble(String strategyName) {
-
-        List<Position> openPositions = getPositionDao().findOpenTradeablePositionsByStrategy(strategyName);
-
-        return getSecuritiesCurrentValueDoubleInternal(openPositions);
     }
 
     private double getSecuritiesCurrentValueDoubleInternal(Collection<Position> openPositions) {
@@ -257,46 +1040,6 @@ public class PortfolioServiceImpl extends PortfolioServiceBase {
         return amount;
     }
 
-    @Override
-    protected double handleGetSecuritiesCurrentValueDouble(Date date) {
-
-        Collection<Position> openPositions = getPositionDao().findOpenPositionsByMaxDateAggregated(date);
-
-        return getSecuritiesCurrentValueDoubleInternal(openPositions, date);
-    }
-
-    @Override
-    protected double handleGetSecuritiesCurrentValueDouble(String strategyName, Date date) {
-
-        Collection<Position> openPositions = getPositionDao().findOpenPositionsByStrategyAndMaxDate(strategyName, date);
-
-        return getSecuritiesCurrentValueDoubleInternal(openPositions, date);
-    }
-
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    @Override
-    protected double handleGetSecuritiesCurrentValueDouble(String filter, Map namedParameters, Date date) {
-
-        //@formatter:off
-        String queryString =
-                "select new Position(sum(t.quantity), s) "
-                + "from TransactionImpl as t "
-                + "join t.security as s "
-                + "where s != null "
-                + "and t.dateTime <= :maxDate "
-                + "and " + filter + " "
-                + "group by s.id "
-                + "having sum(t.quantity) != 0 "
-                + "order by s.id";
-        //@formatter:on
-
-        namedParameters.put("maxDate", date);
-
-        List<Position> openPositions = (List<Position>) getGenericDao().find(queryString, namedParameters);
-
-        return getSecuritiesCurrentValueDoubleInternal(openPositions, date);
-    }
-
     private double getSecuritiesCurrentValueDoubleInternal(Collection<Position> openPositions, Date date) {
 
         // sum of all non-FX positions (FX counts as cash)
@@ -306,10 +1049,10 @@ public class PortfolioServiceImpl extends PortfolioServiceBase {
 
             Security security = openPosition.getSecurityInitialized();
             if (!(security instanceof Forex)) {
-                int intervalDays = getCoreConfig().getIntervalDays();
-                List<Tick> ticks = getTickDao().findTicksBySecurityAndMaxDate(1, 1, security.getId(), date, intervalDays);
+                int intervalDays = this.coreConfig.getIntervalDays();
+                List<Tick> ticks = this.tickDao.findTicksBySecurityAndMaxDate(1, 1, security.getId(), date, intervalDays);
                 if (ticks.isEmpty()) {
-                    ticks = getTickDao().findTicksBySecurityAndMinDate(1, 1, security.getId(), date, intervalDays);
+                    ticks = this.tickDao.findTicksBySecurityAndMinDate(1, 1, security.getId(), date, intervalDays);
                     if (ticks.isEmpty()) {
                         logger.warn("no tick available for " + security + " on " + date);
                         continue;
@@ -324,284 +1067,10 @@ public class PortfolioServiceImpl extends PortfolioServiceBase {
 
         double amount = 0.0;
         for (Map.Entry<Currency, Double> entry : map.entrySet()) {
-            double fxRate = getForexDao().getRateDoubleByDate(entry.getKey(), getCommonConfig().getPortfolioBaseCurrency(), date);
+            double fxRate = this.forexDao.getRateDoubleByDate(entry.getKey(), this.commonConfig.getPortfolioBaseCurrency(), date);
             amount += entry.getValue() * fxRate;
         }
         return amount;
-    }
-
-    @Override
-    protected BigDecimal handleGetMaintenanceMargin() {
-        return RoundUtil.getBigDecimal(getMaintenanceMarginDouble());
-    }
-
-    @Override
-    protected BigDecimal handleGetMaintenanceMargin(String strategyName) {
-        return RoundUtil.getBigDecimal(getMaintenanceMarginDouble(strategyName));
-    }
-
-    @Override
-    protected double handleGetMaintenanceMarginDouble() {
-
-        double margin = 0.0;
-        Collection<Position> positions = getPositionDao().findOpenTradeablePositions();
-        for (Position position : positions) {
-            margin += position.getMaintenanceMarginBaseDouble();
-        }
-        return margin;
-    }
-
-    @Override
-    protected double handleGetMaintenanceMarginDouble(String strategyName) {
-
-        double margin = 0.0;
-        List<Position> positions = getPositionDao().findOpenTradeablePositionsByStrategy(strategyName);
-        for (Position position : positions) {
-            margin += position.getMaintenanceMarginBaseDouble();
-        }
-        return margin;
-    }
-
-    @Override
-    protected BigDecimal handleGetInitialMargin() {
-
-        return RoundUtil.getBigDecimal(getInitialMarginDouble());
-    }
-
-    @Override
-    protected BigDecimal handleGetInitialMargin(String strategyName) {
-
-        return RoundUtil.getBigDecimal(getInitialMarginDouble(strategyName));
-    }
-
-    @Override
-    protected double handleGetInitialMarginDouble() {
-
-        return getCommonConfig().getInitialMarginMarkup().doubleValue() * getMaintenanceMarginDouble();
-    }
-
-    @Override
-    protected double handleGetInitialMarginDouble(String strategyName) {
-
-        return getCommonConfig().getInitialMarginMarkup().doubleValue() * getMaintenanceMarginDouble(strategyName);
-    }
-
-    @Override
-    protected BigDecimal handleGetNetLiqValue() {
-        return RoundUtil.getBigDecimal(getNetLiqValueDouble());
-    }
-
-    @Override
-    protected BigDecimal handleGetNetLiqValue(String strategyName) {
-
-        return RoundUtil.getBigDecimal(getNetLiqValueDouble(strategyName));
-    }
-
-    @Override
-    protected double handleGetNetLiqValueDouble() {
-
-        return getCashBalanceDouble() + getSecuritiesCurrentValueDouble();
-    }
-
-    @Override
-    protected double handleGetNetLiqValueDouble(String strategyName) {
-
-        return getCashBalanceDouble(strategyName) + getSecuritiesCurrentValueDouble(strategyName);
-    }
-
-    @Override
-    protected BigDecimal handleGetAvailableFunds() {
-        return RoundUtil.getBigDecimal(getAvailableFundsDouble());
-    }
-
-    @Override
-    protected BigDecimal handleGetAvailableFunds(String strategyName) {
-
-        return RoundUtil.getBigDecimal(getAvailableFundsDouble(strategyName));
-    }
-
-    @Override
-    protected double handleGetAvailableFundsDouble() {
-
-        return getNetLiqValueDouble() - getInitialMarginDouble();
-    }
-
-    @Override
-    protected double handleGetAvailableFundsDouble(String strategyName) {
-
-        return getNetLiqValueDouble(strategyName) - getInitialMarginDouble(strategyName);
-    }
-
-    @Override
-    protected double handleGetLeverage() {
-
-        double exposure = 0.0;
-        Collection<Position> positions = getPositionDao().findOpenTradeablePositions();
-        for (Position position : positions) {
-            exposure += position.getExposure();
-        }
-        return exposure / getNetLiqValueDouble();
-    }
-
-    @Override
-    protected double handleGetLeverage(String strategyName) {
-
-        double exposure = 0.0;
-        List<Position> positions = getPositionDao().findOpenTradeablePositionsByStrategy(strategyName);
-        for (Position position : positions) {
-            exposure += position.getExposure();
-        }
-
-        return exposure / getNetLiqValueDouble(strategyName);
-    }
-
-    @Override
-    protected double handleGetPerformance() {
-
-        return getPerformance(StrategyImpl.BASE);
-    }
-
-    @Override
-    protected double handleGetPerformance(String strategyName) {
-
-        Date date = DateUtils.truncate(new Date(), Calendar.MONTH);
-        List<PortfolioValueVO> portfolioValues = (List<PortfolioValueVO>) getPortfolioValuesInclPerformanceSinceDate(strategyName, date);
-
-        // the performance of the last portfolioValue represents the performance of the entire timeperiod
-        if (portfolioValues.size() > 0) {
-            return portfolioValues.get(portfolioValues.size() - 1).getPerformance();
-        } else {
-            return Double.NaN;
-        }
-    }
-
-    @Override
-    protected PortfolioValue handleGetPortfolioValue() {
-
-        return getPortfolioValue(StrategyImpl.BASE);
-    }
-
-    @Override
-    protected PortfolioValue handleGetPortfolioValue(String strategyName) {
-
-        Strategy strategy = getStrategyDao().findByName(strategyName);
-
-        BigDecimal cashBalance;
-        BigDecimal securitiesCurrentValue;
-        BigDecimal maintenanceMargin;
-        double leverage;
-        if (strategy.isBase()) {
-            cashBalance = getCashBalance();
-            securitiesCurrentValue = getSecuritiesCurrentValue();
-            maintenanceMargin = getMaintenanceMargin();
-            leverage = getLeverage();
-
-        } else {
-            cashBalance = getCashBalance(strategy.getName());
-            securitiesCurrentValue = getSecuritiesCurrentValue(strategy.getName());
-            maintenanceMargin = getMaintenanceMargin(strategy.getName());
-            leverage = getLeverage(strategy.getName());
-        }
-
-        PortfolioValue portfolioValue = PortfolioValue.Factory.newInstance();
-
-        portfolioValue.setStrategy(strategy);
-        portfolioValue.setDateTime(DateUtil.getCurrentEPTime());
-        portfolioValue.setCashBalance(cashBalance);
-        portfolioValue.setSecuritiesCurrentValue(securitiesCurrentValue); // might be null if there was no last tick for a particular security
-        portfolioValue.setMaintenanceMargin(maintenanceMargin);
-        portfolioValue.setNetLiqValue(securitiesCurrentValue != null ? cashBalance.add(securitiesCurrentValue) : null); // add here to prevent another lookup
-        portfolioValue.setLeverage(Double.isNaN(leverage) ? 0 : leverage);
-        portfolioValue.setAllocation(strategy.getAllocation());
-
-        return portfolioValue;
-    }
-
-    @Override
-    protected PortfolioValue handleGetPortfolioValue(String strategyName, Date date) {
-
-        Strategy strategy = getStrategyDao().findByName(strategyName);
-
-        BigDecimal cashBalance;
-        BigDecimal securitiesCurrentValue;
-        if (strategy.isBase()) {
-            cashBalance = getCashBalance(date);
-            securitiesCurrentValue = getSecuritiesCurrentValue(date);
-
-        } else {
-            cashBalance = getCashBalance(strategy.getName(), date);
-            securitiesCurrentValue = getSecuritiesCurrentValue(strategy.getName(), date);
-        }
-
-        PortfolioValue portfolioValue = PortfolioValue.Factory.newInstance();
-
-        portfolioValue.setStrategy(strategy);
-        portfolioValue.setDateTime(date);
-        portfolioValue.setCashBalance(cashBalance);
-        portfolioValue.setSecuritiesCurrentValue(securitiesCurrentValue);
-        portfolioValue.setNetLiqValue(cashBalance.add(securitiesCurrentValue)); // add here to prevent another lookup
-        portfolioValue.setMaintenanceMargin(new BigDecimal(0));
-
-        return portfolioValue;
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    protected Collection<PortfolioValueVO> handleGetPortfolioValuesInclPerformanceSinceDate(String strategyName, Date minDate) {
-
-        Collection<PortfolioValueVO> portfolioValues = (Collection<PortfolioValueVO>) getPortfolioValueDao().findByStrategyAndMinDate(PortfolioValueDao.TRANSFORM_PORTFOLIOVALUEVO, strategyName, minDate);
-
-        // calculate the performance
-        double lastNetLiqValue = 0;
-        double lastDayNetLiqValue = 0;
-        double performance = 1.0;
-        double dailyPerformance = 1.0;
-        for (PortfolioValueVO portfolioValue : portfolioValues) {
-
-            // for BASE reset performance at the 24:00 based on NetLiqValue of prior day
-            if (StrategyImpl.BASE.equals(strategyName) && DateUtils.getFragmentInHours(portfolioValue.getDateTime(), Calendar.DAY_OF_YEAR) == 0) {
-                if (lastDayNetLiqValue != 0) {
-                    dailyPerformance = dailyPerformance
-                            * (portfolioValue.getNetLiqValue().doubleValue() / (lastDayNetLiqValue + (portfolioValue.getCashFlow() != null ? portfolioValue.getCashFlow().doubleValue() : 0)));
-                    performance = dailyPerformance;
-                    portfolioValue.setPerformance(performance - 1.0);
-                }
-
-                lastDayNetLiqValue = portfolioValue.getNetLiqValue().doubleValue();
-                lastNetLiqValue = portfolioValue.getNetLiqValue().doubleValue();
-
-            } else {
-                if (lastNetLiqValue != 0) {
-                    performance = performance
-                            * (portfolioValue.getNetLiqValue().doubleValue() / (lastNetLiqValue + (portfolioValue.getCashFlow() != null ? portfolioValue.getCashFlow().doubleValue() : 0)));
-                    portfolioValue.setPerformance(performance - 1.0);
-                }
-
-                lastNetLiqValue = portfolioValue.getNetLiqValue().doubleValue();
-            }
-        }
-
-        return portfolioValues;
-    }
-
-    @Override
-    protected Collection<BalanceVO> handleGetBalances() {
-
-        Collection<Currency> currencies = getCashBalanceDao().findHeldCurrencies();
-        Collection<CashBalance> cashBalances = getCashBalanceDao().loadAll();
-        Collection<Position> positions = getPositionDao().findOpenTradeablePositionsAggregated();
-
-        return getBalances(currencies, cashBalances, positions);
-    }
-
-    @Override
-    protected Collection<BalanceVO> handleGetBalances(String strategyName) {
-
-        Collection<Currency> currencies = getCashBalanceDao().findHeldCurrenciesByStrategy(strategyName);
-        Collection<CashBalance> cashBalances = getCashBalanceDao().findCashBalancesByStrategy(strategyName);
-        Collection<Position> positions = getPositionDao().findOpenTradeablePositionsByStrategy(strategyName);
-
-        return getBalances(currencies, cashBalances, positions);
     }
 
     private List<BalanceVO> getBalances(Collection<Currency> currencies, Collection<CashBalance> cashBalances, Collection<Position> positions) {
@@ -640,7 +1109,7 @@ public class PortfolioServiceImpl extends PortfolioServiceBase {
             double cash = cashMap.get(currency);
             double securities = securitiesMap.get(currency);
             double netLiqValue = cash + securities;
-            double exchangeRate = ServiceLocator.instance().getLookupService().getForexRateDouble(currency, getCommonConfig().getPortfolioBaseCurrency());
+            double exchangeRate = ServiceLocator.instance().getLookupService().getForexRateDouble(currency, this.commonConfig.getPortfolioBaseCurrency());
             double cashBase = cash * exchangeRate;
             double securitiesBase = securities * exchangeRate;
             double netLiqValueBase = netLiqValue * exchangeRate;

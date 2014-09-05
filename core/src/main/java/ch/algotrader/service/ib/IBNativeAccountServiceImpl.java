@@ -21,10 +21,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 
+import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
 
 import ch.algotrader.adapter.ib.AccountUpdate;
+import ch.algotrader.adapter.ib.IBSession;
 import ch.algotrader.adapter.ib.Profile;
+import ch.algotrader.service.AccountServiceImpl;
 import ch.algotrader.util.MyLogger;
 
 /**
@@ -32,62 +35,80 @@ import ch.algotrader.util.MyLogger;
  *
  * @version $Revision$ $Date$
  */
-public class IBNativeAccountServiceImpl extends IBNativeAccountServiceBase {
+public class IBNativeAccountServiceImpl extends AccountServiceImpl implements IBNativeAccountService {
 
     private static final Logger logger = MyLogger.getLogger(IBNativeAccountServiceImpl.class.getName());
 
-    private BlockingQueue<AccountUpdate> accountUpdateQueue;
-    private BlockingQueue<Set<String>> accountsQueue;
-    private BlockingQueue<Profile> profilesQueue;
+    private final BlockingQueue<AccountUpdate> accountUpdateQueue;
+    private final BlockingQueue<Set<String>> accountsQueue;
+    private final BlockingQueue<Profile> profilesQueue;
 
-    public void setAccountUpdateQueue(BlockingQueue<AccountUpdate> accountUpdateQueue) {
+    private final IBSession iBSession;
+
+    public IBNativeAccountServiceImpl(final BlockingQueue<AccountUpdate> accountUpdateQueue,
+            final BlockingQueue<Set<String>> accountsQueue,
+            final BlockingQueue<Profile> profilesQueue,
+            final IBSession iBSession) {
+
+        Validate.notNull(accountUpdateQueue, "AccountUpdateQueue is null");
+        Validate.notNull(accountsQueue, "AccountsQueue is null");
+        Validate.notNull(profilesQueue, "ProfilesQueue is null");
+        Validate.notNull(iBSession, "IBSession is null");
+
         this.accountUpdateQueue = accountUpdateQueue;
-    }
-
-    public void setAccountsQueue(BlockingQueue<Set<String>> accountsQueue) {
         this.accountsQueue = accountsQueue;
-    }
-
-    public void setProfilesQueue(BlockingQueue<Profile> profilesQueue) {
         this.profilesQueue = profilesQueue;
+        this.iBSession = iBSession;
     }
 
     @Override
-    protected long handleGetQuantityByMargin(String strategyName, double initialMarginPerContractInBase) throws Exception {
+    public long getQuantityByMargin(String strategyName, double initialMarginPerContractInBase) {
 
-        long quantityByMargin = 0;
-        StringBuffer buffer = new StringBuffer("quantityByMargin:");
-        for (String account : getAccounts()) {
-            double availableAmount = Double.parseDouble(retrieveAccountValue(account, "CHF", "AvailableFunds"));
-            long quantity = (long) (availableAmount / initialMarginPerContractInBase);
-            quantityByMargin += quantity;
+        Validate.notEmpty(strategyName, "Strategy name is empty");
 
-            buffer.append(" " + account + "=" + quantity);
+        try {
+            long quantityByMargin = 0;
+            StringBuffer buffer = new StringBuffer("quantityByMargin:");
+            for (String account : getAccounts()) {
+                double availableAmount = Double.parseDouble(retrieveAccountValue(account, "CHF", "AvailableFunds"));
+                long quantity = (long) (availableAmount / initialMarginPerContractInBase);
+                quantityByMargin += quantity;
+
+                buffer.append(" " + account + "=" + quantity);
+            }
+            logger.debug(buffer.toString());
+
+            return quantityByMargin;
+        } catch (Exception ex) {
+            throw new IBFixAccountServiceException(ex.getMessage(), ex);
         }
-        logger.debug(buffer.toString());
-
-        return quantityByMargin;
     }
 
     @Override
-    protected long handleGetQuantityByAllocation(String strategyName, long requestedQuantity) throws Exception {
+    public long getQuantityByAllocation(String strategyName, long requestedQuantity) {
 
-        long quantityByAllocation = 0;
-        StringBuffer buffer = new StringBuffer("quantityByAllocation:");
-        for (Map.Entry<String, Double> entry : getAllocations(strategyName).entrySet()) {
-            long quantity = (long) (entry.getValue() / 100.0 * requestedQuantity);
-            quantityByAllocation += quantity;
+        Validate.notEmpty(strategyName, "Strategy name is empty");
 
-            buffer.append(" " + entry.getKey() + "=" + quantity);
+        try {
+            long quantityByAllocation = 0;
+            StringBuffer buffer = new StringBuffer("quantityByAllocation:");
+            for (Map.Entry<String, Double> entry : getAllocations(strategyName).entrySet()) {
+                long quantity = (long) (entry.getValue() / 100.0 * requestedQuantity);
+                quantityByAllocation += quantity;
+
+                buffer.append(" " + entry.getKey() + "=" + quantity);
+            }
+            logger.debug(buffer.toString());
+
+            return quantityByAllocation;
+        } catch (Exception ex) {
+            throw new IBFixAccountServiceException(ex.getMessage(), ex);
         }
-        logger.debug(buffer.toString());
-
-        return quantityByAllocation;
     }
 
     private String retrieveAccountValue(String accountName, String currency, String key) throws InterruptedException {
 
-        getIBSession().reqAccountUpdates(true, accountName);
+        this.iBSession.reqAccountUpdates(true, accountName);
 
         while (true) {
 
@@ -100,14 +121,14 @@ public class IBNativeAccountServiceImpl extends IBNativeAccountServiceBase {
 
     private Set<String> getAccounts() throws Exception {
 
-        getIBSession().requestFA(1);
+        this.iBSession.requestFA(1);
 
         return this.accountsQueue.take();
     }
 
     private Map<String, Double> getAllocations(String strategyName) throws Exception {
 
-        getIBSession().requestFA(2);
+        this.iBSession.requestFA(2);
 
         while (true) {
 

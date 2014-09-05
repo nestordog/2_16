@@ -17,16 +17,26 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
+import ch.algotrader.util.spring.HibernateSession;
+
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public abstract class AccountServiceImpl extends AccountServiceBase {
+@HibernateSession
+public abstract class AccountServiceImpl implements AccountService {
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected abstract long handleGetQuantityByMargin(String strategyName, double initialMarginPerContractInBase) throws Exception;
+    public abstract long getQuantityByMargin(String strategyName, double initialMarginPerContractInBase);
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected abstract long handleGetQuantityByAllocation(String strategyName, long requestedQuantity) throws Exception;
+    public abstract long getQuantityByAllocation(String strategyName, long requestedQuantity);
+
 }

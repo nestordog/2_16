@@ -1,23 +1,25 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2013 Flury Trading - All rights reserved
+ * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
  *
- * All information contained herein is, and remains the property of Flury Trading.
+ * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
- * Flury Trading. Modification, translation, reverse engineering, decompilation,
+ * AlgoTrader GmbH. Modification, translation, reverse engineering, decompilation,
  * disassembly or reproduction of this material is strictly forbidden unless prior
- * written permission is obtained from Flury Trading
+ * written permission is obtained from AlgoTrader GmbH
  *
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
- * Flury Trading
+ * AlgoTrader GmbH
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
 package ch.algotrader.service.sim;
 
 import java.math.BigDecimal;
+
+import org.apache.commons.lang.Validate;
 
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.trade.Fill;
@@ -29,6 +31,9 @@ import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.EngineLocator;
+import ch.algotrader.service.ExternalOrderServiceImpl;
+import ch.algotrader.service.OrderService;
+import ch.algotrader.service.TransactionService;
 import ch.algotrader.util.DateUtil;
 
 /**
@@ -36,94 +41,156 @@ import ch.algotrader.util.DateUtil;
  *
  * @version $Revision$ $Date$
  */
-public class SimulationOrderServiceImpl extends SimulationOrderServiceBase {
+public class SimulationOrderServiceImpl extends ExternalOrderServiceImpl implements SimulationOrderService {
 
-    @Override
-    protected void handleSendOrder(SimpleOrder order) throws Exception {
+    private final TransactionService transactionService;
 
-        // create one fill per order
-        Fill fill = Fill.Factory.newInstance();
-        fill.setDateTime(DateUtil.getCurrentEPTime());
-        fill.setExtDateTime(DateUtil.getCurrentEPTime());
-        fill.setSide(order.getSide());
-        fill.setQuantity(order.getQuantity());
-        fill.setPrice(getPrice(order));
-        fill.setOrder(order);
-        fill.setExecutionCommission(getExecutionCommission(order));
-        fill.setClearingCommission(getClearingCommission(order));
-        fill.setFee(getFee(order));
+    private final OrderService orderService;
 
-        // propagate the fill
-        getTransactionService().propagateFill(fill);
+    public SimulationOrderServiceImpl(final TransactionService transactionService,
+            final OrderService orderService) {
 
-        // create the transaction
-        getTransactionService().createTransaction(fill);
+        Validate.notNull(transactionService, "TransactionService is null");
+        Validate.notNull(orderService, "OrderService is null");
 
-        // create and OrderStatus
-        OrderStatus orderStatus = OrderStatus.Factory.newInstance();
-        orderStatus.setStatus(Status.EXECUTED);
-        orderStatus.setFilledQuantity(order.getQuantity());
-        orderStatus.setRemainingQuantity(0);
-        orderStatus.setOrder(order);
-
-        // send the orderStatus to base
-        EngineLocator.instance().getBaseEngine().sendEvent(orderStatus);
-
-        // propagate the OrderStatus to the strategy
-        getOrderService().propagateOrderStatus(orderStatus);
+        this.transactionService = transactionService;
+        this.orderService = orderService;
     }
 
     @Override
-    protected BigDecimal handleGetPrice(SimpleOrder order) {
+    public void sendOrder(SimpleOrder order) {
 
-        if (order instanceof LimitOrderI) {
+        Validate.notNull(order, "Order is null");
 
-            // limit orders are executed at their limit price
-            return ((LimitOrderI) order).getLimit();
+        try {
+            // create one fill per order
+            Fill fill = Fill.Factory.newInstance();
+            fill.setDateTime(DateUtil.getCurrentEPTime());
+            fill.setExtDateTime(DateUtil.getCurrentEPTime());
+            fill.setSide(order.getSide());
+            fill.setQuantity(order.getQuantity());
+            fill.setPrice(getPrice(order));
+            fill.setOrder(order);
+            fill.setExecutionCommission(getExecutionCommission(order));
+            fill.setClearingCommission(getClearingCommission(order));
+            fill.setFee(getFee(order));
 
-        } else {
+            // propagate the fill
+            this.transactionService.propagateFill(fill);
 
-            Security security = order.getSecurity();
+            // create the transaction
+            this.transactionService.createTransaction(fill);
 
-            // all other orders are executed the the market
-            return security.getCurrentMarketDataEvent().getMarketValue(Side.BUY.equals(order.getSide()) ? Direction.SHORT : Direction.LONG)
-                    .setScale(security.getSecurityFamily().getScale(), BigDecimal.ROUND_HALF_UP);
+            // create and OrderStatus
+            OrderStatus orderStatus = OrderStatus.Factory.newInstance();
+            orderStatus.setStatus(Status.EXECUTED);
+            orderStatus.setFilledQuantity(order.getQuantity());
+            orderStatus.setRemainingQuantity(0);
+            orderStatus.setOrder(order);
+
+            // send the orderStatus to base
+            EngineLocator.instance().getBaseEngine().sendEvent(orderStatus);
+
+            // propagate the OrderStatus to the strategy
+            this.orderService.propagateOrderStatus(orderStatus);
+        } catch (Exception ex) {
+            throw new SimulationOrderServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BigDecimal getPrice(final SimpleOrder order) {
+
+        Validate.notNull(order, "Order is null");
+
+        try {
+            if (order instanceof LimitOrderI) {
+
+                // limit orders are executed at their limit price
+                return ((LimitOrderI) order).getLimit();
+
+            } else {
+
+                Security security = order.getSecurity();
+
+                // all other orders are executed the the market
+                return security.getCurrentMarketDataEvent().getMarketValue(Side.BUY.equals(order.getSide()) ? Direction.SHORT : Direction.LONG)
+                        .setScale(security.getSecurityFamily().getScale(), BigDecimal.ROUND_HALF_UP);
+            }
+        } catch (Exception ex) {
+            throw new SimulationOrderServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BigDecimal getExecutionCommission(final SimpleOrder order) {
+
+        Validate.notNull(order, "Order is null");
+
+        try {
+            return null;
+        } catch (Exception ex) {
+            throw new SimulationOrderServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BigDecimal getClearingCommission(final SimpleOrder order) {
+
+        Validate.notNull(order, "Order is null");
+
+        try {
+            return null;
+        } catch (Exception ex) {
+            throw new SimulationOrderServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BigDecimal getFee(final SimpleOrder order) {
+
+        Validate.notNull(order, "Order is null");
+
+        try {
+            return null;
+        } catch (Exception ex) {
+            throw new SimulationOrderServiceException(ex.getMessage(), ex);
         }
     }
 
     @Override
-    protected BigDecimal handleGetExecutionCommission(SimpleOrder order) throws Exception {
-        return null;
-    }
+    public void validateOrder(SimpleOrder order) {
 
-    @Override
-    protected BigDecimal handleGetClearingCommission(SimpleOrder order) throws Exception {
-        return null;
-    }
-
-    @Override
-    protected BigDecimal handleGetFee(SimpleOrder order) throws Exception {
-        return null;
-    }
-
-    @Override
-    protected void handleValidateOrder(SimpleOrder order) throws Exception {
         // do nothing
     }
 
     @Override
-    protected void handleCancelOrder(SimpleOrder order) throws Exception {
+    public void cancelOrder(SimpleOrder order) {
+
         throw new UnsupportedOperationException("cancel order not supported in simulation");
     }
 
     @Override
-    protected void handleModifyOrder(SimpleOrder order) throws Exception {
+    public void modifyOrder(SimpleOrder order) {
+
         throw new UnsupportedOperationException("modify order not supported in simulation");
     }
 
     @Override
-    protected OrderServiceType handleGetOrderServiceType() throws Exception {
+    public OrderServiceType getOrderServiceType() {
+
         return OrderServiceType.SIMULATION;
     }
-
 }

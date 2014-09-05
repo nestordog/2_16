@@ -1,17 +1,17 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2013 Flury Trading - All rights reserved
+ * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
  *
- * All information contained herein is, and remains the property of Flury Trading.
+ * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
- * Flury Trading. Modification, translation, reverse engineering, decompilation,
+ * AlgoTrader GmbH. Modification, translation, reverse engineering, decompilation,
  * disassembly or reproduction of this material is strictly forbidden unless prior
- * written permission is obtained from Flury Trading
+ * written permission is obtained from AlgoTrader GmbH
  *
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
- * Flury Trading
+ * AlgoTrader GmbH
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
@@ -26,13 +26,16 @@ import java.util.TreeSet;
 
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Predicate;
+import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.time.DateUtils;
 
 import ch.algotrader.entity.security.Exchange;
+import ch.algotrader.entity.security.ExchangeDao;
 import ch.algotrader.entity.security.Holiday;
 import ch.algotrader.entity.security.TradingHours;
 import ch.algotrader.enumeration.WeekDay;
 import ch.algotrader.util.ObjectUtil;
+import ch.algotrader.util.spring.HibernateSession;
 
 /**
  * Java (before JDK8) does not have a separate Date and Time class, therefore parameters are named accordingly.
@@ -41,41 +44,87 @@ import ch.algotrader.util.ObjectUtil;
  *
  * @version $Revision$ $Date$
  */
-public class CalendarServiceImpl extends CalendarServiceBase {
+@HibernateSession
+public class CalendarServiceImpl implements CalendarService {
 
-    @Override
-    protected boolean handleIsOpen(int exchangeId, Date dateTime) throws Exception {
+    private final ExchangeDao exchangeDao;
 
-        Exchange exchange = getExchangeDao().get(exchangeId);
-        Date date = truncateToDayUsingTimeZone(dateTime, exchange.getTZ());
-        TimeIntervals timeIntervals = getTimeIntervalsPlusMinusOneDay(exchange, date);
-        return timeIntervals.contains(dateTime);
+    public CalendarServiceImpl(final ExchangeDao exchangeDao) {
+
+        Validate.notNull(exchangeDao, "ExchangeDao is null");
+
+        this.exchangeDao = exchangeDao;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected boolean handleIsTradingDay(int exchangeId, Date date) throws Exception {
+    public boolean isOpen(final int exchangeId, final Date dateTime) {
 
-        Exchange exchange = getExchangeDao().get(exchangeId);
-        date = DateUtils.truncate(date, Calendar.DATE);
-        return isTradingDay(exchange, date);
+        Validate.notNull(dateTime, "Data time is null");
+
+        try {
+            Exchange exchange = this.exchangeDao.get(exchangeId);
+            Date date = truncateToDayUsingTimeZone(dateTime, exchange.getTZ());
+            TimeIntervals timeIntervals = getTimeIntervalsPlusMinusOneDay(exchange, date);
+            return timeIntervals.contains(dateTime);
+        } catch (Exception ex) {
+            throw new CalendarServiceException(ex.getMessage(), ex);
+        }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected Date handleGetOpenTime(int exchangeId, Date date) throws Exception {
+    public boolean isTradingDay(final int exchangeId, final Date date) {
 
-        Exchange exchange = getExchangeDao().get(exchangeId);
-        date = DateUtils.truncate(date, Calendar.DATE);
-        TimeIntervals timeIntervals = getTimeIntervals(exchange, date);
-        return timeIntervals.isEmpty() ? null : timeIntervals.first().getFrom();
+        Validate.notNull(date, "Date is null");
+
+        try {
+            Exchange exchange = this.exchangeDao.get(exchangeId);
+            Date dateTruncated = DateUtils.truncate(date, Calendar.DATE);
+            return isTradingDay(exchange, dateTruncated);
+        } catch (Exception ex) {
+            throw new CalendarServiceException(ex.getMessage(), ex);
+        }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected Date handleGetCloseTime(int exchangeId, Date date) throws Exception {
+    public Date getOpenTime(final int exchangeId, final Date date) {
 
-        Exchange exchange = getExchangeDao().get(exchangeId);
-        date = DateUtils.truncate(date, Calendar.DATE);
-        TimeIntervals timeIntervals = getTimeIntervals(exchange, date);
-        return timeIntervals.isEmpty() ? null : timeIntervals.last().getTo();
+        Validate.notNull(date, "Date is null");
+
+        try {
+            Exchange exchange = this.exchangeDao.get(exchangeId);
+            Date dateTruncated = DateUtils.truncate(date, Calendar.DATE);
+            TimeIntervals timeIntervals = getTimeIntervals(exchange, dateTruncated);
+            return timeIntervals.isEmpty() ? null : timeIntervals.first().getFrom();
+        } catch (Exception ex) {
+            throw new CalendarServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Date getCloseTime(final int exchangeId, final Date date) {
+
+        Validate.notNull(date, "Date is null");
+
+        try {
+            Exchange exchange = this.exchangeDao.get(exchangeId);
+            Date dateTruncated = DateUtils.truncate(date, Calendar.DATE);
+            TimeIntervals timeIntervals = getTimeIntervals(exchange, dateTruncated);
+            return timeIntervals.isEmpty() ? null : timeIntervals.last().getTo();
+        } catch (Exception ex) {
+            throw new CalendarServiceException(ex.getMessage(), ex);
+        }
     }
 
     private boolean isTradingDay(Exchange exchange, Date date) {

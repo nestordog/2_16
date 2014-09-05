@@ -17,14 +17,21 @@
  ***********************************************************************************/
 package ch.algotrader.service.ib;
 
+import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
 
+import ch.algotrader.adapter.ib.IBIdGenerator;
+import ch.algotrader.adapter.ib.IBSession;
 import ch.algotrader.adapter.ib.IBUtil;
+import ch.algotrader.config.IBConfig;
 import ch.algotrader.entity.marketData.Tick;
+import ch.algotrader.entity.marketData.TickDao;
 import ch.algotrader.entity.security.Security;
+import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.EngineLocator;
+import ch.algotrader.service.ExternalMarketDataServiceImpl;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.vo.SubscribeTickVO;
 
@@ -35,73 +42,117 @@ import com.ib.client.Contract;
  *
  * @version $Revision$ $Date$
  */
-public class IBNativeMarketDataServiceImpl extends IBNativeMarketDataServiceBase implements DisposableBean {
+public class IBNativeMarketDataServiceImpl extends ExternalMarketDataServiceImpl implements IBNativeMarketDataService, DisposableBean {
 
     private static Logger logger = MyLogger.getLogger(IBNativeMarketDataServiceImpl.class.getName());
 
-    @Override
-    protected void handleInitSubscriptions() {
+    private final IBSession iBSession;
 
-        if (getIBSession().getLifecycle().subscribe()) {
-            super.handleInitSubscriptions();
+    private final IBIdGenerator iBIdGenerator;
+
+    private final IBConfig iBConfig;
+
+    private final TickDao tickDao;
+
+    public IBNativeMarketDataServiceImpl(final IBSession iBSession,
+            final IBIdGenerator iBIdGenerator,
+            final IBConfig iBConfig,
+            final TickDao tickDao,
+            final SecurityDao securityDao) {
+
+        super(securityDao);
+
+        Validate.notNull(iBSession, "IBSession is null");
+        Validate.notNull(iBIdGenerator, "IBIdGenerator is null");
+        Validate.notNull(iBConfig, "IBConfig is null");
+        Validate.notNull(tickDao, "TickDao is null");
+
+        this.iBSession = iBSession;
+        this.iBIdGenerator = iBIdGenerator;
+        this.iBConfig = iBConfig;
+        this.tickDao = tickDao;
+    }
+
+    @Override
+    public void initSubscriptions() {
+
+        try {
+            if (this.iBSession.getLifecycle().subscribe()) {
+                super.initSubscriptions();
+            }
+        } catch (Exception ex) {
+            throw new IBNativeMarketDataServiceException(ex.getMessage(), ex);
         }
     }
 
     @Override
-    protected void handleSubscribe(Security security) throws Exception {
+    public void subscribe(Security security) {
 
-        if (!getIBSession().getLifecycle().isLoggedOn()) {
-            throw new IBNativeMarketDataServiceException("IB is not logged on to subscribe " + security);
+        Validate.notNull(security, "Security is null");
+
+        try {
+            if (!this.iBSession.getLifecycle().isLoggedOn()) {
+                throw new IBNativeMarketDataServiceException("IB is not logged on to subscribe " + security);
+            }
+
+            // create the SubscribeTickEvent (must happen before reqMktData so that Esper is ready to receive marketdata)
+            int tickerId = this.iBIdGenerator.getNextRequestId();
+            Tick tick = Tick.Factory.newInstance();
+            tick.setSecurity(security);
+            tick.setFeedType(FeedType.IB);
+
+            SubscribeTickVO subscribeTickEvent = new SubscribeTickVO();
+            subscribeTickEvent.setTick(tick);
+            subscribeTickEvent.setTickerId(Integer.toString(tickerId));
+
+            EngineLocator.instance().getBaseEngine().sendEvent(subscribeTickEvent);
+
+            // requestMarketData from IB
+            Contract contract = IBUtil.getContract(security);
+
+            this.iBSession.reqMktData(tickerId, contract, this.iBConfig.getGenericTickList(), false);
+
+            logger.debug("requested market data for: " + security + " tickerId: " + tickerId);
+        } catch (Exception ex) {
+            throw new IBNativeMarketDataServiceException(ex.getMessage(), ex);
         }
-
-        // create the SubscribeTickEvent (must happen before reqMktData so that Esper is ready to receive marketdata)
-        int tickerId = getIBIdGenerator().getNextRequestId();
-        Tick tick = Tick.Factory.newInstance();
-        tick.setSecurity(security);
-        tick.setFeedType(FeedType.IB);
-
-        SubscribeTickVO subscribeTickEvent = new SubscribeTickVO();
-        subscribeTickEvent.setTick(tick);
-        subscribeTickEvent.setTickerId(Integer.toString(tickerId));
-
-        EngineLocator.instance().getBaseEngine().sendEvent(subscribeTickEvent);
-
-        // requestMarketData from IB
-        Contract contract = IBUtil.getContract(security);
-
-        getIBSession().reqMktData(tickerId, contract, this.getIBConfig().getGenericTickList(), false);
-
-        logger.debug("requested market data for: " + security + " tickerId: " + tickerId);
     }
 
     @Override
-    protected void handleUnsubscribe(Security security) throws Exception {
+    public void unsubscribe(Security security) {
 
-        if (!getIBSession().getLifecycle().isSubscribed()) {
-            throw new IBNativeMarketDataServiceException("IB ist not subscribed, security cannot be unsubscribed " + security);
+        Validate.notNull(security, "Security is null");
+
+        try {
+            if (!this.iBSession.getLifecycle().isSubscribed()) {
+                throw new IBNativeMarketDataServiceException("IB ist not subscribed, security cannot be unsubscribed " + security);
+            }
+
+            // get the tickerId by querying the TickWindow
+            String tickerId = this.tickDao.findTickerIdBySecurity(security.getId());
+            if (tickerId == null) {
+                throw new IBNativeMarketDataServiceException("tickerId for security " + security + " was not found");
+            }
+
+            this.iBSession.cancelMktData(Integer.parseInt(tickerId));
+
+            EngineLocator.instance().getBaseEngine().executeQuery("delete from TickWindow where security.id = " + security.getId());
+
+            logger.debug("cancelled market data for : " + security);
+        } catch (Exception ex) {
+            throw new IBNativeMarketDataServiceException(ex.getMessage(), ex);
         }
-
-        // get the tickerId by querying the TickWindow
-        String tickerId = getTickDao().findTickerIdBySecurity(security.getId());
-        if (tickerId == null) {
-            throw new IBNativeMarketDataServiceException("tickerId for security " + security + " was not found");
-        }
-
-        getIBSession().cancelMktData(Integer.parseInt(tickerId));
-
-        EngineLocator.instance().getBaseEngine().executeQuery("delete from TickWindow where security.id = " + security.getId());
-
-        logger.debug("cancelled market data for : " + security);
     }
 
     @Override
-    protected FeedType handleGetFeedType() throws Exception {
+    public FeedType getFeedType() {
+
         return FeedType.IB;
     }
 
     @Override
     public void destroy() throws Exception {
 
-        getIBSession().disconnect();
+        this.iBSession.disconnect();
     }
 }

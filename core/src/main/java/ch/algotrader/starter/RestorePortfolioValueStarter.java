@@ -8,7 +8,7 @@ import java.util.Date;
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.service.LookupService;
-import ch.algotrader.service.PortfolioPersistenceService;
+import ch.algotrader.service.TransactionService;
 
 /**
  * Starter Class to restores all PortfolioValues of a specified Strategy
@@ -24,7 +24,7 @@ public class RestorePortfolioValueStarter {
     public static void main(String[] args) throws ParseException {
 
         ServiceLocator.instance().init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
-        PortfolioPersistenceService accountService = ServiceLocator.instance().getService("portfolioPersistenceService", PortfolioPersistenceService.class);
+        TransactionService transactionService = ServiceLocator.instance().getService("transactionService", TransactionService.class);
         LookupService lookupService = ServiceLocator.instance().getLookupService();
 
         Strategy strategy = lookupService.getStrategyByName(args[0]);
@@ -32,7 +32,7 @@ public class RestorePortfolioValueStarter {
         Date fromDate = formatter.parse(args[1]);
         Date toDate = formatter.parse(args[2]);
 
-        accountService.restorePortfolioValues(strategy, fromDate, toDate);
+        transactionService.restorePortfolioValues(strategy, fromDate, toDate);
 
         ServiceLocator.instance().shutdown();
     }

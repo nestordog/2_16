@@ -34,142 +34,263 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import ch.algotrader.ServiceLocator;
-import ch.algotrader.entity.Account;
+import org.apache.commons.lang.Validate;
+import org.springframework.jmx.export.annotation.ManagedOperation;
+import org.springframework.jmx.export.annotation.ManagedOperationParameter;
+import org.springframework.jmx.export.annotation.ManagedOperationParameters;
+import org.springframework.jmx.export.annotation.ManagedResource;
+
 import quickfix.field.FAConfigurationAction;
 import quickfix.field.FARequestID;
 import quickfix.field.SubMsgType;
 import quickfix.field.XMLContent;
 import quickfix.fix42.IBFAModification;
+import ch.algotrader.ServiceLocator;
+import ch.algotrader.adapter.fix.FixAdapter;
+import ch.algotrader.entity.Account;
+import ch.algotrader.service.AccountServiceImpl;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class IBFixAccountServiceImpl extends IBFixAccountServiceBase {
+@ManagedResource(objectName="ch.algotrader.service.ib:name=IBFixAccountService")
+public class IBFixAccountServiceImpl extends AccountServiceImpl implements IBFixAccountService {
 
     private Lock lock = new ReentrantLock();
     private Condition condition = this.lock.newCondition();
     private GroupMap groups;
 
+    private final FixAdapter fixAdapter;
+
+    public IBFixAccountServiceImpl(final FixAdapter fixAdapter) {
+
+        Validate.notNull(fixAdapter, "FixAdapter is null");
+
+        this.fixAdapter = fixAdapter;
+    }
+
     @Override
-    protected long handleGetQuantityByMargin(String strategyName, double initialMarginPerContractInBase) throws Exception {
+    public long getQuantityByMargin(String strategyName, double initialMarginPerContractInBase) {
 
         throw new UnsupportedOperationException();
     }
 
     @Override
-    protected long handleGetQuantityByAllocation(String strategyName, long requestedQuantity) throws Exception {
+    public long getQuantityByAllocation(String strategyName, long requestedQuantity) {
 
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected Collection<String> handleGetGroups(String accountName) throws Exception {
+    @ManagedOperation(description = "Gets all Account Groups of the specified Account.")
+    @ManagedOperationParameters({ @ManagedOperationParameter(name = "account", description = "account") })
+    public Collection<String> getGroups(final String account) {
 
-        requestGroups(accountName);
+        Validate.notEmpty(account, "Account is empty");
 
-        return new ArrayList<String>(this.groups.keySet());
-    }
-
-    @Override
-    protected void handleAddGroup(String accountName, String groupName, String defaultMethod, String initialChildAccount) throws Exception {
-
-        requestGroups(accountName);
-
-        Group group = new Group(groupName, defaultMethod);
-        group.add(initialChildAccount);
-
-        this.groups.add(group);
-
-        postGroups(accountName);
-    }
-
-    @Override
-    protected void handleRemoveGroup(String accountName, String groupName) throws Exception {
-
-        requestGroups(accountName);
-
-        this.groups.remove(groupName);
-
-        postGroups(accountName);
-    }
-
-    @Override
-    protected void handleSetDefaultMethod(String accountName, String groupName, String defaultMethod) throws Exception {
-
-        requestGroups(accountName);
-
-        Group group = this.groups.get(groupName);
-
-        if (group != null) {
-            group.setDefaultMethod(defaultMethod);
-        } else {
-            throw new IllegalArgumentException("group does not exist " + groupName);
-        }
-
-        postGroups(accountName);
-    }
-
-    @Override
-    protected Collection<String> handleGetChildAccounts(String accountName, String groupName) throws Exception {
-
-        requestGroups(accountName);
-
-        Group group = this.groups.get(groupName);
-
-        if (group != null) {
-            return group.getAccounts();
-        } else {
-            throw new IllegalArgumentException("group does not exist " + groupName);
-        }
-    }
-
-    @Override
-    protected void handleAddChildAccount(String accountName, String groupName, String childAccount) throws Exception {
-
-        requestGroups(accountName);
-
-        Group group = this.groups.get(groupName);
-
-        if (group != null) {
-            group.add(childAccount);
-        } else {
-            throw new IllegalArgumentException("group does not exist " + groupName);
-        }
-
-        postGroups(accountName);
-    }
-
-    @Override
-    protected void handleRemoveChildAccount(String accountName, String groupName, String childAccount) throws Exception {
-
-        requestGroups(accountName);
-
-        Group group = this.groups.get(groupName);
-
-        if (group != null) {
-            group.remove(childAccount);
-        } else {
-            throw new IllegalArgumentException("group does not exist " + groupName);
-        }
-
-        postGroups(accountName);
-    }
-
-    @Override
-    protected void handleUpdateGroups(String account, String xmlContent) throws Exception {
-
-        JAXBContext context = JAXBContext.newInstance(GroupMap.class);
-        Unmarshaller um = context.createUnmarshaller();
-        this.groups = (GroupMap) um.unmarshal(new StringReader(xmlContent));
-
-        this.lock.lock();
         try {
-            this.condition.signalAll();
-        } finally {
-            this.lock.unlock();
+            requestGroups(account);
+
+            return new ArrayList<String>(this.groups.keySet());
+        } catch (Exception ex) {
+            throw new IBFixAccountServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @ManagedOperation(description = "Adds an Account Group to the specified Account.")
+    @ManagedOperationParameters({ @ManagedOperationParameter(name = "account", description = "account"), @ManagedOperationParameter(name = "group", description = "group"),
+            @ManagedOperationParameter(name = "defaultMethod", description = "The default allocation method to be used by this Account Group."),
+            @ManagedOperationParameter(name = "initialChildAccount", description = "The first Child Account to add to this Account Group.") })
+    public void addGroup(final String account, final String group, final String defaultMethod, final String initialChildAccount) {
+
+        Validate.notEmpty(account, "Account is empty");
+        Validate.notEmpty(group, "Group is empty");
+        Validate.notEmpty(defaultMethod, "Default method is empty");
+        Validate.notEmpty(initialChildAccount, "Initial child account is empty");
+
+        try {
+            requestGroups(account);
+
+            Group groupObject = new Group(group, defaultMethod);
+            groupObject.add(initialChildAccount);
+
+            this.groups.add(groupObject);
+
+            postGroups(account);
+        } catch (Exception ex) {
+            throw new IBFixAccountServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @ManagedOperation(description = "Removes an Account Group from the specified Account.")
+    @ManagedOperationParameters({ @ManagedOperationParameter(name = "account", description = "account"), @ManagedOperationParameter(name = "group", description = "group") })
+    public void removeGroup(final String account, final String group) {
+
+        Validate.notEmpty(account, "Account is empty");
+        Validate.notEmpty(group, "Group is empty");
+
+        try {
+            requestGroups(account);
+
+            this.groups.remove(group);
+
+            postGroups(account);
+        } catch (Exception ex) {
+            throw new IBFixAccountServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @ManagedOperation(description = "Modifies the default allocation method of an Account Group.")
+    @ManagedOperationParameters({ @ManagedOperationParameter(name = "account", description = "account"), @ManagedOperationParameter(name = "group", description = "group"),
+            @ManagedOperationParameter(name = "defaultMethod", description = "defaultMethod") })
+    public void setDefaultMethod(final String account, final String group, final String defaultMethod) {
+
+        Validate.notEmpty(account, "Account is empty");
+        Validate.notEmpty(group, "Group is empty");
+        Validate.notEmpty(defaultMethod, "Default method is empty");
+
+        try {
+            requestGroups(account);
+
+            Group groupObject = this.groups.get(group);
+
+            if (group != null) {
+                groupObject.setDefaultMethod(defaultMethod);
+            } else {
+                throw new IllegalArgumentException("group does not exist " + group);
+            }
+
+            postGroups(account);
+        } catch (Exception ex) {
+            throw new IBFixAccountServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @ManagedOperation(description = "Gets all Child Accounts of an Account Group")
+    @ManagedOperationParameters({ @ManagedOperationParameter(name = "account", description = "account"), @ManagedOperationParameter(name = "group", description = "group") })
+    public Collection<String> getChildAccounts(final String account, final String group) {
+
+        Validate.notEmpty(account, "Account is empty");
+        Validate.notEmpty(group, "Group is empty");
+
+        try {
+            requestGroups(account);
+
+            Group groupObject = this.groups.get(group);
+
+            if (group != null) {
+                return groupObject.getAccounts();
+            } else {
+                throw new IllegalArgumentException("group does not exist " + group);
+            }
+        } catch (Exception ex) {
+            throw new IBFixAccountServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @ManagedOperation(description = "Adds a Child Account to an Account Group")
+    @ManagedOperationParameters({ @ManagedOperationParameter(name = "account", description = "account"), @ManagedOperationParameter(name = "group", description = "group"),
+            @ManagedOperationParameter(name = "childAccount", description = "childAccount") })
+    public void addChildAccount(final String account, final String group, final String childAccount) {
+
+        Validate.notEmpty(account, "Account is empty");
+        Validate.notEmpty(group, "Group is empty");
+        Validate.notEmpty(childAccount, "Child account is empty");
+
+        try {
+            requestGroups(account);
+
+            Group groupObject = this.groups.get(group);
+
+            if (group != null) {
+                groupObject.add(childAccount);
+            } else {
+                throw new IllegalArgumentException("group does not exist " + group);
+            }
+
+            postGroups(account);
+        } catch (Exception ex) {
+            throw new IBFixAccountServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @ManagedOperation(description = "Removes a Child Account from an Account Group")
+    @ManagedOperationParameters({ @ManagedOperationParameter(name = "account", description = "account"), @ManagedOperationParameter(name = "group", description = "group"),
+            @ManagedOperationParameter(name = "childAccount", description = "childAccount") })
+    public void removeChildAccount(final String account, final String group, final String childAccount) {
+
+        Validate.notEmpty(account, "Account is empty");
+        Validate.notEmpty(group, "Group is empty");
+        Validate.notEmpty(childAccount, "Child account is empty");
+
+        try {
+            requestGroups(account);
+
+            Group groupObject = this.groups.get(group);
+
+            if (group != null) {
+                groupObject.remove(childAccount);
+            } else {
+                throw new IllegalArgumentException("group does not exist " + group);
+            }
+
+            postGroups(account);
+        } catch (Exception ex) {
+            throw new IBFixAccountServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void updateGroups(final String account, final String xmlContent) {
+
+        Validate.notEmpty(account, "Account is empty");
+        Validate.notEmpty(xmlContent, "XML content is empty");
+
+        try {
+            JAXBContext context = JAXBContext.newInstance(GroupMap.class);
+            Unmarshaller um = context.createUnmarshaller();
+            this.groups = (GroupMap) um.unmarshal(new StringReader(xmlContent));
+
+            this.lock.lock();
+            try {
+                this.condition.signalAll();
+            } finally {
+                this.lock.unlock();
+            }
+        } catch (Exception ex) {
+            throw new IBFixAccountServiceException(ex.getMessage(), ex);
         }
     }
 
@@ -187,8 +308,7 @@ public class IBFixAccountServiceImpl extends IBFixAccountServiceBase {
         }
 
         this.groups = null;
-
-        getFixAdapter().sendMessage(faModification, account);
+        this.fixAdapter.sendMessage(faModification, account);
 
         this.lock.lock();
         try {
@@ -222,7 +342,7 @@ public class IBFixAccountServiceImpl extends IBFixAccountServiceBase {
             throw new IllegalArgumentException("account does not exist " + accountName);
         }
 
-        getFixAdapter().sendMessage(faModification, account);
+        this.fixAdapter.sendMessage(faModification, account);
     }
 
     @XmlRootElement(name = "ListOfGroups")
@@ -232,16 +352,19 @@ public class IBFixAccountServiceImpl extends IBFixAccountServiceBase {
 
         @XmlElement(name = "Group")
         public Collection<Group> getGroups() {
+
             return new ArrayList<Group>(this.values());
         }
 
         public void setGroups(Collection<Group> groups) {
+
             for (Group group : groups) {
                 this.put(group.getName(), group);
             }
         }
 
         public void add(Group group) {
+
             this.put(group.getName(), group);
         }
     }
@@ -258,29 +381,35 @@ public class IBFixAccountServiceImpl extends IBFixAccountServiceBase {
         }
 
         public Group(String name, String defaultMethod) {
+
             this.name = name;
             this.defaultMethod = defaultMethod;
         }
 
         public String getName() {
+
             return this.name;
         }
 
         public void setName(String name) {
+
             this.name = name;
         }
 
         public String getDefaultMethod() {
+
             return this.defaultMethod;
         }
 
         public void setDefaultMethod(String defaultMethod) {
+
             this.defaultMethod = defaultMethod;
         }
 
         @XmlElementWrapper(name = "ListOfAccts")
         @XmlElement(name = "Acct")
         public List<String> getAccounts() {
+
             return this;
         }
     }

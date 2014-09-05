@@ -19,9 +19,8 @@ package ch.algotrader.service.jpm;
 
 import java.util.Date;
 
-import ch.algotrader.entity.trade.SimpleOrder;
-import ch.algotrader.enumeration.Broker;
-import ch.algotrader.enumeration.OrderServiceType;
+import org.apache.commons.lang.Validate;
+
 import quickfix.field.Account;
 import quickfix.field.ExDestination;
 import quickfix.field.HandlInst;
@@ -30,52 +29,85 @@ import quickfix.field.TransactTime;
 import quickfix.fix42.NewOrderSingle;
 import quickfix.fix42.OrderCancelReplaceRequest;
 import quickfix.fix42.OrderCancelRequest;
+import ch.algotrader.adapter.fix.FixAdapter;
+import ch.algotrader.entity.trade.SimpleOrder;
+import ch.algotrader.enumeration.Broker;
+import ch.algotrader.enumeration.OrderServiceType;
+import ch.algotrader.service.OrderService;
+import ch.algotrader.service.fix.fix42.Fix42OrderServiceImpl;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class JPMFixOrderServiceImpl extends JPMFixOrderServiceBase {
+public class JPMFixOrderServiceImpl extends Fix42OrderServiceImpl implements JPMFixOrderService {
 
     private static final long serialVersionUID = -8881034489922372443L;
 
-    @Override
-    protected void handleSendOrder(SimpleOrder order, NewOrderSingle newOrder) {
+    public JPMFixOrderServiceImpl(final FixAdapter fixAdapter,
+            final OrderService orderService) {
 
-        newOrder.set(new Account(order.getAccount().getExtAccount()));
-        newOrder.set(new HandlInst('1'));
-        newOrder.set(new TransactTime(new Date()));
-
-        String exchange = order.getSecurity().getSecurityFamily().getExchangeCode(Broker.JPM);
-        newOrder.set(new ExDestination(exchange));
-        newOrder.set(new SecurityExchange(exchange));
+        super(fixAdapter, orderService);
     }
 
     @Override
-    protected void handleModifyOrder(SimpleOrder order, OrderCancelReplaceRequest replaceRequest) {
+    public void sendOrder(SimpleOrder order, NewOrderSingle newOrder) {
 
-        replaceRequest.set(new Account(order.getAccount().getExtAccount()));
-        replaceRequest.set(new HandlInst('1'));
-        replaceRequest.set(new TransactTime(new Date()));
+        Validate.notNull(order, "Order is null");
+        Validate.notNull(newOrder, "New order is null");
 
-        String exchange = order.getSecurity().getSecurityFamily().getExchangeCode(Broker.JPM);
-        replaceRequest.set(new ExDestination(exchange));
-        replaceRequest.set(new SecurityExchange(exchange));
+        try {
+            newOrder.set(new Account(order.getAccount().getExtAccount()));
+            newOrder.set(new HandlInst('1'));
+            newOrder.set(new TransactTime(new Date()));
+
+            String exchange = order.getSecurity().getSecurityFamily().getExchangeCode(Broker.JPM);
+            newOrder.set(new ExDestination(exchange));
+            newOrder.set(new SecurityExchange(exchange));
+        } catch (Exception ex) {
+            throw new JPMFixOrderServiceException(ex.getMessage(), ex);
+        }
     }
 
     @Override
-    protected void handleCancelOrder(SimpleOrder order, OrderCancelRequest cancelRequest) {
+    public void modifyOrder(SimpleOrder order, OrderCancelReplaceRequest replaceRequest) {
 
-        cancelRequest.set(new Account(order.getAccount().getExtAccount()));
-        cancelRequest.set(new TransactTime(new Date()));
+        Validate.notNull(order, "Order is null");
+        Validate.notNull(replaceRequest, "Replace request is null");
 
-        String exchange = order.getSecurity().getSecurityFamily().getExchangeCode(Broker.JPM);
-        cancelRequest.set(new SecurityExchange(exchange));
+        try {
+            replaceRequest.set(new Account(order.getAccount().getExtAccount()));
+            replaceRequest.set(new HandlInst('1'));
+            replaceRequest.set(new TransactTime(new Date()));
+
+            String exchange = order.getSecurity().getSecurityFamily().getExchangeCode(Broker.JPM);
+            replaceRequest.set(new ExDestination(exchange));
+            replaceRequest.set(new SecurityExchange(exchange));
+        } catch (Exception ex) {
+            throw new JPMFixOrderServiceException(ex.getMessage(), ex);
+        }
     }
 
     @Override
-    protected OrderServiceType handleGetOrderServiceType() throws Exception {
+    public void cancelOrder(SimpleOrder order, OrderCancelRequest cancelRequest) {
+
+        Validate.notNull(order, "Order is null");
+        Validate.notNull(cancelRequest, "Cancel request is null");
+
+        try {
+            cancelRequest.set(new Account(order.getAccount().getExtAccount()));
+            cancelRequest.set(new TransactTime(new Date()));
+
+            String exchange = order.getSecurity().getSecurityFamily().getExchangeCode(Broker.JPM);
+            cancelRequest.set(new SecurityExchange(exchange));
+        } catch (Exception ex) {
+            throw new JPMFixOrderServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    @Override
+    public OrderServiceType getOrderServiceType() {
 
         return OrderServiceType.JPM_FIX;
     }

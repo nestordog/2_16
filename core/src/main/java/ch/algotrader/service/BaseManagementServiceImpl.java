@@ -21,6 +21,11 @@ import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.apache.commons.lang.Validate;
+import org.springframework.jmx.export.annotation.ManagedOperation;
+import org.springframework.jmx.export.annotation.ManagedOperationParameter;
+import org.springframework.jmx.export.annotation.ManagedOperationParameters;
+
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Status;
@@ -28,98 +33,266 @@ import ch.algotrader.enumeration.TransactionType;
 import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.metric.MetricsUtil;
+import ch.algotrader.util.spring.HibernateSession;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class BaseManagementServiceImpl extends BaseManagementServiceBase {
+@HibernateSession
+public class BaseManagementServiceImpl implements BaseManagementService {
 
-    @Override
-    protected void handleCancelAllOrders() throws Exception {
+    private final PositionService positionService;
 
-        getOrderService().cancelAllOrders();
+    private final ForexService forexService;
+
+    private final CashBalanceService cashBalanceService;
+
+    private final CombinationService combinationService;
+
+    private final TransactionService transactionService;
+
+    private final OptionService optionService;
+
+    private final OrderService orderService;
+
+    public BaseManagementServiceImpl(
+            final PositionService positionService,
+            final ForexService forexService,
+            final CashBalanceService cashBalanceService,
+            final CombinationService combinationService,
+            final TransactionService transactionService,
+            final OptionService optionService,
+            final OrderService orderService) {
+
+        Validate.notNull(positionService, "PositionService is null");
+        Validate.notNull(forexService, "ForexService is null");
+        Validate.notNull(cashBalanceService, "CashBalanceService is null");
+        Validate.notNull(combinationService, "CombinationService is null");
+        Validate.notNull(transactionService, "TransactionService is null");
+        Validate.notNull(optionService, "OptionService is null");
+        Validate.notNull(orderService, "OrderService is null");
+
+        this.positionService = positionService;
+        this.forexService = forexService;
+        this.cashBalanceService = cashBalanceService;
+        this.combinationService = combinationService;
+        this.transactionService = transactionService;
+        this.optionService = optionService;
+        this.orderService = orderService;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected void handleRecordTransaction(int securityId, String strategyName, String extIdString, String dateTimeString, long quantity, double priceDouble, double executionCommissionDouble,
-            double clearingCommissionDouble, double feeDouble, String currencyString, String transactionTypeString, String accountName) throws Exception {
+    @ManagedOperation(description = "Cancels all orders currently outstanding.")
+    @ManagedOperationParameters({})
+    public void cancelAllOrders() {
 
-        String extId = !"".equals(extIdString) ? extIdString : null;
-        Date dateTime = (new SimpleDateFormat("dd.MM.yyyy HH:mm:ss")).parse(dateTimeString);
-        BigDecimal price = RoundUtil.getBigDecimal(priceDouble);
-        BigDecimal executionCommission = (executionCommissionDouble != 0) ? RoundUtil.getBigDecimal(executionCommissionDouble) : null;
-        BigDecimal clearingCommission = (clearingCommissionDouble != 0) ? RoundUtil.getBigDecimal(clearingCommissionDouble) : null;
-        BigDecimal fee = (feeDouble != 0) ? RoundUtil.getBigDecimal(feeDouble) : null;
-        Currency currency = !"".equals(currencyString) ? Currency.fromValue(currencyString) : null;
-        TransactionType transactionType = TransactionType.fromValue(transactionTypeString);
-
-        getTransactionService().createTransaction(securityId, strategyName, extId, dateTime, quantity, price, executionCommission, clearingCommission, fee, currency, transactionType, accountName, null);
+        try {
+            this.orderService.cancelAllOrders();
+        } catch (Exception ex) {
+            throw new BaseManagementServiceException(ex.getMessage(), ex);
+        }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected void handleTransferPosition(int positionId, String targetStrategyName) throws Exception {
+    @ManagedOperation(description = "Manually record a Transaction")
+    @ManagedOperationParameters({
+            @ManagedOperationParameter(name = "securityId", description = "SecurityId (for CREDIT / DEBIT / INTREST_PAID / INTREST_RECEIVED / DIVIDEND / FEES / REFUND enter 0)"),
+            @ManagedOperationParameter(name = "strategyName", description = "Name of the Strategy"),
+            @ManagedOperationParameter(name = "extId", description = "External transaction id (e.g. 0001f4e6.4fe7e2cb.01.01)"),
+            @ManagedOperationParameter(name = "dateTime", description = "DateTime of the Transaction. Format: dd.mm.yyyy hh:mm:ss"),
+            @ManagedOperationParameter(name = "quantity", description = "Requested quantity: <ul> <li> BUY: pos </li> <li> SELL: neg </li> <li> EXPIRATION: pos/neg </li> <li> TRANSFER : pos/neg </li> <li> CREDIT: 1 </li> <li> INTREST_RECEIVED: 1 </li> <li> REFUND : 1 </li> <li> DIVIDEND : 1 </li> <li> DEBIT: -1 </li> <li> INTREST_PAID: -1 </li> <li> FEES: -1 </li> </ul>"),
+            @ManagedOperationParameter(name = "price", description = "Price"),
+            @ManagedOperationParameter(name = "executionCommission", description = "Execution Commission. 0 if not applicable"),
+            @ManagedOperationParameter(name = "clearingCommission", description = "Clearing Commission. 0 if not applicable"),
+            @ManagedOperationParameter(name = "fee", description = "fee"),
+            @ManagedOperationParameter(name = "currency", description = "Currency"),
+            @ManagedOperationParameter(name = "transactionType", description = "Transaction type: <ul> <li> B (BUY) </li> <li> S (SELL) </li> <li> E (EXPIRATION) </li> <li> T (TRANSFER) </li> <li> C (CREDIT) </li> <li> D (DEBIT) </li> <li> IP (INTREST_PAID) </li> <li> IR (INTREST_RECEIVED) </li> <li> DI (DIVIDEND) </li> <li> F (FEES) </li> <li> RF (REFUND) </li> </ul>"),
+            @ManagedOperationParameter(name = "accountName", description = "Account Name") })
+    public void recordTransaction(final int securityId, final String strategyName, final String extId, final String dateTime, final long quantity, final double price,
+            final double executionCommission, final double clearingCommission, final double fee, final String currency, final String transactionType, final String accountName) {
 
-        getPositionService().transferPosition(positionId, targetStrategyName);
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+        Validate.notEmpty(dateTime, "Date time is empty");
+        Validate.notEmpty(transactionType, "Transaction type is empty");
+
+        try {
+
+            String extIdString = !"".equals(extId) ? extId : null;
+            Date dateTimeObject = (new SimpleDateFormat("dd.MM.yyyy HH:mm:ss")).parse(dateTime);
+            BigDecimal priceDecimal = RoundUtil.getBigDecimal(price);
+            BigDecimal executionCommissionDecimal = (executionCommission != 0) ? RoundUtil.getBigDecimal(executionCommission) : null;
+            BigDecimal clearingCommissionDecimal = (clearingCommission != 0) ? RoundUtil.getBigDecimal(clearingCommission) : null;
+            BigDecimal feeDecimal = (fee != 0) ? RoundUtil.getBigDecimal(fee) : null;
+            Currency currencyObject = !"".equals(currency) ? Currency.fromValue(currency) : null;
+            TransactionType transactionTypeObject = TransactionType.fromValue(transactionType);
+
+            this.transactionService.createTransaction(securityId, strategyName, extIdString, dateTimeObject, quantity, priceDecimal, executionCommissionDecimal, clearingCommissionDecimal, feeDecimal,
+                    currencyObject, transactionTypeObject, accountName, null);
+        } catch (Exception ex) {
+            throw new BaseManagementServiceException(ex.getMessage(), ex);
+        }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected void handleSetMargins() throws Exception {
+    @ManagedOperation(description = "Transfers a Position to another Strategy.")
+    @ManagedOperationParameters({ @ManagedOperationParameter(name = "positionId", description = "Id of the Position"),
+            @ManagedOperationParameter(name = "targetStrategyName", description = "Strategy where the Position should be moved to") })
+    public void transferPosition(final int positionId, final String targetStrategyName) {
 
-        getPositionService().setMargins();
+        Validate.notEmpty(targetStrategyName, "Target strategy name is empty");
+
+        try {
+            this.positionService.transferPosition(positionId, targetStrategyName);
+        } catch (Exception ex) {
+            throw new BaseManagementServiceException(ex.getMessage(), ex);
+        }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected void handleHedgeForex() throws Exception {
+    @ManagedOperation(description = "Calculates margins for all open positions")
+    @ManagedOperationParameters({})
+    public void setMargins() {
 
-        getForexService().hedgeForex();
+        try {
+            this.positionService.setMargins();
+        } catch (Exception ex) {
+            throw new BaseManagementServiceException(ex.getMessage(), ex);
+        }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected void handleHedgeDelta(int underlyingId) throws Exception {
+    @ManagedOperation(description = "Hedges all non-base currency exposures with a corresponding FX / FX Future Position")
+    @ManagedOperationParameters({})
+    public void hedgeForex() {
 
-        getOptionService().hedgeDelta(underlyingId);
+        try {
+            this.forexService.hedgeForex();
+        } catch (Exception ex) {
+            throw new BaseManagementServiceException(ex.getMessage(), ex);
+        }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected void handleRebalancePortfolio() throws Exception {
+    @ManagedOperation(description = "performs a Delta Hedge of all Securities of the specified underlyingId")
+    @ManagedOperationParameters({ @ManagedOperationParameter(name = "underlyingId", description = "underlyingId") })
+    public void hedgeDelta(final int underlyingId) {
 
-        getPortfolioPersistenceService().rebalancePortfolio();
+        try {
+            this.optionService.hedgeDelta(underlyingId);
+        } catch (Exception ex) {
+            throw new BaseManagementServiceException(ex.getMessage(), ex);
+        }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected String handleResetPositionsAndCashBalances() throws Exception {
+    @ManagedOperation(description = "Creates Rebalance Transactions so that Net-Liquidation-Values of all strategies are in line with the defined Strategy-Allocation.")
+    @ManagedOperationParameters({})
+    public void rebalancePortfolio() {
 
-        return getPositionService().resetPositions() + getCashBalanceService().resetCashBalances();
+        try {
+            this.transactionService.rebalancePortfolio();
+        } catch (Exception ex) {
+            throw new BaseManagementServiceException(ex.getMessage(), ex);
+        }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected void handleResetComponentWindow() throws Exception {
+    @ManagedOperation(description = "Calculates all Cash Balances and Position quantities based on Transactions in the database and makes adjustments if necessary")
+    @ManagedOperationParameters({})
+    public String resetPositionsAndCashBalances() {
 
-        getCombinationService().resetComponentWindow();
+        try {
+            return this.positionService.resetPositions() + this.cashBalanceService.resetCashBalances();
+        } catch (Exception ex) {
+            throw new BaseManagementServiceException(ex.getMessage(), ex);
+        }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected void handleEmptyOpenOrderWindow() throws Exception {
+    @ManagedOperation(description = "Updates the Component Window. This method should only be called after manually manipulating components in the DB.")
+    @ManagedOperationParameters({})
+    public void resetComponentWindow() {
 
-        OrderStatus orderStatus = OrderStatus.Factory.newInstance();
-        orderStatus.setStatus(Status.CANCELED);
-
-        EngineLocator.instance().getBaseEngine().sendEvent(orderStatus);
+        try {
+            this.combinationService.resetComponentWindow();
+        } catch (Exception ex) {
+            throw new BaseManagementServiceException(ex.getMessage(), ex);
+        }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected void handleLogMetrics() throws Exception {
+    @ManagedOperation(description = "Clears the Open Order Window. Should only be called if there are no open orders outstanding with the external Broker")
+    @ManagedOperationParameters({})
+    public void emptyOpenOrderWindow() {
 
-        MetricsUtil.logMetrics();
-        EngineLocator.instance().logStatementMetrics();
+        try {
+            OrderStatus orderStatus = OrderStatus.Factory.newInstance();
+            orderStatus.setStatus(Status.CANCELED);
+
+            EngineLocator.instance().getBaseEngine().sendEvent(orderStatus);
+        } catch (Exception ex) {
+            throw new BaseManagementServiceException(ex.getMessage(), ex);
+        }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected void handleResetMetrics() throws Exception {
+    public void logMetrics() {
 
-        MetricsUtil.resetMetrics();
-        EngineLocator.instance().resetStatementMetrics();
+        try {
+            MetricsUtil.logMetrics();
+            EngineLocator.instance().logStatementMetrics();
+        } catch (Exception ex) {
+            throw new BaseManagementServiceException(ex.getMessage(), ex);
+        }
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void resetMetrics() {
+
+        try {
+            MetricsUtil.resetMetrics();
+            EngineLocator.instance().resetStatementMetrics();
+        } catch (Exception ex) {
+            throw new BaseManagementServiceException(ex.getMessage(), ex);
+        }
+    }
+
 }

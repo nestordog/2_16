@@ -30,173 +30,318 @@ import org.apache.commons.collections15.Predicate;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.dao.DataIntegrityViolationException;
-
-import com.espertech.esper.collection.Pair;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import ch.algotrader.ServiceLocator;
+import ch.algotrader.config.CommonConfig;
+import ch.algotrader.config.CoreConfig;
 import ch.algotrader.entity.Subscription;
+import ch.algotrader.entity.SubscriptionDao;
 import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.entity.marketData.Tick;
+import ch.algotrader.entity.marketData.TickDao;
 import ch.algotrader.entity.security.Security;
+import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.entity.strategy.Strategy;
+import ch.algotrader.entity.strategy.StrategyDao;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.util.HibernateUtil;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.io.CsvTickWriter;
 import ch.algotrader.util.metric.MetricsUtil;
+import ch.algotrader.util.spring.HibernateSession;
 import ch.algotrader.vo.GenericEventVO;
+
+import com.espertech.esper.collection.Pair;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class MarketDataServiceImpl extends MarketDataServiceBase implements ApplicationContextAware {
+@HibernateSession
+public class MarketDataServiceImpl implements MarketDataService, ApplicationContextAware {
 
     private static Logger logger = MyLogger.getLogger(MarketDataServiceImpl.class.getName());
 
     private Map<Security, CsvTickWriter> csvWriters = new HashMap<Security, CsvTickWriter>();
+
     private ApplicationContext applicationContext;
 
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
-    }
+    private final CommonConfig commonConfig;
 
-    @Override
-    protected void handlePersistTick(Tick tick) throws IOException {
+    private final CoreConfig coreConfig;
 
-        // get the current Date rounded to MINUTES
-        Date date = DateUtils.round(new Date(), Calendar.MINUTE);
-        tick.setDateTime(date);
+    private final SessionFactory sessionFactory;
 
-        saveCvs(tick);
+    private final TickDao tickDao;
 
-        // write the tick to the DB (even if not valid)
-        getTickDao().create(tick);
-    }
+    private final SecurityDao securityDao;
 
-    @Override
-    protected void handleInitSubscriptions(FeedType feedType) throws Exception  {
+    private final StrategyDao strategyDao;
 
-        getExternalMarketDataService(feedType).initSubscriptions();
-    }
+    private final SubscriptionDao subscriptionDao;
 
-    @Override
-    protected void handleSubscribe(String strategyName, int securityId) throws Exception {
+    public MarketDataServiceImpl(final CommonConfig commonConfig,
+            final CoreConfig coreConfig,
+            final SessionFactory sessionFactory,
+            final TickDao tickDao,
+            final SecurityDao securityDao,
+            final StrategyDao strategyDao,
+            final SubscriptionDao subscriptionDao) {
 
-        subscribe(strategyName, securityId, getCoreConfig().getDefaultFeedType());
+        Validate.notNull(commonConfig, "CommonConfig is null");
+        Validate.notNull(coreConfig, "CoreConfig is null");
+        Validate.notNull(sessionFactory, "SessionFactory is null");
+        Validate.notNull(tickDao, "TickDao is null");
+        Validate.notNull(securityDao, "SecurityDao is null");
+        Validate.notNull(strategyDao, "StrategyDao is null");
+        Validate.notNull(subscriptionDao, "SubscriptionDao is null");
+
+        this.commonConfig = commonConfig;
+        this.coreConfig = coreConfig;
+        this.sessionFactory = sessionFactory;
+        this.tickDao = tickDao;
+        this.securityDao = securityDao;
+        this.strategyDao = strategyDao;
+        this.subscriptionDao = subscriptionDao;
+
     }
 
     /**
-     * synchronized due to potential mysql innodb deadlocks on concurrent inserts
-     * see http://thushw.blogspot.ch/2010/11/mysql-deadlocks-with-concurrent-inserts.html
+     * {@inheritDoc}
      */
     @Override
-    protected synchronized void handleSubscribe(String strategyName, int securityId, FeedType feedType) throws Exception {
+    public void persistTick(final Tick tick) {
 
-        if (getSubscriptionDao().findByStrategySecurityAndFeedType(strategyName, securityId, feedType) == null) {
+        Validate.notNull(tick, "Tick is null");
 
-            Strategy strategy = getStrategyDao().findByName(strategyName);
-            Security security = getSecurityDao().findByIdInclFamilyAndUnderlying(securityId);
+        try {
+            // get the current Date rounded to MINUTES
+            Date date = DateUtils.round(new Date(), Calendar.MINUTE);
+            tick.setDateTime(date);
 
-            // only external subscribe if nobody was watching the specified security with the specified feedType so far
-            if (!getCommonConfig().isSimulation()) {
-                List<Subscription> subscriptions = getSubscriptionDao().findBySecurityAndFeedTypeForAutoActivateStrategies(securityId, feedType);
-                if (subscriptions.size() == 0) {
-                    if (!security.getSecurityFamily().isSynthetic()) {
-                        getExternalMarketDataService(feedType).subscribe(security);
+            saveCvs(tick);
+
+            // write the tick to the DB (even if not valid)
+            this.tickDao.create(tick);
+        } catch (Exception ex) {
+            throw new MarketDataServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void initSubscriptions(final FeedType feedType) {
+
+        Validate.notNull(feedType, "Feed type is null");
+
+        try {
+            getExternalMarketDataService(feedType).initSubscriptions();
+        } catch (Exception ex) {
+            throw new MarketDataServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void subscribe(final String strategyName, final int securityId) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+
+        try {
+            subscribe(strategyName, securityId, this.coreConfig.getDefaultFeedType());
+        } catch (Exception ex) {
+            throw new MarketDataServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void subscribe(final String strategyName, final int securityId, final FeedType feedType) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+        Validate.notNull(feedType, "Feed type is null");
+
+        try {
+            if (this.subscriptionDao.findByStrategySecurityAndFeedType(strategyName, securityId, feedType) == null) {
+
+                Strategy strategy = this.strategyDao.findByName(strategyName);
+                Security security = this.securityDao.findByIdInclFamilyAndUnderlying(securityId);
+
+                // only external subscribe if nobody was watching the specified security with the specified feedType so far
+                if (!this.commonConfig.isSimulation()) {
+                    List<Subscription> subscriptions = this.subscriptionDao.findBySecurityAndFeedTypeForAutoActivateStrategies(securityId, feedType);
+                    if (subscriptions.size() == 0) {
+                        if (!security.getSecurityFamily().isSynthetic()) {
+                            getExternalMarketDataService(feedType).subscribe(security);
+                        }
                     }
                 }
+
+                // update links
+                Subscription subscription = Subscription.Factory.newInstance(feedType, false, strategy, security);
+
+                this.subscriptionDao.create(subscription);
+
+                // reverse-associate security (after subscription has received an id)
+                security.getSubscriptions().add(subscription);
+
+                logger.info("subscribed security " + security + " with " + feedType);
             }
-
-            // update links
-            Subscription subscription = Subscription.Factory.newInstance(feedType, false, strategy, security);
-
-            getSubscriptionDao().create(subscription);
-
-            // reverse-associate security (after subscription has received an id)
-            security.getSubscriptions().add(subscription);
-
-            logger.info("subscribed security " + security + " with " + feedType);
+        } catch (Exception ex) {
+            throw new MarketDataServiceException(ex.getMessage(), ex);
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected void handleUnsubscribe(String strategyName, int securityId) throws Exception {
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void unsubscribe(final String strategyName, final int securityId) {
 
-        unsubscribe(strategyName, securityId, getCoreConfig().getDefaultFeedType());
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+
+        try {
+            unsubscribe(strategyName, securityId, this.coreConfig.getDefaultFeedType());
+        } catch (Exception ex) {
+            throw new MarketDataServiceException(ex.getMessage(), ex);
+        }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected synchronized void handleUnsubscribe(String strategyName, int securityId, FeedType feedType) throws Exception {
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void unsubscribe(final String strategyName, final int securityId, final FeedType feedType) {
 
-        Subscription subscription = getSubscriptionDao().findByStrategySecurityAndFeedType(strategyName, securityId, feedType);
-        if (subscription != null && !subscription.isPersistent()) {
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+        Validate.notNull(feedType, "Feed type is null");
 
-            Security security = getSecurityDao().get(securityId);
+        try {
+            Subscription subscription = this.subscriptionDao.findByStrategySecurityAndFeedType(strategyName, securityId, feedType);
+            if (subscription != null && !subscription.isPersistent()) {
 
-            // update links
-            security.getSubscriptions().remove(subscription);
+                Security security = this.securityDao.get(securityId);
 
-            getSubscriptionDao().remove(subscription);
+                // update links
+                security.getSubscriptions().remove(subscription);
 
-            // only external unsubscribe if nobody is watching this security anymore
-            if (!getCommonConfig().isSimulation()) {
-                if (security.getSubscriptions().size() == 0) {
-                    if (!security.getSecurityFamily().isSynthetic()) {
-                        getExternalMarketDataService(feedType).unsubscribe(security);
+                this.subscriptionDao.remove(subscription);
+
+                // only external unsubscribe if nobody is watching this security anymore
+                if (!this.commonConfig.isSimulation()) {
+                    if (security.getSubscriptions().size() == 0) {
+                        if (!security.getSecurityFamily().isSynthetic()) {
+                            getExternalMarketDataService(feedType).unsubscribe(security);
+                        }
                     }
                 }
+
+                logger.info("unsubscribed security " + security + " with " + feedType);
             }
+        } catch (Exception ex) {
+            throw new MarketDataServiceException(ex.getMessage(), ex);
+        }
+    }
 
-            logger.info("unsubscribed security " + security + " with " + feedType);
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void removeNonPositionSubscriptions(final String strategyName) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+
+        try {
+            Collection<Subscription> subscriptions = this.subscriptionDao.findNonPositionSubscriptions(strategyName);
+
+            for (Subscription subscription : subscriptions) {
+                unsubscribe(subscription.getStrategy().getName(), subscription.getSecurity().getId());
+            }
+        } catch (Exception ex) {
+            throw new MarketDataServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void removeNonPositionSubscriptionsByType(final String strategyName, final Class type) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+        Validate.notNull(type, "Type is null");
+
+        try {
+            int discriminator = HibernateUtil.getDisriminatorValue(this.sessionFactory, type);
+            Collection<Subscription> subscriptions = this.subscriptionDao.findNonPositionSubscriptionsByType(strategyName, discriminator);
+
+            for (Subscription subscription : subscriptions) {
+                unsubscribe(subscription.getStrategy().getName(), subscription.getSecurity().getId());
+            }
+        } catch (Exception ex) {
+            throw new MarketDataServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void requestCurrentTicks(final String strategyName) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+
+        try {
+            Collection<Tick> ticks = this.tickDao.findCurrentTicksByStrategy(strategyName);
+
+            for (Tick tick : ticks) {
+                EngineLocator.instance().sendEvent(strategyName, tick);
+            }
+        } catch (Exception ex) {
+            throw new MarketDataServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void logTickGap(final int securityId) {
+
+        try {
+            Security security = this.securityDao.get(securityId);
+
+            logger.error(security + " has not received any ticks for " + security.getSecurityFamily().getMaxGap() + " minutes");
+        } catch (Exception ex) {
+            throw new MarketDataServiceException(ex.getMessage(), ex);
         }
     }
 
     @Override
-    protected void handleRemoveNonPositionSubscriptions(String strategyName) throws Exception {
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 
-        Collection<Subscription> subscriptions = getSubscriptionDao().findNonPositionSubscriptions(strategyName);
-
-        for (Subscription subscription : subscriptions) {
-            unsubscribe(subscription.getStrategy().getName(), subscription.getSecurity().getId());
-        }
-    }
-
-    @SuppressWarnings("rawtypes")
-    @Override
-    protected void handleRemoveNonPositionSubscriptionsByType(String strategyName, Class type) throws Exception {
-
-        int discriminator = HibernateUtil.getDisriminatorValue(getSessionFactory(), type);
-        Collection<Subscription> subscriptions = getSubscriptionDao().findNonPositionSubscriptionsByType(strategyName, discriminator);
-
-        for (Subscription subscription : subscriptions) {
-            unsubscribe(subscription.getStrategy().getName(), subscription.getSecurity().getId());
-        }
-    }
-
-    @Override
-    protected void handleRequestCurrentTicks(String strategyName) throws Exception {
-
-        Collection<Tick> ticks = getTickDao().findCurrentTicksByStrategy(strategyName);
-
-        for (Tick tick : ticks) {
-            EngineLocator.instance().sendEvent(strategyName, tick);
-        }
-    }
-
-    @Override
-    protected void handleLogTickGap(int securityId) {
-
-        Security security = getSecurityDao().get(securityId);
-
-        logger.error(security + " has not received any ticks for " + security.getSecurityFamily().getMaxGap() + " minutes");
+        this.applicationContext = applicationContext;
     }
 
     private void saveCvs(Tick tick) throws IOException {
@@ -281,6 +426,7 @@ public class MarketDataServiceImpl extends MarketDataServiceBase implements Appl
         public void update(Pair<Tick, Object> insertStream, Map removeStream) {
 
             Tick tick = insertStream.getFirst();
+
             try {
                 ServiceLocator.instance().getMarketDataService().persistTick(tick);
 

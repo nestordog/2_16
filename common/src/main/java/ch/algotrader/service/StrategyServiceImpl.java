@@ -25,17 +25,29 @@ import java.util.Map;
  *
  * @version $Revision$ $Date$
  */
-public class StrategyServiceImpl extends StrategyServiceBase {
+public class StrategyServiceImpl implements StrategyService {
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected void handleInitSimulation() throws Exception {
-
-        // do nothing
+    public Map getSimulationResults() {
+        try {
+            return new HashMap<String, Object>();
+        } catch (Exception ex) {
+            throw new StrategyServiceException(ex.getMessage(), ex);
+        }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected Map<String, Object> handleGetSimulationResults() throws Exception {
-
-        return new HashMap<String, Object>();
+    public void initSimulation() {
+        try {
+            // do nothing
+        } catch (Exception ex) {
+            throw new StrategyServiceException(ex.getMessage(), ex);
+        }
     }
 }

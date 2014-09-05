@@ -29,19 +29,27 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.BlockingQueue;
 
+import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
 
+import ch.algotrader.adapter.ib.IBIdGenerator;
+import ch.algotrader.adapter.ib.IBSession;
 import ch.algotrader.entity.security.Future;
+import ch.algotrader.entity.security.FutureDao;
 import ch.algotrader.entity.security.FutureFamily;
 import ch.algotrader.entity.security.Option;
+import ch.algotrader.entity.security.OptionDao;
 import ch.algotrader.entity.security.OptionFamily;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
+import ch.algotrader.entity.security.SecurityFamilyDao;
 import ch.algotrader.entity.security.Stock;
+import ch.algotrader.entity.security.StockDao;
 import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.future.FutureSymbol;
 import ch.algotrader.option.OptionSymbol;
+import ch.algotrader.service.SecurityRetrieverServiceImpl;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.RoundUtil;
 
@@ -53,83 +61,126 @@ import com.ib.client.ContractDetails;
  *
  * @version $Revision$ $Date$
  */
-public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrieverServiceBase {
+public class IBNativeSecurityRetrieverServiceImpl extends SecurityRetrieverServiceImpl implements IBNativeSecurityRetrieverService {
 
     private static final Logger logger = MyLogger.getLogger(IBNativeSecurityRetrieverServiceImpl.class.getName());
     private static final SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
     private static final DecimalFormat decimalFormat = new DecimalFormat("#.#######");
 
-    private BlockingQueue<ContractDetails> contractDetailsQueue;
+    private final BlockingQueue<ContractDetails> contractDetailsQueue;
 
-    public void setContractDetailsQueue(BlockingQueue<ContractDetails> contractDetailsQueue) {
+    private final IBSession iBSession;
+
+    private final IBIdGenerator iBIdGenerator;
+
+    private final OptionDao optionDao;
+
+    private final FutureDao futureDao;
+
+    private final SecurityFamilyDao securityFamilyDao;
+
+    private final StockDao stockDao;
+
+    public IBNativeSecurityRetrieverServiceImpl(final BlockingQueue<ContractDetails> contractDetailsQueue,
+            final IBSession iBSession,
+            final IBIdGenerator iBIdGenerator,
+            final OptionDao optionDao,
+            final FutureDao futureDao,
+            final SecurityFamilyDao securityFamilyDao,
+            final StockDao stockDao) {
+
+        Validate.notNull(contractDetailsQueue, "ContractDetailsQueue is null");
+        Validate.notNull(iBSession, "IBSession is null");
+        Validate.notNull(iBIdGenerator, "IBIdGenerator is null");
+        Validate.notNull(optionDao, "OptionDao is null");
+        Validate.notNull(futureDao, "FutureDao is null");
+        Validate.notNull(securityFamilyDao, "SecurityFamilyDao is null");
+        Validate.notNull(stockDao, "StockDao is null");
+
         this.contractDetailsQueue = contractDetailsQueue;
+        this.iBSession = iBSession;
+        this.iBIdGenerator = iBIdGenerator;
+        this.optionDao = optionDao;
+        this.futureDao = futureDao;
+        this.securityFamilyDao = securityFamilyDao;
+        this.stockDao = stockDao;
     }
 
     @Override
-    protected void handleRetrieve(int securityFamilyId) throws Exception {
+    public void retrieve(int securityFamilyId) {
 
-        SecurityFamily securityFamily = getSecurityFamilyDao().get(securityFamilyId);
+        try {
+            SecurityFamily securityFamily = this.securityFamilyDao.get(securityFamilyId);
 
-        int requestId = getIBIdGenerator().getNextRequestId();
-        Contract contract = new Contract();
+            int requestId = this.iBIdGenerator.getNextRequestId();
+            Contract contract = new Contract();
 
-        contract.m_symbol = securityFamily.getSymbolRoot(Broker.IB);
+            contract.m_symbol = securityFamily.getSymbolRoot(Broker.IB);
 
-        contract.m_currency = securityFamily.getCurrency().toString();
+            contract.m_currency = securityFamily.getCurrency().toString();
 
-        contract.m_exchange = securityFamily.getExchangeCode(Broker.IB);
+            contract.m_exchange = securityFamily.getExchangeCode(Broker.IB);
 
-        contract.m_multiplier = decimalFormat.format(securityFamily.getContractSize());
+            contract.m_multiplier = decimalFormat.format(securityFamily.getContractSize());
 
-        if (securityFamily instanceof OptionFamily) {
-            contract.m_secType = "OPT";
-        } else if (securityFamily instanceof FutureFamily) {
-            contract.m_secType = "FUT";
-        } else {
-            throw new IllegalArgumentException("illegal securityFamily type");
-        }
+            if (securityFamily instanceof OptionFamily) {
+                contract.m_secType = "OPT";
+            } else if (securityFamily instanceof FutureFamily) {
+                contract.m_secType = "FUT";
+            } else {
+                throw new IllegalArgumentException("illegal securityFamily type");
+            }
 
-        if (securityFamily.getTradingClass() != null) {
-            contract.m_tradingClass = securityFamily.getTradingClass();
-        }
+            if (securityFamily.getTradingClass() != null) {
+                contract.m_tradingClass = securityFamily.getTradingClass();
+            }
 
-        // send request
-        getIBSession().reqContractDetails(requestId, contract);
+            // send request
+            this.iBSession.reqContractDetails(requestId, contract);
 
-        Set<ContractDetails> contractDetailsSet = retrieveContractDetails();
+            Set<ContractDetails> contractDetailsSet = retrieveContractDetails();
 
-        if (securityFamily instanceof OptionFamily) {
-            retrieveOptions((OptionFamily) securityFamily, contractDetailsSet);
-        } else if (securityFamily instanceof FutureFamily) {
-            retrieveFutures((FutureFamily) securityFamily, contractDetailsSet);
-        } else {
-            throw new IllegalArgumentException("illegal securityFamily type");
+            if (securityFamily instanceof OptionFamily) {
+                retrieveOptions((OptionFamily) securityFamily, contractDetailsSet);
+            } else if (securityFamily instanceof FutureFamily) {
+                retrieveFutures((FutureFamily) securityFamily, contractDetailsSet);
+            } else {
+                throw new IllegalArgumentException("illegal securityFamily type");
+            }
+        } catch (Exception ex) {
+            throw new IBNativeSecurityRetrieverServiceException(ex.getMessage(), ex);
         }
     }
 
     @Override
-    protected void handleRetrieveStocks(int securityFamilyId, String symbol) throws Exception {
+    public void retrieveStocks(int securityFamilyId, String symbol) {
 
-        SecurityFamily securityFamily = getSecurityFamilyDao().get(securityFamilyId);
+        Validate.notEmpty(symbol, "Symbol is empty");
 
-        int requestId = getIBIdGenerator().getNextRequestId();
-        Contract contract = new Contract();
+        try {
+            SecurityFamily securityFamily = this.securityFamilyDao.get(securityFamilyId);
 
-        contract.m_symbol = symbol;
+            int requestId = this.iBIdGenerator.getNextRequestId();
+            Contract contract = new Contract();
 
-        contract.m_currency = securityFamily.getCurrency().toString();
+            contract.m_symbol = symbol;
 
-        contract.m_exchange = securityFamily.getExchangeCode(Broker.IB);
+            contract.m_currency = securityFamily.getCurrency().toString();
 
-        contract.m_secType = "STK";
+            contract.m_exchange = securityFamily.getExchangeCode(Broker.IB);
 
-        logger.debug("retrieving stock " + symbol);
+            contract.m_secType = "STK";
 
-        getIBSession().reqContractDetails(requestId, contract);
+            logger.debug("retrieving stock " + symbol);
 
-        Set<ContractDetails> contractDetailsSet = retrieveContractDetails();
+            this.iBSession.reqContractDetails(requestId, contract);
 
-        retrieveStocks(securityFamily, contractDetailsSet);
+            Set<ContractDetails> contractDetailsSet = retrieveContractDetails();
+
+            retrieveStocks(securityFamily, contractDetailsSet);
+        } catch (Exception ex) {
+            throw new IBNativeSecurityRetrieverServiceException(ex.getMessage(), ex);
+        }
     }
 
     private Set<ContractDetails> retrieveContractDetails() throws InterruptedException {
@@ -148,7 +199,7 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
 
         // get all current options
         Set<Security> existingOptions = new TreeSet<Security>(getComparator());
-        existingOptions.addAll(getOptionDao().findBySecurityFamily(securityFamily.getId()));
+        existingOptions.addAll(this.optionDao.findBySecurityFamily(securityFamily.getId()));
 
         Set<Option> newOptions = new TreeSet<Option>();
         for (ContractDetails contractDetails : contractDetailsSet) {
@@ -181,7 +232,7 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
             }
         }
 
-        getOptionDao().create(newOptions);
+        this.optionDao.create(newOptions);
 
         logger.debug("retrieved options for optionfamily: " + securityFamily.getName() + " " + newOptions);
     }
@@ -190,7 +241,7 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
 
         // get all current futures
         Set<Future> existingFutures = new TreeSet<Future>(getComparator());
-        existingFutures.addAll(getFutureDao().findBySecurityFamily(securityFamily.getId()));
+        existingFutures.addAll(this.futureDao.findBySecurityFamily(securityFamily.getId()));
 
         Set<Future> newFutures = new TreeSet<Future>();
         for (ContractDetails contractDetails : contractDetailsSet) {
@@ -219,7 +270,7 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
             }
         }
 
-        getFutureDao().create(newFutures);
+        this.futureDao.create(newFutures);
 
         logger.debug("retrieved futures for futurefamily: " + securityFamily.getName() + " " + newFutures);
     }
@@ -227,9 +278,9 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
     private void retrieveStocks(SecurityFamily securityFamily, Set<ContractDetails> contractDetailsSet) throws Exception {
 
         // get all current stocks
-        Map<String,Stock> existingStocks = new HashMap<String,Stock>();
+        Map<String, Stock> existingStocks = new HashMap<String, Stock>();
 
-        for (Stock stock : getStockDao().findStocksBySecurityFamily(securityFamily.getId())) {
+        for (Stock stock : this.stockDao.findStocksBySecurityFamily(securityFamily.getId())) {
             existingStocks.put(stock.getSymbol(), stock);
         }
 
@@ -260,7 +311,7 @@ public class IBNativeSecurityRetrieverServiceImpl extends IBNativeSecurityRetrie
             }
         }
 
-        getStockDao().create(newStocks);
+        this.stockDao.create(newStocks);
     }
 
     private Comparator<Security> getComparator() {

@@ -1,83 +1,110 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2013 Flury Trading - All rights reserved
+ * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
  *
- * All information contained herein is, and remains the property of Flury Trading.
+ * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
- * Flury Trading. Modification, translation, reverse engineering, decompilation,
+ * AlgoTrader GmbH. Modification, translation, reverse engineering, decompilation,
  * disassembly or reproduction of this material is strictly forbidden unless prior
- * written permission is obtained from Flury Trading
+ * written permission is obtained from AlgoTrader GmbH
  *
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
- * Flury Trading
+ * AlgoTrader GmbH
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
 package ch.algotrader.service.cnx;
 
-import ch.algotrader.adapter.cnx.CNXFixMarketDataRequestFactory;
-import ch.algotrader.adapter.cnx.CNXUtil;
-import ch.algotrader.adapter.fix.FixApplicationException;
-import ch.algotrader.entity.security.Forex;
-import ch.algotrader.entity.security.Security;
-import ch.algotrader.enumeration.FeedType;
+import org.apache.commons.lang.Validate;
+
 import quickfix.field.SubscriptionRequestType;
 import quickfix.fix44.MarketDataRequest;
+import ch.algotrader.adapter.cnx.CNXFixMarketDataRequestFactory;
+import ch.algotrader.adapter.cnx.CNXUtil;
+import ch.algotrader.adapter.fix.FixAdapter;
+import ch.algotrader.adapter.fix.FixApplicationException;
+import ch.algotrader.adapter.fix.FixSessionLifecycle;
+import ch.algotrader.entity.security.Forex;
+import ch.algotrader.entity.security.Security;
+import ch.algotrader.entity.security.SecurityDao;
+import ch.algotrader.enumeration.FeedType;
+import ch.algotrader.service.fix.fix44.Fix44MarketDataServiceImpl;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class CNXFixMarketDataServiceImpl extends CNXFixMarketDataServiceBase {
+public class CNXFixMarketDataServiceImpl extends Fix44MarketDataServiceImpl implements CNXFixMarketDataService {
 
     private static final long serialVersionUID = 2946126163433296876L;
 
     private final CNXFixMarketDataRequestFactory requestFactory;
 
-    public CNXFixMarketDataServiceImpl() {
+    public CNXFixMarketDataServiceImpl(final FixSessionLifecycle lifeCycle,
+            final FixAdapter fixAdapter,
+            final SecurityDao securityDao) {
+
+        super(lifeCycle, fixAdapter, securityDao);
+
         this.requestFactory = new CNXFixMarketDataRequestFactory();
     }
 
     @Override
-    protected void handleSendSubscribeRequest(Security security) throws Exception {
+    public void sendSubscribeRequest(Security security) {
 
-        MarketDataRequest request = this.requestFactory.create(security, new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES));
+        Validate.notNull(security, "Security is null");
 
-        getFixAdapter().sendMessage(request, getSessionQualifier());
-    }
+        try {
+            MarketDataRequest request = this.requestFactory.create(security, new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES));
 
-    @Override
-    protected String handleGetTickerId(Security security) throws Exception {
-
-        if (!(security instanceof Forex)) {
-
-            throw new FixApplicationException("Currenex supports forex orders only");
+            getFixAdapter().sendMessage(request, getSessionQualifier());
+        } catch (Exception ex) {
+            throw new CNXFixMarketDataServiceException(ex.getMessage(), ex);
         }
-        Forex forex = (Forex) security;
-        return CNXUtil.getCNXSymbol(forex);
     }
 
     @Override
-    protected void handleSendUnsubscribeRequest(Security security) throws Exception {
+    public String getTickerId(Security security) {
 
-        MarketDataRequest request = this.requestFactory.create(security, new SubscriptionRequestType(SubscriptionRequestType.DISABLE_PREVIOUS_SNAPSHOT_PLUS_UPDATE_REQUEST));
+        Validate.notNull(security, "Security is null");
 
-        getFixAdapter().sendMessage(request, getSessionQualifier());
+        try {
+            if (!(security instanceof Forex)) {
+                throw new FixApplicationException("Currenex supports forex orders only");
+            }
+            Forex forex = (Forex) security;
+            return CNXUtil.getCNXSymbol(forex);
+        } catch (Exception ex) {
+            throw new CNXFixMarketDataServiceException(ex.getMessage(), ex);
+        }
     }
 
     @Override
-    protected String handleGetSessionQualifier() throws Exception {
+    public void sendUnsubscribeRequest(Security security) {
+
+        Validate.notNull(security, "Security is null");
+
+        try {
+            MarketDataRequest request = this.requestFactory.create(security, new SubscriptionRequestType(SubscriptionRequestType.DISABLE_PREVIOUS_SNAPSHOT_PLUS_UPDATE_REQUEST));
+
+            getFixAdapter().sendMessage(request, getSessionQualifier());
+        } catch (Exception ex) {
+            throw new CNXFixMarketDataServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    @Override
+    public String getSessionQualifier() {
 
         return "CNXMD";
     }
 
     @Override
-    protected FeedType handleGetFeedType() throws Exception {
+    public FeedType getFeedType() {
 
         return FeedType.CNX;
     }
-
 }

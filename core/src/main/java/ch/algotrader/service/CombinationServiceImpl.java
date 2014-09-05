@@ -22,18 +22,29 @@ import java.util.UUID;
 
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Predicate;
+import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
+import org.hibernate.SessionFactory;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
+import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.Position;
+import ch.algotrader.entity.PositionDao;
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.security.Combination;
+import ch.algotrader.entity.security.CombinationDao;
 import ch.algotrader.entity.security.Component;
+import ch.algotrader.entity.security.ComponentDao;
 import ch.algotrader.entity.security.Security;
+import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.entity.security.SecurityFamily;
+import ch.algotrader.entity.security.SecurityFamilyDao;
 import ch.algotrader.enumeration.CombinationType;
 import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.util.HibernateUtil;
 import ch.algotrader.util.MyLogger;
+import ch.algotrader.util.spring.HibernateSession;
 import ch.algotrader.vo.InsertComponentEventVO;
 
 /**
@@ -41,269 +52,415 @@ import ch.algotrader.vo.InsertComponentEventVO;
  *
  * @version $Revision$ $Date$
  */
-public class CombinationServiceImpl extends CombinationServiceBase {
+@HibernateSession
+public class CombinationServiceImpl implements CombinationService {
 
     private static final long serialVersionUID = -2720603696641382966L;
 
     private static Logger logger = MyLogger.getLogger(CombinationServiceImpl.class.getName());
 
-    @Override
-    protected void handleInit() throws Exception {
+    private final CommonConfig commonConfig;
 
-        if (!getCommonConfig().isSimulation()) {
-            for (Combination combination : getCombinationDao().loadAll()) {
-                insertIntoComponentWindow(combination);
-            }
+    private final SessionFactory sessionFactory;
+
+    private final PositionService positionService;
+
+    private final MarketDataService marketDataService;
+
+    private final CombinationDao combinationDao;
+
+    private final PositionDao positionDao;
+
+    private final SecurityDao securityDao;
+
+    private final ComponentDao componentDao;
+
+    private final SecurityFamilyDao securityFamilyDao;
+
+    public CombinationServiceImpl(final CommonConfig commonConfig,
+            final SessionFactory sessionFactory,
+            final PositionService positionService,
+            final MarketDataService marketDataService,
+            final CombinationDao combinationDao,
+            final PositionDao positionDao,
+            final SecurityDao securityDao,
+            final ComponentDao componentDao,
+            final SecurityFamilyDao securityFamilyDao) {
+
+        Validate.notNull(commonConfig, "CommonConfig is null");
+        Validate.notNull(sessionFactory, "SessionFactory is null");
+        Validate.notNull(positionService, "PositionService is null");
+        Validate.notNull(marketDataService, "MarketDataService is null");
+        Validate.notNull(combinationDao, "CombinationDao is null");
+        Validate.notNull(positionDao, "PositionDao is null");
+        Validate.notNull(securityDao, "SecurityDao is null");
+        Validate.notNull(componentDao, "ComponentDao is null");
+        Validate.notNull(securityFamilyDao, "SecurityFamilyDao is null");
+
+        this.commonConfig = commonConfig;
+        this.sessionFactory = sessionFactory;
+        this.positionService = positionService;
+        this.marketDataService = marketDataService;
+        this.combinationDao = combinationDao;
+        this.positionDao = positionDao;
+        this.securityDao = securityDao;
+        this.componentDao = componentDao;
+        this.securityFamilyDao = securityFamilyDao;
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED)
+    public Combination createCombination(final CombinationType type, final int securityFamilyId) {
+
+        Validate.notNull(type, "Type is null");
+
+        try {
+            // create the combination
+            Combination combination = Combination.Factory.newInstance();
+
+            // set the uuid since combinations have no other unique identifier
+            combination.setUuid(UUID.randomUUID().toString());
+            combination.setType(type);
+
+            // attach the security family
+            SecurityFamily securityFamily = this.securityFamilyDao.get(securityFamilyId);
+
+            // associate the security family
+            combination.setSecurityFamily(securityFamily);
+
+            // save to DB
+            this.combinationDao.create(combination);
+
+            // reverse-associate security family (after combination has received an id)
+            securityFamily.getSecurities().add(combination);
+
+            logger.debug("created combination " + combination);
+
+            return combination;
+        } catch (Exception ex) {
+            throw new CombinationServiceException(ex.getMessage(), ex);
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected Combination handleCreateCombination(CombinationType type, int securityFamilyId) throws Exception {
+    @Transactional(propagation = Propagation.REQUIRED)
+    public Combination createCombination(final CombinationType type, final int securityFamilyId, final int underlyingId) {
 
-        // create the combination
-        Combination combination = Combination.Factory.newInstance();
+        Validate.notNull(type, "Type is null");
 
-        // set the uuid since combinations have no other unique identifier
-        combination.setUuid(UUID.randomUUID().toString());
-        combination.setType(type);
-
-        // attach the security family
-        SecurityFamily securityFamily = getSecurityFamilyDao().get(securityFamilyId);
-
-        // associate the security family
-        combination.setSecurityFamily(securityFamily);
-
-        // save to DB
-        getCombinationDao().create(combination);
-
-        // reverse-associate security family (after combination has received an id)
-        securityFamily.getSecurities().add(combination);
-
-        logger.debug("created combination " + combination);
-
-        return combination;
-    }
-
-    @Override
-    protected Combination handleCreateCombination(CombinationType type, int securityFamilyId, int underlyingId) throws Exception {
-
-        Security underlying = getSecurityDao().load(underlyingId);
-        if (underlying == null) {
-            throw new IllegalArgumentException("underlying does not exist: " + underlyingId);
-        }
-
-        Combination combination = createCombination(type, securityFamilyId);
-        combination.setUnderlying(underlying);
-
-        return combination;
-    }
-
-    @Override
-    protected void handleDeleteCombination(int combinationId) throws Exception {
-
-        Combination combination = getCombinationDao().get(combinationId);
-
-        if (combination == null) {
-            logger.warn("combination does not exist: " + combinationId);
-
-        } else {
-
-            // unsubscribe potential subscribers
-            for (Subscription subscription : combination.getSubscriptions()) {
-                getMarketDataService().unsubscribe(subscription.getStrategy().getName(), subscription.getSecurity().getId());
+        try {
+            Security underlying = this.securityDao.load(underlyingId);
+            if (underlying == null) {
+                throw new IllegalArgumentException("underlying does not exist: " + underlyingId);
             }
 
-            // update the ComponentWindow
-            for (Component component : combination.getComponents()) {
+            Combination combination = createCombination(type, securityFamilyId);
+            combination.setUnderlying(underlying);
+
+            return combination;
+        } catch (Exception ex) {
+            throw new CombinationServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void deleteCombination(final int combinationId) {
+
+        try {
+            Combination combination = this.combinationDao.get(combinationId);
+
+            if (combination == null) {
+                logger.warn("combination does not exist: " + combinationId);
+
+            } else {
+
+                // unsubscribe potential subscribers
+                for (Subscription subscription : combination.getSubscriptions()) {
+                    this.marketDataService.unsubscribe(subscription.getStrategy().getName(), subscription.getSecurity().getId());
+                }
 
                 // update the ComponentWindow
-                removeFromComponentWindow(component);
+                for (Component component : combination.getComponents()) {
+
+                    // update the ComponentWindow
+                    removeFromComponentWindow(component);
+                }
+
+                // disassociated the security family
+                combination.getSecurityFamily().removeSecurities(combination);
+
+                // remove the combination
+                this.combinationDao.remove(combination);
+
+                logger.debug("deleted combination " + combination);
             }
-
-            // disassociated the security family
-            combination.getSecurityFamily().removeSecurities(combination);
-
-            // remove the combination
-            getCombinationDao().remove(combination);
-
-            logger.debug("deleted combination " + combination);
+        } catch (Exception ex) {
+            throw new CombinationServiceException(ex.getMessage(), ex);
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected Combination handleAddComponentQuantity(int combinationId, final int securityId, long quantity) throws Exception {
+    @Transactional(propagation = Propagation.REQUIRED)
+    public Combination addComponentQuantity(final int combinationId, final int securityId, final long quantity) {
 
-        return addOrRemoveComponentQuantity(combinationId, securityId, quantity, true);
+        try {
+            return addOrRemoveComponentQuantity(combinationId, securityId, quantity, true);
+        } catch (Exception ex) {
+            throw new CombinationServiceException(ex.getMessage(), ex);
+        }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected Combination handleSetComponentQuantity(int combinationId, int securityId, long quantity) throws Exception {
+    @Transactional(propagation = Propagation.REQUIRED)
+    public Combination setComponentQuantity(final int combinationId, final int securityId, final long quantity) {
 
-        return addOrRemoveComponentQuantity(combinationId, securityId, quantity, false);
+        try {
+            return addOrRemoveComponentQuantity(combinationId, securityId, quantity, false);
+        } catch (Exception ex) {
+            throw new CombinationServiceException(ex.getMessage(), ex);
+        }
     }
 
-
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected Combination handleRemoveComponent(int combinationId, final int securityId) {
+    @Transactional(propagation = Propagation.REQUIRED)
+    public Combination removeComponent(final int combinationId, final int securityId) {
 
-        Combination combination = getCombinationDao().get(combinationId);
+        try {
+            Combination combination = this.combinationDao.get(combinationId);
 
-        if (combination == null) {
-            throw new IllegalArgumentException("combination does not exist: " + combinationId);
-        }
-
-        String combinationString = combination.toString();
-        final Security security = getSecurityDao().load(securityId);
-
-        if (security == null) {
-            throw new IllegalArgumentException("security does not exist: " + securityId);
-        }
-
-        // find the component to the specified security
-        Component component = CollectionUtils.find(combination.getComponents(), new Predicate<Component>() {
-            @Override
-            public boolean evaluate(Component component) {
-                return security.equals(component.getSecurity());
-            }
-        });
-
-        if (component != null) {
-
-            // update the combination
-            combination.getComponents().remove(component);
-
-            // delete the component
-            getComponentDao().remove(component);
-
-            // remove the component from the ComponentWindow
-            removeFromComponentWindow(component);
-
-            // update the ComponentWindow
-            insertIntoComponentWindow(combination);
-
-        } else {
-
-            throw new IllegalArgumentException("component on securityId " + securityId + " does not exist");
-        }
-
-        logger.debug("removed component " + component + " from combination " + combinationString);
-
-        return combination;
-    }
-
-    @Override
-    protected void handleCloseCombination(int combinationId, String strategyName) throws Exception {
-
-        Combination combination = getCombinationDao().get(combinationId);
-
-        if (combination == null) {
-            logger.warn("combination does not exist: " + combinationId);
-            return;
-        }
-
-        // reduce all associated positions by the specified amount
-        // Note: positions are not closed, because other combinations might relate to them as well
-        for (Component component : combination.getComponents()) {
-
-            if (component.getQuantity() != 0) {
-
-                Position position = getPositionDao().findBySecurityAndStrategy(component.getSecurity().getId(), strategyName);
-
-                logger.info("reduce position " + position.getId() + " by " + component.getQuantity());
-
-                getPositionService().reducePosition(position.getId(), component.getQuantity());
-            }
-        }
-
-        // close non-tradeable position on the combination
-        Position position = getPositionDao().findBySecurityAndStrategy(combinationId, strategyName);
-        if (position != null) {
-            getPositionService().deleteNonTradeablePosition(position.getId(), true);
-        }
-
-        // delete the combination
-        deleteCombination(combination.getId());
-    }
-
-    @Override
-    protected Combination handleReduceCombination(int combinationId, String strategyName, double ratio) throws Exception {
-
-        if (ratio >= 1.0) {
-            closeCombination(combinationId, strategyName);
-            return null;
-        } else if (ratio < 0) {
-            throw new IllegalArgumentException("ratio cannot be smaller than zero");
-        } else {
-
-            Combination combination = getCombinationDao().get(combinationId);
             if (combination == null) {
                 throw new IllegalArgumentException("combination does not exist: " + combinationId);
             }
 
-            if (ratio != 0) {
+            String combinationString = combination.toString();
+            final Security security = this.securityDao.load(securityId);
 
-                // reduce all associated positions by the specified ratio
-                // Note: positions are not closed, because other combinations might relate to them as well
-                for (Component component : combination.getComponents()) {
+            if (security == null) {
+                throw new IllegalArgumentException("security does not exist: " + securityId);
+            }
 
-                    long quantity = -Math.round(component.getQuantity() * ratio);
-                    long absQuantity = Math.abs(quantity);
+            // find the component to the specified security
+            Component component = CollectionUtils.find(combination.getComponents(), new Predicate<Component>() {
+                @Override
+                public boolean evaluate(Component component) {
+                    return security.equals(component.getSecurity());
+                }
+            });
 
-                    // adjust the component
-                    addOrRemoveComponentQuantity(combinationId, component.getSecurity().getId(), quantity, true);
+            if (component != null) {
 
-                    Position position = getPositionDao().findBySecurityAndStrategy(component.getSecurity().getId(), strategyName);
+                // update the combination
+                combination.getComponents().remove(component);
 
-                    logger.info("reduce position " + position.getId() + " of combination " + combination + " by " + absQuantity);
+                // delete the component
+                this.componentDao.remove(component);
 
-                    // reduce the position
-                    getPositionService().reducePosition(position.getId(), absQuantity);
+                // remove the component from the ComponentWindow
+                removeFromComponentWindow(component);
+
+                // update the ComponentWindow
+                insertIntoComponentWindow(combination);
+
+            } else {
+
+                throw new IllegalArgumentException("component on securityId " + securityId + " does not exist");
+            }
+
+            logger.debug("removed component " + component + " from combination " + combinationString);
+
+            return combination;
+        } catch (Exception ex) {
+            throw new CombinationServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void closeCombination(final int combinationId, final String strategyName) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+
+        try {
+            Combination combination = this.combinationDao.get(combinationId);
+
+            if (combination == null) {
+                logger.warn("combination does not exist: " + combinationId);
+                return;
+            }
+
+            // reduce all associated positions by the specified amount
+            // Note: positions are not closed, because other combinations might relate to them as well
+            for (Component component : combination.getComponents()) {
+
+                if (component.getQuantity() != 0) {
+
+                    Position position = this.positionDao.findBySecurityAndStrategy(component.getSecurity().getId(), strategyName);
+
+                    logger.info("reduce position " + position.getId() + " by " + component.getQuantity());
+
+                    this.positionService.reducePosition(position.getId(), component.getQuantity());
                 }
             }
 
-            return combination;
-        }
-    }
-
-    @SuppressWarnings("rawtypes")
-    @Override
-    protected void handleDeleteCombinationsWithZeroQty(String strategyName, Class type) throws Exception {
-
-        int discriminator = HibernateUtil.getDisriminatorValue(getSessionFactory(), type);
-        Collection<Combination> combinations = getCombinationDao().findSubscribedByStrategyAndComponentTypeWithZeroQty(strategyName, discriminator);
-
-        if (combinations.size() > 0) {
-
-            for (Combination combination : combinations) {
-                deleteCombination(combination.getId());
+            // close non-tradeable position on the combination
+            Position position = this.positionDao.findBySecurityAndStrategy(combinationId, strategyName);
+            if (position != null) {
+                this.positionService.deleteNonTradeablePosition(position.getId(), true);
             }
 
-            logger.debug("deleted zero quantity combinations: " + combinations);
+            // delete the combination
+            deleteCombination(combination.getId());
+        } catch (Exception ex) {
+            throw new CombinationServiceException(ex.getMessage(), ex);
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected void handleResetComponentWindow() throws Exception {
+    @Transactional(propagation = Propagation.REQUIRED)
+    public Combination reduceCombination(final int combinationId, final String strategyName, final double ratio) {
 
-        // emtpy the entire component window
-        removeFromComponentWindow(null);
+        Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        // reset the component window
-        for (Combination combination : getCombinationDao().loadAll()) {
-            insertIntoComponentWindow(combination);
+        try {
+            if (ratio >= 1.0) {
+                closeCombination(combinationId, strategyName);
+                return null;
+            } else if (ratio < 0) {
+                throw new IllegalArgumentException("ratio cannot be smaller than zero");
+            } else {
+
+                Combination combination = this.combinationDao.get(combinationId);
+                if (combination == null) {
+                    throw new IllegalArgumentException("combination does not exist: " + combinationId);
+                }
+
+                if (ratio != 0) {
+
+                    // reduce all associated positions by the specified ratio
+                    // Note: positions are not closed, because other combinations might relate to them as well
+                    for (Component component : combination.getComponents()) {
+
+                        long quantity = -Math.round(component.getQuantity() * ratio);
+                        long absQuantity = Math.abs(quantity);
+
+                        // adjust the component
+                        addOrRemoveComponentQuantity(combinationId, component.getSecurity().getId(), quantity, true);
+
+                        Position position = this.positionDao.findBySecurityAndStrategy(component.getSecurity().getId(), strategyName);
+
+                        logger.info("reduce position " + position.getId() + " of combination " + combination + " by " + absQuantity);
+
+                        // reduce the position
+                        this.positionService.reducePosition(position.getId(), absQuantity);
+                    }
+                }
+
+                return combination;
+            }
+        } catch (Exception ex) {
+            throw new CombinationServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void deleteCombinationsWithZeroQty(final String strategyName, final Class type) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+        Validate.notNull(type, "Type is null");
+
+        try {
+            int discriminator = HibernateUtil.getDisriminatorValue(this.sessionFactory, type);
+            Collection<Combination> combinations = this.combinationDao.findSubscribedByStrategyAndComponentTypeWithZeroQty(strategyName, discriminator);
+
+            if (combinations.size() > 0) {
+
+                for (Combination combination : combinations) {
+                    deleteCombination(combination.getId());
+                }
+
+                logger.debug("deleted zero quantity combinations: " + combinations);
+            }
+        } catch (Exception ex) {
+            throw new CombinationServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void resetComponentWindow() {
+
+        try {
+            // emtpy the entire component window
+            removeFromComponentWindow(null);
+
+            // reset the component window
+            for (Combination combination : this.combinationDao.loadAll()) {
+                insertIntoComponentWindow(combination);
+            }
+        } catch (Exception ex) {
+            throw new CombinationServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void init() {
+
+        try {
+            if (!this.commonConfig.isSimulation()) {
+                for (Combination combination : this.combinationDao.loadAll()) {
+                    insertIntoComponentWindow(combination);
+                }
+            }
+        } catch (Exception ex) {
+            throw new CombinationServiceException(ex.getMessage(), ex);
         }
     }
 
     private Combination addOrRemoveComponentQuantity(int combinationId, final int securityId, long quantity, boolean add) throws Exception {
 
-        Combination combination = getCombinationDao().get(combinationId);
+        Combination combination = this.combinationDao.get(combinationId);
 
         if (combination == null) {
             throw new IllegalArgumentException("combination does not exist: " + combinationId);
         }
 
         String combinationString = combination.toString();
-        final Security security = getSecurityDao().load(securityId);
+        final Security security = this.securityDao.load(securityId);
 
         if (security == null) {
             throw new IllegalArgumentException("security does not exist: " + securityId);
@@ -344,7 +501,7 @@ public class CombinationServiceImpl extends CombinationServiceBase {
             // associate combination
             component.setCombination(combination);
 
-            getComponentDao().create(component);
+            this.componentDao.create(component);
 
             // reverse associate combination (after component has received an id)
             combination.getComponents().add(component);

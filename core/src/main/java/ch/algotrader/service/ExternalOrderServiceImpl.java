@@ -19,26 +19,44 @@ package ch.algotrader.service;
 
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
+import ch.algotrader.util.spring.HibernateSession;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public abstract class ExternalOrderServiceImpl extends ExternalOrderServiceBase {
+@HibernateSession
+public abstract class ExternalOrderServiceImpl implements ExternalOrderService {
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected abstract void handleSendOrder(SimpleOrder order) throws Exception;
+    public abstract void sendOrder(SimpleOrder order);
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected abstract void handleValidateOrder(SimpleOrder order) throws Exception;
+    public abstract void validateOrder(SimpleOrder order);
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected abstract void handleCancelOrder(SimpleOrder order) throws Exception;
+    public abstract void cancelOrder(SimpleOrder order);
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected abstract void handleModifyOrder(SimpleOrder order) throws Exception;
+    public abstract void modifyOrder(SimpleOrder order);
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected abstract OrderServiceType handleGetOrderServiceType() throws Exception;
+    public abstract OrderServiceType getOrderServiceType();
+
 }

@@ -19,21 +19,38 @@ package ch.algotrader.service;
 
 import java.util.List;
 
+import org.apache.commons.lang.Validate;
+
 import ch.algotrader.entity.security.Security;
+import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.enumeration.FeedType;
+import ch.algotrader.util.spring.HibernateSession;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public abstract class ExternalMarketDataServiceImpl extends ExternalMarketDataServiceBase {
+@HibernateSession
+public abstract class ExternalMarketDataServiceImpl implements ExternalMarketDataService {
 
+    private final SecurityDao securityDao;
+
+    public ExternalMarketDataServiceImpl(final SecurityDao securityDao) {
+
+        Validate.notNull(securityDao, "SecurityDao is null");
+
+        this.securityDao = securityDao;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected void handleInitSubscriptions() {
+    public void initSubscriptions() {
 
         // process all subscriptions that do not have a feedType associated
-        List<Security> securities = getSecurityDao().findSubscribedByFeedTypeForAutoActivateStrategiesInclFamily(getFeedType());
+        List<Security> securities = this.securityDao.findSubscribedByFeedTypeForAutoActivateStrategiesInclFamily(getFeedType());
         for (Security security : securities) {
             if (!security.getSecurityFamily().isSynthetic()) {
                 subscribe(security);
@@ -41,12 +58,22 @@ public abstract class ExternalMarketDataServiceImpl extends ExternalMarketDataSe
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected abstract void handleSubscribe(Security security) throws Exception;
+    public abstract void subscribe(Security security);
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected abstract void handleUnsubscribe(Security security) throws Exception;
+    public abstract void unsubscribe(Security security);
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected abstract FeedType handleGetFeedType() throws Exception;
+    public abstract FeedType getFeedType();
+
 }

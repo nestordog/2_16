@@ -19,53 +19,108 @@ package ch.algotrader.service;
 
 import java.util.Date;
 
+import org.apache.commons.lang.Validate;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
 import ch.algotrader.entity.strategy.Measurement;
+import ch.algotrader.entity.strategy.MeasurementDao;
 import ch.algotrader.entity.strategy.Strategy;
+import ch.algotrader.entity.strategy.StrategyDao;
 import ch.algotrader.util.DateUtil;
+import ch.algotrader.util.spring.HibernateSession;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class MeasurementServiceImpl extends MeasurementServiceBase {
+@HibernateSession
+public class MeasurementServiceImpl implements MeasurementService {
 
+    private final MeasurementDao measurementDao;
+
+    private final StrategyDao strategyDao;
+
+    public MeasurementServiceImpl(final MeasurementDao measurementDao,
+            final StrategyDao strategyDao) {
+
+        Validate.notNull(measurementDao, "MeasurementDao is null");
+        Validate.notNull(strategyDao, "StrategyDao is null");
+
+        this.measurementDao = measurementDao;
+        this.strategyDao = strategyDao;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected Measurement handleCreateMeasurement(String strategyName, String name, Date date, Object value) throws Exception {
+    @Transactional(propagation = Propagation.REQUIRED)
+    public Measurement createMeasurement(final String strategyName, final String name, final Object value) {
 
-        Strategy strategy = getStrategyDao().findByName(strategyName);
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+        Validate.notEmpty(name, "Name is empty");
+        Validate.notNull(value, "Value is null");
 
-        // find out if there is a measurement for specified strategyName, type and date
-        Measurement measurement = getMeasurementDao().findMeasurementByDate(strategyName, name, date);
-
-        if (measurement == null) {
-
-            measurement = Measurement.Factory.newInstance();
-
-            measurement.setStrategy(strategy);
-            measurement.setName(name);
-            measurement.setDateTime(date);
-            measurement.setValue(value);
-
-            getMeasurementDao().create(measurement);
-
-        } else {
-
-            measurement.setValue(value);
+        try {
+            return createMeasurement(strategyName, name, DateUtil.getCurrentEPTime(), value);
+        } catch (Exception ex) {
+            throw new MeasurementServiceException(ex.getMessage(), ex);
         }
-
-        return measurement;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected Measurement handleCreateMeasurement(String strategyName, String name, Object value) throws Exception {
+    @Transactional(propagation = Propagation.REQUIRED)
+    public Measurement createMeasurement(final String strategyName, final String name, final Date date, final Object value) {
 
-        return createMeasurement(strategyName, name, DateUtil.getCurrentEPTime(), value);
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+        Validate.notEmpty(name, "Name is empty");
+        Validate.notNull(date, "Date is null");
+        Validate.notNull(value, "Value is null");
+
+        try {
+            Strategy strategy = this.strategyDao.findByName(strategyName);
+
+            // find out if there is a measurement for specified strategyName, type and date
+            Measurement measurement = this.measurementDao.findMeasurementByDate(strategyName, name, date);
+
+            if (measurement == null) {
+
+                measurement = Measurement.Factory.newInstance();
+
+                measurement.setStrategy(strategy);
+                measurement.setName(name);
+                measurement.setDateTime(date);
+                measurement.setValue(value);
+
+                this.measurementDao.create(measurement);
+
+            } else {
+
+                measurement.setValue(value);
+            }
+
+            return measurement;
+        } catch (Exception ex) {
+            throw new MeasurementServiceException(ex.getMessage(), ex);
+        }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected  void handleDeleteMeasurement(int measurementId) throws Exception {
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void deleteMeasurement(final int measurementId) {
 
-        getMeasurementDao().remove(measurementId);
+        try {
+            this.measurementDao.remove(measurementId);
+        } catch (Exception ex) {
+            throw new MeasurementServiceException(ex.getMessage(), ex);
+        }
     }
 }

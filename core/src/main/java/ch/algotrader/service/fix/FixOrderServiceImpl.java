@@ -17,13 +17,17 @@
  ***********************************************************************************/
 package ch.algotrader.service.fix;
 
+import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
 
-import ch.algotrader.entity.trade.Order;
-import ch.algotrader.util.MyLogger;
 import quickfix.Message;
 import quickfix.StringField;
 import quickfix.field.MsgType;
+import ch.algotrader.adapter.fix.FixAdapter;
+import ch.algotrader.entity.trade.Order;
+import ch.algotrader.service.ExternalOrderServiceImpl;
+import ch.algotrader.service.OrderService;
+import ch.algotrader.util.MyLogger;
 
 /**
  * Generic FIX order service
@@ -32,37 +36,73 @@ import quickfix.field.MsgType;
  *
  * @version $Revision$ $Date$
  */
-public abstract class FixOrderServiceImpl extends FixOrderServiceBase {
+public abstract class FixOrderServiceImpl extends ExternalOrderServiceImpl implements FixOrderService {
 
     private static final long serialVersionUID = -1571841567775158540L;
 
     private static Logger logger = MyLogger.getLogger(FixOrderServiceImpl.class.getName());
 
-    @Override
-    protected void handleInit() throws Exception {
+    private final FixAdapter fixAdapter;
 
-        getFixAdapter().createSession(getOrderServiceType());
+    private final OrderService orderService;
+
+    public FixOrderServiceImpl(final FixAdapter fixAdapter,
+            final OrderService orderService) {
+
+        Validate.notNull(fixAdapter, "FixAdapter is null");
+        Validate.notNull(orderService, "OrderService is null");
+
+        this.fixAdapter = fixAdapter;
+        this.orderService = orderService;
     }
 
+    protected FixAdapter getFixAdapter() {
+
+        return this.fixAdapter;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected void handleSendOrder(Order order, Message message, boolean propagate) throws Exception {
+    public void init() {
 
-        // send the message to the FixClient
-        getFixAdapter().sendMessage(message, order.getAccount());
-
-        StringField msgType = message.getHeader().getField(new MsgType());
-        if (msgType.getValue().equals(MsgType.ORDER_SINGLE)) {
-            logger.info("sent order: " + order);
-        } else if (msgType.getValue().equals(MsgType.ORDER_CANCEL_REPLACE_REQUEST)) {
-            logger.info("sent order modification: " + order);
-        } else if (msgType.getValue().equals(MsgType.ORDER_CANCEL_REQUEST)) {
-            logger.info("sent order cancellation: " + order);
-        } else {
-            throw new IllegalArgumentException("unsupported messagetype: " + msgType);
+        try {
+            this.fixAdapter.createSession(getOrderServiceType());
+        } catch (Exception ex) {
+            throw new FixOrderServiceException(ex.getMessage(), ex);
         }
+    }
 
-        if (propagate) {
-            getOrderService().propagateOrder(order);
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void sendOrder(final Order order, final Message message, final boolean propagate) {
+
+        Validate.notNull(order, "Order is null");
+        Validate.notNull(message, "Message is null");
+
+        try {
+            // send the message to the FixClient
+            this.fixAdapter.sendMessage(message, order.getAccount());
+
+            StringField msgType = message.getHeader().getField(new MsgType());
+            if (msgType.getValue().equals(MsgType.ORDER_SINGLE)) {
+                logger.info("sent order: " + order);
+            } else if (msgType.getValue().equals(MsgType.ORDER_CANCEL_REPLACE_REQUEST)) {
+                logger.info("sent order modification: " + order);
+            } else if (msgType.getValue().equals(MsgType.ORDER_CANCEL_REQUEST)) {
+                logger.info("sent order cancellation: " + order);
+            } else {
+                throw new IllegalArgumentException("unsupported messagetype: " + msgType);
+            }
+
+            if (propagate) {
+                this.orderService.propagateOrder(order);
+            }
+        } catch (Exception ex) {
+            throw new FixOrderServiceException(ex.getMessage(), ex);
         }
     }
 }

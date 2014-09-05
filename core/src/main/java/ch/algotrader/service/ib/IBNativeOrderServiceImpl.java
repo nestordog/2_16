@@ -20,10 +20,14 @@ package ch.algotrader.service.ib;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
+import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
 
+import ch.algotrader.adapter.ib.IBIdGenerator;
 import ch.algotrader.adapter.ib.IBOrderStatus;
+import ch.algotrader.adapter.ib.IBSession;
 import ch.algotrader.adapter.ib.IBUtil;
+import ch.algotrader.config.IBConfig;
 import ch.algotrader.entity.trade.LimitOrderI;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.SimpleOrder;
@@ -32,6 +36,8 @@ import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.enumeration.TIF;
 import ch.algotrader.esper.EngineLocator;
+import ch.algotrader.service.ExternalOrderServiceImpl;
+import ch.algotrader.service.OrderService;
 import ch.algotrader.util.MyLogger;
 
 import com.ib.client.Contract;
@@ -41,15 +47,39 @@ import com.ib.client.Contract;
  *
  * @version $Revision$ $Date$
  */
-public class IBNativeOrderServiceImpl extends IBNativeOrderServiceBase {
+public class IBNativeOrderServiceImpl extends ExternalOrderServiceImpl implements IBNativeOrderService {
 
     private static Logger logger = MyLogger.getLogger(IBNativeOrderServiceImpl.class.getName());
     private static DateFormat format = new SimpleDateFormat("yyyyMMdd HH:mm:ss");
 
     private static boolean firstOrder = true;
 
+    private final IBSession iBSession;
+
+    private final IBIdGenerator iBIdGenerator;
+
+    private final IBConfig iBConfig;
+
+    private final OrderService orderService;
+
+    public IBNativeOrderServiceImpl(final IBSession iBSession,
+            final IBIdGenerator iBIdGenerator,
+            final IBConfig iBConfig,
+            final OrderService orderService) {
+
+        Validate.notNull(iBSession, "IBSession is null");
+        Validate.notNull(iBIdGenerator, "IBIdGenerator is null");
+        Validate.notNull(iBConfig, "IBConfig is null");
+        Validate.notNull(orderService, "OrderService is null");
+
+        this.iBSession = iBSession;
+        this.iBIdGenerator = iBIdGenerator;
+        this.iBConfig = iBConfig;
+        this.orderService = orderService;
+    }
+
     @Override
-    protected void handleValidateOrder(SimpleOrder order) throws Exception {
+    public void validateOrder(SimpleOrder order) {
 
         // validate quantity by allocations (if fa is enabled and no account has been specified)
         //        if (this.faEnabled && (order.getAccount() == null || "".equals(order.getAccount()))) {
@@ -63,57 +93,75 @@ public class IBNativeOrderServiceImpl extends IBNativeOrderServiceBase {
     }
 
     @Override
-    protected void handleSendOrder(SimpleOrder order) throws Exception {
+    public void sendOrder(SimpleOrder order) {
+
+        Validate.notNull(order, "Order is null");
 
         // Because of an IB bug only one order can be submitted at a time when
         // first connecting to IB, so wait 100ms after the first order
 
-        logger.info("before place");
+        try {
+            logger.info("before place");
 
-        if (firstOrder) {
+            if (firstOrder) {
 
-            synchronized (this) {
+                synchronized (this) {
+                    internalSendOrder(order);
+                    Thread.sleep(200);
+                    firstOrder = false;
+                }
+
+            } else {
+
                 internalSendOrder(order);
-                Thread.sleep(200);
-                firstOrder = false;
             }
-
-        } else {
-
-            internalSendOrder(order);
+        } catch (Exception ex) {
+            throw new IBNativeOrderServiceException(ex.getMessage(), ex);
         }
     }
 
     private synchronized void internalSendOrder(SimpleOrder order) throws Exception {
 
-        String intId = getIBIdGenerator().getNextOrderId();
+        String intId = this.iBIdGenerator.getNextOrderId();
         order.setIntId(intId);
         sendOrModifyOrder(order);
     }
 
     @Override
-    protected void handleModifyOrder(SimpleOrder order) throws Exception {
+    public void modifyOrder(SimpleOrder order) {
 
-        sendOrModifyOrder(order);
+        Validate.notNull(order, "Order is null");
 
-        // send a 0:0 OrderStatus to validate the first SUBMITTED OrderStatus just after the modification
-        IBOrderStatus orderStatus = new IBOrderStatus(Status.SUBMITTED, 0, 0, null, order);
+        try {
+            sendOrModifyOrder(order);
 
-        EngineLocator.instance().getBaseEngine().sendEvent(orderStatus);
+            // send a 0:0 OrderStatus to validate the first SUBMITTED OrderStatus just after the modification
+            IBOrderStatus orderStatus = new IBOrderStatus(Status.SUBMITTED, 0, 0, null, order);
+
+            EngineLocator.instance().getBaseEngine().sendEvent(orderStatus);
+        } catch (Exception ex) {
+            throw new IBNativeOrderServiceException(ex.getMessage(), ex);
+        }
 
     }
 
     @Override
-    protected void handleCancelOrder(SimpleOrder order) throws Exception {
+    public void cancelOrder(SimpleOrder order) {
 
-        if (!getIBSession().getLifecycle().isLoggedOn()) {
-            logger.error("order cannot be cancelled, because IB is not logged on");
-            return;
+        Validate.notNull(order, "Order is null");
+
+        try {
+            if (!this.iBSession.getLifecycle().isLoggedOn()) {
+                logger.error("order cannot be cancelled, because IB is not logged on");
+                return;
+            }
+
+            this.iBSession.cancelOrder(Integer.parseInt(order.getIntId()));
+
+            logger.info("requested order cancellation for order: " + order);
+        } catch (Exception ex) {
+            throw new IBNativeOrderServiceException(ex.getMessage(), ex);
         }
-
-        getIBSession().cancelOrder(Integer.parseInt(order.getIntId()));
-
-        logger.info("requested order cancellation for order: " + order);
     }
 
     /**
@@ -122,7 +170,7 @@ public class IBNativeOrderServiceImpl extends IBNativeOrderServiceBase {
      */
     private void sendOrModifyOrder(Order order) throws Exception {
 
-        if (!getIBSession().getLifecycle().isLoggedOn()) {
+        if (!this.iBSession.getLifecycle().isLoggedOn()) {
             logger.error("order cannot be sent / modified, because IB is not logged on");
             return;
         }
@@ -140,11 +188,11 @@ public class IBNativeOrderServiceImpl extends IBNativeOrderServiceBase {
 
             ibOrder.m_account = order.getAccount().getExtAccount();
 
-        // handling for financial advisor account groups
+            // handling for financial advisor account groups
         } else if (order.getAccount().getExtAccountGroup() != null) {
 
             ibOrder.m_faGroup = order.getAccount().getExtAccountGroup();
-            ibOrder.m_faMethod = this.getIBConfig().getFaMethod();
+            ibOrder.m_faMethod = this.iBConfig.getFaMethod();
 
             //            long existingQuantity = 0;
             //            for (Position position : order.getSecurity().getPositions()) {
@@ -178,7 +226,7 @@ public class IBNativeOrderServiceImpl extends IBNativeOrderServiceBase {
             //                ibOrder.m_faPercentage = "-" + Math.abs(order.getQuantity() * 100 / (existingQuantity - order.getQuantity()));
             //            }
 
-        // handling for financial advisor allocation profiles
+            // handling for financial advisor allocation profiles
         } else if (order.getAccount().getExtAllocationProfile() != null) {
 
             ibOrder.m_faProfile = order.getAccount().getExtAllocationProfile();
@@ -211,16 +259,16 @@ public class IBNativeOrderServiceImpl extends IBNativeOrderServiceBase {
         }
 
         // progapate the order to all corresponding esper engines
-        getOrderService().propagateOrder(order);
+        this.orderService.propagateOrder(order);
 
         // place the order through IBSession
-        getIBSession().placeOrder(Integer.parseInt(order.getIntId()), contract, ibOrder);
+        this.iBSession.placeOrder(Integer.parseInt(order.getIntId()), contract, ibOrder);
 
         logger.info("placed or modified order: " + order);
     }
 
     @Override
-    protected OrderServiceType handleGetOrderServiceType() throws Exception {
+    public OrderServiceType getOrderServiceType() {
         return OrderServiceType.IB_NATIVE;
     }
 }

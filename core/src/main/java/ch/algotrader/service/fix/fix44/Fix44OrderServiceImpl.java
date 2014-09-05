@@ -17,26 +17,34 @@
  ***********************************************************************************/
 package ch.algotrader.service.fix.fix44;
 
+import org.apache.commons.lang.Validate;
+
+import quickfix.fix44.NewOrderSingle;
+import quickfix.fix44.OrderCancelReplaceRequest;
+import quickfix.fix44.OrderCancelRequest;
+import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.fix.fix44.Fix44OrderMessageFactory;
 import ch.algotrader.adapter.fix.fix44.GenericFix44OrderMessageFactory;
 import ch.algotrader.adapter.fix.fix44.GenericFix44SymbologyResolver;
 import ch.algotrader.entity.trade.SimpleOrder;
-import quickfix.fix44.NewOrderSingle;
-import quickfix.fix44.OrderCancelReplaceRequest;
-import quickfix.fix44.OrderCancelRequest;
+import ch.algotrader.service.OrderService;
+import ch.algotrader.service.fix.FixOrderServiceImpl;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public abstract class Fix44OrderServiceImpl extends Fix44OrderServiceBase {
+public abstract class Fix44OrderServiceImpl extends FixOrderServiceImpl implements Fix44OrderService {
 
     private static final long serialVersionUID = -3694423160435186473L;
 
     private final Fix44OrderMessageFactory messageFactory;
 
-    protected Fix44OrderServiceImpl() {
+    public Fix44OrderServiceImpl(final FixAdapter fixAdapter,
+            final OrderService orderService) {
+
+        super(fixAdapter, orderService);
 
         this.messageFactory = createMessageFactory();
     }
@@ -48,13 +56,16 @@ public abstract class Fix44OrderServiceImpl extends Fix44OrderServiceBase {
     }
 
     @Override
-    protected void handleValidateOrder(SimpleOrder order) throws Exception {
+    public void validateOrder(SimpleOrder order) {
         // to be implememented
     }
 
     @Override
-    protected void handleSendOrder(SimpleOrder order) throws Exception {
+    public void sendOrder(SimpleOrder order) {
 
+        Validate.notNull(order, "Order is null");
+
+        try {
         // assign a new clOrdID
         String clOrdID = getFixAdapter().getNextOrderId(order.getAccount());
 
@@ -66,11 +77,17 @@ public abstract class Fix44OrderServiceImpl extends Fix44OrderServiceBase {
 
         // send the message
         sendOrder(order, message, true);
+        } catch (Exception ex) {
+            throw new Fix44OrderServiceException(ex.getMessage(), ex);
+        }
     }
 
     @Override
-    protected void handleModifyOrder(SimpleOrder order) throws Exception {
+    public void modifyOrder(SimpleOrder order) {
 
+        Validate.notNull(order, "Order is null");
+
+        try {
         // assign a new clOrdID
         String clOrdID = getFixAdapter().getNextOrderIdVersion(order);
 
@@ -81,11 +98,17 @@ public abstract class Fix44OrderServiceImpl extends Fix44OrderServiceBase {
 
         // send the message
         sendOrder(order, message, true);
+        } catch (Exception ex) {
+            throw new Fix44OrderServiceException(ex.getMessage(), ex);
+        }
     }
 
     @Override
-    protected void handleCancelOrder(SimpleOrder order) throws Exception {
+    public void cancelOrder(SimpleOrder order) {
 
+        Validate.notNull(order, "Order is null");
+
+        try {
         // get origClOrdID and assign a new clOrdID
         String clOrdID = getFixAdapter().getNextOrderIdVersion(order);
 
@@ -96,5 +119,27 @@ public abstract class Fix44OrderServiceImpl extends Fix44OrderServiceBase {
 
         // send the message
         sendOrder(order, message, false);
+        } catch (Exception ex) {
+            throw new Fix44OrderServiceException(ex.getMessage(), ex);
+        }
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public abstract void sendOrder(final SimpleOrder order, final NewOrderSingle newOrder);
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public abstract void modifyOrder(final SimpleOrder order, final OrderCancelReplaceRequest replaceRequest);
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public abstract void cancelOrder(final SimpleOrder order, final OrderCancelRequest cancelRequest);
+
 }

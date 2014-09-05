@@ -17,17 +17,31 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import ch.algotrader.util.spring.HibernateSession;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public abstract class SecurityRetrieverServiceImpl extends SecurityRetrieverServiceBase {
+@HibernateSession
+public abstract class SecurityRetrieverServiceImpl implements SecurityRetrieverService {
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected abstract void handleRetrieve(int securityFamilyId) throws Exception;
+    @Transactional(propagation = Propagation.REQUIRED)
+    public abstract void retrieve(int securityFamilyId);
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    protected abstract void handleRetrieveStocks(int securityFamilyId, String symbol) throws Exception;
+    @Transactional(propagation = Propagation.REQUIRED)
+    public abstract void retrieveStocks(int securityFamilyId, String symbol);
+
 }
