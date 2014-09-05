@@ -47,7 +47,6 @@ import ch.algotrader.entity.trade.Order;
 import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Duration;
-import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.vo.OrderStatusVO;
 import ch.algotrader.vo.PositionVO;

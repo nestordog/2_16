@@ -33,7 +33,6 @@ import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.math.NumberUtils;
 import org.hibernate.SessionFactory;
 
-import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.CoreConfig;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.AccountDao;
