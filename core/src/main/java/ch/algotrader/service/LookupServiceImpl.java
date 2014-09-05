@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.jms.IllegalStateException;
 
@@ -106,12 +107,12 @@ import ch.algotrader.vo.TransactionVO;
 @HibernateSession
 public class LookupServiceImpl implements LookupService {
 
-    private Map<String, Integer> securitySymbolMap = new HashMap<String, Integer>();
-    private Map<String, Integer> securityIsinMap = new HashMap<String, Integer>();
-    private Map<String, Integer> securityBbgidMap = new HashMap<String, Integer>();
-    private Map<String, Integer> securityRicMap = new HashMap<String, Integer>();
-    private Map<String, Integer> securityConidMap = new HashMap<String, Integer>();
-    private Map<String, Integer> securityIdMap = new HashMap<String, Integer>();
+    private final Map<String, Integer> securitySymbolMap = new ConcurrentHashMap<String, Integer>();
+    private final Map<String, Integer> securityIsinMap = new ConcurrentHashMap<String, Integer>();
+    private final Map<String, Integer> securityBbgidMap = new ConcurrentHashMap<String, Integer>();
+    private final Map<String, Integer> securityRicMap = new ConcurrentHashMap<String, Integer>();
+    private final Map<String, Integer> securityConidMap = new ConcurrentHashMap<String, Integer>();
+    private final Map<String, Integer> securityIdMap = new ConcurrentHashMap<String, Integer>();
 
     private final CoreConfig coreConfig;
 
