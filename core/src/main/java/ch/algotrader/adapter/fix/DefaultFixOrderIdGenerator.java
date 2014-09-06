@@ -34,17 +34,16 @@ import quickfix.SessionID;
  */
 class DefaultFixOrderIdGenerator implements FixOrderIdGenerator {
 
+    private final LookupService lookupService;
     private final IntegerMap<String> orderIds;
-    private LookupService lookupService;
 
-    public DefaultFixOrderIdGenerator() {
+    public DefaultFixOrderIdGenerator(final LookupService lookupService) {
+
+        Validate.notNull(lookupService, "LookupService is null");
+
+        this.lookupService = lookupService;
         this.orderIds = new IntegerMap<String>();
     }
-
-    public void setLookupService(LookupService lookupService) {
-        this.lookupService = lookupService;
-    }
-
 
     /**
      * Gets the next {@code orderId} for the specified {@code account}

@@ -73,7 +73,7 @@ public class OrderServiceImpl implements OrderService, ApplicationContextAware {
     private static Logger logger = MyLogger.getLogger(OrderServiceImpl.class.getName());
     private static Logger notificationLogger = MyLogger.getLogger("ch.algotrader.service.NOTIFICATION");
 
-    private ApplicationContext applicationContext;
+    private volatile ApplicationContext applicationContext;
 
     private final CommonConfig commonConfig;
 
@@ -136,7 +136,7 @@ public class OrderServiceImpl implements OrderService, ApplicationContextAware {
     }
 
     @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+    public void setApplicationContext(final ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
     }
 

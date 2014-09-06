@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.fix;
 
+import org.apache.commons.lang.Validate;
 import org.quickfixj.jmx.JmxExporter;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
@@ -45,11 +46,13 @@ import quickfix.SocketInitiator;
  */
 public class FixSocketInitiatorFactoryBean implements FactoryBean<SocketInitiator>, ApplicationContextAware, DisposableBean {
 
-    private SessionSettings settings;
-    private ApplicationContext applicationContext;
-    private SocketInitiator socketInitiator;
+    private final SessionSettings settings;
+    private volatile ApplicationContext applicationContext;
+    private volatile SocketInitiator socketInitiator;
 
-    public void setSessionSettings(SessionSettings settings) {
+    public FixSocketInitiatorFactoryBean(final SessionSettings settings) {
+        Validate.notNull(settings, "SessionSettings is null");
+
         this.settings = settings;
     }
 
@@ -62,10 +65,6 @@ public class FixSocketInitiatorFactoryBean implements FactoryBean<SocketInitiato
     public SocketInitiator getObject() throws Exception {
 
         MessageStoreFactory messageStoreFactory = new FileStoreFactory(this.settings);
-
-//        Log4FIX log4Fix = Log4FIX.createForLiveUpdates(this.settings);
-//        LogFactory logFactory = new CompositeLogFactory(new LogFactory[] { new SLF4JLogFactory(this.settings), new FileLogFactory(this.settings), log4Fix.getLogFactory() });
-//        log4Fix.show();
 
         LogFactory logFactory = new CompositeLogFactory(new LogFactory[] { new SLF4JLogFactory(this.settings), new FileLogFactory(this.settings) });
 

@@ -47,25 +47,26 @@ import quickfix.SocketInitiator;
 public class DefaultFixAdapter implements FixAdapter {
 
     private final Lock lock;
-    private SocketInitiator socketInitiator;
-    private LookupService lookupService;
-    private FixEventScheduler eventScheduler;
-    private FixOrderIdGenerator orderIdGenerator;
+    private final SocketInitiator socketInitiator;
+    private final LookupService lookupService;
+    private final FixEventScheduler eventScheduler;
+    private final FixOrderIdGenerator orderIdGenerator;
 
-    public void setEventScheduler(FixEventScheduler eventScheduler) {
-        this.eventScheduler = eventScheduler;
-    }
+    public DefaultFixAdapter(
+            final SocketInitiator socketInitiator,
+            final LookupService lookupService,
+            final FixEventScheduler eventScheduler,
+            final FixOrderIdGenerator orderIdGenerator) {
+        Validate.notNull(socketInitiator, "SocketInitiator is null");
+        Validate.notNull(lookupService, "LookupService is null");
+        Validate.notNull(eventScheduler, "FixEventScheduler is null");
+        Validate.notNull(orderIdGenerator, "FixOrderIdGenerator is null");
 
-    public void setSocketInitiator(SocketInitiator socketInitiator) {
         this.socketInitiator = socketInitiator;
-    }
-
-    public void setLookupService(LookupService lookupService) {
         this.lookupService = lookupService;
-    }
-
-    public void setOrderIdGenerator(FixOrderIdGenerator orderIdGenerator) {
+        this.eventScheduler = eventScheduler;
         this.orderIdGenerator = orderIdGenerator;
+        this.lock = new ReentrantLock();
     }
 
     SocketInitiator getSocketInitiator() {
@@ -74,10 +75,6 @@ public class DefaultFixAdapter implements FixAdapter {
 
     FixOrderIdGenerator getOrderIdGenerator() {
         return orderIdGenerator;
-    }
-
-    public DefaultFixAdapter() {
-        this.lock = new ReentrantLock();
     }
 
     /**

@@ -31,9 +31,11 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
 import ch.algotrader.enumeration.ConnectionState;
+import ch.algotrader.service.LookupService;
 import ch.algotrader.util.collection.IntegerMap;
 import quickfix.Session;
 import quickfix.SessionID;
+import quickfix.SocketInitiator;
 
 /**
  * Manageable implementation of {@link FixAdapter}.
@@ -46,7 +48,15 @@ import quickfix.SessionID;
 @ManagedResource(objectName = "ch.algotrader.adapter.fix:name=FixAdapter")
 public class ManagedFixAdapter extends DefaultFixAdapter implements ApplicationContextAware {
 
-    private ApplicationContext applicationContext;
+    private volatile ApplicationContext applicationContext;
+
+    public ManagedFixAdapter(
+            final SocketInitiator socketInitiator,
+            final LookupService lookupService,
+            final FixEventScheduler eventScheduler,
+            final FixOrderIdGenerator orderIdGenerator) {
+        super(socketInitiator, lookupService, eventScheduler, orderIdGenerator);
+    }
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
