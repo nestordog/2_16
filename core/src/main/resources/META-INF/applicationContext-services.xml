@@ -330,20 +330,19 @@
 
      <beans profile="simulation,noopSimulation">
         <bean id="resetService" class="ch.algotrader.service.ResetServiceImpl" >
-            <constructor-arg index="0"  ref="commonConfig"/>
-            <constructor-arg index="1"  ref="coreConfig"/>
-            <constructor-arg index="2"  ref="securityDao"/>
-            <constructor-arg index="3"  ref="futureDao"/>
-            <constructor-arg index="4"  ref="transactionDao"/>
-            <constructor-arg index="5"  ref="positionDao"/>
-            <constructor-arg index="6"  ref="subscriptionDao"/>
-            <constructor-arg index="7"  ref="optionDao"/>
-            <constructor-arg index="8"  ref="strategyDao"/>
-            <constructor-arg index="9"  ref="cashBalanceDao"/>
-            <constructor-arg index="10"  ref="combinationDao"/>
-            <constructor-arg index="11"  ref="componentDao"/>
-            <constructor-arg index="12"  ref="propertyDao"/>
-            <constructor-arg index="13"  ref="measurementDao"/>
+            <constructor-arg index="0"  ref="coreConfig"/>
+            <constructor-arg index="1"  ref="securityDao"/>
+            <constructor-arg index="2"  ref="futureDao"/>
+            <constructor-arg index="3"  ref="transactionDao"/>
+            <constructor-arg index="4"  ref="positionDao"/>
+            <constructor-arg index="5"  ref="subscriptionDao"/>
+            <constructor-arg index="6"  ref="optionDao"/>
+            <constructor-arg index="7"  ref="strategyDao"/>
+            <constructor-arg index="8"  ref="cashBalanceDao"/>
+            <constructor-arg index="9"  ref="combinationDao"/>
+            <constructor-arg index="10"  ref="componentDao"/>
+            <constructor-arg index="11"  ref="propertyDao"/>
+            <constructor-arg index="12"  ref="measurementDao"/>
         </bean>
 
     </beans>

@@ -22,6 +22,9 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 
 import ch.algotrader.config.CommonConfig;
@@ -33,44 +36,31 @@ import ch.algotrader.enumeration.FeedType;
  *
  * @version $Revision$ $Date$
  */
-public class SubscriptionServiceImpl implements SubscriptionService {
-
-    public final DefaultMessageListenerContainer marketDataMessageListenerContainer;
-    public final DefaultMessageListenerContainer genericMessageListenerContainer;
-    public final DefaultMessageListenerContainer strategyMessageListenerContainer;
+public class SubscriptionServiceImpl implements SubscriptionService, ApplicationContextAware {
 
     private final CommonConfig commonConfig;
-
     private final MarketDataService marketDataService;
-
     private final LookupService lookupService;
 
-    public SubscriptionServiceImpl(
-            final CommonConfig commonConfig,
-            final MarketDataService marketDataService,
-            final LookupService lookupService,
-            final DefaultMessageListenerContainer marketDataMessageListenerContainer,
-            final DefaultMessageListenerContainer genericMessageListenerContainer,
-            final DefaultMessageListenerContainer strategyMessageListenerContainer) {
-
-        Validate.notNull(commonConfig, "CommonConfig is null");
-        Validate.notNull(marketDataService, "MarketDataService is null");
-        Validate.notNull(lookupService, "LookupService is null");
-
-        this.marketDataMessageListenerContainer = marketDataMessageListenerContainer;
-        this.genericMessageListenerContainer = genericMessageListenerContainer;
-        this.strategyMessageListenerContainer = strategyMessageListenerContainer;
-        this.commonConfig = commonConfig;
-        this.marketDataService = marketDataService;
-        this.lookupService = lookupService;
-
-    }
+    private ApplicationContext applicationContext;
 
     public SubscriptionServiceImpl(
             final CommonConfig commonConfig,
             final MarketDataService marketDataService,
             final LookupService lookupService) {
-        this(commonConfig, marketDataService, lookupService, null, null, null);
+
+        Validate.notNull(commonConfig, "CommonConfig is null");
+        Validate.notNull(marketDataService, "MarketDataService is null");
+        Validate.notNull(lookupService, "LookupService is null");
+
+        this.commonConfig = commonConfig;
+        this.marketDataService = marketDataService;
+        this.lookupService = lookupService;
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
     }
 
     /**
@@ -165,17 +155,19 @@ public class SubscriptionServiceImpl implements SubscriptionService {
                 messageSelector = "false";
             }
 
+            final DefaultMessageListenerContainer marketDataMessageListenerContainer = this.applicationContext.getBean("genericMessageListenerContainer", DefaultMessageListenerContainer.class);
+
             // update the message selector
-            this.marketDataMessageListenerContainer.setMessageSelector(messageSelector);
+            marketDataMessageListenerContainer.setMessageSelector(messageSelector);
 
             // restart the container (must do this in a separate thread to prevent dead-locks)
             (new Thread() {
                 @Override
                 public void run() {
-                    SubscriptionServiceImpl.this.marketDataMessageListenerContainer.stop();
-                    SubscriptionServiceImpl.this.marketDataMessageListenerContainer.shutdown();
-                    SubscriptionServiceImpl.this.marketDataMessageListenerContainer.start();
-                    SubscriptionServiceImpl.this.marketDataMessageListenerContainer.initialize();
+                    marketDataMessageListenerContainer.stop();
+                    marketDataMessageListenerContainer.shutdown();
+                    marketDataMessageListenerContainer.start();
+                    marketDataMessageListenerContainer.initialize();
                 }
             }).start();
         } catch (Exception ex) {
@@ -207,17 +199,19 @@ public class SubscriptionServiceImpl implements SubscriptionService {
                 messageSelector = "false";
             }
 
+            final DefaultMessageListenerContainer genericMessageListenerContainer = this.applicationContext.getBean("genericMessageListenerContainer", DefaultMessageListenerContainer.class);
+
             // update the message selector
-            this.genericMessageListenerContainer.setMessageSelector(messageSelector);
+            genericMessageListenerContainer.setMessageSelector(messageSelector);
 
             // restart the container (must do this in a separate thread to prevent dead-locks)
             (new Thread() {
                 @Override
                 public void run() {
-                    SubscriptionServiceImpl.this.genericMessageListenerContainer.stop();
-                    SubscriptionServiceImpl.this.genericMessageListenerContainer.shutdown();
-                    SubscriptionServiceImpl.this.genericMessageListenerContainer.start();
-                    SubscriptionServiceImpl.this.genericMessageListenerContainer.initialize();
+                    genericMessageListenerContainer.stop();
+                    genericMessageListenerContainer.shutdown();
+                    genericMessageListenerContainer.start();
+                    genericMessageListenerContainer.initialize();
                 }
             }).start();
         } catch (Exception ex) {

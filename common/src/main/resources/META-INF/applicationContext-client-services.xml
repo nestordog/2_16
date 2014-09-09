@@ -31,9 +31,6 @@
         <constructor-arg index="0" ref="commonConfig"/>
         <constructor-arg index="1" ref="marketDataService"/>
         <constructor-arg index="2" ref="lookupService"/>
-        <constructor-arg index="3" ref="marketDataMessageListenerContainer"/>
-        <constructor-arg index="4" ref="genericMessageListenerContainer"/>
-        <constructor-arg index="5" ref="strategyMessageListenerContainer"/>
     </bean>
 
     <bean id="portfolioChartService" class="ch.algotrader.service.PortfolioChartServiceImpl" >
