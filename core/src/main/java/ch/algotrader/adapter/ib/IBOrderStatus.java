@@ -30,15 +30,43 @@ public class IBOrderStatus {
     private final Status status;
     private final long filledQuantity;
     private final long remainingQuantity;
+    private final double avgFillPrice;
+    private final double lastFillPrice;
     private final String extId;
     private final Order order;
+    private final String reason;
 
     public IBOrderStatus(Status status, long filledQuantity, long remainingQuantity, String extId, Order order) {
         this.status = status;
         this.filledQuantity = filledQuantity;
         this.remainingQuantity = remainingQuantity;
+        this.avgFillPrice = 0.0;
+        this.lastFillPrice = 0.0;
         this.extId = extId;
         this.order = order;
+        this.reason = null;
+    }
+
+    public IBOrderStatus(Status status, long filledQuantity, long remainingQuantity, String extId, Order order, String reason) {
+        this.status = status;
+        this.filledQuantity = filledQuantity;
+        this.remainingQuantity = remainingQuantity;
+        this.avgFillPrice = 0.0;
+        this.lastFillPrice = 0.0;
+        this.extId = extId;
+        this.order = order;
+        this.reason = reason;
+    }
+
+    public IBOrderStatus(Status status, long filledQuantity, long remainingQuantity, double avgFillPrice, double lastFillPrice, String extId, Order order) {
+        this.status = status;
+        this.filledQuantity = filledQuantity;
+        this.remainingQuantity = remainingQuantity;
+        this.avgFillPrice = avgFillPrice;
+        this.lastFillPrice = lastFillPrice;
+        this.extId = extId;
+        this.order = order;
+        this.reason = null;
     }
 
     public Status getStatus() {
@@ -53,11 +81,23 @@ public class IBOrderStatus {
         return this.remainingQuantity;
     }
 
+    public double getAvgFillPrice() {
+        return this.avgFillPrice;
+    }
+
+    public double getLastFillPrice() {
+        return this.lastFillPrice;
+    }
+
     public String getExtId() {
         return this.extId;
     }
 
     public Order getOrder() {
         return this.order;
+    }
+
+    public String getReason() {
+        return this.reason;
     }
 }

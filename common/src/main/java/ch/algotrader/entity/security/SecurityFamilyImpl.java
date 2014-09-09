@@ -185,6 +185,41 @@ public class SecurityFamilyImpl extends SecurityFamily {
     }
 
     @Override
+    public double adjustPrice(double price, int ticks) {
+
+        if (ticks > 0) {
+            for (int i = 0; i < ticks; i++) {
+                price = price + getTickSize(price, true);
+            }
+        } else if (ticks < 0) {
+            for (int i = 0; i > ticks; i--) {
+                price = price - getTickSize(price, false);
+            }
+        }
+        return price;
+    }
+
+    @Override
+    public BigDecimal roundUp(BigDecimal price) {
+        return RoundUtil.roundToNextN(price, getTickSize(price, true).doubleValue(), BigDecimal.ROUND_UP);
+    }
+
+    @Override
+    public double roundUp(double price) {
+        return RoundUtil.roundToNextN(price, getTickSize(price, true), BigDecimal.ROUND_UP);
+    }
+
+    @Override
+    public BigDecimal roundDown(BigDecimal price) {
+        return RoundUtil.roundToNextN(price, getTickSize(price, false).doubleValue(), BigDecimal.ROUND_DOWN);
+    }
+
+    @Override
+    public double roundDown(double price) {
+        return RoundUtil.roundToNextN(price, getTickSize(price, false), BigDecimal.ROUND_DOWN);
+    }
+
+    @Override
     public boolean equals(Object obj) {
 
         if (this == obj) {

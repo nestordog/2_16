@@ -34,16 +34,14 @@ public class DefaultIBSessionLifecycle implements IBSessionLifecycle {
     private static Logger logger = MyLogger.getLogger(DefaultIBSessionLifecycle.class.getName());
 
     private final AtomicReference<ConnectionState> connState;
-    private IBSession iBSession;
 
     public DefaultIBSessionLifecycle() {
 
         this.connState = new AtomicReference<ConnectionState>(ConnectionState.DISCONNECTED);
     }
 
-    public void setiBSession(IBSession iBSession) {
-
-        this.iBSession = iBSession;
+    public IBSession getIBSession() {
+        return null;
     }
 
     @Override
@@ -57,7 +55,7 @@ public class DefaultIBSessionLifecycle implements IBSessionLifecycle {
 
         this.connState.set(ConnectionState.DISCONNECTED);
         logger.debug("change state to " + ConnectionState.DISCONNECTED);
-        this.iBSession.connect();
+        this.getIBSession().connect();
     }
 
     /**

@@ -162,18 +162,23 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
         // init coordination
         EngineLocator.instance().getBaseEngine().initCoordination();
 
+            // init modules of all activatable strategies
+            for (Strategy strategy : strategies) {
+                EngineLocator.instance().getEngine(strategy.getName()).deployAllModules();
+            }
+
         // init all StrategyServices in the classpath
         for (StrategyService strategyService : ServiceLocator.instance().getServices(StrategyService.class)) {
             strategyService.initSimulation();
         }
 
-        // init modules of all activatable strategies
-        for (Strategy strategy : strategies) {
-            EngineLocator.instance().getEngine(strategy.getName()).deployAllModules();
-        }
-
         // feed the ticks
         feedMarketData();
+
+            // init all StrategyServices in the classpath
+            for (StrategyService strategyService : ServiceLocator.instance().getServices(StrategyService.class)) {
+                strategyService.exitSimulation();
+            }
 
         // log metrics in case they have been enabled
         MetricsUtil.logMetrics();

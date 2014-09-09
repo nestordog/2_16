@@ -18,6 +18,7 @@
 package ch.algotrader.esper;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import ch.algotrader.entity.security.Security;
@@ -25,6 +26,7 @@ import ch.algotrader.entity.trade.Order;
 import ch.algotrader.esper.callback.ClosePositionCallback;
 import ch.algotrader.esper.callback.OpenPositionCallback;
 import ch.algotrader.esper.callback.TickCallback;
+import ch.algotrader.esper.callback.TimerCallback;
 import ch.algotrader.esper.callback.TradeCallback;
 
 import com.espertech.esperio.CoordinatedAdapter;
@@ -220,4 +222,9 @@ public interface Engine {
      * on the given Security has been closed.
      */
     public void addClosePositionCallback(int securityId, ClosePositionCallback callback);
+
+    /**
+     * Adds a {@link TimerCallback} to the given Engine that will be invoked at the give time.
+     */
+    public void addTimerCallback(Date dateTime, TimerCallback callback);
 }

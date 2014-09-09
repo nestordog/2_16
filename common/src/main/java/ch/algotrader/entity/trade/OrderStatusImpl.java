@@ -44,6 +44,21 @@ public class OrderStatusImpl extends OrderStatus {
         buffer.append(",remainingQuantity=");
         buffer.append(getRemainingQuantity());
 
+        if (getAvgPrice() != null) {
+            buffer.append(",avgPrice=");
+            buffer.append(getAvgPrice());
+        }
+
+        if (getLastPrice() != null) {
+            buffer.append(",lastPrice=");
+            buffer.append(getLastPrice());
+        }
+
+        if (getReason() != null) {
+            buffer.append(",reason=");
+            buffer.append(getReason());
+        }
+
         return buffer.toString();
     }
 }

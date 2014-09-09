@@ -30,6 +30,16 @@ select
 from
     pattern[closePosition=ClosePosition(securityId = ?)];
 
+@Name('ON_TIMER')   
+select 
+    engineStrategy.name as strategyName,
+    current_timestamp.toDate(),
+    ?
+from 
+    pattern[every timer:at (?, ?, ?, ?, *, ?)]
+where 
+    current_timestamp.getYear() = ?;    
+
 @Name('FIX_SESSION')
 select
     null

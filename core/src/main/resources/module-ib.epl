@@ -165,9 +165,12 @@ select
     status,
     filledQuantity,
     remainingQuantity,
+     (case when avgFillPrice = 0.0 then null else RoundUtil.getBigDecimal(avgFillPrice, `order`.security.securityFamily.scale) end) as avgPrice,
+     (case when lastFillPrice = 0.0 then null else RoundUtil.getBigDecimal(lastFillPrice, `order`.security.securityFamily.scale) end) as lastPrice,
     `order`.intId as intId,
     extId,
-    `order`
+    `order`,
+    reason
 from
     ch.algotrader.adapter.ib.IBOrderStatus.std:groupwin(`order`.intId).win:length(2)
 where

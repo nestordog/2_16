@@ -24,9 +24,12 @@ import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.lang.annotation.Annotation;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +41,7 @@ import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Predicate;
 import org.apache.commons.collections15.Transformer;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.core.io.Resource;
@@ -59,6 +63,7 @@ import ch.algotrader.esper.annotation.Subscriber;
 import ch.algotrader.esper.callback.ClosePositionCallback;
 import ch.algotrader.esper.callback.OpenPositionCallback;
 import ch.algotrader.esper.callback.TickCallback;
+import ch.algotrader.esper.callback.TimerCallback;
 import ch.algotrader.esper.callback.TradeCallback;
 import ch.algotrader.esper.io.CustomSender;
 import ch.algotrader.esper.subscriber.SubscriberCreator;
@@ -114,6 +119,7 @@ public class EngineImpl extends AbstractEngine {
 
     private static final Logger logger = MyLogger.getLogger(EngineImpl.class.getName());
     private static final String newline = System.getProperty("line.separator");
+    private static final SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd_kkmmss");
 
     private EPServiceProvider serviceProvider;
     private AdapterCoordinator coordinator;
@@ -685,6 +691,26 @@ public class EngineImpl extends AbstractEngine {
         } else {
 
             deployStatement("prepared", "ON_CLOSE_POSITION", alias, new Object[] { securityId }, callback);
+        }
+    }
+
+    @Override
+    public void addTimerCallback(Date dateTime, TimerCallback callback) {
+
+        String alias = "ON_TIMER_" + format.format(dateTime) + "_" + ClassUtils.getShortClassName(callback.getClass());
+
+        if (isDeployed(alias)) {
+
+            logger.warn(alias + " is already deployed");
+        } else {
+
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(dateTime);
+
+            Object[] params = { alias, cal.get(Calendar.MINUTE), cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.DAY_OF_MONTH), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.SECOND),
+                    cal.get(Calendar.YEAR) };
+
+            deployStatement("prepared", "ON_TIMER", alias, params, callback);
         }
     }
 

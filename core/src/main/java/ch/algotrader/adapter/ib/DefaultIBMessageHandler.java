@@ -181,7 +181,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
             String extId = String.valueOf(permId);
 
             // assemble the IBOrderStatus
-            IBOrderStatus orderStatus = new IBOrderStatus(status, filledQuantity, remainingQuantity, extId, order);
+            IBOrderStatus orderStatus = new IBOrderStatus(status, filledQuantity, remainingQuantity, avgFillPrice, lastFillPrice, extId, order);
 
             logger.debug(EWrapperMsgGenerator.orderStatus(orderId, statusString, filled, remaining, avgFillPrice, permId, parentId, lastFillPrice, clientId, whyHeld));
 
@@ -391,7 +391,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
             case 200:
 
                 // No security definition has been found for the request
-                orderRejected(id);
+                orderRejected(id, errorMsg);
                 logger.error(message);
                 break;
 
@@ -412,7 +412,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
                     // The maximum order value of xxx is exceeded
                     // No clearing rule found
                     // etc.
-                    orderRejected(id);
+                    orderRejected(id, errorMsg);
                     logger.error(message);
                 }
                 break;
@@ -437,7 +437,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
                 // The order size cannot be zero
                 // This happens in a closing order using PctChange where the percentage is
                 // small enough to round to zero for each individual client account
-                orderRejected(id);
+                orderRejected(id, errorMsg);
                 logger.info(message);
                 break;
 
@@ -519,7 +519,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
 
             default:
                 if (code < 1000) {
-                    orderRejected(id);
+                    orderRejected(id, errorMsg);
                     logger.error(message);
                 } else {
                     logger.debug(message);
@@ -542,7 +542,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
         }
     }
 
-    private void orderRejected(int orderId) {
+    private void orderRejected(int orderId, String reason) {
 
         // get the order from the OpenOrderWindow
         Order order = this.lookupService.getOpenOrderByIntId(String.valueOf(orderId));
@@ -550,7 +550,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
         if (order != null) {
 
             // assemble the IBOrderStatus
-            IBOrderStatus orderStatus = new IBOrderStatus(Status.REJECTED, 0, order.getQuantity(), null, order);
+            IBOrderStatus orderStatus = new IBOrderStatus(Status.REJECTED, 0, order.getQuantity(), null, order, reason);
 
             EngineLocator.instance().getBaseEngine().sendEvent(orderStatus);
         }

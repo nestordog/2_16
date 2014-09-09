@@ -23,9 +23,9 @@ import java.util.Map;
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Transformer;
 
-import com.espertech.esper.collection.Pair;
-
 import ch.algotrader.esper.EngineLocator;
+
+import com.espertech.esper.collection.Pair;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -46,6 +46,14 @@ public class OrderDaoImpl extends OrderDaoBase {
     protected Collection<Order> handleFindOpenOrdersByStrategy(String strategyName) throws Exception {
 
         return convertPairCollectionToOrderCollection(EngineLocator.instance().getBaseEngine().executeQuery("select * from OpenOrderWindow where strategy.name = '" + strategyName + "'"));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected Collection<Order> handleFindOpenOrdersByStrategyAndSecurity(String strategyName, int id) throws Exception {
+
+        return convertPairCollectionToOrderCollection(EngineLocator.instance().getBaseEngine()
+                .executeQuery("select * from OpenOrderWindow where strategy.name = '" + strategyName + "' and security.id = " + id));
     }
 
     @SuppressWarnings("unchecked")

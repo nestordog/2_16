@@ -371,6 +371,11 @@ public interface LookupService {
     public Collection<Order> getOpenOrdersByStrategy(String strategyName);
 
     /**
+     * Gets all {@link Order open Orders} for to the specified Strategy and Security.
+     */
+    public Collection<Order> getOpenOrdersByStrategyAndSecurity(String strategyName, int securityId);
+
+    /**
      * Gets an open order by its {@code intId} by querying the OpenOrderWindow
      */
     public Order getOpenOrderByIntId(String intId);

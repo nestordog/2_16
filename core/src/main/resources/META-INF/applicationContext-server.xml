@@ -226,7 +226,7 @@
         <bean id="iBSessionAdapter" class="ch.algotrader.adapter.ib.DefaultIBAdapter"/>
 
         <bean id="iBSessionLifecycle" class="ch.algotrader.adapter.ib.DefaultIBSessionLifecycle">
-            <property name="iBSession" ref="iBSession"/>
+            <lookup-method name="getIBSession" bean="iBSession"/>
         </bean>
 
         <bean id="iBIdGenerator" class="ch.algotrader.adapter.ib.DefaultIBIdGenerator"/>

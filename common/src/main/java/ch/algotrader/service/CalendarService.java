@@ -27,18 +27,77 @@ import java.util.Date;
 public interface CalendarService {
 
     /**
-     * returns true, if the exchange is currently open, taking into consideration the different
+     * Gets the current trading date of the specified exchange. This represents the date when
+     * the particular exchange opened for the last time before the specified dateTime
+     */
+    public Date getCurrentTradingDate(int exchangeId, Date dateTime);
+
+    /**
+     * Gets the current trading date of the specified exchange. This represents the date when
+     * the particular exchange opened for the last time before the current time
+     */
+    public Date getCurrentTradingDate(int exchangeId);
+
+    /**
+     * returns true, if the exchange is currently open at the specified dateTime, taking into consideration the different
      * trading hours as well as holidays, early opens and early closes
      */
     public boolean isOpen(int exchangeId, Date dateTime);
+
+    /**
+     * returns true, if the exchange is open at the current dateTime, taking into consideration the different
+     * trading hours as well as holidays, early opens and early closes
+     */
+    public boolean isOpen(int exchangeId);
 
     /**
      * returns true if the exchange is open on the specified date
      */
     public boolean isTradingDay(int exchangeId, Date date);
 
+    /**
+     * returns true if the exchange is open on the current date
+     */
+    public boolean isTradingDay(int exchangeId);
+
+    /**
+     * Gets the time the exchange opens on a particular date or null if the exchange is closed on that day
+     */
     public Date getOpenTime(int exchangeId, Date date);
 
+    /**
+     * Gets the time the exchange opens on the current date or null if the exchange is closed on the current date
+     */
+    public Date getOpenTime(int exchangeId);
+
+    /**
+     * Gets the time the exchange closes on a particular date or null if the exchange is closed on that day
+     */
     public Date getCloseTime(int exchangeId, Date date);
+
+    /**
+     * Gets the time the exchange closes on the current date or null if the exchange is closed on the current date
+     */
+    public Date getCloseTime(int exchangeId);
+
+    /**
+     * Gets the time the exchange opens the next time after the specified dateTime
+     */
+    public Date getNextOpenTime(int exchangeId, Date dateTime);
+
+    /**
+     * Gets the time the exchange opens the next time after the current dateTime
+     */
+    public Date getNextOpenTime(int exchangeId);
+
+    /**
+     * Gets the time the exchange closes the next time after the specified dateTime
+     */
+    public Date getNextCloseTime(int exchangeId, Date dateTime);
+
+    /**
+     * Gets the time the exchange closes the next time after the current dateTime
+     */
+    public Date getNextCloseTime(int exchangeId);
 
 }

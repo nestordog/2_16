@@ -31,23 +31,24 @@ public class StrategyServiceImpl implements StrategyService {
      * {@inheritDoc}
      */
     @Override
-    public Map getSimulationResults() {
-        try {
-            return new HashMap<String, Object>();
-        } catch (Exception ex) {
-            throw new StrategyServiceException(ex.getMessage(), ex);
-        }
+    public void initSimulation() {
+        // do nothing
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void initSimulation() {
-        try {
-            // do nothing
-        } catch (Exception ex) {
-            throw new StrategyServiceException(ex.getMessage(), ex);
-        }
+    public Map<String, Object> getSimulationResults() {
+        return new HashMap<String, Object>();
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void exitSimulation() {
+        // do nothing
+    }
+
 }

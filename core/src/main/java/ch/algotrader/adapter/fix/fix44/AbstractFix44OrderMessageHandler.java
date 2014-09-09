@@ -110,7 +110,7 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
             }
             if (executionReport.isSetField(Text.FIELD)) {
 
-                orderStatus.setRejectReason(executionReport.getText().getValue());
+                orderStatus.setReason(executionReport.getText().getValue());
             }
 
             EngineLocator.instance().getBaseEngine().sendEvent(orderStatus);

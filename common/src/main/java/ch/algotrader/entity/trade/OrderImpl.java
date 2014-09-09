@@ -41,7 +41,7 @@ public abstract class OrderImpl extends Order {
     public String getRootIntId() {
 
         // for FIX Orders remove the Order Version
-        if (getIntId().contains(".")) {
+        if (getIntId() != null && getIntId().contains(".")) {
             return getIntId().split("\\.")[0];
         } else {
             return getIntId();
@@ -94,6 +94,18 @@ public abstract class OrderImpl extends Order {
         }
 
         return buffer.toString();
+    }
+
+    @Override
+    public void addProperty(String name, String value, boolean fix) {
+
+        getOrderProperties().put(name, OrderProperty.Factory.newInstance(name, value, true, this));
+    }
+
+    @Override
+    public String getProperty(String name) {
+
+        return getOrderProperties().get(name).getValue();
     }
 
     @Override

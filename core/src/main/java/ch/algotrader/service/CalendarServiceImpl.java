@@ -21,6 +21,7 @@ import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.NavigableSet;
 import java.util.TimeZone;
 import java.util.TreeSet;
 
@@ -34,6 +35,7 @@ import ch.algotrader.entity.security.ExchangeDao;
 import ch.algotrader.entity.security.Holiday;
 import ch.algotrader.entity.security.TradingHours;
 import ch.algotrader.enumeration.WeekDay;
+import ch.algotrader.util.DateUtil;
 import ch.algotrader.util.ObjectUtil;
 import ch.algotrader.util.spring.HibernateSession;
 
@@ -60,6 +62,33 @@ public class CalendarServiceImpl implements CalendarService {
      * {@inheritDoc}
      */
     @Override
+    public Date getCurrentTradingDate(int exchangeId, Date dateTime) {
+
+        Validate.notNull(dateTime, "Data time is null");
+
+        try {
+            Exchange exchange = this.exchangeDao.get(exchangeId);
+            Date date = DateUtils.addDays(DateUtils.truncate(dateTime, Calendar.DATE), 2);
+            NavigableSet<Date> openTimes = new TreeSet<Date>();
+            while ((openTimes.floor(dateTime)) == null) {
+                date = DateUtils.addDays(date, -1);
+                openTimes.addAll(getOpenTimes(exchange, date));
+            }
+            return date;
+        } catch (Exception ex) {
+            throw new CalendarServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    @Override
+    public Date getCurrentTradingDate(int exchangeId) {
+        return getCurrentTradingDate(exchangeId, DateUtil.getCurrentEPTime());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public boolean isOpen(final int exchangeId, final Date dateTime) {
 
         Validate.notNull(dateTime, "Data time is null");
@@ -72,6 +101,11 @@ public class CalendarServiceImpl implements CalendarService {
         } catch (Exception ex) {
             throw new CalendarServiceException(ex.getMessage(), ex);
         }
+    }
+
+    @Override
+    public boolean isOpen(int exchangeId) {
+        return isOpen(exchangeId, DateUtil.getCurrentEPTime());
     }
 
     /**
@@ -89,6 +123,11 @@ public class CalendarServiceImpl implements CalendarService {
         } catch (Exception ex) {
             throw new CalendarServiceException(ex.getMessage(), ex);
         }
+    }
+
+    @Override
+    public boolean isTradingDay(int exchangeId) {
+        return isTradingDay(exchangeId, DateUtil.getCurrentEPTime());
     }
 
     /**
@@ -109,6 +148,11 @@ public class CalendarServiceImpl implements CalendarService {
         }
     }
 
+    @Override
+    public Date getOpenTime(int exchangeId) {
+        return getOpenTime(exchangeId, DateUtil.getCurrentEPTime());
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -125,6 +169,91 @@ public class CalendarServiceImpl implements CalendarService {
         } catch (Exception ex) {
             throw new CalendarServiceException(ex.getMessage(), ex);
         }
+    }
+
+    @Override
+    public Date getCloseTime(int exchangeId) {
+        return getCloseTime(exchangeId, DateUtil.getCurrentEPTime());
+    }
+
+    @Override
+    public Date getNextOpenTime(int exchangeId, Date dateTime) {
+
+        Validate.notNull(dateTime, "DateTime is null");
+
+        try {
+            Exchange exchange = this.exchangeDao.get(exchangeId);
+            Date date = DateUtils.truncate(dateTime, Calendar.DATE);
+            Date openTime;
+            NavigableSet<Date> openTimes = new TreeSet<Date>();
+            while ((openTime = openTimes.ceiling(dateTime)) == null) {
+                openTimes.addAll(getOpenTimes(exchange, date));
+                date = DateUtils.addDays(date, 1);
+            }
+            return openTime;
+        } catch (Exception ex) {
+            throw new CalendarServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    @Override
+    public Date getNextOpenTime(int exchangeId) {
+        return getNextCloseTime(exchangeId, DateUtil.getCurrentEPTime());
+    }
+
+    @Override
+    public Date getNextCloseTime(int exchangeId, Date dateTime) {
+
+        Validate.notNull(dateTime, "DateTime is null");
+
+        try {
+            Exchange exchange = this.exchangeDao.get(exchangeId);
+            Date date = DateUtils.addDays(DateUtils.truncate(dateTime, Calendar.DATE), -1);
+            Date closeTime;
+            NavigableSet<Date> closeTimes = new TreeSet<Date>();
+            while ((closeTime = closeTimes.ceiling(dateTime)) == null) {
+                closeTimes.addAll(getCloseTimes(exchange, date));
+                date = DateUtils.addDays(date, 1);
+            }
+            return closeTime;
+        } catch (Exception ex) {
+            throw new CalendarServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    @Override
+    public Date getNextCloseTime(int exchangeId) {
+        return getNextCloseTime(exchangeId, DateUtil.getCurrentEPTime());
+    }
+
+    /**
+     * Get all open times for this date
+     */
+    private NavigableSet<Date> getOpenTimes(Exchange exchange, Date date) {
+
+        NavigableSet<Date> openTimes = new TreeSet<Date>();
+        for (TradingHours tradingHours : exchange.getTradingHours()) {
+            TimeInterval timeInterval = getTimeInterval(date, tradingHours);
+            if (timeInterval != null) {
+                openTimes.add(timeInterval.getFrom());
+            }
+        }
+        return openTimes;
+    }
+
+    /**
+     * Get all close times for this date
+     */
+    private NavigableSet<Date> getCloseTimes(Exchange exchange, Date date) {
+
+        NavigableSet<Date> openTimes = new TreeSet<Date>();
+        for (TradingHours tradingHours : exchange.getTradingHours()) {
+            TimeInterval timeInterval = getTimeInterval(date, tradingHours);
+            if (timeInterval != null) {
+                openTimes.add(timeInterval.getTo());
+            }
+        }
+        return openTimes;
     }
 
     private boolean isTradingDay(Exchange exchange, Date date) {
@@ -192,11 +321,9 @@ public class CalendarServiceImpl implements CalendarService {
     private TimeIntervals getTimeIntervalsPlusMinusOneDay(Exchange exchange, Date date) {
 
         TimeIntervals timeIntervals = new TimeIntervals();
-        for (TradingHours tradingHours : exchange.getTradingHours()) {
-            timeIntervals.add(getTimeInterval(DateUtils.addDays(date, -1), tradingHours));
-            timeIntervals.add(getTimeInterval(date, tradingHours));
-            timeIntervals.add(getTimeInterval(DateUtils.addDays(date, +1), tradingHours));
-        }
+        timeIntervals.addAll(getTimeIntervals(exchange, DateUtils.addDays(date, -1)));
+        timeIntervals.addAll(getTimeIntervals(exchange, date));
+        timeIntervals.addAll(getTimeIntervals(exchange, DateUtils.addDays(date, +1)));
         return timeIntervals;
     }
 

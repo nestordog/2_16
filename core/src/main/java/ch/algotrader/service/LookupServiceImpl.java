@@ -1206,6 +1206,21 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
+    public Collection<Order> getOpenOrdersByStrategyAndSecurity(final String strategyName, final int securityId) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+
+        try {
+            return this.orderDao.findOpenOrdersByStrategyAndSecurity(strategyName, securityId);
+        } catch (Exception ex) {
+            throw new LookupServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Order getOpenOrderByIntId(final String intId) {
 
         Validate.notEmpty(intId, "Int id is empty");
