@@ -14,6 +14,10 @@
     <!-- Service Transactional Interceptor -->
     <tx:annotation-driven transaction-manager="transactionManager"/>
 
+    <bean id="orderIdGenerator" class="ch.algotrader.ordermgmt.DefaultOrderIdGenerator">
+        <constructor-arg index="0" ref="transactionDao"/>
+    </bean>
+
     <bean id="lookupService" class="ch.algotrader.service.LookupServiceImpl" >
         <constructor-arg index="0" ref="coreConfig"/>
         <constructor-arg index="1" ref="sessionFactory"/>
@@ -150,6 +154,7 @@
         <constructor-arg index="8" ref="stopOrderDao"/>
         <constructor-arg index="9" ref="stopLimitOrderDao"/>
         <constructor-arg index="10" ref="orderPropertyDao"/>
+        <constructor-arg index="11" ref="orderIdGenerator"/>
     </bean>
 
     <bean id="combinationService" class="ch.algotrader.service.CombinationServiceImpl" >

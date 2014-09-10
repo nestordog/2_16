@@ -17,17 +17,16 @@
  ***********************************************************************************/
 package ch.algotrader.service.rt;
 
-import quickfix.fix44.NewOrderSingle;
-import quickfix.fix44.OrderCancelReplaceRequest;
-import quickfix.fix44.OrderCancelRequest;
 import ch.algotrader.adapter.fix.FixAdapter;
-import ch.algotrader.adapter.fix.fix44.Fix44OrderMessageFactory;
 import ch.algotrader.adapter.fix.fix44.GenericFix44SymbologyResolver;
 import ch.algotrader.adapter.rt.RTFixOrderMessageFactory;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.service.OrderService;
 import ch.algotrader.service.fix.fix44.Fix44OrderServiceImpl;
+import quickfix.fix44.NewOrderSingle;
+import quickfix.fix44.OrderCancelReplaceRequest;
+import quickfix.fix44.OrderCancelRequest;
 
 /**
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
@@ -41,14 +40,7 @@ public class RTFixOrderServiceImpl extends Fix44OrderServiceImpl implements RTFi
     public RTFixOrderServiceImpl(final FixAdapter fixAdapter,
             final OrderService orderService) {
 
-        super(fixAdapter, orderService);
-    }
-
-    // TODO: this is a work-around required due to the existing class hierarchy
-    // TODO: Implementation class should be injectable through constructor
-    @Override
-    protected Fix44OrderMessageFactory createMessageFactory() {
-        return new RTFixOrderMessageFactory(new GenericFix44SymbologyResolver());
+        super(fixAdapter, orderService, new RTFixOrderMessageFactory(new GenericFix44SymbologyResolver()));
     }
 
     @Override

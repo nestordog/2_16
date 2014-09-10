@@ -15,10 +15,9 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.adapter.fix;
+package ch.algotrader.ordermgmt;
 
 import ch.algotrader.util.collection.IntegerMap;
-import quickfix.SessionID;
 
 /**
  * Order ID generator.
@@ -27,9 +26,9 @@ import quickfix.SessionID;
  *
  * @version $Revision$ $Date$
  */
-public interface FixOrderIdGenerator {
+public interface OrderIdGenerator {
 
-    String getNextOrderId(SessionID sessionId);
+    String getNextOrderId(String sessionQualifier);
 
     void setOrderId(String sessionQualifier, int orderId);
 

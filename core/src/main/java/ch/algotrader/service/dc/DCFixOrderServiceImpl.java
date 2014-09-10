@@ -19,6 +19,18 @@ package ch.algotrader.service.dc;
 
 import org.apache.commons.lang.Validate;
 
+import ch.algotrader.adapter.fix.FixAdapter;
+import ch.algotrader.adapter.fix.fix44.GenericFix44OrderMessageFactory;
+import ch.algotrader.adapter.fix.fix44.GenericFix44SymbologyResolver;
+import ch.algotrader.entity.security.Forex;
+import ch.algotrader.entity.trade.LimitOrder;
+import ch.algotrader.entity.trade.SimpleOrder;
+import ch.algotrader.entity.trade.StopLimitOrder;
+import ch.algotrader.entity.trade.StopOrder;
+import ch.algotrader.entity.trade.StopOrderI;
+import ch.algotrader.enumeration.OrderServiceType;
+import ch.algotrader.service.OrderService;
+import ch.algotrader.service.fix.fix44.Fix44OrderServiceImpl;
 import quickfix.field.OrdType;
 import quickfix.field.OrderID;
 import quickfix.field.Price;
@@ -29,16 +41,6 @@ import quickfix.field.TimeInForce;
 import quickfix.fix44.NewOrderSingle;
 import quickfix.fix44.OrderCancelReplaceRequest;
 import quickfix.fix44.OrderCancelRequest;
-import ch.algotrader.adapter.fix.FixAdapter;
-import ch.algotrader.entity.security.Forex;
-import ch.algotrader.entity.trade.LimitOrder;
-import ch.algotrader.entity.trade.SimpleOrder;
-import ch.algotrader.entity.trade.StopLimitOrder;
-import ch.algotrader.entity.trade.StopOrder;
-import ch.algotrader.entity.trade.StopOrderI;
-import ch.algotrader.enumeration.OrderServiceType;
-import ch.algotrader.service.OrderService;
-import ch.algotrader.service.fix.fix44.Fix44OrderServiceImpl;
 
 /**
  * DukasCopy order service implementation.
@@ -54,7 +56,7 @@ public class DCFixOrderServiceImpl extends Fix44OrderServiceImpl implements DCFi
     public DCFixOrderServiceImpl(final FixAdapter fixAdapter,
             final OrderService orderService) {
 
-        super(fixAdapter, orderService);
+        super(fixAdapter, orderService, new GenericFix44OrderMessageFactory(new GenericFix44SymbologyResolver()));
     }
 
     @Override

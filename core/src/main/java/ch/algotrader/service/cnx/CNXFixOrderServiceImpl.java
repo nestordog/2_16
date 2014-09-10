@@ -17,16 +17,15 @@
  ***********************************************************************************/
 package ch.algotrader.service.cnx;
 
-import quickfix.fix44.NewOrderSingle;
-import quickfix.fix44.OrderCancelReplaceRequest;
-import quickfix.fix44.OrderCancelRequest;
 import ch.algotrader.adapter.cnx.CNXFixOrderMessageFactory;
 import ch.algotrader.adapter.fix.FixAdapter;
-import ch.algotrader.adapter.fix.fix44.Fix44OrderMessageFactory;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.service.OrderService;
 import ch.algotrader.service.fix.fix44.Fix44OrderServiceImpl;
+import quickfix.fix44.NewOrderSingle;
+import quickfix.fix44.OrderCancelReplaceRequest;
+import quickfix.fix44.OrderCancelRequest;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -40,15 +39,7 @@ public class CNXFixOrderServiceImpl extends Fix44OrderServiceImpl implements CNX
     public CNXFixOrderServiceImpl(final FixAdapter fixAdapter,
             final OrderService orderService) {
 
-        super(fixAdapter, orderService);
-    }
-
-    // TODO: this is a work-around required due to the existing class hierarchy
-    // TODO: Implementation class should be injectable through constructor
-    @Override
-    protected Fix44OrderMessageFactory createMessageFactory() {
-
-        return new CNXFixOrderMessageFactory();
+        super(fixAdapter, orderService, new CNXFixOrderMessageFactory());
     }
 
     @Override

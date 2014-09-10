@@ -278,24 +278,20 @@
 
     <beans profile="jPMFix,iBFix,dCFix,rTFix,dcMarkteData,lMAXFix,lMAXMarketData,fXCMFix,fXCMMarketData,cNXFix,cNXMarketData">
 
-        <bean id="fixSessionSettings" class="ch.algotrader.adapter.fix.FixSessionSettingsFactoryBean"/>
+      <bean id="fixSessionSettings" class="ch.algotrader.adapter.fix.FixSessionSettingsFactoryBean"/>
 
-        <bean id="fixSocketInitiator" class="ch.algotrader.adapter.fix.FixSocketInitiatorFactoryBean">
-            <property name="sessionSettings" ref="fixSessionSettings"/>
-        </bean>
+      <bean id="fixSocketInitiator" class="ch.algotrader.adapter.fix.FixSocketInitiatorFactoryBean">
+        <constructor-arg index="0" ref="fixSessionSettings"/>
+      </bean>
 
-        <bean id="fixAdapter" class="ch.algotrader.adapter.fix.ManagedFixAdapter">
-            <property name="lookupService" ref="lookupService"/>
-            <property name="socketInitiator" ref="fixSocketInitiator"/>
-            <property name="eventScheduler">
-                <bean class="ch.algotrader.adapter.fix.DefaultFixEventScheduler"/>
-            </property>
-            <property name="orderIdGenerator" ref="orderIdGenerator"/>
-        </bean>
-
-        <bean id="orderIdGenerator" class="ch.algotrader.adapter.fix.DefaultFixOrderIdGenerator">
-            <property name="lookupService" ref="lookupService"/>
-        </bean>
+      <bean id="fixAdapter" class="ch.algotrader.adapter.fix.ManagedFixAdapter">
+        <constructor-arg index="0" ref="fixSocketInitiator"/>
+        <constructor-arg index="1" ref="lookupService"/>
+        <constructor-arg index="2">
+          <bean class="ch.algotrader.adapter.fix.DefaultFixEventScheduler"/>
+        </constructor-arg>
+        <constructor-arg index="3" ref="orderIdGenerator"/>
+      </bean>
 
     </beans>
 

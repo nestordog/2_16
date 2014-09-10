@@ -28,6 +28,7 @@ import org.apache.commons.lang.Validate;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.enumeration.OrderServiceType;
+import ch.algotrader.ordermgmt.OrderIdGenerator;
 import ch.algotrader.service.LookupService;
 import quickfix.ConfigError;
 import quickfix.FieldConvertError;
@@ -47,37 +48,34 @@ import quickfix.SocketInitiator;
 public class DefaultFixAdapter implements FixAdapter {
 
     private final Lock lock;
-    private SocketInitiator socketInitiator;
-    private LookupService lookupService;
-    private FixEventScheduler eventScheduler;
-    private FixOrderIdGenerator orderIdGenerator;
+    private final SocketInitiator socketInitiator;
+    private final LookupService lookupService;
+    private final FixEventScheduler eventScheduler;
+    private final OrderIdGenerator orderIdGenerator;
 
-    public void setEventScheduler(FixEventScheduler eventScheduler) {
-        this.eventScheduler = eventScheduler;
-    }
+    public DefaultFixAdapter(
+            final SocketInitiator socketInitiator,
+            final LookupService lookupService,
+            final FixEventScheduler eventScheduler,
+            final OrderIdGenerator orderIdGenerator) {
+        Validate.notNull(socketInitiator, "SocketInitiator is null");
+        Validate.notNull(lookupService, "LookupService is null");
+        Validate.notNull(eventScheduler, "FixEventScheduler is null");
+        Validate.notNull(orderIdGenerator, "OrderIdGenerator is null");
 
-    public void setSocketInitiator(SocketInitiator socketInitiator) {
         this.socketInitiator = socketInitiator;
-    }
-
-    public void setLookupService(LookupService lookupService) {
         this.lookupService = lookupService;
-    }
-
-    public void setOrderIdGenerator(FixOrderIdGenerator orderIdGenerator) {
+        this.eventScheduler = eventScheduler;
         this.orderIdGenerator = orderIdGenerator;
+        this.lock = new ReentrantLock();
     }
 
     SocketInitiator getSocketInitiator() {
         return socketInitiator;
     }
 
-    FixOrderIdGenerator getOrderIdGenerator() {
+    OrderIdGenerator getOrderIdGenerator() {
         return orderIdGenerator;
-    }
-
-    public DefaultFixAdapter() {
-        this.lock = new ReentrantLock();
     }
 
     /**
@@ -184,7 +182,7 @@ public class DefaultFixAdapter implements FixAdapter {
         Validate.notNull(account.getSessionQualifier(), "no session qualifier defined for account " + account);
 
         String sessionQualifier = account.getSessionQualifier();
-        return this.orderIdGenerator.getNextOrderId(getSessionID(sessionQualifier));
+        return this.orderIdGenerator.getNextOrderId(sessionQualifier);
     }
 
     /**
