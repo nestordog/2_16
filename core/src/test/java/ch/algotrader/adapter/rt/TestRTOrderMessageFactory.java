@@ -27,7 +27,6 @@ import org.junit.Test;
 import quickfix.field.CFICode;
 import quickfix.field.ClOrdID;
 import quickfix.field.ContractMultiplier;
-import quickfix.field.ExecInst;
 import quickfix.field.ExpireTime;
 import quickfix.field.HandlInst;
 import quickfix.field.LocateReqd;
@@ -131,7 +130,6 @@ public class TestRTOrderMessageFactory {
         //RT specific
         Assert.assertEquals(new HandlInst(HandlInst.AUTOMATED_EXECUTION_ORDER_PUBLIC), message.getHandlInst());
         Assert.assertEquals(new LocateReqd(true), message.getLocateReqd());
-        Assert.assertEquals(new ExecInst(String.valueOf(ExecInst.HELD)), message.getExecInst());
         Assert.assertEquals(new quickfix.field.Account("Bahamas"), message.getAccount());
     }
 
@@ -175,7 +173,6 @@ public class TestRTOrderMessageFactory {
         //RT specific
         Assert.assertEquals(new HandlInst(HandlInst.AUTOMATED_EXECUTION_ORDER_PUBLIC), message.getHandlInst());
         Assert.assertEquals(new LocateReqd(true), message.getLocateReqd());
-        Assert.assertEquals(new ExecInst(String.valueOf(ExecInst.HELD)), message.getExecInst());
         Assert.assertEquals(new quickfix.field.Account("Bahamas"), message.getAccount());
     }
 
@@ -213,7 +210,6 @@ public class TestRTOrderMessageFactory {
         //RT specific
         Assert.assertEquals(new HandlInst(HandlInst.AUTOMATED_EXECUTION_ORDER_PUBLIC), message.getHandlInst());
         Assert.assertEquals(new LocateReqd(true), message.getLocateReqd());
-        Assert.assertEquals(new ExecInst(String.valueOf(ExecInst.HELD)), message.getExecInst());
         Assert.assertEquals(new quickfix.field.Account("Bahamas"), message.getAccount());
     }
 
@@ -250,7 +246,6 @@ public class TestRTOrderMessageFactory {
         //RT specific
         Assert.assertEquals(new HandlInst(HandlInst.AUTOMATED_EXECUTION_ORDER_PUBLIC), message.getHandlInst());
         Assert.assertEquals(new LocateReqd(true), message.getLocateReqd());
-        Assert.assertEquals(new ExecInst(String.valueOf(ExecInst.HELD)), message.getExecInst());
         Assert.assertFalse(message.isSet(new quickfix.field.Account()));
     }
 
@@ -290,7 +285,6 @@ public class TestRTOrderMessageFactory {
         //RT specific
         Assert.assertEquals(new HandlInst(HandlInst.AUTOMATED_EXECUTION_ORDER_PUBLIC), message.getHandlInst());
         Assert.assertEquals(new LocateReqd(true), message.getLocateReqd());
-        Assert.assertEquals(new ExecInst(String.valueOf(ExecInst.HELD)), message.getExecInst());
         Assert.assertEquals(new quickfix.field.Account("Bahamas"), message.getAccount());
     }
 
@@ -330,7 +324,6 @@ public class TestRTOrderMessageFactory {
         //RT specific
         Assert.assertEquals(new HandlInst(HandlInst.AUTOMATED_EXECUTION_ORDER_PUBLIC), message.getHandlInst());
         Assert.assertEquals(new LocateReqd(true), message.getLocateReqd());
-        Assert.assertEquals(new ExecInst(String.valueOf(ExecInst.HELD)), message.getExecInst());
         Assert.assertEquals(new quickfix.field.Account("Bahamas"), message.getAccount());
     }
 
@@ -370,7 +363,6 @@ public class TestRTOrderMessageFactory {
         //RT specific
         Assert.assertEquals(new HandlInst(HandlInst.AUTOMATED_EXECUTION_ORDER_PUBLIC), message.getHandlInst());
         Assert.assertEquals(new LocateReqd(true), message.getLocateReqd());
-        Assert.assertEquals(new ExecInst(String.valueOf(ExecInst.HELD)), message.getExecInst());
         Assert.assertEquals(new quickfix.field.Account("Bahamas"), message.getAccount());
     }
 
@@ -414,7 +406,6 @@ public class TestRTOrderMessageFactory {
         //RT specific
         Assert.assertEquals(new HandlInst(HandlInst.AUTOMATED_EXECUTION_ORDER_PUBLIC), message.getHandlInst());
         Assert.assertEquals(new LocateReqd(true), message.getLocateReqd());
-        Assert.assertEquals(new ExecInst(String.valueOf(ExecInst.HELD)), message.getExecInst());
         Assert.assertEquals(new quickfix.field.Account("Bahamas"), message.getAccount());
     }
 
@@ -462,7 +453,6 @@ public class TestRTOrderMessageFactory {
         //RT specific
         Assert.assertEquals(new HandlInst(HandlInst.AUTOMATED_EXECUTION_ORDER_PUBLIC), message.getHandlInst());
         Assert.assertEquals(new LocateReqd(true), message.getLocateReqd());
-        Assert.assertEquals(new ExecInst(String.valueOf(ExecInst.HELD)), message.getExecInst());
         Assert.assertEquals(new quickfix.field.Account("Bahamas"), message.getAccount());
     }
 
@@ -510,7 +500,6 @@ public class TestRTOrderMessageFactory {
         //RT specific
         Assert.assertEquals(new HandlInst(HandlInst.AUTOMATED_EXECUTION_ORDER_PUBLIC), message.getHandlInst());
         Assert.assertEquals(new LocateReqd(true), message.getLocateReqd());
-        Assert.assertEquals(new ExecInst(String.valueOf(ExecInst.HELD)), message.getExecInst());
         Assert.assertEquals(new quickfix.field.Account("Bahamas"), message.getAccount());
     }
 
@@ -553,7 +542,6 @@ public class TestRTOrderMessageFactory {
         //RT specific
         Assert.assertEquals(new HandlInst(HandlInst.AUTOMATED_EXECUTION_ORDER_PUBLIC), message.getHandlInst());
         Assert.assertEquals(new LocateReqd(true), message.getLocateReqd());
-        Assert.assertEquals(new ExecInst(String.valueOf(ExecInst.HELD)), message.getExecInst());
         Assert.assertEquals(new quickfix.field.Account("Bahamas"), message.getAccount());
     }
 
@@ -590,7 +578,6 @@ public class TestRTOrderMessageFactory {
         //RT specific
         Assert.assertEquals(new HandlInst(HandlInst.AUTOMATED_EXECUTION_ORDER_PUBLIC), message.getHandlInst());
         Assert.assertEquals(new LocateReqd(true), message.getLocateReqd());
-        Assert.assertEquals(new ExecInst(String.valueOf(ExecInst.HELD)), message.getExecInst());
         Assert.assertEquals(new quickfix.field.Account("Bahamas"), message.getAccount());
     }
 
@@ -629,7 +616,6 @@ public class TestRTOrderMessageFactory {
         //RT specific
         Assert.assertEquals(new HandlInst(HandlInst.AUTOMATED_EXECUTION_ORDER_PUBLIC), message.getHandlInst());
         Assert.assertEquals(new LocateReqd(true), message.getLocateReqd());
-        Assert.assertEquals(new ExecInst(String.valueOf(ExecInst.HELD)), message.getExecInst());
         Assert.assertEquals(new quickfix.field.Account("Bahamas"), message.getAccount());
     }
 
@@ -669,7 +655,6 @@ public class TestRTOrderMessageFactory {
         //RT specific
         Assert.assertEquals(new HandlInst(HandlInst.AUTOMATED_EXECUTION_ORDER_PUBLIC), message.getHandlInst());
         Assert.assertEquals(new LocateReqd(true), message.getLocateReqd());
-        Assert.assertEquals(new ExecInst(String.valueOf(ExecInst.HELD)), message.getExecInst());
         Assert.assertEquals(new quickfix.field.Account("Bahamas"), message.getAccount());
     }
 
@@ -708,7 +693,6 @@ public class TestRTOrderMessageFactory {
         //RT specific
         Assert.assertEquals(new HandlInst(HandlInst.AUTOMATED_EXECUTION_ORDER_PUBLIC), message.getHandlInst());
         Assert.assertEquals(new LocateReqd(true), message.getLocateReqd());
-        Assert.assertEquals(new ExecInst(String.valueOf(ExecInst.HELD)), message.getExecInst());
         Assert.assertEquals(new quickfix.field.Account("Bahamas"), message.getAccount());
     }
 
@@ -746,7 +730,6 @@ public class TestRTOrderMessageFactory {
         //RT specific
         Assert.assertEquals(new HandlInst(HandlInst.AUTOMATED_EXECUTION_ORDER_PUBLIC), message.getHandlInst());
         Assert.assertEquals(new LocateReqd(true), message.getLocateReqd());
-        Assert.assertEquals(new ExecInst(String.valueOf(ExecInst.HELD)), message.getExecInst());
         Assert.assertFalse(message.isSet(new quickfix.field.Account()));
     }
 
@@ -789,7 +772,6 @@ public class TestRTOrderMessageFactory {
         //RT specific
         Assert.assertEquals(new HandlInst(HandlInst.AUTOMATED_EXECUTION_ORDER_PUBLIC), message.getHandlInst());
         Assert.assertEquals(new LocateReqd(true), message.getLocateReqd());
-        Assert.assertEquals(new ExecInst(String.valueOf(ExecInst.HELD)), message.getExecInst());
         Assert.assertEquals(new quickfix.field.Account("Bahamas"), message.getAccount());
     }
 
@@ -836,7 +818,6 @@ public class TestRTOrderMessageFactory {
         //RT specific
         Assert.assertEquals(new HandlInst(HandlInst.AUTOMATED_EXECUTION_ORDER_PUBLIC), message.getHandlInst());
         Assert.assertEquals(new LocateReqd(true), message.getLocateReqd());
-        Assert.assertEquals(new ExecInst(String.valueOf(ExecInst.HELD)), message.getExecInst());
         Assert.assertEquals(new quickfix.field.Account("Bahamas"), message.getAccount());
     }
 
