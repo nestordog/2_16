@@ -35,21 +35,18 @@ import ch.algotrader.util.MyLogger;
  */
 public class MetricsUtil {
 
-    private static Logger logger = MyLogger.getLogger(MetricsUtil.class.getName());
+    private static final boolean isMetricsEnabled = ConfigLocator.instance().getConfigParams().getBoolean("misc.metricsEnabled", false);
+    private static final Logger logger = MyLogger.getLogger(MetricsUtil.class.getName());
 
     private static Map<String, Metric> metrics = new HashMap<String, Metric>();
     private static long startMillis = System.nanoTime();
-
-    private static boolean isMetricsEnabled() {
-        return ConfigLocator.instance().getConfigParams().getBoolean("misc.metricsEnabled", false);
-    }
 
     /**
      * account the given metric by its {@code startMillis} and {@code endMillis}
      */
     public static void account(String metricName, long startMillis, long endMillis) {
 
-        if (isMetricsEnabled()) {
+        if (isMetricsEnabled) {
             account(metricName, endMillis - startMillis);
         }
     }
@@ -59,7 +56,7 @@ public class MetricsUtil {
      */
     public static void accountEnd(String metricName, long startMillis) {
 
-        if (isMetricsEnabled()) {
+        if (isMetricsEnabled) {
             account(metricName, System.nanoTime() - startMillis);
         }
     }
@@ -70,7 +67,7 @@ public class MetricsUtil {
      */
     public static void accountEnd(String metricName, Class<?> clazz, long startMillis) {
 
-        if (isMetricsEnabled()) {
+        if (isMetricsEnabled) {
             account(metricName + "." + ClassUtils.getShortClassName(clazz), System.nanoTime() - startMillis);
         }
     }
@@ -80,7 +77,7 @@ public class MetricsUtil {
      */
     public static void account(String metricName, long millis) {
 
-        if (isMetricsEnabled()) {
+        if (isMetricsEnabled) {
             getMetric(metricName).addTime(millis);
         }
     }
@@ -90,7 +87,7 @@ public class MetricsUtil {
      */
     public static void logMetrics() {
 
-        if (isMetricsEnabled()) {
+        if (isMetricsEnabled) {
 
             if (ConfigLocator.instance().getCommonConfig().isSimulation()) {
                 logger.info("TotalDuration: " + (System.nanoTime() - startMillis) + " millis");

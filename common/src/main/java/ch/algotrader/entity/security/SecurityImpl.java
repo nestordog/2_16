@@ -18,7 +18,6 @@
 package ch.algotrader.entity.security;
 
 import java.util.List;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Hibernate;
@@ -32,10 +31,8 @@ import ch.algotrader.enumeration.Currency;
 import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.ObjectUtil;
+import ch.algotrader.util.collection.CollectionUtil;
 import ch.algotrader.util.metric.MetricsUtil;
-
-import com.espertech.esper.event.WrapperEventBean;
-import com.espertech.esper.event.bean.BeanEventBean;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -49,24 +46,16 @@ public abstract class SecurityImpl extends Security {
     private static Logger logger = MyLogger.getLogger(SecurityImpl.class.getName());
 
     @Override
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({ "unchecked" })
     public MarketDataEvent getCurrentMarketDataEvent() {
 
         String startedStrategyName = ConfigLocator.instance().getCommonConfig().getStartedStrategyName();
         if (EngineLocator.instance().hasEngine(startedStrategyName)) {
-            List<Map> events = EngineLocator.instance().getEngine(startedStrategyName).getAllEvents("CURRENT_MARKET_DATA_EVENT");
+            List<MarketDataEvent> events = EngineLocator.instance().getEngine(startedStrategyName).executeQuery("select marketDataEvent from MarketDataWindow where securityId = " + getId());
 
-            // try to see if the rule CURRENT_MARKET_DATA_EVENT has any events
-            for (Map event : events) {
-                Integer securityId = (Integer) event.get("securityId");
-                if (securityId.equals(getId())) {
-                    Object obj = event.get("marketDataEvent");
-                    if (obj instanceof WrapperEventBean) {
-                        return (MarketDataEvent) ((WrapperEventBean) obj).getUnderlying();
-                    } else {
-                        return (MarketDataEvent) ((BeanEventBean) obj).getUnderlying();
-                    }
-                }
+            // might have multiple events of different feed types
+            if (events.size() > 0) {
+                return CollectionUtil.getFirstElement(events);
             }
         }
 

@@ -216,12 +216,13 @@ public class ManagementServiceImpl implements ManagementService {
      * {@inheritDoc}
      */
     @Override
+    @SuppressWarnings("unchecked")
     @ManagedAttribute(description = "Gets the latest MarketDataEvents of all subscribed Securities")
     public List<MarketDataEventVO> getMarketDataEvents() {
 
         try {
             String strategyName = this.commonConfig.getStartedStrategyName();
-            List<MarketDataEvent> marketDataEvents = EngineLocator.instance().getEngine(strategyName).getAllEventsProperty("CURRENT_MARKET_DATA_EVENT", "marketDataEvent");
+            List<MarketDataEvent> marketDataEvents = EngineLocator.instance().getEngine(strategyName).executeQuery("select marketDataEvent.* from MarketDataWindow order by securityId");
 
             List<MarketDataEventVO> marketDataEventVOs = getMarketDataEventVOs(marketDataEvents);
 

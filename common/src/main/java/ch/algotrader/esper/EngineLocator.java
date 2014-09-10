@@ -53,8 +53,7 @@ public class EngineLocator {
 
     private static final Logger logger = MyLogger.getLogger(EngineLocator.class.getName());
     private static final EngineLocator instance = new EngineLocator();
-
-    private static CommonConfig CONFIG;
+    private static final CommonConfig CONFIG = ConfigLocator.instance().getCommonConfig();
 
     private Map<String, Engine> engines = new HashMap<String, Engine>();
 
@@ -62,7 +61,6 @@ public class EngineLocator {
 
     public static final EngineLocator instance() {
 
-        CONFIG = ConfigLocator.instance().getCommonConfig();
         return instance;
     }
 

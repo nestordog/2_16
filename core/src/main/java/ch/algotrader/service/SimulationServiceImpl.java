@@ -54,6 +54,7 @@ import ch.algotrader.entity.Position;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.enumeration.MarketDataType;
+import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.esper.io.CsvBarInputAdapter;
 import ch.algotrader.esper.io.CsvBarInputAdapterSpec;
@@ -589,12 +590,21 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
     @SuppressWarnings("unchecked")
     private SimulationResultVO getSimulationResultVO(final long startTime) {
 
-        PerformanceKeysVO performanceKeys = (PerformanceKeysVO) EngineLocator.instance().getBaseEngine().getLastEvent("INSERT_INTO_PERFORMANCE_KEYS");
-        List<PeriodPerformanceVO> monthlyPerformances = EngineLocator.instance().getBaseEngine().getAllEvents("KEEP_MONTHLY_PERFORMANCE");
-        MaxDrawDownVO maxDrawDown = (MaxDrawDownVO) EngineLocator.instance().getBaseEngine().getLastEvent("INSERT_INTO_MAX_DRAW_DOWN");
-        TradesVO allTrades = (TradesVO) EngineLocator.instance().getBaseEngine().getLastEvent("INSERT_INTO_ALL_TRADES");
-        TradesVO winningTrades = (TradesVO) EngineLocator.instance().getBaseEngine().getLastEvent("INSERT_INTO_WINNING_TRADES");
-        TradesVO loosingTrades = (TradesVO) EngineLocator.instance().getBaseEngine().getLastEvent("INSERT_INTO_LOOSING_TRADES");
+        SimulationResultVO resultVO = new SimulationResultVO();
+        resultVO.setMins(((double) (System.currentTimeMillis() - startTime)) / 60000);
+
+        Engine engine = EngineLocator.instance().getBaseEngine();
+        if (!engine.isDeployed("INSERT_INTO_PERFORMANCE_KEYS")) {
+            resultVO.setAllTrades(new TradesVO(0, 0, 0, 0));
+            return resultVO;
+        }
+
+        PerformanceKeysVO performanceKeys = (PerformanceKeysVO) engine.getLastEvent("INSERT_INTO_PERFORMANCE_KEYS");
+        List<PeriodPerformanceVO> monthlyPerformances = engine.getAllEvents("KEEP_MONTHLY_PERFORMANCE");
+        MaxDrawDownVO maxDrawDown = (MaxDrawDownVO) engine.getLastEvent("INSERT_INTO_MAX_DRAW_DOWN");
+        TradesVO allTrades = (TradesVO) engine.getLastEvent("INSERT_INTO_ALL_TRADES");
+        TradesVO winningTrades = (TradesVO) engine.getLastEvent("INSERT_INTO_WINNING_TRADES");
+        TradesVO loosingTrades = (TradesVO) engine.getLastEvent("INSERT_INTO_LOOSING_TRADES");
 
         // compile yearly performance
         List<PeriodPerformanceVO> yearlyPerformances = null;
@@ -624,8 +634,6 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
         }
 
         // assemble the result
-        SimulationResultVO resultVO = new SimulationResultVO();
-        resultVO.setMins(((double) (System.currentTimeMillis() - startTime)) / 60000);
         resultVO.setDataSet(this.commonConfig.getDataSet());
         resultVO.setNetLiqValue(this.portfolioService.getNetLiqValueDouble());
         resultVO.setMonthlyPerformances(monthlyPerformances);
@@ -647,7 +655,7 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
     }
 
     @SuppressWarnings("unchecked")
-    private static String convertStatisticsToShortString(SimulationResultVO resultVO) {
+    private String convertStatisticsToShortString(SimulationResultVO resultVO) {
 
         StringBuffer buffer = new StringBuffer();
 
@@ -693,12 +701,14 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
     @SuppressWarnings("unchecked")
     private String convertStatisticsToLongString(SimulationResultVO resultVO) {
 
-        if (resultVO.getAllTrades().getCount() == 0) {
-            return ("no trades took place!");
-        }
-
         StringBuffer buffer = new StringBuffer();
         buffer.append("execution time (min): " + (new DecimalFormat("0.00")).format(resultVO.getMins()) + "\r\n");
+
+        if (resultVO.getAllTrades().getCount() == 0) {
+            buffer.append("no trades took place! \r\n");
+            return buffer.toString();
+        }
+
         buffer.append("dataSet: " + this.commonConfig.getDataSet() + "\r\n");
 
         double netLiqValue = resultVO.getNetLiqValue();
@@ -790,7 +800,7 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
         return buffer.toString();
     }
 
-    private static StringBuffer printTrades(TradesVO tradesVO, long totalTrades) {
+    private StringBuffer printTrades(TradesVO tradesVO, long totalTrades) {
 
         StringBuffer buffer = new StringBuffer();
         buffer.append(" count=" + tradesVO.getCount());
@@ -805,7 +815,7 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
         return buffer;
     }
 
-    private static void logMultiLineString(String input) {
+    private void logMultiLineString(String input) {
 
         String[] lines = input.split("\r\n");
         for (String line : lines) {
@@ -813,7 +823,7 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
         }
     }
 
-    private static class UnivariateFunction implements UnivariateRealFunction {
+    private class UnivariateFunction implements UnivariateRealFunction {
 
         private String param;
 
@@ -830,13 +840,13 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
             SimulationResultVO resultVO = ServiceLocator.instance().getService("simulationService", SimulationService.class).runSimulation();
             double result = resultVO.getPerformanceKeys().getSharpeRatio();
 
-            resultLogger.info("optimize on " + this.param + "=" + SimulationServiceImpl.format.format(input) + " " + SimulationServiceImpl.convertStatisticsToShortString(resultVO));
+            resultLogger.info("optimize on " + this.param + "=" + SimulationServiceImpl.format.format(input) + " " + SimulationServiceImpl.this.convertStatisticsToShortString(resultVO));
 
             return result;
         }
     }
 
-    private static class MultivariateFunction implements MultivariateRealFunction {
+    private class MultivariateFunction implements MultivariateRealFunction {
 
         private String[] params;
 
@@ -862,7 +872,7 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
             SimulationResultVO resultVO = ServiceLocator.instance().getService("simulationService", SimulationService.class).runSimulation();
             double result = resultVO.getPerformanceKeys().getSharpeRatio();
 
-            resultLogger.info(buffer.toString() + SimulationServiceImpl.convertStatisticsToShortString(resultVO));
+            resultLogger.info(buffer.toString() + SimulationServiceImpl.this.convertStatisticsToShortString(resultVO));
 
             return result;
         }

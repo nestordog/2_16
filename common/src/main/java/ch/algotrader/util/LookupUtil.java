@@ -243,12 +243,14 @@ public class LookupUtil {
     }
 
     /**
-     * Returns true if the statement {@code CURRENT_MARKET_DATA_EVENT} contains any {@link ch.algotrader.entity.marketData.MarketDataEvent MarketDataEvents}
+     * Returns true if the MarketDataWindow contains any {@link ch.algotrader.entity.marketData.MarketDataEvent MarketDataEvents}
      */
+    @SuppressWarnings("unchecked")
     public static boolean hasCurrentMarketDataEvents() {
 
         String startedStrategyName = ConfigLocator.instance().getCommonConfig().getStartedStrategyName();
-        return (EngineLocator.instance().getEngine(startedStrategyName).getLastEvent("CURRENT_MARKET_DATA_EVENT") != null);
+        Map<String, Long> map = (Map<String, Long>) EngineLocator.instance().getEngine(startedStrategyName).executeSingelObjectQuery("select count(*) as cnt from MarketDataWindow");
+        return (map.get("cnt") > 0);
     }
 
     /**

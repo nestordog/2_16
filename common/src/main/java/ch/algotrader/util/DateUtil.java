@@ -27,6 +27,7 @@ import ch.algotrader.entity.security.ExpirableFamilyI;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.ExpirationType;
+import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineLocator;
 
 /**
@@ -38,17 +39,17 @@ import ch.algotrader.esper.EngineLocator;
  */
 public class DateUtil {
 
+    private static final String strategyName = ConfigLocator.instance().getCommonConfig().getStartedStrategyName();
+
     /**
      * Returns the Time of the local Esper Engine.
      * If the Esper Engine is not yet initialized or is using internal Clock the current system date is returned.
      */
     public static Date getCurrentEPTime() {
 
-        if (ServiceLocator.instance().isInitialized()) {
-            String strategyName = ConfigLocator.instance().getCommonConfig().getStartedStrategyName();
-            if (EngineLocator.instance().hasEngine(strategyName) && !EngineLocator.instance().getEngine(strategyName).isInternalClock()) {
-                return new Date(EngineLocator.instance().getEngine(strategyName).getCurrentTime());
-            }
+        Engine engine = EngineLocator.instance().getEngine(strategyName);
+        if (engine != null && !engine.isInternalClock()) {
+            return new Date(engine.getCurrentTime());
         }
 
         return new Date();
