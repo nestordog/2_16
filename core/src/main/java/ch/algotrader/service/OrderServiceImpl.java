@@ -56,6 +56,7 @@ import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.enumeration.TIF;
 import ch.algotrader.esper.EngineLocator;
+import ch.algotrader.ordermgmt.OrderIdGenerator;
 import ch.algotrader.util.BeanUtil;
 import ch.algotrader.util.DateUtil;
 import ch.algotrader.util.MyLogger;
@@ -97,6 +98,8 @@ public class OrderServiceImpl implements OrderService, ApplicationContextAware {
 
     private final OrderPropertyDao orderPropertyDao;
 
+    private final OrderIdGenerator orderIdGenerator;
+
     public OrderServiceImpl(final CommonConfig commonConfig,
             final OrderDao orderDao,
             final OrderStatusDao orderStatusDao,
@@ -107,7 +110,8 @@ public class OrderServiceImpl implements OrderService, ApplicationContextAware {
             final LimitOrderDao limitOrderDao,
             final StopOrderDao stopOrderDao,
             final StopLimitOrderDao stopLimitOrderDao,
-            final OrderPropertyDao orderPropertyDao) {
+            final OrderPropertyDao orderPropertyDao,
+            final OrderIdGenerator orderIdGenerator) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(orderDao, "OrderDao is null");
@@ -120,6 +124,7 @@ public class OrderServiceImpl implements OrderService, ApplicationContextAware {
         Validate.notNull(stopOrderDao, "StopOrderDao is null");
         Validate.notNull(stopLimitOrderDao, "StopLimitOrderDao is null");
         Validate.notNull(orderPropertyDao, "OrderPropertyDao is null");
+        Validate.notNull(orderIdGenerator, "OrderIdGenerator is null");
 
         this.commonConfig = commonConfig;
         this.orderDao = orderDao;
@@ -132,7 +137,7 @@ public class OrderServiceImpl implements OrderService, ApplicationContextAware {
         this.stopOrderDao = stopOrderDao;
         this.stopLimitOrderDao = stopLimitOrderDao;
         this.orderPropertyDao = orderPropertyDao;
-
+        this.orderIdGenerator = orderIdGenerator;
     }
 
     @Override
@@ -457,6 +462,11 @@ public class OrderServiceImpl implements OrderService, ApplicationContextAware {
         } catch (Exception ex) {
             throw new OrderServiceException(ex.getMessage(), ex);
         }
+    }
+
+    @Override
+    public String getNextOrderId(final String sessionQualifier) {
+        return this.getNextOrderId(sessionQualifier);
     }
 
     private void sendAlgoOrder(AlgoOrder order) {

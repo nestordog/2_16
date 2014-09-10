@@ -96,4 +96,9 @@ public interface OrderService {
      */
     public void suggestOrder(Order order);
 
+    /**
+     * Generates next order id for a session with the given qualifier.
+     */
+    public String getNextOrderId(String sessionQualifier);
+
 }
