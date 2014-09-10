@@ -179,6 +179,7 @@ public class DefaultFixAdapter implements FixAdapter {
     @Override
     public String getNextOrderId(Account account) {
 
+        Validate.notNull(account, "Account is null");
         Validate.notNull(account.getSessionQualifier(), "no session qualifier defined for account " + account);
 
         String sessionQualifier = account.getSessionQualifier();

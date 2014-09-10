@@ -20,6 +20,7 @@ package ch.algotrader.service;
 import java.util.Collection;
 import java.util.Map;
 
+import ch.algotrader.entity.Account;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderCompletion;
 import ch.algotrader.entity.trade.OrderStatus;
@@ -97,8 +98,8 @@ public interface OrderService {
     public void suggestOrder(Order order);
 
     /**
-     * Generates next order id for a session with the given qualifier.
+     * Generates next order id for the given account.
      */
-    public String getNextOrderId(String sessionQualifier);
+    public String getNextOrderId(Account account);
 
 }

@@ -21,6 +21,7 @@ import java.math.BigDecimal;
 
 import org.apache.commons.lang.Validate;
 
+import ch.algotrader.entity.Account;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.LimitOrderI;
@@ -168,6 +169,15 @@ public class SimulationOrderServiceImpl extends ExternalOrderServiceImpl impleme
         } catch (Exception ex) {
             throw new SimulationOrderServiceException(ex.getMessage(), ex);
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getNextOrderId(final Account account) {
+
+        throw new UnsupportedOperationException("get next order id not supported in simulation");
     }
 
     @Override

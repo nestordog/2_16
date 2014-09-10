@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.springframework.util.Assert;
 
 import ch.algotrader.ServiceLocator;
+import ch.algotrader.ordermgmt.OrderIdGenerator;
 import ch.algotrader.service.LocalServiceTest;
 import quickfix.SessionID;
 
@@ -33,7 +34,7 @@ import quickfix.SessionID;
  */
 public class FixOrderIdTest extends LocalServiceTest {
 
-    private FixOrderIdGenerator fixOrderIdGenerator;
+    private OrderIdGenerator fixOrderIdGenerator;
 
     @Before
     public void setup() throws Exception {
@@ -43,7 +44,7 @@ public class FixOrderIdTest extends LocalServiceTest {
         ServiceLocator serviceLocator = ServiceLocator.instance();
         serviceLocator.init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
 
-        this.fixOrderIdGenerator = serviceLocator.getService("orderIdGenerator", FixOrderIdGenerator.class);
+        this.fixOrderIdGenerator = serviceLocator.getService("orderIdGenerator", OrderIdGenerator.class);
     }
 
     @After
@@ -57,7 +58,7 @@ public class FixOrderIdTest extends LocalServiceTest {
 
         SessionID sessionId = new SessionID("", "", "", "LMAXT");
 
-        String orderId = this.fixOrderIdGenerator.getNextOrderId(sessionId);
+        String orderId = this.fixOrderIdGenerator.getNextOrderId(sessionId.getSessionQualifier());
 
         Assert.notNull(orderId);
         Assert.isTrue(orderId.startsWith("lmaxt"));

@@ -154,7 +154,6 @@
         <constructor-arg index="8" ref="stopOrderDao"/>
         <constructor-arg index="9" ref="stopLimitOrderDao"/>
         <constructor-arg index="10" ref="orderPropertyDao"/>
-        <constructor-arg index="11" ref="orderIdGenerator"/>
     </bean>
 
     <bean id="combinationService" class="ch.algotrader.service.CombinationServiceImpl" >
