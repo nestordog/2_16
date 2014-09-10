@@ -175,7 +175,9 @@
                             <id>validate</id>
                             <phase>validate</phase>
                             <configuration>
-                                <configLocation>common/src/main/resources/checkstyle.xml</configLocation>
+                                <configLocation>common/src/main/resources/checkstyle/checkstyle.xml</configLocation>
+                                <headerLocation>common/src/main/resources/checkstyle/license.header</headerLocation>
+                                <sourceDirectory>${basedir}/src/main</sourceDirectory>
                                 <consoleOutput>true</consoleOutput>
                                 <failsOnError>true</failsOnError>
                                 <linkXRef>false</linkXRef>
