@@ -28,6 +28,7 @@ import org.apache.commons.lang.Validate;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.enumeration.OrderServiceType;
+import ch.algotrader.ordermgmt.OrderIdGenerator;
 import ch.algotrader.service.LookupService;
 import quickfix.ConfigError;
 import quickfix.FieldConvertError;
@@ -50,17 +51,17 @@ public class DefaultFixAdapter implements FixAdapter {
     private final SocketInitiator socketInitiator;
     private final LookupService lookupService;
     private final FixEventScheduler eventScheduler;
-    private final FixOrderIdGenerator orderIdGenerator;
+    private final OrderIdGenerator orderIdGenerator;
 
     public DefaultFixAdapter(
             final SocketInitiator socketInitiator,
             final LookupService lookupService,
             final FixEventScheduler eventScheduler,
-            final FixOrderIdGenerator orderIdGenerator) {
+            final OrderIdGenerator orderIdGenerator) {
         Validate.notNull(socketInitiator, "SocketInitiator is null");
         Validate.notNull(lookupService, "LookupService is null");
         Validate.notNull(eventScheduler, "FixEventScheduler is null");
-        Validate.notNull(orderIdGenerator, "FixOrderIdGenerator is null");
+        Validate.notNull(orderIdGenerator, "OrderIdGenerator is null");
 
         this.socketInitiator = socketInitiator;
         this.lookupService = lookupService;
@@ -73,7 +74,7 @@ public class DefaultFixAdapter implements FixAdapter {
         return socketInitiator;
     }
 
-    FixOrderIdGenerator getOrderIdGenerator() {
+    OrderIdGenerator getOrderIdGenerator() {
         return orderIdGenerator;
     }
 
@@ -181,7 +182,7 @@ public class DefaultFixAdapter implements FixAdapter {
         Validate.notNull(account.getSessionQualifier(), "no session qualifier defined for account " + account);
 
         String sessionQualifier = account.getSessionQualifier();
-        return this.orderIdGenerator.getNextOrderId(getSessionID(sessionQualifier));
+        return this.orderIdGenerator.getNextOrderId(sessionQualifier);
     }
 
     /**

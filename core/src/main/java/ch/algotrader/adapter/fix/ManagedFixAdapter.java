@@ -31,6 +31,7 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
 import ch.algotrader.enumeration.ConnectionState;
+import ch.algotrader.ordermgmt.OrderIdGenerator;
 import ch.algotrader.service.LookupService;
 import ch.algotrader.util.collection.IntegerMap;
 import quickfix.Session;
@@ -54,7 +55,7 @@ public class ManagedFixAdapter extends DefaultFixAdapter implements ApplicationC
             final SocketInitiator socketInitiator,
             final LookupService lookupService,
             final FixEventScheduler eventScheduler,
-            final FixOrderIdGenerator orderIdGenerator) {
+            final OrderIdGenerator orderIdGenerator) {
         super(socketInitiator, lookupService, eventScheduler, orderIdGenerator);
     }
 

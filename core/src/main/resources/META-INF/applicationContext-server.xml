@@ -293,10 +293,6 @@
         <constructor-arg index="3" ref="orderIdGenerator"/>
       </bean>
 
-      <bean id="orderIdGenerator" class="ch.algotrader.adapter.fix.DefaultFixOrderIdGenerator">
-        <constructor-arg index="0" ref="lookupService"/>
-      </bean>
-
     </beans>
 
     <!-- =================================== JP Morgan  ========================================= -->

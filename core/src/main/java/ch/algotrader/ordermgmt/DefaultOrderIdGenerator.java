@@ -15,47 +15,48 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.adapter.fix;
+package ch.algotrader.ordermgmt;
 
 import java.math.BigDecimal;
 
 import org.apache.commons.lang.Validate;
 
-import ch.algotrader.service.LookupService;
+import ch.algotrader.entity.TransactionDao;
 import ch.algotrader.util.collection.IntegerMap;
-import quickfix.SessionID;
 
 /**
- * File backed implementation of {@link FixOrderIdGenerator}.
+ * Default {@link ch.algotrader.ordermgmt.OrderIdGenerator} implementation backed by
+ * {@link ch.algotrader.entity.TransactionDao#findLastIntOrderId(String)}..
  *
- * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
+ * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  *
  * @version $Revision$ $Date$
  */
-class DefaultFixOrderIdGenerator implements FixOrderIdGenerator {
+public class DefaultOrderIdGenerator implements OrderIdGenerator {
 
-    private final LookupService lookupService;
+    private final TransactionDao transactionDao;
     private final IntegerMap<String> orderIds;
 
-    public DefaultFixOrderIdGenerator(final LookupService lookupService) {
+    public DefaultOrderIdGenerator(final TransactionDao transactionDao) {
 
-        Validate.notNull(lookupService, "LookupService is null");
+        Validate.notNull(transactionDao, "TransactionDao is null");
 
-        this.lookupService = lookupService;
+        this.transactionDao = transactionDao;
         this.orderIds = new IntegerMap<String>();
     }
 
     /**
-     * Gets the next {@code orderId} for the specified {@code account}
+     * Gets the next {@code orderId} for the specified {@code sessionQualifier}
      */
     @Override
-    public synchronized String getNextOrderId(SessionID sessionID) {
+    public synchronized String getNextOrderId(final String sessionQualifier) {
 
-        Validate.notNull(sessionID, "Session id may not be null");
+        Validate.notNull(sessionQualifier, "Session qualifier is null");
 
-        String sessionQualifier = sessionID.getSessionQualifier();
         if (!this.orderIds.containsKey(sessionQualifier)) {
-            initOrderId(sessionID);
+
+            BigDecimal orderId = this.transactionDao.findLastIntOrderId(sessionQualifier);
+            this.orderIds.put(sessionQualifier, orderId != null ? orderId.intValue() : 0);
         }
 
         int rootOrderId = this.orderIds.increment(sessionQualifier, 1);
@@ -75,21 +76,11 @@ class DefaultFixOrderIdGenerator implements FixOrderIdGenerator {
      * sets the orderId for the defined session (will be incremented by 1 for the next order)
      */
     @Override
-    public void setOrderId(String sessionQualifier, int orderId) {
+    public void setOrderId(final String sessionQualifier, final int orderId) {
 
-        Validate.notNull(sessionQualifier, "Session identifier may not be null");
+        Validate.notNull(sessionQualifier, "Session qualifier is null");
 
         this.orderIds.put(sessionQualifier, orderId);
     }
 
-    /**
-     * gets the last orderId from the fix message log
-     */
-    private void initOrderId(SessionID sessionID) {
-
-        String sessionQualifier = sessionID.getSessionQualifier();
-
-        BigDecimal orderId = this.lookupService.getLastIntOrderId(sessionQualifier);
-        this.orderIds.put(sessionQualifier, orderId != null ? orderId.intValue() : 0);
-    }
 }
