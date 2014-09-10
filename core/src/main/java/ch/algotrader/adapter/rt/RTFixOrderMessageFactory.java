@@ -19,17 +19,16 @@ package ch.algotrader.adapter.rt;
 
 import java.util.Date;
 
-import ch.algotrader.adapter.fix.fix44.Fix44SymbologyResolver;
-import ch.algotrader.adapter.fix.fix44.GenericFix44OrderMessageFactory;
-import ch.algotrader.entity.Account;
-import ch.algotrader.entity.trade.SimpleOrder;
-import quickfix.field.ExecInst;
 import quickfix.field.HandlInst;
 import quickfix.field.LocateReqd;
 import quickfix.field.TransactTime;
 import quickfix.fix44.NewOrderSingle;
 import quickfix.fix44.OrderCancelReplaceRequest;
 import quickfix.fix44.OrderCancelRequest;
+import ch.algotrader.adapter.fix.fix44.Fix44SymbologyResolver;
+import ch.algotrader.adapter.fix.fix44.GenericFix44OrderMessageFactory;
+import ch.algotrader.entity.Account;
+import ch.algotrader.entity.trade.SimpleOrder;
 
 /**
  * RealTick order message factory.
@@ -52,7 +51,6 @@ public class RTFixOrderMessageFactory extends GenericFix44OrderMessageFactory {
 
         newOrder.set(new HandlInst(HandlInst.AUTOMATED_EXECUTION_ORDER_PUBLIC));
         newOrder.set(new LocateReqd(true));
-        newOrder.set(new ExecInst(String.valueOf(order.isDirect() ? ExecInst.HELD : ExecInst.NOT_HELD)));
 
         // handling for accounts
         Account account = order.getAccountInitialized();
@@ -70,7 +68,6 @@ public class RTFixOrderMessageFactory extends GenericFix44OrderMessageFactory {
 
         replaceRequest.set(new HandlInst(HandlInst.AUTOMATED_EXECUTION_ORDER_PUBLIC));
         replaceRequest.set(new LocateReqd(true));
-        replaceRequest.set(new ExecInst(String.valueOf(order.isDirect() ? ExecInst.HELD : ExecInst.NOT_HELD)));
 
         // handling for accounts
         Account account = order.getAccountInitialized();

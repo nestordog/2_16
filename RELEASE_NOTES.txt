@@ -1,3 +1,21 @@
+Version 2.2
+additional Fix 4.4 trading and market data interface:
+    LMAX
+    FXCM
+    Currenex
+    DukasCopy (added market data interface)
+add calendar service Exchange Trading Hours and Holidays)
+eclipse based strategy creation wizard
+eclipse based config editor
+new configuration manager
+support custom order properties
+generic symbology resolver
+persist order and order status to database
+report manager
+weekly options
+market-on-open, limit-on-open, market-on-close and limit-on-close
+order completion event
+
 Version 2.1
 new Instruments: Bond, Fund & Commodity
 overhaul AlgoTrader Reference Data Manager (based on Grails)
@@ -22,7 +40,7 @@ Version 2.0
 Multi Account Handling
 Bloomberg Market Data Interface
 Level-Zero Cache
-New Execution Algorithm “Disbtributional”
+New Execution Algorithm Disbtributional
 InteractiveBrokers Financial Advisors Handling over FIX
 SABR Option Pricing Engine
 Single-JVM Live-Trading Mode
