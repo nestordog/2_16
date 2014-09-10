@@ -1,4 +1,3 @@
-package ch.algotrader.config;
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
@@ -16,6 +15,8 @@ package ch.algotrader.config;
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
+
+package ch.algotrader.config;
 
 /**
  * IB configuration object.

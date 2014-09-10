@@ -1,4 +1,3 @@
-package ch.algotrader.config;
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
@@ -17,6 +16,7 @@ package ch.algotrader.config;
  * 8004 Zurich
  ***********************************************************************************/
 
+package ch.algotrader.config;
 
 import java.math.BigDecimal;
 

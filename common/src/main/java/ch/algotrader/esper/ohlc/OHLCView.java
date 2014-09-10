@@ -1,10 +1,4 @@
-//AlgoTrader: based on TimeBatchView
-/**************************************************************************************
- * Copyright (C) 2008 EsperTech, Inc. All rights reserved.                            *
- * http://esper.codehaus.org                                                          *
- * http://www.espertech.com                                                           *
- * ---------------------------------------------------------------------------------- *
- * The software in this /***********************************************************************************
+/***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
  * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
@@ -20,6 +14,14 @@
  * AlgoTrader GmbH
  * Badenerstrasse 16
  * 8004 Zurich
+ ***********************************************************************************/
+
+//AlgoTrader: based on TimeBatchView
+/**************************************************************************************
+ * Copyright (C) 2008 EsperTech, Inc. All rights reserved.                            *
+ * http://esper.codehaus.org                                                          *
+ * http://www.espertech.com                                                           *
+ * ---------------------------------------------------------------------------------- *
  ***********************************************************************************/
 package ch.algotrader.esper.ohlc;
 
