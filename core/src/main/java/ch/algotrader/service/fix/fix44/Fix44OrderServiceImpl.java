@@ -61,17 +61,21 @@ public abstract class Fix44OrderServiceImpl extends FixOrderServiceImpl implemen
         Validate.notNull(order, "Order is null");
 
         try {
-        // assign a new clOrdID
-        String clOrdID = getFixAdapter().getNextOrderId(order.getAccount());
+            String clOrdID = order.getIntId();
+            if (clOrdID == null) {
 
-        order.setIntId(clOrdID);
-        NewOrderSingle message = this.messageFactory.createNewOrderMessage(order, clOrdID);
+                // assign a new clOrdID
+                clOrdID = getFixAdapter().getNextOrderId(order.getAccount());
+                order.setIntId(clOrdID);
+            }
 
-        // broker-specific settings
-        sendOrder(order, message);
+            NewOrderSingle message = this.messageFactory.createNewOrderMessage(order, clOrdID);
 
-        // send the message
-        sendOrder(order, message, true);
+            // broker-specific settings
+            sendOrder(order, message);
+
+            // send the message
+            sendOrder(order, message, true);
         } catch (Exception ex) {
             throw new Fix44OrderServiceException(ex.getMessage(), ex);
         }

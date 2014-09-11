@@ -64,17 +64,21 @@ public abstract class Fix42OrderServiceImpl extends FixOrderServiceImpl implemen
 
         try {
 
-            // assign a new clOrdID
-            String clOrdID = getFixAdapter().getNextOrderId(order.getAccount());
-            order.setIntId(clOrdID);
+            String clOrdID = order.getIntId();
+            if (clOrdID == null) {
 
-            NewOrderSingle newOrder = this.messageFactory.createNewOrderMessage(order, clOrdID);
+                // assign a new clOrdID
+                clOrdID = getFixAdapter().getNextOrderId(order.getAccount());
+                order.setIntId(clOrdID);
+            }
+
+            NewOrderSingle message = this.messageFactory.createNewOrderMessage(order, clOrdID);
 
             // broker-specific settings
-            sendOrder(order, newOrder);
+            sendOrder(order, message);
 
             // send the message
-            sendOrder(order, newOrder, true);
+            sendOrder(order, message, true);
         } catch (Exception ex) {
             throw new Fix42OrderServiceException(ex.getMessage(), ex);
         }

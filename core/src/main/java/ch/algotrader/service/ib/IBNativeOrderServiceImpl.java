@@ -123,8 +123,13 @@ public class IBNativeOrderServiceImpl extends ExternalOrderServiceImpl implement
 
     private synchronized void internalSendOrder(SimpleOrder order) throws Exception {
 
-        String intId = this.iBIdGenerator.getNextOrderId();
-        order.setIntId(intId);
+        String intId = order.getIntId();
+        if (intId == null) {
+
+            intId = this.iBIdGenerator.getNextOrderId();
+            order.setIntId(intId);
+        }
+
         sendOrModifyOrder(order);
     }
 
