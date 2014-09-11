@@ -17,8 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
-import ch.algotrader.entity.trade.SimpleOrder;
-import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.util.spring.HibernateSession;
 
 /**
@@ -28,35 +26,5 @@ import ch.algotrader.util.spring.HibernateSession;
  */
 @HibernateSession
 public abstract class ExternalOrderServiceImpl implements ExternalOrderService {
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public abstract void sendOrder(SimpleOrder order);
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public abstract void validateOrder(SimpleOrder order);
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public abstract void cancelOrder(SimpleOrder order);
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public abstract void modifyOrder(SimpleOrder order);
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public abstract OrderServiceType getOrderServiceType();
 
 }
