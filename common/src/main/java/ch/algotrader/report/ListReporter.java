@@ -45,49 +45,65 @@ public class ListReporter implements Report {
         this(file, header, null);
     }
 
-    public ListReporter(File file, String[] header, CellProcessor[] processor) throws IOException {
+    public ListReporter(File file, String[] header, CellProcessor[] processor) {
 
-        File parent = file.getParentFile();
-        if (!parent.exists()) {
-            FileUtils.forceMkdir(parent);
+        try {
+            File parent = file.getParentFile();
+            if (!parent.exists()) {
+                FileUtils.forceMkdir(parent);
+            }
+
+            this.processor = processor;
+
+            this.writer = new CsvListWriter(new FileWriter(file, false), CsvPreference.EXCEL_PREFERENCE);
+
+            this.writer.writeHeader(header);
+
+            ReportManager.registerReport(this);
+        } catch (IOException e) {
+            throw new ReportException(e);
         }
-
-        this.processor = processor;
-
-        this.writer = new CsvListWriter(new FileWriter(file, false), CsvPreference.EXCEL_PREFERENCE);
-
-        this.writer.writeHeader(header);
-
-        ReportManager.registerReport(this);
     }
 
-    public ListReporter(String fileName, String[] header) throws IOException {
+    public ListReporter(String fileName, String[] header) {
 
         this(fileName, header, null);
     }
 
-    public ListReporter(String fileName, String[] header, CellProcessor[] processor) throws IOException {
+    public ListReporter(String fileName, String[] header, CellProcessor[] processor) {
 
         this(new File("files" + File.separator + "report" + File.separator + fileName + ".csv"), header, processor);
     }
 
-    public void write(List<?> row) throws IOException {
+    public void write(List<?> row) {
 
-        if (this.processor != null) {
-            this.writer.write(row, this.processor);
-        } else {
-            this.writer.write(row);
+        try {
+            if (this.processor != null) {
+                this.writer.write(row, this.processor);
+            } else {
+                this.writer.write(row);
+            }
+        } catch (IOException e) {
+            throw new ReportException(e);
         }
     }
 
-    public void write(Object... row) throws IOException {
+    public void write(Object... row) {
 
-        this.writer.write(row);
+        try {
+            this.writer.write(row);
+        } catch (IOException e) {
+            throw new ReportException(e);
+        }
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
 
-        this.writer.close();
+        try {
+            this.writer.close();
+        } catch (IOException e) {
+            throw new ReportException(e);
+        }
     }
 }

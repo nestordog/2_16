@@ -10,7 +10,7 @@ where
 
 @Name('INSERT_INTO_PORTFOLIO_VALUE')
 @SimulationOnly
-@Subscriber(className='ch.algotrader.esper.subscriber.LogPortfolioValueSubscriber')
+@Subscriber(className='ch.algotrader.esper.subscriber.PortfolioValueSubscriber')
 insert into
     PortfolioValue
 select

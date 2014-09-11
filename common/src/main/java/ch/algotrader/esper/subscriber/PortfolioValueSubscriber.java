@@ -17,44 +17,40 @@
  ***********************************************************************************/
 package ch.algotrader.esper.subscriber;
 
-import org.apache.log4j.Logger;
-
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.ConfigLocator;
 import ch.algotrader.entity.strategy.PortfolioValue;
-import ch.algotrader.util.MyLogger;
+import ch.algotrader.report.ListReporter;
 import ch.algotrader.util.metric.MetricsUtil;
 
 /**
- * Prints porftolio values like CashBalance, SecuritiesCurrentValue, MaintenanceMargin and Leverage to the Log.
+ * Prints portfolio values CashBalance and SecuritiesCurrentValue to files/report/PortfolioReport.csv
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class LogPortfolioValueSubscriber {
+public class PortfolioValueSubscriber {
 
-    private static Logger logger = MyLogger.getLogger(LogPortfolioValueSubscriber.class.getName());
-
-    private static boolean initialized = false;
+    private boolean initialized = false;
+    private ListReporter reporter;
 
     public void update(PortfolioValue portfolioValue) {
 
         long startTime = System.nanoTime();
 
-        // dont log anything while initialising macd
-        CommonConfig commonConfig = ConfigLocator.instance().getCommonConfig();
-        if (portfolioValue.getNetLiqValue().equals(commonConfig.getSimulationInitialBalance())) {
-            initialized = true;
+        if (this.reporter == null) {
+            this.reporter = new ListReporter("PortfolioReport", new String[] { "cashBalance", "securitiesCurrentValue" });
         }
 
-        if (initialized) {
-            //@formatter:off
-            logger.info(portfolioValue.getCashBalance() + "," +
-                    portfolioValue.getSecuritiesCurrentValue() + "," +
-                    portfolioValue.getMaintenanceMargin() + "," +
-                    portfolioValue.getLeverage());
-            //@formatter:on
+        // don't log anything until any trades took place
+        CommonConfig commonConfig = ConfigLocator.instance().getCommonConfig();
+        if (!portfolioValue.getNetLiqValue().equals(commonConfig.getSimulationInitialBalance())) {
+            this.initialized = true;
+        }
+
+        if (this.initialized) {
+            this.reporter.write(portfolioValue.getCashBalance(), portfolioValue.getSecuritiesCurrentValue());
         }
 
         MetricsUtil.accountEnd("LogPortfolioValueSubscriber", startTime);

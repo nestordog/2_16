@@ -25,30 +25,6 @@
         </filter>
     </appender>
 
-    <appender name="PORTFOLIO" class="org.apache.log4j.FileAppender">
-        <param name="file" value="log/portfolio.csv" />
-        <param name="append" value="false" />
-        <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss},%m %n" />
-        </layout>
-    </appender>
-
-    <appender name="INDICATOR" class="org.apache.log4j.FileAppender">
-        <param name="file" value="log/indicator.csv" />
-        <param name="append" value="false" />
-        <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%m %n" />
-        </layout>
-    </appender>
-
-<!--     <appender name="SUBSCRIBER" class="org.apache.log4j.FileAppender"> -->
-<!--         <param name="file" value="log/subscriber.log" /> -->
-<!--         <param name="append" value="false" /> -->
-<!--         <layout class="org.apache.log4j.PatternLayout"> -->
-<!--             <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss},%m %n" /> -->
-<!--         </layout> -->
-<!--     </appender>     -->
-
     <appender name="SOCKET" class="org.apache.log4j.net.SocketAppender">
         <param name="RemoteHost" value="localhost" />
     </appender>
@@ -135,25 +111,10 @@
         <level value="warn"/>
     </logger>
 
-    <logger name="ch.algotrader.esper.subscriber.LogPortfolioValueSubscriber" additivity="false">
-        <level value="info" />
-        <appender-ref ref="PORTFOLIO" />
-    </logger>
-
     <logger name="ch.algotrader.service.SimulationServiceImpl.RESULT" >
         <level value="info" />
 <!--         <appender-ref ref="SOCKET" /> -->
     </logger>
-
-    <logger name="ch.algotrader.esper.listener.IndicatorListener" additivity="false">
-        <level value="info" />
-        <appender-ref ref="INDICATOR" />
-    </logger>
-
-<!--     <logger name="ch.algotrader.esper.subscriber.Subscriber"> -->
-<!--         <level value="debug" /> -->
-<!--         <appender-ref ref="SUBSCRIBER" /> -->
-<!--     </logger> -->
 
     <root>
         <level value="debug" />
