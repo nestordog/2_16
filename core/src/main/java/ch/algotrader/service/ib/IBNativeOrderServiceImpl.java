@@ -23,11 +23,14 @@ import java.text.SimpleDateFormat;
 import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
 
+import com.ib.client.Contract;
+
 import ch.algotrader.adapter.ib.IBIdGenerator;
 import ch.algotrader.adapter.ib.IBOrderStatus;
 import ch.algotrader.adapter.ib.IBSession;
 import ch.algotrader.adapter.ib.IBUtil;
 import ch.algotrader.config.IBConfig;
+import ch.algotrader.entity.Account;
 import ch.algotrader.entity.trade.LimitOrderI;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.SimpleOrder;
@@ -39,8 +42,6 @@ import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.service.ExternalOrderServiceImpl;
 import ch.algotrader.service.OrderService;
 import ch.algotrader.util.MyLogger;
-
-import com.ib.client.Contract;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -265,6 +266,15 @@ public class IBNativeOrderServiceImpl extends ExternalOrderServiceImpl implement
         this.iBSession.placeOrder(Integer.parseInt(order.getIntId()), contract, ibOrder);
 
         logger.info("placed or modified order: " + order);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getNextOrderId(final Account account) {
+
+        return iBIdGenerator.getNextOrderId();
     }
 
     @Override

@@ -20,14 +20,15 @@ package ch.algotrader.service.fix;
 import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
 
-import quickfix.Message;
-import quickfix.StringField;
-import quickfix.field.MsgType;
 import ch.algotrader.adapter.fix.FixAdapter;
+import ch.algotrader.entity.Account;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.service.ExternalOrderServiceImpl;
 import ch.algotrader.service.OrderService;
 import ch.algotrader.util.MyLogger;
+import quickfix.Message;
+import quickfix.StringField;
+import quickfix.field.MsgType;
 
 /**
  * Generic FIX order service
@@ -105,4 +106,13 @@ public abstract class FixOrderServiceImpl extends ExternalOrderServiceImpl imple
             throw new FixOrderServiceException(ex.getMessage(), ex);
         }
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getNextOrderId(final Account account) {
+        return getFixAdapter().getNextOrderId(account);
+    }
+
 }

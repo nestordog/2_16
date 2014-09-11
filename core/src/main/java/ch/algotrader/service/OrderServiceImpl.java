@@ -32,6 +32,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.algotrader.config.CommonConfig;
+import ch.algotrader.entity.Account;
 import ch.algotrader.entity.AccountDao;
 import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.entity.strategy.StrategyDao;
@@ -56,7 +57,6 @@ import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.enumeration.TIF;
 import ch.algotrader.esper.EngineLocator;
-import ch.algotrader.ordermgmt.OrderIdGenerator;
 import ch.algotrader.util.BeanUtil;
 import ch.algotrader.util.DateUtil;
 import ch.algotrader.util.MyLogger;
@@ -98,8 +98,6 @@ public class OrderServiceImpl implements OrderService, ApplicationContextAware {
 
     private final OrderPropertyDao orderPropertyDao;
 
-    private final OrderIdGenerator orderIdGenerator;
-
     public OrderServiceImpl(final CommonConfig commonConfig,
             final OrderDao orderDao,
             final OrderStatusDao orderStatusDao,
@@ -110,8 +108,7 @@ public class OrderServiceImpl implements OrderService, ApplicationContextAware {
             final LimitOrderDao limitOrderDao,
             final StopOrderDao stopOrderDao,
             final StopLimitOrderDao stopLimitOrderDao,
-            final OrderPropertyDao orderPropertyDao,
-            final OrderIdGenerator orderIdGenerator) {
+            final OrderPropertyDao orderPropertyDao) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(orderDao, "OrderDao is null");
@@ -124,7 +121,6 @@ public class OrderServiceImpl implements OrderService, ApplicationContextAware {
         Validate.notNull(stopOrderDao, "StopOrderDao is null");
         Validate.notNull(stopLimitOrderDao, "StopLimitOrderDao is null");
         Validate.notNull(orderPropertyDao, "OrderPropertyDao is null");
-        Validate.notNull(orderIdGenerator, "OrderIdGenerator is null");
 
         this.commonConfig = commonConfig;
         this.orderDao = orderDao;
@@ -137,7 +133,6 @@ public class OrderServiceImpl implements OrderService, ApplicationContextAware {
         this.stopOrderDao = stopOrderDao;
         this.stopLimitOrderDao = stopLimitOrderDao;
         this.orderPropertyDao = orderPropertyDao;
-        this.orderIdGenerator = orderIdGenerator;
     }
 
     @Override
@@ -171,7 +166,10 @@ public class OrderServiceImpl implements OrderService, ApplicationContextAware {
 
             // external validation of the order
             if (order instanceof SimpleOrder) {
-                getExternalOrderService(order).validateOrder((SimpleOrder) order);
+
+                Account account = order.getAccount();
+                Validate.notNull(account, "missing account for order: " + order);
+                getExternalOrderService(account).validateOrder((SimpleOrder) order);
             }
 
             // TODO add internal validations (i.e. limit, amount, etc.)
@@ -219,7 +217,9 @@ public class OrderServiceImpl implements OrderService, ApplicationContextAware {
             if (order instanceof AlgoOrder) {
                 sendAlgoOrder((AlgoOrder) order);
             } else {
-                getExternalOrderService(order).sendOrder((SimpleOrder) order);
+                Account account = order.getAccount();
+                Validate.notNull(account, "missing account for order: " + order);
+                getExternalOrderService(account).sendOrder((SimpleOrder) order);
                 persistOrder(order);
             }
         } catch (Exception ex) {
@@ -465,8 +465,9 @@ public class OrderServiceImpl implements OrderService, ApplicationContextAware {
     }
 
     @Override
-    public String getNextOrderId(final String sessionQualifier) {
-        return this.getNextOrderId(sessionQualifier);
+    public String getNextOrderId(final Account account) {
+
+        return getExternalOrderService(account).getNextOrderId(account);
     }
 
     private void sendAlgoOrder(AlgoOrder order) {
@@ -484,7 +485,10 @@ public class OrderServiceImpl implements OrderService, ApplicationContextAware {
         if (order instanceof AlgoOrder) {
             cancelAlgoOrder((AlgoOrder) order);
         } else {
-            getExternalOrderService(order).cancelOrder((SimpleOrder) order);
+
+            Account account = order.getAccount();
+            Validate.notNull(account, "missing account for order: " + order);
+            getExternalOrderService(account).cancelOrder((SimpleOrder) order);
         }
     }
 
@@ -492,7 +496,10 @@ public class OrderServiceImpl implements OrderService, ApplicationContextAware {
 
         // cancel existing child orders
         for (Order childOrder : this.orderDao.findOpenOrdersByParentIntId(order.getIntId())) {
-            getExternalOrderService(order).cancelOrder((SimpleOrder) childOrder);
+
+            Account account = order.getAccount();
+            Validate.notNull(account, "missing account for order: " + order);
+            getExternalOrderService(account).cancelOrder((SimpleOrder) childOrder);
         }
 
         // get the current OrderStatusVO
@@ -516,7 +523,10 @@ public class OrderServiceImpl implements OrderService, ApplicationContextAware {
         if (order instanceof AlgoOrder) {
             throw new UnsupportedOperationException("modification of AlgoOrders are not permitted");
         } else {
-            getExternalOrderService(order).modifyOrder((SimpleOrder) order);
+
+            Account account = order.getAccount();
+            Validate.notNull(account, "missing account for order: " + order);
+            getExternalOrderService(account).modifyOrder((SimpleOrder) order);
             persistOrder(order);
         }
     }
@@ -544,18 +554,22 @@ public class OrderServiceImpl implements OrderService, ApplicationContextAware {
      * get the externalOrderService defined by the account
      */
     @SuppressWarnings("unchecked")
-    private ExternalOrderService getExternalOrderService(Order order) throws Exception {
+    private ExternalOrderService getExternalOrderService(Account account) {
 
         OrderServiceType orderServiceType;
 
         if (this.commonConfig.isSimulation()) {
             orderServiceType = OrderServiceType.SIMULATION;
         } else {
-            Validate.notNull(order.getAccount(), "missing account for order: " + order);
-            orderServiceType = order.getAccount().getOrderServiceType();
+            orderServiceType = account.getOrderServiceType();
         }
 
-        Class<ExternalOrderService> orderServiceClass = (Class<ExternalOrderService>) Class.forName(orderServiceType.getValue());
+        Class<ExternalOrderService> orderServiceClass;
+        try {
+            orderServiceClass = (Class<ExternalOrderService>) Class.forName(orderServiceType.getValue());
+        } catch (ClassNotFoundException ex) {
+            throw new OrderServiceException("External service class " + orderServiceType.getValue() + " not found", ex);
+        }
 
         Map<String, ExternalOrderService> externalOrderServices = this.applicationContext.getBeansOfType(orderServiceClass);
 

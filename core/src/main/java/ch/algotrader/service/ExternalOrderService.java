@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
+import ch.algotrader.entity.Account;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
 
@@ -51,5 +52,10 @@ public interface ExternalOrderService {
      * Returns the {@link OrderServiceType} associated with this ExternalOrderService.
      */
     public OrderServiceType getOrderServiceType();
+
+    /**
+     * Generates next order id for the given account.
+     */
+    public String getNextOrderId(Account account);
 
 }
