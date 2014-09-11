@@ -562,7 +562,6 @@ CREATE TABLE `order` (
   `QUANTITY` bigint(20) NOT NULL,
   `TIF` enum('DAY','GTC','GTD','IOC','FOK','ATO','ATC') NOT NULL,
   `TIF_DATE_TIME` datetime DEFAULT NULL,
-  `DIRECT` bit(1) NOT NULL,
   `LIMIT` decimal(15,6) DEFAULT NULL,
   `STOP` decimal(15,6) DEFAULT NULL,
   `ACCOUNT_FK` int(11) NOT NULL,

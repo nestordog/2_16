@@ -323,7 +323,7 @@ public class OrderServiceImpl implements OrderService, ApplicationContextAware {
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public void modifyOrder(final String intId, final Map properties) {
+    public void modifyOrder(final String intId, final Map<String, String> properties) {
 
         Validate.notNull(intId, "Int id is null");
         Validate.notNull(properties, "Properties is null");
@@ -332,7 +332,7 @@ public class OrderServiceImpl implements OrderService, ApplicationContextAware {
             Order order = this.orderDao.findOpenOrderByIntId(intId);
             if (order != null) {
 
-                // populte the properties
+                // populate the properties
                 BeanUtil.populate(order, properties);
 
                 internalModifyOrder(order);
@@ -395,12 +395,16 @@ public class OrderServiceImpl implements OrderService, ApplicationContextAware {
 
             if (!this.commonConfig.isSimulation()) {
                 logger.debug("propagated orderStatus: " + orderStatus);
+
+                // only store OrderStatus for non AlgoOrders
+                if (!(orderStatus.getOrder() instanceof AlgoOrder)) {
+                    if (orderStatus.getOrder() == null) {
+                        logger.warn("orderStatus.order is null");
+                    }
+                    this.orderStatusDao.create(orderStatus);
+                }
             }
 
-            // only store OrderStatus for non AlgoOrders
-            if (!(orderStatus.getOrder() instanceof AlgoOrder)) {
-                this.orderStatusDao.create(orderStatus);
-            }
         } catch (Exception ex) {
             throw new OrderServiceException(ex.getMessage(), ex);
         }
@@ -532,6 +536,10 @@ public class OrderServiceImpl implements OrderService, ApplicationContextAware {
     }
 
     private void persistOrder(Order order) {
+
+        if (this.commonConfig.isSimulation()) {
+            return;
+        }
 
         // save order to the DB by using the corresponding OrderDao
         if (order instanceof MarketOrder) {

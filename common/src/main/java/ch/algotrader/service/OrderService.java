@@ -73,7 +73,7 @@ public interface OrderService {
      * Modifies an Order defined by its {@code intId} by overwriting the current Order with the
      * defined {@code properties}.
      */
-    public void modifyOrder(String intId, Map properties);
+    public void modifyOrder(String intId, Map<String, String> properties);
 
     /**
      * Propagates an Order to the corresponding Strategy.

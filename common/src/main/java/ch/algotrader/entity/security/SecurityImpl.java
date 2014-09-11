@@ -57,7 +57,7 @@ public abstract class SecurityImpl extends Security {
             Engine engine = instance.getEngine(startedStrategyName);
             if (engine.isDeployed("MARKET_DATA_WINDOW")) {
 
-                List<MarketDataEvent> events = engine.executeQuery("select marketDataEvent from MarketDataWindow where securityId = " + getId());
+                List<MarketDataEvent> events = engine.executeQuery("select marketDataEvent.* from MarketDataWindow where securityId = " + getId());
 
                 // might have multiple events of different feed types
                 if (events.size() > 0) {

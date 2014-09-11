@@ -25,7 +25,6 @@ import org.apache.commons.beanutils.PropertyUtils;
 
 import com.espertech.esper.adapter.AdapterState;
 import com.espertech.esper.client.EPException;
-import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esperio.AbstractCoordinatedAdapter;
 import com.espertech.esperio.SendableEvent;
 
@@ -42,9 +41,9 @@ public class CollectionInputAdapter extends AbstractCoordinatedAdapter {
     private Iterator<?> iterator;
     private String timeStampColumn;
 
-    public CollectionInputAdapter(EPServiceProvider cep, Collection<?> baseObjects, String timeStampColumn) {
+    public CollectionInputAdapter(Collection<?> baseObjects, String timeStampColumn) {
 
-        super(cep, true, true);
+        super(null, true, true);
 
         this.iterator = baseObjects.iterator();
         this.timeStampColumn = timeStampColumn;
