@@ -29,6 +29,7 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
 import ch.algotrader.config.CommonConfig;
+import ch.algotrader.vo.ChartDefinitionVO;
 import ch.algotrader.vo.IndicatorVO;
 import ch.algotrader.vo.PortfolioValueVO;
 
@@ -44,8 +45,11 @@ public class PortfolioChartServiceImpl extends ChartProvidingServiceImpl impleme
 
     private final PortfolioService portfolioService;
 
-    public PortfolioChartServiceImpl(final CommonConfig commonConfig,
+    public PortfolioChartServiceImpl(final ChartDefinitionVO diagramDefinition,
+            final CommonConfig commonConfig,
             final PortfolioService portfolioService) {
+
+        super(diagramDefinition);
 
         Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(portfolioService, "PortfolioService is null");

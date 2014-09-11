@@ -25,7 +25,7 @@ import java.util.Map;
  *
  * @version $Revision$ $Date$
  */
-public class AbstractStrategyServiceImpl implements StrategyService {
+public abstract class AbstractStrategyServiceImpl implements StrategyService {
 
     /**
      * {@inheritDoc}

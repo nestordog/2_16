@@ -33,12 +33,6 @@ import ch.algotrader.vo.MarkerVO;
 public interface ChartProvidingService {
 
     /**
-     * Setter method for passing {@link ChartDefinitionVO ChartDefinitions} defined in the Spring
-     * Config File.
-     */
-    public void setChartDefinition(ChartDefinitionVO chartDefinition);
-
-    /**
      * Return {@link ChartDefinitionVO ChartDefinitions} defined in the Spring Config File. This
      * method can be overwritten to modify/amend ChartDefinitions (e.g. if the Security an Indicator
      * is based on changes over time).

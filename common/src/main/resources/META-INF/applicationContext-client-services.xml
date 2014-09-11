@@ -34,8 +34,9 @@
     </bean>
 
     <bean id="portfolioChartService" class="ch.algotrader.service.PortfolioChartServiceImpl" >
-        <constructor-arg index="0" ref="commonConfig"/>
-        <constructor-arg index="1" ref="portfolioService"/>
+        <constructor-arg index="0" ref="portfolioChartDefinition"/>
+        <constructor-arg index="1" ref="commonConfig"/>
+        <constructor-arg index="2" ref="portfolioService"/>
     </bean>
 
 </beans>

@@ -24,7 +24,7 @@ import ch.algotrader.config.CommonConfig;
  *
  * @version $Revision$ $Date$
  */
-public class StrategyServiceImpl extends AbstractStrategyServiceImpl {
+public abstract class StrategyServiceImpl extends AbstractStrategyServiceImpl {
 
     private CommonConfig commonConfig;
     private CalendarService calendarService;
@@ -43,91 +43,91 @@ public class StrategyServiceImpl extends AbstractStrategyServiceImpl {
     private SubscriptionService subscriptionService;
 
     public CommonConfig getCommonConfig() {
-        return commonConfig;
+        return this.commonConfig;
     }
     public void setCommonConfig(CommonConfig commonConfig) {
         this.commonConfig = commonConfig;
     }
     public CalendarService getCalendarService() {
-        return calendarService;
+        return this.calendarService;
     }
     public void setCalendarService(CalendarService calendarService) {
         this.calendarService = calendarService;
     }
     public CombinationService getCombinationService() {
-        return combinationService;
+        return this.combinationService;
     }
     public void setCombinationService(CombinationService combinationService) {
         this.combinationService = combinationService;
     }
     public FutureService getFutureService() {
-        return futureService;
+        return this.futureService;
     }
     public void setFutureService(FutureService futureService) {
         this.futureService = futureService;
     }
     public HistoricalDataService getHistoricalDataService() {
-        return historicalDataService;
+        return this.historicalDataService;
     }
     public void setHistoricalDataService(HistoricalDataService historicalDataService) {
         this.historicalDataService = historicalDataService;
     }
     public LookupService getLookupService() {
-        return lookupService;
+        return this.lookupService;
     }
     public void setLookupService(LookupService lookupService) {
         this.lookupService = lookupService;
     }
     public MarketDataService getMarketDataService() {
-        return marketDataService;
+        return this.marketDataService;
     }
     public void setMarketDataService(MarketDataService marketDataService) {
         this.marketDataService = marketDataService;
     }
     public MeasurementService getMeasurementService() {
-        return measurementService;
+        return this.measurementService;
     }
     public void setMeasurementService(MeasurementService measurementService) {
         this.measurementService = measurementService;
     }
     public OptionService getOptionService() {
-        return optionService;
+        return this.optionService;
     }
     public void setOptionService(OptionService optionService) {
         this.optionService = optionService;
     }
     public OrderService getOrderService() {
-        return orderService;
+        return this.orderService;
     }
     public void setOrderService(OrderService orderService) {
         this.orderService = orderService;
     }
     public PortfolioService getPortfolioService() {
-        return portfolioService;
+        return this.portfolioService;
     }
     public void setPortfolioService(PortfolioService portfolioService) {
         this.portfolioService = portfolioService;
     }
     public PositionService getPositionService() {
-        return positionService;
+        return this.positionService;
     }
     public void setPositionService(PositionService positionService) {
         this.positionService = positionService;
     }
     public PropertyService getPropertyService() {
-        return propertyService;
+        return this.propertyService;
     }
     public void setPropertyService(PropertyService propertyService) {
         this.propertyService = propertyService;
     }
     public SecurityRetrieverService getSecurityRetrieverService() {
-        return securityRetrieverService;
+        return this.securityRetrieverService;
     }
     public void setSecurityRetrieverService(SecurityRetrieverService securityRetrieverService) {
         this.securityRetrieverService = securityRetrieverService;
     }
     public SubscriptionService getSubscriptionService() {
-        return subscriptionService;
+        return this.subscriptionService;
     }
     public void setSubscriptionService(SubscriptionService subscriptionService) {
         this.subscriptionService = subscriptionService;
