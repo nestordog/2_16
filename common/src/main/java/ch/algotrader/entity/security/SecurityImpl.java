@@ -28,6 +28,7 @@ import ch.algotrader.config.ConfigLocator;
 import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.enumeration.Currency;
+import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.ObjectUtil;
@@ -50,12 +51,19 @@ public abstract class SecurityImpl extends Security {
     public MarketDataEvent getCurrentMarketDataEvent() {
 
         String startedStrategyName = ConfigLocator.instance().getCommonConfig().getStartedStrategyName();
-        if (EngineLocator.instance().hasEngine(startedStrategyName)) {
-            List<MarketDataEvent> events = EngineLocator.instance().getEngine(startedStrategyName).executeQuery("select marketDataEvent from MarketDataWindow where securityId = " + getId());
+        EngineLocator instance = EngineLocator.instance();
+        if (instance.hasEngine(startedStrategyName)) {
 
-            // might have multiple events of different feed types
-            if (events.size() > 0) {
-                return CollectionUtil.getFirstElement(events);
+            Engine engine = instance.getEngine(startedStrategyName);
+            if (engine.isDeployed("MARKET_DATA_WINDOW")) {
+
+                List<MarketDataEvent> events = engine.executeQuery("select marketDataEvent from MarketDataWindow where securityId = " + getId());
+
+                // might have multiple events of different feed types
+                if (events.size() > 0) {
+                    return CollectionUtil.getFirstElement(events);
+                }
+
             }
         }
 
