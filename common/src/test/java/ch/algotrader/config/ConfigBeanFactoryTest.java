@@ -25,7 +25,6 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.core.convert.support.DefaultConversionService;
 
 import ch.algotrader.config.spring.DefaultConfigProvider;
 import ch.algotrader.enumeration.Currency;
@@ -68,7 +67,7 @@ public class ConfigBeanFactoryTest {
     @Test
     public void testCommonConfigConstruction() throws Exception {
 
-        ConfigProvider configProvider = new DefaultConfigProvider(map, new DefaultConversionService());
+        ConfigProvider configProvider = new DefaultConfigProvider(map);
         ConfigParams configParams = new ConfigParams(configProvider);
 
         ConfigBeanFactory factory = new ConfigBeanFactory();
@@ -96,7 +95,7 @@ public class ConfigBeanFactoryTest {
     public void testCommonConfigConstructionOptional() throws Exception {
 
         map.remove("dataSource.dataSetLocation");
-        ConfigProvider configProvider = new DefaultConfigProvider(map, new DefaultConversionService());
+        ConfigProvider configProvider = new DefaultConfigProvider(map);
         ConfigParams configParams = new ConfigParams(configProvider);
 
         ConfigBeanFactory factory = new ConfigBeanFactory();
@@ -109,7 +108,7 @@ public class ConfigBeanFactoryTest {
     public void testCommonConfigConstructionMissingParam() throws Exception {
 
         map.remove("dataSource.dataSet");
-        ConfigProvider configProvider = new DefaultConfigProvider(map, new DefaultConversionService());
+        ConfigProvider configProvider = new DefaultConfigProvider(map);
         ConfigParams configParams = new ConfigParams(configProvider);
 
         ConfigBeanFactory factory = new ConfigBeanFactory();

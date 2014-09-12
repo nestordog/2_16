@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.config.spring;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -24,6 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.core.convert.ConversionService;
+import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.util.Assert;
 
 import ch.algotrader.config.ConfigProvider;
@@ -41,6 +43,13 @@ public class DefaultConfigProvider implements ConfigProvider {
     private final ConcurrentHashMap<String, ?> paramMap;
     private final ConversionService conversionService;
 
+    static ConversionService createDefaultConversionService() {
+        DefaultConversionService conversionService = new DefaultConversionService();
+        conversionService.addConverter(new StringToDateConverter());
+        conversionService.addConverter(Date.class, String.class, new ObjectToStringConverter());
+        return conversionService;
+    }
+
     public DefaultConfigProvider(
             final Map<String, ?> paramMap,
             final ConversionService conversionService) {
@@ -48,6 +57,10 @@ public class DefaultConfigProvider implements ConfigProvider {
         Assert.notNull(conversionService, "ConversionService is null");
         this.paramMap = new ConcurrentHashMap<String, Object>(paramMap);
         this.conversionService = conversionService;
+    }
+
+    public DefaultConfigProvider(final Map<String, ?> paramMap) {
+        this(paramMap, createDefaultConversionService());
     }
 
     protected Object getRawValue(final String name) {

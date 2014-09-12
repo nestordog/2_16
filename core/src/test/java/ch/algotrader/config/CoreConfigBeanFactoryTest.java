@@ -24,7 +24,6 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.core.convert.support.DefaultConversionService;
 
 import ch.algotrader.config.spring.DefaultConfigProvider;
 import ch.algotrader.enumeration.FeedType;
@@ -58,7 +57,7 @@ public class CoreConfigBeanFactoryTest {
     @Test
     public void testCoreConfigConstruction() throws Exception {
 
-        ConfigProvider configProvider = new DefaultConfigProvider(map, new DefaultConversionService());
+        ConfigProvider configProvider = new DefaultConfigProvider(map);
         ConfigParams configParams = new ConfigParams(configProvider);
 
         ConfigBeanFactory factory = new ConfigBeanFactory();
@@ -82,7 +81,7 @@ public class CoreConfigBeanFactoryTest {
     public void testCoreConfigConstructionMissingParam() throws Exception {
 
         map.remove("statement.simulateOptions");
-        ConfigProvider configProvider = new DefaultConfigProvider(map, new DefaultConversionService());
+        ConfigProvider configProvider = new DefaultConfigProvider(map);
         ConfigParams configParams = new ConfigParams(configProvider);
 
         ConfigBeanFactory factory = new ConfigBeanFactory();
