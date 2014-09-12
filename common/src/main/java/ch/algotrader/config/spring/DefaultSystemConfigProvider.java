@@ -37,6 +37,10 @@ public class DefaultSystemConfigProvider extends DefaultConfigProvider {
         super(paramMap, conversionService);
     }
 
+    public DefaultSystemConfigProvider(final Map<String, ?> paramMap) {
+        super(paramMap);
+    }
+
     @Override
     protected Object getRawValue(final String name) {
 

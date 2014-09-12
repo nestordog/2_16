@@ -21,13 +21,15 @@ import java.io.File;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.net.URL;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.core.convert.ConversionFailedException;
-import org.springframework.core.convert.support.DefaultConversionService;
 
 import ch.algotrader.config.ConfigProvider;
 import ch.algotrader.enumeration.Currency;
@@ -45,19 +47,24 @@ public class DefaultConfigProviderTest {
         Map<String, String> map = new HashMap<String, String>();
         map.put("int.stuff", "5");
         map.put("url.stuff", "http://localhost/stuff");
+        map.put("date.stuff", "2014-02-02");
+        map.put("datetime.stuff", "2014-02-02 11:12:13");
 
-        ConfigProvider configProvider = new DefaultConfigProvider(map, new DefaultConversionService());
+        ConfigProvider configProvider = new DefaultConfigProvider(map);
         Assert.assertEquals(Integer.valueOf(5), configProvider.getParameter("int.stuff", Integer.class));
         Assert.assertEquals(new BigDecimal("5"), configProvider.getParameter("int.stuff", BigDecimal.class));
         Assert.assertEquals(new URL("http://localhost/stuff"), configProvider.getParameter("url.stuff", URL.class));
         Assert.assertEquals(new URI("http://localhost/stuff"), configProvider.getParameter("url.stuff", URI.class));
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Assert.assertEquals(dateFormat.parse("2014-02-02 00:00:00"), configProvider.getParameter("date.stuff", Date.class));
+        Assert.assertEquals(dateFormat.parse("2014-02-02 11:12:13"), configProvider.getParameter("datetime.stuff", Date.class));
     }
 
     @Test
     public void testTypeConversionNullValues() throws Exception {
 
         Map<String, String> map = new HashMap<String, String>();
-        ConfigProvider configProvider = new DefaultConfigProvider(map, new DefaultConversionService());
+        ConfigProvider configProvider = new DefaultConfigProvider(map);
         Assert.assertEquals(null, configProvider.getParameter("int.stuff", BigDecimal.class));
         Assert.assertEquals(null, configProvider.getParameter("url.stuff", URL.class));
         Assert.assertEquals(null, configProvider.getParameter("file.stuff", File.class));
@@ -71,7 +78,7 @@ public class DefaultConfigProviderTest {
         map.put("url.stuff", "");
         map.put("file.stuff", "");
 
-        ConfigProvider configProvider = new DefaultConfigProvider(map, new DefaultConversionService());
+        ConfigProvider configProvider = new DefaultConfigProvider(map);
         Assert.assertEquals(null, configProvider.getParameter("int.stuff", BigDecimal.class));
         Assert.assertEquals(null, configProvider.getParameter("url.stuff", URL.class));
         Assert.assertEquals(null, configProvider.getParameter("file.stuff", File.class));
@@ -83,7 +90,7 @@ public class DefaultConfigProviderTest {
         Map<String, String> map = new HashMap<String, String>();
         map.put("int.stuff", "crap");
 
-        ConfigProvider configProvider = new DefaultConfigProvider(map, new DefaultConversionService());
+        ConfigProvider configProvider = new DefaultConfigProvider(map);
         configProvider.getParameter("int.stuff", Integer.class);
     }
 
@@ -93,7 +100,7 @@ public class DefaultConfigProviderTest {
         Map<String, String> map = new HashMap<String, String>();
         map.put("url.stuff", "^&*(() sdfs sf");
 
-        ConfigProvider configProvider = new DefaultConfigProvider(map, new DefaultConversionService());
+        ConfigProvider configProvider = new DefaultConfigProvider(map);
         configProvider.getParameter("url.stuff", URI.class);
     }
 
@@ -103,7 +110,7 @@ public class DefaultConfigProviderTest {
         Map<String, String> map = new HashMap<String, String>();
         map.put("some.currency", "USD");
 
-        ConfigProvider configProvider = new DefaultConfigProvider(map, new DefaultConversionService());
+        ConfigProvider configProvider = new DefaultConfigProvider(map);
         Assert.assertEquals(Currency.USD, configProvider.getParameter("some.currency", Currency.class));
     }
 
@@ -113,7 +120,7 @@ public class DefaultConfigProviderTest {
         Map<String, String> map = new HashMap<String, String>();
         map.put("some.currency", "CRAP");
 
-        ConfigProvider configProvider = new DefaultConfigProvider(map, new DefaultConversionService());
+        ConfigProvider configProvider = new DefaultConfigProvider(map);
         configProvider.getParameter("some.currency", Currency.class);
     }
 

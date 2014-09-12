@@ -24,7 +24,6 @@ import java.util.Set;
 
 import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
-import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 
@@ -116,7 +115,7 @@ public final class ConfigLocator {
     private static ConfigLocator standaloneInit() throws Exception {
         ResourcePatternResolver patternResolver = new PathMatchingResourcePatternResolver(ConfigLocator.class.getClassLoader());
         DefaultConfigLoader loader = new DefaultConfigLoader(patternResolver);
-        DefaultSystemConfigProvider configProvider = new DefaultSystemConfigProvider(loader.getParams(), new DefaultConversionService());
+        DefaultSystemConfigProvider configProvider = new DefaultSystemConfigProvider(loader.getParams());
         ConfigParams configParams = new ConfigParams(configProvider);
         CommonConfig commonConfig = new ConfigBeanFactory().create(configParams, CommonConfig.class);
         return new ConfigLocator(configParams, commonConfig);
