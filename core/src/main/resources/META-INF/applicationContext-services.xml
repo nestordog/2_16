@@ -181,14 +181,15 @@
     <bean id="portfolioService" class="ch.algotrader.service.PortfolioServiceImpl" >
         <constructor-arg index="0" ref="commonConfig"/>
         <constructor-arg index="1" ref="coreConfig"/>
-        <constructor-arg index="2" ref="genericDao"/>
-        <constructor-arg index="3" ref="strategyDao"/>
-        <constructor-arg index="4" ref="transactionDao"/>
-        <constructor-arg index="5" ref="positionDao"/>
-        <constructor-arg index="6" ref="cashBalanceDao"/>
-        <constructor-arg index="7" ref="portfolioValueDao"/>
-        <constructor-arg index="8" ref="tickDao"/>
-        <constructor-arg index="9" ref="forexDao"/>
+        <constructor-arg index="2" ref="lookupService"/>
+        <constructor-arg index="3" ref="genericDao"/>
+        <constructor-arg index="4" ref="strategyDao"/>
+        <constructor-arg index="5" ref="transactionDao"/>
+        <constructor-arg index="6" ref="positionDao"/>
+        <constructor-arg index="7" ref="cashBalanceDao"/>
+        <constructor-arg index="8" ref="portfolioValueDao"/>
+        <constructor-arg index="9" ref="tickDao"/>
+        <constructor-arg index="10" ref="forexDao"/>
     </bean>
 
     <bean id="portfolioChartService" class="ch.algotrader.service.PortfolioChartServiceImpl" >
@@ -313,7 +314,8 @@
 
     <beans profile="iBFix">
         <bean id="iBFixAccountService" class="ch.algotrader.service.ib.IBFixAccountServiceImpl" >
-            <constructor-arg index="0"  ref="fixAdapter"/>
+            <constructor-arg index="0" ref="fixAdapter"/>
+            <constructor-arg index="1" ref="lookupService"/>
         </bean>
 
         <alias name="iBFixAccountService" alias="accountService"/>

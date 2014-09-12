@@ -40,15 +40,15 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
+import ch.algotrader.adapter.fix.FixAdapter;
+import ch.algotrader.entity.Account;
+import ch.algotrader.service.AccountServiceImpl;
+import ch.algotrader.service.LookupService;
 import quickfix.field.FAConfigurationAction;
 import quickfix.field.FARequestID;
 import quickfix.field.SubMsgType;
 import quickfix.field.XMLContent;
 import quickfix.fix42.IBFAModification;
-import ch.algotrader.ServiceLocator;
-import ch.algotrader.adapter.fix.FixAdapter;
-import ch.algotrader.entity.Account;
-import ch.algotrader.service.AccountServiceImpl;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -63,12 +63,17 @@ public class IBFixAccountServiceImpl extends AccountServiceImpl implements IBFix
     private GroupMap groups;
 
     private final FixAdapter fixAdapter;
+    private final LookupService lookupService;
 
-    public IBFixAccountServiceImpl(final FixAdapter fixAdapter) {
+    public IBFixAccountServiceImpl(
+            final FixAdapter fixAdapter,
+            final LookupService lookupService) {
 
         Validate.notNull(fixAdapter, "FixAdapter is null");
+        Validate.notNull(lookupService, "LookupService is null");
 
         this.fixAdapter = fixAdapter;
+        this.lookupService = lookupService;
     }
 
     @Override
@@ -302,7 +307,7 @@ public class IBFixAccountServiceImpl extends AccountServiceImpl implements IBFix
         faModification.set(new FARequestID(accountName));
 
         // since call is through JMX/RMI there is not HibernateSession
-        Account account = ServiceLocator.instance().getLookupService().getAccountByName(accountName);
+        Account account = this.lookupService.getAccountByName(accountName);
         if (account == null) {
             throw new IllegalArgumentException("account does not exist " + accountName);
         }
@@ -337,7 +342,7 @@ public class IBFixAccountServiceImpl extends AccountServiceImpl implements IBFix
         faModification.set(new XMLContent(writer.toString()));
 
         // since call is through JMX/RMI there is not HibernateSession
-        Account account = ServiceLocator.instance().getLookupService().getAccountByName(accountName);
+        Account account = this.lookupService.getAccountByName(accountName);
         if (account == null) {
             throw new IllegalArgumentException("account does not exist " + accountName);
         }

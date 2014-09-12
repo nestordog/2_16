@@ -30,7 +30,6 @@ import org.apache.log4j.Logger;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import ch.algotrader.ServiceLocator;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.PositionDao;
@@ -617,7 +616,6 @@ public class PositionServiceImpl implements PositionService {
                             Order order = orderStatus.getOrder();
                             if (Status.EXECUTED.equals(orderStatus.getStatus())) {
                                 // use ServiceLocator because TradeCallback is executed in a new thread
-                                MarketDataService marketDataService = ServiceLocator.instance().getMarketDataService();
                                 marketDataService.unsubscribe(order.getStrategy().getName(), order.getSecurity().getId());
                             }
                         }

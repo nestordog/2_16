@@ -29,7 +29,6 @@ import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 
-import ch.algotrader.ServiceLocator;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.CoreConfig;
 import ch.algotrader.entity.Position;
@@ -73,6 +72,8 @@ public class PortfolioServiceImpl implements PortfolioService {
 
     private final CoreConfig coreConfig;
 
+    private final LookupService lookupService;
+
     private final GenericDao genericDao;
 
     private final StrategyDao strategyDao;
@@ -91,6 +92,7 @@ public class PortfolioServiceImpl implements PortfolioService {
 
     public PortfolioServiceImpl(final CommonConfig commonConfig,
             final CoreConfig coreConfig,
+            final LookupService lookupService,
             final GenericDao genericDao,
             final StrategyDao strategyDao,
             final TransactionDao transactionDao,
@@ -102,6 +104,7 @@ public class PortfolioServiceImpl implements PortfolioService {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(coreConfig, "CoreConfig is null");
+        Validate.notNull(lookupService, "LookupService is null");
         Validate.notNull(genericDao, "GenericDao is null");
         Validate.notNull(strategyDao, "StrategyDao is null");
         Validate.notNull(transactionDao, "TransactionDao is null");
@@ -113,6 +116,7 @@ public class PortfolioServiceImpl implements PortfolioService {
 
         this.commonConfig = commonConfig;
         this.coreConfig = coreConfig;
+        this.lookupService = lookupService;
         this.genericDao = genericDao;
         this.strategyDao = strategyDao;
         this.transactionDao = transactionDao;
@@ -1109,7 +1113,7 @@ public class PortfolioServiceImpl implements PortfolioService {
             double cash = cashMap.get(currency);
             double securities = securitiesMap.get(currency);
             double netLiqValue = cash + securities;
-            double exchangeRate = ServiceLocator.instance().getLookupService().getForexRateDouble(currency, this.commonConfig.getPortfolioBaseCurrency());
+            double exchangeRate = this.lookupService.getForexRateDouble(currency, this.commonConfig.getPortfolioBaseCurrency());
             double cashBase = cash * exchangeRate;
             double securitiesBase = securities * exchangeRate;
             double netLiqValueBase = netLiqValue * exchangeRate;
