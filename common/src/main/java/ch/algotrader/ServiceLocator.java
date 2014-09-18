@@ -102,6 +102,18 @@ public class ServiceLocator {
             // set the profiles
             ConfigurableApplicationContext applicationContext = (ConfigurableApplicationContext) this.beanFactoryReference.getFactory();
             applicationContext.getEnvironment().addActiveProfile(this.beanFactoryReferenceLocation.toLowerCase());
+
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+                @Override
+                public void run() {
+                    ServiceLocator serviceLocator = ServiceLocator.instance();
+                    if (serviceLocator.isInitialized()) {
+
+                        serviceLocator.shutdown();
+                    }
+                }
+            });
+
         }
 
         return (ApplicationContext) this.beanFactoryReference.getFactory();

@@ -38,7 +38,6 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
-import ch.algotrader.ServiceLocator;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.ConfigParams;
 import ch.algotrader.config.ConfigProvider;
@@ -960,11 +959,8 @@ public class ManagementServiceImpl implements ManagementService {
         try {
             // cancel all orders if we called from base
             if (this.commonConfig.isStartedStrategyBASE()) {
-                ServiceLocator.instance().getOrderService().cancelAllOrders();
+                orderService.cancelAllOrders();
             }
-
-            ServiceLocator.instance().shutdown();
-
             // need to force exit because grafefull shutdown of esper-service (and esper-jmx) does not work
             System.exit(0);
         } catch (Exception ex) {
