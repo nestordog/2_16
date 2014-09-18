@@ -44,11 +44,11 @@ import ch.algotrader.util.Consts;
  * classpath resource. The content of the resource is expected to be a list of colon separated modules
  * such as <tt>parent-strategy:parent-strategy2:my-strategy</tt>. The <tt>strategyName</tt> value is specified either
  * as a system property or as a property in one of the property resources above<p/>
- * <p><tt>META-INF/parent-strategy1.properties</tt> classpath resource is loaded if exists<p/>
  * <p><tt>META-INF/parent-strategy.properties</tt> classpath resource is loaded if exists<p/>
+ * <p><tt>META-INF/parent-strategy2.properties</tt> classpath resource is loaded if exists<p/>
  * <p><tt>META-INF/my-strategy.properties</tt> classpath resource is loaded if exists<p/>
  * <p/>
- * Please note that settings of each subsequent resource override those already read from preceding resources.
+ * Please note that settings of each subsequent resource override those already set from preceding resources.
  * In other words, core settings override common settings, component settings override common and core settings,
  * strategy settings override common, core and component settings.
  *
