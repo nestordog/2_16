@@ -37,7 +37,6 @@ import org.springframework.scheduling.support.CronSequenceGenerator;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import ch.algotrader.ServiceLocator;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.CoreConfig;
 import ch.algotrader.entity.Account;
@@ -61,13 +60,11 @@ import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.TransactionType;
 import ch.algotrader.esper.EngineLocator;
-import ch.algotrader.esper.subscriber.Subscriber;
 import ch.algotrader.util.DateUtil;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.PositionUtil;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.collection.CollectionUtil;
-import ch.algotrader.util.metric.MetricsUtil;
 import ch.algotrader.util.spring.HibernateSession;
 import ch.algotrader.vo.ClosePositionVO;
 import ch.algotrader.vo.OpenPositionVO;
@@ -150,6 +147,7 @@ public class TransactionServiceImpl implements TransactionService {
      * {@inheritDoc}
      */
     @Override
+    @Transactional(propagation = Propagation.REQUIRED)
     public void createTransaction(final Fill fill) {
 
         Validate.notNull(fill, "Fill is null");
@@ -211,6 +209,7 @@ public class TransactionServiceImpl implements TransactionService {
      * {@inheritDoc}
      */
     @Override
+    @Transactional(propagation = Propagation.REQUIRED)
     public void createTransaction(final int securityId, final String strategyName, final String extId, final Date dateTime, final long quantity, final BigDecimal price,
             final BigDecimal executionCommission, final BigDecimal clearingCommission, final BigDecimal fee, final Currency currency, final TransactionType transactionType, final String accountName,
             final String description) {
@@ -463,10 +462,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     private void processTransaction(final Transaction transaction) {
 
-        // need to access transactionService through serviceLocator to get a new transaction
-        TransactionService transactionService = ServiceLocator.instance().getService("transactionService", TransactionService.class);
-
-        PositionMutationVO positionMutationEvent = transactionService.persistTransaction(transaction);
+        PositionMutationVO positionMutationEvent = persistTransaction(transaction);
 
         // check if esper is initialized
         if (EngineLocator.instance().hasBaseEngine()) {
@@ -482,35 +478,6 @@ public class TransactionServiceImpl implements TransactionService {
             }
             EngineLocator.instance().sendEvent(StrategyImpl.BASE, transaction);
     }
-    }
-
-    public static class LogTransactionSummarySubscriber {
-
-        public void update(Map<?, ?>[] insertStream, Map<?, ?>[] removeStream) {
-
-            List<Fill> fills = new ArrayList<Fill>();
-            for (Map<?, ?> element : insertStream) {
-                Fill fill = (Fill) element.get("fill");
-                fills.add(fill);
-            }
-
-            ServiceLocator.instance().getService("transactionService", TransactionService.class).logFillSummary(fills);
-        }
-    }
-
-    public static class CreateTransactionSubscriber extends Subscriber {
-
-        /*
-         * synchronized to make sure that only on transaction is created at a time
-         */
-        public void update(Fill fill) {
-
-            long startTime = System.nanoTime();
-            logger.debug("createTransaction start");
-            ServiceLocator.instance().getService("transactionService", TransactionService.class).createTransaction(fill);
-            logger.debug("createTransaction end");
-            MetricsUtil.accountEnd("CreateTransactionSubscriber", startTime);
-        }
     }
 
     /**

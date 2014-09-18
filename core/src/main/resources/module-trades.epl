@@ -143,7 +143,7 @@ where
 
 @Name('LOG_TRANSACTION_SUMMARY')
 @RunTimeOnly()
-@Subscriber(className='ch.algotrader.service.TransactionServiceImpl$LogTransactionSummarySubscriber')
+@Subscriber(className='ch.algotrader.esper.subscriber.LogTransactionSummarySubscriber')
 select
     fill,
     orderStatus
@@ -180,7 +180,7 @@ from
 
 @Name('CREATE_TRANSACTION')
 @RunTimeOnly()
-@Subscriber(className='ch.algotrader.service.TransactionServiceImpl$CreateTransactionSubscriber')
+@Subscriber(className='ch.algotrader.esper.subscriber.CreateTransactionSubscriber')
 select
     *
 from
