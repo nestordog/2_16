@@ -23,6 +23,8 @@ import java.util.Map;
 
 import org.apache.commons.collections15.map.SingletonMap;
 
+import com.espertech.esper.collection.Pair;
+
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.cache.CacheManager;
 import ch.algotrader.config.ConfigLocator;
@@ -36,13 +38,9 @@ import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityImpl;
 import ch.algotrader.entity.strategy.PortfolioValue;
 import ch.algotrader.esper.EngineLocator;
-import ch.algotrader.service.LookupService;
-import ch.algotrader.service.PortfolioService;
 import ch.algotrader.util.collection.CollectionUtil;
 import ch.algotrader.vo.RawBarVO;
 import ch.algotrader.vo.RawTickVO;
-
-import com.espertech.esper.collection.Pair;
 
 /**
  * Provides static Lookup methods based mainly on the {@link ch.algotrader.service.LookupService}
@@ -53,9 +51,9 @@ import com.espertech.esper.collection.Pair;
  */
 public class LookupUtil {
 
-    private static final LookupService lookupService = ServiceLocator.instance().getLookupService();
-    private static final PortfolioService portfolioService = ServiceLocator.instance().getPortfolioService();
-    private static final CacheManager cacheManager = ServiceLocator.instance().containsService("cacheManager") ? ServiceLocator.instance().getService("cacheManager", CacheManager.class) : null;
+    private static CacheManager getCacheManager() {
+        return ServiceLocator.instance().containsService("cacheManager") ? ServiceLocator.instance().getService("cacheManager", CacheManager.class) : null;
+    }
 
     /**
      * Gets a Security by its {@code id} and initializes {@link Subscription Subscriptions}, {@link
@@ -65,10 +63,11 @@ public class LookupUtil {
      */
     public static Security getSecurityInitialized(int securityId) {
 
+        CacheManager cacheManager = getCacheManager();
         if (cacheManager != null) {
             return cacheManager.get(SecurityImpl.class, securityId);
         } else {
-            return lookupService.getSecurityInitialized(securityId);
+            return ServiceLocator.instance().getLookupService().getSecurityInitialized(securityId);
         }
     }
 
@@ -77,6 +76,7 @@ public class LookupUtil {
      */
     public static Security getSecurityByIsin(String isin) {
 
+        CacheManager cacheManager = getCacheManager();
         if (cacheManager != null) {
 
             String queryString = "from SecurityImpl as s where s.isin = :isin";
@@ -85,7 +85,7 @@ public class LookupUtil {
 
             return (Security) CollectionUtil.getSingleElementOrNull(cacheManager.query(queryString, namedParameters));
         } else {
-            return lookupService.getSecurityByIsin(isin);
+            return ServiceLocator.instance().getLookupService().getSecurityByIsin(isin);
         }
     }
 
@@ -103,6 +103,7 @@ public class LookupUtil {
      */
     public static Subscription getSubscription(String strategyName, int securityId) {
 
+        CacheManager cacheManager = getCacheManager();
         if (cacheManager != null) {
 
             String queryString = "from SubscriptionImpl where strategy.name = :strategyName and security.id = :securityId";
@@ -113,7 +114,7 @@ public class LookupUtil {
 
             return (Subscription) CollectionUtil.getSingleElementOrNull(cacheManager.query(queryString, namedParameters));
         } else {
-            return lookupService.getSubscriptionByStrategyAndSecurity(strategyName, securityId);
+            return ServiceLocator.instance().getLookupService().getSubscriptionByStrategyAndSecurity(strategyName, securityId);
         }
     }
 
@@ -122,13 +123,14 @@ public class LookupUtil {
      */
     public static Option[] getSubscribedOptions() {
 
+        CacheManager cacheManager = getCacheManager();
         if (cacheManager != null) {
 
             String queryString = "select distinct s from OptionImpl as s join s.subscriptions as s2 where s2 != null order by s.id";
 
             return cacheManager.query(queryString).toArray(new Option[] {});
         } else {
-            return lookupService.getSubscribedOptions().toArray(new Option[] {});
+            return ServiceLocator.instance().getLookupService().getSubscribedOptions().toArray(new Option[] {});
         }
     }
 
@@ -137,13 +139,14 @@ public class LookupUtil {
      */
     public static Future[] getSubscribedFutures() {
 
+        CacheManager cacheManager = getCacheManager();
         if (cacheManager != null) {
 
             String queryString = "select distinct f from FutureImpl as f join f.subscriptions as s where s != null order by f.id";
 
             return cacheManager.query(queryString).toArray(new Future[] {});
         } else {
-            return lookupService.getSubscribedFutures().toArray(new Future[] {});
+            return ServiceLocator.instance().getLookupService().getSubscribedFutures().toArray(new Future[] {});
         }
     }
 
@@ -152,6 +155,7 @@ public class LookupUtil {
      */
     public static Position getPositionBySecurityAndStrategy(int securityId, String strategyName) {
 
+        CacheManager cacheManager = getCacheManager();
         if (cacheManager != null) {
 
             String queryString = "select p from PositionImpl as p join p.strategy as s where p.security.id = :securityId and s.name = :strategyName";
@@ -162,7 +166,7 @@ public class LookupUtil {
 
             return (Position) CollectionUtil.getSingleElementOrNull(cacheManager.query(queryString, namedParameters));
         } else {
-            return lookupService.getPositionBySecurityAndStrategy(securityId, strategyName);
+            return ServiceLocator.instance().getLookupService().getPositionBySecurityAndStrategy(securityId, strategyName);
         }
     }
 
@@ -171,13 +175,14 @@ public class LookupUtil {
      */
     public static Position[] getOpenPositions() {
 
+        CacheManager cacheManager = getCacheManager();
         if (cacheManager != null) {
 
             String queryString = "from PositionImpl as p where p.quantity != 0 order by p.security.id";
 
             return cacheManager.query(queryString).toArray(new Position[] {});
         } else {
-            return lookupService.getOpenPositions().toArray(new Position[] {});
+            return ServiceLocator.instance().getLookupService().getOpenPositions().toArray(new Position[] {});
         }
     }
 
@@ -186,6 +191,7 @@ public class LookupUtil {
      */
     public static Position[] getOpenPositionsByStrategy(String strategyName) {
 
+        CacheManager cacheManager = getCacheManager();
         if (cacheManager != null) {
 
             String queryString = "from PositionImpl as p where p.strategy.name = :strategyName and p.quantity != 0 order by p.security.id";
@@ -194,7 +200,7 @@ public class LookupUtil {
 
             return cacheManager.query(queryString, namedParameters).toArray(new Position[] {});
         } else {
-            return lookupService.getOpenPositionsByStrategy(strategyName).toArray(new Position[] {});
+            return ServiceLocator.instance().getLookupService().getOpenPositionsByStrategy(strategyName).toArray(new Position[] {});
         }
     }
 
@@ -203,6 +209,7 @@ public class LookupUtil {
      */
     public static Position[] getOpenPositionsBySecurity(int securityId) {
 
+        CacheManager cacheManager = getCacheManager();
         if (cacheManager != null) {
 
             String queryString = "from PositionImpl as p where p.security.id = :securityId and p.quantity != 0 order by p.id";
@@ -211,7 +218,7 @@ public class LookupUtil {
 
             return cacheManager.query(queryString, namedParameters).toArray(new Position[] {});
         } else {
-            return lookupService.getOpenPositionsBySecurity(securityId).toArray(new Position[] {});
+            return ServiceLocator.instance().getLookupService().getOpenPositionsBySecurity(securityId).toArray(new Position[] {});
         }
     }
 
@@ -220,6 +227,7 @@ public class LookupUtil {
      */
     public static Position[] getOpenPositionsByStrategyAndSecurityFamily(String strategyName, int securityFamilyId) {
 
+        CacheManager cacheManager = getCacheManager();
         if (cacheManager != null) {
 
             String queryString = "from PositionImpl as p where p.strategy.name = :strategyName and p.quantity != 0 and p.security.securityFamily.id = :securityFamilyId order by p.security.id";
@@ -230,7 +238,7 @@ public class LookupUtil {
 
             return cacheManager.query(queryString, namedParameters).toArray(new Position[] {});
         } else {
-            return lookupService.getOpenPositionsByStrategyAndSecurityFamily(strategyName, securityFamilyId).toArray(new Position[] {});
+            return ServiceLocator.instance().getLookupService().getOpenPositionsByStrategyAndSecurityFamily(strategyName, securityFamilyId).toArray(new Position[] {});
         }
     }
 
@@ -239,7 +247,7 @@ public class LookupUtil {
      */
     public static PortfolioValue getPortfolioValue() {
 
-        return portfolioService.getPortfolioValue();
+        return ServiceLocator.instance().getPortfolioService().getPortfolioValue();
     }
 
     /**
@@ -259,7 +267,7 @@ public class LookupUtil {
      */
     public static Tick getTickByDateAndSecurity(int securityId, Date date) {
 
-        return lookupService.getTickBySecurityAndMaxDate(securityId, date);
+        return ServiceLocator.instance().getLookupService().getTickBySecurityAndMaxDate(securityId, date);
     }
 
     /**
@@ -271,6 +279,8 @@ public class LookupUtil {
 
         int securityId = tick.getSecurity().getId();
 
+        CacheManager cacheManager = getCacheManager();
+        // TODO: decide what to do about cache manager being null
         Security security = cacheManager.get(SecurityImpl.class, securityId);
         tick.setSecurity(security);
 
@@ -329,8 +339,10 @@ public class LookupUtil {
     private static Security getSecurity(String securityString) {
 
         // lookup the securityId
-        int securityId = lookupService.getSecurityIdBySecurityString(securityString);
+        int securityId = ServiceLocator.instance().getLookupService().getSecurityIdBySecurityString(securityString);
 
+        CacheManager cacheManager = getCacheManager();
+        // TODO: decide what to do about cache manager being null
         // get the fully initialized security
         return cacheManager.get(SecurityImpl.class, securityId);
     }
