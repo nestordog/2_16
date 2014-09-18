@@ -15,7 +15,7 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.util;
+package ch.algotrader.esper;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -30,17 +30,13 @@ import ch.algotrader.cache.CacheManager;
 import ch.algotrader.config.ConfigLocator;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.Subscription;
-import ch.algotrader.entity.marketData.Bar;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.Future;
 import ch.algotrader.entity.security.Option;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityImpl;
 import ch.algotrader.entity.strategy.PortfolioValue;
-import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.util.collection.CollectionUtil;
-import ch.algotrader.vo.RawBarVO;
-import ch.algotrader.vo.RawTickVO;
 
 /**
  * Provides static Lookup methods based mainly on the {@link ch.algotrader.service.LookupService}
@@ -279,71 +275,10 @@ public class LookupUtil {
 
         int securityId = tick.getSecurity().getId();
 
-        CacheManager cacheManager = getCacheManager();
-        // TODO: decide what to do about cache manager being null
-        Security security = cacheManager.get(SecurityImpl.class, securityId);
+        Security security = getSecurityInitialized(securityId);
         tick.setSecurity(security);
 
         return tick;
     }
 
-    /**
-     * Same functionality as {@code TickDao#rawTickVOToEntity} which however is only availabe inside a Hibernate Session
-     */
-    public static Tick rawTickVOToEntity(RawTickVO rawTickVO) {
-
-        Tick tick = Tick.Factory.newInstance();
-
-        // copy all properties
-        tick.setDateTime(rawTickVO.getDateTime());
-        tick.setVol(rawTickVO.getVol());
-        tick.setLast(rawTickVO.getLast());
-        tick.setLastDateTime(rawTickVO.getLastDateTime());
-        tick.setBid(rawTickVO.getBid());
-        tick.setAsk(rawTickVO.getAsk());
-        tick.setVolBid(rawTickVO.getVolBid());
-        tick.setVolAsk(rawTickVO.getVolAsk());
-
-        // cache securities, as queries by isin, symbol etc. get evicted from cache whenever any change to security table happens
-        String securityString = rawTickVO.getSecurity();
-        Security security = getSecurity(securityString);
-        tick.setSecurity(security);
-
-        return tick;
-    }
-
-    /**
-     * Same functionality as {@code TickDao#rawBarVOToEntity} which however is only availabe inside a Hibernate Session
-     */
-    public static Bar rawBarVOToEntity(RawBarVO rawBarVO) {
-
-        Bar bar = Bar.Factory.newInstance();
-
-        // copy all properties
-        bar.setDateTime(rawBarVO.getDateTime());
-        bar.setVol(rawBarVO.getVol());
-        bar.setBarSize(rawBarVO.getBarSize());
-        bar.setOpen(rawBarVO.getOpen());
-        bar.setHigh(rawBarVO.getHigh());
-        bar.setLow(rawBarVO.getLow());
-        bar.setClose(rawBarVO.getClose());
-
-        // cache securities, as queries by isin, symbol etc. get evicted from cache whenever any change to security table happens
-        String securityString = rawBarVO.getSecurity();
-        Security security = getSecurity(securityString);
-        bar.setSecurity(security);
-
-        return bar;
-    }
-
-    private static Security getSecurity(String securityString) {
-
-        // lookup the securityId
-        int securityId = ServiceLocator.instance().getLookupService().getSecurityIdBySecurityString(securityString);
-
-        CacheManager cacheManager = getCacheManager();
-        // TODO: decide what to do about cache manager being null
-        // get the fully initialized security
-        return cacheManager.get(SecurityImpl.class, securityId);
-    }
 }

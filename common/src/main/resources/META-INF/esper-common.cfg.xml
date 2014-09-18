@@ -52,12 +52,12 @@
     <!-- Utils -->
     <auto-import import-name="ch.algotrader.option.OptionUtil"/>
     <auto-import import-name="ch.algotrader.future.FutureUtil"/>
-    <auto-import import-name="ch.algotrader.util.LookupUtil"/>
     <auto-import import-name="ch.algotrader.util.RoundUtil"/>
     <auto-import import-name="ch.algotrader.util.MathUtil"/>
     <auto-import import-name="ch.algotrader.util.DrawDownUtil"/>
     <auto-import import-name="ch.algotrader.util.DateUtil"/>
     <auto-import import-name="ch.algotrader.util.OrderUtil"/>
+    <auto-import import-name="ch.algotrader.esper.LookupUtil"/>
     <auto-import import-name="ch.algotrader.esper.Constants"/>
 
     <!-- Annotations -->
