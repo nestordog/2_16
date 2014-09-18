@@ -21,6 +21,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
+import ch.algotrader.ServiceLocator;
 import ch.algotrader.config.ConfigLocator;
 import ch.algotrader.entity.security.ExpirableFamilyI;
 import ch.algotrader.entity.security.SecurityFamily;
@@ -283,6 +284,14 @@ public class DateUtil {
         } else {
             throw new IllegalArgumentException("securityFamily must be a ExpirableFamily");
         }
+    }
+
+    /**
+     * Returns true if the specified {@code currentDateTime} is within the Market Hours of the specified {@link SecurityFamily}
+     */
+    public static boolean isMarketOpen(SecurityFamily securityFamily, Date currentDateTime) {
+
+        return ServiceLocator.instance().getCalendarService().isOpen(securityFamily.getExchange().getId(), currentDateTime);
     }
 
     private static Date getNext3rdFriday(Date input) {
