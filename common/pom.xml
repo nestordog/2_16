@@ -74,7 +74,7 @@
         <dependency>
             <groupId>com.espertech</groupId>
             <artifactId>esperio-csv</artifactId>
-            <version>${esper.version}-at2</version>
+            <version>${esper.version}-at3</version>
         </dependency>
         <dependency>
             <groupId>com.espertech</groupId>

@@ -39,16 +39,16 @@ public abstract class AbstractStrategyServiceImpl implements StrategyService {
      * {@inheritDoc}
      */
     @Override
-    public Map<String, Object> getSimulationResults() {
-        return new HashMap<String, Object>();
+    public void exitSimulation() {
+        // do nothing
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void exitSimulation() {
-        // do nothing
+    public Map<String, Object> getSimulationResults() {
+        return new HashMap<String, Object>();
     }
 
 }
