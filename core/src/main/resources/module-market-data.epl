@@ -108,7 +108,7 @@ where
     DateUtil.isMarketOpen(tick.security.securityFamily, current_timestamp.toDate());
 
 @Name('PROPAGATE_MARKET_DATA_EVENTS')
-@Subscriber(className='ch.algotrader.service.MarketDataServiceImpl$PropagateMarketDataEventSubscriber')
+@Subscriber(className='ch.algotrader.esper.subscriber.PropagateMarketDataEventSubscriber')
 @Priority(1)
 select
     *
@@ -118,7 +118,7 @@ where
     security is not null;
 
 @Name('PROPAGATE_GENERIC_EVENTS')
-@Subscriber(className='ch.algotrader.service.MarketDataServiceImpl$PropagateGenericEventSubscriber')
+@Subscriber(className='ch.algotrader.esper.subscriber.PropagateGenericEventSubscriber')
 @Priority(1)
 select
     *
@@ -127,7 +127,7 @@ from
 
 @Name('PERSIST_HOUR_TICKS')
 @RunTimeOnly()
-@Subscriber(className='ch.algotrader.service.MarketDataServiceImpl$PersistTickSubscriber')
+@Subscriber(className='ch.algotrader.esper.subscriber.PersistTickSubscriber')
 on pattern
     [every timer:at(0, *, *, *, *)]
 select
@@ -143,7 +143,7 @@ and
 
 @Name('PERSIST_MINUTE_TICKS')
 @RunTimeOnly()
-@Subscriber(className='ch.algotrader.service.MarketDataServiceImpl$PersistTickSubscriber')
+@Subscriber(className='ch.algotrader.esper.subscriber.PersistTickSubscriber')
 on pattern
     [every timer:at(*, *, *, *, *)]
 select
