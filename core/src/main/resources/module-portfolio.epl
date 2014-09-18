@@ -6,7 +6,7 @@ select
 from
     pattern[every timer:at(0, misc_portfolioStartHour:misc_portfolioEndHour, *, *, 1:5)]
 where
-    LookupUtil.hasCurrentMarketDataEvents();
+    ServiceUtil.hasCurrentMarketDataEvents();
 
 @Name('INSERT_INTO_PORTFOLIO_VALUE')
 @SimulationOnly
@@ -14,11 +14,11 @@ where
 insert into
     PortfolioValue
 select
-    transpose(LookupUtil.getPortfolioValue())
+    transpose(ServiceUtil.getPortfolioValue())
 from
     pattern[every (timer:at (0, 0, *, *, 1:5) or EndOfSimulation)]
 where
-    LookupUtil.hasCurrentMarketDataEvents();
+    ServiceUtil.hasCurrentMarketDataEvents();
 
 @Name('SET_MARGINS')
 @Condition(key='statement.setMargins')

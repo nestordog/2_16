@@ -1,0 +1,93 @@
+/***********************************************************************************
+ * AlgoTrader Enterprise Trading Framework
+ *
+ * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ *
+ * All information contained herein is, and remains the property of AlgoTrader GmbH.
+ * The intellectual and technical concepts contained herein are proprietary to
+ * AlgoTrader GmbH. Modification, translation, reverse engineering, decompilation,
+ * disassembly or reproduction of this material is strictly forbidden unless prior
+ * written permission is obtained from AlgoTrader GmbH
+ *
+ * Fur detailed terms and conditions consult the file LICENSE.txt or contact
+ *
+ * AlgoTrader GmbH
+ * Badenerstrasse 16
+ * 8004 Zurich
+ ***********************************************************************************/
+package ch.algotrader.esper;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.collections15.map.SingletonMap;
+
+import com.espertech.esper.collection.Pair;
+
+import ch.algotrader.ServiceLocator;
+import ch.algotrader.cache.CacheManager;
+import ch.algotrader.config.ConfigLocator;
+import ch.algotrader.entity.Position;
+import ch.algotrader.entity.Subscription;
+import ch.algotrader.entity.marketData.Tick;
+import ch.algotrader.entity.security.Future;
+import ch.algotrader.entity.security.Option;
+import ch.algotrader.entity.security.Security;
+import ch.algotrader.entity.security.SecurityFamily;
+import ch.algotrader.entity.security.SecurityImpl;
+import ch.algotrader.entity.strategy.PortfolioValue;
+import ch.algotrader.util.collection.CollectionUtil;
+
+/**
+ * Provides service convenience methods.
+ *
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
+ *
+ * @version $Revision$ $Date$
+ */
+public class ServiceUtil {
+
+    /**
+     * Gets the current {@link ch.algotrader.entity.strategy.PortfolioValue} of the system
+     */
+    public static PortfolioValue getPortfolioValue() {
+
+        return ServiceLocator.instance().getPortfolioService().getPortfolioValue();
+    }
+
+    /**
+     * Returns true if the MarketDataWindow contains any {@link ch.algotrader.entity.marketData.MarketDataEvent MarketDataEvents}
+     */
+    @SuppressWarnings("unchecked")
+    public static boolean hasCurrentMarketDataEvents() {
+
+        String startedStrategyName = ConfigLocator.instance().getCommonConfig().getStartedStrategyName();
+        Map<String, Long> map = (Map<String, Long>) EngineLocator.instance().getEngine(startedStrategyName).executeSingelObjectQuery("select count(*) as cnt from MarketDataWindow");
+        return (map.get("cnt") > 0);
+    }
+
+    /**
+     * attaches the fully initialized Security as well as the specified Date to the Tick contained in the {@link com.espertech.esper.collection.Pair}
+     */
+    public static Tick completeTick(Pair<Tick, Object> pair) {
+
+        Tick tick = pair.getFirst();
+
+        int securityId = tick.getSecurity().getId();
+
+        Security security = LookupUtil.getSecurityInitialized(securityId);
+        tick.setSecurity(security);
+
+        return tick;
+    }
+
+    /**
+     * Returns true if the specified {@code currentDateTime} is within the Market Hours of the specified {@link ch.algotrader.entity.security.SecurityFamily}
+     */
+    public static boolean isMarketOpen(SecurityFamily securityFamily, Date currentDateTime) {
+
+        return ServiceLocator.instance().getCalendarService().isOpen(securityFamily.getExchange().getId(), currentDateTime);
+    }
+
+}

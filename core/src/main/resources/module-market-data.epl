@@ -84,7 +84,7 @@ on
 insert into
     Tick
 select
-    transpose(LookupUtil.completeTick(tickWindow))
+    transpose(ServiceUtil.completeTick(tickWindow))
 from
     TickWindow as tickWindow
 where
@@ -94,7 +94,7 @@ and
 and
     tickWindow.security.validateTick(cast(tickWindow.getFirst(),ch.algotrader.entity.marketData.Tick))
 and
-    DateUtil.isMarketOpen(tickWindow.security.securityFamily, current_timestamp.toDate());
+    ServiceUtil.isMarketOpen(tickWindow.security.securityFamily, current_timestamp.toDate());
 
 @Name('CHECK_TICK_GAPS')
 @Subscriber(className='ch.algotrader.service.MarketDataService.logTickGap')
@@ -105,7 +105,7 @@ from
     pattern [every tick=Tick(not security.securityFamily.maxGap is null)
             -> (timer:interval(tick.security.securityFamily.maxGap * 60) and not Tick(security.id = tick.security.id))]
 where
-    DateUtil.isMarketOpen(tick.security.securityFamily, current_timestamp.toDate());
+    ServiceUtil.isMarketOpen(tick.security.securityFamily, current_timestamp.toDate());
 
 @Name('PROPAGATE_MARKET_DATA_EVENTS')
 @Subscriber(className='ch.algotrader.esper.subscriber.PropagateMarketDataEventSubscriber')
@@ -137,7 +137,7 @@ from
 where
     tickWindow.security.validateTick(cast(tickWindow.getFirst(),ch.algotrader.entity.marketData.Tick))
 and
-    DateUtil.isMarketOpen(tickWindow.security.securityFamily, current_timestamp.toDate())
+    ServiceUtil.isMarketOpen(tickWindow.security.securityFamily, current_timestamp.toDate())
 and
     tickWindow.security.securityFamily.periodicity = TimePeriod.fromString('HOUR'); // (HOUR is a reserved keyword)
 
@@ -153,6 +153,6 @@ from
 where
     tickWindow.security.validateTick(cast(tickWindow.getFirst(),ch.algotrader.entity.marketData.Tick))
 and
-    DateUtil.isMarketOpen(tickWindow.security.securityFamily, current_timestamp.toDate())
+    ServiceUtil.isMarketOpen(tickWindow.security.securityFamily, current_timestamp.toDate())
 and
     tickWindow.security.securityFamily.periodicity = TimePeriod.fromString('MIN');

@@ -23,11 +23,8 @@ import java.util.Map;
 
 import org.apache.commons.collections15.map.SingletonMap;
 
-import com.espertech.esper.collection.Pair;
-
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.cache.CacheManager;
-import ch.algotrader.config.ConfigLocator;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.marketData.Tick;
@@ -35,7 +32,6 @@ import ch.algotrader.entity.security.Future;
 import ch.algotrader.entity.security.Option;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityImpl;
-import ch.algotrader.entity.strategy.PortfolioValue;
 import ch.algotrader.util.collection.CollectionUtil;
 
 /**
@@ -239,46 +235,12 @@ public class LookupUtil {
     }
 
     /**
-     * Gets the current {@link PortfolioValue} of the system
-     */
-    public static PortfolioValue getPortfolioValue() {
-
-        return ServiceLocator.instance().getPortfolioService().getPortfolioValue();
-    }
-
-    /**
-     * Returns true if the MarketDataWindow contains any {@link ch.algotrader.entity.marketData.MarketDataEvent MarketDataEvents}
-     */
-    @SuppressWarnings("unchecked")
-    public static boolean hasCurrentMarketDataEvents() {
-
-        String startedStrategyName = ConfigLocator.instance().getCommonConfig().getStartedStrategyName();
-        Map<String, Long> map = (Map<String, Long>) EngineLocator.instance().getEngine(startedStrategyName).executeSingelObjectQuery("select count(*) as cnt from MarketDataWindow");
-        return (map.get("cnt") > 0);
-    }
-
-    /**
      * Gets the first Tick of the defined Security that is before the maxDate (but not earlier than
      * one minute before that the maxDate).
      */
     public static Tick getTickByDateAndSecurity(int securityId, Date date) {
 
         return ServiceLocator.instance().getLookupService().getTickBySecurityAndMaxDate(securityId, date);
-    }
-
-    /**
-     * attaches the fully initialized Security as well as the specified Date to the Tick contained in the {@link Pair}
-     */
-    public static Tick completeTick(Pair<Tick, Object> pair) {
-
-        Tick tick = pair.getFirst();
-
-        int securityId = tick.getSecurity().getId();
-
-        Security security = getSecurityInitialized(securityId);
-        tick.setSecurity(security);
-
-        return tick;
     }
 
 }
