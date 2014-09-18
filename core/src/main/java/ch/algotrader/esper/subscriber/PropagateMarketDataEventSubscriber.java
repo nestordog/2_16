@@ -24,6 +24,9 @@ import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.metric.MetricsUtil;
 
+/**
+ * Esper event subscriber for {@link EngineLocator#sendMarketDataEvent(ch.algotrader.entity.marketData.MarketDataEvent)}.
+ */
 public class PropagateMarketDataEventSubscriber {
 
     private static Logger LOGGER = MyLogger.getLogger(PropagateMarketDataEventSubscriber.class.getName());

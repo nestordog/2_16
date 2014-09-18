@@ -24,8 +24,8 @@ import ch.algotrader.util.MyLogger;
 import ch.algotrader.vo.GenericEventVO;
 
 /**
-* Created by oleg on 9/18/14.
-*/
+ * Esper event subscriber for {@link EngineLocator#sendGenericEvent(ch.algotrader.vo.GenericEventVO)}.
+ */
 public class PropagateGenericEventSubscriber {
 
     private static Logger LOGGER = MyLogger.getLogger(PropagateGenericEventSubscriber.class.getName());

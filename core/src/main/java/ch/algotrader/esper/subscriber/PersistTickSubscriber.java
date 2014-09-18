@@ -29,8 +29,8 @@ import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.util.MyLogger;
 
 /**
-* Created by oleg on 9/18/14.
-*/
+ * Esper event subscriber for {@link ch.algotrader.service.MarketDataService#persistTick(ch.algotrader.entity.marketData.Tick)}.
+ */
 public class PersistTickSubscriber {
 
     private static Logger LOGGER = MyLogger.getLogger(PersistTickSubscriber.class.getName());

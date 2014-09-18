@@ -26,7 +26,7 @@ import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.metric.MetricsUtil;
 
 /**
-* Created by oleg on 9/18/14.
+* Esper event subscriber for {@link ch.algotrader.service.TransactionService#createTransaction(ch.algotrader.entity.trade.Fill)}.
 */
 public class CreateTransactionSubscriber extends Subscriber {
 

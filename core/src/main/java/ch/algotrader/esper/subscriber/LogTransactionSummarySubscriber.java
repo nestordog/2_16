@@ -26,7 +26,7 @@ import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.service.TransactionService;
 
 /**
-* Created by oleg on 9/18/14.
+ * Esper event subscriber for {@link ch.algotrader.service.TransactionService#logFillSummary(java.util.List)}.
 */
 public class LogTransactionSummarySubscriber {
 
