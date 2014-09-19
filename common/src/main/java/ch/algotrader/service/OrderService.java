@@ -90,7 +90,7 @@ public interface OrderService {
     /**
      * Propagates an {@link OrderStatus} to the corresponding Strategy.
      */
-    public void updateOrderId(int id, String intId, String extId);
+    public void updateOrderId(Order order, String intId, String extId);
 
     /**
      * Sends a Trade Suggestion via Email / Text Message.

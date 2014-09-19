@@ -42,7 +42,7 @@ where
 @RunTimeOnly()
 @Subscriber(className='ch.algotrader.service.OrderService.updateOrderId')
 select
-    orderStatus.`order`.id,
+    orderStatus.`order`,
     orderStatus.intId,
     orderStatus.extId
 from

@@ -436,11 +436,9 @@ public class OrderServiceImpl implements OrderService, ApplicationContextAware {
      * {@inheritDoc}
      */
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
-    public void updateOrderId(final int id, final String intId, final String extId) {
+    public void updateOrderId(final Order order, final String intId, final String extId) {
 
         try {
-            Order order = this.orderDao.load(id);
             if (intId != null && !intId.equals(order.getIntId())) {
                 order.setIntId(intId);
             }
