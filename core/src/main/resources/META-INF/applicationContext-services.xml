@@ -151,6 +151,10 @@
         <constructor-arg index="5" ref="orderStatusDao"/>
     </bean>
 
+    <bean id="orderAsyncPersistStrategy" class="ch.algotrader.service.OrderPersistAsyncStrategy">
+        <constructor-arg index="0" ref="orderPersistStrategy"/>
+    </bean>
+
     <bean id="orderService" class="ch.algotrader.service.OrderServiceImpl" >
         <constructor-arg index="0" ref="commonConfig"/>
         <constructor-arg index="1" ref="orderDao"/>
@@ -158,7 +162,7 @@
         <constructor-arg index="3" ref="strategyDao"/>
         <constructor-arg index="4" ref="securityDao"/>
         <constructor-arg index="5" ref="accountDao"/>
-        <constructor-arg index="6" ref="orderPersistStrategy"/>
+        <constructor-arg index="6" ref="orderAsyncPersistStrategy"/>
     </bean>
 
     <bean id="combinationService" class="ch.algotrader.service.CombinationServiceImpl" >

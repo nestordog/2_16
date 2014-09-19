@@ -93,6 +93,8 @@ public class OrderPersistDirectStrategy implements OrderPersistStrategy {
             this.stopOrderDao.create((StopOrder) order);
         } else if (order instanceof StopLimitOrder) {
             this.stopLimitOrderDao.create((StopLimitOrder) order);
+        } else {
+            throw new IllegalStateException("Unexpected order type " + order.getClass());
         }
 
         // save order properties
