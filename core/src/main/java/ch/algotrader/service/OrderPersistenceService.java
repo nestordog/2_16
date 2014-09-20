@@ -27,7 +27,7 @@ import ch.algotrader.entity.trade.OrderStatus;
  *
  * @version $Revision$ $Date$
  */
-public interface OrderPersistStrategy {
+public interface OrderPersistenceService {
 
     /**
      * Persists the given {@link ch.algotrader.entity.trade.Order} instance.

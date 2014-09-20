@@ -75,7 +75,7 @@ public class OrderServiceImpl implements OrderService, ApplicationContextAware {
 
     private final AccountDao accountDao;
 
-    private final OrderPersistStrategy orderPersistStrategy;
+    private final OrderPersistenceService orderPersistStrategy;
 
     public OrderServiceImpl(final CommonConfig commonConfig,
             final OrderDao orderDao,
@@ -83,7 +83,7 @@ public class OrderServiceImpl implements OrderService, ApplicationContextAware {
             final StrategyDao strategyDao,
             final SecurityDao securityDao,
             final AccountDao accountDao,
-            final OrderPersistStrategy orderPersistStrategy) {
+            final OrderPersistenceService orderPersistStrategy) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(orderDao, "OrderDao is null");
@@ -361,9 +361,7 @@ public class OrderServiceImpl implements OrderService, ApplicationContextAware {
 
                 // only store OrderStatus for non AlgoOrders
                 if (!(orderStatus.getOrder() instanceof AlgoOrder)) {
-                    if (orderStatus.getOrder() == null) {
-                        logger.warn("orderStatus.order is null");
-                    }
+
                     this.orderPersistStrategy.persistOrderStatus(orderStatus);
                 }
             }

@@ -38,7 +38,7 @@ public class OrderPersistAsyncStrategyTest {
     public void testBasicAsyncPersistence() throws Exception {
 
         final LinkedBlockingQueue<BaseEntityI> eventQueue = new LinkedBlockingQueue<BaseEntityI>();
-        final OrderPersistStrategy directStrategy = new OrderPersistStrategy() {
+        final OrderPersistenceService directStrategy = new OrderPersistenceService() {
 
 
             @Override
@@ -62,40 +62,26 @@ public class OrderPersistAsyncStrategyTest {
             }
         };
 
-        final OrderPersistAsyncStrategy asyncStrategy = new OrderPersistAsyncStrategy(directStrategy);
-        try {
+        directStrategy.persistOrderStatus(new OrderStatusImpl());
+        directStrategy.persistOrder(new MarketOrderImpl());
+        directStrategy.persistOrder(new LimitOrderImpl());
+        directStrategy.persistOrderStatus(new OrderStatusImpl());
 
-            asyncStrategy.start();
+        BaseEntityI event1 = eventQueue.poll(1, TimeUnit.SECONDS);
+        Assert.assertNotNull(event1);
+        Assert.assertTrue(event1 instanceof OrderStatus);
 
+        BaseEntityI event2 = eventQueue.poll(1, TimeUnit.SECONDS);
+        Assert.assertNotNull(event2);
+        Assert.assertTrue(event2 instanceof MarketOrder);
 
-            asyncStrategy.persistOrderStatus(new OrderStatusImpl());
-            asyncStrategy.persistOrder(new MarketOrderImpl());
-            asyncStrategy.persistOrder(new LimitOrderImpl());
-            asyncStrategy.persistOrderStatus(new OrderStatusImpl());
+        BaseEntityI event3 = eventQueue.poll(1, TimeUnit.SECONDS);
+        Assert.assertNotNull(event3);
+        Assert.assertTrue(event3 instanceof LimitOrder);
 
-            BaseEntityI event1 = eventQueue.poll(1, TimeUnit.SECONDS);
-            Assert.assertNotNull(event1);
-            Assert.assertTrue(event1 instanceof OrderStatus);
-
-            BaseEntityI event2 = eventQueue.poll(1, TimeUnit.SECONDS);
-            Assert.assertNotNull(event2);
-            Assert.assertTrue(event2 instanceof MarketOrder);
-
-            BaseEntityI event3 = eventQueue.poll(1, TimeUnit.SECONDS);
-            Assert.assertNotNull(event3);
-            Assert.assertTrue(event3 instanceof LimitOrder);
-
-            BaseEntityI event4 = eventQueue.poll(1, TimeUnit.SECONDS);
-            Assert.assertNotNull(event4);
-            Assert.assertTrue(event4 instanceof OrderStatus);
-
-        } finally {
-            asyncStrategy.stop();
-        }
-
-        asyncStrategy.waitForTermination(5, TimeUnit.SECONDS);
-
-        Assert.assertFalse(asyncStrategy.isRunning());
+        BaseEntityI event4 = eventQueue.poll(1, TimeUnit.SECONDS);
+        Assert.assertNotNull(event4);
+        Assert.assertTrue(event4 instanceof OrderStatus);
     }
 
 }

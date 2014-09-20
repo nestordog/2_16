@@ -18,6 +18,7 @@
 package ch.algotrader.service;
 
 import org.apache.commons.lang.Validate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,7 +37,7 @@ import ch.algotrader.entity.trade.StopOrderDao;
 import ch.algotrader.util.spring.HibernateSession;
 
 /**
- * {@link OrderPersistStrategy} implementation that directly
+ * {@link OrderPersistenceService} implementation that directly
  * commits orders and order events to a persistent store.
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
@@ -44,7 +45,7 @@ import ch.algotrader.util.spring.HibernateSession;
  * @version $Revision$ $Date$
  */
 @HibernateSession
-public class OrderPersistDirectStrategy implements OrderPersistStrategy {
+public class OrderPersistenceServiceImpl implements OrderPersistenceService {
 
     private final MarketOrderDao marketOrderDao;
 
@@ -58,7 +59,7 @@ public class OrderPersistDirectStrategy implements OrderPersistStrategy {
 
     private final OrderStatusDao orderStatusDao;
 
-    public OrderPersistDirectStrategy(
+    public OrderPersistenceServiceImpl(
             final MarketOrderDao marketOrderDao,
             final LimitOrderDao limitOrderDao,
             final StopOrderDao stopOrderDao,
@@ -82,6 +83,7 @@ public class OrderPersistDirectStrategy implements OrderPersistStrategy {
     }
 
     @Override
+    @Async("orderPersistExecutor")
     @Transactional(propagation = Propagation.REQUIRED)
     public void persistOrder(final Order order) {
 
@@ -104,6 +106,7 @@ public class OrderPersistDirectStrategy implements OrderPersistStrategy {
     }
 
     @Override
+    @Async("orderPersistExecutor")
     @Transactional(propagation = Propagation.REQUIRED)
     public void persistOrderStatus(final OrderStatus orderStatus) {
 

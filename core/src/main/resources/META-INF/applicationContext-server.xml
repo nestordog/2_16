@@ -16,6 +16,10 @@
         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd
         http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.2.xsd">
 
+    <!-- =========================================== Task Execution and Scheduling ======================================= -->
+
+	<task:executor id="orderPersistExecutor" pool-size="1"/>
+
     <!-- =========================================== Cache & Config ======================================= -->
 
     <bean id="cacheManager" class="ch.algotrader.cache.CacheManagerImpl">
