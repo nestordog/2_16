@@ -28,8 +28,6 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.Account;
@@ -37,22 +35,13 @@ import ch.algotrader.entity.AccountDao;
 import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.entity.strategy.StrategyDao;
 import ch.algotrader.entity.trade.AlgoOrder;
-import ch.algotrader.entity.trade.LimitOrder;
-import ch.algotrader.entity.trade.LimitOrderDao;
-import ch.algotrader.entity.trade.MarketOrder;
-import ch.algotrader.entity.trade.MarketOrderDao;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderCompletion;
 import ch.algotrader.entity.trade.OrderDao;
-import ch.algotrader.entity.trade.OrderPropertyDao;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.entity.trade.OrderStatusDao;
 import ch.algotrader.entity.trade.OrderValidationException;
 import ch.algotrader.entity.trade.SimpleOrder;
-import ch.algotrader.entity.trade.StopLimitOrder;
-import ch.algotrader.entity.trade.StopLimitOrderDao;
-import ch.algotrader.entity.trade.StopOrder;
-import ch.algotrader.entity.trade.StopOrderDao;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.enumeration.TIF;
@@ -60,7 +49,6 @@ import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.util.BeanUtil;
 import ch.algotrader.util.DateUtil;
 import ch.algotrader.util.MyLogger;
-import ch.algotrader.util.spring.HibernateSession;
 import ch.algotrader.vo.OrderStatusVO;
 
 /**
@@ -68,7 +56,6 @@ import ch.algotrader.vo.OrderStatusVO;
  *
  * @version $Revision$ $Date$
  */
-@HibernateSession
 public class OrderServiceImpl implements OrderService, ApplicationContextAware {
 
     private static Logger logger = MyLogger.getLogger(OrderServiceImpl.class.getName());
@@ -88,15 +75,7 @@ public class OrderServiceImpl implements OrderService, ApplicationContextAware {
 
     private final AccountDao accountDao;
 
-    private final MarketOrderDao marketOrderDao;
-
-    private final LimitOrderDao limitOrderDao;
-
-    private final StopOrderDao stopOrderDao;
-
-    private final StopLimitOrderDao stopLimitOrderDao;
-
-    private final OrderPropertyDao orderPropertyDao;
+    private final OrderPersistenceService orderPersistStrategy;
 
     public OrderServiceImpl(final CommonConfig commonConfig,
             final OrderDao orderDao,
@@ -104,11 +83,7 @@ public class OrderServiceImpl implements OrderService, ApplicationContextAware {
             final StrategyDao strategyDao,
             final SecurityDao securityDao,
             final AccountDao accountDao,
-            final MarketOrderDao marketOrderDao,
-            final LimitOrderDao limitOrderDao,
-            final StopOrderDao stopOrderDao,
-            final StopLimitOrderDao stopLimitOrderDao,
-            final OrderPropertyDao orderPropertyDao) {
+            final OrderPersistenceService orderPersistStrategy) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(orderDao, "OrderDao is null");
@@ -116,11 +91,7 @@ public class OrderServiceImpl implements OrderService, ApplicationContextAware {
         Validate.notNull(strategyDao, "StrategyDao is null");
         Validate.notNull(securityDao, "SecurityDao is null");
         Validate.notNull(accountDao, "AccountDao is null");
-        Validate.notNull(marketOrderDao, "MarketOrderDao is null");
-        Validate.notNull(limitOrderDao, "LimitOrderDao is null");
-        Validate.notNull(stopOrderDao, "StopOrderDao is null");
-        Validate.notNull(stopLimitOrderDao, "StopLimitOrderDao is null");
-        Validate.notNull(orderPropertyDao, "OrderPropertyDao is null");
+        Validate.notNull(orderPersistStrategy, "OrderPersistStrategy is null");
 
         this.commonConfig = commonConfig;
         this.orderDao = orderDao;
@@ -128,11 +99,7 @@ public class OrderServiceImpl implements OrderService, ApplicationContextAware {
         this.strategyDao = strategyDao;
         this.securityDao = securityDao;
         this.accountDao = accountDao;
-        this.marketOrderDao = marketOrderDao;
-        this.limitOrderDao = limitOrderDao;
-        this.stopOrderDao = stopOrderDao;
-        this.stopLimitOrderDao = stopLimitOrderDao;
-        this.orderPropertyDao = orderPropertyDao;
+        this.orderPersistStrategy = orderPersistStrategy;
     }
 
     @Override
@@ -184,7 +151,6 @@ public class OrderServiceImpl implements OrderService, ApplicationContextAware {
      * {@inheritDoc}
      */
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
     public void sendOrder(final Order order) {
 
         Validate.notNull(order, "Order is null");
@@ -301,7 +267,6 @@ public class OrderServiceImpl implements OrderService, ApplicationContextAware {
      * {@inheritDoc}
      */
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
     public void modifyOrder(final Order order) {
 
         Validate.notNull(order, "Order is null");
@@ -322,7 +287,6 @@ public class OrderServiceImpl implements OrderService, ApplicationContextAware {
      * {@inheritDoc}
      */
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
     public void modifyOrder(final String intId, final Map<String, String> properties) {
 
         Validate.notNull(intId, "Int id is null");
@@ -369,7 +333,6 @@ public class OrderServiceImpl implements OrderService, ApplicationContextAware {
      * {@inheritDoc}
      */
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
     public void propagateOrderStatus(final OrderStatus orderStatus) {
 
         Validate.notNull(orderStatus, "Order status is null");
@@ -398,10 +361,8 @@ public class OrderServiceImpl implements OrderService, ApplicationContextAware {
 
                 // only store OrderStatus for non AlgoOrders
                 if (!(orderStatus.getOrder() instanceof AlgoOrder)) {
-                    if (orderStatus.getOrder() == null) {
-                        logger.warn("orderStatus.order is null");
-                    }
-                    this.orderStatusDao.create(orderStatus);
+
+                    this.orderPersistStrategy.persistOrderStatus(orderStatus);
                 }
             }
 
@@ -436,11 +397,9 @@ public class OrderServiceImpl implements OrderService, ApplicationContextAware {
      * {@inheritDoc}
      */
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
-    public void updateOrderId(final int id, final String intId, final String extId) {
+    public void updateOrderId(final Order order, final String intId, final String extId) {
 
         try {
-            Order order = this.orderDao.load(id);
             if (intId != null && !intId.equals(order.getIntId())) {
                 order.setIntId(intId);
             }
@@ -542,20 +501,7 @@ public class OrderServiceImpl implements OrderService, ApplicationContextAware {
         }
 
         // save order to the DB by using the corresponding OrderDao
-        if (order instanceof MarketOrder) {
-            this.marketOrderDao.create((MarketOrder) order);
-        } else if (order instanceof LimitOrder) {
-            this.limitOrderDao.create((LimitOrder) order);
-        } else if (order instanceof StopOrder) {
-            this.stopOrderDao.create((StopOrder) order);
-        } else if (order instanceof StopLimitOrder) {
-            this.stopLimitOrderDao.create((StopLimitOrder) order);
-        }
-
-        // save order properties
-        if (order.getOrderProperties() != null && order.getOrderProperties().size() != 0) {
-            this.orderPropertyDao.create(order.getOrderProperties().values());
-        }
+        this.orderPersistStrategy.persistOrder(order);
     }
 
     /**
