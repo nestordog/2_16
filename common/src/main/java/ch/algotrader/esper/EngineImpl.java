@@ -219,11 +219,19 @@ public class EngineImpl extends AbstractEngine {
     @Override
     public void deployStatement(String moduleName, String statementName, String alias, Object[] params, Object callback) {
 
-        // do nothing if the statement already exists
-        EPStatement oldStatement = this.serviceProvider.getEPAdministrator().getStatement(statementName);
-        if (oldStatement != null && oldStatement.isStarted()) {
-            logger.warn(statementName + " is already deployed and started");
-            return;
+        deployStatement(moduleName, statementName, alias, params, callback, false);
+    }
+
+    @Override
+    public void deployStatement(String moduleName, String statementName, String alias, Object[] params, Object callback, boolean force) {
+
+        // check if statement with same name exists
+        if (!force) {
+            EPStatement existingStatement = this.serviceProvider.getEPAdministrator().getStatement(statementName);
+            if (existingStatement != null && existingStatement.isStarted()) {
+                logger.warn(statementName + " is already deployed and started");
+                return;
+            }
         }
 
         Module module = getModule(moduleName);
@@ -699,19 +707,12 @@ public class EngineImpl extends AbstractEngine {
 
         String alias = "ON_TIMER_" + format.format(dateTime) + "_" + ClassUtils.getShortClassName(callback.getClass());
 
-        if (isDeployed(alias)) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(dateTime);
 
-            logger.warn(alias + " is already deployed");
-        } else {
+        Object[] params = { alias, cal.get(Calendar.MINUTE), cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.DAY_OF_MONTH), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.SECOND), cal.get(Calendar.YEAR) };
 
-            Calendar cal = Calendar.getInstance();
-            cal.setTime(dateTime);
-
-            Object[] params = { alias, cal.get(Calendar.MINUTE), cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.DAY_OF_MONTH), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.SECOND),
-                    cal.get(Calendar.YEAR) };
-
-            deployStatement("prepared", "ON_TIMER", alias, params, callback);
-        }
+        deployStatement("prepared", "ON_TIMER", alias, params, callback, true);
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })

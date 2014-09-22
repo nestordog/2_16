@@ -70,6 +70,11 @@ public abstract class AbstractEngine implements Engine {
     }
 
     @Override
+    public void deployStatement(String moduleName, String statementName, String alias, Object[] params, Object callback, boolean force) {
+
+    }
+
+    @Override
     public void deployAllModules() {
 
     }

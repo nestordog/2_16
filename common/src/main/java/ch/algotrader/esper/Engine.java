@@ -63,9 +63,17 @@ public interface Engine {
 
     /**
      * Deploys the statement from the given {@code moduleName} with the given {@code statementName} into the specified Engine.
-     * In addition the given {@code alias}, Prepared Statement {@code params} and {@code callback} are set on the statement.
+     * In addition the given {@code alias}, Prepared Statement {@code params} and {@code callback} are set on the statement. If
+     * the a statement with the same name exists the command is aborted
      */
     public void deployStatement(String moduleName, String statementName, String alias, Object[] params, Object callback);
+
+    /**
+     * Deploys the statement from the given {@code moduleName} with the given {@code statementName} into the specified Engine.
+     * In addition the given {@code alias}, Prepared Statement {@code params} and {@code callback} are set on the statement. If
+     * {@code force} is true the statement will be deployed even if a statement with the same name already exsists.
+     */
+    public void deployStatement(String moduleName, String statementName, String alias, Object[] params, Object callback, boolean force);
 
     /**
      * Deploys all modules defined for given Strategy
