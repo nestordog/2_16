@@ -421,8 +421,13 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
             case 202:
 
                 // Order cancelled
-                // do nothing, since we cancelled the order ourself
-                logger.debug(message);
+                if ("Order Canceled - reason:".equals(errorMsg)) {
+                    // do nothing, since we cancelled the order ourself
+                    logger.debug(message);
+                } else {
+                    orderRejected(id, errorMsg);
+                    logger.error(message);
+                }
                 break;
 
             case 399:
