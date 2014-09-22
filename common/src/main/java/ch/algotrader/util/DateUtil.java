@@ -49,7 +49,7 @@ public class DateUtil {
 
         Engine engine = EngineLocator.instance().getEngine(strategyName);
         if (engine != null && !engine.isInternalClock()) {
-            return new Date(engine.getCurrentTime());
+            return engine.getCurrentTime();
         }
 
         return new Date();

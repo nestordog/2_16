@@ -19,10 +19,6 @@ package ch.algotrader.esper.io;
 
 import java.util.Map;
 
-import com.espertech.esper.client.time.CurrentTimeEvent;
-import com.espertech.esperio.AbstractSendableEvent;
-import com.espertech.esperio.AbstractSender;
-
 import ch.algotrader.entity.marketData.Bar;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.esper.EngineLocator;
@@ -30,6 +26,11 @@ import ch.algotrader.util.LookupUtil;
 import ch.algotrader.util.metric.MetricsUtil;
 import ch.algotrader.vo.RawBarVO;
 import ch.algotrader.vo.RawTickVO;
+
+import com.espertech.esper.client.time.CurrentTimeEvent;
+import com.espertech.esper.client.time.CurrentTimeSpanEvent;
+import com.espertech.esperio.AbstractSendableEvent;
+import com.espertech.esperio.AbstractSender;
 
 /**
  * Custom Esper Sender that initializes Ticks and Bars.
@@ -73,7 +74,7 @@ public class CustomSender extends AbstractSender {
             MetricsUtil.account("CustomSender.sendMarketDataEvent", (afterSendEvent - beforeSendEvent));
 
             // currentTimeEvents are sent to all started strategies
-        } else if (beanToSend instanceof CurrentTimeEvent) {
+        } else if (beanToSend instanceof CurrentTimeEvent || beanToSend instanceof CurrentTimeSpanEvent) {
 
             long beforeSendEvent = System.nanoTime();
             EngineLocator.instance().sendEventToAllEngines(beanToSend);

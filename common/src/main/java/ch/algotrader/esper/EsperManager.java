@@ -282,7 +282,7 @@ public class EsperManager {
      */
     public static long getCurrentTime(String strategyName) {
 
-        return EngineLocator.instance().getEngine(strategyName).getCurrentTime();
+        return EngineLocator.instance().getEngine(strategyName).getCurrentTimeInMillis();
     }
 
     /**

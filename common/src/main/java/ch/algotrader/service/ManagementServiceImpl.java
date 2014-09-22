@@ -145,7 +145,7 @@ public class ManagementServiceImpl implements ManagementService {
 
         try {
             String strategyName = this.commonConfig.getStartedStrategyName();
-            return new Date(EngineLocator.instance().getEngine(strategyName).getCurrentTime());
+            return EngineLocator.instance().getEngine(strategyName).getCurrentTime();
         } catch (Exception ex) {
             throw new ManagementServiceException(ex.getMessage(), ex);
         }

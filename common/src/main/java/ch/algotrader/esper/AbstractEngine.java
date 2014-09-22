@@ -55,6 +55,11 @@ public abstract class AbstractEngine implements Engine {
     }
 
     @Override
+    public boolean isDestroyed() {
+        return false;
+    }
+
+    @Override
     public void deployStatement(String moduleName, String statementName) {
 
     }
@@ -177,9 +182,15 @@ public abstract class AbstractEngine implements Engine {
     }
 
     @Override
-    public long getCurrentTime() {
+    public long getCurrentTimeInMillis() {
 
         return 0;
+    }
+
+    @Override
+    public Date getCurrentTime() {
+
+        return new Date(0);
     }
 
     @Override
@@ -234,7 +245,7 @@ public abstract class AbstractEngine implements Engine {
     }
 
     @Override
-    public void addTimerCallback(Date dateTime, TimerCallback callback) {
+    public void addTimerCallback(Date dateTime, String name, TimerCallback callback) {
 
     }
 

@@ -41,7 +41,6 @@ import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Predicate;
 import org.apache.commons.collections15.Transformer;
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.core.io.Resource;
@@ -194,6 +193,11 @@ public class EngineImpl extends AbstractEngine {
         this.internalClock = false;
 
         logger.debug("initialized service provider: " + engineName);
+    }
+
+    @Override
+    public boolean isDestroyed() {
+        return serviceProvider.isDestroyed();
     }
 
     @Override
@@ -551,9 +555,15 @@ public class EngineImpl extends AbstractEngine {
     }
 
     @Override
-    public long getCurrentTime() {
+    public long getCurrentTimeInMillis() {
 
         return this.serviceProvider.getEPRuntime().getCurrentTime();
+    }
+
+    @Override
+    public Date getCurrentTime() {
+
+        return new Date(this.serviceProvider.getEPRuntime().getCurrentTime());
     }
 
     @Override
@@ -703,9 +713,9 @@ public class EngineImpl extends AbstractEngine {
     }
 
     @Override
-    public void addTimerCallback(Date dateTime, TimerCallback callback) {
+    public void addTimerCallback(Date dateTime, String name, TimerCallback callback) {
 
-        String alias = "ON_TIMER_" + format.format(dateTime) + "_" + ClassUtils.getShortClassName(callback.getClass());
+        String alias = "ON_TIMER_" + format.format(dateTime) + (name != null ? "_" + name : "");
 
         Calendar cal = Calendar.getInstance();
         cal.setTime(dateTime);

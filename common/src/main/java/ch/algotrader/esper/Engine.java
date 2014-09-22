@@ -51,6 +51,11 @@ public interface Engine {
     public void destroy();
 
     /**
+     * returns true if the Engine is destroyed.
+     */
+    boolean isDestroyed();
+
+    /**
      * Deploys the statement from the given {@code moduleName} with the given {@code statementName} into the specified Engine.
      */
     public void deployStatement(String moduleName, String statementName);
@@ -173,9 +178,14 @@ public interface Engine {
     public boolean isInternalClock();
 
     /**
-     * Retruns the current time of the given Engine
+     * Returns the current time of the given Engine
      */
-    public long getCurrentTime();
+    public long getCurrentTimeInMillis();
+
+    /**
+     * Returns the current time of the given Engine
+     */
+    public Date getCurrentTime();
 
     /**
      * Prepares the given Engine for coordinated input of CSV-Files
@@ -233,6 +243,7 @@ public interface Engine {
 
     /**
      * Adds a {@link TimerCallback} to the given Engine that will be invoked at the give time.
+     * An optional name can be added which will be appended to the statement name.
      */
-    public void addTimerCallback(Date dateTime, TimerCallback callback);
+    public void addTimerCallback(Date dateTime, String name, TimerCallback callback);
 }
