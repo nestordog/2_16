@@ -23,6 +23,7 @@ import org.apache.log4j.spi.LoggingEvent;
 
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.ConfigLocator;
+import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineLocator;
 
 /**
@@ -33,12 +34,6 @@ import ch.algotrader.esper.EngineLocator;
  * @version $Revision$ $Date$
  */
 public class MyLogger extends Logger {
-
-    // It's usually a good idea to add a dot suffix to the fully
-    // qualified class name. This makes caller localization to work
-    // properly even from classes that have almost the same fully
-    // qualified class name as MyLogger, e.g. MyLoggerTest.
-    static String FQCN = MyLogger.class.getName() + ".";
 
     // It's enough to instantiate a factory once and for all.
     private static MyLoggerFactory myFactory = new MyLoggerFactory();
@@ -67,15 +62,22 @@ public class MyLogger extends Logger {
         // in simulation get date from the Esper Engine belonging to the startedStrategy
         CommonConfig commonConfig = ConfigLocator.instance().getCommonConfig();
         if (commonConfig.isSimulation()) {
-            String strategyName = commonConfig.getStartedStrategyName();
-            if (EngineLocator.instance().hasEngine(strategyName)) {
 
-                long engineTime = EngineLocator.instance().getEngine(strategyName).getCurrentTime();
-                if (engineTime != 0) {
+            // find the Engine with the earliest time
+            long latestTime = Long.MAX_VALUE;
+            for (Engine engine : EngineLocator.instance().getEngines()) {
 
-                    callAppenders(new LoggingEvent(fqcn, this, engineTime, level, message, t));
-                    return;
+                if (!engine.isDestroyed()) {
+                    long engineTime = engine.getCurrentTimeInMillis();
+                    if (engineTime < latestTime) {
+                        latestTime = engineTime;
+                    }
                 }
+            }
+
+            if (latestTime < Long.MAX_VALUE) {
+                callAppenders(new LoggingEvent(fqcn, this, latestTime, level, message, t));
+                return;
             }
         }
 
