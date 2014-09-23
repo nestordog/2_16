@@ -19,6 +19,7 @@ package ch.algotrader.entity.trade;
 
 import org.apache.commons.lang.ClassUtils;
 
+import ch.algotrader.enumeration.OrderPropertyType;
 import ch.algotrader.util.ObjectUtil;
 
 /**
@@ -97,9 +98,9 @@ public abstract class OrderImpl extends Order {
     }
 
     @Override
-    public void addProperty(String name, String value, boolean fix) {
+    public void addProperty(String name, String value, OrderPropertyType type) {
 
-        getOrderProperties().put(name, OrderProperty.Factory.newInstance(name, value, true, this));
+        getOrderProperties().put(name, OrderProperty.Factory.newInstance(name, value, type, this));
     }
 
     @Override

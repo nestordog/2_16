@@ -63,6 +63,7 @@ import ch.algotrader.entity.trade.VariableIncrementalOrder;
 import ch.algotrader.enumeration.CombinationType;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.enumeration.MarketDataType;
+import ch.algotrader.enumeration.OrderPropertyType;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.util.BeanUtil;
@@ -576,11 +577,14 @@ public class ManagementServiceImpl implements ManagementService {
                     OrderProperty orderProperty = OrderProperty.Factory.newInstance();
 
                     String name = entry.getKey();
-                    if (name.startsWith("fix")) {
+                    if (name.toUpperCase().startsWith(OrderPropertyType.FIX.toString())) {
                         name = name.substring(3);
-                        orderProperty.setFix(true);
+                        orderProperty.setType(OrderPropertyType.FIX);
+                    } else if (name.toUpperCase().startsWith(OrderPropertyType.IB.toString())) {
+                        name = name.substring(2);
+                        orderProperty.setType(OrderPropertyType.IB);
                     } else {
-                        orderProperty.setFix(false);
+                        orderProperty.setType(OrderPropertyType.INTERNAL);
                     }
                     orderProperty.setName(name);
                     orderProperty.setValue(entry.getValue());

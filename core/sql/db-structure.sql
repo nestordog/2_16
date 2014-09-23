@@ -608,7 +608,7 @@ CREATE TABLE `order_property` (
   `ID` int(11) NOT NULL AUTO_INCREMENT,
   `NAME` varchar(30) NOT NULL,
   `VALUE` varchar(30) NOT NULL,
-  `FIX` bit(1) NOT NULL,
+  `TYPE` enum('FIX','IB','INTERNAL') NOT NULL,
   `ORDER_FK` int(11) DEFAULT NULL,
   PRIMARY KEY (`ID`),
   UNIQUE KEY `NAME` (`NAME`),

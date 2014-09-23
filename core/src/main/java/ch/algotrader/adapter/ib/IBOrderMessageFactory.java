@@ -15,20 +15,20 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
+package ch.algotrader.adapter.ib;
 
-package ch.algotrader.entity.trade;
+import ch.algotrader.entity.trade.SimpleOrder;
+
+import com.ib.client.Contract;
+import com.ib.client.Order;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class OrderPropertyImpl extends OrderProperty {
+public interface IBOrderMessageFactory {
 
-    private static final long serialVersionUID = -1418704621871092652L;
+    public Order createOrderMessage(SimpleOrder order, Contract contract);
 
-    @Override
-    public String toString() {
-        return this.getValue() + "(" + getType() + ")";
-    }
 }
