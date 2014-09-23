@@ -18,6 +18,7 @@
 package ch.algotrader.service;
 
 import org.apache.commons.lang.Validate;
+import org.apache.log4j.Logger;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +28,7 @@ import ch.algotrader.entity.trade.LimitOrderDao;
 import ch.algotrader.entity.trade.MarketOrder;
 import ch.algotrader.entity.trade.MarketOrderDao;
 import ch.algotrader.entity.trade.Order;
+import ch.algotrader.entity.trade.OrderProperty;
 import ch.algotrader.entity.trade.OrderPropertyDao;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.entity.trade.OrderStatusDao;
@@ -34,6 +36,7 @@ import ch.algotrader.entity.trade.StopLimitOrder;
 import ch.algotrader.entity.trade.StopLimitOrderDao;
 import ch.algotrader.entity.trade.StopOrder;
 import ch.algotrader.entity.trade.StopOrderDao;
+import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.spring.HibernateSession;
 
 /**
@@ -46,6 +49,8 @@ import ch.algotrader.util.spring.HibernateSession;
  */
 @HibernateSession
 public class OrderPersistenceServiceImpl implements OrderPersistenceService {
+
+    private static final Logger logger = MyLogger.getLogger(OrderPersistenceServiceImpl.class.getName());
 
     private final MarketOrderDao marketOrderDao;
 
@@ -87,21 +92,27 @@ public class OrderPersistenceServiceImpl implements OrderPersistenceService {
     @Transactional(propagation = Propagation.REQUIRED)
     public void persistOrder(final Order order) {
 
-        if (order instanceof MarketOrder) {
-            this.marketOrderDao.create((MarketOrder) order);
-        } else if (order instanceof LimitOrder) {
-            this.limitOrderDao.create((LimitOrder) order);
-        } else if (order instanceof StopOrder) {
-            this.stopOrderDao.create((StopOrder) order);
-        } else if (order instanceof StopLimitOrder) {
-            this.stopLimitOrderDao.create((StopLimitOrder) order);
-        } else {
-            throw new IllegalStateException("Unexpected order type " + order.getClass());
-        }
+        try {
+            if (order instanceof MarketOrder) {
+                this.marketOrderDao.create((MarketOrder) order);
+            } else if (order instanceof LimitOrder) {
+                this.limitOrderDao.create((LimitOrder) order);
+            } else if (order instanceof StopOrder) {
+                this.stopOrderDao.create((StopOrder) order);
+            } else if (order instanceof StopLimitOrder) {
+                this.stopLimitOrderDao.create((StopLimitOrder) order);
+            } else {
+                throw new IllegalStateException("Unexpected order type " + order.getClass());
+            }
 
-        // save order properties
-        if (order.getOrderProperties() != null && order.getOrderProperties().size() != 0) {
-            this.orderPropertyDao.create(order.getOrderProperties().values());
+            // save order properties
+            if (order.getOrderProperties() != null && order.getOrderProperties().size() != 0) {
+                for (OrderProperty orderProperty : order.getOrderProperties().values()) {
+                    this.orderPropertyDao.create(orderProperty);
+                }
+            }
+        } catch (Exception e) {
+            logger.error("problem creating order", e);
         }
     }
 
@@ -110,6 +121,10 @@ public class OrderPersistenceServiceImpl implements OrderPersistenceService {
     @Transactional(propagation = Propagation.REQUIRED)
     public void persistOrderStatus(final OrderStatus orderStatus) {
 
-        this.orderStatusDao.create(orderStatus);
+        try {
+            this.orderStatusDao.create(orderStatus);
+        } catch (Exception e) {
+            logger.error("problem creating orderStatus", e);
+        }
     }
 }
