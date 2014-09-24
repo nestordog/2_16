@@ -286,7 +286,7 @@ public class CalendarServiceImpl implements CalendarService {
 
             @Override
             public boolean evaluate(Holiday holiday) {
-                return holiday.getDate().equals(date);
+                return DateUtils.isSameDay(holiday.getDate(), date);
             }
         });
     }
@@ -356,7 +356,7 @@ public class CalendarServiceImpl implements CalendarService {
         }
 
         if (inverse) {
-            close = DateUtils.addDays(close, 1);
+            open = DateUtils.addDays(open, -1);
         }
 
         return new TimeInterval(open, close);

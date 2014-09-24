@@ -38,7 +38,12 @@ public class TradingHoursImpl extends TradingHours {
     @Override
     public boolean isEnabled(WeekDay weekDay) {
 
-        switch (weekDay.getValue()) {
+        int weekDayValue = weekDay.getValue();
+        if (getOpen().compareTo(getClose()) >= 0) {
+            weekDayValue = weekDay.getValue() > 1 ? weekDay.getValue() - 1 : 7;
+        }
+
+        switch (weekDayValue) {
             case Calendar.SUNDAY:
                 return isSunday();
             case Calendar.MONDAY:
@@ -65,11 +70,33 @@ public class TradingHoursImpl extends TradingHours {
         buffer.append(getExchange());
         buffer.append(" ");
 
-        for (WeekDay weekDay : WeekDay.values()) {
-            if (isEnabled(weekDay)) {
-                buffer.append(weekDay.name());
-                buffer.append(" ");
-            }
+        if (this.isSunday()) {
+            buffer.append(WeekDay.SUNDAY);
+            buffer.append(" ");
+        }
+        if (this.isMonday()) {
+            buffer.append(WeekDay.MONDAY);
+            buffer.append(" ");
+        }
+        if (this.isTuesday()) {
+            buffer.append(WeekDay.TUESDAY);
+            buffer.append(" ");
+        }
+        if (this.isWednesday()) {
+            buffer.append(WeekDay.WEDNESDAY);
+            buffer.append(" ");
+        }
+        if (this.isThursday()) {
+            buffer.append(WeekDay.THURSDAY);
+            buffer.append(" ");
+        }
+        if (this.isFriday()) {
+            buffer.append(WeekDay.FRIDAY);
+            buffer.append(" ");
+        }
+        if (this.isSaturday()) {
+            buffer.append(WeekDay.SATURDAY);
+            buffer.append(" ");
         }
 
         buffer.append(hourFormat.format(getOpen()));

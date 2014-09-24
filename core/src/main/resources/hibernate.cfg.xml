@@ -16,7 +16,7 @@
 <!--     <property name="cache.provider_class">net.sf.ehcache.hibernate.SingletonEhCacheProvider</property> -->
 <!--     <property name="hibernate.cache.query_cache_factory">org.hibernate.cache.StandardQueryCacheFactory</property> -->
 
-    <property name="hibernate.show_sql">true</property>
+<!--     <property name="hibernate.show_sql">true</property> -->
 <!--     <property name="hibernate.connection.isolation">4</property> -->
 
     <mapping resource="META-INF/Hibernate.hbm.xml" />
