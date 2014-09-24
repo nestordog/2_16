@@ -17,6 +17,9 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.ib;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -87,14 +90,11 @@ public class IBOrderPropertyTest {
         Assert.assertFalse(ibOrder.m_transmit);
 
         Assert.assertEquals(2, ibOrder.m_algoParams.size());
+        Map<String, String> map = new HashMap<String, String>();
         for (TagValue tagValue : ibOrder.m_algoParams) {
-            if ("componentSize".equals(tagValue.m_tag) && "100".equals(tagValue.m_value)) {
-                // ok
-            } else if ("timeBetweenOrders".equals(tagValue.m_tag) && "60".equals(tagValue.m_value)) {
-                // ok
-            } else {
-                Assert.fail("unexpected tagValue " + tagValue.m_tag + " " + tagValue.m_value);
-            }
+            map.put(tagValue.m_tag, tagValue.m_value);
         }
+        Assert.assertEquals("100", map.get("componentSize"));
+        Assert.assertEquals("60", map.get("timeBetweenOrders"));
     }
 }
