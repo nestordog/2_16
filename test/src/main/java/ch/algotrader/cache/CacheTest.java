@@ -36,13 +36,13 @@ import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.enumeration.CombinationType;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.TransactionType;
+import ch.algotrader.esper.LookupUtil;
 import ch.algotrader.service.CombinationService;
 import ch.algotrader.service.IBServiceTest;
 import ch.algotrader.service.MarketDataService;
 import ch.algotrader.service.PositionService;
 import ch.algotrader.service.PropertyService;
 import ch.algotrader.service.TransactionService;
-import ch.algotrader.util.LookupUtil;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

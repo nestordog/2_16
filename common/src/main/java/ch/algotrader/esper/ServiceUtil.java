@@ -18,26 +18,16 @@
 package ch.algotrader.esper;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.collections15.map.SingletonMap;
-
-import com.espertech.esper.collection.Pair;
-
 import ch.algotrader.ServiceLocator;
-import ch.algotrader.cache.CacheManager;
 import ch.algotrader.config.ConfigLocator;
-import ch.algotrader.entity.Position;
-import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.marketData.Tick;
-import ch.algotrader.entity.security.Future;
-import ch.algotrader.entity.security.Option;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
-import ch.algotrader.entity.security.SecurityImpl;
 import ch.algotrader.entity.strategy.PortfolioValue;
-import ch.algotrader.util.collection.CollectionUtil;
+
+import com.espertech.esper.collection.Pair;
 
 /**
  * Provides service convenience methods.
