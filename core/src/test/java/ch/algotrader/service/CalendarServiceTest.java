@@ -67,7 +67,7 @@ public class CalendarServiceTest {
         forex.addTradingHours(TradingHours.Factory.newInstance(hourFormat.parse("23:15:00"), hourFormat.parse("23:00:00"), true, true, true, true, true, false, false, forex));
         forex.addHolidays(Holiday.Factory.newInstance(dayFormat.parse("31.12.2012"), forex)); // New Years Eve
         forex.addHolidays(Holiday.Factory.newInstance(dayFormat.parse("01.01.2013"), forex)); // New Year
-        forex.addHolidays(Holiday.Factory.newInstance(dayFormat.parse("23.12.2012"), null, hourFormat.parse("22:00:00"), forex)); // Christmas
+        forex.addHolidays(Holiday.Factory.newInstance(dayFormat.parse("24.12.2012"), null, hourFormat.parse("22:00:00"), forex)); // Christmas
         forex.addHolidays(Holiday.Factory.newInstance(dayFormat.parse("02.01.2013"), hourFormat.parse("23:30:00"), null, forex)); // Jan 2nd
 
         Exchange roundTheClock = Exchange.Factory.newInstance("ROUND_THE_CLOCK", "24H", "Europe/Berlin");
@@ -199,9 +199,9 @@ public class CalendarServiceTest {
 
     @Test
     public void testIsOpenForexLateOpen() throws Exception {
-        Assert.assertFalse(this.impl.isOpen(2, dayTimeLocalFormat.parse("02.01.2013 23:15:00 CET"))); // Jan 2nd
-        Assert.assertEquals(this.impl.getNextOpenTime(2, dayTimeLocalFormat.parse("02.01.2013 23:15:00 CET")), dayTimeLocalFormat.parse("02.01.2013 23:30:00 CET"));
-        Assert.assertTrue(this.impl.isOpen(2, dayTimeLocalFormat.parse("02.01.2013 23:45:00 CET"))); // Jan 2nd
+        Assert.assertFalse(this.impl.isOpen(2, dayTimeLocalFormat.parse("01.01.2013 23:15:00 CET"))); // Jan 2nd
+        Assert.assertEquals(this.impl.getNextOpenTime(2, dayTimeLocalFormat.parse("01.01.2013 23:15:00 CET")), dayTimeLocalFormat.parse("01.01.2013 23:30:00 CET"));
+        Assert.assertTrue(this.impl.isOpen(2, dayTimeLocalFormat.parse("01.01.2013 23:45:00 CET"))); // Jan 2nd
     }
 
     // Futures
@@ -271,7 +271,7 @@ public class CalendarServiceTest {
 
     @Test
     public void testCurrentTradingDateFX() throws Exception {
-        Assert.assertEquals(this.impl.getCurrentTradingDate(2, dayTimeLocalFormat.parse("20.11.2013 18:00:00 CET")), dayFormat.parse("19.11.2013")); // Wed
+        Assert.assertEquals(this.impl.getCurrentTradingDate(2, dayTimeLocalFormat.parse("20.11.2013 18:00:00 CET")), dayFormat.parse("20.11.2013")); // Wed
     }
 
     @Test
