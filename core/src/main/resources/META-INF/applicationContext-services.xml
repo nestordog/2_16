@@ -293,10 +293,9 @@
         <bean id="iBNativeOrderService" class="ch.algotrader.service.ib.IBNativeOrderServiceImpl" >
             <constructor-arg index="0"  ref="iBSession"/>
             <constructor-arg index="1"  ref="iBIdGenerator"/>
-            <constructor-arg index="2"  ref="iBConfig"/>
+            <constructor-arg index="2"  ref="iBOrderMessageFactory"/>
             <constructor-arg index="3"  ref="orderService"/>
         </bean>
-
     </beans>
 
     <beans profile="iBMarketData">

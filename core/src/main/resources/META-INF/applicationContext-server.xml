@@ -228,6 +228,10 @@
         </bean>
 
         <bean id="iBSessionAdapter" class="ch.algotrader.adapter.ib.DefaultIBAdapter"/>
+        
+        <bean id="iBOrderMessageFactory" class="ch.algotrader.adapter.ib.DefaultIBOrderMessageFactory">
+            <constructor-arg index="0" ref="iBConfig"/>
+        </bean>
 
         <bean id="iBSessionLifecycle" class="ch.algotrader.adapter.ib.DefaultIBSessionLifecycle">
             <lookup-method name="getIBSession" bean="iBSession"/>

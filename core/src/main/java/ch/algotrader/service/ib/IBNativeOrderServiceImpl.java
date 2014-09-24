@@ -17,31 +17,24 @@
  ***********************************************************************************/
 package ch.algotrader.service.ib;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-
 import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
 
-import com.ib.client.Contract;
-
 import ch.algotrader.adapter.ib.IBIdGenerator;
+import ch.algotrader.adapter.ib.IBOrderMessageFactory;
 import ch.algotrader.adapter.ib.IBOrderStatus;
 import ch.algotrader.adapter.ib.IBSession;
 import ch.algotrader.adapter.ib.IBUtil;
-import ch.algotrader.config.IBConfig;
 import ch.algotrader.entity.Account;
-import ch.algotrader.entity.trade.LimitOrderI;
-import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.SimpleOrder;
-import ch.algotrader.entity.trade.StopOrderI;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.enumeration.Status;
-import ch.algotrader.enumeration.TIF;
 import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.service.ExternalOrderServiceImpl;
 import ch.algotrader.service.OrderService;
 import ch.algotrader.util.MyLogger;
+
+import com.ib.client.Contract;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -51,7 +44,6 @@ import ch.algotrader.util.MyLogger;
 public class IBNativeOrderServiceImpl extends ExternalOrderServiceImpl implements IBNativeOrderService {
 
     private static Logger logger = MyLogger.getLogger(IBNativeOrderServiceImpl.class.getName());
-    private static DateFormat format = new SimpleDateFormat("yyyyMMdd HH:mm:ss");
 
     private static boolean firstOrder = true;
 
@@ -59,23 +51,23 @@ public class IBNativeOrderServiceImpl extends ExternalOrderServiceImpl implement
 
     private final IBIdGenerator iBIdGenerator;
 
-    private final IBConfig iBConfig;
+    private final IBOrderMessageFactory iBOrderMessageFactory;
 
     private final OrderService orderService;
 
     public IBNativeOrderServiceImpl(final IBSession iBSession,
             final IBIdGenerator iBIdGenerator,
-            final IBConfig iBConfig,
+            final IBOrderMessageFactory iBOrderMessageFactory,
             final OrderService orderService) {
 
         Validate.notNull(iBSession, "IBSession is null");
         Validate.notNull(iBIdGenerator, "IBIdGenerator is null");
-        Validate.notNull(iBConfig, "IBConfig is null");
+        Validate.notNull(iBOrderMessageFactory, "IBConfig is null");
         Validate.notNull(orderService, "OrderService is null");
 
         this.iBSession = iBSession;
         this.iBIdGenerator = iBIdGenerator;
-        this.iBConfig = iBConfig;
+        this.iBOrderMessageFactory = iBOrderMessageFactory;
         this.orderService = orderService;
     }
 
@@ -174,101 +166,24 @@ public class IBNativeOrderServiceImpl extends ExternalOrderServiceImpl implement
      * helper method to be used in both sendorder and modifyorder.
      * @throws Exception
      */
-    private void sendOrModifyOrder(Order order) throws Exception {
+    private void sendOrModifyOrder(SimpleOrder order) throws Exception {
 
         if (!this.iBSession.getLifecycle().isLoggedOn()) {
             logger.error("order cannot be sent / modified, because IB is not logged on");
             return;
         }
 
+        // get the contract
         Contract contract = IBUtil.getContract(order.getSecurityInitialized());
 
-        com.ib.client.Order ibOrder = new com.ib.client.Order();
-        ibOrder.m_totalQuantity = (int) order.getQuantity();
-        ibOrder.m_action = IBUtil.getIBSide(order.getSide());
-        ibOrder.m_orderType = IBUtil.getIBOrderType(order);
-        ibOrder.m_transmit = true;
-
-        // handle a potentially defined account
-        if (order.getAccount().getExtAccount() != null) {
-
-            ibOrder.m_account = order.getAccount().getExtAccount();
-
-            // handling for financial advisor account groups
-        } else if (order.getAccount().getExtAccountGroup() != null) {
-
-            ibOrder.m_faGroup = order.getAccount().getExtAccountGroup();
-            ibOrder.m_faMethod = this.iBConfig.getFaMethod();
-
-            //            long existingQuantity = 0;
-            //            for (Position position : order.getSecurity().getPositions()) {
-            //                existingQuantity += position.getQuantity();
-            //            }
-            //
-            //            // evaluate weather the transaction is opening or closing
-            //            boolean opening = false;
-            //            if (existingQuantity > 0 && Side.SELL.equals(order.getSide())) {
-            //                opening = false;
-            //            } else if (existingQuantity <= 0 && Side.SELL.equals(order.getSide())) {
-            //                opening = true;
-            //            } else if (existingQuantity < 0 && Side.BUY.equals(order.getSide())) {
-            //                opening = false;
-            //            } else if (existingQuantity >= 0 && Side.BUY.equals(order.getSide())) {
-            //                opening = true;
-            //            }
-            //
-            //            ibOrder.m_faGroup = order.getAccount().getExtAccountGroup();
-            //
-            //            if (opening) {
-            //
-            //                // open by specifying the actual quantity
-            //                ibOrder.m_faMethod = this.faOpenMethod;
-            //
-            //            } else {
-            //
-            //                // reduce by percentage
-            //                ibOrder.m_faMethod = "PctChange";
-            //                ibOrder.m_totalQuantity = 0; // bacause the order is percent based
-            //                ibOrder.m_faPercentage = "-" + Math.abs(order.getQuantity() * 100 / (existingQuantity - order.getQuantity()));
-            //            }
-
-            // handling for financial advisor allocation profiles
-        } else if (order.getAccount().getExtAllocationProfile() != null) {
-
-            ibOrder.m_faProfile = order.getAccount().getExtAllocationProfile();
-        }
-
-        // add clearing information
-        if (order.getAccount().getExtClearingAccount() != null) {
-            ibOrder.m_clearingAccount = order.getAccount().getExtClearingAccount();
-            ibOrder.m_clearingIntent = "Away";
-        }
-
-        //set the limit price if order is a limit order or stop limit order
-        if (order instanceof LimitOrderI) {
-            ibOrder.m_lmtPrice = ((LimitOrderI) order).getLimit().doubleValue();
-        }
-
-        //set the stop price if order is a stop order or stop limit order
-        if (order instanceof StopOrderI) {
-            ibOrder.m_auxPrice = ((StopOrderI) order).getStop().doubleValue();
-        }
-
-        // set Time-In-Force (ATC are set as order types LOC and MOC)
-        if (order.getTif() != null && !TIF.ATC.equals(order.getTif())) {
-            ibOrder.m_tif = order.getTif().getValue();
-
-            // set the TIF-Date
-            if (order.getTifDateTime() != null) {
-                ibOrder.m_goodTillDate = format.format(order.getTifDateTime());
-            }
-        }
+        // create the IB order object
+        com.ib.client.Order iBOrder = this.iBOrderMessageFactory.createOrderMessage(order, contract);
 
         // progapate the order to all corresponding esper engines
         this.orderService.propagateOrder(order);
 
         // place the order through IBSession
-        this.iBSession.placeOrder(Integer.parseInt(order.getIntId()), contract, ibOrder);
+        this.iBSession.placeOrder(Integer.parseInt(order.getIntId()), contract, iBOrder);
 
         logger.info("placed or modified order: " + order);
     }
@@ -279,7 +194,7 @@ public class IBNativeOrderServiceImpl extends ExternalOrderServiceImpl implement
     @Override
     public String getNextOrderId(final Account account) {
 
-        return iBIdGenerator.getNextOrderId();
+        return this.iBIdGenerator.getNextOrderId();
     }
 
     @Override
