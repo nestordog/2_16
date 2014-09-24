@@ -828,7 +828,7 @@ public class TestGenericOrderMessageFactory {
         orderProperty2.setType(OrderPropertyType.FIX);
         orderProperty2.setValue("that stuff");
         OrderPropertyImpl orderProperty3 = new OrderPropertyImpl();
-        orderProperty3.setType(OrderPropertyType.FIX);
+        orderProperty3.setType(OrderPropertyType.INTERNAL);
         orderProperty3.setValue("other stuff");
         order.getOrderProperties().put("1000", orderProperty1);
         order.getOrderProperties().put("1001", orderProperty2);
