@@ -95,7 +95,7 @@ public class TestCNXOrderMessageFactory {
         Assert.assertEquals(new quickfix.field.Side(quickfix.field.Side.BUY), message.getSide());
         Assert.assertNotNull(message.getTransactTime());
         Assert.assertEquals(new OrderQty(2000), message.getOrderQty());
-        Assert.assertEquals(new quickfix.field.Currency("USD"), message.getCurrency());
+        Assert.assertEquals(new quickfix.field.Currency("EUR"), message.getCurrency());
 
         Assert.assertEquals(new OrdType(OrdType.FOREX_MARKET), message.getOrdType());
         Assert.assertFalse(message.isSetField(Price.FIELD));
@@ -143,7 +143,7 @@ public class TestCNXOrderMessageFactory {
         Assert.assertEquals(new quickfix.field.Side(quickfix.field.Side.BUY), message.getSide());
         Assert.assertNotNull(message.getTransactTime());
         Assert.assertEquals(new OrderQty(2000), message.getOrderQty());
-        Assert.assertEquals(new quickfix.field.Currency("USD"), message.getCurrency());
+        Assert.assertEquals(new quickfix.field.Currency("EUR"), message.getCurrency());
 
         Assert.assertEquals(new OrdType(OrdType.FOREX_LIMIT), message.getOrdType());
         Assert.assertEquals(new Price(1.345), message.getPrice());
@@ -177,7 +177,7 @@ public class TestCNXOrderMessageFactory {
         Assert.assertEquals(new quickfix.field.Side(quickfix.field.Side.BUY), message.getSide());
         Assert.assertNotNull(message.getTransactTime());
         Assert.assertEquals(new OrderQty(2000), message.getOrderQty());
-        Assert.assertEquals(new quickfix.field.Currency("USD"), message.getCurrency());
+        Assert.assertEquals(new quickfix.field.Currency("EUR"), message.getCurrency());
 
         Assert.assertEquals(new OrdType(OrdType.STOP), message.getOrdType());
         Assert.assertEquals(new IntField(7534, 1), message.getField(new IntField(7534)));
@@ -213,7 +213,7 @@ public class TestCNXOrderMessageFactory {
         Assert.assertEquals(new quickfix.field.Side(quickfix.field.Side.SELL), message.getSide());
         Assert.assertNotNull(message.getTransactTime());
         Assert.assertEquals(new OrderQty(2000), message.getOrderQty());
-        Assert.assertEquals(new quickfix.field.Currency("USD"), message.getCurrency());
+        Assert.assertEquals(new quickfix.field.Currency("EUR"), message.getCurrency());
 
         Assert.assertEquals(new OrdType(OrdType.STOP_LIMIT), message.getOrdType());
         Assert.assertEquals(new IntField(7534, 2), message.getField(new IntField(7534)));
@@ -251,7 +251,7 @@ public class TestCNXOrderMessageFactory {
         Assert.assertEquals(new quickfix.field.Side(quickfix.field.Side.BUY), message.getSide());
         Assert.assertNotNull(message.getTransactTime());
         Assert.assertEquals(new OrderQty(3000), message.getOrderQty());
-        Assert.assertEquals(new quickfix.field.Currency("USD"), message.getCurrency());
+        Assert.assertEquals(new quickfix.field.Currency("EUR"), message.getCurrency());
 
         Assert.assertEquals(new OrdType(OrdType.FOREX_MARKET), message.getOrdType());
         Assert.assertFalse(message.isSetField(Price.FIELD));
@@ -303,7 +303,7 @@ public class TestCNXOrderMessageFactory {
         Assert.assertEquals(new quickfix.field.Side(quickfix.field.Side.BUY), message.getSide());
         Assert.assertNotNull(message.getTransactTime());
         Assert.assertEquals(new OrderQty(3000), message.getOrderQty());
-        Assert.assertEquals(new quickfix.field.Currency("USD"), message.getCurrency());
+        Assert.assertEquals(new quickfix.field.Currency("EUR"), message.getCurrency());
 
         Assert.assertEquals(new OrdType(OrdType.FOREX_LIMIT), message.getOrdType());
         Assert.assertEquals(new Price(2.345), message.getPrice());
@@ -341,7 +341,7 @@ public class TestCNXOrderMessageFactory {
         Assert.assertEquals(new quickfix.field.Side(quickfix.field.Side.BUY), message.getSide());
         Assert.assertNotNull(message.getTransactTime());
         Assert.assertEquals(new OrderQty(4000), message.getOrderQty());
-        Assert.assertEquals(new quickfix.field.Currency("USD"), message.getCurrency());
+        Assert.assertEquals(new quickfix.field.Currency("EUR"), message.getCurrency());
 
         Assert.assertEquals(new OrdType(OrdType.STOP), message.getOrdType());
         Assert.assertEquals(new StopPx(3.345), message.getStopPx());
@@ -380,7 +380,7 @@ public class TestCNXOrderMessageFactory {
         Assert.assertEquals(new quickfix.field.Side(quickfix.field.Side.SELL), message.getSide());
         Assert.assertNotNull(message.getTransactTime());
         Assert.assertEquals(new OrderQty(5000), message.getOrderQty());
-        Assert.assertEquals(new quickfix.field.Currency("USD"), message.getCurrency());
+        Assert.assertEquals(new quickfix.field.Currency("EUR"), message.getCurrency());
 
         Assert.assertEquals(new OrdType(OrdType.STOP_LIMIT), message.getOrdType());
         Assert.assertEquals(new Price(4.355), message.getPrice());
