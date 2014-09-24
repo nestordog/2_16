@@ -34,16 +34,13 @@ import org.hibernate.SessionFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import ch.algotrader.ServiceLocator;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.CoreConfig;
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.SubscriptionDao;
-import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.marketData.TickDao;
 import ch.algotrader.entity.security.Security;
@@ -55,11 +52,7 @@ import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.util.HibernateUtil;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.io.CsvTickWriter;
-import ch.algotrader.util.metric.MetricsUtil;
 import ch.algotrader.util.spring.HibernateSession;
-import ch.algotrader.vo.GenericEventVO;
-
-import com.espertech.esper.collection.Pair;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -390,50 +383,4 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationCont
         return externalMarketDataService;
     }
 
-    public static class PropagateMarketDataEventSubscriber {
-
-        public void update(final MarketDataEvent marketDataEvent) {
-
-            // security.toString & marketDataEvent.toString is expensive, so only log if debug is enabled
-            if (logger.isTraceEnabled()) {
-                logger.trace(marketDataEvent.getSecurityInitialized() + " " + marketDataEvent);
-            }
-
-            long startTime = System.nanoTime();
-
-            EngineLocator.instance().sendMarketDataEvent(marketDataEvent);
-
-            MetricsUtil.accountEnd("PropagateMarketDataEventSubscriber.update", startTime);
-        }
-    }
-
-    public static class PropagateGenericEventSubscriber {
-
-        public void update(final GenericEventVO genericEvent) {
-
-            // security.toString & marketDataEvent.toString is expensive, so only log if debug is enabled
-            if (logger.isTraceEnabled()) {
-                logger.trace(genericEvent);
-            }
-
-            EngineLocator.instance().sendGenericEvent(genericEvent);
-        }
-    }
-
-    public static class PersistTickSubscriber {
-
-        @SuppressWarnings("rawtypes")
-        public void update(Pair<Tick, Object> insertStream, Map removeStream) {
-
-            Tick tick = insertStream.getFirst();
-
-            try {
-                ServiceLocator.instance().getMarketDataService().persistTick(tick);
-
-                // catch duplicate entry errors and log them as warn
-            } catch (DataIntegrityViolationException e) {
-                logger.warn(e.getRootCause().getMessage());
-            }
-        }
-    }
 }

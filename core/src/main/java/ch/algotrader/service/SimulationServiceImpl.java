@@ -29,8 +29,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.sf.ehcache.CacheManager;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.time.DateUtils;
@@ -46,9 +44,12 @@ import org.apache.commons.math.optimization.direct.MultiDirectional;
 import org.apache.commons.math.optimization.univariate.BrentOptimizer;
 import org.apache.commons.math.util.MathUtils;
 import org.apache.log4j.Logger;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 
-import ch.algotrader.ServiceLocator;
+import ch.algotrader.cache.CacheManager;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.security.Security;
@@ -82,7 +83,7 @@ import com.espertech.esperio.csv.CSVInputAdapter;
  *
  * @version $Revision$ $Date$
  */
-public class SimulationServiceImpl implements SimulationService, InitializingBean {
+public class SimulationServiceImpl implements SimulationService, InitializingBean, ApplicationContextAware {
 
     private static Logger logger = MyLogger.getLogger(SimulationServiceImpl.class.getName());
     private static Logger resultLogger = MyLogger.getLogger(SimulationServiceImpl.class.getName() + ".RESULT");
@@ -103,7 +104,9 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
 
     private final LookupService lookupService;
 
-    private final ch.algotrader.cache.CacheManager cacheManager;
+    private final CacheManager cacheManager;
+
+    private volatile ApplicationContext applicationContext;
 
     public SimulationServiceImpl(final CommonConfig commonConfig,
             final PositionService positionService,
@@ -111,7 +114,7 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
             final TransactionService transactionService,
             final PortfolioService portfolioService,
             final LookupService lookupService,
-            final ch.algotrader.cache.CacheManager cacheManager) {
+            final CacheManager cacheManager) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(positionService, "PositionService is null");
@@ -137,6 +140,12 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
         format.setGroupingUsed(false);
         format.setMinimumFractionDigits(portfolioDigits);
         format.setMaximumFractionDigits(portfolioDigits);
+    }
+
+    @Override
+    public void setApplicationContext(final ApplicationContext applicationContext) throws BeansException {
+
+        this.applicationContext = applicationContext;
     }
 
     /**
@@ -169,7 +178,7 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
             }
 
         // init all StrategyServices in the classpath
-        for (StrategyService strategyService : ServiceLocator.instance().getServices(StrategyService.class)) {
+        for (StrategyService strategyService : this.applicationContext.getBeansOfType(StrategyService.class).values()) {
             strategyService.initSimulation();
         }
 
@@ -177,7 +186,7 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
         feedMarketData();
 
             // init all StrategyServices in the classpath
-            for (StrategyService strategyService : ServiceLocator.instance().getServices(StrategyService.class)) {
+            for (StrategyService strategyService : this.applicationContext.getBeansOfType(StrategyService.class).values()) {
                 strategyService.exitSimulation();
             }
 
@@ -202,7 +211,7 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
         }
 
         // clear the second-level cache
-        CacheManager.getInstance().clearAll();
+        net.sf.ehcache.CacheManager.getInstance().clearAll();
 
         // close all reports
         ReportManager.closeAll();
@@ -501,7 +510,7 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
         Validate.notEmpty(parameter, "Parameter is empty");
 
         try {
-        UnivariateRealFunction function = new UnivariateFunction(parameter);
+        UnivariateRealFunction function = new UnivariateFunction(this, parameter);
         UnivariateRealOptimizer optimizer = new BrentOptimizer();
         optimizer.setAbsoluteAccuracy(accuracy);
         optimizer.optimize(function, GoalType.MAXIMIZE, min, max);
@@ -573,7 +582,7 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
         Validate.notNull(starts, "Starts is null");
 
         try {
-        MultivariateRealFunction function = new MultivariateFunction(parameters);
+        MultivariateRealFunction function = new MultivariateFunction(this, parameters);
         MultivariateRealOptimizer optimizer = new MultiDirectional();
         optimizer.setConvergenceChecker(new SimpleScalarValueChecker(0.0, 0.01));
         RealPointValuePair result = optimizer.optimize(function, GoalType.MAXIMIZE, starts);
@@ -646,7 +655,7 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
 
         // get potential strategy specific results
         Map<String, Object> strategyResults = new HashMap<String, Object>();
-        for (StrategyService strategyService : ServiceLocator.instance().getServices(StrategyService.class)) {
+        for (StrategyService strategyService : this.applicationContext.getBeansOfType(StrategyService.class).values()) {
             strategyResults.putAll(strategyService.getSimulationResults());
         }
         resultVO.setStrategyResults(strategyResults);
@@ -825,10 +834,13 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
 
     private class UnivariateFunction implements UnivariateRealFunction {
 
-        private String param;
 
-        public UnivariateFunction(String parameter) {
+        private final SimulationService simulationService;
+        private final String param;
+
+        public UnivariateFunction(final SimulationService simulationService, final String parameter) {
             super();
+            this.simulationService = simulationService;
             this.param = parameter;
         }
 
@@ -837,7 +849,7 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
 
             System.setProperty(this.param, String.valueOf(input));
 
-            SimulationResultVO resultVO = ServiceLocator.instance().getService("simulationService", SimulationService.class).runSimulation();
+            SimulationResultVO resultVO = simulationService.runSimulation();
             double result = resultVO.getPerformanceKeys().getSharpeRatio();
 
             resultLogger.info("optimize on " + this.param + "=" + SimulationServiceImpl.format.format(input) + " " + SimulationServiceImpl.this.convertStatisticsToShortString(resultVO));
@@ -848,10 +860,12 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
 
     private class MultivariateFunction implements MultivariateRealFunction {
 
-        private String[] params;
+        private final SimulationService simulationService;
+        private final String[] params;
 
-        public MultivariateFunction(String[] parameters) {
+        public MultivariateFunction(final SimulationService simulationService, final String[] parameters) {
             super();
+            this.simulationService = simulationService;
             this.params = parameters;
         }
 
@@ -869,7 +883,7 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
                 buffer.append(param + "=" + SimulationServiceImpl.format.format(value) + " ");
             }
 
-            SimulationResultVO resultVO = ServiceLocator.instance().getService("simulationService", SimulationService.class).runSimulation();
+            SimulationResultVO resultVO = this.simulationService.runSimulation();
             double result = resultVO.getPerformanceKeys().getSharpeRatio();
 
             resultLogger.info(buffer.toString() + SimulationServiceImpl.this.convertStatisticsToShortString(resultVO));

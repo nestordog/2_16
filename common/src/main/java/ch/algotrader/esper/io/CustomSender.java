@@ -22,7 +22,6 @@ import java.util.Map;
 import ch.algotrader.entity.marketData.Bar;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.esper.EngineLocator;
-import ch.algotrader.util.LookupUtil;
 import ch.algotrader.util.metric.MetricsUtil;
 import ch.algotrader.vo.RawBarVO;
 import ch.algotrader.vo.RawTickVO;
@@ -49,7 +48,7 @@ public class CustomSender extends AbstractSender {
         if (beanToSend instanceof RawTickVO) {
 
             long beforeCompleteRawT = System.nanoTime();
-            Tick tick = LookupUtil.rawTickVOToEntity((RawTickVO) beanToSend);
+            Tick tick = MarketEventSupport.rawTickVOToEntity((RawTickVO) beanToSend);
             long afterCompleteRaw = System.nanoTime();
 
             long beforeSendEvent = System.nanoTime();
@@ -63,7 +62,7 @@ public class CustomSender extends AbstractSender {
         } else if (beanToSend instanceof RawBarVO) {
 
             long beforeCompleteRawT = System.nanoTime();
-            Bar bar = LookupUtil.rawBarVOToEntity((RawBarVO) beanToSend);
+            Bar bar = MarketEventSupport.rawBarVOToEntity((RawBarVO) beanToSend);
             long afterCompleteRaw = System.nanoTime();
 
             long beforeSendEvent = System.nanoTime();

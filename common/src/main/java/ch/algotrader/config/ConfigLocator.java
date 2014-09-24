@@ -42,7 +42,7 @@ public final class ConfigLocator {
 
     private static final Logger LOGGER = MyLogger.getLogger(ConfigLocator.class.getName());
 
-    private static ConfigLocator INSTANCE;
+    private static volatile ConfigLocator INSTANCE;
 
     private final ConfigParams configParams;
     private final CommonConfig commonConfig;
@@ -77,23 +77,32 @@ public final class ConfigLocator {
         }
     }
 
-    public synchronized static void initialize(final ConfigParams configParams, final CommonConfig commonConfig) {
+    public static void initialize(final ConfigParams configParams, final CommonConfig commonConfig) {
 
         Validate.notNull(configParams, "ConfigParams is null");
         Validate.notNull(commonConfig, "ATConfig is null");
-        INSTANCE = new ConfigLocator(configParams, commonConfig);
+
+        synchronized(ConfigLocator.class) {
+            INSTANCE = new ConfigLocator(configParams, commonConfig);
+        }
     }
 
-    public synchronized static ConfigLocator instance() {
+    public static ConfigLocator instance() {
 
         if (INSTANCE == null) {
-            try {
 
-                INSTANCE = standaloneInit();
-            } catch (Exception ex) {
+            synchronized(ConfigLocator.class) {
 
-                LOGGER.error("Unexpected I/O error reading configuration", ex);
-                INSTANCE = new ConfigLocator(new ConfigParams(new NoOpConfigProvider()), CommonConfigBuilder.create().build());
+                if (INSTANCE == null) {
+                    try {
+
+                        INSTANCE = standaloneInit();
+                    } catch (Exception ex) {
+
+                        LOGGER.error("Unexpected I/O error reading configuration", ex);
+                        INSTANCE = new ConfigLocator(new ConfigParams(new NoOpConfigProvider()), CommonConfigBuilder.create().build());
+                    }
+                }
             }
         }
         return INSTANCE;
