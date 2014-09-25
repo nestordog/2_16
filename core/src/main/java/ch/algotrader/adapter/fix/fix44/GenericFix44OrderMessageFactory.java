@@ -134,6 +134,8 @@ public class GenericFix44OrderMessageFactory implements Fix44OrderMessageFactory
             }
         }
 
+        FixUtil.copyOrderProperties(message, order.getOrderPropertiesInitialized());
+
         return message;
     }
 
