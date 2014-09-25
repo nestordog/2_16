@@ -835,21 +835,38 @@ public class TestGenericOrderMessageFactory {
         order.getOrderProperties().put("1001", orderProperty2);
         order.getOrderProperties().put("1002", orderProperty3);
 
-        NewOrderSingle message = this.requestFactory.createNewOrderMessage(order, "test-id");
+        NewOrderSingle message1 = this.requestFactory.createNewOrderMessage(order, "test-id");
 
-        Assert.assertNotNull(message);
-        Assert.assertEquals(new ClOrdID("test-id"), message.getClOrdID());
-        Assert.assertNotNull(message.getTransactTime());
-        Assert.assertEquals(new Symbol("EUR"), message.getSymbol());
-        Assert.assertEquals(new quickfix.field.Side(quickfix.field.Side.BUY), message.getSide());
-        Assert.assertEquals(new OrderQty(2000), message.getOrderQty());
-        Assert.assertEquals(new OrdType(OrdType.MARKET), message.getOrdType());
-        Assert.assertEquals(new quickfix.field.Currency("USD"), message.getCurrency());
-        Assert.assertEquals(new SecurityType(SecurityType.CASH), message.getSecurityType());
+        Assert.assertNotNull(message1);
+        Assert.assertEquals(new ClOrdID("test-id"), message1.getClOrdID());
+        Assert.assertNotNull(message1.getTransactTime());
+        Assert.assertEquals(new Symbol("EUR"), message1.getSymbol());
+        Assert.assertEquals(new quickfix.field.Side(quickfix.field.Side.BUY), message1.getSide());
+        Assert.assertEquals(new OrderQty(2000), message1.getOrderQty());
+        Assert.assertEquals(new OrdType(OrdType.MARKET), message1.getOrdType());
+        Assert.assertEquals(new quickfix.field.Currency("USD"), message1.getCurrency());
+        Assert.assertEquals(new SecurityType(SecurityType.CASH), message1.getSecurityType());
 
-        Assert.assertEquals("this stuff", message.getString(1000));
-        Assert.assertEquals("that stuff", message.getString(1001));
-        Assert.assertFalse(message.isSetField(1002));
+        Assert.assertEquals("this stuff", message1.getString(1000));
+        Assert.assertEquals("that stuff", message1.getString(1001));
+        Assert.assertFalse(message1.isSetField(1002));
+
+        order.setIntId("test-id");
+        OrderCancelReplaceRequest message2 = this.requestFactory.createModifyOrderMessage(order, "test-id2");
+
+        Assert.assertNotNull(message2);
+        Assert.assertEquals(new OrigClOrdID("test-id"), message2.getOrigClOrdID());
+        Assert.assertEquals(new ClOrdID("test-id2"), message2.getClOrdID());
+        Assert.assertNotNull(message2.getTransactTime());
+        Assert.assertEquals(new Symbol("EUR"), message2.getSymbol());
+        Assert.assertEquals(new quickfix.field.Side(quickfix.field.Side.BUY), message2.getSide());
+        Assert.assertEquals(new OrderQty(2000), message2.getOrderQty());
+        Assert.assertEquals(new OrdType(OrdType.MARKET), message2.getOrdType());
+        Assert.assertEquals(new SecurityType(SecurityType.CASH), message2.getSecurityType());
+
+        Assert.assertEquals("this stuff", message2.getString(1000));
+        Assert.assertEquals("that stuff", message2.getString(1001));
+        Assert.assertFalse(message2.isSetField(1002));
     }
 
 }
