@@ -29,9 +29,7 @@ import ch.algotrader.service.LookupService;
 import ch.algotrader.util.MyLogger;
 import quickfix.FieldNotFound;
 import quickfix.SessionID;
-import quickfix.field.ClOrdID;
 import quickfix.field.ExecTransType;
-import quickfix.field.OrigClOrdID;
 import quickfix.field.Text;
 import quickfix.field.TransactTime;
 import quickfix.fix42.ExecutionReport;
@@ -142,20 +140,44 @@ public abstract class AbstractFix42OrderMessageHandler extends AbstractFix42Mess
 
             StringBuilder buf = new StringBuilder();
             buf.append("Order cancel/replace has been rejected");
-            if (reject.isSetField(ClOrdID.FIELD)) {
-                String clOrdID = reject.getClOrdID().getValue();
-                buf.append(" [order ID: ").append(clOrdID).append("]");
-            }
-            if (reject.isSetField(OrigClOrdID.FIELD)) {
-                String origClOrdID = reject.getOrigClOrdID().getValue();
-                buf.append(" [original order ID: ").append(origClOrdID).append("]");
-            }
+            String clOrdID = reject.getClOrdID().getValue();
+            buf.append(" [order ID: ").append(clOrdID).append("]");
+            String origClOrdID = reject.getOrigClOrdID().getValue();
+            buf.append(" [original order ID: ").append(origClOrdID).append("]");
             if (reject.isSetField(Text.FIELD)) {
                 String text = reject.getText().getValue();
                 buf.append(": ").append(text);
             }
             LOGGER.error(buf.toString());
         }
+
+        String intId = reject.getClOrdID().getValue();
+
+        // get the order from the OpenOrderWindow
+        Order order = getLookupService().getOpenOrderByRootIntId(intId);
+        if (order == null) {
+
+            if (LOGGER.isEnabledFor(Level.ERROR)) {
+
+                LOGGER.error("Order with int ID " + intId + " matching the execution report could not be found");
+            }
+            return;
+        }
+
+        OrderStatus orderStatus = OrderStatus.Factory.newInstance();
+        orderStatus.setStatus(Status.REJECTED);
+        orderStatus.setIntId(intId);
+        orderStatus.setOrder(order);
+        if (reject.isSetField(TransactTime.FIELD)) {
+
+            orderStatus.setExtDateTime(reject.getTransactTime().getValue());
+        }
+        if (reject.isSetField(Text.FIELD)) {
+
+            orderStatus.setReason(reject.getText().getValue());
+        }
+
+        EngineLocator.instance().getBaseEngine().sendEvent(orderStatus);
     }
 
 }
