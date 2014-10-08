@@ -49,6 +49,7 @@ import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.util.BeanUtil;
 import ch.algotrader.util.DateUtil;
 import ch.algotrader.util.MyLogger;
+import ch.algotrader.util.spring.HibernateSession;
 import ch.algotrader.vo.OrderStatusVO;
 
 /**
@@ -56,6 +57,7 @@ import ch.algotrader.vo.OrderStatusVO;
  *
  * @version $Revision$ $Date$
  */
+@HibernateSession
 public class OrderServiceImpl implements OrderService, ApplicationContextAware {
 
     private static Logger logger = MyLogger.getLogger(OrderServiceImpl.class.getName());

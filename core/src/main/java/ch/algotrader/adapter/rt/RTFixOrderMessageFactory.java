@@ -19,16 +19,15 @@ package ch.algotrader.adapter.rt;
 
 import java.util.Date;
 
+import ch.algotrader.adapter.fix.fix44.Fix44SymbologyResolver;
+import ch.algotrader.adapter.fix.fix44.GenericFix44OrderMessageFactory;
+import ch.algotrader.entity.trade.SimpleOrder;
 import quickfix.field.HandlInst;
 import quickfix.field.LocateReqd;
 import quickfix.field.TransactTime;
 import quickfix.fix44.NewOrderSingle;
 import quickfix.fix44.OrderCancelReplaceRequest;
 import quickfix.fix44.OrderCancelRequest;
-import ch.algotrader.adapter.fix.fix44.Fix44SymbologyResolver;
-import ch.algotrader.adapter.fix.fix44.GenericFix44OrderMessageFactory;
-import ch.algotrader.entity.Account;
-import ch.algotrader.entity.trade.SimpleOrder;
 
 /**
  * RealTick order message factory.
@@ -52,12 +51,6 @@ public class RTFixOrderMessageFactory extends GenericFix44OrderMessageFactory {
         newOrder.set(new HandlInst(HandlInst.AUTOMATED_EXECUTION_ORDER_PUBLIC));
         newOrder.set(new LocateReqd(true));
 
-        // handling for accounts
-        Account account = order.getAccountInitialized();
-        if (account.getExtAccount() != null) {
-            newOrder.set(new quickfix.field.Account(account.getExtAccount()));
-        }
-
         return newOrder;
     }
 
@@ -69,12 +62,6 @@ public class RTFixOrderMessageFactory extends GenericFix44OrderMessageFactory {
         replaceRequest.set(new HandlInst(HandlInst.AUTOMATED_EXECUTION_ORDER_PUBLIC));
         replaceRequest.set(new LocateReqd(true));
 
-        // handling for accounts
-        Account account = order.getAccountInitialized();
-        if (account.getExtAccount() != null) {
-            replaceRequest.set(new quickfix.field.Account(account.getExtAccount()));
-        }
-
         return replaceRequest;
     }
 
@@ -82,12 +69,6 @@ public class RTFixOrderMessageFactory extends GenericFix44OrderMessageFactory {
     public OrderCancelRequest createOrderCancelMessage(final SimpleOrder order, final String clOrdID) {
 
         OrderCancelRequest cancelRequest = super.createOrderCancelMessage(order, clOrdID);
-
-        // handling for accounts
-        Account account = order.getAccountInitialized();
-        if (account.getExtAccount() != null) {
-            cancelRequest.set(new quickfix.field.Account(account.getExtAccount()));
-        }
 
         cancelRequest.set(new TransactTime(new Date()));
 

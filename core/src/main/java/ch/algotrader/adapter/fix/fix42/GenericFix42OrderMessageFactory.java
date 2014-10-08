@@ -22,6 +22,7 @@ import java.util.Date;
 import org.apache.commons.lang.Validate;
 
 import ch.algotrader.adapter.fix.FixUtil;
+import ch.algotrader.entity.Account;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.trade.LimitOrderI;
 import ch.algotrader.entity.trade.SimpleOrder;
@@ -60,7 +61,8 @@ public class GenericFix42OrderMessageFactory implements Fix42OrderMessageFactory
 
         NewOrderSingle message = new NewOrderSingle();
         Security security = order.getSecurityInitialized();
-        Broker broker = order.getAccountInitialized().getBroker();
+        Account account = order.getAccountInitialized();
+        Broker broker = account.getBroker();
 
         // common info
         message.set(new ClOrdID(clOrdID));
@@ -71,6 +73,11 @@ public class GenericFix42OrderMessageFactory implements Fix42OrderMessageFactory
         message.set(FixUtil.getFixSide(order.getSide()));
         message.set(new OrderQty(order.getQuantity()));
         message.set(FixUtil.getFixOrderType(order));
+
+        // handling for accounts
+        if (account.getExtAccount() != null) {
+            message.set(new quickfix.field.Account(account.getExtAccount()));
+        }
 
         //set the limit price if order is a limit order or stop limit order
         if (order instanceof LimitOrderI) {
@@ -102,7 +109,8 @@ public class GenericFix42OrderMessageFactory implements Fix42OrderMessageFactory
 
         OrderCancelReplaceRequest message = new OrderCancelReplaceRequest();
         Security security = order.getSecurityInitialized();
-        Broker broker = order.getAccountInitialized().getBroker();
+        Account account = order.getAccountInitialized();
+        Broker broker = account.getBroker();
 
         // common info
         message.set(new ClOrdID(clOrdID));
@@ -114,6 +122,11 @@ public class GenericFix42OrderMessageFactory implements Fix42OrderMessageFactory
         message.set(FixUtil.getFixSide(order.getSide()));
         message.set(new OrderQty(order.getQuantity()));
         message.set(FixUtil.getFixOrderType(order));
+
+        // handling for accounts
+        if (account.getExtAccount() != null) {
+            message.set(new quickfix.field.Account(account.getExtAccount()));
+        }
 
         //set the limit price if order is a limit order or stop limit order
         if (order instanceof LimitOrderI) {
@@ -145,7 +158,8 @@ public class GenericFix42OrderMessageFactory implements Fix42OrderMessageFactory
 
         OrderCancelRequest message = new OrderCancelRequest();
         Security security = order.getSecurityInitialized();
-        Broker broker = order.getAccountInitialized().getBroker();
+        Account account = order.getAccountInitialized();
+        Broker broker = account.getBroker();
 
         // common info
         message.set(new ClOrdID(clOrdID));
@@ -155,6 +169,11 @@ public class GenericFix42OrderMessageFactory implements Fix42OrderMessageFactory
 
         message.set(FixUtil.getFixSide(order.getSide()));
         message.set(new OrderQty(order.getQuantity()));
+
+        // handling for accounts
+        if (account.getExtAccount() != null) {
+            message.set(new quickfix.field.Account(account.getExtAccount()));
+        }
 
         return message;
     }
