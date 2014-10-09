@@ -90,6 +90,20 @@ public class MapReporter implements Report {
         }
     }
 
+    public void writeAndFlus(Map<String, ?> row) {
+
+        try {
+            if (this.processor != null) {
+                this.writer.write(row, this.header, this.processor);
+            } else {
+                this.writer.write(row, this.header);
+            }
+            this.writer.flush();
+        } catch (IOException e) {
+            throw new ReportException(e);
+        }
+    }
+
     @Override
     public void close() {
 

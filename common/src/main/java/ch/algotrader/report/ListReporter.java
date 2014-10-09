@@ -88,10 +88,34 @@ public class ListReporter implements Report {
         }
     }
 
+    public void writeAndFlus(List<?> row) {
+
+        try {
+            if (this.processor != null) {
+                this.writer.write(row, this.processor);
+            } else {
+                this.writer.write(row);
+            }
+            this.writer.flush();
+        } catch (IOException e) {
+            throw new ReportException(e);
+        }
+    }
+
     public void write(Object... row) {
 
         try {
             this.writer.write(row);
+        } catch (IOException e) {
+            throw new ReportException(e);
+        }
+    }
+
+    public void writeAndFlush(Object... row) {
+
+        try {
+            this.writer.write(row);
+            this.writer.flush();
         } catch (IOException e) {
             throw new ReportException(e);
         }

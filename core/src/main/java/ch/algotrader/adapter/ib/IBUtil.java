@@ -34,6 +34,7 @@ import ch.algotrader.entity.security.Stock;
 import ch.algotrader.entity.trade.LimitOrder;
 import ch.algotrader.entity.trade.MarketOrder;
 import ch.algotrader.entity.trade.Order;
+import ch.algotrader.entity.trade.StopLimitOrder;
 import ch.algotrader.entity.trade.StopOrder;
 import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Side;
@@ -148,6 +149,8 @@ public class IBUtil {
             }
         } else if (order instanceof StopOrder) {
             return "STP";
+        } else if (order instanceof StopLimitOrder) {
+            return "STP LMT";
         } else {
             throw new IllegalArgumentException("unsupported order type " + order.getClass().getName());
         }

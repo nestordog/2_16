@@ -183,7 +183,11 @@ public class EngineImpl extends AbstractEngine {
         }
 
         Strategy strategy = ServiceLocator.instance().getLookupService().getStrategyByName(engineName);
-        configuration.getVariables().get("engineStrategy").setInitializationValue(strategy);
+        if (strategy == null) {
+            logger.warn("no stratgy found for engineName " + engineName);
+        } else {
+            configuration.getVariables().get("engineStrategy").setInitializationValue(strategy);
+        }
 
         this.serviceProvider = EPServiceProviderManager.getProvider(engineName, configuration);
 
