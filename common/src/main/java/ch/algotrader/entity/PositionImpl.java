@@ -260,7 +260,7 @@ public class PositionImpl extends Position {
     @Override
     public String toString() {
 
-        return getQuantity() + "," + getSecurity();
+        return getQuantity() + "," + getSecurity() + "," + getStrategy();
     }
 
 

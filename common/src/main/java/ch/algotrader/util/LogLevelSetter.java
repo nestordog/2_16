@@ -32,7 +32,7 @@ public class LogLevelSetter {
     public void init() {
 
         String levelName = System.getProperty("logLevel");
-        if (levelName != null && "".equals(levelName)) {
+        if (levelName != null && !"".equals(levelName)) {
             Level level = Level.toLevel(levelName); // defaults to DEBUG
             if (levelName.toUpperCase().equals(level.toString())) {
                 Logger.getRootLogger().setLevel(level);
