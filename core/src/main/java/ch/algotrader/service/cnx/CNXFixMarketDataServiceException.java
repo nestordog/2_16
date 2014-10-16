@@ -17,17 +17,22 @@
  ***********************************************************************************/
 package ch.algotrader.service.cnx;
 
+import ch.algotrader.service.ServiceException;
+
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class CNXFixMarketDataServiceException extends RuntimeException {
+public class CNXFixMarketDataServiceException extends ServiceException {
 
     private static final long serialVersionUID = -2205900222927332494L;
+
+    public CNXFixMarketDataServiceException(Exception ex) {
+        super(ex);
+    }
 
     public CNXFixMarketDataServiceException(String message, Exception ex) {
         super(message, ex);
     }
-
 }

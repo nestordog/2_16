@@ -22,9 +22,13 @@ package ch.algotrader.service;
  *
  * @version $Revision$ $Date$
  */
-public class ForexServiceException extends RuntimeException {
+public class ForexServiceException extends ServiceException {
 
     private static final long serialVersionUID = -9200821670106734791L;
+
+    public ForexServiceException( Exception ex) {
+        super(ex);
+    }
 
     public ForexServiceException(String message, Exception ex) {
         super(message, ex);

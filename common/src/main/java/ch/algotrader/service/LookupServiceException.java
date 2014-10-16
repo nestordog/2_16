@@ -22,12 +22,16 @@ package ch.algotrader.service;
  *
  * @version $Revision$ $Date$
  */
-public class LookupServiceException extends RuntimeException {
+public class LookupServiceException extends ServiceException {
 
     private static final long serialVersionUID = -4055291731013450710L;
 
     public LookupServiceException(String message) {
         super(message);
+    }
+
+    public LookupServiceException(Exception ex) {
+        super(ex);
     }
 
     public LookupServiceException(String message, Exception ex) {

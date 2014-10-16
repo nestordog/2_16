@@ -70,37 +70,34 @@ public class IBFixOrderServiceImpl extends Fix42OrderServiceImpl implements IBFi
         Validate.notNull(order, "Order is null");
         Validate.notNull(newOrder, "New order is null");
 
-        try {
-            newOrder.set(new HandlInst('2'));
-            newOrder.set(new CustomerOrFirm(0));
-            newOrder.set(new ExDestination(order.getSecurity().getSecurityFamily().getExchangeCode(order.getAccount().getBroker()).toString()));
+        newOrder.set(new HandlInst('2'));
+        newOrder.set(new CustomerOrFirm(0));
+        newOrder.set(new ExDestination(order.getSecurity().getSecurityFamily().getExchangeCode(order.getAccount().getBroker()).toString()));
 
-            // handling for accounts
-            if (order.getAccount().getExtAccount() != null) {
-                newOrder.set(new Account(order.getAccount().getExtAccount()));
-            }
-
-            // handling for financial advisor account groups
-            if (order.getAccount().getExtAccountGroup() != null) {
-                newOrder.set(new AllocationGroup(order.getAccount().getExtAccountGroup()));
-                newOrder.set(new AllocationMethod(this.iBConfig.getFaMethod()));
-
-                // handling for financial advisor allocation profiles
-            } else if (order.getAccount().getExtAllocationProfile() != null) {
-                newOrder.set(new AllocationProfile(order.getAccount().getExtAllocationProfile()));
-            }
-
-            // add clearing information
-            if (order.getAccount().getExtClearingAccount() != null) {
-                newOrder.set(new ClearingAccount(order.getAccount().getExtClearingAccount()));
-            }
-
-            if (order.getSecurity() instanceof Option) {
-                newOrder.set(new OpenClose(OpenClose.OPEN));
-            }
-        } catch (Exception ex) {
-            throw new IBFixOrderServiceException(ex.getMessage(), ex);
+        // handling for accounts
+        if (order.getAccount().getExtAccount() != null) {
+            newOrder.set(new Account(order.getAccount().getExtAccount()));
         }
+
+        // handling for financial advisor account groups
+        if (order.getAccount().getExtAccountGroup() != null) {
+            newOrder.set(new AllocationGroup(order.getAccount().getExtAccountGroup()));
+            newOrder.set(new AllocationMethod(this.iBConfig.getFaMethod()));
+
+            // handling for financial advisor allocation profiles
+        } else if (order.getAccount().getExtAllocationProfile() != null) {
+            newOrder.set(new AllocationProfile(order.getAccount().getExtAllocationProfile()));
+        }
+
+        // add clearing information
+        if (order.getAccount().getExtClearingAccount() != null) {
+            newOrder.set(new ClearingAccount(order.getAccount().getExtClearingAccount()));
+        }
+
+        if (order.getSecurity() instanceof Option) {
+            newOrder.set(new OpenClose(OpenClose.OPEN));
+        }
+
     }
 
     @Override
@@ -109,33 +106,30 @@ public class IBFixOrderServiceImpl extends Fix42OrderServiceImpl implements IBFi
         Validate.notNull(order, "Order is null");
         Validate.notNull(replaceRequest, "Replace request is null");
 
-        try {
-            replaceRequest.set(new HandlInst('2'));
-            replaceRequest.set(new CustomerOrFirm(0));
-            replaceRequest.set(new ExDestination(order.getSecurity().getSecurityFamily().getExchangeCode(order.getAccount().getBroker()).toString()));
+        replaceRequest.set(new HandlInst('2'));
+        replaceRequest.set(new CustomerOrFirm(0));
+        replaceRequest.set(new ExDestination(order.getSecurity().getSecurityFamily().getExchangeCode(order.getAccount().getBroker()).toString()));
 
-            // handling for accounts
-            if (order.getAccount().getExtAccount() != null) {
-                replaceRequest.set(new Account(order.getAccount().getExtAccount()));
-            }
-
-            // handling for financial advisor account groups
-            if (order.getAccount().getExtAccountGroup() != null) {
-                replaceRequest.set(new AllocationGroup(order.getAccount().getExtAccountGroup()));
-                replaceRequest.set(new AllocationMethod(this.iBConfig.getFaMethod()));
-
-                // handling for financial advisor allocation profiles
-            } else if (order.getAccount().getExtAllocationProfile() != null) {
-                replaceRequest.set(new AllocationProfile(order.getAccount().getExtAllocationProfile()));
-            }
-
-            // add clearing information
-            if (order.getAccount().getExtClearingAccount() != null) {
-                replaceRequest.set(new ClearingAccount(order.getAccount().getExtClearingAccount()));
-            }
-        } catch (Exception ex) {
-            throw new IBFixOrderServiceException(ex.getMessage(), ex);
+        // handling for accounts
+        if (order.getAccount().getExtAccount() != null) {
+            replaceRequest.set(new Account(order.getAccount().getExtAccount()));
         }
+
+        // handling for financial advisor account groups
+        if (order.getAccount().getExtAccountGroup() != null) {
+            replaceRequest.set(new AllocationGroup(order.getAccount().getExtAccountGroup()));
+            replaceRequest.set(new AllocationMethod(this.iBConfig.getFaMethod()));
+
+            // handling for financial advisor allocation profiles
+        } else if (order.getAccount().getExtAllocationProfile() != null) {
+            replaceRequest.set(new AllocationProfile(order.getAccount().getExtAllocationProfile()));
+        }
+
+        // add clearing information
+        if (order.getAccount().getExtClearingAccount() != null) {
+            replaceRequest.set(new ClearingAccount(order.getAccount().getExtClearingAccount()));
+        }
+
     }
 
     @Override
@@ -144,24 +138,21 @@ public class IBFixOrderServiceImpl extends Fix42OrderServiceImpl implements IBFi
         Validate.notNull(order, "Order is null");
         Validate.notNull(cancelRequest, "Cancel request is null");
 
-        try {
-            // handling for accounts
-            if (order.getAccount().getExtAccount() != null) {
-                cancelRequest.set(new Account(order.getAccount().getExtAccount()));
-            }
-
-            // handling for financial advisor account groups
-            if (order.getAccount().getExtAccountGroup() != null) {
-                cancelRequest.set(new AllocationGroup(order.getAccount().getExtAccountGroup()));
-                cancelRequest.set(new AllocationMethod(this.iBConfig.getFaMethod()));
-
-                // handling for financial advisor allocation profiles
-            } else if (order.getAccount().getExtAllocationProfile() != null) {
-                cancelRequest.set(new AllocationProfile(order.getAccount().getExtAllocationProfile()));
-            }
-        } catch (Exception ex) {
-            throw new IBFixOrderServiceException(ex.getMessage(), ex);
+        // handling for accounts
+        if (order.getAccount().getExtAccount() != null) {
+            cancelRequest.set(new Account(order.getAccount().getExtAccount()));
         }
+
+        // handling for financial advisor account groups
+        if (order.getAccount().getExtAccountGroup() != null) {
+            cancelRequest.set(new AllocationGroup(order.getAccount().getExtAccountGroup()));
+            cancelRequest.set(new AllocationMethod(this.iBConfig.getFaMethod()));
+
+            // handling for financial advisor allocation profiles
+        } else if (order.getAccount().getExtAllocationProfile() != null) {
+            cancelRequest.set(new AllocationProfile(order.getAccount().getExtAllocationProfile()));
+        }
+
     }
 
     @Override

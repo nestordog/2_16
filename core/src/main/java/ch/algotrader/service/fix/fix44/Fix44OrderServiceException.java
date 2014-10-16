@@ -17,12 +17,14 @@
  ***********************************************************************************/
 package ch.algotrader.service.fix.fix44;
 
+import ch.algotrader.service.ServiceException;
+
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class Fix44OrderServiceException extends RuntimeException {
+public class Fix44OrderServiceException extends ServiceException {
 
     private static final long serialVersionUID = 284738507968129935L;
 

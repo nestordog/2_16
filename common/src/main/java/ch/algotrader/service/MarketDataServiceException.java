@@ -22,9 +22,13 @@ package ch.algotrader.service;
  *
  * @version $Revision$ $Date$
  */
-public class MarketDataServiceException extends RuntimeException {
+public class MarketDataServiceException extends ServiceException {
 
     private static final long serialVersionUID = 7238197107503028990L;
+
+    public MarketDataServiceException(Exception ex) {
+        super(ex);
+    }
 
     public MarketDataServiceException(String message, Exception ex) {
         super(message, ex);

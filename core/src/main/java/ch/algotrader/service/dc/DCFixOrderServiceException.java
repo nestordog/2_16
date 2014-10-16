@@ -17,14 +17,20 @@
  ***********************************************************************************/
 package ch.algotrader.service.dc;
 
+import ch.algotrader.service.ServiceException;
+
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class DCFixOrderServiceException extends RuntimeException {
+public class DCFixOrderServiceException extends ServiceException {
 
     private static final long serialVersionUID = -5407801230303497154L;
+
+    public DCFixOrderServiceException(Exception ex) {
+        super(ex);
+    }
 
     public DCFixOrderServiceException(String message, Exception ex) {
         super(message, ex);

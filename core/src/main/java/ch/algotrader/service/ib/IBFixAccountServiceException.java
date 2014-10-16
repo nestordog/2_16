@@ -17,14 +17,20 @@
  ***********************************************************************************/
 package ch.algotrader.service.ib;
 
+import ch.algotrader.service.ServiceException;
+
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class IBFixAccountServiceException extends RuntimeException {
+public class IBFixAccountServiceException extends ServiceException {
 
     private static final long serialVersionUID = -847528934961123609L;
+
+    public IBFixAccountServiceException(Exception ex) {
+        super(ex);
+    }
 
     public IBFixAccountServiceException(String message, Exception ex) {
         super(message, ex);

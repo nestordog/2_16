@@ -26,6 +26,7 @@ import ch.algotrader.entity.trade.Order;
 import ch.algotrader.service.ExternalOrderServiceImpl;
 import ch.algotrader.service.OrderService;
 import ch.algotrader.util.MyLogger;
+import quickfix.FieldNotFound;
 import quickfix.Message;
 import quickfix.StringField;
 import quickfix.field.MsgType;
@@ -68,11 +69,7 @@ public abstract class FixOrderServiceImpl extends ExternalOrderServiceImpl imple
     @Override
     public void init() {
 
-        try {
-            this.fixAdapter.createSession(getOrderServiceType());
-        } catch (Exception ex) {
-            throw new FixOrderServiceException(ex.getMessage(), ex);
-        }
+        this.fixAdapter.createSession(getOrderServiceType());
     }
 
     /**
@@ -84,27 +81,30 @@ public abstract class FixOrderServiceImpl extends ExternalOrderServiceImpl imple
         Validate.notNull(order, "Order is null");
         Validate.notNull(message, "Message is null");
 
+        // send the message to the FixClient
+        this.fixAdapter.sendMessage(message, order.getAccount());
+
+        StringField msgType;
         try {
-            // send the message to the FixClient
-            this.fixAdapter.sendMessage(message, order.getAccount());
-
-            StringField msgType = message.getHeader().getField(new MsgType());
-            if (msgType.getValue().equals(MsgType.ORDER_SINGLE)) {
-                logger.info("sent order: " + order);
-            } else if (msgType.getValue().equals(MsgType.ORDER_CANCEL_REPLACE_REQUEST)) {
-                logger.info("sent order modification: " + order);
-            } else if (msgType.getValue().equals(MsgType.ORDER_CANCEL_REQUEST)) {
-                logger.info("sent order cancellation: " + order);
-            } else {
-                throw new IllegalArgumentException("unsupported messagetype: " + msgType);
-            }
-
-            if (propagate) {
-                this.orderService.propagateOrder(order);
-            }
-        } catch (Exception ex) {
-            throw new FixOrderServiceException(ex.getMessage(), ex);
+            msgType = message.getHeader().getField(new MsgType());
+        } catch (FieldNotFound ex) {
+            throw new FixOrderServiceException(ex);
         }
+
+        if (msgType.getValue().equals(MsgType.ORDER_SINGLE)) {
+            logger.info("sent order: " + order);
+        } else if (msgType.getValue().equals(MsgType.ORDER_CANCEL_REPLACE_REQUEST)) {
+            logger.info("sent order modification: " + order);
+        } else if (msgType.getValue().equals(MsgType.ORDER_CANCEL_REQUEST)) {
+            logger.info("sent order cancellation: " + order);
+        } else {
+            throw new IllegalArgumentException("unsupported messagetype: " + msgType);
+        }
+
+        if (propagate) {
+            this.orderService.propagateOrder(order);
+        }
+
     }
 
     /**

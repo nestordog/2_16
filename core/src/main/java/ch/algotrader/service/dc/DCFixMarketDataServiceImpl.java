@@ -19,8 +19,6 @@ package ch.algotrader.service.dc;
 
 import org.apache.commons.lang.Validate;
 
-import quickfix.field.SubscriptionRequestType;
-import quickfix.fix44.MarketDataRequest;
 import ch.algotrader.adapter.dc.DCFixMarketDataRequestFactory;
 import ch.algotrader.adapter.dc.DCUtil;
 import ch.algotrader.adapter.fix.FixAdapter;
@@ -29,6 +27,8 @@ import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.service.fix.fix44.Fix44MarketDataServiceImpl;
+import quickfix.field.SubscriptionRequestType;
+import quickfix.fix44.MarketDataRequest;
 
 /**
  * DukasCopy market data service implementation.
@@ -69,13 +69,9 @@ public class DCFixMarketDataServiceImpl extends Fix44MarketDataServiceImpl imple
 
         Validate.notNull(security, "Security is null");
 
-        try {
-            MarketDataRequest request = this.requestFactory.create(security, new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES));
+        MarketDataRequest request = this.requestFactory.create(security, new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES));
 
-            getFixAdapter().sendMessage(request, getSessionQualifier());
-        } catch (Exception ex) {
-            throw new DCFixMarketDataServiceException(ex.getMessage(), ex);
-        }
+        getFixAdapter().sendMessage(request, getSessionQualifier());
     }
 
     @Override
@@ -83,13 +79,9 @@ public class DCFixMarketDataServiceImpl extends Fix44MarketDataServiceImpl imple
 
         Validate.notNull(security, "Security is null");
 
-        try {
-            MarketDataRequest request = this.requestFactory.create(security, new SubscriptionRequestType(SubscriptionRequestType.DISABLE_PREVIOUS_SNAPSHOT_PLUS_UPDATE_REQUEST));
+        MarketDataRequest request = this.requestFactory.create(security, new SubscriptionRequestType(SubscriptionRequestType.DISABLE_PREVIOUS_SNAPSHOT_PLUS_UPDATE_REQUEST));
 
-            getFixAdapter().sendMessage(request, getSessionQualifier());
-        } catch (Exception ex) {
-            throw new DCFixMarketDataServiceException(ex.getMessage(), ex);
-        }
+        getFixAdapter().sendMessage(request, getSessionQualifier());
     }
 
     @Override
@@ -97,10 +89,7 @@ public class DCFixMarketDataServiceImpl extends Fix44MarketDataServiceImpl imple
 
         Validate.notNull(security, "Security is null");
 
-        try {
-            return DCUtil.getDCSymbol(security);
-        } catch (Exception ex) {
-            throw new DCFixMarketDataServiceException(ex.getMessage(), ex);
-        }
+        return DCUtil.getDCSymbol(security);
+
     }
 }

@@ -18,6 +18,7 @@
 package ch.algotrader.service;
 
 import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -109,29 +110,34 @@ public class ImportServiceImpl implements ImportService {
 
         Validate.notEmpty(isin, "isin is empty");
 
-        try {
-            File file = new File("files" + File.separator + "tickdata" + File.separator + this.commonConfig.getDataSet() + File.separator + isin + ".csv");
+        File file = new File("files" + File.separator + "tickdata" + File.separator + this.commonConfig.getDataSet() + File.separator + isin + ".csv");
 
-            if (file.exists()) {
+        if (file.exists()) {
 
-                Security security = this.securityDao.findByIsin(isin);
-                if (security == null) {
-                    throw new ImportServiceException("security was not found: " + isin);
+            Security security = this.securityDao.findByIsin(isin);
+            if (security == null) {
+                throw new ImportServiceException("security was not found: " + isin);
+            }
+
+            CsvTickReader reader;
+            try {
+                reader = new CsvTickReader(isin);
+            } catch (IOException ex) {
+                throw new ImportServiceException(ex);
+            }
+
+            // create a set that will eliminate ticks of the same date (not considering milliseconds)
+            Comparator<Tick> comp = new Comparator<Tick>() {
+                @Override
+                public int compare(Tick t1, Tick t2) {
+                    return (int) ((t1.getDateTime().getTime() - t2.getDateTime().getTime()) / 1000);
                 }
+            };
+            Set<Tick> newTicks = new TreeSet<Tick>(comp);
 
-                CsvTickReader reader = new CsvTickReader(isin);
-
-                // create a set that will eliminate ticks of the same date (not considering milliseconds)
-                Comparator<Tick> comp = new Comparator<Tick>() {
-                    @Override
-                    public int compare(Tick t1, Tick t2) {
-                        return (int) ((t1.getDateTime().getTime() - t2.getDateTime().getTime()) / 1000);
-                    }
-                };
-                Set<Tick> newTicks = new TreeSet<Tick>(comp);
-
-                // fetch all ticks from the file
-                Tick tick;
+            // fetch all ticks from the file
+            Tick tick;
+            try {
                 while ((tick = reader.readTick()) != null) {
 
                     if (tick.getLast().equals(new BigDecimal(0))) {
@@ -142,36 +148,33 @@ public class ImportServiceImpl implements ImportService {
                     newTicks.add(tick);
 
                 }
-
-                // eliminate ticks that are already in the DB
-                List<Tick> existingTicks = this.tickDao.findBySecurity(security.getId());
-
-                for (Tick tick2 : existingTicks) {
-                    newTicks.remove(tick2);
-                }
-
-                // insert the newTicks into the DB
-                try {
-                    this.tickDao.create(newTicks);
-                } catch (Exception e) {
-                    logger.error("problem import ticks for " + isin, e);
-                }
-
-                // perform memory release
-                Session session = this.sessionFactory.getCurrentSession();
-                session.flush();
-                session.clear();
-
-                // gc
-                System.gc();
-
-                logger.info("imported " + newTicks.size() + " ticks for: " + isin);
-            } else {
-                logger.info("file does not exist: " + isin);
+            } catch (IOException ex) {
+                throw new ImportServiceException(ex);
             }
-        } catch (Exception ex) {
-            throw new ImportServiceException(ex.getMessage(), ex);
+
+            // eliminate ticks that are already in the DB
+            List<Tick> existingTicks = this.tickDao.findBySecurity(security.getId());
+
+            for (Tick tick2 : existingTicks) {
+                newTicks.remove(tick2);
+            }
+
+            // insert the newTicks into the DB
+            this.tickDao.create(newTicks);
+
+            // perform memory release
+            Session session = this.sessionFactory.getCurrentSession();
+            session.flush();
+            session.clear();
+
+            // gc
+            System.gc();
+
+            logger.info("imported " + newTicks.size() + " ticks for: " + isin);
+        } else {
+            logger.info("file does not exist: " + isin);
         }
+
     }
 
     /**
@@ -184,42 +187,48 @@ public class ImportServiceImpl implements ImportService {
         Validate.notEmpty(optionFamilyId, "Option family id is empty");
         Validate.notEmpty(fileName, "File name is empty");
 
-        try {
-            OptionFamily family = this.optionFamilyDao.get(Integer.parseInt(optionFamilyId));
-            Map<String, Option> options = new HashMap<String, Option>();
+        OptionFamily family = this.optionFamilyDao.get(Integer.parseInt(optionFamilyId));
+        Map<String, Option> options = new HashMap<String, Option>();
 
-            for (Security security : family.getSecurities()) {
-                Option option = (Option) security;
-                options.put(option.getSymbol(), option);
+        for (Security security : family.getSecurities()) {
+            Option option = (Option) security;
+            options.put(option.getSymbol(), option);
+        }
+
+        Date date = null;
+
+        File dir = new File("files" + File.separator + "iVol" + File.separator + fileName);
+
+        for (File file : dir.listFiles()) {
+
+            //            String dateString = file.getName().substring(5, 15);
+            //            Date fileDate = fileFormat.parse(dateString);
+            CsvIVolReader csvReader;
+            try {
+                csvReader = new CsvIVolReader(fileName + File.separator + file.getName());
+            } catch (IOException ex) {
+                throw new ImportServiceException(ex);
             }
 
-            Date date = null;
-
-            File dir = new File("files" + File.separator + "iVol" + File.separator + fileName);
-
-            for (File file : dir.listFiles()) {
-
-                //            String dateString = file.getName().substring(5, 15);
-                //            Date fileDate = fileFormat.parse(dateString);
-                CsvIVolReader csvReader = new CsvIVolReader(fileName + File.separator + file.getName());
-
-                IVolVO iVol;
-                Set<Tick> ticks = new TreeSet<Tick>(new Comparator<Tick>() {
-                    @Override
-                    public int compare(Tick t1, Tick t2) {
-                        if (t1.getSecurity().getId() > t2.getSecurity().getId()) {
-                            return 1;
-                        } else if (t1.getSecurity().getId() < t2.getSecurity().getId()) {
-                            return -1;
-                        } else if (t1.getDateTime().getTime() > t2.getDateTime().getTime()) {
-                            return 1;
-                        } else if (t1.getDateTime().getTime() < t2.getDateTime().getTime()) {
-                            return -1;
-                        } else {
-                            return 0;
-                        }
+            IVolVO iVol;
+            Set<Tick> ticks = new TreeSet<Tick>(new Comparator<Tick>() {
+                @Override
+                public int compare(Tick t1, Tick t2) {
+                    if (t1.getSecurity().getId() > t2.getSecurity().getId()) {
+                        return 1;
+                    } else if (t1.getSecurity().getId() < t2.getSecurity().getId()) {
+                        return -1;
+                    } else if (t1.getDateTime().getTime() > t2.getDateTime().getTime()) {
+                        return 1;
+                    } else if (t1.getDateTime().getTime() < t2.getDateTime().getTime()) {
+                        return -1;
+                    } else {
+                        return 0;
                     }
-                });
+                }
+            });
+
+            try {
                 while ((iVol = csvReader.readHloc()) != null) {
 
                     // prevent overlap
@@ -295,34 +304,35 @@ public class ImportServiceImpl implements ImportService {
 
                     ticks.add(tick);
                 }
-
-                logger.info("importing " + ticks.size() + " ticks");
-
-                // divide into chuncks of 10000
-                List<Tick> list = new ArrayList<Tick>(ticks);
-                for (int i = 0; i < ticks.size(); i = i + 10000) {
-
-                    int j = Math.min(i + 10000, ticks.size());
-                    List<Tick> subList = list.subList(i, j);
-
-                    this.tickDao.create(subList);
-
-                    // perform memory release
-                    Session session = this.sessionFactory.getCurrentSession();
-                    session.flush();
-                    session.clear();
-
-                    logger.info("importing chunk " + i + " - " + j);
-                }
-
-                // gc
-                System.gc();
-
-                logger.info("finished with file " + file.getName() + " created " + ticks.size() + " ticks");
+            } catch (IOException ex) {
+                throw new ImportServiceException(ex);
             }
-        } catch (Exception ex) {
-            throw new ImportServiceException(ex.getMessage(), ex);
+
+            logger.info("importing " + ticks.size() + " ticks");
+
+            // divide into chuncks of 10000
+            List<Tick> list = new ArrayList<Tick>(ticks);
+            for (int i = 0; i < ticks.size(); i = i + 10000) {
+
+                int j = Math.min(i + 10000, ticks.size());
+                List<Tick> subList = list.subList(i, j);
+
+                this.tickDao.create(subList);
+
+                // perform memory release
+                Session session = this.sessionFactory.getCurrentSession();
+                session.flush();
+                session.clear();
+
+                logger.info("importing chunk " + i + " - " + j);
+            }
+
+            // gc
+            System.gc();
+
+            logger.info("finished with file " + file.getName() + " created " + ticks.size() + " ticks");
         }
+
     }
 
 }

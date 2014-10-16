@@ -19,8 +19,6 @@ package ch.algotrader.service.cnx;
 
 import org.apache.commons.lang.Validate;
 
-import quickfix.field.SubscriptionRequestType;
-import quickfix.fix44.MarketDataRequest;
 import ch.algotrader.adapter.cnx.CNXFixMarketDataRequestFactory;
 import ch.algotrader.adapter.cnx.CNXUtil;
 import ch.algotrader.adapter.fix.FixAdapter;
@@ -31,6 +29,8 @@ import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.service.fix.fix44.Fix44MarketDataServiceImpl;
+import quickfix.field.SubscriptionRequestType;
+import quickfix.fix44.MarketDataRequest;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -57,13 +57,9 @@ public class CNXFixMarketDataServiceImpl extends Fix44MarketDataServiceImpl impl
 
         Validate.notNull(security, "Security is null");
 
-        try {
-            MarketDataRequest request = this.requestFactory.create(security, new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES));
+        MarketDataRequest request = this.requestFactory.create(security, new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES));
 
-            getFixAdapter().sendMessage(request, getSessionQualifier());
-        } catch (Exception ex) {
-            throw new CNXFixMarketDataServiceException(ex.getMessage(), ex);
-        }
+        getFixAdapter().sendMessage(request, getSessionQualifier());
     }
 
     @Override
@@ -71,15 +67,11 @@ public class CNXFixMarketDataServiceImpl extends Fix44MarketDataServiceImpl impl
 
         Validate.notNull(security, "Security is null");
 
-        try {
-            if (!(security instanceof Forex)) {
-                throw new FixApplicationException("Currenex supports forex orders only");
-            }
-            Forex forex = (Forex) security;
-            return CNXUtil.getCNXSymbol(forex);
-        } catch (Exception ex) {
-            throw new CNXFixMarketDataServiceException(ex.getMessage(), ex);
+        if (!(security instanceof Forex)) {
+            throw new FixApplicationException("Currenex supports forex orders only");
         }
+        Forex forex = (Forex) security;
+        return CNXUtil.getCNXSymbol(forex);
     }
 
     @Override
@@ -87,13 +79,9 @@ public class CNXFixMarketDataServiceImpl extends Fix44MarketDataServiceImpl impl
 
         Validate.notNull(security, "Security is null");
 
-        try {
-            MarketDataRequest request = this.requestFactory.create(security, new SubscriptionRequestType(SubscriptionRequestType.DISABLE_PREVIOUS_SNAPSHOT_PLUS_UPDATE_REQUEST));
+        MarketDataRequest request = this.requestFactory.create(security, new SubscriptionRequestType(SubscriptionRequestType.DISABLE_PREVIOUS_SNAPSHOT_PLUS_UPDATE_REQUEST));
 
-            getFixAdapter().sendMessage(request, getSessionQualifier());
-        } catch (Exception ex) {
-            throw new CNXFixMarketDataServiceException(ex.getMessage(), ex);
-        }
+        getFixAdapter().sendMessage(request, getSessionQualifier());
     }
 
     @Override

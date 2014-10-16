@@ -17,14 +17,20 @@
  ***********************************************************************************/
 package ch.algotrader.service.fxcm;
 
+import ch.algotrader.service.ServiceException;
+
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class FXCMFixMarketDataServiceException extends RuntimeException {
+public class FXCMFixMarketDataServiceException extends ServiceException {
 
     private static final long serialVersionUID = 6588739335964224329L;
+
+    public FXCMFixMarketDataServiceException(Exception ex) {
+        super(ex);
+    }
 
     public FXCMFixMarketDataServiceException(String message, Exception ex) {
         super(message, ex);

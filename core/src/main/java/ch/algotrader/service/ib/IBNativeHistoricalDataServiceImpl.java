@@ -92,131 +92,139 @@ public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl
         Validate.notNull(barSize, "Bar size is null");
         Validate.notNull(barType, "Bar type is null");
 
-        try {
-            if (!this.iBSession.getLifecycle().isSubscribed()) {
-                throw new IBNativeHistoricalDataServiceException("cannot download historical data, because IB is not subscribed");
-            }
-
-            // make sure queue is empty
-            if (this.historicalDataQueue.peek() != null) {
-                this.historicalDataQueue.clear();
-                throw new IllegalStateException("historicalDataQueue is not empty");
-            }
-
-            Security security = this.securityDao.get(securityId);
-            if (security == null) {
-                throw new IBNativeHistoricalDataServiceException("security was not found " + securityId);
-            }
-
-            int scale = security.getSecurityFamily().getScale();
-            Contract contract = IBUtil.getContract(security);
-            int requestId = this.iBIdGenerator.getNextRequestId();
-            String dateString = dateTimeFormat.format(endDate);
-
-            String durationString = timePeriodLength + " ";
-            switch (timePeriod) {
-                case SEC:
-                    durationString += "S";
-                    break;
-                case DAY:
-                    durationString += "D";
-                    break;
-                case WEEK:
-                    durationString += "W";
-                    break;
-                case MONTH:
-                    durationString += "M";
-                    break;
-                case YEAR:
-                    durationString += "Y";
-                    break;
-                default:
-                    throw new IllegalArgumentException("timePeriod is not allowed " + timePeriod);
-            }
-
-            String[] barSizeName = barSize.name().split("_");
-
-            String barSizeString = barSizeName[1] + " ";
-            if (barSizeName[0].equals("SEC")) {
-                barSizeString += "sec";
-            } else if (barSizeName[0].equals("MIN")) {
-                barSizeString += "min";
-            } else if (barSizeName[0].equals("HOUR")) {
-                barSizeString += "hour";
-            } else if (barSizeName[0].equals("DAY")) {
-                barSizeString += "day";
-            } else {
-                throw new IllegalArgumentException("barSize is not allowed " + barSize);
-            }
-
-            if (Integer.parseInt(barSizeName[1]) > 1) {
-                barSizeString += "s";
-            }
-
-            String barTypeString;
-            switch (barType) {
-                case TRADES:
-                    barTypeString = "TRADES";
-                    break;
-                case MIDPOINT:
-                    barTypeString = "MIDPOINT";
-                    break;
-                case BID:
-                    barTypeString = "BID";
-                    break;
-                case ASK:
-                    barTypeString = "ASK";
-                    break;
-                case BID_ASK:
-                    barTypeString = "BID_ASK";
-                    break;
-                default:
-                    throw new IllegalArgumentException("unsupported barType " + barType);
-            }
-
-            // avoid pacing violations
-            long gapMillis = System.currentTimeMillis() - this.lastTimeStamp;
-            if (this.lastTimeStamp != 0 && gapMillis < pacingMillis) {
-                long waitMillis = pacingMillis - gapMillis;
-                logger.debug("waiting " + waitMillis + " millis until next historical data request");
-                Thread.sleep(waitMillis);
-            }
-
-            // send the request
-            this.iBSession.reqHistoricalData(requestId, contract, dateString, durationString, barSizeString, barTypeString, 1, 1);
-
-            // read from the queue until a Bar with no dateTime is received
-            List<Bar> barList = new ArrayList<Bar>();
-            while (true) {
-
-                Bar bar = this.historicalDataQueue.poll(10, TimeUnit.SECONDS);
-
-                if (bar == null) {
-                    throw new IllegalStateException("timeout waiting for historical bars");
-                }
-
-                // end of transmission bar does not have a DateTime
-                if (bar.getDateTime() == null) {
-                    break;
-                }
-
-                // set & update fields
-                bar.setSecurity(security);
-                bar.setFeedType(FeedType.IB);
-                bar.getOpen().setScale(scale, RoundingMode.HALF_UP);
-                bar.getHigh().setScale(scale, RoundingMode.HALF_UP);
-                bar.getLow().setScale(scale, RoundingMode.HALF_UP);
-                bar.getClose().setScale(scale, RoundingMode.HALF_UP);
-                bar.setBarSize(barSize);
-
-                barList.add(bar);
-            }
-
-            this.lastTimeStamp = System.currentTimeMillis();
-
-            return barList;
-        } catch (Exception ex) {
-            throw new IBNativeHistoricalDataServiceException(ex.getMessage(), ex);
+        if (!this.iBSession.getLifecycle().isSubscribed()) {
+            throw new IBNativeHistoricalDataServiceException("cannot download historical data, because IB is not subscribed");
         }
+
+        // make sure queue is empty
+        if (this.historicalDataQueue.peek() != null) {
+            this.historicalDataQueue.clear();
+            throw new IBNativeHistoricalDataServiceException("historicalDataQueue is not empty");
+        }
+
+        Security security = this.securityDao.get(securityId);
+        if (security == null) {
+            throw new IBNativeHistoricalDataServiceException("security was not found " + securityId);
+        }
+
+        int scale = security.getSecurityFamily().getScale();
+        Contract contract = IBUtil.getContract(security);
+        int requestId = this.iBIdGenerator.getNextRequestId();
+        String dateString = dateTimeFormat.format(endDate);
+
+        String durationString = timePeriodLength + " ";
+        switch (timePeriod) {
+            case SEC:
+                durationString += "S";
+                break;
+            case DAY:
+                durationString += "D";
+                break;
+            case WEEK:
+                durationString += "W";
+                break;
+            case MONTH:
+                durationString += "M";
+                break;
+            case YEAR:
+                durationString += "Y";
+                break;
+            default:
+                throw new IllegalArgumentException("timePeriod is not allowed " + timePeriod);
+        }
+
+        String[] barSizeName = barSize.name().split("_");
+
+        String barSizeString = barSizeName[1] + " ";
+        if (barSizeName[0].equals("SEC")) {
+            barSizeString += "sec";
+        } else if (barSizeName[0].equals("MIN")) {
+            barSizeString += "min";
+        } else if (barSizeName[0].equals("HOUR")) {
+            barSizeString += "hour";
+        } else if (barSizeName[0].equals("DAY")) {
+            barSizeString += "day";
+        } else {
+            throw new IllegalArgumentException("barSize is not allowed " + barSize);
+        }
+
+        if (Integer.parseInt(barSizeName[1]) > 1) {
+            barSizeString += "s";
+        }
+
+        String barTypeString;
+        switch (barType) {
+            case TRADES:
+                barTypeString = "TRADES";
+                break;
+            case MIDPOINT:
+                barTypeString = "MIDPOINT";
+                break;
+            case BID:
+                barTypeString = "BID";
+                break;
+            case ASK:
+                barTypeString = "ASK";
+                break;
+            case BID_ASK:
+                barTypeString = "BID_ASK";
+                break;
+            default:
+                throw new IllegalArgumentException("unsupported barType " + barType);
+        }
+
+        // avoid pacing violations
+        long gapMillis = System.currentTimeMillis() - this.lastTimeStamp;
+        if (this.lastTimeStamp != 0 && gapMillis < pacingMillis) {
+            long waitMillis = pacingMillis - gapMillis;
+            logger.debug("waiting " + waitMillis + " millis until next historical data request");
+            try {
+                Thread.sleep(waitMillis);
+            } catch (InterruptedException ex) {
+                Thread.currentThread().interrupt();
+                throw new IBNativeHistoricalDataServiceException(ex);
+            }
+        }
+
+        // send the request
+        this.iBSession.reqHistoricalData(requestId, contract, dateString, durationString, barSizeString, barTypeString, 1, 1);
+
+        // read from the queue until a Bar with no dateTime is received
+        List<Bar> barList = new ArrayList<Bar>();
+        while (true) {
+
+            Bar bar;
+            try {
+                bar = this.historicalDataQueue.poll(10, TimeUnit.SECONDS);
+            } catch (InterruptedException ex) {
+                Thread.currentThread().interrupt();
+                throw new IBNativeHistoricalDataServiceException(ex);
+            }
+
+            if (bar == null) {
+                throw new IBNativeHistoricalDataServiceException("timeout waiting for historical bars");
+            }
+
+            // end of transmission bar does not have a DateTime
+            if (bar.getDateTime() == null) {
+                break;
+            }
+
+            // set & update fields
+            bar.setSecurity(security);
+            bar.setFeedType(FeedType.IB);
+            bar.getOpen().setScale(scale, RoundingMode.HALF_UP);
+            bar.getHigh().setScale(scale, RoundingMode.HALF_UP);
+            bar.getLow().setScale(scale, RoundingMode.HALF_UP);
+            bar.getClose().setScale(scale, RoundingMode.HALF_UP);
+            bar.setBarSize(barSize);
+
+            barList.add(bar);
+        }
+
+        this.lastTimeStamp = System.currentTimeMillis();
+
+        return barList;
+
     }
 }

@@ -22,12 +22,16 @@ package ch.algotrader.service;
  *
  * @version $Revision$ $Date$
  */
-public class HistoricalDataServiceException extends RuntimeException {
+public class HistoricalDataServiceException extends ServiceException {
 
     private static final long serialVersionUID = -1289565969767296784L;
 
     public HistoricalDataServiceException(String message) {
         super(message);
+    }
+
+    public HistoricalDataServiceException(Exception ex) {
+        super(ex);
     }
 
     public HistoricalDataServiceException(String message, Exception ex) {

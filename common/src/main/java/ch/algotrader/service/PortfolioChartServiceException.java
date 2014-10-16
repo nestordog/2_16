@@ -22,7 +22,7 @@ package ch.algotrader.service;
  *
  * @version $Revision$ $Date$
  */
-public class PortfolioChartServiceException extends RuntimeException {
+public class PortfolioChartServiceException extends ServiceException {
 
     private static final long serialVersionUID = -4685531225604868271L;
 

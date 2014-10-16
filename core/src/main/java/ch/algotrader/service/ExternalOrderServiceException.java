@@ -22,7 +22,7 @@ package ch.algotrader.service;
  *
  * @version $Revision$ $Date$
  */
-public class ExternalOrderServiceException extends RuntimeException {
+public class ExternalOrderServiceException extends ServiceException {
 
     private static final long serialVersionUID = -6368765538567262340L;
 

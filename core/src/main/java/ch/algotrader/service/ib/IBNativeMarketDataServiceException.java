@@ -17,17 +17,23 @@
  ***********************************************************************************/
 package ch.algotrader.service.ib;
 
+import ch.algotrader.service.ServiceException;
+
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class IBNativeMarketDataServiceException extends RuntimeException {
+public class IBNativeMarketDataServiceException extends ServiceException {
 
     private static final long serialVersionUID = -1369582940570764860L;
 
     public IBNativeMarketDataServiceException(String message) {
         super(message);
+    }
+
+    public IBNativeMarketDataServiceException(Exception ex) {
+        super(ex);
     }
 
     public IBNativeMarketDataServiceException(String message, Exception ex) {

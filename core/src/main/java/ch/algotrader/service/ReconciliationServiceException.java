@@ -22,7 +22,7 @@ package ch.algotrader.service;
  *
  * @version $Revision$ $Date$
  */
-public class ReconciliationServiceException extends RuntimeException {
+public class ReconciliationServiceException extends ServiceException {
 
     private static final long serialVersionUID = 2125167218158070527L;
 

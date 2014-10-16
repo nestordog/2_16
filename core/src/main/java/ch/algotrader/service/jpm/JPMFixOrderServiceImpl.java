@@ -59,17 +59,14 @@ public class JPMFixOrderServiceImpl extends Fix42OrderServiceImpl implements JPM
         Validate.notNull(order, "Order is null");
         Validate.notNull(newOrder, "New order is null");
 
-        try {
-            newOrder.set(new Account(order.getAccount().getExtAccount()));
-            newOrder.set(new HandlInst('1'));
-            newOrder.set(new TransactTime(new Date()));
+        newOrder.set(new Account(order.getAccount().getExtAccount()));
+        newOrder.set(new HandlInst('1'));
+        newOrder.set(new TransactTime(new Date()));
 
-            String exchange = order.getSecurity().getSecurityFamily().getExchangeCode(Broker.JPM);
-            newOrder.set(new ExDestination(exchange));
-            newOrder.set(new SecurityExchange(exchange));
-        } catch (Exception ex) {
-            throw new JPMFixOrderServiceException(ex.getMessage(), ex);
-        }
+        String exchange = order.getSecurity().getSecurityFamily().getExchangeCode(Broker.JPM);
+        newOrder.set(new ExDestination(exchange));
+        newOrder.set(new SecurityExchange(exchange));
+
     }
 
     @Override
@@ -78,17 +75,14 @@ public class JPMFixOrderServiceImpl extends Fix42OrderServiceImpl implements JPM
         Validate.notNull(order, "Order is null");
         Validate.notNull(replaceRequest, "Replace request is null");
 
-        try {
-            replaceRequest.set(new Account(order.getAccount().getExtAccount()));
-            replaceRequest.set(new HandlInst('1'));
-            replaceRequest.set(new TransactTime(new Date()));
+        replaceRequest.set(new Account(order.getAccount().getExtAccount()));
+        replaceRequest.set(new HandlInst('1'));
+        replaceRequest.set(new TransactTime(new Date()));
 
-            String exchange = order.getSecurity().getSecurityFamily().getExchangeCode(Broker.JPM);
-            replaceRequest.set(new ExDestination(exchange));
-            replaceRequest.set(new SecurityExchange(exchange));
-        } catch (Exception ex) {
-            throw new JPMFixOrderServiceException(ex.getMessage(), ex);
-        }
+        String exchange = order.getSecurity().getSecurityFamily().getExchangeCode(Broker.JPM);
+        replaceRequest.set(new ExDestination(exchange));
+        replaceRequest.set(new SecurityExchange(exchange));
+
     }
 
     @Override
@@ -97,15 +91,12 @@ public class JPMFixOrderServiceImpl extends Fix42OrderServiceImpl implements JPM
         Validate.notNull(order, "Order is null");
         Validate.notNull(cancelRequest, "Cancel request is null");
 
-        try {
-            cancelRequest.set(new Account(order.getAccount().getExtAccount()));
-            cancelRequest.set(new TransactTime(new Date()));
+        cancelRequest.set(new Account(order.getAccount().getExtAccount()));
+        cancelRequest.set(new TransactTime(new Date()));
 
-            String exchange = order.getSecurity().getSecurityFamily().getExchangeCode(Broker.JPM);
-            cancelRequest.set(new SecurityExchange(exchange));
-        } catch (Exception ex) {
-            throw new JPMFixOrderServiceException(ex.getMessage(), ex);
-        }
+        String exchange = order.getSecurity().getSecurityFamily().getExchangeCode(Broker.JPM);
+        cancelRequest.set(new SecurityExchange(exchange));
+
     }
 
     @Override

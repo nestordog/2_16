@@ -82,38 +82,35 @@ public class FutureServiceImpl implements FutureService {
     @Transactional(propagation = Propagation.REQUIRED)
     public void createDummyFutures(final int futureFamilyId) {
 
-        try {
-            FutureFamily family = this.futureFamilyDao.get(futureFamilyId);
-            Security underlying = family.getUnderlying();
+        FutureFamily family = this.futureFamilyDao.get(futureFamilyId);
+        Security underlying = family.getUnderlying();
 
-            Collection<Future> futures = this.futureDao.findByMinExpiration(family.getId(), DateUtil.getCurrentEPTime());
+        Collection<Future> futures = this.futureDao.findByMinExpiration(family.getId(), DateUtil.getCurrentEPTime());
 
-            // create the missing part of the futures chain
-            for (int i = futures.size() + 1; i <= family.getLength(); i++) {
+        // create the missing part of the futures chain
+        for (int i = futures.size() + 1; i <= family.getLength(); i++) {
 
-                int duration = i * (int) (family.getExpirationDistance().getValue() / Duration.MONTH_1.getValue());
+            int duration = i * (int) (family.getExpirationDistance().getValue() / Duration.MONTH_1.getValue());
 
-                Date expirationDate = DateUtil.getExpirationDateNMonths(family.getExpirationType(), DateUtil.getCurrentEPTime(), duration);
+            Date expirationDate = DateUtil.getExpirationDateNMonths(family.getExpirationType(), DateUtil.getCurrentEPTime(), duration);
 
-                String symbol = FutureSymbol.getSymbol(family, expirationDate);
-                String isin = FutureSymbol.getIsin(family, expirationDate);
-                String ric = FutureSymbol.getRic(family, expirationDate);
+            String symbol = FutureSymbol.getSymbol(family, expirationDate);
+            String isin = FutureSymbol.getIsin(family, expirationDate);
+            String ric = FutureSymbol.getRic(family, expirationDate);
 
-                Future future = Future.Factory.newInstance();
-                future.setSymbol(symbol);
-                future.setIsin(isin);
-                future.setRic(ric);
-                future.setExpiration(expirationDate);
-                future.setUnderlying(underlying);
-                future.setSecurityFamily(family);
+            Future future = Future.Factory.newInstance();
+            future.setSymbol(symbol);
+            future.setIsin(isin);
+            future.setRic(ric);
+            future.setExpiration(expirationDate);
+            future.setUnderlying(underlying);
+            future.setSecurityFamily(family);
 
-                this.futureDao.create(future);
+            this.futureDao.create(future);
 
-                logger.info("created future " + future);
-            }
-        } catch (Exception ex) {
-            throw new FutureServiceException(ex.getMessage(), ex);
+            logger.info("created future " + future);
         }
+
     }
 
     /**
@@ -125,25 +122,22 @@ public class FutureServiceImpl implements FutureService {
 
         Validate.notNull(targetExpirationDate, "Target expiration date is null");
 
-        try {
-            Future future = CollectionUtil.getSingleElementOrNull(this.futureDao.findByMinExpiration(1, 1, futureFamilyId, targetExpirationDate));
+        Future future = CollectionUtil.getSingleElementOrNull(this.futureDao.findByMinExpiration(1, 1, futureFamilyId, targetExpirationDate));
 
-            // if no future was found, create the missing part of the future-chain
-            if (this.commonConfig.isSimulation() && future == null && (this.coreConfig.isSimulateFuturesByUnderlying() || this.coreConfig.isSimulateFuturesByGenericFutures())) {
+        // if no future was found, create the missing part of the future-chain
+        if (this.commonConfig.isSimulation() && future == null && (this.coreConfig.isSimulateFuturesByUnderlying() || this.coreConfig.isSimulateFuturesByGenericFutures())) {
 
-                createDummyFutures(futureFamilyId);
+            createDummyFutures(futureFamilyId);
 
-                future = CollectionUtil.getSingleElementOrNull(this.futureDao.findByMinExpiration(1, 1, futureFamilyId, targetExpirationDate));
-            }
-
-            if (future == null) {
-                throw new LookupServiceException("no future available for expiration " + targetExpirationDate);
-            } else {
-                return future;
-            }
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
+            future = CollectionUtil.getSingleElementOrNull(this.futureDao.findByMinExpiration(1, 1, futureFamilyId, targetExpirationDate));
         }
+
+        if (future == null) {
+            throw new LookupServiceException("no future available for expiration " + targetExpirationDate);
+        } else {
+            return future;
+        }
+
     }
 
     /**
@@ -155,26 +149,22 @@ public class FutureServiceImpl implements FutureService {
 
         Validate.notNull(expirationDate, "Expiration date is null");
 
-        try {
+        Future future = this.futureDao.findByExpirationInclSecurityFamily(futureFamilyId, expirationDate);
 
-            Future future = this.futureDao.findByExpirationInclSecurityFamily(futureFamilyId, expirationDate);
+        // if no future was found, create the missing part of the future-chain
+        if (this.commonConfig.isSimulation() && future == null && (this.coreConfig.isSimulateFuturesByUnderlying() || this.coreConfig.isSimulateFuturesByGenericFutures())) {
 
-            // if no future was found, create the missing part of the future-chain
-            if (this.commonConfig.isSimulation() && future == null && (this.coreConfig.isSimulateFuturesByUnderlying() || this.coreConfig.isSimulateFuturesByGenericFutures())) {
-
-                createDummyFutures(futureFamilyId);
-                future = this.futureDao.findByExpirationInclSecurityFamily(futureFamilyId, expirationDate);
-            }
-
-            if (future == null) {
-                throw new LookupServiceException("no future available targetExpiration " + expirationDate);
-            } else {
-
-                return future;
-            }
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
+            createDummyFutures(futureFamilyId);
+            future = this.futureDao.findByExpirationInclSecurityFamily(futureFamilyId, expirationDate);
         }
+
+        if (future == null) {
+            throw new LookupServiceException("no future available targetExpiration " + expirationDate);
+        } else {
+
+            return future;
+        }
+
     }
 
     /**
@@ -186,28 +176,24 @@ public class FutureServiceImpl implements FutureService {
 
         Validate.notNull(targetDate, "Target date is null");
 
-        try {
+        FutureFamily futureFamily = this.futureFamilyDao.get(futureFamilyId);
 
-            FutureFamily futureFamily = this.futureFamilyDao.get(futureFamilyId);
+        Date expirationDate = DateUtil.getExpirationDateNMonths(futureFamily.getExpirationType(), targetDate, duration);
+        Future future = this.futureDao.findByExpirationInclSecurityFamily(futureFamilyId, expirationDate);
 
-            Date expirationDate = DateUtil.getExpirationDateNMonths(futureFamily.getExpirationType(), targetDate, duration);
-            Future future = this.futureDao.findByExpirationInclSecurityFamily(futureFamilyId, expirationDate);
+        // if no future was found, create the missing part of the future-chain
+        if (this.commonConfig.isSimulation() && future == null && (this.coreConfig.isSimulateFuturesByUnderlying() || this.coreConfig.isSimulateFuturesByGenericFutures())) {
 
-            // if no future was found, create the missing part of the future-chain
-            if (this.commonConfig.isSimulation() && future == null && (this.coreConfig.isSimulateFuturesByUnderlying() || this.coreConfig.isSimulateFuturesByGenericFutures())) {
-
-                createDummyFutures(futureFamily.getId());
-                future = this.futureDao.findByExpirationInclSecurityFamily(futureFamilyId, expirationDate);
-            }
-
-            if (future == null) {
-                throw new LookupServiceException("no future available targetExpiration " + targetDate + " and duration " + duration);
-            } else {
-                return future;
-            }
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
+            createDummyFutures(futureFamily.getId());
+            future = this.futureDao.findByExpirationInclSecurityFamily(futureFamilyId, expirationDate);
         }
+
+        if (future == null) {
+            throw new LookupServiceException("no future available targetExpiration " + targetDate + " and duration " + duration);
+        } else {
+            return future;
+        }
+
     }
 
     /**
@@ -218,11 +204,8 @@ public class FutureServiceImpl implements FutureService {
 
         Validate.notNull(minExpirationDate, "Min expiration date is null");
 
-        try {
-            return this.futureDao.findByMinExpiration(futureFamilyId, minExpirationDate);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.futureDao.findByMinExpiration(futureFamilyId, minExpirationDate);
+
     }
 
 }

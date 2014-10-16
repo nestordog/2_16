@@ -22,9 +22,13 @@ package ch.algotrader.service;
  *
  * @version $Revision$ $Date$
  */
-public class CombinationServiceException extends RuntimeException {
+public class CombinationServiceException extends ServiceException {
 
     private static final long serialVersionUID = 1789104219427254029L;
+
+    public CombinationServiceException(Exception ex) {
+        super(ex);
+    }
 
     public CombinationServiceException(String message, Exception ex) {
         super(message, ex);

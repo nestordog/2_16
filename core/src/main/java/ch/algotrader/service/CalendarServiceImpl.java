@@ -66,18 +66,15 @@ public class CalendarServiceImpl implements CalendarService {
 
         Validate.notNull(dateTime, "Data time is null");
 
-        try {
-            Exchange exchange = this.exchangeDao.get(exchangeId);
-            Date date = DateUtils.addDays(DateUtils.truncate(dateTime, Calendar.DATE), 2);
-            NavigableSet<Date> openTimes = new TreeSet<Date>();
-            while ((openTimes.floor(dateTime)) == null) {
-                date = DateUtils.addDays(date, -1);
-                openTimes.addAll(getOpenTimes(exchange, date));
-            }
-            return date;
-        } catch (Exception ex) {
-            throw new CalendarServiceException(ex.getMessage(), ex);
+        Exchange exchange = this.exchangeDao.get(exchangeId);
+        Date date = DateUtils.addDays(DateUtils.truncate(dateTime, Calendar.DATE), 2);
+        NavigableSet<Date> openTimes = new TreeSet<Date>();
+        while ((openTimes.floor(dateTime)) == null) {
+            date = DateUtils.addDays(date, -1);
+            openTimes.addAll(getOpenTimes(exchange, date));
         }
+        return date;
+
     }
 
     @Override
@@ -93,14 +90,11 @@ public class CalendarServiceImpl implements CalendarService {
 
         Validate.notNull(dateTime, "Data time is null");
 
-        try {
-            Exchange exchange = this.exchangeDao.get(exchangeId);
-            Date date = truncateToDayUsingTimeZone(dateTime, exchange.getTZ());
-            TimeIntervals timeIntervals = getTimeIntervalsPlusMinusOneDay(exchange, date);
-            return timeIntervals.contains(dateTime);
-        } catch (Exception ex) {
-            throw new CalendarServiceException(ex.getMessage(), ex);
-        }
+        Exchange exchange = this.exchangeDao.get(exchangeId);
+        Date date = truncateToDayUsingTimeZone(dateTime, exchange.getTZ());
+        TimeIntervals timeIntervals = getTimeIntervalsPlusMinusOneDay(exchange, date);
+        return timeIntervals.contains(dateTime);
+
     }
 
     @Override
@@ -116,13 +110,10 @@ public class CalendarServiceImpl implements CalendarService {
 
         Validate.notNull(date, "Date is null");
 
-        try {
-            Exchange exchange = this.exchangeDao.get(exchangeId);
-            Date dateTruncated = DateUtils.truncate(date, Calendar.DATE);
-            return isTradingDay(exchange, dateTruncated);
-        } catch (Exception ex) {
-            throw new CalendarServiceException(ex.getMessage(), ex);
-        }
+        Exchange exchange = this.exchangeDao.get(exchangeId);
+        Date dateTruncated = DateUtils.truncate(date, Calendar.DATE);
+        return isTradingDay(exchange, dateTruncated);
+
     }
 
     @Override
@@ -138,14 +129,11 @@ public class CalendarServiceImpl implements CalendarService {
 
         Validate.notNull(date, "Date is null");
 
-        try {
-            Exchange exchange = this.exchangeDao.get(exchangeId);
-            Date dateTruncated = DateUtils.truncate(date, Calendar.DATE);
-            TimeIntervals timeIntervals = getTimeIntervals(exchange, dateTruncated);
-            return timeIntervals.isEmpty() ? null : timeIntervals.first().getFrom();
-        } catch (Exception ex) {
-            throw new CalendarServiceException(ex.getMessage(), ex);
-        }
+        Exchange exchange = this.exchangeDao.get(exchangeId);
+        Date dateTruncated = DateUtils.truncate(date, Calendar.DATE);
+        TimeIntervals timeIntervals = getTimeIntervals(exchange, dateTruncated);
+        return timeIntervals.isEmpty() ? null : timeIntervals.first().getFrom();
+
     }
 
     @Override
@@ -161,14 +149,11 @@ public class CalendarServiceImpl implements CalendarService {
 
         Validate.notNull(date, "Date is null");
 
-        try {
-            Exchange exchange = this.exchangeDao.get(exchangeId);
-            Date dateTruncated = DateUtils.truncate(date, Calendar.DATE);
-            TimeIntervals timeIntervals = getTimeIntervals(exchange, dateTruncated);
-            return timeIntervals.isEmpty() ? null : timeIntervals.last().getTo();
-        } catch (Exception ex) {
-            throw new CalendarServiceException(ex.getMessage(), ex);
-        }
+        Exchange exchange = this.exchangeDao.get(exchangeId);
+        Date dateTruncated = DateUtils.truncate(date, Calendar.DATE);
+        TimeIntervals timeIntervals = getTimeIntervals(exchange, dateTruncated);
+        return timeIntervals.isEmpty() ? null : timeIntervals.last().getTo();
+
     }
 
     @Override
@@ -181,19 +166,16 @@ public class CalendarServiceImpl implements CalendarService {
 
         Validate.notNull(dateTime, "DateTime is null");
 
-        try {
-            Exchange exchange = this.exchangeDao.get(exchangeId);
-            Date date = DateUtils.truncate(dateTime, Calendar.DATE);
-            Date openTime;
-            NavigableSet<Date> openTimes = new TreeSet<Date>();
-            while ((openTime = openTimes.ceiling(dateTime)) == null) {
-                openTimes.addAll(getOpenTimes(exchange, date));
-                date = DateUtils.addDays(date, 1);
-            }
-            return openTime;
-        } catch (Exception ex) {
-            throw new CalendarServiceException(ex.getMessage(), ex);
+        Exchange exchange = this.exchangeDao.get(exchangeId);
+        Date date = DateUtils.truncate(dateTime, Calendar.DATE);
+        Date openTime;
+        NavigableSet<Date> openTimes = new TreeSet<Date>();
+        while ((openTime = openTimes.ceiling(dateTime)) == null) {
+            openTimes.addAll(getOpenTimes(exchange, date));
+            date = DateUtils.addDays(date, 1);
         }
+        return openTime;
+
     }
 
     @Override
@@ -206,19 +188,16 @@ public class CalendarServiceImpl implements CalendarService {
 
         Validate.notNull(dateTime, "DateTime is null");
 
-        try {
-            Exchange exchange = this.exchangeDao.get(exchangeId);
-            Date date = DateUtils.addDays(DateUtils.truncate(dateTime, Calendar.DATE), -1);
-            Date closeTime;
-            NavigableSet<Date> closeTimes = new TreeSet<Date>();
-            while ((closeTime = closeTimes.ceiling(dateTime)) == null) {
-                closeTimes.addAll(getCloseTimes(exchange, date));
-                date = DateUtils.addDays(date, 1);
-            }
-            return closeTime;
-        } catch (Exception ex) {
-            throw new CalendarServiceException(ex.getMessage(), ex);
+        Exchange exchange = this.exchangeDao.get(exchangeId);
+        Date date = DateUtils.addDays(DateUtils.truncate(dateTime, Calendar.DATE), -1);
+        Date closeTime;
+        NavigableSet<Date> closeTimes = new TreeSet<Date>();
+        while ((closeTime = closeTimes.ceiling(dateTime)) == null) {
+            closeTimes.addAll(getCloseTimes(exchange, date));
+            date = DateUtils.addDays(date, 1);
         }
+        return closeTime;
+
     }
 
     @Override

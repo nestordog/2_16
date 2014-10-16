@@ -62,38 +62,35 @@ public class PropertyServiceImpl implements PropertyService {
         Validate.notEmpty(name, "Name is empty");
         Validate.notNull(value, "Value is null");
 
-        try {
-            // reattach the propertyHolder
-            PropertyHolder propertyHolder = this.propertyHolderDao.load(propertyHolderId);
+        // reattach the propertyHolder
+        PropertyHolder propertyHolder = this.propertyHolderDao.load(propertyHolderId);
 
-            Property property = propertyHolder.getProps().get(name);
-            if (property == null) {
+        Property property = propertyHolder.getProps().get(name);
+        if (property == null) {
 
-                // create the property
-                property = Property.Factory.newInstance();
-                property.setName(name);
-                property.setValue(value);
-                property.setPersistent(persistent);
+            // create the property
+            property = Property.Factory.newInstance();
+            property.setName(name);
+            property.setValue(value);
+            property.setPersistent(persistent);
 
-                // associate the propertyHolder
-                property.setPropertyHolder(propertyHolder);
+            // associate the propertyHolder
+            property.setPropertyHolder(propertyHolder);
 
-                this.propertyDao.create(property);
+            this.propertyDao.create(property);
 
-                // reverse-associate the propertyHolder (after property has received an id)
-                propertyHolder.getProps().put(name, property);
+            // reverse-associate the propertyHolder (after property has received an id)
+            propertyHolder.getProps().put(name, property);
 
-            } else {
+        } else {
 
-                property.setValue(value);
-            }
-
-            logger.info("added property " + name + " value " + value + " to " + propertyHolder);
-
-            return propertyHolder;
-        } catch (Exception ex) {
-            throw new PropertyServiceException(ex.getMessage(), ex);
+            property.setValue(value);
         }
+
+        logger.info("added property " + name + " value " + value + " to " + propertyHolder);
+
+        return propertyHolder;
+
     }
 
     /**
@@ -105,22 +102,19 @@ public class PropertyServiceImpl implements PropertyService {
 
         Validate.notEmpty(name, "Name is empty");
 
-        try {
-            PropertyHolder propertyHolder = this.propertyHolderDao.load(propertyHolderId);
-            Property property = propertyHolder.getProps().get(name);
+        PropertyHolder propertyHolder = this.propertyHolderDao.load(propertyHolderId);
+        Property property = propertyHolder.getProps().get(name);
 
-            if (property != null) {
+        if (property != null) {
 
-                this.propertyDao.remove(property.getId());
+            this.propertyDao.remove(property.getId());
 
-                propertyHolder.removeProps(name);
-            }
-
-            logger.info("removed property " + name + " from " + propertyHolder);
-
-            return propertyHolder;
-        } catch (Exception ex) {
-            throw new PropertyServiceException(ex.getMessage(), ex);
+            propertyHolder.removeProps(name);
         }
+
+        logger.info("removed property " + name + " from " + propertyHolder);
+
+        return propertyHolder;
+
     }
 }

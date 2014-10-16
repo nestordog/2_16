@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.service.bb;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -104,109 +105,127 @@ public class BBSecurityRetrieverServiceImpl extends SecurityRetrieverServiceImpl
 
         try {
             session = this.bBAdapter.getReferenceDataSession();
-        } catch (Exception ex) {
-            throw new BBSecurityRetrieverServiceException(ex.getMessage(), ex);
+        } catch (IOException ex) {
+            throw new BBSecurityRetrieverServiceException(ex);
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+            throw new BBSecurityRetrieverServiceException(ex);
         }
     }
 
     @Override
     public void retrieve(int securityFamilyId) {
 
-        try {
-            SecurityFamily securityFamily = this.securityFamilyDao.get(securityFamilyId);
-            if (securityFamily == null) {
-                throw new BBSecurityRetrieverServiceException("securityFamily was not found " + securityFamilyId);
-            }
-
-            Security underlying = securityFamily.getUnderlying();
-            if (underlying == null) {
-                throw new BBSecurityRetrieverServiceException("no underlying defined for  " + securityFamily);
-            }
-
-            String bbgid = underlying.getBbgid();
-            if (bbgid == null) {
-                throw new BBSecurityRetrieverServiceException("no bbgid defined for  " + underlying);
-            }
-
-            String securityString = "/bbgid/" + bbgid;
-
-            Service service = session.getService();
-
-            // symbol request
-            Request symbolRequest = service.createRequest("ReferenceDataRequest");
-
-            // Add securities to request
-            symbolRequest.append("securities", securityString);
-
-            if (securityFamily instanceof OptionFamily) {
-                symbolRequest.append("fields", "OPT_CHAIN");
-            } else if (securityFamily instanceof FutureFamily) {
-                symbolRequest.append("fields", "FUT_CHAIN");
-            } else {
-                throw new IllegalArgumentException("illegal securityFamily type " + securityFamilyId);
-            }
-
-            // send request
-            session.sendRequest(symbolRequest, null);
-
-            // instantiate the message handler
-            BBSymbolHandler symbolHandler = new BBSymbolHandler();
-
-            // process responses
-            boolean done = false;
-            while (!done) {
-                done = symbolHandler.processEvent(session);
-            }
-
-            List<String> symbols = symbolHandler.getSymbols();
-
-            if (symbols.isEmpty()) {
-                throw new IllegalArgumentException("securityFamily does not contain a chain " + securityFamilyId);
-            }
-
-            // security request
-            Request securityRequest = service.createRequest("ReferenceDataRequest");
-
-            // Add securities to request
-            for (String symbol : symbols) {
-                securityRequest.append("securities", symbol);
-            }
-
-            securityRequest.append("fields", "ID_BB_GLOBAL");
-            securityRequest.append("fields", "ID_BB_SEC_NUM_DES");
-            securityRequest.append("fields", "CRNCY");
-
-            if (securityFamily instanceof OptionFamily) {
-                securityRequest.append("fields", "OPT_STRIKE_PX");
-                securityRequest.append("fields", "OPT_EXPIRE_DT");
-                securityRequest.append("fields", "OPT_PUT_CALL");
-                securityRequest.append("fields", "OPT_CONT_SIZE");
-
-            } else if (securityFamily instanceof FutureFamily) {
-                securityRequest.append("fields", "LAST_TRADEABLE_DT");
-                securityRequest.append("fields", "FUT_NOTICE_FIRST");
-                securityRequest.append("fields", "FUT_CONT_SIZE");
-            } else {
-                throw new IllegalArgumentException("illegal securityFamily type");
-            }
-
-            // send request
-            session.sendRequest(securityRequest, null);
-
-            // instantiate the message handler
-            BBSecurityHandler securityHandler = new BBSecurityHandler(securityFamily);
-
-            // process responses
-            done = false;
-            while (!done) {
-                done = securityHandler.processEvent(session);
-            }
-
-            // store all new securites in the database
-            securityHandler.store();
-        } catch (Exception ex) {
-            throw new BBSecurityRetrieverServiceException(ex.getMessage(), ex);
+        SecurityFamily securityFamily = this.securityFamilyDao.get(securityFamilyId);
+        if (securityFamily == null) {
+            throw new BBSecurityRetrieverServiceException("securityFamily was not found " + securityFamilyId);
         }
+
+        Security underlying = securityFamily.getUnderlying();
+        if (underlying == null) {
+            throw new BBSecurityRetrieverServiceException("no underlying defined for  " + securityFamily);
+        }
+
+        String bbgid = underlying.getBbgid();
+        if (bbgid == null) {
+            throw new BBSecurityRetrieverServiceException("no bbgid defined for  " + underlying);
+        }
+
+        String securityString = "/bbgid/" + bbgid;
+
+        Service service = session.getService();
+
+        // symbol request
+        Request symbolRequest = service.createRequest("ReferenceDataRequest");
+
+        // Add securities to request
+        symbolRequest.append("securities", securityString);
+
+        if (securityFamily instanceof OptionFamily) {
+            symbolRequest.append("fields", "OPT_CHAIN");
+        } else if (securityFamily instanceof FutureFamily) {
+            symbolRequest.append("fields", "FUT_CHAIN");
+        } else {
+            throw new IllegalArgumentException("illegal securityFamily type " + securityFamilyId);
+        }
+
+        // send request
+        try {
+            session.sendRequest(symbolRequest, null);
+        } catch (IOException ex) {
+            throw new BBSecurityRetrieverServiceException(ex);
+        }
+
+        // instantiate the message handler
+        BBSymbolHandler symbolHandler = new BBSymbolHandler();
+
+        // process responses
+        boolean done = false;
+        while (!done) {
+            try {
+                done = symbolHandler.processEvent(session);
+            } catch (InterruptedException ex) {
+                Thread.currentThread().interrupt();
+                throw new BBSecurityRetrieverServiceException(ex);
+            }
+        }
+
+        List<String> symbols = symbolHandler.getSymbols();
+
+        if (symbols.isEmpty()) {
+            throw new IllegalArgumentException("securityFamily does not contain a chain " + securityFamilyId);
+        }
+
+        // security request
+        Request securityRequest = service.createRequest("ReferenceDataRequest");
+
+        // Add securities to request
+        for (String symbol : symbols) {
+            securityRequest.append("securities", symbol);
+        }
+
+        securityRequest.append("fields", "ID_BB_GLOBAL");
+        securityRequest.append("fields", "ID_BB_SEC_NUM_DES");
+        securityRequest.append("fields", "CRNCY");
+
+        if (securityFamily instanceof OptionFamily) {
+            securityRequest.append("fields", "OPT_STRIKE_PX");
+            securityRequest.append("fields", "OPT_EXPIRE_DT");
+            securityRequest.append("fields", "OPT_PUT_CALL");
+            securityRequest.append("fields", "OPT_CONT_SIZE");
+
+        } else if (securityFamily instanceof FutureFamily) {
+            securityRequest.append("fields", "LAST_TRADEABLE_DT");
+            securityRequest.append("fields", "FUT_NOTICE_FIRST");
+            securityRequest.append("fields", "FUT_CONT_SIZE");
+        } else {
+            throw new IllegalArgumentException("illegal securityFamily type");
+        }
+
+        // send request
+        try {
+            session.sendRequest(securityRequest, null);
+        } catch (IOException ex) {
+            throw new BBSecurityRetrieverServiceException(ex);
+        }
+
+        // instantiate the message handler
+        BBSecurityHandler securityHandler = new BBSecurityHandler(securityFamily);
+
+        // process responses
+        done = false;
+        while (!done) {
+            try {
+                done = securityHandler.processEvent(session);
+            } catch (InterruptedException ex) {
+                Thread.currentThread().interrupt();
+                throw new BBSecurityRetrieverServiceException(ex);
+            }
+        }
+
+        // store all new securites in the database
+        securityHandler.store();
+
     }
 
     @Override

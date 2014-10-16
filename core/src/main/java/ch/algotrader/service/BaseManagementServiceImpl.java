@@ -18,6 +18,7 @@
 package ch.algotrader.service;
 
 import java.math.BigDecimal;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -91,11 +92,8 @@ public class BaseManagementServiceImpl implements BaseManagementService {
     @ManagedOperationParameters({})
     public void cancelAllOrders() {
 
-        try {
-            this.orderService.cancelAllOrders();
-        } catch (Exception ex) {
-            throw new BaseManagementServiceException(ex.getMessage(), ex);
-        }
+        this.orderService.cancelAllOrders();
+
     }
 
     /**
@@ -123,22 +121,23 @@ public class BaseManagementServiceImpl implements BaseManagementService {
         Validate.notEmpty(dateTime, "Date time is empty");
         Validate.notEmpty(transactionType, "Transaction type is empty");
 
+        Date dateTimeObject;
         try {
-
-            String extIdString = !"".equals(extId) ? extId : null;
-            Date dateTimeObject = (new SimpleDateFormat("dd.MM.yyyy HH:mm:ss")).parse(dateTime);
-            BigDecimal priceDecimal = RoundUtil.getBigDecimal(price);
-            BigDecimal executionCommissionDecimal = (executionCommission != 0) ? RoundUtil.getBigDecimal(executionCommission) : null;
-            BigDecimal clearingCommissionDecimal = (clearingCommission != 0) ? RoundUtil.getBigDecimal(clearingCommission) : null;
-            BigDecimal feeDecimal = (fee != 0) ? RoundUtil.getBigDecimal(fee) : null;
-            Currency currencyObject = !"".equals(currency) ? Currency.fromValue(currency) : null;
-            TransactionType transactionTypeObject = TransactionType.fromValue(transactionType);
-
-            this.transactionService.createTransaction(securityId, strategyName, extIdString, dateTimeObject, quantity, priceDecimal, executionCommissionDecimal, clearingCommissionDecimal, feeDecimal,
-                    currencyObject, transactionTypeObject, accountName, null);
-        } catch (Exception ex) {
-            throw new BaseManagementServiceException(ex.getMessage(), ex);
+            dateTimeObject = (new SimpleDateFormat("dd.MM.yyyy HH:mm:ss")).parse(dateTime);
+        } catch (ParseException ex) {
+            throw new BaseManagementServiceException(ex);
         }
+        String extIdString = !"".equals(extId) ? extId : null;
+        BigDecimal priceDecimal = RoundUtil.getBigDecimal(price);
+        BigDecimal executionCommissionDecimal = (executionCommission != 0) ? RoundUtil.getBigDecimal(executionCommission) : null;
+        BigDecimal clearingCommissionDecimal = (clearingCommission != 0) ? RoundUtil.getBigDecimal(clearingCommission) : null;
+        BigDecimal feeDecimal = (fee != 0) ? RoundUtil.getBigDecimal(fee) : null;
+        Currency currencyObject = !"".equals(currency) ? Currency.fromValue(currency) : null;
+        TransactionType transactionTypeObject = TransactionType.fromValue(transactionType);
+
+        this.transactionService.createTransaction(securityId, strategyName, extIdString, dateTimeObject, quantity, priceDecimal, executionCommissionDecimal, clearingCommissionDecimal, feeDecimal,
+                currencyObject, transactionTypeObject, accountName, null);
+
     }
 
     /**
@@ -152,11 +151,8 @@ public class BaseManagementServiceImpl implements BaseManagementService {
 
         Validate.notEmpty(targetStrategyName, "Target strategy name is empty");
 
-        try {
-            this.positionService.transferPosition(positionId, targetStrategyName);
-        } catch (Exception ex) {
-            throw new BaseManagementServiceException(ex.getMessage(), ex);
-        }
+        this.positionService.transferPosition(positionId, targetStrategyName);
+
     }
 
     /**
@@ -167,11 +163,8 @@ public class BaseManagementServiceImpl implements BaseManagementService {
     @ManagedOperationParameters({})
     public void setMargins() {
 
-        try {
-            this.positionService.setMargins();
-        } catch (Exception ex) {
-            throw new BaseManagementServiceException(ex.getMessage(), ex);
-        }
+        this.positionService.setMargins();
+
     }
 
     /**
@@ -182,11 +175,8 @@ public class BaseManagementServiceImpl implements BaseManagementService {
     @ManagedOperationParameters({})
     public void hedgeForex() {
 
-        try {
-            this.forexService.hedgeForex();
-        } catch (Exception ex) {
-            throw new BaseManagementServiceException(ex.getMessage(), ex);
-        }
+        this.forexService.hedgeForex();
+
     }
 
     /**
@@ -197,11 +187,8 @@ public class BaseManagementServiceImpl implements BaseManagementService {
     @ManagedOperationParameters({ @ManagedOperationParameter(name = "underlyingId", description = "underlyingId") })
     public void hedgeDelta(final int underlyingId) {
 
-        try {
-            this.optionService.hedgeDelta(underlyingId);
-        } catch (Exception ex) {
-            throw new BaseManagementServiceException(ex.getMessage(), ex);
-        }
+        this.optionService.hedgeDelta(underlyingId);
+
     }
 
     /**
@@ -212,11 +199,8 @@ public class BaseManagementServiceImpl implements BaseManagementService {
     @ManagedOperationParameters({})
     public void rebalancePortfolio() {
 
-        try {
-            this.transactionService.rebalancePortfolio();
-        } catch (Exception ex) {
-            throw new BaseManagementServiceException(ex.getMessage(), ex);
-        }
+        this.transactionService.rebalancePortfolio();
+
     }
 
     /**
@@ -227,11 +211,8 @@ public class BaseManagementServiceImpl implements BaseManagementService {
     @ManagedOperationParameters({})
     public String resetPositionsAndCashBalances() {
 
-        try {
-            return this.positionService.resetPositions() + this.cashBalanceService.resetCashBalances();
-        } catch (Exception ex) {
-            throw new BaseManagementServiceException(ex.getMessage(), ex);
-        }
+        return this.positionService.resetPositions() + this.cashBalanceService.resetCashBalances();
+
     }
 
     /**
@@ -242,11 +223,8 @@ public class BaseManagementServiceImpl implements BaseManagementService {
     @ManagedOperationParameters({})
     public void resetComponentWindow() {
 
-        try {
-            this.combinationService.resetComponentWindow();
-        } catch (Exception ex) {
-            throw new BaseManagementServiceException(ex.getMessage(), ex);
-        }
+        this.combinationService.resetComponentWindow();
+
     }
 
     /**
@@ -257,14 +235,11 @@ public class BaseManagementServiceImpl implements BaseManagementService {
     @ManagedOperationParameters({})
     public void emptyOpenOrderWindow() {
 
-        try {
-            OrderStatus orderStatus = OrderStatus.Factory.newInstance();
-            orderStatus.setStatus(Status.CANCELED);
+        OrderStatus orderStatus = OrderStatus.Factory.newInstance();
+        orderStatus.setStatus(Status.CANCELED);
 
-            EngineLocator.instance().getBaseEngine().sendEvent(orderStatus);
-        } catch (Exception ex) {
-            throw new BaseManagementServiceException(ex.getMessage(), ex);
-        }
+        EngineLocator.instance().getBaseEngine().sendEvent(orderStatus);
+
     }
 
     /**
@@ -273,12 +248,9 @@ public class BaseManagementServiceImpl implements BaseManagementService {
     @Override
     public void logMetrics() {
 
-        try {
-            MetricsUtil.logMetrics();
-            EngineLocator.instance().logStatementMetrics();
-        } catch (Exception ex) {
-            throw new BaseManagementServiceException(ex.getMessage(), ex);
-        }
+        MetricsUtil.logMetrics();
+        EngineLocator.instance().logStatementMetrics();
+
     }
 
     /**
@@ -287,12 +259,9 @@ public class BaseManagementServiceImpl implements BaseManagementService {
     @Override
     public void resetMetrics() {
 
-        try {
-            MetricsUtil.resetMetrics();
-            EngineLocator.instance().resetStatementMetrics();
-        } catch (Exception ex) {
-            throw new BaseManagementServiceException(ex.getMessage(), ex);
-        }
+        MetricsUtil.resetMetrics();
+        EngineLocator.instance().resetStatementMetrics();
+
     }
 
 }

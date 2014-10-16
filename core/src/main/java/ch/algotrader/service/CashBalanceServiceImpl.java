@@ -83,14 +83,11 @@ public class CashBalanceServiceImpl implements CashBalanceService {
 
         Validate.notNull(transaction, "Transaction is null");
 
-        try {
-            // process all currenyAmounts
-            for (CurrencyAmountVO currencyAmount : transaction.getAttributions()) {
-                processAmount(transaction.getStrategy().getName(), currencyAmount);
-            }
-        } catch (Exception ex) {
-            throw new CashBalanceServiceException(ex.getMessage(), ex);
+        // process all currenyAmounts
+        for (CurrencyAmountVO currencyAmount : transaction.getAttributions()) {
+            processAmount(transaction.getStrategy().getName(), currencyAmount);
         }
+
     }
 
     /**
@@ -105,37 +102,34 @@ public class CashBalanceServiceImpl implements CashBalanceService {
         Validate.notNull(amount.getCurrency(), "Currency is null");
         Validate.notNull(amount.getAmount(), "Amount is null");
 
-        try {
-            Strategy strategy = this.strategyDao.findByName(strategyName);
-            CashBalance cashBalance;
-            if (this.commonConfig.isSimulation()) {
-                cashBalance = this.cashBalanceDao.findByStrategyAndCurrency(strategy, amount.getCurrency());
-            } else {
-                cashBalance = this.cashBalanceDao.findByStrategyAndCurrencyLocked(strategy, amount.getCurrency());
-            }
-
-            // create the cashBalance, if it does not exist yet
-            if (cashBalance == null) {
-
-                cashBalance = CashBalance.Factory.newInstance();
-
-                // associate currency, amount and strategy
-                cashBalance.setCurrency(amount.getCurrency());
-                cashBalance.setAmount(amount.getAmount());
-                cashBalance.setStrategy(strategy);
-
-                this.cashBalanceDao.create(cashBalance);
-
-                // reverse-associate strategy (after cashBalance has received an id)
-                strategy.getCashBalances().add(cashBalance);
-
-            } else {
-
-                cashBalance.setAmount(cashBalance.getAmount().add(amount.getAmount()));
-            }
-        } catch (Exception ex) {
-            throw new CashBalanceServiceException(ex.getMessage(), ex);
+        Strategy strategy = this.strategyDao.findByName(strategyName);
+        CashBalance cashBalance;
+        if (this.commonConfig.isSimulation()) {
+            cashBalance = this.cashBalanceDao.findByStrategyAndCurrency(strategy, amount.getCurrency());
+        } else {
+            cashBalance = this.cashBalanceDao.findByStrategyAndCurrencyLocked(strategy, amount.getCurrency());
         }
+
+        // create the cashBalance, if it does not exist yet
+        if (cashBalance == null) {
+
+            cashBalance = CashBalance.Factory.newInstance();
+
+            // associate currency, amount and strategy
+            cashBalance.setCurrency(amount.getCurrency());
+            cashBalance.setAmount(amount.getAmount());
+            cashBalance.setStrategy(strategy);
+
+            this.cashBalanceDao.create(cashBalance);
+
+            // reverse-associate strategy (after cashBalance has received an id)
+            strategy.getCashBalances().add(cashBalance);
+
+        } else {
+
+            cashBalance.setAmount(cashBalance.getAmount().add(amount.getAmount()));
+        }
+
     }
 
     /**
@@ -145,87 +139,84 @@ public class CashBalanceServiceImpl implements CashBalanceService {
     @Transactional(propagation = Propagation.REQUIRED)
     public String resetCashBalances() {
 
-        try {
-            // get all existing cashBalances
-            Collection<CashBalance> existingCashBalances = this.cashBalanceDao.loadAll();
+        // get all existing cashBalances
+        Collection<CashBalance> existingCashBalances = this.cashBalanceDao.loadAll();
 
-            // sum all transactions
-            Collection<Transaction> transactions = this.transactionDao.loadAll();
-            BigDecimalMap<Pair<Strategy, Currency>> map = new BigDecimalMap<Pair<Strategy, Currency>>();
-            for (Transaction transaction : transactions) {
+        // sum all transactions
+        Collection<Transaction> transactions = this.transactionDao.loadAll();
+        BigDecimalMap<Pair<Strategy, Currency>> map = new BigDecimalMap<Pair<Strategy, Currency>>();
+        for (Transaction transaction : transactions) {
 
-                // process all currenyAmounts
-                for (CurrencyAmountVO currencyAmount : transaction.getAttributions()) {
-                    map.increment(new Pair<Strategy, Currency>(transaction.getStrategy(), currencyAmount.getCurrency()), currencyAmount.getAmount());
-                }
+            // process all currenyAmounts
+            for (CurrencyAmountVO currencyAmount : transaction.getAttributions()) {
+                map.increment(new Pair<Strategy, Currency>(transaction.getStrategy(), currencyAmount.getCurrency()), currencyAmount.getAmount());
+            }
+        }
+
+        // create cash balances
+        StringBuffer buffer = new StringBuffer();
+        for (Map.Entry<Pair<Strategy, Currency>, BigDecimal> entry : map.entrySet()) {
+
+            Strategy strategy = entry.getKey().getFirst();
+            Currency currency = entry.getKey().getSecond();
+            BigDecimal amount = entry.getValue().setScale(this.commonConfig.getPortfolioDigits(), BigDecimal.ROUND_HALF_UP);
+
+            CashBalance cashBalance;
+            if (this.commonConfig.isSimulation()) {
+                cashBalance = this.cashBalanceDao.findByStrategyAndCurrency(strategy, currency);
+            } else {
+                cashBalance = this.cashBalanceDao.findByStrategyAndCurrencyLocked(strategy, currency);
             }
 
-            // create cash balances
-            StringBuffer buffer = new StringBuffer();
-            for (Map.Entry<Pair<Strategy, Currency>, BigDecimal> entry : map.entrySet()) {
+            if (cashBalance != null) {
 
-                Strategy strategy = entry.getKey().getFirst();
-                Currency currency = entry.getKey().getSecond();
-                BigDecimal amount = entry.getValue().setScale(this.commonConfig.getPortfolioDigits(), BigDecimal.ROUND_HALF_UP);
+                existingCashBalances.remove(cashBalance);
 
-                CashBalance cashBalance;
-                if (this.commonConfig.isSimulation()) {
-                    cashBalance = this.cashBalanceDao.findByStrategyAndCurrency(strategy, currency);
-                } else {
-                    cashBalance = this.cashBalanceDao.findByStrategyAndCurrencyLocked(strategy, currency);
-                }
+                BigDecimal oldAmount = cashBalance.getAmount();
+                if (oldAmount.doubleValue() != amount.doubleValue()) {
 
-                if (cashBalance != null) {
-
-                    existingCashBalances.remove(cashBalance);
-
-                    BigDecimal oldAmount = cashBalance.getAmount();
-                    if (oldAmount.doubleValue() != amount.doubleValue()) {
-
-                        cashBalance.setAmount(amount);
-
-                        String info = "adjusted cashBalance " + cashBalance + " from " + oldAmount;
-                        logger.info(info);
-                        buffer.append(info + "\n");
-
-                    }
-
-                } else {
-
-                    cashBalance = CashBalance.Factory.newInstance();
-                    cashBalance.setCurrency(currency);
                     cashBalance.setAmount(amount);
-                    cashBalance.setStrategy(strategy);
 
-                    this.cashBalanceDao.create(cashBalance);
-
-                    // reverse-associate with strategy (after cashBalance has received an id)
-                    strategy.getCashBalances().add(cashBalance);
-
-                    String info = "created cashBalance " + cashBalance;
+                    String info = "adjusted cashBalance " + cashBalance + " from " + oldAmount;
                     logger.info(info);
                     buffer.append(info + "\n");
 
                 }
-            }
 
-            // remove all obsolete cashBalances
-            for (CashBalance cashBalance : existingCashBalances) {
+            } else {
 
-                Strategy strategy = cashBalance.getStrategy();
-                strategy.getCashBalances().remove(cashBalance);
+                cashBalance = CashBalance.Factory.newInstance();
+                cashBalance.setCurrency(currency);
+                cashBalance.setAmount(amount);
+                cashBalance.setStrategy(strategy);
 
-                String info = "removed cashBalance " + cashBalance;
+                this.cashBalanceDao.create(cashBalance);
+
+                // reverse-associate with strategy (after cashBalance has received an id)
+                strategy.getCashBalances().add(cashBalance);
+
+                String info = "created cashBalance " + cashBalance;
                 logger.info(info);
                 buffer.append(info + "\n");
+
             }
-
-            this.cashBalanceDao.remove(existingCashBalances);
-
-            return buffer.toString();
-        } catch (Exception ex) {
-            throw new CashBalanceServiceException(ex.getMessage(), ex);
         }
+
+        // remove all obsolete cashBalances
+        for (CashBalance cashBalance : existingCashBalances) {
+
+            Strategy strategy = cashBalance.getStrategy();
+            strategy.getCashBalances().remove(cashBalance);
+
+            String info = "removed cashBalance " + cashBalance;
+            logger.info(info);
+            buffer.append(info + "\n");
+        }
+
+        this.cashBalanceDao.remove(existingCashBalances);
+
+        return buffer.toString();
+
     }
 
 }

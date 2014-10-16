@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.option;
 
+import org.apache.commons.math.MathException;
 import org.apache.commons.math.analysis.MultivariateRealFunction;
 import org.apache.commons.math.optimization.GoalType;
 import org.apache.commons.math.optimization.RealPointValuePair;
@@ -40,7 +41,7 @@ public class SABR {
      *
      * @return SABRSmileVO The SABR smile
      */
-    public static SABRSmileVO calibrate(final Double[] strikes, final Double[] volatilities, final double atmVol, final double forward, final double years) throws Exception {
+    public static SABRSmileVO calibrate(final Double[] strikes, final Double[] volatilities, final double atmVol, final double forward, final double years) throws SABRException {
 
         MultivariateRealFunction estimateRhoAndVol = new MultivariateRealFunction() {
             @Override
@@ -66,7 +67,12 @@ public class SABR {
         };
 
         NelderMead nelderMead = new NelderMead();
-        RealPointValuePair result = nelderMead.optimize(estimateRhoAndVol, GoalType.MINIMIZE, new double[] { -0.5, 2.6 });
+        RealPointValuePair result;
+        try {
+            result = nelderMead.optimize(estimateRhoAndVol, GoalType.MINIMIZE, new double[] { -0.5, 2.6 });
+        } catch (MathException ex) {
+            throw new SABRException(ex.getMessage(), ex);
+        }
 
         double rho = result.getPoint()[0];
         double volVol = result.getPoint()[1];

@@ -134,11 +134,8 @@ public class PortfolioServiceImpl implements PortfolioService {
     @Override
     public BigDecimal getCashBalance() {
 
-        try {
-            return RoundUtil.getBigDecimal(getCashBalanceDouble());
-        } catch (Exception ex) {
-            throw new PortfolioServiceException(ex.getMessage(), ex);
-        }
+        return RoundUtil.getBigDecimal(getCashBalanceDouble());
+
     }
 
     /**
@@ -149,11 +146,8 @@ public class PortfolioServiceImpl implements PortfolioService {
 
         Validate.notEmpty(strategyName, "Strategy name is nempty");
 
-        try {
-            return RoundUtil.getBigDecimal(getCashBalanceDouble(strategyName));
-        } catch (Exception ex) {
-            throw new PortfolioServiceException(ex.getMessage(), ex);
-        }
+        return RoundUtil.getBigDecimal(getCashBalanceDouble(strategyName));
+
     }
 
     /**
@@ -164,11 +158,8 @@ public class PortfolioServiceImpl implements PortfolioService {
 
         Validate.notNull(date, "Date is null");
 
-        try {
-            return RoundUtil.getBigDecimal(getCashBalanceDouble(date));
-        } catch (Exception ex) {
-            throw new PortfolioServiceException(ex.getMessage(), ex);
-        }
+        return RoundUtil.getBigDecimal(getCashBalanceDouble(date));
+
     }
 
     /**
@@ -180,11 +171,8 @@ public class PortfolioServiceImpl implements PortfolioService {
         Validate.notEmpty(strategyName, "Strategy name is empty");
         Validate.notNull(date, "Date is null");
 
-        try {
-            return RoundUtil.getBigDecimal(getCashBalanceDouble(strategyName, date));
-        } catch (Exception ex) {
-            throw new PortfolioServiceException(ex.getMessage(), ex);
-        }
+        return RoundUtil.getBigDecimal(getCashBalanceDouble(strategyName, date));
+
     }
 
     /**
@@ -197,11 +185,8 @@ public class PortfolioServiceImpl implements PortfolioService {
         Validate.notNull(namedParameters, "Named parameters is null");
         Validate.notNull(date, "Date is null");
 
-        try {
-            return RoundUtil.getBigDecimal(getCashBalanceDouble(filter, namedParameters, date));
-        } catch (Exception ex) {
-            throw new PortfolioServiceException(ex.getMessage(), ex);
-        }
+        return RoundUtil.getBigDecimal(getCashBalanceDouble(filter, namedParameters, date));
+
     }
 
     /**
@@ -210,15 +195,12 @@ public class PortfolioServiceImpl implements PortfolioService {
     @Override
     public double getCashBalanceDouble() {
 
-        try {
-            Collection<CashBalance> cashBalances = this.cashBalanceDao.loadAll();
+        Collection<CashBalance> cashBalances = this.cashBalanceDao.loadAll();
 
-            List<Position> positions = this.positionDao.findOpenFXPositionsAggregated();
+        List<Position> positions = this.positionDao.findOpenFXPositionsAggregated();
 
-            return getCashBalanceDoubleInternal(cashBalances, positions);
-        } catch (Exception ex) {
-            throw new PortfolioServiceException(ex.getMessage(), ex);
-        }
+        return getCashBalanceDoubleInternal(cashBalances, positions);
+
     }
 
     /**
@@ -229,15 +211,12 @@ public class PortfolioServiceImpl implements PortfolioService {
 
         Validate.notEmpty(strategyName, "Strategy name is null");
 
-        try {
-            Collection<CashBalance> cashBalances = this.cashBalanceDao.findCashBalancesByStrategy(strategyName);
+        Collection<CashBalance> cashBalances = this.cashBalanceDao.findCashBalancesByStrategy(strategyName);
 
-            List<Position> positions = this.positionDao.findOpenFXPositionsByStrategy(strategyName);
+        List<Position> positions = this.positionDao.findOpenFXPositionsByStrategy(strategyName);
 
-            return getCashBalanceDoubleInternal(cashBalances, positions);
-        } catch (Exception ex) {
-            throw new PortfolioServiceException(ex.getMessage(), ex);
-        }
+        return getCashBalanceDoubleInternal(cashBalances, positions);
+
     }
 
     /**
@@ -247,15 +226,13 @@ public class PortfolioServiceImpl implements PortfolioService {
     public double getCashBalanceDouble(final Date date) {
 
         Validate.notNull(date, "Date is null");
-        try {
-            Collection<Transaction> transactions = this.transactionDao.findByMaxDate(date);
 
-            Collection<Position> openPositions = this.positionDao.findOpenPositionsByMaxDateAggregated(date);
+        Collection<Transaction> transactions = this.transactionDao.findByMaxDate(date);
 
-            return getCashBalanceDoubleInternal(transactions, openPositions, date);
-        } catch (Exception ex) {
-            throw new PortfolioServiceException(ex.getMessage(), ex);
-        }
+        Collection<Position> openPositions = this.positionDao.findOpenPositionsByMaxDateAggregated(date);
+
+        return getCashBalanceDoubleInternal(transactions, openPositions, date);
+
     }
 
     /**
@@ -267,15 +244,12 @@ public class PortfolioServiceImpl implements PortfolioService {
         Validate.notEmpty(strategyName, "Strategy name is null");
         Validate.notNull(date, "Date is null");
 
-        try {
-            Collection<Transaction> transactions = this.transactionDao.findByStrategyAndMaxDate(strategyName, date);
+        Collection<Transaction> transactions = this.transactionDao.findByStrategyAndMaxDate(strategyName, date);
 
-            Collection<Position> openPositions = this.positionDao.findOpenPositionsByStrategyAndMaxDate(strategyName, date);
+        Collection<Position> openPositions = this.positionDao.findOpenPositionsByStrategyAndMaxDate(strategyName, date);
 
-            return getCashBalanceDoubleInternal(transactions, openPositions, date);
-        } catch (Exception ex) {
-            throw new PortfolioServiceException(ex.getMessage(), ex);
-        }
+        return getCashBalanceDoubleInternal(transactions, openPositions, date);
+
     }
 
     /**
@@ -288,22 +262,18 @@ public class PortfolioServiceImpl implements PortfolioService {
         Validate.notNull(namedParameters, "Named parameters is null");
         Validate.notNull(date, "Date is null");
 
-        try {
-            namedParameters.put("maxDate", date);
+        namedParameters.put("maxDate", date);
 
-            //@formatter:off
+        //@formatter:off
             String query =
                     "from TransactionImpl as t "
                     + "where " + filter + " "
                     + "and t.dateTime <= :maxDate";
+          //@formatter:on
+        Collection<Transaction> transactions = (Collection<Transaction>) this.genericDao.find(query, namedParameters);
 
-            Collection<Transaction> transactions = (Collection<Transaction>) this.genericDao.find(query, namedParameters);
+        return getCashBalanceDoubleInternal(transactions, new ArrayList<Position>(), date);
 
-            return getCashBalanceDoubleInternal(transactions, new ArrayList<Position>(), date);        }
-        catch (Exception ex)
-        {
-            throw new PortfolioServiceException(ex.getMessage(),ex);
-        }
     }
 
     /**
@@ -311,11 +281,9 @@ public class PortfolioServiceImpl implements PortfolioService {
      */
     @Override
     public BigDecimal getSecuritiesCurrentValue() {
-        try {
-            return RoundUtil.getBigDecimal(getSecuritiesCurrentValueDouble());
-        } catch (Exception ex) {
-            throw new PortfolioServiceException(ex.getMessage(),ex);
-        }
+
+        return RoundUtil.getBigDecimal(getSecuritiesCurrentValueDouble());
+
     }
 
     /**
@@ -326,11 +294,8 @@ public class PortfolioServiceImpl implements PortfolioService {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        try {
-            return RoundUtil.getBigDecimal(getSecuritiesCurrentValueDouble(strategyName));
-        } catch (Exception ex) {
-            throw new PortfolioServiceException(ex.getMessage(),ex);
-        }
+        return RoundUtil.getBigDecimal(getSecuritiesCurrentValueDouble(strategyName));
+
     }
 
     /**
@@ -341,11 +306,8 @@ public class PortfolioServiceImpl implements PortfolioService {
 
         Validate.notNull(date, "Date is null");
 
-        try {
-            return RoundUtil.getBigDecimal(getSecuritiesCurrentValueDouble(date));
-        } catch (Exception ex) {
-            throw new PortfolioServiceException(ex.getMessage(),ex);
-        }
+        return RoundUtil.getBigDecimal(getSecuritiesCurrentValueDouble(date));
+
     }
 
     /**
@@ -357,11 +319,8 @@ public class PortfolioServiceImpl implements PortfolioService {
         Validate.notEmpty(strategyName, "Strategy name is empty");
         Validate.notNull(date, "Date is null");
 
-        try {
-            return RoundUtil.getBigDecimal(getSecuritiesCurrentValueDouble(strategyName, date));
-        } catch (Exception ex) {
-            throw new PortfolioServiceException(ex.getMessage(),ex);
-        }
+        return RoundUtil.getBigDecimal(getSecuritiesCurrentValueDouble(strategyName, date));
+
     }
 
     /**
@@ -374,11 +333,8 @@ public class PortfolioServiceImpl implements PortfolioService {
         Validate.notNull(namedParameters, "Named parameters is null");
         Validate.notNull(date, "Date is null");
 
-        try {
-            return RoundUtil.getBigDecimal(getSecuritiesCurrentValueDouble(filter, namedParameters, date));
-        } catch (Exception ex) {
-            throw new PortfolioServiceException(ex.getMessage(),ex);
-        }
+        return RoundUtil.getBigDecimal(getSecuritiesCurrentValueDouble(filter, namedParameters, date));
+
     }
 
     /**
@@ -387,13 +343,10 @@ public class PortfolioServiceImpl implements PortfolioService {
     @Override
     public double getSecuritiesCurrentValueDouble() {
 
-        try {
-            Collection<Position> openPositions = this.positionDao.findOpenTradeablePositionsAggregated();
+        Collection<Position> openPositions = this.positionDao.findOpenTradeablePositionsAggregated();
 
-            return getSecuritiesCurrentValueDoubleInternal(openPositions);
-        } catch (Exception ex) {
-            throw new PortfolioServiceException(ex.getMessage(),ex);
-        }
+        return getSecuritiesCurrentValueDoubleInternal(openPositions);
+
     }
 
     /**
@@ -404,13 +357,10 @@ public class PortfolioServiceImpl implements PortfolioService {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        try {
-            List<Position> openPositions = this.positionDao.findOpenTradeablePositionsByStrategy(strategyName);
+        List<Position> openPositions = this.positionDao.findOpenTradeablePositionsByStrategy(strategyName);
 
-            return getSecuritiesCurrentValueDoubleInternal(openPositions);
-        } catch (Exception ex) {
-            throw new PortfolioServiceException(ex.getMessage(),ex);
-        }
+        return getSecuritiesCurrentValueDoubleInternal(openPositions);
+
     }
 
     /**
@@ -421,13 +371,10 @@ public class PortfolioServiceImpl implements PortfolioService {
 
         Validate.notNull(date, "Date is null");
 
-        try {
-            Collection<Position> openPositions = this.positionDao.findOpenPositionsByMaxDateAggregated(date);
+        Collection<Position> openPositions = this.positionDao.findOpenPositionsByMaxDateAggregated(date);
 
-            return getSecuritiesCurrentValueDoubleInternal(openPositions, date);
-        } catch (Exception ex) {
-            throw new PortfolioServiceException(ex.getMessage(),ex);
-        }
+        return getSecuritiesCurrentValueDoubleInternal(openPositions, date);
+
     }
 
     /**
@@ -439,13 +386,10 @@ public class PortfolioServiceImpl implements PortfolioService {
         Validate.notEmpty(strategyName, "Strategy name is empty");
         Validate.notNull(date, "Date is null");
 
-        try {
-            Collection<Position> openPositions = this.positionDao.findOpenPositionsByStrategyAndMaxDate(strategyName, date);
+        Collection<Position> openPositions = this.positionDao.findOpenPositionsByStrategyAndMaxDate(strategyName, date);
 
-            return getSecuritiesCurrentValueDoubleInternal(openPositions, date);
-        } catch (Exception ex) {
-            throw new PortfolioServiceException(ex.getMessage(),ex);
-        }
+        return getSecuritiesCurrentValueDoubleInternal(openPositions, date);
+
     }
 
     /**
@@ -458,8 +402,7 @@ public class PortfolioServiceImpl implements PortfolioService {
         Validate.notNull(namedParameters, "Named parameters is null");
         Validate.notNull(date, "Date is null");
 
-        try {
-            //@formatter:off
+        //@formatter:off
             String queryString =
                     "select new Position(sum(t.quantity), s) "
                     + "from TransactionImpl as t "
@@ -472,14 +415,12 @@ public class PortfolioServiceImpl implements PortfolioService {
                     + "order by s.id";
             //@formatter:on
 
-            namedParameters.put("maxDate", date);
+        namedParameters.put("maxDate", date);
 
-            List<Position> openPositions = (List<Position>) this.genericDao.find(queryString, namedParameters);
+        List<Position> openPositions = (List<Position>) this.genericDao.find(queryString, namedParameters);
 
-            return getSecuritiesCurrentValueDoubleInternal(openPositions, date);
-        } catch (Exception ex) {
-            throw new PortfolioServiceException(ex.getMessage(), ex);
-        }
+        return getSecuritiesCurrentValueDoubleInternal(openPositions, date);
+
     }
 
     /**
@@ -488,11 +429,8 @@ public class PortfolioServiceImpl implements PortfolioService {
     @Override
     public BigDecimal getMaintenanceMargin() {
 
-        try {
-            return RoundUtil.getBigDecimal(getMaintenanceMarginDouble());
-        } catch (Exception ex) {
-            throw new PortfolioServiceException(ex.getMessage(), ex);
-        }
+        return RoundUtil.getBigDecimal(getMaintenanceMarginDouble());
+
     }
 
     /**
@@ -503,11 +441,8 @@ public class PortfolioServiceImpl implements PortfolioService {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        try {
-            return RoundUtil.getBigDecimal(getMaintenanceMarginDouble(strategyName));
-        } catch (Exception ex) {
-            throw new PortfolioServiceException(ex.getMessage(), ex);
-        }
+        return RoundUtil.getBigDecimal(getMaintenanceMarginDouble(strategyName));
+
     }
 
     /**
@@ -516,16 +451,13 @@ public class PortfolioServiceImpl implements PortfolioService {
     @Override
     public double getMaintenanceMarginDouble() {
 
-        try {
-            double margin = 0.0;
-            Collection<Position> positions = this.positionDao.findOpenTradeablePositions();
-            for (Position position : positions) {
-                margin += position.getMaintenanceMarginBaseDouble();
-            }
-            return margin;
-        } catch (Exception ex) {
-            throw new PortfolioServiceException(ex.getMessage(), ex);
+        double margin = 0.0;
+        Collection<Position> positions = this.positionDao.findOpenTradeablePositions();
+        for (Position position : positions) {
+            margin += position.getMaintenanceMarginBaseDouble();
         }
+        return margin;
+
     }
 
     /**
@@ -536,16 +468,13 @@ public class PortfolioServiceImpl implements PortfolioService {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        try {
-            double margin = 0.0;
-            List<Position> positions = this.positionDao.findOpenTradeablePositionsByStrategy(strategyName);
-            for (Position position : positions) {
-                margin += position.getMaintenanceMarginBaseDouble();
-            }
-            return margin;
-        } catch (Exception ex) {
-            throw new PortfolioServiceException(ex.getMessage(), ex);
+        double margin = 0.0;
+        List<Position> positions = this.positionDao.findOpenTradeablePositionsByStrategy(strategyName);
+        for (Position position : positions) {
+            margin += position.getMaintenanceMarginBaseDouble();
         }
+        return margin;
+
     }
 
     /**
@@ -554,11 +483,8 @@ public class PortfolioServiceImpl implements PortfolioService {
     @Override
     public BigDecimal getInitialMargin() {
 
-        try {
-            return RoundUtil.getBigDecimal(getInitialMarginDouble());
-        } catch (Exception ex) {
-            throw new PortfolioServiceException(ex.getMessage(), ex);
-        }
+        return RoundUtil.getBigDecimal(getInitialMarginDouble());
+
     }
 
     /**
@@ -569,11 +495,8 @@ public class PortfolioServiceImpl implements PortfolioService {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        try {
-            return RoundUtil.getBigDecimal(getInitialMarginDouble(strategyName));
-        } catch (Exception ex) {
-            throw new PortfolioServiceException(ex.getMessage(), ex);
-        }
+        return RoundUtil.getBigDecimal(getInitialMarginDouble(strategyName));
+
     }
 
     /**
@@ -582,11 +505,8 @@ public class PortfolioServiceImpl implements PortfolioService {
     @Override
     public double getInitialMarginDouble() {
 
-        try {
-            return this.commonConfig.getInitialMarginMarkup().doubleValue() * getMaintenanceMarginDouble();
-        } catch (Exception ex) {
-            throw new PortfolioServiceException(ex.getMessage(), ex);
-        }
+        return this.commonConfig.getInitialMarginMarkup().doubleValue() * getMaintenanceMarginDouble();
+
     }
 
     /**
@@ -597,11 +517,8 @@ public class PortfolioServiceImpl implements PortfolioService {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        try {
-            return this.commonConfig.getInitialMarginMarkup().doubleValue() * getMaintenanceMarginDouble(strategyName);
-        } catch (Exception ex) {
-            throw new PortfolioServiceException(ex.getMessage(), ex);
-        }
+        return this.commonConfig.getInitialMarginMarkup().doubleValue() * getMaintenanceMarginDouble(strategyName);
+
     }
 
     /**
@@ -610,11 +527,8 @@ public class PortfolioServiceImpl implements PortfolioService {
     @Override
     public BigDecimal getNetLiqValue() {
 
-        try {
-            return RoundUtil.getBigDecimal(getNetLiqValueDouble());
-        } catch (Exception ex) {
-            throw new PortfolioServiceException(ex.getMessage(), ex);
-        }
+        return RoundUtil.getBigDecimal(getNetLiqValueDouble());
+
     }
 
     /**
@@ -625,11 +539,8 @@ public class PortfolioServiceImpl implements PortfolioService {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        try {
-            return RoundUtil.getBigDecimal(getNetLiqValueDouble(strategyName));
-        } catch (Exception ex) {
-            throw new PortfolioServiceException(ex.getMessage(), ex);
-        }
+        return RoundUtil.getBigDecimal(getNetLiqValueDouble(strategyName));
+
     }
 
     /**
@@ -638,11 +549,8 @@ public class PortfolioServiceImpl implements PortfolioService {
     @Override
     public double getNetLiqValueDouble() {
 
-        try {
-            return getCashBalanceDouble() + getSecuritiesCurrentValueDouble();
-        } catch (Exception ex) {
-            throw new PortfolioServiceException(ex.getMessage(), ex);
-        }
+        return getCashBalanceDouble() + getSecuritiesCurrentValueDouble();
+
     }
 
     /**
@@ -653,11 +561,8 @@ public class PortfolioServiceImpl implements PortfolioService {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        try {
-            return getCashBalanceDouble(strategyName) + getSecuritiesCurrentValueDouble(strategyName);
-        } catch (Exception ex) {
-            throw new PortfolioServiceException(ex.getMessage(), ex);
-        }
+        return getCashBalanceDouble(strategyName) + getSecuritiesCurrentValueDouble(strategyName);
+
     }
 
     /**
@@ -666,11 +571,8 @@ public class PortfolioServiceImpl implements PortfolioService {
     @Override
     public BigDecimal getAvailableFunds() {
 
-        try {
-            return RoundUtil.getBigDecimal(getAvailableFundsDouble());
-        } catch (Exception ex) {
-            throw new PortfolioServiceException(ex.getMessage(), ex);
-        }
+        return RoundUtil.getBigDecimal(getAvailableFundsDouble());
+
     }
 
     /**
@@ -681,11 +583,8 @@ public class PortfolioServiceImpl implements PortfolioService {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        try {
-            return RoundUtil.getBigDecimal(getAvailableFundsDouble(strategyName));
-        } catch (Exception ex) {
-            throw new PortfolioServiceException(ex.getMessage(), ex);
-        }
+        return RoundUtil.getBigDecimal(getAvailableFundsDouble(strategyName));
+
     }
 
     /**
@@ -694,11 +593,8 @@ public class PortfolioServiceImpl implements PortfolioService {
     @Override
     public double getAvailableFundsDouble() {
 
-        try {
-            return getNetLiqValueDouble() - getInitialMarginDouble();
-        } catch (Exception ex) {
-            throw new PortfolioServiceException(ex.getMessage(), ex);
-        }
+        return getNetLiqValueDouble() - getInitialMarginDouble();
+
     }
 
     /**
@@ -709,11 +605,8 @@ public class PortfolioServiceImpl implements PortfolioService {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        try {
-            return getNetLiqValueDouble(strategyName) - getInitialMarginDouble(strategyName);
-        } catch (Exception ex) {
-            throw new PortfolioServiceException(ex.getMessage(), ex);
-        }
+        return getNetLiqValueDouble(strategyName) - getInitialMarginDouble(strategyName);
+
     }
 
     /**
@@ -722,16 +615,13 @@ public class PortfolioServiceImpl implements PortfolioService {
     @Override
     public double getLeverage() {
 
-        try {
-            double exposure = 0.0;
-            Collection<Position> positions = this.positionDao.findOpenTradeablePositions();
-            for (Position position : positions) {
-                exposure += position.getExposure();
-            }
-            return exposure / getNetLiqValueDouble();
-        } catch (Exception ex) {
-            throw new PortfolioServiceException(ex.getMessage(), ex);
+        double exposure = 0.0;
+        Collection<Position> positions = this.positionDao.findOpenTradeablePositions();
+        for (Position position : positions) {
+            exposure += position.getExposure();
         }
+        return exposure / getNetLiqValueDouble();
+
     }
 
     /**
@@ -742,17 +632,14 @@ public class PortfolioServiceImpl implements PortfolioService {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        try {
-            double exposure = 0.0;
-            List<Position> positions = this.positionDao.findOpenTradeablePositionsByStrategy(strategyName);
-            for (Position position : positions) {
-                exposure += position.getExposure();
-            }
-
-            return exposure / getNetLiqValueDouble(strategyName);
-        } catch (Exception ex) {
-            throw new PortfolioServiceException(ex.getMessage(), ex);
+        double exposure = 0.0;
+        List<Position> positions = this.positionDao.findOpenTradeablePositionsByStrategy(strategyName);
+        for (Position position : positions) {
+            exposure += position.getExposure();
         }
+
+        return exposure / getNetLiqValueDouble(strategyName);
+
     }
 
     /**
@@ -761,11 +648,8 @@ public class PortfolioServiceImpl implements PortfolioService {
     @Override
     public double getPerformance() {
 
-        try {
-            return getPerformance(StrategyImpl.BASE);
-        } catch (Exception ex) {
-            throw new PortfolioServiceException(ex.getMessage(), ex);
-        }
+        return getPerformance(StrategyImpl.BASE);
+
     }
 
     /**
@@ -776,19 +660,16 @@ public class PortfolioServiceImpl implements PortfolioService {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        try {
-            Date date = DateUtils.truncate(new Date(), Calendar.MONTH);
-            List<PortfolioValueVO> portfolioValues = (List<PortfolioValueVO>) getPortfolioValuesInclPerformanceSinceDate(strategyName, date);
+        Date date = DateUtils.truncate(new Date(), Calendar.MONTH);
+        List<PortfolioValueVO> portfolioValues = (List<PortfolioValueVO>) getPortfolioValuesInclPerformanceSinceDate(strategyName, date);
 
-            // the performance of the last portfolioValue represents the performance of the entire timeperiod
-            if (portfolioValues.size() > 0) {
-                return portfolioValues.get(portfolioValues.size() - 1).getPerformance();
-            } else {
-                return Double.NaN;
-            }
-        } catch (Exception ex) {
-            throw new PortfolioServiceException(ex.getMessage(), ex);
+        // the performance of the last portfolioValue represents the performance of the entire timeperiod
+        if (portfolioValues.size() > 0) {
+            return portfolioValues.get(portfolioValues.size() - 1).getPerformance();
+        } else {
+            return Double.NaN;
         }
+
     }
 
     /**
@@ -797,11 +678,8 @@ public class PortfolioServiceImpl implements PortfolioService {
     @Override
     public PortfolioValue getPortfolioValue() {
 
-        try {
-            return getPortfolioValue(StrategyImpl.BASE);
-        } catch (Exception ex) {
-            throw new PortfolioServiceException(ex.getMessage(), ex);
-        }
+        return getPortfolioValue(StrategyImpl.BASE);
+
     }
 
     /**
@@ -812,41 +690,38 @@ public class PortfolioServiceImpl implements PortfolioService {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        try {
-            Strategy strategy = this.strategyDao.findByName(strategyName);
+        Strategy strategy = this.strategyDao.findByName(strategyName);
 
-            BigDecimal cashBalance;
-            BigDecimal securitiesCurrentValue;
-            BigDecimal maintenanceMargin;
-            double leverage;
-            if (strategy.isBase()) {
-                cashBalance = getCashBalance();
-                securitiesCurrentValue = getSecuritiesCurrentValue();
-                maintenanceMargin = getMaintenanceMargin();
-                leverage = getLeverage();
+        BigDecimal cashBalance;
+        BigDecimal securitiesCurrentValue;
+        BigDecimal maintenanceMargin;
+        double leverage;
+        if (strategy.isBase()) {
+            cashBalance = getCashBalance();
+            securitiesCurrentValue = getSecuritiesCurrentValue();
+            maintenanceMargin = getMaintenanceMargin();
+            leverage = getLeverage();
 
-            } else {
-                cashBalance = getCashBalance(strategy.getName());
-                securitiesCurrentValue = getSecuritiesCurrentValue(strategy.getName());
-                maintenanceMargin = getMaintenanceMargin(strategy.getName());
-                leverage = getLeverage(strategy.getName());
-            }
-
-            PortfolioValue portfolioValue = PortfolioValue.Factory.newInstance();
-
-            portfolioValue.setStrategy(strategy);
-            portfolioValue.setDateTime(DateUtil.getCurrentEPTime());
-            portfolioValue.setCashBalance(cashBalance);
-            portfolioValue.setSecuritiesCurrentValue(securitiesCurrentValue); // might be null if there was no last tick for a particular security
-            portfolioValue.setMaintenanceMargin(maintenanceMargin);
-            portfolioValue.setNetLiqValue(securitiesCurrentValue != null ? cashBalance.add(securitiesCurrentValue) : null); // add here to prevent another lookup
-            portfolioValue.setLeverage(Double.isNaN(leverage) ? 0 : leverage);
-            portfolioValue.setAllocation(strategy.getAllocation());
-
-            return portfolioValue;
-        } catch (Exception ex) {
-            throw new PortfolioServiceException(ex.getMessage(), ex);
+        } else {
+            cashBalance = getCashBalance(strategy.getName());
+            securitiesCurrentValue = getSecuritiesCurrentValue(strategy.getName());
+            maintenanceMargin = getMaintenanceMargin(strategy.getName());
+            leverage = getLeverage(strategy.getName());
         }
+
+        PortfolioValue portfolioValue = PortfolioValue.Factory.newInstance();
+
+        portfolioValue.setStrategy(strategy);
+        portfolioValue.setDateTime(DateUtil.getCurrentEPTime());
+        portfolioValue.setCashBalance(cashBalance);
+        portfolioValue.setSecuritiesCurrentValue(securitiesCurrentValue); // might be null if there was no last tick for a particular security
+        portfolioValue.setMaintenanceMargin(maintenanceMargin);
+        portfolioValue.setNetLiqValue(securitiesCurrentValue != null ? cashBalance.add(securitiesCurrentValue) : null); // add here to prevent another lookup
+        portfolioValue.setLeverage(Double.isNaN(leverage) ? 0 : leverage);
+        portfolioValue.setAllocation(strategy.getAllocation());
+
+        return portfolioValue;
+
     }
 
     /**
@@ -858,33 +733,30 @@ public class PortfolioServiceImpl implements PortfolioService {
         Validate.notEmpty(strategyName, "Strategy name is empty");
         Validate.notNull(date, "Date is null");
 
-        try {
-            Strategy strategy = this.strategyDao.findByName(strategyName);
+        Strategy strategy = this.strategyDao.findByName(strategyName);
 
-            BigDecimal cashBalance;
-            BigDecimal securitiesCurrentValue;
-            if (strategy.isBase()) {
-                cashBalance = getCashBalance(date);
-                securitiesCurrentValue = getSecuritiesCurrentValue(date);
+        BigDecimal cashBalance;
+        BigDecimal securitiesCurrentValue;
+        if (strategy.isBase()) {
+            cashBalance = getCashBalance(date);
+            securitiesCurrentValue = getSecuritiesCurrentValue(date);
 
-            } else {
-                cashBalance = getCashBalance(strategy.getName(), date);
-                securitiesCurrentValue = getSecuritiesCurrentValue(strategy.getName(), date);
-            }
-
-            PortfolioValue portfolioValue = PortfolioValue.Factory.newInstance();
-
-            portfolioValue.setStrategy(strategy);
-            portfolioValue.setDateTime(date);
-            portfolioValue.setCashBalance(cashBalance);
-            portfolioValue.setSecuritiesCurrentValue(securitiesCurrentValue);
-            portfolioValue.setNetLiqValue(cashBalance.add(securitiesCurrentValue)); // add here to prevent another lookup
-            portfolioValue.setMaintenanceMargin(new BigDecimal(0));
-
-            return portfolioValue;
-        } catch (Exception ex) {
-            throw new PortfolioServiceException(ex.getMessage(), ex);
+        } else {
+            cashBalance = getCashBalance(strategy.getName(), date);
+            securitiesCurrentValue = getSecuritiesCurrentValue(strategy.getName(), date);
         }
+
+        PortfolioValue portfolioValue = PortfolioValue.Factory.newInstance();
+
+        portfolioValue.setStrategy(strategy);
+        portfolioValue.setDateTime(date);
+        portfolioValue.setCashBalance(cashBalance);
+        portfolioValue.setSecuritiesCurrentValue(securitiesCurrentValue);
+        portfolioValue.setNetLiqValue(cashBalance.add(securitiesCurrentValue)); // add here to prevent another lookup
+        portfolioValue.setMaintenanceMargin(new BigDecimal(0));
+
+        return portfolioValue;
+
     }
 
     /**
@@ -896,44 +768,40 @@ public class PortfolioServiceImpl implements PortfolioService {
         Validate.notEmpty(strategyName, "Strategy name is empty");
         Validate.notNull(date, "Date is null");
 
-        try {
-            Collection<PortfolioValueVO> portfolioValues = (Collection<PortfolioValueVO>) this.portfolioValueDao.findByStrategyAndMinDate(PortfolioValueDao.TRANSFORM_PORTFOLIOVALUEVO, strategyName,
-                    date);
+        Collection<PortfolioValueVO> portfolioValues = (Collection<PortfolioValueVO>) this.portfolioValueDao.findByStrategyAndMinDate(PortfolioValueDao.TRANSFORM_PORTFOLIOVALUEVO, strategyName, date);
 
-            // calculate the performance
-            double lastNetLiqValue = 0;
-            double lastDayNetLiqValue = 0;
-            double performance = 1.0;
-            double dailyPerformance = 1.0;
-            for (PortfolioValueVO portfolioValue : portfolioValues) {
+        // calculate the performance
+        double lastNetLiqValue = 0;
+        double lastDayNetLiqValue = 0;
+        double performance = 1.0;
+        double dailyPerformance = 1.0;
+        for (PortfolioValueVO portfolioValue : portfolioValues) {
 
-                // for BASE reset performance at the 24:00 based on NetLiqValue of prior day
-                if (StrategyImpl.BASE.equals(strategyName) && DateUtils.getFragmentInHours(portfolioValue.getDateTime(), Calendar.DAY_OF_YEAR) == 0) {
-                    if (lastDayNetLiqValue != 0) {
-                        dailyPerformance = dailyPerformance
-                                * (portfolioValue.getNetLiqValue().doubleValue() / (lastDayNetLiqValue + (portfolioValue.getCashFlow() != null ? portfolioValue.getCashFlow().doubleValue() : 0)));
-                        performance = dailyPerformance;
-                        portfolioValue.setPerformance(performance - 1.0);
-                    }
-
-                    lastDayNetLiqValue = portfolioValue.getNetLiqValue().doubleValue();
-                    lastNetLiqValue = portfolioValue.getNetLiqValue().doubleValue();
-
-                } else {
-                    if (lastNetLiqValue != 0) {
-                        performance = performance
-                                * (portfolioValue.getNetLiqValue().doubleValue() / (lastNetLiqValue + (portfolioValue.getCashFlow() != null ? portfolioValue.getCashFlow().doubleValue() : 0)));
-                        portfolioValue.setPerformance(performance - 1.0);
-                    }
-
-                    lastNetLiqValue = portfolioValue.getNetLiqValue().doubleValue();
+            // for BASE reset performance at the 24:00 based on NetLiqValue of prior day
+            if (StrategyImpl.BASE.equals(strategyName) && DateUtils.getFragmentInHours(portfolioValue.getDateTime(), Calendar.DAY_OF_YEAR) == 0) {
+                if (lastDayNetLiqValue != 0) {
+                    dailyPerformance = dailyPerformance
+                            * (portfolioValue.getNetLiqValue().doubleValue() / (lastDayNetLiqValue + (portfolioValue.getCashFlow() != null ? portfolioValue.getCashFlow().doubleValue() : 0)));
+                    performance = dailyPerformance;
+                    portfolioValue.setPerformance(performance - 1.0);
                 }
-            }
 
-            return portfolioValues;
-        } catch (Exception ex) {
-            throw new PortfolioServiceException(ex.getMessage(), ex);
+                lastDayNetLiqValue = portfolioValue.getNetLiqValue().doubleValue();
+                lastNetLiqValue = portfolioValue.getNetLiqValue().doubleValue();
+
+            } else {
+                if (lastNetLiqValue != 0) {
+                    performance = performance
+                            * (portfolioValue.getNetLiqValue().doubleValue() / (lastNetLiqValue + (portfolioValue.getCashFlow() != null ? portfolioValue.getCashFlow().doubleValue() : 0)));
+                    portfolioValue.setPerformance(performance - 1.0);
+                }
+
+                lastNetLiqValue = portfolioValue.getNetLiqValue().doubleValue();
+            }
         }
+
+        return portfolioValues;
+
     }
 
     /**
@@ -942,15 +810,12 @@ public class PortfolioServiceImpl implements PortfolioService {
     @Override
     public Collection<BalanceVO> getBalances() {
 
-        try {
-            Collection<Currency> currencies = this.cashBalanceDao.findHeldCurrencies();
-            Collection<CashBalance> cashBalances = this.cashBalanceDao.loadAll();
-            Collection<Position> positions = this.positionDao.findOpenTradeablePositionsAggregated();
+        Collection<Currency> currencies = this.cashBalanceDao.findHeldCurrencies();
+        Collection<CashBalance> cashBalances = this.cashBalanceDao.loadAll();
+        Collection<Position> positions = this.positionDao.findOpenTradeablePositionsAggregated();
 
-            return getBalances(currencies, cashBalances, positions);
-        } catch (Exception ex) {
-            throw new PortfolioServiceException(ex.getMessage(), ex);
-        }
+        return getBalances(currencies, cashBalances, positions);
+
     }
 
     /**
@@ -961,15 +826,12 @@ public class PortfolioServiceImpl implements PortfolioService {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        try {
-            Collection<Currency> currencies = this.cashBalanceDao.findHeldCurrenciesByStrategy(strategyName);
-            Collection<CashBalance> cashBalances = this.cashBalanceDao.findCashBalancesByStrategy(strategyName);
-            Collection<Position> positions = this.positionDao.findOpenTradeablePositionsByStrategy(strategyName);
+        Collection<Currency> currencies = this.cashBalanceDao.findHeldCurrenciesByStrategy(strategyName);
+        Collection<CashBalance> cashBalances = this.cashBalanceDao.findCashBalancesByStrategy(strategyName);
+        Collection<Position> positions = this.positionDao.findOpenTradeablePositionsByStrategy(strategyName);
 
-            return getBalances(currencies, cashBalances, positions);
-        } catch (Exception ex) {
-            throw new PortfolioServiceException(ex.getMessage(), ex);
-        }
+        return getBalances(currencies, cashBalances, positions);
+
     }
 
     private double getCashBalanceDoubleInternal(Collection<CashBalance> cashBalances, List<Position> positions) {

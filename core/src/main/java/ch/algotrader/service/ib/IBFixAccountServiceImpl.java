@@ -28,6 +28,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlElement;
@@ -40,22 +41,23 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
-import ch.algotrader.adapter.fix.FixAdapter;
-import ch.algotrader.entity.Account;
-import ch.algotrader.service.AccountServiceImpl;
-import ch.algotrader.service.LookupService;
+import quickfix.SessionNotFound;
 import quickfix.field.FAConfigurationAction;
 import quickfix.field.FARequestID;
 import quickfix.field.SubMsgType;
 import quickfix.field.XMLContent;
 import quickfix.fix42.IBFAModification;
+import ch.algotrader.adapter.fix.FixAdapter;
+import ch.algotrader.entity.Account;
+import ch.algotrader.service.AccountServiceImpl;
+import ch.algotrader.service.LookupService;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-@ManagedResource(objectName="ch.algotrader.service.ib:name=IBFixAccountService")
+@ManagedResource(objectName = "ch.algotrader.service.ib:name=IBFixAccountService")
 public class IBFixAccountServiceImpl extends AccountServiceImpl implements IBFixAccountService {
 
     private Lock lock = new ReentrantLock();
@@ -100,11 +102,15 @@ public class IBFixAccountServiceImpl extends AccountServiceImpl implements IBFix
 
         try {
             requestGroups(account);
-
-            return new ArrayList<String>(this.groups.keySet());
-        } catch (Exception ex) {
-            throw new IBFixAccountServiceException(ex.getMessage(), ex);
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+            throw new IBFixAccountServiceException(ex);
+        } catch (SessionNotFound ex) {
+            throw new IBFixAccountServiceException(ex);
         }
+
+        return new ArrayList<String>(this.groups.keySet());
+
     }
 
     /**
@@ -124,16 +130,26 @@ public class IBFixAccountServiceImpl extends AccountServiceImpl implements IBFix
 
         try {
             requestGroups(account);
-
-            Group groupObject = new Group(group, defaultMethod);
-            groupObject.add(initialChildAccount);
-
-            this.groups.add(groupObject);
-
-            postGroups(account);
-        } catch (Exception ex) {
-            throw new IBFixAccountServiceException(ex.getMessage(), ex);
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+            throw new IBFixAccountServiceException(ex);
+        } catch (SessionNotFound ex) {
+            throw new IBFixAccountServiceException(ex);
         }
+
+        Group groupObject = new Group(group, defaultMethod);
+        groupObject.add(initialChildAccount);
+
+        this.groups.add(groupObject);
+
+        try {
+            postGroups(account);
+        } catch (JAXBException ex) {
+            throw new IBFixAccountServiceException(ex);
+        } catch (SessionNotFound ex) {
+            throw new IBFixAccountServiceException(ex);
+        }
+
     }
 
     /**
@@ -149,13 +165,23 @@ public class IBFixAccountServiceImpl extends AccountServiceImpl implements IBFix
 
         try {
             requestGroups(account);
-
-            this.groups.remove(group);
-
-            postGroups(account);
-        } catch (Exception ex) {
-            throw new IBFixAccountServiceException(ex.getMessage(), ex);
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+            throw new IBFixAccountServiceException(ex);
+        } catch (SessionNotFound ex) {
+            throw new IBFixAccountServiceException(ex);
         }
+
+        this.groups.remove(group);
+
+        try {
+            postGroups(account);
+        } catch (JAXBException ex) {
+            throw new IBFixAccountServiceException(ex);
+        } catch (SessionNotFound ex) {
+            throw new IBFixAccountServiceException(ex);
+        }
+
     }
 
     /**
@@ -173,19 +199,29 @@ public class IBFixAccountServiceImpl extends AccountServiceImpl implements IBFix
 
         try {
             requestGroups(account);
-
-            Group groupObject = this.groups.get(group);
-
-            if (group != null) {
-                groupObject.setDefaultMethod(defaultMethod);
-            } else {
-                throw new IllegalArgumentException("group does not exist " + group);
-            }
-
-            postGroups(account);
-        } catch (Exception ex) {
-            throw new IBFixAccountServiceException(ex.getMessage(), ex);
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+            throw new IBFixAccountServiceException(ex);
+        } catch (SessionNotFound ex) {
+            throw new IBFixAccountServiceException(ex);
         }
+
+        Group groupObject = this.groups.get(group);
+
+        if (group != null) {
+            groupObject.setDefaultMethod(defaultMethod);
+        } else {
+            throw new IllegalArgumentException("group does not exist " + group);
+        }
+
+        try {
+            postGroups(account);
+        } catch (JAXBException ex) {
+            throw new IBFixAccountServiceException(ex);
+        } catch (SessionNotFound ex) {
+            throw new IBFixAccountServiceException(ex);
+        }
+
     }
 
     /**
@@ -201,17 +237,21 @@ public class IBFixAccountServiceImpl extends AccountServiceImpl implements IBFix
 
         try {
             requestGroups(account);
-
-            Group groupObject = this.groups.get(group);
-
-            if (group != null) {
-                return groupObject.getAccounts();
-            } else {
-                throw new IllegalArgumentException("group does not exist " + group);
-            }
-        } catch (Exception ex) {
-            throw new IBFixAccountServiceException(ex.getMessage(), ex);
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+            throw new IBFixAccountServiceException(ex);
+        } catch (SessionNotFound ex) {
+            throw new IBFixAccountServiceException(ex);
         }
+
+        Group groupObject = this.groups.get(group);
+
+        if (group != null) {
+            return groupObject.getAccounts();
+        } else {
+            throw new IllegalArgumentException("group does not exist " + group);
+        }
+
     }
 
     /**
@@ -229,19 +269,29 @@ public class IBFixAccountServiceImpl extends AccountServiceImpl implements IBFix
 
         try {
             requestGroups(account);
-
-            Group groupObject = this.groups.get(group);
-
-            if (group != null) {
-                groupObject.add(childAccount);
-            } else {
-                throw new IllegalArgumentException("group does not exist " + group);
-            }
-
-            postGroups(account);
-        } catch (Exception ex) {
-            throw new IBFixAccountServiceException(ex.getMessage(), ex);
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+            throw new IBFixAccountServiceException(ex);
+        } catch (SessionNotFound ex) {
+            throw new IBFixAccountServiceException(ex);
         }
+
+        Group groupObject = this.groups.get(group);
+
+        if (group != null) {
+            groupObject.add(childAccount);
+        } else {
+            throw new IllegalArgumentException("group does not exist " + group);
+        }
+
+        try {
+            postGroups(account);
+        } catch (JAXBException ex) {
+            throw new IBFixAccountServiceException(ex);
+        } catch (SessionNotFound ex) {
+            throw new IBFixAccountServiceException(ex);
+        }
+
     }
 
     /**
@@ -259,19 +309,29 @@ public class IBFixAccountServiceImpl extends AccountServiceImpl implements IBFix
 
         try {
             requestGroups(account);
-
-            Group groupObject = this.groups.get(group);
-
-            if (group != null) {
-                groupObject.remove(childAccount);
-            } else {
-                throw new IllegalArgumentException("group does not exist " + group);
-            }
-
-            postGroups(account);
-        } catch (Exception ex) {
-            throw new IBFixAccountServiceException(ex.getMessage(), ex);
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+            throw new IBFixAccountServiceException(ex);
+        } catch (SessionNotFound ex) {
+            throw new IBFixAccountServiceException(ex);
         }
+
+        Group groupObject = this.groups.get(group);
+
+        if (group != null) {
+            groupObject.remove(childAccount);
+        } else {
+            throw new IllegalArgumentException("group does not exist " + group);
+        }
+
+        try {
+            postGroups(account);
+        } catch (JAXBException ex) {
+            throw new IBFixAccountServiceException(ex);
+        } catch (SessionNotFound ex) {
+            throw new IBFixAccountServiceException(ex);
+        }
+
     }
 
     /**
@@ -283,23 +343,25 @@ public class IBFixAccountServiceImpl extends AccountServiceImpl implements IBFix
         Validate.notEmpty(account, "Account is empty");
         Validate.notEmpty(xmlContent, "XML content is empty");
 
+        JAXBContext context;
         try {
-            JAXBContext context = JAXBContext.newInstance(GroupMap.class);
+            context = JAXBContext.newInstance(GroupMap.class);
             Unmarshaller um = context.createUnmarshaller();
             this.groups = (GroupMap) um.unmarshal(new StringReader(xmlContent));
-
-            this.lock.lock();
-            try {
-                this.condition.signalAll();
-            } finally {
-                this.lock.unlock();
-            }
-        } catch (Exception ex) {
-            throw new IBFixAccountServiceException(ex.getMessage(), ex);
+        } catch (JAXBException ex) {
+            throw new IBFixAccountServiceException(ex);
         }
+
+        this.lock.lock();
+        try {
+            this.condition.signalAll();
+        } finally {
+            this.lock.unlock();
+        }
+
     }
 
-    private void requestGroups(String accountName) throws Exception {
+    private void requestGroups(String accountName) throws InterruptedException, SessionNotFound {
 
         IBFAModification faModification = new IBFAModification();
         faModification.set(new SubMsgType(SubMsgType.CONFIG));
@@ -325,7 +387,7 @@ public class IBFixAccountServiceImpl extends AccountServiceImpl implements IBFix
         }
     }
 
-    private void postGroups(String accountName) throws Exception {
+    private void postGroups(String accountName) throws JAXBException, SessionNotFound {
 
         IBFAModification faModification = new IBFAModification();
         faModification.set(new SubMsgType(SubMsgType.CONFIG));

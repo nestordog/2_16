@@ -19,12 +19,14 @@ package ch.algotrader.service.bb;
 
 import java.text.ParseException;
 
+import ch.algotrader.service.ServiceException;
+
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class BBSecurityRetrieverServiceException extends RuntimeException {
+public class BBSecurityRetrieverServiceException extends ServiceException {
 
     private static final long serialVersionUID = -2524194330104480381L;
 
@@ -33,6 +35,10 @@ public class BBSecurityRetrieverServiceException extends RuntimeException {
     }
 
     public BBSecurityRetrieverServiceException(ParseException ex) {
+        super(ex);
+    }
+
+    public BBSecurityRetrieverServiceException(Exception ex) {
         super(ex);
     }
 

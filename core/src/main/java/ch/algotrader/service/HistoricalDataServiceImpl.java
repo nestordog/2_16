@@ -72,29 +72,26 @@ public abstract class HistoricalDataServiceImpl implements HistoricalDataService
         Validate.notNull(barSize, "Bar size is null");
         Validate.notNull(barType, "Bar type is null");
 
-        try {
-            // get all Bars from the Market Data Provider
-            List<Bar> bars = getHistoricalBars(securityId, endDate, timePeriodLength, timePeriod, barSize, barType);
+        // get all Bars from the Market Data Provider
+        List<Bar> bars = getHistoricalBars(securityId, endDate, timePeriodLength, timePeriod, barSize, barType);
 
-            // get the last Bar int the Database
-            final Bar lastBar = CollectionUtil.getSingleElementOrNull(this.barDao.findBarsBySecurityAndBarSize(1, 1, securityId, barSize));
+        // get the last Bar int the Database
+        final Bar lastBar = CollectionUtil.getSingleElementOrNull(this.barDao.findBarsBySecurityAndBarSize(1, 1, securityId, barSize));
 
-            // remove all Bars prior to the lastBar
-            if (lastBar != null) {
+        // remove all Bars prior to the lastBar
+        if (lastBar != null) {
 
-                CollectionUtils.filter(bars, new Predicate<Bar>() {
-                    @Override
-                    public boolean evaluate(Bar bar) {
-                        return bar.getDateTime().compareTo(lastBar.getDateTime()) > 0;
-                    }
-                });
-            }
-
-            // save the Bars
-            this.barDao.create(bars);
-        } catch (Exception ex) {
-            throw new HistoricalDataServiceException(ex.getMessage(), ex);
+            CollectionUtils.filter(bars, new Predicate<Bar>() {
+                @Override
+                public boolean evaluate(Bar bar) {
+                    return bar.getDateTime().compareTo(lastBar.getDateTime()) > 0;
+                }
+            });
         }
+
+        // save the Bars
+        this.barDao.create(bars);
+
     }
 
     /**
@@ -109,48 +106,45 @@ public abstract class HistoricalDataServiceImpl implements HistoricalDataService
         Validate.notNull(barSize, "Bar size is null");
         Validate.notNull(barType, "Bar type is null");
 
-        try {
-            // get all Bars from the Market Data Provider
-            List<Bar> newBars = getHistoricalBars(securityId, endDate, timePeriodLength, timePeriod, barSize, barType);
+        // get all Bars from the Market Data Provider
+        List<Bar> newBars = getHistoricalBars(securityId, endDate, timePeriodLength, timePeriod, barSize, barType);
 
-            // remove all Bars in the database after the first newly retrieved Bar
-            final Bar firstBar = CollectionUtil.getFirstElementOrNull(newBars);
-            if (firstBar != null) {
+        // remove all Bars in the database after the first newly retrieved Bar
+        final Bar firstBar = CollectionUtil.getFirstElementOrNull(newBars);
+        if (firstBar != null) {
 
-                List<Bar> existingBars = this.barDao.findBarsBySecurityBarSizeAndMinDate(securityId, barSize, firstBar.getDateTime());
+            List<Bar> existingBars = this.barDao.findBarsBySecurityBarSizeAndMinDate(securityId, barSize, firstBar.getDateTime());
 
-                if (existingBars.size() > 0) {
+            if (existingBars.size() > 0) {
 
-                    // store bars according to their date
-                    Map<Date, Bar> dateBarMap = new HashMap<Date, Bar>();
-                    for (Bar bar : existingBars) {
-                        dateBarMap.put(bar.getDateTime(), bar);
-                    }
-
-                    //update existing bars
-                    for (Iterator<Bar> it = newBars.iterator(); it.hasNext();) {
-
-                        Bar newBar = it.next();
-                        Bar existingBar = dateBarMap.remove(newBar.getDateTime());
-                        if (existingBar != null) {
-                            existingBar.setOpen(newBar.getOpen());
-                            existingBar.setHigh(newBar.getHigh());
-                            existingBar.setLow(newBar.getLow());
-                            existingBar.setClose(newBar.getClose());
-                            existingBar.setVol(newBar.getVol());
-                            it.remove();
-                        }
-                    }
-
-                    // remove obsolete Bars
-                    this.barDao.remove(dateBarMap.values());
+                // store bars according to their date
+                Map<Date, Bar> dateBarMap = new HashMap<Date, Bar>();
+                for (Bar bar : existingBars) {
+                    dateBarMap.put(bar.getDateTime(), bar);
                 }
-            }
 
-            // save the newly retrieved Bars that do not exist yet in the db
-            this.barDao.create(newBars);
-        } catch (Exception ex) {
-            throw new HistoricalDataServiceException(ex.getMessage(), ex);
+                //update existing bars
+                for (Iterator<Bar> it = newBars.iterator(); it.hasNext();) {
+
+                    Bar newBar = it.next();
+                    Bar existingBar = dateBarMap.remove(newBar.getDateTime());
+                    if (existingBar != null) {
+                        existingBar.setOpen(newBar.getOpen());
+                        existingBar.setHigh(newBar.getHigh());
+                        existingBar.setLow(newBar.getLow());
+                        existingBar.setClose(newBar.getClose());
+                        existingBar.setVol(newBar.getVol());
+                        it.remove();
+                    }
+                }
+
+                // remove obsolete Bars
+                this.barDao.remove(dateBarMap.values());
+            }
         }
+
+        // save the newly retrieved Bars that do not exist yet in the db
+        this.barDao.create(newBars);
+
     }
 }

@@ -116,18 +116,19 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationCont
 
         Validate.notNull(tick, "Tick is null");
 
+        // get the current Date rounded to MINUTES
+        Date date = DateUtils.round(new Date(), Calendar.MINUTE);
+        tick.setDateTime(date);
+
         try {
-            // get the current Date rounded to MINUTES
-            Date date = DateUtils.round(new Date(), Calendar.MINUTE);
-            tick.setDateTime(date);
-
             saveCvs(tick);
-
-            // write the tick to the DB (even if not valid)
-            this.tickDao.create(tick);
-        } catch (Exception ex) {
-            throw new MarketDataServiceException(ex.getMessage(), ex);
+        } catch (IOException ex) {
+            throw new MarketDataServiceException(ex);
         }
+
+        // write the tick to the DB (even if not valid)
+        this.tickDao.create(tick);
+
     }
 
     /**
@@ -138,11 +139,7 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationCont
 
         Validate.notNull(feedType, "Feed type is null");
 
-        try {
-            getExternalMarketDataService(feedType).initSubscriptions();
-        } catch (Exception ex) {
-            throw new MarketDataServiceException(ex.getMessage(), ex);
-        }
+        getExternalMarketDataService(feedType).initSubscriptions();
     }
 
     /**
@@ -154,11 +151,8 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationCont
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        try {
-            subscribe(strategyName, securityId, this.coreConfig.getDefaultFeedType());
-        } catch (Exception ex) {
-            throw new MarketDataServiceException(ex.getMessage(), ex);
-        }
+        subscribe(strategyName, securityId, this.coreConfig.getDefaultFeedType());
+
     }
 
     /**
@@ -171,35 +165,32 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationCont
         Validate.notEmpty(strategyName, "Strategy name is empty");
         Validate.notNull(feedType, "Feed type is null");
 
-        try {
-            if (this.subscriptionDao.findByStrategySecurityAndFeedType(strategyName, securityId, feedType) == null) {
+        if (this.subscriptionDao.findByStrategySecurityAndFeedType(strategyName, securityId, feedType) == null) {
 
-                Strategy strategy = this.strategyDao.findByName(strategyName);
-                Security security = this.securityDao.findByIdInclFamilyAndUnderlying(securityId);
+            Strategy strategy = this.strategyDao.findByName(strategyName);
+            Security security = this.securityDao.findByIdInclFamilyAndUnderlying(securityId);
 
-                // only external subscribe if nobody was watching the specified security with the specified feedType so far
-                if (!this.commonConfig.isSimulation()) {
-                    List<Subscription> subscriptions = this.subscriptionDao.findBySecurityAndFeedTypeForAutoActivateStrategies(securityId, feedType);
-                    if (subscriptions.size() == 0) {
-                        if (!security.getSecurityFamily().isSynthetic()) {
-                            getExternalMarketDataService(feedType).subscribe(security);
-                        }
+            // only external subscribe if nobody was watching the specified security with the specified feedType so far
+            if (!this.commonConfig.isSimulation()) {
+                List<Subscription> subscriptions = this.subscriptionDao.findBySecurityAndFeedTypeForAutoActivateStrategies(securityId, feedType);
+                if (subscriptions.size() == 0) {
+                    if (!security.getSecurityFamily().isSynthetic()) {
+                        getExternalMarketDataService(feedType).subscribe(security);
                     }
                 }
-
-                // update links
-                Subscription subscription = Subscription.Factory.newInstance(feedType, false, strategy, security);
-
-                this.subscriptionDao.create(subscription);
-
-                // reverse-associate security (after subscription has received an id)
-                security.getSubscriptions().add(subscription);
-
-                logger.info("subscribed security " + security + " with " + feedType);
             }
-        } catch (Exception ex) {
-            throw new MarketDataServiceException(ex.getMessage(), ex);
+
+            // update links
+            Subscription subscription = Subscription.Factory.newInstance(feedType, false, strategy, security);
+
+            this.subscriptionDao.create(subscription);
+
+            // reverse-associate security (after subscription has received an id)
+            security.getSubscriptions().add(subscription);
+
+            logger.info("subscribed security " + security + " with " + feedType);
         }
+
     }
 
     /**
@@ -211,11 +202,8 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationCont
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        try {
-            unsubscribe(strategyName, securityId, this.coreConfig.getDefaultFeedType());
-        } catch (Exception ex) {
-            throw new MarketDataServiceException(ex.getMessage(), ex);
-        }
+        unsubscribe(strategyName, securityId, this.coreConfig.getDefaultFeedType());
+
     }
 
     /**
@@ -228,31 +216,28 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationCont
         Validate.notEmpty(strategyName, "Strategy name is empty");
         Validate.notNull(feedType, "Feed type is null");
 
-        try {
-            Subscription subscription = this.subscriptionDao.findByStrategySecurityAndFeedType(strategyName, securityId, feedType);
-            if (subscription != null && !subscription.isPersistent()) {
+        Subscription subscription = this.subscriptionDao.findByStrategySecurityAndFeedType(strategyName, securityId, feedType);
+        if (subscription != null && !subscription.isPersistent()) {
 
-                Security security = this.securityDao.get(securityId);
+            Security security = this.securityDao.get(securityId);
 
-                // update links
-                security.getSubscriptions().remove(subscription);
+            // update links
+            security.getSubscriptions().remove(subscription);
 
-                this.subscriptionDao.remove(subscription);
+            this.subscriptionDao.remove(subscription);
 
-                // only external unsubscribe if nobody is watching this security anymore
-                if (!this.commonConfig.isSimulation()) {
-                    if (security.getSubscriptions().size() == 0) {
-                        if (!security.getSecurityFamily().isSynthetic()) {
-                            getExternalMarketDataService(feedType).unsubscribe(security);
-                        }
+            // only external unsubscribe if nobody is watching this security anymore
+            if (!this.commonConfig.isSimulation()) {
+                if (security.getSubscriptions().size() == 0) {
+                    if (!security.getSecurityFamily().isSynthetic()) {
+                        getExternalMarketDataService(feedType).unsubscribe(security);
                     }
                 }
-
-                logger.info("unsubscribed security " + security + " with " + feedType);
             }
-        } catch (Exception ex) {
-            throw new MarketDataServiceException(ex.getMessage(), ex);
+
+            logger.info("unsubscribed security " + security + " with " + feedType);
         }
+
     }
 
     /**
@@ -264,15 +249,12 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationCont
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        try {
-            Collection<Subscription> subscriptions = this.subscriptionDao.findNonPositionSubscriptions(strategyName);
+        Collection<Subscription> subscriptions = this.subscriptionDao.findNonPositionSubscriptions(strategyName);
 
-            for (Subscription subscription : subscriptions) {
-                unsubscribe(subscription.getStrategy().getName(), subscription.getSecurity().getId());
-            }
-        } catch (Exception ex) {
-            throw new MarketDataServiceException(ex.getMessage(), ex);
+        for (Subscription subscription : subscriptions) {
+            unsubscribe(subscription.getStrategy().getName(), subscription.getSecurity().getId());
         }
+
     }
 
     /**
@@ -285,16 +267,13 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationCont
         Validate.notEmpty(strategyName, "Strategy name is empty");
         Validate.notNull(type, "Type is null");
 
-        try {
-            int discriminator = HibernateUtil.getDisriminatorValue(this.sessionFactory, type);
-            Collection<Subscription> subscriptions = this.subscriptionDao.findNonPositionSubscriptionsByType(strategyName, discriminator);
+        int discriminator = HibernateUtil.getDisriminatorValue(this.sessionFactory, type);
+        Collection<Subscription> subscriptions = this.subscriptionDao.findNonPositionSubscriptionsByType(strategyName, discriminator);
 
-            for (Subscription subscription : subscriptions) {
-                unsubscribe(subscription.getStrategy().getName(), subscription.getSecurity().getId());
-            }
-        } catch (Exception ex) {
-            throw new MarketDataServiceException(ex.getMessage(), ex);
+        for (Subscription subscription : subscriptions) {
+            unsubscribe(subscription.getStrategy().getName(), subscription.getSecurity().getId());
         }
+
     }
 
     /**
@@ -305,15 +284,12 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationCont
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        try {
-            Collection<Tick> ticks = this.tickDao.findCurrentTicksByStrategy(strategyName);
+        Collection<Tick> ticks = this.tickDao.findCurrentTicksByStrategy(strategyName);
 
-            for (Tick tick : ticks) {
-                EngineLocator.instance().sendEvent(strategyName, tick);
-            }
-        } catch (Exception ex) {
-            throw new MarketDataServiceException(ex.getMessage(), ex);
+        for (Tick tick : ticks) {
+            EngineLocator.instance().sendEvent(strategyName, tick);
         }
+
     }
 
     /**
@@ -322,13 +298,10 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationCont
     @Override
     public void logTickGap(final int securityId) {
 
-        try {
-            Security security = this.securityDao.get(securityId);
+        Security security = this.securityDao.get(securityId);
 
-            logger.error(security + " has not received any ticks for " + security.getSecurityFamily().getMaxGap() + " minutes");
-        } catch (Exception ex) {
-            throw new MarketDataServiceException(ex.getMessage(), ex);
-        }
+        logger.error(security + " has not received any ticks for " + security.getSecurityFamily().getMaxGap() + " minutes");
+
     }
 
     @Override
@@ -358,13 +331,19 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationCont
 
     /**
      * get the externalMarketDataService defined by MarketDataServiceType
+     * @throws ClassNotFoundException
      */
     @SuppressWarnings({ "unchecked" })
-    private ExternalMarketDataService getExternalMarketDataService(final FeedType feedType) throws Exception {
+    private ExternalMarketDataService getExternalMarketDataService(final FeedType feedType) {
 
         Validate.notNull(feedType, "feedType must not be null");
 
-        Class<ExternalMarketDataService> marketDataServiceClass = (Class<ExternalMarketDataService>) Class.forName(feedType.getValue());
+        Class<ExternalMarketDataService> marketDataServiceClass;
+        try {
+            marketDataServiceClass = (Class<ExternalMarketDataService>) Class.forName(feedType.getValue());
+        } catch (ClassNotFoundException ex) {
+            throw new MarketDataServiceException("Could not find market data service for feed type " + feedType, ex);
+        }
 
         Map<String, ExternalMarketDataService> externalMarketDataServices = this.applicationContext.getBeansOfType(marketDataServiceClass);
 

@@ -136,15 +136,12 @@ public class PositionServiceImpl implements PositionService {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        try {
-            for (Position position : this.positionDao.findOpenPositionsByStrategy(strategyName)) {
-                if (position.isOpen()) {
-                    closePosition(position.getId(), unsubscribe);
-                }
+        for (Position position : this.positionDao.findOpenPositionsByStrategy(strategyName)) {
+            if (position.isOpen()) {
+                closePosition(position.getId(), unsubscribe);
             }
-        } catch (Exception ex) {
-            throw new PositionServiceException(ex.getMessage(), ex);
         }
+
     }
 
     /**
@@ -153,33 +150,30 @@ public class PositionServiceImpl implements PositionService {
     @Override
     public void closePosition(final int positionId, final boolean unsubscribe) {
 
-        try {
-            final Position position = this.positionDao.get(positionId);
-            if (position == null) {
-                throw new IllegalArgumentException("position with id " + positionId + " does not exist");
-            }
-
-            Security security = position.getSecurityInitialized();
-
-            if (position.isOpen()) {
-
-                // handle Combinations by the combination service
-                if (security instanceof Combination) {
-                    throw new PositionServiceException("Cannot close Combination position");
-                } else {
-                    reduceOrClosePosition(position, position.getQuantity(), unsubscribe);
-                }
-
-            } else {
-
-                // if there was no open position but unsubscribe was requested do that anyway
-                if (unsubscribe) {
-                    this.marketDataService.unsubscribe(position.getStrategy().getName(), security.getId());
-                }
-            }
-        } catch (Exception ex) {
-            throw new PositionServiceException(ex.getMessage(), ex);
+        final Position position = this.positionDao.get(positionId);
+        if (position == null) {
+            throw new IllegalArgumentException("position with id " + positionId + " does not exist");
         }
+
+        Security security = position.getSecurityInitialized();
+
+        if (position.isOpen()) {
+
+            // handle Combinations by the combination service
+            if (security instanceof Combination) {
+                throw new PositionServiceException("Cannot close Combination position");
+            } else {
+                reduceOrClosePosition(position, position.getQuantity(), unsubscribe);
+            }
+
+        } else {
+
+            // if there was no open position but unsubscribe was requested do that anyway
+            if (unsubscribe) {
+                this.marketDataService.unsubscribe(position.getStrategy().getName(), security.getId());
+            }
+        }
+
     }
 
     /**
@@ -191,35 +185,32 @@ public class PositionServiceImpl implements PositionService {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        try {
-            Security security = this.securityDao.get(securityId);
-            Strategy strategy = this.strategyDao.findByName(strategyName);
+        Security security = this.securityDao.get(securityId);
+        Strategy strategy = this.strategyDao.findByName(strategyName);
 
-            if (security.getSecurityFamily().isTradeable()) {
-                throw new PositionServiceException(security + " is tradeable, can only creat non-tradeable positions");
-            }
-
-            Position position = Position.Factory.newInstance();
-            position.setQuantity(quantity);
-
-            position.setExitValue(null);
-            position.setMaintenanceMargin(null);
-
-            // associate strategy and security
-            position.setStrategy(strategy);
-            position.setSecurity(security);
-
-            this.positionDao.create(position);
-
-            // reverse-associate the security (after position has received an id)
-            security.getPositions().add(position);
-
-            logger.info("created non-tradeable position on " + security + " for strategy " + strategyName + " quantity " + quantity);
-
-            return position;
-        } catch (Exception ex) {
-            throw new PositionServiceException(ex.getMessage(), ex);
+        if (security.getSecurityFamily().isTradeable()) {
+            throw new PositionServiceException(security + " is tradeable, can only creat non-tradeable positions");
         }
+
+        Position position = Position.Factory.newInstance();
+        position.setQuantity(quantity);
+
+        position.setExitValue(null);
+        position.setMaintenanceMargin(null);
+
+        // associate strategy and security
+        position.setStrategy(strategy);
+        position.setSecurity(security);
+
+        this.positionDao.create(position);
+
+        // reverse-associate the security (after position has received an id)
+        security.getPositions().add(position);
+
+        logger.info("created non-tradeable position on " + security + " for strategy " + strategyName + " quantity " + quantity);
+
+        return position;
+
     }
 
     /**
@@ -229,20 +220,17 @@ public class PositionServiceImpl implements PositionService {
     @Transactional(propagation = Propagation.REQUIRED)
     public Position modifyNonTradeablePosition(final int positionId, final long quantity) {
 
-        try {
-            Position position = this.positionDao.getLocked(positionId);
-            if (position == null) {
-                throw new IllegalArgumentException("position with id " + positionId + " does not exist");
-            }
-
-            position.setQuantity(quantity);
-
-            logger.info("modified non-tradeable position " + positionId + " new quantity " + quantity);
-
-            return position;
-        } catch (Exception ex) {
-            throw new PositionServiceException(ex.getMessage(), ex);
+        Position position = this.positionDao.getLocked(positionId);
+        if (position == null) {
+            throw new IllegalArgumentException("position with id " + positionId + " does not exist");
         }
+
+        position.setQuantity(quantity);
+
+        logger.info("modified non-tradeable position " + positionId + " new quantity " + quantity);
+
+        return position;
+
     }
 
     /**
@@ -252,37 +240,34 @@ public class PositionServiceImpl implements PositionService {
     @Transactional(propagation = Propagation.REQUIRED)
     public void deleteNonTradeablePosition(final int positionId, final boolean unsubscribe) {
 
-        try {
-            Position position = this.positionDao.get(positionId);
-            if (position == null) {
-                throw new IllegalArgumentException("position with id " + positionId + " does not exist");
-            }
-
-            Security security = position.getSecurity();
-
-            if (security.getSecurityFamily().isTradeable()) {
-                throw new PositionServiceException(security + " is tradeable, can only delete non-tradeable positions");
-            }
-
-            ClosePositionVO closePositionVO = this.positionDao.toClosePositionVO(position);
-
-            // propagate the ClosePosition event
-            EngineLocator.instance().sendEvent(position.getStrategy().getName(), closePositionVO);
-
-            // remove the association
-            position.getSecurity().removePositions(position);
-
-            this.positionDao.remove(position);
-
-            logger.info("deleted non-tradeable position " + position.getId() + " on " + security + " for strategy " + position.getStrategy().getName());
-
-            // unsubscribe if necessary
-            if (unsubscribe) {
-                this.marketDataService.unsubscribe(position.getStrategy().getName(), position.getSecurity().getId());
-            }
-        } catch (Exception ex) {
-            throw new PositionServiceException(ex.getMessage(), ex);
+        Position position = this.positionDao.get(positionId);
+        if (position == null) {
+            throw new IllegalArgumentException("position with id " + positionId + " does not exist");
         }
+
+        Security security = position.getSecurity();
+
+        if (security.getSecurityFamily().isTradeable()) {
+            throw new PositionServiceException(security + " is tradeable, can only delete non-tradeable positions");
+        }
+
+        ClosePositionVO closePositionVO = this.positionDao.toClosePositionVO(position);
+
+        // propagate the ClosePosition event
+        EngineLocator.instance().sendEvent(position.getStrategy().getName(), closePositionVO);
+
+        // remove the association
+        position.getSecurity().removePositions(position);
+
+        this.positionDao.remove(position);
+
+        logger.info("deleted non-tradeable position " + position.getId() + " on " + security + " for strategy " + position.getStrategy().getName());
+
+        // unsubscribe if necessary
+        if (unsubscribe) {
+            this.marketDataService.unsubscribe(position.getStrategy().getName(), position.getSecurity().getId());
+        }
+
     }
 
     /**
@@ -291,20 +276,17 @@ public class PositionServiceImpl implements PositionService {
     @Override
     public void reducePosition(final int positionId, final long quantity) {
 
-        try {
-            Position position = this.positionDao.get(positionId);
-            if (position == null) {
-                throw new IllegalArgumentException("position with id " + positionId + " does not exist");
-            }
-
-            if (Math.abs(quantity) > Math.abs(position.getQuantity())) {
-                throw new PositionServiceException("position reduction of " + quantity + " for position " + position.getId() + " is greater than current quantity " + position.getQuantity());
-            } else {
-                reduceOrClosePosition(position, quantity, false);
-            }
-        } catch (Exception ex) {
-            throw new PositionServiceException(ex.getMessage(), ex);
+        Position position = this.positionDao.get(positionId);
+        if (position == null) {
+            throw new IllegalArgumentException("position with id " + positionId + " does not exist");
         }
+
+        if (Math.abs(quantity) > Math.abs(position.getQuantity())) {
+            throw new PositionServiceException("position reduction of " + quantity + " for position " + position.getId() + " is greater than current quantity " + position.getQuantity());
+        } else {
+            reduceOrClosePosition(position, quantity, false);
+        }
+
     }
 
     /**
@@ -315,46 +297,43 @@ public class PositionServiceImpl implements PositionService {
 
         Validate.notEmpty(targetStrategyName, "Target strategy name is empty");
 
-        try {
-            Position position = this.positionDao.get(positionId);
-            if (position == null) {
-                throw new IllegalArgumentException("position with id " + positionId + " does not exist");
-            }
-
-            Strategy targetStrategy = this.strategyDao.findByName(targetStrategyName);
-            Security security = position.getSecurity();
-            SecurityFamily family = security.getSecurityFamily();
-            long quantity = position.getQuantity();
-            BigDecimal price = RoundUtil.getBigDecimal(position.getMarketPrice(), family.getScale());
-
-            // debit transaction
-            Transaction debitTransaction = Transaction.Factory.newInstance();
-            debitTransaction.setDateTime(DateUtil.getCurrentEPTime());
-            debitTransaction.setQuantity(-quantity);
-            debitTransaction.setPrice(price);
-            debitTransaction.setCurrency(family.getCurrency());
-            debitTransaction.setType(TransactionType.TRANSFER);
-            debitTransaction.setSecurity(security);
-            debitTransaction.setStrategy(position.getStrategy());
-
-            // persiste the transaction
-            this.transactionService.persistTransaction(debitTransaction);
-
-            // credit transaction
-            Transaction creditTransaction = Transaction.Factory.newInstance();
-            creditTransaction.setDateTime(DateUtil.getCurrentEPTime());
-            creditTransaction.setQuantity(quantity);
-            creditTransaction.setPrice(price);
-            creditTransaction.setCurrency(family.getCurrency());
-            creditTransaction.setType(TransactionType.TRANSFER);
-            creditTransaction.setSecurity(security);
-            creditTransaction.setStrategy(targetStrategy);
-
-            // persiste the transaction
-            this.transactionService.persistTransaction(creditTransaction);
-        } catch (Exception ex) {
-            throw new PositionServiceException(ex.getMessage(), ex);
+        Position position = this.positionDao.get(positionId);
+        if (position == null) {
+            throw new IllegalArgumentException("position with id " + positionId + " does not exist");
         }
+
+        Strategy targetStrategy = this.strategyDao.findByName(targetStrategyName);
+        Security security = position.getSecurity();
+        SecurityFamily family = security.getSecurityFamily();
+        long quantity = position.getQuantity();
+        BigDecimal price = RoundUtil.getBigDecimal(position.getMarketPrice(), family.getScale());
+
+        // debit transaction
+        Transaction debitTransaction = Transaction.Factory.newInstance();
+        debitTransaction.setDateTime(DateUtil.getCurrentEPTime());
+        debitTransaction.setQuantity(-quantity);
+        debitTransaction.setPrice(price);
+        debitTransaction.setCurrency(family.getCurrency());
+        debitTransaction.setType(TransactionType.TRANSFER);
+        debitTransaction.setSecurity(security);
+        debitTransaction.setStrategy(position.getStrategy());
+
+        // persiste the transaction
+        this.transactionService.persistTransaction(debitTransaction);
+
+        // credit transaction
+        Transaction creditTransaction = Transaction.Factory.newInstance();
+        creditTransaction.setDateTime(DateUtil.getCurrentEPTime());
+        creditTransaction.setQuantity(quantity);
+        creditTransaction.setPrice(price);
+        creditTransaction.setCurrency(family.getCurrency());
+        creditTransaction.setType(TransactionType.TRANSFER);
+        creditTransaction.setSecurity(security);
+        creditTransaction.setStrategy(targetStrategy);
+
+        // persiste the transaction
+        this.transactionService.persistTransaction(creditTransaction);
+
     }
 
     /**
@@ -364,15 +343,12 @@ public class PositionServiceImpl implements PositionService {
     @Transactional(propagation = Propagation.REQUIRED)
     public void setMargins() {
 
-        try {
-            List<Position> positions = this.positionDao.findOpenPositions();
+        List<Position> positions = this.positionDao.findOpenPositions();
 
-            for (Position position : positions) {
-                setMargin(position);
-            }
-        } catch (Exception ex) {
-            throw new PositionServiceException(ex.getMessage(), ex);
+        for (Position position : positions) {
+            setMargin(position);
         }
+
     }
 
     /**
@@ -382,18 +358,15 @@ public class PositionServiceImpl implements PositionService {
     @Transactional(propagation = Propagation.REQUIRED)
     public Position setMargin(final int positionId) {
 
-        try {
-            Position position = this.positionDao.get(positionId);
-            if (position == null) {
-                throw new IllegalArgumentException("position with id " + positionId + " does not exist");
-            }
-
-            setMargin(position);
-
-            return position;
-        } catch (Exception ex) {
-            throw new PositionServiceException(ex.getMessage(), ex);
+        Position position = this.positionDao.get(positionId);
+        if (position == null) {
+            throw new IllegalArgumentException("position with id " + positionId + " does not exist");
         }
+
+        setMargin(position);
+
+        return position;
+
     }
 
     /**
@@ -403,16 +376,13 @@ public class PositionServiceImpl implements PositionService {
     @Transactional(propagation = Propagation.REQUIRED)
     public void expirePositions() {
 
-        try {
-            Date date = DateUtil.getCurrentEPTime();
-            Collection<Position> positions = this.positionDao.findExpirablePositions(date);
+        Date date = DateUtil.getCurrentEPTime();
+        Collection<Position> positions = this.positionDao.findExpirablePositions(date);
 
-            for (Position position : positions) {
-                expirePosition(position);
-            }
-        } catch (Exception ex) {
-            throw new PositionServiceException(ex.getMessage(), ex);
+        for (Position position : positions) {
+            expirePosition(position);
         }
+
     }
 
     /**
@@ -425,53 +395,50 @@ public class PositionServiceImpl implements PositionService {
         Validate.notNull(exitValue, "Exit value is null");
 
         BigDecimal exitValueNonFinal = exitValue;
-        try {
-            Position position = this.positionDao.getLocked(positionId);
-            if (position == null) {
-                throw new IllegalArgumentException("position with id " + positionId + " does not exist");
-            }
+        Position position = this.positionDao.getLocked(positionId);
+        if (position == null) {
+            throw new IllegalArgumentException("position with id " + positionId + " does not exist");
+        }
 
-            // set the scale
-            int scale = position.getSecurity().getSecurityFamily().getScale();
-            exitValueNonFinal = exitValueNonFinal.setScale(scale, BigDecimal.ROUND_HALF_UP);
+        // set the scale
+        int scale = position.getSecurity().getSecurityFamily().getScale();
+        exitValueNonFinal = exitValueNonFinal.setScale(scale, BigDecimal.ROUND_HALF_UP);
 
-            // prevent exitValues near Zero
-            if (!(position.getSecurityInitialized() instanceof Combination) && exitValueNonFinal.doubleValue() <= 0.05) {
-                logger.warn("setting of exitValue below 0.05 is prohibited: " + exitValueNonFinal);
+        // prevent exitValues near Zero
+        if (!(position.getSecurityInitialized() instanceof Combination) && exitValueNonFinal.doubleValue() <= 0.05) {
+            logger.warn("setting of exitValue below 0.05 is prohibited: " + exitValueNonFinal);
+            return position;
+        }
+
+        // The new ExitValues should not be set lower (higher) than the existing ExitValue for long (short) positions. This check can be overwritten by setting force to true
+        if (!force) {
+            if (Direction.SHORT.equals(position.getDirection()) && position.getExitValue() != null && exitValueNonFinal.compareTo(position.getExitValue()) > 0) {
+                logger.warn("exit value " + exitValueNonFinal + " is higher than existing exit value " + position.getExitValue() + " of short position " + positionId);
+                return position;
+            } else if (Direction.LONG.equals(position.getDirection()) && position.getExitValue() != null && exitValueNonFinal.compareTo(position.getExitValue()) < 0) {
+                logger.warn("exit value " + exitValueNonFinal + " is lower than existing exit value " + position.getExitValue() + " of long position " + positionId);
                 return position;
             }
-
-            // The new ExitValues should not be set lower (higher) than the existing ExitValue for long (short) positions. This check can be overwritten by setting force to true
-            if (!force) {
-                if (Direction.SHORT.equals(position.getDirection()) && position.getExitValue() != null && exitValueNonFinal.compareTo(position.getExitValue()) > 0) {
-                    logger.warn("exit value " + exitValueNonFinal + " is higher than existing exit value " + position.getExitValue() + " of short position " + positionId);
-                    return position;
-                } else if (Direction.LONG.equals(position.getDirection()) && position.getExitValue() != null && exitValueNonFinal.compareTo(position.getExitValue()) < 0) {
-                    logger.warn("exit value " + exitValueNonFinal + " is lower than existing exit value " + position.getExitValue() + " of long position " + positionId);
-                    return position;
-                }
-            }
-
-            // The new ExitValues cannot be higher (lower) than the currentValue for long (short) positions
-            MarketDataEvent marketDataEvent = position.getSecurity().getCurrentMarketDataEvent();
-            if (marketDataEvent != null) {
-                BigDecimal currentValue = marketDataEvent.getCurrentValue();
-                if (Direction.SHORT.equals(position.getDirection()) && exitValueNonFinal.compareTo(currentValue) < 0) {
-                    throw new PositionServiceException("ExitValue (" + exitValueNonFinal + ") for short-position " + position.getId() + " is lower than currentValue: " + currentValue);
-                } else if (Direction.LONG.equals(position.getDirection()) && exitValueNonFinal.compareTo(currentValue) > 0) {
-                    throw new PositionServiceException("ExitValue (" + exitValueNonFinal + ") for long-position " + position.getId() + " is higher than currentValue: " + currentValue);
-                }
-            }
-
-            // set the exitValue
-            position.setExitValue(exitValueNonFinal);
-
-            logger.info("set exit value of position " + position.getId() + " to " + exitValueNonFinal);
-
-            return position;
-        } catch (Exception ex) {
-            throw new PositionServiceException(ex.getMessage(), ex);
         }
+
+        // The new ExitValues cannot be higher (lower) than the currentValue for long (short) positions
+        MarketDataEvent marketDataEvent = position.getSecurity().getCurrentMarketDataEvent();
+        if (marketDataEvent != null) {
+            BigDecimal currentValue = marketDataEvent.getCurrentValue();
+            if (Direction.SHORT.equals(position.getDirection()) && exitValueNonFinal.compareTo(currentValue) < 0) {
+                throw new PositionServiceException("ExitValue (" + exitValueNonFinal + ") for short-position " + position.getId() + " is lower than currentValue: " + currentValue);
+            } else if (Direction.LONG.equals(position.getDirection()) && exitValueNonFinal.compareTo(currentValue) > 0) {
+                throw new PositionServiceException("ExitValue (" + exitValueNonFinal + ") for long-position " + position.getId() + " is higher than currentValue: " + currentValue);
+            }
+        }
+
+        // set the exitValue
+        position.setExitValue(exitValueNonFinal);
+
+        logger.info("set exit value of position " + position.getId() + " to " + exitValueNonFinal);
+
+        return position;
+
     }
 
     /**
@@ -481,23 +448,20 @@ public class PositionServiceImpl implements PositionService {
     @Transactional(propagation = Propagation.REQUIRED)
     public Position removeExitValue(final int positionId) {
 
-        try {
-            Position position = this.positionDao.getLocked(positionId);
-            if (position == null) {
-                throw new IllegalArgumentException("position with id " + positionId + " does not exist");
-            }
-
-            if (position.getExitValue() != null) {
-
-                position.setExitValue(null);
-
-                logger.info("removed exit value of position " + positionId);
-            }
-
-            return position;
-        } catch (Exception ex) {
-            throw new PositionServiceException(ex.getMessage(), ex);
+        Position position = this.positionDao.getLocked(positionId);
+        if (position == null) {
+            throw new IllegalArgumentException("position with id " + positionId + " does not exist");
         }
+
+        if (position.getExitValue() != null) {
+
+            position.setExitValue(null);
+
+            logger.info("removed exit value of position " + positionId);
+        }
+
+        return position;
+
     }
 
     /**
@@ -507,78 +471,75 @@ public class PositionServiceImpl implements PositionService {
     @Transactional(propagation = Propagation.REQUIRED)
     public String resetPositions() {
 
-        try {
-            Collection<Transaction> transactions = this.transactionDao.findAllTradesInclSecurity();
+        Collection<Transaction> transactions = this.transactionDao.findAllTradesInclSecurity();
 
-            // process all transactions to establis current position states
-            Map<Pair<Security, Strategy>, Position> positionMap = new HashMap<Pair<Security, Strategy>, Position>();
-            for (Transaction transaction : transactions) {
+        // process all transactions to establis current position states
+        Map<Pair<Security, Strategy>, Position> positionMap = new HashMap<Pair<Security, Strategy>, Position>();
+        for (Transaction transaction : transactions) {
 
-                // crate a position if we come across a security for the first time
-                Position position = positionMap.get(new Pair<Security, Strategy>(transaction.getSecurity(), transaction.getStrategy()));
-                if (position == null) {
-                    position = PositionUtil.processFirstTransaction(transaction);
-                    positionMap.put(new Pair<Security, Strategy>(position.getSecurity(), position.getStrategy()), position);
-                } else {
-                    PositionUtil.processTransaction(position, transaction);
-                }
+            // crate a position if we come across a security for the first time
+            Position position = positionMap.get(new Pair<Security, Strategy>(transaction.getSecurity(), transaction.getStrategy()));
+            if (position == null) {
+                position = PositionUtil.processFirstTransaction(transaction);
+                positionMap.put(new Pair<Security, Strategy>(position.getSecurity(), position.getStrategy()), position);
+            } else {
+                PositionUtil.processTransaction(position, transaction);
             }
+        }
 
-            // update positions
-            StringBuffer buffer = new StringBuffer();
-            for (Position targetOpenPosition : positionMap.values()) {
+        // update positions
+        StringBuffer buffer = new StringBuffer();
+        for (Position targetOpenPosition : positionMap.values()) {
 
-                Position actualOpenPosition = this.positionDao.findBySecurityAndStrategy(targetOpenPosition.getSecurity().getId(), targetOpenPosition.getStrategy().getName());
+            Position actualOpenPosition = this.positionDao.findBySecurityAndStrategy(targetOpenPosition.getSecurity().getId(), targetOpenPosition.getStrategy().getName());
 
-                // create if it does not exist
-                if (actualOpenPosition == null) {
+            // create if it does not exist
+            if (actualOpenPosition == null) {
 
-                    String warning = "position on security " + targetOpenPosition.getSecurity() + " strategy " + targetOpenPosition.getStrategy() + " quantity " + targetOpenPosition.getQuantity()
-                            + " does not exist";
+                String warning = "position on security " + targetOpenPosition.getSecurity() + " strategy " + targetOpenPosition.getStrategy() + " quantity " + targetOpenPosition.getQuantity()
+                        + " does not exist";
+                logger.warn(warning);
+                buffer.append(warning + "\n");
+
+            } else {
+
+                // check quantity
+                if (actualOpenPosition.getQuantity() != targetOpenPosition.getQuantity()) {
+
+                    long existingQty = actualOpenPosition.getQuantity();
+                    actualOpenPosition.setQuantity(targetOpenPosition.getQuantity());
+
+                    String warning = "adjusted quantity of position " + actualOpenPosition.getId() + " from " + existingQty + " to " + targetOpenPosition.getQuantity();
                     logger.warn(warning);
                     buffer.append(warning + "\n");
+                }
 
-                } else {
+                // check cost
+                if (actualOpenPosition.getCost() != targetOpenPosition.getCost()) {
 
-                    // check quantity
-                    if (actualOpenPosition.getQuantity() != targetOpenPosition.getQuantity()) {
+                    double existingCost = actualOpenPosition.getCost();
+                    actualOpenPosition.setCost(targetOpenPosition.getCost());
 
-                        long existingQty = actualOpenPosition.getQuantity();
-                        actualOpenPosition.setQuantity(targetOpenPosition.getQuantity());
+                    String warning = "adjusted cost of position " + actualOpenPosition.getId() + " from " + existingCost + " to " + targetOpenPosition.getCost();
+                    logger.warn(warning);
+                    buffer.append(warning + "\n");
+                }
 
-                        String warning = "adjusted quantity of position " + actualOpenPosition.getId() + " from " + existingQty + " to " + targetOpenPosition.getQuantity();
-                        logger.warn(warning);
-                        buffer.append(warning + "\n");
-                    }
+                // check realizedPL
+                if (actualOpenPosition.getRealizedPL() != targetOpenPosition.getRealizedPL()) {
 
-                    // check cost
-                    if (actualOpenPosition.getCost() != targetOpenPosition.getCost()) {
+                    double existingRealizedPL = actualOpenPosition.getRealizedPL();
+                    actualOpenPosition.setRealizedPL(targetOpenPosition.getRealizedPL());
 
-                        double existingCost = actualOpenPosition.getCost();
-                        actualOpenPosition.setCost(targetOpenPosition.getCost());
-
-                        String warning = "adjusted cost of position " + actualOpenPosition.getId() + " from " + existingCost + " to " + targetOpenPosition.getCost();
-                        logger.warn(warning);
-                        buffer.append(warning + "\n");
-                    }
-
-                    // check realizedPL
-                    if (actualOpenPosition.getRealizedPL() != targetOpenPosition.getRealizedPL()) {
-
-                        double existingRealizedPL = actualOpenPosition.getRealizedPL();
-                        actualOpenPosition.setRealizedPL(targetOpenPosition.getRealizedPL());
-
-                        String warning = "adjusted realizedPL of position " + actualOpenPosition.getId() + " from " + existingRealizedPL + " to " + targetOpenPosition.getRealizedPL();
-                        logger.warn(warning);
-                        buffer.append(warning + "\n");
-                    }
+                    String warning = "adjusted realizedPL of position " + actualOpenPosition.getId() + " from " + existingRealizedPL + " to " + targetOpenPosition.getRealizedPL();
+                    logger.warn(warning);
+                    buffer.append(warning + "\n");
                 }
             }
-
-            return buffer.toString();
-        } catch (Exception ex) {
-            throw new PositionServiceException(ex.getMessage(), ex);
         }
+
+        return buffer.toString();
+
     }
 
     private void reduceOrClosePosition(final Position position, long quantity, final boolean unsubscribe) {
@@ -616,7 +577,7 @@ public class PositionServiceImpl implements PositionService {
                             Order order = orderStatus.getOrder();
                             if (Status.EXECUTED.equals(orderStatus.getStatus())) {
                                 // use ServiceLocator because TradeCallback is executed in a new thread
-                                marketDataService.unsubscribe(order.getStrategy().getName(), order.getSecurity().getId());
+                                PositionServiceImpl.this.marketDataService.unsubscribe(order.getStrategy().getName(), order.getSecurity().getId());
                             }
                         }
                     }
@@ -627,7 +588,7 @@ public class PositionServiceImpl implements PositionService {
         this.orderService.sendOrder(order);
     }
 
-    private void setMargin(Position position) throws Exception {
+    private void setMargin(Position position) {
 
         Security security = position.getSecurity();
         double marginPerContract = security.getMargin();
@@ -645,7 +606,7 @@ public class PositionServiceImpl implements PositionService {
         }
     }
 
-    private void expirePosition(Position position) throws Exception {
+    private void expirePosition(Position position) {
 
         Security security = position.getSecurityInitialized();
 

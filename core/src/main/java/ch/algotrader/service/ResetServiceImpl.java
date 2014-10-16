@@ -130,96 +130,92 @@ public class ResetServiceImpl implements ResetService {
     @Transactional(propagation = Propagation.REQUIRED)
     public void resetDB() {
 
-        try {
-            // process all strategies
-            Collection<Strategy> strategies = this.strategyDao.loadAll();
-            for (Strategy strategy : strategies) {
+        // process all strategies
+        Collection<Strategy> strategies = this.strategyDao.loadAll();
+        for (Strategy strategy : strategies) {
 
-                // delete all transactions except the initial CREDIT
-                Collection<Transaction> transactions = this.transactionDao.findByStrategy(strategy.getName());
-                Set<Transaction> toRemoveTransactions = new HashSet<Transaction>();
-                Set<Transaction> toKeepTransactions = new HashSet<Transaction>();
-                BigDecimal initialAmount = new BigDecimal(0);
-                for (Transaction transaction : transactions) {
-                    if (transaction.getId() == 1) {
-                        toKeepTransactions.add(transaction);
-                        initialAmount = transaction.getPrice();
-                    } else {
-                        toRemoveTransactions.add(transaction);
-                    }
+            // delete all transactions except the initial CREDIT
+            Collection<Transaction> transactions = this.transactionDao.findByStrategy(strategy.getName());
+            Set<Transaction> toRemoveTransactions = new HashSet<Transaction>();
+            Set<Transaction> toKeepTransactions = new HashSet<Transaction>();
+            BigDecimal initialAmount = new BigDecimal(0);
+            for (Transaction transaction : transactions) {
+                if (transaction.getId() == 1) {
+                    toKeepTransactions.add(transaction);
+                    initialAmount = transaction.getPrice();
+                } else {
+                    toRemoveTransactions.add(transaction);
                 }
-                this.transactionDao.remove(toRemoveTransactions);
+            }
+            this.transactionDao.remove(toRemoveTransactions);
 
-                // delete all cashBalances except the initial CREDIT
-                Collection<CashBalance> cashBalances = strategy.getCashBalances();
-                Set<CashBalance> toRemoveCashBalance = new HashSet<CashBalance>();
-                Set<CashBalance> toKeepCashBalances = new HashSet<CashBalance>();
-                for (CashBalance cashBalance : cashBalances) {
-                    if (cashBalance.getId() == 1) {
-                        toKeepCashBalances.add(cashBalance);
-                        cashBalance.setAmount(initialAmount);
-                    } else {
-                        toRemoveCashBalance.add(cashBalance);
-                    }
+            // delete all cashBalances except the initial CREDIT
+            Collection<CashBalance> cashBalances = strategy.getCashBalances();
+            Set<CashBalance> toRemoveCashBalance = new HashSet<CashBalance>();
+            Set<CashBalance> toKeepCashBalances = new HashSet<CashBalance>();
+            for (CashBalance cashBalance : cashBalances) {
+                if (cashBalance.getId() == 1) {
+                    toKeepCashBalances.add(cashBalance);
+                    cashBalance.setAmount(initialAmount);
+                } else {
+                    toRemoveCashBalance.add(cashBalance);
                 }
-                this.cashBalanceDao.remove(toRemoveCashBalance);
-                strategy.setCashBalances(toKeepCashBalances);
             }
-
-            // delete all non-persistent positions and references to them
-            Collection<Position> nonPersistentPositions = this.positionDao.findNonPersistent();
-            for (Position position : nonPersistentPositions) {
-                position.getSecurity().removePositions(position);
-            }
-            this.positionDao.remove(nonPersistentPositions);
-
-            // reset persistent positions
-            Collection<Position> persistentPositions = this.positionDao.findPersistent();
-            for (Position position : persistentPositions) {
-                position.setQuantity(0);
-                position.setExitValue(null);
-                position.setMaintenanceMargin(null);
-            }
-
-            // delete all non-presistent subscriptions and references to them
-            Collection<Subscription> nonPersistentSubscriptions = this.subscriptionDao.findNonPersistent();
-            this.subscriptionDao.remove(nonPersistentSubscriptions);
-            for (Subscription subscription : nonPersistentSubscriptions) {
-                subscription.getSecurity().getSubscriptions().remove(subscription);
-            }
-
-            // delete all non-persistent combinations
-            this.combinationDao.remove(this.combinationDao.findNonPersistent());
-
-            // delete all non-persistent components and references to them
-            Collection<Component> nonPersistentComponents = this.componentDao.findNonPersistent();
-            this.componentDao.remove(nonPersistentComponents);
-            for (Component component : nonPersistentComponents) {
-                component.getCombination().getComponents().remove(component);
-            }
-
-            // delete all non-persistent properties
-            Collection<Property> nonPersistentProperties = this.propertyDao.findNonPersistent();
-            this.propertyDao.remove(nonPersistentProperties);
-            for (Property property : nonPersistentProperties) {
-                property.getPropertyHolder().removeProps(property.getName());
-            }
-
-            // delete all measurements
-            this.measurementDao.remove(this.measurementDao.loadAll());
-
-            // delete all Options if they are beeing simulated
-            if (this.coreConfig.isSimulateOptions()) {
-                this.securityDao.remove((Collection<Security>) this.optionDao.loadAll(OptionDao.TRANSFORM_NONE));
-            }
-
-            // delete all Futures if they are beeing simulated
-            if (this.coreConfig.isSimulateFuturesByUnderlying() || this.coreConfig.isSimulateFuturesByGenericFutures()) {
-                this.securityDao.remove((Collection<Security>) this.futureDao.loadAll(FutureDao.TRANSFORM_NONE));
-            }
-
-        } catch (Exception ex) {
-            throw new ResetServiceException(ex.getMessage(), ex);
+            this.cashBalanceDao.remove(toRemoveCashBalance);
+            strategy.setCashBalances(toKeepCashBalances);
         }
+
+        // delete all non-persistent positions and references to them
+        Collection<Position> nonPersistentPositions = this.positionDao.findNonPersistent();
+        for (Position position : nonPersistentPositions) {
+            position.getSecurity().removePositions(position);
+        }
+        this.positionDao.remove(nonPersistentPositions);
+
+        // reset persistent positions
+        Collection<Position> persistentPositions = this.positionDao.findPersistent();
+        for (Position position : persistentPositions) {
+            position.setQuantity(0);
+            position.setExitValue(null);
+            position.setMaintenanceMargin(null);
+        }
+
+        // delete all non-presistent subscriptions and references to them
+        Collection<Subscription> nonPersistentSubscriptions = this.subscriptionDao.findNonPersistent();
+        this.subscriptionDao.remove(nonPersistentSubscriptions);
+        for (Subscription subscription : nonPersistentSubscriptions) {
+            subscription.getSecurity().getSubscriptions().remove(subscription);
+        }
+
+        // delete all non-persistent combinations
+        this.combinationDao.remove(this.combinationDao.findNonPersistent());
+
+        // delete all non-persistent components and references to them
+        Collection<Component> nonPersistentComponents = this.componentDao.findNonPersistent();
+        this.componentDao.remove(nonPersistentComponents);
+        for (Component component : nonPersistentComponents) {
+            component.getCombination().getComponents().remove(component);
+        }
+
+        // delete all non-persistent properties
+        Collection<Property> nonPersistentProperties = this.propertyDao.findNonPersistent();
+        this.propertyDao.remove(nonPersistentProperties);
+        for (Property property : nonPersistentProperties) {
+            property.getPropertyHolder().removeProps(property.getName());
+        }
+
+        // delete all measurements
+        this.measurementDao.remove(this.measurementDao.loadAll());
+
+        // delete all Options if they are beeing simulated
+        if (this.coreConfig.isSimulateOptions()) {
+            this.securityDao.remove((Collection<Security>) this.optionDao.loadAll(OptionDao.TRANSFORM_NONE));
+        }
+
+        // delete all Futures if they are beeing simulated
+        if (this.coreConfig.isSimulateFuturesByUnderlying() || this.coreConfig.isSimulateFuturesByGenericFutures()) {
+            this.securityDao.remove((Collection<Security>) this.futureDao.loadAll(FutureDao.TRANSFORM_NONE));
+        }
+
     }
 }

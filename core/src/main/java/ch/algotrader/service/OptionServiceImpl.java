@@ -18,6 +18,7 @@
 package ch.algotrader.service;
 
 import java.math.BigDecimal;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -33,6 +34,7 @@ import org.apache.commons.collections15.MultiMap;
 import org.apache.commons.collections15.multimap.MultiHashMap;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.time.DateUtils;
+import org.apache.commons.math.MathException;
 import org.apache.commons.math.util.MathUtils;
 import org.apache.log4j.Logger;
 import org.springframework.transaction.annotation.Propagation;
@@ -68,6 +70,7 @@ import ch.algotrader.esper.callback.TickCallback;
 import ch.algotrader.option.OptionSymbol;
 import ch.algotrader.option.OptionUtil;
 import ch.algotrader.option.SABR;
+import ch.algotrader.option.SABRException;
 import ch.algotrader.util.DateUtil;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.RoundUtil;
@@ -171,57 +174,54 @@ public class OptionServiceImpl implements OptionService {
     @Override
     public void hedgeDelta(final int underlyingId) {
 
-        try {
-            List<Position> positions = this.positionDao.findOpenPositionsByUnderlying(underlyingId);
+        List<Position> positions = this.positionDao.findOpenPositionsByUnderlying(underlyingId);
 
-            // get the deltaAdjustedMarketValue
-            double deltaAdjustedMarketValue = 0;
-            for (Position position : positions) {
-                deltaAdjustedMarketValue += position.getMarketValue() * position.getSecurity().getLeverage();
-            }
-
-            final Security underlying = this.securityDao.get(underlyingId);
-            final Strategy base = this.strategyDao.findBase();
-
-            Subscription underlyingSubscription = this.subscriptionDao.findByStrategyAndSecurity(StrategyImpl.BASE, underlying.getId());
-            if (!underlyingSubscription.hasProperty("hedgingFamily")) {
-                throw new IllegalStateException("no hedgingFamily defined for security " + underlying);
-            }
-
-            final FutureFamily futureFamily = this.futureFamilyDao.load(underlyingSubscription.getIntProperty("hedgingFamily"));
-
-            Date targetDate = DateUtils.addMilliseconds(DateUtil.getCurrentEPTime(), this.coreConfig.getDeltaHedgeMinTimeToExpiration());
-            final Future future = this.futureService.getFutureByMinExpiration(futureFamily.getId(), targetDate);
-            final double deltaAdjustedMarketValuePerContract = deltaAdjustedMarketValue / futureFamily.getContractSize();
-
-            EngineLocator.instance().getBaseEngine().addFirstTickCallback(Collections.singleton((Security) future), new TickCallback() {
-                @Override
-                public void onFirstTick(String strategyName, List<Tick> ticks) throws Exception {
-
-                    // round to the number of contracts
-                    int qty = (int) MathUtils.round(deltaAdjustedMarketValuePerContract / ticks.get(0).getCurrentValueDouble(), 0);
-
-                    if (qty != 0) {
-                        // create the order
-                        Order order = OptionServiceImpl.this.lookupService.getOrderByStrategyAndSecurityFamily(StrategyImpl.BASE, futureFamily.getId());
-                        order.setStrategy(base);
-                        order.setSecurity(future);
-                        order.setQuantity(Math.abs(qty));
-                        order.setSide(qty > 0 ? Side.SELL : Side.BUY);
-
-                        OptionServiceImpl.this.orderService.sendOrder(order);
-                    } else {
-
-                        logger.info("no delta hedge necessary on " + underlying);
-                    }
-                }
-            });
-
-            // make sure the future is subscriped
-            this.marketDataService.subscribe(base.getName(), future.getId());
-        } catch (Exception ex) {
-            throw new OptionServiceException(ex.getMessage(), ex);
+        // get the deltaAdjustedMarketValue
+        double deltaAdjustedMarketValue = 0;
+        for (Position position : positions) {
+            deltaAdjustedMarketValue += position.getMarketValue() * position.getSecurity().getLeverage();
         }
+
+        final Security underlying = this.securityDao.get(underlyingId);
+        final Strategy base = this.strategyDao.findBase();
+
+        Subscription underlyingSubscription = this.subscriptionDao.findByStrategyAndSecurity(StrategyImpl.BASE, underlying.getId());
+        if (!underlyingSubscription.hasProperty("hedgingFamily")) {
+            throw new IllegalStateException("no hedgingFamily defined for security " + underlying);
+        }
+
+        final FutureFamily futureFamily = this.futureFamilyDao.load(underlyingSubscription.getIntProperty("hedgingFamily"));
+
+        Date targetDate = DateUtils.addMilliseconds(DateUtil.getCurrentEPTime(), this.coreConfig.getDeltaHedgeMinTimeToExpiration());
+        final Future future = this.futureService.getFutureByMinExpiration(futureFamily.getId(), targetDate);
+        final double deltaAdjustedMarketValuePerContract = deltaAdjustedMarketValue / futureFamily.getContractSize();
+
+        EngineLocator.instance().getBaseEngine().addFirstTickCallback(Collections.singleton((Security) future), new TickCallback() {
+            @Override
+            public void onFirstTick(String strategyName, List<Tick> ticks) throws Exception {
+
+                // round to the number of contracts
+                int qty = (int) MathUtils.round(deltaAdjustedMarketValuePerContract / ticks.get(0).getCurrentValueDouble(), 0);
+
+                if (qty != 0) {
+                    // create the order
+                    Order order = OptionServiceImpl.this.lookupService.getOrderByStrategyAndSecurityFamily(StrategyImpl.BASE, futureFamily.getId());
+                    order.setStrategy(base);
+                    order.setSecurity(future);
+                    order.setQuantity(Math.abs(qty));
+                    order.setSide(qty > 0 ? Side.SELL : Side.BUY);
+
+                    OptionServiceImpl.this.orderService.sendOrder(order);
+                } else {
+
+                    logger.info("no delta hedge necessary on " + underlying);
+                }
+            }
+        });
+
+        // make sure the future is subscriped
+        this.marketDataService.subscribe(base.getName(), future.getId());
+
     }
 
     /**
@@ -235,29 +235,26 @@ public class OptionServiceImpl implements OptionService {
         Validate.notNull(strike, "Strike is null");
         Validate.notNull(type, "Type is null");
 
-        try {
-            OptionFamily family = this.optionFamilyDao.get(optionFamilyId);
-            Security underlying = family.getUnderlying();
+        OptionFamily family = this.optionFamilyDao.get(optionFamilyId);
+        Security underlying = family.getUnderlying();
 
-            // symbol / isin
-            String symbol = OptionSymbol.getSymbol(family, expirationDate, type, strike, true);
+        // symbol / isin
+        String symbol = OptionSymbol.getSymbol(family, expirationDate, type, strike, true);
 
-            Option option = Option.Factory.newInstance();
-            option.setSymbol(symbol);
-            option.setStrike(strike);
-            option.setExpiration(expirationDate);
-            option.setType(type);
-            option.setUnderlying(underlying);
-            option.setSecurityFamily(family);
+        Option option = Option.Factory.newInstance();
+        option.setSymbol(symbol);
+        option.setStrike(strike);
+        option.setExpiration(expirationDate);
+        option.setType(type);
+        option.setUnderlying(underlying);
+        option.setSecurityFamily(family);
 
-            this.optionDao.create(option);
+        this.optionDao.create(option);
 
-            logger.info("created OTC option " + option);
+        logger.info("created OTC option " + option);
 
-            return option;
-        } catch (Exception ex) {
-            throw new OptionServiceException(ex.getMessage(), ex);
-        }
+        return option;
+
     }
 
     /**
@@ -271,39 +268,36 @@ public class OptionServiceImpl implements OptionService {
         Validate.notNull(targetStrike, "Target strike is null");
         Validate.notNull(type, "Type is null");
 
-        try {
-            OptionFamily family = this.optionFamilyDao.get(optionFamilyId);
-            Security underlying = family.getUnderlying();
+        OptionFamily family = this.optionFamilyDao.get(optionFamilyId);
+        Security underlying = family.getUnderlying();
 
-            // get next expiration date after targetExpirationDate according to expirationType
-            Date expirationDate = DateUtil.getExpirationDate(family.getExpirationType(), targetExpirationDate);
+        // get next expiration date after targetExpirationDate according to expirationType
+        Date expirationDate = DateUtil.getExpirationDate(family.getExpirationType(), targetExpirationDate);
 
-            // get nearest strike according to strikeDistance
-            BigDecimal strike = roundOptionStrikeToNextN(targetStrike, family.getStrikeDistance(), type);
+        // get nearest strike according to strikeDistance
+        BigDecimal strike = roundOptionStrikeToNextN(targetStrike, family.getStrikeDistance(), type);
 
-            // symbol / isin
-            String symbol = OptionSymbol.getSymbol(family, expirationDate, type, strike, false);
-            String isin = OptionSymbol.getIsin(family, expirationDate, type, strike);
-            String ric = OptionSymbol.getRic(family, expirationDate, type, strike);
+        // symbol / isin
+        String symbol = OptionSymbol.getSymbol(family, expirationDate, type, strike, false);
+        String isin = OptionSymbol.getIsin(family, expirationDate, type, strike);
+        String ric = OptionSymbol.getRic(family, expirationDate, type, strike);
 
-            Option option = Option.Factory.newInstance();
-            option.setSymbol(symbol);
-            option.setIsin(isin);
-            option.setRic(ric);
-            option.setStrike(strike);
-            option.setExpiration(expirationDate);
-            option.setType(type);
-            option.setUnderlying(underlying);
-            option.setSecurityFamily(family);
+        Option option = Option.Factory.newInstance();
+        option.setSymbol(symbol);
+        option.setIsin(isin);
+        option.setRic(ric);
+        option.setStrike(strike);
+        option.setExpiration(expirationDate);
+        option.setType(type);
+        option.setUnderlying(underlying);
+        option.setSecurityFamily(family);
 
-            this.optionDao.create(option);
+        this.optionDao.create(option);
 
-            logger.info("created dummy option " + option);
+        logger.info("created dummy option " + option);
 
-            return option;
-        } catch (Exception ex) {
-            throw new OptionServiceException(ex.getMessage(), ex);
-        }
+        return option;
+
     }
 
     /**
@@ -317,49 +311,50 @@ public class OptionServiceImpl implements OptionService {
         Validate.notNull(optionType, "Option type is null");
         Validate.notNull(startDate, "Start date is null");
 
+        Security underlying = this.securityDao.findByIsin(isin);
+
+        Date closeHour;
         try {
-            Security underlying = this.securityDao.findByIsin(isin);
-
-            Date closeHour = (new SimpleDateFormat("kkmmss")).parse("172000");
-
-            GregorianCalendar cal = new GregorianCalendar();
-            cal.setTime(startDate);
-
-            while (cal.getTime().compareTo(expirationDate) < 0) {
-
-                if ((cal.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) || cal.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
-                    cal.add(Calendar.DAY_OF_YEAR, 1);
-                    continue;
-                }
-
-                while (DateUtil.compareTime(cal.getTime(), closeHour) <= 0) {
-
-                    System.out.print(outputFormat.format(cal.getTime()));
-
-                    SABRSmileVO SABRparams = calibrateSABRSmileByOptionPrice(underlying.getId(), optionType, cal.getTime(), expirationDate);
-
-                    if (SABRparams != null && SABRparams.getAlpha() < 100) {
-                    System.out.print(outputFormat.format(cal.getTime()) + " " + SABRparams.getAlpha() + " " + SABRparams.getRho() + " "
-                            + SABRparams.getVolVol());
-                    }
-
-                    ATMVolVO atmVola = calculateATMVol(underlying, cal.getTime());
-                    if (atmVola != null) {
-                        System.out.print(" " + atmVola.getYears() + " " + atmVola.getCallVol() + " " + atmVola.getPutVol());
-                    }
-
-                    System.out.println();
-
-                    cal.add(Calendar.MINUTE, advanceMinutes);
-                }
-
-                cal.add(Calendar.DAY_OF_YEAR, 1);
-                cal.set(Calendar.HOUR_OF_DAY, 9);
-                cal.set(Calendar.MINUTE, 00);
-            }
-        } catch (Exception ex) {
-            throw new OptionServiceException(ex.getMessage(), ex);
+            closeHour = (new SimpleDateFormat("kkmmss")).parse("172000");
+        } catch (ParseException ex) {
+            throw new OptionServiceException(ex);
         }
+
+        GregorianCalendar cal = new GregorianCalendar();
+        cal.setTime(startDate);
+
+        while (cal.getTime().compareTo(expirationDate) < 0) {
+
+            if ((cal.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) || cal.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
+                cal.add(Calendar.DAY_OF_YEAR, 1);
+                continue;
+            }
+
+            while (DateUtil.compareTime(cal.getTime(), closeHour) <= 0) {
+
+                System.out.print(outputFormat.format(cal.getTime()));
+
+                SABRSmileVO SABRparams = calibrateSABRSmileByOptionPrice(underlying.getId(), optionType, cal.getTime(), expirationDate);
+
+                if (SABRparams != null && SABRparams.getAlpha() < 100) {
+                    System.out.print(outputFormat.format(cal.getTime()) + " " + SABRparams.getAlpha() + " " + SABRparams.getRho() + " " + SABRparams.getVolVol());
+                }
+
+                ATMVolVO atmVola = calculateATMVol(underlying, cal.getTime());
+                if (atmVola != null) {
+                    System.out.print(" " + atmVola.getYears() + " " + atmVola.getCallVol() + " " + atmVola.getPutVol());
+                }
+
+                System.out.println();
+
+                cal.add(Calendar.MINUTE, advanceMinutes);
+            }
+
+            cal.add(Calendar.DAY_OF_YEAR, 1);
+            cal.set(Calendar.HOUR_OF_DAY, 9);
+            cal.set(Calendar.MINUTE, 00);
+        }
+
     }
 
     /**
@@ -373,32 +368,29 @@ public class OptionServiceImpl implements OptionService {
         Validate.notNull(startDate, "Start date is null");
         Validate.notNull(endDate, "End date is null");
 
-        try {
-            Security underlying = this.securityDao.findByIsin(isin);
+        Security underlying = this.securityDao.findByIsin(isin);
 
-            GregorianCalendar cal = new GregorianCalendar();
-            cal.setTime(startDate);
-            cal.set(Calendar.HOUR_OF_DAY, 0);
-            cal.set(Calendar.MINUTE, 0);
+        GregorianCalendar cal = new GregorianCalendar();
+        cal.setTime(startDate);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
 
-            while (cal.getTime().compareTo(endDate) < 0) {
+        while (cal.getTime().compareTo(endDate) < 0) {
 
-                if ((cal.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) || cal.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
-                    cal.add(Calendar.DAY_OF_YEAR, 1);
-                    continue;
-                }
-
-                SABRSmileVO SABRparams = calibrateSABRSmileByIVol(underlying.getId(), duration, cal.getTime());
-
-                if (SABRparams != null) {
-                    System.out.println(outputFormat.format(cal.getTime()) + " " + SABRparams.getAlpha() + " " + SABRparams.getRho() + " " + SABRparams.getVolVol());
-                }
-
+            if ((cal.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) || cal.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
                 cal.add(Calendar.DAY_OF_YEAR, 1);
+                continue;
             }
-        } catch (Exception ex) {
-            throw new OptionServiceException(ex.getMessage(), ex);
+
+            SABRSmileVO SABRparams = calibrateSABRSmileByIVol(underlying.getId(), duration, cal.getTime());
+
+            if (SABRparams != null) {
+                System.out.println(outputFormat.format(cal.getTime()) + " " + SABRparams.getAlpha() + " " + SABRparams.getRho() + " " + SABRparams.getVolVol());
+            }
+
+            cal.add(Calendar.DAY_OF_YEAR, 1);
         }
+
     }
 
     /**
@@ -411,59 +403,61 @@ public class OptionServiceImpl implements OptionService {
         Validate.notNull(expirationDate, "Expiration date is null");
         Validate.notNull(date, "Date is null");
 
-        try {
-            OptionFamily family = this.optionFamilyDao.findByUnderlying(underlyingId);
+        OptionFamily family = this.optionFamilyDao.findByUnderlying(underlyingId);
 
-            double years = (expirationDate.getTime() - date.getTime()) / (double) Duration.YEAR_1.getValue();
+        double years = (expirationDate.getTime() - date.getTime()) / (double) Duration.YEAR_1.getValue();
 
-            Tick underlyingTick = this.tickDao.findBySecurityAndMaxDate(underlyingId, date);
-            if (underlyingTick == null || underlyingTick.getLast() == null) {
-                return null;
-            }
-
-            BigDecimal underlyingSpot = underlyingTick.getLast();
-
-            double forward = OptionUtil.getForward(underlyingSpot.doubleValue(), years, family.getIntrest(), family.getDividend());
-            double atmStrike = roundOptionStrikeToNextN(underlyingSpot, family.getStrikeDistance(), type).doubleValue();
-
-            List<Tick> ticks = this.tickDao.findOptionTicksBySecurityDateTypeAndExpirationInclSecurity(underlyingId, date, type, expirationDate);
-            List<Double> strikes = new ArrayList<Double>();
-            List<Double> currentValues = new ArrayList<Double>();
-            List<Double> volatilities = new ArrayList<Double>();
-            double atmVola = 0;
-            for (Tick tick : ticks) {
-
-                Option option = (Option) tick.getSecurity();
-
-                double strike = option.getStrike().doubleValue();
-                double currentValue = tick.getCurrentValueDouble();
-
-                try {
-                double volatility = OptionUtil.getImpliedVolatility(underlyingSpot.doubleValue(), option.getStrike().doubleValue(), currentValue, years, family.getIntrest(), family.getDividend(), type);
-
-                    strikes.add(strike);
-                    currentValues.add(currentValue);
-                    volatilities.add(volatility);
-
-                    if (atmStrike == strike) {
-                        atmVola = volatility;
-                    }
-                } catch (Exception e) {
-                    // do nothing
-                }
-            }
-
-            if (strikes.size() < 10 || atmVola == 0) {
-                return null;
-            }
-
-            Double[] strikesArray = strikes.toArray(new Double[0]);
-            Double[] volatilitiesArray = volatilities.toArray(new Double[0]);
-
-            return SABR.calibrate(strikesArray, volatilitiesArray, atmVola, forward, years);
-        } catch (Exception ex) {
-            throw new OptionServiceException(ex.getMessage(), ex);
+        Tick underlyingTick = this.tickDao.findBySecurityAndMaxDate(underlyingId, date);
+        if (underlyingTick == null || underlyingTick.getLast() == null) {
+            return null;
         }
+
+        BigDecimal underlyingSpot = underlyingTick.getLast();
+
+        double forward = OptionUtil.getForward(underlyingSpot.doubleValue(), years, family.getIntrest(), family.getDividend());
+        double atmStrike = roundOptionStrikeToNextN(underlyingSpot, family.getStrikeDistance(), type).doubleValue();
+
+        List<Tick> ticks = this.tickDao.findOptionTicksBySecurityDateTypeAndExpirationInclSecurity(underlyingId, date, type, expirationDate);
+        List<Double> strikes = new ArrayList<Double>();
+        List<Double> currentValues = new ArrayList<Double>();
+        List<Double> volatilities = new ArrayList<Double>();
+        double atmVola = 0;
+        for (Tick tick : ticks) {
+
+            Option option = (Option) tick.getSecurity();
+
+            double strike = option.getStrike().doubleValue();
+            double currentValue = tick.getCurrentValueDouble();
+
+            try {
+                double volatility = OptionUtil.getImpliedVolatility(underlyingSpot.doubleValue(), option.getStrike().doubleValue(), currentValue, years, family.getIntrest(), family.getDividend(),
+                        type);
+
+                strikes.add(strike);
+                currentValues.add(currentValue);
+                volatilities.add(volatility);
+
+                if (atmStrike == strike) {
+                    atmVola = volatility;
+                }
+            } catch (Exception e) {
+                // do nothing
+            }
+        }
+
+        if (strikes.size() < 10 || atmVola == 0) {
+            return null;
+        }
+
+        Double[] strikesArray = strikes.toArray(new Double[0]);
+        Double[] volatilitiesArray = volatilities.toArray(new Double[0]);
+
+        try {
+            return SABR.calibrate(strikesArray, volatilitiesArray, atmVola, forward, years);
+        } catch (SABRException ex) {
+            throw new OptionServiceException(ex);
+        }
+
     }
 
     /**
@@ -475,23 +469,20 @@ public class OptionServiceImpl implements OptionService {
         Validate.notNull(duration, "Duration is null");
         Validate.notNull(date, "Date is null");
 
-        try {
-            Tick underlyingTick = this.tickDao.findBySecurityAndMaxDate(underlyingId, date);
-            if (underlyingTick == null || underlyingTick.getLast() == null) {
-                return null;
-            }
-
-            double underlyingSpot = underlyingTick.getLast().doubleValue();
-
-            List<Tick> ticks = this.tickDao.findImpliedVolatilityTicksBySecurityDateAndDuration(underlyingId, date, duration);
-            if (ticks.size() < 3) {
-                return null;
-            }
-
-            return internalCalibrateSABRByIVol(underlyingId, duration, ticks, underlyingSpot);
-        } catch (Exception ex) {
-            throw new OptionServiceException(ex.getMessage(), ex);
+        Tick underlyingTick = this.tickDao.findBySecurityAndMaxDate(underlyingId, date);
+        if (underlyingTick == null || underlyingTick.getLast() == null) {
+            return null;
         }
+
+        double underlyingSpot = underlyingTick.getLast().doubleValue();
+
+        List<Tick> ticks = this.tickDao.findImpliedVolatilityTicksBySecurityDateAndDuration(underlyingId, date, duration);
+        if (ticks.size() < 3) {
+            return null;
+        }
+
+        return internalCalibrateSABRByIVol(underlyingId, duration, ticks, underlyingSpot);
+
     }
 
     /**
@@ -501,49 +492,48 @@ public class OptionServiceImpl implements OptionService {
     public SABRSurfaceVO calibrateSABRSurfaceByIVol(final int underlyingId, final Date date) {
 
         Validate.notNull(date, "Date is null");
-        try {
-            Tick underlyingTick = this.tickDao.findBySecurityAndMaxDate(underlyingId, date);
-            if (underlyingTick == null || underlyingTick.getLast() == null) {
-                return null;
-            }
-
-            double underlyingSpot = underlyingTick.getLast().doubleValue();
-
-            List<Tick> allTicks = this.tickDao.findImpliedVolatilityTicksBySecurityAndDate(underlyingId, date);
-
-            // group by duration
-            MultiMap<Duration, Tick> durationMap = new MultiHashMap<Duration, Tick>();
-            for (Tick tick : allTicks) {
-                ImpliedVolatility impliedVolatility = (ImpliedVolatility) tick.getSecurityInitialized();
-                durationMap.put(impliedVolatility.getDuration(), tick);
-            }
-
-            // sort durations ascending
-            TreeSet<Duration> durations = new TreeSet<Duration>(new Comparator<Duration>() {
-                @Override
-                public int compare(Duration d1, Duration d2) {
-                    return ((d1.getValue() == d2.getValue()) ? 0 : (d1.getValue() < d2.getValue()) ? -1 : 1);
-                }
-            });
-            durations.addAll(durationMap.keySet());
-
-            // process each duration
-            SABRSurfaceVO surface = new SABRSurfaceVO();
-            for (Duration duration : durations) {
-
-                Collection<Tick> ticksPerDuration = durationMap.get(duration);
-
-                SABRSmileVO sabr = internalCalibrateSABRByIVol(underlyingId, duration, ticksPerDuration, underlyingSpot);
-                surface.getSmiles().add(sabr);
-            }
-
-            return surface;
-        } catch (Exception ex) {
-            throw new OptionServiceException(ex.getMessage(), ex);
+        Tick underlyingTick = this.tickDao.findBySecurityAndMaxDate(underlyingId, date);
+        if (underlyingTick == null || underlyingTick.getLast() == null) {
+            return null;
         }
+
+        double underlyingSpot = underlyingTick.getLast().doubleValue();
+
+        List<Tick> allTicks = this.tickDao.findImpliedVolatilityTicksBySecurityAndDate(underlyingId, date);
+
+        // group by duration
+        MultiMap<Duration, Tick> durationMap = new MultiHashMap<Duration, Tick>();
+        for (Tick tick : allTicks) {
+            ImpliedVolatility impliedVolatility = (ImpliedVolatility) tick.getSecurityInitialized();
+            durationMap.put(impliedVolatility.getDuration(), tick);
+        }
+
+        // sort durations ascending
+        TreeSet<Duration> durations = new TreeSet<Duration>(new Comparator<Duration>() {
+            @Override
+            public int compare(Duration d1, Duration d2) {
+                return ((d1.getValue() == d2.getValue()) ? 0 : (d1.getValue() < d2.getValue()) ? -1 : 1);
+            }
+        });
+        durations.addAll(durationMap.keySet());
+
+        // process each duration
+        SABRSurfaceVO surface = new SABRSurfaceVO();
+        for (Duration duration : durations) {
+
+            Collection<Tick> ticksPerDuration = durationMap.get(duration);
+
+            SABRSmileVO sabr;
+            sabr = internalCalibrateSABRByIVol(underlyingId, duration, ticksPerDuration, underlyingSpot);
+
+            surface.getSmiles().add(sabr);
+        }
+
+        return surface;
+
     }
 
-    private SABRSmileVO internalCalibrateSABRByIVol(int underlyingId, Duration duration, Collection<Tick> ticks, double underlyingSpot) throws Exception {
+    private SABRSmileVO internalCalibrateSABRByIVol(int underlyingId, Duration duration, Collection<Tick> ticks, double underlyingSpot) {
 
         // we need the OptionFamily because the IVol Family does not have intrest and dividend
         OptionFamily family = this.optionFamilyDao.findByUnderlying(underlyingId);
@@ -593,7 +583,11 @@ public class OptionServiceImpl implements OptionService {
         Double[] strikesArray = strikes.toArray(new Double[0]);
         Double[] volatilitiesArray = volatilities.toArray(new Double[0]);
 
-        return SABR.calibrate(strikesArray, volatilitiesArray, atmVola, forward, years);
+        try {
+            return SABR.calibrate(strikesArray, volatilitiesArray, atmVola, forward, years);
+        } catch (SABRException ex) {
+            throw new OptionServiceException(ex);
+        }
     }
 
     /**
@@ -605,41 +599,43 @@ public class OptionServiceImpl implements OptionService {
         Validate.notNull(underlying, "Underlying is null");
         Validate.notNull(date, "Date is null");
 
-        try {
-            OptionFamily family = this.optionFamilyDao.findByUnderlying(underlying.getId());
+        OptionFamily family = this.optionFamilyDao.findByUnderlying(underlying.getId());
 
-            Tick underlyingTick = this.tickDao.findBySecurityAndMaxDate(underlying.getId(), date);
-            if (underlyingTick == null || underlyingTick.getLast() == null) {
-                return null;
-            }
-
-            List<Option> callOptions = this.optionDao.findByMinExpirationAndStrikeLimit(1, 1, underlying.getId(), date, underlyingTick.getLast(), OptionType.CALL);
-            List<Option> putOptions = this.optionDao.findByMinExpirationAndStrikeLimit(1, 1, underlying.getId(), date, underlyingTick.getLast(), OptionType.PUT);
-
-            Option callOption = CollectionUtil.getFirstElementOrNull(callOptions);
-            Option putOption = CollectionUtil.getFirstElementOrNull(putOptions);
-
-            Tick callTick = this.tickDao.findBySecurityAndMaxDate(callOption.getId(), date);
-            if (callTick == null || callTick.getBid() == null || callTick.getAsk() == null) {
-                return null;
-            }
-
-            Tick putTick = this.tickDao.findBySecurityAndMaxDate(putOption.getId(), date);
-            if (putTick == null || putTick.getBid() == null || putTick.getAsk() == null) {
-                return null;
-            }
-
-            double years = (callOption.getExpiration().getTime() - date.getTime()) / (double) Duration.YEAR_1.getValue();
-
-            double callVola = OptionUtil.getImpliedVolatility(underlyingTick.getCurrentValueDouble(), callOption.getStrike().doubleValue(), callTick.getCurrentValueDouble(), years,
-                    family.getIntrest(), family.getDividend(), OptionType.CALL);
-            double putVola = OptionUtil.getImpliedVolatility(underlyingTick.getCurrentValueDouble(), putOption.getStrike().doubleValue(), putTick.getCurrentValueDouble(), years, family.getIntrest(),
-                    family.getDividend(), OptionType.PUT);
-
-            return new ATMVolVO(years, callVola, putVola);
-        } catch (Exception ex) {
-            throw new OptionServiceException(ex.getMessage(), ex);
+        Tick underlyingTick = this.tickDao.findBySecurityAndMaxDate(underlying.getId(), date);
+        if (underlyingTick == null || underlyingTick.getLast() == null) {
+            return null;
         }
+
+        List<Option> callOptions = this.optionDao.findByMinExpirationAndStrikeLimit(1, 1, underlying.getId(), date, underlyingTick.getLast(), OptionType.CALL);
+        List<Option> putOptions = this.optionDao.findByMinExpirationAndStrikeLimit(1, 1, underlying.getId(), date, underlyingTick.getLast(), OptionType.PUT);
+
+        Option callOption = CollectionUtil.getFirstElementOrNull(callOptions);
+        Option putOption = CollectionUtil.getFirstElementOrNull(putOptions);
+
+        Tick callTick = this.tickDao.findBySecurityAndMaxDate(callOption.getId(), date);
+        if (callTick == null || callTick.getBid() == null || callTick.getAsk() == null) {
+            return null;
+        }
+
+        Tick putTick = this.tickDao.findBySecurityAndMaxDate(putOption.getId(), date);
+        if (putTick == null || putTick.getBid() == null || putTick.getAsk() == null) {
+            return null;
+        }
+
+        double years = (callOption.getExpiration().getTime() - date.getTime()) / (double) Duration.YEAR_1.getValue();
+
+        double callVola, putVola;
+        try {
+            callVola = OptionUtil.getImpliedVolatility(underlyingTick.getCurrentValueDouble(), callOption.getStrike().doubleValue(), callTick.getCurrentValueDouble(), years, family.getIntrest(),
+                    family.getDividend(), OptionType.CALL);
+            putVola = OptionUtil.getImpliedVolatility(underlyingTick.getCurrentValueDouble(), putOption.getStrike().doubleValue(), putTick.getCurrentValueDouble(), years, family.getIntrest(),
+                    family.getDividend(), OptionType.PUT);
+        } catch (MathException ex) {
+            throw new OptionServiceException(ex);
+        }
+
+        return new ATMVolVO(years, callVola, putVola);
+
     }
 
     private BigDecimal roundOptionStrikeToNextN(BigDecimal spot, double n, OptionType type) {
@@ -664,27 +660,24 @@ public class OptionServiceImpl implements OptionService {
         Validate.notNull(underlyingSpot, "Underlying spot is null");
         Validate.notNull(optionType, "Option type is null");
 
-        try {
-            Option option = CollectionUtil.getSingleElementOrNull(this.optionDao.findByMinExpirationAndMinStrikeDistance(1, 1, underlyingId, targetExpirationDate, underlyingSpot, optionType));
+        Option option = CollectionUtil.getSingleElementOrNull(this.optionDao.findByMinExpirationAndMinStrikeDistance(1, 1, underlyingId, targetExpirationDate, underlyingSpot, optionType));
 
-            // if no stock option was found, create it if simulating options
-            if (this.commonConfig.isSimulation() && this.coreConfig.isSimulateOptions()) {
+        // if no stock option was found, create it if simulating options
+        if (this.commonConfig.isSimulation() && this.coreConfig.isSimulateOptions()) {
 
-                OptionFamily family = this.optionFamilyDao.findByUnderlying(underlyingId);
-                if ((option == null) || Math.abs(option.getStrike().doubleValue() - underlyingSpot.doubleValue()) > family.getStrikeDistance()) {
+            OptionFamily family = this.optionFamilyDao.findByUnderlying(underlyingId);
+            if ((option == null) || Math.abs(option.getStrike().doubleValue() - underlyingSpot.doubleValue()) > family.getStrikeDistance()) {
 
-                    option = createDummyOption(family.getId(), targetExpirationDate, underlyingSpot, optionType);
-                }
+                option = createDummyOption(family.getId(), targetExpirationDate, underlyingSpot, optionType);
             }
-
-            if (option == null) {
-                throw new LookupServiceException("no option available for expiration " + targetExpirationDate + " strike " + underlyingSpot + " type " + optionType);
-            } else {
-                return option;
-            }
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
         }
+
+        if (option == null) {
+            throw new LookupServiceException("no option available for expiration " + targetExpirationDate + " strike " + underlyingSpot + " type " + optionType);
+        } else {
+            return option;
+        }
+
     }
 
     /**
@@ -698,27 +691,24 @@ public class OptionServiceImpl implements OptionService {
         Validate.notNull(underlyingSpot, "Underlying spot is null");
         Validate.notNull(optionType, "Option type is null");
 
-        try {
-            OptionFamily family = this.optionFamilyDao.findByUnderlying(underlyingId);
+        OptionFamily family = this.optionFamilyDao.findByUnderlying(underlyingId);
 
-            Option option = CollectionUtil.getSingleElementOrNull(this.optionDao.findByMinExpirationAndStrikeLimit(1, 1, underlyingId, targetExpirationDate, underlyingSpot, optionType));
+        Option option = CollectionUtil.getSingleElementOrNull(this.optionDao.findByMinExpirationAndStrikeLimit(1, 1, underlyingId, targetExpirationDate, underlyingSpot, optionType));
 
-            // if no future was found, create it if simulating options
-            if (this.commonConfig.isSimulation() && this.coreConfig.isSimulateOptions()) {
-                if ((option == null) || Math.abs(option.getStrike().doubleValue() - underlyingSpot.doubleValue()) > family.getStrikeDistance()) {
+        // if no future was found, create it if simulating options
+        if (this.commonConfig.isSimulation() && this.coreConfig.isSimulateOptions()) {
+            if ((option == null) || Math.abs(option.getStrike().doubleValue() - underlyingSpot.doubleValue()) > family.getStrikeDistance()) {
 
-                    option = createDummyOption(family.getId(), targetExpirationDate, underlyingSpot, optionType);
-                }
+                option = createDummyOption(family.getId(), targetExpirationDate, underlyingSpot, optionType);
             }
-
-            if (option == null) {
-                throw new LookupServiceException("no option available for expiration " + targetExpirationDate + " strike " + underlyingSpot + " type " + optionType);
-            } else {
-                return option;
-            }
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
         }
+
+        if (option == null) {
+            throw new LookupServiceException("no option available for expiration " + targetExpirationDate + " strike " + underlyingSpot + " type " + optionType);
+        } else {
+            return option;
+        }
+
     }
 
     /**
@@ -726,18 +716,15 @@ public class OptionServiceImpl implements OptionService {
      */
     @Override
     public Option getOptionByMinExpirationAndMinStrikeDistanceWithTicks(final int underlyingId, final Date targetExpirationDate, final BigDecimal underlyingSpot, final OptionType optionType,
-                                                                        final Date date) {
+            final Date date) {
 
         Validate.notNull(targetExpirationDate, "Target expiration date is null");
         Validate.notNull(underlyingSpot, "Underlying spot is null");
         Validate.notNull(optionType, "Option type is null");
         Validate.notNull(date, "Date is null");
 
-        try {
-            return CollectionUtil.getSingleElementOrNull(this.optionDao.findByMinExpirationAndMinStrikeDistanceWithTicks(1, 1, underlyingId, targetExpirationDate, underlyingSpot, optionType, date));
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return CollectionUtil.getSingleElementOrNull(this.optionDao.findByMinExpirationAndMinStrikeDistanceWithTicks(1, 1, underlyingId, targetExpirationDate, underlyingSpot, optionType, date));
+
     }
 
     /**
@@ -751,11 +738,8 @@ public class OptionServiceImpl implements OptionService {
         Validate.notNull(optionType, "Option type is null");
         Validate.notNull(date, "Date is null");
 
-        try {
-            return CollectionUtil.getSingleElementOrNull(this.optionDao.findByMinExpirationAndStrikeLimitWithTicks(1, 1, underlyingId, targetExpirationDate, underlyingSpot, optionType, date));
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return CollectionUtil.getSingleElementOrNull(this.optionDao.findByMinExpirationAndStrikeLimitWithTicks(1, 1, underlyingId, targetExpirationDate, underlyingSpot, optionType, date));
+
     }
 
 }

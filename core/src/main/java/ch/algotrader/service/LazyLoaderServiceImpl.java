@@ -58,21 +58,18 @@ public class LazyLoaderServiceImpl implements LazyLoaderService {
         Validate.notEmpty(context, "Context is empty");
         Validate.notNull(col, "Col is null");
 
+        Session session = this.sessionFactory.openSession();
+
         try {
-            Session session = this.sessionFactory.openSession();
+            session.buildLockRequest(LockOptions.NONE).lock(target);
+            Hibernate.initialize(col);
 
-            try {
-                session.buildLockRequest(LockOptions.NONE).lock(target);
-                Hibernate.initialize(col);
-
-                logger.debug("loaded collection: " + context);
-            } finally {
-                session.close();
-            }
-            return col;
-        } catch (Exception ex) {
-            throw new LazyLoaderServiceException(ex.getMessage(), ex);
+            logger.debug("loaded collection: " + context);
+        } finally {
+            session.close();
         }
+        return col;
+
     }
 
     /**
@@ -85,22 +82,19 @@ public class LazyLoaderServiceImpl implements LazyLoaderService {
         Validate.notEmpty(context, "Context is empty");
         Validate.notNull(proxy, "Proxy is null");
 
+        Session session = this.sessionFactory.openSession();
+
+        Object implementation;
         try {
-            Session session = this.sessionFactory.openSession();
+            session.buildLockRequest(LockOptions.NONE).lock(target);
+            implementation = proxy.getHibernateLazyInitializer().getImplementation();
 
-            Object implementation;
-            try {
-                session.buildLockRequest(LockOptions.NONE).lock(target);
-                implementation = proxy.getHibernateLazyInitializer().getImplementation();
-
-                logger.debug("loaded proxy: " + context);
-            } finally {
-                session.close();
-            }
-            return implementation;
-        } catch (Exception ex) {
-            throw new LazyLoaderServiceException(ex.getMessage(), ex);
+            logger.debug("loaded proxy: " + context);
+        } finally {
+            session.close();
         }
+        return implementation;
+
     }
 
 }

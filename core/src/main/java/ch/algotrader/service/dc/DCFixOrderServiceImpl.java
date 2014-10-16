@@ -65,34 +65,31 @@ public class DCFixOrderServiceImpl extends Fix44OrderServiceImpl implements DCFi
         Validate.notNull(order, "Order is null");
         Validate.notNull(newOrder, "New order is null");
 
-        try {
-            if (!(order.getSecurity() instanceof Forex)) {
-                throw new IllegalArgumentException("DukasCopy can only handle Forex");
-            }
-
-            if (order instanceof StopLimitOrder) {
-                throw new IllegalArgumentException("DukasCopy does not support StopLimitOrders");
-            }
-
-            // Note: DukasCopy uses StopLimit for Limit orders
-            if (order instanceof LimitOrder) {
-                newOrder.set(new OrdType(OrdType.STOP_LIMIT));
-            }
-
-            // Note: DukasCopy uses Price for Stop orders instead of StopPx
-            if (order instanceof StopOrder) {
-                newOrder.removeField(StopPx.FIELD);
-                newOrder.set(new Price(((StopOrderI) order).getStop().doubleValue()));
-            }
-
-            newOrder.set(new TimeInForce(TimeInForce.GOOD_TILL_CANCEL));
-            newOrder.set(new Symbol(order.getSecurity().getSymbol().replace(".", "/")));
-
-            // dc does not support Securitytype
-            newOrder.removeField(SecurityType.FIELD);
-        } catch (Exception ex) {
-            throw new DCFixOrderServiceException(ex.getMessage(), ex);
+        if (!(order.getSecurity() instanceof Forex)) {
+            throw new IllegalArgumentException("DukasCopy can only handle Forex");
         }
+
+        if (order instanceof StopLimitOrder) {
+            throw new IllegalArgumentException("DukasCopy does not support StopLimitOrders");
+        }
+
+        // Note: DukasCopy uses StopLimit for Limit orders
+        if (order instanceof LimitOrder) {
+            newOrder.set(new OrdType(OrdType.STOP_LIMIT));
+        }
+
+        // Note: DukasCopy uses Price for Stop orders instead of StopPx
+        if (order instanceof StopOrder) {
+            newOrder.removeField(StopPx.FIELD);
+            newOrder.set(new Price(((StopOrderI) order).getStop().doubleValue()));
+        }
+
+        newOrder.set(new TimeInForce(TimeInForce.GOOD_TILL_CANCEL));
+        newOrder.set(new Symbol(order.getSecurity().getSymbol().replace(".", "/")));
+
+        // dc does not support Securitytype
+        newOrder.removeField(SecurityType.FIELD);
+
     }
 
     @Override
@@ -102,29 +99,26 @@ public class DCFixOrderServiceImpl extends Fix44OrderServiceImpl implements DCFi
         Validate.notNull(replaceRequest, "Replace request is null");
         Validate.notNull(order.getExtId(), "missing ExtId on order");
 
-        try {
-            // Note: DukasCopy uses StopLimit for Limit orders
-            if (order instanceof LimitOrder) {
-                replaceRequest.set(new OrdType(OrdType.STOP_LIMIT));
-            }
-
-            // Note: DukasCopy uses Price for Stop orders instead of StopPx
-            if (order instanceof StopOrder) {
-                replaceRequest.removeField(StopPx.FIELD);
-                replaceRequest.set(new Price(((StopOrderI) order).getStop().doubleValue()));
-            }
-
-            replaceRequest.set(new TimeInForce(TimeInForce.GOOD_TILL_CANCEL));
-            replaceRequest.set(new Symbol(order.getSecurity().getSymbol().replace(".", "/")));
-
-            // set the extId
-            replaceRequest.set(new OrderID(order.getExtId()));
-
-            // dc does not support Securitytype
-            replaceRequest.removeField(SecurityType.FIELD);
-        } catch (Exception ex) {
-            throw new DCFixOrderServiceException(ex.getMessage(), ex);
+        // Note: DukasCopy uses StopLimit for Limit orders
+        if (order instanceof LimitOrder) {
+            replaceRequest.set(new OrdType(OrdType.STOP_LIMIT));
         }
+
+        // Note: DukasCopy uses Price for Stop orders instead of StopPx
+        if (order instanceof StopOrder) {
+            replaceRequest.removeField(StopPx.FIELD);
+            replaceRequest.set(new Price(((StopOrderI) order).getStop().doubleValue()));
+        }
+
+        replaceRequest.set(new TimeInForce(TimeInForce.GOOD_TILL_CANCEL));
+        replaceRequest.set(new Symbol(order.getSecurity().getSymbol().replace(".", "/")));
+
+        // set the extId
+        replaceRequest.set(new OrderID(order.getExtId()));
+
+        // dc does not support Securitytype
+        replaceRequest.removeField(SecurityType.FIELD);
+
     }
 
     @Override
@@ -134,15 +128,12 @@ public class DCFixOrderServiceImpl extends Fix44OrderServiceImpl implements DCFi
         Validate.notNull(cancelRequest, "Cancel request is null");
         Validate.notNull(order.getExtId(), "missing ExtId on order");
 
-        try {
-            // set the extId
-            cancelRequest.set(new OrderID(order.getExtId()));
+        // set the extId
+        cancelRequest.set(new OrderID(order.getExtId()));
 
-            // dc does not support Securitytype
-            cancelRequest.removeField(SecurityType.FIELD);
-        } catch (Exception ex) {
-            throw new DCFixOrderServiceException(ex.getMessage(), ex);
-        }
+        // dc does not support Securitytype
+        cancelRequest.removeField(SecurityType.FIELD);
+
     }
 
     @Override

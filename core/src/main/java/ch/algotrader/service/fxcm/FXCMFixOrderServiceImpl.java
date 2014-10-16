@@ -45,11 +45,7 @@ public class FXCMFixOrderServiceImpl extends Fix44OrderServiceImpl implements FX
     @Override
     public void init() {
 
-        try {
-            getFixAdapter().openSession(getOrderServiceType());
-        } catch (Exception ex) {
-            throw new FXCMFixOrderServiceException(ex.getMessage(), ex);
-        }
+        getFixAdapter().openSession(getOrderServiceType());
     }
 
     @Override

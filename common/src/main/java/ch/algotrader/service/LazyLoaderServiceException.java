@@ -22,9 +22,13 @@ package ch.algotrader.service;
  *
  * @version $Revision$ $Date$
  */
-public class LazyLoaderServiceException extends RuntimeException {
+public class LazyLoaderServiceException extends ServiceException {
 
     private static final long serialVersionUID = -1966888126260458364L;
+
+    public LazyLoaderServiceException(Exception ex) {
+        super(ex);
+    }
 
     public LazyLoaderServiceException(String message, Exception ex) {
         super(message, ex);

@@ -125,21 +125,86 @@ public class ForexServiceImpl implements ForexService {
     @Override
     public void hedgeForex() {
 
-        try {
-            Strategy base = this.strategyDao.findBase();
+        Strategy base = this.strategyDao.findBase();
 
-            CoreConfig coreConfig = this.coreConfig;
-            // potentially close a Forex Future position if it is below the MinTimeToExpiration
-            if (coreConfig.isFxFutureHedgeEnabled()) {
+        CoreConfig coreConfig = this.coreConfig;
+        // potentially close a Forex Future position if it is below the MinTimeToExpiration
+        if (coreConfig.isFxFutureHedgeEnabled()) {
 
-                // get the closing orders
-                final List<Order> orders = new ArrayList<Order>();
-                for (Position position : this.lookupService.getOpenPositionsByStrategyTypeAndUnderlyingType(StrategyImpl.BASE, Future.class, Forex.class)) {
+            // get the closing orders
+            final List<Order> orders = new ArrayList<Order>();
+            for (Position position : this.lookupService.getOpenPositionsByStrategyTypeAndUnderlyingType(StrategyImpl.BASE, Future.class, Forex.class)) {
 
-                    // check if expiration is below minimum
-                    Future future = (Future) position.getSecurityInitialized();
+                // check if expiration is below minimum
+                Future future = (Future) position.getSecurityInitialized();
 
-                    Forex forex = (Forex) future.getUnderlyingInitialized();
+                Forex forex = (Forex) future.getUnderlyingInitialized();
+
+                Subscription forexSubscription = this.subscriptionDao.findByStrategyAndSecurity(StrategyImpl.BASE, forex.getId());
+                if (!forexSubscription.hasProperty("hedgingFamily")) {
+                    throw new IllegalStateException("no hedgingFamily defined for forex " + forex);
+                }
+
+                FutureFamily futureFamily = this.futureFamilyDao.load(forexSubscription.getIntProperty("hedgingFamily"));
+                if (!future.getSecurityFamily().equals(futureFamily)) {
+                    // continue if forex is not hedged with this futureFamily
+                    continue;
+                }
+
+                if (future.getTimeToExpiration() < coreConfig.getFxFutureHedgeMinTimeToExpiration()) {
+
+                    Order order = this.lookupService.getOrderByStrategyAndSecurityFamily(StrategyImpl.BASE, future.getSecurityFamily().getId());
+                    order.setStrategy(base);
+                    order.setSecurity(future);
+                    order.setQuantity(Math.abs(position.getQuantity()));
+                    order.setSide(position.getQuantity() > 0 ? Side.SELL : Side.BUY);
+
+                    orders.add(order);
+                }
+            }
+
+            // setup an TradeCallback so that new hedge positions are only setup when existing positions are closed
+            if (orders.size() > 0) {
+
+                notificationLogger.info(orders.size() + " fx hedging position(s) have been closed due to approaching expiration, please run equalizeForex again");
+
+                // send the orders
+                for (Order order : orders) {
+                    this.orderService.sendOrder(order);
+                }
+
+                return; // do not go any furter because closing trades will have to finish first
+            }
+        }
+
+        // process all non-base currency balances
+        Collection<BalanceVO> balances = this.portfolioService.getBalances();
+        for (BalanceVO balance : balances) {
+
+            Currency portfolioBaseCurrency = this.commonConfig.getPortfolioBaseCurrency();
+            if (balance.getCurrency().equals(portfolioBaseCurrency)) {
+                continue;
+            }
+
+            // get the netLiqValueBase
+            double netLiqValue = balance.getNetLiqValue().doubleValue();
+            double netLiqValueBase = balance.getExchangeRate() * netLiqValue;
+
+            // check if amount is larger than minimum
+            if (Math.abs(netLiqValueBase) >= coreConfig.getFxHedgeMinAmount()) {
+
+                // get the forex
+                Forex forex = this.forexDao.getForex(portfolioBaseCurrency, balance.getCurrency());
+
+                double tradeValue = forex.getBaseCurrency().equals(portfolioBaseCurrency) ? netLiqValueBase : netLiqValue;
+
+                // create the order
+                Order order = this.lookupService.getOrderByStrategyAndSecurityFamily(StrategyImpl.BASE, forex.getSecurityFamily().getId());
+                order.setStrategy(base);
+
+                // if a hedging family is defined for this Forex use it instead of the Forex directly
+                int qty;
+                if (coreConfig.isFxFutureHedgeEnabled()) {
 
                     Subscription forexSubscription = this.subscriptionDao.findByStrategyAndSecurity(StrategyImpl.BASE, forex.getId());
                     if (!forexSubscription.hasProperty("hedgingFamily")) {
@@ -147,117 +212,49 @@ public class ForexServiceImpl implements ForexService {
                     }
 
                     FutureFamily futureFamily = this.futureFamilyDao.load(forexSubscription.getIntProperty("hedgingFamily"));
-                    if (!future.getSecurityFamily().equals(futureFamily)) {
-                        // continue if forex is not hedged with this futureFamily
-                        continue;
-                    }
 
-                    if (future.getTimeToExpiration() < coreConfig.getFxFutureHedgeMinTimeToExpiration()) {
+                    Date targetDate = DateUtils.addMilliseconds(DateUtil.getCurrentEPTime(), coreConfig.getFxFutureHedgeMinTimeToExpiration());
+                    Future future = this.futureService.getFutureByMinExpiration(futureFamily.getId(), targetDate);
 
-                        Order order = this.lookupService.getOrderByStrategyAndSecurityFamily(StrategyImpl.BASE, future.getSecurityFamily().getId());
-                        order.setStrategy(base);
-                        order.setSecurity(future);
-                        order.setQuantity(Math.abs(position.getQuantity()));
-                        order.setSide(position.getQuantity() > 0 ? Side.SELL : Side.BUY);
+                    // make sure the future is subscriped
+                    this.marketDataService.subscribe(base.getName(), future.getId());
 
-                        orders.add(order);
-                    }
-                }
+                    order.setSecurity(future);
 
-                // setup an TradeCallback so that new hedge positions are only setup when existing positions are closed
-                if (orders.size() > 0) {
-
-                    notificationLogger.info(orders.size() + " fx hedging position(s) have been closed due to approaching expiration, please run equalizeForex again");
-
-                    // send the orders
-                    for (Order order : orders) {
-                        this.orderService.sendOrder(order);
-                    }
-
-                    return; // do not go any furter because closing trades will have to finish first
-                }
-            }
-
-            // process all non-base currency balances
-            Collection<BalanceVO> balances = this.portfolioService.getBalances();
-            for (BalanceVO balance : balances) {
-
-                Currency portfolioBaseCurrency = this.commonConfig.getPortfolioBaseCurrency();
-                if (balance.getCurrency().equals(portfolioBaseCurrency)) {
-                    continue;
-                }
-
-                // get the netLiqValueBase
-                double netLiqValue = balance.getNetLiqValue().doubleValue();
-                double netLiqValueBase = balance.getExchangeRate() * netLiqValue;
-
-                // check if amount is larger than minimum
-                if (Math.abs(netLiqValueBase) >= coreConfig.getFxHedgeMinAmount()) {
-
-                    // get the forex
-                    Forex forex = this.forexDao.getForex(portfolioBaseCurrency, balance.getCurrency());
-
-                    double tradeValue = forex.getBaseCurrency().equals(portfolioBaseCurrency) ? netLiqValueBase : netLiqValue;
-
-                    // create the order
-                    Order order = this.lookupService.getOrderByStrategyAndSecurityFamily(StrategyImpl.BASE, forex.getSecurityFamily().getId());
-                    order.setStrategy(base);
-
-                    // if a hedging family is defined for this Forex use it instead of the Forex directly
-                    int qty;
-                    if (coreConfig.isFxFutureHedgeEnabled()) {
-
-                        Subscription forexSubscription = this.subscriptionDao.findByStrategyAndSecurity(StrategyImpl.BASE, forex.getId());
-                        if (!forexSubscription.hasProperty("hedgingFamily")) {
-                            throw new IllegalStateException("no hedgingFamily defined for forex " + forex);
-                        }
-
-                        FutureFamily futureFamily = this.futureFamilyDao.load(forexSubscription.getIntProperty("hedgingFamily"));
-
-                        Date targetDate = DateUtils.addMilliseconds(DateUtil.getCurrentEPTime(), coreConfig.getFxFutureHedgeMinTimeToExpiration());
-                        Future future = this.futureService.getFutureByMinExpiration(futureFamily.getId(), targetDate);
-
-                        // make sure the future is subscriped
-                        this.marketDataService.subscribe(base.getName(), future.getId());
-
-                        order.setSecurity(future);
-
-                        // round to the number of contracts
-                        qty = (int) MathUtils.round(tradeValue / futureFamily.getContractSize(), 0);
-
-                    } else {
-
-                        order.setSecurity(forex);
-
-                        // round to batchSize
-                        qty = (int) RoundUtil.roundToNextN(tradeValue, coreConfig.getFxHedgeBatchSize());
-                    }
-
-                    if (forex.getBaseCurrency().equals(portfolioBaseCurrency)) {
-
-                        // expected case
-                        order.setQuantity(Math.abs(qty));
-                        order.setSide(qty > 0 ? Side.BUY : Side.SELL);
-
-                    } else {
-
-                        // reverse case
-                        order.setQuantity(Math.abs(qty));
-                        order.setSide(qty > 0 ? Side.SELL : Side.BUY);
-                    }
-
-                    this.orderService.sendOrder(order);
+                    // round to the number of contracts
+                    qty = (int) MathUtils.round(tradeValue / futureFamily.getContractSize(), 0);
 
                 } else {
 
-                    logger.info("no forex hedge is performed on " + balance.getCurrency() + " because amount " + RoundUtil.getBigDecimal(Math.abs(netLiqValueBase)) + " is below "
-                            + coreConfig.getFxHedgeMinAmount());
-                    continue;
+                    order.setSecurity(forex);
+
+                    // round to batchSize
+                    qty = (int) RoundUtil.roundToNextN(tradeValue, coreConfig.getFxHedgeBatchSize());
                 }
+
+                if (forex.getBaseCurrency().equals(portfolioBaseCurrency)) {
+
+                    // expected case
+                    order.setQuantity(Math.abs(qty));
+                    order.setSide(qty > 0 ? Side.BUY : Side.SELL);
+
+                } else {
+
+                    // reverse case
+                    order.setQuantity(Math.abs(qty));
+                    order.setSide(qty > 0 ? Side.SELL : Side.BUY);
+                }
+
+                this.orderService.sendOrder(order);
+
+            } else {
+
+                logger.info("no forex hedge is performed on " + balance.getCurrency() + " because amount " + RoundUtil.getBigDecimal(Math.abs(netLiqValueBase)) + " is below "
+                        + coreConfig.getFxHedgeMinAmount());
+                continue;
             }
-        } catch (Exception ex) {
-            throw new ForexServiceException(ex.getMessage(), ex);
         }
+
     }
 
 }

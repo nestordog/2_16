@@ -92,28 +92,28 @@ public class IBNativeOrderServiceImpl extends ExternalOrderServiceImpl implement
 
         // Because of an IB bug only one order can be submitted at a time when
         // first connecting to IB, so wait 100ms after the first order
+        logger.info("before place");
 
-        try {
-            logger.info("before place");
+        if (firstOrder) {
 
-            if (firstOrder) {
-
-                synchronized (this) {
-                    internalSendOrder(order);
-                    Thread.sleep(200);
-                    firstOrder = false;
-                }
-
-            } else {
-
+            synchronized (this) {
                 internalSendOrder(order);
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException ex) {
+                    Thread.currentThread().interrupt();
+                    throw new IBNativeOrderServiceException(ex);
+                }
+                firstOrder = false;
             }
-        } catch (Exception ex) {
-            throw new IBNativeOrderServiceException(ex.getMessage(), ex);
+
+        } else {
+            internalSendOrder(order);
         }
+
     }
 
-    private synchronized void internalSendOrder(SimpleOrder order) throws Exception {
+    private synchronized void internalSendOrder(SimpleOrder order) {
 
         String intId = order.getIntId();
         if (intId == null) {
@@ -123,6 +123,7 @@ public class IBNativeOrderServiceImpl extends ExternalOrderServiceImpl implement
         }
 
         sendOrModifyOrder(order);
+
     }
 
     @Override
@@ -130,16 +131,12 @@ public class IBNativeOrderServiceImpl extends ExternalOrderServiceImpl implement
 
         Validate.notNull(order, "Order is null");
 
-        try {
-            sendOrModifyOrder(order);
+        sendOrModifyOrder(order);
 
-            // send a 0:0 OrderStatus to validate the first SUBMITTED OrderStatus just after the modification
-            IBOrderStatus orderStatus = new IBOrderStatus(Status.SUBMITTED, 0, 0, null, order);
+        // send a 0:0 OrderStatus to validate the first SUBMITTED OrderStatus just after the modification
+        IBOrderStatus orderStatus = new IBOrderStatus(Status.SUBMITTED, 0, 0, null, order);
 
-            EngineLocator.instance().getBaseEngine().sendEvent(orderStatus);
-        } catch (Exception ex) {
-            throw new IBNativeOrderServiceException(ex.getMessage(), ex);
-        }
+        EngineLocator.instance().getBaseEngine().sendEvent(orderStatus);
 
     }
 
@@ -148,25 +145,21 @@ public class IBNativeOrderServiceImpl extends ExternalOrderServiceImpl implement
 
         Validate.notNull(order, "Order is null");
 
-        try {
-            if (!this.iBSession.getLifecycle().isLoggedOn()) {
-                logger.error("order cannot be cancelled, because IB is not logged on");
-                return;
-            }
-
-            this.iBSession.cancelOrder(Integer.parseInt(order.getIntId()));
-
-            logger.info("requested order cancellation for order: " + order);
-        } catch (Exception ex) {
-            throw new IBNativeOrderServiceException(ex.getMessage(), ex);
+        if (!this.iBSession.getLifecycle().isLoggedOn()) {
+            logger.error("order cannot be cancelled, because IB is not logged on");
+            return;
         }
+
+        this.iBSession.cancelOrder(Integer.parseInt(order.getIntId()));
+
+        logger.info("requested order cancellation for order: " + order);
+
     }
 
     /**
      * helper method to be used in both sendorder and modifyorder.
-     * @throws Exception
      */
-    private void sendOrModifyOrder(SimpleOrder order) throws Exception {
+    private void sendOrModifyOrder(SimpleOrder order) {
 
         if (!this.iBSession.getLifecycle().isLoggedOn()) {
             logger.error("order cannot be sent / modified, because IB is not logged on");

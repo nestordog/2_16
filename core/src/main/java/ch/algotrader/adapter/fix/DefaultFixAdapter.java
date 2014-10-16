@@ -35,7 +35,6 @@ import quickfix.FieldConvertError;
 import quickfix.Message;
 import quickfix.Session;
 import quickfix.SessionID;
-import quickfix.SessionNotFound;
 import quickfix.SocketInitiator;
 
 /**
@@ -82,7 +81,7 @@ public class DefaultFixAdapter implements FixAdapter {
      * creates an individual session
      */
     @Override
-    public void createSession(OrderServiceType orderServiceType) throws Exception {
+    public void createSession(OrderServiceType orderServiceType) throws FixApplicationException {
 
         Collection<String> sessionQualifiers = this.lookupService.getActiveSessionsByOrderServiceType(orderServiceType);
         for (String sessionQualifier : sessionQualifiers) {
@@ -91,7 +90,7 @@ public class DefaultFixAdapter implements FixAdapter {
     }
 
     @Override
-    public void openSession(OrderServiceType orderServiceType) throws Exception {
+    public void openSession(OrderServiceType orderServiceType) throws FixApplicationException {
 
         Collection<String> sessionQualifiers = this.lookupService.getActiveSessionsByOrderServiceType(orderServiceType);
         for (String sessionQualifier : sessionQualifiers) {
@@ -99,7 +98,7 @@ public class DefaultFixAdapter implements FixAdapter {
         }
     }
 
-    private void createSessionInternal(String sessionQualifier, boolean createNew) throws Exception {
+    private void createSessionInternal(String sessionQualifier, boolean createNew) throws FixApplicationException {
 
         this.lock.lock();
         try {
@@ -110,21 +109,28 @@ public class DefaultFixAdapter implements FixAdapter {
                     Session session = Session.lookupSession(sessionId);
                     if (session != null) {
                         if (createNew) {
-                            throw new IllegalStateException("existing session with qualifier " + sessionQualifier + " please add 'Inactive=Y' to session config");
+                            throw new IllegalStateException("FIX configuration error: " +
+                                    "existing session with qualifier " + sessionQualifier + " please add 'Inactive=Y' to session config");
                         }
                     } else {
 
-                        this.socketInitiator.createDynamicSession(sessionId);
-                        if (this.eventScheduler != null) {
+                        try {
+                            this.socketInitiator.createDynamicSession(sessionId);
+                            if (this.eventScheduler != null) {
 
-                            createLogonLogoutStatement(sessionId);
+                                createLogonLogoutStatement(sessionId);
+                            }
+                        } catch (FieldConvertError ex) {
+                            throw new FixApplicationException("FIX configuration error: " + ex.getMessage(), ex);
+                        } catch (ConfigError ex) {
+                            throw new FixApplicationException("FIX configuration error: " + ex.getMessage(), ex);
                         }
                     }
                     return;
                 }
             }
 
-            throw new IllegalStateException("SessionID missing in settings " + sessionQualifier);
+            throw new FixApplicationException("FIX configuration error: SessionID missing in settings " + sessionQualifier);
 
         } finally {
             this.lock.unlock();
@@ -132,13 +138,13 @@ public class DefaultFixAdapter implements FixAdapter {
     }
 
     @Override
-    public void createSession(String sessionQualifier) throws Exception {
+    public void createSession(String sessionQualifier) throws FixApplicationException {
 
         createSessionInternal(sessionQualifier, true);
     }
 
     @Override
-    public void openSession(String sessionQualifier) throws Exception {
+    public void openSession(String sessionQualifier) throws FixApplicationException {
 
         createSessionInternal(sessionQualifier, false);
     }
@@ -147,7 +153,7 @@ public class DefaultFixAdapter implements FixAdapter {
      * sends a message to the designated session for the given account
      */
     @Override
-    public void sendMessage(Message message, Account account) throws SessionNotFound {
+    public void sendMessage(Message message, Account account) throws FixApplicationException {
 
         Validate.notNull(account.getSessionQualifier(), "no session qualifier defined for account " + account);
 
@@ -155,7 +161,7 @@ public class DefaultFixAdapter implements FixAdapter {
         if (session.isLoggedOn()) {
             session.send(message);
         } else {
-            throw new IllegalStateException("message cannot be sent, FIX Session is not logged on " + account.getSessionQualifier());
+            throw new FixApplicationException("message cannot be sent, FIX Session is not logged on " + account.getSessionQualifier());
         }
     }
 
@@ -163,13 +169,13 @@ public class DefaultFixAdapter implements FixAdapter {
      * sends a message to the designated session
      */
     @Override
-    public void sendMessage(Message message, String sessionQualifier) throws SessionNotFound {
+    public void sendMessage(Message message, String sessionQualifier) throws FixApplicationException {
 
         Session session = Session.lookupSession(getSessionID(sessionQualifier));
         if (session.isLoggedOn()) {
             session.send(message);
         } else {
-            throw new IllegalStateException("message cannot be sent, FIX Session is not logged on " + sessionQualifier);
+            throw new FixApplicationException("message cannot be sent, FIX Session is not logged on " + sessionQualifier);
         }
     }
 

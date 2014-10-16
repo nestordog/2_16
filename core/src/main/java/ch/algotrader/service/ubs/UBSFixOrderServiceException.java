@@ -17,12 +17,14 @@
  ***********************************************************************************/
 package ch.algotrader.service.ubs;
 
+import ch.algotrader.service.ServiceException;
+
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class UBSFixOrderServiceException extends RuntimeException {
+public class UBSFixOrderServiceException extends ServiceException {
 
     private static final long serialVersionUID = 3395842528904860446L;
 

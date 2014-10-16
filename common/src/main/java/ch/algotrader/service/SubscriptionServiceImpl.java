@@ -71,13 +71,10 @@ public class SubscriptionServiceImpl implements SubscriptionService, Application
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        try {
-            this.marketDataService.subscribe(strategyName, securityId);
+        this.marketDataService.subscribe(strategyName, securityId);
 
-            initMarketDataEventSubscriptions();
-        } catch (Exception ex) {
-            throw new SubscriptionServiceException(ex.getMessage(), ex);
-        }
+        initMarketDataEventSubscriptions();
+
     }
 
     /**
@@ -89,13 +86,10 @@ public class SubscriptionServiceImpl implements SubscriptionService, Application
         Validate.notEmpty(strategyName, "Strategy name is empty");
         Validate.notNull(feedType, "Feed type is null");
 
-        try {
-            this.marketDataService.subscribe(strategyName, securityId, feedType);
+        this.marketDataService.subscribe(strategyName, securityId, feedType);
 
-            initMarketDataEventSubscriptions();
-        } catch (Exception ex) {
-            throw new SubscriptionServiceException(ex.getMessage(), ex);
-        }
+        initMarketDataEventSubscriptions();
+
     }
 
     /**
@@ -106,13 +100,10 @@ public class SubscriptionServiceImpl implements SubscriptionService, Application
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        try {
-            this.marketDataService.unsubscribe(strategyName, securityId);
+        this.marketDataService.unsubscribe(strategyName, securityId);
 
-            initMarketDataEventSubscriptions();
-        } catch (Exception ex) {
-            throw new SubscriptionServiceException(ex.getMessage(), ex);
-        }
+        initMarketDataEventSubscriptions();
+
     }
 
     /**
@@ -124,13 +115,10 @@ public class SubscriptionServiceImpl implements SubscriptionService, Application
         Validate.notEmpty(strategyName, "Strategy name is empty");
         Validate.notNull(feedType, "Feed type is null");
 
-        try {
-            this.marketDataService.unsubscribe(strategyName, securityId, feedType);
+        this.marketDataService.unsubscribe(strategyName, securityId, feedType);
 
-            initMarketDataEventSubscriptions();
-        } catch (Exception ex) {
-            throw new SubscriptionServiceException(ex.getMessage(), ex);
-        }
+        initMarketDataEventSubscriptions();
+
     }
 
     /**
@@ -139,40 +127,37 @@ public class SubscriptionServiceImpl implements SubscriptionService, Application
     @Override
     public void initMarketDataEventSubscriptions() {
 
-        try {
-            CommonConfig commonConfig = this.commonConfig;
-            if (commonConfig.isSimulation() || commonConfig.isStartedStrategyBASE() || commonConfig.isSingleVM())
-                return;
+        CommonConfig commonConfig = this.commonConfig;
+        if (commonConfig.isSimulation() || commonConfig.isStartedStrategyBASE() || commonConfig.isSingleVM())
+            return;
 
-            // assemble the message selector
-            List<String> selections = new ArrayList<String>();
-            for (Subscription subscription : this.lookupService.getSubscriptionsByStrategyInclComponents(commonConfig.getStrategyName())) {
-                selections.add("securityId=" + subscription.getSecurity().getId());
-            }
-
-            String messageSelector = StringUtils.join(selections, " OR ");
-            if ("".equals(messageSelector)) {
-                messageSelector = "false";
-            }
-
-            final DefaultMessageListenerContainer marketDataMessageListenerContainer = this.applicationContext.getBean("genericMessageListenerContainer", DefaultMessageListenerContainer.class);
-
-            // update the message selector
-            marketDataMessageListenerContainer.setMessageSelector(messageSelector);
-
-            // restart the container (must do this in a separate thread to prevent dead-locks)
-            (new Thread() {
-                @Override
-                public void run() {
-                    marketDataMessageListenerContainer.stop();
-                    marketDataMessageListenerContainer.shutdown();
-                    marketDataMessageListenerContainer.start();
-                    marketDataMessageListenerContainer.initialize();
-                }
-            }).start();
-        } catch (Exception ex) {
-            throw new SubscriptionServiceException(ex.getMessage(), ex);
+        // assemble the message selector
+        List<String> selections = new ArrayList<String>();
+        for (Subscription subscription : this.lookupService.getSubscriptionsByStrategyInclComponents(commonConfig.getStrategyName())) {
+            selections.add("securityId=" + subscription.getSecurity().getId());
         }
+
+        String messageSelector = StringUtils.join(selections, " OR ");
+        if ("".equals(messageSelector)) {
+            messageSelector = "false";
+        }
+
+        final DefaultMessageListenerContainer marketDataMessageListenerContainer = this.applicationContext.getBean("genericMessageListenerContainer", DefaultMessageListenerContainer.class);
+
+        // update the message selector
+        marketDataMessageListenerContainer.setMessageSelector(messageSelector);
+
+        // restart the container (must do this in a separate thread to prevent dead-locks)
+        (new Thread() {
+            @Override
+            public void run() {
+                marketDataMessageListenerContainer.stop();
+                marketDataMessageListenerContainer.shutdown();
+                marketDataMessageListenerContainer.start();
+                marketDataMessageListenerContainer.initialize();
+            }
+        }).start();
+
     }
 
     /**
@@ -183,39 +168,36 @@ public class SubscriptionServiceImpl implements SubscriptionService, Application
 
         Validate.notNull(classes, "Classes is null");
 
-        try {
-            CommonConfig commonConfig = this.commonConfig;
-            if (commonConfig.isSimulation() || commonConfig.isStartedStrategyBASE() || commonConfig.isSingleVM())
-                return;
+        CommonConfig commonConfig = this.commonConfig;
+        if (commonConfig.isSimulation() || commonConfig.isStartedStrategyBASE() || commonConfig.isSingleVM())
+            return;
 
-            // assemble the message selector
-            List<String> selections = new ArrayList<String>();
-            for (Class<?> clazz : classes) {
-                selections.add("clazz='" + clazz.getName() + "'");
-            }
-
-            String messageSelector = StringUtils.join(selections, " OR ");
-            if ("".equals(messageSelector)) {
-                messageSelector = "false";
-            }
-
-            final DefaultMessageListenerContainer genericMessageListenerContainer = this.applicationContext.getBean("genericMessageListenerContainer", DefaultMessageListenerContainer.class);
-
-            // update the message selector
-            genericMessageListenerContainer.setMessageSelector(messageSelector);
-
-            // restart the container (must do this in a separate thread to prevent dead-locks)
-            (new Thread() {
-                @Override
-                public void run() {
-                    genericMessageListenerContainer.stop();
-                    genericMessageListenerContainer.shutdown();
-                    genericMessageListenerContainer.start();
-                    genericMessageListenerContainer.initialize();
-                }
-            }).start();
-        } catch (Exception ex) {
-            throw new SubscriptionServiceException(ex.getMessage(), ex);
+        // assemble the message selector
+        List<String> selections = new ArrayList<String>();
+        for (Class<?> clazz : classes) {
+            selections.add("clazz='" + clazz.getName() + "'");
         }
+
+        String messageSelector = StringUtils.join(selections, " OR ");
+        if ("".equals(messageSelector)) {
+            messageSelector = "false";
+        }
+
+        final DefaultMessageListenerContainer genericMessageListenerContainer = this.applicationContext.getBean("genericMessageListenerContainer", DefaultMessageListenerContainer.class);
+
+        // update the message selector
+        genericMessageListenerContainer.setMessageSelector(messageSelector);
+
+        // restart the container (must do this in a separate thread to prevent dead-locks)
+        (new Thread() {
+            @Override
+            public void run() {
+                genericMessageListenerContainer.stop();
+                genericMessageListenerContainer.shutdown();
+                genericMessageListenerContainer.start();
+                genericMessageListenerContainer.initialize();
+            }
+        }).start();
+
     }
 }

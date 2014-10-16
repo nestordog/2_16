@@ -17,14 +17,20 @@
  ***********************************************************************************/
 package ch.algotrader.service.bb;
 
+import ch.algotrader.service.ServiceException;
+
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class BBMarketDataServiceException extends RuntimeException {
+public class BBMarketDataServiceException extends ServiceException {
 
     private static final long serialVersionUID = 5408308370885038688L;
+
+    public BBMarketDataServiceException(Exception ex) {
+        super(ex);
+    }
 
     public BBMarketDataServiceException(String message, Exception ex) {
         super(message, ex);

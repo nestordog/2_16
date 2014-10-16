@@ -27,8 +27,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.jms.IllegalStateException;
-
 import org.apache.commons.collections.map.MultiValueMap;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.math.NumberUtils;
@@ -265,11 +263,8 @@ public class LookupServiceImpl implements LookupService {
     @Override
     public Security getSecurity(final int id) {
 
-        try {
-            return this.securityDao.get(id);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.securityDao.get(id);
+
     }
 
     /**
@@ -280,11 +275,8 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(isin, "isin is empty");
 
-        try {
-            return this.securityDao.findByIsin(isin);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.securityDao.findByIsin(isin);
+
     }
 
     /**
@@ -295,11 +287,8 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(symbol, "Symbol is empty");
 
-        try {
-            return this.securityDao.findBySymbol(symbol);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.securityDao.findBySymbol(symbol);
+
     }
 
     /**
@@ -310,11 +299,8 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(bbgid, "bbgid is empty");
 
-        try {
-            return this.securityDao.findByBbgid(bbgid);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.securityDao.findByBbgid(bbgid);
+
     }
 
     /**
@@ -325,11 +311,8 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(ric, "ric is empty");
 
-        try {
-            return this.securityDao.findByRic(ric);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.securityDao.findByRic(ric);
+
     }
 
     /**
@@ -340,11 +323,8 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(conid, "Con id is empty");
 
-        try {
-            return this.securityDao.findByConid(conid);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.securityDao.findByConid(conid);
+
     }
 
     /**
@@ -353,11 +333,8 @@ public class LookupServiceImpl implements LookupService {
     @Override
     public Security getSecurityInclFamilyAndUnderlying(final int id) {
 
-        try {
-            return this.securityDao.findByIdInclFamilyAndUnderlying(id);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.securityDao.findByIdInclFamilyAndUnderlying(id);
+
     }
 
     /**
@@ -366,18 +343,15 @@ public class LookupServiceImpl implements LookupService {
     @Override
     public Security getSecurityInitialized(final int id) {
 
-        try {
-            Security security = this.securityDao.get(id);
+        Security security = this.securityDao.get(id);
 
-            // initialize the security
-            if (security != null) {
-                security.initialize();
-            }
-
-            return security;
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
+        // initialize the security
+        if (security != null) {
+            security.initialize();
         }
+
+        return security;
+
     }
 
     /**
@@ -386,11 +360,8 @@ public class LookupServiceImpl implements LookupService {
     @Override
     public List<Security> getSecuritiesByIds(final Collection<Integer> ids) {
 
-        try {
-            return this.securityDao.findByIds(ids);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.securityDao.findByIds(ids);
+
     }
 
     /**
@@ -401,76 +372,72 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(securityString, "Security string is empty");
 
-        try {
-            // try to find it in the local hashMap cache by symbol, isin, bbgid, ric conid or id
-            if (this.securitySymbolMap.containsKey(securityString)) {
-                return this.securitySymbolMap.get(securityString);
-            }
-
-            if (this.securityIsinMap.containsKey(securityString)) {
-                return this.securityIsinMap.get(securityString);
-            }
-
-            if (this.securityBbgidMap.containsKey(securityString)) {
-                return this.securityBbgidMap.get(securityString);
-            }
-
-            if (this.securityRicMap.containsKey(securityString)) {
-                return this.securityRicMap.get(securityString);
-            }
-
-            if (this.securityConidMap.containsKey(securityString)) {
-                return this.securityConidMap.get(securityString);
-            }
-
-            if (this.securityIdMap.containsKey(securityString)) {
-                return this.securityIdMap.get(securityString);
-            }
-
-            // try to find the security by symbol, isin, bbgid, ric conid or id
-            Security security = this.securityDao.findBySymbol(securityString);
-            if (security != null) {
-                this.securitySymbolMap.put(security.getSymbol(), security.getId());
-                return security.getId();
-            }
-
-            security = this.securityDao.findByIsin(securityString);
-            if (security != null) {
-                this.securityIsinMap.put(security.getIsin(), security.getId());
-                return security.getId();
-            }
-
-            security = this.securityDao.findByBbgid(securityString);
-            if (security != null) {
-                this.securityBbgidMap.put(security.getBbgid(), security.getId());
-                return security.getId();
-            }
-
-            security = this.securityDao.findByRic(securityString);
-            if (security != null) {
-                this.securityRicMap.put(security.getRic(), security.getId());
-                return security.getId();
-            }
-
-            security = this.securityDao.findByConid(securityString);
-            if (security != null) {
-                this.securityConidMap.put(security.getConid(), security.getId());
-                return security.getId();
-            }
-
-            if (NumberUtils.isDigits(securityString)) {
-
-                security = this.securityDao.get(Integer.parseInt(securityString));
-                if (security != null) {
-                    this.securitySymbolMap.put(Integer.toString(security.getId()), security.getId());
-                    return security.getId();
-                }
-            }
-
-            throw new IllegalStateException("Security could not be found: " + securityString);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
+        // try to find it in the local hashMap cache by symbol, isin, bbgid, ric conid or id
+        if (this.securitySymbolMap.containsKey(securityString)) {
+            return this.securitySymbolMap.get(securityString);
         }
+
+        if (this.securityIsinMap.containsKey(securityString)) {
+            return this.securityIsinMap.get(securityString);
+        }
+
+        if (this.securityBbgidMap.containsKey(securityString)) {
+            return this.securityBbgidMap.get(securityString);
+        }
+
+        if (this.securityRicMap.containsKey(securityString)) {
+            return this.securityRicMap.get(securityString);
+        }
+
+        if (this.securityConidMap.containsKey(securityString)) {
+            return this.securityConidMap.get(securityString);
+        }
+
+        if (this.securityIdMap.containsKey(securityString)) {
+            return this.securityIdMap.get(securityString);
+        }
+
+        // try to find the security by symbol, isin, bbgid, ric conid or id
+        Security security = this.securityDao.findBySymbol(securityString);
+        if (security != null) {
+            this.securitySymbolMap.put(security.getSymbol(), security.getId());
+            return security.getId();
+        }
+
+        security = this.securityDao.findByIsin(securityString);
+        if (security != null) {
+            this.securityIsinMap.put(security.getIsin(), security.getId());
+            return security.getId();
+        }
+
+        security = this.securityDao.findByBbgid(securityString);
+        if (security != null) {
+            this.securityBbgidMap.put(security.getBbgid(), security.getId());
+            return security.getId();
+        }
+
+        security = this.securityDao.findByRic(securityString);
+        if (security != null) {
+            this.securityRicMap.put(security.getRic(), security.getId());
+            return security.getId();
+        }
+
+        security = this.securityDao.findByConid(securityString);
+        if (security != null) {
+            this.securityConidMap.put(security.getConid(), security.getId());
+            return security.getId();
+        }
+
+        if (NumberUtils.isDigits(securityString)) {
+
+            security = this.securityDao.get(Integer.parseInt(securityString));
+            if (security != null) {
+                this.securitySymbolMap.put(Integer.toString(security.getId()), security.getId());
+                return security.getId();
+            }
+        }
+
+        throw new LookupServiceException("Security could not be found: " + securityString);
     }
 
     /**
@@ -479,11 +446,8 @@ public class LookupServiceImpl implements LookupService {
     @Override
     public Collection<Security> getAllSecurities() {
 
-        try {
-            return this.securityDao.loadAll();
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.securityDao.loadAll();
+
     }
 
     /**
@@ -492,11 +456,8 @@ public class LookupServiceImpl implements LookupService {
     @Override
     public Collection<Security> getSubscribedSecuritiesForAutoActivateStrategies() {
 
-        try {
-            return this.securityDao.findSubscribedForAutoActivateStrategies();
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.securityDao.findSubscribedForAutoActivateStrategies();
+
     }
 
     /**
@@ -505,22 +466,19 @@ public class LookupServiceImpl implements LookupService {
     @Override
     public List getSubscribedSecuritiesAndFeedTypeForAutoActivateStrategiesInclComponents() {
 
-        try {
-            List<Map> subscriptions = this.securityDao.findSubscribedAndFeedTypeForAutoActivateStrategies();
+        List<Map> subscriptions = this.securityDao.findSubscribedAndFeedTypeForAutoActivateStrategies();
 
-            // initialize components
-            for (Map<String, Object> subscription : subscriptions) {
+        // initialize components
+        for (Map<String, Object> subscription : subscriptions) {
 
-                Security security = (Security) subscription.get("security");
-                if (security instanceof Combination) {
-                    ((Combination) security).getComponentsInitialized();
-                }
+            Security security = (Security) subscription.get("security");
+            if (security instanceof Combination) {
+                ((Combination) security).getComponentsInitialized();
             }
-
-            return subscriptions;
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
         }
+
+        return subscriptions;
+
     }
 
     /**
@@ -531,11 +489,8 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(code, "Code is empty");
 
-        try {
-            return this.stockDao.findBySectory(code);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.stockDao.findBySectory(code);
+
     }
 
     /**
@@ -546,11 +501,8 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(code, "Code is empty");
 
-        try {
-            return this.stockDao.findByIndustryGroup(code);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.stockDao.findByIndustryGroup(code);
+
     }
 
     /**
@@ -561,11 +513,8 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(code, "Code is empty");
 
-        try {
-            return this.stockDao.findByIndustry(code);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.stockDao.findByIndustry(code);
+
     }
 
     /**
@@ -576,11 +525,8 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(code, "Code is empty");
 
-        try {
-            return this.stockDao.findBySubIndustry(code);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.stockDao.findBySubIndustry(code);
+
     }
 
     /**
@@ -589,11 +535,8 @@ public class LookupServiceImpl implements LookupService {
     @Override
     public List<Option> getSubscribedOptions() {
 
-        try {
-            return this.optionDao.findSubscribedOptions();
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.optionDao.findSubscribedOptions();
+
     }
 
     /**
@@ -602,11 +545,8 @@ public class LookupServiceImpl implements LookupService {
     @Override
     public List<Future> getSubscribedFutures() {
 
-        try {
-            return this.futureDao.findSubscribedFutures();
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.futureDao.findSubscribedFutures();
+
     }
 
     /**
@@ -617,11 +557,8 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        try {
-            return this.combinationDao.findSubscribedByStrategy(strategyName);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.combinationDao.findSubscribedByStrategy(strategyName);
+
     }
 
     /**
@@ -632,11 +569,8 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        try {
-            return this.combinationDao.findSubscribedByStrategyAndUnderlying(strategyName, underlyingId);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.combinationDao.findSubscribedByStrategyAndUnderlying(strategyName, underlyingId);
+
     }
 
     /**
@@ -647,11 +581,8 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        try {
-            return this.combinationDao.findSubscribedByStrategyAndComponent(strategyName, securityId);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.combinationDao.findSubscribedByStrategyAndComponent(strategyName, securityId);
+
     }
 
     /**
@@ -663,12 +594,9 @@ public class LookupServiceImpl implements LookupService {
         Validate.notEmpty(strategyName, "Strategy name is empty");
         Validate.notNull(type, "Type is null");
 
-        try {
-            int discriminator = HibernateUtil.getDisriminatorValue(this.sessionFactory, type);
-            return this.combinationDao.findSubscribedByStrategyAndComponentType(strategyName, discriminator);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        int discriminator = HibernateUtil.getDisriminatorValue(this.sessionFactory, type);
+        return this.combinationDao.findSubscribedByStrategyAndComponentType(strategyName, discriminator);
+
     }
 
     /**
@@ -680,12 +608,9 @@ public class LookupServiceImpl implements LookupService {
         Validate.notEmpty(strategyName, "Strategy name is empty");
         Validate.notNull(type, "Type is null");
 
-        try {
-            int discriminator = HibernateUtil.getDisriminatorValue(this.sessionFactory, type);
-            return this.combinationDao.findSubscribedByStrategyAndComponentTypeWithZeroQty(strategyName, discriminator);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        int discriminator = HibernateUtil.getDisriminatorValue(this.sessionFactory, type);
+        return this.combinationDao.findSubscribedByStrategyAndComponentTypeWithZeroQty(strategyName, discriminator);
+
     }
 
     /**
@@ -696,11 +621,8 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        try {
-            return this.componentDao.findSubscribedByStrategyInclSecurity(strategyName);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.componentDao.findSubscribedByStrategyInclSecurity(strategyName);
+
     }
 
     /**
@@ -709,11 +631,8 @@ public class LookupServiceImpl implements LookupService {
     @Override
     public Collection<Component> getSubscribedComponentsBySecurityInclSecurity(final int securityId) {
 
-        try {
-            return this.componentDao.findSubscribedBySecurityInclSecurity(securityId);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.componentDao.findSubscribedBySecurityInclSecurity(securityId);
+
     }
 
     /**
@@ -724,11 +643,8 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        try {
-            return this.componentDao.findSubscribedByStrategyAndSecurityInclSecurity(strategyName, securityId);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.componentDao.findSubscribedByStrategyAndSecurityInclSecurity(strategyName, securityId);
+
     }
 
     /**
@@ -739,11 +655,8 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        try {
-            return this.subscriptionDao.findByStrategyAndSecurity(strategyName, securityId);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.subscriptionDao.findByStrategyAndSecurity(strategyName, securityId);
+
     }
 
     /**
@@ -754,21 +667,18 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        try {
-            List<Subscription> subscriptions = this.subscriptionDao.findByStrategy(strategyName);
+        List<Subscription> subscriptions = this.subscriptionDao.findByStrategy(strategyName);
 
-            // initialize components
-            for (Subscription subscription : subscriptions) {
+        // initialize components
+        for (Subscription subscription : subscriptions) {
 
-                if (subscription.getSecurityInitialized() instanceof Combination) {
-                    ((Combination) subscription.getSecurity()).getComponentsInitialized();
-                }
+            if (subscription.getSecurityInitialized() instanceof Combination) {
+                ((Combination) subscription.getSecurity()).getComponentsInitialized();
             }
-
-            return subscriptions;
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
         }
+
+        return subscriptions;
+
     }
 
     /**
@@ -779,11 +689,8 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        try {
-            return this.subscriptionDao.findNonPositionSubscriptions(strategyName);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.subscriptionDao.findNonPositionSubscriptions(strategyName);
+
     }
 
     /**
@@ -792,11 +699,8 @@ public class LookupServiceImpl implements LookupService {
     @Override
     public Collection<Strategy> getAllStrategies() {
 
-        try {
-            return this.strategyDao.loadAll();
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.strategyDao.loadAll();
+
     }
 
     /**
@@ -805,11 +709,8 @@ public class LookupServiceImpl implements LookupService {
     @Override
     public Strategy getStrategy(final int id) {
 
-        try {
-            return this.strategyDao.get(id);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.strategyDao.get(id);
+
     }
 
     /**
@@ -820,11 +721,8 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(name, "Name is empty");
 
-        try {
-            return this.strategyDao.findByName(name);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.strategyDao.findByName(name);
+
     }
 
     /**
@@ -833,11 +731,8 @@ public class LookupServiceImpl implements LookupService {
     @Override
     public Collection<Strategy> getAutoActivateStrategies() {
 
-        try {
-            return this.strategyDao.findAutoActivateStrategies();
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.strategyDao.findAutoActivateStrategies();
+
     }
 
     /**
@@ -846,11 +741,8 @@ public class LookupServiceImpl implements LookupService {
     @Override
     public SecurityFamily getSecurityFamily(final int id) {
 
-        try {
-            return this.securityFamilyDao.get(id);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.securityFamilyDao.get(id);
+
     }
 
     /**
@@ -861,11 +753,8 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(name, "Name is empty");
 
-        try {
-            return this.securityFamilyDao.findByName(name);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.securityFamilyDao.findByName(name);
+
     }
 
     /**
@@ -874,11 +763,8 @@ public class LookupServiceImpl implements LookupService {
     @Override
     public OptionFamily getOptionFamilyByUnderlying(final int id) {
 
-        try {
-            return this.optionFamilyDao.findByUnderlying(id);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.optionFamilyDao.findByUnderlying(id);
+
     }
 
     /**
@@ -887,11 +773,8 @@ public class LookupServiceImpl implements LookupService {
     @Override
     public FutureFamily getFutureFamilyByUnderlying(final int id) {
 
-        try {
-            return this.futureFamilyDao.findByUnderlying(id);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.futureFamilyDao.findByUnderlying(id);
+
     }
 
     /**
@@ -900,11 +783,8 @@ public class LookupServiceImpl implements LookupService {
     @Override
     public Collection<Position> getAllPositions() {
 
-        try {
-            return this.positionDao.loadAll();
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.positionDao.loadAll();
+
     }
 
     /**
@@ -913,11 +793,8 @@ public class LookupServiceImpl implements LookupService {
     @Override
     public Position getPosition(final int id) {
 
-        try {
-            return this.positionDao.get(id);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.positionDao.get(id);
+
     }
 
     /**
@@ -926,11 +803,8 @@ public class LookupServiceImpl implements LookupService {
     @Override
     public Position getPositionInclSecurityAndSecurityFamily(final int id) {
 
-        try {
-            return this.positionDao.findByIdInclSecurityAndSecurityFamily(id);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.positionDao.findByIdInclSecurityAndSecurityFamily(id);
+
     }
 
     /**
@@ -941,11 +815,8 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        try {
-            return this.positionDao.findByStrategy(strategyName);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.positionDao.findByStrategy(strategyName);
+
     }
 
     /**
@@ -956,11 +827,8 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        try {
-            return this.positionDao.findBySecurityAndStrategy(securityId, strategyName);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.positionDao.findBySecurityAndStrategy(securityId, strategyName);
+
     }
 
     /**
@@ -971,23 +839,20 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        try {
-            if (strategyName.equals(StrategyImpl.BASE)) {
-                if (openPositions) {
-                    return (List<PositionVO>) this.positionDao.loadAll(PositionDao.TRANSFORM_POSITIONVO);
-                } else {
-                    return (List<PositionVO>) this.positionDao.findOpenPositions(PositionDao.TRANSFORM_POSITIONVO);
-                }
+        if (strategyName.equals(StrategyImpl.BASE)) {
+            if (openPositions) {
+                return (List<PositionVO>) this.positionDao.loadAll(PositionDao.TRANSFORM_POSITIONVO);
             } else {
-                if (openPositions) {
-                    return (List<PositionVO>) this.positionDao.findByStrategy(PositionDao.TRANSFORM_POSITIONVO, strategyName);
-                } else {
-                    return (List<PositionVO>) this.positionDao.findOpenPositionsByStrategy(PositionDao.TRANSFORM_POSITIONVO, strategyName);
-                }
+                return (List<PositionVO>) this.positionDao.findOpenPositions(PositionDao.TRANSFORM_POSITIONVO);
             }
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
+        } else {
+            if (openPositions) {
+                return (List<PositionVO>) this.positionDao.findByStrategy(PositionDao.TRANSFORM_POSITIONVO, strategyName);
+            } else {
+                return (List<PositionVO>) this.positionDao.findOpenPositionsByStrategy(PositionDao.TRANSFORM_POSITIONVO, strategyName);
+            }
         }
+
     }
 
     /**
@@ -996,11 +861,8 @@ public class LookupServiceImpl implements LookupService {
     @Override
     public List<Position> getOpenPositions() {
 
-        try {
-            return this.positionDao.findOpenPositions();
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.positionDao.findOpenPositions();
+
     }
 
     /**
@@ -1009,11 +871,8 @@ public class LookupServiceImpl implements LookupService {
     @Override
     public List<Position> getOpenTradeablePositions() {
 
-        try {
-            return this.positionDao.findOpenTradeablePositions();
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.positionDao.findOpenTradeablePositions();
+
     }
 
     /**
@@ -1024,11 +883,8 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        try {
-            return this.positionDao.findOpenPositionsByStrategy(strategyName);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.positionDao.findOpenPositionsByStrategy(strategyName);
+
     }
 
     /**
@@ -1039,11 +895,8 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        try {
-            return this.positionDao.findOpenTradeablePositionsByStrategy(strategyName);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.positionDao.findOpenTradeablePositionsByStrategy(strategyName);
+
     }
 
     /**
@@ -1052,11 +905,8 @@ public class LookupServiceImpl implements LookupService {
     @Override
     public List<Position> getOpenPositionsBySecurity(final int securityId) {
 
-        try {
-            return this.positionDao.findOpenPositionsBySecurity(securityId);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.positionDao.findOpenPositionsBySecurity(securityId);
+
     }
 
     /**
@@ -1068,12 +918,9 @@ public class LookupServiceImpl implements LookupService {
         Validate.notEmpty(strategyName, "Strategy name is empty");
         Validate.notNull(type, "Type is null");
 
-        try {
-            int discriminator = HibernateUtil.getDisriminatorValue(this.sessionFactory, type);
-            return this.positionDao.findOpenPositionsByStrategyAndType(strategyName, discriminator);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        int discriminator = HibernateUtil.getDisriminatorValue(this.sessionFactory, type);
+        return this.positionDao.findOpenPositionsByStrategyAndType(strategyName, discriminator);
+
     }
 
     /**
@@ -1086,13 +933,10 @@ public class LookupServiceImpl implements LookupService {
         Validate.notNull(type, "Type is null");
         Validate.notNull(underlyingType, "Underlying type is null");
 
-        try {
-            int discriminator = HibernateUtil.getDisriminatorValue(this.sessionFactory, type);
-            int underlyingDiscriminator = HibernateUtil.getDisriminatorValue(this.sessionFactory, underlyingType);
-            return this.positionDao.findOpenPositionsByStrategyTypeAndUnderlyingType(strategyName, discriminator, underlyingDiscriminator);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        int discriminator = HibernateUtil.getDisriminatorValue(this.sessionFactory, type);
+        int underlyingDiscriminator = HibernateUtil.getDisriminatorValue(this.sessionFactory, underlyingType);
+        return this.positionDao.findOpenPositionsByStrategyTypeAndUnderlyingType(strategyName, discriminator, underlyingDiscriminator);
+
     }
 
     /**
@@ -1103,11 +947,8 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        try {
-            return this.positionDao.findOpenPositionsByStrategyAndSecurityFamily(strategyName, securityFamilyId);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.positionDao.findOpenPositionsByStrategyAndSecurityFamily(strategyName, securityFamilyId);
+
     }
 
     /**
@@ -1116,11 +957,8 @@ public class LookupServiceImpl implements LookupService {
     @Override
     public List<Position> getOpenFXPositions() {
 
-        try {
-            return this.positionDao.findOpenFXPositions();
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.positionDao.findOpenFXPositions();
+
     }
 
     /**
@@ -1131,11 +969,8 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        try {
-            return this.positionDao.findOpenFXPositionsByStrategy(strategyName);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.positionDao.findOpenFXPositionsByStrategy(strategyName);
+
     }
 
     /**
@@ -1144,11 +979,8 @@ public class LookupServiceImpl implements LookupService {
     @Override
     public Transaction getTransaction(final int id) {
 
-        try {
-            return this.transactionDao.get(id);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.transactionDao.get(id);
+
     }
 
     /**
@@ -1160,11 +992,8 @@ public class LookupServiceImpl implements LookupService {
         Validate.notNull(minDate, "Min date is null");
         Validate.notNull(maxDate, "Max date is null");
 
-        try {
-            return this.transactionDao.findTradesByMinDateAndMaxDate(minDate, maxDate);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.transactionDao.findTradesByMinDateAndMaxDate(minDate, maxDate);
+
     }
 
     /**
@@ -1175,16 +1004,13 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        try {
-            int transactionDisplayCount = this.coreConfig.getTransactionDisplayCount();
-            if (strategyName.equals(StrategyImpl.BASE)) {
-                return (List<TransactionVO>) this.transactionDao.findTransactionsDesc(TransactionDao.TRANSFORM_TRANSACTIONVO, 1, transactionDisplayCount);
-            } else {
-                return (List<TransactionVO>) this.transactionDao.findTransactionsByStrategyDesc(TransactionDao.TRANSFORM_TRANSACTIONVO, 1, transactionDisplayCount, strategyName);
-            }
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
+        int transactionDisplayCount = this.coreConfig.getTransactionDisplayCount();
+        if (strategyName.equals(StrategyImpl.BASE)) {
+            return (List<TransactionVO>) this.transactionDao.findTransactionsDesc(TransactionDao.TRANSFORM_TRANSACTIONVO, 1, transactionDisplayCount);
+        } else {
+            return (List<TransactionVO>) this.transactionDao.findTransactionsByStrategyDesc(TransactionDao.TRANSFORM_TRANSACTIONVO, 1, transactionDisplayCount, strategyName);
         }
+
     }
 
     /**
@@ -1195,11 +1021,8 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        try {
-            return this.orderDao.findOpenOrdersByStrategy(strategyName);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.orderDao.findOpenOrdersByStrategy(strategyName);
+
     }
 
     /**
@@ -1210,11 +1033,8 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        try {
-            return this.orderDao.findOpenOrdersByStrategyAndSecurity(strategyName, securityId);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.orderDao.findOpenOrdersByStrategyAndSecurity(strategyName, securityId);
+
     }
 
     /**
@@ -1225,11 +1045,8 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(intId, "Int id is empty");
 
-        try {
-            return this.orderDao.findOpenOrderByIntId(intId);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.orderDao.findOpenOrderByIntId(intId);
+
     }
 
     /**
@@ -1240,11 +1057,8 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(intId, "Int id is empty");
 
-        try {
-            return this.orderDao.findOpenOrderByRootIntId(intId);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.orderDao.findOpenOrderByRootIntId(intId);
+
     }
 
     /**
@@ -1255,11 +1069,8 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(extId, "Ext id is empty");
 
-        try {
-            return this.orderDao.findOpenOrderByExtId(extId);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.orderDao.findOpenOrderByExtId(extId);
+
     }
 
     /**
@@ -1270,15 +1081,12 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        try {
-            if (strategyName.equals(StrategyImpl.BASE)) {
-                return this.orderStatusDao.findAllOrderStati();
-            } else {
-                return this.orderStatusDao.findOrderStatiByStrategy(strategyName);
-            }
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
+        if (strategyName.equals(StrategyImpl.BASE)) {
+            return this.orderStatusDao.findAllOrderStati();
+        } else {
+            return this.orderStatusDao.findOrderStatiByStrategy(strategyName);
         }
+
     }
 
     /**
@@ -1289,17 +1097,14 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(name, "Name is empty");
 
-        try {
-            OrderPreference orderPreference = this.orderPreferenceDao.findByName(name);
+        OrderPreference orderPreference = this.orderPreferenceDao.findByName(name);
 
-            if (orderPreference == null) {
-                throw new IllegalArgumentException("unknown OrderType or OrderPreference");
-            }
-
-            return orderPreference.createOrder();
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
+        if (orderPreference == null) {
+            throw new IllegalArgumentException("unknown OrderType or OrderPreference");
         }
+
+        return orderPreference.createOrder();
+
     }
 
     /**
@@ -1310,16 +1115,13 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        try {
-            DefaultOrderPreference defaultOrderPreference = this.defaultOrderPreferenceDao.findByStrategyAndSecurityFamilyInclOrderPreference(strategyName, securityFamilyId);
-            if (defaultOrderPreference == null) {
-                throw new IllegalStateException("no default order preference defined for securityFamilyId " + securityFamilyId + " and " + strategyName);
-            }
-
-            return defaultOrderPreference.getOrderPreference().createOrder();
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
+        DefaultOrderPreference defaultOrderPreference = this.defaultOrderPreferenceDao.findByStrategyAndSecurityFamilyInclOrderPreference(strategyName, securityFamilyId);
+        if (defaultOrderPreference == null) {
+            throw new LookupServiceException("No default order preference defined for securityFamilyId " + securityFamilyId + " and " + strategyName);
         }
+
+        return defaultOrderPreference.getOrderPreference().createOrder();
+
     }
 
     /**
@@ -1330,11 +1132,8 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(sessionQualifier, "Session qualifier is empty");
 
-        try {
-            return this.transactionDao.findLastIntOrderId(sessionQualifier);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.transactionDao.findLastIntOrderId(sessionQualifier);
+
     }
 
     /**
@@ -1345,11 +1144,8 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(accountName, "Account name is empty");
 
-        try {
-            return this.accountDao.findByName(accountName);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.accountDao.findByName(accountName);
+
     }
 
     /**
@@ -1360,11 +1156,8 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notNull(orderServiceType, "Order service type is null");
 
-        try {
-            return this.accountDao.findActiveSessionsByOrderServiceType(orderServiceType);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.accountDao.findActiveSessionsByOrderServiceType(orderServiceType);
+
     }
 
     /**
@@ -1373,17 +1166,14 @@ public class LookupServiceImpl implements LookupService {
     @Override
     public Tick getLastTick(final int securityId) {
 
-        try {
-            Tick tick = CollectionUtil.getSingleElementOrNull(this.tickDao.findTicksBySecurityAndMaxDate(1, 1, securityId, DateUtil.getCurrentEPTime(), this.coreConfig.getIntervalDays()));
+        Tick tick = CollectionUtil.getSingleElementOrNull(this.tickDao.findTicksBySecurityAndMaxDate(1, 1, securityId, DateUtil.getCurrentEPTime(), this.coreConfig.getIntervalDays()));
 
-            if (tick != null) {
-                tick.getSecurity().initialize();
-            }
-
-            return tick;
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
+        if (tick != null) {
+            tick.getSecurity().initialize();
         }
+
+        return tick;
+
     }
 
     /**
@@ -1394,11 +1184,8 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notNull(maxDate, "Max date is null");
 
-        try {
-            return this.tickDao.findTicksBySecurityAndMaxDate(securityId, maxDate, this.coreConfig.getIntervalDays());
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.tickDao.findTicksBySecurityAndMaxDate(securityId, maxDate, this.coreConfig.getIntervalDays());
+
     }
 
     /**
@@ -1409,11 +1196,8 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notNull(minDate, "Min date is null");
 
-        try {
-            return this.tickDao.findTicksBySecurityAndMinDate(securityId, minDate, this.coreConfig.getIntervalDays());
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.tickDao.findTicksBySecurityAndMinDate(securityId, minDate, this.coreConfig.getIntervalDays());
+
     }
 
     /**
@@ -1424,16 +1208,13 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notNull(time, "Time is null");
 
-        try {
-            List<Integer> ids = this.tickDao.findDailyTickIdsBeforeTime(securityId, time);
-            if (ids.size() > 0) {
-                return this.tickDao.findByIdsInclSecurityAndUnderlying(ids);
-            } else {
-                return new ArrayList<Tick>();
-            }
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
+        List<Integer> ids = this.tickDao.findDailyTickIdsBeforeTime(securityId, time);
+        if (ids.size() > 0) {
+            return this.tickDao.findByIdsInclSecurityAndUnderlying(ids);
+        } else {
+            return new ArrayList<Tick>();
         }
+
     }
 
     /**
@@ -1444,16 +1225,13 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notNull(time, "Time is null");
 
-        try {
-            List<Integer> ids = this.tickDao.findDailyTickIdsAfterTime(securityId, time);
-            if (ids.size() > 0) {
-                return this.tickDao.findByIdsInclSecurityAndUnderlying(ids);
-            } else {
-                return new ArrayList<Tick>();
-            }
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
+        List<Integer> ids = this.tickDao.findDailyTickIdsAfterTime(securityId, time);
+        if (ids.size() > 0) {
+            return this.tickDao.findByIdsInclSecurityAndUnderlying(ids);
+        } else {
+            return new ArrayList<Tick>();
         }
+
     }
 
     /**
@@ -1464,17 +1242,13 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notNull(minDate, "Min date is null");
 
-        try {
-
-            List<Integer> ids = this.tickDao.findHourlyTickIdsBeforeMinutesByMinDate(securityId, minutes, minDate);
-            if (ids.size() > 0) {
-                return this.tickDao.findByIdsInclSecurityAndUnderlying(ids);
-            } else {
-                return new ArrayList<Tick>();
-            }
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
+        List<Integer> ids = this.tickDao.findHourlyTickIdsBeforeMinutesByMinDate(securityId, minutes, minDate);
+        if (ids.size() > 0) {
+            return this.tickDao.findByIdsInclSecurityAndUnderlying(ids);
+        } else {
+            return new ArrayList<Tick>();
         }
+
     }
 
     /**
@@ -1485,16 +1259,13 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notNull(minDate, "Min date is null");
 
-        try {
-            List<Integer> ids = this.tickDao.findHourlyTickIdsAfterMinutesByMinDate(securityId, minutes, minDate);
-            if (ids.size() > 0) {
-                return this.tickDao.findByIdsInclSecurityAndUnderlying(ids);
-            } else {
-                return new ArrayList<Tick>();
-            }
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
+        List<Integer> ids = this.tickDao.findHourlyTickIdsAfterMinutesByMinDate(securityId, minutes, minDate);
+        if (ids.size() > 0) {
+            return this.tickDao.findByIdsInclSecurityAndUnderlying(ids);
+        } else {
+            return new ArrayList<Tick>();
         }
+
     }
 
     /**
@@ -1506,15 +1277,12 @@ public class LookupServiceImpl implements LookupService {
         Validate.notNull(startDate, "Start date is null");
         Validate.notNull(endDate, "End date is null");
 
-        try {
-            List<Tick> ticks = this.tickDao.findSubscribedByTimePeriod(startDate, endDate);
-            for (Tick tick : ticks) {
-                tick.getSecurity().initialize();
-            }
-            return ticks;
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
+        List<Tick> ticks = this.tickDao.findSubscribedByTimePeriod(startDate, endDate);
+        for (Tick tick : ticks) {
+            tick.getSecurity().initialize();
         }
+        return ticks;
+
     }
 
     /**
@@ -1523,11 +1291,8 @@ public class LookupServiceImpl implements LookupService {
     @Override
     public Tick getFirstSubscribedTick() {
 
-        try {
-            return CollectionUtil.getFirstElementOrNull(this.tickDao.findSubscribedByTimePeriod(1, 1, new Date(0), new Date(Long.MAX_VALUE)));
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return CollectionUtil.getFirstElementOrNull(this.tickDao.findSubscribedByTimePeriod(1, 1, new Date(0), new Date(Long.MAX_VALUE)));
+
     }
 
     /**
@@ -1538,11 +1303,8 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notNull(date, "Date is null");
 
-        try {
-            return this.tickDao.findBySecurityAndMaxDate(securityId, date);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.tickDao.findBySecurityAndMaxDate(securityId, date);
+
     }
 
     /**
@@ -1554,11 +1316,8 @@ public class LookupServiceImpl implements LookupService {
         Validate.notNull(fromDate, "From date is null");
         Validate.notNull(toDate, "To date is null");
 
-        try {
-            return this.barDao.findDailyBarsFromTicks(securityId, fromDate, toDate);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.barDao.findDailyBarsFromTicks(securityId, fromDate, toDate);
+
     }
 
     /**
@@ -1569,11 +1328,8 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notNull(barSize, "Bar size is null");
 
-        try {
-            return this.barDao.findBarsBySecurityAndBarSize(1, n, securityId, barSize);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.barDao.findBarsBySecurityAndBarSize(1, n, securityId, barSize);
+
     }
 
     /**
@@ -1585,11 +1341,8 @@ public class LookupServiceImpl implements LookupService {
         Validate.notNull(barSize, "Bar size is null");
         Validate.notNull(minDate, "Min date is null");
 
-        try {
-            return this.barDao.findBarsBySecurityBarSizeAndMinDate(securityId, barSize, minDate);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.barDao.findBarsBySecurityBarSizeAndMinDate(securityId, barSize, minDate);
+
     }
 
     /**
@@ -1602,15 +1355,12 @@ public class LookupServiceImpl implements LookupService {
         Validate.notNull(endDate, "End date is null");
         Validate.notNull(barSize, "Bar size is null");
 
-        try {
-            List<Bar> bars = this.barDao.findSubscribedByTimePeriodAndBarSize(startDate, endDate, barSize);
-            for (Bar bar : bars) {
-                bar.getSecurity().initialize();
-            }
-            return bars;
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
+        List<Bar> bars = this.barDao.findSubscribedByTimePeriodAndBarSize(startDate, endDate, barSize);
+        for (Bar bar : bars) {
+            bar.getSecurity().initialize();
         }
+        return bars;
+
     }
 
     /**
@@ -1621,11 +1371,8 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notNull(barSize, "Bar size is null");
 
-        try {
-            return CollectionUtil.getFirstElementOrNull(this.barDao.findSubscribedByTimePeriodAndBarSize(1, 1, new Date(0), new Date(Long.MAX_VALUE), barSize));
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return CollectionUtil.getFirstElementOrNull(this.barDao.findSubscribedByTimePeriodAndBarSize(1, 1, new Date(0), new Date(Long.MAX_VALUE), barSize));
+
     }
 
     /**
@@ -1637,11 +1384,8 @@ public class LookupServiceImpl implements LookupService {
         Validate.notNull(baseCurrency, "Base currency is null");
         Validate.notNull(transactionCurrency, "Transaction currency is null");
 
-        try {
-            return this.forexDao.getForex(baseCurrency, transactionCurrency);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.forexDao.getForex(baseCurrency, transactionCurrency);
+
     }
 
     /**
@@ -1653,11 +1397,8 @@ public class LookupServiceImpl implements LookupService {
         Validate.notNull(baseCurrency, "Base currency is null");
         Validate.notNull(transactionCurrency, "Transaction currency is null");
 
-        try {
-            return this.forexDao.getRateDouble(baseCurrency, transactionCurrency);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.forexDao.getRateDouble(baseCurrency, transactionCurrency);
+
     }
 
     /**
@@ -1670,11 +1411,8 @@ public class LookupServiceImpl implements LookupService {
         Validate.notNull(transactionCurrency, "Transaction currency is null");
         Validate.notNull(date, "Date is null");
 
-        try {
-            return this.forexDao.getRateDoubleByDate(baseCurrency, transactionCurrency, date);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.forexDao.getRateDoubleByDate(baseCurrency, transactionCurrency, date);
+
     }
 
     /**
@@ -1686,11 +1424,8 @@ public class LookupServiceImpl implements LookupService {
         Validate.notNull(currency, "Currency is null");
         Validate.notNull(duration, "Duration is null");
 
-        try {
-            return this.intrestRateDao.findByCurrencyAndDuration(currency, duration);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.intrestRateDao.findByCurrencyAndDuration(currency, duration);
+
     }
 
     /**
@@ -1703,18 +1438,15 @@ public class LookupServiceImpl implements LookupService {
         Validate.notNull(duration, "Duration is null");
         Validate.notNull(date, "Date is null");
 
-        try {
-            IntrestRate intrestRate = this.intrestRateDao.findByCurrencyAndDuration(currency, duration);
+        IntrestRate intrestRate = this.intrestRateDao.findByCurrencyAndDuration(currency, duration);
 
-            List<Tick> ticks = this.tickDao.findTicksBySecurityAndMaxDate(1, 1, intrestRate.getId(), date, this.coreConfig.getIntervalDays());
-            if (ticks.isEmpty()) {
-                throw new IllegalStateException("cannot get intrestRate for " + currency + " and duration " + duration + " because no last tick is available for date " + date);
-            }
-
-            return CollectionUtil.getFirstElement(ticks).getCurrentValueDouble();
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
+        List<Tick> ticks = this.tickDao.findTicksBySecurityAndMaxDate(1, 1, intrestRate.getId(), date, this.coreConfig.getIntervalDays());
+        if (ticks.isEmpty()) {
+            throw new LookupServiceException("Cannot get intrestRate for " + currency + " and duration " + duration + " because no last tick is available for date " + date);
         }
+
+        return CollectionUtil.getFirstElement(ticks).getCurrentValueDouble();
+
     }
 
     /**
@@ -1723,11 +1455,8 @@ public class LookupServiceImpl implements LookupService {
     @Override
     public Collection<Currency> getHeldCurrencies() {
 
-        try {
-            return this.cashBalanceDao.findHeldCurrencies();
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.cashBalanceDao.findHeldCurrencies();
+
     }
 
     /**
@@ -1738,11 +1467,8 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notNull(strategyName, "Strategy name is null");
 
-        try {
-            return this.cashBalanceDao.findCashBalancesByStrategy(strategyName);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.cashBalanceDao.findCashBalancesByStrategy(strategyName);
+
     }
 
     /**
@@ -1755,13 +1481,10 @@ public class LookupServiceImpl implements LookupService {
         Validate.notNull(name, "Name is null");
         Validate.notNull(maxDate, "Max date is null");
 
-        try {
-            List<Measurement> measurements = this.measurementDao.findMeasurementsByMaxDate(strategyName, name, maxDate);
+        List<Measurement> measurements = this.measurementDao.findMeasurementsByMaxDate(strategyName, name, maxDate);
 
-            return getValuesByDate(measurements);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return getValuesByDate(measurements);
+
     }
 
     /**
@@ -1773,13 +1496,10 @@ public class LookupServiceImpl implements LookupService {
         Validate.notNull(strategyName, "Strategy name is null");
         Validate.notNull(maxDate, "Max date is null");
 
-        try {
-            List<Measurement> measurements = this.measurementDao.findAllMeasurementsByMaxDate(strategyName, maxDate);
+        List<Measurement> measurements = this.measurementDao.findAllMeasurementsByMaxDate(strategyName, maxDate);
 
-            return getNameValuePairsByDate(measurements);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return getNameValuePairsByDate(measurements);
+
     }
 
     /**
@@ -1792,13 +1512,10 @@ public class LookupServiceImpl implements LookupService {
         Validate.notNull(name, "Name is null");
         Validate.notNull(minDate, "Min date is null");
 
-        try {
-            List<Measurement> measurements = this.measurementDao.findMeasurementsByMinDate(strategyName, name, minDate);
+        List<Measurement> measurements = this.measurementDao.findMeasurementsByMinDate(strategyName, name, minDate);
 
-            return getValuesByDate(measurements);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return getValuesByDate(measurements);
+
     }
 
     /**
@@ -1810,13 +1527,10 @@ public class LookupServiceImpl implements LookupService {
         Validate.notNull(strategyName, "Strategy name is null");
         Validate.notNull(minDate, "Min date is null");
 
-        try {
-            List<Measurement> measurements = this.measurementDao.findAllMeasurementsByMinDate(strategyName, minDate);
+        List<Measurement> measurements = this.measurementDao.findAllMeasurementsByMinDate(strategyName, minDate);
 
-            return getNameValuePairsByDate(measurements);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return getNameValuePairsByDate(measurements);
+
     }
 
     /**
@@ -1829,12 +1543,9 @@ public class LookupServiceImpl implements LookupService {
         Validate.notNull(name, "Name is null");
         Validate.notNull(maxDate, "Max date is null");
 
-        try {
-            Measurement measurement = CollectionUtil.getSingleElementOrNull(this.measurementDao.findMeasurementsByMaxDate(1, 1, strategyName, name, maxDate));
-            return measurement != null ? measurement.getValue() : null;
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        Measurement measurement = CollectionUtil.getSingleElementOrNull(this.measurementDao.findMeasurementsByMaxDate(1, 1, strategyName, name, maxDate));
+        return measurement != null ? measurement.getValue() : null;
+
     }
 
     /**
@@ -1847,12 +1558,9 @@ public class LookupServiceImpl implements LookupService {
         Validate.notNull(name, "Name is null");
         Validate.notNull(minDate, "Min date is null");
 
-        try {
-            Measurement measurement = CollectionUtil.getSingleElementOrNull(this.measurementDao.findMeasurementsByMinDate(1, 1, strategyName, name, minDate));
-            return measurement != null ? measurement.getValue() : null;
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        Measurement measurement = CollectionUtil.getSingleElementOrNull(this.measurementDao.findMeasurementsByMinDate(1, 1, strategyName, name, minDate));
+        return measurement != null ? measurement.getValue() : null;
+
     }
 
     /**
@@ -1864,11 +1572,8 @@ public class LookupServiceImpl implements LookupService {
         Validate.notNull(date, "Date is null");
         Validate.notNull(broker, "Broker is null");
 
-        try {
-            return this.easyToBorrowDao.findByDateAndBroker(date, broker);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.easyToBorrowDao.findByDateAndBroker(date, broker);
+
     }
 
     /**
@@ -1877,11 +1582,8 @@ public class LookupServiceImpl implements LookupService {
     @Override
     public Date getCurrentDBTime() {
 
-        try {
-            return this.strategyDao.findCurrentDBTime();
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.strategyDao.findCurrentDBTime();
+
     }
 
     /**
@@ -1892,11 +1594,8 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(query, "Query is empty");
 
-        try {
-            return this.genericDao.find(query);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.genericDao.find(query);
+
     }
 
     /**
@@ -1908,11 +1607,8 @@ public class LookupServiceImpl implements LookupService {
         Validate.notEmpty(query, "Query is empty");
         Validate.notNull(namedParameters, "Named parameters is null");
 
-        try {
-            return this.genericDao.find(query, namedParameters);
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
-        }
+        return this.genericDao.find(query, namedParameters);
+
     }
 
     /**
@@ -1921,34 +1617,31 @@ public class LookupServiceImpl implements LookupService {
     @Override
     public void initSecurityStrings() {
 
-        try {
-            for (Security security : this.securityDao.findSubscribedForAutoActivateStrategies()) {
+        for (Security security : this.securityDao.findSubscribedForAutoActivateStrategies()) {
 
-                this.securityIdMap.put(Integer.toString(security.getId()), security.getId());
+            this.securityIdMap.put(Integer.toString(security.getId()), security.getId());
 
-                if (security.getSymbol() != null) {
-                    this.securitySymbolMap.put(security.getSymbol(), security.getId());
-                }
-
-                if (security.getIsin() != null) {
-                    this.securityIsinMap.put(security.getIsin(), security.getId());
-                }
-
-                if (security.getBbgid() != null) {
-                    this.securityBbgidMap.put(security.getBbgid(), security.getId());
-                }
-
-                if (security.getRic() != null) {
-                    this.securityRicMap.put(security.getRic(), security.getId());
-                }
-
-                if (security.getConid() != null) {
-                    this.securityConidMap.put(security.getConid(), security.getId());
-                }
+            if (security.getSymbol() != null) {
+                this.securitySymbolMap.put(security.getSymbol(), security.getId());
             }
-        } catch (Exception ex) {
-            throw new LookupServiceException(ex.getMessage(), ex);
+
+            if (security.getIsin() != null) {
+                this.securityIsinMap.put(security.getIsin(), security.getId());
+            }
+
+            if (security.getBbgid() != null) {
+                this.securityBbgidMap.put(security.getBbgid(), security.getId());
+            }
+
+            if (security.getRic() != null) {
+                this.securityRicMap.put(security.getRic(), security.getId());
+            }
+
+            if (security.getConid() != null) {
+                this.securityConidMap.put(security.getConid(), security.getId());
+            }
         }
+
     }
 
     private Map<Date, Object> getValuesByDate(List<Measurement> measurements) {

@@ -22,9 +22,13 @@ package ch.algotrader.service;
  *
  * @version $Revision$ $Date$
  */
-public class CashBalanceServiceException extends RuntimeException {
+public class CashBalanceServiceException extends ServiceException {
 
     private static final long serialVersionUID = -9140182285979042278L;
+
+    public CashBalanceServiceException(Exception ex) {
+        super(ex);
+    }
 
     public CashBalanceServiceException(String message, Exception ex) {
         super(message, ex);

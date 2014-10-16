@@ -63,11 +63,8 @@ public class MeasurementServiceImpl implements MeasurementService {
         Validate.notEmpty(name, "Name is empty");
         Validate.notNull(value, "Value is null");
 
-        try {
-            return createMeasurement(strategyName, name, DateUtil.getCurrentEPTime(), value);
-        } catch (Exception ex) {
-            throw new MeasurementServiceException(ex.getMessage(), ex);
-        }
+        return createMeasurement(strategyName, name, DateUtil.getCurrentEPTime(), value);
+
     }
 
     /**
@@ -82,32 +79,29 @@ public class MeasurementServiceImpl implements MeasurementService {
         Validate.notNull(date, "Date is null");
         Validate.notNull(value, "Value is null");
 
-        try {
-            Strategy strategy = this.strategyDao.findByName(strategyName);
+        Strategy strategy = this.strategyDao.findByName(strategyName);
 
-            // find out if there is a measurement for specified strategyName, type and date
-            Measurement measurement = this.measurementDao.findMeasurementByDate(strategyName, name, date);
+        // find out if there is a measurement for specified strategyName, type and date
+        Measurement measurement = this.measurementDao.findMeasurementByDate(strategyName, name, date);
 
-            if (measurement == null) {
+        if (measurement == null) {
 
-                measurement = Measurement.Factory.newInstance();
+            measurement = Measurement.Factory.newInstance();
 
-                measurement.setStrategy(strategy);
-                measurement.setName(name);
-                measurement.setDateTime(date);
-                measurement.setValue(value);
+            measurement.setStrategy(strategy);
+            measurement.setName(name);
+            measurement.setDateTime(date);
+            measurement.setValue(value);
 
-                this.measurementDao.create(measurement);
+            this.measurementDao.create(measurement);
 
-            } else {
+        } else {
 
-                measurement.setValue(value);
-            }
-
-            return measurement;
-        } catch (Exception ex) {
-            throw new MeasurementServiceException(ex.getMessage(), ex);
+            measurement.setValue(value);
         }
+
+        return measurement;
+
     }
 
     /**
@@ -117,10 +111,7 @@ public class MeasurementServiceImpl implements MeasurementService {
     @Transactional(propagation = Propagation.REQUIRED)
     public void deleteMeasurement(final int measurementId) {
 
-        try {
-            this.measurementDao.remove(measurementId);
-        } catch (Exception ex) {
-            throw new MeasurementServiceException(ex.getMessage(), ex);
-        }
+        this.measurementDao.remove(measurementId);
+
     }
 }

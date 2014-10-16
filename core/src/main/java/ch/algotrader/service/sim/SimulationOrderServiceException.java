@@ -17,14 +17,20 @@
  ***********************************************************************************/
 package ch.algotrader.service.sim;
 
+import ch.algotrader.service.ServiceException;
+
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class SimulationOrderServiceException extends RuntimeException {
+public class SimulationOrderServiceException extends ServiceException {
 
     private static final long serialVersionUID = 5743404523414484776L;
+
+    public SimulationOrderServiceException(Exception ex) {
+        super(ex);
+    }
 
     public SimulationOrderServiceException(String message, Exception ex) {
         super(message, ex);

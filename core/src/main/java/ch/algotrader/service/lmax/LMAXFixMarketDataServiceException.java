@@ -17,14 +17,20 @@
  ***********************************************************************************/
 package ch.algotrader.service.lmax;
 
+import ch.algotrader.service.ServiceException;
+
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class LMAXFixMarketDataServiceException extends RuntimeException {
+public class LMAXFixMarketDataServiceException extends ServiceException {
 
     private static final long serialVersionUID = -9021403144790483093L;
+
+    public LMAXFixMarketDataServiceException(Exception ex) {
+        super(ex);
+    }
 
     public LMAXFixMarketDataServiceException(String message, Exception ex) {
         super(message, ex);

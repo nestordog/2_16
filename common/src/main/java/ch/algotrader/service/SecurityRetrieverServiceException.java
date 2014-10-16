@@ -22,7 +22,7 @@ package ch.algotrader.service;
  *
  * @version $Revision$ $Date$
  */
-public class SecurityRetrieverServiceException extends RuntimeException {
+public class SecurityRetrieverServiceException extends ServiceException {
 
     private static final long serialVersionUID = -5144094589383269753L;
 

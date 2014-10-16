@@ -63,40 +63,37 @@ public class SimulationOrderServiceImpl extends ExternalOrderServiceImpl impleme
 
         Validate.notNull(order, "Order is null");
 
-        try {
-            // create one fill per order
-            Fill fill = Fill.Factory.newInstance();
-            fill.setDateTime(DateUtil.getCurrentEPTime());
-            fill.setExtDateTime(DateUtil.getCurrentEPTime());
-            fill.setSide(order.getSide());
-            fill.setQuantity(order.getQuantity());
-            fill.setPrice(getPrice(order));
-            fill.setOrder(order);
-            fill.setExecutionCommission(getExecutionCommission(order));
-            fill.setClearingCommission(getClearingCommission(order));
-            fill.setFee(getFee(order));
+        // create one fill per order
+        Fill fill = Fill.Factory.newInstance();
+        fill.setDateTime(DateUtil.getCurrentEPTime());
+        fill.setExtDateTime(DateUtil.getCurrentEPTime());
+        fill.setSide(order.getSide());
+        fill.setQuantity(order.getQuantity());
+        fill.setPrice(getPrice(order));
+        fill.setOrder(order);
+        fill.setExecutionCommission(getExecutionCommission(order));
+        fill.setClearingCommission(getClearingCommission(order));
+        fill.setFee(getFee(order));
 
-            // propagate the fill
-            this.transactionService.propagateFill(fill);
+        // propagate the fill
+        this.transactionService.propagateFill(fill);
 
-            // create the transaction
-            this.transactionService.createTransaction(fill);
+        // create the transaction
+        this.transactionService.createTransaction(fill);
 
-            // create and OrderStatus
-            OrderStatus orderStatus = OrderStatus.Factory.newInstance();
-            orderStatus.setStatus(Status.EXECUTED);
-            orderStatus.setFilledQuantity(order.getQuantity());
-            orderStatus.setRemainingQuantity(0);
-            orderStatus.setOrder(order);
+        // create and OrderStatus
+        OrderStatus orderStatus = OrderStatus.Factory.newInstance();
+        orderStatus.setStatus(Status.EXECUTED);
+        orderStatus.setFilledQuantity(order.getQuantity());
+        orderStatus.setRemainingQuantity(0);
+        orderStatus.setOrder(order);
 
-            // send the orderStatus to base
-            EngineLocator.instance().getBaseEngine().sendEvent(orderStatus);
+        // send the orderStatus to base
+        EngineLocator.instance().getBaseEngine().sendEvent(orderStatus);
 
-            // propagate the OrderStatus to the strategy
-            this.orderService.propagateOrderStatus(orderStatus);
-        } catch (Exception ex) {
-            throw new SimulationOrderServiceException(ex.getMessage(), ex);
-        }
+        // propagate the OrderStatus to the strategy
+        this.orderService.propagateOrderStatus(orderStatus);
+
     }
 
     /**
@@ -107,23 +104,20 @@ public class SimulationOrderServiceImpl extends ExternalOrderServiceImpl impleme
 
         Validate.notNull(order, "Order is null");
 
-        try {
-            if (order instanceof LimitOrderI) {
+        if (order instanceof LimitOrderI) {
 
-                // limit orders are executed at their limit price
-                return ((LimitOrderI) order).getLimit();
+            // limit orders are executed at their limit price
+            return ((LimitOrderI) order).getLimit();
 
-            } else {
+        } else {
 
-                Security security = order.getSecurity();
+            Security security = order.getSecurity();
 
-                // all other orders are executed the the market
-                return security.getCurrentMarketDataEvent().getMarketValue(Side.BUY.equals(order.getSide()) ? Direction.SHORT : Direction.LONG)
-                        .setScale(security.getSecurityFamily().getScale(), BigDecimal.ROUND_HALF_UP);
-            }
-        } catch (Exception ex) {
-            throw new SimulationOrderServiceException(ex.getMessage(), ex);
+            // all other orders are executed the the market
+            return security.getCurrentMarketDataEvent().getMarketValue(Side.BUY.equals(order.getSide()) ? Direction.SHORT : Direction.LONG)
+                    .setScale(security.getSecurityFamily().getScale(), BigDecimal.ROUND_HALF_UP);
         }
+
     }
 
     /**
@@ -134,11 +128,8 @@ public class SimulationOrderServiceImpl extends ExternalOrderServiceImpl impleme
 
         Validate.notNull(order, "Order is null");
 
-        try {
-            return null;
-        } catch (Exception ex) {
-            throw new SimulationOrderServiceException(ex.getMessage(), ex);
-        }
+        return null;
+
     }
 
     /**
@@ -149,11 +140,8 @@ public class SimulationOrderServiceImpl extends ExternalOrderServiceImpl impleme
 
         Validate.notNull(order, "Order is null");
 
-        try {
-            return null;
-        } catch (Exception ex) {
-            throw new SimulationOrderServiceException(ex.getMessage(), ex);
-        }
+        return null;
+
     }
 
     /**
@@ -164,11 +152,8 @@ public class SimulationOrderServiceImpl extends ExternalOrderServiceImpl impleme
 
         Validate.notNull(order, "Order is null");
 
-        try {
-            return null;
-        } catch (Exception ex) {
-            throw new SimulationOrderServiceException(ex.getMessage(), ex);
-        }
+        return null;
+
     }
 
     /**

@@ -17,14 +17,20 @@
  ***********************************************************************************/
 package ch.algotrader.service.jpm;
 
+import ch.algotrader.service.ServiceException;
+
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class JPMFixOrderServiceException extends RuntimeException {
+public class JPMFixOrderServiceException extends ServiceException {
 
     private static final long serialVersionUID = -5625963639054509386L;
+
+    public JPMFixOrderServiceException(Exception ex) {
+        super(ex);
+    }
 
     public JPMFixOrderServiceException(String message, Exception ex) {
         super(message, ex);

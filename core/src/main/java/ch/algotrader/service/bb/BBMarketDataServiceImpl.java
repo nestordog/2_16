@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.service.bb;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -79,12 +80,16 @@ public class BBMarketDataServiceImpl extends ExternalMarketDataServiceImpl imple
 
         try {
             session = this.bBAdapter.getMarketDataSession();
-
-            // by this time the session is up and running, so no need to do this inside the messageHandler
-            initSubscriptions();
-        } catch (Exception ex) {
-            throw new BBMarketDataServiceException(ex.getMessage(), ex);
+        } catch (IOException ex) {
+            throw new BBMarketDataServiceException(ex);
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+            throw new BBMarketDataServiceException(ex);
         }
+
+        // by this time the session is up and running, so no need to do this inside the messageHandler
+        initSubscriptions();
+
     }
 
     @Override
@@ -92,35 +97,36 @@ public class BBMarketDataServiceImpl extends ExternalMarketDataServiceImpl imple
 
         Validate.notNull(security, "Security is null");
 
-        try {
-            if (!session.isRunning()) {
-                throw new IBNativeMarketDataServiceException("Bloomberg session is not running to subscribe " + security);
-            }
-
-            // make sure SecurityFamily is initialized
-            security.getSecurityFamilyInitialized();
-
-            // create the SubscribeTickEvent (must happen before reqMktData so that Esper is ready to receive marketdata)
-            String tickerId = BBIdGenerator.getInstance().getNextRequestId();
-            Tick tick = Tick.Factory.newInstance();
-            tick.setSecurity(security);
-            tick.setFeedType(FeedType.BB);
-
-            // create the SubscribeTickEvent and propagate it
-            SubscribeTickVO subscribeTickEvent = new SubscribeTickVO();
-            subscribeTickEvent.setTick(tick);
-            subscribeTickEvent.setTickerId(tickerId);
-
-            EngineLocator.instance().getBaseEngine().sendEvent(subscribeTickEvent);
-
-            SubscriptionList subscriptions = getSubscriptionList(security, tickerId);
-
-            session.subscribe(subscriptions);
-
-            logger.debug("requested market data for: " + security + " tickerId: " + tickerId);
-        } catch (Exception ex) {
-            throw new BBMarketDataServiceException(ex.getMessage(), ex);
+        if (!session.isRunning()) {
+            throw new IBNativeMarketDataServiceException("Bloomberg session is not running to subscribe " + security);
         }
+
+        // make sure SecurityFamily is initialized
+        security.getSecurityFamilyInitialized();
+
+        // create the SubscribeTickEvent (must happen before reqMktData so that Esper is ready to receive marketdata)
+        String tickerId = BBIdGenerator.getInstance().getNextRequestId();
+        Tick tick = Tick.Factory.newInstance();
+        tick.setSecurity(security);
+        tick.setFeedType(FeedType.BB);
+
+        // create the SubscribeTickEvent and propagate it
+        SubscribeTickVO subscribeTickEvent = new SubscribeTickVO();
+        subscribeTickEvent.setTick(tick);
+        subscribeTickEvent.setTickerId(tickerId);
+
+        EngineLocator.instance().getBaseEngine().sendEvent(subscribeTickEvent);
+
+        SubscriptionList subscriptions = getSubscriptionList(security, tickerId);
+
+        try {
+            session.subscribe(subscriptions);
+        } catch (IOException ex) {
+            throw new BBMarketDataServiceException(ex);
+        }
+
+        logger.debug("requested market data for: " + security + " tickerId: " + tickerId);
+
     }
 
     @Override
@@ -128,27 +134,28 @@ public class BBMarketDataServiceImpl extends ExternalMarketDataServiceImpl imple
 
         Validate.notNull(security, "Security is null");
 
-        try {
-            if (!session.isRunning()) {
-                throw new IBNativeMarketDataServiceException("Bloomberg session is not running to unsubscribe " + security);
-            }
-
-            // get the tickerId by querying the TickWindow
-            String tickerId = this.tickDao.findTickerIdBySecurity(security.getId());
-            if (tickerId == null) {
-                throw new IBNativeMarketDataServiceException("tickerId for security " + security + " was not found");
-            }
-
-            SubscriptionList subscriptions = getSubscriptionList(security, tickerId);
-
-            session.unsubscribe(subscriptions);
-
-            EngineLocator.instance().getBaseEngine().executeQuery("delete from TickWindow where security.id = " + security.getId());
-
-            logger.debug("cancelled market data for : " + security);
-        } catch (Exception ex) {
-            throw new BBMarketDataServiceException(ex.getMessage(), ex);
+        if (!session.isRunning()) {
+            throw new IBNativeMarketDataServiceException("Bloomberg session is not running to unsubscribe " + security);
         }
+
+        // get the tickerId by querying the TickWindow
+        String tickerId = this.tickDao.findTickerIdBySecurity(security.getId());
+        if (tickerId == null) {
+            throw new IBNativeMarketDataServiceException("tickerId for security " + security + " was not found");
+        }
+
+        SubscriptionList subscriptions = getSubscriptionList(security, tickerId);
+
+        try {
+            session.unsubscribe(subscriptions);
+        } catch (IOException ex) {
+            throw new BBMarketDataServiceException(ex);
+        }
+
+        EngineLocator.instance().getBaseEngine().executeQuery("delete from TickWindow where security.id = " + security.getId());
+
+        logger.debug("cancelled market data for : " + security);
+
     }
 
     private SubscriptionList getSubscriptionList(Security security, String tickerId) {

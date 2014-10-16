@@ -62,26 +62,22 @@ public abstract class Fix42OrderServiceImpl extends FixOrderServiceImpl implemen
 
         Validate.notNull(order, "Order is null");
 
-        try {
+        String clOrdID = order.getIntId();
+        if (clOrdID == null) {
 
-            String clOrdID = order.getIntId();
-            if (clOrdID == null) {
-
-                // assign a new clOrdID
-                clOrdID = getFixAdapter().getNextOrderId(order.getAccount());
-                order.setIntId(clOrdID);
-            }
-
-            NewOrderSingle message = this.messageFactory.createNewOrderMessage(order, clOrdID);
-
-            // broker-specific settings
-            sendOrder(order, message);
-
-            // send the message
-            sendOrder(order, message, true);
-        } catch (Exception ex) {
-            throw new Fix42OrderServiceException(ex.getMessage(), ex);
+            // assign a new clOrdID
+            clOrdID = getFixAdapter().getNextOrderId(order.getAccount());
+            order.setIntId(clOrdID);
         }
+
+        NewOrderSingle message = this.messageFactory.createNewOrderMessage(order, clOrdID);
+
+        // broker-specific settings
+        sendOrder(order, message);
+
+        // send the message
+        sendOrder(order, message, true);
+
     }
 
     @Override
@@ -89,21 +85,17 @@ public abstract class Fix42OrderServiceImpl extends FixOrderServiceImpl implemen
 
         Validate.notNull(order, "Order is null");
 
-        try {
+        // assign a new clOrdID
+        String clOrdID = getFixAdapter().getNextOrderIdVersion(order);
 
-            // assign a new clOrdID
-            String clOrdID = getFixAdapter().getNextOrderIdVersion(order);
+        OrderCancelReplaceRequest replaceRequest = this.messageFactory.createModifyOrderMessage(order, clOrdID);
 
-            OrderCancelReplaceRequest replaceRequest = this.messageFactory.createModifyOrderMessage(order, clOrdID);
+        // broker-specific settings
+        modifyOrder(order, replaceRequest);
 
-            // broker-specific settings
-            modifyOrder(order, replaceRequest);
+        // send the message
+        sendOrder(order, replaceRequest, true);
 
-            // send the message
-            sendOrder(order, replaceRequest, true);
-        } catch (Exception ex) {
-            throw new Fix42OrderServiceException(ex.getMessage(), ex);
-        }
     }
 
     @Override
@@ -111,21 +103,17 @@ public abstract class Fix42OrderServiceImpl extends FixOrderServiceImpl implemen
 
         Validate.notNull(order, "Order is null");
 
-        try {
+        // assign a new clOrdID
+        String clOrdID = getFixAdapter().getNextOrderIdVersion(order);
 
-            // assign a new clOrdID
-            String clOrdID = getFixAdapter().getNextOrderIdVersion(order);
+        OrderCancelRequest cancelRequest = this.messageFactory.createOrderCancelMessage(order, clOrdID);
 
-            OrderCancelRequest cancelRequest = this.messageFactory.createOrderCancelMessage(order, clOrdID);
+        // broker-specific settings
+        cancelOrder(order, cancelRequest);
 
-            // broker-specific settings
-            cancelOrder(order, cancelRequest);
+        // send the message
+        sendOrder(order, cancelRequest, false);
 
-            // send the message
-            sendOrder(order, cancelRequest, false);
-        } catch (Exception ex) {
-            throw new Fix42OrderServiceException(ex.getMessage(), ex);
-        }
     }
 
     /**

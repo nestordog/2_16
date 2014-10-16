@@ -28,7 +28,6 @@ import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.service.ExternalMarketDataServiceImpl;
 import ch.algotrader.service.InitializingServiceI;
-import ch.algotrader.service.ib.IBNativeMarketDataServiceException;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.vo.SubscribeTickVO;
 
@@ -73,23 +72,16 @@ public abstract class FixMarketDataServiceImpl extends ExternalMarketDataService
     @Override
     public void init() {
 
-        try {
-            this.fixAdapter.createSession(getSessionQualifier());
-        } catch (Exception ex) {
-            throw new FixMarketDataServiceException(ex.getMessage(), ex);
-        }
+        this.fixAdapter.createSession(getSessionQualifier());
     }
 
     @Override
     public void initSubscriptions() {
 
-        try {
-            if (this.lifeCycle.subscribe()) {
-                super.initSubscriptions();
-            }
-        } catch (Exception ex) {
-            throw new FixMarketDataServiceException(ex.getMessage(), ex);
+        if (this.lifeCycle.subscribe()) {
+            super.initSubscriptions();
         }
+
     }
 
     @Override
@@ -97,34 +89,31 @@ public abstract class FixMarketDataServiceImpl extends ExternalMarketDataService
 
         Validate.notNull(security, "Security is null");
 
-        try {
-            if (!this.lifeCycle.isLoggedOn()) {
-                throw new FixMarketDataServiceException("Fix session is not logged on to subscribe " + security);
-            }
-
-            // make sure SecurityFamily is initialized
-            security.getSecurityFamilyInitialized();
-
-            // create the SubscribeTickEvent (must happen before reqMktData so that Esper is ready to receive marketdata)
-            Tick tick = Tick.Factory.newInstance();
-            tick.setSecurity(security);
-            tick.setFeedType(getFeedType());
-
-            String tickerId = getTickerId(security);
-
-            // create the SubscribeTickEvent and propagate it
-            SubscribeTickVO subscribeTickEvent = new SubscribeTickVO();
-            subscribeTickEvent.setTick(tick);
-            subscribeTickEvent.setTickerId(tickerId);
-
-            EngineLocator.instance().getBaseEngine().sendEvent(subscribeTickEvent);
-
-            sendSubscribeRequest(security);
-
-            logger.debug("request market data for : " + security);
-        } catch (Exception ex) {
-            throw new FixMarketDataServiceException(ex.getMessage(), ex);
+        if (!this.lifeCycle.isLoggedOn()) {
+            throw new FixMarketDataServiceException("Fix session is not logged on to subscribe " + security);
         }
+
+        // make sure SecurityFamily is initialized
+        security.getSecurityFamilyInitialized();
+
+        // create the SubscribeTickEvent (must happen before reqMktData so that Esper is ready to receive marketdata)
+        Tick tick = Tick.Factory.newInstance();
+        tick.setSecurity(security);
+        tick.setFeedType(getFeedType());
+
+        String tickerId = getTickerId(security);
+
+        // create the SubscribeTickEvent and propagate it
+        SubscribeTickVO subscribeTickEvent = new SubscribeTickVO();
+        subscribeTickEvent.setTick(tick);
+        subscribeTickEvent.setTickerId(tickerId);
+
+        EngineLocator.instance().getBaseEngine().sendEvent(subscribeTickEvent);
+
+        sendSubscribeRequest(security);
+
+        logger.debug("request market data for : " + security);
+
     }
 
     @Override
@@ -132,19 +121,16 @@ public abstract class FixMarketDataServiceImpl extends ExternalMarketDataService
 
         Validate.notNull(security, "Security is null");
 
-        try {
-            if (!this.lifeCycle.isSubscribed()) {
-                throw new IBNativeMarketDataServiceException("Fix session ist not subscribed, security cannot be unsubscribed " + security);
-            }
-
-            sendUnsubscribeRequest(security);
-
-            EngineLocator.instance().getBaseEngine().executeQuery("delete from TickWindow where security.id = " + security.getId());
-
-            logger.debug("cancelled market data for : " + security);
-        } catch (Exception ex) {
-            throw new FixMarketDataServiceException(ex.getMessage(), ex);
+        if (!this.lifeCycle.isSubscribed()) {
+            throw new FixMarketDataServiceException("Fix session ist not subscribed, security cannot be unsubscribed " + security);
         }
+
+        sendUnsubscribeRequest(security);
+
+        EngineLocator.instance().getBaseEngine().executeQuery("delete from TickWindow where security.id = " + security.getId());
+
+        logger.debug("cancelled market data for : " + security);
+
     }
 
     /**

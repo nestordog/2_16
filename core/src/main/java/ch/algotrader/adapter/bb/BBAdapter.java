@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.bb;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,7 +51,7 @@ public class BBAdapter {
     /**
      * Returns an asynchronous market data session using the {@link BBMarketDataMessageHandler}
      */
-    public BBSession getMarketDataSession() throws Exception {
+    public BBSession getMarketDataSession() throws IOException, InterruptedException {
 
         return getSession("mktdata", new BBMarketDataMessageHandler());
     }
@@ -58,12 +59,12 @@ public class BBAdapter {
     /**
      * Returns a synchronous reference data session
      */
-    public BBSession getReferenceDataSession() throws Exception {
+    public BBSession getReferenceDataSession() throws IOException, InterruptedException {
 
         return getSession("refdata", null);
     }
 
-    private BBSession getSession(String serviceName, BBMessageHandler messageHandler) throws Exception {
+    private BBSession getSession(String serviceName, BBMessageHandler messageHandler) throws InterruptedException, IOException {
 
         // stop eventual session
         if (this.sessions.containsKey(serviceName)) {
@@ -104,7 +105,7 @@ public class BBAdapter {
      */
     @ManagedOperation
     @ManagedOperationParameters({})
-    public void start() throws Exception {
+    public void start() throws IOException, InterruptedException {
 
         for (BBSession session : this.sessions.values()) {
             session.start();
@@ -116,7 +117,7 @@ public class BBAdapter {
      */
     @ManagedOperation
     @ManagedOperationParameters({})
-    public void stop() throws Exception {
+    public void stop() throws IOException, InterruptedException {
 
         for (BBSession session : this.sessions.values()) {
             session.stop();

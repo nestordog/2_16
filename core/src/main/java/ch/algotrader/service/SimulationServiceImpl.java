@@ -18,6 +18,7 @@
 package ch.algotrader.service;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -33,6 +34,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.math.FunctionEvaluationException;
+import org.apache.commons.math.MathException;
 import org.apache.commons.math.analysis.MultivariateRealFunction;
 import org.apache.commons.math.analysis.UnivariateRealFunction;
 import org.apache.commons.math.optimization.GoalType;
@@ -134,7 +136,7 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
     }
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
 
         int portfolioDigits = this.commonConfig.getPortfolioDigits();
         format.setGroupingUsed(false);
@@ -152,16 +154,15 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
      * {@inheritDoc}
      */
     @Override
-    public SimulationResultVO runSimulation()  {
+    public SimulationResultVO runSimulation() {
 
-        try {
         long startTime = System.currentTimeMillis();
 
         // reset the db
-            this.resetService.resetDB();
+        this.resetService.resetDB();
 
         // init all activatable strategies
-            Collection<Strategy> strategies = this.lookupService.getAutoActivateStrategies();
+        Collection<Strategy> strategies = this.lookupService.getAutoActivateStrategies();
         for (Strategy strategy : strategies) {
             EngineLocator.instance().initEngine(strategy.getName());
         }
@@ -172,10 +173,10 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
         // init coordination
         EngineLocator.instance().getBaseEngine().initCoordination();
 
-            // init modules of all activatable strategies
-            for (Strategy strategy : strategies) {
-                EngineLocator.instance().getEngine(strategy.getName()).deployAllModules();
-            }
+        // init modules of all activatable strategies
+        for (Strategy strategy : strategies) {
+            EngineLocator.instance().getEngine(strategy.getName()).deployAllModules();
+        }
 
         // init all StrategyServices in the classpath
         for (StrategyService strategyService : this.applicationContext.getBeansOfType(StrategyService.class).values()) {
@@ -185,18 +186,18 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
         // feed the ticks
         feedMarketData();
 
-            // init all StrategyServices in the classpath
-            for (StrategyService strategyService : this.applicationContext.getBeansOfType(StrategyService.class).values()) {
-                strategyService.exitSimulation();
-            }
+        // init all StrategyServices in the classpath
+        for (StrategyService strategyService : this.applicationContext.getBeansOfType(StrategyService.class).values()) {
+            strategyService.exitSimulation();
+        }
 
         // log metrics in case they have been enabled
         MetricsUtil.logMetrics();
         EngineLocator.instance().logStatementMetrics();
 
         // close all open positions that might still exist
-            for (Position position : this.lookupService.getOpenTradeablePositions()) {
-                this.positionService.closePosition(position.getId(), false);
+        for (Position position : this.lookupService.getOpenTradeablePositions()) {
+            this.positionService.closePosition(position.getId(), false);
         }
 
         // send the EndOfSimulation event
@@ -214,15 +215,17 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
         net.sf.ehcache.CacheManager.getInstance().clearAll();
 
         // close all reports
-        ReportManager.closeAll();
+        try {
+            ReportManager.closeAll();
+        } catch (IOException ex) {
+            throw new SimulationServiceException(ex);
+        }
 
         // run a garbage collection
         System.gc();
 
         return resultVO;
-        } catch (Exception ex) {
-            throw new SimulationServiceException(ex.getMessage(), ex);
-    }
+
     }
 
     /**
@@ -405,12 +408,9 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
     @Override
     public void simulateWithCurrentParams() {
 
-        try {
         SimulationResultVO resultVO = runSimulation();
         logMultiLineString(convertStatisticsToLongString(resultVO));
-        } catch (Exception ex) {
-            throw new SimulationServiceException(ex.getMessage(), ex);
-        }
+
     }
 
     /**
@@ -422,14 +422,11 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
         Validate.notEmpty(parameter, "Parameter is empty");
         Validate.notEmpty(value, "Value is empty");
 
-        try {
         System.setProperty(parameter, value);
 
         SimulationResultVO resultVO = runSimulation();
         resultLogger.info("optimize " + parameter + "=" + value + " " + convertStatisticsToShortString(resultVO));
-        } catch (Exception ex) {
-            throw new SimulationServiceException(ex.getMessage(), ex);
-    }
+
     }
 
     /**
@@ -441,7 +438,6 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
         Validate.notNull(parameters, "Parameter is null");
         Validate.notNull(values, "Value is null");
 
-        try {
         StringBuffer buffer = new StringBuffer();
         buffer.append("optimize ");
         for (int i = 0; i < parameters.length; i++) {
@@ -452,9 +448,7 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
         SimulationResultVO resultVO = runSimulation();
         buffer.append(convertStatisticsToShortString(resultVO));
         resultLogger.info(buffer.toString());
-        } catch (Exception ex) {
-            throw new SimulationServiceException(ex.getMessage(), ex);
-    }
+
     }
 
     /**
@@ -465,7 +459,6 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
 
         Validate.notEmpty(parameter, "Parameter is empty");
 
-        try {
         for (double i = min; i <= max; i += increment) {
 
             System.setProperty(parameter, format.format(i));
@@ -474,9 +467,7 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
             resultLogger.info(parameter + "=" + format.format(i) + " " + convertStatisticsToShortString(resultVO));
 
         }
-        } catch (Exception ex) {
-            throw new SimulationServiceException(ex.getMessage(), ex);
-        }
+
     }
 
     /**
@@ -488,7 +479,6 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
         Validate.notEmpty(parameter, "Parameter is empty");
         Validate.notNull(values, "Value is null");
 
-        try {
         for (double value : values) {
 
             System.setProperty(parameter, format.format(value));
@@ -496,9 +486,7 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
             SimulationResultVO resultVO = runSimulation();
             resultLogger.info(parameter + "=" + format.format(value) + " " + convertStatisticsToShortString(resultVO));
         }
-        } catch (Exception ex) {
-            throw new SimulationServiceException(ex.getMessage(), ex);
-        }
+
     }
 
     /**
@@ -510,21 +498,20 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
         Validate.notEmpty(parameter, "Parameter is empty");
 
         try {
-        UnivariateRealFunction function = new UnivariateFunction(this, parameter);
-        UnivariateRealOptimizer optimizer = new BrentOptimizer();
-        optimizer.setAbsoluteAccuracy(accuracy);
-        optimizer.optimize(function, GoalType.MAXIMIZE, min, max);
+            UnivariateRealFunction function = new UnivariateFunction(this, parameter);
+            UnivariateRealOptimizer optimizer = new BrentOptimizer();
+            optimizer.setAbsoluteAccuracy(accuracy);
+            optimizer.optimize(function, GoalType.MAXIMIZE, min, max);
+            OptimizationResultVO optimizationResult = new OptimizationResultVO();
+            optimizationResult.setParameter(parameter);
+            optimizationResult.setResult(optimizer.getResult());
+            optimizationResult.setFunctionValue(optimizer.getFunctionValue());
+            optimizationResult.setIterations(optimizer.getIterationCount());
 
-        OptimizationResultVO optimizationResult = new OptimizationResultVO();
-        optimizationResult.setParameter(parameter);
-        optimizationResult.setResult(optimizer.getResult());
-        optimizationResult.setFunctionValue(optimizer.getFunctionValue());
-        optimizationResult.setIterations(optimizer.getIterationCount());
-
-        return optimizationResult;
-        } catch (Exception ex) {
-            throw new SimulationServiceException(ex.getMessage(), ex);
-    }
+            return optimizationResult;
+        } catch (MathException ex) {
+            throw new SimulationServiceException(ex);
+        }
     }
 
     /**
@@ -538,8 +525,7 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
         Validate.notNull(maxs, "Maxs is null");
         Validate.notNull(increments, "Increments is null");
 
-        try {
-            int roundDigits = this.commonConfig.getPortfolioDigits();
+        int roundDigits = this.commonConfig.getPortfolioDigits();
         for (double i0 = mins[0]; i0 <= maxs[0]; i0 += increments[0]) {
             System.setProperty(parameters[0], format.format(i0));
             String message0 = parameters[0] + "=" + format.format(MathUtils.round(i0, roundDigits));
@@ -567,9 +553,7 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
                 resultLogger.info(message0 + " " + convertStatisticsToShortString(resultVO));
             }
         }
-        } catch (Exception ex) {
-            throw new SimulationServiceException(ex.getMessage(), ex);
-        }
+
     }
 
     /**
@@ -581,18 +565,18 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
         Validate.notNull(parameters, "Parameter is null");
         Validate.notNull(starts, "Starts is null");
 
+        RealPointValuePair result;
         try {
-        MultivariateRealFunction function = new MultivariateFunction(this, parameters);
-        MultivariateRealOptimizer optimizer = new MultiDirectional();
-        optimizer.setConvergenceChecker(new SimpleScalarValueChecker(0.0, 0.01));
-        RealPointValuePair result = optimizer.optimize(function, GoalType.MAXIMIZE, starts);
-
-        for (int i = 0; i < result.getPoint().length; i++) {
-            resultLogger.info("optimal value for " + parameters[i] + "=" + format.format(result.getPoint()[i]));
-        }
-        resultLogger.info("functionValue: " + format.format(result.getValue()) + " needed iterations: " + optimizer.getEvaluations() + ")");
-        } catch (Exception ex) {
-            throw new SimulationServiceException(ex.getMessage(), ex);
+            MultivariateRealFunction function = new MultivariateFunction(this, parameters);
+            MultivariateRealOptimizer optimizer = new MultiDirectional();
+            optimizer.setConvergenceChecker(new SimpleScalarValueChecker(0.0, 0.01));
+            result = optimizer.optimize(function, GoalType.MAXIMIZE, starts);
+            for (int i = 0; i < result.getPoint().length; i++) {
+                resultLogger.info("optimal value for " + parameters[i] + "=" + format.format(result.getPoint()[i]));
+            }
+            resultLogger.info("functionValue: " + format.format(result.getValue()) + " needed iterations: " + optimizer.getEvaluations() + ")");
+        } catch (MathException ex) {
+            throw new SimulationServiceException(ex);
         }
     }
 
@@ -834,7 +818,6 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
 
     private class UnivariateFunction implements UnivariateRealFunction {
 
-
         private final SimulationService simulationService;
         private final String param;
 
@@ -849,7 +832,7 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
 
             System.setProperty(this.param, String.valueOf(input));
 
-            SimulationResultVO resultVO = simulationService.runSimulation();
+            SimulationResultVO resultVO = this.simulationService.runSimulation();
             double result = resultVO.getPerformanceKeys().getSharpeRatio();
 
             resultLogger.info("optimize on " + this.param + "=" + SimulationServiceImpl.format.format(input) + " " + SimulationServiceImpl.this.convertStatisticsToShortString(resultVO));

@@ -22,12 +22,16 @@ package ch.algotrader.service;
  *
  * @version $Revision$ $Date$
  */
-public class SimulationServiceException extends RuntimeException {
+public class SimulationServiceException extends ServiceException {
 
     private static final long serialVersionUID = -8474166984277593070L;
 
     public SimulationServiceException(String message) {
         super(message);
+    }
+
+    public SimulationServiceException(Exception ex) {
+        super(ex);
     }
 
     public SimulationServiceException(String message, Exception ex) {

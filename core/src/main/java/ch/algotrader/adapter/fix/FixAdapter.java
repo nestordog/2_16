@@ -21,7 +21,6 @@ import ch.algotrader.entity.Account;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.enumeration.OrderServiceType;
 import quickfix.Message;
-import quickfix.SessionNotFound;
 
 /**
  * Main entry point to Fix sessions.
@@ -35,34 +34,34 @@ public interface FixAdapter {
     /**
      * creates an individual session
      */
-    void createSession(OrderServiceType orderServiceType) throws Exception;
+    void createSession(OrderServiceType orderServiceType) throws FixApplicationException;
 
     /**
      * Makes sure there is an existing session with the given qualifier. New session will be created
      * if there is no session with the given qualifier.
      */
-    void openSession(OrderServiceType orderServiceType) throws Exception;
+    void openSession(OrderServiceType orderServiceType) throws FixApplicationException;
 
     /**
      * creates an individual session with the given qualifier
      */
-    void createSession(String sessionQualifier) throws Exception;
+    void createSession(String sessionQualifier) throws FixApplicationException;
 
     /**
      * Makes sure there is an existing session with the given qualifier. New session will be created
      * if there is no session with the given qualifier.
      */
-    void openSession(String sessionQualifier) throws Exception;
+    void openSession(String sessionQualifier) throws FixApplicationException;
 
     /**
      * sends a message to the designated session for the given account
      */
-    void sendMessage(Message message, Account account) throws SessionNotFound;
+    void sendMessage(Message message, Account account) throws FixApplicationException;
 
     /**
      * sends a message to the designated session with the given qualifier.
      */
-    void sendMessage(Message message, String sessionQualifier) throws SessionNotFound;
+    void sendMessage(Message message, String sessionQualifier) throws FixApplicationException;
 
     /**
      * Gets the next {@code orderId} for the specified {@code account}

@@ -15,22 +15,18 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.service;
+package ch.algotrader.option;
 
 /**
- * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
+ * @author <a href="mailto:eburgener@algotrader.ch">Emanuel Burgener</a>
  *
  * @version $Revision$ $Date$
  */
-public class CalendarServiceException extends ServiceException {
+public class SABRException extends Exception {
 
-    private static final long serialVersionUID = -4161787933637766792L;
+    private static final long serialVersionUID = 8728454890890104577L;
 
-    public CalendarServiceException(Exception ex) {
-        super(ex);
-    }
-
-    public CalendarServiceException(String message, Exception ex) {
+    public SABRException(String message, Exception ex) {
         super(message, ex);
     }
 

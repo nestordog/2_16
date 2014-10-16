@@ -66,9 +66,10 @@ public class IBNativeAccountServiceImpl extends AccountServiceImpl implements IB
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
+        long quantityByMargin = 0;
+        StringBuffer buffer = new StringBuffer("quantityByMargin:");
+
         try {
-            long quantityByMargin = 0;
-            StringBuffer buffer = new StringBuffer("quantityByMargin:");
             for (String account : getAccounts()) {
                 double availableAmount = Double.parseDouble(retrieveAccountValue(account, "CHF", "AvailableFunds"));
                 long quantity = (long) (availableAmount / initialMarginPerContractInBase);
@@ -76,12 +77,17 @@ public class IBNativeAccountServiceImpl extends AccountServiceImpl implements IB
 
                 buffer.append(" " + account + "=" + quantity);
             }
-            logger.debug(buffer.toString());
-
-            return quantityByMargin;
-        } catch (Exception ex) {
-            throw new IBFixAccountServiceException(ex.getMessage(), ex);
+        } catch (NumberFormatException ex) {
+            throw new IBFixAccountServiceException(ex);
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+            throw new IBFixAccountServiceException(ex);
         }
+
+        logger.debug(buffer.toString());
+
+        return quantityByMargin;
+
     }
 
     @Override
@@ -89,21 +95,25 @@ public class IBNativeAccountServiceImpl extends AccountServiceImpl implements IB
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
+        long quantityByAllocation = 0;
+        StringBuffer buffer = new StringBuffer("quantityByAllocation:");
+
         try {
-            long quantityByAllocation = 0;
-            StringBuffer buffer = new StringBuffer("quantityByAllocation:");
             for (Map.Entry<String, Double> entry : getAllocations(strategyName).entrySet()) {
                 long quantity = (long) (entry.getValue() / 100.0 * requestedQuantity);
                 quantityByAllocation += quantity;
 
                 buffer.append(" " + entry.getKey() + "=" + quantity);
             }
-            logger.debug(buffer.toString());
-
-            return quantityByAllocation;
-        } catch (Exception ex) {
-            throw new IBFixAccountServiceException(ex.getMessage(), ex);
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+            throw new IBFixAccountServiceException(ex);
         }
+
+        logger.debug(buffer.toString());
+
+        return quantityByAllocation;
+
     }
 
     private String retrieveAccountValue(String accountName, String currency, String key) throws InterruptedException {
@@ -119,14 +129,14 @@ public class IBNativeAccountServiceImpl extends AccountServiceImpl implements IB
         }
     }
 
-    private Set<String> getAccounts() throws Exception {
+    private Set<String> getAccounts() throws InterruptedException {
 
         this.iBSession.requestFA(1);
 
         return this.accountsQueue.take();
     }
 
-    private Map<String, Double> getAllocations(String strategyName) throws Exception {
+    private Map<String, Double> getAllocations(String strategyName) throws InterruptedException {
 
         this.iBSession.requestFA(2);
 

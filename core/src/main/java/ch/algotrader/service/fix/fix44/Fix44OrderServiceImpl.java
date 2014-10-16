@@ -60,25 +60,22 @@ public abstract class Fix44OrderServiceImpl extends FixOrderServiceImpl implemen
 
         Validate.notNull(order, "Order is null");
 
-        try {
-            String clOrdID = order.getIntId();
-            if (clOrdID == null) {
+        String clOrdID = order.getIntId();
+        if (clOrdID == null) {
 
-                // assign a new clOrdID
-                clOrdID = getFixAdapter().getNextOrderId(order.getAccount());
-                order.setIntId(clOrdID);
-            }
-
-            NewOrderSingle message = this.messageFactory.createNewOrderMessage(order, clOrdID);
-
-            // broker-specific settings
-            sendOrder(order, message);
-
-            // send the message
-            sendOrder(order, message, true);
-        } catch (Exception ex) {
-            throw new Fix44OrderServiceException(ex.getMessage(), ex);
+            // assign a new clOrdID
+            clOrdID = getFixAdapter().getNextOrderId(order.getAccount());
+            order.setIntId(clOrdID);
         }
+
+        NewOrderSingle message = this.messageFactory.createNewOrderMessage(order, clOrdID);
+
+        // broker-specific settings
+        sendOrder(order, message);
+
+        // send the message
+        sendOrder(order, message, true);
+
     }
 
     @Override
@@ -86,7 +83,6 @@ public abstract class Fix44OrderServiceImpl extends FixOrderServiceImpl implemen
 
         Validate.notNull(order, "Order is null");
 
-        try {
         // assign a new clOrdID
         String clOrdID = getFixAdapter().getNextOrderIdVersion(order);
 
@@ -97,9 +93,7 @@ public abstract class Fix44OrderServiceImpl extends FixOrderServiceImpl implemen
 
         // send the message
         sendOrder(order, message, true);
-        } catch (Exception ex) {
-            throw new Fix44OrderServiceException(ex.getMessage(), ex);
-        }
+
     }
 
     @Override
@@ -107,7 +101,6 @@ public abstract class Fix44OrderServiceImpl extends FixOrderServiceImpl implemen
 
         Validate.notNull(order, "Order is null");
 
-        try {
         // get origClOrdID and assign a new clOrdID
         String clOrdID = getFixAdapter().getNextOrderIdVersion(order);
 
@@ -118,9 +111,7 @@ public abstract class Fix44OrderServiceImpl extends FixOrderServiceImpl implemen
 
         // send the message
         sendOrder(order, message, false);
-        } catch (Exception ex) {
-            throw new Fix44OrderServiceException(ex.getMessage(), ex);
-        }
+
     }
 
     /**

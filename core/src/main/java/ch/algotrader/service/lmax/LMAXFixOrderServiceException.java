@@ -17,12 +17,14 @@
  ***********************************************************************************/
 package ch.algotrader.service.lmax;
 
+import ch.algotrader.service.ServiceException;
+
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class LMAXFixOrderServiceException extends RuntimeException {
+public class LMAXFixOrderServiceException extends ServiceException {
 
     private static final long serialVersionUID = 2215173167016535099L;
 

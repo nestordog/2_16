@@ -19,8 +19,6 @@ package ch.algotrader.service.lmax;
 
 import org.apache.commons.lang.Validate;
 
-import quickfix.field.SubscriptionRequestType;
-import quickfix.fix44.MarketDataRequest;
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.fix.FixSessionLifecycle;
 import ch.algotrader.adapter.lmax.LMAXFixMarketDataRequestFactory;
@@ -28,6 +26,8 @@ import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.service.fix.fix44.Fix44MarketDataServiceImpl;
+import quickfix.field.SubscriptionRequestType;
+import quickfix.fix44.MarketDataRequest;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -68,13 +68,9 @@ public class LMAXFixMarketDataServiceImpl extends Fix44MarketDataServiceImpl imp
 
         Validate.notNull(security, "Security is null");
 
-        try {
-            MarketDataRequest request = this.requestFactory.create(security, new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES));
+        MarketDataRequest request = this.requestFactory.create(security, new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES));
 
-            getFixAdapter().sendMessage(request, getSessionQualifier());
-        } catch (Exception ex) {
-            throw new LMAXFixMarketDataServiceException(ex.getMessage(), ex);
-        }
+        getFixAdapter().sendMessage(request, getSessionQualifier());
     }
 
     @Override
@@ -82,13 +78,9 @@ public class LMAXFixMarketDataServiceImpl extends Fix44MarketDataServiceImpl imp
 
         Validate.notNull(security, "Security is null");
 
-        try {
-            MarketDataRequest request = this.requestFactory.create(security, new SubscriptionRequestType(SubscriptionRequestType.DISABLE_PREVIOUS_SNAPSHOT_PLUS_UPDATE_REQUEST));
+        MarketDataRequest request = this.requestFactory.create(security, new SubscriptionRequestType(SubscriptionRequestType.DISABLE_PREVIOUS_SNAPSHOT_PLUS_UPDATE_REQUEST));
 
-            getFixAdapter().sendMessage(request, getSessionQualifier());
-        } catch (Exception ex) {
-            throw new LMAXFixMarketDataServiceException(ex.getMessage(), ex);
-        }
+        getFixAdapter().sendMessage(request, getSessionQualifier());
     }
 
     @Override
@@ -96,10 +88,7 @@ public class LMAXFixMarketDataServiceImpl extends Fix44MarketDataServiceImpl imp
 
         Validate.notNull(security, "Security is null");
 
-        try {
-            return security.getLmaxid();
-        } catch (Exception ex) {
-            throw new LMAXFixMarketDataServiceException(ex.getMessage(), ex);
-        }
+        return security.getLmaxid();
+
     }
 }

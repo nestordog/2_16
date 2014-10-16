@@ -91,8 +91,11 @@ public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl imple
 
         try {
             session = this.bBAdapter.getReferenceDataSession();
-        } catch (Exception ex) {
-            throw new BBHistoricalDataServiceException(ex.getMessage(), ex);
+        } catch (IOException ex) {
+            throw new BBHistoricalDataServiceException(ex);
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+            throw new BBHistoricalDataServiceException(ex);
         }
     }
 
@@ -104,34 +107,39 @@ public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl imple
         Validate.notNull(barSize, "Bar size is null");
         Validate.notNull(barType, "Bar type is null");
 
+        Security security = this.securityDao.get(securityId);
+        if (security == null) {
+            throw new BBHistoricalDataServiceException("security was not found " + securityId);
+        }
+
+        String securityString = "/bbgid/" + security.getBbgid();
+
+        // send the request by using either IntrayBarRequest or HistoricalDataRequest
         try {
-            Security security = this.securityDao.get(securityId);
-            if (security == null) {
-                throw new BBHistoricalDataServiceException("security was not found " + securityId);
-            }
-
-            String securityString = "/bbgid/" + security.getBbgid();
-
-            // send the request by using either IntrayBarRequest or HistoricalDataRequest
             if (barSize.getValue() < Duration.DAY_1.getValue()) {
                 sendIntradayBarRequest(endDate, timePeriodLength, timePeriod, barSize, barType, securityString);
             } else {
                 sendHistoricalDataRequest(endDate, timePeriodLength, timePeriod, barSize, barType, securityString);
             }
-
-            // instantiate the message handler
-            BBHistoricalDataMessageHandler messageHandler = new BBHistoricalDataMessageHandler(security, barSize);
-
-            // process responses
-            boolean done = false;
-            while (!done) {
-                done = messageHandler.processEvent(session);
-            }
-
-            return messageHandler.getBarList();
-        } catch (Exception ex) {
-            throw new BBHistoricalDataServiceException(ex.getMessage(), ex);
+        } catch (IOException ex) {
+            throw new BBHistoricalDataServiceException(ex);
         }
+        // instantiate the message handler
+        BBHistoricalDataMessageHandler messageHandler = new BBHistoricalDataMessageHandler(security, barSize);
+
+        // process responses
+        boolean done = false;
+        while (!done) {
+            try {
+                done = messageHandler.processEvent(session);
+            } catch (InterruptedException ex) {
+                Thread.currentThread().interrupt();
+                throw new BBHistoricalDataServiceException(ex);
+            }
+        }
+
+        return messageHandler.getBarList();
+
     }
 
     private void sendIntradayBarRequest(Date endDate, int timePeriodLength, TimePeriod timePeriod, final Duration barSize, BarType barType, final String securityString) throws IOException {
