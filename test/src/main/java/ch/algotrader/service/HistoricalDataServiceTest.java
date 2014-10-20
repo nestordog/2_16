@@ -18,6 +18,7 @@
 package ch.algotrader.service;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import org.apache.commons.lang.time.DateUtils;
@@ -43,7 +44,7 @@ public class HistoricalDataServiceTest extends IBServiceTest {
         HistoricalDataService historicalDataService = ServiceLocator.instance().getHistoricalDataService();
         LookupService lookupService = ServiceLocator.instance().getLookupService();
 
-        historicalDataService.updateHistoricalBars(10, new Date(), 20, TimePeriod.DAY, Duration.DAY_1, BarType.MIDPOINT);
+        historicalDataService.updateHistoricalBars(10, new Date(), 20, TimePeriod.DAY, Duration.DAY_1, BarType.MIDPOINT, new HashMap<String, String>());
 
         List<Bar> bars = lookupService.getLastNBarsBySecurityAndBarSize(20, 10, Duration.DAY_1);
 
