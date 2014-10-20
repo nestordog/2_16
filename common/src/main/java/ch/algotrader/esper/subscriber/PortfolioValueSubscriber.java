@@ -17,10 +17,14 @@
  ***********************************************************************************/
 package ch.algotrader.esper.subscriber;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.ConfigLocator;
 import ch.algotrader.entity.strategy.PortfolioValue;
 import ch.algotrader.report.ListReporter;
+import ch.algotrader.util.DateUtil;
 import ch.algotrader.util.metric.MetricsUtil;
 
 /**
@@ -32,6 +36,8 @@ import ch.algotrader.util.metric.MetricsUtil;
  */
 public class PortfolioValueSubscriber {
 
+    private static final DateFormat formatter = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+
     private boolean initialized = false;
     private ListReporter reporter;
 
@@ -40,7 +46,7 @@ public class PortfolioValueSubscriber {
         long startTime = System.nanoTime();
 
         if (this.reporter == null) {
-            this.reporter = new ListReporter("PortfolioReport", new String[] { "cashBalance", "securitiesCurrentValue" });
+            this.reporter = new ListReporter("PortfolioReport", new String[] { "dateTime", "cashBalance", "securitiesCurrentValue", "netLiqValue" });
         }
 
         // don't log anything until any trades took place
@@ -50,7 +56,7 @@ public class PortfolioValueSubscriber {
         }
 
         if (this.initialized) {
-            this.reporter.write(portfolioValue.getCashBalance(), portfolioValue.getSecuritiesCurrentValue());
+            this.reporter.write(formatter.format(DateUtil.getCurrentEPTime()), portfolioValue.getCashBalance(), portfolioValue.getSecuritiesCurrentValue(), portfolioValue.getNetLiqValue());
         }
 
         MetricsUtil.accountEnd("LogPortfolioValueSubscriber", startTime);
