@@ -26,6 +26,7 @@ import java.util.Map;
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Predicate;
 import org.apache.commons.lang.Validate;
+import org.apache.log4j.Logger;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +35,7 @@ import ch.algotrader.entity.marketData.BarDao;
 import ch.algotrader.enumeration.BarType;
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.TimePeriod;
+import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.collection.CollectionUtil;
 import ch.algotrader.util.spring.HibernateSession;
 
@@ -44,6 +46,8 @@ import ch.algotrader.util.spring.HibernateSession;
  */
 @HibernateSession
 public abstract class HistoricalDataServiceImpl implements HistoricalDataService {
+
+    private static Logger logger = MyLogger.getLogger(HistoricalDataServiceImpl.class.getName());
 
     private final BarDao barDao;
 
@@ -58,14 +62,14 @@ public abstract class HistoricalDataServiceImpl implements HistoricalDataService
      * {@inheritDoc}
      */
     @Override
-    public abstract List<Bar> getHistoricalBars(int securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, Duration barSize, BarType barType);
+    public abstract List<Bar> getHistoricalBars(int securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, Duration barSize, BarType barType, Map<String,String> properties);
 
     /**
      * {@inheritDoc}
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public void updateHistoricalBars(final int securityId, final Date endDate, final int timePeriodLength, final TimePeriod timePeriod, final Duration barSize, final BarType barType) {
+    public void updateHistoricalBars(final int securityId, final Date endDate, final int timePeriodLength, final TimePeriod timePeriod, final Duration barSize, final BarType barType, Map<String,String> properties) {
 
         Validate.notNull(endDate, "End date is null");
         Validate.notNull(timePeriod, "Time period is null");
@@ -73,7 +77,7 @@ public abstract class HistoricalDataServiceImpl implements HistoricalDataService
         Validate.notNull(barType, "Bar type is null");
 
         // get all Bars from the Market Data Provider
-        List<Bar> bars = getHistoricalBars(securityId, endDate, timePeriodLength, timePeriod, barSize, barType);
+        List<Bar> bars = getHistoricalBars(securityId, endDate, timePeriodLength, timePeriod, barSize, barType, properties);
 
         // get the last Bar int the Database
         final Bar lastBar = CollectionUtil.getSingleElementOrNull(this.barDao.findBarsBySecurityAndBarSize(1, 1, securityId, barSize));
@@ -92,6 +96,8 @@ public abstract class HistoricalDataServiceImpl implements HistoricalDataService
         // save the Bars
         this.barDao.create(bars);
 
+        logger.info("created "+ bars.size() + " new bars for security " + securityId);
+
     }
 
     /**
@@ -99,7 +105,7 @@ public abstract class HistoricalDataServiceImpl implements HistoricalDataService
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public void replaceHistoricalBars(final int securityId, final Date endDate, final int timePeriodLength, final TimePeriod timePeriod, final Duration barSize, final BarType barType) {
+    public void replaceHistoricalBars(final int securityId, final Date endDate, final int timePeriodLength, final TimePeriod timePeriod, final Duration barSize, final BarType barType, Map<String,String> properties) {
 
         Validate.notNull(endDate, "End date is null");
         Validate.notNull(timePeriod, "Time period is null");
@@ -107,7 +113,7 @@ public abstract class HistoricalDataServiceImpl implements HistoricalDataService
         Validate.notNull(barType, "Bar type is null");
 
         // get all Bars from the Market Data Provider
-        List<Bar> newBars = getHistoricalBars(securityId, endDate, timePeriodLength, timePeriod, barSize, barType);
+        List<Bar> newBars = getHistoricalBars(securityId, endDate, timePeriodLength, timePeriod, barSize, barType, properties);
 
         // remove all Bars in the database after the first newly retrieved Bar
         final Bar firstBar = CollectionUtil.getFirstElementOrNull(newBars);
@@ -145,6 +151,8 @@ public abstract class HistoricalDataServiceImpl implements HistoricalDataService
 
         // save the newly retrieved Bars that do not exist yet in the db
         this.barDao.create(newBars);
+
+        logger.info("created "+ newBars.size() + " new bars for security " + securityId);
 
     }
 }

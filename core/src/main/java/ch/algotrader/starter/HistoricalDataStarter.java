@@ -19,6 +19,7 @@ package ch.algotrader.starter;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.enumeration.BarType;
@@ -66,9 +67,9 @@ public class HistoricalDataStarter {
         HistoricalDataService service = ServiceLocator.instance().getService("historicalDataService", HistoricalDataService.class);
         for (int securityId : securityIds) {
             if (update) {
-                service.updateHistoricalBars(securityId, endDate, timePeriodLength, timePeriod, barSize, barType);
+                service.updateHistoricalBars(securityId, endDate, timePeriodLength, timePeriod, barSize, barType, new HashMap<String, String>());
             } else {
-                service.replaceHistoricalBars(securityId, endDate, timePeriodLength, timePeriod, barSize, barType);
+                service.replaceHistoricalBars(securityId, endDate, timePeriodLength, timePeriod, barSize, barType, new HashMap<String, String>());
             }
         }
 

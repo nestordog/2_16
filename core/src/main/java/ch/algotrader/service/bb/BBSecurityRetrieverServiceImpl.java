@@ -46,8 +46,6 @@ import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.SecurityFamilyDao;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.OptionType;
-import ch.algotrader.future.FutureSymbol;
-import ch.algotrader.option.OptionSymbol;
 import ch.algotrader.service.SecurityRetrieverServiceImpl;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.RoundUtil;
@@ -394,14 +392,14 @@ public class BBSecurityRetrieverServiceImpl extends SecurityRetrieverServiceImpl
                 Element fields = securityData.getElement(BBConstants.FIELD_DATA);
 
                 String symbol = fields.getElementAsString(BBConstants.ID_BB_SEC_NUM_DES);
+                String sector = fields.getElementAsString(BBConstants.MARKET_SECTOR_DES);
                 String bbgid = fields.getElementAsString(BBConstants.ID_BB_GLOBAL);
                 String currencyString = fields.getElementAsString(BBConstants.CRNCY);
                 Currency currency = Currency.fromString(currencyString);
 
                 // ignore securities with different currencies than the securityFamily
                 if (!(currency.equals(this.securityFamily.getCurrency()))) {
-                    logger.debug("ignoring " + symbol + " with currency " + currency);
-                    continue;
+                    logger.warn(symbol + " difference in currency, db: " + this.securityFamily.getCurrency() + " bb: " + currency);
                 }
 
                 if (this.securityFamily instanceof OptionFamily) {
@@ -410,8 +408,7 @@ public class BBSecurityRetrieverServiceImpl extends SecurityRetrieverServiceImpl
 
                     // ignore securities with different contractSize than the securityFamily
                     if (this.securityFamily.getContractSize() != contractSize) {
-                        logger.debug("ignoring " + symbol + " with contract size " + contractSize);
-                        continue;
+                        logger.warn(symbol + " difference in contract size, db: " + this.securityFamily.getContractSize() + " bb: " + contractSize);
                     }
 
                     String expirationString = fields.getElementAsString(BBConstants.OPT_EXPIRE_DT);
@@ -422,15 +419,10 @@ public class BBSecurityRetrieverServiceImpl extends SecurityRetrieverServiceImpl
                     BigDecimal strike = RoundUtil.getBigDecimal(strikeDouble, this.securityFamily.getScale());
                     OptionType type = OptionType.fromString(typeString.toUpperCase());
 
-                    String isin = OptionSymbol.getIsin((OptionFamily) this.securityFamily, expiration, type, strike);
-                    String ric = OptionSymbol.getRic((OptionFamily) this.securityFamily, expiration, type, strike);
-
                     Option option = Option.Factory.newInstance();
 
-                    option.setSymbol(symbol);
+                    option.setSymbol(symbol + " " + sector);
                     option.setBbgid(bbgid);
-                    option.setIsin(isin);
-                    option.setRic(ric);
                     option.setSecurityFamily(this.securityFamily);
                     option.setUnderlying(this.securityFamily.getUnderlying());
 
@@ -449,8 +441,7 @@ public class BBSecurityRetrieverServiceImpl extends SecurityRetrieverServiceImpl
 
                     // ignore securities with different contractSize than the securityFamily
                     if (this.securityFamily.getContractSize() != contractSize) {
-                        logger.debug("ignoring " + symbol + " with contract size " + contractSize);
-                        continue;
+                        logger.warn(symbol + " difference in contract size, db: " + this.securityFamily.getContractSize() + " bb: " + contractSize);
                     }
 
                     String lastTradingString = fields.getElementAsString(BBConstants.LAST_TRADEABLE_DT);
@@ -459,15 +450,10 @@ public class BBSecurityRetrieverServiceImpl extends SecurityRetrieverServiceImpl
                     Date lastTrading = format.parse(lastTradingString);
                     Date firstNotice = format.parse(firstNoticeString);
 
-                    String isin = FutureSymbol.getIsin(this.securityFamily, lastTrading);
-                    String ric = FutureSymbol.getRic(this.securityFamily, lastTrading);
-
                     Future future = Future.Factory.newInstance();
 
-                    future.setSymbol(symbol);
+                    future.setSymbol(symbol + " " + sector);
                     future.setBbgid(bbgid);
-                    future.setIsin(isin);
-                    future.setRic(ric);
                     future.setSecurityFamily(this.securityFamily);
                     future.setUnderlying(this.securityFamily.getUnderlying());
 

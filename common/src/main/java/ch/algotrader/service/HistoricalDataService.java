@@ -19,6 +19,7 @@ package ch.algotrader.service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import ch.algotrader.entity.marketData.Bar;
 import ch.algotrader.enumeration.BarType;
@@ -41,9 +42,10 @@ public interface HistoricalDataService {
      * http://www.interactivebrokers.com/php/apiUsersGuide/apiguide/api/historical_data_limitations.htm">Historical
      * Data Limitations</a> for further details.
      * @param barSize The Bar Size for which Bars should be retrieved. Example: MIN_1
-     * @param barType That {@link BarType BarType} that should be retrieved.
+     * @param barType The {@link BarType BarType} that should be retrieved.
+     * @param properties Arbitrary properties that should be added to the request
      */
-    public List<Bar> getHistoricalBars(int securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, Duration barSize, BarType barType);
+    public List<Bar> getHistoricalBars(int securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, Duration barSize, BarType barType, Map<String, String> properties);
 
     /**
      * Downloads historical Bars for the specified Security and stores them in the database,
@@ -55,9 +57,10 @@ public interface HistoricalDataService {
      * http://www.interactivebrokers.com/php/apiUsersGuide/apiguide/api/historical_data_limitations.htm">Historical
      * Data Limitations</a> for further details.
      * @param barSize The Bar Size for which Bars should be retrieved. Example: MIN_1
-     * @param barType That {@link BarType BarType} that should be retrieved.
+     * @param barType The {@link BarType BarType} that should be retrieved.
+     * @param properties Arbitrary properties that should be added to the request
      */
-    public void updateHistoricalBars(int securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, Duration barSize, BarType barType);
+    public void updateHistoricalBars(int securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, Duration barSize, BarType barType, Map<String, String> properties);
 
     /**
      * Downloads historical Bars for the specified Security and stores them in the database,
@@ -69,8 +72,9 @@ public interface HistoricalDataService {
      * http://www.interactivebrokers.com/php/apiUsersGuide/apiguide/api/historical_data_limitations.htm">Historical
      * Data Limitations</a> for further details.
      * @param barSize The Bar Size for which Bars should be retrieved. Example: MIN_1
-     * @param barType That {@link BarType BarType} that should be retrieved.
+     * @param barType The {@link BarType BarType} that should be retrieved.
+     * @param properties Arbitrary properties that should be added to the request
      */
-    public void replaceHistoricalBars(int securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, Duration barSize, BarType barType);
+    public void replaceHistoricalBars(int securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, Duration barSize, BarType barType, Map<String, String> properties);
 
 }

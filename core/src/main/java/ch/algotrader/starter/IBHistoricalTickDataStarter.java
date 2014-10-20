@@ -22,6 +22,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -130,7 +131,7 @@ public class IBHistoricalTickDataStarter {
         // run all barTypes and get the ticks
         for (BarType barType : barTypes) {
 
-            List<Bar> bars = historicalDataService.getHistoricalBars(security.getId(), date, 1, TimePeriod.DAY, Duration.MIN_1, barType);
+            List<Bar> bars = historicalDataService.getHistoricalBars(security.getId(), date, 1, TimePeriod.DAY, Duration.MIN_1, barType, new HashMap<String, String>());
 
             // filter Bars by date
             for (Iterator<Bar> it = bars.iterator(); it.hasNext();) {

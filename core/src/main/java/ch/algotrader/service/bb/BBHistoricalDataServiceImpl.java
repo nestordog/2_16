@@ -22,6 +22,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.time.DateUtils;
@@ -100,7 +101,7 @@ public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl imple
     }
 
     @Override
-    public List<Bar> getHistoricalBars(int securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, final Duration barSize, BarType barType) {
+    public List<Bar> getHistoricalBars(int securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, final Duration barSize, BarType barType, Map<String, String> properties) {
 
         Validate.notNull(endDate, "End date is null");
         Validate.notNull(timePeriod, "Time period is null");
@@ -112,14 +113,18 @@ public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl imple
             throw new BBHistoricalDataServiceException("security was not found " + securityId);
         }
 
+        if (security.getBbgid() == null) {
+            throw new BBHistoricalDataServiceException("security has no bbgid " + securityId);
+        }
+
         String securityString = "/bbgid/" + security.getBbgid();
 
         // send the request by using either IntrayBarRequest or HistoricalDataRequest
         try {
             if (barSize.getValue() < Duration.DAY_1.getValue()) {
-                sendIntradayBarRequest(endDate, timePeriodLength, timePeriod, barSize, barType, securityString);
+                sendIntradayBarRequest(endDate, timePeriodLength, timePeriod, barSize, barType, securityString, properties);
             } else {
-                sendHistoricalDataRequest(endDate, timePeriodLength, timePeriod, barSize, barType, securityString);
+                sendHistoricalDataRequest(endDate, timePeriodLength, timePeriod, barSize, barType, securityString, properties);
             }
         } catch (IOException ex) {
             throw new BBHistoricalDataServiceException(ex);
@@ -142,7 +147,7 @@ public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl imple
 
     }
 
-    private void sendIntradayBarRequest(Date endDate, int timePeriodLength, TimePeriod timePeriod, final Duration barSize, BarType barType, final String securityString) throws IOException {
+    private void sendIntradayBarRequest(Date endDate, int timePeriodLength, TimePeriod timePeriod, final Duration barSize, BarType barType, final String securityString, Map<String, String> properties) throws IOException {
 
         int barSizeInt = (int) (barSize.getValue() / 60000);
 
@@ -179,11 +184,15 @@ public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl imple
         request.set("startDateTime", startDateString);
         request.set("endDateTime", endDateString);
 
+        for (Map.Entry<String, String> entry : properties.entrySet()) {
+            request.set(entry.getKey(), entry.getValue());
+        }
+
         // send request
         session.sendRequest(request, null);
     }
 
-    private void sendHistoricalDataRequest(Date endDate, int timePeriodLength, TimePeriod timePeriod, Duration barSize, BarType barType, String securityString) throws IOException {
+    private void sendHistoricalDataRequest(Date endDate, int timePeriodLength, TimePeriod timePeriod, Duration barSize, BarType barType, String securityString, Map<String, String> properties) throws IOException {
 
         String barSizeString;
         switch (barSize) {
@@ -232,13 +241,13 @@ public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl imple
         fields.appendValue("LOW");
         fields.appendValue("VOLUME");
 
-        request.set("periodicityAdjustment", "ACTUAL");
-        request.set("nonTradingDayFillOption", "NON_TRADING_WEEKDAYS");
-        request.set("nonTradingDayFillMethod", "PREVIOUS_VALUE");
-
         request.set("periodicitySelection", barSizeString);
         request.set("startDate", startDateString);
         request.set("endDate", endDateString);
+
+        for (Map.Entry<String, String> entry : properties.entrySet()) {
+            request.set(entry.getKey(), entry.getValue());
+        }
 
         // send request
         session.sendRequest(request, null);
