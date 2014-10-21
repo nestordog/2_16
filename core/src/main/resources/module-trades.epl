@@ -93,6 +93,7 @@ having
 
 @Name('NOTIFY_MISSING_ORDER_REPLY')
 @Subscriber(className='ch.algotrader.esper.subscriber.ExceptionSubscriber')
+@Condition(key='statement.notifyMissingOrderReply')
 @RunTimeOnly()
 select
     "missing reply on order: " || currentOrder.toString() as reason
