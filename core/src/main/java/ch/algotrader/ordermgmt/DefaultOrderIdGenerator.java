@@ -21,7 +21,7 @@ import java.math.BigDecimal;
 
 import org.apache.commons.lang.Validate;
 
-import ch.algotrader.entity.TransactionDao;
+import ch.algotrader.entity.trade.OrderDao;
 import ch.algotrader.util.collection.IntegerMap;
 
 /**
@@ -34,14 +34,14 @@ import ch.algotrader.util.collection.IntegerMap;
  */
 public class DefaultOrderIdGenerator implements OrderIdGenerator {
 
-    private final TransactionDao transactionDao;
+    private final OrderDao orderDao;
     private final IntegerMap<String> orderIds;
 
-    public DefaultOrderIdGenerator(final TransactionDao transactionDao) {
+    public DefaultOrderIdGenerator(final OrderDao orderDao) {
 
-        Validate.notNull(transactionDao, "TransactionDao is null");
+        Validate.notNull(orderDao, "orderDao is null");
 
-        this.transactionDao = transactionDao;
+        this.orderDao = orderDao;
         this.orderIds = new IntegerMap<String>();
     }
 
@@ -55,7 +55,7 @@ public class DefaultOrderIdGenerator implements OrderIdGenerator {
 
         if (!this.orderIds.containsKey(sessionQualifier)) {
 
-            BigDecimal orderId = this.transactionDao.findLastIntOrderId(sessionQualifier);
+            BigDecimal orderId = this.orderDao.findLastIntOrderId(sessionQualifier);
             this.orderIds.put(sessionQualifier, orderId != null ? orderId.intValue() : 0);
         }
 
