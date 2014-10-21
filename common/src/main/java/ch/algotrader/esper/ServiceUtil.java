@@ -21,7 +21,6 @@ import java.util.Date;
 import java.util.Map;
 
 import ch.algotrader.ServiceLocator;
-import ch.algotrader.config.ConfigLocator;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
@@ -52,8 +51,7 @@ public class ServiceUtil {
     @SuppressWarnings("unchecked")
     public static boolean hasCurrentMarketDataEvents() {
 
-        String startedStrategyName = ConfigLocator.instance().getCommonConfig().getStartedStrategyName();
-        Map<String, Long> map = (Map<String, Long>) EngineLocator.instance().getEngine(startedStrategyName).executeSingelObjectQuery("select count(*) as cnt from MarketDataWindow");
+        Map<String, Long> map = (Map<String, Long>) EngineLocator.instance().getBaseEngine().executeSingelObjectQuery("select count(*) as cnt from MarketDataWindow");
         return (map.get("cnt") > 0);
     }
 
