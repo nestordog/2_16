@@ -26,6 +26,7 @@ import org.apache.commons.lang.Validate;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
+import org.springframework.jmx.export.annotation.ManagedResource;
 
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.Currency;
@@ -34,14 +35,13 @@ import ch.algotrader.enumeration.TransactionType;
 import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.metric.MetricsUtil;
-import ch.algotrader.util.spring.HibernateSession;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-@HibernateSession
+@ManagedResource(objectName = "ch.algotrader.service:name=BaseManagementService")
 public class BaseManagementServiceImpl implements BaseManagementService {
 
     private final PositionService positionService;
