@@ -28,6 +28,7 @@ import org.springframework.beans.factory.DisposableBean;
 import ch.algotrader.adapter.bb.BBAdapter;
 import ch.algotrader.adapter.bb.BBIdGenerator;
 import ch.algotrader.adapter.bb.BBSession;
+import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.marketData.TickDao;
 import ch.algotrader.entity.security.Security;
@@ -59,11 +60,13 @@ public class BBMarketDataServiceImpl extends ExternalMarketDataServiceImpl imple
 
     private final TickDao tickDao;
 
-    public BBMarketDataServiceImpl(final BBAdapter bBAdapter,
+    public BBMarketDataServiceImpl(
+            final CommonConfig commonConfig,
+            final BBAdapter bBAdapter,
             final TickDao tickDao,
             final SecurityDao securityDao) {
 
-        super(securityDao);
+        super(commonConfig, securityDao);
 
         Validate.notNull(bBAdapter, "BBAdapter is null");
         Validate.notNull(tickDao, "TickDao is null");

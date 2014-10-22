@@ -22,6 +22,7 @@ import org.apache.log4j.Logger;
 
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.fix.FixSessionLifecycle;
+import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityDao;
@@ -48,11 +49,13 @@ public abstract class FixMarketDataServiceImpl extends ExternalMarketDataService
 
     private final FixAdapter fixAdapter;
 
-    public FixMarketDataServiceImpl(final FixSessionLifecycle lifeCycle,
+    public FixMarketDataServiceImpl(
+            final CommonConfig commonConfig,
+            final FixSessionLifecycle lifeCycle,
             final FixAdapter fixAdapter,
             final SecurityDao securityDao) {
 
-        super(securityDao);
+        super(commonConfig, securityDao);
 
         Validate.notNull(lifeCycle, "FixSessionLifecycle is null");
         Validate.notNull(fixAdapter, "FixAdapter is null");

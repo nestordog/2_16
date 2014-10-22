@@ -20,6 +20,7 @@ package ch.algotrader.adapter.fix;
 import quickfix.field.MDReqID;
 import quickfix.field.SubscriptionRequestType;
 import quickfix.fix44.MarketDataRequest;
+import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.enumeration.FeedType;
@@ -33,9 +34,15 @@ import ch.algotrader.service.fix.fix44.Fix44MarketDataServiceImpl;
  */
 class FakeFix44MarketDataService extends Fix44MarketDataServiceImpl {
 
-    public FakeFix44MarketDataService(FixSessionLifecycle lifeCycle, FixAdapter fixAdapter, SecurityDao securityDao) {
-        super(lifeCycle, fixAdapter, securityDao);
-        // TODO Auto-generated constructor stub
+    private static final long serialVersionUID = -1901678386181476171L;
+
+    public FakeFix44MarketDataService(
+            final CommonConfig commonConfig,
+            final FixSessionLifecycle lifeCycle,
+            final FixAdapter fixAdapter,
+            final SecurityDao securityDao) {
+
+        super(commonConfig, lifeCycle, fixAdapter, securityDao);
     }
 
     @Override

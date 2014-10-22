@@ -23,6 +23,7 @@ import ch.algotrader.adapter.dc.DCFixMarketDataRequestFactory;
 import ch.algotrader.adapter.dc.DCUtil;
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.fix.FixSessionLifecycle;
+import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.enumeration.FeedType;
@@ -43,11 +44,13 @@ public class DCFixMarketDataServiceImpl extends Fix44MarketDataServiceImpl imple
 
     private final DCFixMarketDataRequestFactory requestFactory;
 
-    public DCFixMarketDataServiceImpl(final FixSessionLifecycle lifeCycle,
+    public DCFixMarketDataServiceImpl(
+            final CommonConfig commonConfig,
+            final FixSessionLifecycle lifeCycle,
             final FixAdapter fixAdapter,
             final SecurityDao securityDao) {
 
-        super(lifeCycle, fixAdapter, securityDao);
+        super(commonConfig, lifeCycle, fixAdapter, securityDao);
 
         this.requestFactory = new DCFixMarketDataRequestFactory();
     }

@@ -19,6 +19,7 @@ package ch.algotrader.service.fix.fix42;
 
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.fix.FixSessionLifecycle;
+import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.service.fix.FixMarketDataServiceImpl;
 
@@ -33,10 +34,12 @@ public abstract class Fix42MarketDataServiceImpl extends FixMarketDataServiceImp
 
     private static final long serialVersionUID = -660389755007202727L;
 
-    public Fix42MarketDataServiceImpl(final FixSessionLifecycle lifeCycle,
+    public Fix42MarketDataServiceImpl(
+            final CommonConfig commonConfig,
+            final FixSessionLifecycle lifeCycle,
             final FixAdapter fixAdapter,
             final SecurityDao securityDao) {
 
-        super(lifeCycle, fixAdapter, securityDao);
+        super(commonConfig, lifeCycle, fixAdapter, securityDao);
     }
 }

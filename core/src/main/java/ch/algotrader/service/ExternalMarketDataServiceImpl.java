@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.apache.commons.lang.Validate;
 
+import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.enumeration.FeedType;
@@ -34,12 +35,16 @@ import ch.algotrader.util.spring.HibernateSession;
 @HibernateSession
 public abstract class ExternalMarketDataServiceImpl implements ExternalMarketDataService {
 
+    private final CommonConfig commonConfig;
+
     private final SecurityDao securityDao;
 
-    public ExternalMarketDataServiceImpl(final SecurityDao securityDao) {
+    public ExternalMarketDataServiceImpl(final CommonConfig commonConfig, final SecurityDao securityDao) {
 
+        Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(securityDao, "SecurityDao is null");
 
+        this.commonConfig = commonConfig;
         this.securityDao = securityDao;
     }
 
@@ -49,8 +54,13 @@ public abstract class ExternalMarketDataServiceImpl implements ExternalMarketDat
     @Override
     public void initSubscriptions() {
 
-        // process all subscriptions that do not have a feedType associated
-        List<Security> securities = this.securityDao.findSubscribedByFeedTypeForAutoActivateStrategiesInclFamily(getFeedType());
+        List<Security> securities;
+        if (this.commonConfig.isSingleVM()) {
+            securities = this.securityDao.findSubscribedByFeedTypeAndStrategyInclFamily(getFeedType(), this.commonConfig.getStartedStrategyName());
+        } else {
+            securities = this.securityDao.findSubscribedByFeedTypeForAutoActivateStrategiesInclFamily(getFeedType());
+        }
+
         for (Security security : securities) {
             if (!security.getSecurityFamily().isSynthetic()) {
                 subscribe(security);

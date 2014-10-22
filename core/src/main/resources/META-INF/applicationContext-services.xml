@@ -297,11 +297,12 @@
 
     <beans profile="iBMarketData">
         <bean id="iBNativeMarketDataService" class="ch.algotrader.service.ib.IBNativeMarketDataServiceImpl" >
-            <constructor-arg index="0"  ref="iBSession"/>
-            <constructor-arg index="1"  ref="iBIdGenerator"/>
-            <constructor-arg index="2"  ref="iBConfig"/>
-            <constructor-arg index="3"  ref="tickDao"/>
-            <constructor-arg index="4"  ref="securityDao"/>
+            <constructor-arg index="0" ref="commonConfig"/>
+            <constructor-arg index="1"  ref="iBSession"/>
+            <constructor-arg index="2"  ref="iBIdGenerator"/>
+            <constructor-arg index="3"  ref="iBConfig"/>
+            <constructor-arg index="4"  ref="tickDao"/>
+            <constructor-arg index="5"  ref="securityDao"/>
         </bean>
 
     </beans>
@@ -373,18 +374,20 @@
 
     <beans profile="dCMarketData">
         <bean id="dCFixMarketDataService" class="ch.algotrader.service.dc.DCFixMarketDataServiceImpl" >
-            <constructor-arg index="0"  ref="dCMarketDataSessionLifeCycle"/>
-            <constructor-arg index="1"  ref="fixAdapter"/>
-            <constructor-arg index="2"  ref="securityDao"/>
+            <constructor-arg index="0" ref="commonConfig"/>
+            <constructor-arg index="1"  ref="dCMarketDataSessionLifeCycle"/>
+            <constructor-arg index="2"  ref="fixAdapter"/>
+            <constructor-arg index="3"  ref="securityDao"/>
         </bean>
 
     </beans>
 
     <beans profile="bBMarketData">
         <bean id="bBMarketDataService" class="ch.algotrader.service.bb.BBMarketDataServiceImpl" >
-            <constructor-arg index="0"  ref="bBAdapter"/>
-            <constructor-arg index="1"  ref="tickDao"/>
-            <constructor-arg index="2"  ref="securityDao"/>
+            <constructor-arg index="0" ref="commonConfig"/>
+            <constructor-arg index="1"  ref="bBAdapter"/>
+            <constructor-arg index="2"  ref="tickDao"/>
+            <constructor-arg index="3"  ref="securityDao"/>
         </bean>
 
     </beans>
@@ -428,9 +431,10 @@
 
     <beans profile="lMAXMarketData">
         <bean id="lMAXFixMarketDataService" class="ch.algotrader.service.lmax.LMAXFixMarketDataServiceImpl" >
-            <constructor-arg index="0"  ref="lMAXMarketDataSessionLifeCycle"/>
-            <constructor-arg index="1"  ref="fixAdapter"/>
-            <constructor-arg index="2"  ref="securityDao"/>
+            <constructor-arg index="0" ref="commonConfig"/>
+            <constructor-arg index="1"  ref="lMAXMarketDataSessionLifeCycle"/>
+            <constructor-arg index="2"  ref="fixAdapter"/>
+            <constructor-arg index="3"  ref="securityDao"/>
         </bean>
 
     </beans>
@@ -445,9 +449,10 @@
 
     <beans profile="fXCMMarketData">
         <bean id="fXCMFixMarketDataService" class="ch.algotrader.service.fxcm.FXCMFixMarketDataServiceImpl" >
-            <constructor-arg index="0"  ref="fXCMSessionLifeCycle"/>
-            <constructor-arg index="1"  ref="fixAdapter"/>
-            <constructor-arg index="2"  ref="securityDao"/>
+            <constructor-arg index="0" ref="commonConfig"/>
+            <constructor-arg index="1"  ref="fXCMSessionLifeCycle"/>
+            <constructor-arg index="2"  ref="fixAdapter"/>
+            <constructor-arg index="3"  ref="securityDao"/>
         </bean>
 
     </beans>
@@ -462,9 +467,10 @@
 
     <beans profile="cNXMarketData">
         <bean id="cNXFixMarketDataService" class="ch.algotrader.service.cnx.CNXFixMarketDataServiceImpl" >
-            <constructor-arg index="0"  ref="cNXMarketDataSessionLifeCycle"/>
-            <constructor-arg index="1"  ref="fixAdapter"/>
-            <constructor-arg index="2"  ref="securityDao"/>
+            <constructor-arg index="0" ref="commonConfig"/>
+            <constructor-arg index="1"  ref="cNXMarketDataSessionLifeCycle"/>
+            <constructor-arg index="2"  ref="fixAdapter"/>
+            <constructor-arg index="3"  ref="securityDao"/>
         </bean>
 
     </beans>

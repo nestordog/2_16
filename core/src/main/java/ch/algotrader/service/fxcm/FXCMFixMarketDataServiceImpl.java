@@ -23,6 +23,7 @@ import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.fix.FixSessionLifecycle;
 import ch.algotrader.adapter.fxcm.FXCMFixMarketDataRequestFactory;
 import ch.algotrader.adapter.fxcm.FXCMUtil;
+import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.enumeration.FeedType;
@@ -41,11 +42,13 @@ public class FXCMFixMarketDataServiceImpl extends Fix44MarketDataServiceImpl imp
 
     private final FXCMFixMarketDataRequestFactory requestFactory;
 
-    public FXCMFixMarketDataServiceImpl(final FixSessionLifecycle lifeCycle,
+    public FXCMFixMarketDataServiceImpl(
+            final CommonConfig commonConfig,
+            final FixSessionLifecycle lifeCycle,
             final FixAdapter fixAdapter,
             final SecurityDao securityDao) {
 
-        super(lifeCycle, fixAdapter, securityDao);
+        super(commonConfig, lifeCycle, fixAdapter, securityDao);
 
         this.requestFactory = new FXCMFixMarketDataRequestFactory();
     }

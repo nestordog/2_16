@@ -24,6 +24,7 @@ import org.springframework.beans.factory.DisposableBean;
 import ch.algotrader.adapter.ib.IBIdGenerator;
 import ch.algotrader.adapter.ib.IBSession;
 import ch.algotrader.adapter.ib.IBUtil;
+import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.IBConfig;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.marketData.TickDao;
@@ -54,13 +55,15 @@ public class IBNativeMarketDataServiceImpl extends ExternalMarketDataServiceImpl
 
     private final TickDao tickDao;
 
-    public IBNativeMarketDataServiceImpl(final IBSession iBSession,
+    public IBNativeMarketDataServiceImpl(
+            final CommonConfig commonConfig,
+            final IBSession iBSession,
             final IBIdGenerator iBIdGenerator,
             final IBConfig iBConfig,
             final TickDao tickDao,
             final SecurityDao securityDao) {
 
-        super(securityDao);
+        super(commonConfig, securityDao);
 
         Validate.notNull(iBSession, "IBSession is null");
         Validate.notNull(iBIdGenerator, "IBIdGenerator is null");

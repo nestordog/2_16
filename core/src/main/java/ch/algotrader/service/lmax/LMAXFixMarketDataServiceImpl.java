@@ -22,6 +22,7 @@ import org.apache.commons.lang.Validate;
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.fix.FixSessionLifecycle;
 import ch.algotrader.adapter.lmax.LMAXFixMarketDataRequestFactory;
+import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.enumeration.FeedType;
@@ -40,11 +41,13 @@ public class LMAXFixMarketDataServiceImpl extends Fix44MarketDataServiceImpl imp
 
     private final LMAXFixMarketDataRequestFactory requestFactory;
 
-    public LMAXFixMarketDataServiceImpl(final FixSessionLifecycle lifeCycle,
+    public LMAXFixMarketDataServiceImpl(
+            final CommonConfig commonConfig,
+            final FixSessionLifecycle lifeCycle,
             final FixAdapter fixAdapter,
             final SecurityDao securityDao) {
 
-        super(lifeCycle, fixAdapter, securityDao);
+        super(commonConfig, lifeCycle, fixAdapter, securityDao);
 
         Validate.notNull(fixAdapter, "FixAdapter is null");
 

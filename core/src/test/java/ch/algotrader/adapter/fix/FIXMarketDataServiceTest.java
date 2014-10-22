@@ -29,6 +29,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import quickfix.fix44.MarketDataRequest;
+import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.marketData.TickDao;
 import ch.algotrader.entity.security.Forex;
@@ -48,6 +49,8 @@ import ch.algotrader.vo.SubscribeTickVO;
 public class FIXMarketDataServiceTest {
 
     @Mock
+    private CommonConfig commonConfig;
+    @Mock
     private SecurityDao securityDao;
     @Mock
     private TickDao tickDao;
@@ -65,7 +68,7 @@ public class FIXMarketDataServiceTest {
 
         MockitoAnnotations.initMocks(this);
 
-        FakeFix44MarketDataService fakeFix44MarketDataService = new FakeFix44MarketDataService(sessionLifecycle, fixAdapter, securityDao );
+        FakeFix44MarketDataService fakeFix44MarketDataService = new FakeFix44MarketDataService(commonConfig, sessionLifecycle, fixAdapter, securityDao );
 
         impl = Mockito.spy(fakeFix44MarketDataService);
 
