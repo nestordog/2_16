@@ -285,6 +285,10 @@
     <!-- =================================== Fix  ========================================= -->
 
     <beans profile="jPMFix,iBFix,dCFix,rTFix,dcMarkteData,lMAXFix,lMAXMarketData,fXCMFix,fXCMMarketData,cNXFix,cNXMarketData">
+    
+      <bean id="orderIdGenerator" class="ch.algotrader.ordermgmt.DefaultOrderIdGenerator">
+        <constructor-arg index="0" ref="orderDao"/>
+      </bean>    
 
       <bean id="fixSessionSettings" class="ch.algotrader.adapter.fix.FixSessionSettingsFactoryBean"/>
 
