@@ -21,17 +21,17 @@ import java.util.Date;
 
 import org.apache.log4j.Logger;
 
-import com.bloomberglp.blpapi.Element;
-import com.bloomberglp.blpapi.Event;
-import com.bloomberglp.blpapi.Message;
-import com.bloomberglp.blpapi.Session;
-
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.vo.AskVO;
 import ch.algotrader.vo.BidVO;
 import ch.algotrader.vo.TradeVO;
+
+import com.bloomberglp.blpapi.Element;
+import com.bloomberglp.blpapi.Event;
+import com.bloomberglp.blpapi.Message;
+import com.bloomberglp.blpapi.Session;
 
 /**
  * Bloomberg MessageHandler for MarketData events.
@@ -49,7 +49,7 @@ public class BBMarketDataMessageHandler extends BBMessageHandler {
 
         for (Message msg : event) {
 
-            int cid = (int) msg.correlationID().value();
+            String cid = (String) msg.correlationID().object();
 
             if (msg.messageType() == BBConstants.SUBSCRIPTION_STARTED) {
                 logger.info("subscription for tickerId " + cid + " has started");
@@ -68,7 +68,7 @@ public class BBMarketDataMessageHandler extends BBMessageHandler {
 
         for (Message msg : event) {
 
-            String cid = Long.toString(msg.correlationID().value());
+            String cid = (String) msg.correlationID().object();
 
             Element fields = msg.asElement();
 

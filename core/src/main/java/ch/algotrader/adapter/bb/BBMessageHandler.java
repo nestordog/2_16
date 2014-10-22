@@ -19,12 +19,12 @@ package ch.algotrader.adapter.bb;
 
 import org.apache.log4j.Logger;
 
+import ch.algotrader.util.MyLogger;
+
 import com.bloomberglp.blpapi.Event;
 import com.bloomberglp.blpapi.EventHandler;
 import com.bloomberglp.blpapi.Message;
 import com.bloomberglp.blpapi.Session;
-
-import ch.algotrader.util.MyLogger;
 
 /**
  * Abstract Bloomberg MessageHandler.
@@ -104,6 +104,8 @@ public abstract class BBMessageHandler implements EventHandler {
 
             if (msg.messageType() == BBConstants.SESSION_CONNECTION_UP) {
                 logger.info("session connection up");
+            } else if (msg.messageType() == BBConstants.SESSION_CONNECTION_DOWN) {
+                logger.info("session connection down");
             } else if (msg.messageType() == BBConstants.SESSION_STARTED) {
                 this.running = true;
                 logger.info("session started");

@@ -29,6 +29,7 @@ import com.bloomberglp.blpapi.Name;
 public class BBConstants {
 
     public static final Name SESSION_CONNECTION_UP = Name.getName("SessionConnectionUp");
+    public static final Name SESSION_CONNECTION_DOWN = Name.getName("SessionConnectionDown");
     public static final Name SESSION_STARTED = Name.getName("SessionStarted");
     public static final Name SESSION_TERMINATED = Name.getName("SessionTerminated");
     public static final Name SESSION_STARTUP_FAILURE = Name.getName("SessionStartupFailure");
