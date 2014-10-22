@@ -30,6 +30,7 @@ import org.mockito.MockitoAnnotations;
 
 import quickfix.fix44.MarketDataRequest;
 import ch.algotrader.config.CommonConfig;
+import ch.algotrader.config.CommonConfigBuilder;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.marketData.TickDao;
 import ch.algotrader.entity.security.Forex;
@@ -49,8 +50,6 @@ import ch.algotrader.vo.SubscribeTickVO;
 public class FIXMarketDataServiceTest {
 
     @Mock
-    private CommonConfig commonConfig;
-    @Mock
     private SecurityDao securityDao;
     @Mock
     private TickDao tickDao;
@@ -68,11 +67,13 @@ public class FIXMarketDataServiceTest {
 
         MockitoAnnotations.initMocks(this);
 
-        FakeFix44MarketDataService fakeFix44MarketDataService = new FakeFix44MarketDataService(commonConfig, sessionLifecycle, fixAdapter, securityDao );
+        CommonConfig commonConfig = CommonConfigBuilder.create().build();
 
-        impl = Mockito.spy(fakeFix44MarketDataService);
+        FakeFix44MarketDataService fakeFix44MarketDataService = new FakeFix44MarketDataService(commonConfig, this.sessionLifecycle, this.fixAdapter, this.securityDao );
 
-        EngineLocator.instance().setEngine("BASE", engine);
+        this.impl = Mockito.spy(fakeFix44MarketDataService);
+
+        EngineLocator.instance().setEngine("BASE", this.engine);
     }
 
     private static Forex createForex(final Currency base, final Currency counter) {
@@ -90,24 +91,24 @@ public class FIXMarketDataServiceTest {
     public void testInitialSubscriptions() throws Exception {
 
 
-        Mockito.when(sessionLifecycle.isLoggedOn()).thenReturn(Boolean.TRUE);
-        Mockito.when(sessionLifecycle.isSubscribed()).thenReturn(Boolean.FALSE);
-        Mockito.when(sessionLifecycle.subscribe()).thenReturn(Boolean.TRUE);
+        Mockito.when(this.sessionLifecycle.isLoggedOn()).thenReturn(Boolean.TRUE);
+        Mockito.when(this.sessionLifecycle.isSubscribed()).thenReturn(Boolean.FALSE);
+        Mockito.when(this.sessionLifecycle.subscribe()).thenReturn(Boolean.TRUE);
 
         Forex forex = createForex(Currency.EUR, Currency.USD);
 
-        Mockito.when(securityDao.findSubscribedByFeedTypeForAutoActivateStrategiesInclFamily(FeedType.SIM))
+        Mockito.when(this.securityDao.findSubscribedByFeedTypeForAutoActivateStrategiesInclFamily(FeedType.SIM))
                 .thenReturn(Collections.singletonList((Security) forex));
 
         // do initSubscriptions
-        impl.initSubscriptions();
+        this.impl.initSubscriptions();
 
         // verify externalMarketDataService.subscribe
-        Mockito.verify(impl).subscribe(forex);
+        Mockito.verify(this.impl).subscribe(forex);
 
         // verify engine.sendEvent
         ArgumentCaptor<Object> argumentCaptor1 = ArgumentCaptor.forClass(Object.class);
-        Mockito.verify(engine).sendEvent(argumentCaptor1.capture());
+        Mockito.verify(this.engine).sendEvent(argumentCaptor1.capture());
 
         List<Object> allEvents = argumentCaptor1.getAllValues();
 
@@ -122,45 +123,45 @@ public class FIXMarketDataServiceTest {
         Assert.assertSame(forex, tick.getSecurity());
 
         // verify fixAdapter.sendMessage
-        Mockito.verify(fixAdapter, Mockito.times(1)).sendMessage(Mockito.<MarketDataRequest>any(), Mockito.anyString());
+        Mockito.verify(this.fixAdapter, Mockito.times(1)).sendMessage(Mockito.<MarketDataRequest>any(), Mockito.anyString());
 
         // verify no event has been sent to the engine
-        Mockito.verify(engine, Mockito.never()).executeQuery(Mockito.anyString());
+        Mockito.verify(this.engine, Mockito.never()).executeQuery(Mockito.anyString());
     }
 
     @Test
     public void testInitialSubscriptionsAlreadySubscribed() throws Exception {
 
-        Mockito.when(sessionLifecycle.isLoggedOn()).thenReturn(Boolean.TRUE);
-        Mockito.when(sessionLifecycle.isSubscribed()).thenReturn(Boolean.TRUE);
-        Mockito.when(sessionLifecycle.subscribe()).thenReturn(Boolean.FALSE);
+        Mockito.when(this.sessionLifecycle.isLoggedOn()).thenReturn(Boolean.TRUE);
+        Mockito.when(this.sessionLifecycle.isSubscribed()).thenReturn(Boolean.TRUE);
+        Mockito.when(this.sessionLifecycle.subscribe()).thenReturn(Boolean.FALSE);
 
         Forex forex = createForex(Currency.EUR, Currency.USD);
-        Mockito.when(securityDao.findSubscribedByFeedTypeForAutoActivateStrategiesInclFamily(FeedType.SIM))
+        Mockito.when(this.securityDao.findSubscribedByFeedTypeForAutoActivateStrategiesInclFamily(FeedType.SIM))
                 .thenReturn(Collections.singletonList((Security) forex));
 
         // do initSubscriptions
-        impl.initSubscriptions();
+        this.impl.initSubscriptions();
 
         // verify externalMarketDataService.subscribe
-        Mockito.verify(impl, Mockito.never()).subscribe(Mockito.<Security>any());
+        Mockito.verify(this.impl, Mockito.never()).subscribe(Mockito.<Security>any());
     }
 
     @Test
     public void testSubscribe() throws Exception {
 
-        Mockito.when(sessionLifecycle.isLoggedOn()).thenReturn(Boolean.TRUE);
+        Mockito.when(this.sessionLifecycle.isLoggedOn()).thenReturn(Boolean.TRUE);
 
         Forex forex = createForex(Currency.EUR, Currency.USD);
 
         // Do subscribe
-        impl.subscribe(forex);
+        this.impl.subscribe(forex);
 
-        Mockito.verify(impl).getTickerId(forex);
+        Mockito.verify(this.impl).getTickerId(forex);
 
         // verify engine.sendEvent
         ArgumentCaptor<Object> argumentCaptor1 = ArgumentCaptor.forClass(Object.class);
-        Mockito.verify(engine).sendEvent(argumentCaptor1.capture());
+        Mockito.verify(this.engine).sendEvent(argumentCaptor1.capture());
 
         List<Object> allEvents = argumentCaptor1.getAllValues();
 
@@ -175,56 +176,56 @@ public class FIXMarketDataServiceTest {
         Assert.assertSame(forex, tick.getSecurity());
 
         // verify fixSessionFactory.sendMessage
-        Mockito.verify(fixAdapter, Mockito.times(1)).sendMessage(Mockito.<MarketDataRequest>any(), Mockito.anyString());
+        Mockito.verify(this.fixAdapter, Mockito.times(1)).sendMessage(Mockito.<MarketDataRequest>any(), Mockito.anyString());
 
         // verify engine.executeQuery does not get called
-        Mockito.verify(engine, Mockito.never()).executeQuery(Mockito.anyString());
+        Mockito.verify(this.engine, Mockito.never()).executeQuery(Mockito.anyString());
     }
 
     @Test(expected = FixMarketDataServiceException.class)
     public void testSubscribeNotLoggedOn() throws Exception {
 
-        Mockito.when(sessionLifecycle.isLoggedOn()).thenReturn(Boolean.FALSE);
+        Mockito.when(this.sessionLifecycle.isLoggedOn()).thenReturn(Boolean.FALSE);
 
         Forex forex = createForex(Currency.EUR, Currency.USD);
 
         // Do subscribe
-        impl.subscribe(forex);
+        this.impl.subscribe(forex);
     }
 
     @Test
     public void testUnsubscribe() throws Exception {
 
-        Mockito.when(sessionLifecycle.isLoggedOn()).thenReturn(Boolean.TRUE);
-        Mockito.when(sessionLifecycle.isSubscribed()).thenReturn(Boolean.TRUE);
+        Mockito.when(this.sessionLifecycle.isLoggedOn()).thenReturn(Boolean.TRUE);
+        Mockito.when(this.sessionLifecycle.isSubscribed()).thenReturn(Boolean.TRUE);
 
         Forex forex = createForex(Currency.EUR, Currency.USD);
         forex.setId(123);
 
         // Do unsubscribe
-        impl.unsubscribe(forex);
+        this.impl.unsubscribe(forex);
 
         // verify no event has been sent to the engine
-        Mockito.verify(engine, Mockito.never()).sendEvent(Mockito.any());
+        Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
 
         // verify fixSessionFactory.sendMessage
         // verify fixSessionFactory.sendMessage
-        Mockito.verify(fixAdapter, Mockito.times(1)).sendMessage(Mockito.<MarketDataRequest>any(), Mockito.anyString());
+        Mockito.verify(this.fixAdapter, Mockito.times(1)).sendMessage(Mockito.<MarketDataRequest>any(), Mockito.anyString());
 
         // verify the esper delete statement has been executed
-        Mockito.verify(engine).executeQuery("delete from TickWindow where security.id = 123");
+        Mockito.verify(this.engine).executeQuery("delete from TickWindow where security.id = 123");
     }
 
     @Test(expected = FixMarketDataServiceException.class)
     public void testUnsubscribeNotSubscribed() throws Exception {
 
-        Mockito.when(sessionLifecycle.isLoggedOn()).thenReturn(Boolean.TRUE);
-        Mockito.when(sessionLifecycle.isSubscribed()).thenReturn(Boolean.FALSE);
+        Mockito.when(this.sessionLifecycle.isLoggedOn()).thenReturn(Boolean.TRUE);
+        Mockito.when(this.sessionLifecycle.isSubscribed()).thenReturn(Boolean.FALSE);
 
         Forex forex = createForex(Currency.EUR, Currency.USD);
 
         // Do unsubscribe
-        impl.unsubscribe(forex);
+        this.impl.unsubscribe(forex);
     }
 
 }
