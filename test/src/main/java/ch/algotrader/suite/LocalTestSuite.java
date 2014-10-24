@@ -20,7 +20,7 @@ package ch.algotrader.suite;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
-import ch.algotrader.service.CashBalanceServiceTest;
+import ch.algotrader.service.TransactionServiceTest;
 import ch.algotrader.service.CombinationServiceTest;
 import ch.algotrader.service.PortfolioPersistenceServiceTest;
 
@@ -31,7 +31,7 @@ import ch.algotrader.service.PortfolioPersistenceServiceTest;
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-    CashBalanceServiceTest.class,
+    TransactionServiceTest.class,
     CombinationServiceTest.class,
     PortfolioPersistenceServiceTest.class
  })

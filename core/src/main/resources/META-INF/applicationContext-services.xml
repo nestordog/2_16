@@ -72,11 +72,10 @@
     <bean id="baseManagementService" class="ch.algotrader.service.BaseManagementServiceImpl" >
         <constructor-arg index="0" ref="positionService"/>
         <constructor-arg index="1" ref="forexService"/>
-        <constructor-arg index="2" ref="cashBalanceService"/>
-        <constructor-arg index="3" ref="combinationService"/>
-        <constructor-arg index="4" ref="transactionService"/>
-        <constructor-arg index="5" ref="optionService"/>
-        <constructor-arg index="6" ref="orderService"/>
+        <constructor-arg index="2" ref="combinationService"/>
+        <constructor-arg index="3" ref="transactionService"/>
+        <constructor-arg index="4" ref="optionService"/>
+        <constructor-arg index="5" ref="orderService"/>
     </bean>
 
     <bean id="optionService" class="ch.algotrader.service.OptionServiceImpl" >
@@ -110,25 +109,23 @@
         <constructor-arg index="10" ref="futureFamilyDao"/>
     </bean>
 
-    <bean id="cashBalanceService" class="ch.algotrader.service.CashBalanceServiceImpl" >
+    <bean id="transactionPersistenceService" class="ch.algotrader.service.TransactionPersistenceServiceImpl" >
         <constructor-arg index="0" ref="commonConfig"/>
-        <constructor-arg index="1" ref="cashBalanceDao"/>
-        <constructor-arg index="2" ref="strategyDao"/>
-        <constructor-arg index="3" ref="transactionDao"/>
+        <constructor-arg index="1" ref="portfolioService"/>
+        <constructor-arg index="2" ref="sessionFactory"/>
+        <constructor-arg index="3" ref="positionDao"/>
+        <constructor-arg index="4" ref="transactionDao"/>
+        <constructor-arg index="5" ref="cashBalanceDao"/>
     </bean>
 
     <bean id="transactionService" class="ch.algotrader.service.TransactionServiceImpl" >
         <constructor-arg index="0" ref="commonConfig"/>
         <constructor-arg index="1" ref="coreConfig"/>
-        <constructor-arg index="2" ref="cashBalanceService"/>
+        <constructor-arg index="2" ref="transactionPersistenceService"/>
         <constructor-arg index="3" ref="portfolioService"/>
-        <constructor-arg index="4" ref="sessionFactory"/>
-        <constructor-arg index="5" ref="positionDao"/>
-        <constructor-arg index="6" ref="transactionDao"/>
-        <constructor-arg index="7" ref="strategyDao"/>
-        <constructor-arg index="8" ref="securityDao"/>
-        <constructor-arg index="9" ref="accountDao"/>
-        <constructor-arg index="10" ref="portfolioValueDao"/>
+        <constructor-arg index="4" ref="strategyDao"/>
+        <constructor-arg index="5" ref="securityDao"/>
+        <constructor-arg index="6" ref="accountDao"/>
     </bean>
 
     <bean id="marketDataService" class="ch.algotrader.service.MarketDataServiceImpl" >
@@ -186,14 +183,15 @@
         <constructor-arg index="0" ref="commonConfig"/>
         <constructor-arg index="1" ref="coreConfig"/>
         <constructor-arg index="2" ref="lookupService"/>
-        <constructor-arg index="3" ref="genericDao"/>
-        <constructor-arg index="4" ref="strategyDao"/>
-        <constructor-arg index="5" ref="transactionDao"/>
-        <constructor-arg index="6" ref="positionDao"/>
-        <constructor-arg index="7" ref="cashBalanceDao"/>
-        <constructor-arg index="8" ref="portfolioValueDao"/>
-        <constructor-arg index="9" ref="tickDao"/>
-        <constructor-arg index="10" ref="forexDao"/>
+        <constructor-arg index="3" ref="sessionFactory"/>
+        <constructor-arg index="4" ref="genericDao"/>
+        <constructor-arg index="5" ref="strategyDao"/>
+        <constructor-arg index="6" ref="transactionDao"/>
+        <constructor-arg index="7" ref="positionDao"/>
+        <constructor-arg index="8" ref="cashBalanceDao"/>
+        <constructor-arg index="9" ref="portfolioValueDao"/>
+        <constructor-arg index="10" ref="tickDao"/>
+        <constructor-arg index="11" ref="forexDao"/>
     </bean>
 
     <bean id="portfolioChartService" class="ch.algotrader.service.PortfolioChartServiceImpl" >

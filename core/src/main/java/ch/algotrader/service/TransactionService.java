@@ -22,11 +22,9 @@ import java.util.Date;
 import java.util.List;
 
 import ch.algotrader.entity.Transaction;
-import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.TransactionType;
-import ch.algotrader.vo.PositionMutationVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -67,7 +65,7 @@ public interface TransactionService {
      * closes a Position, a corresponding {@link ch.algotrader.vo.TradePerformanceVO
      * TradePerformanceVO} is calculated.
      */
-    public PositionMutationVO persistTransaction(Transaction transaction);
+    public void persistTransaction(Transaction transaction);
 
     /**
      * Propagates a Fill to the corresponding Strategy.
@@ -85,23 +83,11 @@ public interface TransactionService {
      */
     public void rebalancePortfolio();
 
-    /**
-     * Saves current Portfolio Values for all Strategies marked as {@code autoActivate}
-     */
-    public void savePortfolioValues();
 
     /**
-     * Saves current Portfolio Values as a consequence for a performance relevant Transaction. See
-     * {@link Transaction#isPerformanceRelevant}. If there have been
-     * PortfolioValues created since this Transaction, they are recreated (including PortfolioValues
-     * of Base).
+     * Calculates all Cash Balances based on Transactions in the database and makes adjustments if
+     * necessary
      */
-    public void savePortfolioValue(Transaction transaction);
-
-    /**
-     * Restores all PortfolioValues of the specified Strategy after the {@code fromDate} up to and
-     * including the {@code toDate}.
-     */
-    public void restorePortfolioValues(Strategy strategy, Date fromDate, Date toDate);
+    public String resetCashBalances();
 
 }

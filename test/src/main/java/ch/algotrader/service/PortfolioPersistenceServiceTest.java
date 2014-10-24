@@ -40,6 +40,6 @@ public class PortfolioPersistenceServiceTest extends LocalServiceTest {
 
         Strategy strategy = ServiceLocator.instance().getLookupService().getStrategyByName("BASE");
 
-        ServiceLocator.instance().getService("transactionService", TransactionService.class).restorePortfolioValues(strategy, fromDate, new Date());
+        ServiceLocator.instance().getService("portfolioService", PortfolioService.class).restorePortfolioValues(strategy, fromDate, new Date());
     }
 }

@@ -22,12 +22,19 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
+import org.apache.commons.collections15.keyvalue.MultiKey;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
+import org.hibernate.SessionFactory;
+import org.springframework.scheduling.support.CronSequenceGenerator;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.CoreConfig;
@@ -74,6 +81,8 @@ public class PortfolioServiceImpl implements PortfolioService {
 
     private final LookupService lookupService;
 
+    private final SessionFactory sessionFactory;
+
     private final GenericDao genericDao;
 
     private final StrategyDao strategyDao;
@@ -93,6 +102,7 @@ public class PortfolioServiceImpl implements PortfolioService {
     public PortfolioServiceImpl(final CommonConfig commonConfig,
             final CoreConfig coreConfig,
             final LookupService lookupService,
+            final SessionFactory sessionFactory,
             final GenericDao genericDao,
             final StrategyDao strategyDao,
             final TransactionDao transactionDao,
@@ -105,6 +115,7 @@ public class PortfolioServiceImpl implements PortfolioService {
         Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(coreConfig, "CoreConfig is null");
         Validate.notNull(lookupService, "LookupService is null");
+        Validate.notNull(sessionFactory, "SessionFactory is null");
         Validate.notNull(genericDao, "GenericDao is null");
         Validate.notNull(strategyDao, "StrategyDao is null");
         Validate.notNull(transactionDao, "TransactionDao is null");
@@ -117,6 +128,7 @@ public class PortfolioServiceImpl implements PortfolioService {
         this.commonConfig = commonConfig;
         this.coreConfig = coreConfig;
         this.lookupService = lookupService;
+        this.sessionFactory = sessionFactory;
         this.genericDao = genericDao;
         this.strategyDao = strategyDao;
         this.transactionDao = transactionDao;
@@ -994,4 +1006,142 @@ public class PortfolioServiceImpl implements PortfolioService {
         }
         return balances;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void savePortfolioValue(final Transaction transaction) {
+
+        // do not save PortfolioValue in simulation
+        if (this.commonConfig.isSimulation()) {
+            return;
+        }
+
+        // only process performanceRelevant transactions
+        if (transaction.isPerformanceRelevant()) {
+
+            // check if there is an existing portfolio value
+            Collection<PortfolioValue> portfolioValues = this.portfolioValueDao.findByStrategyAndMinDate(transaction.getStrategy().getName(), transaction.getDateTime());
+
+            if (portfolioValues.size() > 0) {
+
+                logger.warn("transaction date is in the past, please restore portfolio values");
+
+            } else {
+
+                // create and save the portfolio value
+                PortfolioValue portfolioValue = getPortfolioValue(transaction.getStrategy().getName());
+
+                portfolioValue.setCashFlow(transaction.getGrossValue());
+
+                this.portfolioValueDao.create(portfolioValue);
+            }
+        }
+
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void savePortfolioValues() {
+
+        for (Strategy strategy : this.strategyDao.findAutoActivateStrategies()) {
+
+            PortfolioValue portfolioValue = getPortfolioValue(strategy.getName());
+
+            // truncate Date to hour
+            portfolioValue.setDateTime(DateUtils.truncate(portfolioValue.getDateTime(), Calendar.HOUR));
+
+            this.portfolioValueDao.create(portfolioValue);
+        }
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void restorePortfolioValues(final Strategy strategy, final Date fromDate, final Date toDate) {
+
+        Validate.notNull(strategy, "Strategy is null");
+        Validate.notNull(fromDate, "From date is null");
+        Validate.notNull(toDate, "To date is null");
+
+        // delete existing portfolio values;
+        List<PortfolioValue> portfolioValues = this.portfolioValueDao.findByStrategyAndMinDate(strategy.getName(), fromDate);
+
+        if (portfolioValues.size() > 0) {
+
+            this.portfolioValueDao.remove(portfolioValues);
+
+            // need to flush since new portfoliovalues will be created with same date and strategy
+            this.sessionFactory.getCurrentSession().flush();
+        }
+
+        // init cron
+        CronSequenceGenerator cron = new CronSequenceGenerator("0 0 * * * 1-5", TimeZone.getDefault());
+
+        // group PortfolioValues by strategyId and date
+        Map<MultiKey<Long>, PortfolioValue> portfolioValueMap = new HashMap<MultiKey<Long>, PortfolioValue>();
+
+        // create portfolioValues for all cron time slots
+        Date date = cron.next(DateUtils.addHours(fromDate, -1));
+        while (date.compareTo(toDate) <= 0) {
+
+            PortfolioValue portfolioValue = getPortfolioValue(strategy.getName(), date);
+            if (portfolioValue.getNetLiqValueDouble() == 0) {
+                date = cron.next(date);
+                continue;
+            } else {
+                MultiKey<Long> key = new MultiKey<Long>((long) strategy.getId(), date.getTime());
+                portfolioValueMap.put(key, portfolioValue);
+
+                logger.info("processed portfolioValue for " + strategy.getName() + " " + date);
+
+                date = cron.next(date);
+            }
+        }
+
+        // save values for all cashFlows
+        List<Transaction> transactions = this.transactionDao.findCashflowsByStrategyAndMinDate(strategy.getName(), fromDate);
+        for (Transaction transaction : transactions) {
+
+            // only process performanceRelevant transactions
+            if (!transaction.isPerformanceRelevant()) {
+                continue;
+            }
+
+            // do not save before fromDate
+            if (transaction.getDateTime().compareTo(fromDate) < 0) {
+                continue;
+            }
+
+            // if there is an existing PortfolioValue, add the cashFlow
+            MultiKey<Long> key = new MultiKey<Long>((long) transaction.getStrategy().getId(), transaction.getDateTime().getTime());
+            if (portfolioValueMap.containsKey(key)) {
+                PortfolioValue portfolioValue = portfolioValueMap.get(key);
+                if (portfolioValue.getCashFlow() != null) {
+                    portfolioValue.setCashFlow(portfolioValue.getCashFlow().add(transaction.getGrossValue()));
+                } else {
+                    portfolioValue.setCashFlow(transaction.getGrossValue());
+                }
+            } else {
+                PortfolioValue portfolioValue = getPortfolioValue(transaction.getStrategy().getName(), transaction.getDateTime());
+                portfolioValue.setCashFlow(transaction.getGrossValue());
+                portfolioValueMap.put(key, portfolioValue);
+            }
+
+            logger.info("processed portfolioValue for " + transaction.getStrategy().getName() + " " + transaction.getDateTime() + " cashflow " + transaction.getGrossValue());
+        }
+
+        // perisist the PortfolioValues
+        this.portfolioValueDao.create(portfolioValueMap.values());
+    }
+
 }
