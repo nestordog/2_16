@@ -524,7 +524,7 @@ public class OrderServiceImpl implements OrderService, ApplicationContextAware {
             return instance;
         }
 
-        public String getNextOrderId() {
+        public synchronized String getNextOrderId() {
             return "a" + String.valueOf(this.orderId++);
         }
     }
