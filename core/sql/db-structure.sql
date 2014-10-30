@@ -634,6 +634,7 @@ CREATE TABLE `order_status` (
   `LAST_PRICE` decimal(15,6) DEFAULT NULL,
   `INT_ID` varchar(30) DEFAULT NULL,
   `EXT_ID` varchar(30) DEFAULT NULL,
+  `SEQUENCE_NUMBER` bigint(20) DEFAULT NULL,
   `REASON` varchar(255) DEFAULT NULL,
   `ORDER_FK` int(11) NOT NULL,
   PRIMARY KEY (`ID`),
