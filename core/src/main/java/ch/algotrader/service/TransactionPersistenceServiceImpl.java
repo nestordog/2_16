@@ -122,8 +122,8 @@ public class TransactionPersistenceServiceImpl implements TransactionPersistence
 
             SQLQuery sqlQuery = currentSession.createSQLQuery(
                     "INSERT IGNORE INTO position " +
-                            "  (quantity, cost, realized_p_l, maintenance_margin, exit_value, persistent, security_fk, strategy_fk, version) " +
-                            "  VALUES (0, 0, 0, 0, 0, 0, :security_id, :strategy_id, 1)");
+                            "  (quantity, cost, realized_p_l, persistent, security_fk, strategy_fk, version) " +
+                            "  VALUES (0, 0, 0, 0, :security_id, :strategy_id, 1)");
             sqlQuery.setParameter("security_id", security.getId());
             sqlQuery.setParameter("strategy_id", strategy.getId());
             sqlQuery.executeUpdate();
