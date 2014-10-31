@@ -42,6 +42,7 @@ public final class CoreConfigBuilder {
     private int fxHedgeMinAmount;
     private int fxHedgeBatchSize;
     private int deltaHedgeMinTimeToExpiration;
+    private boolean positionCheckDisabled;
 
     CoreConfigBuilder() {
         this.rebalanceMinAmount = new BigDecimal("1000");
@@ -112,11 +113,16 @@ public final class CoreConfigBuilder {
         return this;
     }
 
+    public CoreConfigBuilder setPositionCheckDisabled(final boolean positionCheckDisabled) {
+        this.positionCheckDisabled = positionCheckDisabled;
+        return this;
+    }
+
     public CoreConfig build() {
         return new CoreConfig(simulateOptions, simulateFuturesByUnderlying, simulateFuturesByGenericFutures, transactionDisplayCount,
                 intervalDays, rebalanceMinAmount, defaultFeedType,
                 fxFutureHedgeEnabled, fxFutureHedgeMinTimeToExpiration, fxHedgeMinAmount, fxHedgeBatchSize,
-                deltaHedgeMinTimeToExpiration);
+                deltaHedgeMinTimeToExpiration, positionCheckDisabled);
     }
 
 }

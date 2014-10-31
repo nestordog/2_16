@@ -250,7 +250,10 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public void persistTransaction(final Transaction transaction) {
 
-        this.transactionPersistenceService.ensurePositionAndCashBalance(transaction);
+        if (!this.coreConfig.isPositionCheckDisabled()) {
+
+            this.transactionPersistenceService.ensurePositionAndCashBalance(transaction);
+        }
         this.transactionPersistenceService.saveTransaction(transaction);
     }
 
@@ -309,7 +312,10 @@ public class TransactionServiceImpl implements TransactionService {
 
     private void processTransaction(final Transaction transaction) {
 
-        this.transactionPersistenceService.ensurePositionAndCashBalance(transaction);
+        if (!this.coreConfig.isPositionCheckDisabled()) {
+
+            this.transactionPersistenceService.ensurePositionAndCashBalance(transaction);
+        }
         PositionMutationVO positionMutationEvent = this.transactionPersistenceService.saveTransaction(transaction);
 
         // check if esper is initialized
@@ -392,9 +398,12 @@ public class TransactionServiceImpl implements TransactionService {
             logger.info("no rebalancing is performed because all rebalancing amounts are below min amount " + this.coreConfig.getRebalanceMinAmount());
         }
 
-        for (Transaction transaction : transactions) {
+        if (!this.coreConfig.isPositionCheckDisabled()) {
 
-            this.transactionPersistenceService.ensurePositionAndCashBalance(transaction);
+            for (Transaction transaction : transactions) {
+
+                this.transactionPersistenceService.ensurePositionAndCashBalance(transaction);
+            }
         }
 
         this.transactionPersistenceService.saveTransactions(transactions);
