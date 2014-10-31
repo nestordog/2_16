@@ -104,7 +104,7 @@ public class TransactionPersistenceServiceImpl implements TransactionPersistence
      * {@inheritDoc}
      */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void ensurePosition(final Transaction transaction) {
+    public void ensurePositionAndCashBalance(final Transaction transaction) {
 
         Validate.notNull(transaction, "Transaction is null");
 
@@ -160,8 +160,12 @@ public class TransactionPersistenceServiceImpl implements TransactionPersistence
         Security security = transaction.getSecurity();
         if (security != null) {
 
-            // create a new position if necessary
-            Position position = this.positionDao.findBySecurityAndStrategyIdLocked(security.getId(), strategy.getId());
+            Position position;
+            if (this.commonConfig.isSimulation()) {
+                position = this.positionDao.findBySecurityAndStrategy(security.getId(), strategy.getName());
+            } else {
+                position = this.positionDao.findBySecurityAndStrategyIdLocked(security.getId(), strategy.getId());
+            }
             if (position == null) {
                 throw new TransactionServiceException("Position for strategy " + strategy.getName() +
                         " / security " + security.getId() + " not found ", null);
@@ -200,7 +204,12 @@ public class TransactionPersistenceServiceImpl implements TransactionPersistence
         for (CurrencyAmountVO amount : transaction.getAttributions()) {
 
             Currency currency = amount.getCurrency();
-            CashBalance cashBalance = this.cashBalanceDao.findByStrategyAndCurrencyLocked(strategy, currency);
+            CashBalance cashBalance;
+            if (this.commonConfig.isSimulation()) {
+                cashBalance = this.cashBalanceDao.findByStrategyAndCurrency(strategy, currency);
+            } else {
+                cashBalance = this.cashBalanceDao.findByStrategyAndCurrencyLocked(strategy, currency);
+            }
             if (cashBalance == null) {
                 throw new TransactionServiceException("Cash balance for strategy " + strategy.getName() +
                         " / currency " + currency + " not found ", null);

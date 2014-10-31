@@ -34,7 +34,7 @@ public interface TransactionPersistenceService {
      * and security and {@link ch.algotrader.entity.strategy.CashBalance}s records
      * for the given strategy and currencies required to sa.
      */
-    void ensurePosition(Transaction transaction);
+    void ensurePositionAndCashBalance(Transaction transaction);
 
     /**
      * Saves the given {@link ch.algotrader.entity.Transaction}, updates the corresponding

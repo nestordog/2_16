@@ -250,7 +250,7 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public void persistTransaction(final Transaction transaction) {
 
-        this.transactionPersistenceService.ensurePosition(transaction);
+        this.transactionPersistenceService.ensurePositionAndCashBalance(transaction);
         this.transactionPersistenceService.saveTransaction(transaction);
     }
 
@@ -309,7 +309,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     private void processTransaction(final Transaction transaction) {
 
-        this.transactionPersistenceService.ensurePosition(transaction);
+        this.transactionPersistenceService.ensurePositionAndCashBalance(transaction);
         PositionMutationVO positionMutationEvent = this.transactionPersistenceService.saveTransaction(transaction);
 
         // check if esper is initialized
@@ -394,7 +394,7 @@ public class TransactionServiceImpl implements TransactionService {
 
         for (Transaction transaction : transactions) {
 
-            this.transactionPersistenceService.ensurePosition(transaction);
+            this.transactionPersistenceService.ensurePositionAndCashBalance(transaction);
         }
 
         this.transactionPersistenceService.saveTransactions(transactions);
