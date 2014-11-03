@@ -136,7 +136,9 @@ select
 from
     TickWindow as tickWindow
 where
-    tickWindow.tickerId = tickPrice.tickerId;
+    tickWindow.tickerId = tickPrice.tickerId
+and
+    tickPrice.price != -1.0;    
 
 @Name('INSERT_INTO_GENERIC_TICK_IB_CLOSE')
 @RunTimeOnly()
@@ -153,7 +155,9 @@ select
 from
     TickWindow as tickWindow
 where
-    tickWindow.tickerId = tickPrice.tickerId;
+    tickWindow.tickerId = tickPrice.tickerId
+and
+    tickPrice.price != -1.0;
 
 // ----------------------------------------------- ORDER STATUS ----------------------------------------------
 
