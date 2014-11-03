@@ -71,7 +71,7 @@ public abstract class Fix44OrderServiceImpl extends FixOrderServiceImpl implemen
         NewOrderSingle message = this.messageFactory.createNewOrderMessage(order, clOrdID);
 
         // broker-specific settings
-        sendOrder(order, message);
+        prepareSendOrder(order, message);
 
         // send the message
         sendOrder(order, message, true);
@@ -89,7 +89,7 @@ public abstract class Fix44OrderServiceImpl extends FixOrderServiceImpl implemen
         OrderCancelReplaceRequest message = this.messageFactory.createModifyOrderMessage(order, clOrdID);
 
         // broker-specific settings
-        modifyOrder(order, message);
+        prepareModifyOrder(order, message);
 
         // send the message
         sendOrder(order, message, true);
@@ -107,7 +107,7 @@ public abstract class Fix44OrderServiceImpl extends FixOrderServiceImpl implemen
         OrderCancelRequest message = this.messageFactory.createOrderCancelMessage(order, clOrdID);
 
         // broker-specific settings
-        cancelOrder(order, message);
+        prepareCancelOrder(order, message);
 
         // send the message
         sendOrder(order, message, false);
@@ -118,18 +118,18 @@ public abstract class Fix44OrderServiceImpl extends FixOrderServiceImpl implemen
      * {@inheritDoc}
      */
     @Override
-    public abstract void sendOrder(final SimpleOrder order, final NewOrderSingle newOrder);
+    public abstract void prepareSendOrder(final SimpleOrder order, final NewOrderSingle newOrder);
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public abstract void modifyOrder(final SimpleOrder order, final OrderCancelReplaceRequest replaceRequest);
+    public abstract void prepareModifyOrder(final SimpleOrder order, final OrderCancelReplaceRequest replaceRequest);
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public abstract void cancelOrder(final SimpleOrder order, final OrderCancelRequest cancelRequest);
+    public abstract void prepareCancelOrder(final SimpleOrder order, final OrderCancelRequest cancelRequest);
 
 }

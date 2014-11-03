@@ -77,7 +77,7 @@ public class OrderServiceImpl implements OrderService, ApplicationContextAware {
 
     private final AccountDao accountDao;
 
-    private final OrderPersistenceService orderPersistStrategy;
+    private final OrderPersistenceService orderPersistService;
 
     public OrderServiceImpl(final CommonConfig commonConfig,
             final OrderDao orderDao,
@@ -101,7 +101,7 @@ public class OrderServiceImpl implements OrderService, ApplicationContextAware {
         this.strategyDao = strategyDao;
         this.securityDao = securityDao;
         this.accountDao = accountDao;
-        this.orderPersistStrategy = orderPersistStrategy;
+        this.orderPersistService = orderPersistStrategy;
     }
 
     @Override
@@ -186,7 +186,6 @@ public class OrderServiceImpl implements OrderService, ApplicationContextAware {
             Account account = order.getAccount();
             Validate.notNull(account, "missing account for order: " + order);
             getExternalOrderService(account).sendOrder((SimpleOrder) order);
-            persistOrder(order);
         }
 
     }
@@ -296,6 +295,20 @@ public class OrderServiceImpl implements OrderService, ApplicationContextAware {
      * {@inheritDoc}
      */
     @Override
+    public void persistOrder(Order order) {
+
+        if (this.commonConfig.isSimulation()) {
+            return;
+        }
+
+        // save order to the DB by using the corresponding OrderDao
+        this.orderPersistService.persistOrder(order);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void propagateOrder(final Order order) {
 
         Validate.notNull(order, "Order is null");
@@ -342,7 +355,7 @@ public class OrderServiceImpl implements OrderService, ApplicationContextAware {
             // only store OrderStatus for non AlgoOrders
             if (!(orderStatus.getOrder() instanceof AlgoOrder)) {
 
-                this.orderPersistStrategy.persistOrderStatus(orderStatus);
+                this.orderPersistService.persistOrderStatus(orderStatus);
             }
         }
 
@@ -458,18 +471,7 @@ public class OrderServiceImpl implements OrderService, ApplicationContextAware {
             Account account = order.getAccount();
             Validate.notNull(account, "missing account for order: " + order);
             getExternalOrderService(account).modifyOrder((SimpleOrder) order);
-            persistOrder(order);
         }
-    }
-
-    private void persistOrder(Order order) {
-
-        if (this.commonConfig.isSimulation()) {
-            return;
-        }
-
-        // save order to the DB by using the corresponding OrderDao
-        this.orderPersistStrategy.persistOrder(order);
     }
 
     /**

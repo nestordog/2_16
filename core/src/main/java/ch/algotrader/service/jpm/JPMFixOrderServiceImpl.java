@@ -54,7 +54,7 @@ public class JPMFixOrderServiceImpl extends Fix42OrderServiceImpl implements JPM
     }
 
     @Override
-    public void sendOrder(SimpleOrder order, NewOrderSingle newOrder) {
+    public void prepareSendOrder(SimpleOrder order, NewOrderSingle newOrder) {
 
         Validate.notNull(order, "Order is null");
         Validate.notNull(newOrder, "New order is null");
@@ -70,7 +70,7 @@ public class JPMFixOrderServiceImpl extends Fix42OrderServiceImpl implements JPM
     }
 
     @Override
-    public void modifyOrder(SimpleOrder order, OrderCancelReplaceRequest replaceRequest) {
+    public void prepareModifyOrder(SimpleOrder order, OrderCancelReplaceRequest replaceRequest) {
 
         Validate.notNull(order, "Order is null");
         Validate.notNull(replaceRequest, "Replace request is null");
@@ -86,7 +86,7 @@ public class JPMFixOrderServiceImpl extends Fix42OrderServiceImpl implements JPM
     }
 
     @Override
-    public void cancelOrder(SimpleOrder order, OrderCancelRequest cancelRequest) {
+    public void prepareCancelOrder(SimpleOrder order, OrderCancelRequest cancelRequest) {
 
         Validate.notNull(order, "Order is null");
         Validate.notNull(cancelRequest, "Cancel request is null");

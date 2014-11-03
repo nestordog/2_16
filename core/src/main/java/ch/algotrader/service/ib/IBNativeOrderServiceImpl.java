@@ -172,11 +172,14 @@ public class IBNativeOrderServiceImpl extends ExternalOrderServiceImpl implement
         // create the IB order object
         com.ib.client.Order iBOrder = this.iBOrderMessageFactory.createOrderMessage(order, contract);
 
-        // progapate the order to all corresponding esper engines
-        this.orderService.propagateOrder(order);
+        // persist the order into the database
+        this.orderService.persistOrder(order);
 
         // place the order through IBSession
         this.iBSession.placeOrder(Integer.parseInt(order.getIntId()), contract, iBOrder);
+
+        // propagate the order to all corresponding Esper engines
+        this.orderService.propagateOrder(order);
 
         logger.info("placed or modified order: " + order);
     }

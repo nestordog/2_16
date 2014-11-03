@@ -44,17 +44,17 @@ public class UBSFixOrderServiceImpl extends Fix42OrderServiceImpl implements UBS
     }
 
     @Override
-    public void sendOrder(SimpleOrder order, NewOrderSingle newOrder) {
+    public void prepareSendOrder(SimpleOrder order, NewOrderSingle newOrder) {
         // TODO Auto-generated method stub
     }
 
     @Override
-    public void modifyOrder(SimpleOrder order, OrderCancelReplaceRequest replaceRequest) {
+    public void prepareModifyOrder(SimpleOrder order, OrderCancelReplaceRequest replaceRequest) {
         // TODO Auto-generated method stub
     }
 
     @Override
-    public void cancelOrder(SimpleOrder order, OrderCancelRequest cancelRequest) {
+    public void prepareCancelOrder(SimpleOrder order, OrderCancelRequest cancelRequest) {
         // TODO Auto-generated method stub
     }
 

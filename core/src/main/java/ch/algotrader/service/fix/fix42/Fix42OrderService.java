@@ -33,16 +33,16 @@ public interface Fix42OrderService extends FixOrderService {
     /**
      * Called before sending the Order so that Broker specific Tags can be set.
      */
-    public void sendOrder(SimpleOrder order, NewOrderSingle newOrder);
+    public void prepareSendOrder(SimpleOrder order, NewOrderSingle newOrder);
 
     /**
      * Called before modifying the Order so that Broker specific Tags can be set.
      */
-    public void modifyOrder(SimpleOrder order, OrderCancelReplaceRequest replaceRequest);
+    public void prepareModifyOrder(SimpleOrder order, OrderCancelReplaceRequest replaceRequest);
 
     /**
      * Called before canceling the Order so that Broker specific Tags can be set.
      */
-    public void cancelOrder(SimpleOrder order, OrderCancelRequest cancelRequest);
+    public void prepareCancelOrder(SimpleOrder order, OrderCancelRequest cancelRequest);
 
 }

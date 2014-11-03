@@ -76,6 +76,11 @@ public interface OrderService {
     public void modifyOrder(String intId, Map<String, String> properties);
 
     /**
+     * Persists the Order into the database
+     */
+    public void persistOrder(Order order);
+
+    /**
      * Propagates an Order to the corresponding Strategy.
      */
     public void propagateOrder(Order order);
@@ -85,6 +90,9 @@ public interface OrderService {
      */
     public void propagateOrderStatus(OrderStatus orderStatus);
 
+    /**
+     * Propagates an {@link OrderCompletion} to the corresponding Strategy.
+     */
     public void propagateOrderCompletion(OrderCompletion orderCompletion);
 
     /**

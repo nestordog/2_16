@@ -20,16 +20,16 @@ package ch.algotrader.service.fix;
 import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
 
+import quickfix.FieldNotFound;
+import quickfix.Message;
+import quickfix.StringField;
+import quickfix.field.MsgType;
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.service.ExternalOrderServiceImpl;
 import ch.algotrader.service.OrderService;
 import ch.algotrader.util.MyLogger;
-import quickfix.FieldNotFound;
-import quickfix.Message;
-import quickfix.StringField;
-import quickfix.field.MsgType;
 
 /**
  * Generic FIX order service
@@ -81,7 +81,10 @@ public abstract class FixOrderServiceImpl extends ExternalOrderServiceImpl imple
         Validate.notNull(order, "Order is null");
         Validate.notNull(message, "Message is null");
 
-        // send the message to the FixClient
+        // persist the order into the database
+        this.orderService.persistOrder(order);
+
+        // send the message to the Fix Adapter
         this.fixAdapter.sendMessage(message, order.getAccount());
 
         StringField msgType;
@@ -101,6 +104,7 @@ public abstract class FixOrderServiceImpl extends ExternalOrderServiceImpl imple
             throw new IllegalArgumentException("unsupported messagetype: " + msgType);
         }
 
+        // propagate the order to all corresponding Esper engines
         if (propagate) {
             this.orderService.propagateOrder(order);
         }
