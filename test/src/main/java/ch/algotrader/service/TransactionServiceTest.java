@@ -17,30 +17,21 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
-import ch.algotrader.entity.Transaction;
-import ch.algotrader.vo.CurrencyAmountVO;
+import org.junit.Test;
+
+import ch.algotrader.ServiceLocator;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public interface CashBalanceService {
+public class TransactionServiceTest extends LocalServiceTest {
 
-    /**
-     * Adjusts CashBalances according to the specified Transaction.
-     */
-    public void processTransaction(Transaction transaction);
+    @Test
+    public void testResetCashBalances() {
 
-    /**
-     * Adjusts CashBalances according to the specified Amount.
-     */
-    public void processAmount(String strategyName, CurrencyAmountVO amount);
-
-    /**
-     * Calculates all Cash Balances based on Transactions in the database and makes adjustments if
-     * necessary
-     */
-    public String resetCashBalances();
-
+        TransactionService service = ServiceLocator.instance().getService("transactionService", TransactionService.class);
+        service.resetCashBalances();
+    }
 }

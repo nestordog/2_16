@@ -43,6 +43,7 @@ public final class CoreConfig {
     private final int fxHedgeMinAmount;
     private final int fxHedgeBatchSize;
     private final int deltaHedgeMinTimeToExpiration;
+    private final boolean positionCheckDisabled;
 
     public CoreConfig(
             @ConfigName("statement.simulateOptions") boolean simulateOptions,
@@ -56,7 +57,8 @@ public final class CoreConfig {
             @ConfigName("fx.futureHedgeMinTimeToExpiration") int fxFutureHedgeMinTimeToExpiration,
             @ConfigName("fx.hedgeMinAmount") int fxHedgeMinAmount,
             @ConfigName("fx.hedgeBatchSize") int fxHedgeBatchSize,
-            @ConfigName("delta.hedgeMinTimeToExpiration") int deltaHedgeMinTimeToExpiration) {
+            @ConfigName("delta.hedgeMinTimeToExpiration") int deltaHedgeMinTimeToExpiration,
+            @ConfigName("persistence.positionCheckDisabled") boolean positionCheckDisabled) {
         this.simulateOptions = simulateOptions;
         this.simulateFuturesByUnderlying = simulateFuturesByUnderlying;
         this.simulateFuturesByGenericFutures = simulateFuturesByGenericFutures;
@@ -69,6 +71,7 @@ public final class CoreConfig {
         this.fxHedgeMinAmount = fxHedgeMinAmount;
         this.fxHedgeBatchSize = fxHedgeBatchSize;
         this.deltaHedgeMinTimeToExpiration = deltaHedgeMinTimeToExpiration;
+        this.positionCheckDisabled = positionCheckDisabled;
     }
 
     public boolean isSimulateOptions() {
@@ -119,6 +122,10 @@ public final class CoreConfig {
         return deltaHedgeMinTimeToExpiration;
     }
 
+    public boolean isPositionCheckDisabled() {
+        return positionCheckDisabled;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("[");
@@ -134,6 +141,7 @@ public final class CoreConfig {
         sb.append(", fxHedgeMinAmount=").append(fxHedgeMinAmount);
         sb.append(", fxHedgeBatchSize=").append(fxHedgeBatchSize);
         sb.append(", deltaHedgeMinTimeToExpiration=").append(deltaHedgeMinTimeToExpiration);
+        sb.append(", positionCheckDisabled=").append(positionCheckDisabled);
         sb.append(']');
         return sb.toString();
     }

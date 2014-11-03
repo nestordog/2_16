@@ -17,6 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.util;
 
+import java.io.Serializable;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.EntityMode;
@@ -27,6 +29,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.collection.AbstractPersistentCollection;
 import org.hibernate.impl.SessionFactoryImpl;
+import org.hibernate.impl.SessionImpl;
 import org.hibernate.persister.entity.AbstractEntityPersister;
 import org.hibernate.proxy.HibernateProxy;
 import org.hibernate.type.Type;
@@ -97,11 +100,21 @@ public class HibernateUtil {
      */
     public static int getDisriminatorValue(SessionFactory sessionFactory, Class<?> type) {
 
+        AbstractEntityPersister persister = getEntityPersister(sessionFactory, type);
+        return Integer.valueOf(persister.getDiscriminatorSQLValue());
+    }
+
+    public static Serializable getNextId(SessionFactory sessionFactory, Class<?> type) {
+
+        AbstractEntityPersister persister = getEntityPersister(sessionFactory, type);
+        return persister.getIdentifierGenerator().generate((SessionImpl) sessionFactory.getCurrentSession(), null);
+    }
+
+    private static AbstractEntityPersister getEntityPersister(SessionFactory sessionFactory, Class<?> type) {
+
         String className = StringUtils.removeEnd(type.getName(), "Impl") + "Impl";
         SessionFactoryImpl sessionFactoryImpl = (SessionFactoryImpl) sessionFactory;
-        AbstractEntityPersister persisiter = (AbstractEntityPersister) sessionFactoryImpl.getEntityPersister(className);
-        String discriminatorStringValue = persisiter.getDiscriminatorSQLValue();
-        return Integer.valueOf(discriminatorStringValue);
+        return (AbstractEntityPersister) sessionFactoryImpl.getEntityPersister(className);
     }
 
     /**

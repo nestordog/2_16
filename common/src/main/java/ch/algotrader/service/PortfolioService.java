@@ -22,7 +22,9 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 
+import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.strategy.PortfolioValue;
+import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.vo.BalanceVO;
 import ch.algotrader.vo.PortfolioValueVO;
 
@@ -305,5 +307,23 @@ public interface PortfolioService {
      * Gets the {@link BalanceVO CashBalances} for the specified Strategy.
      */
     public Collection<BalanceVO> getBalances(String strategyName);
+
+    /**
+     * Saves current Portfolio Values as a consequence for a performance relevant Transaction. See
+     * {@link ch.algotrader.entity.Transaction#isPerformanceRelevant}. If there have been
+     * PortfolioValues created since this Transaction, they are recreated (including PortfolioValues
+     * of Base).
+     */
+    public void savePortfolioValue(Transaction transaction);
+    /**
+     * Saves current Portfolio Values for all Strategies marked as {@code autoActivate}
+     */
+    public void savePortfolioValues();
+
+    /**
+     * Restores all PortfolioValues of the specified Strategy after the {@code fromDate} up to and
+     * including the {@code toDate}.
+     */
+    public void restorePortfolioValues(Strategy strategy, Date fromDate, Date toDate);
 
 }

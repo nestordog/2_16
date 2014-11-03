@@ -1,6 +1,6 @@
 @Name('SAVE_PORTFOLIO_VALUE')
 @RunTimeOnly()
-@Subscriber(className='ch.algotrader.service.TransactionService.savePortfolioValues')
+@Subscriber(className='ch.algotrader.service.PortfolioService.savePortfolioValues')
 select
     null
 from

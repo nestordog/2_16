@@ -48,8 +48,6 @@ public class BaseManagementServiceImpl implements BaseManagementService {
 
     private final ForexService forexService;
 
-    private final CashBalanceService cashBalanceService;
-
     private final CombinationService combinationService;
 
     private final TransactionService transactionService;
@@ -61,7 +59,6 @@ public class BaseManagementServiceImpl implements BaseManagementService {
     public BaseManagementServiceImpl(
             final PositionService positionService,
             final ForexService forexService,
-            final CashBalanceService cashBalanceService,
             final CombinationService combinationService,
             final TransactionService transactionService,
             final OptionService optionService,
@@ -69,7 +66,6 @@ public class BaseManagementServiceImpl implements BaseManagementService {
 
         Validate.notNull(positionService, "PositionService is null");
         Validate.notNull(forexService, "ForexService is null");
-        Validate.notNull(cashBalanceService, "CashBalanceService is null");
         Validate.notNull(combinationService, "CombinationService is null");
         Validate.notNull(transactionService, "TransactionService is null");
         Validate.notNull(optionService, "OptionService is null");
@@ -77,7 +73,6 @@ public class BaseManagementServiceImpl implements BaseManagementService {
 
         this.positionService = positionService;
         this.forexService = forexService;
-        this.cashBalanceService = cashBalanceService;
         this.combinationService = combinationService;
         this.transactionService = transactionService;
         this.optionService = optionService;
@@ -211,7 +206,7 @@ public class BaseManagementServiceImpl implements BaseManagementService {
     @ManagedOperationParameters({})
     public String resetPositionsAndCashBalances() {
 
-        return this.positionService.resetPositions() + this.cashBalanceService.resetCashBalances();
+        return this.positionService.resetPositions() + this.transactionService.resetCashBalances();
 
     }
 

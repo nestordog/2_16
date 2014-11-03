@@ -52,6 +52,7 @@ public class CoreConfigBeanFactoryTest {
         map.put("fx.hedgeMinAmount", "8000");
         map.put("fx.hedgeBatchSize", "100");
         map.put("delta.hedgeMinTimeToExpiration", "5");
+        map.put("persistence.positionCheckDisabled", "false");
     }
 
     @Test
@@ -75,6 +76,7 @@ public class CoreConfigBeanFactoryTest {
         Assert.assertEquals(8000, coreConfig.getFxHedgeMinAmount());
         Assert.assertEquals(100, coreConfig.getFxHedgeBatchSize());
         Assert.assertEquals(5, coreConfig.getDeltaHedgeMinTimeToExpiration());
+        Assert.assertEquals(false, coreConfig.isPositionCheckDisabled());
     }
 
     @Test(expected = ConfigBeanCreationException.class)

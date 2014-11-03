@@ -19,37 +19,22 @@ package ch.algotrader.service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
 
-import org.apache.commons.collections15.keyvalue.MultiKey;
 import org.apache.commons.lang.Validate;
-import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.math.util.MathUtils;
 import org.apache.log4j.Logger;
-import org.hibernate.SessionFactory;
-import org.springframework.scheduling.support.CronSequenceGenerator;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.CoreConfig;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.AccountDao;
-import ch.algotrader.entity.Position;
-import ch.algotrader.entity.PositionDao;
 import ch.algotrader.entity.Transaction;
-import ch.algotrader.entity.TransactionDao;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.entity.security.SecurityFamily;
-import ch.algotrader.entity.strategy.PortfolioValue;
-import ch.algotrader.entity.strategy.PortfolioValueDao;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.strategy.StrategyDao;
 import ch.algotrader.entity.strategy.StrategyImpl;
@@ -62,14 +47,10 @@ import ch.algotrader.enumeration.TransactionType;
 import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.util.DateUtil;
 import ch.algotrader.util.MyLogger;
-import ch.algotrader.util.PositionUtil;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.collection.CollectionUtil;
 import ch.algotrader.util.spring.HibernateSession;
-import ch.algotrader.vo.ClosePositionVO;
-import ch.algotrader.vo.OpenPositionVO;
 import ch.algotrader.vo.PositionMutationVO;
-import ch.algotrader.vo.TradePerformanceVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -81,21 +62,14 @@ public class TransactionServiceImpl implements TransactionService {
 
     private static Logger logger = MyLogger.getLogger(TransactionServiceImpl.class.getName());
     private static Logger mailLogger = MyLogger.getLogger(TransactionServiceImpl.class.getName() + ".MAIL");
-    private static Logger simulationLogger = MyLogger.getLogger(SimulationServiceImpl.class.getName() + ".RESULT");
 
     private final CommonConfig commonConfig;
 
     private final CoreConfig coreConfig;
 
-    private final CashBalanceService cashBalanceService;
+    private final TransactionPersistenceService transactionPersistenceService;
 
     private final PortfolioService portfolioService;
-
-    private final SessionFactory sessionFactory;
-
-    private final PositionDao positionDao;
-
-    private final TransactionDao transactionDao;
 
     private final StrategyDao strategyDao;
 
@@ -103,51 +77,36 @@ public class TransactionServiceImpl implements TransactionService {
 
     private final AccountDao accountDao;
 
-    private final PortfolioValueDao portfolioValueDao;
-
     public TransactionServiceImpl(
             final CommonConfig commonConfig,
             final CoreConfig coreConfig,
-            final CashBalanceService cashBalanceService,
+            final TransactionPersistenceService transactionPersistenceService,
             final PortfolioService portfolioService,
-            final SessionFactory sessionFactory,
-            final PositionDao positionDao,
-            final TransactionDao transactionDao,
             final StrategyDao strategyDao,
             final SecurityDao securityDao,
-            final AccountDao accountDao,
-            final PortfolioValueDao portfolioValueDao) {
+            final AccountDao accountDao) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(coreConfig, "CoreConfig is null");
-        Validate.notNull(cashBalanceService, "CashBalanceService is null");
+        Validate.notNull(transactionPersistenceService, "TransactionPersistenceService is null");
         Validate.notNull(portfolioService, "PortfolioService is null");
-        Validate.notNull(sessionFactory, "SessionFactory is null");
-        Validate.notNull(positionDao, "PositionDao is null");
-        Validate.notNull(transactionDao, "TransactionDao is null");
         Validate.notNull(strategyDao, "StrategyDao is null");
         Validate.notNull(securityDao, "SecurityDao is null");
         Validate.notNull(accountDao, "AccountDao is null");
-        Validate.notNull(portfolioValueDao, "PortfolioValueDao is null");
 
         this.commonConfig = commonConfig;
         this.coreConfig = coreConfig;
-        this.cashBalanceService = cashBalanceService;
+        this.transactionPersistenceService = transactionPersistenceService;
         this.portfolioService = portfolioService;
-        this.sessionFactory = sessionFactory;
-        this.positionDao = positionDao;
-        this.transactionDao = transactionDao;
         this.strategyDao = strategyDao;
         this.securityDao = securityDao;
         this.accountDao = accountDao;
-        this.portfolioValueDao = portfolioValueDao;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
     public void createTransaction(final Fill fill) {
 
         Validate.notNull(fill, "Fill is null");
@@ -206,7 +165,6 @@ public class TransactionServiceImpl implements TransactionService {
      * {@inheritDoc}
      */
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
     public void createTransaction(final int securityId, final String strategyName, final String extId, final Date dateTime, final long quantity, final BigDecimal price,
             final BigDecimal executionCommission, final BigDecimal clearingCommission, final BigDecimal fee, final Currency currency, final TransactionType transactionType, final String accountName,
             final String description) {
@@ -219,9 +177,10 @@ public class TransactionServiceImpl implements TransactionService {
         Currency currencyNonFinal = currency;
         long quantityNonFinal = quantity;
         // validations
-        Strategy strategy = this.strategyDao.findByName(strategyName);
+
+        Strategy strategy= this.strategyDao.findByName(strategyName);
         if (strategy == null) {
-            throw new IllegalArgumentException("strategy " + strategyName + " was not found");
+            throw new TransactionServiceException("strategy " + strategyName + " was not found", null);
         }
 
         int scale = this.commonConfig.getPortfolioDigits();
@@ -288,108 +247,14 @@ public class TransactionServiceImpl implements TransactionService {
 
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
-    public PositionMutationVO persistTransaction(final Transaction transaction) {
+    public void persistTransaction(final Transaction transaction) {
 
-        Validate.notNull(transaction, "Transaction is null");
+        if (!this.coreConfig.isPositionCheckDisabled()) {
 
-        OpenPositionVO openPositionVO = null;
-        ClosePositionVO closePositionVO = null;
-        TradePerformanceVO tradePerformance = null;
-
-        // position handling (incl ClosePositionVO and TradePerformanceVO)
-        if (transaction.getSecurity() != null) {
-
-            // create a new position if necessary
-            boolean existingOpenPosition = false;
-            Position position;
-            if (this.commonConfig.isSimulation()) {
-                position = this.positionDao.findBySecurityAndStrategyIdLocked(transaction.getSecurity().getId(), transaction.getStrategy().getId());
-            } else {
-                position = this.positionDao.findBySecurityAndStrategy(transaction.getSecurity().getId(), transaction.getStrategy().getName());
-            }
-
-            if (position == null) {
-
-                position = PositionUtil.processFirstTransaction(transaction);
-
-                // associate strategy
-                position.setStrategy(transaction.getStrategy());
-
-                this.positionDao.create(position);
-
-                // associate reverse-relations (after position has received an id)
-                transaction.setPosition(position);
-                transaction.getSecurity().addPositions(position);
-
-            } else {
-
-                existingOpenPosition = position.isOpen();
-
-                // get the closePositionVO (must be done before closing the position)
-                closePositionVO = this.positionDao.toClosePositionVO(position);
-
-                // process the transaction (adjust quantity, cost and realizedPL)
-                tradePerformance = PositionUtil.processTransaction(position, transaction);
-
-                // in case a position was closed reset exitValue and margin
-                if (!position.isOpen()) {
-
-                    // set all values to null
-                    position.setExitValue(null);
-                    position.setMaintenanceMargin(null);
-                } else {
-
-                    // reset the closePosition event
-                    closePositionVO = null;
-                }
-
-                // associate the position
-                transaction.setPosition(position);
-            }
-
-            // if no position was open before initialize the openPosition event
-            if (!existingOpenPosition) {
-                openPositionVO = this.positionDao.toOpenPositionVO(position);
-            }
+            this.transactionPersistenceService.ensurePositionAndCashBalance(transaction);
         }
-
-        // add the amount to the corresponding cashBalance
-        this.cashBalanceService.processTransaction(transaction);
-
-        // save a portfolioValue (if necessary)
-        savePortfolioValue(transaction);
-
-        // create the transaction
-        this.transactionDao.create(transaction);
-
-        CommonConfig commonConfig = this.commonConfig;
-
-        // prepare log message and propagate tradePerformance
-        String logMessage = "executed transaction: " + transaction;
-        if (tradePerformance != null && tradePerformance.getProfit() != 0.0) {
-
-            logMessage += ",profit=" + RoundUtil.getBigDecimal(tradePerformance.getProfit()) + ",profitPct=" + RoundUtil.getBigDecimal(tradePerformance.getProfitPct());
-
-            // propagate the TradePerformance event
-            if (commonConfig.isSimulation() && EngineLocator.instance().hasBaseEngine()) {
-                EngineLocator.instance().getBaseEngine().sendEvent(tradePerformance);
-            }
-        }
-
-        if (commonConfig.isSimulation() && commonConfig.isSimulationLogTransactions()) {
-            simulationLogger.info(logMessage);
-        } else {
-            logger.info(logMessage);
-        }
-
-        // return PositionMutation event if existent
-        return openPositionVO != null ? openPositionVO : closePositionVO != null ? closePositionVO : null;
-
+        this.transactionPersistenceService.saveTransaction(transaction);
     }
 
     /**
@@ -447,7 +312,11 @@ public class TransactionServiceImpl implements TransactionService {
 
     private void processTransaction(final Transaction transaction) {
 
-        PositionMutationVO positionMutationEvent = persistTransaction(transaction);
+        if (!this.coreConfig.isPositionCheckDisabled()) {
+
+            this.transactionPersistenceService.ensurePositionAndCashBalance(transaction);
+        }
+        PositionMutationVO positionMutationEvent = this.transactionPersistenceService.saveTransaction(transaction);
 
         // check if esper is initialized
         if (EngineLocator.instance().hasBaseEngine()) {
@@ -462,14 +331,13 @@ public class TransactionServiceImpl implements TransactionService {
                 EngineLocator.instance().sendEvent(transaction.getStrategy().getName(), transaction);
             }
             EngineLocator.instance().sendEvent(StrategyImpl.BASE, transaction);
-    }
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
     public void rebalancePortfolio() {
 
         Strategy base = this.strategyDao.findBase();
@@ -530,150 +398,25 @@ public class TransactionServiceImpl implements TransactionService {
             logger.info("no rebalancing is performed because all rebalancing amounts are below min amount " + this.coreConfig.getRebalanceMinAmount());
         }
 
-        for (Transaction transaction : transactions) {
+        if (!this.coreConfig.isPositionCheckDisabled()) {
 
-            persistTransaction(transaction);
+            for (Transaction transaction : transactions) {
+
+                this.transactionPersistenceService.ensurePositionAndCashBalance(transaction);
+            }
         }
 
+        this.transactionPersistenceService.saveTransactions(transactions);
     }
+
 
     /**
      * {@inheritDoc}
      */
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
-    public void savePortfolioValues() {
+    public String resetCashBalances() {
 
-        for (Strategy strategy : this.strategyDao.findAutoActivateStrategies()) {
-
-            PortfolioValue portfolioValue = this.portfolioService.getPortfolioValue(strategy.getName());
-
-            // truncate Date to hour
-            portfolioValue.setDateTime(DateUtils.truncate(portfolioValue.getDateTime(), Calendar.HOUR));
-
-            this.portfolioValueDao.create(portfolioValue);
-        }
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @Transactional(propagation = Propagation.REQUIRED)
-    public void savePortfolioValue(final Transaction transaction) {
-
-        Validate.notNull(transaction, "Transaction is null");
-
-        // do not save PortfolioValue in simulation
-        if (this.commonConfig.isSimulation()) {
-            return;
-        }
-
-        // only process performanceRelevant transactions
-        if (transaction.isPerformanceRelevant()) {
-
-            // check if there is an existing portfolio value
-            Collection<PortfolioValue> portfolioValues = this.portfolioValueDao.findByStrategyAndMinDate(transaction.getStrategy().getName(), transaction.getDateTime());
-
-            if (portfolioValues.size() > 0) {
-
-                logger.warn("transaction date is in the past, please restore portfolio values");
-
-            } else {
-
-                // create and save the portfolio value
-                PortfolioValue portfolioValue = this.portfolioService.getPortfolioValue(transaction.getStrategy().getName());
-
-                portfolioValue.setCashFlow(transaction.getGrossValue());
-
-                this.portfolioValueDao.create(portfolioValue);
-            }
-        }
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @Transactional(propagation = Propagation.REQUIRED)
-    public void restorePortfolioValues(final Strategy strategy, final Date fromDate, final Date toDate) {
-
-        Validate.notNull(strategy, "Strategy is null");
-        Validate.notNull(fromDate, "From date is null");
-        Validate.notNull(toDate, "To date is null");
-
-        // delete existing portfolio values;
-        List<PortfolioValue> portfolioValues = this.portfolioValueDao.findByStrategyAndMinDate(strategy.getName(), fromDate);
-
-        if (portfolioValues.size() > 0) {
-
-            this.portfolioValueDao.remove(portfolioValues);
-
-            // need to flush since new portfoliovalues will be created with same date and strategy
-            this.sessionFactory.getCurrentSession().flush();
-        }
-
-        // init cron
-        CronSequenceGenerator cron = new CronSequenceGenerator("0 0 * * * 1-5", TimeZone.getDefault());
-
-        // group PortfolioValues by strategyId and date
-        Map<MultiKey<Long>, PortfolioValue> portfolioValueMap = new HashMap<MultiKey<Long>, PortfolioValue>();
-
-        // create portfolioValues for all cron time slots
-        Date date = cron.next(DateUtils.addHours(fromDate, -1));
-        while (date.compareTo(toDate) <= 0) {
-
-            PortfolioValue portfolioValue = this.portfolioService.getPortfolioValue(strategy.getName(), date);
-            if (portfolioValue.getNetLiqValueDouble() == 0) {
-                date = cron.next(date);
-                continue;
-            } else {
-                MultiKey<Long> key = new MultiKey<Long>((long) strategy.getId(), date.getTime());
-                portfolioValueMap.put(key, portfolioValue);
-
-                logger.info("processed portfolioValue for " + strategy.getName() + " " + date);
-
-                date = cron.next(date);
-            }
-        }
-
-        // save values for all cashFlows
-        List<Transaction> transactions = this.transactionDao.findCashflowsByStrategyAndMinDate(strategy.getName(), fromDate);
-        for (Transaction transaction : transactions) {
-
-            // only process performanceRelevant transactions
-            if (!transaction.isPerformanceRelevant()) {
-                continue;
-            }
-
-            // do not save before fromDate
-            if (transaction.getDateTime().compareTo(fromDate) < 0) {
-                continue;
-            }
-
-            // if there is an existing PortfolioValue, add the cashFlow
-            MultiKey<Long> key = new MultiKey<Long>((long) transaction.getStrategy().getId(), transaction.getDateTime().getTime());
-            if (portfolioValueMap.containsKey(key)) {
-                PortfolioValue portfolioValue = portfolioValueMap.get(key);
-                if (portfolioValue.getCashFlow() != null) {
-                    portfolioValue.setCashFlow(portfolioValue.getCashFlow().add(transaction.getGrossValue()));
-                } else {
-                    portfolioValue.setCashFlow(transaction.getGrossValue());
-                }
-            } else {
-                PortfolioValue portfolioValue = this.portfolioService.getPortfolioValue(transaction.getStrategy().getName(), transaction.getDateTime());
-                portfolioValue.setCashFlow(transaction.getGrossValue());
-                portfolioValueMap.put(key, portfolioValue);
-            }
-
-            logger.info("processed portfolioValue for " + transaction.getStrategy().getName() + " " + transaction.getDateTime() + " cashflow " + transaction.getGrossValue());
-        }
-
-        // perisist the PortfolioValues
-        this.portfolioValueDao.create(portfolioValueMap.values());
-
+        return this.transactionPersistenceService.resetCashBalances();
     }
 
 }

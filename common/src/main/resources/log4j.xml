@@ -55,6 +55,11 @@
         <level value="error" />
     </logger>
 
+    <!-- Logs warnings when inserting position / cash balance records through native SQL -->
+    <logger name="org.hibernate.cache.ReadWriteCache">
+        <level value="error" />
+    </logger>
+
     <logger name="org.apache.commons">
         <level value="warn" />
     </logger>
