@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.HashSet;
@@ -34,6 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.PositionDao;
+import ch.algotrader.entity.PositionImpl;
 import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.TransactionDao;
 import ch.algotrader.entity.security.Security;
@@ -42,6 +44,7 @@ import ch.algotrader.entity.strategy.CashBalanceDao;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.esper.EngineLocator;
+import ch.algotrader.util.HibernateUtil;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.PositionUtil;
 import ch.algotrader.util.RoundUtil;
@@ -103,6 +106,7 @@ public class TransactionPersistenceServiceImpl implements TransactionPersistence
     /**
      * {@inheritDoc}
      */
+    @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void ensurePositionAndCashBalance(final Transaction transaction) {
 
@@ -120,10 +124,13 @@ public class TransactionPersistenceServiceImpl implements TransactionPersistence
 
         if (security != null) {
 
+            Serializable id = HibernateUtil.getNextId(this.sessionFactory, PositionImpl.class);
+
             SQLQuery sqlQuery = currentSession.createSQLQuery(
                     "INSERT IGNORE INTO position " +
-                            "  (quantity, cost, realized_p_l, persistent, security_fk, strategy_fk, version) " +
-                            "  VALUES (0, 0, 0, 0, :security_id, :strategy_id, 1)");
+                            "  (id, quantity, cost, realized_p_l, persistent, security_fk, strategy_fk, version) " +
+                            "  VALUES (:position_id, 0, 0, 0, 0, :security_id, :strategy_id, 1)");
+            sqlQuery.setParameter("position_id", id);
             sqlQuery.setParameter("security_id", security.getId());
             sqlQuery.setParameter("strategy_id", strategy.getId());
             sqlQuery.executeUpdate();
@@ -146,6 +153,7 @@ public class TransactionPersistenceServiceImpl implements TransactionPersistence
     /**
      * {@inheritDoc}
      */
+    @Override
     @Transactional(propagation = Propagation.REQUIRED)
     public PositionMutationVO saveTransaction(final Transaction transaction) {
 
