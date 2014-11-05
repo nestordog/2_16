@@ -30,6 +30,7 @@ import ch.algotrader.util.RoundUtil;
 import quickfix.FieldNotFound;
 import quickfix.field.CumQty;
 import quickfix.field.ExecType;
+import quickfix.field.MsgSeqNum;
 import quickfix.field.OrderQty;
 import quickfix.field.TransactTime;
 import quickfix.fix44.ExecutionReport;
@@ -75,10 +76,14 @@ public class LMAXFixOrderMessageHandler extends AbstractFix44OrderMessageHandler
         long filledQuantity = Math.round(executionReport.getCumQty().getValue() * MULTPLIER);
         long remainingQuantity = Math.round((executionReport.getOrderQty().getValue() - executionReport.getCumQty().getValue()) * MULTPLIER);
         String extId = executionReport.getExecID().getValue();
+        String intId = executionReport.getClOrdID().getValue();
 
         // assemble the orderStatus
         OrderStatus orderStatus = OrderStatus.Factory.newInstance();
         orderStatus.setStatus(status);
+        orderStatus.setExtId(extId);
+        orderStatus.setIntId(intId);
+        orderStatus.setSequenceNumber(executionReport.getHeader().getInt(MsgSeqNum.FIELD));
         orderStatus.setFilledQuantity(filledQuantity);
         orderStatus.setRemainingQuantity(remainingQuantity);
         orderStatus.setOrder(order);
@@ -86,15 +91,6 @@ public class LMAXFixOrderMessageHandler extends AbstractFix44OrderMessageHandler
 
             orderStatus.setExtDateTime(executionReport.getTransactTime().getValue());
         }
-
-        String intId = executionReport.getClOrdID().getValue();
-        // update intId in case it has changed
-        if (!intId.equals(order.getIntId())) {
-
-            orderStatus.setIntId(intId);
-        }
-
-        orderStatus.setExtId(extId);
 
         return orderStatus;
     }
@@ -117,10 +113,11 @@ public class LMAXFixOrderMessageHandler extends AbstractFix44OrderMessageHandler
             Fill fill = Fill.Factory.newInstance();
             fill.setDateTime(new Date());
             fill.setExtDateTime(extDateTime);
+            fill.setExtId(extId);
+            fill.setSequenceNumber(executionReport.getHeader().getInt(MsgSeqNum.FIELD));
             fill.setSide(side);
             fill.setQuantity(quantity);
             fill.setPrice(RoundUtil.getBigDecimal(price, order.getSecurity().getSecurityFamily().getScale()));
-            fill.setExtId(extId);
 
             return fill;
         } else {

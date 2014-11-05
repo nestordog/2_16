@@ -29,6 +29,7 @@ import ch.algotrader.util.RoundUtil;
 import quickfix.FieldNotFound;
 import quickfix.field.CumQty;
 import quickfix.field.ExecType;
+import quickfix.field.MsgSeqNum;
 import quickfix.field.OrderQty;
 import quickfix.field.TransactTime;
 import quickfix.fix44.ExecutionReport;
@@ -81,6 +82,7 @@ public class GenericFix44OrderMessageHandler extends AbstractFix44OrderMessageHa
         orderStatus.setStatus(status);
         orderStatus.setExtId(extId);
         orderStatus.setIntId(intId);
+        orderStatus.setSequenceNumber(executionReport.getHeader().getInt(MsgSeqNum.FIELD));
         orderStatus.setFilledQuantity(filledQuantity);
         orderStatus.setRemainingQuantity(remainingQuantity);
         orderStatus.setOrder(order);
@@ -107,11 +109,12 @@ public class GenericFix44OrderMessageHandler extends AbstractFix44OrderMessageHa
 
             // assemble the fill
             Fill fill = Fill.Factory.newInstance();
+            fill.setExtId(extId);
+            fill.setSequenceNumber(executionReport.getHeader().getInt(MsgSeqNum.FIELD));
             fill.setDateTime(new Date());
             fill.setSide(side);
             fill.setQuantity(quantity);
             fill.setPrice(RoundUtil.getBigDecimal(price, order.getSecurityInitialized().getSecurityFamilyInitialized().getScale()));
-            fill.setExtId(extId);
             if (executionReport.isSetField(TransactTime.FIELD)) {
                 fill.setExtDateTime(executionReport.getTransactTime().getValue());
             }
