@@ -19,6 +19,7 @@ package ch.algotrader.integration.cnx;
 
 import java.math.BigDecimal;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -47,6 +48,7 @@ import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
+import ch.algotrader.enumeration.TIF;
 import ch.algotrader.esper.AbstractEngine;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineLocator;
@@ -242,6 +244,8 @@ public class CNXIntegrationTest extends LocalServiceTest {
         order1.setQuantity(100000L);
         order1.setSide(Side.BUY);
         order1.setLimit(new BigDecimal(bestBid));
+        order1.setTif(TIF.GTC);
+        order1.setDateTime(new Date());
 
         Pair pair1 = new Pair<Order, Map<?, ?>>(order1, null);
         Mockito.when(engine.executeSingelObjectQuery(Mockito.anyString())).thenReturn(pair1);
@@ -287,7 +291,6 @@ public class CNXIntegrationTest extends LocalServiceTest {
         }
         Assert.assertTrue(executedOrder1);
 
-
         LimitOrder order2 = new LimitOrderImpl();
         order2.setSecurity(eurusd);
         order2.setAccount(account);
@@ -295,6 +298,8 @@ public class CNXIntegrationTest extends LocalServiceTest {
         order2.setQuantity(100000L);
         order2.setSide(Side.BUY);
         order2.setLimit(new BigDecimal(bestBid).multiply(new BigDecimal("1.1")).setScale(5, BigDecimal.ROUND_HALF_DOWN));
+        order2.setTif(TIF.GTC);
+        order2.setDateTime(new Date());
 
         Mockito.reset(engine);
 

@@ -18,6 +18,7 @@
 package ch.algotrader.integration.fxcm;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -45,6 +46,7 @@ import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
+import ch.algotrader.enumeration.TIF;
 import ch.algotrader.esper.AbstractEngine;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineLocator;
@@ -214,6 +216,8 @@ public class FXCMIntegrationTest extends LocalServiceTest {
         order.setQuantity(1000);
         order.setSide(Side.BUY);
         order.setLimit(new BigDecimal(bestBid));
+        order.setTif(TIF.GTC);
+        order.setDateTime(new Date());
 
         Pair pair = new Pair<Order, Map<?, ?>>(order, null);
         Mockito.when(engine.executeSingelObjectQuery(Mockito.anyString())).thenReturn(pair);
