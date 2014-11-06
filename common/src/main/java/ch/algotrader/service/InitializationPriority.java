@@ -15,22 +15,19 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.service.fix;
+package ch.algotrader.service;
 
-import quickfix.Message;
-import ch.algotrader.entity.trade.Order;
-import ch.algotrader.service.ExternalOrderService;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-/**
- * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
- */
-public interface FixOrderService extends ExternalOrderService {
+@Documented
+@Target({ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface InitializationPriority {
 
-    /**
-     * Sends an Order to the external Broker and propagates the Order to the Base Esper Engine.
-     */
-    public void sendOrder(Order order, Message message, boolean propagate);
+    ServiceType value();
 
 }

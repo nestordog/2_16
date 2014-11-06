@@ -48,6 +48,7 @@ import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.AbstractEngine;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineLocator;
+import ch.algotrader.service.InitializingServiceI;
 import ch.algotrader.service.LocalServiceTest;
 import ch.algotrader.service.LookupService;
 import ch.algotrader.service.fix.FixMarketDataService;
@@ -116,8 +117,14 @@ public class LMAXIntegrationTest extends LocalServiceTest {
 
         EngineLocator.instance().setEngine(StrategyImpl.BASE, this.engine);
 
-        marketDataService.init();
-        orderService.init();
+        if (marketDataService instanceof InitializingServiceI) {
+
+            ((InitializingServiceI) marketDataService).init();
+        }
+        if (orderService instanceof InitializingServiceI) {
+
+            ((InitializingServiceI) orderService).init();
+        }
 
         String marketDataSessionQualifier = marketDataService.getSessionQualifier();
         Session marketDataSession = Session.lookupSession(getSessionID(marketDataSessionQualifier));

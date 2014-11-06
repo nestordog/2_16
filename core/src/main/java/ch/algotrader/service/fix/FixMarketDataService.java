@@ -19,14 +19,13 @@ package ch.algotrader.service.fix;
 
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.service.ExternalMarketDataService;
-import ch.algotrader.service.InitializingServiceI;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public interface FixMarketDataService extends ExternalMarketDataService, InitializingServiceI {
+public interface FixMarketDataService extends ExternalMarketDataService {
 
     /**
      * Called before sending the subscribe request so that Broker specific Tags can be set.

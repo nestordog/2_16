@@ -53,7 +53,8 @@ import ch.algotrader.vo.InsertComponentEventVO;
  * @version $Revision$ $Date$
  */
 @HibernateSession
-public class CombinationServiceImpl implements CombinationService {
+@InitializationPriority(ServiceType.CORE)
+public class CombinationServiceImpl implements CombinationService, InitializingServiceI {
 
     private static final long serialVersionUID = -2720603696641382966L;
 

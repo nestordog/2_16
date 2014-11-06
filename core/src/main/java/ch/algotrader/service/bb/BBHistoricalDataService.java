@@ -18,12 +18,11 @@
 package ch.algotrader.service.bb;
 
 import ch.algotrader.service.HistoricalDataService;
-import ch.algotrader.service.InitializingServiceI;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public interface BBHistoricalDataService extends HistoricalDataService, InitializingServiceI {
+public interface BBHistoricalDataService extends HistoricalDataService {
 }

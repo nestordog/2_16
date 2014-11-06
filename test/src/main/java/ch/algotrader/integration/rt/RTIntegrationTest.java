@@ -49,6 +49,7 @@ import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.AbstractEngine;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineLocator;
+import ch.algotrader.service.InitializingServiceI;
 import ch.algotrader.service.LocalServiceTest;
 import ch.algotrader.service.LookupService;
 import ch.algotrader.service.fix.FixOrderService;
@@ -115,7 +116,10 @@ public class RTIntegrationTest extends LocalServiceTest {
 
         EngineLocator.instance().setEngine(StrategyImpl.BASE, this.engine);
 
-        orderService.init();
+        if (orderService instanceof InitializingServiceI) {
+
+            ((InitializingServiceI) orderService).init();
+        }
 
         Collection<String> tradingSessionQualifiiers = lookupService.getActiveSessionsByOrderServiceType(orderService.getOrderServiceType());
         Assert.assertEquals(1, tradingSessionQualifiiers.size());

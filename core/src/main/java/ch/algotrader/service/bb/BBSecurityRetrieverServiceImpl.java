@@ -46,7 +46,10 @@ import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.SecurityFamilyDao;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.OptionType;
+import ch.algotrader.service.InitializationPriority;
+import ch.algotrader.service.InitializingServiceI;
 import ch.algotrader.service.SecurityRetrieverServiceImpl;
+import ch.algotrader.service.ServiceType;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.RoundUtil;
 
@@ -63,7 +66,8 @@ import com.bloomberglp.blpapi.Session;
  *
  * @version $Revision$ $Date$
  */
-public class BBSecurityRetrieverServiceImpl extends SecurityRetrieverServiceImpl implements BBSecurityRetrieverService {
+@InitializationPriority(value = ServiceType.EXT_INTERFACE)
+public class BBSecurityRetrieverServiceImpl extends SecurityRetrieverServiceImpl implements BBSecurityRetrieverService, InitializingServiceI {
 
     private static final long serialVersionUID = 8938937374871069522L;
     private static final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");

@@ -15,22 +15,10 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.service.fix;
+package ch.algotrader.service;
 
-import quickfix.Message;
-import ch.algotrader.entity.trade.Order;
-import ch.algotrader.service.ExternalOrderService;
+public enum ServiceType {
 
-/**
- * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
- */
-public interface FixOrderService extends ExternalOrderService {
-
-    /**
-     * Sends an Order to the external Broker and propagates the Order to the Base Esper Engine.
-     */
-    public void sendOrder(Order order, Message message, boolean propagate);
+    CORE, EXT_INTERFACE
 
 }

@@ -19,6 +19,7 @@ package ch.algotrader.service;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections15.CollectionUtils;
@@ -45,6 +46,7 @@ import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.enumeration.TIF;
+import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.util.BeanUtil;
 import ch.algotrader.util.DateUtil;
@@ -58,7 +60,8 @@ import ch.algotrader.vo.OrderStatusVO;
  * @version $Revision$ $Date$
  */
 @HibernateSession
-public class OrderServiceImpl implements OrderService, ApplicationContextAware {
+@InitializationPriority(value = ServiceType.CORE)
+public class OrderServiceImpl implements OrderService, InitializingServiceI, ApplicationContextAware {
 
     private static Logger logger = MyLogger.getLogger(OrderServiceImpl.class.getName());
     private static Logger notificationLogger = MyLogger.getLogger("ch.algotrader.service.NOTIFICATION");
@@ -510,6 +513,28 @@ public class OrderServiceImpl implements OrderService, ApplicationContextAware {
         Validate.notNull(externalOrderService, "externalOrderService was not found: " + orderServiceType);
 
         return externalOrderService;
+    }
+
+    @Override
+    public void init() {
+
+        final List<Order> orders = this.orderPersistService.loadPendingOrders();
+        if (logger.isInfoEnabled() && !orders.isEmpty()) {
+
+            logger.info(orders.size() + " are pending");
+            for (int i = 0; i < orders.size(); i++) {
+                Order order = orders.get(i);
+
+                logger.info((i + 1) + ") " + order.getIntId() + "; " +
+                        order.getSecurity().getSymbol() + " / " + order.getSecurity().getSecurityFamily().getName());
+            }
+        }
+
+        Engine baseEngine = EngineLocator.instance().getBaseEngine();
+        for (Order order: orders) {
+
+            baseEngine.sendEvent(order);
+        }
     }
 
     private static final class AlgoIdGenerator {
