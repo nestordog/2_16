@@ -253,7 +253,7 @@ public class RTFixOrderMessageHandlerTest {
         future.setExpiration(dateFormat.parse("2014-12"));
 
         Account testAccount = new AccountImpl();
-        testAccount.setBroker(Broker.UBS);
+        testAccount.setBroker(Broker.RT);
 
         long totalQuantity = 10L;
 

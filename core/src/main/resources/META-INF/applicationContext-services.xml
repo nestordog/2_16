@@ -481,14 +481,6 @@
 
     </beans>
 
-    <beans profile="uBSFix">
-        <bean id="uBSFixOrderService" class="ch.algotrader.service.ubs.UBSFixOrderServiceImpl" >
-            <constructor-arg index="0"  ref="fixAdapter"/>
-            <constructor-arg index="1"  ref="orderService"/>
-        </bean>
-
-    </beans>
-
     <!-- ========================= End of PROFILE SERVICE DEFINITIONS ========================= -->
 
 </beans>
