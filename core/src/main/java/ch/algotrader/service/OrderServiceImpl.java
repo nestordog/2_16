@@ -521,7 +521,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
         final List<Order> orders = this.orderPersistService.loadPendingOrders();
         if (logger.isInfoEnabled() && !orders.isEmpty()) {
 
-            logger.info(orders.size() + " are pending");
+            logger.info(orders.size() + " orders are pending");
             for (int i = 0; i < orders.size(); i++) {
                 Order order = orders.get(i);
 

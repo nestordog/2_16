@@ -158,9 +158,19 @@ public class OrderPersistenceServiceImpl implements OrderPersistenceService {
         sqlQuery.addScalar("order_fk", new IntegerType());
         @SuppressWarnings("unchecked")
         List<Integer> ids = (List<Integer>) sqlQuery.list();
-        if (ids.isEmpty()) {
+        SQLQuery sqlQuery2 = currentSession.createSQLQuery(
+                "select o.`id` from `order` o " +
+                        "  left join `order_status` os2 on o.`id` = os2.`order_fk` " +
+                        "  where os2.`id` is null");
+        sqlQuery2.addScalar("id", new IntegerType());
+        @SuppressWarnings("unchecked")
+        List<Integer> ids2 = (List<Integer>) sqlQuery2.list();
+
+        if (ids.isEmpty() && ids2.isEmpty()) {
+
             return Collections.emptyList();
         }
+        ids.addAll(ids2);
 
         Query query = currentSession.createQuery("select o from OrderImpl o " +
                 "left outer join fetch o.orderProperties op " +
