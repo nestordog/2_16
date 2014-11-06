@@ -80,7 +80,7 @@ public class DefaultIBAdapter implements ApplicationContextAware, IBAdapter {
      * Sets the Log Level on all IBSessions
      */
     @ManagedOperation
-    @ManagedOperationParameters({ @ManagedOperationParameter(name = "logLevel", description = "<html> <head> </head> <body> <p> logLevel: </p> <ul>     <li> 1 (SYSTEM) </li> <li> 2 (ERROR) </li> <li> 3 (WARNING) </li> <li> 4 (INFORMATION) </li> <li> 5 (DETAIL) </li> </ul> </body> </html>") })
+    @ManagedOperationParameters({ @ManagedOperationParameter(name = "logLevel", description = "<html> <p> logLevel: </p> <ul>     <li> 1 (SYSTEM) </li> <li> 2 (ERROR) </li> <li> 3 (WARNING) </li> <li> 4 (INFORMATION) </li> <li> 5 (DETAIL) </li> </ul>  </html>") })
     public void setLogLevel(int logLevel) {
 
         for (IBSession session : getSessions()) {

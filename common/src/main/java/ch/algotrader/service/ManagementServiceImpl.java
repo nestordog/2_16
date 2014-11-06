@@ -441,10 +441,10 @@ public class ManagementServiceImpl implements ManagementService {
     @Override
     @ManagedOperation(description = "Send an order")
     @ManagedOperationParameters({
-            @ManagedOperationParameter(name = "security", description = "<ul> <li> securityId (e.g. 123) </li> <li> symbol (e.g. GOOG) </li> <li> isin, prefix with &quot;isin:&quot;, (e.g. &quot;isin:EU0009654078&quot;) </li> <li> bbgid, prefix with &quot;bbgid:&quot;, (e.g. &quot;bbgid:BBG005NHP5P9&quot;) </li> <li> ric, prefix with &quot;ric:&quot;, (e.g. &quot;ric:.SPX&quot;) </li> <li> conid, prefix with &quot;conid:&quot;, (e.g. &quot;conid:12087817&quot;) </li> </ul>"),
+            @ManagedOperationParameter(name = "security", description = "<html><ul> <li> securityId (e.g. 123) </li> <li> symbol (e.g. GOOG) </li> <li> isin, prefix with &quot;isin:&quot;, (e.g. &quot;isin:EU0009654078&quot;) </li> <li> bbgid, prefix with &quot;bbgid:&quot;, (e.g. &quot;bbgid:BBG005NHP5P9&quot;) </li> <li> ric, prefix with &quot;ric:&quot;, (e.g. &quot;ric:.SPX&quot;) </li> <li> conid, prefix with &quot;conid:&quot;, (e.g. &quot;conid:12087817&quot;) </li> </ul></html>"),
             @ManagedOperationParameter(name = "quantity", description = "The requested quantity (positive value)"),
-            @ManagedOperationParameter(name = "side", description = "Side: <ul> <li> B (BUY) </li> <li> S (SELL) </li> <li> SS (SELL_SHORT) </li> </ul>"),
-            @ManagedOperationParameter(name = "type", description = "Order type: <ul> <li> M (Market) </li> <li> L (Limit) </li> <li> S (Stop) </li> <li> SL (StopLimit) </li> <li> TI (TickwiseIncremental) </li> <li> VI (VariableIncremental) </li> <li> SLI (Slicing) </li> </ul> or order preference (e.g. 'FVIX' or 'OVIX')"),
+            @ManagedOperationParameter(name = "side", description = "<html>Side: <ul> <li> B (BUY) </li> <li> S (SELL) </li> <li> SS (SELL_SHORT) </li> </ul></html>"),
+            @ManagedOperationParameter(name = "type", description = "<html>Order type: <ul> <li> M (Market) </li> <li> L (Limit) </li> <li> S (Stop) </li> <li> SL (StopLimit) </li> <li> TI (TickwiseIncremental) </li> <li> VI (VariableIncremental) </li> <li> SLI (Slicing) </li> </ul> or order preference (e.g. 'FVIX' or 'OVIX')</html>"),
             @ManagedOperationParameter(name = "accountName", description = "accountName"),
             @ManagedOperationParameter(name = "properties", description = "Additional properties to be set on the order as a comma separated list (e.g. stop=12.0,limit=12.5)") })
     public void sendOrder(final String security, final long quantity, final String side, final String type, final String accountName, final String properties) {
@@ -613,7 +613,7 @@ public class ManagementServiceImpl implements ManagementService {
     @Override
     @ManagedOperation(description = "Reduce the Component quantities and the associated Position by the specified ratio")
     @ManagedOperationParameters({
-            @ManagedOperationParameter(name = "combination", description = "<ul> <li> securityId (e.g. 123) </li> <li> symbol (e.g. GOOG) </li> <li> isin, prefix with &quot;isin:&quot;, (e.g. &quot;isin:EU0009654078&quot;) </li> <li> bbgid, prefix with &quot;bbgid:&quot;, (e.g. &quot;bbgid:BBG005NHP5P9&quot;) </li> <li> ric, prefix with &quot;ric:&quot;, (e.g. &quot;ric:.SPX&quot;) </li> <li> conid, prefix with &quot;conid:&quot;, (e.g. &quot;conid:12087817&quot;) </li> </ul>"),
+            @ManagedOperationParameter(name = "combination", description = "<html><ul> <li> securityId (e.g. 123) </li> <li> symbol (e.g. GOOG) </li> <li> isin, prefix with &quot;isin:&quot;, (e.g. &quot;isin:EU0009654078&quot;) </li> <li> bbgid, prefix with &quot;bbgid:&quot;, (e.g. &quot;bbgid:BBG005NHP5P9&quot;) </li> <li> ric, prefix with &quot;ric:&quot;, (e.g. &quot;ric:.SPX&quot;) </li> <li> conid, prefix with &quot;conid:&quot;, (e.g. &quot;conid:12087817&quot;) </li> </ul></html>"),
             @ManagedOperationParameter(name = "ratio", description = "ratio") })
     public void reduceCombination(final String combination, final double ratio) {
 
@@ -668,7 +668,7 @@ public class ManagementServiceImpl implements ManagementService {
     @Override
     @ManagedOperation(description = "Subscribe to the specified Security.    ")
     @ManagedOperationParameters({
-            @ManagedOperationParameter(name = "security", description = "<ul> <li> securityId (e.g. 123) </li> <li> symbol (e.g. GOOG) </li> <li> isin, prefix with &quot;isin:&quot;, (e.g. &quot;isin:EU0009654078&quot;) </li> <li> bbgid, prefix with &quot;bbgid:&quot;, (e.g. &quot;bbgid:BBG005NHP5P9&quot;) </li> <li> ric, prefix with &quot;ric:&quot;, (e.g. &quot;ric:.SPX&quot;) </li> <li> conid, prefix with &quot;conid:&quot;, (e.g. &quot;conid:12087817&quot;) </li> </ul>"),
+            @ManagedOperationParameter(name = "security", description = "<html><ul> <li> securityId (e.g. 123) </li> <li> symbol (e.g. GOOG) </li> <li> isin, prefix with &quot;isin:&quot;, (e.g. &quot;isin:EU0009654078&quot;) </li> <li> bbgid, prefix with &quot;bbgid:&quot;, (e.g. &quot;bbgid:BBG005NHP5P9&quot;) </li> <li> ric, prefix with &quot;ric:&quot;, (e.g. &quot;ric:.SPX&quot;) </li> <li> conid, prefix with &quot;conid:&quot;, (e.g. &quot;conid:12087817&quot;) </li> </ul></html>"),
             @ManagedOperationParameter(name = "feedType", description = "The market data feed to use (e.g. IB, BB or DC)") })
     public void subscribe(final String security, final String feedType) {
 
@@ -689,7 +689,7 @@ public class ManagementServiceImpl implements ManagementService {
     @Override
     @ManagedOperation(description = "Unsubscribe the specified Security")
     @ManagedOperationParameters({
-            @ManagedOperationParameter(name = "security", description = "<ul> <li> securityId (e.g. 123) </li> <li> symbol (e.g. GOOG) </li> <li> isin, prefix with &quot;isin:&quot;, (e.g. &quot;isin:EU0009654078&quot;) </li> <li> bbgid, prefix with &quot;bbgid:&quot;, (e.g. &quot;bbgid:BBG005NHP5P9&quot;) </li> <li> ric, prefix with &quot;ric:&quot;, (e.g. &quot;ric:.SPX&quot;) </li> <li> conid, prefix with &quot;conid:&quot;, (e.g. &quot;conid:12087817&quot;) </li> </ul>"),
+            @ManagedOperationParameter(name = "security", description = "<html><ul> <li> securityId (e.g. 123) </li> <li> symbol (e.g. GOOG) </li> <li> isin, prefix with &quot;isin:&quot;, (e.g. &quot;isin:EU0009654078&quot;) </li> <li> bbgid, prefix with &quot;bbgid:&quot;, (e.g. &quot;bbgid:BBG005NHP5P9&quot;) </li> <li> ric, prefix with &quot;ric:&quot;, (e.g. &quot;ric:.SPX&quot;) </li> <li> conid, prefix with &quot;conid:&quot;, (e.g. &quot;conid:12087817&quot;) </li> </ul></html>"),
             @ManagedOperationParameter(name = "feedType", description = "The market data feed to use (e.g. IB, BB or DC)") })
     public void unsubscribe(final String security, final String feedType) {
 
@@ -725,7 +725,7 @@ public class ManagementServiceImpl implements ManagementService {
             @ManagedOperationParameter(name = "propertyHolderId", description = "Id of the PropertyHolder (e.g. Subscription, Position or Strategy)"),
             @ManagedOperationParameter(name = "name", description = "Name of the Property"),
             @ManagedOperationParameter(name = "value", description = "value"),
-            @ManagedOperationParameter(name = "type", description = "Type of the value: <ul> <li> INT </li> <li> DOUBLE </li> <li> MONEY </li> <li> TEXT </li> <li> DATE (Format: dd.mm.yyyy hh:mm:ss) </li> <li> BOOLEAN </li> </ul>") })
+            @ManagedOperationParameter(name = "type", description = "<html>Type of the value: <ul> <li> INT </li> <li> DOUBLE </li> <li> MONEY </li> <li> TEXT </li> <li> DATE (Format: dd.mm.yyyy hh:mm:ss) </li> <li> BOOLEAN </li> </ul></html>") })
     public void addProperty(final int propertyHolderId, final String name, final String value, final String type) {
 
         Validate.notEmpty(name, "Name is empty");
@@ -778,9 +778,9 @@ public class ManagementServiceImpl implements ManagementService {
     @Override
     @ManagedOperation(description = "creates a Combination of the specified type, securityFamilyId and optional underlying. Returns the id of the newly created combination")
     @ManagedOperationParameters({
-            @ManagedOperationParameter(name = "combinationType", description = "<ul> <li> VERTICAL_SPREAD </li> <li> COVERED_CALL </li> <li> RATIO_SPREAD </li> <li> STRADDLE </li> <li> STRANGLE </li> <li> BUTTERFLY </li> <li> CALENDAR_SPREAD </li> <li> IRON_CONDOR </li> </ul>"),
+            @ManagedOperationParameter(name = "combinationType", description = "<html><ul> <li> VERTICAL_SPREAD </li> <li> COVERED_CALL </li> <li> RATIO_SPREAD </li> <li> STRADDLE </li> <li> STRANGLE </li> <li> BUTTERFLY </li> <li> CALENDAR_SPREAD </li> <li> IRON_CONDOR </li> </ul></html>"),
             @ManagedOperationParameter(name = "securityFamilyId", description = "securityFamilyId"),
-            @ManagedOperationParameter(name = "underlying", description = "Underlying Security: <ul> <li> securityId (e.g. 123) </li> <li> symbol (e.g. GOOG) </li> <li> isin, prefix with &quot;isin:&quot;, (e.g. &quot;isin:EU0009654078&quot;) </li> <li> bbgid, prefix with &quot;bbgid:&quot;, (e.g. &quot;bbgid:BBG005NHP5P9&quot;) </li> <li> ric, prefix with &quot;ric:&quot;, (e.g. &quot;ric:.SPX&quot;) </li> <li> conid, prefix with &quot;conid:&quot;, (e.g. &quot;conid:12087817&quot;) </li> </ul>") })
+            @ManagedOperationParameter(name = "underlying", description = "<html>Underlying Security: <ul> <li> securityId (e.g. 123) </li> <li> symbol (e.g. GOOG) </li> <li> isin, prefix with &quot;isin:&quot;, (e.g. &quot;isin:EU0009654078&quot;) </li> <li> bbgid, prefix with &quot;bbgid:&quot;, (e.g. &quot;bbgid:BBG005NHP5P9&quot;) </li> <li> ric, prefix with &quot;ric:&quot;, (e.g. &quot;ric:.SPX&quot;) </li> <li> conid, prefix with &quot;conid:&quot;, (e.g. &quot;conid:12087817&quot;) </li> </ul></html>") })
     public int createCombination(final String combinationType, final int securityFamilyId, final String underlying) {
 
         Validate.notEmpty(combinationType, "Combination type is empty");
@@ -800,7 +800,7 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedOperation(description = "Set the quantity of the specified Component")
     @ManagedOperationParameters({
             @ManagedOperationParameter(name = "combinationId", description = "the id of the combination"),
-            @ManagedOperationParameter(name = "component", description = "Component: <ul> <li> securityId (e.g. 123) </li> <li> symbol (e.g. GOOG) </li> <li> isin, prefix with &quot;isin:&quot;, (e.g. &quot;isin:EU0009654078&quot;) </li> <li> bbgid, prefix with &quot;bbgid:&quot;, (e.g. &quot;bbgid:BBG005NHP5P9&quot;) </li> <li> ric, prefix with &quot;ric:&quot;, (e.g. &quot;ric:.SPX&quot;) </li> <li> conid, prefix with &quot;conid:&quot;, (e.g. &quot;conid:12087817&quot;) </li> </ul>"),
+            @ManagedOperationParameter(name = "component", description = "<html>Component: <ul> <li> securityId (e.g. 123) </li> <li> symbol (e.g. GOOG) </li> <li> isin, prefix with &quot;isin:&quot;, (e.g. &quot;isin:EU0009654078&quot;) </li> <li> bbgid, prefix with &quot;bbgid:&quot;, (e.g. &quot;bbgid:BBG005NHP5P9&quot;) </li> <li> ric, prefix with &quot;ric:&quot;, (e.g. &quot;ric:.SPX&quot;) </li> <li> conid, prefix with &quot;conid:&quot;, (e.g. &quot;conid:12087817&quot;) </li> </ul></html>"),
             @ManagedOperationParameter(name = "quantitiy", description = "quantitiy") })
     public void setComponentQuantity(final int combinationId, final String component, final long quantitiy) {
 
@@ -817,7 +817,7 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedOperation(description = "Remove the specified Component from the specified Combination")
     @ManagedOperationParameters({
             @ManagedOperationParameter(name = "combinationId", description = "the id of the combination"),
-            @ManagedOperationParameter(name = "component", description = "Component: <ul> <li> securityId (e.g. 123) </li> <li> symbol (e.g. GOOG) </li> <li> isin, prefix with &quot;isin:&quot;, (e.g. &quot;isin:EU0009654078&quot;) </li> <li> bbgid, prefix with &quot;bbgid:&quot;, (e.g. &quot;bbgid:BBG005NHP5P9&quot;) </li> <li> ric, prefix with &quot;ric:&quot;, (e.g. &quot;ric:.SPX&quot;) </li> <li> conid, prefix with &quot;conid:&quot;, (e.g. &quot;conid:12087817&quot;) </li> </ul>") })
+            @ManagedOperationParameter(name = "component", description = "<html>Component: <ul> <li> securityId (e.g. 123) </li> <li> symbol (e.g. GOOG) </li> <li> isin, prefix with &quot;isin:&quot;, (e.g. &quot;isin:EU0009654078&quot;) </li> <li> bbgid, prefix with &quot;bbgid:&quot;, (e.g. &quot;bbgid:BBG005NHP5P9&quot;) </li> <li> ric, prefix with &quot;ric:&quot;, (e.g. &quot;ric:.SPX&quot;) </li> <li> conid, prefix with &quot;conid:&quot;, (e.g. &quot;conid:12087817&quot;) </li> </ul></html>") })
     public void removeComponent(final int combinationId, final String component) {
 
         Validate.notEmpty(component, "Component is empty");
@@ -860,7 +860,7 @@ public class ManagementServiceImpl implements ManagementService {
 
         // cancel all orders if we called from base
         if (this.commonConfig.isStartedStrategyBASE()) {
-            orderService.cancelAllOrders();
+            this.orderService.cancelAllOrders();
         }
         // need to force exit because grafefull shutdown of esper-service (and esper-jmx) does not work
         System.exit(0);

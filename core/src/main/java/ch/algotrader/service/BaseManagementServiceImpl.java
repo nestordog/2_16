@@ -101,13 +101,13 @@ public class BaseManagementServiceImpl implements BaseManagementService {
             @ManagedOperationParameter(name = "strategyName", description = "Name of the Strategy"),
             @ManagedOperationParameter(name = "extId", description = "External transaction id (e.g. 0001f4e6.4fe7e2cb.01.01)"),
             @ManagedOperationParameter(name = "dateTime", description = "DateTime of the Transaction. Format: dd.mm.yyyy hh:mm:ss"),
-            @ManagedOperationParameter(name = "quantity", description = "Requested quantity: <ul> <li> BUY: pos </li> <li> SELL: neg </li> <li> EXPIRATION: pos/neg </li> <li> TRANSFER : pos/neg </li> <li> CREDIT: 1 </li> <li> INTREST_RECEIVED: 1 </li> <li> REFUND : 1 </li> <li> DIVIDEND : 1 </li> <li> DEBIT: -1 </li> <li> INTREST_PAID: -1 </li> <li> FEES: -1 </li> </ul>"),
+            @ManagedOperationParameter(name = "quantity", description = "<html>Requested quantity: <ul> <li> BUY: pos </li> <li> SELL: neg </li> <li> EXPIRATION: pos/neg </li> <li> TRANSFER : pos/neg </li> <li> CREDIT: 1 </li> <li> INTREST_RECEIVED: 1 </li> <li> REFUND : 1 </li> <li> DIVIDEND : 1 </li> <li> DEBIT: -1 </li> <li> INTREST_PAID: -1 </li> <li> FEES: -1 </li> </ul></html>"),
             @ManagedOperationParameter(name = "price", description = "Price"),
             @ManagedOperationParameter(name = "executionCommission", description = "Execution Commission. 0 if not applicable"),
             @ManagedOperationParameter(name = "clearingCommission", description = "Clearing Commission. 0 if not applicable"),
             @ManagedOperationParameter(name = "fee", description = "fee"),
             @ManagedOperationParameter(name = "currency", description = "Currency"),
-            @ManagedOperationParameter(name = "transactionType", description = "Transaction type: <ul> <li> B (BUY) </li> <li> S (SELL) </li> <li> E (EXPIRATION) </li> <li> T (TRANSFER) </li> <li> C (CREDIT) </li> <li> D (DEBIT) </li> <li> IP (INTREST_PAID) </li> <li> IR (INTREST_RECEIVED) </li> <li> DI (DIVIDEND) </li> <li> F (FEES) </li> <li> RF (REFUND) </li> </ul>"),
+            @ManagedOperationParameter(name = "transactionType", description = "<html>Transaction type: <ul> <li> B (BUY) </li> <li> S (SELL) </li> <li> E (EXPIRATION) </li> <li> T (TRANSFER) </li> <li> C (CREDIT) </li> <li> D (DEBIT) </li> <li> IP (INTREST_PAID) </li> <li> IR (INTREST_RECEIVED) </li> <li> DI (DIVIDEND) </li> <li> F (FEES) </li> <li> RF (REFUND) </li> </ul></html>"),
             @ManagedOperationParameter(name = "accountName", description = "Account Name") })
     public void recordTransaction(final int securityId, final String strategyName, final String extId, final String dateTime, final long quantity, final double price,
             final double executionCommission, final double clearingCommission, final double fee, final String currency, final String transactionType, final String accountName) {
