@@ -20,23 +20,21 @@ package ch.algotrader;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
-import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.beans.factory.access.BeanFactoryLocator;
 import org.springframework.beans.factory.access.BeanFactoryReference;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.access.ContextSingletonBeanFactoryLocator;
 import org.springframework.context.support.AbstractApplicationContext;
-import org.springframework.core.annotation.AnnotationUtils;
 
 import ch.algotrader.service.CalendarService;
 import ch.algotrader.service.ChartProvidingService;
 import ch.algotrader.service.CombinationService;
 import ch.algotrader.service.FutureService;
 import ch.algotrader.service.HistoricalDataService;
-import ch.algotrader.service.InitializationPriority;
 import ch.algotrader.service.InitializingServiceI;
 import ch.algotrader.service.LazyLoaderService;
 import ch.algotrader.service.LookupService;
@@ -50,7 +48,6 @@ import ch.algotrader.service.PortfolioService;
 import ch.algotrader.service.PositionService;
 import ch.algotrader.service.PropertyService;
 import ch.algotrader.service.SecurityRetrieverService;
-import ch.algotrader.service.ServiceType;
 import ch.algotrader.service.StrategyService;
 import ch.algotrader.service.SubscriptionService;
 
@@ -201,30 +198,9 @@ public class ServiceLocator {
 
             return;
         }
-        List<InitializingServiceI> coreServices = new ArrayList<InitializingServiceI>(allServices.size());
-        List<InitializingServiceI> extServices = new ArrayList<InitializingServiceI>(allServices.size());
-
-        for (InitializingServiceI service : allServices) {
-
-            Class<?> implClass = AopProxyUtils.ultimateTargetClass(service);
-            InitializationPriority initializationPriority = AnnotationUtils.findAnnotation(implClass, InitializationPriority.class);
-            ServiceType serviceType = initializationPriority != null ? initializationPriority.value() : ServiceType.CORE;
-            switch (serviceType) {
-                case CORE:
-                    coreServices.add(service);
-                    break;
-                case EXT_INTERFACE:
-                    extServices.add(service);
-                    break;
-                default:
-                    coreServices.add(service);
-            }
-        }
-        for (InitializingServiceI service: coreServices) {
-
-            service.init();
-        }
-        for (InitializingServiceI service: extServices) {
+        List<InitializingServiceI> allServicesByPriority = new ArrayList<InitializingServiceI>(allServices);
+        Collections.sort(allServicesByPriority, ServicePriorityComparator.INSTANCE);
+        for (InitializingServiceI service: allServicesByPriority) {
 
             service.init();
         }
