@@ -91,7 +91,17 @@ public class TestLMAXFixOrderMessageHandler {
         ExecutionReport executionReport = FixTestUtils.parseFix44Message(s, DATA_DICT, ExecutionReport.class);
         Assert.assertNotNull(executionReport);
 
+        SecurityFamily family = new SecurityFamilyImpl();
+        family.setCurrency(Currency.USD);
+        family.setScale(3);
+
+        Forex forex = new ForexImpl();
+        forex.setSymbol("EUR.USD");
+        forex.setBaseCurrency(Currency.EUR);
+        forex.setSecurityFamily(family);
+
         MarketOrder order = new MarketOrderImpl();
+        order.setSecurity(forex);
         Mockito.when(this.lookupService.getOpenOrderByRootIntId("144d196a0cf")).thenReturn(order);
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
@@ -108,6 +118,8 @@ public class TestLMAXFixOrderMessageHandler {
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(0, orderStatus1.getFilledQuantity());
         Assert.assertEquals(FixTestUtils.parseDateTime("20140317-19:48:33.854"), orderStatus1.getExtDateTime());
+        Assert.assertEquals(null, orderStatus1.getLastPrice());
+        Assert.assertEquals(null, orderStatus1.getAvgPrice());
     }
 
     @Test
@@ -148,6 +160,8 @@ public class TestLMAXFixOrderMessageHandler {
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(100000, orderStatus1.getFilledQuantity());
         Assert.assertEquals(FixTestUtils.parseDateTime("20140317-19:48:33.854"), orderStatus1.getExtDateTime());
+        Assert.assertEquals(new BigDecimal("1.393"), orderStatus1.getLastPrice());
+        Assert.assertEquals(new BigDecimal("1.393"), orderStatus1.getAvgPrice());
 
         Object event2 = events.get(1);
         Assert.assertTrue(event2 instanceof Fill);

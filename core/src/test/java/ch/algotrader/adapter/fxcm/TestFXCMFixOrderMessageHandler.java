@@ -93,7 +93,17 @@ public class TestFXCMFixOrderMessageHandler {
         ExecutionReport executionReport = FixTestUtils.parseFix44Message(s, DATA_DICT, ExecutionReport.class);
         Assert.assertNotNull(executionReport);
 
+        SecurityFamily family = new SecurityFamilyImpl();
+        family.setCurrency(Currency.USD);
+        family.setScale(5);
+
+        Forex forex = new ForexImpl();
+        forex.setSymbol("EUR.USD");
+        forex.setBaseCurrency(Currency.EUR);
+        forex.setSecurityFamily(family);
+
         MarketOrder order = new MarketOrderImpl();
+        order.setSecurity(forex);
         Mockito.when(lookupService.getOpenOrderByRootIntId("1450524ad9d")).thenReturn(order);
 
         impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
@@ -110,6 +120,8 @@ public class TestFXCMFixOrderMessageHandler {
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(0, orderStatus1.getFilledQuantity());
         Assert.assertEquals(FixTestUtils.parseDateTime("20140327-20:04:21.000"), orderStatus1.getExtDateTime());
+        Assert.assertEquals(new BigDecimal("1.37432"), orderStatus1.getLastPrice());
+        Assert.assertEquals(new BigDecimal("1.37432"), orderStatus1.getAvgPrice());
     }
 
     @Test
@@ -151,6 +163,8 @@ public class TestFXCMFixOrderMessageHandler {
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(1000L, orderStatus1.getFilledQuantity());
         Assert.assertEquals(FixTestUtils.parseDateTime("20140327-20:04:21.000"), orderStatus1.getExtDateTime());
+        Assert.assertEquals(new BigDecimal("1.37432"), orderStatus1.getLastPrice());
+        Assert.assertEquals(new BigDecimal("1.37432"), orderStatus1.getAvgPrice());
 
         Object event2 = events.get(1);
         Assert.assertTrue(event2 instanceof Fill);
@@ -202,6 +216,8 @@ public class TestFXCMFixOrderMessageHandler {
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(1000L, orderStatus1.getFilledQuantity());
         Assert.assertEquals(FixTestUtils.parseDateTime("20140327-20:04:21.000"), orderStatus1.getExtDateTime());
+        Assert.assertEquals(new BigDecimal("1.374"), orderStatus1.getLastPrice());
+        Assert.assertEquals(new BigDecimal("1.374"), orderStatus1.getAvgPrice());
     }
 
     @Test
@@ -260,6 +276,8 @@ public class TestFXCMFixOrderMessageHandler {
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(0L, orderStatus1.getFilledQuantity());
         Assert.assertEquals(FixTestUtils.parseDateTime("20140328-15:59:10.000"), orderStatus1.getExtDateTime());
+        Assert.assertEquals(null, orderStatus1.getLastPrice());
+        Assert.assertEquals(null, orderStatus1.getAvgPrice());
     }
 
 
