@@ -100,6 +100,8 @@ public class TestCNXFixOrderMessageHandler {
         Assert.assertEquals(0, orderStatus1.getFilledQuantity());
         Assert.assertEquals(FixTestUtils.parseDateTime("20140722-19:17:24.000"), orderStatus1.getExtDateTime());
         Assert.assertEquals("2537951907", order.getExtId());
+        Assert.assertEquals(null, orderStatus1.getLastPrice());
+        Assert.assertEquals(null, orderStatus1.getAvgPrice());
     }
 
     @Test
@@ -142,6 +144,8 @@ public class TestCNXFixOrderMessageHandler {
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(2000L, orderStatus1.getFilledQuantity());
         Assert.assertEquals(FixTestUtils.parseDateTime("20140722-19:17:24.000"), orderStatus1.getExtDateTime());
+        Assert.assertEquals(new BigDecimal("1.34666"), orderStatus1.getLastPrice());
+        Assert.assertEquals(new BigDecimal("1.34666"), orderStatus1.getAvgPrice());
 
         Object event2 = events.get(1);
         Assert.assertTrue(event2 instanceof Fill);
@@ -209,6 +213,8 @@ public class TestCNXFixOrderMessageHandler {
         Assert.assertEquals(0, orderStatus1.getFilledQuantity());
         Assert.assertEquals(null, order.getExtId());
         Assert.assertEquals(FixTestUtils.parseDateTime("20140723-15:42:06.266"), orderStatus1.getExtDateTime());
+        Assert.assertEquals(null, orderStatus1.getLastPrice());
+        Assert.assertEquals(null, orderStatus1.getAvgPrice());
     }
 
     @Test
@@ -250,6 +256,8 @@ public class TestCNXFixOrderMessageHandler {
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(0, orderStatus1.getFilledQuantity());
         Assert.assertEquals(FixTestUtils.parseDateTime("20140723-16:21:32.000"), orderStatus1.getExtDateTime());
+        Assert.assertEquals(null, orderStatus1.getLastPrice());
+        Assert.assertEquals(null, orderStatus1.getAvgPrice());
     }
 
     @Test
@@ -292,6 +300,8 @@ public class TestCNXFixOrderMessageHandler {
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(0, orderStatus1.getFilledQuantity());
         Assert.assertEquals(FixTestUtils.parseDateTime("20140723-18:45:46.334"), orderStatus1.getExtDateTime());
+        Assert.assertEquals(null, orderStatus1.getLastPrice());
+        Assert.assertEquals(null, orderStatus1.getAvgPrice());
     }
 
 }

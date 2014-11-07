@@ -28,8 +28,10 @@ import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.util.RoundUtil;
 import quickfix.FieldNotFound;
+import quickfix.field.AvgPx;
 import quickfix.field.CumQty;
 import quickfix.field.ExecType;
+import quickfix.field.LastPx;
 import quickfix.field.MsgSeqNum;
 import quickfix.field.OrderQty;
 import quickfix.field.TransactTime;
@@ -90,6 +92,20 @@ public class LMAXFixOrderMessageHandler extends AbstractFix44OrderMessageHandler
         if (executionReport.isSetField(TransactTime.FIELD)) {
 
             orderStatus.setExtDateTime(executionReport.getTransactTime().getValue());
+        }
+        if (executionReport.isSetField(LastPx.FIELD)) {
+
+            double d = executionReport.getLastPx().getValue();
+            if (d != 0.0) {
+                orderStatus.setLastPrice(RoundUtil.getBigDecimal(d, order.getSecurity().getSecurityFamily().getScale()));
+            }
+        }
+        if (executionReport.isSetField(AvgPx.FIELD)) {
+
+            double d = executionReport.getAvgPx().getValue();
+            if (d != 0.0) {
+                orderStatus.setAvgPrice(RoundUtil.getBigDecimal(d, order.getSecurity().getSecurityFamily().getScale()));
+            }
         }
 
         return orderStatus;

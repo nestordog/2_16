@@ -104,6 +104,8 @@ public class TestRTFixOrderMessageHandler {
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(0, orderStatus1.getFilledQuantity());
         Assert.assertEquals(FixTestUtils.parseDateTime("20140610-12:56:01.000"), orderStatus1.getExtDateTime());
+        Assert.assertEquals(null, orderStatus1.getLastPrice());
+        Assert.assertEquals(null, orderStatus1.getAvgPrice());
     }
 
     @Test
@@ -145,6 +147,8 @@ public class TestRTFixOrderMessageHandler {
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(100, orderStatus1.getFilledQuantity());
         Assert.assertEquals(FixTestUtils.parseDateTime("20140610-11:27:52.000"), orderStatus1.getExtDateTime());
+        Assert.assertEquals(new BigDecimal("3.142"), orderStatus1.getLastPrice());
+        Assert.assertEquals(new BigDecimal("3.142"), orderStatus1.getAvgPrice());
 
         Object event2 = events.get(1);
         Assert.assertTrue(event2 instanceof Fill);
@@ -248,6 +252,8 @@ public class TestRTFixOrderMessageHandler {
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(0, orderStatus1.getFilledQuantity());
         Assert.assertEquals(FixTestUtils.parseDateTime("20140610-11:29:36.000"), orderStatus1.getExtDateTime());
+        Assert.assertEquals(null, orderStatus1.getLastPrice());
+        Assert.assertEquals(null, orderStatus1.getAvgPrice());
     }
 
 }

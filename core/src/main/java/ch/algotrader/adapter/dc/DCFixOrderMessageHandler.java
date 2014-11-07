@@ -20,11 +20,6 @@ package ch.algotrader.adapter.dc;
 import java.math.BigDecimal;
 import java.util.Date;
 
-import quickfix.FieldNotFound;
-import quickfix.field.CumQty;
-import quickfix.field.MsgSeqNum;
-import quickfix.field.OrdStatus;
-import quickfix.fix44.ExecutionReport;
 import ch.algotrader.adapter.fix.FixUtil;
 import ch.algotrader.adapter.fix.fix44.AbstractFix44OrderMessageHandler;
 import ch.algotrader.entity.trade.Fill;
@@ -33,6 +28,13 @@ import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.util.RoundUtil;
+import quickfix.FieldNotFound;
+import quickfix.field.AvgPx;
+import quickfix.field.CumQty;
+import quickfix.field.MsgSeqNum;
+import quickfix.field.OrdStatus;
+import quickfix.field.TransactTime;
+import quickfix.fix44.ExecutionReport;
 
 /**
  * DukasCopy specific FIX order message handler.
@@ -77,6 +79,17 @@ public class DCFixOrderMessageHandler extends AbstractFix44OrderMessageHandler {
         orderStatus.setFilledQuantity(filledQuantity);
         orderStatus.setRemainingQuantity(remainingQuantity);
         orderStatus.setOrder(order);
+        if (executionReport.isSetField(TransactTime.FIELD)) {
+
+            orderStatus.setExtDateTime(executionReport.getTransactTime().getValue());
+        }
+        if (executionReport.isSetField(AvgPx.FIELD)) {
+
+            double d = executionReport.getAvgPx().getValue();
+            if (d != 0.0) {
+                orderStatus.setAvgPrice(RoundUtil.getBigDecimal(d, order.getSecurity().getSecurityFamily().getScale()));
+            }
+        }
 
         return orderStatus;
     }
