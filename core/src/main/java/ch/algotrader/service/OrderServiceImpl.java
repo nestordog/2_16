@@ -29,9 +29,7 @@ import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Predicate;
 import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
-import org.hibernate.SQLQuery;
 import org.hibernate.SessionFactory;
-import org.hibernate.classic.Session;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -49,7 +47,6 @@ import ch.algotrader.entity.trade.OrderCompletion;
 import ch.algotrader.entity.trade.OrderDao;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.entity.trade.OrderStatusDao;
-import ch.algotrader.entity.trade.OrderStatusImpl;
 import ch.algotrader.entity.trade.OrderValidationException;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.InitializingServiceType;
@@ -432,6 +429,66 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
         return getExternalOrderService(account).getNextOrderId(account);
     }
 
+    @Override
+    @Transactional(propagation = Propagation.SUPPORTS)
+    public Map<Order, OrderStatus> loadPendingOrders() {
+
+        List<OrderStatus> pendingOrderStati = this.orderStatusDao.findPending();
+        List<Integer> unacknowledgedOrderIds = this.orderDao.findUnacknowledgedOrderIds();
+
+        if (pendingOrderStati.isEmpty() && unacknowledgedOrderIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        List<Integer> pendingOrderIds = new ArrayList<Integer>(unacknowledgedOrderIds.size() + pendingOrderStati.size());
+        for (OrderStatus pendingOrderStatus: pendingOrderStati) {
+            pendingOrderIds.add(pendingOrderStatus.getOrder().getId());
+        }
+        pendingOrderIds.addAll(unacknowledgedOrderIds);
+
+        List<Order> orderList = this.orderDao.findByIds(pendingOrderIds);
+
+        Map<Order, OrderStatus> pendingOrderMap = new HashMap<Order, OrderStatus>(orderList.size());
+        for (OrderStatus pendingOrderStatus: pendingOrderStati) {
+
+            pendingOrderMap.put(pendingOrderStatus.getOrder(), pendingOrderStatus);
+        }
+
+        for (Order pendingOrder: orderList) {
+
+            if (!pendingOrderMap.containsKey(pendingOrder)) {
+
+                pendingOrderMap.put(pendingOrder, null);
+            }
+        }
+
+        return pendingOrderMap;
+    }
+
+    @Override
+    public void init() {
+
+        final Map<Order, OrderStatus> pendingOrderMap = loadPendingOrders();
+        if (logger.isInfoEnabled() && !pendingOrderMap.isEmpty()) {
+
+            List<Order> orderList  = new ArrayList<Order>(pendingOrderMap.keySet());
+            Collections.sort(orderList);
+
+            logger.info(orderList.size() + " order(s) are pending");
+            for (int i = 0; i < orderList.size(); i++) {
+                Order order = orderList.get(i);
+                logger.info((i + 1) + ": " + order);
+            }
+        }
+
+        Engine baseEngine = EngineLocator.instance().getBaseEngine();
+        for (Map.Entry<Order, OrderStatus> entry: pendingOrderMap.entrySet()) {
+
+            Order order = entry.getKey();
+            baseEngine.sendEvent(order);
+        }
+    }
+
     private void sendAlgoOrder(AlgoOrder order) {
 
         order.setIntId(AlgoIdGenerator.getInstance().getNextOrderId());
@@ -528,72 +585,6 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
         Validate.notNull(externalOrderService, "externalOrderService was not found: " + orderServiceType);
 
         return externalOrderService;
-    }
-
-    @Override
-    @Transactional(propagation = Propagation.SUPPORTS)
-    public Map<Order, OrderStatus> loadPendingOrders() {
-
-        Session currentSession = this.sessionFactory.getCurrentSession();
-        SQLQuery sqlQuery = currentSession.createSQLQuery(
-                "select os.* from order_status os " +
-                        "left join order_status os2 on (substring_index(os.int_id, '.', 1) = substring_index(os2.int_id, '.', 1) " +
-                        "and (os.date_time < os2.date_time or (os.date_time = os2.date_time and os.sequence_number < os2.sequence_number))) " +
-                        "where os2.id is null and (os.status = 'OPEN' or os.status = 'SUBMITTED' or os.status = 'PARTIALLY_EXECUTED')");
-        sqlQuery.addEntity(OrderStatusImpl.class);
-        @SuppressWarnings("unchecked")
-        List<OrderStatus> pendingOrderStati = (List<OrderStatus>) sqlQuery.list();
-        List<Integer> unacknowledgedOrderIds = this.orderDao.findUnacknowledgedOrderIds();
-
-        if (pendingOrderStati.isEmpty() && unacknowledgedOrderIds.isEmpty()) {
-            return Collections.emptyMap();
-        }
-        List<Integer> pendingOrderIds = new ArrayList<Integer>(unacknowledgedOrderIds.size() + pendingOrderStati.size());
-        for (OrderStatus pendingOrderStatus: pendingOrderStati) {
-
-            pendingOrderIds.add(pendingOrderStatus.getOrder().getId());
-        }
-        pendingOrderIds.addAll(unacknowledgedOrderIds);
-
-        List<Order> orderList = this.orderDao.findByIds(pendingOrderIds);
-        Map<Order, OrderStatus> pendingOrderMap = new HashMap<Order, OrderStatus>(orderList.size());
-        for (OrderStatus pendingOrderStatus: pendingOrderStati) {
-
-            pendingOrderMap.put(pendingOrderStatus.getOrder(), pendingOrderStatus);
-        }
-        for (Order pendingOrder: orderList) {
-
-            if (!pendingOrderMap.containsKey(pendingOrder)) {
-
-                pendingOrderMap.put(pendingOrder, null);
-            }
-        }
-
-        return pendingOrderMap;
-    }
-
-    @Override
-    public void init() {
-
-        final Map<Order, OrderStatus> pendingOrderMap = loadPendingOrders();
-        if (logger.isInfoEnabled() && !pendingOrderMap.isEmpty()) {
-
-            List<Order> orderList  = new ArrayList<Order>(pendingOrderMap.keySet());
-            Collections.sort(orderList);
-
-            logger.info(orderList.size() + " order(s) are pending");
-            for (int i = 0; i < orderList.size(); i++) {
-                Order order = orderList.get(i);
-                logger.info((i + 1) + ": " + order);
-            }
-        }
-
-        Engine baseEngine = EngineLocator.instance().getBaseEngine();
-        for (Map.Entry<Order, OrderStatus> entry: pendingOrderMap.entrySet()) {
-
-            Order order = entry.getKey();
-            baseEngine.sendEvent(order);
-        }
     }
 
     private static final class AlgoIdGenerator {
