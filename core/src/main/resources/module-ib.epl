@@ -173,6 +173,7 @@ select
      (case when lastFillPrice = 0.0 then null else RoundUtil.getBigDecimal(lastFillPrice, `order`.security.securityFamily.scale) end) as lastPrice,
     `order`.intId as intId,
     extId,
+    sequenceNumber,
     `order`,
     reason
 from

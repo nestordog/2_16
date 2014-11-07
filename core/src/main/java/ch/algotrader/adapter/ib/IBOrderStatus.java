@@ -18,6 +18,8 @@
 
 package ch.algotrader.adapter.ib;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.enumeration.Status;
 
@@ -28,6 +30,8 @@ import ch.algotrader.enumeration.Status;
  */
 public class IBOrderStatus {
 
+    private final static AtomicLong COUNT = new AtomicLong(0);
+
     private final Status status;
     private final long filledQuantity;
     private final long remainingQuantity;
@@ -36,6 +40,7 @@ public class IBOrderStatus {
     private final String extId;
     private final Order order;
     private final String reason;
+    private final long sequenceNumber;
 
     public IBOrderStatus(Status status, long filledQuantity, long remainingQuantity, String extId, Order order) {
         this.status = status;
@@ -46,6 +51,7 @@ public class IBOrderStatus {
         this.extId = extId;
         this.order = order;
         this.reason = null;
+        this.sequenceNumber = COUNT.getAndIncrement();
     }
 
     public IBOrderStatus(Status status, long filledQuantity, long remainingQuantity, String extId, Order order, String reason) {
@@ -57,6 +63,7 @@ public class IBOrderStatus {
         this.extId = extId;
         this.order = order;
         this.reason = reason;
+        this.sequenceNumber = COUNT.getAndIncrement();
     }
 
     public IBOrderStatus(Status status, long filledQuantity, long remainingQuantity, double avgFillPrice, double lastFillPrice, String extId, Order order) {
@@ -68,6 +75,7 @@ public class IBOrderStatus {
         this.extId = extId;
         this.order = order;
         this.reason = null;
+        this.sequenceNumber = COUNT.getAndIncrement();
     }
 
     public Status getStatus() {
@@ -100,5 +108,9 @@ public class IBOrderStatus {
 
     public String getReason() {
         return this.reason;
+    }
+
+    public long getSequenceNumber() {
+        return sequenceNumber;
     }
 }
