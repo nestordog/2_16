@@ -110,4 +110,14 @@ public interface OrderService {
      */
     public String getNextOrderId(Account account);
 
+    /**
+     * Loads pending orders. An order is considered pending if the status of the last
+     * {@link ch.algotrader.entity.trade.OrderStatus} event associated with the order is either
+     * {@link ch.algotrader.enumeration.Status#OPEN},
+     * {@link ch.algotrader.enumeration.Status#SUBMITTED} or
+     * {@link ch.algotrader.enumeration.Status#PARTIALLY_EXECUTED}
+     * or there are no events associated with the order.
+     */
+    Map<Order, OrderStatus> loadPendingOrders();
+
 }

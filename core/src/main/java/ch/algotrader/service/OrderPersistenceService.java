@@ -17,8 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
-import java.util.List;
-
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderStatus;
 
@@ -40,14 +38,5 @@ public interface OrderPersistenceService {
      * Persists the given {@link ch.algotrader.entity.trade.OrderStatus} instance.
      */
     void persistOrderStatus(OrderStatus orderStatus);
-
-    /**
-     * Loads pending orders. An order is considered pending if the status of the last
-     * {@link ch.algotrader.entity.trade.OrderStatus} event associated with the order is either
-     * {@link ch.algotrader.enumeration.Status#OPEN},
-     * {@link ch.algotrader.enumeration.Status#SUBMITTED} or
-     * {@link ch.algotrader.enumeration.Status#PARTIALLY_EXECUTED}.
-     */
-    List<Order> loadPendingOrders();
 
 }

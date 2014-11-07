@@ -17,7 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.integration;
 
-import java.util.List;
+import java.util.Map;
 
 import org.hibernate.SessionFactory;
 import org.junit.After;
@@ -29,8 +29,9 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.trade.Order;
+import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.service.LocalServiceTest;
-import ch.algotrader.service.OrderPersistenceService;
+import ch.algotrader.service.OrderService;
 
 /**
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
@@ -64,17 +65,23 @@ public class OrderStatusTest extends LocalServiceTest {
     @Test
     public void testLoadPendingOrders() throws Exception {
 
-        OrderPersistenceService orderPersistenceService = ServiceLocator.instance().
-                getContext().getBean("orderPersistenceService", OrderPersistenceService.class);
+        OrderService orderService = ServiceLocator.instance().getContext().getBean("orderService", OrderService.class);
 
-        List<Order> orders = orderPersistenceService.loadPendingOrders();
-        for (Order order: orders) {
+        Map<Order, OrderStatus> pendingOrderMap = orderService.loadPendingOrders();
+        for (Map.Entry<Order, OrderStatus> entry: pendingOrderMap.entrySet()) {
             System.out.println("----------");
+            Order order = entry.getKey();
+            OrderStatus orderStatus = entry.getValue();
             System.out.println("order id: " + order.getIntId());
             System.out.println("security: " + order.getSecurity().getSymbol() +
                     "/" + order.getSecurity().getSecurityFamily().getName());
             System.out.println("strategy: " + order.getStrategy().getName());
             System.out.println("account: " + order.getAccount().getName());
+            if (orderStatus != null) {
+                System.out.println("order status: " + orderStatus.getStatus());
+                System.out.println("filled: " + orderStatus.getFilledQuantity());
+                System.out.println("remaining: " + orderStatus.getRemainingQuantity());
+            }
         }
     }
 
