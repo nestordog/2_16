@@ -23,11 +23,13 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import ch.algotrader.enumeration.InitializingServiceType;
+
 @Documented
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface InitializationPriority {
 
-    ServiceType value();
+    InitializingServiceType value();
 
 }

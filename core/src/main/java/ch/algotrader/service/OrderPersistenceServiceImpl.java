@@ -22,11 +22,7 @@ import java.util.List;
 
 import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
-import org.hibernate.Query;
-import org.hibernate.SQLQuery;
 import org.hibernate.SessionFactory;
-import org.hibernate.classic.Session;
-import org.hibernate.type.IntegerType;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +32,7 @@ import ch.algotrader.entity.trade.LimitOrderDao;
 import ch.algotrader.entity.trade.MarketOrder;
 import ch.algotrader.entity.trade.MarketOrderDao;
 import ch.algotrader.entity.trade.Order;
+import ch.algotrader.entity.trade.OrderDao;
 import ch.algotrader.entity.trade.OrderProperty;
 import ch.algotrader.entity.trade.OrderPropertyDao;
 import ch.algotrader.entity.trade.OrderStatus;
@@ -62,6 +59,8 @@ public class OrderPersistenceServiceImpl implements OrderPersistenceService {
 
     private final SessionFactory sessionFactory;
 
+    private final OrderDao orderDao;
+
     private final MarketOrderDao marketOrderDao;
 
     private final LimitOrderDao limitOrderDao;
@@ -76,6 +75,7 @@ public class OrderPersistenceServiceImpl implements OrderPersistenceService {
 
     public OrderPersistenceServiceImpl(
             final SessionFactory sessionFactory,
+ final OrderDao orderDao,
             final MarketOrderDao marketOrderDao,
             final LimitOrderDao limitOrderDao,
             final StopOrderDao stopOrderDao,
@@ -84,6 +84,7 @@ public class OrderPersistenceServiceImpl implements OrderPersistenceService {
             final OrderStatusDao orderStatusDao) {
 
         Validate.notNull(sessionFactory, "SessionFactory is null");
+        Validate.notNull(orderDao, "orderDao is null");
         Validate.notNull(marketOrderDao, "MarketOrderDao is null");
         Validate.notNull(limitOrderDao, "LimitOrderDao is null");
         Validate.notNull(stopOrderDao, "StopOrderDao is null");
@@ -92,6 +93,7 @@ public class OrderPersistenceServiceImpl implements OrderPersistenceService {
         Validate.notNull(orderStatusDao, "OrderStatusDao is null");
 
         this.sessionFactory = sessionFactory;
+        this.orderDao = orderDao;
         this.marketOrderDao = marketOrderDao;
         this.limitOrderDao = limitOrderDao;
         this.stopOrderDao = stopOrderDao;
@@ -145,46 +147,15 @@ public class OrderPersistenceServiceImpl implements OrderPersistenceService {
     @Transactional(propagation = Propagation.SUPPORTS)
     public List<Order> loadPendingOrders() {
 
-        Session currentSession = this.sessionFactory.getCurrentSession();
-        SQLQuery sqlQuery = currentSession.createSQLQuery(
-                "select os.`order_fk` " +
-                        "from `order_status` os" +
-                        " left join `order_status` os2" +
-                        " on (substring_index(os.`int_id`, '.', 1) = substring_index(os2.`int_id`, '.', 1) " +
-                        " and (os.`date_time` < os2.`date_time` " +
-                        " or (os.`date_time` = os2.`date_time` and os.`sequence_number` < os2.`sequence_number`)))" +
-                        " where os2.`id` is null and " +
-                        " (os.`status` = 'OPEN' or os.`status` = 'SUBMITTED' or os.`status` = 'PARTIALLY_EXECUTED')");
-        sqlQuery.addScalar("order_fk", new IntegerType());
-        @SuppressWarnings("unchecked")
-        List<Integer> ids = (List<Integer>) sqlQuery.list();
-        SQLQuery sqlQuery2 = currentSession.createSQLQuery(
-                "select o.`id` from `order` o " +
-                        "  left join `order_status` os2 on o.`id` = os2.`order_fk` " +
-                        "  where os2.`id` is null");
-        sqlQuery2.addScalar("id", new IntegerType());
-        @SuppressWarnings("unchecked")
-        List<Integer> ids2 = (List<Integer>) sqlQuery2.list();
+        List<Integer> pendingOrderIds = this.orderDao.findPendingOrderIds();
+        List<Integer> unacknowledgedOrderIds = this.orderDao.findUnacknowledgedOrderIds();
 
-        if (ids.isEmpty() && ids2.isEmpty()) {
-
+        if (pendingOrderIds.isEmpty() && unacknowledgedOrderIds.isEmpty()) {
             return Collections.emptyList();
         }
-        ids.addAll(ids2);
+        pendingOrderIds.addAll(unacknowledgedOrderIds);
 
-        Query query = currentSession.createQuery("select o from OrderImpl o " +
-                "left outer join fetch o.orderProperties op " +
-                "join fetch o.security sec " +
-                "join fetch sec.securityFamily secf " +
-                "left outer join fetch secf.brokerParameters brpr " +
-                "join fetch o.strategy st " +
-                "left outer join fetch st.props stpr " +
-                "join fetch o.account acc " +
-                "where o.id in :ids");
-        query.setParameterList("ids", ids);
-        @SuppressWarnings("unchecked")
-        List<Order> orders = (List<Order>) query.list();
-        return orders;
+        return this.orderDao.findByIds(pendingOrderIds);
     }
 
 }

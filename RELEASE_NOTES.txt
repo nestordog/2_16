@@ -15,6 +15,8 @@ report manager
 weekly options
 market-on-open, limit-on-open, market-on-close and limit-on-close
 order completion event
+order recovery
+in-process exchange simulator
 
 Version 2.1
 new Instruments: Bond, Fund & Commodity

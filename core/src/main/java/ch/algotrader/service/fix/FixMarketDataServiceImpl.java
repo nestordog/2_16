@@ -26,9 +26,9 @@ import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityDao;
+import ch.algotrader.enumeration.InitializingServiceType;
 import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.service.ExternalMarketDataServiceImpl;
-import ch.algotrader.service.ServiceType;
 import ch.algotrader.service.InitializationPriority;
 import ch.algotrader.service.InitializingServiceI;
 import ch.algotrader.util.MyLogger;
@@ -41,7 +41,7 @@ import ch.algotrader.vo.SubscribeTickVO;
  *
  * @version $Revision$ $Date$
  */
-@InitializationPriority(ServiceType.EXT_INTERFACE)
+@InitializationPriority(InitializingServiceType.BROKER_INTERFACE)
 public abstract class FixMarketDataServiceImpl extends ExternalMarketDataServiceImpl implements FixMarketDataService, InitializingServiceI {
 
     private static final long serialVersionUID = 4880040246465806082L;

@@ -23,9 +23,9 @@ import java.util.Comparator;
 import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.core.annotation.AnnotationUtils;
 
+import ch.algotrader.enumeration.InitializingServiceType;
 import ch.algotrader.service.InitializationPriority;
 import ch.algotrader.service.InitializingServiceI;
-import ch.algotrader.service.ServiceType;
 
 class ServicePriorityComparator implements Comparator<InitializingServiceI> {
 
@@ -33,8 +33,8 @@ class ServicePriorityComparator implements Comparator<InitializingServiceI> {
 
     @Override
     public int compare(final InitializingServiceI s1, final InitializingServiceI s2) {
-        ServiceType p1 = getServiceType(s1);
-        ServiceType p2 = getServiceType(s2);
+        InitializingServiceType p1 = getServiceType(s1);
+        InitializingServiceType p2 = getServiceType(s2);
         int result = p1.compareTo(p2);
         if (result != 0) {
             return result;
@@ -44,10 +44,10 @@ class ServicePriorityComparator implements Comparator<InitializingServiceI> {
         }
     }
 
-    private ServiceType getServiceType(final InitializingServiceI service) {
+    private InitializingServiceType getServiceType(final InitializingServiceI service) {
         Class<?> implClass = AopProxyUtils.ultimateTargetClass(service);
         InitializationPriority initializationPriority = AnnotationUtils.findAnnotation(implClass, InitializationPriority.class);
-        return initializationPriority != null ? initializationPriority.value() : ServiceType.CORE;
+        return initializationPriority != null ? initializationPriority.value() : InitializingServiceType.CORE;
     }
 
 }

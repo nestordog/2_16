@@ -41,6 +41,7 @@ import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.SecurityFamilyDao;
 import ch.algotrader.enumeration.CombinationType;
+import ch.algotrader.enumeration.InitializingServiceType;
 import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.util.HibernateUtil;
 import ch.algotrader.util.MyLogger;
@@ -53,7 +54,7 @@ import ch.algotrader.vo.InsertComponentEventVO;
  * @version $Revision$ $Date$
  */
 @HibernateSession
-@InitializationPriority(ServiceType.CORE)
+@InitializationPriority(InitializingServiceType.CORE)
 public class CombinationServiceImpl implements CombinationService, InitializingServiceI {
 
     private static final long serialVersionUID = -2720603696641382966L;

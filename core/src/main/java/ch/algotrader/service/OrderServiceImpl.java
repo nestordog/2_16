@@ -43,6 +43,7 @@ import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.entity.trade.OrderStatusDao;
 import ch.algotrader.entity.trade.OrderValidationException;
 import ch.algotrader.entity.trade.SimpleOrder;
+import ch.algotrader.enumeration.InitializingServiceType;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.enumeration.TIF;
@@ -60,7 +61,7 @@ import ch.algotrader.vo.OrderStatusVO;
  * @version $Revision$ $Date$
  */
 @HibernateSession
-@InitializationPriority(value = ServiceType.CORE)
+@InitializationPriority(value = InitializingServiceType.CORE)
 public class OrderServiceImpl implements OrderService, InitializingServiceI, ApplicationContextAware {
 
     private static Logger logger = MyLogger.getLogger(OrderServiceImpl.class.getName());
@@ -521,12 +522,10 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
         final List<Order> orders = this.orderPersistService.loadPendingOrders();
         if (logger.isInfoEnabled() && !orders.isEmpty()) {
 
-            logger.info(orders.size() + " orders are pending");
+            logger.info(orders.size() + " order(s) are pending");
             for (int i = 0; i < orders.size(); i++) {
                 Order order = orders.get(i);
-
-                logger.info((i + 1) + ") " + order.getIntId() + "; " +
-                        order.getSecurity().getSymbol() + " / " + order.getSecurity().getSecurityFamily().getName());
+                logger.info((i + 1) + ": " + order);
             }
         }
 

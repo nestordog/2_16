@@ -34,11 +34,11 @@ import ch.algotrader.entity.marketData.TickDao;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.enumeration.FeedType;
+import ch.algotrader.enumeration.InitializingServiceType;
 import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.service.ExternalMarketDataServiceImpl;
 import ch.algotrader.service.InitializationPriority;
 import ch.algotrader.service.InitializingServiceI;
-import ch.algotrader.service.ServiceType;
 import ch.algotrader.service.ib.IBNativeMarketDataServiceException;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.vo.SubscribeTickVO;
@@ -52,7 +52,7 @@ import com.bloomberglp.blpapi.SubscriptionList;
  *
  * @version $Revision$ $Date$
  */
-@InitializationPriority(ServiceType.EXT_INTERFACE)
+@InitializationPriority(InitializingServiceType.BROKER_INTERFACE)
 public class BBMarketDataServiceImpl extends ExternalMarketDataServiceImpl implements BBMarketDataService, InitializingServiceI, DisposableBean {
 
     private static final long serialVersionUID = -3463200344945144471L;

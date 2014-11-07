@@ -20,6 +20,11 @@ package ch.algotrader.adapter.dc;
 import java.math.BigDecimal;
 import java.util.Date;
 
+import quickfix.FieldNotFound;
+import quickfix.field.CumQty;
+import quickfix.field.MsgSeqNum;
+import quickfix.field.OrdStatus;
+import quickfix.fix44.ExecutionReport;
 import ch.algotrader.adapter.fix.FixUtil;
 import ch.algotrader.adapter.fix.fix44.AbstractFix44OrderMessageHandler;
 import ch.algotrader.entity.trade.Fill;
@@ -28,11 +33,6 @@ import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.util.RoundUtil;
-import quickfix.FieldNotFound;
-import quickfix.field.CumQty;
-import quickfix.field.MsgSeqNum;
-import quickfix.field.OrdStatus;
-import quickfix.fix44.ExecutionReport;
 
 /**
  * DukasCopy specific FIX order message handler.
@@ -63,7 +63,8 @@ public class DCFixOrderMessageHandler extends AbstractFix44OrderMessageHandler {
         Status status = getStatus(executionReport.getOrdStatus(), executionReport.getCumQty());
         long filledQuantity = (long) executionReport.getCumQty().getValue();
         long remainingQuantity = (long) (executionReport.getOrderQty().getValue() - executionReport.getCumQty().getValue());
-        // Note: store OrderID sind DukasCopy requires it for cancels and replaces
+
+        // Note: store OrderID since DukasCopy requires it for cancels and replaces
         String extId = executionReport.getOrderID().getValue();
         String intId = executionReport.getClOrdID().getValue();
 
