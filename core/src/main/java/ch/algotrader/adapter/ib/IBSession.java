@@ -26,6 +26,8 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
 
 import ch.algotrader.enumeration.FeedType;
+import ch.algotrader.enumeration.InitializingServiceType;
+import ch.algotrader.service.InitializationPriority;
 import ch.algotrader.service.InitializingServiceI;
 import ch.algotrader.service.MarketDataService;
 import ch.algotrader.util.MyLogger;
@@ -39,6 +41,7 @@ import com.ib.client.EClientSocket;
  *
  * @version $Revision$ $Date$
  */
+@InitializationPriority(value = InitializingServiceType.BROKER_INTERFACE)
 public final class IBSession extends EClientSocket implements InitializingServiceI, DisposableBean {
 
     private static final long serialVersionUID = 6821739991866153788L;

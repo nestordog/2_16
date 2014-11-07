@@ -31,6 +31,7 @@ import ch.algotrader.util.RoundUtil;
 import quickfix.FieldNotFound;
 import quickfix.field.CumQty;
 import quickfix.field.ExecType;
+import quickfix.field.MsgSeqNum;
 import quickfix.field.OrdStatus;
 import quickfix.field.TransactTime;
 import quickfix.fix44.ExecutionReport;
@@ -75,26 +76,23 @@ public class FXCMFixOrderMessageHandler extends AbstractFix44OrderMessageHandler
         Status status = getStatus(executionReport.getOrdStatus(), executionReport.getExecType(), executionReport.getCumQty());
         long filledQuantity = (long) executionReport.getCumQty().getValue();
         long remainingQuantity = (long) (executionReport.getOrderQty().getValue() - executionReport.getCumQty().getValue());
+        String extId = executionReport.getOrderID().getValue();
+        String intId = executionReport.getClOrdID().getValue();
 
         // assemble the orderStatus
         OrderStatus orderStatus = OrderStatus.Factory.newInstance();
         orderStatus.setStatus(status);
+        orderStatus.setExtId(extId);
+        orderStatus.setIntId(intId);
+        orderStatus.setSequenceNumber(executionReport.getHeader().getInt(MsgSeqNum.FIELD));
         orderStatus.setFilledQuantity(filledQuantity);
         orderStatus.setRemainingQuantity(remainingQuantity);
         orderStatus.setOrder(order);
 
-        String intId = executionReport.getClOrdID().getValue();
-        // update intId in case it has changed
-        if (!intId.equals(order.getIntId())) {
-            orderStatus.setIntId(intId);
-        }
         if (executionReport.isSetField(TransactTime.FIELD)) {
 
             orderStatus.setExtDateTime(executionReport.getTransactTime().getValue());
         }
-
-        String extId = executionReport.getOrderID().getValue();
-        orderStatus.setExtId(extId);
 
         return orderStatus;
     }
@@ -113,12 +111,12 @@ public class FXCMFixOrderMessageHandler extends AbstractFix44OrderMessageHandler
             long quantity = (long) executionReport.getCumQty().getValue();
 
             BigDecimal price = RoundUtil.getBigDecimal(executionReport.getAvgPx().getValue(), order.getSecurity().getSecurityFamily().getScale());
-            String extId = executionReport.getOrderID().getValue();
 
             // assemble the fill
             // please note FXCM does not provide a unique exec report attribute
             // that could be used as a unique extId
             Fill fill = Fill.Factory.newInstance();
+            fill.setSequenceNumber(executionReport.getHeader().getInt(MsgSeqNum.FIELD));
             fill.setDateTime(new Date());
             fill.setExtDateTime(extDateTime);
             fill.setSide(side);

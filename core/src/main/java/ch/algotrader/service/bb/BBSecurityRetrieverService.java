@@ -17,7 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.service.bb;
 
-import ch.algotrader.service.InitializingServiceI;
 import ch.algotrader.service.SecurityRetrieverService;
 
 /**
@@ -25,5 +24,5 @@ import ch.algotrader.service.SecurityRetrieverService;
  *
  * @version $Revision$ $Date$
  */
-public interface BBSecurityRetrieverService extends SecurityRetrieverService, InitializingServiceI {
+public interface BBSecurityRetrieverService extends SecurityRetrieverService {
 }

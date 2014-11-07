@@ -19,6 +19,7 @@ package ch.algotrader.integration.lmax;
 
 import java.math.BigDecimal;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -45,9 +46,11 @@ import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
+import ch.algotrader.enumeration.TIF;
 import ch.algotrader.esper.AbstractEngine;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineLocator;
+import ch.algotrader.service.InitializingServiceI;
 import ch.algotrader.service.LocalServiceTest;
 import ch.algotrader.service.LookupService;
 import ch.algotrader.service.fix.FixMarketDataService;
@@ -116,8 +119,14 @@ public class LMAXIntegrationTest extends LocalServiceTest {
 
         EngineLocator.instance().setEngine(StrategyImpl.BASE, this.engine);
 
-        marketDataService.init();
-        orderService.init();
+        if (marketDataService instanceof InitializingServiceI) {
+
+            ((InitializingServiceI) marketDataService).init();
+        }
+        if (orderService instanceof InitializingServiceI) {
+
+            ((InitializingServiceI) orderService).init();
+        }
 
         String marketDataSessionQualifier = marketDataService.getSessionQualifier();
         Session marketDataSession = Session.lookupSession(getSessionID(marketDataSessionQualifier));
@@ -228,6 +237,8 @@ public class LMAXIntegrationTest extends LocalServiceTest {
         order.setQuantity(2000);
         order.setSide(Side.BUY);
         order.setLimit(new BigDecimal(bestBid));
+        order.setTif(TIF.GTC);
+        order.setDateTime(new Date());
 
         Pair pair = new Pair<Order, Map<?, ?>>(order, null);
         Mockito.when(engine.executeSingelObjectQuery(Mockito.anyString())).thenReturn(pair);

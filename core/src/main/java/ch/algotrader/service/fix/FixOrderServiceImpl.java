@@ -20,6 +20,8 @@ package ch.algotrader.service.fix;
 import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
 
+import ch.algotrader.service.InitializationPriority;
+import ch.algotrader.service.InitializingServiceI;
 import quickfix.FieldNotFound;
 import quickfix.Message;
 import quickfix.StringField;
@@ -27,6 +29,7 @@ import quickfix.field.MsgType;
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.trade.Order;
+import ch.algotrader.enumeration.InitializingServiceType;
 import ch.algotrader.service.ExternalOrderServiceImpl;
 import ch.algotrader.service.OrderService;
 import ch.algotrader.util.MyLogger;
@@ -38,7 +41,8 @@ import ch.algotrader.util.MyLogger;
  *
  * @version $Revision$ $Date$
  */
-public abstract class FixOrderServiceImpl extends ExternalOrderServiceImpl implements FixOrderService {
+@InitializationPriority(InitializingServiceType.BROKER_INTERFACE)
+public abstract class FixOrderServiceImpl extends ExternalOrderServiceImpl implements FixOrderService, InitializingServiceI {
 
     private static final long serialVersionUID = -1571841567775158540L;
 

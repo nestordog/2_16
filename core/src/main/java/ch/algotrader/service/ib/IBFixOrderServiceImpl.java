@@ -26,7 +26,6 @@ import ch.algotrader.config.IBConfig;
 import ch.algotrader.entity.security.Option;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
-import ch.algotrader.service.InitializingServiceI;
 import ch.algotrader.service.OrderService;
 import ch.algotrader.service.fix.fix42.Fix42OrderServiceImpl;
 import quickfix.field.Account;
@@ -47,7 +46,7 @@ import quickfix.fix42.OrderCancelRequest;
  *
  * @version $Revision$ $Date$
  */
-public class IBFixOrderServiceImpl extends Fix42OrderServiceImpl implements IBFixOrderService, InitializingServiceI {
+public class IBFixOrderServiceImpl extends Fix42OrderServiceImpl implements IBFixOrderService {
 
     private static final long serialVersionUID = -537844523983750001L;
 

@@ -17,8 +17,12 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
+import org.hibernate.SessionFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +32,7 @@ import ch.algotrader.entity.trade.LimitOrderDao;
 import ch.algotrader.entity.trade.MarketOrder;
 import ch.algotrader.entity.trade.MarketOrderDao;
 import ch.algotrader.entity.trade.Order;
+import ch.algotrader.entity.trade.OrderDao;
 import ch.algotrader.entity.trade.OrderProperty;
 import ch.algotrader.entity.trade.OrderPropertyDao;
 import ch.algotrader.entity.trade.OrderStatus;
@@ -52,6 +57,10 @@ public class OrderPersistenceServiceImpl implements OrderPersistenceService {
 
     private static final Logger logger = MyLogger.getLogger(OrderPersistenceServiceImpl.class.getName());
 
+    private final SessionFactory sessionFactory;
+
+    private final OrderDao orderDao;
+
     private final MarketOrderDao marketOrderDao;
 
     private final LimitOrderDao limitOrderDao;
@@ -65,6 +74,8 @@ public class OrderPersistenceServiceImpl implements OrderPersistenceService {
     private final OrderStatusDao orderStatusDao;
 
     public OrderPersistenceServiceImpl(
+            final SessionFactory sessionFactory,
+ final OrderDao orderDao,
             final MarketOrderDao marketOrderDao,
             final LimitOrderDao limitOrderDao,
             final StopOrderDao stopOrderDao,
@@ -72,6 +83,8 @@ public class OrderPersistenceServiceImpl implements OrderPersistenceService {
             final OrderPropertyDao orderPropertyDao,
             final OrderStatusDao orderStatusDao) {
 
+        Validate.notNull(sessionFactory, "SessionFactory is null");
+        Validate.notNull(orderDao, "orderDao is null");
         Validate.notNull(marketOrderDao, "MarketOrderDao is null");
         Validate.notNull(limitOrderDao, "LimitOrderDao is null");
         Validate.notNull(stopOrderDao, "StopOrderDao is null");
@@ -79,6 +92,8 @@ public class OrderPersistenceServiceImpl implements OrderPersistenceService {
         Validate.notNull(orderPropertyDao, "OrderPropertyDao is null");
         Validate.notNull(orderStatusDao, "OrderStatusDao is null");
 
+        this.sessionFactory = sessionFactory;
+        this.orderDao = orderDao;
         this.marketOrderDao = marketOrderDao;
         this.limitOrderDao = limitOrderDao;
         this.stopOrderDao = stopOrderDao;
@@ -127,4 +142,20 @@ public class OrderPersistenceServiceImpl implements OrderPersistenceService {
             logger.error("problem creating orderStatus", e);
         }
     }
+
+    @Override
+    @Transactional(propagation = Propagation.SUPPORTS)
+    public List<Order> loadPendingOrders() {
+
+        List<Integer> pendingOrderIds = this.orderDao.findPendingOrderIds();
+        List<Integer> unacknowledgedOrderIds = this.orderDao.findUnacknowledgedOrderIds();
+
+        if (pendingOrderIds.isEmpty() && unacknowledgedOrderIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+        pendingOrderIds.addAll(unacknowledgedOrderIds);
+
+        return this.orderDao.findByIds(pendingOrderIds);
+    }
+
 }

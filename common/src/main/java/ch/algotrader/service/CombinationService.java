@@ -25,7 +25,7 @@ import ch.algotrader.enumeration.CombinationType;
  *
  * @version $Revision$ $Date$
  */
-public interface CombinationService extends InitializingServiceI {
+public interface CombinationService {
 
     /**
      * Creates a Combination of the specified {@link CombinationType} and assigns it to the

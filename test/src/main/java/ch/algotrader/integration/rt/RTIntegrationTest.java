@@ -19,6 +19,7 @@ package ch.algotrader.integration.rt;
 
 import java.math.BigDecimal;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -46,9 +47,11 @@ import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
+import ch.algotrader.enumeration.TIF;
 import ch.algotrader.esper.AbstractEngine;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineLocator;
+import ch.algotrader.service.InitializingServiceI;
 import ch.algotrader.service.LocalServiceTest;
 import ch.algotrader.service.LookupService;
 import ch.algotrader.service.fix.FixOrderService;
@@ -115,7 +118,10 @@ public class RTIntegrationTest extends LocalServiceTest {
 
         EngineLocator.instance().setEngine(StrategyImpl.BASE, this.engine);
 
-        orderService.init();
+        if (orderService instanceof InitializingServiceI) {
+
+            ((InitializingServiceI) orderService).init();
+        }
 
         Collection<String> tradingSessionQualifiiers = lookupService.getActiveSessionsByOrderServiceType(orderService.getOrderServiceType());
         Assert.assertEquals(1, tradingSessionQualifiiers.size());
@@ -184,6 +190,8 @@ public class RTIntegrationTest extends LocalServiceTest {
         order.setQuantity(100);
         order.setSide(Side.BUY);
         order.setLimit(new BigDecimal("2000.0"));
+        order.setTif(TIF.GTC);
+        order.setDateTime(new Date());
 
         Pair pair = new Pair<Order, Map<?, ?>>(order, null);
         Mockito.when(engine.executeSingelObjectQuery(Mockito.anyString())).thenReturn(pair);

@@ -18,7 +18,10 @@
 
 package ch.algotrader;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 import org.springframework.beans.factory.access.BeanFactoryLocator;
 import org.springframework.beans.factory.access.BeanFactoryReference;
@@ -190,7 +193,15 @@ public class ServiceLocator {
      */
     public void initInitializingServices() {
 
-        for (InitializingServiceI service : getServices(InitializingServiceI.class)) {
+        Collection<InitializingServiceI> allServices = getServices(InitializingServiceI.class);
+        if (allServices.isEmpty()) {
+
+            return;
+        }
+        List<InitializingServiceI> allServicesByPriority = new ArrayList<InitializingServiceI>(allServices);
+        Collections.sort(allServicesByPriority, ServicePriorityComparator.INSTANCE);
+        for (InitializingServiceI service: allServicesByPriority) {
+
             service.init();
         }
     }

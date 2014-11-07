@@ -40,8 +40,11 @@ import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.enumeration.BarType;
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.FeedType;
+import ch.algotrader.enumeration.InitializingServiceType;
 import ch.algotrader.enumeration.TimePeriod;
 import ch.algotrader.service.HistoricalDataServiceImpl;
+import ch.algotrader.service.InitializationPriority;
+import ch.algotrader.service.InitializingServiceI;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.RoundUtil;
 
@@ -57,7 +60,8 @@ import com.bloomberglp.blpapi.Session;
  *
  * @version $Revision$ $Date$
  */
-public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl implements BBHistoricalDataService, DisposableBean {
+@InitializationPriority(value = InitializingServiceType.BROKER_INTERFACE)
+public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl implements BBHistoricalDataService, InitializingServiceI, DisposableBean {
 
     private static final long serialVersionUID = 1339545758324165650L;
 

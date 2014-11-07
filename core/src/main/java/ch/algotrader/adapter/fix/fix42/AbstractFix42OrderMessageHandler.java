@@ -30,6 +30,7 @@ import ch.algotrader.util.MyLogger;
 import quickfix.FieldNotFound;
 import quickfix.SessionID;
 import quickfix.field.ExecTransType;
+import quickfix.field.MsgSeqNum;
 import quickfix.field.Text;
 import quickfix.field.TransactTime;
 import quickfix.fix42.ExecutionReport;
@@ -104,6 +105,7 @@ public abstract class AbstractFix42OrderMessageHandler extends AbstractFix42Mess
             OrderStatus orderStatus = OrderStatus.Factory.newInstance();
             orderStatus.setStatus(Status.REJECTED);
             orderStatus.setIntId(intId);
+            orderStatus.setSequenceNumber(executionReport.getHeader().getInt(MsgSeqNum.FIELD));
             orderStatus.setOrder(order);
             if (executionReport.isSetField(TransactTime.FIELD)) {
 
@@ -167,6 +169,7 @@ public abstract class AbstractFix42OrderMessageHandler extends AbstractFix42Mess
         OrderStatus orderStatus = OrderStatus.Factory.newInstance();
         orderStatus.setStatus(Status.REJECTED);
         orderStatus.setIntId(intId);
+        orderStatus.setSequenceNumber(reject.getHeader().getInt(MsgSeqNum.FIELD));
         orderStatus.setOrder(order);
         if (reject.isSetField(TransactTime.FIELD)) {
 
