@@ -17,6 +17,7 @@
 
     <!-- Trades -->
     <event-type name="Order" class="ch.algotrader.entity.trade.Order"/>
+    <event-type name="SubmittedOrder" class="ch.algotrader.entity.trade.SubmittedOrder"/>
     <event-type name="OrderStatus" class="ch.algotrader.entity.trade.OrderStatus">
         <legacy-type accessor-style="javabean" code-generation="enabled" property-resolution-style="case_sensitive" factory-method="ch.algotrader.entity.trade.OrderStatus$Factory.newInstance"/>
     </event-type>

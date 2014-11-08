@@ -16,12 +16,12 @@ from
 insert into
     OpenOrderWindow
 select
-    *,
-    Status.OPEN as status,
-    0L as filledQuantity,
-    quantity as remainingQuantity
+    submittedOrder.*,
+    status,
+    filledQuantity,
+    remainingQuantity
 from
-    `Order`;
+    SubmittedOrder;
 
 @Name('UPDATE_OPEN_ORDER_WINDOW')
 @RunTimeOnly()

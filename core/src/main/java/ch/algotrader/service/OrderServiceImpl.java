@@ -29,7 +29,6 @@ import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Predicate;
 import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
-import org.hibernate.SessionFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -49,6 +48,7 @@ import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.entity.trade.OrderStatusDao;
 import ch.algotrader.entity.trade.OrderValidationException;
 import ch.algotrader.entity.trade.SimpleOrder;
+import ch.algotrader.entity.trade.SubmittedOrder;
 import ch.algotrader.enumeration.InitializingServiceType;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.enumeration.Status;
@@ -70,14 +70,14 @@ import ch.algotrader.vo.OrderStatusVO;
 @InitializationPriority(value = InitializingServiceType.CORE)
 public class OrderServiceImpl implements OrderService, InitializingServiceI, ApplicationContextAware {
 
+    private static final long serialVersionUID = 3969251081188007542L;
+
     private static Logger logger = MyLogger.getLogger(OrderServiceImpl.class.getName());
     private static Logger notificationLogger = MyLogger.getLogger("ch.algotrader.service.NOTIFICATION");
 
     private volatile ApplicationContext applicationContext;
 
     private final CommonConfig commonConfig;
-
-    private final SessionFactory sessionFactory;
 
     private final OrderDao orderDao;
 
@@ -92,7 +92,6 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
     private final OrderPersistenceService orderPersistService;
 
     public OrderServiceImpl(final CommonConfig commonConfig,
-            final SessionFactory sessionFactory,
             final OrderDao orderDao,
             final OrderStatusDao orderStatusDao,
             final StrategyDao strategyDao,
@@ -101,7 +100,6 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
             final OrderPersistenceService orderPersistStrategy) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
-        Validate.notNull(sessionFactory, "SessionFactory is null");
         Validate.notNull(orderDao, "OrderDao is null");
         Validate.notNull(orderStatusDao, "OrderStatusDao is null");
         Validate.notNull(strategyDao, "StrategyDao is null");
@@ -110,7 +108,6 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
         Validate.notNull(orderPersistStrategy, "OrderPersistStrategy is null");
 
         this.commonConfig = commonConfig;
-        this.sessionFactory = sessionFactory;
         this.orderDao = orderDao;
         this.orderStatusDao = orderStatusDao;
         this.strategyDao = strategyDao;
@@ -329,7 +326,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
         Validate.notNull(order, "Order is null");
 
         // send the order into the base engine to be correlated with fills
-        EngineLocator.instance().getBaseEngine().sendEvent(order);
+        EngineLocator.instance().getBaseEngine().sendEvent(SubmittedOrder.Factory.newInstance(Status.OPEN, 0, order.getQuantity(), order));
 
         // also send the order to the strategy that placed the order
         if (!order.getStrategy().isBase()) {
@@ -485,7 +482,12 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
         for (Map.Entry<Order, OrderStatus> entry: pendingOrderMap.entrySet()) {
 
             Order order = entry.getKey();
-            baseEngine.sendEvent(order);
+            OrderStatus orderStatus = entry.getValue();
+            if (orderStatus != null) {
+                baseEngine.sendEvent(SubmittedOrder.Factory.newInstance(orderStatus.getStatus(), orderStatus.getFilledQuantity(), orderStatus.getRemainingQuantity(), order));
+            } else {
+                baseEngine.sendEvent(SubmittedOrder.Factory.newInstance(Status.OPEN, 0, order.getQuantity(), order));
+            }
         }
     }
 
