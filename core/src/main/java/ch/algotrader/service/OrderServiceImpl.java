@@ -55,6 +55,7 @@ import ch.algotrader.enumeration.Status;
 import ch.algotrader.enumeration.TIF;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineLocator;
+import ch.algotrader.esper.event.SubmittedOrderEvent;
 import ch.algotrader.util.BeanUtil;
 import ch.algotrader.util.DateUtil;
 import ch.algotrader.util.MyLogger;
@@ -329,7 +330,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
         Validate.notNull(order, "Order is null");
 
         // send the order into the base engine to be correlated with fills
-        EngineLocator.instance().getBaseEngine().sendEvent(order);
+        EngineLocator.instance().getBaseEngine().sendEvent(new SubmittedOrderEvent(order));
 
         // also send the order to the strategy that placed the order
         if (!order.getStrategy().isBase()) {
@@ -485,7 +486,13 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
         for (Map.Entry<Order, OrderStatus> entry: pendingOrderMap.entrySet()) {
 
             Order order = entry.getKey();
-            baseEngine.sendEvent(order);
+            OrderStatus orderStatus = entry.getValue();
+            if (orderStatus != null) {
+                baseEngine.sendEvent(new SubmittedOrderEvent(order,
+                        orderStatus.getStatus(), orderStatus.getFilledQuantity(), orderStatus.getRemainingQuantity()));
+            } else {
+                baseEngine.sendEvent(new SubmittedOrderEvent(order));
+            }
         }
     }
 
