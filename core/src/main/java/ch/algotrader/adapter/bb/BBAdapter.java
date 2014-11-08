@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.jmx.export.annotation.ManagedAttribute;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
@@ -98,6 +99,19 @@ public class BBAdapter {
         this.sessions.put(serviceName, session);
 
         return session;
+    }
+
+    /**
+     * returns the state of all active sessions
+     */
+    @ManagedAttribute
+    public Map<String, Boolean> getSessionLogonStates() {
+
+        Map<String, Boolean> logonStates = new HashMap<String, Boolean>();
+        for (Map.Entry<String, BBSession> entry : this.sessions.entrySet()) {
+            logonStates.put(entry.getKey(), entry.getValue().isRunning());
+        }
+        return logonStates;
     }
 
     /**
