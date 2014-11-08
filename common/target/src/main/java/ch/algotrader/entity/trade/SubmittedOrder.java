@@ -115,42 +115,42 @@ public abstract class SubmittedOrder
     }
 
     // Generate 1 associations
-    private Order order;
+    private Order submittedOrder;
 
     /**
      * Base Class for all Order Types
-     * @return this.order Order
+     * @return this.submittedOrder Order
      */
     public Order getSubmittedOrder()
     {
-        return this.order;
+        return this.submittedOrder;
     }
 
-    public Order getOrderInitialized()
+    public Order getSubmittedOrderInitialized()
     {
-		if (this.order instanceof HibernateProxy) {
+		if (this.submittedOrder instanceof HibernateProxy) {
 
-			HibernateProxy proxy = (HibernateProxy) this.order;
+			HibernateProxy proxy = (HibernateProxy) this.submittedOrder;
 			LazyInitializer initializer = proxy.getHibernateLazyInitializer();
 
 			if (initializer.getSession() != null) {
-				this.order = (Order) initializer.getImplementation();
+				this.submittedOrder = (Order) initializer.getImplementation();
 			} else if (this.cacheManager != null) {
-				this.order = (Order) this.cacheManager.initialze(this, "order");			
+				this.submittedOrder = (Order) this.cacheManager.initialze(this, "submittedOrder");			
 			} else {
-				this.order = (Order) ServiceLocator.instance().getLazyLoaderService().lazyLoadProxy(this, "SubmittedOrder.getOrder", proxy);
+				this.submittedOrder = (Order) ServiceLocator.instance().getLazyLoaderService().lazyLoadProxy(this, "SubmittedOrder.getSubmittedOrder", proxy);
 			}
 		}
-        return this.order;
+        return this.submittedOrder;
     }
 
     /**
      * Base Class for all Order Types
-     * @param orderIn Order
+     * @param submittedOrderIn Order
      */
-    public void setOrder(Order orderIn)
+    public void setSubmittedOrder(Order submittedOrderIn)
     {
-        this.order = orderIn;
+        this.submittedOrder = submittedOrderIn;
     }
 
     /**
@@ -180,16 +180,16 @@ public abstract class SubmittedOrder
          * @param status Status
          * @param filledQuantity long
          * @param remainingQuantity long
-         * @param order Order
+         * @param submittedOrder Order
          * @return newInstance SubmittedOrder
          */
-        public static SubmittedOrder newInstance(Status status, long filledQuantity, long remainingQuantity, Order order)
+        public static SubmittedOrder newInstance(Status status, long filledQuantity, long remainingQuantity, Order submittedOrder)
         {
             final SubmittedOrder entity = new SubmittedOrderImpl();
             entity.setStatus(status);
             entity.setFilledQuantity(filledQuantity);
             entity.setRemainingQuantity(remainingQuantity);
-            entity.setOrder(order);
+            entity.setSubmittedOrder(submittedOrder);
             return entity;
         }
     }
