@@ -20,6 +20,7 @@ package ch.algotrader.entity.security;
 import java.math.BigDecimal;
 import java.text.ChoiceFormat;
 
+import ch.algotrader.entity.exchange.Exchange;
 import ch.algotrader.enumeration.Broker;
 import ch.algotrader.util.ObjectUtil;
 import ch.algotrader.util.RoundUtil;

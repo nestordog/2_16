@@ -28,10 +28,10 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import ch.algotrader.entity.security.Exchange;
-import ch.algotrader.entity.security.ExchangeDao;
-import ch.algotrader.entity.security.Holiday;
-import ch.algotrader.entity.security.TradingHours;
+import ch.algotrader.entity.exchange.Exchange;
+import ch.algotrader.entity.exchange.ExchangeDao;
+import ch.algotrader.entity.exchange.Holiday;
+import ch.algotrader.entity.exchange.TradingHours;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

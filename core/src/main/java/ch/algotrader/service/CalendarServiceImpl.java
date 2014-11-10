@@ -30,10 +30,10 @@ import org.apache.commons.collections15.Predicate;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.time.DateUtils;
 
-import ch.algotrader.entity.security.Exchange;
-import ch.algotrader.entity.security.ExchangeDao;
-import ch.algotrader.entity.security.Holiday;
-import ch.algotrader.entity.security.TradingHours;
+import ch.algotrader.entity.exchange.Exchange;
+import ch.algotrader.entity.exchange.ExchangeDao;
+import ch.algotrader.entity.exchange.Holiday;
+import ch.algotrader.entity.exchange.TradingHours;
 import ch.algotrader.enumeration.WeekDay;
 import ch.algotrader.util.DateUtil;
 import ch.algotrader.util.ObjectUtil;

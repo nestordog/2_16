@@ -16,7 +16,7 @@
  * 8004 Zurich
  ***********************************************************************************/
 
-package ch.algotrader.entity.security;
+package ch.algotrader.entity.exchange;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;

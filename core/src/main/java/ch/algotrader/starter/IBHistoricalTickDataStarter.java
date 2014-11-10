@@ -34,9 +34,9 @@ import java.util.TreeMap;
 import org.apache.log4j.Logger;
 
 import ch.algotrader.ServiceLocator;
+import ch.algotrader.entity.exchange.Exchange;
 import ch.algotrader.entity.marketData.Bar;
 import ch.algotrader.entity.marketData.Tick;
-import ch.algotrader.entity.security.Exchange;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.BarType;
 import ch.algotrader.enumeration.Duration;

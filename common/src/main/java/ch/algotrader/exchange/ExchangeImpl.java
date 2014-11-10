@@ -16,10 +16,11 @@
  * 8004 Zurich
  ***********************************************************************************/
 
-package ch.algotrader.entity.security;
+package ch.algotrader.exchange;
 
 import java.util.TimeZone;
 
+import ch.algotrader.entity.exchange.Exchange;
 import ch.algotrader.util.ObjectUtil;
 
 /**
