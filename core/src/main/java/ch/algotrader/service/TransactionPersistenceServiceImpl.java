@@ -29,6 +29,10 @@ import org.apache.log4j.Logger;
 import org.hibernate.SQLQuery;
 import org.hibernate.SessionFactory;
 import org.hibernate.classic.Session;
+import org.hibernate.dialect.Dialect;
+import org.hibernate.dialect.H2Dialect;
+import org.hibernate.dialect.MySQLDialect;
+import org.hibernate.impl.SessionFactoryImpl;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -120,34 +124,67 @@ public class TransactionPersistenceServiceImpl implements TransactionPersistence
             currencySet.add(attribution.getCurrency());
         }
 
+        Dialect dialect = ((SessionFactoryImpl)this.sessionFactory).getSettings().getDialect();
+
         Session currentSession = this.sessionFactory.getCurrentSession();
 
-        if (security != null) {
+        if (dialect instanceof H2Dialect) {
 
-            Serializable id = HibernateUtil.getNextId(this.sessionFactory, PositionImpl.class);
+            if (security != null) {
 
-            SQLQuery sqlQuery = currentSession.createSQLQuery(
-                    "INSERT IGNORE INTO position " +
-                            "  (id, quantity, cost, realized_p_l, persistent, security_fk, strategy_fk, version) " +
-                            "  VALUES (:position_id, 0, 0, 0, 0, :security_id, :strategy_id, 1)");
-            sqlQuery.setParameter("position_id", id);
-            sqlQuery.setParameter("security_id", security.getId());
-            sqlQuery.setParameter("strategy_id", strategy.getId());
-            sqlQuery.executeUpdate();
-        }
+                Position position = positionDao.findBySecurityAndStrategy(security.getId(), strategy.getName());
+                if (position == null) {
+                    position = Position.Factory.newInstance(0,0,0,false,strategy,security);
+                    currentSession.save(position);
+                }
+            }
 
-        if (!currencySet.isEmpty()) {
+            if (!currencySet.isEmpty()) {
 
-            SQLQuery sqlQuery = currentSession.createSQLQuery(
-                    "INSERT IGNORE INTO cash_balance " +
-                            "(currency, amount, strategy_fk, version) VALUES (:currency, 0, :strategy_id, 1)");
-            for (Currency currency: currencySet) {
+                for (Currency currency: currencySet) {
 
-                sqlQuery.setParameter("currency", currency.value());
+                    CashBalance cashBalance = cashBalanceDao.findByStrategyAndCurrency(strategy, currency);
+                    if (cashBalance == null) {
+                        cashBalance = CashBalance.Factory.newInstance(currency, new BigDecimal(0.0), strategy);
+                        currentSession.save(cashBalance);
+                    }
+                }
+            }
+
+        } else if (dialect instanceof MySQLDialect) {
+
+            if (security != null) {
+
+                Serializable id = HibernateUtil.getNextId(this.sessionFactory, PositionImpl.class);
+
+                SQLQuery sqlQuery = currentSession.createSQLQuery(
+                        "INSERT IGNORE INTO position " +
+                                "  (id, quantity, cost, realized_p_l, persistent, security_fk, strategy_fk, version) " +
+                                "  VALUES (:position_id, 0, 0, 0, 0, :security_id, :strategy_id, 1)");
+
+                sqlQuery.setParameter("position_id", id);
+                sqlQuery.setParameter("security_id", security.getId());
                 sqlQuery.setParameter("strategy_id", strategy.getId());
                 sqlQuery.executeUpdate();
             }
+
+            if (!currencySet.isEmpty()) {
+
+                SQLQuery sqlQuery = currentSession.createSQLQuery(
+                        "INSERT IGNORE INTO cash_balance " +
+                                "(currency, amount, strategy_fk, version) VALUES (:currency, 0, :strategy_id, 1)");
+                for (Currency currency: currencySet) {
+
+                    sqlQuery.setParameter("currency", currency.value());
+                    sqlQuery.setParameter("strategy_id", strategy.getId());
+                    sqlQuery.executeUpdate();
+                }
+            }
+
+        } else {
+            throw new IllegalStateException("unsupported Hibernate dialect " + dialect);
         }
+
     }
 
     /**
