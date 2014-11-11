@@ -132,14 +132,14 @@
         </bean>
     </beans>
 
-    <beans profile="iBSecurityRetrieval,bBSecurityRetrieval">
-        <!-- SecurityRetrieverService Remote Service exporter  -->
-        <bean name="SecurityRetrieverService" class="org.springframework.remoting.rmi.RmiServiceExporter">
-            <property name="serviceName" value="SecurityRetrieverService"/>
+    <beans profile="iBReferenceData,bBReferenceData">
+        <!-- ReferenceDataService Remote Service exporter  -->
+        <bean name="ReferenceDataService" class="org.springframework.remoting.rmi.RmiServiceExporter">
+            <property name="serviceName" value="ReferenceDataService"/>
             <property name="registryPort" value="${remotePort}"/>
             <property name="servicePort" value="${remoteServicePort}"/>
-            <property name="service" ref="securityRetrieverService"/>
-            <property name="serviceInterface" value="ch.algotrader.service.SecurityRetrieverService"/>
+            <property name="service" ref="referenceDataService"/>
+            <property name="serviceInterface" value="ch.algotrader.service.ReferenceDataService"/>
         </bean>
     </beans>
 

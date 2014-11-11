@@ -220,7 +220,7 @@
 
     <!-- =================================== Interactive Brokers  ========================================= -->
 
-    <beans profile="iBNative,iBMarketData,iBSecurityRetrieval,iBHistoricalData">
+    <beans profile="iBNative,iBMarketData,iBReferenceData,iBHistoricalData">
 
         <bean id="iBConfig" class="ch.algotrader.config.spring.ConfigBeanFactoryBean">
             <constructor-arg index="0" ref="configLocator"/>
@@ -265,13 +265,13 @@
         <bean id="profilesQueue" class="java.util.concurrent.LinkedBlockingDeque"/>
     </beans>
 
-    <beans profile="iBSecurityRetrieval">
+    <beans profile="iBReferenceData">
         <bean id="contractDetailsQueue" class="java.util.concurrent.LinkedBlockingDeque"/>
     </beans>
 
     <!-- =================================== Bloomberg  ========================================= -->
 
-    <beans profile="bBMarketData,bBHistoricalData,bBSecurityRetrieval">
+    <beans profile="bBMarketData,bBHistoricalData,bBReferenceData">
 
         <bean id="bBConfig" class="ch.algotrader.config.spring.ConfigBeanFactoryBean">
             <constructor-arg index="0" ref="configLocator"/>

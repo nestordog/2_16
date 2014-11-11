@@ -20,12 +20,12 @@ package ch.algotrader.starter;
 import java.text.ParseException;
 
 import ch.algotrader.ServiceLocator;
-import ch.algotrader.service.ib.IBNativeSecurityRetrieverService;
+import ch.algotrader.service.ib.IBNativeReferenceDataService;
 
 /**
  * Starter Class for downloading {@link ch.algotrader.entity.security.Stock Stocks}
  * <p>
- * Usage: {@code SecurityRetrievalStarter securityFamilyId symbol1 symbol2 ...}
+ * Usage: {@code ReferenceDataStarter securityFamilyId symbol1 symbol2 ...}
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
@@ -36,7 +36,7 @@ public class StockRetrievalStarter {
     public static void main(String[] args) throws ParseException {
 
         ServiceLocator.instance().init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
-        IBNativeSecurityRetrieverService service = ServiceLocator.instance().getService("iBNativeSecurityRetrieverService", IBNativeSecurityRetrieverService.class);
+        IBNativeReferenceDataService service = ServiceLocator.instance().getService("iBNativeReferenceDataService", IBNativeReferenceDataService.class);
 
         ServiceLocator.instance().initInitializingServices();
 

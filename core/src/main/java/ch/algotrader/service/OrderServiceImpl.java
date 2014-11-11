@@ -465,28 +465,32 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
     @Override
     public void init() {
 
-        final Map<Order, OrderStatus> pendingOrderMap = loadPendingOrders();
-        if (logger.isInfoEnabled() && !pendingOrderMap.isEmpty()) {
-
-            List<Order> orderList  = new ArrayList<Order>(pendingOrderMap.keySet());
-            Collections.sort(orderList);
-
-            logger.info(orderList.size() + " order(s) are pending");
-            for (int i = 0; i < orderList.size(); i++) {
-                Order order = orderList.get(i);
-                logger.info((i + 1) + ": " + order);
+        EngineLocator locator = EngineLocator.instance();
+        if (locator.hasServerEngine()) {
+            
+            final Map<Order, OrderStatus> pendingOrderMap = loadPendingOrders();
+            if (logger.isInfoEnabled() && !pendingOrderMap.isEmpty()) {
+    
+                List<Order> orderList  = new ArrayList<Order>(pendingOrderMap.keySet());
+                Collections.sort(orderList);
+    
+                logger.info(orderList.size() + " order(s) are pending");
+                for (int i = 0; i < orderList.size(); i++) {
+                    Order order = orderList.get(i);
+                    logger.info((i + 1) + ": " + order);
+                }
             }
-        }
 
-        Engine baseEngine = EngineLocator.instance().getServerEngine();
-        for (Map.Entry<Order, OrderStatus> entry: pendingOrderMap.entrySet()) {
+            Engine baseEngine = locator.getServerEngine();
+            for (Map.Entry<Order, OrderStatus> entry: pendingOrderMap.entrySet()) {
 
-            Order order = entry.getKey();
-            OrderStatus orderStatus = entry.getValue();
-            if (orderStatus != null) {
-                baseEngine.sendEvent(SubmittedOrder.Factory.newInstance(orderStatus.getStatus(), orderStatus.getFilledQuantity(), orderStatus.getRemainingQuantity(), order));
-            } else {
-                baseEngine.sendEvent(SubmittedOrder.Factory.newInstance(Status.OPEN, 0, order.getQuantity(), order));
+                Order order = entry.getKey();
+                OrderStatus orderStatus = entry.getValue();
+                if (orderStatus != null) {
+                    baseEngine.sendEvent(SubmittedOrder.Factory.newInstance(orderStatus.getStatus(), orderStatus.getFilledQuantity(), orderStatus.getRemainingQuantity(), order));
+                } else {
+                    baseEngine.sendEvent(SubmittedOrder.Factory.newInstance(Status.OPEN, 0, order.getQuantity(), order));
+                }
             }
         }
     }

@@ -15,25 +15,33 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.service.ib;
+package ch.algotrader.service;
 
-import ch.algotrader.service.ServiceException;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import ch.algotrader.util.spring.HibernateSession;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class IBNativeSecurityRetrieverServiceException extends ServiceException {
+@HibernateSession
+public abstract class ReferenceDataServiceImpl implements ReferenceDataService {
 
-    private static final long serialVersionUID = -7661605044962072653L;
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED)
+    public abstract void retrieve(int securityFamilyId);
 
-    public IBNativeSecurityRetrieverServiceException(Exception ex) {
-        super(ex);
-    }
-
-    public IBNativeSecurityRetrieverServiceException(String message, Exception ex) {
-        super(message, ex);
-    }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED)
+    public abstract void retrieveStocks(int securityFamilyId, String symbol);
 
 }

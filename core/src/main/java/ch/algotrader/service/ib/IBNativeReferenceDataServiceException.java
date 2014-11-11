@@ -15,25 +15,25 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.service;
+package ch.algotrader.service.ib;
+
+import ch.algotrader.service.ServiceException;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public interface SecurityRetrieverService {
+public class IBNativeReferenceDataServiceException extends ServiceException {
 
-    /**
-     * Retrieves the specified {@link ch.algotrader.entity.security.Future Future} or {@link
-     * ch.algotrader.entity.security.Option Option} chain.
-     */
-    public void retrieve(int securityFamilyId);
+    private static final long serialVersionUID = -7661605044962072653L;
 
-    /**
-     * Retrieves all {@link ch.algotrader.entity.security.Stock Stocks} of the specified {@code
-     * securityFamily}
-     */
-    public void retrieveStocks(int securityFamilyId, String symbol);
+    public IBNativeReferenceDataServiceException(Exception ex) {
+        super(ex);
+    }
+
+    public IBNativeReferenceDataServiceException(String message, Exception ex) {
+        super(message, ex);
+    }
 
 }

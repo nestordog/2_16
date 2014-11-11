@@ -47,7 +47,7 @@ import ch.algotrader.service.PortfolioChartService;
 import ch.algotrader.service.PortfolioService;
 import ch.algotrader.service.PositionService;
 import ch.algotrader.service.PropertyService;
-import ch.algotrader.service.SecurityRetrieverService;
+import ch.algotrader.service.ReferenceDataService;
 import ch.algotrader.service.StrategyService;
 import ch.algotrader.service.SubscriptionService;
 
@@ -262,11 +262,11 @@ public class ServiceLocator {
     }
 
     /**
-     * Gets an instance of {@link SecurityRetrieverService}.
-     * @return SecurityRetrieverService from getContext().getBean("securityRetrieverService")
+     * Gets an instance of {@link ReferenceDataService}.
+     * @return ReferenceDataService from getContext().getBean("referenceDataService")
      */
-    public SecurityRetrieverService getSecurityRetrieverService() {
-        return getContext().getBean("securityRetrieverService", SecurityRetrieverService.class);
+    public ReferenceDataService getReferenceDataService() {
+        return getContext().getBean("referenceDataService", ReferenceDataService.class);
     }
 
     /**

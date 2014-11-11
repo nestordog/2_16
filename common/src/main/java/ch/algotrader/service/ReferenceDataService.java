@@ -17,31 +17,23 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
-import ch.algotrader.util.spring.HibernateSession;
-
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-@HibernateSession
-public abstract class SecurityRetrieverServiceImpl implements SecurityRetrieverService {
+public interface ReferenceDataService {
 
     /**
-     * {@inheritDoc}
+     * Retrieves the specified {@link ch.algotrader.entity.security.Future Future} or {@link
+     * ch.algotrader.entity.security.Option Option} chain.
      */
-    @Override
-    @Transactional(propagation = Propagation.REQUIRED)
-    public abstract void retrieve(int securityFamilyId);
+    public void retrieve(int securityFamilyId);
 
     /**
-     * {@inheritDoc}
+     * Retrieves all {@link ch.algotrader.entity.security.Stock Stocks} of the specified {@code
+     * securityFamily}
      */
-    @Override
-    @Transactional(propagation = Propagation.REQUIRED)
-    public abstract void retrieveStocks(int securityFamilyId, String symbol);
+    public void retrieveStocks(int securityFamilyId, String symbol);
 
 }

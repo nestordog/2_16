@@ -268,8 +268,8 @@
         <alias name="iBNativeHistoricalDataService" alias="historicalDataService"/>
     </beans>
 
-    <beans profile="iBSecurityRetrieval">
-        <bean id="iBNativeSecurityRetrieverService" class="ch.algotrader.service.ib.IBNativeSecurityRetrieverServiceImpl" >
+    <beans profile="iBReferenceData">
+        <bean id="iBNativeReferenceDataService" class="ch.algotrader.service.ib.IBNativeReferenceDataServiceImpl" >
             <constructor-arg index="0"  ref="contractDetailsQueue"/>
             <constructor-arg index="1"  ref="iBSession"/>
             <constructor-arg index="2"  ref="iBIdGenerator"/>
@@ -279,7 +279,7 @@
             <constructor-arg index="6"  ref="stockDao"/>
         </bean>
 
-        <alias name="iBNativeSecurityRetrieverService" alias="securityRetrieverService"/>
+        <alias name="iBNativeReferenceDataService" alias="referenceDataService"/>
     </beans>
 
     <beans profile="iBNative">
@@ -398,15 +398,15 @@
         <alias name="bBHistoricalDataService" alias="historicalDataService"/>
     </beans>
 
-    <beans profile="bBSecurityRetrieval">
-        <bean id="bBSecurityRetrieverService" class="ch.algotrader.service.bb.BBSecurityRetrieverServiceImpl" >
+    <beans profile="bBReferenceData">
+        <bean id="bBReferenceDataService" class="ch.algotrader.service.bb.BBReferenceDataServiceImpl" >
             <constructor-arg index="0"  ref="bBAdapter"/>
             <constructor-arg index="1"  ref="securityFamilyDao"/>
             <constructor-arg index="2"  ref="optionDao"/>
             <constructor-arg index="3"  ref="futureDao"/>
         </bean>
 
-        <alias name="bBSecurityRetrieverService" alias="securityRetrieverService"/>
+        <alias name="bBReferenceDataService" alias="referenceDataService"/>
     </beans>
 
     <beans profile="rTFix">

@@ -49,7 +49,7 @@ import ch.algotrader.enumeration.InitializingServiceType;
 import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.service.InitializationPriority;
 import ch.algotrader.service.InitializingServiceI;
-import ch.algotrader.service.SecurityRetrieverServiceImpl;
+import ch.algotrader.service.ReferenceDataServiceImpl;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.RoundUtil;
 
@@ -67,7 +67,7 @@ import com.bloomberglp.blpapi.Session;
  * @version $Revision$ $Date$
  */
 @InitializationPriority(value = InitializingServiceType.BROKER_INTERFACE)
-public class BBSecurityRetrieverServiceImpl extends SecurityRetrieverServiceImpl implements BBSecurityRetrieverService, InitializingServiceI {
+public class BBReferenceDataServiceImpl extends ReferenceDataServiceImpl implements BBReferenceDataService, InitializingServiceI {
 
     private static final long serialVersionUID = 8938937374871069522L;
     private static final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
@@ -83,7 +83,7 @@ public class BBSecurityRetrieverServiceImpl extends SecurityRetrieverServiceImpl
 
     private final FutureDao futureDao;
 
-    public BBSecurityRetrieverServiceImpl(final BBAdapter bBAdapter,
+    public BBReferenceDataServiceImpl(final BBAdapter bBAdapter,
             final SecurityFamilyDao securityFamilyDao,
             final OptionDao optionDao,
             final FutureDao futureDao) {
@@ -108,10 +108,10 @@ public class BBSecurityRetrieverServiceImpl extends SecurityRetrieverServiceImpl
         try {
             session = this.bBAdapter.getReferenceDataSession();
         } catch (IOException ex) {
-            throw new BBSecurityRetrieverServiceException(ex);
+            throw new BBReferenceDataServiceException(ex);
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
-            throw new BBSecurityRetrieverServiceException(ex);
+            throw new BBReferenceDataServiceException(ex);
         }
     }
 
@@ -120,17 +120,17 @@ public class BBSecurityRetrieverServiceImpl extends SecurityRetrieverServiceImpl
 
         SecurityFamily securityFamily = this.securityFamilyDao.get(securityFamilyId);
         if (securityFamily == null) {
-            throw new BBSecurityRetrieverServiceException("securityFamily was not found " + securityFamilyId);
+            throw new BBReferenceDataServiceException("securityFamily was not found " + securityFamilyId);
         }
 
         Security underlying = securityFamily.getUnderlying();
         if (underlying == null) {
-            throw new BBSecurityRetrieverServiceException("no underlying defined for  " + securityFamily);
+            throw new BBReferenceDataServiceException("no underlying defined for  " + securityFamily);
         }
 
         String bbgid = underlying.getBbgid();
         if (bbgid == null) {
-            throw new BBSecurityRetrieverServiceException("no bbgid defined for  " + underlying);
+            throw new BBReferenceDataServiceException("no bbgid defined for  " + underlying);
         }
 
         String securityString = "/bbgid/" + bbgid;
@@ -155,7 +155,7 @@ public class BBSecurityRetrieverServiceImpl extends SecurityRetrieverServiceImpl
         try {
             session.sendRequest(symbolRequest, null);
         } catch (IOException ex) {
-            throw new BBSecurityRetrieverServiceException(ex);
+            throw new BBReferenceDataServiceException(ex);
         }
 
         // instantiate the message handler
@@ -168,7 +168,7 @@ public class BBSecurityRetrieverServiceImpl extends SecurityRetrieverServiceImpl
                 done = symbolHandler.processEvent(session);
             } catch (InterruptedException ex) {
                 Thread.currentThread().interrupt();
-                throw new BBSecurityRetrieverServiceException(ex);
+                throw new BBReferenceDataServiceException(ex);
             }
         }
 
@@ -208,7 +208,7 @@ public class BBSecurityRetrieverServiceImpl extends SecurityRetrieverServiceImpl
         try {
             session.sendRequest(securityRequest, null);
         } catch (IOException ex) {
-            throw new BBSecurityRetrieverServiceException(ex);
+            throw new BBReferenceDataServiceException(ex);
         }
 
         // instantiate the message handler
@@ -221,7 +221,7 @@ public class BBSecurityRetrieverServiceImpl extends SecurityRetrieverServiceImpl
                 done = securityHandler.processEvent(session);
             } catch (InterruptedException ex) {
                 Thread.currentThread().interrupt();
-                throw new BBSecurityRetrieverServiceException(ex);
+                throw new BBReferenceDataServiceException(ex);
             }
         }
 
@@ -337,9 +337,9 @@ public class BBSecurityRetrieverServiceImpl extends SecurityRetrieverServiceImpl
             this.existingSecurities = new TreeSet<Security>(comparator);
 
             if (securityFamily instanceof OptionFamily) {
-                this.existingSecurities.addAll(BBSecurityRetrieverServiceImpl.this.optionDao.findBySecurityFamily(this.securityFamily.getId()));
+                this.existingSecurities.addAll(BBReferenceDataServiceImpl.this.optionDao.findBySecurityFamily(this.securityFamily.getId()));
             } else if (securityFamily instanceof FutureFamily) {
-                this.existingSecurities.addAll(BBSecurityRetrieverServiceImpl.this.futureDao.findBySecurityFamily(this.securityFamily.getId()));
+                this.existingSecurities.addAll(BBReferenceDataServiceImpl.this.futureDao.findBySecurityFamily(this.securityFamily.getId()));
             } else {
                 throw new IllegalArgumentException("illegal securityFamily type");
             }
@@ -365,7 +365,7 @@ public class BBSecurityRetrieverServiceImpl extends SecurityRetrieverServiceImpl
                     try {
                         processReferenceDataResponse(msg);
                     } catch (ParseException e) {
-                        throw new BBSecurityRetrieverServiceException(e);
+                        throw new BBReferenceDataServiceException(e);
                     }
                 } else {
                     throw new IllegalArgumentException("unknown reponse type: " + msg.messageType());
@@ -480,12 +480,12 @@ public class BBSecurityRetrieverServiceImpl extends SecurityRetrieverServiceImpl
 
             if (this.securityFamily instanceof OptionFamily) {
 
-                BBSecurityRetrieverServiceImpl.this.optionDao.create(this.newOptions);
+                BBReferenceDataServiceImpl.this.optionDao.create(this.newOptions);
                 logger.debug("retrieved options for optionFamily: " + this.securityFamily.getName() + " " + this.newOptions);
 
             } else if (this.securityFamily instanceof FutureFamily) {
 
-                BBSecurityRetrieverServiceImpl.this.futureDao.create(this.newFutures);
+                BBReferenceDataServiceImpl.this.futureDao.create(this.newFutures);
                 logger.debug("retrieved futures for futureFamily: " + this.securityFamily.getName() + " " + this.newFutures);
 
             } else {

@@ -1,69 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
 <mappings name="SpringMerge">
 
-        <!--  add portfolioChartDefinition to PortfolioChartService (in applicationContext.xml) -->
-        <mapping>
-            <from><![CDATA[<!-- PortfolioChartService service property merge-point -->]]></from>
-            <to><![CDATA[<property name="chartDefinition" ref="portfolioChartDefinition"/>]]></to>
-        </mapping>
-
-        <!--  add portfolioChartDefinition to PortfolioChartService (in applicationContext-import-remoteServices.xml) -->
-        <mapping>
-            <from><![CDATA[<!-- PortfolioChartService service client property merge-point -->]]></from>
-            <to><![CDATA[<property name="chartDefinition" ref="portfolioChartDefinition"/>]]></to>
-        </mapping>
-
-        <!-- add marketDataMessageListenerContainer to SubscriptionService -->
-        <mapping>
-            <from><![CDATA[<!-- SubscriptionService service client property merge-point -->]]></from>
-            <to><![CDATA[<property name="marketDataMessageListenerContainer" ref="marketDataMessageListenerContainer"/>
-        <property name="genericMessageListenerContainer" ref="genericMessageListenerContainer"/>]]></to>
-        </mapping>
-
-        <!-- add fixSessionLifecycle to DCFixMarketDataService -->
-        <mapping>
-            <from><![CDATA[<!-- DCFixMarketDataService service property merge-point -->]]></from>
-            <to><![CDATA[<property name="fixSessionLifecycle" ref="dCMarketDataSessionLifeCycle"/>]]></to>
-        </mapping>
-
-        <!-- add fixSessionLifecycle to LMAXFixMarketDataService -->
-        <mapping>
-            <from><![CDATA[<!-- LMAXFixMarketDataService service property merge-point -->]]></from>
-            <to><![CDATA[<property name="fixSessionLifecycle" ref="lMAXMarketDataSessionLifeCycle"/>]]></to>
-        </mapping>
-
-        <!-- add fixSessionLifecycle to CNXFixMarketDataService -->
-        <mapping>
-          <from><![CDATA[<!-- CNXFixMarketDataService service property merge-point -->]]></from>
-          <to><![CDATA[<property name="fixSessionLifecycle" ref="cNXMarketDataSessionLifeCycle"/>]]></to>
-        </mapping>
-
-        <!-- add fixSessionLifecycle to FXCMFixMarketDataService -->
-        <mapping>
-            <from><![CDATA[<!-- FXCMFixMarketDataService service property merge-point -->]]></from>
-            <to><![CDATA[<property name="fixSessionLifecycle" ref="fXCMSessionLifeCycle"/>]]></to>
-        </mapping>
-
-        <!-- add historicalDataQueue IBNativeHistoricalDataService -->
-        <mapping>
-            <from><![CDATA[<!-- IBNativeHistoricalDataService service property merge-point -->]]></from>
-            <to><![CDATA[    <property name="historicalDataQueue" ref="historicalDataQueue"/>]]></to>
-        </mapping>
-
-        <!-- add contractDetailsQueue to IBNativeSecurityRetrieverService -->
-        <mapping>
-            <from><![CDATA[<!-- IBNativeSecurityRetrieverService service property merge-point -->]]></from>
-            <to><![CDATA[    <property name="contractDetailsQueue" ref="contractDetailsQueue"/>]]></to>
-        </mapping>
-
-        <!-- add queues to IBNativeAccountService -->
-        <mapping>
-            <from><![CDATA[<!-- IBNativeAccountService service property merge-point -->]]></from>
-            <to><![CDATA[    <property name="accountUpdateQueue" ref="accountUpdateQueue"/>
-            <property name="accountsQueue" ref="accountsQueue"/>
-            <property name="profilesQueue" ref="profilesQueue"/>]]></to>
-        </mapping>
-
         <!-- add commonConfig to TransactionDAO -->
         <mapping>
             <from><![CDATA[<!-- Transaction entity property merge-point -->]]></from>

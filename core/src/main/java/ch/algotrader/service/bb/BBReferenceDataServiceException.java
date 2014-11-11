@@ -15,14 +15,35 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.service.ib;
+package ch.algotrader.service.bb;
 
-import ch.algotrader.service.SecurityRetrieverService;
+import java.text.ParseException;
+
+import ch.algotrader.service.ServiceException;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public interface IBNativeSecurityRetrieverService extends SecurityRetrieverService {
+public class BBReferenceDataServiceException extends ServiceException {
+
+    private static final long serialVersionUID = -2524194330104480381L;
+
+    public BBReferenceDataServiceException(String message) {
+        super(message);
+    }
+
+    public BBReferenceDataServiceException(ParseException ex) {
+        super(ex);
+    }
+
+    public BBReferenceDataServiceException(Exception ex) {
+        super(ex);
+    }
+
+    public BBReferenceDataServiceException(String message, Exception ex) {
+        super(message, ex);
+    }
+
 }

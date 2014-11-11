@@ -39,7 +39,7 @@ public abstract class StrategyServiceImpl extends AbstractStrategyServiceImpl {
     private PortfolioService portfolioService;
     private PositionService positionService;
     private PropertyService propertyService;
-    private SecurityRetrieverService securityRetrieverService;
+    private ReferenceDataService referenceDataService;
     private SubscriptionService subscriptionService;
 
     public CommonConfig getCommonConfig() {
@@ -120,11 +120,11 @@ public abstract class StrategyServiceImpl extends AbstractStrategyServiceImpl {
     public void setPropertyService(PropertyService propertyService) {
         this.propertyService = propertyService;
     }
-    public SecurityRetrieverService getSecurityRetrieverService() {
-        return this.securityRetrieverService;
+    public ReferenceDataService getReferenceDataService() {
+        return this.referenceDataService;
     }
-    public void setSecurityRetrieverService(SecurityRetrieverService securityRetrieverService) {
-        this.securityRetrieverService = securityRetrieverService;
+    public void setReferenceDataService(ReferenceDataService referenceDataService) {
+        this.referenceDataService = referenceDataService;
     }
     public SubscriptionService getSubscriptionService() {
         return this.subscriptionService;

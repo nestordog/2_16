@@ -8,5 +8,5 @@ cd "`dirname \"$0\"`"/..
 java \
 -cp `cat bin/cp.txt` \
 -DstrategyName=SERVER \
--Dspring.profiles.active=securityRetrieval \
-ch.algotrader.starter.SecurityRetrievalStarter $*
+-Dspring.profiles.active=referenceData \
+ch.algotrader.starter.ReferenceDataStarter $*

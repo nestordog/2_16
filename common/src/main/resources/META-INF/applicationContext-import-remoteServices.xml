@@ -174,17 +174,17 @@
         </bean>
     </beans>
 
-    <beans profile="securityRetrieval">
-        <!-- SecurityRetrieverService Remote Service Local Proxy with inner SecurityRetrieverService Remote Service invoker -->
-        <bean id="securityRetrieverService" class="org.springframework.aop.framework.ProxyFactoryBean">
+    <beans profile="referenceData">
+        <!-- ReferenceDataService Remote Service Local Proxy with inner ReferenceDataService Remote Service invoker -->
+        <bean id="referenceDataService" class="org.springframework.aop.framework.ProxyFactoryBean">
             <property name="target">
                 <bean class="org.springframework.remoting.rmi.RmiProxyFactoryBean">
                     <property name="refreshStubOnConnectFailure"><value>true</value></property>
-                    <property name="serviceUrl"><value>${remoteRmiScheme}://${remoteServer}:${remotePort}/SecurityRetrieverService</value></property>
-                    <property name="serviceInterface"><value>ch.algotrader.service.SecurityRetrieverService</value></property>
+                    <property name="serviceUrl"><value>${remoteRmiScheme}://${remoteServer}:${remotePort}/ReferenceDataService</value></property>
+                    <property name="serviceInterface"><value>ch.algotrader.service.ReferenceDataService</value></property>
                 </bean>
             </property>
-            <property name="proxyInterfaces"><value>ch.algotrader.service.SecurityRetrieverService</value></property>
+            <property name="proxyInterfaces"><value>ch.algotrader.service.ReferenceDataService</value></property>
         </bean>
     </beans>
 

@@ -17,12 +17,12 @@
  ***********************************************************************************/
 package ch.algotrader.service.bb;
 
-import ch.algotrader.service.SecurityRetrieverService;
+import ch.algotrader.service.ReferenceDataService;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public interface BBSecurityRetrieverService extends SecurityRetrieverService {
+public interface BBReferenceDataService extends ReferenceDataService {
 }

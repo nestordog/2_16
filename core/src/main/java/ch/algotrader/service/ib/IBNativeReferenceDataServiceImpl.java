@@ -50,7 +50,7 @@ import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.future.FutureSymbol;
 import ch.algotrader.option.OptionSymbol;
-import ch.algotrader.service.SecurityRetrieverServiceImpl;
+import ch.algotrader.service.ReferenceDataServiceImpl;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.RoundUtil;
 
@@ -62,9 +62,9 @@ import com.ib.client.ContractDetails;
  *
  * @version $Revision$ $Date$
  */
-public class IBNativeSecurityRetrieverServiceImpl extends SecurityRetrieverServiceImpl implements IBNativeSecurityRetrieverService {
+public class IBNativeReferenceDataServiceImpl extends ReferenceDataServiceImpl implements IBNativeReferenceDataService {
 
-    private static final Logger logger = MyLogger.getLogger(IBNativeSecurityRetrieverServiceImpl.class.getName());
+    private static final Logger logger = MyLogger.getLogger(IBNativeReferenceDataServiceImpl.class.getName());
     private static final SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
     private static final DecimalFormat decimalFormat = new DecimalFormat("#.#######");
 
@@ -82,7 +82,7 @@ public class IBNativeSecurityRetrieverServiceImpl extends SecurityRetrieverServi
 
     private final StockDao stockDao;
 
-    public IBNativeSecurityRetrieverServiceImpl(final BlockingQueue<ContractDetails> contractDetailsQueue,
+    public IBNativeReferenceDataServiceImpl(final BlockingQueue<ContractDetails> contractDetailsQueue,
             final IBSession iBSession,
             final IBIdGenerator iBIdGenerator,
             final OptionDao optionDao,
@@ -150,12 +150,12 @@ public class IBNativeSecurityRetrieverServiceImpl extends SecurityRetrieverServi
                 throw new IllegalArgumentException("illegal securityFamily type");
             }
         } catch (IllegalArgumentException ex) {
-            throw new IBNativeSecurityRetrieverServiceException(ex);
+            throw new IBNativeReferenceDataServiceException(ex);
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
-            throw new IBNativeSecurityRetrieverServiceException(ex);
+            throw new IBNativeReferenceDataServiceException(ex);
         } catch (ParseException ex) {
-            throw new IBNativeSecurityRetrieverServiceException(ex);
+            throw new IBNativeReferenceDataServiceException(ex);
         }
     }
 
@@ -186,7 +186,7 @@ public class IBNativeSecurityRetrieverServiceImpl extends SecurityRetrieverServi
             contractDetailsSet = retrieveContractDetails();
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
-            throw new IBNativeSecurityRetrieverServiceException(ex);
+            throw new IBNativeReferenceDataServiceException(ex);
         }
         retrieveStocks(securityFamily, contractDetailsSet);
 

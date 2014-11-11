@@ -15,35 +15,37 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.service.bb;
+package ch.algotrader.starter;
 
 import java.text.ParseException;
 
-import ch.algotrader.service.ServiceException;
+import ch.algotrader.ServiceLocator;
+import ch.algotrader.service.ReferenceDataService;
 
 /**
+ * Starter Class for downloading {@link ch.algotrader.entity.security.Future Future} and {@link ch.algotrader.entity.security.Option Option} chains.
+ * <p>
+ * Usage: {@code ReferenceDataStarter securityFamilyId1 securityFamilyId2}
+ *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class BBSecurityRetrieverServiceException extends ServiceException {
+public class ReferenceDataStarter {
 
-    private static final long serialVersionUID = -2524194330104480381L;
+    public static void main(String[] args) throws ParseException {
 
-    public BBSecurityRetrieverServiceException(String message) {
-        super(message);
+        ServiceLocator.instance().init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
+
+        ServiceLocator.instance().initInitializingServices();
+
+        ReferenceDataService service = ServiceLocator.instance().getService("referenceDataService", ReferenceDataService.class);
+        for (String arg : args) {
+
+            int securityFamilyId = Integer.parseInt(arg);
+            service.retrieve(securityFamilyId);
+        }
+
+        ServiceLocator.instance().shutdown();
     }
-
-    public BBSecurityRetrieverServiceException(ParseException ex) {
-        super(ex);
-    }
-
-    public BBSecurityRetrieverServiceException(Exception ex) {
-        super(ex);
-    }
-
-    public BBSecurityRetrieverServiceException(String message, Exception ex) {
-        super(message, ex);
-    }
-
 }
