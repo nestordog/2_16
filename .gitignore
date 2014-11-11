@@ -18,3 +18,5 @@ uml/src/main/uml/*.uml
 files/
 core/sql/reset-db.sh
 
+.classpath
+.project
