@@ -467,13 +467,13 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
 
         EngineLocator locator = EngineLocator.instance();
         if (locator.hasServerEngine()) {
-            
+
             final Map<Order, OrderStatus> pendingOrderMap = loadPendingOrders();
             if (logger.isInfoEnabled() && !pendingOrderMap.isEmpty()) {
-    
+
                 List<Order> orderList  = new ArrayList<Order>(pendingOrderMap.keySet());
                 Collections.sort(orderList);
-    
+
                 logger.info(orderList.size() + " order(s) are pending");
                 for (int i = 0; i < orderList.size(); i++) {
                     Order order = orderList.get(i);
