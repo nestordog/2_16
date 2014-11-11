@@ -1,3 +1,4 @@
+.checkstyle
 .classpath
 .project
 .settings
@@ -20,3 +21,4 @@ test/src/main/resources/log4j.xml
 uml/src/main/uml/*.mdr
 uml/src/main/uml/*.uml
 files/
+core/sql/reset-db.sh
