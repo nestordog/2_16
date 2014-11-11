@@ -52,7 +52,7 @@ public class CustomSender extends AbstractSender {
             long afterCompleteRaw = System.nanoTime();
 
             long beforeSendEvent = System.nanoTime();
-            EngineLocator.instance().getBaseEngine().sendEvent(tick);
+            EngineLocator.instance().getServerEngine().sendEvent(tick);
             long afterSendEvent = System.nanoTime();
 
             MetricsUtil.account("CustomSender.completeRaw", (afterCompleteRaw - beforeCompleteRawT));
@@ -66,7 +66,7 @@ public class CustomSender extends AbstractSender {
             long afterCompleteRaw = System.nanoTime();
 
             long beforeSendEvent = System.nanoTime();
-            EngineLocator.instance().getBaseEngine().sendEvent(bar);
+            EngineLocator.instance().getServerEngine().sendEvent(bar);
             long afterSendEvent = System.nanoTime();
 
             MetricsUtil.account("CustomSender.completeRaw", (afterCompleteRaw - beforeCompleteRawT));

@@ -839,7 +839,7 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        if (strategyName.equals(StrategyImpl.BASE)) {
+        if (strategyName.equals(StrategyImpl.SERVER)) {
             if (openPositions) {
                 return (List<PositionVO>) this.positionDao.loadAll(PositionDao.TRANSFORM_POSITIONVO);
             } else {
@@ -1005,7 +1005,7 @@ public class LookupServiceImpl implements LookupService {
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
         int transactionDisplayCount = this.coreConfig.getTransactionDisplayCount();
-        if (strategyName.equals(StrategyImpl.BASE)) {
+        if (strategyName.equals(StrategyImpl.SERVER)) {
             return (List<TransactionVO>) this.transactionDao.findTransactionsDesc(TransactionDao.TRANSFORM_TRANSACTIONVO, 1, transactionDisplayCount);
         } else {
             return (List<TransactionVO>) this.transactionDao.findTransactionsByStrategyDesc(TransactionDao.TRANSFORM_TRANSACTIONVO, 1, transactionDisplayCount, strategyName);
@@ -1081,7 +1081,7 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        if (strategyName.equals(StrategyImpl.BASE)) {
+        if (strategyName.equals(StrategyImpl.SERVER)) {
             return this.orderStatusDao.findAllOrderStati();
         } else {
             return this.orderStatusDao.findOrderStatiByStrategy(strategyName);

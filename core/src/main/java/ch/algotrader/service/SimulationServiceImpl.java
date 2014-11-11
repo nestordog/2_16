@@ -171,7 +171,7 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
         this.transactionService.rebalancePortfolio();
 
         // init coordination
-        EngineLocator.instance().getBaseEngine().initCoordination();
+        EngineLocator.instance().getServerEngine().initCoordination();
 
         // init modules of all activatable strategies
         for (Strategy strategy : strategies) {
@@ -201,7 +201,7 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
         }
 
         // send the EndOfSimulation event
-        EngineLocator.instance().getBaseEngine().sendEvent(new EndOfSimulationVO());
+        EngineLocator.instance().getServerEngine().sendEvent(new EndOfSimulationVO());
 
         // get the results
         SimulationResultVO resultVO = getSimulationResultVO(startTime);
@@ -261,7 +261,7 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
             this.cacheManager.put(security);
         }
 
-        EngineLocator.instance().getBaseEngine().startCoordination();
+        EngineLocator.instance().getServerEngine().startCoordination();
     }
 
     private void feedGenericEvents(File baseDir) {
@@ -292,10 +292,10 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
                 String eventTypeName = eventClassName.substring(eventClassName.lastIndexOf(".") + 1);
 
                 // add the eventType (in case it does not exist yet)
-                EngineLocator.instance().getBaseEngine().addEventType(eventTypeName, eventClassName);
+                EngineLocator.instance().getServerEngine().addEventType(eventTypeName, eventClassName);
 
                 CoordinatedAdapter inputAdapter = new CSVInputAdapter(null, new GenericEventInputAdapterSpec(file, eventTypeName));
-                EngineLocator.instance().getBaseEngine().coordinate(inputAdapter);
+                EngineLocator.instance().getServerEngine().coordinate(inputAdapter);
 
                 logger.debug("started feeding file " + file.getName());
             }
@@ -375,7 +375,7 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
             throw new SimulationServiceException("incorrect parameter for dataSetType: " + marketDataType);
         }
 
-        EngineLocator.instance().getBaseEngine().coordinate(inputAdapter);
+        EngineLocator.instance().getServerEngine().coordinate(inputAdapter);
 
         logger.debug("started feeding file " + file.getName());
     }
@@ -388,13 +388,13 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
         if (MarketDataType.TICK.equals(marketDataType)) {
 
             DBTickInputAdapter inputAdapter = new DBTickInputAdapter(feedBatchSize);
-            EngineLocator.instance().getBaseEngine().coordinate(inputAdapter);
+            EngineLocator.instance().getServerEngine().coordinate(inputAdapter);
             logger.debug("started feeding ticks from db");
 
         } else if (MarketDataType.BAR.equals(marketDataType)) {
 
             DBBarInputAdapter inputAdapter = new DBBarInputAdapter(feedBatchSize, this.commonConfig.getBarSize());
-            EngineLocator.instance().getBaseEngine().coordinate(inputAdapter);
+            EngineLocator.instance().getServerEngine().coordinate(inputAdapter);
             logger.debug("started feeding bars from db");
 
         } else {
@@ -586,7 +586,7 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
         SimulationResultVO resultVO = new SimulationResultVO();
         resultVO.setMins(((double) (System.currentTimeMillis() - startTime)) / 60000);
 
-        Engine engine = EngineLocator.instance().getBaseEngine();
+        Engine engine = EngineLocator.instance().getServerEngine();
         if (!engine.isDeployed("INSERT_INTO_PERFORMANCE_KEYS")) {
             resultVO.setAllTrades(new TradesVO(0, 0, 0, 0));
             return resultVO;

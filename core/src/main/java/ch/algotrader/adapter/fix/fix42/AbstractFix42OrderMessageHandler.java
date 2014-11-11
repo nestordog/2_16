@@ -116,7 +116,7 @@ public abstract class AbstractFix42OrderMessageHandler extends AbstractFix42Mess
                 orderStatus.setReason(executionReport.getText().getValue());
             }
 
-            EngineLocator.instance().getBaseEngine().sendEvent(orderStatus);
+            EngineLocator.instance().getServerEngine().sendEvent(orderStatus);
 
             return;
         }
@@ -124,7 +124,7 @@ public abstract class AbstractFix42OrderMessageHandler extends AbstractFix42Mess
         OrderStatus orderStatus = createStatus(executionReport, order);
         orderStatus.setOrder(order);
 
-        EngineLocator.instance().getBaseEngine().sendEvent(orderStatus);
+        EngineLocator.instance().getServerEngine().sendEvent(orderStatus);
 
         Fill fill = createFill(executionReport, order);
         if (fill != null) {
@@ -132,7 +132,7 @@ public abstract class AbstractFix42OrderMessageHandler extends AbstractFix42Mess
             // associate the fill with the order
             fill.setOrder(order);
 
-            EngineLocator.instance().getBaseEngine().sendEvent(fill);
+            EngineLocator.instance().getServerEngine().sendEvent(fill);
         }
     }
 
@@ -180,7 +180,7 @@ public abstract class AbstractFix42OrderMessageHandler extends AbstractFix42Mess
             orderStatus.setReason(reject.getText().getValue());
         }
 
-        EngineLocator.instance().getBaseEngine().sendEvent(orderStatus);
+        EngineLocator.instance().getServerEngine().sendEvent(orderStatus);
     }
 
 }

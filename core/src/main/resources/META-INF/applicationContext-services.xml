@@ -67,7 +67,7 @@
         <constructor-arg index="9" ref="transactionDao"/>
     </bean>
 
-    <bean id="baseManagementService" class="ch.algotrader.service.BaseManagementServiceImpl" >
+    <bean id="serverManagementService" class="ch.algotrader.service.ServerManagementServiceImpl" >
         <constructor-arg index="0" ref="positionService"/>
         <constructor-arg index="1" ref="forexService"/>
         <constructor-arg index="2" ref="combinationService"/>

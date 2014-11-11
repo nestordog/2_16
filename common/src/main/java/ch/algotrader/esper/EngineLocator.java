@@ -71,9 +71,9 @@ public class EngineLocator {
         return engine;
     }
 
-    public Engine initBaseEngine() {
+    public Engine initServerEngine() {
 
-        return initEngine(StrategyImpl.BASE);
+        return initEngine(StrategyImpl.SERVER);
     }
 
     public Collection<Engine> getEngines() {
@@ -91,9 +91,9 @@ public class EngineLocator {
         return this.engines.get(engineName);
     }
 
-    public Engine getBaseEngine() {
+    public Engine getServerEngine() {
 
-        return getEngine(StrategyImpl.BASE);
+        return getEngine(StrategyImpl.SERVER);
     }
 
     public boolean hasEngine(String engineName) {
@@ -101,9 +101,9 @@ public class EngineLocator {
         return this.engines.containsKey(engineName);
     }
 
-    public boolean hasBaseEngine() {
+    public boolean hasServerEngine() {
 
-        return hasEngine(StrategyImpl.BASE);
+        return hasEngine(StrategyImpl.SERVER);
     }
 
     public void destroyEngine(String engineName) {
@@ -155,7 +155,7 @@ public class EngineLocator {
 
         if (CONFIG.isSimulation() || CONFIG.isSingleVM()) {
             for (Subscription subscription : marketDataEvent.getSecurity().getSubscriptions()) {
-                if (!subscription.getStrategyInitialized().getName().equals(StrategyImpl.BASE)) {
+                if (!subscription.getStrategyInitialized().getName().equals(StrategyImpl.SERVER)) {
                     String strategyName = subscription.getStrategy().getName();
                     if (hasEngine(strategyName)) {
                         getEngine(strategyName).sendEvent(marketDataEvent);

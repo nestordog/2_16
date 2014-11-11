@@ -100,7 +100,7 @@ CREATE CACHED TABLE PUBLIC."strategy"(
 ALTER TABLE PUBLIC."strategy" ADD CONSTRAINT PUBLIC.CONSTRAINT_6 PRIMARY KEY(ID);
 -- 1 +/- SELECT COUNT(*) FROM PUBLIC."strategy";
 INSERT INTO PUBLIC."strategy"(ID, NAME, AUTO_ACTIVATE, ALLOCATION, INIT_MODULES, RUN_MODULES, VERSION) VALUES
-(1, 'BASE', TRUE, 0.0, 'market-data,combination,current-values,market-data-simulation,trades,portfolio,performance,algo-slicing,market-data-ib,market-data-dc', NULL, 0);
+(1, 'SERVER', TRUE, 0.0, 'market-data,combination,current-values,market-data-simulation,trades,portfolio,performance,algo-slicing,market-data-ib,market-data-dc', NULL, 0);
 CREATE CACHED TABLE PUBLIC."tick"(
     ID INT DEFAULT (NEXT VALUE FOR PUBLIC.SYSTEM_SEQUENCE_5FE17C53_6896_47E6_A8DC_19ED439E990A) NOT NULL NULL_TO_DEFAULT SEQUENCE PUBLIC.SYSTEM_SEQUENCE_5FE17C53_6896_47E6_A8DC_19ED439E990A,
     DATE_TIME DATETIME NOT NULL,

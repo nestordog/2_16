@@ -26,12 +26,12 @@ import ch.algotrader.ServiceLocator;
  *
  * @version $Revision$ $Date$
  */
-public class MarketDataStarter extends BaseStarter {
+public class MarketDataStarter extends ServerStarter {
 
     public static void main(String[] args) throws Exception {
 
         ServiceLocator.instance().init(ServiceLocator.SERVER_BEAN_REFERENCE_LOCATION);
 
-        startBase();
+        startServer();
     }
 }

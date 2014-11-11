@@ -173,14 +173,14 @@ public final class CommonConfig {
 
     public String getStartedStrategyName() {
         if (this.simulation) {
-            return StrategyImpl.BASE;
+            return StrategyImpl.SERVER;
         } else {
             return this.strategyName;
         }
     }
 
-    public boolean isStartedStrategyBASE() {
-        return StrategyImpl.BASE.equals(getStartedStrategyName());
+    public boolean isStartedStrategySERVER() {
+        return StrategyImpl.SERVER.equals(getStartedStrategyName());
     }
 
     @Override

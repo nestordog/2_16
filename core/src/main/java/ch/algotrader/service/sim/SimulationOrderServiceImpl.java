@@ -88,8 +88,8 @@ public class SimulationOrderServiceImpl extends ExternalOrderServiceImpl impleme
         orderStatus.setRemainingQuantity(0);
         orderStatus.setOrder(order);
 
-        // send the orderStatus to base
-        EngineLocator.instance().getBaseEngine().sendEvent(orderStatus);
+        // send the orderStatus to the AlgoTrader Server
+        EngineLocator.instance().getServerEngine().sendEvent(orderStatus);
 
         // propagate the OrderStatus to the strategy
         this.orderService.propagateOrderStatus(orderStatus);

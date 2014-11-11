@@ -54,7 +54,7 @@ public final class CommonConfigBuilder {
     private boolean displayClosedPositions;
 
     CommonConfigBuilder() {
-        this.strategyName = "BASE";
+        this.strategyName = "SERVER";
         this.dataSet = "current";
         this.dataSetType = MarketDataType.TICK;
         this.barSize = Duration.MIN_1;

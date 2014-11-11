@@ -660,7 +660,7 @@ public class PortfolioServiceImpl implements PortfolioService {
     @Override
     public double getPerformance() {
 
-        return getPerformance(StrategyImpl.BASE);
+        return getPerformance(StrategyImpl.SERVER);
 
     }
 
@@ -690,7 +690,7 @@ public class PortfolioServiceImpl implements PortfolioService {
     @Override
     public PortfolioValue getPortfolioValue() {
 
-        return getPortfolioValue(StrategyImpl.BASE);
+        return getPortfolioValue(StrategyImpl.SERVER);
 
     }
 
@@ -708,7 +708,7 @@ public class PortfolioServiceImpl implements PortfolioService {
         BigDecimal securitiesCurrentValue;
         BigDecimal maintenanceMargin;
         double leverage;
-        if (strategy.isBase()) {
+        if (strategy.isServer()) {
             cashBalance = getCashBalance();
             securitiesCurrentValue = getSecuritiesCurrentValue();
             maintenanceMargin = getMaintenanceMargin();
@@ -749,7 +749,7 @@ public class PortfolioServiceImpl implements PortfolioService {
 
         BigDecimal cashBalance;
         BigDecimal securitiesCurrentValue;
-        if (strategy.isBase()) {
+        if (strategy.isServer()) {
             cashBalance = getCashBalance(date);
             securitiesCurrentValue = getSecuritiesCurrentValue(date);
 
@@ -789,8 +789,8 @@ public class PortfolioServiceImpl implements PortfolioService {
         double dailyPerformance = 1.0;
         for (PortfolioValueVO portfolioValue : portfolioValues) {
 
-            // for BASE reset performance at the 24:00 based on NetLiqValue of prior day
-            if (StrategyImpl.BASE.equals(strategyName) && DateUtils.getFragmentInHours(portfolioValue.getDateTime(), Calendar.DAY_OF_YEAR) == 0) {
+            // for AlgoTrader Server reset performance at the 24:00 based on NetLiqValue of prior day
+            if (StrategyImpl.SERVER.equals(strategyName) && DateUtils.getFragmentInHours(portfolioValue.getDateTime(), Calendar.DAY_OF_YEAR) == 0) {
                 if (lastDayNetLiqValue != 0) {
                     dailyPerformance = dailyPerformance
                             * (portfolioValue.getNetLiqValue().doubleValue() / (lastDayNetLiqValue + (portfolioValue.getCashFlow() != null ? portfolioValue.getCashFlow().doubleValue() : 0)));

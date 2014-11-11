@@ -125,7 +125,7 @@ public class ForexServiceImpl implements ForexService {
     @Override
     public void hedgeForex() {
 
-        Strategy base = this.strategyDao.findBase();
+        Strategy server = this.strategyDao.findServer();
 
         CoreConfig coreConfig = this.coreConfig;
         // potentially close a Forex Future position if it is below the MinTimeToExpiration
@@ -133,14 +133,14 @@ public class ForexServiceImpl implements ForexService {
 
             // get the closing orders
             final List<Order> orders = new ArrayList<Order>();
-            for (Position position : this.lookupService.getOpenPositionsByStrategyTypeAndUnderlyingType(StrategyImpl.BASE, Future.class, Forex.class)) {
+            for (Position position : this.lookupService.getOpenPositionsByStrategyTypeAndUnderlyingType(StrategyImpl.SERVER, Future.class, Forex.class)) {
 
                 // check if expiration is below minimum
                 Future future = (Future) position.getSecurityInitialized();
 
                 Forex forex = (Forex) future.getUnderlyingInitialized();
 
-                Subscription forexSubscription = this.subscriptionDao.findByStrategyAndSecurity(StrategyImpl.BASE, forex.getId());
+                Subscription forexSubscription = this.subscriptionDao.findByStrategyAndSecurity(StrategyImpl.SERVER, forex.getId());
                 if (!forexSubscription.hasProperty("hedgingFamily")) {
                     throw new IllegalStateException("no hedgingFamily defined for forex " + forex);
                 }
@@ -153,8 +153,8 @@ public class ForexServiceImpl implements ForexService {
 
                 if (future.getTimeToExpiration() < coreConfig.getFxFutureHedgeMinTimeToExpiration()) {
 
-                    Order order = this.lookupService.getOrderByStrategyAndSecurityFamily(StrategyImpl.BASE, future.getSecurityFamily().getId());
-                    order.setStrategy(base);
+                    Order order = this.lookupService.getOrderByStrategyAndSecurityFamily(StrategyImpl.SERVER, future.getSecurityFamily().getId());
+                    order.setStrategy(server);
                     order.setSecurity(future);
                     order.setQuantity(Math.abs(position.getQuantity()));
                     order.setSide(position.getQuantity() > 0 ? Side.SELL : Side.BUY);
@@ -199,14 +199,14 @@ public class ForexServiceImpl implements ForexService {
                 double tradeValue = forex.getBaseCurrency().equals(portfolioBaseCurrency) ? netLiqValueBase : netLiqValue;
 
                 // create the order
-                Order order = this.lookupService.getOrderByStrategyAndSecurityFamily(StrategyImpl.BASE, forex.getSecurityFamily().getId());
-                order.setStrategy(base);
+                Order order = this.lookupService.getOrderByStrategyAndSecurityFamily(StrategyImpl.SERVER, forex.getSecurityFamily().getId());
+                order.setStrategy(server);
 
                 // if a hedging family is defined for this Forex use it instead of the Forex directly
                 int qty;
                 if (coreConfig.isFxFutureHedgeEnabled()) {
 
-                    Subscription forexSubscription = this.subscriptionDao.findByStrategyAndSecurity(StrategyImpl.BASE, forex.getId());
+                    Subscription forexSubscription = this.subscriptionDao.findByStrategyAndSecurity(StrategyImpl.SERVER, forex.getId());
                     if (!forexSubscription.hasProperty("hedgingFamily")) {
                         throw new IllegalStateException("no hedgingFamily defined for forex " + forex);
                     }
@@ -217,7 +217,7 @@ public class ForexServiceImpl implements ForexService {
                     Future future = this.futureService.getFutureByMinExpiration(futureFamily.getId(), targetDate);
 
                     // make sure the future is subscriped
-                    this.marketDataService.subscribe(base.getName(), future.getId());
+                    this.marketDataService.subscribe(server.getName(), future.getId());
 
                     order.setSecurity(future);
 

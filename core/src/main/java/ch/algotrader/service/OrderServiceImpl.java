@@ -325,11 +325,11 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
 
         Validate.notNull(order, "Order is null");
 
-        // send the order into the base engine to be correlated with fills
-        EngineLocator.instance().getBaseEngine().sendEvent(SubmittedOrder.Factory.newInstance(Status.OPEN, 0, order.getQuantity(), order));
+        // send the order into the AlgoTrader Server engine to be correlated with fills
+        EngineLocator.instance().getServerEngine().sendEvent(SubmittedOrder.Factory.newInstance(Status.OPEN, 0, order.getQuantity(), order));
 
         // also send the order to the strategy that placed the order
-        if (!order.getStrategy().isBase()) {
+        if (!order.getStrategy().isServer()) {
             EngineLocator.instance().sendEvent(order.getStrategy().getName(), order);
         }
 
@@ -357,7 +357,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
         }
 
         // send the fill to the strategy that placed the corresponding order
-        if (orderStatus.getOrder() != null && !orderStatus.getOrder().getStrategy().isBase()) {
+        if (orderStatus.getOrder() != null && !orderStatus.getOrder().getStrategy().isServer()) {
             EngineLocator.instance().sendEvent(orderStatus.getOrder().getStrategy().getName(), orderStatus);
         }
 
@@ -382,7 +382,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
         Validate.notNull(orderCompletion, "Order completion is null");
 
         // send the fill to the strategy that placed the corresponding order
-        if (orderCompletion.getOrder() != null && !orderCompletion.getOrder().getStrategy().isBase()) {
+        if (orderCompletion.getOrder() != null && !orderCompletion.getOrder().getStrategy().isServer()) {
             EngineLocator.instance().sendEvent(orderCompletion.getOrder().getStrategy().getName(), orderCompletion);
         }
 
@@ -478,7 +478,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
             }
         }
 
-        Engine baseEngine = EngineLocator.instance().getBaseEngine();
+        Engine baseEngine = EngineLocator.instance().getServerEngine();
         for (Map.Entry<Order, OrderStatus> entry: pendingOrderMap.entrySet()) {
 
             Order order = entry.getKey();
@@ -534,7 +534,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
         orderStatus.setOrder(order);
 
         // send the orderStatus
-        EngineLocator.instance().getBaseEngine().sendEvent(orderStatus);
+        EngineLocator.instance().getServerEngine().sendEvent(orderStatus);
 
         logger.info("cancelled algo order: " + order);
     }

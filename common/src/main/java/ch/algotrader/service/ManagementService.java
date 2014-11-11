@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import ch.algotrader.enumeration.Side;
 import ch.algotrader.vo.BalanceVO;
 import ch.algotrader.vo.MarketDataEventVO;
 import ch.algotrader.vo.OrderStatusVO;
@@ -42,7 +43,7 @@ public interface ManagementService {
     public Date getCurrentTime();
 
     /**
-     * Gets all available Currency Balances (only available for Base)
+     * Gets all available Currency Balances (only available for AlgoTrader Server)
      */
     public Collection<BalanceVO> getDataBalances();
 
@@ -67,22 +68,22 @@ public interface ManagementService {
     public List<MarketDataEventVO> getMarketDataEvents();
 
     /**
-     * Gets the Properties that are defined for this Strategy (or Base)
+     * Gets the Properties that are defined for this Strategy (or AlgoTrader Server)
      */
     public Map getProperties();
 
     /**
-     * Gets the available Funds of this Strategy (or the entire System if called from the Base)
+     * Gets the available Funds of this Strategy (or the entire System if called from the AlgoTrader Server)
      */
     public BigDecimal getStrategyAvailableFunds();
 
     /**
-     * Gets the Allocation that is assigned to this Strategy (or to the Base)
+     * Gets the Allocation that is assigned to this Strategy (or to the AlgoTrader Server)
      */
     public double getStrategyAllocation();
 
     /**
-     * Gets the Cash Balance of this Strategy (or the entire System if called from the Base)
+     * Gets the Cash Balance of this Strategy (or the entire System if called from the AlgoTrader Server)
      */
     public BigDecimal getStrategyCashBalance();
 
@@ -92,7 +93,7 @@ public interface ManagementService {
     public double getStrategyLeverage();
 
     /**
-     * Gets the Maintenance Margin of this Strategy (or the entire System if called from the Base)
+     * Gets the Maintenance Margin of this Strategy (or the entire System if called from the AlgoTrader Server)
      */
     public BigDecimal getStrategyMaintenanceMargin();
 
@@ -103,19 +104,19 @@ public interface ManagementService {
 
     /**
      * Gets the Net-Liquidation-Value of this Strategy (or the entire System if called from the
-     * Base)
+     * AlgoTrader Server)
      */
     public BigDecimal getStrategyNetLiqValue();
 
     /**
      * Gets the performance since the beginning of the month of this Strategy (or the entire System
-     * if called from the Base)
+     * if called from the AlgoTrader Server)
      */
     public double getStrategyPerformance();
 
     /**
      * Gets the total Market Value of all Positions of this Strategy (or the entire System if called
-     * from the Base)
+     * from the AlgoTrader Server)
      */
     public BigDecimal getStrategySecuritiesCurrentValue();
 
@@ -164,7 +165,7 @@ public interface ManagementService {
      * or order preference (e.g. 'FVIX' or 'OVIX')
      * @param properties Additional properties to be set on the order as a comma separated list (e.g. stop=12.0,limit=12.5)
      */
-    public void sendOrder(String security, long quantity, String side, String type, String accountName, String properties);
+    public void sendOrder(String security, long quantity, Side side, String type, String accountName, String properties);
 
     /**
      * Cancel an Order

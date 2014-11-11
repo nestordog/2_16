@@ -492,11 +492,11 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
     private void removeFromComponentWindow(Component component) {
 
         // if a component is specified remove it, otherwise empty the entire window
-        if (EngineLocator.instance().hasBaseEngine()) {
+        if (EngineLocator.instance().hasServerEngine()) {
             if (component != null) {
-                EngineLocator.instance().getBaseEngine().executeQuery("delete from ComponentWindow where componentId = " + component.getId());
+                EngineLocator.instance().getServerEngine().executeQuery("delete from ComponentWindow where componentId = " + component.getId());
             } else {
-                EngineLocator.instance().getBaseEngine().executeQuery("delete from ComponentWindow");
+                EngineLocator.instance().getServerEngine().executeQuery("delete from ComponentWindow");
             }
         }
     }
@@ -515,8 +515,8 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
             insertComponentEvent.setCombinationId(combination.getId());
             insertComponentEvent.setComponentCount(combination.getComponentCount());
 
-            if (EngineLocator.instance().hasBaseEngine()) {
-                EngineLocator.instance().getBaseEngine().sendEvent(insertComponentEvent);
+            if (EngineLocator.instance().hasServerEngine()) {
+                EngineLocator.instance().getServerEngine().sendEvent(insertComponentEvent);
             }
         }
     }

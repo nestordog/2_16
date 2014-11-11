@@ -104,7 +104,7 @@ public class IBNativeMarketDataServiceImpl extends ExternalMarketDataServiceImpl
         subscribeTickEvent.setTick(tick);
         subscribeTickEvent.setTickerId(Integer.toString(tickerId));
 
-        EngineLocator.instance().getBaseEngine().sendEvent(subscribeTickEvent);
+        EngineLocator.instance().getServerEngine().sendEvent(subscribeTickEvent);
 
         // requestMarketData from IB
         Contract contract = IBUtil.getContract(security);
@@ -132,7 +132,7 @@ public class IBNativeMarketDataServiceImpl extends ExternalMarketDataServiceImpl
 
         this.iBSession.cancelMktData(Integer.parseInt(tickerId));
 
-        EngineLocator.instance().getBaseEngine().executeQuery("delete from TickWindow where security.id = " + security.getId());
+        EngineLocator.instance().getServerEngine().executeQuery("delete from TickWindow where security.id = " + security.getId());
 
         logger.debug("cancelled market data for : " + security);
 

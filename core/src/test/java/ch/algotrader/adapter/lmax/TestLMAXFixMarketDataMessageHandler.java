@@ -64,7 +64,7 @@ public class TestLMAXFixMarketDataMessageHandler {
     public void setup() throws Exception {
 
         MockitoAnnotations.initMocks(this);
-        EngineLocator.instance().setEngine("BASE", this.engine);
+        EngineLocator.instance().setEngine("SERVER", this.engine);
 
         this.impl = new LMAXFixMarketDataMessageHandler();
     }

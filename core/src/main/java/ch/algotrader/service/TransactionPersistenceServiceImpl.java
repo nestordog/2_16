@@ -238,8 +238,8 @@ public class TransactionPersistenceServiceImpl implements TransactionPersistence
             logMessage += ",profit=" + RoundUtil.getBigDecimal(tradePerformance.getProfit()) + ",profitPct=" + RoundUtil.getBigDecimal(tradePerformance.getProfitPct());
 
             // propagate the TradePerformance event
-            if (this.commonConfig.isSimulation() && EngineLocator.instance().hasBaseEngine()) {
-                EngineLocator.instance().getBaseEngine().sendEvent(tradePerformance);
+            if (this.commonConfig.isSimulation() && EngineLocator.instance().hasServerEngine()) {
+                EngineLocator.instance().getServerEngine().sendEvent(tradePerformance);
             }
         }
 

@@ -312,7 +312,7 @@ public interface PortfolioService {
      * Saves current Portfolio Values as a consequence for a performance relevant Transaction. See
      * {@link ch.algotrader.entity.Transaction#isPerformanceRelevant}. If there have been
      * PortfolioValues created since this Transaction, they are recreated (including PortfolioValues
-     * of Base).
+     * of the AlgoTrader Server).
      */
     public void savePortfolioValue(Transaction transaction);
     /**

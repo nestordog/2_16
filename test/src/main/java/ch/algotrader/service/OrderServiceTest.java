@@ -44,7 +44,7 @@ public class OrderServiceTest extends IBServiceTest {
         OrderService orderService = ServiceLocator.instance().getOrderService();
         LookupService lookupService = ServiceLocator.instance().getLookupService();
 
-        Strategy strategy = lookupService.getStrategyByName("BASE");
+        Strategy server = lookupService.getStrategyByName("SERVER");
         Account account = lookupService.getAccountByName("IB_NATIVE_TEST");
 
         int[] ids = { 8, 9, 10 };
@@ -59,7 +59,7 @@ public class OrderServiceTest extends IBServiceTest {
             order.setSide(Side.BUY);
             order.setLimit(RoundUtil.getBigDecimal(1.0));
             order.setSecurity(security);
-            order.setStrategy(strategy);
+            order.setStrategy(server);
             order.setAccount(account);
 
             orders.add(order);

@@ -81,7 +81,7 @@ public class DCFixMarketDataMessageHandler extends AbstractFix44MarketDataMessag
                         }
 
                         BidVO bidVO = new BidVO(tickerId, FeedType.DC, date, price, (int) size);
-                        EngineLocator.instance().getBaseEngine().sendEvent(bidVO);
+                        EngineLocator.instance().getServerEngine().sendEvent(bidVO);
                         break;
                     case MDEntryType.OFFER:
 
@@ -91,7 +91,7 @@ public class DCFixMarketDataMessageHandler extends AbstractFix44MarketDataMessag
 
                         AskVO askVO = new AskVO(tickerId, FeedType.DC, date, price, (int) size);
 
-                        EngineLocator.instance().getBaseEngine().sendEvent(askVO);
+                        EngineLocator.instance().getServerEngine().sendEvent(askVO);
                         break;
                 }
             }

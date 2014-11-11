@@ -38,8 +38,8 @@ public class PortfolioPersistenceServiceTest extends LocalServiceTest {
 
         Date fromDate = DateUtils.addDays(Calendar.getInstance().getTime(), -5);
 
-        Strategy strategy = ServiceLocator.instance().getLookupService().getStrategyByName("BASE");
+        Strategy server = ServiceLocator.instance().getLookupService().getStrategyByName("SERVER");
 
-        ServiceLocator.instance().getService("portfolioService", PortfolioService.class).restorePortfolioValues(strategy, fromDate, new Date());
+        ServiceLocator.instance().getService("portfolioService", PortfolioService.class).restorePortfolioValues(server, fromDate, new Date());
     }
 }

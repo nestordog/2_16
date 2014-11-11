@@ -151,9 +151,9 @@ public class EngineImpl extends AbstractEngine {
             PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
             Resource[] resources = resolver.getResources("classpath*:/META-INF/esper-**.cfg.xml");
             for (Resource resource : resources) {
-                if (StrategyImpl.BASE.equals(engineName)) {
+                if (StrategyImpl.SERVER.equals(engineName)) {
 
-                    // for Base only load esper-common.cfg.xml and esper-core.cfg.xml
+                    // for AlgoTrader Server only load esper-common.cfg.xml and esper-core.cfg.xml
                     if (resource.toString().contains("esper-common.cfg.xml") || resource.toString().contains("esper-core.cfg.xml")) {
                         configuration.configure(resource.getURL());
                     }
@@ -172,8 +172,8 @@ public class EngineImpl extends AbstractEngine {
         initVariables(configuration);
 
         CommonConfig commonConfig = ConfigLocator.instance().getCommonConfig();
-        // outbound threading for BASE
-        if (StrategyImpl.BASE.equals(engineName) && !commonConfig.isSimulation()) {
+        // outbound threading for ALGOTRADER SERVER
+        if (StrategyImpl.SERVER.equals(engineName) && !commonConfig.isSimulation()) {
 
             ConfigParams configParams = ConfigLocator.instance().getConfigParams();
             Threading threading = configuration.getEngineDefaults().getThreading();

@@ -7,6 +7,6 @@ cd "`dirname \"$0\"`"/..
 
 java \
 -cp `cat bin/cp.txt` \
--DstrategyName=BASE \
+-DstrategyName=SERVER \
 -Dspring.profiles.active=securityRetrieval \
 ch.algotrader.starter.SecurityRetrievalStarter $*

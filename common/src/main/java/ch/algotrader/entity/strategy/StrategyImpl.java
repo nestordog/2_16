@@ -26,13 +26,13 @@ import ch.algotrader.util.ObjectUtil;
  */
 public class StrategyImpl extends Strategy {
 
-    public static final String BASE = "BASE";
+    public static final String SERVER = "SERVER";
 
     private static final long serialVersionUID = -2271735085273721632L;
 
     @Override
-    public boolean isBase() {
-        return (BASE.equals(getName()));
+    public boolean isServer() {
+        return (SERVER.equals(getName()));
     }
 
     @Override

@@ -121,7 +121,7 @@ public class CNXIntegrationTest extends LocalServiceTest {
 
         });
 
-        EngineLocator.instance().setEngine(StrategyImpl.BASE, this.engine);
+        EngineLocator.instance().setEngine(StrategyImpl.SERVER, this.engine);
 
         if (marketDataService instanceof InitializingServiceI) {
 
@@ -210,8 +210,8 @@ public class CNXIntegrationTest extends LocalServiceTest {
         Assert.assertNotNull(eurusd);
         Account account = lookupService.getAccountByName("CNX_TEST");
         Assert.assertNotNull(account);
-        Strategy base = lookupService.getStrategyByName("BASE");
-        Assert.assertNotNull(base);
+        Strategy server = lookupService.getStrategyByName("SERVER");
+        Assert.assertNotNull(server);
 
         marketDataService.subscribe(eurusd);
 
@@ -240,7 +240,7 @@ public class CNXIntegrationTest extends LocalServiceTest {
         LimitOrder order1 = new LimitOrderImpl();
         order1.setSecurity(eurusd);
         order1.setAccount(account);
-        order1.setStrategy(base);
+        order1.setStrategy(server);
         order1.setQuantity(100000L);
         order1.setSide(Side.BUY);
         order1.setLimit(new BigDecimal(bestBid));
@@ -294,7 +294,7 @@ public class CNXIntegrationTest extends LocalServiceTest {
         LimitOrder order2 = new LimitOrderImpl();
         order2.setSecurity(eurusd);
         order2.setAccount(account);
-        order2.setStrategy(base);
+        order2.setStrategy(server);
         order2.setQuantity(100000L);
         order2.setSide(Side.BUY);
         order2.setLimit(new BigDecimal(bestBid).multiply(new BigDecimal("1.1")).setScale(5, BigDecimal.ROUND_HALF_DOWN));

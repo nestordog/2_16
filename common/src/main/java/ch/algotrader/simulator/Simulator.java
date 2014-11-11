@@ -204,8 +204,8 @@ public class Simulator {
         if (tradePerformance != null && tradePerformance.getProfit() != 0.0) {
 
             // propagate the TradePerformance event
-            if (EngineLocator.instance().hasBaseEngine()) {
-                EngineLocator.instance().getBaseEngine().sendEvent(tradePerformance);
+            if (EngineLocator.instance().hasServerEngine()) {
+                EngineLocator.instance().getServerEngine().sendEvent(tradePerformance);
             }
         }
 

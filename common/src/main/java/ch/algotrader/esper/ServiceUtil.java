@@ -51,7 +51,7 @@ public class ServiceUtil {
     @SuppressWarnings("unchecked")
     public static boolean hasCurrentMarketDataEvents() {
 
-        Map<String, Long> map = (Map<String, Long>) EngineLocator.instance().getBaseEngine().executeSingelObjectQuery("select count(*) as cnt from MarketDataWindow");
+        Map<String, Long> map = (Map<String, Long>) EngineLocator.instance().getServerEngine().executeSingelObjectQuery("select count(*) as cnt from MarketDataWindow");
         return (map.get("cnt") > 0);
     }
 

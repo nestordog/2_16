@@ -47,7 +47,7 @@ public class StrategyTest extends EntityTest {
     @Test
     public void testFindBase() {
 
-        this.strategyDao.findBase();
+        this.strategyDao.findServer();
     }
 
     @Test

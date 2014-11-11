@@ -2,10 +2,9 @@
 <!DOCTYPE hibernate-configuration SYSTEM "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
 <hibernate-configuration>
 <session-factory>
-    <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
-
     <property name="hibernate.connection.driver_class">org.gjt.mm.mysql.Driver</property>
     <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/algoTrader</property>
+    <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
     <property name="hibernate.connection.username">root</property>
     <property name="hibernate.connection.password">password</property>
 
@@ -28,10 +27,10 @@
     <mapping resource="ch/algotrader/entity/security/Component.hbm.xml" />
     <mapping resource="ch/algotrader/entity/security/Security.hbm.xml" />
     <mapping resource="ch/algotrader/entity/security/SecurityFamily.hbm.xml" />
-    <mapping resource="ch/algotrader/entity/security/Exchange.hbm.xml" />
-    <mapping resource="ch/algotrader/entity/security/Holiday.hbm.xml" />
-    <mapping resource="ch/algotrader/entity/security/TradingHours.hbm.xml" />
     <mapping resource="ch/algotrader/entity/security/BrokerParameters.hbm.xml" />
+    <mapping resource="ch/algotrader/entity/exchange/Exchange.hbm.xml" />
+    <mapping resource="ch/algotrader/entity/exchange/Holiday.hbm.xml" />
+    <mapping resource="ch/algotrader/entity/exchange/TradingHours.hbm.xml" />
     <mapping resource="ch/algotrader/entity/strategy/Allocation.hbm.xml" />
     <mapping resource="ch/algotrader/entity/strategy/CashBalance.hbm.xml" />
     <mapping resource="ch/algotrader/entity/strategy/DefaultOrderPreference.hbm.xml" />

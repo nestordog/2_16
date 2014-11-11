@@ -122,7 +122,7 @@ public class BBMarketDataServiceImpl extends ExternalMarketDataServiceImpl imple
         subscribeTickEvent.setTick(tick);
         subscribeTickEvent.setTickerId(tickerId);
 
-        EngineLocator.instance().getBaseEngine().sendEvent(subscribeTickEvent);
+        EngineLocator.instance().getServerEngine().sendEvent(subscribeTickEvent);
 
         SubscriptionList subscriptions = getSubscriptionList(security, tickerId);
 
@@ -159,7 +159,7 @@ public class BBMarketDataServiceImpl extends ExternalMarketDataServiceImpl imple
             throw new BBMarketDataServiceException(ex);
         }
 
-        EngineLocator.instance().getBaseEngine().executeQuery("delete from TickWindow where security.id = " + security.getId());
+        EngineLocator.instance().getServerEngine().executeQuery("delete from TickWindow where security.id = " + security.getId());
 
         logger.debug("cancelled market data for : " + security);
 

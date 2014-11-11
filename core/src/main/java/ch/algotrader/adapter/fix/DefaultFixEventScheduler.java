@@ -34,7 +34,7 @@ public class DefaultFixEventScheduler implements FixEventScheduler {
 
         Object[] logonParams = {eventTime.getMinute(), eventTime.getHour(), eventTime.getDay(), eventTime.getSecond()};
 
-        EngineLocator.instance().getBaseEngine().deployStatement("prepared", "FIX_SESSION", sessionId.getSessionQualifier() + "_LOGON", logonParams, new Object() {
+        EngineLocator.instance().getServerEngine().deployStatement("prepared", "FIX_SESSION", sessionId.getSessionQualifier() + "_LOGON", logonParams, new Object() {
             @SuppressWarnings("unused")
             public void update() {
                 Session session = Session.lookupSession(sessionId);
@@ -48,7 +48,7 @@ public class DefaultFixEventScheduler implements FixEventScheduler {
 
         Object[] logoutParams = {eventTime.getMinute(), eventTime.getHour(), eventTime.getDay(), eventTime.getSecond()};
 
-        EngineLocator.instance().getBaseEngine().deployStatement("prepared", "FIX_SESSION", sessionId.getSessionQualifier() + "_LOGOUT", logoutParams, new Object() {
+        EngineLocator.instance().getServerEngine().deployStatement("prepared", "FIX_SESSION", sessionId.getSessionQualifier() + "_LOGOUT", logoutParams, new Object() {
             @SuppressWarnings("unused")
             public void update() {
                 Session session = Session.lookupSession(sessionId);

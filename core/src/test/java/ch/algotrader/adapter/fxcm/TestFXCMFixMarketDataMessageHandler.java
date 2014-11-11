@@ -65,7 +65,7 @@ public class TestFXCMFixMarketDataMessageHandler {
     public void setup() throws Exception {
 
         MockitoAnnotations.initMocks(this);
-        EngineLocator.instance().setEngine("BASE", engine);
+        EngineLocator.instance().setEngine("SERVER", engine);
 
         impl = new FXCMFixMarketDataMessageHandler();
     }

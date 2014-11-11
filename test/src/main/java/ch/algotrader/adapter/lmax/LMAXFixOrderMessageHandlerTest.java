@@ -82,7 +82,7 @@ public class LMAXFixOrderMessageHandlerTest {
         final LinkedBlockingQueue<Object> queue = new LinkedBlockingQueue<Object>();
         this.eventQueue = queue;
 
-        EngineLocator.instance().setEngine(StrategyImpl.BASE, new AbstractEngine() {
+        EngineLocator.instance().setEngine(StrategyImpl.SERVER, new AbstractEngine() {
 
             @Override
             public void sendEvent(Object obj) {

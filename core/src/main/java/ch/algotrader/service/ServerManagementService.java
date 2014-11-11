@@ -22,7 +22,7 @@ package ch.algotrader.service;
  *
  * @version $Revision$ $Date$
  */
-public interface BaseManagementService {
+public interface ServerManagementService {
 
     /**
      * Cancels all orders currently outstanding.

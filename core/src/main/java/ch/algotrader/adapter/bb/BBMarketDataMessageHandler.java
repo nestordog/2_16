@@ -94,7 +94,7 @@ public class BBMarketDataMessageHandler extends BBMessageHandler {
                     }
 
                     TradeVO tradeVO = new TradeVO(cid, FeedType.BB, lastDateTime, last, vol);
-                    EngineLocator.instance().getBaseEngine().sendEvent(tradeVO);
+                    EngineLocator.instance().getServerEngine().sendEvent(tradeVO);
 
                     // there are no BIDs for indices
                     if (fields.hasElement("BID") && fields.getElement("BID").numValues() == 1) {
@@ -108,7 +108,7 @@ public class BBMarketDataMessageHandler extends BBMessageHandler {
                         }
 
                         BidVO bidVO = new BidVO(cid, FeedType.BB, lastDateTime, bid, volBid);
-                        EngineLocator.instance().getBaseEngine().sendEvent(bidVO);
+                        EngineLocator.instance().getServerEngine().sendEvent(bidVO);
                     }
 
                     // there are no ASKs for indices
@@ -123,7 +123,7 @@ public class BBMarketDataMessageHandler extends BBMessageHandler {
                         }
 
                         AskVO askVO = new AskVO(cid, FeedType.BB, lastDateTime, ask, volAsk);
-                        EngineLocator.instance().getBaseEngine().sendEvent(askVO);
+                        EngineLocator.instance().getServerEngine().sendEvent(askVO);
                     }
                 }
 
@@ -142,7 +142,7 @@ public class BBMarketDataMessageHandler extends BBMessageHandler {
                     }
 
                     TradeVO tradeVO = new TradeVO(cid, FeedType.BB, lastDateTime, last, vol);
-                    EngineLocator.instance().getBaseEngine().sendEvent(tradeVO);
+                    EngineLocator.instance().getServerEngine().sendEvent(tradeVO);
                 }
 
             } else if ("QUOTE".equals(marketDataEventType)) {
@@ -165,7 +165,7 @@ public class BBMarketDataMessageHandler extends BBMessageHandler {
                     }
 
                     BidVO bidVO = new BidVO(cid, FeedType.BB, dateTime, bid, volBid);
-                    EngineLocator.instance().getBaseEngine().sendEvent(bidVO);
+                    EngineLocator.instance().getServerEngine().sendEvent(bidVO);
 
                 } else if ("ASK".equals(marketDataEventSubType)) {
 
@@ -184,7 +184,7 @@ public class BBMarketDataMessageHandler extends BBMessageHandler {
                     }
 
                     AskVO askVO = new AskVO(cid, FeedType.BB, dateTime, ask, volAsk);
-                    EngineLocator.instance().getBaseEngine().sendEvent(askVO);
+                    EngineLocator.instance().getServerEngine().sendEvent(askVO);
 
                 } else {
                     throw new IllegalArgumentException("unkown marketDataEventSubType " + marketDataEventSubType);

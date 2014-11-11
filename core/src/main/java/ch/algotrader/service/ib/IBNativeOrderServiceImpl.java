@@ -136,7 +136,7 @@ public class IBNativeOrderServiceImpl extends ExternalOrderServiceImpl implement
         // send a 0:0 OrderStatus to validate the first SUBMITTED OrderStatus just after the modification
         IBOrderStatus orderStatus = new IBOrderStatus(Status.SUBMITTED, 0, 0, null, order);
 
-        EngineLocator.instance().getBaseEngine().sendEvent(orderStatus);
+        EngineLocator.instance().getServerEngine().sendEvent(orderStatus);
 
     }
 

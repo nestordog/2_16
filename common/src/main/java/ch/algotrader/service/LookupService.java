@@ -595,7 +595,7 @@ public interface LookupService {
      * Retrieves an arbitrary list of Entities or values based on a Hibernate query. In addition a
      * Map containing named parameters can be passed. Example:
      * from Strategy where name = :strategyName
-     * and the Map containing an entry with {@code key='strategyName'} and {@code value='BASE'}
+     * and the Map containing an entry with {@code key='strategyName'} and {@code value='SERVER'}
      */
     public List get(String query, Map namedParameters);
 

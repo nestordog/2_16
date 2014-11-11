@@ -15,30 +15,23 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.starter;
-
-import ch.algotrader.ServiceLocator;
-import ch.algotrader.esper.Engine;
-import ch.algotrader.esper.EngineLocator;
+package ch.algotrader.service;
 
 /**
- * Abstract Base Class for starting the Base in Live Trading Mode
- *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public abstract class BaseStarter {
+public class ServerManagementServiceException extends ServiceException {
 
-    public static void startBase() throws Exception {
+    private static final long serialVersionUID = 8291507704979676426L;
 
-        // deploy all BASE modules
-        Engine engine = EngineLocator.instance().initBaseEngine();
-
-        engine.setInternalClock(true);
-        engine.deployAllModules();
-
-        // initialize services
-        ServiceLocator.instance().initInitializingServices();
+    public ServerManagementServiceException(Exception ex) {
+        super(ex);
     }
+
+    public ServerManagementServiceException(String message, Exception ex) {
+        super(message, ex);
+    }
+
 }

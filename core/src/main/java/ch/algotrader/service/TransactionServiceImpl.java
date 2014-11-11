@@ -266,7 +266,7 @@ public class TransactionServiceImpl implements TransactionService {
         Validate.notNull(fill, "Fill is null");
 
         // send the fill to the strategy that placed the corresponding order
-        if (!fill.getOrder().getStrategy().isBase()) {
+        if (!fill.getOrder().getStrategy().isServer()) {
             EngineLocator.instance().sendEvent(fill.getOrder().getStrategy().getName(), fill);
         }
 
@@ -319,18 +319,18 @@ public class TransactionServiceImpl implements TransactionService {
         PositionMutationVO positionMutationEvent = this.transactionPersistenceService.saveTransaction(transaction);
 
         // check if esper is initialized
-        if (EngineLocator.instance().hasBaseEngine()) {
+        if (EngineLocator.instance().hasServerEngine()) {
 
             // propagate the positionMutationEvent to the corresponding strategy
             if (positionMutationEvent != null) {
                 EngineLocator.instance().sendEvent(positionMutationEvent.getStrategy(), positionMutationEvent);
             }
 
-            // propagate the transaction to the corresponding strategy and Base
-            if (!transaction.getStrategy().isBase()) {
+            // propagate the transaction to the corresponding strategy and AlgoTrader Server
+            if (!transaction.getStrategy().isServer()) {
                 EngineLocator.instance().sendEvent(transaction.getStrategy().getName(), transaction);
             }
-            EngineLocator.instance().sendEvent(StrategyImpl.BASE, transaction);
+            EngineLocator.instance().sendEvent(StrategyImpl.SERVER, transaction);
         }
     }
 
@@ -340,7 +340,7 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public void rebalancePortfolio() {
 
-        Strategy base = this.strategyDao.findBase();
+        Strategy server = this.strategyDao.findServer();
         Collection<Strategy> strategies = this.strategyDao.loadAll();
         double portfolioNetLiqValue = this.portfolioService.getNetLiqValueDouble();
 
@@ -351,7 +351,7 @@ public class TransactionServiceImpl implements TransactionService {
 
             totalAllocation += strategy.getAllocation();
 
-            if (strategy.isBase()) {
+            if (strategy.isServer()) {
                 continue;
             }
 
@@ -380,7 +380,7 @@ public class TransactionServiceImpl implements TransactionService {
             throw new IllegalStateException("the total of all allocations is: " + totalAllocation + " where it should be 1.0");
         }
 
-        // add BASE REBALANCE transaction to offset totalRebalanceAmount
+        // add REBALANCE transaction to offset totalRebalanceAmount
         if (transactions.size() != 0) {
 
             Transaction transaction = Transaction.Factory.newInstance();
@@ -389,7 +389,7 @@ public class TransactionServiceImpl implements TransactionService {
             transaction.setPrice(RoundUtil.getBigDecimal(Math.abs(totalRebalanceAmount)));
             transaction.setCurrency(this.commonConfig.getPortfolioBaseCurrency());
             transaction.setType(TransactionType.REBALANCE);
-            transaction.setStrategy(base);
+            transaction.setStrategy(server);
 
             transactions.add(transaction);
 

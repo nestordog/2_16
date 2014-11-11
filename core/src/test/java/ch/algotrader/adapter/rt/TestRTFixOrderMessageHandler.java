@@ -64,7 +64,7 @@ public class TestRTFixOrderMessageHandler {
     public void setup() throws Exception {
 
         MockitoAnnotations.initMocks(this);
-        EngineLocator.instance().setEngine("BASE", this.engine);
+        EngineLocator.instance().setEngine("SERVER", this.engine);
 
         this.impl = new RTFixOrderMessageHandler();
         this.impl.setLookupService(this.lookupService);

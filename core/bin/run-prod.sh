@@ -4,7 +4,7 @@ cd "`dirname \"$0\"`"/..
 
 nohup java \
 -cp classes:`cat bin/cp.txt` \
--DstrategyName=BASE \
+-DstrategyName=SERVER \
 -Dch.algotrader.rmi.registryPort=1099 \
 -Dch.algotrader.rmi.serverPort=1098 \
 -Djava.rmi.server.hostname=$EXT_HOSTNAME \

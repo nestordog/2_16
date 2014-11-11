@@ -76,7 +76,7 @@ public class CNXFixMarketDataMessageHandler extends AbstractFix44MarketDataMessa
                         }
 
                         BidVO bidVO = new BidVO(id, FeedType.CNX, date, price, (int) size);
-                        EngineLocator.instance().getBaseEngine().sendEvent(bidVO);
+                        EngineLocator.instance().getServerEngine().sendEvent(bidVO);
                         break;
                     case MDEntryType.OFFER:
 
@@ -86,7 +86,7 @@ public class CNXFixMarketDataMessageHandler extends AbstractFix44MarketDataMessa
 
                         AskVO askVO = new AskVO(id, FeedType.CNX, date, price, (int) size);
 
-                        EngineLocator.instance().getBaseEngine().sendEvent(askVO);
+                        EngineLocator.instance().getServerEngine().sendEvent(askVO);
                         break;
                 }
             }

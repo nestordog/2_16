@@ -123,7 +123,7 @@ public class TickDaoImpl extends TickDaoBase {
 
         // sometimes Esper returns a Map instead of scalar
         String query = "select tickerId from TickWindow where security.id = " + securityId;
-        Object obj = EngineLocator.instance().getBaseEngine().executeSingelObjectQuery(query);
+        Object obj = EngineLocator.instance().getServerEngine().executeSingelObjectQuery(query);
         if (obj instanceof Map) {
             return ((Map<String, String>) obj).get("tickerId");
         } else {
@@ -139,7 +139,7 @@ public class TickDaoImpl extends TickDaoBase {
         Collection<Tick> ticks = new ArrayList<Tick>();
         for (Subscription subscription : subscriptions) {
             String query = "select * from TickWindow where security.id = " + subscription.getSecurity().getId();
-            Pair<Tick, Object> pair = (Pair<Tick, Object>) EngineLocator.instance().getBaseEngine().executeSingelObjectQuery(query);
+            Pair<Tick, Object> pair = (Pair<Tick, Object>) EngineLocator.instance().getServerEngine().executeSingelObjectQuery(query);
             if (pair != null) {
 
                 Tick tick = pair.getFirst();

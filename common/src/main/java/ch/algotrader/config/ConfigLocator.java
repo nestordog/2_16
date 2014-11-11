@@ -32,7 +32,7 @@ import ch.algotrader.config.spring.DefaultSystemConfigProvider;
 import ch.algotrader.util.MyLogger;
 
 /**
- * Configuration parameter and base configuration locator.
+ * Configuration parameter and configuration locator.
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  *

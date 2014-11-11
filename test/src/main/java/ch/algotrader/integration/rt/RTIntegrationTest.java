@@ -116,7 +116,7 @@ public class RTIntegrationTest extends LocalServiceTest {
 
         });
 
-        EngineLocator.instance().setEngine(StrategyImpl.BASE, this.engine);
+        EngineLocator.instance().setEngine(StrategyImpl.SERVER, this.engine);
 
         if (orderService instanceof InitializingServiceI) {
 
@@ -180,13 +180,13 @@ public class RTIntegrationTest extends LocalServiceTest {
         Assert.assertNotNull(msft);
         Account account = lookupService.getAccountByName("RT_TEST");
         Assert.assertNotNull(account);
-        Strategy base = lookupService.getStrategyByName("BASE");
-        Assert.assertNotNull(base);
+        Strategy server = lookupService.getStrategyByName("SERVER");
+        Assert.assertNotNull(server);
 
         LimitOrder order = new LimitOrderImpl();
         order.setAccount(account);
         order.setSecurity(msft);
-        order.setStrategy(base);
+        order.setStrategy(server);
         order.setQuantity(100);
         order.setSide(Side.BUY);
         order.setLimit(new BigDecimal("2000.0"));

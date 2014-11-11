@@ -67,10 +67,10 @@ public class CacheTest extends IBServiceTest {
         Assert.assertNotNull(security1);
 
         // create transaction
-        transactionService.createTransaction(10, "BASE", null, new Date(), 10000, new BigDecimal(1.0), null, null, null, Currency.USD, TransactionType.BUY, "IB_NATIVE_TEST", null);
+        transactionService.createTransaction(10, "SERVER", null, new Date(), 10000, new BigDecimal(1.0), null, null, null, Currency.USD, TransactionType.BUY, "IB_NATIVE_TEST", null);
 
         // lookup position
-        Position position1 = LookupUtil.getPositionBySecurityAndStrategy(10, "BASE");
+        Position position1 = LookupUtil.getPositionBySecurityAndStrategy(10, "SERVER");
         Assert.assertNotNull(security1);
 
         Position position2 = cache.get(PositionImpl.class, position1.getId());
@@ -86,10 +86,10 @@ public class CacheTest extends IBServiceTest {
         Security security3 = cache.get(SecurityImpl.class, 8);
         Assert.assertEquals(security3.getSubscriptions().size(), 0);
 
-        marketDataService.subscribe("BASE", 8);
+        marketDataService.subscribe("SERVER", 8);
         Assert.assertEquals(security3.getSubscriptions().size(), 1);
 
-        marketDataService.unsubscribe("BASE", 8);
+        marketDataService.unsubscribe("SERVER", 8);
         Assert.assertEquals(security3.getSubscriptions().size(), 0);
 
         // hql query
@@ -118,7 +118,7 @@ public class CacheTest extends IBServiceTest {
 
         Assert.assertEquals(security4.getPositions().size(), 0);
 
-        int positionId = positionService.createNonTradeablePosition("BASE", security4.getId(), 1000000).getId();
+        int positionId = positionService.createNonTradeablePosition("SERVER", security4.getId(), 1000000).getId();
         Assert.assertEquals(security4.getPositions().size(), 1);
 
         positionService.modifyNonTradeablePosition(positionId, 2000000);

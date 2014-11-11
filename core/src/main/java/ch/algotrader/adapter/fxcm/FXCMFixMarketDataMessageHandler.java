@@ -86,7 +86,7 @@ public class FXCMFixMarketDataMessageHandler extends AbstractFix44MarketDataMess
                         }
 
                         BidVO bidVO = new BidVO(symbol.getValue(), FeedType.FXCM, date != null ? date : new Date(), price, (int) (size * contractMultiplier));
-                        EngineLocator.instance().getBaseEngine().sendEvent(bidVO);
+                        EngineLocator.instance().getServerEngine().sendEvent(bidVO);
                         break;
                     case MDEntryType.OFFER:
 
@@ -96,7 +96,7 @@ public class FXCMFixMarketDataMessageHandler extends AbstractFix44MarketDataMess
 
                         AskVO askVO = new AskVO(symbol.getValue(), FeedType.FXCM, date != null ? date : new Date(), price, (int) (size * contractMultiplier));
 
-                        EngineLocator.instance().getBaseEngine().sendEvent(askVO);
+                        EngineLocator.instance().getServerEngine().sendEvent(askVO);
                         break;
                 }
             }

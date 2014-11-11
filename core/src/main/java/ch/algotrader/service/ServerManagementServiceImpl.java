@@ -41,8 +41,8 @@ import ch.algotrader.util.metric.MetricsUtil;
  *
  * @version $Revision$ $Date$
  */
-@ManagedResource(objectName = "ch.algotrader.service:name=BaseManagementService")
-public class BaseManagementServiceImpl implements BaseManagementService {
+@ManagedResource(objectName = "ch.algotrader.service:name=ServerManagementService")
+public class ServerManagementServiceImpl implements ServerManagementService {
 
     private final PositionService positionService;
 
@@ -56,7 +56,7 @@ public class BaseManagementServiceImpl implements BaseManagementService {
 
     private final OrderService orderService;
 
-    public BaseManagementServiceImpl(
+    public ServerManagementServiceImpl(
             final PositionService positionService,
             final ForexService forexService,
             final CombinationService combinationService,
@@ -120,7 +120,7 @@ public class BaseManagementServiceImpl implements BaseManagementService {
         try {
             dateTimeObject = (new SimpleDateFormat("dd.MM.yyyy HH:mm:ss")).parse(dateTime);
         } catch (ParseException ex) {
-            throw new BaseManagementServiceException(ex);
+            throw new ServerManagementServiceException(ex);
         }
         String extIdString = !"".equals(extId) ? extId : null;
         BigDecimal priceDecimal = RoundUtil.getBigDecimal(price);
@@ -233,7 +233,7 @@ public class BaseManagementServiceImpl implements BaseManagementService {
         OrderStatus orderStatus = OrderStatus.Factory.newInstance();
         orderStatus.setStatus(Status.CANCELED);
 
-        EngineLocator.instance().getBaseEngine().sendEvent(orderStatus);
+        EngineLocator.instance().getServerEngine().sendEvent(orderStatus);
 
     }
 

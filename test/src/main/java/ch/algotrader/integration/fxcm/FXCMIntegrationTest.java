@@ -119,7 +119,7 @@ public class FXCMIntegrationTest extends LocalServiceTest {
 
         });
 
-        EngineLocator.instance().setEngine(StrategyImpl.BASE, this.engine);
+        EngineLocator.instance().setEngine(StrategyImpl.SERVER, this.engine);
 
         if (marketDataService instanceof InitializingServiceI) {
 
@@ -182,8 +182,8 @@ public class FXCMIntegrationTest extends LocalServiceTest {
         Assert.assertNotNull(eurusd);
         Account account = lookupService.getAccountByName("FXCM_TEST");
         Assert.assertNotNull(account);
-        Strategy base = lookupService.getStrategyByName("BASE");
-        Assert.assertNotNull(base);
+        Strategy server = lookupService.getStrategyByName("SERVER");
+        Assert.assertNotNull(server);
 
         marketDataService.subscribe(eurusd);
 
@@ -212,7 +212,7 @@ public class FXCMIntegrationTest extends LocalServiceTest {
         LimitOrder order = new LimitOrderImpl();
         order.setSecurity(eurusd);
         order.setAccount(account);
-        order.setStrategy(base);
+        order.setStrategy(server);
         order.setQuantity(1000);
         order.setSide(Side.BUY);
         order.setLimit(new BigDecimal(bestBid));

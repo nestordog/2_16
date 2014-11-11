@@ -43,7 +43,7 @@ public class OrderStatusDaoImpl extends OrderStatusDaoBase {
     @Override
     protected Collection<OrderStatusVO> handleFindAllOrderStati() throws Exception {
 
-        Collection<Pair<Order, Map<String, ?>>> pairs = EngineLocator.instance().getBaseEngine().executeQuery("select * from OpenOrderWindow");
+        Collection<Pair<Order, Map<String, ?>>> pairs = EngineLocator.instance().getServerEngine().executeQuery("select * from OpenOrderWindow");
         return convertPairCollectionToOrderStatusVOCollection(pairs);
     }
 
@@ -51,7 +51,7 @@ public class OrderStatusDaoImpl extends OrderStatusDaoBase {
     @Override
     protected OrderStatusVO handleFindOrderStatusByIntId(String intId) throws Exception {
 
-        Pair<Order, Map<String, ?>> pair = (Pair<Order, Map<String, ?>>) EngineLocator.instance().getBaseEngine()
+        Pair<Order, Map<String, ?>> pair = (Pair<Order, Map<String, ?>>) EngineLocator.instance().getServerEngine()
                 .executeSingelObjectQuery("select * from OpenOrderWindow where intId = '" + intId + "'");
         return convertPairToOrderStatusVO(pair);
     }
@@ -61,8 +61,8 @@ public class OrderStatusDaoImpl extends OrderStatusDaoBase {
     protected Collection<OrderStatusVO> handleFindOrderStatiByStrategy(String strategyName) throws Exception {
 
         Collection<Pair<Order, Map<String, ?>>> pairs;
-        if (EngineLocator.instance().hasBaseEngine()) {
-            pairs = EngineLocator.instance().getBaseEngine().executeQuery("select * from OpenOrderWindow where strategy.name = '" + strategyName + "'");
+        if (EngineLocator.instance().hasServerEngine()) {
+            pairs = EngineLocator.instance().getServerEngine().executeQuery("select * from OpenOrderWindow where strategy.name = '" + strategyName + "'");
         } else {
             pairs = new ArrayList<Pair<Order, Map<String, ?>>>();
         }

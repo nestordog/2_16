@@ -569,7 +569,7 @@ public class PositionServiceImpl implements PositionService {
                 this.marketDataService.unsubscribe(order.getStrategy().getName(), order.getSecurity().getId());
             }
         } else {
-            EngineLocator.instance().getBaseEngine().addTradeCallback(Collections.singleton(order), new TradeCallback(true) {
+            EngineLocator.instance().getServerEngine().addTradeCallback(Collections.singleton(order), new TradeCallback(true) {
                 @Override
                 public void onTradeCompleted(List<OrderStatus> orderStati) throws Exception {
                     if (unsubscribe) {

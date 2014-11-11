@@ -57,7 +57,7 @@ import com.ib.client.Execution;
 
 /**
  * Esper specific MessageHandler.
- * Relevant events are sent into the BASE Esper Engine.
+ * Relevant events are sent into the AlgoTrader Server Esper Engine.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
@@ -162,7 +162,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
 
         logger.debug(EWrapperMsgGenerator.execDetails(reqId, contract, execution));
 
-        EngineLocator.instance().getBaseEngine().sendEvent(fill);
+        EngineLocator.instance().getServerEngine().sendEvent(fill);
     }
 
     @Override
@@ -185,7 +185,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
 
             logger.debug(EWrapperMsgGenerator.orderStatus(orderId, statusString, filled, remaining, avgFillPrice, permId, parentId, lastFillPrice, clientId, whyHeld));
 
-            EngineLocator.instance().getBaseEngine().sendEvent(orderStatus);
+            EngineLocator.instance().getServerEngine().sendEvent(orderStatus);
         }
     }
 
@@ -197,7 +197,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
         }
 
         TickPrice o = new TickPrice(Integer.toString(tickerId), field, price, canAutoExecute);
-        EngineLocator.instance().getBaseEngine().sendEvent(o);
+        EngineLocator.instance().getServerEngine().sendEvent(o);
     }
 
     @Override
@@ -208,7 +208,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
         }
 
         TickSize o = new TickSize(Integer.toString(tickerId), field, size);
-        EngineLocator.instance().getBaseEngine().sendEvent(o);
+        EngineLocator.instance().getServerEngine().sendEvent(o);
     }
 
     @Override
@@ -219,7 +219,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
         }
 
         TickString o = new TickString(Integer.toString(tickerId), tickType, value);
-        EngineLocator.instance().getBaseEngine().sendEvent(o);
+        EngineLocator.instance().getServerEngine().sendEvent(o);
     }
 
     @Override
@@ -557,7 +557,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
             // assemble the IBOrderStatus
             IBOrderStatus orderStatus = new IBOrderStatus(Status.REJECTED, 0, order.getQuantity(), null, order, reason);
 
-            EngineLocator.instance().getBaseEngine().sendEvent(orderStatus);
+            EngineLocator.instance().getServerEngine().sendEvent(orderStatus);
         }
     }
 }

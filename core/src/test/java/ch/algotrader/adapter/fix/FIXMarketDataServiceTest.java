@@ -73,7 +73,7 @@ public class FIXMarketDataServiceTest {
 
         this.impl = Mockito.spy(fakeFix44MarketDataService);
 
-        EngineLocator.instance().setEngine("BASE", this.engine);
+        EngineLocator.instance().setEngine("SERVER", this.engine);
     }
 
     private static Forex createForex(final Currency base, final Currency counter) {

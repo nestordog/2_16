@@ -42,8 +42,6 @@ public class HolidayImpl extends Holiday {
     public String toString() {
 
         StringBuffer buffer = new StringBuffer();
-        buffer.append(getExchange());
-        buffer.append(" ");
         buffer.append(dayFormat.format(getDate()));
 
         if (getLateOpen() != null) {

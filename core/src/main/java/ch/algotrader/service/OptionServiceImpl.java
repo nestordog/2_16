@@ -183,9 +183,9 @@ public class OptionServiceImpl implements OptionService {
         }
 
         final Security underlying = this.securityDao.get(underlyingId);
-        final Strategy base = this.strategyDao.findBase();
+        final Strategy server = this.strategyDao.findServer();
 
-        Subscription underlyingSubscription = this.subscriptionDao.findByStrategyAndSecurity(StrategyImpl.BASE, underlying.getId());
+        Subscription underlyingSubscription = this.subscriptionDao.findByStrategyAndSecurity(StrategyImpl.SERVER, underlying.getId());
         if (!underlyingSubscription.hasProperty("hedgingFamily")) {
             throw new IllegalStateException("no hedgingFamily defined for security " + underlying);
         }
@@ -196,7 +196,7 @@ public class OptionServiceImpl implements OptionService {
         final Future future = this.futureService.getFutureByMinExpiration(futureFamily.getId(), targetDate);
         final double deltaAdjustedMarketValuePerContract = deltaAdjustedMarketValue / futureFamily.getContractSize();
 
-        EngineLocator.instance().getBaseEngine().addFirstTickCallback(Collections.singleton((Security) future), new TickCallback() {
+        EngineLocator.instance().getServerEngine().addFirstTickCallback(Collections.singleton((Security) future), new TickCallback() {
             @Override
             public void onFirstTick(String strategyName, List<Tick> ticks) throws Exception {
 
@@ -205,8 +205,8 @@ public class OptionServiceImpl implements OptionService {
 
                 if (qty != 0) {
                     // create the order
-                    Order order = OptionServiceImpl.this.lookupService.getOrderByStrategyAndSecurityFamily(StrategyImpl.BASE, futureFamily.getId());
-                    order.setStrategy(base);
+                    Order order = OptionServiceImpl.this.lookupService.getOrderByStrategyAndSecurityFamily(StrategyImpl.SERVER, futureFamily.getId());
+                    order.setStrategy(server);
                     order.setSecurity(future);
                     order.setQuantity(Math.abs(qty));
                     order.setSide(qty > 0 ? Side.SELL : Side.BUY);
@@ -220,7 +220,7 @@ public class OptionServiceImpl implements OptionService {
         });
 
         // make sure the future is subscriped
-        this.marketDataService.subscribe(base.getName(), future.getId());
+        this.marketDataService.subscribe(server.getName(), future.getId());
 
     }
 

@@ -153,11 +153,11 @@ public class ManagementServiceImpl implements ManagementService {
      * {@inheritDoc}
      */
     @Override
-    @ManagedAttribute(description = "Gets all available Currency Balances (only available for Base)")
+    @ManagedAttribute(description = "Gets all available Currency Balances (only available for the AlgoTrader Server)")
     public Collection<BalanceVO> getDataBalances() {
 
         String strategyName = this.commonConfig.getStartedStrategyName();
-        if (StrategyImpl.BASE.equals(strategyName)) {
+        if (StrategyImpl.SERVER.equals(strategyName)) {
             return this.portfolioService.getBalances();
         } else {
             return this.portfolioService.getBalances(strategyName);
@@ -213,9 +213,9 @@ public class ManagementServiceImpl implements ManagementService {
 
         // get all subscribed securities
         List<MarketDataEventVO> processedMarketDataEventVOs = new ArrayList<MarketDataEventVO>();
-        if (strategyName.equalsIgnoreCase(StrategyImpl.BASE)) {
+        if (strategyName.equalsIgnoreCase(StrategyImpl.SERVER)) {
 
-            // for base iterate over a distinct list of subscribed securities and feedType
+            // for the AlgoTrader Server iterate over a distinct list of subscribed securities and feedType
             List<Map<String, Object>> subscriptions = this.lookupService.getSubscribedSecuritiesAndFeedTypeForAutoActivateStrategiesInclComponents();
             for (Map<String, Object> subscription : subscriptions) {
 
@@ -256,7 +256,7 @@ public class ManagementServiceImpl implements ManagementService {
      * {@inheritDoc}
      */
     @Override
-    @ManagedAttribute(description = "Gets the Properties that are defined for this Strategy (or Base)")
+    @ManagedAttribute(description = "Gets the Properties that are defined for this Strategy (or AlgoTrader Server)")
     public Map getProperties() {
 
         ConfigProvider configProvider = this.configParams.getConfigProvider();
@@ -274,11 +274,11 @@ public class ManagementServiceImpl implements ManagementService {
      * {@inheritDoc}
      */
     @Override
-    @ManagedAttribute(description = "Gets the available Funds of this Strategy (or the entire System if called from the Base)")
+    @ManagedAttribute(description = "Gets the available Funds of this Strategy (or the entire System if called from the AlgoTrader Server)")
     public BigDecimal getStrategyAvailableFunds() {
 
         String strategyName = this.commonConfig.getStartedStrategyName();
-        if (strategyName.equals(StrategyImpl.BASE)) {
+        if (strategyName.equals(StrategyImpl.SERVER)) {
             return this.portfolioService.getAvailableFunds();
         } else {
             return this.portfolioService.getAvailableFunds(strategyName);
@@ -290,7 +290,7 @@ public class ManagementServiceImpl implements ManagementService {
      * {@inheritDoc}
      */
     @Override
-    @ManagedAttribute(description = "Gets the Allocation that is assigned to this Strategy (or to the Base)")
+    @ManagedAttribute(description = "Gets the Allocation that is assigned to this Strategy (or to the AlgoTrader Server)")
     public double getStrategyAllocation() {
 
         String strategyName = this.commonConfig.getStartedStrategyName();
@@ -302,11 +302,11 @@ public class ManagementServiceImpl implements ManagementService {
      * {@inheritDoc}
      */
     @Override
-    @ManagedAttribute(description = "Gets the Cash Balance of this Strategy (or the entire System if called from the Base)")
+    @ManagedAttribute(description = "Gets the Cash Balance of this Strategy (or the entire System if called from the AlgoTrader Server)")
     public BigDecimal getStrategyCashBalance() {
 
         String strategyName = this.commonConfig.getStartedStrategyName();
-        if (strategyName.equals(StrategyImpl.BASE)) {
+        if (strategyName.equals(StrategyImpl.SERVER)) {
             return this.portfolioService.getCashBalance();
         } else {
             return this.portfolioService.getCashBalance(strategyName);
@@ -322,7 +322,7 @@ public class ManagementServiceImpl implements ManagementService {
     public double getStrategyLeverage() {
 
         String strategyName = this.commonConfig.getStartedStrategyName();
-        if (strategyName.equals(StrategyImpl.BASE)) {
+        if (strategyName.equals(StrategyImpl.SERVER)) {
             return this.portfolioService.getLeverage();
         } else {
             return this.portfolioService.getLeverage(strategyName);
@@ -334,11 +334,11 @@ public class ManagementServiceImpl implements ManagementService {
      * {@inheritDoc}
      */
     @Override
-    @ManagedAttribute(description = "Gets the Maintenance Margin of this Strategy (or the entire System if called from the Base)")
+    @ManagedAttribute(description = "Gets the Maintenance Margin of this Strategy (or the entire System if called from the AlgoTrader Server)")
     public BigDecimal getStrategyMaintenanceMargin() {
 
         String strategyName = this.commonConfig.getStartedStrategyName();
-        if (strategyName.equals(StrategyImpl.BASE)) {
+        if (strategyName.equals(StrategyImpl.SERVER)) {
             return this.portfolioService.getMaintenanceMargin();
         } else {
             return this.portfolioService.getMaintenanceMargin(strategyName);
@@ -361,11 +361,11 @@ public class ManagementServiceImpl implements ManagementService {
      * {@inheritDoc}
      */
     @Override
-    @ManagedAttribute(description = "Gets the Net-Liquidation-Value of this Strategy (or the entire System if called from the Base)")
+    @ManagedAttribute(description = "Gets the Net-Liquidation-Value of this Strategy (or the entire System if called from the AlgoTrader Server)")
     public BigDecimal getStrategyNetLiqValue() {
 
         String strategyName = this.commonConfig.getStartedStrategyName();
-        if (strategyName.equals(StrategyImpl.BASE)) {
+        if (strategyName.equals(StrategyImpl.SERVER)) {
             return this.portfolioService.getNetLiqValue();
         } else {
             return this.portfolioService.getNetLiqValue(strategyName);
@@ -377,11 +377,11 @@ public class ManagementServiceImpl implements ManagementService {
      * {@inheritDoc}
      */
     @Override
-    @ManagedAttribute(description = "Gets the performance since the beginning of the month of this Strategy (or the entire System if called from the Base)")
+    @ManagedAttribute(description = "Gets the performance since the beginning of the month of this Strategy (or the entire System if called from the AlgoTrader Server)")
     public double getStrategyPerformance() {
 
         String strategyName = this.commonConfig.getStartedStrategyName();
-        if (strategyName.equals(StrategyImpl.BASE)) {
+        if (strategyName.equals(StrategyImpl.SERVER)) {
             return this.portfolioService.getPerformance();
         } else {
             return this.portfolioService.getPerformance(strategyName);
@@ -393,11 +393,11 @@ public class ManagementServiceImpl implements ManagementService {
      * {@inheritDoc}
      */
     @Override
-    @ManagedAttribute(description = "Gets the total Market Value of all Positions of this Strategy (or the entire System if called from the Base)")
+    @ManagedAttribute(description = "Gets the total Market Value of all Positions of this Strategy (or the entire System if called from the AlgoTrader Server)")
     public BigDecimal getStrategySecuritiesCurrentValue() {
 
         String strategyName = this.commonConfig.getStartedStrategyName();
-        if (strategyName.equals(StrategyImpl.BASE)) {
+        if (strategyName.equals(StrategyImpl.SERVER)) {
             return this.portfolioService.getSecuritiesCurrentValue();
         } else {
             return this.portfolioService.getSecuritiesCurrentValue(strategyName);
@@ -447,13 +447,11 @@ public class ManagementServiceImpl implements ManagementService {
             @ManagedOperationParameter(name = "type", description = "<html>Order type: <ul> <li> M (Market) </li> <li> L (Limit) </li> <li> S (Stop) </li> <li> SL (StopLimit) </li> <li> TI (TickwiseIncremental) </li> <li> VI (VariableIncremental) </li> <li> SLI (Slicing) </li> </ul> or order preference (e.g. 'FVIX' or 'OVIX')</html>"),
             @ManagedOperationParameter(name = "accountName", description = "accountName"),
             @ManagedOperationParameter(name = "properties", description = "Additional properties to be set on the order as a comma separated list (e.g. stop=12.0,limit=12.5)") })
-    public void sendOrder(final String security, final long quantity, final String side, final String type, final String accountName, final String properties) {
+    public void sendOrder(final String security, final long quantity, final Side side, final String type, final String accountName, final String properties) {
 
         Validate.notEmpty(security, "Security is empty");
-        Validate.notEmpty(side, "Side is empty");
         Validate.notEmpty(type, "Type is empty");
 
-        Side sideObject = Side.fromValue(side);
         String strategyName = this.commonConfig.getStartedStrategyName();
 
         Strategy strategy = this.lookupService.getStrategyByName(strategyName);
@@ -485,7 +483,7 @@ public class ManagementServiceImpl implements ManagementService {
         order.setStrategy(strategy);
         order.setSecurity(securityObject);
         order.setQuantity(Math.abs(quantity));
-        order.setSide(sideObject);
+        order.setSide(side);
 
         // set the account (if defined)
         if (!"".equals(accountName)) {
@@ -858,8 +856,8 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedOperationParameters({})
     public void shutdown() {
 
-        // cancel all orders if we called from base
-        if (this.commonConfig.isStartedStrategyBASE()) {
+        // cancel all orders if we called from the AlgoTrader Server
+        if (this.commonConfig.isStartedStrategySERVER()) {
             this.orderService.cancelAllOrders();
         }
         // need to force exit because grafefull shutdown of esper-service (and esper-jmx) does not work

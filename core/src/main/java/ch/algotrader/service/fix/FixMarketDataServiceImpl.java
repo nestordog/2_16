@@ -114,7 +114,7 @@ public abstract class FixMarketDataServiceImpl extends ExternalMarketDataService
         subscribeTickEvent.setTick(tick);
         subscribeTickEvent.setTickerId(tickerId);
 
-        EngineLocator.instance().getBaseEngine().sendEvent(subscribeTickEvent);
+        EngineLocator.instance().getServerEngine().sendEvent(subscribeTickEvent);
 
         sendSubscribeRequest(security);
 
@@ -133,7 +133,7 @@ public abstract class FixMarketDataServiceImpl extends ExternalMarketDataService
 
         sendUnsubscribeRequest(security);
 
-        EngineLocator.instance().getBaseEngine().executeQuery("delete from TickWindow where security.id = " + security.getId());
+        EngineLocator.instance().getServerEngine().executeQuery("delete from TickWindow where security.id = " + security.getId());
 
         logger.debug("cancelled market data for : " + security);
 

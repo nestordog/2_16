@@ -155,8 +155,8 @@ public class TransactionImpl extends Transaction {
     @Override
     public boolean isPerformanceRelevant() {
 
-        // for BASE only CREDIT and DEBIT are performance relevant (REBALANCE do not affect NetLiqValue and FEES, REFUND etc. are part of the performance)
-        if (getStrategy().isBase()) {
+        // for ALGOTRADER SERVER only CREDIT and DEBIT are performance relevant (REBALANCE do not affect NetLiqValue and FEES, REFUND etc. are part of the performance)
+        if (getStrategy().isServer()) {
             if (TransactionType.CREDIT.equals(getType()) || TransactionType.DEBIT.equals(getType())) {
                 return true;
             }

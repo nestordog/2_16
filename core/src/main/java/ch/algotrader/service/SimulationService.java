@@ -31,7 +31,7 @@ public interface SimulationService {
      * Starts a Simulation Run. The following steps are processed:
      * <ul>
      * <li>The database is reset to its original state via the {@link ResetService}</li>
-     * <li>Esper Engines are initialized for the Base as well as all strategies marked as autoActivate</li>
+     * <li>Esper Engines are initialized for the AlgoTrader Server as well as all strategies marked as autoActivate</li>
      * <li>All Esper Modules defined in column initModules and runModules of the table strategy are deployed</li>
      * <li>A Portfolio Rebalance is executed to distribute the initial CREDIT (of 1'000'000 USD) to Strategies according to their {@link ch.algotrader.entity.strategy.Allocation Allocation}</li>
      * <li>For every Strategy the method {@link StrategyService#initSimulation} is invoked to execute any initialization tasks if necessary</li>

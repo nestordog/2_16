@@ -39,7 +39,7 @@ public class IBServiceTest {
 
         if (!initialized) {
 
-            Engine engine = EngineLocator.instance().initBaseEngine();
+            Engine engine = EngineLocator.instance().initServerEngine();
             engine.setInternalClock(true);
             engine.deployAllModules();
 

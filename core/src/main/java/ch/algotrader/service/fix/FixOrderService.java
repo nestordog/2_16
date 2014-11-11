@@ -29,7 +29,7 @@ import ch.algotrader.service.ExternalOrderService;
 public interface FixOrderService extends ExternalOrderService {
 
     /**
-     * Sends an Order to the external Broker and propagates the Order to the Base Esper Engine.
+     * Sends an Order to the external Broker and propagates the Order to the AlgoTrader Server Esper Engine.
      */
     public void sendOrder(Order order, Message message, boolean propagate);
 
