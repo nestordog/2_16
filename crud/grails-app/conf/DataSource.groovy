@@ -13,6 +13,6 @@ hibernate {
 environments {
     development {
         dataSource { //            dbCreate = "validate" // one of 'create', 'create-drop', 'update', 'validate', ''
-            url = "jdbc:mysql://localhost:3306/algoTradertest" }
+            url = "jdbc:mysql://localhost:3306/algoTrader" }
     }
 }

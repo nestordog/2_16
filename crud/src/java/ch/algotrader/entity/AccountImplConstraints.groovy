@@ -1,5 +1,5 @@
 constraints = {
-    name()
+    name(blank: false)
     active()
     broker()
     orderServiceType()

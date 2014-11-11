@@ -1,8 +1,9 @@
 constraints = {
     securityFamily()
     broker()
-    baseSymbol(nullable : true)
-    market(nullable: true)
+    symbolRoot(nullable : true)
+    exchangeCode(nullable: true)
     executionCommission(nullable: true)
     clearingCommission(nullable: true)
+    fee(nullable: true)
 }

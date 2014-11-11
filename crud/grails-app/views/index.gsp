@@ -91,21 +91,10 @@
 
 			<%
 				def controllers = [
-					[0,'ch.algotrader.entity.Account'],
-					[0,'ch.algotrader.entity.strategy.Allocation'],
-					[0,'ch.algotrader.entity.security.BrokerParameters'],
-					[0,'ch.algotrader.entity.security.Component'],
-					[0,'ch.algotrader.entity.strategy.DefaultOrderPreference'],
-					[0,'ch.algotrader.entity.strategy.OrderPreference'],
-					[0,'ch.algotrader.entity.property.Property'],
-					[0,'ch.algotrader.entity.security.SecurityFamily'],
-						[1,'ch.algotrader.entity.security.BondFamily'],
-						[1,'ch.algotrader.entity.security.FutureFamily'],
-						[1,'ch.algotrader.entity.security.GenericFutureFamily'],
-						[1,'ch.algotrader.entity.security.OptionFamily'],
 					[0,'ch.algotrader.entity.security.Security'],
 						[1,'ch.algotrader.entity.security.Bond'],
 						[1,'ch.algotrader.entity.security.Combination'],
+                        [1,'ch.algotrader.entity.security.Component'],
 						[1,'ch.algotrader.entity.security.Commodity'],
 						[1,'ch.algotrader.entity.security.Forex'],
 						[1,'ch.algotrader.entity.security.Fund'],
@@ -116,7 +105,21 @@
 						[1,'ch.algotrader.entity.security.Index'],
 						[1,'ch.algotrader.entity.security.Option'],
 						[1,'ch.algotrader.entity.security.Stock'],
-					[0,'ch.algotrader.entity.strategy.Strategy']
+                    [0,'ch.algotrader.entity.security.SecurityFamily'],
+                        [1,'ch.algotrader.entity.security.BondFamily'],
+                        [1,'ch.algotrader.entity.security.FutureFamily'],
+                        [1,'ch.algotrader.entity.security.GenericFutureFamily'],
+                        [1,'ch.algotrader.entity.security.OptionFamily'],
+                        [1,'ch.algotrader.entity.security.BrokerParameters'],
+					[0,'ch.algotrader.entity.strategy.Strategy'],
+                        [1,'ch.algotrader.entity.strategy.Allocation'],
+                        [1,'ch.algotrader.entity.strategy.OrderPreference'],
+                        [1,'ch.algotrader.entity.strategy.DefaultOrderPreference'],
+                    [0,'ch.algotrader.entity.exchange.Exchange'],
+                        [1,'ch.algotrader.entity.exchange.TradingHours'],
+                        [1,'ch.algotrader.entity.exchange.Holiday'],
+                    [0,'ch.algotrader.entity.Account'],
+                    [0,'ch.algotrader.entity.property.Property'],
 				]
 			%>
 

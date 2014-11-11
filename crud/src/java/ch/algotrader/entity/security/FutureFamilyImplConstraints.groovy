@@ -1,25 +1,19 @@
 constraints = {
-    name()
-    baseSymbol(nullable : true)
+
+    name(blank : false)
+    symbolRoot(nullable : true)
     isinRoot(nullable : true)
     ricRoot(nullable : true)
     tradingClass(nullable : true)
-    market()
     currency()
     contractSize()
     scale()
     tickSizePattern()
     executionCommission(nullable : true)
     clearingCommission(nullable : true)
-    marketOpenDay()
-    marketOpen(format : 'HH:mm', attributes: [precision : 'minute'])
-    marketClose(format : 'HH:mm', attributes: [precision : 'minute'])
+    fee(nullable : true)
     tradeable()
     synthetic()
-    spreadSlope(nullable : true)
-    spreadConstant(nullable : true)
-    maxSpreadSlope(nullable : true)
-    maxSpreadConstant(nullable : true)
     periodicity(nullable : true)
     maxGap(nullable : true)
 
@@ -32,6 +26,7 @@ constraints = {
 
     underlying(nullable : true)
     brokerParameters()
+    exchange()
 
     securities(display : false)
 }

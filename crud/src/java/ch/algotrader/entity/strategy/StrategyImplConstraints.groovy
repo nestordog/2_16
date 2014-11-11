@@ -1,7 +1,7 @@
 constraints = {
     name(blank: false)
-    allocation(blank: false)
     autoActivate()
+    allocation(blank: false)
     initModules(widget: 'textarea')
     runModules(widget: 'textarea')
     props()

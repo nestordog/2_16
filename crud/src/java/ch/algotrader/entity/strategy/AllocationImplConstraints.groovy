@@ -1,5 +1,5 @@
 constraints = {
     orderPreference()
     account()
-    value()
+    value(blank: false)
 }

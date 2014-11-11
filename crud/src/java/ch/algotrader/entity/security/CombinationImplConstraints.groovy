@@ -4,7 +4,9 @@ constraints= {
     bbgid(display : false)
     ric(display : false)
     conid(display : false)
+    lmaxid(nullable : true)
 
+    uuid(display : false)
     type()
     persistent()
     components()

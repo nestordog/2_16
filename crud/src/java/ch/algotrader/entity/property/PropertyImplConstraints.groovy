@@ -5,6 +5,6 @@ constraints = {
     doubleValue(nullable: true)
     moneyValue(nullable: true)
     textValue(nullable: true)
-    dateValue(nullable: true, attributes: [precision : 'minute'])
+    dateTimeValue(nullable: true, attributes: [precision : 'minute'])
     booleanValue(nullable: true)
 }

@@ -4,8 +4,10 @@ constraints= {
     bbgid(nullable : true)
     ric(nullable : true)
     conid(nullable : true)
+    lmaxid(nullable : true)
 
     duration()
+    assetClass()
 
     underlying(nullable : true)
     securityFamily()
