@@ -17,29 +17,18 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
-import org.hibernate.SQLQuery;
-import org.hibernate.SessionFactory;
-import org.hibernate.classic.Session;
-import org.hibernate.dialect.Dialect;
-import org.hibernate.dialect.H2Dialect;
-import org.hibernate.dialect.MySQLDialect;
-import org.hibernate.impl.SessionFactoryImpl;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.PositionDao;
-import ch.algotrader.entity.PositionImpl;
 import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.TransactionDao;
 import ch.algotrader.entity.security.Security;
@@ -48,7 +37,6 @@ import ch.algotrader.entity.strategy.CashBalanceDao;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.esper.EngineLocator;
-import ch.algotrader.util.HibernateUtil;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.PositionUtil;
 import ch.algotrader.util.RoundUtil;
@@ -67,7 +55,7 @@ import ch.algotrader.vo.TradePerformanceVO;
  * @version $Revision$ $Date$
  */
 @HibernateSession
-public class TransactionPersistenceServiceImpl implements TransactionPersistenceService {
+public abstract class TransactionPersistenceServiceImpl implements TransactionPersistenceService {
 
     private static Logger logger = MyLogger.getLogger(TransactionPersistenceServiceImpl.class.getName());
     private static Logger simulationLogger = MyLogger.getLogger(SimulationServiceImpl.class.getName() + ".RESULT");
@@ -75,8 +63,6 @@ public class TransactionPersistenceServiceImpl implements TransactionPersistence
     private final CommonConfig commonConfig;
 
     private final PortfolioService portfolioService;
-
-    private final SessionFactory sessionFactory;
 
     private final PositionDao positionDao;
 
@@ -87,21 +73,18 @@ public class TransactionPersistenceServiceImpl implements TransactionPersistence
     public TransactionPersistenceServiceImpl(
             final CommonConfig commonConfig,
             final PortfolioService portfolioService,
-            final SessionFactory sessionFactory,
             final PositionDao positionDao,
             final TransactionDao transactionDao,
             final CashBalanceDao cashBalanceDao) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(portfolioService, "PortfolioService is null");
-        Validate.notNull(sessionFactory, "SessionFactory is null");
         Validate.notNull(positionDao, "PositionDao is null");
         Validate.notNull(transactionDao, "TransactionDao is null");
         Validate.notNull(cashBalanceDao, "CashBalanceDao is null");
 
         this.commonConfig = commonConfig;
         this.portfolioService = portfolioService;
-        this.sessionFactory = sessionFactory;
         this.positionDao = positionDao;
         this.transactionDao = transactionDao;
         this.cashBalanceDao = cashBalanceDao;
@@ -111,81 +94,7 @@ public class TransactionPersistenceServiceImpl implements TransactionPersistence
      * {@inheritDoc}
      */
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void ensurePositionAndCashBalance(final Transaction transaction) {
-
-        Validate.notNull(transaction, "Transaction is null");
-
-        Strategy strategy = transaction.getStrategy();
-        Security security = transaction.getSecurity();
-        Set<Currency> currencySet = new HashSet<Currency>();
-        Collection<CurrencyAmountVO> attributions = transaction.getAttributions();
-        for (CurrencyAmountVO attribution: attributions) {
-            currencySet.add(attribution.getCurrency());
-        }
-
-        Dialect dialect = ((SessionFactoryImpl)this.sessionFactory).getSettings().getDialect();
-
-        Session currentSession = this.sessionFactory.getCurrentSession();
-
-        if (dialect instanceof H2Dialect) {
-
-            if (security != null) {
-
-                Position position = positionDao.findBySecurityAndStrategy(security.getId(), strategy.getName());
-                if (position == null) {
-                    position = Position.Factory.newInstance(0,0,0,false,strategy,security);
-                    currentSession.save(position);
-                }
-            }
-
-            if (!currencySet.isEmpty()) {
-
-                for (Currency currency: currencySet) {
-
-                    CashBalance cashBalance = cashBalanceDao.findByStrategyAndCurrency(strategy, currency);
-                    if (cashBalance == null) {
-                        cashBalance = CashBalance.Factory.newInstance(currency, new BigDecimal(0.0), strategy);
-                        currentSession.save(cashBalance);
-                    }
-                }
-            }
-
-        } else if (dialect instanceof MySQLDialect) {
-
-            if (security != null) {
-
-                Serializable id = HibernateUtil.getNextId(this.sessionFactory, PositionImpl.class);
-
-                SQLQuery sqlQuery = currentSession.createSQLQuery(
-                        "INSERT IGNORE INTO position " +
-                                "  (id, quantity, cost, realized_p_l, persistent, security_fk, strategy_fk, version) " +
-                                "  VALUES (:position_id, 0, 0, 0, 0, :security_id, :strategy_id, 1)");
-
-                sqlQuery.setParameter("position_id", id);
-                sqlQuery.setParameter("security_id", security.getId());
-                sqlQuery.setParameter("strategy_id", strategy.getId());
-                sqlQuery.executeUpdate();
-            }
-
-            if (!currencySet.isEmpty()) {
-
-                SQLQuery sqlQuery = currentSession.createSQLQuery(
-                        "INSERT IGNORE INTO cash_balance " +
-                                "(currency, amount, strategy_fk, version) VALUES (:currency, 0, :strategy_id, 1)");
-                for (Currency currency: currencySet) {
-
-                    sqlQuery.setParameter("currency", currency.value());
-                    sqlQuery.setParameter("strategy_id", strategy.getId());
-                    sqlQuery.executeUpdate();
-                }
-            }
-
-        } else {
-            throw new IllegalStateException("unsupported Hibernate dialect " + dialect);
-        }
-
-    }
+    public abstract void ensurePositionAndCashBalance(final Transaction transaction);
 
     /**
      * {@inheritDoc}

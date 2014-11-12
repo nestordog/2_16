@@ -107,15 +107,6 @@
         <constructor-arg index="10" ref="futureFamilyDao"/>
     </bean>
 
-    <bean id="transactionPersistenceService" class="ch.algotrader.service.TransactionPersistenceServiceImpl" >
-        <constructor-arg index="0" ref="commonConfig"/>
-        <constructor-arg index="1" ref="portfolioService"/>
-        <constructor-arg index="2" ref="sessionFactory"/>
-        <constructor-arg index="3" ref="positionDao"/>
-        <constructor-arg index="4" ref="transactionDao"/>
-        <constructor-arg index="5" ref="cashBalanceDao"/>
-    </bean>
-
     <bean id="transactionService" class="ch.algotrader.service.TransactionServiceImpl" >
         <constructor-arg index="0" ref="commonConfig"/>
         <constructor-arg index="1" ref="coreConfig"/>
@@ -229,7 +220,6 @@
         <bean id="lazyLoaderService" class="ch.algotrader.service.LazyLoaderServiceImpl" >
             <constructor-arg index="0" ref="sessionFactory"/>
         </bean>
-
     </beans>
 
     <beans profile="simulation,noopSimulation">
@@ -242,7 +232,28 @@
             <constructor-arg index="5"  ref="lookupService"/>
             <constructor-arg index="6"  ref="cacheManager"/>
         </bean>
+    </beans>
 
+    <beans profile="singleDataSource,pooledDataSource">
+        <bean id="transactionPersistenceService" class="ch.algotrader.service.mysql.MySqlTransactionPersistenceServiceImpl" >
+            <constructor-arg index="0" ref="commonConfig"/>
+            <constructor-arg index="1" ref="portfolioService"/>
+            <constructor-arg index="2" ref="sessionFactory"/>
+            <constructor-arg index="3" ref="positionDao"/>
+            <constructor-arg index="4" ref="transactionDao"/>
+            <constructor-arg index="5" ref="cashBalanceDao"/>
+        </bean>
+    </beans>
+
+    <beans profile="embeddedDataSource">
+	    <bean id="transactionPersistenceService" class="ch.algotrader.service.h2.H2TransactionPersistenceServiceImpl" >
+	        <constructor-arg index="0" ref="commonConfig"/>
+	        <constructor-arg index="1" ref="portfolioService"/>
+	        <constructor-arg index="2" ref="sessionFactory"/>
+	        <constructor-arg index="3" ref="positionDao"/>
+	        <constructor-arg index="4" ref="transactionDao"/>
+	        <constructor-arg index="5" ref="cashBalanceDao"/>
+	    </bean>
     </beans>
 
     <beans profile="iBNative">
@@ -300,7 +311,6 @@
             <constructor-arg index="4"  ref="tickDao"/>
             <constructor-arg index="5"  ref="securityDao"/>
         </bean>
-
     </beans>
 
     <beans profile="iBFix">
@@ -309,7 +319,6 @@
             <constructor-arg index="1"  ref="fixAdapter"/>
             <constructor-arg index="2"  ref="orderService"/>
         </bean>
-
     </beans>
 
     <beans profile="iBFix">
@@ -330,7 +339,6 @@
             <constructor-arg index="4" ref="optionFamilyDao"/>
             <constructor-arg index="5" ref="optionDao"/>
         </bean>
-
     </beans>
 
      <beans profile="simulation,noopSimulation">
@@ -349,7 +357,6 @@
             <constructor-arg index="11"  ref="propertyDao"/>
             <constructor-arg index="12"  ref="measurementDao"/>
         </bean>
-
     </beans>
 
      <beans profile="jPMFix">
@@ -365,7 +372,6 @@
             <constructor-arg index="0"  ref="fixAdapter"/>
             <constructor-arg index="1"  ref="orderService"/>
         </bean>
-
     </beans>
 
     <beans profile="dCMarketData">
@@ -375,7 +381,6 @@
             <constructor-arg index="2"  ref="fixAdapter"/>
             <constructor-arg index="3"  ref="securityDao"/>
         </bean>
-
     </beans>
 
     <beans profile="bBMarketData">
@@ -385,7 +390,6 @@
             <constructor-arg index="2"  ref="tickDao"/>
             <constructor-arg index="3"  ref="securityDao"/>
         </bean>
-
     </beans>
 
     <beans profile="bBHistoricalData">
@@ -414,7 +418,6 @@
             <constructor-arg index="0"  ref="fixAdapter"/>
             <constructor-arg index="1"  ref="orderService"/>
         </bean>
-
     </beans>
 
     <beans profile="lMAXFix">
@@ -422,7 +425,6 @@
              <constructor-arg index="0"  ref="fixAdapter"/>
              <constructor-arg index="1"  ref="orderService"/>
         </bean>
-
     </beans>
 
     <beans profile="lMAXMarketData">
@@ -432,7 +434,6 @@
             <constructor-arg index="2"  ref="fixAdapter"/>
             <constructor-arg index="3"  ref="securityDao"/>
         </bean>
-
     </beans>
 
     <beans profile="fXCMFix">
@@ -440,7 +441,6 @@
              <constructor-arg index="0"  ref="fixAdapter"/>
              <constructor-arg index="1"  ref="orderService"/>
         </bean>
-
     </beans>
 
     <beans profile="fXCMMarketData">
@@ -450,7 +450,6 @@
             <constructor-arg index="2"  ref="fixAdapter"/>
             <constructor-arg index="3"  ref="securityDao"/>
         </bean>
-
     </beans>
 
     <beans profile="simulation">
@@ -458,7 +457,6 @@
             <constructor-arg index="0"  ref="transactionService"/>
             <constructor-arg index="1"  ref="orderService"/>
         </bean>
-
     </beans>
 
     <beans profile="cNXMarketData">
@@ -468,7 +466,6 @@
             <constructor-arg index="2"  ref="fixAdapter"/>
             <constructor-arg index="3"  ref="securityDao"/>
         </bean>
-
     </beans>
 
     <beans profile="cNXFix">
@@ -476,7 +473,6 @@
             <constructor-arg index="0"  ref="fixAdapter"/>
             <constructor-arg index="1"  ref="orderService"/>
         </bean>
-
     </beans>
 
     <!-- ========================= End of PROFILE SERVICE DEFINITIONS ========================= -->
