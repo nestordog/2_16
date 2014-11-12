@@ -30,6 +30,13 @@ import ch.algotrader.esper.EngineLocator;
  */
 public abstract class ServerStarter {
 
+    public static void main(String[] args) throws Exception {
+
+        ServiceLocator.instance().init(ServiceLocator.SERVER_BEAN_REFERENCE_LOCATION);
+
+        startServer();
+    }
+
     public static void startServer() throws Exception {
 
         // deploy all SERVER modules

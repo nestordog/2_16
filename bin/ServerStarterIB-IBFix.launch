@@ -2,7 +2,7 @@
 <launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
 <stringAttribute key="bad_container_name" value="\algotraderlight-code\bi"/>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-<listEntry value="/algotrader-core/src/main/java/ch/algotrader/starter/MarketDataStarter.java"/>
+<listEntry value="/algotrader-common/src/main/java/ch/algotrader/starter/ServerStarter.java"/>
 </listAttribute>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
 <listEntry value="1"/>
@@ -16,9 +16,9 @@
 <booleanAttribute key="org.eclipse.hyades.trace.ui.ATTR_PROFILE_TO_FILE" value="false"/>
 <stringAttribute key="org.eclipse.hyades.trace.ui.ATTR_PROFILING_SET" value="tptp-dummy-profiling-set-MarketDataStarter-Enterprise"/>
 <stringAttribute key="org.eclipse.jdt.launching.CLASSPATH_PROVIDER" value="org.eclipse.m2e.launchconfig.classpathProvider"/>
-<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="ch.algotrader.starter.MarketDataStarter"/>
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="ch.algotrader.starter.ServerStarter"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="algotrader-core"/>
 <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dsimulation=false&#13;&#10;-DdataSource.url=jdbc:mysql://127.0.0.1:3306/AlgoTrader&#13;&#10;-Dcom.sun.management.jmxremote.port=1099&#13;&#10;-Dcom.sun.management.jmxremote.authenticate=false&#13;&#10;-Dcom.sun.management.jmxremote.ssl=false&#13;&#10;-Dspring.profiles.active=server,pooledDataSource,iBMarketData,jPMFix,iBHistoricalData&#13;&#10;-Xmx2048M&#13;&#10;-XX:MaxPermSize=1024M"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dsimulation=false&#13;&#10;-DdataSource.url=jdbc:mysql://127.0.0.1:3306/AlgoTrader&#13;&#10;-Dcom.sun.management.jmxremote.port=1099&#13;&#10;-Dcom.sun.management.jmxremote.authenticate=false&#13;&#10;-Dcom.sun.management.jmxremote.ssl=false&#13;&#10;-Dspring.profiles.active=server,pooledDataSource,iBMarketData,iBFix&#13;&#10;-Xmx2048M&#13;&#10;-XX:MaxPermSize=1024M"/>
 <stringAttribute key="org.eclipse.tptp.platform.jvmti.client.ATTR_FILTERSET_ID" value="auto_generated_filter_set"/>
 </launchConfiguration>
