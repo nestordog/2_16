@@ -26,6 +26,7 @@ import java.util.Set;
 
 import org.hibernate.EntityMode;
 import org.hibernate.HibernateException;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.collection.PersistentCollection;
 import org.hibernate.impl.SessionFactoryImpl;
@@ -114,7 +115,7 @@ public class GenericDao extends HibernateDaoSupport {
     /**
      * Performs a HQL query based on the given {@code queryString}
      */
-    public List<?> find(String queryString) {
+    public List<?> find(final String queryString) {
 
         HibernateTemplate hibernateTemplate = getHibernateTemplate();
         hibernateTemplate.setCacheQueries(true);
@@ -123,8 +124,9 @@ public class GenericDao extends HibernateDaoSupport {
 
     /**
      * Performs a HQL query based on the given {@code queryString} and {@code namedParameters}
+     * @return a List of Objects
      */
-    public List<?> find(String queryString, Map<String, Object> namedParameters) {
+    public List<?> find(final String queryString, final Map<String, Object> namedParameters) {
 
         String[] paramNames = new String[namedParameters.size()];
         Object[] values = new Object[namedParameters.size()];
@@ -139,6 +141,48 @@ public class GenericDao extends HibernateDaoSupport {
         HibernateTemplate hibernateTemplate = getHibernateTemplate();
         hibernateTemplate.setCacheQueries(true);
         return hibernateTemplate.findByNamedParam(queryString, paramNames, values);
+    }
+
+
+    /**
+     * Performs a HQL query based on the given {@code queryString}
+     * @return a unique Object
+     */
+    public Object findUnique(final String queryString) {
+
+        HibernateTemplate hibernateTemplate = getHibernateTemplate();
+        hibernateTemplate.setCacheQueries(true);
+
+        return hibernateTemplate.execute(new HibernateCallback<Object>() {
+
+            @Override
+            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                return session.createQuery(queryString).uniqueResult();
+            }
+        });
+    }
+
+
+    /**
+     * Performs a HQL query based on the given {@code queryString} and {@code namedParameters}
+     * @return a unique Object
+     */
+    public Object findUnique(final String queryString, final Map<String, Object> namedParameters) {
+
+        HibernateTemplate hibernateTemplate = getHibernateTemplate();
+        hibernateTemplate.setCacheQueries(true);
+
+        return hibernateTemplate.execute(new HibernateCallback<Object>() {
+
+            @Override
+            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                Query query = session.createQuery(queryString);
+                for (Map.Entry<String, Object> entry : namedParameters.entrySet()) {
+                    query.setParameter(entry.getKey(), entry.getValue());
+                }
+                return query.uniqueResult();
+            }
+        });
     }
 
     /**

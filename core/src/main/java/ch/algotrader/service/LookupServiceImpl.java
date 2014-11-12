@@ -1615,6 +1615,31 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
+    public Object getUnique(final String query) {
+
+        Validate.notEmpty(query, "Query is empty");
+
+        return this.genericDao.findUnique(query);
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Object getUnique(final String query, final Map namedParameters) {
+
+        Validate.notEmpty(query, "Query is empty");
+        Validate.notNull(namedParameters, "Named parameters is null");
+
+        return this.genericDao.findUnique(query, namedParameters);
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void initSecurityStrings() {
 
         for (Security security : this.securityDao.findSubscribedForAutoActivateStrategies()) {

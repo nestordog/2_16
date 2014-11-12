@@ -600,6 +600,20 @@ public interface LookupService {
     public List get(String query, Map namedParameters);
 
     /**
+     * Retrieves a unique Object based on a Hibernate query. Example:
+     * from Strategy where id = 1
+     */
+    public Object getUnique(String query);
+
+    /**
+     * Retrieves a unique Object based on a Hibernate query. In addition a
+     * Map containing named parameters can be passed. Example:
+     * from Strategy where name = :strategyName
+     * and the Map containing an entry with {@code key='strategyName'} and {@code value='SERVER'}
+     */
+    public Object getUnique(String query, Map namedParameters);
+
+    /**
      * initialize all security Strings for subscribed Securities
      */
     public void initSecurityStrings();
