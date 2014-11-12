@@ -8,12 +8,10 @@
 target
 log
 core/data/
-core/files/
 core/lib/
 core/src/main/java/ch/algotrader/test
 core/src/main/java/ch/algotrader/tools
 core/src/main/resources/fix.cfg
-core/sql/reset-db.sh
 core/webapps
 crud/plugins
 test/src/main/resources/fix.cfg
@@ -21,4 +19,3 @@ test/src/main/resources/log4j.xml
 uml/src/main/uml/*.mdr
 uml/src/main/uml/*.uml
 files/
-core/sql/reset-db.sh
