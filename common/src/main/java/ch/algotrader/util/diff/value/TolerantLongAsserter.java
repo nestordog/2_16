@@ -17,8 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.util.diff.value;
 
-import org.junit.Assert;
-
 /**
  * Value asserter for long values comparing two values with a tolerance.
  * The tolerance can be absolute or relative to the magnitude of the compared values.

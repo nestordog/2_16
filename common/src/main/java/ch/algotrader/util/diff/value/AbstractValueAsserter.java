@@ -17,8 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.util.diff.value;
 
-import org.junit.Assert;
-
 /**
  * Base class suitable for most value asserters.
  *
@@ -41,6 +39,7 @@ abstract public class AbstractValueAsserter<T> implements ValueAsserter<T> {
     public boolean equalValues(T expectedValue, Object actualValue) {
         return expectedValue == actualValue || (expectedValue != null && expectedValue.equals(actualValue));
     }
+
     @Override
     public void assertValue(T expectedValue, Object actualValue) {
         Assert.assertEquals("Values don't match", expectedValue, actualValue);

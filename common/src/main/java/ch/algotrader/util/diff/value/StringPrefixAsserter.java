@@ -19,8 +19,6 @@ package ch.algotrader.util.diff.value;
 
 import java.util.Objects;
 
-import org.junit.Assert;
-
 /**
  * Asserter for two strings where one string can be a prefix of the other.
  */
