@@ -50,7 +50,7 @@ public class DBBarInputAdapter extends AbstractCoordinatedAdapter {
     private Duration barSize;
 
     public DBBarInputAdapter(int batchSize, Duration barSize) {
-        super(null, true, true);
+        super(null, true, true, true);
         this.batchSize = batchSize;
         this.barSize = barSize;
 

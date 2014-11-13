@@ -25,6 +25,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javassist.CannotCompileException;
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.CtField;
+import javassist.CtMethod;
+import javassist.CtNewMethod;
+import javassist.NotFoundException;
+
 import org.apache.commons.collections15.buffer.CircularFifoBuffer;
 import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.StringUtils;
@@ -32,7 +40,7 @@ import org.apache.commons.lang.StringUtils;
 import com.espertech.esper.client.hook.AggregationFunctionFactory;
 import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
 import com.espertech.esper.epl.agg.service.AggregationValidationContext;
-import com.espertech.esper.epl.expression.ExprEvaluator;
+import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.tictactec.ta.lib.CoreAnnotated;
 import com.tictactec.ta.lib.MAType;
 import com.tictactec.ta.lib.meta.annotation.InputParameterInfo;
@@ -41,14 +49,6 @@ import com.tictactec.ta.lib.meta.annotation.OptInputParameterInfo;
 import com.tictactec.ta.lib.meta.annotation.OptInputParameterType;
 import com.tictactec.ta.lib.meta.annotation.OutputParameterInfo;
 import com.tictactec.ta.lib.meta.annotation.OutputParameterType;
-
-import javassist.CannotCompileException;
-import javassist.ClassPool;
-import javassist.CtClass;
-import javassist.CtField;
-import javassist.CtMethod;
-import javassist.CtNewMethod;
-import javassist.NotFoundException;
 
 /**
  * Factory class needed for {@link GenericTALibFunction}

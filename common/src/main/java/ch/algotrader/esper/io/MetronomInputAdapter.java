@@ -43,7 +43,7 @@ public class MetronomInputAdapter extends AbstractCoordinatedAdapter {
 
     public MetronomInputAdapter(String cronPattern, Date startDate, Date endDate) {
 
-        super(null, true, true);
+        super(null, true, true, true);
         this.endDate = endDate;
 
         cron = new CronSequenceGenerator(cronPattern, TimeZone.getDefault());

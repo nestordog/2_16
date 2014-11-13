@@ -23,7 +23,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import ch.algotrader.enumeration.Side;
 import ch.algotrader.vo.BalanceVO;
 import ch.algotrader.vo.MarketDataEventVO;
 import ch.algotrader.vo.OrderStatusVO;
@@ -165,7 +164,7 @@ public interface ManagementService {
      * or order preference (e.g. 'FVIX' or 'OVIX')
      * @param properties Additional properties to be set on the order as a comma separated list (e.g. stop=12.0,limit=12.5)
      */
-    public void sendOrder(String security, long quantity, Side side, String type, String accountName, String properties);
+    public void sendOrder(String security, long quantity, String side, String type, String accountName, String properties);
 
     /**
      * Cancel an Order

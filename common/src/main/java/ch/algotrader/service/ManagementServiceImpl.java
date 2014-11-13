@@ -447,10 +447,13 @@ public class ManagementServiceImpl implements ManagementService {
             @ManagedOperationParameter(name = "type", description = "<html>Order type: <ul> <li> M (Market) </li> <li> L (Limit) </li> <li> S (Stop) </li> <li> SL (StopLimit) </li> <li> TI (TickwiseIncremental) </li> <li> VI (VariableIncremental) </li> <li> SLI (Slicing) </li> </ul> or order preference (e.g. 'FVIX' or 'OVIX')</html>"),
             @ManagedOperationParameter(name = "accountName", description = "accountName"),
             @ManagedOperationParameter(name = "properties", description = "Additional properties to be set on the order as a comma separated list (e.g. stop=12.0,limit=12.5)") })
-    public void sendOrder(final String security, final long quantity, final Side side, final String type, final String accountName, final String properties) {
+    public void sendOrder(final String security, final long quantity, final String side, final String type, final String accountName, final String properties) {
 
         Validate.notEmpty(security, "Security is empty");
+        Validate.notEmpty(side, "Side is empty");
         Validate.notEmpty(type, "Type is empty");
+
+        Side sideObject = Side.fromValue(side);
 
         String strategyName = this.commonConfig.getStartedStrategyName();
 
@@ -483,7 +486,7 @@ public class ManagementServiceImpl implements ManagementService {
         order.setStrategy(strategy);
         order.setSecurity(securityObject);
         order.setQuantity(Math.abs(quantity));
-        order.setSide(side);
+        order.setSide(sideObject);
 
         // set the account (if defined)
         if (!"".equals(accountName)) {

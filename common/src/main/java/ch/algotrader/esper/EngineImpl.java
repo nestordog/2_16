@@ -573,7 +573,7 @@ public class EngineImpl extends AbstractEngine {
     @Override
     public void initCoordination() {
 
-        this.coordinator = new AdapterCoordinatorImpl(this.serviceProvider, true, true);
+        this.coordinator = new AdapterCoordinatorImpl(this.serviceProvider, true, true, true);
 
         ((AdapterCoordinatorImpl) this.coordinator).setSender(new CustomSender());
     }

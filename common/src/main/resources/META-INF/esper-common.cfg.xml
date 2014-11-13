@@ -71,8 +71,6 @@
     <auto-import import-name="java.text.*"/>
     <auto-import import-name="java.util.*"/>
 
-    <plugin-view factory-class="ch.algotrader.esper.ohlc.OHLCViewFactory" name="ohlcbar" namespace="custom"/>
-
     <plugin-aggregation-function name="talib" factory-class="ch.algotrader.esper.aggregation.GenericTALibFunctionFactory"/>
 
     <!-- Constants -->

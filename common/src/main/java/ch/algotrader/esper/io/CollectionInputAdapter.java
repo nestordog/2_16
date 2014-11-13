@@ -43,7 +43,7 @@ public class CollectionInputAdapter extends AbstractCoordinatedAdapter {
 
     public CollectionInputAdapter(Collection<?> baseObjects, String timeStampColumn) {
 
-        super(null, true, true);
+        super(null, true, true, true);
 
         this.iterator = baseObjects.iterator();
         this.timeStampColumn = timeStampColumn;

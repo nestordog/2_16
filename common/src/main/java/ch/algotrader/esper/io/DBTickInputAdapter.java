@@ -48,7 +48,7 @@ public class DBTickInputAdapter extends AbstractCoordinatedAdapter {
     private int batchSize;
 
     public DBTickInputAdapter(int batchSize) {
-        super(null, true, true);
+        super(null, true, true, true);
         this.batchSize = batchSize;
 
         Tick tick = ServiceLocator.instance().getLookupService().getFirstSubscribedTick();

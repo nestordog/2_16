@@ -86,7 +86,7 @@ public class OrderDaoImpl extends OrderDaoBase {
     @Override
     protected Order handleFindOpenOrderByExtId(String extId) throws Exception {
 
-        Pair<Order, Map<?, ?>> pair = ((Pair<Order, Map<?, ?>>) EngineLocator.instance().getServerEngine().executeSingelObjectQuery("select * from OpenOrderWindow where extId = " + extId));
+        Pair<Order, Map<?, ?>> pair = ((Pair<Order, Map<?, ?>>) EngineLocator.instance().getServerEngine().executeSingelObjectQuery("select * from OpenOrderWindow where extId = '" + extId + "'"));
         if (pair == null) {
             return null;
         } else {
