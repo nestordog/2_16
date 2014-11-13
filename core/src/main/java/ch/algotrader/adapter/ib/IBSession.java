@@ -19,11 +19,14 @@ package ch.algotrader.adapter.ib;
 
 import java.io.IOException;
 import java.net.ConnectException;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 
 import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
+
+import com.ib.client.EClientSocket;
 
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.enumeration.InitializingServiceType;
@@ -31,8 +34,6 @@ import ch.algotrader.service.InitializationPriority;
 import ch.algotrader.service.InitializingServiceI;
 import ch.algotrader.service.MarketDataService;
 import ch.algotrader.util.MyLogger;
-
-import com.ib.client.EClientSocket;
 
 /**
  * Represents on IB (socket) connection.
@@ -148,12 +149,11 @@ public final class IBSession extends EClientSocket implements InitializingServic
         }
     }
 
-    private synchronized boolean connectionAvailable() {
+    private boolean connectionAvailable() {
 
+        Socket socket = new Socket();
         try {
-
-            Socket socket = new Socket(this.host, this.port);
-            socket.close();
+            socket.connect(new InetSocketAddress(this.host, this.port), 5000);
             return true;
         } catch (ConnectException e) {
             // do nothing, gateway is down
@@ -162,6 +162,12 @@ public final class IBSession extends EClientSocket implements InitializingServic
         } catch (IOException e) {
             logger.error("connection error", e);
             return false;
+        } finally {
+            try {
+                socket.close();
+            } catch (IOException ignore) {
+            }
         }
     }
+
 }
