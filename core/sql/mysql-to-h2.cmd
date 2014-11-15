@@ -1,9 +1,7 @@
 :: batch script to convert mysql db-structure / db-data into an h2 import file
-:: steps
-:: 1) run script
-:: 2) open h2 console using the following JDBC URL: jdbc:h2:~/test;MODE=MySQL
-:: 3) past content of file h2-import.sql into console and click 'Run'
-:: 4) get the h2 export/backup file (named h2.sql) from the user home directly 
+
+SET mypath=%~dp0
+cd %mypath:~0,-1% 
 
 copy db-structure.sql h2-structure.sql
 
@@ -39,9 +37,12 @@ echo SET REFERENTIAL_INTEGRITY FALSE; >> h2-import.sql
 
 type h2-data.sql >> h2-import.sql
 
-echo SCRIPT TO '~/h2.sql'; >> h2-import.sql
+echo SCRIPT TO '../src/main/resources/META-INF/h2.sql'; >> h2-import.sql
+
+call mvn -o exec:java -f ../pom.xml -Dexec.mainClass=org.h2.tools.RunScript -Dexec.args="-url jdbc:h2:~/test;MODE=MySQL -user sa -script h2-import.sql"
 
 rm sed*
 rm h2-structure.sql
 rm h2-structure-constraint.sql
 rm h2-data.sql
+rm h2-import.sql
