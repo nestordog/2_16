@@ -930,7 +930,7 @@ public class ManagementServiceImpl implements ManagementService {
                 marketDataEventVO = barVO;
 
             } else {
-                throw new IllegalArgumentException("unknown marketDataEvent type");
+                continue;
             }
 
             marketDataEventVO.setDateTime(marketDataEvent.getDateTime());

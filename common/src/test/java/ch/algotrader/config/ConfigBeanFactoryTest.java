@@ -56,7 +56,7 @@ public class ConfigBeanFactoryTest {
         map.put("simulation", "true");
         map.put("simulation.initialBalance", "500.5");
         map.put("simulation.logTransactions", "true");
-        map.put("misc.singleVM", "true");
+        map.put("misc.embedded", "true");
         map.put("misc.portfolioDigits", "5");
         map.put("misc.portfolioBaseCurrency", "EUR");
         map.put("misc.initialMarginMarkup", "1.52");

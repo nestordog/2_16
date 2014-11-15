@@ -61,7 +61,7 @@ public class ServiceLocator {
 
     // The different bean reference types
     public static final String LOCAL_BEAN_REFERENCE_LOCATION = "Local";
-    public static final String SINGLE_BEAN_REFERENCE_LOCATION = "Single";
+    public static final String EMBEDDED_BEAN_REFERENCE_LOCATION = "Embedded";
     public static final String SERVER_BEAN_REFERENCE_LOCATION = "Server";
     public static final String CLIENT_BEAN_REFERENCE_LOCATION = "Client";
     public static final String SIMULATION_BEAN_REFERENCE_LOCATION = "Simulation";

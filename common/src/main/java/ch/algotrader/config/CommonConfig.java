@@ -47,7 +47,7 @@ public final class CommonConfig {
     private final boolean simulation;
     private final BigDecimal simulationInitialBalance;
     private final boolean simulationLogTransactions;
-    private final boolean singleVM;
+    private final boolean embedded;
     private final int portfolioDigits;
     private final Currency portfolioBaseCurrency;
     private final BigDecimal initialMarginMarkup;
@@ -68,7 +68,7 @@ public final class CommonConfig {
             @ConfigName("simulation") final boolean simulation,
             @ConfigName("simulation.initialBalance") final BigDecimal simulationInitialBalance,
             @ConfigName("simulation.logTransactions") final boolean simulationLogTransactions,
-            @ConfigName("misc.singleVM") final boolean singleVM,
+            @ConfigName("misc.embedded") final boolean embedded,
             @ConfigName("misc.portfolioDigits") final int portfolioDigits,
             @ConfigName("misc.portfolioBaseCurrency") final Currency portfolioBaseCurrency,
             @ConfigName("misc.initialMarginMarkup") final BigDecimal initialMarginMarkup,
@@ -87,7 +87,7 @@ public final class CommonConfig {
         this.simulation = simulation;
         this.simulationInitialBalance = simulationInitialBalance;
         this.simulationLogTransactions = simulationLogTransactions;
-        this.singleVM = singleVM;
+        this.embedded = embedded;
         this.portfolioDigits = portfolioDigits;
         this.portfolioBaseCurrency = portfolioBaseCurrency;
         this.initialMarginMarkup = initialMarginMarkup;
@@ -148,7 +148,7 @@ public final class CommonConfig {
     }
 
     public boolean isSingleVM() {
-        return this.singleVM;
+        return this.embedded;
     }
 
     public int getPortfolioDigits() {
@@ -199,7 +199,7 @@ public final class CommonConfig {
         sb.append(", simulation=").append(this.simulation);
         sb.append(", simulationInitialBalance=").append(this.simulationInitialBalance);
         sb.append(", simulationLogTransactions=").append(this.simulationLogTransactions);
-        sb.append(", singleVM=").append(this.singleVM);
+        sb.append(", embedded=").append(this.embedded);
         sb.append(", portfolioDigits=").append(this.portfolioDigits);
         sb.append(", portfolioBaseCurrency=").append(this.portfolioBaseCurrency);
         sb.append(", initialMarginMarkup=").append(this.initialMarginMarkup);

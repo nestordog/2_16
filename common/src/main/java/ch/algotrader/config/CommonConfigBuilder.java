@@ -46,7 +46,7 @@ public final class CommonConfigBuilder {
     private boolean simulation;
     private BigDecimal simulationInitialBalance;
     private boolean simulationLogTransactions;
-    private boolean singleVM;
+    private boolean embedded;
     private int portfolioDigits;
     private Currency portfolioBaseCurrency;
     private BigDecimal initialMarginMarkup;
@@ -65,7 +65,7 @@ public final class CommonConfigBuilder {
         this.feedBatchSize = 20;
         this.simulation = false;
         this.simulationInitialBalance = new BigDecimal(1000000L);
-        this.singleVM = false;
+        this.embedded = false;
         this.portfolioDigits = 2;
         this.portfolioBaseCurrency = Currency.USD;
         this.initialMarginMarkup = new BigDecimal("1.25");
@@ -125,8 +125,8 @@ public final class CommonConfigBuilder {
         return this;
     }
 
-    public CommonConfigBuilder setSingleVM(boolean singleVM) {
-        this.singleVM = singleVM;
+    public CommonConfigBuilder setEmbedded(boolean embedded) {
+        this.embedded = embedded;
         return this;
     }
 
@@ -158,7 +158,7 @@ public final class CommonConfigBuilder {
     public CommonConfig build() {
         return new CommonConfig(
                 this.strategyName, this.dataSet, this.dataSetType, this.dataSetLocation, this.barSize, this.feedCSV, this.feedDB, this.feedGenericEvents, this.feedAllMarketDataFiles,
-                this.feedBatchSize, this.simulation, this.simulationInitialBalance, this.simulationLogTransactions, this.singleVM,
+                this.feedBatchSize, this.simulation, this.simulationInitialBalance, this.simulationLogTransactions, this.embedded,
                 this.portfolioDigits, this.portfolioBaseCurrency, this.initialMarginMarkup, this.validateCrossedSpread, this.displayClosedPositions);
     }
 

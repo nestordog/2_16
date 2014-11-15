@@ -7,7 +7,7 @@ import ch.algotrader.starter.BaseStarter;
 /**
  * This class starts the strategy in Live Trading Mode in a single VM
  */
-public class ${serviceName}SingleVMStarter extends BaseStarter  {
+public class ${serviceName}EmbeddedStarter extends BaseStarter  {
 
     public static void main(String[] args) throws Exception {
 
