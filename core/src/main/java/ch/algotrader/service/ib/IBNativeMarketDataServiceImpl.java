@@ -17,6 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.service.ib;
 
+import java.util.ArrayList;
+
 import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
@@ -37,6 +39,7 @@ import ch.algotrader.util.MyLogger;
 import ch.algotrader.vo.SubscribeTickVO;
 
 import com.ib.client.Contract;
+import com.ib.client.TagValue;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -109,7 +112,7 @@ public class IBNativeMarketDataServiceImpl extends ExternalMarketDataServiceImpl
         // requestMarketData from IB
         Contract contract = IBUtil.getContract(security);
 
-        this.iBSession.reqMktData(tickerId, contract, this.iBConfig.getGenericTickList(), false);
+        this.iBSession.reqMktData(tickerId, contract, this.iBConfig.getGenericTickList(), false, new ArrayList<TagValue>());
 
         logger.debug("requested market data for: " + security + " tickerId: " + tickerId);
 

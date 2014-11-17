@@ -44,6 +44,7 @@ import ch.algotrader.service.HistoricalDataServiceImpl;
 import ch.algotrader.util.MyLogger;
 
 import com.ib.client.Contract;
+import com.ib.client.TagValue;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -188,7 +189,7 @@ public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl
         }
 
         // send the request
-        this.iBSession.reqHistoricalData(requestId, contract, dateString, durationString, barSizeString, barTypeString, 1, 1);
+        this.iBSession.reqHistoricalData(requestId, contract, dateString, durationString, barSizeString, barTypeString, 1, 1, new ArrayList<TagValue>());
 
         // read from the queue until a Bar with no dateTime is received
         List<Bar> barList = new ArrayList<Bar>();

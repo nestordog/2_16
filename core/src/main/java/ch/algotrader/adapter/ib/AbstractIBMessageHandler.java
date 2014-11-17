@@ -191,4 +191,20 @@ public abstract class AbstractIBMessageHandler implements EWrapper {
     @Override
     public void accountSummaryEnd(int paramInt) {
     }
+
+    @Override
+    public void verifyMessageAPI(String apiData) {
+    }
+
+    @Override
+    public void verifyCompleted(boolean isSuccessful, String errorText) {
+    }
+
+    @Override
+    public void displayGroupList(int reqId, String groups) {
+    }
+
+    @Override
+    public void displayGroupUpdated(int reqId, String contractInfo) {
+    }
 }
