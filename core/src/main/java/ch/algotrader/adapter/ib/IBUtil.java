@@ -60,7 +60,7 @@ public class IBUtil {
     private static final DecimalFormat decimalFormat = new DecimalFormat("#.#######");
 
     public static Contract getContract(Security security) {
-        
+
         SecurityFamily securityFamily = security.getSecurityFamily();
         Validate.notNull(securityFamily.getExchange(), "securityFamily.exchange");
 
@@ -70,7 +70,7 @@ public class IBUtil {
         // use Conid if available
         if (security.getConid() != null) {
 
-            contract.m_conId = Integer.parseInt(security.getConid());            
+            contract.m_conId = Integer.parseInt(security.getConid());
 
         } else {
 
@@ -120,7 +120,7 @@ public class IBUtil {
 
                 contract.m_secType = "IND";
                 contract.m_symbol = security.getSymbol();
-                
+
             } else {
 
                 throw new IllegalArgumentException("unsupported security type " + ClassUtils.getShortClassName(security.getClass()));
