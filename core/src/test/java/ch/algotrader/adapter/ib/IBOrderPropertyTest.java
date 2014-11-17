@@ -27,6 +27,8 @@ import org.junit.Test;
 import ch.algotrader.config.IBConfig;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.AccountImpl;
+import ch.algotrader.entity.exchange.Exchange;
+import ch.algotrader.entity.exchange.ExchangeImpl;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.ForexImpl;
 import ch.algotrader.entity.security.SecurityFamily;
@@ -58,8 +60,11 @@ public class IBOrderPropertyTest {
     @Test
     public void test() throws Exception {
 
+        Exchange exchange = new ExchangeImpl();
+
         SecurityFamily family = new SecurityFamilyImpl();
         family.setCurrency(Currency.USD);
+        family.setExchange(exchange);
 
         Forex forex = new ForexImpl();
         forex.setBaseCurrency(Currency.EUR);
