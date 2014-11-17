@@ -142,7 +142,7 @@ public class SubscriptionServiceImpl implements SubscriptionService, Application
             messageSelector = "false";
         }
 
-        final DefaultMessageListenerContainer marketDataMessageListenerContainer = this.applicationContext.getBean("genericMessageListenerContainer", DefaultMessageListenerContainer.class);
+        final DefaultMessageListenerContainer marketDataMessageListenerContainer = this.applicationContext.getBean("marketDataMessageListenerContainer", DefaultMessageListenerContainer.class);
 
         // update the message selector
         marketDataMessageListenerContainer.setMessageSelector(messageSelector);
