@@ -156,8 +156,8 @@
     <!-- Embedded H2 DataSource (for development / testing) -->
     <beans profile="embeddedDataSource">
         <jdbc:embedded-database id="dataSource" type="H2">
-            <jdbc:script location="classpath:/META-INF/h2.sql"/>
-            <jdbc:script location="classpath*:/META-INF/h2-*.sql"/>
+            <jdbc:script location="classpath:/db/h2/h2.sql"/>
+            <jdbc:script location="classpath*:/db/h2/h2-*.sql"/>
         </jdbc:embedded-database>
     </beans>
 
