@@ -48,6 +48,7 @@ import ch.algotrader.adapter.fix.fix44.GenericFix44SymbologyResolver;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.AccountImpl;
 import ch.algotrader.entity.exchange.Exchange;
+import ch.algotrader.entity.exchange.ExchangeImpl;
 import ch.algotrader.entity.security.Future;
 import ch.algotrader.entity.security.FutureImpl;
 import ch.algotrader.entity.security.SecurityFamily;
@@ -67,7 +68,6 @@ import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.AbstractEngine;
 import ch.algotrader.esper.EngineLocator;
-import ch.algotrader.exchange.ExchangeImpl;
 import ch.algotrader.service.LookupService;
 import ch.algotrader.util.Consts;
 
