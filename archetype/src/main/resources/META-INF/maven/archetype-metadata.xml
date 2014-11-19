@@ -7,9 +7,7 @@
         <requiredProperty key="serviceName"/>
         <requiredProperty key="dataSetType"/>
         <requiredProperty key="dataSet"/>
-        <requiredProperty key="dataBase"/>
-        <requiredProperty key="strategyId"/>
-        <requiredProperty key="subscriptionIds"/>
+        <requiredProperty key="instruments"/>
     </requiredProperties>
 
     <fileSets>
@@ -36,33 +34,10 @@
             </includes>
         </fileSet>
         <fileSet filtered="true" encoding="UTF-8">
-            <directory>sql</directory>
-            <includes>
-                <include>**/*.sql</include>
-            </includes>
-        </fileSet>
-        <fileSet filtered="true" encoding="UTF-8">
             <directory></directory>
             <includes>
-                <include>.classpath</include>
-                <include>.project</include>
+                <include>pom.xml</include>
             </includes>
         </fileSet>
-        <fileSet encoding="UTF-8">
-            <directory>.settings</directory>
-            <includes>
-                <include>**/*.prefs</include>
-            </includes>
-        </fileSet>
-        <fileSet encoding="UTF-8">
-            <directory>log</directory>
-        </fileSet>
-        <fileSet encoding="UTF-8">
-            <directory>files/bardata </directory>
-        </fileSet>
-        <fileSet encoding="UTF-8">
-            <directory>files/tickdata</directory>
-        </fileSet>
-
     </fileSets>
 </archetype-descriptor>

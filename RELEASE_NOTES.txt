@@ -17,6 +17,9 @@ market-on-open, limit-on-open, market-on-close and limit-on-close
 order completion event
 order recovery
 in-process exchange simulator
+add flyway for database migration
+add csv diff tool
+3rd Party Library updates (Esper 5.1.0)
 
 Version 2.1
 new Instruments: Bond, Fund & Commodity
