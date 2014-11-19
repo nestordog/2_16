@@ -17,11 +17,9 @@
  ***********************************************************************************/
 package ch.algotrader.wizard;
 
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Collection;
 
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 
 /**
@@ -44,17 +42,7 @@ public interface IDatabaseModel {
     Collection<String> getDatabases() throws ClassNotFoundException, SQLException;
 
     /**
-     * gets the next available id from the mysql strategy table
+     * gets the securities that correspond to the files inside the dataset directory
      */
-    String getStrategyId(String databaseName) throws ClassNotFoundException, SQLException;
-
-    /**
-     * gets the ids of all securities that correspond to the files inside the dataset directory
-     */
-    String getSubscriptionIds(String databaseName, MarketDataType marketDataType, String dataSet) throws ClassNotFoundException, SQLException, CoreException;
-
-    /**
-     * updates the database by resetting the database and uploading the mysql script file of this strategy
-     */
-    void updateDatabase(String databaseName, IProject project, String artifactId) throws ClassNotFoundException, SQLException, CoreException, IOException;
+    String getInstruments(MarketDataType marketDataType, String dataSet) throws ClassNotFoundException, SQLException, CoreException;
 }

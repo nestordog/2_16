@@ -138,17 +138,6 @@ final class NewProjectWizardPage3 extends AbstractMavenWizardPage {
             });
             cboDatabase.setInput(this.config.databaseModel.getDatabases());
 
-            final Button chkUpdateDatabase = new Button(this.container, SWT.CHECK);
-            chkUpdateDatabase.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 2, 1));
-            chkUpdateDatabase.setText("Update Database");
-            chkUpdateDatabase.addSelectionListener(new SelectionAdapter() {
-
-                @Override
-                public void widgetSelected(SelectionEvent e) {
-                    NewProjectWizardPage3.this.config.updateDatabase = chkUpdateDatabase.getSelection();
-                }
-            });
-
             setControl(this.container);
         } catch (Exception e) {
             e.printStackTrace();

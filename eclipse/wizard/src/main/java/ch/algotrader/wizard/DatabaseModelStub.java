@@ -54,23 +54,13 @@ public class DatabaseModelStub implements IDatabaseModel {
     }
 
     @Override
-    public String getStrategyId(String databaseName) throws ClassNotFoundException, SQLException {
-        return databaseName + "_strategyId";
-    }
-
-    @Override
-    public String getSubscriptionIds(String databaseName, MarketDataType marketDataType, String dataSet) throws ClassNotFoundException, SQLException, CoreException {
+    public String getInstruments(MarketDataType marketDataType, String dataSet) throws ClassNotFoundException, SQLException, CoreException {
         StringBuffer buffer = new StringBuffer();
         for (int i = 0; i < 4; i++) {
-            buffer.append("SubscriptionId_" + databaseName + "_" + marketDataType + "_" + dataSet + "_" + i);
+            buffer.append("SubscriptionId_" + marketDataType + "_" + dataSet + "_" + i);
             buffer.append(",");
         }
         buffer.deleteCharAt(buffer.length() - 1);
         return buffer.toString();
-    }
-
-    @Override
-    public void updateDatabase(String databaseName, IProject project, String artifactId) throws ClassNotFoundException, SQLException, CoreException, IOException {
-        System.out.println("DatabaseModelStub.updateDatabase");
     }
 }

@@ -88,8 +88,7 @@ public class CreateProjectJob extends Job {
             properties.put("dataSetType", this.config.dataSetType.toString()); //$NON-NLS-1$
             properties.put("dataSet", this.config.dataSet); //$NON-NLS-1$
             properties.put("dataBase", this.config.databaseName); //$NON-NLS-1$
-            properties.put("strategyId", this.config.databaseModel.getStrategyId(this.config.databaseName)); //$NON-NLS-1$
-            properties.put("subscriptionIds", this.config.databaseModel.getSubscriptionIds(this.config.databaseName, this.config.dataSetType, this.config.dataSet)); //$NON-NLS-1$
+            properties.put("instruments", this.config.databaseModel.getInstruments(this.config.dataSetType, this.config.dataSet)); //$NON-NLS-1$
 
             List<IProject> projects = configManager.createArchetypeProjects(this.config.path, archetype, this.config.groupId, this.config.artifactId, this.config.version, this.config.packageName,
                     properties, new ProjectImportConfiguration(), monitor);
@@ -97,12 +96,6 @@ public class CreateProjectJob extends Job {
             if (projects != null) {
                 for (IProject project : projects) {
                     addToWorkingSets(project, this.config.workingSets);
-
-                    if (this.config.updateDatabase) {
-                        this.config.databaseModel.updateDatabase(this.config.databaseName, project, this.config.artifactId);
-                    }
-
-                    // update project
                     configManager.updateProjectConfiguration(project, monitor);
                 }
             }

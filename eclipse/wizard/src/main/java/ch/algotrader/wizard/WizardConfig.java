@@ -42,5 +42,4 @@ final class WizardConfig {
     MarketDataType dataSetType;
     String dataSet;
     String databaseName;
-    boolean updateDatabase;
 }

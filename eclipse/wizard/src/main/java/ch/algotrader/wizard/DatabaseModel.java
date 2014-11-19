@@ -17,10 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.wizard;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -29,7 +26,6 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -95,30 +91,7 @@ public final class DatabaseModel implements IDatabaseModel {
     }
 
     @Override
-    public String getStrategyId(String databaseName) throws ClassNotFoundException, SQLException {
-
-        Connection con = null;
-        ResultSet rs = null;
-        try {
-            Class.forName("com.mysql.jdbc.Driver");
-            con = DriverManager.getConnection(DB_URL + databaseName, DB_USER, DB_PASSWORD);
-            rs = con.createStatement().executeQuery("select max(id) from strategy");
-            rs.next();
-            int id = rs.getInt(1);
-            return Integer.toString(id + 1);
-
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (con != null) {
-                con.close();
-            }
-        }
-    }
-
-    @Override
-    public String getSubscriptionIds(String databaseName, MarketDataType marketDataType, String dataSet) throws ClassNotFoundException, SQLException, CoreException {
+    public String getInstruments(MarketDataType marketDataType, String dataSet) throws ClassNotFoundException, SQLException, CoreException {
 
         IProject coreProject = ResourcesPlugin.getWorkspace().getRoot().getProject(ALGOTRADER_CORE);
         if (coreProject == null) {
@@ -129,7 +102,6 @@ public final class DatabaseModel implements IDatabaseModel {
 
         if (folder.members().length > 0) {
             StringBuffer buffer = new StringBuffer();
-            buffer.append("(");
             for (IResource resource : folder.members()) {
                 if (!resource.getName().startsWith(".")) {
                     buffer.append("'");
@@ -139,76 +111,9 @@ public final class DatabaseModel implements IDatabaseModel {
                 }
             }
             buffer.deleteCharAt(buffer.length() - 1);
-            buffer.append(")");
-            String condition = buffer.toString();
-
-            Connection con = null;
-            ResultSet rs = null;
-            try {
-                Class.forName("com.mysql.jdbc.Driver");
-                con = DriverManager.getConnection(DB_URL + databaseName, DB_USER, DB_PASSWORD);
-                rs = con.createStatement().executeQuery(
-                        "select id from security" + " where isin in " + condition + " or symbol in " + condition + " or bbgid in " + condition + " or ric in " + condition + " or conid in "
-                                + condition + " or id in " + condition);
-
-                buffer = new StringBuffer();
-                while (rs.next()) {
-                    buffer.append(rs.getString(1));
-                    buffer.append(",");
-                }
-                buffer.deleteCharAt(buffer.length() - 1);
-
-                return buffer.toString();
-
-            } finally {
-                if (rs != null) {
-                    rs.close();
-                }
-                if (con != null) {
-                    con.close();
-                }
-            }
+            return buffer.toString();
         } else {
             return ",";
-        }
-    }
-
-    @Override
-    public void updateDatabase(String databaseName, IProject project, String artifactId) throws ClassNotFoundException, SQLException, CoreException, IOException {
-
-        Connection con = null;
-        try {
-            Class.forName("com.mysql.jdbc.Driver");
-            con = DriverManager.getConnection(DB_URL + databaseName, DB_USER, DB_PASSWORD);
-
-            // reset the database
-            con.createStatement().execute("drop database " + databaseName);
-            con.createStatement().execute("create database " + databaseName);
-            con.createStatement().execute("use " + databaseName);
-
-            ScriptRunner runner = new ScriptRunner(con, true, true);
-
-            IProject coreProject = ResourcesPlugin.getWorkspace().getRoot().getProject(ALGOTRADER_CORE);
-            if (coreProject == null || !coreProject.exists()) {
-                throw new IllegalStateException("algotrader-core project is not available");
-            }
-
-            // execute db-structure.sql
-            IFile iFile = coreProject.getFile("/sql/db-structure.sql");
-            runner.runScript(new BufferedReader(new InputStreamReader(iFile.getContents())));
-
-            // execute db-data.sql
-            iFile = coreProject.getFile("/sql/db-data.sql");
-            runner.runScript(new BufferedReader(new InputStreamReader(iFile.getContents())));
-
-            // execute the db-xxx.sql of the new project
-            iFile = project.getFile("/sql/mysql-" + artifactId + ".sql");
-            runner.runScript(new BufferedReader(new InputStreamReader(iFile.getContents())));
-
-        } finally {
-            if (con != null) {
-                con.close();
-            }
         }
     }
 }
