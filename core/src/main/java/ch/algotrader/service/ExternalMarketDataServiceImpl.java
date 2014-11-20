@@ -55,7 +55,7 @@ public abstract class ExternalMarketDataServiceImpl implements ExternalMarketDat
     public void initSubscriptions() {
 
         List<Security> securities;
-        if (this.commonConfig.isSingleVM()) {
+        if (this.commonConfig.isEmbedded()) {
             securities = this.securityDao.findSubscribedByFeedTypeAndStrategyInclFamily(getFeedType(), this.commonConfig.getStartedStrategyName());
         } else {
             securities = this.securityDao.findSubscribedByFeedTypeForAutoActivateStrategiesInclFamily(getFeedType());

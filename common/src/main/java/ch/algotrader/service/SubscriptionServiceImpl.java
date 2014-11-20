@@ -128,7 +128,7 @@ public class SubscriptionServiceImpl implements SubscriptionService, Application
     public void initMarketDataEventSubscriptions() {
 
         CommonConfig commonConfig = this.commonConfig;
-        if (commonConfig.isSimulation() || commonConfig.isStartedStrategySERVER() || commonConfig.isSingleVM())
+        if (commonConfig.isSimulation() || commonConfig.isStartedStrategySERVER() || commonConfig.isEmbedded())
             return;
 
         // assemble the message selector
@@ -169,7 +169,7 @@ public class SubscriptionServiceImpl implements SubscriptionService, Application
         Validate.notNull(classes, "Classes is null");
 
         CommonConfig commonConfig = this.commonConfig;
-        if (commonConfig.isSimulation() || commonConfig.isStartedStrategySERVER() || commonConfig.isSingleVM())
+        if (commonConfig.isSimulation() || commonConfig.isStartedStrategySERVER() || commonConfig.isEmbedded())
             return;
 
         // assemble the message selector
