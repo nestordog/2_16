@@ -99,7 +99,7 @@ public class TestRTFixOrderMessageHandler {
         Assert.assertTrue(event1 instanceof OrderStatus);
         OrderStatus orderStatus1 = (OrderStatus) event1;
         Assert.assertEquals("14685d97784", orderStatus1.getIntId());
-        Assert.assertEquals("ee54e171-39-07re-2", orderStatus1.getExtId());
+        Assert.assertEquals("ee54e171-9-12lv", orderStatus1.getExtId());
         Assert.assertEquals(Status.SUBMITTED, orderStatus1.getStatus());
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(0, orderStatus1.getFilledQuantity());
@@ -142,7 +142,7 @@ public class TestRTFixOrderMessageHandler {
         Assert.assertTrue(event1 instanceof OrderStatus);
         OrderStatus orderStatus1 = (OrderStatus) event1;
         Assert.assertEquals("1468588c149", orderStatus1.getIntId());
-        Assert.assertEquals("ee54e171-39-07qy-3", orderStatus1.getExtId());
+        Assert.assertEquals("ee54e171-9-12lg", orderStatus1.getExtId());
         Assert.assertEquals(Status.EXECUTED, orderStatus1.getStatus());
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(100, orderStatus1.getFilledQuantity());

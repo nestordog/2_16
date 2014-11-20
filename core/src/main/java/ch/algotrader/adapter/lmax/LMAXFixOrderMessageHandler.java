@@ -77,7 +77,7 @@ public class LMAXFixOrderMessageHandler extends AbstractFix44OrderMessageHandler
         Status status = getStatus(execType, executionReport.getOrderQty(), executionReport.getCumQty());
         long filledQuantity = Math.round(executionReport.getCumQty().getValue() * MULTPLIER);
         long remainingQuantity = Math.round((executionReport.getOrderQty().getValue() - executionReport.getCumQty().getValue()) * MULTPLIER);
-        String extId = executionReport.getExecID().getValue();
+        String extId = executionReport.getOrderID().getValue();
         String intId = executionReport.getClOrdID().getValue();
 
         // assemble the orderStatus

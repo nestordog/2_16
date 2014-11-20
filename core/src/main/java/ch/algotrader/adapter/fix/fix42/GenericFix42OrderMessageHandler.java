@@ -77,7 +77,7 @@ public class GenericFix42OrderMessageHandler extends AbstractFix42OrderMessageHa
         Status status = getStatus(execType, executionReport.getCumQty());
         long filledQuantity = (long) executionReport.getCumQty().getValue();
         long remainingQuantity = (long) (executionReport.getOrderQty().getValue() - executionReport.getCumQty().getValue());
-        String extId = executionReport.getExecID().getValue();
+        String extId = executionReport.getOrderID().getValue();
         String intId = executionReport.getClOrdID().getValue();
 
         // assemble the orderStatus
