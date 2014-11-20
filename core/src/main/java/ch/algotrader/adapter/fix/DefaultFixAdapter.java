@@ -24,12 +24,15 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.lang.Validate;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.ordermgmt.OrderIdGenerator;
 import ch.algotrader.service.LookupService;
+import ch.algotrader.util.MyLogger;
 import quickfix.ConfigError;
 import quickfix.FieldConvertError;
 import quickfix.Message;
@@ -45,6 +48,8 @@ import quickfix.SocketInitiator;
  * @version $Revision$ $Date$
  */
 public class DefaultFixAdapter implements FixAdapter {
+
+    private static final Logger LOGGER = MyLogger.getLogger(AbstractFixApplication.class.getName());
 
     private final Lock lock;
     private final SocketInitiator socketInitiator;
@@ -84,6 +89,14 @@ public class DefaultFixAdapter implements FixAdapter {
     public void createSession(OrderServiceType orderServiceType) throws FixApplicationException {
 
         Collection<String> sessionQualifiers = this.lookupService.getActiveSessionsByOrderServiceType(orderServiceType);
+        if (sessionQualifiers == null || sessionQualifiers.isEmpty()) {
+
+            if (LOGGER.isEnabledFor(Level.WARN)) {
+
+                LOGGER.warn("There are no active sessions for order service type " + orderServiceType);
+            }
+            return;
+        }
         for (String sessionQualifier : sessionQualifiers) {
             createSession(sessionQualifier);
         }
@@ -93,6 +106,14 @@ public class DefaultFixAdapter implements FixAdapter {
     public void openSession(OrderServiceType orderServiceType) throws FixApplicationException {
 
         Collection<String> sessionQualifiers = this.lookupService.getActiveSessionsByOrderServiceType(orderServiceType);
+        if (sessionQualifiers == null || sessionQualifiers.isEmpty()) {
+
+            if (LOGGER.isEnabledFor(Level.WARN)) {
+
+                LOGGER.warn("There are no active sessions for order service type " + orderServiceType);
+            }
+            return;
+        }
         for (String sessionQualifier : sessionQualifiers) {
             openSession(sessionQualifier);
         }
