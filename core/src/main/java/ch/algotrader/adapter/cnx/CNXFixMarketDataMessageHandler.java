@@ -35,6 +35,7 @@ import quickfix.field.MDEntryPx;
 import quickfix.field.MDEntrySize;
 import quickfix.field.MDEntryType;
 import quickfix.field.MDReqID;
+import quickfix.field.MDUpdateAction;
 import quickfix.field.NoMDEntries;
 import quickfix.field.SendingTime;
 import quickfix.fix44.MarketDataIncrementalRefresh;
@@ -61,8 +62,13 @@ public class CNXFixMarketDataMessageHandler extends AbstractFix44MarketDataMessa
         for (int i = 1; i <= count; i++) {
 
             Group group = marketData.getGroup(i, NoMDEntries.FIELD);
-            char entryType = group.getChar(MDEntryType.FIELD);
+            char updateAction = group.getChar(MDUpdateAction.FIELD);
+            if (updateAction != MDUpdateAction.NEW && updateAction != MDUpdateAction.CHANGE) {
 
+                continue;
+            }
+
+            char entryType = group.getChar(MDEntryType.FIELD);
             if (entryType == MDEntryType.BID || entryType == MDEntryType.OFFER) {
 
                 double price = group.getDouble(MDEntryPx.FIELD);

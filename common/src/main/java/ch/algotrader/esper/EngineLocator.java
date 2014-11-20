@@ -126,7 +126,7 @@ public class EngineLocator {
      */
     public void sendEvent(String engineName, Object obj) {
 
-        if (CONFIG.isSimulation() || CONFIG.isSingleVM()) {
+        if (CONFIG.isSimulation() || CONFIG.isEmbedded()) {
 
             if (hasEngine(engineName)) {
                 getEngine(engineName).sendEvent(obj);
@@ -153,7 +153,7 @@ public class EngineLocator {
      */
     public void sendMarketDataEvent(final MarketDataEvent marketDataEvent) {
 
-        if (CONFIG.isSimulation() || CONFIG.isSingleVM()) {
+        if (CONFIG.isSimulation() || CONFIG.isEmbedded()) {
             for (Subscription subscription : marketDataEvent.getSecurity().getSubscriptions()) {
                 if (!subscription.getStrategyInitialized().getName().equals(StrategyImpl.SERVER)) {
                     String strategyName = subscription.getStrategy().getName();
@@ -185,7 +185,7 @@ public class EngineLocator {
      */
     public void sendGenericEvent(final GenericEventVO event) {
 
-        if (CONFIG.isSimulation() || CONFIG.isSingleVM()) {
+        if (CONFIG.isSimulation() || CONFIG.isEmbedded()) {
             for (Engine engine : this.engines.values()) {
                 String engineName = engine.getName();
                 if (engineName.equals(event.getStrategyName())) {

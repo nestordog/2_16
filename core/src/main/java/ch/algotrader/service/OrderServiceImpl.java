@@ -29,6 +29,7 @@ import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Predicate;
 import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -79,6 +80,8 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
 
     private final CommonConfig commonConfig;
 
+    private final SessionFactory sessionFactory;
+
     private final OrderDao orderDao;
 
     private final OrderStatusDao orderStatusDao;
@@ -92,6 +95,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
     private final OrderPersistenceService orderPersistService;
 
     public OrderServiceImpl(final CommonConfig commonConfig,
+            final SessionFactory sessionFactory,
             final OrderDao orderDao,
             final OrderStatusDao orderStatusDao,
             final StrategyDao strategyDao,
@@ -100,6 +104,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
             final OrderPersistenceService orderPersistStrategy) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
+        Validate.notNull(sessionFactory, "SessionFactory is null");
         Validate.notNull(orderDao, "OrderDao is null");
         Validate.notNull(orderStatusDao, "OrderStatusDao is null");
         Validate.notNull(strategyDao, "StrategyDao is null");
@@ -108,6 +113,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
         Validate.notNull(orderPersistStrategy, "OrderPersistStrategy is null");
 
         this.commonConfig = commonConfig;
+        this.sessionFactory = sessionFactory;
         this.orderDao = orderDao;
         this.orderStatusDao = orderStatusDao;
         this.strategyDao = strategyDao;
@@ -437,26 +443,25 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
             return Collections.emptyMap();
         }
 
-        List<Integer> pendingOrderIds = new ArrayList<Integer>(unacknowledgedOrderIds.size() + pendingOrderStati.size());
+        List<Integer> pendingOrderIds = new ArrayList<>(unacknowledgedOrderIds.size() + pendingOrderStati.size());
+        Map<Integer, OrderStatus> orderStatusMap = new HashMap<>(pendingOrderStati.size());
         for (OrderStatus pendingOrderStatus: pendingOrderStati) {
-            pendingOrderIds.add(pendingOrderStatus.getOrder().getId());
+
+            int orderId = pendingOrderStatus.getOrder().getId();
+            pendingOrderIds.add(orderId);
+            orderStatusMap.put(orderId, pendingOrderStatus);
         }
         pendingOrderIds.addAll(unacknowledgedOrderIds);
 
+        // Clear session to evict Order proxies associated with order stati
+        this.sessionFactory.getCurrentSession().clear();
+
         List<Order> orderList = this.orderDao.findByIds(pendingOrderIds);
-
-        Map<Order, OrderStatus> pendingOrderMap = new HashMap<Order, OrderStatus>(orderList.size());
-        for (OrderStatus pendingOrderStatus: pendingOrderStati) {
-
-            pendingOrderMap.put(pendingOrderStatus.getOrder(), pendingOrderStatus);
-        }
-
+        Map<Order, OrderStatus> pendingOrderMap = new HashMap<>(pendingOrderIds.size());
         for (Order pendingOrder: orderList) {
 
-            if (!pendingOrderMap.containsKey(pendingOrder)) {
-
-                pendingOrderMap.put(pendingOrder, null);
-            }
+            OrderStatus orderStatus = orderStatusMap.get(pendingOrder.getId());
+            pendingOrderMap.put(pendingOrder, orderStatus);
         }
 
         return pendingOrderMap;

@@ -138,12 +138,13 @@
 
     <bean id="orderService" class="ch.algotrader.service.OrderServiceImpl" >
         <constructor-arg index="0" ref="commonConfig"/>
-        <constructor-arg index="1" ref="orderDao"/>
-        <constructor-arg index="2" ref="orderStatusDao"/>
-        <constructor-arg index="3" ref="strategyDao"/>
-        <constructor-arg index="4" ref="securityDao"/>
-        <constructor-arg index="5" ref="accountDao"/>
-        <constructor-arg index="6" ref="orderPersistenceService"/>
+        <constructor-arg index="1" ref="sessionFactory"/>
+        <constructor-arg index="2" ref="orderDao"/>
+        <constructor-arg index="3" ref="orderStatusDao"/>
+        <constructor-arg index="4" ref="strategyDao"/>
+        <constructor-arg index="5" ref="securityDao"/>
+        <constructor-arg index="6" ref="accountDao"/>
+        <constructor-arg index="7" ref="orderPersistenceService"/>
     </bean>
 
     <bean id="combinationService" class="ch.algotrader.service.CombinationServiceImpl" >

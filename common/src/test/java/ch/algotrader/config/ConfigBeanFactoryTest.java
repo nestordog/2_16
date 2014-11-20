@@ -83,7 +83,7 @@ public class ConfigBeanFactoryTest {
         Assert.assertTrue(atConfig.isSimulation());
         Assert.assertEquals(new BigDecimal("500.5"), atConfig.getSimulationInitialBalance());
         Assert.assertEquals(true, atConfig.isSimulationLogTransactions());
-        Assert.assertTrue(atConfig.isSingleVM());
+        Assert.assertTrue(atConfig.isEmbedded());
         Assert.assertEquals(5, atConfig.getPortfolioDigits());
         Assert.assertEquals(Currency.EUR, atConfig.getPortfolioBaseCurrency());
         Assert.assertEquals(new BigDecimal("1.52"), atConfig.getInitialMarginMarkup());

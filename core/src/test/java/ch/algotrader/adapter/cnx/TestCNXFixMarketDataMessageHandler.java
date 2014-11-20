@@ -142,4 +142,19 @@ public class TestCNXFixMarketDataMessageHandler {
         Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
     }
 
+    @Test
+    public void testMarketDataIncrementalRefreshActionDelete() throws Exception {
+
+        String s = "8=FIX.4.4|9=136|35=X|34=84|49=CNX|52=20141120-12:15:29.980|56=cmsg071414str|262=USD/CHF|" +
+                "268=2|279=2|269=0|278=5|55=USD/CHF|279=2|269=1|278=6|55=USD/CHF|10=238|";
+
+        MarketDataIncrementalRefresh incrementalRefresh = FixTestUtils.parseFix44Message(s, MarketDataIncrementalRefresh.class);
+        Assert.assertNotNull(incrementalRefresh);
+
+        this.impl.onMessage(incrementalRefresh, FixTestUtils.fakeFix44Session());
+
+        Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
+    }
+
+
 }

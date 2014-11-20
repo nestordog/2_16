@@ -147,7 +147,7 @@ public final class CommonConfig {
         return this.simulationLogTransactions;
     }
 
-    public boolean isSingleVM() {
+    public boolean isEmbedded() {
         return this.embedded;
     }
 
