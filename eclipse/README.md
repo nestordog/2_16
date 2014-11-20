@@ -4,14 +4,18 @@ AlgoTrader Eclipse Feature
 Project structure
 -----------------
 
-wrapper
-  - wraps non-OSGi AlgoTrader modules and their dependencies to OSGi bundle
-wizard
-  - implements wizard plugin
 config-editor
   - implements configuration editor
+eclipse-colorer
+  - contains modified version of net.sf.colorer_0.9.9.jar
 feature
-  - implements AlgoTrader Feature, including wrapper, wizard and config-editor.
+  - implements AlgoTrader Feature, including config-editor, wizard, wrapper and eclipse-colorer.
+repository
+  - implements AlgoTrader Eclipse P2 Repository, including AlgoTrader Feature
+wizard
+  - implements wizard plugin
+wrapper
+  - wraps non-OSGi AlgoTrader modules and their dependencies to OSGi bundle
 
 How to compile
 --------------

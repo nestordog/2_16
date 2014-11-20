@@ -166,6 +166,6 @@ This Agreement will be interpreted and construed in accordance with the laws of 
          download-size="0"
          install-size="0"
          version="0.0.0"
-         unpack="false"/>
+         unpack="true"/>
 
 </feature>
