@@ -29,6 +29,7 @@ import org.apache.commons.lang.StringUtils;
 import com.espertech.esper.collection.Pair;
 
 import ch.algotrader.enumeration.Status;
+import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.vo.OrderStatusVO;
 
@@ -60,11 +61,12 @@ public class OrderStatusDaoImpl extends OrderStatusDaoBase {
     @Override
     protected Collection<OrderStatusVO> handleFindOrderStatiByStrategy(String strategyName) throws Exception {
 
-        Collection<Pair<Order, Map<String, ?>>> pairs;
+        Collection<Pair<Order, Map<String, ?>>> pairs = new ArrayList<Pair<Order, Map<String, ?>>>();
         if (EngineLocator.instance().hasServerEngine()) {
-            pairs = EngineLocator.instance().getServerEngine().executeQuery("select * from OpenOrderWindow where strategy.name = '" + strategyName + "'");
-        } else {
-            pairs = new ArrayList<Pair<Order, Map<String, ?>>>();
+            Engine engine = EngineLocator.instance().getServerEngine();
+            if(engine.isDeployed("OPEN_ORDER_WINDOW")) {
+                pairs = engine.executeQuery("select * from OpenOrderWindow where strategy.name = '" + strategyName + "'");
+            }
         }
         return convertPairCollectionToOrderStatusVOCollection(pairs);
     }

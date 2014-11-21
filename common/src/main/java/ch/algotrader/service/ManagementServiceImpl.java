@@ -446,7 +446,7 @@ public class ManagementServiceImpl implements ManagementService {
             @ManagedOperationParameter(name = "side", description = "<html>Side: <ul> <li> B (BUY) </li> <li> S (SELL) </li> <li> SS (SELL_SHORT) </li> </ul></html>"),
             @ManagedOperationParameter(name = "type", description = "<html>Order type: <ul> <li> M (Market) </li> <li> L (Limit) </li> <li> S (Stop) </li> <li> SL (StopLimit) </li> <li> TI (TickwiseIncremental) </li> <li> VI (VariableIncremental) </li> <li> SLI (Slicing) </li> </ul> or order preference (e.g. 'FVIX' or 'OVIX')</html>"),
             @ManagedOperationParameter(name = "accountName", description = "accountName"),
-            @ManagedOperationParameter(name = "properties", description = "Additional properties to be set on the order as a comma separated list (e.g. stop=12.0,limit=12.5)") })
+            @ManagedOperationParameter(name = "properties", description = "<html>Additional properties to be set on the order as a comma separated list (e.g. stop=12.0,limit=12.5).<p> In addition custom properties can be set on the order (e.g. FIX123=12, INTERNALportfolio=TEST)</hmlt>") })
     public void sendOrder(final String security, final long quantity, final String side, final String type, final String accountName, final String properties) {
 
         Validate.notEmpty(security, "Security is empty");
@@ -534,6 +534,7 @@ public class ManagementServiceImpl implements ManagementService {
                     name = name.substring(2);
                     orderProperty.setType(OrderPropertyType.IB);
                 } else {
+                    name = name.substring(8);
                     orderProperty.setType(OrderPropertyType.INTERNAL);
                 }
                 orderProperty.setName(name);

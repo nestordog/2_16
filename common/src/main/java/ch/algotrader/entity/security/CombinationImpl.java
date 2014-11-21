@@ -147,7 +147,9 @@ public class CombinationImpl extends Combination {
     public int hashCode() {
 
         int hash = 17;
-        hash = hash * 37 + this.getUuid().hashCode();
+        if (this.getUuid() != null) {
+            hash =  hash * 37 + this.getUuid().hashCode();
+        }
         return hash;
     }
 }
