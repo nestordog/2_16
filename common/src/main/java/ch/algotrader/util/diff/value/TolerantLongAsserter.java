@@ -33,7 +33,7 @@ public class TolerantLongAsserter implements ValueAsserter<Long> {
             if (this == ABSOLUTE) {
                 return tolerance;
             }
-            return (long)Math.floor(Math.pow(10d, Math.min(log10(value1), log10(value2)) - tolerance));
+            return (long)Math.floor(Math.pow(10d, Math.min(log10(value1), log10(value2)) + tolerance));
         }
 
         private static double log10(long value) {
