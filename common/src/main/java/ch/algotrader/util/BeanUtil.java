@@ -33,7 +33,7 @@ import org.apache.commons.beanutils.ConvertUtilsBean;
  */
 public class BeanUtil {
 
-    private static BeanUtilsBean beanUtilsBean = new BeanUtilsBean(new ConvertUtilsBean() {
+    private static BeanUtilsBean UTILS = new BeanUtilsBean(new ConvertUtilsBean() {
         @Override
         @SuppressWarnings({ "unchecked", "rawtypes" })
         public Object convert(String value, Class clazz) {
@@ -49,13 +49,24 @@ public class BeanUtil {
      *  Populates an arbitrary object with values from the specified map. Only matching fields are populated.
      */
     public static void populate(Object bean, Map<String, ?> properties) throws IllegalAccessException, InvocationTargetException {
-        beanUtilsBean.populate(bean, properties);
+        UTILS.populate(bean, properties);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> T clone(T bean) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, InstantiationException {
+        return (T) UTILS.cloneBean(bean);
+    }
+
+    public static <T> T cloneAndPopulate(T bean, Map<String, ?> properties) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, InstantiationException {
+        T clone = clone(bean);
+        populate(clone, properties);
+        return clone;
     }
 
     /**
      * Returns a list of PropertyDescriptiors for the specified bean
      */
     public static PropertyDescriptor[] getPropertyDescriptors(Object bean) {
-        return beanUtilsBean.getPropertyUtils().getPropertyDescriptors(bean);
+        return UTILS.getPropertyUtils().getPropertyDescriptors(bean);
     }
 }

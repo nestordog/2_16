@@ -273,9 +273,9 @@ public class CNXFixOrderMessageHandlerTest {
         LimitOrder order = new LimitOrderImpl();
         order.setAccount(testAccount);
         order.setSecurity(forex);
-        order.setQuantity(100000);
+        order.setQuantity(1000);
         order.setSide(Side.BUY);
-        order.setLimit(new BigDecimal("35.0"));
+        order.setLimit(new BigDecimal("1.0"));
 
         NewOrderSingle message1 = messageFactory.createNewOrderMessage(order, orderId1);
 
@@ -292,9 +292,11 @@ public class CNXFixOrderMessageHandlerTest {
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(0, orderStatus1.getFilledQuantity());
 
+        order.setIntId(orderStatus1.getIntId());
+        order.setExtId(orderStatus1.getExtId());
+
         String orderId2 = Long.toHexString(System.currentTimeMillis());
 
-        order.setIntId(orderId1);
         OrderCancelRequest message2 = messageFactory.createOrderCancelMessage(order, orderId2);
 
         Mockito.when(lookupService.getOpenOrderByRootIntId(orderId2)).thenReturn(order);
@@ -310,7 +312,7 @@ public class CNXFixOrderMessageHandlerTest {
         Assert.assertEquals(Status.CANCELED, orderStatus2.getStatus());
         Assert.assertSame(order, orderStatus2.getOrder());
         Assert.assertEquals(0, orderStatus2.getFilledQuantity());
-        Assert.assertEquals(100000, orderStatus2.getRemainingQuantity());
+        Assert.assertEquals(1000, orderStatus2.getRemainingQuantity());
 
         Object event3 = eventQueue.poll(5, TimeUnit.SECONDS);
         Assert.assertNull(event3);
@@ -334,9 +336,9 @@ public class CNXFixOrderMessageHandlerTest {
         LimitOrder order = new LimitOrderImpl();
         order.setAccount(testAccount);
         order.setSecurity(forex);
-        order.setQuantity(100000);
+        order.setQuantity(1000);
         order.setSide(Side.BUY);
-        order.setLimit(new BigDecimal("35.0"));
+        order.setLimit(new BigDecimal("1.0"));
 
         NewOrderSingle message1 = messageFactory.createNewOrderMessage(order, orderId1);
 
@@ -353,10 +355,12 @@ public class CNXFixOrderMessageHandlerTest {
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(0, orderStatus1.getFilledQuantity());
 
+        order.setIntId(orderStatus1.getIntId());
+        order.setExtId(orderStatus1.getExtId());
+
         String orderId2 = Long.toHexString(System.currentTimeMillis());
 
-        order.setIntId(orderId1);
-        order.setLimit(new BigDecimal("30.0"));
+        order.setLimit(new BigDecimal("1.01"));
 
         OrderCancelReplaceRequest message2 = messageFactory.createModifyOrderMessage(order, orderId2);
 
@@ -373,7 +377,10 @@ public class CNXFixOrderMessageHandlerTest {
         Assert.assertEquals(Status.SUBMITTED, orderStatus2.getStatus());
         Assert.assertSame(order, orderStatus2.getOrder());
         Assert.assertEquals(0, orderStatus2.getFilledQuantity());
-        Assert.assertEquals(100000, orderStatus2.getRemainingQuantity());
+        Assert.assertEquals(1000, orderStatus2.getRemainingQuantity());
+
+        order.setIntId(orderStatus2.getIntId());
+        order.setExtId(orderStatus2.getExtId());
 
         String orderId3 = Long.toHexString(System.currentTimeMillis());
 
@@ -392,7 +399,7 @@ public class CNXFixOrderMessageHandlerTest {
         Assert.assertEquals(Status.CANCELED, orderStatus3.getStatus());
         Assert.assertSame(order, orderStatus3.getOrder());
         Assert.assertEquals(0, orderStatus3.getFilledQuantity());
-        Assert.assertEquals(100000, orderStatus3.getRemainingQuantity());
+        Assert.assertEquals(1000, orderStatus3.getRemainingQuantity());
 
         Object event4 = eventQueue.poll(5, TimeUnit.SECONDS);
         Assert.assertNull(event4);

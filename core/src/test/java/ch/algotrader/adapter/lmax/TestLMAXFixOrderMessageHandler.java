@@ -113,7 +113,7 @@ public class TestLMAXFixOrderMessageHandler {
         Assert.assertTrue(event1 instanceof OrderStatus);
         OrderStatus orderStatus1 = (OrderStatus) event1;
         Assert.assertEquals("144d196a0cf", orderStatus1.getIntId());
-        Assert.assertEquals("IcjSDQAAAAJoCIaf", orderStatus1.getExtId());
+        Assert.assertEquals("AAIm0gAAAAAVcFaM", orderStatus1.getExtId());
         Assert.assertEquals(Status.SUBMITTED, orderStatus1.getStatus());
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(0, orderStatus1.getFilledQuantity());
@@ -155,7 +155,7 @@ public class TestLMAXFixOrderMessageHandler {
         Assert.assertTrue(event1 instanceof OrderStatus);
         OrderStatus orderStatus1 = (OrderStatus) event1;
         Assert.assertEquals("144d196a0cf", orderStatus1.getIntId());
-        Assert.assertEquals("IcjSDQAAAAJoCIag", orderStatus1.getExtId());
+        Assert.assertEquals("AAIm0gAAAAAVcFaM", orderStatus1.getExtId());
         Assert.assertEquals(Status.EXECUTED, orderStatus1.getStatus());
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(100000, orderStatus1.getFilledQuantity());

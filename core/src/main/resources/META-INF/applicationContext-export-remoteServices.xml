@@ -107,19 +107,16 @@
         <property name="serviceInterface" value="ch.algotrader.service.CalendarService"/>
     </bean>
 
+    <!-- LazyLoaderService Remote Service exporter  -->
+    <bean name="LazyLoaderService" class="org.springframework.remoting.rmi.RmiServiceExporter">
+        <property name="serviceName" value="LazyLoaderService"/>
+        <property name="registryPort" value="${remotePort}"/>
+        <property name="servicePort" value="${remoteServicePort}"/>
+        <property name="service" ref="lazyLoaderService"/>
+        <property name="serviceInterface" value="ch.algotrader.service.LazyLoaderService"/>
+    </bean>
 
     <!-- ==================== Start of PROFILE REMOTE SERVICE DEFINITIONS ===================== -->
-
-    <beans profile="server">
-        <!-- LazyLoaderService Remote Service exporter  -->
-        <bean name="LazyLoaderService" class="org.springframework.remoting.rmi.RmiServiceExporter">
-            <property name="serviceName" value="LazyLoaderService"/>
-            <property name="registryPort" value="${remotePort}"/>
-            <property name="servicePort" value="${remoteServicePort}"/>
-            <property name="service" ref="lazyLoaderService"/>
-            <property name="serviceInterface" value="ch.algotrader.service.LazyLoaderService"/>
-        </bean>
-    </beans>
 
     <beans profile="iBHistoricalData,bBHistoricalData">
         <!-- HistoricalDataService Remote Service exporter  -->

@@ -213,15 +213,13 @@
         <constructor-arg index="2" ref="lookupService"/>
     </bean>
 
+    <bean id="lazyLoaderService" class="ch.algotrader.service.LazyLoaderServiceImpl" >
+        <constructor-arg index="0" ref="sessionFactory"/>
+    </bean>
+
   <!-- ========================= End of SERVICE DEFINITIONS ========================= -->
 
     <!-- ========================= Start of PROFILE SERVICE DEFINITIONS ========================= -->
-
-    <beans profile="server">
-        <bean id="lazyLoaderService" class="ch.algotrader.service.LazyLoaderServiceImpl" >
-            <constructor-arg index="0" ref="sessionFactory"/>
-        </bean>
-    </beans>
 
     <beans profile="simulation,noopSimulation">
         <bean id="simulationService" class="ch.algotrader.service.SimulationServiceImpl" >
