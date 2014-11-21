@@ -94,19 +94,35 @@ public class OrderPersistenceServiceImpl implements OrderPersistenceService {
 
         try {
             if (order instanceof MarketOrder) {
-                this.marketOrderDao.create((MarketOrder) order);
+                if (order.getId() == 0) {
+                    this.marketOrderDao.create((MarketOrder) order);
+                } else {
+                    this.marketOrderDao.update((MarketOrder) order);
+                }
             } else if (order instanceof LimitOrder) {
-                this.limitOrderDao.create((LimitOrder) order);
+                if (order.getId() == 0) {
+                    this.limitOrderDao.create((LimitOrder) order);
+                } else {
+                    this.limitOrderDao.update((LimitOrder) order);
+                }
             } else if (order instanceof StopOrder) {
-                this.stopOrderDao.create((StopOrder) order);
+                if (order.getId() == 0) {
+                    this.stopOrderDao.create((StopOrder) order);
+                } else {
+                    this.stopOrderDao.update((StopOrder) order);
+                }
             } else if (order instanceof StopLimitOrder) {
-                this.stopLimitOrderDao.create((StopLimitOrder) order);
+                if (order.getId() == 0) {
+                    this.stopLimitOrderDao.create((StopLimitOrder) order);
+                } else {
+                    this.stopLimitOrderDao.update((StopLimitOrder) order);
+                }
             } else {
                 throw new IllegalStateException("Unexpected order type " + order.getClass());
             }
 
             // save order properties
-            if (order.getOrderProperties() != null && order.getOrderProperties().size() != 0) {
+            if (order.getOrderProperties() != null && !order.getOrderProperties().isEmpty()) {
                 for (OrderProperty orderProperty : order.getOrderProperties().values()) {
                     this.orderPropertyDao.create(orderProperty);
                 }
@@ -122,7 +138,11 @@ public class OrderPersistenceServiceImpl implements OrderPersistenceService {
     public void persistOrderStatus(final OrderStatus orderStatus) {
 
         try {
-            this.orderStatusDao.create(orderStatus);
+            if (orderStatus.getId() == 0) {
+                this.orderStatusDao.create(orderStatus);
+            } else {
+                this.orderStatusDao.update(orderStatus);
+            }
         } catch (Exception e) {
             logger.error("problem creating orderStatus", e);
         }
