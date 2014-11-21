@@ -104,11 +104,7 @@ public final class IBSession extends EClientSocket implements InitializingServic
             sleep();
         }
 
-        while (!connectionAvailable()) {
-            sleep();
-        }
-
-        eConnect(this.host, this.port, this.clientId);
+        waitAndConnect();
 
         if (isConnected()) {
             this.sessionLifecycle.connect();
@@ -149,25 +145,29 @@ public final class IBSession extends EClientSocket implements InitializingServic
         }
     }
 
-    private boolean connectionAvailable() {
+    private void waitAndConnect() {
 
-        Socket socket = new Socket();
-        try {
-            socket.connect(new InetSocketAddress(this.host, this.port), 5000);
-            return true;
-        } catch (ConnectException e) {
-            // do nothing, gateway is down
-            logger.info("please start IB Gateway / TWS on port: " + this.port);
-            return false;
-        } catch (IOException e) {
-            logger.error("connection error", e);
-            return false;
-        } finally {
+        for (;;) {
+
+            Socket socket = new Socket();
+            try {
+                socket.connect(new InetSocketAddress(this.host, this.port), 5000);
+                eConnect(socket, this.clientId);
+                return;
+            } catch (ConnectException e) {
+                // do nothing, gateway is down
+                logger.info("please start IB Gateway / TWS on port: " + this.port);
+            } catch (IOException e) {
+                logger.error("connection error", e);
+            }
             try {
                 socket.close();
             } catch (IOException ignore) {
             }
+
+            sleep();
         }
+
     }
 
 }
