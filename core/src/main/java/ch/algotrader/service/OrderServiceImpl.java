@@ -24,6 +24,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Predicate;
@@ -295,16 +296,17 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
         Order order = this.orderDao.findOpenOrderByIntId(intId);
         if (order != null) {
 
-            // populate the properties
+            Order newOrder;
             try {
-                BeanUtil.populate(order, properties);
+                newOrder = BeanUtil.cloneAndPopulate(order, properties);
+                newOrder.setId(0);
             } catch (ReflectiveOperationException ex) {
                 throw new OrderServiceException(ex);
             }
 
-            internalModifyOrder(order);
+            internalModifyOrder(newOrder);
         } else {
-            throw new IllegalArgumentException("order does not exist " + intId);
+            throw new OrderServiceException("Unknown order id: " + intId, null);
         }
 
     }
@@ -404,14 +406,18 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
     @Override
     public void updateOrderId(final Order order, final String intId, final String extId) {
 
-        if (intId != null && !intId.equals(order.getIntId())) {
-            order.setIntId(intId);
-        }
+        if (Objects.equals(intId, order.getIntId()) || Objects.equals(extId, order.getExtId())) {
 
-        if (extId != null && !extId.equals(order.getExtId())) {
-            order.setExtId(extId);
-        }
+            if (intId != null) {
 
+                order.setIntId(intId);
+            }
+            if (extId != null) {
+
+                order.setExtId(extId);
+            }
+            this.orderPersistService.persistOrder(order);
+        }
     }
 
     /**
