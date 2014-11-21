@@ -94,12 +94,11 @@ public class TestCNXFixOrderMessageHandler {
         Assert.assertTrue(event1 instanceof OrderStatus);
         OrderStatus orderStatus1 = (OrderStatus) event1;
         Assert.assertEquals("1475f81bdee", orderStatus1.getIntId());
-        Assert.assertEquals("603430_58974", orderStatus1.getExtId());
+        Assert.assertEquals("2537951907", orderStatus1.getExtId());
         Assert.assertEquals(Status.SUBMITTED, orderStatus1.getStatus());
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(0, orderStatus1.getFilledQuantity());
         Assert.assertEquals(FixTestUtils.parseDateTime("20140722-19:17:24.000"), orderStatus1.getExtDateTime());
-        Assert.assertEquals("2537951907", order.getExtId());
         Assert.assertEquals(null, orderStatus1.getLastPrice());
         Assert.assertEquals(null, orderStatus1.getAvgPrice());
     }
@@ -139,7 +138,7 @@ public class TestCNXFixOrderMessageHandler {
         Assert.assertTrue(event1 instanceof OrderStatus);
         OrderStatus orderStatus1 = (OrderStatus) event1;
         Assert.assertEquals("1475f81bdee", orderStatus1.getIntId());
-        Assert.assertEquals("B2014203091ZN00", orderStatus1.getExtId());
+        Assert.assertEquals("2537951907", orderStatus1.getExtId());
         Assert.assertEquals(Status.EXECUTED, orderStatus1.getStatus());
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(2000L, orderStatus1.getFilledQuantity());
@@ -251,7 +250,7 @@ public class TestCNXFixOrderMessageHandler {
         Assert.assertTrue(event1 instanceof OrderStatus);
         OrderStatus orderStatus1 = (OrderStatus) event1;
         Assert.assertEquals("14764071b06", orderStatus1.getIntId());
-        Assert.assertEquals("603355_19486", orderStatus1.getExtId());
+        Assert.assertEquals("2532835877", orderStatus1.getExtId());
         Assert.assertEquals(Status.CANCELED, orderStatus1.getStatus());
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(0, orderStatus1.getFilledQuantity());
@@ -295,7 +294,7 @@ public class TestCNXFixOrderMessageHandler {
         Assert.assertTrue(event1 instanceof OrderStatus);
         OrderStatus orderStatus1 = (OrderStatus) event1;
         Assert.assertEquals("147648b2485", orderStatus1.getIntId());
-        Assert.assertEquals("603355_19934", orderStatus1.getExtId());
+        Assert.assertEquals("2532836283", orderStatus1.getExtId());
         Assert.assertEquals(Status.SUBMITTED, orderStatus1.getStatus());
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(0, orderStatus1.getFilledQuantity());

@@ -241,7 +241,7 @@ public class CNXIntegrationTest extends LocalServiceTest {
         order1.setSecurity(eurusd);
         order1.setAccount(account);
         order1.setStrategy(server);
-        order1.setQuantity(100000L);
+        order1.setQuantity(1000L);
         order1.setSide(Side.BUY);
         order1.setLimit(new BigDecimal(bestBid));
         order1.setTif(TIF.GTC);
@@ -252,7 +252,7 @@ public class CNXIntegrationTest extends LocalServiceTest {
 
         orderService.sendOrder(order1);
 
-        boolean confirmedOrder1 = false;
+        OrderStatus confirmedOrder1 = null;
         for (int i = 0; i < 20; i++) {
 
             Object event = eventQueue.poll(30, TimeUnit.SECONDS);
@@ -266,12 +266,16 @@ public class CNXIntegrationTest extends LocalServiceTest {
                 OrderStatus orderStatus = (OrderStatus) event;
                 Assert.assertEquals(Status.SUBMITTED, orderStatus.getStatus());
                 System.out.println("Limited order placed; internal id: " + orderStatus.getIntId() + "; external id: " + orderStatus.getExtId());
-                confirmedOrder1 = true;
+                confirmedOrder1 = orderStatus;
                 break;
             }
         }
-        Assert.assertTrue(confirmedOrder1);
-        boolean executedOrder1 = false;
+        Assert.assertNotNull(confirmedOrder1);
+
+        order1.setIntId(confirmedOrder1.getIntId());
+        order1.setExtId(confirmedOrder1.getExtId());
+
+        OrderStatus executedOrder1 = null;
         for (int i = 0; i < 20; i++) {
 
             Object event = eventQueue.poll(30, TimeUnit.SECONDS);
@@ -285,19 +289,19 @@ public class CNXIntegrationTest extends LocalServiceTest {
                 OrderStatus orderStatus = (OrderStatus) event;
                 Assert.assertEquals(Status.EXECUTED, orderStatus.getStatus());
                 System.out.println("Limited order executed; internal id: " + orderStatus.getIntId() + "; external id: " + orderStatus.getExtId());
-                executedOrder1 = true;
+                executedOrder1 = orderStatus;
                 break;
             }
         }
-        Assert.assertTrue(executedOrder1);
+        Assert.assertNotNull(executedOrder1);
 
         LimitOrder order2 = new LimitOrderImpl();
         order2.setSecurity(eurusd);
         order2.setAccount(account);
         order2.setStrategy(server);
-        order2.setQuantity(100000L);
+        order2.setQuantity(1000L);
         order2.setSide(Side.BUY);
-        order2.setLimit(new BigDecimal(bestBid).multiply(new BigDecimal("1.1")).setScale(5, BigDecimal.ROUND_HALF_DOWN));
+        order2.setLimit(new BigDecimal(bestBid).multiply(new BigDecimal("0.8")).setScale(5, BigDecimal.ROUND_HALF_DOWN));
         order2.setTif(TIF.GTC);
         order2.setDateTime(new Date());
 
@@ -308,7 +312,7 @@ public class CNXIntegrationTest extends LocalServiceTest {
 
         orderService.sendOrder(order2);
 
-        boolean confirmedOrder2 = false;
+        OrderStatus confirmedOrder2 = null;
         for (int i = 0; i < 20; i++) {
 
             Object event = eventQueue.poll(30, TimeUnit.SECONDS);
@@ -322,17 +326,49 @@ public class CNXIntegrationTest extends LocalServiceTest {
                 OrderStatus orderStatus = (OrderStatus) event;
                 Assert.assertEquals(Status.SUBMITTED, orderStatus.getStatus());
                 System.out.println("Limited order placed; internal id: " + orderStatus.getIntId() + "; external id: " + orderStatus.getExtId());
-                confirmedOrder2 = true;
+                confirmedOrder2 = orderStatus;
                 break;
             }
         }
-        Assert.assertTrue(confirmedOrder2);
+        Assert.assertNotNull(confirmedOrder2);
+
+        order2.setIntId(confirmedOrder2.getIntId());
+        order2.setExtId(confirmedOrder2.getExtId());
+
+        Thread.sleep(1000);
+
+        order2.setLimit(new BigDecimal(bestBid).multiply(new BigDecimal("0.9")).setScale(5, BigDecimal.ROUND_HALF_DOWN));
+
+        orderService.modifyOrder(order2);
+
+        OrderStatus confirmedOrder3 = null;
+        for (int i = 0; i < 20; i++) {
+
+            Object event = eventQueue.poll(30, TimeUnit.SECONDS);
+            if (event == null) {
+
+                Assert.fail("No event received within specific time limit");
+            }
+
+            if (event instanceof OrderStatus) {
+
+                OrderStatus orderStatus = (OrderStatus) event;
+                Assert.assertEquals(Status.SUBMITTED, orderStatus.getStatus());
+                System.out.println("Limited order modified; internal id: " + orderStatus.getIntId() + "; external id: " + orderStatus.getExtId());
+                confirmedOrder3 = orderStatus;
+                break;
+            }
+        }
+        Assert.assertNotNull(confirmedOrder3);
+
+        order2.setIntId(confirmedOrder3.getIntId());
+        order2.setExtId(confirmedOrder3.getExtId());
 
         Thread.sleep(1000);
 
         orderService.cancelOrder(order2);
 
-        boolean cancelledOrder2 = false;
+        OrderStatus cancelledOrder2 = null;
         for (int i = 0; i < 20; i++) {
 
             Object event = eventQueue.poll(30, TimeUnit.SECONDS);
@@ -346,11 +382,11 @@ public class CNXIntegrationTest extends LocalServiceTest {
                 OrderStatus orderStatus = (OrderStatus) event;
                 Assert.assertEquals(Status.CANCELED, orderStatus.getStatus());
                 System.out.println("Limited order cancelled; internal id: " + orderStatus.getIntId() + "; external id: " + orderStatus.getExtId());
-                cancelledOrder2 = true;
+                cancelledOrder2 = orderStatus;
                 break;
             }
         }
-        Assert.assertTrue(cancelledOrder2);
+        Assert.assertNotNull(cancelledOrder2);
     }
 
 }
