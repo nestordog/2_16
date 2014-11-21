@@ -141,7 +141,7 @@ public class OrderPersistenceServiceImpl implements OrderPersistenceService {
             if (orderStatus.getId() == 0) {
                 this.orderStatusDao.create(orderStatus);
             } else {
-                this.orderStatusDao.update(orderStatus);
+                logger.error("OrderStatus may not be updated");
             }
         } catch (Exception e) {
             logger.error("problem creating orderStatus", e);
