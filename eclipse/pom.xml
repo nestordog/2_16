@@ -16,7 +16,7 @@
     </prerequisites>
 
     <properties>
-        <tycho-version>0.20.0</tycho-version>
+        <tycho-version>0.21.0</tycho-version>
     </properties>
 
     <repositories>
@@ -29,6 +29,11 @@
             <id>nebula</id>
             <layout>p2</layout>
             <url>http://download.eclipse.org/technology/nebula/snapshot</url>
+        </repository>
+        <repository>
+            <id>eclipsecolorer</id>
+            <layout>p2</layout>
+            <url>file:${project.basedir}/../eclipse-colorer/repository</url>
         </repository>
     </repositories>
 
