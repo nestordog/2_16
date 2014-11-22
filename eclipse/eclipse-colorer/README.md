@@ -64,4 +64,14 @@ Eclipse-BundleShape: dir
 ```
 
 - repacked the directory back to "net.sf.colorer_0.9.9.jar"
+ 
+## .epl File association
+
+In case the .epl file association is missing in Eclipse  do the following in order to fix the problem:
+
+1. Delete the directory ~/.m2/repository/p2/osgi/bundle/net.sf.colorer/ (where ~ is user's home directory).
+2. cd algotrader/eclipse
+3. mvn package
+
+CHECK: the file algotrader/eclipse/repository/target/repository/plugins/net.sf.colorer_0.9.9.jar must contain the file "plugin.xml" containing string "%ColorerEditor.epl". When it does not, repository output includes stale version.
 
