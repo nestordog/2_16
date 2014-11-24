@@ -144,8 +144,8 @@
                 <property name="derivedModule">false</property>
 
                 <property name="applicationContext">META-INF/applicationContext.xml</property>
-                <property name="applicationContextClient">META-INF/applicationContext-import-remoteServices.xml</property>
-                <property name="applicationContextServer">META-INF/applicationContext-export-remoteServices.xml</property>
+<!--                 <property name="applicationContextClient">META-INF/applicationContext-import-remoteServices.xml</property> -->
+<!--                 <property name="applicationContextServer">META-INF/applicationContext-export-remoteServices.xml</property> -->
 <!--                 <property name="applicationContextOsgiExport">META-INF/applicationContext-export-osgiServices.xml</property> -->
 <!--                 <property name="applicationContextOsgiImport">META-INF/applicationContext-import-osgiServices.xml</property> -->
 
