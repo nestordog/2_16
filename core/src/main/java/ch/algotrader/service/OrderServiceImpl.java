@@ -514,6 +514,8 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
 
         // progapate the order to all corresponding esper engines
         propagateOrder(order);
+
+        EngineLocator.instance().getServerEngine().sendEvent(order);
     }
 
     private void internalCancelOrder(Order order) {
