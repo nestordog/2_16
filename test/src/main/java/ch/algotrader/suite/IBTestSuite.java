@@ -17,9 +17,11 @@
  ***********************************************************************************/
 package ch.algotrader.suite;
 
+import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
+import ch.algotrader.ServiceLocator;
 import ch.algotrader.cache.CacheTest;
 import ch.algotrader.service.HistoricalDataServiceTest;
 import ch.algotrader.service.OrderServiceTest;
@@ -37,4 +39,10 @@ import ch.algotrader.service.OrderServiceTest;
  })
 public class IBTestSuite {
 
+    @BeforeClass 
+    public static void setUpClass() {    
+        System.setProperty("spring.profiles.active", "singleDataSource,iBNative,iBMarketData,iBHistoricalData");
+        System.setProperty("misc.embedded", "true");
+        ServiceLocator.instance().init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
+    }
 }

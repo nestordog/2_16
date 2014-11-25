@@ -17,9 +17,11 @@
  ***********************************************************************************/
 package ch.algotrader.suite;
 
+import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
+import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.AccountTest;
 import ch.algotrader.entity.PositionTest;
 import ch.algotrader.entity.SubscriptionTest;
@@ -85,4 +87,8 @@ import ch.algotrader.entity.strategy.StrategyTest;
  })
 public class EntityTestSuite {
 
+    @BeforeClass 
+    public static void setUpClass() {    
+        System.setProperty("spring.profiles.active", "singleDataSource");
+    }
 }

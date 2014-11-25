@@ -46,6 +46,8 @@ public class OrderStatusTest extends LocalServiceTest {
     @Before
     public void setup() throws Exception {
 
+        System.setProperty("spring.profiles.active", "singleDataSource");
+
         this.sessionFactory = ServiceLocator.instance().getContext().getBean("sessionFactory", SessionFactory.class);
         this.session = SessionFactoryUtils.getNewSession(this.sessionFactory);
         TransactionSynchronizationManager.bindResource(this.sessionFactory, new SessionHolder(this.session));

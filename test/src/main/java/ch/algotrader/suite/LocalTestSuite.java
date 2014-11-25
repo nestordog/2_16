@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.suite;
 
+import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
@@ -37,4 +38,8 @@ import ch.algotrader.service.PortfolioPersistenceServiceTest;
  })
 public class LocalTestSuite {
 
+    @BeforeClass 
+    public static void setUpClass() {    
+        System.setProperty("spring.profiles.active", "singleDataSource");
+    }
 }
