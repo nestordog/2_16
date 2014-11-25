@@ -41,6 +41,7 @@ import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Predicate;
 import org.apache.commons.collections15.Transformer;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.core.io.Resource;
@@ -414,7 +415,7 @@ public class EngineImpl extends AbstractEngine {
             this.processing.get().set(false);
         }
 
-        MetricsUtil.accountEnd("EsperManager." + obj.getClass(), startTime);
+        MetricsUtil.accountEnd("EngineImpl." + engineName + "." + ClassUtils.getShortClassName(obj.getClass()), startTime);
     }
 
     @Override
