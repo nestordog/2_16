@@ -2,18 +2,18 @@ package ${package};
 
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.esper.EngineLocator;
-import ch.algotrader.starter.BaseStarter;
+import ch.algotrader.starter.ServerStarter;
 
 /**
  * This class starts the strategy in Live Trading Mode in a single VM
  */
-public class ${serviceName}EmbeddedStarter extends BaseStarter  {
+public class ${serviceName}EmbeddedStarter extends ServerStarter  {
 
     public static void main(String[] args) throws Exception {
 
-        ServiceLocator.instance().init(ServiceLocator.SINGLE_BEAN_REFERENCE_LOCATION);
+        ServiceLocator.instance().init(ServiceLocator.EMBEDDED_BEAN_REFERENCE_LOCATION);
 
-        startBase();
+        startServer();
 
         ${serviceName}Service ${serviceName.toLowerCase()}Service = ServiceLocator.instance().getService("${serviceName.toLowerCase()}Service", ${serviceName}Service.class);
         String strategyName = ${serviceName.toLowerCase()}Service.getStrategyName();
