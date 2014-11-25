@@ -1,10 +1,10 @@
 Version 2.2
-additional Fix 4.4 trading and market data interface:
+additional Fix trading and market data interface:
     LMAX
     FXCM
     Currenex
     DukasCopy (added market data interface)
-add calendar service Exchange Trading Hours and Holidays)
+add Calendar Service, Exchange, Trading Hours and Holidays)
 eclipse based strategy creation wizard
 eclipse based config editor
 new configuration manager
