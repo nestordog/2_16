@@ -38,8 +38,8 @@ import ch.algotrader.service.PortfolioPersistenceServiceTest;
  })
 public class LocalTestSuite {
 
-    @BeforeClass 
-    public static void setUpClass() {    
+    @BeforeClass
+    public static void setUpClass() {
         System.setProperty("spring.profiles.active", "singleDataSource");
     }
 }

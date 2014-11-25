@@ -39,8 +39,8 @@ import ch.algotrader.service.OrderServiceTest;
  })
 public class IBTestSuite {
 
-    @BeforeClass 
-    public static void setUpClass() {    
+    @BeforeClass
+    public static void setUpClass() {
         System.setProperty("spring.profiles.active", "singleDataSource,iBNative,iBMarketData,iBHistoricalData");
         System.setProperty("misc.embedded", "true");
         ServiceLocator.instance().init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
