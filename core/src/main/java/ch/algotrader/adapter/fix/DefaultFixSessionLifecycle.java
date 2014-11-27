@@ -19,6 +19,8 @@ package ch.algotrader.adapter.fix;
 
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.commons.lang.Validate;
+
 import ch.algotrader.enumeration.ConnectionState;
 
 /**
@@ -31,11 +33,19 @@ import ch.algotrader.enumeration.ConnectionState;
  */
 public class DefaultFixSessionLifecycle implements FixSessionLifecycle {
 
+    private final String name;
     private final AtomicReference<ConnectionState> connState;
 
-    public DefaultFixSessionLifecycle() {
+    public DefaultFixSessionLifecycle(final String name) {
 
-        this.connState = new AtomicReference<ConnectionState>(ConnectionState.DISCONNECTED);
+        Validate.notNull(name, "Name is null");
+        this.name = name;
+        this.connState = new AtomicReference<>(ConnectionState.DISCONNECTED);
+    }
+
+    @Override
+    public String getName() {
+        return this.name;
     }
 
     @Override

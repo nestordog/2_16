@@ -93,7 +93,7 @@ public class FXCMFixFeedMessageHandlerTest {
 
         this.messageHandler = Mockito.spy(new FXCMFixMarketDataMessageHandler());
 
-        DefaultFixSessionLifecycle fixSessionLifecycle = new DefaultFixSessionLifecycle();
+        DefaultFixSessionLifecycle fixSessionLifecycle = new DefaultFixSessionLifecycle("FXCM");
         FXCMFixApplication fixApplication = new FXCMFixApplication(sessionId, this.messageHandler, settings, fixSessionLifecycle);
 
         LogFactory logFactory = new ScreenLogFactory(true, true, true);

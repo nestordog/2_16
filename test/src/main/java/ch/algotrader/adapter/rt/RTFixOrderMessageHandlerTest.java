@@ -116,7 +116,7 @@ public class RTFixOrderMessageHandlerTest {
         this.messageHandler = Mockito.spy(messageHandlerImpl);
         this.messageFactory = new RTFixOrderMessageFactory(new GenericFix44SymbologyResolver());
 
-        DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, messageHandler, null, new DefaultFixSessionLifecycle());
+        DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, messageHandler, null, new DefaultFixSessionLifecycle("RT"));
 
         LogFactory logFactory = new ScreenLogFactory(true, true, true);
 

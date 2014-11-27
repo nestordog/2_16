@@ -92,7 +92,7 @@ public class LMAXFixFeedMessageHandlerTest {
 
         this.messageHandler = Mockito.spy(new LMAXFixMarketDataMessageHandler());
 
-        DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, this.messageHandler, logonHandler, new DefaultFixSessionLifecycle());
+        DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, this.messageHandler, logonHandler, new DefaultFixSessionLifecycle("LMAX"));
 
         LogFactory logFactory = new ScreenLogFactory(true, true, true);
 

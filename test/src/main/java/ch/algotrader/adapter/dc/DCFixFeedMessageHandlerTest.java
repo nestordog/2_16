@@ -88,7 +88,7 @@ public class DCFixFeedMessageHandlerTest {
 
         DefaultLogonMessageHandler dcLogonHandler = new DefaultLogonMessageHandler(settings);
 
-        DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, new DCFixMarketDataMessageHandler(), dcLogonHandler, new DefaultFixSessionLifecycle());
+        DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, new DCFixMarketDataMessageHandler(), dcLogonHandler, new DefaultFixSessionLifecycle("DC"));
 
         LogFactory logFactory = new CompositeLogFactory(new LogFactory[] { new SLF4JLogFactory(settings) });
 

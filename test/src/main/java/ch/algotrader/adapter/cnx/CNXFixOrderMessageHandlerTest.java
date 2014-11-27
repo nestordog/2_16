@@ -109,7 +109,7 @@ public class CNXFixOrderMessageHandlerTest {
         this.messageFactory = new CNXFixOrderMessageFactory();
 
         DefaultLogonMessageHandler logonMessageHandler = new DefaultLogonMessageHandler(settings);
-        DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, messageHandler, logonMessageHandler, new DefaultFixSessionLifecycle());
+        DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, messageHandler, logonMessageHandler, new DefaultFixSessionLifecycle("CNX"));
 
         LogFactory logFactory = new ScreenLogFactory(true, true, true);
 
