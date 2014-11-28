@@ -65,7 +65,7 @@ public class DefaultConfigLoader {
         this.resourceResolver = resourceResolver;
     }
 
-    void loadResource(final Map<String, String> paramMap, final Resource resource) throws IOException {
+    static void loadResource(final Map<String, String> paramMap, final Resource resource) throws IOException {
 
         if (resource == null || !resource.exists()) {
             return;
