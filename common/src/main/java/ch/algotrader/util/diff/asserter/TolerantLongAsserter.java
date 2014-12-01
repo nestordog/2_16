@@ -15,13 +15,13 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.util.diff.value;
+package ch.algotrader.util.diff.asserter;
 
 /**
  * Value asserter for long values comparing two values with a tolerance.
  * The tolerance can be absolute or relative to the magnitude of the compared values.
  */
-public class TolerantLongAsserter implements ValueAsserter<Long> {
+public class TolerantLongAsserter extends AbstractTypeSpecificAsserter<Long> {
 
     public static enum Mode {
         /** Use absolute tolerance for comparison */
@@ -33,7 +33,7 @@ public class TolerantLongAsserter implements ValueAsserter<Long> {
             if (this == ABSOLUTE) {
                 return tolerance;
             }
-            return (long)Math.floor(Math.pow(10d, Math.min(log10(value1), log10(value2)) + tolerance));
+            return (long) Math.floor(Math.pow(10d, Math.min(log10(value1), log10(value2)) + tolerance));
         }
 
         private static double log10(long value) {
@@ -47,6 +47,7 @@ public class TolerantLongAsserter implements ValueAsserter<Long> {
     public TolerantLongAsserter(long tolerance) {
         this(Mode.ABSOLUTE, tolerance);
     }
+
     public TolerantLongAsserter(Mode mode, long tolerance) {
         if (mode == Mode.RELATIVE && tolerance > -1) {
             throw new IllegalArgumentException("tolerance must be negative for mode " + Mode.RELATIVE);
@@ -56,33 +57,26 @@ public class TolerantLongAsserter implements ValueAsserter<Long> {
     }
 
     @Override
-    public Long convert(String column, String value) {
-        return LongAsserter.INSTANCE.convert(column, value);
-    }
-
-    @Override
-    public Class<? extends Long> type() {
+    protected Class<Long> type() {
         return Long.class;
     }
 
     @Override
-    public boolean equalValues(Long expectedValue, Object actualValue) {
-        if (expectedValue == actualValue) return true;
-        if (expectedValue != null && actualValue instanceof Long) {
-            final Long act = (Long)actualValue;
-            final double tol = mode.getTolerance(tolerance, expectedValue, act);
-            return expectedValue.equals(act) || Math.abs(expectedValue - act) <= tol;
+    protected boolean equalValuesTyped(Long expectedValue, Long actualValue) {
+        if (expectedValue == actualValue) {
+            return true;
+        }
+        if (expectedValue != null) {
+            final double tol = mode.getTolerance(tolerance, expectedValue, actualValue);
+            return expectedValue.equals(actualValue) || Math.abs(expectedValue - actualValue) <= tol;
         }
         return false;
     }
+
     @Override
-    public void assertValue(Long expectedValue, Object actualValue) {
-        if (actualValue instanceof Long) {
-            final Long act = (Long)actualValue;
-            final double tol = mode.getTolerance(tolerance, expectedValue, act);
-            Assert.assertEquals("Values don't match with " + mode.name().toLowerCase() + " tolerance=<" + tolerance + ">", expectedValue, act, tol);
-        } else {
-            Assert.fail("Actual value should be a long but was a " + (actualValue == null ? null : actualValue.getClass().getName()));
+    protected void assertValueTyped(Long expectedValue, Long actualValue) {
+        if (!equalValuesTyped(expectedValue, actualValue)) {
+            Assert.assertEquals("Values don't match with " + mode.name().toLowerCase() + " tolerance=<" + tolerance + ">", expectedValue, actualValue);
         }
     }
 }

@@ -15,26 +15,30 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.util.diff.value;
+package ch.algotrader.util.diff.asserter;
+
+import java.util.Objects;
 
 /**
- * Defines type and converter for a value.
+ * Asserter using object {@link Object#equals(Object) equality} to compare two values.
  *
- * @param <T> the value type
+ * @param <T> the (expected) value type
  */
-public interface ValueConverter<T> {
+public class EqualityValueAsserter implements ValueAsserter {
 
     /**
-     * Returns the class representing the type of the value
+     * Singleton instance.
      */
-    Class<? extends T> type();
+    public static final EqualityValueAsserter INSTANCE = new EqualityValueAsserter();
 
-    /**
-     * Converts the given string {@code value} into the appropriate type and
-     * returns it. Throws an exception if the conversion fails.
-     *
-     * @param column name of the column; used in exception if the conversion fails
-     * @param value the string value to convert
-     */
-    T convert(String column, String value);
+    @Override
+    public boolean equalValues(Object expectedValue, Object actualValue) {
+        return Objects.equals(expectedValue, actualValue);
+    }
+
+    @Override
+    public void assertValue(Object expectedValue, Object actualValue) {
+        Assert.assertEquals("Values are not equal", expectedValue, actualValue);
+    }
+
 }

@@ -15,18 +15,21 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.util.diff.value;
+package ch.algotrader.util.diff.convert;
 
 import java.util.Objects;
 
 /**
- * Wrapper around another asserter to allow nulls and empty strings.
+ * Wrapper around another converter to allow nulls and empty strings.
  */
-public class NullableAsserter<T> implements ValueAsserter<T> {
+public class NullableConverter<T> implements ValueConverter<T> {
 
     private static enum Mode {
+        /** Null is treated as null value*/
         NULL_TO_NULL,
+        /** An empty is treated as null value*/
         EMPTY_STRING_TO_NULL,
+        /** Null or an empty is treated as null value*/
         NULL_OR_EMPTY_STRING_TO_NULL;
 
         public boolean convertToNull(String value) {
@@ -41,42 +44,36 @@ public class NullableAsserter<T> implements ValueAsserter<T> {
     }
 
     private final Mode mode;
-    private final ValueAsserter<T> delegate;
+    private final ValueConverter<T> delegate;
 
-    public NullableAsserter(Mode mode, ValueAsserter<T> delegate) {
+    public NullableConverter(Mode mode, ValueConverter<T> delegate) {
         this.mode = Objects.requireNonNull(mode, "mode cannot be null");
         this.delegate = Objects.requireNonNull(delegate, "delegate cannot be null");
     }
 
-    public static <T> NullableAsserter<T> nullable(ValueAsserter<T> delegate) {
-        return new NullableAsserter<T>(Mode.NULL_TO_NULL, delegate);
+    public static <T> NullableConverter<T> nullable(ValueConverter<T> delegate) {
+        return new NullableConverter<T>(Mode.NULL_TO_NULL, delegate);
     }
-    public static <T> NullableAsserter<T> emptyStringToNull(ValueAsserter<T> delegate) {
-        return new NullableAsserter<T>(Mode.EMPTY_STRING_TO_NULL, delegate);
+
+    public static <T> NullableConverter<T> emptyStringToNull(ValueConverter<T> delegate) {
+        return new NullableConverter<T>(Mode.EMPTY_STRING_TO_NULL, delegate);
     }
-    public static <T> NullableAsserter<T> nullOrEmptyStringToNull(ValueAsserter<T> delegate) {
-        return new NullableAsserter<T>(Mode.NULL_OR_EMPTY_STRING_TO_NULL, delegate);
+
+    public static <T> NullableConverter<T> nullOrEmptyStringToNull(ValueConverter<T> delegate) {
+        return new NullableConverter<T>(Mode.NULL_OR_EMPTY_STRING_TO_NULL, delegate);
     }
 
     @Override
     public Class<? extends T> type() {
         return delegate.type();
     }
+
     @Override
     public T convert(String column, String value) {
         if (mode.convertToNull(value)) {
             return null;
         }
         return delegate.convert(column, value);
-    }
-
-    @Override
-    public boolean equalValues(T expectedValue, Object actualValue) {
-        return delegate.equalValues(expectedValue, actualValue);
-    }
-    @Override
-    public void assertValue(T expectedValue, Object actualValue) {
-        delegate.assertValue(expectedValue, actualValue);
     }
 
 }

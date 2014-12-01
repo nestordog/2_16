@@ -15,25 +15,24 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.util.diff.value;
+package ch.algotrader.util.diff.convert;
 
 /**
- * Value asserter for strings converting the string to UPPER or LOWER case before
- * the assertion.
+ * Base class suitable for most value asserters.
+ *
+ * @param <T> the value type
  */
-public class CaseInsensitiveStringAsserter extends AbstractValueAsserter<String> {
+abstract public class AbstractValueConverter<T> implements ValueConverter<T> {
 
-    public static final CaseInsensitiveStringAsserter TO_UPPER_CASE = new CaseInsensitiveStringAsserter(true);
-    public static final CaseInsensitiveStringAsserter TO_LOWER_CASE = new CaseInsensitiveStringAsserter(false);
+    private final Class<? extends T> type;
 
-    private boolean toUpperCase;
-    private CaseInsensitiveStringAsserter(boolean toUpperCase) {
-        super(String.class);
-        this.toUpperCase = toUpperCase;
+    public AbstractValueConverter(Class<? extends T> type) {
+        this.type = type;
     }
 
     @Override
-    public String convert(String column, String value) {
-        return value == null ? null : toUpperCase ? value.toUpperCase() : value.toLowerCase();
+    public Class<? extends T> type() {
+        return type;
     }
+
 }

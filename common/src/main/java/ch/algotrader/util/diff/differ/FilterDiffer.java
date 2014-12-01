@@ -20,12 +20,11 @@ package ch.algotrader.util.diff.differ;
 import java.io.IOException;
 import java.util.Objects;
 
-import ch.algotrader.util.diff.define.AssertableCsvColumn;
+import ch.algotrader.util.diff.define.CsvColumn;
 import ch.algotrader.util.diff.reader.CsvLine;
 import ch.algotrader.util.diff.reader.CsvReader;
 import ch.algotrader.util.diff.reader.FilterReader;
 import ch.algotrader.util.diff.reader.FilterReader.Filter;
-import ch.algotrader.util.diff.value.ValueAsserter;
 
 /**
  * Selects a subset of expected and/or actual lines based on filters criteria similar
@@ -60,30 +59,36 @@ public class FilterDiffer implements CsvDiffer {
         private FilterReader.Filter expFilter;
         private FilterReader.Filter actFilter;
 
-        public Builder acceptExpected(AssertableCsvColumn column, Object... values) {
+        public Builder acceptExpected(CsvColumn column, Object... values) {
             expFilter = merge(expFilter, column, true, values);
             return this;
         }
-        public Builder rejectExpected(AssertableCsvColumn column, Object... values) {
+
+        public Builder rejectExpected(CsvColumn column, Object... values) {
             expFilter = merge(expFilter, column, false, values);
             return this;
         }
-        public Builder acceptActual(AssertableCsvColumn column, Object... values) {
+
+        public Builder acceptActual(CsvColumn column, Object... values) {
             actFilter = merge(actFilter, column, true, values);
             return this;
         }
-        public Builder rejectActual(AssertableCsvColumn column, Object... values) {
+
+        public Builder rejectActual(CsvColumn column, Object... values) {
             actFilter = merge(actFilter, column, false, values);
             return this;
         }
+
         public FilterDiffer build(CsvDiffer delegate) {
             return new FilterDiffer(delegate, expFilter, actFilter);
         }
-        private Filter merge(Filter filter, AssertableCsvColumn column, boolean accept, Object... values) {
+
+        private Filter merge(Filter filter, CsvColumn column, boolean accept, Object... values) {
             final Filter newFilter = createFilter(column, accept, values);
             return and(filter, newFilter);
         }
-        private Filter createFilter(AssertableCsvColumn column, boolean accept, Object[] values) {
+
+        private Filter createFilter(CsvColumn column, boolean accept, Object[] values) {
             if (values.length == 0) {
                 return null;
             }
@@ -93,20 +98,21 @@ public class FilterDiffer implements CsvDiffer {
             }
             return filter;
         }
-        private Filter createFilter(final AssertableCsvColumn column, final boolean accept, final Object value) {
+
+        private Filter createFilter(final CsvColumn column, final boolean accept, final Object value) {
             return new Filter() {
                 @Override
                 public boolean accept(CsvLine line) {
-                    return accept == accept(column.getValueAsserter(), line);
-                }
-                private <T> boolean accept(ValueAsserter<T> asserter, CsvLine line) {
-                    return asserter.equalValues(asserter.type().cast(value), column.get(line));
+                    return accept == Objects.equals(value, line.getValues().get(column));
                 }
             };
         }
+
         private Filter and(final Filter filter1, final Filter filter2) {
-            if (filter1 == null) return filter2;
-            if (filter2 == null) return filter1;
+            if (filter1 == null)
+                return filter2;
+            if (filter2 == null)
+                return filter1;
             return new Filter() {
                 @Override
                 public boolean accept(CsvLine line) {
@@ -114,9 +120,12 @@ public class FilterDiffer implements CsvDiffer {
                 }
             };
         }
+
         private Filter or(final Filter filter1, final Filter filter2) {
-            if (filter1 == null) return filter2;
-            if (filter2 == null) return filter1;
+            if (filter1 == null)
+                return filter2;
+            if (filter2 == null)
+                return filter1;
             return new Filter() {
                 @Override
                 public boolean accept(CsvLine line) {

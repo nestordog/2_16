@@ -84,7 +84,7 @@ public class DefaultCsvReader implements CsvReader {
             final String value = col.index() < values.length ? values[col.index()] : null;
             final Object converted;
             try {
-                converted = col.convert(value);
+                converted = col.converter().convert(col.name(), value);
             } catch (Exception e) {
                 throw new RuntimeException("conversion of value <" + value + "> failed for column " + col + " " + CsvReaderUtil.getFileLocation(this), e);
             }

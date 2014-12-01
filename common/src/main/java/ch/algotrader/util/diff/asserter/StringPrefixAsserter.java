@@ -15,14 +15,14 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.util.diff.value;
+package ch.algotrader.util.diff.asserter;
 
 import java.util.Objects;
 
 /**
  * Asserter for two strings where one string can be a prefix of the other.
  */
-public class StringPrefixAsserter extends AbstractValueAsserter<String> {
+public class StringPrefixAsserter extends AbstractTypeSpecificAsserter<String> {
 
     public static enum Mode {
         EXPECTED_PREFIX_OF_ACTUAL {
@@ -50,28 +50,29 @@ public class StringPrefixAsserter extends AbstractValueAsserter<String> {
     private final Mode mode;
 
     public StringPrefixAsserter(Mode mode) {
-        super(String.class);
         this.mode = Objects.requireNonNull(mode, "mode cannot be null");
     }
 
     @Override
-    public String convert(String column, String value) {
-        return value;
+    protected Class<String> type() {
+        return String.class;
     }
 
     @Override
-    public boolean equalValues(String expectedValue, Object actualValue) {
+    protected boolean equalValuesTyped(String expectedValue, String actualValue) {
         if (expectedValue == actualValue) {
             return true;
         }
-        if (expectedValue != null && actualValue instanceof String) {
-            return mode.matches(expectedValue, (String)actualValue);
+        if (expectedValue != null) {
+            return mode.matches(expectedValue, actualValue);
         }
         return false;
     }
 
     @Override
-    public void assertValue(String expectedValue, Object actualValue) {
-        Assert.assertTrue("Values don't match according to mode=" + mode, equalValues(expectedValue, actualValue));
+    protected void assertValueTyped(String expectedValue, String actualValue) {
+        if (!equalValues(expectedValue, actualValue)) {
+            Assert.assertEquals("Values don't match according to mode=" + mode, expectedValue, actualValue);
+        }
     }
 }

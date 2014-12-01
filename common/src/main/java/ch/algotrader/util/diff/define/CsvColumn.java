@@ -17,20 +17,18 @@
  ***********************************************************************************/
 package ch.algotrader.util.diff.define;
 
-import ch.algotrader.util.diff.reader.CsvLine;
+import ch.algotrader.util.diff.convert.ValueConverter;
 
 /**
- * Interface usually implemented by an enum that defines the columns of a CSV file.
+ * Interface defining a column of a CSV file.
  */
 public interface CsvColumn {
-    /** The column name, usually the enum constant's name*/
+    /** The column name*/
     String name();
-    /** The column label*/
-    String label();
-    /** The column index, usually the same as the enum constant's ordinal*/
+
+    /** The column index*/
     int index();
-    /** Returns the appropriate value from the given CSV row, or null if it doesn't exist*/
-    Object get(CsvLine row);
-    /** Converts a string value into the appropriate type*/
-    Object convert(String value);
+
+    /** Returns a converter to convert a CSV string value into the appropriate type*/
+    ValueConverter<?> converter();
 }

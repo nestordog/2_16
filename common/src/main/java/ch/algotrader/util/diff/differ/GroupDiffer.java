@@ -27,14 +27,12 @@ import org.apache.log4j.Logger;
 
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.diff.CsvAssertionError;
-import ch.algotrader.util.diff.define.AssertableCsvColumn;
 import ch.algotrader.util.diff.define.CsvColumn;
 import ch.algotrader.util.diff.reader.BufferedReader;
 import ch.algotrader.util.diff.reader.CsvLine;
 import ch.algotrader.util.diff.reader.CsvReader;
 import ch.algotrader.util.diff.reader.CsvReaderUtil;
 import ch.algotrader.util.diff.reader.LinkedListReader;
-import ch.algotrader.util.diff.value.ValueAsserter;
 
 /**
  * Groups the underlying expected and actual lines according to some GROUP BY clause
@@ -46,24 +44,25 @@ public class GroupDiffer implements CsvDiffer {
 
     private static Logger LOG = MyLogger.getLogger(GroupDiffer.class);
 
-    private final List<AssertableCsvColumn> expectedGroupColumns;
+    private final List<CsvColumn> expectedGroupColumns;
     private final List<CsvColumn> actualGroupColumns;
     private final CsvDiffer delegate;
 
-    public GroupDiffer(AssertableCsvColumn expectedGroupColumn, CsvColumn actualGroupColumn, CsvDiffer delegate) {
+    public GroupDiffer(CsvColumn expectedGroupColumn, CsvColumn actualGroupColumn, CsvDiffer delegate) {
         this(Collections.singletonList(expectedGroupColumn), Collections.singletonList(actualGroupColumn), delegate);
     }
-    public GroupDiffer(List<AssertableCsvColumn> expectedGroupColumns, List<CsvColumn> actualGroupColumns, CsvDiffer delegate) {
+
+    public GroupDiffer(List<CsvColumn> expectedGroupColumns, List<CsvColumn> actualGroupColumns, CsvDiffer delegate) {
         this.expectedGroupColumns = Objects.requireNonNull(expectedGroupColumns, "expectedGroupColumns cannot be null");
         this.actualGroupColumns = Objects.requireNonNull(actualGroupColumns, "actualGroupColumns cannot be null");
         this.delegate = Objects.requireNonNull(delegate, "delegate cannot be null");
     }
 
     public static class Builder {
-        private final List<AssertableCsvColumn> expectedGrouColumns = new ArrayList<AssertableCsvColumn>();
-        private final List<CsvColumn> actualGrouColumns = new ArrayList<CsvColumn>();
+        private final List<CsvColumn> expectedGrouColumns = new ArrayList<>();
+        private final List<CsvColumn> actualGrouColumns = new ArrayList<>();
 
-        public Builder add(AssertableCsvColumn expColumn, CsvColumn actColumn) {
+        public Builder add(CsvColumn expColumn, CsvColumn actColumn) {
             expectedGrouColumns.add(expColumn);
             actualGrouColumns.add(actColumn);
             return this;
@@ -92,8 +91,8 @@ public class GroupDiffer implements CsvDiffer {
                 delegate.diffLines(expSubReader, actSubReader);
             } catch (CsvAssertionError e) {
                 throw e.addGroupValues(groupValues);
-//            } catch (AssertionError e) {
-//                throw new AssertionError("[group-values=" + groupValues + "] " + e.getMessage() + " " + CsvUtil.getFileLocations(expSubReader, actSubReader), e);
+                //            } catch (AssertionError e) {
+                //                throw new AssertionError("[group-values=" + groupValues + "] " + e.getMessage() + " " + CsvUtil.getFileLocations(expSubReader, actSubReader), e);
             } catch (Exception e) {
                 throw new RuntimeException("[group-values=" + groupValues + "] unexpected exception " + CsvReaderUtil.getFileLocations(expSubReader, actSubReader), e);
             }
@@ -104,14 +103,16 @@ public class GroupDiffer implements CsvDiffer {
     private static String getLines(LinkedListReader reader) {
         return reader.getLine() + ":" + (reader.getLine() + reader.getLineCount() - 1);
     }
+
     private List<Object> getGroupValues(CsvLine line) {
         final List<Object> groupValues = new ArrayList<Object>(expectedGroupColumns.size());
-        for (AssertableCsvColumn col : expectedGroupColumns) {
-            groupValues.add(col.get(line));
+        for (CsvColumn col : expectedGroupColumns) {
+            groupValues.add(line.getValues().get(col));
         }
         return groupValues;
     }
-    private static int readGroupIntoBuffer(List<AssertableCsvColumn> expectedGroupColumns, List<Object> groupValues, List<? extends CsvColumn> columns, BufferedReader reader) throws IOException {
+
+    private static int readGroupIntoBuffer(List<CsvColumn> expectedGroupColumns, List<Object> groupValues, List<? extends CsvColumn> columns, BufferedReader reader) throws IOException {
         CsvLine line = reader.readLineIntoBuffer();
         while (line != null && matches(expectedGroupColumns, groupValues, columns, line)) {
             line = reader.readLineIntoBuffer();
@@ -119,16 +120,13 @@ public class GroupDiffer implements CsvDiffer {
         return line == null ? 0 : 1;
     }
 
-    private static boolean matches(List<AssertableCsvColumn> expectedGroupColumns, List<Object> groupValues, List<? extends CsvColumn> columns, CsvLine line) {
+    private static boolean matches(List<CsvColumn> expectedGroupColumns, List<Object> groupValues, List<? extends CsvColumn> columns, CsvLine line) {
         for (int i = 0; i < expectedGroupColumns.size(); i++) {
-            if (!matches(expectedGroupColumns.get(i).getValueAsserter(), groupValues.get(i), columns.get(i).get(line))) {
+            if (!Objects.equals(groupValues.get(i), line.getValues().get(columns.get(i)))) {
                 return false;
             }
         }
         return true;
-    }
-    private static <T> boolean matches(ValueAsserter<T> asserter, Object expVal, Object actVal) {
-        return asserter.equalValues(asserter.type().cast(expVal), actVal);
     }
 
 }

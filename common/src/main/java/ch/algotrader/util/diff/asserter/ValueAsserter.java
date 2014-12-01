@@ -15,15 +15,12 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.util.diff.value;
+package ch.algotrader.util.diff.asserter;
 
 /**
- * Extension of {@link ValueConverter} also supporting comparing and asserting of two
- * values.
- *
- * @param <T> the value type
+ * Compares and asserts two values.
  */
-public interface ValueAsserter<T> extends ValueConverter<T> {
+public interface ValueAsserter {
     /**
      * Returns true if the two values are considered equal and false otherwise.
      *
@@ -31,7 +28,7 @@ public interface ValueAsserter<T> extends ValueConverter<T> {
      * @param actualValue   the actual value
      * @return true if both values are considered equal
      */
-    boolean equalValues(T expectedValue, Object actualValue);
+    boolean equalValues(Object expectedValue, Object actualValue);
 
     /**
      * Asserts equality of the two values. Throws an {@link AssertionError} if the
@@ -43,5 +40,5 @@ public interface ValueAsserter<T> extends ValueConverter<T> {
      *      {@link #assertValue(String, Object, String, Object) assertValue(..)}
      *      returns false
      */
-    void assertValue(T expectedValue, Object actualValue);
+    void assertValue(Object expectedValue, Object actualValue);
 }

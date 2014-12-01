@@ -15,7 +15,7 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.util.diff.value;
+package ch.algotrader.util.diff.asserter;
 
 /**
  * Some assert methods taken from {@code org.junit.Assert} as we want to avoid
@@ -60,8 +60,7 @@ public class Assert {
      * <code>actual</code> for which both numbers are still
      * considered equal.
      */
-    public static void assertEquals(String message, double expected,
-            double actual, double delta) {
+    public static void assertEquals(String message, double expected, double actual, double delta) {
         if (doubleIsDifferent(expected, actual, delta)) {
             failNotEquals(message, new Double(expected), new Double(actual));
         }

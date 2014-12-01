@@ -15,16 +15,16 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.util.diff.value;
+package ch.algotrader.util.diff.convert;
 
 /**
- * Asserter for two long values.
+ * Converter for long values.
  */
-public class LongAsserter extends AbstractValueAsserter<Long> implements ValueConverter<Long> {
+public class LongConverter extends AbstractValueConverter<Long> implements ValueConverter<Long> {
 
-    public static final LongAsserter INSTANCE = new LongAsserter();
+    public static final LongConverter INSTANCE = new LongConverter();
 
-    private LongAsserter() {
+    private LongConverter() {
         super(Long.class);
     }
 

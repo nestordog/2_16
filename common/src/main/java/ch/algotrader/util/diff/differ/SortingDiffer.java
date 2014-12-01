@@ -28,7 +28,6 @@ import java.util.NavigableMap;
 import java.util.Objects;
 import java.util.TreeMap;
 
-import ch.algotrader.util.diff.define.AssertableCsvColumn;
 import ch.algotrader.util.diff.define.CsvColumn;
 import ch.algotrader.util.diff.reader.CsvLine;
 import ch.algotrader.util.diff.reader.CsvReader;
@@ -51,20 +50,21 @@ public class SortingDiffer implements CsvDiffer {
     private final Comparator<CsvLine> expectedColumnComparator;
     private final Comparator<CsvLine> actualColumnComparator;
 
-    public SortingDiffer(AssertableCsvColumn expectedSortColumn, CsvColumn actualSortColumn, CsvDiffer delegate) {
+    public SortingDiffer(CsvColumn expectedSortColumn, CsvColumn actualSortColumn, CsvDiffer delegate) {
         this(Collections.singletonList(expectedSortColumn), Collections.singletonList(actualSortColumn), delegate);
     }
-    public SortingDiffer(List<AssertableCsvColumn> expectedSortColumns, List<CsvColumn> actualSortColumns, CsvDiffer delegate) {
+
+    public SortingDiffer(List<CsvColumn> expectedSortColumns, List<CsvColumn> actualSortColumns, CsvDiffer delegate) {
         this.delegate = Objects.requireNonNull(delegate, "delegate cannot be null");
         this.expectedColumnComparator = new ColumnComparator(expectedSortColumns);
         this.actualColumnComparator = new ColumnComparator(actualSortColumns);
     }
 
     public static class Builder {
-        private final List<AssertableCsvColumn> expectedGrouColumns = new ArrayList<AssertableCsvColumn>();
+        private final List<CsvColumn> expectedGrouColumns = new ArrayList<CsvColumn>();
         private final List<CsvColumn> actualGrouColumns = new ArrayList<CsvColumn>();
 
-        public Builder add(AssertableCsvColumn expColumn, CsvColumn actColumn) {
+        public Builder add(CsvColumn expColumn, CsvColumn actColumn) {
             expectedGrouColumns.add(expColumn);
             actualGrouColumns.add(actColumn);
             return this;
@@ -114,20 +114,22 @@ public class SortingDiffer implements CsvDiffer {
 
     private static class ColumnComparator implements Comparator<CsvLine> {
         private final List<? extends CsvColumn> columns;
+
         public ColumnComparator(List<? extends CsvColumn> columns) {
             this.columns = Objects.requireNonNull(columns, "columns cannot be null");
         }
+
         @Override
         public int compare(CsvLine o1, CsvLine o2) {
             for (final CsvColumn column : columns) {
-                final Object v1 = column.get(o1);
-                final Object v2 = column.get(o2);
+                final Object v1 = o1.getValues().get(column);
+                final Object v2 = o2.getValues().get(column);
                 int result;
                 if (v1 == v2) {
                     result = 0;
                 } else if (v1 instanceof Comparable) {
                     @SuppressWarnings("unchecked")
-                    final int cmp = ((Comparable<Object>)v1).compareTo(v2);
+                    final int cmp = ((Comparable<Object>) v1).compareTo(v2);
                     result = cmp;
                 } else {
                     result = String.valueOf(v1).compareTo(String.valueOf(v2));

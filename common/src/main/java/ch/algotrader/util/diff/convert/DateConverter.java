@@ -15,7 +15,7 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.util.diff.value;
+package ch.algotrader.util.diff.convert;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -24,16 +24,17 @@ import java.util.Date;
 import java.util.Objects;
 
 /**
- * Value asserter for dates using a {@link DateFormat} to convert from a string.
+ * Converter for date values using a {@link DateFormat} to convert from a string.
  */
-public class DateAsserter extends AbstractValueAsserter<Date> implements ValueConverter<Date> {
+public class DateConverter extends AbstractValueConverter<Date> implements ValueConverter<Date> {
 
     private final DateFormat dateFormat;
 
-    public DateAsserter(String dateFormatPattern) {
+    public DateConverter(String dateFormatPattern) {
         this(new SimpleDateFormat(dateFormatPattern));
     }
-    public DateAsserter(DateFormat dateFormat) {
+
+    public DateConverter(DateFormat dateFormat) {
         super(Date.class);
         this.dateFormat = Objects.requireNonNull(dateFormat, "dateFormat cannot be null");
     }

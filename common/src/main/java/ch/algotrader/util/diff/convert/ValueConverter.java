@@ -15,34 +15,25 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.util.diff.value;
+package ch.algotrader.util.diff.convert;
 
 /**
- * Base class suitable for most value asserters.
+ * Defines type and converter for a value.
  *
  * @param <T> the value type
  */
-abstract public class AbstractValueAsserter<T> implements ValueAsserter<T> {
+public interface ValueConverter<T> {
+    /**
+     * Returns the class representing the type of the value
+     */
+    Class<? extends T> type();
 
-    private final Class<? extends T> type;
-
-    public AbstractValueAsserter(Class<? extends T> type) {
-        this.type = type;
-    }
-
-    @Override
-    public Class<? extends T> type() {
-        return type;
-    }
-
-    @Override
-    public boolean equalValues(T expectedValue, Object actualValue) {
-        return expectedValue == actualValue || (expectedValue != null && expectedValue.equals(actualValue));
-    }
-
-    @Override
-    public void assertValue(T expectedValue, Object actualValue) {
-        Assert.assertEquals("Values don't match", expectedValue, actualValue);
-    }
-
+    /**
+     * Converts the given string {@code value} into the appropriate type and
+     * returns it. Throws an exception if the conversion fails.
+     *
+     * @param column name of the column; used in exception if the conversion fails
+     * @param value the string value to convert
+     */
+    T convert(String column, String value);
 }

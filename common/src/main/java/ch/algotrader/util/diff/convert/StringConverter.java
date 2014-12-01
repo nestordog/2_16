@@ -15,16 +15,16 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.util.diff.value;
+package ch.algotrader.util.diff.convert;
 
 /**
- * Asserter for two strings using case-sensitive comparison.
+ * Converter for string (no-op to convert from string to string).
  */
-public class StringAsserter extends AbstractValueAsserter<String> {
+public class StringConverter extends AbstractValueConverter<String> {
 
-    public static final StringAsserter INSTANCE = new StringAsserter();
+    public static final StringConverter INSTANCE = new StringConverter();
 
-    private StringAsserter() {
+    private StringConverter() {
         super(String.class);
     }
 

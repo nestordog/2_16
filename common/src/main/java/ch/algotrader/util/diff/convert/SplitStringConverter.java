@@ -15,14 +15,14 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.util.diff.value;
+package ch.algotrader.util.diff.convert;
 
 import java.util.Objects;
 
 /**
  * Splits a string into substrings and takes only a part of that split.
  */
-public class SplitStringAsserter extends AbstractValueAsserter<String> {
+public class SplitStringConverter extends AbstractValueConverter<String> {
 
     private final char delimiter;
     private final Mode mode;
@@ -42,6 +42,7 @@ public class SplitStringAsserter extends AbstractValueAsserter<String> {
             }
             return value.lastIndexOf(' ');
         }
+
         public String getPart(String value, char delimiter) {
             final int index = indexOf(value, delimiter);
             if (this == BEFORE_FIRST | this == BEFORE_LAST) {
@@ -51,7 +52,7 @@ public class SplitStringAsserter extends AbstractValueAsserter<String> {
         }
     }
 
-    public SplitStringAsserter(char delimiter, Mode mode) {
+    public SplitStringConverter(char delimiter, Mode mode) {
         super(String.class);
         this.delimiter = delimiter;
         this.mode = Objects.requireNonNull(mode, "mode cannot be null");

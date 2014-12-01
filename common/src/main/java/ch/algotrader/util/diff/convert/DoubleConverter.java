@@ -15,18 +15,28 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.util.diff.define;
-
-import ch.algotrader.util.diff.value.ValueAsserter;
+package ch.algotrader.util.diff.convert;
 
 /**
- * Extension of {@link CsvColumn} adding the capability to compare and assert values
- * of this column for instance with values from the actual file.
+ * Converter for double values.
  */
-public interface AssertableCsvColumn extends CsvColumn {
+public class DoubleConverter extends AbstractValueConverter<Double> {
+
     /**
-     * Returns the asserter that can compare and assert values from this column.
-     * @return the value asserter for this column
+     * The singleton instance.
      */
-    ValueAsserter<?> getValueAsserter();
+    public static final DoubleConverter INSTANCE = new DoubleConverter();
+
+    public DoubleConverter() {
+        super(Double.class);
+    }
+
+    @Override
+    public Double convert(String column, String value) {
+        try {
+            return Double.parseDouble(value);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("[" + column + "] cannot parse double value: " + value, e);
+        }
+    }
 }

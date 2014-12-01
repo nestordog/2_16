@@ -15,7 +15,7 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.util.diff.value;
+package ch.algotrader.util.diff.convert;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -23,17 +23,19 @@ import java.util.Map;
 /**
  * Maps a string to another string. Can be used to map from one domain model to another.
  */
-public class MappedStringAsserter extends AbstractValueAsserter<String> {
+public class MappedStringConverter extends AbstractValueConverter<String> {
 
     private Map<String, String> map;
 
-    public MappedStringAsserter(String... mappedStrings) {
+    public MappedStringConverter(String... mappedStrings) {
         this(toMap(mappedStrings));
     }
-    public MappedStringAsserter(Map<String, String> map) {
+
+    public MappedStringConverter(Map<String, String> map) {
         super(String.class);
         this.map = map;
     }
+
     private static Map<String, String> toMap(String... mappedStrings) {
         final Map<String, String> map = new LinkedHashMap<String, String>();
         for (final String mappedString : mappedStrings) {

@@ -15,13 +15,13 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.util.diff.value;
+package ch.algotrader.util.diff.asserter;
 
 /**
  * Value asserter for double values comparing two values with a tolerance.
  * The tolerance can be absolute or relative to the magnitude of the compared values.
  */
-public class DoubleAsserter implements ValueAsserter<Double> {
+public class DoubleAsserter extends AbstractTypeSpecificAsserter<Double> {
 
     public static enum Mode {
         /** Use absolute tolerance for comparison */
@@ -54,24 +54,15 @@ public class DoubleAsserter implements ValueAsserter<Double> {
     }
 
     @Override
-    public Double convert(String column, String value) {
-        try {
-            return Double.parseDouble(value);
-        } catch (Exception e) {
-            throw new IllegalArgumentException("[" + column + "] cannot parse double value: " + value, e);
-        }
-    }
-
-    @Override
-    public Class<? extends Double> type() {
+    protected Class<Double> type() {
         return Double.class;
     }
 
     @Override
-    public boolean equalValues(Double expectedValue, Object actualValue) {
+    protected boolean equalValuesTyped(Double expectedValue, Double actualValue) {
         if (expectedValue == actualValue)
             return true;
-        if (expectedValue != null && actualValue instanceof Double) {
+        if (expectedValue != null) {
             final Double act = (Double) actualValue;
             final double tol = mode.getTolerance(tolerance, expectedValue, act);
             return expectedValue.equals(act) || Math.abs(expectedValue - act) <= tol;
@@ -80,13 +71,10 @@ public class DoubleAsserter implements ValueAsserter<Double> {
     }
 
     @Override
-    public void assertValue(Double expectedValue, Object actualValue) {
-        if (actualValue instanceof Double) {
-            final Double act = (Double) actualValue;
-            final double tol = mode.getTolerance(tolerance, expectedValue, act);
-            Assert.assertEquals("Values don't match with " + mode.name().toLowerCase() + " tolerance=<" + tolerance + ">", expectedValue, act, tol);
-        } else {
-            Assert.fail("Actual value should be a double but was a " + (actualValue == null ? null : actualValue.getClass().getName()));
+    protected void assertValueTyped(Double expectedValue, Double actualValue) {
+        if (!equalValues(expectedValue, actualValue)) {
+            final double tol = mode.getTolerance(tolerance, expectedValue, actualValue);
+            Assert.assertEquals("Values don't match with " + mode.name().toLowerCase() + " tolerance=<" + tolerance + ">", expectedValue, actualValue, tol);
         }
     }
 }

@@ -23,13 +23,11 @@ import java.util.Objects;
 import org.apache.log4j.Logger;
 
 import ch.algotrader.util.MyLogger;
-import ch.algotrader.util.diff.define.AssertableCsvColumn;
 import ch.algotrader.util.diff.define.CsvColumn;
 import ch.algotrader.util.diff.reader.BufferedReader;
 import ch.algotrader.util.diff.reader.CsvLine;
 import ch.algotrader.util.diff.reader.CsvReader;
 import ch.algotrader.util.diff.reader.CsvReaderUtil;
-import ch.algotrader.util.diff.value.ValueAsserter;
 
 /**
  * Skips some lines (other than header lines) at the beginning of the expected or
@@ -50,8 +48,8 @@ public class SkipStartDiffer implements CsvDiffer {
         /** Skip expected or actual -- which ever value of the compared column is lesser --- until the values match (e.g. match date for descending order) */
         SKIP_GREATER_VALUE;
 
-        public MatchResult match(AssertableCsvColumn expectedColumn, Object expVal, CsvColumn actualColumn, Object actVal) {
-            if (isMatch(expectedColumn.getValueAsserter(), expVal, actVal)) {
+        public MatchResult match(CsvColumn expectedColumn, Object expVal, CsvColumn actualColumn, Object actVal) {
+            if (Objects.equals(expVal, actVal)) {
                 return MatchResult.MATCH;
             }
             if (this == SKIP_EXPECTED) {
@@ -98,10 +96,10 @@ public class SkipStartDiffer implements CsvDiffer {
     }
 
     private final Mode mode;
-    private final AssertableCsvColumn expectedColumn;
+    private final CsvColumn expectedColumn;
     private final CsvColumn actualColumn;
 
-    public SkipStartDiffer(Mode mode, AssertableCsvColumn expectedColumn, CsvColumn actualColumn) {
+    public SkipStartDiffer(Mode mode, CsvColumn expectedColumn, CsvColumn actualColumn) {
         this.mode = Objects.requireNonNull(mode, "mode cannot be null");
         this.expectedColumn = Objects.requireNonNull(expectedColumn, "expectedColumn cannot be null");
         this.actualColumn = Objects.requireNonNull(actualColumn, "actualColumn cannot be null");
@@ -125,11 +123,11 @@ public class SkipStartDiffer implements CsvDiffer {
 
         //skip until match
         while (expLine != null && actLine != null) {
-            final Object expVal = expectedColumn.get(expLine);
+            final Object expVal = expLine.getValues().get(expectedColumn);
             if (expVal == null) {
                 throw new IOException("expected value not found for column " + expectedColumn + " " + CsvReaderUtil.getFileLocation(expReader));
             }
-            final Object actVal = actualColumn.get(actLine);
+            final Object actVal = actLine.getValues().get(actualColumn);
             if (actVal == null) {
                 throw new IOException("actual value not found for column " + actualColumn + " " + CsvReaderUtil.getFileLocation(actReader));
             }
@@ -152,10 +150,6 @@ public class SkipStartDiffer implements CsvDiffer {
 
     private boolean isAtStart(BufferedReader expReader) {
         return expReader.getLine() == 0 || expReader.getLine() == 1 && expReader.getCsvDefinition().isSkipHeaderLine();
-    }
-
-    private static <T> boolean isMatch(ValueAsserter<T> asserter, Object expVal, Object actVal) {
-        return asserter.equalValues(asserter.type().cast(expVal), actVal);
     }
 
 }
