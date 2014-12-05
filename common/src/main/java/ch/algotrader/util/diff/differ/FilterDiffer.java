@@ -21,10 +21,10 @@ import java.io.IOException;
 import java.util.Objects;
 
 import ch.algotrader.util.diff.define.CsvColumn;
+import ch.algotrader.util.diff.filter.CsvLineFilter;
 import ch.algotrader.util.diff.reader.CsvLine;
 import ch.algotrader.util.diff.reader.CsvReader;
 import ch.algotrader.util.diff.reader.FilterReader;
-import ch.algotrader.util.diff.reader.FilterReader.Filter;
 
 /**
  * Selects a subset of expected and/or actual lines based on filters criteria similar
@@ -36,10 +36,10 @@ import ch.algotrader.util.diff.reader.FilterReader.Filter;
 public class FilterDiffer implements CsvDiffer {
 
     private final CsvDiffer delegate;
-    private final FilterReader.Filter expFilter;
-    private final FilterReader.Filter actFilter;
+    private final CsvLineFilter expFilter;
+    private final CsvLineFilter actFilter;
 
-    private FilterDiffer(CsvDiffer delegate, FilterReader.Filter expFilter, FilterReader.Filter actFilter) {
+    private FilterDiffer(CsvDiffer delegate, CsvLineFilter expFilter, CsvLineFilter actFilter) {
         this.delegate = Objects.requireNonNull(delegate, "delegate cannot be null");
         this.expFilter = expFilter;
         this.actFilter = actFilter;
@@ -56,26 +56,32 @@ public class FilterDiffer implements CsvDiffer {
      * Builder to create filters and eventually a {@link FilterDiffer}.
      */
     public static class Builder {
-        private FilterReader.Filter expFilter;
-        private FilterReader.Filter actFilter;
+        private CsvLineFilter expFilter;
+        private CsvLineFilter actFilter;
 
         public Builder acceptExpected(CsvColumn column, Object... values) {
-            expFilter = merge(expFilter, column, true, values);
-            return this;
+            return filterExpected(createFilter(column, true, values));
         }
 
         public Builder rejectExpected(CsvColumn column, Object... values) {
-            expFilter = merge(expFilter, column, false, values);
+            return filterExpected(createFilter(column, false, values));
+        }
+
+        public Builder filterExpected(CsvLineFilter csvLineFilter) {
+            expFilter = and(expFilter, csvLineFilter);
             return this;
         }
 
         public Builder acceptActual(CsvColumn column, Object... values) {
-            actFilter = merge(actFilter, column, true, values);
-            return this;
+            return filterActual(createFilter(column, true, values));
         }
 
         public Builder rejectActual(CsvColumn column, Object... values) {
-            actFilter = merge(actFilter, column, false, values);
+            return filterActual(createFilter(column, false, values));
+        }
+
+        public Builder filterActual(CsvLineFilter csvLineFilter) {
+            actFilter = and(actFilter, csvLineFilter);
             return this;
         }
 
@@ -83,24 +89,19 @@ public class FilterDiffer implements CsvDiffer {
             return new FilterDiffer(delegate, expFilter, actFilter);
         }
 
-        private Filter merge(Filter filter, CsvColumn column, boolean accept, Object... values) {
-            final Filter newFilter = createFilter(column, accept, values);
-            return and(filter, newFilter);
-        }
-
-        private Filter createFilter(CsvColumn column, boolean accept, Object[] values) {
+        private CsvLineFilter createFilter(CsvColumn column, boolean accept, Object[] values) {
             if (values.length == 0) {
                 return null;
             }
-            Filter filter = createFilter(column, accept, values[0]);
+            CsvLineFilter csvLineFilter = createFilter(column, accept, values[0]);
             for (int i = 1; i < values.length; i++) {
-                filter = or(filter, createFilter(column, accept, values[i]));
+                csvLineFilter = or(csvLineFilter, createFilter(column, accept, values[i]));
             }
-            return filter;
+            return csvLineFilter;
         }
 
-        private Filter createFilter(final CsvColumn column, final boolean accept, final Object value) {
-            return new Filter() {
+        private CsvLineFilter createFilter(final CsvColumn column, final boolean accept, final Object value) {
+            return new CsvLineFilter() {
                 @Override
                 public boolean accept(CsvLine line) {
                     return accept == Objects.equals(value, line.getValues().get(column));
@@ -108,12 +109,12 @@ public class FilterDiffer implements CsvDiffer {
             };
         }
 
-        private Filter and(final Filter filter1, final Filter filter2) {
+        private CsvLineFilter and(final CsvLineFilter filter1, final CsvLineFilter filter2) {
             if (filter1 == null)
                 return filter2;
             if (filter2 == null)
                 return filter1;
-            return new Filter() {
+            return new CsvLineFilter() {
                 @Override
                 public boolean accept(CsvLine line) {
                     return filter1.accept(line) && filter2.accept(line);
@@ -121,12 +122,12 @@ public class FilterDiffer implements CsvDiffer {
             };
         }
 
-        private Filter or(final Filter filter1, final Filter filter2) {
+        private CsvLineFilter or(final CsvLineFilter filter1, final CsvLineFilter filter2) {
             if (filter1 == null)
                 return filter2;
             if (filter2 == null)
                 return filter1;
-            return new Filter() {
+            return new CsvLineFilter() {
                 @Override
                 public boolean accept(CsvLine line) {
                     return filter1.accept(line) || filter2.accept(line);

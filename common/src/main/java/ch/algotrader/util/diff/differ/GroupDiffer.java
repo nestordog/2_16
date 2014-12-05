@@ -79,7 +79,7 @@ public class GroupDiffer implements CsvDiffer {
 
     private void assertLines(BufferedReader expReader, BufferedReader actReader) throws IOException {
         CsvLine line = expReader.readLineIntoBuffer();
-        while (line != null) {
+        while (line.isValid()) {
             final List<Object> groupValues = getGroupValues(line);
             final int expSkip = readGroupIntoBuffer(expectedGroupColumns, groupValues, expectedGroupColumns, expReader);
             final int actSkip = readGroupIntoBuffer(expectedGroupColumns, groupValues, actualGroupColumns, actReader);

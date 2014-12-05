@@ -22,34 +22,19 @@ import java.io.IOException;
 import java.util.Objects;
 
 import ch.algotrader.util.diff.define.CsvDefinition;
+import ch.algotrader.util.diff.filter.CsvLineFilter;
 
 /**
- * Reader that skips certain lines based on a {@link #Filter} criteria.
+ * Reader that skips certain lines based on a {@link #CsvLineFilter} criteria.
  */
 public class FilterReader implements CsvReader {
 
-    /**
-     * Filter to apply to a line. Accepting a line means that it is returned by
-     * the {@link FilterReader#readLine()} method. If accept returns false the
-     * line is suppressed and the next line is read instead.
-     */
-    public static interface Filter {
-        /**
-         * Returns true to accept and return the given line and false if the line
-         * should be suppressed.
-         *
-         * @param line the line to test
-         * @return true to accept and false to reject the line
-         */
-        boolean accept(CsvLine line);
-    }
-
     private final CsvReader delegate;
-    private final Filter filter;
+    private final CsvLineFilter csvLineFilter;
 
-    public FilterReader(CsvReader delegate, Filter filter) {
+    public FilterReader(CsvReader delegate, CsvLineFilter csvLineFilter) {
         this.delegate = Objects.requireNonNull(delegate, "delegate cannot be null");
-        this.filter = Objects.requireNonNull(filter, "filter cannot be null");
+        this.csvLineFilter = Objects.requireNonNull(csvLineFilter, "csvLineFilter cannot be null");
     }
 
     @Override
@@ -71,8 +56,8 @@ public class FilterReader implements CsvReader {
         return delegate;
     }
 
-    public Filter getFilter() {
-        return filter;
+    public CsvLineFilter getFilter() {
+        return csvLineFilter;
     }
 
     @Override
@@ -83,7 +68,7 @@ public class FilterReader implements CsvReader {
     @Override
     public CsvLine readLine() throws IOException {
         CsvLine line = delegate.readLine();
-        while (line != null && !filter.accept(line)) {
+        while (line.isValid() && !csvLineFilter.accept(line)) {
             line = delegate.readLine();
         }
         return line;
