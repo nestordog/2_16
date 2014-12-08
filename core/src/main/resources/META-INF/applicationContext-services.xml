@@ -473,6 +473,12 @@
             <constructor-arg index="1"  ref="orderService"/>
         </bean>
     </beans>
+    
+    <beans profile="noopHistoricalData">
+        <bean id="noopHistoricalDataService" class="ch.algotrader.service.noop.NoopHistoricalDataServiceImpl" />
+        
+        <alias name="noopHistoricalDataService" alias="historicalDataService"/>
+    </beans>       
 
     <!-- ========================= End of PROFILE SERVICE DEFINITIONS ========================= -->
 
