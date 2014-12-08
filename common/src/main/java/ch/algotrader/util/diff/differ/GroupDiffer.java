@@ -82,11 +82,11 @@ public class GroupDiffer implements CsvDiffer {
         while (line.isValid()) {
             final List<Object> groupValues = getGroupValues(line);
             final int expSkip = readGroupIntoBuffer(expectedGroupColumns, groupValues, expectedGroupColumns, expReader);
-            final int actSkip = readGroupIntoBuffer(expectedGroupColumns, groupValues, actualGroupColumns, actReader);
+            final int actSkip = readGroupIntoBuffer(actualGroupColumns, groupValues, actualGroupColumns, actReader);
             final LinkedListReader expSubReader = expReader.readBufferAsReader(expReader.getBufferSize() - expSkip);
             final LinkedListReader actSubReader = actReader.readBufferAsReader(actReader.getBufferSize() - actSkip);
             try {
-                LOG.info("asserting group: " + groupValues + " [exp=" + getLines(expSubReader) + ", act=" + getLines(actSubReader) + "]");
+                LOG.debug("asserting group: " + groupValues + " [exp=" + getLines(expSubReader) + ", act=" + getLines(actSubReader) + "]");
                 delegate.diffLines(expSubReader, actSubReader);
             } catch (CsvAssertionError e) {
                 throw e.addGroupValues(groupValues);
