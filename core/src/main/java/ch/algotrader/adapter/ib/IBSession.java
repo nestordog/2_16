@@ -24,9 +24,10 @@ import java.net.Socket;
 
 import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
-
-import com.ib.client.EClientSocket;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.enumeration.InitializingServiceType;
@@ -34,6 +35,8 @@ import ch.algotrader.service.InitializationPriority;
 import ch.algotrader.service.InitializingServiceI;
 import ch.algotrader.service.MarketDataService;
 import ch.algotrader.util.MyLogger;
+
+import com.ib.client.EClientSocket;
 
 /**
  * Represents on IB (socket) connection.
@@ -43,7 +46,7 @@ import ch.algotrader.util.MyLogger;
  * @version $Revision$ $Date$
  */
 @InitializationPriority(value = InitializingServiceType.BROKER_INTERFACE)
-public final class IBSession extends EClientSocket implements InitializingServiceI, DisposableBean {
+public final class IBSession extends EClientSocket implements InitializingServiceI, DisposableBean, ApplicationContextAware {
 
     private static final long serialVersionUID = 6821739991866153788L;
 
@@ -54,6 +57,7 @@ public final class IBSession extends EClientSocket implements InitializingServic
     private final int port;
     private final IBSessionLifecycle sessionLifecycle;
     private MarketDataService marketDataService;
+    private ApplicationContext applicationContext;
 
     public IBSession(int clientId, String host, int port, IBSessionLifecycle sessionLifecycle, AbstractIBMessageHandler messageHandler, MarketDataService marketDataService) {
 
@@ -70,6 +74,11 @@ public final class IBSession extends EClientSocket implements InitializingServic
         this.sessionLifecycle = sessionLifecycle;
 
         this.marketDataService = marketDataService;
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
     }
 
     @Override
@@ -111,9 +120,8 @@ public final class IBSession extends EClientSocket implements InitializingServic
 
             // in case there is no 2104 message from the IB Gateway (Market data farm connection is OK)
             // manually invoke initSubscriptions after some time if there is marketDataService
-            sleep();
             if (this.sessionLifecycle.logon(true)) {
-                if (this.marketDataService != null) {
+                if (this.applicationContext.containsBean("iBNativeMarketDataService")) {
                     this.marketDataService.initSubscriptions(FeedType.IB);
                 }
             }
