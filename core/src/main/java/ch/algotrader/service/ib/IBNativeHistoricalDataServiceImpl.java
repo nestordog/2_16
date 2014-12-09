@@ -94,14 +94,15 @@ public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl
         Validate.notNull(barSize, "Bar size is null");
         Validate.notNull(barType, "Bar type is null");
 
-        if (!this.iBSession.getLifecycle().isSubscribed()) {
+        if (!this.iBSession.getLifecycle().isLoggedOn()) {
             throw new IBNativeHistoricalDataServiceException("cannot download historical data, because IB is not subscribed");
         }
 
         // make sure queue is empty
-        if (this.historicalDataQueue.peek() != null) {
+        Bar peek = this.historicalDataQueue.peek();
+        if (peek != null) {
             this.historicalDataQueue.clear();
-            throw new IBNativeHistoricalDataServiceException("historicalDataQueue is not empty");
+            logger.warn("historicalDataQueue was not empty");
         }
 
         Security security = this.securityDao.get(securityId);
