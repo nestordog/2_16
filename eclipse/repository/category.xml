@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/ch.algotrader.feature_2.2.1.jar" id="ch.algotrader.feature" version="2.2.1">
+   <feature url="features/ch.algotrader.feature_2.2.2.jar" id="ch.algotrader.feature" version="2.2.2">
       <category name="ch.algotrader"/>
    </feature>
    <category-def name="ch.algotrader" label="AlgoTrader"/>
