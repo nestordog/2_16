@@ -20,7 +20,6 @@ package ch.algotrader.config.spring;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.util.Assert;
 
-import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.ConfigLocator;
 
 /**
@@ -48,8 +47,8 @@ public class ConfigBeanFactoryBean<T> implements FactoryBean<T> {
     }
 
     @Override
-    public Class<?> getObjectType() {
-        return CommonConfig.class;
+    public Class<T> getObjectType() {
+        return beanClass;
     }
 
     @Override
