@@ -114,7 +114,7 @@ public class FXCMFixOrderMessageHandlerTest {
         messageHandlerImpl.setLookupService(this.lookupService);
         this.messageHandler = Mockito.spy(messageHandlerImpl);
 
-        DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, this.messageHandler, logonHandler, new DefaultFixSessionLifecycle());
+        DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, this.messageHandler, logonHandler, new DefaultFixSessionLifecycle("FXCM"));
 
         LogFactory logFactory = new ScreenLogFactory(true, true, true);
 

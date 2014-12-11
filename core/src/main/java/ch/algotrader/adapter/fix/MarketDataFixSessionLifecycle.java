@@ -29,14 +29,12 @@ import ch.algotrader.service.MarketDataService;
  */
 public class MarketDataFixSessionLifecycle extends DefaultFixSessionLifecycle {
 
-    private MarketDataService marketDataService;
-    private FeedType feedType;
+    private final MarketDataService marketDataService;
+    private final FeedType feedType;
 
-    public void setMarketDataService(MarketDataService marketDataService) {
+    public MarketDataFixSessionLifecycle(final String name, final MarketDataService marketDataService, final FeedType feedType) {
+        super(name);
         this.marketDataService = marketDataService;
-    }
-
-    public void setFeedType(FeedType feedType) {
         this.feedType = feedType;
     }
 

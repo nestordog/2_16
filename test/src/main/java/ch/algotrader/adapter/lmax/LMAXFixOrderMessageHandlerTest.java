@@ -110,7 +110,7 @@ public class LMAXFixOrderMessageHandlerTest {
         messageHandlerImpl.setLookupService(lookupService);
         this.messageHandler = Mockito.spy(messageHandlerImpl);
 
-        DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, messageHandler, logonHandler, new DefaultFixSessionLifecycle());
+        DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, messageHandler, logonHandler, new DefaultFixSessionLifecycle("LMAX"));
 
         LogFactory logFactory = new ScreenLogFactory(true, true, true);
 

@@ -99,7 +99,7 @@ public class CNXFixFeedMessageHandlerTest {
 
         LogFactory logFactory = new ScreenLogFactory(true, true, true);
 
-        CNXFixApplication fixApplication = new CNXFixApplication(sessionId, this.messageHandler, logonMessageHandler, new DefaultFixSessionLifecycle());
+        CNXFixApplication fixApplication = new CNXFixApplication(sessionId, this.messageHandler, logonMessageHandler, new DefaultFixSessionLifecycle("CNX"));
 
         DefaultSessionFactory sessionFactory = new DefaultSessionFactory(fixApplication, new MemoryStoreFactory(), logFactory);
 

@@ -254,14 +254,15 @@
 
     <beans profile="jPMFix">
 
-        <bean id="jPMOrderSessionLifeCycle" class="ch.algotrader.adapter.fix.DefaultFixSessionLifecycle"/>
+        <bean id="jPMOrderSessionLifeCycle" class="ch.algotrader.adapter.fix.DefaultFixSessionLifecycle">
+            <constructor-arg index="0" value="JPMO"/>
+        </bean>
 
         <bean id="jPMOrderApplicationFactory" class="ch.algotrader.adapter.fix.DefaultFixApplicationFactory">
             <property name="incomingMessageHandler">
                 <bean class="ch.algotrader.adapter.fix.fix42.GenericFix42OrderMessageHandler"/>
             </property>
             <property name="lifecycleHandler" ref="jPMOrderSessionLifeCycle"/>
-            <property name="name" value="JPMO"/>
         </bean>
 
     </beans>
@@ -271,7 +272,9 @@
 
     <beans profile="iBFix">
 
-        <bean id="iBOrderSessionLifeCycle" class="ch.algotrader.adapter.fix.DefaultFixSessionLifecycle"/>
+        <bean id="iBOrderSessionLifeCycle" class="ch.algotrader.adapter.fix.DefaultFixSessionLifecycle">
+            <constructor-arg index="0" value="IBO"/>
+        </bean>
 
         <bean id="iBOrderApplicationFactory" class="ch.algotrader.adapter.fix.DefaultFixApplicationFactory">
             <property name="incomingMessageHandler">
@@ -281,7 +284,6 @@
                 </bean>
             </property>
             <property name="lifecycleHandler" ref="iBOrderSessionLifeCycle"/>
-            <property name="name" value="IBO"/>
         </bean>
 
     </beans>
@@ -290,7 +292,9 @@
 
     <beans profile="rTFix">
 
-        <bean id="rTOrderSessionLifeCycle" class="ch.algotrader.adapter.fix.DefaultFixSessionLifecycle"/>
+        <bean id="rTOrderSessionLifeCycle" class="ch.algotrader.adapter.fix.DefaultFixSessionLifecycle">
+            <constructor-arg index="0" value="RTT"/>
+        </bean>
 
         <bean id="rTOrderApplicationFactory" class="ch.algotrader.adapter.fix.DefaultFixApplicationFactory">
             <property name="incomingMessageHandler">
@@ -299,7 +303,6 @@
                 </bean>
             </property>
             <property name="lifecycleHandler" ref="rTOrderSessionLifeCycle"/>
-            <property name="name" value="RTT"/>
         </bean>
 
     </beans>
@@ -317,8 +320,9 @@
     <beans profile="dCMarketData">
 
         <bean id="dCMarketDataSessionLifeCycle" class="ch.algotrader.adapter.fix.MarketDataFixSessionLifecycle">
-            <property name="marketDataService" ref="marketDataService"/>
-            <property name="feedType" value="DC"/>
+            <constructor-arg index="0"  value="DCMD"/>
+            <constructor-arg index="1"  ref="marketDataService"/>
+            <constructor-arg index="2"  value="DC"/>
         </bean>
 
         <bean id="dCMarketDataApplicationFactory" class="ch.algotrader.adapter.fix.DefaultFixApplicationFactory">
@@ -327,14 +331,15 @@
             </property>
             <property name="outgoingMessageHandler" ref="dCLogonMessageHandler"/>
             <property name="lifecycleHandler" ref="dCMarketDataSessionLifeCycle"/>
-            <property name="name" value="DCMD"/>
         </bean>
 
     </beans>
 
     <beans profile="dCFix">
 
-        <bean id="dCOrderSessionLifeCycle" class="ch.algotrader.adapter.fix.DefaultFixSessionLifecycle"/>
+        <bean id="dCOrderSessionLifeCycle" class="ch.algotrader.adapter.fix.DefaultFixSessionLifecycle">
+            <constructor-arg index="0" value="DCT"/>
+        </bean>
 
         <bean id="dCOrderApplicationFactory" class="ch.algotrader.adapter.fix.DefaultFixApplicationFactory">
             <property name="incomingMessageHandler">
@@ -344,7 +349,6 @@
             </property>
             <property name="outgoingMessageHandler" ref="dCLogonMessageHandler"/>
             <property name="lifecycleHandler" ref="dCOrderSessionLifeCycle"/>
-            <property name="name" value="DCT"/>
         </bean>
 
     </beans>
@@ -362,8 +366,9 @@
     <beans profile="lMAXMarketData">
 
         <bean id="lMAXMarketDataSessionLifeCycle" class="ch.algotrader.adapter.fix.MarketDataFixSessionLifecycle">
-            <property name="marketDataService" ref="marketDataService"/>
-            <property name="feedType" value="LMAX"/>
+            <constructor-arg index="0" value="LMAXMD"/>
+            <constructor-arg index="1"  ref="marketDataService"/>
+            <constructor-arg index="2"  value="LMAX"/>
         </bean>
 
         <bean id="lMAXMarketDataApplicationFactory" class="ch.algotrader.adapter.fix.DefaultFixApplicationFactory">
@@ -372,14 +377,15 @@
             </property>
             <property name="outgoingMessageHandler" ref="lMAXLogonMessageHandler"/>
             <property name="lifecycleHandler" ref="lMAXMarketDataSessionLifeCycle"/>
-            <property name="name" value="LMAXMD"/>
         </bean>
 
     </beans>
 
     <beans profile="lMAXFix">
 
-        <bean id="lMAXOrderSessionLifeCycle" class="ch.algotrader.adapter.fix.DefaultFixSessionLifecycle"/>
+        <bean id="lMAXOrderSessionLifeCycle" class="ch.algotrader.adapter.fix.DefaultFixSessionLifecycle">
+            <constructor-arg index="0" value="LMAXT"/>
+        </bean>
 
         <bean id="lMAXOrderApplicationFactory" class="ch.algotrader.adapter.fix.DefaultFixApplicationFactory">
             <property name="incomingMessageHandler">
@@ -389,7 +395,6 @@
             </property>
             <property name="outgoingMessageHandler" ref="lMAXLogonMessageHandler"/>
             <property name="lifecycleHandler" ref="lMAXOrderSessionLifeCycle"/>
-            <property name="name" value="LMAXT"/>
         </bean>
 
     </beans>
@@ -399,8 +404,9 @@
     <beans profile="fXCMMarketData, fXCMFix">
 
         <bean id="fXCMSessionLifeCycle" class="ch.algotrader.adapter.fix.MarketDataFixSessionLifecycle">
-            <property name="marketDataService" ref="marketDataService"/>
-            <property name="feedType" value="FXCM"/>
+            <constructor-arg index="0" value="FXCM"/>
+            <constructor-arg index="1"  ref="marketDataService"/>
+            <constructor-arg index="2"  value="FXCM"/>
         </bean>
 
         <bean id="fXCMApplicationFactory" class="ch.algotrader.adapter.fxcm.FXCMFixApplicationFactory">
@@ -417,7 +423,6 @@
                 </bean>
             </property>
             <property name="lifecycleHandler" ref="fXCMSessionLifeCycle"/>
-            <property name="name" value="FXCM"/>
         </bean>
 
     </beans>
@@ -435,8 +440,9 @@
   <beans profile="cNXMarketData">
 
     <bean id="cNXMarketDataSessionLifeCycle" class="ch.algotrader.adapter.fix.MarketDataFixSessionLifecycle">
-      <property name="marketDataService" ref="marketDataService"/>
-      <property name="feedType" value="CNX"/>
+        <constructor-arg index="0" value="CNXMD"/>
+        <constructor-arg index="1" ref="marketDataService"/>
+        <constructor-arg index="2" value="CNX"/>
     </bean>
 
     <bean id="cNXMarketDataApplicationFactory" class="ch.algotrader.adapter.cnx.CNXFixApplicationFactory">
@@ -445,14 +451,15 @@
       </property>
       <property name="outgoingMessageHandler" ref="cNXLogonMessageHandler"/>
       <property name="lifecycleHandler" ref="cNXMarketDataSessionLifeCycle"/>
-      <property name="name" value="CNXMD"/>
     </bean>
 
   </beans>
 
   <beans profile="cNXFix">
 
-    <bean id="cNXOrderSessionLifeCycle" class="ch.algotrader.adapter.fix.DefaultFixSessionLifecycle"/>
+    <bean id="cNXOrderSessionLifeCycle" class="ch.algotrader.adapter.fix.DefaultFixSessionLifecycle">
+        <constructor-arg index="0" value="CNXT"/>
+    </bean>
 
     <bean id="cNXOrderApplicationFactory" class="ch.algotrader.adapter.cnx.CNXFixApplicationFactory">
       <property name="incomingMessageHandler">
@@ -462,7 +469,6 @@
       </property>
       <property name="outgoingMessageHandler" ref="cNXLogonMessageHandler"/>
       <property name="lifecycleHandler" ref="cNXOrderSessionLifeCycle"/>
-      <property name="name" value="CNXT"/>
     </bean>
 
   </beans>

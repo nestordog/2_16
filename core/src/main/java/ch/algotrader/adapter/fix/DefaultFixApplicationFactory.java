@@ -35,7 +35,6 @@ public class DefaultFixApplicationFactory implements FixApplicationFactory {
     private Object incomingMessageHandler;
     private Object outgoingMessageHandler;
     private FixSessionLifecycle lifecycleHandler;
-    private String name;
 
     public void setIncomingMessageHandler(Object incomingMessageHandler) {
         this.incomingMessageHandler = incomingMessageHandler;
@@ -49,13 +48,9 @@ public class DefaultFixApplicationFactory implements FixApplicationFactory {
         this.lifecycleHandler = lifecycleHanlder;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     @Override
     public String getName() {
-        return name;
+        return lifecycleHandler.getName();
     }
 
     @Override
@@ -65,7 +60,7 @@ public class DefaultFixApplicationFactory implements FixApplicationFactory {
 
     @Override
     public String toString() {
-        return name;
+        return lifecycleHandler.getName();
     }
 
     protected Application createApplication(SessionID sessionID, Object incomingMessageHandler, Object outgoingMessageHandler, FixSessionLifecycle lifecycleHandler) {

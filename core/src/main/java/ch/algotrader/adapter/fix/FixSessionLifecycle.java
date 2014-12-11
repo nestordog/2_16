@@ -28,6 +28,8 @@ import ch.algotrader.enumeration.ConnectionState;
  */
 public interface FixSessionLifecycle {
 
+    String getName();
+
     void create();
 
     void logon();
