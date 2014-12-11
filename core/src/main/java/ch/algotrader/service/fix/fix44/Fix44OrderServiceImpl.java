@@ -91,6 +91,10 @@ public abstract class Fix44OrderServiceImpl extends FixOrderServiceImpl implemen
         // broker-specific settings
         prepareModifyOrder(order, message);
 
+        // assign a new clOrdID
+        order.setIntId(clOrdID);
+        order.setExtId(null);
+
         // send the message
         sendOrder(order, message, true);
 
