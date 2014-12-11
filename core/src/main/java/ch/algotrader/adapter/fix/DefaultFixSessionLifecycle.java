@@ -22,6 +22,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.commons.lang.Validate;
 
 import ch.algotrader.enumeration.ConnectionState;
+import ch.algotrader.esper.EngineLocator;
+import ch.algotrader.vo.SessionEventVO;
 
 /**
  * Default implementation of {@link FixSessionLifecycle} that keeps track of
@@ -51,25 +53,46 @@ public class DefaultFixSessionLifecycle implements FixSessionLifecycle {
     @Override
     public void create() {
 
-        this.connState.compareAndSet(ConnectionState.DISCONNECTED, ConnectionState.CONNECTED);
+        if (this.connState.compareAndSet(ConnectionState.DISCONNECTED, ConnectionState.CONNECTED)) {
+
+            SessionEventVO event = new SessionEventVO(ConnectionState.CONNECTED, this.name);
+            EngineLocator.instance().sendEventToAllEngines(event);
+        }
     }
 
     @Override
     public void logon() {
 
-          this.connState.compareAndSet(ConnectionState.CONNECTED, ConnectionState.LOGGED_ON);
+          if (this.connState.compareAndSet(ConnectionState.CONNECTED, ConnectionState.LOGGED_ON)) {
+
+              SessionEventVO event = new SessionEventVO(ConnectionState.LOGGED_ON, this.name);
+              EngineLocator.instance().sendEventToAllEngines(event);
+          }
     }
 
     @Override
     public void logoff() {
 
-        this.connState.set(ConnectionState.CONNECTED);
+        ConnectionState previousState = this.connState.getAndSet(ConnectionState.CONNECTED);
+        if (previousState.compareTo(ConnectionState.LOGGED_ON) >= 0) {
+
+            SessionEventVO event = new SessionEventVO(ConnectionState.CONNECTED, this.name);
+            EngineLocator.instance().sendEventToAllEngines(event);
+        }
     }
 
     @Override
     public boolean subscribe() {
 
-        return this.connState.compareAndSet(ConnectionState.LOGGED_ON, ConnectionState.SUBSCRIBED);
+        if (this.connState.compareAndSet(ConnectionState.LOGGED_ON, ConnectionState.SUBSCRIBED)) {
+
+            SessionEventVO event = new SessionEventVO(ConnectionState.SUBSCRIBED, this.name);
+            EngineLocator.instance().sendEventToAllEngines(event);
+            return true;
+        } else {
+
+            return false;
+        }
     }
 
     @Override

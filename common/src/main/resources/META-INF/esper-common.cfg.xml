@@ -35,6 +35,9 @@
     <event-type name="ExpirePosition" class="ch.algotrader.vo.ExpirePositionVO"/>
     <event-type name="BarVO" class="ch.algotrader.vo.BarVO"/>
 
+    <!-- Session events -->
+    <event-type name="SessionEventVO" class="ch.algotrader.vo.SessionEventVO"/>
+
     <!--  Metrics -->
 <!--     <event-type name="StatementMetric" class="ch.algotrader.vo.StatementMetricVO"/> -->
 
