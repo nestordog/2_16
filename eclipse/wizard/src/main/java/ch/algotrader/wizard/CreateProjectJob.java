@@ -17,7 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.wizard;
 
-import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Properties;
 
@@ -96,15 +95,7 @@ public class CreateProjectJob extends Job {
             // eclipse fails to load an existing archetype unless getRequiredProperties is called at least once.
             // Seems to be initialization problem or similar.
             ArchetypeManager archetypeManager = MavenPluginActivator.getDefault().getArchetypeManager();
-            Object remoteArchetypeRepository = archetypeManager.getArchetypeRepository(archetype);
-            Method getRequiredProperties = null;
-            for(Method method : archetypeManager.getClass().getMethods())
-              if("getRequiredProperties".equals(method.getName())) {
-                getRequiredProperties = method;
-                break;
-              }
-            if(getRequiredProperties != null)
-              getRequiredProperties.invoke(archetypeManager, archetype, remoteArchetypeRepository, null);
+            archetypeManager.getRequiredProperties(archetype, archetypeManager.getArchetypeRepository(archetype), null);
             // end of fix
 
             List<IProject> projects = configManager.createArchetypeProjects(this.config.path, archetype, this.config.groupId, this.config.artifactId, this.config.version, this.config.packageName,
