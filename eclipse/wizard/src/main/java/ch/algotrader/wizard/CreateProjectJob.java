@@ -29,6 +29,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.m2e.core.internal.MavenPluginActivator;
+import org.eclipse.m2e.core.internal.archetype.ArchetypeManager;
 import org.eclipse.m2e.core.project.IProjectConfigurationManager;
 import org.eclipse.m2e.core.project.ProjectImportConfiguration;
 import org.eclipse.swt.widgets.Display;
@@ -89,6 +90,13 @@ public class CreateProjectJob extends Job {
             properties.put("dataSet", this.config.dataSet); //$NON-NLS-1$
             properties.put("dataBase", this.config.databaseName); //$NON-NLS-1$
             properties.put("instruments", this.config.databaseModel.getInstruments(this.config.dataSetType, this.config.dataSet)); //$NON-NLS-1$
+
+            // akhikhl-20141210: fix for archetype loading problem:
+            // eclipse fails to load an existing archetype unless getRequiredProperties is called at least once.
+            // Seems to be initialization problem or similar.
+            ArchetypeManager archetypeManager = MavenPluginActivator.getDefault().getArchetypeManager();
+            archetypeManager.getRequiredProperties(archetype, archetypeManager.getArchetypeRepository(archetype), null);
+            // end of fix
 
             List<IProject> projects = configManager.createArchetypeProjects(this.config.path, archetype, this.config.groupId, this.config.artifactId, this.config.version, this.config.packageName,
                     properties, new ProjectImportConfiguration(), monitor);
