@@ -28,6 +28,9 @@ import org.supercsv.cellprocessor.ift.CellProcessor;
 import org.supercsv.io.CsvListWriter;
 import org.supercsv.prefs.CsvPreference;
 
+import ch.algotrader.config.CommonConfig;
+import ch.algotrader.config.ConfigLocator;
+
 /**
  * SuperCSV Writer that writes Maps to the specified CSV-File.
  *
@@ -72,7 +75,12 @@ public class ListReporter implements Report {
 
     public ListReporter(String fileName, String[] header, CellProcessor[] processor) {
 
-        this(new File("files" + File.separator + "report" + File.separator + fileName + ".csv"), header, processor);
+        this(new File(getReportLocation(), fileName + ".csv"), header, processor);
+    }
+
+    private static File getReportLocation() {
+        final CommonConfig config = ConfigLocator.instance().getCommonConfig();
+        return config.getReportLocation();
     }
 
     public void write(List<?> row) {

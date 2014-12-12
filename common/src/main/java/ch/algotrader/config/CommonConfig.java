@@ -44,6 +44,7 @@ public final class CommonConfig {
     private final boolean feedGenericEvents;
     private final boolean feedAllMarketDataFiles;
     private final int feedBatchSize;
+    private final File reportLocation;
     private final boolean simulation;
     private final BigDecimal simulationInitialBalance;
     private final boolean simulationLogTransactions;
@@ -58,13 +59,14 @@ public final class CommonConfig {
             @ConfigName("strategyName") final String strategyName,
             @ConfigName("dataSource.dataSet") final String dataSet,
             @ConfigName("dataSource.dataSetType") final MarketDataType dataSetType,
-            @ConfigName(value = "dataSource.dataSetLocation", optional = true) final File dataSetLocation,
+            @ConfigName("dataSource.dataSetLocation") final File dataSetLocation,
             @ConfigName("dataSource.barSize") final Duration barSize,
             @ConfigName("dataSource.feedCSV") final boolean feedCSV,
             @ConfigName("dataSource.feedDB") final boolean feedDB,
             @ConfigName("dataSource.feedGenericEvents") final boolean feedGenericEvents,
             @ConfigName("dataSource.feedAllMarketDataFiles") final boolean feedAllMarketDataFiles,
             @ConfigName("dataSource.feedBatchSize") final int feedBatchSize,
+            @ConfigName("report.reportLocation") final File reportLocation,
             @ConfigName("simulation") final boolean simulation,
             @ConfigName("simulation.initialBalance") final BigDecimal simulationInitialBalance,
             @ConfigName("simulation.logTransactions") final boolean simulationLogTransactions,
@@ -84,6 +86,7 @@ public final class CommonConfig {
         this.feedGenericEvents = feedGenericEvents;
         this.feedAllMarketDataFiles = feedAllMarketDataFiles;
         this.feedBatchSize = feedBatchSize;
+        this.reportLocation = reportLocation;
         this.simulation = simulation;
         this.simulationInitialBalance = simulationInitialBalance;
         this.simulationLogTransactions = simulationLogTransactions;
@@ -133,6 +136,10 @@ public final class CommonConfig {
 
     public int getFeedBatchSize() {
         return this.feedBatchSize;
+    }
+
+    public File getReportLocation() {
+        return this.reportLocation;
     }
 
     public boolean isSimulation() {

@@ -20,7 +20,9 @@ package ch.algotrader.config;
 import java.io.File;
 import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -53,6 +55,7 @@ public class ConfigBeanFactoryTest {
         map.put("dataSource.feedGenericEvents", "true");
         map.put("dataSource.feedAllMarketDataFiles", "true");
         map.put("dataSource.feedBatchSize", "20");
+        map.put("report.reportLocation", "stuff/report-stuff");
         map.put("simulation", "true");
         map.put("simulation.initialBalance", "500.5");
         map.put("simulation.logTransactions", "true");
@@ -80,6 +83,7 @@ public class ConfigBeanFactoryTest {
         Assert.assertEquals(Duration.MIN_5, atConfig.getBarSize());
         Assert.assertEquals(true, atConfig.isFeedGenericEvents());
         Assert.assertEquals(true, atConfig.isFeedAllMarketDataFiles());
+        Assert.assertEquals(new File("stuff/report-stuff"), atConfig.getReportLocation());
         Assert.assertTrue(atConfig.isSimulation());
         Assert.assertEquals(new BigDecimal("500.5"), atConfig.getSimulationInitialBalance());
         Assert.assertEquals(true, atConfig.isSimulationLogTransactions());
@@ -89,19 +93,6 @@ public class ConfigBeanFactoryTest {
         Assert.assertEquals(new BigDecimal("1.52"), atConfig.getInitialMarginMarkup());
         Assert.assertEquals(true, atConfig.isValidateCrossedSpread());
         Assert.assertEquals(true, atConfig.isDisplayClosedPositions());
-    }
-
-    @Test
-    public void testCommonConfigConstructionOptional() throws Exception {
-
-        map.remove("dataSource.dataSetLocation");
-        ConfigProvider configProvider = new DefaultConfigProvider(map);
-        ConfigParams configParams = new ConfigParams(configProvider);
-
-        ConfigBeanFactory factory = new ConfigBeanFactory();
-        CommonConfig atConfig = factory.create(configParams, CommonConfig.class);
-        Assert.assertNotNull(atConfig);
-        Assert.assertEquals(null, atConfig.getDataSetLocation());
     }
 
     @Test(expected = ConfigBeanCreationException.class)
@@ -121,4 +112,22 @@ public class ConfigBeanFactoryTest {
 
     }
 
+    @Test
+    public void testCommonConfigConstructionAllParamsRequired() throws Exception {
+        final Set<String> keys = new LinkedHashSet<String>(map.keySet());//copy map to avoid concurrent modification problems
+        for (final String key : keys) {
+            map.remove(key);
+            ConfigProvider configProvider = new DefaultConfigProvider(map);
+            ConfigParams configParams = new ConfigParams(configProvider);
+
+            ConfigBeanFactory factory = new ConfigBeanFactory();
+            try {
+                factory.create(configParams, CommonConfig.class);
+            } catch (ConfigBeanCreationException ex) {
+                Assert.assertEquals("Config parameter '" + key + "' is undefined", ex.getMessage());
+            }
+            setup();//re-construct the original map
+        }
+
+    }
 }
