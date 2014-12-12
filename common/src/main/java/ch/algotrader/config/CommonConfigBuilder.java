@@ -43,6 +43,7 @@ public final class CommonConfigBuilder {
     private boolean feedGenericEvents;
     private boolean feedAllMarketDataFiles;
     private int feedBatchSize;
+    private File reportLocation;
     private boolean simulation;
     private BigDecimal simulationInitialBalance;
     private boolean simulationLogTransactions;
@@ -110,6 +111,11 @@ public final class CommonConfigBuilder {
         return this;
     }
 
+    public CommonConfigBuilder setReportLocation(File reportLocation) {
+        this.reportLocation = reportLocation;
+        return this;
+    }
+
     public CommonConfigBuilder setSimulation(final boolean simulation) {
         this.simulation = simulation;
         return this;
@@ -158,7 +164,7 @@ public final class CommonConfigBuilder {
     public CommonConfig build() {
         return new CommonConfig(
                 this.strategyName, this.dataSet, this.dataSetType, this.dataSetLocation, this.barSize, this.feedCSV, this.feedDB, this.feedGenericEvents, this.feedAllMarketDataFiles,
-                this.feedBatchSize, this.simulation, this.simulationInitialBalance, this.simulationLogTransactions, this.embedded,
+                this.feedBatchSize, this.reportLocation, this.simulation, this.simulationInitialBalance, this.simulationLogTransactions, this.embedded,
                 this.portfolioDigits, this.portfolioBaseCurrency, this.initialMarginMarkup, this.validateCrossedSpread, this.displayClosedPositions);
     }
 

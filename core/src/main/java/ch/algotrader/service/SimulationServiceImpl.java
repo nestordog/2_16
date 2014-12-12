@@ -237,11 +237,10 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
      */
     private void feedMarketData() {
 
-        Collection<Security> securities = this.lookupService.getSubscribedSecuritiesForAutoActivateStrategies();
+        final Collection<Security> securities = this.lookupService.getSubscribedSecuritiesForAutoActivateStrategies();
 
-        CommonConfig commonConfig = this.commonConfig;
-        File dataSetLocation = commonConfig.getDataSetLocation();
-        File baseDir = dataSetLocation == null ? new File("files") : dataSetLocation;
+        final CommonConfig commonConfig = this.commonConfig;
+        final File baseDir = commonConfig.getDataSetLocation();
 
         if (commonConfig.isFeedGenericEvents()) {
             feedGenericEvents(baseDir);
