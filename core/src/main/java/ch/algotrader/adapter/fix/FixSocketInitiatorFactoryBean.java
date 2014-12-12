@@ -30,7 +30,6 @@ import quickfix.DefaultMessageFactory;
 import quickfix.FileLogFactory;
 import quickfix.FileStoreFactory;
 import quickfix.LogFactory;
-import quickfix.MessageFactory;
 import quickfix.MessageStoreFactory;
 import quickfix.SLF4JLogFactory;
 import quickfix.SessionFactory;
@@ -47,13 +46,26 @@ import quickfix.SocketInitiator;
 public class FixSocketInitiatorFactoryBean implements FactoryBean<SocketInitiator>, ApplicationContextAware, DisposableBean {
 
     private final SessionSettings settings;
+    private final MessageStoreFactory messageStoreFactory;
+    private final LogFactory logFactory;
+
     private volatile ApplicationContext applicationContext;
     private volatile SocketInitiator socketInitiator;
 
-    public FixSocketInitiatorFactoryBean(final SessionSettings settings) {
+    public FixSocketInitiatorFactoryBean(final SessionSettings settings, final MessageStoreFactory messageStoreFactory, final LogFactory logFactory) {
         Validate.notNull(settings, "SessionSettings is null");
 
         this.settings = settings;
+        this.messageStoreFactory = messageStoreFactory != null ? messageStoreFactory : new FileStoreFactory(settings);
+        this.logFactory = logFactory != null ? logFactory : new CompositeLogFactory(new LogFactory[] { new SLF4JLogFactory(this.settings), new FileLogFactory(this.settings) });
+    }
+
+    public FixSocketInitiatorFactoryBean(final SessionSettings settings, final MessageStoreFactory messageStoreFactory) {
+        this(settings, messageStoreFactory, null);
+    }
+
+    public FixSocketInitiatorFactoryBean(final SessionSettings settings) {
+        this(settings, null, null);
     }
 
     @Override
@@ -64,14 +76,7 @@ public class FixSocketInitiatorFactoryBean implements FactoryBean<SocketInitiato
     @Override
     public SocketInitiator getObject() throws Exception {
 
-        MessageStoreFactory messageStoreFactory = new FileStoreFactory(this.settings);
-
-        LogFactory logFactory = new CompositeLogFactory(new LogFactory[] { new SLF4JLogFactory(this.settings), new FileLogFactory(this.settings) });
-
-        MessageFactory messageFactory = new DefaultMessageFactory();
-
-        SessionFactory sessionFactory = new FixMultiApplicationSessionFactory(this.applicationContext, messageStoreFactory, logFactory, messageFactory);
-
+        SessionFactory sessionFactory = new FixMultiApplicationSessionFactory(this.applicationContext, this.messageStoreFactory, this.logFactory, new DefaultMessageFactory());
         this.socketInitiator = new SocketInitiator(sessionFactory, this.settings);
 
         JmxExporter exporter = new JmxExporter();

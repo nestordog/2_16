@@ -228,25 +228,37 @@
     <!-- =================================== Fix  ========================================= -->
 
     <beans profile="jPMFix,iBFix,dCFix,rTFix,dcMarkteData,lMAXFix,lMAXMarketData,fXCMFix,fXCMMarketData,cNXFix,cNXMarketData">
-    
-      <bean id="orderIdGenerator" class="ch.algotrader.ordermgmt.DefaultOrderIdGenerator">
-        <constructor-arg index="0" ref="orderDao"/>
-      </bean>    
 
-      <bean id="fixSessionSettings" class="ch.algotrader.adapter.fix.FixSessionSettingsFactoryBean"/>
+        <bean id="orderIdGenerator" class="ch.algotrader.ordermgmt.DefaultOrderIdGenerator">
+            <constructor-arg index="0" ref="orderDao"/>
+        </bean>
 
-      <bean id="fixSocketInitiator" class="ch.algotrader.adapter.fix.FixSocketInitiatorFactoryBean">
-        <constructor-arg index="0" ref="fixSessionSettings"/>
-      </bean>
+        <bean id="fixSessionSettings" class="ch.algotrader.adapter.fix.FixSessionSettingsFactoryBean"/>
 
-      <bean id="fixAdapter" class="ch.algotrader.adapter.fix.ManagedFixAdapter">
-        <constructor-arg index="0" ref="fixSocketInitiator"/>
-        <constructor-arg index="1" ref="lookupService"/>
-        <constructor-arg index="2">
-          <bean class="ch.algotrader.adapter.fix.DefaultFixEventScheduler"/>
-        </constructor-arg>
-        <constructor-arg index="3" ref="orderIdGenerator"/>
-      </bean>
+        <!-- DB bound FIX message store
+        <bean id="fixMessageStoreFactory" class="quickfix.JdbcStoreFactory">
+            <constructor-arg index="0" ref="fixSessionSettings"/>
+            <property name="dataSource" ref="dataSource"/>
+        </bean>
+        -->
+
+        <bean id="fixMessageStoreFactory" class="quickfix.FileStoreFactory">
+            <constructor-arg index="0" ref="fixSessionSettings"/>
+        </bean>
+
+        <bean id="fixSocketInitiator" class="ch.algotrader.adapter.fix.FixSocketInitiatorFactoryBean">
+            <constructor-arg index="0" ref="fixSessionSettings"/>
+            <constructor-arg index="1" ref="fixMessageStoreFactory"/>
+        </bean>
+
+        <bean id="fixAdapter" class="ch.algotrader.adapter.fix.ManagedFixAdapter">
+            <constructor-arg index="0" ref="fixSocketInitiator"/>
+            <constructor-arg index="1" ref="lookupService"/>
+            <constructor-arg index="2">
+                <bean class="ch.algotrader.adapter.fix.DefaultFixEventScheduler"/>
+            </constructor-arg>
+            <constructor-arg index="3" ref="orderIdGenerator"/>
+        </bean>
 
     </beans>
 
