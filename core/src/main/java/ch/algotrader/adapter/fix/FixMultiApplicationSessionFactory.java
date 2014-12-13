@@ -69,13 +69,15 @@ public class FixMultiApplicationSessionFactory implements SessionFactory {
     }
 
     @Override
-    public Session create(SessionID sessionID, SessionSettings settings) throws ConfigError {
+    public Session create(final SessionID sessionID, final SessionSettings settings) throws ConfigError {
 
         final String applicationFactoryName;
+        // For backward compatibility see if the session defines "ApplicationFactory" parameter.
+        // If not, use session qualifier to look up FixApplicationFactory
         if (settings.isSetting(sessionID, APPLICATION_FACTORY)) {
             applicationFactoryName = settings.getSessionProperties(sessionID).getProperty(APPLICATION_FACTORY);
         } else {
-            throw new IllegalStateException(APPLICATION_FACTORY + " setting not defined in fix config file");
+            applicationFactoryName = sessionID.getSessionQualifier();
         }
 
         // find the application factory by its name
