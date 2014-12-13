@@ -17,9 +17,10 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.fxcm;
 
+import org.apache.commons.lang.Validate;
+
 import ch.algotrader.adapter.fix.FixApplicationFactory;
 import ch.algotrader.adapter.fix.FixSessionLifecycle;
-import ch.algotrader.enumeration.ConnectionState;
 import quickfix.Application;
 import quickfix.ConfigError;
 import quickfix.SessionID;
@@ -34,35 +35,25 @@ import quickfix.SessionSettings;
  */
 public class FXCMFixApplicationFactory implements FixApplicationFactory {
 
-    private Object incomingMessageHandler;
-    private FixSessionLifecycle lifecycleHandler;
-    private String name;
+    private final Object incomingMessageHandler;
+    private final FixSessionLifecycle lifecycleHandler;
 
-    public void setIncomingMessageHandler(Object incomingMessageHandler) {
+    public FXCMFixApplicationFactory(final Object incomingMessageHandler, final FixSessionLifecycle lifecycleHandler) {
+        Validate.notNull(incomingMessageHandler, "IncomingMessageHandler may not be null");
+        Validate.notNull(lifecycleHandler, "FixSessionLifecycle may not be null");
+
         this.incomingMessageHandler = incomingMessageHandler;
-    }
-
-    public void setLifecycleHandler(FixSessionLifecycle lifecycleHanlder) {
-        this.lifecycleHandler = lifecycleHanlder;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+        this.lifecycleHandler = lifecycleHandler;
     }
 
     @Override
     public String getName() {
-        return name;
-    }
-
-    @Override
-    public ConnectionState getConnectionState() {
-        return lifecycleHandler.getConnectionState();
+        return lifecycleHandler.getName();
     }
 
     @Override
     public String toString() {
-        return name;
+        return lifecycleHandler.getName() + " FIX application factory";
     }
 
     @Override

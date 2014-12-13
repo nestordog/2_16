@@ -19,12 +19,14 @@ package ch.algotrader.service;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
-import ch.algotrader.adapter.fix.FixApplicationFactory;
+import ch.algotrader.adapter.fix.FixSessionLifecycle;
 import ch.algotrader.enumeration.ConnectionState;
 
 /**
@@ -34,24 +36,38 @@ import ch.algotrader.enumeration.ConnectionState;
  *
  * @version $Revision$ $Date$
  */
-public class FixSessionServiceImpl implements FixSessionService, ApplicationContextAware {
+public class FixSessionServiceImpl implements FixSessionService, ApplicationContextAware, InitializingBean {
+
+    private final Map<String, FixSessionLifecycle> fixSessionLifecycleMap;
 
     private volatile ApplicationContext applicationContext;
 
+    public FixSessionServiceImpl() {
+        this.fixSessionLifecycleMap = new ConcurrentHashMap<>();
+    }
+
     @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+    public void setApplicationContext(final ApplicationContext applicationContext) throws BeansException {
+
         this.applicationContext = applicationContext;
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        Map<String, FixSessionLifecycle> map = applicationContext.getBeansOfType(FixSessionLifecycle.class);
+        for (Map.Entry<String, FixSessionLifecycle> entry : map.entrySet()) {
+            FixSessionLifecycle sessionLifecycle = entry.getValue();
+            fixSessionLifecycleMap.put(sessionLifecycle.getName(), sessionLifecycle);
+        }
     }
 
     @Override
     public Map<String, ConnectionState> getAllSessionState() {
 
-        Map<String, FixApplicationFactory> appFactoryMap = this.applicationContext.getBeansOfType(FixApplicationFactory.class);
-
-        Map<String, ConnectionState> connectionStates = new HashMap<>(appFactoryMap.size());
-        for (Map.Entry<String, FixApplicationFactory> entry : appFactoryMap.entrySet()) {
-            FixApplicationFactory appFactory = entry.getValue();
-            connectionStates.put(appFactory.getName(), appFactory.getConnectionState());
+        Map<String, ConnectionState> connectionStates = new HashMap<>(fixSessionLifecycleMap.size());
+        for (Map.Entry<String, FixSessionLifecycle> entry : fixSessionLifecycleMap.entrySet()) {
+            FixSessionLifecycle sessionLifecycle = entry.getValue();
+            connectionStates.put(sessionLifecycle.getName(), sessionLifecycle.getConnectionState());
         }
         return connectionStates;
     }
@@ -60,18 +76,10 @@ public class FixSessionServiceImpl implements FixSessionService, ApplicationCont
     public ConnectionState getSessionState(final String name) {
 
         if (name == null) {
-
             return null;
         }
-        Map<String, FixApplicationFactory> appFactoryMap = this.applicationContext.getBeansOfType(FixApplicationFactory.class);
-        for (Map.Entry<String, FixApplicationFactory> entry : appFactoryMap.entrySet()) {
-            FixApplicationFactory appFactory = entry.getValue();
-            if (name.equals(appFactory.getName())) {
-
-                return appFactory.getConnectionState();
-            }
-        }
-        return null;
+        FixSessionLifecycle sessionLifecycle = fixSessionLifecycleMap.get(name);
+        return sessionLifecycle != null ? sessionLifecycle.getConnectionState() : null;
     }
 
 }

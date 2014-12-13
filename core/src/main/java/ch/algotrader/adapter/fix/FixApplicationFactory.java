@@ -17,7 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.fix;
 
-import ch.algotrader.enumeration.ConnectionState;
 import quickfix.Application;
 import quickfix.ConfigError;
 import quickfix.SessionID;
@@ -42,8 +41,4 @@ public interface FixApplicationFactory {
      */
     String getName();
 
-    /**
-     * Gets the current connection state
-     */
-    ConnectionState getConnectionState();
 }

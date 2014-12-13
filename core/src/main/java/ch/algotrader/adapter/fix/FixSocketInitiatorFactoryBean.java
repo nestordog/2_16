@@ -17,6 +17,9 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.fix;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.commons.lang.Validate;
 import org.quickfixj.jmx.JmxExporter;
 import org.springframework.beans.BeansException;
@@ -76,7 +79,15 @@ public class FixSocketInitiatorFactoryBean implements FactoryBean<SocketInitiato
     @Override
     public SocketInitiator getObject() throws Exception {
 
-        SessionFactory sessionFactory = new FixMultiApplicationSessionFactory(this.applicationContext, this.messageStoreFactory, this.logFactory, new DefaultMessageFactory());
+        // get all FixApplicationFactories
+        Map<String, FixApplicationFactory> applicationFactoryMap = this.applicationContext.getBeansOfType(FixApplicationFactory.class);
+        Map<String, FixApplicationFactory> applicationFactoryMapByName = new HashMap<>(applicationFactoryMap.size());
+        for (Map.Entry<String, FixApplicationFactory> entry: applicationFactoryMap.entrySet()) {
+
+            FixApplicationFactory applicationFactory = entry.getValue();
+            applicationFactoryMapByName.put(applicationFactory.getName(), applicationFactory);
+        }
+        SessionFactory sessionFactory = new FixMultiApplicationSessionFactory(applicationFactoryMapByName, this.messageStoreFactory, this.logFactory, new DefaultMessageFactory());
         this.socketInitiator = new SocketInitiator(sessionFactory, this.settings);
 
         JmxExporter exporter = new JmxExporter();

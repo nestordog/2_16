@@ -271,10 +271,10 @@
         </bean>
 
         <bean id="jPMOrderApplicationFactory" class="ch.algotrader.adapter.fix.DefaultFixApplicationFactory">
-            <property name="incomingMessageHandler">
+            <constructor-arg index="0">
                 <bean class="ch.algotrader.adapter.fix.fix42.GenericFix42OrderMessageHandler"/>
-            </property>
-            <property name="lifecycleHandler" ref="jPMOrderSessionLifeCycle"/>
+            </constructor-arg>
+            <constructor-arg index="1" ref="jPMOrderSessionLifeCycle"/>
         </bean>
 
     </beans>
@@ -289,13 +289,13 @@
         </bean>
 
         <bean id="iBOrderApplicationFactory" class="ch.algotrader.adapter.fix.DefaultFixApplicationFactory">
-            <property name="incomingMessageHandler">
+            <constructor-arg index="0">
                 <bean class="ch.algotrader.adapter.ib.IBFixOrderMessageHandler">
               <property name="lookupService" ref="lookupService"/>
                     <property name="accountService" ref="iBFixAccountService"/>
                 </bean>
-            </property>
-            <property name="lifecycleHandler" ref="iBOrderSessionLifeCycle"/>
+            </constructor-arg>
+            <constructor-arg index="1" ref="iBOrderSessionLifeCycle"/>
         </bean>
 
     </beans>
@@ -309,12 +309,12 @@
         </bean>
 
         <bean id="rTOrderApplicationFactory" class="ch.algotrader.adapter.fix.DefaultFixApplicationFactory">
-            <property name="incomingMessageHandler">
+            <constructor-arg index="0">
                 <bean class="ch.algotrader.adapter.rt.RTFixOrderMessageHandler">
                     <property name="lookupService" ref="lookupService"/>
                 </bean>
-            </property>
-            <property name="lifecycleHandler" ref="rTOrderSessionLifeCycle"/>
+            </constructor-arg>
+            <constructor-arg index="1" ref="rTOrderSessionLifeCycle"/>
         </bean>
 
     </beans>
@@ -338,11 +338,11 @@
         </bean>
 
         <bean id="dCMarketDataApplicationFactory" class="ch.algotrader.adapter.fix.DefaultFixApplicationFactory">
-            <property name="incomingMessageHandler">
+            <constructor-arg index="0">
                    <bean class="ch.algotrader.adapter.dc.DCFixMarketDataMessageHandler"/>
-            </property>
-            <property name="outgoingMessageHandler" ref="dCLogonMessageHandler"/>
-            <property name="lifecycleHandler" ref="dCMarketDataSessionLifeCycle"/>
+            </constructor-arg>
+            <constructor-arg index="1" ref="dCLogonMessageHandler"/>
+            <constructor-arg index="2" ref="dCMarketDataSessionLifeCycle"/>
         </bean>
 
     </beans>
@@ -354,13 +354,13 @@
         </bean>
 
         <bean id="dCOrderApplicationFactory" class="ch.algotrader.adapter.fix.DefaultFixApplicationFactory">
-            <property name="incomingMessageHandler">
+            <constructor-arg index="0">
                 <bean class="ch.algotrader.adapter.dc.DCFixOrderMessageHandler">
                     <property name="lookupService" ref="lookupService"/>
                 </bean>
-            </property>
-            <property name="outgoingMessageHandler" ref="dCLogonMessageHandler"/>
-            <property name="lifecycleHandler" ref="dCOrderSessionLifeCycle"/>
+            </constructor-arg>
+            <constructor-arg index="1" ref="dCLogonMessageHandler"/>
+            <constructor-arg index="2" ref="dCOrderSessionLifeCycle"/>
         </bean>
 
     </beans>
@@ -384,11 +384,11 @@
         </bean>
 
         <bean id="lMAXMarketDataApplicationFactory" class="ch.algotrader.adapter.fix.DefaultFixApplicationFactory">
-            <property name="incomingMessageHandler">
+            <constructor-arg index="0">
                 <bean class="ch.algotrader.adapter.lmax.LMAXFixMarketDataMessageHandler"/>
-            </property>
-            <property name="outgoingMessageHandler" ref="lMAXLogonMessageHandler"/>
-            <property name="lifecycleHandler" ref="lMAXMarketDataSessionLifeCycle"/>
+            </constructor-arg>
+            <constructor-arg index="1" ref="lMAXLogonMessageHandler"/>
+            <constructor-arg index="2" ref="lMAXMarketDataSessionLifeCycle"/>
         </bean>
 
     </beans>
@@ -400,13 +400,13 @@
         </bean>
 
         <bean id="lMAXOrderApplicationFactory" class="ch.algotrader.adapter.fix.DefaultFixApplicationFactory">
-            <property name="incomingMessageHandler">
+            <constructor-arg index="0">
                 <bean class="ch.algotrader.adapter.lmax.LMAXFixOrderMessageHandler">
                     <property name="lookupService" ref="lookupService"/>
                 </bean>
-            </property>
-            <property name="outgoingMessageHandler" ref="lMAXLogonMessageHandler"/>
-            <property name="lifecycleHandler" ref="lMAXOrderSessionLifeCycle"/>
+            </constructor-arg>
+            <constructor-arg index="1" ref="lMAXLogonMessageHandler"/>
+            <constructor-arg index="2" ref="lMAXOrderSessionLifeCycle"/>
         </bean>
 
     </beans>
@@ -422,7 +422,7 @@
         </bean>
 
         <bean id="fXCMApplicationFactory" class="ch.algotrader.adapter.fxcm.FXCMFixApplicationFactory">
-            <property name="incomingMessageHandler">
+            <constructor-arg index="0">
                 <bean class="ch.algotrader.adapter.fxcm.FXCMFixMessageHandler">
                     <constructor-arg>
                         <bean class="ch.algotrader.adapter.fxcm.FXCMFixMarketDataMessageHandler"/>
@@ -433,59 +433,59 @@
                         </bean>
                     </constructor-arg>
                 </bean>
-            </property>
-            <property name="lifecycleHandler" ref="fXCMSessionLifeCycle"/>
+            </constructor-arg>
+            <constructor-arg index="1" ref="fXCMSessionLifeCycle"/>
         </bean>
 
     </beans>
 
   <!-- =================================== Currenex  ========================================= -->
 
-  <beans profile="cNXMarketData,cNXFix">
+    <beans profile="cNXMarketData,cNXFix">
 
-    <bean id="cNXLogonMessageHandler" class="ch.algotrader.adapter.fix.DefaultLogonMessageHandler">
-      <constructor-arg index="0" ref="fixSessionSettings"/>
-    </bean>
-
-  </beans>
-
-  <beans profile="cNXMarketData">
-
-    <bean id="cNXMarketDataSessionLifeCycle" class="ch.algotrader.adapter.fix.MarketDataFixSessionLifecycle">
-        <constructor-arg index="0" value="CNXMD"/>
-        <constructor-arg index="1" ref="marketDataService"/>
-        <constructor-arg index="2" value="CNX"/>
-    </bean>
-
-    <bean id="cNXMarketDataApplicationFactory" class="ch.algotrader.adapter.cnx.CNXFixApplicationFactory">
-      <property name="incomingMessageHandler">
-        <bean class="ch.algotrader.adapter.cnx.CNXFixMarketDataMessageHandler"/>
-      </property>
-      <property name="outgoingMessageHandler" ref="cNXLogonMessageHandler"/>
-      <property name="lifecycleHandler" ref="cNXMarketDataSessionLifeCycle"/>
-    </bean>
-
-  </beans>
-
-  <beans profile="cNXFix">
-
-    <bean id="cNXOrderSessionLifeCycle" class="ch.algotrader.adapter.fix.DefaultFixSessionLifecycle">
-        <constructor-arg index="0" value="CNXT"/>
-    </bean>
-
-    <bean id="cNXOrderApplicationFactory" class="ch.algotrader.adapter.cnx.CNXFixApplicationFactory">
-      <property name="incomingMessageHandler">
-        <bean class="ch.algotrader.adapter.cnx.CNXFixOrderMessageHandler">
-          <property name="lookupService" ref="lookupService"/>
+        <bean id="cNXLogonMessageHandler" class="ch.algotrader.adapter.fix.DefaultLogonMessageHandler">
+            <constructor-arg index="0" ref="fixSessionSettings"/>
         </bean>
-      </property>
-      <property name="outgoingMessageHandler" ref="cNXLogonMessageHandler"/>
-      <property name="lifecycleHandler" ref="cNXOrderSessionLifeCycle"/>
-    </bean>
 
-  </beans>
+    </beans>
 
-  <!-- =========================================== RECONCILIATION ================================================ -->
+    <beans profile="cNXMarketData">
+
+        <bean id="cNXMarketDataSessionLifeCycle" class="ch.algotrader.adapter.fix.MarketDataFixSessionLifecycle">
+            <constructor-arg index="0" value="CNXMD"/>
+            <constructor-arg index="1" ref="marketDataService"/>
+            <constructor-arg index="2" value="CNX"/>
+        </bean>
+
+        <bean id="cNXMarketDataApplicationFactory" class="ch.algotrader.adapter.cnx.CNXFixApplicationFactory">
+            <constructor-arg index="0">
+                <bean class="ch.algotrader.adapter.cnx.CNXFixMarketDataMessageHandler"/>
+            </constructor-arg>
+            <constructor-arg index="1" ref="cNXLogonMessageHandler"/>
+            <constructor-arg index="2" ref="cNXMarketDataSessionLifeCycle"/>
+        </bean>
+
+    </beans>
+
+    <beans profile="cNXFix">
+
+        <bean id="cNXOrderSessionLifeCycle" class="ch.algotrader.adapter.fix.DefaultFixSessionLifecycle">
+            <constructor-arg index="0" value="CNXT"/>
+        </bean>
+
+        <bean id="cNXOrderApplicationFactory" class="ch.algotrader.adapter.cnx.CNXFixApplicationFactory">
+            <constructor-arg index="0">
+                <bean class="ch.algotrader.adapter.cnx.CNXFixOrderMessageHandler">
+                    <property name="lookupService" ref="lookupService"/>
+                </bean>
+            </constructor-arg>
+            <constructor-arg index="1" ref="cNXLogonMessageHandler"/>
+            <constructor-arg index="2" ref="cNXOrderSessionLifeCycle"/>
+        </bean>
+
+    </beans>
+
+    <!-- =========================================== RECONCILIATION ================================================ -->
 
     <beans profile="reconciliation">
 
