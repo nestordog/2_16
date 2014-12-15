@@ -42,16 +42,7 @@
 <!--     <event-type name="StatementMetric" class="ch.algotrader.vo.StatementMetricVO"/> -->
 
     <!-- Enumerations -->
-    <auto-import import-name="ch.algotrader.enumeration.Direction"/>
-    <auto-import import-name="ch.algotrader.enumeration.Side"/>
-    <auto-import import-name="ch.algotrader.enumeration.Status"/>
-    <auto-import import-name="ch.algotrader.enumeration.TimePeriod"/>
-    <auto-import import-name="ch.algotrader.enumeration.TransactionType"/>
-    <auto-import import-name="ch.algotrader.enumeration.ExpirationType"/>
-    <auto-import import-name="ch.algotrader.enumeration.OptionType"/>
-    <auto-import import-name="ch.algotrader.enumeration.FeedType"/>
-    <auto-import import-name="ch.algotrader.enumeration.TickType"/>
-    <auto-import import-name="ch.algotrader.enumeration.TIF"/>
+    <auto-import import-name="ch.algotrader.enumeration.*"/>
 
     <!-- Utils -->
     <auto-import import-name="ch.algotrader.option.OptionUtil"/>
