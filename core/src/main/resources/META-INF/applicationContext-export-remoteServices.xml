@@ -116,6 +116,14 @@
         <property name="serviceInterface" value="ch.algotrader.service.LazyLoaderService"/>
     </bean>
 
+    <bean name="FixSessionService" class="org.springframework.remoting.rmi.RmiServiceExporter">
+        <property name="serviceName" value="FixSessionService"/>
+        <property name="registryPort" value="${remotePort}"/>
+        <property name="servicePort" value="${remoteServicePort}"/>
+        <property name="service" ref="fixSessionService"/>
+        <property name="serviceInterface" value="ch.algotrader.service.FixSessionService"/>
+    </bean>
+
     <!-- ==================== Start of PROFILE REMOTE SERVICE DEFINITIONS ===================== -->
 
     <beans profile="iBHistoricalData,bBHistoricalData">

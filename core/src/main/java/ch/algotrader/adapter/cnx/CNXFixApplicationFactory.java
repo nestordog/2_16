@@ -31,9 +31,18 @@ import quickfix.SessionID;
  */
 public class CNXFixApplicationFactory extends DefaultFixApplicationFactory {
 
+    public CNXFixApplicationFactory(final Object incomingMessageHandler, final Object outgoingMessageHandler, final FixSessionLifecycle lifecycleHandler) {
+        super(incomingMessageHandler, outgoingMessageHandler, lifecycleHandler);
+    }
+
+    public CNXFixApplicationFactory(final Object incomingMessageHandler, final FixSessionLifecycle lifecycleHandler) {
+        super(incomingMessageHandler, null, lifecycleHandler);
+    }
+
     @Override
     protected Application createApplication(SessionID sessionID, Object incomingMessageHandler, Object outgoingMessageHandler, FixSessionLifecycle lifecycleHandler) {
 
         return new CNXFixApplication(sessionID, incomingMessageHandler, outgoingMessageHandler, lifecycleHandler);
     }
+
 }

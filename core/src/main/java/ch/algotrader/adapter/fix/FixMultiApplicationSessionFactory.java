@@ -17,12 +17,10 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.fix;
 
-import java.util.Collection;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.commons.collections15.CollectionUtils;
-import org.apache.commons.collections15.Predicate;
 import org.apache.commons.lang.Validate;
-import org.springframework.context.ApplicationContext;
 
 import quickfix.Application;
 import quickfix.ConfigError;
@@ -52,44 +50,38 @@ public class FixMultiApplicationSessionFactory implements SessionFactory {
 
     private static final String APPLICATION_FACTORY = "ApplicationFactory";
 
-    private final ApplicationContext applicationContext;
+    private final Map<String, FixApplicationFactory> applicationFactoryMap;
     private final MessageStoreFactory messageStoreFactory;
     private final LogFactory logFactory;
     private final MessageFactory messageFactory;
 
-    public FixMultiApplicationSessionFactory(ApplicationContext applicationContext, MessageStoreFactory messageStoreFactory, LogFactory logFactory, MessageFactory messageFactory) {
+    public FixMultiApplicationSessionFactory(final Map<String, FixApplicationFactory> applicationFactoryMap, final MessageStoreFactory messageStoreFactory, final LogFactory logFactory, final MessageFactory messageFactory) {
 
-        Validate.notNull(applicationContext, "ApplicationContext may not be null");
+        Validate.notNull(applicationFactoryMap, "FixApplicationFactory map may not be null");
         Validate.notNull(messageStoreFactory, "MessageStoreFactory may not be null");
         Validate.notNull(logFactory, "LogFactory may not be null");
         Validate.notNull(messageFactory, "MessageFactory may not be null");
 
-        this.applicationContext = applicationContext;
+        this.applicationFactoryMap = new ConcurrentHashMap<>(applicationFactoryMap);
         this.messageStoreFactory = messageStoreFactory;
         this.logFactory = logFactory;
         this.messageFactory = messageFactory;
     }
 
     @Override
-    public Session create(SessionID sessionID, SessionSettings settings) throws ConfigError {
-
-        // get all FixApplicationFactories
-        Collection<FixApplicationFactory> applicationFactories = this.applicationContext.getBeansOfType(FixApplicationFactory.class).values();
+    public Session create(final SessionID sessionID, final SessionSettings settings) throws ConfigError {
 
         final String applicationFactoryName;
+        // For backward compatibility see if the session defines "ApplicationFactory" parameter.
+        // If not, use session qualifier to look up FixApplicationFactory
         if (settings.isSetting(sessionID, APPLICATION_FACTORY)) {
             applicationFactoryName = settings.getSessionProperties(sessionID).getProperty(APPLICATION_FACTORY);
         } else {
-            throw new IllegalStateException(APPLICATION_FACTORY + " setting not defined in fix config file");
+            applicationFactoryName = sessionID.getSessionQualifier();
         }
 
         // find the application factory by its name
-        FixApplicationFactory applicationFactory = CollectionUtils.find(applicationFactories, new Predicate<FixApplicationFactory>(){
-            @Override
-            public boolean evaluate(FixApplicationFactory applicationFactory) {
-                return applicationFactoryName.equals(applicationFactory.getName());
-            }});
-
+        FixApplicationFactory applicationFactory = this.applicationFactoryMap.get(applicationFactoryName);
         Validate.notNull(applicationFactory, "no FixApplicationFactory found for name " + applicationFactoryName);
 
         Application application = applicationFactory.create(sessionID, settings);

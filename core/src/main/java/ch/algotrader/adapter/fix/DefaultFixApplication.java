@@ -34,8 +34,7 @@ public class DefaultFixApplication extends AbstractFixApplication {
 
     public DefaultFixApplication(SessionID sessionID, Object incomingMessageHandler, Object outgoingMessageHandler, FixSessionLifecycle lifecycleHandler) {
         super(sessionID, incomingMessageHandler, outgoingMessageHandler);
-
-        Validate.notNull(sessionID, "Session ID may not be null");
+        Validate.notNull(sessionID, "FixSessionLifecycle may not be null");
         this.lifecycleHandler = lifecycleHandler;
     }
 

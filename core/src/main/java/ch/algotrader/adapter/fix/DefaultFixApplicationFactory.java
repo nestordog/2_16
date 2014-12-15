@@ -17,7 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.fix;
 
-import ch.algotrader.enumeration.ConnectionState;
+import org.apache.commons.lang.Validate;
+
 import quickfix.Application;
 import quickfix.ConfigError;
 import quickfix.SessionID;
@@ -32,20 +33,21 @@ import quickfix.SessionSettings;
  */
 public class DefaultFixApplicationFactory implements FixApplicationFactory {
 
-    private Object incomingMessageHandler;
-    private Object outgoingMessageHandler;
-    private FixSessionLifecycle lifecycleHandler;
+    private final Object incomingMessageHandler;
+    private final Object outgoingMessageHandler;
+    private final FixSessionLifecycle lifecycleHandler;
 
-    public void setIncomingMessageHandler(Object incomingMessageHandler) {
+    public DefaultFixApplicationFactory(final Object incomingMessageHandler, final Object outgoingMessageHandler, final FixSessionLifecycle lifecycleHandler) {
+        Validate.notNull(incomingMessageHandler, "IncomingMessageHandler may not be null");
+        Validate.notNull(lifecycleHandler, "FixSessionLifecycle may not be null");
+
         this.incomingMessageHandler = incomingMessageHandler;
-    }
-
-    public void setOutgoingMessageHandler(Object outgoingMessageHandler) {
         this.outgoingMessageHandler = outgoingMessageHandler;
+        this.lifecycleHandler = lifecycleHandler;
     }
 
-    public void setLifecycleHandler(FixSessionLifecycle lifecycleHanlder) {
-        this.lifecycleHandler = lifecycleHanlder;
+    public DefaultFixApplicationFactory(final Object incomingMessageHandler, final FixSessionLifecycle lifecycleHandler) {
+        this(incomingMessageHandler, null, lifecycleHandler);
     }
 
     @Override
@@ -54,13 +56,8 @@ public class DefaultFixApplicationFactory implements FixApplicationFactory {
     }
 
     @Override
-    public ConnectionState getConnectionState() {
-        return lifecycleHandler.getConnectionState();
-    }
-
-    @Override
     public String toString() {
-        return lifecycleHandler.getName();
+        return lifecycleHandler.getName() + " FIX application factory";
     }
 
     protected Application createApplication(SessionID sessionID, Object incomingMessageHandler, Object outgoingMessageHandler, FixSessionLifecycle lifecycleHandler) {

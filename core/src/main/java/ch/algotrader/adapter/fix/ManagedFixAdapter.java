@@ -17,11 +17,12 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.fix;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.jmx.export.annotation.ManagedAttribute;
@@ -47,7 +48,9 @@ import quickfix.SocketInitiator;
  * @version $Revision$ $Date$
  */
 @ManagedResource(objectName = "ch.algotrader.adapter.fix:name=FixAdapter")
-public class ManagedFixAdapter extends DefaultFixAdapter implements ApplicationContextAware {
+public class ManagedFixAdapter extends DefaultFixAdapter implements ApplicationContextAware, InitializingBean {
+
+    private final Map<String, FixSessionLifecycle> fixSessionLifecycleMap;
 
     private volatile ApplicationContext applicationContext;
 
@@ -57,11 +60,22 @@ public class ManagedFixAdapter extends DefaultFixAdapter implements ApplicationC
             final FixEventScheduler eventScheduler,
             final OrderIdGenerator orderIdGenerator) {
         super(socketInitiator, lookupService, eventScheduler, orderIdGenerator);
+        this.fixSessionLifecycleMap = new ConcurrentHashMap<>();
     }
 
     @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+    public void setApplicationContext(final ApplicationContext applicationContext) throws BeansException {
+
         this.applicationContext = applicationContext;
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        Map<String, FixSessionLifecycle> map = applicationContext.getBeansOfType(FixSessionLifecycle.class);
+        for (Map.Entry<String, FixSessionLifecycle> entry : map.entrySet()) {
+            FixSessionLifecycle sessionLifecycle = entry.getValue();
+            fixSessionLifecycleMap.put(sessionLifecycle.getName(), sessionLifecycle);
+        }
     }
 
     /**
@@ -70,11 +84,10 @@ public class ManagedFixAdapter extends DefaultFixAdapter implements ApplicationC
     @ManagedAttribute
     public Map<String, ConnectionState> getApplicationFactoryConnectionStates() {
 
-        Collection<FixApplicationFactory> applicationFactories = this.applicationContext.getBeansOfType(FixApplicationFactory.class).values();
-
-        Map<String, ConnectionState> connectionStates = new HashMap<String, ConnectionState>();
-        for (FixApplicationFactory applicationFactory : applicationFactories) {
-            connectionStates.put(applicationFactory.getName(), applicationFactory.getConnectionState());
+        Map<String, ConnectionState> connectionStates = new HashMap<>(fixSessionLifecycleMap.size());
+        for (Map.Entry<String, FixSessionLifecycle> entry : fixSessionLifecycleMap.entrySet()) {
+            FixSessionLifecycle sessionLifecycle = entry.getValue();
+            connectionStates.put(sessionLifecycle.getName(), sessionLifecycle.getConnectionState());
         }
         return connectionStates;
     }

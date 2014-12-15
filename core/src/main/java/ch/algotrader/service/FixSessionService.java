@@ -15,30 +15,29 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.adapter.fix;
+package ch.algotrader.service;
 
-import quickfix.Application;
-import quickfix.ConfigError;
-import quickfix.SessionID;
-import quickfix.SessionSettings;
+import java.util.Map;
+
+import ch.algotrader.enumeration.ConnectionState;
 
 /**
- * FIX {@link Application} factory.
+ * Service that exposes properties of FIX sessions
  *
- * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
+ * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  *
  * @version $Revision$ $Date$
  */
-public interface FixApplicationFactory {
+public interface FixSessionService {
 
     /**
-     * Creates single session FIX {@link Application} for the given {@code sessionID}
+     * Returns connection state of all active sessions.
      */
-    Application create(SessionID sessionID, SessionSettings settings) throws ConfigError;
+    Map<String, ConnectionState> getAllSessionState();
 
     /**
-     * Gets the name of this application factory
+     * returns connection state of the sessions with the given name.
      */
-    String getName();
+    ConnectionState getSessionState(String name);
 
 }
