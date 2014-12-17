@@ -22,6 +22,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -69,7 +70,7 @@ public class GenericTALibFunctionFactory implements AggregationFunctionFactory {
 
     private List<CircularFifoBuffer<Number>> inputParams = new ArrayList<CircularFifoBuffer<Number>>();
     private List<Object> optInputParams = new ArrayList<Object>();
-    private Map<String, Object> outputParams = new HashMap<String, Object>();
+    private Map<String, Object> outputParams = new LinkedHashMap<String, Object>();
 
     @Override
     public void setFunctionName(String functionName) {
