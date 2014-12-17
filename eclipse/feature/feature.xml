@@ -2,7 +2,7 @@
 <feature
       id="ch.algotrader.feature"
       label="AlgoTrader Plugins"
-      version="2.2.2"
+      version="2.2.3.qualifier"
       provider-name="AlgoTrader GmbH">
 
    <description>

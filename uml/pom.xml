@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>algotrader</groupId>
     <artifactId>algotrader-uml</artifactId>
-    <version>2.2.2</version>
+    <version>2.2.3-SNAPSHOT</version>
     <name>AlgoTrader UML Model</name>
 
     <organization>
