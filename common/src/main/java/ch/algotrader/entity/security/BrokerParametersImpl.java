@@ -17,7 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.entity.security;
 
-import ch.algotrader.util.ObjectUtil;
+import java.util.Objects;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -43,8 +43,8 @@ public class BrokerParametersImpl extends BrokerParameters {
         }
         if (obj instanceof BrokerParameters) {
             BrokerParameters that = (BrokerParameters) obj;
-            return ObjectUtil.equalsNonNull(this.getSecurityFamily(), that.getSecurityFamily()) &&
-                    ObjectUtil.equalsNonNull(this.getBroker(), that.getBroker());
+            return Objects.equals(this.getSecurityFamily(), that.getSecurityFamily()) &&
+                    Objects.equals(this.getBroker(), that.getBroker());
         } else {
             return false;
         }
@@ -54,8 +54,8 @@ public class BrokerParametersImpl extends BrokerParameters {
     public int hashCode() {
 
         int hash = 17;
-        hash = hash * 37 + ObjectUtil.hashCode(getSecurityFamily());
-        hash = hash * 37 + ObjectUtil.hashCode(getBroker());
+        hash = hash * 37 + Objects.hashCode(getSecurityFamily());
+        hash = hash * 37 + Objects.hashCode(getBroker());
         return hash;
     }
 }

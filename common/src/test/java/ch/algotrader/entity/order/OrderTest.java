@@ -37,7 +37,7 @@ public class OrderTest {
         MarketOrder order2 = new MarketOrderImpl();
 
         Assert.assertEquals(order1, order1);
-        Assert.assertNotEquals(order1, order2);
+        Assert.assertEquals(order1, order2);
 
         order1.setIntId("one");
 

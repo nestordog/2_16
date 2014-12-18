@@ -17,7 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.entity.strategy;
 
-import ch.algotrader.util.ObjectUtil;
+import java.util.Objects;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -49,7 +49,7 @@ public class StrategyImpl extends Strategy {
         }
         if (obj instanceof Strategy) {
             Strategy that = (Strategy) obj;
-            return ObjectUtil.equalsNonNull(this.getName(), that.getName());
+            return Objects.equals(this.getName(), that.getName());
         } else {
             return false;
         }
@@ -59,7 +59,7 @@ public class StrategyImpl extends Strategy {
     public int hashCode() {
 
         int hash = 17;
-        hash = hash * 37 + ObjectUtil.hashCode(getName());
+        hash = hash * 37 + Objects.hashCode(getName());
         return hash;
     }
 }

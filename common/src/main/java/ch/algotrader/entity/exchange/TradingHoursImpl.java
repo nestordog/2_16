@@ -20,9 +20,9 @@ package ch.algotrader.entity.exchange;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Objects;
 
 import ch.algotrader.enumeration.WeekDay;
-import ch.algotrader.util.ObjectUtil;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -112,9 +112,9 @@ public class TradingHoursImpl extends TradingHours {
         }
         if (obj instanceof TradingHours) {
             TradingHours that = (TradingHours) obj;
-            return ObjectUtil.equalsNonNull(this.getExchange(), that.getExchange())
-                    && ObjectUtil.equalsNonNull(this.getOpen(), that.getOpen())
-                    && ObjectUtil.equalsNonNull(this.getClose(), that.getClose())
+            return Objects.equals(this.getExchange(), that.getExchange())
+                    && Objects.equals(this.getOpen(), that.getOpen())
+                    && Objects.equals(this.getClose(), that.getClose())
                     && this.isSunday() == that.isSunday()
                     && this.isMonday() == that.isMonday()
                     && this.isTuesday() == that.isTuesday()
@@ -131,9 +131,9 @@ public class TradingHoursImpl extends TradingHours {
     public int hashCode() {
 
         int hash = 17;
-        hash = hash * 37 + ObjectUtil.hashCode(getExchange());
-        hash = hash * 37 + ObjectUtil.hashCode(getOpen());
-        hash = hash * 37 + ObjectUtil.hashCode(getClose());
+        hash = hash * 37 + Objects.hashCode(getExchange());
+        hash = hash * 37 + Objects.hashCode(getOpen());
+        hash = hash * 37 + Objects.hashCode(getClose());
         hash = hash * 37 + (isSunday() ? 1231 : 1237);
         hash = hash * 37 + (isMonday() ? 1231 : 1237);
         hash = hash * 37 + (isTuesday() ? 1231 : 1237);

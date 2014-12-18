@@ -38,7 +38,7 @@ public class TickTest {
         Tick tick1 = new TickImpl();
         Tick tick2 = new TickImpl();
 
-        Assert.assertNotEquals(tick1, tick2);
+        Assert.assertEquals(tick1, tick2);
 
         Date date = new Date();
 

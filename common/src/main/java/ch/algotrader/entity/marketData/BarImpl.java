@@ -19,9 +19,9 @@ package ch.algotrader.entity.marketData;
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
+import java.util.Objects;
 
 import ch.algotrader.enumeration.Direction;
-import ch.algotrader.util.ObjectUtil;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -79,10 +79,10 @@ public class BarImpl extends Bar {
         }
         if (obj instanceof Bar) {
             Bar that = (Bar) obj;
-            return ObjectUtil.equalsNonNull(this.getSecurity(), that.getSecurity()) &&
-                    ObjectUtil.equalsNonNull(this.getDateTime(), that.getDateTime()) &&
-                    ObjectUtil.equalsNonNull(this.getFeedType(), that.getFeedType()) &&
-                    ObjectUtil.equalsNonNull(this.getBarSize(), that.getBarSize());
+            return Objects.equals(this.getSecurity(), that.getSecurity()) &&
+                    Objects.equals(this.getDateTime(), that.getDateTime()) &&
+                    Objects.equals(this.getFeedType(), that.getFeedType()) &&
+                    Objects.equals(this.getBarSize(), that.getBarSize());
         } else {
             return false;
         }
@@ -92,10 +92,10 @@ public class BarImpl extends Bar {
     public int hashCode() {
 
         int hash = 17;
-        hash = hash * 37 + ObjectUtil.hashCode(getSecurity());
-        hash = hash * 37 + ObjectUtil.hashCode(getDateTime());
-        hash = hash * 37 + ObjectUtil.hashCode(getFeedType());
-        hash = hash * 37 + ObjectUtil.hashCode(getBarSize());
+        hash = hash * 37 + Objects.hashCode(getSecurity());
+        hash = hash * 37 + Objects.hashCode(getDateTime());
+        hash = hash * 37 + Objects.hashCode(getFeedType());
+        hash = hash * 37 + Objects.hashCode(getBarSize());
         return hash;
     }
 }

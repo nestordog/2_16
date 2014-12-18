@@ -18,8 +18,7 @@
 package ch.algotrader.cache;
 
 import java.util.Map;
-
-import ch.algotrader.util.EqualsUtil;
+import java.util.Objects;
 
 /**
  * A CacheKey for Queries composed of a {@code queryString} and {@code namedParameters}.
@@ -81,7 +80,7 @@ public class QueryCacheKey {
         }
 
         QueryCacheKey that = (QueryCacheKey) other;
-        return this.queryString.equals(that.queryString) && EqualsUtil.equals(this.namedParameters, that.namedParameters);
+        return this.queryString.equals(that.queryString) && Objects.equals(this.namedParameters, that.namedParameters);
     }
 
     @Override

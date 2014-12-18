@@ -19,8 +19,7 @@
 package ch.algotrader.entity.exchange;
 
 import java.text.SimpleDateFormat;
-
-import ch.algotrader.util.ObjectUtil;
+import java.util.Objects;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -65,7 +64,7 @@ public class HolidayImpl extends Holiday {
         }
         if (obj instanceof Holiday) {
             Holiday that = (Holiday) obj;
-            return ObjectUtil.equalsNonNull(this.getExchange(), that.getExchange()) && ObjectUtil.equalsNonNull(this.getDate(), that.getDate());
+            return Objects.equals(this.getExchange(), that.getExchange()) && Objects.equals(this.getDate(), that.getDate());
         } else {
             return false;
         }
@@ -75,8 +74,8 @@ public class HolidayImpl extends Holiday {
     public int hashCode() {
 
         int hash = 17;
-        hash = hash * 37 + ObjectUtil.hashCode(getExchange());
-        hash = hash * 37 + ObjectUtil.hashCode(getDate());
+        hash = hash * 37 + Objects.hashCode(getExchange());
+        hash = hash * 37 + Objects.hashCode(getDate());
         return hash;
     }
 

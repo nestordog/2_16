@@ -40,7 +40,7 @@ public class SubscriptionTest {
         Subscription subscription1 = new SubscriptionImpl();
         Subscription subscription2 = new SubscriptionImpl();
 
-        Assert.assertNotEquals(subscription1, subscription2);
+        Assert.assertEquals(subscription1, subscription2);
 
         Strategy strategy = new StrategyImpl();
         strategy.setName("TEST");

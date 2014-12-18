@@ -25,7 +25,6 @@ import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.ConfigLocator;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.enumeration.TransactionType;
-import ch.algotrader.util.ObjectUtil;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.vo.CurrencyAmountVO;
 
@@ -224,7 +223,10 @@ public class TransactionImpl extends Transaction {
         }
         if (obj instanceof Transaction) {
             Transaction that = (Transaction) obj;
-            return ObjectUtil.equalsNonZero(this.getId(), that.getId());
+            if (this.getId() == 0 || that.getId() == 0) {
+                return false;
+            }
+            return this.getId() == that.getId();
         } else {
             return false;
         }

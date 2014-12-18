@@ -18,9 +18,8 @@
 
 package ch.algotrader.entity.exchange;
 
+import java.util.Objects;
 import java.util.TimeZone;
-
-import ch.algotrader.util.ObjectUtil;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -44,7 +43,7 @@ public class ExchangeImpl extends Exchange {
         }
         if (obj instanceof Exchange) {
             Exchange that = (Exchange) obj;
-            return ObjectUtil.equalsNonNull(this.getName(), that.getName());
+            return Objects.equals(this.getName(), that.getName());
         } else {
             return false;
         }
@@ -54,7 +53,7 @@ public class ExchangeImpl extends Exchange {
     public int hashCode() {
 
         int hash = 17;
-        hash = hash * 37 + ObjectUtil.hashCode(getName());
+        hash = hash * 37 + Objects.hashCode(getName());
         return hash;
     }
 

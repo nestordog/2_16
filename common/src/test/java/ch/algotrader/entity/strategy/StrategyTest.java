@@ -33,7 +33,7 @@ public class StrategyTest {
         Strategy strategy1 = new StrategyImpl();
         Strategy strategy2 = new StrategyImpl();
 
-        Assert.assertNotEquals(strategy1, strategy2);
+        Assert.assertEquals(strategy1, strategy2);
 
         strategy1.setName("A");
 

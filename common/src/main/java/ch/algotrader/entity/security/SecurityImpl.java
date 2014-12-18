@@ -18,6 +18,7 @@
 package ch.algotrader.entity.security;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Hibernate;
@@ -31,7 +32,6 @@ import ch.algotrader.enumeration.Currency;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.util.MyLogger;
-import ch.algotrader.util.ObjectUtil;
 import ch.algotrader.util.collection.CollectionUtil;
 import ch.algotrader.util.metric.MetricsUtil;
 
@@ -203,12 +203,12 @@ public abstract class SecurityImpl extends Security {
         }
         if (obj instanceof Security) {
             Security that = (Security) obj;
-            return ObjectUtil.equals(this.getIsin(), that.getIsin()) &&
-                        ObjectUtil.equals(this.getBbgid(), that.getBbgid()) &&
-                        ObjectUtil.equals(this.getRic(), that.getRic()) &&
-                        ObjectUtil.equals(this.getConid(), that.getConid()) &&
-                        ObjectUtil.equals(this.getLmaxid(), that.getLmaxid()) &&
-                        ObjectUtil.equals(this.getSymbol(), that.getSymbol());
+            return Objects.equals(this.getIsin(), that.getIsin()) &&
+                        Objects.equals(this.getBbgid(), that.getBbgid()) &&
+                        Objects.equals(this.getRic(), that.getRic()) &&
+                        Objects.equals(this.getConid(), that.getConid()) &&
+                        Objects.equals(this.getLmaxid(), that.getLmaxid()) &&
+                        Objects.equals(this.getSymbol(), that.getSymbol());
 
         } else {
             return false;
@@ -218,12 +218,12 @@ public abstract class SecurityImpl extends Security {
     @Override
     public int hashCode() {
         int hash = 17;
-        hash = hash * 37 + ObjectUtil.hashCode(this.getIsin());
-        hash = hash * 37 + ObjectUtil.hashCode(this.getBbgid());
-        hash = hash * 37 + ObjectUtil.hashCode(this.getRic());
-        hash = hash * 37 + ObjectUtil.hashCode(this.getConid());
-        hash = hash * 37 + ObjectUtil.hashCode(this.getLmaxid());
-        hash = hash * 37 + ObjectUtil.hashCode(this.getSymbol());
+        hash = hash * 37 + Objects.hashCode(this.getIsin());
+        hash = hash * 37 + Objects.hashCode(this.getBbgid());
+        hash = hash * 37 + Objects.hashCode(this.getRic());
+        hash = hash * 37 + Objects.hashCode(this.getConid());
+        hash = hash * 37 + Objects.hashCode(this.getLmaxid());
+        hash = hash * 37 + Objects.hashCode(this.getSymbol());
         return hash;
     }
 }

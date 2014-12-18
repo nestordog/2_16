@@ -17,7 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.entity;
 
-import ch.algotrader.util.ObjectUtil;
+import java.util.Objects;
 
 
 /**
@@ -43,9 +43,9 @@ public class SubscriptionImpl extends Subscription {
         }
         if (obj instanceof Subscription) {
             Subscription that = (Subscription) obj;
-            return ObjectUtil.equalsNonNull(this.getSecurity(), that.getSecurity()) &&
-                    ObjectUtil.equalsNonNull(this.getStrategy(), that.getStrategy()) &&
-                    ObjectUtil.equalsNonNull(this.getFeedType(), that.getFeedType());
+            return Objects.equals(this.getSecurity(), that.getSecurity()) &&
+                    Objects.equals(this.getStrategy(), that.getStrategy()) &&
+                    Objects.equals(this.getFeedType(), that.getFeedType());
         } else {
             return false;
         }
@@ -55,9 +55,9 @@ public class SubscriptionImpl extends Subscription {
     public int hashCode() {
 
         int hash = 17;
-        hash = hash * 37 + ObjectUtil.hashCode(getSecurity());
-        hash = hash * 37 + ObjectUtil.hashCode(getStrategy());
-        hash = hash * 37 + ObjectUtil.hashCode(getFeedType());
+        hash = hash * 37 + Objects.hashCode(getSecurity());
+        hash = hash * 37 + Objects.hashCode(getStrategy());
+        hash = hash * 37 + Objects.hashCode(getFeedType());
         return hash;
     }
 }
