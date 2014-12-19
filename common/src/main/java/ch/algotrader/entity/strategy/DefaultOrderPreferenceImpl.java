@@ -17,7 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.entity.strategy;
 
-import ch.algotrader.util.ObjectUtil;
+import java.util.Objects;
 
 
 /**
@@ -43,8 +43,8 @@ public class DefaultOrderPreferenceImpl extends DefaultOrderPreference {
         }
         if (obj instanceof DefaultOrderPreference) {
             DefaultOrderPreference that = (DefaultOrderPreference) obj;
-            return ObjectUtil.equalsNonNull(this.getSecurityFamily(), that.getSecurityFamily()) &&
-                    ObjectUtil.equalsNonNull(this.getStrategy(), that.getStrategy());
+            return Objects.equals(this.getSecurityFamily(), that.getSecurityFamily()) &&
+                    Objects.equals(this.getStrategy(), that.getStrategy());
         } else {
             return false;
         }
@@ -54,8 +54,8 @@ public class DefaultOrderPreferenceImpl extends DefaultOrderPreference {
     public int hashCode() {
 
         int hash = 17;
-        hash = hash * 37 + ObjectUtil.hashCode(getSecurityFamily());
-        hash = hash * 37 + ObjectUtil.hashCode(getStrategy());
+        hash = hash * 37 + Objects.hashCode(getSecurityFamily());
+        hash = hash * 37 + Objects.hashCode(getStrategy());
         return hash;
     }
 }

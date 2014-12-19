@@ -17,10 +17,11 @@
  ***********************************************************************************/
 package ch.algotrader.entity.strategy;
 
+import java.util.Objects;
+
 import ch.algotrader.entity.trade.AlgoOrder;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.util.BeanUtil;
-import ch.algotrader.util.ObjectUtil;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -88,7 +89,7 @@ public class OrderPreferenceImpl extends OrderPreference {
         }
         if (obj instanceof OrderPreference) {
             OrderPreference that = (OrderPreference) obj;
-            return ObjectUtil.equalsNonNull(this.getName(), that.getName());
+            return Objects.equals(this.getName(), that.getName());
 
         } else {
             return false;
@@ -99,7 +100,7 @@ public class OrderPreferenceImpl extends OrderPreference {
     public int hashCode() {
 
         int hash = 17;
-        hash = hash * 37 + ObjectUtil.hashCode(getName());
+        hash = hash * 37 + Objects.hashCode(getName());
         return hash;
     }
 }

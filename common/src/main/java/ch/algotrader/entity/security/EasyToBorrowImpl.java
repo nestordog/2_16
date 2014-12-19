@@ -18,8 +18,7 @@
 package ch.algotrader.entity.security;
 
 import java.text.SimpleDateFormat;
-
-import ch.algotrader.util.ObjectUtil;
+import java.util.Objects;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -45,9 +44,9 @@ public class EasyToBorrowImpl extends EasyToBorrow {
         }
         if (obj instanceof EasyToBorrow) {
             EasyToBorrow that = (EasyToBorrow) obj;
-            return ObjectUtil.equalsNonNull(this.getStock(), that.getStock()) &&
-                    ObjectUtil.equalsNonNull(this.getDate(), that.getDate()) &&
-                    ObjectUtil.equalsNonNull(this.getBroker(), that.getBroker());
+            return Objects.equals(this.getStock(), that.getStock()) &&
+                    Objects.equals(this.getDate(), that.getDate()) &&
+                    Objects.equals(this.getBroker(), that.getBroker());
         } else {
             return false;
         }
@@ -57,9 +56,9 @@ public class EasyToBorrowImpl extends EasyToBorrow {
     public int hashCode() {
 
         int hash = 17;
-        hash = hash * 37 + ObjectUtil.hashCode(getStock());
-        hash = hash * 37 + ObjectUtil.hashCode(getDate());
-        hash = hash * 37 + ObjectUtil.hashCode(getBroker());
+        hash = hash * 37 + Objects.hashCode(getStock());
+        hash = hash * 37 + Objects.hashCode(getDate());
+        hash = hash * 37 + Objects.hashCode(getBroker());
         return hash;
     }
 }

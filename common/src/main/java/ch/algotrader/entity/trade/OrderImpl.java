@@ -17,10 +17,11 @@
  ***********************************************************************************/
 package ch.algotrader.entity.trade;
 
+import java.util.Objects;
+
 import org.apache.commons.lang.ClassUtils;
 
 import ch.algotrader.enumeration.OrderPropertyType;
-import ch.algotrader.util.ObjectUtil;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -117,7 +118,7 @@ public abstract class OrderImpl extends Order {
         }
         if (obj instanceof Order) {
             Order that = (Order) obj;
-            return ObjectUtil.equalsNonNull(this.getIntId(), that.getIntId());
+            return Objects.equals(this.getIntId(), that.getIntId());
         } else {
             return false;
         }
@@ -127,7 +128,7 @@ public abstract class OrderImpl extends Order {
     public int hashCode() {
 
         int hash = 17;
-        hash = hash * 37 + ObjectUtil.hashCode(getIntId());
+        hash = hash * 37 + Objects.hashCode(getIntId());
         return hash;
     }
 }

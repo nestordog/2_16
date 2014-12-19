@@ -17,13 +17,14 @@
  ***********************************************************************************/
 package ch.algotrader.entity.security;
 
+import java.util.Objects;
+
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Predicate;
 import org.apache.commons.collections15.Transformer;
 import org.apache.commons.lang.StringUtils;
 
 import ch.algotrader.enumeration.Direction;
-import ch.algotrader.util.ObjectUtil;
 import ch.algotrader.util.collection.LongMap;
 import ch.algotrader.util.metric.MetricsUtil;
 
@@ -137,7 +138,7 @@ public class CombinationImpl extends Combination {
         }
         if (obj instanceof Combination) {
             Combination that = (Combination) obj;
-            return ObjectUtil.equals(this.getUuid(), that.getUuid());
+            return Objects.equals(this.getUuid(), that.getUuid());
         } else {
             return false;
         }
@@ -147,6 +148,7 @@ public class CombinationImpl extends Combination {
     public int hashCode() {
 
         int hash = 17;
+        hash = hash * 37 + Objects.hashCode(this.getUuid());
         if (this.getUuid() != null) {
             hash =  hash * 37 + this.getUuid().hashCode();
         }

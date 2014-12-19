@@ -22,6 +22,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.NavigableSet;
+import java.util.Objects;
 import java.util.TimeZone;
 import java.util.TreeSet;
 
@@ -36,7 +37,6 @@ import ch.algotrader.entity.exchange.Holiday;
 import ch.algotrader.entity.exchange.TradingHours;
 import ch.algotrader.enumeration.WeekDay;
 import ch.algotrader.util.DateUtil;
-import ch.algotrader.util.ObjectUtil;
 import ch.algotrader.util.spring.HibernateSession;
 
 /**
@@ -423,7 +423,7 @@ public class CalendarServiceImpl implements CalendarService {
             }
             if (obj instanceof TimeInterval) {
                 TimeInterval that = (TimeInterval) obj;
-                return ObjectUtil.equalsNonNull(this.getFrom(), that.getFrom()) && ObjectUtil.equalsNonNull(this.getTo(), that.getTo());
+                return Objects.equals(this.getFrom(), that.getFrom()) && Objects.equals(this.getTo(), that.getTo());
             } else {
                 return false;
             }
@@ -433,8 +433,8 @@ public class CalendarServiceImpl implements CalendarService {
         public int hashCode() {
 
             int hash = 17;
-            hash = hash * 37 + ObjectUtil.hashCode(getFrom());
-            hash = hash * 37 + ObjectUtil.hashCode(getTo());
+            hash = hash * 37 + Objects.hashCode(getFrom());
+            hash = hash * 37 + Objects.hashCode(getTo());
             return hash;
         }
 

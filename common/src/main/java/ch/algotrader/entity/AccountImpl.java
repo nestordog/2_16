@@ -17,7 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.entity;
 
-import ch.algotrader.util.ObjectUtil;
+import java.util.Objects;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -42,7 +42,7 @@ public class AccountImpl extends Account {
         }
         if (obj instanceof Account) {
             Account that = (Account) obj;
-            return ObjectUtil.equalsNonNull(this.getName(), that.getName());
+            return Objects.equals(this.getName(), that.getName());
         } else {
             return false;
         }
@@ -52,7 +52,7 @@ public class AccountImpl extends Account {
     public int hashCode() {
 
         int hash = 17;
-        hash = hash * 37 + ObjectUtil.hashCode(getName());
+        hash = hash * 37 + Objects.hashCode(getName());
         return hash;
     }
 }

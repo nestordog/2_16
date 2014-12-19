@@ -17,6 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.entity;
 
+import java.util.Objects;
+
 import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.Future;
@@ -25,7 +27,6 @@ import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Direction;
-import ch.algotrader.util.ObjectUtil;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.vo.CurrencyAmountVO;
 
@@ -272,8 +273,8 @@ public class PositionImpl extends Position {
         }
         if (obj instanceof Position) {
             Position that = (Position) obj;
-            return ObjectUtil.equalsNonNull(this.getSecurity(), that.getSecurity()) &&
-                    ObjectUtil.equalsNonNull(this.getStrategy(), that.getStrategy());
+            return Objects.equals(this.getSecurity(), that.getSecurity()) &&
+                    Objects.equals(this.getStrategy(), that.getStrategy());
         } else {
             return false;
         }
@@ -283,8 +284,8 @@ public class PositionImpl extends Position {
     public int hashCode() {
 
         int hash = 17;
-        hash = hash * 37 + ObjectUtil.hashCode(getSecurity());
-        hash = hash * 37 + ObjectUtil.hashCode(getStrategy());
+        hash = hash * 37 + Objects.hashCode(getSecurity());
+        hash = hash * 37 + Objects.hashCode(getStrategy());
         return hash;
     }
 }

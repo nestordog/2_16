@@ -19,11 +19,11 @@ package ch.algotrader.entity.marketData;
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
+import java.util.Objects;
 
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.ConfigLocator;
 import ch.algotrader.enumeration.Direction;
-import ch.algotrader.util.ObjectUtil;
 import ch.algotrader.util.RoundUtil;
 
 /**
@@ -137,9 +137,9 @@ public class TickImpl extends Tick {
         }
         if (obj instanceof Tick) {
             Tick that = (Tick) obj;
-            return ObjectUtil.equalsNonNull(this.getSecurity(), that.getSecurity()) &&
-                    ObjectUtil.equalsNonNull(this.getDateTime(), that.getDateTime())  &&
-                    ObjectUtil.equalsNonNull(this.getFeedType(), that.getFeedType());
+            return Objects.equals(this.getSecurity(), that.getSecurity()) &&
+                    Objects.equals(this.getDateTime(), that.getDateTime())  &&
+                    Objects.equals(this.getFeedType(), that.getFeedType());
         } else {
             return false;
         }
@@ -149,9 +149,9 @@ public class TickImpl extends Tick {
     public int hashCode() {
 
         int hash = 17;
-        hash = hash * 37 + ObjectUtil.hashCode(getSecurity());
-        hash = hash * 37 + ObjectUtil.hashCode(getDateTime());
-        hash = hash * 37 + ObjectUtil.hashCode(getFeedType());
+        hash = hash * 37 + Objects.hashCode(getSecurity());
+        hash = hash * 37 + Objects.hashCode(getDateTime());
+        hash = hash * 37 + Objects.hashCode(getFeedType());
         return hash;
     }
 }

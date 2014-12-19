@@ -18,11 +18,11 @@
 package ch.algotrader.entity.strategy;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.ConfigLocator;
-import ch.algotrader.util.ObjectUtil;
 import ch.algotrader.util.RoundUtil;
 
 /**
@@ -69,8 +69,8 @@ public class CashBalanceImpl extends CashBalance {
         }
         if (obj instanceof CashBalance) {
             CashBalance that = (CashBalance) obj;
-            return ObjectUtil.equalsNonNull(this.getStrategy(), that.getStrategy()) &&
-                    ObjectUtil.equalsNonNull(this.getCurrency(), that.getCurrency());
+            return Objects.equals(this.getStrategy(), that.getStrategy()) &&
+                    Objects.equals(this.getCurrency(), that.getCurrency());
         } else {
             return false;
         }
@@ -80,8 +80,8 @@ public class CashBalanceImpl extends CashBalance {
     public int hashCode() {
 
         int hash = 17;
-        hash = hash * 37 + ObjectUtil.hashCode(getStrategy());
-        hash = hash * 37 + ObjectUtil.hashCode(getCurrency());
+        hash = hash * 37 + Objects.hashCode(getStrategy());
+        hash = hash * 37 + Objects.hashCode(getCurrency());
         return hash;
     }
 }

@@ -17,7 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.entity.strategy;
 
-import ch.algotrader.util.ObjectUtil;
+import java.util.Objects;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -42,8 +42,8 @@ public class AllocationImpl extends Allocation {
         }
         if (obj instanceof Allocation) {
             Allocation that = (Allocation) obj;
-            return ObjectUtil.equalsNonNull(this.getOrderPreference(), that.getOrderPreference()) &&
-                    ObjectUtil.equalsNonNull(this.getAccount(), that.getAccount());
+            return Objects.equals(this.getOrderPreference(), that.getOrderPreference()) &&
+                    Objects.equals(this.getAccount(), that.getAccount());
         } else {
             return false;
         }
@@ -53,8 +53,8 @@ public class AllocationImpl extends Allocation {
     public int hashCode() {
 
         int hash = 17;
-        hash = hash * 37 + ObjectUtil.hashCode(getOrderPreference());
-        hash = hash * 37 + ObjectUtil.hashCode(getAccount());
+        hash = hash * 37 + Objects.hashCode(getOrderPreference());
+        hash = hash * 37 + Objects.hashCode(getAccount());
         return hash;
     }
 }

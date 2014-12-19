@@ -19,10 +19,10 @@ package ch.algotrader.entity.security;
 
 import java.math.BigDecimal;
 import java.text.ChoiceFormat;
+import java.util.Objects;
 
 import ch.algotrader.entity.exchange.Exchange;
 import ch.algotrader.enumeration.Broker;
-import ch.algotrader.util.ObjectUtil;
 import ch.algotrader.util.RoundUtil;
 
 /**
@@ -228,7 +228,7 @@ public class SecurityFamilyImpl extends SecurityFamily {
         }
         if (obj instanceof SecurityFamily) {
             SecurityFamily that = (SecurityFamily) obj;
-            return ObjectUtil.equalsNonNull(this.getName(), that.getName());
+            return Objects.equals(this.getName(), that.getName());
 
         } else {
             return false;
@@ -239,7 +239,7 @@ public class SecurityFamilyImpl extends SecurityFamily {
     public int hashCode() {
 
         int hash = 17;
-        hash = hash * 37 + ObjectUtil.hashCode(getName());
+        hash = hash * 37 + Objects.hashCode(getName());
         return hash;
     }
 }
