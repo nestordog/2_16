@@ -21,7 +21,7 @@ ALTER TABLE `combination` ADD `UUID` char(36) DEFAULT NULL AFTER `ID`;
 UPDATE `combination` SET `UUID` = UUID();
 ALTER TABLE `combination` MODIFY `UUID` char(36) NOT NULL;
 
---easy_to_borrow
+-- easy_to_borrow
 ALTER TABLE `easy_to_borrow` MODIFY `DATE` date NOT NULL;
 ALTER TABLE `easy_to_borrow` MODIFY `BROKER` ENUM('IB','JPM','DC','RBS','RT','LMAX','FXCM','CNX') NOT NULL;
 
