@@ -49,12 +49,10 @@ import com.tictactec.ta.lib.RetCode;
  * select values.fastk, values.fastd
  * from StochF(values != null);
  * </pre>
- * The following parameters from the com.tictactec.ta.lib.Core methods will be needed:
- * <ul>
- * <li>in...(i.e. inHigh, inLow, inClose)</li>
- * <li>optIn..(i.e. optInFastK_Period, optInFastD_Period, optInFastD_MAType)</li>
- * <li>startIdx, endIdx, outBegIdx & outNBElement can be ignored</li>
- * </ul>
+ * <p>
+ * Please consult <a href="http://doc.algotrader.ch/ta-lib.html">TA-Lib</a> for a list of all TA-Lib methods and their parameters
+ * </p>
+ * <p>
  * If the TA-Lib Function returns just one value, the value is directly exposed by the AggregationFunction.
  * </p>
  * If the TA-Lib Function returns multiple-values, a dynamic class will be generated on the fly, which gives
