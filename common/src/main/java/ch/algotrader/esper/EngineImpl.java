@@ -66,7 +66,6 @@ import ch.algotrader.esper.callback.TickCallback;
 import ch.algotrader.esper.callback.TimerCallback;
 import ch.algotrader.esper.callback.TradeCallback;
 import ch.algotrader.esper.io.CustomSender;
-import ch.algotrader.esper.subscriber.SubscriberCreator;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.collection.CollectionUtil;
 import ch.algotrader.util.metric.MetricsUtil;
@@ -787,11 +786,21 @@ public class EngineImpl extends AbstractEngine {
             if (annotation instanceof Subscriber) {
 
                 Subscriber subscriber = (Subscriber) annotation;
+                String fqdn = subscriber.className();
                 try {
-                    Object obj = getSubscriber(subscriber.className());
-                    statement.setSubscriber(obj);
+                    Class<?> cl = Class.forName(fqdn);
+                    statement.setSubscriber(cl.newInstance());
                 } catch (Exception e) {
-                    throw new RuntimeException("subscriber " + subscriber.className() + " could not be created for statement " + statement.getName(), e);
+
+                    String serviceName = StringUtils.substringBeforeLast(fqdn, ".");
+
+                    // parse full classname for backward-compatibility
+                    if (serviceName.contains(".")) {
+                        serviceName = StringUtils.remove(StringUtils.remove(StringUtils.uncapitalize(StringUtils.substringAfterLast(serviceName, ".")), "Base"), "Impl");
+                    }
+                    String serviceMethodName = StringUtils.substringAfterLast(fqdn, ".");
+                    Object service = ServiceLocator.instance().getService(serviceName);
+                    statement.setSubscriber(service, serviceMethodName);
                 }
 
             } else if (annotation instanceof Listeners) {
@@ -945,20 +954,6 @@ public class EngineImpl extends AbstractEngine {
                 return statement.matches(statementNameRegex);
             }
         }).toArray(new String[] {});
-    }
-
-    private Object getSubscriber(String fqdn) throws ClassNotFoundException {
-
-        // try to see if the fqdn represents a class
-        try {
-            Class<?> cl = Class.forName(fqdn);
-            return cl.newInstance();
-        } catch (Exception e) {
-            // do nothin
-        }
-
-        // otherwise the fqdn represents a method, in this case treate a subscriber
-        return SubscriberCreator.createSubscriber(fqdn);
     }
 
 }

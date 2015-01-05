@@ -65,7 +65,7 @@
 		<dependency>
 			<groupId>com.espertech</groupId>
 			<artifactId>esper</artifactId>
-			<version>${esper.version}-at</version>
+			<version>${esper.version}-at1</version>
 		</dependency>
 		<dependency>
 			<groupId>com.espertech</groupId>
