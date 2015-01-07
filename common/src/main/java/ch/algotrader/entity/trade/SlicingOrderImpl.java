@@ -22,8 +22,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.collections15.CollectionUtils;
+import org.apache.commons.collections15.Predicate;
 import org.apache.log4j.Logger;
 
+import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.SecurityFamily;
@@ -63,29 +66,43 @@ public class SlicingOrderImpl extends SlicingOrder {
 
         // check greater than
         if (getMinVolPct() > getMaxVolPct()) {
-            throw new OrderValidationException("minVolPct cannot be greater than maxVolPct for " + this);
+            throw new OrderValidationException("minVolPct cannot be greater than maxVolPct for " + getDescription());
         } else if (getMinQuantity() > getMaxQuantity()) {
-            throw new OrderValidationException("minQuantity cannot be greater than maxQuantity for " + this);
+            throw new OrderValidationException("minQuantity cannot be greater than maxQuantity for " + getDescription());
+        } else if (getMaxQuantity() < 2 * getMinQuantity()) {
+            throw new OrderValidationException("maxQuantity must be greater than 3 x minQuantity " + getDescription());
         } else if (getMinDuration() > getMaxDuration()) {
-            throw new OrderValidationException("minDuration cannot be greater than maxDuration for " + this);
+            throw new OrderValidationException("minDuration cannot be greater than maxDuration for " + getDescription());
         } else if (getMinDelay() > getMaxDelay()) {
-            throw new OrderValidationException("minDelay cannot be greater than maxDelay for " + this);
+            throw new OrderValidationException("minDelay cannot be greater than maxDelay for " + getDescription());
         }
 
         // check zero
         if (getMaxVolPct() == 0 && getMaxQuantity() == 0) {
-            throw new OrderValidationException("either maxVolPct or maxQuantity have to be defined for " + this);
+            throw new OrderValidationException("either maxVolPct or maxQuantity have to be defined for " + getDescription());
         } else if (getMaxDuration() == 0) {
-            throw new OrderValidationException("maxDuration cannot be zero for " + this);
+            throw new OrderValidationException("maxDuration cannot be zero for " + getDescription());
         } else if (getMaxDelay() == 0) {
-            throw new OrderValidationException("maxDelay cannot be zero for " + this);
+            throw new OrderValidationException("maxDelay cannot be zero for " + getDescription());
+        }
+
+        // check subscription
+        Subscription subscription = CollectionUtils.find(getSecurity().getSubscriptions(), new Predicate<Subscription>() {
+            @Override
+            public boolean evaluate(Subscription subscription) {
+                return subscription.getStrategy().equals(getStrategy());
+            }
+        });
+
+        if (subscription == null) {
+            throw new OrderValidationException("marketData is not subscribed for " + getDescription());
         }
 
         MarketDataEvent marketDataEvent = getSecurity().getCurrentMarketDataEvent();
         if (marketDataEvent == null) {
-            throw new OrderValidationException("no marketDataEvent available to initialize SlicingOrder");
+            throw new OrderValidationException("no marketDataEvent available for " + getDescription());
         } else if (!(marketDataEvent instanceof Tick)) {
-            throw new OrderValidationException("only ticks are supported, " + marketDataEvent.getClass() + " are not supported");
+            throw new OrderValidationException("only ticks are supported for " + getDescription() + ", " + marketDataEvent.getClass() + " is not supported");
         }
     }
 
@@ -163,6 +180,22 @@ public class SlicingOrderImpl extends SlicingOrder {
         // randomize the quantity between orderMinQty and orderMaxQty
         long quantity = Math.round(orderMinQty + Math.random() * (orderMaxQty - orderMinQty));
 
+        // make sure that the remainingQty after the next slice is greater than minQuantity
+        long remainingQuantityAfterSlice = remainingQuantity - quantity;
+        if (getMinQuantity() > 0 && getMaxQuantity() > 0 && remainingQuantityAfterSlice > 0 && remainingQuantityAfterSlice < getMinQuantity()) {
+
+            // if quantity is below half between minQuantity and maxQuantity
+            if (quantity < (getMinQuantity() + getMaxQuantity()) / 2.0) {
+
+                // take full remaining quantity
+                quantity = remainingQuantity;
+            } else {
+
+                // make sure remaining after slice quantity is greater than minQuantity
+                quantity = remainingQuantity - getMinQuantity();
+            }
+        }
+
         // qty should be at least one
         quantity = Math.max(quantity, 1);
 
@@ -187,12 +220,12 @@ public class SlicingOrderImpl extends SlicingOrder {
         //@formatter:off
         logger.info(
                 "next slice for " + getDescription() +
-                " currentOffsetTicks: " + this.currentOffsetTicks +
-                " qty: " + order.getQuantity() +
-                " vol: "+ (Side.BUY.equals(order.getSide()) ? tick.getVolAsk() : tick.getVolBid()) +
-                " limit: " + limit +
-                " bid: " + tick.getBid() +
-                " ask: " + tick.getAsk());
+                ",currentOffsetTicks=" + this.currentOffsetTicks +
+                ",qty=" + order.getQuantity() +
+                ",vol="+ (Side.BUY.equals(order.getSide()) ? tick.getVolAsk() : tick.getVolBid()) +
+                ",limit=" + limit +
+                ",bid=" + tick.getBid() +
+                ",ask=" + tick.getAsk());
         //@formatter:on
 
         return order;
