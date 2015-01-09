@@ -26,8 +26,6 @@ import org.springframework.context.ApplicationContextAware;
 
 import ch.algotrader.config.ConfigBeanFactory;
 
-
-
 /**
  * Spring factory bean for {@link ch.algotrader.config.ConfigParams} that loads a
  * single config parameters element from a custom list of resources.
@@ -47,6 +45,7 @@ public class CustomConfigBeanFactoryBean<T> implements FactoryBean<T>, Applicati
     public CustomConfigBeanFactoryBean(Class<T> beanClass, String resource) {
         this(beanClass, new String[] {resource});
     }
+
     public CustomConfigBeanFactoryBean(Class<T> beanClass, String[] resources) {
         this.beanClass = Objects.requireNonNull(beanClass, "beanClass cannot be null");
         this.resources = Objects.requireNonNull(resources, "resources cannot be null");

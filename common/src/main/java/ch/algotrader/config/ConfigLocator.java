@@ -27,7 +27,7 @@ import org.apache.log4j.Logger;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 
-import ch.algotrader.config.spring.DefaultConfigLoader;
+import ch.algotrader.config.spring.ConfigLoader;
 import ch.algotrader.config.spring.DefaultSystemConfigProvider;
 
 /**
@@ -121,9 +121,9 @@ public final class ConfigLocator {
     }
 
     private static ConfigLocator standaloneInit() throws Exception {
+
         ResourcePatternResolver patternResolver = new PathMatchingResourcePatternResolver(ConfigLocator.class.getClassLoader());
-        DefaultConfigLoader loader = new DefaultConfigLoader(patternResolver);
-        DefaultSystemConfigProvider configProvider = new DefaultSystemConfigProvider(loader.getParams());
+        DefaultSystemConfigProvider configProvider = new DefaultSystemConfigProvider(ConfigLoader.load(patternResolver));
         ConfigParams configParams = new ConfigParams(configProvider);
         CommonConfig commonConfig = new ConfigBeanFactory().create(configParams, CommonConfig.class);
         return new ConfigLocator(configParams, commonConfig);

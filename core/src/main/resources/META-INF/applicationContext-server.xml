@@ -27,8 +27,7 @@
     </bean>
 
     <bean id="coreConfig" class="ch.algotrader.config.spring.ConfigBeanFactoryBean">
-        <constructor-arg index="0" ref="configLocator"/>
-        <constructor-arg index="1" value="ch.algotrader.config.CoreConfig"/>
+        <constructor-arg index="0" value="ch.algotrader.config.CoreConfig"/>
     </bean>
 
     <!-- =========================================== JMX ================================================ -->
@@ -195,8 +194,7 @@
     <beans profile="iBNative,iBMarketData,iBReferenceData,iBHistoricalData">
 
         <bean id="iBConfig" class="ch.algotrader.config.spring.ConfigBeanFactoryBean">
-            <constructor-arg index="0" ref="configLocator"/>
-            <constructor-arg index="1" value="ch.algotrader.config.IBConfig"/>
+            <constructor-arg index="0" value="ch.algotrader.config.IBConfig"/>
         </bean>
 
         <bean id="iBSessionAdapter" class="ch.algotrader.adapter.ib.DefaultIBAdapter"/>
@@ -246,8 +244,7 @@
     <beans profile="bBMarketData,bBHistoricalData,bBReferenceData">
 
         <bean id="bBConfig" class="ch.algotrader.config.spring.ConfigBeanFactoryBean">
-            <constructor-arg index="0" ref="configLocator"/>
-            <constructor-arg index="1" value="ch.algotrader.config.BBConfig"/>
+            <constructor-arg index="0" value="ch.algotrader.config.BBConfig"/>
         </bean>
         <bean id="bBAdapter" class="ch.algotrader.adapter.bb.BBAdapter">
             <constructor-arg index="0" ref="bBConfig"/>

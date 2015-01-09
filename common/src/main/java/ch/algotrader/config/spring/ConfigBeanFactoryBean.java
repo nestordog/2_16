@@ -31,19 +31,16 @@ import ch.algotrader.config.ConfigLocator;
  */
 public class ConfigBeanFactoryBean<T> implements FactoryBean<T> {
 
-    private final ConfigLocator configLocator;
     private final Class<T> beanClass;
 
-    public ConfigBeanFactoryBean(final ConfigLocator configLocator, final Class<T> beanClass) {
-        Assert.notNull(configLocator, "ConfigLocator is null");
+    public ConfigBeanFactoryBean(final Class<T> beanClass) {
         Assert.notNull(beanClass, "BeanClass is null");
-        this.configLocator = configLocator;
         this.beanClass = beanClass;
     }
 
     @Override
     public T getObject() throws Exception {
-        return this.configLocator.getConfig(this.beanClass);
+        return ConfigLocator.instance().getConfig(this.beanClass);
     }
 
     @Override

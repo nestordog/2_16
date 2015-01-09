@@ -17,7 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.config.spring;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.springframework.beans.BeansException;
@@ -25,7 +25,6 @@ import org.springframework.beans.factory.FactoryBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.convert.support.DefaultConversionService;
-import org.springframework.core.io.Resource;
 
 import ch.algotrader.config.ConfigParams;
 
@@ -59,13 +58,10 @@ public class CustomConfigParamsFactoryBean implements FactoryBean<ConfigParams>,
     @Override
     public ConfigParams getObject() throws Exception {
 
-        Map<String, String> paramMap = new HashMap<>();
+        Map<String, String> paramMap = new LinkedHashMap<>();
         for (String pattern: resources) {
 
-            for (Resource resource: this.applicationContext.getResources(pattern)) {
-
-                DefaultConfigLoader.loadResource(paramMap, resource);
-            }
+            ConfigLoader.loadResources(paramMap, this.applicationContext.getResources(pattern));
         }
         return new ConfigParams(new DefaultSystemConfigProvider(paramMap, new DefaultConversionService()));
     }

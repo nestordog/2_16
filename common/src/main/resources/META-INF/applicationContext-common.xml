@@ -7,19 +7,14 @@
 
     <!-- ============================= Configuration Management & Logging ============================================ -->
 
-    <bean id="configParams" class="ch.algotrader.config.spring.ConfigParamsFactoryBean" />
+    <bean id="configParams" class="ch.algotrader.config.spring.DefaultConfigParamsFactoryBean" />
 
     <bean id="properties" class="ch.algotrader.config.spring.ConfigPropertiesFactoryBean">
         <constructor-arg index="0" ref="configParams"/>
     </bean>
 
-    <bean id="configLocator" class="ch.algotrader.config.spring.ConfigLocatorFactoryBean">
-        <constructor-arg index="0" ref="configParams"/>
-    </bean>
-
     <bean id="commonConfig" class="ch.algotrader.config.spring.ConfigBeanFactoryBean">
-        <constructor-arg index="0" ref="configLocator"/>
-        <constructor-arg index="1" value="ch.algotrader.config.CommonConfig"/>
+        <constructor-arg index="0" value="ch.algotrader.config.CommonConfig"/>
     </bean>
 
     <bean id="engineManager" class="ch.algotrader.esper.EngineManagerFactoryBean">
