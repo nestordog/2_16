@@ -697,6 +697,7 @@ public class TestGenericOrderMessageFactory {
         Assert.assertNotNull(message);
         Assert.assertEquals(new ClOrdID("test-id"), message.getClOrdID());
         Assert.assertEquals(new Symbol("STUFF"), message.getSymbol());
+        Assert.assertNotNull(message.getTransactTime());
         Assert.assertEquals(new quickfix.field.Side(quickfix.field.Side.BUY), message.getSide());
         Assert.assertEquals(new OrderQty(2000), message.getOrderQty());
         Assert.assertEquals(new SecurityType(SecurityType.OPTION), message.getSecurityType());
@@ -734,6 +735,7 @@ public class TestGenericOrderMessageFactory {
         Assert.assertNotNull(message);
         Assert.assertEquals(new ClOrdID("test-id"), message.getClOrdID());
         Assert.assertEquals(new Symbol("STUFF"), message.getSymbol());
+        Assert.assertNotNull(message.getTransactTime());
         Assert.assertEquals(new quickfix.field.Side(quickfix.field.Side.BUY), message.getSide());
         Assert.assertEquals(new OrderQty(2000), message.getOrderQty());
         Assert.assertEquals(new SecurityType(SecurityType.FUTURE), message.getSecurityType());
@@ -765,6 +767,7 @@ public class TestGenericOrderMessageFactory {
         Assert.assertNotNull(message);
         Assert.assertEquals(new ClOrdID("test-id"), message.getClOrdID());
         Assert.assertEquals(new Symbol("APPL"), message.getSymbol());
+        Assert.assertNotNull(message.getTransactTime());
         Assert.assertEquals(new quickfix.field.Side(quickfix.field.Side.SELL), message.getSide());
         Assert.assertEquals(new OrderQty(10), message.getOrderQty());
         Assert.assertEquals(new SecurityType(SecurityType.COMMON_STOCK), message.getSecurityType());
@@ -797,6 +800,7 @@ public class TestGenericOrderMessageFactory {
         Assert.assertNotNull(message);
         Assert.assertEquals(new ClOrdID("test-id"), message.getClOrdID());
         Assert.assertEquals(new Symbol("EUR"), message.getSymbol());
+        Assert.assertNotNull(message.getTransactTime());
         Assert.assertEquals(new quickfix.field.Side(quickfix.field.Side.BUY), message.getSide());
         Assert.assertEquals(new OrderQty(2000), message.getOrderQty());
         Assert.assertEquals(new SecurityType(SecurityType.CASH), message.getSecurityType());
