@@ -99,8 +99,8 @@ public final class ConfigLocator {
                         INSTANCE = standaloneInit();
                     } catch (Exception ex) {
 
-                        LOGGER.error("Unexpected I/O error reading configuration", ex);
                         INSTANCE = new ConfigLocator(new ConfigParams(new NoOpConfigProvider()), CommonConfigBuilder.create().build());
+                        LOGGER.error("Unexpected I/O error reading configuration", ex);
                     }
                 }
             }
