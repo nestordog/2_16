@@ -180,7 +180,7 @@ public class CalendarServiceImpl implements CalendarService {
 
     @Override
     public Date getNextOpenTime(int exchangeId) {
-        return getNextCloseTime(exchangeId, DateUtil.getCurrentEPTime());
+        return getNextOpenTime(exchangeId, DateUtil.getCurrentEPTime());
     }
 
     @Override
