@@ -86,6 +86,7 @@ import com.espertech.esper.client.SafeIterator;
 import com.espertech.esper.client.StatementAwareUpdateListener;
 import com.espertech.esper.client.UpdateListener;
 import com.espertech.esper.client.annotation.Name;
+import com.espertech.esper.client.deploy.DeploymentException;
 import com.espertech.esper.client.deploy.DeploymentInformation;
 import com.espertech.esper.client.deploy.EPDeploymentAdmin;
 import com.espertech.esper.client.deploy.Module;
@@ -181,7 +182,7 @@ public class EngineImpl extends AbstractEngine {
                 }
             }
         } catch (IOException e) {
-            throw new RuntimeException("problem loading esper config", e);
+            throw new InternalEngineException("problem loading esper config", e);
         }
 
         initVariables(configuration);
@@ -395,8 +396,8 @@ public class EngineImpl extends AbstractEngine {
             if (deploymentInformation.getModule().getName().equals(moduleName)) {
                 try {
                     deployAdmin.undeploy(deploymentInformation.getDeploymentId());
-                } catch (Exception e) {
-                    throw new RuntimeException("module " + moduleName + " could no be undeployed", e);
+                } catch (DeploymentException ex) {
+                    throw new InternalEngineException("module " + moduleName + " could no be undeployed", ex);
                 }
             }
         }
@@ -745,26 +746,28 @@ public class EngineImpl extends AbstractEngine {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     private void initVariables(Configuration configuration) {
 
-        try {
-            Map<String, ConfigurationVariable> variables = configuration.getVariables();
-            for (Map.Entry<String, ConfigurationVariable> entry : variables.entrySet()) {
-                String variableName = entry.getKey().replace("_", ".");
-                String value = this.configParams.getString(variableName);
-                if (value != null) {
-                    Class clazz = Class.forName(entry.getValue().getType());
-                    Object castedObj = null;
-                    if (clazz.isEnum()) {
-                        castedObj = Enum.valueOf(clazz, value);
-                    } else if (clazz == BigDecimal.class) {
-                        castedObj = new BigDecimal(value);
-                    } else {
-                        castedObj = JavaClassHelper.parse(clazz, value);
-                    }
-                    entry.getValue().setInitializationValue(castedObj);
+        Map<String, ConfigurationVariable> variables = configuration.getVariables();
+        for (Map.Entry<String, ConfigurationVariable> entry : variables.entrySet()) {
+            String variableName = entry.getKey().replace("_", ".");
+            String value = this.configParams.getString(variableName);
+            if (value != null) {
+                String type = entry.getValue().getType();
+                Class clazz;
+                try {
+                    clazz = Class.forName(type);
+                } catch (ClassNotFoundException e) {
+                    throw new InternalEngineException("Unknown variable type: " + type);
                 }
+                Object castedObj = null;
+                if (clazz.isEnum()) {
+                    castedObj = Enum.valueOf(clazz, value);
+                } else if (clazz == BigDecimal.class) {
+                    castedObj = new BigDecimal(value);
+                } else {
+                    castedObj = JavaClassHelper.parse(clazz, value);
+                }
+                entry.getValue().setInitializationValue(castedObj);
             }
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
         }
     }
 
@@ -826,8 +829,8 @@ public class EngineImpl extends AbstractEngine {
                         } else {
                             statement.addListener((UpdateListener) obj);
                         }
-                    } catch (Exception e) {
-                        throw new RuntimeException("listener " + className + " could not be created for statement " + statement.getName(), e);
+                    } catch (ClassNotFoundException | IllegalAccessException | InstantiationException ex) {
+                        throw new InternalEngineException("listener " + className + " could not be created for statement " + statement.getName(), ex);
                     }
                 }
             }
