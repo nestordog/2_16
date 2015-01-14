@@ -43,13 +43,12 @@ import org.apache.commons.collections15.Transformer;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
-import ch.algotrader.ServiceLocator;
 import ch.algotrader.config.CommonConfig;
-import ch.algotrader.config.ConfigLocator;
 import ch.algotrader.config.ConfigParams;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.strategy.Strategy;
@@ -66,6 +65,7 @@ import ch.algotrader.esper.callback.TickCallback;
 import ch.algotrader.esper.callback.TimerCallback;
 import ch.algotrader.esper.callback.TradeCallback;
 import ch.algotrader.esper.io.CustomSender;
+import ch.algotrader.service.LookupService;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.collection.CollectionUtil;
 import ch.algotrader.util.metric.MetricsUtil;
@@ -120,6 +120,11 @@ public class EngineImpl extends AbstractEngine {
     private static final String newline = System.getProperty("line.separator");
     private static final SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd_kkmmss");
 
+    private final LookupService lookupService;
+    private final DependencyLookup dependencyLookup;
+    private final ConfigParams configParams;
+    private final CommonConfig commonConfig;
+
     private EPServiceProvider serviceProvider;
     private AdapterCoordinator coordinator;
 
@@ -141,9 +146,19 @@ public class EngineImpl extends AbstractEngine {
      * <li>Esper Time is set to zero</li>
      * </ul>
      */
-    public EngineImpl(String engineName) {
+    public EngineImpl(final String engineName, final LookupService lookupService, final DependencyLookup dependencyLookup, final ConfigParams configParams, final CommonConfig commonConfig) {
 
-        this.engineName = engineName;
+        super(engineName);
+
+        Validate.notNull(lookupService, "LookupService is null");
+        Validate.notNull(dependencyLookup, "DependencyLookup is null");
+        Validate.notNull(configParams, "ConfigParams is null");
+        Validate.notNull(commonConfig, "CommonConfig is null");
+
+        this.lookupService = lookupService;
+        this.dependencyLookup = dependencyLookup;
+        this.configParams = configParams;
+        this.commonConfig = commonConfig;
 
         Configuration configuration = new Configuration();
 
@@ -171,18 +186,16 @@ public class EngineImpl extends AbstractEngine {
 
         initVariables(configuration);
 
-        CommonConfig commonConfig = ConfigLocator.instance().getCommonConfig();
         // outbound threading for ALGOTRADER SERVER
         if (StrategyImpl.SERVER.equals(engineName) && !commonConfig.isSimulation()) {
 
-            ConfigParams configParams = ConfigLocator.instance().getConfigParams();
             Threading threading = configuration.getEngineDefaults().getThreading();
 
             threading.setThreadPoolOutbound(true);
             threading.setThreadPoolOutboundNumThreads(configParams.getInteger("misc.outboundThreads"));
         }
 
-        Strategy strategy = ServiceLocator.instance().getLookupService().getStrategyByName(engineName);
+        Strategy strategy = this.lookupService.getStrategyByName(engineName);
         if (strategy == null) {
             logger.warn("no stratgy found for engineName " + engineName);
         } else {
@@ -194,7 +207,7 @@ public class EngineImpl extends AbstractEngine {
         // must send time event before first schedule pattern
         this.serviceProvider.getEPRuntime().sendEvent(new CurrentTimeEvent(0));
 
-        this.internalClock = false;
+        setInternalClock(false);
 
         logger.debug("initialized service provider: " + engineName);
     }
@@ -209,7 +222,7 @@ public class EngineImpl extends AbstractEngine {
 
         this.serviceProvider.destroy();
 
-        logger.debug("destroyed service provider: " + this.engineName);
+        logger.debug("destroyed service provider: " + getName());
     }
 
     @Override
@@ -277,9 +290,9 @@ public class EngineImpl extends AbstractEngine {
     @Override
     public void deployInitModules() {
 
-        Strategy strategy = ServiceLocator.instance().getLookupService().getStrategyByName(this.engineName);
+        Strategy strategy = this.lookupService.getStrategyByName(getName());
         if (strategy == null) {
-            throw new IllegalStateException("strategy " + this.engineName + " was not found in database");
+            throw new IllegalStateException("strategy " + getName() + " was not found in database");
         }
         String initModules = strategy.getInitModules();
         if (initModules != null) {
@@ -293,9 +306,9 @@ public class EngineImpl extends AbstractEngine {
     @Override
     public void deployRunModules() {
 
-        Strategy strategy = ServiceLocator.instance().getLookupService().getStrategyByName(this.engineName);
+        Strategy strategy = this.lookupService.getStrategyByName(getName());
         if (strategy == null) {
-            throw new IllegalStateException("strategy " + this.engineName + " was not found in database");
+            throw new IllegalStateException("strategy " + getName() + " was not found in database");
         }
         String runModules = strategy.getRunModules();
         if (runModules != null) {
@@ -414,7 +427,7 @@ public class EngineImpl extends AbstractEngine {
             this.processing.get().set(false);
         }
 
-        MetricsUtil.accountEnd("EngineImpl." + engineName + "." + ClassUtils.getShortClassName(obj.getClass()), startTime);
+        MetricsUtil.accountEnd("EngineImpl." + getName() + "." + ClassUtils.getShortClassName(obj.getClass()), startTime);
     }
 
     @Override
@@ -732,12 +745,11 @@ public class EngineImpl extends AbstractEngine {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     private void initVariables(Configuration configuration) {
 
-        ConfigParams configParams = ConfigLocator.instance().getConfigParams();
         try {
             Map<String, ConfigurationVariable> variables = configuration.getVariables();
             for (Map.Entry<String, ConfigurationVariable> entry : variables.entrySet()) {
                 String variableName = entry.getKey().replace("_", ".");
-                String value = configParams.getString(variableName);
+                String value = this.configParams.getString(variableName);
                 if (value != null) {
                     Class clazz = Class.forName(entry.getValue().getType());
                     Object castedObj = null;
@@ -799,8 +811,7 @@ public class EngineImpl extends AbstractEngine {
                         serviceName = StringUtils.remove(StringUtils.remove(StringUtils.uncapitalize(StringUtils.substringAfterLast(serviceName, ".")), "Base"), "Impl");
                     }
                     String serviceMethodName = StringUtils.substringAfterLast(fqdn, ".");
-                    Object service = ServiceLocator.instance().getService(serviceName);
-                    statement.setSubscriber(service, serviceMethodName);
+                    statement.setSubscriber(this.dependencyLookup.getBean(serviceName), serviceMethodName);
                 }
 
             } else if (annotation instanceof Listeners) {
@@ -827,8 +838,7 @@ public class EngineImpl extends AbstractEngine {
         // in live trading stop the statement before attaching (and restart afterwards)
         // to make sure that the subscriber receives the first event
         if (callback != null) {
-            CommonConfig commonConfig = ConfigLocator.instance().getCommonConfig();
-            if (commonConfig.isSimulation()) {
+            if (this.commonConfig.isSimulation()) {
                 statement.setSubscriber(callback);
             } else {
                 statement.stop();
@@ -902,10 +912,7 @@ public class EngineImpl extends AbstractEngine {
         EngineImportService engineImportService = ((EPServiceProviderSPI) serviceProvider).getEngineImportService();
         Annotation[] annotations = AnnotationUtil.compileAnnotations(annotationDescs, engineImportService, item.getExpression());
 
-        CommonConfig commonConfig = ConfigLocator.instance().getCommonConfig();
-        ConfigParams configParams = ConfigLocator.instance().getConfigParams();
-
-        String excludeStatements = configParams.getString("misc.moduleDeployExcludeStatements");
+        String excludeStatements = this.configParams.getString("misc.moduleDeployExcludeStatements");
         Set<String> moduleDeployExcludeStatements = new HashSet<String>();
         if (excludeStatements != null) {
             moduleDeployExcludeStatements.addAll(Arrays.asList(excludeStatements.split(",")));
@@ -921,11 +928,11 @@ public class EngineImpl extends AbstractEngine {
                     return false;
                 }
 
-            } else if (annotation instanceof RunTimeOnly && commonConfig.isSimulation()) {
+            } else if (annotation instanceof RunTimeOnly && this.commonConfig.isSimulation()) {
 
                 return false;
 
-            } else if (annotation instanceof SimulationOnly && !commonConfig.isSimulation()) {
+            } else if (annotation instanceof SimulationOnly && !this.commonConfig.isSimulation()) {
 
                 return false;
 
@@ -933,7 +940,7 @@ public class EngineImpl extends AbstractEngine {
 
                 Condition condition = (Condition) annotation;
                 String key = condition.key();
-                if (!configParams.getBoolean(key)) {
+                if (!this.configParams.getBoolean(key)) {
                     return false;
                 }
             }
@@ -953,7 +960,7 @@ public class EngineImpl extends AbstractEngine {
             public boolean evaluate(String statement) {
                 return statement.matches(statementNameRegex);
             }
-        }).toArray(new String[] {});
+        }).toArray(new String[]{});
     }
 
 }

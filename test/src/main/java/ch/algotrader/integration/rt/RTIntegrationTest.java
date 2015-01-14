@@ -98,7 +98,7 @@ public class RTIntegrationTest extends LocalServiceTest {
         final LinkedBlockingQueue<Object> queue = new LinkedBlockingQueue<Object>();
         this.eventQueue = queue;
 
-        this.engine = Mockito.spy(new AbstractEngine() {
+        this.engine = Mockito.spy(new AbstractEngine(StrategyImpl.SERVER) {
 
             @Override
             public void sendEvent(Object obj) {

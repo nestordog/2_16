@@ -66,7 +66,9 @@ public class EngineLocator {
 
     public Engine initEngine(String engineName) {
 
-        Engine engine = new EngineImpl(engineName);
+        ServiceLocator serviceLocator = ServiceLocator.instance();
+        ConfigLocator configLocator = ConfigLocator.instance();
+        Engine engine = new EngineImpl(engineName, serviceLocator.getLookupService(), new SpringDependencyLookup(serviceLocator.getContext()), configLocator.getConfigParams(), configLocator.getCommonConfig());
         this.engines.put(engineName, engine);
         return engine;
     }
