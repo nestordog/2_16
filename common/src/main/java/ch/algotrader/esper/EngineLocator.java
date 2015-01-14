@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.esper;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -68,9 +69,16 @@ public class EngineLocator {
 
         ServiceLocator serviceLocator = ServiceLocator.instance();
         ConfigLocator configLocator = ConfigLocator.instance();
-        Engine engine = new EngineImpl(engineName, serviceLocator.getLookupService(), new SpringDependencyLookup(serviceLocator.getContext()), configLocator.getConfigParams(), configLocator.getCommonConfig());
-        this.engines.put(engineName, engine);
-        return engine;
+
+        EngineFactory engineFactory = new EngineFactory(serviceLocator.getLookupService(), new SpringDependencyLookup(serviceLocator.getContext()));
+
+        try {
+            Engine engine = engineFactory.createEngine(engineName, configLocator.getConfigParams(), configLocator.getCommonConfig());
+            this.engines.put(engineName, engine);
+            return engine;
+        } catch (IOException ex) {
+            throw new InternalEngineException(ex.getMessage(), ex);
+        }
     }
 
     public Engine initServerEngine() {
