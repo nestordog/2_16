@@ -93,7 +93,7 @@ public class MeasurementServiceImpl implements MeasurementService {
             measurement.setDateTime(date);
             measurement.setValue(value);
 
-            this.measurementDao.create(measurement);
+            this.measurementDao.save(measurement);
 
         } else {
 
@@ -111,7 +111,7 @@ public class MeasurementServiceImpl implements MeasurementService {
     @Transactional(propagation = Propagation.REQUIRED)
     public void deleteMeasurement(final int measurementId) {
 
-        this.measurementDao.remove(measurementId);
+        this.measurementDao.deleteById(measurementId);
 
     }
 }

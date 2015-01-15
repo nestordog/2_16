@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+          "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping default-cascade="none">
+    <class name="ch.algotrader.entity.GenericItem"
+        table="`GenericItem`" dynamic-insert="false" dynamic-update="false">
+        <id name="id" type="int" >
+            <column name="ID" sql-type="int" />
+            <generator class="native"/>
+        </id>
+        <property name="name">
+            <column name="`NAME`" not-null="true" unique="true" sql-type="VARCHAR(255)" />
+            <type name="java.lang.String"/>
+        </property>
+        <property name="active">
+            <column name="`ACTIVE`" not-null="true" unique="false" sql-type="TINYINT" />
+            <type name="boolean"/>
+        </property>
+        <property name="broker">
+            <column name="`BROKER`" not-null="true" unique="false" sql-type="VARCHAR(255)" />
+            <type name="ch.algotrader.hibernate.HibernateEnumType">
+                 <param name="enumClassName">ch.algotrader.enumeration.Broker</param>
+            </type>
+        </property>
+    </class>
+</hibernate-mapping>

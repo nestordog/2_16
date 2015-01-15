@@ -17,18 +17,48 @@
  ***********************************************************************************/
 package ch.algotrader.entity.strategy;
 
-import ch.algotrader.vo.PortfolioValueVO;
+import java.util.Date;
+import java.util.List;
+
+import org.apache.commons.lang.Validate;
+import org.hibernate.SessionFactory;
+import org.springframework.stereotype.Repository;
+
+import ch.algotrader.enumeration.QueryType;
+import ch.algotrader.hibernate.AbstractDao;
+import ch.algotrader.hibernate.EntityConverter;
+import ch.algotrader.hibernate.NamedParam;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class PortfolioValueDaoImpl extends PortfolioValueDaoBase {
+@Repository // Required for exception translation
+public class PortfolioValueDaoImpl extends AbstractDao<PortfolioValue> implements PortfolioValueDao {
+
+    public PortfolioValueDaoImpl(final SessionFactory sessionFactory) {
+
+        super(PortfolioValueImpl.class, sessionFactory);
+    }
 
     @Override
-    public PortfolioValue portfolioValueVOToEntity(PortfolioValueVO portfolioValueVO) {
+    public List<PortfolioValue> findByStrategyAndMinDate(String strategyName, Date minDate) {
 
-        throw new UnsupportedOperationException();
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+        Validate.notNull(minDate, "minDate is null");
+
+        return find("PortfolioValue.findByStrategyAndMinDate", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("minDate", minDate));
     }
+
+    @Override
+    public <V> List<V> findByStrategyAndMinDate(String strategyName, Date minDate, EntityConverter<PortfolioValue, V> converter) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+        Validate.notNull(minDate, "minDate is null");
+        Validate.notNull(converter, "Converter is null");
+
+        return find(converter, "PortfolioValue.findByStrategyAndMinDate", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("minDate", minDate));
+    }
+
 }

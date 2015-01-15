@@ -15,12 +15,58 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
+
 package ch.algotrader.entity.security;
+
+import java.util.List;
+
+import org.apache.commons.lang.Validate;
+import org.hibernate.SessionFactory;
+import org.springframework.stereotype.Repository;
+
+import ch.algotrader.enumeration.QueryType;
+import ch.algotrader.hibernate.AbstractDao;
+import ch.algotrader.hibernate.NamedParam;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class ComponentDaoImpl extends ComponentDaoBase {
+@Repository // Required for exception translation
+public class ComponentDaoImpl extends AbstractDao<Component> implements ComponentDao {
+
+    public ComponentDaoImpl(SessionFactory sessionFactory) {
+
+        super(ComponentImpl.class, sessionFactory);
+    }
+
+    @Override
+    public List<Component> findSubscribedByStrategyInclSecurity(String strategyName) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+
+        return find("Component.findSubscribedByStrategyInclSecurity", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
+    }
+
+    @Override
+    public List<Component> findSubscribedBySecurityInclSecurity(int securityId) {
+
+        return find("Component.findSubscribedBySecurityInclSecurity", QueryType.BY_NAME, new NamedParam("securityId", securityId));
+    }
+
+    @Override
+    public List<Component> findSubscribedByStrategyAndSecurityInclSecurity(String strategyName, int securityId) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+
+        return find("Component.findSubscribedByStrategyAndSecurityInclSecurity", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("securityId", securityId));
+    }
+
+    @Override
+    public List<Component> findNonPersistent() {
+
+        return find("Component.findNonPersistent", QueryType.BY_NAME);
+    }
+
 }

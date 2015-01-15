@@ -15,12 +15,76 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
+
 package ch.algotrader.entity.security;
+
+import java.util.List;
+
+import org.apache.commons.lang.Validate;
+import org.hibernate.SessionFactory;
+import org.springframework.stereotype.Repository;
+
+import ch.algotrader.enumeration.QueryType;
+import ch.algotrader.hibernate.AbstractDao;
+import ch.algotrader.hibernate.NamedParam;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class CombinationDaoImpl extends CombinationDaoBase {
+@Repository // Required for exception translation
+public class CombinationDaoImpl extends AbstractDao<Combination> implements CombinationDao {
+
+    public CombinationDaoImpl(final SessionFactory sessionFactory) {
+
+        super(CombinationImpl.class, sessionFactory);
+    }
+
+    @Override
+    public List<Combination> findSubscribedByStrategy(String strategyName) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+
+        return find("Combination.findSubscribedByStrategy", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
+    }
+
+    @Override
+    public List<Combination> findSubscribedByStrategyAndUnderlying(String strategyName, int underlyingId) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+
+        return find("Combination.findSubscribedByStrategyAndUnderlying", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("underlyingId", underlyingId));
+    }
+
+    @Override
+    public List<Combination> findSubscribedByStrategyAndComponent(String strategyName, int securityId) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+
+        return find("Combination.findSubscribedByStrategyAndComponent", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("securityId", securityId));
+    }
+
+    @Override
+    public List<Combination> findSubscribedByStrategyAndComponentType(String strategyName, int type) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+
+        return find("Combination.findSubscribedByStrategyAndComponentType", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("type", type));
+    }
+
+    @Override
+    public List<Combination> findSubscribedByStrategyAndComponentTypeWithZeroQty(String strategyName, int type) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+
+        return find("Combination.findSubscribedByStrategyAndComponentTypeWithZeroQty", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("type", type));
+    }
+
+    @Override
+    public List<Combination> findNonPersistent() {
+
+        return find("Combination.findNonPersistent", QueryType.BY_NAME);
+    }
+
 }

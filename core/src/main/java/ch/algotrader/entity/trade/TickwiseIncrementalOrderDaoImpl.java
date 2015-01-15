@@ -17,5 +17,22 @@
  ***********************************************************************************/
 package ch.algotrader.entity.trade;
 
-public class TickwiseIncrementalOrderDaoImpl extends TickwiseIncrementalOrderDaoBase {
+import org.hibernate.SessionFactory;
+import org.springframework.stereotype.Repository;
+
+import ch.algotrader.hibernate.AbstractDao;
+
+/**
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
+ *
+ * @version $Revision$ $Date$
+ */
+@Repository // Required for exception translation
+public class TickwiseIncrementalOrderDaoImpl extends AbstractDao<TickwiseIncrementalOrder> implements TickwiseIncrementalOrderDao {
+
+    public TickwiseIncrementalOrderDaoImpl(final SessionFactory sessionFactory) {
+
+        super(TickwiseIncrementalOrderImpl.class, sessionFactory);
+    }
+
 }

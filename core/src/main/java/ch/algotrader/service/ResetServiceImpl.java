@@ -40,7 +40,6 @@ import ch.algotrader.entity.security.Component;
 import ch.algotrader.entity.security.ComponentDao;
 import ch.algotrader.entity.security.FutureDao;
 import ch.algotrader.entity.security.OptionDao;
-import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.entity.strategy.CashBalance;
 import ch.algotrader.entity.strategy.CashBalanceDao;
@@ -147,7 +146,7 @@ public class ResetServiceImpl implements ResetService {
                     toRemoveTransactions.add(transaction);
                 }
             }
-            this.transactionDao.remove(toRemoveTransactions);
+            this.transactionDao.deleteAll(toRemoveTransactions);
 
             // delete all cashBalances except the initial CREDIT
             Collection<CashBalance> cashBalances = strategy.getCashBalances();
@@ -161,7 +160,7 @@ public class ResetServiceImpl implements ResetService {
                     toRemoveCashBalance.add(cashBalance);
                 }
             }
-            this.cashBalanceDao.remove(toRemoveCashBalance);
+            this.cashBalanceDao.deleteAll(toRemoveCashBalance);
             strategy.setCashBalances(toKeepCashBalances);
         }
 
@@ -170,7 +169,7 @@ public class ResetServiceImpl implements ResetService {
         for (Position position : nonPersistentPositions) {
             position.getSecurity().removePositions(position);
         }
-        this.positionDao.remove(nonPersistentPositions);
+        this.positionDao.deleteAll(nonPersistentPositions);
 
         // reset persistent positions
         Collection<Position> persistentPositions = this.positionDao.findPersistent();
@@ -182,39 +181,39 @@ public class ResetServiceImpl implements ResetService {
 
         // delete all non-presistent subscriptions and references to them
         Collection<Subscription> nonPersistentSubscriptions = this.subscriptionDao.findNonPersistent();
-        this.subscriptionDao.remove(nonPersistentSubscriptions);
+        this.subscriptionDao.deleteAll(nonPersistentSubscriptions);
         for (Subscription subscription : nonPersistentSubscriptions) {
             subscription.getSecurity().getSubscriptions().remove(subscription);
         }
 
         // delete all non-persistent combinations
-        this.combinationDao.remove(this.combinationDao.findNonPersistent());
+        this.combinationDao.deleteAll(this.combinationDao.findNonPersistent());
 
         // delete all non-persistent components and references to them
         Collection<Component> nonPersistentComponents = this.componentDao.findNonPersistent();
-        this.componentDao.remove(nonPersistentComponents);
+        this.componentDao.deleteAll(nonPersistentComponents);
         for (Component component : nonPersistentComponents) {
             component.getCombination().getComponents().remove(component);
         }
 
         // delete all non-persistent properties
         Collection<Property> nonPersistentProperties = this.propertyDao.findNonPersistent();
-        this.propertyDao.remove(nonPersistentProperties);
+        this.propertyDao.deleteAll(nonPersistentProperties);
         for (Property property : nonPersistentProperties) {
             property.getPropertyHolder().removeProps(property.getName());
         }
 
         // delete all measurements
-        this.measurementDao.remove(this.measurementDao.loadAll());
+        this.measurementDao.deleteAll(this.measurementDao.loadAll());
 
         // delete all Options if they are beeing simulated
         if (this.coreConfig.isSimulateOptions()) {
-            this.securityDao.remove((Collection<Security>) this.optionDao.loadAll(OptionDao.TRANSFORM_NONE));
+            this.optionDao.deleteAll(this.optionDao.loadAll());
         }
 
         // delete all Futures if they are beeing simulated
         if (this.coreConfig.isSimulateFuturesByUnderlying() || this.coreConfig.isSimulateFuturesByGenericFutures()) {
-            this.securityDao.remove((Collection<Security>) this.futureDao.loadAll(FutureDao.TRANSFORM_NONE));
+            this.futureDao.deleteAll(this.futureDao.loadAll());
         }
 
     }

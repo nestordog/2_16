@@ -15,96 +15,78 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
+
 package ch.algotrader.entity.marketData;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Date;
+import java.util.List;
 
-import ch.algotrader.entity.security.Security;
-import ch.algotrader.vo.BarVO;
-import ch.algotrader.vo.RawBarVO;
+import org.apache.commons.lang.Validate;
+import org.hibernate.SessionFactory;
+import org.springframework.stereotype.Repository;
 
-@SuppressWarnings("unchecked")
+import ch.algotrader.enumeration.Duration;
+import ch.algotrader.enumeration.QueryType;
+import ch.algotrader.hibernate.AbstractDao;
+import ch.algotrader.hibernate.NamedParam;
+
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class BarDaoImpl extends BarDaoBase {
+@Repository // Required for exception translation
+public class BarDaoImpl extends AbstractDao<Bar> implements BarDao {
 
-    Map<String, Integer> securityIds = new HashMap<String, Integer>();
+    public BarDaoImpl(final SessionFactory sessionFactory) {
 
-    @Override
-    public void toRawBarVO(Bar bar, RawBarVO barVO) {
-
-        super.toRawBarVO(bar, barVO);
-
-        completeRawBarVO(bar, barVO);
+        super(BarImpl.class, sessionFactory);
     }
 
     @Override
-    public RawBarVO toRawBarVO(final Bar bar) {
+    public List<Bar> findDailyBarsFromTicks(int securityId, Date minDate, Date maxDate) {
 
-        RawBarVO rawBarVO = super.toRawBarVO(bar);
+        Validate.notNull(minDate, "minDate is null");
+        Validate.notNull(maxDate, "maxDate is null");
 
-        completeRawBarVO(bar, rawBarVO);
-
-        return rawBarVO;
-    }
-
-    /**
-     * set the FileName to the first non-null value of isin, symbol, bbgid, ric and conid or id
-     */
-    private void completeRawBarVO(Bar bar, RawBarVO barVO) {
-
-        Security security = bar.getSecurity();
-        if (security.getIsin() != null) {
-            barVO.setSecurity(security.getIsin());
-        } else if (security.getSymbol() != null) {
-            barVO.setSecurity(security.getSymbol());
-        } else if (security.getBbgid() != null) {
-            barVO.setSecurity(security.getBbgid());
-        } else if (security.getRic() != null) {
-            barVO.setSecurity(security.getRic());
-        } else if (security.getConid() != null) {
-            barVO.setSecurity(security.getConid());
-        } else {
-            barVO.setSecurity(String.valueOf(security.getId()));
-        }
+        return find("Bar.findDailyBarsFromTicks", QueryType.BY_NAME, new NamedParam("securityId", securityId), new NamedParam("minDate", minDate), new NamedParam("maxDate", maxDate));
     }
 
     @Override
-    public void toBarVO(Bar bar, BarVO barVO) {
+    public List<Bar> findBarsBySecurityAndBarSize(int limit, int securityId, Duration barSize) {
 
-        super.toBarVO(bar, barVO);
+        Validate.notNull(barSize, "barSize is null");
 
-        completeBarVO(bar, barVO);
+        return find("Bar.findBarsBySecurityAndBarSize", limit, QueryType.BY_NAME, new NamedParam("securityId", securityId), new NamedParam("barSize", barSize));
     }
 
     @Override
-    public BarVO toBarVO(final Bar bar) {
+    public List<Bar> findBarsBySecurityBarSizeAndMinDate(int securityId, Duration barSize, Date minDate) {
 
-        BarVO barVO = super.toBarVO(bar);
+        Validate.notNull(barSize, "barSize is null");
+        Validate.notNull(minDate, "minDate is null");
 
-        completeBarVO(bar, barVO);
-
-        return barVO;
-    }
-
-    private void completeBarVO(Bar bar, BarVO barVO) {
-
-        barVO.setSecurityId(bar.getSecurity().getId());
+        return find("Bar.findBarsBySecurityBarSizeAndMinDate", QueryType.BY_NAME, new NamedParam("securityId", securityId), new NamedParam("barSize", barSize), new NamedParam("minDate", minDate));
     }
 
     @Override
-    public Bar rawBarVOToEntity(RawBarVO barVO) {
+    public List<Bar> findSubscribedByTimePeriodAndBarSize(Date minDate, Date maxDate, Duration barSize) {
 
-        throw new UnsupportedOperationException("not implemented (LookupUtil.rawBarVOToEntity(RawBarVO)");
+        Validate.notNull(minDate, "minDate is null");
+        Validate.notNull(maxDate, "maxDate is null");
+        Validate.notNull(barSize, "barSize is null");
+
+        return find("Bar.findSubscribedByTimePeriodAndBarSize", QueryType.BY_NAME, new NamedParam("minDate", minDate), new NamedParam("maxDate", maxDate), new NamedParam("barSize", barSize));
     }
 
     @Override
-    public Bar barVOToEntity(BarVO barVO) {
+    public List<Bar> findSubscribedByTimePeriodAndBarSize(int limit, Date minDate, Date maxDate, Duration barSize) {
 
-        throw new UnsupportedOperationException("not implemented yet");
+        Validate.notNull(minDate, "minDate is null");
+        Validate.notNull(maxDate, "maxDate is null");
+        Validate.notNull(barSize, "barSize is null");
+
+        return find("Bar.findSubscribedByTimePeriodAndBarSize", limit, QueryType.BY_NAME, new NamedParam("minDate", minDate), new NamedParam("maxDate", maxDate), new NamedParam("barSize", barSize));
     }
+
 }

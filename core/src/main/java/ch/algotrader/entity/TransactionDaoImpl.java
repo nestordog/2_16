@@ -15,69 +15,106 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
+
 package ch.algotrader.entity;
 
 import java.math.BigDecimal;
+import java.util.Date;
+import java.util.List;
 
-import ch.algotrader.config.CommonConfig;
-import ch.algotrader.entity.security.Security;
-import ch.algotrader.vo.TransactionVO;
+import org.apache.commons.lang.Validate;
+import org.hibernate.SessionFactory;
+import org.springframework.stereotype.Repository;
+
+import ch.algotrader.enumeration.QueryType;
+import ch.algotrader.hibernate.AbstractDao;
+import ch.algotrader.hibernate.EntityConverter;
+import ch.algotrader.hibernate.NamedParam;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class TransactionDaoImpl extends TransactionDaoBase {
+@Repository // Required for exception translation
+public class TransactionDaoImpl extends AbstractDao<Transaction> implements TransactionDao {
 
-    private CommonConfig commonConfig;
-    public void setCommonConfig(CommonConfig commonConfig) {
-        this.commonConfig = commonConfig;
+    public TransactionDaoImpl(final SessionFactory sessionFactory) {
+
+        super(TransactionImpl.class, sessionFactory);
     }
 
     @Override
-    public void toTransactionVO(Transaction transaction, TransactionVO transactionVO) {
+    public List<Transaction> findByStrategy(String strategyName) {
 
-        super.toTransactionVO(transaction, transactionVO);
+        Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        completeTransactionVO(transaction, transactionVO);
+        return find("Transaction.findByStrategy", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
     }
 
     @Override
-    public TransactionVO toTransactionVO(final Transaction transaction) {
+    public <V> List<V> findTransactionsDesc(int limit, EntityConverter<Transaction, V> converter) {
 
-        TransactionVO transactionVO = super.toTransactionVO(transaction);
+        Validate.notNull(converter, "EntityConverter is null");
 
-        completeTransactionVO(transaction, transactionVO);
-
-        return transactionVO;
-    }
-
-    private void completeTransactionVO(Transaction transaction, TransactionVO transactionVO) {
-
-        Security security = transaction.getSecurity();
-        if (security != null) {
-            transactionVO.setName(security.toString());
-
-            int scale = security.getSecurityFamily().getScale();
-            transactionVO.setPrice(transaction.getPrice().setScale(scale, BigDecimal.ROUND_HALF_UP));
-        } else {
-            transactionVO.setPrice(transaction.getPrice().setScale(this.commonConfig.getPortfolioDigits(), BigDecimal.ROUND_HALF_UP));
-        }
-
-        transactionVO.setStrategy(transaction.getStrategy().toString());
-        transactionVO.setValue(transaction.getNetValue());
-        transactionVO.setTotalCharges(transaction.getTotalCharges());
-
-        Account account = transaction.getAccount();
-        if (account != null) {
-            transactionVO.setAccount(account.toString());
-        }
+        return find(converter, "Transaction.findTransactionsDesc", limit, QueryType.BY_NAME);
     }
 
     @Override
-    public Transaction transactionVOToEntity(TransactionVO transactionVO) {
+    public <V> List<V> findTransactionsByStrategyDesc(int limit, String strategyName, EntityConverter<Transaction, V> converter) {
 
-        throw new UnsupportedOperationException("transactionVOToEntity not yet implemented.");
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+        Validate.notNull(converter, "EntityConverter is null");
+
+        return find(converter, "Transaction.findTransactionsByStrategyDesc", limit, QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
+    }
+
+    @Override
+    public List<Transaction> findAllTradesInclSecurity() {
+
+        return find("Transaction.findAllTradesInclSecurity", QueryType.BY_NAME);
+    }
+
+    @Override
+    public List<Transaction> findCashflowsByStrategyAndMinDate(String strategyName, Date minDate) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+        Validate.notNull(minDate, "minDate is null");
+
+        return find("Transaction.findCashflowsByStrategyAndMinDate", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("minDate", minDate));
+    }
+
+    @Override
+    public List<Transaction> findTradesByMinDateAndMaxDate(Date minDate, Date maxDate) {
+
+        Validate.notNull(minDate, "minDate name is empty");
+        Validate.notNull(maxDate, "maxDate is null");
+
+        return find("Transaction.findTradesByMinDateAndMaxDate", QueryType.BY_NAME, new NamedParam("minDate", minDate), new NamedParam("maxDate", maxDate));
+    }
+
+    @Override
+    public List<Transaction> findByMaxDate(Date maxDate) {
+
+        Validate.notNull(maxDate, "maxDate is null");
+
+        return find("Transaction.findByMaxDate", QueryType.BY_NAME, new NamedParam("maxDate", maxDate));
+    }
+
+    @Override
+    public List<Transaction> findByStrategyAndMaxDate(String strategyName, Date maxDate) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+        Validate.notNull(maxDate, "maxDate is null");
+
+        return find("Transaction.findByStrategyAndMaxDate", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("maxDate", maxDate));
+    }
+
+    @Override
+    public BigDecimal findLastIntOrderId(String sessionQualifier) {
+
+        Validate.notEmpty(sessionQualifier, "sessionQualifier is empty");
+
+        return (BigDecimal) findUniqueObject(null, "Transaction.findLastIntOrderId", QueryType.BY_NAME, new NamedParam("sessionQualifier", sessionQualifier));
     }
 }

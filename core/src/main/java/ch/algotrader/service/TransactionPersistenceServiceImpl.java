@@ -27,6 +27,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.algotrader.config.CommonConfig;
+import ch.algotrader.entity.ClosePositionVOProducer;
+import ch.algotrader.entity.OpenPositionVOProducer;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.PositionDao;
 import ch.algotrader.entity.Transaction;
@@ -128,7 +130,7 @@ public abstract class TransactionPersistenceServiceImpl implements TransactionPe
             boolean existingOpenPosition = position.isOpen();
 
             // get the closePositionVO (must be done before closing the position)
-            closePositionVO = this.positionDao.toClosePositionVO(position);
+            closePositionVO = ClosePositionVOProducer.INSTANCE.convert(position);
 
             // process the transaction (adjust quantity, cost and realizedPL)
             tradePerformance = PositionUtil.processTransaction(position, transaction);
@@ -150,7 +152,7 @@ public abstract class TransactionPersistenceServiceImpl implements TransactionPe
 
             // if no position was open before initialize the openPosition event
             if (!existingOpenPosition) {
-                openPositionVO = this.positionDao.toOpenPositionVO(position);
+                openPositionVO = OpenPositionVOProducer.INSTANCE.convert(position);
             }
         }
 
@@ -175,7 +177,7 @@ public abstract class TransactionPersistenceServiceImpl implements TransactionPe
         this.portfolioService.savePortfolioValue(transaction);
 
         // create the transaction
-        this.transactionDao.create(transaction);
+        this.transactionDao.save(transaction);
 
         // prepare log message and propagate tradePerformance
         String logMessage = "executed transaction: " + transaction;
@@ -267,7 +269,7 @@ public abstract class TransactionPersistenceServiceImpl implements TransactionPe
                 cashBalance.setAmount(amount);
                 cashBalance.setStrategy(strategy);
 
-                this.cashBalanceDao.create(cashBalance);
+                this.cashBalanceDao.save(cashBalance);
 
                 // reverse-associate with strategy (after cashBalance has received an id)
                 strategy.getCashBalances().add(cashBalance);
@@ -290,7 +292,7 @@ public abstract class TransactionPersistenceServiceImpl implements TransactionPe
             buffer.append(info + "\n");
         }
 
-        this.cashBalanceDao.remove(existingCashBalances);
+        this.cashBalanceDao.deleteAll(existingCashBalances);
 
         return buffer.toString();
 

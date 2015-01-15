@@ -15,13 +15,25 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
+
 package ch.algotrader.entity.security;
+
+import org.hibernate.SessionFactory;
+import org.springframework.stereotype.Repository;
+
+import ch.algotrader.hibernate.AbstractDao;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class CommodityDaoImpl extends CommodityDaoBase {
+@Repository // Required for exception translation
+public class CommodityDaoImpl extends AbstractDao<Commodity> implements CommodityDao {
+
+    public CommodityDaoImpl(SessionFactory sessionFactory) {
+
+        super(CommodityImpl.class, sessionFactory);
+    }
 
 }

@@ -15,12 +15,25 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
+
 package ch.algotrader.entity.security;
+
+import org.hibernate.SessionFactory;
+import org.springframework.stereotype.Repository;
+
+import ch.algotrader.hibernate.AbstractDao;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class BondDaoImpl extends BondDaoBase {
+@Repository // Required for exception translation
+public class BondDaoImpl extends AbstractDao<Bond> implements BondDao {
+
+    public BondDaoImpl(final SessionFactory sessionFactory) {
+
+        super(BondImpl.class, sessionFactory);
+    }
+
 }

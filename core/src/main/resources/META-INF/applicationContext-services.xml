@@ -16,36 +16,36 @@
     <task:annotation-driven/>
 
     <bean id="lookupService" class="ch.algotrader.service.LookupServiceImpl" >
-        <constructor-arg index="0" ref="coreConfig"/>
-        <constructor-arg index="1" ref="sessionFactory"/>
-        <constructor-arg index="2" ref="genericDao"/>
-        <constructor-arg index="3" ref="futureFamilyDao"/>
-        <constructor-arg index="4" ref="futureDao"/>
-        <constructor-arg index="5" ref="forexDao"/>
-        <constructor-arg index="6" ref="securityFamilyDao"/>
-        <constructor-arg index="7" ref="optionFamilyDao"/>
-        <constructor-arg index="8" ref="tickDao"/>
-        <constructor-arg index="9" ref="optionDao"/>
-        <constructor-arg index="10" ref="transactionDao"/>
-        <constructor-arg index="11" ref="positionDao"/>
-        <constructor-arg index="12" ref="strategyDao"/>
-        <constructor-arg index="13" ref="securityDao"/>
-        <constructor-arg index="14" ref="cashBalanceDao"/>
-        <constructor-arg index="15" ref="subscriptionDao"/>
-        <constructor-arg index="16" ref="combinationDao"/>
-        <constructor-arg index="17" ref="componentDao"/>
-        <constructor-arg index="18" ref="measurementDao"/>
-        <constructor-arg index="19" ref="barDao"/>
-        <constructor-arg index="20" ref="orderDao"/>
-        <constructor-arg index="21" ref="orderStatusDao"/>
-        <constructor-arg index="22" ref="orderPreferenceDao"/>
-        <constructor-arg index="23" ref="defaultOrderPreferenceDao"/>
-        <constructor-arg index="24" ref="accountDao"/>
-        <constructor-arg index="25" ref="stockDao"/>
-        <constructor-arg index="26" ref="intrestRateDao"/>
-        <constructor-arg index="27" ref="easyToBorrowDao"/>
+        <constructor-arg index="0" ref="commonConfig"/>
+        <constructor-arg index="1" ref="coreConfig"/>
+        <constructor-arg index="2" ref="sessionFactory"/>
+        <constructor-arg index="3" ref="genericDao"/>
+        <constructor-arg index="4" ref="futureFamilyDao"/>
+        <constructor-arg index="5" ref="futureDao"/>
+        <constructor-arg index="6" ref="forexDao"/>
+        <constructor-arg index="7" ref="securityFamilyDao"/>
+        <constructor-arg index="8" ref="optionFamilyDao"/>
+        <constructor-arg index="9" ref="tickDao"/>
+        <constructor-arg index="10" ref="optionDao"/>
+        <constructor-arg index="11" ref="transactionDao"/>
+        <constructor-arg index="12" ref="positionDao"/>
+        <constructor-arg index="13" ref="strategyDao"/>
+        <constructor-arg index="14" ref="securityDao"/>
+        <constructor-arg index="15" ref="cashBalanceDao"/>
+        <constructor-arg index="16" ref="subscriptionDao"/>
+        <constructor-arg index="17" ref="combinationDao"/>
+        <constructor-arg index="18" ref="componentDao"/>
+        <constructor-arg index="19" ref="measurementDao"/>
+        <constructor-arg index="20" ref="barDao"/>
+        <constructor-arg index="21" ref="orderDao"/>
+        <constructor-arg index="22" ref="orderStatusDao"/>
+        <constructor-arg index="23" ref="orderPreferenceDao"/>
+        <constructor-arg index="24" ref="defaultOrderPreferenceDao"/>
+        <constructor-arg index="25" ref="accountDao"/>
+        <constructor-arg index="26" ref="stockDao"/>
+        <constructor-arg index="27" ref="intrestRateDao"/>
+        <constructor-arg index="28" ref="easyToBorrowDao"/>
     </bean>
-
 
     <bean id="futureService" class="ch.algotrader.service.FutureServiceImpl" >
         <constructor-arg index="0" ref="commonConfig"/>

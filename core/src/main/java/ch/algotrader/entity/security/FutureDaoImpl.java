@@ -17,11 +17,72 @@
  ***********************************************************************************/
 package ch.algotrader.entity.security;
 
+import java.util.Date;
+import java.util.List;
+
+import org.apache.commons.lang.Validate;
+import org.hibernate.SessionFactory;
+import org.springframework.stereotype.Repository;
+
+import ch.algotrader.enumeration.QueryType;
+import ch.algotrader.hibernate.AbstractDao;
+import ch.algotrader.hibernate.NamedParam;
+
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class FutureDaoImpl extends FutureDaoBase {
+@Repository // Required for exception translation
+public class FutureDaoImpl extends AbstractDao<Future> implements FutureDao {
+
+    public FutureDaoImpl(final SessionFactory sessionFactory) {
+
+        super(FutureImpl.class, sessionFactory);
+    }
+
+    @Override
+    public Future findByExpirationInclSecurityFamily(int futureFamilyId, Date expirationDate) {
+
+        Validate.notNull(expirationDate, "expirationDate is null");
+
+        return findUnique("Future.findByExpirationInclSecurityFamily", QueryType.BY_NAME, new NamedParam("futureFamilyId", futureFamilyId), new NamedParam("expirationDate", expirationDate));
+    }
+
+    @Override
+    public List<Future> findByMinExpiration(int futureFamilyId, Date targetExpirationDate) {
+
+        Validate.notNull(targetExpirationDate, "targetExpirationDate is null");
+
+        return find("Future.findByMinExpiration", QueryType.BY_NAME, new NamedParam("futureFamilyId", futureFamilyId), new NamedParam("targetExpirationDate", targetExpirationDate));
+    }
+
+    @Override
+    public List<Future> findByMinExpiration(int limit, int futureFamilyId, Date targetExpirationDate) {
+
+        Validate.notNull(targetExpirationDate, "targetExpirationDate is null");
+
+        return find("Future.findByMinExpiration", limit, QueryType.BY_NAME, new NamedParam("futureFamilyId", futureFamilyId), new NamedParam("targetExpirationDate", targetExpirationDate));
+    }
+
+    @Override
+    public List<Future> findSubscribedFutures() {
+
+        return find("Future.findSubscribedFutures", QueryType.BY_NAME);
+    }
+
+    @Override
+    public List<Future> findBySecurityFamily(int securityFamilyId) {
+
+        return find("Future.findBySecurityFamily", QueryType.BY_NAME, new NamedParam("securityFamilyId", securityFamilyId));
+    }
+
+    @Override
+    public Future findByExpirationMonth(int futureFamilyId, Date expirationMonth) {
+
+        Validate.notNull(expirationMonth, "Expiration month is null");
+
+        return findUnique("Future.findByExpirationMonth", QueryType.BY_NAME, new NamedParam("futureFamilyId", futureFamilyId), new NamedParam("expirationMonth", expirationMonth));
+    }
 
 }

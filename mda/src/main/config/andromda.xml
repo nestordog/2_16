@@ -125,8 +125,8 @@
                 <property name="springCommonTypesPackage">ch.algotrader.util.spring</property>
                 <property name="springVersion">3.1</property>
 
-                <property name="daos">${core.generated.dir}</property>
-                <property name="dao-impls">${core.manual.dir}</property>
+<!--                 <property name="daos">${core.generated.dir}</property> -->
+<!--                 <property name="dao-impls">${core.manual.dir}</property> -->
                 <property name="spring-configuration">${core.generated-config.dir}</property>
                 <property name="services">${core.generated.dir}</property>
                 <property name="service-impls">${core.manual.dir}</property>

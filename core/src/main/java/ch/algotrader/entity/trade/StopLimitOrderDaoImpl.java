@@ -17,5 +17,22 @@
  ***********************************************************************************/
 package ch.algotrader.entity.trade;
 
-public class StopLimitOrderDaoImpl extends StopLimitOrderDaoBase {
+import org.hibernate.SessionFactory;
+import org.springframework.stereotype.Repository;
+
+import ch.algotrader.hibernate.AbstractDao;
+
+/**
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
+ *
+ * @version $Revision$ $Date$
+ */
+@Repository // Required for exception translation
+public class StopLimitOrderDaoImpl extends AbstractDao<StopLimitOrder> implements StopLimitOrderDao {
+
+    public StopLimitOrderDaoImpl(final SessionFactory sessionFactory) {
+
+        super(StopLimitOrderImpl.class, sessionFactory);
+    }
+
 }

@@ -17,5 +17,22 @@
  ***********************************************************************************/
 package ch.algotrader.entity.trade;
 
-public class DistributingOrderDaoImpl extends DistributingOrderDaoBase {
+import org.hibernate.SessionFactory;
+import org.springframework.stereotype.Repository;
+
+import ch.algotrader.hibernate.AbstractDao;
+
+/**
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
+ *
+ * @version $Revision$ $Date$
+ */
+@Repository // Required for exception translation
+public class DistributingOrderDaoImpl extends AbstractDao<DistributingOrder> implements DistributingOrderDao {
+
+    public DistributingOrderDaoImpl(final SessionFactory sessionFactory) {
+
+        super(DistributingOrderImpl.class, sessionFactory);
+    }
+
 }

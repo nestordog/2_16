@@ -17,11 +17,33 @@
  ***********************************************************************************/
 package ch.algotrader.entity.security;
 
+import org.apache.commons.lang.Validate;
+import org.hibernate.SessionFactory;
+import org.springframework.stereotype.Repository;
+
+import ch.algotrader.enumeration.QueryType;
+import ch.algotrader.hibernate.AbstractDao;
+import ch.algotrader.hibernate.NamedParam;
+
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class SecurityFamilyDaoImpl extends SecurityFamilyDaoBase
-{
+@Repository // Required for exception translation
+public class SecurityFamilyDaoImpl extends AbstractDao<SecurityFamily> implements SecurityFamilyDao {
+
+    public SecurityFamilyDaoImpl(final SessionFactory sessionFactory) {
+
+        super(SecurityFamilyImpl.class, sessionFactory);
+    }
+
+    @Override
+    public SecurityFamily findByName(String name) {
+
+        Validate.notEmpty(name, "Name is empty");
+
+        return findUnique("SecurityFamily.findByName", QueryType.BY_NAME, new NamedParam("name", name));
+    }
+
 }

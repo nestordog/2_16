@@ -17,10 +17,30 @@
  ***********************************************************************************/
 package ch.algotrader.entity.security;
 
+import org.hibernate.SessionFactory;
+import org.springframework.stereotype.Repository;
+
+import ch.algotrader.enumeration.QueryType;
+import ch.algotrader.hibernate.AbstractDao;
+import ch.algotrader.hibernate.NamedParam;
+
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class FutureFamilyDaoImpl extends FutureFamilyDaoBase {
+@Repository // Required for exception translation
+public class FutureFamilyDaoImpl extends AbstractDao<FutureFamily> implements FutureFamilyDao {
+
+    public FutureFamilyDaoImpl(final SessionFactory sessionFactory) {
+
+        super(FutureFamilyImpl.class, sessionFactory);
+    }
+
+    @Override
+    public FutureFamily findByUnderlying(int underlyingId) {
+
+        return findUnique("FutureFamily.findByUnderlying", QueryType.BY_NAME, new NamedParam("underlyingId", underlyingId));
+    }
+
 }

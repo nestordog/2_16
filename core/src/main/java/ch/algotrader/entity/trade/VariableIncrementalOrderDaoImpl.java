@@ -17,5 +17,22 @@
  ***********************************************************************************/
 package ch.algotrader.entity.trade;
 
-public class VariableIncrementalOrderDaoImpl extends VariableIncrementalOrderDaoBase {
+import org.hibernate.SessionFactory;
+import org.springframework.stereotype.Repository;
+
+import ch.algotrader.hibernate.AbstractDao;
+
+/**
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
+ *
+ * @version $Revision$ $Date$
+ */
+@Repository // Required for exception translation
+public class VariableIncrementalOrderDaoImpl extends AbstractDao<VariableIncrementalOrder> implements VariableIncrementalOrderDao {
+
+    public VariableIncrementalOrderDaoImpl(final SessionFactory sessionFactory) {
+
+        super(VariableIncrementalOrderImpl.class, sessionFactory);
+    }
+
 }

@@ -15,111 +15,199 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
+
 package ch.algotrader.entity.marketData;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.espertech.esper.collection.Pair;
+import org.apache.commons.lang.Validate;
+import org.hibernate.Query;
+import org.hibernate.SessionFactory;
+import org.hibernate.type.IntegerType;
+import org.springframework.stereotype.Repository;
 
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.Subscription;
+import ch.algotrader.entity.SubscriptionDao;
 import ch.algotrader.entity.security.Security;
+import ch.algotrader.enumeration.Duration;
+import ch.algotrader.enumeration.OptionType;
+import ch.algotrader.enumeration.QueryType;
 import ch.algotrader.esper.EngineLocator;
-import ch.algotrader.vo.RawTickVO;
-import ch.algotrader.vo.TickVO;
+import ch.algotrader.hibernate.AbstractDao;
+import ch.algotrader.hibernate.NamedParam;
+import ch.algotrader.util.collection.Pair;
 
-@SuppressWarnings("unchecked")
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class TickDaoImpl extends TickDaoBase {
+@Repository // Required for exception translation
+public class TickDaoImpl extends AbstractDao<Tick> implements TickDao {
 
-    private Map<String, Integer> securityIds = new HashMap<String, Integer>();
+    private final SubscriptionDao subscriptionDao;
 
-    @Override
-    public void toTickVO(Tick tick, TickVO tickVO) {
+    public TickDaoImpl(final SessionFactory sessionFactory, final SubscriptionDao subscriptionDao) {
 
-        super.toTickVO(tick, tickVO);
+        super(TickImpl.class, sessionFactory);
 
-        completeTickVO(tick, tickVO);
+        Validate.notNull(subscriptionDao);
+
+        this.subscriptionDao = subscriptionDao;
     }
 
     @Override
-    public TickVO toTickVO(final Tick tick) {
+    public List<Tick> findBySecurity(int securityId) {
 
-        TickVO tickVO = super.toTickVO(tick);
-
-        completeTickVO(tick, tickVO);
-
-        return tickVO;
+        return find("Tick.findBySecurity", QueryType.BY_NAME, new NamedParam("securityId", securityId));
     }
 
     @Override
-    public void toRawTickVO(Tick tick, RawTickVO rawTickVO) {
+    public Tick findBySecurityAndMaxDate(int securityId, Date maxDate) {
 
-        super.toRawTickVO(tick, rawTickVO);
+        Validate.notNull(maxDate, "maxDate is null");
 
-        completeRawTickVO(tick, rawTickVO);
+        return findUnique("Tick.findBySecurityAndMaxDate", QueryType.BY_NAME, new NamedParam("securityId", securityId), new NamedParam("maxDate", maxDate));
     }
 
     @Override
-    public RawTickVO toRawTickVO(final Tick tick) {
+    public List<Tick> findTicksBySecurityAndMinDate(int securityId, Date minDate, int intervalDays) {
 
-        RawTickVO rawTickVO = super.toRawTickVO(tick);
+        Validate.notNull(minDate, "minDate is null");
 
-        completeRawTickVO(tick, rawTickVO);
-
-        return rawTickVO;
-    }
-
-    private void completeTickVO(Tick tick, TickVO tickVO) {
-
-        tickVO.setSecurityId(tick.getSecurity().getId());
-        tickVO.setCurrentValue(tick.getCurrentValue());
-    }
-
-    /**
-     * set the FileName to the first non-null value of isin, symbol, bbgid, ric and conid or id
-     */
-    private void completeRawTickVO(Tick tick, RawTickVO rawTickVO) {
-
-        Security security = tick.getSecurity();
-        if (security.getIsin() != null) {
-            rawTickVO.setSecurity(security.getIsin());
-        } else if (security.getSymbol() != null) {
-            rawTickVO.setSecurity(security.getSymbol());
-        } else if (security.getBbgid() != null) {
-            rawTickVO.setSecurity(security.getBbgid());
-        } else if (security.getRic() != null) {
-            rawTickVO.setSecurity(security.getRic());
-        } else if (security.getConid() != null) {
-            rawTickVO.setSecurity(security.getConid());
-        } else {
-            rawTickVO.setSecurity(String.valueOf(security.getId()));
-        }
+        return find("Tick.findTicksBySecurityAndMinDate", QueryType.BY_NAME, new NamedParam("securityId", securityId), new NamedParam("minDate", minDate), new NamedParam("intervalDays", intervalDays));
     }
 
     @Override
-    public Tick tickVOToEntity(TickVO tickVO) {
+    public List<Tick> findTicksBySecurityAndMinDate(int limit, int securityId, Date minDate, int intervalDays) {
 
-        throw new UnsupportedOperationException("tickVOToEntity not yet implemented.");
+        Validate.notNull(minDate, "minDate is null");
+
+        return find("Tick.findTicksBySecurityAndMinDate", limit, QueryType.BY_NAME, new NamedParam("securityId", securityId), new NamedParam("minDate", minDate), new NamedParam("intervalDays",
+                intervalDays));
     }
 
     @Override
-    public Tick rawTickVOToEntity(RawTickVO rawTickVO) {
+    public List<Tick> findTicksBySecurityAndMaxDate(int securityId, Date maxDate, int intervalDays) {
 
-        throw new UnsupportedOperationException("not implemented (LookupUtil.rawTickVOToEntity(RawTickVO)");
+        Validate.notNull(maxDate, "maxDate is null");
+
+        return find("Tick.findTicksBySecurityAndMaxDate", QueryType.BY_NAME, new NamedParam("securityId", securityId), new NamedParam("maxDate", maxDate), new NamedParam("intervalDays", intervalDays));
     }
 
     @Override
-    protected String handleFindTickerIdBySecurity(int securityId) throws Exception {
+    public List<Tick> findTicksBySecurityAndMaxDate(int limit, int securityId, Date maxDate, int intervalDays) {
+
+        Validate.notNull(maxDate, "maxDate is null");
+
+        return find("Tick.findTicksBySecurityAndMaxDate", limit, QueryType.BY_NAME, new NamedParam("securityId", securityId), new NamedParam("maxDate", maxDate), new NamedParam("intervalDays",
+                intervalDays));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public List<Integer> findDailyTickIdsBeforeTime(int securityId, Date time) {
+
+        Validate.notNull(time, "Time is null");
+
+        return (List<Integer>) findObjects(null, "Tick.findDailyTickIdsBeforeTime", QueryType.BY_NAME, new NamedParam("securityId", securityId), new NamedParam("time", time));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public List<Integer> findDailyTickIdsAfterTime(int securityId, Date time) {
+
+        Validate.notNull(time, "Time is null");
+
+        return (List<Integer>) findObjects(null, "Tick.findDailyTickIdsAfterTime", QueryType.BY_NAME, new NamedParam("securityId", securityId), new NamedParam("time", time));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public List<Integer> findHourlyTickIdsBeforeMinutesByMinDate(int securityId, int minutes, Date minDate) {
+
+        Validate.notNull(minDate, "minDate is null");
+
+        return (List<Integer>) findObjects(null, "Tick.findHourlyTickIdsBeforeMinutesByMinDate", QueryType.BY_NAME, new NamedParam("securityId", securityId), new NamedParam("minutes", minutes),
+                new NamedParam("minDate", minDate));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public List<Integer> findHourlyTickIdsAfterMinutesByMinDate(int securityId, int minutes, Date minDate) {
+
+        Validate.notNull(minDate, "minDate is null");
+
+        return (List<Integer>) findObjects(null, "Tick.findHourlyTickIdsAfterMinutesByMinDate", QueryType.BY_NAME, new NamedParam("securityId", securityId), new NamedParam("minutes", minutes),
+                new NamedParam("minDate", minDate));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public List<Tick> findByIdsInclSecurityAndUnderlying(List<Integer> ids) {
+
+        Validate.notEmpty(ids, "Ids are empty");
+
+        Query query = this.prepareQuery(null, "Tick.findByIdsInclSecurityAndUnderlying", QueryType.BY_NAME);
+        query.setParameterList("ids", ids, IntegerType.INSTANCE);
+
+        return query.list();
+    }
+
+    @Override
+    public List<Tick> findSubscribedByTimePeriod(Date minDate, Date maxDate) {
+
+        Validate.notNull(minDate, "minDate is null");
+        Validate.notNull(maxDate, "maxDate is null");
+
+        return find("Tick.findSubscribedByTimePeriod", QueryType.BY_NAME, new NamedParam("minDate", minDate), new NamedParam("maxDate", maxDate));
+    }
+
+    @Override
+    public List<Tick> findSubscribedByTimePeriod(int limit, Date minDate, Date maxDate) {
+
+        Validate.notNull(minDate, "minDate is null");
+        Validate.notNull(maxDate, "maxDate is null");
+
+        return find("Tick.findSubscribedByTimePeriod", limit, QueryType.BY_NAME, new NamedParam("minDate", minDate), new NamedParam("maxDate", maxDate));
+    }
+
+    @Override
+    public List<Tick> findOptionTicksBySecurityDateTypeAndExpirationInclSecurity(int underlyingId, Date date, OptionType type, Date expiration) {
+
+        Validate.notNull(date, "Date is null");
+        Validate.notNull(type, "Type is null");
+        Validate.notNull(expiration, "expiration is null");
+
+        return find("Tick.findOptionTicksBySecurityDateTypeAndExpirationInclSecurity", QueryType.BY_NAME, new NamedParam("underlyingId", underlyingId), new NamedParam("date", date), new NamedParam(
+                "type", type), new NamedParam("expiration", expiration));
+    }
+
+    @Override
+    public List<Tick> findImpliedVolatilityTicksBySecurityAndDate(int underlyingId, Date date) {
+
+        Validate.notNull(date, "Date is null");
+
+        return find("Tick.findImpliedVolatilityTicksBySecurityAndDate", QueryType.BY_NAME, new NamedParam("underlyingId", underlyingId), new NamedParam("date", date));
+    }
+
+    @Override
+    public List<Tick> findImpliedVolatilityTicksBySecurityDateAndDuration(int underlyingId, Date date, Duration duration) {
+
+        Validate.notNull(date, "Date is null");
+        Validate.notNull(duration, "Duration is null");
+
+        return find("Tick.findImpliedVolatilityTicksBySecurityDateAndDuration", QueryType.BY_NAME, new NamedParam("underlyingId", underlyingId), new NamedParam("date", date), new NamedParam(
+                "duration", duration));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public String findTickerIdBySecurity(int securityId) {
 
         // sometimes Esper returns a Map instead of scalar
         String query = "select tickerId from TickWindow where security.id = " + securityId;
@@ -131,12 +219,15 @@ public class TickDaoImpl extends TickDaoBase {
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    protected Collection<Tick> handleFindCurrentTicksByStrategy(String strategyName) throws Exception {
+    public List<Tick> findCurrentTicksByStrategy(String strategyName) {
 
-        List<Subscription> subscriptions = getSubscriptionDao().findByStrategy(strategyName);
+        Validate.notNull(strategyName, "Strategy name is null");
 
-        Collection<Tick> ticks = new ArrayList<Tick>();
+        List<Subscription> subscriptions = this.subscriptionDao.findByStrategy(strategyName);
+
+        List<Tick> ticks = new ArrayList<Tick>();
         for (Subscription subscription : subscriptions) {
             String query = "select * from TickWindow where security.id = " + subscription.getSecurity().getId();
             Pair<Tick, Object> pair = (Pair<Tick, Object>) EngineLocator.instance().getServerEngine().executeSingelObjectQuery(query);
@@ -157,4 +248,5 @@ public class TickDaoImpl extends TickDaoBase {
 
         return ticks;
     }
+
 }

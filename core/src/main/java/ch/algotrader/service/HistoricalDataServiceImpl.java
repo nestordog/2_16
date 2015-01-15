@@ -80,7 +80,7 @@ public abstract class HistoricalDataServiceImpl implements HistoricalDataService
         List<Bar> bars = getHistoricalBars(securityId, endDate, timePeriodLength, timePeriod, barSize, barType, properties);
 
         // get the last Bar int the Database
-        final Bar lastBar = CollectionUtil.getSingleElementOrNull(this.barDao.findBarsBySecurityAndBarSize(1, 1, securityId, barSize));
+        final Bar lastBar = CollectionUtil.getSingleElementOrNull(this.barDao.findBarsBySecurityAndBarSize(1, securityId, barSize));
 
         // remove all Bars prior to the lastBar
         if (lastBar != null) {
@@ -94,7 +94,7 @@ public abstract class HistoricalDataServiceImpl implements HistoricalDataService
         }
 
         // save the Bars
-        this.barDao.create(bars);
+        this.barDao.saveAll(bars);
 
         logger.info("created "+ bars.size() + " new bars for security " + securityId);
 
@@ -145,12 +145,12 @@ public abstract class HistoricalDataServiceImpl implements HistoricalDataService
                 }
 
                 // remove obsolete Bars
-                this.barDao.remove(dateBarMap.values());
+                this.barDao.deleteAll(dateBarMap.values());
             }
         }
 
         // save the newly retrieved Bars that do not exist yet in the db
-        this.barDao.create(newBars);
+        this.barDao.saveAll(newBars);
 
         logger.info("created "+ newBars.size() + " new bars for security " + securityId);
 

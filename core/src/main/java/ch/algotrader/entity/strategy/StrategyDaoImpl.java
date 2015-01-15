@@ -17,11 +17,53 @@
  ***********************************************************************************/
 package ch.algotrader.entity.strategy;
 
+import java.util.Date;
+import java.util.Set;
+
+import org.apache.commons.lang.Validate;
+import org.hibernate.SessionFactory;
+import org.springframework.stereotype.Repository;
+
+import ch.algotrader.enumeration.QueryType;
+import ch.algotrader.hibernate.AbstractDao;
+import ch.algotrader.hibernate.NamedParam;
+
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class StrategyDaoImpl extends StrategyDaoBase {
+@Repository // Required for exception translation
+public class StrategyDaoImpl extends AbstractDao<Strategy> implements StrategyDao {
+
+    public StrategyDaoImpl(final SessionFactory sessionFactory) {
+        super(StrategyImpl.class, sessionFactory);
+    }
+
+    @Override
+    public Strategy findServer() {
+
+        return findUnique("Strategy.findServer", QueryType.BY_NAME);
+    }
+
+    @Override
+    public Strategy findByName(final String name) {
+
+        Validate.notEmpty(name, "Strategy name is empty");
+
+        return findUnique("Strategy.findByName", QueryType.BY_NAME, new NamedParam("name", name));
+    }
+
+    @Override
+    public Set<Strategy> findAutoActivateStrategies() {
+
+        return findAsSet("Strategy.findAutoActivateStrategies", QueryType.BY_NAME);
+    }
+
+    @Override
+    public Date findCurrentDBTime() {
+
+        return Date.class.cast(findUniqueObject(null, "Strategy.findCurrentDBTime", QueryType.BY_NAME));
+    }
 
 }

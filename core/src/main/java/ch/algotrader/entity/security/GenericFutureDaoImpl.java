@@ -17,11 +17,22 @@
  ***********************************************************************************/
 package ch.algotrader.entity.security;
 
+import org.hibernate.SessionFactory;
+import org.springframework.stereotype.Repository;
+
+import ch.algotrader.hibernate.AbstractDao;
+
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class GenericFutureDaoImpl extends GenericFutureDaoBase {
+@Repository // Required for exception translation
+public class GenericFutureDaoImpl extends AbstractDao<GenericFuture> implements GenericFutureDao {
+
+    public GenericFutureDaoImpl(final SessionFactory sessionFactory) {
+
+        super(GenericFutureImpl.class, sessionFactory);
+    }
 
 }

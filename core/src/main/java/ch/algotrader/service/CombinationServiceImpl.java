@@ -134,7 +134,7 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
         combination.setSecurityFamily(securityFamily);
 
         // save to DB
-        this.combinationDao.create(combination);
+        this.combinationDao.save(combination);
 
         // reverse-associate security family (after combination has received an id)
         securityFamily.getSecurities().add(combination);
@@ -196,7 +196,7 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
             combination.getSecurityFamily().removeSecurities(combination);
 
             // remove the combination
-            this.combinationDao.remove(combination);
+            this.combinationDao.delete(combination);
 
             logger.debug("deleted combination " + combination);
         }
@@ -258,7 +258,7 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
             combination.getComponents().remove(component);
 
             // delete the component
-            this.componentDao.remove(component);
+            this.componentDao.delete(component);
 
             // remove the component from the ComponentWindow
             removeFromComponentWindow(component);
@@ -468,7 +468,7 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
             // associate combination
             component.setCombination(combination);
 
-            this.componentDao.create(component);
+            this.componentDao.save(component);
 
             // reverse associate combination (after component has received an id)
             combination.getComponents().add(component);

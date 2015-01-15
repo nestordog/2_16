@@ -17,5 +17,22 @@
  ***********************************************************************************/
 package ch.algotrader.entity.trade;
 
-public class IncrementalOrderDaoImpl extends IncrementalOrderDaoBase {
+import org.hibernate.SessionFactory;
+import org.springframework.stereotype.Repository;
+
+import ch.algotrader.hibernate.AbstractDao;
+
+/**
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
+ *
+ * @version $Revision$ $Date$
+ */
+@Repository // Required for exception translation
+public class IncrementalOrderDaoImpl extends AbstractDao<IncrementalOrder> implements IncrementalOrderDao {
+
+    public IncrementalOrderDaoImpl(final SessionFactory sessionFactory) {
+
+        super(IncrementalOrderImpl.class, sessionFactory);
+    }
+
 }

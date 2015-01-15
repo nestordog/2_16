@@ -17,11 +17,22 @@
  ***********************************************************************************/
 package ch.algotrader.entity.security;
 
+import org.hibernate.SessionFactory;
+import org.springframework.stereotype.Repository;
+
+import ch.algotrader.hibernate.AbstractDao;
+
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class IndexDaoImpl extends IndexDaoBase {
+@Repository // Required for exception translation
+public class IndexDaoImpl extends AbstractDao<Index> implements IndexDao {
+
+    public IndexDaoImpl(final SessionFactory sessionFactory) {
+
+        super(IndexImpl.class, sessionFactory);
+    }
 
 }

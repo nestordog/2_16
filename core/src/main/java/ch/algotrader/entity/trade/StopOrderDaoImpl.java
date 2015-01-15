@@ -17,5 +17,22 @@
  ***********************************************************************************/
 package ch.algotrader.entity.trade;
 
-public class StopOrderDaoImpl extends StopOrderDaoBase {
+import org.hibernate.SessionFactory;
+import org.springframework.stereotype.Repository;
+
+import ch.algotrader.hibernate.AbstractDao;
+
+/**
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
+ *
+ * @version $Revision$ $Date$
+ */
+@Repository // Required for exception translation
+public class StopOrderDaoImpl extends AbstractDao<StopOrder> implements StopOrderDao {
+
+    public StopOrderDaoImpl(final SessionFactory sessionFactory) {
+
+        super(StopOrderImpl.class, sessionFactory);
+    }
+
 }

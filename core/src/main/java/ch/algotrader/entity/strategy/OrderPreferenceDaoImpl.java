@@ -17,11 +17,33 @@
  ***********************************************************************************/
 package ch.algotrader.entity.strategy;
 
+import org.apache.commons.lang.Validate;
+import org.hibernate.SessionFactory;
+import org.springframework.stereotype.Repository;
+
+import ch.algotrader.enumeration.QueryType;
+import ch.algotrader.hibernate.AbstractDao;
+import ch.algotrader.hibernate.NamedParam;
+
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class OrderPreferenceDaoImpl extends OrderPreferenceDaoBase {
+@Repository // Required for exception translation
+public class OrderPreferenceDaoImpl extends AbstractDao<OrderPreference> implements OrderPreferenceDao {
+
+    public OrderPreferenceDaoImpl(final SessionFactory sessionFactory) {
+
+        super(OrderPreferenceImpl.class, sessionFactory);
+    }
+
+    @Override
+    public OrderPreference findByName(String name) {
+
+        Validate.notEmpty(name, "Name is empty");
+
+        return findUnique("OrderPreference.findByName", QueryType.BY_NAME, new NamedParam("name", name));
+    }
 
 }

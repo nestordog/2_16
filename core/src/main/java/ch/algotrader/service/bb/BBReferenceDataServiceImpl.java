@@ -480,12 +480,12 @@ public class BBReferenceDataServiceImpl extends ReferenceDataServiceImpl impleme
 
             if (this.securityFamily instanceof OptionFamily) {
 
-                BBReferenceDataServiceImpl.this.optionDao.create(this.newOptions);
+                BBReferenceDataServiceImpl.this.optionDao.saveAll(this.newOptions);
                 logger.debug("retrieved options for optionFamily: " + this.securityFamily.getName() + " " + this.newOptions);
 
             } else if (this.securityFamily instanceof FutureFamily) {
 
-                BBReferenceDataServiceImpl.this.futureDao.create(this.newFutures);
+                BBReferenceDataServiceImpl.this.futureDao.saveAll(this.newFutures);
                 logger.debug("retrieved futures for futureFamily: " + this.securityFamily.getName() + " " + this.newFutures);
 
             } else {

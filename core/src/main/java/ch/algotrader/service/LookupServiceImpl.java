@@ -32,15 +32,18 @@ import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.math.NumberUtils;
 import org.hibernate.SessionFactory;
 
+import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.CoreConfig;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.AccountDao;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.PositionDao;
+import ch.algotrader.entity.PositionVOProducer;
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.SubscriptionDao;
 import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.TransactionDao;
+import ch.algotrader.entity.TransactionVOProducer;
 import ch.algotrader.entity.marketData.Bar;
 import ch.algotrader.entity.marketData.BarDao;
 import ch.algotrader.entity.marketData.Tick;
@@ -112,6 +115,8 @@ public class LookupServiceImpl implements LookupService {
     private final Map<String, Integer> securityConidMap = new ConcurrentHashMap<String, Integer>();
     private final Map<String, Integer> securityIdMap = new ConcurrentHashMap<String, Integer>();
 
+    private final CommonConfig commonConfig;
+
     private final CoreConfig coreConfig;
 
     private final SessionFactory sessionFactory;
@@ -169,6 +174,7 @@ public class LookupServiceImpl implements LookupService {
     private final EasyToBorrowDao easyToBorrowDao;
 
     public LookupServiceImpl(
+            final CommonConfig commonConfig,
             final CoreConfig coreConfig,
             final SessionFactory sessionFactory,
             final GenericDao genericDao,
@@ -198,6 +204,7 @@ public class LookupServiceImpl implements LookupService {
             final IntrestRateDao intrestRateDao,
             final EasyToBorrowDao easyToBorrowDao) {
 
+        Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(coreConfig, "CoreConfig is null");
         Validate.notNull(sessionFactory, "SessionFactory is null");
         Validate.notNull(genericDao, "GenericDao is null");
@@ -227,6 +234,7 @@ public class LookupServiceImpl implements LookupService {
         Validate.notNull(intrestRateDao, "IntrestRateDao is null");
         Validate.notNull(easyToBorrowDao, "EasyToBorrowDao is null");
 
+        this.commonConfig = commonConfig;
         this.coreConfig = coreConfig;
         this.sessionFactory = sessionFactory;
         this.genericDao = genericDao;
@@ -841,15 +849,15 @@ public class LookupServiceImpl implements LookupService {
 
         if (strategyName.equals(StrategyImpl.SERVER)) {
             if (openPositions) {
-                return (List<PositionVO>) this.positionDao.loadAll(PositionDao.TRANSFORM_POSITIONVO);
+                return this.positionDao.loadAll(PositionVOProducer.INSTANCE);
             } else {
-                return (List<PositionVO>) this.positionDao.findOpenPositions(PositionDao.TRANSFORM_POSITIONVO);
+                return this.positionDao.findOpenPositions(PositionVOProducer.INSTANCE);
             }
         } else {
             if (openPositions) {
-                return (List<PositionVO>) this.positionDao.findByStrategy(PositionDao.TRANSFORM_POSITIONVO, strategyName);
+                return this.positionDao.findByStrategy(strategyName, PositionVOProducer.INSTANCE);
             } else {
-                return (List<PositionVO>) this.positionDao.findOpenPositionsByStrategy(PositionDao.TRANSFORM_POSITIONVO, strategyName);
+                return this.positionDao.findOpenPositionsByStrategy(strategyName, PositionVOProducer.INSTANCE);
             }
         }
 
@@ -1005,10 +1013,11 @@ public class LookupServiceImpl implements LookupService {
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
         int transactionDisplayCount = this.coreConfig.getTransactionDisplayCount();
+        TransactionVOProducer converter = new TransactionVOProducer(this.commonConfig);
         if (strategyName.equals(StrategyImpl.SERVER)) {
-            return (List<TransactionVO>) this.transactionDao.findTransactionsDesc(TransactionDao.TRANSFORM_TRANSACTIONVO, 1, transactionDisplayCount);
+            return this.transactionDao.findTransactionsDesc(transactionDisplayCount, converter);
         } else {
-            return (List<TransactionVO>) this.transactionDao.findTransactionsByStrategyDesc(TransactionDao.TRANSFORM_TRANSACTIONVO, 1, transactionDisplayCount, strategyName);
+            return this.transactionDao.findTransactionsByStrategyDesc(transactionDisplayCount, strategyName, converter);
         }
 
     }
@@ -1166,7 +1175,7 @@ public class LookupServiceImpl implements LookupService {
     @Override
     public Tick getLastTick(final int securityId) {
 
-        Tick tick = CollectionUtil.getSingleElementOrNull(this.tickDao.findTicksBySecurityAndMaxDate(1, 1, securityId, DateUtil.getCurrentEPTime(), this.coreConfig.getIntervalDays()));
+        Tick tick = CollectionUtil.getSingleElementOrNull(this.tickDao.findTicksBySecurityAndMaxDate(1, securityId, DateUtil.getCurrentEPTime(), this.coreConfig.getIntervalDays()));
 
         if (tick != null) {
             tick.getSecurity().initialize();
@@ -1291,7 +1300,7 @@ public class LookupServiceImpl implements LookupService {
     @Override
     public Tick getFirstSubscribedTick() {
 
-        return CollectionUtil.getFirstElementOrNull(this.tickDao.findSubscribedByTimePeriod(1, 1, new Date(0), new Date(Long.MAX_VALUE)));
+        return CollectionUtil.getFirstElementOrNull(this.tickDao.findSubscribedByTimePeriod(1, new Date(0), new Date(Long.MAX_VALUE)));
 
     }
 
@@ -1328,7 +1337,7 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notNull(barSize, "Bar size is null");
 
-        return this.barDao.findBarsBySecurityAndBarSize(1, n, securityId, barSize);
+        return this.barDao.findBarsBySecurityAndBarSize(n, securityId, barSize);
 
     }
 
@@ -1371,7 +1380,7 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notNull(barSize, "Bar size is null");
 
-        return CollectionUtil.getFirstElementOrNull(this.barDao.findSubscribedByTimePeriodAndBarSize(1, 1, new Date(0), new Date(Long.MAX_VALUE), barSize));
+        return CollectionUtil.getFirstElementOrNull(this.barDao.findSubscribedByTimePeriodAndBarSize(1, new Date(0), new Date(Long.MAX_VALUE), barSize));
 
     }
 
@@ -1440,7 +1449,7 @@ public class LookupServiceImpl implements LookupService {
 
         IntrestRate intrestRate = this.intrestRateDao.findByCurrencyAndDuration(currency, duration);
 
-        List<Tick> ticks = this.tickDao.findTicksBySecurityAndMaxDate(1, 1, intrestRate.getId(), date, this.coreConfig.getIntervalDays());
+        List<Tick> ticks = this.tickDao.findTicksBySecurityAndMaxDate(1, intrestRate.getId(), date, this.coreConfig.getIntervalDays());
         if (ticks.isEmpty()) {
             throw new LookupServiceException("Cannot get intrestRate for " + currency + " and duration " + duration + " because no last tick is available for date " + date);
         }
@@ -1543,7 +1552,7 @@ public class LookupServiceImpl implements LookupService {
         Validate.notNull(name, "Name is null");
         Validate.notNull(maxDate, "Max date is null");
 
-        Measurement measurement = CollectionUtil.getSingleElementOrNull(this.measurementDao.findMeasurementsByMaxDate(1, 1, strategyName, name, maxDate));
+        Measurement measurement = CollectionUtil.getSingleElementOrNull(this.measurementDao.findMeasurementsByMaxDate(1, strategyName, name, maxDate));
         return measurement != null ? measurement.getValue() : null;
 
     }
@@ -1558,7 +1567,7 @@ public class LookupServiceImpl implements LookupService {
         Validate.notNull(name, "Name is null");
         Validate.notNull(minDate, "Min date is null");
 
-        Measurement measurement = CollectionUtil.getSingleElementOrNull(this.measurementDao.findMeasurementsByMinDate(1, 1, strategyName, name, minDate));
+        Measurement measurement = CollectionUtil.getSingleElementOrNull(this.measurementDao.findMeasurementsByMinDate(1, strategyName, name, minDate));
         return measurement != null ? measurement.getValue() : null;
 
     }

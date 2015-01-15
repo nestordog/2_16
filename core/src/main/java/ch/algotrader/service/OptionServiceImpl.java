@@ -249,7 +249,7 @@ public class OptionServiceImpl implements OptionService {
         option.setUnderlying(underlying);
         option.setSecurityFamily(family);
 
-        this.optionDao.create(option);
+        this.optionDao.save(option);
 
         logger.info("created OTC option " + option);
 
@@ -292,7 +292,7 @@ public class OptionServiceImpl implements OptionService {
         option.setUnderlying(underlying);
         option.setSecurityFamily(family);
 
-        this.optionDao.create(option);
+        this.optionDao.save(option);
 
         logger.info("created dummy option " + option);
 
@@ -606,8 +606,8 @@ public class OptionServiceImpl implements OptionService {
             return null;
         }
 
-        List<Option> callOptions = this.optionDao.findByMinExpirationAndStrikeLimit(1, 1, underlying.getId(), date, underlyingTick.getLast(), OptionType.CALL);
-        List<Option> putOptions = this.optionDao.findByMinExpirationAndStrikeLimit(1, 1, underlying.getId(), date, underlyingTick.getLast(), OptionType.PUT);
+        List<Option> callOptions = this.optionDao.findByMinExpirationAndStrikeLimit(1, underlying.getId(), date, underlyingTick.getLast(), OptionType.CALL);
+        List<Option> putOptions = this.optionDao.findByMinExpirationAndStrikeLimit(1, underlying.getId(), date, underlyingTick.getLast(), OptionType.PUT);
 
         Option callOption = CollectionUtil.getFirstElementOrNull(callOptions);
         Option putOption = CollectionUtil.getFirstElementOrNull(putOptions);
@@ -660,7 +660,7 @@ public class OptionServiceImpl implements OptionService {
         Validate.notNull(underlyingSpot, "Underlying spot is null");
         Validate.notNull(optionType, "Option type is null");
 
-        Option option = CollectionUtil.getSingleElementOrNull(this.optionDao.findByMinExpirationAndMinStrikeDistance(1, 1, underlyingId, targetExpirationDate, underlyingSpot, optionType));
+        Option option = CollectionUtil.getSingleElementOrNull(this.optionDao.findByMinExpirationAndMinStrikeDistance(1, underlyingId, targetExpirationDate, underlyingSpot, optionType));
 
         // if no stock option was found, create it if simulating options
         if (this.commonConfig.isSimulation() && this.coreConfig.isSimulateOptions()) {
@@ -693,7 +693,7 @@ public class OptionServiceImpl implements OptionService {
 
         OptionFamily family = this.optionFamilyDao.findByUnderlying(underlyingId);
 
-        Option option = CollectionUtil.getSingleElementOrNull(this.optionDao.findByMinExpirationAndStrikeLimit(1, 1, underlyingId, targetExpirationDate, underlyingSpot, optionType));
+        Option option = CollectionUtil.getSingleElementOrNull(this.optionDao.findByMinExpirationAndStrikeLimit(1, underlyingId, targetExpirationDate, underlyingSpot, optionType));
 
         // if no future was found, create it if simulating options
         if (this.commonConfig.isSimulation() && this.coreConfig.isSimulateOptions()) {
@@ -723,7 +723,7 @@ public class OptionServiceImpl implements OptionService {
         Validate.notNull(optionType, "Option type is null");
         Validate.notNull(date, "Date is null");
 
-        return CollectionUtil.getSingleElementOrNull(this.optionDao.findByMinExpirationAndMinStrikeDistanceWithTicks(1, 1, underlyingId, targetExpirationDate, underlyingSpot, optionType, date));
+        return CollectionUtil.getSingleElementOrNull(this.optionDao.findByMinExpirationAndMinStrikeDistanceWithTicks(1, underlyingId, targetExpirationDate, underlyingSpot, optionType, date));
 
     }
 
@@ -738,7 +738,7 @@ public class OptionServiceImpl implements OptionService {
         Validate.notNull(optionType, "Option type is null");
         Validate.notNull(date, "Date is null");
 
-        return CollectionUtil.getSingleElementOrNull(this.optionDao.findByMinExpirationAndStrikeLimitWithTicks(1, 1, underlyingId, targetExpirationDate, underlyingSpot, optionType, date));
+        return CollectionUtil.getSingleElementOrNull(this.optionDao.findByMinExpirationAndStrikeLimitWithTicks(1, underlyingId, targetExpirationDate, underlyingSpot, optionType, date));
 
     }
 

@@ -17,13 +17,23 @@
  ***********************************************************************************/
 package ch.algotrader.entity.trade;
 
+import java.math.BigDecimal;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Transformer;
+import org.apache.commons.lang.Validate;
+import org.hibernate.Query;
+import org.hibernate.SessionFactory;
+import org.hibernate.type.IntegerType;
+import org.springframework.stereotype.Repository;
 
+import ch.algotrader.enumeration.QueryType;
 import ch.algotrader.esper.EngineLocator;
+import ch.algotrader.hibernate.AbstractDao;
+import ch.algotrader.hibernate.NamedParam;
 
 import com.espertech.esper.collection.Pair;
 
@@ -32,33 +42,72 @@ import com.espertech.esper.collection.Pair;
  *
  * @version $Revision$ $Date$
  */
-public class OrderDaoImpl extends OrderDaoBase {
+@Repository // Required for exception translation
+public class OrderDaoImpl extends AbstractDao<Order> implements OrderDao {
 
-    @SuppressWarnings("unchecked")
+    public OrderDaoImpl(final SessionFactory sessionFactory) {
+
+        super(OrderImpl.class, sessionFactory);
+    }
+
     @Override
-    protected Collection<Order> handleFindAllOpenOrders() throws Exception {
+    public BigDecimal findLastIntOrderId(String sessionQualifier) {
 
-        return convertPairCollectionToOrderCollection(EngineLocator.instance().getServerEngine().executeQuery("select * from OpenOrderWindow"));
+        Validate.notEmpty(sessionQualifier, "Session qualifier is empty");
+
+        return (BigDecimal) findUniqueObject(null, "Order.findLastIntOrderId", QueryType.BY_NAME, new NamedParam("sessionQualifier", sessionQualifier));
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    protected Collection<Order> handleFindOpenOrdersByStrategy(String strategyName) throws Exception {
+    public List<Integer> findUnacknowledgedOrderIds() {
 
-        return convertPairCollectionToOrderCollection(EngineLocator.instance().getServerEngine().executeQuery("select * from OpenOrderWindow where strategy.name = '" + strategyName + "'"));
+        return (List<Integer>) findObjects(null, "Order.findUnacknowledgedOrderIds", QueryType.BY_NAME);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    protected Collection<Order> handleFindOpenOrdersByStrategyAndSecurity(String strategyName, int id) throws Exception {
+    public List<Order> findByIds(List<Integer> ids) {
 
-        return convertPairCollectionToOrderCollection(EngineLocator.instance().getServerEngine()
-                .executeQuery("select * from OpenOrderWindow where strategy.name = '" + strategyName + "' and security.id = " + id));
+        Validate.notEmpty(ids, "Ids are empty");
+
+        Query query = this.prepareQuery(null, "Order.findByIds", QueryType.BY_NAME);
+        query.setParameterList("ids", ids, IntegerType.INSTANCE);
+
+        return query.list();
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    protected Order handleFindOpenOrderByIntId(String intId) throws Exception {
+    public Collection<Order> findAllOpenOrders() {
+
+        return this.convertPairCollectionToOrderCollection(EngineLocator.instance().getServerEngine().executeQuery("select * from OpenOrderWindow"));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public Collection<Order> findOpenOrdersByStrategy(String strategyName) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+
+        return this.convertPairCollectionToOrderCollection(EngineLocator.instance().getServerEngine().executeQuery("select * from OpenOrderWindow where strategy.name = '" + strategyName + "'"));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public Collection<Order> findOpenOrdersByStrategyAndSecurity(String strategyName, int securityId) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+
+        return this.convertPairCollectionToOrderCollection(EngineLocator.instance().getServerEngine()
+                .executeQuery("select * from OpenOrderWindow where strategy.name = '" + strategyName + "' and security.id = " + securityId));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public Order findOpenOrderByIntId(String intId) {
+
+        Validate.notEmpty(intId, "intId is empty");
 
         Pair<Order, Map<?, ?>> pair = ((Pair<Order, Map<?, ?>>) EngineLocator.instance().getServerEngine().executeSingelObjectQuery("select * from OpenOrderWindow where intId = '" + intId + "'"));
         if (pair == null) {
@@ -70,7 +119,9 @@ public class OrderDaoImpl extends OrderDaoBase {
 
     @SuppressWarnings("unchecked")
     @Override
-    protected Order handleFindOpenOrderByRootIntId(String intId) throws Exception {
+    public Order findOpenOrderByRootIntId(String intId) {
+
+        Validate.notEmpty(intId, "intId is empty");
 
         String rootIntId = intId.split("\\.")[0];
         Pair<Order, Map<?, ?>> pair = ((Pair<Order, Map<?, ?>>) EngineLocator.instance().getServerEngine()
@@ -84,7 +135,9 @@ public class OrderDaoImpl extends OrderDaoBase {
 
     @SuppressWarnings("unchecked")
     @Override
-    protected Order handleFindOpenOrderByExtId(String extId) throws Exception {
+    public Order findOpenOrderByExtId(String extId) {
+
+        Validate.notEmpty(extId, "extId is empty");
 
         Pair<Order, Map<?, ?>> pair = ((Pair<Order, Map<?, ?>>) EngineLocator.instance().getServerEngine().executeSingelObjectQuery("select * from OpenOrderWindow where extId = '" + extId + "'"));
         if (pair == null) {
@@ -96,9 +149,11 @@ public class OrderDaoImpl extends OrderDaoBase {
 
     @SuppressWarnings("unchecked")
     @Override
-    protected Collection<Order> handleFindOpenOrdersByParentIntId(String parentIntId) throws Exception {
+    public Collection<Order> findOpenOrdersByParentIntId(String parentIntId) {
 
-        return convertPairCollectionToOrderCollection(EngineLocator.instance().getServerEngine()
+        Validate.notEmpty(parentIntId, "parentIntId is empty");
+
+        return this.convertPairCollectionToOrderCollection(EngineLocator.instance().getServerEngine()
                 .executeQuery("select * from OpenOrderWindow where not algoOrder and parentOrder.intId = '" + parentIntId + "'"));
     }
 
@@ -111,4 +166,5 @@ public class OrderDaoImpl extends OrderDaoBase {
             }
         });
     }
+
 }

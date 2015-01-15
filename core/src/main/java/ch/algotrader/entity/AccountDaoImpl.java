@@ -17,10 +17,44 @@
  ***********************************************************************************/
 package ch.algotrader.entity;
 
+import java.util.Collection;
+
+import org.apache.commons.lang.Validate;
+import org.hibernate.SessionFactory;
+import org.springframework.stereotype.Repository;
+
+import ch.algotrader.enumeration.OrderServiceType;
+import ch.algotrader.enumeration.QueryType;
+import ch.algotrader.hibernate.AbstractDao;
+import ch.algotrader.hibernate.NamedParam;
+
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class AccountDaoImpl extends AccountDaoBase {
+@Repository // Required for exception translation
+public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao {
+
+    public AccountDaoImpl(final SessionFactory sessionFactory) {
+        super(AccountImpl.class, sessionFactory);
+    }
+
+    @Override
+    public Account findByName(final String name) {
+
+        Validate.notEmpty(name, "Account name is empty");
+
+        return findUnique("Account.findByName", QueryType.BY_NAME, new NamedParam("name", name));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public Collection<String> findActiveSessionsByOrderServiceType(OrderServiceType orderServiceType) {
+
+        Validate.notNull(orderServiceType, "OrderServiceType is null");
+
+        return (Collection<String>) findObjects(null, "Account.findActiveSessionsByOrderServiceType", QueryType.BY_NAME, new NamedParam("orderServiceType", orderServiceType));
+    }
+
 }

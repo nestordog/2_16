@@ -17,10 +17,98 @@
  ***********************************************************************************/
 package ch.algotrader.entity.strategy;
 
+import java.util.Date;
+import java.util.List;
+
+import org.apache.commons.lang.Validate;
+import org.hibernate.SessionFactory;
+import org.springframework.stereotype.Repository;
+
+import ch.algotrader.enumeration.QueryType;
+import ch.algotrader.hibernate.AbstractDao;
+import ch.algotrader.hibernate.NamedParam;
+
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class MeasurementDaoImpl extends MeasurementDaoBase {
+@Repository // Required for exception translation
+public class MeasurementDaoImpl extends AbstractDao<Measurement> implements MeasurementDao {
+
+    public MeasurementDaoImpl(final SessionFactory sessionFactory) {
+
+        super(MeasurementImpl.class, sessionFactory);
+    }
+
+    @Override
+    public Measurement findMeasurementByDate(String strategyName, String name, Date dateTime) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+        Validate.notEmpty(strategyName, "Name is empty");
+        Validate.notNull(dateTime, "dateTime is null");
+
+        return findUnique("Measurement.findMeasurementByDate", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("name", name), new NamedParam("dateTime", dateTime));
+    }
+
+    @Override
+    public List<Measurement> findMeasurementsByMaxDate(String strategyName, String name, Date maxDateTime) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+        Validate.notEmpty(name, "Name is empty");
+        Validate.notNull(maxDateTime, "maxDateTime is null");
+
+        return find("Measurement.findMeasurementsByMaxDate", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("name", name), new NamedParam("maxDateTime", maxDateTime));
+    }
+
+    @Override
+    public List<Measurement> findMeasurementsByMaxDate(int limit, String strategyName, String name, Date maxDateTime) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+        Validate.notEmpty(name, "Name is empty");
+        Validate.notNull(maxDateTime, "maxDateTime is null");
+
+        return find("Measurement.findMeasurementsByMaxDate", limit, QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("name", name), new NamedParam("maxDateTime",
+                maxDateTime));
+    }
+
+    @Override
+    public List<Measurement> findAllMeasurementsByMaxDate(String strategyName, Date maxDateTime) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+        Validate.notNull(maxDateTime, "maxDateTime is null");
+
+        return find("Measurement.findAllMeasurementsByMaxDate", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("maxDateTime", maxDateTime));
+    }
+
+    @Override
+    public List<Measurement> findMeasurementsByMinDate(String strategyName, String name, Date minDateTime) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+        Validate.notEmpty(name, "Name is empty");
+        Validate.notNull(minDateTime, "minDateTime is null");
+
+        return find("Measurement.findMeasurementsByMinDate", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("name", name), new NamedParam("minDateTime", minDateTime));
+    }
+
+    @Override
+    public List<Measurement> findMeasurementsByMinDate(int limit, String strategyName, String name, Date minDateTime) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+        Validate.notEmpty(name, "Name is empty");
+        Validate.notNull(minDateTime, "minDateTime is null");
+
+        return find("Measurement.findMeasurementsByMinDate", limit, QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("name", name), new NamedParam("minDateTime",
+                minDateTime));
+    }
+
+    @Override
+    public List<Measurement> findAllMeasurementsByMinDate(String strategyName, Date minDateTime) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+        Validate.notNull(minDateTime, "minDateTime is null");
+
+        return find("Measurement.findAllMeasurementsByMinDate", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("minDateTime", minDateTime));
+    }
+
 }

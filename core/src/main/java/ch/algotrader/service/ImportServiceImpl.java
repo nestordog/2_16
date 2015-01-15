@@ -160,7 +160,7 @@ public class ImportServiceImpl implements ImportService {
             }
 
             // insert the newTicks into the DB
-            this.tickDao.create(newTicks);
+            this.tickDao.saveAll(newTicks);
 
             // perform memory release
             Session session = this.sessionFactory.getCurrentSession();
@@ -290,7 +290,7 @@ public class ImportServiceImpl implements ImportService {
                         option.setSecurityFamily(family);
                         option.setUnderlying(family.getUnderlying());
 
-                        this.optionDao.create(option);
+                        this.optionDao.save(option);
                         options.put(option.getSymbol(), option);
                     }
 
@@ -317,7 +317,7 @@ public class ImportServiceImpl implements ImportService {
                 int j = Math.min(i + 10000, ticks.size());
                 List<Tick> subList = list.subList(i, j);
 
-                this.tickDao.create(subList);
+                this.tickDao.saveAll(subList);
 
                 // perform memory release
                 Session session = this.sessionFactory.getCurrentSession();

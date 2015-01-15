@@ -31,6 +31,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.algotrader.config.CommonConfig;
+import ch.algotrader.entity.ClosePositionVOProducer;
+import ch.algotrader.entity.ExpirePositionVOProducer;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.PositionDao;
 import ch.algotrader.entity.Transaction;
@@ -202,7 +204,7 @@ public class PositionServiceImpl implements PositionService {
         position.setStrategy(strategy);
         position.setSecurity(security);
 
-        this.positionDao.create(position);
+        this.positionDao.save(position);
 
         // reverse-associate the security (after position has received an id)
         security.getPositions().add(position);
@@ -251,7 +253,7 @@ public class PositionServiceImpl implements PositionService {
             throw new PositionServiceException(security + " is tradeable, can only delete non-tradeable positions");
         }
 
-        ClosePositionVO closePositionVO = this.positionDao.toClosePositionVO(position);
+        ClosePositionVO closePositionVO = ClosePositionVOProducer.INSTANCE.convert(position);
 
         // propagate the ClosePosition event
         EngineLocator.instance().sendEvent(position.getStrategy().getName(), closePositionVO);
@@ -259,7 +261,7 @@ public class PositionServiceImpl implements PositionService {
         // remove the association
         position.getSecurity().removePositions(position);
 
-        this.positionDao.remove(position);
+        this.positionDao.delete(position);
 
         logger.info("deleted non-tradeable position " + position.getId() + " on " + security + " for strategy " + position.getStrategy().getName());
 
@@ -610,7 +612,7 @@ public class PositionServiceImpl implements PositionService {
 
         Security security = position.getSecurityInitialized();
 
-        ExpirePositionVO expirePositionEvent = this.positionDao.toExpirePositionVO(position);
+        ExpirePositionVO expirePositionEvent = ExpirePositionVOProducer.INSTANCE.convert(position);
 
         Transaction transaction = Transaction.Factory.newInstance();
         transaction.setDateTime(DateUtil.getCurrentEPTime());

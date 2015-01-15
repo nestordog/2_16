@@ -241,7 +241,7 @@ public class IBNativeReferenceDataServiceImpl extends ReferenceDataServiceImpl i
             }
         }
 
-        this.optionDao.create(newOptions);
+        this.optionDao.saveAll(newOptions);
 
         logger.debug("retrieved options for optionfamily: " + securityFamily.getName() + " " + newOptions);
     }
@@ -279,7 +279,7 @@ public class IBNativeReferenceDataServiceImpl extends ReferenceDataServiceImpl i
             }
         }
 
-        this.futureDao.create(newFutures);
+        this.futureDao.saveAll(newFutures);
 
         logger.debug("retrieved futures for futurefamily: " + securityFamily.getName() + " " + newFutures);
     }
@@ -320,7 +320,7 @@ public class IBNativeReferenceDataServiceImpl extends ReferenceDataServiceImpl i
             }
         }
 
-        this.stockDao.create(newStocks);
+        this.stockDao.saveAll(newStocks);
     }
 
     private Comparator<Security> getComparator() {

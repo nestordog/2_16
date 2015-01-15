@@ -20,21 +20,46 @@ package ch.algotrader.entity.security;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang.Validate;
+import org.hibernate.SessionFactory;
+import org.springframework.stereotype.Repository;
+
+import ch.algotrader.entity.DataConsistencyException;
 import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.entity.marketData.Tick;
+import ch.algotrader.entity.marketData.TickDao;
 import ch.algotrader.enumeration.Currency;
+import ch.algotrader.enumeration.QueryType;
+import ch.algotrader.hibernate.AbstractDao;
+import ch.algotrader.hibernate.NamedParam;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class ForexDaoImpl extends ForexDaoBase {
+@Repository // Required for exception translation
+public class ForexDaoImpl extends AbstractDao<Forex> implements ForexDao {
 
-    private static final int intervalDays = 4;
+    private final TickDao tickDao;
+
+    private final int intervalDays;
+
+    public ForexDaoImpl(final SessionFactory sessionFactory, final TickDao tickDao, final int intervalDays) {
+
+        super(ForexImpl.class, sessionFactory);
+
+        Validate.notNull(tickDao);
+
+        this.tickDao = tickDao;
+        this.intervalDays = intervalDays;
+    }
 
     @Override
-    protected double handleGetRateDouble(Currency baseCurrency, Currency transactionCurrency) {
+    public double getRateDouble(Currency baseCurrency, Currency transactionCurrency) {
+
+        Validate.notNull(baseCurrency, "Base currency is null");
+        Validate.notNull(transactionCurrency, "Transaction currency is null");
 
         if (baseCurrency.equals(transactionCurrency)) {
             return 1.0;
@@ -45,7 +70,7 @@ public class ForexDaoImpl extends ForexDaoBase {
         MarketDataEvent marketDataEvent = forex.getCurrentMarketDataEvent();
 
         if (marketDataEvent == null) {
-            throw new IllegalStateException("cannot get exchangeRate for " + baseCurrency + "." + transactionCurrency + " because no marketDataEvent is available");
+            throw new DataConsistencyException("Cannot get exchangeRate for " + baseCurrency + "." + transactionCurrency + " because no marketDataEvent is available");
         }
 
         if (forex.getBaseCurrency().equals(baseCurrency)) {
@@ -58,7 +83,11 @@ public class ForexDaoImpl extends ForexDaoBase {
     }
 
     @Override
-    protected double handleGetRateDoubleByDate(Currency baseCurrency, Currency transactionCurrency, Date date) throws Exception {
+    public double getRateDoubleByDate(Currency baseCurrency, Currency transactionCurrency, Date date) {
+
+        Validate.notNull(baseCurrency, "Base currency is null");
+        Validate.notNull(transactionCurrency, "Transaction currency is null");
+        Validate.notNull(date, "Date is null");
 
         if (baseCurrency.equals(transactionCurrency)) {
             return 1.0;
@@ -66,9 +95,9 @@ public class ForexDaoImpl extends ForexDaoBase {
 
         Forex forex = getForex(baseCurrency, transactionCurrency);
 
-        List<Tick> ticks = getTickDao().findTicksBySecurityAndMaxDate(1, 1, forex.getId(), date, intervalDays);
+        List<Tick> ticks = this.tickDao.findTicksBySecurityAndMaxDate(1, forex.getId(), date, this.intervalDays);
         if (ticks.isEmpty()) {
-            throw new IllegalStateException("cannot get exchangeRate for " + baseCurrency + "." + transactionCurrency + " because no last tick is available for date " + date);
+            throw new DataConsistencyException("Cannot get exchangeRate for " + baseCurrency + "." + transactionCurrency + " because no last tick is available for date " + date);
         }
 
         Tick tick = ticks.get(0);
@@ -82,20 +111,24 @@ public class ForexDaoImpl extends ForexDaoBase {
     }
 
     @Override
-    protected Forex handleGetForex(Currency baseCurrency, Currency transactionCurrency) {
+    public Forex getForex(Currency baseCurrency, Currency transactionCurrency) {
 
-        Forex forex = findByBaseAndTransactionCurrency(baseCurrency, transactionCurrency);
+        Validate.notNull(baseCurrency, "Base currency is null");
+        Validate.notNull(transactionCurrency, "Transaction currency is null");
+
+        Forex forex = findUnique("Forex.findByBaseAndTransactionCurrency", QueryType.BY_NAME, new NamedParam("baseCurrency", baseCurrency), new NamedParam("transactionCurrency", transactionCurrency));
 
         if (forex == null) {
 
             // reverse lookup
-            forex = findByBaseAndTransactionCurrency(transactionCurrency, baseCurrency);
+            forex = findUnique("Forex.findByBaseAndTransactionCurrency", QueryType.BY_NAME, new NamedParam("baseCurrency", transactionCurrency), new NamedParam("transactionCurrency", baseCurrency));
 
             if (forex == null) {
-                throw new IllegalArgumentException("Forex does not exist: " + transactionCurrency + "." + baseCurrency);
+                throw new DataConsistencyException("Forex does not exist: " + transactionCurrency + "." + baseCurrency);
             }
         }
 
         return forex;
     }
+
 }

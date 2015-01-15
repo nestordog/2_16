@@ -106,7 +106,7 @@ public class FutureServiceImpl implements FutureService {
             future.setUnderlying(underlying);
             future.setSecurityFamily(family);
 
-            this.futureDao.create(future);
+            this.futureDao.save(future);
 
             logger.info("created future " + future);
         }
@@ -122,14 +122,14 @@ public class FutureServiceImpl implements FutureService {
 
         Validate.notNull(targetExpirationDate, "Target expiration date is null");
 
-        Future future = CollectionUtil.getSingleElementOrNull(this.futureDao.findByMinExpiration(1, 1, futureFamilyId, targetExpirationDate));
+        Future future = CollectionUtil.getSingleElementOrNull(this.futureDao.findByMinExpiration(1, futureFamilyId, targetExpirationDate));
 
         // if no future was found, create the missing part of the future-chain
         if (this.commonConfig.isSimulation() && future == null && (this.coreConfig.isSimulateFuturesByUnderlying() || this.coreConfig.isSimulateFuturesByGenericFutures())) {
 
             createDummyFutures(futureFamilyId);
 
-            future = CollectionUtil.getSingleElementOrNull(this.futureDao.findByMinExpiration(1, 1, futureFamilyId, targetExpirationDate));
+            future = CollectionUtil.getSingleElementOrNull(this.futureDao.findByMinExpiration(1, futureFamilyId, targetExpirationDate));
         }
 
         if (future == null) {

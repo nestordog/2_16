@@ -17,10 +17,46 @@
  ***********************************************************************************/
 package ch.algotrader.entity.security;
 
+import org.apache.commons.lang.Validate;
+import org.hibernate.SessionFactory;
+import org.springframework.stereotype.Repository;
+
+import ch.algotrader.enumeration.Duration;
+import ch.algotrader.enumeration.OptionType;
+import ch.algotrader.enumeration.QueryType;
+import ch.algotrader.hibernate.AbstractDao;
+import ch.algotrader.hibernate.NamedParam;
+
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class ImpliedVolatilityDaoImpl extends ImpliedVolatilityDaoBase {
+@Repository // Required for exception translation
+public class ImpliedVolatilityDaoImpl extends AbstractDao<ImpliedVolatility> implements ImpliedVolatilityDao {
+
+    public ImpliedVolatilityDaoImpl(final SessionFactory sessionFactory) {
+
+        super(ImpliedVolatilityImpl.class, sessionFactory);
+    }
+
+    @Override
+    public ImpliedVolatility findByDurationDeltaAndType(Duration duration, double delta, OptionType type) {
+
+        Validate.notNull(duration, "Duration is null");
+        Validate.notNull(type, "Type is null");
+
+        return findUnique("ImpliedVolatility.findByDurationDeltaAndType", QueryType.BY_NAME, new NamedParam("duration", duration), new NamedParam("delta", delta), new NamedParam("type", type));
+    }
+
+    @Override
+    public ImpliedVolatility findByDurationMoneynessAndType(Duration duration, double moneyness, OptionType type) {
+
+        Validate.notNull(duration, "Duration is null");
+        Validate.notNull(type, "Type is null");
+
+        return findUnique("ImpliedVolatility.findByDurationMoneynessAndType", QueryType.BY_NAME, new NamedParam("duration", duration), new NamedParam("moneyness", moneyness), new NamedParam("type",
+                type));
+    }
+
 }

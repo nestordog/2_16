@@ -77,7 +77,7 @@ public class PropertyServiceImpl implements PropertyService {
             // associate the propertyHolder
             property.setPropertyHolder(propertyHolder);
 
-            this.propertyDao.create(property);
+            this.propertyDao.save(property);
 
             // reverse-associate the propertyHolder (after property has received an id)
             propertyHolder.getProps().put(name, property);
@@ -107,7 +107,7 @@ public class PropertyServiceImpl implements PropertyService {
 
         if (property != null) {
 
-            this.propertyDao.remove(property.getId());
+            this.propertyDao.deleteById(property.getId());
 
             propertyHolder.removeProps(name);
         }

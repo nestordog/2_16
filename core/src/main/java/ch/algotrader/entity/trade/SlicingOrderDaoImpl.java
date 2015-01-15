@@ -17,5 +17,22 @@
  ***********************************************************************************/
 package ch.algotrader.entity.trade;
 
-public class SlicingOrderDaoImpl extends SlicingOrderDaoBase {
+import org.hibernate.SessionFactory;
+import org.springframework.stereotype.Repository;
+
+import ch.algotrader.hibernate.AbstractDao;
+
+/**
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
+ *
+ * @version $Revision$ $Date$
+ */
+@Repository // Required for exception translation
+public class SlicingOrderDaoImpl extends AbstractDao<SlicingOrder> implements SlicingOrderDao {
+
+    public SlicingOrderDaoImpl(final SessionFactory sessionFactory) {
+
+        super(SlicingOrderImpl.class, sessionFactory);
+    }
+
 }

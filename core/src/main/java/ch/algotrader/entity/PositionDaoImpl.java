@@ -17,163 +17,215 @@
  ***********************************************************************************/
 package ch.algotrader.entity;
 
-import java.math.BigDecimal;
-import java.util.Map;
+import java.util.Date;
+import java.util.List;
 
-import ch.algotrader.entity.property.Property;
-import ch.algotrader.util.RoundUtil;
-import ch.algotrader.vo.ClosePositionVO;
-import ch.algotrader.vo.ExpirePositionVO;
-import ch.algotrader.vo.OpenPositionVO;
-import ch.algotrader.vo.PositionVO;
+import org.apache.commons.lang.Validate;
+import org.hibernate.LockOptions;
+import org.hibernate.SessionFactory;
+import org.springframework.stereotype.Repository;
 
-@SuppressWarnings("unchecked")
+import ch.algotrader.enumeration.QueryType;
+import ch.algotrader.hibernate.AbstractDao;
+import ch.algotrader.hibernate.EntityConverter;
+import ch.algotrader.hibernate.NamedParam;
+
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class PositionDaoImpl extends PositionDaoBase {
+@Repository // Required for exception translation
+public class PositionDaoImpl extends AbstractDao<Position> implements PositionDao {
 
-    @Override
-    public void toPositionVO(Position position, PositionVO positionVO) {
+    public PositionDaoImpl(final SessionFactory sessionFactory) {
 
-        super.toPositionVO(position, positionVO);
-
-        completePositionVO(position, positionVO);
+        super(PositionImpl.class, sessionFactory);
     }
 
     @Override
-    public PositionVO toPositionVO(final Position position) {
+    public Position findByIdInclSecurityAndSecurityFamily(int id) {
 
-        PositionVO positionVO = super.toPositionVO(position);
-
-        completePositionVO(position, positionVO);
-
-        return positionVO;
-    }
-
-    private void completePositionVO(Position position, PositionVO positionVO) {
-
-        int scale = position.getSecurity().getSecurityFamily().getScale();
-        positionVO.setSecurityId(position.getSecurity().getId());
-        positionVO.setName(position.getSecurity().toString());
-        positionVO.setStrategy(position.getStrategy().toString());
-        positionVO.setCurrency(position.getSecurity().getSecurityFamily().getCurrency());
-        positionVO.setMarketPrice(RoundUtil.getBigDecimal(position.getMarketPrice(), scale));
-        positionVO.setMarketValue(RoundUtil.getBigDecimal(position.getMarketValue()));
-        positionVO.setAveragePrice(RoundUtil.getBigDecimal(position.getAveragePrice(), scale));
-        positionVO.setCost(RoundUtil.getBigDecimal(position.getCost()));
-        positionVO.setUnrealizedPL(RoundUtil.getBigDecimal(position.getUnrealizedPL()));
-        positionVO.setRealizedPL(RoundUtil.getBigDecimal(position.getRealizedPL()));
-        positionVO.setExitValue(position.getExitValue() != null ? position.getExitValue().setScale(scale, BigDecimal.ROUND_HALF_UP) : null);
-        positionVO.setMaxLoss(RoundUtil.getBigDecimal(position.getMaxLoss()));
-        positionVO.setMargin(position.getMaintenanceMargin() != null ? position.getMaintenanceMargin().setScale(scale, BigDecimal.ROUND_HALF_UP) : null);
-
-        // add properties if any
-        Map<String, Property> properties = position.getPropsInitialized();
-        if (!properties.isEmpty()) {
-            positionVO.setProperties(properties);
-        }
+        return findUnique("Position.findByIdInclSecurityAndSecurityFamily", QueryType.BY_NAME, new NamedParam("id", id));
     }
 
     @Override
-    public void toOpenPositionVO(Position position, OpenPositionVO openPositionVO) {
+    public List<Position> findByStrategy(String strategyName) {
 
-        super.toOpenPositionVO(position, openPositionVO);
+        Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        completeOpenPositionVO(position, openPositionVO);
+        return find("Position.findByStrategy", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
     }
 
     @Override
-    public OpenPositionVO toOpenPositionVO(final Position position) {
+    public <V >List<V> findByStrategy(String strategyName, EntityConverter<Position, V> converter) {
 
-        OpenPositionVO openPositionVO = super.toOpenPositionVO(position);
+        Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        completeOpenPositionVO(position, openPositionVO);
-
-        return openPositionVO;
-    }
-
-    private void completeOpenPositionVO(Position position, OpenPositionVO openPositionVO) {
-
-        openPositionVO.setSecurityId(position.getSecurity().getId());
-        openPositionVO.setStrategy(position.getStrategy().toString());
-
-        openPositionVO.setDirection(position.getDirection());
+        return find(converter, "Position.findByStrategy", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
     }
 
     @Override
-    public void toClosePositionVO(Position position, ClosePositionVO closePositionVO) {
+    public Position findBySecurityAndStrategy(int securityId, String strategyName) {
 
-        super.toClosePositionVO(position, closePositionVO);
+        Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        completeClosePositionVO(position, closePositionVO);
+        return findUnique("Position.findBySecurityAndStrategy", QueryType.BY_NAME, new NamedParam("securityId", securityId), new NamedParam("strategyName", strategyName));
     }
 
     @Override
-    public ClosePositionVO toClosePositionVO(final Position position) {
+    public Position findBySecurityAndStrategyIdLocked(int securityId, int strategyId) {
 
-        ClosePositionVO closePositionVO = super.toClosePositionVO(position);
+        return findUnique(LockOptions.UPGRADE, "Position.findBySecurityAndStrategyIdLocked", QueryType.BY_NAME, new NamedParam("securityId", securityId), new NamedParam("strategyId", strategyId));
 
-        completeClosePositionVO(position, closePositionVO);
-
-        return closePositionVO;
-    }
-
-    private void completeClosePositionVO(Position position, ClosePositionVO closePositionVO) {
-
-        closePositionVO.setSecurityId(position.getSecurity().getId());
-        closePositionVO.setStrategy(position.getStrategy().toString());
-        closePositionVO.setExitValue(position.getExitValue());
-        closePositionVO.setDirection(position.getDirection());
     }
 
     @Override
-    public void toExpirePositionVO(Position position, ExpirePositionVO expirePositionVO) {
+    public List<Position> findOpenPositions() {
 
-        super.toExpirePositionVO(position, expirePositionVO);
-
-        completeExpirePositionVO(position, expirePositionVO);
+        return find("Position.findOpenPositions", QueryType.BY_NAME);
     }
 
     @Override
-    public ExpirePositionVO toExpirePositionVO(final Position position) {
+    public <V> List<V> findOpenPositions(EntityConverter<Position, V> converter) {
 
-        ExpirePositionVO expirePositionVO = super.toExpirePositionVO(position);
-
-        completeExpirePositionVO(position, expirePositionVO);
-
-        return expirePositionVO;
-    }
-
-    private void completeExpirePositionVO(Position position, ExpirePositionVO expirePositionVO) {
-
-        expirePositionVO.setSecurityId(position.getSecurity().getId());
-        expirePositionVO.setDirection(position.getDirection());
+        return find(converter, "Position.findOpenPositions", QueryType.BY_NAME);
     }
 
     @Override
-    public Position positionVOToEntity(PositionVO positionVO) {
+    public List<Position> findOpenPositionsByMaxDateAggregated(Date maxDate) {
 
-        throw new UnsupportedOperationException("positionVOToEntity ist not implemented.");
+        Validate.notNull(maxDate, "maxDate is null");
+
+        return find("Position.findOpenPositionsByMaxDateAggregated", QueryType.BY_NAME, new NamedParam("maxDate", maxDate));
     }
 
     @Override
-    public Position openPositionVOToEntity(OpenPositionVO openPositionVO) {
+    public List<Position> findOpenPositionsByStrategy(String strategyName) {
 
-        throw new UnsupportedOperationException("openPositionVOToEntity is not implemented.");
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+
+        return find("Position.findOpenPositionsByStrategy", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
     }
 
     @Override
-    public Position closePositionVOToEntity(ClosePositionVO closePositionVO) {
+    public <V> List<V> findOpenPositionsByStrategy(String strategyName, EntityConverter<Position, V> converter) {
 
-        throw new UnsupportedOperationException("closePositionVOToEntity is not implemented.");
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+
+        return find(converter, "Position.findOpenPositionsByStrategy", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
     }
 
     @Override
-    public Position expirePositionVOToEntity(ExpirePositionVO expirePositionVO) {
+    public List<Position> findOpenPositionsByStrategyAndMaxDate(String strategyName, Date maxDate) {
 
-        throw new UnsupportedOperationException("expirePositionVOToEntity is not implemented.");
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+        Validate.notNull(maxDate, "maxDate is null");
+
+        return find("Position.findOpenPositionsByStrategyAndMaxDate", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("maxDate", maxDate));
     }
+
+    @Override
+    public List<Position> findOpenPositionsByStrategyAndType(String strategyName, int type) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+
+        return find("Position.findOpenPositionsByStrategyAndType", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("type", type));
+    }
+
+    @Override
+    public List<Position> findOpenPositionsByStrategyTypeAndUnderlyingType(String strategyName, int type, int underlyingType) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+
+        return find("Position.findOpenPositionsByStrategyTypeAndUnderlyingType", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("type", type), new NamedParam(
+                "underlyingType", underlyingType));
+    }
+
+    @Override
+    public List<Position> findOpenPositionsByStrategyAndSecurityFamily(String strategyName, int securityFamilyId) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+
+        return find("Position.findOpenPositionsByStrategyAndSecurityFamily", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("securityFamilyId", securityFamilyId));
+    }
+
+    @Override
+    public List<Position> findOpenPositionsByUnderlying(int underlyingId) {
+
+        return find("Position.findOpenPositionsByUnderlying", QueryType.BY_NAME, new NamedParam("underlyingId", underlyingId));
+    }
+
+    @Override
+    public List<Position> findOpenPositionsBySecurity(int securityId) {
+
+        return find("Position.findOpenPositionsBySecurity", QueryType.BY_NAME, new NamedParam("securityId", securityId));
+    }
+
+    @Override
+    public List<Position> findOpenTradeablePositions() {
+
+        return find("Position.findOpenTradeablePositions", QueryType.BY_NAME);
+    }
+
+    @Override
+    public List<Position> findOpenTradeablePositionsAggregated() {
+
+        return find("Position.findOpenTradeablePositionsAggregated", QueryType.BY_NAME);
+    }
+
+    @Override
+    public List<Position> findOpenTradeablePositionsByStrategy(String strategyName) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+
+        return find("Position.findOpenTradeablePositionsByStrategy", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
+    }
+
+    @Override
+    public List<Position> findOpenFXPositions() {
+
+        return find("Position.findOpenFXPositions", QueryType.BY_NAME);
+    }
+
+    @Override
+    public List<Position> findOpenFXPositionsAggregated() {
+
+        return find("Position.findOpenFXPositionsAggregated", QueryType.BY_NAME);
+    }
+
+    @Override
+    public List<Position> findOpenFXPositionsByStrategy(String strategyName) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+
+        return find("Position.findOpenFXPositionsByStrategy", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
+    }
+
+    @Override
+    public List<Position> findExpirablePositions(Date currentTime) {
+
+        Validate.notNull(currentTime, "currentTime is null");
+
+        return find("Position.findExpirablePositions", QueryType.BY_NAME, new NamedParam("currentTime", currentTime));
+    }
+
+    @Override
+    public List<Position> findPersistent() {
+
+        return find("Position.findPersistent", QueryType.BY_NAME);
+    }
+
+    @Override
+    public List<Position> findNonPersistent() {
+
+        return find("Position.findNonPersistent", QueryType.BY_NAME);
+    }
+
+    @Override
+    public List<Position> findOpenPositionsAggregated() {
+
+        return find("Position.findOpenPositionsAggregated", QueryType.BY_NAME);
+    }
+
 }

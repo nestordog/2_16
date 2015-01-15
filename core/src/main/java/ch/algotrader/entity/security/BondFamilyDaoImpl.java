@@ -15,12 +15,23 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
+
 package ch.algotrader.entity.security;
+
+import org.hibernate.SessionFactory;
+
+import ch.algotrader.hibernate.AbstractDao;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class BondFamilyDaoImpl extends BondFamilyDaoBase {
+public class BondFamilyDaoImpl extends AbstractDao<BondFamily> implements BondFamilyDao {
+
+    public BondFamilyDaoImpl(final SessionFactory sessionFactory) {
+
+        super(BondFamilyImpl.class, sessionFactory);
+    }
+
 }

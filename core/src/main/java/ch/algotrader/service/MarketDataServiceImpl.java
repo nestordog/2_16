@@ -127,7 +127,7 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationCont
         }
 
         // write the tick to the DB (even if not valid)
-        this.tickDao.create(tick);
+        this.tickDao.save(tick);
 
     }
 
@@ -183,7 +183,7 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationCont
             // update links
             Subscription subscription = Subscription.Factory.newInstance(feedType, false, strategy, security);
 
-            this.subscriptionDao.create(subscription);
+            this.subscriptionDao.save(subscription);
 
             // reverse-associate security (after subscription has received an id)
             security.getSubscriptions().add(subscription);
@@ -224,7 +224,7 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationCont
             // update links
             security.getSubscriptions().remove(subscription);
 
-            this.subscriptionDao.remove(subscription);
+            this.subscriptionDao.delete(subscription);
 
             // only external unsubscribe if nobody is watching this security anymore
             if (!this.commonConfig.isSimulation()) {

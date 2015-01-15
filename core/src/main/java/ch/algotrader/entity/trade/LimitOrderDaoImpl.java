@@ -17,5 +17,22 @@
  ***********************************************************************************/
 package ch.algotrader.entity.trade;
 
-public class LimitOrderDaoImpl extends LimitOrderDaoBase {
+import org.hibernate.SessionFactory;
+import org.springframework.stereotype.Repository;
+
+import ch.algotrader.hibernate.AbstractDao;
+
+/**
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
+ *
+ * @version $Revision$ $Date$
+ */
+@Repository // Required for exception translation
+public class LimitOrderDaoImpl extends AbstractDao<LimitOrder> implements LimitOrderDao {
+
+    public LimitOrderDaoImpl(final SessionFactory sessionFactory) {
+
+        super(LimitOrderImpl.class, sessionFactory);
+    }
+
 }

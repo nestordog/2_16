@@ -17,10 +17,35 @@
  ***********************************************************************************/
 package ch.algotrader.entity.security;
 
+import org.apache.commons.lang.Validate;
+import org.hibernate.SessionFactory;
+import org.springframework.stereotype.Repository;
+
+import ch.algotrader.enumeration.Currency;
+import ch.algotrader.enumeration.Duration;
+import ch.algotrader.enumeration.QueryType;
+import ch.algotrader.hibernate.AbstractDao;
+import ch.algotrader.hibernate.NamedParam;
+
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class IntrestRateDaoImpl extends IntrestRateDaoBase {
+@Repository // Required for exception translation
+public class IntrestRateDaoImpl extends AbstractDao<IntrestRate> implements IntrestRateDao {
+
+    public IntrestRateDaoImpl(final SessionFactory sessionFactory) {
+
+        super(IntrestRateImpl.class, sessionFactory);
+    }
+
+    @Override
+    public IntrestRate findByCurrencyAndDuration(Currency currency, Duration duration) {
+
+        Validate.notNull(currency, "Currency is null");
+        Validate.notNull(duration, "Duration is null");
+
+        return findUnique("IntrestRate.findByCurrencyAndDuration", QueryType.BY_NAME, new NamedParam("currency", currency), new NamedParam("duration", duration));
+    }
 }

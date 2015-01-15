@@ -51,6 +51,7 @@ import ch.algotrader.entity.strategy.CashBalance;
 import ch.algotrader.entity.strategy.CashBalanceDao;
 import ch.algotrader.entity.strategy.PortfolioValue;
 import ch.algotrader.entity.strategy.PortfolioValueDao;
+import ch.algotrader.entity.strategy.PortfolioValueVOProducer;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.strategy.StrategyDao;
 import ch.algotrader.entity.strategy.StrategyImpl;
@@ -780,7 +781,7 @@ public class PortfolioServiceImpl implements PortfolioService {
         Validate.notEmpty(strategyName, "Strategy name is empty");
         Validate.notNull(date, "Date is null");
 
-        Collection<PortfolioValueVO> portfolioValues = (Collection<PortfolioValueVO>) this.portfolioValueDao.findByStrategyAndMinDate(PortfolioValueDao.TRANSFORM_PORTFOLIOVALUEVO, strategyName, date);
+        Collection<PortfolioValueVO> portfolioValues = (Collection<PortfolioValueVO>) this.portfolioValueDao.findByStrategyAndMinDate(strategyName, date, PortfolioValueVOProducer.INSTANCE);
 
         // calculate the performance
         double lastNetLiqValue = 0;
@@ -880,9 +881,9 @@ public class PortfolioServiceImpl implements PortfolioService {
             Security security = openPosition.getSecurityInitialized();
             if (security instanceof Forex) {
                 int intervalDays = this.coreConfig.getIntervalDays();
-                List<Tick> ticks = this.tickDao.findTicksBySecurityAndMaxDate(1, 1, security.getId(), date, intervalDays);
+                List<Tick> ticks = this.tickDao.findTicksBySecurityAndMaxDate(1, security.getId(), date, intervalDays);
                 if (ticks.isEmpty()) {
-                    ticks = this.tickDao.findTicksBySecurityAndMinDate(1, 1, security.getId(), date, intervalDays);
+                    ticks = this.tickDao.findTicksBySecurityAndMinDate(1, security.getId(), date, intervalDays);
                     if (ticks.isEmpty()) {
                         logger.warn("no tick available for " + security + " on " + date);
                         continue;
@@ -928,9 +929,9 @@ public class PortfolioServiceImpl implements PortfolioService {
             Security security = openPosition.getSecurityInitialized();
             if (!(security instanceof Forex)) {
                 int intervalDays = this.coreConfig.getIntervalDays();
-                List<Tick> ticks = this.tickDao.findTicksBySecurityAndMaxDate(1, 1, security.getId(), date, intervalDays);
+                List<Tick> ticks = this.tickDao.findTicksBySecurityAndMaxDate(1, security.getId(), date, intervalDays);
                 if (ticks.isEmpty()) {
-                    ticks = this.tickDao.findTicksBySecurityAndMinDate(1, 1, security.getId(), date, intervalDays);
+                    ticks = this.tickDao.findTicksBySecurityAndMinDate(1, security.getId(), date, intervalDays);
                     if (ticks.isEmpty()) {
                         logger.warn("no tick available for " + security + " on " + date);
                         continue;
@@ -1036,7 +1037,7 @@ public class PortfolioServiceImpl implements PortfolioService {
 
                 portfolioValue.setCashFlow(transaction.getGrossValue());
 
-                this.portfolioValueDao.create(portfolioValue);
+                this.portfolioValueDao.save(portfolioValue);
             }
         }
 
@@ -1057,7 +1058,7 @@ public class PortfolioServiceImpl implements PortfolioService {
             // truncate Date to hour
             portfolioValue.setDateTime(DateUtils.truncate(portfolioValue.getDateTime(), Calendar.HOUR));
 
-            this.portfolioValueDao.create(portfolioValue);
+            this.portfolioValueDao.save(portfolioValue);
         }
 
     }
@@ -1078,7 +1079,7 @@ public class PortfolioServiceImpl implements PortfolioService {
 
         if (portfolioValues.size() > 0) {
 
-            this.portfolioValueDao.remove(portfolioValues);
+            this.portfolioValueDao.deleteAll(portfolioValues);
 
             // need to flush since new portfoliovalues will be created with same date and strategy
             this.sessionFactory.getCurrentSession().flush();
@@ -1141,7 +1142,7 @@ public class PortfolioServiceImpl implements PortfolioService {
         }
 
         // perisist the PortfolioValues
-        this.portfolioValueDao.create(portfolioValueMap.values());
+        this.portfolioValueDao.saveAll(portfolioValueMap.values());
     }
 
 }
