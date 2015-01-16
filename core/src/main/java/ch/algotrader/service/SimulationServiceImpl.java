@@ -51,6 +51,9 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
+import com.espertech.esperio.CoordinatedAdapter;
+import com.espertech.esperio.csv.CSVInputAdapter;
+
 import ch.algotrader.cache.CacheManager;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.Position;
@@ -58,7 +61,7 @@ import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.enumeration.MarketDataType;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.esper.EngineLocator;
+import ch.algotrader.esper.EngineManager;
 import ch.algotrader.esper.io.CsvBarInputAdapter;
 import ch.algotrader.esper.io.CsvBarInputAdapterSpec;
 import ch.algotrader.esper.io.CsvTickInputAdapter;
@@ -76,9 +79,6 @@ import ch.algotrader.vo.PerformanceKeysVO;
 import ch.algotrader.vo.PeriodPerformanceVO;
 import ch.algotrader.vo.SimulationResultVO;
 import ch.algotrader.vo.TradesVO;
-
-import com.espertech.esperio.CoordinatedAdapter;
-import com.espertech.esperio.csv.CSVInputAdapter;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -106,6 +106,10 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
 
     private final LookupService lookupService;
 
+    private final EngineManager engineManager;
+
+    private final Engine serverEngine;
+
     private final CacheManager cacheManager;
 
     private volatile ApplicationContext applicationContext;
@@ -116,6 +120,8 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
             final TransactionService transactionService,
             final PortfolioService portfolioService,
             final LookupService lookupService,
+            final EngineManager engineManager,
+            final Engine serverEngine,
             final CacheManager cacheManager) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
@@ -124,6 +130,8 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
         Validate.notNull(transactionService, "TransactionService is null");
         Validate.notNull(portfolioService, "PortfolioService is null");
         Validate.notNull(lookupService, "LookupService is null");
+        Validate.notNull(engineManager, "EngineManager is null");
+        Validate.notNull(serverEngine, "Engine is null");
         Validate.notNull(cacheManager, "CacheManager is null");
 
         this.commonConfig = commonConfig;
@@ -132,6 +140,8 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
         this.transactionService = transactionService;
         this.portfolioService = portfolioService;
         this.lookupService = lookupService;
+        this.engineManager = engineManager;
+        this.serverEngine = serverEngine;
         this.cacheManager = cacheManager;
     }
 
@@ -161,21 +171,16 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
         // reset the db
         this.resetService.resetDB();
 
-        // init all activatable strategies
-        Collection<Strategy> strategies = this.lookupService.getAutoActivateStrategies();
-        for (Strategy strategy : strategies) {
-            EngineLocator.instance().initEngine(strategy.getName());
-        }
-
         // rebalance portfolio (to distribute initial CREDIT to strategies)
         this.transactionService.rebalancePortfolio();
 
         // init coordination
-        EngineLocator.instance().getServerEngine().initCoordination();
+        this.serverEngine.initCoordination();
 
         // init modules of all activatable strategies
+        Collection<Strategy> strategies = this.lookupService.getAutoActivateStrategies();
         for (Strategy strategy : strategies) {
-            EngineLocator.instance().getEngine(strategy.getName()).deployAllModules();
+            this.engineManager.getEngine(strategy.getName()).deployAllModules();
         }
 
         // init all StrategyServices in the classpath
@@ -193,7 +198,7 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
 
         // log metrics in case they have been enabled
         MetricsUtil.logMetrics();
-        EngineLocator.instance().logStatementMetrics();
+        this.engineManager.logStatementMetrics();
 
         // close all open positions that might still exist
         for (Position position : this.lookupService.getOpenTradeablePositions()) {
@@ -201,14 +206,14 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
         }
 
         // send the EndOfSimulation event
-        EngineLocator.instance().getServerEngine().sendEvent(new EndOfSimulationVO());
+        this.serverEngine.sendEvent(new EndOfSimulationVO());
 
         // get the results
         SimulationResultVO resultVO = getSimulationResultVO(startTime);
 
         // destroy all service providers
         for (Strategy strategy : strategies) {
-            EngineLocator.instance().destroyEngine(strategy.getName());
+            this.engineManager.destroyEngine(strategy.getName());
         }
 
         // clear the second-level cache
@@ -260,7 +265,7 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
             this.cacheManager.put(security);
         }
 
-        EngineLocator.instance().getServerEngine().startCoordination();
+        this.serverEngine.startCoordination();
     }
 
     private void feedGenericEvents(File baseDir) {
@@ -291,10 +296,10 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
                 String eventTypeName = eventClassName.substring(eventClassName.lastIndexOf(".") + 1);
 
                 // add the eventType (in case it does not exist yet)
-                EngineLocator.instance().getServerEngine().addEventType(eventTypeName, eventClassName);
+                this.serverEngine.addEventType(eventTypeName, eventClassName);
 
                 CoordinatedAdapter inputAdapter = new CSVInputAdapter(null, new GenericEventInputAdapterSpec(file, eventTypeName));
-                EngineLocator.instance().getServerEngine().coordinate(inputAdapter);
+                this.serverEngine.coordinate(inputAdapter);
 
                 logger.debug("started feeding file " + file.getName());
             }
@@ -374,7 +379,7 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
             throw new SimulationServiceException("incorrect parameter for dataSetType: " + marketDataType);
         }
 
-        EngineLocator.instance().getServerEngine().coordinate(inputAdapter);
+        this.serverEngine.coordinate(inputAdapter);
 
         logger.debug("started feeding file " + file.getName());
     }
@@ -387,13 +392,13 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
         if (MarketDataType.TICK.equals(marketDataType)) {
 
             DBTickInputAdapter inputAdapter = new DBTickInputAdapter(feedBatchSize);
-            EngineLocator.instance().getServerEngine().coordinate(inputAdapter);
+            this.serverEngine.coordinate(inputAdapter);
             logger.debug("started feeding ticks from db");
 
         } else if (MarketDataType.BAR.equals(marketDataType)) {
 
             DBBarInputAdapter inputAdapter = new DBBarInputAdapter(feedBatchSize, this.commonConfig.getBarSize());
-            EngineLocator.instance().getServerEngine().coordinate(inputAdapter);
+            this.serverEngine.coordinate(inputAdapter);
             logger.debug("started feeding bars from db");
 
         } else {
@@ -585,7 +590,7 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
         SimulationResultVO resultVO = new SimulationResultVO();
         resultVO.setMins(((double) (System.currentTimeMillis() - startTime)) / 60000);
 
-        Engine engine = EngineLocator.instance().getServerEngine();
+        Engine engine = this.serverEngine;
         if (!engine.isDeployed("INSERT_INTO_PERFORMANCE_KEYS")) {
             resultVO.setAllTrades(new TradesVO(0, 0, 0, 0));
             return resultVO;

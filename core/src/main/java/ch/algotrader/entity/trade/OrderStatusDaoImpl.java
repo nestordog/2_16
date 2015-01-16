@@ -31,14 +31,13 @@ import org.hibernate.SQLQuery;
 import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
 
+import com.espertech.esper.collection.Pair;
+
 import ch.algotrader.enumeration.QueryType;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.hibernate.AbstractDao;
 import ch.algotrader.vo.OrderStatusVO;
-
-import com.espertech.esper.collection.Pair;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -48,9 +47,13 @@ import com.espertech.esper.collection.Pair;
 @Repository // Required for exception translation
 public class OrderStatusDaoImpl extends AbstractDao<OrderStatus> implements OrderStatusDao {
 
-    public OrderStatusDaoImpl(final SessionFactory sessionFactory) {
+    private final Engine serverEngine;
+
+    public OrderStatusDaoImpl(final SessionFactory sessionFactory, final Engine serverEngine) {
 
         super(OrderStatusImpl.class, sessionFactory);
+        Validate.notNull(serverEngine, "Engine is null");
+        this.serverEngine = serverEngine;
     }
 
     @SuppressWarnings("unchecked")
@@ -66,7 +69,7 @@ public class OrderStatusDaoImpl extends AbstractDao<OrderStatus> implements Orde
     @Override
     public Collection<OrderStatusVO> findAllOrderStati() {
 
-        Collection<Pair<Order, Map<String, ?>>> pairs = EngineLocator.instance().getServerEngine().executeQuery("select * from OpenOrderWindow");
+        Collection<Pair<Order, Map<String, ?>>> pairs = this.serverEngine.executeQuery("select * from OpenOrderWindow");
         return convertPairCollectionToOrderStatusVOCollection(pairs);
     }
 
@@ -76,7 +79,7 @@ public class OrderStatusDaoImpl extends AbstractDao<OrderStatus> implements Orde
 
         Validate.notEmpty(intId, "intId is empty");
 
-        Pair<Order, Map<String, ?>> pair = (Pair<Order, Map<String, ?>>) EngineLocator.instance().getServerEngine()
+        Pair<Order, Map<String, ?>> pair = (Pair<Order, Map<String, ?>>) this.serverEngine
                 .executeSingelObjectQuery("select * from OpenOrderWindow where intId = '" + intId + "'");
         return convertPairToOrderStatusVO(pair);
     }
@@ -88,11 +91,8 @@ public class OrderStatusDaoImpl extends AbstractDao<OrderStatus> implements Orde
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
         Collection<Pair<Order, Map<String, ?>>> pairs = new ArrayList<Pair<Order, Map<String, ?>>>();
-        if (EngineLocator.instance().hasServerEngine()) {
-            Engine engine = EngineLocator.instance().getServerEngine();
-            if(engine.isDeployed("OPEN_ORDER_WINDOW")) {
-                pairs = engine.executeQuery("select * from OpenOrderWindow where strategy.name = '" + strategyName + "'");
-            }
+        if(this.serverEngine.isDeployed("OPEN_ORDER_WINDOW")) {
+            pairs = this.serverEngine.executeQuery("select * from OpenOrderWindow where strategy.name = '" + strategyName + "'");
         }
         return convertPairCollectionToOrderStatusVOCollection(pairs);
     }

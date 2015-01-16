@@ -15,21 +15,18 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.adapter.cnx;
-
-import ch.algotrader.adapter.fix.fix44.GenericFix44OrderMessageHandler;
-import ch.algotrader.esper.Engine;
-import ch.algotrader.service.LookupService;
+package ch.algotrader.esper;
 
 /**
- * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
+ * No-op implementation of an {@link ch.algotrader.esper.Engine}
  *
- * @version $Revision$ $Date$
  */
-public class CNXFixOrderMessageHandler extends GenericFix44OrderMessageHandler {
+public final class NoopEngine extends AbstractEngine {
 
-    public CNXFixOrderMessageHandler(final LookupService lookupService, final Engine serverEngine) {
-        super(lookupService, serverEngine);
+    public static final Engine SERVER = new NoopEngine("SERVER");
+
+    public NoopEngine(final String engineName) {
+        super(engineName);
     }
 
 }

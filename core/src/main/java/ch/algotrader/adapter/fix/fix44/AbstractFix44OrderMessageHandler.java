@@ -24,7 +24,7 @@ import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.Status;
-import ch.algotrader.esper.EngineLocator;
+import ch.algotrader.esper.Engine;
 import ch.algotrader.service.LookupService;
 import ch.algotrader.util.MyLogger;
 import quickfix.FieldNotFound;
@@ -48,14 +48,12 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
 
     private static Logger LOGGER = MyLogger.getLogger(AbstractFix44OrderMessageHandler.class.getName());
 
-    private LookupService lookupService;
+    private final LookupService lookupService;
+    private final Engine serverEngine;
 
-    public void setLookupService(final LookupService lookupService) {
+    protected AbstractFix44OrderMessageHandler(final LookupService lookupService, final Engine serverEngine) {
         this.lookupService = lookupService;
-    }
-
-    public LookupService getLookupService() {
-        return this.lookupService;
+        this.serverEngine = serverEngine;
     }
 
     protected abstract boolean discardReport(ExecutionReport executionReport) throws FieldNotFound;
@@ -76,7 +74,7 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
         String intId = executionReport.getClOrdID().getValue();
 
         // get the order from the OpenOrderWindow
-        Order order = getLookupService().getOpenOrderByRootIntId(intId);
+        Order order = this.lookupService.getOpenOrderByRootIntId(intId);
         if (order == null) {
 
             if (LOGGER.isEnabledFor(Level.ERROR)) {
@@ -113,7 +111,7 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
                 orderStatus.setReason(executionReport.getText().getValue());
             }
 
-            EngineLocator.instance().getServerEngine().sendEvent(orderStatus);
+            this.serverEngine.sendEvent(orderStatus);
 
             return;
         }
@@ -121,7 +119,7 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
         OrderStatus orderStatus = createStatus(executionReport, order);
         orderStatus.setOrder(order);
 
-        EngineLocator.instance().getServerEngine().sendEvent(orderStatus);
+        this.serverEngine.sendEvent(orderStatus);
 
         Fill fill = createFill(executionReport, order);
         if (fill != null) {
@@ -129,7 +127,7 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
             // associate the fill with the order
             fill.setOrder(order);
 
-            EngineLocator.instance().getServerEngine().sendEvent(fill);
+            this.serverEngine.sendEvent(fill);
         }
     }
 
@@ -160,7 +158,7 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
         String intId = reject.getClOrdID().getValue();
 
         // get the order from the OpenOrderWindow
-        Order order = getLookupService().getOpenOrderByRootIntId(intId);
+        Order order = this.lookupService.getOpenOrderByRootIntId(intId);
         if (order == null) {
 
             if (LOGGER.isEnabledFor(Level.ERROR)) {
@@ -184,7 +182,7 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
             orderStatus.setReason(reject.getText().getValue());
         }
 
-        EngineLocator.instance().getServerEngine().sendEvent(orderStatus);
+        this.serverEngine.sendEvent(orderStatus);
     }
 
 }

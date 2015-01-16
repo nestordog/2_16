@@ -19,17 +19,17 @@ package ch.algotrader.esper.io;
 
 import java.util.Map;
 
-import ch.algotrader.entity.marketData.Bar;
-import ch.algotrader.entity.marketData.Tick;
-import ch.algotrader.esper.EngineLocator;
-import ch.algotrader.util.metric.MetricsUtil;
-import ch.algotrader.vo.RawBarVO;
-import ch.algotrader.vo.RawTickVO;
-
 import com.espertech.esper.client.time.CurrentTimeEvent;
 import com.espertech.esper.client.time.CurrentTimeSpanEvent;
 import com.espertech.esperio.AbstractSendableEvent;
 import com.espertech.esperio.AbstractSender;
+
+import ch.algotrader.ServiceLocator;
+import ch.algotrader.entity.marketData.Bar;
+import ch.algotrader.entity.marketData.Tick;
+import ch.algotrader.util.metric.MetricsUtil;
+import ch.algotrader.vo.RawBarVO;
+import ch.algotrader.vo.RawTickVO;
 
 /**
  * Custom Esper Sender that initializes Ticks and Bars.
@@ -52,7 +52,7 @@ public class CustomSender extends AbstractSender {
             long afterCompleteRaw = System.nanoTime();
 
             long beforeSendEvent = System.nanoTime();
-            EngineLocator.instance().getServerEngine().sendEvent(tick);
+            ServiceLocator.instance().getEngineManager().getServerEngine().sendEvent(tick);
             long afterSendEvent = System.nanoTime();
 
             MetricsUtil.account("CustomSender.completeRaw", (afterCompleteRaw - beforeCompleteRawT));
@@ -66,7 +66,7 @@ public class CustomSender extends AbstractSender {
             long afterCompleteRaw = System.nanoTime();
 
             long beforeSendEvent = System.nanoTime();
-            EngineLocator.instance().getServerEngine().sendEvent(bar);
+            ServiceLocator.instance().getEngineManager().getServerEngine().sendEvent(bar);
             long afterSendEvent = System.nanoTime();
 
             MetricsUtil.account("CustomSender.completeRaw", (afterCompleteRaw - beforeCompleteRawT));
@@ -76,7 +76,7 @@ public class CustomSender extends AbstractSender {
         } else if (beanToSend instanceof CurrentTimeEvent || beanToSend instanceof CurrentTimeSpanEvent) {
 
             long beforeSendEvent = System.nanoTime();
-            EngineLocator.instance().sendEventToAllEngines(beanToSend);
+            ServiceLocator.instance().getEngineManager().sendEventToAllEngines(beanToSend);
             long afterSendEvent = System.nanoTime();
 
             MetricsUtil.account("CustomSender.sendCurrentTimeEvent", (afterSendEvent - beforeSendEvent));

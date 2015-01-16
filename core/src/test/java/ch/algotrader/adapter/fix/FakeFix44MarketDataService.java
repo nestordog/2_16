@@ -17,15 +17,16 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.fix;
 
-import quickfix.field.MDReqID;
-import quickfix.field.SubscriptionRequestType;
-import quickfix.fix44.MarketDataRequest;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.enumeration.FeedType;
+import ch.algotrader.esper.Engine;
 import ch.algotrader.service.fix.fix44.Fix44MarketDataServiceException;
 import ch.algotrader.service.fix.fix44.Fix44MarketDataServiceImpl;
+import quickfix.field.MDReqID;
+import quickfix.field.SubscriptionRequestType;
+import quickfix.fix44.MarketDataRequest;
 
 /**
  * Mock FIX 4.4 market data service
@@ -40,9 +41,10 @@ class FakeFix44MarketDataService extends Fix44MarketDataServiceImpl {
             final CommonConfig commonConfig,
             final FixSessionLifecycle lifeCycle,
             final FixAdapter fixAdapter,
+            final Engine serverEngine,
             final SecurityDao securityDao) {
 
-        super(commonConfig, lifeCycle, fixAdapter, securityDao);
+        super(commonConfig, lifeCycle, fixAdapter, serverEngine, securityDao);
     }
 
     @Override

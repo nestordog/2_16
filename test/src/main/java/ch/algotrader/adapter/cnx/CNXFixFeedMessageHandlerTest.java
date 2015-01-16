@@ -39,7 +39,8 @@ import ch.algotrader.entity.security.SecurityFamilyImpl;
 import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.esper.AbstractEngine;
-import ch.algotrader.esper.EngineLocator;
+import ch.algotrader.esper.Engine;
+import ch.algotrader.esper.EngineManager;
 import ch.algotrader.vo.AskVO;
 import ch.algotrader.vo.BidVO;
 import quickfix.DefaultSessionFactory;
@@ -63,6 +64,7 @@ import quickfix.fix44.MarketDataRequest;
 public class CNXFixFeedMessageHandlerTest {
 
     private LinkedBlockingQueue<Object> eventQueue;
+    private EngineManager engineManager;
     private CNXFixMarketDataMessageHandler messageHandler;
     private Session session;
     private SocketInitiator socketInitiator;
@@ -73,7 +75,7 @@ public class CNXFixFeedMessageHandlerTest {
         final LinkedBlockingQueue<Object> queue = new LinkedBlockingQueue<Object>();
         this.eventQueue = queue;
 
-        EngineLocator.instance().setEngine(StrategyImpl.SERVER, new AbstractEngine(StrategyImpl.SERVER) {
+        Engine engine = new AbstractEngine(StrategyImpl.SERVER) {
 
             @Override
             public void sendEvent(Object obj) {
@@ -88,18 +90,20 @@ public class CNXFixFeedMessageHandlerTest {
             public List executeQuery(String query) {
                 return null;
             }
-        });
+        };
+
+        this.engineManager = Mockito.mock(EngineManager.class);
 
         SessionSettings settings = FixConfigUtils.loadSettings();
         SessionID sessionId = FixConfigUtils.getSessionID(settings, "CNXMD");
 
         DefaultLogonMessageHandler logonMessageHandler = new DefaultLogonMessageHandler(settings);
 
-        this.messageHandler = Mockito.spy(new CNXFixMarketDataMessageHandler());
+        this.messageHandler = Mockito.spy(new CNXFixMarketDataMessageHandler(engine));
 
         LogFactory logFactory = new ScreenLogFactory(true, true, true);
 
-        CNXFixApplication fixApplication = new CNXFixApplication(sessionId, this.messageHandler, logonMessageHandler, new DefaultFixSessionLifecycle("CNX"));
+        CNXFixApplication fixApplication = new CNXFixApplication(sessionId, this.messageHandler, logonMessageHandler, new DefaultFixSessionLifecycle("CNX", this.engineManager));
 
         DefaultSessionFactory sessionFactory = new DefaultSessionFactory(fixApplication, new MemoryStoreFactory(), logFactory);
 

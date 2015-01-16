@@ -38,6 +38,7 @@ import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.strategy.CashBalanceDao;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.enumeration.Currency;
+import ch.algotrader.esper.Engine;
 import ch.algotrader.service.PortfolioService;
 import ch.algotrader.service.TransactionPersistenceServiceImpl;
 import ch.algotrader.util.HibernateUtil;
@@ -59,9 +60,10 @@ public class MySqlTransactionPersistenceServiceImpl extends TransactionPersisten
             final SessionFactory sessionFactory,
             final PositionDao positionDao,
             final TransactionDao transactionDao,
-            final CashBalanceDao cashBalanceDao) {
+            final CashBalanceDao cashBalanceDao,
+            final Engine serverEngine) {
 
-        super(commonConfig, portfolioService, positionDao, transactionDao, cashBalanceDao);
+        super(commonConfig, portfolioService, positionDao, transactionDao, cashBalanceDao, serverEngine);
 
         Validate.notNull(sessionFactory, "SessionFactory is null");
 

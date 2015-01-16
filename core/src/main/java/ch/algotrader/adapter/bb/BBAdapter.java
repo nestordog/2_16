@@ -20,15 +20,17 @@ package ch.algotrader.adapter.bb;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.jmx.export.annotation.ManagedAttribute;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
-import ch.algotrader.config.BBConfig;
-
 import com.bloomberglp.blpapi.SessionOptions;
+
+import ch.algotrader.config.BBConfig;
+import ch.algotrader.esper.Engine;
 
 /**
  * Factory class for Bloomberg Sessions.
@@ -42,11 +44,14 @@ import com.bloomberglp.blpapi.SessionOptions;
 @ManagedResource(objectName = "ch.algotrader.adapter.bb:name=BBAdapter")
 public class BBAdapter {
 
-    private Map<String, BBSession> sessions = new HashMap<String, BBSession>();
     private final BBConfig bbConfig;
+    private final Engine serverEngine;
+    private final Map<String, BBSession> sessions;
 
-    public BBAdapter(BBConfig bbConfig) {
+    public BBAdapter(final BBConfig bbConfig, final Engine serverEngine) {
         this.bbConfig = bbConfig;
+        this.serverEngine = serverEngine;
+        this.sessions = new ConcurrentHashMap<>();
     }
 
     /**
@@ -54,7 +59,7 @@ public class BBAdapter {
      */
     public BBSession getMarketDataSession() throws IOException, InterruptedException {
 
-        return getSession("mktdata", new BBMarketDataMessageHandler());
+        return getSession("mktdata", new BBMarketDataMessageHandler(serverEngine));
     }
 
     /**

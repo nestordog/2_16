@@ -20,6 +20,8 @@ package ch.algotrader.adapter.ib;
 import org.apache.log4j.Logger;
 
 import ch.algotrader.adapter.fix.fix42.GenericFix42OrderMessageHandler;
+import ch.algotrader.esper.Engine;
+import ch.algotrader.service.LookupService;
 import ch.algotrader.service.ib.IBFixAccountService;
 import ch.algotrader.util.MyLogger;
 import quickfix.FieldNotFound;
@@ -47,9 +49,10 @@ public class IBFixOrderMessageHandler extends GenericFix42OrderMessageHandler {
 
     private static Logger logger = MyLogger.getLogger(IBFixOrderMessageHandler.class.getName());
 
-    private IBFixAccountService accountService;
+    private final IBFixAccountService accountService;
 
-    public void setAccountService(IBFixAccountService accountService) {
+    public IBFixOrderMessageHandler(final LookupService lookupService, final IBFixAccountService accountService, final Engine serverEngine) {
+        super(lookupService, serverEngine);
         this.accountService = accountService;
     }
 

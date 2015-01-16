@@ -21,17 +21,17 @@ import java.util.Date;
 
 import org.apache.log4j.Logger;
 
-import ch.algotrader.enumeration.FeedType;
-import ch.algotrader.esper.EngineLocator;
-import ch.algotrader.util.MyLogger;
-import ch.algotrader.vo.AskVO;
-import ch.algotrader.vo.BidVO;
-import ch.algotrader.vo.TradeVO;
-
 import com.bloomberglp.blpapi.Element;
 import com.bloomberglp.blpapi.Event;
 import com.bloomberglp.blpapi.Message;
 import com.bloomberglp.blpapi.Session;
+
+import ch.algotrader.enumeration.FeedType;
+import ch.algotrader.esper.Engine;
+import ch.algotrader.util.MyLogger;
+import ch.algotrader.vo.AskVO;
+import ch.algotrader.vo.BidVO;
+import ch.algotrader.vo.TradeVO;
 
 /**
  * Bloomberg MessageHandler for MarketData events.
@@ -43,6 +43,12 @@ import com.bloomberglp.blpapi.Session;
 public class BBMarketDataMessageHandler extends BBMessageHandler {
 
     private static Logger logger = MyLogger.getLogger(BBMarketDataMessageHandler.class.getName());
+
+    private final Engine serverEngine;
+
+    public BBMarketDataMessageHandler(Engine serverEngine) {
+        this.serverEngine = serverEngine;
+    }
 
     @Override
     protected void processSubscriptionStatus(Event event, Session session) {
@@ -94,7 +100,7 @@ public class BBMarketDataMessageHandler extends BBMessageHandler {
                     }
 
                     TradeVO tradeVO = new TradeVO(cid, FeedType.BB, lastDateTime, last, vol);
-                    EngineLocator.instance().getServerEngine().sendEvent(tradeVO);
+                    this.serverEngine.sendEvent(tradeVO);
 
                     // there are no BIDs for indices
                     if (fields.hasElement("BID") && fields.getElement("BID").numValues() == 1) {
@@ -108,7 +114,7 @@ public class BBMarketDataMessageHandler extends BBMessageHandler {
                         }
 
                         BidVO bidVO = new BidVO(cid, FeedType.BB, lastDateTime, bid, volBid);
-                        EngineLocator.instance().getServerEngine().sendEvent(bidVO);
+                        this.serverEngine.sendEvent(bidVO);
                     }
 
                     // there are no ASKs for indices
@@ -123,7 +129,7 @@ public class BBMarketDataMessageHandler extends BBMessageHandler {
                         }
 
                         AskVO askVO = new AskVO(cid, FeedType.BB, lastDateTime, ask, volAsk);
-                        EngineLocator.instance().getServerEngine().sendEvent(askVO);
+                        this.serverEngine.sendEvent(askVO);
                     }
                 }
 
@@ -142,7 +148,7 @@ public class BBMarketDataMessageHandler extends BBMessageHandler {
                     }
 
                     TradeVO tradeVO = new TradeVO(cid, FeedType.BB, lastDateTime, last, vol);
-                    EngineLocator.instance().getServerEngine().sendEvent(tradeVO);
+                    this.serverEngine.sendEvent(tradeVO);
                 }
 
             } else if ("QUOTE".equals(marketDataEventType)) {
@@ -165,7 +171,7 @@ public class BBMarketDataMessageHandler extends BBMessageHandler {
                     }
 
                     BidVO bidVO = new BidVO(cid, FeedType.BB, dateTime, bid, volBid);
-                    EngineLocator.instance().getServerEngine().sendEvent(bidVO);
+                    this.serverEngine.sendEvent(bidVO);
 
                 } else if ("ASK".equals(marketDataEventSubType)) {
 
@@ -184,7 +190,7 @@ public class BBMarketDataMessageHandler extends BBMessageHandler {
                     }
 
                     AskVO askVO = new AskVO(cid, FeedType.BB, dateTime, ask, volAsk);
-                    EngineLocator.instance().getServerEngine().sendEvent(askVO);
+                    this.serverEngine.sendEvent(askVO);
 
                 } else {
                     throw new IllegalArgumentException("unkown marketDataEventSubType " + marketDataEventSubType);

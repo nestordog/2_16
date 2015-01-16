@@ -37,14 +37,14 @@ import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.strategy.StrategyDao;
-import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.TransactionType;
-import ch.algotrader.esper.EngineLocator;
+import ch.algotrader.esper.Engine;
+import ch.algotrader.esper.EngineManager;
 import ch.algotrader.util.DateUtil;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.RoundUtil;
@@ -77,6 +77,10 @@ public class TransactionServiceImpl implements TransactionService {
 
     private final AccountDao accountDao;
 
+    private final EngineManager engineManager;
+
+    private final Engine serverEngine;
+
     public TransactionServiceImpl(
             final CommonConfig commonConfig,
             final CoreConfig coreConfig,
@@ -84,7 +88,9 @@ public class TransactionServiceImpl implements TransactionService {
             final PortfolioService portfolioService,
             final StrategyDao strategyDao,
             final SecurityDao securityDao,
-            final AccountDao accountDao) {
+            final AccountDao accountDao,
+            final EngineManager engineManager,
+            final Engine serverEngine) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(coreConfig, "CoreConfig is null");
@@ -93,6 +99,8 @@ public class TransactionServiceImpl implements TransactionService {
         Validate.notNull(strategyDao, "StrategyDao is null");
         Validate.notNull(securityDao, "SecurityDao is null");
         Validate.notNull(accountDao, "AccountDao is null");
+        Validate.notNull(engineManager, "EngineManager is null");
+        Validate.notNull(serverEngine, "Engine is null");
 
         this.commonConfig = commonConfig;
         this.coreConfig = coreConfig;
@@ -101,6 +109,8 @@ public class TransactionServiceImpl implements TransactionService {
         this.strategyDao = strategyDao;
         this.securityDao = securityDao;
         this.accountDao = accountDao;
+        this.engineManager = engineManager;
+        this.serverEngine = serverEngine;
     }
 
     /**
@@ -267,7 +277,7 @@ public class TransactionServiceImpl implements TransactionService {
 
         // send the fill to the strategy that placed the corresponding order
         if (!fill.getOrder().getStrategy().isServer()) {
-            EngineLocator.instance().sendEvent(fill.getOrder().getStrategy().getName(), fill);
+            this.engineManager.sendEvent(fill.getOrder().getStrategy().getName(), fill);
         }
 
         if (!this.commonConfig.isSimulation()) {
@@ -318,20 +328,17 @@ public class TransactionServiceImpl implements TransactionService {
         }
         PositionMutationVO positionMutationEvent = this.transactionPersistenceService.saveTransaction(transaction);
 
-        // check if esper is initialized
-        if (EngineLocator.instance().hasServerEngine()) {
-
-            // propagate the positionMutationEvent to the corresponding strategy
-            if (positionMutationEvent != null) {
-                EngineLocator.instance().sendEvent(positionMutationEvent.getStrategy(), positionMutationEvent);
-            }
-
-            // propagate the transaction to the corresponding strategy and AlgoTrader Server
-            if (!transaction.getStrategy().isServer()) {
-                EngineLocator.instance().sendEvent(transaction.getStrategy().getName(), transaction);
-            }
-            EngineLocator.instance().sendEvent(StrategyImpl.SERVER, transaction);
+        // propagate the positionMutationEvent to the corresponding strategy
+        if (positionMutationEvent != null) {
+            this.engineManager.sendEvent(positionMutationEvent.getStrategy(), positionMutationEvent);
         }
+
+        // propagate the transaction to the corresponding strategy and AlgoTrader Server
+        if (!transaction.getStrategy().isServer()) {
+            this.engineManager.sendEvent(transaction.getStrategy().getName(), transaction);
+        }
+
+        this.serverEngine.sendEvent(transaction);
     }
 
     /**

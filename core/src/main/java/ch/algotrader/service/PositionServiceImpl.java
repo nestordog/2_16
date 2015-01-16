@@ -54,7 +54,8 @@ import ch.algotrader.enumeration.Direction;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.enumeration.TransactionType;
-import ch.algotrader.esper.EngineLocator;
+import ch.algotrader.esper.Engine;
+import ch.algotrader.esper.EngineManager;
 import ch.algotrader.esper.callback.TradeCallback;
 import ch.algotrader.option.OptionUtil;
 import ch.algotrader.util.DateUtil;
@@ -96,6 +97,10 @@ public class PositionServiceImpl implements PositionService {
 
     private final TransactionDao transactionDao;
 
+    private final EngineManager engineManager;
+
+    private final Engine serverEngine;
+
     public PositionServiceImpl(final CommonConfig commonConfig,
             final TransactionService transactionService,
             final MarketDataService marketDataService,
@@ -105,7 +110,9 @@ public class PositionServiceImpl implements PositionService {
             final DefaultOrderPreferenceDao defaultOrderPreferenceDao,
             final SecurityDao securityDao,
             final StrategyDao strategyDao,
-            final TransactionDao transactionDao) {
+            final TransactionDao transactionDao,
+            final EngineManager engineManager,
+            final Engine serverEngine) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(transactionService, "TransactionService is null");
@@ -117,6 +124,8 @@ public class PositionServiceImpl implements PositionService {
         Validate.notNull(securityDao, "SecurityDao is null");
         Validate.notNull(strategyDao, "StrategyDao is null");
         Validate.notNull(transactionDao, "TransactionDao is null");
+        Validate.notNull(engineManager, "EngineManager is null");
+        Validate.notNull(serverEngine, "Engine is null");
 
         this.commonConfig = commonConfig;
         this.transactionService = transactionService;
@@ -128,6 +137,8 @@ public class PositionServiceImpl implements PositionService {
         this.securityDao = securityDao;
         this.strategyDao = strategyDao;
         this.transactionDao = transactionDao;
+        this.engineManager = engineManager;
+        this.serverEngine = serverEngine;
     }
 
     /**
@@ -256,7 +267,7 @@ public class PositionServiceImpl implements PositionService {
         ClosePositionVO closePositionVO = ClosePositionVOProducer.INSTANCE.convert(position);
 
         // propagate the ClosePosition event
-        EngineLocator.instance().sendEvent(position.getStrategy().getName(), closePositionVO);
+        this.engineManager.sendEvent(position.getStrategy().getName(), closePositionVO);
 
         // remove the association
         position.getSecurity().removePositions(position);
@@ -571,7 +582,7 @@ public class PositionServiceImpl implements PositionService {
                 this.marketDataService.unsubscribe(order.getStrategy().getName(), order.getSecurity().getId());
             }
         } else {
-            EngineLocator.instance().getServerEngine().addTradeCallback(Collections.singleton(order), new TradeCallback(true) {
+            this.serverEngine.addTradeCallback(Collections.singleton(order), new TradeCallback(true) {
                 @Override
                 public void onTradeCompleted(List<OrderStatus> orderStati) throws Exception {
                     if (unsubscribe) {
@@ -647,6 +658,6 @@ public class PositionServiceImpl implements PositionService {
         this.marketDataService.unsubscribe(position.getStrategy().getName(), security.getId());
 
         // propagate the ExpirePosition event
-        EngineLocator.instance().sendEvent(position.getStrategy().getName(), expirePositionEvent);
+        this.engineManager.sendEvent(position.getStrategy().getName(), expirePositionEvent);
     }
 }

@@ -65,6 +65,8 @@
         <constructor-arg index="7" ref="securityDao"/>
         <constructor-arg index="8" ref="strategyDao"/>
         <constructor-arg index="9" ref="transactionDao"/>
+         <constructor-arg index="10" ref="engineManager"/>
+         <constructor-arg index="11" ref="serverEngine"/>
     </bean>
 
     <bean id="serverManagementService" class="ch.algotrader.service.ServerManagementServiceImpl" >
@@ -74,6 +76,8 @@
         <constructor-arg index="3" ref="transactionService"/>
         <constructor-arg index="4" ref="optionService"/>
         <constructor-arg index="5" ref="orderService"/>
+        <constructor-arg index="6" ref="engineManager"/>
+        <constructor-arg index="7" ref="serverEngine"/>
     </bean>
 
     <bean id="optionService" class="ch.algotrader.service.OptionServiceImpl" >
@@ -91,6 +95,7 @@
         <constructor-arg index="11" ref="subscriptionDao"/>
         <constructor-arg index="12" ref="futureFamilyDao"/>
         <constructor-arg index="13" ref="strategyDao"/>
+        <constructor-arg index="14" ref="serverEngine"/>
     </bean>
 
     <bean id="forexService" class="ch.algotrader.service.ForexServiceImpl" >
@@ -115,6 +120,8 @@
         <constructor-arg index="4" ref="strategyDao"/>
         <constructor-arg index="5" ref="securityDao"/>
         <constructor-arg index="6" ref="accountDao"/>
+        <constructor-arg index="7" ref="engineManager"/>
+        <constructor-arg index="8" ref="serverEngine"/>
     </bean>
 
     <bean id="marketDataService" class="ch.algotrader.service.MarketDataServiceImpl" >
@@ -125,6 +132,7 @@
         <constructor-arg index="4" ref="securityDao"/>
         <constructor-arg index="5" ref="strategyDao"/>
         <constructor-arg index="6" ref="subscriptionDao"/>
+        <constructor-arg index="7" ref="engineManager"/>
     </bean>
 
     <bean id="orderPersistenceService" class="ch.algotrader.service.OrderPersistenceServiceImpl">
@@ -145,6 +153,8 @@
         <constructor-arg index="5" ref="securityDao"/>
         <constructor-arg index="6" ref="accountDao"/>
         <constructor-arg index="7" ref="orderPersistenceService"/>
+        <constructor-arg index="8" ref="engineManager"/>
+        <constructor-arg index="9" ref="serverEngine"/>
     </bean>
 
     <bean id="combinationService" class="ch.algotrader.service.CombinationServiceImpl" >
@@ -157,6 +167,7 @@
         <constructor-arg index="6" ref="securityDao"/>
         <constructor-arg index="7" ref="componentDao"/>
         <constructor-arg index="8" ref="securityFamilyDao"/>
+        <constructor-arg index="9" ref="serverEngine"/>
     </bean>
 
     <bean id="measurementService" class="ch.algotrader.service.MeasurementServiceImpl" >
@@ -196,15 +207,16 @@
 
     <bean id="managementService" class="ch.algotrader.service.ManagementServiceImpl" >
         <constructor-arg index="0" ref="commonConfig"/>
-        <constructor-arg index="1" ref="subscriptionService"/>
-        <constructor-arg index="2" ref="lookupService"/>
-        <constructor-arg index="3" ref="portfolioService"/>
-        <constructor-arg index="4" ref="orderService"/>
-        <constructor-arg index="5" ref="positionService"/>
-        <constructor-arg index="6" ref="combinationService"/>
-        <constructor-arg index="7" ref="propertyService"/>
-        <constructor-arg index="8" ref="marketDataService"/>
-        <constructor-arg index="9" ref="configParams"/>
+        <constructor-arg index="1" ref="engineManager"/>
+        <constructor-arg index="2" ref="subscriptionService"/>
+        <constructor-arg index="3" ref="lookupService"/>
+        <constructor-arg index="4" ref="portfolioService"/>
+        <constructor-arg index="5" ref="orderService"/>
+        <constructor-arg index="6" ref="positionService"/>
+        <constructor-arg index="7" ref="combinationService"/>
+        <constructor-arg index="8" ref="propertyService"/>
+        <constructor-arg index="9" ref="marketDataService"/>
+        <constructor-arg index="10" ref="configParams"/>
     </bean>
 
     <bean id="subscriptionService" class="ch.algotrader.service.SubscriptionServiceImpl" >
@@ -231,7 +243,9 @@
             <constructor-arg index="3"  ref="transactionService"/>
             <constructor-arg index="4"  ref="portfolioService"/>
             <constructor-arg index="5"  ref="lookupService"/>
-            <constructor-arg index="6"  ref="cacheManager"/>
+            <constructor-arg index="6"  ref="engineManager"/>
+            <constructor-arg index="7"  ref="serverEngine"/>
+            <constructor-arg index="8"  ref="cacheManager"/>
         </bean>
     </beans>
 
@@ -243,6 +257,7 @@
             <constructor-arg index="3" ref="positionDao"/>
             <constructor-arg index="4" ref="transactionDao"/>
             <constructor-arg index="5" ref="cashBalanceDao"/>
+            <constructor-arg index="6" ref="serverEngine"/>
         </bean>
     </beans>
 
@@ -254,6 +269,7 @@
 	        <constructor-arg index="3" ref="positionDao"/>
 	        <constructor-arg index="4" ref="transactionDao"/>
 	        <constructor-arg index="5" ref="cashBalanceDao"/>
+            <constructor-arg index="6" ref="serverEngine"/>
 	    </bean>
     </beans>
 
@@ -299,7 +315,8 @@
             <constructor-arg index="0"  ref="iBSession"/>
             <constructor-arg index="1"  ref="iBIdGenerator"/>
             <constructor-arg index="2"  ref="iBOrderMessageFactory"/>
-            <constructor-arg index="3"  ref="orderService"/>
+            <constructor-arg index="3"  ref="serverEngine"/>
+            <constructor-arg index="4"  ref="orderService"/>
         </bean>
     </beans>
 
@@ -311,6 +328,7 @@
             <constructor-arg index="3"  ref="iBConfig"/>
             <constructor-arg index="4"  ref="tickDao"/>
             <constructor-arg index="5"  ref="securityDao"/>
+            <constructor-arg index="6"  ref="serverEngine"/>
         </bean>
     </beans>
 
@@ -380,7 +398,8 @@
             <constructor-arg index="0" ref="commonConfig"/>
             <constructor-arg index="1"  ref="dCMarketDataSessionLifeCycle"/>
             <constructor-arg index="2"  ref="fixAdapter"/>
-            <constructor-arg index="3"  ref="securityDao"/>
+            <constructor-arg index="3"  ref="serverEngine"/>
+            <constructor-arg index="4"  ref="securityDao"/>
         </bean>
     </beans>
 
@@ -389,7 +408,8 @@
             <constructor-arg index="0" ref="commonConfig"/>
             <constructor-arg index="1"  ref="bBAdapter"/>
             <constructor-arg index="2"  ref="tickDao"/>
-            <constructor-arg index="3"  ref="securityDao"/>
+            <constructor-arg index="3"  ref="serverEngine"/>
+            <constructor-arg index="4"  ref="securityDao"/>
         </bean>
     </beans>
 
@@ -433,7 +453,8 @@
             <constructor-arg index="0" ref="commonConfig"/>
             <constructor-arg index="1"  ref="lMAXMarketDataSessionLifeCycle"/>
             <constructor-arg index="2"  ref="fixAdapter"/>
-            <constructor-arg index="3"  ref="securityDao"/>
+            <constructor-arg index="3"  ref="serverEngine"/>
+            <constructor-arg index="4"  ref="securityDao"/>
         </bean>
     </beans>
 
@@ -449,14 +470,16 @@
             <constructor-arg index="0" ref="commonConfig"/>
             <constructor-arg index="1"  ref="fXCMSessionLifeCycle"/>
             <constructor-arg index="2"  ref="fixAdapter"/>
-            <constructor-arg index="3"  ref="securityDao"/>
+            <constructor-arg index="3"  ref="serverEngine"/>
+            <constructor-arg index="4"  ref="securityDao"/>
         </bean>
     </beans>
 
     <beans profile="simulation">
         <bean id="simulationOrderService" class="ch.algotrader.service.sim.SimulationOrderServiceImpl" >
-            <constructor-arg index="0"  ref="transactionService"/>
-            <constructor-arg index="1"  ref="orderService"/>
+            <constructor-arg index="0"  ref="serverEngine"/>
+            <constructor-arg index="1"  ref="transactionService"/>
+            <constructor-arg index="2"  ref="orderService"/>
         </bean>
     </beans>
 
@@ -465,7 +488,8 @@
             <constructor-arg index="0" ref="commonConfig"/>
             <constructor-arg index="1"  ref="cNXMarketDataSessionLifeCycle"/>
             <constructor-arg index="2"  ref="fixAdapter"/>
-            <constructor-arg index="3"  ref="securityDao"/>
+            <constructor-arg index="3"  ref="serverEngine"/>
+            <constructor-arg index="4"  ref="securityDao"/>
         </bean>
     </beans>
 

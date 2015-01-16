@@ -33,7 +33,6 @@ import org.mockito.MockitoAnnotations;
 
 import ch.algotrader.adapter.fix.fix44.FixTestUtils;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.vo.AskVO;
 import ch.algotrader.vo.BidVO;
 import quickfix.DataDictionary;
@@ -65,9 +64,8 @@ public class TestFXCMFixMarketDataMessageHandler {
     public void setup() throws Exception {
 
         MockitoAnnotations.initMocks(this);
-        EngineLocator.instance().setEngine("SERVER", engine);
 
-        impl = new FXCMFixMarketDataMessageHandler();
+        impl = new FXCMFixMarketDataMessageHandler(engine);
     }
 
     @Test

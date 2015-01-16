@@ -21,13 +21,13 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
+import ch.algotrader.ServiceLocator;
 import ch.algotrader.config.ConfigLocator;
 import ch.algotrader.entity.security.ExpirableFamilyI;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.ExpirationType;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.esper.EngineLocator;
 
 /**
  * Provides Date related Utility Methods.
@@ -38,16 +38,15 @@ import ch.algotrader.esper.EngineLocator;
  */
 public class DateUtil {
 
-    private static final String strategyName = ConfigLocator.instance().getCommonConfig().getStartedStrategyName();
-
     /**
      * Returns the Time of the local Esper Engine.
      * If the Esper Engine is not yet initialized or is using internal Clock the current system date is returned.
      */
     public static Date getCurrentEPTime() {
 
-        Engine engine = EngineLocator.instance().getEngine(strategyName);
-        if (engine != null && !engine.isInternalClock()) {
+        String strategyName = ConfigLocator.instance().getCommonConfig().getStartedStrategyName();
+        Engine engine = ServiceLocator.instance().getEngineManager().getEngine(strategyName);
+        if (!engine.isInternalClock()) {
             return engine.getCurrentTime();
         }
 

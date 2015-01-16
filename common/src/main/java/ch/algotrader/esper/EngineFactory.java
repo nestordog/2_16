@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -35,9 +34,7 @@ import com.espertech.esper.util.JavaClassHelper;
 
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.ConfigParams;
-import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.strategy.StrategyImpl;
-import ch.algotrader.service.LookupService;
 import ch.algotrader.util.MyLogger;
 
 /**
@@ -51,17 +48,12 @@ public class EngineFactory {
 
     private static final Logger LOGGER = MyLogger.getLogger(EngineImpl.class.getName());
 
-    private final LookupService lookupService;
     private final DependencyLookup dependencyLookup;
 
-    public EngineFactory(final LookupService lookupService, final DependencyLookup dependencyLookup) {
+    public EngineFactory(final DependencyLookup dependencyLookup) {
 
         super();
-
-        Validate.notNull(lookupService, "LookupService is null");
         Validate.notNull(dependencyLookup, "DependencyLookup is null");
-
-        this.lookupService = lookupService;
         this.dependencyLookup = dependencyLookup;
     }
 
@@ -72,11 +64,10 @@ public class EngineFactory {
      * <li>{@code corresponding esper-xxx.cfg.xml} files are loaded from the classpath</li>
      * <li>Esper variables are initilized</li>
      * <li>Esper threading is configured</li>
-     * <li>The {@link ch.algotrader.entity.strategy.Strategy} itself is configured as an Esper variable {@code engineStrategy}</li>
      * <li>Esper Time is set to zero</li>
      * </ul>
      */
-    public Engine createEngine(final String engineName, final ConfigParams configParams, final CommonConfig commonConfig) throws IOException {
+    public Engine createEngine(final String engineName, final String[] initModules, final String[] runModules, final ConfigParams configParams, final CommonConfig commonConfig) throws IOException {
 
         Validate.notNull(configParams, "ConfigParams is null");
         Validate.notNull(commonConfig, "CommonConfig is null");
@@ -112,26 +103,8 @@ public class EngineFactory {
             threading.setThreadPoolOutboundNumThreads(configParams.getInteger("misc.outboundThreads"));
         }
 
-        Strategy strategy = this.lookupService.getStrategyByName(engineName);
-        if (strategy == null) {
-            if (LOGGER.isEnabledFor(Level.WARN)) {
-                LOGGER.warn("No strategy found for engineName " + engineName);
-            }
-        } else {
-            configuration.getVariables().get("engineStrategy").setInitializationValue(strategy);
-        }
-
-        return new EngineImpl(engineName, this.dependencyLookup, configuration,
-                strategy != null ? split(strategy.getInitModules()) : null,
-                strategy != null ? split(strategy.getRunModules()) : null,
-                configParams, commonConfig);
-    }
-
-    private static String[] split(final String s) {
-        if (StringUtils.isBlank(s)) {
-            return null;
-        }
-        return s.split(" *, *");
+        configuration.getVariables().get("strategyName").setInitializationValue(engineName);
+        return new EngineImpl(engineName, this.dependencyLookup, configuration, initModules, runModules, configParams, commonConfig);
     }
 
     private void initVariables(final Configuration configuration, final ConfigParams configParams) {

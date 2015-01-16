@@ -42,7 +42,6 @@ import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.service.LookupService;
 import quickfix.DataDictionary;
 import quickfix.SessionID;
@@ -77,10 +76,8 @@ public class TestFXCMFixOrderMessageHandler {
     public void setup() throws Exception {
 
         MockitoAnnotations.initMocks(this);
-        EngineLocator.instance().setEngine("SERVER", engine);
 
-        impl = new FXCMFixOrderMessageHandler();
-        impl.setLookupService(lookupService);
+        impl = new FXCMFixOrderMessageHandler(lookupService, engine);
     }
 
     @Test

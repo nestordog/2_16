@@ -16,15 +16,16 @@
 
     <bean id="managementService" class="ch.algotrader.service.ManagementServiceImpl" >
         <constructor-arg index="0" ref="commonConfig"/>
-        <constructor-arg index="1" ref="subscriptionService"/>
-        <constructor-arg index="2" ref="lookupService"/>
-        <constructor-arg index="3" ref="portfolioService"/>
-        <constructor-arg index="4" ref="orderService"/>
-        <constructor-arg index="5" ref="positionService"/>
-        <constructor-arg index="6" ref="combinationService"/>
-        <constructor-arg index="7" ref="propertyService"/>
-        <constructor-arg index="8" ref="marketDataService"/>
-        <constructor-arg index="9" ref="configParams"/>
+        <constructor-arg index="1" ref="engineManager"/>
+        <constructor-arg index="2" ref="subscriptionService"/>
+        <constructor-arg index="3" ref="lookupService"/>
+        <constructor-arg index="4" ref="portfolioService"/>
+        <constructor-arg index="5" ref="orderService"/>
+        <constructor-arg index="6" ref="positionService"/>
+        <constructor-arg index="7" ref="combinationService"/>
+        <constructor-arg index="8" ref="propertyService"/>
+        <constructor-arg index="9" ref="marketDataService"/>
+        <constructor-arg index="10" ref="configParams"/>
     </bean>
 
     <bean id="subscriptionService" class="ch.algotrader.service.SubscriptionServiceImpl" >

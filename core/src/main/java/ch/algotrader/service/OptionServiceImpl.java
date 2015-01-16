@@ -65,7 +65,7 @@ import ch.algotrader.entity.trade.Order;
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.enumeration.Side;
-import ch.algotrader.esper.EngineLocator;
+import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.callback.TickCallback;
 import ch.algotrader.option.OptionSymbol;
 import ch.algotrader.option.OptionUtil;
@@ -120,6 +120,8 @@ public class OptionServiceImpl implements OptionService {
 
     private final StrategyDao strategyDao;
 
+    private final Engine serverEngine;
+
     public OptionServiceImpl(
             final CommonConfig commonConfig,
             final CoreConfig coreConfig,
@@ -134,7 +136,8 @@ public class OptionServiceImpl implements OptionService {
             final PositionDao positionDao,
             final SubscriptionDao subscriptionDao,
             final FutureFamilyDao futureFamilyDao,
-            final StrategyDao strategyDao) {
+            final StrategyDao strategyDao,
+            final Engine serverEngine) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(coreConfig, "CoreConfig is null");
@@ -150,6 +153,7 @@ public class OptionServiceImpl implements OptionService {
         Validate.notNull(subscriptionDao, "SubscriptionDao is null");
         Validate.notNull(futureFamilyDao, "FutureFamilyDao is null");
         Validate.notNull(strategyDao, "StrategyDao is null");
+        Validate.notNull(serverEngine, "Engine is null");
 
         this.commonConfig = commonConfig;
         this.coreConfig = coreConfig;
@@ -165,7 +169,7 @@ public class OptionServiceImpl implements OptionService {
         this.subscriptionDao = subscriptionDao;
         this.futureFamilyDao = futureFamilyDao;
         this.strategyDao = strategyDao;
-
+        this.serverEngine = serverEngine;
     }
 
     /**
@@ -196,7 +200,7 @@ public class OptionServiceImpl implements OptionService {
         final Future future = this.futureService.getFutureByMinExpiration(futureFamily.getId(), targetDate);
         final double deltaAdjustedMarketValuePerContract = deltaAdjustedMarketValue / futureFamily.getContractSize();
 
-        EngineLocator.instance().getServerEngine().addFirstTickCallback(Collections.singleton((Security) future), new TickCallback() {
+        this.serverEngine.addFirstTickCallback(Collections.singleton((Security) future), new TickCallback() {
             @Override
             public void onFirstTick(String strategyName, List<Tick> ticks) throws Exception {
 

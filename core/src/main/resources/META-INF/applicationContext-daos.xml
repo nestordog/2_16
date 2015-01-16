@@ -49,9 +49,10 @@
         <constructor-arg index="0" ref="sessionFactory"/>
     </bean>
     
-     <bean id="tickDao" class="ch.algotrader.entity.marketData.TickDaoImpl">
+    <bean id="tickDao" class="ch.algotrader.entity.marketData.TickDaoImpl">
         <constructor-arg index="0" ref="sessionFactory"/>
         <constructor-arg index="1" ref="subscriptionDao"/>
+        <constructor-arg index="2" ref="serverEngine"/>
     </bean>
     
     <bean id="propertyDao" class="ch.algotrader.entity.property.PropertyDaoImpl">
@@ -206,6 +207,7 @@
     
     <bean id="orderDao" class="ch.algotrader.entity.trade.OrderDaoImpl">
         <constructor-arg index="0" ref="sessionFactory"/>
+        <constructor-arg index="1" ref="serverEngine"/>
     </bean>
     
     <bean id="orderPropertyDao" class="ch.algotrader.entity.trade.OrderPropertyDaoImpl">
@@ -214,6 +216,7 @@
     
     <bean id="orderStatusDao" class="ch.algotrader.entity.trade.OrderStatusDaoImpl">
         <constructor-arg index="0" ref="sessionFactory"/>
+        <constructor-arg index="1" ref="serverEngine"/>
     </bean>
     
     <bean id="simpleOrderDao" class="ch.algotrader.entity.trade.SimpleOrderDaoImpl">

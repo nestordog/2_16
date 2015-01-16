@@ -48,7 +48,7 @@ import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.strategy.StrategyDao;
 import ch.algotrader.enumeration.FeedType;
-import ch.algotrader.esper.EngineLocator;
+import ch.algotrader.esper.EngineManager;
 import ch.algotrader.util.HibernateUtil;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.io.CsvTickWriter;
@@ -82,13 +82,16 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationCont
 
     private final SubscriptionDao subscriptionDao;
 
+    private final EngineManager engineManager;
+
     public MarketDataServiceImpl(final CommonConfig commonConfig,
             final CoreConfig coreConfig,
             final SessionFactory sessionFactory,
             final TickDao tickDao,
             final SecurityDao securityDao,
             final StrategyDao strategyDao,
-            final SubscriptionDao subscriptionDao) {
+            final SubscriptionDao subscriptionDao,
+            final EngineManager engineManager) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(coreConfig, "CoreConfig is null");
@@ -97,6 +100,7 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationCont
         Validate.notNull(securityDao, "SecurityDao is null");
         Validate.notNull(strategyDao, "StrategyDao is null");
         Validate.notNull(subscriptionDao, "SubscriptionDao is null");
+        Validate.notNull(engineManager, "EngineManager is null");
 
         this.commonConfig = commonConfig;
         this.coreConfig = coreConfig;
@@ -105,7 +109,7 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationCont
         this.securityDao = securityDao;
         this.strategyDao = strategyDao;
         this.subscriptionDao = subscriptionDao;
-
+        this.engineManager = engineManager;
     }
 
     /**
@@ -287,7 +291,7 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationCont
         Collection<Tick> ticks = this.tickDao.findCurrentTicksByStrategy(strategyName);
 
         for (Tick tick : ticks) {
-            EngineLocator.instance().sendEvent(strategyName, tick);
+            this.engineManager.sendEvent(strategyName, tick);
         }
 
     }

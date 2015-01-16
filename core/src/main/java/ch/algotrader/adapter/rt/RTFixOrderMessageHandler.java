@@ -18,6 +18,8 @@
 package ch.algotrader.adapter.rt;
 
 import ch.algotrader.adapter.fix.fix44.GenericFix44OrderMessageHandler;
+import ch.algotrader.esper.Engine;
+import ch.algotrader.service.LookupService;
 
 /**
  * RealTick specific Fix44MessageHandler.
@@ -27,5 +29,9 @@ import ch.algotrader.adapter.fix.fix44.GenericFix44OrderMessageHandler;
  * @version $Revision$ $Date$
  */
 public class RTFixOrderMessageHandler extends GenericFix44OrderMessageHandler {
+
+    public RTFixOrderMessageHandler(final LookupService lookupService, final Engine serverEngine) {
+        super(lookupService, serverEngine);
+    }
 
 }

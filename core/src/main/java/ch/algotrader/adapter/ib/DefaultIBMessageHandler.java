@@ -38,22 +38,22 @@ import org.w3c.dom.Node;
 import org.w3c.dom.traversal.NodeIterator;
 import org.xml.sax.InputSource;
 
+import com.ib.client.Contract;
+import com.ib.client.ContractDetails;
+import com.ib.client.EWrapperMsgGenerator;
+import com.ib.client.Execution;
+
 import ch.algotrader.entity.marketData.Bar;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
-import ch.algotrader.esper.EngineLocator;
+import ch.algotrader.esper.Engine;
 import ch.algotrader.service.HistoricalDataServiceException;
 import ch.algotrader.service.LookupService;
 import ch.algotrader.service.ib.IBNativeMarketDataService;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.RoundUtil;
-
-import com.ib.client.Contract;
-import com.ib.client.ContractDetails;
-import com.ib.client.EWrapperMsgGenerator;
-import com.ib.client.Execution;
 
 /**
  * Esper specific MessageHandler.
@@ -83,6 +83,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
     private BlockingQueue<Profile> profilesQueue;
 
     private BlockingQueue<ContractDetails> contractDetailsQueue;
+    private Engine serverEngine;
 
     public void setClientId(int clientId) {
         this.clientId = clientId;
@@ -124,6 +125,10 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
         this.contractDetailsQueue = contractDetailsQueue;
     }
 
+    public void setServerEngine(Engine serverEngine) {
+        this.serverEngine = serverEngine;
+    }
+
     @Override
     public void execDetails(final int reqId, final Contract contract, final Execution execution) {
 
@@ -162,7 +167,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
 
         logger.debug(EWrapperMsgGenerator.execDetails(reqId, contract, execution));
 
-        EngineLocator.instance().getServerEngine().sendEvent(fill);
+        this.serverEngine.sendEvent(fill);
     }
 
     @Override
@@ -185,7 +190,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
 
             logger.debug(EWrapperMsgGenerator.orderStatus(orderId, statusString, filled, remaining, avgFillPrice, permId, parentId, lastFillPrice, clientId, whyHeld));
 
-            EngineLocator.instance().getServerEngine().sendEvent(orderStatus);
+            this.serverEngine.sendEvent(orderStatus);
         }
     }
 
@@ -197,7 +202,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
         }
 
         TickPrice o = new TickPrice(Integer.toString(tickerId), field, price, canAutoExecute);
-        EngineLocator.instance().getServerEngine().sendEvent(o);
+        this.serverEngine.sendEvent(o);
     }
 
     @Override
@@ -208,7 +213,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
         }
 
         TickSize o = new TickSize(Integer.toString(tickerId), field, size);
-        EngineLocator.instance().getServerEngine().sendEvent(o);
+        this.serverEngine.sendEvent(o);
     }
 
     @Override
@@ -219,7 +224,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
         }
 
         TickString o = new TickString(Integer.toString(tickerId), tickType, value);
-        EngineLocator.instance().getServerEngine().sendEvent(o);
+        this.serverEngine.sendEvent(o);
     }
 
     @Override
@@ -557,7 +562,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
             // assemble the IBOrderStatus
             IBOrderStatus orderStatus = new IBOrderStatus(Status.REJECTED, 0, order.getQuantity(), null, order, reason);
 
-            EngineLocator.instance().getServerEngine().sendEvent(orderStatus);
+            this.serverEngine.sendEvent(orderStatus);
         }
     }
 }

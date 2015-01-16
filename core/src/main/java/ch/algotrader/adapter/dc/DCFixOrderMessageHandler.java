@@ -27,6 +27,8 @@ import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
+import ch.algotrader.esper.Engine;
+import ch.algotrader.service.LookupService;
 import ch.algotrader.util.RoundUtil;
 import quickfix.FieldNotFound;
 import quickfix.field.AvgPx;
@@ -44,6 +46,10 @@ import quickfix.fix44.ExecutionReport;
  * @version $Revision$ $Date$
  */
 public class DCFixOrderMessageHandler extends AbstractFix44OrderMessageHandler {
+
+    public DCFixOrderMessageHandler(final LookupService lookupService, final Engine serverEngine) {
+        super(lookupService, serverEngine);
+    }
 
     @Override
     protected boolean discardReport(final ExecutionReport executionReport) throws FieldNotFound {

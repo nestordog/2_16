@@ -26,6 +26,8 @@ import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
+import ch.algotrader.esper.Engine;
+import ch.algotrader.service.LookupService;
 import ch.algotrader.util.RoundUtil;
 import quickfix.FieldNotFound;
 import quickfix.field.AvgPx;
@@ -47,6 +49,10 @@ import quickfix.fix44.ExecutionReport;
 public class LMAXFixOrderMessageHandler extends AbstractFix44OrderMessageHandler {
 
     private static final double MULTPLIER = 10000.0;
+
+    public LMAXFixOrderMessageHandler(final LookupService lookupService, final Engine serverEngine) {
+        super(lookupService, serverEngine);
+    }
 
     @Override
     protected boolean discardReport(final ExecutionReport executionReport) throws FieldNotFound {

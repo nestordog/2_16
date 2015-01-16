@@ -46,7 +46,8 @@ import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.AbstractEngine;
-import ch.algotrader.esper.EngineLocator;
+import ch.algotrader.esper.Engine;
+import ch.algotrader.esper.EngineManager;
 import ch.algotrader.service.LookupService;
 import quickfix.DefaultSessionFactory;
 import quickfix.LogFactory;
@@ -73,6 +74,7 @@ import quickfix.fix44.OrderCancelRequest;
 public class FXCMFixOrderMessageHandlerTest {
 
     private LinkedBlockingQueue<Object> eventQueue;
+    private EngineManager engineManager;
     private LookupService lookupService;
     private String account;
     private FXCMFixOrderMessageHandler messageHandler;
@@ -85,7 +87,7 @@ public class FXCMFixOrderMessageHandlerTest {
         final LinkedBlockingQueue<Object> queue = new LinkedBlockingQueue<Object>();
         this.eventQueue = queue;
 
-        EngineLocator.instance().setEngine(StrategyImpl.SERVER, new AbstractEngine(StrategyImpl.SERVER) {
+        Engine engine = new AbstractEngine(StrategyImpl.SERVER) {
 
             @Override
             public void sendEvent(Object obj) {
@@ -100,8 +102,9 @@ public class FXCMFixOrderMessageHandlerTest {
             public List executeQuery(String query) {
                 return null;
             }
-        });
+        };
 
+        this.engineManager = Mockito.mock(EngineManager.class);
 
         SessionSettings settings = FixConfigUtils.loadSettings();
         SessionID sessionId = FixConfigUtils.getSessionID(settings, "FXCM");
@@ -110,11 +113,11 @@ public class FXCMFixOrderMessageHandlerTest {
         DefaultLogonMessageHandler logonHandler = new DefaultLogonMessageHandler(settings);
 
         this.lookupService = Mockito.mock(LookupService.class);
-        FXCMFixOrderMessageHandler messageHandlerImpl = new FXCMFixOrderMessageHandler();
-        messageHandlerImpl.setLookupService(this.lookupService);
+        FXCMFixOrderMessageHandler messageHandlerImpl = new FXCMFixOrderMessageHandler(this.lookupService, engine);
         this.messageHandler = Mockito.spy(messageHandlerImpl);
 
-        DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, this.messageHandler, logonHandler, new DefaultFixSessionLifecycle("FXCM"));
+        DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, this.messageHandler, logonHandler,
+                new DefaultFixSessionLifecycle("FXCM", this.engineManager));
 
         LogFactory logFactory = new ScreenLogFactory(true, true, true);
 

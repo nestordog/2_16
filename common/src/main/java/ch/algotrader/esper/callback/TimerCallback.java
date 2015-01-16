@@ -21,7 +21,7 @@ import java.util.Date;
 
 import org.apache.log4j.Logger;
 
-import ch.algotrader.esper.EngineLocator;
+import ch.algotrader.ServiceLocator;
 import ch.algotrader.util.MyLogger;
 
 /**
@@ -41,7 +41,7 @@ public abstract class TimerCallback {
     public void update(String strategyName, Date dateTime, String alias) throws Exception {
 
         // undeploy the statement
-        EngineLocator.instance().getEngine(strategyName).undeployStatement(alias);
+        ServiceLocator.instance().getEngineManager().getEngine(strategyName).undeployStatement(alias);
 
         logger.debug(alias + " start");
 

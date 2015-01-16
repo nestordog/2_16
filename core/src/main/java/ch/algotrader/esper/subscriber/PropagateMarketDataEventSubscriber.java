@@ -19,13 +19,13 @@ package ch.algotrader.esper.subscriber;
 
 import org.apache.log4j.Logger;
 
+import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.marketData.MarketDataEvent;
-import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.metric.MetricsUtil;
 
 /**
- * Esper event subscriber for {@link EngineLocator#sendMarketDataEvent(ch.algotrader.entity.marketData.MarketDataEvent)}.
+ * Esper event subscriber for {@link ch.algotrader.esper.EngineManagerImpl#sendMarketDataEvent(ch.algotrader.entity.marketData.MarketDataEvent)}.
  */
 public class PropagateMarketDataEventSubscriber {
 
@@ -40,7 +40,7 @@ public class PropagateMarketDataEventSubscriber {
 
         long startTime = System.nanoTime();
 
-        EngineLocator.instance().sendMarketDataEvent(marketDataEvent);
+        ServiceLocator.instance().getEngineManager().sendMarketDataEvent(marketDataEvent);
 
         MetricsUtil.accountEnd("PropagateMarketDataEventSubscriber.update", startTime);
     }

@@ -32,7 +32,8 @@ import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.enumeration.TransactionType;
-import ch.algotrader.esper.EngineLocator;
+import ch.algotrader.esper.Engine;
+import ch.algotrader.esper.EngineManager;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.metric.MetricsUtil;
 
@@ -56,13 +57,19 @@ public class ServerManagementServiceImpl implements ServerManagementService {
 
     private final OrderService orderService;
 
+    private final EngineManager engineManager;
+
+    private final Engine serverEngine;
+
     public ServerManagementServiceImpl(
             final PositionService positionService,
             final ForexService forexService,
             final CombinationService combinationService,
             final TransactionService transactionService,
             final OptionService optionService,
-            final OrderService orderService) {
+            final OrderService orderService,
+            final EngineManager engineManager,
+            final Engine serverEngine) {
 
         Validate.notNull(positionService, "PositionService is null");
         Validate.notNull(forexService, "ForexService is null");
@@ -70,6 +77,8 @@ public class ServerManagementServiceImpl implements ServerManagementService {
         Validate.notNull(transactionService, "TransactionService is null");
         Validate.notNull(optionService, "OptionService is null");
         Validate.notNull(orderService, "OrderService is null");
+        Validate.notNull(engineManager, "EngineManager is null");
+        Validate.notNull(serverEngine, "Engine is null");
 
         this.positionService = positionService;
         this.forexService = forexService;
@@ -77,6 +86,8 @@ public class ServerManagementServiceImpl implements ServerManagementService {
         this.transactionService = transactionService;
         this.optionService = optionService;
         this.orderService = orderService;
+        this.engineManager = engineManager;
+        this.serverEngine = serverEngine;
     }
 
     /**
@@ -233,8 +244,7 @@ public class ServerManagementServiceImpl implements ServerManagementService {
         OrderStatus orderStatus = OrderStatus.Factory.newInstance();
         orderStatus.setStatus(Status.CANCELED);
 
-        EngineLocator.instance().getServerEngine().sendEvent(orderStatus);
-
+        this.serverEngine.sendEvent(orderStatus);
     }
 
     /**
@@ -244,7 +254,7 @@ public class ServerManagementServiceImpl implements ServerManagementService {
     public void logMetrics() {
 
         MetricsUtil.logMetrics();
-        EngineLocator.instance().logStatementMetrics();
+        this.engineManager.logStatementMetrics();
 
     }
 
@@ -255,7 +265,7 @@ public class ServerManagementServiceImpl implements ServerManagementService {
     public void resetMetrics() {
 
         MetricsUtil.resetMetrics();
-        EngineLocator.instance().resetStatementMetrics();
+        this.engineManager.resetStatementMetrics();
 
     }
 

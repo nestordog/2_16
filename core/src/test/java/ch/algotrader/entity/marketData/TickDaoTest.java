@@ -49,6 +49,7 @@ import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.enumeration.OptionType;
+import ch.algotrader.esper.NoopEngine;
 import ch.algotrader.hibernate.InMemoryDBTest;
 
 /**
@@ -87,7 +88,7 @@ public class TickDaoTest extends InMemoryDBTest {
 
         SubscriptionDao subscriptionDao = new SubscriptionDaoImpl(this.sessionFactory);
 
-        this.dao = new TickDaoImpl(this.sessionFactory, subscriptionDao);
+        this.dao = new TickDaoImpl(this.sessionFactory, subscriptionDao, NoopEngine.SERVER);
 
         this.family1 = new SecurityFamilyImpl();
         this.family1.setName("Forex1");

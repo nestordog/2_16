@@ -17,25 +17,22 @@
  ***********************************************************************************/
 package ch.algotrader.esper;
 
-import java.io.IOException;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
 
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Predicate;
+import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessagePostProcessor;
 
-import ch.algotrader.ServiceLocator;
 import ch.algotrader.config.CommonConfig;
-import ch.algotrader.config.ConfigLocator;
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.entity.strategy.StrategyImpl;
@@ -44,99 +41,91 @@ import ch.algotrader.vo.GenericEventVO;
 import ch.algotrader.vo.StatementMetricVO;
 
 /**
- * Singleton class to locate {@link Engine Engines}.
- *
- * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
- */
-public class EngineLocator {
+* {@link ch.algotrader.esper.EngineManager} implementation.
+*
+* @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
+*
+* @version $Revision$ $Date$
+*/
+public class EngineManagerImpl implements EngineManager {
 
-    private static final Logger logger = MyLogger.getLogger(EngineLocator.class.getName());
-    private static final EngineLocator instance = new EngineLocator();
-    private static final CommonConfig CONFIG = ConfigLocator.instance().getCommonConfig();
+    private static final Logger LOGGER = MyLogger.getLogger(EngineManagerImpl.class);
 
-    private Map<String, Engine> engines = new HashMap<String, Engine>();
+    private static final String SERVER_ENGINE = "SERVER";
 
-    private Map<String, JmsTemplate> templates = new HashMap<String, JmsTemplate>();
+    private final CommonConfig commonConfig;
+    private final Map<String, Engine> engineMap;
+    private final Map<String, JmsTemplate> templateMap;
 
-    public static final EngineLocator instance() {
-
-        return instance;
+    public EngineManagerImpl(final CommonConfig commonConfig, final Map<String, Engine> engineMap, final Map<String, JmsTemplate> templateMap) {
+        this.commonConfig = commonConfig;
+        this.engineMap = new ConcurrentHashMap<>(engineMap);
+        this.templateMap = new ConcurrentHashMap<>(templateMap);
     }
 
-    public Engine initEngine(String engineName) {
+    @Override
+    public boolean hasEngine(final String engineName) {
 
-        ServiceLocator serviceLocator = ServiceLocator.instance();
-        ConfigLocator configLocator = ConfigLocator.instance();
+        Validate.notEmpty(engineName, "Engine name is empty");
+        return this.engineMap.containsKey(engineName);
+    }
 
-        EngineFactory engineFactory = new EngineFactory(serviceLocator.getLookupService(), new SpringDependencyLookup(serviceLocator.getContext()));
+    @Override
+    public Engine getEngine(final String engineName) {
 
-        try {
-            Engine engine = engineFactory.createEngine(engineName, configLocator.getConfigParams(), configLocator.getCommonConfig());
-            this.engines.put(engineName, engine);
-            return engine;
-        } catch (IOException ex) {
-            throw new InternalEngineException(ex.getMessage(), ex);
+        Validate.notEmpty(engineName, "Engine name is empty");
+        Engine engine = this.engineMap.get(engineName);
+        if (engine == null) {
+            throw new IllegalStateException("Unknown engine: " + engineName);
         }
+        return engine;
     }
 
-    public Engine initServerEngine() {
-
-        return initEngine(StrategyImpl.SERVER);
-    }
-
-    public Collection<Engine> getEngines() {
-
-        return this.engines.values();
-    }
-
-    public Set<String> getEngineNames() {
-
-        return this.engines.keySet();
-    }
-
-    public Engine getEngine(String engineName) {
-
-        return this.engines.get(engineName);
-    }
-
-    public Engine getServerEngine() {
-
-        return getEngine(StrategyImpl.SERVER);
-    }
-
-    public boolean hasEngine(String engineName) {
-
-        return this.engines.containsKey(engineName);
-    }
-
+    @Override
     public boolean hasServerEngine() {
 
-        return hasEngine(StrategyImpl.SERVER);
+        return hasEngine(SERVER_ENGINE);
     }
 
-    public void destroyEngine(String engineName) {
+    @Override
+    public Engine getServerEngine() {
 
-        if (this.engines.containsKey(engineName)) {
-            this.engines.remove(engineName).destroy();
+        return getEngine(SERVER_ENGINE);
+    }
+
+    private JmsTemplate getTemplate(final String templateName) {
+
+        Validate.notEmpty(templateName, "JMS template name is empty");
+        JmsTemplate jmsTemplate = this.templateMap.get(templateName);
+        if (jmsTemplate == null) {
+            throw new IllegalStateException("JMS template: " + templateName);
+        }
+        return jmsTemplate;
+    }
+
+    @Override
+    public void destroyEngine(final String engineName) {
+
+        Engine engine = this.engineMap.get(engineName);
+        if (engine != null) {
+            engine.destroy();
         }
     }
 
-    public void setEngine(String engineName, Engine engine) {
+    public void setEngine(final String engineName, final Engine engine) {
 
-        this.engines.put(engineName, engine);
+        this.engineMap.put(engineName, engine);
     }
 
-    /**
-     * Sends an Event to the corresponding Esper Engine.
-     * Use this method for situations where the corresponding Engine might be running localy ore remote,
-     * otherwise use {@link Engine#sendEvent}.
-     *
-     */
-    public void sendEvent(String engineName, Object obj) {
+    @Override
+    public Collection<Engine> getEngines() {
+        return this.engineMap.values();
+    }
 
-        if (CONFIG.isSimulation() || CONFIG.isEmbedded()) {
+    @Override
+    public void sendEvent(final String engineName, final Object obj) {
+
+        if (this.commonConfig.isSimulation() || this.commonConfig.isEmbedded()) {
 
             if (hasEngine(engineName)) {
                 getEngine(engineName).sendEvent(obj);
@@ -145,7 +134,7 @@ public class EngineLocator {
         } else {
 
             // check if it is the localStrategy
-            if (CONFIG.getStartedStrategyName().equals(engineName)) {
+            if (this.commonConfig.getStartedStrategyName().equals(engineName)) {
 
                 getEngine(engineName).sendEvent(obj);
 
@@ -157,13 +146,10 @@ public class EngineLocator {
         }
     }
 
-    /**
-     * Sends a MarketDataEvent into the corresponding Esper Engine.
-     * In Live-Trading the {@code marketDataTemplate} will be used.
-     */
+    @Override
     public void sendMarketDataEvent(final MarketDataEvent marketDataEvent) {
 
-        if (CONFIG.isSimulation() || CONFIG.isEmbedded()) {
+        if (this.commonConfig.isSimulation() || this.commonConfig.isEmbedded()) {
             for (Subscription subscription : marketDataEvent.getSecurity().getSubscriptions()) {
                 if (!subscription.getStrategyInitialized().getName().equals(StrategyImpl.SERVER)) {
                     String strategyName = subscription.getStrategy().getName();
@@ -189,14 +175,12 @@ public class EngineLocator {
         }
     }
 
-    /**
-     * Sends a MarketDataEvent into the corresponding Esper Engine.
-     * In Live-Trading the {@code genericTemplate} will be used.
-     */
+    @Override
     public void sendGenericEvent(final GenericEventVO event) {
 
-        if (CONFIG.isSimulation() || CONFIG.isEmbedded()) {
-            for (Engine engine : this.engines.values()) {
+        if (this.commonConfig.isSimulation() || this.commonConfig.isEmbedded()) {
+            for (Map.Entry<String, Engine> entry: this.engineMap.entrySet()) {
+                Engine engine = entry.getValue();
                 String engineName = engine.getName();
                 if (engineName.equals(event.getStrategyName())) {
                     engine.sendEvent(event);
@@ -219,23 +203,21 @@ public class EngineLocator {
         }
     }
 
-    /**
-     * Sends an event to all local Esper Engines
-     */
+    @Override
     public void sendEventToAllEngines(Object obj) {
 
-        for (Engine engine : this.engines.values()) {
+        for (Map.Entry<String, Engine> entry: this.engineMap.entrySet()) {
+            Engine engine = entry.getValue();
             engine.sendEvent(obj);
         }
     }
 
-    /**
-     * Prints all statement metrics.
-     */
+    @Override
     @SuppressWarnings("unchecked")
     public void logStatementMetrics() {
 
-        for (Engine engine : this.engines.values()) {
+        for (Map.Entry<String, Engine> entry: this.engineMap.entrySet()) {
+            Engine engine = entry.getValue();
 
             if (engine.isDeployed("METRICS")) {
 
@@ -275,31 +257,19 @@ public class EngineLocator {
                 }
 
                 for (StatementMetricVO metric : metrics) {
-                    logger.info(metric.getEngineURI() + "." + metric.getStatementName() + ": " + metric.getWallTime() + " millis " + metric.getNumInput() + " events");
+                    LOGGER.info(metric.getEngineURI() + "." + metric.getStatementName() + ": " + metric.getWallTime() + " millis " + metric.getNumInput() + " events");
                 }
             }
         }
     }
 
-    /**
-     * Resets all statement metrics.
-     */
+    @Override
     public void resetStatementMetrics() {
 
-        for (Engine engine : this.engines.values()) {
+        for (Map.Entry<String, Engine> entry: this.engineMap.entrySet()) {
+            Engine engine = entry.getValue();
             engine.restartStatement("METRICS");
         }
     }
 
-    /**
-     * manual lookup of templates since they are only available if applicationContext-jms.xml is active
-     */
-    private JmsTemplate getTemplate(String name) {
-
-        if (!this.templates.containsKey(name)) {
-            this.templates.put(name, ServiceLocator.instance().getService(name, JmsTemplate.class));
-        }
-
-        return this.templates.get(name);
-    }
 }

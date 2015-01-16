@@ -31,7 +31,7 @@ import ch.algotrader.enumeration.Direction;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
-import ch.algotrader.esper.EngineLocator;
+import ch.algotrader.esper.Engine;
 import ch.algotrader.service.ExternalOrderServiceImpl;
 import ch.algotrader.service.OrderService;
 import ch.algotrader.service.TransactionService;
@@ -44,16 +44,20 @@ import ch.algotrader.util.DateUtil;
  */
 public class SimulationOrderServiceImpl extends ExternalOrderServiceImpl implements SimulationOrderService {
 
+    private final Engine serverEngine;
     private final TransactionService transactionService;
-
     private final OrderService orderService;
 
-    public SimulationOrderServiceImpl(final TransactionService transactionService,
+    public SimulationOrderServiceImpl(
+            final Engine serverEngine,
+            final TransactionService transactionService,
             final OrderService orderService) {
 
+        Validate.notNull(serverEngine, "Engine is null");
         Validate.notNull(transactionService, "TransactionService is null");
         Validate.notNull(orderService, "OrderService is null");
 
+        this.serverEngine = serverEngine;
         this.transactionService = transactionService;
         this.orderService = orderService;
     }
@@ -89,7 +93,7 @@ public class SimulationOrderServiceImpl extends ExternalOrderServiceImpl impleme
         orderStatus.setOrder(order);
 
         // send the orderStatus to the AlgoTrader Server
-        EngineLocator.instance().getServerEngine().sendEvent(orderStatus);
+        this.serverEngine.sendEvent(orderStatus);
 
         // propagate the OrderStatus to the strategy
         this.orderService.propagateOrderStatus(orderStatus);

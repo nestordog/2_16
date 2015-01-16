@@ -23,6 +23,9 @@ import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
 
+import com.ib.client.Contract;
+import com.ib.client.TagValue;
+
 import ch.algotrader.adapter.ib.IBIdGenerator;
 import ch.algotrader.adapter.ib.IBSession;
 import ch.algotrader.adapter.ib.IBUtil;
@@ -33,13 +36,10 @@ import ch.algotrader.entity.marketData.TickDao;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.enumeration.FeedType;
-import ch.algotrader.esper.EngineLocator;
+import ch.algotrader.esper.Engine;
 import ch.algotrader.service.ExternalMarketDataServiceImpl;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.vo.SubscribeTickVO;
-
-import com.ib.client.Contract;
-import com.ib.client.TagValue;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -51,12 +51,10 @@ public class IBNativeMarketDataServiceImpl extends ExternalMarketDataServiceImpl
     private static Logger logger = MyLogger.getLogger(IBNativeMarketDataServiceImpl.class.getName());
 
     private final IBSession iBSession;
-
     private final IBIdGenerator iBIdGenerator;
-
     private final IBConfig iBConfig;
-
     private final TickDao tickDao;
+    private final Engine serverEngine;
 
     public IBNativeMarketDataServiceImpl(
             final CommonConfig commonConfig,
@@ -64,7 +62,8 @@ public class IBNativeMarketDataServiceImpl extends ExternalMarketDataServiceImpl
             final IBIdGenerator iBIdGenerator,
             final IBConfig iBConfig,
             final TickDao tickDao,
-            final SecurityDao securityDao) {
+            final SecurityDao securityDao,
+            final Engine serverEngine) {
 
         super(commonConfig, securityDao);
 
@@ -72,10 +71,12 @@ public class IBNativeMarketDataServiceImpl extends ExternalMarketDataServiceImpl
         Validate.notNull(iBIdGenerator, "IBIdGenerator is null");
         Validate.notNull(iBConfig, "IBConfig is null");
         Validate.notNull(tickDao, "TickDao is null");
+        Validate.notNull(serverEngine, "Engine is null");
 
         this.iBSession = iBSession;
         this.iBIdGenerator = iBIdGenerator;
         this.iBConfig = iBConfig;
+        this.serverEngine = serverEngine;
         this.tickDao = tickDao;
     }
 
@@ -107,7 +108,7 @@ public class IBNativeMarketDataServiceImpl extends ExternalMarketDataServiceImpl
         subscribeTickEvent.setTick(tick);
         subscribeTickEvent.setTickerId(Integer.toString(tickerId));
 
-        EngineLocator.instance().getServerEngine().sendEvent(subscribeTickEvent);
+        this.serverEngine.sendEvent(subscribeTickEvent);
 
         // requestMarketData from IB
         Contract contract = IBUtil.getContract(security);
@@ -135,7 +136,7 @@ public class IBNativeMarketDataServiceImpl extends ExternalMarketDataServiceImpl
 
         this.iBSession.cancelMktData(Integer.parseInt(tickerId));
 
-        EngineLocator.instance().getServerEngine().executeQuery("delete from TickWindow where security.id = " + security.getId());
+        this.serverEngine.executeQuery("delete from TickWindow where security.id = " + security.getId());
 
         logger.debug("cancelled market data for : " + security);
 

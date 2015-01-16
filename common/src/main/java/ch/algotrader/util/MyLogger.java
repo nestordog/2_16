@@ -21,10 +21,10 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.Priority;
 import org.apache.log4j.spi.LoggingEvent;
 
+import ch.algotrader.ServiceLocator;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.ConfigLocator;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.esper.EngineLocator;
 
 /**
  * Custom Log4J Logger that replaces the System Time with the current Esper Time.
@@ -65,7 +65,7 @@ public class MyLogger extends Logger {
 
             // find the Engine with the earliest time
             long latestTime = Long.MAX_VALUE;
-            for (Engine engine : EngineLocator.instance().getEngines()) {
+            for (Engine engine : ServiceLocator.instance().getEngineManager().getEngines()) {
 
                 if (!engine.isDestroyed()) {
                     long engineTime = engine.getCurrentTimeInMillis();

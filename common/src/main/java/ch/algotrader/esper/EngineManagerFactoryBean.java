@@ -17,38 +17,32 @@
  ***********************************************************************************/
 package ch.algotrader.esper;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.jms.core.JmsTemplate;
 
 import ch.algotrader.config.CommonConfig;
-import ch.algotrader.config.ConfigParams;
 
 /**
- * Factory bean for {@link ch.algotrader.esper.Engine}s;
+ * Factory bean for {@link ch.algotrader.esper.EngineManagerFactoryBean}.
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  *
  * @version $Revision$ $Date$
  */
+public class EngineManagerFactoryBean implements FactoryBean<EngineManager>, ApplicationContextAware {
 
-public class EngineFactoryBean implements FactoryBean<Engine>, ApplicationContextAware {
-
-    private final String name;
-    private final String[] initModules;
-    private final String[] runModules;
     private final CommonConfig commonConfig;
-    private final ConfigParams configParams;
 
     private volatile ApplicationContext applicationContext;
 
-    public EngineFactoryBean(final String name, final String[] initModules, final String[] runModules, final CommonConfig commonConfig, final ConfigParams params) {
-        this.name = name;
-        this.initModules = initModules;
-        this.runModules = runModules;
+    public EngineManagerFactoryBean(final CommonConfig commonConfig) {
         this.commonConfig = commonConfig;
-        this.configParams = params;
     }
 
     @Override
@@ -57,14 +51,27 @@ public class EngineFactoryBean implements FactoryBean<Engine>, ApplicationContex
     }
 
     @Override
-    public Engine getObject() throws Exception {
-        EngineFactory factory = new EngineFactory(new SpringDependencyLookup(this.applicationContext));
-        return factory.createEngine(this.name, this.initModules, this.runModules, this.configParams, this.commonConfig);
+    public EngineManager getObject() throws Exception {
+
+        Map<String, Engine> engineBeanMap = this.applicationContext.getBeansOfType(Engine.class);
+        Map<String, Engine> engineMap = new HashMap<>(engineBeanMap.size());
+        for (Map.Entry<String, Engine> entry: engineBeanMap.entrySet()) {
+            Engine engine = entry.getValue();
+            engineMap.put(engine.getName(), engine);
+        }
+        Map<String, JmsTemplate> jmsTemplateBeanMap = this.applicationContext.getBeansOfType(JmsTemplate.class);
+        Map<String, JmsTemplate> jmsTemplateMap = new HashMap<>(jmsTemplateBeanMap.size());
+        for (Map.Entry<String, JmsTemplate> entry: jmsTemplateBeanMap.entrySet()) {
+            String name = entry.getKey();
+            JmsTemplate jmsTemplate = entry.getValue();
+            jmsTemplateMap.put(name, jmsTemplate);
+        }
+        return new EngineManagerImpl(this.commonConfig, engineMap, jmsTemplateMap);
     }
 
     @Override
     public Class<?> getObjectType() {
-        return Engine.class;
+        return EngineManager.class;
     }
 
     @Override
