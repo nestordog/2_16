@@ -27,6 +27,7 @@ import org.apache.commons.collections15.Transformer;
 import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
+import org.hibernate.SQLQuery;
 import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
 
@@ -52,10 +53,13 @@ public class OrderStatusDaoImpl extends AbstractDao<OrderStatus> implements Orde
         super(OrderStatusImpl.class, sessionFactory);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public List<OrderStatus> findPending() {
 
-        return find("OrderStatus.findPending", QueryType.BY_NAME);
+        SQLQuery query = (SQLQuery) prepareQuery(null, "OrderStatus.findPending", QueryType.BY_NAME);
+        query.addEntity(OrderStatusImpl.class);
+        return query.list();
     }
 
     @SuppressWarnings("unchecked")
