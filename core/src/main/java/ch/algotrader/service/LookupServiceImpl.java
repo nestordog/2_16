@@ -19,6 +19,7 @@ package ch.algotrader.service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -30,6 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.collections.map.MultiValueMap;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang.time.DateUtils;
 import org.hibernate.SessionFactory;
 
 import ch.algotrader.config.CommonConfig;
@@ -1581,7 +1583,7 @@ public class LookupServiceImpl implements LookupService {
         Validate.notNull(date, "Date is null");
         Validate.notNull(broker, "Broker is null");
 
-        return this.easyToBorrowDao.findByDateAndBroker(date, broker);
+        return this.easyToBorrowDao.findByDateAndBroker(DateUtils.truncate(date, Calendar.DATE), broker);
 
     }
 
