@@ -66,6 +66,7 @@ import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.esper.Engine;
+import ch.algotrader.esper.EngineManager;
 import ch.algotrader.esper.callback.TickCallback;
 import ch.algotrader.option.OptionSymbol;
 import ch.algotrader.option.OptionUtil;
@@ -120,6 +121,8 @@ public class OptionServiceImpl implements OptionService {
 
     private final StrategyDao strategyDao;
 
+    private final EngineManager engineManager;
+
     private final Engine serverEngine;
 
     public OptionServiceImpl(
@@ -137,6 +140,7 @@ public class OptionServiceImpl implements OptionService {
             final SubscriptionDao subscriptionDao,
             final FutureFamilyDao futureFamilyDao,
             final StrategyDao strategyDao,
+            final EngineManager engineManager,
             final Engine serverEngine) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
@@ -153,6 +157,7 @@ public class OptionServiceImpl implements OptionService {
         Validate.notNull(subscriptionDao, "SubscriptionDao is null");
         Validate.notNull(futureFamilyDao, "FutureFamilyDao is null");
         Validate.notNull(strategyDao, "StrategyDao is null");
+        Validate.notNull(engineManager, "EngineManager is null");
         Validate.notNull(serverEngine, "Engine is null");
 
         this.commonConfig = commonConfig;
@@ -169,6 +174,7 @@ public class OptionServiceImpl implements OptionService {
         this.subscriptionDao = subscriptionDao;
         this.futureFamilyDao = futureFamilyDao;
         this.strategyDao = strategyDao;
+        this.engineManager = engineManager;
         this.serverEngine = serverEngine;
     }
 
@@ -196,7 +202,7 @@ public class OptionServiceImpl implements OptionService {
 
         final FutureFamily futureFamily = this.futureFamilyDao.load(underlyingSubscription.getIntProperty("hedgingFamily"));
 
-        Date targetDate = DateUtils.addMilliseconds(DateUtil.getCurrentEPTime(), this.coreConfig.getDeltaHedgeMinTimeToExpiration());
+        Date targetDate = DateUtils.addMilliseconds(this.engineManager.getCurrentEPTime(), this.coreConfig.getDeltaHedgeMinTimeToExpiration());
         final Future future = this.futureService.getFutureByMinExpiration(futureFamily.getId(), targetDate);
         final double deltaAdjustedMarketValuePerContract = deltaAdjustedMarketValue / futureFamily.getContractSize();
 

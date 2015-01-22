@@ -18,6 +18,7 @@
 package ch.algotrader.esper;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -64,6 +65,12 @@ public class EngineManagerImpl implements EngineManager {
     }
 
     @Override
+    public Date getCurrentEPTime() {
+        Engine engine = getEngine(this.commonConfig.getStartedStrategyName());
+        return !engine.isInternalClock() ? engine.getCurrentTime() : new Date();
+    }
+
+    @Override
     public boolean hasEngine(final String engineName) {
 
         Validate.notEmpty(engineName, "Engine name is empty");
@@ -79,12 +86,6 @@ public class EngineManagerImpl implements EngineManager {
             throw new IllegalStateException("Unknown engine: " + engineName);
         }
         return engine;
-    }
-
-    @Override
-    public boolean hasServerEngine() {
-
-        return hasEngine(SERVER_ENGINE);
     }
 
     @Override

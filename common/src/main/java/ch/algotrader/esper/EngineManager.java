@@ -18,6 +18,7 @@
 package ch.algotrader.esper;
 
 import java.util.Collection;
+import java.util.Date;
 
 import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.vo.GenericEventVO;
@@ -35,13 +36,13 @@ public interface EngineManager {
 
     Engine getEngine(String engineName);
 
-    boolean hasServerEngine();
-
     Engine getServerEngine();
 
     void destroyEngine(String engineName);
 
     Collection<Engine> getEngines();
+
+    Date getCurrentEPTime();
 
     /**
      * Sends an Event to the corresponding Esper Engine.

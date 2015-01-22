@@ -22,6 +22,7 @@ import java.util.Date;
 import org.apache.commons.math.MathException;
 import org.apache.log4j.Logger;
 
+import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.option.OptionUtil;
@@ -80,14 +81,14 @@ public class OptionImpl extends Option {
     @Override
     public long getTimeToExpiration() {
 
-        return getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime();
+        return getExpiration().getTime() - ServiceLocator.instance().getEngineManager().getCurrentEPTime().getTime();
     }
 
     @Override
     public int getDuration() {
 
         OptionFamily family = (OptionFamily) this.getSecurityFamily();
-        Date nextExpDate = DateUtil.getExpirationDate(family.getExpirationType(), DateUtil.getCurrentEPTime());
+        Date nextExpDate = DateUtil.getExpirationDate(family.getExpirationType(), ServiceLocator.instance().getEngineManager().getCurrentEPTime());
         return 1 + (int) Math.round(((this.getExpiration().getTime() - nextExpDate.getTime()) / (double) family.getExpirationDistance().value()));
     }
 

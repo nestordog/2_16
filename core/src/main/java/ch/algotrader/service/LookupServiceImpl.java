@@ -90,8 +90,8 @@ import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.OrderServiceType;
+import ch.algotrader.esper.EngineManager;
 import ch.algotrader.hibernate.GenericDao;
-import ch.algotrader.util.DateUtil;
 import ch.algotrader.util.HibernateUtil;
 import ch.algotrader.util.collection.CollectionUtil;
 import ch.algotrader.util.spring.HibernateSession;
@@ -173,6 +173,8 @@ public class LookupServiceImpl implements LookupService {
 
     private final EasyToBorrowDao easyToBorrowDao;
 
+    private final EngineManager engineManager;
+
     public LookupServiceImpl(
             final CommonConfig commonConfig,
             final CoreConfig coreConfig,
@@ -202,7 +204,8 @@ public class LookupServiceImpl implements LookupService {
             final AccountDao accountDao,
             final StockDao stockDao,
             final IntrestRateDao intrestRateDao,
-            final EasyToBorrowDao easyToBorrowDao) {
+            final EasyToBorrowDao easyToBorrowDao,
+            final EngineManager engineManager) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(coreConfig, "CoreConfig is null");
@@ -233,6 +236,7 @@ public class LookupServiceImpl implements LookupService {
         Validate.notNull(stockDao, "StockDao is null");
         Validate.notNull(intrestRateDao, "IntrestRateDao is null");
         Validate.notNull(easyToBorrowDao, "EasyToBorrowDao is null");
+        Validate.notNull(engineManager, "EngineManager is null");
 
         this.commonConfig = commonConfig;
         this.coreConfig = coreConfig;
@@ -263,6 +267,7 @@ public class LookupServiceImpl implements LookupService {
         this.stockDao = stockDao;
         this.intrestRateDao = intrestRateDao;
         this.easyToBorrowDao = easyToBorrowDao;
+        this.engineManager = engineManager;
     }
 
     /**
@@ -1175,7 +1180,7 @@ public class LookupServiceImpl implements LookupService {
     @Override
     public Tick getLastTick(final int securityId) {
 
-        Tick tick = CollectionUtil.getSingleElementOrNull(this.tickDao.findTicksBySecurityAndMaxDate(1, securityId, DateUtil.getCurrentEPTime(), this.coreConfig.getIntervalDays()));
+        Tick tick = CollectionUtil.getSingleElementOrNull(this.tickDao.findTicksBySecurityAndMaxDate(1, securityId, this.engineManager.getCurrentEPTime(), this.coreConfig.getIntervalDays()));
 
         if (tick != null) {
             tick.getSecurity().initialize();

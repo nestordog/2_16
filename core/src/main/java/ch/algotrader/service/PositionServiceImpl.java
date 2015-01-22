@@ -58,7 +58,6 @@ import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.esper.callback.TradeCallback;
 import ch.algotrader.option.OptionUtil;
-import ch.algotrader.util.DateUtil;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.PositionUtil;
 import ch.algotrader.util.RoundUtil;
@@ -323,7 +322,7 @@ public class PositionServiceImpl implements PositionService {
 
         // debit transaction
         Transaction debitTransaction = Transaction.Factory.newInstance();
-        debitTransaction.setDateTime(DateUtil.getCurrentEPTime());
+        debitTransaction.setDateTime(this.engineManager.getCurrentEPTime());
         debitTransaction.setQuantity(-quantity);
         debitTransaction.setPrice(price);
         debitTransaction.setCurrency(family.getCurrency());
@@ -336,7 +335,7 @@ public class PositionServiceImpl implements PositionService {
 
         // credit transaction
         Transaction creditTransaction = Transaction.Factory.newInstance();
-        creditTransaction.setDateTime(DateUtil.getCurrentEPTime());
+        creditTransaction.setDateTime(this.engineManager.getCurrentEPTime());
         creditTransaction.setQuantity(quantity);
         creditTransaction.setPrice(price);
         creditTransaction.setCurrency(family.getCurrency());
@@ -389,7 +388,7 @@ public class PositionServiceImpl implements PositionService {
     @Transactional(propagation = Propagation.REQUIRED)
     public void expirePositions() {
 
-        Date date = DateUtil.getCurrentEPTime();
+        Date date = this.engineManager.getCurrentEPTime();
         Collection<Position> positions = this.positionDao.findExpirablePositions(date);
 
         for (Position position : positions) {
@@ -626,7 +625,7 @@ public class PositionServiceImpl implements PositionService {
         ExpirePositionVO expirePositionEvent = ExpirePositionVOProducer.INSTANCE.convert(position);
 
         Transaction transaction = Transaction.Factory.newInstance();
-        transaction.setDateTime(DateUtil.getCurrentEPTime());
+        transaction.setDateTime(this.engineManager.getCurrentEPTime());
         transaction.setType(TransactionType.EXPIRATION);
         transaction.setQuantity(-position.getQuantity());
         transaction.setSecurity(security);

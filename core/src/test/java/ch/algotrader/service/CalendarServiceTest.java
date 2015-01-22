@@ -19,6 +19,7 @@
 package ch.algotrader.service;
 
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
 
 import org.junit.Assert;
@@ -32,6 +33,7 @@ import ch.algotrader.entity.exchange.Exchange;
 import ch.algotrader.entity.exchange.ExchangeDao;
 import ch.algotrader.entity.exchange.Holiday;
 import ch.algotrader.entity.exchange.TradingHours;
+import ch.algotrader.esper.EngineManager;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -46,6 +48,7 @@ public class CalendarServiceTest {
     private static final SimpleDateFormat dayTimeLocalFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss zz", Locale.ENGLISH);
 
     @Mock private ExchangeDao exchangeDao;
+    @Mock private EngineManager engineManager;
 
     private CalendarServiceImpl impl;
 
@@ -54,7 +57,9 @@ public class CalendarServiceTest {
 
         MockitoAnnotations.initMocks(this);
 
-        this.impl = new CalendarServiceImpl(this.exchangeDao);
+        this.impl = new CalendarServiceImpl(this.exchangeDao, this.engineManager);
+
+        Mockito.when(this.engineManager.getCurrentEPTime()).thenReturn(new Date());
 
         Exchange regular = Exchange.Factory.newInstance("REGULAR", "REG", "US/Eastern");
         regular.addTradingHours(TradingHours.Factory.newInstance(hourFormat.parse("08:30:00"), hourFormat.parse("16:00:00"), false, true, true, true, true, true, false, regular));

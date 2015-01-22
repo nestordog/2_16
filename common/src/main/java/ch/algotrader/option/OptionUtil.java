@@ -25,11 +25,11 @@ import org.apache.commons.math.analysis.polynomials.PolynomialSplineFunction;
 import org.apache.commons.math.analysis.solvers.UnivariateRealSolver;
 import org.apache.commons.math.analysis.solvers.UnivariateRealSolverFactory;
 
+import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.security.Option;
 import ch.algotrader.entity.security.OptionFamily;
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.OptionType;
-import ch.algotrader.util.DateUtil;
 import ch.algotrader.vo.SABRSmileVO;
 import ch.algotrader.vo.SABRSurfaceVO;
 
@@ -52,7 +52,7 @@ public class OptionUtil {
 
         OptionFamily family = (OptionFamily) option.getSecurityFamily();
 
-        double years = (option.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / (double) Duration.YEAR_1.getValue();
+        double years = (option.getExpiration().getTime() - ServiceLocator.instance().getEngineManager().getCurrentEPTime().getTime()) / (double) Duration.YEAR_1.getValue();
 
         return getOptionPrice(underlyingSpot, option.getStrike().doubleValue(), vola, years, family.getIntrest(), family.getDividend(), option.getType());
     }
@@ -90,7 +90,7 @@ public class OptionUtil {
 
         OptionFamily family = (OptionFamily) option.getSecurityFamily();
 
-        double years = (option.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / (double) Duration.YEAR_1.getValue();
+        double years = (option.getExpiration().getTime() - ServiceLocator.instance().getEngineManager().getCurrentEPTime().getTime()) / (double) Duration.YEAR_1.getValue();
 
         return getImpliedVolatility(underlyingSpot, option.getStrike().doubleValue(), currentValue, years, family.getIntrest(), family.getDividend(), option.getType());
     }
@@ -133,7 +133,7 @@ public class OptionUtil {
 
         OptionFamily family = (OptionFamily) option.getSecurityFamily();
 
-        double years = (option.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / (double) Duration.YEAR_1.getValue();
+        double years = (option.getExpiration().getTime() - ServiceLocator.instance().getEngineManager().getCurrentEPTime().getTime()) / (double) Duration.YEAR_1.getValue();
 
         return getImpliedVolatilityNR(underlyingSpot, option.getStrike().doubleValue(), currentValue, years, family.getIntrest(), family.getDividend(), option.getType());
     }
@@ -173,7 +173,7 @@ public class OptionUtil {
 
         OptionFamily family = (OptionFamily) option.getSecurityFamily();
 
-        double years = (option.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / (double) Duration.YEAR_1.getValue();
+        double years = (option.getExpiration().getTime() - ServiceLocator.instance().getEngineManager().getCurrentEPTime().getTime()) / (double) Duration.YEAR_1.getValue();
 
         return getImpliedVolatilitySABR(underlyingSpot, option.getStrike().doubleValue(), years, family.getIntrest(), family.getDividend(), option.getType(), surface);
     }
@@ -235,7 +235,7 @@ public class OptionUtil {
         OptionFamily family = (OptionFamily) option.getSecurityFamily();
 
         double strike = option.getStrike().doubleValue();
-        double years = (option.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / (double) Duration.YEAR_1.getValue();
+        double years = (option.getExpiration().getTime() - ServiceLocator.instance().getEngineManager().getCurrentEPTime().getTime()) / (double) Duration.YEAR_1.getValue();
         double volatility = getImpliedVolatility(underlyingSpot, strike, currentValue, years, family.getIntrest(), family.getDividend(), option.getType());
         return OptionUtil.getDelta(underlyingSpot, strike, volatility, years, family.getIntrest(), family.getDividend(), option.getType());
 
@@ -269,7 +269,7 @@ public class OptionUtil {
         OptionFamily family = (OptionFamily) option.getSecurityFamily();
 
         double strike = option.getStrike().doubleValue();
-        double years = (option.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / (double) Duration.YEAR_1.getValue();
+        double years = (option.getExpiration().getTime() - ServiceLocator.instance().getEngineManager().getCurrentEPTime().getTime()) / (double) Duration.YEAR_1.getValue();
         double volatility = getImpliedVolatility(underlyingSpot, strike, currentValue, years, family.getIntrest(), family.getDividend(), option.getType());
         return OptionUtil.getVega(underlyingSpot, strike, volatility, years, family.getIntrest(), family.getDividend());
     }
@@ -296,7 +296,7 @@ public class OptionUtil {
         OptionFamily family = (OptionFamily) option.getSecurityFamily();
 
         double strike = option.getStrike().doubleValue();
-        double years = (option.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / (double) Duration.YEAR_1.getValue();
+        double years = (option.getExpiration().getTime() - ServiceLocator.instance().getEngineManager().getCurrentEPTime().getTime()) / (double) Duration.YEAR_1.getValue();
         double volatility = getImpliedVolatility(underlyingSpot, strike, currentValue, years, family.getIntrest(), family.getDividend(), option.getType());
         return OptionUtil.getTheta(underlyingSpot, strike, volatility, years, family.getIntrest(), family.getDividend(), option.getType());
 
@@ -343,7 +343,7 @@ public class OptionUtil {
 
         OptionFamily family = (OptionFamily) option.getSecurityFamily();
 
-        double years = (option.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / (double) Duration.YEAR_1.getValue();
+        double years = (option.getExpiration().getTime() - ServiceLocator.instance().getEngineManager().getCurrentEPTime().getTime()) / (double) Duration.YEAR_1.getValue();
 
         return getTotalMargin(underlyingSettlement, option.getStrike().doubleValue(), optionSettlement, years, family.getIntrest(), family.getDividend(), option.getType(),
                 family.getMarginParameter());

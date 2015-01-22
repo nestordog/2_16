@@ -36,7 +36,7 @@ import ch.algotrader.entity.exchange.ExchangeDao;
 import ch.algotrader.entity.exchange.Holiday;
 import ch.algotrader.entity.exchange.TradingHours;
 import ch.algotrader.enumeration.WeekDay;
-import ch.algotrader.util.DateUtil;
+import ch.algotrader.esper.EngineManager;
 import ch.algotrader.util.spring.HibernateSession;
 
 /**
@@ -50,12 +50,15 @@ import ch.algotrader.util.spring.HibernateSession;
 public class CalendarServiceImpl implements CalendarService {
 
     private final ExchangeDao exchangeDao;
+    private final EngineManager engineManager;
 
-    public CalendarServiceImpl(final ExchangeDao exchangeDao) {
+    public CalendarServiceImpl(final ExchangeDao exchangeDao, final EngineManager engineManager) {
 
         Validate.notNull(exchangeDao, "ExchangeDao is null");
+        Validate.notNull(engineManager, "Engine is null");
 
         this.exchangeDao = exchangeDao;
+        this.engineManager = engineManager;
     }
 
     /**
@@ -79,7 +82,7 @@ public class CalendarServiceImpl implements CalendarService {
 
     @Override
     public Date getCurrentTradingDate(int exchangeId) {
-        return getCurrentTradingDate(exchangeId, DateUtil.getCurrentEPTime());
+        return getCurrentTradingDate(exchangeId, this.engineManager.getCurrentEPTime());
     }
 
     /**
@@ -99,7 +102,7 @@ public class CalendarServiceImpl implements CalendarService {
 
     @Override
     public boolean isOpen(int exchangeId) {
-        return isOpen(exchangeId, DateUtil.getCurrentEPTime());
+        return isOpen(exchangeId, this.engineManager.getCurrentEPTime());
     }
 
     /**
@@ -118,7 +121,7 @@ public class CalendarServiceImpl implements CalendarService {
 
     @Override
     public boolean isTradingDay(int exchangeId) {
-        return isTradingDay(exchangeId, DateUtil.getCurrentEPTime());
+        return isTradingDay(exchangeId, this.engineManager.getCurrentEPTime());
     }
 
     /**
@@ -138,7 +141,7 @@ public class CalendarServiceImpl implements CalendarService {
 
     @Override
     public Date getOpenTime(int exchangeId) {
-        return getOpenTime(exchangeId, DateUtil.getCurrentEPTime());
+        return getOpenTime(exchangeId, this.engineManager.getCurrentEPTime());
     }
 
     /**
@@ -158,7 +161,7 @@ public class CalendarServiceImpl implements CalendarService {
 
     @Override
     public Date getCloseTime(int exchangeId) {
-        return getCloseTime(exchangeId, DateUtil.getCurrentEPTime());
+        return getCloseTime(exchangeId, this.engineManager.getCurrentEPTime());
     }
 
     @Override
@@ -180,7 +183,7 @@ public class CalendarServiceImpl implements CalendarService {
 
     @Override
     public Date getNextOpenTime(int exchangeId) {
-        return getNextOpenTime(exchangeId, DateUtil.getCurrentEPTime());
+        return getNextOpenTime(exchangeId, this.engineManager.getCurrentEPTime());
     }
 
     @Override
@@ -202,7 +205,7 @@ public class CalendarServiceImpl implements CalendarService {
 
     @Override
     public Date getNextCloseTime(int exchangeId) {
-        return getNextCloseTime(exchangeId, DateUtil.getCurrentEPTime());
+        return getNextCloseTime(exchangeId, this.engineManager.getCurrentEPTime());
     }
 
     /**

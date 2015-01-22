@@ -34,6 +34,7 @@ import ch.algotrader.entity.security.FutureFamily;
 import ch.algotrader.entity.security.FutureFamilyDao;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.Duration;
+import ch.algotrader.esper.EngineManager;
 import ch.algotrader.future.FutureSymbol;
 import ch.algotrader.util.DateUtil;
 import ch.algotrader.util.MyLogger;
@@ -58,21 +59,26 @@ public class FutureServiceImpl implements FutureService {
 
     private final FutureDao futureDao;
 
+    private final EngineManager engineManager;
+
     public FutureServiceImpl(
             final CommonConfig commonConfig,
             final CoreConfig coreConfig,
             final FutureFamilyDao futureFamilyDao,
-            final FutureDao futureDao) {
+            final FutureDao futureDao,
+            final EngineManager engineManager) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(coreConfig, "CoreConfig is null");
         Validate.notNull(futureFamilyDao, "FutureFamilyDao is null");
         Validate.notNull(futureDao, "FutureDao is null");
+        Validate.notNull(engineManager, "EngineManager is null");
 
         this.commonConfig = commonConfig;
         this.coreConfig = coreConfig;
         this.futureFamilyDao = futureFamilyDao;
         this.futureDao = futureDao;
+        this.engineManager = engineManager;
      }
 
     /**
@@ -85,14 +91,14 @@ public class FutureServiceImpl implements FutureService {
         FutureFamily family = this.futureFamilyDao.get(futureFamilyId);
         Security underlying = family.getUnderlying();
 
-        Collection<Future> futures = this.futureDao.findByMinExpiration(family.getId(), DateUtil.getCurrentEPTime());
+        Collection<Future> futures = this.futureDao.findByMinExpiration(family.getId(), this.engineManager.getCurrentEPTime());
 
         // create the missing part of the futures chain
         for (int i = futures.size() + 1; i <= family.getLength(); i++) {
 
             int duration = i * (int) (family.getExpirationDistance().getValue() / Duration.MONTH_1.getValue());
 
-            Date expirationDate = DateUtil.getExpirationDateNMonths(family.getExpirationType(), DateUtil.getCurrentEPTime(), duration);
+            Date expirationDate = DateUtil.getExpirationDateNMonths(family.getExpirationType(), this.engineManager.getCurrentEPTime(), duration);
 
             String symbol = FutureSymbol.getSymbol(family, expirationDate);
             String isin = FutureSymbol.getIsin(family, expirationDate);

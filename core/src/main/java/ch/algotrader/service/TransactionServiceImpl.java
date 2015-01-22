@@ -45,7 +45,6 @@ import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.TransactionType;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
-import ch.algotrader.util.DateUtil;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.collection.CollectionUtil;
@@ -371,7 +370,7 @@ public class TransactionServiceImpl implements TransactionService {
                 totalRebalanceAmount += rebalanceAmount;
 
                 Transaction transaction = Transaction.Factory.newInstance();
-                transaction.setDateTime(DateUtil.getCurrentEPTime());
+                transaction.setDateTime(this.engineManager.getCurrentEPTime());
                 transaction.setQuantity(targetNetLiqValue > actualNetLiqValue ? +1 : -1);
                 transaction.setPrice(RoundUtil.getBigDecimal(Math.abs(rebalanceAmount)));
                 transaction.setCurrency(this.commonConfig.getPortfolioBaseCurrency());
@@ -391,7 +390,7 @@ public class TransactionServiceImpl implements TransactionService {
         if (transactions.size() != 0) {
 
             Transaction transaction = Transaction.Factory.newInstance();
-            transaction.setDateTime(DateUtil.getCurrentEPTime());
+            transaction.setDateTime(this.engineManager.getCurrentEPTime());
             transaction.setQuantity((int) Math.signum(-1.0 * totalRebalanceAmount));
             transaction.setPrice(RoundUtil.getBigDecimal(Math.abs(totalRebalanceAmount)));
             transaction.setCurrency(this.commonConfig.getPortfolioBaseCurrency());

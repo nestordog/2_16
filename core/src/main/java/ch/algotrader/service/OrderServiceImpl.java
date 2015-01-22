@@ -58,7 +58,6 @@ import ch.algotrader.enumeration.TIF;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.util.BeanUtil;
-import ch.algotrader.util.DateUtil;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.spring.HibernateSession;
 import ch.algotrader.vo.OrderStatusVO;
@@ -202,7 +201,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
         }
 
         // set the dateTime property
-        order.setDateTime(DateUtil.getCurrentEPTime());
+        order.setDateTime(this.engineManager.getCurrentEPTime());
 
         // in case no TIF was specified set DAY
         if (order.getTif() == null) {

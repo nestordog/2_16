@@ -45,6 +45,7 @@
         <constructor-arg index="26" ref="stockDao"/>
         <constructor-arg index="27" ref="intrestRateDao"/>
         <constructor-arg index="28" ref="easyToBorrowDao"/>
+        <constructor-arg index="29" ref="engineManager"/>
     </bean>
 
     <bean id="futureService" class="ch.algotrader.service.FutureServiceImpl" >
@@ -52,6 +53,7 @@
         <constructor-arg index="1" ref="coreConfig"/>
         <constructor-arg index="2" ref="futureFamilyDao"/>
         <constructor-arg index="3" ref="futureDao"/>
+        <constructor-arg index="4" ref="engineManager"/>
     </bean>
 
      <bean id="positionService" class="ch.algotrader.service.PositionServiceImpl" >
@@ -95,7 +97,8 @@
         <constructor-arg index="11" ref="subscriptionDao"/>
         <constructor-arg index="12" ref="futureFamilyDao"/>
         <constructor-arg index="13" ref="strategyDao"/>
-        <constructor-arg index="14" ref="serverEngine"/>
+        <constructor-arg index="14" ref="engineManager"/>
+        <constructor-arg index="15" ref="serverEngine"/>
     </bean>
 
     <bean id="forexService" class="ch.algotrader.service.ForexServiceImpl" >
@@ -110,6 +113,7 @@
         <constructor-arg index="8" ref="strategyDao"/>
         <constructor-arg index="9" ref="subscriptionDao"/>
         <constructor-arg index="10" ref="futureFamilyDao"/>
+        <constructor-arg index="11" ref="engineManager"/>
     </bean>
 
     <bean id="transactionService" class="ch.algotrader.service.TransactionServiceImpl" >
@@ -173,6 +177,7 @@
     <bean id="measurementService" class="ch.algotrader.service.MeasurementServiceImpl" >
         <constructor-arg index="0" ref="measurementDao"/>
         <constructor-arg index="1" ref="strategyDao"/>
+        <constructor-arg index="2" ref="engineManager"/>
     </bean>
 
     <bean id="propertyService" class="ch.algotrader.service.PropertyServiceImpl" >
@@ -193,6 +198,7 @@
         <constructor-arg index="9" ref="portfolioValueDao"/>
         <constructor-arg index="10" ref="tickDao"/>
         <constructor-arg index="11" ref="forexDao"/>
+        <constructor-arg index="12" ref="engineManager"/>
     </bean>
 
     <bean id="portfolioChartService" class="ch.algotrader.service.PortfolioChartServiceImpl" >
@@ -202,7 +208,8 @@
     </bean>
 
     <bean id="calendarService" class="ch.algotrader.service.CalendarServiceImpl" >
-       <constructor-arg index="0" ref="exchangeDao"/>
+        <constructor-arg index="0" ref="exchangeDao"/>
+        <constructor-arg index="1" ref="engineManager"/>
     </bean>
 
     <bean id="managementService" class="ch.algotrader.service.ManagementServiceImpl" >
@@ -477,9 +484,10 @@
 
     <beans profile="simulation">
         <bean id="simulationOrderService" class="ch.algotrader.service.sim.SimulationOrderServiceImpl" >
-            <constructor-arg index="0"  ref="serverEngine"/>
-            <constructor-arg index="1"  ref="transactionService"/>
-            <constructor-arg index="2"  ref="orderService"/>
+            <constructor-arg index="0"  ref="transactionService"/>
+            <constructor-arg index="1"  ref="orderService"/>
+            <constructor-arg index="2" ref="engineManager"/>
+            <constructor-arg index="3"  ref="serverEngine"/>
         </bean>
     </beans>
 
