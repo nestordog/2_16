@@ -17,7 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.esper;
 
-import java.util.Collection;
 import java.util.Date;
 
 import ch.algotrader.entity.marketData.MarketDataEvent;
@@ -39,8 +38,6 @@ public interface EngineManager {
     Engine getServerEngine();
 
     void destroyEngine(String engineName);
-
-    Collection<Engine> getEngines();
 
     Date getCurrentEPTime();
 

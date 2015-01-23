@@ -35,6 +35,11 @@
 
     <bean class="ch.algotrader.util.LogLevelSetter" init-method="init"/>
 
+    <bean class="ch.algotrader.esper.Log4JRewriter">
+        <constructor-arg index="0" ref="engineManager"/>
+        <constructor-arg index="1" ref="commonConfig"/>
+    </bean>
+
     <!-- =========================================== JMX ================================================ -->
 
     <bean id="exporter" class="org.springframework.jmx.export.annotation.AnnotationMBeanExporter"/>

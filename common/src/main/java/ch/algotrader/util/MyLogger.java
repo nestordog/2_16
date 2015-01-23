@@ -59,29 +59,6 @@ public class MyLogger extends Logger {
     @Override
     protected void forcedLog(String fqcn, Priority level, Object message, Throwable t) {
 
-        // in simulation get date from the Esper Engine belonging to the startedStrategy
-        CommonConfig commonConfig = ConfigLocator.instance().getCommonConfig();
-        if (commonConfig.isSimulation()) {
-
-            // find the Engine with the earliest time
-            long latestTime = Long.MAX_VALUE;
-            for (Engine engine : ServiceLocator.instance().getEngineManager().getEngines()) {
-
-                if (!engine.isDestroyed()) {
-                    long engineTime = engine.getCurrentTimeInMillis();
-                    if (engineTime < latestTime) {
-                        latestTime = engineTime;
-                    }
-                }
-            }
-
-            if (latestTime < Long.MAX_VALUE) {
-                callAppenders(new LoggingEvent(fqcn, this, latestTime, level, message, t));
-                return;
-            }
-        }
-
-        // fall back to default behaviour
         super.forcedLog(fqcn, level, message, t);
     }
 }

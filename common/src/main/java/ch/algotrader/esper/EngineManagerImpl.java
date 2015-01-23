@@ -113,12 +113,6 @@ public class EngineManagerImpl implements EngineManager {
         }
     }
 
-    public void setEngine(final String engineName, final Engine engine) {
-
-        this.engineMap.put(engineName, engine);
-    }
-
-    @Override
     public Collection<Engine> getEngines() {
         return this.engineMap.values();
     }
