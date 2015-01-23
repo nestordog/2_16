@@ -35,8 +35,8 @@ import com.espertech.esper.util.JavaClassHelper;
 import ch.algotrader.config.ConfigParams;
 
 /**
- * Populates {@link com.espertech.esper.client.Configuration} variables with configuration
- * parameters from {@link ch.algotrader.config.ConfigParams}.
+ * Utility class that initializes variables defined in {@link com.espertech.esper.client.Configuration}
+ * with values from {@link ch.algotrader.config.ConfigParams}.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *

@@ -31,14 +31,37 @@ import ch.algotrader.vo.GenericEventVO;
  */
 public interface EngineManager {
 
+    /**
+     * Returns {@code true} if an engine with the given name is available
+     * @param engineName
+     * @return
+     */
     boolean hasEngine(String engineName);
 
+    /**
+     * Returns engine with the given name
+     * @param engineName
+     * @return
+     */
     Engine getEngine(String engineName);
 
+    /**
+     * Returns SERVER engine.
+     * @return
+     */
     Engine getServerEngine();
 
+    /**
+     * Destroys engine with the given name
+     * @param engineName
+     * @return
+     */
     void destroyEngine(String engineName);
 
+    /**
+     * Returns current time of the local Engine.
+     * If the local engine is not yet initialized or is using internal clock the current system date is returned.
+     */
     Date getCurrentEPTime();
 
     /**
