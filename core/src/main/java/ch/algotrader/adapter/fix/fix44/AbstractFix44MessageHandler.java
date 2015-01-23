@@ -20,7 +20,6 @@ package ch.algotrader.adapter.fix.fix44;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-import ch.algotrader.util.MyLogger;
 import quickfix.FieldNotFound;
 import quickfix.SessionID;
 import quickfix.field.BusinessRejectReason;
@@ -42,7 +41,7 @@ import quickfix.fix44.Reject;
  */
 public abstract class AbstractFix44MessageHandler {
 
-    private static Logger LOGGER = MyLogger.getLogger(AbstractFix44MessageHandler.class.getName());
+    private static Logger LOGGER = Logger.getLogger(AbstractFix44MessageHandler.class.getName());
 
     public void onMessage(final Reject reject, final SessionID sessionID) throws FieldNotFound {
 

@@ -23,7 +23,6 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import ch.algotrader.entity.strategy.Allocation;
-import ch.algotrader.util.MyLogger;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -32,7 +31,7 @@ import ch.algotrader.util.MyLogger;
  */
 public class DistributingOrderImpl extends DistributingOrder {
 
-    private static final Logger logger = MyLogger.getLogger(DistributingOrderImpl.class.getName());
+    private static final Logger logger = Logger.getLogger(DistributingOrderImpl.class.getName());
 
     private static final long serialVersionUID = -3256407214793599390L;
 

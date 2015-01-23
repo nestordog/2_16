@@ -21,7 +21,6 @@ import org.apache.log4j.Logger;
 
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.marketData.MarketDataEvent;
-import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.metric.MetricsUtil;
 
 /**
@@ -29,7 +28,7 @@ import ch.algotrader.util.metric.MetricsUtil;
  */
 public class PropagateMarketDataEventSubscriber {
 
-    private static Logger LOGGER = MyLogger.getLogger(PropagateMarketDataEventSubscriber.class.getName());
+    private static Logger LOGGER = Logger.getLogger(PropagateMarketDataEventSubscriber.class.getName());
 
     public void update(final MarketDataEvent marketDataEvent) {
 

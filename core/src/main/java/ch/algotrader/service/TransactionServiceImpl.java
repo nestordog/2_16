@@ -45,7 +45,6 @@ import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.TransactionType;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
-import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.collection.CollectionUtil;
 import ch.algotrader.util.spring.HibernateSession;
@@ -59,8 +58,8 @@ import ch.algotrader.vo.PositionMutationVO;
 @HibernateSession
 public class TransactionServiceImpl implements TransactionService {
 
-    private static Logger logger = MyLogger.getLogger(TransactionServiceImpl.class.getName());
-    private static Logger mailLogger = MyLogger.getLogger(TransactionServiceImpl.class.getName() + ".MAIL");
+    private static Logger logger = Logger.getLogger(TransactionServiceImpl.class.getName());
+    private static Logger mailLogger = Logger.getLogger(TransactionServiceImpl.class.getName() + ".MAIL");
 
     private final CommonConfig commonConfig;
 

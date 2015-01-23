@@ -58,7 +58,6 @@ import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.esper.callback.TradeCallback;
 import ch.algotrader.option.OptionUtil;
-import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.PositionUtil;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.collection.Pair;
@@ -74,7 +73,7 @@ import ch.algotrader.vo.ExpirePositionVO;
 @HibernateSession
 public class PositionServiceImpl implements PositionService {
 
-    private static Logger logger = MyLogger.getLogger(PositionServiceImpl.class.getName());
+    private static Logger logger = Logger.getLogger(PositionServiceImpl.class.getName());
 
     private final CommonConfig commonConfig;
 

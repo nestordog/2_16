@@ -27,7 +27,6 @@ import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.option.OptionUtil;
 import ch.algotrader.util.DateUtil;
-import ch.algotrader.util.MyLogger;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -37,7 +36,7 @@ import ch.algotrader.util.MyLogger;
 public class OptionImpl extends Option {
 
     private static final long serialVersionUID = -3168298592370987085L;
-    private static Logger logger = MyLogger.getLogger(OptionImpl.class.getName());
+    private static Logger logger = Logger.getLogger(OptionImpl.class.getName());
 
     @Override
     public double getLeverage() {

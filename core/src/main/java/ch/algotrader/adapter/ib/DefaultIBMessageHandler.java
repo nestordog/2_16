@@ -52,7 +52,6 @@ import ch.algotrader.esper.Engine;
 import ch.algotrader.service.HistoricalDataServiceException;
 import ch.algotrader.service.LookupService;
 import ch.algotrader.service.ib.IBNativeMarketDataService;
-import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.RoundUtil;
 
 /**
@@ -65,7 +64,7 @@ import ch.algotrader.util.RoundUtil;
  */
 public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
 
-    private static final Logger logger = MyLogger.getLogger(DefaultIBMessageHandler.class.getName());
+    private static final Logger logger = Logger.getLogger(DefaultIBMessageHandler.class.getName());
     private static final SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyyMMdd  HH:mm:ss");
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
 

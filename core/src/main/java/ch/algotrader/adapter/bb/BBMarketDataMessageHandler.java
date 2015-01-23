@@ -28,7 +28,6 @@ import com.bloomberglp.blpapi.Session;
 
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.util.MyLogger;
 import ch.algotrader.vo.AskVO;
 import ch.algotrader.vo.BidVO;
 import ch.algotrader.vo.TradeVO;
@@ -42,7 +41,7 @@ import ch.algotrader.vo.TradeVO;
  */
 public class BBMarketDataMessageHandler extends BBMessageHandler {
 
-    private static Logger logger = MyLogger.getLogger(BBMarketDataMessageHandler.class.getName());
+    private static Logger logger = Logger.getLogger(BBMarketDataMessageHandler.class.getName());
 
     private final Engine serverEngine;
 

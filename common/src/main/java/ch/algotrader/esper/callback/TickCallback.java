@@ -29,7 +29,6 @@ import org.apache.log4j.Logger;
 
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.marketData.Tick;
-import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.metric.MetricsUtil;
 
 /**
@@ -42,7 +41,7 @@ import ch.algotrader.util.metric.MetricsUtil;
  */
 public abstract class TickCallback {
 
-    private static Logger logger = MyLogger.getLogger(TickCallback.class.getName());
+    private static Logger logger = Logger.getLogger(TickCallback.class.getName());
 
     /**
      * Called by the "ON_FIRST_TICK" statement. Should not be invoked directly.

@@ -37,7 +37,6 @@ import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.entity.strategy.StrategyImpl;
-import ch.algotrader.util.MyLogger;
 import ch.algotrader.vo.GenericEventVO;
 import ch.algotrader.vo.StatementMetricVO;
 
@@ -50,7 +49,7 @@ import ch.algotrader.vo.StatementMetricVO;
 */
 public class EngineManagerImpl implements EngineManager {
 
-    private static final Logger LOGGER = MyLogger.getLogger(EngineManagerImpl.class);
+    private static final Logger LOGGER = Logger.getLogger(EngineManagerImpl.class);
 
     private static final String SERVER_ENGINE = "SERVER";
 

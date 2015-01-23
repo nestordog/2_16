@@ -31,6 +31,14 @@ import java.util.TreeSet;
 import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
 
+import com.bloomberglp.blpapi.Element;
+import com.bloomberglp.blpapi.Event;
+import com.bloomberglp.blpapi.Message;
+import com.bloomberglp.blpapi.Request;
+import com.bloomberglp.blpapi.Schema.Datatype;
+import com.bloomberglp.blpapi.Service;
+import com.bloomberglp.blpapi.Session;
+
 import ch.algotrader.adapter.bb.BBAdapter;
 import ch.algotrader.adapter.bb.BBConstants;
 import ch.algotrader.adapter.bb.BBMessageHandler;
@@ -50,16 +58,7 @@ import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.service.InitializationPriority;
 import ch.algotrader.service.InitializingServiceI;
 import ch.algotrader.service.ReferenceDataServiceImpl;
-import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.RoundUtil;
-
-import com.bloomberglp.blpapi.Element;
-import com.bloomberglp.blpapi.Event;
-import com.bloomberglp.blpapi.Message;
-import com.bloomberglp.blpapi.Request;
-import com.bloomberglp.blpapi.Schema.Datatype;
-import com.bloomberglp.blpapi.Service;
-import com.bloomberglp.blpapi.Session;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -72,7 +71,7 @@ public class BBReferenceDataServiceImpl extends ReferenceDataServiceImpl impleme
     private static final long serialVersionUID = 8938937374871069522L;
     private static final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 
-    private static Logger logger = MyLogger.getLogger(BBHistoricalDataServiceImpl.class.getName());
+    private static Logger logger = Logger.getLogger(BBHistoricalDataServiceImpl.class.getName());
     private static BBSession session;
 
     private final BBAdapter bBAdapter;

@@ -31,7 +31,6 @@ import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
-import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.collection.CollectionUtil;
 import ch.algotrader.util.metric.MetricsUtil;
 
@@ -44,7 +43,7 @@ public abstract class SecurityImpl extends Security {
 
     private static final long serialVersionUID = -6631052475125813394L;
 
-    private static Logger logger = MyLogger.getLogger(SecurityImpl.class.getName());
+    private static Logger logger = Logger.getLogger(SecurityImpl.class.getName());
 
     @Override
     @SuppressWarnings({ "unchecked" })

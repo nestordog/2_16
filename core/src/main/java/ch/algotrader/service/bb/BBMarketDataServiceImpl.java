@@ -44,7 +44,6 @@ import ch.algotrader.service.ExternalMarketDataServiceImpl;
 import ch.algotrader.service.InitializationPriority;
 import ch.algotrader.service.InitializingServiceI;
 import ch.algotrader.service.ib.IBNativeMarketDataServiceException;
-import ch.algotrader.util.MyLogger;
 import ch.algotrader.vo.SubscribeTickVO;
 
 /**
@@ -57,7 +56,7 @@ public class BBMarketDataServiceImpl extends ExternalMarketDataServiceImpl imple
 
     private static final long serialVersionUID = -3463200344945144471L;
 
-    private static Logger logger = MyLogger.getLogger(BBMarketDataServiceImpl.class.getName());
+    private static Logger logger = Logger.getLogger(BBMarketDataServiceImpl.class.getName());
     private static BBSession session;
 
     private final BBAdapter bBAdapter;

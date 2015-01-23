@@ -43,7 +43,6 @@ import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.TimePeriod;
 import ch.algotrader.service.CalendarService;
 import ch.algotrader.service.HistoricalDataService;
-import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.io.CsvTickWriter;
 
 /**
@@ -59,7 +58,7 @@ import ch.algotrader.util.io.CsvTickWriter;
  */
 public class IBHistoricalTickDataStarter {
 
-    private static Logger logger = MyLogger.getLogger(IBHistoricalTickDataStarter.class.getName());
+    private static Logger logger = Logger.getLogger(IBHistoricalTickDataStarter.class.getName());
 
     private static SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd  HH:mm:ss");
 

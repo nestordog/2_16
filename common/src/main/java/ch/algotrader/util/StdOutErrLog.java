@@ -30,7 +30,7 @@ import org.apache.log4j.Logger;
  */
 public class StdOutErrLog {
 
-    private static final Logger logger = MyLogger.getLogger(StdOutErrLog.class);
+    private static final Logger logger = Logger.getLogger(StdOutErrLog.class);
 
     static {
         tieSystemOutAndErrToLog();

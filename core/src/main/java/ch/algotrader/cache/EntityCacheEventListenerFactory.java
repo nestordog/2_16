@@ -25,7 +25,6 @@ import org.hibernate.cache.entry.CacheEntry;
 import org.hibernate.cache.entry.CollectionCacheEntry;
 
 import ch.algotrader.ServiceLocator;
-import ch.algotrader.util.MyLogger;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
@@ -41,7 +40,7 @@ import net.sf.ehcache.event.CacheEventListenerAdapter;
  */
 public class EntityCacheEventListenerFactory extends net.sf.ehcache.event.CacheEventListenerFactory {
 
-    private static Logger logger = MyLogger.getLogger(EntityCacheEventListenerFactory.class.getName());
+    private static Logger logger = Logger.getLogger(EntityCacheEventListenerFactory.class.getName());
 
     @Override
     public CacheEventListener createCacheEventListener(Properties properties) {

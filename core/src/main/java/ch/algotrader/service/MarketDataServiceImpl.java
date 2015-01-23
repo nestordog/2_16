@@ -50,7 +50,6 @@ import ch.algotrader.entity.strategy.StrategyDao;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.util.HibernateUtil;
-import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.io.CsvTickWriter;
 import ch.algotrader.util.spring.HibernateSession;
 
@@ -62,7 +61,7 @@ import ch.algotrader.util.spring.HibernateSession;
 @HibernateSession
 public class MarketDataServiceImpl implements MarketDataService, ApplicationContextAware {
 
-    private static Logger logger = MyLogger.getLogger(MarketDataServiceImpl.class.getName());
+    private static Logger logger = Logger.getLogger(MarketDataServiceImpl.class.getName());
 
     private Map<Security, CsvTickWriter> csvWriters = new HashMap<Security, CsvTickWriter>();
 

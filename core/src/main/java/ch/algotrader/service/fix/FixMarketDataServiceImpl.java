@@ -31,7 +31,6 @@ import ch.algotrader.esper.Engine;
 import ch.algotrader.service.ExternalMarketDataServiceImpl;
 import ch.algotrader.service.InitializationPriority;
 import ch.algotrader.service.InitializingServiceI;
-import ch.algotrader.util.MyLogger;
 import ch.algotrader.vo.SubscribeTickVO;
 
 /**
@@ -46,7 +45,7 @@ public abstract class FixMarketDataServiceImpl extends ExternalMarketDataService
 
     private static final long serialVersionUID = 4880040246465806082L;
 
-    private static Logger logger = MyLogger.getLogger(FixMarketDataServiceImpl.class.getName());
+    private static Logger logger = Logger.getLogger(FixMarketDataServiceImpl.class.getName());
 
     private final FixSessionLifecycle lifeCycle;
     private final FixAdapter fixAdapter;

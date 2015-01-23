@@ -22,7 +22,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.log4j.Logger;
 
 import ch.algotrader.enumeration.ConnectionState;
-import ch.algotrader.util.MyLogger;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -31,7 +30,7 @@ import ch.algotrader.util.MyLogger;
  */
 public class DefaultIBSessionLifecycle implements IBSessionLifecycle {
 
-    private static Logger logger = MyLogger.getLogger(DefaultIBSessionLifecycle.class.getName());
+    private static Logger logger = Logger.getLogger(DefaultIBSessionLifecycle.class.getName());
 
     private final AtomicReference<ConnectionState> connState;
 

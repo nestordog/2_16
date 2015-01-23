@@ -34,7 +34,6 @@ import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.service.ExternalOrderServiceImpl;
 import ch.algotrader.service.OrderService;
-import ch.algotrader.util.MyLogger;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -43,7 +42,7 @@ import ch.algotrader.util.MyLogger;
  */
 public class IBNativeOrderServiceImpl extends ExternalOrderServiceImpl implements IBNativeOrderService {
 
-    private static Logger logger = MyLogger.getLogger(IBNativeOrderServiceImpl.class.getName());
+    private static Logger logger = Logger.getLogger(IBNativeOrderServiceImpl.class.getName());
 
     private static boolean firstOrder = true;
 

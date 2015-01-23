@@ -24,8 +24,6 @@ import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.StatementAwareUpdateListener;
 
-import ch.algotrader.util.MyLogger;
-
 /**
  * Prints all values including the statement name to the Log by using the {@code toString} method of the event object.
  *
@@ -35,7 +33,7 @@ import ch.algotrader.util.MyLogger;
  */
 public class StatementAwareTestListener implements StatementAwareUpdateListener {
 
-    private static Logger logger = MyLogger.getLogger(StatementAwareTestListener.class.getName());
+    private static Logger logger = Logger.getLogger(StatementAwareTestListener.class.getName());
 
     @Override
     public void update(EventBean[] newEvents, EventBean[] oldEvents, EPStatement statement, EPServiceProvider epServiceProvider) {

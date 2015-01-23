@@ -24,7 +24,6 @@ import org.apache.log4j.Logger;
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.service.SimulationService;
 import ch.algotrader.service.SimulationServiceImpl;
-import ch.algotrader.util.MyLogger;
 
 /**
  * Main Starter Class for running simulations.
@@ -59,7 +58,7 @@ import ch.algotrader.util.MyLogger;
  */
 public class SimulationStarter {
 
-    public static Logger logger = MyLogger.getLogger(SimulationServiceImpl.class.getName());
+    public static Logger logger = Logger.getLogger(SimulationServiceImpl.class.getName());
 
     public static void main(String[] args) throws ConvergenceException, FunctionEvaluationException {
 

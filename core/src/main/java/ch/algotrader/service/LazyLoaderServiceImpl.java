@@ -26,7 +26,6 @@ import org.hibernate.SessionFactory;
 import org.hibernate.collection.AbstractPersistentCollection;
 import org.hibernate.proxy.HibernateProxy;
 
-import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.spring.HibernateSession;
 
 /**
@@ -37,7 +36,7 @@ import ch.algotrader.util.spring.HibernateSession;
 @HibernateSession
 public class LazyLoaderServiceImpl implements LazyLoaderService {
 
-    private static Logger logger = MyLogger.getLogger(LazyLoaderServiceImpl.class.getName());
+    private static Logger logger = Logger.getLogger(LazyLoaderServiceImpl.class.getName());
 
     private final SessionFactory sessionFactory;
 

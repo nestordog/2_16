@@ -94,7 +94,6 @@ import ch.algotrader.esper.callback.TickCallback;
 import ch.algotrader.esper.callback.TimerCallback;
 import ch.algotrader.esper.callback.TradeCallback;
 import ch.algotrader.esper.io.CustomSender;
-import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.collection.CollectionUtil;
 import ch.algotrader.util.metric.MetricsUtil;
 
@@ -107,7 +106,7 @@ import ch.algotrader.util.metric.MetricsUtil;
  */
 public class EngineImpl extends AbstractEngine {
 
-    private static final Logger LOGGER = MyLogger.getLogger(EngineImpl.class);
+    private static final Logger LOGGER = Logger.getLogger(EngineImpl.class);
     private static final String newline = System.getProperty("line.separator");
     private static final SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd_kkmmss");
 

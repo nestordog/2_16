@@ -22,7 +22,6 @@ import org.apache.log4j.Logger;
 
 import ch.algotrader.adapter.fix.AbstractFixApplication;
 import ch.algotrader.adapter.fix.FixSessionLifecycle;
-import ch.algotrader.util.MyLogger;
 import quickfix.ConfigError;
 import quickfix.FieldConvertError;
 import quickfix.FieldNotFound;
@@ -51,7 +50,7 @@ import quickfix.fix44.UserResponse;
  */
 public class FXCMFixApplication extends AbstractFixApplication {
 
-    private static final Logger LOGGER = MyLogger.getLogger(FXCMFixApplication.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(FXCMFixApplication.class.getName());
 
     private final SessionSettings settings;
     private final FixSessionLifecycle lifecycleHandler;

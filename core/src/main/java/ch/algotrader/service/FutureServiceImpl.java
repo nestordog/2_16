@@ -37,7 +37,6 @@ import ch.algotrader.enumeration.Duration;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.future.FutureSymbol;
 import ch.algotrader.util.DateUtil;
-import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.collection.CollectionUtil;
 import ch.algotrader.util.spring.HibernateSession;
 
@@ -49,7 +48,7 @@ import ch.algotrader.util.spring.HibernateSession;
 @HibernateSession
 public class FutureServiceImpl implements FutureService {
 
-    private static Logger logger = MyLogger.getLogger(FutureServiceImpl.class.getName());
+    private static Logger logger = Logger.getLogger(FutureServiceImpl.class.getName());
 
     private final CommonConfig commonConfig;
 

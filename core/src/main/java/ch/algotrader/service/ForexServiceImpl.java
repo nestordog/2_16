@@ -44,7 +44,6 @@ import ch.algotrader.entity.trade.Order;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.esper.EngineManager;
-import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.spring.HibernateSession;
 import ch.algotrader.vo.BalanceVO;
@@ -57,8 +56,8 @@ import ch.algotrader.vo.BalanceVO;
 @HibernateSession
 public class ForexServiceImpl implements ForexService {
 
-    private static Logger logger = MyLogger.getLogger(ForexServiceImpl.class.getName());
-    private static Logger notificationLogger = MyLogger.getLogger("ch.algotrader.service.NOTIFICATION");
+    private static Logger logger = Logger.getLogger(ForexServiceImpl.class.getName());
+    private static Logger notificationLogger = Logger.getLogger("ch.algotrader.service.NOTIFICATION");
 
     private final CommonConfig commonConfig;
 

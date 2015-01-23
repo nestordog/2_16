@@ -44,7 +44,6 @@ import ch.algotrader.enumeration.CombinationType;
 import ch.algotrader.enumeration.InitializingServiceType;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.util.HibernateUtil;
-import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.spring.HibernateSession;
 import ch.algotrader.vo.InsertComponentEventVO;
 
@@ -59,7 +58,7 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
 
     private static final long serialVersionUID = -2720603696641382966L;
 
-    private static Logger logger = MyLogger.getLogger(CombinationServiceImpl.class.getName());
+    private static Logger logger = Logger.getLogger(CombinationServiceImpl.class.getName());
 
     private final CommonConfig commonConfig;
 

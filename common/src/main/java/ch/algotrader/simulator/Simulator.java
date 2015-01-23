@@ -43,7 +43,6 @@ import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.TransactionType;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.NoopEngine;
-import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.PositionUtil;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.collection.Pair;
@@ -57,7 +56,7 @@ import ch.algotrader.vo.TradePerformanceVO;
  */
 public class Simulator {
 
-    private static Logger logger = MyLogger.getLogger(Simulator.class.getName());
+    private static Logger logger = Logger.getLogger(Simulator.class.getName());
 
     private final Map<Pair<String, Currency>, CashBalance> cashBalances;
     private final Map<Pair<String, Security>, Position> positionsByStrategyAndSecurity;

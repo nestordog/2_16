@@ -38,7 +38,6 @@ import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.service.ExternalMarketDataServiceImpl;
-import ch.algotrader.util.MyLogger;
 import ch.algotrader.vo.SubscribeTickVO;
 
 /**
@@ -48,7 +47,7 @@ import ch.algotrader.vo.SubscribeTickVO;
  */
 public class IBNativeMarketDataServiceImpl extends ExternalMarketDataServiceImpl implements IBNativeMarketDataService, DisposableBean {
 
-    private static Logger logger = MyLogger.getLogger(IBNativeMarketDataServiceImpl.class.getName());
+    private static Logger logger = Logger.getLogger(IBNativeMarketDataServiceImpl.class.getName());
 
     private final IBSession iBSession;
     private final IBIdGenerator iBIdGenerator;

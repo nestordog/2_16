@@ -70,7 +70,6 @@ import ch.algotrader.esper.io.DBBarInputAdapter;
 import ch.algotrader.esper.io.DBTickInputAdapter;
 import ch.algotrader.esper.io.GenericEventInputAdapterSpec;
 import ch.algotrader.report.ReportManager;
-import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.metric.MetricsUtil;
 import ch.algotrader.vo.EndOfSimulationVO;
 import ch.algotrader.vo.MaxDrawDownVO;
@@ -87,8 +86,8 @@ import ch.algotrader.vo.TradesVO;
  */
 public class SimulationServiceImpl implements SimulationService, InitializingBean, ApplicationContextAware {
 
-    private static Logger logger = MyLogger.getLogger(SimulationServiceImpl.class.getName());
-    private static Logger resultLogger = MyLogger.getLogger(SimulationServiceImpl.class.getName() + ".RESULT");
+    private static Logger logger = Logger.getLogger(SimulationServiceImpl.class.getName());
+    private static Logger resultLogger = Logger.getLogger(SimulationServiceImpl.class.getName() + ".RESULT");
     private static DecimalFormat twoDigitFormat = new DecimalFormat("#,##0.00");
     private static DateFormat monthFormat = new SimpleDateFormat(" MMM-yy ");
     private static DateFormat yearFormat = new SimpleDateFormat("   yyyy ");

@@ -26,7 +26,6 @@ import ch.algotrader.entity.property.Property;
 import ch.algotrader.entity.property.PropertyDao;
 import ch.algotrader.entity.property.PropertyHolder;
 import ch.algotrader.entity.property.PropertyHolderDao;
-import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.spring.HibernateSession;
 
 /**
@@ -37,7 +36,7 @@ import ch.algotrader.util.spring.HibernateSession;
 @HibernateSession
 public class PropertyServiceImpl implements PropertyService {
 
-    private static Logger logger = MyLogger.getLogger(PropertyServiceImpl.class.getName());
+    private static Logger logger = Logger.getLogger(PropertyServiceImpl.class.getName());
 
     private final PropertyDao propertyDao;
 

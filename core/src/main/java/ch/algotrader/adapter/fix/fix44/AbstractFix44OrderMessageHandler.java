@@ -26,7 +26,6 @@ import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.service.LookupService;
-import ch.algotrader.util.MyLogger;
 import quickfix.FieldNotFound;
 import quickfix.SessionID;
 import quickfix.field.MsgSeqNum;
@@ -46,7 +45,7 @@ import quickfix.fix44.OrderCancelReject;
  */
 public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44MessageHandler {
 
-    private static Logger LOGGER = MyLogger.getLogger(AbstractFix44OrderMessageHandler.class.getName());
+    private static Logger LOGGER = Logger.getLogger(AbstractFix44OrderMessageHandler.class.getName());
 
     private final LookupService lookupService;
     private final Engine serverEngine;

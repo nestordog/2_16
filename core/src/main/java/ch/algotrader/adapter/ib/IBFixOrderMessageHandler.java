@@ -23,7 +23,6 @@ import ch.algotrader.adapter.fix.fix42.GenericFix42OrderMessageHandler;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.service.LookupService;
 import ch.algotrader.service.ib.IBFixAccountService;
-import ch.algotrader.util.MyLogger;
 import quickfix.FieldNotFound;
 import quickfix.SessionID;
 import quickfix.field.ClOrdID;
@@ -47,7 +46,7 @@ import quickfix.fix42.OrderCancelReject;
  */
 public class IBFixOrderMessageHandler extends GenericFix42OrderMessageHandler {
 
-    private static Logger logger = MyLogger.getLogger(IBFixOrderMessageHandler.class.getName());
+    private static Logger logger = Logger.getLogger(IBFixOrderMessageHandler.class.getName());
 
     private final IBFixAccountService accountService;
 

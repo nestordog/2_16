@@ -22,7 +22,6 @@ import java.util.Date;
 import org.apache.log4j.Logger;
 
 import ch.algotrader.ServiceLocator;
-import ch.algotrader.util.MyLogger;
 
 /**
  * Base Esper Callback Class that will be invoked on the give dateTime
@@ -33,7 +32,7 @@ import ch.algotrader.util.MyLogger;
  */
 public abstract class TimerCallback {
 
-    private static Logger logger = MyLogger.getLogger(TimerCallback.class.getName());
+    private static Logger logger = Logger.getLogger(TimerCallback.class.getName());
 
     /**
      * Called by the "ON_TIMER" statement. Should not be invoked directly.

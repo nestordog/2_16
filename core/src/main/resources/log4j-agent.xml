@@ -99,6 +99,4 @@
         <appender-ref ref="AGENT" />
     </root>
 
-    <categoryFactory class="ch.algotrader.util.MyLoggerFactory" />
-
 </log4j:configuration>

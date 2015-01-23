@@ -25,8 +25,6 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.StatementAwareUpdateListener;
 import com.espertech.esper.client.util.XMLEventRenderer;
 
-import ch.algotrader.util.MyLogger;
-
 /**
  * Prints all values to the Log in XML format.
  *
@@ -36,7 +34,7 @@ import ch.algotrader.util.MyLogger;
  */
 public class RendererListener implements StatementAwareUpdateListener {
 
-    private static Logger logger = MyLogger.getLogger(RendererListener.class.getName());
+    private static Logger logger = Logger.getLogger(RendererListener.class.getName());
 
     private static XMLEventRenderer renderer;
 

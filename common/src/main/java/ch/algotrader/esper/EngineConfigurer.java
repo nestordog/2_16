@@ -21,11 +21,6 @@ import java.math.BigDecimal;
 import java.util.Map;
 
 import org.apache.commons.lang.Validate;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.FactoryBean;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.core.io.Resource;
 
 import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.ConfigurationEngineDefaults.Threading;

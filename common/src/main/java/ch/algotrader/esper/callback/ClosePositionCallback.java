@@ -20,7 +20,6 @@ package ch.algotrader.esper.callback;
 import org.apache.log4j.Logger;
 
 import ch.algotrader.ServiceLocator;
-import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.metric.MetricsUtil;
 import ch.algotrader.vo.ClosePositionVO;
 
@@ -33,7 +32,7 @@ import ch.algotrader.vo.ClosePositionVO;
  */
 public abstract class ClosePositionCallback {
 
-    private static Logger logger = MyLogger.getLogger(ClosePositionCallback.class.getName());
+    private static Logger logger = Logger.getLogger(ClosePositionCallback.class.getName());
 
     /**
      * Called by the "ON_CLOSE_POSITION" statement. Should not be invoked directly.

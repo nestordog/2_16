@@ -28,7 +28,6 @@ import ch.algotrader.adapter.ib.AccountUpdate;
 import ch.algotrader.adapter.ib.IBSession;
 import ch.algotrader.adapter.ib.Profile;
 import ch.algotrader.service.AccountServiceImpl;
-import ch.algotrader.util.MyLogger;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -37,7 +36,7 @@ import ch.algotrader.util.MyLogger;
  */
 public class IBNativeAccountServiceImpl extends AccountServiceImpl implements IBNativeAccountService {
 
-    private static final Logger logger = MyLogger.getLogger(IBNativeAccountServiceImpl.class.getName());
+    private static final Logger logger = Logger.getLogger(IBNativeAccountServiceImpl.class.getName());
 
     private final BlockingQueue<AccountUpdate> accountUpdateQueue;
     private final BlockingQueue<Set<String>> accountsQueue;

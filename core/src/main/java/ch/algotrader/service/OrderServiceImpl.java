@@ -58,7 +58,6 @@ import ch.algotrader.enumeration.TIF;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.util.BeanUtil;
-import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.spring.HibernateSession;
 import ch.algotrader.vo.OrderStatusVO;
 
@@ -73,8 +72,8 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
 
     private static final long serialVersionUID = 3969251081188007542L;
 
-    private static Logger logger = MyLogger.getLogger(OrderServiceImpl.class.getName());
-    private static Logger notificationLogger = MyLogger.getLogger("ch.algotrader.service.NOTIFICATION");
+    private static Logger logger = Logger.getLogger(OrderServiceImpl.class.getName());
+    private static Logger notificationLogger = Logger.getLogger("ch.algotrader.service.NOTIFICATION");
 
     private volatile ApplicationContext applicationContext;
 

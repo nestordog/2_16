@@ -29,6 +29,13 @@ import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
 
+import com.bloomberglp.blpapi.Element;
+import com.bloomberglp.blpapi.Event;
+import com.bloomberglp.blpapi.Message;
+import com.bloomberglp.blpapi.Request;
+import com.bloomberglp.blpapi.Service;
+import com.bloomberglp.blpapi.Session;
+
 import ch.algotrader.adapter.bb.BBAdapter;
 import ch.algotrader.adapter.bb.BBConstants;
 import ch.algotrader.adapter.bb.BBMessageHandler;
@@ -45,15 +52,7 @@ import ch.algotrader.enumeration.TimePeriod;
 import ch.algotrader.service.HistoricalDataServiceImpl;
 import ch.algotrader.service.InitializationPriority;
 import ch.algotrader.service.InitializingServiceI;
-import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.RoundUtil;
-
-import com.bloomberglp.blpapi.Element;
-import com.bloomberglp.blpapi.Event;
-import com.bloomberglp.blpapi.Message;
-import com.bloomberglp.blpapi.Request;
-import com.bloomberglp.blpapi.Service;
-import com.bloomberglp.blpapi.Session;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -68,7 +67,7 @@ public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl imple
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
     private static final SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
-    private static Logger logger = MyLogger.getLogger(BBHistoricalDataServiceImpl.class.getName());
+    private static Logger logger = Logger.getLogger(BBHistoricalDataServiceImpl.class.getName());
     private static BBSession session;
 
     private final BBAdapter bBAdapter;

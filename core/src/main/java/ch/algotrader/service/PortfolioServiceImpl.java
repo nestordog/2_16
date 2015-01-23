@@ -58,7 +58,6 @@ import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.hibernate.GenericDao;
-import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.collection.DoubleMap;
 import ch.algotrader.util.spring.HibernateSession;
@@ -74,7 +73,7 @@ import ch.algotrader.vo.PortfolioValueVO;
 @HibernateSession
 public class PortfolioServiceImpl implements PortfolioService {
 
-    private static Logger logger = MyLogger.getLogger(PortfolioServiceImpl.class.getName());
+    private static Logger logger = Logger.getLogger(PortfolioServiceImpl.class.getName());
 
     private final CommonConfig commonConfig;
 

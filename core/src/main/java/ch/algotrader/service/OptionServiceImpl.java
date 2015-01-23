@@ -73,7 +73,6 @@ import ch.algotrader.option.OptionUtil;
 import ch.algotrader.option.SABR;
 import ch.algotrader.option.SABRException;
 import ch.algotrader.util.DateUtil;
-import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.collection.CollectionUtil;
 import ch.algotrader.util.spring.HibernateSession;
@@ -89,7 +88,7 @@ import ch.algotrader.vo.SABRSurfaceVO;
 @HibernateSession
 public class OptionServiceImpl implements OptionService {
 
-    private static Logger logger = MyLogger.getLogger(OptionServiceImpl.class.getName());
+    private static Logger logger = Logger.getLogger(OptionServiceImpl.class.getName());
     private static int advanceMinutes = 10;
     private static SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy.MM.dd kk:mm:ss");
 

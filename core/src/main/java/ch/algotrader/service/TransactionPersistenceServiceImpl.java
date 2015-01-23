@@ -39,7 +39,6 @@ import ch.algotrader.entity.strategy.CashBalanceDao;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.PositionUtil;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.collection.BigDecimalMap;
@@ -59,8 +58,8 @@ import ch.algotrader.vo.TradePerformanceVO;
 @HibernateSession
 public abstract class TransactionPersistenceServiceImpl implements TransactionPersistenceService {
 
-    private static Logger logger = MyLogger.getLogger(TransactionPersistenceServiceImpl.class.getName());
-    private static Logger simulationLogger = MyLogger.getLogger(SimulationServiceImpl.class.getName() + ".RESULT");
+    private static Logger logger = Logger.getLogger(TransactionPersistenceServiceImpl.class.getName());
+    private static Logger simulationLogger = Logger.getLogger(SimulationServiceImpl.class.getName() + ".RESULT");
 
     private final CommonConfig commonConfig;
 

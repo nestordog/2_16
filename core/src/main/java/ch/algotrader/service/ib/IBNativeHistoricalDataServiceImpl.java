@@ -29,6 +29,9 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
 
+import com.ib.client.Contract;
+import com.ib.client.TagValue;
+
 import ch.algotrader.adapter.ib.IBIdGenerator;
 import ch.algotrader.adapter.ib.IBSession;
 import ch.algotrader.adapter.ib.IBUtil;
@@ -41,10 +44,6 @@ import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.enumeration.TimePeriod;
 import ch.algotrader.service.HistoricalDataServiceImpl;
-import ch.algotrader.util.MyLogger;
-
-import com.ib.client.Contract;
-import com.ib.client.TagValue;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -53,7 +52,7 @@ import com.ib.client.TagValue;
  */
 public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl implements IBNativeHistoricalDataService {
 
-    private static final Logger logger = MyLogger.getLogger(IBNativeHistoricalDataServiceImpl.class.getName());
+    private static final Logger logger = Logger.getLogger(IBNativeHistoricalDataServiceImpl.class.getName());
     private static final SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyyMMdd  HH:mm:ss");
     private static final int pacingMillis = 10 * 1000;
 

@@ -28,7 +28,6 @@ import org.apache.log4j.Logger;
 
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.trade.OrderStatus;
-import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.metric.MetricsUtil;
 
 /**
@@ -41,7 +40,7 @@ import ch.algotrader.util.metric.MetricsUtil;
  */
 public abstract class TradeCallback {
 
-    private static Logger logger = MyLogger.getLogger(TradeCallback.class.getName());
+    private static Logger logger = Logger.getLogger(TradeCallback.class.getName());
 
     private boolean expectFullExecution;
 

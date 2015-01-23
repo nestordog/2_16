@@ -24,7 +24,6 @@ import org.apache.log4j.Logger;
 import ch.algotrader.adapter.fix.fix44.AbstractFix44MarketDataMessageHandler;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.util.MyLogger;
 import ch.algotrader.vo.AskVO;
 import ch.algotrader.vo.BidVO;
 import quickfix.FieldNotFound;
@@ -49,7 +48,7 @@ import quickfix.fix44.MarketDataSnapshotFullRefresh;
  */
 public class FXCMFixMarketDataMessageHandler extends AbstractFix44MarketDataMessageHandler {
 
-    private static Logger logger = MyLogger.getLogger(FXCMFixMarketDataMessageHandler.class.getName());
+    private static Logger logger = Logger.getLogger(FXCMFixMarketDataMessageHandler.class.getName());
 
     private final Engine serverEngine;
 

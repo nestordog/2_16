@@ -29,7 +29,6 @@ import org.springframework.core.io.support.ResourcePatternResolver;
 
 import ch.algotrader.config.spring.DefaultConfigLoader;
 import ch.algotrader.config.spring.DefaultSystemConfigProvider;
-import ch.algotrader.util.MyLogger;
 
 /**
  * Configuration parameter and configuration locator.
@@ -40,7 +39,7 @@ import ch.algotrader.util.MyLogger;
  */
 public final class ConfigLocator {
 
-    private static final Logger LOGGER = MyLogger.getLogger(ConfigLocator.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(ConfigLocator.class.getName());
 
     private static volatile ConfigLocator INSTANCE;
 

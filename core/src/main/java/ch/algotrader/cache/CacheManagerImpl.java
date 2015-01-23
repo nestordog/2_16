@@ -32,7 +32,6 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 import ch.algotrader.entity.BaseEntityI;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.hibernate.GenericDao;
-import ch.algotrader.util.MyLogger;
 
 /**
  * Main implementation class of the Level-0 Cache
@@ -44,7 +43,7 @@ import ch.algotrader.util.MyLogger;
 @ManagedResource(objectName = "ch.algotrader.cache:name=CacheManager")
 public class CacheManagerImpl implements CacheManager {
 
-    private static Logger logger = MyLogger.getLogger(CacheManagerImpl.class.getName());
+    private static Logger logger = Logger.getLogger(CacheManagerImpl.class.getName());
 
     public static final String ROOT = "root";
 
