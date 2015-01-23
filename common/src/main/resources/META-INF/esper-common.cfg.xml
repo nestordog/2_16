@@ -77,6 +77,7 @@
 
     <!-- Variables -->
     <variable name="internal_clock" type="boolean" initialization-value="false"/>
+    <variable name="engineStrategy" type="ch.algotrader.entity.strategy.Strategy"/>
 
     <!-- Esper JMX -->
     <plugin-loader name="EsperJMX" class-name="com.espertech.esper.jmx.client.EsperJMXPlugin">

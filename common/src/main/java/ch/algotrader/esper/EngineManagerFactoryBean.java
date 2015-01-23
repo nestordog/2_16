@@ -19,14 +19,19 @@ package ch.algotrader.esper;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.jms.core.JmsTemplate;
 
 import ch.algotrader.config.CommonConfig;
+import ch.algotrader.entity.strategy.Strategy;
+import ch.algotrader.service.LookupService;
 
 /**
  * Factory bean for {@link ch.algotrader.esper.EngineManagerFactoryBean}.
@@ -35,14 +40,17 @@ import ch.algotrader.config.CommonConfig;
  *
  * @version $Revision$ $Date$
  */
-public class EngineManagerFactoryBean implements FactoryBean<EngineManager>, ApplicationContextAware {
+public class EngineManagerFactoryBean implements FactoryBean<EngineManager>, ApplicationContextAware, ApplicationListener<ContextRefreshedEvent> {
 
     private final CommonConfig commonConfig;
 
     private volatile ApplicationContext applicationContext;
 
+    private final AtomicBoolean postProcessed;
+
     public EngineManagerFactoryBean(final CommonConfig commonConfig) {
         this.commonConfig = commonConfig;
+        this.postProcessed = new AtomicBoolean(false);
     }
 
     @Override
@@ -79,4 +87,22 @@ public class EngineManagerFactoryBean implements FactoryBean<EngineManager>, App
         return true;
     }
 
+    @Override
+    public void onApplicationEvent(final ContextRefreshedEvent event) {
+
+        if (this.postProcessed.compareAndSet(false, true)) {
+
+            LookupService lookupService = this.applicationContext.getBean("lookupService", LookupService.class);
+            Map<String, Engine> engineBeanMap = this.applicationContext.getBeansOfType(Engine.class);
+            for (Map.Entry<String, Engine> entry: engineBeanMap.entrySet()) {
+
+                Engine engine = entry.getValue();
+                Strategy strategy = lookupService.getStrategyByName(engine.getName());
+                if (strategy != null) {
+
+                    engine.setVariableValue("engineStrategy", strategy);
+                }
+            }
+        }
+    }
 }
