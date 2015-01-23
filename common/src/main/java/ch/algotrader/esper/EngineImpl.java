@@ -80,7 +80,6 @@ import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esperio.AdapterCoordinatorImpl;
 import com.espertech.esperio.CoordinatedAdapter;
 
-import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.ConfigParams;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.trade.Order;
@@ -114,12 +113,12 @@ public class EngineImpl extends AbstractEngine {
 
     private final DependencyLookup dependencyLookup;
     private final EPServiceProvider serviceProvider;
-    private final AdapterCoordinatorImpl coordinator;
     private final String[] initModules;
     private final String[] runModules;
     private final ConfigParams configParams;
-    private final CommonConfig commonConfig;
+    private final boolean simulation;
 
+    private volatile AdapterCoordinatorImpl coordinator;
 
     private final ThreadLocal<AtomicBoolean> processing = new ThreadLocal<AtomicBoolean>() {
         @Override
@@ -128,22 +127,20 @@ public class EngineImpl extends AbstractEngine {
         }
     };
 
-    EngineImpl(final String engineName, final DependencyLookup dependencyLookup, final Configuration configuration, final String[] initModules, String[] runModules, final ConfigParams configParams, final CommonConfig commonConfig) {
+    EngineImpl(final String engineName, final DependencyLookup dependencyLookup, final Configuration configuration, final String[] initModules, String[] runModules, final ConfigParams configParams) {
 
         super(engineName);
 
         Validate.notNull(dependencyLookup, "DependencyLookup is null");
         Validate.notNull(configuration, "Configuration is null");
         Validate.notNull(configParams, "ConfigParams is null");
-        Validate.notNull(commonConfig, "CommonConfig is null");
 
         this.dependencyLookup = dependencyLookup;
         this.initModules = initModules;
         this.runModules = runModules;
         this.configParams = configParams;
-        this.commonConfig = commonConfig;
+        this.simulation = configParams.getBoolean("simulation");
         this.serviceProvider = EPServiceProviderManager.getProvider(engineName, configuration);
-        this.coordinator = new AdapterCoordinatorImpl(this.serviceProvider, true, true, true);
 
         // must send time event before first schedule pattern
         this.serviceProvider.getEPRuntime().sendEvent(new CurrentTimeEvent(0));
@@ -533,6 +530,7 @@ public class EngineImpl extends AbstractEngine {
     @Override
     public void initCoordination() {
 
+        this.coordinator = new AdapterCoordinatorImpl(this.serviceProvider, true, true, true);
         this.coordinator.setSender(new CustomSender());
     }
 
@@ -769,7 +767,7 @@ public class EngineImpl extends AbstractEngine {
         // in live trading stop the statement before attaching (and restart afterwards)
         // to make sure that the subscriber receives the first event
         if (callback != null) {
-            if (this.commonConfig.isSimulation()) {
+            if (this.simulation) {
                 statement.setSubscriber(callback);
             } else {
                 statement.stop();
@@ -822,10 +820,8 @@ public class EngineImpl extends AbstractEngine {
                 reader.close();
             }
 
-        } catch (ParseException e) {
-            throw new RuntimeException(moduleName + " could not be deployed", e);
-        } catch (IOException e) {
-            throw new RuntimeException(moduleName + " could not be deployed", e);
+        } catch (ParseException | IOException ex) {
+            throw new InternalEngineException(moduleName + " could not be deployed", ex);
         }
     }
 
@@ -859,11 +855,11 @@ public class EngineImpl extends AbstractEngine {
                     return false;
                 }
 
-            } else if (annotation instanceof RunTimeOnly && this.commonConfig.isSimulation()) {
+            } else if (this.simulation && annotation instanceof RunTimeOnly) {
 
                 return false;
 
-            } else if (annotation instanceof SimulationOnly && !this.commonConfig.isSimulation()) {
+            } else if (!this.simulation && annotation instanceof SimulationOnly) {
 
                 return false;
 
