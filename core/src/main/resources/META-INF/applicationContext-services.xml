@@ -323,12 +323,10 @@
     </beans>
 
     <beans profile="iBFix">
-        <bean id="iBFixAccountService" class="ch.algotrader.service.ib.IBFixAccountServiceImpl" >
+        <bean id="iBFixAllocationService" class="ch.algotrader.service.ib.IBFixAllocationServiceImpl" >
             <constructor-arg index="0" ref="fixAdapter"/>
             <constructor-arg index="1" ref="lookupService"/>
         </bean>
-
-        <alias name="iBFixAccountService" alias="accountService"/>
     </beans>
 
     <beans profile="misc">

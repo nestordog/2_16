@@ -19,14 +19,12 @@ package ch.algotrader.service.ib;
 
 import java.util.Collection;
 
-import ch.algotrader.service.AccountService;
-
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public interface IBFixAccountService extends AccountService {
+public interface IBFixAllocationService {
 
     /**
      * Gets all Account Groups of the specified Account.

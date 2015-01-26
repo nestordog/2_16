@@ -19,9 +19,6 @@ package ch.algotrader.adapter.ib;
 
 import org.apache.log4j.Logger;
 
-import ch.algotrader.adapter.fix.fix42.GenericFix42OrderMessageHandler;
-import ch.algotrader.service.ib.IBFixAccountService;
-import ch.algotrader.util.MyLogger;
 import quickfix.FieldNotFound;
 import quickfix.SessionID;
 import quickfix.field.ClOrdID;
@@ -35,6 +32,9 @@ import quickfix.field.XMLContent;
 import quickfix.fix42.ExecutionReport;
 import quickfix.fix42.IBFAModification;
 import quickfix.fix42.OrderCancelReject;
+import ch.algotrader.adapter.fix.fix42.GenericFix42OrderMessageHandler;
+import ch.algotrader.service.ib.IBFixAllocationService;
+import ch.algotrader.util.MyLogger;
 
 /**
  * IB specific Fix42MessageHandler.
@@ -47,10 +47,10 @@ public class IBFixOrderMessageHandler extends GenericFix42OrderMessageHandler {
 
     private static Logger logger = MyLogger.getLogger(IBFixOrderMessageHandler.class.getName());
 
-    private IBFixAccountService accountService;
+    private IBFixAllocationService allocationService;
 
-    public void setAccountService(IBFixAccountService accountService) {
-        this.accountService = accountService;
+    public void setAccountService(IBFixAllocationService allocationService) {
+        this.allocationService = allocationService;
     }
 
     @Override
@@ -87,7 +87,7 @@ public class IBFixOrderMessageHandler extends GenericFix42OrderMessageHandler {
             FAConfigurationAction fAConfigurationAction = faModification.get(new FAConfigurationAction());
 
             if (fAConfigurationAction.valueEquals(FAConfigurationAction.GET_GROUPS)) {
-                this.accountService.updateGroups(fARequestID, xmlContent);
+                this.allocationService.updateGroups(fARequestID, xmlContent);
             } else {
                 throw new UnsupportedOperationException();
             }

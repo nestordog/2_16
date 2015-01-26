@@ -291,8 +291,8 @@
         <bean id="iBOrderApplicationFactory" class="ch.algotrader.adapter.fix.DefaultFixApplicationFactory">
             <constructor-arg index="0">
                 <bean class="ch.algotrader.adapter.ib.IBFixOrderMessageHandler">
-              <property name="lookupService" ref="lookupService"/>
-                    <property name="accountService" ref="iBFixAccountService"/>
+              	<property name="lookupService" ref="lookupService"/>
+                <property name="accountService" ref="iBFixAllocationService"/>
                 </bean>
             </constructor-arg>
             <constructor-arg index="1" ref="iBOrderSessionLifeCycle"/>

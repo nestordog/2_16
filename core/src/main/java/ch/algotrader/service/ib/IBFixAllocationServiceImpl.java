@@ -49,7 +49,6 @@ import quickfix.field.XMLContent;
 import quickfix.fix42.IBFAModification;
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.entity.Account;
-import ch.algotrader.service.AccountServiceImpl;
 import ch.algotrader.service.LookupService;
 
 /**
@@ -57,8 +56,8 @@ import ch.algotrader.service.LookupService;
  *
  * @version $Revision$ $Date$
  */
-@ManagedResource(objectName = "ch.algotrader.service.ib:name=IBFixAccountService")
-public class IBFixAccountServiceImpl extends AccountServiceImpl implements IBFixAccountService {
+@ManagedResource(objectName = "ch.algotrader.service.ib:name=IBFixAllocationService")
+public class IBFixAllocationServiceImpl implements IBFixAllocationService {
 
     private Lock lock = new ReentrantLock();
     private Condition condition = this.lock.newCondition();
@@ -67,7 +66,7 @@ public class IBFixAccountServiceImpl extends AccountServiceImpl implements IBFix
     private final FixAdapter fixAdapter;
     private final LookupService lookupService;
 
-    public IBFixAccountServiceImpl(
+    public IBFixAllocationServiceImpl(
             final FixAdapter fixAdapter,
             final LookupService lookupService) {
 
@@ -76,18 +75,6 @@ public class IBFixAccountServiceImpl extends AccountServiceImpl implements IBFix
 
         this.fixAdapter = fixAdapter;
         this.lookupService = lookupService;
-    }
-
-    @Override
-    public long getQuantityByMargin(String strategyName, double initialMarginPerContractInBase) {
-
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public long getQuantityByAllocation(String strategyName, long requestedQuantity) {
-
-        throw new UnsupportedOperationException();
     }
 
     /**
