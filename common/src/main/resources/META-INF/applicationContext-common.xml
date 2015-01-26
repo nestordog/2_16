@@ -33,9 +33,9 @@
         <property name="systemPropertiesModeName"><value>SYSTEM_PROPERTIES_MODE_NEVER</value></property>
     </bean>
 
-    <bean class="ch.algotrader.util.LogLevelSetter" init-method="init"/>
+    <bean class="ch.algotrader.util.spring.LogLevelSetter" init-method="init"/>
 
-    <bean class="ch.algotrader.esper.Log4JRewriter">
+    <bean class="ch.algotrader.util.spring.Log4JRewriter">
         <constructor-arg index="0" ref="engineManager"/>
         <constructor-arg index="1" ref="commonConfig"/>
     </bean>

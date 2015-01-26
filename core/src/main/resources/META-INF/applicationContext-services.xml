@@ -415,8 +415,8 @@
             <constructor-arg index="0" ref="commonConfig"/>
             <constructor-arg index="1"  ref="bBAdapter"/>
             <constructor-arg index="2"  ref="tickDao"/>
-            <constructor-arg index="3"  ref="serverEngine"/>
-            <constructor-arg index="4"  ref="securityDao"/>
+            <constructor-arg index="3"  ref="securityDao"/>
+            <constructor-arg index="4"  ref="serverEngine"/>
         </bean>
     </beans>
 

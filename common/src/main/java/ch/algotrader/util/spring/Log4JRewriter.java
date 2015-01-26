@@ -15,7 +15,7 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.esper;
+package ch.algotrader.util.spring;
 
 import java.util.Enumeration;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -30,6 +30,8 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 
 import ch.algotrader.config.CommonConfig;
+import ch.algotrader.esper.Engine;
+import ch.algotrader.esper.EngineManagerImpl;
 
 /**
 * Log4J log interceptor that rewrites log entries when executing in simulation mode.

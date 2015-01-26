@@ -60,25 +60,25 @@ public class BBMarketDataServiceImpl extends ExternalMarketDataServiceImpl imple
     private static BBSession session;
 
     private final BBAdapter bBAdapter;
-    private final Engine serverEngine;
     private final TickDao tickDao;
+    private final Engine serverEngine;
 
     public BBMarketDataServiceImpl(
             final CommonConfig commonConfig,
             final BBAdapter bBAdapter,
-            final Engine serverEngine,
             final TickDao tickDao,
-            final SecurityDao securityDao) {
+            final SecurityDao securityDao,
+            final Engine serverEngine            ) {
 
         super(commonConfig, securityDao);
 
         Validate.notNull(bBAdapter, "BBAdapter is null");
-        Validate.notNull(serverEngine, "Engine is null");
         Validate.notNull(tickDao, "TickDao is null");
+        Validate.notNull(serverEngine, "Engine is null");
 
         this.bBAdapter = bBAdapter;
-        this.serverEngine = serverEngine;
         this.tickDao = tickDao;
+        this.serverEngine = serverEngine;
     }
 
     /**

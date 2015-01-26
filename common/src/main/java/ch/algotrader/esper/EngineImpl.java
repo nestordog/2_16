@@ -81,6 +81,7 @@ import com.espertech.esperio.AdapterCoordinatorImpl;
 import com.espertech.esperio.CoordinatedAdapter;
 
 import ch.algotrader.config.ConfigParams;
+import ch.algotrader.config.DependencyLookup;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.esper.annotation.Condition;

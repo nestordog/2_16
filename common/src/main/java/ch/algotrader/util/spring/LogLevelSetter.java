@@ -15,35 +15,30 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.esper;
+package ch.algotrader.util.spring;
 
-import org.apache.commons.lang.Validate;
-import org.springframework.context.ApplicationContext;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 /**
- * Dependency lookup based.
+ * Sets the log-level based on the commandline argument "logLevel"
  *
- * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-class SpringDependencyLookup implements DependencyLookup {
+public class LogLevelSetter {
 
-    private final ApplicationContext applicationContext;
+    public void init() {
 
-    SpringDependencyLookup(final ApplicationContext applicationContext) {
-        Validate.notNull(applicationContext, "ApplicationContext is null");
-        this.applicationContext = applicationContext;
+        String levelName = System.getProperty("logLevel");
+        if (levelName != null && !"".equals(levelName)) {
+            Level level = Level.toLevel(levelName); // defaults to DEBUG
+            if (levelName.toUpperCase().equals(level.toString())) {
+                Logger.getRootLogger().setLevel(level);
+            } else {
+                throw new IllegalStateException("unrecognized log4j log level " + levelName);
+            }
+        }
     }
-
-    public Object getBean(final String name) {
-
-        return this.applicationContext.getBean(name);
-    };
-
-    public <T> T getBean(final String name, final Class<T> requiredType) {
-
-        return this.applicationContext.getBean(name, requiredType);
-    }
-
 }

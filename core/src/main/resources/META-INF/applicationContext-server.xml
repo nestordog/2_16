@@ -250,7 +250,8 @@
             <constructor-arg index="1" value="ch.algotrader.config.BBConfig"/>
         </bean>
         <bean id="bBAdapter" class="ch.algotrader.adapter.bb.BBAdapter">
-          <constructor-arg index="0" ref="bBConfig"/>
+            <constructor-arg index="0" ref="bBConfig"/>
+            <constructor-arg index="1" ref="serverEngine"/>
         </bean>
     </beans>
 

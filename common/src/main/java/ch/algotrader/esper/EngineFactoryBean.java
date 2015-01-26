@@ -27,6 +27,7 @@ import org.springframework.core.io.Resource;
 import com.espertech.esper.client.Configuration;
 
 import ch.algotrader.config.ConfigParams;
+import ch.algotrader.util.spring.SpringDependencyLookup;
 
 /**
  * Factory bean for {@link ch.algotrader.esper.Engine}s;

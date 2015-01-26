@@ -15,7 +15,7 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.esper;
+package ch.algotrader.config;
 
 /**
  * Dependency lookup interface.
