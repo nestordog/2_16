@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.esper;
 
+import java.util.Collection;
 import java.util.Date;
 
 import ch.algotrader.entity.marketData.MarketDataEvent;
@@ -30,6 +31,12 @@ import ch.algotrader.vo.GenericEventVO;
  * @version $Revision$ $Date$
  */
 public interface EngineManager {
+
+    /**
+     * Returns all avaialbe engines.
+     * @return
+     */
+    Collection<Engine> getEngines();
 
     /**
      * Returns {@code true} if an engine with the given name is available

@@ -31,7 +31,7 @@ import org.springframework.context.event.ContextRefreshedEvent;
 
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.esper.EngineManagerImpl;
+import ch.algotrader.esper.EngineManager;
 
 /**
 * Log4J log interceptor that rewrites log entries when executing in simulation mode.
@@ -43,12 +43,12 @@ import ch.algotrader.esper.EngineManagerImpl;
 
 public class Log4JRewriter implements ApplicationListener<ContextRefreshedEvent> {
 
-    private final EngineManagerImpl engineManager;
+    private final EngineManager engineManager;
     private final CommonConfig commonConfig;
 
     private final AtomicBoolean postProcessed;
 
-    public Log4JRewriter(final EngineManagerImpl engineManager, final CommonConfig commonConfig) {
+    public Log4JRewriter(final EngineManager engineManager, final CommonConfig commonConfig) {
         this.engineManager = engineManager;
         this.commonConfig = commonConfig;
         this.postProcessed = new AtomicBoolean(false);
