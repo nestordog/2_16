@@ -25,8 +25,6 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import ch.algotrader.util.MyLogger;
-
 /**
  * Cache for Queries based on two HashMaps.
  *
@@ -36,7 +34,7 @@ import ch.algotrader.util.MyLogger;
  */
 class QueryCache {
 
-    private static Logger logger = MyLogger.getLogger(EntityCache.class.getName());
+    private static Logger logger = Logger.getLogger(EntityCache.class.getName());
 
     private Map<String, Set<QueryCacheKey>> spaces = new HashMap<String, Set<QueryCacheKey>>();
     private Map<QueryCacheKey, List<?>> queries = new HashMap<QueryCacheKey, List<?>>();

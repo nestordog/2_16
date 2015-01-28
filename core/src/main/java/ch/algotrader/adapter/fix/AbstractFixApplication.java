@@ -20,7 +20,6 @@ package ch.algotrader.adapter.fix;
 import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
 
-import ch.algotrader.util.MyLogger;
 import quickfix.Application;
 import quickfix.DoNotSend;
 import quickfix.FieldNotFound;
@@ -46,7 +45,7 @@ import quickfix.field.PossDupFlag;
  */
 public abstract class AbstractFixApplication implements Application {
 
-    private static final Logger logger = MyLogger.getLogger(AbstractFixApplication.class.getName());
+    private static final Logger logger = Logger.getLogger(AbstractFixApplication.class.getName());
 
     private final SessionID sessionID;
     private final MessageCracker incomingMessageCracker;

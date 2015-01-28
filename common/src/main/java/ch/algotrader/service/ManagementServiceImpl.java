@@ -65,7 +65,7 @@ import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.enumeration.MarketDataType;
 import ch.algotrader.enumeration.OrderPropertyType;
 import ch.algotrader.enumeration.Side;
-import ch.algotrader.esper.EngineLocator;
+import ch.algotrader.esper.EngineManager;
 import ch.algotrader.util.BeanUtil;
 import ch.algotrader.vo.BalanceVO;
 import ch.algotrader.vo.BarVO;
@@ -85,6 +85,8 @@ public class ManagementServiceImpl implements ManagementService {
 
     private final CommonConfig commonConfig;
 
+    private final EngineManager engineManager;
+
     private final SubscriptionService subscriptionService;
 
     private final LookupService lookupService;
@@ -103,7 +105,9 @@ public class ManagementServiceImpl implements ManagementService {
 
     private final ConfigParams configParams;
 
-    public ManagementServiceImpl(final CommonConfig commonConfig,
+    public ManagementServiceImpl(
+            final CommonConfig commonConfig,
+            final EngineManager engineManager,
             final SubscriptionService subscriptionService,
             final LookupService lookupService,
             final PortfolioService portfolioService,
@@ -115,6 +119,7 @@ public class ManagementServiceImpl implements ManagementService {
             final ConfigParams configParams) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
+        Validate.notNull(engineManager, "EngineManager is null");
         Validate.notNull(subscriptionService, "SubscriptionService is null");
         Validate.notNull(lookupService, "LookupService is null");
         Validate.notNull(portfolioService, "PortfolioService is null");
@@ -126,6 +131,7 @@ public class ManagementServiceImpl implements ManagementService {
         Validate.notNull(configParams, "ConfigParams is null");
 
         this.commonConfig = commonConfig;
+        this.engineManager = engineManager;
         this.subscriptionService = subscriptionService;
         this.lookupService = lookupService;
         this.portfolioService = portfolioService;
@@ -145,7 +151,7 @@ public class ManagementServiceImpl implements ManagementService {
     public Date getCurrentTime() {
 
         String strategyName = this.commonConfig.getStartedStrategyName();
-        return EngineLocator.instance().getEngine(strategyName).getCurrentTime();
+        return this.engineManager.getEngine(strategyName).getCurrentTime();
 
     }
 
@@ -207,7 +213,7 @@ public class ManagementServiceImpl implements ManagementService {
     public List<MarketDataEventVO> getMarketDataEvents() {
 
         String strategyName = this.commonConfig.getStartedStrategyName();
-        List<MarketDataEvent> marketDataEvents = EngineLocator.instance().getEngine(strategyName).executeQuery("select marketDataEvent.* from MarketDataWindow order by securityId");
+        List<MarketDataEvent> marketDataEvents = this.engineManager.getEngine(strategyName).executeQuery("select marketDataEvent.* from MarketDataWindow order by securityId");
 
         List<MarketDataEventVO> marketDataEventVOs = getMarketDataEventVOs(marketDataEvents);
 
@@ -417,7 +423,7 @@ public class ManagementServiceImpl implements ManagementService {
         Validate.notEmpty(moduleName, "Module name is empty");
         Validate.notEmpty(statementName, "Statement name is empty");
 
-        EngineLocator.instance().getEngine(this.commonConfig.getStartedStrategyName()).deployStatement(moduleName, statementName);
+        this.engineManager.getEngine(this.commonConfig.getStartedStrategyName()).deployStatement(moduleName, statementName);
 
     }
 
@@ -431,7 +437,7 @@ public class ManagementServiceImpl implements ManagementService {
 
         Validate.notEmpty(moduleName, "Module name is empty");
 
-        EngineLocator.instance().getEngine(this.commonConfig.getStartedStrategyName()).deployModule(moduleName);
+        this.engineManager.getEngine(this.commonConfig.getStartedStrategyName()).deployModule(moduleName);
 
     }
 
@@ -660,7 +666,7 @@ public class ManagementServiceImpl implements ManagementService {
         Validate.notEmpty(variableName, "Variable name is empty");
         Validate.notEmpty(value, "Value is empty");
 
-        EngineLocator.instance().getEngine(this.commonConfig.getStartedStrategyName()).setVariableValueFromString(variableName, value);
+        this.engineManager.getEngine(this.commonConfig.getStartedStrategyName()).setVariableValueFromString(variableName, value);
 
     }
 

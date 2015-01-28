@@ -23,8 +23,7 @@ import org.apache.log4j.Logger;
 
 import ch.algotrader.adapter.fix.fix44.AbstractFix44MarketDataMessageHandler;
 import ch.algotrader.enumeration.FeedType;
-import ch.algotrader.esper.EngineLocator;
-import ch.algotrader.util.MyLogger;
+import ch.algotrader.esper.Engine;
 import ch.algotrader.vo.AskVO;
 import ch.algotrader.vo.BidVO;
 import quickfix.FieldNotFound;
@@ -49,7 +48,13 @@ import quickfix.fix44.MarketDataIncrementalRefresh;
  */
 public class CNXFixMarketDataMessageHandler extends AbstractFix44MarketDataMessageHandler {
 
-    private static Logger LOGGER = MyLogger.getLogger(CNXFixMarketDataMessageHandler.class.getName());
+    private static Logger LOGGER = Logger.getLogger(CNXFixMarketDataMessageHandler.class.getName());
+
+    private final Engine serverEngine;
+
+    public CNXFixMarketDataMessageHandler(final Engine serverEngine) {
+        this.serverEngine = serverEngine;
+    }
 
     public void onMessage(final MarketDataIncrementalRefresh marketData, final SessionID sessionID) throws FieldNotFound {
 
@@ -82,7 +87,7 @@ public class CNXFixMarketDataMessageHandler extends AbstractFix44MarketDataMessa
                         }
 
                         BidVO bidVO = new BidVO(id, FeedType.CNX, date, price, (int) size);
-                        EngineLocator.instance().getServerEngine().sendEvent(bidVO);
+                        this.serverEngine.sendEvent(bidVO);
                         break;
                     case MDEntryType.OFFER:
 
@@ -92,7 +97,7 @@ public class CNXFixMarketDataMessageHandler extends AbstractFix44MarketDataMessa
 
                         AskVO askVO = new AskVO(id, FeedType.CNX, date, price, (int) size);
 
-                        EngineLocator.instance().getServerEngine().sendEvent(askVO);
+                        this.serverEngine.sendEvent(askVO);
                         break;
                 }
             }

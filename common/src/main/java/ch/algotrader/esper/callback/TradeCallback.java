@@ -26,9 +26,8 @@ import org.apache.commons.collections15.Transformer;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
+import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.trade.OrderStatus;
-import ch.algotrader.esper.EngineLocator;
-import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.metric.MetricsUtil;
 
 /**
@@ -41,7 +40,7 @@ import ch.algotrader.util.metric.MetricsUtil;
  */
 public abstract class TradeCallback {
 
-    private static Logger logger = MyLogger.getLogger(TradeCallback.class.getName());
+    private static Logger logger = Logger.getLogger(TradeCallback.class.getName());
 
     private boolean expectFullExecution;
 
@@ -84,7 +83,7 @@ public abstract class TradeCallback {
         String alias = "ON_TRADE_COMPLETED_" + StringUtils.join(sortedSecurityIds, "_") + "_" + owningStrategyName;
 
         // undeploy the statement
-        EngineLocator.instance().getEngine(strategyName).undeployStatement(alias);
+        ServiceLocator.instance().getEngineManager().getEngine(strategyName).undeployStatement(alias);
 
         long startTime = System.nanoTime();
         logger.debug("onTradeCompleted start " + sortedSecurityIds + " " + owningStrategyName);

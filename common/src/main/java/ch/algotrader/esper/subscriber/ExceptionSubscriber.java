@@ -19,8 +19,6 @@ package ch.algotrader.esper.subscriber;
 
 import org.apache.log4j.Logger;
 
-import ch.algotrader.util.MyLogger;
-
 /**
  * Prints a value as an Error to the Log.
  *
@@ -30,7 +28,7 @@ import ch.algotrader.util.MyLogger;
  */
 public class ExceptionSubscriber {
 
-    private static Logger logger = MyLogger.getLogger(ExceptionSubscriber.class.getName());
+    private static Logger logger = Logger.getLogger(ExceptionSubscriber.class.getName());
 
     public void update(String reason) {
 

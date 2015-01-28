@@ -31,7 +31,6 @@ import org.hibernate.collection.PersistentCollection;
 
 import ch.algotrader.entity.BaseEntityI;
 import ch.algotrader.util.FieldUtil;
-import ch.algotrader.util.MyLogger;
 
 /**
  * Cache Handler for Collections.
@@ -42,7 +41,7 @@ import ch.algotrader.util.MyLogger;
  */
 class CollectionHandler extends AbstractHandler {
 
-    private static Logger logger = MyLogger.getLogger(CollectionHandler.class.getName());
+    private static Logger logger = Logger.getLogger(CollectionHandler.class.getName());
 
     private CacheManagerImpl cacheManager;
 

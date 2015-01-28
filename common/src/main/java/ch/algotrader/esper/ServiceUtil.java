@@ -20,13 +20,13 @@ package ch.algotrader.esper;
 import java.util.Date;
 import java.util.Map;
 
+import com.espertech.esper.collection.Pair;
+
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.strategy.PortfolioValue;
-
-import com.espertech.esper.collection.Pair;
 
 /**
  * Provides service convenience methods.
@@ -51,7 +51,7 @@ public class ServiceUtil {
     @SuppressWarnings("unchecked")
     public static boolean hasCurrentMarketDataEvents() {
 
-        Map<String, Long> map = (Map<String, Long>) EngineLocator.instance().getServerEngine().executeSingelObjectQuery("select count(*) as cnt from MarketDataWindow");
+        Map<String, Long> map = (Map<String, Long>) ServiceLocator.instance().getEngineManager().getServerEngine().executeSingelObjectQuery("select count(*) as cnt from MarketDataWindow");
         return (map.get("cnt") > 0);
     }
 

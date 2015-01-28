@@ -15,22 +15,30 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.util;
+package ch.algotrader.util.spring;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.apache.log4j.spi.LoggerFactory;
 
 /**
- * Factory for {@link MyLogger}.
+ * Sets the log-level based on the commandline argument "logLevel"
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class MyLoggerFactory implements LoggerFactory {
+public class LogLevelSetter {
 
-    @Override
-    public Logger makeNewLoggerInstance(String name) {
-        return new MyLogger(name);
+    public void init() {
+
+        String levelName = System.getProperty("logLevel");
+        if (levelName != null && !"".equals(levelName)) {
+            Level level = Level.toLevel(levelName); // defaults to DEBUG
+            if (levelName.toUpperCase().equals(level.toString())) {
+                Logger.getRootLogger().setLevel(level);
+            } else {
+                throw new IllegalStateException("unrecognized log4j log level " + levelName);
+            }
+        }
     }
 }

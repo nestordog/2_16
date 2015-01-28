@@ -31,7 +31,6 @@ import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.enumeration.Side;
-import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.collection.Pair;
 
 /**
@@ -43,7 +42,7 @@ public class SlicingOrderImpl extends SlicingOrder {
 
     private static final long serialVersionUID = -9017761050542085585L;
 
-    private static Logger logger = MyLogger.getLogger(SlicingOrderImpl.class.getName());
+    private static Logger logger = Logger.getLogger(SlicingOrderImpl.class.getName());
 
     private int currentOffsetTicks = 1;
     private List<Pair<LimitOrder, Tick>> pairs = new ArrayList<Pair<LimitOrder, Tick>>();

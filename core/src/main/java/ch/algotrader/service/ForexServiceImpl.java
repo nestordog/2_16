@@ -43,8 +43,7 @@ import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Side;
-import ch.algotrader.util.DateUtil;
-import ch.algotrader.util.MyLogger;
+import ch.algotrader.esper.EngineManager;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.spring.HibernateSession;
 import ch.algotrader.vo.BalanceVO;
@@ -57,8 +56,8 @@ import ch.algotrader.vo.BalanceVO;
 @HibernateSession
 public class ForexServiceImpl implements ForexService {
 
-    private static Logger logger = MyLogger.getLogger(ForexServiceImpl.class.getName());
-    private static Logger notificationLogger = MyLogger.getLogger("ch.algotrader.service.NOTIFICATION");
+    private static Logger logger = Logger.getLogger(ForexServiceImpl.class.getName());
+    private static Logger notificationLogger = Logger.getLogger("ch.algotrader.service.NOTIFICATION");
 
     private final CommonConfig commonConfig;
 
@@ -82,6 +81,8 @@ public class ForexServiceImpl implements ForexService {
 
     private final FutureFamilyDao futureFamilyDao;
 
+    private final EngineManager engineManager;
+
     public ForexServiceImpl(final CommonConfig commonConfig,
             final CoreConfig coreConfig,
             final OrderService orderService,
@@ -92,7 +93,8 @@ public class ForexServiceImpl implements ForexService {
             final ForexDao forexDao,
             final StrategyDao strategyDao,
             final SubscriptionDao subscriptionDao,
-            final FutureFamilyDao futureFamilyDao) {
+            final FutureFamilyDao futureFamilyDao,
+            final EngineManager engineManager) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(coreConfig, "CoreConfig is null");
@@ -105,6 +107,7 @@ public class ForexServiceImpl implements ForexService {
         Validate.notNull(strategyDao, "StrategyDao is null");
         Validate.notNull(subscriptionDao, "SubscriptionDao is null");
         Validate.notNull(futureFamilyDao, "FutureFamilyDao is null");
+        Validate.notNull(engineManager, "EngineManager is null");
 
         this.commonConfig = commonConfig;
         this.coreConfig = coreConfig;
@@ -117,6 +120,7 @@ public class ForexServiceImpl implements ForexService {
         this.strategyDao = strategyDao;
         this.subscriptionDao = subscriptionDao;
         this.futureFamilyDao = futureFamilyDao;
+        this.engineManager = engineManager;
     }
 
     /**
@@ -213,7 +217,7 @@ public class ForexServiceImpl implements ForexService {
 
                     FutureFamily futureFamily = this.futureFamilyDao.load(forexSubscription.getIntProperty("hedgingFamily"));
 
-                    Date targetDate = DateUtils.addMilliseconds(DateUtil.getCurrentEPTime(), coreConfig.getFxFutureHedgeMinTimeToExpiration());
+                    Date targetDate = DateUtils.addMilliseconds(this.engineManager.getCurrentEPTime(), coreConfig.getFxFutureHedgeMinTimeToExpiration());
                     Future future = this.futureService.getFutureByMinExpiration(futureFamily.getId(), targetDate);
 
                     // make sure the future is subscriped

@@ -40,6 +40,7 @@ import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.TIF;
+import ch.algotrader.esper.NoopEngine;
 import ch.algotrader.hibernate.InMemoryDBTest;
 
 /**
@@ -72,7 +73,7 @@ public class OrderDaoTest extends InMemoryDBTest {
 
         super.setup();
 
-        this.dao = new OrderDaoImpl(this.sessionFactory);
+        this.dao = new OrderDaoImpl(this.sessionFactory, NoopEngine.SERVER);
 
         this.family = new SecurityFamilyImpl();
         this.family.setName("Forex1");

@@ -19,7 +19,6 @@ package ch.algotrader.starter;
 
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.esper.EngineLocator;
 
 /**
  * Abstract Base Class for starting the AlgoTrader Server in Live Trading Mode
@@ -40,7 +39,7 @@ public abstract class ServerStarter {
     public static void startServer() throws Exception {
 
         // deploy all SERVER modules
-        Engine engine = EngineLocator.instance().initServerEngine();
+        Engine engine = ServiceLocator.instance().getEngineManager().getServerEngine();
 
         engine.setInternalClock(true);
         engine.deployAllModules();

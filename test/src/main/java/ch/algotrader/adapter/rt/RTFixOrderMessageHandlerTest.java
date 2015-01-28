@@ -30,16 +30,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import quickfix.DefaultSessionFactory;
-import quickfix.FileStoreFactory;
-import quickfix.LogFactory;
-import quickfix.ScreenLogFactory;
-import quickfix.Session;
-import quickfix.SessionID;
-import quickfix.SessionSettings;
-import quickfix.SocketInitiator;
-import quickfix.fix44.NewOrderSingle;
-import quickfix.fix44.OrderCancelRequest;
 import ch.algotrader.adapter.fix.DefaultFixApplication;
 import ch.algotrader.adapter.fix.DefaultFixSessionLifecycle;
 import ch.algotrader.adapter.fix.FixConfigUtils;
@@ -67,14 +57,26 @@ import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.AbstractEngine;
-import ch.algotrader.esper.EngineLocator;
+import ch.algotrader.esper.Engine;
+import ch.algotrader.esper.EngineManager;
 import ch.algotrader.service.LookupService;
 import ch.algotrader.util.Consts;
+import quickfix.DefaultSessionFactory;
+import quickfix.FileStoreFactory;
+import quickfix.LogFactory;
+import quickfix.ScreenLogFactory;
+import quickfix.Session;
+import quickfix.SessionID;
+import quickfix.SessionSettings;
+import quickfix.SocketInitiator;
+import quickfix.fix44.NewOrderSingle;
+import quickfix.fix44.OrderCancelRequest;
 
 public class RTFixOrderMessageHandlerTest {
 
     private SimpleDateFormat dateFormat;
     private LinkedBlockingQueue<Object> eventQueue;
+    private EngineManager engineManager;
     private LookupService lookupService;
     private RTFixOrderMessageFactory messageFactory;
     private RTFixOrderMessageHandler messageHandler;
@@ -89,7 +91,7 @@ public class RTFixOrderMessageHandlerTest {
         final LinkedBlockingQueue<Object> queue = new LinkedBlockingQueue<Object>();
         this.eventQueue = queue;
 
-        EngineLocator.instance().setEngine(StrategyImpl.SERVER, new AbstractEngine() {
+        Engine engine = new AbstractEngine(StrategyImpl.SERVER) {
 
             @Override
             public void sendEvent(Object obj) {
@@ -104,19 +106,20 @@ public class RTFixOrderMessageHandlerTest {
             public List executeQuery(String query) {
                 return null;
             }
-        });
+        };
 
+        this.engineManager = Mockito.mock(EngineManager.class);
 
         SessionSettings settings = FixConfigUtils.loadSettings();
         SessionID sessionId = FixConfigUtils.getSessionID(settings, "RT");
 
         this.lookupService = Mockito.mock(LookupService.class);
-        RTFixOrderMessageHandler messageHandlerImpl = new RTFixOrderMessageHandler();
-        messageHandlerImpl.setLookupService(lookupService);
+        RTFixOrderMessageHandler messageHandlerImpl = new RTFixOrderMessageHandler(this.lookupService ,engine);
         this.messageHandler = Mockito.spy(messageHandlerImpl);
         this.messageFactory = new RTFixOrderMessageFactory(new GenericFix44SymbologyResolver());
 
-        DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, messageHandler, null, new DefaultFixSessionLifecycle("RT"));
+        DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, this.messageHandler, null,
+                new DefaultFixSessionLifecycle("RT", this.engineManager));
 
         LogFactory logFactory = new ScreenLogFactory(true, true, true);
 

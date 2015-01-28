@@ -30,6 +30,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.access.ContextSingletonBeanFactoryLocator;
 import org.springframework.context.support.AbstractApplicationContext;
 
+import ch.algotrader.esper.EngineManager;
 import ch.algotrader.service.CalendarService;
 import ch.algotrader.service.ChartProvidingService;
 import ch.algotrader.service.CombinationService;
@@ -182,14 +183,6 @@ public class ServiceLocator {
     public <T> Collection<T> getServices(Class<T> clazz) {
 
         return getContext().getBeansOfType(clazz).values();
-    }
-
-    /**
-     * gets all service names
-     */
-    public String[] getServiceNames() {
-
-        return getContext().getBeanDefinitionNames();
     }
 
     /**
@@ -375,6 +368,14 @@ public class ServiceLocator {
      */
     public CalendarService getCalendarService() {
         return getContext().getBean("calendarService", CalendarService.class);
+    }
+
+    /**
+     * Gets an instance of {@link ch.algotrader.esper.EngineManagerImpl}.
+     * @return EngineManager from getContext().getBean("engineManager")
+     */
+    public EngineManager getEngineManager() {
+        return getContext().getBean("engineManager", EngineManager.class);
     }
 
 }

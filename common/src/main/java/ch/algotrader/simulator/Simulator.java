@@ -19,6 +19,7 @@ package ch.algotrader.simulator;
 
 import java.math.BigDecimal;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,9 +41,8 @@ import ch.algotrader.entity.trade.Order;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.TransactionType;
-import ch.algotrader.esper.EngineLocator;
-import ch.algotrader.util.DateUtil;
-import ch.algotrader.util.MyLogger;
+import ch.algotrader.esper.Engine;
+import ch.algotrader.esper.NoopEngine;
 import ch.algotrader.util.PositionUtil;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.collection.Pair;
@@ -56,11 +56,27 @@ import ch.algotrader.vo.TradePerformanceVO;
  */
 public class Simulator {
 
-    private static Logger logger = MyLogger.getLogger(Simulator.class.getName());
-    private Map<Pair<String, Currency>, CashBalance> cashBalances = new HashMap<Pair<String, Currency>, CashBalance>();
-    private Map<Pair<String, Security>, Position> positionsByStrategyAndSecurity = new HashMap<Pair<String, Security>, Position>();
-    private MultiMap<String, Position> positionsByStrategy = new MultiHashMap<String, Position>();
-    private MultiMap<Security, Position> positionsBySecurity = new MultiHashMap<Security, Position>();
+    private static Logger logger = Logger.getLogger(Simulator.class.getName());
+
+    private final Map<Pair<String, Currency>, CashBalance> cashBalances;
+    private final Map<Pair<String, Security>, Position> positionsByStrategyAndSecurity;
+    private final MultiMap<String, Position> positionsByStrategy;
+    private final MultiMap<Security, Position> positionsBySecurity;
+
+    private final Engine serverEngine;
+
+    public Simulator(final Engine serverEngine) {
+        Validate.notNull(serverEngine, "Engine is null");
+        this.serverEngine = serverEngine;
+        this.cashBalances = new HashMap<>();
+        this.positionsByStrategyAndSecurity = new HashMap<>();
+        this.positionsByStrategy = new MultiHashMap<>();
+        this.positionsBySecurity = new MultiHashMap<>();
+    }
+
+    public Simulator() {
+        this(NoopEngine.SERVER);
+    }
 
     public void clear() {
         this.positionsByStrategyAndSecurity.clear();
@@ -204,9 +220,7 @@ public class Simulator {
         if (tradePerformance != null && tradePerformance.getProfit() != 0.0) {
 
             // propagate the TradePerformance event
-            if (EngineLocator.instance().hasServerEngine()) {
-                EngineLocator.instance().getServerEngine().sendEvent(tradePerformance);
-            }
+            this.serverEngine.sendEvent(tradePerformance);
         }
 
         logger.info("executed transaction: " + transaction);
@@ -294,7 +308,11 @@ public class Simulator {
 
         PortfolioValue portfolioValue = PortfolioValue.Factory.newInstance();
 
-        portfolioValue.setDateTime(DateUtil.getCurrentEPTime());
+        if (!this.serverEngine.isInternalClock()) {
+            portfolioValue.setDateTime(this.serverEngine.getCurrentTime());
+        } else {
+            portfolioValue.setDateTime(new Date());
+        }
         portfolioValue.setCashBalance(cashBalance);
         portfolioValue.setSecuritiesCurrentValue(securitiesCurrentValue); // might be null if there was no last tick for a particular security
         portfolioValue.setNetLiqValue(securitiesCurrentValue != null ? cashBalance.add(securitiesCurrentValue) : null); // add here to prevent another lookup

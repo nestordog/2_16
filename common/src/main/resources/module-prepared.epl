@@ -1,7 +1,7 @@
 @Name('ON_FIRST_TICK')
 @Priority(2)
 select
-    engineStrategy.name as strategyName,
+    strategyName,
     tick
 from
     pattern[[?] (every-distinct(security.id)
@@ -9,7 +9,7 @@ from
 
 @Name('ON_TRADE_COMPLETED')
 select
-    engineStrategy.name as strategyName,
+    strategyName,
     orderStatus
 from
     pattern[[?] (every-distinct(`order`.security.id)
@@ -32,7 +32,7 @@ from
 
 @Name('ON_TIMER')   
 select 
-    engineStrategy.name as strategyName,
+    strategyName,
     current_timestamp.toDate(),
     ?
 from 

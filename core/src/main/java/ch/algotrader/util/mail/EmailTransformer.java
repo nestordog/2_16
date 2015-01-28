@@ -35,8 +35,6 @@ import org.springframework.integration.Message;
 import org.springframework.integration.annotation.Transformer;
 import org.springframework.integration.support.MessageBuilder;
 
-import ch.algotrader.util.MyLogger;
-
 /**
  * Parses the E-mail Message and converts each containing message and/or attachment into
  * a {@link List} of {@link EmailFragment EmailFragments}.
@@ -47,7 +45,7 @@ import ch.algotrader.util.MyLogger;
  */
 public class EmailTransformer {
 
-    private static final Logger logger = MyLogger.getLogger(EmailTransformer.class.getName());
+    private static final Logger logger = Logger.getLogger(EmailTransformer.class.getName());
 
     @Transformer
     public Message<List<EmailFragment>> transform(Message<javax.mail.Message> message) throws MessagingException {

@@ -20,11 +20,11 @@ package ch.algotrader.esper.subscriber;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
+import ch.algotrader.ServiceLocator;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.ConfigLocator;
 import ch.algotrader.entity.strategy.PortfolioValue;
 import ch.algotrader.report.ListReporter;
-import ch.algotrader.util.DateUtil;
 import ch.algotrader.util.metric.MetricsUtil;
 
 /**
@@ -56,7 +56,7 @@ public class PortfolioValueSubscriber {
         }
 
         if (this.initialized) {
-            this.reporter.write(formatter.format(DateUtil.getCurrentEPTime()), portfolioValue.getCashBalance(), portfolioValue.getSecuritiesCurrentValue(), portfolioValue.getNetLiqValue());
+            this.reporter.write(formatter.format(ServiceLocator.instance().getEngineManager().getCurrentEPTime()), portfolioValue.getCashBalance(), portfolioValue.getSecuritiesCurrentValue(), portfolioValue.getNetLiqValue());
         }
 
         MetricsUtil.accountEnd("LogPortfolioValueSubscriber", startTime);

@@ -25,7 +25,6 @@ import org.hibernate.proxy.LazyInitializer;
 
 import ch.algotrader.entity.BaseEntityI;
 import ch.algotrader.util.FieldUtil;
-import ch.algotrader.util.MyLogger;
 
 /**
  * Cache Handler for Entities.
@@ -36,7 +35,7 @@ import ch.algotrader.util.MyLogger;
  */
 public class EntityHandler extends AbstractHandler {
 
-    private static Logger logger = MyLogger.getLogger(EntityHandler.class.getName());
+    private static Logger logger = Logger.getLogger(EntityHandler.class.getName());
 
     private CacheManagerImpl cacheManager;
 

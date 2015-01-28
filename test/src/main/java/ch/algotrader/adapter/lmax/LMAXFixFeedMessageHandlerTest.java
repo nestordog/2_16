@@ -40,7 +40,8 @@ import ch.algotrader.entity.security.SecurityFamilyImpl;
 import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.esper.AbstractEngine;
-import ch.algotrader.esper.EngineLocator;
+import ch.algotrader.esper.Engine;
+import ch.algotrader.esper.EngineManager;
 import ch.algotrader.vo.AskVO;
 import ch.algotrader.vo.BidVO;
 import quickfix.DefaultSessionFactory;
@@ -58,6 +59,7 @@ import quickfix.fix44.MarketDataSnapshotFullRefresh;
 public class LMAXFixFeedMessageHandlerTest {
 
     private LinkedBlockingQueue<Object> eventQueue;
+    private EngineManager engineManager;
     private LMAXFixMarketDataMessageHandler messageHandler;
     private Session session;
     private SocketInitiator socketInitiator;
@@ -68,7 +70,7 @@ public class LMAXFixFeedMessageHandlerTest {
         final LinkedBlockingQueue<Object> queue = new LinkedBlockingQueue<Object>();
         this.eventQueue = queue;
 
-        EngineLocator.instance().setEngine(StrategyImpl.SERVER, new AbstractEngine() {
+        Engine engine = new AbstractEngine(StrategyImpl.SERVER) {
 
             @Override
             public void sendEvent(Object obj) {
@@ -83,16 +85,19 @@ public class LMAXFixFeedMessageHandlerTest {
             public List executeQuery(String query) {
                 return null;
             }
-        });
+        };
+
+        this.engineManager = Mockito.mock(EngineManager.class);
 
         SessionSettings settings = FixConfigUtils.loadSettings();
         SessionID sessionId = FixConfigUtils.getSessionID(settings, "LMAXMD");
 
         DefaultLogonMessageHandler logonHandler = new DefaultLogonMessageHandler(settings);
 
-        this.messageHandler = Mockito.spy(new LMAXFixMarketDataMessageHandler());
+        this.messageHandler = Mockito.spy(new LMAXFixMarketDataMessageHandler(engine));
 
-        DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, this.messageHandler, logonHandler, new DefaultFixSessionLifecycle("LMAX"));
+        DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, this.messageHandler, logonHandler,
+                new DefaultFixSessionLifecycle("LMAX", this.engineManager));
 
         LogFactory logFactory = new ScreenLogFactory(true, true, true);
 

@@ -42,9 +42,8 @@ import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.SecurityFamilyDao;
 import ch.algotrader.enumeration.CombinationType;
 import ch.algotrader.enumeration.InitializingServiceType;
-import ch.algotrader.esper.EngineLocator;
+import ch.algotrader.esper.Engine;
 import ch.algotrader.util.HibernateUtil;
-import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.spring.HibernateSession;
 import ch.algotrader.vo.InsertComponentEventVO;
 
@@ -59,7 +58,7 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
 
     private static final long serialVersionUID = -2720603696641382966L;
 
-    private static Logger logger = MyLogger.getLogger(CombinationServiceImpl.class.getName());
+    private static Logger logger = Logger.getLogger(CombinationServiceImpl.class.getName());
 
     private final CommonConfig commonConfig;
 
@@ -79,6 +78,8 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
 
     private final SecurityFamilyDao securityFamilyDao;
 
+    private final Engine serverEngine;
+
     public CombinationServiceImpl(final CommonConfig commonConfig,
             final SessionFactory sessionFactory,
             final PositionService positionService,
@@ -87,7 +88,8 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
             final PositionDao positionDao,
             final SecurityDao securityDao,
             final ComponentDao componentDao,
-            final SecurityFamilyDao securityFamilyDao) {
+            final SecurityFamilyDao securityFamilyDao,
+            final Engine serverEngine) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(sessionFactory, "SessionFactory is null");
@@ -98,6 +100,7 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
         Validate.notNull(securityDao, "SecurityDao is null");
         Validate.notNull(componentDao, "ComponentDao is null");
         Validate.notNull(securityFamilyDao, "SecurityFamilyDao is null");
+        Validate.notNull(serverEngine, "Engine is null");
 
         this.commonConfig = commonConfig;
         this.sessionFactory = sessionFactory;
@@ -108,7 +111,7 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
         this.securityDao = securityDao;
         this.componentDao = componentDao;
         this.securityFamilyDao = securityFamilyDao;
-
+        this.serverEngine = serverEngine;
     }
 
     /**
@@ -492,12 +495,10 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
     private void removeFromComponentWindow(Component component) {
 
         // if a component is specified remove it, otherwise empty the entire window
-        if (EngineLocator.instance().hasServerEngine()) {
-            if (component != null) {
-                EngineLocator.instance().getServerEngine().executeQuery("delete from ComponentWindow where componentId = " + component.getId());
-            } else {
-                EngineLocator.instance().getServerEngine().executeQuery("delete from ComponentWindow");
-            }
+        if (component != null) {
+            this.serverEngine.executeQuery("delete from ComponentWindow where componentId = " + component.getId());
+        } else {
+            this.serverEngine.executeQuery("delete from ComponentWindow");
         }
     }
 
@@ -515,9 +516,7 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
             insertComponentEvent.setCombinationId(combination.getId());
             insertComponentEvent.setComponentCount(combination.getComponentCount());
 
-            if (EngineLocator.instance().hasServerEngine()) {
-                EngineLocator.instance().getServerEngine().sendEvent(insertComponentEvent);
-            }
+            this.serverEngine.sendEvent(insertComponentEvent);
         }
     }
 }

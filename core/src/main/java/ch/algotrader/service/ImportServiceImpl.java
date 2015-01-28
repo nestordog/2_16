@@ -50,7 +50,6 @@ import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.option.OptionSymbol;
-import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.io.CsvIVolReader;
 import ch.algotrader.util.io.CsvTickReader;
 import ch.algotrader.util.spring.HibernateSession;
@@ -64,7 +63,7 @@ import ch.algotrader.vo.IVolVO;
 @HibernateSession
 public class ImportServiceImpl implements ImportService {
 
-    private static Logger logger = MyLogger.getLogger(ImportServiceImpl.class.getName());
+    private static Logger logger = Logger.getLogger(ImportServiceImpl.class.getName());
 
     private final CommonConfig commonConfig;
 

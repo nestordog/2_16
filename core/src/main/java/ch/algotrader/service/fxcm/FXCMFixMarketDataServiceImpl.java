@@ -27,6 +27,7 @@ import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.enumeration.FeedType;
+import ch.algotrader.esper.Engine;
 import ch.algotrader.service.fix.fix44.Fix44MarketDataServiceImpl;
 import quickfix.field.SubscriptionRequestType;
 import quickfix.fix44.MarketDataRequest;
@@ -46,9 +47,10 @@ public class FXCMFixMarketDataServiceImpl extends Fix44MarketDataServiceImpl imp
             final CommonConfig commonConfig,
             final FixSessionLifecycle lifeCycle,
             final FixAdapter fixAdapter,
+            final Engine serverEngine,
             final SecurityDao securityDao) {
 
-        super(commonConfig, lifeCycle, fixAdapter, securityDao);
+        super(commonConfig, lifeCycle, fixAdapter, serverEngine, securityDao);
 
         this.requestFactory = new FXCMFixMarketDataRequestFactory();
     }

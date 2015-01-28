@@ -33,6 +33,9 @@ import java.util.concurrent.BlockingQueue;
 import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
 
+import com.ib.client.Contract;
+import com.ib.client.ContractDetails;
+
 import ch.algotrader.adapter.ib.IBIdGenerator;
 import ch.algotrader.adapter.ib.IBSession;
 import ch.algotrader.entity.security.Future;
@@ -51,11 +54,7 @@ import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.future.FutureSymbol;
 import ch.algotrader.option.OptionSymbol;
 import ch.algotrader.service.ReferenceDataServiceImpl;
-import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.RoundUtil;
-
-import com.ib.client.Contract;
-import com.ib.client.ContractDetails;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -64,7 +63,7 @@ import com.ib.client.ContractDetails;
  */
 public class IBNativeReferenceDataServiceImpl extends ReferenceDataServiceImpl implements IBNativeReferenceDataService {
 
-    private static final Logger logger = MyLogger.getLogger(IBNativeReferenceDataServiceImpl.class.getName());
+    private static final Logger logger = Logger.getLogger(IBNativeReferenceDataServiceImpl.class.getName());
     private static final SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
     private static final DecimalFormat decimalFormat = new DecimalFormat("#.#######");
 

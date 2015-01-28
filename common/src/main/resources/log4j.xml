@@ -127,6 +127,4 @@
         <appender-ref ref="STDERR" />
     </root>
 
-    <categoryFactory class="ch.algotrader.util.MyLoggerFactory" />
-
 </log4j:configuration>

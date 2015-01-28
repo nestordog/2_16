@@ -28,8 +28,6 @@ import org.springframework.integration.Message;
 import org.springframework.integration.annotation.Transformer;
 import org.springframework.integration.support.MessageBuilder;
 
-import ch.algotrader.util.MyLogger;
-
 /**
  * Dispatches a {link Message} based on the defined {@link Disposition Dispositions}.
  *
@@ -39,7 +37,7 @@ import ch.algotrader.util.MyLogger;
  */
 public class EmailDispatcher {
 
-    private static Logger logger = MyLogger.getLogger(EmailDispatcher.class.getName());
+    private static Logger logger = Logger.getLogger(EmailDispatcher.class.getName());
 
     private Set<Disposition> dispositions = new HashSet<Disposition>();
 

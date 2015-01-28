@@ -22,8 +22,6 @@ import org.apache.log4j.Logger;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.UpdateListener;
 
-import ch.algotrader.util.MyLogger;
-
 /**
  * Prints all values to the Log by using the {@code toString} method of the event object.
  *
@@ -33,7 +31,7 @@ import ch.algotrader.util.MyLogger;
  */
 public class TestListener implements UpdateListener {
 
-    private static Logger logger = MyLogger.getLogger(TestListener.class.getName());
+    private static Logger logger = Logger.getLogger(TestListener.class.getName());
 
     @Override
     public void update(EventBean[] newEvents, EventBean[] oldEvents) {

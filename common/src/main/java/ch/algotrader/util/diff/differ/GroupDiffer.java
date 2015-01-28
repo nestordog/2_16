@@ -25,7 +25,6 @@ import java.util.Objects;
 
 import org.apache.log4j.Logger;
 
-import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.diff.CsvAssertionError;
 import ch.algotrader.util.diff.define.CsvColumn;
 import ch.algotrader.util.diff.reader.BufferedReader;
@@ -42,7 +41,7 @@ import ch.algotrader.util.diff.reader.LinkedListReader;
  */
 public class GroupDiffer implements CsvDiffer {
 
-    private static Logger LOG = MyLogger.getLogger(GroupDiffer.class);
+    private static Logger LOG = Logger.getLogger(GroupDiffer.class);
 
     private final List<CsvColumn> expectedGroupColumns;
     private final List<CsvColumn> actualGroupColumns;

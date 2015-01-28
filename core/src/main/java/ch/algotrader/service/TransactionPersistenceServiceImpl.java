@@ -38,8 +38,7 @@ import ch.algotrader.entity.strategy.CashBalance;
 import ch.algotrader.entity.strategy.CashBalanceDao;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.enumeration.Currency;
-import ch.algotrader.esper.EngineLocator;
-import ch.algotrader.util.MyLogger;
+import ch.algotrader.esper.Engine;
 import ch.algotrader.util.PositionUtil;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.collection.BigDecimalMap;
@@ -59,8 +58,8 @@ import ch.algotrader.vo.TradePerformanceVO;
 @HibernateSession
 public abstract class TransactionPersistenceServiceImpl implements TransactionPersistenceService {
 
-    private static Logger logger = MyLogger.getLogger(TransactionPersistenceServiceImpl.class.getName());
-    private static Logger simulationLogger = MyLogger.getLogger(SimulationServiceImpl.class.getName() + ".RESULT");
+    private static Logger logger = Logger.getLogger(TransactionPersistenceServiceImpl.class.getName());
+    private static Logger simulationLogger = Logger.getLogger(SimulationServiceImpl.class.getName() + ".RESULT");
 
     private final CommonConfig commonConfig;
 
@@ -72,24 +71,29 @@ public abstract class TransactionPersistenceServiceImpl implements TransactionPe
 
     private final CashBalanceDao cashBalanceDao;
 
+    private final Engine serverEngine;
+
     public TransactionPersistenceServiceImpl(
             final CommonConfig commonConfig,
             final PortfolioService portfolioService,
             final PositionDao positionDao,
             final TransactionDao transactionDao,
-            final CashBalanceDao cashBalanceDao) {
+            final CashBalanceDao cashBalanceDao,
+            final Engine serverEngine) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(portfolioService, "PortfolioService is null");
         Validate.notNull(positionDao, "PositionDao is null");
         Validate.notNull(transactionDao, "TransactionDao is null");
         Validate.notNull(cashBalanceDao, "CashBalanceDao is null");
+        Validate.notNull(serverEngine, "Engine is null");
 
         this.commonConfig = commonConfig;
         this.portfolioService = portfolioService;
         this.positionDao = positionDao;
         this.transactionDao = transactionDao;
         this.cashBalanceDao = cashBalanceDao;
+        this.serverEngine = serverEngine;
     }
 
     /**
@@ -186,9 +190,7 @@ public abstract class TransactionPersistenceServiceImpl implements TransactionPe
             logMessage += ",profit=" + RoundUtil.getBigDecimal(tradePerformance.getProfit()) + ",profitPct=" + RoundUtil.getBigDecimal(tradePerformance.getProfitPct());
 
             // propagate the TradePerformance event
-            if (this.commonConfig.isSimulation() && EngineLocator.instance().hasServerEngine()) {
-                EngineLocator.instance().getServerEngine().sendEvent(tradePerformance);
-            }
+            this.serverEngine.sendEvent(tradePerformance);
         }
 
         if (this.commonConfig.isSimulation() && this.commonConfig.isSimulationLogTransactions()) {

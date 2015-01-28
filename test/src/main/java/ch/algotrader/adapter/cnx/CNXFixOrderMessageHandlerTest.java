@@ -52,7 +52,8 @@ import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.AbstractEngine;
-import ch.algotrader.esper.EngineLocator;
+import ch.algotrader.esper.Engine;
+import ch.algotrader.esper.EngineManager;
 import ch.algotrader.service.LookupService;
 import quickfix.DefaultSessionFactory;
 import quickfix.FileStoreFactory;
@@ -69,6 +70,7 @@ import quickfix.fix44.OrderCancelRequest;
 public class CNXFixOrderMessageHandlerTest {
 
     private LinkedBlockingQueue<Object> eventQueue;
+    private EngineManager engineManager;
     private LookupService lookupService;
     private CNXFixOrderMessageFactory messageFactory;
     private CNXFixOrderMessageHandler messageHandler;
@@ -81,7 +83,7 @@ public class CNXFixOrderMessageHandlerTest {
         final LinkedBlockingQueue<Object> queue = new LinkedBlockingQueue<Object>();
         this.eventQueue = queue;
 
-        EngineLocator.instance().setEngine(StrategyImpl.SERVER, new AbstractEngine() {
+        Engine engine = new AbstractEngine(StrategyImpl.SERVER) {
 
             @Override
             public void sendEvent(Object obj) {
@@ -96,20 +98,21 @@ public class CNXFixOrderMessageHandlerTest {
             public List executeQuery(String query) {
                 return null;
             }
-        });
+        };
 
+        this.engineManager = Mockito.mock(EngineManager.class);
 
         SessionSettings settings = FixConfigUtils.loadSettings();
         SessionID sessionId = FixConfigUtils.getSessionID(settings, "CNXT");
 
         this.lookupService = Mockito.mock(LookupService.class);
-        CNXFixOrderMessageHandler messageHandlerImpl = new CNXFixOrderMessageHandler();
-        messageHandlerImpl.setLookupService(lookupService);
+        CNXFixOrderMessageHandler messageHandlerImpl = new CNXFixOrderMessageHandler(this.lookupService, engine);
         this.messageHandler = Mockito.spy(messageHandlerImpl);
         this.messageFactory = new CNXFixOrderMessageFactory();
 
         DefaultLogonMessageHandler logonMessageHandler = new DefaultLogonMessageHandler(settings);
-        DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, messageHandler, logonMessageHandler, new DefaultFixSessionLifecycle("CNX"));
+        DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, messageHandler, logonMessageHandler,
+                new DefaultFixSessionLifecycle("CNX", this.engineManager));
 
         LogFactory logFactory = new ScreenLogFactory(true, true, true);
 

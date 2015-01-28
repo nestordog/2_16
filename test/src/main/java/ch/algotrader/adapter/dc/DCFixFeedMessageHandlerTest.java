@@ -26,6 +26,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import ch.algotrader.adapter.fix.DefaultFixApplication;
 import ch.algotrader.adapter.fix.DefaultFixSessionLifecycle;
@@ -39,7 +40,8 @@ import ch.algotrader.entity.security.SecurityFamilyImpl;
 import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.esper.AbstractEngine;
-import ch.algotrader.esper.EngineLocator;
+import ch.algotrader.esper.Engine;
+import ch.algotrader.esper.EngineManager;
 import ch.algotrader.vo.AskVO;
 import ch.algotrader.vo.BidVO;
 import quickfix.CompositeLogFactory;
@@ -57,6 +59,7 @@ import quickfix.fix44.MarketDataRequest;
 public class DCFixFeedMessageHandlerTest {
 
     private LinkedBlockingQueue<Object> eventQueue;
+    private EngineManager engineManager;
     private Session session;
     private SocketInitiator socketInitiator;
 
@@ -66,7 +69,7 @@ public class DCFixFeedMessageHandlerTest {
         final LinkedBlockingQueue<Object> queue = new LinkedBlockingQueue<Object>();
         this.eventQueue = queue;
 
-        EngineLocator.instance().setEngine(StrategyImpl.SERVER, new AbstractEngine() {
+        Engine engine = new AbstractEngine(StrategyImpl.SERVER) {
 
             @Override
             public void sendEvent(Object obj) {
@@ -81,14 +84,18 @@ public class DCFixFeedMessageHandlerTest {
             public List executeQuery(String query) {
                 return null;
             }
-        });
+
+        };
+
+        this.engineManager = Mockito.mock(EngineManager.class);
 
         SessionSettings settings = FixConfigUtils.loadSettings();
         SessionID sessionId = FixConfigUtils.getSessionID(settings, "DCMD");
 
         DefaultLogonMessageHandler dcLogonHandler = new DefaultLogonMessageHandler(settings);
 
-        DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, new DCFixMarketDataMessageHandler(), dcLogonHandler, new DefaultFixSessionLifecycle("DC"));
+        DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId,
+                new DCFixMarketDataMessageHandler(engine), dcLogonHandler, new DefaultFixSessionLifecycle("DC", this.engineManager));
 
         LogFactory logFactory = new CompositeLogFactory(new LogFactory[] { new SLF4JLogFactory(settings) });
 

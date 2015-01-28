@@ -15,30 +15,19 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.util;
-
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+package ch.algotrader.config;
 
 /**
- * Sets the log-level based on the commandline argument "logLevel"
+ * Dependency lookup interface.
  *
- * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
+ * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  *
  * @version $Revision$ $Date$
  */
-public class LogLevelSetter {
+public interface DependencyLookup {
 
-    public void init() {
+    Object getBean(String name);
 
-        String levelName = System.getProperty("logLevel");
-        if (levelName != null && !"".equals(levelName)) {
-            Level level = Level.toLevel(levelName); // defaults to DEBUG
-            if (levelName.toUpperCase().equals(level.toString())) {
-                Logger.getRootLogger().setLevel(level);
-            } else {
-                throw new IllegalStateException("unrecognized log4j log level " + levelName);
-            }
-        }
-    }
+    <T> T getBean(String name, Class<T> requiredType);
+
 }

@@ -30,12 +30,12 @@ import org.hibernate.SessionFactory;
 import org.hibernate.type.IntegerType;
 import org.springframework.stereotype.Repository;
 
+import com.espertech.esper.collection.Pair;
+
 import ch.algotrader.enumeration.QueryType;
-import ch.algotrader.esper.EngineLocator;
+import ch.algotrader.esper.Engine;
 import ch.algotrader.hibernate.AbstractDao;
 import ch.algotrader.hibernate.NamedParam;
-
-import com.espertech.esper.collection.Pair;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -45,9 +45,13 @@ import com.espertech.esper.collection.Pair;
 @Repository // Required for exception translation
 public class OrderDaoImpl extends AbstractDao<Order> implements OrderDao {
 
-    public OrderDaoImpl(final SessionFactory sessionFactory) {
+    private final Engine serverEngine;
+
+    public OrderDaoImpl(final SessionFactory sessionFactory, final Engine serverEngine) {
 
         super(OrderImpl.class, sessionFactory);
+        Validate.notNull(serverEngine, "Engine is null");
+        this.serverEngine = serverEngine;
     }
 
     @Override
@@ -81,7 +85,7 @@ public class OrderDaoImpl extends AbstractDao<Order> implements OrderDao {
     @Override
     public Collection<Order> findAllOpenOrders() {
 
-        return this.convertPairCollectionToOrderCollection(EngineLocator.instance().getServerEngine().executeQuery("select * from OpenOrderWindow"));
+        return this.convertPairCollectionToOrderCollection(this.serverEngine.executeQuery("select * from OpenOrderWindow"));
     }
 
     @SuppressWarnings("unchecked")
@@ -90,7 +94,7 @@ public class OrderDaoImpl extends AbstractDao<Order> implements OrderDao {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        return this.convertPairCollectionToOrderCollection(EngineLocator.instance().getServerEngine().executeQuery("select * from OpenOrderWindow where strategy.name = '" + strategyName + "'"));
+        return this.convertPairCollectionToOrderCollection(this.serverEngine.executeQuery("select * from OpenOrderWindow where strategy.name = '" + strategyName + "'"));
     }
 
     @SuppressWarnings("unchecked")
@@ -99,7 +103,7 @@ public class OrderDaoImpl extends AbstractDao<Order> implements OrderDao {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        return this.convertPairCollectionToOrderCollection(EngineLocator.instance().getServerEngine()
+        return this.convertPairCollectionToOrderCollection(this.serverEngine
                 .executeQuery("select * from OpenOrderWindow where strategy.name = '" + strategyName + "' and security.id = " + securityId));
     }
 
@@ -109,7 +113,7 @@ public class OrderDaoImpl extends AbstractDao<Order> implements OrderDao {
 
         Validate.notEmpty(intId, "intId is empty");
 
-        Pair<Order, Map<?, ?>> pair = ((Pair<Order, Map<?, ?>>) EngineLocator.instance().getServerEngine().executeSingelObjectQuery("select * from OpenOrderWindow where intId = '" + intId + "'"));
+        Pair<Order, Map<?, ?>> pair = ((Pair<Order, Map<?, ?>>) this.serverEngine.executeSingelObjectQuery("select * from OpenOrderWindow where intId = '" + intId + "'"));
         if (pair == null) {
             return null;
         } else {
@@ -124,7 +128,7 @@ public class OrderDaoImpl extends AbstractDao<Order> implements OrderDao {
         Validate.notEmpty(intId, "intId is empty");
 
         String rootIntId = intId.split("\\.")[0];
-        Pair<Order, Map<?, ?>> pair = ((Pair<Order, Map<?, ?>>) EngineLocator.instance().getServerEngine()
+        Pair<Order, Map<?, ?>> pair = ((Pair<Order, Map<?, ?>>) this.serverEngine
                 .executeSingelObjectQuery("select * from OpenOrderWindow where intId like '" + rootIntId + ".%'"));
         if (pair == null) {
             return null;
@@ -139,7 +143,7 @@ public class OrderDaoImpl extends AbstractDao<Order> implements OrderDao {
 
         Validate.notEmpty(extId, "extId is empty");
 
-        Pair<Order, Map<?, ?>> pair = ((Pair<Order, Map<?, ?>>) EngineLocator.instance().getServerEngine().executeSingelObjectQuery("select * from OpenOrderWindow where extId = '" + extId + "'"));
+        Pair<Order, Map<?, ?>> pair = ((Pair<Order, Map<?, ?>>) this.serverEngine.executeSingelObjectQuery("select * from OpenOrderWindow where extId = '" + extId + "'"));
         if (pair == null) {
             return null;
         } else {
@@ -153,7 +157,7 @@ public class OrderDaoImpl extends AbstractDao<Order> implements OrderDao {
 
         Validate.notEmpty(parentIntId, "parentIntId is empty");
 
-        return this.convertPairCollectionToOrderCollection(EngineLocator.instance().getServerEngine()
+        return this.convertPairCollectionToOrderCollection(this.serverEngine
                 .executeQuery("select * from OpenOrderWindow where not algoOrder and parentOrder.intId = '" + parentIntId + "'"));
     }
 

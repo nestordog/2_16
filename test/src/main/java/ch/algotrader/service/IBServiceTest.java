@@ -21,7 +21,6 @@ import org.junit.BeforeClass;
 
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.esper.EngineLocator;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -39,7 +38,7 @@ public class IBServiceTest {
 
         if (!initialized) {
 
-            Engine engine = EngineLocator.instance().initServerEngine();
+            Engine engine = ServiceLocator.instance().getEngineManager().getServerEngine();
             engine.setInternalClock(true);
             engine.deployAllModules();
 

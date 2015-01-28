@@ -40,7 +40,6 @@ import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.service.LookupService;
 import quickfix.field.ClOrdID;
 import quickfix.field.ExecType;
@@ -64,10 +63,8 @@ public class TestRTFixOrderMessageHandler {
     public void setup() throws Exception {
 
         MockitoAnnotations.initMocks(this);
-        EngineLocator.instance().setEngine("SERVER", this.engine);
 
-        this.impl = new RTFixOrderMessageHandler();
-        this.impl.setLookupService(this.lookupService);
+        this.impl = new RTFixOrderMessageHandler(lookupService, engine);
     }
 
     @Test

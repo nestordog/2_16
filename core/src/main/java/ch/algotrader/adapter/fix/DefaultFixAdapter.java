@@ -32,7 +32,6 @@ import ch.algotrader.entity.trade.Order;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.ordermgmt.OrderIdGenerator;
 import ch.algotrader.service.LookupService;
-import ch.algotrader.util.MyLogger;
 import quickfix.ConfigError;
 import quickfix.FieldConvertError;
 import quickfix.Message;
@@ -49,7 +48,7 @@ import quickfix.SocketInitiator;
  */
 public class DefaultFixAdapter implements FixAdapter {
 
-    private static final Logger LOGGER = MyLogger.getLogger(AbstractFixApplication.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(AbstractFixApplication.class.getName());
 
     private final Lock lock;
     private final SocketInitiator socketInitiator;

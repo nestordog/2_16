@@ -22,11 +22,11 @@ import java.util.Date;
 import org.apache.commons.math.MathException;
 import org.apache.log4j.Logger;
 
+import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.option.OptionUtil;
 import ch.algotrader.util.DateUtil;
-import ch.algotrader.util.MyLogger;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -36,7 +36,7 @@ import ch.algotrader.util.MyLogger;
 public class OptionImpl extends Option {
 
     private static final long serialVersionUID = -3168298592370987085L;
-    private static Logger logger = MyLogger.getLogger(OptionImpl.class.getName());
+    private static Logger logger = Logger.getLogger(OptionImpl.class.getName());
 
     @Override
     public double getLeverage() {
@@ -80,14 +80,14 @@ public class OptionImpl extends Option {
     @Override
     public long getTimeToExpiration() {
 
-        return getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime();
+        return getExpiration().getTime() - ServiceLocator.instance().getEngineManager().getCurrentEPTime().getTime();
     }
 
     @Override
     public int getDuration() {
 
         OptionFamily family = (OptionFamily) this.getSecurityFamily();
-        Date nextExpDate = DateUtil.getExpirationDate(family.getExpirationType(), DateUtil.getCurrentEPTime());
+        Date nextExpDate = DateUtil.getExpirationDate(family.getExpirationType(), ServiceLocator.instance().getEngineManager().getCurrentEPTime());
         return 1 + (int) Math.round(((this.getExpiration().getTime() - nextExpDate.getTime()) / (double) family.getExpirationDistance().value()));
     }
 

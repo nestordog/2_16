@@ -36,7 +36,7 @@ import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.enumeration.QueryType;
-import ch.algotrader.esper.EngineLocator;
+import ch.algotrader.esper.Engine;
 import ch.algotrader.hibernate.AbstractDao;
 import ch.algotrader.hibernate.NamedParam;
 import ch.algotrader.util.collection.Pair;
@@ -50,14 +50,17 @@ import ch.algotrader.util.collection.Pair;
 public class TickDaoImpl extends AbstractDao<Tick> implements TickDao {
 
     private final SubscriptionDao subscriptionDao;
+    private final Engine serverEngine;
 
-    public TickDaoImpl(final SessionFactory sessionFactory, final SubscriptionDao subscriptionDao) {
+    public TickDaoImpl(final SessionFactory sessionFactory, final SubscriptionDao subscriptionDao, final Engine serverEngine) {
 
         super(TickImpl.class, sessionFactory);
 
         Validate.notNull(subscriptionDao);
+        Validate.notNull(serverEngine, "Engine is null");
 
         this.subscriptionDao = subscriptionDao;
+        this.serverEngine = serverEngine;
     }
 
     @Override
@@ -211,7 +214,7 @@ public class TickDaoImpl extends AbstractDao<Tick> implements TickDao {
 
         // sometimes Esper returns a Map instead of scalar
         String query = "select tickerId from TickWindow where security.id = " + securityId;
-        Object obj = EngineLocator.instance().getServerEngine().executeSingelObjectQuery(query);
+        Object obj = this.serverEngine.executeSingelObjectQuery(query);
         if (obj instanceof Map) {
             return ((Map<String, String>) obj).get("tickerId");
         } else {
@@ -230,7 +233,7 @@ public class TickDaoImpl extends AbstractDao<Tick> implements TickDao {
         List<Tick> ticks = new ArrayList<Tick>();
         for (Subscription subscription : subscriptions) {
             String query = "select * from TickWindow where security.id = " + subscription.getSecurity().getId();
-            Pair<Tick, Object> pair = (Pair<Tick, Object>) EngineLocator.instance().getServerEngine().executeSingelObjectQuery(query);
+            Pair<Tick, Object> pair = (Pair<Tick, Object>) this.serverEngine.executeSingelObjectQuery(query);
             if (pair != null) {
 
                 Tick tick = pair.getFirst();

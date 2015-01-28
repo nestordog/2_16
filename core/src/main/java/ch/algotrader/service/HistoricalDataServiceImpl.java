@@ -35,7 +35,6 @@ import ch.algotrader.entity.marketData.BarDao;
 import ch.algotrader.enumeration.BarType;
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.TimePeriod;
-import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.collection.CollectionUtil;
 import ch.algotrader.util.spring.HibernateSession;
 
@@ -47,7 +46,7 @@ import ch.algotrader.util.spring.HibernateSession;
 @HibernateSession
 public abstract class HistoricalDataServiceImpl implements HistoricalDataService {
 
-    private static Logger logger = MyLogger.getLogger(HistoricalDataServiceImpl.class.getName());
+    private static Logger logger = Logger.getLogger(HistoricalDataServiceImpl.class.getName());
 
     private final BarDao barDao;
 

@@ -69,7 +69,7 @@
 
     <!-- Constants -->
     <variable name="simulation" type="boolean" constant="true"/>
-    <variable name="engineStrategy" type="ch.algotrader.entity.strategy.Strategy" constant="true"/>
+    <variable name="strategyName" type="string" constant="true"/>
     <variable name="dataSource_barSize" type="ch.algotrader.enumeration.Duration" constant="true"/>
     <variable name="dataSource_dataSetType" type="ch.algotrader.enumeration.MarketDataType" constant="true"/>
     <variable name="misc_portfolioStartHour" type="int" constant="true"/>
@@ -77,6 +77,7 @@
 
     <!-- Variables -->
     <variable name="internal_clock" type="boolean" initialization-value="false"/>
+    <variable name="engineStrategy" type="ch.algotrader.entity.strategy.Strategy"/>
 
     <!-- Esper JMX -->
     <plugin-loader name="EsperJMX" class-name="com.espertech.esper.jmx.client.EsperJMXPlugin">

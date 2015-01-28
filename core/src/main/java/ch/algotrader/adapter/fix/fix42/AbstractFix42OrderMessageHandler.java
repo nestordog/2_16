@@ -24,9 +24,8 @@ import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.Status;
-import ch.algotrader.esper.EngineLocator;
+import ch.algotrader.esper.Engine;
 import ch.algotrader.service.LookupService;
-import ch.algotrader.util.MyLogger;
 import quickfix.FieldNotFound;
 import quickfix.SessionID;
 import quickfix.field.ExecTransType;
@@ -46,16 +45,14 @@ import quickfix.fix42.OrderCancelReject;
  */
 public abstract class AbstractFix42OrderMessageHandler extends AbstractFix42MessageHandler {
 
-    private static Logger LOGGER = MyLogger.getLogger(AbstractFix42OrderMessageHandler.class.getName());
+    private static Logger LOGGER = Logger.getLogger(AbstractFix42OrderMessageHandler.class.getName());
 
-    private LookupService lookupService;
+    private final LookupService lookupService;
+    private final Engine serverEngine;
 
-    public void setLookupService(final LookupService lookupService) {
+    protected AbstractFix42OrderMessageHandler(final LookupService lookupService, final Engine serverEngine) {
         this.lookupService = lookupService;
-    }
-
-    public LookupService getLookupService() {
-        return this.lookupService;
+        this.serverEngine = serverEngine;
     }
 
     protected abstract boolean discardReport(ExecutionReport executionReport) throws FieldNotFound;
@@ -116,7 +113,7 @@ public abstract class AbstractFix42OrderMessageHandler extends AbstractFix42Mess
                 orderStatus.setReason(executionReport.getText().getValue());
             }
 
-            EngineLocator.instance().getServerEngine().sendEvent(orderStatus);
+            this.serverEngine.sendEvent(orderStatus);
 
             return;
         }
@@ -124,7 +121,7 @@ public abstract class AbstractFix42OrderMessageHandler extends AbstractFix42Mess
         OrderStatus orderStatus = createStatus(executionReport, order);
         orderStatus.setOrder(order);
 
-        EngineLocator.instance().getServerEngine().sendEvent(orderStatus);
+        this.serverEngine.sendEvent(orderStatus);
 
         Fill fill = createFill(executionReport, order);
         if (fill != null) {
@@ -132,7 +129,7 @@ public abstract class AbstractFix42OrderMessageHandler extends AbstractFix42Mess
             // associate the fill with the order
             fill.setOrder(order);
 
-            EngineLocator.instance().getServerEngine().sendEvent(fill);
+            this.serverEngine.sendEvent(fill);
         }
     }
 
@@ -156,7 +153,7 @@ public abstract class AbstractFix42OrderMessageHandler extends AbstractFix42Mess
         String intId = reject.getClOrdID().getValue();
 
         // get the order from the OpenOrderWindow
-        Order order = getLookupService().getOpenOrderByRootIntId(intId);
+        Order order = this.lookupService.getOpenOrderByRootIntId(intId);
         if (order == null) {
 
             if (LOGGER.isEnabledFor(Level.ERROR)) {
@@ -180,7 +177,7 @@ public abstract class AbstractFix42OrderMessageHandler extends AbstractFix42Mess
             orderStatus.setReason(reject.getText().getValue());
         }
 
-        EngineLocator.instance().getServerEngine().sendEvent(orderStatus);
+        this.serverEngine.sendEvent(orderStatus);
     }
 
 }

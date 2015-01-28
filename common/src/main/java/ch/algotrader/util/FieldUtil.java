@@ -44,7 +44,7 @@ import org.apache.log4j.Logger;
  */
 public class FieldUtil {
 
-    private static Logger logger = MyLogger.getLogger(FieldUtil.class.getName());
+    private static Logger logger = Logger.getLogger(FieldUtil.class.getName());
 
     private static final Set<Object> immediates =
         new HashSet<Object>(Arrays.asList(new Object[]{

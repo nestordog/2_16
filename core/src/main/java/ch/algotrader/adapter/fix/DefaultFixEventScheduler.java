@@ -17,7 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.fix;
 
-import ch.algotrader.esper.EngineLocator;
+import ch.algotrader.esper.Engine;
 import quickfix.Session;
 import quickfix.SessionID;
 
@@ -29,12 +29,18 @@ import quickfix.SessionID;
  */
 public class DefaultFixEventScheduler implements FixEventScheduler {
 
+    private final Engine serverEngine;
+
+    public DefaultFixEventScheduler(final Engine serverEngine) {
+        this.serverEngine = serverEngine;
+    }
+
     @Override
     public void scheduleLogon(final SessionID sessionId, final EventPattern eventTime) {
 
         Object[] logonParams = {eventTime.getMinute(), eventTime.getHour(), eventTime.getDay(), eventTime.getSecond()};
 
-        EngineLocator.instance().getServerEngine().deployStatement("prepared", "FIX_SESSION", sessionId.getSessionQualifier() + "_LOGON", logonParams, new Object() {
+        this.serverEngine.deployStatement("prepared", "FIX_SESSION", sessionId.getSessionQualifier() + "_LOGON", logonParams, new Object() {
             @SuppressWarnings("unused")
             public void update() {
                 Session session = Session.lookupSession(sessionId);
@@ -48,7 +54,7 @@ public class DefaultFixEventScheduler implements FixEventScheduler {
 
         Object[] logoutParams = {eventTime.getMinute(), eventTime.getHour(), eventTime.getDay(), eventTime.getSecond()};
 
-        EngineLocator.instance().getServerEngine().deployStatement("prepared", "FIX_SESSION", sessionId.getSessionQualifier() + "_LOGOUT", logoutParams, new Object() {
+        this.serverEngine.deployStatement("prepared", "FIX_SESSION", sessionId.getSessionQualifier() + "_LOGOUT", logoutParams, new Object() {
             @SuppressWarnings("unused")
             public void update() {
                 Session session = Session.lookupSession(sessionId);

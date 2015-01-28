@@ -25,6 +25,10 @@ import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
 
+import com.bloomberglp.blpapi.CorrelationID;
+import com.bloomberglp.blpapi.Subscription;
+import com.bloomberglp.blpapi.SubscriptionList;
+
 import ch.algotrader.adapter.bb.BBAdapter;
 import ch.algotrader.adapter.bb.BBIdGenerator;
 import ch.algotrader.adapter.bb.BBSession;
@@ -35,17 +39,12 @@ import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.enumeration.InitializingServiceType;
-import ch.algotrader.esper.EngineLocator;
+import ch.algotrader.esper.Engine;
 import ch.algotrader.service.ExternalMarketDataServiceImpl;
 import ch.algotrader.service.InitializationPriority;
 import ch.algotrader.service.InitializingServiceI;
 import ch.algotrader.service.ib.IBNativeMarketDataServiceException;
-import ch.algotrader.util.MyLogger;
 import ch.algotrader.vo.SubscribeTickVO;
-
-import com.bloomberglp.blpapi.CorrelationID;
-import com.bloomberglp.blpapi.Subscription;
-import com.bloomberglp.blpapi.SubscriptionList;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -57,26 +56,29 @@ public class BBMarketDataServiceImpl extends ExternalMarketDataServiceImpl imple
 
     private static final long serialVersionUID = -3463200344945144471L;
 
-    private static Logger logger = MyLogger.getLogger(BBMarketDataServiceImpl.class.getName());
+    private static Logger logger = Logger.getLogger(BBMarketDataServiceImpl.class.getName());
     private static BBSession session;
 
     private final BBAdapter bBAdapter;
-
     private final TickDao tickDao;
+    private final Engine serverEngine;
 
     public BBMarketDataServiceImpl(
             final CommonConfig commonConfig,
             final BBAdapter bBAdapter,
             final TickDao tickDao,
-            final SecurityDao securityDao) {
+            final SecurityDao securityDao,
+            final Engine serverEngine            ) {
 
         super(commonConfig, securityDao);
 
         Validate.notNull(bBAdapter, "BBAdapter is null");
         Validate.notNull(tickDao, "TickDao is null");
+        Validate.notNull(serverEngine, "Engine is null");
 
         this.bBAdapter = bBAdapter;
         this.tickDao = tickDao;
+        this.serverEngine = serverEngine;
     }
 
     /**
@@ -122,7 +124,7 @@ public class BBMarketDataServiceImpl extends ExternalMarketDataServiceImpl imple
         subscribeTickEvent.setTick(tick);
         subscribeTickEvent.setTickerId(tickerId);
 
-        EngineLocator.instance().getServerEngine().sendEvent(subscribeTickEvent);
+        this.serverEngine.sendEvent(subscribeTickEvent);
 
         SubscriptionList subscriptions = getSubscriptionList(security, tickerId);
 
@@ -159,7 +161,7 @@ public class BBMarketDataServiceImpl extends ExternalMarketDataServiceImpl imple
             throw new BBMarketDataServiceException(ex);
         }
 
-        EngineLocator.instance().getServerEngine().executeQuery("delete from TickWindow where security.id = " + security.getId());
+        this.serverEngine.executeQuery("delete from TickWindow where security.id = " + security.getId());
 
         logger.debug("cancelled market data for : " + security);
 

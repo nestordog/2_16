@@ -23,8 +23,6 @@ import java.util.TreeMap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import ch.algotrader.util.MyLogger;
-
 /**
  * Prints all values as a comma-separated-list (CSV) to Log. (Headers are not available).
  *
@@ -34,7 +32,7 @@ import ch.algotrader.util.MyLogger;
  */
 public class IndicatorSubscriber {
 
-    private static Logger logger = MyLogger.getLogger(IndicatorSubscriber.class.getName());
+    private static Logger logger = Logger.getLogger(IndicatorSubscriber.class.getName());
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public void update(Map<?, ?> map) {

@@ -19,6 +19,10 @@ package ch.algotrader.adapter.ib;
 
 import org.apache.log4j.Logger;
 
+import ch.algotrader.adapter.fix.fix42.GenericFix42OrderMessageHandler;
+import ch.algotrader.esper.Engine;
+import ch.algotrader.service.LookupService;
+import ch.algotrader.service.ib.IBFixAllocationService;
 import quickfix.FieldNotFound;
 import quickfix.SessionID;
 import quickfix.field.ClOrdID;
@@ -32,9 +36,6 @@ import quickfix.field.XMLContent;
 import quickfix.fix42.ExecutionReport;
 import quickfix.fix42.IBFAModification;
 import quickfix.fix42.OrderCancelReject;
-import ch.algotrader.adapter.fix.fix42.GenericFix42OrderMessageHandler;
-import ch.algotrader.service.ib.IBFixAllocationService;
-import ch.algotrader.util.MyLogger;
 
 /**
  * IB specific Fix42MessageHandler.
@@ -45,11 +46,12 @@ import ch.algotrader.util.MyLogger;
  */
 public class IBFixOrderMessageHandler extends GenericFix42OrderMessageHandler {
 
-    private static Logger logger = MyLogger.getLogger(IBFixOrderMessageHandler.class.getName());
+    private static Logger logger = Logger.getLogger(IBFixOrderMessageHandler.class.getName());
 
-    private IBFixAllocationService allocationService;
+    private final IBFixAllocationService allocationService;
 
-    public void setAccountService(IBFixAllocationService allocationService) {
+    public IBFixOrderMessageHandler(final LookupService lookupService, IBFixAllocationService allocationService, final Engine serverEngine) {
+        super(lookupService, serverEngine);
         this.allocationService = allocationService;
     }
 

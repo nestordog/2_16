@@ -11,7 +11,7 @@ from
 @Name('OPEN_POSITION')
 @Subscriber(className='${package}.${serviceName}Service.openPosition')
 select
-    engineStrategy.name as strategyName,
+    strategyName,
     tick.security.id as securityId,
     tick.currentValue as price
 from

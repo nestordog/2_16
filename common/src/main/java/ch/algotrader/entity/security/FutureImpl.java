@@ -19,6 +19,7 @@ package ch.algotrader.entity.security;
 
 import java.util.Date;
 
+import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.future.FutureUtil;
 import ch.algotrader.util.DateUtil;
@@ -47,14 +48,14 @@ public class FutureImpl extends Future {
     @Override
     public long getTimeToExpiration() {
 
-        return getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime();
+        return getExpiration().getTime() - ServiceLocator.instance().getEngineManager().getCurrentEPTime().getTime();
     }
 
     @Override
     public int getDuration() {
 
         FutureFamily family = (FutureFamily) this.getSecurityFamilyInitialized();
-        Date nextExpDate = DateUtil.getExpirationDate(family.getExpirationType(), DateUtil.getCurrentEPTime());
+        Date nextExpDate = DateUtil.getExpirationDate(family.getExpirationType(), ServiceLocator.instance().getEngineManager().getCurrentEPTime());
         return 1 + (int) Math.round(((this.getExpiration().getTime() - nextExpDate.getTime()) / (double)family.getExpirationDistance().value()));
     }
 

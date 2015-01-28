@@ -28,7 +28,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import quickfix.fix44.MarketDataRequest;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.CommonConfigBuilder;
 import ch.algotrader.entity.marketData.Tick;
@@ -42,10 +41,10 @@ import ch.algotrader.entity.security.SecurityFamilyImpl;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.service.fix.FixMarketDataServiceException;
 import ch.algotrader.service.fix.fix44.Fix44MarketDataService;
 import ch.algotrader.vo.SubscribeTickVO;
+import quickfix.fix44.MarketDataRequest;
 
 public class FIXMarketDataServiceTest {
 
@@ -69,11 +68,9 @@ public class FIXMarketDataServiceTest {
 
         CommonConfig commonConfig = CommonConfigBuilder.create().build();
 
-        FakeFix44MarketDataService fakeFix44MarketDataService = new FakeFix44MarketDataService(commonConfig, this.sessionLifecycle, this.fixAdapter, this.securityDao );
+        FakeFix44MarketDataService fakeFix44MarketDataService = new FakeFix44MarketDataService(commonConfig, this.sessionLifecycle, this.fixAdapter, this.engine, this.securityDao );
 
         this.impl = Mockito.spy(fakeFix44MarketDataService);
-
-        EngineLocator.instance().setEngine("SERVER", this.engine);
     }
 
     private static Forex createForex(final Currency base, final Currency counter) {

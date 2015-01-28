@@ -56,9 +56,8 @@ import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.strategy.StrategyDao;
 import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.enumeration.Currency;
+import ch.algotrader.esper.EngineManager;
 import ch.algotrader.hibernate.GenericDao;
-import ch.algotrader.util.DateUtil;
-import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.collection.DoubleMap;
 import ch.algotrader.util.spring.HibernateSession;
@@ -74,7 +73,7 @@ import ch.algotrader.vo.PortfolioValueVO;
 @HibernateSession
 public class PortfolioServiceImpl implements PortfolioService {
 
-    private static Logger logger = MyLogger.getLogger(PortfolioServiceImpl.class.getName());
+    private static Logger logger = Logger.getLogger(PortfolioServiceImpl.class.getName());
 
     private final CommonConfig commonConfig;
 
@@ -100,6 +99,8 @@ public class PortfolioServiceImpl implements PortfolioService {
 
     private final ForexDao forexDao;
 
+    private final EngineManager engineManager;
+
     public PortfolioServiceImpl(final CommonConfig commonConfig,
             final CoreConfig coreConfig,
             final LookupService lookupService,
@@ -111,7 +112,8 @@ public class PortfolioServiceImpl implements PortfolioService {
             final CashBalanceDao cashBalanceDao,
             final PortfolioValueDao portfolioValueDao,
             final TickDao tickDao,
-            final ForexDao forexDao) {
+            final ForexDao forexDao,
+            final EngineManager engineManager) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(coreConfig, "CoreConfig is null");
@@ -125,6 +127,7 @@ public class PortfolioServiceImpl implements PortfolioService {
         Validate.notNull(portfolioValueDao, "PortfolioValueDao is null");
         Validate.notNull(tickDao, "TickDao is null");
         Validate.notNull(forexDao, "ForexDao is null");
+        Validate.notNull(engineManager, "EngineManager is null");
 
         this.commonConfig = commonConfig;
         this.coreConfig = coreConfig;
@@ -138,7 +141,7 @@ public class PortfolioServiceImpl implements PortfolioService {
         this.portfolioValueDao = portfolioValueDao;
         this.tickDao = tickDao;
         this.forexDao = forexDao;
-
+        this.engineManager = engineManager;
     }
 
     /**
@@ -725,7 +728,7 @@ public class PortfolioServiceImpl implements PortfolioService {
         PortfolioValue portfolioValue = PortfolioValue.Factory.newInstance();
 
         portfolioValue.setStrategy(strategy);
-        portfolioValue.setDateTime(DateUtil.getCurrentEPTime());
+        portfolioValue.setDateTime(this.engineManager.getCurrentEPTime());
         portfolioValue.setCashBalance(cashBalance);
         portfolioValue.setSecuritiesCurrentValue(securitiesCurrentValue); // might be null if there was no last tick for a particular security
         portfolioValue.setMaintenanceMargin(maintenanceMargin);

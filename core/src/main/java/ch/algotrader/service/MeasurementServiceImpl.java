@@ -27,7 +27,7 @@ import ch.algotrader.entity.strategy.Measurement;
 import ch.algotrader.entity.strategy.MeasurementDao;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.strategy.StrategyDao;
-import ch.algotrader.util.DateUtil;
+import ch.algotrader.esper.EngineManager;
 import ch.algotrader.util.spring.HibernateSession;
 
 /**
@@ -42,14 +42,19 @@ public class MeasurementServiceImpl implements MeasurementService {
 
     private final StrategyDao strategyDao;
 
+    private final EngineManager engineManager;
+
     public MeasurementServiceImpl(final MeasurementDao measurementDao,
-            final StrategyDao strategyDao) {
+            final StrategyDao strategyDao,
+            final EngineManager engineManager) {
 
         Validate.notNull(measurementDao, "MeasurementDao is null");
         Validate.notNull(strategyDao, "StrategyDao is null");
+        Validate.notNull(engineManager, "EngineManager is null");
 
         this.measurementDao = measurementDao;
         this.strategyDao = strategyDao;
+        this.engineManager = engineManager;
     }
 
     /**
@@ -63,7 +68,7 @@ public class MeasurementServiceImpl implements MeasurementService {
         Validate.notEmpty(name, "Name is empty");
         Validate.notNull(value, "Value is null");
 
-        return createMeasurement(strategyName, name, DateUtil.getCurrentEPTime(), value);
+        return createMeasurement(strategyName, name, this.engineManager.getCurrentEPTime(), value);
 
     }
 

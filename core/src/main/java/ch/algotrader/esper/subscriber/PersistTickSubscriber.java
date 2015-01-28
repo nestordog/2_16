@@ -26,14 +26,13 @@ import com.espertech.esper.collection.Pair;
 
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.marketData.Tick;
-import ch.algotrader.util.MyLogger;
 
 /**
  * Esper event subscriber for {@link ch.algotrader.service.MarketDataService#persistTick(ch.algotrader.entity.marketData.Tick)}.
  */
 public class PersistTickSubscriber {
 
-    private static Logger LOGGER = MyLogger.getLogger(PersistTickSubscriber.class.getName());
+    private static Logger LOGGER = Logger.getLogger(PersistTickSubscriber.class.getName());
 
     @SuppressWarnings("rawtypes")
     public void update(Pair<Tick, Object> insertStream, Map removeStream) {

@@ -17,10 +17,10 @@
  ***********************************************************************************/
 package ch.algotrader.future;
 
+import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.security.Future;
 import ch.algotrader.entity.security.FutureFamily;
 import ch.algotrader.enumeration.Duration;
-import ch.algotrader.util.DateUtil;
 
 /**
  * Utility class containing static methods around {@link Future Futures}.
@@ -39,7 +39,7 @@ public class FutureUtil {
 
         FutureFamily family = (FutureFamily) future.getSecurityFamily();
 
-        double years = (future.getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime()) / (double) Duration.YEAR_1.getValue();
+        double years = (future.getExpiration().getTime() - ServiceLocator.instance().getEngineManager().getCurrentEPTime().getTime()) / (double) Duration.YEAR_1.getValue();
 
         return getFuturePrice(underlyingSpot, years, family.getIntrest(), family.getDividend());
     }

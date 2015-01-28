@@ -20,6 +20,8 @@ package ch.algotrader.service.ib;
 import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
 
+import com.ib.client.Contract;
+
 import ch.algotrader.adapter.ib.IBIdGenerator;
 import ch.algotrader.adapter.ib.IBOrderMessageFactory;
 import ch.algotrader.adapter.ib.IBOrderStatus;
@@ -29,12 +31,9 @@ import ch.algotrader.entity.Account;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.enumeration.Status;
-import ch.algotrader.esper.EngineLocator;
+import ch.algotrader.esper.Engine;
 import ch.algotrader.service.ExternalOrderServiceImpl;
 import ch.algotrader.service.OrderService;
-import ch.algotrader.util.MyLogger;
-
-import com.ib.client.Contract;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -43,31 +42,32 @@ import com.ib.client.Contract;
  */
 public class IBNativeOrderServiceImpl extends ExternalOrderServiceImpl implements IBNativeOrderService {
 
-    private static Logger logger = MyLogger.getLogger(IBNativeOrderServiceImpl.class.getName());
+    private static Logger logger = Logger.getLogger(IBNativeOrderServiceImpl.class.getName());
 
     private static boolean firstOrder = true;
 
     private final IBSession iBSession;
-
     private final IBIdGenerator iBIdGenerator;
-
     private final IBOrderMessageFactory iBOrderMessageFactory;
-
+    private final Engine serverEngine;
     private final OrderService orderService;
 
     public IBNativeOrderServiceImpl(final IBSession iBSession,
             final IBIdGenerator iBIdGenerator,
             final IBOrderMessageFactory iBOrderMessageFactory,
+            final Engine serverEngine,
             final OrderService orderService) {
 
         Validate.notNull(iBSession, "IBSession is null");
         Validate.notNull(iBIdGenerator, "IBIdGenerator is null");
         Validate.notNull(iBOrderMessageFactory, "IBConfig is null");
+        Validate.notNull(serverEngine, "Engine is null");
         Validate.notNull(orderService, "OrderService is null");
 
         this.iBSession = iBSession;
         this.iBIdGenerator = iBIdGenerator;
         this.iBOrderMessageFactory = iBOrderMessageFactory;
+        this.serverEngine = serverEngine;
         this.orderService = orderService;
     }
 
@@ -136,7 +136,7 @@ public class IBNativeOrderServiceImpl extends ExternalOrderServiceImpl implement
         // send a 0:0 OrderStatus to validate the first SUBMITTED OrderStatus just after the modification
         IBOrderStatus orderStatus = new IBOrderStatus(Status.SUBMITTED, 0, 0, null, order);
 
-        EngineLocator.instance().getServerEngine().sendEvent(orderStatus);
+        this.serverEngine.sendEvent(orderStatus);
 
     }
 

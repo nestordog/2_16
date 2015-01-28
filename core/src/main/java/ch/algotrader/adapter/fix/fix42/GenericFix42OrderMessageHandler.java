@@ -20,15 +20,14 @@ package ch.algotrader.adapter.fix.fix42;
 import java.math.BigDecimal;
 import java.util.Date;
 
-import org.apache.log4j.Logger;
-
 import ch.algotrader.adapter.fix.FixUtil;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
-import ch.algotrader.util.MyLogger;
+import ch.algotrader.esper.Engine;
+import ch.algotrader.service.LookupService;
 import ch.algotrader.util.RoundUtil;
 import quickfix.FieldNotFound;
 import quickfix.field.AvgPx;
@@ -48,7 +47,9 @@ import quickfix.fix42.ExecutionReport;
  */
 public class GenericFix42OrderMessageHandler extends AbstractFix42OrderMessageHandler {
 
-    private static Logger logger = MyLogger.getLogger(GenericFix42OrderMessageHandler.class.getName());
+    public GenericFix42OrderMessageHandler(final LookupService lookupService, final Engine serverEngine) {
+        super(lookupService, serverEngine);
+    }
 
     @Override
     protected boolean discardReport(final ExecutionReport executionReport) throws FieldNotFound {

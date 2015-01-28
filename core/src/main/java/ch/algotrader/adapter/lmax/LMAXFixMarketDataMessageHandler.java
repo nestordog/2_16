@@ -24,8 +24,7 @@ import org.apache.log4j.Logger;
 
 import ch.algotrader.adapter.fix.fix44.AbstractFix44MarketDataMessageHandler;
 import ch.algotrader.enumeration.FeedType;
-import ch.algotrader.esper.EngineLocator;
-import ch.algotrader.util.MyLogger;
+import ch.algotrader.esper.Engine;
 import ch.algotrader.vo.AskVO;
 import ch.algotrader.vo.BidVO;
 import quickfix.FieldNotFound;
@@ -52,7 +51,13 @@ import quickfix.fix44.MarketDataSnapshotFullRefresh;
  */
 public class LMAXFixMarketDataMessageHandler extends AbstractFix44MarketDataMessageHandler {
 
-    private static Logger logger = MyLogger.getLogger(LMAXFixMarketDataMessageHandler.class.getName());
+    private static Logger logger = Logger.getLogger(LMAXFixMarketDataMessageHandler.class.getName());
+
+    private final Engine serverEngine;
+
+    public LMAXFixMarketDataMessageHandler(final Engine serverEngine) {
+        this.serverEngine = serverEngine;
+    }
 
     public void onMessage(final MarketDataSnapshotFullRefresh marketData, final SessionID sessionID) throws FieldNotFound {
 
@@ -85,7 +90,7 @@ public class LMAXFixMarketDataMessageHandler extends AbstractFix44MarketDataMess
                         }
 
                         BidVO bidVO = new BidVO(lmaxId, FeedType.LMAX, date, price, (int) size * LMAXConsts.FOREX_CONTRACT_MULTIPLIER);
-                        EngineLocator.instance().getServerEngine().sendEvent(bidVO);
+                        this.serverEngine.sendEvent(bidVO);
                         break;
                     case MDEntryType.OFFER:
 
@@ -95,7 +100,7 @@ public class LMAXFixMarketDataMessageHandler extends AbstractFix44MarketDataMess
 
                         AskVO askVO = new AskVO(lmaxId, FeedType.LMAX, date, price, (int) size * LMAXConsts.FOREX_CONTRACT_MULTIPLIER);
 
-                        EngineLocator.instance().getServerEngine().sendEvent(askVO);
+                        this.serverEngine.sendEvent(askVO);
                         break;
                 }
             }

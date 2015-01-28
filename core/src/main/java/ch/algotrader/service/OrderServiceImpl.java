@@ -56,10 +56,8 @@ import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.enumeration.TIF;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.esper.EngineLocator;
+import ch.algotrader.esper.EngineManager;
 import ch.algotrader.util.BeanUtil;
-import ch.algotrader.util.DateUtil;
-import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.spring.HibernateSession;
 import ch.algotrader.vo.OrderStatusVO;
 
@@ -74,8 +72,8 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
 
     private static final long serialVersionUID = 3969251081188007542L;
 
-    private static Logger logger = MyLogger.getLogger(OrderServiceImpl.class.getName());
-    private static Logger notificationLogger = MyLogger.getLogger("ch.algotrader.service.NOTIFICATION");
+    private static Logger logger = Logger.getLogger(OrderServiceImpl.class.getName());
+    private static Logger notificationLogger = Logger.getLogger("ch.algotrader.service.NOTIFICATION");
 
     private volatile ApplicationContext applicationContext;
 
@@ -95,6 +93,10 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
 
     private final OrderPersistenceService orderPersistService;
 
+    private final EngineManager engineManager;
+
+    private final Engine serverEngine;
+
     public OrderServiceImpl(final CommonConfig commonConfig,
             final SessionFactory sessionFactory,
             final OrderDao orderDao,
@@ -102,7 +104,9 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
             final StrategyDao strategyDao,
             final SecurityDao securityDao,
             final AccountDao accountDao,
-            final OrderPersistenceService orderPersistStrategy) {
+            final OrderPersistenceService orderPersistStrategy,
+            final EngineManager engineManager,
+            final Engine serverEngine) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(sessionFactory, "SessionFactory is null");
@@ -112,6 +116,8 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
         Validate.notNull(securityDao, "SecurityDao is null");
         Validate.notNull(accountDao, "AccountDao is null");
         Validate.notNull(orderPersistStrategy, "OrderPersistStrategy is null");
+        Validate.notNull(engineManager, "EngineManager is null");
+        Validate.notNull(serverEngine, "Engine is null");
 
         this.commonConfig = commonConfig;
         this.sessionFactory = sessionFactory;
@@ -121,6 +127,8 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
         this.securityDao = securityDao;
         this.accountDao = accountDao;
         this.orderPersistService = orderPersistStrategy;
+        this.engineManager = engineManager;
+        this.serverEngine = serverEngine;
     }
 
     @Override
@@ -192,7 +200,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
         }
 
         // set the dateTime property
-        order.setDateTime(DateUtil.getCurrentEPTime());
+        order.setDateTime(this.engineManager.getCurrentEPTime());
 
         // in case no TIF was specified set DAY
         if (order.getTif() == null) {
@@ -334,11 +342,11 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
         Validate.notNull(order, "Order is null");
 
         // send the order into the AlgoTrader Server engine to be correlated with fills
-        EngineLocator.instance().getServerEngine().sendEvent(SubmittedOrder.Factory.newInstance(Status.OPEN, 0, order.getQuantity(), order));
+        this.serverEngine.sendEvent(SubmittedOrder.Factory.newInstance(Status.OPEN, 0, order.getQuantity(), order));
 
         // also send the order to the strategy that placed the order
         if (!order.getStrategy().isServer()) {
-            EngineLocator.instance().sendEvent(order.getStrategy().getName(), order);
+            this.engineManager.sendEvent(order.getStrategy().getName(), order);
         }
 
     }
@@ -366,7 +374,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
 
         // send the fill to the strategy that placed the corresponding order
         if (orderStatus.getOrder() != null && !orderStatus.getOrder().getStrategy().isServer()) {
-            EngineLocator.instance().sendEvent(orderStatus.getOrder().getStrategy().getName(), orderStatus);
+            this.engineManager.sendEvent(orderStatus.getOrder().getStrategy().getName(), orderStatus);
         }
 
         if (!this.commonConfig.isSimulation()) {
@@ -391,7 +399,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
 
         // send the fill to the strategy that placed the corresponding order
         if (orderCompletion.getOrder() != null && !orderCompletion.getOrder().getStrategy().isServer()) {
-            EngineLocator.instance().sendEvent(orderCompletion.getOrder().getStrategy().getName(), orderCompletion);
+            this.engineManager.sendEvent(orderCompletion.getOrder().getStrategy().getName(), orderCompletion);
         }
 
         if (!this.commonConfig.isSimulation()) {
@@ -476,32 +484,27 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
     @Override
     public void init() {
 
-        EngineLocator locator = EngineLocator.instance();
-        if (locator.hasServerEngine()) {
+        final Map<Order, OrderStatus> pendingOrderMap = loadPendingOrders();
+        if (logger.isInfoEnabled() && !pendingOrderMap.isEmpty()) {
 
-            final Map<Order, OrderStatus> pendingOrderMap = loadPendingOrders();
-            if (logger.isInfoEnabled() && !pendingOrderMap.isEmpty()) {
+            List<Order> orderList  = new ArrayList<Order>(pendingOrderMap.keySet());
+            Collections.sort(orderList);
 
-                List<Order> orderList  = new ArrayList<Order>(pendingOrderMap.keySet());
-                Collections.sort(orderList);
-
-                logger.info(orderList.size() + " order(s) are pending");
-                for (int i = 0; i < orderList.size(); i++) {
-                    Order order = orderList.get(i);
-                    logger.info((i + 1) + ": " + order);
-                }
+            logger.info(orderList.size() + " order(s) are pending");
+            for (int i = 0; i < orderList.size(); i++) {
+                Order order = orderList.get(i);
+                logger.info((i + 1) + ": " + order);
             }
+        }
 
-            Engine baseEngine = locator.getServerEngine();
-            for (Map.Entry<Order, OrderStatus> entry: pendingOrderMap.entrySet()) {
+        for (Map.Entry<Order, OrderStatus> entry: pendingOrderMap.entrySet()) {
 
-                Order order = entry.getKey();
-                OrderStatus orderStatus = entry.getValue();
-                if (orderStatus != null) {
-                    baseEngine.sendEvent(SubmittedOrder.Factory.newInstance(orderStatus.getStatus(), orderStatus.getFilledQuantity(), orderStatus.getRemainingQuantity(), order));
-                } else {
-                    baseEngine.sendEvent(SubmittedOrder.Factory.newInstance(Status.OPEN, 0, order.getQuantity(), order));
-                }
+            Order order = entry.getKey();
+            OrderStatus orderStatus = entry.getValue();
+            if (orderStatus != null) {
+                this.serverEngine.sendEvent(SubmittedOrder.Factory.newInstance(orderStatus.getStatus(), orderStatus.getFilledQuantity(), orderStatus.getRemainingQuantity(), order));
+            } else {
+                this.serverEngine.sendEvent(SubmittedOrder.Factory.newInstance(Status.OPEN, 0, order.getQuantity(), order));
             }
         }
     }
@@ -515,7 +518,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
         // progapate the order to all corresponding esper engines
         propagateOrder(order);
 
-        EngineLocator.instance().getServerEngine().sendEvent(order);
+        this.serverEngine.sendEvent(order);
     }
 
     private void internalCancelOrder(Order order) {
@@ -551,7 +554,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
         orderStatus.setOrder(order);
 
         // send the orderStatus
-        EngineLocator.instance().getServerEngine().sendEvent(orderStatus);
+        this.serverEngine.sendEvent(orderStatus);
 
         logger.info("cancelled algo order: " + order);
     }

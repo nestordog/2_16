@@ -41,7 +41,6 @@ import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.service.LookupService;
 import quickfix.field.ClOrdID;
 import quickfix.field.ExecType;
@@ -66,10 +65,8 @@ public class TestCNXFixOrderMessageHandler {
     public void setup() throws Exception {
 
         MockitoAnnotations.initMocks(this);
-        EngineLocator.instance().setEngine("SERVER", engine);
 
-        impl = new CNXFixOrderMessageHandler();
-        impl.setLookupService(lookupService);
+        impl = new CNXFixOrderMessageHandler(lookupService, engine);
     }
 
     @Test

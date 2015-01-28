@@ -18,6 +18,7 @@
 package ch.algotrader.service.sim;
 
 import java.math.BigDecimal;
+import java.util.Date;
 
 import org.apache.commons.lang.Validate;
 
@@ -31,11 +32,11 @@ import ch.algotrader.enumeration.Direction;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
-import ch.algotrader.esper.EngineLocator;
+import ch.algotrader.esper.Engine;
+import ch.algotrader.esper.EngineManager;
 import ch.algotrader.service.ExternalOrderServiceImpl;
 import ch.algotrader.service.OrderService;
 import ch.algotrader.service.TransactionService;
-import ch.algotrader.util.DateUtil;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -45,17 +46,25 @@ import ch.algotrader.util.DateUtil;
 public class SimulationOrderServiceImpl extends ExternalOrderServiceImpl implements SimulationOrderService {
 
     private final TransactionService transactionService;
-
     private final OrderService orderService;
+    private final EngineManager engineManager;
+    private final Engine serverEngine;
 
-    public SimulationOrderServiceImpl(final TransactionService transactionService,
-            final OrderService orderService) {
+    public SimulationOrderServiceImpl(
+            final TransactionService transactionService,
+            final OrderService orderService,
+            final EngineManager engineManager,
+            final Engine serverEngine) {
 
         Validate.notNull(transactionService, "TransactionService is null");
         Validate.notNull(orderService, "OrderService is null");
+        Validate.notNull(engineManager, "EngineManager is null");
+        Validate.notNull(serverEngine, "Engine is null");
 
         this.transactionService = transactionService;
         this.orderService = orderService;
+        this.engineManager = engineManager;
+        this.serverEngine = serverEngine;
     }
 
     @Override
@@ -65,8 +74,9 @@ public class SimulationOrderServiceImpl extends ExternalOrderServiceImpl impleme
 
         // create one fill per order
         Fill fill = Fill.Factory.newInstance();
-        fill.setDateTime(DateUtil.getCurrentEPTime());
-        fill.setExtDateTime(DateUtil.getCurrentEPTime());
+        Date d = this.engineManager.getCurrentEPTime();
+        fill.setDateTime(d);
+        fill.setExtDateTime(d);
         fill.setSide(order.getSide());
         fill.setQuantity(order.getQuantity());
         fill.setPrice(getPrice(order));
@@ -89,7 +99,7 @@ public class SimulationOrderServiceImpl extends ExternalOrderServiceImpl impleme
         orderStatus.setOrder(order);
 
         // send the orderStatus to the AlgoTrader Server
-        EngineLocator.instance().getServerEngine().sendEvent(orderStatus);
+        this.serverEngine.sendEvent(orderStatus);
 
         // propagate the OrderStatus to the strategy
         this.orderService.propagateOrderStatus(orderStatus);

@@ -27,11 +27,10 @@ import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.enumeration.InitializingServiceType;
-import ch.algotrader.esper.EngineLocator;
+import ch.algotrader.esper.Engine;
 import ch.algotrader.service.ExternalMarketDataServiceImpl;
 import ch.algotrader.service.InitializationPriority;
 import ch.algotrader.service.InitializingServiceI;
-import ch.algotrader.util.MyLogger;
 import ch.algotrader.vo.SubscribeTickVO;
 
 /**
@@ -46,24 +45,27 @@ public abstract class FixMarketDataServiceImpl extends ExternalMarketDataService
 
     private static final long serialVersionUID = 4880040246465806082L;
 
-    private static Logger logger = MyLogger.getLogger(FixMarketDataServiceImpl.class.getName());
+    private static Logger logger = Logger.getLogger(FixMarketDataServiceImpl.class.getName());
 
     private final FixSessionLifecycle lifeCycle;
-
     private final FixAdapter fixAdapter;
+    private final Engine serverEngine;
 
     public FixMarketDataServiceImpl(
             final CommonConfig commonConfig,
             final FixSessionLifecycle lifeCycle,
             final FixAdapter fixAdapter,
+            final Engine serverEngine,
             final SecurityDao securityDao) {
 
         super(commonConfig, securityDao);
 
         Validate.notNull(lifeCycle, "FixSessionLifecycle is null");
+        Validate.notNull(serverEngine, "Engine is null");
         Validate.notNull(fixAdapter, "FixAdapter is null");
 
         this.lifeCycle = lifeCycle;
+        this.serverEngine = serverEngine;
         this.fixAdapter = fixAdapter;
     }
 
@@ -114,7 +116,7 @@ public abstract class FixMarketDataServiceImpl extends ExternalMarketDataService
         subscribeTickEvent.setTick(tick);
         subscribeTickEvent.setTickerId(tickerId);
 
-        EngineLocator.instance().getServerEngine().sendEvent(subscribeTickEvent);
+        this.serverEngine.sendEvent(subscribeTickEvent);
 
         sendSubscribeRequest(security);
 
@@ -133,7 +135,7 @@ public abstract class FixMarketDataServiceImpl extends ExternalMarketDataService
 
         sendUnsubscribeRequest(security);
 
-        EngineLocator.instance().getServerEngine().executeQuery("delete from TickWindow where security.id = " + security.getId());
+        this.serverEngine.executeQuery("delete from TickWindow where security.id = " + security.getId());
 
         logger.debug("cancelled market data for : " + security);
 

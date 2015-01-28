@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.commons.lang.Validate;
 
 import ch.algotrader.enumeration.ConnectionState;
-import ch.algotrader.esper.EngineLocator;
+import ch.algotrader.esper.EngineManager;
 import ch.algotrader.vo.SessionEventVO;
 
 /**
@@ -36,12 +36,15 @@ import ch.algotrader.vo.SessionEventVO;
 public class DefaultFixSessionLifecycle implements FixSessionLifecycle {
 
     private final String name;
+    private final EngineManager engineManager;
     private final AtomicReference<ConnectionState> connState;
 
-    public DefaultFixSessionLifecycle(final String name) {
-
+    public DefaultFixSessionLifecycle(final String name, final EngineManager engineManager) {
         Validate.notNull(name, "Name is null");
+        Validate.notNull(engineManager, "EngineManager is null");
+
         this.name = name;
+        this.engineManager = engineManager;
         this.connState = new AtomicReference<>(ConnectionState.DISCONNECTED);
     }
 
@@ -56,7 +59,7 @@ public class DefaultFixSessionLifecycle implements FixSessionLifecycle {
         if (this.connState.compareAndSet(ConnectionState.DISCONNECTED, ConnectionState.CONNECTED)) {
 
             SessionEventVO event = new SessionEventVO(ConnectionState.CONNECTED, this.name);
-            EngineLocator.instance().sendEventToAllEngines(event);
+            this.engineManager.sendEventToAllEngines(event);
         }
     }
 
@@ -66,7 +69,7 @@ public class DefaultFixSessionLifecycle implements FixSessionLifecycle {
           if (this.connState.compareAndSet(ConnectionState.CONNECTED, ConnectionState.LOGGED_ON)) {
 
               SessionEventVO event = new SessionEventVO(ConnectionState.LOGGED_ON, this.name);
-              EngineLocator.instance().sendEventToAllEngines(event);
+              this.engineManager.sendEventToAllEngines(event);
           }
     }
 
@@ -77,7 +80,7 @@ public class DefaultFixSessionLifecycle implements FixSessionLifecycle {
         if (previousState.compareTo(ConnectionState.LOGGED_ON) >= 0) {
 
             SessionEventVO event = new SessionEventVO(ConnectionState.CONNECTED, this.name);
-            EngineLocator.instance().sendEventToAllEngines(event);
+            this.engineManager.sendEventToAllEngines(event);
         }
     }
 
@@ -87,7 +90,7 @@ public class DefaultFixSessionLifecycle implements FixSessionLifecycle {
         if (this.connState.compareAndSet(ConnectionState.LOGGED_ON, ConnectionState.SUBSCRIBED)) {
 
             SessionEventVO event = new SessionEventVO(ConnectionState.SUBSCRIBED, this.name);
-            EngineLocator.instance().sendEventToAllEngines(event);
+            this.engineManager.sendEventToAllEngines(event);
             return true;
         } else {
 

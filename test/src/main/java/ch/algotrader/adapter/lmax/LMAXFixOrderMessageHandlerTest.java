@@ -46,7 +46,8 @@ import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.AbstractEngine;
-import ch.algotrader.esper.EngineLocator;
+import ch.algotrader.esper.Engine;
+import ch.algotrader.esper.EngineManager;
 import ch.algotrader.service.LookupService;
 import quickfix.DefaultSessionFactory;
 import quickfix.LogFactory;
@@ -71,6 +72,7 @@ import quickfix.fix44.OrderCancelRequest;
 public class LMAXFixOrderMessageHandlerTest {
 
     private LinkedBlockingQueue<Object> eventQueue;
+    private EngineManager engineManager;
     private LookupService lookupService;
     private LMAXFixOrderMessageHandler messageHandler;
     private Session session;
@@ -82,7 +84,7 @@ public class LMAXFixOrderMessageHandlerTest {
         final LinkedBlockingQueue<Object> queue = new LinkedBlockingQueue<Object>();
         this.eventQueue = queue;
 
-        EngineLocator.instance().setEngine(StrategyImpl.SERVER, new AbstractEngine() {
+        Engine engine = new AbstractEngine(StrategyImpl.SERVER) {
 
             @Override
             public void sendEvent(Object obj) {
@@ -97,8 +99,9 @@ public class LMAXFixOrderMessageHandlerTest {
             public List executeQuery(String query) {
                 return null;
             }
-        });
+        };
 
+        this.engineManager = Mockito.mock(EngineManager.class);
 
         SessionSettings settings = FixConfigUtils.loadSettings();
         SessionID sessionId = FixConfigUtils.getSessionID(settings, "LMAXT");
@@ -106,11 +109,11 @@ public class LMAXFixOrderMessageHandlerTest {
         DefaultLogonMessageHandler logonHandler = new DefaultLogonMessageHandler(settings);
 
         this.lookupService = Mockito.mock(LookupService.class);
-        LMAXFixOrderMessageHandler messageHandlerImpl = new LMAXFixOrderMessageHandler();
-        messageHandlerImpl.setLookupService(lookupService);
+        LMAXFixOrderMessageHandler messageHandlerImpl = new LMAXFixOrderMessageHandler(this.lookupService, engine);
         this.messageHandler = Mockito.spy(messageHandlerImpl);
 
-        DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, messageHandler, logonHandler, new DefaultFixSessionLifecycle("LMAX"));
+        DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, messageHandler, logonHandler,
+                new DefaultFixSessionLifecycle("LMAX", this.engineManager));
 
         LogFactory logFactory = new ScreenLogFactory(true, true, true);
 

@@ -40,8 +40,12 @@ import com.espertech.esperio.CoordinatedAdapter;
  */
 public abstract class AbstractEngine implements Engine {
 
-    protected String engineName;
-    protected boolean internalClock;
+    private final String engineName;
+    private volatile boolean internalClock;
+
+    protected AbstractEngine(final String engineName) {
+        this.engineName = engineName;
+    }
 
     @Override
     public String getName() {

@@ -19,16 +19,15 @@ package ch.algotrader.esper.subscriber;
 
 import org.apache.log4j.Logger;
 
-import ch.algotrader.esper.EngineLocator;
-import ch.algotrader.util.MyLogger;
+import ch.algotrader.ServiceLocator;
 import ch.algotrader.vo.GenericEventVO;
 
 /**
- * Esper event subscriber for {@link EngineLocator#sendGenericEvent(ch.algotrader.vo.GenericEventVO)}.
+ * Esper event subscriber for {@link ch.algotrader.esper.EngineManagerImpl#sendGenericEvent(ch.algotrader.vo.GenericEventVO)}.
  */
 public class PropagateGenericEventSubscriber {
 
-    private static Logger LOGGER = MyLogger.getLogger(PropagateGenericEventSubscriber.class.getName());
+    private static Logger LOGGER = Logger.getLogger(PropagateGenericEventSubscriber.class.getName());
 
     public void update(final GenericEventVO genericEvent) {
 
@@ -37,6 +36,6 @@ public class PropagateGenericEventSubscriber {
             LOGGER.trace(genericEvent);
         }
 
-        EngineLocator.instance().sendGenericEvent(genericEvent);
+        ServiceLocator.instance().getEngineManager().sendGenericEvent(genericEvent);
     }
 }

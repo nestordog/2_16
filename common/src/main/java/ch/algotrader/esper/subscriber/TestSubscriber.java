@@ -21,8 +21,6 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import ch.algotrader.util.MyLogger;
-
 /**
  * Prints all values to the Log by using the {@code toString} method of the event object.
  *
@@ -32,7 +30,7 @@ import ch.algotrader.util.MyLogger;
  */
 public class TestSubscriber {
 
-    private static Logger logger = MyLogger.getLogger(TestSubscriber.class.getName());
+    private static Logger logger = Logger.getLogger(TestSubscriber.class.getName());
 
     public void update(Map<?, ?> map) {
 

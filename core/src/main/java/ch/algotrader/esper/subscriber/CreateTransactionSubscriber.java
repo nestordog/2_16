@@ -22,7 +22,6 @@ import org.apache.log4j.Logger;
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.service.TransactionService;
-import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.metric.MetricsUtil;
 
 /**
@@ -30,7 +29,7 @@ import ch.algotrader.util.metric.MetricsUtil;
 */
 public class CreateTransactionSubscriber extends Subscriber {
 
-    private static Logger LOGGER = MyLogger.getLogger(CreateTransactionSubscriber.class.getName());
+    private static Logger LOGGER = Logger.getLogger(CreateTransactionSubscriber.class.getName());
 
     /*
      * synchronized to make sure that only on transaction is created at a time

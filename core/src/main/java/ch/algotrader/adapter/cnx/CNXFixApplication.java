@@ -22,7 +22,6 @@ import org.apache.log4j.Logger;
 
 import ch.algotrader.adapter.fix.AbstractFixApplication;
 import ch.algotrader.adapter.fix.FixSessionLifecycle;
-import ch.algotrader.util.MyLogger;
 import quickfix.FieldNotFound;
 import quickfix.IncorrectDataFormat;
 import quickfix.IncorrectTagValue;
@@ -43,7 +42,7 @@ import quickfix.fix44.TradingSessionStatus;
  */
 public class CNXFixApplication extends AbstractFixApplication {
 
-    private static final Logger LOGGER = MyLogger.getLogger(CNXFixApplication.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(CNXFixApplication.class.getName());
 
     private final FixSessionLifecycle lifecycleHandler;
 
