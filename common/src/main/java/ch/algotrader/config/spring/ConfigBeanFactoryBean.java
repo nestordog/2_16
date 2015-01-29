@@ -18,12 +18,11 @@
 package ch.algotrader.config.spring;
 
 import org.springframework.beans.factory.FactoryBean;
-import org.springframework.util.Assert;
 
 import ch.algotrader.config.ConfigLocator;
 
 /**
- * Spring factory bean for Config beans such as {@link ch.algotrader.config.CommonConfig}.
+ * Spring factory bean for global Config beans such as {@link ch.algotrader.config.CommonConfig}.
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  *
@@ -31,10 +30,9 @@ import ch.algotrader.config.ConfigLocator;
  */
 public class ConfigBeanFactoryBean<T> implements FactoryBean<T> {
 
-    private final Class<T> beanClass;
+    private Class<T> beanClass;
 
-    public ConfigBeanFactoryBean(final Class<T> beanClass) {
-        Assert.notNull(beanClass, "BeanClass is null");
+    public void setBeanClass(final Class<T> beanClass) {
         this.beanClass = beanClass;
     }
 

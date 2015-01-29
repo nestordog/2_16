@@ -26,23 +26,28 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.convert.support.DefaultConversionService;
 
+import ch.algotrader.config.ConfigBeanFactory;
 import ch.algotrader.config.ConfigParams;
 
 /**
- * Spring factory bean for {@link ch.algotrader.config.ConfigParams} that loads config parameters
- * from a list of resources.
+ * Spring factory bean for {@link ch.algotrader.config.ConfigParams} that loads a
+ * single config parameters element from a custom list of resources.
  *
- * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
+ * @author <a href="mailto:mterzer@algotrader.ch">Marco Terzer</a>
  *
  * @version $Revision$ $Date$
  */
-public class CustomConfigParamsFactoryBean implements FactoryBean<ConfigParams>, ApplicationContextAware {
+public class BasicConfigBeanFactoryBean<T> implements FactoryBean<T>, ApplicationContextAware {
 
+    private Class<T> beanClass;
     private String[] resources;
-    private ConfigParams global;
 
     private ApplicationContext applicationContext;
+    private T cachedBean;
 
+    public void setBeanClass(final Class<T> beanClass) {
+        this.beanClass = beanClass;
+    }
 
     public void setResources(final String[] resources) {
         this.resources = resources;
@@ -52,37 +57,32 @@ public class CustomConfigParamsFactoryBean implements FactoryBean<ConfigParams>,
         this.resources = new String[] { resource };
     }
 
-    public void setGlobal(final ConfigParams global) {
-        this.global = global;
-    }
-
     @Override
     public void setApplicationContext(final ApplicationContext applicationContext) throws BeansException {
-
         this.applicationContext = applicationContext;
     }
 
     @Override
-    public ConfigParams getObject() throws Exception {
+    public T getObject() throws Exception {
+        if (cachedBean == null) {
+            Map<String, String> paramMap = new LinkedHashMap<>();
+            for (String pattern: resources) {
 
-        Map<String, String> paramMap = new LinkedHashMap<>();
-        for (String pattern: resources) {
-
-            ConfigLoader.loadResources(paramMap, this.applicationContext.getResources(pattern));
+                ConfigLoader.loadResources(paramMap, applicationContext.getResources(pattern));
+            }
+            ConfigParams configParams = new ConfigParams(new DefaultSystemConfigProvider(paramMap, new DefaultConversionService()));
+            cachedBean = new ConfigBeanFactory().create(configParams, beanClass);
         }
-
-        return new ConfigParams(new DefaultSystemConfigProvider(paramMap, new DefaultConversionService(),
-                this.global != null ? this.global.getConfigProvider() : null));
+        return cachedBean;
     }
 
     @Override
-    public Class<?> getObjectType() {
-        return ConfigParams.class;
+    public Class<T> getObjectType() {
+        return beanClass;
     }
 
     @Override
     public boolean isSingleton() {
         return true;
     }
-
 }

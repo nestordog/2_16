@@ -21,6 +21,8 @@ import java.util.Map;
 
 import org.springframework.core.convert.ConversionService;
 
+import ch.algotrader.config.ConfigProvider;
+
 /**
  * Extension of {@link DefaultConfigProvider} that enforces precedence of
  * system properties over the content of {@link java.util.Map}.
@@ -33,8 +35,15 @@ public class DefaultSystemConfigProvider extends DefaultConfigProvider {
 
     public DefaultSystemConfigProvider(
             final Map<String, ?> paramMap,
+            final ConversionService conversionService,
+            final ConfigProvider defaultConfigProvider) {
+        super(paramMap, conversionService, defaultConfigProvider);
+    }
+
+    public DefaultSystemConfigProvider(
+            final Map<String, ?> paramMap,
             final ConversionService conversionService) {
-        super(paramMap, conversionService);
+        super(paramMap, conversionService, null);
     }
 
     public DefaultSystemConfigProvider(final Map<String, ?> paramMap) {

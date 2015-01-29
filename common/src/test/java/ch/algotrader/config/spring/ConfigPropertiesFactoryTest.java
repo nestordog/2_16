@@ -40,7 +40,8 @@ public class ConfigPropertiesFactoryTest {
 
         ConfigProvider configProvider = Mockito.mock(ConfigProvider.class);
         ConfigParams configParams = new ConfigParams(configProvider);
-        ConfigPropertiesFactoryBean factoryBean = new ConfigPropertiesFactoryBean(configParams);
+        ConfigPropertiesFactoryBean factoryBean = new ConfigPropertiesFactoryBean();
+        factoryBean.setConfigParams(configParams);
 
         Mockito.when(configProvider.getNames()).thenReturn(new HashSet<String>(Arrays.asList("p1", "p2")));
         Mockito.when(configProvider.getParameter("p1", String.class)).thenReturn("blah");

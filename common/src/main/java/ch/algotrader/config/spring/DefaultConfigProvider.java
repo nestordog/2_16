@@ -42,6 +42,7 @@ public class DefaultConfigProvider implements ConfigProvider {
 
     private final ConcurrentHashMap<String, ?> paramMap;
     private final ConversionService conversionService;
+    private final ConfigProvider fallbackProvider;
 
     static ConversionService createDefaultConversionService() {
         DefaultConversionService conversionService = new DefaultConversionService();
@@ -52,11 +53,19 @@ public class DefaultConfigProvider implements ConfigProvider {
 
     public DefaultConfigProvider(
             final Map<String, ?> paramMap,
-            final ConversionService conversionService) {
+            final ConversionService conversionService,
+            final ConfigProvider fallbackProvider) {
         Assert.notNull(paramMap, "ParamMap is null");
         Assert.notNull(conversionService, "ConversionService is null");
         this.paramMap = new ConcurrentHashMap<String, Object>(paramMap);
         this.conversionService = conversionService;
+        this.fallbackProvider = fallbackProvider;
+    }
+
+    public DefaultConfigProvider(
+            final Map<String, ?> paramMap,
+            final ConversionService conversionService) {
+        this(paramMap, conversionService, null);
     }
 
     public DefaultConfigProvider(final Map<String, ?> paramMap) {
@@ -71,6 +80,10 @@ public class DefaultConfigProvider implements ConfigProvider {
     public final <T> T getParameter(final String name, final Class<T> clazz) throws ClassCastException {
 
         Object param = getRawValue(name);
+        if (param == null && this.fallbackProvider != null) {
+
+            param = this.fallbackProvider.getParameter(name, clazz);
+        }
         if (param == null) {
 
             return null;
@@ -91,7 +104,12 @@ public class DefaultConfigProvider implements ConfigProvider {
 
     @Override
     public Set<String> getNames() {
-        return new HashSet<String>(this.paramMap.keySet());
+        Set<String> names = new HashSet<>(this.paramMap.keySet());
+        if (this.fallbackProvider != null) {
+
+            names.addAll(this.fallbackProvider.getNames());
+        }
+        return names;
     }
 
     @Override

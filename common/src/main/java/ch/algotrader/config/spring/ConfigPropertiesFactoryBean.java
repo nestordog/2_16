@@ -21,7 +21,6 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.springframework.beans.factory.FactoryBean;
-import org.springframework.util.Assert;
 
 import ch.algotrader.config.ConfigParams;
 import ch.algotrader.config.ConfigProvider;
@@ -35,10 +34,9 @@ import ch.algotrader.config.ConfigProvider;
  */
 public class ConfigPropertiesFactoryBean implements FactoryBean<Properties> {
 
-    private final ConfigParams configParams;
+    private ConfigParams configParams;
 
-    public ConfigPropertiesFactoryBean(final ConfigParams configParams) {
-        Assert.notNull(configParams, "ConfigParams is null");
+    public void setConfigParams(final ConfigParams configParams) {
         this.configParams = configParams;
     }
 

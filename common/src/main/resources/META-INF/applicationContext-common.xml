@@ -10,11 +10,11 @@
     <bean id="configParams" class="ch.algotrader.config.spring.DefaultConfigParamsFactoryBean" />
 
     <bean id="properties" class="ch.algotrader.config.spring.ConfigPropertiesFactoryBean">
-        <constructor-arg index="0" ref="configParams"/>
+        <property name="configParams" ref="configParams"/>
     </bean>
 
     <bean id="commonConfig" class="ch.algotrader.config.spring.ConfigBeanFactoryBean">
-        <constructor-arg index="0" value="ch.algotrader.config.CommonConfig"/>
+        <property name="beanClass" value="ch.algotrader.config.CommonConfig"/>
     </bean>
 
     <bean id="engineManager" class="ch.algotrader.esper.EngineManagerFactoryBean">

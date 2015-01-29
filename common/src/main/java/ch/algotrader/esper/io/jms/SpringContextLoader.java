@@ -72,7 +72,7 @@ public class SpringContextLoader implements PluginLoader {
 
         String beanName = context.getProperties().getProperty(INPUT_ADAPTER_BEAN_NAME);
 
-        if (!ServiceLocator.instance().containsService(beanName)) {
+        if (!ServiceLocator.instance().isInitialized() || ServiceLocator.instance().containsService(beanName)) {
             return;
         }
 

@@ -17,54 +17,35 @@
  ***********************************************************************************/
 package ch.algotrader.config.spring;
 
-import java.util.Objects;
-
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 
 import ch.algotrader.config.ConfigBeanFactory;
+import ch.algotrader.config.ConfigParams;
 
 /**
- * Spring factory bean for {@link ch.algotrader.config.ConfigParams} that loads a
- * single config parameters element from a custom list of resources.
+ * Spring factory bean for custom config beans that loads config parameters
+ * from an arbitrary {@link ch.algotrader.config.ConfigParams} instance.
  *
- * @author <a href="mailto:mterzer@algotrader.ch">Marco Terzer</a>
+ * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  *
  * @version $Revision$ $Date$
  */
-public class CustomConfigBeanFactoryBean<T> implements FactoryBean<T>, ApplicationContextAware {
+public class CustomConfigBeanFactoryBean<T> implements FactoryBean<T> {
 
-    private final Class<T> beanClass;
-    private final String[] resources;
+    private Class<T> beanClass;
+    private ConfigParams configParams;
 
-    private ApplicationContext applicationContext;
-    private T cachedBean;
-
-    public CustomConfigBeanFactoryBean(Class<T> beanClass, String resource) {
-        this(beanClass, new String[] {resource});
+    public void setBeanClass(final Class<T> beanClass) {
+        this.beanClass = beanClass;
     }
 
-    public CustomConfigBeanFactoryBean(Class<T> beanClass, String[] resources) {
-        this.beanClass = Objects.requireNonNull(beanClass, "beanClass cannot be null");
-        this.resources = Objects.requireNonNull(resources, "resources cannot be null");
-    }
-
-    @Override
-    public void setApplicationContext(final ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
+    public void setConfigParams(final ConfigParams configParams) {
+        this.configParams = configParams;
     }
 
     @Override
     public T getObject() throws Exception {
-        if (cachedBean == null) {
-            final CustomConfigParamsFactoryBean custonConfigParamsFactoryBean = new CustomConfigParamsFactoryBean();
-            custonConfigParamsFactoryBean.setApplicationContext(Objects.requireNonNull(applicationContext, "application context cannot be null"));
-            custonConfigParamsFactoryBean.setResources(resources);
-            cachedBean = new ConfigBeanFactory().create(custonConfigParamsFactoryBean.getObject(), beanClass);
-        }
-        return cachedBean;
+        return new ConfigBeanFactory().create(this.configParams, this.beanClass);
     }
 
     @Override
