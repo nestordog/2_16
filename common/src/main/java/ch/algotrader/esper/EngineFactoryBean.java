@@ -17,7 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.esper;
 
-import org.apache.commons.lang.Validate;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.context.ApplicationContext;
@@ -39,26 +38,39 @@ import ch.algotrader.util.spring.SpringDependencyLookup;
 
 public class EngineFactoryBean implements FactoryBean<Engine>, ApplicationContextAware {
 
-    private final String name;
-    private final String[] resources;
-    private final String[] initModules;
-    private final String[] runModules;
-    private final ConfigParams configParams;
-    private final EngineConfigurer configurer;
+    private String engineName;
+    private String strategyName;
+    private String[] resources;
+    private String[] initModules;
+    private String[] runModules;
+    private ConfigParams configParams;
+
+    private final EngineConfigurer configurer = new EngineConfigurer();
 
     private volatile ApplicationContext applicationContext;
 
-    public EngineFactoryBean(final String name, final String[] resources, final String[] initModules, final String[] runModules, final ConfigParams configParams) {
+    public void setEngineName(final String engineName) {
+        this.engineName = engineName;
+    }
 
-        Validate.notEmpty(name, "Name is null");
-        Validate.notNull(configParams, "ConfigParams is null");
+    public void setStrategyName(final String strategyName) {
+        this.strategyName = strategyName;
+    }
 
-        this.name = name;
+    public void setResources(final String[] resources) {
         this.resources = resources;
+    }
+
+    public void setInitModules(final String[] initModules) {
         this.initModules = initModules;
+    }
+
+    public void setRunModules(final String[] runModules) {
         this.runModules = runModules;
+    }
+
+    public void setConfigParams(final ConfigParams configParams) {
         this.configParams = configParams;
-        this.configurer = new EngineConfigurer(configParams);
     }
 
     @Override
@@ -78,9 +90,10 @@ public class EngineFactoryBean implements FactoryBean<Engine>, ApplicationContex
             }
         }
 
-        this.configurer.configure(this.name, configuration);
+        this.configurer.configure(this.strategyName, configuration, this.configParams);
 
-        return new EngineImpl(this.name, new SpringDependencyLookup(this.applicationContext), configuration, this.initModules, this.runModules, this.configParams);
+        return new EngineImpl(this.engineName != null ? this.engineName : this.strategyName, this.strategyName,
+                new SpringDependencyLookup(this.applicationContext), configuration, this.initModules, this.runModules, this.configParams);
     }
 
     @Override

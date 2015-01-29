@@ -131,14 +131,14 @@
     <!-- =================================== Esper Engines  ========================================= -->
 
     <bean id="serverEngine" class="ch.algotrader.esper.EngineFactoryBean">
-        <constructor-arg index="0" value="SERVER"/>
-        <constructor-arg index="1">
+        <property name="strategyName" value="SERVER"/>
+        <property name="resources">
             <list>
                 <value>classpath:/META-INF/esper-common.cfg.xml</value>
                 <value>classpath:/META-INF/esper-core.cfg.xml</value>
             </list>
-        </constructor-arg>
-        <constructor-arg index="2">
+        </property>
+        <property name="initModules">
             <list>
                 <value>market-data</value>
                 <value>combination</value>
@@ -150,11 +150,8 @@
                 <value>algo-slicing</value>
                 <value>ib</value>
             </list>
-        </constructor-arg>
-        <constructor-arg index="3">
-            <list/>
-        </constructor-arg>
-        <constructor-arg index="4" ref="configParams"/>
+        </property>
+        <property name="configParams" ref="configParams"/>
     </bean>
 
     <!-- Pooled DataSource (for production use) -->

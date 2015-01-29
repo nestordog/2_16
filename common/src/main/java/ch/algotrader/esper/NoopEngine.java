@@ -25,8 +25,8 @@ public final class NoopEngine extends AbstractEngine {
 
     public static final Engine SERVER = new NoopEngine("SERVER");
 
-    public NoopEngine(final String engineName) {
-        super(engineName);
+    public NoopEngine(final String name) {
+        super(name);
     }
 
 }

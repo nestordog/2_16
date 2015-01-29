@@ -41,9 +41,14 @@ import com.espertech.esperio.CoordinatedAdapter;
 public interface Engine {
 
     /**
+     * returns the name of this engine
+     */
+    public String getEngineName();
+
+    /**
      * returns the name of this strategy
      */
-    public String getName();
+    public String getStrategyName();
 
     /**
      * Destroys the specified Engine.

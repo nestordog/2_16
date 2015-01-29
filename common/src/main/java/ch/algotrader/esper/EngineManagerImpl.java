@@ -176,7 +176,7 @@ public class EngineManagerImpl implements EngineManager {
         if (this.commonConfig.isSimulation() || this.commonConfig.isEmbedded()) {
             for (Map.Entry<String, Engine> entry: this.engineMap.entrySet()) {
                 Engine engine = entry.getValue();
-                String engineName = engine.getName();
+                String engineName = engine.getStrategyName();
                 if (engineName.equals(event.getStrategyName())) {
                     engine.sendEvent(event);
                 }
@@ -247,7 +247,7 @@ public class EngineManagerImpl implements EngineManager {
                         ;
 
                         // add a consolidated metric
-                        metrics.add(new StatementMetricVO(engine.getName(), statementName, cpuTime, wallTime, numInput));
+                        metrics.add(new StatementMetricVO(engine.getStrategyName(), statementName, cpuTime, wallTime, numInput));
                     }
                 }
 

@@ -39,26 +39,16 @@ import ch.algotrader.config.ConfigParams;
  */
 public class EngineConfigurer {
 
-    private final ConfigParams configParams;
-    private final boolean simulation;
+    public void configure(final String strategyName, final Configuration configuration, final ConfigParams configParams) {
 
-    public EngineConfigurer(final ConfigParams configParams) {
-
-        super();
+        Validate.notEmpty(strategyName, "Name is null");
+        Validate.notNull(configuration, "Configuration is null");
         Validate.notNull(configParams, "ConfigParams is null");
 
-        this.configParams = configParams;
-        this.simulation = this.configParams.getBoolean("simulation");
-    }
-
-    public void configure(final String name, final Configuration configuration) {
-
-        Validate.notEmpty(name, "Name is null");
-        Validate.notNull(configuration, "Configuration is null");
-
-        initVariables(configuration);
+        initVariables(configuration, configParams);
         // outbound threading for ALGOTRADER SERVER
-        if (!this.simulation && "SERVER".equalsIgnoreCase(name)) {
+        boolean simulation = configParams.getBoolean("simulation");
+        if (!simulation && "SERVER".equalsIgnoreCase(strategyName)) {
 
             Threading threading = configuration.getEngineDefaults().getThreading();
 
@@ -66,15 +56,15 @@ public class EngineConfigurer {
             threading.setThreadPoolOutboundNumThreads(configParams.getInteger("misc.outboundThreads"));
         }
 
-        configuration.getVariables().get("strategyName").setInitializationValue(name);
+        configuration.getVariables().get("strategyName").setInitializationValue(strategyName);
     }
 
-    private void initVariables(final Configuration configuration) {
+    private void initVariables(final Configuration configuration, final ConfigParams configParams) {
 
         Map<String, ConfigurationVariable> variables = configuration.getVariables();
         for (Map.Entry<String, ConfigurationVariable> entry : variables.entrySet()) {
             String variableName = entry.getKey().replace("_", ".");
-            String value = this.configParams.getString(variableName);
+            String value = configParams.getString(variableName);
             if (value != null) {
                 String type = entry.getValue().getType();
                 try {

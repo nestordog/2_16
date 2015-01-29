@@ -18,7 +18,7 @@
     </bean>
 
     <bean id="engineManager" class="ch.algotrader.esper.EngineManagerFactoryBean">
-        <constructor-arg index="0" ref="commonConfig"/>
+        <property name="commonConfig" ref="commonConfig"/>
     </bean>
 
     <bean class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor"/>

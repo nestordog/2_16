@@ -127,9 +127,9 @@ public class EngineImpl extends AbstractEngine {
         }
     };
 
-    EngineImpl(final String engineName, final DependencyLookup dependencyLookup, final Configuration configuration, final String[] initModules, String[] runModules, final ConfigParams configParams) {
+    EngineImpl(final String engineName, final String strategyName, final DependencyLookup dependencyLookup, final Configuration configuration, final String[] initModules, String[] runModules, final ConfigParams configParams) {
 
-        super(engineName);
+        super(engineName, strategyName);
 
         Validate.notNull(dependencyLookup, "DependencyLookup is null");
         Validate.notNull(configuration, "Configuration is null");
@@ -161,7 +161,7 @@ public class EngineImpl extends AbstractEngine {
         this.serviceProvider.destroy();
 
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("destroyed service provider: " + getName());
+            LOGGER.debug("destroyed service provider: " + getStrategyName());
         }
     }
 
@@ -369,7 +369,7 @@ public class EngineImpl extends AbstractEngine {
             this.processing.get().set(false);
         }
 
-        MetricsUtil.accountEnd("EngineImpl." + getName() + "." + ClassUtils.getShortClassName(obj.getClass()), startTime);
+        MetricsUtil.accountEnd("EngineImpl." + getStrategyName() + "." + ClassUtils.getShortClassName(obj.getClass()), startTime);
     }
 
     @Override

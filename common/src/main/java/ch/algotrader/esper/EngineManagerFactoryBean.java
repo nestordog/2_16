@@ -42,15 +42,18 @@ import ch.algotrader.service.LookupService;
  */
 public class EngineManagerFactoryBean implements FactoryBean<EngineManager>, ApplicationContextAware, ApplicationListener<ContextRefreshedEvent> {
 
-    private final CommonConfig commonConfig;
-
-    private volatile ApplicationContext applicationContext;
-
     private final AtomicBoolean postProcessed;
 
-    public EngineManagerFactoryBean(final CommonConfig commonConfig) {
-        this.commonConfig = commonConfig;
+    private CommonConfig commonConfig;
+
+    private ApplicationContext applicationContext;
+
+    public EngineManagerFactoryBean() {
         this.postProcessed = new AtomicBoolean(false);
+    }
+
+    public void setCommonConfig(final CommonConfig commonConfig) {
+        this.commonConfig = commonConfig;
     }
 
     @Override
@@ -65,7 +68,7 @@ public class EngineManagerFactoryBean implements FactoryBean<EngineManager>, App
         Map<String, Engine> engineMap = new HashMap<>(engineBeanMap.size());
         for (Map.Entry<String, Engine> entry: engineBeanMap.entrySet()) {
             Engine engine = entry.getValue();
-            engineMap.put(engine.getName(), engine);
+            engineMap.put(engine.getEngineName(), engine);
         }
         Map<String, JmsTemplate> jmsTemplateBeanMap = this.applicationContext.getBeansOfType(JmsTemplate.class);
         Map<String, JmsTemplate> jmsTemplateMap = new HashMap<>(jmsTemplateBeanMap.size());
@@ -97,7 +100,7 @@ public class EngineManagerFactoryBean implements FactoryBean<EngineManager>, App
             for (Map.Entry<String, Engine> entry: engineBeanMap.entrySet()) {
 
                 Engine engine = entry.getValue();
-                Strategy strategy = lookupService.getStrategyByName(engine.getName());
+                Strategy strategy = lookupService.getStrategyByName(engine.getStrategyName());
                 if (strategy != null) {
 
                     engine.setVariableValue("engineStrategy", strategy);
