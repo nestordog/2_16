@@ -17,10 +17,10 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 import org.apache.commons.lang.Validate;
 import org.springframework.jmx.export.annotation.ManagedOperation;
@@ -66,7 +66,7 @@ public class PortfolioChartServiceImpl extends ChartProvidingServiceImpl impleme
     @ManagedOperationParameters({ @ManagedOperationParameter(name = "startDateTime", description = "startDateTime") })
     public Collection<IndicatorVO> getIndicators(final long startDateTime) {
 
-        Set<IndicatorVO> set = new HashSet<IndicatorVO>();
+        List<IndicatorVO> vos = new ArrayList<>();
 
         // only push values if chart is being reset
         if (startDateTime == 0) {
@@ -74,17 +74,17 @@ public class PortfolioChartServiceImpl extends ChartProvidingServiceImpl impleme
             String strategyName = this.commonConfig.getStrategyName();
             for (PortfolioValueVO portfolioValue : this.portfolioService.getPortfolioValuesInclPerformanceSinceDate(strategyName, new Date(startDateTime))) {
 
-                set.add(new IndicatorVO("netLiqValue", portfolioValue.getDateTime(), portfolioValue.getNetLiqValue().doubleValue()));
-                set.add(new IndicatorVO("securitiesCurrentValue", portfolioValue.getDateTime(), portfolioValue.getSecuritiesCurrentValue().doubleValue()));
-                set.add(new IndicatorVO("cashBalance", portfolioValue.getDateTime(), portfolioValue.getCashBalance().doubleValue()));
-                set.add(new IndicatorVO("maintenanceMargin", portfolioValue.getDateTime(), portfolioValue.getMaintenanceMargin().doubleValue()));
-                set.add(new IndicatorVO("performance", portfolioValue.getDateTime(), portfolioValue.getPerformance()));
-                set.add(new IndicatorVO("leverage", portfolioValue.getDateTime(), portfolioValue.getLeverage()));
-                set.add(new IndicatorVO("allocation", portfolioValue.getDateTime(), portfolioValue.getAllocation()));
+                vos.add(new IndicatorVO("netLiqValue", portfolioValue.getDateTime(), portfolioValue.getNetLiqValue().doubleValue()));
+                vos.add(new IndicatorVO("securitiesCurrentValue", portfolioValue.getDateTime(), portfolioValue.getSecuritiesCurrentValue().doubleValue()));
+                vos.add(new IndicatorVO("cashBalance", portfolioValue.getDateTime(), portfolioValue.getCashBalance().doubleValue()));
+                vos.add(new IndicatorVO("maintenanceMargin", portfolioValue.getDateTime(), portfolioValue.getMaintenanceMargin().doubleValue()));
+                vos.add(new IndicatorVO("performance", portfolioValue.getDateTime(), portfolioValue.getPerformance()));
+                vos.add(new IndicatorVO("leverage", portfolioValue.getDateTime(), portfolioValue.getLeverage()));
+                vos.add(new IndicatorVO("allocation", portfolioValue.getDateTime(), portfolioValue.getAllocation()));
             }
         }
 
-        return set;
+        return vos;
 
     }
 }

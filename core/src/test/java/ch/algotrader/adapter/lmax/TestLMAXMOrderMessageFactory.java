@@ -117,7 +117,7 @@ public class TestLMAXMOrderMessageFactory {
 
         Forex forex = new ForexImpl();
         forex.setSymbol("RUB.USD");
-        forex.setBaseCurrency(Currency.fromString("RUB"));
+        forex.setBaseCurrency(Currency.valueOf("RUB"));
         forex.setSecurityFamily(family);
 
         MarketOrder order = new MarketOrderImpl();

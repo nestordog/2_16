@@ -70,7 +70,7 @@ public class FixUtil {
         } else if (security instanceof Future) {
             return new Symbol(security.getSecurityFamilyInitialized().getSymbolRoot(broker));
         } else if (security instanceof Forex) {
-            return new Symbol(((Forex) security).getBaseCurrency().getValue());
+            return new Symbol(((Forex) security).getBaseCurrency().name());
         } else if (security instanceof Stock) {
             return new Symbol(security.getSymbol());
         } else {

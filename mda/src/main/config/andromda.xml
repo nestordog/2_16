@@ -185,10 +185,10 @@
                 <property name="generateEqualPropertiesMethod">true</property>
 <!--                 <property name="mergeLocation">${conf.dir}/customTemplates/andromda-java</property> -->
                 <property name="mergeMappingsUri">file:${conf.dir}/mappings/JavaMergeMappings.xml</property>
-                <property name="enumerations">${common.generated.dir}</property>
+                <!--<property name="enumerations">${common.generated.dir}</property>-->
                 <property name="exceptions">${common.generated.dir}</property>
-                <property name="value-objects">${common.generated.dir}</property>
-                <property name="private-value-objects">${core.generated.dir}</property>
+                <!--<property name="value-objects">${common.generated.dir}</property>-->
+                <!--<property name="private-value-objects">${core.generated.dir}</property>-->
                 <property name="interfaces">${common.generated.dir}</property>
             </properties>
         </namespace>

@@ -88,7 +88,7 @@ public class OptionImpl extends Option {
 
         OptionFamily family = (OptionFamily) this.getSecurityFamily();
         Date nextExpDate = DateUtil.getExpirationDate(family.getExpirationType(), ServiceLocator.instance().getEngineManager().getCurrentEPTime());
-        return 1 + (int) Math.round(((this.getExpiration().getTime() - nextExpDate.getTime()) / (double) family.getExpirationDistance().value()));
+        return 1 + (int) Math.round(((this.getExpiration().getTime() - nextExpDate.getTime()) / (double) family.getExpirationDistance().getValue()));
     }
 
     /**

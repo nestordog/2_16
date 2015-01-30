@@ -459,7 +459,7 @@ public class ManagementServiceImpl implements ManagementService {
         Validate.notEmpty(side, "Side is empty");
         Validate.notEmpty(type, "Type is empty");
 
-        Side sideObject = Side.fromValue(side);
+        Side sideObject = Side.valueOf(side);
 
         String strategyName = this.commonConfig.getStartedStrategyName();
 
@@ -684,7 +684,7 @@ public class ManagementServiceImpl implements ManagementService {
 
         String startedStrategyName = this.commonConfig.getStartedStrategyName();
         if (!"".equals(feedType)) {
-            this.subscriptionService.subscribeMarketDataEvent(startedStrategyName, getSecurityId(security), FeedType.fromString(feedType));
+            this.subscriptionService.subscribeMarketDataEvent(startedStrategyName, getSecurityId(security), FeedType.valueOf(feedType));
         } else {
             this.subscriptionService.subscribeMarketDataEvent(startedStrategyName, getSecurityId(security));
         }
@@ -705,7 +705,7 @@ public class ManagementServiceImpl implements ManagementService {
 
         String startedStrategyName = this.commonConfig.getStartedStrategyName();
         if (!"".equals(feedType)) {
-            this.subscriptionService.unsubscribeMarketDataEvent(startedStrategyName, getSecurityId(security), FeedType.fromString(feedType));
+            this.subscriptionService.unsubscribeMarketDataEvent(startedStrategyName, getSecurityId(security), FeedType.valueOf(feedType));
         } else {
             this.subscriptionService.unsubscribeMarketDataEvent(startedStrategyName, getSecurityId(security));
         }
@@ -794,9 +794,9 @@ public class ManagementServiceImpl implements ManagementService {
         Validate.notEmpty(combinationType, "Combination type is empty");
 
         if ("".equals(underlying)) {
-            return this.combinationService.createCombination(CombinationType.fromString(combinationType), securityFamilyId).getId();
+            return this.combinationService.createCombination(CombinationType.valueOf(combinationType), securityFamilyId).getId();
         } else {
-            return this.combinationService.createCombination(CombinationType.fromString(combinationType), securityFamilyId, getSecurityId(underlying)).getId();
+            return this.combinationService.createCombination(CombinationType.valueOf(combinationType), securityFamilyId, getSecurityId(underlying)).getId();
         }
 
     }

@@ -109,7 +109,7 @@ public class CNXFixOrderMessageFactory implements Fix44OrderMessageFactory {
         message.set(FixUtil.getFixSide(order.getSide()));
         message.set(new TransactTime(new Date()));
         message.set(new OrderQty(order.getQuantity()));
-        message.set(new Currency(forex.getBaseCurrency().getValue()));
+        message.set(new Currency(forex.getBaseCurrency().name()));
 
         if (order instanceof MarketOrder) {
 
@@ -188,7 +188,7 @@ public class CNXFixOrderMessageFactory implements Fix44OrderMessageFactory {
         message.set(FixUtil.getFixSide(order.getSide()));
         message.set(new TransactTime(new Date()));
         message.set(new OrderQty(order.getQuantity()));
-        message.set(new Currency(forex.getBaseCurrency().getValue()));
+        message.set(new Currency(forex.getBaseCurrency().name()));
 
         if (order instanceof MarketOrder) {
 

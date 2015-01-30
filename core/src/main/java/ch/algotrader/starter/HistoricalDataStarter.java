@@ -49,10 +49,10 @@ public class HistoricalDataStarter {
         Date endDate = format.parse(args[1]);
 
         int timePeriodLength = Integer.parseInt(args[2]);
-        TimePeriod timePeriod = TimePeriod.fromString(args[3]);
+        TimePeriod timePeriod = TimePeriod.valueOf(args[3]);
 
-        BarType barType = BarType.fromString(args[4]);
-        Duration barSize = Duration.fromString(args[5]);
+        BarType barType = BarType.valueOf(args[4]);
+        Duration barSize = Duration.valueOf(args[5]);
 
         String[] securityIdStrings = args[6].split(":");
         int[] securityIds = new int[securityIdStrings.length];

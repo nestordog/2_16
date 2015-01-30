@@ -56,7 +56,7 @@ public class FutureImpl extends Future {
 
         FutureFamily family = (FutureFamily) this.getSecurityFamilyInitialized();
         Date nextExpDate = DateUtil.getExpirationDate(family.getExpirationType(), ServiceLocator.instance().getEngineManager().getCurrentEPTime());
-        return 1 + (int) Math.round(((this.getExpiration().getTime() - nextExpDate.getTime()) / (double)family.getExpirationDistance().value()));
+        return 1 + (int) Math.round(((this.getExpiration().getTime() - nextExpDate.getTime()) / (double)family.getExpirationDistance().getValue()));
     }
 
     /**

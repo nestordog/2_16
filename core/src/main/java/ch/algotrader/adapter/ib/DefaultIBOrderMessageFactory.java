@@ -133,7 +133,7 @@ public class DefaultIBOrderMessageFactory implements IBOrderMessageFactory {
 
         // set Time-In-Force (ATC are set as order types LOC and MOC)
         if (order.getTif() != null && !TIF.ATC.equals(order.getTif())) {
-            ibOrder.m_tif = order.getTif().getValue();
+            ibOrder.m_tif = order.getTif().name();
 
             // set the TIF-Date
             if (order.getTifDateTime() != null) {

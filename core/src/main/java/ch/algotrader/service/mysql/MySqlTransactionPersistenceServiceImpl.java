@@ -107,7 +107,7 @@ public class MySqlTransactionPersistenceServiceImpl extends TransactionPersisten
             SQLQuery sqlQuery = currentSession.createSQLQuery("INSERT IGNORE INTO cash_balance " + "(currency, amount, strategy_fk, version) VALUES (:currency, 0, :strategy_id, 1)");
             for (Currency currency : currencySet) {
 
-                sqlQuery.setParameter("currency", currency.value());
+                sqlQuery.setParameter("currency", currency.name());
                 sqlQuery.setParameter("strategy_id", strategy.getId());
                 sqlQuery.executeUpdate();
             }

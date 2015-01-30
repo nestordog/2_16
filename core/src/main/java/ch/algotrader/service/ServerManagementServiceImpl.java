@@ -138,8 +138,8 @@ public class ServerManagementServiceImpl implements ServerManagementService {
         BigDecimal executionCommissionDecimal = (executionCommission != 0) ? RoundUtil.getBigDecimal(executionCommission) : null;
         BigDecimal clearingCommissionDecimal = (clearingCommission != 0) ? RoundUtil.getBigDecimal(clearingCommission) : null;
         BigDecimal feeDecimal = (fee != 0) ? RoundUtil.getBigDecimal(fee) : null;
-        Currency currencyObject = !"".equals(currency) ? Currency.fromValue(currency) : null;
-        TransactionType transactionTypeObject = TransactionType.fromValue(transactionType);
+        Currency currencyObject = !"".equals(currency) ? Currency.valueOf(currency) : null;
+        TransactionType transactionTypeObject = TransactionType.valueOf(transactionType);
 
         this.transactionService.createTransaction(securityId, strategyName, extIdString, dateTimeObject, quantity, priceDecimal, executionCommissionDecimal, clearingCommissionDecimal, feeDecimal,
                 currencyObject, transactionTypeObject, accountName, null);

@@ -114,7 +114,7 @@ public class GenericFix42SymbologyResolver implements Fix42SymbologyResolver {
         } else if (security instanceof Forex) {
 
             message.set(new SecurityType(SecurityType.CASH));
-            message.set(new Currency(securityFamily.getCurrency().getValue()));
+            message.set(new Currency(securityFamily.getCurrency().name()));
 
         } else if (security instanceof Stock) {
 
