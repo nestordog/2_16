@@ -37,8 +37,6 @@
 
     <!-- =========================================== JMX ================================================ -->
 
-    <bean id="exporter" class="org.springframework.jmx.export.annotation.AnnotationMBeanExporter"/>
-
    <!-- Diagrams for Management Service (and PropertyConfigurer for java.util.Date)-->
     <bean class="org.springframework.beans.factory.config.CustomEditorConfigurer">
         <property name="propertyEditorRegistrars">
@@ -87,5 +85,11 @@
             </set>
         </property>
     </bean>
+
+    <beans profile="live">
+
+        <bean id="exporter" class="org.springframework.jmx.export.annotation.AnnotationMBeanExporter"/>
+
+    </beans>
 
 </beans>
