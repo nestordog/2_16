@@ -398,7 +398,7 @@ public class BBReferenceDataServiceImpl extends ReferenceDataServiceImpl impleme
                 String sector = fields.getElementAsString(BBConstants.MARKET_SECTOR_DES);
                 String bbgid = fields.getElementAsString(BBConstants.ID_BB_GLOBAL);
                 String currencyString = fields.getElementAsString(BBConstants.CRNCY);
-                Currency currency = Currency.fromString(currencyString);
+                Currency currency = Currency.valueOf(currencyString);
 
                 // ignore securities with different currencies than the securityFamily
                 if (!(currency.equals(this.securityFamily.getCurrency()))) {
@@ -420,7 +420,7 @@ public class BBReferenceDataServiceImpl extends ReferenceDataServiceImpl impleme
 
                     Date expiration = format.parse(expirationString);
                     BigDecimal strike = RoundUtil.getBigDecimal(strikeDouble, this.securityFamily.getScale());
-                    OptionType type = OptionType.fromString(typeString.toUpperCase());
+                    OptionType type = OptionType.valueOf(typeString.toUpperCase());
 
                     Option option = Option.Factory.newInstance();
 

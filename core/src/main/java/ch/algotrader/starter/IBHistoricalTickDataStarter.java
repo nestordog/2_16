@@ -70,7 +70,7 @@ public class IBHistoricalTickDataStarter {
         String[] barTypesString = args[2].split(":");
         Set<BarType> barTypes = new HashSet<BarType>();
         for (String element : barTypesString) {
-            barTypes.add(BarType.fromString(element));
+            barTypes.add(BarType.valueOf(element));
         }
 
         String[] securityIdStrings = args[3].split(":");

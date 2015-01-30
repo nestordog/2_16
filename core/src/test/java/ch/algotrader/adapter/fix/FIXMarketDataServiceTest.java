@@ -78,7 +78,7 @@ public class FIXMarketDataServiceTest {
         family.setCurrency(counter);
 
         Forex forex = new ForexImpl();
-        forex.setSymbol(base.getValue() + "." + counter.getValue());
+        forex.setSymbol(base.name() + "." + counter.name());
         forex.setBaseCurrency(base);
         forex.setSecurityFamily(family);
         return forex;

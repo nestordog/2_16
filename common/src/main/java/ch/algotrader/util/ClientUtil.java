@@ -17,8 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.util;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 
 import ch.algotrader.vo.AxisDefinitionVO;
 import ch.algotrader.vo.ChartDefinitionVO;
@@ -40,7 +40,7 @@ public class ClientUtil {
     @SuppressWarnings("unchecked")
     public static <E extends SeriesDefinitionVO> Collection<E> getSeriesDefinitions(Class<E> type, ChartDefinitionVO chartDefinition) {
 
-        Collection<E> barDefinitions = new HashSet<E>();
+        Collection<E> barDefinitions = new ArrayList<>();
         for (AxisDefinitionVO axisDefinition : chartDefinition.getAxisDefinitions()) {
             for (DatasetDefinitionVO datasetDefinition : axisDefinition.getDatasetDefinitions()) {
                 for (SeriesDefinitionVO seriesDefinition : datasetDefinition.getSeriesDefinitions()) {

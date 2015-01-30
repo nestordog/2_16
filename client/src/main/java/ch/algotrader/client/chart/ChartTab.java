@@ -675,7 +675,7 @@ public class ChartTab extends ChartPanel {
 
         java.awt.Color awtColor = java.awt.Color.BLACK; // use black as default
         try {
-            awtColor = (java.awt.Color) java.awt.Color.class.getField(color.getValue()).get(null);
+            awtColor = (java.awt.Color) java.awt.Color.class.getField(color.name()).get(null);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

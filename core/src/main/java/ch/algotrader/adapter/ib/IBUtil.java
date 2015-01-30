@@ -104,7 +104,7 @@ public class IBUtil {
             } else if (security instanceof Forex) {
 
                 contract.m_secType = "CASH";
-                contract.m_symbol = ((Forex) security).getBaseCurrency().getValue();
+                contract.m_symbol = ((Forex) security).getBaseCurrency().name();
 
             } else if (security instanceof Stock) {
 

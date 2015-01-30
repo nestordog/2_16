@@ -18,7 +18,7 @@
 package ch.algotrader.service;
 
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.Collections;
 
 import org.springframework.jmx.export.annotation.ManagedAttribute;
 import org.springframework.jmx.export.annotation.ManagedOperation;
@@ -62,7 +62,7 @@ public abstract class ChartProvidingServiceImpl implements ChartProvidingService
     @ManagedOperationParameters({ @ManagedOperationParameter(name = "startDateTime", description = "startDateTime") })
     public Collection<BarVO> getBars(final long startDateTime) {
 
-        return new HashSet<BarVO>();
+        return Collections.emptyList();
     }
 
     /**
@@ -73,7 +73,7 @@ public abstract class ChartProvidingServiceImpl implements ChartProvidingService
     @ManagedOperationParameters({ @ManagedOperationParameter(name = "startDateTime", description = "startDateTime") })
     public Collection<IndicatorVO> getIndicators(final long startDateTime) {
 
-        return new HashSet<IndicatorVO>();
+        return Collections.emptyList();
     }
 
     /**
@@ -83,7 +83,7 @@ public abstract class ChartProvidingServiceImpl implements ChartProvidingService
     @ManagedAttribute(description = "Returns the {@link MarkerVO Marker Data}")
     public Collection<MarkerVO> getMarkers() {
 
-        return new HashSet<MarkerVO>();
+        return Collections.emptyList();
     }
 
     /**
@@ -94,7 +94,7 @@ public abstract class ChartProvidingServiceImpl implements ChartProvidingService
     @ManagedOperationParameters({ @ManagedOperationParameter(name = "startDateTime", description = "startDateTime") })
     public Collection<AnnotationVO> getAnnotations(final long startDateTime) {
 
-        return new HashSet<AnnotationVO>();
+        return Collections.emptyList();
     }
 
     /**
