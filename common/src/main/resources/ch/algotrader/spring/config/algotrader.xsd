@@ -21,4 +21,22 @@
             </xsd:complexContent>
         </xsd:complexType>
     </xsd:element>
+
+    <xsd:element name="strategyGroup">
+        <xsd:complexType>
+            <xsd:complexContent>
+                <xsd:extension base="beans:identifiedType">
+                    <xsd:sequence>
+                        <xsd:element name="strategyItem" minOccurs="1" maxOccurs="unbounded">
+                            <xsd:complexType>
+                                <xsd:attribute name="ref" type="xsd:string" use="required"/>
+                                <xsd:attribute name="weight" type="xsd:float" use="required"/>
+                            </xsd:complexType>
+                        </xsd:element>
+                    </xsd:sequence>
+                </xsd:extension>
+            </xsd:complexContent>
+        </xsd:complexType>
+    </xsd:element>
+
 </xsd:schema>

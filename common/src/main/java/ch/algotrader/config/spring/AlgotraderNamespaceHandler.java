@@ -32,6 +32,7 @@ public final class AlgotraderNamespaceHandler extends NamespaceHandlerSupport {
     public void init() {
 
         registerBeanDefinitionParser("strategy", new StrategyBeanDefinitionParser());
+        registerBeanDefinitionParser("strategyGroup", new StrategyGroupBeanDefinitionParser());
     }
 
 }
