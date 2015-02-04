@@ -81,8 +81,8 @@ public class GroupDiffer implements CsvDiffer {
         CsvLine line = expReader.readLineIntoBuffer();
         while (line.isValid()) {
             final List<Object> groupValues = getGroupValues(line);
-            final int expSkip = readGroupIntoBuffer(expectedGroupColumns, groupValues, expectedGroupColumns, expReader);
-            final int actSkip = readGroupIntoBuffer(actualGroupColumns, groupValues, actualGroupColumns, actReader);
+            final int expSkip = readGroupIntoBuffer(expectedGroupColumns, groupValues, expReader);
+            final int actSkip = readGroupIntoBuffer(actualGroupColumns, groupValues, actReader);
             final LinkedListReader expSubReader = expReader.readBufferAsReader(expReader.getBufferSize() - expSkip);
             final LinkedListReader actSubReader = actReader.readBufferAsReader(actReader.getBufferSize() - actSkip);
             try {
@@ -111,17 +111,17 @@ public class GroupDiffer implements CsvDiffer {
         return groupValues;
     }
 
-    private static int readGroupIntoBuffer(List<CsvColumn> expectedGroupColumns, List<Object> groupValues, List<? extends CsvColumn> columns, BufferedReader reader) throws IOException {
+    private static int readGroupIntoBuffer(List<CsvColumn> groupColumns, List<Object> groupValues, BufferedReader reader) throws IOException {
         CsvLine line = reader.readLineIntoBuffer();
-        while (line != null && matches(expectedGroupColumns, groupValues, columns, line)) {
+        while (line.isValid() && matches(groupColumns, groupValues, line)) {
             line = reader.readLineIntoBuffer();
         }
         return line == null ? 0 : 1;
     }
 
-    private static boolean matches(List<CsvColumn> expectedGroupColumns, List<Object> groupValues, List<? extends CsvColumn> columns, CsvLine line) {
-        for (int i = 0; i < expectedGroupColumns.size(); i++) {
-            if (!Objects.equals(groupValues.get(i), line.getValues().get(columns.get(i)))) {
+    private static boolean matches(List<CsvColumn> groupColumns, List<Object> groupValues, CsvLine line) {
+        for (int i = 0; i < groupColumns.size(); i++) {
+            if (!Objects.equals(groupValues.get(i), line.getValues().get(groupColumns.get(i)))) {
                 return false;
             }
         }
