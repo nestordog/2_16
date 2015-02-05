@@ -10,15 +10,12 @@
 
     <xsd:element name="strategy">
         <xsd:complexType>
-            <xsd:complexContent>
-                <xsd:extension base="beans:identifiedType">
-                    <xsd:attribute name="engineName" type="xsd:string" use="required"/>
-                    <xsd:attribute name="config" type="xsd:string" use="optional"/>
-                    <xsd:attribute name="configClass" type="xsd:string" use="required"/>
-                    <xsd:attribute name="engineTemplate" type="xsd:string" use="required"/>
-                    <xsd:attribute name="serviceTemplate" type="xsd:string" use="required"/>
-                </xsd:extension>
-            </xsd:complexContent>
+            <xsd:attribute name="name" type="xsd:string" use="required"/>
+            <xsd:attribute name="engineName" type="xsd:string" use="optional"/>
+            <xsd:attribute name="config" type="xsd:string" use="optional"/>
+            <xsd:attribute name="configClass" type="xsd:string" use="required"/>
+            <xsd:attribute name="engineTemplate" type="xsd:string" use="required"/>
+            <xsd:attribute name="serviceTemplate" type="xsd:string" use="required"/>
         </xsd:complexType>
     </xsd:element>
 
@@ -29,7 +26,7 @@
                     <xsd:sequence>
                         <xsd:element name="strategyItem" minOccurs="1" maxOccurs="unbounded">
                             <xsd:complexType>
-                                <xsd:attribute name="ref" type="xsd:string" use="required"/>
+                                <xsd:attribute name="name" type="xsd:string" use="required"/>
                                 <xsd:attribute name="weight" type="xsd:float" use="required"/>
                             </xsd:complexType>
                         </xsd:element>

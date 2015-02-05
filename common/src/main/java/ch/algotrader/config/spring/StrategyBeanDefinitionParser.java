@@ -19,6 +19,7 @@ package ch.algotrader.config.spring;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
@@ -42,18 +43,19 @@ public final class StrategyBeanDefinitionParser extends AbstractBeanDefinitionPa
 
         BeanDefinitionBuilder builder1 = BeanDefinitionBuilder.rootBeanDefinition(CustomConfigParamsFactoryBean.class);
 
-        String id = element.getAttribute("id");
-        if (!StringUtils.hasText(id)) {
-            parserContext.getReaderContext().error("Id is required for element '"
+        String name = element.getAttribute("name");
+        if (!StringUtils.hasText(name)) {
+            parserContext.getReaderContext().error("Name is required for element '"
                     + parserContext.getDelegate().getLocalName(element) + "'", element);
         }
 
         builder1.addPropertyReference("global", "configParams");
+
+        List<String> resourceList = new ArrayList<>();
         String config = element.getAttribute("config");
         if (StringUtils.hasText(config)) {
             String[] resources = StringUtils.tokenizeToStringArray(config, ",", true, true);
             if (resources != null) {
-                List<String> resourceList = new ArrayList<>(resources.length);
                 for (String resource: resources) {
                     if (resource.contains(":")) {
                         resourceList.add(resource);
@@ -61,12 +63,14 @@ public final class StrategyBeanDefinitionParser extends AbstractBeanDefinitionPa
                         resourceList.add("classpath:/META-INF/" + resource);
                     }
                 }
-                builder1.addPropertyValue("resources", resourceList);
             }
+        } else {
+            resourceList.add("classpath:/META-INF/" + name + ".properties");
         }
+        builder1.addPropertyValue("resources", resourceList);
         builder1.setAbstract(true);
 
-        BeanDefinitionHolder holder1 = new BeanDefinitionHolder(builder1.getBeanDefinition(), id + "ConfigParamsTemplate");
+        BeanDefinitionHolder holder1 = new BeanDefinitionHolder(builder1.getBeanDefinition(), name + "ConfigParamsTemplate");
         registerBeanDefinition(holder1, parserContext.getRegistry());
 
         BeanDefinitionBuilder builder2 = BeanDefinitionBuilder.rootBeanDefinition(CustomConfigBeanFactoryBean.class);
@@ -76,10 +80,10 @@ public final class StrategyBeanDefinitionParser extends AbstractBeanDefinitionPa
                     + parserContext.getDelegate().getLocalName(element) + "'", element);
         }
         builder2.addPropertyValue("beanClass", configClass);
-        builder2.addPropertyReference("configParams", id + "ConfigParams");
+        builder2.addPropertyReference("configParams", name + "ConfigParams");
         builder2.setAbstract(true);
 
-        BeanDefinitionHolder holder2 = new BeanDefinitionHolder(builder2.getBeanDefinition(), id + "ConfigTemplate");
+        BeanDefinitionHolder holder2 = new BeanDefinitionHolder(builder2.getBeanDefinition(), name + "ConfigTemplate");
         registerBeanDefinition(holder2, parserContext.getRegistry());
 
         String engineTemplate = element.getAttribute("engineTemplate");
@@ -91,14 +95,13 @@ public final class StrategyBeanDefinitionParser extends AbstractBeanDefinitionPa
         BeanDefinitionBuilder builder3 = BeanDefinitionBuilder.childBeanDefinition(engineTemplate);
         String engineName = element.getAttribute("engineName");
         if (!StringUtils.hasText(engineName)) {
-            parserContext.getReaderContext().error("EngineName is required for element '"
-                    + parserContext.getDelegate().getLocalName(element) + "'", element);
+            engineName = name.toUpperCase(Locale.ROOT);
         }
         builder3.addPropertyValue("engineName", engineName);
-        builder3.addPropertyReference("configParams", id + "ConfigParams");
+        builder3.addPropertyReference("configParams", name + "ConfigParams");
         builder3.setAbstract(true);
 
-        BeanDefinitionHolder holder3 = new BeanDefinitionHolder(builder3.getBeanDefinition(), id + "EngineTemplate");
+        BeanDefinitionHolder holder3 = new BeanDefinitionHolder(builder3.getBeanDefinition(), name + "EngineTemplate");
         registerBeanDefinition(holder3, parserContext.getRegistry());
 
         String serviceTemplate = element.getAttribute("serviceTemplate");
@@ -107,11 +110,11 @@ public final class StrategyBeanDefinitionParser extends AbstractBeanDefinitionPa
                     + parserContext.getDelegate().getLocalName(element) + "'", element);
         }
         BeanDefinitionBuilder builder4 = BeanDefinitionBuilder.childBeanDefinition(serviceTemplate);
-        builder4.addPropertyReference("engine", id + "Engine");
-        builder4.addPropertyReference("serviceConfig", id + "Config");
+        builder4.addPropertyReference("engine", name + "Engine");
+        builder4.addPropertyReference("serviceConfig", name + "Config");
         builder4.setAbstract(true);
 
-        BeanDefinitionHolder holder4 = new BeanDefinitionHolder(builder4.getBeanDefinition(), id + "ServiceTemplate");
+        BeanDefinitionHolder holder4 = new BeanDefinitionHolder(builder4.getBeanDefinition(), name + "ServiceTemplate");
         registerBeanDefinition(holder4, parserContext.getRegistry());
 
         return null;

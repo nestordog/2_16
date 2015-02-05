@@ -29,6 +29,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import ch.algotrader.service.groups.StrategyGroup;
+
 /**
  * Algotrader strategy group definition parser.
  *
@@ -55,9 +57,9 @@ public final class StrategyGroupBeanDefinitionParser extends AbstractBeanDefinit
             if ("strategyItem".equalsIgnoreCase(node.getLocalName()) && node instanceof Element) {
 
                 Element item = (Element) node;
-                String ref = item.getAttribute("ref");
-                if (!StringUtils.hasText(ref)) {
-                    parserContext.getReaderContext().error("Ref is required for element '"
+                String name = item.getAttribute("name");
+                if (!StringUtils.hasText(name)) {
+                    parserContext.getReaderContext().error("Name is required for element '"
                             + parserContext.getDelegate().getLocalName(item) + "'", element);
                 }
                 String weight = item.getAttribute("weight");
@@ -65,22 +67,22 @@ public final class StrategyGroupBeanDefinitionParser extends AbstractBeanDefinit
                     parserContext.getReaderContext().error("Weight is required for element '"
                             + parserContext.getDelegate().getLocalName(item) + "'", element);
                 }
-                paramMap.put(new RuntimeBeanReference(ref + "Service"), weight);
+                paramMap.put(new RuntimeBeanReference(name + "Service"), weight);
 
-                BeanDefinitionBuilder builder1 = BeanDefinitionBuilder.childBeanDefinition(ref + "ConfigParamsTemplate");
-                BeanDefinitionHolder holder1 = new BeanDefinitionHolder(builder1.getBeanDefinition(), ref + "ConfigParams");
+                BeanDefinitionBuilder builder1 = BeanDefinitionBuilder.childBeanDefinition(name + "ConfigParamsTemplate");
+                BeanDefinitionHolder holder1 = new BeanDefinitionHolder(builder1.getBeanDefinition(), name + "ConfigParams");
                 registerBeanDefinition(holder1, parserContext.getRegistry());
 
-                BeanDefinitionBuilder builder2 = BeanDefinitionBuilder.childBeanDefinition(ref + "ConfigTemplate");
-                BeanDefinitionHolder holder2 = new BeanDefinitionHolder(builder2.getBeanDefinition(), ref + "Config");
+                BeanDefinitionBuilder builder2 = BeanDefinitionBuilder.childBeanDefinition(name + "ConfigTemplate");
+                BeanDefinitionHolder holder2 = new BeanDefinitionHolder(builder2.getBeanDefinition(), name + "Config");
                 registerBeanDefinition(holder2, parserContext.getRegistry());
 
-                BeanDefinitionBuilder builder3 = BeanDefinitionBuilder.childBeanDefinition(ref + "EngineTemplate");
-                BeanDefinitionHolder holder3 = new BeanDefinitionHolder(builder3.getBeanDefinition(), ref + "Engine");
+                BeanDefinitionBuilder builder3 = BeanDefinitionBuilder.childBeanDefinition(name + "EngineTemplate");
+                BeanDefinitionHolder holder3 = new BeanDefinitionHolder(builder3.getBeanDefinition(), name + "Engine");
                 registerBeanDefinition(holder3, parserContext.getRegistry());
 
-                BeanDefinitionBuilder builder4 = BeanDefinitionBuilder.childBeanDefinition(ref + "ServiceTemplate");
-                BeanDefinitionHolder holder4 = new BeanDefinitionHolder(builder4.getBeanDefinition(), ref + "Service");
+                BeanDefinitionBuilder builder4 = BeanDefinitionBuilder.childBeanDefinition(name + "ServiceTemplate");
+                BeanDefinitionHolder holder4 = new BeanDefinitionHolder(builder4.getBeanDefinition(), name + "Service");
                 registerBeanDefinition(holder4, parserContext.getRegistry());
             }
         }
@@ -89,8 +91,10 @@ public final class StrategyGroupBeanDefinitionParser extends AbstractBeanDefinit
                     + parserContext.getDelegate().getLocalName(element) + "'", element);
         }
 
-        BeanDefinitionBuilder builder5 = BeanDefinitionBuilder.rootBeanDefinition(CustomConfigParamsFactoryBean.class);
+        BeanDefinitionBuilder builder5 = BeanDefinitionBuilder.rootBeanDefinition(StrategyGroup.class);
         builder5.addConstructorArgValue(paramMap);
+        BeanDefinitionHolder holder5 = new BeanDefinitionHolder(builder5.getBeanDefinition(), id);
+        registerBeanDefinition(holder5, parserContext.getRegistry());
 
         return null;
     }
