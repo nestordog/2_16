@@ -112,11 +112,11 @@ public class EngineImpl extends AbstractEngine {
     private static final SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd_kkmmss");
 
     private final DependencyLookup dependencyLookup;
-    private final EPServiceProvider serviceProvider;
     private final String[] initModules;
     private final String[] runModules;
     private final ConfigParams configParams;
     private final boolean simulation;
+    private final EPServiceProvider serviceProvider;
 
     private volatile AdapterCoordinatorImpl coordinator;
 

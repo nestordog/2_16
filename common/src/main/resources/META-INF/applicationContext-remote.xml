@@ -15,20 +15,6 @@
         </property>
     </bean>
 
-    <!-- Spring JMS Template for ActiveMQ -->
-    <bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
-        <property name="connectionFactory" ref="jmsActiveMQFactory"/>
-    </bean>
-
-    <!-- Default unmarshaller -->
-    <bean id="jmsMessageUnmarshaller" class="com.espertech.esperio.jms.JMSDefaultAnyMessageUnmarshaller" />
-
-    <!-- Input adapter -->
-    <bean id="jmsInputAdapter" class="com.espertech.esperio.jms.SpringJMSTemplateInputAdapter">
-        <property name="jmsMessageUnmarshaller" ref="jmsMessageUnmarshaller"/>
-        <property name="jmsTemplate" ref="jmsTemplate"/>
-    </bean>
-
     <!--  FieldRetrievingFactoryBeans -->
     <bean id="javax.jms.Session.DUPS_OK_ACKNOWLEDGE" class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>
     <bean id="org.springframework.jms.listener.DefaultMessageListenerContainer.CACHE_CONSUMER" class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>
@@ -42,7 +28,7 @@
     <bean id="marketDataMessageListenerContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
         <property name="connectionFactory" ref="jmsActiveMQFactory" />
         <property name="destination" ref="marketDataTopic" />
-        <property name="messageListener" ref="jmsInputAdapter" />
+        <property name="messageListener" ref="engineManager" />
         <property name="messageSelector" value="false"/>
         <property name="cacheLevel" ref="org.springframework.jms.listener.DefaultMessageListenerContainer.CACHE_CONSUMER"/>
     </bean>
@@ -71,7 +57,7 @@
     <bean id="genericMessageListenerContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
         <property name="connectionFactory" ref="jmsActiveMQFactory" />
         <property name="destination" ref="genericTopic" />
-        <property name="messageListener" ref="jmsInputAdapter" />
+        <property name="messageListener" ref="engineManager" />
         <property name="messageSelector" value="false"/>
         <property name="cacheLevel" ref="org.springframework.jms.listener.DefaultMessageListenerContainer.CACHE_CONSUMER"/>
     </bean>
@@ -83,7 +69,7 @@
     <bean id="strategyMessageListenerContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
         <property name="connectionFactory" ref="jmsActiveMQFactory" />
         <property name="destination" ref="strategyQueue" />
-        <property name="messageListener" ref="jmsInputAdapter" />
+        <property name="messageListener" ref="engineManager" />
     </bean>
 
 </beans>

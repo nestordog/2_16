@@ -25,6 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
+import javax.jms.MessageListener;
 
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Predicate;
@@ -32,6 +33,7 @@ import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessagePostProcessor;
+import org.springframework.jms.support.converter.MessageConverter;
 
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.Subscription;
@@ -47,7 +49,7 @@ import ch.algotrader.vo.StatementMetricVO;
 *
 * @version $Revision$ $Date$
 */
-public class EngineManagerImpl implements EngineManager {
+public class EngineManagerImpl implements EngineManager, MessageListener {
 
     private static final Logger LOGGER = Logger.getLogger(EngineManagerImpl.class);
 
@@ -56,11 +58,17 @@ public class EngineManagerImpl implements EngineManager {
     private final CommonConfig commonConfig;
     private final Map<String, Engine> engineMap;
     private final Map<String, JmsTemplate> templateMap;
+    private final MessageConverter messageConverter;
 
-    public EngineManagerImpl(final CommonConfig commonConfig, final Map<String, Engine> engineMap, final Map<String, JmsTemplate> templateMap) {
+    public EngineManagerImpl(final CommonConfig commonConfig, final Map<String, Engine> engineMap, final Map<String, JmsTemplate> templateMap, final MessageConverter messageConverter) {
+
+        Validate.notNull(commonConfig, "CommonConfig is null");
+        Validate.notNull(messageConverter, "MessageConverter is null");
+
         this.commonConfig = commonConfig;
         this.engineMap = new ConcurrentHashMap<>(engineMap);
         this.templateMap = new ConcurrentHashMap<>(templateMap);
+        this.messageConverter = messageConverter;
     }
 
     @Override
@@ -204,6 +212,17 @@ public class EngineManagerImpl implements EngineManager {
         for (Map.Entry<String, Engine> entry: this.engineMap.entrySet()) {
             Engine engine = entry.getValue();
             engine.sendEvent(obj);
+        }
+    }
+
+    @Override
+    public void onMessage(final Message message) {
+
+        try {
+            Object event = this.messageConverter.fromMessage(message);
+            sendEventToAllEngines(event);
+        } catch (JMSException ex) {
+            throw new InternalEngineException("Failure de-serializing message content", ex);
         }
     }
 

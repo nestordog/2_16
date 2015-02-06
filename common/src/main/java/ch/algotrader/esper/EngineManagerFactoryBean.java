@@ -28,6 +28,8 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.jms.core.JmsTemplate;
+import org.springframework.jms.support.converter.MessageConverter;
+import org.springframework.jms.support.converter.SimpleMessageConverter;
 
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.strategy.Strategy;
@@ -46,6 +48,8 @@ public class EngineManagerFactoryBean implements FactoryBean<EngineManager>, App
 
     private CommonConfig commonConfig;
 
+    private MessageConverter messageConverter;
+
     private ApplicationContext applicationContext;
 
     public EngineManagerFactoryBean() {
@@ -54,6 +58,10 @@ public class EngineManagerFactoryBean implements FactoryBean<EngineManager>, App
 
     public void setCommonConfig(final CommonConfig commonConfig) {
         this.commonConfig = commonConfig;
+    }
+
+    public void setMessageConverter(final MessageConverter messageConverter) {
+        this.messageConverter = messageConverter;
     }
 
     @Override
@@ -77,7 +85,8 @@ public class EngineManagerFactoryBean implements FactoryBean<EngineManager>, App
             JmsTemplate jmsTemplate = entry.getValue();
             jmsTemplateMap.put(name, jmsTemplate);
         }
-        return new EngineManagerImpl(this.commonConfig, engineMap, jmsTemplateMap);
+        return new EngineManagerImpl(this.commonConfig, engineMap, jmsTemplateMap,
+                this.messageConverter != null ? this.messageConverter : new SimpleMessageConverter());
     }
 
     @Override

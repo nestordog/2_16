@@ -78,9 +78,9 @@
 			<version>${esper.version}-at1</version>
 		</dependency>
 		<dependency>
-			<groupId>com.espertech</groupId>
-			<artifactId>esperio-springjms</artifactId>
-			<version>${esper.version}</version>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-core</artifactId>
+			<version>3.6.10-at</version>
 		</dependency>
 		<dependency>
 			<groupId>org.javassist</groupId>
@@ -111,6 +111,11 @@
 			<artifactId>spring-core</artifactId>
 			<version>${spring.version}</version>
 		</dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jms</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
 		<dependency>
 			<groupId>org.ta-lib</groupId>
 			<artifactId>ta-lib</artifactId>
