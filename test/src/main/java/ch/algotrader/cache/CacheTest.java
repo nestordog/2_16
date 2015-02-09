@@ -113,9 +113,10 @@ public class CacheTest {
 
         Engine engine = serviceLocator.getService("serverEngine", Engine.class);
         engine.setInternalClock(true);
-        engine.deployModule("combination");
+        engine.deployModule("current-values");
         engine.deployModule("market-data");
         engine.deployModule("trades");
+        engine.deployModule("combination");
 
         serviceLocator.getService("iBSession", IBSession.class).init();
 

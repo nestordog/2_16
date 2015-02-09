@@ -572,7 +572,7 @@ public interface LookupService {
      * or
      * select name from Strategy where id = 1
      */
-    public List get(String query);
+    public List<?> get(String query);
 
     /**
      * Retrieves an arbitrary list of Entities or values based on a Hibernate query. In addition a
@@ -580,7 +580,7 @@ public interface LookupService {
      * from Strategy where name = :strategyName
      * and the Map containing an entry with {@code key='strategyName'} and {@code value='SERVER'}
      */
-    public List get(String query, Map namedParameters);
+    public List<?> get(String query, Map namedParameters);
 
     /**
      * Retrieves a unique Object based on a Hibernate query. Example:

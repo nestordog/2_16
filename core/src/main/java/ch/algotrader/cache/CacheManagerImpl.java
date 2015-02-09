@@ -32,6 +32,7 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 import ch.algotrader.entity.BaseEntityI;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.hibernate.GenericDao;
+import ch.algotrader.util.collection.CollectionUtil;
 
 /**
  * Main implementation class of the Level-0 Cache
@@ -182,6 +183,16 @@ public class CacheManagerImpl implements CacheManager {
         }
 
         return result;
+    }
+
+    @Override
+    public Object queryUnique(String queryString) {
+        return CollectionUtil.getSingleElementOrNull(query(queryString));
+    }
+
+    @Override
+    public Object queryUnique(String queryString, Map<String, Object> namedParameters) {
+        return CollectionUtil.getSingleElementOrNull(query(queryString, namedParameters));
     }
 
     /**

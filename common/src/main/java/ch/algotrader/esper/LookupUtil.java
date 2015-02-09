@@ -22,6 +22,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.collections15.map.SingletonMap;
+import org.hibernate.SessionFactory;
+import org.hibernate.impl.SessionFactoryImpl;
 
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.cache.CacheManager;
@@ -32,7 +34,7 @@ import ch.algotrader.entity.security.Future;
 import ch.algotrader.entity.security.Option;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityImpl;
-import ch.algotrader.util.collection.CollectionUtil;
+import ch.algotrader.service.LookupService;
 
 /**
  * Provides static Lookup methods based mainly on the {@link ch.algotrader.service.LookupService}
@@ -43,8 +45,21 @@ import ch.algotrader.util.collection.CollectionUtil;
  */
 public class LookupUtil {
 
+    private static boolean hasCacheManager() {
+        return ServiceLocator.instance().containsService("cacheManager");
+    }
+
     private static CacheManager getCacheManager() {
-        return ServiceLocator.instance().containsService("cacheManager") ? ServiceLocator.instance().getService("cacheManager", CacheManager.class) : null;
+        return ServiceLocator.instance().getService("cacheManager", CacheManager.class);
+    }
+
+    private static LookupService getLookupService() {
+        return ServiceLocator.instance().getLookupService();
+    }
+
+    private static String getQueryString(String queryName) {
+        SessionFactoryImpl sessionFactory = (SessionFactoryImpl) ServiceLocator.instance().getService("sessionFactory", SessionFactory.class);
+        return sessionFactory.getNamedQuery(queryName).getQueryString();
     }
 
     /**
@@ -55,29 +70,10 @@ public class LookupUtil {
      */
     public static Security getSecurityInitialized(int securityId) {
 
-        CacheManager cacheManager = getCacheManager();
-        if (cacheManager != null) {
-            return cacheManager.get(SecurityImpl.class, securityId);
+        if (hasCacheManager()) {
+            return getCacheManager().get(SecurityImpl.class, securityId);
         } else {
-            return ServiceLocator.instance().getLookupService().getSecurityInitialized(securityId);
-        }
-    }
-
-    /**
-     * Gets a Security by its {@code isin}.
-     */
-    public static Security getSecurityByIsin(String isin) {
-
-        CacheManager cacheManager = getCacheManager();
-        if (cacheManager != null) {
-
-            String queryString = "from SecurityImpl as s where s.isin = :isin";
-
-            Map<String, Object> namedParameters = new SingletonMap<String, Object>("isin", isin);
-
-            return (Security) CollectionUtil.getSingleElementOrNull(cacheManager.query(queryString, namedParameters));
-        } else {
-            return ServiceLocator.instance().getLookupService().getSecurityByIsin(isin);
+            return getLookupService().getSecurityInitialized(securityId);
         }
     }
 
@@ -91,22 +87,36 @@ public class LookupUtil {
     }
 
     /**
+     * Gets a Security by its {@code isin}.
+     */
+    public static Security getSecurityByIsin(String isin) {
+
+        String queryString = getQueryString("Security.findByIsin");
+
+        Map<String, Object> namedParameters = new SingletonMap<String, Object>("isin", isin);
+
+        if (hasCacheManager()) {
+            return (Security) getCacheManager().queryUnique(queryString, namedParameters);
+        } else {
+            return (Security) getLookupService().getUnique(queryString, namedParameters);
+        }
+    }
+
+    /**
      * Gets a Subscriptions by the defined {@code strategyName} and {@code securityId}.
      */
     public static Subscription getSubscription(String strategyName, int securityId) {
 
-        CacheManager cacheManager = getCacheManager();
-        if (cacheManager != null) {
+        String queryString = getQueryString("Subscription.findByStrategyAndSecurity");
 
-            String queryString = "from SubscriptionImpl where strategy.name = :strategyName and security.id = :securityId";
+        Map<String, Object> namedParameters = new HashMap<String, Object>();
+        namedParameters.put("strategyName", strategyName);
+        namedParameters.put("securityId", securityId);
 
-            Map<String, Object> namedParameters = new HashMap<String, Object>();
-            namedParameters.put("strategyName", strategyName);
-            namedParameters.put("securityId", securityId);
-
-            return (Subscription) CollectionUtil.getSingleElementOrNull(cacheManager.query(queryString, namedParameters));
+        if (hasCacheManager()) {
+            return (Subscription) getCacheManager().queryUnique(queryString, namedParameters);
         } else {
-            return ServiceLocator.instance().getLookupService().getSubscriptionByStrategyAndSecurity(strategyName, securityId);
+            return (Subscription) getLookupService().get(queryString, namedParameters);
         }
     }
 
@@ -115,14 +125,12 @@ public class LookupUtil {
      */
     public static Option[] getSubscribedOptions() {
 
-        CacheManager cacheManager = getCacheManager();
-        if (cacheManager != null) {
+        String queryString = getQueryString("Option.findSubscribedOptions");
 
-            String queryString = "select distinct s from OptionImpl as s join s.subscriptions as s2 where s2 != null order by s.id";
-
-            return cacheManager.query(queryString).toArray(new Option[] {});
+        if (hasCacheManager()) {
+            return getCacheManager().query(queryString).toArray(new Option[] {});
         } else {
-            return ServiceLocator.instance().getLookupService().getSubscribedOptions().toArray(new Option[] {});
+            return getLookupService().get(queryString).toArray(new Option[] {});
         }
     }
 
@@ -131,14 +139,12 @@ public class LookupUtil {
      */
     public static Future[] getSubscribedFutures() {
 
-        CacheManager cacheManager = getCacheManager();
-        if (cacheManager != null) {
+        String queryString = getQueryString("Future.findSubscribedFutures");
 
-            String queryString = "select distinct f from FutureImpl as f join f.subscriptions as s where s != null order by f.id";
-
-            return cacheManager.query(queryString).toArray(new Future[] {});
+        if (hasCacheManager()) {
+            return getCacheManager().query(queryString).toArray(new Future[] {});
         } else {
-            return ServiceLocator.instance().getLookupService().getSubscribedFutures().toArray(new Future[] {});
+            return getLookupService().get(queryString).toArray(new Future[] {});
         }
     }
 
@@ -147,18 +153,16 @@ public class LookupUtil {
      */
     public static Position getPositionBySecurityAndStrategy(int securityId, String strategyName) {
 
-        CacheManager cacheManager = getCacheManager();
-        if (cacheManager != null) {
+        String queryString = getQueryString("Position.findBySecurityAndStrategy");
 
-            String queryString = "select p from PositionImpl as p join p.strategy as s where p.security.id = :securityId and s.name = :strategyName";
+        Map<String, Object> namedParameters = new HashMap<String, Object>();
+        namedParameters.put("strategyName", strategyName);
+        namedParameters.put("securityId", securityId);
 
-            Map<String, Object> namedParameters = new HashMap<String, Object>();
-            namedParameters.put("strategyName", strategyName);
-            namedParameters.put("securityId", securityId);
-
-            return (Position) CollectionUtil.getSingleElementOrNull(cacheManager.query(queryString, namedParameters));
+        if (hasCacheManager()) {
+            return (Position) getCacheManager().queryUnique(queryString, namedParameters);
         } else {
-            return ServiceLocator.instance().getLookupService().getPositionBySecurityAndStrategy(securityId, strategyName);
+            return (Position) getLookupService().getUnique(queryString, namedParameters);
         }
     }
 
@@ -167,14 +171,12 @@ public class LookupUtil {
      */
     public static Position[] getOpenPositions() {
 
-        CacheManager cacheManager = getCacheManager();
-        if (cacheManager != null) {
+        String queryString = getQueryString("Position.findOpenPositions");
 
-            String queryString = "from PositionImpl as p where p.quantity != 0 order by p.security.id";
-
-            return cacheManager.query(queryString).toArray(new Position[] {});
+        if (hasCacheManager()) {
+            return getCacheManager().query(queryString).toArray(new Position[] {});
         } else {
-            return ServiceLocator.instance().getLookupService().getOpenPositions().toArray(new Position[] {});
+            return getLookupService().get(queryString).toArray(new Position[] {});
         }
     }
 
@@ -183,16 +185,14 @@ public class LookupUtil {
      */
     public static Position[] getOpenPositionsByStrategy(String strategyName) {
 
-        CacheManager cacheManager = getCacheManager();
-        if (cacheManager != null) {
+        String queryString = getQueryString("Position.findOpenPositionsByStrategy");
 
-            String queryString = "from PositionImpl as p where p.strategy.name = :strategyName and p.quantity != 0 order by p.security.id";
+        Map<String, Object> namedParameters = new SingletonMap<String, Object>("strategyName", strategyName);
 
-            Map<String, Object> namedParameters = new SingletonMap<String, Object>("strategyName", strategyName);
-
-            return cacheManager.query(queryString, namedParameters).toArray(new Position[] {});
+        if (hasCacheManager()) {
+            return getCacheManager().query(queryString, namedParameters).toArray(new Position[] {});
         } else {
-            return ServiceLocator.instance().getLookupService().getOpenPositionsByStrategy(strategyName).toArray(new Position[] {});
+            return getLookupService().get(queryString, namedParameters).toArray(new Position[] {});
         }
     }
 
@@ -201,16 +201,14 @@ public class LookupUtil {
      */
     public static Position[] getOpenPositionsBySecurity(int securityId) {
 
-        CacheManager cacheManager = getCacheManager();
-        if (cacheManager != null) {
+        String queryString = getQueryString("Position.findOpenPositionsBySecurity");
 
-            String queryString = "from PositionImpl as p where p.security.id = :securityId and p.quantity != 0 order by p.id";
+        Map<String, Object> namedParameters = new SingletonMap<String, Object>("securityId", securityId);
 
-            Map<String, Object> namedParameters = new SingletonMap<String, Object>("securityId", securityId);
-
-            return cacheManager.query(queryString, namedParameters).toArray(new Position[] {});
+        if (hasCacheManager()) {
+            return getCacheManager().query(queryString, namedParameters).toArray(new Position[] {});
         } else {
-            return ServiceLocator.instance().getLookupService().getOpenPositionsBySecurity(securityId).toArray(new Position[] {});
+            return getLookupService().get(queryString, namedParameters).toArray(new Position[] {});
         }
     }
 
@@ -219,18 +217,16 @@ public class LookupUtil {
      */
     public static Position[] getOpenPositionsByStrategyAndSecurityFamily(String strategyName, int securityFamilyId) {
 
-        CacheManager cacheManager = getCacheManager();
-        if (cacheManager != null) {
+        String queryString = getQueryString("Position.findOpenPositionsByStrategyAndSecurityFamily");
 
-            String queryString = "from PositionImpl as p where p.strategy.name = :strategyName and p.quantity != 0 and p.security.securityFamily.id = :securityFamilyId order by p.security.id";
+        Map<String, Object> namedParameters = new HashMap<String, Object>();
+        namedParameters.put("strategyName", strategyName);
+        namedParameters.put("securityFamilyId", securityFamilyId);
 
-            Map<String, Object> namedParameters = new HashMap<String, Object>();
-            namedParameters.put("strategyName", strategyName);
-            namedParameters.put("securityFamilyId", securityFamilyId);
-
-            return cacheManager.query(queryString, namedParameters).toArray(new Position[] {});
+        if (hasCacheManager()) {
+            return getCacheManager().query(queryString, namedParameters).toArray(new Position[] {});
         } else {
-            return ServiceLocator.instance().getLookupService().getOpenPositionsByStrategyAndSecurityFamily(strategyName, securityFamilyId).toArray(new Position[] {});
+            return getLookupService().get(queryString, namedParameters).toArray(new Position[] {});
         }
     }
 
@@ -240,7 +236,7 @@ public class LookupUtil {
      */
     public static Tick getTickByDateAndSecurity(int securityId, Date date) {
 
-        return ServiceLocator.instance().getLookupService().getTickBySecurityAndMaxDate(securityId, date);
+        return getLookupService().getTickBySecurityAndMaxDate(securityId, date);
     }
 
 }

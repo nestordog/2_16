@@ -62,4 +62,13 @@ public interface CacheManager {
      */
     public List<?> query(String queryString, Map<String, Object> namedParameters);
 
+    /**
+     * performs the given HQL {@code query}
+     */
+    public Object queryUnique(String queryString);
+
+    /**
+     * performs the given HQL {@code query} by passing defined {@code namedParameters}
+     */
+    public Object queryUnique(String queryString, Map<String, Object> namedParameters);
 }

@@ -1533,7 +1533,7 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
-    public List get(final String query) {
+    public List<?> get(final String query) {
 
         Validate.notEmpty(query, "Query is empty");
 
@@ -1545,7 +1545,7 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
-    public List get(final String query, final Map namedParameters) {
+    public List<?> get(final String query, final Map namedParameters) {
 
         Validate.notEmpty(query, "Query is empty");
         Validate.notNull(namedParameters, "Named parameters is null");
