@@ -23,7 +23,6 @@ import java.util.List;
 
 import org.apache.commons.beanutils.BeanUtils;
 
-import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.enumeration.Side;
@@ -59,31 +58,15 @@ public class TickwiseIncrementalOrderImpl extends TickwiseIncrementalOrder {
     @Override
     public void validate() throws OrderValidationException {
 
-        MarketDataEvent marketDataEvent = getSecurity().getCurrentMarketDataEvent();
-
-        if (marketDataEvent == null) {
-            throw new OrderValidationException("no marketDataEvent available to initialize SlicingOrder");
-        } else if (!(marketDataEvent instanceof Tick)) {
-            throw new OrderValidationException("only ticks are supported, " + marketDataEvent.getClass() + " are not supported");
-        }
-
-        // check spead and adjust offsetTicks if spead is too narrow
-        Tick tick = (Tick) marketDataEvent;
-        SecurityFamily family = getSecurity().getSecurityFamily();
-        int spreadTicks = family.getSpreadTicks(tick.getBid(), tick.getAsk());
-        if (spreadTicks < 0) {
-            throw new OrderValidationException("markets are crossed: bid " + tick.getBid() + " ask " + tick.getAsk());
-        }
+        // nothing to validate
     }
 
     @Override
-    public List<Order> getInitialOrders() {
-
-        Tick tick = (Tick) getSecurity().getCurrentMarketDataEvent();
+    public List<SimpleOrder> getInitialOrders(Tick tick) {
 
         SecurityFamily family = getSecurity().getSecurityFamily();
 
-        // check spead and adjust offsetTicks if spead is too narrow
+        // check spread and adjust offsetTicks if spread is too narrow
         int spreadTicks = family.getSpreadTicks(tick.getBid(), tick.getAsk());
         int adjustedStartOffsetTicks = getStartOffsetTicks();
         int adjustedEndOffsetTicks = getEndOffsetTicks();
@@ -134,11 +117,11 @@ public class TickwiseIncrementalOrderImpl extends TickwiseIncrementalOrder {
         // associate the childOrder with the parentOrder(this)
         this.limitOrder.setParentOrder(this);
 
-        return Collections.singletonList((Order) this.limitOrder);
+        return Collections.singletonList((SimpleOrder) this.limitOrder);
     }
 
     @Override
-    public LimitOrder modifyOrder() {
+    public SimpleOrder modifyOrder(Tick tick) {
 
         SecurityFamily family = getSecurity().getSecurityFamily();
 

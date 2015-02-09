@@ -15,24 +15,45 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.entity.strategy;
+package ch.algotrader.entity.trade;
 
-import org.hibernate.SessionFactory;
-import org.springframework.stereotype.Repository;
-
-import ch.algotrader.hibernate.AbstractDao;
+import java.util.Objects;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-@Repository // Required for exception translation
-public class AllocationDaoImpl extends AbstractDao<Allocation> implements AllocationDao {
+public class OrderPreferenceImpl extends OrderPreference {
 
-    public AllocationDaoImpl(final SessionFactory sessionFactory) {
+    private static final long serialVersionUID = -755368809250236972L;
 
-        super(AllocationImpl.class, sessionFactory);
+    @Override
+    public String toString() {
+
+        return getName() + ":" + getOrderType();
     }
 
+    @Override
+    public boolean equals(Object obj) {
+
+        if (this == obj) {
+            return true;
+        }
+        if (obj instanceof OrderPreference) {
+            OrderPreference that = (OrderPreference) obj;
+            return Objects.equals(this.getName(), that.getName());
+
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+
+        int hash = 17;
+        hash = hash * 37 + Objects.hashCode(getName());
+        return hash;
+    }
 }

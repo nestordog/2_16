@@ -206,6 +206,12 @@
     ]]>
     </query>
     
+    <query name='Subscription.findByStrategyInclProps'>
+    <![CDATA[
+        from SubscriptionImpl as s left outer join fetch s.props as p where s.strategy.name = :strategyName order by s.security.id
+    ]]>
+    </query>    
+    
     <query name='Subscription.findByStrategyAndSecurity'>
     <![CDATA[
         from SubscriptionImpl where strategy.name = :strategyName and security.id = :securityId
@@ -655,12 +661,6 @@
     <!-- OptionFamily DAO queries Ends -->
 
     <!-- Security DAO queries Starts --> 
-    
-    <query name='Security.findById'>
-    <![CDATA[
-        from SecurityImpl as s where s.id = :id
-    ]]>
-    </query>
    
     <query name='Security.findByIds'>
     <![CDATA[
@@ -813,16 +813,6 @@
     </query>
 
     <!-- CashBalance DAO queries Ends -->
-    
-    <!-- DefaultOrderPreference DAO queries Starts -->
-    
-    <query name='DefaultOrderPreference.findByStrategyAndSecurityFamilyInclOrderPreference'>
-    <![CDATA[
-        from DefaultOrderPreferenceImpl as dop join fetch dop.orderPreference where dop.securityFamily.id = :securityFamilyId and dop.strategy.name = :strategyName
-    ]]>
-    </query>
-
-    <!-- DefaultOrderPreference DAO queries Ends -->
 
     <!-- Measurement DAO queries Starts -->
 

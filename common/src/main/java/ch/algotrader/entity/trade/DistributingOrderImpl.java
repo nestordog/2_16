@@ -22,7 +22,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import ch.algotrader.entity.strategy.Allocation;
+import ch.algotrader.entity.marketData.Tick;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -47,9 +47,9 @@ public class DistributingOrderImpl extends DistributingOrder {
     }
 
     @Override
-    public List<Order> getInitialOrders() {
+    public List<SimpleOrder> getInitialOrders(Tick tick) {
 
-        List<Order> orders = new ArrayList<Order>();
+        List<SimpleOrder> orders = new ArrayList<SimpleOrder>();
         long totalQuantity = 0;
         StringBuffer buffer = new StringBuffer();
         for (Allocation allocation : getAllocations()) {
@@ -59,7 +59,7 @@ public class DistributingOrderImpl extends DistributingOrder {
             totalQuantity += quantity;
 
             // create the market order
-            Order order = MarketOrder.Factory.newInstance();
+            SimpleOrder order = MarketOrder.Factory.newInstance();
             order.setSecurity(this.getSecurity());
             order.setStrategy(this.getStrategy());
             order.setSide(this.getSide());

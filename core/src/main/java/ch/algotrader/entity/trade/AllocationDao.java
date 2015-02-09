@@ -15,14 +15,14 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.entity.strategy;
+package ch.algotrader.entity.trade;
 
 import ch.algotrader.hibernate.ReadWriteDao;
 
 /**
- * DAO for {@link ch.algotrader.entity.strategy.Allocation} objects.
+ * DAO for {@link ch.algotrader.entity.trade.Allocation} objects.
  *
- * @see ch.algotrader.entity.strategy.Allocation
+ * @see ch.algotrader.entity.trade.Allocation
  */
 public interface AllocationDao extends ReadWriteDao<Allocation> {
 

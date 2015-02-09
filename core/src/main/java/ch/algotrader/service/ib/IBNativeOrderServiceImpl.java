@@ -20,8 +20,6 @@ package ch.algotrader.service.ib;
 import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
 
-import com.ib.client.Contract;
-
 import ch.algotrader.adapter.ib.IBIdGenerator;
 import ch.algotrader.adapter.ib.IBOrderMessageFactory;
 import ch.algotrader.adapter.ib.IBOrderStatus;
@@ -34,6 +32,8 @@ import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.service.ExternalOrderServiceImpl;
 import ch.algotrader.service.OrderService;
+
+import com.ib.client.Contract;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -167,7 +167,7 @@ public class IBNativeOrderServiceImpl extends ExternalOrderServiceImpl implement
         }
 
         // get the contract
-        Contract contract = IBUtil.getContract(order.getSecurityInitialized());
+        Contract contract = IBUtil.getContract(order.getSecurity());
 
         // create the IB order object
         com.ib.client.Order iBOrder = this.iBOrderMessageFactory.createOrderMessage(order, contract);

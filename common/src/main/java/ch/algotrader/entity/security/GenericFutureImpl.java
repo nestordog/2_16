@@ -19,7 +19,6 @@ package ch.algotrader.entity.security;
 
 import java.util.Date;
 
-import ch.algotrader.ServiceLocator;
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.util.DateUtil;
 
@@ -33,11 +32,11 @@ public class GenericFutureImpl extends GenericFuture {
     private static final long serialVersionUID = -5567218864363234118L;
 
     @Override
-    public Date getExpiration() {
+    public Date getExpiration(Date dateTime) {
 
         GenericFutureFamily family = (GenericFutureFamily) getSecurityFamily();
 
         int months = (int) (getDuration().getValue() / Duration.MONTH_1.getValue());
-        return DateUtil.getExpirationDateNMonths(family.getExpirationType(), ServiceLocator.instance().getEngineManager().getCurrentEPTime(), months);
+        return DateUtil.getExpirationDateNMonths(family.getExpirationType(), dateTime, months);
     }
 }

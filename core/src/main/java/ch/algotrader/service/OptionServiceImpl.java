@@ -46,6 +46,7 @@ import ch.algotrader.entity.Position;
 import ch.algotrader.entity.PositionDao;
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.SubscriptionDao;
+import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.marketData.TickDao;
 import ch.algotrader.entity.security.Future;
@@ -98,11 +99,11 @@ public class OptionServiceImpl implements OptionService {
 
     private final MarketDataService marketDataService;
 
-    private final LookupService lookupService;
-
     private final FutureService futureService;
 
     private final OrderService orderService;
+
+    private final LocalLookupService localLookupService;
 
     private final SecurityDao securityDao;
 
@@ -128,9 +129,9 @@ public class OptionServiceImpl implements OptionService {
             final CommonConfig commonConfig,
             final CoreConfig coreConfig,
             final MarketDataService marketDataService,
-            final LookupService lookupService,
             final FutureService futureService,
             final OrderService orderService,
+            final LocalLookupService localLookupService,
             final SecurityDao securityDao,
             final TickDao tickDao,
             final OptionFamilyDao optionFamilyDao,
@@ -145,9 +146,9 @@ public class OptionServiceImpl implements OptionService {
         Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(coreConfig, "CoreConfig is null");
         Validate.notNull(marketDataService, "MarketDataService is null");
-        Validate.notNull(lookupService, "LookupService is null");
         Validate.notNull(futureService, "FutureService is null");
         Validate.notNull(orderService, "OrderService is null");
+        Validate.notNull(localLookupService, "LocalLookupService is null");
         Validate.notNull(securityDao, "SecurityDao is null");
         Validate.notNull(tickDao, "TickDao is null");
         Validate.notNull(optionFamilyDao, "OptionFamilyDao is null");
@@ -162,9 +163,9 @@ public class OptionServiceImpl implements OptionService {
         this.commonConfig = commonConfig;
         this.coreConfig = coreConfig;
         this.marketDataService = marketDataService;
-        this.lookupService = lookupService;
         this.futureService = futureService;
         this.orderService = orderService;
+        this.localLookupService = localLookupService;
         this.securityDao = securityDao;
         this.tickDao = tickDao;
         this.optionFamilyDao = optionFamilyDao;
@@ -188,7 +189,10 @@ public class OptionServiceImpl implements OptionService {
         // get the deltaAdjustedMarketValue
         double deltaAdjustedMarketValue = 0;
         for (Position position : positions) {
-            deltaAdjustedMarketValue += position.getMarketValue() * position.getSecurity().getLeverage();
+            MarketDataEvent marketDataEvent = this.localLookupService.getCurrentMarketDataEvent(position.getSecurity().getId());
+            double underlyingCurrentValue = this.localLookupService.getCurrentValueDouble(position.getSecurity().getUnderlying().getId());
+
+            deltaAdjustedMarketValue += position.getMarketValue(marketDataEvent) * position.getSecurity().getLeverage(marketDataEvent.getCurrentValueDouble(), underlyingCurrentValue);
         }
 
         final Security underlying = this.securityDao.get(underlyingId);
@@ -214,7 +218,7 @@ public class OptionServiceImpl implements OptionService {
 
                 if (qty != 0) {
                     // create the order
-                    Order order = OptionServiceImpl.this.lookupService.getOrderByStrategyAndSecurityFamily(StrategyImpl.SERVER, futureFamily.getId());
+                    Order order = OptionServiceImpl.this.orderService.createOrderByOrderPreference(OptionServiceImpl.this.coreConfig.getDeltaHedgeOrderPreference());
                     order.setStrategy(server);
                     order.setSecurity(future);
                     order.setQuantity(Math.abs(qty));
@@ -513,7 +517,7 @@ public class OptionServiceImpl implements OptionService {
         // group by duration
         MultiMap<Duration, Tick> durationMap = new MultiHashMap<Duration, Tick>();
         for (Tick tick : allTicks) {
-            ImpliedVolatility impliedVolatility = (ImpliedVolatility) tick.getSecurityInitialized();
+            ImpliedVolatility impliedVolatility = (ImpliedVolatility) tick.getSecurity();
             durationMap.put(impliedVolatility.getDuration(), tick);
         }
 

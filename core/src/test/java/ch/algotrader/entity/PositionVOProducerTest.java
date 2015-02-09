@@ -23,6 +23,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.ForexImpl;
 import ch.algotrader.entity.security.SecurityFamily;
@@ -44,10 +45,14 @@ public class PositionVOProducerTest {
 
     private PositionVOProducer instance;
 
+    private Tick tick;
+
     @Before
     public void setup() throws Exception {
 
         this.instance = PositionVOProducer.INSTANCE;
+
+        this.tick = Tick.Factory.newInstance();
     }
 
     @Test
@@ -92,13 +97,13 @@ public class PositionVOProducerTest {
         Assert.assertEquals(entity.getSecurity().toString(), vo.getName());
         Assert.assertEquals(entity.getStrategy().toString(), vo.getStrategy());
         Assert.assertEquals(entity.getSecurity().getSecurityFamily().getCurrency(), vo.getCurrency());
-        Assert.assertEquals(RoundUtil.getBigDecimal(entity.getMarketPrice(), scale), vo.getMarketPrice());
-        Assert.assertEquals(RoundUtil.getBigDecimal(entity.getMarketValue()), vo.getMarketValue());
+        Assert.assertEquals(RoundUtil.getBigDecimal(entity.getMarketPrice(this.tick), scale), vo.getMarketPrice());
+        Assert.assertEquals(RoundUtil.getBigDecimal(entity.getMarketValue(this.tick)), vo.getMarketValue());
         Assert.assertEquals(RoundUtil.getBigDecimal(entity.getAveragePrice(), scale), vo.getAveragePrice());
         Assert.assertEquals(RoundUtil.getBigDecimal(entity.getCost()), vo.getCost());
-        Assert.assertEquals(RoundUtil.getBigDecimal(entity.getUnrealizedPL()), vo.getUnrealizedPL());
+        Assert.assertEquals(RoundUtil.getBigDecimal(entity.getUnrealizedPL(this.tick)), vo.getUnrealizedPL());
         Assert.assertEquals(RoundUtil.getBigDecimal(entity.getRealizedPL()), vo.getRealizedPL());
-        Assert.assertEquals(RoundUtil.getBigDecimal(entity.getMaxLoss()), vo.getMaxLoss());
+        Assert.assertEquals(RoundUtil.getBigDecimal(entity.getMaxLoss(this.tick)), vo.getMaxLoss());
         Assert.assertEquals(entity.getExitValue().setScale(scale, BigDecimal.ROUND_HALF_UP), vo.getExitValue());
         Assert.assertEquals(entity.getMaintenanceMargin().setScale(scale, BigDecimal.ROUND_HALF_UP), vo.getMargin());
     }

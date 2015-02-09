@@ -22,6 +22,7 @@ import java.math.BigDecimal;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.Position;
@@ -37,6 +38,8 @@ import ch.algotrader.enumeration.AssetClass;
 import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Side;
+import ch.algotrader.esper.NoopEngine;
+import ch.algotrader.service.LocalLookupService;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -50,7 +53,9 @@ public class SimulatorTest {
     @Before
     public void before() {
 
-        this.simulator = new Simulator();
+        LocalLookupService localLookupService = Mockito.mock(LocalLookupService.class);
+        NoopEngine engine = new NoopEngine("TEST");
+        this.simulator = new Simulator(engine, localLookupService);
     }
 
     @Test

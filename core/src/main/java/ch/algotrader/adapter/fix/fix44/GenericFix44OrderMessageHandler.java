@@ -19,15 +19,6 @@ package ch.algotrader.adapter.fix.fix44;
 
 import java.util.Date;
 
-import ch.algotrader.adapter.fix.FixUtil;
-import ch.algotrader.entity.trade.Fill;
-import ch.algotrader.entity.trade.Order;
-import ch.algotrader.entity.trade.OrderStatus;
-import ch.algotrader.enumeration.Side;
-import ch.algotrader.enumeration.Status;
-import ch.algotrader.esper.Engine;
-import ch.algotrader.service.LookupService;
-import ch.algotrader.util.RoundUtil;
 import quickfix.FieldNotFound;
 import quickfix.field.AvgPx;
 import quickfix.field.CumQty;
@@ -37,6 +28,15 @@ import quickfix.field.MsgSeqNum;
 import quickfix.field.OrderQty;
 import quickfix.field.TransactTime;
 import quickfix.fix44.ExecutionReport;
+import ch.algotrader.adapter.fix.FixUtil;
+import ch.algotrader.entity.trade.Fill;
+import ch.algotrader.entity.trade.Order;
+import ch.algotrader.entity.trade.OrderStatus;
+import ch.algotrader.enumeration.Side;
+import ch.algotrader.enumeration.Status;
+import ch.algotrader.esper.Engine;
+import ch.algotrader.service.LookupService;
+import ch.algotrader.util.RoundUtil;
 
 /**
  * Generic Fix44OrderMessageHandler. Can still be overwritten by specific broker interfaces.
@@ -136,7 +136,7 @@ public class GenericFix44OrderMessageHandler extends AbstractFix44OrderMessageHa
             fill.setDateTime(new Date());
             fill.setSide(side);
             fill.setQuantity(quantity);
-            fill.setPrice(RoundUtil.getBigDecimal(price, order.getSecurityInitialized().getSecurityFamilyInitialized().getScale()));
+            fill.setPrice(RoundUtil.getBigDecimal(price, order.getSecurity().getSecurityFamily().getScale()));
             if (executionReport.isSetField(TransactTime.FIELD)) {
                 fill.setExtDateTime(executionReport.getTransactTime().getValue());
             }

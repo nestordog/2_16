@@ -23,7 +23,9 @@ import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Predicate;
 import org.apache.commons.collections15.Transformer;
 import org.apache.commons.lang.StringUtils;
+import org.hibernate.Hibernate;
 
+import ch.algotrader.cache.CacheManager;
 import ch.algotrader.enumeration.Direction;
 import ch.algotrader.util.collection.LongMap;
 import ch.algotrader.util.metric.MetricsUtil;
@@ -41,8 +43,8 @@ public class CombinationImpl extends Combination {
     public LongMap<Security> getQuantityMap() {
 
         LongMap<Security> qtyMap = new LongMap<Security>();
-        for (Component component : getComponentsInitialized()) {
-            qtyMap.increment(component.getSecurityInitialized(), component.getQuantity());
+        for (Component component : getComponents()) {
+            qtyMap.increment(component.getSecurity(), component.getQuantity());
         }
 
         return qtyMap;
@@ -90,7 +92,7 @@ public class CombinationImpl extends Combination {
     public long getComponentTotalQuantity() {
 
         long quantity = 0;
-        for (Component component : getComponentsInitialized()) {
+        for (Component component : getComponents()) {
             quantity += component.getQuantity();
         }
         return quantity;
@@ -105,7 +107,7 @@ public class CombinationImpl extends Combination {
     @Override
     public String toString() {
 
-        return StringUtils.join(CollectionUtils.collect(getComponentsInitialized(), new Transformer<Component, String>() {
+        return StringUtils.join(CollectionUtils.collect(getComponents(), new Transformer<Component, String>() {
             @Override
             public String transform(Component component) {
                 return component.getQuantity() + " " + component.getSecurity();
@@ -120,12 +122,25 @@ public class CombinationImpl extends Combination {
 
             // initialize components
             long beforeComponents = System.nanoTime();
-
-            getComponentsInitialized();
-
+            Hibernate.initialize(getComponents());
             MetricsUtil.accountEnd("Combination.components", beforeComponents);
 
             super.initialize();
+
+        }
+    }
+
+    @Override
+    public void initialize(CacheManager cacheManager) {
+
+        if (!isInitialized()) {
+
+            // initialize components
+            long beforeComponents = System.nanoTime();
+            cacheManager.initialze(this, "components");
+            MetricsUtil.accountEnd("Combination.components", beforeComponents);
+
+            super.initialize(cacheManager);
 
         }
     }

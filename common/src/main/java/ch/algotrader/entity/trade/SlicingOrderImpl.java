@@ -22,12 +22,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.collections15.CollectionUtils;
-import org.apache.commons.collections15.Predicate;
 import org.apache.log4j.Logger;
 
-import ch.algotrader.entity.Subscription;
-import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.enumeration.Side;
@@ -84,31 +80,12 @@ public class SlicingOrderImpl extends SlicingOrder {
         } else if (getMaxDelay() == 0) {
             throw new OrderValidationException("maxDelay cannot be zero for " + getDescription());
         }
-
-        // check subscription
-        Subscription subscription = CollectionUtils.find(getSecurity().getSubscriptions(), new Predicate<Subscription>() {
-            @Override
-            public boolean evaluate(Subscription subscription) {
-                return subscription.getStrategy().equals(getStrategy());
-            }
-        });
-
-        if (subscription == null) {
-            throw new OrderValidationException("marketData is not subscribed for " + getDescription());
-        }
-
-        MarketDataEvent marketDataEvent = getSecurity().getCurrentMarketDataEvent();
-        if (marketDataEvent == null) {
-            throw new OrderValidationException("no marketDataEvent available for " + getDescription());
-        } else if (!(marketDataEvent instanceof Tick)) {
-            throw new OrderValidationException("only ticks are supported for " + getDescription() + ", " + marketDataEvent.getClass() + " is not supported");
-        }
     }
 
     @Override
-    public List<Order> getInitialOrders() {
+    public List<SimpleOrder> getInitialOrders(Tick tick) {
 
-        return Collections.singletonList((Order) nextOrder(getQuantity()));
+        return Collections.singletonList((SimpleOrder) nextOrder(getQuantity(), tick));
     }
 
     @Override
@@ -124,10 +101,9 @@ public class SlicingOrderImpl extends SlicingOrder {
     }
 
     @Override
-    public LimitOrder nextOrder(long remainingQuantity) {
+    public LimitOrder nextOrder(long remainingQuantity, Tick tick) {
 
         SecurityFamily family = getSecurity().getSecurityFamily();
-        Tick tick = (Tick) getSecurity().getCurrentMarketDataEvent();
 
         // limit (at least one tick above market but do not exceed the market)
         BigDecimal limit;
@@ -186,8 +162,8 @@ public class SlicingOrderImpl extends SlicingOrder {
             // if quantity is below half between minQuantity and maxQuantity
             if (quantity < (getMinQuantity() + getMaxQuantity()) / 2.0) {
 
-                // take full remaining quantity
-                quantity = remainingQuantity;
+                // take full remaining quantity but not more than orderMaxQty
+                quantity = Math.min(remainingQuantity, orderMaxQty);
             } else {
 
                 // make sure remaining after slice quantity is greater than minQuantity

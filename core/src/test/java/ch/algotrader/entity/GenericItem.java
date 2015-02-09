@@ -19,7 +19,6 @@ package ch.algotrader.entity;
 
 import java.util.Objects;
 
-import ch.algotrader.cache.CacheManager;
 import ch.algotrader.enumeration.Broker;
 
 public class GenericItem implements BaseEntityI {
@@ -46,10 +45,6 @@ public class GenericItem implements BaseEntityI {
     @Override
     public int getId() {
         return this.id;
-    }
-
-    @Override
-    public void setCacheManager(CacheManager cacheManager) {
     }
 
     protected void setId(final int id) {

@@ -15,14 +15,14 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.entity.strategy;
+package ch.algotrader.entity.trade;
 
 import ch.algotrader.hibernate.ReadWriteDao;
 
 /**
- * DAO for {@link ch.algotrader.entity.strategy.OrderPreference} objects.
+ * DAO for {@link ch.algotrader.entity.trade.OrderPreference} objects.
  *
- * @see ch.algotrader.entity.strategy.OrderPreference
+ * @see ch.algotrader.entity.trade.OrderPreference
  */
 public interface OrderPreferenceDao extends ReadWriteDao<OrderPreference> {
 
@@ -33,5 +33,4 @@ public interface OrderPreferenceDao extends ReadWriteDao<OrderPreference> {
      */
     OrderPreference findByName(String name);
 
-    // spring-dao merge-point
 }

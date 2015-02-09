@@ -23,7 +23,6 @@ import java.util.List;
 
 import org.apache.commons.beanutils.BeanUtils;
 
-import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.enumeration.Side;
@@ -64,19 +63,10 @@ public class VariableIncrementalOrderImpl extends VariableIncrementalOrder {
         if (getIncrement() == 0.0) {
             throw new OrderValidationException("increment cannot be 0 for " + this);
         }
-
-        MarketDataEvent marketDataEvent = getSecurity().getCurrentMarketDataEvent();
-        if (marketDataEvent == null) {
-            throw new OrderValidationException("no marketDataEvent available to initialize SlicingOrder");
-        } else if (!(marketDataEvent instanceof Tick)) {
-            throw new OrderValidationException("only ticks are supported, " + marketDataEvent.getClass() + " are not supported");
-        }
     }
 
     @Override
-    public List<Order> getInitialOrders() {
-
-        Tick tick = (Tick) getSecurity().getCurrentMarketDataEvent();
+    public List<SimpleOrder> getInitialOrders(Tick tick) {
 
         SecurityFamily family = getSecurity().getSecurityFamily();
 
@@ -112,11 +102,11 @@ public class VariableIncrementalOrderImpl extends VariableIncrementalOrder {
         limitOrder.setLimit(this.startLimit);
         limitOrder.setAccount(this.getAccount());
 
-        return Collections.singletonList((Order) limitOrder);
+        return Collections.singletonList((SimpleOrder) limitOrder);
     }
 
     @Override
-    public LimitOrder modifyOrder() {
+    public SimpleOrder modifyOrder(Tick tick) {
 
         SecurityFamily family = getSecurity().getSecurityFamily();
 

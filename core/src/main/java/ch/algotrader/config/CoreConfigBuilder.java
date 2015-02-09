@@ -37,16 +37,22 @@ public final class CoreConfigBuilder {
     private int intervalDays;
     private BigDecimal rebalanceMinAmount;
     private FeedType defaultFeedType;
+    private String defaultOrderPreference;
     private boolean fxFutureHedgeEnabled;
     private int fxFutureHedgeMinTimeToExpiration;
     private int fxHedgeMinAmount;
     private int fxHedgeBatchSize;
+    private String fxHedgeOrderPreference;
     private int deltaHedgeMinTimeToExpiration;
+    private String deltaHedgeOrderPreference;
     private boolean positionCheckDisabled;
 
     CoreConfigBuilder() {
         this.rebalanceMinAmount = new BigDecimal("1000");
         this.defaultFeedType = FeedType.IB;
+        this.defaultOrderPreference = "FX";
+        this.fxHedgeOrderPreference = "FX";
+        this.deltaHedgeOrderPreference = "OPT";
     }
 
     public static CoreConfigBuilder create() {
@@ -88,6 +94,11 @@ public final class CoreConfigBuilder {
         return this;
     }
 
+    public CoreConfigBuilder setDefaultOrderPreference(String defaultOrderPreference) {
+        this.defaultOrderPreference = defaultOrderPreference;
+        return this;
+    }
+
     public CoreConfigBuilder setFxFutureHedgeEnabled(boolean fxFutureHedgeEnabled) {
         this.fxFutureHedgeEnabled = fxFutureHedgeEnabled;
         return this;
@@ -108,8 +119,18 @@ public final class CoreConfigBuilder {
         return this;
     }
 
+    public CoreConfigBuilder setFXHedgeOrderPreference(String fxHedgeOrderPreference) {
+        this.fxHedgeOrderPreference = fxHedgeOrderPreference;
+        return this;
+    }
+
     public CoreConfigBuilder setDeltaHedgeMinTimeToExpiration(int deltaHedgeMinTimeToExpiration) {
         this.deltaHedgeMinTimeToExpiration = deltaHedgeMinTimeToExpiration;
+        return this;
+    }
+
+    public CoreConfigBuilder setDeltaHedgeOrderPreference(String deltaHedgeOrderPreference) {
+        this.deltaHedgeOrderPreference = deltaHedgeOrderPreference;
         return this;
     }
 
@@ -120,9 +141,9 @@ public final class CoreConfigBuilder {
 
     public CoreConfig build() {
         return new CoreConfig(simulateOptions, simulateFuturesByUnderlying, simulateFuturesByGenericFutures, transactionDisplayCount,
-                intervalDays, rebalanceMinAmount, defaultFeedType,
-                fxFutureHedgeEnabled, fxFutureHedgeMinTimeToExpiration, fxHedgeMinAmount, fxHedgeBatchSize,
-                deltaHedgeMinTimeToExpiration, positionCheckDisabled);
+                intervalDays, rebalanceMinAmount, defaultFeedType, defaultOrderPreference,
+                fxFutureHedgeEnabled, fxFutureHedgeMinTimeToExpiration, fxHedgeMinAmount, fxHedgeBatchSize, fxHedgeOrderPreference,
+                deltaHedgeMinTimeToExpiration, deltaHedgeOrderPreference, positionCheckDisabled);
     }
 
 }

@@ -17,21 +17,20 @@
  ***********************************************************************************/
 package ch.algotrader.entity.security;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Objects;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Hibernate;
+import org.hibernate.collection.AbstractPersistentCollection;
+import org.hibernate.proxy.HibernateProxy;
 
-import ch.algotrader.ServiceLocator;
+import ch.algotrader.cache.CacheManager;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.ConfigLocator;
-import ch.algotrader.entity.marketData.MarketDataEvent;
+import ch.algotrader.entity.Position;
+import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.marketData.Tick;
-import ch.algotrader.enumeration.Currency;
-import ch.algotrader.esper.Engine;
-import ch.algotrader.esper.EngineManager;
-import ch.algotrader.util.collection.CollectionUtil;
 import ch.algotrader.util.metric.MetricsUtil;
 
 /**
@@ -45,42 +44,6 @@ public abstract class SecurityImpl extends Security {
 
     private static Logger logger = Logger.getLogger(SecurityImpl.class.getName());
 
-    @Override
-    @SuppressWarnings({ "unchecked" })
-    public MarketDataEvent getCurrentMarketDataEvent() {
-
-        String startedStrategyName = ConfigLocator.instance().getCommonConfig().getStartedStrategyName();
-        EngineManager engineManager = ServiceLocator.instance().getEngineManager();
-        if (engineManager.hasEngine(startedStrategyName)) {
-
-            Engine engine = engineManager.getEngine(startedStrategyName);
-            if (engine.isDeployed("MARKET_DATA_WINDOW")) {
-
-                List<MarketDataEvent> events = engine.executeQuery("select marketDataEvent.* from MarketDataWindow where securityId = " + getId() + " order by marketDataEvent.dateTime desc");
-
-                // might have multiple events of different feed types
-                if (events.size() > 0) {
-                    return CollectionUtil.getFirstElement(events);
-                }
-
-            }
-        }
-
-        if (getSecurityFamilyInitialized().isSynthetic()) {
-
-            return null;
-        } else {
-
-            // if we did not get a marketDataEvent up to now go to the db an get the last tick
-            Tick tick = ServiceLocator.instance().getLookupService().getLastTick(getId());
-
-            if (tick == null) {
-                logger.warn("no last tick was found for " + this);
-            }
-
-            return tick;
-        }
-    }
 
     @Override
     public boolean isSubscribed() {
@@ -89,20 +52,7 @@ public abstract class SecurityImpl extends Security {
     }
 
     @Override
-    public double getFXRate(Currency transactionCurrency) {
-
-        return ServiceLocator.instance().getLookupService().getForexRateDouble(getSecurityFamily().getCurrency(), transactionCurrency);
-    }
-
-    @Override
-    public double getFXRateBase() {
-
-        CommonConfig commonConfig = ConfigLocator.instance().getCommonConfig();
-        return getFXRate(commonConfig.getPortfolioBaseCurrency());
-    }
-
-    @Override
-    public double getLeverage() {
+    public double getLeverage(double currentValue, double underlyingCurrentValue) {
         return 0;
     }
 
@@ -110,20 +60,11 @@ public abstract class SecurityImpl extends Security {
      * generic default margin
      */
     @Override
-    public double getMargin() {
+    public double getMargin(double currentValue, double underlyingCurrentValue) {
 
-        MarketDataEvent marketDataEvent = getCurrentMarketDataEvent();
-
-        double marginPerContract = 0;
-        if (marketDataEvent != null && marketDataEvent.getCurrentValueDouble() > 0.0) {
-
-            double contractSize = getSecurityFamily().getContractSize();
-            CommonConfig commonConfig = ConfigLocator.instance().getCommonConfig();
-            marginPerContract = marketDataEvent.getCurrentValueDouble() * contractSize / commonConfig.getInitialMarginMarkup().doubleValue();
-        } else {
-            logger.warn("no last tick available or currentValue to low to set margin on " + this);
-        }
-        return marginPerContract;
+        double contractSize = getSecurityFamily().getContractSize();
+        CommonConfig commonConfig = ConfigLocator.instance().getCommonConfig();
+        return currentValue * contractSize / commonConfig.getInitialMarginMarkup().doubleValue();
     }
 
     @Override
@@ -168,28 +109,62 @@ public abstract class SecurityImpl extends Security {
             // initialize subscriptions before positions because the lazy loaded (= Proxy) Strategy
             // so subscriptions would also get the Proxy insead of the implementation
             long beforeSubscriptions = System.nanoTime();
-            getSubscriptionsInitialized();
-            long afterSubscriptions = System.nanoTime();
+            Hibernate.initialize(getSubscriptions());
+            MetricsUtil.account("Security.subscriptions", (beforeSubscriptions));
 
             // initialize positions
             long beforePositions = System.nanoTime();
-            getPositionsInitialized();
-            long afterPositions = System.nanoTime();
+            Hibernate.initialize(getPositions());
+            MetricsUtil.account("Security.positions", (beforePositions));
 
             // initialize underlying
             long beforeUnderlying = System.nanoTime();
-            getUnderlyingInitialized();
-            long afterUnderlying = System.nanoTime();
+            Hibernate.initialize(getUnderlying());
+            MetricsUtil.account("Security.underlying", (beforeUnderlying));
 
             // initialize securityFamily
             long beforeSecurityFamily = System.nanoTime();
-            getSecurityFamilyInitialized();
-            long afterSecurityFamily = System.nanoTime();
+            Hibernate.initialize(getSecurityFamily());
+            MetricsUtil.account("Security.securityFamily", (beforeSecurityFamily));
 
-            MetricsUtil.account("Security.positions", (afterPositions - beforePositions));
-            MetricsUtil.account("Security.subscriptions", (afterSubscriptions - beforeSubscriptions));
-            MetricsUtil.account("Security.underlying", (afterUnderlying - beforeUnderlying));
-            MetricsUtil.account("Security.securityFamily", (afterSecurityFamily - beforeSecurityFamily));
+            this.initialized = true;
+        }
+    }
+
+    @Override
+    public void initialize(CacheManager cacheManager) {
+
+        if (!isInitialized()) {
+
+            // initialize subscriptions before positions because the lazy loaded (= Proxy) Strategy
+            // so subscriptions would also get the Proxy insead of the implementation
+            long beforeSubscriptions = System.nanoTime();
+            if (this.getSubscriptions() instanceof AbstractPersistentCollection && !((AbstractPersistentCollection) this.getSubscriptions()).wasInitialized()) {
+                setSubscriptions((Collection<Subscription>) cacheManager.initialze(this, "subscriptions"));
+            }
+            MetricsUtil.account("Security.subscriptions", (beforeSubscriptions));
+
+
+            // initialize positions
+            long beforePositions = System.nanoTime();
+            if (this.getPositions() instanceof AbstractPersistentCollection && !((AbstractPersistentCollection) this.getPositions()).wasInitialized()) {
+                setPositions((Collection<Position>) cacheManager.initialze(this, "positions"));
+            }
+            MetricsUtil.account("Security.positions", (beforePositions));
+
+            // initialize underlying
+            long beforeUnderlying = System.nanoTime();
+            if (this.getUnderlying() instanceof HibernateProxy) {
+                setUnderlying((Security) cacheManager.initialze(this, "underlying"));
+            }
+            MetricsUtil.account("Security.underlying", (beforeUnderlying));
+
+            // initialize securityFamily
+            long beforeSecurityFamily = System.nanoTime();
+            if (this.getSecurityFamily() instanceof HibernateProxy) {
+                setSecurityFamily((SecurityFamily) cacheManager.initialze(this, "securityFamily"));
+            }
+            MetricsUtil.account("Security.securityFamily", (beforeSecurityFamily));
 
             this.initialized = true;
         }

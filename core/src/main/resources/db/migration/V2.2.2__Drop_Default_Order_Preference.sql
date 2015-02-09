@@ -1,0 +1,1 @@
+DROP TABLE `default_order_preference`;

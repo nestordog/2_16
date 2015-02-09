@@ -15,7 +15,7 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.entity.strategy;
+package ch.algotrader.entity.trade;
 
 import java.util.Objects;
 

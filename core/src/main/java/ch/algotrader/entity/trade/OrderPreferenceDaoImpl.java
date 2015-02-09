@@ -15,7 +15,7 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.entity.strategy;
+package ch.algotrader.entity.trade;
 
 import org.apache.commons.lang.Validate;
 import org.hibernate.SessionFactory;

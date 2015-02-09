@@ -40,12 +40,18 @@ import org.springframework.transaction.annotation.Transactional;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.AccountDao;
+import ch.algotrader.entity.marketData.MarketDataEvent;
+import ch.algotrader.entity.marketData.Tick;
+import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.entity.strategy.StrategyDao;
 import ch.algotrader.entity.trade.AlgoOrder;
+import ch.algotrader.entity.trade.Allocation;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderCompletion;
 import ch.algotrader.entity.trade.OrderDao;
+import ch.algotrader.entity.trade.OrderPreference;
+import ch.algotrader.entity.trade.OrderPreferenceDao;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.entity.trade.OrderStatusDao;
 import ch.algotrader.entity.trade.OrderValidationException;
@@ -81,6 +87,10 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
 
     private final SessionFactory sessionFactory;
 
+    private final OrderPersistenceService orderPersistService;
+
+    private final LocalLookupService localLookupService;
+
     private final OrderDao orderDao;
 
     private final OrderStatusDao orderStatusDao;
@@ -91,7 +101,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
 
     private final AccountDao accountDao;
 
-    private final OrderPersistenceService orderPersistService;
+    private final OrderPreferenceDao orderPreferenceDao;
 
     private final EngineManager engineManager;
 
@@ -99,34 +109,40 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
 
     public OrderServiceImpl(final CommonConfig commonConfig,
             final SessionFactory sessionFactory,
+            final OrderPersistenceService orderPersistService,
+            final LocalLookupService localLookupService,
             final OrderDao orderDao,
             final OrderStatusDao orderStatusDao,
             final StrategyDao strategyDao,
             final SecurityDao securityDao,
             final AccountDao accountDao,
-            final OrderPersistenceService orderPersistStrategy,
+            final OrderPreferenceDao orderPreferenceDao,
             final EngineManager engineManager,
             final Engine serverEngine) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(sessionFactory, "SessionFactory is null");
+        Validate.notNull(orderPersistService, "OrderPersistStrategy is null");
+        Validate.notNull(localLookupService, "LocalLookupService is null");
         Validate.notNull(orderDao, "OrderDao is null");
         Validate.notNull(orderStatusDao, "OrderStatusDao is null");
         Validate.notNull(strategyDao, "StrategyDao is null");
         Validate.notNull(securityDao, "SecurityDao is null");
         Validate.notNull(accountDao, "AccountDao is null");
-        Validate.notNull(orderPersistStrategy, "OrderPersistStrategy is null");
+        Validate.notNull(orderPreferenceDao, "OrderPreferenceDao is null");
         Validate.notNull(engineManager, "EngineManager is null");
         Validate.notNull(serverEngine, "Engine is null");
 
         this.commonConfig = commonConfig;
         this.sessionFactory = sessionFactory;
+        this.orderPersistService = orderPersistService;
+        this.localLookupService = localLookupService;
         this.orderDao = orderDao;
         this.orderStatusDao = orderStatusDao;
         this.strategyDao = strategyDao;
         this.securityDao = securityDao;
         this.accountDao = accountDao;
-        this.orderPersistService = orderPersistStrategy;
+        this.orderPreferenceDao = orderPreferenceDao;
         this.engineManager = engineManager;
         this.serverEngine = serverEngine;
     }
@@ -134,6 +150,59 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
     @Override
     public void setApplicationContext(final ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
+    }
+
+    @Override
+    public Order createOrderByOrderPreference(final String name) {
+
+        Validate.notEmpty(name, "Name is empty");
+
+        OrderPreference orderPreference = this.orderPreferenceDao.findByName(name);
+
+        Validate.notNull(orderPreference, "unknown OrderPreference");
+
+        Class<?> orderClazz;
+        Order order;
+        try {
+
+            // create an order instance
+            orderClazz = Class.forName(orderPreference.getOrderType().getValue());
+            order = (Order) orderClazz.newInstance();
+
+            // populate the order with the properties
+            BeanUtil.populate(order, orderPreference.getPropertyNameValueMap());
+
+        } catch (ReflectiveOperationException e) {
+            throw new OrderServiceException(e);
+        }
+
+        // set the account if defined
+        if (orderPreference.getDefaultAccount() != null) {
+            order.setAccount(orderPreference.getDefaultAccount());
+        }
+
+        // set allocations if defined
+        if (orderPreference.getAllocations().size() > 0) {
+
+            if (!(order instanceof AlgoOrder)) {
+                throw new IllegalStateException("allocations cannot be assigned to " + orderClazz + " (only AlgoOrders can have allocations)");
+            } else {
+
+                double totalAllocation = 0;
+                for (Allocation allocation : orderPreference.getAllocations()) {
+                    totalAllocation += allocation.getValue();
+                }
+
+                if (totalAllocation != 1.0) {
+                    throw new IllegalStateException("sum of allocations are not 1.0 for " + toString());
+                }
+
+                AlgoOrder algoOrder = (AlgoOrder) order;
+                algoOrder.setAllocations(orderPreference.getAllocations());
+            }
+        }
+
+        return order;
     }
 
     /**
@@ -157,14 +226,27 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
         order.validate();
 
         // check that the security is tradeable
-        Validate.isTrue(order.getSecurity().getSecurityFamily().isTradeable(), order.getSecurity() + " is not tradeable");
+        Security security = order.getSecurity();
+        Validate.isTrue(security.getSecurityFamily().isTradeable(), security + " is not tradeable");
 
         // external validation of the order
         if (order instanceof SimpleOrder) {
 
-            Account account = order.getAccount();
-            Validate.notNull(account, "missing account for order: " + order);
-            getExternalOrderService(account).validateOrder((SimpleOrder) order);
+            getExternalOrderService(order.getAccount()).validateOrder((SimpleOrder) order);
+
+        } else if (order instanceof AlgoOrder) {
+
+            // check market data for AlgoOrders
+            if (!security.isSubscribed()) {
+                throw new OrderValidationException(security + " is not subscribed for " + order);
+            }
+
+            MarketDataEvent marketDataEvent = this.localLookupService.getCurrentMarketDataEvent(security.getId());
+            if (marketDataEvent == null) {
+                throw new OrderValidationException("no marketDataEvent available to initialize SlicingOrder");
+            } else if (!(marketDataEvent instanceof Tick)) {
+                throw new OrderValidationException("only ticks are supported, " + marketDataEvent.getClass() + " are not supported");
+            }
         }
 
         // TODO add internal validations (i.e. limit, amount, etc.)
@@ -185,7 +267,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
 
         // reload the strategy and security to get potential changes
         order.setStrategy(this.strategyDao.load(order.getStrategy().getId()));
-        order.setSecurity(this.securityDao.load(order.getSecurity().getId()));
+        order.setSecurity(this.securityDao.findByIdInclFamilyAndUnderlying(order.getSecurity().getId()));
 
         // reload the order if necessary to get potential changes
         if (order.getAccount() != null) {

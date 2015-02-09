@@ -34,7 +34,7 @@ public class PropagateMarketDataEventSubscriber {
 
         // security.toString & marketDataEvent.toString is expensive, so only log if debug is enabled
         if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace(marketDataEvent.getSecurityInitialized() + " " + marketDataEvent);
+            LOGGER.trace(marketDataEvent.getSecurity() + " " + marketDataEvent);
         }
 
         long startTime = System.nanoTime();

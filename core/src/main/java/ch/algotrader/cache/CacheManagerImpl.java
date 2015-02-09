@@ -55,7 +55,7 @@ public class CacheManagerImpl implements CacheManager {
 
     private GenericDao genericDao;
 
-    private CacheManagerImpl() {
+    public CacheManagerImpl() {
 
         this.collectionHandler = new CollectionHandler(this);
         this.entityHandler = new EntityHandler(this);
@@ -104,7 +104,7 @@ public class CacheManagerImpl implements CacheManager {
             if (result instanceof Security) {
 
                 Security security = (Security) result;
-                security.initialize();
+                security.initialize(this);
             }
         }
 

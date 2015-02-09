@@ -42,6 +42,7 @@ import ch.algotrader.entity.Position;
 import ch.algotrader.entity.PositionDao;
 import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.TransactionDao;
+import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.marketData.TickDao;
 import ch.algotrader.entity.security.Forex;
@@ -79,9 +80,11 @@ public class PortfolioServiceImpl implements PortfolioService {
 
     private final CoreConfig coreConfig;
 
+    private final SessionFactory sessionFactory;
+
     private final LookupService lookupService;
 
-    private final SessionFactory sessionFactory;
+    private final LocalLookupService localLookupService;
 
     private final GenericDao genericDao;
 
@@ -103,8 +106,9 @@ public class PortfolioServiceImpl implements PortfolioService {
 
     public PortfolioServiceImpl(final CommonConfig commonConfig,
             final CoreConfig coreConfig,
-            final LookupService lookupService,
             final SessionFactory sessionFactory,
+            final LookupService lookupService,
+            final LocalLookupService localLookupService,
             final GenericDao genericDao,
             final StrategyDao strategyDao,
             final TransactionDao transactionDao,
@@ -117,8 +121,9 @@ public class PortfolioServiceImpl implements PortfolioService {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(coreConfig, "CoreConfig is null");
-        Validate.notNull(lookupService, "LookupService is null");
         Validate.notNull(sessionFactory, "SessionFactory is null");
+        Validate.notNull(lookupService, "LookupService is null");
+        Validate.notNull(localLookupService, "LocalLookupService is null");
         Validate.notNull(genericDao, "GenericDao is null");
         Validate.notNull(strategyDao, "StrategyDao is null");
         Validate.notNull(transactionDao, "TransactionDao is null");
@@ -131,8 +136,9 @@ public class PortfolioServiceImpl implements PortfolioService {
 
         this.commonConfig = commonConfig;
         this.coreConfig = coreConfig;
-        this.lookupService = lookupService;
         this.sessionFactory = sessionFactory;
+        this.lookupService = lookupService;
+        this.localLookupService = localLookupService;
         this.genericDao = genericDao;
         this.strategyDao = strategyDao;
         this.transactionDao = transactionDao;
@@ -470,7 +476,7 @@ public class PortfolioServiceImpl implements PortfolioService {
         double margin = 0.0;
         Collection<Position> positions = this.positionDao.findOpenTradeablePositions();
         for (Position position : positions) {
-            margin += position.getMaintenanceMarginBaseDouble();
+            margin += position.getMaintenanceMargin().doubleValue() * this.localLookupService.getForexRateBase(position.getSecurity().getId());
         }
         return margin;
 
@@ -487,7 +493,7 @@ public class PortfolioServiceImpl implements PortfolioService {
         double margin = 0.0;
         List<Position> positions = this.positionDao.findOpenTradeablePositionsByStrategy(strategyName);
         for (Position position : positions) {
-            margin += position.getMaintenanceMarginBaseDouble();
+            margin += position.getMaintenanceMargin().doubleValue() * this.localLookupService.getForexRateBase(position.getSecurity().getId());
         }
         return margin;
 
@@ -634,7 +640,9 @@ public class PortfolioServiceImpl implements PortfolioService {
         double exposure = 0.0;
         Collection<Position> positions = this.positionDao.findOpenTradeablePositions();
         for (Position position : positions) {
-            exposure += position.getExposure();
+            MarketDataEvent marketDataEvent = this.localLookupService.getCurrentMarketDataEvent(position.getSecurity().getId());
+            MarketDataEvent underlyingMarketDataEvent = this.localLookupService.getCurrentMarketDataEvent(position.getSecurity().getUnderlying().getId());
+            exposure += position.getExposure(marketDataEvent, underlyingMarketDataEvent);
         }
         return exposure / getNetLiqValueDouble();
 
@@ -651,7 +659,9 @@ public class PortfolioServiceImpl implements PortfolioService {
         double exposure = 0.0;
         List<Position> positions = this.positionDao.findOpenTradeablePositionsByStrategy(strategyName);
         for (Position position : positions) {
-            exposure += position.getExposure();
+            MarketDataEvent marketDataEvent = this.localLookupService.getCurrentMarketDataEvent(position.getSecurity().getId());
+            MarketDataEvent underlyingMarketDataEvent = this.localLookupService.getCurrentMarketDataEvent(position.getSecurity().getUnderlying().getId());
+            exposure += position.getExposure(marketDataEvent, underlyingMarketDataEvent);
         }
 
         return exposure / getNetLiqValueDouble(strategyName);
@@ -784,7 +794,7 @@ public class PortfolioServiceImpl implements PortfolioService {
         Validate.notEmpty(strategyName, "Strategy name is empty");
         Validate.notNull(date, "Date is null");
 
-        Collection<PortfolioValueVO> portfolioValues = (Collection<PortfolioValueVO>) this.portfolioValueDao.findByStrategyAndMinDate(strategyName, date, PortfolioValueVOProducer.INSTANCE);
+        Collection<PortfolioValueVO> portfolioValues = this.portfolioValueDao.findByStrategyAndMinDate(strategyName, date, PortfolioValueVOProducer.INSTANCE);
 
         // calculate the performance
         double lastNetLiqValue = 0;
@@ -855,12 +865,13 @@ public class PortfolioServiceImpl implements PortfolioService {
         // sum of all cashBalances
         double amount = 0.0;
         for (CashBalance cashBalance : cashBalances) {
-            amount += cashBalance.getAmountBaseDouble();
+            amount += cashBalance.getAmount().doubleValue() * this.localLookupService.getForexRateBase(cashBalance.getCurrency());
         }
 
         // sum of all FX positions
         for (Position position : positions) {
-            amount += position.getMarketValueBase();
+            MarketDataEvent marketDataEvent = this.localLookupService.getCurrentMarketDataEvent(position.getSecurity().getId());
+            amount += position.getMarketValue(marketDataEvent) * this.localLookupService.getForexRateBase(position.getSecurity().getId());
         }
 
         return amount;
@@ -881,7 +892,7 @@ public class PortfolioServiceImpl implements PortfolioService {
         // sum of all FX positions
         for (Position openPosition : openPositions) {
 
-            Security security = openPosition.getSecurityInitialized();
+            Security security = openPosition.getSecurity();
             if (security instanceof Forex) {
                 int intervalDays = this.coreConfig.getIntervalDays();
                 List<Tick> ticks = this.tickDao.findTicksBySecurityAndMaxDate(1, security.getId(), date, intervalDays);
@@ -914,9 +925,10 @@ public class PortfolioServiceImpl implements PortfolioService {
         double amount = 0.0;
         for (Position openPosition : openPositions) {
 
-            Security security = openPosition.getSecurityInitialized();
+            Security security = openPosition.getSecurity();
             if (!(security instanceof Forex)) {
-                amount += openPosition.getMarketValueBase();
+                MarketDataEvent marketDataEvent = this.localLookupService.getCurrentMarketDataEvent(security.getId());
+                amount += openPosition.getMarketValue(marketDataEvent) * this.localLookupService.getForexRateBase(openPosition.getSecurity().getId());
             }
         }
         return amount;
@@ -929,7 +941,7 @@ public class PortfolioServiceImpl implements PortfolioService {
 
         for (Position openPosition : openPositions) {
 
-            Security security = openPosition.getSecurityInitialized();
+            Security security = openPosition.getSecurity();
             if (!(security instanceof Forex)) {
                 int intervalDays = this.coreConfig.getIntervalDays();
                 List<Tick> ticks = this.tickDao.findTicksBySecurityAndMaxDate(1, security.getId(), date, intervalDays);
@@ -968,14 +980,14 @@ public class PortfolioServiceImpl implements PortfolioService {
         // sum of all cashBalances
         for (CashBalance cashBalance : cashBalances) {
             Currency currency = cashBalance.getCurrency();
-            cashMap.increment(currency, cashBalance.getAmountDouble());
+            cashMap.increment(currency, cashBalance.getAmount().doubleValue());
         }
 
         // sum of all positions
         for (Position position : positions) {
 
-            position.getSecurityInitialized();
-            CurrencyAmountVO currencyAmount = position.getAttribution();
+            MarketDataEvent marketDataEvent = this.localLookupService.getCurrentMarketDataEvent(position.getSecurity().getId());
+            CurrencyAmountVO currencyAmount = position.getAttribution(marketDataEvent);
             if (currencyAmount.getAmount() != null) {
                 if (position.isCashPosition()) {
                     cashMap.increment(currencyAmount.getCurrency(), currencyAmount.getAmount().doubleValue());
@@ -991,7 +1003,7 @@ public class PortfolioServiceImpl implements PortfolioService {
             double cash = cashMap.get(currency);
             double securities = securitiesMap.get(currency);
             double netLiqValue = cash + securities;
-            double exchangeRate = this.lookupService.getForexRateDouble(currency, this.commonConfig.getPortfolioBaseCurrency());
+            double exchangeRate = this.localLookupService.getForexRate(currency, this.commonConfig.getPortfolioBaseCurrency());
             double cashBase = cash * exchangeRate;
             double securitiesBase = securities * exchangeRate;
             double netLiqValueBase = netLiqValue * exchangeRate;

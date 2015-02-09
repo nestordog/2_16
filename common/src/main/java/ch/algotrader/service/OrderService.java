@@ -34,6 +34,12 @@ import ch.algotrader.entity.trade.OrderValidationException;
 public interface OrderService {
 
     /**
+     * Creates a new Order based on the {@link ch.algotrader.entity.trade.OrderPreference
+     * OrderPreference} selected by its {@code name}.
+     */
+    public Order createOrderByOrderPreference(final String name);
+
+    /**
      * Validates an Order. It is suggested to call this method by itself prior to sending an Order.
      * However {@link #sendOrder} will invoke this method again.
      */

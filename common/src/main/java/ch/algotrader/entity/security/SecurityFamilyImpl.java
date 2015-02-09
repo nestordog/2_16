@@ -93,7 +93,7 @@ public class SecurityFamilyImpl extends SecurityFamily {
         if (brokerParams != null && brokerParams.getExchangeCode() != null) {
             return brokerParams.getExchangeCode();
         } else {
-            Exchange exchange = getExchangeInitialized();
+            Exchange exchange = getExchange();
             return exchange != null ? exchange.getCode() : null;
         }
     }

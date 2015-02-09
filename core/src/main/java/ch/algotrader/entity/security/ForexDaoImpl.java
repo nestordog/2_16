@@ -24,8 +24,6 @@ import org.apache.commons.lang.Validate;
 import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
 
-import ch.algotrader.entity.DataConsistencyException;
-import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.marketData.TickDao;
 import ch.algotrader.enumeration.Currency;
@@ -56,33 +54,6 @@ public class ForexDaoImpl extends AbstractDao<Forex> implements ForexDao {
     }
 
     @Override
-    public double getRateDouble(Currency baseCurrency, Currency transactionCurrency) {
-
-        Validate.notNull(baseCurrency, "Base currency is null");
-        Validate.notNull(transactionCurrency, "Transaction currency is null");
-
-        if (baseCurrency.equals(transactionCurrency)) {
-            return 1.0;
-        }
-
-        Forex forex = getForex(baseCurrency, transactionCurrency);
-
-        MarketDataEvent marketDataEvent = forex.getCurrentMarketDataEvent();
-
-        if (marketDataEvent == null) {
-            throw new DataConsistencyException("Cannot get exchangeRate for " + baseCurrency + "." + transactionCurrency + " because no marketDataEvent is available");
-        }
-
-        if (forex.getBaseCurrency().equals(baseCurrency)) {
-            // expected case
-            return marketDataEvent.getCurrentValueDouble();
-        } else {
-            // reverse case
-            return 1.0 / marketDataEvent.getCurrentValueDouble();
-        }
-    }
-
-    @Override
     public double getRateDoubleByDate(Currency baseCurrency, Currency transactionCurrency, Date date) {
 
         Validate.notNull(baseCurrency, "Base currency is null");
@@ -97,7 +68,7 @@ public class ForexDaoImpl extends AbstractDao<Forex> implements ForexDao {
 
         List<Tick> ticks = this.tickDao.findTicksBySecurityAndMaxDate(1, forex.getId(), date, this.intervalDays);
         if (ticks.isEmpty()) {
-            throw new DataConsistencyException("Cannot get exchangeRate for " + baseCurrency + "." + transactionCurrency + " because no last tick is available for date " + date);
+            throw new IllegalStateException("Cannot get exchangeRate for " + baseCurrency + "." + transactionCurrency + " because no last tick is available for date " + date);
         }
 
         Tick tick = ticks.get(0);
@@ -124,7 +95,7 @@ public class ForexDaoImpl extends AbstractDao<Forex> implements ForexDao {
             forex = findUnique("Forex.findByBaseAndTransactionCurrency", QueryType.BY_NAME, new NamedParam("baseCurrency", transactionCurrency), new NamedParam("transactionCurrency", baseCurrency));
 
             if (forex == null) {
-                throw new DataConsistencyException("Forex does not exist: " + transactionCurrency + "." + baseCurrency);
+                throw new IllegalStateException("Forex does not exist: " + transactionCurrency + "." + baseCurrency);
             }
         }
 

@@ -46,9 +46,16 @@ public class SecurityDaoImpl extends AbstractDao<Security> implements SecurityDa
     }
 
     @Override
-    public Security findById(int id) {
+    public Security findByIdInitialized(int id) {
 
-        return findUnique("Security.findById", QueryType.BY_NAME, new NamedParam("id", id));
+        Security security = get(id);
+
+        // initialize the security
+        if (security != null) {
+            security.initialize();
+        }
+
+        return security;
     }
 
     @SuppressWarnings("unchecked")

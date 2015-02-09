@@ -29,10 +29,10 @@ import org.hibernate.SessionFactory;
 import org.hibernate.type.IntegerType;
 import org.springframework.stereotype.Repository;
 
-import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.SubscriptionDao;
 import ch.algotrader.entity.security.Security;
+import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.enumeration.QueryType;
@@ -50,16 +50,21 @@ import ch.algotrader.util.collection.Pair;
 public class TickDaoImpl extends AbstractDao<Tick> implements TickDao {
 
     private final SubscriptionDao subscriptionDao;
+
+    private final SecurityDao securityDao;
+
     private final Engine serverEngine;
 
-    public TickDaoImpl(final SessionFactory sessionFactory, final SubscriptionDao subscriptionDao, final Engine serverEngine) {
+    public TickDaoImpl(final SessionFactory sessionFactory, final SubscriptionDao subscriptionDao, final SecurityDao securityDao, final Engine serverEngine) {
 
         super(TickImpl.class, sessionFactory);
 
         Validate.notNull(subscriptionDao);
+        Validate.notNull(securityDao);
         Validate.notNull(serverEngine, "Engine is null");
 
         this.subscriptionDao = subscriptionDao;
+        this.securityDao = securityDao;
         this.serverEngine = serverEngine;
     }
 
@@ -240,7 +245,7 @@ public class TickDaoImpl extends AbstractDao<Tick> implements TickDao {
                 tick.setDateTime(new Date());
 
                 // refresh the security (associated entities might have been modified
-                Security security = ServiceLocator.instance().getLookupService().getSecurityInitialized(tick.getSecurity().getId());
+                Security security = this.securityDao.findByIdInitialized(tick.getSecurity().getId());
                 tick.setSecurity(security);
 
                 if (security.validateTick(tick)) {

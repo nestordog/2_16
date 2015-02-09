@@ -23,13 +23,6 @@ INSERT INTO `broker_parameters` (`ID`, `BROKER`, `SYMBOL_ROOT`, `EXCHANGE_CODE`,
 INSERT INTO `broker_parameters` (`ID`, `BROKER`, `SYMBOL_ROOT`, `EXCHANGE_CODE`, `EXECUTION_COMMISSION`, `CLEARING_COMMISSION`, `FEE`, `SECURITY_FAMILY_FK`) VALUES (2,'JPM',NULL,'XCBF',NULL,NULL,NULL,22);
 
 --
--- Dumping data for table `default_order_preference`
---
-
-
-INSERT INTO `default_order_preference` (`ID`, `ORDER_PREFERENCE_FK`, `STRATEGY_FK`, `SECURITY_FAMILY_FK`) VALUES (2,203,1,9);
-
---
 -- Dumping data for table `exchange`
 --
 
@@ -139,8 +132,8 @@ INSERT INTO `option_family` (`ID`, `INTREST`, `DIVIDEND`, `MARGIN_PARAMETER`, `E
 --
 
 
-INSERT INTO `order_preference` (`ID`, `NAME`, `ORDER_TYPE`, `DEFAULT_ACCOUNT_FK`, `VERSION`) VALUES (201,'FVIX','SLICING',100,0);
-INSERT INTO `order_preference` (`ID`, `NAME`, `ORDER_TYPE`, `DEFAULT_ACCOUNT_FK`, `VERSION`) VALUES (202,'OVIX','SLICING',100,0);
+INSERT INTO `order_preference` (`ID`, `NAME`, `ORDER_TYPE`, `DEFAULT_ACCOUNT_FK`, `VERSION`) VALUES (201,'FUT','SLICING',100,0);
+INSERT INTO `order_preference` (`ID`, `NAME`, `ORDER_TYPE`, `DEFAULT_ACCOUNT_FK`, `VERSION`) VALUES (202,'OPT','SLICING',100,0);
 INSERT INTO `order_preference` (`ID`, `NAME`, `ORDER_TYPE`, `DEFAULT_ACCOUNT_FK`, `VERSION`) VALUES (203,'FX','MARKET',100,0);
 
 --

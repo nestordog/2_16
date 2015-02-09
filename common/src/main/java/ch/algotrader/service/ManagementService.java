@@ -180,12 +180,12 @@ public interface ManagementService {
     public void modifyOrder(String intId, String properties);
 
     /**
-     * Closes the specified Position by using the defined  DefaultOrderPreference
+     * Closes the specified Position by using the defined default OrderPreference
      */
     public void closePosition(int positionId);
 
     /**
-     * Reduces the Position by the specified amount by using the defined DefaultOrderPreference
+     * Reduces the Position by the specified amount by using the defined default OrderPreference
      */
     public void reducePosition(int positionId, int quantity);
 

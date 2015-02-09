@@ -50,6 +50,14 @@ public class SubscriptionDaoImpl extends AbstractDao<Subscription> implements Su
     }
 
     @Override
+    public List<Subscription> findByStrategyInclProps(String strategyName) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+
+        return find("Subscription.findByStrategyInclProps", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
+    }
+
+    @Override
     public Subscription findByStrategyAndSecurity(String strategyName, int securityId) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");

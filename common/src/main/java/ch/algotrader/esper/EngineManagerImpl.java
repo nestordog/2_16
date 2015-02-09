@@ -146,7 +146,7 @@ public class EngineManagerImpl implements EngineManager {
 
         if (this.commonConfig.isSimulation() || this.commonConfig.isEmbedded()) {
             for (Subscription subscription : marketDataEvent.getSecurity().getSubscriptions()) {
-                if (!subscription.getStrategyInitialized().getName().equals(StrategyImpl.SERVER)) {
+                if (!subscription.getStrategy().getName().equals(StrategyImpl.SERVER)) {
                     String strategyName = subscription.getStrategy().getName();
                     if (hasEngine(strategyName)) {
                         getEngine(strategyName).sendEvent(marketDataEvent);

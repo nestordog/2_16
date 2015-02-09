@@ -34,7 +34,7 @@ public abstract class PropertyHolderImpl extends PropertyHolder {
     @Override
     public int getIntProperty(String name) {
 
-        Property property = getPropsInitialized().get(name);
+        Property property = getProps().get(name);
         if (property != null) {
             if (property.getIntValue() != null) {
                 return property.getIntValue();
@@ -49,7 +49,7 @@ public abstract class PropertyHolderImpl extends PropertyHolder {
     @Override
     public double getDoubleProperty(String name) {
 
-        Property property = getPropsInitialized().get(name);
+        Property property = getProps().get(name);
         if (property != null) {
             if (property.getDoubleValue() != null) {
                 return property.getDoubleValue();
@@ -64,7 +64,7 @@ public abstract class PropertyHolderImpl extends PropertyHolder {
     @Override
     public BigDecimal getMoneyProperty(String name) {
 
-        Property property = getPropsInitialized().get(name);
+        Property property = getProps().get(name);
         if (property != null) {
             if (property.getMoneyValue() != null) {
                 return property.getMoneyValue();
@@ -79,7 +79,7 @@ public abstract class PropertyHolderImpl extends PropertyHolder {
     @Override
     public String getTextProperty(String name) {
 
-        Property property = getPropsInitialized().get(name);
+        Property property = getProps().get(name);
         if (property != null) {
             if (property.getTextValue() != null) {
                 return property.getTextValue();
@@ -94,7 +94,7 @@ public abstract class PropertyHolderImpl extends PropertyHolder {
     @Override
     public Date getDateProperty(String name) {
 
-        Property property = getPropsInitialized().get(name);
+        Property property = getProps().get(name);
         if (property != null) {
             if (property.getDateTimeValue() != null) {
                 return property.getDateTimeValue();
@@ -109,7 +109,7 @@ public abstract class PropertyHolderImpl extends PropertyHolder {
     @Override
     public boolean getBooleanProperty(String name) {
 
-        Property property = getPropsInitialized().get(name);
+        Property property = getProps().get(name);
         if (property != null) {
             if (property.getBooleanValue() != null) {
                 return property.getBooleanValue();

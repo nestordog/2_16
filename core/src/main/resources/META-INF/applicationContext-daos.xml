@@ -52,7 +52,8 @@
     <bean id="tickDao" class="ch.algotrader.entity.marketData.TickDaoImpl">
         <constructor-arg index="0" ref="sessionFactory"/>
         <constructor-arg index="1" ref="subscriptionDao"/>
-        <constructor-arg index="2" ref="serverEngine"/>
+        <constructor-arg index="2" ref="securityDao"/>
+        <constructor-arg index="3" ref="serverEngine"/>
     </bean>
     
     <bean id="propertyDao" class="ch.algotrader.entity.property.PropertyDaoImpl">
@@ -149,7 +150,7 @@
         <constructor-arg index="0" ref="sessionFactory"/>
     </bean>
     
-    <bean id="allocationDao" class="ch.algotrader.entity.strategy.AllocationDaoImpl">
+    <bean id="allocationDao" class="ch.algotrader.entity.trade.AllocationDaoImpl">
         <constructor-arg index="0" ref="sessionFactory"/>
     </bean>
     
@@ -157,15 +158,11 @@
         <constructor-arg index="0" ref="sessionFactory"/>
     </bean>
     
-    <bean id="defaultOrderPreferenceDao" class="ch.algotrader.entity.strategy.DefaultOrderPreferenceDaoImpl">
-        <constructor-arg index="0" ref="sessionFactory"/>
-    </bean>
-    
     <bean id="measurementDao" class="ch.algotrader.entity.strategy.MeasurementDaoImpl">
         <constructor-arg index="0" ref="sessionFactory"/>
     </bean>
     
-    <bean id="orderPreferenceDao" class="ch.algotrader.entity.strategy.OrderPreferenceDaoImpl">
+    <bean id="orderPreferenceDao" class="ch.algotrader.entity.trade.OrderPreferenceDaoImpl">
         <constructor-arg index="0" ref="sessionFactory"/>
     </bean>
     

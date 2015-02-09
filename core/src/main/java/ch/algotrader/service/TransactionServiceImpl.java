@@ -192,7 +192,7 @@ public class TransactionServiceImpl implements TransactionService {
         }
 
         int scale = this.commonConfig.getPortfolioDigits();
-        Security security = this.securityDao.findById(securityId);
+        Security security = this.securityDao.get(securityId);
         if (TransactionType.BUY.equals(transactionType) || TransactionType.SELL.equals(transactionType) || TransactionType.EXPIRATION.equals(transactionType)
                 || TransactionType.TRANSFER.equals(transactionType)) {
 

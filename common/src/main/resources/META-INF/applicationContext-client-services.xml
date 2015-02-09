@@ -39,5 +39,11 @@
         <constructor-arg index="1" ref="commonConfig"/>
         <constructor-arg index="2" ref="portfolioService"/>
     </bean>
+    
+    <bean id="localLookupService" class="ch.algotrader.service.LocalLookupServiceImpl" >
+        <constructor-arg index="0" ref="commonConfig"/>
+        <constructor-arg index="1" ref="engineManager"/>
+        <constructor-arg index="2" ref="lookupService"/>
+    </bean>    
 
 </beans>

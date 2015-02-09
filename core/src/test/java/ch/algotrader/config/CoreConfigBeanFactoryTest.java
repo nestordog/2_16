@@ -47,11 +47,14 @@ public class CoreConfigBeanFactoryTest {
         map.put("misc.intervalDays", "4");
         map.put("misc.rebalanceMinAmount", "1000");
         map.put("misc.defaultFeedType", "IB");
+        map.put("misc.defaultOrderPreference", "FX");
         map.put("fx.futureHedgeEnabled", "true");
         map.put("fx.futureHedgeMinTimeToExpiration", "604800000");
         map.put("fx.hedgeMinAmount", "8000");
         map.put("fx.hedgeBatchSize", "100");
+        map.put("fx.hedgeOrderPreference", "FX");
         map.put("delta.hedgeMinTimeToExpiration", "5");
+        map.put("delta.hedgeOrderPreference", "FUT");
         map.put("persistence.positionCheckDisabled", "false");
     }
 
