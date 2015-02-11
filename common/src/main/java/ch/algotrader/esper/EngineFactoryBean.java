@@ -17,11 +17,15 @@
  ***********************************************************************************/
 package ch.algotrader.esper;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.io.Resource;
+import org.springframework.util.StringUtils;
 
 import com.espertech.esper.client.Configuration;
 
@@ -40,9 +44,12 @@ public class EngineFactoryBean implements FactoryBean<Engine>, ApplicationContex
 
     private String engineName;
     private String strategyName;
-    private String[] resources;
-    private String[] initModules;
-    private String[] runModules;
+    private String[] configResourceList;
+    private String configResource;
+    private String[] initModuleList;
+    private String initModules;
+    private String[] runModuleList;
+    private String runModules;
     private ConfigParams configParams;
 
     private final EngineConfigurer configurer = new EngineConfigurer();
@@ -57,15 +64,27 @@ public class EngineFactoryBean implements FactoryBean<Engine>, ApplicationContex
         this.strategyName = strategyName;
     }
 
-    public void setResources(final String[] resources) {
-        this.resources = resources;
+    public void setConfigResourceList(final String[] configResourceList) {
+        this.configResourceList = configResourceList;
     }
 
-    public void setInitModules(final String[] initModules) {
+    public void setConfigResource(final String configResource) {
+        this.configResource = configResource;
+    }
+
+    public void setInitModuleList(final String[] initModuleList) {
+        this.initModuleList = initModuleList;
+    }
+
+    public void setInitModules(final String initModules) {
         this.initModules = initModules;
     }
 
-    public void setRunModules(final String[] runModules) {
+    public void setRunModuleList(final String[] runModuleList) {
+        this.runModuleList = runModuleList;
+    }
+
+    public void setRunModules(final String runModules) {
         this.runModules = runModules;
     }
 
@@ -83,17 +102,46 @@ public class EngineFactoryBean implements FactoryBean<Engine>, ApplicationContex
 
         Configuration configuration = new Configuration();
 
-        for (String resource: this.resources) {
-            Resource[] cfgResources = this.applicationContext.getResources(resource);
-            for (Resource cfgResource: cfgResources) {
-                configuration.configure(cfgResource.getURL());
+        if (this.configResourceList != null) {
+            for (String resource: this.configResourceList) {
+                Resource[] cfgResources = this.applicationContext.getResources(resource);
+                for (Resource cfgResource: cfgResources) {
+                    configuration.configure(cfgResource.getURL());
+                }
             }
+        }
+        if (this.configResource != null) {
+            Resource resource1 = this.applicationContext.getResource("classpath:/META-INF/esper-common.cfg.xml");
+            configuration.configure(resource1.getURL());
+            Resource resource2 = this.applicationContext.getResource(this.configResource.contains(":/") ? this.configResource : "classpath:/META-INF/" + this.configResource);
+            configuration.configure(resource2.getURL());
         }
 
         this.configurer.configure(this.strategyName, configuration, this.configParams);
 
         return new EngineImpl(this.engineName != null ? this.engineName : this.strategyName, this.strategyName,
-                new SpringDependencyLookup(this.applicationContext), configuration, this.initModules, this.runModules, this.configParams);
+                new SpringDependencyLookup(this.applicationContext), configuration,
+                parseModules(this.initModuleList, this.initModules),
+                parseModules(this.runModuleList, this.runModules),
+                this.configParams);
+    }
+
+    private static String[] parseModules(final String[] array, final String text) {
+        if (array == null && text == null) {
+            return null;
+        }
+        List<String> list = new ArrayList<>();
+        if (array != null) {
+            for (String s: array) {
+                list.add(s);
+            }
+        }
+        if (text != null) {
+            for (String s: StringUtils.tokenizeToStringArray(text, ",", true, true)) {
+                list.add(s);
+            }
+        }
+        return !list.isEmpty() ? list.toArray(new String[list.size()]) : null;
     }
 
     @Override

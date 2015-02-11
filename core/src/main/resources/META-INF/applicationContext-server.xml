@@ -132,13 +132,8 @@
 
     <bean id="serverEngine" class="ch.algotrader.esper.EngineFactoryBean">
         <property name="strategyName" value="SERVER"/>
-        <property name="resources">
-            <list>
-                <value>classpath:/META-INF/esper-common.cfg.xml</value>
-                <value>classpath:/META-INF/esper-core.cfg.xml</value>
-            </list>
-        </property>
-        <property name="initModules">
+        <property name="configResource" value="esper-core.cfg.xml" />
+        <property name="initModuleList">
             <list>
                 <value>market-data</value>
                 <value>combination</value>
