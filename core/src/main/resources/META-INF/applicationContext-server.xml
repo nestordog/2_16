@@ -183,11 +183,14 @@
 
     <!-- =================================== Interactive Brokers  ========================================= -->
 
-    <beans profile="iBNative,iBMarketData,iBReferenceData,iBHistoricalData">
+    <beans profile="iBNative,iBMarketData,iBReferenceData,iBHistoricalData,iBFix">
 
         <bean id="iBConfig" class="ch.algotrader.config.spring.ConfigBeanFactoryBean">
             <property name="beanClass"  value="ch.algotrader.config.IBConfig"/>
         </bean>
+    </beans>
+
+    <beans profile="iBNative,iBMarketData,iBReferenceData,iBHistoricalData">
 
         <bean id="iBSessionAdapter" class="ch.algotrader.adapter.ib.DefaultIBAdapter"/>
         
@@ -310,15 +313,17 @@
     <beans profile="iBFix">
 
         <bean id="iBOrderSessionLifeCycle" class="ch.algotrader.adapter.fix.DefaultFixSessionLifecycle">
-            <constructor-arg index="0" value="IBO"/>
+            <constructor-arg index="0" value="IBFT"/>
             <constructor-arg index="1" ref="engineManager"/>
         </bean>
+
+        <bean id="iBAllocationMessageQueue" class="java.util.concurrent.LinkedBlockingDeque" />
 
         <bean id="iBOrderApplicationFactory" class="ch.algotrader.adapter.fix.DefaultFixApplicationFactory">
             <constructor-arg index="0">
                 <bean class="ch.algotrader.adapter.ib.IBFixOrderMessageHandler">
                     <constructor-arg index="0" ref="lookupService"/>
-                    <constructor-arg index="1" ref="iBFixAllocationService"/>
+                    <constructor-arg index="1" ref="iBAllocationMessageQueue"/>
                     <constructor-arg index="2" ref="serverEngine"/>
                 </bean>
             </constructor-arg>

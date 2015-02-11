@@ -23,9 +23,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -41,15 +40,16 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
+import ch.algotrader.adapter.fix.FixAdapter;
+import ch.algotrader.adapter.ib.IBCustomMessage;
+import ch.algotrader.entity.Account;
+import ch.algotrader.service.LookupService;
 import quickfix.SessionNotFound;
 import quickfix.field.FAConfigurationAction;
 import quickfix.field.FARequestID;
 import quickfix.field.SubMsgType;
 import quickfix.field.XMLContent;
 import quickfix.fix42.IBFAModification;
-import ch.algotrader.adapter.fix.FixAdapter;
-import ch.algotrader.entity.Account;
-import ch.algotrader.service.LookupService;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -59,21 +59,23 @@ import ch.algotrader.service.LookupService;
 @ManagedResource(objectName = "ch.algotrader.service.ib:name=IBFixAllocationService")
 public class IBFixAllocationServiceImpl implements IBFixAllocationService {
 
-    private Lock lock = new ReentrantLock();
-    private Condition condition = this.lock.newCondition();
     private GroupMap groups;
 
     private final FixAdapter fixAdapter;
+    private final BlockingQueue<IBCustomMessage> messageQueue;
     private final LookupService lookupService;
 
     public IBFixAllocationServiceImpl(
             final FixAdapter fixAdapter,
+            final BlockingQueue<IBCustomMessage> messageQueue,
             final LookupService lookupService) {
 
         Validate.notNull(fixAdapter, "FixAdapter is null");
+        Validate.notNull(messageQueue, "BlockingQueue is null");
         Validate.notNull(lookupService, "LookupService is null");
 
         this.fixAdapter = fixAdapter;
+        this.messageQueue = messageQueue;
         this.lookupService = lookupService;
     }
 
@@ -96,7 +98,7 @@ public class IBFixAllocationServiceImpl implements IBFixAllocationService {
             throw new IBFixAccountServiceException(ex);
         }
 
-        return new ArrayList<String>(this.groups.keySet());
+        return new ArrayList<>(this.groups.keySet());
 
     }
 
@@ -131,8 +133,6 @@ public class IBFixAllocationServiceImpl implements IBFixAllocationService {
 
         try {
             postGroups(account);
-        } catch (JAXBException ex) {
-            throw new IBFixAccountServiceException(ex);
         } catch (SessionNotFound ex) {
             throw new IBFixAccountServiceException(ex);
         }
@@ -163,8 +163,6 @@ public class IBFixAllocationServiceImpl implements IBFixAllocationService {
 
         try {
             postGroups(account);
-        } catch (JAXBException ex) {
-            throw new IBFixAccountServiceException(ex);
         } catch (SessionNotFound ex) {
             throw new IBFixAccountServiceException(ex);
         }
@@ -198,13 +196,11 @@ public class IBFixAllocationServiceImpl implements IBFixAllocationService {
         if (group != null) {
             groupObject.setDefaultMethod(defaultMethod);
         } else {
-            throw new IllegalArgumentException("group does not exist " + group);
+            throw new IBFixAccountServiceException("group does not exist " + group);
         }
 
         try {
             postGroups(account);
-        } catch (JAXBException ex) {
-            throw new IBFixAccountServiceException(ex);
         } catch (SessionNotFound ex) {
             throw new IBFixAccountServiceException(ex);
         }
@@ -236,7 +232,7 @@ public class IBFixAllocationServiceImpl implements IBFixAllocationService {
         if (group != null) {
             return groupObject.getAccounts();
         } else {
-            throw new IllegalArgumentException("group does not exist " + group);
+            throw new IBFixAccountServiceException("group does not exist " + group);
         }
 
     }
@@ -268,13 +264,11 @@ public class IBFixAllocationServiceImpl implements IBFixAllocationService {
         if (group != null) {
             groupObject.add(childAccount);
         } else {
-            throw new IllegalArgumentException("group does not exist " + group);
+            throw new IBFixAccountServiceException("group does not exist " + group);
         }
 
         try {
             postGroups(account);
-        } catch (JAXBException ex) {
-            throw new IBFixAccountServiceException(ex);
         } catch (SessionNotFound ex) {
             throw new IBFixAccountServiceException(ex);
         }
@@ -308,45 +302,44 @@ public class IBFixAllocationServiceImpl implements IBFixAllocationService {
         if (group != null) {
             groupObject.remove(childAccount);
         } else {
-            throw new IllegalArgumentException("group does not exist " + group);
+            throw new IBFixAccountServiceException("group does not exist " + group);
         }
 
         try {
             postGroups(account);
-        } catch (JAXBException ex) {
-            throw new IBFixAccountServiceException(ex);
         } catch (SessionNotFound ex) {
             throw new IBFixAccountServiceException(ex);
         }
-
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void updateGroups(final String account, final String xmlContent) {
-
-        Validate.notEmpty(account, "Account is empty");
-        Validate.notEmpty(xmlContent, "XML content is empty");
+    private GroupMap unmarshal(final String xmlContent) {
 
         JAXBContext context;
         try {
             context = JAXBContext.newInstance(GroupMap.class);
             Unmarshaller um = context.createUnmarshaller();
-            this.groups = (GroupMap) um.unmarshal(new StringReader(xmlContent));
+            return (GroupMap) um.unmarshal(new StringReader(xmlContent));
         } catch (JAXBException ex) {
             throw new IBFixAccountServiceException(ex);
         }
-
-        this.lock.lock();
-        try {
-            this.condition.signalAll();
-        } finally {
-            this.lock.unlock();
-        }
-
     }
+
+    private String marshal(final GroupMap groups) {
+
+        try {
+            JAXBContext context = JAXBContext.newInstance(GroupMap.class);
+            Marshaller m = context.createMarshaller();
+            m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+
+            StringWriter writer = new StringWriter();
+            m.marshal(groups, writer);
+
+            return writer.toString();
+        } catch (JAXBException ex) {
+            throw new IBFixAccountServiceException(ex);
+        }
+    }
+
 
     private void requestGroups(String accountName) throws InterruptedException, SessionNotFound {
 
@@ -358,42 +351,36 @@ public class IBFixAllocationServiceImpl implements IBFixAllocationService {
         // since call is through JMX/RMI there is not HibernateSession
         Account account = this.lookupService.getAccountByName(accountName);
         if (account == null) {
-            throw new IllegalArgumentException("account does not exist " + accountName);
+            throw new IBFixAccountServiceException("account does not exist " + accountName);
         }
 
-        this.groups = null;
         this.fixAdapter.sendMessage(faModification, account);
 
-        this.lock.lock();
-        try {
-            while (this.groups == null) {
-                this.condition.await();
-            }
-        } finally {
-            this.lock.unlock();
+        final IBCustomMessage message = this.messageQueue.poll(1, TimeUnit.MINUTES);
+        if (message == null) {
+            throw new IBFixAccountServiceException("No response from the IB service after one minute");
         }
+
+        if (!accountName.equals(message.getId())) {
+            throw new IBFixAccountServiceException("Unexpected account name: " + message.getId());
+        }
+
+        this.groups = unmarshal(message.getContent());
     }
 
-    private void postGroups(String accountName) throws JAXBException, SessionNotFound {
+    private void postGroups(String accountName) throws SessionNotFound {
 
         IBFAModification faModification = new IBFAModification();
         faModification.set(new SubMsgType(SubMsgType.CONFIG));
         faModification.set(new FAConfigurationAction(FAConfigurationAction.REPLACE_GROUPS));
         faModification.set(new FARequestID(accountName));
 
-        JAXBContext context = JAXBContext.newInstance(GroupMap.class);
-        Marshaller m = context.createMarshaller();
-        m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-
-        StringWriter writer = new StringWriter();
-        m.marshal(this.groups, writer);
-
-        faModification.set(new XMLContent(writer.toString()));
+        faModification.set(new XMLContent(marshal(this.groups)));
 
         // since call is through JMX/RMI there is not HibernateSession
         Account account = this.lookupService.getAccountByName(accountName);
         if (account == null) {
-            throw new IllegalArgumentException("account does not exist " + accountName);
+            throw new IBFixAccountServiceException("account does not exist " + accountName);
         }
 
         this.fixAdapter.sendMessage(faModification, account);

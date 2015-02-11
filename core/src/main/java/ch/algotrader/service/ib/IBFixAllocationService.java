@@ -63,9 +63,4 @@ public interface IBFixAllocationService {
      */
     public void removeChildAccount(String account, String group, String childAccount);
 
-    /**
-     * Called by the IBFixMessageHandler to process returning XML content.
-     */
-    public void updateGroups(String account, String xmlContent);
-
 }

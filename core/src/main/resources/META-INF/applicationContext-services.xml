@@ -356,7 +356,8 @@
     <beans profile="iBFix">
         <bean id="iBFixAllocationService" class="ch.algotrader.service.ib.IBFixAllocationServiceImpl" >
             <constructor-arg index="0" ref="fixAdapter"/>
-            <constructor-arg index="1" ref="lookupService"/>
+            <constructor-arg index="1" ref="iBAllocationMessageQueue"/>
+            <constructor-arg index="2" ref="lookupService"/>
         </bean>
     </beans>
 

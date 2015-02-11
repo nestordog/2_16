@@ -36,4 +36,8 @@ public class IBFixAccountServiceException extends ServiceException {
         super(message, ex);
     }
 
+    public IBFixAccountServiceException(String message) {
+        super(message);
+    }
+
 }

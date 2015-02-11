@@ -17,12 +17,13 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.ib;
 
+import java.util.concurrent.BlockingQueue;
+
 import org.apache.log4j.Logger;
 
 import ch.algotrader.adapter.fix.fix42.GenericFix42OrderMessageHandler;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.service.LookupService;
-import ch.algotrader.service.ib.IBFixAllocationService;
 import quickfix.FieldNotFound;
 import quickfix.SessionID;
 import quickfix.field.ClOrdID;
@@ -46,72 +47,58 @@ import quickfix.fix42.OrderCancelReject;
  */
 public class IBFixOrderMessageHandler extends GenericFix42OrderMessageHandler {
 
-    private static Logger logger = Logger.getLogger(IBFixOrderMessageHandler.class.getName());
+    private static Logger LOGGER = Logger.getLogger(IBFixOrderMessageHandler.class.getName());
 
-    private final IBFixAllocationService allocationService;
+    private final BlockingQueue<IBCustomMessage> allocationMessageQueue;
 
-    public IBFixOrderMessageHandler(final LookupService lookupService, IBFixAllocationService allocationService, final Engine serverEngine) {
+    public IBFixOrderMessageHandler(final LookupService lookupService, final BlockingQueue<IBCustomMessage> allocationMessageQueue, final Engine serverEngine) {
         super(lookupService, serverEngine);
-        this.allocationService = allocationService;
+        this.allocationMessageQueue = allocationMessageQueue;
     }
 
     @Override
-    public void onMessage(ExecutionReport executionReport, SessionID sessionID) {
+    public void onMessage(ExecutionReport executionReport, SessionID sessionID) throws FieldNotFound {
 
-        try {
-
-            // ignore FA transfer execution reports
-            if (executionReport.getExecID().getValue().startsWith("F-") || executionReport.getExecID().getValue().startsWith("U+")) {
-                return;
-            }
-
-            // ignore FA ExecType=NEW / OrdStatus=FILLED (since they arrive after ExecType=FILL)
-            if (executionReport.getExecType().getValue() == ExecType.NEW && executionReport.getOrdStatus().getValue() == OrdStatus.FILLED) {
-                return;
-            }
-
-            super.onMessage(executionReport, sessionID);
-
-        } catch (FieldNotFound e) {
-            logger.error(e);
+        // ignore FA transfer execution reports
+        if (executionReport.getExecID().getValue().startsWith("F-") || executionReport.getExecID().getValue().startsWith("U+")) {
+            return;
         }
+
+        // ignore FA ExecType=NEW / OrdStatus=FILLED (since they arrive after ExecType=FILL)
+        if (executionReport.getExecType().getValue() == ExecType.NEW && executionReport.getOrdStatus().getValue() == OrdStatus.FILLED) {
+            return;
+        }
+
+        super.onMessage(executionReport, sessionID);
     }
 
     /**
      * updates IB Group definitions
      */
-    public void onMessage(IBFAModification faModification, SessionID sessionID) {
+    public void onMessage(IBFAModification faModification, SessionID sessionID) throws FieldNotFound {
 
-        try {
+        String fARequestID = faModification.get(new FARequestID()).getValue();
+        String xmlContent = faModification.get(new XMLContent()).getValue();
+        FAConfigurationAction fAConfigurationAction = faModification.get(new FAConfigurationAction());
 
-            String fARequestID = faModification.get(new FARequestID()).getValue();
-            String xmlContent = faModification.get(new XMLContent()).getValue();
-            FAConfigurationAction fAConfigurationAction = faModification.get(new FAConfigurationAction());
-
-            if (fAConfigurationAction.valueEquals(FAConfigurationAction.GET_GROUPS)) {
-                this.allocationService.updateGroups(fARequestID, xmlContent);
-            } else {
-                throw new UnsupportedOperationException();
-            }
-        } catch (FieldNotFound e) {
-            logger.error(e);
+        if (fAConfigurationAction.valueEquals(FAConfigurationAction.GET_GROUPS)) {
+            IBCustomMessage message = new IBCustomMessage(fARequestID, IBCustomMessage.Type.GET_GROUPS, xmlContent);
+            this.allocationMessageQueue.add(message);
+        } else {
+            throw new UnsupportedOperationException();
         }
     }
 
     @Override
-    public void onMessage(OrderCancelReject orderCancelReject, SessionID sessionID) {
+    public void onMessage(OrderCancelReject orderCancelReject, SessionID sessionID) throws FieldNotFound {
 
-        try {
-            Text text = orderCancelReject.getText();
-            ClOrdID clOrdID = orderCancelReject.getClOrdID();
-            OrigClOrdID origClOrdID = orderCancelReject.getOrigClOrdID();
-            if ("Too late to cancel".equals(text.getValue()) || "Cannot cancel the filled order".equals(text.getValue())) {
-                logger.info("cannot cancel, order has already been executed, clOrdID: " + clOrdID.getValue() + " origOrdID: " + origClOrdID.getValue());
-            } else {
-                super.onMessage(orderCancelReject, sessionID);
-            }
-        } catch (FieldNotFound e) {
-            logger.error(e);
+        Text text = orderCancelReject.getText();
+        ClOrdID clOrdID = orderCancelReject.getClOrdID();
+        OrigClOrdID origClOrdID = orderCancelReject.getOrigClOrdID();
+        if ("Too late to cancel".equals(text.getValue()) || "Cannot cancel the filled order".equals(text.getValue())) {
+            LOGGER.info("cannot cancel, order has already been executed, clOrdID: " + clOrdID.getValue() + " origOrdID: " + origClOrdID.getValue());
+        } else {
+            super.onMessage(orderCancelReject, sessionID);
         }
     }
 }
