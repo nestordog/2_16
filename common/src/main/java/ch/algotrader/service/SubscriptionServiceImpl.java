@@ -133,7 +133,7 @@ public class SubscriptionServiceImpl implements SubscriptionService, Application
 
         // assemble the message selector
         List<String> selections = new ArrayList<String>();
-        for (Subscription subscription : this.lookupService.getSubscriptionsByStrategyInclComponents(commonConfig.getStrategyName())) {
+        for (Subscription subscription : this.lookupService.getSubscriptionsByStrategyInclComponentsAndProps(commonConfig.getStrategyName())) {
             selections.add("securityId=" + subscription.getSecurity().getId());
         }
 

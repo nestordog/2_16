@@ -26,7 +26,6 @@ import org.apache.commons.lang.StringUtils;
 
 import ch.algotrader.enumeration.Direction;
 import ch.algotrader.util.collection.LongMap;
-import ch.algotrader.util.metric.MetricsUtil;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -41,8 +40,8 @@ public class CombinationImpl extends Combination {
     public LongMap<Security> getQuantityMap() {
 
         LongMap<Security> qtyMap = new LongMap<Security>();
-        for (Component component : getComponentsInitialized()) {
-            qtyMap.increment(component.getSecurityInitialized(), component.getQuantity());
+        for (Component component : getComponents()) {
+            qtyMap.increment(component.getSecurity(), component.getQuantity());
         }
 
         return qtyMap;
@@ -90,7 +89,7 @@ public class CombinationImpl extends Combination {
     public long getComponentTotalQuantity() {
 
         long quantity = 0;
-        for (Component component : getComponentsInitialized()) {
+        for (Component component : getComponents()) {
             quantity += component.getQuantity();
         }
         return quantity;
@@ -105,29 +104,12 @@ public class CombinationImpl extends Combination {
     @Override
     public String toString() {
 
-        return StringUtils.join(CollectionUtils.collect(getComponentsInitialized(), new Transformer<Component, String>() {
+        return StringUtils.join(CollectionUtils.collect(getComponents(), new Transformer<Component, String>() {
             @Override
             public String transform(Component component) {
                 return component.getQuantity() + " " + component.getSecurity();
             }
         }), " + ");
-    }
-
-    @Override
-    public void initialize() {
-
-        if (!isInitialized()) {
-
-            // initialize components
-            long beforeComponents = System.nanoTime();
-
-            getComponentsInitialized();
-
-            MetricsUtil.accountEnd("Combination.components", beforeComponents);
-
-            super.initialize();
-
-        }
     }
 
     @Override

@@ -92,7 +92,7 @@ where
 and
     tickWindow.refresh
 and
-    tickWindow.security.validateTick(cast(tickWindow.getFirst(),ch.algotrader.entity.marketData.Tick))
+    ServiceUtil.isTickValid(cast(tickWindow.getFirst(),ch.algotrader.entity.marketData.Tick))
 and
     ServiceUtil.isMarketOpen(tickWindow.security.securityFamily, current_timestamp.toDate());
 
@@ -135,7 +135,7 @@ select
 from
     TickWindow as tickWindow
 where
-    tickWindow.security.validateTick(cast(tickWindow.getFirst(),ch.algotrader.entity.marketData.Tick))
+    ServiceUtil.isTickValid(cast(tickWindow.getFirst(),ch.algotrader.entity.marketData.Tick))
 and
     ServiceUtil.isMarketOpen(tickWindow.security.securityFamily, current_timestamp.toDate())
 and
@@ -151,7 +151,7 @@ select
 from
     TickWindow as tickWindow
 where
-    tickWindow.security.validateTick(cast(tickWindow.getFirst(),ch.algotrader.entity.marketData.Tick))
+    ServiceUtil.isTickValid(cast(tickWindow.getFirst(),ch.algotrader.entity.marketData.Tick))
 and
     ServiceUtil.isMarketOpen(tickWindow.security.securityFamily, current_timestamp.toDate())
 and

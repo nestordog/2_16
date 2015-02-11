@@ -37,13 +37,14 @@ from
 @RunTimeOnly
 @Subscriber(className='ch.algotrader.service.OrderService.sendOrder')
 select
-    slicingOrder.nextOrder(openOrderWindow.remainingQuantity)
+    slicingOrder.nextOrder(openOrderWindow.remainingQuantity, cast(marketDataWindow.marketDataEvent, ch.algotrader.entity.marketData.Tick))
 from
     // every SlicingOrder -> every ((OrderStatusLimit -> timer:interval) and not OrderStatusSlicing)
     pattern [every slicingOrder=ch.algotrader.entity.trade.SlicingOrder
             -> every (OrderStatus(status = Status.EXECUTED or status = Status.CANCELED, `order`.parentOrder.intId = slicingOrder.intId)
             -> timer:interval(slicingOrder.minDelay + (slicingOrder.maxDelay - slicingOrder.minDelay) * Math.random()))] unidirectional,
-    OpenOrderWindow() as openOrderWindow
+    OpenOrderWindow as openOrderWindow,
+    MarketDataWindow as marketDataWindow
 where
     openOrderWindow.intId = slicingOrder.intId
 and
@@ -51,4 +52,10 @@ and
 and
     openOrderWindow.status != Status.CANCELED
 and
-    openOrderWindow.status != Status.REJECTED;
+    openOrderWindow.status != Status.REJECTED
+and
+	marketDataWindow.securityId = slicingOrder.security.id 
+order by 
+	marketDataWindow.marketDataEvent.dateTime desc 
+limit 
+	1;    

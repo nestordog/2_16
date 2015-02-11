@@ -17,7 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.entity.security;
 
-import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.enumeration.Currency;
 
 /**
@@ -33,18 +32,5 @@ public class ForexImpl extends Forex {
     public Currency getTransactionCurrency() {
 
         return getSecurityFamily().getCurrency();
-    }
-
-    @Override
-    public boolean validateTick(Tick tick) {
-
-        if (tick.getBid() == null || tick.getBid().doubleValue() < 0) {
-            return false;
-        } else if (tick.getAsk() == null || tick.getAsk().doubleValue() < 0) {
-            return false;
-        } else {
-            return true;
-        }
-
     }
 }

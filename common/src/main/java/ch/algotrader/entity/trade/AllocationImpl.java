@@ -15,35 +15,46 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.entity.strategy;
+package ch.algotrader.entity.trade;
 
-import org.apache.commons.lang.Validate;
-import org.hibernate.SessionFactory;
-import org.springframework.stereotype.Repository;
-
-import ch.algotrader.enumeration.QueryType;
-import ch.algotrader.hibernate.AbstractDao;
-import ch.algotrader.hibernate.NamedParam;
+import java.util.Objects;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-@Repository // Required for exception translation
-public class OrderPreferenceDaoImpl extends AbstractDao<OrderPreference> implements OrderPreferenceDao {
+public class AllocationImpl extends Allocation {
 
-    public OrderPreferenceDaoImpl(final SessionFactory sessionFactory) {
+    private static final long serialVersionUID = 1184764642126535447L;
 
-        super(OrderPreferenceImpl.class, sessionFactory);
+    @Override
+    public String toString() {
+
+        return getAccount() + ":" + getValue();
     }
 
     @Override
-    public OrderPreference findByName(String name) {
+    public boolean equals(Object obj) {
 
-        Validate.notEmpty(name, "Name is empty");
-
-        return findUnique("OrderPreference.findByName", QueryType.BY_NAME, new NamedParam("name", name));
+        if (this == obj) {
+            return true;
+        }
+        if (obj instanceof Allocation) {
+            Allocation that = (Allocation) obj;
+            return Objects.equals(this.getOrderPreference(), that.getOrderPreference()) &&
+                    Objects.equals(this.getAccount(), that.getAccount());
+        } else {
+            return false;
+        }
     }
 
+    @Override
+    public int hashCode() {
+
+        int hash = 17;
+        hash = hash * 37 + Objects.hashCode(getOrderPreference());
+        hash = hash * 37 + Objects.hashCode(getAccount());
+        return hash;
+    }
 }

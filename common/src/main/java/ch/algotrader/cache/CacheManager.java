@@ -33,9 +33,9 @@ import ch.algotrader.entity.BaseEntityI;
 public interface CacheManager {
 
     /**
-     * gets an object of the given {@code clazz} by the defined {@code key}.
+     * gets a {@link BaseEntityI} of the given {@code clazz} by the defined {@code key}.
      */
-    public <T> T get(Class<T> clazz, Serializable key);
+    public <T extends BaseEntityI> T get(Class<T> clazz, Serializable key);
 
     /**
      * Adds an object recursively into the Cache and returns the existingObject if it was already in the Cache
@@ -48,11 +48,6 @@ public interface CacheManager {
     public boolean contains(Class<?> clazz, Serializable key);
 
     /**
-     * lazy-initializes the give {@code key} of the specified {@code entity}
-     */
-    public Object initialze(BaseEntityI entity, String key);
-
-    /**
      * performs the given HQL {@code query}
      */
     public List<?> query(String queryString);
@@ -62,4 +57,13 @@ public interface CacheManager {
      */
     public List<?> query(String queryString, Map<String, Object> namedParameters);
 
+    /**
+     * performs the given HQL {@code query}
+     */
+    public Object queryUnique(String queryString);
+
+    /**
+     * performs the given HQL {@code query} by passing defined {@code namedParameters}
+     */
+    public Object queryUnique(String queryString, Map<String, Object> namedParameters);
 }

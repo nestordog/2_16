@@ -18,7 +18,6 @@
 package ch.algotrader.entity.order;
 
 import java.lang.reflect.InvocationTargetException;
-import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -34,14 +33,15 @@ import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.strategy.Strategy;
-import ch.algotrader.entity.trade.LimitOrder;
 import ch.algotrader.entity.trade.OrderValidationException;
+import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.entity.trade.SlicingOrder;
 import ch.algotrader.entity.trade.SlicingOrderImpl;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.util.BeanUtil;
+import ch.algotrader.util.RoundUtil;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -51,6 +51,8 @@ import ch.algotrader.util.BeanUtil;
 public class SlicingOrderTest {
 
     private static final int ITERATIONS = 50;
+    private static final Random random = new Random();
+
 
     @Test
     public void testPopulate() throws IllegalAccessException, InvocationTargetException, OrderValidationException {
@@ -107,7 +109,7 @@ public class SlicingOrderTest {
 
         SlicingOrder order = createInstance();
 
-        order.setSide(Side.BUY);
+        order.setSide(random.nextBoolean() ? Side.BUY : Side.SELL);
         order.setQuantity(200);
         order.setMinQuantity(10);
         order.setMaxQuantity(80);
@@ -121,7 +123,7 @@ public class SlicingOrderTest {
 
         SlicingOrder order = createInstance();
 
-        order.setSide(Side.BUY);
+        order.setSide(random.nextBoolean() ? Side.BUY : Side.SELL);
         order.setQuantity(200);
         order.setMinVolPct(0.2);
         order.setMaxVolPct(0.8);
@@ -135,7 +137,7 @@ public class SlicingOrderTest {
 
         SlicingOrder order = createInstance();
 
-        order.setSide(Side.BUY);
+        order.setSide(random.nextBoolean() ? Side.BUY : Side.SELL);
         order.setQuantity(200);
         order.setMinVolPct(0.2);
         order.setMaxVolPct(0.8);
@@ -153,11 +155,7 @@ public class SlicingOrderTest {
         Strategy strategy = Strategy.Factory.newInstance("TEST_STRATEGY", false, 0);
         Subscription subscription = Subscription.Factory.newInstance(null, FeedType.IB, true, strategy, security);
         SecurityFamily securityFamily = SecurityFamily.Factory.newInstance("", Currency.USD, 1, 2, "0<0.01", true, false);
-        Tick tick = Tick.Factory.newInstance(new Date(), FeedType.IB, security, 50, 100, 1000);
-        tick.setBid(new BigDecimal("10.00"));
-        tick.setAsk(new BigDecimal("10.04"));
 
-        Mockito.when(security.getCurrentMarketDataEvent()).thenReturn(tick);
         Mockito.when(security.getSubscriptions()).thenReturn(Collections.singleton(subscription));
         Mockito.when(security.getSecurityFamily()).thenReturn(securityFamily);
         Mockito.when(security.toString()).thenReturn("TEST_SECURITY");
@@ -171,14 +169,22 @@ public class SlicingOrderTest {
 
     private void processSlices(SlicingOrder order) {
 
-        long qty = order.getQuantity();
-        LimitOrder slice;
-        Random random = new Random();
+        long remainingQty = order.getQuantity();
+        SimpleOrder slice;
         do {
-            slice = order.nextOrder(qty);
+
+            int volBid = 10 + random.nextInt(90); // volBid: 10 - 100
+            int volAsk = 10 + random.nextInt(90); // volAsk: 10 - 100
+            double bid = 10 + random.nextDouble() * 0.1; // bid: 10 - 10.1
+            double ask = bid + 0.01 + random.nextDouble() * 0.09; // spread: 0.01 - 0.1
+
+            Tick tick = Tick.Factory.newInstance(new Date(), FeedType.IB, order.getSecurity(), volBid, volAsk, 1000);
+            tick.setBid(RoundUtil.getBigDecimal(bid, 2));
+            tick.setAsk(RoundUtil.getBigDecimal(ask, 2));
+
+            slice = order.nextOrder(remainingQty, tick);
 
             long marketVolume;
-            Tick tick = (Tick) order.getSecurity().getCurrentMarketDataEvent();
             if (Side.BUY.equals(order.getSide())) {
                 marketVolume = tick.getVolAsk();
             } else {
@@ -187,35 +193,39 @@ public class SlicingOrderTest {
 
             // validate quantities
             Assert.assertTrue("qty = 0", slice.getQuantity() > 0);
-            Assert.assertTrue("qty > remainingQty", slice.getQuantity() <= qty);
+            Assert.assertTrue("qty > remainingQty", slice.getQuantity() <= remainingQty);
 
-            if (qty >= order.getMinQuantity()) {
-                Assert.assertTrue("qty < minQty", slice.getQuantity() >= order.getMinQuantity());
+            if (remainingQty >= order.getMinQuantity() && marketVolume >= order.getMinQuantity()) {
+                boolean condition = slice.getQuantity() >= order.getMinQuantity();
+                if (order.getMaxVolPct() != 0.0) {
+                    Assert.assertTrue("qty < minQty", condition || slice.getQuantity() >= order.getMaxVolPct() * marketVolume);
+                } else {
+                    Assert.assertTrue("qty < minQty", condition);
+                }
             }
 
             if (order.getMaxQuantity() > 0.0) {
                 Assert.assertTrue("qty > maxQty", slice.getQuantity() <= order.getMaxQuantity());
             }
 
-            if (order.getMinVolPct() != 0.0 && qty >= marketVolume * order.getMinVolPct()) {
-                boolean condition = slice.getQuantity() >= marketVolume * order.getMinVolPct();
-                Assert.assertTrue("qty < minVolPct", condition);
+            if (order.getMinVolPct() != 0.0 && remainingQty >= marketVolume * order.getMinVolPct()) {
+                Assert.assertTrue("qty < minVolPct", slice.getQuantity() >= Math.round(marketVolume * order.getMinVolPct()));
             }
 
             if (order.getMaxVolPct() != 0.0) {
-                Assert.assertTrue("qty > minVolPct", slice.getQuantity() <= marketVolume * order.getMaxVolPct());
+                Assert.assertTrue("qty > minVolPct", slice.getQuantity() <= Math.round(marketVolume * order.getMaxVolPct()));
             }
 
             // create fills
             boolean filled = random.nextBoolean();
             if (filled) {
                 long filledQty = Math.round(random.nextDouble() * slice.getQuantity());
-                qty -= filledQty;
+                remainingQty -= filledQty;
                 order.increaseOffsetTicks();
             } else {
                 order.decreaseOffsetTicks();
             }
-        } while (qty > 0);
+        } while (remainingQty > 0);
     }
 
 }

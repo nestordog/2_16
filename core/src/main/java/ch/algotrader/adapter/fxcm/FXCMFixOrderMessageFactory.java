@@ -19,15 +19,6 @@ package ch.algotrader.adapter.fxcm;
 
 import java.util.Date;
 
-import ch.algotrader.adapter.fix.FixApplicationException;
-import ch.algotrader.adapter.fix.FixUtil;
-import ch.algotrader.adapter.fix.fix44.Fix44OrderMessageFactory;
-import ch.algotrader.entity.trade.LimitOrder;
-import ch.algotrader.entity.trade.MarketOrder;
-import ch.algotrader.entity.trade.SimpleOrder;
-import ch.algotrader.entity.trade.StopLimitOrder;
-import ch.algotrader.entity.trade.StopOrder;
-import ch.algotrader.enumeration.TIF;
 import quickfix.field.Account;
 import quickfix.field.ClOrdID;
 import quickfix.field.OrdType;
@@ -41,6 +32,15 @@ import quickfix.field.TransactTime;
 import quickfix.fix44.NewOrderSingle;
 import quickfix.fix44.OrderCancelReplaceRequest;
 import quickfix.fix44.OrderCancelRequest;
+import ch.algotrader.adapter.fix.FixApplicationException;
+import ch.algotrader.adapter.fix.FixUtil;
+import ch.algotrader.adapter.fix.fix44.Fix44OrderMessageFactory;
+import ch.algotrader.entity.trade.LimitOrder;
+import ch.algotrader.entity.trade.MarketOrder;
+import ch.algotrader.entity.trade.SimpleOrder;
+import ch.algotrader.entity.trade.StopLimitOrder;
+import ch.algotrader.entity.trade.StopOrder;
+import ch.algotrader.enumeration.TIF;
 
 /**
  *  FXCM order message factory.
@@ -80,13 +80,13 @@ public class FXCMFixOrderMessageFactory implements Fix44OrderMessageFactory {
         NewOrderSingle message = new NewOrderSingle();
         message.set(new ClOrdID(clOrdID));
 
-        ch.algotrader.entity.Account account = order.getAccountInitialized();
+        ch.algotrader.entity.Account account = order.getAccount();
         if (account != null && account.getExtAccount() != null) {
             message.set(new Account(account.getExtAccount()));
         }
 
         message.set(new TransactTime(new Date()));
-        message.set(new Symbol(FXCMUtil.getFXCMSymbol(order.getSecurityInitialized())));
+        message.set(new Symbol(FXCMUtil.getFXCMSymbol(order.getSecurity())));
         message.set(FixUtil.getFixSide(order.getSide()));
         message.set(new OrderQty(order.getQuantity()));
 
@@ -134,13 +134,13 @@ public class FXCMFixOrderMessageFactory implements Fix44OrderMessageFactory {
         message.set(new ClOrdID(clOrdID));
         message.set(new OrigClOrdID(origClOrdID));
 
-        ch.algotrader.entity.Account account = order.getAccountInitialized();
+        ch.algotrader.entity.Account account = order.getAccount();
         if (account != null && account.getExtAccount() != null) {
             message.set(new Account(account.getExtAccount()));
         }
 
         message.set(new TransactTime(new Date()));
-        message.set(new Symbol(FXCMUtil.getFXCMSymbol(order.getSecurityInitialized())));
+        message.set(new Symbol(FXCMUtil.getFXCMSymbol(order.getSecurity())));
         message.set(FixUtil.getFixSide(order.getSide()));
         message.set(new OrderQty(order.getQuantity()));
 
@@ -184,13 +184,13 @@ public class FXCMFixOrderMessageFactory implements Fix44OrderMessageFactory {
         message.set(new ClOrdID(clOrdID));
         message.set(new OrigClOrdID(origClOrdID));
 
-        ch.algotrader.entity.Account account = order.getAccountInitialized();
+        ch.algotrader.entity.Account account = order.getAccount();
         if (account != null && account.getExtAccount() != null) {
             message.set(new Account(account.getExtAccount()));
         }
 
         message.set(new TransactTime(new Date()));
-        message.set(new Symbol(FXCMUtil.getFXCMSymbol(order.getSecurityInitialized())));
+        message.set(new Symbol(FXCMUtil.getFXCMSymbol(order.getSecurity())));
         message.set(FixUtil.getFixSide(order.getSide()));
         message.set(new OrderQty(order.getQuantity()));
 

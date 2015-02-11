@@ -17,13 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.entity.strategy;
 
-import java.math.BigDecimal;
 import java.util.Objects;
-
-import ch.algotrader.ServiceLocator;
-import ch.algotrader.config.CommonConfig;
-import ch.algotrader.config.ConfigLocator;
-import ch.algotrader.util.RoundUtil;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -33,27 +27,6 @@ import ch.algotrader.util.RoundUtil;
 public class CashBalanceImpl extends CashBalance {
 
     private static final long serialVersionUID = 735304281192548146L;
-
-    @Override
-    public double getAmountDouble() {
-
-        return getAmount().doubleValue();
-    }
-
-    @Override
-    public BigDecimal getAmountBase() {
-
-        return RoundUtil.getBigDecimal(getAmountBaseDouble());
-    }
-
-    @Override
-    public double getAmountBaseDouble() {
-
-        CommonConfig commonConfig = ConfigLocator.instance().getCommonConfig();
-        double exchangeRate = ServiceLocator.instance().getLookupService().getForexRateDouble(getCurrency(), commonConfig.getPortfolioBaseCurrency());
-
-        return getAmountDouble() * exchangeRate;
-    }
 
     @Override
     public String toString() {

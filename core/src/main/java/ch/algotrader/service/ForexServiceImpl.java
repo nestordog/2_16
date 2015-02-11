@@ -140,9 +140,9 @@ public class ForexServiceImpl implements ForexService {
             for (Position position : this.lookupService.getOpenPositionsByStrategyTypeAndUnderlyingType(StrategyImpl.SERVER, Future.class, Forex.class)) {
 
                 // check if expiration is below minimum
-                Future future = (Future) position.getSecurityInitialized();
+                Future future = (Future) position.getSecurity();
 
-                Forex forex = (Forex) future.getUnderlyingInitialized();
+                Forex forex = (Forex) future.getUnderlying();
 
                 Subscription forexSubscription = this.subscriptionDao.findByStrategyAndSecurity(StrategyImpl.SERVER, forex.getId());
                 if (!forexSubscription.hasProperty("hedgingFamily")) {
@@ -155,9 +155,9 @@ public class ForexServiceImpl implements ForexService {
                     continue;
                 }
 
-                if (future.getTimeToExpiration() < coreConfig.getFxFutureHedgeMinTimeToExpiration()) {
+                if (future.getTimeToExpiration(this.engineManager.getCurrentEPTime()) < coreConfig.getFxFutureHedgeMinTimeToExpiration()) {
 
-                    Order order = this.lookupService.getOrderByStrategyAndSecurityFamily(StrategyImpl.SERVER, future.getSecurityFamily().getId());
+                    Order order = this.orderService.createOrderByOrderPreference(coreConfig.getFxHedgeOrderPreference());
                     order.setStrategy(server);
                     order.setSecurity(future);
                     order.setQuantity(Math.abs(position.getQuantity()));
@@ -203,7 +203,7 @@ public class ForexServiceImpl implements ForexService {
                 double tradeValue = forex.getBaseCurrency().equals(portfolioBaseCurrency) ? netLiqValueBase : netLiqValue;
 
                 // create the order
-                Order order = this.lookupService.getOrderByStrategyAndSecurityFamily(StrategyImpl.SERVER, forex.getSecurityFamily().getId());
+                Order order = this.orderService.createOrderByOrderPreference(coreConfig.getFxHedgeOrderPreference());
                 order.setStrategy(server);
 
                 // if a hedging family is defined for this Forex use it instead of the Forex directly

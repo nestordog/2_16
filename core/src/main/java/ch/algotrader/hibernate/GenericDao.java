@@ -37,6 +37,7 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 import ch.algotrader.entity.security.Security;
+import ch.algotrader.visitor.InitializationVisitor;
 
 /**
  * A generic Data Access Object providing Hibernate lookup methods.
@@ -65,7 +66,7 @@ public class GenericDao extends HibernateDaoSupport {
                 if (result instanceof Security) {
                     Security security = (Security) result;
 
-                    security.initialize();
+                    security.accept(InitializationVisitor.INSTANCE, HibernateInitializer.INSTANCE);
                 }
 
                 return result;

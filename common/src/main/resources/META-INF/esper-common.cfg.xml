@@ -52,7 +52,6 @@
     <auto-import import-name="ch.algotrader.util.DrawDownUtil"/>
     <auto-import import-name="ch.algotrader.util.DateUtil"/>
     <auto-import import-name="ch.algotrader.util.OrderUtil"/>
-    <auto-import import-name="ch.algotrader.esper.ServiceUtil"/>
     <auto-import import-name="ch.algotrader.esper.LookupUtil"/>
     <auto-import import-name="ch.algotrader.esper.Constants"/>
 

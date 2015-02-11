@@ -19,12 +19,10 @@ package ch.algotrader.entity.security;
 
 import java.util.Date;
 
+import org.apache.commons.lang.Validate;
 import org.apache.commons.math.MathException;
-import org.apache.log4j.Logger;
 
-import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.marketData.MarketDataEvent;
-import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.option.OptionUtil;
 import ch.algotrader.util.DateUtil;
 
@@ -36,58 +34,45 @@ import ch.algotrader.util.DateUtil;
 public class OptionImpl extends Option {
 
     private static final long serialVersionUID = -3168298592370987085L;
-    private static Logger logger = Logger.getLogger(OptionImpl.class.getName());
 
     @Override
-    public double getLeverage() {
+    public double getLeverage(MarketDataEvent marketDataEvent, MarketDataEvent underlyingMarketDataEvent) {
+
+        Validate.notNull(marketDataEvent, "MarketDataEvent is missing");
+        Validate.notNull(underlyingMarketDataEvent, "underlying MarketDataEvent is missing");
+
+        double currentValue = marketDataEvent.getCurrentValueDouble();
+        double underlyingCurrentValue = marketDataEvent.getCurrentValueDouble();
 
         try {
-            double underlyingSpot = getUnderlying().getCurrentMarketDataEvent().getCurrentValueDouble();
-            double currentValue = getCurrentMarketDataEvent().getCurrentValueDouble();
-            double delta = OptionUtil.getDelta(this, currentValue, underlyingSpot);
-
-            return underlyingSpot / currentValue * delta;
-
-        } catch (Exception e) {
-
-            return Double.NaN;
+            double delta = OptionUtil.getDelta(this, currentValue, underlyingCurrentValue);
+            return underlyingCurrentValue / currentValue * delta;
+        } catch (MathException e) {
+            throw new RuntimeException(e);
         }
     }
 
     @Override
-    public double getMargin() {
+    public double getMargin(double currentValue, double underlyingCurrentValue) {
 
-        MarketDataEvent optionMarketDataEvent = getCurrentMarketDataEvent();
-        MarketDataEvent underlyingMarketDataEvent = getUnderlying().getCurrentMarketDataEvent();
-
-        double marginPerContract = 0;
-        if (optionMarketDataEvent != null && underlyingMarketDataEvent != null && optionMarketDataEvent.getCurrentValueDouble() > 0.0) {
-
-            double optionSettlement = optionMarketDataEvent.getCurrentValueDouble();
-            double underlyingSettlement = underlyingMarketDataEvent.getCurrentValueDouble();
-            double contractSize = getSecurityFamily().getContractSize();
-            try {
-                marginPerContract = OptionUtil.getMaintenanceMargin(this, optionSettlement, underlyingSettlement) * contractSize;
-            } catch (MathException e) {
-                logger.warn("could not calculate margin for " + this, e);
-            }
-        } else {
-            logger.warn("no last tick available or currentValue to low to set margin on " + this);
+        try {
+            return OptionUtil.getMaintenanceMargin(this, currentValue, underlyingCurrentValue) * getSecurityFamily().getContractSize();
+        } catch (MathException e) {
+            throw new RuntimeException(e);
         }
-        return marginPerContract;
     }
 
     @Override
-    public long getTimeToExpiration() {
+    public long getTimeToExpiration(Date dateTime) {
 
-        return getExpiration().getTime() - ServiceLocator.instance().getEngineManager().getCurrentEPTime().getTime();
+        return getExpiration().getTime() - dateTime.getTime();
     }
 
     @Override
-    public int getDuration() {
+    public int getDuration(Date dateTime) {
 
         OptionFamily family = (OptionFamily) this.getSecurityFamily();
-        Date nextExpDate = DateUtil.getExpirationDate(family.getExpirationType(), ServiceLocator.instance().getEngineManager().getCurrentEPTime());
+        Date nextExpDate = DateUtil.getExpirationDate(family.getExpirationType(), dateTime);
         return 1 + (int) Math.round(((this.getExpiration().getTime() - nextExpDate.getTime()) / (double) family.getExpirationDistance().getValue()));
     }
 
@@ -103,18 +88,5 @@ public class OptionImpl extends Option {
         } else {
             return expiration;
         }
-    }
-
-    @Override
-    public boolean validateTick(Tick tick) {
-
-        // options need to have an ASK (but might not have a BID just before expiration)
-        if (tick.getVolAsk() == 0) {
-            return false;
-        } else if (tick.getAsk() == null) {
-            return false;
-        }
-
-        return super.validateTick(tick);
     }
 }

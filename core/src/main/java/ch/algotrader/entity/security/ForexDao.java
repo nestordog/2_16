@@ -30,15 +30,6 @@ import ch.algotrader.hibernate.ReadWriteDao;
 public interface ForexDao extends ReadWriteDao<Forex> {
 
     /**
-     * Gets the current Exchange Rate between the {@code baseCurrency} and {@code
-     * transactionCurrency}.
-     * @param baseCurrency
-     * @param transactionCurrency
-     * @return double
-     */
-    double getRateDouble(Currency baseCurrency, Currency transactionCurrency);
-
-    /**
      * Gets the historical Exchange Rate between the {@code baseCurrency} and {@code
      * transactionCurrency} on the specified {@code date}
      * @param baseCurrency

@@ -61,14 +61,14 @@ public abstract class TradeCallback {
         if (this.expectFullExecution) {
             for (OrderStatus orderStatus : orderStati) {
                 if (orderStatus.getRemainingQuantity() > 0) {
-                    logger.error("order on " + orderStatus.getOrder().getSecurityInitialized() +
+                    logger.error("order on " + orderStatus.getOrder().getSecurity() +
                             " has not been fully executed, filledQty: " + orderStatus.getFilledQuantity() +
                             " remainingQty: " + orderStatus.getRemainingQuantity());
                 }
             }
         }
 
-        // get the securityIds sorted asscending
+        // get the securityIds sorted ascending
         List<OrderStatus> orderStatusList = Arrays.asList(orderStati);
         TreeSet<Integer> sortedSecurityIds = new TreeSet<Integer>(CollectionUtils.collect(orderStatusList, new Transformer<OrderStatus, Integer>() {
             @Override

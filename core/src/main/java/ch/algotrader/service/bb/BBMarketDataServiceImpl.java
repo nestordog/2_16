@@ -25,10 +25,6 @@ import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
 
-import com.bloomberglp.blpapi.CorrelationID;
-import com.bloomberglp.blpapi.Subscription;
-import com.bloomberglp.blpapi.SubscriptionList;
-
 import ch.algotrader.adapter.bb.BBAdapter;
 import ch.algotrader.adapter.bb.BBIdGenerator;
 import ch.algotrader.adapter.bb.BBSession;
@@ -45,6 +41,10 @@ import ch.algotrader.service.InitializationPriority;
 import ch.algotrader.service.InitializingServiceI;
 import ch.algotrader.service.ib.IBNativeMarketDataServiceException;
 import ch.algotrader.vo.SubscribeTickVO;
+
+import com.bloomberglp.blpapi.CorrelationID;
+import com.bloomberglp.blpapi.Subscription;
+import com.bloomberglp.blpapi.SubscriptionList;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -109,9 +109,6 @@ public class BBMarketDataServiceImpl extends ExternalMarketDataServiceImpl imple
         if (!session.isRunning()) {
             throw new IBNativeMarketDataServiceException("Bloomberg session is not running to subscribe " + security);
         }
-
-        // make sure SecurityFamily is initialized
-        security.getSecurityFamilyInitialized();
 
         // create the SubscribeTickEvent (must happen before reqMktData so that Esper is ready to receive marketdata)
         String tickerId = BBIdGenerator.getInstance().getNextRequestId();

@@ -32,7 +32,9 @@ import org.apache.commons.collections.map.MultiValueMap;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang.time.DateUtils;
+import org.hibernate.Hibernate;
 import org.hibernate.SessionFactory;
+import org.hibernate.impl.SessionFactoryImpl;
 
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.CoreConfig;
@@ -76,12 +78,8 @@ import ch.algotrader.entity.security.Stock;
 import ch.algotrader.entity.security.StockDao;
 import ch.algotrader.entity.strategy.CashBalance;
 import ch.algotrader.entity.strategy.CashBalanceDao;
-import ch.algotrader.entity.strategy.DefaultOrderPreference;
-import ch.algotrader.entity.strategy.DefaultOrderPreferenceDao;
 import ch.algotrader.entity.strategy.Measurement;
 import ch.algotrader.entity.strategy.MeasurementDao;
-import ch.algotrader.entity.strategy.OrderPreference;
-import ch.algotrader.entity.strategy.OrderPreferenceDao;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.strategy.StrategyDao;
 import ch.algotrader.entity.strategy.StrategyImpl;
@@ -92,11 +90,12 @@ import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.OrderServiceType;
-import ch.algotrader.esper.EngineManager;
 import ch.algotrader.hibernate.GenericDao;
+import ch.algotrader.hibernate.HibernateInitializer;
 import ch.algotrader.util.HibernateUtil;
 import ch.algotrader.util.collection.CollectionUtil;
 import ch.algotrader.util.spring.HibernateSession;
+import ch.algotrader.visitor.InitializationVisitor;
 import ch.algotrader.vo.OrderStatusVO;
 import ch.algotrader.vo.PositionVO;
 import ch.algotrader.vo.TransactionVO;
@@ -163,10 +162,6 @@ public class LookupServiceImpl implements LookupService {
 
     private final OrderStatusDao orderStatusDao;
 
-    private final OrderPreferenceDao orderPreferenceDao;
-
-    private final DefaultOrderPreferenceDao defaultOrderPreferenceDao;
-
     private final AccountDao accountDao;
 
     private final StockDao stockDao;
@@ -174,8 +169,6 @@ public class LookupServiceImpl implements LookupService {
     private final IntrestRateDao intrestRateDao;
 
     private final EasyToBorrowDao easyToBorrowDao;
-
-    private final EngineManager engineManager;
 
     public LookupServiceImpl(
             final CommonConfig commonConfig,
@@ -201,13 +194,10 @@ public class LookupServiceImpl implements LookupService {
             final BarDao barDao,
             final OrderDao orderDao,
             final OrderStatusDao orderStatusDao,
-            final OrderPreferenceDao orderPreferenceDao,
-            final DefaultOrderPreferenceDao defaultOrderPreferenceDao,
             final AccountDao accountDao,
             final StockDao stockDao,
             final IntrestRateDao intrestRateDao,
-            final EasyToBorrowDao easyToBorrowDao,
-            final EngineManager engineManager) {
+            final EasyToBorrowDao easyToBorrowDao) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(coreConfig, "CoreConfig is null");
@@ -232,13 +222,10 @@ public class LookupServiceImpl implements LookupService {
         Validate.notNull(barDao, "BarDao is null");
         Validate.notNull(orderDao, "OrderDao is null");
         Validate.notNull(orderStatusDao, "OrderStatusDao is null");
-        Validate.notNull(orderPreferenceDao, "OrderPreferenceDao is null");
-        Validate.notNull(defaultOrderPreferenceDao, "DefaultOrderPreferenceDao is null");
         Validate.notNull(accountDao, "AccountDao is null");
         Validate.notNull(stockDao, "StockDao is null");
         Validate.notNull(intrestRateDao, "IntrestRateDao is null");
         Validate.notNull(easyToBorrowDao, "EasyToBorrowDao is null");
-        Validate.notNull(engineManager, "EngineManager is null");
 
         this.commonConfig = commonConfig;
         this.coreConfig = coreConfig;
@@ -263,13 +250,10 @@ public class LookupServiceImpl implements LookupService {
         this.barDao = barDao;
         this.orderDao = orderDao;
         this.orderStatusDao = orderStatusDao;
-        this.orderPreferenceDao = orderPreferenceDao;
-        this.defaultOrderPreferenceDao = defaultOrderPreferenceDao;
         this.accountDao = accountDao;
         this.stockDao = stockDao;
         this.intrestRateDao = intrestRateDao;
         this.easyToBorrowDao = easyToBorrowDao;
-        this.engineManager = engineManager;
     }
 
     /**
@@ -358,14 +342,7 @@ public class LookupServiceImpl implements LookupService {
     @Override
     public Security getSecurityInitialized(final int id) {
 
-        Security security = this.securityDao.get(id);
-
-        // initialize the security
-        if (security != null) {
-            security.initialize();
-        }
-
-        return security;
+        return this.securityDao.findByIdInitialized(id);
 
     }
 
@@ -488,7 +465,7 @@ public class LookupServiceImpl implements LookupService {
 
             Security security = (Security) subscription.get("security");
             if (security instanceof Combination) {
-                ((Combination) security).getComponentsInitialized();
+                Hibernate.initialize(((Combination) security).getComponents());
             }
         }
 
@@ -678,17 +655,18 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
-    public List<Subscription> getSubscriptionsByStrategyInclComponents(final String strategyName) {
+    public List<Subscription> getSubscriptionsByStrategyInclComponentsAndProps(final String strategyName) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        List<Subscription> subscriptions = this.subscriptionDao.findByStrategy(strategyName);
+        List<Subscription> subscriptions = this.subscriptionDao.findByStrategyInclProps(strategyName);
 
         // initialize components
         for (Subscription subscription : subscriptions) {
 
-            if (subscription.getSecurityInitialized() instanceof Combination) {
-                ((Combination) subscription.getSecurity()).getComponentsInitialized();
+            if (subscription.getSecurity() instanceof Combination) {
+                Combination combination = (Combination) subscription.getSecurity();
+                Hibernate.initialize(combination.getComponents());
             }
         }
 
@@ -1109,41 +1087,6 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
-    public Order getOrderByName(final String name) {
-
-        Validate.notEmpty(name, "Name is empty");
-
-        OrderPreference orderPreference = this.orderPreferenceDao.findByName(name);
-
-        if (orderPreference == null) {
-            throw new IllegalArgumentException("unknown OrderType or OrderPreference");
-        }
-
-        return orderPreference.createOrder();
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Order getOrderByStrategyAndSecurityFamily(final String strategyName, final int securityFamilyId) {
-
-        Validate.notEmpty(strategyName, "Strategy name is empty");
-
-        DefaultOrderPreference defaultOrderPreference = this.defaultOrderPreferenceDao.findByStrategyAndSecurityFamilyInclOrderPreference(strategyName, securityFamilyId);
-        if (defaultOrderPreference == null) {
-            throw new LookupServiceException("No default order preference defined for securityFamilyId " + securityFamilyId + " and " + strategyName);
-        }
-
-        return defaultOrderPreference.getOrderPreference().createOrder();
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public BigDecimal getLastIntOrderId(final String sessionQualifier) {
 
         Validate.notEmpty(sessionQualifier, "Session qualifier is empty");
@@ -1180,12 +1123,12 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
-    public Tick getLastTick(final int securityId) {
+    public Tick getLastTick(final int securityId, Date dateTime) {
 
-        Tick tick = CollectionUtil.getSingleElementOrNull(this.tickDao.findTicksBySecurityAndMaxDate(1, securityId, this.engineManager.getCurrentEPTime(), this.coreConfig.getIntervalDays()));
+        Tick tick = CollectionUtil.getSingleElementOrNull(this.tickDao.findTicksBySecurityAndMaxDate(1, securityId, dateTime, this.coreConfig.getIntervalDays()));
 
         if (tick != null) {
-            tick.getSecurity().initialize();
+            tick.accept(InitializationVisitor.INSTANCE, HibernateInitializer.INSTANCE);
         }
 
         return tick;
@@ -1295,7 +1238,7 @@ public class LookupServiceImpl implements LookupService {
 
         List<Tick> ticks = this.tickDao.findSubscribedByTimePeriod(startDate, endDate);
         for (Tick tick : ticks) {
-            tick.getSecurity().initialize();
+            tick.accept(InitializationVisitor.INSTANCE, HibernateInitializer.INSTANCE);
         }
         return ticks;
 
@@ -1373,7 +1316,7 @@ public class LookupServiceImpl implements LookupService {
 
         List<Bar> bars = this.barDao.findSubscribedByTimePeriodAndBarSize(startDate, endDate, barSize);
         for (Bar bar : bars) {
-            bar.getSecurity().initialize();
+            bar.accept(InitializationVisitor.INSTANCE, HibernateInitializer.INSTANCE);
         }
         return bars;
 
@@ -1408,20 +1351,7 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
-    public double getForexRateDouble(final Currency baseCurrency, final Currency transactionCurrency) {
-
-        Validate.notNull(baseCurrency, "Base currency is null");
-        Validate.notNull(transactionCurrency, "Transaction currency is null");
-
-        return this.forexDao.getRateDouble(baseCurrency, transactionCurrency);
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public double getForexRateDoubleByDate(final Currency baseCurrency, final Currency transactionCurrency, final Date date) {
+    public double getForexRateByDate(final Currency baseCurrency, final Currency transactionCurrency, final Date date) {
 
         Validate.notNull(baseCurrency, "Base currency is null");
         Validate.notNull(transactionCurrency, "Transaction currency is null");
@@ -1606,7 +1536,7 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
-    public List get(final String query) {
+    public List<?> get(final String query) {
 
         Validate.notEmpty(query, "Query is empty");
 
@@ -1618,7 +1548,7 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
-    public List get(final String query, final Map namedParameters) {
+    public List<?> get(final String query, final Map namedParameters) {
 
         Validate.notEmpty(query, "Query is empty");
         Validate.notNull(namedParameters, "Named parameters is null");
@@ -1650,6 +1580,15 @@ public class LookupServiceImpl implements LookupService {
 
         return this.genericDao.findUnique(query, namedParameters);
 
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getNamedQuery(String queryName) {
+        SessionFactoryImpl sessionFactoryImpl = (SessionFactoryImpl) this.sessionFactory;
+        return sessionFactoryImpl.getNamedQuery(queryName).getQueryString();
     }
 
     /**

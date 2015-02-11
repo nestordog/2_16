@@ -23,6 +23,7 @@ import java.util.Date;
 import org.apache.commons.lang.Validate;
 
 import ch.algotrader.entity.Account;
+import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.LimitOrderI;
@@ -35,6 +36,7 @@ import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.service.ExternalOrderServiceImpl;
+import ch.algotrader.service.LocalLookupService;
 import ch.algotrader.service.OrderService;
 import ch.algotrader.service.TransactionService;
 
@@ -47,17 +49,20 @@ public class SimulationOrderServiceImpl extends ExternalOrderServiceImpl impleme
 
     private final TransactionService transactionService;
     private final OrderService orderService;
+    private final LocalLookupService localLookupService;
     private final EngineManager engineManager;
     private final Engine serverEngine;
 
     public SimulationOrderServiceImpl(
             final TransactionService transactionService,
             final OrderService orderService,
+            final LocalLookupService localLookupService,
             final EngineManager engineManager,
             final Engine serverEngine) {
 
         Validate.notNull(transactionService, "TransactionService is null");
         Validate.notNull(orderService, "OrderService is null");
+        Validate.notNull(localLookupService, "LocalLookupService is null");
         Validate.notNull(engineManager, "EngineManager is null");
         Validate.notNull(serverEngine, "Engine is null");
 
@@ -65,6 +70,7 @@ public class SimulationOrderServiceImpl extends ExternalOrderServiceImpl impleme
         this.orderService = orderService;
         this.engineManager = engineManager;
         this.serverEngine = serverEngine;
+        this.localLookupService = localLookupService;
     }
 
     @Override
@@ -124,7 +130,8 @@ public class SimulationOrderServiceImpl extends ExternalOrderServiceImpl impleme
             Security security = order.getSecurity();
 
             // all other orders are executed the the market
-            return security.getCurrentMarketDataEvent().getMarketValue(Side.BUY.equals(order.getSide()) ? Direction.SHORT : Direction.LONG)
+            MarketDataEvent marketDataEvent = this.localLookupService.getCurrentMarketDataEvent(security.getId());
+            return marketDataEvent.getMarketValue(Side.BUY.equals(order.getSide()) ? Direction.SHORT : Direction.LONG)
                     .setScale(security.getSecurityFamily().getScale(), BigDecimal.ROUND_HALF_UP);
         }
 

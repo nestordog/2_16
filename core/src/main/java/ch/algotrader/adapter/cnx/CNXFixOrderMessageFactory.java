@@ -19,19 +19,6 @@ package ch.algotrader.adapter.cnx;
 
 import java.util.Date;
 
-import ch.algotrader.adapter.fix.FixApplicationException;
-import ch.algotrader.adapter.fix.FixUtil;
-import ch.algotrader.adapter.fix.fix44.Fix44OrderMessageFactory;
-import ch.algotrader.entity.security.Forex;
-import ch.algotrader.entity.security.Security;
-import ch.algotrader.entity.trade.LimitOrder;
-import ch.algotrader.entity.trade.MarketOrder;
-import ch.algotrader.entity.trade.SimpleOrder;
-import ch.algotrader.entity.trade.StopLimitOrder;
-import ch.algotrader.entity.trade.StopOrder;
-import ch.algotrader.entity.trade.StopOrderI;
-import ch.algotrader.enumeration.Side;
-import ch.algotrader.enumeration.TIF;
 import quickfix.IntField;
 import quickfix.field.ClOrdID;
 import quickfix.field.Currency;
@@ -50,6 +37,19 @@ import quickfix.field.TransactTime;
 import quickfix.fix44.NewOrderSingle;
 import quickfix.fix44.OrderCancelReplaceRequest;
 import quickfix.fix44.OrderCancelRequest;
+import ch.algotrader.adapter.fix.FixApplicationException;
+import ch.algotrader.adapter.fix.FixUtil;
+import ch.algotrader.adapter.fix.fix44.Fix44OrderMessageFactory;
+import ch.algotrader.entity.security.Forex;
+import ch.algotrader.entity.security.Security;
+import ch.algotrader.entity.trade.LimitOrder;
+import ch.algotrader.entity.trade.MarketOrder;
+import ch.algotrader.entity.trade.SimpleOrder;
+import ch.algotrader.entity.trade.StopLimitOrder;
+import ch.algotrader.entity.trade.StopOrder;
+import ch.algotrader.entity.trade.StopOrderI;
+import ch.algotrader.enumeration.Side;
+import ch.algotrader.enumeration.TIF;
 
 /**
  *  Currenex order message factory.
@@ -94,7 +94,7 @@ public class CNXFixOrderMessageFactory implements Fix44OrderMessageFactory {
     @Override
     public NewOrderSingle createNewOrderMessage(final SimpleOrder order, final String clOrdID) throws FixApplicationException {
 
-        Security security = order.getSecurityInitialized();
+        Security security = order.getSecurity();
         if (!(security instanceof Forex)) {
 
             throw new FixApplicationException("Currenex supports forex orders only");
@@ -168,7 +168,7 @@ public class CNXFixOrderMessageFactory implements Fix44OrderMessageFactory {
     @Override
     public OrderCancelReplaceRequest createModifyOrderMessage(final SimpleOrder order, final String clOrdID) throws FixApplicationException {
 
-        Security security = order.getSecurityInitialized();
+        Security security = order.getSecurity();
         if (!(security instanceof Forex)) {
 
             throw new FixApplicationException("Currenex supports forex orders only");
@@ -234,7 +234,7 @@ public class CNXFixOrderMessageFactory implements Fix44OrderMessageFactory {
     @Override
     public OrderCancelRequest createOrderCancelMessage(final SimpleOrder order, final String clOrdID) throws FixApplicationException {
 
-        Security security = order.getSecurityInitialized();
+        Security security = order.getSecurity();
         if (!(security instanceof Forex)) {
 
             throw new FixApplicationException("Currenex supports forex orders only");

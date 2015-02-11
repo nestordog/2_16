@@ -28,6 +28,8 @@ import org.junit.Test;
 
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.SecurityFamilyImpl;
+import ch.algotrader.entity.trade.OrderPreference;
+import ch.algotrader.entity.trade.OrderPreferenceImpl;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.OrderType;
 import ch.algotrader.hibernate.InMemoryDBTest;

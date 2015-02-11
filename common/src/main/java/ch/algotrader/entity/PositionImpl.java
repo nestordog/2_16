@@ -78,11 +78,10 @@ public class PositionImpl extends Position {
     }
 
     @Override
-    public double getMarketPrice() {
+    public double getMarketPrice(MarketDataEvent marketDataEvent) {
 
         if (isOpen()) {
 
-            MarketDataEvent marketDataEvent = getSecurity().getCurrentMarketDataEvent();
             if (marketDataEvent != null) {
                 return marketDataEvent.getMarketValueDouble(getDirection());
             } else {
@@ -94,26 +93,14 @@ public class PositionImpl extends Position {
     }
 
     @Override
-    public double getMarketPriceBase() {
-
-        return getMarketPrice() * getSecurity().getFXRateBase();
-    }
-
-    @Override
-    public double getMarketValue() {
+    public double getMarketValue(MarketDataEvent marketDataEvent) {
 
         if (isOpen()) {
 
-            return getQuantity() * getSecurity().getSecurityFamily().getContractSize() * getMarketPrice();
+            return getQuantity() * getSecurity().getSecurityFamily().getContractSize() * getMarketPrice(marketDataEvent);
         } else {
             return 0.0;
         }
-    }
-
-    @Override
-    public double getMarketValueBase() {
-
-        return getMarketValue() * getSecurity().getFXRateBase();
     }
 
     @Override
@@ -123,77 +110,21 @@ public class PositionImpl extends Position {
     }
 
     @Override
-    public double getAveragePriceBase() {
+    public double getUnrealizedPL(MarketDataEvent marketDataEvent) {
 
-        return getAveragePrice() * getSecurity().getFXRateBase();
+        return getMarketValue(marketDataEvent) - getCost();
     }
 
     @Override
-    public double getCostBase() {
-
-        return getCost() * getSecurity().getFXRateBase();
-    }
-
-    @Override
-    public double getUnrealizedPL() {
-
-        return getMarketValue() - getCost();
-    }
-
-    @Override
-    public double getUnrealizedPLBase() {
-
-        return getUnrealizedPL() * getSecurity().getFXRateBase();
-    }
-
-    @Override
-    public double getRealizedPLBase() {
-
-        return getRealizedPL() * getSecurity().getFXRateBase();
-    }
-
-    @Override
-    public double getExitValueDouble() {
-
-        if (getExitValue() != null) {
-            return getExitValue().doubleValue();
-        } else {
-            return 0.0;
-        }
-    }
-
-    @Override
-    public double getExitValueBaseDouble() {
-
-        return getExitValueDouble() * getSecurity().getFXRateBase();
-    }
-
-    @Override
-    public double getMaintenanceMarginDouble() {
-
-        if (isOpen() && getMaintenanceMargin() != null) {
-            return getMaintenanceMargin().doubleValue();
-        } else {
-            return 0.0;
-        }
-    }
-
-    @Override
-    public double getMaintenanceMarginBaseDouble() {
-
-        return getMaintenanceMarginDouble() * getSecurity().getFXRateBase();
-    }
-
-    @Override
-    public double getMaxLoss() {
+    public double getMaxLoss(MarketDataEvent marketDataEvent) {
 
         if (isOpen() && getExitValue() != null) {
 
             double maxLossPerItem;
             if (Direction.LONG.equals(getDirection())) {
-                maxLossPerItem = getMarketPrice() - getExitValueDouble();
+                maxLossPerItem = getMarketPrice(marketDataEvent) - getExitValue().doubleValue();
             } else {
-                maxLossPerItem = getExitValueDouble() - getMarketPrice();
+                maxLossPerItem = getExitValue().doubleValue() - getMarketPrice(marketDataEvent);
             }
             return -getQuantity() * getSecurity().getSecurityFamily().getContractSize() * maxLossPerItem;
         } else {
@@ -202,19 +133,13 @@ public class PositionImpl extends Position {
     }
 
     @Override
-    public double getMaxLossBase() {
+    public double getExposure(MarketDataEvent marketDataEvent, MarketDataEvent underlyingMarketDataEvent) {
 
-        return getMaxLoss() * getSecurity().getFXRateBase();
+        return getMarketValue(marketDataEvent) * getSecurity().getLeverage(marketDataEvent, underlyingMarketDataEvent);
     }
 
     @Override
-    public double getExposure() {
-
-        return getMarketValue() * getSecurity().getLeverage();
-    }
-
-    @Override
-    public CurrencyAmountVO getAttribution() {
+    public CurrencyAmountVO getAttribution(MarketDataEvent marketDataEvent) {
 
         double amount = 0;
         Currency currency = null;
@@ -227,16 +152,16 @@ public class PositionImpl extends Position {
             amount = getQuantity() * securityFamily.getContractSize();
 
             // Futures on Forex are attributed in the base currenty for their underlying baseCurrency
-        } else if (getSecurity() instanceof Future && getSecurity().getUnderlying() != null && getSecurity().getUnderlyingInitialized() instanceof Forex) {
+        } else if (getSecurity() instanceof Future && getSecurity().getUnderlying() != null && getSecurity().getUnderlying() instanceof Forex) {
 
-            Forex forex = (Forex) getSecurity().getUnderlyingInitialized();
+            Forex forex = (Forex) getSecurity().getUnderlying();
             currency = forex.getBaseCurrency();
             amount = getQuantity() * securityFamily.getContractSize();
 
             // everything else is attributed in their currency
         } else {
             currency = securityFamily.getCurrency();
-            amount = getMarketValue();
+            amount = getMarketValue(marketDataEvent);
         }
 
         CurrencyAmountVO currencyAmount = new CurrencyAmountVO();

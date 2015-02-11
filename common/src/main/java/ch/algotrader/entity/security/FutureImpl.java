@@ -19,8 +19,7 @@ package ch.algotrader.entity.security;
 
 import java.util.Date;
 
-import ch.algotrader.ServiceLocator;
-import ch.algotrader.entity.marketData.Tick;
+import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.future.FutureUtil;
 import ch.algotrader.util.DateUtil;
 
@@ -34,28 +33,28 @@ public class FutureImpl extends Future {
     private static final long serialVersionUID = -7436972192801577685L;
 
     @Override
-    public double getLeverage() {
+    public double getLeverage(MarketDataEvent marketDataEvent, MarketDataEvent underlyingMarketDataEvent) {
 
         return 1.0;
     }
 
     @Override
-    public double getMargin() {
+    public double getMargin(double currentValue, double underlyingCurrentValue) {
 
         return FutureUtil.getMaintenanceMargin(this) * getSecurityFamily().getContractSize();
     }
 
     @Override
-    public long getTimeToExpiration() {
+    public long getTimeToExpiration(Date dateTime) {
 
-        return getExpiration().getTime() - ServiceLocator.instance().getEngineManager().getCurrentEPTime().getTime();
+        return getExpiration().getTime() - dateTime.getTime();
     }
 
     @Override
-    public int getDuration() {
+    public int getDuration(Date dateTime) {
 
-        FutureFamily family = (FutureFamily) this.getSecurityFamilyInitialized();
-        Date nextExpDate = DateUtil.getExpirationDate(family.getExpirationType(), ServiceLocator.instance().getEngineManager().getCurrentEPTime());
+        FutureFamily family = (FutureFamily) this.getSecurityFamily();
+        Date nextExpDate = DateUtil.getExpirationDate(family.getExpirationType(), dateTime);
         return 1 + (int) Math.round(((this.getExpiration().getTime() - nextExpDate.getTime()) / (double)family.getExpirationDistance().getValue()));
     }
 
@@ -71,23 +70,5 @@ public class FutureImpl extends Future {
         } else {
             return expiration;
         }
-    }
-
-    @Override
-    public boolean validateTick(Tick tick) {
-
-        // futures need to have a BID and ASK
-        if (tick.getBid() == null) {
-            return false;
-        } else if (tick.getVolBid() == 0) {
-            return false;
-        } else if (tick.getAsk() == null) {
-            return false;
-        }
-        if (tick.getVolAsk() == 0) {
-            return false;
-        }
-
-        return super.validateTick(tick);
     }
 }

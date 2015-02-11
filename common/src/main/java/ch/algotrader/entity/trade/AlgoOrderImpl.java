@@ -17,6 +17,11 @@
  ***********************************************************************************/
 package ch.algotrader.entity.trade;
 
+
+import org.apache.commons.lang.ClassUtils;
+
+import ch.algotrader.entity.marketData.Tick;
+
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
@@ -29,5 +34,15 @@ public abstract class AlgoOrderImpl extends AlgoOrder {
     @Override
     public boolean isAlgoOrder() {
         return true;
+    }
+
+    @Override
+    public SimpleOrder modifyOrder(Tick tick) {
+        throw new UnsupportedOperationException("modify order not supported by " + ClassUtils.getShortClassName(this.getClass()));
+    }
+
+    @Override
+    public SimpleOrder nextOrder(long remainingQuantity, Tick tick) {
+        throw new UnsupportedOperationException("next order not supported by " + ClassUtils.getShortClassName(this.getClass()));
     }
 }

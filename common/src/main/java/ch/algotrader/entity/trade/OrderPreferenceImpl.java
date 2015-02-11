@@ -15,7 +15,7 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.entity.strategy;
+package ch.algotrader.entity.trade;
 
 import java.util.Objects;
 
@@ -24,14 +24,14 @@ import java.util.Objects;
  *
  * @version $Revision$ $Date$
  */
-public class AllocationImpl extends Allocation {
+public class OrderPreferenceImpl extends OrderPreference {
 
-    private static final long serialVersionUID = 1184764642126535447L;
+    private static final long serialVersionUID = -755368809250236972L;
 
     @Override
     public String toString() {
 
-        return getAccount() + ":" + getValue();
+        return getName() + ":" + getOrderType();
     }
 
     @Override
@@ -40,10 +40,10 @@ public class AllocationImpl extends Allocation {
         if (this == obj) {
             return true;
         }
-        if (obj instanceof Allocation) {
-            Allocation that = (Allocation) obj;
-            return Objects.equals(this.getOrderPreference(), that.getOrderPreference()) &&
-                    Objects.equals(this.getAccount(), that.getAccount());
+        if (obj instanceof OrderPreference) {
+            OrderPreference that = (OrderPreference) obj;
+            return Objects.equals(this.getName(), that.getName());
+
         } else {
             return false;
         }
@@ -53,8 +53,7 @@ public class AllocationImpl extends Allocation {
     public int hashCode() {
 
         int hash = 17;
-        hash = hash * 37 + Objects.hashCode(getOrderPreference());
-        hash = hash * 37 + Objects.hashCode(getAccount());
+        hash = hash * 37 + Objects.hashCode(getName());
         return hash;
     }
 }

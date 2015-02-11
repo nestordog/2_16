@@ -41,6 +41,8 @@ import ch.algotrader.entity.security.ImpliedVolatility;
 import ch.algotrader.entity.security.ImpliedVolatilityImpl;
 import ch.algotrader.entity.security.Option;
 import ch.algotrader.entity.security.OptionImpl;
+import ch.algotrader.entity.security.SecurityDao;
+import ch.algotrader.entity.security.SecurityDaoImpl;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.SecurityFamilyImpl;
 import ch.algotrader.entity.strategy.Strategy;
@@ -87,8 +89,9 @@ public class TickDaoTest extends InMemoryDBTest {
         super.setup();
 
         SubscriptionDao subscriptionDao = new SubscriptionDaoImpl(this.sessionFactory);
+        SecurityDao securityDao = new SecurityDaoImpl(this.sessionFactory);
 
-        this.dao = new TickDaoImpl(this.sessionFactory, subscriptionDao, NoopEngine.SERVER);
+        this.dao = new TickDaoImpl(this.sessionFactory, subscriptionDao, securityDao, NoopEngine.SERVER);
 
         this.family1 = new SecurityFamilyImpl();
         this.family1.setName("Forex1");

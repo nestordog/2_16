@@ -22,6 +22,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 
+import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.entity.property.Property;
 import ch.algotrader.hibernate.EntityConverter;
 import ch.algotrader.util.RoundUtil;
@@ -41,6 +42,8 @@ public class PositionVOProducer implements EntityConverter<Position, PositionVO>
 
         Validate.notNull(entity, "Position is null");
 
+        MarketDataEvent marketDataEvent = null;// this.localLookupService.getCurrentMarketDataEvent(entity.getSecurity().getId());
+
         PositionVO vo = new PositionVO();
 
         vo.setId(entity.getId());
@@ -56,18 +59,18 @@ public class PositionVOProducer implements EntityConverter<Position, PositionVO>
         vo.setName(entity.getSecurity().toString());
         vo.setStrategy(entity.getStrategy().toString());
         vo.setCurrency(entity.getSecurity().getSecurityFamily().getCurrency());
-        vo.setMarketPrice(RoundUtil.getBigDecimal(entity.getMarketPrice(), scale));
-        vo.setMarketValue(RoundUtil.getBigDecimal(entity.getMarketValue()));
+        vo.setMarketPrice(RoundUtil.getBigDecimal(entity.getMarketPrice(marketDataEvent), scale));
+        vo.setMarketValue(RoundUtil.getBigDecimal(entity.getMarketValue(marketDataEvent)));
         vo.setAveragePrice(RoundUtil.getBigDecimal(entity.getAveragePrice(), scale));
         vo.setCost(RoundUtil.getBigDecimal(entity.getCost()));
-        vo.setUnrealizedPL(RoundUtil.getBigDecimal(entity.getUnrealizedPL()));
+        vo.setUnrealizedPL(RoundUtil.getBigDecimal(entity.getUnrealizedPL(marketDataEvent)));
         vo.setRealizedPL(RoundUtil.getBigDecimal(entity.getRealizedPL()));
         vo.setExitValue(entity.getExitValue() != null ? entity.getExitValue().setScale(scale, BigDecimal.ROUND_HALF_UP) : null);
-        vo.setMaxLoss(RoundUtil.getBigDecimal(entity.getMaxLoss()));
+        vo.setMaxLoss(RoundUtil.getBigDecimal(entity.getMaxLoss(marketDataEvent)));
         vo.setMargin(entity.getMaintenanceMargin() != null ? entity.getMaintenanceMargin().setScale(scale, BigDecimal.ROUND_HALF_UP) : null);
 
         // add properties if any
-        Map<String, Property> properties = entity.getPropsInitialized();
+        Map<String, Property> properties = entity.getProps();
         if (!properties.isEmpty()) {
             vo.setProperties(properties);
         }

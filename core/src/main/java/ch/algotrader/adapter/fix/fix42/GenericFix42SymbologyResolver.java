@@ -20,17 +20,6 @@ package ch.algotrader.adapter.fix.fix42;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import ch.algotrader.adapter.fix.FixApplicationException;
-import ch.algotrader.adapter.fix.FixUtil;
-import ch.algotrader.entity.security.Forex;
-import ch.algotrader.entity.security.Future;
-import ch.algotrader.entity.security.Option;
-import ch.algotrader.entity.security.OptionFamily;
-import ch.algotrader.entity.security.Security;
-import ch.algotrader.entity.security.SecurityFamily;
-import ch.algotrader.entity.security.Stock;
-import ch.algotrader.enumeration.Broker;
-import ch.algotrader.enumeration.OptionType;
 import quickfix.field.ContractMultiplier;
 import quickfix.field.Currency;
 import quickfix.field.ExDestination;
@@ -42,6 +31,17 @@ import quickfix.field.StrikePrice;
 import quickfix.fix42.NewOrderSingle;
 import quickfix.fix42.OrderCancelReplaceRequest;
 import quickfix.fix42.OrderCancelRequest;
+import ch.algotrader.adapter.fix.FixApplicationException;
+import ch.algotrader.adapter.fix.FixUtil;
+import ch.algotrader.entity.security.Forex;
+import ch.algotrader.entity.security.Future;
+import ch.algotrader.entity.security.Option;
+import ch.algotrader.entity.security.OptionFamily;
+import ch.algotrader.entity.security.Security;
+import ch.algotrader.entity.security.SecurityFamily;
+import ch.algotrader.entity.security.Stock;
+import ch.algotrader.enumeration.Broker;
+import ch.algotrader.enumeration.OptionType;
 
 /**
  * Generic FIX/4.2 symbology resolver implementation.
@@ -83,7 +83,7 @@ public class GenericFix42SymbologyResolver implements Fix42SymbologyResolver {
 
         message.set(FixUtil.getFixSymbol(security, broker));
 
-        SecurityFamily securityFamily = security.getSecurityFamilyInitialized();
+        SecurityFamily securityFamily = security.getSecurityFamily();
 
         // populate security information
         if (security instanceof Option) {

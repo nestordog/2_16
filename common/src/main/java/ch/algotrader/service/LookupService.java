@@ -215,9 +215,9 @@ public interface LookupService {
 
     /**
      * Gets all Subscriptions by the defined {@code strategyName}. If corresponding Securities are
-     * Combinations, all Components will be initialized as well.
+     * Combinations, all Components will be initialized as well. In additional all Properties are initialized
      */
-    public List<Subscription> getSubscriptionsByStrategyInclComponents(String strategyName);
+    public List<Subscription> getSubscriptionsByStrategyInclComponentsAndProps(String strategyName);
 
     /**
      * Gets Subscriptions for the specified Strategy that do not have any open {@link Position
@@ -396,17 +396,6 @@ public interface LookupService {
      */
     public Collection<OrderStatusVO> getOpenOrdersVOByStrategy(String strategyName);
 
-    /**
-     * Creates a new Order based on the {@link ch.algotrader.entity.strategy.OrderPreference
-     * OrderPreference} selected by its {@code name}.
-     */
-    public Order getOrderByName(String name);
-
-    /**
-     * Creates a new Order based on the {@link ch.algotrader.entity.strategy.DefaultOrderPreference
-     * DefaultOrderPreference} selected by its Strategy and SecurityFamily.
-     */
-    public Order getOrderByStrategyAndSecurityFamily(String strategyName, int securityFamilyId);
 
     public BigDecimal getLastIntOrderId(String sessionQualifier);
 
@@ -421,10 +410,10 @@ public interface LookupService {
     public Collection<String> getActiveSessionsByOrderServiceType(OrderServiceType orderServiceType);
 
     /**
-     * Gets the last Tick for the specified Security that is within the last {@code n} days
-     * specified by {@code intervalDays}. In addition the Security is initialized.
+     * Gets the last Tick for the specified Security that is within the last {@code n}
+     * (specified by the config param {@code intervalDays}) days before {@code dateTime}. In addition the Security is initialized.
      */
-    public Tick getLastTick(int securityId);
+    public Tick getLastTick(int securityId, Date dateTime);
 
     /**
      * Gets all Ticks of the defined Security that are before the {@code maxDate} and after {@code
@@ -514,16 +503,10 @@ public interface LookupService {
     public Forex getForex(Currency baseCurrency, Currency transactionCurrency);
 
     /**
-     * Gets the current Exchange Rate between the {@code baseCurrency} and {@code
-     * transactionCurrency}.
-     */
-    public double getForexRateDouble(Currency baseCurrency, Currency transactionCurrency);
-
-    /**
      * Gets the historical Exchange Rate between the {@code baseCurrency} and {@code
      * transactionCurrency} on the specified {@code date}
      */
-    public double getForexRateDoubleByDate(Currency baseCurrency, Currency transactionCurrency, Date date);
+    public double getForexRateByDate(Currency baseCurrency, Currency transactionCurrency, Date date);
 
     /**
      * Gets the Interest Rate for the {@code currency} and {@code duration}.
@@ -589,7 +572,7 @@ public interface LookupService {
      * or
      * select name from Strategy where id = 1
      */
-    public List get(String query);
+    public List<?> get(String query);
 
     /**
      * Retrieves an arbitrary list of Entities or values based on a Hibernate query. In addition a
@@ -597,7 +580,7 @@ public interface LookupService {
      * from Strategy where name = :strategyName
      * and the Map containing an entry with {@code key='strategyName'} and {@code value='SERVER'}
      */
-    public List get(String query, Map namedParameters);
+    public List<?> get(String query, Map namedParameters);
 
     /**
      * Retrieves a unique Object based on a Hibernate query. Example:
@@ -612,6 +595,11 @@ public interface LookupService {
      * and the Map containing an entry with {@code key='strategyName'} and {@code value='SERVER'}
      */
     public Object getUnique(String query, Map namedParameters);
+
+    /**
+     * returns the specified hibernate named query
+     */
+    public String getNamedQuery(String queryName);
 
     /**
      * initialize all security Strings for subscribed Securities

@@ -66,9 +66,9 @@ public class FixUtil {
     public static Symbol getFixSymbol(Security security, Broker broker) {
 
         if (security instanceof Option) {
-            return new Symbol(security.getSecurityFamilyInitialized().getSymbolRoot(broker));
+            return new Symbol(security.getSecurityFamily().getSymbolRoot(broker));
         } else if (security instanceof Future) {
-            return new Symbol(security.getSecurityFamilyInitialized().getSymbolRoot(broker));
+            return new Symbol(security.getSecurityFamily().getSymbolRoot(broker));
         } else if (security instanceof Forex) {
             return new Symbol(((Forex) security).getBaseCurrency().name());
         } else if (security instanceof Stock) {

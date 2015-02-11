@@ -15,25 +15,23 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.entity.strategy;
-
-import ch.algotrader.hibernate.ReadWriteDao;
+package ch.algotrader.service;
 
 /**
- * DAO for {@link ch.algotrader.entity.strategy.DefaultOrderPreference} objects.
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
- * @see ch.algotrader.entity.strategy.DefaultOrderPreference
+ * @version $Revision$ $Date$
  */
-public interface DefaultOrderPreferenceDao extends ReadWriteDao<DefaultOrderPreference> {
+public class LocalLookupServiceException extends ServiceException {
 
-    /**
-     * Finds a DefaultOrderPreference by the specified Strategy and SecurityFamily with their
-     * corresponding OrderPreference fetched.
-     * @param strategyName
-     * @param securityFamilyId
-     * @return DefaultOrderPreference
-     */
-    DefaultOrderPreference findByStrategyAndSecurityFamilyInclOrderPreference(String strategyName, int securityFamilyId);
+    private static final long serialVersionUID = -3857147326797200262L;
 
-    // spring-dao merge-point
+    public LocalLookupServiceException(Exception ex) {
+        super(ex);
+    }
+
+    public LocalLookupServiceException(String message, Exception ex) {
+        super(message, ex);
+    }
+
 }

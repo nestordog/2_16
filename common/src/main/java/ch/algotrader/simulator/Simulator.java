@@ -30,6 +30,7 @@ import org.apache.log4j.Logger;
 
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.Transaction;
+import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.strategy.CashBalance;
@@ -42,7 +43,7 @@ import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.TransactionType;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.esper.NoopEngine;
+import ch.algotrader.service.LocalLookupService;
 import ch.algotrader.util.PositionUtil;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.collection.Pair;
@@ -64,18 +65,20 @@ public class Simulator {
     private final MultiMap<Security, Position> positionsBySecurity;
 
     private final Engine serverEngine;
+    private final LocalLookupService localLookupService;
 
-    public Simulator(final Engine serverEngine) {
+    public Simulator(final Engine serverEngine, final LocalLookupService localLookupService) {
+
         Validate.notNull(serverEngine, "Engine is null");
+        Validate.notNull(localLookupService, "LocalLookupService is null");
+
         this.serverEngine = serverEngine;
+        this.localLookupService = localLookupService;
+
         this.cashBalances = new HashMap<>();
         this.positionsByStrategyAndSecurity = new HashMap<>();
         this.positionsByStrategy = new MultiHashMap<>();
         this.positionsBySecurity = new MultiHashMap<>();
-    }
-
-    public Simulator() {
-        this(NoopEngine.SERVER);
     }
 
     public void clear() {
@@ -328,7 +331,8 @@ public class Simulator {
         // sum of all positions
         double amount = 0.0;
         for (Position openPosition : openPositions) {
-            amount += openPosition.getMarketValue();
+            MarketDataEvent marketDataEvent = this.localLookupService.getCurrentMarketDataEvent(openPosition.getSecurity().getId());
+            amount += openPosition.getMarketValue(marketDataEvent);
         }
         return amount;
     }
@@ -341,7 +345,7 @@ public class Simulator {
         // sum of all cashBalances
         double amount = 0.0;
         for (CashBalance cashBalance : cashBalances) {
-            amount += cashBalance.getAmountDouble();
+            amount += cashBalance.getAmount().doubleValue();
         }
 
         return amount;

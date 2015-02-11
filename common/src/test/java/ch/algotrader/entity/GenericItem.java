@@ -19,12 +19,29 @@ package ch.algotrader.entity;
 
 import java.util.Objects;
 
-import ch.algotrader.cache.CacheManager;
 import ch.algotrader.enumeration.Broker;
+import ch.algotrader.visitor.EntityVisitor;
 
+/**
+ * A GenericEntity used for testing
+ *
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
+ *
+ * @version $Revision$ $Date$
+ */
 public class GenericItem implements BaseEntityI {
 
     private static final long serialVersionUID = 4933234000749259461L;
+
+    @Override
+    public boolean isInitialized() {
+        return false;
+    }
+
+    @Override
+    public <R, P> R accept(EntityVisitor<R, ? super P> visitor, P param) {
+        throw new UnsupportedOperationException("accept not supported");
+    }
 
     private int id;
     private String name;
@@ -48,16 +65,12 @@ public class GenericItem implements BaseEntityI {
         return this.id;
     }
 
-    @Override
-    public void setCacheManager(CacheManager cacheManager) {
-    }
-
     protected void setId(final int id) {
         this.id = id;
     }
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
     protected void setName(final String name) {
@@ -65,7 +78,7 @@ public class GenericItem implements BaseEntityI {
     }
 
     public boolean isActive() {
-        return active;
+        return this.active;
     }
 
     public void setActive(final boolean active) {
@@ -73,7 +86,7 @@ public class GenericItem implements BaseEntityI {
     }
 
     public Broker getBroker() {
-        return broker;
+        return this.broker;
     }
 
     public void setBroker(final Broker broker) {

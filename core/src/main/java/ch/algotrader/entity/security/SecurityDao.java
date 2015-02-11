@@ -32,11 +32,11 @@ import ch.algotrader.hibernate.ReadWriteDao;
 public interface SecurityDao extends ReadWriteDao<Security> {
 
     /**
-     * Finds a Security by its {@code id}.
+     * Finds a Security by its {@code id} and initializes it
      * @param id
      * @return Security
      */
-    Security findById(int id);
+    Security findByIdInitialized(int id);
 
     /**
      * Finds multiple Securities by their {@code ids}.

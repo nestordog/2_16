@@ -31,6 +31,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.algotrader.config.CommonConfig;
+import ch.algotrader.config.CoreConfig;
 import ch.algotrader.entity.ClosePositionVOProducer;
 import ch.algotrader.entity.ExpirePositionVOProducer;
 import ch.algotrader.entity.Position;
@@ -44,8 +45,6 @@ import ch.algotrader.entity.security.Option;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.entity.security.SecurityFamily;
-import ch.algotrader.entity.strategy.DefaultOrderPreference;
-import ch.algotrader.entity.strategy.DefaultOrderPreferenceDao;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.strategy.StrategyDao;
 import ch.algotrader.entity.trade.Order;
@@ -77,6 +76,8 @@ public class PositionServiceImpl implements PositionService {
 
     private final CommonConfig commonConfig;
 
+    private final CoreConfig coreConfig;
+
     private final TransactionService transactionService;
 
     private final MarketDataService marketDataService;
@@ -85,9 +86,9 @@ public class PositionServiceImpl implements PositionService {
 
     private final PortfolioService portfolioService;
 
-    private final PositionDao positionDao;
+    private final LocalLookupService localLookupService;
 
-    private final DefaultOrderPreferenceDao defaultOrderPreferenceDao;
+    private final PositionDao positionDao;
 
     private final SecurityDao securityDao;
 
@@ -100,12 +101,13 @@ public class PositionServiceImpl implements PositionService {
     private final Engine serverEngine;
 
     public PositionServiceImpl(final CommonConfig commonConfig,
+            final CoreConfig coreConfig,
             final TransactionService transactionService,
             final MarketDataService marketDataService,
             final OrderService orderService,
             final PortfolioService portfolioService,
+            final LocalLookupService localLookupService,
             final PositionDao positionDao,
-            final DefaultOrderPreferenceDao defaultOrderPreferenceDao,
             final SecurityDao securityDao,
             final StrategyDao strategyDao,
             final TransactionDao transactionDao,
@@ -113,12 +115,13 @@ public class PositionServiceImpl implements PositionService {
             final Engine serverEngine) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
+        Validate.notNull(coreConfig, "CoreConfig is null");
         Validate.notNull(transactionService, "TransactionService is null");
         Validate.notNull(marketDataService, "MarketDataService is null");
         Validate.notNull(orderService, "OrderService is null");
         Validate.notNull(portfolioService, "PortfolioService is null");
+        Validate.notNull(localLookupService, "LocalLookupService is null");
         Validate.notNull(positionDao, "PositionDao is null");
-        Validate.notNull(defaultOrderPreferenceDao, "DefaultOrderPreferenceDao is null");
         Validate.notNull(securityDao, "SecurityDao is null");
         Validate.notNull(strategyDao, "StrategyDao is null");
         Validate.notNull(transactionDao, "TransactionDao is null");
@@ -126,12 +129,13 @@ public class PositionServiceImpl implements PositionService {
         Validate.notNull(serverEngine, "Engine is null");
 
         this.commonConfig = commonConfig;
+        this.coreConfig = coreConfig;
         this.transactionService = transactionService;
         this.marketDataService = marketDataService;
         this.orderService = orderService;
         this.portfolioService = portfolioService;
+        this.localLookupService = localLookupService;
         this.positionDao = positionDao;
-        this.defaultOrderPreferenceDao = defaultOrderPreferenceDao;
         this.securityDao = securityDao;
         this.strategyDao = strategyDao;
         this.transactionDao = transactionDao;
@@ -166,7 +170,7 @@ public class PositionServiceImpl implements PositionService {
             throw new IllegalArgumentException("position with id " + positionId + " does not exist");
         }
 
-        Security security = position.getSecurityInitialized();
+        Security security = position.getSecurity();
 
         if (position.isOpen()) {
 
@@ -316,13 +320,13 @@ public class PositionServiceImpl implements PositionService {
         Strategy targetStrategy = this.strategyDao.findByName(targetStrategyName);
         Security security = position.getSecurity();
         SecurityFamily family = security.getSecurityFamily();
-        long quantity = position.getQuantity();
-        BigDecimal price = RoundUtil.getBigDecimal(position.getMarketPrice(), family.getScale());
+        MarketDataEvent marketDataEvent = this.localLookupService.getCurrentMarketDataEvent(security.getId());
+        BigDecimal price = RoundUtil.getBigDecimal(position.getMarketPrice(marketDataEvent), family.getScale());
 
         // debit transaction
         Transaction debitTransaction = Transaction.Factory.newInstance();
         debitTransaction.setDateTime(this.engineManager.getCurrentEPTime());
-        debitTransaction.setQuantity(-quantity);
+        debitTransaction.setQuantity(-position.getQuantity());
         debitTransaction.setPrice(price);
         debitTransaction.setCurrency(family.getCurrency());
         debitTransaction.setType(TransactionType.TRANSFER);
@@ -335,7 +339,7 @@ public class PositionServiceImpl implements PositionService {
         // credit transaction
         Transaction creditTransaction = Transaction.Factory.newInstance();
         creditTransaction.setDateTime(this.engineManager.getCurrentEPTime());
-        creditTransaction.setQuantity(quantity);
+        creditTransaction.setQuantity(position.getQuantity());
         creditTransaction.setPrice(price);
         creditTransaction.setCurrency(family.getCurrency());
         creditTransaction.setType(TransactionType.TRANSFER);
@@ -416,7 +420,7 @@ public class PositionServiceImpl implements PositionService {
         exitValueNonFinal = exitValueNonFinal.setScale(scale, BigDecimal.ROUND_HALF_UP);
 
         // prevent exitValues near Zero
-        if (!(position.getSecurityInitialized() instanceof Combination) && exitValueNonFinal.doubleValue() <= 0.05) {
+        if (!(position.getSecurity() instanceof Combination) && exitValueNonFinal.doubleValue() <= 0.05) {
             logger.warn("setting of exitValue below 0.05 is prohibited: " + exitValueNonFinal);
             return position;
         }
@@ -433,7 +437,7 @@ public class PositionServiceImpl implements PositionService {
         }
 
         // The new ExitValues cannot be higher (lower) than the currentValue for long (short) positions
-        MarketDataEvent marketDataEvent = position.getSecurity().getCurrentMarketDataEvent();
+        MarketDataEvent marketDataEvent = this.localLookupService.getCurrentMarketDataEvent(position.getSecurity().getId());
         if (marketDataEvent != null) {
             BigDecimal currentValue = marketDataEvent.getCurrentValue();
             if (Direction.SHORT.equals(position.getDirection()) && exitValueNonFinal.compareTo(currentValue) < 0) {
@@ -556,18 +560,11 @@ public class PositionServiceImpl implements PositionService {
     private void reduceOrClosePosition(final Position position, long quantity, final boolean unsubscribe) {
 
         Strategy strategy = position.getStrategy();
-        Security security = position.getSecurityInitialized();
+        Security security = position.getSecurity();
 
         Side side = (position.getQuantity() > 0) ? Side.SELL : Side.BUY;
 
-        // prepare the order
-        DefaultOrderPreference defaultOrderPreference = this.defaultOrderPreferenceDao.findByStrategyAndSecurityFamilyInclOrderPreference(strategy.getName(), security.getSecurityFamily().getId());
-
-        if (defaultOrderPreference == null) {
-            throw new IllegalStateException("no defaultOrderPreference defined for " + security.getSecurityFamily() + " and " + strategy);
-        }
-
-        Order order = defaultOrderPreference.getOrderPreference().createOrder();
+        Order order = this.orderService.createOrderByOrderPreference(this.coreConfig.getDefaultOrderPreference());
 
         order.setStrategy(strategy);
         order.setSecurity(security);
@@ -602,7 +599,9 @@ public class PositionServiceImpl implements PositionService {
     private void setMargin(Position position) {
 
         Security security = position.getSecurity();
-        double marginPerContract = security.getMargin();
+        double currentValue = this.localLookupService.getCurrentValueDouble(security.getId());
+        double underlyingCurrentValue = this.localLookupService.getCurrentValueDouble(security.getUnderlying().getId());
+        double marginPerContract = security.getMargin(currentValue, underlyingCurrentValue);
 
         if (marginPerContract != 0) {
 
@@ -619,7 +618,7 @@ public class PositionServiceImpl implements PositionService {
 
     private void expirePosition(Position position) {
 
-        Security security = position.getSecurityInitialized();
+        Security security = position.getSecurity();
 
         ExpirePositionVO expirePositionEvent = ExpirePositionVOProducer.INSTANCE.convert(position);
 
@@ -635,14 +634,14 @@ public class PositionServiceImpl implements PositionService {
 
             Option option = (Option) security;
             int scale = security.getSecurityFamily().getScale();
-            double underlyingSpot = security.getUnderlying().getCurrentMarketDataEvent().getCurrentValueDouble();
+            double underlyingSpot = this.localLookupService.getCurrentValueDouble(security.getUnderlying().getId());
             double intrinsicValue = OptionUtil.getIntrinsicValue(option, underlyingSpot);
             BigDecimal price = RoundUtil.getBigDecimal(intrinsicValue, scale);
             transaction.setPrice(price);
 
         } else if (security instanceof Future) {
 
-            BigDecimal price = security.getUnderlying().getCurrentMarketDataEvent().getCurrentValue();
+            BigDecimal price = this.localLookupService.getCurrentValue(security.getUnderlying().getId());
             transaction.setPrice(price);
 
         } else {

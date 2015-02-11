@@ -101,9 +101,6 @@ public abstract class FixMarketDataServiceImpl extends ExternalMarketDataService
             throw new FixMarketDataServiceException("Fix session is not logged on to subscribe " + security);
         }
 
-        // make sure SecurityFamily is initialized
-        security.getSecurityFamilyInitialized();
-
         // create the SubscribeTickEvent (must happen before reqMktData so that Esper is ready to receive marketdata)
         Tick tick = Tick.Factory.newInstance();
         tick.setSecurity(security);

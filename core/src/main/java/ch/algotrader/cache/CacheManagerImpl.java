@@ -18,20 +18,27 @@
 package ch.algotrader.cache;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.ClassUtils;
 import org.apache.log4j.Logger;
+import org.hibernate.collection.AbstractPersistentCollection;
+import org.hibernate.proxy.HibernateProxy;
 import org.springframework.jmx.export.annotation.ManagedAttribute;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
 import ch.algotrader.entity.BaseEntityI;
-import ch.algotrader.entity.security.Security;
+import ch.algotrader.entity.Initializer;
 import ch.algotrader.hibernate.GenericDao;
+import ch.algotrader.util.collection.CollectionUtil;
+import ch.algotrader.util.metric.MetricsUtil;
+import ch.algotrader.visitor.InitializationVisitor;
 
 /**
  * Main implementation class of the Level-0 Cache
@@ -41,7 +48,7 @@ import ch.algotrader.hibernate.GenericDao;
  * @version $Revision$ $Date$
  */
 @ManagedResource(objectName = "ch.algotrader.cache:name=CacheManager")
-public class CacheManagerImpl implements CacheManager {
+public class CacheManagerImpl implements CacheManager, Initializer {
 
     private static Logger logger = Logger.getLogger(CacheManagerImpl.class.getName());
 
@@ -55,7 +62,7 @@ public class CacheManagerImpl implements CacheManager {
 
     private GenericDao genericDao;
 
-    private CacheManagerImpl() {
+    public CacheManagerImpl() {
 
         this.collectionHandler = new CollectionHandler(this);
         this.entityHandler = new EntityHandler(this);
@@ -80,35 +87,31 @@ public class CacheManagerImpl implements CacheManager {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public <T> T get(Class<T> clazz, Serializable key) {
+    public <T extends BaseEntityI> T get(Class<T> clazz, Serializable key) {
 
         EntityCacheKey cacheKey = new EntityCacheKey(clazz, key);
 
-        T result = (T) this.entityCache.find(cacheKey, ROOT);
+        T entity = clazz.cast(this.entityCache.find(cacheKey, ROOT));
 
         // load the Entity if it is not available in the Cache
-        if (result == null) {
+        if (entity == null) {
 
-            // load the object from
-            result = (T) this.genericDao.get(clazz, key);
+            // load the object from the database
+            entity = clazz.cast(this.genericDao.get(clazz, key));
 
             // put into the cache
-            if (result != null) {
-                put(result);
+            if (entity != null) {
+                put(entity);
             }
 
             // make sure Securities are initialized (as they might have been put into the cache by the CollectionHandler)
         } else {
 
-            if (result instanceof Security) {
-
-                Security security = (Security) result;
-                security.initialize();
-            }
+            // make sure the entity is initialized
+            entity.accept(InitializationVisitor.INSTANCE, this);
         }
 
-        return result;
+        return entity;
     }
 
     @Override
@@ -128,7 +131,34 @@ public class CacheManagerImpl implements CacheManager {
     }
 
     @Override
-    public Object initialze(BaseEntityI entity, String key) {
+    @SuppressWarnings("unchecked")
+    public <T extends BaseEntityI> T initializeProxy(BaseEntityI entity, String context, T proxy) {
+
+        if (proxy instanceof HibernateProxy) {
+
+            long before = System.nanoTime();
+            proxy = (T) this.initialize(entity, context);
+            MetricsUtil.account(ClassUtils.getShortClassName(entity.getClass()) + context, (before));
+        }
+
+        return proxy;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T extends BaseEntityI> Collection<T> initializeCollection(BaseEntityI entity, String context, Collection<T> col) {
+
+        if (col instanceof AbstractPersistentCollection && !((AbstractPersistentCollection) col).wasInitialized()) {
+
+            long before = System.nanoTime();
+            col = (Collection<T>) this.initialize(entity, context);
+            MetricsUtil.account(ClassUtils.getShortClassName(entity.getClass()) + context, (before));
+        }
+
+        return col;
+    }
+
+    private Object initialize(BaseEntityI entity, String key) {
 
         EntityCacheKey cacheKey = new EntityCacheKey(entity);
 
@@ -182,6 +212,16 @@ public class CacheManagerImpl implements CacheManager {
         }
 
         return result;
+    }
+
+    @Override
+    public Object queryUnique(String queryString) {
+        return CollectionUtil.getSingleElementOrNull(query(queryString));
+    }
+
+    @Override
+    public Object queryUnique(String queryString, Map<String, Object> namedParameters) {
+        return CollectionUtil.getSingleElementOrNull(query(queryString, namedParameters));
     }
 
     /**

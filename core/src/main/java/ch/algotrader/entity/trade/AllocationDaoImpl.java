@@ -15,15 +15,12 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.entity.strategy;
+package ch.algotrader.entity.trade;
 
-import org.apache.commons.lang.Validate;
 import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
 
-import ch.algotrader.enumeration.QueryType;
 import ch.algotrader.hibernate.AbstractDao;
-import ch.algotrader.hibernate.NamedParam;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -31,20 +28,11 @@ import ch.algotrader.hibernate.NamedParam;
  * @version $Revision$ $Date$
  */
 @Repository // Required for exception translation
-public class DefaultOrderPreferenceDaoImpl extends AbstractDao<DefaultOrderPreference> implements DefaultOrderPreferenceDao {
+public class AllocationDaoImpl extends AbstractDao<Allocation> implements AllocationDao {
 
-    public DefaultOrderPreferenceDaoImpl(final SessionFactory sessionFactory) {
+    public AllocationDaoImpl(final SessionFactory sessionFactory) {
 
-        super(DefaultOrderPreferenceImpl.class, sessionFactory);
-    }
-
-    @Override
-    public DefaultOrderPreference findByStrategyAndSecurityFamilyInclOrderPreference(String strategyName, int securityFamilyId) {
-
-        Validate.notEmpty(strategyName, "Strategy name is empty");
-
-        return findUnique("DefaultOrderPreference.findByStrategyAndSecurityFamilyInclOrderPreference", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam(
-                "securityFamilyId", securityFamilyId));
+        super(AllocationImpl.class, sessionFactory);
     }
 
 }

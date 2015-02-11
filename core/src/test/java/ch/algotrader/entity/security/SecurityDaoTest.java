@@ -59,7 +59,7 @@ public class SecurityDaoTest extends InMemoryDBTest {
     }
 
     @Test
-    public void testFindById() {
+    public void testFindByIdInitialized() {
 
         SecurityFamily family1 = new SecurityFamilyImpl();
         family1.setName("family1");
@@ -75,11 +75,11 @@ public class SecurityDaoTest extends InMemoryDBTest {
         this.session.save(security1);
         this.session.flush();
 
-        Security security2 = this.dao.findById(0);
+        Security security2 = this.dao.findByIdInitialized(0);
 
         Assert.assertNull(security2);
 
-        Security security3 = this.dao.findById(security1.getId());
+        Security security3 = this.dao.findByIdInitialized(security1.getId());
 
         Assert.assertNotNull(security3);
         Assert.assertSame(family1, security3.getSecurityFamily());

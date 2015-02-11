@@ -88,7 +88,7 @@ public class IBOrderPropertyTest {
         order.addProperty("componentSize", "100", OrderPropertyType.IB);
         order.addProperty("timeBetweenOrders", "60", OrderPropertyType.IB);
 
-        Contract contract = IBUtil.getContract(order.getSecurityInitialized());
+        Contract contract = IBUtil.getContract(order.getSecurity());
         com.ib.client.Order ibOrder = this.iBOrderMessageFactory.createOrderMessage(order, contract);
 
         Assert.assertEquals("AD", ibOrder.m_algoStrategy);

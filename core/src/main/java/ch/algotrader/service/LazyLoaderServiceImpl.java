@@ -17,15 +17,12 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
-import org.apache.commons.lang.Validate;
-import org.apache.log4j.Logger;
-import org.hibernate.Hibernate;
-import org.hibernate.LockOptions;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.collection.AbstractPersistentCollection;
-import org.hibernate.proxy.HibernateProxy;
+import java.util.Collection;
 
+import org.apache.commons.lang.Validate;
+
+import ch.algotrader.entity.BaseEntityI;
+import ch.algotrader.hibernate.HibernateInitializer;
 import ch.algotrader.util.spring.HibernateSession;
 
 /**
@@ -36,63 +33,34 @@ import ch.algotrader.util.spring.HibernateSession;
 @HibernateSession
 public class LazyLoaderServiceImpl implements LazyLoaderService {
 
-    private static Logger logger = Logger.getLogger(LazyLoaderServiceImpl.class.getName());
-
-    private final SessionFactory sessionFactory;
-
-    public LazyLoaderServiceImpl(final SessionFactory sessionFactory) {
-
-        Validate.notNull(sessionFactory, "SessionFactory is null");
-
-        this.sessionFactory = sessionFactory;
+    public LazyLoaderServiceImpl() {
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public AbstractPersistentCollection lazyLoadCollection(final Object target, final String context, final AbstractPersistentCollection col) {
+    public <T extends BaseEntityI> T lazyLoadProxy(BaseEntityI entity, String context, T proxy) {
 
-        Validate.notNull(target, "Target is null");
-        Validate.notEmpty(context, "Context is empty");
-        Validate.notNull(col, "Col is null");
-
-        Session session = this.sessionFactory.openSession();
-
-        try {
-            session.buildLockRequest(LockOptions.NONE).lock(target);
-            Hibernate.initialize(col);
-
-            logger.debug("loaded collection: " + context);
-        } finally {
-            session.close();
-        }
-        return col;
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Object lazyLoadProxy(final Object target, final String context, final HibernateProxy proxy) {
-
-        Validate.notNull(target, "Target is null");
+        Validate.notNull(entity, "Entity is null");
         Validate.notEmpty(context, "Context is empty");
         Validate.notNull(proxy, "Proxy is null");
 
-        Session session = this.sessionFactory.openSession();
+        return HibernateInitializer.INSTANCE.initializeProxy(entity, context, proxy);
 
-        Object implementation;
-        try {
-            session.buildLockRequest(LockOptions.NONE).lock(target);
-            implementation = proxy.getHibernateLazyInitializer().getImplementation();
+    }
 
-            logger.debug("loaded proxy: " + context);
-        } finally {
-            session.close();
-        }
-        return implementation;
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <T extends BaseEntityI> Collection<T> lazyLoadCollection(BaseEntityI entity, String context, Collection<T> col) {
+
+        Validate.notNull(entity, "Entity is null");
+        Validate.notEmpty(context, "Context is empty");
+        Validate.notNull(col, "Col is null");
+
+        return HibernateInitializer.INSTANCE.initializeCollection(entity, context, col);
 
     }
 

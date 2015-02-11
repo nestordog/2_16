@@ -7,8 +7,10 @@
             <to><![CDATA[// custom methods
 
     public int getId();
+    
+    public boolean isInitialized();
 
-    public void setCacheManager(ch.algotrader.cache.CacheManager cacheManager);]]></to>
+    public <R,P> R accept(ch.algotrader.visitor.EntityVisitor<R, ? super P> visitor, P param);]]></to>
         </mapping>
 
 </mappings>

@@ -13,7 +13,7 @@ mysqldump.exe \
 --skip-triggers \
 --skip-set-charset \
 --no-data \
---ignore-table=reformation.schema_version \
+--ignore-table=algotrader.schema_version \
 -u root \
 -ppassword -r \
 h2-structure.sql \
@@ -44,7 +44,7 @@ mysqldump.exe \
 --skip-disable-keys \
 --skip-extended-insert \
 --skip-triggers \
---ignore-table=reformation.schema_version \
+--ignore-table=algotrader.schema_version \
 -u root \
 -ppassword \
 -r h2-data.sql \

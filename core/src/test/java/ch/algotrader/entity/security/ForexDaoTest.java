@@ -26,7 +26,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import ch.algotrader.entity.DataConsistencyException;
 import ch.algotrader.entity.SubscriptionDao;
 import ch.algotrader.entity.SubscriptionDaoImpl;
 import ch.algotrader.entity.marketData.TickDao;
@@ -58,7 +57,9 @@ public class ForexDaoTest extends InMemoryDBTest {
         super.setup();
 
         SubscriptionDao subscriptionDao = new SubscriptionDaoImpl(this.sessionFactory);
-        TickDao tickDao = new TickDaoImpl(this.sessionFactory, subscriptionDao, NoopEngine.SERVER);
+        SecurityDao securityDao = new SecurityDaoImpl(this.sessionFactory);
+
+        TickDao tickDao = new TickDaoImpl(this.sessionFactory, subscriptionDao, securityDao, NoopEngine.SERVER);
 
         this.dao = new ForexDaoImpl(this.sessionFactory, tickDao, 4);
     }
@@ -69,28 +70,6 @@ public class ForexDaoTest extends InMemoryDBTest {
     public void testGetRateDoubleException() {
 
         // Could not test the method for IllegalStateException due to EngineLocator dependency in forex.getCurrentMarketDataEvent() method
-    }
-
-    @Test
-    public void testGetRateDouble() {
-
-        SecurityFamily family = new SecurityFamilyImpl();
-        family.setName("Forex1");
-        family.setTickSizePattern("0<0.1");
-        family.setCurrency(Currency.INR);
-
-        Forex forex1 = new ForexImpl();
-        forex1.setSecurityFamily(family);
-        forex1.setBaseCurrency(Currency.USD);
-
-        this.session.save(family);
-        this.session.save(forex1);
-        this.session.flush();
-
-        double rate = this.dao.getRateDouble(Currency.USD, Currency.USD);
-        Assert.assertEquals(1.0, rate, 0);
-
-        // Could not test further due to EngineLocator dependency in forex.getCurrentMarketDataEvent() method
     }
 
     @Test
@@ -141,7 +120,7 @@ public class ForexDaoTest extends InMemoryDBTest {
         this.session.save(forex1);
         this.session.flush();
 
-        this.exception.expect(DataConsistencyException.class);
+        this.exception.expect(IllegalStateException.class);
         this.dao.getForex(Currency.AUD, Currency.INR);
     }
 
@@ -163,7 +142,7 @@ public class ForexDaoTest extends InMemoryDBTest {
         this.session.save(forex1);
         this.session.flush();
 
-        this.exception.expect(DataConsistencyException.class);
+        this.exception.expect(IllegalStateException.class);
         this.dao.getForex(Currency.USD, Currency.AUD);
     }
 

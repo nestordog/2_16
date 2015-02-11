@@ -23,11 +23,15 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import ch.algotrader.entity.trade.OrderPreference;
+import ch.algotrader.entity.trade.OrderPreferenceDao;
+import ch.algotrader.entity.trade.OrderPreferenceDaoImpl;
+import ch.algotrader.entity.trade.OrderPreferenceImpl;
 import ch.algotrader.enumeration.OrderType;
 import ch.algotrader.hibernate.InMemoryDBTest;
 
 /**
-* Unit tests for {@link ch.algotrader.entity.strategy.OrderPreferenceDaoImpl}.
+* Unit tests for {@link ch.algotrader.entity.trade.OrderPreferenceDaoImpl}.
 *
 * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
 *

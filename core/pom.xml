@@ -62,6 +62,11 @@
 <!--             <version>${esperee.version}</version> -->
 <!--             <type>pom</type> -->
 <!--         </dependency> -->
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-core</artifactId>
+			<version>3.6.10-at</version>
+		</dependency>        
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-jmx</artifactId>

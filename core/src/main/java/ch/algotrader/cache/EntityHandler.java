@@ -96,9 +96,6 @@ public class EntityHandler extends AbstractHandler {
                     EntityCacheKey cacheKey = new EntityCacheKey(field.getDeclaringClass(), entity.getId());
                     this.cacheManager.getEntityCache().attach(cacheKey, field.getName(), value);
                 }
-
-                // set the CacheManager reference
-                entity.setCacheManager(this.cacheManager);
             }
             return existingObj;
         }

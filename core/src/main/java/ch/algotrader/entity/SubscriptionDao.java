@@ -37,6 +37,13 @@ public interface SubscriptionDao extends ReadWriteDao<Subscription> {
     List<Subscription> findByStrategy(String strategyName);
 
     /**
+     * Finds all Subscriptions by the defined {@code strategyName} including all attached {@code properties}
+     * @param strategyName
+     * @return List<Subscription>
+     */
+    List<Subscription> findByStrategyInclProps(String strategyName);
+
+    /**
      * Find a Subscriptions by the defined {@code strategyName} and {@code securityId}.
      * @param strategyName
      * @param securityId

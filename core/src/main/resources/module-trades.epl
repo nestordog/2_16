@@ -106,9 +106,16 @@ from
 @RunTimeOnly
 @Subscriber(className='ch.algotrader.service.OrderService.sendOrders')
 select
-    currentOrder.getInitialOrders()
+    currentOrder.getInitialOrders(cast(marketDataWindow.marketDataEvent, ch.algotrader.entity.marketData.Tick))
 from
-    ch.algotrader.entity.trade.AlgoOrder as currentOrder;
+    ch.algotrader.entity.trade.AlgoOrder as currentOrder unidirectional,
+    MarketDataWindow as marketDataWindow
+where 
+	marketDataWindow.securityId = currentOrder.security.id 
+order by 
+	marketDataWindow.marketDataEvent.dateTime desc 
+limit 
+	1;
 
 @Name('INSERT_INTO_ALGO_ORDER_STATUS_SUBMITTED')
 @RunTimeOnly()

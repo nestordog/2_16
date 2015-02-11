@@ -20,13 +20,14 @@ package ch.algotrader.esper;
 import java.util.Date;
 import java.util.Map;
 
-import com.espertech.esper.collection.Pair;
-
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.strategy.PortfolioValue;
+import ch.algotrader.visitor.TickValidationVisitor;
+
+import com.espertech.esper.collection.Pair;
 
 /**
  * Provides service convenience methods.
@@ -56,7 +57,7 @@ public class ServiceUtil {
     }
 
     /**
-     * attaches the fully initialized Security as well as the specified Date to the Tick contained in the {@link com.espertech.esper.collection.Pair}
+     * attaches the fully initialized Security to the Tick contained in the {@link com.espertech.esper.collection.Pair}
      */
     public static Tick completeTick(Pair<Tick, Object> pair) {
 
@@ -68,6 +69,14 @@ public class ServiceUtil {
         tick.setSecurity(security);
 
         return tick;
+    }
+
+    /**
+     * return true if the tick passed the entity specific criteria defined by {@link TickValidationVisitor}
+     */
+    public static boolean isTickValid(Tick tick) {
+
+        return tick.getSecurity().accept(TickValidationVisitor.INSTANCE, tick);
     }
 
     /**

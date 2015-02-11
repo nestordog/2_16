@@ -15,24 +15,13 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.entity.strategy;
+package ch.algotrader.entity;
 
-import org.hibernate.SessionFactory;
-import org.springframework.stereotype.Repository;
+import java.util.Collection;
 
-import ch.algotrader.hibernate.AbstractDao;
+public interface Initializer {
 
-/**
- * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
- */
-@Repository // Required for exception translation
-public class AllocationDaoImpl extends AbstractDao<Allocation> implements AllocationDao {
+    public <T extends BaseEntityI> T initializeProxy(BaseEntityI entity, String context, T proxy);
 
-    public AllocationDaoImpl(final SessionFactory sessionFactory) {
-
-        super(AllocationImpl.class, sessionFactory);
-    }
-
+    public <T extends BaseEntityI> Collection<T> initializeCollection(BaseEntityI entity, String context, Collection<T> col);
 }

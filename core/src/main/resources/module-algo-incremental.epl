@@ -4,12 +4,19 @@
 @RunTimeOnly
 @Subscriber(className='ch.algotrader.service.OrderService.modifyOrder')
 select
-    cast(currentOrder.parentOrder, ch.algotrader.entity.trade.IncrementalOrder).modifyOrder()
+    cast(currentOrder.parentOrder, ch.algotrader.entity.trade.IncrementalOrder).modifyOrder(cast(marketDataWindow.marketDataEvent, ch.algotrader.entity.marketData.Tick))
 from
     pattern [every currentOrder=`Order`(instanceof(parentOrder,ch.algotrader.entity.trade.IncrementalOrder))
-        -> (timer:interval(5 sec) and not OrderStatus(status = Status.EXECUTED or status = Status.CANCELED or status = Status.REJECTED, `order`.intId = currentOrder.intId))]
+        -> (timer:interval(5 sec) and not OrderStatus(status = Status.EXECUTED or status = Status.CANCELED or status = Status.REJECTED, `order`.intId = currentOrder.intId))] unidirectional,
+    MarketDataWindow as marketDataWindow
 where
-    cast(currentOrder.parentOrder, ch.algotrader.entity.trade.IncrementalOrder).checkLimit();
+    cast(currentOrder.parentOrder, ch.algotrader.entity.trade.IncrementalOrder).checkLimit()
+and
+	marketDataWindow.securityId = currentOrder.security.id 
+order by 
+	marketDataWindow.marketDataEvent.dateTime desc 
+limit 
+	1;        
 
 @Name('INCREMENTAL_CANCEL_ORDER')
 @RunTimeOnly

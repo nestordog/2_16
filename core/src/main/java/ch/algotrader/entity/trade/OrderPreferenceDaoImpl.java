@@ -15,39 +15,35 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.entity;
+package ch.algotrader.entity.trade;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.apache.commons.lang.Validate;
+import org.hibernate.SessionFactory;
+import org.springframework.stereotype.Repository;
 
-import ch.algotrader.ServiceLocator;
-import ch.algotrader.dbunit.AbstractDaoDbUnitTemplateTestCase;
-import ch.algotrader.enumeration.OrderServiceType;
+import ch.algotrader.enumeration.QueryType;
+import ch.algotrader.hibernate.AbstractDao;
+import ch.algotrader.hibernate.NamedParam;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class AccountTest extends AbstractDaoDbUnitTemplateTestCase {
+@Repository // Required for exception translation
+public class OrderPreferenceDaoImpl extends AbstractDao<OrderPreference> implements OrderPreferenceDao {
 
-    private AccountDao accountDao;
+    public OrderPreferenceDaoImpl(final SessionFactory sessionFactory) {
 
-    @Before
-    public void before() {
-
-        this.accountDao = ServiceLocator.instance().getService("accountDao", AccountDao.class);
+        super(OrderPreferenceImpl.class, sessionFactory);
     }
 
-    @Test
-    public void testFindByName() {
+    @Override
+    public OrderPreference findByName(String name) {
 
-        this.accountDao.findByName("");
+        Validate.notEmpty(name, "Name is empty");
+
+        return findUnique("OrderPreference.findByName", QueryType.BY_NAME, new NamedParam("name", name));
     }
 
-    @Test
-    public void testFindActiveSessionsByOrderServiceType() {
-
-        this.accountDao.findActiveSessionsByOrderServiceType(OrderServiceType.IB_NATIVE);
-    }
 }

@@ -237,7 +237,7 @@ public class ManagementServiceImpl implements ManagementService {
         } else {
 
             // for strategies iterate over all subscriptions
-            List<Subscription> subscriptions = this.lookupService.getSubscriptionsByStrategyInclComponents(strategyName);
+            List<Subscription> subscriptions = this.lookupService.getSubscriptionsByStrategyInclComponentsAndProps(strategyName);
             for (Subscription subscription : subscriptions) {
 
                 Security security = subscription.getSecurity();
@@ -246,7 +246,7 @@ public class ManagementServiceImpl implements ManagementService {
                 MarketDataEventVO marketDataEventVO = getMarketDataEventVO(marketDataEventVOs, security, feedType);
 
                 // add properties from this strategies subscription
-                Map<String, Property> properties = subscription.getPropsInitialized();
+                Map<String, Property> properties = subscription.getProps();
                 if (!properties.isEmpty()) {
                     marketDataEventVO.setProperties(properties);
                 }
@@ -485,7 +485,7 @@ public class ManagementServiceImpl implements ManagementService {
         } else {
 
             // create the order from an OrderPreference
-            order = this.lookupService.getOrderByName(type);
+            order = this.orderService.createOrderByOrderPreference(type);
         }
 
         // set common values
@@ -595,7 +595,7 @@ public class ManagementServiceImpl implements ManagementService {
      * {@inheritDoc}
      */
     @Override
-    @ManagedOperation(description = "Closes the specified Position by using the defined DefaultOrderPreference")
+    @ManagedOperation(description = "Closes the specified Position by using the defined default OrderPreference")
     @ManagedOperationParameters({ @ManagedOperationParameter(name = "positionId", description = "positionId") })
     public void closePosition(final int positionId) {
 
@@ -607,7 +607,7 @@ public class ManagementServiceImpl implements ManagementService {
      * {@inheritDoc}
      */
     @Override
-    @ManagedOperation(description = "Reduces the Position by the specified amount by using the defined DefaultOrderPreference")
+    @ManagedOperation(description = "Reduces the Position by the specified amount by using the defined default OrderPreference")
     @ManagedOperationParameters({ @ManagedOperationParameter(name = "positionId", description = "positionId"), @ManagedOperationParameter(name = "quantity", description = "quantity") })
     public void reducePosition(final int positionId, final int quantity) {
 
