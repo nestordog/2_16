@@ -21,6 +21,7 @@ import java.util.Objects;
 
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.ConfigLocator;
+import ch.algotrader.entity.marketData.MarketDataEvent;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -32,7 +33,7 @@ public abstract class SecurityImpl extends Security {
     private static final long serialVersionUID = -6631052475125813394L;
 
     @Override
-    public double getLeverage(double currentValue, double underlyingCurrentValue) {
+    public double getLeverage(MarketDataEvent marketDataEvent, MarketDataEvent underlyingMarketDataEvent) {
         return 0;
     }
 

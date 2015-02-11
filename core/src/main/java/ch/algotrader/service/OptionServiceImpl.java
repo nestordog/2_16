@@ -190,9 +190,9 @@ public class OptionServiceImpl implements OptionService {
         double deltaAdjustedMarketValue = 0;
         for (Position position : positions) {
             MarketDataEvent marketDataEvent = this.localLookupService.getCurrentMarketDataEvent(position.getSecurity().getId());
-            double underlyingCurrentValue = this.localLookupService.getCurrentValueDouble(position.getSecurity().getUnderlying().getId());
+            MarketDataEvent underlyingMarketDataEvent = this.localLookupService.getCurrentMarketDataEvent(position.getSecurity().getUnderlying().getId());
 
-            deltaAdjustedMarketValue += position.getMarketValue(marketDataEvent) * position.getSecurity().getLeverage(marketDataEvent.getCurrentValueDouble(), underlyingCurrentValue);
+            deltaAdjustedMarketValue += position.getMarketValue(marketDataEvent) * position.getSecurity().getLeverage(marketDataEvent, underlyingMarketDataEvent);
         }
 
         final Security underlying = this.securityDao.get(underlyingId);

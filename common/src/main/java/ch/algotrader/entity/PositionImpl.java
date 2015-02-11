@@ -135,7 +135,7 @@ public class PositionImpl extends Position {
     @Override
     public double getExposure(MarketDataEvent marketDataEvent, MarketDataEvent underlyingMarketDataEvent) {
 
-        return getMarketValue(marketDataEvent) * getSecurity().getLeverage(marketDataEvent.getCurrentValueDouble(), underlyingMarketDataEvent.getCurrentValueDouble());
+        return getMarketValue(marketDataEvent) * getSecurity().getLeverage(marketDataEvent, underlyingMarketDataEvent);
     }
 
     @Override

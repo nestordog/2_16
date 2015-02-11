@@ -465,7 +465,7 @@ public class LookupServiceImpl implements LookupService {
 
             Security security = (Security) subscription.get("security");
             if (security instanceof Combination) {
-                ((Combination) security).getComponents();
+                Hibernate.initialize(((Combination) security).getComponents());
             }
         }
 

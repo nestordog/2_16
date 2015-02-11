@@ -19,8 +19,10 @@ package ch.algotrader.entity.security;
 
 import java.util.Date;
 
+import org.apache.commons.lang.Validate;
 import org.apache.commons.math.MathException;
 
+import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.option.OptionUtil;
 import ch.algotrader.util.DateUtil;
 
@@ -34,7 +36,13 @@ public class OptionImpl extends Option {
     private static final long serialVersionUID = -3168298592370987085L;
 
     @Override
-    public double getLeverage(double currentValue, double underlyingCurrentValue) {
+    public double getLeverage(MarketDataEvent marketDataEvent, MarketDataEvent underlyingMarketDataEvent) {
+
+        Validate.notNull(marketDataEvent, "MarketDataEvent is missing");
+        Validate.notNull(underlyingMarketDataEvent, "underlying MarketDataEvent is missing");
+
+        double currentValue = marketDataEvent.getCurrentValueDouble();
+        double underlyingCurrentValue = marketDataEvent.getCurrentValueDouble();
 
         try {
             double delta = OptionUtil.getDelta(this, currentValue, underlyingCurrentValue);

@@ -476,7 +476,7 @@ public class PortfolioServiceImpl implements PortfolioService {
         double margin = 0.0;
         Collection<Position> positions = this.positionDao.findOpenTradeablePositions();
         for (Position position : positions) {
-            margin += position.getMaintenanceMargin().doubleValue() * this.localLookupService.getForexRateBase(position.getSecurity().getId());
+            margin += position.getMaintenanceMargin() != null ? position.getMaintenanceMargin().doubleValue() * this.localLookupService.getForexRateBase(position.getSecurity().getId()) : 0.0;
         }
         return margin;
 
@@ -641,7 +641,10 @@ public class PortfolioServiceImpl implements PortfolioService {
         Collection<Position> positions = this.positionDao.findOpenTradeablePositions();
         for (Position position : positions) {
             MarketDataEvent marketDataEvent = this.localLookupService.getCurrentMarketDataEvent(position.getSecurity().getId());
-            MarketDataEvent underlyingMarketDataEvent = this.localLookupService.getCurrentMarketDataEvent(position.getSecurity().getUnderlying().getId());
+            MarketDataEvent underlyingMarketDataEvent = null;
+            if (position.getSecurity().getUnderlying() != null) {
+                underlyingMarketDataEvent = this.localLookupService.getCurrentMarketDataEvent(position.getSecurity().getUnderlying().getId());
+            }
             exposure += position.getExposure(marketDataEvent, underlyingMarketDataEvent);
         }
         return exposure / getNetLiqValueDouble();

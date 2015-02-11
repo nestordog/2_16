@@ -323,7 +323,7 @@ public class PolymorphicEntityVisitor<R, P> implements EntityVisitor<R, P> {
 
     @Override
     public R visitStock(Stock entity, P param) {
-        return visitStock(entity, param);
+        return visitSecurity(entity, param);
     }
 
     @Override
