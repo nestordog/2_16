@@ -262,8 +262,8 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
         Validate.notNull(order, "Order is null");
 
         // validate strategy and security
-        Validate.notNull(order.getStrategy(), "missing strategy for order " + order);
-        Validate.notNull(order.getSecurity(), "missing security for order " + order);
+        Validate.notNull(order.getStrategy());
+        Validate.notNull(order.getSecurity());
 
         // reload the strategy and security to get potential changes
         order.setStrategy(this.strategyDao.load(order.getStrategy().getId()));
