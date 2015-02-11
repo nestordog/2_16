@@ -26,7 +26,6 @@ import ch.algotrader.entity.security.Future;
 import ch.algotrader.entity.security.Index;
 import ch.algotrader.entity.security.Option;
 import ch.algotrader.entity.security.Security;
-import ch.algotrader.entity.security.SecurityImpl;
 import ch.algotrader.entity.security.Stock;
 
 /**
@@ -36,11 +35,11 @@ import ch.algotrader.entity.security.Stock;
  *
  * @version $Revision$ $Date$
  */
-public class TickValidationVisitor extends PolimorphicEntityVisitor<Boolean, Tick> {
+public class TickValidationVisitor extends PolymorphicEntityVisitor<Boolean, Tick> {
 
     public static final TickValidationVisitor INSTANCE = new TickValidationVisitor();
 
-    private static final Logger logger = Logger.getLogger(SecurityImpl.class.getName());
+    private static final Logger logger = Logger.getLogger(TickValidationVisitor.class.getName());
 
     private TickValidationVisitor() {
     }

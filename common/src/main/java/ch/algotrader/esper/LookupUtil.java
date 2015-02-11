@@ -20,6 +20,7 @@ package ch.algotrader.esper;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.collections15.map.SingletonMap;
 
@@ -43,7 +44,7 @@ import ch.algotrader.service.LookupService;
  */
 public class LookupUtil {
 
-    private static Map<String, String> namedQueries = new HashMap<String, String>();
+    private static Map<String, String> namedQueries = new ConcurrentHashMap<String, String>();
 
     private static boolean hasCacheManager() {
         return ServiceLocator.instance().containsService("cacheManager");

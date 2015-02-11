@@ -56,6 +56,8 @@ public class HibernateInitializer implements Initializer {
                 long before = System.nanoTime();
                 proxy = (T) initializer.getImplementation();
                 MetricsUtil.account(ClassUtils.getShortClassName(entity.getClass()) + context, (before));
+            } else {
+                throw new IllegalStateException("no hibernate session available");
             }
         }
 
@@ -74,6 +76,8 @@ public class HibernateInitializer implements Initializer {
                     long before = System.nanoTime();
                     persistentCol.forceInitialization();
                     MetricsUtil.account(ClassUtils.getShortClassName(entity.getClass()) + context, (before));
+                } else {
+                    throw new IllegalStateException("no hibernate session available");
                 }
             }
         }

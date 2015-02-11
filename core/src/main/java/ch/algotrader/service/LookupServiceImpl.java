@@ -1128,7 +1128,7 @@ public class LookupServiceImpl implements LookupService {
         Tick tick = CollectionUtil.getSingleElementOrNull(this.tickDao.findTicksBySecurityAndMaxDate(1, securityId, dateTime, this.coreConfig.getIntervalDays()));
 
         if (tick != null) {
-            tick.getSecurity().accept(InitializationVisitor.INSTANCE, HibernateInitializer.INSTANCE);
+            tick.accept(InitializationVisitor.INSTANCE, HibernateInitializer.INSTANCE);
         }
 
         return tick;
@@ -1238,7 +1238,7 @@ public class LookupServiceImpl implements LookupService {
 
         List<Tick> ticks = this.tickDao.findSubscribedByTimePeriod(startDate, endDate);
         for (Tick tick : ticks) {
-            tick.getSecurity().accept(InitializationVisitor.INSTANCE, HibernateInitializer.INSTANCE);
+            tick.accept(InitializationVisitor.INSTANCE, HibernateInitializer.INSTANCE);
         }
         return ticks;
 
@@ -1316,7 +1316,7 @@ public class LookupServiceImpl implements LookupService {
 
         List<Bar> bars = this.barDao.findSubscribedByTimePeriodAndBarSize(startDate, endDate, barSize);
         for (Bar bar : bars) {
-            bar.getSecurity().accept(InitializationVisitor.INSTANCE, HibernateInitializer.INSTANCE);
+            bar.accept(InitializationVisitor.INSTANCE, HibernateInitializer.INSTANCE);
         }
         return bars;
 

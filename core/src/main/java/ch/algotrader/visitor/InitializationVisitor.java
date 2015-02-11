@@ -18,6 +18,7 @@
 package ch.algotrader.visitor;
 
 import ch.algotrader.entity.Initializer;
+import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.entity.security.Combination;
 import ch.algotrader.entity.security.Security;
 
@@ -28,7 +29,7 @@ import ch.algotrader.entity.security.Security;
  *
  * @version $Revision$ $Date$
  */
-public class InitializationVisitor extends PolimorphicEntityVisitor<Void, Initializer> {
+public class InitializationVisitor extends PolymorphicEntityVisitor<Void, Initializer> {
 
     public static final InitializationVisitor INSTANCE = new InitializationVisitor();
 
@@ -65,6 +66,12 @@ public class InitializationVisitor extends PolimorphicEntityVisitor<Void, Initia
         }
 
         return super.visitSecurity(security, initializer);
+    }
+
+    @Override
+    public Void visitMarketDataEvent(MarketDataEvent marketDataEvent, Initializer initializer) {
+
+        return visitSecurity(marketDataEvent.getSecurity(), initializer);
     }
 
 }

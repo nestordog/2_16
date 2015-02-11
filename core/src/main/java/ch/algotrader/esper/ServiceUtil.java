@@ -57,7 +57,7 @@ public class ServiceUtil {
     }
 
     /**
-     * attaches the fully initialized Security as well as the specified Date to the Tick contained in the {@link com.espertech.esper.collection.Pair}
+     * attaches the fully initialized Security to the Tick contained in the {@link com.espertech.esper.collection.Pair}
      */
     public static Tick completeTick(Pair<Tick, Object> pair) {
 
@@ -74,9 +74,9 @@ public class ServiceUtil {
     /**
      * return true if the tick passed the entity specific criteria defined by {@link TickValidationVisitor}
      */
-    public static boolean isTickValid(Security security, Tick tick) {
+    public static boolean isTickValid(Tick tick) {
 
-        return security.accept(TickValidationVisitor.INSTANCE, tick);
+        return tick.getSecurity().accept(TickValidationVisitor.INSTANCE, tick);
     }
 
     /**
