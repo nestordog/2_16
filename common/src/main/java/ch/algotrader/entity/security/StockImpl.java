@@ -17,7 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.entity.security;
 
-import ch.algotrader.entity.marketData.Tick;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -27,22 +26,4 @@ import ch.algotrader.entity.marketData.Tick;
 public class StockImpl extends Stock {
 
     private static final long serialVersionUID = -6169238869632079681L;
-
-    @Override
-    public boolean validateTick(Tick tick) {
-
-        // stocks need to have a BID and ASK
-        if (tick.getBid() == null) {
-            return false;
-        } else if (tick.getVolBid() == 0) {
-            return false;
-        } else if (tick.getAsk() == null) {
-            return false;
-        }
-        if (tick.getVolAsk() == 0) {
-            return false;
-        }
-
-        return super.validateTick(tick);
-    }
 }

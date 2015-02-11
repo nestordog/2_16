@@ -15,22 +15,13 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.entity.security;
+package ch.algotrader.entity;
 
-import ch.algotrader.enumeration.Currency;
+import java.util.Collection;
 
-/**
- * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
- */
-public class ForexImpl extends Forex {
+public interface Initializer {
 
-    private static final long serialVersionUID = -6204294412084812111L;
+    public <T extends BaseEntityI> T initializeProxy(BaseEntityI entity, String context, T proxy);
 
-    @Override
-    public Currency getTransactionCurrency() {
-
-        return getSecurityFamily().getCurrency();
-    }
+    public <T extends BaseEntityI> Collection<T> initializeCollection(BaseEntityI entity, String context, Collection<T> col);
 }

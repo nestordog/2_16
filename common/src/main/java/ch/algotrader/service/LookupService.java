@@ -597,6 +597,11 @@ public interface LookupService {
     public Object getUnique(String query, Map namedParameters);
 
     /**
+     * returns the specified hibernate named query
+     */
+    public String getNamedQuery(String queryName);
+
+    /**
      * initialize all security Strings for subscribed Securities
      */
     public void initSecurityStrings();

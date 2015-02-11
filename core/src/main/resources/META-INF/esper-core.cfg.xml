@@ -28,7 +28,9 @@
     <event-type name="LoosingTrades" class="ch.algotrader.vo.TradesVO"/>
     <event-type name="EndOfSimulation" class="ch.algotrader.vo.EndOfSimulationVO"/>
 
+    <auto-import import-name="ch.algotrader.esper.ServiceUtil"/>
     <auto-import import-name="ch.algotrader.entity.trade.AlgoOrder"/>
+    <auto-import import-name="ch.algotrader.visitor.TickValidationVisitor"/>
 
     <!-- Constants -->
     <variable name="misc_marketIntrest" type="double" constant="true"/>

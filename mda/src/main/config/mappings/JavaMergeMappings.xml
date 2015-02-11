@@ -6,7 +6,11 @@
             <from><![CDATA[// ch.algotrader.entity.BaseEntityI interface java merge-point]]></from>
             <to><![CDATA[// custom methods
 
-    public int getId();]]></to>
+    public int getId();
+    
+    public boolean isInitialized();
+
+    public <R,P> R accept(ch.algotrader.visitor.EntityVisitor<R, ? super P> visitor, P param);]]></to>
         </mapping>
 
 </mappings>

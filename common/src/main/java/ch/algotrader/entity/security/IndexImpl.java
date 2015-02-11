@@ -17,7 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.entity.security;
 
-import ch.algotrader.entity.marketData.Tick;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -27,16 +26,4 @@ import ch.algotrader.entity.marketData.Tick;
 public class IndexImpl extends Index {
 
     private static final long serialVersionUID = 4087343403938105040L;
-
-    @Override
-    public boolean validateTick(Tick tick) {
-
-        if (tick.getLast() == null) {
-            return false;
-        } else if (tick.getLastDateTime() == null) {
-            return false;
-        } else {
-            return true;
-        }
-    }
 }

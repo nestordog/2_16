@@ -21,7 +21,6 @@ import java.util.Date;
 
 import org.apache.commons.math.MathException;
 
-import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.option.OptionUtil;
 import ch.algotrader.util.DateUtil;
 
@@ -81,18 +80,5 @@ public class OptionImpl extends Option {
         } else {
             return expiration;
         }
-    }
-
-    @Override
-    public boolean validateTick(Tick tick) {
-
-        // options need to have an ASK (but might not have a BID just before expiration)
-        if (tick.getVolAsk() == 0) {
-            return false;
-        } else if (tick.getAsk() == null) {
-            return false;
-        }
-
-        return super.validateTick(tick);
     }
 }

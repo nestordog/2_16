@@ -19,7 +19,6 @@ package ch.algotrader.entity.security;
 
 import java.util.Date;
 
-import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.future.FutureUtil;
 import ch.algotrader.util.DateUtil;
 
@@ -70,23 +69,5 @@ public class FutureImpl extends Future {
         } else {
             return expiration;
         }
-    }
-
-    @Override
-    public boolean validateTick(Tick tick) {
-
-        // futures need to have a BID and ASK
-        if (tick.getBid() == null) {
-            return false;
-        } else if (tick.getVolBid() == 0) {
-            return false;
-        } else if (tick.getAsk() == null) {
-            return false;
-        }
-        if (tick.getVolAsk() == 0) {
-            return false;
-        }
-
-        return super.validateTick(tick);
     }
 }

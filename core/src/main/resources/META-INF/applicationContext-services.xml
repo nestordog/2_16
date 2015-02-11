@@ -240,7 +240,6 @@
     </bean>     
 
     <bean id="lazyLoaderService" class="ch.algotrader.service.LazyLoaderServiceImpl" >
-        <constructor-arg index="0" ref="sessionFactory"/>
     </bean>
 
     <bean id="fixSessionService" class="ch.algotrader.service.FixSessionServiceImpl"/>

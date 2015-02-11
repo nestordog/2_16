@@ -17,21 +17,10 @@
  ***********************************************************************************/
 package ch.algotrader.entity.security;
 
-import java.util.Collection;
 import java.util.Objects;
 
-import org.apache.log4j.Logger;
-import org.hibernate.Hibernate;
-import org.hibernate.collection.AbstractPersistentCollection;
-import org.hibernate.proxy.HibernateProxy;
-
-import ch.algotrader.cache.CacheManager;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.ConfigLocator;
-import ch.algotrader.entity.Position;
-import ch.algotrader.entity.Subscription;
-import ch.algotrader.entity.marketData.Tick;
-import ch.algotrader.util.metric.MetricsUtil;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -41,15 +30,6 @@ import ch.algotrader.util.metric.MetricsUtil;
 public abstract class SecurityImpl extends Security {
 
     private static final long serialVersionUID = -6631052475125813394L;
-
-    private static Logger logger = Logger.getLogger(SecurityImpl.class.getName());
-
-
-    @Override
-    public boolean isSubscribed() {
-
-        return Hibernate.isInitialized(getSubscriptions()) && (getSubscriptions().size() != 0);
-    }
 
     @Override
     public double getLeverage(double currentValue, double underlyingCurrentValue) {
@@ -71,103 +51,6 @@ public abstract class SecurityImpl extends Security {
     public String toString() {
 
         return getSymbol();
-    }
-
-
-    @Override
-    public boolean validateTick(Tick tick) {
-
-        // BId / ASK cannot be negative
-        if (tick.getBid() != null && tick.getBid().doubleValue() < 0) {
-            return false;
-        } else if (tick.getAsk() != null && tick.getAsk().doubleValue() < 0) {
-            return false;
-        }
-
-        // spread cannot be crossed
-        CommonConfig commonConfig = ConfigLocator.instance().getCommonConfig();
-        if (commonConfig.isValidateCrossedSpread() && tick.getBid() != null && tick.getAsk() != null && tick.getBidAskSpreadDouble() < 0) {
-            logger.warn("crossed spread: bid " + tick.getBid() + " ask " + tick.getAsk() + " for " + this);
-            return false;
-        } else {
-            return true;
-        }
-    }
-
-    private transient boolean initialized = false;
-
-    public boolean isInitialized() {
-
-        return this.initialized;
-    }
-
-    @Override
-    public void initialize() {
-
-        if (!isInitialized()) {
-
-            // initialize subscriptions before positions because the lazy loaded (= Proxy) Strategy
-            // so subscriptions would also get the Proxy insead of the implementation
-            long beforeSubscriptions = System.nanoTime();
-            Hibernate.initialize(getSubscriptions());
-            MetricsUtil.account("Security.subscriptions", (beforeSubscriptions));
-
-            // initialize positions
-            long beforePositions = System.nanoTime();
-            Hibernate.initialize(getPositions());
-            MetricsUtil.account("Security.positions", (beforePositions));
-
-            // initialize underlying
-            long beforeUnderlying = System.nanoTime();
-            Hibernate.initialize(getUnderlying());
-            MetricsUtil.account("Security.underlying", (beforeUnderlying));
-
-            // initialize securityFamily
-            long beforeSecurityFamily = System.nanoTime();
-            Hibernate.initialize(getSecurityFamily());
-            MetricsUtil.account("Security.securityFamily", (beforeSecurityFamily));
-
-            this.initialized = true;
-        }
-    }
-
-    @Override
-    public void initialize(CacheManager cacheManager) {
-
-        if (!isInitialized()) {
-
-            // initialize subscriptions before positions because the lazy loaded (= Proxy) Strategy
-            // so subscriptions would also get the Proxy insead of the implementation
-            long beforeSubscriptions = System.nanoTime();
-            if (this.getSubscriptions() instanceof AbstractPersistentCollection && !((AbstractPersistentCollection) this.getSubscriptions()).wasInitialized()) {
-                setSubscriptions((Collection<Subscription>) cacheManager.initialze(this, "subscriptions"));
-            }
-            MetricsUtil.account("Security.subscriptions", (beforeSubscriptions));
-
-
-            // initialize positions
-            long beforePositions = System.nanoTime();
-            if (this.getPositions() instanceof AbstractPersistentCollection && !((AbstractPersistentCollection) this.getPositions()).wasInitialized()) {
-                setPositions((Collection<Position>) cacheManager.initialze(this, "positions"));
-            }
-            MetricsUtil.account("Security.positions", (beforePositions));
-
-            // initialize underlying
-            long beforeUnderlying = System.nanoTime();
-            if (this.getUnderlying() instanceof HibernateProxy) {
-                setUnderlying((Security) cacheManager.initialze(this, "underlying"));
-            }
-            MetricsUtil.account("Security.underlying", (beforeUnderlying));
-
-            // initialize securityFamily
-            long beforeSecurityFamily = System.nanoTime();
-            if (this.getSecurityFamily() instanceof HibernateProxy) {
-                setSecurityFamily((SecurityFamily) cacheManager.initialze(this, "securityFamily"));
-            }
-            MetricsUtil.account("Security.securityFamily", (beforeSecurityFamily));
-
-            this.initialized = true;
-        }
     }
 
     @Override

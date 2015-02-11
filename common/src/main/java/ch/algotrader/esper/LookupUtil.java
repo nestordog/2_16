@@ -22,8 +22,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.collections15.map.SingletonMap;
-import org.hibernate.SessionFactory;
-import org.hibernate.impl.SessionFactoryImpl;
 
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.cache.CacheManager;
@@ -45,6 +43,8 @@ import ch.algotrader.service.LookupService;
  */
 public class LookupUtil {
 
+    private static Map<String, String> namedQueries = new HashMap<String, String>();
+
     private static boolean hasCacheManager() {
         return ServiceLocator.instance().containsService("cacheManager");
     }
@@ -58,8 +58,12 @@ public class LookupUtil {
     }
 
     private static String getQueryString(String queryName) {
-        SessionFactoryImpl sessionFactory = (SessionFactoryImpl) ServiceLocator.instance().getService("sessionFactory", SessionFactory.class);
-        return sessionFactory.getNamedQuery(queryName).getQueryString();
+        String namedQuery = namedQueries.get(queryName);
+        if (namedQuery == null) {
+            namedQuery = getLookupService().getNamedQuery(queryName);
+            namedQueries.put(queryName, namedQuery);
+        }
+        return namedQuery;
     }
 
     /**

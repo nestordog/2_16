@@ -23,12 +23,9 @@ import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Predicate;
 import org.apache.commons.collections15.Transformer;
 import org.apache.commons.lang.StringUtils;
-import org.hibernate.Hibernate;
 
-import ch.algotrader.cache.CacheManager;
 import ch.algotrader.enumeration.Direction;
 import ch.algotrader.util.collection.LongMap;
-import ch.algotrader.util.metric.MetricsUtil;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -113,36 +110,6 @@ public class CombinationImpl extends Combination {
                 return component.getQuantity() + " " + component.getSecurity();
             }
         }), " + ");
-    }
-
-    @Override
-    public void initialize() {
-
-        if (!isInitialized()) {
-
-            // initialize components
-            long beforeComponents = System.nanoTime();
-            Hibernate.initialize(getComponents());
-            MetricsUtil.accountEnd("Combination.components", beforeComponents);
-
-            super.initialize();
-
-        }
-    }
-
-    @Override
-    public void initialize(CacheManager cacheManager) {
-
-        if (!isInitialized()) {
-
-            // initialize components
-            long beforeComponents = System.nanoTime();
-            cacheManager.initialze(this, "components");
-            MetricsUtil.accountEnd("Combination.components", beforeComponents);
-
-            super.initialize(cacheManager);
-
-        }
     }
 
     @Override

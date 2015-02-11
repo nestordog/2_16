@@ -30,7 +30,9 @@ import org.springframework.stereotype.Repository;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.enumeration.QueryType;
 import ch.algotrader.hibernate.AbstractDao;
+import ch.algotrader.hibernate.HibernateInitializer;
 import ch.algotrader.hibernate.NamedParam;
+import ch.algotrader.visitor.InitializationVisitor;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -52,7 +54,7 @@ public class SecurityDaoImpl extends AbstractDao<Security> implements SecurityDa
 
         // initialize the security
         if (security != null) {
-            security.initialize();
+            security.accept(InitializationVisitor.INSTANCE, HibernateInitializer.INSTANCE);
         }
 
         return security;

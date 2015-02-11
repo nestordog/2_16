@@ -237,7 +237,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
         } else if (order instanceof AlgoOrder) {
 
             // check market data for AlgoOrders
-            if (!security.isSubscribed()) {
+            if (security.getSubscriptions().size() == 0) {
                 throw new OrderValidationException(security + " is not subscribed for " + order);
             }
 

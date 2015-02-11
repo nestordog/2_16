@@ -34,6 +34,7 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.hibernate.Hibernate;
 import org.hibernate.SessionFactory;
+import org.hibernate.impl.SessionFactoryImpl;
 
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.CoreConfig;
@@ -90,9 +91,11 @@ import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.hibernate.GenericDao;
+import ch.algotrader.hibernate.HibernateInitializer;
 import ch.algotrader.util.HibernateUtil;
 import ch.algotrader.util.collection.CollectionUtil;
 import ch.algotrader.util.spring.HibernateSession;
+import ch.algotrader.visitor.InitializationVisitor;
 import ch.algotrader.vo.OrderStatusVO;
 import ch.algotrader.vo.PositionVO;
 import ch.algotrader.vo.TransactionVO;
@@ -1125,7 +1128,7 @@ public class LookupServiceImpl implements LookupService {
         Tick tick = CollectionUtil.getSingleElementOrNull(this.tickDao.findTicksBySecurityAndMaxDate(1, securityId, dateTime, this.coreConfig.getIntervalDays()));
 
         if (tick != null) {
-            tick.getSecurity().initialize();
+            tick.getSecurity().accept(InitializationVisitor.INSTANCE, HibernateInitializer.INSTANCE);
         }
 
         return tick;
@@ -1235,7 +1238,7 @@ public class LookupServiceImpl implements LookupService {
 
         List<Tick> ticks = this.tickDao.findSubscribedByTimePeriod(startDate, endDate);
         for (Tick tick : ticks) {
-            tick.getSecurity().initialize();
+            tick.getSecurity().accept(InitializationVisitor.INSTANCE, HibernateInitializer.INSTANCE);
         }
         return ticks;
 
@@ -1313,7 +1316,7 @@ public class LookupServiceImpl implements LookupService {
 
         List<Bar> bars = this.barDao.findSubscribedByTimePeriodAndBarSize(startDate, endDate, barSize);
         for (Bar bar : bars) {
-            bar.getSecurity().initialize();
+            bar.getSecurity().accept(InitializationVisitor.INSTANCE, HibernateInitializer.INSTANCE);
         }
         return bars;
 
@@ -1577,6 +1580,15 @@ public class LookupServiceImpl implements LookupService {
 
         return this.genericDao.findUnique(query, namedParameters);
 
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getNamedQuery(String queryName) {
+        SessionFactoryImpl sessionFactoryImpl = (SessionFactoryImpl) this.sessionFactory;
+        return sessionFactoryImpl.getNamedQuery(queryName).getQueryString();
     }
 
     /**

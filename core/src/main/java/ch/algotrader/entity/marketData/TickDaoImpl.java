@@ -40,6 +40,7 @@ import ch.algotrader.esper.Engine;
 import ch.algotrader.hibernate.AbstractDao;
 import ch.algotrader.hibernate.NamedParam;
 import ch.algotrader.util.collection.Pair;
+import ch.algotrader.visitor.TickValidationVisitor;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -248,7 +249,7 @@ public class TickDaoImpl extends AbstractDao<Tick> implements TickDao {
                 Security security = this.securityDao.findByIdInitialized(tick.getSecurity().getId());
                 tick.setSecurity(security);
 
-                if (security.validateTick(tick)) {
+                if (security.accept(TickValidationVisitor.INSTANCE, tick)) {
                     ticks.add(tick);
                 }
             }
