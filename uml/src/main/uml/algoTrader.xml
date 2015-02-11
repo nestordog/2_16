@@ -2972,20 +2972,8 @@
 								<ownedComment xmi:type='uml:Comment' xmi:id='_16_5_4_8b60294_1366049707930_663050_2781' body='Gets the leverage of this Security. This method has to be overwritten by subclasses (it returns zero by default).'>
 									<annotatedElement xmi:idref='_9_5_1_8b60294_1302789146209_622937_9940'/>
 								</ownedComment>
-								<ownedParameter xmi:type='uml:Parameter' xmi:id='_16_5_4_8b60294_1423470242065_943433_1224' name='currentValue' visibility='public' direction='in'>
-									<type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4.xml.zip#_9_0_1fe00f9_1119336925531_794756_24'>
-										<xmi:Extension extender='MagicDraw UML 16.5'>
-											<referenceExtension referentPath='datatype::double' referentType='DataType'/>
-										</xmi:Extension>
-									</type>
-								</ownedParameter>
-								<ownedParameter xmi:type='uml:Parameter' xmi:id='_16_5_4_8b60294_1423470274249_267487_1228' name='underlyingCurrentValue' visibility='public' direction='in'>
-									<type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4.xml.zip#_9_0_1fe00f9_1119336925531_794756_24'>
-										<xmi:Extension extender='MagicDraw UML 16.5'>
-											<referenceExtension referentPath='datatype::double' referentType='DataType'/>
-										</xmi:Extension>
-									</type>
-								</ownedParameter>
+								<ownedParameter xmi:type='uml:Parameter' xmi:id='_16_5_4_8b60294_1423470242065_943433_1224' name='marketDataEvent' visibility='public' direction='in' type='_9_5_1_8b60294_1305552684242_501560_916'/>
+								<ownedParameter xmi:type='uml:Parameter' xmi:id='_16_5_4_8b60294_1423470274249_267487_1228' name='underlyingMarketDataEvent' visibility='public' direction='in' type='_9_5_1_8b60294_1305552684242_501560_916'/>
 								<ownedParameter xmi:type='uml:Parameter' xmi:id='_9_5_1_8b60294_1302789146209_173632_9939' visibility='public' direction='return'>
 									<type xmi:type='uml:DataType' href='andromda-profile-datatype-3.4.xml.zip#_9_0_1fe00f9_1119336925531_794756_24'>
 										<xmi:Extension extender='MagicDraw UML 16.5'>
@@ -11563,7 +11551,7 @@
 						<mdElement elementClass='StringProperty'>
 							<propertyID>INFO_PROPERTY</propertyID>
 							<propertyDescriptionID>INFO_PROPERTY_DESCRIPTION</propertyDescriptionID>
-							<value>2e 62 23 1f 5d 2b 5f 27 6e 3e 93 e 64 4d 27 4b af fb 7 7d 61 c6 c 3e ac 91 82 40 cb 99 1e ec f3 30 6b 16 8a 68 b7 d1 1d 63 ec 57 9d 7a db b5 de a7 a3 f8 c3 9b c5 b8 5a 5b bc 93 a f4 fe 72 4a be fc ad 89 7e 3e </value>
+							<value>2e 62 23 1f 5d 2b 5f 27 6e 3e 93 e 64 4d 27 4b af fb 7 7d 61 c6 c 39 ac 90 82 40 cd 96 1e ec f3 30 6b 16 8a 68 b7 d1 1d 63 ec 57 9d 7a db b5 de a7 a3 f8 c3 9b c5 b8 5a 5b bc 93 a f4 fe 72 4a be fc ad 89 7e 3e </value>
 						</mdElement>
 						<mdElement elementClass='LIST_PROPERTY'>
 							<propertyID>ADDITIONAL_CONTAINMENT_TREES</propertyID>
