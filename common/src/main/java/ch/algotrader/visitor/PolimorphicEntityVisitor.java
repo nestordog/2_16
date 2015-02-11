@@ -18,7 +18,6 @@
 package ch.algotrader.visitor;
 
 import ch.algotrader.entity.Account;
-import ch.algotrader.entity.GenericItem;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.Transaction;
@@ -189,11 +188,6 @@ public class PolimorphicEntityVisitor<R, P> extends DefaultEntityVisitor<R, P> {
     @Override
     public R visitGenericFutureFamily(GenericFutureFamily entity, P param) {
         return visitSecurityFamily(entity, param);
-    }
-
-    @Override
-    public R visitGenericItem(GenericItem entity, P param) {
-        return visitBaseEntity(entity, param);
     }
 
     @Override

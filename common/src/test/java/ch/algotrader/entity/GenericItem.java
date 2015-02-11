@@ -40,7 +40,7 @@ public class GenericItem implements BaseEntityI {
 
     @Override
     public <R, P> R accept(EntityVisitor<R, ? super P> visitor, P param) {
-        return visitor.visitGenericItem(this, param);
+        throw new UnsupportedOperationException("accept not supported");
     }
 
     private int id;
