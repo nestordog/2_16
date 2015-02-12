@@ -52,27 +52,26 @@ public enum WeekDay {
     }
 
     /**
-     * Returns an instance of WeekDay from int <code>value</code>.
-     * Required by JAXB2 enumeration implementation
+     * Returns an element of the enumeration by its value.
      *
-     * @param value the value to create the WeekDay from.
-     * @return static Enumeration with corresponding value
+     * @param value the value.
+     * @return enumeration element
      */
     public static WeekDay fromValue(int value) {
 
-        WeekDay weekDay = MAP_BY_VALUE.get(value);
-        if (weekDay == null) {
-            throw new IllegalArgumentException("Invalid value (" + value + ')');
+        WeekDay instance = MAP_BY_VALUE.get(value);
+        if (instance == null) {
+            throw new IllegalArgumentException("Invalid value '" + value + "'");
         }
-        return weekDay;
+        return instance;
     }
 
     private static final Map<Integer, WeekDay> MAP_BY_VALUE;
     static {
         HashMap<Integer, WeekDay> map = new HashMap<>();
-        for (WeekDay weekDay: WeekDay.values()) {
+        for (WeekDay instance: WeekDay.values()) {
 
-            map.put(weekDay.getValue(), weekDay);
+            map.put(instance.getValue(), instance);
         }
         MAP_BY_VALUE = new ConcurrentHashMap<>(map);
     }

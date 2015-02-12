@@ -459,7 +459,7 @@ public class ManagementServiceImpl implements ManagementService {
         Validate.notEmpty(side, "Side is empty");
         Validate.notEmpty(type, "Type is empty");
 
-        Side sideObject = Side.valueOf(side);
+        Side sideObject = Side.fromValue(side);
 
         String strategyName = this.commonConfig.getStartedStrategyName();
 

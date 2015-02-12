@@ -17,6 +17,10 @@
  ***********************************************************************************/
 package ch.algotrader.enumeration;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * The Side of an Order ({@code BUY} or {@code SELL})
  */
@@ -52,6 +56,34 @@ public enum Side {
     public String getValue() {
 
         return this.enumValue;
+    }
+
+    /**
+     * Returns an element of the enumeration by its value.
+     *
+     * @param value the value.
+     * @return enumeration element
+     */
+    public static Side fromValue(final String value) {
+
+        if (value == null) {
+            return null;
+        }
+        Side instance = MAP_BY_VALUE.get(value);
+        if (instance == null) {
+            throw new IllegalArgumentException("Invalid value '" + value + "'");
+        }
+        return instance;
+    }
+
+    private static final Map<String, Side> MAP_BY_VALUE;
+    static {
+        HashMap<String, Side> map = new HashMap<>();
+        for (Side instance: Side.values()) {
+
+            map.put(instance.getValue(), instance);
+        }
+        MAP_BY_VALUE = new ConcurrentHashMap<>(map);
     }
 
 }

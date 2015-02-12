@@ -17,6 +17,10 @@
  ***********************************************************************************/
 package ch.algotrader.enumeration;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * {@code PUT} or {@code CALL}
  */
@@ -45,6 +49,34 @@ public enum OptionType {
     public String getValue() {
 
         return this.enumValue;
+    }
+
+    /**
+     * Returns an element of the enumeration by its value.
+     *
+     * @param value the value.
+     * @return enumeration element
+     */
+    public static OptionType fromValue(final String value) {
+
+        if (value == null) {
+            return null;
+        }
+        OptionType instance = MAP_BY_VALUE.get(value);
+        if (instance == null) {
+            throw new IllegalArgumentException("Invalid value '" + value + "'");
+        }
+        return instance;
+    }
+
+    private static final Map<String, OptionType> MAP_BY_VALUE;
+    static {
+        HashMap<String, OptionType> map = new HashMap<>();
+        for (OptionType instance: OptionType.values()) {
+
+            map.put(instance.getValue(), instance);
+        }
+        MAP_BY_VALUE = new ConcurrentHashMap<>(map);
     }
 
 }

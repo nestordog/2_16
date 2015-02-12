@@ -17,13 +17,23 @@
  ***********************************************************************************/
 package ch.algotrader.enumeration;
 
-/**
- * Types of services that require initialization: core and those dependent on an external interface.
- */
-public enum InitializingServiceType {
+import org.junit.Assert;
+import org.junit.Test;
 
-    CORE, BROKER_INTERFACE;
+public class DirectionTest {
 
-    private static final long serialVersionUID = -7991848187098285788L;
+    @Test
+    public void testFromValue() {
+
+        Assert.assertEquals(Direction.FLAT, Direction.fromValue(Direction.FLAT.getValue()));
+        Assert.assertEquals(Direction.LONG, Direction.fromValue(Direction.LONG.getValue()));
+        Assert.assertEquals(Direction.SHORT, Direction.fromValue(Direction.SHORT.getValue()));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testFromInvalidValue() {
+
+        Direction.fromValue(12345);
+    }
 
 }
