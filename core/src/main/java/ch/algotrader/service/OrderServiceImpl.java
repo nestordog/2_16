@@ -25,15 +25,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.commons.collections15.CollectionUtils;
-import org.apache.commons.collections15.Predicate;
 import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
 import org.hibernate.SessionFactory;
-import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -74,14 +74,12 @@ import ch.algotrader.vo.OrderStatusVO;
  */
 @HibernateSession
 @InitializationPriority(value = InitializingServiceType.CORE)
-public class OrderServiceImpl implements OrderService, InitializingServiceI, ApplicationContextAware {
+public class OrderServiceImpl implements OrderService, InitializingServiceI, ApplicationListener<ContextRefreshedEvent> {
 
     private static final long serialVersionUID = 3969251081188007542L;
 
     private static Logger logger = Logger.getLogger(OrderServiceImpl.class.getName());
     private static Logger notificationLogger = Logger.getLogger("ch.algotrader.service.NOTIFICATION");
-
-    private volatile ApplicationContext applicationContext;
 
     private final CommonConfig commonConfig;
 
@@ -106,6 +104,10 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
     private final EngineManager engineManager;
 
     private final Engine serverEngine;
+
+    private final AtomicBoolean initialized;
+
+    private final Map<OrderServiceType, ExternalOrderService> externalOrderServiceMap;
 
     public OrderServiceImpl(final CommonConfig commonConfig,
             final SessionFactory sessionFactory,
@@ -145,11 +147,8 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
         this.orderPreferenceDao = orderPreferenceDao;
         this.engineManager = engineManager;
         this.serverEngine = serverEngine;
-    }
-
-    @Override
-    public void setApplicationContext(final ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
+        this.initialized = new AtomicBoolean(false);
+        this.externalOrderServiceMap = new ConcurrentHashMap<>();
     }
 
     @Override
@@ -653,11 +652,26 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
         }
     }
 
-    /**
-     * get the externalOrderService defined by the account
-     */
-    @SuppressWarnings("unchecked")
+
+    @Override
+    public void onApplicationEvent(final ContextRefreshedEvent event) {
+
+        if (this.initialized.compareAndSet(false, true)) {
+
+            ApplicationContext applicationContext = event.getApplicationContext();
+            this.externalOrderServiceMap.clear();
+            Map<String, ExternalOrderService> map = applicationContext.getBeansOfType(ExternalOrderService.class);
+            for (Map.Entry<String, ExternalOrderService> entry: map.entrySet()) {
+
+                ExternalOrderService externalOrderService = entry.getValue();
+                this.externalOrderServiceMap.put(externalOrderService.getOrderServiceType(), externalOrderService);
+            }
+        }
+    }
+
     private ExternalOrderService getExternalOrderService(Account account) {
+
+        Validate.notNull(account, "Account is null");
 
         OrderServiceType orderServiceType;
 
@@ -667,27 +681,10 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
             orderServiceType = account.getOrderServiceType();
         }
 
-        Class<ExternalOrderService> orderServiceClass;
-        try {
-            orderServiceClass = (Class<ExternalOrderService>) Class.forName(orderServiceType.getValue());
-        } catch (ClassNotFoundException ex) {
-            throw new OrderServiceException("External service class " + orderServiceType.getValue() + " not found", ex);
+        ExternalOrderService externalOrderService = this.externalOrderServiceMap.get(orderServiceType);
+        if (externalOrderService == null) {
+            throw new OrderServiceException("No ExternalOrderService found for service type " + orderServiceType);
         }
-
-        Map<String, ExternalOrderService> externalOrderServices = this.applicationContext.getBeansOfType(orderServiceClass);
-
-        // select the proxy
-        String name = CollectionUtils.find(externalOrderServices.keySet(), new Predicate<String>() {
-            @Override
-            public boolean evaluate(String name) {
-                return !name.startsWith("ch.algotrader.service");
-            }
-        });
-
-        ExternalOrderService externalOrderService = externalOrderServices.get(name);
-
-        Validate.notNull(externalOrderService, "externalOrderService was not found: " + orderServiceType);
-
         return externalOrderService;
     }
 

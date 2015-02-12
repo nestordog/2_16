@@ -26,11 +26,15 @@ public class ManagementServiceException extends ServiceException {
 
     private static final long serialVersionUID = 8272116414318073838L;
 
-    public ManagementServiceException(Exception ex) {
+    public ManagementServiceException(final Exception ex) {
         super(ex);
     }
 
-    public ManagementServiceException(String message, Exception ex) {
+    public ManagementServiceException(final String message) {
+        super(message);
+    }
+
+    public ManagementServiceException(final String message, final Exception ex) {
         super(message, ex);
     }
 

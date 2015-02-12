@@ -26,59 +26,38 @@ public enum FeedType {
     /**
      * Interactive Brokers
      */
-    IB("ch.algotrader.service.ib.IBNativeMarketDataService"),
+    IB,
 
     /**
      * BloomBerg
      */
-    BB("ch.algotrader.service.bb.BBMarketDataService"),
+    BB,
 
     /**
      * DukasCopy
      */
-    DC("ch.algotrader.service.dc.DCFixMarketDataService"),
+    DC,
 
     /**
      * FXCM
      */
-    FXCM("ch.algotrader.service.fxcm.FXCMFixMarketDataService"),
+    FXCM,
 
     /**
      * LMAX
      */
-    LMAX("ch.algotrader.service.lmax.LMAXFixMarketDataService"),
+    LMAX,
 
     /**
      * CNX
      */
-    CNX("ch.algotrader.service.cnx.CNXFixMarketDataService"),
+    CNX,
 
     /**
      * Simulation
      */
-    SIM("ch.algotrader.service.SimMarketDataService");
+    SIM;
 
     private static final long serialVersionUID = 7802917315855678552L;
-
-    private final String enumValue;
-
-    /**
-     * The constructor with enumeration literal value allowing
-     * super classes to access it.
-     */
-    private FeedType(String value) {
-
-        this.enumValue = value;
-    }
-
-    /**
-     * Gets the underlying value of this type safe enumeration.
-     * This method is necessary to comply with DaoBase implementation.
-     * @return The name of this literal.
-     */
-    public String getValue() {
-
-        return this.enumValue;
-    }
 
 }

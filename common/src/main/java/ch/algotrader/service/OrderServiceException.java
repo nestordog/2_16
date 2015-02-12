@@ -26,11 +26,15 @@ public class OrderServiceException extends ServiceException {
 
     private static final long serialVersionUID = -7617806938529198178L;
 
-    public OrderServiceException(Exception ex) {
+    public OrderServiceException(final Exception ex) {
         super(ex);
     }
 
-    public OrderServiceException(String message, Exception ex) {
+    public OrderServiceException(final String message) {
+        super(message);
+    }
+
+    public OrderServiceException(final String message, final Exception ex) {
         super(message, ex);
     }
 
