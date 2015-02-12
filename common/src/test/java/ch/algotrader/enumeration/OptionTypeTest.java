@@ -17,47 +17,22 @@
  ***********************************************************************************/
 package ch.algotrader.enumeration;
 
-/**
- * The Type of DataFeed. The string values contain the fully-qualified name of the corresponding
- * market data service class.
- */
-public enum FeedType {
+import org.junit.Assert;
+import org.junit.Test;
 
-    /**
-     * Interactive Brokers
-     */
-    IB,
+public class OptionTypeTest {
 
-    /**
-     * BloomBerg
-     */
-    BB,
+    @Test
+    public void testFromValue() {
 
-    /**
-     * DukasCopy
-     */
-    DC,
+        Assert.assertEquals(OptionType.CALL, OptionType.fromValue(OptionType.CALL.getValue()));
+        Assert.assertEquals(OptionType.PUT, OptionType.fromValue(OptionType.PUT.getValue()));
+    }
 
-    /**
-     * FXCM
-     */
-    FXCM,
+    @Test(expected = IllegalArgumentException.class)
+    public void testFromInvalidValue() {
 
-    /**
-     * LMAX
-     */
-    LMAX,
-
-    /**
-     * CNX
-     */
-    CNX,
-
-    /**
-     * Simulation
-     */
-    SIM;
-
-    private static final long serialVersionUID = 7802917315855678552L;
+        OptionType.fromValue("blah");
+    }
 
 }

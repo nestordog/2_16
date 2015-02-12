@@ -24,16 +24,16 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.commons.collections15.CollectionUtils;
-import org.apache.commons.collections15.Predicate;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.SessionFactory;
-import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -59,13 +59,11 @@ import ch.algotrader.util.spring.HibernateSession;
  * @version $Revision$ $Date$
  */
 @HibernateSession
-public class MarketDataServiceImpl implements MarketDataService, ApplicationContextAware {
+public class MarketDataServiceImpl implements MarketDataService, ApplicationListener<ContextRefreshedEvent> {
 
     private static Logger logger = Logger.getLogger(MarketDataServiceImpl.class.getName());
 
     private Map<Security, CsvTickWriter> csvWriters = new HashMap<Security, CsvTickWriter>();
-
-    private ApplicationContext applicationContext;
 
     private final CommonConfig commonConfig;
 
@@ -82,6 +80,10 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationCont
     private final SubscriptionDao subscriptionDao;
 
     private final EngineManager engineManager;
+
+    private final AtomicBoolean initialized;
+
+    private final Map<FeedType, ExternalMarketDataService> externalMarketDataServiceMap;
 
     public MarketDataServiceImpl(final CommonConfig commonConfig,
             final CoreConfig coreConfig,
@@ -109,6 +111,8 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationCont
         this.strategyDao = strategyDao;
         this.subscriptionDao = subscriptionDao;
         this.engineManager = engineManager;
+        this.initialized = new AtomicBoolean(false);
+        this.externalMarketDataServiceMap = new ConcurrentHashMap<>();
     }
 
     /**
@@ -307,12 +311,6 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationCont
 
     }
 
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-
-        this.applicationContext = applicationContext;
-    }
-
     private void saveCvs(Tick tick) throws IOException {
 
         Security security = tick.getSecurity();
@@ -332,36 +330,30 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationCont
         }
     }
 
-    /**
-     * get the externalMarketDataService defined by MarketDataServiceType
-     * @throws ClassNotFoundException
-     */
-    @SuppressWarnings({ "unchecked" })
+    @Override
+    public void onApplicationEvent(final ContextRefreshedEvent event) {
+
+        if (this.initialized.compareAndSet(false, true)) {
+
+            ApplicationContext applicationContext = event.getApplicationContext();
+            this.externalMarketDataServiceMap.clear();
+            Map<String, ExternalMarketDataService> map = applicationContext.getBeansOfType(ExternalMarketDataService.class);
+            for (Map.Entry<String, ExternalMarketDataService> entry: map.entrySet()) {
+
+                ExternalMarketDataService externalMarketDataService = entry.getValue();
+                this.externalMarketDataServiceMap.put(externalMarketDataService.getFeedType(), externalMarketDataService);
+            }
+        }
+    }
+
     private ExternalMarketDataService getExternalMarketDataService(final FeedType feedType) {
 
-        Validate.notNull(feedType, "feedType must not be null");
+        Validate.notNull(feedType, "FeedType is null");
 
-        Class<ExternalMarketDataService> marketDataServiceClass;
-        try {
-            marketDataServiceClass = (Class<ExternalMarketDataService>) Class.forName(feedType.getValue());
-        } catch (ClassNotFoundException ex) {
-            throw new MarketDataServiceException("Could not find market data service for feed type " + feedType, ex);
+        ExternalMarketDataService externalMarketDataService = this.externalMarketDataServiceMap.get(feedType);
+        if (externalMarketDataService == null) {
+            throw new ManagementServiceException("No ExternalMarketDataService found for feed type " + feedType);
         }
-
-        Map<String, ExternalMarketDataService> externalMarketDataServices = this.applicationContext.getBeansOfType(marketDataServiceClass);
-
-        // select the proxy
-        String name = CollectionUtils.find(externalMarketDataServices.keySet(), new Predicate<String>() {
-            @Override
-            public boolean evaluate(String name) {
-                return !name.startsWith("ch.algotrader.service");
-            }
-        });
-
-        ExternalMarketDataService externalMarketDataService = externalMarketDataServices.get(name);
-
-        Validate.notNull(externalMarketDataService, "externalMarketDataService was not found: " + feedType);
-
         return externalMarketDataService;
     }
 

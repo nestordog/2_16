@@ -17,6 +17,10 @@
  ***********************************************************************************/
 package ch.algotrader.enumeration;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * The Direction of a {@link ch.algotrader.entity.Position Position}. Either {@code LONG}, {@code
  * SHORT} or {@code FLAT}
@@ -46,6 +50,31 @@ public enum Direction {
     public int getValue() {
 
         return this.enumValue;
+    }
+
+    /**
+     * Returns an element of the enumeration by its value.
+     *
+     * @param value the value.
+     * @return enumeration element
+     */
+    public static Direction fromValue(int value) {
+
+        Direction instance = MAP_BY_VALUE.get(value);
+        if (instance == null) {
+            throw new IllegalArgumentException("Invalid value '" + value + "'");
+        }
+        return instance;
+    }
+
+    private static final Map<Integer, Direction> MAP_BY_VALUE;
+    static {
+        HashMap<Integer, Direction> map = new HashMap<>();
+        for (Direction instance: Direction.values()) {
+
+            map.put(instance.getValue(), instance);
+        }
+        MAP_BY_VALUE = new ConcurrentHashMap<>(map);
     }
 
 }

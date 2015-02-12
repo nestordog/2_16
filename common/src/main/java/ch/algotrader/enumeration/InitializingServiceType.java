@@ -18,33 +18,12 @@
 package ch.algotrader.enumeration;
 
 /**
- * {@code PUT} or {@code CALL}
+ * Types of services that require initialization: core and those dependent on an external interface.
  */
 public enum InitializingServiceType {
 
-    CORE(0), BROKER_INTERFACE(1);
+    CORE, BROKER_INTERFACE;
 
     private static final long serialVersionUID = -7991848187098285788L;
-
-    private final int enumValue;
-
-    /**
-     * The constructor with enumeration literal value allowing
-     * super classes to access it.
-     */
-    private InitializingServiceType(int value) {
-
-        this.enumValue = value;
-    }
-
-    /**
-     * Gets the underlying value of this type safe enumeration.
-     * This method is necessary to comply with DaoBase implementation.
-     * @return The name of this literal.
-     */
-    public int getValue() {
-
-        return this.enumValue;
-    }
 
 }

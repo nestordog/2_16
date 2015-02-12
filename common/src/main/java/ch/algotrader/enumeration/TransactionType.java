@@ -17,6 +17,10 @@
  ***********************************************************************************/
 package ch.algotrader.enumeration;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * A Type of a Transaction
  */
@@ -100,6 +104,34 @@ public enum TransactionType {
     public String getValue() {
 
         return this.enumValue;
+    }
+
+    /**
+     * Returns an element of the enumeration by its value.
+     *
+     * @param value the value.
+     * @return enumeration element
+     */
+    public static TransactionType fromValue(final String value) {
+
+        if (value == null) {
+            return null;
+        }
+        TransactionType instance = MAP_BY_VALUE.get(value);
+        if (instance == null) {
+            throw new IllegalArgumentException("Invalid value '" + value + "'");
+        }
+        return instance;
+    }
+
+    private static final Map<String, TransactionType> MAP_BY_VALUE;
+    static {
+        HashMap<String, TransactionType> map = new HashMap<>();
+        for (TransactionType instance: TransactionType.values()) {
+
+            map.put(instance.getValue(), instance);
+        }
+        MAP_BY_VALUE = new ConcurrentHashMap<>(map);
     }
 
 }

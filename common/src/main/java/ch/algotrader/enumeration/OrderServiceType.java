@@ -23,69 +23,48 @@ package ch.algotrader.enumeration;
  */
 public enum OrderServiceType {
 
-    SIMULATION("ch.algotrader.service.sim.SimulationOrderService"),
+    SIMULATION,
 
     /**
      * Interactive Brokers Native Interface
      */
-    IB_NATIVE("ch.algotrader.service.ib.IBNativeOrderService"),
+    IB_NATIVE,
 
     /**
      * Interactive Brokers Fix Interface
      */
-    IB_FIX("ch.algotrader.service.ib.IBFixOrderService"),
+    IB_FIX,
 
     /**
      * J.P.Morgan Fix Interface
      */
-    JPM_FIX("ch.algotrader.service.jpm.JPMFixOrderService"),
+    JPM_FIX,
 
     /**
      * DukasCopy Fix Interface
      */
-    DC_FIX("ch.algotrader.service.dc.DCFixOrderService"),
+    DC_FIX,
 
     /**
      * RealTick Fix interface
      */
-    RT_FIX("ch.algotrader.service.rt.RTFixOrderService"),
+    RT_FIX,
 
     /**
      * FXCM Fix interface
      */
-    FXCM_FIX("ch.algotrader.service.fxcm.FXCMFixOrderService"),
+    FXCM_FIX,
 
     /**
      * LMAX Fix interface
      */
-    LMAX_FIX("ch.algotrader.service.lmax.LMAXFixOrderService"),
+    LMAX_FIX,
 
     /**
      * LMAX Fix interface
      */
-    CNX_FIX("ch.algotrader.service.cnx.CNXFixOrderService");
+    CNX_FIX;
 
     private static final long serialVersionUID = -1547849286749430155L;
-
-    private final String enumValue;
-
-    /**
-     * The constructor with enumeration literal value allowing
-     * super classes to access it.
-     */
-    private OrderServiceType(String value) {
-
-        this.enumValue = value;
-    }
-
-    /**
-     * Gets the underlying value of this type safe enumeration.
-     * This method is necessary to comply with DaoBase implementation.
-     * @return The name of this literal.
-     */
-    public String getValue() {
-
-        return this.enumValue;
-    }
 
 }
