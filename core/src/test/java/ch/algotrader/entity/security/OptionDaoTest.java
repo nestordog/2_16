@@ -354,37 +354,33 @@ public class OptionDaoTest extends InMemoryDBTest {
         Calendar cal1 = Calendar.getInstance();
         cal1.add(Calendar.DAY_OF_MONTH, 1);
 
-        Subscription subscription = new SubscriptionImpl();
-        subscription.setFeedType(FeedType.SIM);
-        subscription.setSecurity(this.forex1);
-        subscription.setStrategy(this.strategy1);
+        Option option1 = new OptionImpl();
+        option1.setSecurityFamily(this.family1);
+        option1.setExpiration(cal1.getTime());
+        option1.setStrike(new BigDecimal(111));
+        option1.setType(OptionType.CALL);
+        option1.setUnderlying(this.forex1);
 
-        Option option = new OptionImpl();
-        option.setSecurityFamily(this.family1);
-        option.setExpiration(cal1.getTime());
-        option.setStrike(new BigDecimal(111));
-        option.setType(OptionType.CALL);
-        option.setUnderlying(this.forex1);
+        Subscription subscription1 = new SubscriptionImpl();
+        subscription1.setFeedType(FeedType.SIM);
+        subscription1.setSecurity(option1);
+        subscription1.setStrategy(this.strategy1);
 
         this.session.save(this.family1);
         this.session.save(this.forex1);
         this.session.save(this.strategy1);
-        this.session.save(subscription);
-        this.session.save(option);
+        this.session.save(option1);
+        this.session.save(subscription1);
+
+        option1.addSubscriptions(subscription1);
+
         this.session.flush();
 
         List<Option> options1 = this.dao.findSubscribedOptions();
 
-        Assert.assertEquals(0, options1.size());
-
-        option.addSubscriptions(subscription);
-        this.session.flush();
-
-        List<Option> options2 = this.dao.findSubscribedOptions();
-
-        Assert.assertEquals(1, options2.size());
-        Assert.assertEquals(1, options2.get(0).getSubscriptions().size());
-        Assert.assertSame(option, options2.get(0));
+        Assert.assertEquals(1, options1.size());
+        Assert.assertEquals(1, options1.get(0).getSubscriptions().size());
+        Assert.assertSame(option1, options1.get(0));
     }
 
     @Test
@@ -445,23 +441,23 @@ public class OptionDaoTest extends InMemoryDBTest {
         cal1.set(Calendar.SECOND, 0);
         cal1.set(Calendar.MILLISECOND, 0);
 
-        Option option = new OptionImpl();
-        option.setSecurityFamily(this.family1);
-        option.setExpiration(cal1.getTime());
-        option.setStrike(new BigDecimal(111));
-        option.setType(OptionType.CALL);
-        option.setUnderlying(this.forex1);
+        Option option1 = new OptionImpl();
+        option1.setSecurityFamily(this.family1);
+        option1.setExpiration(cal1.getTime());
+        option1.setStrike(new BigDecimal(111));
+        option1.setType(OptionType.CALL);
+        option1.setUnderlying(this.forex1);
 
         Calendar cal2 = Calendar.getInstance();
 
         Tick tick = new TickImpl();
         tick.setDateTime(cal2.getTime());
         tick.setFeedType(FeedType.BB);
-        tick.setSecurity(option);
+        tick.setSecurity(option1);
 
         this.session.save(this.family1);
         this.session.save(this.forex1);
-        this.session.save(option);
+        this.session.save(option1);
         this.session.save(tick);
         this.session.flush();
 
@@ -490,41 +486,41 @@ public class OptionDaoTest extends InMemoryDBTest {
         cal1.set(Calendar.SECOND, 0);
         cal1.set(Calendar.MILLISECOND, 0);
 
-        Option option = new OptionImpl();
-        option.setSecurityFamily(this.family1);
-        option.setExpiration(cal1.getTime());
-        option.setStrike(new BigDecimal(111));
-        option.setType(OptionType.CALL);
-        option.setUnderlying(this.forex1);
+        Option option1 = new OptionImpl();
+        option1.setSecurityFamily(this.family1);
+        option1.setExpiration(cal1.getTime());
+        option1.setStrike(new BigDecimal(111));
+        option1.setType(OptionType.CALL);
+        option1.setUnderlying(this.forex1);
 
         this.session.save(this.family1);
         this.session.save(this.forex1);
-        this.session.save(option);
+        this.session.save(option1);
         this.session.flush();
 
-        Option option1 = this.dao.findByExpirationStrikeAndType(0, cal1.getTime(), new BigDecimal(111), OptionType.CALL);
+        Option option2 = this.dao.findByExpirationStrikeAndType(0, cal1.getTime(), new BigDecimal(111), OptionType.CALL);
 
-        Assert.assertNull(option1);
+        Assert.assertNull(option2);
 
         Calendar cal2 = Calendar.getInstance();
         cal2.add(Calendar.DAY_OF_MONTH, 1);
 
-        Option option2 = this.dao.findByExpirationStrikeAndType(this.family1.getId(), cal2.getTime(), new BigDecimal(111), OptionType.CALL);
-
-        Assert.assertNull(option2);
-
-        Option option3 = this.dao.findByExpirationStrikeAndType(this.family1.getId(), cal1.getTime(), new BigDecimal(222), OptionType.CALL);
+        Option option3 = this.dao.findByExpirationStrikeAndType(this.family1.getId(), cal2.getTime(), new BigDecimal(111), OptionType.CALL);
 
         Assert.assertNull(option3);
 
-        Option option4 = this.dao.findByExpirationStrikeAndType(this.family1.getId(), cal1.getTime(), new BigDecimal(111), OptionType.PUT);
+        Option option4 = this.dao.findByExpirationStrikeAndType(this.family1.getId(), cal1.getTime(), new BigDecimal(222), OptionType.CALL);
 
         Assert.assertNull(option4);
 
-        Option option5 = this.dao.findByExpirationStrikeAndType(this.family1.getId(), cal1.getTime(), new BigDecimal(111), OptionType.CALL);
+        Option option5 = this.dao.findByExpirationStrikeAndType(this.family1.getId(), cal1.getTime(), new BigDecimal(111), OptionType.PUT);
 
-        Assert.assertNotNull(option5);
-        Assert.assertSame(option, option5);
+        Assert.assertNull(option5);
+
+        Option option6 = this.dao.findByExpirationStrikeAndType(this.family1.getId(), cal1.getTime(), new BigDecimal(111), OptionType.CALL);
+
+        Assert.assertNotNull(option6);
+        Assert.assertSame(option1, option6);
     }
 
 }

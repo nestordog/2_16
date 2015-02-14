@@ -47,8 +47,6 @@ public class FutureDaoTest extends InMemoryDBTest {
 
     private SecurityFamily family1;
 
-    private Forex forex1;
-
     private Strategy strategy1;
 
     public FutureDaoTest() throws IOException {
@@ -67,11 +65,6 @@ public class FutureDaoTest extends InMemoryDBTest {
         this.family1.setName("Forex1");
         this.family1.setTickSizePattern("0<0.1");
         this.family1.setCurrency(Currency.USD);
-
-        this.forex1 = new ForexImpl();
-        this.forex1.setSymbol("EUR.USD");
-        this.forex1.setBaseCurrency(Currency.EUR);
-        this.forex1.setSecurityFamily(this.family1);
 
         this.strategy1 = new StrategyImpl();
         this.strategy1.setName("Strategy1");
@@ -230,12 +223,14 @@ public class FutureDaoTest extends InMemoryDBTest {
 
         Subscription subscription1 = new SubscriptionImpl();
         subscription1.setFeedType(FeedType.SIM);
-        subscription1.setSecurity(this.forex1);
+        subscription1.setSecurity(future1);
         subscription1.setStrategy(this.strategy1);
 
-        future1.addSubscriptions(subscription1);
         this.session.save(this.strategy1);
         this.session.save(subscription1);
+
+        future1.addSubscriptions(subscription1);
+
         this.session.flush();
 
         List<Future> futures2 = this.dao.findSubscribedFutures();
@@ -247,11 +242,13 @@ public class FutureDaoTest extends InMemoryDBTest {
 
         Subscription subscription2 = new SubscriptionImpl();
         subscription2.setFeedType(FeedType.BB);
-        subscription2.setSecurity(this.forex1);
+        subscription2.setSecurity(future2);
         subscription2.setStrategy(this.strategy1);
 
-        future2.addSubscriptions(subscription2);
         this.session.save(subscription2);
+
+        future2.addSubscriptions(subscription2);
+
         this.session.flush();
 
         List<Future> futures3 = this.dao.findSubscribedFutures();

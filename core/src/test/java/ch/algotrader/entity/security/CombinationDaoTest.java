@@ -82,70 +82,66 @@ public class CombinationDaoTest extends InMemoryDBTest {
     @Test
     public void testFindSubscribedByStrategy() {
 
+        Component component1 = new ComponentImpl();
+        component1.setSecurity(this.forex1);
+        component1.setQuantity(12L);
+
+        Combination combination1 = new CombinationImpl();
+        combination1.setSecurityFamily(this.family1);
+        combination1.setUuid(UUID.randomUUID().toString());
+        combination1.setType(CombinationType.STRADDLE);
+        combination1.addComponents(component1);
+
         Subscription subscription1 = new SubscriptionImpl();
         subscription1.setFeedType(FeedType.SIM);
-        subscription1.setSecurity(this.forex1);
+        subscription1.setSecurity(combination1);
         subscription1.setStrategy(this.strategy1);
-
-        Subscription subscription2 = new SubscriptionImpl();
-        subscription2.setFeedType(FeedType.BB);
-        subscription2.setSecurity(this.forex1);
-        subscription2.setStrategy(this.strategy1);
 
         this.session.save(this.strategy1);
         this.session.save(this.family1);
         this.session.save(this.forex1);
+        this.session.save(combination1);
         this.session.save(subscription1);
-        this.session.save(subscription2);
+
+        combination1.addSubscriptions(subscription1);
+
         this.session.flush();
 
-        Combination combination = new CombinationImpl();
-        combination.setSecurityFamily(this.family1);
-        combination.setUuid(UUID.randomUUID().toString());
-        combination.setType(CombinationType.STRADDLE);
-        ComponentImpl component1 = new ComponentImpl();
-        component1.setSecurity(this.forex1);
-        component1.setQuantity(12L);
-        combination.addComponents(component1);
-        combination.addSubscriptions(subscription1);
-        combination.addSubscriptions(subscription2);
+        List<Combination> combinations1 = this.dao.findSubscribedByStrategy("Strategy1");
 
-        this.session.save(combination);
-        this.session.flush();
+        Assert.assertEquals(1, combinations1.size());
+        Assert.assertEquals(1, combinations1.get(0).getSubscriptions().size());
 
-        List<Combination> combinations = this.dao.findSubscribedByStrategy("Strategy1");
-
-        Assert.assertEquals(1, combinations.size());
-        Assert.assertEquals(2, combinations.get(0).getSubscriptions().size());
-
-        Assert.assertSame(combination, combinations.get(0));
+        Assert.assertSame(combination1, combinations1.get(0));
     }
 
     @Test
     public void testFindSubscribedByStrategyAndUnderlying() {
 
+        Component component1 = new ComponentImpl();
+        component1.setSecurity(this.forex1);
+        component1.setQuantity(12L);
+
+        Combination combination1 = new CombinationImpl();
+        combination1.setSecurityFamily(this.family1);
+        combination1.setUuid(UUID.randomUUID().toString());
+        combination1.setType(CombinationType.STRADDLE);
+        combination1.addComponents(component1);
+        combination1.setUnderlying(this.forex1);
+
         Subscription subscription1 = new SubscriptionImpl();
         subscription1.setFeedType(FeedType.SIM);
-        subscription1.setSecurity(this.forex1);
+        subscription1.setSecurity(combination1);
         subscription1.setStrategy(this.strategy1);
 
         this.session.save(this.strategy1);
         this.session.save(this.family1);
         this.session.save(this.forex1);
+        this.session.save(combination1);
         this.session.save(subscription1);
-        this.session.flush();
 
-        Combination combination = new CombinationImpl();
-        combination.setSecurityFamily(this.family1);
-        combination.setUuid(UUID.randomUUID().toString());
-        combination.setType(CombinationType.STRADDLE);
-        ComponentImpl component1 = new ComponentImpl();
-        component1.setSecurity(this.forex1);
-        component1.setQuantity(12L);
-        combination.addComponents(component1);
-        combination.addSubscriptions(subscription1);
-        combination.setUnderlying(this.forex1);
-        this.session.save(combination);
+        combination1.addSubscriptions(subscription1);
+
         this.session.flush();
 
         List<Combination> combinations1 = this.dao.findSubscribedByStrategyAndUnderlying("Strategy1", 0);
@@ -157,22 +153,11 @@ public class CombinationDaoTest extends InMemoryDBTest {
         Assert.assertEquals(1, combinations2.size());
         Assert.assertEquals(1, combinations2.get(0).getSubscriptions().size());
 
-        Assert.assertSame(combination, combinations2.get(0));
+        Assert.assertSame(combination1, combinations2.get(0));
     }
 
     @Test
     public void testFindSubscribedByStrategyAndComponent() {
-
-        Subscription subscription1 = new SubscriptionImpl();
-        subscription1.setFeedType(FeedType.SIM);
-        subscription1.setSecurity(this.forex1);
-        subscription1.setStrategy(this.strategy1);
-
-        this.session.save(this.strategy1);
-        this.session.save(this.family1);
-        this.session.save(this.forex1);
-        this.session.save(subscription1);
-        this.session.flush();
 
         Component component1 = new ComponentImpl();
         component1.setSecurity(this.forex1);
@@ -182,25 +167,26 @@ public class CombinationDaoTest extends InMemoryDBTest {
         combination1.setSecurityFamily(this.family1);
         combination1.setUuid(UUID.randomUUID().toString());
         combination1.setType(CombinationType.STRADDLE);
+
         combination1.addComponents(component1);
-        combination1.addSubscriptions(subscription1);
-        combination1.setUnderlying(this.forex1);
 
+        Subscription subscription1 = new SubscriptionImpl();
+        subscription1.setFeedType(FeedType.SIM);
+        subscription1.setSecurity(combination1);
+        subscription1.setStrategy(this.strategy1);
+
+        this.session.save(this.strategy1);
+        this.session.save(this.family1);
+        this.session.save(this.forex1);
         this.session.save(combination1);
-        this.session.flush();
+        this.session.save(subscription1);
 
-        Combination combination2 = new CombinationImpl();
-        combination2.setSecurityFamily(this.family1);
-        combination2.setUuid(UUID.randomUUID().toString());
-        combination2.setType(CombinationType.STRADDLE);
-        combination2.addSubscriptions(subscription1);
-        combination2.setUnderlying(this.forex1);
-        this.session.save(combination2);
-        this.session.flush();
-
-        component1.setCombination(combination2);
+        component1.setCombination(combination1);
 
         this.session.save(component1);
+
+        combination1.addSubscriptions(subscription1);
+
         this.session.flush();
 
         List<Combination> combinations1 = this.dao.findSubscribedByStrategyAndComponent("Strategy1", 0);
@@ -212,22 +198,11 @@ public class CombinationDaoTest extends InMemoryDBTest {
         Assert.assertEquals(1, combinations2.size());
         Assert.assertEquals(1, combinations2.get(0).getSubscriptions().size());
 
-        Assert.assertSame(combination2, combinations2.get(0));
+        Assert.assertSame(combination1, combinations2.get(0));
     }
 
     @Test
     public void testFindSubscribedByStrategyAndComponentType() {
-
-        Subscription subscription1 = new SubscriptionImpl();
-        subscription1.setFeedType(FeedType.SIM);
-        subscription1.setSecurity(this.forex1);
-        subscription1.setStrategy(this.strategy1);
-
-        this.session.save(this.strategy1);
-        this.session.save(this.family1);
-        this.session.save(this.forex1);
-        this.session.save(subscription1);
-        this.session.flush();
 
         Component component1 = new ComponentImpl();
         component1.setSecurity(this.forex1);
@@ -237,25 +212,26 @@ public class CombinationDaoTest extends InMemoryDBTest {
         combination1.setSecurityFamily(this.family1);
         combination1.setUuid(UUID.randomUUID().toString());
         combination1.setType(CombinationType.STRADDLE);
+
         combination1.addComponents(component1);
-        combination1.addSubscriptions(subscription1);
-        combination1.setUnderlying(this.forex1);
 
+        Subscription subscription1 = new SubscriptionImpl();
+        subscription1.setFeedType(FeedType.SIM);
+        subscription1.setSecurity(combination1);
+        subscription1.setStrategy(this.strategy1);
+
+        this.session.save(this.strategy1);
+        this.session.save(this.family1);
+        this.session.save(this.forex1);
         this.session.save(combination1);
-        this.session.flush();
+        this.session.save(subscription1);
 
-        Combination combination2 = new CombinationImpl();
-        combination2.setSecurityFamily(this.family1);
-        combination2.setUuid(UUID.randomUUID().toString());
-        combination2.setType(CombinationType.STRADDLE);
-        combination2.addSubscriptions(subscription1);
-        combination2.setUnderlying(this.forex1);
-        this.session.save(combination2);
-        this.session.flush();
-
-        component1.setCombination(combination2);
+        component1.setCombination(combination1);
 
         this.session.save(component1);
+
+        combination1.addSubscriptions(subscription1);
+
         this.session.flush();
 
         int discriminator1 = HibernateUtil.getDisriminatorValue(this.sessionFactory, Security.class);
@@ -271,22 +247,11 @@ public class CombinationDaoTest extends InMemoryDBTest {
         Assert.assertEquals(1, combinations2.size());
         Assert.assertEquals(1, combinations2.get(0).getSubscriptions().size());
 
-        Assert.assertSame(combination2, combinations2.get(0));
+        Assert.assertSame(combination1, combinations2.get(0));
     }
 
     @Test
     public void tesFindSubscribedByStrategyAndComponentTypeWithZeroQty() {
-
-        Subscription subscription1 = new SubscriptionImpl();
-        subscription1.setFeedType(FeedType.SIM);
-        subscription1.setSecurity(this.forex1);
-        subscription1.setStrategy(this.strategy1);
-
-        this.session.save(this.strategy1);
-        this.session.save(this.family1);
-        this.session.save(this.forex1);
-        this.session.save(subscription1);
-        this.session.flush();
 
         Component component1 = new ComponentImpl();
         component1.setSecurity(this.forex1);
@@ -296,25 +261,26 @@ public class CombinationDaoTest extends InMemoryDBTest {
         combination1.setSecurityFamily(this.family1);
         combination1.setUuid(UUID.randomUUID().toString());
         combination1.setType(CombinationType.STRADDLE);
+
         combination1.addComponents(component1);
-        combination1.addSubscriptions(subscription1);
-        combination1.setUnderlying(this.forex1);
 
+        Subscription subscription1 = new SubscriptionImpl();
+        subscription1.setFeedType(FeedType.SIM);
+        subscription1.setSecurity(combination1);
+        subscription1.setStrategy(this.strategy1);
+
+        this.session.save(this.strategy1);
+        this.session.save(this.family1);
+        this.session.save(this.forex1);
         this.session.save(combination1);
-        this.session.flush();
+        this.session.save(subscription1);
 
-        Combination combination2 = new CombinationImpl();
-        combination2.setSecurityFamily(this.family1);
-        combination2.setUuid(UUID.randomUUID().toString());
-        combination2.setType(CombinationType.STRADDLE);
-        combination2.addSubscriptions(subscription1);
-        combination2.setUnderlying(this.forex1);
-        this.session.save(combination2);
-        this.session.flush();
-
-        component1.setCombination(combination2);
+        component1.setCombination(combination1);
 
         this.session.save(component1);
+
+        combination1.addSubscriptions(subscription1);
+
         this.session.flush();
 
         int discriminator1 = HibernateUtil.getDisriminatorValue(this.sessionFactory, Security.class);
@@ -326,6 +292,7 @@ public class CombinationDaoTest extends InMemoryDBTest {
         int discriminator2 = HibernateUtil.getDisriminatorValue(this.sessionFactory, ForexImpl.class);
 
         component1.setQuantity(0);
+
         this.session.flush();
 
         List<Combination> combinations2 = this.dao.findSubscribedByStrategyAndComponentTypeWithZeroQty("Strategy1", discriminator2);
@@ -333,22 +300,11 @@ public class CombinationDaoTest extends InMemoryDBTest {
         Assert.assertEquals(1, combinations2.size());
         Assert.assertEquals(1, combinations2.get(0).getSubscriptions().size());
 
-        Assert.assertSame(combination2, combinations2.get(0));
+        Assert.assertSame(combination1, combinations2.get(0));
     }
 
     @Test
     public void testFindNonPersistent() {
-
-        Subscription subscription1 = new SubscriptionImpl();
-        subscription1.setFeedType(FeedType.SIM);
-        subscription1.setSecurity(this.forex1);
-        subscription1.setStrategy(this.strategy1);
-
-        this.session.save(this.strategy1);
-        this.session.save(this.family1);
-        this.session.save(this.forex1);
-        this.session.save(subscription1);
-        this.session.flush();
 
         Component component1 = new ComponentImpl();
         component1.setSecurity(this.forex1);
@@ -359,32 +315,40 @@ public class CombinationDaoTest extends InMemoryDBTest {
         combination1.setUuid(UUID.randomUUID().toString());
         combination1.setType(CombinationType.STRADDLE);
         combination1.addComponents(component1);
-        combination1.addSubscriptions(subscription1);
-        combination1.setUnderlying(this.forex1);
-        combination1.setPersistent(true);
+        combination1.setPersistent(false);
+
+        Subscription subscription1 = new SubscriptionImpl();
+        subscription1.setFeedType(FeedType.SIM);
+        subscription1.setSecurity(combination1);
+        subscription1.setStrategy(this.strategy1);
 
         Component component2 = new ComponentImpl();
         component2.setSecurity(this.forex1);
-        component2.setQuantity(12L);
+        component2.setQuantity(11L);
 
         Combination combination2 = new CombinationImpl();
         combination2.setSecurityFamily(this.family1);
         combination2.setUuid(UUID.randomUUID().toString());
-        combination2.setType(CombinationType.STRADDLE);
-        combination1.addComponents(component2);
-        combination2.addSubscriptions(subscription1);
-        combination2.setUnderlying(this.forex1);
+        combination2.setType(CombinationType.STRANGLE);
+        combination2.addComponents(component2);
         combination2.setPersistent(true);
 
+        Subscription subscription2 = new SubscriptionImpl();
+        subscription2.setFeedType(FeedType.BB);
+        subscription2.setSecurity(combination2);
+        subscription2.setStrategy(this.strategy1);
+
+        this.session.save(this.strategy1);
+        this.session.save(this.family1);
+        this.session.save(this.forex1);
         this.session.save(combination1);
+        this.session.save(subscription1);
         this.session.save(combination2);
-        this.session.flush();
+        this.session.save(subscription2);
 
-        List<Combination> combinations1 = this.dao.findNonPersistent();
+        combination1.addSubscriptions(subscription1);
+        combination2.addSubscriptions(subscription2);
 
-        Assert.assertEquals(0, combinations1.size());
-
-        combination1.setPersistent(false);
         this.session.flush();
 
         List<Combination> combinations2 = this.dao.findNonPersistent();
@@ -394,6 +358,7 @@ public class CombinationDaoTest extends InMemoryDBTest {
         Assert.assertSame(combination1, combinations2.get(0));
 
         combination2.setPersistent(false);
+
         this.session.flush();
 
         List<Combination> combinations3 = this.dao.findNonPersistent();
