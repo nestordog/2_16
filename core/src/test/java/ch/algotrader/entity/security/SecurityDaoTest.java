@@ -75,11 +75,11 @@ public class SecurityDaoTest extends InMemoryDBTest {
         this.session.save(forex1);
         this.session.flush();
 
-        Security forex2 = this.dao.findById(0);
+        Security forex2 = this.dao.get(0);
 
         Assert.assertNull(forex2);
 
-        Security forex3 = this.dao.findById(forex1.getId());
+        Security forex3 = this.dao.get(forex1.getId());
 
         Assert.assertNotNull(forex3);
         Assert.assertSame(family1, forex3.getSecurityFamily());
