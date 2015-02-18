@@ -204,15 +204,12 @@ public class BarDaoTest extends InMemoryDBTest {
         bar.setFeedType(FeedType.CNX);
         bar.setSecurity(this.forex1);
 
-        Set<Subscription> subscriptions = new HashSet<Subscription>();
-        subscriptions.add(subscription1);
-
-        this.forex1.setSubscriptions(subscriptions);
-
         this.session.save(this.strategy1);
         this.session.save(this.family1);
         this.session.save(this.forex1);
         this.session.save(subscription1);
+
+        this.forex1.addSubscriptions(subscription1);
 
         this.session.save(bar);
         this.session.flush();
@@ -277,4 +274,5 @@ public class BarDaoTest extends InMemoryDBTest {
         Assert.assertEquals(1, bars2.size());
         Assert.assertSame(bar, bars2.get(0));
     }
+
 }

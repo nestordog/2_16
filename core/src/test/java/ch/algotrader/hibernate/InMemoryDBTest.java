@@ -41,6 +41,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 public abstract class InMemoryDBTest {
 
     protected SessionFactory sessionFactory;
+
     protected Session session;
 
     @Before
@@ -51,7 +52,9 @@ public abstract class InMemoryDBTest {
         DatabasePopulatorUtils.execute(dbPopulator, EmbeddedTestDB.DATABASE.getDataSource());
 
         this.sessionFactory = EmbeddedTestDB.DATABASE.getSessionFactory();
+
         this.session = SessionFactoryUtils.getNewSession(this.sessionFactory);
+
         TransactionSynchronizationManager.bindResource(this.sessionFactory, new SessionHolder(this.session));
     }
 
@@ -60,12 +63,15 @@ public abstract class InMemoryDBTest {
 
         ResourceDatabasePopulator dbPopulator = new ResourceDatabasePopulator();
         dbPopulator.addScript(new ByteArrayResource("DROP ALL OBJECTS".getBytes(Charsets.US_ASCII)));
+
         DatabasePopulatorUtils.execute(dbPopulator, EmbeddedTestDB.DATABASE.getDataSource());
 
         if (this.sessionFactory != null) {
+
             TransactionSynchronizationManager.unbindResource(EmbeddedTestDB.DATABASE.getSessionFactory());
         }
         if (this.session != null) {
+
             this.session.close();
         }
     }

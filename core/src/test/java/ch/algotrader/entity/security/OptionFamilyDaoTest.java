@@ -49,6 +49,7 @@ public class OptionFamilyDaoTest extends InMemoryDBTest {
     public void setup() throws Exception {
 
         super.setup();
+
         this.dao = new OptionFamilyDaoImpl(this.sessionFactory);
     }
 
@@ -85,6 +86,7 @@ public class OptionFamilyDaoTest extends InMemoryDBTest {
         OptionFamily optionFamily3 = this.dao.findByUnderlying(forex1.getId());
 
         Assert.assertNotNull(optionFamily3);
+
         Assert.assertSame(forex1, optionFamily3.getUnderlying());
         Assert.assertSame(optionFamily1, optionFamily3);
     }

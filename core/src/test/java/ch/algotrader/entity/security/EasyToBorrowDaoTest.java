@@ -50,6 +50,7 @@ public class EasyToBorrowDaoTest extends InMemoryDBTest {
     public void setup() throws Exception {
 
         super.setup();
+
         this.dao = new EasyToBorrowDaoImpl(this.sessionFactory);
     }
 
@@ -104,6 +105,7 @@ public class EasyToBorrowDaoTest extends InMemoryDBTest {
         List<EasyToBorrow> easyToBorrows3 = this.dao.findByDateAndBroker(cal1.getTime(), Broker.CNX);
 
         Assert.assertEquals(2, easyToBorrows3.size());
+
         Assert.assertSame(easyToBorrow1, easyToBorrows3.get(0));
         Assert.assertSame(Broker.CNX, easyToBorrows3.get(0).getBroker());
         Assert.assertSame(stock1, easyToBorrows3.get(0).getStock());

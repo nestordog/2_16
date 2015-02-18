@@ -59,6 +59,7 @@ public class FutureDaoTest extends InMemoryDBTest {
     public void setup() throws Exception {
 
         super.setup();
+
         this.dao = new FutureDaoImpl(this.sessionFactory);
 
         this.family1 = new SecurityFamilyImpl();
@@ -98,6 +99,7 @@ public class FutureDaoTest extends InMemoryDBTest {
         Future future4 = this.dao.findByExpirationInclSecurityFamily(this.family1.getId(), cal1.getTime());
 
         Assert.assertNotNull(future4);
+
         Assert.assertSame(future1, future4);
         Assert.assertSame(this.family1, future4.getSecurityFamily());
     }
@@ -141,12 +143,14 @@ public class FutureDaoTest extends InMemoryDBTest {
         List<Future> futures2 = this.dao.findByMinExpiration(this.family1.getId(), cal2.getTime());
 
         Assert.assertEquals(1, futures2.size());
+
         Assert.assertSame(future2, futures2.get(0));
         Assert.assertSame(this.family1, futures2.get(0).getSecurityFamily());
 
         List<Future> futures3 = this.dao.findByMinExpiration(this.family1.getId(), cal1.getTime());
 
         Assert.assertEquals(2, futures3.size());
+
         Assert.assertSame(future1, futures3.get(0));
         Assert.assertSame(this.family1, futures3.get(0).getSecurityFamily());
         Assert.assertSame(future2, futures3.get(1));
@@ -185,12 +189,14 @@ public class FutureDaoTest extends InMemoryDBTest {
         List<Future> futures3 = this.dao.findByMinExpiration(1, this.family1.getId(), cal1.getTime());
 
         Assert.assertEquals(1, futures3.size());
+
         Assert.assertSame(future1, futures3.get(0));
         Assert.assertSame(this.family1, futures3.get(0).getSecurityFamily());
 
         List<Future> futures4 = this.dao.findByMinExpiration(2, this.family1.getId(), cal1.getTime());
 
         Assert.assertEquals(2, futures4.size());
+
         Assert.assertSame(future1, futures4.get(0));
         Assert.assertSame(this.family1, futures4.get(0).getSecurityFamily());
         Assert.assertSame(future2, futures4.get(1));
@@ -236,6 +242,7 @@ public class FutureDaoTest extends InMemoryDBTest {
         List<Future> futures2 = this.dao.findSubscribedFutures();
 
         Assert.assertEquals(1, futures2.size());
+
         Assert.assertSame(future1, futures2.get(0));
         Assert.assertSame(this.family1, futures2.get(0).getSecurityFamily());
         Assert.assertSame(1, futures2.get(0).getSubscriptions().size());
@@ -254,6 +261,7 @@ public class FutureDaoTest extends InMemoryDBTest {
         List<Future> futures3 = this.dao.findSubscribedFutures();
 
         Assert.assertEquals(2, futures3.size());
+
         Assert.assertSame(future1, futures3.get(0));
         Assert.assertSame(this.family1, futures3.get(0).getSecurityFamily());
         Assert.assertSame(1, futures3.get(0).getSubscriptions().size());
@@ -280,6 +288,7 @@ public class FutureDaoTest extends InMemoryDBTest {
         List<Future> futures2 = this.dao.findBySecurityFamily(this.family1.getId());
 
         Assert.assertEquals(1, futures2.size());
+
         Assert.assertSame(future, futures2.get(0));
         Assert.assertSame(this.family1, futures2.get(0).getSecurityFamily());
     }

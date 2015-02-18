@@ -46,29 +46,29 @@ public class PortfolioValueVOProducerTest {
     @Test
     public void testConvert() {
 
-        PortfolioValue entity = new PortfolioValueImpl();
+        PortfolioValue portfolioValue = new PortfolioValueImpl();
 
-        entity.setDateTime(new Date());
-        entity.setNetLiqValue(new BigDecimal("1.1"));
-        entity.setSecuritiesCurrentValue(new BigDecimal("2.2"));
-        entity.setCashBalance(new BigDecimal("3.3"));
-        entity.setMaintenanceMargin(new BigDecimal("4.4"));
-        entity.setLeverage(5.5);
-        entity.setAllocation(6.6);
-        entity.setCashFlow(new BigDecimal("7.7"));
+        portfolioValue.setDateTime(new Date());
+        portfolioValue.setNetLiqValue(new BigDecimal("1.1"));
+        portfolioValue.setSecuritiesCurrentValue(new BigDecimal("2.2"));
+        portfolioValue.setCashBalance(new BigDecimal("3.3"));
+        portfolioValue.setMaintenanceMargin(new BigDecimal("4.4"));
+        portfolioValue.setLeverage(5.5);
+        portfolioValue.setAllocation(6.6);
+        portfolioValue.setCashFlow(new BigDecimal("7.7"));
 
-        PortfolioValueVO vo = this.instance.convert(entity);
+        PortfolioValueVO portfolioValueVO = this.instance.convert(portfolioValue);
 
-        Assert.assertNotNull(vo);
+        Assert.assertNotNull(portfolioValueVO);
 
-        Assert.assertEquals(entity.getDateTime(), vo.getDateTime());
-        Assert.assertEquals(entity.getNetLiqValue(), vo.getNetLiqValue());
-        Assert.assertEquals(entity.getSecuritiesCurrentValue(), vo.getSecuritiesCurrentValue());
-        Assert.assertEquals(entity.getCashBalance(), vo.getCashBalance());
-        Assert.assertEquals(entity.getMaintenanceMargin(), vo.getMaintenanceMargin());
-        Assert.assertEquals(new Double(entity.getLeverage()), new Double(vo.getLeverage()));
-        Assert.assertEquals(new Double(entity.getAllocation()), new Double(vo.getAllocation()));
-        Assert.assertEquals(entity.getCashFlow(), vo.getCashFlow());
+        Assert.assertEquals(portfolioValue.getDateTime(), portfolioValueVO.getDateTime());
+        Assert.assertEquals(portfolioValue.getNetLiqValue(), portfolioValueVO.getNetLiqValue());
+        Assert.assertEquals(portfolioValue.getSecuritiesCurrentValue(), portfolioValueVO.getSecuritiesCurrentValue());
+        Assert.assertEquals(portfolioValue.getCashBalance(), portfolioValueVO.getCashBalance());
+        Assert.assertEquals(portfolioValue.getMaintenanceMargin(), portfolioValueVO.getMaintenanceMargin());
+        Assert.assertEquals(new Double(portfolioValue.getLeverage()), new Double(portfolioValueVO.getLeverage()));
+        Assert.assertEquals(new Double(portfolioValue.getAllocation()), new Double(portfolioValueVO.getAllocation()));
+        Assert.assertEquals(portfolioValue.getCashFlow(), portfolioValueVO.getCashFlow());
     }
 
 }

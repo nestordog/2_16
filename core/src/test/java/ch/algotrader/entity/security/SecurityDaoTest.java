@@ -55,6 +55,7 @@ public class SecurityDaoTest extends InMemoryDBTest {
     public void setup() throws Exception {
 
         super.setup();
+
         this.dao = new SecurityDaoImpl(this.sessionFactory);
     }
 
@@ -82,6 +83,7 @@ public class SecurityDaoTest extends InMemoryDBTest {
         Security forex3 = this.dao.get(forex1.getId());
 
         Assert.assertNotNull(forex3);
+
         Assert.assertSame(family1, forex3.getSecurityFamily());
         Assert.assertSame(forex1, forex3);
     }
@@ -116,6 +118,7 @@ public class SecurityDaoTest extends InMemoryDBTest {
         List<Security> forexes1 = this.dao.findByIds(ids);
 
         Assert.assertEquals(1, forexes1.size());
+
         Assert.assertSame(forex1.getSecurityFamily(), forexes1.get(0).getSecurityFamily());
         Assert.assertSame(forex1, forexes1.get(0));
 
@@ -124,6 +127,7 @@ public class SecurityDaoTest extends InMemoryDBTest {
         List<Security> forexes2 = this.dao.findByIds(ids);
 
         Assert.assertEquals(2, forexes2.size());
+
         Assert.assertSame(family1, forexes2.get(0).getSecurityFamily());
         Assert.assertSame(forex1, forexes2.get(0));
         Assert.assertSame(family1, forexes2.get(1).getSecurityFamily());
@@ -154,6 +158,7 @@ public class SecurityDaoTest extends InMemoryDBTest {
         Security forex3 = this.dao.findBySymbol("GBP.EUR");
 
         Assert.assertNotNull(forex3);
+
         Assert.assertSame(family1, forex3.getSecurityFamily());
         Assert.assertSame(forex1, forex3);
     }
@@ -183,6 +188,7 @@ public class SecurityDaoTest extends InMemoryDBTest {
         Security forex3 = this.dao.findByIsin("US0378331005");
 
         Assert.assertNotNull(forex3);
+
         Assert.assertSame(family1, forex3.getSecurityFamily());
         Assert.assertSame(forex1, forex3);
     }
@@ -213,6 +219,7 @@ public class SecurityDaoTest extends InMemoryDBTest {
         Security forex3 = this.dao.findByBbgid("BBG005Y3Z8B6");
 
         Assert.assertNotNull(forex3);
+
         Assert.assertSame(family1, forex3.getSecurityFamily());
         Assert.assertSame(forex1, forex3);
     }
@@ -244,6 +251,7 @@ public class SecurityDaoTest extends InMemoryDBTest {
         Security forex3 = this.dao.findByRic("RIC");
 
         Assert.assertNotNull(forex3);
+
         Assert.assertSame(family1, forex3.getSecurityFamily());
         Assert.assertSame(forex1, forex3);
     }
@@ -276,6 +284,7 @@ public class SecurityDaoTest extends InMemoryDBTest {
         Security forex3 = this.dao.findByConid("CONID");
 
         Assert.assertNotNull(forex3);
+
         Assert.assertSame(family1, forex3.getSecurityFamily());
         Assert.assertSame(forex1, forex3);
     }
@@ -321,6 +330,7 @@ public class SecurityDaoTest extends InMemoryDBTest {
         Security forex4 = this.dao.findByIdInclFamilyAndUnderlying(forex2.getId());
 
         Assert.assertNotNull(forex4);
+
         Assert.assertSame(family1, forex4.getUnderlying().getSecurityFamily());
         Assert.assertSame(forex1, forex4.getUnderlying());
         Assert.assertSame(family2, forex4.getSecurityFamily());
@@ -392,6 +402,7 @@ public class SecurityDaoTest extends InMemoryDBTest {
         List<Security> forexes2 = this.dao.findSubscribedForAutoActivateStrategies();
 
         Assert.assertEquals(1, forexes2.size());
+
         Assert.assertSame(forex1, forexes2.get(0));
 
         strategy2.setAutoActivate(Boolean.TRUE);
@@ -400,6 +411,7 @@ public class SecurityDaoTest extends InMemoryDBTest {
         List<Security> forexes3 = this.dao.findSubscribedForAutoActivateStrategies();
 
         Assert.assertEquals(2, forexes3.size());
+
         Assert.assertSame(forex1, forexes3.get(0));
         Assert.assertSame(forex2, forexes3.get(1));
     }
@@ -469,6 +481,7 @@ public class SecurityDaoTest extends InMemoryDBTest {
         List<Security> forexes2 = this.dao.findSubscribedByFeedTypeForAutoActivateStrategiesInclFamily(FeedType.BB);
 
         Assert.assertEquals(1, forexes2.size());
+
         Assert.assertSame(forex1, forexes2.get(0));
 
         subscription2.setFeedType(FeedType.BB);
@@ -477,6 +490,7 @@ public class SecurityDaoTest extends InMemoryDBTest {
         List<Security> forexes3 = this.dao.findSubscribedByFeedTypeForAutoActivateStrategiesInclFamily(FeedType.BB);
 
         Assert.assertEquals(2, forexes3.size());
+
         Assert.assertSame(forex1, forexes3.get(0));
         Assert.assertSame(forex2, forexes3.get(1));
     }
@@ -543,6 +557,7 @@ public class SecurityDaoTest extends InMemoryDBTest {
         List<Security> forexes2 = this.dao.findSubscribedByFeedTypeAndStrategyInclFamily(FeedType.BB, "Strategy1");
 
         Assert.assertEquals(1, forexes2.size());
+
         Assert.assertSame(forex1, forexes2.get(0));
 
         subscription2.setStrategy(strategy1);
@@ -551,6 +566,7 @@ public class SecurityDaoTest extends InMemoryDBTest {
         List<Security> forexes3 = this.dao.findSubscribedByFeedTypeAndStrategyInclFamily(FeedType.BB, "Strategy1");
 
         Assert.assertEquals(2, forexes3.size());
+
         Assert.assertSame(forex1, forexes3.get(0));
         Assert.assertSame(forex2, forexes3.get(1));
     }
@@ -627,6 +643,7 @@ public class SecurityDaoTest extends InMemoryDBTest {
         Integer id2 = this.dao.findSecurityIdByIsin("isin");
 
         Assert.assertNotNull(id2);
+
         Assert.assertEquals(forex1.getId(), id2.intValue());
     }
 

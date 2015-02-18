@@ -48,6 +48,7 @@ public class IntrestRateDaoTest extends InMemoryDBTest {
     public void setup() throws Exception {
 
         super.setup();
+
         this.dao = new IntrestRateDaoImpl(this.sessionFactory);
     }
 
@@ -78,6 +79,7 @@ public class IntrestRateDaoTest extends InMemoryDBTest {
         IntrestRate intrestRate4 = this.dao.findByCurrencyAndDuration(Currency.INR, Duration.DAY_2);
 
         Assert.assertNotNull(intrestRate4);
+
         Assert.assertSame(family1, intrestRate4.getSecurityFamily());
         Assert.assertSame(intrestRate1, intrestRate4);
     }

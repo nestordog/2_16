@@ -51,6 +51,7 @@ public class ImpliedVolatilityDaoTest extends InMemoryDBTest {
     public void setup() throws Exception {
 
         super.setup();
+
         this.dao = new ImpliedVolatilityDaoImpl(this.sessionFactory);
 
         this.family = new SecurityFamilyImpl();
@@ -87,6 +88,7 @@ public class ImpliedVolatilityDaoTest extends InMemoryDBTest {
         ImpliedVolatility impliedVolatility5 = this.dao.findByDurationDeltaAndType(Duration.DAY_1, 100.5, OptionType.CALL);
 
         Assert.assertNotNull(impliedVolatility5);
+
         Assert.assertSame(impliedVolatility1, impliedVolatility5);
     }
 
@@ -118,6 +120,7 @@ public class ImpliedVolatilityDaoTest extends InMemoryDBTest {
         ImpliedVolatility impliedVolatility5 = this.dao.findByDurationMoneynessAndType(Duration.DAY_1, 100.5, OptionType.CALL);
 
         Assert.assertNotNull(impliedVolatility5);
+
         Assert.assertSame(impliedVolatility1, impliedVolatility5);
     }
 

@@ -50,6 +50,7 @@ public class MeasurementDaoTest extends InMemoryDBTest {
     public void setup() throws Exception {
 
         super.setup();
+
         this.dao = new MeasurementDaoImpl(this.sessionFactory);
 
         this.strategy = new StrategyImpl();
@@ -88,6 +89,7 @@ public class MeasurementDaoTest extends InMemoryDBTest {
         Measurement measurement5 = this.dao.findMeasurementByDate("Strategy1", "Measurement", cal1.getTime());
 
         Assert.assertNotNull(measurement5);
+
         Assert.assertSame(this.strategy, measurement5.getStrategy());
         Assert.assertSame(measurement1, measurement5);
     }
@@ -133,12 +135,14 @@ public class MeasurementDaoTest extends InMemoryDBTest {
         List<Measurement> measurements4 = this.dao.findMeasurementsByMaxDate("Strategy1", "Measurement", cal1.getTime());
 
         Assert.assertEquals(1, measurements4.size());
+
         Assert.assertSame(this.strategy, measurements4.get(0).getStrategy());
         Assert.assertSame(measurement1, measurements4.get(0));
 
         List<Measurement> measurements5 = this.dao.findMeasurementsByMaxDate("Strategy1", "Measurement", cal2.getTime());
 
         Assert.assertEquals(2, measurements5.size());
+
         Assert.assertSame(this.strategy, measurements5.get(0).getStrategy());
         Assert.assertSame(measurement2, measurements5.get(0));
         Assert.assertSame(this.strategy, measurements5.get(1).getStrategy());
@@ -186,21 +190,25 @@ public class MeasurementDaoTest extends InMemoryDBTest {
         List<Measurement> measurements4 = this.dao.findMeasurementsByMaxDate(2, "Strategy1", "Measurement", cal1.getTime());
 
         Assert.assertEquals(1, measurements4.size());
+
         Assert.assertSame(this.strategy, measurements4.get(0).getStrategy());
         Assert.assertSame(measurement1, measurements4.get(0));
 
         List<Measurement> measurements5 = this.dao.findMeasurementsByMaxDate(2, "Strategy1", "Measurement", cal2.getTime());
 
         Assert.assertEquals(2, measurements5.size());
+
         Assert.assertSame(this.strategy, measurements5.get(0).getStrategy());
         Assert.assertSame(measurement2, measurements5.get(0));
         Assert.assertSame(this.strategy, measurements5.get(1).getStrategy());
         Assert.assertSame(measurement1, measurements5.get(1));
 
         List<Measurement> measurements6 = this.dao.findMeasurementsByMaxDate(1, "Strategy1", "Measurement", cal2.getTime());
+
         Assert.assertEquals(1, measurements6.size());
 
         List<Measurement> measurements7 = this.dao.findMeasurementsByMaxDate(3, "Strategy1", "Measurement", cal2.getTime());
+
         Assert.assertEquals(2, measurements7.size());
     }
 
@@ -241,12 +249,14 @@ public class MeasurementDaoTest extends InMemoryDBTest {
         List<Measurement> measurements3 = this.dao.findAllMeasurementsByMaxDate("Strategy1", cal1.getTime());
 
         Assert.assertEquals(1, measurements3.size());
+
         Assert.assertSame(this.strategy, measurements3.get(0).getStrategy());
         Assert.assertSame(measurement1, measurements3.get(0));
 
         List<Measurement> measurements4 = this.dao.findAllMeasurementsByMaxDate("Strategy1", cal2.getTime());
 
         Assert.assertEquals(2, measurements4.size());
+
         Assert.assertSame(this.strategy, measurements4.get(0).getStrategy());
         Assert.assertSame(measurement2, measurements4.get(0));
         Assert.assertSame(this.strategy, measurements4.get(1).getStrategy());
@@ -294,12 +304,14 @@ public class MeasurementDaoTest extends InMemoryDBTest {
         List<Measurement> measurements4 = this.dao.findMeasurementsByMinDate("Strategy1", "Measurement", cal2.getTime());
 
         Assert.assertEquals(1, measurements4.size());
+
         Assert.assertSame(this.strategy, measurements4.get(0).getStrategy());
         Assert.assertSame(measurement2, measurements4.get(0));
 
         List<Measurement> measurements5 = this.dao.findMeasurementsByMinDate("Strategy1", "Measurement", cal1.getTime());
 
         Assert.assertEquals(2, measurements5.size());
+
         Assert.assertSame(this.strategy, measurements5.get(0).getStrategy());
         Assert.assertSame(measurement1, measurements5.get(0));
         Assert.assertSame(this.strategy, measurements5.get(1).getStrategy());
@@ -347,12 +359,14 @@ public class MeasurementDaoTest extends InMemoryDBTest {
         List<Measurement> measurements4 = this.dao.findMeasurementsByMinDate(2, "Strategy1", "Measurement", cal2.getTime());
 
         Assert.assertEquals(1, measurements4.size());
+
         Assert.assertSame(this.strategy, measurements4.get(0).getStrategy());
         Assert.assertSame(measurement2, measurements4.get(0));
 
         List<Measurement> measurements5 = this.dao.findMeasurementsByMinDate(2, "Strategy1", "Measurement", cal1.getTime());
 
         Assert.assertEquals(2, measurements5.size());
+
         Assert.assertSame(this.strategy, measurements5.get(0).getStrategy());
         Assert.assertSame(measurement1, measurements5.get(0));
         Assert.assertSame(this.strategy, measurements5.get(1).getStrategy());
@@ -404,12 +418,14 @@ public class MeasurementDaoTest extends InMemoryDBTest {
         List<Measurement> measurements3 = this.dao.findAllMeasurementsByMinDate("Strategy1", cal2.getTime());
 
         Assert.assertEquals(1, measurements3.size());
+
         Assert.assertSame(this.strategy, measurements3.get(0).getStrategy());
         Assert.assertSame(measurement2, measurements3.get(0));
 
         List<Measurement> measurements4 = this.dao.findAllMeasurementsByMinDate("Strategy1", cal1.getTime());
 
         Assert.assertEquals(2, measurements4.size());
+
         Assert.assertSame(this.strategy, measurements4.get(0).getStrategy());
         Assert.assertSame(measurement1, measurements4.get(0));
         Assert.assertSame(this.strategy, measurements4.get(1).getStrategy());

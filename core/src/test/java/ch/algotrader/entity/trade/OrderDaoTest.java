@@ -116,9 +116,11 @@ public class OrderDaoTest extends InMemoryDBTest {
         this.session.flush();
 
         BigDecimal bigDecimal1 = this.dao.findLastIntOrderId("FAKE");
+
         Assert.assertNull(bigDecimal1);
 
         BigDecimal bigDecimal2 = this.dao.findLastIntOrderId("CNX_FIX");
+
         Assert.assertNotNull(bigDecimal2);
     }
 
@@ -144,6 +146,7 @@ public class OrderDaoTest extends InMemoryDBTest {
         List<Integer> integers = this.dao.findUnacknowledgedOrderIds();
 
         Assert.assertEquals(1, integers.size());
+
         Assert.assertEquals(order.getId(), integers.get(0).intValue());
     }
 
@@ -179,6 +182,7 @@ public class OrderDaoTest extends InMemoryDBTest {
         List<Order> orders2 = this.dao.findByIds(ids2);
 
         Assert.assertEquals(1, orders2.size());
+
         Assert.assertSame(order, orders2.get(0));
     }
 

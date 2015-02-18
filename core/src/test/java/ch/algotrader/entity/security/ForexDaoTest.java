@@ -97,6 +97,7 @@ public class ForexDaoTest extends InMemoryDBTest {
         this.session.flush();
 
         double rate = this.dao.getRateDoubleByDate(Currency.USD, Currency.USD, new Date());
+
         Assert.assertEquals(1.0, rate, 0);
 
         // Could not test further
@@ -121,6 +122,7 @@ public class ForexDaoTest extends InMemoryDBTest {
         this.session.flush();
 
         this.exception.expect(IllegalStateException.class);
+
         this.dao.getForex(Currency.AUD, Currency.INR);
     }
 
@@ -143,6 +145,7 @@ public class ForexDaoTest extends InMemoryDBTest {
         this.session.flush();
 
         this.exception.expect(IllegalStateException.class);
+
         this.dao.getForex(Currency.USD, Currency.AUD);
     }
 
@@ -163,12 +166,16 @@ public class ForexDaoTest extends InMemoryDBTest {
         this.session.flush();
 
         Forex forex2 = this.dao.getForex(Currency.USD, Currency.INR);
+
         Assert.assertNotNull(forex2);
+
         Assert.assertSame(forex1, forex2);
         Assert.assertSame(family, forex2.getSecurityFamily());
 
         Forex forex3 = this.dao.getForex(Currency.INR, Currency.USD);
+
         Assert.assertNotNull(forex3);
+
         Assert.assertSame(forex1, forex3);
         Assert.assertSame(family, forex3.getSecurityFamily());
     }

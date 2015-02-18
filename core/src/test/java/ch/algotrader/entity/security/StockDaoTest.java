@@ -39,6 +39,7 @@ public class StockDaoTest extends InMemoryDBTest {
     private StockDao dao;
 
     private SecurityFamily family1;
+
     private SecurityFamily family2;
 
     public StockDaoTest() throws IOException {
@@ -51,6 +52,7 @@ public class StockDaoTest extends InMemoryDBTest {
     public void setup() throws Exception {
 
         super.setup();
+
         this.dao = new StockDaoImpl(this.sessionFactory);
 
         this.family1 = new SecurityFamilyImpl();
@@ -88,14 +90,17 @@ public class StockDaoTest extends InMemoryDBTest {
         List<Stock> stocks2 = this.dao.findBySectory("12");
 
         Assert.assertEquals(1, stocks2.size());
+
         Assert.assertSame(stock1, stocks2.get(0));
 
         stock2.setGics("12345678");
+
         this.session.flush();
 
         List<Stock> stocks3 = this.dao.findBySectory("12");
 
         Assert.assertEquals(2, stocks3.size());
+
         Assert.assertSame(stock1, stocks3.get(0));
         Assert.assertSame(stock2, stocks3.get(1));
     }
@@ -124,14 +129,17 @@ public class StockDaoTest extends InMemoryDBTest {
         List<Stock> stocks2 = this.dao.findByIndustryGroup("1234");
 
         Assert.assertEquals(1, stocks2.size());
+
         Assert.assertSame(stock1, stocks2.get(0));
 
         stock2.setGics("12345678");
+
         this.session.flush();
 
         List<Stock> stocks3 = this.dao.findByIndustryGroup("1234");
 
         Assert.assertEquals(2, stocks3.size());
+
         Assert.assertSame(stock1, stocks3.get(0));
         Assert.assertSame(stock2, stocks3.get(1));
     }
@@ -160,14 +168,17 @@ public class StockDaoTest extends InMemoryDBTest {
         List<Stock> stocks2 = this.dao.findByIndustry("123456");
 
         Assert.assertEquals(1, stocks2.size());
+
         Assert.assertSame(stock1, stocks2.get(0));
 
         stock2.setGics("12345678");
+
         this.session.flush();
 
         List<Stock> stocks3 = this.dao.findByIndustry("123456");
 
         Assert.assertEquals(2, stocks3.size());
+
         Assert.assertSame(stock1, stocks3.get(0));
         Assert.assertSame(stock2, stocks3.get(1));
     }
@@ -199,11 +210,13 @@ public class StockDaoTest extends InMemoryDBTest {
         Assert.assertSame(stock1, stocks2.get(0));
 
         stock2.setGics("12345678");
+
         this.session.flush();
 
         List<Stock> stocks3 = this.dao.findBySubIndustry("12345678");
 
         Assert.assertEquals(2, stocks3.size());
+
         Assert.assertSame(stock1, stocks3.get(0));
         Assert.assertSame(stock2, stocks3.get(1));
     }
@@ -232,14 +245,17 @@ public class StockDaoTest extends InMemoryDBTest {
         List<Stock> stocks2 = this.dao.findStocksBySecurityFamily(this.family1.getId());
 
         Assert.assertEquals(1, stocks2.size());
+
         Assert.assertSame(stock1, stocks2.get(0));
 
         stock2.setSecurityFamily(this.family1);
+
         this.session.flush();
 
         List<Stock> stocks3 = this.dao.findStocksBySecurityFamily(this.family1.getId());
 
         Assert.assertEquals(2, stocks3.size());
+
         Assert.assertSame(stock1, stocks3.get(0));
         Assert.assertSame(stock2, stocks3.get(1));
     }

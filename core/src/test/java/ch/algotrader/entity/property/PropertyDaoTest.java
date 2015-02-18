@@ -110,17 +110,22 @@ public class PropertyDaoTest extends InMemoryDBTest {
         this.session.flush();
 
         List<Property> properties2 = this.dao.findNonPersistent();
+
         Assert.assertEquals(1, properties2.size());
+
         Assert.assertSame(property1, properties2.get(0));
 
         property2.setPersistent(false);
         this.session.flush();
 
         List<Property> properties3 = this.dao.findNonPersistent();
+
         Assert.assertEquals(2, properties3.size());
+
         Assert.assertEquals("Property1", properties3.get(0).getName());
         Assert.assertSame(property1, properties3.get(0));
         Assert.assertEquals("Property2", properties3.get(1).getName());
         Assert.assertSame(property2, properties3.get(1));
     }
+
 }

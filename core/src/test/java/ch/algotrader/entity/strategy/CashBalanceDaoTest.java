@@ -53,6 +53,7 @@ public class CashBalanceDaoTest extends InMemoryDBTest {
     public void setup() throws Exception {
 
         super.setup();
+
         this.dao = new CashBalanceDaoImpl(this.sessionFactory);
 
         this.strategy1 = new StrategyImpl();
@@ -88,15 +89,18 @@ public class CashBalanceDaoTest extends InMemoryDBTest {
         List<CashBalance> cashBalances2 = this.dao.findCashBalancesByStrategy("Strategy1");
 
         Assert.assertEquals(1, cashBalances2.size());
+
         Assert.assertSame(cashBalance1.getStrategy(), cashBalances2.get(0).getStrategy());
         Assert.assertSame(cashBalance1, cashBalances2.get(0));
 
         cashBalance2.setStrategy(this.strategy1);
+
         this.session.flush();
 
         List<CashBalance> cashBalances3 = this.dao.findCashBalancesByStrategy("Strategy1");
 
         Assert.assertEquals(2, cashBalances3.size());
+
         Assert.assertSame(cashBalance1.getStrategy(), cashBalances3.get(0).getStrategy());
         Assert.assertSame(cashBalance1, cashBalances3.get(0));
         Assert.assertSame(cashBalance2.getStrategy(), cashBalances3.get(1).getStrategy());
@@ -127,6 +131,7 @@ public class CashBalanceDaoTest extends InMemoryDBTest {
         CashBalance cashBalance5 = this.dao.findByStrategyAndCurrency(this.strategy1, Currency.USD);
 
         Assert.assertNotNull(cashBalance5);
+
         Assert.assertSame(cashBalance1.getStrategy(), cashBalance5.getStrategy());
         Assert.assertSame(cashBalance1, cashBalance5);
     }
@@ -155,6 +160,7 @@ public class CashBalanceDaoTest extends InMemoryDBTest {
         CashBalance cashBalance5 = this.dao.findByStrategyAndCurrencyLocked(this.strategy1, Currency.USD);
 
         Assert.assertNotNull(cashBalance5);
+
         Assert.assertSame(cashBalance1.getStrategy(), cashBalance5.getStrategy());
         Assert.assertSame(cashBalance1, cashBalance5);
     }
@@ -181,6 +187,7 @@ public class CashBalanceDaoTest extends InMemoryDBTest {
         List<Currency> currencies1 = this.dao.findHeldCurrencies();
 
         Assert.assertEquals(1, currencies1.size());
+
         Assert.assertEquals(Currency.USD, currencies1.get(0));
 
         cashBalance2.setCurrency(Currency.AUD);
@@ -189,6 +196,7 @@ public class CashBalanceDaoTest extends InMemoryDBTest {
         List<Currency> currencies2 = this.dao.findHeldCurrencies();
 
         Assert.assertEquals(2, currencies2.size());
+
         Assert.assertEquals(Currency.USD, currencies2.get(0));
         Assert.assertEquals(Currency.AUD, currencies2.get(1));
     }
@@ -215,6 +223,7 @@ public class CashBalanceDaoTest extends InMemoryDBTest {
         List<Currency> currencies1 = this.dao.findHeldCurrenciesByStrategy("Strategy1");
 
         Assert.assertEquals(1, currencies1.size());
+
         Assert.assertEquals(Currency.USD, currencies1.get(0));
 
         cashBalance2.setStrategy(this.strategy1);
@@ -223,6 +232,7 @@ public class CashBalanceDaoTest extends InMemoryDBTest {
         List<Currency> currencies2 = this.dao.findHeldCurrenciesByStrategy("Strategy1");
 
         Assert.assertEquals(2, currencies2.size());
+
         Assert.assertEquals(Currency.USD, currencies2.get(0));
         Assert.assertEquals(Currency.AUD, currencies2.get(1));
     }

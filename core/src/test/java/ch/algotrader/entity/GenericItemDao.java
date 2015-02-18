@@ -24,6 +24,7 @@ import ch.algotrader.hibernate.AbstractDao;
 public class GenericItemDao extends AbstractDao<GenericItem> {
 
     public GenericItemDao(final SessionFactory sessionFactory) {
+
         super(GenericItem.class, sessionFactory);
     }
 

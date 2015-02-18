@@ -67,6 +67,7 @@ public class OptionDaoTest extends InMemoryDBTest {
     public void setup() throws Exception {
 
         super.setup();
+
         this.dao = new OptionDaoImpl(this.sessionFactory);
 
         this.family1 = new SecurityFamilyImpl();
@@ -132,11 +133,13 @@ public class OptionDaoTest extends InMemoryDBTest {
         List<Option> options2 = this.dao.findByMinExpirationAndMinStrikeDistance(1, this.forex1.getId(), cal1.getTime(), new BigDecimal(111), OptionType.CALL);
 
         Assert.assertEquals(1, options2.size());
+
         Assert.assertSame(option1, options2.get(0));
 
         List<Option> options3 = this.dao.findByMinExpirationAndMinStrikeDistance(2, this.forex1.getId(), cal1.getTime(), new BigDecimal(111), OptionType.CALL);
 
         Assert.assertEquals(2, options3.size());
+
         Assert.assertSame(this.family1, options3.get(0).getSecurityFamily());
         Assert.assertSame(option1, options3.get(0));
         Assert.assertSame(this.family2, options3.get(1).getSecurityFamily());
@@ -187,11 +190,13 @@ public class OptionDaoTest extends InMemoryDBTest {
         List<Option> options2 = this.dao.findByMinExpirationAndStrikeLimit(1, this.forex1.getId(), cal1.getTime(), new BigDecimal(111), OptionType.CALL);
 
         Assert.assertEquals(1, options2.size());
+
         Assert.assertSame(option1, options2.get(0));
 
         List<Option> options3 = this.dao.findByMinExpirationAndStrikeLimit(2, this.forex1.getId(), cal1.getTime(), new BigDecimal(111), OptionType.CALL);
 
         Assert.assertEquals(2, options3.size());
+
         Assert.assertSame(this.family1, options3.get(0).getSecurityFamily());
         Assert.assertSame(option1, options3.get(0));
         Assert.assertSame(this.family2, options3.get(1).getSecurityFamily());
@@ -253,6 +258,7 @@ public class OptionDaoTest extends InMemoryDBTest {
         Assert.assertEquals(0, options1.size());
 
         tick1.setSecurity(option1);
+
         this.session.flush();
 
         List<Option> options2 = this.dao.findByMinExpirationAndMinStrikeDistanceWithTicks(2, this.forex1.getId(), cal1.getTime(), new BigDecimal(111), OptionType.CALL, cal2.getTime());
@@ -262,11 +268,13 @@ public class OptionDaoTest extends InMemoryDBTest {
         Assert.assertSame(option1, options2.get(0));
 
         tick2.setSecurity(option2);
+
         this.session.flush();
 
         List<Option> options3 = this.dao.findByMinExpirationAndMinStrikeDistanceWithTicks(2, this.forex1.getId(), cal1.getTime(), new BigDecimal(111), OptionType.CALL, cal2.getTime());
 
         Assert.assertEquals(2, options3.size());
+
         Assert.assertSame(this.family1, options3.get(0).getSecurityFamily());
         Assert.assertSame(option1, options3.get(0));
         Assert.assertSame(this.family2, options3.get(1).getSecurityFamily());
@@ -320,7 +328,6 @@ public class OptionDaoTest extends InMemoryDBTest {
         this.session.save(option2);
         this.session.save(tick1);
         this.session.save(tick2);
-
         this.session.flush();
 
         List<Option> options1 = this.dao.findByMinExpirationAndStrikeLimitWithTicks(2, this.forex1.getId(), cal1.getTime(), new BigDecimal(111), OptionType.CALL, cal2.getTime());
@@ -328,6 +335,7 @@ public class OptionDaoTest extends InMemoryDBTest {
         Assert.assertEquals(0, options1.size());
 
         tick1.setSecurity(option1);
+
         this.session.flush();
 
         List<Option> options2 = this.dao.findByMinExpirationAndStrikeLimitWithTicks(2, this.forex1.getId(), cal1.getTime(), new BigDecimal(111), OptionType.CALL, cal2.getTime());
@@ -337,11 +345,13 @@ public class OptionDaoTest extends InMemoryDBTest {
         Assert.assertSame(option1, options2.get(0));
 
         tick2.setSecurity(option2);
+
         this.session.flush();
 
         List<Option> options3 = this.dao.findByMinExpirationAndStrikeLimitWithTicks(2, this.forex1.getId(), cal1.getTime(), new BigDecimal(111), OptionType.CALL, cal2.getTime());
 
         Assert.assertEquals(2, options3.size());
+
         Assert.assertSame(this.family1, options3.get(0).getSecurityFamily());
         Assert.assertSame(option1, options3.get(0));
         Assert.assertSame(this.family2, options3.get(1).getSecurityFamily());
@@ -379,6 +389,7 @@ public class OptionDaoTest extends InMemoryDBTest {
         List<Option> options1 = this.dao.findSubscribedOptions();
 
         Assert.assertEquals(1, options1.size());
+
         Assert.assertEquals(1, options1.get(0).getSubscriptions().size());
         Assert.assertSame(option1, options1.get(0));
     }
@@ -417,15 +428,18 @@ public class OptionDaoTest extends InMemoryDBTest {
         List<Option> options2 = this.dao.findBySecurityFamily(this.family1.getId());
 
         Assert.assertEquals(1, options2.size());
+
         Assert.assertSame(this.family1, options2.get(0).getSecurityFamily());
         Assert.assertSame(option1, options2.get(0));
 
         option2.setSecurityFamily(this.family1);
+
         this.session.flush();
 
         List<Option> options3 = this.dao.findBySecurityFamily(this.family1.getId());
 
         Assert.assertEquals(2, options3.size());
+
         Assert.assertSame(this.family1, options3.get(0).getSecurityFamily());
         Assert.assertSame(option1, options3.get(0));
         Assert.assertSame(this.family1, options3.get(1).getSecurityFamily());
@@ -520,6 +534,7 @@ public class OptionDaoTest extends InMemoryDBTest {
         Option option6 = this.dao.findByExpirationStrikeAndType(this.family1.getId(), cal1.getTime(), new BigDecimal(111), OptionType.CALL);
 
         Assert.assertNotNull(option6);
+
         Assert.assertSame(option1, option6);
     }
 

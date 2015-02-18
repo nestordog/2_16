@@ -55,22 +55,23 @@ public class ClosePositionVOProducerTest {
         Strategy strategy = new StrategyImpl();
         strategy.setName("Strategy");
 
-        Position entity = new PositionImpl();
+        Position position = new PositionImpl();
 
-        entity.setId(111);
-        entity.setQuantity(222);
-        entity.setExitValue(new BigDecimal(555.55));
-        entity.setSecurity(forex);
-        entity.setStrategy(strategy);
+        position.setId(111);
+        position.setQuantity(222);
+        position.setExitValue(new BigDecimal(555.55));
+        position.setSecurity(forex);
+        position.setStrategy(strategy);
 
-        ClosePositionVO vo = this.instance.convert(entity);
+        ClosePositionVO closePositionVO = this.instance.convert(position);
 
-        Assert.assertNotNull(vo);
+        Assert.assertNotNull(closePositionVO);
 
-        Assert.assertEquals(111, vo.getId());
-        Assert.assertEquals(222, vo.getQuantity());
-        Assert.assertEquals(new BigDecimal(555.55), vo.getExitValue());
-        Assert.assertEquals(666, vo.getSecurityId());
-        Assert.assertEquals(entity.getStrategy().toString(), vo.getStrategy());
+        Assert.assertEquals(111, closePositionVO.getId());
+        Assert.assertEquals(222, closePositionVO.getQuantity());
+        Assert.assertEquals(new BigDecimal(555.55), closePositionVO.getExitValue());
+        Assert.assertEquals(666, closePositionVO.getSecurityId());
+        Assert.assertEquals(position.getStrategy().toString(), closePositionVO.getStrategy());
     }
+
 }

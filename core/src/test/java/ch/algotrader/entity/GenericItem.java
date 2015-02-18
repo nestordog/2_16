@@ -44,52 +44,66 @@ public class GenericItem implements BaseEntityI {
     }
 
     private int id;
+
     private String name;
+
     private boolean active;
+
     private Broker broker;
 
     protected GenericItem() {
+
     }
 
     public GenericItem(final String name) {
+
         setName(name);
     }
 
     public GenericItem(final int id, final String name) {
+
         setId(id);
         setName(name);
     }
 
     @Override
     public int getId() {
+
         return this.id;
     }
 
     protected void setId(final int id) {
+
         this.id = id;
     }
 
     public String getName() {
+
         return this.name;
     }
 
     protected void setName(final String name) {
+
         this.name = name;
     }
 
     public boolean isActive() {
+
         return this.active;
     }
 
     public void setActive(final boolean active) {
+
         this.active = active;
     }
 
     public Broker getBroker() {
+
         return this.broker;
     }
 
     public void setBroker(final Broker broker) {
+
         this.broker = broker;
     }
 
@@ -97,14 +111,19 @@ public class GenericItem implements BaseEntityI {
     public boolean equals(Object obj) {
 
         if (this == obj) {
+
             return true;
         }
         if (obj instanceof GenericItem) {
+
             GenericItem that = (GenericItem) obj;
+
             return Objects.equals(this.getName(), that.getName());
         } else {
+
             return false;
         }
+
     }
 
     @Override
@@ -112,6 +131,7 @@ public class GenericItem implements BaseEntityI {
 
         int hash = 17;
         hash = hash * 37 + Objects.hashCode(getName());
+
         return hash;
     }
 

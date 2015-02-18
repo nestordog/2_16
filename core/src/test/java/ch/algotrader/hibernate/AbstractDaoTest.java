@@ -60,17 +60,22 @@ import ch.algotrader.enumeration.QueryType;
 public class AbstractDaoTest {
 
     protected static EmbeddedTestDB DATABASE;
+
     protected Session session;
+
     private GenericItemDao dao;
 
     @BeforeClass
     public static void setupDB() throws Exception {
+
         DATABASE = new EmbeddedTestDB(new ClassPathResource("ch/algotrader/entity/GenericItem.hbm.xml"));
     }
 
     @AfterClass
     public static void shutdownDB() {
+
         if (DATABASE != null) {
+
             DATABASE.shutdown();
         }
     }
@@ -79,7 +84,9 @@ public class AbstractDaoTest {
     public void setup() throws Exception {
 
         this.session = SessionFactoryUtils.getNewSession(DATABASE.getSessionFactory());
+
         TransactionSynchronizationManager.bindResource(DATABASE.getSessionFactory(), new SessionHolder(this.session));
+
         this.dao = new GenericItemDao(DATABASE.getSessionFactory());
     }
 
@@ -87,10 +94,12 @@ public class AbstractDaoTest {
     public void cleanup() throws Exception {
 
         if (this.session != null) {
+
             this.session.close();
 
             ResourceDatabasePopulator dbPopulator = new ResourceDatabasePopulator();
             dbPopulator.addScript(new ByteArrayResource("TRUNCATE TABLE GenericItem".getBytes(Charsets.US_ASCII)));
+
             DatabasePopulatorUtils.execute(dbPopulator, DATABASE.getDataSource());
             TransactionSynchronizationManager.unbindResource(DATABASE.getSessionFactory());
         }
@@ -102,20 +111,27 @@ public class AbstractDaoTest {
         GenericItem stuff1 = new GenericItem("this");
         stuff1.setActive(true);
         stuff1.setBroker(Broker.DC);
+
         this.dao.save(stuff1);
+
         int id1 = stuff1.getId();
+
         Assert.assertNotEquals(0, id1);
 
         GenericItem stuff2 = new GenericItem("that");
         stuff2.setActive(true);
         stuff2.setBroker(Broker.IB);
+
         this.dao.save(stuff2);
+
         int id2 = stuff2.getId();
+
         Assert.assertNotEquals(0, id2);
 
         this.dao.flush();
 
         GenericItem stuff3 = this.dao.load(id1);
+
         GenericItem stuff4 = this.dao.load(id2);
 
         Assert.assertTrue(stuff1.equals(stuff1));
@@ -125,11 +141,15 @@ public class AbstractDaoTest {
         Assert.assertSame(stuff2, stuff4);
 
         List<GenericItem> allGenericItem = this.dao.loadAll();
+
         Assert.assertNotNull(allGenericItem);
+
         Assert.assertEquals(2, allGenericItem.size());
 
         Set<GenericItem> allUniqueGenericItem = new HashSet<>(allGenericItem);
+
         Assert.assertNotNull(allUniqueGenericItem);
+
         Assert.assertEquals(2, allUniqueGenericItem.size());
         Assert.assertTrue(allUniqueGenericItem.contains(stuff1));
         Assert.assertTrue(allUniqueGenericItem.contains(stuff2));
@@ -141,6 +161,7 @@ public class AbstractDaoTest {
         GenericItem stuff1 = new GenericItem("this");
         stuff1.setActive(true);
         stuff1.setBroker(null);
+
         this.dao.persist(stuff1);
     }
 
@@ -150,8 +171,11 @@ public class AbstractDaoTest {
         GenericItem stuff1 = new GenericItem("this");
         stuff1.setActive(true);
         stuff1.setBroker(Broker.DC);
+
         this.dao.save(stuff1);
+
         int id1 = stuff1.getId();
+
         Assert.assertNotEquals(0, id1);
 
         this.dao.flush();
@@ -165,8 +189,11 @@ public class AbstractDaoTest {
         GenericItem stuff1 = new GenericItem("this");
         stuff1.setActive(true);
         stuff1.setBroker(Broker.DC);
+
         this.dao.save(stuff1);
+
         int id1 = stuff1.getId();
+
         Assert.assertNotEquals(0, id1);
 
         this.dao.flush();
@@ -183,10 +210,13 @@ public class AbstractDaoTest {
         detached.setBroker(Broker.CNX);
 
         try {
+
             this.dao.save(detached);
             this.dao.flush();
+
             Assert.fail("NonUniqueObjectException expected");
         } catch (NonUniqueObjectException ignored) {
+
         }
     }
 
@@ -196,8 +226,11 @@ public class AbstractDaoTest {
         GenericItem stuff1 = new GenericItem("this");
         stuff1.setActive(true);
         stuff1.setBroker(Broker.DC);
+
         this.dao.persist(stuff1);
+
         int id1 = stuff1.getId();
+
         Assert.assertNotEquals(0, id1);
 
         this.dao.flush();
@@ -213,6 +246,7 @@ public class AbstractDaoTest {
         detached.setActive(true);
         detached.setBroker(Broker.CNX);
         GenericItem stuff2 = this.dao.persist(detached);
+
         this.dao.flush();
 
         Assert.assertEquals(detached.getBroker(), stuff2.getBroker());
@@ -225,28 +259,39 @@ public class AbstractDaoTest {
         GenericItem stuff1 = new GenericItem("this");
         stuff1.setActive(true);
         stuff1.setBroker(Broker.DC);
+
         this.dao.save(stuff1);
+
         int id1 = stuff1.getId();
+
         Assert.assertNotEquals(0, id1);
 
         GenericItem stuff2 = new GenericItem("that");
         stuff2.setActive(true);
         stuff2.setBroker(Broker.IB);
+
         this.dao.save(stuff2);
+
         int id2 = stuff2.getId();
+
         Assert.assertNotEquals(0, id2);
 
         GenericItem stuff3 = new GenericItem("this and that");
         stuff3.setActive(true);
         stuff3.setBroker(Broker.RT);
+
         this.dao.save(stuff3);
+
         int id3 = stuff3.getId();
+
         Assert.assertNotEquals(0, id3);
 
         this.dao.flush();
 
         List<GenericItem> stuffs = this.dao.loadAll();
+
         Assert.assertNotNull(stuffs);
+
         Assert.assertEquals(3, stuffs.size());
     }
 
@@ -256,39 +301,51 @@ public class AbstractDaoTest {
         GenericItem stuff1 = new GenericItem("this");
         stuff1.setActive(true);
         stuff1.setBroker(Broker.DC);
+
         this.dao.save(stuff1);
+
         int id1 = stuff1.getId();
+
         Assert.assertNotEquals(0, id1);
 
         GenericItem stuff2 = new GenericItem("that");
         stuff2.setActive(true);
         stuff2.setBroker(Broker.IB);
+
         this.dao.save(stuff2);
+
         int id2 = stuff2.getId();
+
         Assert.assertNotEquals(0, id2);
 
         GenericItem stuff3 = new GenericItem("this and that");
         stuff3.setActive(true);
         stuff3.setBroker(Broker.RT);
+
         this.dao.save(stuff3);
+
         int id3 = stuff3.getId();
+
         Assert.assertNotEquals(0, id3);
 
         this.dao.flush();
 
-        List<GenericItem> list1 = this.dao.find(
-                "select s from GenericItem s where s.active = ?", QueryType.HQL, Boolean.TRUE);
+        List<GenericItem> list1 = this.dao.find("select s from GenericItem s where s.active = ?", QueryType.HQL, Boolean.TRUE);
+
         Assert.assertNotNull(list1);
+
         Assert.assertEquals(3, list1.size());
 
-        Set<GenericItem> set1 = this.dao.findAsSet(
-                "select s from GenericItem s where s.active = ?", QueryType.HQL, Boolean.TRUE);
+        Set<GenericItem> set1 = this.dao.findAsSet("select s from GenericItem s where s.active = ?", QueryType.HQL, Boolean.TRUE);
+
         Assert.assertNotNull(set1);
+
         Assert.assertEquals(3, set1.size());
 
-        Set<GenericItem> set2 = this.dao.findAsSet(
-                "select s from GenericItem s where s.broker = ?", QueryType.HQL, Broker.IB);
+        Set<GenericItem> set2 = this.dao.findAsSet("select s from GenericItem s where s.broker = ?", QueryType.HQL, Broker.IB);
+
         Assert.assertNotNull(set2);
+
         Assert.assertEquals(1, set2.size());
         Assert.assertEquals("that", set2.iterator().next().getName());
     }
@@ -299,36 +356,48 @@ public class AbstractDaoTest {
         GenericItem stuff1 = new GenericItem("this");
         stuff1.setActive(true);
         stuff1.setBroker(Broker.DC);
+
         this.dao.save(stuff1);
+
         int id1 = stuff1.getId();
+
         Assert.assertNotEquals(0, id1);
 
         GenericItem stuff2 = new GenericItem("that");
         stuff2.setActive(true);
         stuff2.setBroker(Broker.IB);
+
         this.dao.save(stuff2);
+
         int id2 = stuff2.getId();
+
         Assert.assertNotEquals(0, id2);
 
         GenericItem stuff3 = new GenericItem("this and that");
         stuff3.setActive(true);
         stuff3.setBroker(Broker.RT);
+
         this.dao.save(stuff3);
+
         int id3 = stuff3.getId();
+
         Assert.assertNotEquals(0, id3);
 
         this.dao.flush();
 
-        GenericItem result1 = this.dao.findUnique(
-                "select s from GenericItem s where s.name = ?", QueryType.HQL, "this");
+        GenericItem result1 = this.dao.findUnique("select s from GenericItem s where s.name = ?", QueryType.HQL, "this");
+
         Assert.assertNotNull(result1);
+
         Assert.assertSame(stuff1, result1);
 
         try {
-            this.dao.findUnique(
-                    "select s from GenericItem s where s.active = ?", QueryType.HQL, Boolean.TRUE);
+
+            this.dao.findUnique("select s from GenericItem s where s.active = ?", QueryType.HQL, Boolean.TRUE);
+
             Assert.fail("NonUniqueResultException expected");
         } catch (NonUniqueResultException ignore) {
+
         }
     }
 
@@ -338,15 +407,19 @@ public class AbstractDaoTest {
         GenericItem stuff1 = new GenericItem("this");
         stuff1.setActive(true);
         stuff1.setBroker(Broker.DC);
+
         this.dao.save(stuff1);
+
         int id1 = stuff1.getId();
+
         Assert.assertNotEquals(0, id1);
 
         this.dao.flush();
 
-        List<?> list1 = this.dao.findObjects(null,
-                "select s.name from GenericItem s where s.active = ?", QueryType.SQL, Boolean.TRUE);
+        List<?> list1 = this.dao.findObjects(null, "select s.name from GenericItem s where s.active = ?", QueryType.SQL, Boolean.TRUE);
+
         Assert.assertNotNull(list1);
+
         Assert.assertEquals(1, list1.size());
     }
 
@@ -356,20 +429,26 @@ public class AbstractDaoTest {
         GenericItem stuff1 = new GenericItem("this");
         stuff1.setActive(true);
         stuff1.setBroker(Broker.DC);
+
         this.dao.save(stuff1);
+
         int id1 = stuff1.getId();
+
         Assert.assertNotEquals(0, id1);
 
         this.dao.flush();
 
-        SQLQuery query = this.dao.prepareSQLQuery(null,
-                "select s.* from GenericItem s where s.active = ?", Boolean.TRUE);
+        SQLQuery query = this.dao.prepareSQLQuery(null, "select s.* from GenericItem s where s.active = ?", Boolean.TRUE);
         query.addEntity(GenericItem.class);
+
         final List<?> list1 = query.list();
+
         Assert.assertNotNull(list1);
+
         Assert.assertEquals(1, list1.size());
 
         GenericItem stuff = (GenericItem) list1.get(0);
+
         Assert.assertSame(stuff, stuff1);
     }
 
@@ -379,30 +458,42 @@ public class AbstractDaoTest {
         GenericItem stuff1 = new GenericItem("this");
         stuff1.setActive(true);
         stuff1.setBroker(Broker.DC);
+
         this.dao.save(stuff1);
+
         int id1 = stuff1.getId();
+
         Assert.assertNotEquals(0, id1);
 
         GenericItem stuff2 = new GenericItem("that");
         stuff2.setActive(true);
         stuff2.setBroker(Broker.IB);
+
         this.dao.save(stuff2);
+
         int id2 = stuff2.getId();
+
         Assert.assertNotEquals(0, id2);
 
         GenericItem stuff3 = new GenericItem("this and that");
         stuff3.setActive(true);
         stuff3.setBroker(Broker.RT);
+
         this.dao.save(stuff3);
+
         int id3 = stuff3.getId();
+
         Assert.assertNotEquals(0, id3);
 
         this.dao.flush();
 
         Query query = this.dao.prepareQuery(null, "select s from GenericItem s where s.id in (:ids)", QueryType.HQL);
         query.setParameterList("ids", Arrays.asList(stuff1.getId(), stuff2.getId(), stuff3.getId()), IntegerType.INSTANCE);
+
         List list1 = query.list();
+
         Assert.assertNotNull(list1);
+
         Assert.assertEquals(3, list1.size());
     }
 
@@ -412,6 +503,7 @@ public class AbstractDaoTest {
         GenericItem stuff1 = new GenericItem("this");
         stuff1.setActive(true);
         stuff1.setBroker(Broker.DC);
+
         this.dao.save(stuff1);
         this.dao.flush();
         this.session.clear();
@@ -428,8 +520,10 @@ public class AbstractDaoTest {
         this.session.clear();
 
         GenericItem stuff3 = this.dao.load(id);
+
         Assert.assertNull(stuff3);
 
         Assert.assertFalse(this.dao.deleteById(id));
     }
+
 }

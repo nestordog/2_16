@@ -73,39 +73,39 @@ public class PositionVOProducerTest {
         Strategy strategy = new StrategyImpl();
         strategy.setName("Strategy");
 
-        Position entity = new PositionImpl();
-        entity.setId(111);
-        entity.setQuantity(0);
-        entity.setCost(333.33);
-        entity.setRealizedPL(444.44);
-        entity.setExitValue(new BigDecimal(103.55));
-        entity.setSecurity(forex);
-        entity.setStrategy(strategy);
-        entity.setRealizedPL(102);
-        entity.setMaintenanceMargin(new BigDecimal(104.666));
+        Position position = new PositionImpl();
+        position.setId(111);
+        position.setQuantity(0);
+        position.setCost(333.33);
+        position.setRealizedPL(444.44);
+        position.setExitValue(new BigDecimal(103.55));
+        position.setSecurity(forex);
+        position.setStrategy(strategy);
+        position.setRealizedPL(102);
+        position.setMaintenanceMargin(new BigDecimal(104.666));
 
-        int scale = entity.getSecurity().getSecurityFamily().getScale();
+        int scale = position.getSecurity().getSecurityFamily().getScale();
 
-        PositionVO vo = this.instance.convert(entity);
+        PositionVO vo = this.instance.convert(position);
 
         Assert.assertNotNull(vo);
 
         Assert.assertEquals(111, vo.getId());
         Assert.assertEquals(0, vo.getQuantity());
 
-        Assert.assertEquals(entity.getSecurity().getId(), vo.getSecurityId());
-        Assert.assertEquals(entity.getSecurity().toString(), vo.getName());
-        Assert.assertEquals(entity.getStrategy().toString(), vo.getStrategy());
-        Assert.assertEquals(entity.getSecurity().getSecurityFamily().getCurrency(), vo.getCurrency());
-        Assert.assertEquals(RoundUtil.getBigDecimal(entity.getMarketPrice(this.tick), scale), vo.getMarketPrice());
-        Assert.assertEquals(RoundUtil.getBigDecimal(entity.getMarketValue(this.tick)), vo.getMarketValue());
-        Assert.assertEquals(RoundUtil.getBigDecimal(entity.getAveragePrice(), scale), vo.getAveragePrice());
-        Assert.assertEquals(RoundUtil.getBigDecimal(entity.getCost()), vo.getCost());
-        Assert.assertEquals(RoundUtil.getBigDecimal(entity.getUnrealizedPL(this.tick)), vo.getUnrealizedPL());
-        Assert.assertEquals(RoundUtil.getBigDecimal(entity.getRealizedPL()), vo.getRealizedPL());
-        Assert.assertEquals(RoundUtil.getBigDecimal(entity.getMaxLoss(this.tick)), vo.getMaxLoss());
-        Assert.assertEquals(entity.getExitValue().setScale(scale, BigDecimal.ROUND_HALF_UP), vo.getExitValue());
-        Assert.assertEquals(entity.getMaintenanceMargin().setScale(scale, BigDecimal.ROUND_HALF_UP), vo.getMargin());
+        Assert.assertEquals(position.getSecurity().getId(), vo.getSecurityId());
+        Assert.assertEquals(position.getSecurity().toString(), vo.getName());
+        Assert.assertEquals(position.getStrategy().toString(), vo.getStrategy());
+        Assert.assertEquals(position.getSecurity().getSecurityFamily().getCurrency(), vo.getCurrency());
+        Assert.assertEquals(RoundUtil.getBigDecimal(position.getMarketPrice(this.tick), scale), vo.getMarketPrice());
+        Assert.assertEquals(RoundUtil.getBigDecimal(position.getMarketValue(this.tick)), vo.getMarketValue());
+        Assert.assertEquals(RoundUtil.getBigDecimal(position.getAveragePrice(), scale), vo.getAveragePrice());
+        Assert.assertEquals(RoundUtil.getBigDecimal(position.getCost()), vo.getCost());
+        Assert.assertEquals(RoundUtil.getBigDecimal(position.getUnrealizedPL(this.tick)), vo.getUnrealizedPL());
+        Assert.assertEquals(RoundUtil.getBigDecimal(position.getRealizedPL()), vo.getRealizedPL());
+        Assert.assertEquals(RoundUtil.getBigDecimal(position.getMaxLoss(this.tick)), vo.getMaxLoss());
+        Assert.assertEquals(position.getExitValue().setScale(scale, BigDecimal.ROUND_HALF_UP), vo.getExitValue());
+        Assert.assertEquals(position.getMaintenanceMargin().setScale(scale, BigDecimal.ROUND_HALF_UP), vo.getMargin());
     }
 
 }

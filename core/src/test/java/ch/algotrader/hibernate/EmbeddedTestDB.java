@@ -47,43 +47,49 @@ public class EmbeddedTestDB {
 
     static {
         try {
+
             ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+
             List<Resource> resources = new ArrayList<>();
             resources.addAll(Arrays.asList(resolver.getResources("classpath*:ch/**/*.hbm.xml")));
             resources.addAll(Arrays.asList(resolver.getResources("classpath*:com/**/*.hbm.xml")));
             resources.addAll(Arrays.asList(resolver.getResources("classpath*:META-INF/**/*.hbm.xml")));
+
             DATABASE = new EmbeddedTestDB(resources.toArray(new Resource[resources.size()]), null, false);
         } catch (Exception ex) {
+
             throw new RuntimeException(ex);
+
         }
     }
 
     private final EmbeddedDatabase database;
+
     private final SessionFactory sessionFactory;
 
-    public EmbeddedTestDB(
-            final Resource[] mappings,
-            final ResourceDatabasePopulator dbPopulator,
-            final boolean generateSchema) throws Exception {
+    public EmbeddedTestDB(final Resource[] mappings, final ResourceDatabasePopulator dbPopulator, final boolean generateSchema) throws Exception {
 
         EmbeddedDatabaseFactory dbFactory = new EmbeddedDatabaseFactory();
         dbFactory.setDatabaseType(EmbeddedDatabaseType.H2);
         dbFactory.setDatabaseName("testdb;MODE=MYSQL;DATABASE_TO_UPPER=FALSE");
         dbFactory.setDatabasePopulator(dbPopulator);
+
         this.database = dbFactory.getDatabase();
 
         LocalSessionFactoryBean factoryBean = new LocalSessionFactoryBean();
         factoryBean.setDataSource(this.database);
-
         factoryBean.setMappingLocations(mappings);
 
         Properties properties = new Properties();
         properties.setProperty("hibernate.dialect", "org.hibernate.dialect.H2Dialect");
         properties.setProperty("hibernate.cache.use_second_level_cache", "false");
         properties.setProperty("hibernate.cache.use_query_cache", "false");
+
         if (generateSchema) {
+
             properties.setProperty("hibernate.hbm2ddl.auto", "create");
         }
+
         factoryBean.setHibernateProperties(properties);
 
         factoryBean.afterPropertiesSet();
@@ -92,19 +98,24 @@ public class EmbeddedTestDB {
     }
 
     public EmbeddedTestDB(final Resource... mappings) throws Exception {
+
         this(mappings, null, true);
     }
 
     public SessionFactory getSessionFactory() {
+
         return this.sessionFactory;
     }
 
     public DataSource getDataSource() {
+
         return this.database;
     }
 
     public void shutdown() {
+
         this.sessionFactory.close();
+
         this.database.shutdown();
     }
 

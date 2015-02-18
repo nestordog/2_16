@@ -51,6 +51,7 @@ public class OrderPreferenceDaoTest extends InMemoryDBTest {
     public void setup() throws Exception {
 
         super.setup();
+
         this.dao = new OrderPreferenceDaoImpl(this.sessionFactory);
     }
 
@@ -71,6 +72,7 @@ public class OrderPreferenceDaoTest extends InMemoryDBTest {
         OrderPreference orderPreference3 = this.dao.findByName("Primary");
 
         Assert.assertNotNull(orderPreference3);
+
         Assert.assertSame(orderPreference1, orderPreference3);
     }
 

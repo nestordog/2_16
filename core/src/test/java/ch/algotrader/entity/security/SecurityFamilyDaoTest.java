@@ -47,6 +47,7 @@ public class SecurityFamilyDaoTest extends InMemoryDBTest {
     public void setup() throws Exception {
 
         super.setup();
+
         this.dao = new SecurityFamilyDaoImpl(this.sessionFactory);
     }
 
@@ -68,6 +69,7 @@ public class SecurityFamilyDaoTest extends InMemoryDBTest {
         SecurityFamily family3 = this.dao.findByName("family1");
 
         Assert.assertNotNull(family3);
+
         Assert.assertSame(family1, family3);
     }
 

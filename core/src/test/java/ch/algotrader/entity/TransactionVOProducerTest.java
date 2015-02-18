@@ -64,28 +64,28 @@ public class TransactionVOProducerTest {
 
         strategy.setName("Strategy");
 
-        Transaction entity = new TransactionImpl();
+        Transaction transaction = new TransactionImpl();
+        transaction.setId(111);
+        transaction.setDateTime(new Date());
+        transaction.setQuantity(222);
+        transaction.setType(TransactionType.CREDIT);
+        transaction.setCurrency(Currency.AUD);
+        transaction.setPrice(new BigDecimal(333.33));
+        transaction.setStrategy(strategy);
 
-        entity.setId(111);
-        entity.setDateTime(new Date());
-        entity.setQuantity(222);
-        entity.setType(TransactionType.CREDIT);
-        entity.setCurrency(Currency.AUD);
-        entity.setPrice(new BigDecimal(333.33));
-        entity.setStrategy(strategy);
+        TransactionVO transactionVO = this.instance.convert(transaction);
 
-        TransactionVO vo = this.instance.convert(entity);
+        Assert.assertNotNull(transactionVO);
 
-        Assert.assertNotNull(vo);
+        Assert.assertEquals(111, transactionVO.getId());
+        Assert.assertEquals(transaction.getDateTime(), transactionVO.getDateTime());
+        Assert.assertEquals(222, transactionVO.getQuantity());
+        Assert.assertEquals(TransactionType.CREDIT, transactionVO.getType());
+        Assert.assertEquals(Currency.AUD, transactionVO.getCurrency());
+        Assert.assertEquals(transaction.getPrice().setScale(this.commonConfig.getPortfolioDigits(), BigDecimal.ROUND_HALF_UP), transactionVO.getPrice());
+        Assert.assertSame(strategy.toString(), transactionVO.getStrategy());
 
-        Assert.assertEquals(111, vo.getId());
-        Assert.assertEquals(entity.getDateTime(), vo.getDateTime());
-        Assert.assertEquals(222, vo.getQuantity());
-        Assert.assertEquals(TransactionType.CREDIT, vo.getType());
-        Assert.assertEquals(Currency.AUD, vo.getCurrency());
-        Assert.assertEquals(entity.getPrice().setScale(this.commonConfig.getPortfolioDigits(), BigDecimal.ROUND_HALF_UP), vo.getPrice());
-        Assert.assertSame(strategy.toString(), vo.getStrategy());
-        Assert.assertNull(vo.getAccount());
+        Assert.assertNull(transactionVO.getAccount());
     }
 
     @Test
@@ -107,30 +107,29 @@ public class TransactionVOProducerTest {
 
         strategy.setName("Strategy");
 
-        Transaction entity = new TransactionImpl();
+        Transaction transaction = new TransactionImpl();
+        transaction.setId(111);
+        transaction.setDateTime(new Date());
+        transaction.setQuantity(222);
+        transaction.setType(TransactionType.BUY);
+        transaction.setCurrency(Currency.AUD);
+        transaction.setPrice(new BigDecimal(333.33));
+        transaction.setStrategy(strategy);
+        transaction.setSecurity(forex);
 
-        entity.setId(111);
-        entity.setDateTime(new Date());
-        entity.setQuantity(222);
-        entity.setType(TransactionType.BUY);
-        entity.setCurrency(Currency.AUD);
-        entity.setPrice(new BigDecimal(333.33));
-        entity.setStrategy(strategy);
-        entity.setSecurity(forex);
+        TransactionVO transactionVO = this.instance.convert(transaction);
 
-        TransactionVO vo = this.instance.convert(entity);
+        Assert.assertNotNull(transactionVO);
 
-        Assert.assertNotNull(vo);
+        Assert.assertEquals(111, transactionVO.getId());
+        Assert.assertEquals(transaction.getDateTime(), transactionVO.getDateTime());
+        Assert.assertEquals(222, transactionVO.getQuantity());
+        Assert.assertEquals(TransactionType.BUY, transactionVO.getType());
+        Assert.assertEquals(Currency.AUD, transactionVO.getCurrency());
+        Assert.assertEquals(transaction.getPrice().setScale(family.getScale(), BigDecimal.ROUND_HALF_UP), transactionVO.getPrice());
+        Assert.assertEquals(strategy.toString(), transactionVO.getStrategy());
 
-        Assert.assertEquals(111, vo.getId());
-        Assert.assertEquals(entity.getDateTime(), vo.getDateTime());
-        Assert.assertEquals(222, vo.getQuantity());
-        Assert.assertEquals(TransactionType.BUY, vo.getType());
-        Assert.assertEquals(Currency.AUD, vo.getCurrency());
-        Assert.assertEquals(entity.getPrice().setScale(family.getScale(), BigDecimal.ROUND_HALF_UP), vo.getPrice());
-        Assert.assertEquals(strategy.toString(), vo.getStrategy());
-        Assert.assertNull(vo.getAccount());
-
+        Assert.assertNull(transactionVO.getAccount());
     }
 
     @Test
@@ -156,29 +155,30 @@ public class TransactionVOProducerTest {
 
         account.setName("Account");
 
-        Transaction entity = new TransactionImpl();
+        Transaction transaction = new TransactionImpl();
 
-        entity.setId(111);
-        entity.setDateTime(new Date());
-        entity.setQuantity(222);
-        entity.setType(TransactionType.BUY);
-        entity.setCurrency(Currency.AUD);
-        entity.setPrice(new BigDecimal(333.33));
-        entity.setStrategy(strategy);
-        entity.setSecurity(forex);
-        entity.setAccount(account);
-        TransactionVO vo = this.instance.convert(entity);
+        transaction.setId(111);
+        transaction.setDateTime(new Date());
+        transaction.setQuantity(222);
+        transaction.setType(TransactionType.BUY);
+        transaction.setCurrency(Currency.AUD);
+        transaction.setPrice(new BigDecimal(333.33));
+        transaction.setStrategy(strategy);
+        transaction.setSecurity(forex);
+        transaction.setAccount(account);
 
-        Assert.assertNotNull(vo);
+        TransactionVO transactionVO = this.instance.convert(transaction);
 
-        Assert.assertEquals(111, vo.getId());
-        Assert.assertEquals(entity.getDateTime(), vo.getDateTime());
-        Assert.assertEquals(222, vo.getQuantity());
-        Assert.assertEquals(TransactionType.BUY, vo.getType());
-        Assert.assertEquals(Currency.AUD, vo.getCurrency());
-        Assert.assertEquals(entity.getPrice().setScale(family.getScale(), BigDecimal.ROUND_HALF_UP), vo.getPrice());
-        Assert.assertEquals(strategy.toString(), vo.getStrategy());
-        Assert.assertEquals(account.toString(), vo.getAccount());
+        Assert.assertNotNull(transactionVO);
+
+        Assert.assertEquals(111, transactionVO.getId());
+        Assert.assertEquals(transaction.getDateTime(), transactionVO.getDateTime());
+        Assert.assertEquals(222, transactionVO.getQuantity());
+        Assert.assertEquals(TransactionType.BUY, transactionVO.getType());
+        Assert.assertEquals(Currency.AUD, transactionVO.getCurrency());
+        Assert.assertEquals(transaction.getPrice().setScale(family.getScale(), BigDecimal.ROUND_HALF_UP), transactionVO.getPrice());
+        Assert.assertEquals(strategy.toString(), transactionVO.getStrategy());
+        Assert.assertEquals(account.toString(), transactionVO.getAccount());
     }
 
 }

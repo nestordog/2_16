@@ -60,6 +60,7 @@ public class ComponentDaoTest extends InMemoryDBTest {
     public void setup() throws Exception {
 
         super.setup();
+
         this.dao = new ComponentDaoImpl(this.sessionFactory);
 
         this.family1 = new SecurityFamilyImpl();
@@ -111,6 +112,7 @@ public class ComponentDaoTest extends InMemoryDBTest {
         List<Component> components2 = this.dao.findSubscribedByStrategyInclSecurity("Strategy1");
 
         Assert.assertEquals(1, components2.size());
+
         Assert.assertSame(combination1, components2.get(0).getCombination());
         Assert.assertEquals(1, components2.get(0).getCombination().getSubscriptions().size());
         Assert.assertSame(this.forex1, components2.get(0).getSecurity());
@@ -151,6 +153,7 @@ public class ComponentDaoTest extends InMemoryDBTest {
         List<Component> components2 = this.dao.findSubscribedBySecurityInclSecurity(this.forex1.getId());
 
         Assert.assertEquals(1, components2.size());
+
         Assert.assertSame(combination1, components2.get(0).getCombination());
         Assert.assertEquals(1, components2.get(0).getCombination().getSubscriptions().size());
         Assert.assertSame(this.forex1, components2.get(0).getSecurity());
@@ -195,6 +198,7 @@ public class ComponentDaoTest extends InMemoryDBTest {
         List<Component> components3 = this.dao.findSubscribedByStrategyAndSecurityInclSecurity("Strategy1", this.forex1.getId());
 
         Assert.assertEquals(1, components3.size());
+
         Assert.assertSame(combination1, components3.get(0).getCombination());
         Assert.assertEquals(1, components3.get(0).getCombination().getSubscriptions().size());
         Assert.assertSame(this.forex1, components3.get(0).getSecurity());
@@ -263,6 +267,7 @@ public class ComponentDaoTest extends InMemoryDBTest {
         List<Component> components2 = this.dao.findNonPersistent();
 
         Assert.assertEquals(1, components2.size());
+
         Assert.assertSame(component1, components2.get(0));
 
         component1.setPersistent(true);
@@ -272,6 +277,7 @@ public class ComponentDaoTest extends InMemoryDBTest {
         List<Component> components3 = this.dao.findNonPersistent();
 
         Assert.assertEquals(1, components3.size());
+
         Assert.assertSame(component2, components3.get(0));
 
         component1.setPersistent(false);
@@ -281,6 +287,7 @@ public class ComponentDaoTest extends InMemoryDBTest {
         List<Component> components4 = this.dao.findNonPersistent();
 
         Assert.assertEquals(2, components4.size());
+
         Assert.assertSame(combination1, components4.get(0).getCombination());
         Assert.assertSame(component1, components4.get(0));
         Assert.assertSame(combination2, components4.get(1).getCombination());

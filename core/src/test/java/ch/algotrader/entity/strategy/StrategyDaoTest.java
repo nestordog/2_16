@@ -39,12 +39,15 @@ public class StrategyDaoTest extends InMemoryDBTest {
     private StrategyDao dao;
 
     public StrategyDaoTest() throws IOException {
+
         super();
     }
 
     @Override @Before
     public void setup() throws Exception {
+
         super.setup();
+
         this.dao = new StrategyDaoImpl(this.sessionFactory);
     }
 
@@ -52,6 +55,7 @@ public class StrategyDaoTest extends InMemoryDBTest {
     public void testFindServerStrategy() {
 
         Strategy strategy = this.dao.findServer();
+
         Assert.assertNotNull(strategy);
     }
 
@@ -68,6 +72,7 @@ public class StrategyDaoTest extends InMemoryDBTest {
         this.dao.flush();
 
         Strategy strategy3 = this.dao.findByName("blah");
+
         Assert.assertNotNull(strategy3);
         Assert.assertEquals("blah", strategy3.getName());
     }
@@ -76,7 +81,9 @@ public class StrategyDaoTest extends InMemoryDBTest {
     public void testFindAutoActivateStrategies() {
 
         Set<Strategy> strategies1 = this.dao.findAutoActivateStrategies();
+
         Assert.assertNotNull(strategies1);
+
         Assert.assertEquals(1, strategies1.size());
 
         Strategy newStrategy = new StrategyImpl();
@@ -87,6 +94,7 @@ public class StrategyDaoTest extends InMemoryDBTest {
         this.dao.flush();
 
         Set<Strategy> strategies2 = this.dao.findAutoActivateStrategies();
+
         Assert.assertNotNull(strategies2);
         Assert.assertEquals(2, strategies2.size());
         Assert.assertTrue(strategies2.contains(newStrategy));
@@ -96,6 +104,7 @@ public class StrategyDaoTest extends InMemoryDBTest {
     public void testFindCurrentDBTime() {
 
         Date currentDBTime = this.dao.findCurrentDBTime();
+
         Assert.assertNotNull(currentDBTime);
     }
 

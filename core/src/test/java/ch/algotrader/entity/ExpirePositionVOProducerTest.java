@@ -48,18 +48,19 @@ public class ExpirePositionVOProducerTest {
         Forex forex = new ForexImpl();
         forex.setId(666);
 
-        Position entity = new PositionImpl();
+        Position position = new PositionImpl();
 
-        entity.setId(111);
-        entity.setQuantity(222);
-        entity.setSecurity(forex);
+        position.setId(111);
+        position.setQuantity(222);
+        position.setSecurity(forex);
 
-        ExpirePositionVO vo = this.instance.convert(entity);
+        ExpirePositionVO expirePositionVO = this.instance.convert(position);
 
-        Assert.assertNotNull(vo);
+        Assert.assertNotNull(expirePositionVO);
 
-        Assert.assertEquals(111, vo.getId());
-        Assert.assertEquals(222, vo.getQuantity());
-        Assert.assertEquals(666, vo.getSecurityId());
+        Assert.assertEquals(111, expirePositionVO.getId());
+        Assert.assertEquals(222, expirePositionVO.getQuantity());
+        Assert.assertEquals(666, expirePositionVO.getSecurityId());
     }
+
 }

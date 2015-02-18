@@ -74,6 +74,7 @@ public class PositionDaoTest extends InMemoryDBTest {
     private FutureFamily futurefamily1;
 
     public PositionDaoTest() throws IOException {
+
         super();
     }
 
@@ -124,7 +125,7 @@ public class PositionDaoTest extends InMemoryDBTest {
         this.session.save(this.forex1);
         this.session.save(this.strategy1);
 
-        PositionImpl position1 = new PositionImpl();
+        Position position1 = new PositionImpl();
         position1.setQuantity(222);
         position1.setExitValue(new BigDecimal(333));
         position1.setSecurity(this.forex1);
@@ -133,16 +134,16 @@ public class PositionDaoTest extends InMemoryDBTest {
         this.session.save(position1);
         this.session.flush();
 
-        Position found1 = this.dao.findByIdInclSecurityAndSecurityFamily(1);
+        Position position2 = this.dao.findByIdInclSecurityAndSecurityFamily(1);
 
-        Assert.assertNull(found1);
+        Assert.assertNull(position2);
 
-        Position found2 = this.dao.findByIdInclSecurityAndSecurityFamily(position1.getId());
+        Position position3 = this.dao.findByIdInclSecurityAndSecurityFamily(position1.getId());
 
-        Assert.assertEquals(222, found2.getQuantity());
-        Assert.assertSame(this.forex1, found2.getSecurity());
-        Assert.assertSame(this.family1, found2.getSecurity().getSecurityFamily());
-        Assert.assertSame(this.strategy1, found2.getStrategy());
+        Assert.assertEquals(222, position3.getQuantity());
+        Assert.assertSame(this.forex1, position3.getSecurity());
+        Assert.assertSame(this.family1, position3.getSecurity().getSecurityFamily());
+        Assert.assertSame(this.strategy1, position3.getStrategy());
     }
 
     @Test
@@ -152,7 +153,7 @@ public class PositionDaoTest extends InMemoryDBTest {
         this.session.save(this.forex1);
         this.session.save(this.strategy1);
 
-        PositionImpl position1 = new PositionImpl();
+        Position position1 = new PositionImpl();
         position1.setQuantity(222);
         position1.setExitValue(new BigDecimal(333));
         position1.setSecurity(this.forex1);
@@ -199,7 +200,7 @@ public class PositionDaoTest extends InMemoryDBTest {
         this.session.save(this.forex1);
         this.session.save(this.strategy1);
 
-        PositionImpl position1 = new PositionImpl();
+        Position position1 = new PositionImpl();
         position1.setQuantity(222);
         position1.setExitValue(new BigDecimal(333));
         position1.setSecurity(this.forex1);
@@ -244,7 +245,7 @@ public class PositionDaoTest extends InMemoryDBTest {
         this.session.save(this.forex1);
         this.session.save(this.strategy1);
 
-        PositionImpl position1 = new PositionImpl();
+        Position position1 = new PositionImpl();
         position1.setQuantity(222);
         position1.setExitValue(new BigDecimal(333));
         position1.setSecurity(this.forex1);
@@ -285,7 +286,7 @@ public class PositionDaoTest extends InMemoryDBTest {
         this.session.save(this.forex1);
         this.session.save(this.strategy1);
 
-        PositionImpl position1 = new PositionImpl();
+        Position position1 = new PositionImpl();
         position1.setQuantity(222);
         position1.setExitValue(new BigDecimal(333));
         position1.setSecurity(this.forex1);
@@ -328,7 +329,7 @@ public class PositionDaoTest extends InMemoryDBTest {
         this.session.save(this.forex1);
         this.session.save(this.strategy1);
 
-        PositionImpl position1 = new PositionImpl();
+        Position position1 = new PositionImpl();
         position1.setQuantity(0);
         position1.setExitValue(new BigDecimal(333));
         position1.setSecurity(this.forex1);
@@ -371,7 +372,7 @@ public class PositionDaoTest extends InMemoryDBTest {
         this.session.save(this.forex1);
         this.session.save(this.strategy1);
 
-        PositionImpl position1 = new PositionImpl();
+        Position position1 = new PositionImpl();
         position1.setQuantity(222);
         position1.setExitValue(new BigDecimal(333));
         position1.setSecurity(this.forex1);
@@ -380,18 +381,18 @@ public class PositionDaoTest extends InMemoryDBTest {
         this.session.save(position1);
         this.session.flush();
 
-        Position found1 = this.dao.findBySecurityAndStrategy(position1.getSecurity().getId(), "Dummy");
+        Position position2 = this.dao.findBySecurityAndStrategy(position1.getSecurity().getId(), "Dummy");
 
-        Assert.assertNull(found1);
+        Assert.assertNull(position2);
 
-        Position found2 = this.dao.findBySecurityAndStrategy(position1.getSecurity().getId(), "Strategy1");
+        Position position3 = this.dao.findBySecurityAndStrategy(position1.getSecurity().getId(), "Strategy1");
 
-        Assert.assertNotNull(found2);
+        Assert.assertNotNull(position3);
 
-        Assert.assertEquals(222, found2.getQuantity());
-        Assert.assertSame(this.forex1, found2.getSecurity());
-        Assert.assertSame(this.family1, found2.getSecurity().getSecurityFamily());
-        Assert.assertSame(this.strategy1, found2.getStrategy());
+        Assert.assertEquals(222, position3.getQuantity());
+        Assert.assertSame(this.forex1, position3.getSecurity());
+        Assert.assertSame(this.family1, position3.getSecurity().getSecurityFamily());
+        Assert.assertSame(this.strategy1, position3.getStrategy());
     }
 
     @Test
@@ -401,7 +402,7 @@ public class PositionDaoTest extends InMemoryDBTest {
         this.session.save(this.forex1);
         this.session.save(this.strategy1);
 
-        PositionImpl position1 = new PositionImpl();
+        Position position1 = new PositionImpl();
         position1.setQuantity(222);
         position1.setExitValue(new BigDecimal(333));
         position1.setSecurity(this.forex1);
@@ -410,18 +411,18 @@ public class PositionDaoTest extends InMemoryDBTest {
         this.session.save(position1);
         this.session.flush();
 
-        Position found1 = this.dao.findBySecurityAndStrategyIdLocked(position1.getSecurity().getId(), 1);
+        Position position2 = this.dao.findBySecurityAndStrategyIdLocked(position1.getSecurity().getId(), 1);
 
-        Assert.assertNull(found1);
+        Assert.assertNull(position2);
 
-        Position found2 = this.dao.findBySecurityAndStrategyIdLocked(position1.getSecurity().getId(), position1.getStrategy().getId());
+        Position position3 = this.dao.findBySecurityAndStrategyIdLocked(position1.getSecurity().getId(), position1.getStrategy().getId());
 
-        Assert.assertNotNull(found2);
+        Assert.assertNotNull(position3);
 
-        Assert.assertEquals(222, found2.getQuantity());
-        Assert.assertSame(this.forex1, found2.getSecurity());
-        Assert.assertSame(this.family1, found2.getSecurity().getSecurityFamily());
-        Assert.assertSame(this.strategy1, found2.getStrategy());
+        Assert.assertEquals(222, position3.getQuantity());
+        Assert.assertSame(this.forex1, position3.getSecurity());
+        Assert.assertSame(this.family1, position3.getSecurity().getSecurityFamily());
+        Assert.assertSame(this.strategy1, position3.getStrategy());
     }
 
     @Test
@@ -431,7 +432,7 @@ public class PositionDaoTest extends InMemoryDBTest {
         this.session.save(this.forex1);
         this.session.save(this.strategy1);
 
-        PositionImpl position1 = new PositionImpl();
+        Position position1 = new PositionImpl();
         position1.setQuantity(0);
         position1.setExitValue(new BigDecimal(333));
         position1.setSecurity(this.forex1);
@@ -501,7 +502,7 @@ public class PositionDaoTest extends InMemoryDBTest {
         this.session.save(this.forex1);
         this.session.save(this.strategy1);
 
-        PositionImpl position1 = new PositionImpl();
+        Position position1 = new PositionImpl();
         position1.setQuantity(222);
         position1.setExitValue(new BigDecimal(333));
         position1.setSecurity(this.forex1);
@@ -561,7 +562,7 @@ public class PositionDaoTest extends InMemoryDBTest {
         this.session.save(this.forex1);
         this.session.save(this.strategy1);
 
-        PositionImpl position1 = new PositionImpl();
+        Position position1 = new PositionImpl();
         position1.setQuantity(222);
         position1.setExitValue(new BigDecimal(333));
         position1.setSecurity(this.forex1);
@@ -591,7 +592,7 @@ public class PositionDaoTest extends InMemoryDBTest {
         this.session.save(this.forex1);
         this.session.save(this.strategy1);
 
-        PositionImpl position1 = new PositionImpl();
+        Position position1 = new PositionImpl();
         position1.setQuantity(222);
         position1.setExitValue(new BigDecimal(333));
         position1.setSecurity(this.forex1);
@@ -623,7 +624,7 @@ public class PositionDaoTest extends InMemoryDBTest {
         this.session.save(this.forex1);
         this.session.save(this.strategy1);
 
-        PositionImpl position1 = new PositionImpl();
+        Position position1 = new PositionImpl();
         position1.setQuantity(222);
         position1.setExitValue(new BigDecimal(333));
         position1.setSecurity(this.forex1);
@@ -656,7 +657,7 @@ public class PositionDaoTest extends InMemoryDBTest {
         this.session.save(this.forex1);
         this.session.save(this.strategy1);
 
-        PositionImpl position1 = new PositionImpl();
+        Position position1 = new PositionImpl();
         position1.setQuantity(222);
         position1.setExitValue(new BigDecimal(333));
         position1.setSecurity(this.forex1);
@@ -686,7 +687,7 @@ public class PositionDaoTest extends InMemoryDBTest {
         this.session.save(this.forex1);
         this.session.save(this.strategy1);
 
-        PositionImpl position1 = new PositionImpl();
+        Position position1 = new PositionImpl();
         position1.setQuantity(222);
         position1.setExitValue(new BigDecimal(333));
         position1.setSecurity(this.forex1);
@@ -716,7 +717,7 @@ public class PositionDaoTest extends InMemoryDBTest {
         this.session.save(this.forex1);
         this.session.save(this.strategy1);
 
-        PositionImpl position1 = new PositionImpl();
+        Position position1 = new PositionImpl();
         position1.setQuantity(222);
         position1.setExitValue(new BigDecimal(333));
         position1.setSecurity(this.forex1);
@@ -752,7 +753,7 @@ public class PositionDaoTest extends InMemoryDBTest {
         this.session.save(this.family2);
         this.session.save(this.strategy2);
 
-        PositionImpl position1 = new PositionImpl();
+        Position position1 = new PositionImpl();
         position1.setQuantity(222);
         position1.setExitValue(new BigDecimal(333));
         position1.setSecurity(this.forex1);
@@ -794,7 +795,7 @@ public class PositionDaoTest extends InMemoryDBTest {
         this.session.save(this.forex1);
         this.session.save(this.strategy1);
 
-        PositionImpl position1 = new PositionImpl();
+        Position position1 = new PositionImpl();
         position1.setQuantity(222);
         position1.setExitValue(new BigDecimal(333));
         position1.setSecurity(this.forex1);
@@ -827,7 +828,7 @@ public class PositionDaoTest extends InMemoryDBTest {
         this.session.save(this.forex1);
         this.session.save(this.strategy1);
 
-        PositionImpl position1 = new PositionImpl();
+        Position position1 = new PositionImpl();
         position1.setQuantity(222);
         position1.setExitValue(new BigDecimal(333));
         position1.setSecurity(this.forex1);
@@ -856,7 +857,7 @@ public class PositionDaoTest extends InMemoryDBTest {
         this.session.save(this.family2);
         this.session.save(this.strategy2);
 
-        PositionImpl position1 = new PositionImpl();
+        Position position1 = new PositionImpl();
         position1.setQuantity(222);
         position1.setExitValue(new BigDecimal(333));
         position1.setSecurity(this.forex1);
@@ -889,7 +890,7 @@ public class PositionDaoTest extends InMemoryDBTest {
         this.session.save(this.forex1);
         this.session.save(this.strategy1);
 
-        PositionImpl position1 = new PositionImpl();
+        Position position1 = new PositionImpl();
         position1.setQuantity(222);
         position1.setExitValue(new BigDecimal(333));
         position1.setSecurity(this.forex1);
@@ -966,7 +967,7 @@ public class PositionDaoTest extends InMemoryDBTest {
         this.session.save(this.forex1);
         this.session.save(this.strategy1);
 
-        PositionImpl position1 = new PositionImpl();
+        Position position1 = new PositionImpl();
         position1.setQuantity(222);
         position1.setExitValue(new BigDecimal(333));
         position1.setSecurity(this.forex1);
@@ -999,7 +1000,7 @@ public class PositionDaoTest extends InMemoryDBTest {
         this.session.save(this.forex1);
         this.session.save(this.strategy1);
 
-        PositionImpl position1 = new PositionImpl();
+        Position position1 = new PositionImpl();
         position1.setQuantity(222);
         position1.setExitValue(new BigDecimal(333));
         position1.setSecurity(this.forex1);
@@ -1032,7 +1033,7 @@ public class PositionDaoTest extends InMemoryDBTest {
         this.session.save(this.forex1);
         this.session.save(this.strategy1);
 
-        PositionImpl position1 = new PositionImpl();
+        Position position1 = new PositionImpl();
         position1.setQuantity(222);
         position1.setExitValue(new BigDecimal(333));
         position1.setSecurity(this.forex1);
@@ -1060,13 +1061,13 @@ public class PositionDaoTest extends InMemoryDBTest {
         this.session.save(this.forex2);
         this.session.save(this.strategy2);
 
-        PositionImpl position1 = new PositionImpl();
+        Position position1 = new PositionImpl();
         position1.setQuantity(0);
         position1.setExitValue(new BigDecimal(333));
         position1.setSecurity(this.forex1);
         position1.setStrategy(this.strategy1);
 
-        PositionImpl position2 = new PositionImpl();
+        Position position2 = new PositionImpl();
         position2.setQuantity(0);
         position2.setExitValue(new BigDecimal(444));
         position2.setSecurity(this.forex2);
@@ -1088,13 +1089,13 @@ public class PositionDaoTest extends InMemoryDBTest {
     @Test
     public void testFindOpenPositionsAggregated() {
 
-        PositionImpl position1 = new PositionImpl();
+        Position position1 = new PositionImpl();
         position1.setQuantity(0);
         position1.setExitValue(new BigDecimal(333));
         position1.setSecurity(this.forex1);
         position1.setStrategy(this.strategy1);
 
-        PositionImpl position2 = new PositionImpl();
+        Position position2 = new PositionImpl();
         position2.setQuantity(0);
         position2.setExitValue(new BigDecimal(333));
         position2.setSecurity(this.forex2);

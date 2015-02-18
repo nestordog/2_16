@@ -444,7 +444,6 @@ public class TickDaoTest extends InMemoryDBTest {
         Assert.assertEquals(1, ticks2.size());
         Assert.assertSame(tick, ticks2.get(0));
         Assert.assertSame(impliedVolatility, ticks2.get(0).getSecurity());
-
     }
 
     @Test

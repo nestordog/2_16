@@ -137,4 +137,5 @@ public class CostAccountingTest {
         Assert.assertEquals(eAvgPrice, avgPrice, 0.001);
         Assert.assertEquals(eRealizedPL, realizedPL, 0.001);
     }
+
 }

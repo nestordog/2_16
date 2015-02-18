@@ -120,7 +120,6 @@ public class TransactionDaoTest extends InMemoryDBTest {
         transaction1.setStrategy(this.strategy1);
 
         this.session.save(transaction1);
-
         this.session.save(this.family2);
         this.session.save(this.forex2);
         this.session.save(this.strategy2);
@@ -174,7 +173,6 @@ public class TransactionDaoTest extends InMemoryDBTest {
         Transaction transaction1 = new TransactionImpl();
         transaction1.setSecurity(this.forex1);
         transaction1.setQuantity(222);
-
         transaction1.setDateTime(new Date());
         transaction1.setPrice(new BigDecimal(111));
         transaction1.setCurrency(Currency.INR);
@@ -199,6 +197,7 @@ public class TransactionDaoTest extends InMemoryDBTest {
         transaction2.setStrategy(this.strategy2);
 
         CommonConfig commonConfig = CommonConfigBuilder.create().build();
+
         TransactionVOProducer converter = new TransactionVOProducer(commonConfig);
 
         List<TransactionVO> transactionVOs1 = this.dao.findTransactionsDesc(1, converter);
@@ -249,7 +248,6 @@ public class TransactionDaoTest extends InMemoryDBTest {
         transaction1.setStrategy(this.strategy1);
 
         this.session.save(transaction1);
-
         this.session.save(this.family2);
         this.session.save(this.forex2);
         this.session.save(this.strategy2);
@@ -267,6 +265,7 @@ public class TransactionDaoTest extends InMemoryDBTest {
         this.session.flush();
 
         CommonConfig commonConfig = CommonConfigBuilder.create().build();
+
         TransactionVOProducer converter = new TransactionVOProducer(commonConfig);
 
         List<TransactionVO> transactionVOs1 = this.dao.findTransactionsByStrategyDesc(1, "Dummy", converter);

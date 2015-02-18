@@ -53,20 +53,21 @@ public class OpenPositionVOProducerTest {
         Strategy strategy = new StrategyImpl();
         strategy.setName("Strategy");
 
-        Position entity = new PositionImpl();
+        Position position = new PositionImpl();
 
-        entity.setId(111);
-        entity.setQuantity(222);
-        entity.setSecurity(forex);
-        entity.setStrategy(strategy);
+        position.setId(111);
+        position.setQuantity(222);
+        position.setSecurity(forex);
+        position.setStrategy(strategy);
 
-        OpenPositionVO vo = this.instance.convert(entity);
+        OpenPositionVO openPositionVO = this.instance.convert(position);
 
-        Assert.assertNotNull(vo);
+        Assert.assertNotNull(openPositionVO);
 
-        Assert.assertEquals(111, vo.getId());
-        Assert.assertEquals(222, vo.getQuantity());
-        Assert.assertEquals(666, vo.getSecurityId());
-        Assert.assertEquals(entity.getStrategy().toString(), vo.getStrategy());
+        Assert.assertEquals(111, openPositionVO.getId());
+        Assert.assertEquals(222, openPositionVO.getQuantity());
+        Assert.assertEquals(666, openPositionVO.getSecurityId());
+        Assert.assertEquals(position.getStrategy().toString(), openPositionVO.getStrategy());
     }
+
 }

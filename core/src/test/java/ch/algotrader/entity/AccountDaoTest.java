@@ -41,13 +41,16 @@ public class AccountDaoTest extends InMemoryDBTest {
     private AccountDao dao;
 
     public AccountDaoTest() throws IOException {
+
         super();
     }
 
     @Override
     @Before
     public void setup() throws Exception {
+
         super.setup();
+
         this.dao = new AccountDaoImpl(this.sessionFactory);
     }
 
@@ -55,6 +58,7 @@ public class AccountDaoTest extends InMemoryDBTest {
     public void testFindByName() {
 
         Account account1 = this.dao.findByName("name1");
+
         Assert.assertNull(account1);
 
         Account account2 = new AccountImpl();
@@ -72,7 +76,6 @@ public class AccountDaoTest extends InMemoryDBTest {
         Assert.assertEquals("name2", account3.getName());
         Assert.assertEquals(Broker.CNX, account3.getBroker());
         Assert.assertEquals(OrderServiceType.CNX_FIX, account3.getOrderServiceType());
-
     }
 
     @Test
@@ -98,7 +101,6 @@ public class AccountDaoTest extends InMemoryDBTest {
         Assert.assertNotNull(sessionQualifiers2);
         Assert.assertEquals(1, sessionQualifiers2.size());
         Assert.assertTrue(sessionQualifiers2.contains("CNX_FIX"));
-
     }
 
 }
