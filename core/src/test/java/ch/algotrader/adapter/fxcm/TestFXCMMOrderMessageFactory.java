@@ -38,6 +38,7 @@ import ch.algotrader.entity.trade.StopLimitOrder;
 import ch.algotrader.entity.trade.StopLimitOrderImpl;
 import ch.algotrader.entity.trade.StopOrder;
 import ch.algotrader.entity.trade.StopOrderImpl;
+import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.TIF;
@@ -64,30 +65,32 @@ public class TestFXCMMOrderMessageFactory {
     @Before
     public void setup() throws Exception {
 
-        family = new SecurityFamilyImpl();
-        family.setCurrency(Currency.USD);
+        this.family = new SecurityFamilyImpl();
+        this.family.setCurrency(Currency.USD);
+        this.family.setTickSizePattern("0<0.001");
 
-        forex = new ForexImpl();
-        forex.setSymbol("EUR.USD");
-        forex.setBaseCurrency(Currency.EUR);
-        forex.setSecurityFamily(family);
+        this.forex = new ForexImpl();
+        this.forex.setSymbol("EUR.USD");
+        this.forex.setBaseCurrency(Currency.EUR);
+        this.forex.setSecurityFamily(this.family);
 
-        account = new AccountImpl();
-        account.setExtAccount("test-account");
+        this.account = new AccountImpl();
+        this.account.setBroker(Broker.IB);
+        this.account.setExtAccount("test-account");
 
-        requestFactory = new FXCMFixOrderMessageFactory();
+        this.requestFactory = new FXCMFixOrderMessageFactory();
     }
 
     @Test
     public void testMarketOrderForex() throws Exception {
 
         MarketOrder order = new MarketOrderImpl();
-        order.setSecurity(forex);
-        order.setAccount(account);
+        order.setSecurity(this.forex);
+        order.setAccount(this.account);
         order.setSide(Side.BUY);
         order.setQuantity(123);
 
-        NewOrderSingle message = requestFactory.createNewOrderMessage(order, "test-id");
+        NewOrderSingle message = this.requestFactory.createNewOrderMessage(order, "test-id");
 
         Assert.assertNotNull(message);
         Assert.assertEquals(new ClOrdID("test-id"), message.getClOrdID());
@@ -105,13 +108,13 @@ public class TestFXCMMOrderMessageFactory {
     public void testLimitOrderForex() throws Exception {
 
         LimitOrder order = new LimitOrderImpl();
-        order.setSecurity(forex);
-        order.setAccount(account);
+        order.setSecurity(this.forex);
+        order.setAccount(this.account);
         order.setSide(Side.BUY);
         order.setQuantity(123);
         order.setLimit(new BigDecimal("1.345"));
 
-        NewOrderSingle message = requestFactory.createNewOrderMessage(order, "test-id");
+        NewOrderSingle message = this.requestFactory.createNewOrderMessage(order, "test-id");
 
         Assert.assertNotNull(message);
         Assert.assertEquals(new ClOrdID("test-id"), message.getClOrdID());
@@ -129,13 +132,13 @@ public class TestFXCMMOrderMessageFactory {
     public void testStopOrderForex() throws Exception {
 
         StopOrder order = new StopOrderImpl();
-        order.setSecurity(forex);
-        order.setAccount(account);
+        order.setSecurity(this.forex);
+        order.setAccount(this.account);
         order.setSide(Side.BUY);
         order.setQuantity(123);
         order.setStop(new BigDecimal("1.345"));
 
-        NewOrderSingle message = requestFactory.createNewOrderMessage(order, "test-id");
+        NewOrderSingle message = this.requestFactory.createNewOrderMessage(order, "test-id");
 
         Assert.assertNotNull(message);
         Assert.assertEquals(new ClOrdID("test-id"), message.getClOrdID());
@@ -153,14 +156,14 @@ public class TestFXCMMOrderMessageFactory {
     public void testStopLimitOrder() throws Exception {
 
         StopLimitOrder order = new StopLimitOrderImpl();
-        order.setSecurity(forex);
-        order.setAccount(account);
+        order.setSecurity(this.forex);
+        order.setAccount(this.account);
         order.setSide(Side.BUY);
         order.setQuantity(123);
         order.setLimit(new BigDecimal("1.355"));
         order.setStop(new BigDecimal("1.345"));
 
-        NewOrderSingle message = requestFactory.createNewOrderMessage(order, "test-id");
+        NewOrderSingle message = this.requestFactory.createNewOrderMessage(order, "test-id");
 
         Assert.assertNotNull(message);
         Assert.assertEquals(new ClOrdID("test-id"), message.getClOrdID());
@@ -179,13 +182,13 @@ public class TestFXCMMOrderMessageFactory {
 
         LimitOrder order = new LimitOrderImpl();
         order.setIntId("test-id");
-        order.setSecurity(forex);
-        order.setAccount(account);
+        order.setSecurity(this.forex);
+        order.setAccount(this.account);
         order.setSide(Side.BUY);
         order.setQuantity(123);
         order.setLimit(new BigDecimal("1.345"));
 
-        OrderCancelReplaceRequest message = requestFactory.createModifyOrderMessage(order, "test-id-2");
+        OrderCancelReplaceRequest message = this.requestFactory.createModifyOrderMessage(order, "test-id-2");
 
         Assert.assertNotNull(message);
         Assert.assertEquals(new OrigClOrdID("test-id"), message.getOrigClOrdID());
@@ -205,13 +208,13 @@ public class TestFXCMMOrderMessageFactory {
 
         StopOrder order = new StopOrderImpl();
         order.setIntId("test-id");
-        order.setSecurity(forex);
-        order.setAccount(account);
+        order.setSecurity(this.forex);
+        order.setAccount(this.account);
         order.setSide(Side.BUY);
         order.setQuantity(123);
         order.setStop(new BigDecimal("1.353"));
 
-        OrderCancelReplaceRequest message = requestFactory.createModifyOrderMessage(order, "test-id-2");
+        OrderCancelReplaceRequest message = this.requestFactory.createModifyOrderMessage(order, "test-id-2");
 
         Assert.assertNotNull(message);
         Assert.assertEquals(new OrigClOrdID("test-id"), message.getOrigClOrdID());
@@ -231,14 +234,14 @@ public class TestFXCMMOrderMessageFactory {
 
         StopLimitOrder order = new StopLimitOrderImpl();
         order.setIntId("test-id");
-        order.setSecurity(forex);
-        order.setAccount(account);
+        order.setSecurity(this.forex);
+        order.setAccount(this.account);
         order.setSide(Side.BUY);
         order.setQuantity(123);
         order.setLimit(new BigDecimal("1.355"));
         order.setStop(new BigDecimal("1.345"));
 
-        OrderCancelReplaceRequest message = requestFactory.createModifyOrderMessage(order, "test-id-2");
+        OrderCancelReplaceRequest message = this.requestFactory.createModifyOrderMessage(order, "test-id-2");
 
         Assert.assertNotNull(message);
         Assert.assertEquals(new OrigClOrdID("test-id"), message.getOrigClOrdID());
@@ -258,12 +261,12 @@ public class TestFXCMMOrderMessageFactory {
 
         MarketOrder order = new MarketOrderImpl();
         order.setIntId("test-id");
-        order.setSecurity(forex);
-        order.setAccount(account);
+        order.setSecurity(this.forex);
+        order.setAccount(this.account);
         order.setSide(Side.BUY);
         order.setQuantity(123);
 
-        requestFactory.createModifyOrderMessage(order, "test-id-2");
+        this.requestFactory.createModifyOrderMessage(order, "test-id-2");
     }
 
     @Test
@@ -271,13 +274,13 @@ public class TestFXCMMOrderMessageFactory {
 
         LimitOrder order = new LimitOrderImpl();
         order.setIntId("test-id");
-        order.setSecurity(forex);
-        order.setAccount(account);
+        order.setSecurity(this.forex);
+        order.setAccount(this.account);
         order.setSide(Side.BUY);
         order.setQuantity(123);
         order.setLimit(new BigDecimal("1.345"));
 
-        OrderCancelRequest message = requestFactory.createOrderCancelMessage(order, "test-id-3");
+        OrderCancelRequest message = this.requestFactory.createOrderCancelMessage(order, "test-id-3");
 
         Assert.assertNotNull(message);
         Assert.assertEquals(new OrigClOrdID("test-id"), message.getOrigClOrdID());
@@ -293,7 +296,7 @@ public class TestFXCMMOrderMessageFactory {
 
         MarketOrder order = new MarketOrderImpl();
         order.setTif(TIF.ATC);
-        requestFactory.resolveTimeInForce(order);
+        this.requestFactory.resolveTimeInForce(order);
     }
 
     @Test(expected = FixApplicationException.class)
@@ -301,7 +304,7 @@ public class TestFXCMMOrderMessageFactory {
 
         MarketOrder order = new MarketOrderImpl();
         order.setTif(TIF.ATO);
-        requestFactory.resolveTimeInForce(order);
+        this.requestFactory.resolveTimeInForce(order);
     }
 
 }

@@ -19,6 +19,7 @@ package ch.algotrader.entity.trade;
 
 import java.math.BigDecimal;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -85,7 +86,11 @@ public class OrderDaoImpl extends AbstractDao<Order> implements OrderDao {
     @Override
     public Collection<Order> findAllOpenOrders() {
 
-        return this.convertPairCollectionToOrderCollection(this.serverEngine.executeQuery("select * from OpenOrderWindow"));
+        if (this.serverEngine.isDeployed("OPEN_ORDER_WINDOW")) {
+            return this.convertPairCollectionToOrderCollection(this.serverEngine.executeQuery("select * from OpenOrderWindow"));
+        } else {
+            return Collections.emptyList();
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -94,7 +99,11 @@ public class OrderDaoImpl extends AbstractDao<Order> implements OrderDao {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        return this.convertPairCollectionToOrderCollection(this.serverEngine.executeQuery("select * from OpenOrderWindow where strategy.name = '" + strategyName + "'"));
+        if (this.serverEngine.isDeployed("OPEN_ORDER_WINDOW")) {
+            return this.convertPairCollectionToOrderCollection(this.serverEngine.executeQuery("select * from OpenOrderWindow where strategy.name = '" + strategyName + "'"));
+        } else {
+            return Collections.emptyList();
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -103,8 +112,12 @@ public class OrderDaoImpl extends AbstractDao<Order> implements OrderDao {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        return this.convertPairCollectionToOrderCollection(this.serverEngine
-                .executeQuery("select * from OpenOrderWindow where strategy.name = '" + strategyName + "' and security.id = " + securityId));
+        if (this.serverEngine.isDeployed("OPEN_ORDER_WINDOW")) {
+            return this.convertPairCollectionToOrderCollection(this.serverEngine.executeQuery("select * from OpenOrderWindow where strategy.name = '" + strategyName + "' and security.id = "
+                    + securityId));
+        } else {
+            return Collections.emptyList();
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -113,12 +126,14 @@ public class OrderDaoImpl extends AbstractDao<Order> implements OrderDao {
 
         Validate.notEmpty(intId, "intId is empty");
 
-        Pair<Order, Map<?, ?>> pair = ((Pair<Order, Map<?, ?>>) this.serverEngine.executeSingelObjectQuery("select * from OpenOrderWindow where intId = '" + intId + "'"));
-        if (pair == null) {
-            return null;
-        } else {
-            return pair.getFirst();
+        if (this.serverEngine.isDeployed("OPEN_ORDER_WINDOW")) {
+            Pair<Order, Map<?, ?>> pair = ((Pair<Order, Map<?, ?>>) this.serverEngine.executeSingelObjectQuery("select * from OpenOrderWindow where intId = '" + intId + "'"));
+            if (pair != null) {
+                return pair.getFirst();
+            }
         }
+
+        return null;
     }
 
     @SuppressWarnings("unchecked")
@@ -127,14 +142,15 @@ public class OrderDaoImpl extends AbstractDao<Order> implements OrderDao {
 
         Validate.notEmpty(intId, "intId is empty");
 
-        String rootIntId = intId.split("\\.")[0];
-        Pair<Order, Map<?, ?>> pair = ((Pair<Order, Map<?, ?>>) this.serverEngine
-                .executeSingelObjectQuery("select * from OpenOrderWindow where intId like '" + rootIntId + ".%'"));
-        if (pair == null) {
-            return null;
-        } else {
-            return pair.getFirst();
+        if (this.serverEngine.isDeployed("OPEN_ORDER_WINDOW")) {
+            String rootIntId = intId.split("\\.")[0];
+            Pair<Order, Map<?, ?>> pair = ((Pair<Order, Map<?, ?>>) this.serverEngine.executeSingelObjectQuery("select * from OpenOrderWindow where intId like '" + rootIntId + ".%'"));
+            if (pair != null) {
+                return pair.getFirst();
+            }
         }
+
+        return null;
     }
 
     @SuppressWarnings("unchecked")
@@ -143,12 +159,14 @@ public class OrderDaoImpl extends AbstractDao<Order> implements OrderDao {
 
         Validate.notEmpty(extId, "extId is empty");
 
-        Pair<Order, Map<?, ?>> pair = ((Pair<Order, Map<?, ?>>) this.serverEngine.executeSingelObjectQuery("select * from OpenOrderWindow where extId = '" + extId + "'"));
-        if (pair == null) {
-            return null;
-        } else {
-            return pair.getFirst();
+        if (this.serverEngine.isDeployed("OPEN_ORDER_WINDOW")) {
+            Pair<Order, Map<?, ?>> pair = ((Pair<Order, Map<?, ?>>) this.serverEngine.executeSingelObjectQuery("select * from OpenOrderWindow where extId = '" + extId + "'"));
+            if (pair != null) {
+                return pair.getFirst();
+            }
         }
+
+        return null;
     }
 
     @SuppressWarnings("unchecked")
@@ -157,8 +175,11 @@ public class OrderDaoImpl extends AbstractDao<Order> implements OrderDao {
 
         Validate.notEmpty(parentIntId, "parentIntId is empty");
 
-        return this.convertPairCollectionToOrderCollection(this.serverEngine
-                .executeQuery("select * from OpenOrderWindow where not algoOrder and parentOrder.intId = '" + parentIntId + "'"));
+        if (this.serverEngine.isDeployed("OPEN_ORDER_WINDOW")) {
+            return this.convertPairCollectionToOrderCollection(this.serverEngine.executeQuery("select * from OpenOrderWindow where not algoOrder and parentOrder.intId = '" + parentIntId + "'"));
+        } else {
+            return Collections.emptyList();
+        }
     }
 
     private Collection<Order> convertPairCollectionToOrderCollection(Collection<Pair<Order, Map<?, ?>>> pairs) {

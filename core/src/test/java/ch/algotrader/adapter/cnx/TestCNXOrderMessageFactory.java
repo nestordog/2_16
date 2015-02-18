@@ -26,6 +26,8 @@ import org.junit.Test;
 
 import ch.algotrader.adapter.fix.FixApplicationException;
 import ch.algotrader.adapter.fix.fix44.FixTestUtils;
+import ch.algotrader.entity.Account;
+import ch.algotrader.entity.AccountImpl;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.ForexImpl;
 import ch.algotrader.entity.security.SecurityFamily;
@@ -40,6 +42,7 @@ import ch.algotrader.entity.trade.StopLimitOrder;
 import ch.algotrader.entity.trade.StopLimitOrderImpl;
 import ch.algotrader.entity.trade.StopOrder;
 import ch.algotrader.entity.trade.StopOrderImpl;
+import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.TIF;
@@ -64,10 +67,16 @@ public class TestCNXOrderMessageFactory {
 
     private CNXFixOrderMessageFactory requestFactory;
 
+    private Account account;
+
     @Before
     public void setup() throws Exception {
 
         this.requestFactory = new CNXFixOrderMessageFactory();
+
+        this.account = new AccountImpl();
+        this.account.setBroker(Broker.IB);
+        this.account.setExtAccount("test-account");
     }
 
     @Test
@@ -122,6 +131,7 @@ public class TestCNXOrderMessageFactory {
 
         SecurityFamily family = new SecurityFamilyImpl();
         family.setCurrency(Currency.USD);
+        family.setTickSizePattern("0<0.001");
 
         Forex forex = new ForexImpl();
         forex.setBaseCurrency(Currency.EUR);
@@ -129,6 +139,7 @@ public class TestCNXOrderMessageFactory {
 
         LimitOrder order = new LimitOrderImpl();
         order.setSecurity(forex);
+        order.setAccount(this.account);
         order.setSide(Side.BUY);
         order.setQuantity(2000);
         order.setLimit(new BigDecimal("1.345"));
@@ -156,6 +167,7 @@ public class TestCNXOrderMessageFactory {
 
         SecurityFamily family = new SecurityFamilyImpl();
         family.setCurrency(Currency.USD);
+        family.setTickSizePattern("0<0.001");
 
         Forex forex = new ForexImpl();
         forex.setBaseCurrency(Currency.EUR);
@@ -163,6 +175,7 @@ public class TestCNXOrderMessageFactory {
 
         StopOrder order = new StopOrderImpl();
         order.setSecurity(forex);
+        order.setAccount(this.account);
         order.setSide(Side.BUY);
         order.setQuantity(2000);
         order.setStop(new BigDecimal("1.345"));
@@ -191,6 +204,7 @@ public class TestCNXOrderMessageFactory {
 
         SecurityFamily family = new SecurityFamilyImpl();
         family.setCurrency(Currency.USD);
+        family.setTickSizePattern("0<0.001");
 
         Forex forex = new ForexImpl();
         forex.setBaseCurrency(Currency.EUR);
@@ -198,6 +212,7 @@ public class TestCNXOrderMessageFactory {
 
         StopLimitOrder order = new StopLimitOrderImpl();
         order.setSecurity(forex);
+        order.setAccount(this.account);
         order.setSide(Side.SELL);
         order.setQuantity(2000);
         order.setLimit(new BigDecimal("1.355"));
@@ -278,6 +293,7 @@ public class TestCNXOrderMessageFactory {
 
         SecurityFamily family = new SecurityFamilyImpl();
         family.setCurrency(Currency.USD);
+        family.setTickSizePattern("0<0.001");
 
         Forex forex = new ForexImpl();
         forex.setBaseCurrency(Currency.EUR);
@@ -287,6 +303,7 @@ public class TestCNXOrderMessageFactory {
         order.setIntId("some-int-id");
         order.setExtId("some-ext-id");
         order.setSecurity(forex);
+        order.setAccount(this.account);
         order.setSide(Side.BUY);
         order.setQuantity(3000);
         order.setLimit(new BigDecimal("2.345"));
@@ -316,6 +333,7 @@ public class TestCNXOrderMessageFactory {
 
         SecurityFamily family = new SecurityFamilyImpl();
         family.setCurrency(Currency.USD);
+        family.setTickSizePattern("0<0.001");
 
         Forex forex = new ForexImpl();
         forex.setBaseCurrency(Currency.EUR);
@@ -325,6 +343,7 @@ public class TestCNXOrderMessageFactory {
         order.setIntId("some-int-id");
         order.setExtId("some-ext-id");
         order.setSecurity(forex);
+        order.setAccount(this.account);
         order.setSide(Side.BUY);
         order.setQuantity(4000);
         order.setStop(new BigDecimal("3.345"));
@@ -354,6 +373,7 @@ public class TestCNXOrderMessageFactory {
 
         SecurityFamily family = new SecurityFamilyImpl();
         family.setCurrency(Currency.USD);
+        family.setTickSizePattern("0<0.001");
 
         Forex forex = new ForexImpl();
         forex.setBaseCurrency(Currency.EUR);
@@ -363,6 +383,7 @@ public class TestCNXOrderMessageFactory {
         order.setIntId("some-int-id");
         order.setExtId("some-ext-id");
         order.setSecurity(forex);
+        order.setAccount(this.account);
         order.setSide(Side.SELL);
         order.setQuantity(5000);
         order.setLimit(new BigDecimal("4.355"));
@@ -604,6 +625,7 @@ public class TestCNXOrderMessageFactory {
 
         SecurityFamily family = new SecurityFamilyImpl();
         family.setCurrency(Currency.USD);
+        family.setTickSizePattern("0<0.001");
 
         Forex forex = new ForexImpl();
         forex.setBaseCurrency(Currency.EUR);
@@ -611,6 +633,7 @@ public class TestCNXOrderMessageFactory {
 
         StopLimitOrder order = new StopLimitOrderImpl();
         order.setSecurity(forex);
+        order.setAccount(this.account);
         order.setSide(Side.SELL);
         order.setQuantity(2000);
         order.setLimit(new BigDecimal("1.355"));
@@ -647,6 +670,7 @@ public class TestCNXOrderMessageFactory {
 
         SecurityFamily family = new SecurityFamilyImpl();
         family.setCurrency(Currency.USD);
+        family.setTickSizePattern("0<0.001");
 
         Forex forex = new ForexImpl();
         forex.setBaseCurrency(Currency.EUR);
@@ -654,6 +678,7 @@ public class TestCNXOrderMessageFactory {
 
         StopLimitOrder order = new StopLimitOrderImpl();
         order.setSecurity(forex);
+        order.setAccount(this.account);
         order.setSide(Side.SELL);
         order.setQuantity(2000);
         order.setLimit(new BigDecimal("1.355"));

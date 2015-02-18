@@ -28,7 +28,7 @@ import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.service.LookupService;
-import ch.algotrader.util.RoundUtil;
+import ch.algotrader.util.PriceUtil;
 import quickfix.FieldNotFound;
 import quickfix.field.AvgPx;
 import quickfix.field.CumQty;
@@ -101,16 +101,16 @@ public class LMAXFixOrderMessageHandler extends AbstractFix44OrderMessageHandler
         }
         if (executionReport.isSetField(LastPx.FIELD)) {
 
-            double d = executionReport.getLastPx().getValue();
-            if (d != 0.0) {
-                orderStatus.setLastPrice(RoundUtil.getBigDecimal(d, order.getSecurity().getSecurityFamily().getScale()));
+            double lastPrice = executionReport.getLastPx().getValue();
+            if (lastPrice != 0.0) {
+                orderStatus.setLastPrice(PriceUtil.normalizePrice(order, lastPrice));
             }
         }
         if (executionReport.isSetField(AvgPx.FIELD)) {
 
-            double d = executionReport.getAvgPx().getValue();
-            if (d != 0.0) {
-                orderStatus.setAvgPrice(RoundUtil.getBigDecimal(d, order.getSecurity().getSecurityFamily().getScale()));
+            double avgPrice = executionReport.getAvgPx().getValue();
+            if (avgPrice != 0.0) {
+                orderStatus.setAvgPrice(PriceUtil.normalizePrice(order, avgPrice));
             }
         }
 
@@ -139,7 +139,7 @@ public class LMAXFixOrderMessageHandler extends AbstractFix44OrderMessageHandler
             fill.setSequenceNumber(executionReport.getHeader().getInt(MsgSeqNum.FIELD));
             fill.setSide(side);
             fill.setQuantity(quantity);
-            fill.setPrice(RoundUtil.getBigDecimal(price, order.getSecurity().getSecurityFamily().getScale()));
+            fill.setPrice(PriceUtil.normalizePrice(order,price));
 
             return fill;
         } else {

@@ -45,6 +45,7 @@ import ch.algotrader.entity.marketData.BarDao;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.enumeration.BarType;
+import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.enumeration.InitializingServiceType;
@@ -332,7 +333,7 @@ public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl imple
                 double close = fields.getElementAsFloat64(BBConstants.CLOSE);
                 long volume = fields.getElementAsInt64(BBConstants.VOLUME);
 
-                int scale = this.security.getSecurityFamily().getScale();
+                int scale = this.security.getSecurityFamily().getScale(Broker.BBG);
 
                 Bar bar = Bar.Factory.newInstance();
                 bar.setDateTime(time);
@@ -387,7 +388,7 @@ public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl imple
                     volume = bbBar.getElementAsInt64("VOLUME");
                 }
 
-                int scale = this.security.getSecurityFamily().getScale();
+                int scale = this.security.getSecurityFamily().getScale(Broker.BBG);
 
                 Bar bar = Bar.Factory.newInstance();
                 bar.setDateTime(date);

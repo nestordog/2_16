@@ -42,6 +42,7 @@ import ch.algotrader.entity.trade.MarketOrder;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.entity.trade.StopOrder;
 import ch.algotrader.enumeration.TIF;
+import ch.algotrader.util.PriceUtil;
 
 /**
  *  LMAX order message factory.
@@ -125,12 +126,14 @@ public class LMAXFixOrderMessageFactory implements Fix44OrderMessageFactory {
         } else if (order instanceof LimitOrder) {
 
             message.set(new OrdType(OrdType.LIMIT));
-            message.set(new Price(((LimitOrder) order).getLimit().doubleValue()));
+            LimitOrder limitOrder = (LimitOrder) order;
+            message.set(new Price(PriceUtil.denormalizePrice(order, limitOrder.getLimit())));
 
         } else if (order instanceof StopOrder) {
 
             message.set(new OrdType(OrdType.STOP));
-            message.set(new StopPx(((StopOrder) order).getStop().doubleValue()));
+            StopOrder stopOrder = (StopOrder) order;
+            message.set(new StopPx(PriceUtil.denormalizePrice(order, stopOrder.getStop())));
 
         } else {
 
@@ -153,6 +156,8 @@ public class LMAXFixOrderMessageFactory implements Fix44OrderMessageFactory {
             throw new FixApplicationException("Order modification of type " + order.getClass().getName() + " is not supported by LMAX");
         }
 
+        LimitOrder limitOrder = (LimitOrder) order;
+
         // get origClOrdID and assign a new clOrdID
         String origClOrdID = order.getIntId();
 
@@ -169,7 +174,7 @@ public class LMAXFixOrderMessageFactory implements Fix44OrderMessageFactory {
         message.set(resolveOrderQty(order));
 
         message.set(new OrdType(OrdType.LIMIT));
-        message.set(new Price(((LimitOrder) order).getLimit().doubleValue()));
+        message.set(new Price(PriceUtil.denormalizePrice(order, limitOrder.getLimit())));
 
         if (order.getTif() != null) {
 

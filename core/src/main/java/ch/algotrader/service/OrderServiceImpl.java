@@ -268,7 +268,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
         order.setStrategy(this.strategyDao.load(order.getStrategy().getId()));
         order.setSecurity(this.securityDao.findByIdInclFamilyAndUnderlying(order.getSecurity().getId()));
 
-        // reload the order if necessary to get potential changes
+        // reload the account if necessary to get potential changes
         if (order.getAccount() != null) {
             order.setAccount(this.accountDao.load(order.getAccount().getId()));
         }

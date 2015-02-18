@@ -52,7 +52,7 @@ import ch.algotrader.esper.Engine;
 import ch.algotrader.service.HistoricalDataServiceException;
 import ch.algotrader.service.LookupService;
 import ch.algotrader.service.ib.IBNativeMarketDataService;
-import ch.algotrader.util.RoundUtil;
+import ch.algotrader.util.PriceUtil;
 
 /**
  * Esper specific MessageHandler.
@@ -131,7 +131,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
     @Override
     public void execDetails(final int reqId, final Contract contract, final Execution execution) {
 
-        // ignore FA transfer execution reporst
+        // ignore FA transfer execution reports
         if (execution.m_execId.startsWith("F-") || execution.m_execId.startsWith("U+")) {
             return;
         }
@@ -149,7 +149,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
         Date extDateTime = IBUtil.getExecutionDateTime(execution);
         Side side = IBUtil.getSide(execution);
         long quantity = execution.m_shares;
-        BigDecimal price = RoundUtil.getBigDecimal(execution.m_price, order.getSecurity().getSecurityFamily().getScale());
+        BigDecimal price = PriceUtil.normalizePrice(order, execution.m_price);
         String extExecId = execution.m_execId;
 
         // assemble the fill

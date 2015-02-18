@@ -39,6 +39,7 @@ import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.entity.trade.StopOrderI;
 import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.TIF;
+import ch.algotrader.util.PriceUtil;
 
 /**
  * Generic FIX/4.4 order message factory implementation.
@@ -81,12 +82,14 @@ public class GenericFix44OrderMessageFactory implements Fix44OrderMessageFactory
 
         //set the limit price if order is a limit order or stop limit order
         if (order instanceof LimitOrderI) {
-            message.set(new Price(((LimitOrderI) order).getLimit().doubleValue()));
+            LimitOrderI limitOrder = (LimitOrderI) order;
+            message.set(new Price(PriceUtil.denormalizePrice(order, limitOrder.getLimit())));
         }
 
         //set the stop price if order is a stop order or stop limit order
         if (order instanceof StopOrderI) {
-            message.set(new StopPx(((StopOrderI) order).getStop().doubleValue()));
+            StopOrderI stopOrder = (StopOrderI) order;
+            message.set(new StopPx(PriceUtil.denormalizePrice(order, stopOrder.getStop())));
         }
 
         // set TIF
@@ -131,12 +134,14 @@ public class GenericFix44OrderMessageFactory implements Fix44OrderMessageFactory
 
         //set the limit price if order is a limit order or stop limit order
         if (order instanceof LimitOrderI) {
-            message.set(new Price(((LimitOrderI) order).getLimit().doubleValue()));
+            LimitOrderI limitOrder = (LimitOrderI) order;
+            message.set(new Price(PriceUtil.denormalizePrice(order, limitOrder.getLimit())));
         }
 
         //set the stop price if order is a stop order or stop limit order
         if (order instanceof StopOrderI) {
-            message.set(new StopPx(((StopOrderI) order).getStop().doubleValue()));
+            StopOrderI stopOrder = (StopOrderI) order;
+            message.set(new StopPx(PriceUtil.denormalizePrice(order, stopOrder.getStop())));
         }
 
         // set TIF

@@ -31,6 +31,7 @@ import ch.algotrader.entity.trade.StopOrderI;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.service.OrderService;
 import ch.algotrader.service.fix.fix44.Fix44OrderServiceImpl;
+import ch.algotrader.util.PriceUtil;
 import quickfix.field.OrdType;
 import quickfix.field.OrderID;
 import quickfix.field.Price;
@@ -80,8 +81,9 @@ public class DCFixOrderServiceImpl extends Fix44OrderServiceImpl implements DCFi
 
         // Note: DukasCopy uses Price for Stop orders instead of StopPx
         if (order instanceof StopOrder) {
+            StopOrder stopOrder = (StopOrder) order;
             newOrder.removeField(StopPx.FIELD);
-            newOrder.set(new Price(((StopOrderI) order).getStop().doubleValue()));
+            newOrder.set(new Price(PriceUtil.denormalizePrice(order, stopOrder.getStop())));
         }
 
         newOrder.set(new TimeInForce(TimeInForce.GOOD_TILL_CANCEL));
@@ -107,7 +109,8 @@ public class DCFixOrderServiceImpl extends Fix44OrderServiceImpl implements DCFi
         // Note: DukasCopy uses Price for Stop orders instead of StopPx
         if (order instanceof StopOrder) {
             replaceRequest.removeField(StopPx.FIELD);
-            replaceRequest.set(new Price(((StopOrderI) order).getStop().doubleValue()));
+            StopOrderI stopOrder = (StopOrderI) order;
+            replaceRequest.set(new Price(PriceUtil.denormalizePrice(order, stopOrder.getStop())));
         }
 
         replaceRequest.set(new TimeInForce(TimeInForce.GOOD_TILL_CANCEL));

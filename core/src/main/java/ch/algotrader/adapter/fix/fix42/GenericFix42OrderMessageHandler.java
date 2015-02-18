@@ -28,7 +28,7 @@ import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.service.LookupService;
-import ch.algotrader.util.RoundUtil;
+import ch.algotrader.util.PriceUtil;
 import quickfix.FieldNotFound;
 import quickfix.field.AvgPx;
 import quickfix.field.CumQty;
@@ -96,16 +96,16 @@ public class GenericFix42OrderMessageHandler extends AbstractFix42OrderMessageHa
         }
         if (executionReport.isSetField(LastPx.FIELD)) {
 
-            double d = executionReport.getLastPx().getValue();
-            if (d != 0.0) {
-                orderStatus.setLastPrice(RoundUtil.getBigDecimal(d, order.getSecurity().getSecurityFamily().getScale()));
+            double lastPrice = executionReport.getLastPx().getValue();
+            if (lastPrice != 0.0) {
+                orderStatus.setLastPrice(PriceUtil.normalizePrice(order, lastPrice));
             }
         }
         if (executionReport.isSetField(AvgPx.FIELD)) {
 
-            double d = executionReport.getAvgPx().getValue();
-            if (d != 0.0) {
-                orderStatus.setAvgPrice(RoundUtil.getBigDecimal(d, order.getSecurity().getSecurityFamily().getScale()));
+            double avgPrice = executionReport.getAvgPx().getValue();
+            if (avgPrice != 0.0) {
+                orderStatus.setAvgPrice(PriceUtil.normalizePrice(order, avgPrice));
             }
         }
 
@@ -122,7 +122,7 @@ public class GenericFix42OrderMessageHandler extends AbstractFix42OrderMessageHa
             // get the fields
             Side side = FixUtil.getSide(executionReport.getSide());
             long quantity = (long) executionReport.getLastShares().getValue();
-            BigDecimal price = RoundUtil.getBigDecimal(executionReport.getLastPx().getValue(), order.getSecurity().getSecurityFamily().getScale());
+            BigDecimal price = PriceUtil.normalizePrice(order, executionReport.getLastPx().getValue());
             String extId = executionReport.getExecID().getValue();
 
             // assemble the fill

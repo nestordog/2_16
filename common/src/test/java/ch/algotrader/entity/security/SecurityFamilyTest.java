@@ -37,17 +37,17 @@ public class SecurityFamilyTest {
         family.setTickSizePattern("0<0.05 | 3<0.1");
         family.setScale(2);
 
-        Assert.assertEquals(2.05, family.roundDown(2.07788), 0.000000001);
-        Assert.assertEquals(2.10, family.roundUp(2.07456), 0.000000001);
+        Assert.assertEquals(2.05, family.roundDown(null, 2.07788), 0.000000001);
+        Assert.assertEquals(2.10, family.roundUp(null, 2.07456), 0.000000001);
 
-        Assert.assertEquals(5.0, family.roundDown(5.05), 0.000000001);
-        Assert.assertEquals(5.1, family.roundUp(5.05), 0.000000001);
+        Assert.assertEquals(5.0, family.roundDown(null, 5.05), 0.000000001);
+        Assert.assertEquals(5.1, family.roundUp(null, 5.05), 0.000000001);
 
-        Assert.assertEquals(RoundUtil.getBigDecimal(2.05), family.roundDown(RoundUtil.getBigDecimal(2.075)));
-        Assert.assertEquals(RoundUtil.getBigDecimal(2.10), family.roundUp(RoundUtil.getBigDecimal(2.075)));
+        Assert.assertEquals(RoundUtil.getBigDecimal(2.05), family.roundDown(null, RoundUtil.getBigDecimal(2.075)));
+        Assert.assertEquals(RoundUtil.getBigDecimal(2.10), family.roundUp(null, RoundUtil.getBigDecimal(2.075)));
 
-        Assert.assertEquals(RoundUtil.getBigDecimal(5.0, 1), family.roundDown(RoundUtil.getBigDecimal(5.05)));
-        Assert.assertEquals(RoundUtil.getBigDecimal(5.1, 1), family.roundUp(RoundUtil.getBigDecimal(5.05)));
+        Assert.assertEquals(RoundUtil.getBigDecimal(5.0, 1), family.roundDown(null, RoundUtil.getBigDecimal(5.05)));
+        Assert.assertEquals(RoundUtil.getBigDecimal(5.1, 1), family.roundUp(null, RoundUtil.getBigDecimal(5.05)));
 
     }
 }

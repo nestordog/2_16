@@ -67,7 +67,7 @@ public class TickwiseIncrementalOrderImpl extends TickwiseIncrementalOrder {
         SecurityFamily family = getSecurity().getSecurityFamily();
 
         // check spread and adjust offsetTicks if spread is too narrow
-        int spreadTicks = family.getSpreadTicks(tick.getBid(), tick.getAsk());
+        int spreadTicks = family.getSpreadTicks(null, tick.getBid(), tick.getAsk());
         int adjustedStartOffsetTicks = getStartOffsetTicks();
         int adjustedEndOffsetTicks = getEndOffsetTicks();
 
@@ -84,24 +84,24 @@ public class TickwiseIncrementalOrderImpl extends TickwiseIncrementalOrder {
         }
 
         if (Side.BUY.equals(getSide())) {
-            this.startLimit = family.adjustPrice(tick.getBid(), adjustedStartOffsetTicks);
-            this.endLimit = family.adjustPrice(tick.getAsk(), adjustedEndOffsetTicks);
+            this.startLimit = family.adjustPrice(null, tick.getBid(), adjustedStartOffsetTicks);
+            this.endLimit = family.adjustPrice(null, tick.getAsk(), adjustedEndOffsetTicks);
 
             if (this.startLimit.doubleValue() <= 0.0) {
-                this.startLimit = family.adjustPrice(new BigDecimal(0), 1);
+                this.startLimit = family.adjustPrice(null, new BigDecimal(0), 1);
             }
 
         } else {
 
-            this.startLimit = family.adjustPrice(tick.getAsk(), -adjustedStartOffsetTicks);
-            this.endLimit = family.adjustPrice(tick.getBid(), -adjustedEndOffsetTicks);
+            this.startLimit = family.adjustPrice(null, tick.getAsk(), -adjustedStartOffsetTicks);
+            this.endLimit = family.adjustPrice(null, tick.getBid(), -adjustedEndOffsetTicks);
 
             if (this.startLimit.doubleValue() <= 0.0) {
-                this.startLimit = family.adjustPrice(new BigDecimal(0), 1);
+                this.startLimit = family.adjustPrice(null, new BigDecimal(0), 1);
             }
 
             if (this.endLimit.doubleValue() <= 0.0) {
-                this.endLimit = family.adjustPrice(new BigDecimal(0), 1);
+                this.endLimit = family.adjustPrice(null, new BigDecimal(0), 1);
             }
         }
 
@@ -126,9 +126,9 @@ public class TickwiseIncrementalOrderImpl extends TickwiseIncrementalOrder {
         SecurityFamily family = getSecurity().getSecurityFamily();
 
         if (getSide().equals(Side.BUY)) {
-            this.currentLimit = family.adjustPrice(this.currentLimit, 1);
+            this.currentLimit = family.adjustPrice(null, this.currentLimit, 1);
         } else {
-            this.currentLimit = family.adjustPrice(this.currentLimit, -1);
+            this.currentLimit = family.adjustPrice(null, this.currentLimit, -1);
         }
 
         try {
@@ -146,9 +146,9 @@ public class TickwiseIncrementalOrderImpl extends TickwiseIncrementalOrder {
         SecurityFamily family = getSecurity().getSecurityFamily();
 
         if (getSide().equals(Side.BUY)) {
-            return family.adjustPrice(this.currentLimit, 1).compareTo(this.endLimit) <= 0;
+            return family.adjustPrice(null, this.currentLimit, 1).compareTo(this.endLimit) <= 0;
         } else {
-            return family.adjustPrice(this.currentLimit, -1).compareTo(this.endLimit) >= 0;
+            return family.adjustPrice(null, this.currentLimit, -1).compareTo(this.endLimit) >= 0;
         }
     }
 }

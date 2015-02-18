@@ -52,6 +52,7 @@ import ch.algotrader.entity.security.OptionFamily;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.SecurityFamilyDao;
+import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.InitializingServiceType;
 import ch.algotrader.enumeration.OptionType;
@@ -410,8 +411,8 @@ public class BBReferenceDataServiceImpl extends ReferenceDataServiceImpl impleme
                     int contractSize = fields.getElementAsInt32(BBConstants.OPT_CONT_SIZE);
 
                     // ignore securities with different contractSize than the securityFamily
-                    if (this.securityFamily.getContractSize() != contractSize) {
-                        logger.warn(symbol + " difference in contract size, db: " + this.securityFamily.getContractSize() + " bb: " + contractSize);
+                    if (this.securityFamily.getContractSize(Broker.BBG) != contractSize) {
+                        logger.warn(symbol + " difference in contract size, db: " + this.securityFamily.getContractSize(Broker.BBG) + " bb: " + contractSize);
                     }
 
                     String expirationString = fields.getElementAsString(BBConstants.OPT_EXPIRE_DT);
@@ -419,7 +420,7 @@ public class BBReferenceDataServiceImpl extends ReferenceDataServiceImpl impleme
                     String typeString = fields.getElementAsString(BBConstants.OPT_PUT_CALL);
 
                     Date expiration = format.parse(expirationString);
-                    BigDecimal strike = RoundUtil.getBigDecimal(strikeDouble, this.securityFamily.getScale());
+                    BigDecimal strike = RoundUtil.getBigDecimal(strikeDouble, this.securityFamily.getScale(Broker.BBG));
                     OptionType type = OptionType.valueOf(typeString.toUpperCase());
 
                     Option option = Option.Factory.newInstance();
@@ -443,8 +444,8 @@ public class BBReferenceDataServiceImpl extends ReferenceDataServiceImpl impleme
                     int contractSize = fields.getElementAsInt32(BBConstants.FUT_CONT_SIZE);
 
                     // ignore securities with different contractSize than the securityFamily
-                    if (this.securityFamily.getContractSize() != contractSize) {
-                        logger.warn(symbol + " difference in contract size, db: " + this.securityFamily.getContractSize() + " bb: " + contractSize);
+                    if (this.securityFamily.getContractSize(Broker.BBG) != contractSize) {
+                        logger.warn(symbol + " difference in contract size, db: " + this.securityFamily.getContractSize(Broker.BBG) + " bb: " + contractSize);
                     }
 
                     String lastTradingString = fields.getElementAsString(BBConstants.LAST_TRADEABLE_DT);

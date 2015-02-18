@@ -29,7 +29,7 @@ import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.service.LookupService;
-import ch.algotrader.util.RoundUtil;
+import ch.algotrader.util.PriceUtil;
 import quickfix.FieldNotFound;
 import quickfix.field.AvgPx;
 import quickfix.field.CumQty;
@@ -91,9 +91,9 @@ public class DCFixOrderMessageHandler extends AbstractFix44OrderMessageHandler {
         }
         if (executionReport.isSetField(AvgPx.FIELD)) {
 
-            double d = executionReport.getAvgPx().getValue();
-            if (d != 0.0) {
-                orderStatus.setAvgPrice(RoundUtil.getBigDecimal(d, order.getSecurity().getSecurityFamily().getScale()));
+            double avgPrice = executionReport.getAvgPx().getValue();
+            if (avgPrice != 0.0) {
+                orderStatus.setAvgPrice(PriceUtil.normalizePrice(order, avgPrice));
             }
         }
 
@@ -112,7 +112,7 @@ public class DCFixOrderMessageHandler extends AbstractFix44OrderMessageHandler {
             long quantity = (long) executionReport.getCumQty().getValue();
 
             // Note: DukasCopy does not use LastPx it only uses AvgPx
-            BigDecimal price = RoundUtil.getBigDecimal(executionReport.getAvgPx().getValue(), order.getSecurity().getSecurityFamily().getScale());
+            BigDecimal price = PriceUtil.normalizePrice(order, executionReport.getAvgPx().getValue());
             String extId = executionReport.getOrderID().getValue();
 
             // assemble the fill

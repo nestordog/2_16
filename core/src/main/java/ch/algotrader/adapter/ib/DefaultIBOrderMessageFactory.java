@@ -35,6 +35,7 @@ import ch.algotrader.enumeration.OrderPropertyType;
 import ch.algotrader.enumeration.TIF;
 import ch.algotrader.service.ib.IBNativeOrderServiceException;
 import ch.algotrader.util.FieldUtil;
+import ch.algotrader.util.PriceUtil;
 
 import com.ib.client.Contract;
 import com.ib.client.Order;
@@ -123,12 +124,14 @@ public class DefaultIBOrderMessageFactory implements IBOrderMessageFactory {
 
         //set the limit price if order is a limit order or stop limit order
         if (order instanceof LimitOrderI) {
-            ibOrder.m_lmtPrice = ((LimitOrderI) order).getLimit().doubleValue();
+            LimitOrderI limitOrder = (LimitOrderI) order;
+            ibOrder.m_lmtPrice = PriceUtil.denormalizePrice(order, limitOrder.getLimit());
         }
 
         //set the stop price if order is a stop order or stop limit order
         if (order instanceof StopOrderI) {
-            ibOrder.m_auxPrice = ((StopOrderI) order).getStop().doubleValue();
+            StopOrderI stopOrder = (StopOrderI) order;
+            ibOrder.m_auxPrice = PriceUtil.denormalizePrice(order, stopOrder.getStop());
         }
 
         // set Time-In-Force (ATC are set as order types LOC and MOC)

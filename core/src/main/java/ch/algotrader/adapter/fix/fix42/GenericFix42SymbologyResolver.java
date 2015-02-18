@@ -92,10 +92,10 @@ public class GenericFix42SymbologyResolver implements Fix42SymbologyResolver {
             OptionFamily optionFamily = (OptionFamily) securityFamily;
 
             message.set(new SecurityType(SecurityType.OPTION));
-            message.set(new Currency(optionFamily.getCurrency().toString()));
+            message.set(new Currency(securityFamily.getCurrency().toString()));
+            message.set(new ContractMultiplier(securityFamily.getContractSize(broker)));
             message.set(new PutOrCall(OptionType.PUT.equals(option.getType()) ? PutOrCall.PUT : PutOrCall.CALL));
             message.set(new StrikePrice(option.getStrike().doubleValue()));
-            message.set(new ContractMultiplier(optionFamily.getContractSize()));
             message.set(new MaturityMonthYear(formatYM(option.getExpiration())));
 
             if (optionFamily.isWeekly()) {
@@ -109,6 +109,7 @@ public class GenericFix42SymbologyResolver implements Fix42SymbologyResolver {
 
             message.set(new SecurityType(SecurityType.FUTURE));
             message.set(new Currency(securityFamily.getCurrency().toString()));
+            message.set(new ContractMultiplier(securityFamily.getContractSize(broker)));
             message.set(new MaturityMonthYear(formatYM(future.getExpiration())));
 
         } else if (security instanceof Forex) {

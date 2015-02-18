@@ -203,7 +203,7 @@ public class TransactionDaoTest extends InMemoryDBTest {
 
         List<TransactionVO> transactionVOs1 = this.dao.findTransactionsDesc(1, converter);
 
-        Assert.assertEquals(0, transactionVOs1.size());
+        Assert.assertEquals(1, transactionVOs1.size());
 
         this.session.save(transaction1);
         this.session.save(transaction2);
@@ -211,19 +211,21 @@ public class TransactionDaoTest extends InMemoryDBTest {
 
         List<TransactionVO> transactionVOs2 = this.dao.findTransactionsDesc(3, converter);
 
-        Assert.assertEquals(2, transactionVOs2.size());
+        Assert.assertEquals(3, transactionVOs2.size());
 
-        Assert.assertEquals(222, transactionVOs2.get(0).getQuantity());
-        Assert.assertEquals(new BigDecimal(111), transactionVOs2.get(0).getPrice());
-        Assert.assertEquals(Currency.INR, transactionVOs2.get(0).getCurrency());
-        Assert.assertEquals(TransactionType.CREDIT, transactionVOs2.get(0).getType());
-        Assert.assertSame(this.strategy1.toString(), transactionVOs2.get(0).getStrategy());
+        TransactionVO transactionVO1 = transactionVOs2.get(0);
+        Assert.assertEquals(222, transactionVO1.getQuantity());
+        Assert.assertEquals(new BigDecimal(111), transactionVO1.getPrice());
+        Assert.assertEquals(Currency.INR, transactionVO1.getCurrency());
+        Assert.assertEquals(TransactionType.CREDIT, transactionVO1.getType());
+        Assert.assertSame(this.strategy1.toString(), transactionVO1.getStrategy());
 
-        Assert.assertEquals(222, transactionVOs2.get(1).getQuantity());
-        Assert.assertEquals(new BigDecimal(111), transactionVOs2.get(1).getPrice());
-        Assert.assertEquals(Currency.NZD, transactionVOs2.get(1).getCurrency());
-        Assert.assertEquals(TransactionType.BUY, transactionVOs2.get(1).getType());
-        Assert.assertSame(this.strategy2.toString(), transactionVOs2.get(1).getStrategy());
+        TransactionVO transactionVO2 = transactionVOs2.get(1);
+        Assert.assertEquals(222, transactionVO2.getQuantity());
+        Assert.assertEquals(new BigDecimal(111), transactionVO2.getPrice());
+        Assert.assertEquals(Currency.NZD, transactionVO2.getCurrency());
+        Assert.assertEquals(TransactionType.BUY, transactionVO2.getType());
+        Assert.assertSame(this.strategy2.toString(), transactionVO2.getStrategy());
 
         List<TransactionVO> transactionVOs3 = this.dao.findTransactionsDesc(2, converter);
 
@@ -533,23 +535,25 @@ public class TransactionDaoTest extends InMemoryDBTest {
 
         List<Transaction> transactions1 = this.dao.findByMaxDate(calendar.getTime());
 
-        Assert.assertEquals(0, transactions1.size());
+        Assert.assertEquals(1, transactions1.size());
 
         List<Transaction> transactions2 = this.dao.findByMaxDate(new Date());
 
-        Assert.assertEquals(2, transactions2.size());
+        Assert.assertEquals(3, transactions2.size());
 
-        Assert.assertEquals(222, transactions2.get(0).getQuantity());
-        Assert.assertEquals(new BigDecimal(111), transactions2.get(0).getPrice());
-        Assert.assertEquals(Currency.INR, transactions2.get(0).getCurrency());
-        Assert.assertEquals(TransactionType.SELL, transactions2.get(0).getType());
-        Assert.assertEquals(this.strategy1, transactions2.get(0).getStrategy());
+        Transaction transaction3 = transactions2.get(1);
+        Assert.assertEquals(222, transaction3.getQuantity());
+        Assert.assertEquals(new BigDecimal(111), transaction3.getPrice());
+        Assert.assertEquals(Currency.INR, transaction3.getCurrency());
+        Assert.assertEquals(TransactionType.SELL, transaction3.getType());
+        Assert.assertEquals(this.strategy1, transaction3.getStrategy());
 
-        Assert.assertEquals(222, transactions2.get(1).getQuantity());
-        Assert.assertEquals(new BigDecimal(111), transactions2.get(1).getPrice());
-        Assert.assertEquals(Currency.NZD, transactions2.get(1).getCurrency());
-        Assert.assertEquals(TransactionType.BUY, transactions2.get(1).getType());
-        Assert.assertEquals(this.strategy1, transactions2.get(1).getStrategy());
+        Transaction transaction4 = transactions2.get(2);
+        Assert.assertEquals(222, transaction4.getQuantity());
+        Assert.assertEquals(new BigDecimal(111), transaction4.getPrice());
+        Assert.assertEquals(Currency.NZD, transaction4.getCurrency());
+        Assert.assertEquals(TransactionType.BUY, transaction4.getType());
+        Assert.assertEquals(this.strategy1, transaction4.getStrategy());
     }
 
     @Test

@@ -51,14 +51,8 @@ public class StrategyDaoTest extends InMemoryDBTest {
     @Test
     public void testFindServerStrategy() {
 
-        Strategy serverStrategy = new StrategyImpl();
-        serverStrategy.setName("SERVER");
-
-        this.dao.save(serverStrategy);
-        this.dao.flush();
-
         Strategy strategy = this.dao.findServer();
-        Assert.assertSame(serverStrategy, strategy);
+        Assert.assertNotNull(strategy);
     }
 
     @Test
@@ -83,7 +77,7 @@ public class StrategyDaoTest extends InMemoryDBTest {
 
         Set<Strategy> strategies1 = this.dao.findAutoActivateStrategies();
         Assert.assertNotNull(strategies1);
-        Assert.assertEquals(0, strategies1.size());
+        Assert.assertEquals(1, strategies1.size());
 
         Strategy newStrategy = new StrategyImpl();
         newStrategy.setName("blah");
@@ -94,7 +88,7 @@ public class StrategyDaoTest extends InMemoryDBTest {
 
         Set<Strategy> strategies2 = this.dao.findAutoActivateStrategies();
         Assert.assertNotNull(strategies2);
-        Assert.assertEquals(1, strategies2.size());
+        Assert.assertEquals(2, strategies2.size());
         Assert.assertTrue(strategies2.contains(newStrategy));
     }
 

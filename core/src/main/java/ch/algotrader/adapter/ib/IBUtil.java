@@ -87,7 +87,7 @@ public class IBUtil {
                 contract.m_primaryExch = securityFamily.getExchangeCode(Broker.IB);
                 contract.m_strike = option.getStrike().doubleValue();
                 contract.m_right = option.getType().toString();
-                contract.m_multiplier = decimalFormat.format(securityFamily.getContractSize());
+                contract.m_multiplier = decimalFormat.format(securityFamily.getContractSize(Broker.IB));
                 contract.m_expiry = dayFormat.format(option.getExpiration());
 
             } else if (security instanceof Future) {
@@ -98,7 +98,7 @@ public class IBUtil {
 
                 contract.m_secType = "FUT";
                 contract.m_symbol = securityFamily.getSymbolRoot(Broker.IB);
-                contract.m_multiplier = decimalFormat.format(securityFamily.getContractSize());
+                contract.m_multiplier = decimalFormat.format(securityFamily.getContractSize(Broker.IB));
                 contract.m_expiry = monthFormat.format(future.getExpiration());
 
             } else if (security instanceof Forex) {

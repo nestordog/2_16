@@ -29,7 +29,14 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import quickfix.DataDictionary;
+import quickfix.field.ClOrdID;
+import quickfix.field.ExecType;
+import quickfix.fix44.ExecutionReport;
+import quickfix.fix44.Reject;
 import ch.algotrader.adapter.fix.fix44.FixTestUtils;
+import ch.algotrader.entity.Account;
+import ch.algotrader.entity.AccountImpl;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.ForexImpl;
 import ch.algotrader.entity.security.SecurityFamily;
@@ -38,16 +45,12 @@ import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.MarketOrder;
 import ch.algotrader.entity.trade.MarketOrderImpl;
 import ch.algotrader.entity.trade.OrderStatus;
+import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.service.LookupService;
-import quickfix.DataDictionary;
-import quickfix.field.ClOrdID;
-import quickfix.field.ExecType;
-import quickfix.fix44.ExecutionReport;
-import quickfix.fix44.Reject;
 
 /**
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
@@ -76,7 +79,7 @@ public class TestLMAXFixOrderMessageHandler {
 
         MockitoAnnotations.initMocks(this);
 
-        this.impl = new LMAXFixOrderMessageHandler(lookupService, engine);
+        this.impl = new LMAXFixOrderMessageHandler(this.lookupService, this.engine);
     }
 
     @Test
@@ -137,8 +140,14 @@ public class TestLMAXFixOrderMessageHandler {
         forex.setBaseCurrency(Currency.EUR);
         forex.setSecurityFamily(family);
 
+        Account account = new AccountImpl();
+        account.setName("TEST");
+        account.setBroker(Broker.IB);
+
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(forex);
+        order.setAccount(account);
+
         Mockito.when(this.lookupService.getOpenOrderByRootIntId("144d196a0cf")).thenReturn(order);
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());

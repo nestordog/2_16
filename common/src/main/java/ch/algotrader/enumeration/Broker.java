@@ -22,45 +22,32 @@ package ch.algotrader.enumeration;
  */
 public enum Broker {
 
-    /**
-     * InteractiveBrokers
-     */
+    //InteractiveBrokers
     IB,
 
-    /**
-     * J.P.Morgan
-     */
+    // J.P.Morgan
     JPM,
 
-    /**
-     * DukasCopy
-     */
+    // DukasCopy
     DC,
 
-    /**
-     * Royal Bank of Scotland
-     */
+    //Royal Bank of Scotland
     RBS,
 
-    /**
-     * RealTick
-     */
+    //RealTick
     RT,
 
-    /**
-     * FXCM
-     */
+    // FXCM
     FXCM,
 
-    /**
-     * LMAX
-     */
+    // LMAX
     LMAX,
 
-    /**
-     * CNX
-     */
-    CNX;
+    // CNX
+    CNX,
+
+    // Bloomberg
+    BBG;
 
     private static final long serialVersionUID = -6191895924586464902L;
 

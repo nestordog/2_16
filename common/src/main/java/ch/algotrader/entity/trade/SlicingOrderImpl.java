@@ -111,11 +111,11 @@ public class SlicingOrderImpl extends SlicingOrder {
         if (Side.BUY.equals(getSide())) {
 
             marketVolume = tick.getVolAsk();
-            limit = family.adjustPrice(tick.getAsk(), -this.currentOffsetTicks);
+            limit = family.adjustPrice(null, tick.getAsk(), -this.currentOffsetTicks);
 
             if (limit.compareTo(tick.getBid()) <= 0.0) {
-                limit = family.adjustPrice(tick.getBid(), 1);
-                this.currentOffsetTicks = family.getSpreadTicks(tick.getBid(), tick.getAsk()) - 1;
+                limit = family.adjustPrice(null, tick.getBid(), 1);
+                this.currentOffsetTicks = family.getSpreadTicks(null, tick.getBid(), tick.getAsk()) - 1;
             }
 
             if (limit.compareTo(tick.getAsk()) > 0.0) {
@@ -126,11 +126,11 @@ public class SlicingOrderImpl extends SlicingOrder {
         } else {
 
             marketVolume = tick.getVolBid();
-            limit = family.adjustPrice(tick.getBid(), this.currentOffsetTicks);
+            limit = family.adjustPrice(null, tick.getBid(), this.currentOffsetTicks);
 
             if (limit.compareTo(tick.getAsk()) >= 0.0) {
-                limit = family.adjustPrice(tick.getAsk(), -1);
-                this.currentOffsetTicks = family.getSpreadTicks(tick.getBid(), tick.getAsk()) - 1;
+                limit = family.adjustPrice(null, tick.getAsk(), -1);
+                this.currentOffsetTicks = family.getSpreadTicks(null, tick.getBid(), tick.getAsk()) - 1;
             }
 
             if (limit.compareTo(tick.getBid()) < 0.0) {

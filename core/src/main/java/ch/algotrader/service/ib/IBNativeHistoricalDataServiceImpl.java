@@ -40,6 +40,7 @@ import ch.algotrader.entity.marketData.BarDao;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.enumeration.BarType;
+import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.enumeration.TimePeriod;
@@ -109,7 +110,7 @@ public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl
             throw new IBNativeHistoricalDataServiceException("security was not found " + securityId);
         }
 
-        int scale = security.getSecurityFamily().getScale();
+        int scale = security.getSecurityFamily().getScale(Broker.IB);
         Contract contract = IBUtil.getContract(security);
         int requestId = this.iBIdGenerator.getNextRequestId();
         String dateString = dateTimeFormat.format(endDate);

@@ -235,6 +235,7 @@ public class TestGenericOrderMessageFactory {
 
         SecurityFamily family = new SecurityFamilyImpl();
         family.setCurrency(Currency.USD);
+        family.setTickSizePattern("0<0.1");
 
         Stock stock = new StockImpl();
         stock.setSecurityFamily(family);
@@ -269,6 +270,7 @@ public class TestGenericOrderMessageFactory {
 
         SecurityFamily family = new SecurityFamilyImpl();
         family.setCurrency(Currency.USD);
+        family.setTickSizePattern("0<0.1");
 
         Stock stock = new StockImpl();
         stock.setSecurityFamily(family);
@@ -303,6 +305,7 @@ public class TestGenericOrderMessageFactory {
 
         SecurityFamily family = new SecurityFamilyImpl();
         family.setCurrency(Currency.USD);
+        family.setTickSizePattern("0<0.1");
 
         Stock stock = new StockImpl();
         stock.setSecurityFamily(family);
@@ -343,6 +346,7 @@ public class TestGenericOrderMessageFactory {
 
         SecurityFamily family = new SecurityFamilyImpl();
         family.setCurrency(Currency.USD);
+        family.setTickSizePattern("0<0.1");
 
         Stock stock = new StockImpl();
         stock.setSecurityFamily(family);
@@ -525,6 +529,7 @@ public class TestGenericOrderMessageFactory {
 
         SecurityFamily family = new SecurityFamilyImpl();
         family.setCurrency(Currency.USD);
+        family.setTickSizePattern("0<0.1");
 
         Stock stock = new StockImpl();
         stock.setSecurityFamily(family);
@@ -559,6 +564,7 @@ public class TestGenericOrderMessageFactory {
 
         SecurityFamily family = new SecurityFamilyImpl();
         family.setCurrency(Currency.USD);
+        family.setTickSizePattern("0<0.1");
 
         Stock stock = new StockImpl();
         stock.setSecurityFamily(family);
@@ -592,6 +598,7 @@ public class TestGenericOrderMessageFactory {
 
         SecurityFamily family = new SecurityFamilyImpl();
         family.setCurrency(Currency.USD);
+        family.setTickSizePattern("0<0.1");
 
         Stock stock = new StockImpl();
         stock.setSecurityFamily(family);
@@ -631,6 +638,7 @@ public class TestGenericOrderMessageFactory {
 
         SecurityFamily family = new SecurityFamilyImpl();
         family.setCurrency(Currency.USD);
+        family.setTickSizePattern("0<0.1");
 
         Stock stock = new StockImpl();
         stock.setSecurityFamily(family);

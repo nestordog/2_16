@@ -52,7 +52,7 @@ public class VariableIncrementalOrderImpl extends VariableIncrementalOrder {
             ",startLimit=" + this.startLimit +
             ",endLimit=" + this.endLimit +
             ",currentLimit=" + this.currentLimit +
-            ",increment=" + RoundUtil.getBigDecimal(this.increment, getSecurity().getSecurityFamily().getScale() + 1) +
+            ",increment=" + RoundUtil.getBigDecimal(this.increment, getSecurity().getSecurityFamily().getScale(null) + 1) +
             " " + getOrderProperties();
         //@formatter:on
     }
@@ -80,18 +80,18 @@ public class VariableIncrementalOrderImpl extends VariableIncrementalOrder {
         if (Side.BUY.equals(getSide())) {
             double limitRaw = bidDouble + getStartOffsetPct() * spread;
             double maxLimitRaw = bidDouble + getEndOffsetPct() * spread;
-            limit = RoundUtil.roundToNextN(limitRaw, family.getTickSize(limitRaw, true), BigDecimal.ROUND_FLOOR);
-            maxLimit = RoundUtil.roundToNextN(maxLimitRaw, family.getTickSize(maxLimitRaw, true), BigDecimal.ROUND_CEILING);
+            limit = RoundUtil.roundToNextN(limitRaw, family.getTickSize(null, limitRaw, true), BigDecimal.ROUND_FLOOR);
+            maxLimit = RoundUtil.roundToNextN(maxLimitRaw, family.getTickSize(null, maxLimitRaw, true), BigDecimal.ROUND_CEILING);
         } else {
             double limitRaw = askDouble - getStartOffsetPct() * spread;
             double maxLimitRaw = askDouble - getEndOffsetPct() * spread;
-            limit = RoundUtil.roundToNextN(limitRaw, family.getTickSize(limitRaw, true), BigDecimal.ROUND_CEILING);
-            maxLimit = RoundUtil.roundToNextN(maxLimitRaw, family.getTickSize(maxLimitRaw, true), BigDecimal.ROUND_FLOOR);
+            limit = RoundUtil.roundToNextN(limitRaw, family.getTickSize(null, limitRaw, true), BigDecimal.ROUND_CEILING);
+            maxLimit = RoundUtil.roundToNextN(maxLimitRaw, family.getTickSize(null, maxLimitRaw, true), BigDecimal.ROUND_FLOOR);
         }
 
         // limit and maxLimit are correctly rounded according to tickSizePattern
-        this.startLimit = RoundUtil.getBigDecimal(limit, family.getScale());
-        this.endLimit = RoundUtil.getBigDecimal(maxLimit, family.getScale());
+        this.startLimit = RoundUtil.getBigDecimal(limit, family.getScale(null));
+        this.endLimit = RoundUtil.getBigDecimal(maxLimit, family.getScale(null));
         this.currentLimit = this.startLimit;
 
         LimitOrder limitOrder = LimitOrder.Factory.newInstance();
@@ -113,15 +113,15 @@ public class VariableIncrementalOrderImpl extends VariableIncrementalOrder {
         BigDecimal newLimit;
         if (getSide().equals(Side.BUY)) {
 
-            double tickSize = family.getTickSize(this.currentLimit.doubleValue(), true);
+            double tickSize = family.getTickSize(null, this.currentLimit.doubleValue(), true);
             double increment = RoundUtil.roundToNextN(this.increment, tickSize, BigDecimal.ROUND_CEILING);
-            BigDecimal roundedIncrement = RoundUtil.getBigDecimal(increment, family.getScale());
+            BigDecimal roundedIncrement = RoundUtil.getBigDecimal(increment, family.getScale(null));
             newLimit = this.currentLimit.add(roundedIncrement);
         } else {
 
-            double tickSize = family.getTickSize(this.currentLimit.doubleValue(), false);
+            double tickSize = family.getTickSize(null, this.currentLimit.doubleValue(), false);
             double increment = RoundUtil.roundToNextN(this.increment, tickSize, BigDecimal.ROUND_CEILING);
-            BigDecimal roundedIncrement = RoundUtil.getBigDecimal(increment, family.getScale());
+            BigDecimal roundedIncrement = RoundUtil.getBigDecimal(increment, family.getScale(null));
             newLimit = this.currentLimit.subtract(roundedIncrement);
         }
 
@@ -141,15 +141,15 @@ public class VariableIncrementalOrderImpl extends VariableIncrementalOrder {
 
         if (getSide().equals(Side.BUY)) {
 
-            double tickSize = family.getTickSize(this.currentLimit.doubleValue(), true);
+            double tickSize = family.getTickSize(null, this.currentLimit.doubleValue(), true);
             double increment = RoundUtil.roundToNextN(this.increment, tickSize, BigDecimal.ROUND_CEILING);
-            BigDecimal roundedIncrement = RoundUtil.getBigDecimal(increment, family.getScale());
+            BigDecimal roundedIncrement = RoundUtil.getBigDecimal(increment, family.getScale(null));
 
             return this.currentLimit.add(roundedIncrement).compareTo(this.endLimit) <= 0;
         } else {
-            double tickSize = family.getTickSize(this.currentLimit.doubleValue(), false);
+            double tickSize = family.getTickSize(null, this.currentLimit.doubleValue(), false);
             double increment = RoundUtil.roundToNextN(this.increment, tickSize, BigDecimal.ROUND_CEILING);
-            BigDecimal roundedIncrement = RoundUtil.getBigDecimal(increment, family.getScale());
+            BigDecimal roundedIncrement = RoundUtil.getBigDecimal(increment, family.getScale(null));
 
             return this.currentLimit.subtract(roundedIncrement).compareTo(this.endLimit) >= 0;
         }

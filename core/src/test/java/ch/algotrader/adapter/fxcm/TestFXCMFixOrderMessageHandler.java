@@ -30,6 +30,8 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import ch.algotrader.adapter.fix.fix44.FixTestUtils;
+import ch.algotrader.entity.Account;
+import ch.algotrader.entity.AccountImpl;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.ForexImpl;
 import ch.algotrader.entity.security.SecurityFamily;
@@ -38,6 +40,7 @@ import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.MarketOrder;
 import ch.algotrader.entity.trade.MarketOrderImpl;
 import ch.algotrader.entity.trade.OrderStatus;
+import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
@@ -59,6 +62,8 @@ public class TestFXCMFixOrderMessageHandler {
 
     private static DataDictionary DATA_DICT;
 
+    private Account account;
+
     @Mock
     private LookupService lookupService;
     @Mock
@@ -77,7 +82,11 @@ public class TestFXCMFixOrderMessageHandler {
 
         MockitoAnnotations.initMocks(this);
 
-        impl = new FXCMFixOrderMessageHandler(lookupService, engine);
+        this.impl = new FXCMFixOrderMessageHandler(this.lookupService, this.engine);
+
+        this.account = new AccountImpl();
+        this.account.setBroker(Broker.IB);
+        this.account.setExtAccount("test-account");
     }
 
     @Test
@@ -101,12 +110,13 @@ public class TestFXCMFixOrderMessageHandler {
 
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(forex);
-        Mockito.when(lookupService.getOpenOrderByRootIntId("1450524ad9d")).thenReturn(order);
+        order.setAccount(this.account);
+        Mockito.when(this.lookupService.getOpenOrderByRootIntId("1450524ad9d")).thenReturn(order);
 
-        impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
+        this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
         ArgumentCaptor<Object> argumentCaptor = ArgumentCaptor.forClass(Object.class);
-        Mockito.verify(engine, Mockito.times(1)).sendEvent(argumentCaptor.capture());
+        Mockito.verify(this.engine, Mockito.times(1)).sendEvent(argumentCaptor.capture());
 
         Object event1 = argumentCaptor.getValue();
         Assert.assertTrue(event1 instanceof OrderStatus);
@@ -142,12 +152,13 @@ public class TestFXCMFixOrderMessageHandler {
 
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(forex);
-        Mockito.when(lookupService.getOpenOrderByRootIntId("1450524ad9d")).thenReturn(order);
+        order.setAccount(this.account);
+        Mockito.when(this.lookupService.getOpenOrderByRootIntId("1450524ad9d")).thenReturn(order);
 
-        impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
+        this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
         ArgumentCaptor<Object> argumentCaptor = ArgumentCaptor.forClass(Object.class);
-        Mockito.verify(engine, Mockito.times(2)).sendEvent(argumentCaptor.capture());
+        Mockito.verify(this.engine, Mockito.times(2)).sendEvent(argumentCaptor.capture());
 
         List<Object> events = argumentCaptor.getAllValues();
         Assert.assertEquals(2, events.size());
@@ -195,12 +206,13 @@ public class TestFXCMFixOrderMessageHandler {
 
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(forex);
-        Mockito.when(lookupService.getOpenOrderByRootIntId("1450524ad9d")).thenReturn(order);
+        order.setAccount(this.account);
+        Mockito.when(this.lookupService.getOpenOrderByRootIntId("1450524ad9d")).thenReturn(order);
 
-        impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
+        this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
         ArgumentCaptor<Object> argumentCaptor = ArgumentCaptor.forClass(Object.class);
-        Mockito.verify(engine, Mockito.times(1)).sendEvent(argumentCaptor.capture());
+        Mockito.verify(this.engine, Mockito.times(1)).sendEvent(argumentCaptor.capture());
 
         List<Object> events = argumentCaptor.getAllValues();
         Assert.assertEquals(1, events.size());
@@ -225,12 +237,12 @@ public class TestFXCMFixOrderMessageHandler {
         executionReport.set(new ExecType(ExecType.NEW));
         executionReport.set(new ClOrdID("123"));
 
-        Mockito.when(lookupService.getOpenOrderByRootIntId(Mockito.anyString())).thenReturn(null);
+        Mockito.when(this.lookupService.getOpenOrderByRootIntId(Mockito.anyString())).thenReturn(null);
 
-        impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
+        this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
-        Mockito.verify(lookupService, Mockito.times(1)).getOpenOrderByRootIntId("123");
-        Mockito.verify(engine, Mockito.never()).sendEvent(Mockito.any());
+        Mockito.verify(this.lookupService, Mockito.times(1)).getOpenOrderByRootIntId("123");
+        Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
     }
 
     @Test
@@ -255,12 +267,12 @@ public class TestFXCMFixOrderMessageHandler {
 
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(forex);
-        Mockito.when(lookupService.getOpenOrderByRootIntId("145096a919f")).thenReturn(order);
+        Mockito.when(this.lookupService.getOpenOrderByRootIntId("145096a919f")).thenReturn(order);
 
-        impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
+        this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
         ArgumentCaptor<Object> argumentCaptor = ArgumentCaptor.forClass(Object.class);
-        Mockito.verify(engine, Mockito.times(1)).sendEvent(argumentCaptor.capture());
+        Mockito.verify(this.engine, Mockito.times(1)).sendEvent(argumentCaptor.capture());
 
         List<Object> events = argumentCaptor.getAllValues();
         Assert.assertEquals(1, events.size());
@@ -299,11 +311,11 @@ public class TestFXCMFixOrderMessageHandler {
 
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(forex);
-        Mockito.when(lookupService.getOpenOrderByRootIntId("14509816818")).thenReturn(order);
+        Mockito.when(this.lookupService.getOpenOrderByRootIntId("14509816818")).thenReturn(order);
 
-        impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
+        this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
-        Mockito.verify(engine, Mockito.never()).sendEvent(Mockito.any());
+        Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
     }
 
     @Test
@@ -327,12 +339,13 @@ public class TestFXCMFixOrderMessageHandler {
 
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(forex);
-        Mockito.when(lookupService.getOpenOrderByRootIntId("145098db835")).thenReturn(order);
+        order.setAccount(this.account);
+        Mockito.when(this.lookupService.getOpenOrderByRootIntId("145098db835")).thenReturn(order);
 
-        impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
+        this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
         ArgumentCaptor<Object> argumentCaptor = ArgumentCaptor.forClass(Object.class);
-        Mockito.verify(engine, Mockito.times(1)).sendEvent(argumentCaptor.capture());
+        Mockito.verify(this.engine, Mockito.times(1)).sendEvent(argumentCaptor.capture());
 
         List<Object> events = argumentCaptor.getAllValues();
         Assert.assertEquals(1, events.size());
@@ -368,12 +381,13 @@ public class TestFXCMFixOrderMessageHandler {
 
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(forex);
-        Mockito.when(lookupService.getOpenOrderByRootIntId("14509b2ae84")).thenReturn(order);
+        order.setAccount(this.account);
+        Mockito.when(this.lookupService.getOpenOrderByRootIntId("14509b2ae84")).thenReturn(order);
 
-        impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
+        this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
         ArgumentCaptor<Object> argumentCaptor = ArgumentCaptor.forClass(Object.class);
-        Mockito.verify(engine, Mockito.times(1)).sendEvent(argumentCaptor.capture());
+        Mockito.verify(this.engine, Mockito.times(1)).sendEvent(argumentCaptor.capture());
 
         List<Object> events = argumentCaptor.getAllValues();
         Assert.assertEquals(1, events.size());
@@ -402,8 +416,9 @@ public class TestFXCMFixOrderMessageHandler {
 
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(forex);
+        order.setAccount(this.account);
         order.setQuantity(20000);
-        Mockito.when(lookupService.getOpenOrderByRootIntId("fxcml2.0")).thenReturn(order);
+        Mockito.when(this.lookupService.getOpenOrderByRootIntId("fxcml2.0")).thenReturn(order);
 
         String s1 = "8=FIX.4.4|9=458|35=8|34=8|49=FXCM|50=U100R12|52=20140714-11:40:20.239|56=6444012301_client1|" +
                 "1=6444012301|6=1.36248|11=fxcml2.0|14=0|15=EUR|17=82166892|31=1.36248|32=0|37=43179208|38=20000|" +
@@ -439,13 +454,13 @@ public class TestFXCMFixOrderMessageHandler {
         Assert.assertNotNull(executionReport4);
 
         SessionID sessionID = FixTestUtils.fakeFix44Session();
-        impl.onMessage(executionReport1, sessionID);
-        impl.onMessage(executionReport2, sessionID);
-        impl.onMessage(executionReport3, sessionID);
-        impl.onMessage(executionReport4, sessionID);
+        this.impl.onMessage(executionReport1, sessionID);
+        this.impl.onMessage(executionReport2, sessionID);
+        this.impl.onMessage(executionReport3, sessionID);
+        this.impl.onMessage(executionReport4, sessionID);
 
         ArgumentCaptor<Object> argumentCaptor = ArgumentCaptor.forClass(Object.class);
-        Mockito.verify(engine, Mockito.times(5)).sendEvent(argumentCaptor.capture());
+        Mockito.verify(this.engine, Mockito.times(5)).sendEvent(argumentCaptor.capture());
 
         List<Object> events = argumentCaptor.getAllValues();
         Assert.assertEquals(5, events.size());

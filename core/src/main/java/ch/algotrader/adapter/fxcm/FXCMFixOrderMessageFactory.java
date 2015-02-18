@@ -41,6 +41,7 @@ import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.entity.trade.StopLimitOrder;
 import ch.algotrader.entity.trade.StopOrder;
 import ch.algotrader.enumeration.TIF;
+import ch.algotrader.util.PriceUtil;
 
 /**
  *  FXCM order message factory.
@@ -97,19 +98,21 @@ public class FXCMFixOrderMessageFactory implements Fix44OrderMessageFactory {
         } else if (order instanceof LimitOrder) {
 
             message.set(new OrdType(OrdType.LIMIT));
-            message.set(new Price(((LimitOrder) order).getLimit().doubleValue()));
+            LimitOrder limitOrder = (LimitOrder) order;
+            message.set(new Price(PriceUtil.denormalizePrice(order, limitOrder.getLimit())));
 
         } else if (order instanceof StopOrder) {
 
             message.set(new OrdType(OrdType.STOP));
-            message.set(new StopPx(((StopOrder) order).getStop().doubleValue()));
+            StopOrder stopOrder = (StopOrder) order;
+            message.set(new StopPx(PriceUtil.denormalizePrice(order, stopOrder.getStop())));
 
         } else if (order instanceof StopLimitOrder) {
 
             StopLimitOrder stopLimitOrder = (StopLimitOrder) order;
             message.set(new OrdType(OrdType.STOP_LIMIT));
-            message.set(new Price((stopLimitOrder.getLimit().doubleValue())));
-            message.set(new StopPx(stopLimitOrder.getStop().doubleValue()));
+            message.set(new Price(PriceUtil.denormalizePrice(order, stopLimitOrder.getLimit())));
+            message.set(new StopPx(PriceUtil.denormalizePrice(order, stopLimitOrder.getStop())));
 
         } else {
 
@@ -147,19 +150,21 @@ public class FXCMFixOrderMessageFactory implements Fix44OrderMessageFactory {
         if (order instanceof LimitOrder) {
 
             message.set(new OrdType(OrdType.LIMIT));
-            message.set(new Price(((LimitOrder) order).getLimit().doubleValue()));
+            LimitOrder limitOrder = (LimitOrder) order;
+            message.set(new Price(PriceUtil.denormalizePrice(order, limitOrder.getLimit())));
 
         } else if (order instanceof StopOrder) {
 
             message.set(new OrdType(OrdType.STOP));
-            message.set(new StopPx(((StopOrder) order).getStop().doubleValue()));
+            StopOrder stopOrder = (StopOrder) order;
+            message.set(new StopPx(PriceUtil.denormalizePrice(order, stopOrder.getStop())));
 
         } else if (order instanceof StopLimitOrder) {
 
             StopLimitOrder stopLimitOrder = (StopLimitOrder) order;
             message.set(new OrdType(OrdType.STOP_LIMIT));
-            message.set(new Price((stopLimitOrder.getLimit().doubleValue())));
-            message.set(new StopPx(stopLimitOrder.getStop().doubleValue()));
+            message.set(new Price(PriceUtil.denormalizePrice(order, stopLimitOrder.getLimit())));
+            message.set(new StopPx(PriceUtil.denormalizePrice(order, stopLimitOrder.getStop())));
 
         } else {
 

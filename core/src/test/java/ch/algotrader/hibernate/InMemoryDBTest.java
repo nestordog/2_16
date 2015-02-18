@@ -47,7 +47,7 @@ public abstract class InMemoryDBTest {
     public void setup() throws Exception {
 
         ResourceDatabasePopulator dbPopulator = new ResourceDatabasePopulator();
-        dbPopulator.addScript(new ClassPathResource("/META-INF/h2.sql"));
+        dbPopulator.addScript(new ClassPathResource("/db/h2/h2.sql"));
         DatabasePopulatorUtils.execute(dbPopulator, EmbeddedTestDB.DATABASE.getDataSource());
 
         this.sessionFactory = EmbeddedTestDB.DATABASE.getSessionFactory();

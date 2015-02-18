@@ -695,7 +695,7 @@ public class PositionDaoTest extends InMemoryDBTest {
         this.session.save(position1);
         this.session.flush();
 
-        List<Position> positions1 = this.dao.findOpenPositionsBySecurity(1);
+        List<Position> positions1 = this.dao.findOpenPositionsBySecurity(0);
 
         Assert.assertEquals(0, positions1.size());
 

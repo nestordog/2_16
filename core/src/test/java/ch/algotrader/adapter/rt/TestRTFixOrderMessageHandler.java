@@ -29,6 +29,8 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import ch.algotrader.adapter.fix.fix44.FixTestUtils;
+import ch.algotrader.entity.Account;
+import ch.algotrader.entity.AccountImpl;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.SecurityFamilyImpl;
 import ch.algotrader.entity.security.Stock;
@@ -37,6 +39,7 @@ import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.MarketOrder;
 import ch.algotrader.entity.trade.MarketOrderImpl;
 import ch.algotrader.entity.trade.OrderStatus;
+import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
@@ -64,7 +67,7 @@ public class TestRTFixOrderMessageHandler {
 
         MockitoAnnotations.initMocks(this);
 
-        this.impl = new RTFixOrderMessageHandler(lookupService, engine);
+        this.impl = new RTFixOrderMessageHandler(this.lookupService, this.engine);
     }
 
     @Test
@@ -121,8 +124,13 @@ public class TestRTFixOrderMessageHandler {
         msft.setSymbol("MSFT");
         msft.setSecurityFamily(family);
 
+        Account account = new AccountImpl();
+        account.setName("TEST");
+        account.setBroker(Broker.IB);
+
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(msft);
+        order.setAccount(account);
         order.setQuantity(100);
         order.setSide(Side.BUY);
 

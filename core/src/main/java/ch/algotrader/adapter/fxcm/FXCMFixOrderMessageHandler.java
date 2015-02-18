@@ -29,7 +29,7 @@ import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.service.LookupService;
-import ch.algotrader.util.RoundUtil;
+import ch.algotrader.util.PriceUtil;
 import quickfix.FieldNotFound;
 import quickfix.field.AvgPx;
 import quickfix.field.CumQty;
@@ -103,16 +103,16 @@ public class FXCMFixOrderMessageHandler extends AbstractFix44OrderMessageHandler
         }
         if (executionReport.isSetField(LastPx.FIELD)) {
 
-            double d = executionReport.getLastPx().getValue();
-            if (d != 0.0) {
-                orderStatus.setLastPrice(RoundUtil.getBigDecimal(d, order.getSecurity().getSecurityFamily().getScale()));
+            double lastPrice = executionReport.getLastPx().getValue();
+            if (lastPrice != 0.0) {
+                orderStatus.setLastPrice(PriceUtil.normalizePrice(order, lastPrice));
             }
         }
         if (executionReport.isSetField(AvgPx.FIELD)) {
 
-            double d = executionReport.getAvgPx().getValue();
-            if (d != 0.0) {
-                orderStatus.setAvgPrice(RoundUtil.getBigDecimal(d, order.getSecurity().getSecurityFamily().getScale()));
+            double avgPrice = executionReport.getAvgPx().getValue();
+            if (avgPrice != 0.0) {
+                orderStatus.setAvgPrice(PriceUtil.normalizePrice(order, avgPrice));
             }
         }
 
@@ -132,7 +132,7 @@ public class FXCMFixOrderMessageHandler extends AbstractFix44OrderMessageHandler
             Side side = FixUtil.getSide(executionReport.getSide());
             long quantity = (long) executionReport.getCumQty().getValue();
 
-            BigDecimal price = RoundUtil.getBigDecimal(executionReport.getAvgPx().getValue(), order.getSecurity().getSecurityFamily().getScale());
+            BigDecimal price = PriceUtil.normalizePrice(order, executionReport.getAvgPx().getValue());
 
             // assemble the fill
             // please note FXCM does not provide a unique exec report attribute
