@@ -29,7 +29,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import ch.algotrader.adapter.fix.DefaultFixApplication;
-import ch.algotrader.adapter.fix.DefaultFixSessionLifecycle;
+import ch.algotrader.adapter.fix.DefaultFixSessionStateHolder;
 import ch.algotrader.adapter.fix.DefaultLogonMessageHandler;
 import ch.algotrader.adapter.fix.FixConfigUtils;
 import ch.algotrader.adapter.fix.NoopSessionStateListener;
@@ -97,7 +97,7 @@ public class LMAXFixFeedMessageHandlerTest {
         this.messageHandler = Mockito.spy(new LMAXFixMarketDataMessageHandler(engine));
 
         DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, this.messageHandler, logonHandler,
-                new DefaultFixSessionLifecycle("LMAX", this.engineManager));
+                new DefaultFixSessionStateHolder("LMAX", this.engineManager));
 
         LogFactory logFactory = new ScreenLogFactory(true, true, true);
 

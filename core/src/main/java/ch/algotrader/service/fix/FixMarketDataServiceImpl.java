@@ -21,7 +21,7 @@ import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
 
 import ch.algotrader.adapter.fix.FixAdapter;
-import ch.algotrader.adapter.fix.FixSessionLifecycle;
+import ch.algotrader.adapter.fix.FixSessionStateHolder;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.Security;
@@ -47,20 +47,20 @@ public abstract class FixMarketDataServiceImpl extends ExternalMarketDataService
 
     private static Logger logger = Logger.getLogger(FixMarketDataServiceImpl.class.getName());
 
-    private final FixSessionLifecycle lifeCycle;
+    private final FixSessionStateHolder lifeCycle;
     private final FixAdapter fixAdapter;
     private final Engine serverEngine;
 
     public FixMarketDataServiceImpl(
             final CommonConfig commonConfig,
-            final FixSessionLifecycle lifeCycle,
+            final FixSessionStateHolder lifeCycle,
             final FixAdapter fixAdapter,
             final Engine serverEngine,
             final SecurityDao securityDao) {
 
         super(commonConfig, securityDao);
 
-        Validate.notNull(lifeCycle, "FixSessionLifecycle is null");
+        Validate.notNull(lifeCycle, "FixSessionStateHolder is null");
         Validate.notNull(serverEngine, "Engine is null");
         Validate.notNull(fixAdapter, "FixAdapter is null");
 
@@ -86,7 +86,7 @@ public abstract class FixMarketDataServiceImpl extends ExternalMarketDataService
     @Override
     public void initSubscriptions() {
 
-        if (this.lifeCycle.subscribe()) {
+        if (this.lifeCycle.onSubscribe()) {
             super.initSubscriptions();
         }
 

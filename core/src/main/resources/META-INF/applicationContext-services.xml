@@ -408,7 +408,7 @@
     <beans profile="dCMarketData">
         <bean id="dCFixMarketDataService" class="ch.algotrader.service.dc.DCFixMarketDataServiceImpl" >
             <constructor-arg index="0" ref="commonConfig"/>
-            <constructor-arg index="1"  ref="dCMarketDataSessionLifeCycle"/>
+            <constructor-arg index="1"  ref="dCMarketDataSessionStateHolder"/>
             <constructor-arg index="2"  ref="fixAdapter"/>
             <constructor-arg index="3"  ref="serverEngine"/>
             <constructor-arg index="4"  ref="securityDao"/>
@@ -463,7 +463,7 @@
     <beans profile="lMAXMarketData">
         <bean id="lMAXFixMarketDataService" class="ch.algotrader.service.lmax.LMAXFixMarketDataServiceImpl" >
             <constructor-arg index="0" ref="commonConfig"/>
-            <constructor-arg index="1"  ref="lMAXMarketDataSessionLifeCycle"/>
+            <constructor-arg index="1"  ref="lMAXMarketDataSessionStateHolder"/>
             <constructor-arg index="2"  ref="fixAdapter"/>
             <constructor-arg index="3"  ref="serverEngine"/>
             <constructor-arg index="4"  ref="securityDao"/>
@@ -500,7 +500,7 @@
     <beans profile="cNXMarketData">
         <bean id="cNXFixMarketDataService" class="ch.algotrader.service.cnx.CNXFixMarketDataServiceImpl" >
             <constructor-arg index="0" ref="commonConfig"/>
-            <constructor-arg index="1"  ref="cNXMarketDataSessionLifeCycle"/>
+            <constructor-arg index="1"  ref="cNXMarketDataSessionStateHolder"/>
             <constructor-arg index="2"  ref="fixAdapter"/>
             <constructor-arg index="3"  ref="serverEngine"/>
             <constructor-arg index="4"  ref="securityDao"/>

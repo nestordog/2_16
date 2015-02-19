@@ -26,17 +26,17 @@ import ch.algotrader.enumeration.ConnectionState;
  *
  * @version $Revision$ $Date$
  */
-public interface FixSessionLifecycle {
+public interface FixSessionStateHolder {
 
     String getName();
 
-    void create();
+    void onCreate();
 
-    void logon();
+    void onLogon();
 
-    void logoff();
+    void onLogoff();
 
-    boolean subscribe();
+    boolean onSubscribe();
 
     boolean isLoggedOn();
 

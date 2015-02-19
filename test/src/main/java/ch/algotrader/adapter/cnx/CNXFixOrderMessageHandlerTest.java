@@ -30,7 +30,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import ch.algotrader.adapter.fix.DefaultFixApplication;
-import ch.algotrader.adapter.fix.DefaultFixSessionLifecycle;
+import ch.algotrader.adapter.fix.DefaultFixSessionStateHolder;
 import ch.algotrader.adapter.fix.DefaultLogonMessageHandler;
 import ch.algotrader.adapter.fix.FixConfigUtils;
 import ch.algotrader.adapter.fix.NoopSessionStateListener;
@@ -112,7 +112,7 @@ public class CNXFixOrderMessageHandlerTest {
 
         DefaultLogonMessageHandler logonMessageHandler = new DefaultLogonMessageHandler(settings);
         DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, messageHandler, logonMessageHandler,
-                new DefaultFixSessionLifecycle("CNX", this.engineManager));
+                new DefaultFixSessionStateHolder("CNX", this.engineManager));
 
         LogFactory logFactory = new ScreenLogFactory(true, true, true);
 

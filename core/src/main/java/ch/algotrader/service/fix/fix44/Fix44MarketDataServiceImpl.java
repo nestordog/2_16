@@ -18,7 +18,7 @@
 package ch.algotrader.service.fix.fix44;
 
 import ch.algotrader.adapter.fix.FixAdapter;
-import ch.algotrader.adapter.fix.FixSessionLifecycle;
+import ch.algotrader.adapter.fix.FixSessionStateHolder;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.esper.Engine;
@@ -37,7 +37,7 @@ public abstract class Fix44MarketDataServiceImpl extends FixMarketDataServiceImp
 
     public Fix44MarketDataServiceImpl(
             final CommonConfig commonConfig,
-            final FixSessionLifecycle lifeCycle,
+            final FixSessionStateHolder lifeCycle,
             final FixAdapter fixAdapter,
             final Engine serverEngine,
             final SecurityDao securityDao) {

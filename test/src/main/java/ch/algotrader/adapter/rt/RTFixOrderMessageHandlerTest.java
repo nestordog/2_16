@@ -31,7 +31,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import ch.algotrader.adapter.fix.DefaultFixApplication;
-import ch.algotrader.adapter.fix.DefaultFixSessionLifecycle;
+import ch.algotrader.adapter.fix.DefaultFixSessionStateHolder;
 import ch.algotrader.adapter.fix.FixConfigUtils;
 import ch.algotrader.adapter.fix.NoopSessionStateListener;
 import ch.algotrader.adapter.fix.fix44.GenericFix44SymbologyResolver;
@@ -119,7 +119,7 @@ public class RTFixOrderMessageHandlerTest {
         this.messageFactory = new RTFixOrderMessageFactory(new GenericFix44SymbologyResolver());
 
         DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, this.messageHandler, null,
-                new DefaultFixSessionLifecycle("RT", this.engineManager));
+                new DefaultFixSessionStateHolder("RT", this.engineManager));
 
         LogFactory logFactory = new ScreenLogFactory(true, true, true);
 

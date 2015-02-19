@@ -21,7 +21,7 @@ import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
 
 import ch.algotrader.adapter.fix.AbstractFixApplication;
-import ch.algotrader.adapter.fix.FixSessionLifecycle;
+import ch.algotrader.adapter.fix.FixSessionStateHolder;
 import quickfix.FieldNotFound;
 import quickfix.IncorrectDataFormat;
 import quickfix.IncorrectTagValue;
@@ -44,19 +44,19 @@ public class CNXFixApplication extends AbstractFixApplication {
 
     private static final Logger LOGGER = Logger.getLogger(CNXFixApplication.class.getName());
 
-    private final FixSessionLifecycle lifecycleHandler;
+    private final FixSessionStateHolder stateHolder;
 
-    public CNXFixApplication(SessionID sessionID, Object incomingMessageHandler, Object outgoingMessageHandler, FixSessionLifecycle lifecycleHandler) {
+    public CNXFixApplication(SessionID sessionID, Object incomingMessageHandler, Object outgoingMessageHandler, FixSessionStateHolder stateHolder) {
         super(sessionID, incomingMessageHandler, outgoingMessageHandler);
 
         Validate.notNull(sessionID, "Session ID may not be null");
-        this.lifecycleHandler = lifecycleHandler;
+        this.stateHolder = stateHolder;
     }
 
     @Override
     public void onCreate() {
 
-        lifecycleHandler.create();
+        stateHolder.onCreate();
     }
 
     @Override
@@ -68,7 +68,7 @@ public class CNXFixApplication extends AbstractFixApplication {
             TradSesStatus status = tradingSessionStatus.getTradSesStatus();
             if (status.getValue() == TradSesStatus.OPEN) {
 
-                lifecycleHandler.logon();
+                stateHolder.onLogon();
             } else {
 
                 if (tradingSessionStatus.isSetText()) {
@@ -89,7 +89,7 @@ public class CNXFixApplication extends AbstractFixApplication {
     @Override
     public void onLogout() {
 
-        lifecycleHandler.logoff();
+        stateHolder.onLogoff();
     }
 
 }

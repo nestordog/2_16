@@ -39,7 +39,7 @@ class FakeFix44MarketDataService extends Fix44MarketDataServiceImpl {
 
     public FakeFix44MarketDataService(
             final CommonConfig commonConfig,
-            final FixSessionLifecycle lifeCycle,
+            final FixSessionStateHolder lifeCycle,
             final FixAdapter fixAdapter,
             final Engine serverEngine,
             final SecurityDao securityDao) {

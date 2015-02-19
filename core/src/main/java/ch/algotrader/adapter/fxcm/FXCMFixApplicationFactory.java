@@ -20,7 +20,7 @@ package ch.algotrader.adapter.fxcm;
 import org.apache.commons.lang.Validate;
 
 import ch.algotrader.adapter.fix.FixApplicationFactory;
-import ch.algotrader.adapter.fix.FixSessionLifecycle;
+import ch.algotrader.adapter.fix.FixSessionStateHolder;
 import quickfix.Application;
 import quickfix.ConfigError;
 import quickfix.SessionID;
@@ -36,29 +36,29 @@ import quickfix.SessionSettings;
 public class FXCMFixApplicationFactory implements FixApplicationFactory {
 
     private final Object incomingMessageHandler;
-    private final FixSessionLifecycle lifecycleHandler;
+    private final FixSessionStateHolder stateHolder;
 
-    public FXCMFixApplicationFactory(final Object incomingMessageHandler, final FixSessionLifecycle lifecycleHandler) {
+    public FXCMFixApplicationFactory(final Object incomingMessageHandler, final FixSessionStateHolder stateHolder) {
         Validate.notNull(incomingMessageHandler, "IncomingMessageHandler may not be null");
-        Validate.notNull(lifecycleHandler, "FixSessionLifecycle may not be null");
+        Validate.notNull(stateHolder, "FixSessionStateHolder may not be null");
 
         this.incomingMessageHandler = incomingMessageHandler;
-        this.lifecycleHandler = lifecycleHandler;
+        this.stateHolder = stateHolder;
     }
 
     @Override
     public String getName() {
-        return lifecycleHandler.getName();
+        return stateHolder.getName();
     }
 
     @Override
     public String toString() {
-        return lifecycleHandler.getName() + " FIX application factory";
+        return stateHolder.getName() + " FIX application factory";
     }
 
     @Override
     public Application create(SessionID sessionID, SessionSettings settings) throws ConfigError {
 
-        return new FXCMFixApplication(sessionID, incomingMessageHandler, settings, lifecycleHandler);
+        return new FXCMFixApplication(sessionID, incomingMessageHandler, settings, stateHolder);
     }
 }

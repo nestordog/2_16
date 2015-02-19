@@ -26,7 +26,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
-import ch.algotrader.adapter.fix.FixSessionLifecycle;
+import ch.algotrader.adapter.fix.FixSessionStateHolder;
 import ch.algotrader.enumeration.ConnectionState;
 
 /**
@@ -38,12 +38,12 @@ import ch.algotrader.enumeration.ConnectionState;
  */
 public class FixSessionServiceImpl implements FixSessionService, ApplicationContextAware, InitializingBean {
 
-    private final Map<String, FixSessionLifecycle> fixSessionLifecycleMap;
+    private final Map<String, FixSessionStateHolder> fixSessionStateHolderMap;
 
     private volatile ApplicationContext applicationContext;
 
     public FixSessionServiceImpl() {
-        this.fixSessionLifecycleMap = new ConcurrentHashMap<>();
+        this.fixSessionStateHolderMap = new ConcurrentHashMap<>();
     }
 
     @Override
@@ -54,20 +54,20 @@ public class FixSessionServiceImpl implements FixSessionService, ApplicationCont
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        Map<String, FixSessionLifecycle> map = applicationContext.getBeansOfType(FixSessionLifecycle.class);
-        for (Map.Entry<String, FixSessionLifecycle> entry : map.entrySet()) {
-            FixSessionLifecycle sessionLifecycle = entry.getValue();
-            fixSessionLifecycleMap.put(sessionLifecycle.getName(), sessionLifecycle);
+        Map<String, FixSessionStateHolder> map = applicationContext.getBeansOfType(FixSessionStateHolder.class);
+        for (Map.Entry<String, FixSessionStateHolder> entry : map.entrySet()) {
+            FixSessionStateHolder fixSessionStateHolder = entry.getValue();
+            fixSessionStateHolderMap.put(fixSessionStateHolder.getName(), fixSessionStateHolder);
         }
     }
 
     @Override
     public Map<String, ConnectionState> getAllSessionState() {
 
-        Map<String, ConnectionState> connectionStates = new HashMap<>(fixSessionLifecycleMap.size());
-        for (Map.Entry<String, FixSessionLifecycle> entry : fixSessionLifecycleMap.entrySet()) {
-            FixSessionLifecycle sessionLifecycle = entry.getValue();
-            connectionStates.put(sessionLifecycle.getName(), sessionLifecycle.getConnectionState());
+        Map<String, ConnectionState> connectionStates = new HashMap<>(fixSessionStateHolderMap.size());
+        for (Map.Entry<String, FixSessionStateHolder> entry : fixSessionStateHolderMap.entrySet()) {
+            FixSessionStateHolder fixSessionStateHolder = entry.getValue();
+            connectionStates.put(fixSessionStateHolder.getName(), fixSessionStateHolder.getConnectionState());
         }
         return connectionStates;
     }
@@ -78,8 +78,8 @@ public class FixSessionServiceImpl implements FixSessionService, ApplicationCont
         if (name == null) {
             return null;
         }
-        FixSessionLifecycle sessionLifecycle = fixSessionLifecycleMap.get(name);
-        return sessionLifecycle != null ? sessionLifecycle.getConnectionState() : null;
+        FixSessionStateHolder fixSessionStateHolder = fixSessionStateHolderMap.get(name);
+        return fixSessionStateHolder != null ? fixSessionStateHolder.getConnectionState() : null;
     }
 
 }

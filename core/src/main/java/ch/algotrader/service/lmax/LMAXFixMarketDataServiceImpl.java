@@ -20,7 +20,7 @@ package ch.algotrader.service.lmax;
 import org.apache.commons.lang.Validate;
 
 import ch.algotrader.adapter.fix.FixAdapter;
-import ch.algotrader.adapter.fix.FixSessionLifecycle;
+import ch.algotrader.adapter.fix.FixSessionStateHolder;
 import ch.algotrader.adapter.lmax.LMAXFixMarketDataRequestFactory;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.security.Security;
@@ -44,7 +44,7 @@ public class LMAXFixMarketDataServiceImpl extends Fix44MarketDataServiceImpl imp
 
     public LMAXFixMarketDataServiceImpl(
             final CommonConfig commonConfig,
-            final FixSessionLifecycle lifeCycle,
+            final FixSessionStateHolder lifeCycle,
             final FixAdapter fixAdapter,
             final Engine serverEngine,
             final SecurityDao securityDao) {

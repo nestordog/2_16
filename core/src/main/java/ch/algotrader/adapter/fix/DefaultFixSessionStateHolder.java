@@ -26,20 +26,20 @@ import ch.algotrader.esper.EngineManager;
 import ch.algotrader.vo.SessionEventVO;
 
 /**
- * Default implementation of {@link FixSessionLifecycle} that keeps track of
+ * Default implementation of {@link FixSessionStateHolder} that keeps track of
  * FIX connection state state.
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  *
  * @version $Revision$ $Date$
  */
-public class DefaultFixSessionLifecycle implements FixSessionLifecycle {
+public class DefaultFixSessionStateHolder implements FixSessionStateHolder {
 
     private final String name;
     private final EngineManager engineManager;
     private final AtomicReference<ConnectionState> connState;
 
-    public DefaultFixSessionLifecycle(final String name, final EngineManager engineManager) {
+    public DefaultFixSessionStateHolder(final String name, final EngineManager engineManager) {
         Validate.notNull(name, "Name is null");
         Validate.notNull(engineManager, "EngineManager is null");
 
@@ -54,7 +54,7 @@ public class DefaultFixSessionLifecycle implements FixSessionLifecycle {
     }
 
     @Override
-    public void create() {
+    public void onCreate() {
 
         if (this.connState.compareAndSet(ConnectionState.DISCONNECTED, ConnectionState.CONNECTED)) {
 
@@ -64,7 +64,7 @@ public class DefaultFixSessionLifecycle implements FixSessionLifecycle {
     }
 
     @Override
-    public void logon() {
+    public void onLogon() {
 
           if (this.connState.compareAndSet(ConnectionState.CONNECTED, ConnectionState.LOGGED_ON)) {
 
@@ -74,7 +74,7 @@ public class DefaultFixSessionLifecycle implements FixSessionLifecycle {
     }
 
     @Override
-    public void logoff() {
+    public void onLogoff() {
 
         ConnectionState previousState = this.connState.getAndSet(ConnectionState.CONNECTED);
         if (previousState.compareTo(ConnectionState.LOGGED_ON) >= 0) {
@@ -85,7 +85,7 @@ public class DefaultFixSessionLifecycle implements FixSessionLifecycle {
     }
 
     @Override
-    public boolean subscribe() {
+    public boolean onSubscribe() {
 
         if (this.connState.compareAndSet(ConnectionState.LOGGED_ON, ConnectionState.SUBSCRIBED)) {
 

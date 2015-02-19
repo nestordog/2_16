@@ -29,7 +29,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import ch.algotrader.adapter.fix.DefaultFixApplication;
-import ch.algotrader.adapter.fix.DefaultFixSessionLifecycle;
+import ch.algotrader.adapter.fix.DefaultFixSessionStateHolder;
 import ch.algotrader.adapter.fix.DefaultLogonMessageHandler;
 import ch.algotrader.adapter.fix.FixConfigUtils;
 import ch.algotrader.adapter.fix.NoopSessionStateListener;
@@ -95,7 +95,7 @@ public class DCFixFeedMessageHandlerTest {
         DefaultLogonMessageHandler dcLogonHandler = new DefaultLogonMessageHandler(settings);
 
         DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId,
-                new DCFixMarketDataMessageHandler(engine), dcLogonHandler, new DefaultFixSessionLifecycle("DC", this.engineManager));
+                new DCFixMarketDataMessageHandler(engine), dcLogonHandler, new DefaultFixSessionStateHolder("DC", this.engineManager));
 
         LogFactory logFactory = new CompositeLogFactory(new LogFactory[] { new SLF4JLogFactory(settings) });
 

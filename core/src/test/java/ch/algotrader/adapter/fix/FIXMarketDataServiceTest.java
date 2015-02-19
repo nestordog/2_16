@@ -55,7 +55,7 @@ public class FIXMarketDataServiceTest {
     @Mock
     private FixAdapter fixAdapter;
     @Mock
-    private FixSessionLifecycle sessionLifecycle;
+    private FixSessionStateHolder fixSessionStateHolder;
     @Mock
     private Engine engine;
 
@@ -68,7 +68,7 @@ public class FIXMarketDataServiceTest {
 
         CommonConfig commonConfig = CommonConfigBuilder.create().build();
 
-        FakeFix44MarketDataService fakeFix44MarketDataService = new FakeFix44MarketDataService(commonConfig, this.sessionLifecycle, this.fixAdapter, this.engine, this.securityDao );
+        FakeFix44MarketDataService fakeFix44MarketDataService = new FakeFix44MarketDataService(commonConfig, this.fixSessionStateHolder, this.fixAdapter, this.engine, this.securityDao );
 
         this.impl = Mockito.spy(fakeFix44MarketDataService);
     }
@@ -88,9 +88,9 @@ public class FIXMarketDataServiceTest {
     public void testInitialSubscriptions() throws Exception {
 
 
-        Mockito.when(this.sessionLifecycle.isLoggedOn()).thenReturn(Boolean.TRUE);
-        Mockito.when(this.sessionLifecycle.isSubscribed()).thenReturn(Boolean.FALSE);
-        Mockito.when(this.sessionLifecycle.subscribe()).thenReturn(Boolean.TRUE);
+        Mockito.when(this.fixSessionStateHolder.isLoggedOn()).thenReturn(Boolean.TRUE);
+        Mockito.when(this.fixSessionStateHolder.isSubscribed()).thenReturn(Boolean.FALSE);
+        Mockito.when(this.fixSessionStateHolder.onSubscribe()).thenReturn(Boolean.TRUE);
 
         Forex forex = createForex(Currency.EUR, Currency.USD);
 
@@ -129,9 +129,9 @@ public class FIXMarketDataServiceTest {
     @Test
     public void testInitialSubscriptionsAlreadySubscribed() throws Exception {
 
-        Mockito.when(this.sessionLifecycle.isLoggedOn()).thenReturn(Boolean.TRUE);
-        Mockito.when(this.sessionLifecycle.isSubscribed()).thenReturn(Boolean.TRUE);
-        Mockito.when(this.sessionLifecycle.subscribe()).thenReturn(Boolean.FALSE);
+        Mockito.when(this.fixSessionStateHolder.isLoggedOn()).thenReturn(Boolean.TRUE);
+        Mockito.when(this.fixSessionStateHolder.isSubscribed()).thenReturn(Boolean.TRUE);
+        Mockito.when(this.fixSessionStateHolder.onSubscribe()).thenReturn(Boolean.FALSE);
 
         Forex forex = createForex(Currency.EUR, Currency.USD);
         Mockito.when(this.securityDao.findSubscribedByFeedTypeForAutoActivateStrategiesInclFamily(FeedType.SIM))
@@ -147,7 +147,7 @@ public class FIXMarketDataServiceTest {
     @Test
     public void testSubscribe() throws Exception {
 
-        Mockito.when(this.sessionLifecycle.isLoggedOn()).thenReturn(Boolean.TRUE);
+        Mockito.when(this.fixSessionStateHolder.isLoggedOn()).thenReturn(Boolean.TRUE);
 
         Forex forex = createForex(Currency.EUR, Currency.USD);
 
@@ -182,7 +182,7 @@ public class FIXMarketDataServiceTest {
     @Test(expected = FixMarketDataServiceException.class)
     public void testSubscribeNotLoggedOn() throws Exception {
 
-        Mockito.when(this.sessionLifecycle.isLoggedOn()).thenReturn(Boolean.FALSE);
+        Mockito.when(this.fixSessionStateHolder.isLoggedOn()).thenReturn(Boolean.FALSE);
 
         Forex forex = createForex(Currency.EUR, Currency.USD);
 
@@ -193,8 +193,8 @@ public class FIXMarketDataServiceTest {
     @Test
     public void testUnsubscribe() throws Exception {
 
-        Mockito.when(this.sessionLifecycle.isLoggedOn()).thenReturn(Boolean.TRUE);
-        Mockito.when(this.sessionLifecycle.isSubscribed()).thenReturn(Boolean.TRUE);
+        Mockito.when(this.fixSessionStateHolder.isLoggedOn()).thenReturn(Boolean.TRUE);
+        Mockito.when(this.fixSessionStateHolder.isSubscribed()).thenReturn(Boolean.TRUE);
 
         Forex forex = createForex(Currency.EUR, Currency.USD);
         forex.setId(123);
@@ -216,8 +216,8 @@ public class FIXMarketDataServiceTest {
     @Test(expected = FixMarketDataServiceException.class)
     public void testUnsubscribeNotSubscribed() throws Exception {
 
-        Mockito.when(this.sessionLifecycle.isLoggedOn()).thenReturn(Boolean.TRUE);
-        Mockito.when(this.sessionLifecycle.isSubscribed()).thenReturn(Boolean.FALSE);
+        Mockito.when(this.fixSessionStateHolder.isLoggedOn()).thenReturn(Boolean.TRUE);
+        Mockito.when(this.fixSessionStateHolder.isSubscribed()).thenReturn(Boolean.FALSE);
 
         Forex forex = createForex(Currency.EUR, Currency.USD);
 

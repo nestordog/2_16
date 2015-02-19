@@ -22,27 +22,27 @@ import ch.algotrader.esper.EngineManager;
 import ch.algotrader.service.MarketDataService;
 
 /**
- * Market Data feed specific {@link FixSessionLifecycle}
+ * Market Data feed specific {@link FixSessionStateHolder}
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision: 6424 $ $Date: 2013-11-06 14:29:48 +0100 (Mi, 06 Nov 2013) $
  */
-public class MarketDataFixSessionLifecycle extends DefaultFixSessionLifecycle {
+public class MarketDataFixSessionStateHolder extends DefaultFixSessionStateHolder {
 
     private final MarketDataService marketDataService;
     private final FeedType feedType;
 
-    public MarketDataFixSessionLifecycle(final String name, final EngineManager engineManager, final MarketDataService marketDataService, final FeedType feedType) {
+    public MarketDataFixSessionStateHolder(final String name, final EngineManager engineManager, final MarketDataService marketDataService, final FeedType feedType) {
         super(name, engineManager);
         this.marketDataService = marketDataService;
         this.feedType = feedType;
     }
 
     @Override
-    public void logon() {
+    public void onLogon() {
 
-        super.logon();
+        super.onLogon();
 
         marketDataService.initSubscriptions(feedType);
     }

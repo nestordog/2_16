@@ -290,7 +290,7 @@
 
     <beans profile="jPMFix">
 
-        <bean id="jPMOrderSessionLifeCycle" class="ch.algotrader.adapter.fix.DefaultFixSessionLifecycle">
+        <bean id="jPMOrderSessionStateHolder" class="ch.algotrader.adapter.fix.DefaultFixSessionStateHolder">
             <constructor-arg index="0" value="JPMO"/>
             <constructor-arg index="1" ref="engineManager"/>
         </bean>
@@ -302,7 +302,7 @@
                     <constructor-arg index="1" ref="serverEngine"/>
                 </bean>
             </constructor-arg>
-            <constructor-arg index="1" ref="jPMOrderSessionLifeCycle"/>
+            <constructor-arg index="1" ref="jPMOrderSessionStateHolder"/>
         </bean>
 
     </beans>
@@ -312,7 +312,7 @@
 
     <beans profile="iBFix">
 
-        <bean id="iBOrderSessionLifeCycle" class="ch.algotrader.adapter.fix.DefaultFixSessionLifecycle">
+        <bean id="iBOrderSessionStateHolder" class="ch.algotrader.adapter.fix.DefaultFixSessionStateHolder">
             <constructor-arg index="0" value="IBFT"/>
             <constructor-arg index="1" ref="engineManager"/>
         </bean>
@@ -327,7 +327,7 @@
                     <constructor-arg index="2" ref="serverEngine"/>
                 </bean>
             </constructor-arg>
-            <constructor-arg index="1" ref="iBOrderSessionLifeCycle"/>
+            <constructor-arg index="1" ref="iBOrderSessionStateHolder"/>
         </bean>
 
     </beans>
@@ -336,7 +336,7 @@
 
     <beans profile="rTFix">
 
-        <bean id="rTOrderSessionLifeCycle" class="ch.algotrader.adapter.fix.DefaultFixSessionLifecycle">
+        <bean id="rTOrderSessionStateHolder" class="ch.algotrader.adapter.fix.DefaultFixSessionStateHolder">
             <constructor-arg index="0" value="RTT"/>
             <constructor-arg index="1" ref="engineManager"/>
         </bean>
@@ -348,7 +348,7 @@
                     <constructor-arg index="1" ref="serverEngine"/>
                 </bean>
             </constructor-arg>
-            <constructor-arg index="1" ref="rTOrderSessionLifeCycle"/>
+            <constructor-arg index="1" ref="rTOrderSessionStateHolder"/>
         </bean>
 
     </beans>
@@ -365,7 +365,7 @@
 
     <beans profile="dCMarketData">
 
-        <bean id="dCMarketDataSessionLifeCycle" class="ch.algotrader.adapter.fix.MarketDataFixSessionLifecycle">
+        <bean id="dCMarketDataSessionStateHolder" class="ch.algotrader.adapter.fix.MarketDataFixSessionStateHolder">
             <constructor-arg index="0"  value="DCMD"/>
             <constructor-arg index="1"  ref="engineManager"/>
             <constructor-arg index="2"  ref="marketDataService"/>
@@ -379,14 +379,14 @@
                    </bean>
             </constructor-arg>
             <constructor-arg index="1" ref="dCLogonMessageHandler"/>
-            <constructor-arg index="2" ref="dCMarketDataSessionLifeCycle"/>
+            <constructor-arg index="2" ref="dCMarketDataSessionStateHolder"/>
         </bean>
 
     </beans>
 
     <beans profile="dCFix">
 
-        <bean id="dCOrderSessionLifeCycle" class="ch.algotrader.adapter.fix.DefaultFixSessionLifecycle">
+        <bean id="dCOrderSessionStateHolder" class="ch.algotrader.adapter.fix.DefaultFixSessionStateHolder">
             <constructor-arg index="0" value="DCT"/>
             <constructor-arg index="1" ref="engineManager"/>
         </bean>
@@ -399,7 +399,7 @@
                 </bean>
             </constructor-arg>
             <constructor-arg index="1" ref="dCLogonMessageHandler"/>
-            <constructor-arg index="2" ref="dCOrderSessionLifeCycle"/>
+            <constructor-arg index="2" ref="dCOrderSessionStateHolder"/>
         </bean>
 
     </beans>
@@ -416,7 +416,7 @@
 
     <beans profile="lMAXMarketData">
 
-        <bean id="lMAXMarketDataSessionLifeCycle" class="ch.algotrader.adapter.fix.MarketDataFixSessionLifecycle">
+        <bean id="lMAXMarketDataSessionStateHolder" class="ch.algotrader.adapter.fix.MarketDataFixSessionStateHolder">
             <constructor-arg index="0" value="LMAXMD"/>
             <constructor-arg index="1"  ref="engineManager"/>
             <constructor-arg index="2"  ref="marketDataService"/>
@@ -430,14 +430,14 @@
                 </bean>
             </constructor-arg>
             <constructor-arg index="1" ref="lMAXLogonMessageHandler"/>
-            <constructor-arg index="2" ref="lMAXMarketDataSessionLifeCycle"/>
+            <constructor-arg index="2" ref="lMAXMarketDataSessionStateHolder"/>
         </bean>
 
     </beans>
 
     <beans profile="lMAXFix">
 
-        <bean id="lMAXOrderSessionLifeCycle" class="ch.algotrader.adapter.fix.DefaultFixSessionLifecycle">
+        <bean id="lMAXOrderSessionStateHolder" class="ch.algotrader.adapter.fix.DefaultFixSessionStateHolder">
             <constructor-arg index="0" value="LMAXT"/>
             <constructor-arg index="1" ref="engineManager"/>
         </bean>
@@ -450,7 +450,7 @@
                 </bean>
             </constructor-arg>
             <constructor-arg index="1" ref="lMAXLogonMessageHandler"/>
-            <constructor-arg index="2" ref="lMAXOrderSessionLifeCycle"/>
+            <constructor-arg index="2" ref="lMAXOrderSessionStateHolder"/>
         </bean>
 
     </beans>
@@ -459,7 +459,7 @@
 
     <beans profile="fXCMMarketData, fXCMFix">
 
-        <bean id="fXCMSessionLifeCycle" class="ch.algotrader.adapter.fix.MarketDataFixSessionLifecycle">
+        <bean id="fXCMSessionLifeCycle" class="ch.algotrader.adapter.fix.MarketDataFixSessionStateHolder">
             <constructor-arg index="0" value="FXCM"/>
             <constructor-arg index="1" ref="engineManager"/>
             <constructor-arg index="2" ref="marketDataService"/>
@@ -499,7 +499,7 @@
 
     <beans profile="cNXMarketData">
 
-        <bean id="cNXMarketDataSessionLifeCycle" class="ch.algotrader.adapter.fix.MarketDataFixSessionLifecycle">
+        <bean id="cNXMarketDataSessionStateHolder" class="ch.algotrader.adapter.fix.MarketDataFixSessionStateHolder">
             <constructor-arg index="0" value="CNXMD"/>
             <constructor-arg index="1" ref="engineManager"/>
             <constructor-arg index="2" ref="marketDataService"/>
@@ -513,14 +513,14 @@
                 </bean>
             </constructor-arg>
             <constructor-arg index="1" ref="cNXLogonMessageHandler"/>
-            <constructor-arg index="2" ref="cNXMarketDataSessionLifeCycle"/>
+            <constructor-arg index="2" ref="cNXMarketDataSessionStateHolder"/>
         </bean>
 
     </beans>
 
     <beans profile="cNXFix">
 
-        <bean id="cNXOrderSessionLifeCycle" class="ch.algotrader.adapter.fix.DefaultFixSessionLifecycle">
+        <bean id="cNXOrderSessionStateHolder" class="ch.algotrader.adapter.fix.DefaultFixSessionStateHolder">
             <constructor-arg index="0" value="CNXT"/>
             <constructor-arg index="1" ref="engineManager"/>
         </bean>
@@ -533,7 +533,7 @@
                 </bean>
             </constructor-arg>
             <constructor-arg index="1" ref="cNXLogonMessageHandler"/>
-            <constructor-arg index="2" ref="cNXOrderSessionLifeCycle"/>
+            <constructor-arg index="2" ref="cNXOrderSessionStateHolder"/>
         </bean>
 
     </beans>

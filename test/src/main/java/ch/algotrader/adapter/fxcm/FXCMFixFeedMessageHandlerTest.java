@@ -28,7 +28,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import ch.algotrader.adapter.fix.DefaultFixSessionLifecycle;
+import ch.algotrader.adapter.fix.DefaultFixSessionStateHolder;
 import ch.algotrader.adapter.fix.FixConfigUtils;
 import ch.algotrader.adapter.fix.NoopSessionStateListener;
 import ch.algotrader.entity.security.Forex;
@@ -97,8 +97,8 @@ public class FXCMFixFeedMessageHandlerTest {
 
         this.messageHandler = Mockito.spy(new FXCMFixMarketDataMessageHandler(engine));
 
-        DefaultFixSessionLifecycle fixSessionLifecycle = new DefaultFixSessionLifecycle("FXCM", this.engineManager);
-        FXCMFixApplication fixApplication = new FXCMFixApplication(sessionId, this.messageHandler, settings, fixSessionLifecycle);
+        DefaultFixSessionStateHolder fixSessionStateHolder = new DefaultFixSessionStateHolder("FXCM", this.engineManager);
+        FXCMFixApplication fixApplication = new FXCMFixApplication(sessionId, this.messageHandler, settings, fixSessionStateHolder);
 
         LogFactory logFactory = new ScreenLogFactory(true, true, true);
 
@@ -136,7 +136,7 @@ public class FXCMFixFeedMessageHandlerTest {
 
             Assert.fail("Session logon failed");
         }
-        if (!fixSessionLifecycle.isLoggedOn()) {
+        if (!fixSessionStateHolder.isLoggedOn()) {
 
             // Allow UserRequest message to get through
             Thread.sleep(1000);
