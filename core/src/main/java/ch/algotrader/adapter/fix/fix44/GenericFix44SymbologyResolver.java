@@ -20,17 +20,6 @@ package ch.algotrader.adapter.fix.fix44;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import quickfix.field.CFICode;
-import quickfix.field.ContractMultiplier;
-import quickfix.field.Currency;
-import quickfix.field.ExDestination;
-import quickfix.field.MaturityDate;
-import quickfix.field.MaturityMonthYear;
-import quickfix.field.SecurityType;
-import quickfix.field.StrikePrice;
-import quickfix.fix44.NewOrderSingle;
-import quickfix.fix44.OrderCancelReplaceRequest;
-import quickfix.fix44.OrderCancelRequest;
 import ch.algotrader.adapter.fix.FixApplicationException;
 import ch.algotrader.adapter.fix.FixUtil;
 import ch.algotrader.entity.security.Forex;
@@ -42,6 +31,18 @@ import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.Stock;
 import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.OptionType;
+import quickfix.field.CFICode;
+import quickfix.field.ContractMultiplier;
+import quickfix.field.Currency;
+import quickfix.field.ExDestination;
+import quickfix.field.MaturityDate;
+import quickfix.field.MaturityMonthYear;
+import quickfix.field.SecurityType;
+import quickfix.field.StrikePrice;
+import quickfix.field.Symbol;
+import quickfix.fix44.NewOrderSingle;
+import quickfix.fix44.OrderCancelReplaceRequest;
+import quickfix.fix44.OrderCancelRequest;
 
 /**
  * Generic FIX/4.4 symbology resolver implementation.
@@ -78,10 +79,15 @@ public class GenericFix44SymbologyResolver implements Fix44SymbologyResolver {
         }
     }
 
+    protected Symbol resolveSymbol(final Security security, final Broker broker) {
+
+        return FixUtil.getFixSymbol(security, broker);
+    }
+
     @Override
     public void resolve(final NewOrderSingle message, final Security security, final Broker broker) throws FixApplicationException {
 
-        message.set(FixUtil.getFixSymbol(security, broker));
+        message.set(resolveSymbol(security, broker));
 
         SecurityFamily securityFamily = security.getSecurityFamily();
 
@@ -133,7 +139,7 @@ public class GenericFix44SymbologyResolver implements Fix44SymbologyResolver {
     @Override
     public void resolve(final OrderCancelReplaceRequest message, final Security security, final Broker broker) throws FixApplicationException {
 
-        message.set(FixUtil.getFixSymbol(security, broker));
+        message.set(resolveSymbol(security, broker));
 
         // populate security information
         if (security instanceof Option) {
@@ -164,7 +170,7 @@ public class GenericFix44SymbologyResolver implements Fix44SymbologyResolver {
     @Override
     public void resolve(final OrderCancelRequest message, final Security security, final Broker broker) throws FixApplicationException {
 
-        message.set(FixUtil.getFixSymbol(security, broker));
+        message.set(resolveSymbol(security, broker));
 
         // populate security information
         if (security instanceof Option) {
