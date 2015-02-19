@@ -87,6 +87,11 @@ public abstract class FixOrderServiceImpl extends ExternalOrderServiceImpl imple
         // persist the order into the database
         this.orderService.persistOrder(order);
 
+        // propagate the order to all corresponding Esper engines
+        if (propagate) {
+            this.orderService.propagateOrder(order);
+        }
+
         // send the message to the Fix Adapter
         this.fixAdapter.sendMessage(message, order.getAccount());
 
@@ -106,12 +111,6 @@ public abstract class FixOrderServiceImpl extends ExternalOrderServiceImpl imple
         } else {
             throw new IllegalArgumentException("unsupported messagetype: " + msgType);
         }
-
-        // propagate the order to all corresponding Esper engines
-        if (propagate) {
-            this.orderService.propagateOrder(order);
-        }
-
     }
 
     /**
