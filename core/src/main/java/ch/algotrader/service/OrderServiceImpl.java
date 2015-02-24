@@ -63,6 +63,7 @@ import ch.algotrader.enumeration.Status;
 import ch.algotrader.enumeration.TIF;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
+import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.util.BeanUtil;
 import ch.algotrader.util.spring.HibernateSession;
 import ch.algotrader.vo.OrderStatusVO;
@@ -101,6 +102,8 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
 
     private final OrderPreferenceDao orderPreferenceDao;
 
+    private final EventDispatcher eventDispatcher;
+
     private final EngineManager engineManager;
 
     private final Engine serverEngine;
@@ -119,6 +122,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
             final SecurityDao securityDao,
             final AccountDao accountDao,
             final OrderPreferenceDao orderPreferenceDao,
+            final EventDispatcher eventDispatcher,
             final EngineManager engineManager,
             final Engine serverEngine) {
 
@@ -132,6 +136,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
         Validate.notNull(securityDao, "SecurityDao is null");
         Validate.notNull(accountDao, "AccountDao is null");
         Validate.notNull(orderPreferenceDao, "OrderPreferenceDao is null");
+        Validate.notNull(eventDispatcher, "PlatformEventDispatcher is null");
         Validate.notNull(engineManager, "EngineManager is null");
         Validate.notNull(serverEngine, "Engine is null");
 
@@ -145,6 +150,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
         this.securityDao = securityDao;
         this.accountDao = accountDao;
         this.orderPreferenceDao = orderPreferenceDao;
+        this.eventDispatcher = eventDispatcher;
         this.engineManager = engineManager;
         this.serverEngine = serverEngine;
         this.initialized = new AtomicBoolean(false);
@@ -427,7 +433,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
 
         // also send the order to the strategy that placed the order
         if (!order.getStrategy().isServer()) {
-            this.engineManager.sendEvent(order.getStrategy().getName(), order);
+            this.eventDispatcher.sendEvent(order.getStrategy().getName(), order);
         }
 
     }
@@ -455,7 +461,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
 
         // send the fill to the strategy that placed the corresponding order
         if (orderStatus.getOrder() != null && !orderStatus.getOrder().getStrategy().isServer()) {
-            this.engineManager.sendEvent(orderStatus.getOrder().getStrategy().getName(), orderStatus);
+            this.eventDispatcher.sendEvent(orderStatus.getOrder().getStrategy().getName(), orderStatus);
         }
 
         if (!this.commonConfig.isSimulation()) {
@@ -480,7 +486,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
 
         // send the fill to the strategy that placed the corresponding order
         if (orderCompletion.getOrder() != null && !orderCompletion.getOrder().getStrategy().isServer()) {
-            this.engineManager.sendEvent(orderCompletion.getOrder().getStrategy().getName(), orderCompletion);
+            this.eventDispatcher.sendEvent(orderCompletion.getOrder().getStrategy().getName(), orderCompletion);
         }
 
         if (!this.commonConfig.isSimulation()) {

@@ -41,7 +41,7 @@ import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.esper.AbstractEngine;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.esper.EngineManager;
+import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.vo.AskVO;
 import ch.algotrader.vo.BidVO;
 import quickfix.DefaultSessionFactory;
@@ -59,7 +59,7 @@ import quickfix.fix44.MarketDataSnapshotFullRefresh;
 public class LMAXFixFeedMessageHandlerTest {
 
     private LinkedBlockingQueue<Object> eventQueue;
-    private EngineManager engineManager;
+    private EventDispatcher eventDispatcher;
     private LMAXFixMarketDataMessageHandler messageHandler;
     private Session session;
     private SocketInitiator socketInitiator;
@@ -87,7 +87,7 @@ public class LMAXFixFeedMessageHandlerTest {
             }
         };
 
-        this.engineManager = Mockito.mock(EngineManager.class);
+        this.eventDispatcher = Mockito.mock(EventDispatcher.class);
 
         SessionSettings settings = FixConfigUtils.loadSettings();
         SessionID sessionId = FixConfigUtils.getSessionID(settings, "LMAXMD");
@@ -97,7 +97,7 @@ public class LMAXFixFeedMessageHandlerTest {
         this.messageHandler = Mockito.spy(new LMAXFixMarketDataMessageHandler(engine));
 
         DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, this.messageHandler, logonHandler,
-                new DefaultFixSessionStateHolder("LMAX", this.engineManager));
+                new DefaultFixSessionStateHolder("LMAX", this.eventDispatcher));
 
         LogFactory logFactory = new ScreenLogFactory(true, true, true);
 

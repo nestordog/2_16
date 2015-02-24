@@ -47,7 +47,7 @@ import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.AbstractEngine;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.esper.EngineManager;
+import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.service.LookupService;
 import quickfix.DefaultSessionFactory;
 import quickfix.LogFactory;
@@ -74,7 +74,7 @@ import quickfix.fix44.OrderCancelRequest;
 public class FXCMFixOrderMessageHandlerTest {
 
     private LinkedBlockingQueue<Object> eventQueue;
-    private EngineManager engineManager;
+    private EventDispatcher eventDispatcher;
     private LookupService lookupService;
     private String account;
     private FXCMFixOrderMessageHandler messageHandler;
@@ -104,7 +104,7 @@ public class FXCMFixOrderMessageHandlerTest {
             }
         };
 
-        this.engineManager = Mockito.mock(EngineManager.class);
+        this.eventDispatcher = Mockito.mock(EventDispatcher.class);
 
         SessionSettings settings = FixConfigUtils.loadSettings();
         SessionID sessionId = FixConfigUtils.getSessionID(settings, "FXCM");
@@ -117,7 +117,7 @@ public class FXCMFixOrderMessageHandlerTest {
         this.messageHandler = Mockito.spy(messageHandlerImpl);
 
         DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, this.messageHandler, logonHandler,
-                new DefaultFixSessionStateHolder("FXCM", this.engineManager));
+                new DefaultFixSessionStateHolder("FXCM", this.eventDispatcher));
 
         LogFactory logFactory = new ScreenLogFactory(true, true, true);
 

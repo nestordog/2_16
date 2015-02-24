@@ -48,7 +48,7 @@ import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.strategy.StrategyDao;
 import ch.algotrader.enumeration.FeedType;
-import ch.algotrader.esper.EngineManager;
+import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.util.HibernateUtil;
 import ch.algotrader.util.io.CsvTickWriter;
 import ch.algotrader.util.spring.HibernateSession;
@@ -79,7 +79,7 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationList
 
     private final SubscriptionDao subscriptionDao;
 
-    private final EngineManager engineManager;
+    private final EventDispatcher eventDispatcher;
 
     private final AtomicBoolean initialized;
 
@@ -92,7 +92,7 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationList
             final SecurityDao securityDao,
             final StrategyDao strategyDao,
             final SubscriptionDao subscriptionDao,
-            final EngineManager engineManager) {
+            final EventDispatcher eventDispatcher) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(coreConfig, "CoreConfig is null");
@@ -101,7 +101,7 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationList
         Validate.notNull(securityDao, "SecurityDao is null");
         Validate.notNull(strategyDao, "StrategyDao is null");
         Validate.notNull(subscriptionDao, "SubscriptionDao is null");
-        Validate.notNull(engineManager, "EngineManager is null");
+        Validate.notNull(eventDispatcher, "PlatformEventDispatcher is null");
 
         this.commonConfig = commonConfig;
         this.coreConfig = coreConfig;
@@ -110,7 +110,7 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationList
         this.securityDao = securityDao;
         this.strategyDao = strategyDao;
         this.subscriptionDao = subscriptionDao;
-        this.engineManager = engineManager;
+        this.eventDispatcher = eventDispatcher;
         this.initialized = new AtomicBoolean(false);
         this.externalMarketDataServiceMap = new ConcurrentHashMap<>();
     }
@@ -294,7 +294,7 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationList
         Collection<Tick> ticks = this.tickDao.findCurrentTicksByStrategy(strategyName);
 
         for (Tick tick : ticks) {
-            this.engineManager.sendEvent(strategyName, tick);
+            this.eventDispatcher.sendEvent(strategyName, tick);
         }
 
     }

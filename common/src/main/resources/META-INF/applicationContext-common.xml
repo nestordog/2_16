@@ -21,6 +21,14 @@
         <property name="commonConfig" ref="commonConfig"/>
     </bean>
 
+    <bean id="eventListenerRegistry" class="ch.algotrader.event.EventListenerRegistryImpl" />
+
+    <bean id="platformEventDispatcher" class="ch.algotrader.event.dispatch.EventDispatcherFactoryBean">
+        <property name="commonConfig" ref="commonConfig"/>
+        <property name="localEventBroadcaster" ref="eventListenerRegistry"/>
+        <property name="engineManager" ref="engineManager"/>
+    </bean>
+
     <bean class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor"/>
 
     <bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">

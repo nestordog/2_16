@@ -18,7 +18,7 @@
 package ch.algotrader.adapter.fix;
 
 import ch.algotrader.enumeration.FeedType;
-import ch.algotrader.esper.EngineManager;
+import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.service.MarketDataService;
 
 /**
@@ -33,8 +33,8 @@ public class MarketDataFixSessionStateHolder extends DefaultFixSessionStateHolde
     private final MarketDataService marketDataService;
     private final FeedType feedType;
 
-    public MarketDataFixSessionStateHolder(final String name, final EngineManager engineManager, final MarketDataService marketDataService, final FeedType feedType) {
-        super(name, engineManager);
+    public MarketDataFixSessionStateHolder(final String name, final EventDispatcher eventDispatcher, final MarketDataService marketDataService, final FeedType feedType) {
+        super(name, eventDispatcher);
         this.marketDataService = marketDataService;
         this.feedType = feedType;
     }

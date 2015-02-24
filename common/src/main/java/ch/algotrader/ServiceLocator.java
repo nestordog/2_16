@@ -31,6 +31,7 @@ import org.springframework.context.access.ContextSingletonBeanFactoryLocator;
 import org.springframework.context.support.AbstractApplicationContext;
 
 import ch.algotrader.esper.EngineManager;
+import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.service.CalendarService;
 import ch.algotrader.service.ChartProvidingService;
 import ch.algotrader.service.CombinationService;
@@ -376,6 +377,14 @@ public class ServiceLocator {
      */
     public EngineManager getEngineManager() {
         return getContext().getBean("engineManager", EngineManager.class);
+    }
+
+    /**
+     * Gets an instance of {@link ch.algotrader.event.dispatch.EventDispatcher}.
+     * @return EngineManager from getContext().getBean("platformEventDispatcher")
+     */
+    public EventDispatcher getEventDispatcher() {
+        return getContext().getBean("platformEventDispatcher", EventDispatcher.class);
     }
 
 }

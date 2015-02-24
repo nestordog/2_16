@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.commons.lang.Validate;
 
 import ch.algotrader.enumeration.ConnectionState;
-import ch.algotrader.esper.EngineManager;
+import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.vo.SessionEventVO;
 
 /**
@@ -36,15 +36,15 @@ import ch.algotrader.vo.SessionEventVO;
 public class DefaultFixSessionStateHolder implements FixSessionStateHolder {
 
     private final String name;
-    private final EngineManager engineManager;
+    private final EventDispatcher eventDispatcher;
     private final AtomicReference<ConnectionState> connState;
 
-    public DefaultFixSessionStateHolder(final String name, final EngineManager engineManager) {
+    public DefaultFixSessionStateHolder(final String name, final EventDispatcher eventDispatcher) {
         Validate.notNull(name, "Name is null");
-        Validate.notNull(engineManager, "EngineManager is null");
+        Validate.notNull(eventDispatcher, "PlatformEventDispatcher is null");
 
         this.name = name;
-        this.engineManager = engineManager;
+        this.eventDispatcher = eventDispatcher;
         this.connState = new AtomicReference<>(ConnectionState.DISCONNECTED);
     }
 
@@ -59,7 +59,7 @@ public class DefaultFixSessionStateHolder implements FixSessionStateHolder {
         if (this.connState.compareAndSet(ConnectionState.DISCONNECTED, ConnectionState.CONNECTED)) {
 
             SessionEventVO event = new SessionEventVO(ConnectionState.CONNECTED, this.name);
-            this.engineManager.sendEventToAllEngines(event);
+            this.eventDispatcher.sendAll(event);
         }
     }
 
@@ -69,7 +69,7 @@ public class DefaultFixSessionStateHolder implements FixSessionStateHolder {
           if (this.connState.compareAndSet(ConnectionState.CONNECTED, ConnectionState.LOGGED_ON)) {
 
               SessionEventVO event = new SessionEventVO(ConnectionState.LOGGED_ON, this.name);
-              this.engineManager.sendEventToAllEngines(event);
+              this.eventDispatcher.sendAll(event);
           }
     }
 
@@ -80,7 +80,7 @@ public class DefaultFixSessionStateHolder implements FixSessionStateHolder {
         if (previousState.compareTo(ConnectionState.LOGGED_ON) >= 0) {
 
             SessionEventVO event = new SessionEventVO(ConnectionState.CONNECTED, this.name);
-            this.engineManager.sendEventToAllEngines(event);
+            this.eventDispatcher.sendAll(event);
         }
     }
 
@@ -90,7 +90,7 @@ public class DefaultFixSessionStateHolder implements FixSessionStateHolder {
         if (this.connState.compareAndSet(ConnectionState.LOGGED_ON, ConnectionState.SUBSCRIBED)) {
 
             SessionEventVO event = new SessionEventVO(ConnectionState.SUBSCRIBED, this.name);
-            this.engineManager.sendEventToAllEngines(event);
+            this.eventDispatcher.sendAll(event);
             return true;
         } else {
 

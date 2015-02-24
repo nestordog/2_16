@@ -15,27 +15,25 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.esper.subscriber;
-
-import org.apache.log4j.Logger;
-
-import ch.algotrader.ServiceLocator;
-import ch.algotrader.vo.GenericEventVO;
+package ch.algotrader.event.dispatch;
 
 /**
- * Esper event subscriber for {@link ch.algotrader.event.dispatch.EventDispatcher#sendGenericEvent(ch.algotrader.vo.GenericEventVO)}.
+ * Signals event send error.
+ *
+ * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
+ *
+ * @version $Revision$ $Date$
  */
-public class PropagateGenericEventSubscriber {
+public class EventDispatchException extends RuntimeException {
 
-    private static Logger LOGGER = Logger.getLogger(PropagateGenericEventSubscriber.class.getName());
+    private static final long serialVersionUID = 959244339194808841L;
 
-    public void update(final GenericEventVO genericEvent) {
-
-        // security.toString & marketDataEvent.toString is expensive, so only log if debug is enabled
-        if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace(genericEvent);
-        }
-
-        ServiceLocator.instance().getEventDispatcher().sendGenericEvent(genericEvent);
+    public EventDispatchException(final String message, final Exception ex) {
+        super(message, ex);
     }
+
+    public EventDispatchException(final String message) {
+        super(message);
+    }
+
 }

@@ -56,6 +56,7 @@ import ch.algotrader.enumeration.TransactionType;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.esper.callback.TradeCallback;
+import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.option.OptionUtil;
 import ch.algotrader.util.PositionUtil;
 import ch.algotrader.util.RoundUtil;
@@ -96,6 +97,8 @@ public class PositionServiceImpl implements PositionService {
 
     private final TransactionDao transactionDao;
 
+    private final EventDispatcher eventDispatcher;
+
     private final EngineManager engineManager;
 
     private final Engine serverEngine;
@@ -111,6 +114,7 @@ public class PositionServiceImpl implements PositionService {
             final SecurityDao securityDao,
             final StrategyDao strategyDao,
             final TransactionDao transactionDao,
+            final EventDispatcher eventDispatcher,
             final EngineManager engineManager,
             final Engine serverEngine) {
 
@@ -125,6 +129,7 @@ public class PositionServiceImpl implements PositionService {
         Validate.notNull(securityDao, "SecurityDao is null");
         Validate.notNull(strategyDao, "StrategyDao is null");
         Validate.notNull(transactionDao, "TransactionDao is null");
+        Validate.notNull(eventDispatcher, "PlatformEventDispatcher is null");
         Validate.notNull(engineManager, "EngineManager is null");
         Validate.notNull(serverEngine, "Engine is null");
 
@@ -139,6 +144,7 @@ public class PositionServiceImpl implements PositionService {
         this.securityDao = securityDao;
         this.strategyDao = strategyDao;
         this.transactionDao = transactionDao;
+        this.eventDispatcher = eventDispatcher;
         this.engineManager = engineManager;
         this.serverEngine = serverEngine;
     }
@@ -269,7 +275,7 @@ public class PositionServiceImpl implements PositionService {
         ClosePositionVO closePositionVO = ClosePositionVOProducer.INSTANCE.convert(position);
 
         // propagate the ClosePosition event
-        this.engineManager.sendEvent(position.getStrategy().getName(), closePositionVO);
+        this.eventDispatcher.sendEvent(position.getStrategy().getName(), closePositionVO);
 
         // remove the association
         position.getSecurity().removePositions(position);
@@ -655,6 +661,6 @@ public class PositionServiceImpl implements PositionService {
         this.marketDataService.unsubscribe(position.getStrategy().getName(), security.getId());
 
         // propagate the ExpirePosition event
-        this.engineManager.sendEvent(position.getStrategy().getName(), expirePositionEvent);
+        this.eventDispatcher.sendEvent(position.getStrategy().getName(), expirePositionEvent);
     }
 }

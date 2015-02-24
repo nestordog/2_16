@@ -65,8 +65,9 @@
         <constructor-arg index="8" ref="securityDao"/>
         <constructor-arg index="9" ref="strategyDao"/>
         <constructor-arg index="10" ref="transactionDao"/>
-        <constructor-arg index="11" ref="engineManager"/>
-        <constructor-arg index="12" ref="serverEngine"/>
+        <constructor-arg index="11" ref="platformEventDispatcher"/>
+        <constructor-arg index="12" ref="engineManager"/>
+        <constructor-arg index="13" ref="serverEngine"/>
     </bean>
 
     <bean id="serverManagementService" class="ch.algotrader.service.ServerManagementServiceImpl" >
@@ -122,8 +123,9 @@
         <constructor-arg index="4" ref="strategyDao"/>
         <constructor-arg index="5" ref="securityDao"/>
         <constructor-arg index="6" ref="accountDao"/>
-        <constructor-arg index="7" ref="engineManager"/>
-        <constructor-arg index="8" ref="serverEngine"/>
+        <constructor-arg index="7" ref="platformEventDispatcher"/>
+        <constructor-arg index="8" ref="engineManager"/>
+        <constructor-arg index="9" ref="serverEngine"/>
     </bean>
 
     <bean id="marketDataService" class="ch.algotrader.service.MarketDataServiceImpl" >
@@ -134,7 +136,7 @@
         <constructor-arg index="4" ref="securityDao"/>
         <constructor-arg index="5" ref="strategyDao"/>
         <constructor-arg index="6" ref="subscriptionDao"/>
-        <constructor-arg index="7" ref="engineManager"/>
+        <constructor-arg index="7" ref="platformEventDispatcher"/>
     </bean>
 
     <bean id="orderPersistenceService" class="ch.algotrader.service.OrderPersistenceServiceImpl">
@@ -157,8 +159,9 @@
         <constructor-arg index="7" ref="securityDao"/>
         <constructor-arg index="8" ref="accountDao"/>
         <constructor-arg index="9" ref="orderPreferenceDao"/>
-        <constructor-arg index="10" ref="engineManager"/>
-        <constructor-arg index="11" ref="serverEngine"/>
+        <constructor-arg index="10" ref="platformEventDispatcher"/>
+        <constructor-arg index="11" ref="engineManager"/>
+        <constructor-arg index="12" ref="serverEngine"/>
     </bean>
 
     <bean id="combinationService" class="ch.algotrader.service.CombinationServiceImpl" >
