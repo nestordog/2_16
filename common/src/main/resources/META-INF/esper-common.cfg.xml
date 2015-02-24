@@ -38,6 +38,9 @@
     <!-- Session events -->
     <event-type name="SessionEventVO" class="ch.algotrader.vo.SessionEventVO"/>
 
+    <!-- Life-cycle events -->
+    <event-type name="LifecycleEventVO" class="ch.algotrader.vo.LifecycleEventVO"/>
+
     <!--  Metrics -->
 <!--     <event-type name="StatementMetric" class="ch.algotrader.vo.StatementMetricVO"/> -->
 

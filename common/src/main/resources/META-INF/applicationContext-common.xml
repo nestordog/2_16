@@ -25,7 +25,7 @@
 
     <bean id="platformEventDispatcher" class="ch.algotrader.event.dispatch.EventDispatcherFactoryBean">
         <property name="commonConfig" ref="commonConfig"/>
-        <property name="localEventBroadcaster" ref="eventListenerRegistry"/>
+        <property name="eventListenerRegistry" ref="eventListenerRegistry"/>
         <property name="engineManager" ref="engineManager"/>
     </bean>
 

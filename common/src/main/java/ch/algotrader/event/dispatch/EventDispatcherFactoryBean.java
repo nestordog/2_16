@@ -17,17 +17,47 @@
  ***********************************************************************************/
 package ch.algotrader.event.dispatch;
 
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.support.converter.MessageConverter;
 import org.springframework.jms.support.converter.SimpleMessageConverter;
 
 import ch.algotrader.config.CommonConfig;
+import ch.algotrader.entity.Transaction;
+import ch.algotrader.entity.marketData.Bar;
+import ch.algotrader.entity.marketData.Tick;
+import ch.algotrader.entity.trade.Fill;
+import ch.algotrader.entity.trade.Order;
+import ch.algotrader.entity.trade.OrderCompletion;
+import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.esper.EngineManager;
-import ch.algotrader.event.EventBroadcaster;
+import ch.algotrader.event.EventListener;
+import ch.algotrader.event.EventListenerRegistry;
+import ch.algotrader.event.listener.BarEventListener;
+import ch.algotrader.event.listener.ClosePositionEventListener;
+import ch.algotrader.event.listener.ExpirePositionEventListener;
+import ch.algotrader.event.listener.FillEventListener;
+import ch.algotrader.event.listener.LifecycleEventListener;
+import ch.algotrader.event.listener.OpenPositionEventListener;
+import ch.algotrader.event.listener.OrderCompletionEventListener;
+import ch.algotrader.event.listener.OrderEventListener;
+import ch.algotrader.event.listener.OrderStatusEventListener;
+import ch.algotrader.event.listener.SessionEventListener;
+import ch.algotrader.event.listener.TickEventListener;
+import ch.algotrader.event.listener.TransactionEventListener;
+import ch.algotrader.vo.ClosePositionVO;
+import ch.algotrader.vo.ExpirePositionVO;
+import ch.algotrader.vo.LifecycleEventVO;
+import ch.algotrader.vo.OpenPositionVO;
+import ch.algotrader.vo.SessionEventVO;
 
 /**
  * Factory bean for {@link EventDispatcherImpl}.
@@ -36,11 +66,13 @@ import ch.algotrader.event.EventBroadcaster;
  *
  * @version $Revision$ $Date$
  */
-public class EventDispatcherFactoryBean implements FactoryBean<EventDispatcher>, ApplicationContextAware {
+public class EventDispatcherFactoryBean implements FactoryBean<EventDispatcher>, ApplicationContextAware, ApplicationListener<ContextRefreshedEvent> {
+
+    private final AtomicBoolean postProcessed;
 
     private CommonConfig commonConfig;
 
-    private EventBroadcaster eventDispatcher;
+    private EventListenerRegistry eventListenerRegistry;
 
     private EngineManager engineManager;
 
@@ -48,12 +80,16 @@ public class EventDispatcherFactoryBean implements FactoryBean<EventDispatcher>,
 
     private ApplicationContext applicationContext;
 
+    public EventDispatcherFactoryBean() {
+        this.postProcessed = new AtomicBoolean(false);
+    }
+
     public void setCommonConfig(final CommonConfig commonConfig) {
         this.commonConfig = commonConfig;
     }
 
-    public void setLocalEventBroadcaster(final EventBroadcaster eventDispatcher) {
-        this.eventDispatcher = eventDispatcher;
+    public void setEventListenerRegistry(final EventListenerRegistry eventListenerRegistry) {
+        this.eventListenerRegistry = eventListenerRegistry;
     }
 
     public void setEngineManager(final EngineManager engineManager) {
@@ -74,7 +110,7 @@ public class EventDispatcherFactoryBean implements FactoryBean<EventDispatcher>,
 
         return new EventDispatcherImpl(
                 this.commonConfig,
-                this.eventDispatcher,
+                this.eventListenerRegistry,
                 this.engineManager,
                 this.applicationContext.containsBean("genericTemplate") ? this.applicationContext.getBean("genericTemplate", JmsTemplate.class) : null,
                 this.applicationContext.containsBean("strategyTemplate") ? this.applicationContext.getBean("strategyTemplate", JmsTemplate.class) : null,
@@ -90,6 +126,180 @@ public class EventDispatcherFactoryBean implements FactoryBean<EventDispatcher>,
     @Override
     public boolean isSingleton() {
         return true;
+    }
+
+    @Override
+    public void onApplicationEvent(final ContextRefreshedEvent event) {
+
+        if (this.postProcessed.compareAndSet(false, true)) {
+
+            Map<String, TickEventListener> tickListenerMap = this.applicationContext.getBeansOfType(TickEventListener.class);
+            for (Map.Entry<String, TickEventListener> entry: tickListenerMap.entrySet()) {
+
+                final TickEventListener listener = entry.getValue();
+                this.eventListenerRegistry.register(new EventListener<Tick>() {
+
+                    @Override
+                    public void onEvent(final Tick event) {
+                        listener.onTick(event);
+                    }
+
+                }, Tick.class);
+            }
+            Map<String, BarEventListener> barListenerMap = this.applicationContext.getBeansOfType(BarEventListener.class);
+            for (Map.Entry<String, BarEventListener> entry: barListenerMap.entrySet()) {
+
+                final BarEventListener listener = entry.getValue();
+                this.eventListenerRegistry.register(new EventListener<Bar>() {
+
+                    @Override
+                    public void onEvent(final Bar event) {
+                        listener.onBar(event);
+                    }
+
+                }, Bar.class);
+            }
+            Map<String, SessionEventListener> sessionEventSinkMap = this.applicationContext.getBeansOfType(SessionEventListener.class);
+            for (Map.Entry<String, SessionEventListener> entry: sessionEventSinkMap.entrySet()) {
+
+                final SessionEventListener listener = entry.getValue();
+
+                this.eventListenerRegistry.register(new EventListener<SessionEventVO>() {
+
+                    @Override
+                    public void onEvent(final SessionEventVO event) {
+                        listener.onChange(event);
+                    }
+
+                }, SessionEventVO.class);
+            }
+            Map<String, LifecycleEventListener> lifecycleEventMap = this.applicationContext.getBeansOfType(LifecycleEventListener.class);
+            for (Map.Entry<String, LifecycleEventListener> entry: lifecycleEventMap.entrySet()) {
+
+                final LifecycleEventListener listener = entry.getValue();
+
+                this.eventListenerRegistry.register(new EventListener<LifecycleEventVO>() {
+
+                    @Override
+                    public void onEvent(final LifecycleEventVO event) {
+                        listener.onChange(event);
+                    }
+
+                }, LifecycleEventVO.class);
+            }
+            Map<String, OrderEventListener> orderEventListenerMap = this.applicationContext.getBeansOfType(OrderEventListener.class);
+            for (Map.Entry<String, OrderEventListener> entry: orderEventListenerMap.entrySet()) {
+
+                final OrderEventListener listener = entry.getValue();
+
+                this.eventListenerRegistry.register(new EventListener<Order>() {
+
+                    @Override
+                    public void onEvent(final Order event) {
+                        listener.onOrder(event);
+                    }
+
+                }, Order.class);
+            }
+            Map<String, OrderStatusEventListener> orderStatusEventListenerMap = this.applicationContext.getBeansOfType(OrderStatusEventListener.class);
+            for (Map.Entry<String, OrderStatusEventListener> entry: orderStatusEventListenerMap.entrySet()) {
+
+                final OrderStatusEventListener orderEventListener = entry.getValue();
+
+                this.eventListenerRegistry.register(new EventListener<OrderStatus>() {
+
+                    @Override
+                    public void onEvent(final OrderStatus event) {
+                        orderEventListener.onOrderStatus(event);
+                    }
+
+                }, OrderStatus.class);
+            }
+            Map<String, OrderCompletionEventListener> orderCompletionEventListenerMap = this.applicationContext.getBeansOfType(OrderCompletionEventListener.class);
+            for (Map.Entry<String, OrderCompletionEventListener> entry: orderCompletionEventListenerMap.entrySet()) {
+
+                final OrderCompletionEventListener listener = entry.getValue();
+
+                this.eventListenerRegistry.register(new EventListener<OrderCompletion>() {
+
+                    @Override
+                    public void onEvent(final OrderCompletion event) {
+                        listener.onOrderCompletion(event);
+                    }
+
+                }, OrderCompletion.class);
+            }
+            Map<String, FillEventListener> fillEventListenerMap = this.applicationContext.getBeansOfType(FillEventListener.class);
+            for (Map.Entry<String, FillEventListener> entry: fillEventListenerMap.entrySet()) {
+
+                final FillEventListener listener = entry.getValue();
+
+                this.eventListenerRegistry.register(new EventListener<Fill>() {
+
+                    @Override
+                    public void onEvent(final Fill event) {
+                        listener.onFill(event);
+                    }
+
+                }, Fill.class);
+            }
+            Map<String, TransactionEventListener> transactionEventListenerMap = this.applicationContext.getBeansOfType(TransactionEventListener.class);
+            for (Map.Entry<String, TransactionEventListener> entry: transactionEventListenerMap.entrySet()) {
+
+                final TransactionEventListener listener = entry.getValue();
+
+                this.eventListenerRegistry.register(new EventListener<Transaction>() {
+
+                    @Override
+                    public void onEvent(final Transaction event) {
+                        listener.onTransaction(event);
+                    }
+
+                }, Transaction.class);
+            }
+            Map<String, OpenPositionEventListener> openPositionEventListenerMap = this.applicationContext.getBeansOfType(OpenPositionEventListener.class);
+            for (Map.Entry<String, OpenPositionEventListener> entry: openPositionEventListenerMap.entrySet()) {
+
+                final OpenPositionEventListener listener = entry.getValue();
+
+                this.eventListenerRegistry.register(new EventListener<OpenPositionVO>() {
+
+                    @Override
+                    public void onEvent(final OpenPositionVO event) {
+                        listener.onOpenPosition(event);
+                    }
+
+                }, OpenPositionVO.class);
+            }
+            Map<String, ClosePositionEventListener> closePositionEventListenerMap = this.applicationContext.getBeansOfType(ClosePositionEventListener.class);
+            for (Map.Entry<String, ClosePositionEventListener> entry: closePositionEventListenerMap.entrySet()) {
+
+                final ClosePositionEventListener listener = entry.getValue();
+
+                this.eventListenerRegistry.register(new EventListener<ClosePositionVO>() {
+
+                    @Override
+                    public void onEvent(final ClosePositionVO event) {
+                        listener.onClosePosition(event);
+                    }
+
+                }, ClosePositionVO.class);
+            }
+            Map<String, ExpirePositionEventListener> expirePositionEventListenerMap = this.applicationContext.getBeansOfType(ExpirePositionEventListener.class);
+            for (Map.Entry<String, ExpirePositionEventListener> entry: expirePositionEventListenerMap.entrySet()) {
+
+                final ExpirePositionEventListener listener = entry.getValue();
+
+                this.eventListenerRegistry.register(new EventListener<ExpirePositionVO>() {
+
+                    @Override
+                    public void onEvent(final ExpirePositionVO event) {
+                        listener.onExpirePosition(event);
+                    }
+
+                }, ExpirePositionVO.class);
+            }
+        }
     }
 
 }
