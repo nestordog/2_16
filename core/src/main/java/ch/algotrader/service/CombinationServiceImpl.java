@@ -44,7 +44,6 @@ import ch.algotrader.enumeration.CombinationType;
 import ch.algotrader.enumeration.InitializingServiceType;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.util.HibernateUtil;
-import ch.algotrader.util.spring.HibernateSession;
 import ch.algotrader.vo.InsertComponentEventVO;
 
 /**
@@ -52,7 +51,7 @@ import ch.algotrader.vo.InsertComponentEventVO;
  *
  * @version $Revision$ $Date$
  */
-@HibernateSession
+@Transactional
 @InitializationPriority(InitializingServiceType.CORE)
 public class CombinationServiceImpl implements CombinationService, InitializingServiceI {
 

@@ -20,14 +20,12 @@ package ch.algotrader.service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import ch.algotrader.util.spring.HibernateSession;
-
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-@HibernateSession
+@Transactional
 public abstract class ReferenceDataServiceImpl implements ReferenceDataService {
 
     /**

@@ -34,7 +34,8 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.hibernate.Hibernate;
 import org.hibernate.SessionFactory;
-import org.hibernate.impl.SessionFactoryImpl;
+import org.hibernate.internal.SessionFactoryImpl;
+import org.springframework.transaction.annotation.Transactional;
 
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.CoreConfig;
@@ -94,19 +95,17 @@ import ch.algotrader.hibernate.GenericDao;
 import ch.algotrader.hibernate.HibernateInitializer;
 import ch.algotrader.util.HibernateUtil;
 import ch.algotrader.util.collection.CollectionUtil;
-import ch.algotrader.util.spring.HibernateSession;
 import ch.algotrader.visitor.InitializationVisitor;
 import ch.algotrader.vo.OrderStatusVO;
 import ch.algotrader.vo.PositionVO;
 import ch.algotrader.vo.TransactionVO;
 
-@SuppressWarnings("unchecked")
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-@HibernateSession
+@Transactional
 public class LookupServiceImpl implements LookupService {
 
     private final Map<String, Integer> securitySymbolMap = new ConcurrentHashMap<String, Integer>();
@@ -456,6 +455,7 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
+    @SuppressWarnings("unchecked")
     public List getSubscribedSecuritiesAndFeedTypeForAutoActivateStrategiesInclComponents() {
 
         List<Map> subscriptions = this.securityDao.findSubscribedAndFeedTypeForAutoActivateStrategies();
@@ -1634,6 +1634,7 @@ public class LookupServiceImpl implements LookupService {
         return valuesByDate;
     }
 
+    @SuppressWarnings("unchecked")
     private Map<Date, Map<String, Object>> getNameValuePairsByDate(List<Measurement> measurements) {
 
         // group Measurements by date

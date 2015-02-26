@@ -26,7 +26,7 @@ import java.sql.Types;
 import java.util.Properties;
 
 import org.hibernate.HibernateException;
-import org.hibernate.engine.SessionImplementor;
+import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.usertype.EnhancedUserType;
 import org.hibernate.usertype.ParameterizedType;
 
@@ -102,16 +102,16 @@ public class HibernateEnumType implements EnhancedUserType, ParameterizedType {
         return false;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public Object nullSafeGet(ResultSet resultSet, String[] names, Object owner) throws HibernateException, SQLException {
+    public Object nullSafeGet(
+            final ResultSet resultSet, final String[] names, final SessionImplementor session, final Object owner) throws HibernateException, SQLException {
         final String name = resultSet.getString(names[0]);
         return resultSet.wasNull() ? null : Enum.valueOf(this.enumClass, name);
     }
 
-    @SuppressWarnings("rawtypes")
     @Override
-    public void nullSafeSet(PreparedStatement statement, Object value, int index) throws HibernateException, SQLException {
+    public void nullSafeSet(
+            final PreparedStatement statement, final Object value, final int index, final SessionImplementor session) throws HibernateException, SQLException {
         if (value == null) {
             statement.setNull(index, Types.VARCHAR);
         } else {
@@ -121,14 +121,6 @@ public class HibernateEnumType implements EnhancedUserType, ParameterizedType {
                 statement.setString(index, (String) value);
             }
         }
-    }
-
-    public Object nullSafeGet(ResultSet resultSet, String[] names, SessionImplementor session, Object owner) throws HibernateException, SQLException {
-        return this.nullSafeGet(resultSet, names, owner);
-    }
-
-    public void nullSafeSet(PreparedStatement preparedStatement, Object data, int index, SessionImplementor session) throws HibernateException, SQLException {
-        this.nullSafeSet(preparedStatement, data, index);
     }
 
     /**

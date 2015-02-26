@@ -37,26 +37,6 @@
         <property name="locateExistingServerIfPossible" value="true"/>
     </bean>
 
-    <!--  Hibernate JMX Beans -->
-    <bean id="hibernateStatisticsMBean" class="org.hibernate.jmx.StatisticsService">
-        <property name="statisticsEnabled" value="true" />
-        <property name="sessionFactory" ref="sessionFactory" />
-    </bean>
-
-    <bean id="ehCacheMBean" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-        <property name="staticMethod" value="net.sf.ehcache.management.ManagementService.registerMBeans" />
-        <property name="arguments">
-            <list>
-                <ref bean="ehCacheManager" />
-                <ref bean="mbeanServer" />
-                <value>true</value>
-                <value>true</value>
-                <value>false</value>
-                <value>true</value>
-            </list>
-        </property>
-    </bean>
-
     <!-- Log4J JMX Beans -->
     <bean id="log4JExporter" class="org.springframework.jmx.export.MBeanExporter">
         <property name="beans">
@@ -70,12 +50,6 @@
     </bean>
 
     <!-- ============================= Data Source an Transaction Management ============================ -->
-
-    <bean id="sessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean" depends-on="ehCacheManager">
-        <property name="dataSource" ref="dataSource"/>
-        <property name="mappingLocations" ref="hibernateMappingLocations"/>
-        <property name="hibernateProperties" ref="hibernateProperties"/>
-    </bean>
 
     <bean id="hibernateMappingLocations" class="org.springframework.beans.factory.config.ListFactoryBean">
         <property name="sourceList">
@@ -93,39 +67,31 @@
                 <prop key="hibernate.default_batch_fetch_size">16</prop>
                 <prop key="hibernate.cache.use_second_level_cache">true</prop>
                 <prop key="hibernate.cache.use_query_cache">true</prop>
-                <prop key="hibernate.cache.provider_class">net.sf.ehcache.hibernate.SingletonEhCacheProvider</prop>
-                <prop key="hibernate.cache.query_cache_factory">org.hibernate.cache.StandardQueryCacheFactory</prop>
-                <!-- <prop key="hibernate.hbm2ddl.auto">update</prop> -->
-                <!-- <prop key="hibernate.show_sql">true</prop> -->
+                <prop key="hibernate.cache.region.factory_class">org.hibernate.cache.ehcache.EhCacheRegionFactory</prop>
+                <prop key="hibernate.cache.query_cache_factory">org.hibernate.cache.internal.StandardQueryCacheFactory</prop>
             </props>
         </property>
     </bean>
 
-    <bean id="hibernateInterceptor" class="org.springframework.orm.hibernate3.HibernateInterceptor">
-        <property name="sessionFactory" ref="sessionFactory"/>
+    <bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="mappingLocations" ref="hibernateMappingLocations"/>
+        <property name="hibernateProperties" ref="hibernateProperties"/>
     </bean>
 
     <bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"/>
 
-    <bean class="ch.algotrader.util.spring.InfrastructureRoleBeanDefinitionConfigurer">
-        <property name="beanNames" value="hibernateSessionAnnotationAdvisor"/>
-    </bean>
-
-    <bean id="hibernateSessionAnnotationAdvisor" class="ch.algotrader.util.spring.HibernateSessionAnnotationAdvisor">
-      <property name="hibernateInterceptor" ref="hibernateInterceptor"/>
-    </bean>
-
-    <bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+    <bean id="transactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
         <property name="sessionFactory" ref="sessionFactory"/>
     </bean>
 
-     <bean id="ehCacheManager" class="ch.algotrader.ehcache.EhCacheManagerFactoryBean">
-         <property name="configLocations" value="classpath*:/META-INF/ehcache*.xml"/>
-         <property name="shared" value="true"/>
-     </bean>
+    <bean id="txTemplate" class="org.springframework.transaction.support.TransactionTemplate">
+        <property name="transactionManager" ref="transactionManager"/>
+    </bean>
 
     <bean id="genericDao" class="ch.algotrader.hibernate.GenericDao">
-        <property name="sessionFactory" ref="sessionFactory"/>
+        <constructor-arg index="0" ref="sessionFactory"/>
+        <constructor-arg index="1" ref="txTemplate"/>
     </bean>
 
     <!-- =================================== Esper Engines  ========================================= -->

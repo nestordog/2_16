@@ -61,7 +61,6 @@ import ch.algotrader.esper.EngineManager;
 import ch.algotrader.hibernate.GenericDao;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.collection.DoubleMap;
-import ch.algotrader.util.spring.HibernateSession;
 import ch.algotrader.vo.BalanceVO;
 import ch.algotrader.vo.CurrencyAmountVO;
 import ch.algotrader.vo.PortfolioValueVO;
@@ -71,7 +70,7 @@ import ch.algotrader.vo.PortfolioValueVO;
  *
  * @version $Revision$ $Date$
  */
-@HibernateSession
+@Transactional
 public class PortfolioServiceImpl implements PortfolioService {
 
     private static Logger logger = Logger.getLogger(PortfolioServiceImpl.class.getName());

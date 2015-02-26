@@ -20,19 +20,19 @@ package ch.algotrader.service;
 import java.util.List;
 
 import org.apache.commons.lang.Validate;
+import org.springframework.transaction.annotation.Transactional;
 
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.enumeration.FeedType;
-import ch.algotrader.util.spring.HibernateSession;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-@HibernateSession
+@Transactional
 public abstract class ExternalMarketDataServiceImpl implements ExternalMarketDataService {
 
     private final CommonConfig commonConfig;

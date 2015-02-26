@@ -26,14 +26,13 @@ import ch.algotrader.entity.property.Property;
 import ch.algotrader.entity.property.PropertyDao;
 import ch.algotrader.entity.property.PropertyHolder;
 import ch.algotrader.entity.property.PropertyHolderDao;
-import ch.algotrader.util.spring.HibernateSession;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-@HibernateSession
+@Transactional
 public class PropertyServiceImpl implements PropertyService {
 
     private static Logger logger = Logger.getLogger(PropertyServiceImpl.class.getName());

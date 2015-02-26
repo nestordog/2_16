@@ -51,14 +51,13 @@ import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.util.HibernateUtil;
 import ch.algotrader.util.io.CsvTickWriter;
-import ch.algotrader.util.spring.HibernateSession;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-@HibernateSession
+@Transactional
 public class MarketDataServiceImpl implements MarketDataService, ApplicationListener<ContextRefreshedEvent> {
 
     private static Logger logger = Logger.getLogger(MarketDataServiceImpl.class.getName());

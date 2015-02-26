@@ -24,8 +24,8 @@ import java.util.Set;
 
 import org.apache.commons.lang.Validate;
 import org.hibernate.SQLQuery;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.classic.Session;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,7 +42,6 @@ import ch.algotrader.esper.Engine;
 import ch.algotrader.service.PortfolioService;
 import ch.algotrader.service.TransactionPersistenceServiceImpl;
 import ch.algotrader.util.HibernateUtil;
-import ch.algotrader.util.spring.HibernateSession;
 import ch.algotrader.vo.CurrencyAmountVO;
 
 /**
@@ -50,7 +49,7 @@ import ch.algotrader.vo.CurrencyAmountVO;
  *
  * @version $Revision$ $Date$
  */
-@HibernateSession
+@Transactional
 public class MySqlTransactionPersistenceServiceImpl extends TransactionPersistenceServiceImpl {
 
     private final SessionFactory sessionFactory;

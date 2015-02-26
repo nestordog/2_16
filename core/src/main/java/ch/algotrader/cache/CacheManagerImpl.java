@@ -26,7 +26,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.ClassUtils;
 import org.apache.log4j.Logger;
-import org.hibernate.collection.AbstractPersistentCollection;
+import org.hibernate.collection.internal.AbstractPersistentCollection;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.jmx.export.annotation.ManagedAttribute;
 import org.springframework.jmx.export.annotation.ManagedOperation;
@@ -227,7 +227,7 @@ public class CacheManagerImpl implements CacheManager, Initializer {
     /**
      * Invokes an update by using the Handlers
      */
-    void update(EntityCacheKey cacheKey, String key) {
+    public void update(EntityCacheKey cacheKey, String key) {
 
         Object obj = this.entityCache.find(cacheKey, key);
 

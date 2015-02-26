@@ -52,7 +52,6 @@ import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.option.OptionSymbol;
 import ch.algotrader.util.io.CsvIVolReader;
 import ch.algotrader.util.io.CsvTickReader;
-import ch.algotrader.util.spring.HibernateSession;
 import ch.algotrader.vo.IVolVO;
 
 /**
@@ -60,7 +59,7 @@ import ch.algotrader.vo.IVolVO;
  *
  * @version $Revision$ $Date$
  */
-@HibernateSession
+@Transactional
 public class ImportServiceImpl implements ImportService {
 
     private static Logger logger = Logger.getLogger(ImportServiceImpl.class.getName());

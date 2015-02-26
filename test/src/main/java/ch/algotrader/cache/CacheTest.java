@@ -23,7 +23,7 @@ import java.util.Date;
 import org.apache.commons.collections15.map.SingletonMap;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.collection.AbstractPersistentCollection;
+import org.hibernate.collection.internal.AbstractPersistentCollection;
 import org.hibernate.proxy.HibernateProxy;
 import org.junit.Assert;
 import org.junit.BeforeClass;

@@ -26,6 +26,7 @@ import java.util.List;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.math.util.MathUtils;
 import org.apache.log4j.Logger;
+import org.springframework.transaction.annotation.Transactional;
 
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.CoreConfig;
@@ -48,7 +49,6 @@ import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.collection.CollectionUtil;
-import ch.algotrader.util.spring.HibernateSession;
 import ch.algotrader.vo.PositionMutationVO;
 
 /**
@@ -56,7 +56,7 @@ import ch.algotrader.vo.PositionMutationVO;
  *
  * @version $Revision$ $Date$
  */
-@HibernateSession
+@Transactional
 public class TransactionServiceImpl implements TransactionService {
 
     private static Logger logger = Logger.getLogger(TransactionServiceImpl.class.getName());

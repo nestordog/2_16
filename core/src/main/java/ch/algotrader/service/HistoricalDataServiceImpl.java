@@ -36,14 +36,13 @@ import ch.algotrader.enumeration.BarType;
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.TimePeriod;
 import ch.algotrader.util.collection.CollectionUtil;
-import ch.algotrader.util.spring.HibernateSession;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-@HibernateSession
+@Transactional
 public abstract class HistoricalDataServiceImpl implements HistoricalDataService {
 
     private static Logger logger = Logger.getLogger(HistoricalDataServiceImpl.class.getName());

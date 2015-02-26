@@ -18,23 +18,22 @@
 package ch.algotrader.hibernate;
 
 import java.io.Serializable;
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.hibernate.EntityMode;
-import org.hibernate.HibernateException;
+import org.apache.commons.lang.Validate;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.collection.PersistentCollection;
-import org.hibernate.impl.SessionFactoryImpl;
+import org.hibernate.SessionFactory;
+import org.hibernate.collection.spi.PersistentCollection;
+import org.hibernate.internal.SessionFactoryImpl;
 import org.hibernate.metadata.ClassMetadata;
 import org.hibernate.persister.collection.CollectionPersister;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.HibernateTemplate;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.visitor.InitializationVisitor;
@@ -46,7 +45,19 @@ import ch.algotrader.visitor.InitializationVisitor;
  *
  * @version $Revision$ $Date$
  */
-public class GenericDao extends HibernateDaoSupport {
+public class GenericDao {
+
+    private final SessionFactory sessionFactory;
+    private final TransactionTemplate txTemplate;
+
+    public GenericDao(final SessionFactory sessionFactory, final TransactionTemplate txTemplate) {
+
+        Validate.notNull(sessionFactory, "SessionFactory is null");
+        Validate.notNull(txTemplate, "TransactionTemplate is null");
+
+        this.sessionFactory = sessionFactory;
+        this.txTemplate = txTemplate;
+    }
 
     /**
      * gets any Entity by its {@code class} and {@code id}.
@@ -55,11 +66,12 @@ public class GenericDao extends HibernateDaoSupport {
      */
     public Object get(final Class<?> clazz, final Serializable id) {
 
-        return getHibernateTemplate().execute(new HibernateCallback<Object>() {
+        return this.txTemplate.execute(new TransactionCallback<Object>() {
 
             @Override
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+            public Object doInTransaction(final TransactionStatus txStatus) {
 
+                Session session = sessionFactory.getCurrentSession();
                 Object result = session.get(clazz, id);
 
                 // initialize Securities
@@ -79,16 +91,17 @@ public class GenericDao extends HibernateDaoSupport {
      */
     public Object getInitializedCollection(final String role, final Serializable id) {
 
-        return getHibernateTemplate().execute(new HibernateCallback<Object>() {
+        return this.txTemplate.execute(new TransactionCallback<Object>() {
 
             @Override
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+            public Object doInTransaction(final TransactionStatus txStatus) {
 
-                SessionFactoryImpl sessionFactory = (SessionFactoryImpl) getSessionFactory();
-                CollectionPersister persister = sessionFactory.getCollectionPersister(role);
+                SessionFactoryImpl sessionFactoryImpl = (SessionFactoryImpl) sessionFactory;
+                CollectionPersister persister = sessionFactoryImpl.getCollectionPersister(role);
 
                 // load the owner entity
                 ClassMetadata ownerMetadata = persister.getOwnerEntityPersister().getClassMetadata();
+                Session session = sessionFactory.getCurrentSession();
                 Object owner = session.get(ownerMetadata.getEntityName(), id);
 
                 // owner does not exist anymore so no point in loading the collection
@@ -97,7 +110,7 @@ public class GenericDao extends HibernateDaoSupport {
                 }
 
                 // get the collection by it's property name
-                Object col = ownerMetadata.getPropertyValue(owner, persister.getNodeName(), EntityMode.POJO);
+                Object col = ownerMetadata.getPropertyValue(owner, persister.getNodeName());
 
                 // if it is a PersistentCollection make sure it is initialized
                 if (col instanceof PersistentCollection) {
@@ -118,9 +131,17 @@ public class GenericDao extends HibernateDaoSupport {
      */
     public List<?> find(final String queryString) {
 
-        HibernateTemplate hibernateTemplate = getHibernateTemplate();
-        hibernateTemplate.setCacheQueries(true);
-        return hibernateTemplate.find(queryString);
+        return this.txTemplate.execute(new TransactionCallback<List<?>>() {
+
+            @Override
+            public List<?> doInTransaction(final TransactionStatus txStatus) {
+
+                Session session = sessionFactory.getCurrentSession();
+                Query query = session.createQuery(queryString);
+                query.setCacheable(true);
+                return query.list();
+            }
+        });
     }
 
     /**
@@ -129,19 +150,20 @@ public class GenericDao extends HibernateDaoSupport {
      */
     public List<?> find(final String queryString, final Map<String, Object> namedParameters) {
 
-        String[] paramNames = new String[namedParameters.size()];
-        Object[] values = new Object[namedParameters.size()];
+        return this.txTemplate.execute(new TransactionCallback<List<?>>() {
 
-        int index = 0;
-        for (Map.Entry<String, Object> entry : namedParameters.entrySet()) {
-            paramNames[index] = entry.getKey();
-            values[index] = entry.getValue();
-            index++;
-        }
+            @Override
+            public List<?> doInTransaction(final TransactionStatus txStatus) {
 
-        HibernateTemplate hibernateTemplate = getHibernateTemplate();
-        hibernateTemplate.setCacheQueries(true);
-        return hibernateTemplate.findByNamedParam(queryString, paramNames, values);
+                Session session = sessionFactory.getCurrentSession();
+                Query query = session.createQuery(queryString);
+                query.setCacheable(true);
+                for (Map.Entry<String, Object> entry : namedParameters.entrySet()) {
+                    query.setParameter(entry.getKey(), entry.getValue());
+                }
+                return query.list();
+            }
+        });
     }
 
 
@@ -151,14 +173,15 @@ public class GenericDao extends HibernateDaoSupport {
      */
     public Object findUnique(final String queryString) {
 
-        HibernateTemplate hibernateTemplate = getHibernateTemplate();
-        hibernateTemplate.setCacheQueries(true);
-
-        return hibernateTemplate.execute(new HibernateCallback<Object>() {
+        return this.txTemplate.execute(new TransactionCallback<Object>() {
 
             @Override
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                return session.createQuery(queryString).uniqueResult();
+            public Object doInTransaction(final TransactionStatus txStatus) {
+
+                Session session = sessionFactory.getCurrentSession();
+                Query query = session.createQuery(queryString);
+                query.setCacheable(true);
+                return query.uniqueResult();
             }
         });
     }
@@ -170,14 +193,14 @@ public class GenericDao extends HibernateDaoSupport {
      */
     public Object findUnique(final String queryString, final Map<String, Object> namedParameters) {
 
-        HibernateTemplate hibernateTemplate = getHibernateTemplate();
-        hibernateTemplate.setCacheQueries(true);
-
-        return hibernateTemplate.execute(new HibernateCallback<Object>() {
+        return this.txTemplate.execute(new TransactionCallback<Object>() {
 
             @Override
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+            public Object doInTransaction(final TransactionStatus txStatus) {
+
+                Session session = sessionFactory.getCurrentSession();
                 Query query = session.createQuery(queryString);
+                query.setCacheable(true);
                 for (Map.Entry<String, Object> entry : namedParameters.entrySet()) {
                     query.setParameter(entry.getKey(), entry.getValue());
                 }
@@ -192,8 +215,7 @@ public class GenericDao extends HibernateDaoSupport {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public Set<String> getQuerySpaces(String queryString) {
 
-        SessionFactoryImpl sessionFactory = (SessionFactoryImpl) getSessionFactory();
-
-        return sessionFactory.getQueryPlanCache().getHQLQueryPlan(queryString, false, new HashMap()).getQuerySpaces();
+        SessionFactoryImpl sessionFactoryImpl = (SessionFactoryImpl) this.sessionFactory;
+        return sessionFactoryImpl.getQueryPlanCache().getHQLQueryPlan(queryString, false, new HashMap()).getQuerySpaces();
     }
 }
