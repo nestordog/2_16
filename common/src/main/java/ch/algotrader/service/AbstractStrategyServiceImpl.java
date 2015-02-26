@@ -17,7 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -31,24 +31,8 @@ public abstract class AbstractStrategyServiceImpl implements StrategyService {
      * {@inheritDoc}
      */
     @Override
-    public void initSimulation() {
-        // do nothing
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitSimulation() {
-        // do nothing
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public Map<String, Object> getSimulationResults() {
-        return new HashMap<String, Object>();
+        return Collections.emptyMap();
     }
 
 }

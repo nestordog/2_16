@@ -23,7 +23,7 @@
 
     <bean id="eventListenerRegistry" class="ch.algotrader.event.EventListenerRegistryImpl" />
 
-    <bean id="platformEventDispatcher" class="ch.algotrader.event.dispatch.EventDispatcherFactoryBean">
+    <bean id="eventDispatcher" class="ch.algotrader.event.dispatch.EventDispatcherFactoryBean">
         <property name="commonConfig" ref="commonConfig"/>
         <property name="eventListenerRegistry" ref="eventListenerRegistry"/>
         <property name="engineManager" ref="engineManager"/>

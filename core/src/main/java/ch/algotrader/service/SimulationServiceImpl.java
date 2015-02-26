@@ -26,6 +26,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,7 +60,9 @@ import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.strategy.Strategy;
+import ch.algotrader.enumeration.LifecyclePhase;
 import ch.algotrader.enumeration.MarketDataType;
+import ch.algotrader.enumeration.OperationMode;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.esper.io.CsvBarInputAdapter;
@@ -69,9 +72,11 @@ import ch.algotrader.esper.io.CsvTickInputAdapterSpec;
 import ch.algotrader.esper.io.DBBarInputAdapter;
 import ch.algotrader.esper.io.DBTickInputAdapter;
 import ch.algotrader.esper.io.GenericEventInputAdapterSpec;
+import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.report.ReportManager;
 import ch.algotrader.util.metric.MetricsUtil;
 import ch.algotrader.vo.EndOfSimulationVO;
+import ch.algotrader.vo.LifecycleEventVO;
 import ch.algotrader.vo.MaxDrawDownVO;
 import ch.algotrader.vo.OptimizationResultVO;
 import ch.algotrader.vo.PerformanceKeysVO;
@@ -105,6 +110,8 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
 
     private final LookupService lookupService;
 
+    private final EventDispatcher eventDispatcher;
+
     private final EngineManager engineManager;
 
     private final Engine serverEngine;
@@ -119,6 +126,7 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
             final TransactionService transactionService,
             final PortfolioService portfolioService,
             final LookupService lookupService,
+            final EventDispatcher eventDispatcher,
             final EngineManager engineManager,
             final Engine serverEngine,
             final CacheManager cacheManager) {
@@ -129,6 +137,7 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
         Validate.notNull(transactionService, "TransactionService is null");
         Validate.notNull(portfolioService, "PortfolioService is null");
         Validate.notNull(lookupService, "LookupService is null");
+        Validate.notNull(eventDispatcher, "EventDispatcher is null");
         Validate.notNull(engineManager, "EngineManager is null");
         Validate.notNull(serverEngine, "Engine is null");
         Validate.notNull(cacheManager, "CacheManager is null");
@@ -139,6 +148,7 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
         this.transactionService = transactionService;
         this.portfolioService = portfolioService;
         this.lookupService = lookupService;
+        this.eventDispatcher = eventDispatcher;
         this.engineManager = engineManager;
         this.serverEngine = serverEngine;
         this.cacheManager = cacheManager;
@@ -182,18 +192,14 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
             this.engineManager.getEngine(strategy.getName()).deployAllModules();
         }
 
-        // init all StrategyServices in the classpath
-        for (StrategyService strategyService : this.applicationContext.getBeansOfType(StrategyService.class).values()) {
-            strategyService.initSimulation();
-        }
+        this.eventDispatcher.sendAllLocal(new LifecycleEventVO(OperationMode.SIMULATION, LifecyclePhase.INIT, new Date()));
+
+        this.eventDispatcher.sendAllLocal(new LifecycleEventVO(OperationMode.SIMULATION, LifecyclePhase.PREFEED, new Date()));
 
         // feed the ticks
         feedMarketData();
 
-        // init all StrategyServices in the classpath
-        for (StrategyService strategyService : this.applicationContext.getBeansOfType(StrategyService.class).values()) {
-            strategyService.exitSimulation();
-        }
+        this.eventDispatcher.sendAllLocal(new LifecycleEventVO(OperationMode.SIMULATION, LifecyclePhase.EXIT, new Date()));
 
         // log metrics in case they have been enabled
         MetricsUtil.logMetrics();
@@ -206,6 +212,8 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
 
         // send the EndOfSimulation event
         this.serverEngine.sendEvent(new EndOfSimulationVO());
+
+        this.eventDispatcher.sendAllLocal(new LifecycleEventVO(OperationMode.SIMULATION, LifecyclePhase.GET_RESULTS, new Date()));
 
         // get the results
         SimulationResultVO resultVO = getSimulationResultVO(startTime);

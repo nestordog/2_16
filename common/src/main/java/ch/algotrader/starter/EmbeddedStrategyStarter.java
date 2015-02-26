@@ -17,35 +17,22 @@
  ***********************************************************************************/
 package ch.algotrader.starter;
 
-import java.text.ParseException;
-
 import ch.algotrader.ServiceLocator;
-import ch.algotrader.service.ib.IBNativeReferenceDataService;
 
 /**
- * Starter Class for downloading {@link ch.algotrader.entity.security.Stock Stocks}
- * <p>
- * Usage: {@code ReferenceDataStarter securityFamilyId symbol1 symbol2 ...}
+ * Abstract Base Class for starting the AlgoTrader Server in Live Trading Mode
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class StockRetrievalStarter {
+public abstract class EmbeddedStrategyStarter {
 
-    public static void main(String[] args) throws ParseException {
+    public static void main(String[] args) throws Exception {
 
-        ServiceLocator.instance().init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
-        IBNativeReferenceDataService service = ServiceLocator.instance().getService("iBNativeReferenceDataService", IBNativeReferenceDataService.class);
+        ServiceLocator.instance().init(ServiceLocator.EMBEDDED_BEAN_REFERENCE_LOCATION);
 
-        ServiceLocator.instance().getLifecycleManager().initServices();
-
-        for (int i = 1; i < args.length; i++) {
-
-            int securityFamilyId = Integer.parseInt(args[0]);
-            service.retrieveStocks(securityFamilyId, args[i]);
-        }
-
-        ServiceLocator.instance().shutdown();
+        ServiceLocator.instance().getLifecycleManager().runEmbedded();
     }
+
 }

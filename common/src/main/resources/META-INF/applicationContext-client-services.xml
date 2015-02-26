@@ -44,6 +44,14 @@
         <constructor-arg index="0" ref="commonConfig"/>
         <constructor-arg index="1" ref="engineManager"/>
         <constructor-arg index="2" ref="lookupService"/>
-    </bean>    
+    </bean>
+
+    <beans profile="live">
+        <bean id="lifecycleManager" class="ch.algotrader.lifecycle.LifecycleManagerImpl">
+            <constructor-arg index="0" ref="engineManager"/>
+            <constructor-arg index="1" ref="eventDispatcher"/>
+            <constructor-arg index="2" ref="subscriptionService"/>
+        </bean>
+    </beans>
 
 </beans>

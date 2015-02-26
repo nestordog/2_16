@@ -62,7 +62,7 @@ public class HistoricalDataStarter {
 
         ServiceLocator.instance().init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
 
-        ServiceLocator.instance().initInitializingServices();
+        ServiceLocator.instance().getLifecycleManager().initServices();
 
         HistoricalDataService service = ServiceLocator.instance().getService("historicalDataService", HistoricalDataService.class);
         for (int securityId : securityIds) {

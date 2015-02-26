@@ -16,7 +16,7 @@
  * 8004 Zurich
  ***********************************************************************************/
 
-package ch.algotrader;
+package ch.algotrader.lifecycle;
 
 import java.util.Comparator;
 

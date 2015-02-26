@@ -65,7 +65,7 @@
         <constructor-arg index="8" ref="securityDao"/>
         <constructor-arg index="9" ref="strategyDao"/>
         <constructor-arg index="10" ref="transactionDao"/>
-        <constructor-arg index="11" ref="platformEventDispatcher"/>
+        <constructor-arg index="11" ref="eventDispatcher"/>
         <constructor-arg index="12" ref="engineManager"/>
         <constructor-arg index="13" ref="serverEngine"/>
     </bean>
@@ -123,7 +123,7 @@
         <constructor-arg index="4" ref="strategyDao"/>
         <constructor-arg index="5" ref="securityDao"/>
         <constructor-arg index="6" ref="accountDao"/>
-        <constructor-arg index="7" ref="platformEventDispatcher"/>
+        <constructor-arg index="7" ref="eventDispatcher"/>
         <constructor-arg index="8" ref="engineManager"/>
         <constructor-arg index="9" ref="serverEngine"/>
     </bean>
@@ -136,7 +136,7 @@
         <constructor-arg index="4" ref="securityDao"/>
         <constructor-arg index="5" ref="strategyDao"/>
         <constructor-arg index="6" ref="subscriptionDao"/>
-        <constructor-arg index="7" ref="platformEventDispatcher"/>
+        <constructor-arg index="7" ref="eventDispatcher"/>
     </bean>
 
     <bean id="orderPersistenceService" class="ch.algotrader.service.OrderPersistenceServiceImpl">
@@ -159,7 +159,7 @@
         <constructor-arg index="7" ref="securityDao"/>
         <constructor-arg index="8" ref="accountDao"/>
         <constructor-arg index="9" ref="orderPreferenceDao"/>
-        <constructor-arg index="10" ref="platformEventDispatcher"/>
+        <constructor-arg index="10" ref="eventDispatcher"/>
         <constructor-arg index="11" ref="engineManager"/>
         <constructor-arg index="12" ref="serverEngine"/>
     </bean>
@@ -259,9 +259,10 @@
             <constructor-arg index="3"  ref="transactionService"/>
             <constructor-arg index="4"  ref="portfolioService"/>
             <constructor-arg index="5"  ref="lookupService"/>
-            <constructor-arg index="6"  ref="engineManager"/>
-            <constructor-arg index="7"  ref="serverEngine"/>
-            <constructor-arg index="8"  ref="cacheManager"/>
+            <constructor-arg index="6"  ref="eventDispatcher"/>
+            <constructor-arg index="7"  ref="engineManager"/>
+            <constructor-arg index="8"  ref="serverEngine"/>
+            <constructor-arg index="9"  ref="cacheManager"/>
         </bean>
     </beans>
 

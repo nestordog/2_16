@@ -15,36 +15,24 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.service;
-
-import org.junit.BeforeClass;
-
-import ch.algotrader.ServiceLocator;
-import ch.algotrader.esper.Engine;
+package ch.algotrader.lifecycle;
 
 /**
- * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
+ * LifecycleManager is intended to enforce transition through predefined {@link ch.algotrader.enumeration.LifecyclePhase}s
+ * for server, embedded and strategy processes.
+ *
+ * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  *
  * @version $Revision$ $Date$
  */
-public class IBServiceTest {
+public interface LifecycleManager {
 
-    private static boolean initialized = false;
+    void initServices();
 
-    @BeforeClass
-    public static void setupClass() {
+    void runServer();
 
-        ServiceLocator.instance().init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
+    void runEmbedded();
 
-        if (!initialized) {
+    void runStrategy();
 
-            Engine engine = ServiceLocator.instance().getEngineManager().getServerEngine();
-            engine.setInternalClock(true);
-            engine.deployAllModules();
-
-            ServiceLocator.instance().getLifecycleManager().initServices();
-
-            initialized = true;
-        }
-    }
 }
