@@ -15,26 +15,28 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.service;
+package ch.algotrader.simulation;
+
+import ch.algotrader.service.ServiceException;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class SimulationServiceException extends ServiceException {
+public class SimulationExecutorException extends ServiceException {
 
     private static final long serialVersionUID = -8474166984277593070L;
 
-    public SimulationServiceException(String message) {
+    public SimulationExecutorException(String message) {
         super(message);
     }
 
-    public SimulationServiceException(Exception ex) {
+    public SimulationExecutorException(Exception ex) {
         super(ex);
     }
 
-    public SimulationServiceException(String message, Exception ex) {
+    public SimulationExecutorException(String message, Exception ex) {
         super(message, ex);
     }
 

@@ -15,7 +15,7 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.service;
+package ch.algotrader.simulation;
 
 import ch.algotrader.vo.OptimizationResultVO;
 import ch.algotrader.vo.SimulationResultVO;
@@ -25,20 +25,20 @@ import ch.algotrader.vo.SimulationResultVO;
  *
  * @version $Revision$ $Date$
  */
-public interface SimulationService {
+public interface SimulationExecutor {
 
     /**
      * Starts a Simulation Run. The following steps are processed:
      * <ul>
-     * <li>The database is reset to its original state via the {@link ResetService}</li>
+     * <li>The database is reset to its original state via the {@link ch.algotrader.service.ResetService}</li>
      * <li>Esper Engines are initialized for the AlgoTrader Server as well as all strategies marked as autoActivate</li>
      * <li>All Esper Modules defined in column initModules and runModules of the table strategy are deployed</li>
      * <li>A Portfolio Rebalance is executed to distribute the initial CREDIT (of 1'000'000 USD) to Strategies according to their {@link ch.algotrader.entity.trade.Allocation Allocation}</li>
-     * <li>For every Strategy the method {@link StrategyService#initSimulation} is invoked to execute any initialization tasks if necessary</li>
      * <li>The Market Data Feed is started</li>
      * <li>At the end of each simulation run, metrics are printed to the console (if enabled)</li>
      * <li>All open positions are closed</li>
-     * <li>General Performance Statistics as well as Strategy specific Performance Statistics (gathered through {@link StrategyService#getSimulationResults}) are printed to the console</li>
+     * <li>General Performance Statistics as well as Strategy specific Performance Statistics (gathered through
+     * {@link ch.algotrader.service.StrategyService#getSimulationResults}) are printed to the console</li>
      * <li>Esper Engines are destroyed</li>
      * <li>The second-level cache is cleared</li>
      * <li>A Garbage Collection is performed</li>

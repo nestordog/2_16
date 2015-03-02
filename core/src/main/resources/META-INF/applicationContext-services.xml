@@ -251,21 +251,6 @@
 
     <!-- ========================= Start of PROFILE SERVICE DEFINITIONS ========================= -->
 
-    <beans profile="simulation,noopSimulation">
-        <bean id="simulationService" class="ch.algotrader.service.SimulationServiceImpl" >
-            <constructor-arg index="0"  ref="commonConfig"/>
-            <constructor-arg index="1"  ref="positionService"/>
-            <constructor-arg index="2"  ref="resetService"/>
-            <constructor-arg index="3"  ref="transactionService"/>
-            <constructor-arg index="4"  ref="portfolioService"/>
-            <constructor-arg index="5"  ref="lookupService"/>
-            <constructor-arg index="6"  ref="eventDispatcher"/>
-            <constructor-arg index="7"  ref="engineManager"/>
-            <constructor-arg index="8"  ref="serverEngine"/>
-            <constructor-arg index="9"  ref="cacheManager"/>
-        </bean>
-    </beans>
-
     <beans profile="singleDataSource,pooledDataSource">
         <bean id="transactionPersistenceService" class="ch.algotrader.service.mysql.MySqlTransactionPersistenceServiceImpl" >
             <constructor-arg index="0" ref="commonConfig"/>

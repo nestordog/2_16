@@ -21,7 +21,7 @@ import java.io.Serializable;
 
 /**
  * A ValueObject representing the End of a simulation run which is sent into the AlgoTrader Server
- * Esper Engine by the {@link ch.algotrader.service.SimulationService SimulationService}
+ * Esper Engine by the {@link ch.algotrader.simulation.SimulationExecutor}
  */
 public class EndOfSimulationVO implements Serializable {
 

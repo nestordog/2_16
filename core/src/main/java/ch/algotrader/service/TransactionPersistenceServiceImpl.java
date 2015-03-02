@@ -59,7 +59,7 @@ import ch.algotrader.vo.TradePerformanceVO;
 public abstract class TransactionPersistenceServiceImpl implements TransactionPersistenceService {
 
     private static Logger logger = Logger.getLogger(TransactionPersistenceServiceImpl.class.getName());
-    private static Logger simulationLogger = Logger.getLogger(SimulationServiceImpl.class.getName() + ".RESULT");
+    private static Logger simulationLogger = Logger.getLogger("ch.algotrader.simulation.SimulationExecutor.RESULT");
 
     private final CommonConfig commonConfig;
 
