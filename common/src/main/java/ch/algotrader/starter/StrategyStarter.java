@@ -30,9 +30,7 @@ public abstract class StrategyStarter {
 
     public static void main(String[] args) throws Exception {
 
-        ServiceLocator.instance().init(ServiceLocator.CLIENT_BEAN_REFERENCE_LOCATION);
-
-        ServiceLocator.instance().getLifecycleManager().runStrategy();
+        ServiceLocator.instance().runStrategy();
     }
 
 }

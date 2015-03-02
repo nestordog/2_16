@@ -30,9 +30,7 @@ public abstract class ServerStarter {
 
     public static void main(String[] args) throws Exception {
 
-        ServiceLocator.instance().init(ServiceLocator.SERVER_BEAN_REFERENCE_LOCATION);
-
-        ServiceLocator.instance().getLifecycleManager().runServer();
+        ServiceLocator.instance().runServer();
     }
 
 }

@@ -30,9 +30,7 @@ public abstract class EmbeddedStrategyStarter {
 
     public static void main(String[] args) throws Exception {
 
-        ServiceLocator.instance().init(ServiceLocator.EMBEDDED_BEAN_REFERENCE_LOCATION);
-
-        ServiceLocator.instance().getLifecycleManager().runEmbedded();
+        ServiceLocator.instance().runEmbedded();
     }
 
 }

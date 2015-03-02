@@ -35,9 +35,7 @@ public class ReferenceDataStarter {
 
     public static void main(String[] args) throws ParseException {
 
-        ServiceLocator.instance().init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
-
-        ServiceLocator.instance().getLifecycleManager().runServices();
+        ServiceLocator.instance().runServices();
 
         ReferenceDataService service = ServiceLocator.instance().getService("referenceDataService", ReferenceDataService.class);
         for (String arg : args) {

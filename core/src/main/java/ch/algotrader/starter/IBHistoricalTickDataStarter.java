@@ -79,9 +79,7 @@ public class IBHistoricalTickDataStarter {
             securityIds[i] = Integer.valueOf(securityIdStrings[i]);
         }
 
-        ServiceLocator.instance().init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
-
-        ServiceLocator.instance().getLifecycleManager().runServices();
+        ServiceLocator.instance().runServices();
 
         download1MinTicks(securityIds, barTypes, startDate, endDate);
 

@@ -374,4 +374,24 @@ public class ServiceLocator {
         return getContext().getBean("lifecycleManager", LifecycleManager.class);
     }
 
+    public void runServer() {
+        init(SERVER_BEAN_REFERENCE_LOCATION);
+        getLifecycleManager().runServer();
+    }
+
+    public void runEmbedded() {
+        init(EMBEDDED_BEAN_REFERENCE_LOCATION);
+        getLifecycleManager().runServer();
+    }
+
+    public void runStrategy() {
+        init(CLIENT_BEAN_REFERENCE_LOCATION);
+        getLifecycleManager().runServer();
+    }
+
+    public void runServices() {
+        init(LOCAL_BEAN_REFERENCE_LOCATION);
+        getLifecycleManager().runServices();
+    }
+
 }
