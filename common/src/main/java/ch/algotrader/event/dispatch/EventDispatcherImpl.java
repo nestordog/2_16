@@ -161,7 +161,7 @@ public class EventDispatcherImpl implements EventDispatcher, MessageListener {
     }
 
     @Override
-    public void sendAllLocal(final Object event) {
+    public void broadcastLocal(final Object event) {
 
         for (Engine engine: this.engineManager.getEngines()) {
 
@@ -172,12 +172,8 @@ public class EventDispatcherImpl implements EventDispatcher, MessageListener {
     }
 
     @Override
-    public void sendAll(final Object event) {
+    public void broadcastRemote(final Object event) {
 
-        // dispatch locally
-        sendAllLocal(event);
-
-        // send to remotes if necessary
         if (!this.commonConfig.isSimulation() && !this.commonConfig.isEmbedded()) {
 
             // send using the jms template
@@ -196,11 +192,18 @@ public class EventDispatcherImpl implements EventDispatcher, MessageListener {
     }
 
     @Override
+    public void broadcast(final Object event) {
+
+        broadcastLocal(event);
+        broadcastRemote(event);
+    }
+
+    @Override
     public void onMessage(final Message message) {
 
         try {
             Object event = this.messageConverter.fromMessage(message);
-            sendAllLocal(event);
+            broadcastLocal(event);
         } catch (JMSException ex) {
             throw new EventDispatchException("Failure de-serializing message content", ex);
         }

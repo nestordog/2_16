@@ -26,6 +26,6 @@ public enum LifecyclePhase {
     PREFEED,
     START,
     EXIT,
-    GET_RESULTS
+    REPORT
 
 }

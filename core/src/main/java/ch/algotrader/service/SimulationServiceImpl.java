@@ -192,14 +192,14 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
             this.engineManager.getEngine(strategy.getName()).deployAllModules();
         }
 
-        this.eventDispatcher.sendAllLocal(new LifecycleEventVO(OperationMode.SIMULATION, LifecyclePhase.INIT, new Date()));
+        this.eventDispatcher.broadcastLocal(new LifecycleEventVO(OperationMode.SIMULATION, LifecyclePhase.INIT, new Date()));
 
-        this.eventDispatcher.sendAllLocal(new LifecycleEventVO(OperationMode.SIMULATION, LifecyclePhase.PREFEED, new Date()));
+        this.eventDispatcher.broadcastLocal(new LifecycleEventVO(OperationMode.SIMULATION, LifecyclePhase.PREFEED, new Date()));
 
         // feed the ticks
         feedMarketData();
 
-        this.eventDispatcher.sendAllLocal(new LifecycleEventVO(OperationMode.SIMULATION, LifecyclePhase.EXIT, new Date()));
+        this.eventDispatcher.broadcastLocal(new LifecycleEventVO(OperationMode.SIMULATION, LifecyclePhase.EXIT, new Date()));
 
         // log metrics in case they have been enabled
         MetricsUtil.logMetrics();
@@ -213,7 +213,7 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
         // send the EndOfSimulation event
         this.serverEngine.sendEvent(new EndOfSimulationVO());
 
-        this.eventDispatcher.sendAllLocal(new LifecycleEventVO(OperationMode.SIMULATION, LifecyclePhase.GET_RESULTS, new Date()));
+        this.eventDispatcher.broadcastLocal(new LifecycleEventVO(OperationMode.SIMULATION, LifecyclePhase.REPORT, new Date()));
 
         // get the results
         SimulationResultVO resultVO = getSimulationResultVO(startTime);

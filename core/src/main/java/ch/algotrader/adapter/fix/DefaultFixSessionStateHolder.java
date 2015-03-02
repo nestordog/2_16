@@ -59,7 +59,7 @@ public class DefaultFixSessionStateHolder implements FixSessionStateHolder {
         if (this.connState.compareAndSet(ConnectionState.DISCONNECTED, ConnectionState.CONNECTED)) {
 
             SessionEventVO event = new SessionEventVO(ConnectionState.CONNECTED, this.name);
-            this.eventDispatcher.sendAll(event);
+            this.eventDispatcher.broadcast(event);
         }
     }
 
@@ -69,7 +69,7 @@ public class DefaultFixSessionStateHolder implements FixSessionStateHolder {
           if (this.connState.compareAndSet(ConnectionState.CONNECTED, ConnectionState.LOGGED_ON)) {
 
               SessionEventVO event = new SessionEventVO(ConnectionState.LOGGED_ON, this.name);
-              this.eventDispatcher.sendAll(event);
+              this.eventDispatcher.broadcast(event);
           }
     }
 
@@ -80,7 +80,7 @@ public class DefaultFixSessionStateHolder implements FixSessionStateHolder {
         if (previousState.compareTo(ConnectionState.LOGGED_ON) >= 0) {
 
             SessionEventVO event = new SessionEventVO(ConnectionState.CONNECTED, this.name);
-            this.eventDispatcher.sendAll(event);
+            this.eventDispatcher.broadcast(event);
         }
     }
 
@@ -90,7 +90,7 @@ public class DefaultFixSessionStateHolder implements FixSessionStateHolder {
         if (this.connState.compareAndSet(ConnectionState.LOGGED_ON, ConnectionState.SUBSCRIBED)) {
 
             SessionEventVO event = new SessionEventVO(ConnectionState.SUBSCRIBED, this.name);
-            this.eventDispatcher.sendAll(event);
+            this.eventDispatcher.broadcast(event);
             return true;
         } else {
 

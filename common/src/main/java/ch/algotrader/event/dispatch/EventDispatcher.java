@@ -52,13 +52,18 @@ public interface EventDispatcher {
     void sendGenericEvent(GenericEventVO event);
 
     /**
-     * Sends an event to all Esper Engines and event listeners both local and remote.
+     * broadcasts an event to all Esper Engines and event listeners both local and remote.
      */
-    void sendAll(Object event);
+    void broadcast(Object event);
 
     /**
-     * Sends an event to all local Esper Engines and event listeners.
+     * broadcasts an event to all local Esper Engines and event listeners.
      */
-    void sendAllLocal(Object event);
+    void broadcastLocal(Object event);
+
+    /**
+     * broadcasts an event to all remote Esper Engines and event listeners.
+     */
+    void broadcastRemote(Object event);
 
 }

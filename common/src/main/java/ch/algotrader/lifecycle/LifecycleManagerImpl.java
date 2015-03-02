@@ -113,14 +113,14 @@ public class LifecycleManagerImpl implements LifecycleManager, ApplicationContex
         Set<Engine> engines = new HashSet<>(this.engineManager.getEngines());
         engines.remove(serverEngine);
 
-        this.eventDispatcher.sendAllLocal(new LifecycleEventVO(OperationMode.REAL_TIME, LifecyclePhase.INIT, new Date()));
+        this.eventDispatcher.broadcastLocal(new LifecycleEventVO(OperationMode.REAL_TIME, LifecyclePhase.INIT, new Date()));
 
         for (Engine engine: engines) {
 
             engine.deployInitModules();
         }
 
-        this.eventDispatcher.sendAllLocal(new LifecycleEventVO(OperationMode.REAL_TIME, LifecyclePhase.PREFEED, new Date()));
+        this.eventDispatcher.broadcastLocal(new LifecycleEventVO(OperationMode.REAL_TIME, LifecyclePhase.PREFEED, new Date()));
 
         for (Engine engine: engines) {
 
@@ -128,13 +128,13 @@ public class LifecycleManagerImpl implements LifecycleManager, ApplicationContex
             engine.deployRunModules();
         }
 
-        this.eventDispatcher.sendAllLocal(new LifecycleEventVO(OperationMode.REAL_TIME, LifecyclePhase.START, new Date()));
+        this.eventDispatcher.broadcastLocal(new LifecycleEventVO(OperationMode.REAL_TIME, LifecyclePhase.START, new Date()));
 
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
 
             @Override
             public void run() {
-                eventDispatcher.sendAllLocal(new LifecycleEventVO(OperationMode.REAL_TIME, LifecyclePhase.EXIT, new Date()));
+                eventDispatcher.broadcastLocal(new LifecycleEventVO(OperationMode.REAL_TIME, LifecyclePhase.EXIT, new Date()));
             }
 
         }));
@@ -146,14 +146,14 @@ public class LifecycleManagerImpl implements LifecycleManager, ApplicationContex
 
         Collection<Engine> engines = this.engineManager.getEngines();
 
-        this.eventDispatcher.sendAllLocal(new LifecycleEventVO(OperationMode.REAL_TIME, LifecyclePhase.INIT, new Date()));
+        this.eventDispatcher.broadcastLocal(new LifecycleEventVO(OperationMode.REAL_TIME, LifecyclePhase.INIT, new Date()));
 
         for (Engine engine: engines) {
 
             engine.deployInitModules();
         }
 
-        this.eventDispatcher.sendAllLocal(new LifecycleEventVO(OperationMode.REAL_TIME, LifecyclePhase.PREFEED, new Date()));
+        this.eventDispatcher.broadcastLocal(new LifecycleEventVO(OperationMode.REAL_TIME, LifecyclePhase.PREFEED, new Date()));
 
         for (Engine engine: engines) {
 
@@ -161,13 +161,13 @@ public class LifecycleManagerImpl implements LifecycleManager, ApplicationContex
             engine.deployRunModules();
         }
 
-        this.eventDispatcher.sendAllLocal(new LifecycleEventVO(OperationMode.REAL_TIME, LifecyclePhase.START, new Date()));
+        this.eventDispatcher.broadcastLocal(new LifecycleEventVO(OperationMode.REAL_TIME, LifecyclePhase.START, new Date()));
 
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
 
             @Override
             public void run() {
-                eventDispatcher.sendAllLocal(new LifecycleEventVO(OperationMode.REAL_TIME, LifecyclePhase.EXIT, new Date()));
+                eventDispatcher.broadcastLocal(new LifecycleEventVO(OperationMode.REAL_TIME, LifecyclePhase.EXIT, new Date()));
             }
 
         }));
