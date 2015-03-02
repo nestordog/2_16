@@ -73,21 +73,22 @@ public class GroupDiffer implements CsvDiffer {
     }
 
     @Override
-    public void diffLines(CsvReader expectedReader, CsvReader actualReader) throws IOException {
-        assertLines(new BufferedReader(expectedReader), new BufferedReader(actualReader));
+    public int diffLines(CsvReader expectedReader, CsvReader actualReader) throws IOException {
+        return assertLines(new BufferedReader(expectedReader), new BufferedReader(actualReader));
     }
 
-    private void assertLines(BufferedReader expReader, BufferedReader actReader) throws IOException {
-        CsvLine line = expReader.readLineIntoBuffer();
-        while (line.isValid()) {
-            final List<Object> groupValues = getGroupValues(line);
+    private int assertLines(BufferedReader expReader, BufferedReader actReader) throws IOException {
+        int linesCompared = 0;
+        CsvLine expLine = expReader.readLineIntoBuffer();
+        while (expLine.isValid()) {
+            final List<Object> groupValues = getGroupValues(expLine);
             final int expSkip = readGroupIntoBuffer(expectedGroupColumns, groupValues, expReader);
             final int actSkip = readGroupIntoBuffer(actualGroupColumns, groupValues, actReader);
             final LinkedListReader expSubReader = expReader.readBufferAsReader(expReader.getBufferSize() - expSkip);
             final LinkedListReader actSubReader = actReader.readBufferAsReader(actReader.getBufferSize() - actSkip);
             try {
                 LOG.debug("asserting group: " + groupValues + " [exp=" + getLines(expSubReader) + ", act=" + getLines(actSubReader) + "]");
-                delegate.diffLines(expSubReader, actSubReader);
+                linesCompared += delegate.diffLines(expSubReader, actSubReader);
             } catch (CsvAssertionError e) {
                 throw e.addGroupValues(groupValues);
                 //            } catch (AssertionError e) {
@@ -95,8 +96,15 @@ public class GroupDiffer implements CsvDiffer {
             } catch (Exception e) {
                 throw new RuntimeException("[group-values=" + groupValues + "] unexpected exception " + CsvReaderUtil.getFileLocations(expSubReader, actSubReader), e);
             }
-            line = expSkip > 0 ? expReader.getFirstLineInBuffer() : expReader.readLineIntoBuffer();
+            expLine = expSkip > 0 ? expReader.getFirstLineInBuffer() : expReader.readLineIntoBuffer();
         }
+        final CsvLine actLine = actReader.readLine();
+        if (actLine.isValid()) {
+            throw new CsvAssertionError("found more lines in actual group or file when expecting end", Collections.emptyList(),//
+                    expReader.getFile(), expLine, null, null, //
+                    actReader.getFile(), actLine, null, null);
+        }
+        return linesCompared;
     }
 
     private static String getLines(LinkedListReader reader) {

@@ -76,7 +76,8 @@ public class SortingDiffer implements CsvDiffer {
     }
 
     @Override
-    public void diffLines(CsvReader expectedReader, CsvReader actualReader) throws IOException {
+    public int diffLines(CsvReader expectedReader, CsvReader actualReader) throws IOException {
+        int comparedLines = 0;
         final NavigableMap<CsvLine, Integer> expLines = new TreeMap<CsvLine, Integer>(expectedColumnComparator);
         final NavigableMap<CsvLine, Integer> actLines = new TreeMap<CsvLine, Integer>(actualColumnComparator);
         readAll(expectedReader, expLines);
@@ -89,20 +90,21 @@ public class SortingDiffer implements CsvDiffer {
             //use sub-reader for only this line to have correct line indexes in assertion errors
             final LinkedListReader expReader = new LinkedListReader(expectedReader, expEntry.getValue(), expEntry.getKey());
             final LinkedListReader actReader = new LinkedListReader(actualReader, actEntry.getValue(), actEntry.getKey());
-            delegate.diffLines(expReader, actReader);
+            comparedLines += delegate.diffLines(expReader, actReader);
         }
         while (expIt.hasNext()) {
             final Map.Entry<CsvLine, Integer> expEntry = expIt.next();
             //use sub-reader for only this line to have correct line indexes in assertion errors
             final LinkedListReader expReader = new LinkedListReader(expectedReader, expEntry.getValue(), expEntry.getKey());
-            delegate.diffLines(expReader, actualReader);
+            comparedLines += delegate.diffLines(expReader, actualReader);
         }
         while (actIt.hasNext()) {
             final Map.Entry<CsvLine, Integer> actEntry = actIt.next();
             //use sub-reader for only this line to have correct line indexes in assertion errors
             final LinkedListReader actReader = new LinkedListReader(actualReader, actEntry.getValue(), actEntry.getKey());
-            delegate.diffLines(expectedReader, actReader);
+            comparedLines += delegate.diffLines(expectedReader, actReader);
         }
+        return comparedLines;
     }
 
     private void readAll(CsvReader reader, NavigableMap<CsvLine, Integer> lines) throws IOException {

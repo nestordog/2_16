@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
 
+import ch.algotrader.util.diff.DiffStats;
 import ch.algotrader.util.diff.define.CsvDefinition;
 import ch.algotrader.util.diff.reader.CsvReader;
 
@@ -47,13 +48,23 @@ public class FileDiffer {
         this.differ = Objects.requireNonNull(differ, "differ cannot be null");
     }
 
-    public void diffFiles(File expected, File actual) throws IOException {
+    /**
+     * Diffs the two files and returns the (max) number of lines diff'ed during
+     * the operation.
+     *
+     * @param expected the file with expected CSV data
+     * @param actual    the file with actual CSV data
+     * @return the max number of lines read, that is, {@code max(lines(expected), lines(actual))}
+     * @throws IOException if an I/O exception occurs
+     */
+    public DiffStats diffFiles(File expected, File actual) throws IOException {
         CsvReader expReader = null;
         CsvReader actReader = null;
         try {
             expReader = expectedDef.open(expected);
             actReader = actualDef.open(actual);
-            differ.diffLines(expReader, actReader);
+            final int linesCompared = differ.diffLines(expReader, actReader);
+            return new DiffStats(expReader.getLineIndex(), actReader.getLineIndex(), linesCompared);
         } finally {
             close(expReader);
             close(actReader);

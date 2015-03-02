@@ -217,12 +217,14 @@ public class SimpleDiffer implements CsvDiffer {
     }
 
     @Override
-    public void diffLines(CsvReader expectedReader, CsvReader actualReader) throws IOException {
+    public int diffLines(CsvReader expectedReader, CsvReader actualReader) throws IOException {
         CsvLine expLine = null;
         CsvLine actLine = null;
         try {
-            while ((expLine = expectedReader.readLine()) != null & (actLine = actualReader.readLine()) != null) {
+            int linesCompared = 0;
+            while ((expLine = expectedReader.readLine()).isValid() & (actLine = actualReader.readLine()).isValid()) {
                 assertLine(expectedReader, expLine, actualReader, actLine);
+                linesCompared++;
                 // System.out.println("assert OK: " + getFileLocations(expectedReader, actualReader));
             }
             if (expLine != null) {
@@ -235,6 +237,7 @@ public class SimpleDiffer implements CsvDiffer {
                         expectedReader.getFile(), new CsvLine(null, null, expectedReader.getLine()), null, null, //
                         actualReader.getFile(), actLine, null, null);
             }
+            return linesCompared;
         } catch (Exception e) {
             throw new RuntimeException("unexpected exception " + CsvReaderUtil.getFileLocations(expectedReader, actualReader), e);
         }

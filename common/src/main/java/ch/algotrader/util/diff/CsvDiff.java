@@ -34,10 +34,11 @@ public class CsvDiff {
 
     public static void diffAndLogAssertionErrors(FileDiffer fileDiffer, File expectedFile, File actualFile) {
         LOG.info("[ASSERT] ====================================================");
-        LOG.info("[ASSERT] expected file: " + expectedFile);
-        LOG.info("[ASSERT]   actual file: " + actualFile);
+        LOG.info("[ASSERT]   expected file: " + expectedFile);
+        LOG.info("[ASSERT]     actual file: " + actualFile);
         try {
-            fileDiffer.diffFiles(expectedFile, actualFile);
+            final DiffStats stats = fileDiffer.diffFiles(expectedFile, actualFile);
+            LOG.info("[ASSERT SUCCEEDED] lines: " + stats);
         } catch (CsvAssertionError e) {
             LOG.error("[ASSSERTION FAILED] " + e.getMessage());
             LOG.error("[ASSSERTION FAILED] files: exp=" + e.getExpectedFile().getName() + ", act=" + e.getActualFile().getName());

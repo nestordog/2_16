@@ -31,8 +31,9 @@ public interface CsvDiffer {
      *
      * @param expectedReader    the reader of the expected CSV file
      * @param actualReader      the reader of the actual CSV file
+     * @return the number of lines that were actually compared (excluding filtered lines)
      * @throws IOException if an I/O exception occurs
      * @throws CsvAssertionError if an assertion error occurs
      */
-    void diffLines(CsvReader expectedReader, CsvReader actualReader) throws IOException, CsvAssertionError;
+    int diffLines(CsvReader expectedReader, CsvReader actualReader) throws IOException, CsvAssertionError;
 }

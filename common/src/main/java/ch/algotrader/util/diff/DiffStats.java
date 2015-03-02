@@ -15,34 +15,38 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.util.diff.differ;
+package ch.algotrader.util.diff;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-
-import ch.algotrader.util.diff.reader.CsvReader;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 
 /**
- * Uses a sequence of asserters called sequentially. The first asserter may
- * for instance skip some lines to prepare for the real assert operation performed
- * by the second asserter in the sequence.
+ * Result returned after a successful DIFF run.
  */
-public class SequentialDiffer implements CsvDiffer {
+public class DiffStats {
 
-    private final List<CsvDiffer> asserters;
+    private final int expLinesRead;
+    private final int actLinesRead;
+    private final int linesCompared;
 
-    public SequentialDiffer(CsvDiffer... asserters) {
-        this.asserters = Arrays.asList(asserters);
+    public DiffStats(int expLinesRead, int actLinesRead, int linesCompared) {
+        this.expLinesRead = expLinesRead;
+        this.actLinesRead = actLinesRead;
+        this.linesCompared = linesCompared;
     }
 
-    @Override
-    public int diffLines(CsvReader expectedReader, CsvReader actualReader) throws IOException {
-        int linesCompared = 0;
-        for (final CsvDiffer asserter : asserters) {
-            linesCompared += asserter.diffLines(expectedReader, actualReader);
-        }
+    public int getExpLinesRead() {
+        return expLinesRead;
+    }
+    public int getActLinesRead() {
+        return actLinesRead;
+    }
+    public int getLinesCompared() {
         return linesCompared;
     }
 
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+    }
 }

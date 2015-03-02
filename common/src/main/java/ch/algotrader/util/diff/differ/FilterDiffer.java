@@ -46,10 +46,10 @@ public class FilterDiffer implements CsvDiffer {
     }
 
     @Override
-    public void diffLines(CsvReader expectedReader, CsvReader actualReader) throws IOException {
+    public int diffLines(CsvReader expectedReader, CsvReader actualReader) throws IOException {
         final CsvReader expReader = expFilter == null ? expectedReader : new FilterReader(expectedReader, expFilter);
         final CsvReader actReader = actFilter == null ? actualReader : new FilterReader(actualReader, actFilter);
-        delegate.diffLines(expReader, actReader);
+        return delegate.diffLines(expReader, actReader);
     }
 
     /**

@@ -105,8 +105,9 @@ public class SkipStartDiffer implements CsvDiffer {
     }
 
     @Override
-    public void diffLines(CsvReader expectedReader, CsvReader actualReader) throws IOException {
+    public int diffLines(CsvReader expectedReader, CsvReader actualReader) throws IOException {
         assertLines(new BufferedReader(expectedReader), new BufferedReader(actualReader));
+        return 0;//compare's nothing
     }
 
     private void assertLines(BufferedReader expReader, BufferedReader actReader) throws IOException {
