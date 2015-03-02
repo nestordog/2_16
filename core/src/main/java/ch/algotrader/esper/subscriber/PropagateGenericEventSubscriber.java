@@ -23,7 +23,7 @@ import ch.algotrader.ServiceLocator;
 import ch.algotrader.vo.GenericEventVO;
 
 /**
- * Esper event subscriber for {@link ch.algotrader.event.dispatch.EventDispatcher#sendGenericEvent(ch.algotrader.vo.GenericEventVO)}.
+ * Esper event subscriber for {@link ch.algotrader.event.dispatch.EventDispatcher#broadcastLocal(Object)}.
  */
 public class PropagateGenericEventSubscriber {
 
@@ -36,6 +36,6 @@ public class PropagateGenericEventSubscriber {
             LOGGER.trace(genericEvent);
         }
 
-        ServiceLocator.instance().getEventDispatcher().sendGenericEvent(genericEvent);
+        ServiceLocator.instance().getEventDispatcher().broadcastLocal(genericEvent);
     }
 }

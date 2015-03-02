@@ -35,7 +35,6 @@ import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.EventBroadcaster;
-import ch.algotrader.vo.GenericEventVO;
 
 /**
 * {@link ch.algotrader.esper.EngineManager} implementation.
@@ -126,34 +125,6 @@ public class EventDispatcherImpl implements EventDispatcher, MessageListener {
 
                     // add securityId Property
                     message.setIntProperty("securityId", marketDataEvent.getSecurity().getId());
-                    return message;
-                }
-            });
-        }
-    }
-
-    @Override
-    public void sendGenericEvent(final GenericEventVO event) {
-
-        if (this.commonConfig.isSimulation() || this.commonConfig.isEmbedded()) {
-            for (Engine engine: this.engineManager.getEngines()) {
-                String engineName = engine.getStrategyName();
-                if (engineName.equals(event.getStrategyName())) {
-                    engine.sendEvent(event);
-                }
-            }
-
-        } else {
-
-            // send using the jms template
-            Objects.requireNonNull(this.genericTemplate, "Generic JMS template is null");
-            this.genericTemplate.convertAndSend(event, new MessagePostProcessor() {
-
-                @Override
-                public Message postProcessMessage(Message message) throws JMSException {
-
-                    // add class Property
-                    message.setStringProperty("clazz", event.getClass().getName());
                     return message;
                 }
             });

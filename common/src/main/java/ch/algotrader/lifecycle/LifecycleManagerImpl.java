@@ -101,6 +101,35 @@ public class LifecycleManagerImpl implements LifecycleManager, ApplicationContex
         initServices();
     }
 
+    private void runStrategyInternal(final Collection<Engine> engines) {
+
+        this.eventDispatcher.broadcastLocal(new LifecycleEventVO(OperationMode.REAL_TIME, LifecyclePhase.INIT, new Date()));
+
+        for (Engine engine: engines) {
+
+            engine.deployInitModules();
+        }
+
+        this.eventDispatcher.broadcastLocal(new LifecycleEventVO(OperationMode.REAL_TIME, LifecyclePhase.PREFEED, new Date()));
+
+        for (Engine engine: engines) {
+
+            engine.setInternalClock(true);
+            engine.deployRunModules();
+        }
+
+        this.eventDispatcher.broadcastLocal(new LifecycleEventVO(OperationMode.REAL_TIME, LifecyclePhase.START, new Date()));
+
+        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                eventDispatcher.broadcastLocal(new LifecycleEventVO(OperationMode.REAL_TIME, LifecyclePhase.EXIT, new Date()));
+            }
+
+        }));
+    }
+
     @Override
     public void runEmbedded() {
 
@@ -112,65 +141,13 @@ public class LifecycleManagerImpl implements LifecycleManager, ApplicationContex
 
         Set<Engine> engines = new HashSet<>(this.engineManager.getEngines());
         engines.remove(serverEngine);
-
-        this.eventDispatcher.broadcastLocal(new LifecycleEventVO(OperationMode.REAL_TIME, LifecyclePhase.INIT, new Date()));
-
-        for (Engine engine: engines) {
-
-            engine.deployInitModules();
-        }
-
-        this.eventDispatcher.broadcastLocal(new LifecycleEventVO(OperationMode.REAL_TIME, LifecyclePhase.PREFEED, new Date()));
-
-        for (Engine engine: engines) {
-
-            engine.setInternalClock(true);
-            engine.deployRunModules();
-        }
-
-        this.eventDispatcher.broadcastLocal(new LifecycleEventVO(OperationMode.REAL_TIME, LifecyclePhase.START, new Date()));
-
-        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-
-            @Override
-            public void run() {
-                eventDispatcher.broadcastLocal(new LifecycleEventVO(OperationMode.REAL_TIME, LifecyclePhase.EXIT, new Date()));
-            }
-
-        }));
-
+        runStrategyInternal(engines);
     }
 
     @Override
     public void runStrategy() {
 
-        Collection<Engine> engines = this.engineManager.getEngines();
-
-        this.eventDispatcher.broadcastLocal(new LifecycleEventVO(OperationMode.REAL_TIME, LifecyclePhase.INIT, new Date()));
-
-        for (Engine engine: engines) {
-
-            engine.deployInitModules();
-        }
-
-        this.eventDispatcher.broadcastLocal(new LifecycleEventVO(OperationMode.REAL_TIME, LifecyclePhase.PREFEED, new Date()));
-
-        for (Engine engine: engines) {
-
-            engine.setInternalClock(true);
-            engine.deployRunModules();
-        }
-
-        this.eventDispatcher.broadcastLocal(new LifecycleEventVO(OperationMode.REAL_TIME, LifecyclePhase.START, new Date()));
-
-        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-
-            @Override
-            public void run() {
-                eventDispatcher.broadcastLocal(new LifecycleEventVO(OperationMode.REAL_TIME, LifecyclePhase.EXIT, new Date()));
-            }
-
-        }));
+        runStrategyInternal(this.engineManager.getEngines());
 
         if (this.subscriptionService != null) {
 
