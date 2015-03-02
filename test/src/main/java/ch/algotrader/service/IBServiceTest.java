@@ -42,7 +42,7 @@ public class IBServiceTest {
             engine.setInternalClock(true);
             engine.deployAllModules();
 
-            ServiceLocator.instance().getLifecycleManager().initServices();
+            ServiceLocator.instance().getLifecycleManager().runServices();
 
             initialized = true;
         }

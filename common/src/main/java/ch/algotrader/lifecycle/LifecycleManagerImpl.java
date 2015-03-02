@@ -76,7 +76,7 @@ public class LifecycleManagerImpl implements LifecycleManager, ApplicationContex
     }
 
     @Override
-    public void initServices() {
+    public void runServices() {
 
         // initialize services
         Map<String, InitializingServiceI> allServices = this.applicationContext.getBeansOfType(InitializingServiceI.class);
@@ -98,7 +98,7 @@ public class LifecycleManagerImpl implements LifecycleManager, ApplicationContex
         engine.setInternalClock(true);
         engine.deployAllModules();
 
-        initServices();
+        runServices();
     }
 
     private void runStrategyInternal(final Collection<Engine> engines) {
@@ -137,7 +137,7 @@ public class LifecycleManagerImpl implements LifecycleManager, ApplicationContex
         serverEngine.setInternalClock(true);
         serverEngine.deployAllModules();
 
-        initServices();
+        runServices();
 
         Set<Engine> engines = new HashSet<>(this.engineManager.getEngines());
         engines.remove(serverEngine);

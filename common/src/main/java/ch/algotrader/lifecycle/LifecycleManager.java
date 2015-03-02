@@ -27,7 +27,7 @@ package ch.algotrader.lifecycle;
  */
 public interface LifecycleManager {
 
-    void initServices();
+    void runServices();
 
     void runServer();
 

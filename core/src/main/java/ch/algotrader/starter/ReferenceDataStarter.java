@@ -37,7 +37,7 @@ public class ReferenceDataStarter {
 
         ServiceLocator.instance().init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
 
-        ServiceLocator.instance().getLifecycleManager().initServices();
+        ServiceLocator.instance().getLifecycleManager().runServices();
 
         ReferenceDataService service = ServiceLocator.instance().getService("referenceDataService", ReferenceDataService.class);
         for (String arg : args) {
