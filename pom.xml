@@ -359,7 +359,7 @@
     <properties>
         <java.version>1.7</java.version>
         <andromda.version>3.4</andromda.version>
-        <spring.version>3.2.6.RELEASE</spring.version>
+        <spring.version>4.1.5.RELEASE</spring.version>
         <spring.integration.version>3.0.2</spring.integration.version>
         <esper.version>5.1.0</esper.version>
         <esperee.version>4.11.0</esperee.version>
