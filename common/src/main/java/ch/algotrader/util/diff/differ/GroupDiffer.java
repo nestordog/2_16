@@ -108,7 +108,7 @@ public class GroupDiffer implements CsvDiffer {
     }
 
     private static String getLines(LinkedListReader reader) {
-        return reader.getLine() + ":" + (reader.getLine() + reader.getLineCount() - 1);
+        return reader.getLineIndex() + ":" + (reader.getLineIndex() + reader.getLineCount() - 1);
     }
 
     private List<Object> getGroupValues(CsvLine line) {
@@ -124,7 +124,7 @@ public class GroupDiffer implements CsvDiffer {
         while (line.isValid() && matches(groupColumns, groupValues, line)) {
             line = reader.readLineIntoBuffer();
         }
-        return line == null ? 0 : 1;
+        return line.isValid() ? 1 : 0;
     }
 
     private static boolean matches(List<CsvColumn> groupColumns, List<Object> groupValues, CsvLine line) {

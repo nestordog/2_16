@@ -227,14 +227,14 @@ public class SimpleDiffer implements CsvDiffer {
                 linesCompared++;
                 // System.out.println("assert OK: " + getFileLocations(expectedReader, actualReader));
             }
-            if (expLine != null) {
+            if (expLine.isValid()) {
                 throw new CsvAssertionError("unexpected end of actual group or file", Collections.emptyList(),//
                         expectedReader.getFile(), expLine, null, null, //
-                        actualReader.getFile(), new CsvLine(null, null, actualReader.getLine()), null, null);
+                        actualReader.getFile(), actLine, null, null);
             }
-            if (actLine != null) {
+            if (actLine.isValid()) {
                 throw new CsvAssertionError("found more lines in actual group or file when expecting end", Collections.emptyList(),//
-                        expectedReader.getFile(), new CsvLine(null, null, expectedReader.getLine()), null, null, //
+                        expectedReader.getFile(), expLine, null, null, //
                         actualReader.getFile(), actLine, null, null);
             }
             return linesCompared;

@@ -57,8 +57,8 @@ public class BufferedReader implements CsvReader {
     }
 
     @Override
-    public int getLine() {
-        return delegate.getLine() - buf.size();
+    public int getLineIndex() {
+        return delegate.getLineIndex() - buf.size();
     }
 
     @Override
@@ -71,11 +71,10 @@ public class BufferedReader implements CsvReader {
 
     public CsvLine readLineIntoBuffer() throws IOException {
         final CsvLine line = delegate.readLine();
-        if (line != null) {
+        if (line.isValid()) {
             buf.add(line);
-            return line;
         }
-        return null;
+        return line;
     }
 
     public LinkedList<CsvLine> readBuffer() {
@@ -100,7 +99,7 @@ public class BufferedReader implements CsvReader {
         return readBufferAsReader(buf.size());
     }
     public LinkedListReader readBufferAsReader(int count) {
-        return new LinkedListReader(this, getLine(), readBuffer(count));
+        return new LinkedListReader(this, getLineIndex(), readBuffer(count));
     }
 
     public int getBufferSize() {

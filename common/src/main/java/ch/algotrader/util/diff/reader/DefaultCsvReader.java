@@ -57,7 +57,7 @@ public class DefaultCsvReader implements CsvReader {
     public BufferedReader getReader() {
         return bufferedReader;
     }
-    public int getLine() {
+    public int getLineIndex() {
         return lineIndex;
     }
 
@@ -68,9 +68,12 @@ public class DefaultCsvReader implements CsvReader {
         }
         final String rawLine = bufferedReader.readLine();
         final Map<CsvColumn, Object> values = parseLine(rawLine);
-        final CsvLine line = new CsvLine(rawLine, values, lineIndex);
-        lineIndex++;
-        return line;
+        if (values != null) {
+            final CsvLine line = CsvLine.getLine(this, rawLine, values);
+            lineIndex++;
+            return line;
+        }
+        return CsvLine.getEofLine(this);
     }
 
     private Map<CsvColumn, Object> parseLine(String line) {

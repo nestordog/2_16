@@ -30,7 +30,7 @@ public class CsvReaderUtil {
      * @return a string with file and current line location of the given {@code reader}
      */
     public static String getFileLocation(CsvReader reader) {
-        return "[line=" + reader.getLine() + ", file=" + reader.getFile().getName() + "]";
+        return "[line=" + reader.getLineIndex() + ", file=" + reader.getFile().getName() + "]";
     }
 
     /**

@@ -107,10 +107,10 @@ public class SortingDiffer implements CsvDiffer {
         return comparedLines;
     }
 
-    private void readAll(CsvReader reader, NavigableMap<CsvLine, Integer> lines) throws IOException {
-        CsvLine line = null;
-        while ((line = reader.readLine()) != null) {
-            lines.put(line, reader.getLine());
+    private static void readAll(CsvReader reader, NavigableMap<CsvLine, Integer> lines) throws IOException {
+        CsvLine line;
+        while ((line = reader.readLine()).isValid()) {
+            lines.put(line, reader.getLineIndex());
         }
     }
 

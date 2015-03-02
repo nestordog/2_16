@@ -19,6 +19,7 @@ package ch.algotrader.util.diff.reader;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 
 import ch.algotrader.util.diff.define.CsvColumn;
 
@@ -31,10 +32,22 @@ public class CsvLine {
     private final Map<CsvColumn, Object> values;
     private final int lineIndex;
 
-    public CsvLine(String rawLine, Map<CsvColumn, Object> values, int lineIndex) {
+    private CsvLine(String rawLine, Map<CsvColumn, Object> values, int lineIndex) {
         this.rawLine = rawLine;
-        this.values = values == null ? Collections.<CsvColumn, Object>emptyMap() : values;
+        this.values = values;
         this.lineIndex = lineIndex;
+    }
+
+    public static CsvLine getLine(CsvReader reader, String rawLine, Map<CsvColumn, Object> values) {
+        Objects.requireNonNull(reader, "reader cannot be null");
+        Objects.requireNonNull(rawLine, "rawLine cannot be null");
+        Objects.requireNonNull(values, "values cannot be null");
+        return new CsvLine(rawLine, values, reader.getLineIndex());
+    }
+
+    public static CsvLine getEofLine(CsvReader reader) {
+        Objects.requireNonNull(reader, "reader cannot be null");
+        return new CsvLine(null, Collections.<CsvColumn, Object>emptyMap(), reader.getLineIndex());
     }
 
     /**
@@ -56,6 +69,16 @@ public class CsvLine {
      */
     public int getLineIndex() {
         return lineIndex;
+    }
+
+    /**
+     * Returns true if this is a valid line, and false if the underlying line
+     * was null for instance because the end of file or group was reached.
+     *
+     * @return true if valid and false if {@link #getRawLine() raw line} is null
+     */
+    public boolean isValid() {
+        return null != rawLine;
     }
 
     @Override

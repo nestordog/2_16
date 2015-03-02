@@ -61,7 +61,7 @@ public class LinkedListReader implements CsvReader {
     }
 
     @Override
-    public int getLine() {
+    public int getLineIndex() {
         return lastLine - lines.size();
     }
 
@@ -71,7 +71,7 @@ public class LinkedListReader implements CsvReader {
 
     @Override
     public CsvLine readLine() throws IOException {
-        return lines.isEmpty() ? null : lines.removeFirst();
+        return lines.isEmpty() ? CsvLine.getEofLine(this) : lines.removeFirst();
     }
 
 }

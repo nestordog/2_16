@@ -44,7 +44,7 @@ public interface CsvReader {
      * Returns the zero-based line index of the line read next --- or equivalently
      * the number of lines already read.
      */
-    int getLine();
+    int getLineIndex();
     /**
      * Reads the next line and returns it. Returns null if the end of file is
      * reached.

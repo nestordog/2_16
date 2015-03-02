@@ -61,8 +61,8 @@ public class FilterReader implements CsvReader {
     }
 
     @Override
-    public int getLine() {
-        return delegate.getLine();
+    public int getLineIndex() {
+        return delegate.getLineIndex();
     }
 
     @Override

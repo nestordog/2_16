@@ -149,7 +149,7 @@ public class SkipStartDiffer implements CsvDiffer {
     }
 
     private boolean isAtStart(BufferedReader expReader) {
-        return expReader.getLine() == 0 || expReader.getLine() == 1 && expReader.getCsvDefinition().isSkipHeaderLine();
+        return expReader.getLineIndex() == 0 || expReader.getLineIndex() == 1 && expReader.getCsvDefinition().isSkipHeaderLine();
     }
 
 }
