@@ -17,14 +17,46 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
+import java.util.Collections;
+import java.util.Map;
+
 import ch.algotrader.config.CommonConfig;
+import ch.algotrader.entity.Transaction;
+import ch.algotrader.entity.marketData.Bar;
+import ch.algotrader.entity.marketData.Tick;
+import ch.algotrader.entity.trade.Fill;
+import ch.algotrader.entity.trade.Order;
+import ch.algotrader.entity.trade.OrderCompletion;
+import ch.algotrader.entity.trade.OrderStatus;
+import ch.algotrader.event.listener.BarEventListener;
+import ch.algotrader.event.listener.ClosePositionEventListener;
+import ch.algotrader.event.listener.ExpirePositionEventListener;
+import ch.algotrader.event.listener.FillEventListener;
+import ch.algotrader.event.listener.LifecycleEventListener;
+import ch.algotrader.event.listener.OpenPositionEventListener;
+import ch.algotrader.event.listener.OrderCompletionEventListener;
+import ch.algotrader.event.listener.OrderEventListener;
+import ch.algotrader.event.listener.OrderStatusEventListener;
+import ch.algotrader.event.listener.SessionEventListener;
+import ch.algotrader.event.listener.TickEventListener;
+import ch.algotrader.event.listener.TransactionEventListener;
+import ch.algotrader.vo.ClosePositionVO;
+import ch.algotrader.vo.ExpirePositionVO;
+import ch.algotrader.vo.LifecycleEventVO;
+import ch.algotrader.vo.OpenPositionVO;
+import ch.algotrader.vo.SessionEventVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public abstract class StrategyServiceImpl extends AbstractStrategyServiceImpl {
+public class StrategyServiceImpl implements StrategyService,
+        LifecycleEventListener,
+        BarEventListener, TickEventListener,
+        OrderEventListener, OrderStatusEventListener, OrderCompletionEventListener, FillEventListener, TransactionEventListener,
+        OpenPositionEventListener, ClosePositionEventListener, ExpirePositionEventListener,
+        SessionEventListener {
 
     private CommonConfig commonConfig;
     private CalendarService calendarService;
@@ -32,6 +64,7 @@ public abstract class StrategyServiceImpl extends AbstractStrategyServiceImpl {
     private FutureService futureService;
     private HistoricalDataService historicalDataService;
     private LookupService lookupService;
+    private LocalLookupService localLookupService;
     private MarketDataService marketDataService;
     private MeasurementService measurementService;
     private OptionService optionService;
@@ -77,6 +110,12 @@ public abstract class StrategyServiceImpl extends AbstractStrategyServiceImpl {
     }
     public void setLookupService(LookupService lookupService) {
         this.lookupService = lookupService;
+    }
+    public LocalLookupService getLocalLookupService() {
+        return this.localLookupService;
+    }
+    public void setLocalLookupService(LocalLookupService localLookupService) {
+        this.localLookupService = localLookupService;
     }
     public MarketDataService getMarketDataService() {
         return this.marketDataService;
@@ -131,6 +170,125 @@ public abstract class StrategyServiceImpl extends AbstractStrategyServiceImpl {
     }
     public void setSubscriptionService(SubscriptionService subscriptionService) {
         this.subscriptionService = subscriptionService;
+    }
+
+    @Override
+    public Map<String, Object> getSimulationResults() {
+
+        return Collections.emptyMap();
+    }
+
+    @Override
+    public void onChange(final LifecycleEventVO event) {
+
+        switch (event.getOperationMode()) {
+            case REAL_TIME:
+                switch (event.getPhase()) {
+                    case INIT:
+                        onInitRealTime();
+                        break;
+                    case PREFEED:
+                        onPrefeed();
+                        break;
+                    case START:
+                        onStartRealTime();
+                        break;
+                    case EXIT:
+                        onExitRealTime();
+                        break;
+                    case REPORT:
+                        onReportRealTime();
+                        break;
+                    default: break;
+                }
+                break;
+            case SIMULATION:
+                switch (event.getPhase()) {
+                    case INIT:
+                        onInitSimulation();
+                    case START:
+                        onStartSimulation();
+                        break;
+                    case EXIT:
+                        onExitSimulation();
+                        break;
+                    case REPORT:
+                        onReportSimulation();
+                        break;
+                    default: break;
+                }
+        }
+    }
+
+    protected void onInitRealTime() {
+    }
+
+    protected void onPrefeed() {
+    }
+
+    protected void onStartRealTime() {
+    }
+
+    protected void onExitRealTime() {
+    }
+
+    protected void onReportRealTime() {
+    }
+
+    protected void onInitSimulation() {
+    }
+
+    protected void onStartSimulation() {
+    }
+
+    protected void onExitSimulation() {
+    }
+
+    protected void onReportSimulation() {
+    }
+
+    @Override
+    public void onTick(final Tick bar) {
+    }
+
+    @Override
+    public void onBar(final Bar bar) {
+    }
+
+    @Override
+    public void onOrder(final Order order) {
+    }
+
+    @Override
+    public void onOrderStatus(final OrderStatus orderStatus) {
+    }
+
+    @Override
+    public void onOrderCompletion(final OrderCompletion orderCompletion) {
+    }
+
+    @Override
+    public void onFill(final Fill fill) {
+    }
+
+    @Override
+    public void onTransaction(final Transaction transaction) {
+    }
+
+    @Override
+    public void onOpenPosition(final OpenPositionVO openPosition) {
+    }
+
+    @Override
+    public void onClosePosition(final ClosePositionVO closePosition) {
+    }
+
+    @Override
+    public void onExpirePosition(final ExpirePositionVO expirePosition) {
+    }
+
+    @Override
+    public void onChange(final SessionEventVO event) {
     }
 
 }
