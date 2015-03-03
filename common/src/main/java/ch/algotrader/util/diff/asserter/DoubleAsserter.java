@@ -60,21 +60,32 @@ public class DoubleAsserter extends AbstractTypeSpecificAsserter<Double> {
 
     @Override
     protected boolean equalValuesTyped(Double expectedValue, Double actualValue) {
-        if (expectedValue == actualValue)
+        if (expectedValue == actualValue) {
             return true;
-        if (expectedValue != null) {
-            final Double act = (Double) actualValue;
-            final double tol = mode.getTolerance(tolerance, expectedValue, act);
-            return expectedValue.equals(act) || Math.abs(expectedValue - act) <= tol;
         }
-        return false;
+        if (expectedValue != null) {
+            final double exp = expectedValue;
+            if (actualValue != null) {
+                if (expectedValue.equals(actualValue)) {
+                    return true;
+                }
+                final double act = actualValue;
+                final double tol = mode.getTolerance(tolerance, exp, act);
+                return Math.abs(exp - act) <= tol;
+            }
+        }
+        return false;//null==null has been checked with first statement
     }
 
     @Override
     protected void assertValueTyped(Double expectedValue, Double actualValue) {
         if (!equalValues(expectedValue, actualValue)) {
-            final double tol = mode.getTolerance(tolerance, expectedValue, actualValue);
-            Assert.assertEquals("Values don't match with " + mode.name().toLowerCase() + " tolerance=<" + tolerance + ">", expectedValue, actualValue, tol);
+            if (expectedValue == null || actualValue == null) {
+                Assert.assertEquals("Values don't match", expectedValue, actualValue);
+            } else {
+                final double tol = mode.getTolerance(tolerance, expectedValue, actualValue);
+                Assert.assertEquals("Values don't match with " + mode.name().toLowerCase() + " tolerance=<" + tolerance + ">", expectedValue, actualValue, tol);
+            }
         }
     }
 }
