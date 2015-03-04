@@ -27,18 +27,8 @@ import java.util.Map;
 public interface StrategyService {
 
     /**
-     * Invoke potential initialization tasks at the beginning of a Simulation Run.
-     */
-    public void initSimulation();
-
-    /**
      * Returns strategy specific Simulation Results for a Simulation Run as a Map with a String Key.
      */
     public Map<String, Object> getSimulationResults();
-
-    /**
-     * Invoke potential finalization tasks at the end of a Simulation Run.
-     */
-    public void exitSimulation();
 
 }

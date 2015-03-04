@@ -69,7 +69,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
 
     private int clientId;
-    private IBSessionLifecycle sessionLifecycle;
+    private IBSessionLifecycle fixSessionStateHolder;
     private IBIdGenerator iBIdGenerator;
 
     private LookupService lookupService;
@@ -88,8 +88,8 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
         this.clientId = clientId;
     }
 
-    public void setSessionLifecycle(IBSessionLifecycle sessionLifecycle) {
-        this.sessionLifecycle = sessionLifecycle;
+    public void setSessionLifecycle(IBSessionLifecycle fixSessionStateHolder) {
+        this.fixSessionStateHolder = fixSessionStateHolder;
     }
 
     public void setiBIdGenerator(IBIdGenerator iBIdGenerator) {
@@ -347,7 +347,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
     @Override
     public void connectionClosed() {
 
-        this.sessionLifecycle.disconnect();
+        this.fixSessionStateHolder.disconnect();
     }
 
     @Override
@@ -453,21 +453,21 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
             case 502:
 
                 // Couldn't connect to TWS
-                this.sessionLifecycle.disconnect();
+                this.fixSessionStateHolder.disconnect();
                 logger.debug(message);
                 break;
 
             case 1100:
 
                 // Connectivity between IB and TWS has been lost.
-                this.sessionLifecycle.logoff();
+                this.fixSessionStateHolder.logoff();
                 logger.debug(message);
                 break;
 
             case 1101:
 
                 // Connectivity between IB and TWS has been restored data lost.
-                if (this.sessionLifecycle.logon(false)) {
+                if (this.fixSessionStateHolder.logon(false)) {
                     // initSubscriptions if there is a marketDataService
                     if (this.marketDataService != null) {
                         this.marketDataService.initSubscriptions();
@@ -479,7 +479,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
             case 1102:
 
                 // Connectivity between IB and TWS has been restored data maintained.
-                if (this.sessionLifecycle.logon(true)) {
+                if (this.fixSessionStateHolder.logon(true)) {
                     // initSubscriptions if there is a marketDataService
                     if (this.marketDataService != null) {
                         this.marketDataService.initSubscriptions();
@@ -491,14 +491,14 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
             case 2110:
 
                 // Connectivity between TWS and server is broken. It will be restored automatically.
-                this.sessionLifecycle.logoff();
+                this.fixSessionStateHolder.logoff();
                 logger.debug(message);
                 break;
 
             case 2104:
 
                 // A market data farm is connected.
-                if (this.sessionLifecycle.logon(true)) {
+                if (this.fixSessionStateHolder.logon(true)) {
                     // initSubscriptions if there is a marketDataService
                     if (this.marketDataService != null) {
                         this.marketDataService.initSubscriptions();

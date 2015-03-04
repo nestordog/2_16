@@ -21,7 +21,7 @@ import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
 
 import ch.algotrader.adapter.fix.AbstractFixApplication;
-import ch.algotrader.adapter.fix.FixSessionLifecycle;
+import ch.algotrader.adapter.fix.FixSessionStateHolder;
 import quickfix.ConfigError;
 import quickfix.FieldConvertError;
 import quickfix.FieldNotFound;
@@ -53,21 +53,21 @@ public class FXCMFixApplication extends AbstractFixApplication {
     private static final Logger LOGGER = Logger.getLogger(FXCMFixApplication.class.getName());
 
     private final SessionSettings settings;
-    private final FixSessionLifecycle lifecycleHandler;
+    private final FixSessionStateHolder stateHolder;
 
-    public FXCMFixApplication(SessionID sessionID, Object incomingMessageHandler, SessionSettings settings, FixSessionLifecycle lifecycleHandler) {
+    public FXCMFixApplication(SessionID sessionID, Object incomingMessageHandler, SessionSettings settings, FixSessionStateHolder stateHolder) {
         super(sessionID, incomingMessageHandler, null);
 
         Validate.notNull(settings, "Session settings not be null");
         Validate.notNull(sessionID, "Session ID may not be null");
         this.settings = settings;
-        this.lifecycleHandler = lifecycleHandler;
+        this.stateHolder = stateHolder;
     }
 
     @Override
     public void onCreate() {
 
-        lifecycleHandler.create();
+        stateHolder.onCreate();
     }
 
     @Override
@@ -96,7 +96,7 @@ public class FXCMFixApplication extends AbstractFixApplication {
             UserResponse userResponse = (UserResponse) message;
             UserStatus userStatus = userResponse.getUserStatus();
             if (userStatus.getValue() == UserStatus.LOGGED_IN) {
-                lifecycleHandler.logon();
+                stateHolder.onLogon();
             } else {
                 UserStatusText userStatusText = userResponse.getUserStatusText();
                 LOGGER.error("FXCM logon failed: " + userStatusText.getValue());
@@ -110,7 +110,7 @@ public class FXCMFixApplication extends AbstractFixApplication {
     @Override
     public void onLogout() {
 
-        lifecycleHandler.logoff();
+        stateHolder.onLogoff();
     }
 
 }

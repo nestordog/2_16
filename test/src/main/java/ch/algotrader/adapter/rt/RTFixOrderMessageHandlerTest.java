@@ -31,7 +31,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import ch.algotrader.adapter.fix.DefaultFixApplication;
-import ch.algotrader.adapter.fix.DefaultFixSessionLifecycle;
+import ch.algotrader.adapter.fix.DefaultFixSessionStateHolder;
 import ch.algotrader.adapter.fix.FixConfigUtils;
 import ch.algotrader.adapter.fix.NoopSessionStateListener;
 import ch.algotrader.adapter.fix.fix44.GenericFix44SymbologyResolver;
@@ -58,7 +58,7 @@ import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.AbstractEngine;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.esper.EngineManager;
+import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.service.LookupService;
 import ch.algotrader.util.Consts;
 import quickfix.DefaultSessionFactory;
@@ -76,7 +76,7 @@ public class RTFixOrderMessageHandlerTest {
 
     private SimpleDateFormat dateFormat;
     private LinkedBlockingQueue<Object> eventQueue;
-    private EngineManager engineManager;
+    private EventDispatcher eventDispatcher;
     private LookupService lookupService;
     private RTFixOrderMessageFactory messageFactory;
     private RTFixOrderMessageHandler messageHandler;
@@ -108,7 +108,7 @@ public class RTFixOrderMessageHandlerTest {
             }
         };
 
-        this.engineManager = Mockito.mock(EngineManager.class);
+        this.eventDispatcher = Mockito.mock(EventDispatcher.class);
 
         SessionSettings settings = FixConfigUtils.loadSettings();
         SessionID sessionId = FixConfigUtils.getSessionID(settings, "RT");
@@ -119,7 +119,7 @@ public class RTFixOrderMessageHandlerTest {
         this.messageFactory = new RTFixOrderMessageFactory(new GenericFix44SymbologyResolver());
 
         DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, this.messageHandler, null,
-                new DefaultFixSessionLifecycle("RT", this.engineManager));
+                new DefaultFixSessionStateHolder("RT", this.eventDispatcher));
 
         LogFactory logFactory = new ScreenLogFactory(true, true, true);
 

@@ -28,7 +28,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import ch.algotrader.adapter.fix.DefaultFixSessionLifecycle;
+import ch.algotrader.adapter.fix.DefaultFixSessionStateHolder;
 import ch.algotrader.adapter.fix.FixConfigUtils;
 import ch.algotrader.adapter.fix.NoopSessionStateListener;
 import ch.algotrader.entity.security.Forex;
@@ -39,7 +39,7 @@ import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.esper.AbstractEngine;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.esper.EngineManager;
+import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.vo.AskVO;
 import ch.algotrader.vo.BidVO;
 import quickfix.DefaultSessionFactory;
@@ -62,7 +62,7 @@ import quickfix.fix44.MarketDataSnapshotFullRefresh;
 public class FXCMFixFeedMessageHandlerTest {
 
     private LinkedBlockingQueue<Object> eventQueue;
-    private EngineManager engineManager;
+    private EventDispatcher eventDispatcher;
     private FXCMFixMarketDataMessageHandler messageHandler;
     private Session session;
     private SocketInitiator socketInitiator;
@@ -90,15 +90,15 @@ public class FXCMFixFeedMessageHandlerTest {
             }
         };
 
-        this.engineManager = Mockito.mock(EngineManager.class);
+        this.eventDispatcher = Mockito.mock(EventDispatcher.class);
 
         SessionSettings settings = FixConfigUtils.loadSettings();
         SessionID sessionId = FixConfigUtils.getSessionID(settings, "FXCM");
 
         this.messageHandler = Mockito.spy(new FXCMFixMarketDataMessageHandler(engine));
 
-        DefaultFixSessionLifecycle fixSessionLifecycle = new DefaultFixSessionLifecycle("FXCM", this.engineManager);
-        FXCMFixApplication fixApplication = new FXCMFixApplication(sessionId, this.messageHandler, settings, fixSessionLifecycle);
+        DefaultFixSessionStateHolder fixSessionStateHolder = new DefaultFixSessionStateHolder("FXCM", this.eventDispatcher);
+        FXCMFixApplication fixApplication = new FXCMFixApplication(sessionId, this.messageHandler, settings, fixSessionStateHolder);
 
         LogFactory logFactory = new ScreenLogFactory(true, true, true);
 
@@ -136,7 +136,7 @@ public class FXCMFixFeedMessageHandlerTest {
 
             Assert.fail("Session logon failed");
         }
-        if (!fixSessionLifecycle.isLoggedOn()) {
+        if (!fixSessionStateHolder.isLoggedOn()) {
 
             // Allow UserRequest message to get through
             Thread.sleep(1000);

@@ -30,7 +30,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import ch.algotrader.adapter.fix.DefaultFixApplication;
-import ch.algotrader.adapter.fix.DefaultFixSessionLifecycle;
+import ch.algotrader.adapter.fix.DefaultFixSessionStateHolder;
 import ch.algotrader.adapter.fix.DefaultLogonMessageHandler;
 import ch.algotrader.adapter.fix.FixConfigUtils;
 import ch.algotrader.adapter.fix.NoopSessionStateListener;
@@ -47,7 +47,7 @@ import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.AbstractEngine;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.esper.EngineManager;
+import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.service.LookupService;
 import quickfix.DefaultSessionFactory;
 import quickfix.LogFactory;
@@ -72,7 +72,7 @@ import quickfix.fix44.OrderCancelRequest;
 public class LMAXFixOrderMessageHandlerTest {
 
     private LinkedBlockingQueue<Object> eventQueue;
-    private EngineManager engineManager;
+    private EventDispatcher eventDispatcher;
     private LookupService lookupService;
     private LMAXFixOrderMessageHandler messageHandler;
     private Session session;
@@ -101,7 +101,7 @@ public class LMAXFixOrderMessageHandlerTest {
             }
         };
 
-        this.engineManager = Mockito.mock(EngineManager.class);
+        this.eventDispatcher = Mockito.mock(EventDispatcher.class);
 
         SessionSettings settings = FixConfigUtils.loadSettings();
         SessionID sessionId = FixConfigUtils.getSessionID(settings, "LMAXT");
@@ -113,7 +113,7 @@ public class LMAXFixOrderMessageHandlerTest {
         this.messageHandler = Mockito.spy(messageHandlerImpl);
 
         DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, messageHandler, logonHandler,
-                new DefaultFixSessionLifecycle("LMAX", this.engineManager));
+                new DefaultFixSessionStateHolder("LMAX", this.eventDispatcher));
 
         LogFactory logFactory = new ScreenLogFactory(true, true, true);
 

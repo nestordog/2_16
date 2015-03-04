@@ -37,11 +37,6 @@ public class GenericEventVO implements Serializable {
     private boolean setTime = false;
 
     /**
-     * The name of the strategy this GenericEventVO was produced by
-     */
-    private String strategyName;
-
-    /**
      * Default Constructor
      */
     public GenericEventVO() {
@@ -52,13 +47,11 @@ public class GenericEventVO implements Serializable {
     /**
      * Constructor with all properties
      * @param timeIn long
-     * @param strategyNameIn String
      */
-    public GenericEventVO(final long timeIn, final String strategyNameIn) {
+    public GenericEventVO(final long timeIn) {
 
         this.time = timeIn;
         this.setTime = true;
-        this.strategyName = strategyNameIn;
     }
 
     /**
@@ -71,7 +64,6 @@ public class GenericEventVO implements Serializable {
 
         this.time = otherBean.getTime();
         this.setTime = true;
-        this.strategyName = otherBean.getStrategyName();
     }
 
     /**
@@ -102,24 +94,6 @@ public class GenericEventVO implements Serializable {
         return this.setTime;
     }
 
-    /**
-     * The name of the strategy this GenericEventVO was produced by
-     * @return strategyName String
-     */
-    public String getStrategyName() {
-
-        return this.strategyName;
-    }
-
-    /**
-     * The name of the strategy this GenericEventVO was produced by
-     * @param value String
-     */
-    public void setStrategyName(final String value) {
-
-        this.strategyName = value;
-    }
-
     @Override
     public String toString() {
 
@@ -128,8 +102,6 @@ public class GenericEventVO implements Serializable {
         builder.append(this.time);
         builder.append(", setTime=");
         builder.append(this.setTime);
-        builder.append(", strategyName=");
-        builder.append(this.strategyName);
         builder.append("]");
 
         return builder.toString();

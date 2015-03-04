@@ -22,29 +22,29 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.commons.lang.Validate;
 
 import ch.algotrader.enumeration.ConnectionState;
-import ch.algotrader.esper.EngineManager;
+import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.vo.SessionEventVO;
 
 /**
- * Default implementation of {@link FixSessionLifecycle} that keeps track of
+ * Default implementation of {@link FixSessionStateHolder} that keeps track of
  * FIX connection state state.
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  *
  * @version $Revision$ $Date$
  */
-public class DefaultFixSessionLifecycle implements FixSessionLifecycle {
+public class DefaultFixSessionStateHolder implements FixSessionStateHolder {
 
     private final String name;
-    private final EngineManager engineManager;
+    private final EventDispatcher eventDispatcher;
     private final AtomicReference<ConnectionState> connState;
 
-    public DefaultFixSessionLifecycle(final String name, final EngineManager engineManager) {
+    public DefaultFixSessionStateHolder(final String name, final EventDispatcher eventDispatcher) {
         Validate.notNull(name, "Name is null");
-        Validate.notNull(engineManager, "EngineManager is null");
+        Validate.notNull(eventDispatcher, "PlatformEventDispatcher is null");
 
         this.name = name;
-        this.engineManager = engineManager;
+        this.eventDispatcher = eventDispatcher;
         this.connState = new AtomicReference<>(ConnectionState.DISCONNECTED);
     }
 
@@ -54,43 +54,43 @@ public class DefaultFixSessionLifecycle implements FixSessionLifecycle {
     }
 
     @Override
-    public void create() {
+    public void onCreate() {
 
         if (this.connState.compareAndSet(ConnectionState.DISCONNECTED, ConnectionState.CONNECTED)) {
 
             SessionEventVO event = new SessionEventVO(ConnectionState.CONNECTED, this.name);
-            this.engineManager.sendEventToAllEngines(event);
+            this.eventDispatcher.broadcast(event);
         }
     }
 
     @Override
-    public void logon() {
+    public void onLogon() {
 
           if (this.connState.compareAndSet(ConnectionState.CONNECTED, ConnectionState.LOGGED_ON)) {
 
               SessionEventVO event = new SessionEventVO(ConnectionState.LOGGED_ON, this.name);
-              this.engineManager.sendEventToAllEngines(event);
+              this.eventDispatcher.broadcast(event);
           }
     }
 
     @Override
-    public void logoff() {
+    public void onLogoff() {
 
         ConnectionState previousState = this.connState.getAndSet(ConnectionState.CONNECTED);
         if (previousState.compareTo(ConnectionState.LOGGED_ON) >= 0) {
 
             SessionEventVO event = new SessionEventVO(ConnectionState.CONNECTED, this.name);
-            this.engineManager.sendEventToAllEngines(event);
+            this.eventDispatcher.broadcast(event);
         }
     }
 
     @Override
-    public boolean subscribe() {
+    public boolean onSubscribe() {
 
         if (this.connState.compareAndSet(ConnectionState.LOGGED_ON, ConnectionState.SUBSCRIBED)) {
 
             SessionEventVO event = new SessionEventVO(ConnectionState.SUBSCRIBED, this.name);
-            this.engineManager.sendEventToAllEngines(event);
+            this.eventDispatcher.broadcast(event);
             return true;
         } else {
 

@@ -28,7 +28,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import ch.algotrader.adapter.fix.DefaultFixSessionLifecycle;
+import ch.algotrader.adapter.fix.DefaultFixSessionStateHolder;
 import ch.algotrader.adapter.fix.DefaultLogonMessageHandler;
 import ch.algotrader.adapter.fix.FixConfigUtils;
 import ch.algotrader.adapter.fix.NoopSessionStateListener;
@@ -40,7 +40,7 @@ import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.esper.AbstractEngine;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.esper.EngineManager;
+import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.vo.AskVO;
 import ch.algotrader.vo.BidVO;
 import quickfix.DefaultSessionFactory;
@@ -64,7 +64,7 @@ import quickfix.fix44.MarketDataRequest;
 public class CNXFixFeedMessageHandlerTest {
 
     private LinkedBlockingQueue<Object> eventQueue;
-    private EngineManager engineManager;
+    private EventDispatcher eventDispatcher;
     private CNXFixMarketDataMessageHandler messageHandler;
     private Session session;
     private SocketInitiator socketInitiator;
@@ -92,7 +92,7 @@ public class CNXFixFeedMessageHandlerTest {
             }
         };
 
-        this.engineManager = Mockito.mock(EngineManager.class);
+        this.eventDispatcher = Mockito.mock(EventDispatcher.class);
 
         SessionSettings settings = FixConfigUtils.loadSettings();
         SessionID sessionId = FixConfigUtils.getSessionID(settings, "CNXMD");
@@ -103,7 +103,7 @@ public class CNXFixFeedMessageHandlerTest {
 
         LogFactory logFactory = new ScreenLogFactory(true, true, true);
 
-        CNXFixApplication fixApplication = new CNXFixApplication(sessionId, this.messageHandler, logonMessageHandler, new DefaultFixSessionLifecycle("CNX", this.engineManager));
+        CNXFixApplication fixApplication = new CNXFixApplication(sessionId, this.messageHandler, logonMessageHandler, new DefaultFixSessionStateHolder("CNX", this.eventDispatcher));
 
         DefaultSessionFactory sessionFactory = new DefaultSessionFactory(fixApplication, new MemoryStoreFactory(), logFactory);
 

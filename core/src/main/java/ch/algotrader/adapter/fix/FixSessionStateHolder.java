@@ -15,27 +15,33 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.service;
+package ch.algotrader.adapter.fix;
+
+import ch.algotrader.enumeration.ConnectionState;
 
 /**
- * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
+ * FIX session life cycle
+ *
+ * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  *
  * @version $Revision$ $Date$
  */
-public class SimulationServiceException extends ServiceException {
+public interface FixSessionStateHolder {
 
-    private static final long serialVersionUID = -8474166984277593070L;
+    String getName();
 
-    public SimulationServiceException(String message) {
-        super(message);
-    }
+    void onCreate();
 
-    public SimulationServiceException(Exception ex) {
-        super(ex);
-    }
+    void onLogon();
 
-    public SimulationServiceException(String message, Exception ex) {
-        super(message, ex);
-    }
+    void onLogoff();
+
+    boolean onSubscribe();
+
+    boolean isLoggedOn();
+
+    boolean isSubscribed();
+
+    ConnectionState getConnectionState();
 
 }

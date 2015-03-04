@@ -18,28 +18,18 @@
 package ch.algotrader.esper;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageListener;
-
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Predicate;
 import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
-import org.springframework.jms.core.JmsTemplate;
-import org.springframework.jms.core.MessagePostProcessor;
-import org.springframework.jms.support.converter.MessageConverter;
 
 import ch.algotrader.config.CommonConfig;
-import ch.algotrader.entity.Subscription;
-import ch.algotrader.entity.marketData.MarketDataEvent;
-import ch.algotrader.entity.strategy.StrategyImpl;
-import ch.algotrader.vo.GenericEventVO;
 import ch.algotrader.vo.StatementMetricVO;
 
 /**
@@ -49,7 +39,7 @@ import ch.algotrader.vo.StatementMetricVO;
 *
 * @version $Revision$ $Date$
 */
-public class EngineManagerImpl implements EngineManager, MessageListener {
+public class EngineManagerImpl implements EngineManager {
 
     private static final Logger LOGGER = Logger.getLogger(EngineManagerImpl.class);
 
@@ -57,18 +47,13 @@ public class EngineManagerImpl implements EngineManager, MessageListener {
 
     private final CommonConfig commonConfig;
     private final Map<String, Engine> engineMap;
-    private final Map<String, JmsTemplate> templateMap;
-    private final MessageConverter messageConverter;
 
-    public EngineManagerImpl(final CommonConfig commonConfig, final Map<String, Engine> engineMap, final Map<String, JmsTemplate> templateMap, final MessageConverter messageConverter) {
+    public EngineManagerImpl(final CommonConfig commonConfig, final Map<String, Engine> engineMap) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
-        Validate.notNull(messageConverter, "MessageConverter is null");
 
         this.commonConfig = commonConfig;
-        this.engineMap = new ConcurrentHashMap<>(engineMap);
-        this.templateMap = new ConcurrentHashMap<>(templateMap);
-        this.messageConverter = messageConverter;
+        this.engineMap = new ConcurrentHashMap<>(engineMap != null ? engineMap : Collections.<String, Engine>emptyMap());
     }
 
     @Override
@@ -101,16 +86,6 @@ public class EngineManagerImpl implements EngineManager, MessageListener {
         return getEngine(SERVER_ENGINE);
     }
 
-    private JmsTemplate getTemplate(final String templateName) {
-
-        Validate.notEmpty(templateName, "JMS template name is empty");
-        JmsTemplate jmsTemplate = this.templateMap.get(templateName);
-        if (jmsTemplate == null) {
-            throw new IllegalStateException("JMS template: " + templateName);
-        }
-        return jmsTemplate;
-    }
-
     @Override
     public void destroyEngine(final String engineName) {
 
@@ -123,107 +98,6 @@ public class EngineManagerImpl implements EngineManager, MessageListener {
     @Override
     public Collection<Engine> getEngines() {
         return this.engineMap.values();
-    }
-
-    @Override
-    public void sendEvent(final String engineName, final Object obj) {
-
-        if (this.commonConfig.isSimulation() || this.commonConfig.isEmbedded()) {
-
-            if (hasEngine(engineName)) {
-                getEngine(engineName).sendEvent(obj);
-            }
-
-        } else {
-
-            // check if it is the localStrategy
-            if (this.commonConfig.getStartedStrategyName().equals(engineName)) {
-
-                getEngine(engineName).sendEvent(obj);
-
-            } else {
-
-                // sent to the strategy queue
-                getTemplate("strategyTemplate").convertAndSend(engineName + ".QUEUE", obj);
-            }
-        }
-    }
-
-    @Override
-    public void sendMarketDataEvent(final MarketDataEvent marketDataEvent) {
-
-        if (this.commonConfig.isSimulation() || this.commonConfig.isEmbedded()) {
-            for (Subscription subscription : marketDataEvent.getSecurity().getSubscriptions()) {
-                if (!subscription.getStrategy().getName().equals(StrategyImpl.SERVER)) {
-                    String strategyName = subscription.getStrategy().getName();
-                    if (hasEngine(strategyName)) {
-                        getEngine(strategyName).sendEvent(marketDataEvent);
-                    }
-                }
-            }
-
-        } else {
-
-            // send using the jms template
-            getTemplate("marketDataTemplate").convertAndSend(marketDataEvent, new MessagePostProcessor() {
-
-                @Override
-                public Message postProcessMessage(Message message) throws JMSException {
-
-                    // add securityId Property
-                    message.setIntProperty("securityId", marketDataEvent.getSecurity().getId());
-                    return message;
-                }
-            });
-        }
-    }
-
-    @Override
-    public void sendGenericEvent(final GenericEventVO event) {
-
-        if (this.commonConfig.isSimulation() || this.commonConfig.isEmbedded()) {
-            for (Map.Entry<String, Engine> entry: this.engineMap.entrySet()) {
-                Engine engine = entry.getValue();
-                String engineName = engine.getStrategyName();
-                if (engineName.equals(event.getStrategyName())) {
-                    engine.sendEvent(event);
-                }
-            }
-
-        } else {
-
-            // send using the jms template
-            getTemplate("genericTemplate").convertAndSend(event, new MessagePostProcessor() {
-
-                @Override
-                public Message postProcessMessage(Message message) throws JMSException {
-
-                    // add class Property
-                    message.setStringProperty("clazz", event.getClass().getName());
-                    return message;
-                }
-            });
-        }
-    }
-
-    @Override
-    public void sendEventToAllEngines(Object obj) {
-
-        for (Map.Entry<String, Engine> entry: this.engineMap.entrySet()) {
-            Engine engine = entry.getValue();
-            engine.sendEvent(obj);
-        }
-    }
-
-    @Override
-    public void onMessage(final Message message) {
-
-        try {
-            Object event = this.messageConverter.fromMessage(message);
-            sendEventToAllEngines(event);
-        } catch (JMSException ex) {
-            throw new InternalEngineException("Failure de-serializing message content", ex);
-        }
     }
 
     @Override

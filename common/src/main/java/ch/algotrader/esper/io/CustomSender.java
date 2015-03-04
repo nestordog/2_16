@@ -76,7 +76,7 @@ public class CustomSender extends AbstractSender {
         } else if (beanToSend instanceof CurrentTimeEvent || beanToSend instanceof CurrentTimeSpanEvent) {
 
             long beforeSendEvent = System.nanoTime();
-            ServiceLocator.instance().getEngineManager().sendEventToAllEngines(beanToSend);
+            ServiceLocator.instance().getEventDispatcher().broadcastLocal(beanToSend);
             long afterSendEvent = System.nanoTime();
 
             MetricsUtil.account("CustomSender.sendCurrentTimeEvent", (afterSendEvent - beforeSendEvent));

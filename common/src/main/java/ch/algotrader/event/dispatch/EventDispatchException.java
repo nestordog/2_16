@@ -15,36 +15,25 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.starter;
-
-import ch.algotrader.ServiceLocator;
-import ch.algotrader.esper.Engine;
+package ch.algotrader.event.dispatch;
 
 /**
- * Abstract Base Class for starting the AlgoTrader Server in Live Trading Mode
+ * Signals event send error.
  *
- * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
+ * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  *
  * @version $Revision$ $Date$
  */
-public abstract class ServerStarter {
+public class EventDispatchException extends RuntimeException {
 
-    public static void main(String[] args) throws Exception {
+    private static final long serialVersionUID = 959244339194808841L;
 
-        ServiceLocator.instance().init(ServiceLocator.SERVER_BEAN_REFERENCE_LOCATION);
-
-        startServer();
+    public EventDispatchException(final String message, final Exception ex) {
+        super(message, ex);
     }
 
-    public static void startServer() throws Exception {
-
-        // deploy all SERVER modules
-        Engine engine = ServiceLocator.instance().getEngineManager().getServerEngine();
-
-        engine.setInternalClock(true);
-        engine.deployAllModules();
-
-        // initialize services
-        ServiceLocator.instance().initInitializingServices();
+    public EventDispatchException(final String message) {
+        super(message);
     }
+
 }

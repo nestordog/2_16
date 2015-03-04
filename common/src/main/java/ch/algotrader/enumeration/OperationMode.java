@@ -15,40 +15,14 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.service;
-
-import java.util.HashMap;
-import java.util.Map;
+package ch.algotrader.enumeration;
 
 /**
- * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
+ * Operation mode
  */
-public abstract class AbstractStrategyServiceImpl implements StrategyService {
+public enum OperationMode {
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void initSimulation() {
-        // do nothing
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitSimulation() {
-        // do nothing
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Map<String, Object> getSimulationResults() {
-        return new HashMap<String, Object>();
-    }
+    REAL_TIME,
+    SIMULATION
 
 }

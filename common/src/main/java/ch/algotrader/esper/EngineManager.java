@@ -20,9 +20,6 @@ package ch.algotrader.esper;
 import java.util.Collection;
 import java.util.Date;
 
-import ch.algotrader.entity.marketData.MarketDataEvent;
-import ch.algotrader.vo.GenericEventVO;
-
 /**
  * Management interface for multiple {@link ch.algotrader.esper.Engine}s.
  *
@@ -70,31 +67,6 @@ public interface EngineManager {
      * If the local engine is not yet initialized or is using internal clock the current system date is returned.
      */
     Date getCurrentEPTime();
-
-    /**
-     * Sends an Event to the corresponding Esper Engine.
-     * Use this method for situations where the corresponding Engine might be running localy ore remote,
-     * otherwise use {@link ch.algotrader.esper.Engine#sendEvent}.
-     *
-     */
-    void sendEvent(String engineName, Object obj);
-
-    /**
-     * Sends a MarketDataEvent into the corresponding Esper Engine.
-     * In Live-Trading the {@code marketDataTemplate} will be used.
-     */
-    void sendMarketDataEvent(MarketDataEvent marketDataEvent);
-
-    /**
-     * Sends a MarketDataEvent into the corresponding Esper Engine.
-     * In Live-Trading the {@code genericTemplate} will be used.
-     */
-    void sendGenericEvent(GenericEventVO event);
-
-    /**
-     * Sends an event to all local Esper Engines
-     */
-    void sendEventToAllEngines(Object obj);
 
     /**
      * Prints all statement metrics.

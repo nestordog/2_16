@@ -54,23 +54,23 @@ public final class IBSession extends EClientSocket implements InitializingServic
     private final int clientId;
     private final String host;
     private final int port;
-    private final IBSessionLifecycle sessionLifecycle;
+    private final IBSessionLifecycle fixSessionStateHolder;
     private MarketDataService marketDataService;
     private ApplicationContext applicationContext;
 
-    public IBSession(int clientId, String host, int port, IBSessionLifecycle sessionLifecycle, AbstractIBMessageHandler messageHandler, MarketDataService marketDataService) {
+    public IBSession(int clientId, String host, int port, IBSessionLifecycle fixSessionStateHolder, AbstractIBMessageHandler messageHandler, MarketDataService marketDataService) {
 
         super(messageHandler);
 
         Validate.notNull(clientId, "host may not be 0");
         Validate.notNull(host, "host may not be null");
         Validate.notNull(port, "host may not be 0");
-        Validate.notNull(sessionLifecycle, "IBSessionLifecycle may not be null");
+        Validate.notNull(fixSessionStateHolder, "IBSessionLifecycle may not be null");
 
         this.clientId = clientId;
         this.host = host;
         this.port = port;
-        this.sessionLifecycle = sessionLifecycle;
+        this.fixSessionStateHolder = fixSessionStateHolder;
 
         this.marketDataService = marketDataService;
     }
@@ -98,7 +98,7 @@ public final class IBSession extends EClientSocket implements InitializingServic
     }
 
     public IBSessionLifecycle getLifecycle() {
-        return this.sessionLifecycle;
+        return this.fixSessionStateHolder;
     }
 
     /**
@@ -115,11 +115,11 @@ public final class IBSession extends EClientSocket implements InitializingServic
         waitAndConnect();
 
         if (isConnected()) {
-            this.sessionLifecycle.connect();
+            this.fixSessionStateHolder.connect();
 
             // in case there is no 2104 message from the IB Gateway (Market data farm connection is OK)
             // manually invoke initSubscriptions after some time if there is marketDataService
-            if (this.sessionLifecycle.logon(true)) {
+            if (this.fixSessionStateHolder.logon(true)) {
                 if (this.applicationContext.containsBean("iBNativeMarketDataService")) {
                     this.marketDataService.initSubscriptions(FeedType.IB);
                 }
@@ -134,7 +134,7 @@ public final class IBSession extends EClientSocket implements InitializingServic
 
         if (isConnected()) {
             eDisconnect();
-            this.sessionLifecycle.disconnect();
+            this.fixSessionStateHolder.disconnect();
         }
     }
 

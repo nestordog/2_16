@@ -35,39 +35,39 @@ public class DefaultFixApplicationFactory implements FixApplicationFactory {
 
     private final Object incomingMessageHandler;
     private final Object outgoingMessageHandler;
-    private final FixSessionLifecycle lifecycleHandler;
+    private final FixSessionStateHolder stateHolder;
 
-    public DefaultFixApplicationFactory(final Object incomingMessageHandler, final Object outgoingMessageHandler, final FixSessionLifecycle lifecycleHandler) {
+    public DefaultFixApplicationFactory(final Object incomingMessageHandler, final Object outgoingMessageHandler, final FixSessionStateHolder stateHolder) {
         Validate.notNull(incomingMessageHandler, "IncomingMessageHandler may not be null");
-        Validate.notNull(lifecycleHandler, "FixSessionLifecycle may not be null");
+        Validate.notNull(stateHolder, "FixSessionStateHolder may not be null");
 
         this.incomingMessageHandler = incomingMessageHandler;
         this.outgoingMessageHandler = outgoingMessageHandler;
-        this.lifecycleHandler = lifecycleHandler;
+        this.stateHolder = stateHolder;
     }
 
-    public DefaultFixApplicationFactory(final Object incomingMessageHandler, final FixSessionLifecycle lifecycleHandler) {
-        this(incomingMessageHandler, null, lifecycleHandler);
+    public DefaultFixApplicationFactory(final Object incomingMessageHandler, final FixSessionStateHolder stateHolder) {
+        this(incomingMessageHandler, null, stateHolder);
     }
 
     @Override
     public String getName() {
-        return lifecycleHandler.getName();
+        return stateHolder.getName();
     }
 
     @Override
     public String toString() {
-        return lifecycleHandler.getName() + " FIX application factory";
+        return stateHolder.getName() + " FIX application factory";
     }
 
-    protected Application createApplication(SessionID sessionID, Object incomingMessageHandler, Object outgoingMessageHandler, FixSessionLifecycle lifecycleHandler) {
+    protected Application createApplication(SessionID sessionID, Object incomingMessageHandler, Object outgoingMessageHandler, FixSessionStateHolder stateHolder) {
 
-        return new DefaultFixApplication(sessionID, incomingMessageHandler, outgoingMessageHandler, lifecycleHandler);
+        return new DefaultFixApplication(sessionID, incomingMessageHandler, outgoingMessageHandler, stateHolder);
     }
 
     @Override
     public Application create(SessionID sessionID, SessionSettings settings) throws ConfigError {
 
-        return createApplication(sessionID, incomingMessageHandler, outgoingMessageHandler, lifecycleHandler);
+        return createApplication(sessionID, incomingMessageHandler, outgoingMessageHandler, stateHolder);
     }
 }

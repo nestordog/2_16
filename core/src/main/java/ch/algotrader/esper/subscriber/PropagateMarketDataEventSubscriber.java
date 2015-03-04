@@ -24,7 +24,7 @@ import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.util.metric.MetricsUtil;
 
 /**
- * Esper event subscriber for {@link ch.algotrader.esper.EngineManagerImpl#sendMarketDataEvent(ch.algotrader.entity.marketData.MarketDataEvent)}.
+ * Esper event subscriber for {@link ch.algotrader.event.dispatch.EventDispatcher#sendMarketDataEvent(ch.algotrader.entity.marketData.MarketDataEvent)}.
  */
 public class PropagateMarketDataEventSubscriber {
 
@@ -39,7 +39,7 @@ public class PropagateMarketDataEventSubscriber {
 
         long startTime = System.nanoTime();
 
-        ServiceLocator.instance().getEngineManager().sendMarketDataEvent(marketDataEvent);
+        ServiceLocator.instance().getEventDispatcher().sendMarketDataEvent(marketDataEvent);
 
         MetricsUtil.accountEnd("PropagateMarketDataEventSubscriber.update", startTime);
     }

@@ -23,7 +23,7 @@ import ch.algotrader.adapter.cnx.CNXFixMarketDataRequestFactory;
 import ch.algotrader.adapter.cnx.CNXUtil;
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.fix.FixApplicationException;
-import ch.algotrader.adapter.fix.FixSessionLifecycle;
+import ch.algotrader.adapter.fix.FixSessionStateHolder;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.Security;
@@ -47,7 +47,7 @@ public class CNXFixMarketDataServiceImpl extends Fix44MarketDataServiceImpl impl
 
     public CNXFixMarketDataServiceImpl(
             final CommonConfig commonConfig,
-            final FixSessionLifecycle lifeCycle,
+            final FixSessionStateHolder lifeCycle,
             final FixAdapter fixAdapter,
             final Engine serverEngine,
             final SecurityDao securityDao) {

@@ -29,7 +29,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import ch.algotrader.adapter.fix.DefaultFixApplication;
-import ch.algotrader.adapter.fix.DefaultFixSessionLifecycle;
+import ch.algotrader.adapter.fix.DefaultFixSessionStateHolder;
 import ch.algotrader.adapter.fix.DefaultLogonMessageHandler;
 import ch.algotrader.adapter.fix.FixConfigUtils;
 import ch.algotrader.adapter.fix.NoopSessionStateListener;
@@ -41,7 +41,7 @@ import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.esper.AbstractEngine;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.esper.EngineManager;
+import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.vo.AskVO;
 import ch.algotrader.vo.BidVO;
 import quickfix.CompositeLogFactory;
@@ -59,7 +59,7 @@ import quickfix.fix44.MarketDataRequest;
 public class DCFixFeedMessageHandlerTest {
 
     private LinkedBlockingQueue<Object> eventQueue;
-    private EngineManager engineManager;
+    private EventDispatcher eventDispatcher;
     private Session session;
     private SocketInitiator socketInitiator;
 
@@ -87,7 +87,7 @@ public class DCFixFeedMessageHandlerTest {
 
         };
 
-        this.engineManager = Mockito.mock(EngineManager.class);
+        this.eventDispatcher = Mockito.mock(EventDispatcher.class);
 
         SessionSettings settings = FixConfigUtils.loadSettings();
         SessionID sessionId = FixConfigUtils.getSessionID(settings, "DCMD");
@@ -95,7 +95,7 @@ public class DCFixFeedMessageHandlerTest {
         DefaultLogonMessageHandler dcLogonHandler = new DefaultLogonMessageHandler(settings);
 
         DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId,
-                new DCFixMarketDataMessageHandler(engine), dcLogonHandler, new DefaultFixSessionLifecycle("DC", this.engineManager));
+                new DCFixMarketDataMessageHandler(engine), dcLogonHandler, new DefaultFixSessionStateHolder("DC", this.eventDispatcher));
 
         LogFactory logFactory = new CompositeLogFactory(new LogFactory[] { new SLF4JLogFactory(settings) });
 

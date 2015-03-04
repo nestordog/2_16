@@ -18,7 +18,7 @@
 package ch.algotrader.adapter.cnx;
 
 import ch.algotrader.adapter.fix.DefaultFixApplicationFactory;
-import ch.algotrader.adapter.fix.FixSessionLifecycle;
+import ch.algotrader.adapter.fix.FixSessionStateHolder;
 import quickfix.Application;
 import quickfix.SessionID;
 
@@ -31,18 +31,18 @@ import quickfix.SessionID;
  */
 public class CNXFixApplicationFactory extends DefaultFixApplicationFactory {
 
-    public CNXFixApplicationFactory(final Object incomingMessageHandler, final Object outgoingMessageHandler, final FixSessionLifecycle lifecycleHandler) {
-        super(incomingMessageHandler, outgoingMessageHandler, lifecycleHandler);
+    public CNXFixApplicationFactory(final Object incomingMessageHandler, final Object outgoingMessageHandler, final FixSessionStateHolder stateHolder) {
+        super(incomingMessageHandler, outgoingMessageHandler, stateHolder);
     }
 
-    public CNXFixApplicationFactory(final Object incomingMessageHandler, final FixSessionLifecycle lifecycleHandler) {
-        super(incomingMessageHandler, null, lifecycleHandler);
+    public CNXFixApplicationFactory(final Object incomingMessageHandler, final FixSessionStateHolder stateHolder) {
+        super(incomingMessageHandler, null, stateHolder);
     }
 
     @Override
-    protected Application createApplication(SessionID sessionID, Object incomingMessageHandler, Object outgoingMessageHandler, FixSessionLifecycle lifecycleHandler) {
+    protected Application createApplication(SessionID sessionID, Object incomingMessageHandler, Object outgoingMessageHandler, FixSessionStateHolder stateHolder) {
 
-        return new CNXFixApplication(sessionID, incomingMessageHandler, outgoingMessageHandler, lifecycleHandler);
+        return new CNXFixApplication(sessionID, incomingMessageHandler, outgoingMessageHandler, stateHolder);
     }
 
 }

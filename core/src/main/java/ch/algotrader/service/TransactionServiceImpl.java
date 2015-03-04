@@ -45,6 +45,7 @@ import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.TransactionType;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
+import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.collection.CollectionUtil;
 import ch.algotrader.util.spring.HibernateSession;
@@ -75,6 +76,8 @@ public class TransactionServiceImpl implements TransactionService {
 
     private final AccountDao accountDao;
 
+    private final EventDispatcher eventDispatcher;
+
     private final EngineManager engineManager;
 
     private final Engine serverEngine;
@@ -87,6 +90,7 @@ public class TransactionServiceImpl implements TransactionService {
             final StrategyDao strategyDao,
             final SecurityDao securityDao,
             final AccountDao accountDao,
+            final EventDispatcher eventDispatcher,
             final EngineManager engineManager,
             final Engine serverEngine) {
 
@@ -97,6 +101,7 @@ public class TransactionServiceImpl implements TransactionService {
         Validate.notNull(strategyDao, "StrategyDao is null");
         Validate.notNull(securityDao, "SecurityDao is null");
         Validate.notNull(accountDao, "AccountDao is null");
+        Validate.notNull(eventDispatcher, "PlatformEventDispatcher is null");
         Validate.notNull(engineManager, "EngineManager is null");
         Validate.notNull(serverEngine, "Engine is null");
 
@@ -107,6 +112,7 @@ public class TransactionServiceImpl implements TransactionService {
         this.strategyDao = strategyDao;
         this.securityDao = securityDao;
         this.accountDao = accountDao;
+        this.eventDispatcher = eventDispatcher;
         this.engineManager = engineManager;
         this.serverEngine = serverEngine;
     }
@@ -275,7 +281,7 @@ public class TransactionServiceImpl implements TransactionService {
 
         // send the fill to the strategy that placed the corresponding order
         if (!fill.getOrder().getStrategy().isServer()) {
-            this.engineManager.sendEvent(fill.getOrder().getStrategy().getName(), fill);
+            this.eventDispatcher.sendEvent(fill.getOrder().getStrategy().getName(), fill);
         }
 
         if (!this.commonConfig.isSimulation()) {
@@ -328,12 +334,12 @@ public class TransactionServiceImpl implements TransactionService {
 
         // propagate the positionMutationEvent to the corresponding strategy
         if (positionMutationEvent != null) {
-            this.engineManager.sendEvent(positionMutationEvent.getStrategy(), positionMutationEvent);
+            this.eventDispatcher.sendEvent(positionMutationEvent.getStrategy(), positionMutationEvent);
         }
 
         // propagate the transaction to the corresponding strategy and AlgoTrader Server
         if (!transaction.getStrategy().isServer()) {
-            this.engineManager.sendEvent(transaction.getStrategy().getName(), transaction);
+            this.eventDispatcher.sendEvent(transaction.getStrategy().getName(), transaction);
         }
 
         this.serverEngine.sendEvent(transaction);

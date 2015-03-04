@@ -30,34 +30,34 @@ import quickfix.SessionID;
  */
 public class DefaultFixApplication extends AbstractFixApplication {
 
-    private final FixSessionLifecycle lifecycleHandler;
+    private final FixSessionStateHolder stateHolder;
 
-    public DefaultFixApplication(SessionID sessionID, Object incomingMessageHandler, Object outgoingMessageHandler, FixSessionLifecycle lifecycleHandler) {
+    public DefaultFixApplication(SessionID sessionID, Object incomingMessageHandler, Object outgoingMessageHandler, FixSessionStateHolder stateHolder) {
         super(sessionID, incomingMessageHandler, outgoingMessageHandler);
-        Validate.notNull(sessionID, "FixSessionLifecycle may not be null");
-        this.lifecycleHandler = lifecycleHandler;
+        Validate.notNull(sessionID, "FixSessionStateHolder may not be null");
+        this.stateHolder = stateHolder;
     }
 
-    public DefaultFixApplication(SessionID sessionID, Object incomingMessageHandler, FixSessionLifecycle lifecycleHandler) {
-        this(sessionID, incomingMessageHandler, null, lifecycleHandler);
+    public DefaultFixApplication(SessionID sessionID, Object incomingMessageHandler, FixSessionStateHolder stateHolder) {
+        this(sessionID, incomingMessageHandler, null, stateHolder);
     }
 
     @Override
     public void onCreate() {
 
-        lifecycleHandler.create();
+        stateHolder.onCreate();
     }
 
     @Override
     public void onLogon() {
 
-        lifecycleHandler.logon();
+        stateHolder.onLogon();
     }
 
     @Override
     public void onLogout() {
 
-        lifecycleHandler.logoff();
+        stateHolder.onLogoff();
     }
 
 }

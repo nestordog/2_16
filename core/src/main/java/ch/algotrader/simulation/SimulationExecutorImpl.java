@@ -15,7 +15,7 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.service;
+package ch.algotrader.simulation;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,6 +26,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,7 +60,9 @@ import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.strategy.Strategy;
+import ch.algotrader.enumeration.LifecyclePhase;
 import ch.algotrader.enumeration.MarketDataType;
+import ch.algotrader.enumeration.OperationMode;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.esper.io.CsvBarInputAdapter;
@@ -69,9 +72,17 @@ import ch.algotrader.esper.io.CsvTickInputAdapterSpec;
 import ch.algotrader.esper.io.DBBarInputAdapter;
 import ch.algotrader.esper.io.DBTickInputAdapter;
 import ch.algotrader.esper.io.GenericEventInputAdapterSpec;
+import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.report.ReportManager;
+import ch.algotrader.service.LookupService;
+import ch.algotrader.service.PortfolioService;
+import ch.algotrader.service.PositionService;
+import ch.algotrader.service.ResetService;
+import ch.algotrader.service.StrategyService;
+import ch.algotrader.service.TransactionService;
 import ch.algotrader.util.metric.MetricsUtil;
 import ch.algotrader.vo.EndOfSimulationVO;
+import ch.algotrader.vo.LifecycleEventVO;
 import ch.algotrader.vo.MaxDrawDownVO;
 import ch.algotrader.vo.OptimizationResultVO;
 import ch.algotrader.vo.PerformanceKeysVO;
@@ -84,10 +95,10 @@ import ch.algotrader.vo.TradesVO;
  *
  * @version $Revision$ $Date$
  */
-public class SimulationServiceImpl implements SimulationService, InitializingBean, ApplicationContextAware {
+public class SimulationExecutorImpl implements SimulationExecutor, InitializingBean, ApplicationContextAware {
 
-    private static Logger logger = Logger.getLogger(SimulationServiceImpl.class.getName());
-    private static Logger resultLogger = Logger.getLogger(SimulationServiceImpl.class.getName() + ".RESULT");
+    private static Logger logger = Logger.getLogger(SimulationExecutorImpl.class.getName());
+    private static Logger resultLogger = Logger.getLogger("ch.algotrader.simulation.SimulationExecutor.RESULT");
     private static DecimalFormat twoDigitFormat = new DecimalFormat("#,##0.00");
     private static DateFormat monthFormat = new SimpleDateFormat(" MMM-yy ");
     private static DateFormat yearFormat = new SimpleDateFormat("   yyyy ");
@@ -105,6 +116,8 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
 
     private final LookupService lookupService;
 
+    private final EventDispatcher eventDispatcher;
+
     private final EngineManager engineManager;
 
     private final Engine serverEngine;
@@ -113,15 +126,16 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
 
     private volatile ApplicationContext applicationContext;
 
-    public SimulationServiceImpl(final CommonConfig commonConfig,
-            final PositionService positionService,
-            final ResetService resetService,
-            final TransactionService transactionService,
-            final PortfolioService portfolioService,
-            final LookupService lookupService,
-            final EngineManager engineManager,
-            final Engine serverEngine,
-            final CacheManager cacheManager) {
+    public SimulationExecutorImpl(final CommonConfig commonConfig,
+                                  final PositionService positionService,
+                                  final ResetService resetService,
+                                  final TransactionService transactionService,
+                                  final PortfolioService portfolioService,
+                                  final LookupService lookupService,
+                                  final EventDispatcher eventDispatcher,
+                                  final EngineManager engineManager,
+                                  final Engine serverEngine,
+                                  final CacheManager cacheManager) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(positionService, "PositionService is null");
@@ -129,6 +143,7 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
         Validate.notNull(transactionService, "TransactionService is null");
         Validate.notNull(portfolioService, "PortfolioService is null");
         Validate.notNull(lookupService, "LookupService is null");
+        Validate.notNull(eventDispatcher, "EventDispatcher is null");
         Validate.notNull(engineManager, "EngineManager is null");
         Validate.notNull(serverEngine, "Engine is null");
         Validate.notNull(cacheManager, "CacheManager is null");
@@ -139,6 +154,7 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
         this.transactionService = transactionService;
         this.portfolioService = portfolioService;
         this.lookupService = lookupService;
+        this.eventDispatcher = eventDispatcher;
         this.engineManager = engineManager;
         this.serverEngine = serverEngine;
         this.cacheManager = cacheManager;
@@ -182,18 +198,14 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
             this.engineManager.getEngine(strategy.getName()).deployAllModules();
         }
 
-        // init all StrategyServices in the classpath
-        for (StrategyService strategyService : this.applicationContext.getBeansOfType(StrategyService.class).values()) {
-            strategyService.initSimulation();
-        }
+        this.eventDispatcher.broadcastLocal(new LifecycleEventVO(OperationMode.SIMULATION, LifecyclePhase.INIT, new Date()));
+
+        this.eventDispatcher.broadcastLocal(new LifecycleEventVO(OperationMode.SIMULATION, LifecyclePhase.PREFEED, new Date()));
 
         // feed the ticks
         feedMarketData();
 
-        // init all StrategyServices in the classpath
-        for (StrategyService strategyService : this.applicationContext.getBeansOfType(StrategyService.class).values()) {
-            strategyService.exitSimulation();
-        }
+        this.eventDispatcher.broadcastLocal(new LifecycleEventVO(OperationMode.SIMULATION, LifecyclePhase.EXIT, new Date()));
 
         // log metrics in case they have been enabled
         MetricsUtil.logMetrics();
@@ -206,6 +218,8 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
 
         // send the EndOfSimulation event
         this.serverEngine.sendEvent(new EndOfSimulationVO());
+
+        this.eventDispatcher.broadcastLocal(new LifecycleEventVO(OperationMode.SIMULATION, LifecyclePhase.REPORT, new Date()));
 
         // get the results
         SimulationResultVO resultVO = getSimulationResultVO(startTime);
@@ -222,7 +236,7 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
         try {
             ReportManager.closeAll();
         } catch (IOException ex) {
-            throw new SimulationServiceException(ex);
+            throw new SimulationExecutorException(ex);
         }
 
         // run a garbage collection
@@ -375,7 +389,7 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
         } else if (MarketDataType.BAR.equals(marketDataType)) {
             inputAdapter = new CsvBarInputAdapter(new CsvBarInputAdapterSpec(file, this.commonConfig.getBarSize()));
         } else {
-            throw new SimulationServiceException("incorrect parameter for dataSetType: " + marketDataType);
+            throw new SimulationExecutorException("incorrect parameter for dataSetType: " + marketDataType);
         }
 
         this.serverEngine.coordinate(inputAdapter);
@@ -401,7 +415,7 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
             logger.debug("started feeding bars from db");
 
         } else {
-            throw new SimulationServiceException("incorrect parameter for dataSetType: " + marketDataType);
+            throw new SimulationExecutorException("incorrect parameter for dataSetType: " + marketDataType);
         }
     }
 
@@ -513,7 +527,7 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
 
             return optimizationResult;
         } catch (MathException ex) {
-            throw new SimulationServiceException(ex);
+            throw new SimulationExecutorException(ex);
         }
     }
 
@@ -579,11 +593,10 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
             }
             resultLogger.info("functionValue: " + format.format(result.getValue()) + " needed iterations: " + optimizer.getEvaluations() + ")");
         } catch (MathException ex) {
-            throw new SimulationServiceException(ex);
+            throw new SimulationExecutorException(ex);
         }
     }
 
-    @SuppressWarnings("unchecked")
     private SimulationResultVO getSimulationResultVO(final long startTime) {
 
         SimulationResultVO resultVO = new SimulationResultVO();
@@ -596,6 +609,7 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
         }
 
         PerformanceKeysVO performanceKeys = (PerformanceKeysVO) engine.getLastEvent("INSERT_INTO_PERFORMANCE_KEYS");
+        @SuppressWarnings("unchecked")
         List<PeriodPerformanceVO> monthlyPerformances = engine.getAllEvents("KEEP_MONTHLY_PERFORMANCE");
         MaxDrawDownVO maxDrawDown = (MaxDrawDownVO) engine.getLastEvent("INSERT_INTO_MAX_DRAW_DOWN");
         TradesVO allTrades = (TradesVO) engine.getLastEvent("INSERT_INTO_ALL_TRADES");
@@ -821,12 +835,12 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
 
     private class UnivariateFunction implements UnivariateRealFunction {
 
-        private final SimulationService simulationService;
+        private final SimulationExecutorImpl simulationExecutor;
         private final String param;
 
-        public UnivariateFunction(final SimulationService simulationService, final String parameter) {
+        public UnivariateFunction(final SimulationExecutorImpl simulationExecutor, final String parameter) {
             super();
-            this.simulationService = simulationService;
+            this.simulationExecutor = simulationExecutor;
             this.param = parameter;
         }
 
@@ -835,10 +849,10 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
 
             System.setProperty(this.param, String.valueOf(input));
 
-            SimulationResultVO resultVO = this.simulationService.runSimulation();
+            SimulationResultVO resultVO = this.simulationExecutor.runSimulation();
             double result = resultVO.getPerformanceKeys().getSharpeRatio();
 
-            resultLogger.info("optimize on " + this.param + "=" + SimulationServiceImpl.format.format(input) + " " + SimulationServiceImpl.this.convertStatisticsToShortString(resultVO));
+            resultLogger.info("optimize on " + this.param + "=" + SimulationExecutorImpl.format.format(input) + " " + SimulationExecutorImpl.this.convertStatisticsToShortString(resultVO));
 
             return result;
         }
@@ -846,12 +860,12 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
 
     private class MultivariateFunction implements MultivariateRealFunction {
 
-        private final SimulationService simulationService;
+        private final SimulationExecutorImpl simulationExecutor;
         private final String[] params;
 
-        public MultivariateFunction(final SimulationService simulationService, final String[] parameters) {
+        public MultivariateFunction(final SimulationExecutorImpl simulationExecutor, final String[] parameters) {
             super();
-            this.simulationService = simulationService;
+            this.simulationExecutor = simulationExecutor;
             this.params = parameters;
         }
 
@@ -866,13 +880,13 @@ public class SimulationServiceImpl implements SimulationService, InitializingBea
 
                 System.setProperty(param, String.valueOf(value));
 
-                buffer.append(param + "=" + SimulationServiceImpl.format.format(value) + " ");
+                buffer.append(param + "=" + SimulationExecutorImpl.format.format(value) + " ");
             }
 
-            SimulationResultVO resultVO = this.simulationService.runSimulation();
+            SimulationResultVO resultVO = this.simulationExecutor.runSimulation();
             double result = resultVO.getPerformanceKeys().getSharpeRatio();
 
-            resultLogger.info(buffer.toString() + SimulationServiceImpl.this.convertStatisticsToShortString(resultVO));
+            resultLogger.info(buffer.toString() + SimulationExecutorImpl.this.convertStatisticsToShortString(resultVO));
 
             return result;
         }

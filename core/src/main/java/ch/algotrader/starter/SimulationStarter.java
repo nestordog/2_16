@@ -22,8 +22,8 @@ import org.apache.commons.math.FunctionEvaluationException;
 import org.apache.log4j.Logger;
 
 import ch.algotrader.ServiceLocator;
-import ch.algotrader.service.SimulationService;
-import ch.algotrader.service.SimulationServiceImpl;
+import ch.algotrader.simulation.SimulationExecutor;
+import ch.algotrader.simulation.SimulationExecutorImpl;
 
 /**
  * Main Starter Class for running simulations.
@@ -58,7 +58,7 @@ import ch.algotrader.service.SimulationServiceImpl;
  */
 public class SimulationStarter {
 
-    public static Logger logger = Logger.getLogger(SimulationServiceImpl.class.getName());
+    public static Logger logger = Logger.getLogger(SimulationExecutor.class.getName());
 
     public static void main(String[] args) throws ConvergenceException, FunctionEvaluationException {
 
@@ -66,14 +66,14 @@ public class SimulationStarter {
 
         if (args[0].equals("simulateWithCurrentParams")) {
 
-            ServiceLocator.instance().getService("simulationService", SimulationService.class).simulateWithCurrentParams();
+            ServiceLocator.instance().getService("simulationExecutor", SimulationExecutor.class).simulateWithCurrentParams();
 
 
         } else if (args[0].equals("simulateBySingleParam")) {
 
             for (int i = 1; i < args.length; i++) {
                 String[] params = args[i].split(":");
-                ServiceLocator.instance().getService("simulationService", SimulationService.class).simulateBySingleParam(params[0], params[1]);
+                ServiceLocator.instance().getService("simulationExecutor", SimulationExecutor.class).simulateBySingleParam(params[0], params[1]);
             }
 
         } else if (args[0].equals("simulateByMultiParam")) {
@@ -86,7 +86,7 @@ public class SimulationStarter {
                     parameters[j] = touples[j].split(":")[0];
                     values[j] = touples[j].split(":")[1];
                 }
-                ServiceLocator.instance().getService("simulationService", SimulationService.class).simulateByMultiParam(parameters, values);
+                ServiceLocator.instance().getService("simulationExecutor", SimulationExecutor.class).simulateByMultiParam(parameters, values);
             }
 
         } else if (args[0].equals("optimizeSingleParamLinear")) {
@@ -98,7 +98,7 @@ public class SimulationStarter {
                 double max = Double.parseDouble(params[2]);
                 double increment = Double.parseDouble(params[3]);
 
-                ServiceLocator.instance().getService("simulationService", SimulationService.class).optimizeSingleParamLinear(parameter, min, max, increment);
+                ServiceLocator.instance().getService("simulationExecutor", SimulationExecutor.class).optimizeSingleParamLinear(parameter, min, max, increment);
 
             }
 
@@ -112,7 +112,7 @@ public class SimulationStarter {
                     values[j-1] = Double.valueOf(params[j]);
                 }
 
-                ServiceLocator.instance().getService("simulationService", SimulationService.class).optimizeSingleParamByValues(parameter, values);
+                ServiceLocator.instance().getService("simulationExecutor", SimulationExecutor.class).optimizeSingleParamByValues(parameter, values);
 
             }
         } else if (args[0].equals("optimizeSingleParam")) {
@@ -123,7 +123,7 @@ public class SimulationStarter {
             double max = Double.valueOf(params[2]);
             double accuracy = Double.valueOf(params[3]);
 
-            ServiceLocator.instance().getService("simulationService", SimulationService.class).optimizeSingleParam(parameter, min, max, accuracy);
+            ServiceLocator.instance().getService("simulationExecutor", SimulationExecutor.class).optimizeSingleParam(parameter, min, max, accuracy);
 
         } else if (args[0].equals("optimizeMultiParamLinear")) {
 
@@ -145,7 +145,7 @@ public class SimulationStarter {
                 increments[i - 1] = increment;
             }
 
-            ServiceLocator.instance().getService("simulationService", SimulationService.class).optimizeMultiParamLinear(parameters, mins, maxs, increments);
+            ServiceLocator.instance().getService("simulationExecutor", SimulationExecutor.class).optimizeMultiParamLinear(parameters, mins, maxs, increments);
 
         } else if (args[0].equals("optimizeMultiParam")) {
 
@@ -160,7 +160,7 @@ public class SimulationStarter {
                 starts[i - 1] = start;
             }
 
-            ServiceLocator.instance().getService("simulationService", SimulationService.class).optimizeMultiParam(parameters, starts);
+            ServiceLocator.instance().getService("simulationExecutor", SimulationExecutor.class).optimizeMultiParam(parameters, starts);
 
         } else {
             logger.info("invalid command " + args[0]);

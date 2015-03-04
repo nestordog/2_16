@@ -28,7 +28,7 @@
     <bean id="marketDataMessageListenerContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
         <property name="connectionFactory" ref="jmsActiveMQFactory" />
         <property name="destination" ref="marketDataTopic" />
-        <property name="messageListener" ref="engineManager" />
+        <property name="messageListener" ref="eventDispatcher" />
         <property name="messageSelector" value="false"/>
         <property name="cacheLevel" ref="org.springframework.jms.listener.DefaultMessageListenerContainer.CACHE_CONSUMER"/>
     </bean>
@@ -57,7 +57,7 @@
     <bean id="genericMessageListenerContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
         <property name="connectionFactory" ref="jmsActiveMQFactory" />
         <property name="destination" ref="genericTopic" />
-        <property name="messageListener" ref="engineManager" />
+        <property name="messageListener" ref="eventDispatcher" />
         <property name="messageSelector" value="false"/>
         <property name="cacheLevel" ref="org.springframework.jms.listener.DefaultMessageListenerContainer.CACHE_CONSUMER"/>
     </bean>
@@ -69,7 +69,7 @@
     <bean id="strategyMessageListenerContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
         <property name="connectionFactory" ref="jmsActiveMQFactory" />
         <property name="destination" ref="strategyQueue" />
-        <property name="messageListener" ref="engineManager" />
+        <property name="messageListener" ref="eventDispatcher" />
     </bean>
 
 </beans>
