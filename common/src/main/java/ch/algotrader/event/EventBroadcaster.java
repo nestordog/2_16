@@ -17,8 +17,19 @@
  ***********************************************************************************/
 package ch.algotrader.event;
 
+/**
+ * Represents a communication interface to broadcast events to multiple recipients both in-process and remote.
+ *
+ * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
+ *
+ * @version $Revision$ $Date$
+ */
 public interface EventBroadcaster {
 
-    public void broadcast(Object event);
+    /**
+     * Broadcasts the event represented by the input object.
+     * @param event
+     */
+    void broadcast(Object event);
 
 }

@@ -17,10 +17,30 @@
  ***********************************************************************************/
 package ch.algotrader.event;
 
+/**
+ * Event broadcaster that maintains a registry of {@link ch.algotrader.event.EventListener}s
+ * it can broadcast events to.
+ *
+ * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
+ *
+ * @version $Revision$ $Date$
+ */
 public interface EventListenerRegistry extends EventBroadcaster {
 
+    /**
+     * Registers the given event listener as a sink for the given type of events.
+     * @param listener event listener
+     * @param eventType event class
+     * @param <T> event type
+     */
     <T> void register(EventListener<T> listener, Class<T> eventType);
 
+    /**
+     * Unregisters the given event listener as a sink for the given type of events.
+     * @param listener event listener
+     * @param eventType
+     * @param <T> event type
+     */
     <T> void unregister(EventListener<T> listener, Class<T> eventType);
 
 }

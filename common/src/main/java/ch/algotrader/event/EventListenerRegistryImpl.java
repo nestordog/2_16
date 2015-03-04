@@ -25,6 +25,14 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.apache.commons.lang.Validate;
 
+/**
+ * Default {@link ch.algotrader.event.EventListenerRegistry} implementations.
+ * Instances of this class are expected to be thread-safe.
+ *
+ * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
+ *
+ * @version $Revision$ $Date$
+ */
 public final class EventListenerRegistryImpl implements EventListenerRegistry {
 
     private final ConcurrentHashMap<Class<?>, Class<?>[]> eventTypeMap;
@@ -118,12 +126,12 @@ public final class EventListenerRegistryImpl implements EventListenerRegistry {
             Set<EventListener<?>> listeners = getListeners(type);
             if (listeners != null) {
 
-                broadcast(listeners, event);
+                broadcastToAll(listeners, event);
             }
         }
     }
 
-    private void broadcast(final Set<EventListener<?>> listeners, final Object event) {
+    private void broadcastToAll(final Set<EventListener<?>> listeners, final Object event) {
 
         for (EventListener<?> entry: listeners) {
 

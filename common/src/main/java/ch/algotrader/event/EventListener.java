@@ -17,8 +17,19 @@
  ***********************************************************************************/
 package ch.algotrader.event;
 
+/**
+ * Represents a communication interface to receive events from multiple publishes both in-process and remote.
+ *
+ * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
+ *
+ * @version $Revision$ $Date$
+ */
 public interface EventListener<T> {
 
+    /**
+     * Triggered on receipt of an event represented by the input object.
+     * @param event
+     */
     void onEvent(T event);
 
 }

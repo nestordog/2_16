@@ -34,9 +34,13 @@ public interface SimulationExecutor {
      * <li>Esper Engines are initialized for the AlgoTrader Server as well as all strategies marked as autoActivate</li>
      * <li>All Esper Modules defined in column initModules and runModules of the table strategy are deployed</li>
      * <li>A Portfolio Rebalance is executed to distribute the initial CREDIT (of 1'000'000 USD) to Strategies according to their {@link ch.algotrader.entity.trade.Allocation Allocation}</li>
+     * <li>Platform event dispatcher emits {@link ch.algotrader.enumeration.LifecyclePhase#INIT} event</li>
+     * <li>Platform event dispatcher emits {@link ch.algotrader.enumeration.LifecyclePhase#PREFEED} event</li>
      * <li>The Market Data Feed is started</li>
+     * <li>Platform event dispatcher emits {@link ch.algotrader.enumeration.LifecyclePhase#EXIT} event</li>
      * <li>At the end of each simulation run, metrics are printed to the console (if enabled)</li>
      * <li>All open positions are closed</li>
+     * <li>Platform event dispatcher emits {@link ch.algotrader.enumeration.LifecyclePhase#REPORT} event</li>
      * <li>General Performance Statistics as well as Strategy specific Performance Statistics (gathered through
      * {@link ch.algotrader.service.StrategyService#getSimulationResults}) are printed to the console</li>
      * <li>Esper Engines are destroyed</li>

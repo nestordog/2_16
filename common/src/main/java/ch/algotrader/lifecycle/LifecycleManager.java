@@ -18,7 +18,7 @@
 package ch.algotrader.lifecycle;
 
 /**
- * LifecycleManager is intended to enforce transition through predefined {@link ch.algotrader.enumeration.LifecyclePhase}s
+ * LifecycleManager is intended to enforce transitions through standard {@link ch.algotrader.enumeration.LifecyclePhase}s
  * for server, embedded and strategy processes.
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
@@ -27,12 +27,27 @@ package ch.algotrader.lifecycle;
  */
 public interface LifecycleManager {
 
+    /**
+     * Creates and initializes all platform services.
+     */
     void runServices();
 
+    /**
+     * Creates and initializes the platform server runtime which includes the server {@link ch.algotrader.esper.Engine}
+     * and all platform services.
+     */
     void runServer();
 
+    /**
+     * Creates and initializes strategy {@link ch.algotrader.esper.Engine}s, strategy specific services
+     * and the platform server runtime in one JVM process.
+     */
     void runEmbedded();
 
+    /**
+     * Creates and initializes strategy {@link ch.algotrader.esper.Engine}s and strategy specific services
+     * and opens communication channels to a remote platform server runtime.
+     */
     void runStrategy();
 
 }
