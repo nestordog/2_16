@@ -23,7 +23,6 @@ import org.apache.log4j.Logger;
 
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.simulation.SimulationExecutor;
-import ch.algotrader.simulation.SimulationExecutorImpl;
 
 /**
  * Main Starter Class for running simulations.
