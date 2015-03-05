@@ -132,7 +132,7 @@ public class LMAXFixOrderMessageHandler extends AbstractFix44OrderMessageHandler
             String extId = executionReport.getExecID().getValue();
 
             // assemble the fill
-            Fill fill = Fill.Factory.newInstance();
+            Fill fill = new Fill();
             fill.setDateTime(new Date());
             fill.setExtDateTime(extDateTime);
             fill.setExtId(extId);

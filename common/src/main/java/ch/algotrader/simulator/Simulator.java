@@ -121,7 +121,7 @@ public class Simulator {
         }
 
         // create one fill per order
-        Fill fill = Fill.Factory.newInstance();
+        Fill fill = new Fill();
         fill.setSide(order.getSide());
         fill.setQuantity(order.getQuantity());
         fill.setPrice(price);

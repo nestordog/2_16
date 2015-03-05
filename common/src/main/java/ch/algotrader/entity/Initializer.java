@@ -23,5 +23,5 @@ public interface Initializer {
 
     public <T extends BaseEntityI> T initializeProxy(BaseEntityI entity, String context, T proxy);
 
-    public <T extends BaseEntityI> Collection<T> initializeCollection(BaseEntityI entity, String context, Collection<T> col);
+    public <T extends BaseEntityI, C extends Collection<T>> C initializeCollection(BaseEntityI entity, String context, C col);
 }

@@ -153,7 +153,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
         String extExecId = execution.m_execId;
 
         // assemble the fill
-        Fill fill = Fill.Factory.newInstance();
+        Fill fill = new Fill();
         fill.setDateTime(new Date());
         fill.setExtDateTime(extDateTime);
         fill.setSide(side);

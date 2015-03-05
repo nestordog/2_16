@@ -130,7 +130,7 @@ public class GenericFix44OrderMessageHandler extends AbstractFix44OrderMessageHa
             String extId = executionReport.getExecID().getValue();
 
             // assemble the fill
-            Fill fill = Fill.Factory.newInstance();
+            Fill fill = new Fill();
             fill.setExtId(extId);
             fill.setSequenceNumber(executionReport.getHeader().getInt(MsgSeqNum.FIELD));
             fill.setDateTime(new Date());

@@ -174,31 +174,11 @@
         <constructor-arg index="0" ref="sessionFactory"/>
     </bean>
     
-    <bean id="algoOrderDao" class="ch.algotrader.entity.trade.AlgoOrderDaoImpl">
-        <constructor-arg index="0" ref="sessionFactory"/>
-    </bean>
-    
-    <bean id="distributingOrderDao" class="ch.algotrader.entity.trade.DistributingOrderDaoImpl">
-        <constructor-arg index="0" ref="sessionFactory"/>
-    </bean>
-    
-    <bean id="fillDao" class="ch.algotrader.entity.trade.FillDaoImpl">
-        <constructor-arg index="0" ref="sessionFactory"/>
-    </bean>
-    
-    <bean id="incrementalOrderDao" class="ch.algotrader.entity.trade.IncrementalOrderDaoImpl">
-        <constructor-arg index="0" ref="sessionFactory"/>
-    </bean>
-    
     <bean id="limitOrderDao" class="ch.algotrader.entity.trade.LimitOrderDaoImpl">
         <constructor-arg index="0" ref="sessionFactory"/>
     </bean>
 
     <bean id="marketOrderDao" class="ch.algotrader.entity.trade.MarketOrderDaoImpl">
-        <constructor-arg index="0" ref="sessionFactory"/>
-    </bean>
-    
-    <bean id="orderCompletionDao" class="ch.algotrader.entity.trade.OrderCompletionDaoImpl">
         <constructor-arg index="0" ref="sessionFactory"/>
     </bean>
     
@@ -220,27 +200,11 @@
         <constructor-arg index="0" ref="sessionFactory"/>
     </bean>
     
-    <bean id="slicingOrderDao" class="ch.algotrader.entity.trade.SlicingOrderDaoImpl">
-        <constructor-arg index="0" ref="sessionFactory"/>
-    </bean>
-    
     <bean id="stopLimitOrderDao" class="ch.algotrader.entity.trade.StopLimitOrderDaoImpl">
         <constructor-arg index="0" ref="sessionFactory"/>
     </bean>
     
     <bean id="stopOrderDao" class="ch.algotrader.entity.trade.StopOrderDaoImpl">
-        <constructor-arg index="0" ref="sessionFactory"/>
-    </bean>
-    
-    <bean id="submittedOrderDao" class="ch.algotrader.entity.trade.SubmittedOrderDaoImpl">
-        <constructor-arg index="0" ref="sessionFactory"/>
-    </bean>
-
-    <bean id="tickwiseIncrementalOrderDao" class="ch.algotrader.entity.trade.TickwiseIncrementalOrderDaoImpl">
-        <constructor-arg index="0" ref="sessionFactory"/>
-    </bean>
-    
-    <bean id="variableIncrementalOrderDao" class="ch.algotrader.entity.trade.VariableIncrementalOrderDaoImpl">
         <constructor-arg index="0" ref="sessionFactory"/>
     </bean>
     

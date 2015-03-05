@@ -429,7 +429,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
         Validate.notNull(order, "Order is null");
 
         // send the order into the AlgoTrader Server engine to be correlated with fills
-        this.serverEngine.sendEvent(SubmittedOrder.Factory.newInstance(Status.OPEN, 0, order.getQuantity(), order));
+        this.serverEngine.sendEvent(new SubmittedOrder(Status.OPEN, 0, order.getQuantity(), order));
 
         // also send the order to the strategy that placed the order
         if (!order.getStrategy().isServer()) {
@@ -575,7 +575,6 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
         if (logger.isInfoEnabled() && !pendingOrderMap.isEmpty()) {
 
             List<Order> orderList  = new ArrayList<Order>(pendingOrderMap.keySet());
-            Collections.sort(orderList);
 
             logger.info(orderList.size() + " order(s) are pending");
             for (int i = 0; i < orderList.size(); i++) {
@@ -589,9 +588,9 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
             Order order = entry.getKey();
             OrderStatus orderStatus = entry.getValue();
             if (orderStatus != null) {
-                this.serverEngine.sendEvent(SubmittedOrder.Factory.newInstance(orderStatus.getStatus(), orderStatus.getFilledQuantity(), orderStatus.getRemainingQuantity(), order));
+                this.serverEngine.sendEvent(new SubmittedOrder(orderStatus.getStatus(), orderStatus.getFilledQuantity(), orderStatus.getRemainingQuantity(), order));
             } else {
-                this.serverEngine.sendEvent(SubmittedOrder.Factory.newInstance(Status.OPEN, 0, order.getQuantity(), order));
+                this.serverEngine.sendEvent(new SubmittedOrder(Status.OPEN, 0, order.getQuantity(), order));
             }
         }
     }

@@ -477,11 +477,11 @@ public class ManagementServiceImpl implements ManagementService {
         } else if ("SL".equals(type)) {
             order = StopLimitOrder.Factory.newInstance();
         } else if ("TI".equals(type)) {
-            order = TickwiseIncrementalOrder.Factory.newInstance();
+            order = new TickwiseIncrementalOrder();
         } else if ("VI".equals(type)) {
-            order = VariableIncrementalOrder.Factory.newInstance();
+            order = new VariableIncrementalOrder();
         } else if ("SLI".equals(type)) {
-            order = SlicingOrder.Factory.newInstance();
+            order = new SlicingOrder();
         } else {
 
             // create the order from an OrderPreference

@@ -79,7 +79,7 @@ public class SimulationOrderServiceImpl extends ExternalOrderServiceImpl impleme
         Validate.notNull(order, "Order is null");
 
         // create one fill per order
-        Fill fill = Fill.Factory.newInstance();
+        Fill fill = new Fill();
         Date d = this.engineManager.getCurrentEPTime();
         fill.setDateTime(d);
         fill.setExtDateTime(d);

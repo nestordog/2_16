@@ -277,7 +277,6 @@
     </profiles>
 
     <modules>
-        <module>mda</module>
         <module>common</module>
         <module>core</module>
         <module>client</module>

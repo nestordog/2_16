@@ -116,7 +116,7 @@ public class DCFixOrderMessageHandler extends AbstractFix44OrderMessageHandler {
             String extId = executionReport.getOrderID().getValue();
 
             // assemble the fill
-            Fill fill = Fill.Factory.newInstance();
+            Fill fill = new Fill();
             fill.setDateTime(new Date());
             fill.setExtDateTime(extDateTime);
             fill.setExtId(extId);

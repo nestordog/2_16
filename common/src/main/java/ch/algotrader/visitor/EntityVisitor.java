@@ -56,25 +56,16 @@ import ch.algotrader.entity.strategy.CashBalance;
 import ch.algotrader.entity.strategy.Measurement;
 import ch.algotrader.entity.strategy.PortfolioValue;
 import ch.algotrader.entity.strategy.Strategy;
-import ch.algotrader.entity.trade.AlgoOrder;
 import ch.algotrader.entity.trade.Allocation;
-import ch.algotrader.entity.trade.DistributingOrder;
-import ch.algotrader.entity.trade.Fill;
-import ch.algotrader.entity.trade.IncrementalOrder;
 import ch.algotrader.entity.trade.LimitOrder;
 import ch.algotrader.entity.trade.MarketOrder;
 import ch.algotrader.entity.trade.Order;
-import ch.algotrader.entity.trade.OrderCompletion;
 import ch.algotrader.entity.trade.OrderPreference;
 import ch.algotrader.entity.trade.OrderProperty;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.entity.trade.SimpleOrder;
-import ch.algotrader.entity.trade.SlicingOrder;
 import ch.algotrader.entity.trade.StopLimitOrder;
 import ch.algotrader.entity.trade.StopOrder;
-import ch.algotrader.entity.trade.SubmittedOrder;
-import ch.algotrader.entity.trade.TickwiseIncrementalOrder;
-import ch.algotrader.entity.trade.VariableIncrementalOrder;
 
 /**
  * Visitor for entity objects. Usually called as follows:
@@ -96,8 +87,6 @@ public interface EntityVisitor<R, P> {
 
     R visitAccount(Account entity, P param);
 
-    R visitAlgoOrder(AlgoOrder entity, P param);
-
     R visitAllocation(Allocation entity, P param);
 
     R visitBar(Bar entity, P param);
@@ -118,13 +107,9 @@ public interface EntityVisitor<R, P> {
 
     R visitComponent(Component entity, P param);
 
-    R visitDistributingOrder(DistributingOrder entity, P param);
-
     R visitEasyToBorrow(EasyToBorrow entity, P param);
 
     R visitExchange(Exchange entity, P param);
-
-    R visitFill(Fill entity, P param);
 
     R visitForex(Forex entity, P param);
 
@@ -144,8 +129,6 @@ public interface EntityVisitor<R, P> {
 
     R visitImpliedVolatility(ImpliedVolatility entity, P param);
 
-    R visitIncrementalOrder(IncrementalOrder entity, P param);
-
     R visitIndex(Index entity, P param);
 
     R visitIntrestRate(IntrestRate entity, P param);
@@ -163,8 +146,6 @@ public interface EntityVisitor<R, P> {
     R visitOptionFamily(OptionFamily entity, P param);
 
     R visitOrder(Order entity, P param);
-
-    R visitOrderCompletion(OrderCompletion entity, P param);
 
     R visitOrderPreference(OrderPreference entity, P param);
 
@@ -186,8 +167,6 @@ public interface EntityVisitor<R, P> {
 
     R visitSimpleOrder(SimpleOrder entity, P param);
 
-    R visitSlicingOrder(SlicingOrder entity, P param);
-
     R visitStock(Stock entity, P param);
 
     R visitStopLimitOrder(StopLimitOrder entity, P param);
@@ -196,18 +175,12 @@ public interface EntityVisitor<R, P> {
 
     R visitStrategy(Strategy entity, P param);
 
-    R visitSubmittedOrder(SubmittedOrder entity, P param);
-
     R visitSubscription(Subscription entity, P param);
 
     R visitTick(Tick entity, P param);
 
-    R visitTickwiseIncrementalOrder(TickwiseIncrementalOrder entity, P param);
-
     R visitTradingHours(TradingHours entity, P param);
 
     R visitTransaction(Transaction entity, P param);
-
-    R visitVariableIncrementalOrder(VariableIncrementalOrder entity, P param);
 
 }
