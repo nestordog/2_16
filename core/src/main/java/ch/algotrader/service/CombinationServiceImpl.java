@@ -23,7 +23,8 @@ import java.util.UUID;
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Predicate;
 import org.apache.commons.lang.Validate;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.SessionFactory;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -57,7 +58,7 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
 
     private static final long serialVersionUID = -2720603696641382966L;
 
-    private static Logger logger = Logger.getLogger(CombinationServiceImpl.class.getName());
+    private static Logger logger = LogManager.getLogger(CombinationServiceImpl.class.getName());
 
     private final CommonConfig commonConfig;
 

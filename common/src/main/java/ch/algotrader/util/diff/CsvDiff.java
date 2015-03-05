@@ -20,7 +20,8 @@ package ch.algotrader.util.diff;
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.util.diff.differ.FileDiffer;
 import ch.algotrader.util.diff.reader.CsvLine;
@@ -30,7 +31,7 @@ import ch.algotrader.util.diff.reader.CsvLine;
  */
 public class CsvDiff {
 
-    private static Logger LOG = Logger.getLogger(CsvDiff.class);
+    private static Logger LOG = LogManager.getLogger(CsvDiff.class);
 
     public static void diffAndLogAssertionErrors(FileDiffer fileDiffer, File expectedFile, File actualFile) {
         LOG.info("[ASSERT] ====================================================");

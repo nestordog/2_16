@@ -22,7 +22,8 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.Validate;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,7 +48,7 @@ import ch.algotrader.util.collection.CollectionUtil;
 @Transactional
 public class FutureServiceImpl implements FutureService {
 
-    private static Logger logger = Logger.getLogger(FutureServiceImpl.class.getName());
+    private static Logger logger = LogManager.getLogger(FutureServiceImpl.class.getName());
 
     private final CommonConfig commonConfig;
 

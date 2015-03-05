@@ -29,7 +29,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.time.DateUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.SessionFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
@@ -60,7 +61,7 @@ import ch.algotrader.util.io.CsvTickWriter;
 @Transactional
 public class MarketDataServiceImpl implements MarketDataService, ApplicationListener<ContextRefreshedEvent> {
 
-    private static Logger logger = Logger.getLogger(MarketDataServiceImpl.class.getName());
+    private static Logger logger = LogManager.getLogger(MarketDataServiceImpl.class.getName());
 
     private Map<Security, CsvTickWriter> csvWriters = new HashMap<Security, CsvTickWriter>();
 

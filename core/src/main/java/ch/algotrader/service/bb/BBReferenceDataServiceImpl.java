@@ -29,7 +29,8 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.commons.lang.Validate;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.bloomberglp.blpapi.Element;
 import com.bloomberglp.blpapi.Event;
@@ -72,7 +73,7 @@ public class BBReferenceDataServiceImpl extends ReferenceDataServiceImpl impleme
     private static final long serialVersionUID = 8938937374871069522L;
     private static final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 
-    private static Logger logger = Logger.getLogger(BBHistoricalDataServiceImpl.class.getName());
+    private static Logger logger = LogManager.getLogger(BBHistoricalDataServiceImpl.class.getName());
     private static BBSession session;
 
     private final BBAdapter bBAdapter;

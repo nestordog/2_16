@@ -19,16 +19,16 @@ package ch.algotrader.cache;
 
 import java.util.Properties;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.hibernate.cache.spi.CacheKey;
+
+import ch.algotrader.ServiceLocator;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.event.CacheEventListenerAdapter;
-
-import org.apache.log4j.Logger;
-import org.hibernate.cache.spi.CacheKey;
-
-import ch.algotrader.ServiceLocator;
 
 /**
 * EhCache CacheEventListenerFactory that creates a {@link net.sf.ehcache.event.CacheEventListener} which notifies on Entities being updated in the 2nd level cache.
@@ -39,7 +39,7 @@ import ch.algotrader.ServiceLocator;
 */
 public class EntityCacheEventListenerFactory extends net.sf.ehcache.event.CacheEventListenerFactory {
 
-    private static Logger logger = Logger.getLogger(EntityCacheEventListenerFactory.class.getName());
+    private static Logger logger = LogManager.getLogger(EntityCacheEventListenerFactory.class.getName());
 
     @Override
     public CacheEventListener createCacheEventListener(Properties properties) {

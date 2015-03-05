@@ -31,7 +31,8 @@ import java.util.TreeSet;
 import java.util.concurrent.BlockingQueue;
 
 import org.apache.commons.lang.Validate;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.ib.client.Contract;
 import com.ib.client.ContractDetails;
@@ -63,7 +64,7 @@ import ch.algotrader.util.RoundUtil;
  */
 public class IBNativeReferenceDataServiceImpl extends ReferenceDataServiceImpl implements IBNativeReferenceDataService {
 
-    private static final Logger logger = Logger.getLogger(IBNativeReferenceDataServiceImpl.class.getName());
+    private static final Logger logger = LogManager.getLogger(IBNativeReferenceDataServiceImpl.class.getName());
     private static final SimpleDateFormat dayFormat = new SimpleDateFormat("yyyyMMdd");
     private static final SimpleDateFormat monthFormat = new SimpleDateFormat("yyyyMM");
     private static final DecimalFormat decimalFormat = new DecimalFormat("#.#######");

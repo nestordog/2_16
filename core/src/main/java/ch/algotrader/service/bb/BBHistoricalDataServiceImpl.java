@@ -26,7 +26,8 @@ import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.time.DateUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
 
 import com.bloomberglp.blpapi.Element;
@@ -68,7 +69,7 @@ public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl imple
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
     private static final SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
-    private static Logger logger = Logger.getLogger(BBHistoricalDataServiceImpl.class.getName());
+    private static Logger logger = LogManager.getLogger(BBHistoricalDataServiceImpl.class.getName());
     private static BBSession session;
 
     private final BBAdapter bBAdapter;

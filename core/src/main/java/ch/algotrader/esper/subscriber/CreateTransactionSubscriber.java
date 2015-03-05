@@ -17,7 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.esper.subscriber;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.trade.Fill;
@@ -29,7 +30,7 @@ import ch.algotrader.util.metric.MetricsUtil;
 */
 public class CreateTransactionSubscriber extends Subscriber {
 
-    private static Logger LOGGER = Logger.getLogger(CreateTransactionSubscriber.class.getName());
+    private static Logger LOGGER = LogManager.getLogger(CreateTransactionSubscriber.class.getName());
 
     /*
      * synchronized to make sure that only on transaction is created at a time

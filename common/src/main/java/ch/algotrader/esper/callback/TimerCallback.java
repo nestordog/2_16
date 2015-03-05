@@ -19,7 +19,8 @@ package ch.algotrader.esper.callback;
 
 import java.util.Date;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.ServiceLocator;
 
@@ -32,7 +33,7 @@ import ch.algotrader.ServiceLocator;
  */
 public abstract class TimerCallback {
 
-    private static Logger logger = Logger.getLogger(TimerCallback.class.getName());
+    private static Logger logger = LogManager.getLogger(TimerCallback.class.getName());
 
     /**
      * Called by the "ON_TIMER" statement. Should not be invoked directly.

@@ -30,7 +30,8 @@ import javax.mail.Part;
 import javax.mail.internet.MimeBodyPart;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.integration.Message;
 import org.springframework.integration.annotation.Transformer;
 import org.springframework.integration.support.MessageBuilder;
@@ -45,7 +46,7 @@ import org.springframework.integration.support.MessageBuilder;
  */
 public class EmailTransformer {
 
-    private static final Logger logger = Logger.getLogger(EmailTransformer.class.getName());
+    private static final Logger logger = LogManager.getLogger(EmailTransformer.class.getName());
 
     @Transformer
     public Message<List<EmailFragment>> transform(Message<javax.mail.Message> message) throws MessagingException {

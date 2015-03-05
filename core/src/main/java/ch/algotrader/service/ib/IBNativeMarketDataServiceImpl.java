@@ -20,7 +20,8 @@ package ch.algotrader.service.ib;
 import java.util.ArrayList;
 
 import org.apache.commons.lang.Validate;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
 
 import com.ib.client.Contract;
@@ -47,7 +48,7 @@ import ch.algotrader.vo.SubscribeTickVO;
  */
 public class IBNativeMarketDataServiceImpl extends ExternalMarketDataServiceImpl implements IBNativeMarketDataService, DisposableBean {
 
-    private static Logger logger = Logger.getLogger(IBNativeMarketDataServiceImpl.class.getName());
+    private static Logger logger = LogManager.getLogger(IBNativeMarketDataServiceImpl.class.getName());
 
     private final IBSession iBSession;
     private final IBIdGenerator iBIdGenerator;

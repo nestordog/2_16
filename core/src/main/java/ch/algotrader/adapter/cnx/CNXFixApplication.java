@@ -18,7 +18,8 @@
 package ch.algotrader.adapter.cnx;
 
 import org.apache.commons.lang.Validate;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.adapter.fix.AbstractFixApplication;
 import ch.algotrader.adapter.fix.FixSessionStateHolder;
@@ -42,7 +43,7 @@ import quickfix.fix44.TradingSessionStatus;
  */
 public class CNXFixApplication extends AbstractFixApplication {
 
-    private static final Logger LOGGER = Logger.getLogger(CNXFixApplication.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(CNXFixApplication.class.getName());
 
     private final FixSessionStateHolder stateHolder;
 

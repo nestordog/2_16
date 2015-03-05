@@ -22,7 +22,8 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.apache.commons.lang.Validate;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -57,8 +58,8 @@ import ch.algotrader.vo.TradePerformanceVO;
 @Transactional
 public abstract class TransactionPersistenceServiceImpl implements TransactionPersistenceService {
 
-    private static Logger logger = Logger.getLogger(TransactionPersistenceServiceImpl.class.getName());
-    private static Logger simulationLogger = Logger.getLogger("ch.algotrader.simulation.SimulationExecutor.RESULT");
+    private static Logger logger = LogManager.getLogger(TransactionPersistenceServiceImpl.class.getName());
+    private static Logger simulationLogger = LogManager.getLogger("ch.algotrader.simulation.SimulationExecutor.RESULT");
 
     private final CommonConfig commonConfig;
 

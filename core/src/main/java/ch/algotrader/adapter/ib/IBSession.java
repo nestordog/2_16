@@ -23,7 +23,8 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 
 import org.apache.commons.lang.Validate;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.context.ApplicationContext;
@@ -49,7 +50,7 @@ public final class IBSession extends EClientSocket implements InitializingServic
 
     private static final long serialVersionUID = 6821739991866153788L;
 
-    private static final Logger logger = Logger.getLogger(IBSession.class.getName());
+    private static final Logger logger = LogManager.getLogger(IBSession.class.getName());
 
     private final int clientId;
     private final String host;

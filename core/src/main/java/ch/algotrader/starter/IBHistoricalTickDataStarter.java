@@ -31,7 +31,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.exchange.Exchange;
@@ -58,7 +59,7 @@ import ch.algotrader.util.io.CsvTickWriter;
  */
 public class IBHistoricalTickDataStarter {
 
-    private static Logger logger = Logger.getLogger(IBHistoricalTickDataStarter.class.getName());
+    private static Logger logger = LogManager.getLogger(IBHistoricalTickDataStarter.class.getName());
 
     private static SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd  HH:mm:ss");
 

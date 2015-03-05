@@ -20,7 +20,8 @@ package ch.algotrader.cache;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Cache for Entities based on a HashMap.
@@ -33,7 +34,7 @@ class EntityCache extends HashMap<EntityCacheKey, Map<String, Object>> {
 
     private static final long serialVersionUID = -3242571286067822619L;
 
-    private static Logger logger = Logger.getLogger(EntityCache.class.getName());
+    private static Logger logger = LogManager.getLogger(EntityCache.class.getName());
 
     /**
      * attaches an object to the cache

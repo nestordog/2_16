@@ -18,7 +18,8 @@
 package ch.algotrader.service.fix;
 
 import org.apache.commons.lang.Validate;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.fix.FixSessionStateHolder;
@@ -45,7 +46,7 @@ public abstract class FixMarketDataServiceImpl extends ExternalMarketDataService
 
     private static final long serialVersionUID = 4880040246465806082L;
 
-    private static Logger logger = Logger.getLogger(FixMarketDataServiceImpl.class.getName());
+    private static Logger logger = LogManager.getLogger(FixMarketDataServiceImpl.class.getName());
 
     private final FixSessionStateHolder lifeCycle;
     private final FixAdapter fixAdapter;

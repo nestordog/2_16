@@ -18,7 +18,8 @@
 package ch.algotrader.service;
 
 import org.apache.commons.lang.Validate;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,7 +49,7 @@ import ch.algotrader.entity.trade.StopOrderDao;
 @Transactional
 public class OrderPersistenceServiceImpl implements OrderPersistenceService {
 
-    private static final Logger logger = Logger.getLogger(OrderPersistenceServiceImpl.class.getName());
+    private static final Logger logger = LogManager.getLogger(OrderPersistenceServiceImpl.class.getName());
 
     private final MarketOrderDao marketOrderDao;
 

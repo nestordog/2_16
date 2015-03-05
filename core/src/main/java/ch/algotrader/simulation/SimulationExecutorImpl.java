@@ -46,7 +46,8 @@ import org.apache.commons.math.optimization.UnivariateRealOptimizer;
 import org.apache.commons.math.optimization.direct.MultiDirectional;
 import org.apache.commons.math.optimization.univariate.BrentOptimizer;
 import org.apache.commons.math.util.MathUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
@@ -97,8 +98,8 @@ import ch.algotrader.vo.TradesVO;
  */
 public class SimulationExecutorImpl implements SimulationExecutor, InitializingBean, ApplicationContextAware {
 
-    private static Logger logger = Logger.getLogger(SimulationExecutorImpl.class.getName());
-    private static Logger resultLogger = Logger.getLogger("ch.algotrader.simulation.SimulationExecutor.RESULT");
+    private static Logger logger = LogManager.getLogger(SimulationExecutorImpl.class.getName());
+    private static Logger resultLogger = LogManager.getLogger("ch.algotrader.simulation.SimulationExecutor.RESULT");
     private static DecimalFormat twoDigitFormat = new DecimalFormat("#,##0.00");
     private static DateFormat monthFormat = new SimpleDateFormat(" MMM-yy ");
     private static DateFormat yearFormat = new SimpleDateFormat("   yyyy ");

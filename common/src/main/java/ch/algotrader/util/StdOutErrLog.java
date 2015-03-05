@@ -19,7 +19,8 @@ package ch.algotrader.util;
 
 import java.io.PrintStream;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Redirects all System.out and System.err prints to log4j.
@@ -30,7 +31,7 @@ import org.apache.log4j.Logger;
  */
 public class StdOutErrLog {
 
-    private static final Logger logger = Logger.getLogger(StdOutErrLog.class);
+    private static final Logger logger = LogManager.getLogger(StdOutErrLog.class);
 
     static {
         tieSystemOutAndErrToLog();

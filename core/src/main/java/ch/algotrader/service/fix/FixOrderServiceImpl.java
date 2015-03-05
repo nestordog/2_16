@@ -18,7 +18,8 @@
 package ch.algotrader.service.fix;
 
 import org.apache.commons.lang.Validate;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.entity.Account;
@@ -45,7 +46,7 @@ public abstract class FixOrderServiceImpl extends ExternalOrderServiceImpl imple
 
     private static final long serialVersionUID = -1571841567775158540L;
 
-    private static Logger logger = Logger.getLogger(FixOrderServiceImpl.class.getName());
+    private static Logger logger = LogManager.getLogger(FixOrderServiceImpl.class.getName());
 
     private final FixAdapter fixAdapter;
 

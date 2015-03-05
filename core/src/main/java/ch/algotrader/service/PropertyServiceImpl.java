@@ -18,7 +18,8 @@
 package ch.algotrader.service;
 
 import org.apache.commons.lang.Validate;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,7 +36,7 @@ import ch.algotrader.entity.property.PropertyHolderDao;
 @Transactional
 public class PropertyServiceImpl implements PropertyService {
 
-    private static Logger logger = Logger.getLogger(PropertyServiceImpl.class.getName());
+    private static Logger logger = LogManager.getLogger(PropertyServiceImpl.class.getName());
 
     private final PropertyDao propertyDao;
 

@@ -36,7 +36,8 @@ import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.math.MathException;
 import org.apache.commons.math.util.MathUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -88,7 +89,7 @@ import ch.algotrader.vo.SABRSurfaceVO;
 @Transactional
 public class OptionServiceImpl implements OptionService {
 
-    private static Logger logger = Logger.getLogger(OptionServiceImpl.class.getName());
+    private static Logger logger = LogManager.getLogger(OptionServiceImpl.class.getName());
     private static int advanceMinutes = 10;
     private static SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy.MM.dd kk:mm:ss");
 

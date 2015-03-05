@@ -17,7 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.esper.subscriber;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.marketData.MarketDataEvent;
@@ -28,7 +29,7 @@ import ch.algotrader.util.metric.MetricsUtil;
  */
 public class PropagateMarketDataEventSubscriber {
 
-    private static Logger LOGGER = Logger.getLogger(PropagateMarketDataEventSubscriber.class.getName());
+    private static Logger LOGGER = LogManager.getLogger(PropagateMarketDataEventSubscriber.class.getName());
 
     public void update(final MarketDataEvent marketDataEvent) {
 

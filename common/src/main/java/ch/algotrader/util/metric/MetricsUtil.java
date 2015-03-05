@@ -21,7 +21,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.ClassUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.config.ConfigLocator;
 
@@ -35,7 +36,7 @@ import ch.algotrader.config.ConfigLocator;
 public class MetricsUtil {
 
     private static final boolean isMetricsEnabled = ConfigLocator.instance().getConfigParams().getBoolean("misc.metricsEnabled", false);
-    private static final Logger logger = Logger.getLogger(MetricsUtil.class.getName());
+    private static final Logger logger = LogManager.getLogger(MetricsUtil.class.getName());
 
     private static Map<String, Metric> metrics = new HashMap<String, Metric>();
     private static long startMillis = System.nanoTime();

@@ -27,7 +27,8 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.Validate;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.ib.client.Contract;
 import com.ib.client.TagValue;
@@ -53,7 +54,7 @@ import ch.algotrader.service.HistoricalDataServiceImpl;
  */
 public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl implements IBNativeHistoricalDataService {
 
-    private static final Logger logger = Logger.getLogger(IBNativeHistoricalDataServiceImpl.class.getName());
+    private static final Logger logger = LogManager.getLogger(IBNativeHistoricalDataServiceImpl.class.getName());
     private static final SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyyMMdd  HH:mm:ss");
     private static final int pacingMillis = 10 * 1000;
 

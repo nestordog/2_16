@@ -17,7 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.esper.subscriber;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Prints a value as an Error to the Log.
@@ -28,7 +29,7 @@ import org.apache.log4j.Logger;
  */
 public class ExceptionSubscriber {
 
-    private static Logger logger = Logger.getLogger(ExceptionSubscriber.class.getName());
+    private static Logger logger = LogManager.getLogger(ExceptionSubscriber.class.getName());
 
     public void update(String reason) {
 

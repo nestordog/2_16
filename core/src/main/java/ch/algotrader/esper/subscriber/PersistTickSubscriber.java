@@ -19,7 +19,8 @@ package ch.algotrader.esper.subscriber;
 
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import com.espertech.esper.collection.Pair;
@@ -32,7 +33,7 @@ import ch.algotrader.entity.marketData.Tick;
  */
 public class PersistTickSubscriber {
 
-    private static Logger LOGGER = Logger.getLogger(PersistTickSubscriber.class.getName());
+    private static Logger LOGGER = LogManager.getLogger(PersistTickSubscriber.class.getName());
 
     @SuppressWarnings("rawtypes")
     public void update(Pair<Tick, Object> insertStream, Map removeStream) {

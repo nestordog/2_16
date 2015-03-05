@@ -27,7 +27,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Predicate;
 import org.apache.commons.lang.Validate;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.vo.StatementMetricVO;
@@ -41,7 +42,7 @@ import ch.algotrader.vo.StatementMetricVO;
 */
 public class EngineManagerImpl implements EngineManager {
 
-    private static final Logger LOGGER = Logger.getLogger(EngineManagerImpl.class);
+    private static final Logger LOGGER = LogManager.getLogger(EngineManagerImpl.class);
 
     private static final String SERVER_ENGINE = "SERVER";
 

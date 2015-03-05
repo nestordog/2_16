@@ -19,7 +19,8 @@ package ch.algotrader.cache;
 
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.ServiceLocator;
 import net.sf.ehcache.CacheException;
@@ -37,7 +38,7 @@ import net.sf.ehcache.event.CacheEventListenerAdapter;
  */
 public class QueryCacheEventListenerFactory extends net.sf.ehcache.event.CacheEventListenerFactory {
 
-    private static Logger logger = Logger.getLogger(QueryCacheEventListenerFactory.class.getName());
+    private static Logger logger = LogManager.getLogger(QueryCacheEventListenerFactory.class.getName());
 
     @Override
     public CacheEventListener createCacheEventListener(Properties properties) {

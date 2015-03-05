@@ -17,8 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.fix.fix44;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import quickfix.FieldNotFound;
 import quickfix.SessionID;
@@ -37,11 +37,11 @@ import quickfix.fix44.QuoteStatusReport;
  */
 public abstract class AbstractFix44MarketDataMessageHandler extends AbstractFix44MessageHandler {
 
-    private static Logger LOGGER = Logger.getLogger(AbstractFix44MarketDataMessageHandler.class.getName());
+    static Logger LOGGER = LogManager.getLogger(AbstractFix44MarketDataMessageHandler.class.getName());
 
     public void onMessage(MarketDataRequestReject requestReject, SessionID sessionID) throws FieldNotFound {
 
-        if (LOGGER.isEnabledFor(Level.WARN)) {
+        if (LOGGER.isWarnEnabled()) {
 
             StringBuilder buf = new StringBuilder();
             MDReqID reqID = requestReject.getMDReqID();

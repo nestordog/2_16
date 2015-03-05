@@ -22,7 +22,8 @@ import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 
 import org.apache.commons.lang.Validate;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.adapter.ib.AccountUpdate;
 import ch.algotrader.adapter.ib.IBSession;
@@ -36,7 +37,7 @@ import ch.algotrader.service.AccountServiceImpl;
  */
 public class IBNativeAccountServiceImpl extends AccountServiceImpl implements IBNativeAccountService {
 
-    private static final Logger logger = Logger.getLogger(IBNativeAccountServiceImpl.class.getName());
+    private static final Logger logger = LogManager.getLogger(IBNativeAccountServiceImpl.class.getName());
 
     private final BlockingQueue<AccountUpdate> accountUpdateQueue;
     private final BlockingQueue<Set<String>> accountsQueue;

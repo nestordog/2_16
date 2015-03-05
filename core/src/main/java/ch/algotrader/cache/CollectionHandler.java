@@ -25,7 +25,8 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.collection.internal.AbstractPersistentCollection;
 import org.hibernate.collection.spi.PersistentCollection;
 
@@ -41,7 +42,7 @@ import ch.algotrader.util.FieldUtil;
  */
 class CollectionHandler extends AbstractHandler {
 
-    private static Logger logger = Logger.getLogger(CollectionHandler.class.getName());
+    private static Logger logger = LogManager.getLogger(CollectionHandler.class.getName());
 
     private CacheManagerImpl cacheManager;
 

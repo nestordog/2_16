@@ -23,7 +23,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Cache for Queries based on two HashMaps.
@@ -34,7 +35,7 @@ import org.apache.log4j.Logger;
  */
 class QueryCache {
 
-    private static Logger logger = Logger.getLogger(EntityCache.class.getName());
+    private static Logger logger = LogManager.getLogger(EntityCache.class.getName());
 
     private Map<String, Set<QueryCacheKey>> spaces = new HashMap<String, Set<QueryCacheKey>>();
     private Map<QueryCacheKey, List<?>> queries = new HashMap<QueryCacheKey, List<?>>();

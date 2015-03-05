@@ -31,7 +31,8 @@ import java.util.concurrent.BlockingQueue;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.xpath.XPathAPI;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -64,7 +65,7 @@ import ch.algotrader.util.PriceUtil;
  */
 public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
 
-    private static final Logger logger = Logger.getLogger(DefaultIBMessageHandler.class.getName());
+    private static final Logger logger = LogManager.getLogger(DefaultIBMessageHandler.class.getName());
     private static final SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyyMMdd  HH:mm:ss");
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
 

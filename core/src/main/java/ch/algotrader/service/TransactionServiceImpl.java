@@ -25,7 +25,8 @@ import java.util.List;
 
 import org.apache.commons.lang.Validate;
 import org.apache.commons.math.util.MathUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.algotrader.config.CommonConfig;
@@ -59,8 +60,8 @@ import ch.algotrader.vo.PositionMutationVO;
 @Transactional
 public class TransactionServiceImpl implements TransactionService {
 
-    private static Logger logger = Logger.getLogger(TransactionServiceImpl.class.getName());
-    private static Logger mailLogger = Logger.getLogger(TransactionServiceImpl.class.getName() + ".MAIL");
+    private static Logger logger = LogManager.getLogger(TransactionServiceImpl.class.getName());
+    private static Logger mailLogger = LogManager.getLogger(TransactionServiceImpl.class.getName() + ".MAIL");
 
     private final CommonConfig commonConfig;
 

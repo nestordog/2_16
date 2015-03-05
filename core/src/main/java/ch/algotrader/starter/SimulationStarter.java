@@ -19,7 +19,8 @@ package ch.algotrader.starter;
 
 import org.apache.commons.math.ConvergenceException;
 import org.apache.commons.math.FunctionEvaluationException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.simulation.SimulationExecutor;
@@ -57,7 +58,7 @@ import ch.algotrader.simulation.SimulationExecutor;
  */
 public class SimulationStarter {
 
-    public static Logger logger = Logger.getLogger(SimulationExecutor.class.getName());
+    public static Logger logger = LogManager.getLogger(SimulationExecutor.class.getName());
 
     public static void main(String[] args) throws ConvergenceException, FunctionEvaluationException {
 

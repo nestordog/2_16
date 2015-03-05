@@ -23,7 +23,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.Validate;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 
@@ -39,7 +40,7 @@ import ch.algotrader.config.spring.DefaultSystemConfigProvider;
  */
 public final class ConfigLocator {
 
-    private static final Logger LOGGER = Logger.getLogger(ConfigLocator.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(ConfigLocator.class.getName());
 
     private static volatile ConfigLocator INSTANCE;
 
