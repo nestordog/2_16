@@ -24,48 +24,19 @@
 			<plugin>
 				<artifactId>maven-checkstyle-plugin</artifactId>
 			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-antrun-plugin</artifactId>
-				<version>1.8</version>
-				<dependencies>
-					<dependency>
-						<groupId>com.sun</groupId>
-						<artifactId>tools</artifactId>
-						<version>1.5.0</version>
-						<scope>system</scope>
-						<systemPath>${java.home}/../lib/tools.jar</systemPath>
-					</dependency>
-				</dependencies>
-				<executions>
-					<execution>
-						<id>compile</id>
-						<phase>generate-sources</phase>
-						<configuration>
-							<target name="hibernatetool">
-								<property name="compile_classpath" refid="maven.compile.classpath" />
-								<path id="toolslib" path="${compile_classpath}" />
-								<taskdef name="hibernatetool" classname="org.hibernate.tool.ant.HibernateToolTask"
-									classpathref="toolslib" />
-								<hibernatetool destdir="target/src/main/java"
-									templatepath="src/main/resources">
-									<classpath>
-										<path location="src/main/resources" />
-										<path location="target/classes" />
-									</classpath>
-									<configuration configurationfile="src/main/resources/hibernate.cfg.xml" />
-									<hbm2java jdk5="true" />
-									<hbmtemplate filepattern="{package-name}/{class-name}I.java"
-										template="pojo/Interface.ftl" />
-								</hibernatetool>
-							</target>
-						</configuration>
-						<goals>
-							<goal>run</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
+            <plugin>
+                <groupId>algotrader</groupId>
+                <artifactId>model-codegen-plugin</artifactId>
+                <version>0.1.1</version>
+                <executions>
+                    <execution>
+                        <id>generate-model</id>
+                        <goals>
+                            <goal>codegen</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 		</plugins>
 	</build>
 
@@ -119,16 +90,6 @@
 			<artifactId>esperio-csv</artifactId>
 			<version>${esper.version}-at1</version>
 		</dependency>
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-core</artifactId>
-			<version>3.6.10-at</version>
-		</dependency>
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-tools</artifactId>
-			<version>3.6.0.CR1-at</version>		
-		</dependency>		
 		<dependency>
 			<groupId>org.javassist</groupId>
 			<artifactId>javassist</artifactId>
