@@ -98,7 +98,7 @@
                             </goals>
                             <configuration>
                                 <sources>
-                                    <source>target/src/main/java</source>
+                                    <source>target/generated-sources/main/java</source>
                                 </sources>
                             </configuration>
                         </execution>
