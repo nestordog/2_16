@@ -105,9 +105,9 @@ public class PropertyServiceImpl implements PropertyService {
 
         if (property != null) {
 
-            this.propertyDao.deleteById(property.getId());
-
             propertyHolder.removeProps(name);
+
+            this.propertyDao.deleteById(property.getId());
         }
 
         logger.info("removed property " + name + " from " + propertyHolder);

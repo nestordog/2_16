@@ -19,19 +19,20 @@ package org.hibernate.cache.ehcache.internal.strategy;
 
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
-import org.hibernate.cache.spi.CacheKey;
-import org.hibernate.cache.spi.entry.CollectionCacheEntry;
-
-import ch.algotrader.ServiceLocator;
-import ch.algotrader.cache.CacheManagerImpl;
-import ch.algotrader.cache.EntityCacheKey;
-import net.sf.ehcache.CacheEntry;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.event.CacheEventListenerAdapter;
+
+import org.apache.log4j.Logger;
+import org.hibernate.cache.spi.CacheKey;
+import org.hibernate.cache.spi.entry.CacheEntry;
+import org.hibernate.cache.spi.entry.CollectionCacheEntry;
+
+import ch.algotrader.ServiceLocator;
+import ch.algotrader.cache.CacheManagerImpl;
+import ch.algotrader.cache.EntityCacheKey;
 
 /**
 * EhCache CacheEventListenerFactory that creates a {@link net.sf.ehcache.event.CacheEventListener} which notifies on Entities being updated in the 2nd level cache.
@@ -67,17 +68,11 @@ public class EntityCacheEventListenerFactory extends net.sf.ehcache.event.CacheE
 
                 } else if (objectValue instanceof AbstractReadWriteEhcacheAccessStrategy.Lock) {
 
-                    AbstractReadWriteEhcacheAccessStrategy.Lock lock = (AbstractReadWriteEhcacheAccessStrategy.Lock) objectValue;
-
-                    // only process locks when they have been unlocked
-                    if (lock.wasLockedConcurrently()) {
-
-                        String entityOrRoleName = hibernateCacheKey.getEntityOrRoleName();
-                        if (entityOrRoleName.endsWith("Impl")) {
-                            updateEntity(hibernateCacheKey);
-                        } else {
-                            updateCollection(hibernateCacheKey);
-                        }
+                    String entityOrRoleName = hibernateCacheKey.getEntityOrRoleName();
+                    if (entityOrRoleName.endsWith("Impl")) {
+                        updateEntity(hibernateCacheKey);
+                    } else {
+                        updateCollection(hibernateCacheKey);
                     }
                 }
             }
