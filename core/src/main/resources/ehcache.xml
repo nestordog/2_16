@@ -56,7 +56,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -66,7 +66,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -76,7 +76,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -86,7 +86,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -96,7 +96,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -106,7 +106,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -116,7 +116,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -126,7 +126,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -136,7 +136,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -146,7 +146,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -156,7 +156,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -166,7 +166,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -176,7 +176,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -186,7 +186,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -196,7 +196,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -206,7 +206,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -216,7 +216,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -226,7 +226,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -236,7 +236,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -246,7 +246,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -256,7 +256,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -266,7 +266,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -276,7 +276,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -286,7 +286,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -296,7 +296,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -306,7 +306,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -316,7 +316,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -326,7 +326,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -336,7 +336,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -346,7 +346,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -356,7 +356,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -366,7 +366,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -376,7 +376,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -386,7 +386,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -396,7 +396,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -406,7 +406,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -416,7 +416,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -426,7 +426,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -436,7 +436,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -446,7 +446,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -456,7 +456,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -466,7 +466,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -476,7 +476,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -486,7 +486,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -496,7 +496,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -506,7 +506,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -516,7 +516,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -526,7 +526,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -536,7 +536,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -546,7 +546,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -556,7 +556,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -566,7 +566,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -576,7 +576,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -586,7 +586,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -596,7 +596,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -606,7 +606,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -616,7 +616,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -626,7 +626,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -636,7 +636,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -646,7 +646,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -656,7 +656,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -666,7 +666,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -676,7 +676,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -686,7 +686,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -696,7 +696,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -706,7 +706,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -716,7 +716,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -726,7 +726,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -736,7 +736,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -746,7 +746,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -756,7 +756,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -766,7 +766,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
     <cache
@@ -776,7 +776,7 @@
         timeToIdleSeconds="0"
         timeToLiveSeconds="0"
         overflowToDisk="false">
-		<cacheEventListenerFactory class="org.hibernate.cache.ehcache.internal.strategy.EntityCacheEventListenerFactory" />
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
 
 </ehcache>

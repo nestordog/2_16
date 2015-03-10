@@ -15,7 +15,7 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package org.hibernate.cache.ehcache.internal.strategy;
+package ch.algotrader.cache;
 
 import java.util.Properties;
 
@@ -27,12 +27,8 @@ import net.sf.ehcache.event.CacheEventListenerAdapter;
 
 import org.apache.log4j.Logger;
 import org.hibernate.cache.spi.CacheKey;
-import org.hibernate.cache.spi.entry.CacheEntry;
-import org.hibernate.cache.spi.entry.CollectionCacheEntry;
 
 import ch.algotrader.ServiceLocator;
-import ch.algotrader.cache.CacheManagerImpl;
-import ch.algotrader.cache.EntityCacheKey;
 
 /**
 * EhCache CacheEventListenerFactory that creates a {@link net.sf.ehcache.event.CacheEventListener} which notifies on Entities being updated in the 2nd level cache.
@@ -54,26 +50,11 @@ public class EntityCacheEventListenerFactory extends net.sf.ehcache.event.CacheE
             public void notifyElementUpdated(Ehcache cache, Element element) throws CacheException {
 
                 CacheKey hibernateCacheKey = (CacheKey) element.getObjectKey();
-                Object objectValue = element.getObjectValue();
-
-                if (objectValue instanceof AbstractReadWriteEhcacheAccessStrategy.Item) {
-
-                    AbstractReadWriteEhcacheAccessStrategy.Item item = (AbstractReadWriteEhcacheAccessStrategy.Item) objectValue;
-
-                    if (item.getValue() instanceof CacheEntry) {
-                        updateEntity(hibernateCacheKey);
-                    } else if (item.getValue() instanceof CollectionCacheEntry) {
-                        updateCollection(hibernateCacheKey);
-                    }
-
-                } else if (objectValue instanceof AbstractReadWriteEhcacheAccessStrategy.Lock) {
-
-                    String entityOrRoleName = hibernateCacheKey.getEntityOrRoleName();
-                    if (entityOrRoleName.endsWith("Impl")) {
-                        updateEntity(hibernateCacheKey);
-                    } else {
-                        updateCollection(hibernateCacheKey);
-                    }
+                String entityOrRoleName = hibernateCacheKey.getEntityOrRoleName();
+                if (entityOrRoleName.endsWith("Impl")) {
+                    updateEntity(hibernateCacheKey);
+                } else {
+                    updateCollection(hibernateCacheKey);
                 }
             }
 
