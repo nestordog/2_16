@@ -137,7 +137,7 @@ public class FXCMFixOrderMessageHandler extends AbstractFix44OrderMessageHandler
             // assemble the fill
             // please note FXCM does not provide a unique exec report attribute
             // that could be used as a unique extId
-            Fill fill = Fill.Factory.newInstance();
+            Fill fill = new Fill();
             fill.setSequenceNumber(executionReport.getHeader().getInt(MsgSeqNum.FIELD));
             fill.setDateTime(new Date());
             fill.setExtDateTime(extDateTime);

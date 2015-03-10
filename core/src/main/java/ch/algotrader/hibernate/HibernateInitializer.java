@@ -65,7 +65,7 @@ public class HibernateInitializer implements Initializer {
     }
 
     @Override
-    public <T extends BaseEntityI> Collection<T> initializeCollection(BaseEntityI entity, String context, Collection<T> col) {
+    public <T extends BaseEntityI, C extends Collection<T>> C initializeCollection(BaseEntityI entity, String context, C col) {
 
         if (col instanceof AbstractPersistentCollection) {
 

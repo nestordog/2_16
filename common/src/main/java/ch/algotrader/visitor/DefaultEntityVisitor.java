@@ -56,25 +56,16 @@ import ch.algotrader.entity.strategy.CashBalance;
 import ch.algotrader.entity.strategy.Measurement;
 import ch.algotrader.entity.strategy.PortfolioValue;
 import ch.algotrader.entity.strategy.Strategy;
-import ch.algotrader.entity.trade.AlgoOrder;
 import ch.algotrader.entity.trade.Allocation;
-import ch.algotrader.entity.trade.DistributingOrder;
-import ch.algotrader.entity.trade.Fill;
-import ch.algotrader.entity.trade.IncrementalOrder;
 import ch.algotrader.entity.trade.LimitOrder;
 import ch.algotrader.entity.trade.MarketOrder;
 import ch.algotrader.entity.trade.Order;
-import ch.algotrader.entity.trade.OrderCompletion;
 import ch.algotrader.entity.trade.OrderPreference;
 import ch.algotrader.entity.trade.OrderProperty;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.entity.trade.SimpleOrder;
-import ch.algotrader.entity.trade.SlicingOrder;
 import ch.algotrader.entity.trade.StopLimitOrder;
 import ch.algotrader.entity.trade.StopOrder;
-import ch.algotrader.entity.trade.SubmittedOrder;
-import ch.algotrader.entity.trade.TickwiseIncrementalOrder;
-import ch.algotrader.entity.trade.VariableIncrementalOrder;
 
 
 /**
@@ -88,11 +79,6 @@ public class DefaultEntityVisitor<R, P> implements EntityVisitor<R, P> {
 
     @Override
     public R visitAccount(Account entity, P param) {
-        return null;
-    }
-
-    @Override
-    public R visitAlgoOrder(AlgoOrder entity, P param) {
         return null;
     }
 
@@ -147,22 +133,12 @@ public class DefaultEntityVisitor<R, P> implements EntityVisitor<R, P> {
     }
 
     @Override
-    public R visitDistributingOrder(DistributingOrder entity, P param) {
-        return null;
-    }
-
-    @Override
     public R visitEasyToBorrow(EasyToBorrow entity, P param) {
         return null;
     }
 
     @Override
     public R visitExchange(Exchange entity, P param) {
-        return null;
-    }
-
-    @Override
-    public R visitFill(Fill entity, P param) {
         return null;
     }
 
@@ -212,11 +188,6 @@ public class DefaultEntityVisitor<R, P> implements EntityVisitor<R, P> {
     }
 
     @Override
-    public R visitIncrementalOrder(IncrementalOrder entity, P param) {
-        return null;
-    }
-
-    @Override
     public R visitIndex(Index entity, P param) {
         return null;
     }
@@ -258,11 +229,6 @@ public class DefaultEntityVisitor<R, P> implements EntityVisitor<R, P> {
 
     @Override
     public R visitOrder(Order entity, P param) {
-        return null;
-    }
-
-    @Override
-    public R visitOrderCompletion(OrderCompletion entity, P param) {
         return null;
     }
 
@@ -317,11 +283,6 @@ public class DefaultEntityVisitor<R, P> implements EntityVisitor<R, P> {
     }
 
     @Override
-    public R visitSlicingOrder(SlicingOrder entity, P param) {
-        return null;
-    }
-
-    @Override
     public R visitStock(Stock entity, P param) {
         return null;
     }
@@ -342,22 +303,12 @@ public class DefaultEntityVisitor<R, P> implements EntityVisitor<R, P> {
     }
 
     @Override
-    public R visitSubmittedOrder(SubmittedOrder entity, P param) {
-        return null;
-    }
-
-    @Override
     public R visitSubscription(Subscription entity, P param) {
         return null;
     }
 
     @Override
     public R visitTick(Tick entity, P param) {
-        return null;
-    }
-
-    @Override
-    public R visitTickwiseIncrementalOrder(TickwiseIncrementalOrder entity, P param) {
         return null;
     }
 
@@ -371,8 +322,4 @@ public class DefaultEntityVisitor<R, P> implements EntityVisitor<R, P> {
         return null;
     }
 
-    @Override
-    public R visitVariableIncrementalOrder(VariableIncrementalOrder entity, P param) {
-        return null;
-    }
 }

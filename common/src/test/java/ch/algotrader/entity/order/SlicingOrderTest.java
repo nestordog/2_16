@@ -36,7 +36,6 @@ import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.trade.OrderValidationException;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.entity.trade.SlicingOrder;
-import ch.algotrader.entity.trade.SlicingOrderImpl;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.enumeration.Side;
@@ -57,7 +56,7 @@ public class SlicingOrderTest {
     @Test
     public void testPopulate() throws IllegalAccessException, InvocationTargetException, OrderValidationException {
 
-        SlicingOrder order = SlicingOrder.Factory.newInstance();
+        SlicingOrder order = new SlicingOrder();
 
         String nameValues = "side=BUY,quantity=2,minVolPct=0.5,maxVolPct=1.5,minQuantity=5,maxQuantity=10,minDuration=1.0,maxDuration=2.0,minDelay=1.0,maxDelay=2.0";
 
@@ -160,7 +159,7 @@ public class SlicingOrderTest {
         Mockito.when(security.getSecurityFamily()).thenReturn(securityFamily);
         Mockito.when(security.toString()).thenReturn("TEST_SECURITY");
 
-        SlicingOrder order = new SlicingOrderImpl();
+        SlicingOrder order = new SlicingOrder();
         order.setSecurity(security);
         order.setStrategy(strategy);
 

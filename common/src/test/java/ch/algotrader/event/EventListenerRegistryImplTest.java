@@ -32,10 +32,12 @@ import ch.algotrader.entity.security.ExpirableI;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.ForexImpl;
 import ch.algotrader.entity.security.Future;
+import ch.algotrader.entity.security.FutureI;
 import ch.algotrader.entity.security.FutureImpl;
 import ch.algotrader.entity.security.Option;
 import ch.algotrader.entity.security.OptionImpl;
 import ch.algotrader.entity.security.Security;
+import ch.algotrader.entity.security.SecurityI;
 import ch.algotrader.entity.security.SecurityImpl;
 import ch.algotrader.entity.security.Stock;
 import ch.algotrader.entity.security.StockImpl;
@@ -93,12 +95,13 @@ public class EventListenerRegistryImplTest {
         Assert.assertArrayEquals(new Class<?>[] {
                 FutureImpl.class,
                 Future.class,
+                FutureI.class,
                 ExpirableI.class,
+                Serializable.class,
+                BaseEntityI.class,
                 SecurityImpl.class,
                 Security.class,
-                Serializable.class,
-                Comparable.class,
-                BaseEntityI.class,
+                SecurityI.class,
                 Object.class
         } , allTypes);
     }

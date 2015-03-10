@@ -146,12 +146,12 @@ public class CacheManagerImpl implements CacheManager, Initializer {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T extends BaseEntityI> Collection<T> initializeCollection(BaseEntityI entity, String context, Collection<T> col) {
+    public <T extends BaseEntityI, C extends Collection<T>> C initializeCollection(BaseEntityI entity, String context, C col) {
 
         if (col instanceof AbstractPersistentCollection && !((AbstractPersistentCollection) col).wasInitialized()) {
 
             long before = System.nanoTime();
-            col = (Collection<T>) this.initialize(entity, context);
+            col = (C) this.initialize(entity, context);
             MetricsUtil.account(ClassUtils.getShortClassName(entity.getClass()) + context, (before));
         }
 
