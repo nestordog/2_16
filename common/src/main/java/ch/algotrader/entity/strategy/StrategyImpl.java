@@ -19,23 +19,16 @@ package ch.algotrader.entity.strategy;
 
 import java.util.Objects;
 
-import ch.algotrader.entity.AbstractEntity;
-
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class StrategyImpl extends Strategy implements AbstractEntity<Integer> {
+public class StrategyImpl extends Strategy {
 
     public static final String SERVER = "SERVER";
 
     private static final long serialVersionUID = -2271735085273721632L;
-
-    @Override
-    public Integer getID() {
-        return getId();
-    }
 
     @Override
     public boolean isServer() {
