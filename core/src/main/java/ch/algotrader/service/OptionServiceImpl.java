@@ -76,7 +76,6 @@ import ch.algotrader.option.SABRException;
 import ch.algotrader.util.DateUtil;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.collection.CollectionUtil;
-import ch.algotrader.util.spring.HibernateSession;
 import ch.algotrader.vo.ATMVolVO;
 import ch.algotrader.vo.SABRSmileVO;
 import ch.algotrader.vo.SABRSurfaceVO;
@@ -86,7 +85,7 @@ import ch.algotrader.vo.SABRSurfaceVO;
  *
  * @version $Revision$ $Date$
  */
-@HibernateSession
+@Transactional
 public class OptionServiceImpl implements OptionService {
 
     private static Logger logger = Logger.getLogger(OptionServiceImpl.class.getName());

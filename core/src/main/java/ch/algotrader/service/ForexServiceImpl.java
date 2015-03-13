@@ -26,6 +26,7 @@ import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.math.util.MathUtils;
 import org.apache.log4j.Logger;
+import org.springframework.transaction.annotation.Transactional;
 
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.CoreConfig;
@@ -45,7 +46,6 @@ import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.util.RoundUtil;
-import ch.algotrader.util.spring.HibernateSession;
 import ch.algotrader.vo.BalanceVO;
 
 /**
@@ -53,7 +53,7 @@ import ch.algotrader.vo.BalanceVO;
  *
  * @version $Revision$ $Date$
  */
-@HibernateSession
+@Transactional
 public class ForexServiceImpl implements ForexService {
 
     private static Logger logger = Logger.getLogger(ForexServiceImpl.class.getName());

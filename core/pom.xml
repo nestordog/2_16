@@ -52,27 +52,16 @@
         </dependency>
         <dependency>
             <groupId>net.sf.ehcache</groupId>
-            <artifactId>ehcache</artifactId>
-            <version>2.6.7</version>
-            <type>pom</type>
+            <artifactId>ehcache-core</artifactId>
+            <version>2.6.10</version>
         </dependency>
-<!--         <dependency> -->
-<!--             <groupId>com.espertech</groupId> -->
-<!--             <artifactId>esperee</artifactId> -->
-<!--             <version>${esperee.version}</version> -->
-<!--             <type>pom</type> -->
-<!--         </dependency> -->
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-core</artifactId>
-			<version>3.6.10-at</version>
-		</dependency>        
+		</dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-jmx</artifactId>
-            <version>3.5.6-Final</version>
-            <type>jar</type>
-            <scope>runtime</scope>
+            <artifactId>hibernate-ehcache</artifactId>
         </dependency>
         <dependency>
             <groupId>com.interactivebrokers</groupId>

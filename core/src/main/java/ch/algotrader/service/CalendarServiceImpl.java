@@ -30,6 +30,7 @@ import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Predicate;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.time.DateUtils;
+import org.springframework.transaction.annotation.Transactional;
 
 import ch.algotrader.entity.exchange.Exchange;
 import ch.algotrader.entity.exchange.ExchangeDao;
@@ -37,7 +38,6 @@ import ch.algotrader.entity.exchange.Holiday;
 import ch.algotrader.entity.exchange.TradingHours;
 import ch.algotrader.enumeration.WeekDay;
 import ch.algotrader.esper.EngineManager;
-import ch.algotrader.util.spring.HibernateSession;
 
 /**
  * Java (before JDK8) does not have a separate Date and Time class, therefore parameters are named accordingly.
@@ -46,7 +46,7 @@ import ch.algotrader.util.spring.HibernateSession;
  *
  * @version $Revision$ $Date$
  */
-@HibernateSession
+@Transactional
 public class CalendarServiceImpl implements CalendarService {
 
     private final ExchangeDao exchangeDao;

@@ -38,14 +38,13 @@ import ch.algotrader.esper.EngineManager;
 import ch.algotrader.future.FutureSymbol;
 import ch.algotrader.util.DateUtil;
 import ch.algotrader.util.collection.CollectionUtil;
-import ch.algotrader.util.spring.HibernateSession;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-@HibernateSession
+@Transactional
 public class FutureServiceImpl implements FutureService {
 
     private static Logger logger = Logger.getLogger(FutureServiceImpl.class.getName());

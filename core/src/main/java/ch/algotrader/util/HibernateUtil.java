@@ -21,15 +21,14 @@ import java.io.Serializable;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.hibernate.EntityMode;
 import org.hibernate.HibernateException;
 import org.hibernate.LockOptions;
 import org.hibernate.NonUniqueObjectException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.collection.AbstractPersistentCollection;
-import org.hibernate.impl.SessionFactoryImpl;
-import org.hibernate.impl.SessionImpl;
+import org.hibernate.collection.internal.AbstractPersistentCollection;
+import org.hibernate.internal.SessionFactoryImpl;
+import org.hibernate.internal.SessionImpl;
 import org.hibernate.persister.entity.AbstractEntityPersister;
 import org.hibernate.proxy.HibernateProxy;
 import org.hibernate.type.Type;
@@ -133,7 +132,7 @@ public class HibernateUtil {
             className = target.getClass().getName();
 
         AbstractEntityPersister persister = (AbstractEntityPersister) sessionFactoryImpl.getEntityPersister(className);
-        Object[] values = persister.getPropertyValues(target, EntityMode.POJO);
+        Object[] values = persister.getPropertyValues(target);
         Type[] types = persister.getPropertyTypes();
         boolean evicted = false;
         for (int i = 0; i < types.length; i++) {

@@ -1,0 +1,782 @@
+<ehcache>
+
+    <!-- Sets the path to the directory where cache .data files are created.
+
+         If the path is a Java System Property it is replaced by
+         its value in the running VM.
+
+         The following properties are translated:
+         user.home - User's home directory
+         user.dir - User's current working directory
+         java.io.tmpdir - Default temp file path -->
+    <diskStore path="java.io.tmpdir"/>
+
+    <!--Default Cache configuration. These will applied to caches programmatically created through
+        the CacheManager.
+
+        The following attributes are required for defaultCache:
+
+        maxInMemory       - Sets the maximum number of objects that will be created in memory
+        eternal           - Sets whether elements are eternal. If eternal,  timeouts are ignored and the element
+                            is never expired.
+        timeToIdleSeconds - Sets the time to idle for an element before it expires.
+                            i.e. The maximum amount of time between accesses before an element expires
+                            Is only used if the element is not eternal.
+                            Optional attribute. A value of 0 means that an Element can idle for infinity
+        timeToLiveSeconds - Sets the time to live for an element before it expires.
+                            i.e. The maximum time between creation time and when an element expires.
+                            Is only used if the element is not eternal.
+        overflowToDisk    - Sets whether elements can overflow to disk when the in-memory cache
+                            has reached the maxInMemory limit.
+
+        -->
+    <defaultCache
+            maxElementsInMemory="100000"
+            eternal="false"
+            timeToIdleSeconds="0"
+            timeToLiveSeconds="0"
+            overflowToDisk="false"/>
+
+    <cache
+            name="org.hibernate.cache.internal.StandardQueryCache"
+            maxElementsInMemory="100000"
+            eternal="false"/>
+
+    <cache
+            name="org.hibernate.cache.spi.UpdateTimestampsCache"
+            maxElementsInMemory="100000"
+            eternal="true">
+        <cacheEventListenerFactory class="ch.algotrader.cache.QueryCacheEventListenerFactory" />
+    </cache>
+
+    <cache
+        name="ch.algotrader.entity.TransactionImpl"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.PositionImpl"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.SubscriptionImpl"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.marketData.BarImpl"
+        maxElementsInMemory="1"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.marketData.MarketDataEventImpl"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.marketData.TickImpl"
+        maxElementsInMemory="1"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.marketData.GenericTickImpl"
+        maxElementsInMemory="1"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.security.GenericFutureImpl"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.security.FutureFamilyImpl"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.security.OptionFamilyImpl"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.security.ForexImpl"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.security.SecurityImpl"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.security.SecurityImpl.subscriptions"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.security.SecurityImpl.positions"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.security.OptionImpl"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.security.FutureImpl"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.security.IntrestRateImpl"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.security.SecurityFamilyImpl"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.security.SecurityFamilyImpl.securities"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.security.SecurityFamilyImpl.brokerParameters"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.security.IndexImpl"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.security.StockImpl"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.security.GenericFutureFamilyImpl"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.security.ImpliedVolatilityImpl"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.security.CombinationImpl"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.security.CombinationImpl.components"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.security.ComponentImpl"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.security.BondImpl"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.security.BondFamilyImpl"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.security.BrokerParametersImpl"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.security.EasyToBorrowImpl"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.security.FundImpl"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.security.CommodityImpl"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.trade.LimitOrderImpl"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.trade.StopLimitOrderImpl"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.trade.FillImpl"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.trade.OrderStatusImpl"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.trade.MarketOrderImpl"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.trade.StopOrderImpl"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.trade.OrderImpl"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.trade.OrderImpl.orderProperties"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.trade.OrderImpl.childOrders"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.trade.TickwiseIncrementalOrderImpl"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.trade.VariableIncrementalOrderImpl"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.trade.IncrementalOrderImpl"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.trade.SlicingOrderImpl"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.trade.SimpleOrderImpl"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.trade.AlgoOrderImpl"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.trade.AlgoOrderImpl.allocations"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.trade.DistributingOrderImpl"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.trade.OrderCompletionImpl"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.trade.OrderPropertyImpl"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.trade.SubmittedOrderImpl"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.trade.OrderPreferenceImpl"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.trade.OrderPreferenceImpl.allocations"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.trade.AllocationImpl"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.strategy.CashBalanceImpl"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.strategy.MeasurementImpl"
+        maxElementsInMemory="1"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.strategy.PortfolioValueImpl"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.strategy.StrategyImpl"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.strategy.StrategyImpl.portfolioValues"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.strategy.StrategyImpl.cashBalances"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.strategy.StrategyImpl.measurements"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.property.PropertyHolderImpl"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.property.PropertyHolderImpl.props"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.property.PropertyImpl"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.AccountImpl"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.exchange.TradingHoursImpl"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.exchange.ExchangeImpl"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.exchange.ExchangeImpl.tradingHours"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.exchange.ExchangeImpl.securityFamilies"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.exchange.ExchangeImpl.holidays"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+    <cache
+        name="ch.algotrader.entity.exchange.HolidayImpl"
+        maxElementsInMemory="100000"
+        eternal="false"
+        timeToIdleSeconds="0"
+        timeToLiveSeconds="0"
+        overflowToDisk="false">
+		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
+	</cache>
+
+</ehcache>

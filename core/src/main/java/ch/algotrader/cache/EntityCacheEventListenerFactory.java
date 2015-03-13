@@ -19,25 +19,24 @@ package ch.algotrader.cache;
 
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
-import org.hibernate.cache.ReadWriteCache;
-import org.hibernate.cache.entry.CacheEntry;
-import org.hibernate.cache.entry.CollectionCacheEntry;
-
-import ch.algotrader.ServiceLocator;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.event.CacheEventListenerAdapter;
 
+import org.apache.log4j.Logger;
+import org.hibernate.cache.spi.CacheKey;
+
+import ch.algotrader.ServiceLocator;
+
 /**
- * EhCache CacheEventListenerFactory that creates a {@link CacheEventListener} which notifies on Entities being updated in the 2nd level cache.
- *
- * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
- */
+* EhCache CacheEventListenerFactory that creates a {@link net.sf.ehcache.event.CacheEventListener} which notifies on Entities being updated in the 2nd level cache.
+*
+* @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
+*
+* @version $Revision$ $Date$
+*/
 public class EntityCacheEventListenerFactory extends net.sf.ehcache.event.CacheEventListenerFactory {
 
     private static Logger logger = Logger.getLogger(EntityCacheEventListenerFactory.class.getName());
@@ -50,32 +49,12 @@ public class EntityCacheEventListenerFactory extends net.sf.ehcache.event.CacheE
             @Override
             public void notifyElementUpdated(Ehcache cache, Element element) throws CacheException {
 
-                org.hibernate.cache.CacheKey hibernateCacheKey = (org.hibernate.cache.CacheKey) element.getKey();
-
-                if (element.getValue() instanceof ReadWriteCache.Item) {
-
-                    ReadWriteCache.Item item = (ReadWriteCache.Item) element.getValue();
-
-                    if (item.getValue() instanceof CacheEntry) {
-                        updateEntity(hibernateCacheKey);
-                    } else if (item.getValue() instanceof CollectionCacheEntry) {
-                        updateCollection(hibernateCacheKey);
-                    }
-
-                } else if (element.getValue() instanceof ReadWriteCache.Lock) {
-
-                    ReadWriteCache.Lock lock = (ReadWriteCache.Lock) element.getValue();
-
-                    // only process locks when they have been unlocked
-                    if (lock.getUnlockTimestamp() != -1) {
-
-                        String entityOrRoleName = hibernateCacheKey.getEntityOrRoleName();
-                        if (entityOrRoleName.endsWith("Impl")) {
-                            updateEntity(hibernateCacheKey);
-                        } else {
-                            updateCollection(hibernateCacheKey);
-                        }
-                    }
+                CacheKey hibernateCacheKey = (CacheKey) element.getObjectKey();
+                String entityOrRoleName = hibernateCacheKey.getEntityOrRoleName();
+                if (entityOrRoleName.endsWith("Impl")) {
+                    updateEntity(hibernateCacheKey);
+                } else {
+                    updateCollection(hibernateCacheKey);
                 }
             }
 
@@ -97,7 +76,7 @@ public class EntityCacheEventListenerFactory extends net.sf.ehcache.event.CacheE
                 // do nothing
             }
 
-            private void updateEntity(org.hibernate.cache.CacheKey hibernateCacheKey) {
+            private void updateEntity(CacheKey hibernateCacheKey) {
 
                 String entityOrRoleName = hibernateCacheKey.getEntityOrRoleName();
 
@@ -110,7 +89,7 @@ public class EntityCacheEventListenerFactory extends net.sf.ehcache.event.CacheE
                 }
             }
 
-            private void updateCollection(org.hibernate.cache.CacheKey hibernateCacheKey) {
+            private void updateCollection(CacheKey hibernateCacheKey) {
 
                 String entityOrRoleName = hibernateCacheKey.getEntityOrRoleName();
                 int lastDot = entityOrRoleName.lastIndexOf(".");

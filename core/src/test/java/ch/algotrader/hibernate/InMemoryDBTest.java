@@ -26,8 +26,7 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
-import org.springframework.orm.hibernate3.SessionFactoryUtils;
-import org.springframework.orm.hibernate3.SessionHolder;
+import org.springframework.orm.hibernate4.SessionHolder;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 /**
@@ -53,7 +52,7 @@ public abstract class InMemoryDBTest {
 
         this.sessionFactory = EmbeddedTestDB.DATABASE.getSessionFactory();
 
-        this.session = SessionFactoryUtils.getNewSession(this.sessionFactory);
+        this.session = this.sessionFactory.openSession();
 
         TransactionSynchronizationManager.bindResource(this.sessionFactory, new SessionHolder(this.session));
     }

@@ -20,17 +20,17 @@ package ch.algotrader.service;
 import java.util.Collection;
 
 import org.apache.commons.lang.Validate;
+import org.springframework.transaction.annotation.Transactional;
 
 import ch.algotrader.entity.BaseEntityI;
 import ch.algotrader.hibernate.HibernateInitializer;
-import ch.algotrader.util.spring.HibernateSession;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-@HibernateSession
+@Transactional
 public class LazyLoaderServiceImpl implements LazyLoaderService {
 
     public LazyLoaderServiceImpl() {

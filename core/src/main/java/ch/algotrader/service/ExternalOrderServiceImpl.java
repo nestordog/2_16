@@ -17,14 +17,14 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
-import ch.algotrader.util.spring.HibernateSession;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-@HibernateSession
+@Transactional
 public abstract class ExternalOrderServiceImpl implements ExternalOrderService {
 
 }

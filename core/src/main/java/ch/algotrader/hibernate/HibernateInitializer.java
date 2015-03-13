@@ -20,7 +20,7 @@ package ch.algotrader.hibernate;
 import java.util.Collection;
 
 import org.apache.commons.lang.ClassUtils;
-import org.hibernate.collection.AbstractPersistentCollection;
+import org.hibernate.collection.internal.AbstractPersistentCollection;
 import org.hibernate.proxy.HibernateProxy;
 import org.hibernate.proxy.LazyInitializer;
 
@@ -43,6 +43,7 @@ public class HibernateInitializer implements Initializer {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T extends BaseEntityI> T initializeProxy(BaseEntityI entity, String context, T proxy) {
 
 

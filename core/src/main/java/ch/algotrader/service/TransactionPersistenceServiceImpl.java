@@ -43,7 +43,6 @@ import ch.algotrader.util.PositionUtil;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.collection.BigDecimalMap;
 import ch.algotrader.util.collection.Pair;
-import ch.algotrader.util.spring.HibernateSession;
 import ch.algotrader.vo.ClosePositionVO;
 import ch.algotrader.vo.CurrencyAmountVO;
 import ch.algotrader.vo.OpenPositionVO;
@@ -55,7 +54,7 @@ import ch.algotrader.vo.TradePerformanceVO;
  *
  * @version $Revision$ $Date$
  */
-@HibernateSession
+@Transactional
 public abstract class TransactionPersistenceServiceImpl implements TransactionPersistenceService {
 
     private static Logger logger = Logger.getLogger(TransactionPersistenceServiceImpl.class.getName());

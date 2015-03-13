@@ -61,7 +61,6 @@ import ch.algotrader.option.OptionUtil;
 import ch.algotrader.util.PositionUtil;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.collection.Pair;
-import ch.algotrader.util.spring.HibernateSession;
 import ch.algotrader.vo.ClosePositionVO;
 import ch.algotrader.vo.ExpirePositionVO;
 
@@ -70,7 +69,7 @@ import ch.algotrader.vo.ExpirePositionVO;
  *
  * @version $Revision$ $Date$
  */
-@HibernateSession
+@Transactional
 public class PositionServiceImpl implements PositionService {
 
     private static Logger logger = Logger.getLogger(PositionServiceImpl.class.getName());

@@ -36,7 +36,6 @@ import ch.algotrader.entity.trade.StopLimitOrder;
 import ch.algotrader.entity.trade.StopLimitOrderDao;
 import ch.algotrader.entity.trade.StopOrder;
 import ch.algotrader.entity.trade.StopOrderDao;
-import ch.algotrader.util.spring.HibernateSession;
 
 /**
  * {@link OrderPersistenceService} implementation that directly
@@ -46,7 +45,7 @@ import ch.algotrader.util.spring.HibernateSession;
  *
  * @version $Revision$ $Date$
  */
-@HibernateSession
+@Transactional
 public class OrderPersistenceServiceImpl implements OrderPersistenceService {
 
     private static final Logger logger = Logger.getLogger(OrderPersistenceServiceImpl.class.getName());

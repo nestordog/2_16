@@ -30,6 +30,7 @@ import org.hibernate.PropertyValueException;
 import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.type.IntegerType;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -41,8 +42,7 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
-import org.springframework.orm.hibernate3.SessionFactoryUtils;
-import org.springframework.orm.hibernate3.SessionHolder;
+import org.springframework.orm.hibernate4.SessionHolder;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import ch.algotrader.entity.GenericItem;
@@ -83,11 +83,12 @@ public class AbstractDaoTest {
     @Before
     public void setup() throws Exception {
 
-        this.session = SessionFactoryUtils.getNewSession(DATABASE.getSessionFactory());
+        SessionFactory sessionFactory = DATABASE.getSessionFactory();
+        this.session = sessionFactory.openSession();
 
-        TransactionSynchronizationManager.bindResource(DATABASE.getSessionFactory(), new SessionHolder(this.session));
+        TransactionSynchronizationManager.bindResource(sessionFactory, new SessionHolder(this.session));
 
-        this.dao = new GenericItemDao(DATABASE.getSessionFactory());
+        this.dao = new GenericItemDao(sessionFactory);
     }
 
     @After

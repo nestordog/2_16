@@ -74,8 +74,6 @@
     <variable name="strategyName" type="string" constant="true"/>
     <variable name="dataSource_barSize" type="ch.algotrader.enumeration.Duration" constant="true"/>
     <variable name="dataSource_dataSetType" type="ch.algotrader.enumeration.MarketDataType" constant="true"/>
-    <variable name="misc_portfolioStartHour" type="int" constant="true"/>
-    <variable name="misc_portfolioEndHour" type="int" constant="true"/>
 
     <!-- Variables -->
     <variable name="internal_clock" type="boolean" initialization-value="false"/>

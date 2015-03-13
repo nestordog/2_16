@@ -4,7 +4,7 @@
 select
     null
 from
-    pattern[every timer:at(0, misc_portfolioStartHour:misc_portfolioEndHour, *, *, 1:5)]
+    pattern[every timer:at(0, 0:24, *, *, 1:5)]
 where
     ServiceUtil.hasCurrentMarketDataEvents();
 

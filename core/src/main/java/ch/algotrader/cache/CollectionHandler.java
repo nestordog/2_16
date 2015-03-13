@@ -26,8 +26,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
-import org.hibernate.collection.AbstractPersistentCollection;
-import org.hibernate.collection.PersistentCollection;
+import org.hibernate.collection.internal.AbstractPersistentCollection;
+import org.hibernate.collection.spi.PersistentCollection;
 
 import ch.algotrader.entity.BaseEntityI;
 import ch.algotrader.util.FieldUtil;

@@ -65,7 +65,6 @@ import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.util.BeanUtil;
-import ch.algotrader.util.spring.HibernateSession;
 import ch.algotrader.vo.OrderStatusVO;
 
 /**
@@ -73,7 +72,7 @@ import ch.algotrader.vo.OrderStatusVO;
  *
  * @version $Revision$ $Date$
  */
-@HibernateSession
+@Transactional
 @InitializationPriority(value = InitializingServiceType.CORE)
 public class OrderServiceImpl implements OrderService, InitializingServiceI, ApplicationListener<ContextRefreshedEvent> {
 
