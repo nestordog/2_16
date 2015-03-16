@@ -19,7 +19,8 @@ package ch.algotrader.adapter.bb;
 
 import java.util.Date;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.bloomberglp.blpapi.Element;
 import com.bloomberglp.blpapi.Event;
@@ -41,7 +42,7 @@ import ch.algotrader.vo.TradeVO;
  */
 public class BBMarketDataMessageHandler extends BBMessageHandler {
 
-    private static Logger logger = Logger.getLogger(BBMarketDataMessageHandler.class.getName());
+    private static Logger logger = LogManager.getLogger(BBMarketDataMessageHandler.class.getName());
 
     private final Engine serverEngine;
 

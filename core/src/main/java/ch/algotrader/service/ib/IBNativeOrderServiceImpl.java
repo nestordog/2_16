@@ -18,7 +18,10 @@
 package ch.algotrader.service.ib;
 
 import org.apache.commons.lang.Validate;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.ib.client.Contract;
 
 import ch.algotrader.adapter.ib.IBIdGenerator;
 import ch.algotrader.adapter.ib.IBOrderMessageFactory;
@@ -33,8 +36,6 @@ import ch.algotrader.esper.Engine;
 import ch.algotrader.service.ExternalOrderServiceImpl;
 import ch.algotrader.service.OrderService;
 
-import com.ib.client.Contract;
-
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
@@ -42,7 +43,7 @@ import com.ib.client.Contract;
  */
 public class IBNativeOrderServiceImpl extends ExternalOrderServiceImpl implements IBNativeOrderService {
 
-    private static Logger logger = Logger.getLogger(IBNativeOrderServiceImpl.class.getName());
+    private static Logger logger = LogManager.getLogger(IBNativeOrderServiceImpl.class.getName());
 
     private static boolean firstOrder = true;
 

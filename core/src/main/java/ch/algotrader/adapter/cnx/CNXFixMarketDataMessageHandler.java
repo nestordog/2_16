@@ -19,7 +19,8 @@ package ch.algotrader.adapter.cnx;
 
 import java.util.Date;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.adapter.fix.fix44.AbstractFix44MarketDataMessageHandler;
 import ch.algotrader.enumeration.FeedType;
@@ -48,7 +49,7 @@ import quickfix.fix44.MarketDataIncrementalRefresh;
  */
 public class CNXFixMarketDataMessageHandler extends AbstractFix44MarketDataMessageHandler {
 
-    private static Logger LOGGER = Logger.getLogger(CNXFixMarketDataMessageHandler.class.getName());
+    private static Logger LOGGER = LogManager.getLogger(CNXFixMarketDataMessageHandler.class.getName());
 
     private final Engine serverEngine;
 

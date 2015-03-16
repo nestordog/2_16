@@ -23,7 +23,8 @@ import java.util.Set;
 import javax.mail.Address;
 import javax.mail.MessagingException;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.integration.Message;
 import org.springframework.integration.annotation.Transformer;
 import org.springframework.integration.support.MessageBuilder;
@@ -37,7 +38,7 @@ import org.springframework.integration.support.MessageBuilder;
  */
 public class EmailDispatcher {
 
-    private static Logger logger = Logger.getLogger(EmailDispatcher.class.getName());
+    private static Logger logger = LogManager.getLogger(EmailDispatcher.class.getName());
 
     private Set<Disposition> dispositions = new HashSet<Disposition>();
 

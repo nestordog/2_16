@@ -17,7 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.esper.listener;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPStatement;
@@ -34,7 +35,7 @@ import com.espertech.esper.client.util.XMLEventRenderer;
  */
 public class RendererListener implements StatementAwareUpdateListener {
 
-    private static Logger logger = Logger.getLogger(RendererListener.class.getName());
+    private static Logger logger = LogManager.getLogger(RendererListener.class.getName());
 
     private static XMLEventRenderer renderer;
 

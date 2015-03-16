@@ -19,7 +19,8 @@ package ch.algotrader.adapter.ib;
 
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.enumeration.ConnectionState;
 
@@ -30,7 +31,7 @@ import ch.algotrader.enumeration.ConnectionState;
  */
 public class DefaultIBSessionLifecycle implements IBSessionLifecycle {
 
-    private static Logger logger = Logger.getLogger(DefaultIBSessionLifecycle.class.getName());
+    private static Logger logger = LogManager.getLogger(DefaultIBSessionLifecycle.class.getName());
 
     private final AtomicReference<ConnectionState> connState;
 

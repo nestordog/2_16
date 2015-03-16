@@ -21,7 +21,8 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Prints all values as a comma-separated-list (CSV) to Log. (Headers are not available).
@@ -32,7 +33,7 @@ import org.apache.log4j.Logger;
  */
 public class IndicatorSubscriber {
 
-    private static Logger logger = Logger.getLogger(IndicatorSubscriber.class.getName());
+    private static Logger logger = LogManager.getLogger(IndicatorSubscriber.class.getName());
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public void update(Map<?, ?> map) {

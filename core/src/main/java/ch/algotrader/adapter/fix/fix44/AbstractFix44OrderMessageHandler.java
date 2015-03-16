@@ -17,8 +17,9 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.fix.fix44;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.Order;
@@ -45,7 +46,7 @@ import quickfix.fix44.OrderCancelReject;
  */
 public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44MessageHandler {
 
-    private static Logger LOGGER = Logger.getLogger(AbstractFix44OrderMessageHandler.class.getName());
+    private static Logger LOGGER = LogManager.getLogger(AbstractFix44OrderMessageHandler.class.getName());
 
     private final LookupService lookupService;
     private final Engine serverEngine;
@@ -76,7 +77,7 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
         Order order = this.lookupService.getOpenOrderByRootIntId(intId);
         if (order == null) {
 
-            if (LOGGER.isEnabledFor(Level.ERROR)) {
+            if (LOGGER.isEnabled(Level.ERROR)) {
 
                 LOGGER.error("Order with int ID " + intId + " matching the execution report could not be found");
             }
@@ -85,7 +86,7 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
 
         if (isOrderRejected(executionReport)) {
 
-            if (LOGGER.isEnabledFor(Level.ERROR)) {
+            if (LOGGER.isEnabled(Level.ERROR)) {
 
                 StringBuilder buf = new StringBuilder();
                 buf.append("Order with int ID ").append(intId).append(" has been rejected");
@@ -132,7 +133,7 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
 
     public void onMessage(final OrderCancelReject reject, final SessionID sessionID) throws FieldNotFound {
 
-        if (LOGGER.isEnabledFor(Level.WARN)) {
+        if (LOGGER.isWarnEnabled()) {
 
             StringBuilder buf = new StringBuilder();
             buf.append("Order cancel/replace has been rejected");
@@ -160,7 +161,7 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
         Order order = this.lookupService.getOpenOrderByRootIntId(intId);
         if (order == null) {
 
-            if (LOGGER.isEnabledFor(Level.ERROR)) {
+            if (LOGGER.isEnabled(Level.ERROR)) {
 
                 LOGGER.error("Order with int ID " + intId + " matching the execution report could not be found");
             }

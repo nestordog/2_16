@@ -19,7 +19,8 @@ package ch.algotrader.adapter.fxcm;
 
 import java.util.Date;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.adapter.fix.fix44.AbstractFix44MarketDataMessageHandler;
 import ch.algotrader.enumeration.FeedType;
@@ -48,7 +49,7 @@ import quickfix.fix44.MarketDataSnapshotFullRefresh;
  */
 public class FXCMFixMarketDataMessageHandler extends AbstractFix44MarketDataMessageHandler {
 
-    private static Logger logger = Logger.getLogger(FXCMFixMarketDataMessageHandler.class.getName());
+    private static Logger logger = LogManager.getLogger(FXCMFixMarketDataMessageHandler.class.getName());
 
     private final Engine serverEngine;
 

@@ -19,7 +19,8 @@ package ch.algotrader.esper.subscriber;
 
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Prints all values to the Log by using the {@code toString} method of the event object.
@@ -30,7 +31,7 @@ import org.apache.log4j.Logger;
  */
 public class TestSubscriber {
 
-    private static Logger logger = Logger.getLogger(TestSubscriber.class.getName());
+    private static Logger logger = LogManager.getLogger(TestSubscriber.class.getName());
 
     public void update(Map<?, ?> map) {
 

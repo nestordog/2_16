@@ -42,8 +42,8 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.ConfigurationOperations;
@@ -107,7 +107,7 @@ import ch.algotrader.util.metric.MetricsUtil;
  */
 public class EngineImpl extends AbstractEngine {
 
-    private static final Logger LOGGER = Logger.getLogger(EngineImpl.class);
+    private static final Logger LOGGER = LogManager.getLogger(EngineImpl.class);
     private static final String newline = System.getProperty("line.separator");
     private static final SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd_kkmmss");
 
@@ -190,7 +190,7 @@ public class EngineImpl extends AbstractEngine {
         if (!force) {
             EPStatement existingStatement = this.serviceProvider.getEPAdministrator().getStatement(statementName);
             if (existingStatement != null && existingStatement.isStarted()) {
-                if (LOGGER.isEnabledFor(Level.WARN)) {
+                if (LOGGER.isWarnEnabled()) {
                     LOGGER.warn(statementName + " is already deployed and started");
                 }
                 return;
@@ -216,7 +216,7 @@ public class EngineImpl extends AbstractEngine {
         }
 
         if (newStatement == null) {
-            if (LOGGER.isEnabledFor(Level.WARN)) {
+            if (LOGGER.isWarnEnabled()) {
                 LOGGER.warn("statement " + statementName + " was not found");
             }
         } else {
@@ -616,7 +616,7 @@ public class EngineImpl extends AbstractEngine {
 
         if (isDeployed(alias)) {
 
-            if (LOGGER.isEnabledFor(Level.WARN)) {
+            if (LOGGER.isWarnEnabled()) {
                 LOGGER.warn(alias + " is already deployed");
             }
         } else {
@@ -642,7 +642,7 @@ public class EngineImpl extends AbstractEngine {
 
         if (isDeployed(alias)) {
 
-            if (LOGGER.isEnabledFor(Level.WARN)) {
+            if (LOGGER.isWarnEnabled()) {
                 LOGGER.warn(alias + " is already deployed");
             }
         } else {
@@ -659,7 +659,7 @@ public class EngineImpl extends AbstractEngine {
 
         if (isDeployed(alias)) {
 
-            if (LOGGER.isEnabledFor(Level.WARN)) {
+            if (LOGGER.isWarnEnabled()) {
                 LOGGER.warn(alias + " is already deployed");
             }
         } else {
@@ -675,7 +675,7 @@ public class EngineImpl extends AbstractEngine {
 
         if (isDeployed(alias)) {
 
-            if (LOGGER.isEnabledFor(Level.WARN)) {
+            if (LOGGER.isWarnEnabled()) {
                 LOGGER.warn(alias + " is already deployed");
             }
         } else {

@@ -29,7 +29,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.lang.Validate;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.SessionFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
@@ -78,8 +79,8 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
 
     private static final long serialVersionUID = 3969251081188007542L;
 
-    private static Logger logger = Logger.getLogger(OrderServiceImpl.class.getName());
-    private static Logger notificationLogger = Logger.getLogger("ch.algotrader.service.NOTIFICATION");
+    private static Logger logger = LogManager.getLogger(OrderServiceImpl.class.getName());
+    private static Logger notificationLogger = LogManager.getLogger("ch.algotrader.service.NOTIFICATION");
 
     private final CommonConfig commonConfig;
 

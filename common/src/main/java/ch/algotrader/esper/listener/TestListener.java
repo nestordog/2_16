@@ -17,7 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.esper.listener;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.UpdateListener;
@@ -31,7 +32,7 @@ import com.espertech.esper.client.UpdateListener;
  */
 public class TestListener implements UpdateListener {
 
-    private static Logger logger = Logger.getLogger(TestListener.class.getName());
+    private static Logger logger = LogManager.getLogger(TestListener.class.getName());
 
     @Override
     public void update(EventBean[] newEvents, EventBean[] oldEvents) {

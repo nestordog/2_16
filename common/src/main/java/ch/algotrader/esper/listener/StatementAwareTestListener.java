@@ -17,7 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.esper.listener;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPStatement;
@@ -33,7 +34,7 @@ import com.espertech.esper.client.StatementAwareUpdateListener;
  */
 public class StatementAwareTestListener implements StatementAwareUpdateListener {
 
-    private static Logger logger = Logger.getLogger(StatementAwareTestListener.class.getName());
+    private static Logger logger = LogManager.getLogger(StatementAwareTestListener.class.getName());
 
     @Override
     public void update(EventBean[] newEvents, EventBean[] oldEvents, EPStatement statement, EPServiceProvider epServiceProvider) {

@@ -25,7 +25,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.ClassUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.collection.internal.AbstractPersistentCollection;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.jmx.export.annotation.ManagedAttribute;
@@ -50,7 +51,7 @@ import ch.algotrader.visitor.InitializationVisitor;
 @ManagedResource(objectName = "ch.algotrader.cache:name=CacheManager")
 public class CacheManagerImpl implements CacheManager, Initializer {
 
-    private static Logger logger = Logger.getLogger(CacheManagerImpl.class.getName());
+    private static Logger logger = LogManager.getLogger(CacheManagerImpl.class.getName());
 
     public static final String ROOT = "root";
 

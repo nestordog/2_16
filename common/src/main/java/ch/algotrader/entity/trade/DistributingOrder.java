@@ -20,7 +20,8 @@ package ch.algotrader.entity.trade;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.entity.marketData.Tick;
 
@@ -31,7 +32,7 @@ import ch.algotrader.entity.marketData.Tick;
  */
 public class DistributingOrder extends AlgoOrder {
 
-    private static final Logger logger = Logger.getLogger(DistributingOrder.class.getName());
+    private static final Logger logger = LogManager.getLogger(DistributingOrder.class);
 
     private static final long serialVersionUID = -3256407214793599390L;
 

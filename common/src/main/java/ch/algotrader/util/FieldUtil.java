@@ -31,7 +31,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.reflect.FieldUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Provides general Class related untility Methods.
@@ -44,7 +45,7 @@ import org.apache.log4j.Logger;
  */
 public class FieldUtil {
 
-    private static Logger logger = Logger.getLogger(FieldUtil.class.getName());
+    private static Logger logger = LogManager.getLogger(FieldUtil.class.getName());
 
     private static final Set<Object> immediates =
         new HashSet<Object>(Arrays.asList(new Object[]{

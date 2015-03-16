@@ -20,7 +20,8 @@ package ch.algotrader.util;
 import java.io.Serializable;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.HibernateException;
 import org.hibernate.LockOptions;
 import org.hibernate.NonUniqueObjectException;
@@ -42,7 +43,7 @@ import org.hibernate.type.Type;
  */
 public class HibernateUtil {
 
-    private static Logger logger = Logger.getLogger(HibernateUtil.class.getName());
+    private static Logger logger = LogManager.getLogger(HibernateUtil.class.getName());
 
     /**
      * Tries to lock the transient object (modifications will be lost).

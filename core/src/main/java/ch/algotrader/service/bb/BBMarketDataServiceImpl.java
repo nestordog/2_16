@@ -22,8 +22,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.Validate;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
+
+import com.bloomberglp.blpapi.CorrelationID;
+import com.bloomberglp.blpapi.Subscription;
+import com.bloomberglp.blpapi.SubscriptionList;
 
 import ch.algotrader.adapter.bb.BBAdapter;
 import ch.algotrader.adapter.bb.BBIdGenerator;
@@ -42,10 +47,6 @@ import ch.algotrader.service.InitializingServiceI;
 import ch.algotrader.service.ib.IBNativeMarketDataServiceException;
 import ch.algotrader.vo.SubscribeTickVO;
 
-import com.bloomberglp.blpapi.CorrelationID;
-import com.bloomberglp.blpapi.Subscription;
-import com.bloomberglp.blpapi.SubscriptionList;
-
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
@@ -56,7 +57,7 @@ public class BBMarketDataServiceImpl extends ExternalMarketDataServiceImpl imple
 
     private static final long serialVersionUID = -3463200344945144471L;
 
-    private static Logger logger = Logger.getLogger(BBMarketDataServiceImpl.class.getName());
+    private static Logger logger = LogManager.getLogger(BBMarketDataServiceImpl.class.getName());
     private static BBSession session;
 
     private final BBAdapter bBAdapter;

@@ -30,7 +30,8 @@ import java.util.TimeZone;
 import org.apache.commons.collections15.keyvalue.MultiKey;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.time.DateUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.SessionFactory;
 import org.springframework.scheduling.support.CronSequenceGenerator;
 import org.springframework.transaction.annotation.Propagation;
@@ -73,7 +74,7 @@ import ch.algotrader.vo.PortfolioValueVO;
 @Transactional
 public class PortfolioServiceImpl implements PortfolioService {
 
-    private static Logger logger = Logger.getLogger(PortfolioServiceImpl.class.getName());
+    private static Logger logger = LogManager.getLogger(PortfolioServiceImpl.class.getName());
 
     private final CommonConfig commonConfig;
 

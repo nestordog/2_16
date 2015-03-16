@@ -17,7 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.visitor;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.ConfigLocator;
@@ -39,7 +40,7 @@ public class TickValidationVisitor extends PolymorphicEntityVisitor<Boolean, Tic
 
     public static final TickValidationVisitor INSTANCE = new TickValidationVisitor();
 
-    private static final Logger logger = Logger.getLogger(TickValidationVisitor.class.getName());
+    private static final Logger logger = LogManager.getLogger(TickValidationVisitor.class.getName());
 
     private TickValidationVisitor() {
     }

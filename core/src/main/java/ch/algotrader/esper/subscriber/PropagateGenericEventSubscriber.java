@@ -17,7 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.esper.subscriber;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.vo.GenericEventVO;
@@ -27,7 +28,7 @@ import ch.algotrader.vo.GenericEventVO;
  */
 public class PropagateGenericEventSubscriber {
 
-    private static Logger LOGGER = Logger.getLogger(PropagateGenericEventSubscriber.class.getName());
+    private static Logger LOGGER = LogManager.getLogger(PropagateGenericEventSubscriber.class.getName());
 
     public void update(final GenericEventVO genericEvent) {
 

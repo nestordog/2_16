@@ -19,8 +19,8 @@ package ch.algotrader.adapter.lmax;
 
 import java.util.Date;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.adapter.fix.fix44.AbstractFix44MarketDataMessageHandler;
 import ch.algotrader.enumeration.FeedType;
@@ -51,7 +51,7 @@ import quickfix.fix44.MarketDataSnapshotFullRefresh;
  */
 public class LMAXFixMarketDataMessageHandler extends AbstractFix44MarketDataMessageHandler {
 
-    private static Logger logger = Logger.getLogger(LMAXFixMarketDataMessageHandler.class.getName());
+    private static Logger LOGGER = LogManager.getLogger(LMAXFixMarketDataMessageHandler.class.getName());
 
     private final Engine serverEngine;
 
@@ -85,8 +85,8 @@ public class LMAXFixMarketDataMessageHandler extends AbstractFix44MarketDataMess
                 switch (entryType) {
                     case MDEntryType.BID:
 
-                        if (logger.isTraceEnabled()) {
-                            logger.trace(lmaxId + " BID " + size + "@" + price);
+                        if (LOGGER.isTraceEnabled()) {
+                            LOGGER.trace(lmaxId + " BID " + size + "@" + price);
                         }
 
                         BidVO bidVO = new BidVO(lmaxId, FeedType.LMAX, date, price, (int) size * LMAXConsts.FOREX_CONTRACT_MULTIPLIER);
@@ -94,8 +94,8 @@ public class LMAXFixMarketDataMessageHandler extends AbstractFix44MarketDataMess
                         break;
                     case MDEntryType.OFFER:
 
-                        if (logger.isTraceEnabled()) {
-                            logger.trace(lmaxId + " ASK " + size + "@" + price);
+                        if (LOGGER.isTraceEnabled()) {
+                            LOGGER.trace(lmaxId + " ASK " + size + "@" + price);
                         }
 
                         AskVO askVO = new AskVO(lmaxId, FeedType.LMAX, date, price, (int) size * LMAXConsts.FOREX_CONTRACT_MULTIPLIER);
@@ -109,7 +109,7 @@ public class LMAXFixMarketDataMessageHandler extends AbstractFix44MarketDataMess
 
     @Override
     public void onMessage(final MarketDataRequestReject reject, final SessionID sessionID) throws FieldNotFound {
-        if (logger.isEnabledFor(Level.WARN) && reject.isSetField(MDReqRejReason.FIELD)) {
+        if (LOGGER.isWarnEnabled() && reject.isSetField(MDReqRejReason.FIELD)) {
             MDReqID mdReqID = reject.getMDReqID();
             MDReqRejReason reason = reject.getMDReqRejReason();
             StringBuilder buf = new StringBuilder();
@@ -137,7 +137,7 @@ public class LMAXFixMarketDataMessageHandler extends AbstractFix44MarketDataMess
                     buf.append("unspecified problem");
                     break;
             }
-            logger.warn(buf.toString());
+            LOGGER.warn(buf.toString());
         }
     }
 

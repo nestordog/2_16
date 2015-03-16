@@ -15,22 +15,24 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.util.spring;
+package ch.algotrader.util.log4j;
 
-import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.log4j.Appender;
-import org.apache.log4j.Logger;
-import org.apache.log4j.rewrite.RewriteAppender;
-import org.apache.log4j.rewrite.RewritePolicy;
-import org.apache.log4j.spi.LoggingEvent;
-import org.apache.log4j.spi.RootLogger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.Appender;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.appender.rewrite.RewritePolicy;
+import org.apache.logging.log4j.core.config.AppenderRef;
+import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 
 import ch.algotrader.config.CommonConfig;
-import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 
 /**
@@ -40,7 +42,6 @@ import ch.algotrader.esper.EngineManager;
 *
 * @version $Revision$ $Date$
 */
-
 public class Log4JRewriter implements ApplicationListener<ContextRefreshedEvent> {
 
     private final EngineManager engineManager;
@@ -68,48 +69,30 @@ public class Log4JRewriter implements ApplicationListener<ContextRefreshedEvent>
 
     private void interceptLogAppenders() {
 
-        Logger rootLogger = RootLogger.getRootLogger();
+        LoggerContext coreLoggerContext = (LoggerContext) LogManager.getContext(false);
 
-        RewriteAppender rewriteAppender = new RewriteAppender();
-        Enumeration it = rootLogger.getAllAppenders();
-        while (it.hasMoreElements()) {
-            Appender appender = (Appender) it.nextElement();
-            rootLogger.removeAppender(appender);
-            rewriteAppender.addAppender(appender);
+        Configuration configuration = coreLoggerContext.getConfiguration();
+        Map<String, Appender> appenderMap = new HashMap<>(configuration.getAppenders());
+        configuration.getAppenders().clear();
+
+        RewritePolicy rewritePolicy = new EngineTimeRewritePolicy(this.engineManager);
+        for (Map.Entry<String, Appender> entry: appenderMap.entrySet()) {
+            EngineTimeRewritingAppender rewritingAppender = new EngineTimeRewritingAppender(entry.getValue(), rewritePolicy);
+            configuration.addAppender(rewritingAppender);
+            rewritingAppender.start();
         }
 
-        rootLogger.addAppender(rewriteAppender);
-
-        rewriteAppender.setRewritePolicy(new EngineTimePolicy());
-    }
-
-    class EngineTimePolicy implements RewritePolicy {
-
-        @Override
-        public LoggingEvent rewrite(final LoggingEvent source) {
-
-            // find the Engine with the earliest time
-            long latestTime = Long.MAX_VALUE;
-            for (Engine engine : engineManager.getEngines()) {
-
-                if (!engine.isDestroyed()) {
-                    long engineTime = engine.getCurrentTimeInMillis();
-                    if (engineTime < latestTime) {
-                        latestTime = engineTime;
-                    }
+        Map<String, LoggerConfig> loggerConfigMap = configuration.getLoggers();
+        for (Map.Entry<String, LoggerConfig> entry: loggerConfigMap.entrySet()) {
+            LoggerConfig loggerConfig = entry.getValue();
+            List<AppenderRef> appenderRefs = loggerConfig.getAppenderRefs();
+            for (AppenderRef appenderRef: appenderRefs) {
+                loggerConfig.removeAppender(appenderRef.getRef());
+                Appender appender = configuration.getAppender(appenderRef.getRef());
+                if (appender != null) {
+                    loggerConfig.addAppender(appender, appenderRef.getLevel(), appenderRef.getFilter());
                 }
             }
-            return new LoggingEvent(
-                    source.getFQNOfLoggerClass(),
-                    source.getLogger(),
-                    latestTime < Long.MAX_VALUE ? latestTime : source.getTimeStamp(),
-                    source.getLevel(),
-                    source.getMessage(),
-                    source.getThreadName(),
-                    source.getThrowableInformation(),
-                    source.getNDC(),
-                    source.getLocationInformation(),
-                    source.getProperties());
         }
     }
 

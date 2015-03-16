@@ -33,7 +33,8 @@ import java.util.TreeSet;
 
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.time.DateUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.transaction.annotation.Propagation;
@@ -62,7 +63,7 @@ import ch.algotrader.vo.IVolVO;
 @Transactional
 public class ImportServiceImpl implements ImportService {
 
-    private static Logger logger = Logger.getLogger(ImportServiceImpl.class.getName());
+    private static Logger logger = LogManager.getLogger(ImportServiceImpl.class.getName());
 
     private final CommonConfig commonConfig;
 

@@ -24,8 +24,8 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.lang.Validate;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.trade.Order;
@@ -48,7 +48,7 @@ import quickfix.SocketInitiator;
  */
 public class DefaultFixAdapter implements FixAdapter {
 
-    private static final Logger LOGGER = Logger.getLogger(AbstractFixApplication.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(AbstractFixApplication.class.getName());
 
     private final Lock lock;
     private final SocketInitiator socketInitiator;
@@ -90,7 +90,7 @@ public class DefaultFixAdapter implements FixAdapter {
         Collection<String> sessionQualifiers = this.lookupService.getActiveSessionsByOrderServiceType(orderServiceType);
         if (sessionQualifiers == null || sessionQualifiers.isEmpty()) {
 
-            if (LOGGER.isEnabledFor(Level.WARN)) {
+            if (LOGGER.isWarnEnabled()) {
 
                 LOGGER.warn("There are no active sessions for order service type " + orderServiceType);
             }
@@ -107,7 +107,7 @@ public class DefaultFixAdapter implements FixAdapter {
         Collection<String> sessionQualifiers = this.lookupService.getActiveSessionsByOrderServiceType(orderServiceType);
         if (sessionQualifiers == null || sessionQualifiers.isEmpty()) {
 
-            if (LOGGER.isEnabledFor(Level.WARN)) {
+            if (LOGGER.isWarnEnabled()) {
 
                 LOGGER.warn("There are no active sessions for order service type " + orderServiceType);
             }

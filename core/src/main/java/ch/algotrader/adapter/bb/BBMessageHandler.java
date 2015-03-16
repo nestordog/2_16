@@ -17,7 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.bb;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.bloomberglp.blpapi.Event;
 import com.bloomberglp.blpapi.EventHandler;
@@ -33,7 +34,7 @@ import com.bloomberglp.blpapi.Session;
  */
 public abstract class BBMessageHandler implements EventHandler {
 
-    private static Logger logger = Logger.getLogger(BBMessageHandler.class.getName());
+    private static Logger logger = LogManager.getLogger(BBMessageHandler.class.getName());
 
     private final Object lock = new Object();
     private boolean running;

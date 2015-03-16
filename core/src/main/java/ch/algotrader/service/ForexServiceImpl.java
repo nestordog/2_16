@@ -25,7 +25,8 @@ import java.util.List;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.math.util.MathUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.algotrader.config.CommonConfig;
@@ -56,8 +57,8 @@ import ch.algotrader.vo.BalanceVO;
 @Transactional
 public class ForexServiceImpl implements ForexService {
 
-    private static Logger logger = Logger.getLogger(ForexServiceImpl.class.getName());
-    private static Logger notificationLogger = Logger.getLogger("ch.algotrader.service.NOTIFICATION");
+    private static Logger logger = LogManager.getLogger(ForexServiceImpl.class.getName());
+    private static Logger notificationLogger = LogManager.getLogger("ch.algotrader.service.NOTIFICATION");
 
     private final CommonConfig commonConfig;
 

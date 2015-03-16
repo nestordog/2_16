@@ -19,7 +19,8 @@ package ch.algotrader.cache;
 
 import java.lang.reflect.Field;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.proxy.HibernateProxy;
 import org.hibernate.proxy.LazyInitializer;
 
@@ -35,7 +36,7 @@ import ch.algotrader.util.FieldUtil;
  */
 public class EntityHandler extends AbstractHandler {
 
-    private static Logger logger = Logger.getLogger(EntityHandler.class.getName());
+    private static Logger logger = LogManager.getLogger(EntityHandler.class.getName());
 
     private CacheManagerImpl cacheManager;
 

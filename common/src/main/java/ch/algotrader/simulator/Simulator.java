@@ -26,7 +26,8 @@ import java.util.Map;
 import org.apache.commons.collections15.MultiMap;
 import org.apache.commons.collections15.multimap.MultiHashMap;
 import org.apache.commons.lang.Validate;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.Transaction;
@@ -57,7 +58,7 @@ import ch.algotrader.vo.TradePerformanceVO;
  */
 public class Simulator {
 
-    private static Logger logger = Logger.getLogger(Simulator.class.getName());
+    private static Logger logger = LogManager.getLogger(Simulator.class.getName());
 
     private final Map<Pair<String, Currency>, CashBalance> cashBalances;
     private final Map<Pair<String, Security>, Position> positionsByStrategyAndSecurity;

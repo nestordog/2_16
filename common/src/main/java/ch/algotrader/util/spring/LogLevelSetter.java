@@ -17,8 +17,11 @@
  ***********************************************************************************/
 package ch.algotrader.util.spring;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.config.LoggerConfig;
 
 /**
  * Sets the log-level based on the commandline argument "logLevel"
@@ -35,7 +38,11 @@ public class LogLevelSetter {
         if (levelName != null && !"".equals(levelName)) {
             Level level = Level.toLevel(levelName); // defaults to DEBUG
             if (levelName.toUpperCase().equals(level.toString())) {
-                Logger.getRootLogger().setLevel(level);
+                LoggerContext coreLoggerContext = (LoggerContext) LogManager.getContext(false);
+                Configuration configuration = coreLoggerContext.getConfiguration();
+                LoggerConfig rootLoggerConfig = configuration.getLoggerConfig(LogManager.ROOT_LOGGER_NAME);
+                rootLoggerConfig.setLevel(level);
+                coreLoggerContext.updateLoggers();
             } else {
                 throw new IllegalStateException("unrecognized log4j log level " + levelName);
             }

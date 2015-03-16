@@ -19,7 +19,8 @@ package ch.algotrader.adapter.ib;
 
 import java.util.concurrent.BlockingQueue;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.adapter.fix.fix42.GenericFix42OrderMessageHandler;
 import ch.algotrader.esper.Engine;
@@ -47,7 +48,7 @@ import quickfix.fix42.OrderCancelReject;
  */
 public class IBFixOrderMessageHandler extends GenericFix42OrderMessageHandler {
 
-    private static Logger LOGGER = Logger.getLogger(IBFixOrderMessageHandler.class.getName());
+    private static Logger LOGGER = LogManager.getLogger(IBFixOrderMessageHandler.class.getName());
 
     private final BlockingQueue<IBCustomMessage> allocationMessageQueue;
 

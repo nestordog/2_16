@@ -24,7 +24,8 @@ import java.util.TreeSet;
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Transformer;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.trade.OrderStatus;
@@ -40,7 +41,7 @@ import ch.algotrader.util.metric.MetricsUtil;
  */
 public abstract class TradeCallback {
 
-    private static Logger logger = Logger.getLogger(TradeCallback.class.getName());
+    private static Logger logger = LogManager.getLogger(TradeCallback.class.getName());
 
     private boolean expectFullExecution;
 

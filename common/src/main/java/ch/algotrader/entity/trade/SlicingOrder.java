@@ -22,7 +22,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.SecurityFamily;
@@ -38,7 +39,7 @@ public class SlicingOrder extends AlgoOrder {
 
     private static final long serialVersionUID = -9017761050542085585L;
 
-    private static Logger logger = Logger.getLogger(SlicingOrder.class.getName());
+    private static Logger logger = LogManager.getLogger(SlicingOrder.class);
 
     private double minVolPct;
 

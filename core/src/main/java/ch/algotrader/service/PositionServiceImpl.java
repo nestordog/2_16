@@ -26,7 +26,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.Validate;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -72,7 +73,7 @@ import ch.algotrader.vo.ExpirePositionVO;
 @Transactional
 public class PositionServiceImpl implements PositionService {
 
-    private static Logger logger = Logger.getLogger(PositionServiceImpl.class.getName());
+    private static Logger logger = LogManager.getLogger(PositionServiceImpl.class.getName());
 
     private final CommonConfig commonConfig;
 
