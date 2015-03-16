@@ -37,26 +37,6 @@
         <property name="locateExistingServerIfPossible" value="true"/>
     </bean>
 
-    <!--  Hibernate JMX Beans -->
-    <bean id="hibernateStatisticsMBean" class="org.hibernate.jmx.StatisticsService">
-        <property name="statisticsEnabled" value="true" />
-        <property name="sessionFactory" ref="sessionFactory" />
-    </bean>
-
-    <bean id="ehCacheMBean" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-        <property name="staticMethod" value="net.sf.ehcache.management.ManagementService.registerMBeans" />
-        <property name="arguments">
-            <list>
-                <ref bean="ehCacheManager" />
-                <ref bean="mbeanServer" />
-                <value>true</value>
-                <value>true</value>
-                <value>false</value>
-                <value>true</value>
-            </list>
-        </property>
-    </bean>
-
     <!-- ============================= Data Source an Transaction Management ============================ -->
 
     <bean id="hibernateMappingLocations" class="org.springframework.beans.factory.config.ListFactoryBean">
