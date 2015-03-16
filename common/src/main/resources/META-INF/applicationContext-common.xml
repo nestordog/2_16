@@ -38,7 +38,7 @@
 
     <bean class="ch.algotrader.util.spring.LogLevelSetter" init-method="init"/>
 
-    <bean class="ch.algotrader.util.spring.Log4JRewriter">
+    <bean class="ch.algotrader.util.log4j.Log4JRewriter">
         <constructor-arg index="0" ref="engineManager"/>
         <constructor-arg index="1" ref="commonConfig"/>
     </bean>

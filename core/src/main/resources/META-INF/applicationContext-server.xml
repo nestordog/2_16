@@ -37,16 +37,24 @@
         <property name="locateExistingServerIfPossible" value="true"/>
     </bean>
 
-    <!-- Log4J JMX Beans -->
-    <bean id="log4JExporter" class="org.springframework.jmx.export.MBeanExporter">
-        <property name="beans">
-            <map>
-                <entry key="log4j:hiearchy=default">
-                    <bean class="org.apache.log4j.jmx.HierarchyDynamicMBean"/>
-                </entry>
-            </map>
+    <!--  Hibernate JMX Beans -->
+    <bean id="hibernateStatisticsMBean" class="org.hibernate.jmx.StatisticsService">
+        <property name="statisticsEnabled" value="true" />
+        <property name="sessionFactory" ref="sessionFactory" />
+    </bean>
+
+    <bean id="ehCacheMBean" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property name="staticMethod" value="net.sf.ehcache.management.ManagementService.registerMBeans" />
+        <property name="arguments">
+            <list>
+                <ref bean="ehCacheManager" />
+                <ref bean="mbeanServer" />
+                <value>true</value>
+                <value>true</value>
+                <value>false</value>
+                <value>true</value>
+            </list>
         </property>
-        <property name="server" ref="mbeanServer"/>
     </bean>
 
     <!-- ============================= Data Source an Transaction Management ============================ -->
