@@ -113,6 +113,11 @@ public interface Engine {
     public boolean isDeployed(final String statementNameRegex);
 
     /**
+     * Undeploys all statements from the specified Engine.
+     */
+    public void undeployAllStatements();
+
+    /**
      * Undeploys the specified statement from the specified Engine.
      */
     public void undeployStatement(String statementName);

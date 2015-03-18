@@ -298,6 +298,23 @@ public class EngineImpl extends AbstractEngine {
     }
 
     @Override
+    public void undeployAllStatements() {
+
+        for (String statementName : this.serviceProvider.getEPAdministrator().getStatementNames()) {
+
+            EPStatement statement = this.serviceProvider.getEPAdministrator().getStatement(statementName);
+
+            if (statement != null && statement.isStarted()) {
+                statement.destroy();
+            }
+        }
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("undeployed all statements");
+        }
+    }
+
+    @Override
     public void undeployStatement(String statementName) {
 
         // destroy the statement

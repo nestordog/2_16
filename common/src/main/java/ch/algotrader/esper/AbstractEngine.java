@@ -124,6 +124,11 @@ public abstract class AbstractEngine implements Engine {
     }
 
     @Override
+    public void undeployAllStatements() {
+
+    }
+
+    @Override
     public void undeployStatement(String statementName) {
 
     }
