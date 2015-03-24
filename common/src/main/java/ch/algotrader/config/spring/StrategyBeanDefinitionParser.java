@@ -17,20 +17,31 @@
  ***********************************************************************************/
 package ch.algotrader.config.spring;
 
+import static ch.algotrader.config.spring.BeanDefinitionHelper.getRequiredAttribute;
+import static org.springframework.beans.factory.support.BeanDefinitionBuilder.childBeanDefinition;
+import static org.springframework.beans.factory.support.BeanDefinitionBuilder.rootBeanDefinition;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.AbstractBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
-import org.springframework.util.StringUtils;
 import org.w3c.dom.Element;
 
 /**
- * Algotrader strategy definition parser.
+ * AlgoTrader strategy definition parser.
+ * <p>
+ * Example input:
+<pre>{@code
+<at:strategy name="boxNarrow"
+             configClass="ch.algotrader.strategy.box.BoxConfig"
+             engineTemplate="boxEngineTemplate"
+             serviceTemplate="boxServiceTemplate" />
+}</pre>
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  *
@@ -38,86 +49,55 @@ import org.w3c.dom.Element;
  */
 public final class StrategyBeanDefinitionParser extends AbstractBeanDefinitionParser {
 
+    private static final String SYS_PROP_CONFIG_PARAMS_EXTRA = "config.params.extra";
+
     @Override
     protected AbstractBeanDefinition parseInternal(final Element element, final ParserContext parserContext) {
+        //required attributes
+        final String name = getRequiredAttribute(element, parserContext, "name");
+        final String configClass = getRequiredAttribute(element, parserContext, "configClass");
+        final String engineTemplate = getRequiredAttribute(element, parserContext, "engineTemplate");
+        final String serviceTemplate = getRequiredAttribute(element, parserContext, "serviceTemplate");
 
-        BeanDefinitionBuilder builder1 = BeanDefinitionBuilder.rootBeanDefinition(CustomConfigParamsFactoryBean.class);
+        //resource list
+        final List<String> resources = getResources(name);
 
-        String name = element.getAttribute("name");
-        if (!StringUtils.hasText(name)) {
-            parserContext.getReaderContext().error("Name is required for element '"
-                    + parserContext.getDelegate().getLocalName(element) + "'", element);
-        }
-
-        builder1.addPropertyReference("global", "configParams");
-
-        List<String> resourceList = new ArrayList<>();
-        String config = element.getAttribute("config");
-        if (StringUtils.hasText(config)) {
-            String[] resources = StringUtils.tokenizeToStringArray(config, ",", true, true);
-            if (resources != null) {
-                for (String resource: resources) {
-                    if (resource.contains(":")) {
-                        resourceList.add(resource);
-                    } else {
-                        resourceList.add("classpath:/META-INF/" + resource);
-                    }
-                }
-            }
-        } else {
-            resourceList.add("classpath:/META-INF/" + name + ".properties");
-        }
-        builder1.addPropertyValue("resources", resourceList);
-        builder1.setAbstract(true);
-
-        BeanDefinitionHolder holder1 = new BeanDefinitionHolder(builder1.getBeanDefinition(), name + "ConfigParamsTemplate");
-        registerBeanDefinition(holder1, parserContext.getRegistry());
-
-        BeanDefinitionBuilder builder2 = BeanDefinitionBuilder.rootBeanDefinition(CustomConfigBeanFactoryBean.class);
-        String configClass = element.getAttribute("configClass");
-        if (!StringUtils.hasText(configClass)) {
-            parserContext.getReaderContext().error("ConfigClass is required for element '"
-                    + parserContext.getDelegate().getLocalName(element) + "'", element);
-        }
-        builder2.addPropertyValue("beanClass", configClass);
-        builder2.addPropertyReference("configParams", name + "ConfigParams");
-        builder2.setAbstract(true);
-
-        BeanDefinitionHolder holder2 = new BeanDefinitionHolder(builder2.getBeanDefinition(), name + "ConfigTemplate");
-        registerBeanDefinition(holder2, parserContext.getRegistry());
-
-        String engineTemplate = element.getAttribute("engineTemplate");
-        if (!StringUtils.hasText(engineTemplate)) {
-            parserContext.getReaderContext().error("EngineTemplate is required for element '"
-                    + parserContext.getDelegate().getLocalName(element) + "'", element);
-        }
-
-        BeanDefinitionBuilder builder3 = BeanDefinitionBuilder.childBeanDefinition(engineTemplate);
-        String engineName = element.getAttribute("engineName");
-        if (!StringUtils.hasText(engineName)) {
-            engineName = name.toUpperCase(Locale.ROOT);
-        }
-        builder3.addPropertyValue("engineName", engineName);
-        builder3.addPropertyReference("configParams", name + "ConfigParams");
-        builder3.setAbstract(true);
-
-        BeanDefinitionHolder holder3 = new BeanDefinitionHolder(builder3.getBeanDefinition(), name + "EngineTemplate");
-        registerBeanDefinition(holder3, parserContext.getRegistry());
-
-        String serviceTemplate = element.getAttribute("serviceTemplate");
-        if (!StringUtils.hasText(serviceTemplate)) {
-            parserContext.getReaderContext().error("ServiceTemplate is required for element '"
-                    + parserContext.getDelegate().getLocalName(element) + "'", element);
-        }
-        BeanDefinitionBuilder builder4 = BeanDefinitionBuilder.childBeanDefinition(serviceTemplate);
-        builder4.addPropertyReference("engine", name + "Engine");
-        builder4.addPropertyReference("serviceConfig", name + "Config");
-        builder4.setAbstract(true);
-
-        BeanDefinitionHolder holder4 = new BeanDefinitionHolder(builder4.getBeanDefinition(), name + "ServiceTemplate");
-        registerBeanDefinition(holder4, parserContext.getRegistry());
+        //register beans
+        registerBeanDefinition(name + "ConfigParamsTemplate", parserContext, rootBeanDefinition(CustomConfigParamsFactoryBean.class)
+                .addPropertyReference("global", "configParams")
+                .addPropertyValue("resources", resources)
+                .setAbstract(true));
+        registerBeanDefinition(name + "ConfigTemplate", parserContext, rootBeanDefinition(CustomConfigBeanFactoryBean.class)
+                .addPropertyValue("beanClass", configClass)
+                .addPropertyReference("configParams", name + "ConfigParams")
+                .setAbstract(true));
+        registerBeanDefinition(name + "EngineTemplate", parserContext, childBeanDefinition(engineTemplate)
+                .addPropertyReference("configParams", name + "ConfigParams")
+                .setAbstract(true));
+        registerBeanDefinition(name + "ServiceTemplate", parserContext, childBeanDefinition(serviceTemplate)
+                .setAbstract(true));
 
         return null;
     }
 
+    private static List<String> getResources(String name) {
+        final String configParamsExtra = System.getProperty(SYS_PROP_CONFIG_PARAMS_EXTRA);
+        if (configParamsExtra == null) {
+            return Collections.singletonList("classpath:/META-INF/" + name + ".properties");
+        } else {
+            final List<String> resourceList = new ArrayList<>(2);
+            resourceList.add("classpath:/META-INF/" + name + ".properties");
+            if (configParamsExtra.contains(":")) {
+                resourceList.add(configParamsExtra);
+            } else {
+                resourceList.add("classpath:/META-INF/" + configParamsExtra);
+            }
+            return resourceList;
+        }
+    }
+
+    private void registerBeanDefinition(String beanName, ParserContext parserContext, BeanDefinitionBuilder beanDefinitionBuilder) {
+        final BeanDefinitionHolder holder = new BeanDefinitionHolder(beanDefinitionBuilder.getBeanDefinition(), beanName);
+        registerBeanDefinition(holder, parserContext.getRegistry());
+    }
 }

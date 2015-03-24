@@ -53,9 +53,6 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
-import com.espertech.esperio.CoordinatedAdapter;
-import com.espertech.esperio.csv.CSVInputAdapter;
-
 import ch.algotrader.cache.CacheManager;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.Position;
@@ -79,8 +76,9 @@ import ch.algotrader.service.LookupService;
 import ch.algotrader.service.PortfolioService;
 import ch.algotrader.service.PositionService;
 import ch.algotrader.service.ResetService;
-import ch.algotrader.service.StrategyService;
+import ch.algotrader.service.StrategyPersistenceService;
 import ch.algotrader.service.TransactionService;
+import ch.algotrader.service.groups.StrategyGroup;
 import ch.algotrader.util.metric.MetricsUtil;
 import ch.algotrader.vo.EndOfSimulationVO;
 import ch.algotrader.vo.LifecycleEventVO;
@@ -90,6 +88,9 @@ import ch.algotrader.vo.PerformanceKeysVO;
 import ch.algotrader.vo.PeriodPerformanceVO;
 import ch.algotrader.vo.SimulationResultVO;
 import ch.algotrader.vo.TradesVO;
+
+import com.espertech.esperio.CoordinatedAdapter;
+import com.espertech.esperio.csv.CSVInputAdapter;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -113,6 +114,8 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
 
     private final TransactionService transactionService;
 
+    private final StrategyPersistenceService strategyPersistenceService;
+
     private final PortfolioService portfolioService;
 
     private final LookupService lookupService;
@@ -123,6 +126,8 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
 
     private final Engine serverEngine;
 
+    private final StrategyGroup strategyGroup;
+
     private final CacheManager cacheManager;
 
     private volatile ApplicationContext applicationContext;
@@ -132,10 +137,12 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
                                   final ResetService resetService,
                                   final TransactionService transactionService,
                                   final PortfolioService portfolioService,
+                                  final StrategyPersistenceService strategyPersistenceService,
                                   final LookupService lookupService,
                                   final EventDispatcher eventDispatcher,
                                   final EngineManager engineManager,
                                   final Engine serverEngine,
+                                  final StrategyGroup strategyGroup,
                                   final CacheManager cacheManager) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
@@ -143,10 +150,12 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
         Validate.notNull(resetService, "ResetService is null");
         Validate.notNull(transactionService, "TransactionService is null");
         Validate.notNull(portfolioService, "PortfolioService is null");
+        Validate.notNull(strategyPersistenceService, "StrategyPersistenceService is null");
         Validate.notNull(lookupService, "LookupService is null");
         Validate.notNull(eventDispatcher, "EventDispatcher is null");
         Validate.notNull(engineManager, "EngineManager is null");
         Validate.notNull(serverEngine, "Engine is null");
+        Validate.notNull(strategyGroup, "StrategyGroup is null");
         Validate.notNull(cacheManager, "CacheManager is null");
 
         this.commonConfig = commonConfig;
@@ -154,10 +163,12 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
         this.resetService = resetService;
         this.transactionService = transactionService;
         this.portfolioService = portfolioService;
+        this.strategyPersistenceService = strategyPersistenceService;
         this.lookupService = lookupService;
         this.eventDispatcher = eventDispatcher;
         this.engineManager = engineManager;
         this.serverEngine = serverEngine;
+        this.strategyGroup = strategyGroup;
         this.cacheManager = cacheManager;
     }
 
@@ -184,6 +195,9 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
 
         long startTime = System.currentTimeMillis();
 
+        // init strategies
+        initStrategies();
+
         // reset the db
         this.resetService.resetDB();
 
@@ -192,21 +206,35 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
 
         // init coordination
         this.serverEngine.initCoordination();
+        this.serverEngine.deployAllModules();
 
-        // init modules of all activatable strategies
-        Collection<Strategy> strategies = this.lookupService.getAutoActivateStrategies();
-        for (Strategy strategy : strategies) {
-            this.engineManager.getEngine(strategy.getName()).deployAllModules();
+        //strategy engines
+        final Collection<Engine> strategyEngines = engineManager.getStrategyEngines().values();
+
+        // LifecycleEvent: INIT
+        broadcastLocal(LifecyclePhase.INIT);
+
+        //deploy init modules
+        for (final Engine engine: strategyEngines) {
+            engine.deployInitModules();
         }
 
-        this.eventDispatcher.broadcastLocal(new LifecycleEventVO(OperationMode.SIMULATION, LifecyclePhase.INIT, new Date()));
+        // LifecycleEvent: PREFEED
+        broadcastLocal(LifecyclePhase.PREFEED);
 
-        this.eventDispatcher.broadcastLocal(new LifecycleEventVO(OperationMode.SIMULATION, LifecyclePhase.PREFEED, new Date()));
+        //deploy run modules
+        for (final Engine engine: strategyEngines) {
+            engine.deployRunModules();
+        }
+
+        // LifecycleEvent: START
+        broadcastLocal(LifecyclePhase.START);
 
         // feed the ticks
         feedMarketData();
 
-        this.eventDispatcher.broadcastLocal(new LifecycleEventVO(OperationMode.SIMULATION, LifecyclePhase.EXIT, new Date()));
+        // LifecycleEvent: EXIT
+        broadcastLocal(LifecyclePhase.EXIT);
 
         // log metrics in case they have been enabled
         MetricsUtil.logMetrics();
@@ -220,15 +248,14 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
         // send the EndOfSimulation event
         this.serverEngine.sendEvent(new EndOfSimulationVO());
 
-        this.eventDispatcher.broadcastLocal(new LifecycleEventVO(OperationMode.SIMULATION, LifecyclePhase.REPORT, new Date()));
-
         // get the results
         SimulationResultVO resultVO = getSimulationResultVO(startTime);
 
         // destroy all service providers
-        for (Strategy strategy : strategies) {
-            this.engineManager.destroyEngine(strategy.getName());
+        for (final Engine engine : strategyEngines) {
+            engine.destroy();
         }
+        serverEngine.destroy();
 
         // clear the second-level cache
         net.sf.ehcache.CacheManager.getInstance().clearAll();
@@ -245,6 +272,19 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
 
         return resultVO;
 
+    }
+
+    private void initStrategies() {
+        //add or update strategy for each group item
+        for (final String strategyName : strategyGroup.getStrategyNames()) {
+            final double weight = strategyGroup.getWeight(strategyName);
+            final Strategy strategy = strategyPersistenceService.getOrCreateStrategy(strategyName, weight);
+            logger.info("Update strategy '" + strategy.getName() + " with allocation " + strategy.getAllocation());
+        }
+    }
+
+    private void broadcastLocal(LifecyclePhase phase) {
+        this.eventDispatcher.broadcastLocal(new LifecycleEventVO(OperationMode.SIMULATION, phase, new Date()));
     }
 
     /**
@@ -657,8 +697,8 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
 
         // get potential strategy specific results
         Map<String, Object> strategyResults = new HashMap<String, Object>();
-        for (StrategyService strategyService : this.applicationContext.getBeansOfType(StrategyService.class).values()) {
-            strategyResults.putAll(strategyService.getSimulationResults());
+        for (SimulationResultsProducer resultsProducer : this.applicationContext.getBeansOfType(SimulationResultsProducer.class).values()) {
+            strategyResults.putAll(resultsProducer.getSimulationResults());
         }
         resultVO.setStrategyResults(strategyResults);
 

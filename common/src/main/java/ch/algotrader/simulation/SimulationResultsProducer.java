@@ -15,26 +15,23 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.config;
+package ch.algotrader.simulation;
+
+import java.util.Map;
 
 /**
- * Signals config bean contract violation or an unexpected problem while constructing
- * a config bean instance.
+ * Produces strategy specific simulation results. Gets collected by
+ * {@code SimulationExecutorImpl}.
  *
- * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public final class ConfigBeanCreationException extends RuntimeException {
+public interface SimulationResultsProducer {
 
-    private static final long serialVersionUID = -1599718474854249276L;
-
-    public ConfigBeanCreationException(String message) {
-        super(message);
-    }
-
-    public ConfigBeanCreationException(Exception cause) {
-        super(cause);
-    }
+    /**
+     * Returns strategy specific Simulation Results for a Simulation Run as a Map with a String Key.
+     */
+    public Map<String, Object> getSimulationResults();
 
 }

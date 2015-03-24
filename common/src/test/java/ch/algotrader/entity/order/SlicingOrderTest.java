@@ -17,16 +17,22 @@
  ***********************************************************************************/
 package ch.algotrader.entity.order;
 
+import static org.mockito.Mockito.when;
+
 import java.lang.reflect.InvocationTargetException;
+import java.math.BigDecimal;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.marketData.Tick;
@@ -47,11 +53,27 @@ import ch.algotrader.util.RoundUtil;
  *
  * @version $Revision$ $Date$
  */
+@RunWith(MockitoJUnitRunner.class)
 public class SlicingOrderTest {
 
     private static final int ITERATIONS = 50;
     private static final Random random = new Random();
 
+    @Mock
+    private Tick tick;
+
+    @Before
+    public void beforeEach() {
+        final int volBid = 10 + random.nextInt(90); // volBid: 10 - 100
+        final int volAsk = 10 + random.nextInt(90); // volAsk: 10 - 100
+        final BigDecimal bid = RoundUtil.getBigDecimal(10 + random.nextDouble() * 0.1, 2); // bid: 10 - 10.1
+        final BigDecimal ask = RoundUtil.getBigDecimal(bid.doubleValue() + 0.01 + random.nextDouble() * 0.09, 2); // spread: 0.01 - 0.1
+
+        when(tick.getBid()).thenReturn(bid);
+        when(tick.getAsk()).thenReturn(ask);
+        when(tick.getVolBid()).thenReturn(volBid);
+        when(tick.getVolAsk()).thenReturn(volAsk);
+    }
 
     @Test
     public void testPopulate() throws IllegalAccessException, InvocationTargetException, OrderValidationException {
@@ -171,15 +193,6 @@ public class SlicingOrderTest {
         long remainingQty = order.getQuantity();
         SimpleOrder slice;
         do {
-
-            int volBid = 10 + random.nextInt(90); // volBid: 10 - 100
-            int volAsk = 10 + random.nextInt(90); // volAsk: 10 - 100
-            double bid = 10 + random.nextDouble() * 0.1; // bid: 10 - 10.1
-            double ask = bid + 0.01 + random.nextDouble() * 0.09; // spread: 0.01 - 0.1
-
-            Tick tick = Tick.Factory.newInstance(new Date(), FeedType.IB, order.getSecurity(), volBid, volAsk, 1000);
-            tick.setBid(RoundUtil.getBigDecimal(bid, 2));
-            tick.setAsk(RoundUtil.getBigDecimal(ask, 2));
 
             slice = order.nextOrder(remainingQty, tick);
 

@@ -30,6 +30,8 @@ import org.springframework.jms.listener.DefaultMessageListenerContainer;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.enumeration.FeedType;
+import ch.algotrader.esper.Engine;
+import ch.algotrader.esper.EngineManager;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -41,21 +43,25 @@ public class SubscriptionServiceImpl implements SubscriptionService, Application
     private final CommonConfig commonConfig;
     private final MarketDataService marketDataService;
     private final LookupService lookupService;
+    private final EngineManager engineManager;
 
     private ApplicationContext applicationContext;
 
     public SubscriptionServiceImpl(
             final CommonConfig commonConfig,
             final MarketDataService marketDataService,
-            final LookupService lookupService) {
+            final LookupService lookupService,
+            final EngineManager engineManager) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(marketDataService, "MarketDataService is null");
         Validate.notNull(lookupService, "LookupService is null");
+        Validate.notNull(engineManager, "EngineManager is null");
 
         this.commonConfig = commonConfig;
         this.marketDataService = marketDataService;
         this.lookupService = lookupService;
+        this.engineManager = engineManager;
     }
 
     @Override
@@ -127,13 +133,14 @@ public class SubscriptionServiceImpl implements SubscriptionService, Application
     @Override
     public void initMarketDataEventSubscriptions() {
 
-        CommonConfig commonConfig = this.commonConfig;
-        if (commonConfig.isSimulation() || commonConfig.isStartedStrategySERVER() || commonConfig.isEmbedded())
+        final Engine engine = getStrategyEngine();
+        if (engine == null) {
             return;
+        }
 
         // assemble the message selector
         List<String> selections = new ArrayList<String>();
-        for (Subscription subscription : this.lookupService.getSubscriptionsByStrategyInclComponentsAndProps(commonConfig.getStrategyName())) {
+        for (Subscription subscription : this.lookupService.getSubscriptionsByStrategyInclComponentsAndProps(engine.getStrategyName())) {
             selections.add("securityId=" + subscription.getSecurity().getId());
         }
 
@@ -161,16 +168,35 @@ public class SubscriptionServiceImpl implements SubscriptionService, Application
     }
 
     /**
+     * If not simulation and not embedded, this method returns the single
+     * strategy engine. If simulation or embedded, or if the
+     * {@link EngineManager} contains multiple engines, or if the single engine
+     * is the server engine, null is returned.
+     *
+     * @return  the single strategy engine if available, or null if simulation
+     *          or embedded mode or if the single engine is the server engine
+     */
+    private Engine getStrategyEngine() {
+        CommonConfig commonConfig = this.commonConfig;
+        if (commonConfig.isSimulation() || commonConfig.isEmbedded()) {
+            return null;
+        }
+
+        final List<Engine> strategyEngines = new ArrayList<>(engineManager.getStrategyEngines().values());
+        return strategyEngines.size() == 1 ? strategyEngines.get(0) : null;
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
-    public void subscribeGenericEvents(final Class[] classes) {
+    public void subscribeGenericEvents(final Class<?>[] classes) {
 
         Validate.notNull(classes, "Classes is null");
 
-        CommonConfig commonConfig = this.commonConfig;
-        if (commonConfig.isSimulation() || commonConfig.isStartedStrategySERVER() || commonConfig.isEmbedded())
+        if (getStrategyEngine() == null) {
             return;
+        }
 
         // assemble the message selector
         List<String> selections = new ArrayList<String>();

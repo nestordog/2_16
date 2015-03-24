@@ -24,13 +24,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
 
-import com.ib.client.Contract;
-import com.ib.client.TagValue;
-
 import ch.algotrader.adapter.ib.IBIdGenerator;
 import ch.algotrader.adapter.ib.IBSession;
 import ch.algotrader.adapter.ib.IBUtil;
-import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.IBConfig;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.marketData.TickDao;
@@ -38,8 +34,12 @@ import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.Engine;
+import ch.algotrader.esper.EngineManager;
 import ch.algotrader.service.ExternalMarketDataServiceImpl;
 import ch.algotrader.vo.SubscribeTickVO;
+
+import com.ib.client.Contract;
+import com.ib.client.TagValue;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -57,26 +57,24 @@ public class IBNativeMarketDataServiceImpl extends ExternalMarketDataServiceImpl
     private final Engine serverEngine;
 
     public IBNativeMarketDataServiceImpl(
-            final CommonConfig commonConfig,
             final IBSession iBSession,
             final IBIdGenerator iBIdGenerator,
             final IBConfig iBConfig,
+            final EngineManager engineManager,
             final TickDao tickDao,
-            final SecurityDao securityDao,
-            final Engine serverEngine) {
+            final SecurityDao securityDao) {
 
-        super(commonConfig, securityDao);
+        super(engineManager, securityDao);
 
         Validate.notNull(iBSession, "IBSession is null");
         Validate.notNull(iBIdGenerator, "IBIdGenerator is null");
         Validate.notNull(iBConfig, "IBConfig is null");
         Validate.notNull(tickDao, "TickDao is null");
-        Validate.notNull(serverEngine, "Engine is null");
 
         this.iBSession = iBSession;
         this.iBIdGenerator = iBIdGenerator;
         this.iBConfig = iBConfig;
-        this.serverEngine = serverEngine;
+        this.serverEngine = engineManager.getServerEngine();
         this.tickDao = tickDao;
     }
 

@@ -18,32 +18,41 @@
 package ch.algotrader.service;
 
 import java.math.BigDecimal;
-import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.apache.commons.collections15.map.MultiKeyMap;
 import org.apache.commons.lang.Validate;
+import org.apache.log4j.Logger;
 
 import ch.algotrader.config.CommonConfig;
+import ch.algotrader.entity.marketData.Bar;
 import ch.algotrader.entity.marketData.MarketDataEvent;
+import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.Currency;
-import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
-import ch.algotrader.util.collection.CollectionUtil;
+import ch.algotrader.event.listener.BarEventListener;
+import ch.algotrader.event.listener.TickEventListener;
 
 /**
+ * Lookup for market data cached locally in the current VM.
+ *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class LocalLookupServiceImpl implements LocalLookupService {
+public class LocalLookupServiceImpl implements LocalLookupService, TickEventListener, BarEventListener {
+
+    private static final Logger LOG = Logger.getLogger(LocalLookupServiceImpl.class);
 
     private final CommonConfig commonConfig;
     private final EngineManager engineManager;
     private final LookupService lookupService;
 
-    private final MultiKeyMap<Currency, Forex> forexMap = new MultiKeyMap<Currency, Forex>();
+    private final ConcurrentMap<Integer, MarketDataEvent> lastMarketDataEventBySecurityId = new ConcurrentHashMap<Integer, MarketDataEvent>();
+    private final MultiKeyMap<Currency, Forex> forexMap = new MultiKeyMap<Currency, Forex>();//TODO thread safe?!?
 
     public LocalLookupServiceImpl(
             final CommonConfig commonConfig,
@@ -60,23 +69,11 @@ public class LocalLookupServiceImpl implements LocalLookupService {
     }
 
     @Override
-    @SuppressWarnings({ "unchecked" })
     public MarketDataEvent getCurrentMarketDataEvent(int securityId) {
 
-        String startedStrategyName = this.commonConfig.getStartedStrategyName();
-        if (this.engineManager.hasEngine(startedStrategyName)) {
-
-            Engine engine = this.engineManager.getEngine(startedStrategyName);
-            if (engine.isDeployed("MARKET_DATA_WINDOW")) {
-
-                List<MarketDataEvent> events = engine.executeQuery("select marketDataEvent.* from MarketDataWindow where securityId = " + securityId + " order by marketDataEvent.dateTime desc");
-
-                // might have multiple events of different feed types
-                if (events.size() > 0) {
-                    return CollectionUtil.getFirstElement(events);
-                }
-
-            }
+        final MarketDataEvent last = lastMarketDataEventBySecurityId.get(securityId);
+        if (last != null) {
+            return last;
         }
 
         return this.lookupService.getLastTick(securityId, this.engineManager.getCurrentEPTime());
@@ -156,5 +153,59 @@ public class LocalLookupServiceImpl implements LocalLookupService {
     public double getForexRateBase(int securityId) {
 
         return getForexRate(securityId, this.commonConfig.getPortfolioBaseCurrency());
+    }
+
+    @Override
+    public boolean hasCurrentMarketDataEvents() {
+        return !lastMarketDataEventBySecurityId.isEmpty();
+    }
+
+    /**
+     * Clears cached market data events for all securities.
+     */
+    public void flush() {
+        lastMarketDataEventBySecurityId.clear();
+    }
+
+    /**
+     * Clears the cached market data event for the specified security.
+     * @param securityId the ID of the security whose cached market data event to clear
+     */
+    public void flush(int securityId) {
+        lastMarketDataEventBySecurityId.remove(securityId);
+    }
+
+    private void onMarketDataEvent(MarketDataEvent event) {
+        final int maxTries = 3;
+        final Integer securityId = event.getSecurity().getId();
+        MarketDataEvent old = lastMarketDataEventBySecurityId.get(securityId);
+        //only accept event if it is newer than our current last
+        int cnt = 0;
+        while (old == null || old != event & old.getDateTime().compareTo(event.getDateTime()) <= 0) {
+            if (old == null && null != lastMarketDataEventBySecurityId.putIfAbsent(securityId, event)) {
+                return;
+            } else if (old != null && lastMarketDataEventBySecurityId.replace(securityId, old, event)) {
+                return;
+            }
+            //there must have been a concurrent update for the same security
+            cnt++;
+            if (cnt >= maxTries) {
+                LOG.warn("ignoring market data event due to concurrent updates, giving up after " + cnt + " tries: " + event);
+                return;
+            }
+            //let's try again
+            old = lastMarketDataEventBySecurityId.get(securityId);
+        }
+        //else: event is older than our current last
+    }
+
+    @Override
+    public void onTick(Tick tick) {
+        onMarketDataEvent(tick);
+    }
+
+    @Override
+    public void onBar(Bar bar) {
+        onMarketDataEvent(bar);
     }
 }

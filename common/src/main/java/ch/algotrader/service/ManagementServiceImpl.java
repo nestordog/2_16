@@ -83,6 +83,8 @@ import ch.algotrader.vo.TransactionVO;
 @ManagedResource(objectName="ch.algotrader.service:name=ManagementService")
 public class ManagementServiceImpl implements ManagementService {
 
+    private final String strategyName;//TODO make management service capable of handling multiple strategies
+
     private final CommonConfig commonConfig;
 
     private final EngineManager engineManager;
@@ -130,6 +132,10 @@ public class ManagementServiceImpl implements ManagementService {
         Validate.notNull(marketDataService, "MarketDataService is null");
         Validate.notNull(configParams, "ConfigParams is null");
 
+        final String strategyName = commonConfig.isSimulation() ? StrategyImpl.SERVER : System.getProperty("strategyName");
+        Validate.notNull(strategyName, "System property 'strategyName' is null");
+
+        this.strategyName = strategyName;
         this.commonConfig = commonConfig;
         this.engineManager = engineManager;
         this.subscriptionService = subscriptionService;
@@ -150,7 +156,6 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedAttribute(description = "Gets the current System Time")
     public Date getCurrentTime() {
 
-        String strategyName = this.commonConfig.getStartedStrategyName();
         return this.engineManager.getEngine(strategyName).getCurrentTime();
 
     }
@@ -162,7 +167,6 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedAttribute(description = "Gets all available Currency Balances (only available for the AlgoTrader Server)")
     public Collection<BalanceVO> getDataBalances() {
 
-        String strategyName = this.commonConfig.getStartedStrategyName();
         if (StrategyImpl.SERVER.equals(strategyName)) {
             return this.portfolioService.getBalances();
         } else {
@@ -178,7 +182,7 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedAttribute(description = "Gets current open Orders")
     public Collection<OrderStatusVO> getDataOrders() {
 
-        return this.lookupService.getOpenOrdersVOByStrategy(this.commonConfig.getStartedStrategyName());
+        return this.lookupService.getOpenOrdersVOByStrategy(strategyName);
 
     }
 
@@ -189,7 +193,7 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedAttribute(description = "Gets current open Positions")
     public List<PositionVO> getDataPositions() {
 
-        return this.lookupService.getPositionsVO(this.commonConfig.getStartedStrategyName(), this.commonConfig.isDisplayClosedPositions());
+        return this.lookupService.getPositionsVO(strategyName, this.commonConfig.isDisplayClosedPositions());
 
     }
 
@@ -200,7 +204,7 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedAttribute(description = "Gets the latest Transactions")
     public List<TransactionVO> getDataTransactions() {
 
-        return this.lookupService.getTransactionsVO(this.commonConfig.getStartedStrategyName());
+        return this.lookupService.getTransactionsVO(strategyName);
 
     }
 
@@ -212,7 +216,6 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedAttribute(description = "Gets the latest MarketDataEvents of all subscribed Securities")
     public List<MarketDataEventVO> getMarketDataEvents() {
 
-        String strategyName = this.commonConfig.getStartedStrategyName();
         List<MarketDataEvent> marketDataEvents = this.engineManager.getEngine(strategyName).executeQuery("select marketDataEvent.* from MarketDataWindow order by securityId");
 
         List<MarketDataEventVO> marketDataEventVOs = getMarketDataEventVOs(marketDataEvents);
@@ -283,7 +286,6 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedAttribute(description = "Gets the available Funds of this Strategy (or the entire System if called from the AlgoTrader Server)")
     public BigDecimal getStrategyAvailableFunds() {
 
-        String strategyName = this.commonConfig.getStartedStrategyName();
         if (strategyName.equals(StrategyImpl.SERVER)) {
             return this.portfolioService.getAvailableFunds();
         } else {
@@ -299,7 +301,6 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedAttribute(description = "Gets the Allocation that is assigned to this Strategy (or to the AlgoTrader Server)")
     public double getStrategyAllocation() {
 
-        String strategyName = this.commonConfig.getStartedStrategyName();
         return this.lookupService.getStrategyByName(strategyName).getAllocation();
 
     }
@@ -311,7 +312,6 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedAttribute(description = "Gets the Cash Balance of this Strategy (or the entire System if called from the AlgoTrader Server)")
     public BigDecimal getStrategyCashBalance() {
 
-        String strategyName = this.commonConfig.getStartedStrategyName();
         if (strategyName.equals(StrategyImpl.SERVER)) {
             return this.portfolioService.getCashBalance();
         } else {
@@ -327,7 +327,6 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedAttribute(description = "Gets the current Leverage of this Strategy")
     public double getStrategyLeverage() {
 
-        String strategyName = this.commonConfig.getStartedStrategyName();
         if (strategyName.equals(StrategyImpl.SERVER)) {
             return this.portfolioService.getLeverage();
         } else {
@@ -343,7 +342,6 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedAttribute(description = "Gets the Maintenance Margin of this Strategy (or the entire System if called from the AlgoTrader Server)")
     public BigDecimal getStrategyMaintenanceMargin() {
 
-        String strategyName = this.commonConfig.getStartedStrategyName();
         if (strategyName.equals(StrategyImpl.SERVER)) {
             return this.portfolioService.getMaintenanceMargin();
         } else {
@@ -359,7 +357,7 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedAttribute(description = "Gets the name of this Strategy")
     public String getStrategyName() {
 
-        return this.commonConfig.getStartedStrategyName();
+        return this.strategyName;
 
     }
 
@@ -370,7 +368,6 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedAttribute(description = "Gets the Net-Liquidation-Value of this Strategy (or the entire System if called from the AlgoTrader Server)")
     public BigDecimal getStrategyNetLiqValue() {
 
-        String strategyName = this.commonConfig.getStartedStrategyName();
         if (strategyName.equals(StrategyImpl.SERVER)) {
             return this.portfolioService.getNetLiqValue();
         } else {
@@ -386,7 +383,6 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedAttribute(description = "Gets the performance since the beginning of the month of this Strategy (or the entire System if called from the AlgoTrader Server)")
     public double getStrategyPerformance() {
 
-        String strategyName = this.commonConfig.getStartedStrategyName();
         if (strategyName.equals(StrategyImpl.SERVER)) {
             return this.portfolioService.getPerformance();
         } else {
@@ -402,7 +398,6 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedAttribute(description = "Gets the total Market Value of all Positions of this Strategy (or the entire System if called from the AlgoTrader Server)")
     public BigDecimal getStrategySecuritiesCurrentValue() {
 
-        String strategyName = this.commonConfig.getStartedStrategyName();
         if (strategyName.equals(StrategyImpl.SERVER)) {
             return this.portfolioService.getSecuritiesCurrentValue();
         } else {
@@ -423,7 +418,7 @@ public class ManagementServiceImpl implements ManagementService {
         Validate.notEmpty(moduleName, "Module name is empty");
         Validate.notEmpty(statementName, "Statement name is empty");
 
-        this.engineManager.getEngine(this.commonConfig.getStartedStrategyName()).deployStatement(moduleName, statementName);
+        this.engineManager.getEngine(strategyName).deployStatement(moduleName, statementName);
 
     }
 
@@ -437,7 +432,7 @@ public class ManagementServiceImpl implements ManagementService {
 
         Validate.notEmpty(moduleName, "Module name is empty");
 
-        this.engineManager.getEngine(this.commonConfig.getStartedStrategyName()).deployModule(moduleName);
+        this.engineManager.getEngine(strategyName).deployModule(moduleName);
 
     }
 
@@ -460,8 +455,6 @@ public class ManagementServiceImpl implements ManagementService {
         Validate.notEmpty(type, "Type is empty");
 
         Side sideObject = Side.fromValue(side);
-
-        String strategyName = this.commonConfig.getStartedStrategyName();
 
         Strategy strategy = this.lookupService.getStrategyByName(strategyName);
         Security securityObject = this.lookupService.getSecurity(getSecurityId(security));
@@ -627,7 +620,7 @@ public class ManagementServiceImpl implements ManagementService {
 
         Validate.notEmpty(combination, "Combination is empty");
 
-        this.combinationService.reduceCombination(getSecurityId(combination), this.commonConfig.getStartedStrategyName(), ratio);
+        this.combinationService.reduceCombination(getSecurityId(combination), strategyName, ratio);
 
     }
 
@@ -666,7 +659,7 @@ public class ManagementServiceImpl implements ManagementService {
         Validate.notEmpty(variableName, "Variable name is empty");
         Validate.notEmpty(value, "Value is empty");
 
-        this.engineManager.getEngine(this.commonConfig.getStartedStrategyName()).setVariableValueFromString(variableName, value);
+        this.engineManager.getEngine(strategyName).setVariableValueFromString(variableName, value);
 
     }
 
@@ -682,11 +675,10 @@ public class ManagementServiceImpl implements ManagementService {
 
         Validate.notEmpty(security, "Security is empty");
 
-        String startedStrategyName = this.commonConfig.getStartedStrategyName();
         if (!"".equals(feedType)) {
-            this.subscriptionService.subscribeMarketDataEvent(startedStrategyName, getSecurityId(security), FeedType.valueOf(feedType));
+            this.subscriptionService.subscribeMarketDataEvent(strategyName, getSecurityId(security), FeedType.valueOf(feedType));
         } else {
-            this.subscriptionService.subscribeMarketDataEvent(startedStrategyName, getSecurityId(security));
+            this.subscriptionService.subscribeMarketDataEvent(strategyName, getSecurityId(security));
         }
 
     }
@@ -703,11 +695,10 @@ public class ManagementServiceImpl implements ManagementService {
 
         Validate.notEmpty(security, "Security is empty");
 
-        String startedStrategyName = this.commonConfig.getStartedStrategyName();
         if (!"".equals(feedType)) {
-            this.subscriptionService.unsubscribeMarketDataEvent(startedStrategyName, getSecurityId(security), FeedType.valueOf(feedType));
+            this.subscriptionService.unsubscribeMarketDataEvent(strategyName, getSecurityId(security), FeedType.valueOf(feedType));
         } else {
-            this.subscriptionService.unsubscribeMarketDataEvent(startedStrategyName, getSecurityId(security));
+            this.subscriptionService.unsubscribeMarketDataEvent(strategyName, getSecurityId(security));
         }
 
     }
@@ -720,7 +711,7 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedOperationParameters({})
     public void requestCurrentTicks() {
 
-        this.marketDataService.requestCurrentTicks(this.commonConfig.getStartedStrategyName());
+        this.marketDataService.requestCurrentTicks(strategyName);
 
     }
 
@@ -867,7 +858,7 @@ public class ManagementServiceImpl implements ManagementService {
     public void shutdown() {
 
         // cancel all orders if we called from the AlgoTrader Server
-        if (this.commonConfig.isStartedStrategySERVER()) {
+        if (StrategyImpl.SERVER.equals(strategyName)) {
             this.orderService.cancelAllOrders();
         }
         // need to force exit because grafefull shutdown of esper-service (and esper-jmx) does not work

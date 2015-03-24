@@ -22,11 +22,11 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.espertech.esperio.AdapterInputSource;
-import com.espertech.esperio.csv.CSVInputAdapterSpec;
-
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.util.CustomDate;
+
+import com.espertech.esperio.AdapterInputSource;
+import com.espertech.esperio.csv.CSVInputAdapterSpec;
 
 /**
  * A {@link CSVInputAdapterSpec} used to input {@link ch.algotrader.entity.marketData.Bar Bars}.

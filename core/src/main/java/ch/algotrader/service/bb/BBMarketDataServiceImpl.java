@@ -33,7 +33,6 @@ import com.bloomberglp.blpapi.SubscriptionList;
 import ch.algotrader.adapter.bb.BBAdapter;
 import ch.algotrader.adapter.bb.BBIdGenerator;
 import ch.algotrader.adapter.bb.BBSession;
-import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.marketData.TickDao;
 import ch.algotrader.entity.security.Security;
@@ -41,6 +40,7 @@ import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.enumeration.InitializingServiceType;
 import ch.algotrader.esper.Engine;
+import ch.algotrader.esper.EngineManager;
 import ch.algotrader.service.ExternalMarketDataServiceImpl;
 import ch.algotrader.service.InitializationPriority;
 import ch.algotrader.service.InitializingServiceI;
@@ -65,21 +65,19 @@ public class BBMarketDataServiceImpl extends ExternalMarketDataServiceImpl imple
     private final Engine serverEngine;
 
     public BBMarketDataServiceImpl(
-            final CommonConfig commonConfig,
             final BBAdapter bBAdapter,
+            final EngineManager engineManager,
             final TickDao tickDao,
-            final SecurityDao securityDao,
-            final Engine serverEngine            ) {
+            final SecurityDao securityDao) {
 
-        super(commonConfig, securityDao);
+        super(engineManager, securityDao);
 
         Validate.notNull(bBAdapter, "BBAdapter is null");
         Validate.notNull(tickDao, "TickDao is null");
-        Validate.notNull(serverEngine, "Engine is null");
 
         this.bBAdapter = bBAdapter;
         this.tickDao = tickDao;
-        this.serverEngine = serverEngine;
+        this.serverEngine = engineManager.getServerEngine();
     }
 
     /**

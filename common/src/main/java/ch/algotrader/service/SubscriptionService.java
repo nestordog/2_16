@@ -58,6 +58,6 @@ public interface SubscriptionService {
     /**
      * Subscribes Generic Events of the specified class.
      */
-    public void subscribeGenericEvents(Class[] classes);
+    public void subscribeGenericEvents(Class<?>[] classes);
 
 }

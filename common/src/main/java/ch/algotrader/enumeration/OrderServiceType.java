@@ -61,7 +61,7 @@ public enum OrderServiceType {
     LMAX_FIX,
 
     /**
-     * LMAX Fix interface
+     * Currenex Fix interface
      */
     CNX_FIX;
 

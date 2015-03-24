@@ -18,7 +18,7 @@
 
     <!-- =========================================== Task Execution and Scheduling ======================================= -->
 
-	<task:executor id="orderPersistExecutor" pool-size="1"/>
+    <task:executor id="orderPersistExecutor" pool-size="1"/>
 
     <!-- =========================================== Cache & Config ======================================= -->
 
@@ -149,11 +149,13 @@
             <constructor-arg index="2"  ref="resetService"/>
             <constructor-arg index="3"  ref="transactionService"/>
             <constructor-arg index="4"  ref="portfolioService"/>
-            <constructor-arg index="5"  ref="lookupService"/>
-            <constructor-arg index="6"  ref="eventDispatcher"/>
-            <constructor-arg index="7"  ref="engineManager"/>
-            <constructor-arg index="8"  ref="serverEngine"/>
-            <constructor-arg index="9"  ref="cacheManager"/>
+            <constructor-arg index="5"  ref="strategyPersistenceService"/>
+            <constructor-arg index="6"  ref="lookupService"/>
+            <constructor-arg index="7"  ref="eventDispatcher"/>
+            <constructor-arg index="8"  ref="engineManager"/>
+            <constructor-arg index="9"  ref="serverEngine"/>
+            <constructor-arg index="10"  ref="strategyGroup"/>
+            <constructor-arg index="11"  ref="cacheManager"/>
         </bean>
     </beans>
 
@@ -225,8 +227,8 @@
 
     <!-- =================================== Fix  ========================================= -->
 
-    <beans profile="jPMFix,iBFix,dCFix,rTFix,dcMarkteData,lMAXFix,lMAXMarketData,fXCMFix,fXCMMarketData,cNXFix,cNXMarketData">
-
+    <beans profile="jPMFix,iBFix,dCFix,rTFix,dcMarkteData,lMAXFix,lMAXMarketData,fXCMFix,fXCMMarketData,cNXFix,cNXMarketData,uBSFix">
+    
         <bean id="orderIdGenerator" class="ch.algotrader.ordermgmt.DefaultOrderIdGenerator">
             <constructor-arg index="0" ref="orderDao"/>
         </bean>

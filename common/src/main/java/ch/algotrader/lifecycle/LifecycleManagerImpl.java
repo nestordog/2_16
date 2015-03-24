@@ -101,35 +101,6 @@ public class LifecycleManagerImpl implements LifecycleManager, ApplicationContex
         runServices();
     }
 
-    private void runStrategyInternal(final Collection<Engine> engines) {
-
-        this.eventDispatcher.broadcastLocal(new LifecycleEventVO(OperationMode.REAL_TIME, LifecyclePhase.INIT, new Date()));
-
-        for (Engine engine: engines) {
-
-            engine.deployInitModules();
-        }
-
-        this.eventDispatcher.broadcastLocal(new LifecycleEventVO(OperationMode.REAL_TIME, LifecyclePhase.PREFEED, new Date()));
-
-        for (Engine engine: engines) {
-
-            engine.setInternalClock(true);
-            engine.deployRunModules();
-        }
-
-        this.eventDispatcher.broadcastLocal(new LifecycleEventVO(OperationMode.REAL_TIME, LifecyclePhase.START, new Date()));
-
-        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-
-            @Override
-            public void run() {
-                eventDispatcher.broadcastLocal(new LifecycleEventVO(OperationMode.REAL_TIME, LifecyclePhase.EXIT, new Date()));
-            }
-
-        }));
-    }
-
     @Override
     public void runEmbedded() {
 
@@ -141,17 +112,54 @@ public class LifecycleManagerImpl implements LifecycleManager, ApplicationContex
 
         Set<Engine> engines = new HashSet<>(this.engineManager.getEngines());
         engines.remove(serverEngine);
+
+        broadcastLocal(LifecyclePhase.INIT);
+
         runStrategyInternal(engines);
+
+        broadcastLocal(LifecyclePhase.EXIT);
     }
 
     @Override
     public void runStrategy() {
 
+        broadcastLocal(LifecyclePhase.INIT);
+
         runStrategyInternal(this.engineManager.getEngines());
 
         if (this.subscriptionService != null) {
-
             this.subscriptionService.initMarketDataEventSubscriptions();
+        }
+
+        broadcastLocal(LifecyclePhase.EXIT);
+    }
+
+    private void runStrategyInternal(final Collection<Engine> engines) {
+
+        for (Engine engine: engines) {
+            engine.deployInitModules();
+        }
+
+        broadcastLocal(LifecyclePhase.PREFEED);
+
+        for (Engine engine: engines) {
+            engine.setInternalClock(true);
+            engine.deployRunModules();
+        }
+
+        broadcastLocal(LifecyclePhase.START);
+    }
+
+    private void broadcastLocal(LifecyclePhase phase) {
+        if (!LifecyclePhase.EXIT.equals(phase)) {
+            this.eventDispatcher.broadcastLocal(new LifecycleEventVO(OperationMode.REAL_TIME, phase, new Date()));
+        } else {
+            Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    eventDispatcher.broadcastLocal(new LifecycleEventVO(OperationMode.REAL_TIME, LifecyclePhase.EXIT, new Date()));
+                }
+            }));
         }
     }
 

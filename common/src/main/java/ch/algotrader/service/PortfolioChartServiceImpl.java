@@ -29,6 +29,7 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
 import ch.algotrader.config.CommonConfig;
+import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.vo.ChartDefinitionVO;
 import ch.algotrader.vo.IndicatorVO;
 import ch.algotrader.vo.PortfolioValueVO;
@@ -41,7 +42,7 @@ import ch.algotrader.vo.PortfolioValueVO;
 @ManagedResource(objectName = "ch.algotrader.service:name=PortfolioChart,type=chart")
 public class PortfolioChartServiceImpl extends ChartProvidingServiceImpl implements PortfolioChartService {
 
-    private final CommonConfig commonConfig;
+    private final String strategyName;//TODO make chart service capable of handling multiple strategies
 
     private final PortfolioService portfolioService;
 
@@ -54,7 +55,10 @@ public class PortfolioChartServiceImpl extends ChartProvidingServiceImpl impleme
         Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(portfolioService, "PortfolioService is null");
 
-        this.commonConfig = commonConfig;
+        final String strategyName = commonConfig.isSimulation() ? StrategyImpl.SERVER : System.getProperty("strategyName");
+        Validate.notNull(strategyName, "System property 'strategyName' is null");
+
+        this.strategyName = strategyName;
         this.portfolioService = portfolioService;
     }
 
@@ -71,7 +75,6 @@ public class PortfolioChartServiceImpl extends ChartProvidingServiceImpl impleme
         // only push values if chart is being reset
         if (startDateTime == 0) {
 
-            String strategyName = this.commonConfig.getStrategyName();
             for (PortfolioValueVO portfolioValue : this.portfolioService.getPortfolioValuesInclPerformanceSinceDate(strategyName, new Date(startDateTime))) {
 
                 vos.add(new IndicatorVO("netLiqValue", portfolioValue.getDateTime(), portfolioValue.getNetLiqValue().doubleValue()));

@@ -15,7 +15,7 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.simulator;
+package ch.algotrader.simulation;
 
 import java.math.BigDecimal;
 import java.util.Collection;
@@ -29,6 +29,7 @@ import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.marketData.MarketDataEvent;
@@ -43,7 +44,6 @@ import ch.algotrader.entity.trade.Order;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.TransactionType;
-import ch.algotrader.esper.Engine;
 import ch.algotrader.service.LocalLookupService;
 import ch.algotrader.util.PositionUtil;
 import ch.algotrader.util.RoundUtil;
@@ -52,6 +52,11 @@ import ch.algotrader.vo.CurrencyAmountVO;
 import ch.algotrader.vo.TradePerformanceVO;
 
 /**
+ * Utility that can be used by strategies during in-memory simulations. It
+ * provides similar functionality to the standard position, cash balance and
+ * transaction management but is caclulated in memory and not persisted to the
+ * database for performance reasons.
+ *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
@@ -65,21 +70,22 @@ public class Simulator {
     private final MultiMap<String, Position> positionsByStrategy;
     private final MultiMap<Security, Position> positionsBySecurity;
 
-    private final Engine serverEngine;
     private final LocalLookupService localLookupService;
 
-    public Simulator(final Engine serverEngine, final LocalLookupService localLookupService) {
+    public Simulator(final LocalLookupService localLookupService) {
 
-        Validate.notNull(serverEngine, "Engine is null");
         Validate.notNull(localLookupService, "LocalLookupService is null");
 
-        this.serverEngine = serverEngine;
         this.localLookupService = localLookupService;
 
         this.cashBalances = new HashMap<>();
         this.positionsByStrategyAndSecurity = new HashMap<>();
         this.positionsByStrategy = new MultiHashMap<>();
         this.positionsBySecurity = new MultiHashMap<>();
+    }
+
+    protected LocalLookupService getLocalLookupService() {
+        return localLookupService;
     }
 
     public void clear() {
@@ -224,12 +230,16 @@ public class Simulator {
         if (tradePerformance != null && tradePerformance.getProfit() != 0.0) {
 
             // propagate the TradePerformance event
-            this.serverEngine.sendEvent(tradePerformance);
+            sendEvent(tradePerformance);
         }
 
         logger.info("executed transaction: " + transaction);
 
         return position;
+    }
+
+    protected void sendEvent(TradePerformanceVO tradePerformance) {
+        ServiceLocator.instance().getEventDispatcher().broadcast(tradePerformance);
     }
 
     /**
@@ -312,16 +322,16 @@ public class Simulator {
 
         PortfolioValue portfolioValue = PortfolioValue.Factory.newInstance();
 
-        if (!this.serverEngine.isInternalClock()) {
-            portfolioValue.setDateTime(this.serverEngine.getCurrentTime());
-        } else {
-            portfolioValue.setDateTime(new Date());
-        }
+        portfolioValue.setDateTime(getCurrentTime());
         portfolioValue.setCashBalance(cashBalance);
         portfolioValue.setSecuritiesCurrentValue(securitiesCurrentValue); // might be null if there was no last tick for a particular security
         portfolioValue.setNetLiqValue(securitiesCurrentValue != null ? cashBalance.add(securitiesCurrentValue) : null); // add here to prevent another lookup
 
         return portfolioValue;
+    }
+
+    protected Date getCurrentTime() {
+        return ServiceLocator.instance().getEngineManager().getCurrentEPTime();
     }
 
     /**
@@ -332,7 +342,7 @@ public class Simulator {
         // sum of all positions
         double amount = 0.0;
         for (Position openPosition : openPositions) {
-            MarketDataEvent marketDataEvent = this.localLookupService.getCurrentMarketDataEvent(openPosition.getSecurity().getId());
+            final MarketDataEvent marketDataEvent = this.localLookupService.getCurrentMarketDataEvent(openPosition.getSecurity().getId());
             amount += openPosition.getMarketValue(marketDataEvent);
         }
         return amount;

@@ -19,18 +19,17 @@ package ch.algotrader.service.fxcm;
 
 import org.apache.commons.lang.Validate;
 
+import quickfix.field.SubscriptionRequestType;
+import quickfix.fix44.MarketDataRequest;
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.fix.FixSessionStateHolder;
 import ch.algotrader.adapter.fxcm.FXCMFixMarketDataRequestFactory;
 import ch.algotrader.adapter.fxcm.FXCMUtil;
-import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.enumeration.FeedType;
-import ch.algotrader.esper.Engine;
+import ch.algotrader.esper.EngineManager;
 import ch.algotrader.service.fix.fix44.Fix44MarketDataServiceImpl;
-import quickfix.field.SubscriptionRequestType;
-import quickfix.fix44.MarketDataRequest;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -44,13 +43,12 @@ public class FXCMFixMarketDataServiceImpl extends Fix44MarketDataServiceImpl imp
     private final FXCMFixMarketDataRequestFactory requestFactory;
 
     public FXCMFixMarketDataServiceImpl(
-            final CommonConfig commonConfig,
             final FixSessionStateHolder lifeCycle,
             final FixAdapter fixAdapter,
-            final Engine serverEngine,
+            final EngineManager engineManager,
             final SecurityDao securityDao) {
 
-        super(commonConfig, lifeCycle, fixAdapter, serverEngine, securityDao);
+        super(lifeCycle, fixAdapter, engineManager, securityDao);
 
         this.requestFactory = new FXCMFixMarketDataRequestFactory();
     }

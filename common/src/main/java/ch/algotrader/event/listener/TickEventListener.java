@@ -21,6 +21,6 @@ import ch.algotrader.entity.marketData.Tick;
 
 public interface TickEventListener {
 
-    void onTick(Tick bar);
+    void onTick(Tick tick);
 
 }

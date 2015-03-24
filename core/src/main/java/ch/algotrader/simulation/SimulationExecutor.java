@@ -40,9 +40,8 @@ public interface SimulationExecutor {
      * <li>Platform event dispatcher emits {@link ch.algotrader.enumeration.LifecyclePhase#EXIT} event</li>
      * <li>At the end of each simulation run, metrics are printed to the console (if enabled)</li>
      * <li>All open positions are closed</li>
-     * <li>Platform event dispatcher emits {@link ch.algotrader.enumeration.LifecyclePhase#REPORT} event</li>
      * <li>General Performance Statistics as well as Strategy specific Performance Statistics (gathered through
-     * {@link ch.algotrader.service.StrategyService#getSimulationResults}) are printed to the console</li>
+     * {@link ch.algotrader.simulation.SimulationResultsProducer#getSimulationResults}) are printed to the console</li>
      * <li>Esper Engines are destroyed</li>
      * <li>The second-level cache is cleared</li>
      * <li>A Garbage Collection is performed</li>

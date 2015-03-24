@@ -32,6 +32,7 @@
         <constructor-arg index="0" ref="commonConfig"/>
         <constructor-arg index="1" ref="marketDataService"/>
         <constructor-arg index="2" ref="lookupService"/>
+        <constructor-arg index="3" ref="engineManager"/>
     </bean>
 
     <bean id="portfolioChartService" class="ch.algotrader.service.PortfolioChartServiceImpl" >

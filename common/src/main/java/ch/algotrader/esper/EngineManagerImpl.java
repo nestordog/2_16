@@ -20,6 +20,7 @@ package ch.algotrader.esper;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,7 +31,6 @@ import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import ch.algotrader.config.CommonConfig;
 import ch.algotrader.vo.StatementMetricVO;
 
 /**
@@ -46,21 +46,24 @@ public class EngineManagerImpl implements EngineManager {
 
     private static final String SERVER_ENGINE = "SERVER";
 
-    private final CommonConfig commonConfig;
     private final Map<String, Engine> engineMap;
 
-    public EngineManagerImpl(final CommonConfig commonConfig, final Map<String, Engine> engineMap) {
-
-        Validate.notNull(commonConfig, "CommonConfig is null");
-
-        this.commonConfig = commonConfig;
+    public EngineManagerImpl(final Map<String, Engine> engineMap) {
         this.engineMap = new ConcurrentHashMap<>(engineMap != null ? engineMap : Collections.<String, Engine>emptyMap());
     }
 
     @Override
     public Date getCurrentEPTime() {
-        Engine engine = getEngine(this.commonConfig.getStartedStrategyName());
-        return !engine.isInternalClock() ? engine.getCurrentTime() : new Date();
+        Date newest = null;
+        for (final Engine engine : engineMap.values()) {
+            if (!engine.isInternalClock()) {
+                final Date current = engine.getCurrentTime();
+                if (newest == null || newest.compareTo(current) < 0) {
+                    newest = current;
+                }
+            }
+        }
+        return newest != null ? newest : new Date();
     }
 
     @Override
@@ -85,6 +88,13 @@ public class EngineManagerImpl implements EngineManager {
     public Engine getServerEngine() {
 
         return getEngine(SERVER_ENGINE);
+    }
+
+    @Override
+    public Map<String, Engine> getStrategyEngines() {
+        final Map<String, Engine> result = new LinkedHashMap<String, Engine>(engineMap);
+        result.remove(SERVER_ENGINE);
+        return result;
     }
 
     @Override

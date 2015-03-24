@@ -28,7 +28,6 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 
-import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.service.LookupService;
 
@@ -41,19 +40,9 @@ import ch.algotrader.service.LookupService;
  */
 public class EngineManagerFactoryBean implements FactoryBean<EngineManager>, ApplicationContextAware, ApplicationListener<ContextRefreshedEvent> {
 
-    private final AtomicBoolean postProcessed;
-
-    private CommonConfig commonConfig;
+    private final AtomicBoolean postProcessed = new AtomicBoolean(false);
 
     private ApplicationContext applicationContext;
-
-    public EngineManagerFactoryBean() {
-        this.postProcessed = new AtomicBoolean(false);
-    }
-
-    public void setCommonConfig(final CommonConfig commonConfig) {
-        this.commonConfig = commonConfig;
-    }
 
     @Override
     public void setApplicationContext(final ApplicationContext applicationContext) throws BeansException {
@@ -63,13 +52,13 @@ public class EngineManagerFactoryBean implements FactoryBean<EngineManager>, App
     @Override
     public EngineManager getObject() throws Exception {
 
-        Map<String, Engine> engineBeanMap = this.applicationContext.getBeansOfType(Engine.class);
-        Map<String, Engine> engineMap = new HashMap<>(engineBeanMap.size());
+        final Map<String, Engine> engineBeanMap = this.applicationContext.getBeansOfType(Engine.class);
+        final Map<String, Engine> engineMap = new HashMap<>(engineBeanMap.size());
         for (Map.Entry<String, Engine> entry: engineBeanMap.entrySet()) {
             Engine engine = entry.getValue();
             engineMap.put(engine.getEngineName(), engine);
         }
-        return new EngineManagerImpl(this.commonConfig, engineMap);
+        return new EngineManagerImpl(engineMap);
     }
 
     @Override

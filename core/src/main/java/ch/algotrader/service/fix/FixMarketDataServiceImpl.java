@@ -23,12 +23,12 @@ import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.fix.FixSessionStateHolder;
-import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.enumeration.InitializingServiceType;
 import ch.algotrader.esper.Engine;
+import ch.algotrader.esper.EngineManager;
 import ch.algotrader.service.ExternalMarketDataServiceImpl;
 import ch.algotrader.service.InitializationPriority;
 import ch.algotrader.service.InitializingServiceI;
@@ -53,21 +53,19 @@ public abstract class FixMarketDataServiceImpl extends ExternalMarketDataService
     private final Engine serverEngine;
 
     public FixMarketDataServiceImpl(
-            final CommonConfig commonConfig,
             final FixSessionStateHolder lifeCycle,
             final FixAdapter fixAdapter,
-            final Engine serverEngine,
+            final EngineManager engineManager,
             final SecurityDao securityDao) {
 
-        super(commonConfig, securityDao);
+        super(engineManager, securityDao);
 
         Validate.notNull(lifeCycle, "FixSessionStateHolder is null");
-        Validate.notNull(serverEngine, "Engine is null");
         Validate.notNull(fixAdapter, "FixAdapter is null");
 
         this.lifeCycle = lifeCycle;
-        this.serverEngine = serverEngine;
         this.fixAdapter = fixAdapter;
+        this.serverEngine = engineManager.getServerEngine();
     }
 
     protected FixAdapter getFixAdapter() {

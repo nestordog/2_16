@@ -15,14 +15,21 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.simulator;
+package ch.algotrader.simulation;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 
 import java.math.BigDecimal;
+import java.util.Date;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.Position;
@@ -38,8 +45,8 @@ import ch.algotrader.enumeration.AssetClass;
 import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Side;
-import ch.algotrader.esper.NoopEngine;
 import ch.algotrader.service.LocalLookupService;
+import ch.algotrader.vo.TradePerformanceVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -48,14 +55,18 @@ import ch.algotrader.service.LocalLookupService;
  */
 public class SimulatorTest {
 
-    Simulator simulator;
+    //under test
+    private Simulator simulator;
 
     @Before
     public void before() {
 
-        LocalLookupService localLookupService = Mockito.mock(LocalLookupService.class);
-        NoopEngine engine = new NoopEngine("TEST");
-        this.simulator = new Simulator(engine, localLookupService);
+        final LocalLookupService localLookupService = mock(LocalLookupService.class);
+        this.simulator = spy(new Simulator(localLookupService));
+
+        //spy the simulator because we must mock methods that are using the ServiceLocator
+        doReturn(new Date()).when(simulator).getCurrentTime();
+        doNothing().when(simulator).sendEvent(any(TradePerformanceVO.class));
     }
 
     @Test
@@ -124,5 +135,7 @@ public class SimulatorTest {
 
         PortfolioValue portfolioValue = this.simulator.getPortfolioValue();
         Assert.assertEquals(1040, portfolioValue.getNetLiqValue().doubleValue(), 0.0);
+
+        verify(simulator).sendEvent(any(TradePerformanceVO.class));
     }
 }

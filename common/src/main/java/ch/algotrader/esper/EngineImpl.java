@@ -309,9 +309,7 @@ public class EngineImpl extends AbstractEngine {
             }
         }
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("undeployed all statements");
-        }
+        LOGGER.debug("undeployed all statements");
     }
 
     @Override

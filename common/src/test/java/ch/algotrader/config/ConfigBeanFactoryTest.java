@@ -45,7 +45,6 @@ public class ConfigBeanFactoryTest {
     @Before
     public void setup() {
         map = new HashMap<String, String>();
-        map.put("strategyName", "SOME_STRATEGY");
         map.put("dataSource.dataSet", "someDataSet");
         map.put("dataSource.dataSetType", "BAR");
         map.put("dataSource.dataSetLocation", "stuff/more-stuff");
@@ -76,7 +75,6 @@ public class ConfigBeanFactoryTest {
         ConfigBeanFactory factory = new ConfigBeanFactory();
         CommonConfig atConfig = factory.create(configParams, CommonConfig.class);
         Assert.assertNotNull(atConfig);
-        Assert.assertEquals("SOME_STRATEGY", atConfig.getStrategyName());
         Assert.assertEquals("someDataSet", atConfig.getDataSet());
         Assert.assertEquals(MarketDataType.BAR, atConfig.getDataSetType());
         Assert.assertEquals(new File("stuff/more-stuff"), atConfig.getDataSetLocation());

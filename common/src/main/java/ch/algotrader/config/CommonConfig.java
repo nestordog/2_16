@@ -20,7 +20,6 @@ package ch.algotrader.config;
 import java.io.File;
 import java.math.BigDecimal;
 
-import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.MarketDataType;
@@ -34,7 +33,6 @@ import ch.algotrader.enumeration.MarketDataType;
  */
 public final class CommonConfig {
 
-    private final String strategyName;
     private final String dataSet;
     private final MarketDataType dataSetType;
     private final File dataSetLocation;
@@ -56,7 +54,6 @@ public final class CommonConfig {
     private final boolean displayClosedPositions;
 
     public CommonConfig(
-            @ConfigName("strategyName") final String strategyName,
             @ConfigName("dataSource.dataSet") final String dataSet,
             @ConfigName("dataSource.dataSetType") final MarketDataType dataSetType,
             @ConfigName("dataSource.dataSetLocation") final File dataSetLocation,
@@ -76,7 +73,6 @@ public final class CommonConfig {
             @ConfigName("misc.initialMarginMarkup") final BigDecimal initialMarginMarkup,
             @ConfigName("misc.validateCrossedSpread") final boolean validateCrossedSpread,
             @ConfigName("misc.displayClosedPositions") final boolean displayClosedPositions) {
-        this.strategyName = strategyName;
         this.dataSet = dataSet;
         this.dataSetType = dataSetType;
         this.dataSetLocation = dataSetLocation;
@@ -96,10 +92,6 @@ public final class CommonConfig {
         this.initialMarginMarkup = initialMarginMarkup;
         this.validateCrossedSpread = validateCrossedSpread;
         this.displayClosedPositions = displayClosedPositions;
-    }
-
-    public String getStrategyName() {
-        return this.strategyName;
     }
 
     public String getDataSet() {
@@ -178,23 +170,10 @@ public final class CommonConfig {
         return this.displayClosedPositions;
     }
 
-    public String getStartedStrategyName() {
-        if (this.simulation) {
-            return StrategyImpl.SERVER;
-        } else {
-            return this.strategyName;
-        }
-    }
-
-    public boolean isStartedStrategySERVER() {
-        return StrategyImpl.SERVER.equals(getStartedStrategyName());
-    }
-
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("[");
-        sb.append("strategyName='").append(this.strategyName).append('\'');
-        sb.append(", dataSet='").append(this.dataSet).append('\'');
+        sb.append("dataSet='").append(this.dataSet).append('\'');
         sb.append(", dataSetType=").append(this.dataSetType);
         sb.append(", dataSetLocation=").append(this.dataSetLocation);
         sb.append(", barSize=").append(this.barSize);

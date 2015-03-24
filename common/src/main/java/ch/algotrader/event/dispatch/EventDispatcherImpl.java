@@ -78,22 +78,12 @@ public class EventDispatcherImpl implements EventDispatcher, MessageListener {
 
     @Override
     public void sendEvent(final String engineName, final Object obj) {
-
-        if (this.commonConfig.isSimulation() || this.commonConfig.isEmbedded()) {
-
-            if (this.engineManager.hasEngine(engineName)) {
-                this.engineManager.getEngine(engineName).sendEvent(obj);
-            }
-
+        // check if it is a local engine
+        final Engine engine = this.engineManager.getEngine(engineName);
+        if (engine != null) {
+            engine.sendEvent(obj);
         } else {
-
-            // check if it is the localStrategy
-            if (this.commonConfig.getStartedStrategyName().equals(engineName)) {
-
-                this.engineManager.getEngine(engineName).sendEvent(obj);
-
-            } else {
-
+            if (!this.commonConfig.isSimulation() && !this.commonConfig.isEmbedded()) {
                 // sent to the strategy queue
                 Objects.requireNonNull(this.strategyTemplate, "Strategy JMS template is null");
                 this.strategyTemplate.convertAndSend(engineName + ".QUEUE", obj);
@@ -105,15 +95,16 @@ public class EventDispatcherImpl implements EventDispatcher, MessageListener {
     public void sendMarketDataEvent(final MarketDataEvent marketDataEvent) {
 
         if (this.commonConfig.isSimulation() || this.commonConfig.isEmbedded()) {
-            for (Subscription subscription : marketDataEvent.getSecurity().getSubscriptions()) {
+            for (final Subscription subscription : marketDataEvent.getSecurity().getSubscriptions()) {
                 if (!subscription.getStrategy().getName().equals(StrategyImpl.SERVER)) {
-                    String strategyName = subscription.getStrategy().getName();
-                    if (this.engineManager.hasEngine(strategyName)) {
-                        this.engineManager.getEngine(strategyName).sendEvent(marketDataEvent);
+                    final String strategyName = subscription.getStrategy().getName();
+                    final Engine engine = this.engineManager.getEngine(strategyName);
+                    if (engine != null) {
+                        engine.sendEvent(marketDataEvent);
                     }
                 }
             }
-
+            localEventBroadcaster.broadcast(marketDataEvent);//TODO should engines receive the event first or the local VM ?
         } else {
 
             // send using the jms template

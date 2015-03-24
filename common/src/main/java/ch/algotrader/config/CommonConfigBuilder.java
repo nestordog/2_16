@@ -33,7 +33,6 @@ import ch.algotrader.enumeration.MarketDataType;
  */
 public final class CommonConfigBuilder {
 
-    private String strategyName;
     private String dataSet;
     private MarketDataType dataSetType;
     private File dataSetLocation;
@@ -55,7 +54,6 @@ public final class CommonConfigBuilder {
     private boolean displayClosedPositions;
 
     CommonConfigBuilder() {
-        this.strategyName = "SERVER";
         this.dataSet = "current";
         this.dataSetType = MarketDataType.TICK;
         this.barSize = Duration.MIN_1;
@@ -74,11 +72,6 @@ public final class CommonConfigBuilder {
 
     public static CommonConfigBuilder create() {
         return new CommonConfigBuilder();
-    }
-
-    public CommonConfigBuilder setStrategyName(final String strategyName) {
-        this.strategyName = strategyName;
-        return this;
     }
 
     public CommonConfigBuilder setDataSet(final String dataSet) {
@@ -163,7 +156,7 @@ public final class CommonConfigBuilder {
 
     public CommonConfig build() {
         return new CommonConfig(
-                this.strategyName, this.dataSet, this.dataSetType, this.dataSetLocation, this.barSize, this.feedCSV, this.feedDB, this.feedGenericEvents, this.feedAllMarketDataFiles,
+                this.dataSet, this.dataSetType, this.dataSetLocation, this.barSize, this.feedCSV, this.feedDB, this.feedGenericEvents, this.feedAllMarketDataFiles,
                 this.feedBatchSize, this.reportLocation, this.simulation, this.simulationInitialBalance, this.simulationLogTransactions, this.embedded,
                 this.portfolioDigits, this.portfolioBaseCurrency, this.initialMarginMarkup, this.validateCrossedSpread, this.displayClosedPositions);
     }

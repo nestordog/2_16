@@ -17,59 +17,37 @@
  ***********************************************************************************/
 package ch.algotrader.service.groups;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import org.apache.commons.lang.Validate;
-
-import ch.algotrader.service.StrategyService;
+import java.util.Objects;
+import java.util.Set;
 
 /**
- * Strategy group containing service instances and their respective weight.
- *
- * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
- *
- * @version $Revision$ $Date$
+ * Bean representing the group with all strategy items.
  */
 public class StrategyGroup {
 
-    private final Map<Class<? extends StrategyService>, GroupEntry> instances;
+    private final Map<String, Double> nameToWeight;
 
-    public StrategyGroup(final Map<? extends StrategyService, Double> instances) {
-
-        Validate.notEmpty(instances, "Map of service instances is empty");
-
-        this.instances = new ConcurrentHashMap<>(instances.size());
-        for (Map.Entry<? extends StrategyService, Double> entry: instances.entrySet()) {
-
-            StrategyService instance = entry.getKey();
-            double weight = entry.getValue();
-
-            Validate.isTrue(weight > 0.0d, "Strategy weight is negative or zero");
-            this.instances.put(instance.getClass(), new GroupEntry(instance, weight));
-        }
+    public StrategyGroup(Map<String, Double> nameToWeight) {
+        this.nameToWeight = Collections.unmodifiableMap(Objects.requireNonNull(nameToWeight, "nameToWeight cannot be null"));
     }
 
-    public StrategyGroup(final GroupEntry... entries) {
-
-        Validate.notEmpty(entries, "Array of entries is empty");
-
-        this.instances = new ConcurrentHashMap<>(entries.length);
-        for (GroupEntry entry: entries) {
-
-            StrategyService instance = entry.getServiceInstance();
-            double weight = entry.getWeight();
-
-            Validate.isTrue(weight > 0.0d, "Strategy weight is negative or zero");
-            this.instances.put(instance.getClass(), entry);
-        }
+    /**
+     * Returns an unmodifiable set with all strategy names.
+     * @return an unmodifiable set with strategy names.
+     */
+    public Set<String> getStrategyNames() {
+        return nameToWeight.keySet();
     }
 
-    public List<GroupEntry> getEntries() {
-
-        return new ArrayList<>(this.instances.values());
+    /**
+     * Returns the weight for the given strategy, or 0 if no such strategy exists.
+     * @param strategyName the name of the strategy (item)
+     * @return the weight for this strategy, or 0 if not found
+     */
+    public double getWeight(String strategyName) {
+        final Double weight = nameToWeight.get(strategyName);
+        return weight == null ? 0 : weight.doubleValue();
     }
-
 }

@@ -17,9 +17,7 @@
         <property name="beanClass" value="ch.algotrader.config.CommonConfig"/>
     </bean>
 
-    <bean id="engineManager" class="ch.algotrader.esper.EngineManagerFactoryBean">
-        <property name="commonConfig" ref="commonConfig"/>
-    </bean>
+    <bean id="engineManager" class="ch.algotrader.esper.EngineManagerFactoryBean"/>
 
     <bean id="eventListenerRegistry" class="ch.algotrader.event.EventListenerRegistryImpl" />
 

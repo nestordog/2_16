@@ -34,40 +34,45 @@ public interface LocalLookupService {
      * returns the currentMarketDataEvent of the specified security by consulting the local Engine first,
      * then the SERVER Engine and then the database
      */
-    public MarketDataEvent getCurrentMarketDataEvent(int securityId);
+    MarketDataEvent getCurrentMarketDataEvent(int securityId);
 
     /**
      * returns the current value of the specified security by consulting the local Engine first,
      * then the SERVER Engine and then the database
      */
-    public BigDecimal getCurrentValue(int securityId);
+    BigDecimal getCurrentValue(int securityId);
 
     /**
      * returns the current value of the specified security by consulting the local Engine first,
      * then the SERVER Engine and then the database
      */
-    public double getCurrentValueDouble(int securityId);
+    double getCurrentValueDouble(int securityId);
 
     /**
      * Gets the current Exchange Rate between the {@code baseCurrency} and {@code
      * transactionCurrency} by consulting the local Engine first, then the SERVER Engine and then the database
      */
-    public double getForexRate(Currency baseCurrency, Currency transactionCurrency);
+    double getForexRate(Currency baseCurrency, Currency transactionCurrency);
 
     /**
      * Gets the current Exchange Rate between the {@code baseCurrency} and Portfolio Base Currency.
      */
-    public double getForexRateBase(Currency baseCurrency);
+    double getForexRateBase(Currency baseCurrency);
 
     /**
      * Gets the relevant exchange rate for the specified Security related to the specified {@link Currency}
      */
-    public abstract double getForexRate(int securityId, Currency transactionCurrency);
+    double getForexRate(int securityId, Currency transactionCurrency);
 
     /**
      * Gets the relevant exchange rate for the specified Security related to the Portfolio Base Currency
      */
-    public abstract double getForexRateBase(int securityId);
+    double getForexRateBase(int securityId);
+
+    /**
+     * Returns true if any {@link ch.algotrader.entity.marketData.MarketDataEvent MarketDataEvent} has been received.
+     */
+    boolean hasCurrentMarketDataEvents();
 
 
 }

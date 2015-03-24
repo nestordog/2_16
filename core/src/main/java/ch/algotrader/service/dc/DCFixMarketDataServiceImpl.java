@@ -19,18 +19,17 @@ package ch.algotrader.service.dc;
 
 import org.apache.commons.lang.Validate;
 
+import quickfix.field.SubscriptionRequestType;
+import quickfix.fix44.MarketDataRequest;
 import ch.algotrader.adapter.dc.DCFixMarketDataRequestFactory;
 import ch.algotrader.adapter.dc.DCUtil;
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.fix.FixSessionStateHolder;
-import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.enumeration.FeedType;
-import ch.algotrader.esper.Engine;
+import ch.algotrader.esper.EngineManager;
 import ch.algotrader.service.fix.fix44.Fix44MarketDataServiceImpl;
-import quickfix.field.SubscriptionRequestType;
-import quickfix.fix44.MarketDataRequest;
 
 /**
  * DukasCopy market data service implementation.
@@ -46,13 +45,12 @@ public class DCFixMarketDataServiceImpl extends Fix44MarketDataServiceImpl imple
     private final DCFixMarketDataRequestFactory requestFactory;
 
     public DCFixMarketDataServiceImpl(
-            final CommonConfig commonConfig,
             final FixSessionStateHolder lifeCycle,
             final FixAdapter fixAdapter,
-            final Engine serverEngine,
+            final EngineManager engineManager,
             final SecurityDao securityDao) {
 
-        super(commonConfig, lifeCycle, fixAdapter, serverEngine, securityDao);
+        super(lifeCycle, fixAdapter, engineManager, securityDao);
 
         this.requestFactory = new DCFixMarketDataRequestFactory();
     }

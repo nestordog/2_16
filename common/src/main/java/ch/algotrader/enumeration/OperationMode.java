@@ -18,11 +18,16 @@
 package ch.algotrader.enumeration;
 
 /**
- * Operation mode
+ * Operation mode {@link #REAL_TIME} and {@link #SIMULATION}.
  */
 public enum OperationMode {
-
+    /**
+     * Real or life trading mode. Controlled by {@code LifecycleManager}.
+     */
     REAL_TIME,
+    /**
+     * Simulation mode. Controlled by {@code SimulationExecutor}.
+     */
     SIMULATION
 
 }

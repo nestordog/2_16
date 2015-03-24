@@ -19,17 +19,16 @@ package ch.algotrader.service.lmax;
 
 import org.apache.commons.lang.Validate;
 
+import quickfix.field.SubscriptionRequestType;
+import quickfix.fix44.MarketDataRequest;
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.fix.FixSessionStateHolder;
 import ch.algotrader.adapter.lmax.LMAXFixMarketDataRequestFactory;
-import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.enumeration.FeedType;
-import ch.algotrader.esper.Engine;
+import ch.algotrader.esper.EngineManager;
 import ch.algotrader.service.fix.fix44.Fix44MarketDataServiceImpl;
-import quickfix.field.SubscriptionRequestType;
-import quickfix.fix44.MarketDataRequest;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -43,13 +42,12 @@ public class LMAXFixMarketDataServiceImpl extends Fix44MarketDataServiceImpl imp
     private final LMAXFixMarketDataRequestFactory requestFactory;
 
     public LMAXFixMarketDataServiceImpl(
-            final CommonConfig commonConfig,
             final FixSessionStateHolder lifeCycle,
             final FixAdapter fixAdapter,
-            final Engine serverEngine,
+            final EngineManager engineManager,
             final SecurityDao securityDao) {
 
-        super(commonConfig, lifeCycle, fixAdapter, serverEngine, securityDao);
+        super(lifeCycle, fixAdapter, engineManager, securityDao);
 
         Validate.notNull(fixAdapter, "FixAdapter is null");
 

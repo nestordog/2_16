@@ -22,8 +22,11 @@ import java.util.Map;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
+import org.springframework.beans.factory.config.BeanExpressionContext;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.convert.support.DefaultConversionService;
 
 import ch.algotrader.config.ConfigParams;
@@ -66,8 +69,17 @@ public class CustomConfigParamsFactoryBean implements FactoryBean<ConfigParams>,
     public ConfigParams getObject() throws Exception {
 
         Map<String, String> paramMap = new LinkedHashMap<>();
-        for (String pattern: resources) {
-
+        for (String resource : resources) {
+            final String pattern;
+            if (applicationContext instanceof ConfigurableApplicationContext) {
+                //allow for expressions, e.g. "#{systemProperties['config.params.extra']}"
+                final ConfigurableApplicationContext cac = (ConfigurableApplicationContext)applicationContext;
+                final ConfigurableBeanFactory cbf = cac.getBeanFactory();
+                final Object value = cbf.getBeanExpressionResolver().evaluate(resource, new BeanExpressionContext(cbf, null));
+                pattern = cbf.getTypeConverter().convertIfNecessary(value, String.class);
+            } else {
+                pattern = resource;
+            }
             ConfigLoader.loadResources(paramMap, this.applicationContext.getResources(pattern));
         }
 

@@ -19,6 +19,7 @@ package ch.algotrader.esper;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.Map;
 
 /**
  * Management interface for multiple {@link ch.algotrader.esper.Engine}s.
@@ -30,8 +31,8 @@ import java.util.Date;
 public interface EngineManager {
 
     /**
-     * Returns all avaialbe engines.
-     * @return
+     * Returns all available engines.
+     * @return a collection with all engines.
      */
     Collection<Engine> getEngines();
 
@@ -56,6 +57,12 @@ public interface EngineManager {
     Engine getServerEngine();
 
     /**
+     * Returns the strategy engines by engine name
+     * @return a map with all non-SERVER engines by engine name
+     */
+    Map<String, Engine> getStrategyEngines();
+
+    /**
      * Destroys engine with the given name
      * @param engineName
      * @return
@@ -63,8 +70,12 @@ public interface EngineManager {
     void destroyEngine(String engineName);
 
     /**
-     * Returns current time of the local Engine.
-     * If the local engine is not yet initialized or is using internal clock the current system date is returned.
+     * Returns the newest EP time from all engines with external clock mode. If
+     * no external clock time is available (for instance because all engines use
+     * internal clock), the current system date is returned.
+     *
+     * @return  the newest external Esper time of all engines, or system date if
+     *          no external time is available
      */
     Date getCurrentEPTime();
 

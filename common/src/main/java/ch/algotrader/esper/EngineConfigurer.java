@@ -22,12 +22,12 @@ import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 
+import ch.algotrader.config.ConfigParams;
+
 import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.ConfigurationEngineDefaults.Threading;
 import com.espertech.esper.client.ConfigurationVariable;
 import com.espertech.esper.util.JavaClassHelper;
-
-import ch.algotrader.config.ConfigParams;
 
 /**
  * Utility class that initializes variables defined in {@link com.espertech.esper.client.Configuration}
@@ -41,7 +41,7 @@ public class EngineConfigurer {
 
     public void configure(final String strategyName, final Configuration configuration, final ConfigParams configParams) {
 
-        Validate.notEmpty(strategyName, "Name is null");
+        Validate.notEmpty(strategyName, "StrategyName is null");
         Validate.notNull(configuration, "Configuration is null");
         Validate.notNull(configParams, "ConfigParams is null");
 

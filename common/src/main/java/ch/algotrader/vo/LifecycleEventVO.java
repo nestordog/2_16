@@ -24,11 +24,11 @@ import ch.algotrader.enumeration.LifecyclePhase;
 import ch.algotrader.enumeration.OperationMode;
 
 /**
- * EVent signalling progression to another strategy lifecycle phase.
+ * EVent signaling progression to another strategy lifecycle phase.
  */
 public class LifecycleEventVO implements Serializable {
 
-    private static final long serialVersionUID = -3004938183561866728L;
+    private static final long serialVersionUID = -4025657338940990039L;
 
     private final OperationMode operationMode;
     private final LifecyclePhase phase;
@@ -50,6 +50,14 @@ public class LifecycleEventVO implements Serializable {
 
     public Date getTime() {
         return time;
+    }
+
+    /**
+     * Shortcut for {@code getOperationMode() == OperationMode.SIMULATION}
+     * @return true if in simulation operation mode
+     */
+    public boolean isSimulation() {
+        return getOperationMode() == OperationMode.SIMULATION;
     }
 
     @Override

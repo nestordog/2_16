@@ -145,7 +145,7 @@
     <bean id="securityFamilyDao" class="ch.algotrader.entity.security.SecurityFamilyDaoImpl">
         <constructor-arg index="0" ref="sessionFactory"/>
     </bean>
-    
+
     <bean id="stockDao" class="ch.algotrader.entity.security.StockDaoImpl">
         <constructor-arg index="0" ref="sessionFactory"/>
     </bean>
