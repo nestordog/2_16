@@ -49,7 +49,7 @@ public class OrderServiceTest extends IBServiceTest {
 
         int[] ids = { 8, 9, 10 };
 
-        List<Order> orders = new ArrayList<Order>();
+        List<Order> orders = new ArrayList<>();
         for (int i : ids) {
 
             Security security = lookupService.getSecurity(i);

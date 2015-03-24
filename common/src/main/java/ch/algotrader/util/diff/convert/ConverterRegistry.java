@@ -34,7 +34,7 @@ public class ConverterRegistry {
     private final Map<Class<?>, ValueConverter<?>> convertersByType;
 
     private ConverterRegistry(Map<Class<?>, ValueConverter<?>> convertersByType) {
-        this.convertersByType = new LinkedHashMap<Class<?>, ValueConverter<?>>(convertersByType);
+        this.convertersByType = new LinkedHashMap<>(convertersByType);
     }
 
     private static ConverterRegistry createDefaultRegistry() {
@@ -47,7 +47,7 @@ public class ConverterRegistry {
     }
 
     public static class Builder {
-        private final Map<Class<?>, ValueConverter<?>> convertersByType = new LinkedHashMap<Class<?>, ValueConverter<?>>();
+        private final Map<Class<?>, ValueConverter<?>> convertersByType = new LinkedHashMap<>();
 
         public Builder() {
             super();

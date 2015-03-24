@@ -31,7 +31,7 @@ import com.bloomberglp.blpapi.SessionOptions;
 public final class BBSession extends Session {
 
     private Service service;
-    private String serviceName;
+    private final String serviceName;
     private BBMessageHandler messageHandler;
 
     public BBSession(String serviceName, SessionOptions sessionOptions, BBMessageHandler messageHandler) {

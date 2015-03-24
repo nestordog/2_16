@@ -38,7 +38,7 @@ public class MetricsUtil {
     private static final boolean isMetricsEnabled = ConfigLocator.instance().getConfigParams().getBoolean("misc.metricsEnabled", false);
     private static final Logger logger = LogManager.getLogger(MetricsUtil.class.getName());
 
-    private static Map<String, Metric> metrics = new HashMap<String, Metric>();
+    private static final Map<String, Metric> metrics = new HashMap<>();
     private static long startMillis = System.nanoTime();
 
     /**

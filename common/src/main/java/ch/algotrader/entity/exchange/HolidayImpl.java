@@ -40,7 +40,7 @@ public class HolidayImpl extends Holiday {
     @Override
     public String toString() {
 
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         buffer.append(dayFormat.format(getDate()));
 
         if (getLateOpen() != null) {

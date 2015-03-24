@@ -49,9 +49,9 @@ public class DistributingOrder extends AlgoOrder {
     @Override
     public List<SimpleOrder> getInitialOrders(Tick tick) {
 
-        List<SimpleOrder> orders = new ArrayList<SimpleOrder>();
+        List<SimpleOrder> orders = new ArrayList<>();
         long totalQuantity = 0;
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         for (Allocation allocation : getAllocations()) {
 
             // qty proportional to allocation

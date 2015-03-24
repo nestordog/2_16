@@ -199,7 +199,7 @@ public class SubscriptionServiceImpl implements SubscriptionService, Application
         }
 
         // assemble the message selector
-        List<String> selections = new ArrayList<String>();
+        List<String> selections = new ArrayList<>();
         for (Class<?> clazz : classes) {
             selections.add("clazz='" + clazz.getName() + "'");
         }

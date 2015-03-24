@@ -34,7 +34,7 @@ import com.espertech.esperio.csv.CSVInputAdapter;
  */
 public class CsvTickInputAdapter extends CSVInputAdapter {
 
-    private CsvTickInputAdapterSpec spec;
+    private final CsvTickInputAdapterSpec spec;
 
     public CsvTickInputAdapter(CsvTickInputAdapterSpec spec) {
 

@@ -37,7 +37,7 @@ import ch.algotrader.service.PortfolioService;
  */
 public class RestorePortfolioValueStarter {
 
-    private static DateFormat formatter = new SimpleDateFormat("dd.MM.yyyy_HH:mm:ss");
+    private static final DateFormat formatter = new SimpleDateFormat("dd.MM.yyyy_HH:mm:ss");
 
     public static void main(String[] args) throws ParseException {
 

@@ -69,7 +69,7 @@ public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl imple
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
     private static final SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
-    private static Logger logger = LogManager.getLogger(BBHistoricalDataServiceImpl.class.getName());
+    private static final Logger logger = LogManager.getLogger(BBHistoricalDataServiceImpl.class.getName());
     private static BBSession session;
 
     private final BBAdapter bBAdapter;
@@ -292,7 +292,7 @@ public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl imple
 
             this.security = security;
             this.barSize = barSize;
-            this.barList = new ArrayList<Bar>();
+            this.barList = new ArrayList<>();
         }
 
         @Override

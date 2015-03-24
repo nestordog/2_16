@@ -51,7 +51,7 @@ import quickfix.fix44.MarketDataSnapshotFullRefresh;
  */
 public class LMAXFixMarketDataMessageHandler extends AbstractFix44MarketDataMessageHandler {
 
-    private static Logger LOGGER = LogManager.getLogger(LMAXFixMarketDataMessageHandler.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(LMAXFixMarketDataMessageHandler.class.getName());
 
     private final Engine serverEngine;
 

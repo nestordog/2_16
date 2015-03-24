@@ -95,7 +95,7 @@ public class DefaultIBAdapter implements ApplicationContextAware, IBAdapter {
     @ManagedAttribute
     public Map<Integer, ConnectionState> getConnectionStates() {
 
-        Map<Integer, ConnectionState> connectionStates = new HashMap<Integer, ConnectionState>();
+        Map<Integer, ConnectionState> connectionStates = new HashMap<>();
         for (IBSession session : getSessions()) {
             connectionStates.put(session.getClientId(), session.getLifecycle().getConnectionState());
         }

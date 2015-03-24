@@ -43,7 +43,7 @@ public class ConfigPropertiesFactoryTest {
         ConfigPropertiesFactoryBean factoryBean = new ConfigPropertiesFactoryBean();
         factoryBean.setConfigParams(configParams);
 
-        Mockito.when(configProvider.getNames()).thenReturn(new HashSet<String>(Arrays.asList("p1", "p2")));
+        Mockito.when(configProvider.getNames()).thenReturn(new HashSet<>(Arrays.asList("p1", "p2")));
         Mockito.when(configProvider.getParameter("p1", String.class)).thenReturn("blah");
         Mockito.when(configProvider.getParameter("p2", String.class)).thenReturn(null);
 

@@ -82,7 +82,7 @@ public class SlicingOrderTest {
 
         String nameValues = "side=BUY,quantity=2,minVolPct=0.5,maxVolPct=1.5,minQuantity=5,maxQuantity=10,minDuration=1.0,maxDuration=2.0,minDelay=1.0,maxDelay=2.0";
 
-        Map<String, String> properties = new HashMap<String, String>();
+        Map<String, String> properties = new HashMap<>();
         for (String nameValue : nameValues.split(",")) {
             properties.put(nameValue.split("=")[0], nameValue.split("=")[1]);
         }

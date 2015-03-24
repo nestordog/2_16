@@ -44,7 +44,7 @@ public class DefaultConfigProviderTest {
     @Test
     public void testBasicTypeConversion() throws Exception {
 
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put("int.stuff", "5");
         map.put("url.stuff", "http://localhost/stuff");
         map.put("date.stuff", "2014-02-02");
@@ -63,7 +63,7 @@ public class DefaultConfigProviderTest {
     @Test
     public void testTypeConversionNullValues() throws Exception {
 
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         ConfigProvider configProvider = new DefaultConfigProvider(map);
         Assert.assertEquals(null, configProvider.getParameter("int.stuff", BigDecimal.class));
         Assert.assertEquals(null, configProvider.getParameter("url.stuff", URL.class));
@@ -73,7 +73,7 @@ public class DefaultConfigProviderTest {
     @Test
     public void testTypeConversionEmptyValues() throws Exception {
 
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put("int.stuff", "");
         map.put("url.stuff", "");
         map.put("file.stuff", "");
@@ -87,7 +87,7 @@ public class DefaultConfigProviderTest {
     @Test(expected=ConversionFailedException.class)
     public void testInvalidTypeConversion1() throws Exception {
 
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put("int.stuff", "crap");
 
         ConfigProvider configProvider = new DefaultConfigProvider(map);
@@ -97,7 +97,7 @@ public class DefaultConfigProviderTest {
     @Test(expected=ConversionFailedException.class)
     public void testInvalidTypeConversion2() throws Exception {
 
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put("url.stuff", "^&*(() sdfs sf");
 
         ConfigProvider configProvider = new DefaultConfigProvider(map);
@@ -107,7 +107,7 @@ public class DefaultConfigProviderTest {
     @Test
     public void testCurrencyTypeConversion() throws Exception {
 
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put("some.currency", "USD");
 
         ConfigProvider configProvider = new DefaultConfigProvider(map);
@@ -117,7 +117,7 @@ public class DefaultConfigProviderTest {
     @Test(expected=ConversionFailedException.class)
     public void testInvalidTypeConversion3() throws Exception {
 
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put("some.currency", "CRAP");
 
         ConfigProvider configProvider = new DefaultConfigProvider(map);

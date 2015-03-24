@@ -51,8 +51,8 @@ public class LocalLookupServiceImpl implements LocalLookupService, TickEventList
     private final EngineManager engineManager;
     private final LookupService lookupService;
 
-    private final ConcurrentMap<Integer, MarketDataEvent> lastMarketDataEventBySecurityId = new ConcurrentHashMap<Integer, MarketDataEvent>();
-    private final MultiKeyMap<Currency, Forex> forexMap = new MultiKeyMap<Currency, Forex>();//TODO thread safe?!?
+    private final ConcurrentMap<Integer, MarketDataEvent> lastMarketDataEventBySecurityId;
+    private final MultiKeyMap<Currency, Forex> forexMap;
 
     public LocalLookupServiceImpl(
             final CommonConfig commonConfig,
@@ -66,6 +66,8 @@ public class LocalLookupServiceImpl implements LocalLookupService, TickEventList
         this.commonConfig = commonConfig;
         this.engineManager = engineManager;
         this.lookupService = lookupService;
+        this.lastMarketDataEventBySecurityId = new ConcurrentHashMap<>();
+        this.forexMap = new MultiKeyMap<>();//TODO thread safe?!?
     }
 
     @Override

@@ -114,7 +114,7 @@ public class CompareFilter implements CsvLineFilter {
      * @param column the CSV column containing the filter value
      * @return a new filter which accepts (in pseudo code): {@code row[column] < value}
      */
-    public static final <V extends Comparable<V>> CompareFilter less(V value, CsvColumn column) {
+    public static <V extends Comparable<V>> CompareFilter less(V value, CsvColumn column) {
         return new CompareFilter(Mode.LESS, value, column);
     }
 
@@ -126,7 +126,7 @@ public class CompareFilter implements CsvLineFilter {
      * @param column the CSV column containing the filter value
      * @return a new filter which accepts (in pseudo code): {@code row[column] <= value}
      */
-    public static final <V extends Comparable<V>> CompareFilter lessOrEqual(V value, CsvColumn column) {
+    public static <V extends Comparable<V>> CompareFilter lessOrEqual(V value, CsvColumn column) {
         return new CompareFilter(Mode.LESS_OR_EQUAL, value, column);
     }
 
@@ -138,7 +138,7 @@ public class CompareFilter implements CsvLineFilter {
      * @param column the CSV column containing the filter value
      * @return a new filter which accepts (in pseudo code): {@code row[column] == value}
      */
-    public static final <V extends Comparable<V>> CompareFilter at(V value, CsvColumn column) {
+    public static <V extends Comparable<V>> CompareFilter at(V value, CsvColumn column) {
         return new CompareFilter(Mode.EQUAL, value, column);
     }
 
@@ -150,7 +150,7 @@ public class CompareFilter implements CsvLineFilter {
      * @param column the CSV column containing the filter value
      * @return a new filter which accepts (in pseudo code): {@code row[column] >= value}
      */
-    public static final <V extends Comparable<V>> CompareFilter greaterOrEqual(V value, CsvColumn column) {
+    public static <V extends Comparable<V>> CompareFilter greaterOrEqual(V value, CsvColumn column) {
         return new CompareFilter(Mode.GREATER_OR_EQUAL, value, column);
     }
 
@@ -162,7 +162,7 @@ public class CompareFilter implements CsvLineFilter {
      * @param column the CSV column containing the filter value
      * @return a new filter which accepts (in pseudo code): {@code row[column] > value}
      */
-    public static final <V extends Comparable<V>> CompareFilter greater(V value, CsvColumn column) {
+    public static <V extends Comparable<V>> CompareFilter greater(V value, CsvColumn column) {
         return new CompareFilter(Mode.GREATER, value, column);
     }
 
@@ -175,7 +175,7 @@ public class CompareFilter implements CsvLineFilter {
      * @param column the CSV column containing the filter value
      * @return a new filter which accepts (in pseudo code): {@code from <= row[column] <= to}
      */
-    public static final <V extends Comparable<V>> CsvLineFilter between(final V from, final V to, final CsvColumn column) {
+    public static <V extends Comparable<V>> CsvLineFilter between(final V from, final V to, final CsvColumn column) {
         return new CsvLineFilter() {
             private final CompareFilter fromFilter = greaterOrEqual(from, column);
             private final CompareFilter toFilter = lessOrEqual(to, column);

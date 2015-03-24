@@ -36,9 +36,9 @@ import ch.algotrader.util.FieldUtil;
  */
 public class EntityHandler extends AbstractHandler {
 
-    private static Logger logger = LogManager.getLogger(EntityHandler.class.getName());
+    private static final Logger logger = LogManager.getLogger(EntityHandler.class.getName());
 
-    private CacheManagerImpl cacheManager;
+    private final CacheManagerImpl cacheManager;
 
     public EntityHandler(CacheManagerImpl cacheManager) {
         this.cacheManager = cacheManager;

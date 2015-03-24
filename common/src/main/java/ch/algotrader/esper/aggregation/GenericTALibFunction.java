@@ -75,14 +75,14 @@ import com.tictactec.ta.lib.RetCode;
  */
 public class GenericTALibFunction implements AggregationMethod {
 
-    private static CoreAnnotated core = new CoreAnnotated();
+    private static final CoreAnnotated core = new CoreAnnotated();
 
-    private Method function;
-    private Class<?> outputClass;
+    private final Method function;
+    private final Class<?> outputClass;
 
-    private List<CircularFifoBuffer<Number>> inputParams;
-    private List<Object> optInputParams;
-    private Map<String, Object> outputParams;
+    private final List<CircularFifoBuffer<Number>> inputParams;
+    private final List<Object> optInputParams;
+    private final Map<String, Object> outputParams;
 
     public GenericTALibFunction(Method function, int inputParamCount, int lookbackPeriod, List<Object> optInputParams, Map<String, Object> outputParams, Class<?> outputClass) {
 
@@ -94,10 +94,10 @@ public class GenericTALibFunction implements AggregationMethod {
         this.optInputParams = optInputParams;
         this.outputParams = outputParams;
 
-        this.inputParams = new ArrayList<CircularFifoBuffer<Number>>();
+        this.inputParams = new ArrayList<>();
 
         for (int i = 0; i < inputParamCount; i++) {
-            this.inputParams.add(new CircularFifoBuffer<Number>(lookbackPeriod));
+            this.inputParams.add(new CircularFifoBuffer<>(lookbackPeriod));
         }
     }
 

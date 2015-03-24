@@ -42,7 +42,7 @@ import ch.algotrader.vo.IVolVO;
 public class CsvIVolReader {
 
     //@formatter:off
-    private static CellProcessor[] processor = new CellProcessor[] {
+    private static final CellProcessor[] processor = new CellProcessor[] {
         null,
         null,
         new ParseDate("MM/dd/yy"),
@@ -58,7 +58,7 @@ public class CsvIVolReader {
         new Token("N/A", null, new ParseBigDecimal())
     };
 
-    private String[] header = {
+    private final String[] header = {
         "symbol",
         "exchange",
         "date",
@@ -74,7 +74,7 @@ public class CsvIVolReader {
         "unadjustedStockPrice"};
     //@formatter:on
 
-    private CsvBeanReader reader;
+    private final CsvBeanReader reader;
 
     public CsvIVolReader(String fileName) throws IOException {
 

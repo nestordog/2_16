@@ -74,7 +74,7 @@ import ch.algotrader.vo.PortfolioValueVO;
 @Transactional
 public class PortfolioServiceImpl implements PortfolioService {
 
-    private static Logger logger = LogManager.getLogger(PortfolioServiceImpl.class.getName());
+    private static final Logger logger = LogManager.getLogger(PortfolioServiceImpl.class.getName());
 
     private final CommonConfig commonConfig;
 
@@ -294,7 +294,7 @@ public class PortfolioServiceImpl implements PortfolioService {
           //@formatter:on
         Collection<Transaction> transactions = (Collection<Transaction>) this.genericDao.find(query, namedParameters);
 
-        return getCashBalanceDoubleInternal(transactions, new ArrayList<Position>(), date);
+        return getCashBalanceDoubleInternal(transactions, new ArrayList<>(), date);
 
     }
 
@@ -883,7 +883,7 @@ public class PortfolioServiceImpl implements PortfolioService {
     private double getCashBalanceDoubleInternal(Collection<Transaction> transactions, Collection<Position> openPositions, Date date) {
 
         // sum of all transactions
-        DoubleMap<Currency> map = new DoubleMap<Currency>();
+        DoubleMap<Currency> map = new DoubleMap<>();
         for (Transaction transaction : transactions) {
 
             // process all currenyAmounts
@@ -940,7 +940,7 @@ public class PortfolioServiceImpl implements PortfolioService {
     private double getSecuritiesCurrentValueDoubleInternal(Collection<Position> openPositions, Date date) {
 
         // sum of all non-FX positions (FX counts as cash)
-        DoubleMap<Currency> map = new DoubleMap<Currency>();
+        DoubleMap<Currency> map = new DoubleMap<>();
 
         for (Position openPosition : openPositions) {
 
@@ -972,8 +972,8 @@ public class PortfolioServiceImpl implements PortfolioService {
 
     private List<BalanceVO> getBalances(Collection<Currency> currencies, Collection<CashBalance> cashBalances, Collection<Position> positions) {
 
-        DoubleMap<Currency> cashMap = new DoubleMap<Currency>();
-        DoubleMap<Currency> securitiesMap = new DoubleMap<Currency>();
+        DoubleMap<Currency> cashMap = new DoubleMap<>();
+        DoubleMap<Currency> securitiesMap = new DoubleMap<>();
 
         for (Currency currency : currencies) {
             cashMap.increment(currency, 0.0);
@@ -1000,7 +1000,7 @@ public class PortfolioServiceImpl implements PortfolioService {
             }
         }
 
-        List<BalanceVO> balances = new ArrayList<BalanceVO>();
+        List<BalanceVO> balances = new ArrayList<>();
         for (Currency currency : currencies) {
 
             double cash = cashMap.get(currency);
@@ -1107,7 +1107,7 @@ public class PortfolioServiceImpl implements PortfolioService {
         CronSequenceGenerator cron = new CronSequenceGenerator("0 0 * * * 1-5", TimeZone.getDefault());
 
         // group PortfolioValues by strategyId and date
-        Map<MultiKey<Long>, PortfolioValue> portfolioValueMap = new HashMap<MultiKey<Long>, PortfolioValue>();
+        Map<MultiKey<Long>, PortfolioValue> portfolioValueMap = new HashMap<>();
 
         // create portfolioValues for all cron time slots
         Date date = cron.next(DateUtils.addHours(fromDate, -1));
@@ -1118,7 +1118,7 @@ public class PortfolioServiceImpl implements PortfolioService {
                 date = cron.next(date);
                 continue;
             } else {
-                MultiKey<Long> key = new MultiKey<Long>((long) strategy.getId(), date.getTime());
+                MultiKey<Long> key = new MultiKey<>((long) strategy.getId(), date.getTime());
                 portfolioValueMap.put(key, portfolioValue);
 
                 logger.info("processed portfolioValue for " + strategy.getName() + " " + date);
@@ -1142,7 +1142,7 @@ public class PortfolioServiceImpl implements PortfolioService {
             }
 
             // if there is an existing PortfolioValue, add the cashFlow
-            MultiKey<Long> key = new MultiKey<Long>((long) transaction.getStrategy().getId(), transaction.getDateTime().getTime());
+            MultiKey<Long> key = new MultiKey<>((long) transaction.getStrategy().getId(), transaction.getDateTime().getTime());
             if (portfolioValueMap.containsKey(key)) {
                 PortfolioValue portfolioValue = portfolioValueMap.get(key);
                 if (portfolioValue.getCashFlow() != null) {

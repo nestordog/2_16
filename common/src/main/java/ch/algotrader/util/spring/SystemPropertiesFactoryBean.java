@@ -97,7 +97,7 @@ public class SystemPropertiesFactoryBean extends PropertiesFactoryBean {
         } else {
             // Otherwise, we allow unset properties to drift through from the systemProperties set and potentially set
             // ones to be overriden by system properties
-            Set<String> propNames = new HashSet<String>((Set) props.keySet());
+            Set<String> propNames = new HashSet<>((Set) props.keySet());
             propNames.addAll(this.systemProperties);
             for (String systemProperty : propNames) {
                 resolveMergedProperty(systemProperty, props);

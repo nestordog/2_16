@@ -40,7 +40,7 @@ public class EqualsFilter implements CsvLineFilter {
         /** Accepts rows which equal the reference value*/
         Equals,
         /** Rejects rows which equal the reference value*/
-        NotEquals;
+        NotEquals
     }
 
     /**
@@ -64,7 +64,7 @@ public class EqualsFilter implements CsvLineFilter {
      * @param column the CSV column containing the filter value
      * @return a new filter which accepts (in pseudo code): {@code row[column].equals(value)}
      */
-    public static final EqualsFilter equals(Object value, CsvColumn column) {
+    public static EqualsFilter equals(Object value, CsvColumn column) {
         return new EqualsFilter(Mode.Equals, value, column);
     }
 
@@ -76,7 +76,7 @@ public class EqualsFilter implements CsvLineFilter {
      * @param column the CSV column containing the filter value
      * @return a new filter which accepts (in pseudo code): {@code !row[column].equals(value)}
      */
-    public static final EqualsFilter notEquals(Object value, CsvColumn column) {
+    public static EqualsFilter notEquals(Object value, CsvColumn column) {
         return new EqualsFilter(Mode.NotEquals, value, column);
     }
 

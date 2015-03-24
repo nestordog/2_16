@@ -26,8 +26,8 @@ package ch.algotrader.util.mail;
  */
 public class EmailFragment {
 
-    private byte[] data;
-    private String filename;
+    private final byte[] data;
+    private final String filename;
 
     public EmailFragment(String filename, byte[] data) {
         this.filename = filename;

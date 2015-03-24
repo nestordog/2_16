@@ -40,9 +40,9 @@ public class CsvGapChecker {
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy kk:mm:ss");
     private static final DecimalFormat decimalFormat = new DecimalFormat("#0.00");
 
-    private static double maxGapDays = 4.0;
-    private static double maxGapMins = 30.0;
-    private static String marketOpen = "15:40:00";
+    private static final double maxGapDays = 4.0;
+    private static final double maxGapMins = 30.0;
+    private static final String marketOpen = "15:40:00";
 
     public static void main(String[] args) throws IOException, ParseException {
 

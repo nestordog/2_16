@@ -246,7 +246,7 @@ public class TickDaoTest extends InMemoryDBTest {
 
         this.session.flush();
 
-        List<Integer> ids = new ArrayList<Integer>();
+        List<Integer> ids = new ArrayList<>();
         ids.add(tick.getId());
 
         List<Tick> ticks = this.dao.findByIdsInclSecurityAndUnderlying(ids);
@@ -289,7 +289,7 @@ public class TickDaoTest extends InMemoryDBTest {
         subscription1.setSecurity(this.forex1);
         subscription1.setStrategy(this.strategy1);
 
-        Set<Subscription> subscriptions = new HashSet<Subscription>();
+        Set<Subscription> subscriptions = new HashSet<>();
         subscriptions.add(subscription1);
 
         this.forex1.setSubscriptions(subscriptions);
@@ -336,7 +336,7 @@ public class TickDaoTest extends InMemoryDBTest {
         subscription1.setSecurity(this.forex1);
         subscription1.setStrategy(this.strategy1);
 
-        Set<Subscription> subscriptions = new HashSet<Subscription>();
+        Set<Subscription> subscriptions = new HashSet<>();
         subscriptions.add(subscription1);
 
         this.forex1.setSubscriptions(subscriptions);

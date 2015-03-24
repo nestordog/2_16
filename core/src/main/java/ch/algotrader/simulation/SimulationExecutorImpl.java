@@ -99,11 +99,11 @@ import com.espertech.esperio.csv.CSVInputAdapter;
  */
 public class SimulationExecutorImpl implements SimulationExecutor, InitializingBean, ApplicationContextAware {
 
-    private static Logger logger = LogManager.getLogger(SimulationExecutorImpl.class.getName());
-    private static Logger resultLogger = LogManager.getLogger("ch.algotrader.simulation.SimulationExecutor.RESULT");
-    private static DecimalFormat twoDigitFormat = new DecimalFormat("#,##0.00");
-    private static DateFormat monthFormat = new SimpleDateFormat(" MMM-yy ");
-    private static DateFormat yearFormat = new SimpleDateFormat("   yyyy ");
+    private static final Logger logger = LogManager.getLogger(SimulationExecutorImpl.class.getName());
+    private static final Logger resultLogger = LogManager.getLogger("ch.algotrader.simulation.SimulationExecutor.RESULT");
+    private static final DecimalFormat twoDigitFormat = new DecimalFormat("#,##0.00");
+    private static final DateFormat monthFormat = new SimpleDateFormat(" MMM-yy ");
+    private static final DateFormat yearFormat = new SimpleDateFormat("   yyyy ");
     private static final NumberFormat format = NumberFormat.getInstance();
 
     private final CommonConfig commonConfig;
@@ -491,7 +491,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
         Validate.notNull(parameters, "Parameter is null");
         Validate.notNull(values, "Value is null");
 
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         buffer.append("optimize ");
         for (int i = 0; i < parameters.length; i++) {
             buffer.append(parameters[i] + "=" + values[i] + " ");
@@ -656,7 +656,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
         List<PeriodPerformanceVO> yearlyPerformances = null;
         if (monthlyPerformances.size() != 0) {
             if ((monthlyPerformances != null)) {
-                yearlyPerformances = new ArrayList<PeriodPerformanceVO>();
+                yearlyPerformances = new ArrayList<>();
                 double currentPerformance = 1.0;
                 for (PeriodPerformanceVO monthlyPerformance : monthlyPerformances) {
                     currentPerformance *= 1.0 + monthlyPerformance.getValue();
@@ -691,7 +691,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
         resultVO.setLoosingTrades(loosingTrades);
 
         // get potential strategy specific results
-        Map<String, Object> strategyResults = new HashMap<String, Object>();
+        Map<String, Object> strategyResults = new HashMap<>();
         for (SimulationResultsProducer resultsProducer : this.applicationContext.getBeansOfType(SimulationResultsProducer.class).values()) {
             strategyResults.putAll(resultsProducer.getSimulationResults());
         }
@@ -703,7 +703,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
     @SuppressWarnings("unchecked")
     private String convertStatisticsToShortString(SimulationResultVO resultVO) {
 
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
 
         PerformanceKeysVO performanceKeys = resultVO.getPerformanceKeys();
         MaxDrawDownVO maxDrawDownVO = resultVO.getMaxDrawDown();
@@ -747,7 +747,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
     @SuppressWarnings("unchecked")
     private String convertStatisticsToLongString(SimulationResultVO resultVO) {
 
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         buffer.append("execution time (min): " + (new DecimalFormat("0.00")).format(resultVO.getMins()) + "\r\n");
 
         if (resultVO.getAllTrades().getCount() == 0) {
@@ -767,8 +767,8 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
         int positiveMonths = 0;
         int negativeMonths = 0;
         if ((monthlyPerformances != null)) {
-            StringBuffer dateBuffer = new StringBuffer("month-year:         ");
-            StringBuffer performanceBuffer = new StringBuffer("monthlyPerformance: ");
+            StringBuilder dateBuffer = new StringBuilder("month-year:         ");
+            StringBuilder performanceBuffer = new StringBuilder("monthlyPerformance: ");
             for (PeriodPerformanceVO monthlyPerformance : monthlyPerformances) {
                 maxDrawDownM = Math.min(maxDrawDownM, monthlyPerformance.getValue());
                 bestMonthlyPerformance = Math.max(bestMonthlyPerformance, monthlyPerformance.getValue());
@@ -789,8 +789,8 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
         int negativeYears = 0;
         Collection<PeriodPerformanceVO> yearlyPerformances = resultVO.getYearlyPerformances();
         if ((yearlyPerformances != null)) {
-            StringBuffer dateBuffer = new StringBuffer("year:               ");
-            StringBuffer performanceBuffer = new StringBuffer("yearlyPerformance:  ");
+            StringBuilder dateBuffer = new StringBuilder("year:               ");
+            StringBuilder performanceBuffer = new StringBuilder("yearlyPerformance:  ");
             for (PeriodPerformanceVO yearlyPerformance : yearlyPerformances) {
                 dateBuffer.append(yearFormat.format(yearlyPerformance.getDate()));
                 performanceBuffer.append(StringUtils.leftPad(twoDigitFormat.format(yearlyPerformance.getValue() * 100), 6) + "% ");
@@ -912,7 +912,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
         @Override
         public double value(double[] input) throws FunctionEvaluationException {
 
-            StringBuffer buffer = new StringBuffer("optimize on ");
+            StringBuilder buffer = new StringBuilder("optimize on ");
             for (int i = 0; i < input.length; i++) {
 
                 String param = this.params[i];

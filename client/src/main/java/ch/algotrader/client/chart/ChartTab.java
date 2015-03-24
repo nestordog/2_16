@@ -105,7 +105,7 @@ import ch.algotrader.vo.ValueMarkerVO;
 public class ChartTab extends ChartPanel {
 
     private static final long serialVersionUID = -1511949341697529944L;
-    private static DateFormat formatter = new SimpleDateFormat("EEE dd.MM.yyyy HH:mm:ss");
+    private static final DateFormat formatter = new SimpleDateFormat("EEE dd.MM.yyyy HH:mm:ss");
 
 
     private ChartDefinitionVO chartDefinition;
@@ -114,7 +114,7 @@ public class ChartTab extends ChartPanel {
     private Map<String, TimeSeries> indicators;
     private Map<String, Marker> markers;
     private Map<String, Boolean> markersSelectionStatus;
-    private ChartPlugin chartPlugin;
+    private final ChartPlugin chartPlugin;
 
     public ChartTab(ChartPlugin chartPlugin) {
 
@@ -181,10 +181,10 @@ public class ChartTab extends ChartPanel {
         this.setChart(chart);
 
         // init the maps
-        this.bars = new HashMap<Integer, OHLCSeries>();
-        this.indicators = new HashMap<String, TimeSeries>();
-        this.markers = new HashMap<String, Marker>();
-        this.markersSelectionStatus = new HashMap<String, Boolean>();
+        this.bars = new HashMap<>();
+        this.indicators = new HashMap<>();
+        this.markers = new HashMap<>();
+        this.markersSelectionStatus = new HashMap<>();
 
         // init domain axis
         initDomainAxis(chartDefinition);

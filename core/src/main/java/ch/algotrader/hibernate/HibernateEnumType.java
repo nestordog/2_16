@@ -151,7 +151,7 @@ public class HibernateEnumType implements EnhancedUserType, ParameterizedType {
      * @see org.hibernate.usertype.EnhancedUserType#fromXMLString(String)
      */
     @Override
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "deprecation"})
     public Object fromXMLString(String xmlValue) {
         return Enum.valueOf(this.enumClass, xmlValue);
     }
@@ -169,7 +169,7 @@ public class HibernateEnumType implements EnhancedUserType, ParameterizedType {
      * @see org.hibernate.usertype.EnhancedUserType#toXMLString(Object)
      */
     @Override
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings({"unchecked", "deprecation"})
     public String toXMLString(Object value) {
         return ((Enum) value).name();
     }

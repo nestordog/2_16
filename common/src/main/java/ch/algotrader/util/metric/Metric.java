@@ -28,9 +28,9 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class Metric {
 
-    private String name;
-    private AtomicLong executions;
-    private AtomicLong time;
+    private final String name;
+    private final AtomicLong executions;
+    private final AtomicLong time;
 
     public Metric(String name) {
 

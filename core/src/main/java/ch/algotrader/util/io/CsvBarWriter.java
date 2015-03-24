@@ -42,7 +42,7 @@ import ch.algotrader.entity.marketData.Bar;
 public class CsvBarWriter {
 
     //@formatter:off
-    private static String[] header = new String[] {
+    private static final String[] header = new String[] {
         "dateTime",
         "open",
         "high",
@@ -51,7 +51,7 @@ public class CsvBarWriter {
         "vol"
     };
 
-    private static CellProcessor[] processor = new CellProcessor[] {
+    private static final CellProcessor[] processor = new CellProcessor[] {
         new DateConverter(), //dateTime
         null, //open
         null, //high
@@ -61,7 +61,7 @@ public class CsvBarWriter {
     };
     //@formatter:on
 
-    private CsvBeanWriter writer;
+    private final CsvBeanWriter writer;
 
     public CsvBarWriter(File file) throws IOException {
 
@@ -96,7 +96,7 @@ public class CsvBarWriter {
                 return "";
             }
             final Date date = (Date) value;
-            Long result = Long.valueOf(date.getTime());
+            Long result = date.getTime();
             return this.next.execute(result, context);
         }
     }

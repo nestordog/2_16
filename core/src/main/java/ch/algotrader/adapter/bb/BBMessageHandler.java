@@ -34,7 +34,7 @@ import com.bloomberglp.blpapi.Session;
  */
 public abstract class BBMessageHandler implements EventHandler {
 
-    private static Logger logger = LogManager.getLogger(BBMessageHandler.class.getName());
+    private static final Logger logger = LogManager.getLogger(BBMessageHandler.class.getName());
 
     private final Object lock = new Object();
     private boolean running;

@@ -60,8 +60,8 @@ import ch.algotrader.vo.PositionMutationVO;
 @Transactional
 public class TransactionServiceImpl implements TransactionService {
 
-    private static Logger logger = LogManager.getLogger(TransactionServiceImpl.class.getName());
-    private static Logger mailLogger = LogManager.getLogger(TransactionServiceImpl.class.getName() + ".MAIL");
+    private static final Logger logger = LogManager.getLogger(TransactionServiceImpl.class.getName());
+    private static final Logger mailLogger = LogManager.getLogger(TransactionServiceImpl.class.getName() + ".MAIL");
 
     private final CommonConfig commonConfig;
 
@@ -358,7 +358,7 @@ public class TransactionServiceImpl implements TransactionService {
 
         double totalAllocation = 0.0;
         double totalRebalanceAmount = 0.0;
-        Collection<Transaction> transactions = new ArrayList<Transaction>();
+        Collection<Transaction> transactions = new ArrayList<>();
         for (Strategy strategy : strategies) {
 
             totalAllocation += strategy.getAllocation();

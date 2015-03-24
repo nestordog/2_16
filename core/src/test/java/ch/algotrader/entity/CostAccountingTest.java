@@ -48,7 +48,7 @@ import ch.algotrader.util.PositionUtil;
  */
 public class CostAccountingTest {
 
-    private static SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
+    private static final SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
 
     @Test
     public void test() throws ParseException {
@@ -62,7 +62,7 @@ public class CostAccountingTest {
         Security security = new StockImpl();
         security.setSecurityFamily(family);
 
-        List<Transaction> transactions = new ArrayList<Transaction>();
+        List<Transaction> transactions = new ArrayList<>();
 
         Transaction transaction;
 

@@ -87,7 +87,7 @@ public class H2TransactionPersistenceServiceImpl extends TransactionPersistenceS
 
         Strategy strategy = transaction.getStrategy();
         Security security = transaction.getSecurity();
-        Set<Currency> currencySet = new HashSet<Currency>();
+        Set<Currency> currencySet = new HashSet<>();
         Collection<CurrencyAmountVO> attributions = transaction.getAttributions();
         for (CurrencyAmountVO attribution : attributions) {
             currencySet.add(attribution.getCurrency());

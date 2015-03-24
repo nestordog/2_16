@@ -169,14 +169,14 @@ public class OrderDaoTest extends InMemoryDBTest {
         this.session.save(order);
         this.session.flush();
 
-        List<Integer> ids1 = new ArrayList<Integer>();
+        List<Integer> ids1 = new ArrayList<>();
         ids1.add(0);
 
         List<Order> orders1 = this.dao.findByIds(ids1);
 
         Assert.assertEquals(0, orders1.size());
 
-        List<Integer> ids2 = new ArrayList<Integer>();
+        List<Integer> ids2 = new ArrayList<>();
         ids2.add(order.getId());
 
         List<Order> orders2 = this.dao.findByIds(ids2);

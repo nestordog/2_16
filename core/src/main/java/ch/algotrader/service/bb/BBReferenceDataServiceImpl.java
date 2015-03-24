@@ -73,7 +73,7 @@ public class BBReferenceDataServiceImpl extends ReferenceDataServiceImpl impleme
     private static final long serialVersionUID = 8938937374871069522L;
     private static final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 
-    private static Logger logger = LogManager.getLogger(BBHistoricalDataServiceImpl.class.getName());
+    private static final Logger logger = LogManager.getLogger(BBHistoricalDataServiceImpl.class.getName());
     private static BBSession session;
 
     private final BBAdapter bBAdapter;
@@ -239,7 +239,7 @@ public class BBReferenceDataServiceImpl extends ReferenceDataServiceImpl impleme
 
     private class BBSymbolHandler extends BBMessageHandler {
 
-        private final List<String> symbols = new ArrayList<String>();
+        private final List<String> symbols = new ArrayList<>();
 
         @Override
         protected void processResponseEvent(Event event, Session session) {
@@ -328,14 +328,9 @@ public class BBReferenceDataServiceImpl extends ReferenceDataServiceImpl impleme
 
             this.securityFamily = securityFamily;
 
-            Comparator<Security> comparator = new Comparator<Security>() {
-                @Override
-                public int compare(Security o1, Security o2) {
-                    return o1.getBbgid().compareTo(o2.getBbgid());
-                }
-            };
+            Comparator<Security> comparator = (o1, o2) -> o1.getBbgid().compareTo(o2.getBbgid());
 
-            this.existingSecurities = new TreeSet<Security>(comparator);
+            this.existingSecurities = new TreeSet<>(comparator);
 
             if (securityFamily instanceof OptionFamily) {
                 this.existingSecurities.addAll(BBReferenceDataServiceImpl.this.optionDao.findBySecurityFamily(this.securityFamily.getId()));
@@ -345,8 +340,8 @@ public class BBReferenceDataServiceImpl extends ReferenceDataServiceImpl impleme
                 throw new IllegalArgumentException("illegal securityFamily type");
             }
 
-            this.newFutures = new TreeSet<Future>(comparator);
-            this.newOptions = new TreeSet<Option>(comparator);
+            this.newFutures = new TreeSet<>(comparator);
+            this.newOptions = new TreeSet<>(comparator);
         }
 
         @Override

@@ -33,7 +33,7 @@ import ch.algotrader.vo.OpenPositionVO;
  */
 public abstract class OpenPositionCallback {
 
-    private static Logger logger = LogManager.getLogger(OpenPositionCallback.class.getName());
+    private static final Logger logger = LogManager.getLogger(OpenPositionCallback.class.getName());
 
     /**
      * Called by the "ON_OPEN_POSITION" statement. Should not be invoked directly.

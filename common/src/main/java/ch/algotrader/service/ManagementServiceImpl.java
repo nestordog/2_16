@@ -221,7 +221,7 @@ public class ManagementServiceImpl implements ManagementService {
         List<MarketDataEventVO> marketDataEventVOs = getMarketDataEventVOs(marketDataEvents);
 
         // get all subscribed securities
-        List<MarketDataEventVO> processedMarketDataEventVOs = new ArrayList<MarketDataEventVO>();
+        List<MarketDataEventVO> processedMarketDataEventVOs = new ArrayList<>();
         if (strategyName.equalsIgnoreCase(StrategyImpl.SERVER)) {
 
             // for the AlgoTrader Server iterate over a distinct list of subscribed securities and feedType
@@ -270,7 +270,7 @@ public class ManagementServiceImpl implements ManagementService {
 
         ConfigProvider configProvider = this.configParams.getConfigProvider();
         Set<String> names = configProvider.getNames();
-        Map<Object, Object> props = new HashMap<Object, Object>();
+        Map<Object, Object> props = new HashMap<>();
         for (String name : names) {
 
             props.put(name, configProvider.getParameter(name, String.class));
@@ -497,13 +497,13 @@ public class ManagementServiceImpl implements ManagementService {
         if (!"".equals(properties)) {
 
             // get the properties
-            Map<String, String> propertiesMap = new HashMap<String, String>();
+            Map<String, String> propertiesMap = new HashMap<>();
             for (String nameValue : properties.split(",")) {
                 propertiesMap.put(nameValue.split("=")[0], nameValue.split("=")[1]);
             }
 
             // separate properties that correspond to actual Order fields from the rest
-            Map<String, String> fields = new HashMap<String, String>();
+            Map<String, String> fields = new HashMap<>();
             PropertyDescriptor[] pds = BeanUtil.getPropertyDescriptors(order);
             for (PropertyDescriptor pd : pds) {
                 String name = pd.getName();
@@ -575,7 +575,7 @@ public class ManagementServiceImpl implements ManagementService {
         Validate.notEmpty(properties, "Properties are empty");
 
         // get the properties
-        Map<String, String> propertiesMap = new HashMap<String, String>();
+        Map<String, String> propertiesMap = new HashMap<>();
         for (String nameValue : properties.split(",")) {
             propertiesMap.put(nameValue.split("=")[0], nameValue.split("=")[1]);
         }
@@ -897,7 +897,7 @@ public class ManagementServiceImpl implements ManagementService {
     private List<MarketDataEventVO> getMarketDataEventVOs(List<MarketDataEvent> marketDataEvents) {
 
         // create MarketDataEventVOs based on the MarketDataEvents (have to do this manually since we have no access to the Dao)
-        List<MarketDataEventVO> marketDataEventVOs = new ArrayList<MarketDataEventVO>();
+        List<MarketDataEventVO> marketDataEventVOs = new ArrayList<>();
         for (MarketDataEvent marketDataEvent : marketDataEvents) {
 
             MarketDataEventVO marketDataEventVO;

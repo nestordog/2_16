@@ -36,11 +36,11 @@ import ch.algotrader.util.RoundUtil;
  */
 public class CsvLinerarInterpolator {
 
-    private static String dataSet = ConfigurationUtil.getString("dataSet");
+    private static final String dataSet = ConfigurationUtil.getString("dataSet");
 
-    private static double recordsPerInput = 17.0;
-    private static double recordsPerHour = 2.0;
-    private static double offsetHour = 9.0;
+    private static final double recordsPerInput = 17.0;
+    private static final double recordsPerHour = 2.0;
+    private static final double offsetHour = 9.0;
 
     public static void main(String[] args) throws IOException, ParseException {
 

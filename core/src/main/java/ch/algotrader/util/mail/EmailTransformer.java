@@ -53,7 +53,7 @@ public class EmailTransformer {
 
         javax.mail.Message mailMessage = message.getPayload();
 
-        final List<EmailFragment> emailFragments = new ArrayList<EmailFragment>();
+        final List<EmailFragment> emailFragments = new ArrayList<>();
 
         handleMessage(mailMessage, emailFragments);
 
@@ -115,19 +115,14 @@ public class EmailTransformer {
             } else if (disposition.equalsIgnoreCase(Part.ATTACHMENT) || disposition.equalsIgnoreCase(Part.INLINE)) {
 
                 try {
-                    BufferedInputStream bis = new BufferedInputStream(bodyPart.getInputStream());
-                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                    try {
+                    try (ByteArrayOutputStream bos = new ByteArrayOutputStream(); BufferedInputStream bis = new BufferedInputStream(bodyPart.getInputStream())) {
 
                         IOUtils.copy(bis, bos);
 
                         emailFragments.add(new EmailFragment(filename, bos.toByteArray()));
 
-                        logger.info(String.format("processing file: %s", new Object[] { filename }));
+                        logger.info(String.format("processing file: %s", new Object[]{filename}));
 
-                    } finally {
-                        bos.close();
-                        bis.close();
                     }
 
                 } catch (IOException e) {

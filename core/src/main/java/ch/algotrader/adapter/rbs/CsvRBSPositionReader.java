@@ -44,7 +44,7 @@ import org.supercsv.prefs.CsvPreference;
 public class CsvRBSPositionReader {
 
     //@formatter:off
-    private static CellProcessor[] processor = new CellProcessor[] {
+    private static final CellProcessor[] processor = new CellProcessor[] {
         new ParseInt(),
         new ParseLong(),
         new StrNotNullOrEmpty(),
@@ -66,13 +66,12 @@ public class CsvRBSPositionReader {
     public static List<Map<String, ? super Object>> readPositions(File file) throws IOException {
 
         InputStreamReader inputStreamReader = new InputStreamReader(new FileInputStream(file));
-        CsvMapReader mapReader = new CsvMapReader(inputStreamReader, CsvPreference.EXCEL_PREFERENCE);
 
         List<Map<String, ? super Object>> list;
-        try {
+        try (CsvMapReader mapReader = new CsvMapReader(inputStreamReader, CsvPreference.EXCEL_PREFERENCE)) {
             String[] header = mapReader.getHeader(true);
 
-            list = new ArrayList<Map<String, ? super Object>>();
+            list = new ArrayList<>();
 
             Map<String, ? super Object> position;
             while ((position = mapReader.read(header, processor)) != null) {
@@ -81,8 +80,6 @@ public class CsvRBSPositionReader {
 
             return list;
 
-        } finally {
-            mapReader.close();
         }
     }
 }

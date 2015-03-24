@@ -77,11 +77,7 @@ public final class ConfigBeanFactory {
         }
         try {
             return (T) constructor.newInstance(paramValues);
-        } catch (InstantiationException ex) {
-            throw new ConfigBeanCreationException(ex);
-        } catch (IllegalAccessException ex) {
-            throw new ConfigBeanCreationException(ex);
-        } catch (InvocationTargetException ex) {
+        } catch (InstantiationException | InvocationTargetException | IllegalAccessException ex) {
             throw new ConfigBeanCreationException(ex);
         }
     }

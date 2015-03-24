@@ -391,7 +391,7 @@ public class EngineImpl extends AbstractEngine {
     @SuppressWarnings("rawtypes")
     public List executeQuery(String query) {
 
-        List<Object> objects = new ArrayList<Object>();
+        List<Object> objects = new ArrayList<>();
         EPOnDemandQueryResult result = this.serviceProvider.getEPRuntime().executeQuery(query);
         for (EventBean row : result.getArray()) {
             Object object = row.getUnderlying();
@@ -468,7 +468,7 @@ public class EngineImpl extends AbstractEngine {
         } else if (!statement.isStarted()) {
             throw new IllegalStateException("statement " + statementName + " is not started");
         } else {
-            List<Object> list = new ArrayList<Object>();
+            List<Object> list = new ArrayList<>();
             SafeIterator<EventBean> it = statement.safeIterator();
             try {
                 while (it.hasNext()) {
@@ -493,7 +493,7 @@ public class EngineImpl extends AbstractEngine {
         } else if (!statement.isStarted()) {
             throw new IllegalStateException("statement " + statementName + " is not started");
         } else {
-            List<Object> list = new ArrayList<Object>();
+            List<Object> list = new ArrayList<>();
             SafeIterator<EventBean> it = statement.safeIterator();
             try {
                 while (it.hasNext()) {
@@ -611,7 +611,7 @@ public class EngineImpl extends AbstractEngine {
 
         // get the securityIds sorted asscending and check that all orders are from the same strategy
         final Order firstOrder = CollectionUtil.getFirstElement(orders);
-        Set<Integer> sortedSecurityIds = new TreeSet<Integer>(CollectionUtils.collect(orders, new Transformer<Order, Integer>() {
+        Set<Integer> sortedSecurityIds = new TreeSet<>(CollectionUtils.collect(orders, new Transformer<Order, Integer>() {
 
             @Override
             public Integer transform(Order order) {
@@ -645,7 +645,7 @@ public class EngineImpl extends AbstractEngine {
     public void addFirstTickCallback(Collection<Security> securities, TickCallback callback) {
 
         // create a list of unique security ids
-        Set<Integer> securityIds = new TreeSet<Integer>();
+        Set<Integer> securityIds = new TreeSet<>();
         securityIds.addAll(CollectionUtils.collect(securities, new Transformer<Security, Integer>() {
             @Override
             public Integer transform(Security security) {
@@ -803,10 +803,8 @@ public class EngineImpl extends AbstractEngine {
                 throw new IllegalArgumentException(fileName + " does not exist");
             }
 
-            BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-
             // process loads
-            try {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream))) {
                 StringWriter buffer = new StringWriter();
                 String strLine;
                 while ((strLine = reader.readLine()) != null) {
@@ -831,8 +829,6 @@ public class EngineImpl extends AbstractEngine {
 
                 return EPLModuleUtil.parseInternal(buffer.toString(), fileName);
 
-            } finally {
-                reader.close();
             }
 
         } catch (ParseException | IOException ex) {
@@ -855,7 +851,7 @@ public class EngineImpl extends AbstractEngine {
         Annotation[] annotations = AnnotationUtil.compileAnnotations(annotationDescs, engineImportService, item.getExpression());
 
         String excludeStatements = this.configParams.getString("misc.moduleDeployExcludeStatements");
-        Set<String> moduleDeployExcludeStatements = new HashSet<String>();
+        Set<String> moduleDeployExcludeStatements = new HashSet<>();
         if (excludeStatements != null) {
             moduleDeployExcludeStatements.addAll(Arrays.asList(excludeStatements.split(",")));
         }

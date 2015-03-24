@@ -40,8 +40,8 @@ import ch.algotrader.config.ConfigLocator;
  */
 public class ListReporter implements Report {
 
-    private CellProcessor[] processor;
-    private CsvListWriter writer;
+    private final CellProcessor[] processor;
+    private final CsvListWriter writer;
 
     public ListReporter(File file, String[] header) throws IOException {
 

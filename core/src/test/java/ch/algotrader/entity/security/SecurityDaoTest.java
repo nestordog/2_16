@@ -111,7 +111,7 @@ public class SecurityDaoTest extends InMemoryDBTest {
         this.session.save(forex2);
         this.session.flush();
 
-        List<Integer> ids = new ArrayList<Integer>();
+        List<Integer> ids = new ArrayList<>();
 
         ids.add(forex1.getId());
 

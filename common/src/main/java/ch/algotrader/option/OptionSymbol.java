@@ -42,10 +42,10 @@ public class OptionSymbol {
     private static final String[] monthCallEnc = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L" };
     private static final String[] monthPutEnc = { "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X" };
     private static final String[] yearEnc = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J" };
-    private static SimpleDateFormat dayMonthYearFormat = new SimpleDateFormat("dd/MMM/yy");
-    private static SimpleDateFormat monthYearFormat = new SimpleDateFormat("MMM/yy");
-    private static SimpleDateFormat dayFormat = new SimpleDateFormat("dd");
-    private static SimpleDateFormat weekFormat = new SimpleDateFormat("W");
+    private static final SimpleDateFormat dayMonthYearFormat = new SimpleDateFormat("dd/MMM/yy");
+    private static final SimpleDateFormat monthYearFormat = new SimpleDateFormat("MMM/yy");
+    private static final SimpleDateFormat dayFormat = new SimpleDateFormat("dd");
+    private static final SimpleDateFormat weekFormat = new SimpleDateFormat("W");
 
     /**
      * Generates the symbole for the specified {@link ch.algotrader.entity.security.OptionFamily}.
@@ -60,7 +60,7 @@ public class OptionSymbol {
             week = weekFormat.format(cal.getTime());
         }
 
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         buffer.append(family.getSymbolRoot());
         buffer.append(week);
         buffer.append(" ");
@@ -99,7 +99,7 @@ public class OptionSymbol {
             String strike36 = BaseConverterUtil.toBase36(strike.multiply(new BigDecimal(10)).intValue());
             String strikeVal = strike.scale() + StringUtils.leftPad(strike36, 4, "0");
 
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         buffer.append("1O");
         buffer.append(family.getIsinRoot() != null ? family.getIsinRoot() : family.getSymbolRoot());
         buffer.append(week);
@@ -118,7 +118,7 @@ public class OptionSymbol {
         GregorianCalendar cal = new GregorianCalendar();
         cal.setTime(expiration);
 
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         buffer.append(family.getRicRoot() != null ? family.getRicRoot() : family.getSymbolRoot());
         if (OptionType.CALL.equals(type)) {
             buffer.append(monthCallEnc[cal.get(Calendar.MONTH)]);

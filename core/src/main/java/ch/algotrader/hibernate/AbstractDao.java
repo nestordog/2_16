@@ -149,7 +149,7 @@ public class AbstractDao<E extends BaseEntityI> {
 
     protected static <T> List<T> convertToList(final List<?> list, final Class<? extends T> clazz) {
 
-        List<T> results = new ArrayList<T>(list.size());
+        List<T> results = new ArrayList<>(list.size());
         for (int i = 0; i < list.size(); i++) {
             T entity = clazz.cast(list.get(i));
             results.add(entity);
@@ -159,7 +159,7 @@ public class AbstractDao<E extends BaseEntityI> {
 
     protected static <T> Set<T> convertToSet(final List<?> list, final Class<? extends T> clazz) {
 
-        Set<T> results = new LinkedHashSet<T>(list.size());
+        Set<T> results = new LinkedHashSet<>(list.size());
         for (int i = 0; i < list.size(); i++) {
             T entity = clazz.cast(list.get(i));
             results.add(entity);

@@ -56,7 +56,7 @@ public final class IBSession extends EClientSocket implements InitializingServic
     private final String host;
     private final int port;
     private final IBSessionLifecycle fixSessionStateHolder;
-    private MarketDataService marketDataService;
+    private final MarketDataService marketDataService;
     private ApplicationContext applicationContext;
 
     public IBSession(int clientId, String host, int port, IBSessionLifecycle fixSessionStateHolder, AbstractIBMessageHandler messageHandler, MarketDataService marketDataService) {

@@ -39,7 +39,7 @@ public class CoreConfigBeanFactoryTest {
 
     @Before
     public void setup() {
-        map = new HashMap<String, String>();
+        map = new HashMap<>();
         map.put("statement.simulateOptions", "true");
         map.put("statement.simulateFuturesByUnderlying", "true");
         map.put("statement.simulateFuturesByGenericFutures", "true");

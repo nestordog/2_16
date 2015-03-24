@@ -38,16 +38,16 @@ import ch.algotrader.vo.BarVO;
  */
 public class CsvBarToTickInterpolator {
 
-    private static String dataSet = ConfigurationUtil.getString("dataSet");
+    private static final String dataSet = ConfigurationUtil.getString("dataSet");
 
-    private static double recordsPerInput = 17.0;
-    private static double recordsPerHour = 2.0;
-    private static double offsetHour = 9.0;
+    private static final double recordsPerInput = 17.0;
+    private static final double recordsPerHour = 2.0;
+    private static final double offsetHour = 9.0;
 
-    private static boolean random = false;
-    private static boolean swapHighLow = false;
-    private static boolean spreadEven = true;
-    private static boolean enforceHighLow = true;
+    private static final boolean random = false;
+    private static final boolean swapHighLow = false;
+    private static final boolean spreadEven = true;
+    private static final boolean enforceHighLow = true;
 
     public static void main(String[] args) throws IOException {
 
@@ -76,7 +76,7 @@ public class CsvBarToTickInterpolator {
             double high = bar.getHigh().doubleValue();
             double low = bar.getLow().doubleValue();
 
-            NavigableMap<Integer, Double> map = new TreeMap<Integer, Double>();
+            NavigableMap<Integer, Double> map = new TreeMap<>();
 
             int lowHour = 0;
             int highHour = 0;

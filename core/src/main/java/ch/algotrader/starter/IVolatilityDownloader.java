@@ -62,8 +62,8 @@ public class IVolatilityDownloader {
     private static final String password = "password";
     private static final String username = "username";
 
-    private static DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
-    private static DateFormat fileFormat = new SimpleDateFormat("dd-MM-yyyy");
+    private static final DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+    private static final DateFormat fileFormat = new SimpleDateFormat("dd-MM-yyyy");
 
     public static void main(String[] args) throws HttpException, IOException, TransformerException, ParseException {
 
@@ -90,7 +90,7 @@ public class IVolatilityDownloader {
     private static void login(HttpClient httpclient) throws IOException, HttpException, TransformerException {
 
         // cookie settings http.protocol.cookie-policy
-        httpclient.getParams().setParameter(HttpMethodParams.SINGLE_COOKIE_HEADER, new Boolean(true));
+        httpclient.getParams().setParameter(HttpMethodParams.SINGLE_COOKIE_HEADER, true);
         httpclient.getParams().setParameter(HttpMethodParams.COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY);
 
         // user agent
@@ -202,24 +202,17 @@ public class IVolatilityDownloader {
 
             if (status == HttpStatus.SC_OK) {
 
-                BufferedInputStream inputStream = new BufferedInputStream(fileGet.getResponseBodyAsStream());
-
                 File parent = new File("files" + File.separator + "ivol");
                 if (!parent.exists()) {
                     FileUtils.forceMkdir(parent);
                 }
 
-                FileOutputStream outputStream = new FileOutputStream(new File(parent, "file-" + fileFormat.format(date) + ".csv"));
-
-                try {
+                try (BufferedInputStream inputStream = new BufferedInputStream(fileGet.getResponseBodyAsStream()); FileOutputStream outputStream = new FileOutputStream(new File(parent, "file-" + fileFormat.format(date) + ".csv"))) {
                     int input;
                     while ((input = inputStream.read()) != -1) {
                         outputStream.write(input);
                     }
 
-                } finally {
-                    outputStream.close();
-                    inputStream.close();
                 }
             }
         } finally {

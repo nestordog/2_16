@@ -42,7 +42,7 @@ public class TickwiseIncrementalOrder extends IncrementalOrder {
 
     private BigDecimal currentLimit;
 
-    private LimitOrder limitOrder = LimitOrder.Factory.newInstance();
+    private final LimitOrder limitOrder = LimitOrder.Factory.newInstance();
 
     private int startOffsetTicks;
 

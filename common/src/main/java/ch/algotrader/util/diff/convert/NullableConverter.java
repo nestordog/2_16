@@ -110,7 +110,7 @@ public class NullableConverter<T> implements ValueConverter<T> {
      * @return a converter that handles nulls and empty strings and passes only other values to the delegate converter
      */
     public static <T> NullableConverter<T> nullOrEmptyStringTo(T nullOrEmptyStringValue, ValueConverter<T> delegate) {
-        return new NullableConverter<T>(Mode.NULL_OR_EMPTY_STRING, delegate, nullOrEmptyStringValue);
+        return new NullableConverter<>(Mode.NULL_OR_EMPTY_STRING, delegate, nullOrEmptyStringValue);
     }
 
     @Override

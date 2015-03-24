@@ -61,9 +61,9 @@ import ch.algotrader.util.io.CsvTickWriter;
 @Transactional
 public class MarketDataServiceImpl implements MarketDataService, ApplicationListener<ContextRefreshedEvent> {
 
-    private static Logger logger = LogManager.getLogger(MarketDataServiceImpl.class.getName());
+    private static final Logger logger = LogManager.getLogger(MarketDataServiceImpl.class.getName());
 
-    private Map<Security, CsvTickWriter> csvWriters = new HashMap<Security, CsvTickWriter>();
+    private final Map<Security, CsvTickWriter> csvWriters = new HashMap<>();
 
     private final CommonConfig commonConfig;
 

@@ -173,9 +173,10 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-checkstyle-plugin</artifactId>
-                    <version>2.9.1</version>
+                    <version>2.15</version>
                     <configuration>
                         <encoding>${project.build.sourceEncoding}</encoding>
+                        <includeResources>false</includeResources>
                     </configuration>
                     <executions>
                         <execution>
@@ -596,7 +597,7 @@
     </distributionManagement>
 
     <properties>
-        <java.version>1.7</java.version>
+        <java.version>1.8</java.version>
         <andromda.version>3.4</andromda.version>
         <hibernate.version>4.3.8.Final</hibernate.version>
         <jboss-logging.version>3.2.1.Final</jboss-logging.version>

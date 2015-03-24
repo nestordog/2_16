@@ -19,7 +19,6 @@ package ch.algotrader.cache;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
@@ -42,9 +41,9 @@ import ch.algotrader.util.FieldUtil;
  */
 class CollectionHandler extends AbstractHandler {
 
-    private static Logger logger = LogManager.getLogger(CollectionHandler.class.getName());
+    private static final Logger logger = LogManager.getLogger(CollectionHandler.class.getName());
 
-    private CacheManagerImpl cacheManager;
+    private final CacheManagerImpl cacheManager;
 
     public CollectionHandler(CacheManagerImpl cacheManager) {
         this.cacheManager = cacheManager;
@@ -65,9 +64,9 @@ class CollectionHandler extends AbstractHandler {
             if (obj instanceof Map) {
 
                 Map map = (Map) obj;
-                for (Iterator i = map.entrySet().iterator(); i.hasNext();) {
+                for (Object o : map.entrySet()) {
 
-                    Map.Entry entry = (Map.Entry) i.next();
+                    Map.Entry entry = (Map.Entry) o;
                     Object existingValue = this.cacheManager.put(entry.getValue());
                     if (existingValue != null && existingValue != entry.getValue()) {
 
@@ -96,9 +95,8 @@ class CollectionHandler extends AbstractHandler {
 
                 Set set = (Set) obj;
                 Set replacements = new HashSet();
-                for (Iterator it = set.iterator(); it.hasNext();) {
+                for (Object value : set) {
 
-                    Object value = it.next();
                     Object existingValue = this.cacheManager.put(value);
                     if (existingValue != null && existingValue != value) {
                         replacements.add(value);

@@ -31,7 +31,7 @@ import org.apache.logging.log4j.Logger;
  */
 public class TestSubscriber {
 
-    private static Logger logger = LogManager.getLogger(TestSubscriber.class.getName());
+    private static final Logger logger = LogManager.getLogger(TestSubscriber.class.getName());
 
     public void update(Map<?, ?> map) {
 

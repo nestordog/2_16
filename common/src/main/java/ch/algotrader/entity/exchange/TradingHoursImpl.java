@@ -66,7 +66,7 @@ public class TradingHoursImpl extends TradingHours {
     @Override
     public String toString() {
 
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
 
         if (this.isSunday()) {
             buffer.append(WeekDay.SUNDAY);

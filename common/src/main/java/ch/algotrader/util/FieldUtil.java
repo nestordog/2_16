@@ -45,10 +45,10 @@ import org.apache.logging.log4j.Logger;
  */
 public class FieldUtil {
 
-    private static Logger logger = LogManager.getLogger(FieldUtil.class.getName());
+    private static final Logger logger = LogManager.getLogger(FieldUtil.class.getName());
 
     private static final Set<Object> immediates =
-        new HashSet<Object>(Arrays.asList(new Object[]{
+        new HashSet<>(Arrays.asList(new Object[]{
 
                     Boolean.class,
                     Double.class,
@@ -85,7 +85,7 @@ public class FieldUtil {
      */
     public static List<Field> getAllFields(Class<?> type) {
 
-        List<Field> fields = new ArrayList<Field>();
+        List<Field> fields = new ArrayList<>();
 
         while (true) {
 
@@ -126,12 +126,9 @@ public class FieldUtil {
         if (object.isAccessible())
             return;
 
-        AccessController.doPrivileged(new PrivilegedAction<Object>() {
-            @Override
-            public Object run() {
-                object.setAccessible(true);
-                return null;
-            }
+        AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
+            object.setAccessible(true);
+            return null;
         });
     }
 }

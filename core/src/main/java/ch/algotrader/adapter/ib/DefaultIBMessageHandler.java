@@ -297,7 +297,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
 
                 // get accounts
                 Node node;
-                Set<String> accounts = new HashSet<String>();
+                Set<String> accounts = new HashSet<>();
                 while ((node = iterator.nextNode()) != null) {
                     accounts.add(node.getFirstChild().getNodeValue());
                 }

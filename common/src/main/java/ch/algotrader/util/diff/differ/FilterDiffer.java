@@ -22,7 +22,6 @@ import java.util.Objects;
 
 import ch.algotrader.util.diff.define.CsvColumn;
 import ch.algotrader.util.diff.filter.CsvLineFilter;
-import ch.algotrader.util.diff.reader.CsvLine;
 import ch.algotrader.util.diff.reader.CsvReader;
 import ch.algotrader.util.diff.reader.FilterReader;
 
@@ -101,12 +100,7 @@ public class FilterDiffer implements CsvDiffer {
         }
 
         private CsvLineFilter createFilter(final CsvColumn column, final boolean accept, final Object value) {
-            return new CsvLineFilter() {
-                @Override
-                public boolean accept(CsvLine line) {
-                    return accept == Objects.equals(value, line.getValues().get(column));
-                }
-            };
+            return line -> accept == Objects.equals(value, line.getValues().get(column));
         }
 
         private CsvLineFilter and(final CsvLineFilter filter1, final CsvLineFilter filter2) {
@@ -114,12 +108,7 @@ public class FilterDiffer implements CsvDiffer {
                 return filter2;
             if (filter2 == null)
                 return filter1;
-            return new CsvLineFilter() {
-                @Override
-                public boolean accept(CsvLine line) {
-                    return filter1.accept(line) && filter2.accept(line);
-                }
-            };
+            return line -> filter1.accept(line) && filter2.accept(line);
         }
 
         private CsvLineFilter or(final CsvLineFilter filter1, final CsvLineFilter filter2) {
@@ -127,12 +116,7 @@ public class FilterDiffer implements CsvDiffer {
                 return filter2;
             if (filter2 == null)
                 return filter1;
-            return new CsvLineFilter() {
-                @Override
-                public boolean accept(CsvLine line) {
-                    return filter1.accept(line) || filter2.accept(line);
-                }
-            };
+            return line -> filter1.accept(line) || filter2.accept(line);
         }
 
     }

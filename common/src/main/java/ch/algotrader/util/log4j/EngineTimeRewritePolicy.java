@@ -34,7 +34,7 @@ import ch.algotrader.esper.EngineManager;
  */
 public class EngineTimeRewritePolicy implements RewritePolicy {
 
-    private volatile EngineManager engineManager;
+    private final EngineManager engineManager;
 
     public EngineTimeRewritePolicy(final EngineManager engineManager) {
         this.engineManager = engineManager;

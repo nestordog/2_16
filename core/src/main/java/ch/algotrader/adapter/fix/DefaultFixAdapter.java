@@ -140,9 +140,7 @@ public class DefaultFixAdapter implements FixAdapter {
 
                                 createLogonLogoutStatement(sessionId);
                             }
-                        } catch (FieldConvertError ex) {
-                            throw new FixApplicationException("FIX configuration error: " + ex.getMessage(), ex);
-                        } catch (ConfigError ex) {
+                        } catch (FieldConvertError | ConfigError ex) {
                             throw new FixApplicationException("FIX configuration error: " + ex.getMessage(), ex);
                         }
                     }

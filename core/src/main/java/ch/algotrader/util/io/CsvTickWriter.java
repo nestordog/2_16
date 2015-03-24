@@ -43,7 +43,7 @@ import ch.algotrader.entity.marketData.Tick;
 public class CsvTickWriter {
 
     //@formatter:off
-    private static String[] header = new String[] {
+    private static final String[] header = new String[] {
         "dateTime",
         "last",
         "lastDateTime",
@@ -54,7 +54,7 @@ public class CsvTickWriter {
         "vol"
     };
 
-    private static CellProcessor[] processor = new CellProcessor[] {
+    private static final CellProcessor[] processor = new CellProcessor[] {
         new DateConverter(), //dateTime
         new ConvertNullTo(""), //last
         new DateConverter(), //lastDateTime
@@ -66,7 +66,7 @@ public class CsvTickWriter {
     };
     //@formatter:on
 
-    private CsvBeanWriter writer;
+    private final CsvBeanWriter writer;
 
     public CsvTickWriter(File file) throws IOException {
 
@@ -101,7 +101,7 @@ public class CsvTickWriter {
                 return "";
             }
             final Date date = (Date) value;
-            Long result = Long.valueOf(date.getTime());
+            Long result = date.getTime();
             return this.next.execute(result, context);
         }
     }

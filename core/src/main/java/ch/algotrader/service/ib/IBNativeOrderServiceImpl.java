@@ -43,7 +43,7 @@ import ch.algotrader.service.OrderService;
  */
 public class IBNativeOrderServiceImpl extends ExternalOrderServiceImpl implements IBNativeOrderService {
 
-    private static Logger logger = LogManager.getLogger(IBNativeOrderServiceImpl.class.getName());
+    private static final Logger logger = LogManager.getLogger(IBNativeOrderServiceImpl.class.getName());
 
     private static boolean firstOrder = true;
 

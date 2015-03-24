@@ -114,7 +114,7 @@ public class TransactionImpl extends Transaction {
     @Override
     public Collection<CurrencyAmountVO> getAttributions() {
 
-        Collection<CurrencyAmountVO> list = new ArrayList<CurrencyAmountVO>();
+        Collection<CurrencyAmountVO> list = new ArrayList<>();
         if (getSecurity() instanceof Forex) {
 
             // gross transaction value is booked in transaction currency
@@ -173,7 +173,7 @@ public class TransactionImpl extends Transaction {
     @Override
     public String toString() {
 
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
 
         if (isTrade()) {
 

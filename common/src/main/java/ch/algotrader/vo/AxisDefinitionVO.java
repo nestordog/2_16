@@ -340,7 +340,7 @@ public class AxisDefinitionVO implements Serializable {
     public Collection<DatasetDefinitionVO> getDatasetDefinitions() {
 
         if (this.datasetDefinitions == null) {
-            this.datasetDefinitions = new ArrayList<DatasetDefinitionVO>();
+            this.datasetDefinitions = new ArrayList<>();
         }
         return this.datasetDefinitions;
     }

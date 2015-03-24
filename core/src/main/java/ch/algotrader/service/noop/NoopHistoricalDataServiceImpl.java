@@ -32,7 +32,7 @@ public class NoopHistoricalDataServiceImpl implements HistoricalDataService {
 
     @Override
     public List<Bar> getHistoricalBars(int securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, Duration barSize, BarType barType, Map<String, String> properties) {
-        return new ArrayList<Bar>();
+        return new ArrayList<>();
     }
 
     @Override

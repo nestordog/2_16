@@ -31,7 +31,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.ib.client.Contract;
-import com.ib.client.TagValue;
 
 import ch.algotrader.adapter.ib.IBIdGenerator;
 import ch.algotrader.adapter.ib.IBSession;
@@ -140,16 +139,21 @@ public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl
         String[] barSizeName = barSize.name().split("_");
 
         String barSizeString = barSizeName[1] + " ";
-        if (barSizeName[0].equals("SEC")) {
-            barSizeString += "sec";
-        } else if (barSizeName[0].equals("MIN")) {
-            barSizeString += "min";
-        } else if (barSizeName[0].equals("HOUR")) {
-            barSizeString += "hour";
-        } else if (barSizeName[0].equals("DAY")) {
-            barSizeString += "day";
-        } else {
-            throw new IllegalArgumentException("barSize is not allowed " + barSize);
+        switch (barSizeName[0]) {
+            case "SEC":
+                barSizeString += "sec";
+                break;
+            case "MIN":
+                barSizeString += "min";
+                break;
+            case "HOUR":
+                barSizeString += "hour";
+                break;
+            case "DAY":
+                barSizeString += "day";
+                break;
+            default:
+                throw new IllegalArgumentException("barSize is not allowed " + barSize);
         }
 
         if (Integer.parseInt(barSizeName[1]) > 1) {
@@ -191,10 +195,10 @@ public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl
         }
 
         // send the request
-        this.iBSession.reqHistoricalData(requestId, contract, dateString, durationString, barSizeString, barTypeString, 1, 1, new ArrayList<TagValue>());
+        this.iBSession.reqHistoricalData(requestId, contract, dateString, durationString, barSizeString, barTypeString, 1, 1, new ArrayList<>());
 
         // read from the queue until a Bar with no dateTime is received
-        List<Bar> barList = new ArrayList<Bar>();
+        List<Bar> barList = new ArrayList<>();
         while (true) {
 
             Bar bar;

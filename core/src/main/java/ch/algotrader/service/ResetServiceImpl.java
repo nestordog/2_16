@@ -135,8 +135,8 @@ public class ResetServiceImpl implements ResetService {
 
             // delete all transactions except the initial CREDIT
             Collection<Transaction> transactions = this.transactionDao.findByStrategy(strategy.getName());
-            Set<Transaction> toRemoveTransactions = new HashSet<Transaction>();
-            Set<Transaction> toKeepTransactions = new HashSet<Transaction>();
+            Set<Transaction> toRemoveTransactions = new HashSet<>();
+            Set<Transaction> toKeepTransactions = new HashSet<>();
             BigDecimal initialAmount = new BigDecimal(0);
             for (Transaction transaction : transactions) {
                 if (transaction.getId() == 1) {
@@ -150,8 +150,8 @@ public class ResetServiceImpl implements ResetService {
 
             // delete all cashBalances except the initial CREDIT
             Collection<CashBalance> cashBalances = strategy.getCashBalances();
-            Set<CashBalance> toRemoveCashBalance = new HashSet<CashBalance>();
-            Set<CashBalance> toKeepCashBalances = new HashSet<CashBalance>();
+            Set<CashBalance> toRemoveCashBalance = new HashSet<>();
+            Set<CashBalance> toKeepCashBalances = new HashSet<>();
             for (CashBalance cashBalance : cashBalances) {
                 if (cashBalance.getId() == 1) {
                     toKeepCashBalances.add(cashBalance);

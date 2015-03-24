@@ -67,8 +67,8 @@ public class ChartPlugin extends JConsolePlugin {
     @Override
     public synchronized Map<String, JPanel> getTabs() {
 
-        Map<String, JPanel> tabs = new LinkedHashMap<String, JPanel>();
-        this.chartTabs = new LinkedHashMap<ObjectName, ChartTab>();
+        Map<String, JPanel> tabs = new LinkedHashMap<>();
+        this.chartTabs = new LinkedHashMap<>();
 
         Set<ObjectInstance> beans = null;
         try {

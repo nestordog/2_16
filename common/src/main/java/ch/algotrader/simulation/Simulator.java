@@ -63,7 +63,7 @@ import ch.algotrader.vo.TradePerformanceVO;
  */
 public class Simulator {
 
-    private static Logger logger = LogManager.getLogger(Simulator.class.getName());
+    private static final Logger logger = LogManager.getLogger(Simulator.class.getName());
 
     private final Map<Pair<String, Currency>, CashBalance> cashBalances;
     private final Map<Pair<String, Security>, Position> positionsByStrategyAndSecurity;
@@ -283,13 +283,13 @@ public class Simulator {
         String name = position.getStrategy().getName();
         Security security = position.getSecurity();
 
-        this.positionsByStrategyAndSecurity.put(new Pair<String, Security>(name,security), position);
+        this.positionsByStrategyAndSecurity.put(new Pair<>(name,security), position);
         this.positionsByStrategy.put(name, position);
         this.positionsBySecurity.put(security, position);
     }
 
     private void createCashBalance(CashBalance cashBalance) {
-        this.cashBalances.put(new Pair<String, Currency>(cashBalance.getStrategy().getName(), cashBalance.getCurrency()), cashBalance);
+        this.cashBalances.put(new Pair<>(cashBalance.getStrategy().getName(), cashBalance.getCurrency()), cashBalance);
     }
 
     public Collection<Position> findAllPositions() {
@@ -297,7 +297,7 @@ public class Simulator {
     }
 
     public Position findPositionByStrategyAndSecurity(String strategyName, Security security) {
-        return this.positionsByStrategyAndSecurity.get(new Pair<String, Security>(strategyName, security));
+        return this.positionsByStrategyAndSecurity.get(new Pair<>(strategyName, security));
     }
 
     public Collection<Position> findPositionsByStrategy(String strategyName) {
@@ -309,7 +309,7 @@ public class Simulator {
     }
 
     public CashBalance findCashBalanceByStrategyAndCurrency(String strategyName, Currency currency) {
-        return this.cashBalances.get(new Pair<String, Currency>(strategyName, currency));
+        return this.cashBalances.get(new Pair<>(strategyName, currency));
     }
 
     /**

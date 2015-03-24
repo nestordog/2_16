@@ -104,7 +104,7 @@ public class TickImpl extends Tick {
     @Override
     public String toString() {
 
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
 
         buffer.append(getSecurity());
         buffer.append(",");

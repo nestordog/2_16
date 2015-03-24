@@ -48,7 +48,7 @@ import quickfix.fix42.OrderCancelReject;
  */
 public class IBFixOrderMessageHandler extends GenericFix42OrderMessageHandler {
 
-    private static Logger LOGGER = LogManager.getLogger(IBFixOrderMessageHandler.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(IBFixOrderMessageHandler.class.getName());
 
     private final BlockingQueue<IBCustomMessage> allocationMessageQueue;
 

@@ -63,7 +63,7 @@ import ch.algotrader.vo.IVolVO;
 @Transactional
 public class ImportServiceImpl implements ImportService {
 
-    private static Logger logger = LogManager.getLogger(ImportServiceImpl.class.getName());
+    private static final Logger logger = LogManager.getLogger(ImportServiceImpl.class.getName());
 
     private final CommonConfig commonConfig;
 
@@ -126,13 +126,8 @@ public class ImportServiceImpl implements ImportService {
             }
 
             // create a set that will eliminate ticks of the same date (not considering milliseconds)
-            Comparator<Tick> comp = new Comparator<Tick>() {
-                @Override
-                public int compare(Tick t1, Tick t2) {
-                    return (int) ((t1.getDateTime().getTime() - t2.getDateTime().getTime()) / 1000);
-                }
-            };
-            Set<Tick> newTicks = new TreeSet<Tick>(comp);
+            Comparator<Tick> comp = (t1, t2) -> (int) ((t1.getDateTime().getTime() - t2.getDateTime().getTime()) / 1000);
+            Set<Tick> newTicks = new TreeSet<>(comp);
 
             // fetch all ticks from the file
             Tick tick;
@@ -187,7 +182,7 @@ public class ImportServiceImpl implements ImportService {
         Validate.notEmpty(fileName, "File name is empty");
 
         OptionFamily family = this.optionFamilyDao.get(Integer.parseInt(optionFamilyId));
-        Map<String, Option> options = new HashMap<String, Option>();
+        Map<String, Option> options = new HashMap<>();
 
         for (Security security : family.getSecurities()) {
             Option option = (Option) security;
@@ -210,7 +205,7 @@ public class ImportServiceImpl implements ImportService {
             }
 
             IVolVO iVol;
-            Set<Tick> ticks = new TreeSet<Tick>(new Comparator<Tick>() {
+            Set<Tick> ticks = new TreeSet<>(new Comparator<Tick>() {
                 @Override
                 public int compare(Tick t1, Tick t2) {
                     if (t1.getSecurity().getId() > t2.getSecurity().getId()) {
@@ -310,7 +305,7 @@ public class ImportServiceImpl implements ImportService {
             logger.info("importing " + ticks.size() + " ticks");
 
             // divide into chuncks of 10000
-            List<Tick> list = new ArrayList<Tick>(ticks);
+            List<Tick> list = new ArrayList<>(ticks);
             for (int i = 0; i < ticks.size(); i = i + 10000) {
 
                 int j = Math.min(i + 10000, ticks.size());

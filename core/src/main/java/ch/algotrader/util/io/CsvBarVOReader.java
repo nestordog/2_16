@@ -42,10 +42,10 @@ import ch.algotrader.vo.BarVO;
  */
 public class CsvBarVOReader {
 
-    private static String dataSet = ConfigurationUtil.getString("dataSet");
+    private static final String dataSet = ConfigurationUtil.getString("dataSet");
 
     //@formatter:off
-    private static CellProcessor[] processor = new CellProcessor[] {
+    private static final CellProcessor[] processor = new CellProcessor[] {
         new ParseDate(),
         new ParseBigDecimal(),
         new ParseBigDecimal(),
@@ -53,8 +53,8 @@ public class CsvBarVOReader {
         new ParseBigDecimal()};
     //@formatter:on
 
-    private String[] header;
-    private CsvBeanReader reader;
+    private final String[] header;
+    private final CsvBeanReader reader;
 
     public CsvBarVOReader(String symbol) throws IOException {
 

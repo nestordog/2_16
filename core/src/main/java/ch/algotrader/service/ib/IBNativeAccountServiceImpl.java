@@ -67,7 +67,7 @@ public class IBNativeAccountServiceImpl extends AccountServiceImpl implements IB
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
         long quantityByMargin = 0;
-        StringBuffer buffer = new StringBuffer("quantityByMargin:");
+        StringBuilder buffer = new StringBuilder("quantityByMargin:");
 
         try {
             for (String account : getAccounts()) {
@@ -96,7 +96,7 @@ public class IBNativeAccountServiceImpl extends AccountServiceImpl implements IB
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
         long quantityByAllocation = 0;
-        StringBuffer buffer = new StringBuffer("quantityByAllocation:");
+        StringBuilder buffer = new StringBuilder("quantityByAllocation:");
 
         try {
             for (Map.Entry<String, Double> entry : getAllocations(strategyName).entrySet()) {

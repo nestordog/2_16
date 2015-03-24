@@ -44,7 +44,7 @@ public class HistoricalDataServiceTest extends IBServiceTest {
         HistoricalDataService historicalDataService = ServiceLocator.instance().getHistoricalDataService();
         LookupService lookupService = ServiceLocator.instance().getLookupService();
 
-        historicalDataService.updateHistoricalBars(10, new Date(), 20, TimePeriod.DAY, Duration.DAY_1, BarType.MIDPOINT, new HashMap<String, String>());
+        historicalDataService.updateHistoricalBars(10, new Date(), 20, TimePeriod.DAY, Duration.DAY_1, BarType.MIDPOINT, new HashMap<>());
 
         List<Bar> bars = lookupService.getLastNBarsBySecurityAndBarSize(20, 10, Duration.DAY_1);
 

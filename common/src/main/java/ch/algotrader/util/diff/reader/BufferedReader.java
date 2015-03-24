@@ -31,7 +31,7 @@ import ch.algotrader.util.diff.define.CsvDefinition;
 public class BufferedReader implements CsvReader {
 
     private final CsvReader delegate;
-    private final LinkedList<CsvLine> buf = new LinkedList<CsvLine>();
+    private final LinkedList<CsvLine> buf = new LinkedList<>();
 
     public BufferedReader(CsvReader delegate) {
         this.delegate = delegate;
@@ -82,7 +82,7 @@ public class BufferedReader implements CsvReader {
     }
     public LinkedList<CsvLine> readBuffer(int count) {
         final List<CsvLine> subList = count == buf.size() ? buf : buf.subList(0, count);
-        final LinkedList<CsvLine> result = new LinkedList<CsvLine>(subList);
+        final LinkedList<CsvLine> result = new LinkedList<>(subList);
         subList.clear();
         return result;
     }

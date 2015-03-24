@@ -35,10 +35,10 @@ import org.apache.logging.log4j.Logger;
  */
 class QueryCache {
 
-    private static Logger logger = LogManager.getLogger(EntityCache.class.getName());
+    private static final Logger logger = LogManager.getLogger(EntityCache.class.getName());
 
-    private Map<String, Set<QueryCacheKey>> spaces = new HashMap<String, Set<QueryCacheKey>>();
-    private Map<QueryCacheKey, List<?>> queries = new HashMap<QueryCacheKey, List<?>>();
+    private final Map<String, Set<QueryCacheKey>> spaces = new HashMap<>();
+    private final Map<QueryCacheKey, List<?>> queries = new HashMap<>();
 
     /**
      * attaches a query to the cache and associates specified spaces with the query
@@ -51,7 +51,7 @@ class QueryCache {
             Set<QueryCacheKey> space = this.spaces.get(spaceName);
             if (space == null) {
 
-                space = new HashSet<QueryCacheKey>();
+                space = new HashSet<>();
                 this.spaces.put(spaceName, space);
             }
             space.add(cacheKey);
@@ -78,7 +78,7 @@ class QueryCache {
 
         if (this.spaces.containsKey(spaceName)) {
 
-            Set<QueryCacheKey> thisSpace = new HashSet<QueryCacheKey>(this.spaces.get(spaceName));
+            Set<QueryCacheKey> thisSpace = new HashSet<>(this.spaces.get(spaceName));
 
             for (QueryCacheKey cacheKey : thisSpace) {
 

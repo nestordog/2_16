@@ -60,7 +60,7 @@ import com.tictactec.ta.lib.meta.annotation.OutputParameterType;
  */
 public class GenericTALibFunctionFactory implements AggregationFunctionFactory {
 
-    private static CoreAnnotated core = new CoreAnnotated();
+    private static final CoreAnnotated core = new CoreAnnotated();
 
     private Method function;
     private Class<?> outputClass;
@@ -68,9 +68,9 @@ public class GenericTALibFunctionFactory implements AggregationFunctionFactory {
     private int inputParamCount = 0;
     private int lookbackPeriod;
 
-    private List<CircularFifoBuffer<Number>> inputParams = new ArrayList<CircularFifoBuffer<Number>>();
-    private List<Object> optInputParams = new ArrayList<Object>();
-    private Map<String, Object> outputParams = new LinkedHashMap<String, Object>();
+    private final List<CircularFifoBuffer<Number>> inputParams = new ArrayList<>();
+    private final List<Object> optInputParams = new ArrayList<>();
+    private final Map<String, Object> outputParams = new LinkedHashMap<>();
 
     @Override
     public void setFunctionName(String functionName) {
@@ -118,7 +118,7 @@ public class GenericTALibFunctionFactory implements AggregationFunctionFactory {
 
         // get the parameters
         int paramCounter = 1;
-        Map<String, Class<?>> outputParamTypes = new HashMap<String, Class<?>>();
+        Map<String, Class<?>> outputParamTypes = new HashMap<>();
         for (Annotation[] annotations : this.function.getParameterAnnotations()) {
             for (Annotation annotation : annotations) {
 
@@ -214,7 +214,7 @@ public class GenericTALibFunctionFactory implements AggregationFunctionFactory {
 
             // create the fixed size Buffers
             for (int i = 0; i < this.inputParamCount; i++) {
-                this.inputParams.add(new CircularFifoBuffer<Number>(this.lookbackPeriod));
+                this.inputParams.add(new CircularFifoBuffer<>(this.lookbackPeriod));
             }
 
         } catch (Exception e) {

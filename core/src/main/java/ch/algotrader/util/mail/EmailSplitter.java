@@ -38,7 +38,7 @@ public class EmailSplitter {
     @Splitter
     public List<Message<?>> splitIntoMessages(final Message<List<EmailFragment>> message) {
 
-        final List<Message<?>> replyMessages = new ArrayList<Message<?>>();
+        final List<Message<?>> replyMessages = new ArrayList<>();
 
         for (EmailFragment fragement : message.getPayload()) {
 

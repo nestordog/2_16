@@ -35,7 +35,7 @@ import com.espertech.esperio.csv.CSVInputAdapter;
  */
 public class CsvBarInputAdapter extends CSVInputAdapter {
 
-    private CsvBarInputAdapterSpec spec;
+    private final CsvBarInputAdapterSpec spec;
 
     public CsvBarInputAdapter(CsvBarInputAdapterSpec spec) {
 

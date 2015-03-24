@@ -53,7 +53,7 @@ public abstract class OrderImpl extends Order {
     @Override
     public String toString() {
 
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
 
         buffer.append(getDescription());
 
@@ -68,7 +68,7 @@ public abstract class OrderImpl extends Order {
     @Override
     public String getDescription() {
 
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
 
         buffer.append(getSide());
         buffer.append(",");

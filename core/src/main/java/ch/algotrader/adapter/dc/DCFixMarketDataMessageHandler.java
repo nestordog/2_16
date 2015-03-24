@@ -50,7 +50,7 @@ import quickfix.fix44.MarketDataSnapshotFullRefresh;
  */
 public class DCFixMarketDataMessageHandler extends AbstractFix44MarketDataMessageHandler {
 
-    private static Logger logger = LogManager.getLogger(DCFixMarketDataMessageHandler.class.getName());
+    private static final Logger logger = LogManager.getLogger(DCFixMarketDataMessageHandler.class.getName());
 
     private final Engine serverEngine;
 

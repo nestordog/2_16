@@ -30,7 +30,7 @@ import ch.algotrader.util.metric.MetricsUtil;
 */
 public class CreateTransactionSubscriber extends Subscriber {
 
-    private static Logger LOGGER = LogManager.getLogger(CreateTransactionSubscriber.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(CreateTransactionSubscriber.class.getName());
 
     /*
      * synchronized to make sure that only on transaction is created at a time

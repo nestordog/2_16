@@ -37,11 +37,11 @@ public final class CommonConfigBuilder {
     private MarketDataType dataSetType;
     private File dataSetLocation;
     private Duration barSize;
-    private boolean feedCSV;
-    private boolean feedDB;
+    private final boolean feedCSV;
+    private final boolean feedDB;
     private boolean feedGenericEvents;
     private boolean feedAllMarketDataFiles;
-    private int feedBatchSize;
+    private final int feedBatchSize;
     private File reportLocation;
     private boolean simulation;
     private BigDecimal simulationInitialBalance;

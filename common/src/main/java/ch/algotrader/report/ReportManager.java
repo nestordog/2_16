@@ -29,7 +29,7 @@ import java.util.List;
  */
 public class ReportManager {
 
-    private static List<Report> reports = new ArrayList<Report>();
+    private static final List<Report> reports = new ArrayList<>();
 
     public static void registerReport(Report report) {
         reports.add(report);

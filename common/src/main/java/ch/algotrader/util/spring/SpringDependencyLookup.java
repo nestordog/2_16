@@ -41,7 +41,7 @@ public class SpringDependencyLookup implements DependencyLookup {
     public Object getBean(final String name) {
 
         return this.applicationContext.getBean(name);
-    };
+    }
 
     public <T> T getBean(final String name, final Class<T> requiredType) {
 

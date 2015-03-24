@@ -40,8 +40,8 @@ public class CsvBarGapFiller {
 
     private static final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy kk:mm:ss");
-    private static double weekendDiff = 2800;
-    private static String endTime = "23:00";
+    private static final double weekendDiff = 2800;
+    private static final String endTime = "23:00";
 
     public static void main(String[] args) throws IOException, ParseException {
 

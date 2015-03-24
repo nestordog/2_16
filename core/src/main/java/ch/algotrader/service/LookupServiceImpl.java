@@ -108,12 +108,12 @@ import ch.algotrader.vo.TransactionVO;
 @Transactional
 public class LookupServiceImpl implements LookupService {
 
-    private final Map<String, Integer> securitySymbolMap = new ConcurrentHashMap<String, Integer>();
-    private final Map<String, Integer> securityIsinMap = new ConcurrentHashMap<String, Integer>();
-    private final Map<String, Integer> securityBbgidMap = new ConcurrentHashMap<String, Integer>();
-    private final Map<String, Integer> securityRicMap = new ConcurrentHashMap<String, Integer>();
-    private final Map<String, Integer> securityConidMap = new ConcurrentHashMap<String, Integer>();
-    private final Map<String, Integer> securityIdMap = new ConcurrentHashMap<String, Integer>();
+    private final Map<String, Integer> securitySymbolMap = new ConcurrentHashMap<>();
+    private final Map<String, Integer> securityIsinMap = new ConcurrentHashMap<>();
+    private final Map<String, Integer> securityBbgidMap = new ConcurrentHashMap<>();
+    private final Map<String, Integer> securityRicMap = new ConcurrentHashMap<>();
+    private final Map<String, Integer> securityConidMap = new ConcurrentHashMap<>();
+    private final Map<String, Integer> securityIdMap = new ConcurrentHashMap<>();
 
     private final CommonConfig commonConfig;
 
@@ -1171,7 +1171,7 @@ public class LookupServiceImpl implements LookupService {
         if (ids.size() > 0) {
             return this.tickDao.findByIdsInclSecurityAndUnderlying(ids);
         } else {
-            return new ArrayList<Tick>();
+            return new ArrayList<>();
         }
 
     }
@@ -1188,7 +1188,7 @@ public class LookupServiceImpl implements LookupService {
         if (ids.size() > 0) {
             return this.tickDao.findByIdsInclSecurityAndUnderlying(ids);
         } else {
-            return new ArrayList<Tick>();
+            return new ArrayList<>();
         }
 
     }
@@ -1205,7 +1205,7 @@ public class LookupServiceImpl implements LookupService {
         if (ids.size() > 0) {
             return this.tickDao.findByIdsInclSecurityAndUnderlying(ids);
         } else {
-            return new ArrayList<Tick>();
+            return new ArrayList<>();
         }
 
     }
@@ -1222,7 +1222,7 @@ public class LookupServiceImpl implements LookupService {
         if (ids.size() > 0) {
             return this.tickDao.findByIdsInclSecurityAndUnderlying(ids);
         } else {
-            return new ArrayList<Tick>();
+            return new ArrayList<>();
         }
 
     }
@@ -1626,7 +1626,7 @@ public class LookupServiceImpl implements LookupService {
 
     private Map<Date, Object> getValuesByDate(List<Measurement> measurements) {
 
-        Map<Date, Object> valuesByDate = new HashMap<Date, Object>();
+        Map<Date, Object> valuesByDate = new HashMap<>();
         for (Measurement measurement : measurements) {
             valuesByDate.put(measurement.getDateTime(), measurement.getValue());
         }
@@ -1644,10 +1644,10 @@ public class LookupServiceImpl implements LookupService {
         }
 
         // create a nameValuePair Map per date
-        Map<Date, Map<String, Object>> nameValuePairsByDate = new HashMap<Date, Map<String, Object>>();
+        Map<Date, Map<String, Object>> nameValuePairsByDate = new HashMap<>();
         for (Date dt : (Set<Date>) measurementsByDate.keySet()) {
 
-            Map<String, Object> nameValuePairs = new HashMap<String, Object>();
+            Map<String, Object> nameValuePairs = new HashMap<>();
             for (Measurement measurement : (Collection<Measurement>) measurementsByDate.get(dt)) {
                 nameValuePairs.put(measurement.getName(), measurement.getValue());
             }

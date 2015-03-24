@@ -61,8 +61,8 @@ public class SortingDiffer implements CsvDiffer {
     }
 
     public static class Builder {
-        private final List<CsvColumn> expectedGrouColumns = new ArrayList<CsvColumn>();
-        private final List<CsvColumn> actualGrouColumns = new ArrayList<CsvColumn>();
+        private final List<CsvColumn> expectedGrouColumns = new ArrayList<>();
+        private final List<CsvColumn> actualGrouColumns = new ArrayList<>();
 
         public Builder add(CsvColumn expColumn, CsvColumn actColumn) {
             expectedGrouColumns.add(expColumn);
@@ -78,8 +78,8 @@ public class SortingDiffer implements CsvDiffer {
     @Override
     public int diffLines(CsvReader expectedReader, CsvReader actualReader) throws IOException {
         int comparedLines = 0;
-        final NavigableMap<CsvLine, Integer> expLines = new TreeMap<CsvLine, Integer>(expectedColumnComparator);
-        final NavigableMap<CsvLine, Integer> actLines = new TreeMap<CsvLine, Integer>(actualColumnComparator);
+        final NavigableMap<CsvLine, Integer> expLines = new TreeMap<>(expectedColumnComparator);
+        final NavigableMap<CsvLine, Integer> actLines = new TreeMap<>(actualColumnComparator);
         readAll(expectedReader, expLines);
         readAll(actualReader, actLines);
         Iterator<Map.Entry<CsvLine, Integer>> expIt = expLines.entrySet().iterator();

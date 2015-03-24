@@ -79,7 +79,7 @@ public class RoundUtil {
         if (value == null) {
             return null;
         } else {
-            return getBigDecimal(value.doubleValue());
+            return getBigDecimal(value);
         }
     }
 

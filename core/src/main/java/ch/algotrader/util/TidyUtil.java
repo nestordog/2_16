@@ -38,7 +38,7 @@ import org.w3c.tidy.Tidy;
 public class TidyUtil {
 
     //@formatter:off
-    private static String[] regexs = new String[] {
+    private static final String[] regexs = new String[] {
         "<script(.*?)</script>",
         "<noscript(.*?)</noscript>",
         "<style(.*?)</style>",
@@ -100,7 +100,7 @@ public class TidyUtil {
         // get the content
         String content;
         try {
-            StringBuffer out = new StringBuffer();
+            StringBuilder out = new StringBuilder();
             byte[] b = new byte[1024];
             for (int n; (n = in.read(b)) != -1;) {
                 out.append(new String(b, 0, n, "UTF-8"));
@@ -119,11 +119,8 @@ public class TidyUtil {
         }
 
         // get the document
-        ByteArrayInputStream inputStream = new ByteArrayInputStream(content.getBytes());
-        try {
+        try (ByteArrayInputStream inputStream = new ByteArrayInputStream(content.getBytes())) {
             return getInstance().parseDOM(inputStream, null);
-        } finally {
-            inputStream.close();
         }
     }
 }

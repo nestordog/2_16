@@ -82,7 +82,7 @@ public class DefaultCsvReader implements CsvReader {
         }
         final String[] values = line.split(",");
         final List<CsvColumn> cols = csvDefinition.getColumns();
-        final Map<CsvColumn, Object> result = new LinkedHashMap<CsvColumn, Object>();
+        final Map<CsvColumn, Object> result = new LinkedHashMap<>();
         for (final CsvColumn col : cols) {
             final String value = col.index() < values.length ? values[col.index()] : null;
             final Object converted;

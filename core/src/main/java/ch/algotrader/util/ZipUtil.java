@@ -53,22 +53,18 @@ public class ZipUtil {
     public static List<String> unzip(String fileName, boolean delete) throws IOException {
 
         File file = new File(fileName);
-        ZipInputStream zis = new ZipInputStream(new BufferedInputStream(new FileInputStream(file)));
 
-        try {
+        try (ZipInputStream zis = new ZipInputStream(new BufferedInputStream(new FileInputStream(file)))) {
 
             ZipEntry entry;
-            List<String> fileNames = new ArrayList<String>();
+            List<String> fileNames = new ArrayList<>();
             while ((entry = zis.getNextEntry()) != null) {
 
                 String entryFileName = file.getParent() + File.separator + entry.getName();
                 fileNames.add(entryFileName);
 
-                BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(entryFileName), BUFFER);
-                try {
+                try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(entryFileName), BUFFER)) {
                     IOUtils.copy(zis, bos);
-                } finally {
-                    bos.close();
                 }
             }
 
@@ -78,8 +74,6 @@ public class ZipUtil {
 
             return fileNames;
 
-        } finally {
-            zis.close();
         }
     }
 
@@ -89,27 +83,21 @@ public class ZipUtil {
      */
     public static List<Pair<String, byte[]>> unzip(byte[] data) throws IOException {
 
-        List<Pair<String, byte[]>> entries = new ArrayList<Pair<String, byte[]>>();
+        List<Pair<String, byte[]>> entries = new ArrayList<>();
 
-        ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(data));
-        try {
+        try (ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(data))) {
 
             ZipEntry entry;
             while ((entry = zis.getNextEntry()) != null) {
 
-                ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                try {
+                try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
                     IOUtils.copy(zis, bos);
-                    entries.add(new Pair<String, byte[]>(entry.getName(), bos.toByteArray()));
-                } finally {
-                    bos.close();
+                    entries.add(new Pair<>(entry.getName(), bos.toByteArray()));
                 }
             }
 
             return entries;
 
-        } finally {
-            zis.close();
         }
     }
 }

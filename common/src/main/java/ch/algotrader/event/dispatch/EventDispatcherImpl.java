@@ -25,7 +25,6 @@ import javax.jms.MessageListener;
 
 import org.apache.commons.lang.Validate;
 import org.springframework.jms.core.JmsTemplate;
-import org.springframework.jms.core.MessagePostProcessor;
 import org.springframework.jms.support.converter.MessageConverter;
 
 import ch.algotrader.config.CommonConfig;
@@ -109,15 +108,11 @@ public class EventDispatcherImpl implements EventDispatcher, MessageListener {
 
             // send using the jms template
             Objects.requireNonNull(this.marketDataTemplate, "Market JMS template is null");
-            this.marketDataTemplate.convertAndSend(marketDataEvent, new MessagePostProcessor() {
+            this.marketDataTemplate.convertAndSend(marketDataEvent, message -> {
 
-                @Override
-                public Message postProcessMessage(Message message) throws JMSException {
-
-                    // add securityId Property
-                    message.setIntProperty("securityId", marketDataEvent.getSecurity().getId());
-                    return message;
-                }
+                // add securityId Property
+                message.setIntProperty("securityId", marketDataEvent.getSecurity().getId());
+                return message;
             });
         }
     }
@@ -140,15 +135,11 @@ public class EventDispatcherImpl implements EventDispatcher, MessageListener {
 
             // send using the jms template
             Objects.requireNonNull(this.genericTemplate, "Generic JMS template is null");
-            this.genericTemplate.convertAndSend(event, new MessagePostProcessor() {
+            this.genericTemplate.convertAndSend(event, message -> {
 
-                @Override
-                public Message postProcessMessage(Message message) throws JMSException {
-
-                    // add class Property
-                    message.setStringProperty("clazz", event.getClass().getName());
-                    return message;
-                }
+                // add class Property
+                message.setStringProperty("clazz", event.getClass().getName());
+                return message;
             });
         }
     }

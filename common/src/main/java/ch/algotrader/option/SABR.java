@@ -34,7 +34,7 @@ import ch.algotrader.vo.SABRSmileVO;
  */
 public class SABR {
 
-    private static double beta = 0.999;
+    private static final double beta = 0.999;
 
     /**
      * Perfors a SABR calibartion based on specified volatilities.
@@ -43,27 +43,24 @@ public class SABR {
      */
     public static SABRSmileVO calibrate(final Double[] strikes, final Double[] volatilities, final double atmVol, final double forward, final double years) throws SABRException {
 
-        MultivariateRealFunction estimateRhoAndVol = new MultivariateRealFunction() {
-            @Override
-            public double value(double[] x) {
+        MultivariateRealFunction estimateRhoAndVol = x -> {
 
-                double r = x[0];
-                double v = x[1];
-                double alpha = findAlpha(forward, forward, atmVol, years, beta, x[0], x[1]);
-                double sumErrors = 0;
+            double r = x[0];
+            double v = x[1];
+            double alpha = findAlpha(forward, forward, atmVol, years, beta, x[0], x[1]);
+            double sumErrors = 0;
 
-                for (int i=0; i< volatilities.length; i++) {
+            for (int i=0; i< volatilities.length; i++) {
 
-                    double modelVol = vol(forward, strikes[i], years, alpha, beta, r, v);
-                    sumErrors += Math.pow(modelVol - volatilities[i], 2);
-                }
-
-                if (Math.abs(r) > 1) {
-                    sumErrors = 1e100;
-                }
-
-                return sumErrors;
+                double modelVol = vol(forward, strikes[i], years, alpha, beta, r, v);
+                sumErrors += Math.pow(modelVol - volatilities[i], 2);
             }
+
+            if (Math.abs(r) > 1) {
+                sumErrors = 1e100;
+            }
+
+            return sumErrors;
         };
 
         NelderMead nelderMead = new NelderMead();

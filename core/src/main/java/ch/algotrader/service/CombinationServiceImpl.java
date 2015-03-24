@@ -58,7 +58,7 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
 
     private static final long serialVersionUID = -2720603696641382966L;
 
-    private static Logger logger = LogManager.getLogger(CombinationServiceImpl.class.getName());
+    private static final Logger logger = LogManager.getLogger(CombinationServiceImpl.class.getName());
 
     private final CommonConfig commonConfig;
 

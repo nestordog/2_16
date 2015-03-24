@@ -33,7 +33,7 @@ import org.apache.commons.beanutils.ConvertUtilsBean;
  */
 public class BeanUtil {
 
-    private static BeanUtilsBean UTILS = new BeanUtilsBean(new ConvertUtilsBean() {
+    private static final BeanUtilsBean UTILS = new BeanUtilsBean(new ConvertUtilsBean() {
         @Override
         @SuppressWarnings({ "unchecked", "rawtypes" })
         public Object convert(String value, Class clazz) {

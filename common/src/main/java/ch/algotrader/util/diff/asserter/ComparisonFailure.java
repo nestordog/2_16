@@ -34,8 +34,8 @@ public class ComparisonFailure extends AssertionError {
     private static final int MAX_CONTEXT_LENGTH = 20;
     private static final long serialVersionUID = 1L;
 
-    private String fExpected;
-    private String fActual;
+    private final String fExpected;
+    private final String fActual;
 
     /**
      * Constructs a comparison failure.
@@ -88,9 +88,9 @@ public class ComparisonFailure extends AssertionError {
          * The maximum length for <code>expected</code> and <code>actual</code>. When <code>contextLength</code>
          * is exceeded, the Strings are shortened
          */
-        private int fContextLength;
-        private String fExpected;
-        private String fActual;
+        private final int fContextLength;
+        private final String fExpected;
+        private final String fActual;
         private int fPrefix;
         private int fSuffix;
 

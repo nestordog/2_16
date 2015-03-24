@@ -31,7 +31,7 @@ import java.util.Properties;
 public class ConfigurationUtil {
 
     private static Properties props;
-    private static String fileName = File.separator + "conf.properties";
+    private static final String fileName = File.separator + "conf.properties";
 
     static {
         try {
@@ -42,7 +42,7 @@ public class ConfigurationUtil {
         } catch (IOException e) {
             System.out.println("could not load properties");
         }
-    };
+    }
 
     public static String getString(String key) {
         return props.getProperty(key);

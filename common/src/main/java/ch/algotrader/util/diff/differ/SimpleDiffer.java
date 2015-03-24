@@ -66,7 +66,7 @@ public class SimpleDiffer implements CsvDiffer {
      * {@link ValueAsserter} instances.
      */
     public static class Builder {
-        private final List<ColumnAsserter> asserters = new ArrayList<ColumnAsserter>();
+        private final List<ColumnAsserter> asserters = new ArrayList<>();
 
         /**
          * Asserts the given expected/actual column pair using the specified asserter.

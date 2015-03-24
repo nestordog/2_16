@@ -39,7 +39,7 @@ public class CombinationImpl extends Combination {
     @Override
     public LongMap<Security> getQuantityMap() {
 
-        LongMap<Security> qtyMap = new LongMap<Security>();
+        LongMap<Security> qtyMap = new LongMap<>();
         for (Component component : getComponents()) {
             qtyMap.increment(component.getSecurity(), component.getQuantity());
         }

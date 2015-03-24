@@ -31,13 +31,13 @@ import ch.algotrader.enumeration.ConnectionState;
  */
 public class DefaultIBSessionLifecycle implements IBSessionLifecycle {
 
-    private static Logger logger = LogManager.getLogger(DefaultIBSessionLifecycle.class.getName());
+    private static final Logger logger = LogManager.getLogger(DefaultIBSessionLifecycle.class.getName());
 
     private final AtomicReference<ConnectionState> connState;
 
     public DefaultIBSessionLifecycle() {
 
-        this.connState = new AtomicReference<ConnectionState>(ConnectionState.DISCONNECTED);
+        this.connState = new AtomicReference<>(ConnectionState.DISCONNECTED);
     }
 
     public IBSession getIBSession() {

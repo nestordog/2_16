@@ -31,8 +31,6 @@ import org.hibernate.collection.spi.PersistentCollection;
 import org.hibernate.internal.SessionFactoryImpl;
 import org.hibernate.metadata.ClassMetadata;
 import org.hibernate.persister.collection.CollectionPersister;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import ch.algotrader.entity.security.Security;
@@ -66,23 +64,19 @@ public class GenericDao {
      */
     public Object get(final Class<?> clazz, final Serializable id) {
 
-        return this.txTemplate.execute(new TransactionCallback<Object>() {
+        return this.txTemplate.execute(txStatus -> {
 
-            @Override
-            public Object doInTransaction(final TransactionStatus txStatus) {
+            Session session = sessionFactory.getCurrentSession();
+            Object result = session.get(clazz, id);
 
-                Session session = sessionFactory.getCurrentSession();
-                Object result = session.get(clazz, id);
+            // initialize Securities
+            if (result instanceof Security) {
+                Security security = (Security) result;
 
-                // initialize Securities
-                if (result instanceof Security) {
-                    Security security = (Security) result;
-
-                    security.accept(InitializationVisitor.INSTANCE, HibernateInitializer.INSTANCE);
-                }
-
-                return result;
+                security.accept(InitializationVisitor.INSTANCE, HibernateInitializer.INSTANCE);
             }
+
+            return result;
         });
     }
 
@@ -91,38 +85,34 @@ public class GenericDao {
      */
     public Object getInitializedCollection(final String role, final Serializable id) {
 
-        return this.txTemplate.execute(new TransactionCallback<Object>() {
+        return this.txTemplate.execute(txStatus -> {
 
-            @Override
-            public Object doInTransaction(final TransactionStatus txStatus) {
+            SessionFactoryImpl sessionFactoryImpl = (SessionFactoryImpl) sessionFactory;
+            CollectionPersister persister = sessionFactoryImpl.getCollectionPersister(role);
 
-                SessionFactoryImpl sessionFactoryImpl = (SessionFactoryImpl) sessionFactory;
-                CollectionPersister persister = sessionFactoryImpl.getCollectionPersister(role);
+            // load the owner entity
+            ClassMetadata ownerMetadata = persister.getOwnerEntityPersister().getClassMetadata();
+            Session session = sessionFactory.getCurrentSession();
+            Object owner = session.get(ownerMetadata.getEntityName(), id);
 
-                // load the owner entity
-                ClassMetadata ownerMetadata = persister.getOwnerEntityPersister().getClassMetadata();
-                Session session = sessionFactory.getCurrentSession();
-                Object owner = session.get(ownerMetadata.getEntityName(), id);
-
-                // owner does not exist anymore so no point in loading the collection
-                if (owner == null) {
-                    return null;
-                }
-
-                // get the collection by it's property name
-                Object col = ownerMetadata.getPropertyValue(owner, persister.getNodeName());
-
-                // if it is a PersistentCollection make sure it is initialized
-                if (col instanceof PersistentCollection) {
-
-                    PersistentCollection collection = (PersistentCollection) col;
-                    if (!collection.wasInitialized()) {
-                        collection.forceInitialization();
-                    }
-                }
-
-                return col;
+            // owner does not exist anymore so no point in loading the collection
+            if (owner == null) {
+                return null;
             }
+
+            // get the collection by it's property name
+            Object col = ownerMetadata.getPropertyValue(owner, persister.getNodeName());
+
+            // if it is a PersistentCollection make sure it is initialized
+            if (col instanceof PersistentCollection) {
+
+                PersistentCollection collection = (PersistentCollection) col;
+                if (!collection.wasInitialized()) {
+                    collection.forceInitialization();
+                }
+            }
+
+            return col;
         });
     }
 
@@ -131,16 +121,12 @@ public class GenericDao {
      */
     public List<?> find(final String queryString) {
 
-        return this.txTemplate.execute(new TransactionCallback<List<?>>() {
+        return this.txTemplate.execute(txStatus -> {
 
-            @Override
-            public List<?> doInTransaction(final TransactionStatus txStatus) {
-
-                Session session = sessionFactory.getCurrentSession();
-                Query query = session.createQuery(queryString);
-                query.setCacheable(true);
-                return query.list();
-            }
+            Session session = sessionFactory.getCurrentSession();
+            Query query = session.createQuery(queryString);
+            query.setCacheable(true);
+            return query.list();
         });
     }
 
@@ -150,19 +136,15 @@ public class GenericDao {
      */
     public List<?> find(final String queryString, final Map<String, Object> namedParameters) {
 
-        return this.txTemplate.execute(new TransactionCallback<List<?>>() {
+        return this.txTemplate.execute(txStatus -> {
 
-            @Override
-            public List<?> doInTransaction(final TransactionStatus txStatus) {
-
-                Session session = sessionFactory.getCurrentSession();
-                Query query = session.createQuery(queryString);
-                query.setCacheable(true);
-                for (Map.Entry<String, Object> entry : namedParameters.entrySet()) {
-                    query.setParameter(entry.getKey(), entry.getValue());
-                }
-                return query.list();
+            Session session = sessionFactory.getCurrentSession();
+            Query query = session.createQuery(queryString);
+            query.setCacheable(true);
+            for (Map.Entry<String, Object> entry : namedParameters.entrySet()) {
+                query.setParameter(entry.getKey(), entry.getValue());
             }
+            return query.list();
         });
     }
 
@@ -173,16 +155,12 @@ public class GenericDao {
      */
     public Object findUnique(final String queryString) {
 
-        return this.txTemplate.execute(new TransactionCallback<Object>() {
+        return this.txTemplate.execute(txStatus -> {
 
-            @Override
-            public Object doInTransaction(final TransactionStatus txStatus) {
-
-                Session session = sessionFactory.getCurrentSession();
-                Query query = session.createQuery(queryString);
-                query.setCacheable(true);
-                return query.uniqueResult();
-            }
+            Session session = sessionFactory.getCurrentSession();
+            Query query = session.createQuery(queryString);
+            query.setCacheable(true);
+            return query.uniqueResult();
         });
     }
 
@@ -193,19 +171,15 @@ public class GenericDao {
      */
     public Object findUnique(final String queryString, final Map<String, Object> namedParameters) {
 
-        return this.txTemplate.execute(new TransactionCallback<Object>() {
+        return this.txTemplate.execute(txStatus -> {
 
-            @Override
-            public Object doInTransaction(final TransactionStatus txStatus) {
-
-                Session session = sessionFactory.getCurrentSession();
-                Query query = session.createQuery(queryString);
-                query.setCacheable(true);
-                for (Map.Entry<String, Object> entry : namedParameters.entrySet()) {
-                    query.setParameter(entry.getKey(), entry.getValue());
-                }
-                return query.uniqueResult();
+            Session session = sessionFactory.getCurrentSession();
+            Query query = session.createQuery(queryString);
+            query.setCacheable(true);
+            for (Map.Entry<String, Object> entry : namedParameters.entrySet()) {
+                query.setParameter(entry.getKey(), entry.getValue());
             }
+            return query.uniqueResult();
         });
     }
 

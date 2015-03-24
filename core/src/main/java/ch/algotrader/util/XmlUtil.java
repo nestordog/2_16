@@ -66,13 +66,10 @@ public class XmlUtil {
         transformer.setOutputProperty(OutputKeys.METHOD, "xml");
         transformer.setOutputProperty(OutputKeys.MEDIA_TYPE, "text/xml");
         DOMSource source = new DOMSource(document);
-        OutputStream out = new FileOutputStream(new File(parent, fileName));
 
-        try {
+        try (OutputStream out = new FileOutputStream(new File(parent, fileName))) {
             StreamResult result = new StreamResult(out);
             transformer.transform(source, result);
-        } finally {
-            out.close();
         }
     }
 }

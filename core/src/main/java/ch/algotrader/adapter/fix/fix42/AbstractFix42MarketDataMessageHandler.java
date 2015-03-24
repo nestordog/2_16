@@ -36,7 +36,7 @@ import quickfix.fix42.MarketDataRequestReject;
  */
 public class AbstractFix42MarketDataMessageHandler extends AbstractFix42MessageHandler {
 
-    private static Logger LOGGER = LogManager.getLogger(AbstractFix42MarketDataMessageHandler.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(AbstractFix42MarketDataMessageHandler.class.getName());
 
     public void onMessage(MarketDataRequestReject requestReject, SessionID sessionID) throws FieldNotFound {
 
