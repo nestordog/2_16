@@ -154,8 +154,7 @@
             <constructor-arg index="7"  ref="eventDispatcher"/>
             <constructor-arg index="8"  ref="engineManager"/>
             <constructor-arg index="9"  ref="serverEngine"/>
-            <constructor-arg index="10"  ref="strategyGroup"/>
-            <constructor-arg index="11"  ref="cacheManager"/>
+            <constructor-arg index="10"  ref="cacheManager"/>
         </bean>
     </beans>
 

@@ -126,8 +126,6 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
 
     private final Engine serverEngine;
 
-    private final StrategyGroup strategyGroup;
-
     private final CacheManager cacheManager;
 
     private volatile ApplicationContext applicationContext;
@@ -142,7 +140,6 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
                                   final EventDispatcher eventDispatcher,
                                   final EngineManager engineManager,
                                   final Engine serverEngine,
-                                  final StrategyGroup strategyGroup,
                                   final CacheManager cacheManager) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
@@ -155,7 +152,6 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
         Validate.notNull(eventDispatcher, "EventDispatcher is null");
         Validate.notNull(engineManager, "EngineManager is null");
         Validate.notNull(serverEngine, "Engine is null");
-        Validate.notNull(strategyGroup, "StrategyGroup is null");
         Validate.notNull(cacheManager, "CacheManager is null");
 
         this.commonConfig = commonConfig;
@@ -168,7 +164,6 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
         this.eventDispatcher = eventDispatcher;
         this.engineManager = engineManager;
         this.serverEngine = serverEngine;
-        this.strategyGroup = strategyGroup;
         this.cacheManager = cacheManager;
     }
 
@@ -191,12 +186,12 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
      * {@inheritDoc}
      */
     @Override
-    public SimulationResultVO runSimulation() {
+    public SimulationResultVO runSimulation(final StrategyGroup strategyGroup) {
 
         long startTime = System.currentTimeMillis();
 
         // init strategies
-        initStrategies();
+        initStrategies(strategyGroup);
 
         // reset the db
         this.resetService.resetDB();
@@ -274,7 +269,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
 
     }
 
-    private void initStrategies() {
+    private void initStrategies(final StrategyGroup strategyGroup) {
         //add or update strategy for each group item
         for (final String strategyName : strategyGroup.getStrategyNames()) {
             final double weight = strategyGroup.getWeight(strategyName);
@@ -464,9 +459,9 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
      * {@inheritDoc}
      */
     @Override
-    public void simulateWithCurrentParams() {
+    public void simulateWithCurrentParams(final StrategyGroup strategyGroup) {
 
-        SimulationResultVO resultVO = runSimulation();
+        SimulationResultVO resultVO = runSimulation(strategyGroup);
         logMultiLineString(convertStatisticsToLongString(resultVO));
 
     }
@@ -475,14 +470,14 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
      * {@inheritDoc}
      */
     @Override
-    public void simulateBySingleParam(final String parameter, final String value) {
+    public void simulateBySingleParam(final StrategyGroup strategyGroup, final String parameter, final String value) {
 
         Validate.notEmpty(parameter, "Parameter is empty");
         Validate.notEmpty(value, "Value is empty");
 
         System.setProperty(parameter, value);
 
-        SimulationResultVO resultVO = runSimulation();
+        SimulationResultVO resultVO = runSimulation(strategyGroup);
         resultLogger.info("optimize " + parameter + "=" + value + " " + convertStatisticsToShortString(resultVO));
 
     }
@@ -491,7 +486,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
      * {@inheritDoc}
      */
     @Override
-    public void simulateByMultiParam(final String[] parameters, final String[] values) {
+    public void simulateByMultiParam(final StrategyGroup strategyGroup, final String[] parameters, final String[] values) {
 
         Validate.notNull(parameters, "Parameter is null");
         Validate.notNull(values, "Value is null");
@@ -503,7 +498,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
             System.setProperty(parameters[i], values[i]);
         }
 
-        SimulationResultVO resultVO = runSimulation();
+        SimulationResultVO resultVO = runSimulation(strategyGroup);
         buffer.append(convertStatisticsToShortString(resultVO));
         resultLogger.info(buffer.toString());
 
@@ -513,7 +508,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
      * {@inheritDoc}
      */
     @Override
-    public void optimizeSingleParamLinear(final String parameter, final double min, final double max, final double increment) {
+    public void optimizeSingleParamLinear(final StrategyGroup strategyGroup, final String parameter, final double min, final double max, final double increment) {
 
         Validate.notEmpty(parameter, "Parameter is empty");
 
@@ -521,7 +516,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
 
             System.setProperty(parameter, format.format(i));
 
-            SimulationResultVO resultVO = runSimulation();
+            SimulationResultVO resultVO = runSimulation(strategyGroup);
             resultLogger.info(parameter + "=" + format.format(i) + " " + convertStatisticsToShortString(resultVO));
 
         }
@@ -532,7 +527,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
      * {@inheritDoc}
      */
     @Override
-    public void optimizeSingleParamByValues(final String parameter, final double[] values) {
+    public void optimizeSingleParamByValues(final StrategyGroup strategyGroup, final String parameter, final double[] values) {
 
         Validate.notEmpty(parameter, "Parameter is empty");
         Validate.notNull(values, "Value is null");
@@ -541,7 +536,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
 
             System.setProperty(parameter, format.format(value));
 
-            SimulationResultVO resultVO = runSimulation();
+            SimulationResultVO resultVO = runSimulation(strategyGroup);
             resultLogger.info(parameter + "=" + format.format(value) + " " + convertStatisticsToShortString(resultVO));
         }
 
@@ -551,12 +546,12 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
      * {@inheritDoc}
      */
     @Override
-    public OptimizationResultVO optimizeSingleParam(final String parameter, final double min, final double max, final double accuracy) {
+    public OptimizationResultVO optimizeSingleParam(final StrategyGroup strategyGroup, final String parameter, final double min, final double max, final double accuracy) {
 
         Validate.notEmpty(parameter, "Parameter is empty");
 
         try {
-            UnivariateRealFunction function = new UnivariateFunction(this, parameter);
+            UnivariateRealFunction function = new UnivariateFunction(this, strategyGroup, parameter);
             UnivariateRealOptimizer optimizer = new BrentOptimizer();
             optimizer.setAbsoluteAccuracy(accuracy);
             optimizer.optimize(function, GoalType.MAXIMIZE, min, max);
@@ -576,7 +571,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
      * {@inheritDoc}
      */
     @Override
-    public void optimizeMultiParamLinear(final String[] parameters, final double[] mins, final double[] maxs, final double[] increments) {
+    public void optimizeMultiParamLinear(final StrategyGroup strategyGroup, final String[] parameters, final double[] mins, final double[] maxs, final double[] increments) {
 
         Validate.notNull(parameters, "Parameter is null");
         Validate.notNull(mins, "Mins is null");
@@ -598,16 +593,16 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
                             System.setProperty(parameters[2], format.format(i2));
                             String message2 = parameters[2] + "=" + format.format(MathUtils.round(i2, roundDigits));
 
-                            SimulationResultVO resultVO = runSimulation();
+                            SimulationResultVO resultVO = runSimulation(strategyGroup);
                             resultLogger.info(message0 + " " + message1 + " " + message2 + " " + convertStatisticsToShortString(resultVO));
                         }
                     } else {
-                        SimulationResultVO resultVO = runSimulation();
+                        SimulationResultVO resultVO = runSimulation(strategyGroup);
                         resultLogger.info(message0 + " " + message1 + " " + convertStatisticsToShortString(resultVO));
                     }
                 }
             } else {
-                SimulationResultVO resultVO = runSimulation();
+                SimulationResultVO resultVO = runSimulation(strategyGroup);
                 resultLogger.info(message0 + " " + convertStatisticsToShortString(resultVO));
             }
         }
@@ -618,14 +613,14 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
      * {@inheritDoc}
      */
     @Override
-    public void optimizeMultiParam(final String[] parameters, final double[] starts) {
+    public void optimizeMultiParam(final StrategyGroup strategyGroup, final String[] parameters, final double[] starts) {
 
         Validate.notNull(parameters, "Parameter is null");
         Validate.notNull(starts, "Starts is null");
 
         RealPointValuePair result;
         try {
-            MultivariateRealFunction function = new MultivariateFunction(this, parameters);
+            MultivariateRealFunction function = new MultivariateFunction(this, strategyGroup, parameters);
             MultivariateRealOptimizer optimizer = new MultiDirectional();
             optimizer.setConvergenceChecker(new SimpleScalarValueChecker(0.0, 0.01));
             result = optimizer.optimize(function, GoalType.MAXIMIZE, starts);
@@ -877,11 +872,13 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
     private class UnivariateFunction implements UnivariateRealFunction {
 
         private final SimulationExecutorImpl simulationExecutor;
+        private final StrategyGroup strategyGroup;
         private final String param;
 
-        public UnivariateFunction(final SimulationExecutorImpl simulationExecutor, final String parameter) {
+        public UnivariateFunction(final SimulationExecutorImpl simulationExecutor, final StrategyGroup strategyGroup, final String parameter) {
             super();
             this.simulationExecutor = simulationExecutor;
+            this.strategyGroup = strategyGroup;
             this.param = parameter;
         }
 
@@ -890,7 +887,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
 
             System.setProperty(this.param, String.valueOf(input));
 
-            SimulationResultVO resultVO = this.simulationExecutor.runSimulation();
+            SimulationResultVO resultVO = this.simulationExecutor.runSimulation(this.strategyGroup);
             double result = resultVO.getPerformanceKeys().getSharpeRatio();
 
             resultLogger.info("optimize on " + this.param + "=" + SimulationExecutorImpl.format.format(input) + " " + SimulationExecutorImpl.this.convertStatisticsToShortString(resultVO));
@@ -902,11 +899,13 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
     private class MultivariateFunction implements MultivariateRealFunction {
 
         private final SimulationExecutorImpl simulationExecutor;
+        private final StrategyGroup strategyGroup;
         private final String[] params;
 
-        public MultivariateFunction(final SimulationExecutorImpl simulationExecutor, final String[] parameters) {
+        public MultivariateFunction(final SimulationExecutorImpl simulationExecutor, final StrategyGroup strategyGroup, final String[] parameters) {
             super();
             this.simulationExecutor = simulationExecutor;
+            this.strategyGroup = strategyGroup;
             this.params = parameters;
         }
 
@@ -924,7 +923,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
                 buffer.append(param + "=" + SimulationExecutorImpl.format.format(value) + " ");
             }
 
-            SimulationResultVO resultVO = this.simulationExecutor.runSimulation();
+            SimulationResultVO resultVO = this.simulationExecutor.runSimulation(this.strategyGroup);
             double result = resultVO.getPerformanceKeys().getSharpeRatio();
 
             resultLogger.info(buffer.toString() + SimulationExecutorImpl.this.convertStatisticsToShortString(resultVO));

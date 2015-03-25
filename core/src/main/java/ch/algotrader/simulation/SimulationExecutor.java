@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.simulation;
 
+import ch.algotrader.service.groups.StrategyGroup;
 import ch.algotrader.vo.OptimizationResultVO;
 import ch.algotrader.vo.SimulationResultVO;
 
@@ -47,57 +48,57 @@ public interface SimulationExecutor {
      * <li>A Garbage Collection is performed</li>
      * </ul>
      */
-    public SimulationResultVO runSimulation();
+    public SimulationResultVO runSimulation(final StrategyGroup strategyGroup);
 
     /**
      * Starts a Simulation Run with the currently defined parameters. See {@link
      * ch.algotrader.starter.SimulationStarter}
      */
-    public void simulateWithCurrentParams();
+    public void simulateWithCurrentParams(StrategyGroup strategyGroup);
 
     /**
      * Starts a Simulation Run with a parameter set to the defined value. See {@link
      * ch.algotrader.starter.SimulationStarter}
      */
-    public void simulateBySingleParam(String parameter, String value);
+    public void simulateBySingleParam(StrategyGroup strategyGroup, String parameter, String value);
 
     /**
      * Starts a Simulation Run with multiple parameters set to defined values. See {@link
      * ch.algotrader.starter.SimulationStarter}
      */
-    public void simulateByMultiParam(String[] parameters, String[] values);
+    public void simulateByMultiParam(StrategyGroup strategyGroup, String[] parameters, String[] values);
 
     /**
      * Starts multiple Simulation Runs by incrementing the value of one parameter within a defined
      * interval. See {@link ch.algotrader.starter.SimulationStarter}
      */
-    public void optimizeSingleParamLinear(String parameter, double min, double max, double increment);
+    public void optimizeSingleParamLinear(StrategyGroup strategyGroup, String parameter, double min, double max, double increment);
 
     /**
      * Starts multiple Simulation Runs by iterating the value of one parameter according to defined
      * list. See {@link ch.algotrader.starter.SimulationStarter}
      */
-    public void optimizeSingleParamByValues(String parameter, double[] values);
+    public void optimizeSingleParamByValues(StrategyGroup strategyGroup, String parameter, double[] values);
 
     /**
      * Starts multiple Simulation Runs by setting the value of one parameter within the defined
      * range and trying to find the maximum ShareRatio. The optimizer being used is
      * <code>UnivariateRealOptimizer</code>. See {@link ch.algotrader.starter.SimulationStarter}
      */
-    public OptimizationResultVO optimizeSingleParam(String parameter, double min, double max, double accuracy);
+    public OptimizationResultVO optimizeSingleParam(StrategyGroup strategyGroup, String parameter, double min, double max, double accuracy);
 
     /**
      * Starts multiple Simulation Runs by doing a matrix Optimization of 2 or 3 parameters by
      * incrementing their values within a defined intervals. See {@link
      * ch.algotrader.starter.SimulationStarter}
      */
-    public void optimizeMultiParamLinear(String[] parameters, double[] mins, double[] maxs, double[] increments);
+    public void optimizeMultiParamLinear(StrategyGroup strategyGroup, String[] parameters, double[] mins, double[] maxs, double[] increments);
 
     /**
      * Starts multiple Simulation Runs by adjusting the value of multiple parameters around their
      * start values and trying to find the maximum ShareRatio. See {@link
      * ch.algotrader.starter.SimulationStarter}
      */
-    public void optimizeMultiParam(String[] parameters, double[] starts);
+    public void optimizeMultiParam(StrategyGroup strategyGroup, String[] parameters, double[] starts);
 
 }

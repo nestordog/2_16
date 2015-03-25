@@ -18,6 +18,7 @@
 package ch.algotrader.service.groups;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -26,6 +27,13 @@ import java.util.Set;
  * Bean representing the group with all strategy items.
  */
 public class StrategyGroup {
+
+    public static StrategyGroup single(final String strategyName) {
+        Objects.requireNonNull(strategyName, "Strategy name is null");
+        final HashMap<String, Double> map = new HashMap<>();
+        map.put(strategyName, 1.0d);
+        return new StrategyGroup(map);
+    }
 
     private final Map<String, Double> nameToWeight;
 
@@ -48,6 +56,12 @@ public class StrategyGroup {
      */
     public double getWeight(String strategyName) {
         final Double weight = nameToWeight.get(strategyName);
-        return weight == null ? 0 : weight.doubleValue();
+        return weight == null ? 0 : weight;
     }
+
+    @Override
+    public String toString() {
+        return this.nameToWeight.toString();
+    }
+
 }
