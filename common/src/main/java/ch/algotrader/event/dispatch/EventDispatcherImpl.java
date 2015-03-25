@@ -104,7 +104,7 @@ public class EventDispatcherImpl implements EventDispatcher, MessageListener {
                     }
                 }
             }
-            localEventBroadcaster.broadcast(marketDataEvent);//TODO should engines receive the event first or the local VM ?
+            this.localEventBroadcaster.broadcast(marketDataEvent);//TODO should engines receive the event first or the local VM ?
         } else {
 
             // send using the jms template
@@ -125,7 +125,7 @@ public class EventDispatcherImpl implements EventDispatcher, MessageListener {
     @Override
     public void broadcastLocal(final Object event) {
 
-        for (Engine engine: this.engineManager.getEngines()) {
+        for (Engine engine : this.engineManager.getStrategyEngines().values()) {
 
             engine.sendEvent(event);
         }
