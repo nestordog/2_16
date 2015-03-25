@@ -21,10 +21,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.lang.Validate;
 import org.springframework.beans.BeansException;
@@ -110,31 +108,9 @@ public class LifecycleManagerImpl implements LifecycleManager, ApplicationContex
 
         runServices();
 
-        Set<Engine> engines = new HashSet<>(this.engineManager.getEngines());
-        engines.remove(serverEngine);
+        Collection<Engine> engines = this.engineManager.getStrategyEngines().values();
 
         broadcastLocal(LifecyclePhase.INIT);
-
-        runStrategyInternal(engines);
-
-        broadcastLocal(LifecyclePhase.EXIT);
-    }
-
-    @Override
-    public void runStrategy() {
-
-        broadcastLocal(LifecyclePhase.INIT);
-
-        runStrategyInternal(this.engineManager.getEngines());
-
-        if (this.subscriptionService != null) {
-            this.subscriptionService.initMarketDataEventSubscriptions();
-        }
-
-        broadcastLocal(LifecyclePhase.EXIT);
-    }
-
-    private void runStrategyInternal(final Collection<Engine> engines) {
 
         for (Engine engine: engines) {
             engine.deployInitModules();
@@ -148,19 +124,48 @@ public class LifecycleManagerImpl implements LifecycleManager, ApplicationContex
         }
 
         broadcastLocal(LifecyclePhase.START);
+
+        broadcastLocalOnShutdown(LifecyclePhase.EXIT);
     }
 
-    private void broadcastLocal(LifecyclePhase phase) {
-        if (!LifecyclePhase.EXIT.equals(phase)) {
-            this.eventDispatcher.broadcastLocal(new LifecycleEventVO(OperationMode.REAL_TIME, phase, new Date()));
-        } else {
-            Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    eventDispatcher.broadcastLocal(new LifecycleEventVO(OperationMode.REAL_TIME, LifecyclePhase.EXIT, new Date()));
-                }
-            }));
+    @Override
+    public void runStrategy() {
+
+        Collection<Engine> engines = this.engineManager.getEngines();
+
+        broadcastLocal(LifecyclePhase.INIT);
+
+        for (Engine engine: engines) {
+            engine.deployInitModules();
         }
+
+        broadcastLocal(LifecyclePhase.PREFEED);
+
+        for (Engine engine: engines) {
+            engine.setInternalClock(true);
+            engine.deployRunModules();
+        }
+
+        broadcastLocal(LifecyclePhase.START);
+
+        if (this.subscriptionService != null) {
+            this.subscriptionService.initMarketDataEventSubscriptions();
+        }
+
+        broadcastLocalOnShutdown(LifecyclePhase.EXIT);
+    }
+
+    private void broadcastLocal(final LifecyclePhase phase) {
+        this.eventDispatcher.broadcastLocal(new LifecycleEventVO(OperationMode.REAL_TIME, phase, new Date()));
+    }
+
+    private void broadcastLocalOnShutdown(final LifecyclePhase phase) {
+        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+            @Override
+            public void run() {
+                eventDispatcher.broadcastLocal(new LifecycleEventVO(OperationMode.REAL_TIME, phase, new Date()));
+            }
+        }));
     }
 
 }
