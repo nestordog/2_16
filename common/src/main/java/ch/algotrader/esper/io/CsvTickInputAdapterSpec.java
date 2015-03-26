@@ -19,13 +19,12 @@ package ch.algotrader.esper.io;
 
 import java.io.File;
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 import com.espertech.esperio.AdapterInputSource;
 import com.espertech.esperio.csv.CSVInputAdapterSpec;
-
-import ch.algotrader.util.CustomDate;
 
 /**
  * A {@link CSVInputAdapterSpec} used to input {@link ch.algotrader.entity.marketData.Tick Ticks}.
@@ -62,9 +61,9 @@ public class CsvTickInputAdapterSpec extends CSVInputAdapterSpec {
 
         Map<String, Object> tickPropertyTypes = new HashMap<String, Object>();
 
-        tickPropertyTypes.put("dateTime", CustomDate.class);
+        tickPropertyTypes.put("dateTime", Date.class);
         tickPropertyTypes.put("last", BigDecimal.class);
-        tickPropertyTypes.put("lastDateTime", CustomDate.class);
+        tickPropertyTypes.put("lastDateTime", Date.class);
         tickPropertyTypes.put("volBid", int.class);
         tickPropertyTypes.put("volAsk", int.class);
         tickPropertyTypes.put("bid", BigDecimal.class);

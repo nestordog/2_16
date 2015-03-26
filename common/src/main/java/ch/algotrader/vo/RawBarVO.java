@@ -64,11 +64,6 @@ public class RawBarVO implements Serializable {
      */
     private int vol;
 
-    /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setVol = false;
-
     private String security;
 
     /**
@@ -100,7 +95,6 @@ public class RawBarVO implements Serializable {
         this.low = lowIn;
         this.close = closeIn;
         this.vol = volIn;
-        this.setVol = true;
         this.security = securityIn;
     }
 
@@ -119,7 +113,6 @@ public class RawBarVO implements Serializable {
         this.low = otherBean.getLow();
         this.close = otherBean.getClose();
         this.vol = otherBean.getVol();
-        this.setVol = true;
         this.security = otherBean.getSecurity();
     }
 
@@ -247,16 +240,6 @@ public class RawBarVO implements Serializable {
     public void setVol(final int value) {
 
         this.vol = value;
-        this.setVol = true;
-    }
-
-    /**
-     * Return true if the primitive attribute vol is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetVol() {
-
-        return this.setVol;
     }
 
     public String getSecurity() {
@@ -288,8 +271,6 @@ public class RawBarVO implements Serializable {
         builder.append(", vol=");
         builder.append(this.vol);
         builder.append(", setVol=");
-        builder.append(this.setVol);
-        builder.append(", security=");
         builder.append(this.security);
         builder.append("]");
 

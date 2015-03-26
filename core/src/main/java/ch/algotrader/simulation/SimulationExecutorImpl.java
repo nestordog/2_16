@@ -53,6 +53,8 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
+import com.espertech.esperio.csv.CSVInputAdapter;
+
 import ch.algotrader.cache.CacheManager;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.Position;
@@ -67,6 +69,7 @@ import ch.algotrader.esper.io.CsvBarInputAdapter;
 import ch.algotrader.esper.io.CsvBarInputAdapterSpec;
 import ch.algotrader.esper.io.CsvTickInputAdapter;
 import ch.algotrader.esper.io.CsvTickInputAdapterSpec;
+import ch.algotrader.esper.io.CvsTypeCoercer;
 import ch.algotrader.esper.io.DBBarInputAdapter;
 import ch.algotrader.esper.io.DBTickInputAdapter;
 import ch.algotrader.esper.io.GenericEventInputAdapterSpec;
@@ -88,9 +91,6 @@ import ch.algotrader.vo.PerformanceKeysVO;
 import ch.algotrader.vo.PeriodPerformanceVO;
 import ch.algotrader.vo.SimulationResultVO;
 import ch.algotrader.vo.TradesVO;
-
-import com.espertech.esperio.CoordinatedAdapter;
-import com.espertech.esperio.csv.CSVInputAdapter;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -347,7 +347,8 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
                 // add the eventType (in case it does not exist yet)
                 this.serverEngine.addEventType(eventTypeName, eventClassName);
 
-                CoordinatedAdapter inputAdapter = new CSVInputAdapter(null, new GenericEventInputAdapterSpec(file, eventTypeName));
+                CSVInputAdapter inputAdapter = new CSVInputAdapter(null, new GenericEventInputAdapterSpec(file, eventTypeName));
+                inputAdapter.setCoercer(new CvsTypeCoercer());
                 this.serverEngine.coordinate(inputAdapter);
 
                 logger.debug("started feeding file " + file.getName());
@@ -418,7 +419,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
 
     private void feedFile(File file) {
 
-        CoordinatedAdapter inputAdapter;
+        CSVInputAdapter inputAdapter;
         MarketDataType marketDataType = this.commonConfig.getDataSetType();
         if (MarketDataType.TICK.equals(marketDataType)) {
             inputAdapter = new CsvTickInputAdapter(new CsvTickInputAdapterSpec(file));
@@ -427,6 +428,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
         } else {
             throw new SimulationExecutorException("incorrect parameter for dataSetType: " + marketDataType);
         }
+        inputAdapter.setCoercer(new CvsTypeCoercer());
 
         this.serverEngine.coordinate(inputAdapter);
 

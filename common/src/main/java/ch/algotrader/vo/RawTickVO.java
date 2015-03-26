@@ -50,29 +50,14 @@ public class RawTickVO implements Serializable {
     private int vol;
 
     /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setVol = false;
-
-    /**
      * The volume on the bid side.
      */
     private int volBid;
 
     /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setVolBid = false;
-
-    /**
      * The volume on the ask side.
      */
     private int volAsk;
-
-    /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setVolAsk = false;
 
     /**
      * The bid price.
@@ -106,11 +91,8 @@ public class RawTickVO implements Serializable {
 
         this.dateTime = dateTimeIn;
         this.vol = volIn;
-        this.setVol = true;
         this.volBid = volBidIn;
-        this.setVolBid = true;
         this.volAsk = volAskIn;
-        this.setVolAsk = true;
         this.security = securityIn;
     }
 
@@ -133,11 +115,8 @@ public class RawTickVO implements Serializable {
         this.last = lastIn;
         this.lastDateTime = lastDateTimeIn;
         this.vol = volIn;
-        this.setVol = true;
         this.volBid = volBidIn;
-        this.setVolBid = true;
         this.volAsk = volAskIn;
-        this.setVolAsk = true;
         this.bid = bidIn;
         this.ask = askIn;
         this.security = securityIn;
@@ -155,11 +134,8 @@ public class RawTickVO implements Serializable {
         this.last = otherBean.getLast();
         this.lastDateTime = otherBean.getLastDateTime();
         this.vol = otherBean.getVol();
-        this.setVol = true;
         this.volBid = otherBean.getVolBid();
-        this.setVolBid = true;
         this.volAsk = otherBean.getVolAsk();
-        this.setVolAsk = true;
         this.bid = otherBean.getBid();
         this.ask = otherBean.getAsk();
         this.security = otherBean.getSecurity();
@@ -235,16 +211,6 @@ public class RawTickVO implements Serializable {
     public void setVol(final int value) {
 
         this.vol = value;
-        this.setVol = true;
-    }
-
-    /**
-     * Return true if the primitive attribute vol is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetVol() {
-
-        return this.setVol;
     }
 
     /**
@@ -263,16 +229,6 @@ public class RawTickVO implements Serializable {
     public void setVolBid(final int value) {
 
         this.volBid = value;
-        this.setVolBid = true;
-    }
-
-    /**
-     * Return true if the primitive attribute volBid is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetVolBid() {
-
-        return this.setVolBid;
     }
 
     /**
@@ -291,16 +247,6 @@ public class RawTickVO implements Serializable {
     public void setVolAsk(final int value) {
 
         this.volAsk = value;
-        this.setVolAsk = true;
-    }
-
-    /**
-     * Return true if the primitive attribute volAsk is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetVolAsk() {
-
-        return this.setVolAsk;
     }
 
     /**
@@ -361,16 +307,10 @@ public class RawTickVO implements Serializable {
         builder.append(this.lastDateTime);
         builder.append(", vol=");
         builder.append(this.vol);
-        builder.append(", setVol=");
-        builder.append(this.setVol);
         builder.append(", volBid=");
         builder.append(this.volBid);
-        builder.append(", setVolBid=");
-        builder.append(this.setVolBid);
         builder.append(", volAsk=");
         builder.append(this.volAsk);
-        builder.append(", setVolAsk=");
-        builder.append(this.setVolAsk);
         builder.append(", bid=");
         builder.append(this.bid);
         builder.append(", ask=");

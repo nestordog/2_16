@@ -19,14 +19,14 @@ package ch.algotrader.esper.io;
 
 import java.io.File;
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import ch.algotrader.enumeration.Duration;
-import ch.algotrader.util.CustomDate;
-
 import com.espertech.esperio.AdapterInputSource;
 import com.espertech.esperio.csv.CSVInputAdapterSpec;
+
+import ch.algotrader.enumeration.Duration;
 
 /**
  * A {@link CSVInputAdapterSpec} used to input {@link ch.algotrader.entity.marketData.Bar Bars}.
@@ -63,7 +63,7 @@ public class CsvBarInputAdapterSpec extends CSVInputAdapterSpec {
 
         Map<String, Object> barPropertyTypes = new HashMap<String, Object>();
 
-        barPropertyTypes.put("dateTime", CustomDate.class);
+        barPropertyTypes.put("dateTime", Date.class);
         barPropertyTypes.put("open", BigDecimal.class);
         barPropertyTypes.put("high", BigDecimal.class);
         barPropertyTypes.put("low", BigDecimal.class);
