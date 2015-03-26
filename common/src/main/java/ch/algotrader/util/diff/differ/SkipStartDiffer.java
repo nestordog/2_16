@@ -36,7 +36,7 @@ import ch.algotrader.util.diff.reader.CsvReaderUtil;
  */
 public class SkipStartDiffer implements CsvDiffer {
 
-    private static Logger LOG = LogManager.getLogger(SkipStartDiffer.class);
+    private static final Logger LOG = LogManager.getLogger(SkipStartDiffer.class);
 
     public static enum Mode {
         /** Skip expected rows until the value in the compared column matches the one in the actual row */

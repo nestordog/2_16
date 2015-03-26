@@ -49,12 +49,11 @@ public final class ConfigLoader {
             return;
         }
 
-        InputStream inputStream = resource.getInputStream();
-        try {
+        try (InputStream inputStream = resource.getInputStream()) {
             Properties props = new Properties();
             props.load(new InputStreamReader(inputStream, Consts.UTF_8));
 
-            for (Map.Entry<Object, Object> entry: props.entrySet()) {
+            for (Map.Entry<Object, Object> entry : props.entrySet()) {
                 String paramName = (String) entry.getKey();
                 String paramValue = (String) entry.getValue();
                 if (StringUtils.isNotBlank(paramName)) {
@@ -62,8 +61,6 @@ public final class ConfigLoader {
                 }
             }
 
-        } finally {
-            inputStream.close();
         }
     }
 

@@ -46,7 +46,7 @@ import quickfix.fix42.OrderCancelReject;
  */
 public abstract class AbstractFix42OrderMessageHandler extends AbstractFix42MessageHandler {
 
-    private static Logger LOGGER = LogManager.getLogger(AbstractFix42OrderMessageHandler.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(AbstractFix42OrderMessageHandler.class.getName());
 
     private final LookupService lookupService;
     private final Engine serverEngine;

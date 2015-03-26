@@ -244,7 +244,7 @@ public class BarDaoTest extends InMemoryDBTest {
         bar.setFeedType(FeedType.CNX);
         bar.setSecurity(this.forex1);
 
-        Set<Subscription> subscriptions = new HashSet<Subscription>();
+        Set<Subscription> subscriptions = new HashSet<>();
         subscriptions.add(subscription1);
 
         this.forex1.setSubscriptions(subscriptions);

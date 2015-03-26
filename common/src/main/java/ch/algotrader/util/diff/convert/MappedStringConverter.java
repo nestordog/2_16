@@ -25,7 +25,7 @@ import java.util.Map;
  */
 public class MappedStringConverter extends AbstractValueConverter<String> {
 
-    private Map<String, String> map;
+    private final Map<String, String> map;
 
     public MappedStringConverter(String... mappedStrings) {
         this(toMap(mappedStrings));
@@ -37,7 +37,7 @@ public class MappedStringConverter extends AbstractValueConverter<String> {
     }
 
     private static Map<String, String> toMap(String... mappedStrings) {
-        final Map<String, String> map = new LinkedHashMap<String, String>();
+        final Map<String, String> map = new LinkedHashMap<>();
         for (final String mappedString : mappedStrings) {
             final int colonIndex = mappedString.indexOf(':');
             if (colonIndex >= 0) {

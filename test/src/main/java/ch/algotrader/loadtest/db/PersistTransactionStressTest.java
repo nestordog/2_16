@@ -53,12 +53,12 @@ public class PersistTransactionStressTest {
         final LookupService lookupService = serviceLocator.getService("lookupService", LookupService.class);
 
         final Currency[] currencies = new Currency[] {Currency.CHF, Currency.USD, Currency.EUR, Currency.GBP, Currency.JPY};
-        final List<Forex> forexList = new ArrayList<Forex>();
+        final List<Forex> forexList = new ArrayList<>();
 
         for (Currency base: currencies) {
             for (Currency transact: currencies) {
                 if (!base.equals(transact)) {
-                    Map<String, Object> params = new HashMap<String, Object>();
+                    Map<String, Object> params = new HashMap<>();
                     params.put("baseCurrency", base);
                     params.put("transactionCurrency", transact);
                     List<?> list = lookupService.get(
@@ -79,36 +79,31 @@ public class PersistTransactionStressTest {
         int n = 10;
 
         final ExecutorService executorService = Executors.newFixedThreadPool(n);
-        final Callable<Boolean> task = new Callable<Boolean>() {
+        final Callable<Boolean> task = () -> {
+            for (int i = 0; i < 10; i++) {
+                for (Forex forex: forexList) {
 
-            @Override
-            public Boolean call() throws Exception {
-                for (int i = 0; i < 10; i++) {
-                    for (Forex forex: forexList) {
-
-                        transactionService.createTransaction(
-                                forex.getId(),
-                                "LOAD_TEST",
-                                Long.toString(System.currentTimeMillis()) + "-" + Long.toString(count.incrementAndGet()),
-                                new Date(),
-                                1, BigDecimal.ONE, null, null, null, forex.getTransactionCurrency(),
-                                TransactionType.BUY,
-                                "LOAD_TEST",
-                                "Load testing");
-                        if (Thread.currentThread().isInterrupted()) {
-                            System.out.println("exiting");
-                            return Boolean.FALSE;
-                        }
+                    transactionService.createTransaction(
+                            forex.getId(),
+                            "LOAD_TEST",
+                            Long.toString(System.currentTimeMillis()) + "-" + Long.toString(count.incrementAndGet()),
+                            new Date(),
+                            1, BigDecimal.ONE, null, null, null, forex.getTransactionCurrency(),
+                            TransactionType.BUY,
+                            "LOAD_TEST",
+                            "Load testing");
+                    if (Thread.currentThread().isInterrupted()) {
+                        System.out.println("exiting");
+                        return Boolean.FALSE;
                     }
-                    Thread.sleep(25);
                 }
-                return Boolean.TRUE;
+                Thread.sleep(25);
             }
-
+            return Boolean.TRUE;
         };
 
         try {
-            Queue<Future<?>> queue = new LinkedList<Future<?>>();
+            Queue<Future<?>> queue = new LinkedList<>();
             for (int i = 0; i < n; i++) {
                 Future<?> future = executorService.submit(task);
                 queue.add(future);
@@ -122,7 +117,7 @@ public class PersistTransactionStressTest {
             executorService.shutdown();
             try {
                 executorService.awaitTermination(5, TimeUnit.SECONDS);
-            } catch (InterruptedException ex) {
+            } catch (InterruptedException ignore) {
             }
         }
     }

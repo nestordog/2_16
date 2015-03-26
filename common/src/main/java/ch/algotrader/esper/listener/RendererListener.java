@@ -35,7 +35,7 @@ import com.espertech.esper.client.util.XMLEventRenderer;
  */
 public class RendererListener implements StatementAwareUpdateListener {
 
-    private static Logger logger = LogManager.getLogger(RendererListener.class.getName());
+    private static final Logger logger = LogManager.getLogger(RendererListener.class.getName());
 
     private static XMLEventRenderer renderer;
 

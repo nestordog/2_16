@@ -32,7 +32,7 @@ public class LogTransactionSummarySubscriber {
 
     public void update(Map<?, ?>[] insertStream, Map<?, ?>[] removeStream) {
 
-        List<Fill> fills = new ArrayList<Fill>();
+        List<Fill> fills = new ArrayList<>();
         for (Map<?, ?> element : insertStream) {
             Fill fill = (Fill) element.get("fill");
             fills.add(fill);

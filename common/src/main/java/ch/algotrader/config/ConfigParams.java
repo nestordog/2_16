@@ -64,7 +64,7 @@ public final class ConfigParams {
 
     public int getInteger(final String name, final int defaultValue) {
         Integer value = this.configProvider.getParameter(name, Integer.class);
-        return value != null ? value.intValue() : defaultValue;
+        return value != null ? value : defaultValue;
     }
 
     public Long getLong(String name) {
@@ -73,7 +73,7 @@ public final class ConfigParams {
 
     public long getLong(final String name, final long defaultValue) {
         Long value = this.configProvider.getParameter(name, Long.class);
-        return value != null ? value.longValue() : defaultValue;
+        return value != null ? value : defaultValue;
     }
 
     public Boolean getBoolean(final String name) {
@@ -82,7 +82,7 @@ public final class ConfigParams {
 
     public Boolean getBoolean(final String name, final boolean defaultValue) {
         Boolean value = this.configProvider.getParameter(name, Boolean.class);
-        return value != null ? value.booleanValue() : defaultValue;
+        return value != null ? value : defaultValue;
     }
 
     public Double getDouble(final String name) {
@@ -91,7 +91,7 @@ public final class ConfigParams {
 
     public double getDouble(final String name, final double defaultValue) {
         Double value = this.configProvider.getParameter(name, Double.class);
-        return value != null ? value.doubleValue() : defaultValue;
+        return value != null ? value : defaultValue;
     }
 
     public BigDecimal getBigDecimal(final String name) {

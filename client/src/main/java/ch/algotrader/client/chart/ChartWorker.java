@@ -40,7 +40,7 @@ import ch.algotrader.vo.ChartDataVO;
  */
 public class ChartWorker extends SwingWorker<Map<ObjectName, ChartDataVO>, Object> {
 
-    private ChartPlugin chartPlugin;
+    private final ChartPlugin chartPlugin;
 
     public ChartWorker(ChartPlugin chartPlugin) {
         this.chartPlugin = chartPlugin;
@@ -90,7 +90,7 @@ public class ChartWorker extends SwingWorker<Map<ObjectName, ChartDataVO>, Objec
                 managementService.checkIsAlive();
             }
 
-            Map<ObjectName, ChartDataVO> chartDataMap = new HashMap<ObjectName, ChartDataVO>();
+            Map<ObjectName, ChartDataVO> chartDataMap = new HashMap<>();
             for (Map.Entry<ObjectName, ChartTab> entry : this.chartPlugin.getChartTabs().entrySet()) {
 
                 // get the managementService

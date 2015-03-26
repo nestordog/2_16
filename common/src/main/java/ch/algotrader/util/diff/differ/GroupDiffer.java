@@ -42,7 +42,7 @@ import ch.algotrader.util.diff.reader.LinkedListReader;
  */
 public class GroupDiffer implements CsvDiffer {
 
-    private static Logger LOG = LogManager.getLogger(GroupDiffer.class);
+    private static final Logger LOG = LogManager.getLogger(GroupDiffer.class);
 
     private final List<CsvColumn> expectedGroupColumns;
     private final List<CsvColumn> actualGroupColumns;
@@ -113,7 +113,7 @@ public class GroupDiffer implements CsvDiffer {
     }
 
     private List<Object> getGroupValues(CsvLine line) {
-        final List<Object> groupValues = new ArrayList<Object>(expectedGroupColumns.size());
+        final List<Object> groupValues = new ArrayList<>(expectedGroupColumns.size());
         for (CsvColumn col : expectedGroupColumns) {
             groupValues.add(line.getValues().get(col));
         }

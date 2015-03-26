@@ -46,8 +46,8 @@ public class DBBarInputAdapter extends AbstractCoordinatedAdapter {
 
     private Iterator<Bar> iterator = (new ArrayList<Bar>()).iterator();
     private Date startDate;
-    private int batchSize;
-    private Duration barSize;
+    private final int batchSize;
+    private final Duration barSize;
 
     public DBBarInputAdapter(int batchSize, Duration barSize) {
         super(null, true, true, true);

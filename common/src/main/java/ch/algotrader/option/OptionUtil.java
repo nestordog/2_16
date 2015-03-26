@@ -17,7 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.option;
 
-import org.apache.commons.math.FunctionEvaluationException;
 import org.apache.commons.math.MathException;
 import org.apache.commons.math.analysis.UnivariateRealFunction;
 import org.apache.commons.math.analysis.interpolation.SplineInterpolator;
@@ -42,7 +41,7 @@ import ch.algotrader.vo.SABRSurfaceVO;
  */
 public class OptionUtil {
 
-    private static double beta = 0.999;
+    private static final double beta = 0.999;
 
     /**
      * Gets the fair-price of a {@link Option} based on the price of the {@code underlyingSpot} and {@code volatility}.
@@ -111,12 +110,7 @@ public class OptionUtil {
             throw new IllegalArgumentException("cannot calculate volatility if optionValue is below intrinsic Value");
         }
 
-        UnivariateRealFunction function = new UnivariateRealFunction() {
-            @Override
-            public double value(double volatility) throws FunctionEvaluationException {
-                return getOptionPrice(underlyingSpot, strike, volatility, years, intrest, dividend, type) - currentValue;
-            }
-        };
+        UnivariateRealFunction function = volatility -> getOptionPrice(underlyingSpot, strike, volatility, years, intrest, dividend, type) - currentValue;
 
         UnivariateRealSolverFactory factory = UnivariateRealSolverFactory.newInstance();
         UnivariateRealSolver solver = factory.newDefaultSolver();

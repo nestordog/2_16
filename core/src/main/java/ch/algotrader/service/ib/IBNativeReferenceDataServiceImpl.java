@@ -146,12 +146,10 @@ public class IBNativeReferenceDataServiceImpl extends ReferenceDataServiceImpl i
             } else {
                 throw new IllegalArgumentException("illegal securityFamily type");
             }
-        } catch (IllegalArgumentException ex) {
+        } catch (IllegalArgumentException | ParseException ex) {
             throw new IBNativeReferenceDataServiceException(ex);
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
-            throw new IBNativeReferenceDataServiceException(ex);
-        } catch (ParseException ex) {
             throw new IBNativeReferenceDataServiceException(ex);
         }
     }
@@ -191,7 +189,7 @@ public class IBNativeReferenceDataServiceImpl extends ReferenceDataServiceImpl i
 
     private Set<ContractDetails> retrieveContractDetails() throws InterruptedException {
 
-        Set<ContractDetails> contractDetailsSet = new HashSet<ContractDetails>();
+        Set<ContractDetails> contractDetailsSet = new HashSet<>();
 
         ContractDetails contractDetails;
         while (!((contractDetails = this.contractDetailsQueue.take()).m_summary.m_symbol == null)) {
@@ -204,10 +202,10 @@ public class IBNativeReferenceDataServiceImpl extends ReferenceDataServiceImpl i
     private void retrieveOptions(OptionFamily securityFamily, Set<ContractDetails> contractDetailsSet) throws ParseException {
 
         // get all current options
-        Set<Security> existingOptions = new TreeSet<Security>(getComparator());
+        Set<Security> existingOptions = new TreeSet<>(getComparator());
         existingOptions.addAll(this.optionDao.findBySecurityFamily(securityFamily.getId()));
 
-        Set<Option> newOptions = new TreeSet<Option>();
+        Set<Option> newOptions = new TreeSet<>();
         for (ContractDetails contractDetails : contractDetailsSet) {
 
             Option option = Option.Factory.newInstance();
@@ -246,10 +244,10 @@ public class IBNativeReferenceDataServiceImpl extends ReferenceDataServiceImpl i
     private void retrieveFutures(FutureFamily securityFamily, Set<ContractDetails> contractDetailsSet) throws ParseException {
 
         // get all current futures
-        Set<Future> existingFutures = new TreeSet<Future>(getComparator());
+        Set<Future> existingFutures = new TreeSet<>(getComparator());
         existingFutures.addAll(this.futureDao.findBySecurityFamily(securityFamily.getId()));
 
-        Set<Future> newFutures = new TreeSet<Future>();
+        Set<Future> newFutures = new TreeSet<>();
         for (ContractDetails contractDetails : contractDetailsSet) {
 
             Future future = Future.Factory.newInstance();
@@ -285,14 +283,14 @@ public class IBNativeReferenceDataServiceImpl extends ReferenceDataServiceImpl i
     private void retrieveStocks(SecurityFamily securityFamily, Set<ContractDetails> contractDetailsSet) {
 
         // get all current stocks
-        Map<String, Stock> existingStocks = new HashMap<String, Stock>();
+        Map<String, Stock> existingStocks = new HashMap<>();
 
         for (Stock stock : this.stockDao.findStocksBySecurityFamily(securityFamily.getId())) {
             existingStocks.put(stock.getSymbol(), stock);
         }
 
         // contractDetailsList most likely only contains one entry
-        Set<Stock> newStocks = new TreeSet<Stock>();
+        Set<Stock> newStocks = new TreeSet<>();
         for (ContractDetails contractDetails : contractDetailsSet) {
 
             Contract contract = contractDetails.m_summary;
@@ -324,12 +322,6 @@ public class IBNativeReferenceDataServiceImpl extends ReferenceDataServiceImpl i
     private Comparator<Security> getComparator() {
 
         // comparator based on conid
-        Comparator<Security> comparator = new Comparator<Security>() {
-            @Override
-            public int compare(Security o1, Security o2) {
-                return o1.getConid().compareTo(o2.getConid());
-            }
-        };
-        return comparator;
+        return (o1, o2) -> o1.getConid().compareTo(o2.getConid());
     }
 }

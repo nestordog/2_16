@@ -39,7 +39,7 @@ import com.espertech.esper.client.StatementAwareUpdateListener;
  */
 public class IndicatorListener implements StatementAwareUpdateListener {
 
-    private static SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private static final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private String[] propertyNames;
     private ListReporter reporter;

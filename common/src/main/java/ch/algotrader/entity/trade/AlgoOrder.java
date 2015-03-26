@@ -35,7 +35,7 @@ public abstract class AlgoOrder extends OrderImpl {
 
     private static final long serialVersionUID = 5310975560518020161L;
 
-    private Collection<Allocation> allocations = new HashSet<Allocation>();
+    private Collection<Allocation> allocations = new HashSet<>();
 
     public Collection<Allocation> getAllocations() {
         return this.allocations;

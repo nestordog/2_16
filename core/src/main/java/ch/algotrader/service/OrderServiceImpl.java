@@ -79,8 +79,8 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
 
     private static final long serialVersionUID = 3969251081188007542L;
 
-    private static Logger logger = LogManager.getLogger(OrderServiceImpl.class.getName());
-    private static Logger notificationLogger = LogManager.getLogger("ch.algotrader.service.NOTIFICATION");
+    private static final Logger logger = LogManager.getLogger(OrderServiceImpl.class.getName());
+    private static final Logger notificationLogger = LogManager.getLogger("ch.algotrader.service.NOTIFICATION");
 
     private final CommonConfig commonConfig;
 
@@ -574,7 +574,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
         final Map<Order, OrderStatus> pendingOrderMap = loadPendingOrders();
         if (logger.isInfoEnabled() && !pendingOrderMap.isEmpty()) {
 
-            List<Order> orderList  = new ArrayList<Order>(pendingOrderMap.keySet());
+            List<Order> orderList  = new ArrayList<>(pendingOrderMap.keySet());
 
             logger.info(orderList.size() + " order(s) are pending");
             for (int i = 0; i < orderList.size(); i++) {

@@ -42,7 +42,7 @@ import org.supercsv.prefs.CsvPreference;
 public class CsvJPMTradeReader {
 
     //@formatter:off
-    private static CellProcessor[] processor = new CellProcessor[] {
+    private static final CellProcessor[] processor = new CellProcessor[] {
         new StrNotNullOrEmpty(),
         new StrNotNullOrEmpty(),
         new StrNotNullOrEmpty(),
@@ -59,13 +59,12 @@ public class CsvJPMTradeReader {
     public static List<Map<String, ? super Object>> readTrades(File file) throws IOException {
 
         InputStreamReader inputStreamReader = new InputStreamReader(new FileInputStream(file));
-        CsvMapReader mapReader = new CsvMapReader(inputStreamReader, CsvPreference.EXCEL_PREFERENCE);
 
         List<Map<String, ? super Object>> list;
-        try {
+        try (CsvMapReader mapReader = new CsvMapReader(inputStreamReader, CsvPreference.EXCEL_PREFERENCE)) {
             String[] header = mapReader.getHeader(true);
 
-            list = new ArrayList<Map<String, ? super Object>>();
+            list = new ArrayList<>();
 
             Map<String, ? super Object> position;
             while ((position = mapReader.read(header, processor)) != null) {
@@ -73,8 +72,6 @@ public class CsvJPMTradeReader {
             }
 
             return list;
-        } finally {
-            mapReader.close();
         }
     }
 }

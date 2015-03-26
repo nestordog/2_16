@@ -47,7 +47,7 @@ import ch.algotrader.entity.marketData.TickImpl;
 public class CsvTickReader {
 
     //@formatter:off
-    private static CellProcessor[] processor = new CellProcessor[] {
+    private static final CellProcessor[] processor = new CellProcessor[] {
         new ParseDate(),
         new Token("", new BigDecimal(0), new ParseBigDecimal()),
         new ParseDate(),
@@ -59,8 +59,8 @@ public class CsvTickReader {
     };
     //@formatter:on
 
-    private String[] header;
-    private CsvBeanReader reader;
+    private final String[] header;
+    private final CsvBeanReader reader;
 
     public CsvTickReader(File file) throws IOException {
 

@@ -36,7 +36,7 @@ import ch.algotrader.entity.property.PropertyHolderDao;
 @Transactional
 public class PropertyServiceImpl implements PropertyService {
 
-    private static Logger logger = LogManager.getLogger(PropertyServiceImpl.class.getName());
+    private static final Logger logger = LogManager.getLogger(PropertyServiceImpl.class.getName());
 
     private final PropertyDao propertyDao;
 

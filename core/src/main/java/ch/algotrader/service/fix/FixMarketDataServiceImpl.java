@@ -46,7 +46,7 @@ public abstract class FixMarketDataServiceImpl extends ExternalMarketDataService
 
     private static final long serialVersionUID = 4880040246465806082L;
 
-    private static Logger logger = LogManager.getLogger(FixMarketDataServiceImpl.class.getName());
+    private static final Logger logger = LogManager.getLogger(FixMarketDataServiceImpl.class.getName());
 
     private final FixSessionStateHolder lifeCycle;
     private final FixAdapter fixAdapter;

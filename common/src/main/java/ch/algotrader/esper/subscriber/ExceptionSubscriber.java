@@ -29,7 +29,7 @@ import org.apache.logging.log4j.Logger;
  */
 public class ExceptionSubscriber {
 
-    private static Logger logger = LogManager.getLogger(ExceptionSubscriber.class.getName());
+    private static final Logger logger = LogManager.getLogger(ExceptionSubscriber.class.getName());
 
     public void update(String reason) {
 

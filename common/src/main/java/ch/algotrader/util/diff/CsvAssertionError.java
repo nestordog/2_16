@@ -52,7 +52,7 @@ public class CsvAssertionError extends AssertionError {
     }
 
     public CsvAssertionError addGroupValues(List<?> groupValues) {
-        final List<DiffEntry> groupedDiffs = new ArrayList<DiffEntry>(diffs.size());
+        final List<DiffEntry> groupedDiffs = new ArrayList<>(diffs.size());
         for (final DiffEntry diff : diffs) {
             final List<Object> grpVals = new ArrayList<>(groupValues);
             grpVals.addAll(diff.getGroupValues());
@@ -85,7 +85,7 @@ public class CsvAssertionError extends AssertionError {
             groups.add(diff.getGroupValues());
         }
         //is there only a single group?
-        if (new HashSet<Object>(groups).size() == 1) {
+        if (new HashSet<>(groups).size() == 1) {
             return groups.get(0).toString();
         }
         return groups.toString();
@@ -102,7 +102,7 @@ public class CsvAssertionError extends AssertionError {
             act.add(diff.getActualContext().getLine().getLineIndex());
         }
         //is there only a single line in both lists?
-        if (new HashSet<Integer>(exp).size() == 1 && new HashSet<Integer>(act).size() == 1) {
+        if (new HashSet<>(exp).size() == 1 && new HashSet<>(act).size() == 1) {
             if (expected & actual) {
                 return exp.get(0).toString() + "/" + act.get(0).toString();
             }

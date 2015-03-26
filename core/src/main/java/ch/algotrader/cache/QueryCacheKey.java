@@ -63,7 +63,7 @@ public class QueryCacheKey {
     @Override
     public String toString() {
 
-        StringBuffer buffer = new StringBuffer(this.queryString);
+        StringBuilder buffer = new StringBuilder(this.queryString);
 
         if (this.namedParameters != null) {
             buffer.append(",namedParameters=").append(this.namedParameters);

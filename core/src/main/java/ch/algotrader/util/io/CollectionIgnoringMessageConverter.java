@@ -47,20 +47,13 @@ public class CollectionIgnoringMessageConverter extends SimpleMessageConverter {
     @Override
     protected ObjectMessage createMessageForSerializable(Serializable serializable, Session session) throws JMSException {
 
-        try {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try (ObjectOutputStream oos = new CollectionIgnoringObjectOutputStream(bos)) {
+            oos.writeObject(serializable);
 
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            ObjectOutputStream oos = new CollectionIgnoringObjectOutputStream(bos); // custom ObjectOutputStream
-            try {
-                oos.writeObject(serializable);
-
-                ActiveMQObjectMessage message = (ActiveMQObjectMessage) session.createObjectMessage(); // empty ObjectMessage
-                message.setContent(bos.toByteSequence());
-                return message;
-
-            } finally {
-                oos.close();
-            }
+            ActiveMQObjectMessage message = (ActiveMQObjectMessage) session.createObjectMessage(); // empty ObjectMessage
+            message.setContent(bos.toByteSequence());
+            return message;
 
         } catch (IOException e) {
             throw new JMSException(e.toString());

@@ -33,7 +33,7 @@ import ch.algotrader.entity.marketData.Tick;
  */
 public class PersistTickSubscriber {
 
-    private static Logger LOGGER = LogManager.getLogger(PersistTickSubscriber.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(PersistTickSubscriber.class.getName());
 
     @SuppressWarnings("rawtypes")
     public void update(Pair<Tick, Object> insertStream, Map removeStream) {

@@ -42,7 +42,7 @@ public class DefaultOrderIdGenerator implements OrderIdGenerator {
         Validate.notNull(orderDao, "orderDao is null");
 
         this.orderDao = orderDao;
-        this.orderIds = new IntegerMap<String>();
+        this.orderIds = new IntegerMap<>();
     }
 
     /**

@@ -38,8 +38,8 @@ import ch.algotrader.ServiceLocator;
  */
 public class GenericStarter {
 
-    private static SimpleDateFormat dayFormat = new SimpleDateFormat("dd.MM.yy");
-    private static SimpleDateFormat hourFormat = new SimpleDateFormat("dd.MM.yy hh:mm:ss");
+    private static final SimpleDateFormat dayFormat = new SimpleDateFormat("dd.MM.yy");
+    private static final SimpleDateFormat hourFormat = new SimpleDateFormat("dd.MM.yy hh:mm:ss");
 
     public static void main(String[] args) throws Exception {
 

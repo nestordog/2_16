@@ -95,7 +95,7 @@ public class IBOrderPropertyTest {
         Assert.assertFalse(ibOrder.m_transmit);
 
         Assert.assertEquals(2, ibOrder.m_algoParams.size());
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         for (TagValue tagValue : ibOrder.m_algoParams) {
             map.put(tagValue.m_tag, tagValue.m_value);
         }

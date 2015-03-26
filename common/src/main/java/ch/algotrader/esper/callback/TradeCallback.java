@@ -41,9 +41,9 @@ import ch.algotrader.util.metric.MetricsUtil;
  */
 public abstract class TradeCallback {
 
-    private static Logger logger = LogManager.getLogger(TradeCallback.class.getName());
+    private static final Logger logger = LogManager.getLogger(TradeCallback.class.getName());
 
-    private boolean expectFullExecution;
+    private final boolean expectFullExecution;
 
     /**
      * param expectFullExecution if set to true an exception will be thrown unless all {@code orders} have been fully executed.
@@ -71,7 +71,7 @@ public abstract class TradeCallback {
 
         // get the securityIds sorted ascending
         List<OrderStatus> orderStatusList = Arrays.asList(orderStati);
-        TreeSet<Integer> sortedSecurityIds = new TreeSet<Integer>(CollectionUtils.collect(orderStatusList, new Transformer<OrderStatus, Integer>() {
+        TreeSet<Integer> sortedSecurityIds = new TreeSet<>(CollectionUtils.collect(orderStatusList, new Transformer<OrderStatus, Integer>() {
             @Override
             public Integer transform(OrderStatus order) {
                 return order.getOrder().getSecurity().getId();

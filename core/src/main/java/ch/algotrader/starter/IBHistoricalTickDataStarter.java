@@ -59,9 +59,9 @@ import ch.algotrader.util.io.CsvTickWriter;
  */
 public class IBHistoricalTickDataStarter {
 
-    private static Logger logger = LogManager.getLogger(IBHistoricalTickDataStarter.class.getName());
+    private static final Logger logger = LogManager.getLogger(IBHistoricalTickDataStarter.class.getName());
 
-    private static SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd  HH:mm:ss");
+    private static final SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd  HH:mm:ss");
 
     public static void main(String[] args) throws Exception {
 
@@ -69,7 +69,7 @@ public class IBHistoricalTickDataStarter {
         Date endDate = format.parse(args[1] + "  24:00:00");
 
         String[] barTypesString = args[2].split(":");
-        Set<BarType> barTypes = new HashSet<BarType>();
+        Set<BarType> barTypes = new HashSet<>();
         for (String element : barTypesString) {
             barTypes.add(BarType.valueOf(element));
         }
@@ -120,7 +120,7 @@ public class IBHistoricalTickDataStarter {
 
     private static void download1MinTicksForDate(Security security, Date date, Set<BarType> barTypes, CsvTickWriter writer) throws Exception {
 
-        TreeMap<Date, Tick> timeTickMap = new TreeMap<Date, Tick>();
+        TreeMap<Date, Tick> timeTickMap = new TreeMap<>();
 
         HistoricalDataService historicalDataService = ServiceLocator.instance().getHistoricalDataService();
         CalendarService calendarService = ServiceLocator.instance().getCalendarService();
@@ -129,7 +129,7 @@ public class IBHistoricalTickDataStarter {
         // run all barTypes and get the ticks
         for (BarType barType : barTypes) {
 
-            List<Bar> bars = historicalDataService.getHistoricalBars(security.getId(), date, 1, TimePeriod.DAY, Duration.MIN_1, barType, new HashMap<String, String>());
+            List<Bar> bars = historicalDataService.getHistoricalBars(security.getId(), date, 1, TimePeriod.DAY, Duration.MIN_1, barType, new HashMap<>());
 
             // filter Bars by date
             for (Iterator<Bar> it = bars.iterator(); it.hasNext();) {

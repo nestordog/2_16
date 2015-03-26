@@ -132,7 +132,7 @@ public class ChartDataVO implements Serializable {
 
         if (this.bars == null) {
 
-            this.bars = new ArrayList<BarVO>();
+            this.bars = new ArrayList<>();
         }
         return this.bars;
     }
@@ -158,7 +158,7 @@ public class ChartDataVO implements Serializable {
 
         if (this.indicators == null) {
 
-            this.indicators = new ArrayList<IndicatorVO>();
+            this.indicators = new ArrayList<>();
         }
         return this.indicators;
     }
@@ -184,7 +184,7 @@ public class ChartDataVO implements Serializable {
 
         if (this.markers == null) {
 
-            this.markers = new ArrayList<MarkerVO>();
+            this.markers = new ArrayList<>();
         }
         return this.markers;
     }
@@ -210,7 +210,7 @@ public class ChartDataVO implements Serializable {
 
         if (this.annotations == null) {
 
-            this.annotations = new ArrayList<AnnotationVO>();
+            this.annotations = new ArrayList<>();
         }
         return this.annotations;
     }

@@ -30,7 +30,7 @@ import org.apache.commons.lang.Validate;
  */
 public class IBCustomMessage implements Serializable {
 
-    enum Type { GET_GROUPS };
+    enum Type { GET_GROUPS }
 
     private static final long serialVersionUID = -3600626814458791107L;
 

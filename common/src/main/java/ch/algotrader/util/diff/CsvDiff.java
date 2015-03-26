@@ -31,7 +31,7 @@ import ch.algotrader.util.diff.reader.CsvLine;
  */
 public class CsvDiff {
 
-    private static Logger LOG = LogManager.getLogger(CsvDiff.class);
+    private static final Logger LOG = LogManager.getLogger(CsvDiff.class);
 
     public static void diffAndLogAssertionErrors(FileDiffer fileDiffer, File expectedFile, File actualFile) {
         LOG.info("[ASSERT] ====================================================");

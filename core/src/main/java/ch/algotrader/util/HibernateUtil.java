@@ -43,7 +43,7 @@ import org.hibernate.type.Type;
  */
 public class HibernateUtil {
 
-    private static Logger logger = LogManager.getLogger(HibernateUtil.class.getName());
+    private static final Logger logger = LogManager.getLogger(HibernateUtil.class.getName());
 
     /**
      * Tries to lock the transient object (modifications will be lost).

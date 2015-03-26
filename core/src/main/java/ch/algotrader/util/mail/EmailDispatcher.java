@@ -38,9 +38,9 @@ import org.springframework.integration.support.MessageBuilder;
  */
 public class EmailDispatcher {
 
-    private static Logger logger = LogManager.getLogger(EmailDispatcher.class.getName());
+    private static final Logger logger = LogManager.getLogger(EmailDispatcher.class.getName());
 
-    private Set<Disposition> dispositions = new HashSet<Disposition>();
+    private Set<Disposition> dispositions = new HashSet<>();
 
     public void setDispositions(Set<Disposition> dispositions) {
         this.dispositions = dispositions;

@@ -36,7 +36,7 @@ import com.espertech.esperio.csv.CSVInputAdapterSpec;
  */
 public class CsvTickInputAdapterSpec extends CSVInputAdapterSpec {
 
-    private File file;
+    private final File file;
 
     public CsvTickInputAdapterSpec(File file) {
 
@@ -59,7 +59,7 @@ public class CsvTickInputAdapterSpec extends CSVInputAdapterSpec {
 
         setPropertyOrder(tickPropertyOrder);
 
-        Map<String, Object> tickPropertyTypes = new HashMap<String, Object>();
+        Map<String, Object> tickPropertyTypes = new HashMap<>();
 
         tickPropertyTypes.put("dateTime", Date.class);
         tickPropertyTypes.put("last", BigDecimal.class);

@@ -33,7 +33,7 @@ import ch.algotrader.ServiceLocator;
  */
 public abstract class TimerCallback {
 
-    private static Logger logger = LogManager.getLogger(TimerCallback.class.getName());
+    private static final Logger logger = LogManager.getLogger(TimerCallback.class.getName());
 
     /**
      * Called by the "ON_TIMER" statement. Should not be invoked directly.

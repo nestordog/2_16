@@ -80,7 +80,7 @@ public class MySqlTransactionPersistenceServiceImpl extends TransactionPersisten
 
         Strategy strategy = transaction.getStrategy();
         Security security = transaction.getSecurity();
-        Set<Currency> currencySet = new HashSet<Currency>();
+        Set<Currency> currencySet = new HashSet<>();
         Collection<CurrencyAmountVO> attributions = transaction.getAttributions();
         for (CurrencyAmountVO attribution : attributions) {
             currencySet.add(attribution.getCurrency());

@@ -45,7 +45,7 @@ import ch.algotrader.entity.marketData.BarImpl;
 public class CsvBarReader {
 
     //@formatter:off
-    private static CellProcessor[] processor = new CellProcessor[] {
+    private static final CellProcessor[] processor = new CellProcessor[] {
         new ParseDate(),
         new ParseBigDecimal(),
         new ParseBigDecimal(),
@@ -55,8 +55,8 @@ public class CsvBarReader {
     };
     //@formatter:on
 
-    private String[] header;
-    private CsvBeanReader reader;
+    private final String[] header;
+    private final CsvBeanReader reader;
 
     public CsvBarReader(File file) throws IOException {
 

@@ -77,7 +77,7 @@ public class CsvMerger {
                 return FilenameUtils.getName(file.getName());
             }});
 
-        for (String fileName : new HashSet<String>(CollectionUtils.union(aNames, bNames))) {
+        for (String fileName : new HashSet<>(CollectionUtils.union(aNames, bNames))) {
 
             if (aNames.contains(fileName) && bNames.contains(fileName)) {
 

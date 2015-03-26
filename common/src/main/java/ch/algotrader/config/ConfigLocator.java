@@ -51,7 +51,7 @@ public final class ConfigLocator {
     private ConfigLocator(final ConfigParams configParams, final CommonConfig commonConfig) {
         this.configParams = configParams;
         this.commonConfig = commonConfig;
-        this.beanMap = new HashMap<Class<?>, Object>();
+        this.beanMap = new HashMap<>();
         this.beanMap.put(CommonConfig.class, this.commonConfig);
     }
 

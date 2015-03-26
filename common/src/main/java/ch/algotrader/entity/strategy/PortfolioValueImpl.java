@@ -30,7 +30,7 @@ import ch.algotrader.util.RoundUtil;
 public class PortfolioValueImpl extends PortfolioValue {
 
     private static final long serialVersionUID = -3646704287725745092L;
-    private static SimpleDateFormat format = new SimpleDateFormat("dd.MM.yy hh:mm:ss");
+    private static final SimpleDateFormat format = new SimpleDateFormat("dd.MM.yy hh:mm:ss");
 
     @Override
     public double getNetLiqValueDouble() {
@@ -59,7 +59,7 @@ public class PortfolioValueImpl extends PortfolioValue {
     @Override
     public String toString() {
 
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
 
         buffer.append(format.format(getDateTime()));
         buffer.append(",");

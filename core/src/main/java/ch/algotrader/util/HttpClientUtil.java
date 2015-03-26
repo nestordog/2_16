@@ -36,10 +36,10 @@ import org.apache.commons.httpclient.params.HttpMethodParams;
  */
 public class HttpClientUtil {
 
-    private static int workers = ConfigurationUtil.getInt("http.workers");
-    private static boolean retry = ConfigurationUtil.getBoolean("http.retry");
-    private static String userAgent = ConfigurationUtil.getString("http.userAgent");
-    private static boolean useProxy = ConfigurationUtil.getBoolean("http.useProxy");
+    private static final int workers = ConfigurationUtil.getInt("http.workers");
+    private static final boolean retry = ConfigurationUtil.getBoolean("http.retry");
+    private static final String userAgent = ConfigurationUtil.getString("http.userAgent");
+    private static final boolean useProxy = ConfigurationUtil.getBoolean("http.useProxy");
 
     private static HttpClient standardClient;
 
@@ -81,7 +81,7 @@ public class HttpClientUtil {
         }
 
         // cookie settings http.protocol.cookie-policy
-        standardClient.getParams().setParameter(HttpMethodParams.SINGLE_COOKIE_HEADER, new Boolean(true));
+        standardClient.getParams().setParameter(HttpMethodParams.SINGLE_COOKIE_HEADER, true);
         standardClient.getParams().setParameter(HttpMethodParams.COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY);
 
         // user agent

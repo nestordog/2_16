@@ -37,7 +37,7 @@ public class DefaultCsvDiff implements DiffEntry {
             final File expFile, final CsvLine expLine, final CsvColumn expColumn, final Object expValue,//
             final File actFile, final CsvLine actLine, final CsvColumn actColumn, final Object actValue) {
         this.message = Objects.requireNonNull(message, "expValue cannot be null");
-        unmodifiableGroupValues = Collections.unmodifiableList(new ArrayList<Object>(groupValues));
+        unmodifiableGroupValues = Collections.unmodifiableList(new ArrayList<>(groupValues));
         expectedContext = new CsvDiffContext(expFile, expLine, expColumn, expValue);
         actualContext = new CsvDiffContext(actFile, actLine, actColumn, actValue);
     }

@@ -199,7 +199,7 @@ public abstract class AbstractFixApplication implements Application {
      */
     static class InternalMessageCracker extends MessageCracker {
 
-        private boolean incoming;
+        private final boolean incoming;
 
         public InternalMessageCracker(boolean incoming, Object messageHandler) {
             super(messageHandler);

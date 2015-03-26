@@ -40,7 +40,7 @@ import ch.algotrader.service.HistoricalDataService;
  */
 public class HistoricalDataStarter {
 
-    private static SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+    private static final SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
 
     public static void main(String[] args) throws Exception {
 
@@ -65,9 +65,9 @@ public class HistoricalDataStarter {
         HistoricalDataService service = ServiceLocator.instance().getService("historicalDataService", HistoricalDataService.class);
         for (int securityId : securityIds) {
             if (update) {
-                service.updateHistoricalBars(securityId, endDate, timePeriodLength, timePeriod, barSize, barType, new HashMap<String, String>());
+                service.updateHistoricalBars(securityId, endDate, timePeriodLength, timePeriod, barSize, barType, new HashMap<>());
             } else {
-                service.replaceHistoricalBars(securityId, endDate, timePeriodLength, timePeriod, barSize, barType, new HashMap<String, String>());
+                service.replaceHistoricalBars(securityId, endDate, timePeriodLength, timePeriod, barSize, barType, new HashMap<>());
             }
         }
 

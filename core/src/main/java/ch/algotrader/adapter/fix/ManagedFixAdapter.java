@@ -99,7 +99,7 @@ public class ManagedFixAdapter extends DefaultFixAdapter implements ApplicationC
     @ManagedAttribute
     public Map<String, Boolean> getSessionLogonStates() {
 
-        Map<String, Boolean> logonStates = new HashMap<String, Boolean>();
+        Map<String, Boolean> logonStates = new HashMap<>();
         for (SessionID sessionId : getSocketInitiator().getSessions()) {
             Session session = Session.lookupSession(sessionId);
             logonStates.put(sessionId.getSessionQualifier(), session.isLoggedOn());

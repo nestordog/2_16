@@ -75,7 +75,7 @@ public class JMXAgent {
 
         MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
 
-        Map<String, Object> env = new HashMap<String, Object>();
+        Map<String, Object> env = new HashMap<>();
 
         // Provide SSL-based RMI socket factories.
         if (rmiSsl) {

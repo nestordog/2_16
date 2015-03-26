@@ -43,11 +43,8 @@ public class FixSessionSettingsFactoryBean implements FactoryBean<SessionSetting
     @Override
     public SessionSettings getObject() throws Exception {
         Resource resource = this.resource != null ? this.resource : new ClassPathResource("/fix.cfg");
-        InputStream inputStream = resource.getInputStream();
-        try {
+        try (InputStream inputStream = resource.getInputStream()) {
             return new SessionSettings(inputStream);
-        } finally {
-            inputStream.close();
         }
     }
 

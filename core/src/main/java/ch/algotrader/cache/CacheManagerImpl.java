@@ -51,15 +51,15 @@ import ch.algotrader.visitor.InitializationVisitor;
 @ManagedResource(objectName = "ch.algotrader.cache:name=CacheManager")
 public class CacheManagerImpl implements CacheManager, Initializer {
 
-    private static Logger logger = LogManager.getLogger(CacheManagerImpl.class.getName());
+    private static final Logger logger = LogManager.getLogger(CacheManagerImpl.class.getName());
 
     public static final String ROOT = "root";
 
-    private AbstractHandler entityHandler;
-    private AbstractHandler collectionHandler;
+    private final AbstractHandler entityHandler;
+    private final AbstractHandler collectionHandler;
 
-    private EntityCache entityCache;
-    private QueryCache queryCache;
+    private final EntityCache entityCache;
+    private final QueryCache queryCache;
 
     private GenericDao genericDao;
 
@@ -267,7 +267,7 @@ public class CacheManagerImpl implements CacheManager, Initializer {
     @ManagedAttribute
     public Map<String, Integer> getCacheSize() {
 
-        Map<String, Integer> numCached = new HashMap<String, Integer>();
+        Map<String, Integer> numCached = new HashMap<>();
 
         numCached.put("entities", this.entityCache.size());
         numCached.put("queries", this.queryCache.size());

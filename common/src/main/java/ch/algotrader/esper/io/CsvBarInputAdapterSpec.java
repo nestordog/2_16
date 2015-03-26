@@ -38,8 +38,8 @@ import ch.algotrader.enumeration.Duration;
  */
 public class CsvBarInputAdapterSpec extends CSVInputAdapterSpec {
 
-    private File file;
-    private Duration barSize;
+    private final File file;
+    private final Duration barSize;
 
     public CsvBarInputAdapterSpec(File file, Duration barSize) {
 
@@ -61,7 +61,7 @@ public class CsvBarInputAdapterSpec extends CSVInputAdapterSpec {
 
         setPropertyOrder(barPropertyOrder);
 
-        Map<String, Object> barPropertyTypes = new HashMap<String, Object>();
+        Map<String, Object> barPropertyTypes = new HashMap<>();
 
         barPropertyTypes.put("dateTime", Date.class);
         barPropertyTypes.put("open", BigDecimal.class);

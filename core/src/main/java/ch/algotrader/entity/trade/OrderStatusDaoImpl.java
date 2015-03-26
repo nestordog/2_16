@@ -90,7 +90,7 @@ public class OrderStatusDaoImpl extends AbstractDao<OrderStatus> implements Orde
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        Collection<Pair<Order, Map<String, ?>>> pairs = new ArrayList<Pair<Order, Map<String, ?>>>();
+        Collection<Pair<Order, Map<String, ?>>> pairs = new ArrayList<>();
         if(this.serverEngine.isDeployed("OPEN_ORDER_WINDOW")) {
             pairs = this.serverEngine.executeQuery("select * from OpenOrderWindow where strategy.name = '" + strategyName + "'");
         }

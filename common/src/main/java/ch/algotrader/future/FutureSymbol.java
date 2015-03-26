@@ -45,7 +45,7 @@ public class FutureSymbol {
         GregorianCalendar cal = new GregorianCalendar();
         cal.setTime(expiration);
 
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         buffer.append(family.getSymbolRoot());
         buffer.append(" ");
         buffer.append(new SimpleDateFormat("MMM").format(cal.getTime()).toUpperCase());
@@ -70,7 +70,7 @@ public class FutureSymbol {
         int yearIndex = cal.get(Calendar.YEAR) % 10;
         String year = yearEnc[yearIndex];
 
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         buffer.append(week);
         buffer.append("F");
         buffer.append(family.getIsinRoot() != null ? family.getIsinRoot() : family.getSymbolRoot());
@@ -89,7 +89,7 @@ public class FutureSymbol {
         GregorianCalendar cal = new GregorianCalendar();
         cal.setTime(expiration);
 
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         buffer.append(family.getRicRoot() != null ? family.getRicRoot() : family.getSymbolRoot());
         buffer.append(monthEnc[cal.get(Calendar.MONTH)]);
         buffer.append(String.valueOf(cal.get(Calendar.YEAR)).substring(3));

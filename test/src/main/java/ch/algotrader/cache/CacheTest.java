@@ -247,7 +247,7 @@ public class CacheTest {
         Position position1 = LookupUtil.getPositionBySecurityAndStrategy(securityId2, STRATEGY_NAME);
 
         String queryString = "from PositionImpl as p join fetch p.security as s where s.id = :id";
-        SingletonMap<String, Object> namedParameters = new SingletonMap<String, Object>("id", securityId2);
+        SingletonMap<String, Object> namedParameters = new SingletonMap<>("id", securityId2);
 
         Position position2 = (Position) cache.query(queryString, namedParameters).iterator().next();
         Assert.assertNotNull(position2);

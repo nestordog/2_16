@@ -169,7 +169,7 @@ public class ChartDefinitionVO implements Serializable {
 
         if (this.axisDefinitions == null) {
 
-            this.axisDefinitions = new ArrayList<AxisDefinitionVO>();
+            this.axisDefinitions = new ArrayList<>();
         }
         return this.axisDefinitions;
     }

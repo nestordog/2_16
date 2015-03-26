@@ -42,7 +42,7 @@ import ch.algotrader.vo.TradeVO;
  */
 public class BBMarketDataMessageHandler extends BBMessageHandler {
 
-    private static Logger logger = LogManager.getLogger(BBMarketDataMessageHandler.class.getName());
+    private static final Logger logger = LogManager.getLogger(BBMarketDataMessageHandler.class.getName());
 
     private final Engine serverEngine;
 

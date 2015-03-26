@@ -48,7 +48,7 @@ import com.ib.client.TagValue;
  */
 public class DefaultIBOrderMessageFactory implements IBOrderMessageFactory {
 
-    private static DateFormat format = new SimpleDateFormat("yyyyMMdd HH:mm:ss");
+    private static final DateFormat format = new SimpleDateFormat("yyyyMMdd HH:mm:ss");
 
     private final IBConfig iBConfig;
     private final ConvertUtilsBean convertUtils;
@@ -145,7 +145,7 @@ public class DefaultIBOrderMessageFactory implements IBOrderMessageFactory {
         }
 
         // separate properties that correspond to IB Order fields from the rest
-        Map<String, OrderProperty> propertiesMap = new HashMap<String, OrderProperty>(order.getOrderProperties());
+        Map<String, OrderProperty> propertiesMap = new HashMap<>(order.getOrderProperties());
         for (Field field : FieldUtil.getAllFields(ibOrder.getClass())) {
             String name = field.getName().substring(2);
             OrderProperty orderProperty = propertiesMap.get(name);
@@ -161,7 +161,7 @@ public class DefaultIBOrderMessageFactory implements IBOrderMessageFactory {
         }
 
         // add remaining params as AlgoParams
-        Vector<TagValue> params = new Vector<TagValue>();
+        Vector<TagValue> params = new Vector<>();
         for (OrderProperty orderProperty : propertiesMap.values()) {
             if (OrderPropertyType.IB.equals(orderProperty.getType())) {
                 params.add(new TagValue(orderProperty.getName(), orderProperty.getValue()));

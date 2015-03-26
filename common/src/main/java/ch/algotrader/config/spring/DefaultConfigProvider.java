@@ -57,7 +57,7 @@ public class DefaultConfigProvider implements ConfigProvider {
             final ConfigProvider fallbackProvider) {
         Assert.notNull(paramMap, "ParamMap is null");
         Assert.notNull(conversionService, "ConversionService is null");
-        this.paramMap = new ConcurrentHashMap<String, Object>(paramMap);
+        this.paramMap = new ConcurrentHashMap<>(paramMap);
         this.conversionService = conversionService;
         this.fallbackProvider = fallbackProvider;
     }

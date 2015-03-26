@@ -39,7 +39,6 @@ import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderCompletion;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.esper.EngineManager;
-import ch.algotrader.event.EventListener;
 import ch.algotrader.event.EventListenerRegistry;
 import ch.algotrader.event.listener.BarEventListener;
 import ch.algotrader.event.listener.ClosePositionEventListener;
@@ -137,167 +136,83 @@ public class EventDispatcherFactoryBean implements FactoryBean<EventDispatcher>,
             for (Map.Entry<String, TickEventListener> entry: tickListenerMap.entrySet()) {
 
                 final TickEventListener listener = entry.getValue();
-                this.eventListenerRegistry.register(new EventListener<Tick>() {
-
-                    @Override
-                    public void onEvent(final Tick event) {
-                        listener.onTick(event);
-                    }
-
-                }, Tick.class);
+                this.eventListenerRegistry.register(listener::onTick, Tick.class);
             }
             Map<String, BarEventListener> barListenerMap = this.applicationContext.getBeansOfType(BarEventListener.class);
             for (Map.Entry<String, BarEventListener> entry: barListenerMap.entrySet()) {
 
                 final BarEventListener listener = entry.getValue();
-                this.eventListenerRegistry.register(new EventListener<Bar>() {
-
-                    @Override
-                    public void onEvent(final Bar event) {
-                        listener.onBar(event);
-                    }
-
-                }, Bar.class);
+                this.eventListenerRegistry.register(listener::onBar, Bar.class);
             }
             Map<String, SessionEventListener> sessionEventSinkMap = this.applicationContext.getBeansOfType(SessionEventListener.class);
             for (Map.Entry<String, SessionEventListener> entry: sessionEventSinkMap.entrySet()) {
 
                 final SessionEventListener listener = entry.getValue();
 
-                this.eventListenerRegistry.register(new EventListener<SessionEventVO>() {
-
-                    @Override
-                    public void onEvent(final SessionEventVO event) {
-                        listener.onChange(event);
-                    }
-
-                }, SessionEventVO.class);
+                this.eventListenerRegistry.register(listener::onChange, SessionEventVO.class);
             }
             Map<String, LifecycleEventListener> lifecycleEventMap = this.applicationContext.getBeansOfType(LifecycleEventListener.class);
             for (Map.Entry<String, LifecycleEventListener> entry: lifecycleEventMap.entrySet()) {
 
                 final LifecycleEventListener listener = entry.getValue();
 
-                this.eventListenerRegistry.register(new EventListener<LifecycleEventVO>() {
-
-                    @Override
-                    public void onEvent(final LifecycleEventVO event) {
-                        listener.onChange(event);
-                    }
-
-                }, LifecycleEventVO.class);
+                this.eventListenerRegistry.register(listener::onChange, LifecycleEventVO.class);
             }
             Map<String, OrderEventListener> orderEventListenerMap = this.applicationContext.getBeansOfType(OrderEventListener.class);
             for (Map.Entry<String, OrderEventListener> entry: orderEventListenerMap.entrySet()) {
 
                 final OrderEventListener listener = entry.getValue();
 
-                this.eventListenerRegistry.register(new EventListener<Order>() {
-
-                    @Override
-                    public void onEvent(final Order event) {
-                        listener.onOrder(event);
-                    }
-
-                }, Order.class);
+                this.eventListenerRegistry.register(listener::onOrder, Order.class);
             }
             Map<String, OrderStatusEventListener> orderStatusEventListenerMap = this.applicationContext.getBeansOfType(OrderStatusEventListener.class);
             for (Map.Entry<String, OrderStatusEventListener> entry: orderStatusEventListenerMap.entrySet()) {
 
                 final OrderStatusEventListener orderEventListener = entry.getValue();
 
-                this.eventListenerRegistry.register(new EventListener<OrderStatus>() {
-
-                    @Override
-                    public void onEvent(final OrderStatus event) {
-                        orderEventListener.onOrderStatus(event);
-                    }
-
-                }, OrderStatus.class);
+                this.eventListenerRegistry.register(orderEventListener::onOrderStatus, OrderStatus.class);
             }
             Map<String, OrderCompletionEventListener> orderCompletionEventListenerMap = this.applicationContext.getBeansOfType(OrderCompletionEventListener.class);
             for (Map.Entry<String, OrderCompletionEventListener> entry: orderCompletionEventListenerMap.entrySet()) {
 
                 final OrderCompletionEventListener listener = entry.getValue();
 
-                this.eventListenerRegistry.register(new EventListener<OrderCompletion>() {
-
-                    @Override
-                    public void onEvent(final OrderCompletion event) {
-                        listener.onOrderCompletion(event);
-                    }
-
-                }, OrderCompletion.class);
+                this.eventListenerRegistry.register(listener::onOrderCompletion, OrderCompletion.class);
             }
             Map<String, FillEventListener> fillEventListenerMap = this.applicationContext.getBeansOfType(FillEventListener.class);
             for (Map.Entry<String, FillEventListener> entry: fillEventListenerMap.entrySet()) {
 
                 final FillEventListener listener = entry.getValue();
 
-                this.eventListenerRegistry.register(new EventListener<Fill>() {
-
-                    @Override
-                    public void onEvent(final Fill event) {
-                        listener.onFill(event);
-                    }
-
-                }, Fill.class);
+                this.eventListenerRegistry.register(listener::onFill, Fill.class);
             }
             Map<String, TransactionEventListener> transactionEventListenerMap = this.applicationContext.getBeansOfType(TransactionEventListener.class);
             for (Map.Entry<String, TransactionEventListener> entry: transactionEventListenerMap.entrySet()) {
 
                 final TransactionEventListener listener = entry.getValue();
 
-                this.eventListenerRegistry.register(new EventListener<Transaction>() {
-
-                    @Override
-                    public void onEvent(final Transaction event) {
-                        listener.onTransaction(event);
-                    }
-
-                }, Transaction.class);
+                this.eventListenerRegistry.register(listener::onTransaction, Transaction.class);
             }
             Map<String, OpenPositionEventListener> openPositionEventListenerMap = this.applicationContext.getBeansOfType(OpenPositionEventListener.class);
             for (Map.Entry<String, OpenPositionEventListener> entry: openPositionEventListenerMap.entrySet()) {
 
                 final OpenPositionEventListener listener = entry.getValue();
 
-                this.eventListenerRegistry.register(new EventListener<OpenPositionVO>() {
-
-                    @Override
-                    public void onEvent(final OpenPositionVO event) {
-                        listener.onOpenPosition(event);
-                    }
-
-                }, OpenPositionVO.class);
+                this.eventListenerRegistry.register(listener::onOpenPosition, OpenPositionVO.class);
             }
             Map<String, ClosePositionEventListener> closePositionEventListenerMap = this.applicationContext.getBeansOfType(ClosePositionEventListener.class);
             for (Map.Entry<String, ClosePositionEventListener> entry: closePositionEventListenerMap.entrySet()) {
 
                 final ClosePositionEventListener listener = entry.getValue();
 
-                this.eventListenerRegistry.register(new EventListener<ClosePositionVO>() {
-
-                    @Override
-                    public void onEvent(final ClosePositionVO event) {
-                        listener.onClosePosition(event);
-                    }
-
-                }, ClosePositionVO.class);
+                this.eventListenerRegistry.register(listener::onClosePosition, ClosePositionVO.class);
             }
             Map<String, ExpirePositionEventListener> expirePositionEventListenerMap = this.applicationContext.getBeansOfType(ExpirePositionEventListener.class);
             for (Map.Entry<String, ExpirePositionEventListener> entry: expirePositionEventListenerMap.entrySet()) {
 
                 final ExpirePositionEventListener listener = entry.getValue();
 
-                this.eventListenerRegistry.register(new EventListener<ExpirePositionVO>() {
-
-                    @Override
-                    public void onEvent(final ExpirePositionVO event) {
-                        listener.onExpirePosition(event);
-                    }
-
-                }, ExpirePositionVO.class);
+                this.eventListenerRegistry.register(listener::onExpirePosition, ExpirePositionVO.class);
             }
         }
     }

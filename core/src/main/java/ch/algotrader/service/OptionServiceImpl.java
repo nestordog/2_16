@@ -89,9 +89,9 @@ import ch.algotrader.vo.SABRSurfaceVO;
 @Transactional
 public class OptionServiceImpl implements OptionService {
 
-    private static Logger logger = LogManager.getLogger(OptionServiceImpl.class.getName());
-    private static int advanceMinutes = 10;
-    private static SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy.MM.dd kk:mm:ss");
+    private static final Logger logger = LogManager.getLogger(OptionServiceImpl.class.getName());
+    private static final int advanceMinutes = 10;
+    private static final SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy.MM.dd kk:mm:ss");
 
     private final CommonConfig commonConfig;
 
@@ -431,9 +431,9 @@ public class OptionServiceImpl implements OptionService {
         double atmStrike = roundOptionStrikeToNextN(underlyingSpot, family.getStrikeDistance(), type).doubleValue();
 
         List<Tick> ticks = this.tickDao.findOptionTicksBySecurityDateTypeAndExpirationInclSecurity(underlyingId, date, type, expirationDate);
-        List<Double> strikes = new ArrayList<Double>();
-        List<Double> currentValues = new ArrayList<Double>();
-        List<Double> volatilities = new ArrayList<Double>();
+        List<Double> strikes = new ArrayList<>();
+        List<Double> currentValues = new ArrayList<>();
+        List<Double> volatilities = new ArrayList<>();
         double atmVola = 0;
         for (Tick tick : ticks) {
 
@@ -515,14 +515,14 @@ public class OptionServiceImpl implements OptionService {
         List<Tick> allTicks = this.tickDao.findImpliedVolatilityTicksBySecurityAndDate(underlyingId, date);
 
         // group by duration
-        MultiMap<Duration, Tick> durationMap = new MultiHashMap<Duration, Tick>();
+        MultiMap<Duration, Tick> durationMap = new MultiHashMap<>();
         for (Tick tick : allTicks) {
             ImpliedVolatility impliedVolatility = (ImpliedVolatility) tick.getSecurity();
             durationMap.put(impliedVolatility.getDuration(), tick);
         }
 
         // sort durations ascending
-        TreeSet<Duration> durations = new TreeSet<Duration>(new Comparator<Duration>() {
+        TreeSet<Duration> durations = new TreeSet<>(new Comparator<Duration>() {
             @Override
             public int compare(Duration d1, Duration d2) {
                 return ((d1.getValue() == d2.getValue()) ? 0 : (d1.getValue() < d2.getValue()) ? -1 : 1);
@@ -555,8 +555,8 @@ public class OptionServiceImpl implements OptionService {
 
         double forward = OptionUtil.getForward(underlyingSpot, years, family.getIntrest(), family.getDividend());
 
-        List<Double> strikes = new ArrayList<Double>();
-        List<Double> volatilities = new ArrayList<Double>();
+        List<Double> strikes = new ArrayList<>();
+        List<Double> volatilities = new ArrayList<>();
         double atmVola = 0;
         for (Tick tick : ticks) {
 

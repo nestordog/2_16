@@ -394,7 +394,7 @@ public class IBFixAllocationServiceImpl implements IBFixAllocationService {
         @XmlElement(name = "Group")
         public Collection<Group> getGroups() {
 
-            return new ArrayList<Group>(this.values());
+            return new ArrayList<>(this.values());
         }
 
         public void setGroups(Collection<Group> groups) {

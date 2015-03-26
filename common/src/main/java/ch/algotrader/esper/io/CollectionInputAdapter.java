@@ -38,8 +38,8 @@ import com.espertech.esperio.SendableEvent;
  */
 public class CollectionInputAdapter extends AbstractCoordinatedAdapter {
 
-    private Iterator<?> iterator;
-    private String timeStampColumn;
+    private final Iterator<?> iterator;
+    private final String timeStampColumn;
 
     public CollectionInputAdapter(Collection<?> baseObjects, String timeStampColumn) {
 

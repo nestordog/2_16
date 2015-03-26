@@ -148,7 +148,6 @@ public class EngineManagerImpl implements EngineManager {
                             // remove the original metric
                             metrics.remove(metric);
                         }
-                        ;
 
                         // add a consolidated metric
                         metrics.add(new StatementMetricVO(engine.getStrategyName(), statementName, cpuTime, wallTime, numInput));

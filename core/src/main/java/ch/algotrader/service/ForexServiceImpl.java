@@ -57,8 +57,8 @@ import ch.algotrader.vo.BalanceVO;
 @Transactional
 public class ForexServiceImpl implements ForexService {
 
-    private static Logger logger = LogManager.getLogger(ForexServiceImpl.class.getName());
-    private static Logger notificationLogger = LogManager.getLogger("ch.algotrader.service.NOTIFICATION");
+    private static final Logger logger = LogManager.getLogger(ForexServiceImpl.class.getName());
+    private static final Logger notificationLogger = LogManager.getLogger("ch.algotrader.service.NOTIFICATION");
 
     private final CommonConfig commonConfig;
 
@@ -137,7 +137,7 @@ public class ForexServiceImpl implements ForexService {
         if (coreConfig.isFxFutureHedgeEnabled()) {
 
             // get the closing orders
-            final List<Order> orders = new ArrayList<Order>();
+            final List<Order> orders = new ArrayList<>();
             for (Position position : this.lookupService.getOpenPositionsByStrategyTypeAndUnderlyingType(StrategyImpl.SERVER, Future.class, Forex.class)) {
 
                 // check if expiration is below minimum

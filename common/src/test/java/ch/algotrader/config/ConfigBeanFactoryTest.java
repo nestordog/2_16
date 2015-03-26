@@ -44,7 +44,7 @@ public class ConfigBeanFactoryTest {
 
     @Before
     public void setup() {
-        map = new HashMap<String, String>();
+        map = new HashMap<>();
         map.put("dataSource.dataSet", "someDataSet");
         map.put("dataSource.dataSetType", "BAR");
         map.put("dataSource.dataSetLocation", "stuff/more-stuff");
@@ -112,7 +112,7 @@ public class ConfigBeanFactoryTest {
 
     @Test
     public void testCommonConfigConstructionAllParamsRequired() throws Exception {
-        final Set<String> keys = new LinkedHashSet<String>(map.keySet());//copy map to avoid concurrent modification problems
+        final Set<String> keys = new LinkedHashSet<>(map.keySet());//copy map to avoid concurrent modification problems
         for (final String key : keys) {
             map.remove(key);
             ConfigProvider configProvider = new DefaultConfigProvider(map);

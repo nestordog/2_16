@@ -49,7 +49,7 @@ import quickfix.fix44.MarketDataIncrementalRefresh;
  */
 public class CNXFixMarketDataMessageHandler extends AbstractFix44MarketDataMessageHandler {
 
-    private static Logger LOGGER = LogManager.getLogger(CNXFixMarketDataMessageHandler.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(CNXFixMarketDataMessageHandler.class.getName());
 
     private final Engine serverEngine;
 

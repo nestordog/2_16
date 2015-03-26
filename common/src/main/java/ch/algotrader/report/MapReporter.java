@@ -37,9 +37,9 @@ import org.supercsv.prefs.CsvPreference;
  */
 public class MapReporter implements Report {
 
-    private String[] header;
-    private CellProcessor[] processor;
-    private CsvMapWriter writer;
+    private final String[] header;
+    private final CellProcessor[] processor;
+    private final CsvMapWriter writer;
 
     public MapReporter(File file, String[] header) throws IOException {
 

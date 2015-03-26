@@ -110,7 +110,7 @@ public class DatasetDefinitionVO implements Serializable {
 
         if (this.seriesDefinitions == null) {
 
-            this.seriesDefinitions = new ArrayList<SeriesDefinitionVO>();
+            this.seriesDefinitions = new ArrayList<>();
         }
         return this.seriesDefinitions;
     }

@@ -45,7 +45,7 @@ public class DBTickInputAdapter extends AbstractCoordinatedAdapter {
 
     private Iterator<Tick> iterator = (new ArrayList<Tick>()).iterator();
     private Date startDate;
-    private int batchSize;
+    private final int batchSize;
 
     public DBTickInputAdapter(int batchSize) {
         super(null, true, true, true);

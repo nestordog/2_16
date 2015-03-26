@@ -236,7 +236,7 @@ public class TickDaoImpl extends AbstractDao<Tick> implements TickDao {
 
         List<Subscription> subscriptions = this.subscriptionDao.findByStrategy(strategyName);
 
-        List<Tick> ticks = new ArrayList<Tick>();
+        List<Tick> ticks = new ArrayList<>();
         for (Subscription subscription : subscriptions) {
             String query = "select * from TickWindow where security.id = " + subscription.getSecurity().getId();
             Pair<Tick, Object> pair = (Pair<Tick, Object>) this.serverEngine.executeSingelObjectQuery(query);

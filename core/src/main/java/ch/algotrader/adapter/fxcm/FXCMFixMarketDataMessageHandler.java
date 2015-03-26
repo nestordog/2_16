@@ -49,7 +49,7 @@ import quickfix.fix44.MarketDataSnapshotFullRefresh;
  */
 public class FXCMFixMarketDataMessageHandler extends AbstractFix44MarketDataMessageHandler {
 
-    private static Logger logger = LogManager.getLogger(FXCMFixMarketDataMessageHandler.class.getName());
+    private static final Logger logger = LogManager.getLogger(FXCMFixMarketDataMessageHandler.class.getName());
 
     private final Engine serverEngine;
 

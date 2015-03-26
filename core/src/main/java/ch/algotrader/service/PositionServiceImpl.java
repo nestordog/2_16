@@ -73,7 +73,7 @@ import ch.algotrader.vo.ExpirePositionVO;
 @Transactional
 public class PositionServiceImpl implements PositionService {
 
-    private static Logger logger = LogManager.getLogger(PositionServiceImpl.class.getName());
+    private static final Logger logger = LogManager.getLogger(PositionServiceImpl.class.getName());
 
     private final CommonConfig commonConfig;
 
@@ -495,21 +495,21 @@ public class PositionServiceImpl implements PositionService {
         Collection<Transaction> transactions = this.transactionDao.findAllTradesInclSecurity();
 
         // process all transactions to establis current position states
-        Map<Pair<Security, Strategy>, Position> positionMap = new HashMap<Pair<Security, Strategy>, Position>();
+        Map<Pair<Security, Strategy>, Position> positionMap = new HashMap<>();
         for (Transaction transaction : transactions) {
 
             // crate a position if we come across a security for the first time
-            Position position = positionMap.get(new Pair<Security, Strategy>(transaction.getSecurity(), transaction.getStrategy()));
+            Position position = positionMap.get(new Pair<>(transaction.getSecurity(), transaction.getStrategy()));
             if (position == null) {
                 position = PositionUtil.processFirstTransaction(transaction);
-                positionMap.put(new Pair<Security, Strategy>(position.getSecurity(), position.getStrategy()), position);
+                positionMap.put(new Pair<>(position.getSecurity(), position.getStrategy()), position);
             } else {
                 PositionUtil.processTransaction(position, transaction);
             }
         }
 
         // update positions
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         for (Position targetOpenPosition : positionMap.values()) {
 
             Position actualOpenPosition = this.positionDao.findBySecurityAndStrategy(targetOpenPosition.getSecurity().getId(), targetOpenPosition.getStrategy().getName());

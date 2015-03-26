@@ -33,7 +33,7 @@ import ch.algotrader.vo.ClosePositionVO;
  */
 public abstract class ClosePositionCallback {
 
-    private static Logger logger = LogManager.getLogger(ClosePositionCallback.class.getName());
+    private static final Logger logger = LogManager.getLogger(ClosePositionCallback.class.getName());
 
     /**
      * Called by the "ON_CLOSE_POSITION" statement. Should not be invoked directly.

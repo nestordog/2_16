@@ -34,7 +34,7 @@ import com.espertech.esper.client.StatementAwareUpdateListener;
  */
 public class StatementAwareTestListener implements StatementAwareUpdateListener {
 
-    private static Logger logger = LogManager.getLogger(StatementAwareTestListener.class.getName());
+    private static final Logger logger = LogManager.getLogger(StatementAwareTestListener.class.getName());
 
     @Override
     public void update(EventBean[] newEvents, EventBean[] oldEvents, EPStatement statement, EPServiceProvider epServiceProvider) {

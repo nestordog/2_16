@@ -58,8 +58,8 @@ import ch.algotrader.vo.TradePerformanceVO;
 @Transactional
 public abstract class TransactionPersistenceServiceImpl implements TransactionPersistenceService {
 
-    private static Logger logger = LogManager.getLogger(TransactionPersistenceServiceImpl.class.getName());
-    private static Logger simulationLogger = LogManager.getLogger("ch.algotrader.simulation.SimulationExecutor.RESULT");
+    private static final Logger logger = LogManager.getLogger(TransactionPersistenceServiceImpl.class.getName());
+    private static final Logger simulationLogger = LogManager.getLogger("ch.algotrader.simulation.SimulationExecutor.RESULT");
 
     private final CommonConfig commonConfig;
 
@@ -231,17 +231,17 @@ public abstract class TransactionPersistenceServiceImpl implements TransactionPe
 
         // sum all transactions
         Collection<Transaction> transactions = this.transactionDao.loadAll();
-        BigDecimalMap<Pair<Strategy, Currency>> map = new BigDecimalMap<Pair<Strategy, Currency>>();
+        BigDecimalMap<Pair<Strategy, Currency>> map = new BigDecimalMap<>();
         for (Transaction transaction : transactions) {
 
             // process all currenyAmounts
             for (CurrencyAmountVO currencyAmount : transaction.getAttributions()) {
-                map.increment(new Pair<Strategy, Currency>(transaction.getStrategy(), currencyAmount.getCurrency()), currencyAmount.getAmount());
+                map.increment(new Pair<>(transaction.getStrategy(), currencyAmount.getCurrency()), currencyAmount.getAmount());
             }
         }
 
         // create cash balances
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         for (Map.Entry<Pair<Strategy, Currency>, BigDecimal> entry : map.entrySet()) {
 
             Strategy strategy = entry.getKey().getFirst();

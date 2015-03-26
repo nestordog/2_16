@@ -296,7 +296,7 @@ public class SimulationResultVO implements Serializable {
 
         if (this.monthlyPerformances == null) {
 
-            this.monthlyPerformances = new ArrayList<PeriodPerformanceVO>();
+            this.monthlyPerformances = new ArrayList<>();
         }
         return this.monthlyPerformances;
     }
@@ -322,7 +322,7 @@ public class SimulationResultVO implements Serializable {
 
         if (this.yearlyPerformances == null) {
 
-            this.yearlyPerformances = new ArrayList<PeriodPerformanceVO>();
+            this.yearlyPerformances = new ArrayList<>();
         }
         return this.yearlyPerformances;
     }

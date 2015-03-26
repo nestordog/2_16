@@ -57,7 +57,7 @@ public class BBMarketDataServiceImpl extends ExternalMarketDataServiceImpl imple
 
     private static final long serialVersionUID = -3463200344945144471L;
 
-    private static Logger logger = LogManager.getLogger(BBMarketDataServiceImpl.class.getName());
+    private static final Logger logger = LogManager.getLogger(BBMarketDataServiceImpl.class.getName());
     private static BBSession session;
 
     private final BBAdapter bBAdapter;
@@ -169,7 +169,7 @@ public class BBMarketDataServiceImpl extends ExternalMarketDataServiceImpl imple
         String topic = "/bbgid/" + security.getBbgid();
 
         // defined fields
-        List<String> fields = new ArrayList<String>();
+        List<String> fields = new ArrayList<>();
         fields.add("TRADE_UPDATE_STAMP_RT");
         fields.add("BID_UPDATE_STAMP_RT");
         fields.add("ASK_UPDATE_STAMP_RT");

@@ -112,7 +112,7 @@ public class BBAdapter {
     @ManagedAttribute
     public Map<String, Boolean> getSessionLogonStates() {
 
-        Map<String, Boolean> logonStates = new HashMap<String, Boolean>();
+        Map<String, Boolean> logonStates = new HashMap<>();
         for (Map.Entry<String, BBSession> entry : this.sessions.entrySet()) {
             logonStates.put(entry.getKey(), entry.getValue().isRunning());
         }

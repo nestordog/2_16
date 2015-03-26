@@ -42,7 +42,7 @@ public class LinkedListReader implements CsvReader {
     public LinkedListReader(CsvReader baseReader, int lineOffset, Collection< ? extends CsvLine> lines) {
         this.baseReader = Objects.requireNonNull(baseReader, "baseReader cannot be null");
         this.lastLine = lineOffset + lines.size();
-        this.lines = new LinkedList<CsvLine>(lines);
+        this.lines = new LinkedList<>(lines);
     }
 
     @Override

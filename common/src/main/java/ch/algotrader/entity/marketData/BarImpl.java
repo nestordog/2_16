@@ -47,7 +47,7 @@ public class BarImpl extends Bar {
     @Override
     public String toString() {
 
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
 
         buffer.append(getSecurity());
         buffer.append(",");

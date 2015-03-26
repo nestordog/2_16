@@ -44,7 +44,7 @@ import ch.algotrader.service.LookupService;
  */
 public class LookupUtil {
 
-    private static Map<String, String> namedQueries = new ConcurrentHashMap<String, String>();
+    private static final Map<String, String> namedQueries = new ConcurrentHashMap<>();
 
     private static boolean hasCacheManager() {
         return ServiceLocator.instance().containsService("cacheManager");
@@ -98,7 +98,7 @@ public class LookupUtil {
 
         String queryString = getQueryString("Security.findByIsin");
 
-        Map<String, Object> namedParameters = new SingletonMap<String, Object>("isin", isin);
+        Map<String, Object> namedParameters = new SingletonMap<>("isin", isin);
 
         if (hasCacheManager()) {
             return (Security) getCacheManager().queryUnique(queryString, namedParameters);
@@ -114,7 +114,7 @@ public class LookupUtil {
 
         String queryString = getQueryString("Subscription.findByStrategyAndSecurity");
 
-        Map<String, Object> namedParameters = new HashMap<String, Object>();
+        Map<String, Object> namedParameters = new HashMap<>();
         namedParameters.put("strategyName", strategyName);
         namedParameters.put("securityId", securityId);
 
@@ -160,7 +160,7 @@ public class LookupUtil {
 
         String queryString = getQueryString("Position.findBySecurityAndStrategy");
 
-        Map<String, Object> namedParameters = new HashMap<String, Object>();
+        Map<String, Object> namedParameters = new HashMap<>();
         namedParameters.put("strategyName", strategyName);
         namedParameters.put("securityId", securityId);
 
@@ -192,7 +192,7 @@ public class LookupUtil {
 
         String queryString = getQueryString("Position.findOpenPositionsByStrategy");
 
-        Map<String, Object> namedParameters = new SingletonMap<String, Object>("strategyName", strategyName);
+        Map<String, Object> namedParameters = new SingletonMap<>("strategyName", strategyName);
 
         if (hasCacheManager()) {
             return getCacheManager().query(queryString, namedParameters).toArray(new Position[] {});
@@ -208,7 +208,7 @@ public class LookupUtil {
 
         String queryString = getQueryString("Position.findOpenPositionsBySecurity");
 
-        Map<String, Object> namedParameters = new SingletonMap<String, Object>("securityId", securityId);
+        Map<String, Object> namedParameters = new SingletonMap<>("securityId", securityId);
 
         if (hasCacheManager()) {
             return getCacheManager().query(queryString, namedParameters).toArray(new Position[] {});
@@ -224,7 +224,7 @@ public class LookupUtil {
 
         String queryString = getQueryString("Position.findOpenPositionsByStrategyAndSecurityFamily");
 
-        Map<String, Object> namedParameters = new HashMap<String, Object>();
+        Map<String, Object> namedParameters = new HashMap<>();
         namedParameters.put("strategyName", strategyName);
         namedParameters.put("securityFamilyId", securityFamilyId);
 

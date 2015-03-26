@@ -39,7 +39,7 @@ public class SlicingOrder extends AlgoOrder {
 
     private static final long serialVersionUID = -9017761050542085585L;
 
-    private static Logger logger = LogManager.getLogger(SlicingOrder.class);
+    private static final Logger logger = LogManager.getLogger(SlicingOrder.class);
 
     private double minVolPct;
 
@@ -59,7 +59,7 @@ public class SlicingOrder extends AlgoOrder {
 
     private int currentOffsetTicks = 1;
 
-    private List<Pair<LimitOrder, Tick>> pairs = new ArrayList<Pair<LimitOrder, Tick>>();
+    private final List<Pair<LimitOrder, Tick>> pairs = new ArrayList<>();
 
     /**
      * minimum part of the market volume (bidVol or askVol) that should be ordered (i.e. 50% of
@@ -348,7 +348,7 @@ public class SlicingOrder extends AlgoOrder {
         order.setParentOrder(this);
 
         // store the current order and tick
-        this.pairs.add(new Pair<LimitOrder, Tick>(order, tick));
+        this.pairs.add(new Pair<>(order, tick));
 
         //@formatter:off
         logger.info(

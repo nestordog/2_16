@@ -71,7 +71,7 @@ public class CalendarServiceImpl implements CalendarService {
 
         Exchange exchange = this.exchangeDao.get(exchangeId);
         Date date = DateUtils.addDays(DateUtils.truncate(dateTime, Calendar.DATE), 2);
-        NavigableSet<Date> openTimes = new TreeSet<Date>();
+        NavigableSet<Date> openTimes = new TreeSet<>();
         while ((openTimes.floor(dateTime)) == null) {
             date = DateUtils.addDays(date, -1);
             openTimes.addAll(getOpenTimes(exchange, date));
@@ -172,7 +172,7 @@ public class CalendarServiceImpl implements CalendarService {
         Exchange exchange = this.exchangeDao.get(exchangeId);
         Date date = DateUtils.truncate(dateTime, Calendar.DATE);
         Date openTime;
-        NavigableSet<Date> openTimes = new TreeSet<Date>();
+        NavigableSet<Date> openTimes = new TreeSet<>();
         while ((openTime = openTimes.ceiling(dateTime)) == null) {
             openTimes.addAll(getOpenTimes(exchange, date));
             date = DateUtils.addDays(date, 1);
@@ -194,7 +194,7 @@ public class CalendarServiceImpl implements CalendarService {
         Exchange exchange = this.exchangeDao.get(exchangeId);
         Date date = DateUtils.addDays(DateUtils.truncate(dateTime, Calendar.DATE), -1);
         Date closeTime;
-        NavigableSet<Date> closeTimes = new TreeSet<Date>();
+        NavigableSet<Date> closeTimes = new TreeSet<>();
         while ((closeTime = closeTimes.ceiling(dateTime)) == null) {
             closeTimes.addAll(getCloseTimes(exchange, date));
             date = DateUtils.addDays(date, 1);
@@ -213,7 +213,7 @@ public class CalendarServiceImpl implements CalendarService {
      */
     private NavigableSet<Date> getOpenTimes(Exchange exchange, Date date) {
 
-        NavigableSet<Date> openTimes = new TreeSet<Date>();
+        NavigableSet<Date> openTimes = new TreeSet<>();
         for (TradingHours tradingHours : exchange.getTradingHours()) {
             TimeInterval timeInterval = getTimeInterval(date, tradingHours);
             if (timeInterval != null) {
@@ -228,7 +228,7 @@ public class CalendarServiceImpl implements CalendarService {
      */
     private NavigableSet<Date> getCloseTimes(Exchange exchange, Date date) {
 
-        NavigableSet<Date> openTimes = new TreeSet<Date>();
+        NavigableSet<Date> openTimes = new TreeSet<>();
         for (TradingHours tradingHours : exchange.getTradingHours()) {
             TimeInterval timeInterval = getTimeInterval(date, tradingHours);
             if (timeInterval != null) {

@@ -46,7 +46,7 @@ import ch.algotrader.util.collection.CollectionUtil;
 @Transactional
 public abstract class HistoricalDataServiceImpl implements HistoricalDataService {
 
-    private static Logger logger = LogManager.getLogger(HistoricalDataServiceImpl.class.getName());
+    private static final Logger logger = LogManager.getLogger(HistoricalDataServiceImpl.class.getName());
 
     private final BarDao barDao;
 
@@ -123,7 +123,7 @@ public abstract class HistoricalDataServiceImpl implements HistoricalDataService
             if (existingBars.size() > 0) {
 
                 // store bars according to their date
-                Map<Date, Bar> dateBarMap = new HashMap<Date, Bar>();
+                Map<Date, Bar> dateBarMap = new HashMap<>();
                 for (Bar bar : existingBars) {
                     dateBarMap.put(bar.getDateTime(), bar);
                 }

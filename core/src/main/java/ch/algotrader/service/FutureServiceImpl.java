@@ -48,7 +48,7 @@ import ch.algotrader.util.collection.CollectionUtil;
 @Transactional
 public class FutureServiceImpl implements FutureService {
 
-    private static Logger logger = LogManager.getLogger(FutureServiceImpl.class.getName());
+    private static final Logger logger = LogManager.getLogger(FutureServiceImpl.class.getName());
 
     private final CommonConfig commonConfig;
 

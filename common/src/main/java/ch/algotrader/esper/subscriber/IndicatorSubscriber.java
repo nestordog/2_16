@@ -33,7 +33,7 @@ import org.apache.logging.log4j.Logger;
  */
 public class IndicatorSubscriber {
 
-    private static Logger logger = LogManager.getLogger(IndicatorSubscriber.class.getName());
+    private static final Logger logger = LogManager.getLogger(IndicatorSubscriber.class.getName());
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public void update(Map<?, ?> map) {

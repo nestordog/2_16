@@ -77,7 +77,7 @@ public class SABRSurfaceVO implements Serializable {
 
         if (this.smiles == null) {
 
-            this.smiles = new ArrayList<SABRSmileVO>();
+            this.smiles = new ArrayList<>();
         }
         return this.smiles;
     }

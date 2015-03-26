@@ -42,7 +42,7 @@ import quickfix.fix44.Reject;
  */
 public abstract class AbstractFix44MessageHandler {
 
-    private static Logger LOGGER = LogManager.getLogger(AbstractFix44MessageHandler.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(AbstractFix44MessageHandler.class.getName());
 
     public void onMessage(final Reject reject, final SessionID sessionID) throws FieldNotFound {
 

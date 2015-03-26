@@ -33,7 +33,7 @@ public class Profile {
     public Profile(String name) {
         super();
         this.name = name;
-        this.allocations = new HashMap<String, Double>();
+        this.allocations = new HashMap<>();
     }
 
     public void putAllocation(String account, Double value) {

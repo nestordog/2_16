@@ -32,7 +32,7 @@ public class CompositeAsserter implements ValueAsserter {
         /** Assertion succeeds only if all asserters are happy */
         AND,
         /** Assertion succeeds if at least one of the asserters is happy */
-        OR;
+        OR
     }
 
     private final Mode mode;

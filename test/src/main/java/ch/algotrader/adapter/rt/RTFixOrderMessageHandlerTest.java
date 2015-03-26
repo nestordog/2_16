@@ -88,7 +88,7 @@ public class RTFixOrderMessageHandlerTest {
 
         this.dateFormat = new SimpleDateFormat("yyyy-MM");
         this.dateFormat.setTimeZone(Consts.UTM);
-        final LinkedBlockingQueue<Object> queue = new LinkedBlockingQueue<Object>();
+        final LinkedBlockingQueue<Object> queue = new LinkedBlockingQueue<>();
         this.eventQueue = queue;
 
         Engine engine = new AbstractEngine(StrategyImpl.SERVER) {

@@ -42,7 +42,7 @@ import ch.algotrader.util.metric.MetricsUtil;
  */
 public abstract class TickCallback {
 
-    private static Logger logger = LogManager.getLogger(TickCallback.class.getName());
+    private static final Logger logger = LogManager.getLogger(TickCallback.class.getName());
 
     /**
      * Called by the "ON_FIRST_TICK" statement. Should not be invoked directly.
@@ -52,7 +52,7 @@ public abstract class TickCallback {
         List<Tick> tickList = Arrays.asList(ticks);
 
         // get the securityIds sorted asscending
-        Set<Integer> sortedSecurityIds = new TreeSet<Integer>(CollectionUtils.collect(tickList, new Transformer<Tick, Integer>() {
+        Set<Integer> sortedSecurityIds = new TreeSet<>(CollectionUtils.collect(tickList, new Transformer<Tick, Integer>() {
             @Override
             public Integer transform(Tick tick) {
                 return tick.getSecurity().getId();

@@ -46,7 +46,7 @@ public abstract class FixOrderServiceImpl extends ExternalOrderServiceImpl imple
 
     private static final long serialVersionUID = -1571841567775158540L;
 
-    private static Logger logger = LogManager.getLogger(FixOrderServiceImpl.class.getName());
+    private static final Logger logger = LogManager.getLogger(FixOrderServiceImpl.class.getName());
 
     private final FixAdapter fixAdapter;
 

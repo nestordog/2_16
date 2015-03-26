@@ -39,7 +39,7 @@ import net.sf.ehcache.event.CacheEventListenerAdapter;
 */
 public class EntityCacheEventListenerFactory extends net.sf.ehcache.event.CacheEventListenerFactory {
 
-    private static Logger logger = LogManager.getLogger(EntityCacheEventListenerFactory.class.getName());
+    private static final Logger logger = LogManager.getLogger(EntityCacheEventListenerFactory.class.getName());
 
     @Override
     public CacheEventListener createCacheEventListener(Properties properties) {

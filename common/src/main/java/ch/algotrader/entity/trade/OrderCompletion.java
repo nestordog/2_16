@@ -235,7 +235,7 @@ public class OrderCompletion implements Serializable {
     @Override
     public String toString() {
 
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
 
         buffer.append(getStatus());
 
