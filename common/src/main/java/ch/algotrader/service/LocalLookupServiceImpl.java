@@ -142,7 +142,7 @@ public class LocalLookupServiceImpl implements LocalLookupService, TickEventList
     @Override
     public double getForexRate(int securityId, Currency transactionCurrency) {
 
-        Security security = this.lookupService.getSecurity(securityId);
+        Security security = this.lookupService.getSecurityInclFamilyAndUnderlying(securityId);
         Validate.notNull(security, "Security is null");
 
         return getForexRate(security.getSecurityFamily().getCurrency(), transactionCurrency);

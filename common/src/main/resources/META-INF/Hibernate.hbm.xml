@@ -517,7 +517,8 @@
     <![CDATA[ 
         select b 
         from BarImpl as b 
-        join b.security.subscriptions as s 
+        join fetch b.security  
+        join b.security.subscriptions as s
         where s != null 
         and b.dateTime >= :minDate 
         and b.dateTime < :maxDate 
@@ -830,6 +831,7 @@
     <query name='Forex.findByBaseAndTransactionCurrency'>
     <![CDATA[
         from ForexImpl as f 
+        join fetch f.securityFamily
         where f.baseCurrency = :baseCurrency 
         and f.securityFamily.currency = :transactionCurrency 
     ]]>
