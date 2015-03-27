@@ -120,6 +120,17 @@ public class EventDispatcherImpl implements EventDispatcher, MessageListener {
     @Override
     public void broadcastLocal(final Object event) {
 
+        for (Engine engine : this.engineManager.getEngines()) {
+
+            engine.sendEvent(event);
+        }
+
+        this.localEventBroadcaster.broadcast(event);
+    }
+
+    @Override
+    public void broadcastLocalStrategies(final Object event) {
+
         for (Engine engine : this.engineManager.getStrategyEngines().values()) {
 
             engine.sendEvent(event);

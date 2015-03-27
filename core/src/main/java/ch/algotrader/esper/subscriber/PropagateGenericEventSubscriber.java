@@ -28,7 +28,7 @@ import ch.algotrader.vo.GenericEventVO;
  */
 public class PropagateGenericEventSubscriber {
 
-    private static final Logger LOGGER = LogManager.getLogger(PropagateGenericEventSubscriber.class.getName());
+    private static Logger LOGGER = LogManager.getLogger(PropagateGenericEventSubscriber.class.getName());
 
     public void update(final GenericEventVO genericEvent) {
 
@@ -37,6 +37,6 @@ public class PropagateGenericEventSubscriber {
             LOGGER.trace(genericEvent);
         }
 
-        ServiceLocator.instance().getEventDispatcher().broadcastLocal(genericEvent);
+        ServiceLocator.instance().getEventDispatcher().broadcastLocalStrategies(genericEvent);
     }
 }

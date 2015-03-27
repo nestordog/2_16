@@ -55,6 +55,11 @@ public interface EventDispatcher {
     void broadcastLocal(Object event);
 
     /**
+     * broadcasts an event to all local Strategy Esper Engines and event listeners.
+     */
+    void broadcastLocalStrategies(Object event);
+
+    /**
      * broadcasts an event to all remote Esper Engines and event listeners.
      */
     void broadcastRemote(Object event);
