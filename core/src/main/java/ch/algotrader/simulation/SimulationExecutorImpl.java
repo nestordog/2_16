@@ -274,7 +274,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
         for (final String strategyName : strategyGroup.getStrategyNames()) {
             final double weight = strategyGroup.getWeight(strategyName);
             final Strategy strategy = strategyPersistenceService.getOrCreateStrategy(strategyName, weight);
-            logger.info("Update strategy '" + strategy.getName() + " with allocation " + strategy.getAllocation());
+            logger.info("Update strategy '" + strategy.getName() + "' with allocation " + strategy.getAllocation());
         }
     }
 
