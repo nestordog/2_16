@@ -7,7 +7,7 @@
         </Console>
         <Console name="StdErr" target="SYSTEM_ERR">
             <PatternLayout pattern="%d %-5p [%t] [%c{1}] %m %n"/>
-            <ThresholdFilter level="ERROR" onMatch="DENY" onMismatch="DENY"/>
+            <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
         </Console>
     </Appenders>
     <Loggers>
