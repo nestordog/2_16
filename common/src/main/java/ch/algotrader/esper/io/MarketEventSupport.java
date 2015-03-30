@@ -17,6 +17,9 @@
  ***********************************************************************************/
 package ch.algotrader.esper.io;
 
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.cache.CacheManager;
 import ch.algotrader.entity.marketData.Bar;
@@ -34,6 +37,8 @@ import ch.algotrader.vo.RawTickVO;
  * @version $Revision$ $Date$
  */
 final class MarketEventSupport {
+
+    private static final ConcurrentMap<String, Integer> SECURITY_ID_BY_SECURITY_STRING = new ConcurrentHashMap<String, Integer>();
 
     /**
      * Same functionality as {@code TickDao#rawTickVOToEntity} which however is only availabe inside a Hibernate Session
@@ -85,12 +90,18 @@ final class MarketEventSupport {
     }
 
     private static Security getSecurity(String securityString) {
+        final ServiceLocator serviceLocator = ServiceLocator.instance();
 
-        // lookup the securityId
-        int securityId = ServiceLocator.instance().getLookupService().getSecurityIdBySecurityString(securityString);
+        //first, lookup the security ID (does normally not change)
+        Integer securityId = SECURITY_ID_BY_SECURITY_STRING.get(securityString);
+        if (securityId == null) {
+            // lookup the securityId
+            securityId = serviceLocator.getLookupService().getSecurityIdBySecurityString(securityString);
+            SECURITY_ID_BY_SECURITY_STRING.put(securityString, securityId);//due to racing we may replace an existing entry but that's fine
+        }
 
-        // get the fully initialized security
-        CacheManager cacheManager = ServiceLocator.instance().getService("cacheManager", CacheManager.class);
+        // now get the fully initialized security (may change hence do a lookup with cache manager who knows about changes)
+        final CacheManager cacheManager = serviceLocator.getService("cacheManager", CacheManager.class);
         return cacheManager.get(SecurityImpl.class, securityId);
     }
 }

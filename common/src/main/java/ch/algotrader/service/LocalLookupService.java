@@ -20,6 +20,7 @@ package ch.algotrader.service;
 import java.math.BigDecimal;
 
 import ch.algotrader.entity.marketData.MarketDataEvent;
+import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.Currency;
 
 
@@ -65,9 +66,19 @@ public interface LocalLookupService {
     double getForexRate(int securityId, Currency transactionCurrency);
 
     /**
+     * Gets the relevant exchange rate for the specified Security related to the specified {@link Currency}
+     */
+    double getForexRate(Security security, Currency transactionCurrency);
+
+    /**
      * Gets the relevant exchange rate for the specified Security related to the Portfolio Base Currency
      */
     double getForexRateBase(int securityId);
+
+    /**
+     * Gets the relevant exchange rate for the specified Security related to the Portfolio Base Currency
+     */
+    double getForexRateBase(Security security);
 
     /**
      * Returns true if any {@link ch.algotrader.entity.marketData.MarketDataEvent MarketDataEvent} has been received.

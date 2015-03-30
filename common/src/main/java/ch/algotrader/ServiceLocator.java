@@ -66,7 +66,7 @@ public class ServiceLocator {
     public static final String SIMULATION_BEAN_REFERENCE_LOCATION = "Simulation";
 
     // The bean factory reference instance.
-    private BeanFactoryReference beanFactoryReference;
+    private volatile BeanFactoryReference beanFactoryReference;//volatile for Double Check Locking
 
     // The bean factory reference location.
     private String beanFactoryReferenceLocation;
@@ -89,37 +89,40 @@ public class ServiceLocator {
      * Gets the Spring ApplicationContext.
      * @return beanFactoryReference.getFactory()
      */
-    public synchronized ApplicationContext getContext() {
+    public ApplicationContext getContext() {
 
         if (this.beanFactoryReference == null) {
 
-            if (this.beanFactoryReferenceLocation == null) {
-                this.beanFactoryReferenceLocation = SERVER_BEAN_REFERENCE_LOCATION;
-            }
-
-            String location = DEFAULT_BEAN_REFERENCE_ID + this.beanFactoryReferenceLocation + ".xml";
-            BeanFactoryLocator beanFactoryLocator = ContextSingletonBeanFactoryLocator.getInstance(location);
-            this.beanFactoryReference = beanFactoryLocator.useBeanFactory(DEFAULT_BEAN_REFERENCE_ID);
-
-            // set the profiles
-            ConfigurableApplicationContext applicationContext = (ConfigurableApplicationContext) this.beanFactoryReference.getFactory();
-            applicationContext.getEnvironment().addActiveProfile(this.beanFactoryReferenceLocation.toLowerCase());
-
-            try {
-                Runtime.getRuntime().addShutdownHook(new Thread() {
-                    @Override
-                    public void run() {
-                        ServiceLocator serviceLocator = ServiceLocator.instance();
-                        if (serviceLocator.isInitialized()) {
-
-                            serviceLocator.shutdown();
-                        }
+            synchronized (this) {
+                if (this.beanFactoryReference == null) {
+                    if (this.beanFactoryReferenceLocation == null) {
+                        this.beanFactoryReferenceLocation = SERVER_BEAN_REFERENCE_LOCATION;
                     }
-                });
-            } catch (IllegalStateException e) {
-                // Shutdown already in progress
-            }
 
+                    String location = DEFAULT_BEAN_REFERENCE_ID + this.beanFactoryReferenceLocation + ".xml";
+                    BeanFactoryLocator beanFactoryLocator = ContextSingletonBeanFactoryLocator.getInstance(location);
+                    this.beanFactoryReference = beanFactoryLocator.useBeanFactory(DEFAULT_BEAN_REFERENCE_ID);
+
+                    // set the profiles
+                    ConfigurableApplicationContext applicationContext = (ConfigurableApplicationContext) this.beanFactoryReference.getFactory();
+                    applicationContext.getEnvironment().addActiveProfile(this.beanFactoryReferenceLocation.toLowerCase());
+
+                    try {
+                        Runtime.getRuntime().addShutdownHook(new Thread() {
+                            @Override
+                            public void run() {
+                                ServiceLocator serviceLocator = ServiceLocator.instance();
+                                if (serviceLocator.isInitialized()) {
+
+                                    serviceLocator.shutdown();
+                                }
+                            }
+                        });
+                    } catch (IllegalStateException e) {
+                        // Shutdown already in progress
+                    }
+                }
+            }
         }
 
         return (ApplicationContext) this.beanFactoryReference.getFactory();

@@ -18,10 +18,10 @@
 package ch.algotrader.service;
 
 import java.math.BigDecimal;
+import java.util.EnumSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import org.apache.commons.collections15.map.MultiKeyMap;
 import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
 
@@ -52,7 +52,7 @@ public class LocalLookupServiceImpl implements LocalLookupService, TickEventList
     private final LookupService lookupService;
 
     private final ConcurrentMap<Integer, MarketDataEvent> lastMarketDataEventBySecurityId;
-    private final MultiKeyMap<Currency, Forex> forexMap;
+    private final ConcurrentMap<EnumSet<Currency>, Forex> forexMap;
 
     public LocalLookupServiceImpl(
             final CommonConfig commonConfig,
@@ -67,7 +67,7 @@ public class LocalLookupServiceImpl implements LocalLookupService, TickEventList
         this.engineManager = engineManager;
         this.lookupService = lookupService;
         this.lastMarketDataEventBySecurityId = new ConcurrentHashMap<>();
-        this.forexMap = new MultiKeyMap<>();//TODO thread safe?!?
+        this.forexMap = new ConcurrentHashMap<>();
     }
 
     @Override
@@ -103,13 +103,14 @@ public class LocalLookupServiceImpl implements LocalLookupService, TickEventList
             return 1.0;
         }
 
-        Forex forex = this.forexMap.get(baseCurrency, transactionCurrency);
+        final EnumSet<Currency> key = EnumSet.of(baseCurrency, transactionCurrency);
+        Forex forex = this.forexMap.get(key);
         if (forex == null) {
             forex = this.lookupService.getForex(baseCurrency, transactionCurrency);
-            this.forexMap.put(baseCurrency, transactionCurrency, forex);
+            this.forexMap.put(key, forex);//we may replace an existing forex entry due to racing but that's ok
         }
 
-        MarketDataEvent marketDataEvent = getCurrentMarketDataEvent(forex.getId());
+        final MarketDataEvent marketDataEvent = getCurrentMarketDataEvent(forex.getId());
 
         if (marketDataEvent == null) {
             throw new IllegalStateException("Cannot get exchangeRate for " + baseCurrency + "." + transactionCurrency + " because no marketDataEvent is available");
@@ -142,7 +143,16 @@ public class LocalLookupServiceImpl implements LocalLookupService, TickEventList
     @Override
     public double getForexRate(int securityId, Currency transactionCurrency) {
 
-        Security security = this.lookupService.getSecurityInclFamilyAndUnderlying(securityId);
+        final Security security = this.lookupService.getSecurityInclFamilyAndUnderlying(securityId);
+
+        return getForexRate(security, transactionCurrency);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getForexRate(Security security, Currency transactionCurrency) {
         Validate.notNull(security, "Security is null");
 
         return getForexRate(security.getSecurityFamily().getCurrency(), transactionCurrency);
@@ -155,6 +165,15 @@ public class LocalLookupServiceImpl implements LocalLookupService, TickEventList
     public double getForexRateBase(int securityId) {
 
         return getForexRate(securityId, this.commonConfig.getPortfolioBaseCurrency());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getForexRateBase(Security security) {
+
+        return getForexRate(security, this.commonConfig.getPortfolioBaseCurrency());
     }
 
     @Override

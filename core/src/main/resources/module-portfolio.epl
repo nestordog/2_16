@@ -6,7 +6,7 @@ select
 from
     pattern[every timer:at(0, 0:24, *, *, 1:5)]
 where
-    ServiceUtil.hasCurrentMarketDataEvents();
+	exists(select * from MarketDataWindow);
 
 @Name('INSERT_INTO_PORTFOLIO_VALUE')
 @SimulationOnly
@@ -18,7 +18,7 @@ select
 from
     pattern[every (timer:at (0, 0, *, *, 1:5) or EndOfSimulation)]
 where
-    ServiceUtil.hasCurrentMarketDataEvents();
+	exists(select * from MarketDataWindow);
 
 @Name('SET_MARGINS')
 @Condition(key='statement.setMargins')

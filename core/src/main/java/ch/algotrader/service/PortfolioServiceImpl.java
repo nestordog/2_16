@@ -476,7 +476,7 @@ public class PortfolioServiceImpl implements PortfolioService {
         double margin = 0.0;
         Collection<Position> positions = this.positionDao.findOpenTradeablePositions();
         for (Position position : positions) {
-            margin += position.getMaintenanceMargin() != null ? position.getMaintenanceMargin().doubleValue() * this.localLookupService.getForexRateBase(position.getSecurity().getId()) : 0.0;
+            margin += position.getMaintenanceMargin() != null ? position.getMaintenanceMargin().doubleValue() * this.localLookupService.getForexRateBase(position.getSecurity()) : 0.0;
         }
         return margin;
 
@@ -493,7 +493,7 @@ public class PortfolioServiceImpl implements PortfolioService {
         double margin = 0.0;
         List<Position> positions = this.positionDao.findOpenTradeablePositionsByStrategy(strategyName);
         for (Position position : positions) {
-            margin += position.getMaintenanceMargin().doubleValue() * this.localLookupService.getForexRateBase(position.getSecurity().getId());
+            margin += position.getMaintenanceMargin().doubleValue() * this.localLookupService.getForexRateBase(position.getSecurity());
         }
         return margin;
 
@@ -874,7 +874,7 @@ public class PortfolioServiceImpl implements PortfolioService {
         // sum of all FX positions
         for (Position position : positions) {
             MarketDataEvent marketDataEvent = this.localLookupService.getCurrentMarketDataEvent(position.getSecurity().getId());
-            amount += position.getMarketValue(marketDataEvent) * this.localLookupService.getForexRateBase(position.getSecurity().getId());
+            amount += position.getMarketValue(marketDataEvent) * this.localLookupService.getForexRateBase(position.getSecurity());
         }
 
         return amount;
@@ -931,7 +931,7 @@ public class PortfolioServiceImpl implements PortfolioService {
             Security security = openPosition.getSecurity();
             if (!(security instanceof Forex)) {
                 MarketDataEvent marketDataEvent = this.localLookupService.getCurrentMarketDataEvent(security.getId());
-                amount += openPosition.getMarketValue(marketDataEvent) * this.localLookupService.getForexRateBase(openPosition.getSecurity().getId());
+                amount += openPosition.getMarketValue(marketDataEvent) * this.localLookupService.getForexRateBase(openPosition.getSecurity());
             }
         }
         return amount;
