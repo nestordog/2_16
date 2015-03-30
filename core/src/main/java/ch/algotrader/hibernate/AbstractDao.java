@@ -167,10 +167,7 @@ public class AbstractDao<E extends BaseEntityI> {
         return results;
     }
 
-    private void applyParameters(final Query query, final LockOptions lockOptions, final int maxResults, final Object... params) {
-        for (int i = 0; i < params.length; i++) {
-            query.setParameter(i, params[i]);
-        }
+    private void initalize(final Query query, final LockOptions lockOptions, final int maxResults) {
         if (lockOptions != null) {
             query.setLockOptions(lockOptions);
         }
@@ -179,16 +176,18 @@ public class AbstractDao<E extends BaseEntityI> {
         }
     }
 
+    private void applyParameters(final Query query, final LockOptions lockOptions, final int maxResults, final Object... params) {
+        initalize(query, lockOptions, maxResults);
+        for (int i = 0; i < params.length; i++) {
+            query.setParameter(i, params[i]);
+        }
+    }
+
     private void applyParameters(final Query query, final LockOptions lockOptions, final int maxResults, final NamedParam... params) {
+        initalize(query, lockOptions, maxResults);
         for (int i = 0; i < params.length; i++) {
             NamedParam param = params[i];
             query.setParameter(param.getName(), param.getValue());
-        }
-        if (lockOptions != null) {
-            query.setLockOptions(lockOptions);
-        }
-        if (maxResults > 0) {
-            query.setMaxResults(maxResults);
         }
     }
 
@@ -207,6 +206,13 @@ public class AbstractDao<E extends BaseEntityI> {
         }
     }
 
+    protected Query prepareQuery(final LockOptions lockOptions, final String queryString, final int maxResults, final QueryType type) {
+
+        Query query = createQuery(queryString, type);
+        initalize(query, lockOptions, maxResults);
+        return query;
+    }
+
     protected Query prepareQuery(final LockOptions lockOptions, final String queryString, final int maxResults, final QueryType type, final Object... params) {
 
         Query query = createQuery(queryString, type);
@@ -218,6 +224,14 @@ public class AbstractDao<E extends BaseEntityI> {
 
         Query query = createQuery(queryString, type);
         applyParameters(query, lockOptions, maxResults, params);
+        return query;
+    }
+
+    protected SQLQuery prepareSQLQuery(final LockOptions lockOptions, final String queryString, final int maxResults) {
+
+        Session currentSession = getCurrentSession();
+        SQLQuery query = currentSession.createSQLQuery(queryString);
+        initalize(query, lockOptions, maxResults);
         return query;
     }
 
@@ -237,6 +251,11 @@ public class AbstractDao<E extends BaseEntityI> {
         return query;
     }
 
+    protected Query prepareQuery(final LockOptions lockOptions, final String queryString, final QueryType type) {
+
+        return prepareQuery(lockOptions, queryString, NO_LIMIT, type);
+    }
+
     protected Query prepareQuery(final LockOptions lockOptions, final String queryString, final QueryType type, final Object... params) {
 
         return prepareQuery(lockOptions, queryString, NO_LIMIT, type, params);
@@ -245,6 +264,11 @@ public class AbstractDao<E extends BaseEntityI> {
     protected Query prepareQuery(final LockOptions lockOptions, final String queryString, final QueryType type, final NamedParam... params) {
 
         return prepareQuery(lockOptions, queryString, NO_LIMIT, type, params);
+    }
+
+    protected SQLQuery prepareSQLQuery(final LockOptions lockOptions, final String queryString) {
+
+        return prepareSQLQuery(lockOptions, queryString, NO_LIMIT);
     }
 
     protected SQLQuery prepareSQLQuery(final LockOptions lockOptions, final String queryString, final Object... params) {
@@ -257,6 +281,11 @@ public class AbstractDao<E extends BaseEntityI> {
         return prepareSQLQuery(lockOptions, queryString, NO_LIMIT, params);
     }
 
+    protected List<?> findObjects(final LockOptions lockOptions, final String queryString, final QueryType type) {
+
+        return prepareQuery(lockOptions, queryString, type).list();
+    }
+
     protected List<?> findObjects(final LockOptions lockOptions, final String queryString, final QueryType type, final Object... params) {
 
         return prepareQuery(lockOptions, queryString, type, params).list();
@@ -265,6 +294,11 @@ public class AbstractDao<E extends BaseEntityI> {
     protected List<?> findObjects(final LockOptions lockOptions, final String queryString, final QueryType type, final NamedParam... params) {
 
         return prepareQuery(lockOptions, queryString, type, params).list();
+    }
+
+    protected List<?> findObjects(final LockOptions lockOptions, final String queryString, final int maxResults, final QueryType type) {
+
+        return prepareQuery(lockOptions, queryString, maxResults, type).list();
     }
 
     protected List<?> findObjects(final LockOptions lockOptions, final String queryString, final int maxResults, final QueryType type, final Object... params) {
@@ -277,6 +311,11 @@ public class AbstractDao<E extends BaseEntityI> {
         return prepareQuery(lockOptions, queryString, maxResults, type, params).list();
     }
 
+    protected Object findUniqueObject(final LockOptions lockOptions, final String queryString, final QueryType type) {
+
+        return prepareQuery(lockOptions, queryString, type).uniqueResult();
+    }
+
     protected Object findUniqueObject(final LockOptions lockOptions, final String queryString, final QueryType type, final Object... params) {
 
         return prepareQuery(lockOptions, queryString, type, params).uniqueResult();
@@ -285,6 +324,11 @@ public class AbstractDao<E extends BaseEntityI> {
     protected Object findUniqueObject(final LockOptions lockOptions, final String queryString, final QueryType type, final NamedParam... params) {
 
         return prepareQuery(lockOptions, queryString, type, params).uniqueResult();
+    }
+
+    protected E findUnique(final LockOptions lockOptions, final String queryString, final QueryType type) {
+
+        return this.entityClass.cast(prepareQuery(lockOptions, queryString, type).uniqueResult());
     }
 
     protected E findUnique(final LockOptions lockOptions, final String queryString, final QueryType type, final Object... params) {
@@ -297,6 +341,11 @@ public class AbstractDao<E extends BaseEntityI> {
         return this.entityClass.cast(prepareQuery(lockOptions, queryString, type, params).uniqueResult());
     }
 
+    protected E findUnique(final String queryString, final QueryType type) {
+
+        return findUnique(null, queryString, type);
+    }
+
     protected E findUnique(final String queryString, final QueryType type, final Object... params) {
 
         return findUnique(null, queryString, type, params);
@@ -305,6 +354,11 @@ public class AbstractDao<E extends BaseEntityI> {
     protected E findUnique(final String queryString, final QueryType type, final NamedParam... params) {
 
         return findUnique(null, queryString, type, params);
+    }
+
+    protected Object findUniqueSQL( final LockOptions lockOptions, final String queryString, final QueryType type) {
+
+        return prepareSQLQuery(lockOptions, queryString, type).uniqueResult();
     }
 
     protected Object findUniqueSQL( final LockOptions lockOptions, final String queryString, final QueryType type, final Object... params) {
@@ -317,6 +371,11 @@ public class AbstractDao<E extends BaseEntityI> {
         return prepareSQLQuery(lockOptions, queryString, type, params).uniqueResult();
     }
 
+    protected Object findUniqueSQL( final String queryString, final QueryType type) {
+
+        return findUniqueSQL(null, queryString, type);
+    }
+
     protected Object findUniqueSQL( final String queryString, final QueryType type, final Object... params) {
 
         return findUniqueSQL(null, queryString, type, params);
@@ -325,6 +384,12 @@ public class AbstractDao<E extends BaseEntityI> {
     protected Object findUniqueSQL( final String queryString, final QueryType type, final NamedParam... params) {
 
         return findUniqueSQL(null, queryString, type, params);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected List<E> find(final LockOptions lockOptions, final String queryString, final int maxResults, final QueryType type) {
+
+        return (List<E>) findObjects(lockOptions, queryString, maxResults, type);
     }
 
     @SuppressWarnings("unchecked")
@@ -340,6 +405,12 @@ public class AbstractDao<E extends BaseEntityI> {
     }
 
     @SuppressWarnings("unchecked")
+    protected List<E> find(final LockOptions lockOptions, final String queryString, final QueryType type) {
+
+        return (List<E>) findObjects(lockOptions, queryString, type);
+    }
+
+    @SuppressWarnings("unchecked")
     protected List<E> find(final LockOptions lockOptions, final String queryString, final QueryType type, final Object... params) {
 
         return (List<E>) findObjects(lockOptions, queryString, type, params);
@@ -352,6 +423,12 @@ public class AbstractDao<E extends BaseEntityI> {
     }
 
     @SuppressWarnings("unchecked")
+    protected List<E> find(final String queryString, final int maxResults, final QueryType type) {
+
+        return (List<E>) findObjects(null, queryString, maxResults, type);
+    }
+
+    @SuppressWarnings("unchecked")
     protected List<E> find(final String queryString, final int maxResults, final QueryType type, final Object... params) {
 
         return (List<E>) findObjects(null, queryString, maxResults, type, params);
@@ -361,6 +438,12 @@ public class AbstractDao<E extends BaseEntityI> {
     protected List<E> find(final String queryString, final int maxResults, final QueryType type, final NamedParam... params) {
 
         return (List<E>) findObjects(null, queryString, maxResults, type, params);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected List<E> find(final String queryString, final QueryType type) {
+
+        return (List<E>) findObjects(null, queryString, type);
     }
 
     @SuppressWarnings("unchecked")
@@ -386,6 +469,12 @@ public class AbstractDao<E extends BaseEntityI> {
         return result;
     }
 
+    protected <V> List<V> find(final EntityConverter<E, V> converter, final String queryString, final int maxResults, final QueryType type) {
+
+        Query query = prepareQuery(null, queryString, maxResults, type);
+        return convert(query.iterate(), converter);
+    }
+
     protected <V> List<V> find(final EntityConverter<E, V> converter, final String queryString, final int maxResults, final QueryType type, final Object... params) {
 
         Query query = prepareQuery(null, queryString, maxResults, type, params);
@@ -395,6 +484,12 @@ public class AbstractDao<E extends BaseEntityI> {
     protected <V> List<V> find(final EntityConverter<E, V> converter, final String queryString, final int maxResults, final QueryType type, final NamedParam... params) {
 
         Query query = prepareQuery(null, queryString, maxResults, type, params);
+        return convert(query.iterate(), converter);
+    }
+
+    protected <V> List<V> find(final EntityConverter<E, V> converter, final String queryString, final QueryType type) {
+
+        Query query = prepareQuery(null, queryString, type);
         return convert(query.iterate(), converter);
     }
 
@@ -410,6 +505,11 @@ public class AbstractDao<E extends BaseEntityI> {
         return convert(query.iterate(), converter);
     }
 
+    protected Set<E> findAsSet(final LockOptions lockOptions, final String queryString, final QueryType type) {
+
+        return convertToSet(findObjects(lockOptions, queryString, type), this.entityClass);
+    }
+
     protected Set<E> findAsSet(final LockOptions lockOptions, final String queryString, final QueryType type, final Object... params) {
 
         return convertToSet(findObjects(lockOptions, queryString, type, params), this.entityClass);
@@ -418,6 +518,11 @@ public class AbstractDao<E extends BaseEntityI> {
     protected Set<E> findAsSet(final LockOptions lockOptions, final String queryString, final QueryType type, final NamedParam... params) {
 
         return convertToSet(findObjects(lockOptions, queryString, type, params), this.entityClass);
+    }
+
+    protected Set<E> findAsSet(final String queryString, final QueryType type) {
+
+        return convertToSet(findObjects(null, queryString, type), this.entityClass);
     }
 
     protected Set<E> findAsSet(final String queryString, final QueryType type, final Object... params) {
