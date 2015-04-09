@@ -104,6 +104,11 @@ public class DBBarInputAdapter extends AbstractCoordinatedAdapter {
                 Bar bar = this.iterator.next();
                 return new SendableBaseObjectEvent(bar, bar.getDateTime().getTime(), this.scheduleSlot);
             } else {
+                if (this.stateManager.getState() == AdapterState.STARTED) {
+                    stop();
+                } else {
+                    destroy();
+                }
                 return null;
             }
         } else {

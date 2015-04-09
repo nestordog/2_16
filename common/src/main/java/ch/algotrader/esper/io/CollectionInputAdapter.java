@@ -88,6 +88,11 @@ public class CollectionInputAdapter extends AbstractCoordinatedAdapter {
                 }
 
             } else {
+                if (this.stateManager.getState() == AdapterState.STARTED) {
+                    stop();
+                } else {
+                    destroy();
+                }
                 return null;
             }
         } else {

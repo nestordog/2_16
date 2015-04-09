@@ -83,6 +83,11 @@ public class MetronomInputAdapter extends AbstractCoordinatedAdapter {
                 return new SendableBaseObjectEvent(new Object(), date.getTime(), scheduleSlot);
             }
 
+            if (this.stateManager.getState() == AdapterState.STARTED) {
+                stop();
+            } else {
+                destroy();
+            }
             return null;
 
         } else {

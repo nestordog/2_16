@@ -52,7 +52,11 @@ public class DBTickInputAdapter extends AbstractCoordinatedAdapter {
         this.batchSize = batchSize;
 
         Tick tick = ServiceLocator.instance().getLookupService().getFirstSubscribedTick();
-        this.startDate = tick.getDateTime();
+        if (tick == null) {
+            this.startDate = new Date(0);
+        } else {
+            this.startDate = tick.getDateTime();
+        }
     }
 
     @Override
@@ -101,6 +105,11 @@ public class DBTickInputAdapter extends AbstractCoordinatedAdapter {
                 Tick tick = this.iterator.next();
                 return new SendableBaseObjectEvent(tick, tick.getDateTime().getTime(), this.scheduleSlot);
             } else {
+                if (this.stateManager.getState() == AdapterState.STARTED) {
+                    stop();
+                } else {
+                    destroy();
+                }
                 return null;
             }
 
