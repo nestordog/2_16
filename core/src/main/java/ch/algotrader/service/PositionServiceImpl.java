@@ -31,6 +31,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import ch.algotrader.accounting.PositionTrackerImpl;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.CoreConfig;
 import ch.algotrader.entity.ClosePositionVOProducer;
@@ -59,7 +60,6 @@ import ch.algotrader.esper.EngineManager;
 import ch.algotrader.esper.callback.TradeCallback;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.option.OptionUtil;
-import ch.algotrader.util.PositionUtil;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.collection.Pair;
 import ch.algotrader.vo.ClosePositionVO;
@@ -501,10 +501,10 @@ public class PositionServiceImpl implements PositionService {
             // crate a position if we come across a security for the first time
             Position position = positionMap.get(new Pair<>(transaction.getSecurity(), transaction.getStrategy()));
             if (position == null) {
-                position = PositionUtil.processFirstTransaction(transaction);
+                position = PositionTrackerImpl.INSTANCE.processFirstTransaction(transaction);
                 positionMap.put(new Pair<>(position.getSecurity(), position.getStrategy()), position);
             } else {
-                PositionUtil.processTransaction(position, transaction);
+                PositionTrackerImpl.INSTANCE.processTransaction(position, transaction);
             }
         }
 

@@ -31,6 +31,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import ch.algotrader.accounting.PositionTrackerImpl;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.security.Index;
@@ -62,7 +63,7 @@ public class SimulatorTest {
     public void before() {
 
         final LocalLookupService localLookupService = mock(LocalLookupService.class);
-        this.simulator = spy(new Simulator(localLookupService));
+        this.simulator = spy(new Simulator(localLookupService, PositionTrackerImpl.INSTANCE));
 
         //spy the simulator because we must mock methods that are using the ServiceLocator
         doReturn(new Date()).when(simulator).getCurrentTime();

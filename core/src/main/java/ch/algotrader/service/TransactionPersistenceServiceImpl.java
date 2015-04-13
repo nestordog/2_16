@@ -27,6 +27,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import ch.algotrader.accounting.PositionTrackerImpl;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.ClosePositionVOProducer;
 import ch.algotrader.entity.OpenPositionVOProducer;
@@ -40,7 +41,6 @@ import ch.algotrader.entity.strategy.CashBalanceDao;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.util.PositionUtil;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.collection.BigDecimalMap;
 import ch.algotrader.util.collection.Pair;
@@ -137,7 +137,7 @@ public abstract class TransactionPersistenceServiceImpl implements TransactionPe
             closePositionVO = ClosePositionVOProducer.INSTANCE.convert(position);
 
             // process the transaction (adjust quantity, cost and realizedPL)
-            tradePerformance = PositionUtil.processTransaction(position, transaction);
+            tradePerformance = PositionTrackerImpl.INSTANCE.processTransaction(position, transaction);
 
             // in case a position was closed reset exitValue and margin
             if (!position.isOpen()) {

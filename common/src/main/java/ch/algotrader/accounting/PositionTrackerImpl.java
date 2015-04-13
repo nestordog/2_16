@@ -15,7 +15,7 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.util;
+package ch.algotrader.accounting;
 
 import org.apache.commons.math.util.MathUtils;
 
@@ -25,18 +25,19 @@ import ch.algotrader.enumeration.Direction;
 import ch.algotrader.vo.TradePerformanceVO;
 
 /**
- * Provides different Position related utility methods.
- *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class PositionUtil {
+public class PositionTrackerImpl implements PositionTracker {
+
+    public static final PositionTrackerImpl INSTANCE = new PositionTrackerImpl();
 
     /**
      * process a transaction for a security and strategy where no prior position existed
      */
-    public static Position processFirstTransaction(Transaction transaction) {
+    @Override
+    public Position processFirstTransaction(Transaction transaction) {
 
         double cost = -transaction.getNetValueDouble();
 
@@ -56,7 +57,8 @@ public class PositionUtil {
      *
      * @return a pair containing the profit and profit percentage
      */
-    public static TradePerformanceVO processTransaction(Position position, Transaction transaction) {
+    @Override
+    public TradePerformanceVO processTransaction(Position position, Transaction transaction) {
 
         // get old values
         long oldQty = position.getQuantity();

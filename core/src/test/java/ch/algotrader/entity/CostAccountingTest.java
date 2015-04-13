@@ -27,6 +27,8 @@ import org.apache.commons.math.util.MathUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
+import ch.algotrader.accounting.PositionTracker;
+import ch.algotrader.accounting.PositionTrackerImpl;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.SecurityFamilyImpl;
@@ -35,7 +37,6 @@ import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.TransactionType;
-import ch.algotrader.util.PositionUtil;
 
 /**
  * Cost Accounting Test.
@@ -52,6 +53,8 @@ public class CostAccountingTest {
 
     @Test
     public void test() throws ParseException {
+
+        PositionTracker positionTracker = PositionTrackerImpl.INSTANCE;
 
         Strategy strategy = new StrategyImpl();
 
@@ -72,7 +75,7 @@ public class CostAccountingTest {
         transaction.setExecutionCommission(new BigDecimal("10.0"));
         transactions.add(transaction);
 
-        Position position = PositionUtil.processFirstTransaction(transaction);
+        Position position = positionTracker.processFirstTransaction(transaction);
 
         assertPosition(position, 100, 10, 10010, 100.1, 10000, -10, 0);
         assertPosition(position, 105, 10, 10010, 100.1, 10500, 490, 0);
@@ -83,7 +86,7 @@ public class CostAccountingTest {
         transaction.setExecutionCommission(new BigDecimal("2.0"));
         transactions.add(transaction);
 
-        PositionUtil.processTransaction(position, transaction);
+        positionTracker.processTransaction(position, transaction);
 
         assertPosition(position, 110, 12, 12212, 101.77, 13200, 988, 0);
         assertPosition(position, 115, 12, 12212, 101.77, 13800, 1588, 0);
@@ -94,7 +97,7 @@ public class CostAccountingTest {
         transaction.setExecutionCommission(new BigDecimal("12.0"));
         transactions.add(transaction);
 
-        PositionUtil.processTransaction(position, transaction);
+        positionTracker.processTransaction(position, transaction);
 
         assertPosition(position, 120, 0, 0, Double.NaN, 0, 0, 2176);
         assertPosition(position, 125, 0, 0, Double.NaN, 0, 0, 2176);
@@ -105,7 +108,7 @@ public class CostAccountingTest {
         transaction.setExecutionCommission(new BigDecimal("20.0"));
         transactions.add(transaction);
 
-        PositionUtil.processTransaction(position, transaction);
+        positionTracker.processTransaction(position, transaction);
 
         assertPosition(position, 130, -20, -25980, 129.9, -26000, -20, 2176);
         assertPosition(position, 135, -20, -25980, 129.9, -27000, -1020, 2176);
@@ -116,7 +119,7 @@ public class CostAccountingTest {
         transaction.setExecutionCommission(new BigDecimal("12.0"));
         transactions.add(transaction);
 
-        PositionUtil.processTransaction(position, transaction);
+        positionTracker.processTransaction(position, transaction);
 
         assertPosition(position, 140, -8, -10392, 129.9, -11200, -808, 952);
     }

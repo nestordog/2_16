@@ -30,6 +30,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.ServiceLocator;
+import ch.algotrader.accounting.PositionTracker;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.marketData.MarketDataEvent;
@@ -45,7 +46,6 @@ import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.TransactionType;
 import ch.algotrader.service.LocalLookupService;
-import ch.algotrader.util.PositionUtil;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.collection.Pair;
 import ch.algotrader.vo.CurrencyAmountVO;
@@ -71,12 +71,15 @@ public class Simulator {
     private final MultiMap<Security, Position> positionsBySecurity;
 
     private final LocalLookupService localLookupService;
+    private final PositionTracker positionTracker;
 
-    public Simulator(final LocalLookupService localLookupService) {
+    public Simulator(final LocalLookupService localLookupService, final PositionTracker positionTracker) {
 
         Validate.notNull(localLookupService, "LocalLookupService is null");
+        Validate.notNull(positionTracker, "PositionTracker is null");
 
         this.localLookupService = localLookupService;
+        this.positionTracker = positionTracker;
 
         this.cashBalances = new HashMap<>();
         this.positionsByStrategyAndSecurity = new HashMap<>();
@@ -196,7 +199,7 @@ public class Simulator {
         Position position = findPositionByStrategyAndSecurity(transaction.getStrategy().getName(), transaction.getSecurity());
         if (position == null) {
 
-            position = PositionUtil.processFirstTransaction(transaction);
+            position = positionTracker.processFirstTransaction(transaction);
 
             // associate strategy
             position.setStrategy(transaction.getStrategy());
@@ -209,7 +212,7 @@ public class Simulator {
         } else {
 
             // process the transaction (adjust quantity, cost and realizedPL)
-            tradePerformance = PositionUtil.processTransaction(position, transaction);
+            tradePerformance = positionTracker.processTransaction(position, transaction);
 
             // in case a position was closed reset exitValue and margin
             if (!position.isOpen()) {
@@ -332,6 +335,10 @@ public class Simulator {
 
     protected Date getCurrentTime() {
         return ServiceLocator.instance().getEngineManager().getCurrentEPTime();
+    }
+
+    protected PositionTracker getPositionTracker() {
+        return positionTracker;
     }
 
     /**
