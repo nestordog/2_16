@@ -15,28 +15,27 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.util.spring;
+package ch.algotrader.wiring.server;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-import org.springframework.beans.PropertyEditorRegistrar;
-import org.springframework.beans.PropertyEditorRegistry;
-import org.springframework.beans.propertyeditors.CustomDateEditor;
+import ch.algotrader.esper.EngineManager;
+import ch.algotrader.event.dispatch.EventDispatcher;
+import ch.algotrader.lifecycle.LifecycleManager;
+import ch.algotrader.lifecycle.LifecycleManagerImpl;
 
 /**
- * custom {@code org.springframework.beans.PropertyEditorRegistrar} for {@code java.util.Date}.
- * Allows to initialize Dates from the pattern {@code kk:mm}.
- *
- * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
+ * Lifecycle manager configuration.
  */
-public final class DatePropertyEditorRegistrar implements PropertyEditorRegistrar {
+@Configuration
+public class LifecycleManagerWiring {
 
-    @Override
-    public void registerCustomEditors(PropertyEditorRegistry registry) {
+    @Bean(name = "lifecycleManager")
+    public LifecycleManager createLifecycleManager(
+            final EngineManager engineManager, final EventDispatcher eventDispatcher) throws Exception {
 
-        registry.registerCustomEditor(Date.class, new CustomDateEditor(new SimpleDateFormat("kk:mm"), false));
+        return new LifecycleManagerImpl(engineManager, eventDispatcher);
     }
+
 }

@@ -17,8 +17,12 @@
  ***********************************************************************************/
 package ch.algotrader.esper;
 
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
@@ -27,10 +31,7 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.io.Resource;
 import org.springframework.util.StringUtils;
 
-import com.espertech.esper.client.Configuration;
-
 import ch.algotrader.config.ConfigParams;
-import ch.algotrader.util.spring.SpringDependencyLookup;
 
 /**
  * Factory bean for {@link ch.algotrader.esper.Engine}s;
@@ -51,8 +52,6 @@ public class EngineFactoryBean implements FactoryBean<Engine>, ApplicationContex
     private String[] runModuleList;
     private String runModules;
     private ConfigParams configParams;
-
-    private final EngineConfigurer configurer = new EngineConfigurer();
 
     private volatile ApplicationContext applicationContext;
 
@@ -100,33 +99,30 @@ public class EngineFactoryBean implements FactoryBean<Engine>, ApplicationContex
     @Override
     public Engine getObject() throws Exception {
 
-        Configuration configuration = new Configuration();
+        Set<URL> configUrls = new LinkedHashSet<>();
 
         if (this.configResourceList != null) {
             for (String resource: this.configResourceList) {
                 Resource[] cfgResources = this.applicationContext.getResources(resource);
                 for (Resource cfgResource: cfgResources) {
-                    configuration.configure(cfgResource.getURL());
+                    configUrls.add(cfgResource.getURL());
                 }
             }
         }
         if (this.configResource != null) {
             Resource resource1 = this.applicationContext.getResource("classpath:/META-INF/esper-common.cfg.xml");
-            configuration.configure(resource1.getURL());
+            configUrls.add(resource1.getURL());
             Resource resource2 = this.applicationContext.getResource(this.configResource.contains(":/") ? this.configResource : "classpath:/META-INF/" + this.configResource);
-            configuration.configure(resource2.getURL());
+            configUrls.add(resource2.getURL());
         }
 
-        this.configurer.configure(this.strategyName, configuration, this.configParams);
-
-        return new EngineImpl(this.engineName != null ? this.engineName : this.strategyName, this.strategyName,
-                new SpringDependencyLookup(this.applicationContext), configuration,
+        EngineFactory engineFactory = new EngineFactory(new SpringDependencyLookup(this.applicationContext), this.configParams);
+        return engineFactory.createStrategy(this.engineName != null ? this.engineName : this.strategyName, this.strategyName, configUrls,
                 parseModules(this.initModuleList, this.initModules),
-                parseModules(this.runModuleList, this.runModules),
-                this.configParams);
+                parseModules(this.runModuleList, this.runModules));
     }
 
-    private static String[] parseModules(final String[] array, final String text) {
+    private static Collection<String> parseModules(final String[] array, final String text) {
         if (array == null && text == null) {
             return null;
         }
@@ -141,7 +137,7 @@ public class EngineFactoryBean implements FactoryBean<Engine>, ApplicationContex
                 list.add(s);
             }
         }
-        return !list.isEmpty() ? list.toArray(new String[list.size()]) : null;
+        return !list.isEmpty() ? list : null;
     }
 
     @Override

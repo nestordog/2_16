@@ -2,54 +2,20 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:context="http://www.springframework.org/schema/context"
        xsi:schemaLocation="
-       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd">
 
     <!-- ============================= Configuration Management & Logging ============================================ -->
 
-    <bean id="configParams" class="ch.algotrader.config.spring.DefaultConfigParamsFactoryBean" />
-
-    <bean id="properties" class="ch.algotrader.config.spring.ConfigPropertiesFactoryBean">
-        <property name="configParams" ref="configParams"/>
-    </bean>
-
-    <bean id="commonConfig" class="ch.algotrader.config.spring.ConfigBeanFactoryBean">
-        <property name="beanClass" value="ch.algotrader.config.CommonConfig"/>
-    </bean>
-
-    <bean id="engineManager" class="ch.algotrader.esper.EngineManagerFactoryBean"/>
-
-    <bean id="eventListenerRegistry" class="ch.algotrader.event.EventListenerRegistryImpl" />
-
-    <bean id="eventDispatcher" class="ch.algotrader.event.dispatch.EventDispatcherFactoryBean">
-        <property name="commonConfig" ref="commonConfig"/>
-        <property name="eventListenerRegistry" ref="eventListenerRegistry"/>
-        <property name="engineManager" ref="engineManager"/>
-    </bean>
+    <context:component-scan base-package="ch.algotrader.wiring.common"/>
 
     <bean class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor"/>
 
     <bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
         <property name="properties" ref="properties" />
         <property name="systemPropertiesModeName"><value>SYSTEM_PROPERTIES_MODE_NEVER</value></property>
-    </bean>
-
-    <bean class="ch.algotrader.util.spring.LogLevelSetter" init-method="init"/>
-
-    <bean class="ch.algotrader.util.log4j.Log4JRewriter">
-        <constructor-arg index="0" ref="engineManager"/>
-        <constructor-arg index="1" ref="commonConfig"/>
-    </bean>
-
-    <!-- =========================================== JMX ================================================ -->
-
-   <!-- Diagrams for Management Service (and PropertyConfigurer for java.util.Date)-->
-    <bean class="org.springframework.beans.factory.config.CustomEditorConfigurer">
-        <property name="propertyEditorRegistrars">
-            <list>
-               <bean class="ch.algotrader.util.spring.DatePropertyEditorRegistrar"/>
-            </list>
-        </property>
     </bean>
 
     <!-- ================================= Portfolio Chart Definition======================================= -->
@@ -91,11 +57,5 @@
             </set>
         </property>
     </bean>
-
-    <beans profile="live">
-
-        <bean id="exporter" class="org.springframework.jmx.export.annotation.AnnotationMBeanExporter"/>
-
-    </beans>
 
 </beans>

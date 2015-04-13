@@ -2,6 +2,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:context="http://www.springframework.org/schema/context"
     xmlns:int="http://www.springframework.org/schema/integration"
     xmlns:int-file="http://www.springframework.org/schema/integration/file"
     xmlns:int-mail="http://www.springframework.org/schema/integration/mail"
@@ -9,6 +10,7 @@
     xmlns:util="http://www.springframework.org/schema/util"
     xmlns:jdbc="http://www.springframework.org/schema/jdbc"
     xsi:schemaLocation="http://www.springframework.org/schema/integration/mail http://www.springframework.org/schema/integration/mail/spring-integration-mail-3.0.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd
         http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration-3.0.xsd
         http://www.springframework.org/schema/integration/file http://www.springframework.org/schema/integration/file/spring-integration-file-3.0.xsd
         http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.1.xsd
@@ -16,97 +18,11 @@
         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd
         http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.2.xsd">
 
+    <context:component-scan base-package="ch.algotrader.wiring.server"/>
+
     <!-- =========================================== Task Execution and Scheduling ======================================= -->
 
     <task:executor id="orderPersistExecutor" pool-size="1"/>
-
-    <!-- =========================================== Cache & Config ======================================= -->
-
-    <bean id="cacheManager" class="ch.algotrader.cache.CacheManagerImpl">
-        <property name="genericDao" ref="genericDao"/>
-    </bean>
-
-    <bean id="coreConfig" class="ch.algotrader.config.spring.ConfigBeanFactoryBean">
-        <property name="beanClass" value="ch.algotrader.config.CoreConfig"/>
-    </bean>
-
-    <!-- =========================================== JMX ================================================ -->
-
-    <!--  MBean Server -->
-    <bean id="mbeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean">
-        <property name="locateExistingServerIfPossible" value="true"/>
-    </bean>
-
-    <!-- ============================= Data Source an Transaction Management ============================ -->
-
-    <bean id="hibernateMappingLocations" class="org.springframework.beans.factory.config.ListFactoryBean">
-        <property name="sourceList">
-            <list>
-                <value>classpath*:ch/**/*.hbm.xml</value>
-                <value>classpath*:com/**/*.hbm.xml</value>
-                <value>classpath*:META-INF/**/*.hbm.xml</value>
-            </list>
-         </property>
-    </bean>
-
-    <bean id="hibernateProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-        <property name="properties">
-            <props>
-                <prop key="hibernate.default_batch_fetch_size">16</prop>
-                <prop key="hibernate.cache.use_second_level_cache">true</prop>
-                <prop key="hibernate.cache.use_query_cache">true</prop>
-                <prop key="hibernate.cache.region.factory_class">org.hibernate.cache.ehcache.EhCacheRegionFactory</prop>
-                <prop key="hibernate.cache.query_cache_factory">org.hibernate.cache.internal.StandardQueryCacheFactory</prop>
-            </props>
-        </property>
-    </bean>
-
-    <bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
-        <property name="dataSource" ref="dataSource"/>
-        <property name="mappingLocations" ref="hibernateMappingLocations"/>
-        <property name="hibernateProperties" ref="hibernateProperties"/>
-    </bean>
-
-    <bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"/>
-
-    <bean id="transactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
-        <property name="sessionFactory" ref="sessionFactory"/>
-    </bean>
-
-    <bean id="txTemplate" class="org.springframework.transaction.support.TransactionTemplate">
-        <property name="transactionManager" ref="transactionManager"/>
-    </bean>
-
-    <bean id="genericDao" class="ch.algotrader.hibernate.GenericDao">
-        <constructor-arg index="0" ref="sessionFactory"/>
-        <constructor-arg index="1" ref="txTemplate"/>
-    </bean>
-
-    <!-- =================================== Esper Engines  ========================================= -->
-
-    <bean id="serverEngine" class="ch.algotrader.esper.EngineFactoryBean">
-        <property name="strategyName" value="SERVER"/>
-        <property name="configResource" value="esper-core.cfg.xml" />
-        <property name="initModuleList">
-            <list>
-                <value>market-data</value>
-                <value>combination</value>
-                <value>current-values</value>
-                <value>market-data-simulation</value>
-                <value>trades</value>
-                <value>portfolio</value>
-                <value>performance</value>
-                <value>algo-slicing</value>
-                <value>ib</value>
-            </list>
-        </property>
-        <property name="configParams" ref="configParams"/>
-    </bean>
-
-    <bean id="lifecycleManager" class="ch.algotrader.lifecycle.LifecycleManagerImpl">
-        <constructor-arg index="0" ref="engineManager"/>
-        <constructor-arg index="1" ref="eventDispatcher"/>
-    </bean>
 
     <!-- Pooled DataSource (for production use) -->
     <beans profile="pooledDataSource">
