@@ -38,7 +38,7 @@ import ch.algotrader.config.spring.DefaultSystemConfigProvider;
  * Common framework configuration.
  */
 @Configuration
-public class ConfigParamsWiring {
+public class CommonConfigWiring {
 
     @Bean(name = "configParams")
     public ConfigParams createConfigParams(final ResourcePatternResolver resourceResolver) throws Exception {

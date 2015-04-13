@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.lang.annotation.Annotation;
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,6 +32,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -47,6 +49,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.ConfigurationOperations;
+import com.espertech.esper.client.ConfigurationVariable;
 import com.espertech.esper.client.EPAdministrator;
 import com.espertech.esper.client.EPOnDemandQueryResult;
 import com.espertech.esper.client.EPPreparedStatement;
@@ -140,6 +143,10 @@ public class EngineImpl extends AbstractEngine {
         this.runModules = runModules;
         this.configParams = configParams;
         this.simulation = configParams.getBoolean("simulation");
+
+        initVariables(configuration, configParams);
+        configuration.getVariables().get("strategyName").setInitializationValue(strategyName);
+
         this.serviceProvider = EPServiceProviderManager.getProvider(engineName, configuration);
 
         // must send time event before first schedule pattern
@@ -147,6 +154,32 @@ public class EngineImpl extends AbstractEngine {
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Initialized service provider: " + engineName);
+        }
+    }
+
+    private void initVariables(final Configuration configuration, final ConfigParams configParams) {
+
+        Map<String, ConfigurationVariable> variables = configuration.getVariables();
+        for (Map.Entry<String, ConfigurationVariable> entry : variables.entrySet()) {
+            String variableName = entry.getKey().replace("_", ".");
+            String value = configParams.getString(variableName);
+            if (value != null) {
+                String type = entry.getValue().getType();
+                try {
+                    Class clazz = Class.forName(type);
+                    Object typedObj;
+                    if (clazz.isEnum()) {
+                        typedObj = Enum.valueOf(clazz, value);
+                    } else if (clazz == BigDecimal.class) {
+                        typedObj = new BigDecimal(value);
+                    } else {
+                        typedObj = JavaClassHelper.parse(clazz, value);
+                    }
+                    entry.getValue().setInitializationValue(typedObj);
+                } catch (ClassNotFoundException ex) {
+                    throw new InternalEngineException("Unknown variable type: " + type);
+                }
+            }
         }
     }
 

@@ -33,7 +33,7 @@ import org.springframework.jmx.export.annotation.AnnotationMBeanExporter;
  * Common framework configuration.
  */
 @Configuration
-public class JMXWiring {
+public class CommonJMXWiring {
 
     @Bean(name = "customEditorConfigurer")
     public static CustomEditorConfigurer createCustomEditorConfigurer() {

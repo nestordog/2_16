@@ -49,7 +49,7 @@ public class WiringTest {
     public void testCommonConfigWiring() throws Exception {
 
         AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
-        context.register(ConfigParamsWiring.class);
+        context.register(CommonConfigWiring.class);
         context.refresh();
 
         Assert.assertNotNull(context.getBean(ConfigParams.class));
@@ -73,7 +73,7 @@ public class WiringTest {
         Strategy strategy = new StrategyImpl();
         Mockito.when(lookupService.getStrategyByName("someStrategy")).thenReturn(strategy);
 
-        context.register(ConfigParamsWiring.class, EngineManagerWiring.class);
+        context.register(CommonConfigWiring.class, EngineManagerWiring.class);
         context.refresh();
         Assert.assertNotNull(context.getBean(EngineManager.class));
 
@@ -90,7 +90,7 @@ public class WiringTest {
         LifecycleEventListener lifecycleEventListener = Mockito.mock(LifecycleEventListener.class);
         context.getDefaultListableBeanFactory().registerSingleton("lifecycleEventListener", lifecycleEventListener);
 
-        context.register(ConfigParamsWiring.class, EngineManagerWiring.class, EventDispatchWiring.class);
+        context.register(CommonConfigWiring.class, EngineManagerWiring.class, EventDispatchWiring.class);
         context.refresh();
 
         EventListenerRegistry registry = context.getBean(EventListenerRegistry.class);
