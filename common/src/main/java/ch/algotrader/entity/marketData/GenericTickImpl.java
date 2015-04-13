@@ -18,9 +18,10 @@
 package ch.algotrader.entity.marketData;
 
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import ch.algotrader.enumeration.Direction;
+import ch.algotrader.util.DateTimeUtil;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -30,8 +31,6 @@ import ch.algotrader.enumeration.Direction;
 public class GenericTickImpl extends GenericTick {
 
     private static final long serialVersionUID = 6171811094429421819L;
-
-    private static final SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy kk:mm:ss SSS");
 
     @Override
     public BigDecimal getCurrentValue() {
@@ -57,8 +56,11 @@ public class GenericTickImpl extends GenericTick {
         StringBuilder buffer = new StringBuilder();
 
         buffer.append(getSecurity());
-        buffer.append(",");
-        buffer.append(getDateTime() != null ? format.format(getDateTime()) : null);
+        Date date = getDateTime();
+        if (date != null) {
+            buffer.append(",");
+            DateTimeUtil.formatLocalZone(date.toInstant(), buffer);
+        }
         buffer.append(",");
         buffer.append(getTickType());
         buffer.append("=");

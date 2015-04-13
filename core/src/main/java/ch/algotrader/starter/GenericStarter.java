@@ -18,12 +18,13 @@
 package ch.algotrader.starter;
 
 import java.lang.reflect.Method;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Date;
 import java.util.StringTokenizer;
 
 import ch.algotrader.ServiceLocator;
+import ch.algotrader.util.DateTimeLegacy;
 
 /**
  * Generic Starter Class that can be used to invoke any service that has String, Integer, Double or Date based parameters
@@ -38,8 +39,8 @@ import ch.algotrader.ServiceLocator;
  */
 public class GenericStarter {
 
-    private static final SimpleDateFormat dayFormat = new SimpleDateFormat("dd.MM.yy");
-    private static final SimpleDateFormat hourFormat = new SimpleDateFormat("dd.MM.yy hh:mm:ss");
+    private static final DateTimeFormatter dayFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static final DateTimeFormatter hourFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public static void main(String[] args) throws Exception {
 
@@ -92,11 +93,11 @@ public class GenericStarter {
                         params[i] = Double.valueOf(param);
                     } else if (parameterType.equals(Date.class)) {
                         try {
-                            params[i] = hourFormat.parse(param);
-                        } catch (ParseException e) {
+                            params[i] = DateTimeLegacy.parseAsLocalDateTime(param);
+                        } catch (DateTimeParseException e) {
                             try {
-                                params[i] = dayFormat.parse(param);
-                            } catch (ParseException e1) {
+                                params[i] = DateTimeLegacy.parseAsLocalDate(param);
+                            } catch (DateTimeParseException e1) {
                                 throw new IllegalStateException(e1);
                             }
                         }

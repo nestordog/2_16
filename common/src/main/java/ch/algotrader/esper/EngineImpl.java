@@ -24,7 +24,6 @@ import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.lang.annotation.Annotation;
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -98,6 +97,7 @@ import ch.algotrader.esper.callback.TickCallback;
 import ch.algotrader.esper.callback.TimerCallback;
 import ch.algotrader.esper.callback.TradeCallback;
 import ch.algotrader.esper.io.CustomSender;
+import ch.algotrader.util.DateTimeUtil;
 import ch.algotrader.util.collection.CollectionUtil;
 import ch.algotrader.util.metric.MetricsUtil;
 
@@ -112,7 +112,6 @@ public class EngineImpl extends AbstractEngine {
 
     private static final Logger LOGGER = LogManager.getLogger(EngineImpl.class);
     private static final String newline = System.getProperty("line.separator");
-    private static final SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd_kkmmss");
 
     private final DependencyLookup dependencyLookup;
     private final String[] initModules;
@@ -735,7 +734,7 @@ public class EngineImpl extends AbstractEngine {
     @Override
     public void addTimerCallback(Date dateTime, String name, TimerCallback callback) {
 
-        String alias = "ON_TIMER_" + format.format(dateTime) + (name != null ? "_" + name : "");
+        String alias = "ON_TIMER_" + DateTimeUtil.formatAsGMT(dateTime.toInstant()).replace(" ", "_") + (name != null ? "_" + name : "");
 
         Calendar cal = Calendar.getInstance();
         cal.setTime(dateTime);

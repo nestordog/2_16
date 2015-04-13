@@ -45,6 +45,7 @@ import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.service.LookupService;
+import ch.algotrader.util.DateTimeLegacy;
 import quickfix.field.ClOrdID;
 import quickfix.field.ExecType;
 import quickfix.field.OrdStatus;
@@ -98,7 +99,7 @@ public class TestCNXFixOrderMessageHandler {
         Assert.assertEquals(Status.SUBMITTED, orderStatus1.getStatus());
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(0, orderStatus1.getFilledQuantity());
-        Assert.assertEquals(FixTestUtils.parseDateTime("20140722-19:17:24.000"), orderStatus1.getExtDateTime());
+        Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2014-07-22 19:17:24.000"), orderStatus1.getExtDateTime());
         Assert.assertEquals(null, orderStatus1.getLastPrice());
         Assert.assertEquals(null, orderStatus1.getAvgPrice());
     }
@@ -148,7 +149,7 @@ public class TestCNXFixOrderMessageHandler {
         Assert.assertEquals(Status.EXECUTED, orderStatus1.getStatus());
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(2000L, orderStatus1.getFilledQuantity());
-        Assert.assertEquals(FixTestUtils.parseDateTime("20140722-19:17:24.000"), orderStatus1.getExtDateTime());
+        Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2014-07-22 19:17:24.000"), orderStatus1.getExtDateTime());
         Assert.assertEquals(new BigDecimal("1.34666"), orderStatus1.getLastPrice());
         Assert.assertEquals(new BigDecimal("1.34666"), orderStatus1.getAvgPrice());
 
@@ -157,7 +158,7 @@ public class TestCNXFixOrderMessageHandler {
         Fill fill1 = (Fill) event2;
         Assert.assertEquals("B2014203091ZN00", fill1.getExtId());
         Assert.assertSame(order, fill1.getOrder());
-        Assert.assertEquals(FixTestUtils.parseDateTime("20140722-19:17:24.000"), fill1.getExtDateTime());
+        Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2014-07-22 19:17:24.000"), fill1.getExtDateTime());
         Assert.assertEquals(Side.BUY, fill1.getSide());
         Assert.assertEquals(2000L, fill1.getQuantity());
         Assert.assertEquals(new BigDecimal("1.34666"), fill1.getPrice());
@@ -217,7 +218,7 @@ public class TestCNXFixOrderMessageHandler {
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(0, orderStatus1.getFilledQuantity());
         Assert.assertEquals(null, order.getExtId());
-        Assert.assertEquals(FixTestUtils.parseDateTime("20140723-15:42:06.266"), orderStatus1.getExtDateTime());
+        Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2014-07-23 15:42:06.266"), orderStatus1.getExtDateTime());
         Assert.assertEquals(null, orderStatus1.getLastPrice());
         Assert.assertEquals(null, orderStatus1.getAvgPrice());
     }
@@ -260,7 +261,7 @@ public class TestCNXFixOrderMessageHandler {
         Assert.assertEquals(Status.CANCELED, orderStatus1.getStatus());
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(0, orderStatus1.getFilledQuantity());
-        Assert.assertEquals(FixTestUtils.parseDateTime("20140723-16:21:32.000"), orderStatus1.getExtDateTime());
+        Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2014-07-23 16:21:32.000"), orderStatus1.getExtDateTime());
         Assert.assertEquals(null, orderStatus1.getLastPrice());
         Assert.assertEquals(null, orderStatus1.getAvgPrice());
     }
@@ -304,7 +305,7 @@ public class TestCNXFixOrderMessageHandler {
         Assert.assertEquals(Status.SUBMITTED, orderStatus1.getStatus());
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(0, orderStatus1.getFilledQuantity());
-        Assert.assertEquals(FixTestUtils.parseDateTime("20140723-18:45:46.334"), orderStatus1.getExtDateTime());
+        Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2014-07-23 18:45:46.334"), orderStatus1.getExtDateTime());
         Assert.assertEquals(null, orderStatus1.getLastPrice());
         Assert.assertEquals(null, orderStatus1.getAvgPrice());
     }

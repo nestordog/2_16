@@ -18,12 +18,13 @@
 package ch.algotrader.entity.marketData;
 
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Objects;
 
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.ConfigLocator;
 import ch.algotrader.enumeration.Direction;
+import ch.algotrader.util.DateTimeUtil;
 import ch.algotrader.util.RoundUtil;
 
 /**
@@ -34,8 +35,6 @@ import ch.algotrader.util.RoundUtil;
 public class TickImpl extends Tick {
 
     private static final long serialVersionUID = 7518020445322413106L;
-
-    private static final SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy kk:mm:ss SSS");
 
     /**
      * Note: ticks that are not valid (i.e. low volume) are not fed into esper, so we don't need to check
@@ -107,8 +106,11 @@ public class TickImpl extends Tick {
         StringBuilder buffer = new StringBuilder();
 
         buffer.append(getSecurity());
-        buffer.append(",");
-        buffer.append(getDateTime() != null ? format.format(getDateTime()) : null);
+        Date date = getDateTime();
+        if (date != null) {
+            buffer.append(",");
+            DateTimeUtil.formatLocalZone(date.toInstant(), buffer);
+        }
         buffer.append(",last=");
         buffer.append(getLast());
         buffer.append(",lastDateTime=");

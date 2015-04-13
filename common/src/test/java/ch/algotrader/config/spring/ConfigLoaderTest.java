@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.config.spring;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,8 +25,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
-
-import ch.algotrader.util.Consts;
 
 /**
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
@@ -40,7 +39,7 @@ public class ConfigLoaderTest {
 
             return null;
         }
-        return new ByteArrayResource(s.getBytes(Consts.ISO_8859_1));
+        return new ByteArrayResource(s.getBytes(StandardCharsets.ISO_8859_1));
     }
 
     @Test

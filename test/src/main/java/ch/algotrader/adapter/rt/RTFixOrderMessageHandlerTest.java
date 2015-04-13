@@ -18,7 +18,6 @@
 package ch.algotrader.adapter.rt;
 
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -60,7 +59,7 @@ import ch.algotrader.esper.AbstractEngine;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.service.LookupService;
-import ch.algotrader.util.Consts;
+import ch.algotrader.util.DateTimeLegacy;
 import quickfix.DefaultSessionFactory;
 import quickfix.FileStoreFactory;
 import quickfix.LogFactory;
@@ -74,7 +73,6 @@ import quickfix.fix44.OrderCancelRequest;
 
 public class RTFixOrderMessageHandlerTest {
 
-    private SimpleDateFormat dateFormat;
     private LinkedBlockingQueue<Object> eventQueue;
     private EventDispatcher eventDispatcher;
     private LookupService lookupService;
@@ -86,8 +84,6 @@ public class RTFixOrderMessageHandlerTest {
     @Before
     public void setup() throws Exception {
 
-        this.dateFormat = new SimpleDateFormat("yyyy-MM");
-        this.dateFormat.setTimeZone(Consts.UTM);
         final LinkedBlockingQueue<Object> queue = new LinkedBlockingQueue<>();
         this.eventQueue = queue;
 
@@ -253,7 +249,7 @@ public class RTFixOrderMessageHandlerTest {
 
         Future future = new FutureImpl();
         future.setSecurityFamily(securityFamily);
-        future.setExpiration(dateFormat.parse("2014-12"));
+        future.setExpiration(DateTimeLegacy.parseAsDateGMT("2014-12-01"));
 
         Account testAccount = new AccountImpl();
         testAccount.setBroker(Broker.RT);

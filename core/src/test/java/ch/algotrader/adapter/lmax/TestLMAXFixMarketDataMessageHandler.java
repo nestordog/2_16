@@ -19,7 +19,6 @@ package ch.algotrader.adapter.lmax;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.text.DateFormat;
 import java.util.List;
 
 import org.junit.Assert;
@@ -33,6 +32,7 @@ import org.mockito.MockitoAnnotations;
 
 import ch.algotrader.adapter.fix.fix44.FixTestUtils;
 import ch.algotrader.esper.Engine;
+import ch.algotrader.util.DateTimeLegacy;
 import ch.algotrader.vo.AskVO;
 import ch.algotrader.vo.BidVO;
 import quickfix.DataDictionary;
@@ -84,15 +84,13 @@ public class TestLMAXFixMarketDataMessageHandler {
         Assert.assertNotNull(events);
         Assert.assertEquals(2, events.size());
 
-        DateFormat dateTimeParser = FixTestUtils.getSimpleDateTimeFormat();
-
         Object event1 = events.get(0);
         Assert.assertTrue(event1 instanceof BidVO);
         BidVO bid = (BidVO) event1;
         Assert.assertEquals("4001", bid.getTickerId());
         Assert.assertEquals(new BigDecimal("1.39043"), new BigDecimal(bid.getBid()).setScale(5, RoundingMode.HALF_EVEN));
         Assert.assertEquals(450000, bid.getVolBid());
-        Assert.assertEquals(dateTimeParser.parse("20140313-16:59:27.683"), bid.getDateTime());
+        Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2014-03-13 16:59:27.683"), bid.getDateTime());
 
         Object event2 = events.get(1);
         Assert.assertTrue(event2 instanceof AskVO);
@@ -101,7 +99,7 @@ public class TestLMAXFixMarketDataMessageHandler {
         Assert.assertEquals("4001", ask.getTickerId());
         Assert.assertEquals(new BigDecimal("1.39049"), new BigDecimal(ask.getAsk()).setScale(5, RoundingMode.HALF_EVEN));
         Assert.assertEquals(2450000, ask.getVolAsk());
-        Assert.assertEquals(dateTimeParser.parse("20140313-16:59:27.683"), ask.getDateTime());
+        Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2014-03-13 16:59:27.683"), ask.getDateTime());
     }
 
     @Test
@@ -121,8 +119,6 @@ public class TestLMAXFixMarketDataMessageHandler {
         Assert.assertNotNull(events);
         Assert.assertEquals(2, events.size());
 
-        DateFormat dateTimeParser = FixTestUtils.getSimpleDateTimeFormat();
-
         Object event1 = events.get(0);
         Assert.assertTrue(event1 instanceof BidVO);
         BidVO bid = (BidVO) event1;
@@ -132,7 +128,7 @@ public class TestLMAXFixMarketDataMessageHandler {
         Assert.assertTrue(event2 instanceof AskVO);
 
         AskVO ask = (AskVO) event2;
-        Assert.assertEquals(dateTimeParser.parse("20140313-16:59:27.683"), ask.getDateTime());
+        Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2014-03-13 16:59:27.683"), ask.getDateTime());
     }
 
     @Test(expected = FieldNotFound.class)

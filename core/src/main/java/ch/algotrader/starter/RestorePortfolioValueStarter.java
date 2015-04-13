@@ -18,15 +18,14 @@
 
 package ch.algotrader.starter;
 
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.service.LookupService;
 import ch.algotrader.service.PortfolioService;
+import ch.algotrader.util.DateTimeLegacy;
 
 /**
  * Starter Class to restores all PortfolioValues of a specified Strategy
@@ -37,8 +36,6 @@ import ch.algotrader.service.PortfolioService;
  */
 public class RestorePortfolioValueStarter {
 
-    private static final DateFormat formatter = new SimpleDateFormat("dd.MM.yyyy_HH:mm:ss");
-
     public static void main(String[] args) throws ParseException {
 
         ServiceLocator.instance().init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
@@ -47,8 +44,8 @@ public class RestorePortfolioValueStarter {
 
         Strategy strategy = lookupService.getStrategyByName(args[0]);
 
-        Date fromDate = formatter.parse(args[1]);
-        Date toDate = formatter.parse(args[2]);
+        Date fromDate = DateTimeLegacy.parseAsLocalDateTime(args[1]);
+        Date toDate = DateTimeLegacy.parseAsLocalDateTime(args[2]);
 
         portfolioService.restorePortfolioValues(strategy, fromDate, toDate);
 

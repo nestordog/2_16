@@ -19,10 +19,10 @@ package ch.algotrader.entity.trade;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import ch.algotrader.enumeration.Side;
+import ch.algotrader.util.DateTimeUtil;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -32,8 +32,6 @@ import ch.algotrader.enumeration.Side;
 public class Fill implements Serializable {
 
     private static final long serialVersionUID = 1619681349145226990L;
-
-    private static final SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy kk:mm:ss");
 
     private Date dateTime;
 
@@ -229,12 +227,14 @@ public class Fill implements Serializable {
     public String toString() {
 
         StringBuilder buffer = new StringBuilder();
-
-        buffer.append(format.format(getExtDateTime()));
-        buffer.append(",");
         buffer.append(getSide());
         buffer.append(",");
         buffer.append(getQuantity());
+        Date extDateTime = getExtDateTime();
+        if (extDateTime != null) {
+            buffer.append(",");
+            DateTimeUtil.formatLocalZone(extDateTime.toInstant(), buffer);
+        }
 
         if (getOrder() != null) {
             buffer.append(",");

@@ -21,8 +21,8 @@ import java.io.EOFException;
 import java.io.StringReader;
 import java.math.BigDecimal;
 import java.net.SocketException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -53,6 +53,7 @@ import ch.algotrader.esper.Engine;
 import ch.algotrader.service.HistoricalDataServiceException;
 import ch.algotrader.service.LookupService;
 import ch.algotrader.service.ib.IBNativeMarketDataService;
+import ch.algotrader.util.DateTimeLegacy;
 import ch.algotrader.util.PriceUtil;
 
 /**
@@ -66,8 +67,8 @@ import ch.algotrader.util.PriceUtil;
 public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
 
     private static final Logger logger = LogManager.getLogger(DefaultIBMessageHandler.class.getName());
-    private static final SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyyMMdd  HH:mm:ss");
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+    private static final DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("yyyyMMdd  HH:mm:ss");
+    private static final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyyMMdd");
 
     private int clientId;
     private IBSessionLifecycle fixSessionStateHolder;
@@ -238,13 +239,13 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
             return;
         }
 
-        Date date = null;
+        Date date;
         try {
-            date = dateTimeFormat.parse(dateString);
-        } catch (ParseException e) {
+            date = DateTimeLegacy.parseAsDateTimeGMT(dateString, dateTimeFormat);
+        } catch (DateTimeParseException e) {
             try {
-                date = dateFormat.parse(dateString);
-            } catch (ParseException e1) {
+                date = DateTimeLegacy.parseAsDateTimeGMT(dateString, dateFormat);
+            } catch (DateTimeParseException e1) {
                 throw new RuntimeException(e1);
             }
         }

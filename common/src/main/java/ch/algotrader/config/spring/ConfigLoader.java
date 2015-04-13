@@ -20,6 +20,7 @@ package ch.algotrader.config.spring;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -28,8 +29,6 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.util.Assert;
-
-import ch.algotrader.util.Consts;
 
 /**
  * Configuration resource loader.
@@ -51,7 +50,7 @@ public final class ConfigLoader {
 
         try (InputStream inputStream = resource.getInputStream()) {
             Properties props = new Properties();
-            props.load(new InputStreamReader(inputStream, Consts.UTF_8));
+            props.load(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
 
             for (Map.Entry<Object, Object> entry : props.entrySet()) {
                 String paramName = (String) entry.getKey();

@@ -18,13 +18,16 @@
 package ch.algotrader.adapter.ib;
 
 import java.lang.reflect.Field;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
 import org.apache.commons.beanutils.ConvertUtilsBean;
+
+import com.ib.client.Contract;
+import com.ib.client.Order;
+import com.ib.client.TagValue;
 
 import ch.algotrader.config.IBConfig;
 import ch.algotrader.entity.trade.LimitOrderI;
@@ -34,12 +37,9 @@ import ch.algotrader.entity.trade.StopOrderI;
 import ch.algotrader.enumeration.OrderPropertyType;
 import ch.algotrader.enumeration.TIF;
 import ch.algotrader.service.ib.IBNativeOrderServiceException;
+import ch.algotrader.util.DateTimeLegacy;
 import ch.algotrader.util.FieldUtil;
 import ch.algotrader.util.PriceUtil;
-
-import com.ib.client.Contract;
-import com.ib.client.Order;
-import com.ib.client.TagValue;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -48,7 +48,7 @@ import com.ib.client.TagValue;
  */
 public class DefaultIBOrderMessageFactory implements IBOrderMessageFactory {
 
-    private static final DateFormat format = new SimpleDateFormat("yyyyMMdd HH:mm:ss");
+    private static final DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyyMMdd HH:mm:ss");
 
     private final IBConfig iBConfig;
     private final ConvertUtilsBean convertUtils;
@@ -140,7 +140,7 @@ public class DefaultIBOrderMessageFactory implements IBOrderMessageFactory {
 
             // set the TIF-Date
             if (order.getTifDateTime() != null) {
-                ibOrder.m_goodTillDate = format.format(order.getTifDateTime());
+                ibOrder.m_goodTillDate = format.format(DateTimeLegacy.toGMTDate(order.getTifDateTime()));
             }
         }
 

@@ -46,6 +46,7 @@ import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.service.LookupService;
+import ch.algotrader.util.DateTimeLegacy;
 import quickfix.DataDictionary;
 import quickfix.SessionID;
 import quickfix.field.ClOrdID;
@@ -126,7 +127,7 @@ public class TestFXCMFixOrderMessageHandler {
         Assert.assertEquals(Status.SUBMITTED, orderStatus1.getStatus());
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(0, orderStatus1.getFilledQuantity());
-        Assert.assertEquals(FixTestUtils.parseDateTime("20140327-20:04:21.000"), orderStatus1.getExtDateTime());
+        Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2014-03-27 20:04:21.000"), orderStatus1.getExtDateTime());
         Assert.assertEquals(new BigDecimal("1.37432"), orderStatus1.getLastPrice());
         Assert.assertEquals(new BigDecimal("1.37432"), orderStatus1.getAvgPrice());
     }
@@ -170,7 +171,7 @@ public class TestFXCMFixOrderMessageHandler {
         Assert.assertEquals(Status.EXECUTED, orderStatus1.getStatus());
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(1000L, orderStatus1.getFilledQuantity());
-        Assert.assertEquals(FixTestUtils.parseDateTime("20140327-20:04:21.000"), orderStatus1.getExtDateTime());
+        Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2014-03-27 20:04:21.000"), orderStatus1.getExtDateTime());
         Assert.assertEquals(new BigDecimal("1.37432"), orderStatus1.getLastPrice());
         Assert.assertEquals(new BigDecimal("1.37432"), orderStatus1.getAvgPrice());
 
@@ -179,7 +180,7 @@ public class TestFXCMFixOrderMessageHandler {
         Fill fill1 = (Fill) event2;
         Assert.assertEquals(null, fill1.getExtId());
         Assert.assertSame(order, fill1.getOrder());
-        Assert.assertEquals(FixTestUtils.parseDateTime("20140327-20:04:21.000"), fill1.getExtDateTime());
+        Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2014-03-27 20:04:21.000"), fill1.getExtDateTime());
         Assert.assertEquals(Side.BUY, fill1.getSide());
         Assert.assertEquals(1000L, fill1.getQuantity());
         Assert.assertEquals(new BigDecimal("1.37432"), fill1.getPrice());
@@ -224,7 +225,7 @@ public class TestFXCMFixOrderMessageHandler {
         Assert.assertEquals(Status.EXECUTED, orderStatus1.getStatus());
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(1000L, orderStatus1.getFilledQuantity());
-        Assert.assertEquals(FixTestUtils.parseDateTime("20140327-20:04:21.000"), orderStatus1.getExtDateTime());
+        Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2014-03-27 20:04:21.000"), orderStatus1.getExtDateTime());
         Assert.assertEquals(new BigDecimal("1.374"), orderStatus1.getLastPrice());
         Assert.assertEquals(new BigDecimal("1.374"), orderStatus1.getAvgPrice());
     }
@@ -284,7 +285,7 @@ public class TestFXCMFixOrderMessageHandler {
         Assert.assertEquals(Status.REJECTED, orderStatus1.getStatus());
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(0L, orderStatus1.getFilledQuantity());
-        Assert.assertEquals(FixTestUtils.parseDateTime("20140328-15:59:10.000"), orderStatus1.getExtDateTime());
+        Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2014-03-28 15:59:10.000"), orderStatus1.getExtDateTime());
         Assert.assertEquals(null, orderStatus1.getLastPrice());
         Assert.assertEquals(null, orderStatus1.getAvgPrice());
     }
@@ -357,7 +358,7 @@ public class TestFXCMFixOrderMessageHandler {
         Assert.assertEquals(Status.CANCELED, orderStatus1.getStatus());
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(0, orderStatus1.getFilledQuantity());
-        Assert.assertEquals(FixTestUtils.parseDateTime("20140328-16:37:34.000"), orderStatus1.getExtDateTime());
+        Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2014-03-28 16:37:34.000"), orderStatus1.getExtDateTime());
     }
 
     @Test
@@ -399,7 +400,7 @@ public class TestFXCMFixOrderMessageHandler {
         Assert.assertEquals(Status.SUBMITTED, orderStatus1.getStatus());
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(0, orderStatus1.getFilledQuantity());
-        Assert.assertEquals(FixTestUtils.parseDateTime("20140328-17:17:56.000"), orderStatus1.getExtDateTime());
+        Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2014-03-28 17:17:56.000"), orderStatus1.getExtDateTime());
     }
 
     @Test

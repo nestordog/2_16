@@ -18,14 +18,12 @@
 package ch.algotrader.adapter.cnx;
 
 import java.math.BigDecimal;
-import java.text.DateFormat;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import ch.algotrader.adapter.fix.FixApplicationException;
-import ch.algotrader.adapter.fix.fix44.FixTestUtils;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.AccountImpl;
 import ch.algotrader.entity.security.Forex;
@@ -46,6 +44,7 @@ import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.TIF;
+import ch.algotrader.util.DateTimeLegacy;
 import quickfix.IntField;
 import quickfix.field.ClOrdID;
 import quickfix.field.ExpireTime;
@@ -698,20 +697,18 @@ public class TestCNXOrderMessageFactory {
         forex.setBaseCurrency(Currency.EUR);
         forex.setSecurityFamily(family);
 
-        DateFormat dateFormat = FixTestUtils.getSimpleDateTimeFormat();
-
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(forex);
         order.setSide(Side.BUY);
         order.setQuantity(2000);
         order.setTif(TIF.GTD);
-        order.setTifDateTime(dateFormat.parse("20140313-16:00:00.000"));
+        order.setTifDateTime(DateTimeLegacy.parseAsDateTimeMilliGMT("2014-03-13 16:00:00.000"));
 
         NewOrderSingle message = this.requestFactory.createNewOrderMessage(order, "test-id");
 
         Assert.assertNotNull(message);
         Assert.assertEquals(new TimeInForce(TimeInForce.GOOD_TILL_DATE), message.getTimeInForce());
-        Assert.assertEquals(new ExpireTime(dateFormat.parse("20140313-16:00:00.000")), message.getExpireTime());
+        Assert.assertEquals(new ExpireTime(DateTimeLegacy.parseAsDateTimeMilliGMT("2014-03-13 16:00:00.000")), message.getExpireTime());
     }
 
     @Test(expected = FixApplicationException.class)

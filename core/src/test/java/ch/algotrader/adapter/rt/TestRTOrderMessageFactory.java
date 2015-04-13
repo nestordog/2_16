@@ -18,12 +18,13 @@
 package ch.algotrader.adapter.rt;
 
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import ch.algotrader.util.DateTimeLegacy;
 import quickfix.field.CFICode;
 import quickfix.field.ClOrdID;
 import quickfix.field.ContractMultiplier;
@@ -72,6 +73,7 @@ import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.TIF;
+import ch.algotrader.util.DateTimeUtil;
 
 public class TestRTOrderMessageFactory {
 
@@ -86,8 +88,6 @@ public class TestRTOrderMessageFactory {
     @Test
     public void testMarketOrderOption() throws Exception {
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-
         OptionFamily family = new OptionFamilyImpl();
         family.setCurrency(Currency.BRL);
         family.setSymbolRoot("STUFF");
@@ -99,7 +99,7 @@ public class TestRTOrderMessageFactory {
         option.setType(OptionType.CALL);
         option.setSecurityFamily(family);
         option.setStrike(new BigDecimal("0.5"));
-        option.setExpiration(dateFormat.parse("2014-12-31"));
+        option.setExpiration(DateTimeLegacy.parseAsDateGMT("2014-12-31"));
 
         Account account = new AccountImpl();
         account.setBroker(Broker.RT);
@@ -136,8 +136,6 @@ public class TestRTOrderMessageFactory {
     @Test
     public void testMarketOrderFuture() throws Exception {
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-
         SecurityFamily family = new SecurityFamilyImpl();
         family.setCurrency(Currency.BRL);
         family.setSymbolRoot("STUFF");
@@ -145,7 +143,7 @@ public class TestRTOrderMessageFactory {
         Future future = new FutureImpl();
         future.setSymbol("SOME_STUFF");
         future.setSecurityFamily(family);
-        future.setExpiration(dateFormat.parse("2014-12-31"));
+        future.setExpiration(DateTimeLegacy.parseAsDateGMT("2014-12-31"));
 
         Account account = new AccountImpl();
         account.setBroker(Broker.RT);
@@ -415,8 +413,6 @@ public class TestRTOrderMessageFactory {
     @Test
     public void testStopLimitOrderStockGoodUntil() throws Exception {
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-
         SecurityFamily family = new SecurityFamilyImpl();
         family.setCurrency(Currency.USD);
         family.setTickSizePattern("0<0.1");
@@ -437,7 +433,7 @@ public class TestRTOrderMessageFactory {
         order.setLimit(new BigDecimal("20.0"));
         order.setStop(new BigDecimal("30.0"));
         order.setTif(TIF.GTD);
-        order.setTifDateTime(dateFormat.parse("2014-07-01"));
+        order.setTifDateTime(DateTimeLegacy.parseAsDateGMT("2014-07-01"));
 
         NewOrderSingle message = this.requestFactory.createNewOrderMessage(order, "test-id");
 
@@ -453,7 +449,7 @@ public class TestRTOrderMessageFactory {
         Assert.assertEquals(new Price(20.0d), message.getPrice());
         Assert.assertEquals(new StopPx(30.0d), message.getStopPx());
         Assert.assertEquals(new TimeInForce(TimeInForce.GOOD_TILL_DATE), message.getTimeInForce());
-        Assert.assertEquals(new ExpireTime(dateFormat.parse("2014-07-01")), message.getExpireTime());
+        Assert.assertEquals(new ExpireTime(DateTimeLegacy.parseAsDateGMT("2014-07-01")), message.getExpireTime());
         //RT specific
         Assert.assertEquals(new HandlInst(HandlInst.AUTOMATED_EXECUTION_ORDER_PUBLIC), message.getHandlInst());
         Assert.assertEquals(new LocateReqd(true), message.getLocateReqd());
@@ -462,8 +458,6 @@ public class TestRTOrderMessageFactory {
 
     @Test
     public void testModifyMarketOrderOption() throws Exception {
-
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
         SecurityFamily family = new SecurityFamilyImpl();
         family.setCurrency(Currency.BRL);
@@ -475,7 +469,7 @@ public class TestRTOrderMessageFactory {
         option.setType(OptionType.CALL);
         option.setSecurityFamily(family);
         option.setStrike(new BigDecimal("0.5"));
-        option.setExpiration(dateFormat.parse("2014-12-31"));
+        option.setExpiration(DateTimeLegacy.parseAsDateGMT("2014-12-31"));
 
         Account account = new AccountImpl();
         account.setBroker(Broker.RT);
@@ -510,8 +504,6 @@ public class TestRTOrderMessageFactory {
     @Test
     public void testModifyMarketOrderFuture() throws Exception {
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-
         SecurityFamily family = new SecurityFamilyImpl();
         family.setCurrency(Currency.BRL);
         family.setSymbolRoot("STUFF");
@@ -519,7 +511,7 @@ public class TestRTOrderMessageFactory {
         Future future = new FutureImpl();
         future.setSymbol("SOME_STUFF");
         future.setSecurityFamily(family);
-        future.setExpiration(dateFormat.parse("2014-12-31"));
+        future.setExpiration(DateTimeLegacy.parseAsDateGMT("2014-12-31"));
 
         Account account = new AccountImpl();
         account.setBroker(Broker.RT);
@@ -786,8 +778,6 @@ public class TestRTOrderMessageFactory {
     @Test
     public void testModifyStopLimitOrderStockGoodUntil() throws Exception {
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-
         SecurityFamily family = new SecurityFamilyImpl();
         family.setCurrency(Currency.USD);
         family.setTickSizePattern("0<0.1");
@@ -809,7 +799,7 @@ public class TestRTOrderMessageFactory {
         order.setLimit(new BigDecimal("20.0"));
         order.setStop(new BigDecimal("30.0"));
         order.setTif(TIF.GTD);
-        order.setTifDateTime(dateFormat.parse("2014-07-01"));
+        order.setTifDateTime(DateTimeLegacy.parseAsDateGMT("2014-07-01"));
 
         OrderCancelReplaceRequest message = this.requestFactory.createModifyOrderMessage(order, "test-id");
 
@@ -823,7 +813,7 @@ public class TestRTOrderMessageFactory {
         Assert.assertEquals(new Price(20.0d), message.getPrice());
         Assert.assertEquals(new StopPx(30.0d), message.getStopPx());
         Assert.assertEquals(new TimeInForce(TimeInForce.GOOD_TILL_DATE), message.getTimeInForce());
-        Assert.assertEquals(new ExpireTime(dateFormat.parse("2014-07-01")), message.getExpireTime());
+        Assert.assertEquals(new ExpireTime(DateTimeLegacy.parseAsDateGMT("2014-07-01")), message.getExpireTime());
         //RT specific
         Assert.assertEquals(new HandlInst(HandlInst.AUTOMATED_EXECUTION_ORDER_PUBLIC), message.getHandlInst());
         Assert.assertEquals(new LocateReqd(true), message.getLocateReqd());
@@ -832,8 +822,6 @@ public class TestRTOrderMessageFactory {
 
     @Test
     public void testCancelMarketOrderOption() throws Exception {
-
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
         SecurityFamily family = new SecurityFamilyImpl();
         family.setCurrency(Currency.BRL);
@@ -845,7 +833,7 @@ public class TestRTOrderMessageFactory {
         option.setType(OptionType.CALL);
         option.setSecurityFamily(family);
         option.setStrike(new BigDecimal("0.5"));
-        option.setExpiration(dateFormat.parse("2014-12-31"));
+        option.setExpiration(DateTimeLegacy.parseAsDateGMT("2014-12-31"));
 
         Account account = new AccountImpl();
         account.setBroker(Broker.RT);
@@ -876,8 +864,6 @@ public class TestRTOrderMessageFactory {
     @Test
     public void testCancelMarketOrderFuture() throws Exception {
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-
         SecurityFamily family = new SecurityFamilyImpl();
         family.setCurrency(Currency.BRL);
         family.setSymbolRoot("STUFF");
@@ -885,7 +871,7 @@ public class TestRTOrderMessageFactory {
         Future future = new FutureImpl();
         future.setSymbol("SOME_STUFF");
         future.setSecurityFamily(family);
-        future.setExpiration(dateFormat.parse("2014-12-31"));
+        future.setExpiration(DateTimeLegacy.parseAsDateGMT("2014-12-31"));
 
         Account account = new AccountImpl();
         account.setBroker(Broker.RT);

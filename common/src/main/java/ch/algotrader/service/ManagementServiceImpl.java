@@ -19,8 +19,8 @@ package ch.algotrader.service;
 
 import java.beans.PropertyDescriptor;
 import java.math.BigDecimal;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -67,6 +67,7 @@ import ch.algotrader.enumeration.OrderPropertyType;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.util.BeanUtil;
+import ch.algotrader.util.DateTimeUtil;
 import ch.algotrader.vo.BalanceVO;
 import ch.algotrader.vo.BarVO;
 import ch.algotrader.vo.MarketDataEventVO;
@@ -667,7 +668,7 @@ public class ManagementServiceImpl implements ManagementService {
      * {@inheritDoc}
      */
     @Override
-    @ManagedOperation(description = "Subscribe to the specified Security.    ")
+    @ManagedOperation(description = "Subscribe to the specified Security. ï¿½ ï¿½")
     @ManagedOperationParameters({
             @ManagedOperationParameter(name = "security", description = "<html><ul> <li> securityId (e.g. 123) </li> <li> symbol (e.g. GOOG) </li> <li> isin, prefix with &quot;isin:&quot;, (e.g. &quot;isin:EU0009654078&quot;) </li> <li> bbgid, prefix with &quot;bbgid:&quot;, (e.g. &quot;bbgid:BBG005NHP5P9&quot;) </li> <li> ric, prefix with &quot;ric:&quot;, (e.g. &quot;ric:.SPX&quot;) </li> <li> conid, prefix with &quot;conid:&quot;, (e.g. &quot;conid:12087817&quot;) </li> </ul></html>"),
             @ManagedOperationParameter(name = "feedType", description = "The market data feed to use (e.g. IB, BB or DC)") })
@@ -742,8 +743,9 @@ public class ManagementServiceImpl implements ManagementService {
             obj = value;
         } else if ("DATE".equals(type)) {
             try {
-                obj = (new SimpleDateFormat("dd.MM.yyyy HH:mm:ss")).parse(value);
-            } catch (ParseException ex) {
+                Instant instant = DateTimeUtil.parseLocalDateTime(value, Instant::from);
+                obj = new Date(instant.toEpochMilli());
+            } catch (DateTimeParseException ex) {
                 throw new ManagementServiceException(ex);
             }
         } else if ("BOOLEAN".equals(type)) {

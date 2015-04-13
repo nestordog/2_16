@@ -18,8 +18,7 @@
 package ch.algotrader.service;
 
 import java.math.BigDecimal;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.format.DateTimeParseException;
 import java.util.Date;
 
 import org.apache.commons.lang.Validate;
@@ -34,6 +33,7 @@ import ch.algotrader.enumeration.Status;
 import ch.algotrader.enumeration.TransactionType;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
+import ch.algotrader.util.DateTimeLegacy;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.metric.MetricsUtil;
 
@@ -129,8 +129,8 @@ public class ServerManagementServiceImpl implements ServerManagementService {
 
         Date dateTimeObject;
         try {
-            dateTimeObject = (new SimpleDateFormat("dd.MM.yyyy HH:mm:ss")).parse(dateTime);
-        } catch (ParseException ex) {
+            dateTimeObject = DateTimeLegacy.parseAsDateTimeGMT(dateTime);
+        } catch (DateTimeParseException ex) {
             throw new ServerManagementServiceException(ex);
         }
         String extIdString = !"".equals(extId) ? extId : null;

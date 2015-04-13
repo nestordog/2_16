@@ -21,12 +21,13 @@ import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.time.DateUtils;
 
 import ch.algotrader.entity.marketData.Bar;
+import ch.algotrader.util.DateTimeLegacy;
+import ch.algotrader.util.DateTimeUtil;
 import ch.algotrader.util.DateUtil;
 
 /**
@@ -38,8 +39,6 @@ import ch.algotrader.util.DateUtil;
  */
 public class CsvBarGapFiller {
 
-    private static final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy kk:mm:ss");
     private static final double weekendDiff = 2800;
     private static final String endTime = "23:00";
 
@@ -78,7 +77,8 @@ public class CsvBarGapFiller {
                 if (timeDiff > weekendDiff) {
 
                     // weekend gap
-                    System.out.println(readerFile.getName() + " " + dateFormat.format(newBar.getDateTime()) + " gap of " + timeDiff + " minutes");
+                    System.out.println(readerFile.getName() + " " +
+                            DateTimeUtil.formatLocalDateTime(DateTimeLegacy.toLocalDateTime(newBar.getDateTime())) + " gap of " + timeDiff + " minutes");
 
                     writer.write(lastBar);
 
@@ -89,11 +89,12 @@ public class CsvBarGapFiller {
                     do {
                         bar.setDateTime(DateUtils.addMinutes(bar.getDateTime(), 1));
                         writer.write(bar);
-                    } while (DateUtil.compareTime(bar.getDateTime(), timeFormat.parse(endTime)) < 0);
+                    } while (DateUtil.compareTime(bar.getDateTime(), DateTimeLegacy.parseAsLocalTime(endTime)) < 0);
 
                 } else if (timeDiff == 0) {
 
-                    System.out.println(readerFile.getName() + " " + dateFormat.format(newBar.getDateTime()) + " no gap");
+                    System.out.println(readerFile.getName() + " " +
+                            DateTimeUtil.formatLocalDateTime(DateTimeLegacy.toLocalDateTime(newBar.getDateTime())) + " no gap");
 
                 } else if (timeDiff == 1) {
 

@@ -22,9 +22,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -45,6 +44,7 @@ import org.apache.xpath.XPathAPI;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
+import ch.algotrader.util.DateTimeLegacy;
 import ch.algotrader.util.TidyUtil;
 import ch.algotrader.util.XmlUtil;
 
@@ -57,13 +57,13 @@ import ch.algotrader.util.XmlUtil;
  */
 public class IVolatilityDownloader {
 
-    private static final String end = "07/27/2011";
-    private static final String start = "01/01/2005";
+    private static final String end = "2011-07-27";
+    private static final String start = "2005-01-01";
     private static final String password = "password";
     private static final String username = "username";
 
-    private static final DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
-    private static final DateFormat fileFormat = new SimpleDateFormat("dd-MM-yyyy");
+    private static final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+    private static final DateTimeFormatter fileFormat = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
     public static void main(String[] args) throws HttpException, IOException, TransformerException, ParseException {
 
@@ -72,8 +72,8 @@ public class IVolatilityDownloader {
         // login
         login(httpclient);
 
-        Date startDate = dateFormat.parse(start);
-        Date endDate = dateFormat.parse(end);
+        Date startDate = DateTimeLegacy.parseAsLocalDate(start);
+        Date endDate = DateTimeLegacy.parseAsLocalDate(end);
 
         Date date = startDate;
         while (date.compareTo(endDate) < 0) {
@@ -149,8 +149,8 @@ public class IVolatilityDownloader {
                 new NameValuePair("data_sets","5"),
                 new NameValuePair("min_date","11/03/2000"),
                 new NameValuePair("max_date",end),
-                new NameValuePair("start_date_saved", dateFormat.format(startCal.getTime())),
-                new NameValuePair("end_date_saved", dateFormat.format(endCal.getTime())),
+                new NameValuePair("start_date_saved", dateFormat.format(DateTimeLegacy.toGMTDate(startCal.getTime()))),
+                new NameValuePair("end_date_saved", dateFormat.format(DateTimeLegacy.toGMTDate(endCal.getTime()))),
                 new NameValuePair("freq_type_saved","0"),
                 new NameValuePair("stocks_id","9327"),
                 new NameValuePair("is_sum_show","1"),
@@ -207,7 +207,8 @@ public class IVolatilityDownloader {
                     FileUtils.forceMkdir(parent);
                 }
 
-                try (BufferedInputStream inputStream = new BufferedInputStream(fileGet.getResponseBodyAsStream()); FileOutputStream outputStream = new FileOutputStream(new File(parent, "file-" + fileFormat.format(date) + ".csv"))) {
+                try (BufferedInputStream inputStream = new BufferedInputStream(fileGet.getResponseBodyAsStream()); FileOutputStream outputStream = new FileOutputStream(new File(parent, "file-" +
+                        fileFormat.format(DateTimeLegacy.toGMTDate(date)) + ".csv"))) {
                     int input;
                     while ((input = inputStream.read()) != -1) {
                         outputStream.write(input);

@@ -18,10 +18,11 @@
 package ch.algotrader.entity.marketData;
 
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Objects;
 
 import ch.algotrader.enumeration.Direction;
+import ch.algotrader.util.DateTimeUtil;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -50,9 +51,11 @@ public class BarImpl extends Bar {
         StringBuilder buffer = new StringBuilder();
 
         buffer.append(getSecurity());
-        buffer.append(",");
-        SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy kk:mm:ss SSS");
-        buffer.append(format.format(getDateTime()));
+        Date date = getDateTime();
+        if (date != null) {
+            buffer.append(",");
+            DateTimeUtil.formatLocalZone(date.toInstant(), buffer);
+        }
         buffer.append(",open=");
         buffer.append(getOpen());
         buffer.append(",high=");

@@ -18,8 +18,10 @@
 
 package ch.algotrader.entity.exchange;
 
-import java.text.SimpleDateFormat;
 import java.util.Objects;
+
+import ch.algotrader.util.DateTimeLegacy;
+import ch.algotrader.util.DateTimeUtil;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -29,8 +31,6 @@ import java.util.Objects;
 public class HolidayImpl extends Holiday {
 
     private static final long serialVersionUID = 8542514325219286349L;
-    private static final SimpleDateFormat hourFormat = new SimpleDateFormat("HH:mm:ss");
-    private static final SimpleDateFormat dayFormat = new SimpleDateFormat("dd.MM.yyyy");
 
     @Override
     public boolean isPartialOpen() {
@@ -41,16 +41,15 @@ public class HolidayImpl extends Holiday {
     public String toString() {
 
         StringBuilder buffer = new StringBuilder();
-        buffer.append(dayFormat.format(getDate()));
-
+        DateTimeUtil.formatLocalDate(DateTimeLegacy.toGMTDate(getDate()), buffer);
         if (getLateOpen() != null) {
             buffer.append(" lateOpen: ");
-            buffer.append(hourFormat.format(getLateOpen()));
+            DateTimeUtil.formatLocalTime(DateTimeLegacy.toGMTTime(getLateOpen()), buffer);
         }
 
         if (getEarlyClose() != null) {
             buffer.append(" earlyClose: ");
-            buffer.append(hourFormat.format(getEarlyClose()));
+            DateTimeUtil.formatLocalTime(DateTimeLegacy.toGMTTime(getEarlyClose()), buffer);
         }
 
         return buffer.toString();

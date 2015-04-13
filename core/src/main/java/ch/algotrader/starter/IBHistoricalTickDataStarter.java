@@ -18,7 +18,6 @@
 package ch.algotrader.starter;
 
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -44,6 +43,7 @@ import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.TimePeriod;
 import ch.algotrader.service.CalendarService;
 import ch.algotrader.service.HistoricalDataService;
+import ch.algotrader.util.DateTimeLegacy;
 import ch.algotrader.util.io.CsvTickWriter;
 
 /**
@@ -61,12 +61,10 @@ public class IBHistoricalTickDataStarter {
 
     private static final Logger logger = LogManager.getLogger(IBHistoricalTickDataStarter.class.getName());
 
-    private static final SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd  HH:mm:ss");
-
     public static void main(String[] args) throws Exception {
 
-        Date startDate = format.parse(args[0] + "  24:00:00");
-        Date endDate = format.parse(args[1] + "  24:00:00");
+        Date startDate = DateTimeLegacy.parseAsLocalDate(args[0]);
+        Date endDate = DateTimeLegacy.parseAsLocalDate(args[1]);
 
         String[] barTypesString = args[2].split(":");
         Set<BarType> barTypes = new HashSet<>();

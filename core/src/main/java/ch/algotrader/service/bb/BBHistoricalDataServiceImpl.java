@@ -18,7 +18,7 @@
 package ch.algotrader.service.bb;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -54,6 +54,7 @@ import ch.algotrader.enumeration.TimePeriod;
 import ch.algotrader.service.HistoricalDataServiceImpl;
 import ch.algotrader.service.InitializationPriority;
 import ch.algotrader.service.InitializingServiceI;
+import ch.algotrader.util.DateTimeLegacy;
 import ch.algotrader.util.RoundUtil;
 
 /**
@@ -66,8 +67,8 @@ public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl imple
 
     private static final long serialVersionUID = 1339545758324165650L;
 
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
-    private static final SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+    private static final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyyMMdd");
+    private static final DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
     private static final Logger logger = LogManager.getLogger(BBHistoricalDataServiceImpl.class.getName());
     private static BBSession session;
@@ -177,8 +178,8 @@ public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl imple
                 throw new IllegalArgumentException("unsupported barType " + barType);
         }
 
-        String startDateString = dateTimeFormat.format(getStartDate(endDate, timePeriodLength, timePeriod));
-        String endDateString = dateTimeFormat.format(endDate);
+        String startDateString = dateTimeFormat.format(DateTimeLegacy.toGMTDate(getStartDate(endDate, timePeriodLength, timePeriod)));
+        String endDateString = dateTimeFormat.format(DateTimeLegacy.toGMTDate(endDate));
 
         Service service = session.getService();
 
@@ -227,8 +228,8 @@ public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl imple
             throw new IllegalArgumentException("unsupported barType " + barType);
         }
 
-        String startDateString = dateFormat.format(getStartDate(endDate, timePeriodLength, timePeriod));
-        String endDateString = dateFormat.format(endDate);
+        String startDateString = dateFormat.format(DateTimeLegacy.toGMTDate(getStartDate(endDate, timePeriodLength, timePeriod)));
+        String endDateString = dateFormat.format(DateTimeLegacy.toGMTDate(endDate));
 
         Service service = session.getService();
 
