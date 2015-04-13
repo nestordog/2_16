@@ -15,7 +15,7 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.util.spring;
+package ch.algotrader.esper;
 
 import org.apache.commons.lang.Validate;
 import org.springframework.context.ApplicationContext;

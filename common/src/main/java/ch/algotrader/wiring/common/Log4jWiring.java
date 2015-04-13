@@ -15,28 +15,33 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.util.spring;
+package ch.algotrader.wiring.common;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-import org.springframework.beans.PropertyEditorRegistrar;
-import org.springframework.beans.PropertyEditorRegistry;
-import org.springframework.beans.propertyeditors.CustomDateEditor;
+import ch.algotrader.config.CommonConfig;
+import ch.algotrader.esper.EngineManager;
+import ch.algotrader.util.log4j.Log4JRewriter;
+import ch.algotrader.util.log4j.LogLevelSetter;
 
 /**
- * custom {@code org.springframework.beans.PropertyEditorRegistrar} for {@code java.util.Date}.
- * Allows to initialize Dates from the pattern {@code kk:mm}.
- *
- * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
+ * Log4j configuration.
  */
-public final class DatePropertyEditorRegistrar implements PropertyEditorRegistrar {
+@Configuration
+public class Log4jWiring {
 
-    @Override
-    public void registerCustomEditors(PropertyEditorRegistry registry) {
+    @Bean(name = "logLevelSetter", initMethod = "init")
+    public LogLevelSetter createLogLevelSetter() {
 
-        registry.registerCustomEditor(Date.class, new CustomDateEditor(new SimpleDateFormat("kk:mm"), false));
+        return new LogLevelSetter();
     }
+
+    @Bean(name = "log4JRewriter")
+    public Log4JRewriter createLog4JRewriter(final CommonConfig commonConfig, final EngineManager engineManager) {
+
+        return new Log4JRewriter(engineManager, commonConfig);
+    }
+
 }
+

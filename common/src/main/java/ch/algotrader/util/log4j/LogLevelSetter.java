@@ -15,7 +15,7 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.util.spring;
+package ch.algotrader.util.log4j;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
