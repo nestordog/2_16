@@ -575,12 +575,28 @@ public interface LookupService {
     public List<?> get(String query);
 
     /**
+     * Retrieves an arbitrary list of Entities or values based on a Hibernate query. Example:
+     * from Strategy
+     * or
+     * select name from Strategy where id = 1
+     */
+    public List<?> get(String query, int maxResults);
+
+    /**
      * Retrieves an arbitrary list of Entities or values based on a Hibernate query. In addition a
      * Map containing named parameters can be passed. Example:
      * from Strategy where name = :strategyName
      * and the Map containing an entry with {@code key='strategyName'} and {@code value='SERVER'}
      */
     public List<?> get(String query, Map namedParameters);
+
+    /**
+     * Retrieves an arbitrary list of Entities or values based on a Hibernate query. In addition a
+     * Map containing named parameters can be passed. Example:
+     * from Strategy where name = :strategyName
+     * and the Map containing an entry with {@code key='strategyName'} and {@code value='SERVER'}
+     */
+    public List<?> get(String query, Map namedParameters, int maxResults);
 
     /**
      * Retrieves a unique Object based on a Hibernate query. Example:

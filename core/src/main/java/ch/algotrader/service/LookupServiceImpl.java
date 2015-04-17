@@ -1548,12 +1548,37 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
+    public List<?> get(final String query, final int maxResults) {
+
+        Validate.notEmpty(query, "Query is empty");
+
+        return this.genericDao.find(query, maxResults);
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public List<?> get(final String query, final Map namedParameters) {
 
         Validate.notEmpty(query, "Query is empty");
         Validate.notNull(namedParameters, "Named parameters is null");
 
         return this.genericDao.find(query, namedParameters);
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<?> get(final String query, final Map namedParameters, final int maxResults) {
+
+        Validate.notEmpty(query, "Query is empty");
+        Validate.notNull(namedParameters, "Named parameters is null");
+
+        return this.genericDao.find(query, namedParameters, maxResults);
 
     }
 

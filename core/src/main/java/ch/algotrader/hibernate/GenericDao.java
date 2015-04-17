@@ -131,6 +131,21 @@ public class GenericDao {
     }
 
     /**
+     * Performs a HQL query based on the given {@code queryString} and {@code maxResults}
+     */
+    public List<?> find(final String queryString, final int maxResults) {
+
+        return this.txTemplate.execute(txStatus -> {
+
+            Session session = sessionFactory.getCurrentSession();
+            Query query = session.createQuery(queryString);
+            query.setCacheable(true);
+            query.setMaxResults(maxResults);
+            return query.list();
+        });
+    }
+
+    /**
      * Performs a HQL query based on the given {@code queryString} and {@code namedParameters}
      * @return a List of Objects
      */
@@ -141,6 +156,25 @@ public class GenericDao {
             Session session = sessionFactory.getCurrentSession();
             Query query = session.createQuery(queryString);
             query.setCacheable(true);
+            for (Map.Entry<String, Object> entry : namedParameters.entrySet()) {
+                query.setParameter(entry.getKey(), entry.getValue());
+            }
+            return query.list();
+        });
+    }
+
+    /**
+     * Performs a HQL query based on the given {@code queryString}, {@code namedParameters} and {@code maxResults}
+     * @return a List of Objects
+     */
+    public List<?> find(final String queryString, final Map<String, Object> namedParameters, final int maxResults) {
+
+        return this.txTemplate.execute(txStatus -> {
+
+            Session session = sessionFactory.getCurrentSession();
+            Query query = session.createQuery(queryString);
+            query.setCacheable(true);
+            query.setMaxResults(maxResults);
             for (Map.Entry<String, Object> entry : namedParameters.entrySet()) {
                 query.setParameter(entry.getKey(), entry.getValue());
             }
