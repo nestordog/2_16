@@ -29,6 +29,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import ch.algotrader.util.DateTimeLegacy;
 import quickfix.DataDictionary;
 import quickfix.field.ClOrdID;
 import quickfix.field.ExecType;
@@ -117,7 +118,7 @@ public class TestLMAXFixOrderMessageHandler {
         Assert.assertEquals(Status.SUBMITTED, orderStatus1.getStatus());
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(0, orderStatus1.getFilledQuantity());
-        Assert.assertEquals(FixTestUtils.parseDateTime("20140317-19:48:33.854"), orderStatus1.getExtDateTime());
+        Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2014-03-17 19:48:33.854"), orderStatus1.getExtDateTime());
         Assert.assertEquals(null, orderStatus1.getLastPrice());
         Assert.assertEquals(null, orderStatus1.getAvgPrice());
     }
@@ -165,7 +166,7 @@ public class TestLMAXFixOrderMessageHandler {
         Assert.assertEquals(Status.EXECUTED, orderStatus1.getStatus());
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(100000, orderStatus1.getFilledQuantity());
-        Assert.assertEquals(FixTestUtils.parseDateTime("20140317-19:48:33.854"), orderStatus1.getExtDateTime());
+        Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2014-03-17 19:48:33.854"), orderStatus1.getExtDateTime());
         Assert.assertEquals(new BigDecimal("1.393"), orderStatus1.getLastPrice());
         Assert.assertEquals(new BigDecimal("1.393"), orderStatus1.getAvgPrice());
 
@@ -174,7 +175,7 @@ public class TestLMAXFixOrderMessageHandler {
         Fill fill1 = (Fill) event2;
         Assert.assertEquals("IcjSDQAAAAJoCIag", fill1.getExtId());
         Assert.assertSame(order, fill1.getOrder());
-        Assert.assertEquals(FixTestUtils.parseDateTime("20140317-19:48:33.854"), fill1.getExtDateTime());
+        Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2014-03-17 19:48:33.854"), fill1.getExtDateTime());
         Assert.assertEquals(Side.BUY, fill1.getSide());
         Assert.assertEquals(100000L, fill1.getQuantity());
         Assert.assertEquals(new BigDecimal("1.393"), fill1.getPrice());
@@ -269,7 +270,7 @@ public class TestLMAXFixOrderMessageHandler {
         Assert.assertEquals(Status.REJECTED, orderStatus1.getStatus());
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(0, orderStatus1.getFilledQuantity());
-        Assert.assertEquals(FixTestUtils.parseDateTime("20140319-11:23:37.280"), orderStatus1.getExtDateTime());
+        Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2014-03-19 11:23:37.280"), orderStatus1.getExtDateTime());
     }
 
     @Test

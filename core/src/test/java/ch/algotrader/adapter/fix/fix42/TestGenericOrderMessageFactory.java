@@ -18,29 +18,12 @@
 package ch.algotrader.adapter.fix.fix42;
 
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import quickfix.field.ClOrdID;
-import quickfix.field.ContractMultiplier;
-import quickfix.field.ExpireTime;
-import quickfix.field.MaturityDay;
-import quickfix.field.MaturityMonthYear;
-import quickfix.field.OrdType;
-import quickfix.field.OrderQty;
-import quickfix.field.OrigClOrdID;
-import quickfix.field.Price;
-import quickfix.field.SecurityType;
-import quickfix.field.StopPx;
-import quickfix.field.StrikePrice;
-import quickfix.field.Symbol;
-import quickfix.field.TimeInForce;
-import quickfix.fix42.NewOrderSingle;
-import quickfix.fix42.OrderCancelReplaceRequest;
-import quickfix.fix42.OrderCancelRequest;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.AccountImpl;
 import ch.algotrader.entity.security.Forex;
@@ -70,6 +53,24 @@ import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.enumeration.OrderPropertyType;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.TIF;
+import ch.algotrader.util.DateTimeLegacy;
+import quickfix.field.ClOrdID;
+import quickfix.field.ContractMultiplier;
+import quickfix.field.ExpireTime;
+import quickfix.field.MaturityDay;
+import quickfix.field.MaturityMonthYear;
+import quickfix.field.OrdType;
+import quickfix.field.OrderQty;
+import quickfix.field.OrigClOrdID;
+import quickfix.field.Price;
+import quickfix.field.SecurityType;
+import quickfix.field.StopPx;
+import quickfix.field.StrikePrice;
+import quickfix.field.Symbol;
+import quickfix.field.TimeInForce;
+import quickfix.fix42.NewOrderSingle;
+import quickfix.fix42.OrderCancelReplaceRequest;
+import quickfix.fix42.OrderCancelRequest;
 
 public class TestGenericOrderMessageFactory {
 
@@ -84,7 +85,7 @@ public class TestGenericOrderMessageFactory {
     @Test
     public void testMarketOrderOption() throws Exception {
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
         OptionFamily family = new OptionFamilyImpl();
         family.setCurrency(Currency.BRL);
@@ -97,7 +98,7 @@ public class TestGenericOrderMessageFactory {
         option.setType(OptionType.CALL);
         option.setSecurityFamily(family);
         option.setStrike(new BigDecimal("0.5"));
-        option.setExpiration(dateFormat.parse("2014-12-31"));
+        option.setExpiration(DateTimeLegacy.parseAsDateGMT("2014-12-31"));
 
         Account account = new AccountImpl();
         account.setBroker(Broker.RT);
@@ -129,7 +130,7 @@ public class TestGenericOrderMessageFactory {
     @Test
     public void testMarketOrderFuture() throws Exception {
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
         SecurityFamily family = new SecurityFamilyImpl();
         family.setCurrency(Currency.BRL);
@@ -138,7 +139,7 @@ public class TestGenericOrderMessageFactory {
         Future future = new FutureImpl();
         future.setSymbol("SOME_STUFF");
         future.setSecurityFamily(family);
-        future.setExpiration(dateFormat.parse("2014-12-31"));
+        future.setExpiration(DateTimeLegacy.parseAsDateGMT("2014-12-31"));
 
         Account account = new AccountImpl();
         account.setBroker(Broker.RT);
@@ -342,7 +343,7 @@ public class TestGenericOrderMessageFactory {
     @Test
     public void testStopLimitOrderStockGoodUntil() throws Exception {
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
         SecurityFamily family = new SecurityFamilyImpl();
         family.setCurrency(Currency.USD);
@@ -363,7 +364,7 @@ public class TestGenericOrderMessageFactory {
         order.setLimit(new BigDecimal("20.0"));
         order.setStop(new BigDecimal("30.0"));
         order.setTif(TIF.GTD);
-        order.setTifDateTime(dateFormat.parse("2014-07-01"));
+        order.setTifDateTime(DateTimeLegacy.parseAsDateGMT("2014-07-01"));
 
         NewOrderSingle message = this.requestFactory.createNewOrderMessage(order, "test-id");
 
@@ -379,13 +380,13 @@ public class TestGenericOrderMessageFactory {
         Assert.assertEquals(new Price(20.0d), message.getPrice());
         Assert.assertEquals(new StopPx(30.0d), message.getStopPx());
         Assert.assertEquals(new TimeInForce(TimeInForce.GOOD_TILL_DATE), message.getTimeInForce());
-        Assert.assertEquals(new ExpireTime(dateFormat.parse("2014-07-01")), message.getExpireTime());
+        Assert.assertEquals(new ExpireTime(DateTimeLegacy.parseAsDateGMT("2014-07-01")), message.getExpireTime());
     }
 
     @Test
     public void testModifyMarketOrderOption() throws Exception {
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
         SecurityFamily family = new SecurityFamilyImpl();
         family.setCurrency(Currency.BRL);
@@ -397,7 +398,7 @@ public class TestGenericOrderMessageFactory {
         option.setType(OptionType.CALL);
         option.setSecurityFamily(family);
         option.setStrike(new BigDecimal("0.5"));
-        option.setExpiration(dateFormat.parse("2014-12-31"));
+        option.setExpiration(DateTimeLegacy.parseAsDateGMT("2014-12-31"));
 
         Account account = new AccountImpl();
         account.setBroker(Broker.RT);
@@ -426,7 +427,7 @@ public class TestGenericOrderMessageFactory {
     @Test
     public void testModifyMarketOrderFuture() throws Exception {
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
         SecurityFamily family = new SecurityFamilyImpl();
         family.setCurrency(Currency.BRL);
@@ -435,7 +436,7 @@ public class TestGenericOrderMessageFactory {
         Future future = new FutureImpl();
         future.setSymbol("SOME_STUFF");
         future.setSecurityFamily(family);
-        future.setExpiration(dateFormat.parse("2014-12-31"));
+        future.setExpiration(DateTimeLegacy.parseAsDateGMT("2014-12-31"));
 
         Account account = new AccountImpl();
         account.setBroker(Broker.RT);
@@ -634,7 +635,7 @@ public class TestGenericOrderMessageFactory {
     @Test
     public void testModifyStopLimitOrderStockGoodUntil() throws Exception {
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
         SecurityFamily family = new SecurityFamilyImpl();
         family.setCurrency(Currency.USD);
@@ -656,7 +657,7 @@ public class TestGenericOrderMessageFactory {
         order.setLimit(new BigDecimal("20.0"));
         order.setStop(new BigDecimal("30.0"));
         order.setTif(TIF.GTD);
-        order.setTifDateTime(dateFormat.parse("2014-07-01"));
+        order.setTifDateTime(DateTimeLegacy.parseAsDateGMT("2014-07-01"));
 
         OrderCancelReplaceRequest message = this.requestFactory.createModifyOrderMessage(order, "test-id");
 
@@ -670,13 +671,13 @@ public class TestGenericOrderMessageFactory {
         Assert.assertEquals(new Price(20.0d), message.getPrice());
         Assert.assertEquals(new StopPx(30.0d), message.getStopPx());
         Assert.assertEquals(new TimeInForce(TimeInForce.GOOD_TILL_DATE), message.getTimeInForce());
-        Assert.assertEquals(new ExpireTime(dateFormat.parse("2014-07-01")), message.getExpireTime());
+        Assert.assertEquals(new ExpireTime(DateTimeLegacy.parseAsDateGMT("2014-07-01")), message.getExpireTime());
     }
 
     @Test
     public void testCancelMarketOrderOption() throws Exception {
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
         SecurityFamily family = new SecurityFamilyImpl();
         family.setCurrency(Currency.BRL);
@@ -688,7 +689,7 @@ public class TestGenericOrderMessageFactory {
         option.setType(OptionType.CALL);
         option.setSecurityFamily(family);
         option.setStrike(new BigDecimal("0.5"));
-        option.setExpiration(dateFormat.parse("2014-12-31"));
+        option.setExpiration(DateTimeLegacy.parseAsDateGMT("2014-12-31"));
 
         Account account = new AccountImpl();
         account.setBroker(Broker.RT);
@@ -716,7 +717,7 @@ public class TestGenericOrderMessageFactory {
     @Test
     public void testCancelMarketOrderFuture() throws Exception {
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
         SecurityFamily family = new SecurityFamilyImpl();
         family.setCurrency(Currency.BRL);
@@ -725,7 +726,7 @@ public class TestGenericOrderMessageFactory {
         Future future = new FutureImpl();
         future.setSymbol("SOME_STUFF");
         future.setSecurityFamily(family);
-        future.setExpiration(dateFormat.parse("2014-12-31"));
+        future.setExpiration(DateTimeLegacy.parseAsDateGMT("2014-12-31"));
 
         Account account = new AccountImpl();
         account.setBroker(Broker.RT);

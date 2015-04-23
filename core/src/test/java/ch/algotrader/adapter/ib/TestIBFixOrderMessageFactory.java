@@ -17,7 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.ib;
 
-import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -41,6 +41,8 @@ import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.OrderPropertyType;
 import ch.algotrader.enumeration.Side;
+import ch.algotrader.util.DateTimeLegacy;
+import ch.algotrader.util.DateTimeUtil;
 import quickfix.field.AllocationGroup;
 import quickfix.field.AllocationMethod;
 import quickfix.field.AllocationProfile;
@@ -74,8 +76,6 @@ public class TestIBFixOrderMessageFactory {
                 .build();
         this.requestFactory = new IBFixOrderMessageFactory(ibConfig);
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-
         Exchange exchange = new ExchangeImpl();
         exchange.setCode("DTB");
 
@@ -87,7 +87,7 @@ public class TestIBFixOrderMessageFactory {
         this.future = new FutureImpl();
         this.future.setSymbol("SOME_STUFF");
         this.future.setSecurityFamily(this.family);
-        this.future.setExpiration(dateFormat.parse("2015-03-31"));
+        this.future.setExpiration(DateTimeLegacy.parseAsDateGMT("2015-03-31"));
 
         this.account = new AccountImpl();
         this.account.setBroker(Broker.RT);

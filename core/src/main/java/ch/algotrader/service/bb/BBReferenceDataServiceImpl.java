@@ -20,7 +20,6 @@ package ch.algotrader.service.bb;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
@@ -60,6 +59,7 @@ import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.service.InitializationPriority;
 import ch.algotrader.service.InitializingServiceI;
 import ch.algotrader.service.ReferenceDataServiceImpl;
+import ch.algotrader.util.DateTimeLegacy;
 import ch.algotrader.util.RoundUtil;
 
 /**
@@ -71,7 +71,6 @@ import ch.algotrader.util.RoundUtil;
 public class BBReferenceDataServiceImpl extends ReferenceDataServiceImpl implements BBReferenceDataService, InitializingServiceI {
 
     private static final long serialVersionUID = 8938937374871069522L;
-    private static final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 
     private static final Logger logger = LogManager.getLogger(BBHistoricalDataServiceImpl.class.getName());
     private static BBSession session;
@@ -415,7 +414,7 @@ public class BBReferenceDataServiceImpl extends ReferenceDataServiceImpl impleme
                     double strikeDouble = fields.getElementAsFloat64(BBConstants.OPT_STRIKE_PX);
                     String typeString = fields.getElementAsString(BBConstants.OPT_PUT_CALL);
 
-                    Date expiration = format.parse(expirationString);
+                    Date expiration = DateTimeLegacy.parseAsDateTimeGMT(expirationString);
                     BigDecimal strike = RoundUtil.getBigDecimal(strikeDouble, this.securityFamily.getScale(Broker.BBG));
                     OptionType type = OptionType.valueOf(typeString.toUpperCase());
 
@@ -447,8 +446,8 @@ public class BBReferenceDataServiceImpl extends ReferenceDataServiceImpl impleme
                     String lastTradingString = fields.getElementAsString(BBConstants.LAST_TRADEABLE_DT);
                     String firstNoticeString = fields.getElementAsString(BBConstants.FUT_NOTICE_FIRST);
 
-                    Date lastTrading = format.parse(lastTradingString);
-                    Date firstNotice = format.parse(firstNoticeString);
+                    Date lastTrading = DateTimeLegacy.parseAsDateTimeGMT(lastTradingString);
+                    Date firstNotice = DateTimeLegacy.parseAsDateTimeGMT(firstNoticeString);
 
                     Future future = Future.Factory.newInstance();
 

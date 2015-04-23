@@ -19,10 +19,8 @@ package ch.algotrader.simulation;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -82,6 +80,8 @@ import ch.algotrader.service.ResetService;
 import ch.algotrader.service.StrategyPersistenceService;
 import ch.algotrader.service.TransactionService;
 import ch.algotrader.service.groups.StrategyGroup;
+import ch.algotrader.util.DateTimeLegacy;
+import ch.algotrader.util.DateTimePatterns;
 import ch.algotrader.util.metric.MetricsUtil;
 import ch.algotrader.vo.EndOfSimulationVO;
 import ch.algotrader.vo.LifecycleEventVO;
@@ -102,8 +102,6 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
     private static final Logger logger = LogManager.getLogger(SimulationExecutorImpl.class.getName());
     private static final Logger resultLogger = LogManager.getLogger("ch.algotrader.simulation.SimulationExecutor.RESULT");
     private static final DecimalFormat twoDigitFormat = new DecimalFormat("#,##0.00");
-    private static final DateFormat monthFormat = new SimpleDateFormat(" MMM-yy ");
-    private static final DateFormat yearFormat = new SimpleDateFormat("   yyyy ");
     private static final NumberFormat format = NumberFormat.getInstance();
 
     private final CommonConfig commonConfig;
@@ -774,7 +772,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
             for (PeriodPerformanceVO monthlyPerformance : monthlyPerformances) {
                 maxDrawDownM = Math.min(maxDrawDownM, monthlyPerformance.getValue());
                 bestMonthlyPerformance = Math.max(bestMonthlyPerformance, monthlyPerformance.getValue());
-                dateBuffer.append(monthFormat.format(monthlyPerformance.getDate()));
+                DateTimePatterns.OPTION_MONTH_YEAR.formatTo(DateTimeLegacy.toGMTDate(monthlyPerformance.getDate()), dateBuffer);
                 performanceBuffer.append(StringUtils.leftPad(twoDigitFormat.format(monthlyPerformance.getValue() * 100), 6) + "% ");
                 if (monthlyPerformance.getValue() > 0) {
                     positiveMonths++;
@@ -794,7 +792,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
             StringBuilder dateBuffer = new StringBuilder("year:               ");
             StringBuilder performanceBuffer = new StringBuilder("yearlyPerformance:  ");
             for (PeriodPerformanceVO yearlyPerformance : yearlyPerformances) {
-                dateBuffer.append(yearFormat.format(yearlyPerformance.getDate()));
+                DateTimePatterns.YEAR_4_DIGIT.formatTo(DateTimeLegacy.toGMTDate(yearlyPerformance.getDate()), dateBuffer);
                 performanceBuffer.append(StringUtils.leftPad(twoDigitFormat.format(yearlyPerformance.getValue() * 100), 6) + "% ");
                 if (yearlyPerformance.getValue() > 0) {
                     positiveYears++;

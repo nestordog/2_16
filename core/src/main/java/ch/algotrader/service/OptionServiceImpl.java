@@ -74,6 +74,8 @@ import ch.algotrader.option.OptionSymbol;
 import ch.algotrader.option.OptionUtil;
 import ch.algotrader.option.SABR;
 import ch.algotrader.option.SABRException;
+import ch.algotrader.util.DateTimeLegacy;
+import ch.algotrader.util.DateTimeUtil;
 import ch.algotrader.util.DateUtil;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.collection.CollectionUtil;
@@ -91,7 +93,6 @@ public class OptionServiceImpl implements OptionService {
 
     private static final Logger logger = LogManager.getLogger(OptionServiceImpl.class.getName());
     private static final int advanceMinutes = 10;
-    private static final SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy.MM.dd kk:mm:ss");
 
     private final CommonConfig commonConfig;
 
@@ -345,12 +346,13 @@ public class OptionServiceImpl implements OptionService {
 
             while (DateUtil.compareTime(cal.getTime(), closeHour) <= 0) {
 
-                System.out.print(outputFormat.format(cal.getTime()));
+                System.out.print(DateTimeUtil.formatLocalDateTime(DateTimeLegacy.toLocalDateTime(cal.getTime())));
 
                 SABRSmileVO SABRparams = calibrateSABRSmileByOptionPrice(underlying.getId(), optionType, cal.getTime(), expirationDate);
 
                 if (SABRparams != null && SABRparams.getAlpha() < 100) {
-                    System.out.print(outputFormat.format(cal.getTime()) + " " + SABRparams.getAlpha() + " " + SABRparams.getRho() + " " + SABRparams.getVolVol());
+                    System.out.print(DateTimeUtil.formatLocalDateTime(DateTimeLegacy.toLocalDateTime(cal.getTime()))
+                            + " " + SABRparams.getAlpha() + " " + SABRparams.getRho() + " " + SABRparams.getVolVol());
                 }
 
                 ATMVolVO atmVola = calculateATMVol(underlying, cal.getTime());
@@ -398,7 +400,8 @@ public class OptionServiceImpl implements OptionService {
             SABRSmileVO SABRparams = calibrateSABRSmileByIVol(underlying.getId(), duration, cal.getTime());
 
             if (SABRparams != null) {
-                System.out.println(outputFormat.format(cal.getTime()) + " " + SABRparams.getAlpha() + " " + SABRparams.getRho() + " " + SABRparams.getVolVol());
+                System.out.println(DateTimeUtil.formatLocalDateTime(DateTimeLegacy.toLocalDateTime(cal.getTime()))
+                        + " " + SABRparams.getAlpha() + " " + SABRparams.getRho() + " " + SABRparams.getVolVol());
             }
 
             cal.add(Calendar.DAY_OF_YEAR, 1);

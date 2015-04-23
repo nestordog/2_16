@@ -19,7 +19,6 @@ package ch.algotrader.adapter.cnx;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.text.DateFormat;
 import java.util.List;
 
 import org.junit.Assert;
@@ -32,6 +31,7 @@ import org.mockito.MockitoAnnotations;
 
 import ch.algotrader.adapter.fix.fix44.FixTestUtils;
 import ch.algotrader.esper.Engine;
+import ch.algotrader.util.DateTimeLegacy;
 import ch.algotrader.vo.AskVO;
 import ch.algotrader.vo.BidVO;
 import quickfix.fix44.MarketDataIncrementalRefresh;
@@ -76,15 +76,13 @@ public class TestCNXFixMarketDataMessageHandler {
         Assert.assertNotNull(events);
         Assert.assertEquals(2, events.size());
 
-        DateFormat dateTimeParser = FixTestUtils.getSimpleDateTimeFormat();
-
         Object event1 = events.get(0);
         Assert.assertTrue(event1 instanceof BidVO);
         BidVO bid = (BidVO) event1;
         Assert.assertEquals("EUR/USD", bid.getTickerId());
         Assert.assertEquals(new BigDecimal("1.35259"), new BigDecimal(bid.getBid()).setScale(5, RoundingMode.HALF_EVEN));
         Assert.assertEquals(500000, bid.getVolBid());
-        Assert.assertEquals(dateTimeParser.parse("20140721-08:22:11.550"), bid.getDateTime());
+        Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2014-07-21 08:22:11.550"), bid.getDateTime());
 
         Object event2 = events.get(1);
         Assert.assertTrue(event2 instanceof AskVO);
@@ -93,7 +91,7 @@ public class TestCNXFixMarketDataMessageHandler {
         Assert.assertEquals("EUR/USD", ask.getTickerId());
         Assert.assertEquals(new BigDecimal("1.35271"), new BigDecimal(ask.getAsk()).setScale(5, RoundingMode.HALF_EVEN));
         Assert.assertEquals(15600000, ask.getVolAsk());
-        Assert.assertEquals(dateTimeParser.parse("20140721-08:22:11.550"), ask.getDateTime());
+        Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2014-07-21 08:22:11.550"), ask.getDateTime());
     }
 
     @Test
@@ -117,13 +115,11 @@ public class TestCNXFixMarketDataMessageHandler {
         Object event1 = events.get(0);
         Assert.assertTrue(event1 instanceof AskVO);
 
-        DateFormat dateTimeParser = FixTestUtils.getSimpleDateTimeFormat();
-
         AskVO ask = (AskVO) event1;
         Assert.assertEquals("EUR/USD", ask.getTickerId());
         Assert.assertEquals(new BigDecimal("1.35270"), new BigDecimal(ask.getAsk()).setScale(5, RoundingMode.HALF_EVEN));
         Assert.assertEquals(2100000, ask.getVolAsk());
-        Assert.assertEquals(dateTimeParser.parse("20140721-08:22:11.612"), ask.getDateTime());
+        Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2014-07-21 08:22:11.612"), ask.getDateTime());
     }
 
     @Test

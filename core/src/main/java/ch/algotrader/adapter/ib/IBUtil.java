@@ -18,12 +18,15 @@
 package ch.algotrader.adapter.ib;
 
 import java.text.DecimalFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Date;
 
 import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.Validate;
+
+import com.ib.client.Contract;
+import com.ib.client.Execution;
 
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.Future;
@@ -41,9 +44,7 @@ import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.enumeration.TIF;
-
-import com.ib.client.Contract;
-import com.ib.client.Execution;
+import ch.algotrader.util.DateTimeLegacy;
 
 /**
  * Utility class providing conversion methods for IB specific types.
@@ -54,9 +55,9 @@ import com.ib.client.Execution;
  */
 public class IBUtil {
 
-    private static final SimpleDateFormat dayFormat = new SimpleDateFormat("yyyyMMdd");
-    private static final SimpleDateFormat monthFormat = new SimpleDateFormat("yyyyMM");
-    private static final SimpleDateFormat executionFormat = new SimpleDateFormat("yyyyMMdd  HH:mm:ss");
+    private static final DateTimeFormatter dayFormat = DateTimeFormatter.ofPattern("yyyyMMdd");
+    private static final DateTimeFormatter monthFormat = DateTimeFormatter.ofPattern("yyyyMM");
+    private static final DateTimeFormatter executionFormat = DateTimeFormatter.ofPattern("yyyyMMdd  HH:mm:ss");
     private static final DecimalFormat decimalFormat = new DecimalFormat("#.#######");
 
     public static Contract getContract(Security security) {
@@ -88,7 +89,7 @@ public class IBUtil {
                 contract.m_strike = option.getStrike().doubleValue();
                 contract.m_right = option.getType().toString();
                 contract.m_multiplier = decimalFormat.format(securityFamily.getContractSize(Broker.IB));
-                contract.m_expiry = dayFormat.format(option.getExpiration());
+                contract.m_expiry = dayFormat.format(DateTimeLegacy.toGMTDate(option.getExpiration()));
 
             } else if (security instanceof Future) {
 
@@ -99,7 +100,7 @@ public class IBUtil {
                 contract.m_secType = "FUT";
                 contract.m_symbol = securityFamily.getSymbolRoot(Broker.IB);
                 contract.m_multiplier = decimalFormat.format(securityFamily.getContractSize(Broker.IB));
-                contract.m_expiry = monthFormat.format(future.getExpiration());
+                contract.m_expiry = monthFormat.format(DateTimeLegacy.toGMTDate(future.getExpiration()));
 
             } else if (security instanceof Forex) {
 
@@ -169,8 +170,8 @@ public class IBUtil {
     public static Date getExecutionDateTime(Execution execution) {
 
         try {
-            return executionFormat.parse(execution.m_time);
-        } catch (ParseException e) {
+            return DateTimeLegacy.parseAsDateTimeGMT(execution.m_time, executionFormat);
+        } catch (DateTimeParseException e) {
             throw new RuntimeException(e);
         }
     }

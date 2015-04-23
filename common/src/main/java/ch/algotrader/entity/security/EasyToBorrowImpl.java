@@ -17,8 +17,12 @@
  ***********************************************************************************/
 package ch.algotrader.entity.security;
 
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.Objects;
+
+import ch.algotrader.util.DateTimePatterns;
+import ch.algotrader.util.DateTimeUtil;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -28,12 +32,19 @@ import java.util.Objects;
 public class EasyToBorrowImpl extends EasyToBorrow {
 
     private static final long serialVersionUID = -5341417499112909950L;
-    private static final SimpleDateFormat dayFormat = new SimpleDateFormat("dd.MM.yyyy");
 
     @Override
     public String toString() {
-
-        return dayFormat.format(getDate()) + " " + getBroker() + " " + getStock() + " " + getQuantity();
+        StringBuilder buffer = new StringBuilder();
+        Date dateTime = getDate();
+        if (dateTime != null) {
+            LocalDate localDate = dateTime.toInstant().atZone(DateTimePatterns.GMT).toLocalDate();
+            DateTimeUtil.formatLocalDate(localDate, buffer);
+        } else {
+            buffer.append(" ");
+        }
+        buffer.append(getBroker()).append(" ").append(getStock()).append(" ").append(getQuantity());
+        return buffer.toString();
     }
 
     @Override

@@ -21,8 +21,6 @@ import java.io.File;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.net.URL;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,6 +31,7 @@ import org.springframework.core.convert.ConversionFailedException;
 
 import ch.algotrader.config.ConfigProvider;
 import ch.algotrader.enumeration.Currency;
+import ch.algotrader.util.DateTimeLegacy;
 
 /**
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
@@ -55,9 +54,8 @@ public class DefaultConfigProviderTest {
         Assert.assertEquals(new BigDecimal("5"), configProvider.getParameter("int.stuff", BigDecimal.class));
         Assert.assertEquals(new URL("http://localhost/stuff"), configProvider.getParameter("url.stuff", URL.class));
         Assert.assertEquals(new URI("http://localhost/stuff"), configProvider.getParameter("url.stuff", URI.class));
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Assert.assertEquals(dateFormat.parse("2014-02-02 00:00:00"), configProvider.getParameter("date.stuff", Date.class));
-        Assert.assertEquals(dateFormat.parse("2014-02-02 11:12:13"), configProvider.getParameter("datetime.stuff", Date.class));
+        Assert.assertEquals(DateTimeLegacy.parseAsDateTimeGMT("2014-02-02 00:00:00"), configProvider.getParameter("date.stuff", Date.class));
+        Assert.assertEquals(DateTimeLegacy.parseAsDateTimeGMT("2014-02-02 11:12:13"), configProvider.getParameter("datetime.stuff", Date.class));
     }
 
     @Test

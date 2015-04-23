@@ -18,7 +18,7 @@
 package ch.algotrader.adapter.fix.fix44;
 
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -39,6 +39,8 @@ import ch.algotrader.entity.security.StockImpl;
 import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.OptionType;
+import ch.algotrader.util.DateTimeLegacy;
+import ch.algotrader.util.DateTimeUtil;
 import quickfix.field.CFICode;
 import quickfix.field.ContractMultiplier;
 import quickfix.field.MaturityDate;
@@ -63,8 +65,6 @@ public class TestGenericSymbologyResolver {
     @Test
     public void testNewOrderOption() throws Exception {
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-
         OptionFamily family = new OptionFamilyImpl();
         family.setCurrency(Currency.BRL);
         family.setSymbolRoot("STUFF");
@@ -76,7 +76,7 @@ public class TestGenericSymbologyResolver {
         option.setType(OptionType.CALL);
         option.setSecurityFamily(family);
         option.setStrike(new BigDecimal("0.5"));
-        option.setExpiration(dateFormat.parse("2014-12-31"));
+        option.setExpiration(DateTimeLegacy.parseAsDateGMT("2014-12-31"));
 
         NewOrderSingle message = new NewOrderSingle();
 
@@ -95,8 +95,6 @@ public class TestGenericSymbologyResolver {
     @Test
     public void testNewOrderFuture() throws Exception {
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-
         SecurityFamily family = new SecurityFamilyImpl();
         family.setCurrency(Currency.BRL);
         family.setSymbolRoot("STUFF");
@@ -104,7 +102,7 @@ public class TestGenericSymbologyResolver {
         Future future = new FutureImpl();
         future.setSymbol("SOME_STUFF");
         future.setSecurityFamily(family);
-        future.setExpiration(dateFormat.parse("2014-12-31"));
+        future.setExpiration(DateTimeLegacy.parseAsDateGMT("2014-12-31"));
 
         NewOrderSingle message = new NewOrderSingle();
 
@@ -158,8 +156,6 @@ public class TestGenericSymbologyResolver {
     @Test
     public void testModifyOrderOption() throws Exception {
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-
         SecurityFamily family = new SecurityFamilyImpl();
         family.setCurrency(Currency.BRL);
         family.setSymbolRoot("STUFF");
@@ -170,7 +166,7 @@ public class TestGenericSymbologyResolver {
         option.setType(OptionType.CALL);
         option.setSecurityFamily(family);
         option.setStrike(new BigDecimal("0.5"));
-        option.setExpiration(dateFormat.parse("2014-12-31"));
+        option.setExpiration(DateTimeLegacy.parseAsDateGMT("2014-12-31"));
 
         OrderCancelReplaceRequest message = new OrderCancelReplaceRequest();
 
@@ -185,8 +181,6 @@ public class TestGenericSymbologyResolver {
     @Test
     public void testModifyOrderFuture() throws Exception {
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-
         SecurityFamily family = new SecurityFamilyImpl();
         family.setCurrency(Currency.BRL);
         family.setSymbolRoot("STUFF");
@@ -194,7 +188,7 @@ public class TestGenericSymbologyResolver {
         Future future = new FutureImpl();
         future.setSymbol("SOME_STUFF");
         future.setSecurityFamily(family);
-        future.setExpiration(dateFormat.parse("2014-12-31"));
+        future.setExpiration(DateTimeLegacy.parseAsDateGMT("2014-12-31"));
 
         OrderCancelReplaceRequest message = new OrderCancelReplaceRequest();
 
@@ -243,8 +237,6 @@ public class TestGenericSymbologyResolver {
     @Test
     public void testCancelOrderOption() throws Exception {
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-
         SecurityFamily family = new SecurityFamilyImpl();
         family.setCurrency(Currency.BRL);
         family.setSymbolRoot("STUFF");
@@ -255,7 +247,7 @@ public class TestGenericSymbologyResolver {
         option.setType(OptionType.CALL);
         option.setSecurityFamily(family);
         option.setStrike(new BigDecimal("0.5"));
-        option.setExpiration(dateFormat.parse("2014-12-31"));
+        option.setExpiration(DateTimeLegacy.parseAsDateGMT("2014-12-31"));
 
         OrderCancelRequest message = new OrderCancelRequest();
 
@@ -271,8 +263,6 @@ public class TestGenericSymbologyResolver {
     @Test
     public void testCancelOrderFuture() throws Exception {
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-
         SecurityFamily family = new SecurityFamilyImpl();
         family.setCurrency(Currency.BRL);
         family.setSymbolRoot("STUFF");
@@ -280,7 +270,7 @@ public class TestGenericSymbologyResolver {
         Future future = new FutureImpl();
         future.setSymbol("SOME_STUFF");
         future.setSecurityFamily(family);
-        future.setExpiration(dateFormat.parse("2014-12-31"));
+        future.setExpiration(DateTimeLegacy.parseAsDateGMT("2014-12-31"));
 
         OrderCancelRequest message = new OrderCancelRequest();
 

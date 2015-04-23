@@ -21,11 +21,12 @@ import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 
 import org.apache.commons.lang.time.DateUtils;
 
 import ch.algotrader.entity.marketData.Tick;
+import ch.algotrader.util.DateTimeLegacy;
+import ch.algotrader.util.DateTimeUtil;
 
 /**
  * SuperCSV based utility class that checks Gaps in Tick Files.
@@ -36,8 +37,6 @@ import ch.algotrader.entity.marketData.Tick;
  */
 public class CsvGapChecker {
 
-    private static final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy kk:mm:ss");
     private static final DecimalFormat decimalFormat = new DecimalFormat("#0.00");
 
     private static final double maxGapDays = 4.0;
@@ -75,7 +74,9 @@ public class CsvGapChecker {
                     // check day gap
                     double daysDiff = (double) (newTick.getDateTime().getTime() - lastTick.getDateTime().getTime()) / 86400000;
                     if (daysDiff > maxGapDays) {
-                        System.out.println(file.getName() + " " + dateFormat.format(newTick.getDateTime()) + " gap of " + decimalFormat.format(daysDiff) + " days");
+                        System.out.println(file.getName() + " "
+                                + DateTimeUtil.formatLocalDateTime(DateTimeLegacy.toLocalDateTime(newTick.getDateTime()))
+                                + " gap of " + decimalFormat.format(daysDiff) + " days");
                     }
 
                     if (DateUtils.isSameDay(newTick.getDateTime(), lastTick.getDateTime())) {
@@ -83,17 +84,20 @@ public class CsvGapChecker {
                         // check min gap on same day
                         double minsDiff = (double) (newTick.getDateTime().getTime() - lastTick.getDateTime().getTime()) / 60000;
                         if (minsDiff > maxGapMins) {
-                            System.out.println(file.getName() + " " + dateFormat.format(newTick.getDateTime()) + " gap of " + decimalFormat.format(minsDiff) + " mins");
+                            System.out.println(file.getName() + " "
+                                    + DateTimeUtil.formatLocalDateTime(DateTimeLegacy.toLocalDateTime(newTick.getDateTime()))
+                                    + " gap of " + decimalFormat.format(minsDiff) + " mins");
                         }
 
                     } else {
 
-                        long marketOpenMills = timeFormat.parse(marketOpen).getTime();
-                        long millisSinceOpen = timeFormat.parse(timeFormat.format(newTick.getDateTime())).getTime();
+                        long marketOpenMills = DateTimeLegacy.parseAsLocalTime(marketOpen).getTime();
+                        long millisSinceOpen = newTick.getDateTime().getTime();
 
                         // check market open on new day
                         if (millisSinceOpen > marketOpenMills) {
-                            System.out.println(file.getName() + " " + dateFormat.format(newTick.getDateTime()) + " late market open");
+                            System.out.println(file.getName() + " "
+                                    + DateTimeUtil.formatLocalDateTime(DateTimeLegacy.toLocalDateTime(newTick.getDateTime())) + " late market open");
                         }
                     }
                 }

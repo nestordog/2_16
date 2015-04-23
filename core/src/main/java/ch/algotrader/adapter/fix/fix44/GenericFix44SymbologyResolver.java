@@ -17,7 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.fix.fix44;
 
-import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 import ch.algotrader.adapter.fix.FixApplicationException;
@@ -31,6 +31,7 @@ import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.Stock;
 import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.OptionType;
+import ch.algotrader.util.DateTimeLegacy;
 import quickfix.field.CFICode;
 import quickfix.field.ContractMultiplier;
 import quickfix.field.Currency;
@@ -53,30 +54,26 @@ import quickfix.fix44.OrderCancelRequest;
  */
 public class GenericFix44SymbologyResolver implements Fix44SymbologyResolver {
 
-    private final SimpleDateFormat monthFormat;
-    private final SimpleDateFormat dayFormat;
+    private final DateTimeFormatter monthFormat;
+    private final DateTimeFormatter dayFormat;
 
     public GenericFix44SymbologyResolver() {
-        this.monthFormat = new SimpleDateFormat("yyyyMM");
-        this.dayFormat = new SimpleDateFormat("yyyyMMdd");
+        this.monthFormat = DateTimeFormatter.ofPattern("yyyyMM");
+        this.dayFormat = DateTimeFormatter.ofPattern("yyyyMMdd");
     }
 
     protected String formatYM(final Date date) {
         if (date == null) {
             return null;
         }
-        synchronized (this.monthFormat) {
-            return this.monthFormat.format(date);
-        }
+        return this.monthFormat.format(DateTimeLegacy.toGMTDate(date));
     }
 
     protected String formatYMD(final Date date) {
         if (date == null) {
             return null;
         }
-        synchronized (this.dayFormat) {
-            return this.dayFormat.format(date);
-        }
+        return this.dayFormat.format(DateTimeLegacy.toGMTDate(date));
     }
 
     protected Symbol resolveSymbol(final Security security, final Broker broker) {

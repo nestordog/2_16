@@ -17,7 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.starter;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -26,6 +25,7 @@ import ch.algotrader.enumeration.BarType;
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.TimePeriod;
 import ch.algotrader.service.HistoricalDataService;
+import ch.algotrader.util.DateTimeLegacy;
 
 /**
  * Starter Class to download historical bars and update/replace bars in the database
@@ -40,13 +40,11 @@ import ch.algotrader.service.HistoricalDataService;
  */
 public class HistoricalDataStarter {
 
-    private static final SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
-
     public static void main(String[] args) throws Exception {
 
         boolean update = Boolean.parseBoolean(args[0]);
 
-        Date endDate = format.parse(args[1]);
+        Date endDate = DateTimeLegacy.parseAsLocalDate(args[1]);
 
         int timePeriodLength = Integer.parseInt(args[2]);
         TimePeriod timePeriod = TimePeriod.valueOf(args[3]);

@@ -17,9 +17,10 @@
  ***********************************************************************************/
 package ch.algotrader.entity.strategy;
 
-import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Objects;
 
+import ch.algotrader.util.DateTimeUtil;
 import ch.algotrader.util.RoundUtil;
 
 /**
@@ -30,7 +31,6 @@ import ch.algotrader.util.RoundUtil;
 public class PortfolioValueImpl extends PortfolioValue {
 
     private static final long serialVersionUID = -3646704287725745092L;
-    private static final SimpleDateFormat format = new SimpleDateFormat("dd.MM.yy hh:mm:ss");
 
     @Override
     public double getNetLiqValueDouble() {
@@ -61,7 +61,8 @@ public class PortfolioValueImpl extends PortfolioValue {
 
         StringBuilder buffer = new StringBuilder();
 
-        buffer.append(format.format(getDateTime()));
+        Date dateTime = getDateTime();
+        DateTimeUtil.formatLocalZone(dateTime.toInstant(), buffer);
         buffer.append(",");
         buffer.append(getStrategy());
         buffer.append(",netLiqValue=");

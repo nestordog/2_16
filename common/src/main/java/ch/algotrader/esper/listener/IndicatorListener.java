@@ -17,16 +17,16 @@
  ***********************************************************************************/
 package ch.algotrader.esper.listener;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
-
-import ch.algotrader.report.ListReporter;
-import ch.algotrader.util.metric.MetricsUtil;
 
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.StatementAwareUpdateListener;
+
+import ch.algotrader.report.ListReporter;
+import ch.algotrader.util.DateTimeUtil;
+import ch.algotrader.util.metric.MetricsUtil;
 
 /**
  * Prints all values as a comma-separated-list (CSV) to files/reports/IndicatorReport.csv
@@ -38,8 +38,6 @@ import com.espertech.esper.client.StatementAwareUpdateListener;
  * @version $Revision$ $Date$
  */
 public class IndicatorListener implements StatementAwareUpdateListener {
-
-    private static final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private String[] propertyNames;
     private ListReporter reporter;
@@ -61,7 +59,7 @@ public class IndicatorListener implements StatementAwareUpdateListener {
             for (int i = 0; i < this.propertyNames.length; i++) {
                 Object obj = bean.get(this.propertyNames[i]);
                 if (obj instanceof Date) {
-                    values[i] = format.format(obj);
+                    values[i] = DateTimeUtil.formatAsGMT(((Date) obj).toInstant());
                 } else {
                     values[i] = obj;
                 }

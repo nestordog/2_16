@@ -17,14 +17,14 @@
  ***********************************************************************************/
 package ch.algotrader.esper.subscriber;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.ConfigLocator;
 import ch.algotrader.entity.strategy.PortfolioValue;
 import ch.algotrader.report.ListReporter;
+import ch.algotrader.util.DateTimeUtil;
 import ch.algotrader.util.metric.MetricsUtil;
 
 /**
@@ -35,8 +35,6 @@ import ch.algotrader.util.metric.MetricsUtil;
  * @version $Revision$ $Date$
  */
 public class PortfolioValueSubscriber {
-
-    private static final DateFormat formatter = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
     private boolean initialized = false;
     private ListReporter reporter;
@@ -56,7 +54,8 @@ public class PortfolioValueSubscriber {
         }
 
         if (this.initialized) {
-            this.reporter.write(formatter.format(ServiceLocator.instance().getEngineManager().getCurrentEPTime()), portfolioValue.getCashBalance(), portfolioValue.getSecuritiesCurrentValue(), portfolioValue.getNetLiqValue());
+            final Date currentDateTime = ServiceLocator.instance().getEngineManager().getCurrentEPTime();
+            this.reporter.write(DateTimeUtil.formatAsGMT(currentDateTime.toInstant()), portfolioValue.getCashBalance(), portfolioValue.getSecuritiesCurrentValue(), portfolioValue.getNetLiqValue());
         }
 
         MetricsUtil.accountEnd("LogPortfolioValueSubscriber", startTime);

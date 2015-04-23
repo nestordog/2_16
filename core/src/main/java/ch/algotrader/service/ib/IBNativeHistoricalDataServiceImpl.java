@@ -18,7 +18,7 @@
 package ch.algotrader.service.ib;
 
 import java.math.RoundingMode;
-import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -45,6 +45,7 @@ import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.enumeration.TimePeriod;
 import ch.algotrader.service.HistoricalDataServiceImpl;
+import ch.algotrader.util.DateTimeLegacy;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -54,7 +55,7 @@ import ch.algotrader.service.HistoricalDataServiceImpl;
 public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl implements IBNativeHistoricalDataService {
 
     private static final Logger logger = LogManager.getLogger(IBNativeHistoricalDataServiceImpl.class.getName());
-    private static final SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyyMMdd  HH:mm:ss");
+    private static final DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("yyyyMMdd  HH:mm:ss");
     private static final int pacingMillis = 10 * 1000;
 
     private long lastTimeStamp = 0;
@@ -113,7 +114,7 @@ public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl
         int scale = security.getSecurityFamily().getScale(Broker.IB);
         Contract contract = IBUtil.getContract(security);
         int requestId = this.iBIdGenerator.getNextRequestId();
-        String dateString = dateTimeFormat.format(endDate);
+        String dateString = dateTimeFormat.format(DateTimeLegacy.toGMTDate(endDate));
 
         String durationString = timePeriodLength + " ";
         switch (timePeriod) {

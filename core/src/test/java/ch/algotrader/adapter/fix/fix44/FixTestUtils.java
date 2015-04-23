@@ -17,12 +17,11 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.fix.fix44;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.DateTimeException;
+import java.time.LocalDateTime;
 import java.util.Date;
 
-import ch.algotrader.util.Consts;
+import ch.algotrader.util.DateTimePatterns;
 import quickfix.ConfigError;
 import quickfix.DataDictionary;
 import quickfix.InvalidMessage;
@@ -85,16 +84,6 @@ public class FixTestUtils {
 
     public static SessionID fakeFix44Session() {
         return new SessionID(new BeginString("FIX.4.4"), new SenderCompID("test"), new TargetCompID("test"), "FAKE");
-    }
-
-    public static DateFormat getSimpleDateTimeFormat() {
-        SimpleDateFormat f = new SimpleDateFormat("yyyyMMdd-HH:mm:ss.SSS");
-        f.setTimeZone(Consts.UTM);
-        return f;
-    }
-
-    public static Date parseDateTime(final String s) throws ParseException {
-        return getSimpleDateTimeFormat().parse(s);
     }
 
 }

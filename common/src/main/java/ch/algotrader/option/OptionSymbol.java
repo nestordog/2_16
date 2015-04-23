@@ -18,17 +18,17 @@
 package ch.algotrader.option;
 
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 
 import org.apache.commons.lang.StringUtils;
 
 import ch.algotrader.entity.security.OptionFamily;
 import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.util.BaseConverterUtil;
+import ch.algotrader.util.DateTimeLegacy;
+import ch.algotrader.util.DateTimePatterns;
 
 /**
  * Utility class to generate symbol, isin and ric for {@link ch.algotrader.entity.security.Option Options}.
@@ -42,29 +42,21 @@ public class OptionSymbol {
     private static final String[] monthCallEnc = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L" };
     private static final String[] monthPutEnc = { "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X" };
     private static final String[] yearEnc = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J" };
-    private static final SimpleDateFormat dayMonthYearFormat = new SimpleDateFormat("dd/MMM/yy");
-    private static final SimpleDateFormat monthYearFormat = new SimpleDateFormat("MMM/yy");
-    private static final SimpleDateFormat dayFormat = new SimpleDateFormat("dd");
-    private static final SimpleDateFormat weekFormat = new SimpleDateFormat("W");
 
     /**
      * Generates the symbole for the specified {@link ch.algotrader.entity.security.OptionFamily}.
      */
     public static String getSymbol(OptionFamily family, Date expiration, OptionType type, BigDecimal strike, boolean includeDay) {
 
-        GregorianCalendar cal = new GregorianCalendar();
-        cal.setTime(expiration);
-
-        String week = "";
-        if (family.isWeekly()) {
-            week = weekFormat.format(cal.getTime());
-        }
+        LocalDate localDate = DateTimeLegacy.toGMTDate(expiration);
+        String week = family.isWeekly() ? DateTimePatterns.WEEK_OF_MONTH.format(localDate) : "";
 
         StringBuilder buffer = new StringBuilder();
         buffer.append(family.getSymbolRoot());
         buffer.append(week);
         buffer.append(" ");
-        buffer.append(includeDay ? dayMonthYearFormat.format(cal.getTime()) : monthYearFormat.format(cal.getTime()).toUpperCase());
+        buffer.append(includeDay ? DateTimePatterns.OPTION_DAY_MONTH_YEAR.format(localDate) :
+                DateTimePatterns.OPTION_MONTH_YEAR.format(localDate).toUpperCase());
         buffer.append("-");
         buffer.append(type.toString().substring(0, 1));
         buffer.append(" ");
@@ -78,22 +70,17 @@ public class OptionSymbol {
      */
     public static String getIsin(OptionFamily family, Date expiration, OptionType type, BigDecimal strike) {
 
-        Calendar cal = new GregorianCalendar();
-        cal.setTime(expiration);
-
-        String week = "";
-        if (family.isWeekly()) {
-            week = weekFormat.format(cal.getTime());
-        }
+        LocalDate localDate= DateTimeLegacy.toGMTDate(expiration);
+        String week = family.isWeekly() ? DateTimePatterns.WEEK_OF_MONTH.format(localDate) : "";
 
         String month;
         if (OptionType.CALL.equals(type)) {
-            month = monthCallEnc[cal.get(Calendar.MONTH)];
+            month = monthCallEnc[localDate.getMonthValue() - 1];
         } else {
-            month = monthPutEnc[cal.get(Calendar.MONTH)];
+            month = monthPutEnc[localDate.getMonthValue() - 1];
         }
 
-        int yearIndex = cal.get(Calendar.YEAR) % 10;
+        int yearIndex = localDate.getYear() % 10;
         String year = yearEnc[yearIndex];
 
             String strike36 = BaseConverterUtil.toBase36(strike.multiply(new BigDecimal(10)).intValue());
@@ -115,18 +102,18 @@ public class OptionSymbol {
      */
     public static String getRic(OptionFamily family, Date expiration, OptionType type, BigDecimal strike) {
 
-        GregorianCalendar cal = new GregorianCalendar();
-        cal.setTime(expiration);
+        LocalDate localDate= DateTimeLegacy.toGMTDate(expiration);
 
         StringBuilder buffer = new StringBuilder();
         buffer.append(family.getRicRoot() != null ? family.getRicRoot() : family.getSymbolRoot());
         if (OptionType.CALL.equals(type)) {
-            buffer.append(monthCallEnc[cal.get(Calendar.MONTH)]);
+            buffer.append(monthCallEnc[localDate.getMonthValue() - 1]);
         } else {
-            buffer.append(monthPutEnc[cal.get(Calendar.MONTH)]);
+            buffer.append(monthPutEnc[localDate.getMonthValue() - 1]);
         }
-        buffer.append(dayFormat.format(cal.getTime()));
-        buffer.append((cal.get(Calendar.YEAR) + "").substring(2));
+        buffer.append(DateTimePatterns.DAY_OF_MONTH.format(localDate));
+        final String s = DateTimePatterns.YEAR_4_DIGIT.format(localDate);
+        buffer.append(s.substring(s.length() - 2, s.length()));
         buffer.append(StringUtils.leftPad(String.valueOf((int) (strike.doubleValue() * 100)), 5, "0"));
         buffer.append(".U");
 

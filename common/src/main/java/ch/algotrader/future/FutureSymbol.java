@@ -17,13 +17,15 @@
  ***********************************************************************************/
 package ch.algotrader.future;
 
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
 import ch.algotrader.entity.security.SecurityFamily;
+import ch.algotrader.util.DateTimeLegacy;
+import ch.algotrader.util.DateTimePatterns;
 
 /**
  * Utility class to generate symbol, isin and ric for {@link ch.algotrader.entity.security.Future Futures}.
@@ -42,16 +44,14 @@ public class FutureSymbol {
      */
     public static String getSymbol(SecurityFamily family, Date expiration) {
 
-        GregorianCalendar cal = new GregorianCalendar();
-        cal.setTime(expiration);
-
         StringBuilder buffer = new StringBuilder();
         buffer.append(family.getSymbolRoot());
         buffer.append(" ");
-        buffer.append(new SimpleDateFormat("MMM").format(cal.getTime()).toUpperCase());
+        LocalDate localDate = DateTimeLegacy.toGMTDate(expiration);
+        buffer.append(DateTimePatterns.MONTH_LONG.format(localDate).toUpperCase());
         buffer.append("/");
-        buffer.append(String.valueOf(cal.get(Calendar.YEAR)).substring(2));
-
+        final String s = DateTimePatterns.YEAR_4_DIGIT.format(localDate);
+        buffer.append(s.substring(s.length() - 2, s.length()));
         return buffer.toString();
     }
 

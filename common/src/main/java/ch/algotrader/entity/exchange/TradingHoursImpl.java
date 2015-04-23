@@ -18,11 +18,12 @@
 
 package ch.algotrader.entity.exchange;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Objects;
 
 import ch.algotrader.enumeration.WeekDay;
+import ch.algotrader.util.DateTimeLegacy;
+import ch.algotrader.util.DateTimeUtil;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -32,8 +33,6 @@ import ch.algotrader.enumeration.WeekDay;
 public class TradingHoursImpl extends TradingHours {
 
     private static final long serialVersionUID = 6712473136790778936L;
-
-    private static final SimpleDateFormat hourFormat = new SimpleDateFormat("HH:mm:ss");
 
     @Override
     public boolean isEnabled(WeekDay weekDay) {
@@ -97,9 +96,9 @@ public class TradingHoursImpl extends TradingHours {
             buffer.append(" ");
         }
 
-        buffer.append(hourFormat.format(getOpen()));
+        DateTimeUtil.formatLocalTime(DateTimeLegacy.toGMTTime(getOpen()), buffer);
         buffer.append("-");
-        buffer.append(hourFormat.format(getClose()));
+        DateTimeUtil.formatLocalTime(DateTimeLegacy.toGMTTime(getClose()), buffer);
 
         return buffer.toString();
     }

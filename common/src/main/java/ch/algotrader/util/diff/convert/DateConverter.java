@@ -17,24 +17,24 @@
  ***********************************************************************************/
 package ch.algotrader.util.diff.convert;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Date;
 import java.util.Objects;
 
 /**
- * Converter for date values using a {@link DateFormat} to convert from a string.
+ * Converter for date values using a {@link DateTimeFormatter} to convert from a string.
  */
 public class DateConverter extends AbstractValueConverter<Date> implements ValueConverter<Date> {
 
-    private final DateFormat dateFormat;
+    private final DateTimeFormatter dateFormat;
 
     public DateConverter(String dateFormatPattern) {
-        this(new SimpleDateFormat(dateFormatPattern));
+        this(DateTimeFormatter.ofPattern(dateFormatPattern));
     }
 
-    public DateConverter(DateFormat dateFormat) {
+    public DateConverter(DateTimeFormatter dateFormat) {
         super(Date.class);
         this.dateFormat = Objects.requireNonNull(dateFormat, "dateFormat cannot be null");
     }
@@ -42,8 +42,9 @@ public class DateConverter extends AbstractValueConverter<Date> implements Value
     @Override
     public Date convert(String column, String value) {
         try {
-            return dateFormat.parse(value);
-        } catch (ParseException e) {
+            Instant instant = dateFormat.parse(value, Instant::from);
+            return new Date(instant.toEpochMilli());
+        } catch (DateTimeParseException e) {
             throw new IllegalArgumentException("[" + column + "] cannot parse date value: " + value, e);
         }
     }
