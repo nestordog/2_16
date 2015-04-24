@@ -71,6 +71,7 @@ import ch.algotrader.esper.io.CvsTypeCoercer;
 import ch.algotrader.esper.io.DBBarInputAdapter;
 import ch.algotrader.esper.io.DBTickInputAdapter;
 import ch.algotrader.esper.io.GenericEventInputAdapterSpec;
+import ch.algotrader.event.EventListenerRegistry;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.report.ReportManager;
 import ch.algotrader.service.LookupService;
@@ -118,6 +119,8 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
 
     private final LookupService lookupService;
 
+    private final EventListenerRegistry eventListenerRegistry;
+
     private final EventDispatcher eventDispatcher;
 
     private final EngineManager engineManager;
@@ -135,6 +138,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
                                   final PortfolioService portfolioService,
                                   final StrategyPersistenceService strategyPersistenceService,
                                   final LookupService lookupService,
+                                  final EventListenerRegistry eventListenerRegistry,
                                   final EventDispatcher eventDispatcher,
                                   final EngineManager engineManager,
                                   final Engine serverEngine,
@@ -147,6 +151,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
         Validate.notNull(portfolioService, "PortfolioService is null");
         Validate.notNull(strategyPersistenceService, "StrategyPersistenceService is null");
         Validate.notNull(lookupService, "LookupService is null");
+        Validate.notNull(eventListenerRegistry, "EventListenerRegistry is null");
         Validate.notNull(eventDispatcher, "EventDispatcher is null");
         Validate.notNull(engineManager, "EngineManager is null");
         Validate.notNull(serverEngine, "Engine is null");
@@ -159,6 +164,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
         this.portfolioService = portfolioService;
         this.strategyPersistenceService = strategyPersistenceService;
         this.lookupService = lookupService;
+        this.eventListenerRegistry = eventListenerRegistry;
         this.eventDispatcher = eventDispatcher;
         this.engineManager = engineManager;
         this.serverEngine = serverEngine;
@@ -190,6 +196,10 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
 
         // init strategies
         initStrategies(strategyGroup);
+
+        if (this.eventListenerRegistry.getListeners(LifecycleEventVO.class).isEmpty()) {
+            logger.warn("No life cycle event listeners have been registered");
+        }
 
         // reset the db
         this.resetService.resetDB();

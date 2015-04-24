@@ -18,6 +18,7 @@
 package ch.algotrader.event;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -73,9 +74,11 @@ public final class EventListenerRegistryImpl implements EventListenerRegistry {
         }
     }
 
-    Set<EventListener<?>> getListeners(final Class<?> eventType) {
+    @Override
+    public Set<EventListener<?>> getListeners(final Class<?> eventType) {
 
-        return this.listenerMap.get(eventType);
+        final Set<EventListener<?>> eventListeners = this.listenerMap.get(eventType);
+        return eventListeners != null ? new HashSet<>(eventListeners) : Collections.emptySet();
     }
 
     static Class<?>[] calculateTypeHierarchy(final Class<?> eventClass) {
@@ -123,7 +126,7 @@ public final class EventListenerRegistryImpl implements EventListenerRegistry {
         Class<?>[] allTypes = getTypeHierarchy(event.getClass());
         for (Class<?> type: allTypes) {
 
-            Set<EventListener<?>> listeners = getListeners(type);
+            Set<EventListener<?>> listeners = this.listenerMap.get(type);
             if (listeners != null) {
 
                 broadcastToAll(listeners, event);

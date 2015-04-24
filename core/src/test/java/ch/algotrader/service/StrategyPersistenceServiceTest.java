@@ -134,7 +134,7 @@ public class StrategyPersistenceServiceTest {
         final int strategyId = 666;
 
         //when
-        service.deleteStragegy(strategyId);
+        service.deleteStrategy(strategyId);
 
         //then
         verify(strategyDao).deleteById(eq(strategyId));

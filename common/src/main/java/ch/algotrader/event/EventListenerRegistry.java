@@ -17,6 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.event;
 
+import java.util.Set;
+
 /**
  * Event broadcaster that maintains a registry of {@link ch.algotrader.event.EventListener}s
  * it can broadcast events to.
@@ -42,5 +44,12 @@ public interface EventListenerRegistry extends EventBroadcaster {
      * @param <T> event type
      */
     <T> void unregister(EventListener<T> listener, Class<T> eventType);
+
+    /**
+     * Returns listeners registered for the given event type.
+     * @param eventType
+     * @return
+     */
+    Set<EventListener<?>> getListeners(Class<?> eventType);
 
 }

@@ -69,7 +69,8 @@ public class EventListenerRegistryImplTest {
         EventListenerRegistryImpl registry = new EventListenerRegistryImpl();
 
         Set<EventListener<?>> listeners0 = registry.getListeners(Security.class);
-        Assert.assertNull(listeners0);
+        Assert.assertNotNull(listeners0);
+        Assert.assertTrue(listeners0.isEmpty());
 
         registry.register(this.listener1, Security.class);
         Set<EventListener<?>> listeners1 = registry.getListeners(Security.class);

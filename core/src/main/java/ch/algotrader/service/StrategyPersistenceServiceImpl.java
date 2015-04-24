@@ -72,7 +72,7 @@ public class StrategyPersistenceServiceImpl implements StrategyPersistenceServic
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public void deleteStragegy(final int strageyId) {
+    public void deleteStrategy(final int strageyId) {
         this.strategyDao.deleteById(strageyId);
     }
 }
