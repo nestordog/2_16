@@ -46,6 +46,25 @@ import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import ch.algotrader.config.ConfigParams;
+import ch.algotrader.config.DependencyLookup;
+import ch.algotrader.entity.security.Security;
+import ch.algotrader.entity.trade.Order;
+import ch.algotrader.esper.annotation.Condition;
+import ch.algotrader.esper.annotation.Listeners;
+import ch.algotrader.esper.annotation.RunTimeOnly;
+import ch.algotrader.esper.annotation.SimulationOnly;
+import ch.algotrader.esper.annotation.Subscriber;
+import ch.algotrader.esper.callback.ClosePositionCallback;
+import ch.algotrader.esper.callback.OpenPositionCallback;
+import ch.algotrader.esper.callback.TickCallback;
+import ch.algotrader.esper.callback.TimerCallback;
+import ch.algotrader.esper.callback.TradeCallback;
+import ch.algotrader.esper.io.CustomSender;
+import ch.algotrader.util.DateTimeUtil;
+import ch.algotrader.util.collection.CollectionUtil;
+import ch.algotrader.util.metric.MetricsUtil;
+
 import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.ConfigurationOperations;
 import com.espertech.esper.client.ConfigurationVariable;
@@ -81,25 +100,6 @@ import com.espertech.esper.epl.spec.StatementSpecMapper;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esperio.AdapterCoordinatorImpl;
 import com.espertech.esperio.CoordinatedAdapter;
-
-import ch.algotrader.config.ConfigParams;
-import ch.algotrader.config.DependencyLookup;
-import ch.algotrader.entity.security.Security;
-import ch.algotrader.entity.trade.Order;
-import ch.algotrader.esper.annotation.Condition;
-import ch.algotrader.esper.annotation.Listeners;
-import ch.algotrader.esper.annotation.RunTimeOnly;
-import ch.algotrader.esper.annotation.SimulationOnly;
-import ch.algotrader.esper.annotation.Subscriber;
-import ch.algotrader.esper.callback.ClosePositionCallback;
-import ch.algotrader.esper.callback.OpenPositionCallback;
-import ch.algotrader.esper.callback.TickCallback;
-import ch.algotrader.esper.callback.TimerCallback;
-import ch.algotrader.esper.callback.TradeCallback;
-import ch.algotrader.esper.io.CustomSender;
-import ch.algotrader.util.DateTimeUtil;
-import ch.algotrader.util.collection.CollectionUtil;
-import ch.algotrader.util.metric.MetricsUtil;
 
 /**
  * Esper based implementation of an {@link Engine}
@@ -734,14 +734,24 @@ public class EngineImpl extends AbstractEngine {
     @Override
     public void addTimerCallback(Date dateTime, String name, TimerCallback callback) {
 
-        String alias = "ON_TIMER_" + DateTimeUtil.formatAsGMT(dateTime.toInstant()).replace(" ", "_") + (name != null ? "_" + name : "");
+        // execute callback immediately if dateTime is in the past
+        if (dateTime.compareTo(getCurrentTime()) < 0) {
+            try {
+                callback.onTimer(getCurrentTime());
+            } catch (Exception e) {
+                LOGGER.error("error executing timer callback", e);
+            }
+        } else {
+            String alias = "ON_TIMER_" + DateTimeUtil.formatAsGMT(dateTime.toInstant()).replace(" ", "_") + (name != null ? "_" + name : "");
 
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(dateTime);
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(dateTime);
 
-        Object[] params = { alias, cal.get(Calendar.MINUTE), cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.DAY_OF_MONTH), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.SECOND), cal.get(Calendar.YEAR) };
+            Object[] params = { alias, cal.get(Calendar.MINUTE), cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.DAY_OF_MONTH), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.SECOND),
+                    cal.get(Calendar.YEAR) };
 
-        deployStatement("prepared", "ON_TIMER", alias, params, callback, true);
+            deployStatement("prepared", "ON_TIMER", alias, params, callback, true);
+        }
     }
 
     private EPStatement startStatement(ModuleItem moduleItem, EPServiceProvider serviceProvider, String alias, Object[] params, Object callback) {
