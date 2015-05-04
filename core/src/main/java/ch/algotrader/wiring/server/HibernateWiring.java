@@ -41,8 +41,21 @@ import org.springframework.transaction.support.TransactionTemplate;
 @Configuration
 public class HibernateWiring {
 
+    @Bean(name = "hibernateProperties")
+    public Properties createHibernateProperties() {
+
+        Properties properties = new Properties();
+
+        properties.setProperty("hibernate.default_batch_fetch_size", "16");
+        properties.setProperty("hibernate.cache.use_second_level_cache", "true");
+        properties.setProperty("hibernate.cache.use_query_cache", "true");
+        properties.setProperty("hibernate.cache.region.factory_class", "org.hibernate.cache.ehcache.EhCacheRegionFactory");
+        properties.setProperty("hibernate.cache.query_cache_factory", "org.hibernate.cache.internal.StandardQueryCacheFactory");
+        return properties;
+    }
+
     @Bean(name = "sessionFactory")
-    public SessionFactory createSessionFactory(final DataSource dataSource, final ApplicationContext applicationContext) throws Exception {
+    public SessionFactory createSessionFactory(final DataSource dataSource, final Properties hibernateProperties, final ApplicationContext applicationContext) throws Exception {
 
         LocalSessionFactoryBean localSessionFactoryBean = new LocalSessionFactoryBean();
 
@@ -55,15 +68,7 @@ public class HibernateWiring {
 
         localSessionFactoryBean.setMappingLocations(resources.toArray(new Resource[resources.size()]));
 
-        Properties properties = new Properties();
-
-        properties.setProperty("hibernate.default_batch_fetch_size", "16");
-        properties.setProperty("hibernate.cache.use_second_level_cache", "true");
-        properties.setProperty("hibernate.cache.use_query_cache", "true");
-        properties.setProperty("hibernate.cache.region.factory_class", "org.hibernate.cache.ehcache.EhCacheRegionFactory");
-        properties.setProperty("hibernate.cache.query_cache_factory", "org.hibernate.cache.internal.StandardQueryCacheFactory");
-
-        localSessionFactoryBean.setHibernateProperties(properties);
+        localSessionFactoryBean.setHibernateProperties(hibernateProperties);
 
         localSessionFactoryBean.afterPropertiesSet();
 

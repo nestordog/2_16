@@ -33,6 +33,7 @@ import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.lifecycle.LifecycleManager;
 import ch.algotrader.service.LookupService;
+import ch.algotrader.wiring.HibernateNoCachingWiring;
 import ch.algotrader.wiring.common.CommonConfigWiring;
 import ch.algotrader.wiring.common.EngineManagerWiring;
 import ch.algotrader.wiring.common.EventDispatchWiring;
@@ -96,7 +97,7 @@ public class WiringTest {
         EmbeddedDatabase database = dbFactory.getDatabase();
         context.getDefaultListableBeanFactory().registerSingleton("dataSource", database);
 
-        context.register(HibernateWiring.class);
+        context.register(HibernateNoCachingWiring.class);
         context.refresh();
 
         Assert.assertNotNull(context.getBean(SessionFactory.class));
