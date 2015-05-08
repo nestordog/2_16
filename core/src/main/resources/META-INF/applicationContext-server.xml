@@ -24,38 +24,6 @@
 
     <task:executor id="orderPersistExecutor" pool-size="1"/>
 
-    <!-- Pooled DataSource (for production use) -->
-    <beans profile="pooledDataSource">
-        <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
-            <property name="driverClass"><value>${dataSource.driver}</value></property>
-            <property name="user"><value>${dataSource.user}</value></property>
-            <property name="password"><value>${dataSource.password}</value></property>
-            <property name="jdbcUrl"><value>${dataSource.url}</value></property>
-    <!--         <property name="minPoolSize"><value>5</value></property> -->
-    <!--         <property name="maxPoolSize"><value>10</value></property> -->
-              <property name="idleConnectionTestPeriod"><value>300</value></property>
-              <property name="maxIdleTime"><value>1800</value></property>
-        </bean>
-    </beans>
-
-    <!-- Single Connection DataSource (for development / testing) -->
-    <beans profile="singleDataSource">
-        <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-            <property name="driverClassName"><value>${dataSource.driver}</value></property>
-            <property name="username"><value>${dataSource.user}</value></property>
-            <property name="password"><value>${dataSource.password}</value></property>
-            <property name="url"><value>${dataSource.url}</value></property>
-        </bean>
-    </beans>
-
-    <!-- Embedded H2 DataSource (for development / testing) -->
-    <beans profile="embeddedDataSource">
-        <jdbc:embedded-database id="dataSource" type="H2">
-            <jdbc:script location="classpath:/db/h2/h2.sql"/>
-            <jdbc:script location="classpath*:/db/h2/h2-*.sql"/>
-        </jdbc:embedded-database>
-    </beans>
-
     <!-- =================================== Simulation Executor  ========================================= -->
 
     <beans profile="simulation,noopSimulation">

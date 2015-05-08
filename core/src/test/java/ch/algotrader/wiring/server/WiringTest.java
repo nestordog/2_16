@@ -30,7 +30,6 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import ch.algotrader.config.CoreConfig;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.esper.EngineManager;
 import ch.algotrader.lifecycle.LifecycleManager;
 import ch.algotrader.service.LookupService;
 import ch.algotrader.wiring.HibernateNoCachingWiring;
