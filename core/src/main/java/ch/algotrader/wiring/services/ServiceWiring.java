@@ -1,0 +1,405 @@
+/***********************************************************************************
+ * AlgoTrader Enterprise Trading Framework
+ *
+ * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ *
+ * All information contained herein is, and remains the property of AlgoTrader GmbH.
+ * The intellectual and technical concepts contained herein are proprietary to
+ * AlgoTrader GmbH. Modification, translation, reverse engineering, decompilation,
+ * disassembly or reproduction of this material is strictly forbidden unless prior
+ * written permission is obtained from AlgoTrader GmbH
+ *
+ * Fur detailed terms and conditions consult the file LICENSE.txt or contact
+ *
+ * AlgoTrader GmbH
+ * Badenerstrasse 16
+ * 8004 Zurich
+ ***********************************************************************************/
+
+package ch.algotrader.wiring.services;
+
+import org.hibernate.SessionFactory;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
+
+import ch.algotrader.config.CommonConfig;
+import ch.algotrader.config.CoreConfig;
+import ch.algotrader.entity.AccountDao;
+import ch.algotrader.entity.PositionDao;
+import ch.algotrader.entity.SubscriptionDao;
+import ch.algotrader.entity.TransactionDao;
+import ch.algotrader.entity.exchange.ExchangeDao;
+import ch.algotrader.entity.marketData.BarDao;
+import ch.algotrader.entity.marketData.TickDao;
+import ch.algotrader.entity.property.PropertyDao;
+import ch.algotrader.entity.property.PropertyHolderDao;
+import ch.algotrader.entity.security.CombinationDao;
+import ch.algotrader.entity.security.ComponentDao;
+import ch.algotrader.entity.security.EasyToBorrowDao;
+import ch.algotrader.entity.security.ForexDao;
+import ch.algotrader.entity.security.FutureDao;
+import ch.algotrader.entity.security.FutureFamilyDao;
+import ch.algotrader.entity.security.IntrestRateDao;
+import ch.algotrader.entity.security.OptionDao;
+import ch.algotrader.entity.security.OptionFamilyDao;
+import ch.algotrader.entity.security.SecurityDao;
+import ch.algotrader.entity.security.SecurityFamilyDao;
+import ch.algotrader.entity.security.StockDao;
+import ch.algotrader.entity.strategy.CashBalanceDao;
+import ch.algotrader.entity.strategy.MeasurementDao;
+import ch.algotrader.entity.strategy.PortfolioValueDao;
+import ch.algotrader.entity.strategy.StrategyDao;
+import ch.algotrader.entity.trade.LimitOrderDao;
+import ch.algotrader.entity.trade.MarketOrderDao;
+import ch.algotrader.entity.trade.OrderDao;
+import ch.algotrader.entity.trade.OrderPreferenceDao;
+import ch.algotrader.entity.trade.OrderPropertyDao;
+import ch.algotrader.entity.trade.OrderStatusDao;
+import ch.algotrader.entity.trade.StopLimitOrderDao;
+import ch.algotrader.entity.trade.StopOrderDao;
+import ch.algotrader.esper.Engine;
+import ch.algotrader.esper.EngineManager;
+import ch.algotrader.event.dispatch.EventDispatcher;
+import ch.algotrader.hibernate.GenericDao;
+import ch.algotrader.service.CalendarService;
+import ch.algotrader.service.CalendarServiceImpl;
+import ch.algotrader.service.CombinationService;
+import ch.algotrader.service.CombinationServiceImpl;
+import ch.algotrader.service.ForexService;
+import ch.algotrader.service.ForexServiceImpl;
+import ch.algotrader.service.FutureService;
+import ch.algotrader.service.FutureServiceImpl;
+import ch.algotrader.service.LazyLoaderService;
+import ch.algotrader.service.LazyLoaderServiceImpl;
+import ch.algotrader.service.LocalLookupService;
+import ch.algotrader.service.LocalLookupServiceImpl;
+import ch.algotrader.service.LookupService;
+import ch.algotrader.service.LookupServiceImpl;
+import ch.algotrader.service.MarketDataService;
+import ch.algotrader.service.MarketDataServiceImpl;
+import ch.algotrader.service.MeasurementService;
+import ch.algotrader.service.MeasurementServiceImpl;
+import ch.algotrader.service.OptionService;
+import ch.algotrader.service.OptionServiceImpl;
+import ch.algotrader.service.OrderPersistenceService;
+import ch.algotrader.service.OrderPersistenceServiceImpl;
+import ch.algotrader.service.OrderService;
+import ch.algotrader.service.OrderServiceImpl;
+import ch.algotrader.service.PortfolioService;
+import ch.algotrader.service.PortfolioServiceImpl;
+import ch.algotrader.service.PositionService;
+import ch.algotrader.service.PositionServiceImpl;
+import ch.algotrader.service.PropertyService;
+import ch.algotrader.service.PropertyServiceImpl;
+import ch.algotrader.service.ServerManagementService;
+import ch.algotrader.service.ServerManagementServiceImpl;
+import ch.algotrader.service.StrategyPersistenceService;
+import ch.algotrader.service.StrategyPersistenceServiceImpl;
+import ch.algotrader.service.SubscriptionService;
+import ch.algotrader.service.SubscriptionServiceImpl;
+import ch.algotrader.service.TransactionPersistenceService;
+import ch.algotrader.service.TransactionService;
+import ch.algotrader.service.TransactionServiceImpl;
+import ch.algotrader.service.h2.H2TransactionPersistenceServiceImpl;
+import ch.algotrader.service.mysql.MySqlTransactionPersistenceServiceImpl;
+
+/**
+ * Service configuration.
+ *
+ * @version $Revision$ $Date$
+ */
+@Configuration
+public class ServiceWiring {
+
+    @Bean(name = "lookupService")
+    public LookupService createLookupService(final CommonConfig commonConfig,
+            final CoreConfig coreConfig,
+            final SessionFactory sessionFactory,
+            final GenericDao genericDao,
+            final FutureFamilyDao futureFamilyDao,
+            final FutureDao futureDao,
+            final ForexDao forexDao,
+            final SecurityFamilyDao securityFamilyDao,
+            final OptionFamilyDao optionFamilyDao,
+            final TickDao tickDao,
+            final OptionDao optionDao,
+            final TransactionDao transactionDao,
+            final PositionDao positionDao,
+            final StrategyDao strategyDao,
+            final SecurityDao securityDao,
+            final CashBalanceDao cashBalanceDao,
+            final SubscriptionDao subscriptionDao,
+            final CombinationDao combinationDao,
+            final ComponentDao componentDao,
+            final MeasurementDao measurementDao,
+            final BarDao barDao,
+            final OrderDao orderDao,
+            final OrderStatusDao orderStatusDao,
+            final AccountDao accountDao,
+            final StockDao stockDao,
+            final IntrestRateDao intrestRateDao,
+            final EasyToBorrowDao easyToBorrowDao) {
+
+        return new LookupServiceImpl(commonConfig, coreConfig, sessionFactory, genericDao, futureFamilyDao, futureDao, forexDao, securityFamilyDao, optionFamilyDao, tickDao, optionDao,
+                transactionDao, positionDao, strategyDao, securityDao, cashBalanceDao, subscriptionDao, combinationDao, componentDao, measurementDao, barDao, orderDao, orderStatusDao, accountDao,
+                stockDao, intrestRateDao, easyToBorrowDao);
+    }
+
+    @Bean(name = "portfolioService")
+    public PortfolioService createPortfolioService(final CommonConfig commonConfig,
+            final CoreConfig coreConfig,
+            final SessionFactory sessionFactory,
+            final LookupService lookupService,
+            final LocalLookupService localLookupService,
+            final GenericDao genericDao,
+            final StrategyDao strategyDao,
+            final TransactionDao transactionDao,
+            final PositionDao positionDao,
+            final CashBalanceDao cashBalanceDao,
+            final PortfolioValueDao portfolioValueDao,
+            final TickDao tickDao,
+            final ForexDao forexDao,
+            final EngineManager engineManager) {
+
+        return new PortfolioServiceImpl(commonConfig, coreConfig, sessionFactory, lookupService, localLookupService, genericDao, strategyDao, transactionDao, positionDao, cashBalanceDao,
+                portfolioValueDao, tickDao, forexDao, engineManager);
+    }
+
+    @Bean(name = "positionService")
+    public PositionService createPositionService(final CommonConfig commonConfig,
+            final CoreConfig coreConfig,
+            final TransactionService transactionService,
+            final MarketDataService marketDataService,
+            final OrderService orderService,
+            final PortfolioService portfolioService,
+            final LocalLookupService localLookupService,
+            final PositionDao positionDao,
+            final SecurityDao securityDao,
+            final StrategyDao strategyDao,
+            final TransactionDao transactionDao,
+            final EventDispatcher eventDispatcher,
+            final EngineManager engineManager,
+            final Engine serverEngine) {
+
+        return new PositionServiceImpl(commonConfig, coreConfig, transactionService, marketDataService, orderService, portfolioService, localLookupService, positionDao, securityDao, strategyDao,
+                transactionDao, eventDispatcher, engineManager, serverEngine);
+    }
+
+    @Bean(name = "futureService")
+    public FutureService createFutureService(final CommonConfig commonConfig,
+            final CoreConfig coreConfig,
+            final FutureFamilyDao futureFamilyDao,
+            final FutureDao futureDao,
+            final EngineManager engineManager) {
+
+        return new FutureServiceImpl(commonConfig, coreConfig, futureFamilyDao, futureDao, engineManager);
+    }
+
+    @Bean(name = "serverManagementService")
+    public ServerManagementService createServerManagementService(final PositionService positionService,
+            final ForexService forexService,
+            final CombinationService combinationService,
+            final TransactionService transactionService,
+            final OptionService optionService,
+            final OrderService orderService,
+            final EngineManager engineManager,
+            final Engine serverEngine) {
+
+        return new ServerManagementServiceImpl(positionService, forexService, combinationService, transactionService, optionService, orderService, engineManager, serverEngine);
+    }
+
+    @Bean(name = "optionService")
+    public OptionService createOptionService(final CommonConfig commonConfig,
+            final CoreConfig coreConfig,
+            final MarketDataService marketDataService,
+            final FutureService futureService,
+            final OrderService orderService,
+            final LocalLookupService localLookupService,
+            final SecurityDao securityDao,
+            final TickDao tickDao,
+            final OptionFamilyDao optionFamilyDao,
+            final OptionDao optionDao,
+            final PositionDao positionDao,
+            final SubscriptionDao subscriptionDao,
+            final FutureFamilyDao futureFamilyDao,
+            final StrategyDao strategyDao,
+            final EngineManager engineManager,
+            final Engine serverEngine) {
+
+        return new OptionServiceImpl(commonConfig, coreConfig, marketDataService, futureService, orderService, localLookupService, securityDao, tickDao, optionFamilyDao, optionDao, positionDao,
+                subscriptionDao, futureFamilyDao, strategyDao, engineManager, serverEngine);
+    }
+
+    @Bean(name = "forexService")
+    public ForexService createForexService(final CommonConfig commonConfig,
+            final CoreConfig coreConfig,
+            final OrderService orderService,
+            final PortfolioService portfolioService,
+            final LookupService lookupService,
+            final FutureService futureService,
+            final MarketDataService marketDataService,
+            final ForexDao forexDao,
+            final StrategyDao strategyDao,
+            final SubscriptionDao subscriptionDao,
+            final FutureFamilyDao futureFamilyDao,
+            final EngineManager engineManager) {
+
+        return new ForexServiceImpl(commonConfig, coreConfig, orderService, portfolioService, lookupService, futureService, marketDataService, forexDao, strategyDao, subscriptionDao, futureFamilyDao,
+                engineManager);
+    }
+
+    @Bean(name = "transactionService")
+    public TransactionService createTransactionService(final CommonConfig commonConfig,
+            final CoreConfig coreConfig,
+            final TransactionPersistenceService transactionPersistenceService,
+            final PortfolioService portfolioService,
+            final StrategyDao strategyDao,
+            final SecurityDao securityDao,
+            final AccountDao accountDao,
+            final EventDispatcher eventDispatcher,
+            final EngineManager engineManager,
+            final Engine serverEngine) {
+
+        return new TransactionServiceImpl(commonConfig, coreConfig, transactionPersistenceService, portfolioService, strategyDao, securityDao, accountDao, eventDispatcher, engineManager, serverEngine);
+    }
+
+    @Bean(name = "marketDataService")
+    public MarketDataService createMarketDataService(final CommonConfig commonConfig,
+            final CoreConfig coreConfig,
+            final SessionFactory sessionFactory,
+            final TickDao tickDao,
+            final SecurityDao securityDao,
+            final StrategyDao strategyDao,
+            final SubscriptionDao subscriptionDao,
+            final EventDispatcher eventDispatcher) {
+
+        return new MarketDataServiceImpl(commonConfig, coreConfig, sessionFactory, tickDao, securityDao, strategyDao, subscriptionDao, eventDispatcher);
+    }
+
+    @Bean(name = "orderPersistenceService")
+    public OrderPersistenceService createOrderPersistenceService(final OrderDao orderDao,
+            final MarketOrderDao marketOrderDao,
+            final LimitOrderDao limitOrderDao,
+            final StopOrderDao stopOrderDao,
+            final StopLimitOrderDao stopLimitOrderDao,
+            final OrderPropertyDao orderPropertyDao,
+            final OrderStatusDao orderStatusDao) {
+
+        return new OrderPersistenceServiceImpl(orderDao, marketOrderDao, limitOrderDao, stopOrderDao, stopLimitOrderDao, orderPropertyDao, orderStatusDao);
+    }
+
+    @Bean(name = "orderService")
+    public OrderService createOrderService(final CommonConfig commonConfig,
+            final SessionFactory sessionFactory,
+            final OrderPersistenceService orderPersistService,
+            final LocalLookupService localLookupService,
+            final OrderDao orderDao,
+            final OrderStatusDao orderStatusDao,
+            final StrategyDao strategyDao,
+            final SecurityDao securityDao,
+            final AccountDao accountDao,
+            final OrderPreferenceDao orderPreferenceDao,
+            final EventDispatcher eventDispatcher,
+            final EngineManager engineManager,
+            final Engine serverEngine) {
+
+        return new OrderServiceImpl(commonConfig, sessionFactory, orderPersistService, localLookupService, orderDao, orderStatusDao, strategyDao, securityDao, accountDao, orderPreferenceDao,
+                eventDispatcher, engineManager, serverEngine);
+    }
+
+    @Bean(name = "combinationService")
+    public CombinationService createCombinationService(final CommonConfig commonConfig,
+            final SessionFactory sessionFactory,
+            final PositionService positionService,
+            final MarketDataService marketDataService,
+            final CombinationDao combinationDao,
+            final PositionDao positionDao,
+            final SecurityDao securityDao,
+            final ComponentDao componentDao,
+            final SecurityFamilyDao securityFamilyDao,
+            final Engine serverEngine) {
+
+        return new CombinationServiceImpl(commonConfig, sessionFactory, positionService, marketDataService, combinationDao, positionDao, securityDao, componentDao, securityFamilyDao, serverEngine);
+    }
+
+    @Bean(name = "measurementService")
+    public MeasurementService createMeasurementService(final MeasurementDao measurementDao,
+            final StrategyDao strategyDao,
+            final EngineManager engineManager) {
+
+        return new MeasurementServiceImpl(measurementDao, strategyDao, engineManager);
+    }
+
+    @Bean(name = "propertyService")
+    public PropertyService createPropertyService(final PropertyDao propertyDao,
+            final PropertyHolderDao propertyHolderDao) {
+
+        return new PropertyServiceImpl(propertyDao, propertyHolderDao);
+    }
+
+    @Bean(name = "calendarService")
+    public CalendarService createCalendarService(final ExchangeDao exchangeDao,
+            final EngineManager engineManager) {
+
+        return new CalendarServiceImpl(exchangeDao, engineManager);
+    }
+
+    @Bean(name = "subscriptionService")
+    public SubscriptionService createSubscriptionService(final CommonConfig commonConfig,
+            final MarketDataService marketDataService,
+            final LookupService lookupService,
+            final EngineManager engineManager) {
+
+        return new SubscriptionServiceImpl(commonConfig, marketDataService, lookupService, engineManager);
+    }
+
+    @Bean(name = "localLookupService")
+    public LocalLookupService createLocalLookupService(final CommonConfig commonConfig,
+            final EngineManager engineManager,
+            final LookupService lookupService) {
+
+        return new LocalLookupServiceImpl(commonConfig, engineManager, lookupService);
+    }
+
+    @Bean(name = "strategyPersistenceService")
+    public StrategyPersistenceService createStrategyPersistenceService(final StrategyDao strategyDao) {
+
+        return new StrategyPersistenceServiceImpl(strategyDao);
+    }
+
+    @Bean(name = "lazyLoaderService")
+    public LazyLoaderService createLazyLoaderService() {
+
+        return new LazyLoaderServiceImpl();
+    }
+
+    @Profile({"singleDataSource","pooledDataSource"})
+    @Bean(name = "transactionPersistenceService")
+    public TransactionPersistenceService createMySqlTransactionPersistenceService(
+            final CommonConfig commonConfig,
+            final PortfolioService portfolioService,
+            final SessionFactory sessionFactory,
+            final PositionDao positionDao,
+            final TransactionDao transactionDao,
+            final CashBalanceDao cashBalanceDao,
+            final Engine serverEngine) {
+
+        return new MySqlTransactionPersistenceServiceImpl(commonConfig, portfolioService, sessionFactory, positionDao, transactionDao, cashBalanceDao, serverEngine);
+    }
+
+    @Profile("embeddedDataSource")
+    @Bean(name = "transactionPersistenceService")
+    public TransactionPersistenceService createH2TransactionPersistenceService(
+            final CommonConfig commonConfig,
+            final PortfolioService portfolioService,
+            final SessionFactory sessionFactory,
+            final PositionDao positionDao,
+            final TransactionDao transactionDao,
+            final CashBalanceDao cashBalanceDao,
+            final Engine serverEngine) {
+
+        return new H2TransactionPersistenceServiceImpl(commonConfig, portfolioService, sessionFactory, positionDao, transactionDao, cashBalanceDao, serverEngine);
+    }
+
+}
