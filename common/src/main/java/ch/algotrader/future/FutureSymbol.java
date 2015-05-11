@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.TimeZone;
 
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.util.DateTimeLegacy;
@@ -64,6 +65,7 @@ public class FutureSymbol {
 
         String month;
         Calendar cal = new GregorianCalendar();
+        cal.setTimeZone(TimeZone.getTimeZone("GMT"));
         cal.setTime(expiration);
         month = monthEnc[cal.get(Calendar.MONTH)];
 
@@ -87,6 +89,7 @@ public class FutureSymbol {
     public static String getRic(SecurityFamily family, Date expiration) {
 
         GregorianCalendar cal = new GregorianCalendar();
+        cal.setTimeZone(TimeZone.getTimeZone("GMT"));
         cal.setTime(expiration);
 
         StringBuilder buffer = new StringBuilder();
