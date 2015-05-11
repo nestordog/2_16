@@ -32,6 +32,7 @@ import org.springframework.jmx.export.annotation.AnnotationMBeanExporter;
 /**
  * Common framework configuration.
  */
+@Profile(value = {"server", "live"})
 @Configuration
 public class CommonJMXWiring {
 
@@ -51,8 +52,7 @@ public class CommonJMXWiring {
         return customEditorConfigurer;
     }
 
-    @Profile(value = "live")
-    @Bean(name = "customEditorConfigurer")
+    @Bean(name = "annotationMBeanExporter")
     public static AnnotationMBeanExporter createAnnotationMBeanExporter() {
 
         return new AnnotationMBeanExporter();
