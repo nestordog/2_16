@@ -105,9 +105,7 @@ import ch.algotrader.service.h2.H2TransactionPersistenceServiceImpl;
 import ch.algotrader.service.mysql.MySqlTransactionPersistenceServiceImpl;
 
 /**
- * Service configuration.
- *
- * @version $Revision$ $Date$
+ * Core service configuration.
  */
 @Configuration
 public class ServiceWiring {

@@ -15,7 +15,7 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.wiring.services;
+package ch.algotrader.wiring.client.service;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -40,10 +40,12 @@ import ch.algotrader.vo.ChartDefinitionVO;
 
 /**
  * Management Service configuration.
+ *
+ * @version $Revision$ $Date$
  */
-@Profile(value = "server")
+@Profile(value = "live")
 @Configuration
-public class ManagementServiceWiring {
+public class ClientManagementServiceWiring {
 
     @Bean(name = "managementService")
     public ManagementService createManagementService(
@@ -59,8 +61,8 @@ public class ManagementServiceWiring {
             final MarketDataService marketDataService,
             final ConfigParams configParams) {
 
-        return new ManagementServiceImpl(commonConfig, engineManager, subscriptionService, lookupService, portfolioService, orderService, positionService, combinationService, propertyService,
-                marketDataService, configParams);
+        return new ManagementServiceImpl(commonConfig, engineManager, subscriptionService, lookupService, portfolioService, orderService, positionService,
+                combinationService, propertyService, marketDataService, configParams);
     }
 
     @Bean(name = "portfolioChartService")

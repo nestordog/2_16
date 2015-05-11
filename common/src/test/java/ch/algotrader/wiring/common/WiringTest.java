@@ -18,7 +18,6 @@
 package ch.algotrader.wiring.common;
 
 import java.util.Date;
-import java.util.Properties;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -54,7 +53,6 @@ public class WiringTest {
 
         Assert.assertNotNull(context.getBean(ConfigParams.class));
         Assert.assertNotNull(context.getBean(CommonConfig.class));
-        Assert.assertNotNull(context.getBean("properties", Properties.class));
     }
 
     @Test
