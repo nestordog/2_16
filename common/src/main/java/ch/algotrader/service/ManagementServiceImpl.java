@@ -860,8 +860,6 @@ public class ManagementServiceImpl implements ManagementService {
         if (StrategyImpl.SERVER.equals(strategyName)) {
             this.orderService.cancelAllOrders();
         }
-        // need to force exit because grafefull shutdown of esper-service (and esper-jmx) does not work
-        System.exit(0);
 
     }
 
