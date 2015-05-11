@@ -83,6 +83,17 @@ public class ServiceLocator {
 
         this.beanFactoryReferenceLocation = beanFactoryReferenceLocationIn;
         this.beanFactoryReference = null;
+
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                ServiceLocator serviceLocator = ServiceLocator.instance();
+                if (serviceLocator.isInitialized()) {
+
+                    serviceLocator.shutdown();
+                }
+            }
+        });
     }
 
     /**
@@ -106,21 +117,6 @@ public class ServiceLocator {
                     // set the profiles
                     ConfigurableApplicationContext applicationContext = (ConfigurableApplicationContext) this.beanFactoryReference.getFactory();
                     applicationContext.getEnvironment().addActiveProfile(this.beanFactoryReferenceLocation.toLowerCase());
-
-                    try {
-                        Runtime.getRuntime().addShutdownHook(new Thread() {
-                            @Override
-                            public void run() {
-                                ServiceLocator serviceLocator = ServiceLocator.instance();
-                                if (serviceLocator.isInitialized()) {
-
-                                    serviceLocator.shutdown();
-                                }
-                            }
-                        });
-                    } catch (IllegalStateException e) {
-                        // Shutdown already in progress
-                    }
                 }
             }
         }
