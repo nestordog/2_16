@@ -22,6 +22,7 @@ import java.time.DateTimeException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.Month;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.Date;
 
@@ -47,16 +48,14 @@ import ch.algotrader.util.DateTimeUtil;
  */
 public class CalendarServiceTest {
 
-    private final static ZoneOffset ZONE_OFFSET = ZoneOffset.ofHours(1);
-
     private static Date parseAsTime(final CharSequence s) {
         Instant instant = DateTimeUtil.parseLocalTime(s)
-                .atDate(LocalDate.of(1970, Month.JANUARY, 1)).atZone(ZONE_OFFSET).toInstant();
+                .atDate(LocalDate.of(1970, Month.JANUARY, 1)).atZone(ZoneId.systemDefault()).toInstant();
         return new Date(instant.toEpochMilli());
     }
 
     public static Date parseAsDate(final CharSequence s) throws DateTimeException {
-        Instant instant = DateTimeUtil.parseLocalDate(s).atStartOfDay(ZONE_OFFSET).toInstant();
+        Instant instant = DateTimeUtil.parseLocalDate(s).atStartOfDay(ZoneId.systemDefault()).toInstant();
         return new Date(instant.toEpochMilli());
     }
 
