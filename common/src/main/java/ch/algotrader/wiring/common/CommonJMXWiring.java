@@ -21,7 +21,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.springframework.beans.PropertyEditorRegistrar;
-import org.springframework.beans.PropertyEditorRegistry;
 import org.springframework.beans.factory.config.CustomEditorConfigurer;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.context.annotation.Bean;
@@ -40,14 +39,8 @@ public class CommonJMXWiring {
     public static CustomEditorConfigurer createCustomEditorConfigurer() {
 
         CustomEditorConfigurer customEditorConfigurer = new CustomEditorConfigurer();
-        PropertyEditorRegistrar registrar = new PropertyEditorRegistrar() {
-
-            @Override
-            public void registerCustomEditors(PropertyEditorRegistry registry) {
-                registry.registerCustomEditor(Date.class, new CustomDateEditor(new SimpleDateFormat("kk:mm"), false));
-            }
-
-        };
+        PropertyEditorRegistrar registrar = registry -> registry.registerCustomEditor(
+                Date.class, new CustomDateEditor(new SimpleDateFormat("kk:mm"), false));
         customEditorConfigurer.setPropertyEditorRegistrars(new PropertyEditorRegistrar[] {registrar});
         return customEditorConfigurer;
     }

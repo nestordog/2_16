@@ -385,7 +385,7 @@ public class ServiceLocator {
 
     public void runStrategy() {
         init(CLIENT_BEAN_REFERENCE_LOCATION);
-        getLifecycleManager().runServer();
+        getLifecycleManager().runStrategy();
     }
 
     public void runServices() {

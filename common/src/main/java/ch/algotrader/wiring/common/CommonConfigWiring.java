@@ -17,12 +17,14 @@
  ***********************************************************************************/
 package ch.algotrader.wiring.common;
 
+import java.util.Date;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.core.io.support.ResourcePatternResolver;
 
@@ -33,12 +35,22 @@ import ch.algotrader.config.ConfigParams;
 import ch.algotrader.config.ConfigProvider;
 import ch.algotrader.config.spring.ConfigLoader;
 import ch.algotrader.config.spring.DefaultSystemConfigProvider;
+import ch.algotrader.config.spring.ObjectToStringConverter;
+import ch.algotrader.config.spring.StringToDateConverter;
 
 /**
  * Common framework configuration.
  */
 @Configuration
 public class CommonConfigWiring {
+
+    @Bean(name = "conversionService")
+    public ConversionService createConversionService() {
+        DefaultConversionService conversionService = new DefaultConversionService();
+        conversionService.addConverter(new StringToDateConverter());
+        conversionService.addConverter(Date.class, String.class, new ObjectToStringConverter());
+        return conversionService;
+    }
 
     @Bean(name = "configParams")
     public ConfigParams createConfigParams(final ResourcePatternResolver resourceResolver) throws Exception {
