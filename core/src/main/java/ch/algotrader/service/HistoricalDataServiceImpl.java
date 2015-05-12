@@ -129,22 +129,43 @@ public abstract class HistoricalDataServiceImpl implements HistoricalDataService
                 }
 
                 //update existing bars
+                int updatedCount = 0;
                 for (Iterator<Bar> it = newBars.iterator(); it.hasNext();) {
 
                     Bar newBar = it.next();
                     Bar existingBar = dateBarMap.remove(newBar.getDateTime());
+                    boolean updated = false;
                     if (existingBar != null) {
-                        existingBar.setOpen(newBar.getOpen());
-                        existingBar.setHigh(newBar.getHigh());
-                        existingBar.setLow(newBar.getLow());
-                        existingBar.setClose(newBar.getClose());
-                        existingBar.setVol(newBar.getVol());
+                        if (existingBar.getOpen().compareTo(newBar.getOpen()) != 0) {
+                            existingBar.setOpen(newBar.getOpen());
+                            updated = true;
+                        }
+                        if (existingBar.getHigh().compareTo(newBar.getHigh()) != 0) {
+                            existingBar.setHigh(newBar.getHigh());
+                            updated = true;
+                        }
+                        if (existingBar.getLow().compareTo(newBar.getLow()) != 0) {
+                            existingBar.setLow(newBar.getLow());
+                            updated = true;
+                        }
+                        if (existingBar.getClose().compareTo(newBar.getClose()) != 0) {
+                            existingBar.setClose(newBar.getClose());
+                            updated = true;
+                        }
+                        if (existingBar.getVol() != newBar.getVol()) {
+                            existingBar.setVol(newBar.getVol());
+                            updated = true;
+                        }
+
                         it.remove();
                     }
+                    updatedCount += updated ? 1 : 0;
                 }
 
                 // remove obsolete Bars
                 this.barDao.deleteAll(dateBarMap.values());
+
+                logger.info("updated " + updatedCount + " bars for security " + securityId);
             }
         }
 
