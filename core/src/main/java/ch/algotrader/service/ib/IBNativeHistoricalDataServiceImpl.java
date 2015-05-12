@@ -95,7 +95,7 @@ public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl
         Validate.notNull(barSize, "Bar size is null");
         Validate.notNull(barType, "Bar type is null");
 
-        if (!this.iBSession.getLifecycle().isLoggedOn()) {
+        if (!this.iBSession.isLoggedOn()) {
             throw new IBNativeHistoricalDataServiceException("cannot download historical data, because IB is not subscribed");
         }
 

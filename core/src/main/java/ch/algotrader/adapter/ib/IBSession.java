@@ -25,18 +25,14 @@ import java.net.Socket;
 import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 
 import com.ib.client.EClientSocket;
 
-import ch.algotrader.enumeration.FeedType;
+import ch.algotrader.enumeration.ConnectionState;
 import ch.algotrader.enumeration.InitializingServiceType;
 import ch.algotrader.service.InitializationPriority;
 import ch.algotrader.service.InitializingServiceI;
-import ch.algotrader.service.MarketDataService;
 
 /**
  * Represents on IB (socket) connection.
@@ -46,7 +42,7 @@ import ch.algotrader.service.MarketDataService;
  * @version $Revision$ $Date$
  */
 @InitializationPriority(value = InitializingServiceType.BROKER_INTERFACE)
-public final class IBSession extends EClientSocket implements InitializingServiceI, DisposableBean, ApplicationContextAware {
+public final class IBSession extends EClientSocket implements InitializingServiceI, DisposableBean {
 
     private static final long serialVersionUID = 6821739991866153788L;
 
@@ -55,30 +51,20 @@ public final class IBSession extends EClientSocket implements InitializingServic
     private final int clientId;
     private final String host;
     private final int port;
-    private final IBSessionLifecycle fixSessionStateHolder;
-    private final MarketDataService marketDataService;
-    private ApplicationContext applicationContext;
+    private final IBSessionStateHolder sessionStateHolder;
 
-    public IBSession(int clientId, String host, int port, IBSessionLifecycle fixSessionStateHolder, AbstractIBMessageHandler messageHandler, MarketDataService marketDataService) {
+    public IBSession(final int clientId, final String host, final int port, final IBSessionStateHolder sessionStateHolder, final AbstractIBMessageHandler messageHandler) {
 
         super(messageHandler);
 
-        Validate.notNull(clientId, "host may not be 0");
         Validate.notNull(host, "host may not be null");
-        Validate.notNull(port, "host may not be 0");
-        Validate.notNull(fixSessionStateHolder, "IBSessionLifecycle may not be null");
+        Validate.isTrue(port != 0, "port may not be 0");
+        Validate.notNull(sessionStateHolder, "IBSessionLifecycle may not be null");
 
         this.clientId = clientId;
         this.host = host;
         this.port = port;
-        this.fixSessionStateHolder = fixSessionStateHolder;
-
-        this.marketDataService = marketDataService;
-    }
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
+        this.sessionStateHolder = sessionStateHolder;
     }
 
     @Override
@@ -98,8 +84,12 @@ public final class IBSession extends EClientSocket implements InitializingServic
         return this.clientId;
     }
 
-    public IBSessionLifecycle getLifecycle() {
-        return this.fixSessionStateHolder;
+    public boolean isLoggedOn() {
+        return this.sessionStateHolder.isLoggedOn();
+    }
+
+    public ConnectionState getConnectionState() {
+        return this.sessionStateHolder.getConnectionState();
     }
 
     /**
@@ -116,15 +106,11 @@ public final class IBSession extends EClientSocket implements InitializingServic
         waitAndConnect();
 
         if (isConnected()) {
-            this.fixSessionStateHolder.connect();
+            this.sessionStateHolder.onConnect();
 
             // in case there is no 2104 message from the IB Gateway (Market data farm connection is OK)
             // manually invoke initSubscriptions after some time if there is marketDataService
-            if (this.fixSessionStateHolder.logon(true)) {
-                if (this.applicationContext.containsBean("iBNativeMarketDataService")) {
-                    this.marketDataService.initSubscriptions(FeedType.IB);
-                }
-            }
+            this.sessionStateHolder.onLogon(true);
         }
     }
 
@@ -135,7 +121,7 @@ public final class IBSession extends EClientSocket implements InitializingServic
 
         if (isConnected()) {
             eDisconnect();
-            this.fixSessionStateHolder.disconnect();
+            this.sessionStateHolder.onDisconnect();
         }
     }
 

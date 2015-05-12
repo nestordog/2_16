@@ -26,15 +26,15 @@ import ch.algotrader.enumeration.ConnectionState;
  *
  * @version $Revision$ $Date$
  */
-public interface IBSessionLifecycle {
+public interface IBSessionStateHolder {
 
-    void connect();
+    void onConnect();
 
-    void disconnect();
+    void onDisconnect();
 
-    boolean logon(boolean maintained);
+    void onLogon(boolean maintained);
 
-    void logoff();
+    void onLogoff();
 
     boolean subscribe();
 

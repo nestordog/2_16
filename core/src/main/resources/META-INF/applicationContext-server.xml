@@ -19,52 +19,6 @@
         
     <context:component-scan base-package="ch.algotrader.wiring.server"/>
 
-    <!-- =================================== Interactive Brokers  ========================================= -->
-
-    <beans profile="iBNative,iBMarketData,iBReferenceData,iBHistoricalData">
-
-        <bean id="iBSessionAdapter" class="ch.algotrader.adapter.ib.DefaultIBAdapter"/>
-
-        <bean id="iBOrderMessageFactory" class="ch.algotrader.adapter.ib.DefaultIBOrderMessageFactory">
-            <constructor-arg index="0" ref="iBConfig"/>
-        </bean>
-
-        <bean id="iBSessionLifecycle" class="ch.algotrader.adapter.ib.DefaultIBSessionLifecycle">
-            <lookup-method name="getIBSession" bean="iBSession"/>
-        </bean>
-
-        <bean id="iBIdGenerator" class="ch.algotrader.adapter.ib.DefaultIBIdGenerator"/>
-
-        <!--  optional properties like marketDataService and queues are autowired -->
-        <bean id="iBMessageHandler" class="ch.algotrader.adapter.ib.DefaultIBMessageHandler" autowire="byName">
-            <property name="clientId" value="0"/>
-            <property name="sessionLifecycle" ref="iBSessionLifecycle"/>
-        </bean>
-
-        <bean id="iBSession" class="ch.algotrader.adapter.ib.IBSession">
-            <constructor-arg index="0" value="${ib.defaultSessionId}"/>
-            <constructor-arg index="1" value="${ib.host}"/>
-            <constructor-arg index="2" value="${ib.port}"/>
-            <constructor-arg ref="iBSessionLifecycle"/>
-            <constructor-arg ref="iBMessageHandler"/>
-            <constructor-arg ref="marketDataService"/>
-        </bean>
-    </beans>
-
-    <beans profile="iBHistoricalData">
-        <bean id="historicalDataQueue" class="java.util.concurrent.LinkedBlockingDeque"/>
-    </beans>
-
-    <beans profile="iBNative">
-        <bean id="accountUpdateQueue" class="java.util.concurrent.LinkedBlockingDeque"/>
-        <bean id="accountsQueue" class="java.util.concurrent.LinkedBlockingDeque"/>
-        <bean id="profilesQueue" class="java.util.concurrent.LinkedBlockingDeque"/>
-    </beans>
-
-    <beans profile="iBReferenceData">
-        <bean id="contractDetailsQueue" class="java.util.concurrent.LinkedBlockingDeque"/>
-    </beans>
-
     <!-- =========================================== RECONCILIATION ================================================ -->
 
     <beans profile="reconciliation">

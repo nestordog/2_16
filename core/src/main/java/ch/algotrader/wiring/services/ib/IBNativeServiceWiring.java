@@ -31,6 +31,7 @@ import ch.algotrader.adapter.ib.AccountUpdate;
 import ch.algotrader.adapter.ib.IBIdGenerator;
 import ch.algotrader.adapter.ib.IBOrderMessageFactory;
 import ch.algotrader.adapter.ib.IBSession;
+import ch.algotrader.adapter.ib.IBSessionStateHolder;
 import ch.algotrader.config.IBConfig;
 import ch.algotrader.entity.marketData.Bar;
 import ch.algotrader.entity.marketData.BarDao;
@@ -99,13 +100,14 @@ public class IBNativeServiceWiring {
     @Bean(name = "iBNativeMarketDataService")
     public IBNativeMarketDataService createIBNativeMarketDataService(
             final IBSession iBSession,
+            final IBSessionStateHolder iBSessionStateHolder,
             final IBIdGenerator iBIdGenerator,
             final IBConfig iBConfig,
             final EngineManager engineManager,
             final TickDao tickDao,
             final SecurityDao securityDao) {
 
-        return new IBNativeMarketDataServiceImpl(iBSession, iBIdGenerator, iBConfig, engineManager, tickDao, securityDao);
+        return new IBNativeMarketDataServiceImpl(iBSession, iBSessionStateHolder, iBIdGenerator, iBConfig, engineManager, tickDao, securityDao);
     }
 
     @Profile("iBReferenceData")

@@ -29,6 +29,7 @@ import com.ib.client.TagValue;
 
 import ch.algotrader.adapter.ib.IBIdGenerator;
 import ch.algotrader.adapter.ib.IBSession;
+import ch.algotrader.adapter.ib.IBSessionStateHolder;
 import ch.algotrader.adapter.ib.IBUtil;
 import ch.algotrader.config.IBConfig;
 import ch.algotrader.entity.marketData.Tick;
@@ -52,12 +53,14 @@ public class IBNativeMarketDataServiceImpl extends ExternalMarketDataServiceImpl
 
     private final IBSession iBSession;
     private final IBIdGenerator iBIdGenerator;
+    private final IBSessionStateHolder sessionStateHolder;
     private final IBConfig iBConfig;
     private final TickDao tickDao;
     private final Engine serverEngine;
 
     public IBNativeMarketDataServiceImpl(
             final IBSession iBSession,
+            final IBSessionStateHolder sessionStateHolder,
             final IBIdGenerator iBIdGenerator,
             final IBConfig iBConfig,
             final EngineManager engineManager,
@@ -67,11 +70,13 @@ public class IBNativeMarketDataServiceImpl extends ExternalMarketDataServiceImpl
         super(engineManager, securityDao);
 
         Validate.notNull(iBSession, "IBSession is null");
+        Validate.notNull(sessionStateHolder, "IBSessionStateHolder is null");
         Validate.notNull(iBIdGenerator, "IBIdGenerator is null");
         Validate.notNull(iBConfig, "IBConfig is null");
         Validate.notNull(tickDao, "TickDao is null");
 
         this.iBSession = iBSession;
+        this.sessionStateHolder = sessionStateHolder;
         this.iBIdGenerator = iBIdGenerator;
         this.iBConfig = iBConfig;
         this.serverEngine = engineManager.getServerEngine();
@@ -81,10 +86,9 @@ public class IBNativeMarketDataServiceImpl extends ExternalMarketDataServiceImpl
     @Override
     public void initSubscriptions() {
 
-        if (this.iBSession.getLifecycle().subscribe()) {
+        if (this.sessionStateHolder.subscribe()) {
             super.initSubscriptions();
         }
-
     }
 
     @Override
@@ -92,7 +96,7 @@ public class IBNativeMarketDataServiceImpl extends ExternalMarketDataServiceImpl
 
         Validate.notNull(security, "Security is null");
 
-        if (!this.iBSession.getLifecycle().isLoggedOn()) {
+        if (!this.sessionStateHolder.isLoggedOn()) {
             throw new IBNativeMarketDataServiceException("IB is not logged on to subscribe " + security);
         }
 
@@ -122,7 +126,7 @@ public class IBNativeMarketDataServiceImpl extends ExternalMarketDataServiceImpl
 
         Validate.notNull(security, "Security is null");
 
-        if (!this.iBSession.getLifecycle().isSubscribed()) {
+        if (!this.sessionStateHolder.isSubscribed()) {
             throw new IBNativeMarketDataServiceException("IB ist not subscribed, security cannot be unsubscribed " + security);
         }
 

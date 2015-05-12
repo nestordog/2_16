@@ -23,39 +23,38 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.enumeration.ConnectionState;
+import ch.algotrader.enumeration.FeedType;
+import ch.algotrader.service.MarketDataService;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class DefaultIBSessionLifecycle implements IBSessionLifecycle {
+public class DefaultIBSessionStateHolder implements IBSessionStateHolder {
 
-    private static final Logger logger = LogManager.getLogger(DefaultIBSessionLifecycle.class.getName());
+    private static final Logger logger = LogManager.getLogger(DefaultIBSessionStateHolder.class.getName());
 
+    private final MarketDataService marketDataService;
     private final AtomicReference<ConnectionState> connState;
 
-    public DefaultIBSessionLifecycle() {
+    public DefaultIBSessionStateHolder(final MarketDataService marketDataService) {
 
+        this.marketDataService = marketDataService;
         this.connState = new AtomicReference<>(ConnectionState.DISCONNECTED);
     }
 
-    public IBSession getIBSession() {
-        return null;
-    }
-
     @Override
-    public void connect() {
+    public void onConnect() {
 
         compareAndSet(ConnectionState.DISCONNECTED, ConnectionState.CONNECTED);
     }
 
     @Override
-    public void disconnect() {
+    public void onDisconnect() {
 
         this.connState.set(ConnectionState.DISCONNECTED);
         logger.debug("change state to " + ConnectionState.DISCONNECTED);
-        this.getIBSession().connect();
     }
 
     /**
@@ -63,7 +62,14 @@ public class DefaultIBSessionLifecycle implements IBSessionLifecycle {
      * returns true if a re-subscription is necessary
      */
     @Override
-    public synchronized boolean logon(boolean maintained) {
+    public void onLogon(boolean maintained) {
+
+        if (onLogon0(maintained) && this.marketDataService.isSupportedFeed(FeedType.IB)) {
+            this.marketDataService.initSubscriptions(FeedType.IB);
+        }
+    }
+
+    private synchronized boolean onLogon0(boolean maintained) {
 
         if (maintained) {
 
@@ -83,7 +89,7 @@ public class DefaultIBSessionLifecycle implements IBSessionLifecycle {
     }
 
     @Override
-    public synchronized void logoff() {
+    public synchronized void onLogoff() {
 
         compareAndSet(ConnectionState.LOGGED_ON, ConnectionState.CONNECTED);
         compareAndSet(ConnectionState.SUBSCRIBED, ConnectionState.IDLE);
