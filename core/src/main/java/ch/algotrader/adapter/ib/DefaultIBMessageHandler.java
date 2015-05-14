@@ -324,7 +324,12 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
     @Override
     public void connectionClosed() {
 
-        this.sessionStateHolder.onDisconnect();
+        // IB client executes this notification from an interrupted thread, which prevents
+        // execution of potentially blocking I/O operations such as publishing to a JMS queue
+        // This makes it necessary to execute #onDisconnect() event on a separate thread
+        final Thread disposableThread = new Thread(null, sessionStateHolder::onDisconnect, "IB-disconnect-thread");
+        disposableThread.setDaemon(true);
+        disposableThread.start();
     }
 
     @Override

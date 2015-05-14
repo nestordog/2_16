@@ -19,12 +19,15 @@ package ch.algotrader.adapter.ib;
 
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.enumeration.ConnectionState;
 import ch.algotrader.enumeration.FeedType;
+import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.service.MarketDataService;
+import ch.algotrader.vo.SessionEventVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -35,11 +38,19 @@ public class DefaultIBSessionStateHolder implements IBSessionStateHolder {
 
     private static final Logger logger = LogManager.getLogger(DefaultIBSessionStateHolder.class.getName());
 
+    private final String name;
+    private final EventDispatcher eventDispatcher;
     private final MarketDataService marketDataService;
     private final AtomicReference<ConnectionState> connState;
 
-    public DefaultIBSessionStateHolder(final MarketDataService marketDataService) {
+    public DefaultIBSessionStateHolder(final String name, final EventDispatcher eventDispatcher, final MarketDataService marketDataService) {
 
+        Validate.notEmpty(name, "Session name is null");
+        Validate.notNull(eventDispatcher, "PlatformEventDispatcher is null");
+        Validate.notNull(marketDataService, "MarketDataService is null");
+
+        this.name = name;
+        this.eventDispatcher = eventDispatcher;
         this.marketDataService = marketDataService;
         this.connState = new AtomicReference<>(ConnectionState.DISCONNECTED);
     }
@@ -47,14 +58,26 @@ public class DefaultIBSessionStateHolder implements IBSessionStateHolder {
     @Override
     public void onConnect() {
 
-        compareAndSet(ConnectionState.DISCONNECTED, ConnectionState.CONNECTED);
+        if (compareAndSet(ConnectionState.DISCONNECTED, ConnectionState.CONNECTED)) {
+
+            SessionEventVO event = new SessionEventVO(ConnectionState.CONNECTED, this.name);
+            this.eventDispatcher.broadcast(event);
+        };
     }
 
     @Override
     public void onDisconnect() {
 
-        this.connState.set(ConnectionState.DISCONNECTED);
-        logger.debug("change state to " + ConnectionState.DISCONNECTED);
+        ConnectionState previousState = this.connState.getAndSet(ConnectionState.DISCONNECTED);
+        if (previousState.compareTo(ConnectionState.DISCONNECTED) > 0) {
+
+            this.connState.set(ConnectionState.DISCONNECTED);
+            logger.debug("change state to " + ConnectionState.DISCONNECTED);
+
+            SessionEventVO event = new SessionEventVO(ConnectionState.DISCONNECTED, this.name);
+            this.eventDispatcher.broadcast(event);
+        }
+
     }
 
     /**
@@ -64,8 +87,14 @@ public class DefaultIBSessionStateHolder implements IBSessionStateHolder {
     @Override
     public void onLogon(boolean maintained) {
 
-        if (onLogon0(maintained) && this.marketDataService.isSupportedFeed(FeedType.IB)) {
-            this.marketDataService.initSubscriptions(FeedType.IB);
+        if (onLogon0(maintained)) {
+
+            SessionEventVO event = new SessionEventVO(ConnectionState.LOGGED_ON, this.name);
+            this.eventDispatcher.broadcast(event);
+
+            if (this.marketDataService.isSupportedFeed(FeedType.IB)) {
+                this.marketDataService.initSubscriptions(FeedType.IB);
+            }
         }
     }
 
@@ -89,10 +118,18 @@ public class DefaultIBSessionStateHolder implements IBSessionStateHolder {
     }
 
     @Override
-    public synchronized void onLogoff() {
+    public void onLogoff() {
 
-        compareAndSet(ConnectionState.LOGGED_ON, ConnectionState.CONNECTED);
-        compareAndSet(ConnectionState.SUBSCRIBED, ConnectionState.IDLE);
+        if (onLogoff0()) {
+
+            SessionEventVO event = new SessionEventVO(ConnectionState.CONNECTED, this.name);
+            this.eventDispatcher.broadcast(event);
+        };
+    }
+
+    private synchronized boolean onLogoff0() {
+
+        return compareAndSet(ConnectionState.LOGGED_ON, ConnectionState.CONNECTED) || compareAndSet(ConnectionState.SUBSCRIBED, ConnectionState.IDLE);
     }
 
     /**
@@ -101,7 +138,15 @@ public class DefaultIBSessionStateHolder implements IBSessionStateHolder {
     @Override
     public boolean subscribe() {
 
-        return compareAndSet(ConnectionState.LOGGED_ON, ConnectionState.SUBSCRIBED);
+        if (compareAndSet(ConnectionState.LOGGED_ON, ConnectionState.SUBSCRIBED)) {
+
+            SessionEventVO event = new SessionEventVO(ConnectionState.SUBSCRIBED, this.name);
+            this.eventDispatcher.broadcast(event);
+            return true;
+        } else {
+
+            return false;
+        }
     }
 
     @Override

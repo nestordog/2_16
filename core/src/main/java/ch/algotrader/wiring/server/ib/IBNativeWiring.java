@@ -38,10 +38,12 @@ import ch.algotrader.adapter.ib.IBAdapter;
 import ch.algotrader.adapter.ib.IBIdGenerator;
 import ch.algotrader.adapter.ib.IBOrderMessageFactory;
 import ch.algotrader.adapter.ib.IBSession;
+import ch.algotrader.adapter.ib.IBSessionEventListener;
 import ch.algotrader.adapter.ib.IBSessionStateHolder;
 import ch.algotrader.config.IBConfig;
 import ch.algotrader.entity.marketData.Bar;
 import ch.algotrader.esper.Engine;
+import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.service.LookupService;
 import ch.algotrader.service.MarketDataService;
 
@@ -89,8 +91,10 @@ public class IBNativeWiring {
     }
 
     @Bean(name = "iBSessionStateHolder")
-    public IBSessionStateHolder createIBSessionStateHolder(final MarketDataService marketDataService) {
-        return new DefaultIBSessionStateHolder(marketDataService);
+    public IBSessionStateHolder createIBSessionStateHolder(
+            final EventDispatcher eventDispatcher,
+            final MarketDataService marketDataService) {
+        return new DefaultIBSessionStateHolder("IB_NATIVE", eventDispatcher, marketDataService);
     }
 
     @Bean(name = "iBIdGenerator")
@@ -122,6 +126,11 @@ public class IBNativeWiring {
             final IBSessionStateHolder iBSessionStateHolder,
             final AbstractIBMessageHandler iBMessageHandler) {
         return new IBSession(defaultSessionId, host, port, iBSessionStateHolder, iBMessageHandler);
+    }
+
+    @Bean(name = "iBSessionEventListener")
+    public IBSessionEventListener createIBSessionEventListener(final IBSession iBSession) {
+        return new IBSessionEventListener("IB_NATIVE", iBSession);
     }
 
 }

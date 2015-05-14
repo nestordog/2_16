@@ -40,7 +40,7 @@ public class DefaultFixSessionStateHolder implements FixSessionStateHolder {
     private final AtomicReference<ConnectionState> connState;
 
     public DefaultFixSessionStateHolder(final String name, final EventDispatcher eventDispatcher) {
-        Validate.notNull(name, "Name is null");
+        Validate.notEmpty(name, "Session name is null");
         Validate.notNull(eventDispatcher, "PlatformEventDispatcher is null");
 
         this.name = name;
