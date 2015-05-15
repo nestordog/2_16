@@ -14,7 +14,7 @@
 	    <meta attribute="class-code">
 <![CDATA[	  
 
-   private transient Order parentOrder;
+   private Order parentOrder;
 
     /**
      * Base Class for all Order Types
@@ -32,7 +32,7 @@
         this.parentOrder = parentOrderIn;
     }
 
-    private transient java.util.Collection<Order> childOrders = new java.util.ArrayList<Order>();
+    private java.util.Collection<Order> childOrders = new java.util.ArrayList<Order>();
 
     /**
      * Base Class for all Order Types
