@@ -23,6 +23,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -975,7 +976,7 @@ public class PortfolioServiceImpl implements PortfolioService {
             }
         }
 
-        Set<Currency> currencies = cashMap.keySet();
+        Set<Currency> currencies = new HashSet<Currency>(cashMap.keySet());
         currencies.addAll(securitiesMap.keySet());
 
         List<BalanceVO> balances = new ArrayList<BalanceVO>();
