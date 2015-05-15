@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TimeZone;
 
 import org.apache.commons.collections15.keyvalue.MultiKey;
@@ -822,11 +823,10 @@ public class PortfolioServiceImpl implements PortfolioService {
     @Override
     public Collection<BalanceVO> getBalances() {
 
-        Collection<Currency> currencies = this.cashBalanceDao.findHeldCurrencies();
         Collection<CashBalance> cashBalances = this.cashBalanceDao.loadAll();
         Collection<Position> positions = this.positionDao.findOpenTradeablePositionsAggregated();
 
-        return getBalances(currencies, cashBalances, positions);
+        return getBalances(cashBalances, positions);
 
     }
 
@@ -838,11 +838,10 @@ public class PortfolioServiceImpl implements PortfolioService {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        Collection<Currency> currencies = this.cashBalanceDao.findHeldCurrenciesByStrategy(strategyName);
         Collection<CashBalance> cashBalances = this.cashBalanceDao.findCashBalancesByStrategy(strategyName);
         Collection<Position> positions = this.positionDao.findOpenTradeablePositionsByStrategy(strategyName);
 
-        return getBalances(currencies, cashBalances, positions);
+        return getBalances(cashBalances, positions);
 
     }
 
@@ -951,15 +950,10 @@ public class PortfolioServiceImpl implements PortfolioService {
         return amount;
     }
 
-    private List<BalanceVO> getBalances(Collection<Currency> currencies, Collection<CashBalance> cashBalances, Collection<Position> positions) {
+    private List<BalanceVO> getBalances(Collection<CashBalance> cashBalances, Collection<Position> positions) {
 
         DoubleMap<Currency> cashMap = new DoubleMap<Currency>();
         DoubleMap<Currency> securitiesMap = new DoubleMap<Currency>();
-
-        for (Currency currency : currencies) {
-            cashMap.increment(currency, 0.0);
-            securitiesMap.increment(currency, 0.0);
-        }
 
         // sum of all cashBalances
         for (CashBalance cashBalance : cashBalances) {
@@ -981,11 +975,14 @@ public class PortfolioServiceImpl implements PortfolioService {
             }
         }
 
+        Set<Currency> currencies = cashMap.keySet();
+        currencies.addAll(securitiesMap.keySet());
+
         List<BalanceVO> balances = new ArrayList<BalanceVO>();
         for (Currency currency : currencies) {
 
-            double cash = cashMap.get(currency);
-            double securities = securitiesMap.get(currency);
+            double cash = cashMap.containsKey(currency) ? cashMap.get(currency) : 0.0;
+            double securities = securitiesMap.containsKey(currency) ? securitiesMap.get(currency) : 0.0;
             double netLiqValue = cash + securities;
             double exchangeRate = this.lookupService.getForexRateDouble(currency, this.commonConfig.getPortfolioBaseCurrency());
             double cashBase = cash * exchangeRate;
