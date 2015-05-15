@@ -1,39 +1,39 @@
 // ------------------------------ Slicing Limit Order ---------------------------------------
 
-@Name('SLICINING_DECREASE_OFFSET_TICKS')
+@Name('SLICING_DECREASE_OFFSET_TICKS')
 @RunTimeOnly
 @Subscriber(className='ch.algotrader.esper.subscriber.VoidSubscriber')
 select
-    cast(currentOrder.parentOrder, ch.algotrader.entity.trade.SlicingOrder).decreaseOffsetTicks()
+    cast(currentOrder.submittedOrder.parentOrder, ch.algotrader.entity.trade.SlicingOrder).decreaseOffsetTicks()
 from
     //every Order -> (OrderStatusC and not (OrderStatusEorPE or Order))
-    pattern [every currentOrder=`Order`(instanceof(parentOrder,ch.algotrader.entity.trade.SlicingOrder))
-        -> (OrderStatus(status = Status.CANCELED, `order`.intId = currentOrder.intId)
-            and not (OrderStatus(status = Status.EXECUTED or status = Status.PARTIALLY_EXECUTED, `order`.intId = currentOrder.intId) or `Order`(intId = currentOrder.intId)))];
+    pattern [every currentOrder=SubmittedOrder(instanceof(submittedOrder.parentOrder,ch.algotrader.entity.trade.SlicingOrder))
+        -> (OrderStatus(status = Status.CANCELED, `order`.intId = currentOrder.submittedOrder.intId)
+            and not (OrderStatus(status = Status.EXECUTED or status = Status.PARTIALLY_EXECUTED, `order`.intId = currentOrder.submittedOrder.intId) or `Order`(intId = currentOrder.submittedOrder.intId)))];
 
-@Name('SLICINING_INCREASE_OFFSET_TICKS')
+@Name('SLICING_INCREASE_OFFSET_TICKS')
 @RunTimeOnly
 @Subscriber(className='ch.algotrader.esper.subscriber.VoidSubscriber')
 select
-    cast(currentOrder.parentOrder, ch.algotrader.entity.trade.SlicingOrder).increaseOffsetTicks()
+    cast(currentOrder.submittedOrder.parentOrder, ch.algotrader.entity.trade.SlicingOrder).increaseOffsetTicks()
 from
     //every Order -> (OrderStatusEorPE and not (OrderStatusC or Order))
-    pattern [every currentOrder=`Order`(instanceof(parentOrder,ch.algotrader.entity.trade.SlicingOrder))
-        -> (OrderStatus(status = Status.EXECUTED or status = Status.PARTIALLY_EXECUTED, `order`.intId = currentOrder.intId)
-            and not (OrderStatus(status = Status.CANCELED, `order`.intId = currentOrder.intId) or `Order`(intId = currentOrder.intId)))];
+    pattern [every currentOrder=SubmittedOrder(instanceof(submittedOrder.parentOrder,ch.algotrader.entity.trade.SlicingOrder))
+        -> (OrderStatus(status = Status.EXECUTED or status = Status.PARTIALLY_EXECUTED, `order`.intId = currentOrder.submittedOrder.intId)
+            and not (OrderStatus(status = Status.CANCELED, `order`.intId = currentOrder.submittedOrder.intId) or `Order`(intId = currentOrder.submittedOrder.intId)))];
 
-@Name('SLICINING_CANCEL_ORDER')
+@Name('SLICING_CANCEL_ORDER')
 @RunTimeOnly
 @Subscriber(className='ch.algotrader.service.OrderService.cancelOrder')
 select
-    currentOrder
+    currentOrder.submittedOrder
 from
     //every Order -> (timer:interval and not OrderStatusEorCorR)
-    pattern [every currentOrder=`Order`(instanceof(parentOrder,ch.algotrader.entity.trade.SlicingOrder))
-        -> (timer:interval(cast(currentOrder.parentOrder.minDuration?,double) + (cast(currentOrder.parentOrder.maxDuration?,double) - cast(currentOrder.parentOrder.minDuration?,double)) * Math.random())
-            and not OrderStatus(status = Status.EXECUTED or status = Status.CANCELED or status = Status.REJECTED, `order`.intId = currentOrder.intId))];
+    pattern [every currentOrder=SubmittedOrder(instanceof(submittedOrder.parentOrder,ch.algotrader.entity.trade.SlicingOrder))
+        -> (timer:interval(cast(currentOrder.submittedOrder.parentOrder.minDuration?,double) + (cast(currentOrder.submittedOrder.parentOrder.maxDuration?,double) - cast(currentOrder.submittedOrder.parentOrder.minDuration?,double)) * Math.random())
+            and not OrderStatus(status = Status.EXECUTED or status = Status.CANCELED or status = Status.REJECTED, `order`.intId = currentOrder.submittedOrder.intId))];
 
-@Name('SLICINING_NEXT_ORDER')
+@Name('SLICING_NEXT_ORDER')
 @RunTimeOnly
 @Subscriber(className='ch.algotrader.service.OrderService.sendOrder')
 select
