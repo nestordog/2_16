@@ -119,7 +119,6 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
         }
 
         OrderStatus orderStatus = createStatus(executionReport, order);
-        orderStatus.setOrder(order);
 
         EngineLocator.instance().getServerEngine().sendEvent(orderStatus);
 
