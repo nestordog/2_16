@@ -122,6 +122,7 @@ and
 // ------------------------------GENERIC TICKS--------------------------------
 
 @Name('INSERT_INTO_GENERIC_TICK_IB_OPEN')
+@Condition(key='statement.emitGeneticTicks')
 @RunTimeOnly()
 on
     ch.algotrader.adapter.ib.TickPrice(field = com.ib.client.TickType.OPEN) as tickPrice
@@ -141,6 +142,7 @@ and
     tickPrice.price != -1.0;    
 
 @Name('INSERT_INTO_GENERIC_TICK_IB_CLOSE')
+@Condition(key='statement.emitGeneticTicks')
 @RunTimeOnly()
 on
     ch.algotrader.adapter.ib.TickPrice(field = com.ib.client.TickType.CLOSE) as tickPrice

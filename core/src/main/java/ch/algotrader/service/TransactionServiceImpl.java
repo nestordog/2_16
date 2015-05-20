@@ -116,7 +116,7 @@ public class TransactionServiceImpl implements TransactionService {
 
         // reload the strategy and security to get potential changes
         Strategy strategy = this.strategyDao.load(order.getStrategy().getId());
-        Security security = this.securityDao.load(order.getSecurity().getId());
+        Security security = this.securityDao.findByIdInclFamilyUnderlyingExchangeAndBrokerParameters(order.getSecurity().getId());
 
         // and update the strategy and security of the order
         order.setStrategy(strategy);
