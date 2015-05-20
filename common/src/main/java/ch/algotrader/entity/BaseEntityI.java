@@ -25,11 +25,11 @@ import java.io.Serializable;
 public interface BaseEntityI extends Serializable {
 
     @Override
-    public String toString();
+    String toString();
 
-    public int getId();
+    long getId();
 
-    public boolean isInitialized();
+    boolean isInitialized();
 
-    public <R,P> R accept(ch.algotrader.visitor.EntityVisitor<R, ? super P> visitor, P param);
+    <R,P> R accept(ch.algotrader.visitor.EntityVisitor<R, ? super P> visitor, P param);
 }

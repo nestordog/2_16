@@ -110,7 +110,7 @@ public class IBNativeReferenceDataServiceImpl extends ReferenceDataServiceImpl i
     }
 
     @Override
-    public void retrieve(int securityFamilyId) {
+    public void retrieve(long securityFamilyId) {
 
         SecurityFamily securityFamily = this.securityFamilyDao.get(securityFamilyId);
 
@@ -156,7 +156,7 @@ public class IBNativeReferenceDataServiceImpl extends ReferenceDataServiceImpl i
     }
 
     @Override
-    public void retrieveStocks(int securityFamilyId, String symbol) {
+    public void retrieveStocks(long securityFamilyId, String symbol) {
 
         Validate.notEmpty(symbol, "Symbol is empty");
 

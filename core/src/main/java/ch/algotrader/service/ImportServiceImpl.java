@@ -181,7 +181,7 @@ public class ImportServiceImpl implements ImportService {
         Validate.notEmpty(optionFamilyId, "Option family id is empty");
         Validate.notEmpty(fileName, "File name is empty");
 
-        OptionFamily family = this.optionFamilyDao.get(Integer.parseInt(optionFamilyId));
+        OptionFamily family = this.optionFamilyDao.get(Long.parseLong(optionFamilyId));
         Map<String, Option> options = new HashMap<>();
 
         for (Security security : family.getSecurities()) {

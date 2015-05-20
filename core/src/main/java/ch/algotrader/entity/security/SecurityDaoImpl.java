@@ -24,7 +24,7 @@ import java.util.Map;
 import org.apache.commons.lang.Validate;
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
-import org.hibernate.type.IntegerType;
+import org.hibernate.type.LongType;
 import org.springframework.stereotype.Repository;
 
 import ch.algotrader.enumeration.FeedType;
@@ -48,7 +48,7 @@ public class SecurityDaoImpl extends AbstractDao<Security> implements SecurityDa
     }
 
     @Override
-    public Security findByIdInitialized(int id) {
+    public Security findByIdInitialized(long id) {
 
         Security security = get(id);
 
@@ -62,12 +62,12 @@ public class SecurityDaoImpl extends AbstractDao<Security> implements SecurityDa
 
     @SuppressWarnings("unchecked")
     @Override
-    public List<Security> findByIds(Collection<Integer> ids) {
+    public List<Security> findByIds(Collection<Long> ids) {
 
         Validate.notEmpty(ids, "Ids are empty");
 
         Query query = this.prepareQuery(null, "Security.findByIds", QueryType.BY_NAME);
-        query.setParameterList("ids", ids, IntegerType.INSTANCE);
+        query.setParameterList("ids", ids, LongType.INSTANCE);
 
         return query.list();
     }
@@ -113,13 +113,13 @@ public class SecurityDaoImpl extends AbstractDao<Security> implements SecurityDa
     }
 
     @Override
-    public Security findByIdInclFamilyAndUnderlying(int id) {
+    public Security findByIdInclFamilyAndUnderlying(long id) {
 
         return findUnique("Security.findByIdInclFamilyAndUnderlying", QueryType.BY_NAME, new NamedParam("id", id));
     }
 
     @Override
-    public Security findByIdInclFamilyUnderlyingExchangeAndBrokerParameters(int id) {
+    public Security findByIdInclFamilyUnderlyingExchangeAndBrokerParameters(long id) {
 
         return findUnique("Security.findByIdInclFamilyUnderlyingExchangeAndBrokerParameters", QueryType.BY_NAME, new NamedParam("id", id));
     }
@@ -155,11 +155,11 @@ public class SecurityDaoImpl extends AbstractDao<Security> implements SecurityDa
     }
 
     @Override
-    public Integer findSecurityIdByIsin(String isin) {
+    public Long findSecurityIdByIsin(String isin) {
 
         Validate.notEmpty(isin, "isin is empty");
 
-        return (Integer) findUniqueObject(null, "Security.findSecurityIdByIsin", QueryType.BY_NAME, new NamedParam("isin", isin));
+        return convertId(findUniqueObject(null, "Security.findSecurityIdByIsin", QueryType.BY_NAME, new NamedParam("isin", isin)));
     }
 
 }

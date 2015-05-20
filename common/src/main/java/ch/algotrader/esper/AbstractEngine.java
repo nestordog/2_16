@@ -258,12 +258,12 @@ public abstract class AbstractEngine implements Engine {
     }
 
     @Override
-    public void addOpenPositionCallback(int securityId, OpenPositionCallback callback) {
+    public void addOpenPositionCallback(long securityId, OpenPositionCallback callback) {
 
     }
 
     @Override
-    public void addClosePositionCallback(int securityId, ClosePositionCallback callback) {
+    public void addClosePositionCallback(long securityId, ClosePositionCallback callback) {
 
     }
 

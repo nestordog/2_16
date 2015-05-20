@@ -38,7 +38,7 @@ public interface OptionService {
     /**
      * performs a Delta Hedge of all Securities of the specified {@code underlyingId}
      */
-    public void hedgeDelta(int underlyingId);
+    public void hedgeDelta(long underlyingId);
 
     /**
      * Creates a synthetic {@link Option} with the specified {@code optionFamilyId}, {@code
@@ -46,7 +46,7 @@ public interface OptionService {
      * The targetStrike will be rounded to a valid strike defined by {@code
      * SecurityFamily.strikeDistance}
      */
-    public Option createOTCOption(int optionFamilyId, Date expirationDate, BigDecimal strike, OptionType type);
+    public Option createOTCOption(long optionFamilyId, Date expirationDate, BigDecimal strike, OptionType type);
 
     /**
      * Creates a synthetic option with the specified  {@code optionFamilyId}, {@code
@@ -54,7 +54,7 @@ public interface OptionService {
      * The {@code targetStrike} will be rounded to a valid strike defined by {@code
      * SecurityFamily.strikeDistance}.
      */
-    public Option createDummyOption(int optionFamilyId, Date targetExpirationDate, BigDecimal targetStrike, OptionType type);
+    public Option createDummyOption(long optionFamilyId, Date targetExpirationDate, BigDecimal targetStrike, OptionType type);
 
     /**
      * Prints SABR {@code alpha} / {@code rho} / {@code volvol} as well as Call & Put {@code
@@ -74,19 +74,19 @@ public interface OptionService {
      * Calculates the {@link SABRSmileVO} for defined {@code underlyingId}, {@code optionType} and
      * {@code expirationDate} for the specified {@code date}.
      */
-    public SABRSmileVO calibrateSABRSmileByOptionPrice(int underlyingId, OptionType type, Date expirationDate, Date date);
+    public SABRSmileVO calibrateSABRSmileByOptionPrice(long underlyingId, OptionType type, Date expirationDate, Date date);
 
     /**
      * Calculates the {@link SABRSmileVO} for defined {@code underlyingId}, and {@code duration} for
      * the specified {@code date}.
      */
-    public SABRSmileVO calibrateSABRSmileByIVol(int underlyingId, Duration duration, Date date);
+    public SABRSmileVO calibrateSABRSmileByIVol(long underlyingId, Duration duration, Date date);
 
     /**
      * Calculates a {@link SABRSurfaceVO} for defined {@code underlyingId}, and {@code duration} for
      * the specified {@code date}
      */
-    public SABRSurfaceVO calibrateSABRSurfaceByIVol(int underlyingId, Date date);
+    public SABRSurfaceVO calibrateSABRSurfaceByIVol(long underlyingId, Date date);
 
     /**
      * Calculates the {@link ATMVolVO} for defined {@code underlying} and {@code date}
@@ -102,7 +102,7 @@ public interface OptionService {
      * In simulation mode, if {@code simulateOptions} is configured, a dummy Option will be created
      * if none was found.
      */
-    public Option getOptionByMinExpirationAndMinStrikeDistance(int underlyingId, Date targetExpirationDate, BigDecimal underlyingSpot, OptionType optionType);
+    public Option getOptionByMinExpirationAndMinStrikeDistance(long underlyingId, Date targetExpirationDate, BigDecimal underlyingSpot, OptionType optionType);
 
     /**
      * Gets the first Option of the give {@code underlyingId} and {@code optionType} that expires
@@ -113,7 +113,7 @@ public interface OptionService {
      * In simulation mode, if {@code simulateOptions} is configured, a dummy Option will be created
      * if none was found.
      */
-    public Option getOptionByMinExpirationAndStrikeLimit(int underlyingId, Date targetExpirationDate, BigDecimal underlyingSpot, OptionType optionType);
+    public Option getOptionByMinExpirationAndStrikeLimit(long underlyingId, Date targetExpirationDate, BigDecimal underlyingSpot, OptionType optionType);
 
     /**
      * Gets all Options of the give {@code underlyingId} and {@code optionType} that expire after
@@ -121,7 +121,7 @@ public interface OptionService {
      * returned Options are sorted by their {@code expirationDate} and distance to the defined
      * {@code underlyingSpot} (the Option with the minimum distance coming first).
      */
-    public Option getOptionByMinExpirationAndMinStrikeDistanceWithTicks(int underlyingId, Date targetExpirationDate, BigDecimal underlyingSpot, OptionType optionType, Date date);
+    public Option getOptionByMinExpirationAndMinStrikeDistanceWithTicks(long underlyingId, Date targetExpirationDate, BigDecimal underlyingSpot, OptionType optionType, Date date);
 
     /**
      * Gets all Options of the give {@code underlyingId} and {@code optionType} that expire after
@@ -130,6 +130,6 @@ public interface OptionService {
      * The returned Options are sorted by their {@code expirationDate} and distance to the defined
      * {@code underlyingSpot} (the Option with the minimum distance coming first).
      */
-    public Option getOptionByMinExpirationAndStrikeLimitWithTicks(int underlyingId, Date targetExpirationDate, BigDecimal underlyingSpot, OptionType optionType, Date date);
+    public Option getOptionByMinExpirationAndStrikeLimitWithTicks(long underlyingId, Date targetExpirationDate, BigDecimal underlyingSpot, OptionType optionType, Date date);
 
 }

@@ -38,7 +38,7 @@ public class FutureFamilyDaoImpl extends AbstractDao<FutureFamily> implements Fu
     }
 
     @Override
-    public FutureFamily findByUnderlying(int underlyingId) {
+    public FutureFamily findByUnderlying(long underlyingId) {
 
         return findUnique("FutureFamily.findByUnderlying", QueryType.BY_NAME, new NamedParam("underlyingId", underlyingId));
     }

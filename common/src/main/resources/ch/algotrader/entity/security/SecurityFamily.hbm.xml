@@ -177,8 +177,8 @@
         <meta attribute="class-description">Represents an entire family of similar {@link ch.algotrader.entity.security.Security Securities} (e.g. All Options of the SP500)</meta>
         <cache usage="read-write" />
         <comment>Represents an entire family of similar {@link ch.algotrader.entity.security.Security Securities} (e.g. All Options of the SP500)</comment>
-        <id name="id" type="int" >
-            <column name="ID" sql-type="INTEGER"/>
+        <id name="id" type="long" >
+            <column name="ID" sql-type="BIGINT"/>
             <generator class="native">
                 <!-- id-generator merge-point -->
             </generator>
@@ -301,14 +301,14 @@ For example the pattern 00.05 | 30.1 says, that the TickSize is 0.05 for prices 
         <many-to-one name="underlying" class="ch.algotrader.entity.security.SecurityImpl" foreign-key="SECURITY_FAMILY_UNDERLYING_FKC" not-null="false" lazy="proxy" fetch="select">
             <meta attribute="property-type">ch.algotrader.entity.security.Security</meta>
             <meta attribute="field-description">The base class of all Securities in the system</meta>
-            <column name="UNDERLYING_FK" not-null="false" sql-type="INTEGER">
+            <column name="UNDERLYING_FK" not-null="false" sql-type="BIGINT">
                 <comment>The base class of all Securities in the system</comment>
             </column>
         </many-to-one>
         <many-to-one name="exchange" class="ch.algotrader.entity.exchange.ExchangeImpl" foreign-key="SECURITY_FAMILY_EXCHANGE_FKC" not-null="false" lazy="proxy" fetch="select">
             <meta attribute="property-type">ch.algotrader.entity.exchange.Exchange</meta>
             <meta attribute="field-description">Exchange where securities are traded</meta>
-            <column name="EXCHANGE_FK" not-null="false" sql-type="INTEGER">
+            <column name="EXCHANGE_FK" not-null="false" sql-type="BIGINT">
                 <comment>Exchange where securities are traded</comment>
             </column>
         </many-to-one>
@@ -317,7 +317,7 @@ For example the pattern 00.05 | 30.1 says, that the TickSize is 0.05 for prices 
 (e.g. All Options of the SP500)</meta>
             <cache usage="read-write" />
             <key foreign-key="SECURITY_SECURITY_FAMILY_FKC">
-                <column name="SECURITY_FAMILY_FK" sql-type="INTEGER">
+                <column name="SECURITY_FAMILY_FK" sql-type="BIGINT">
                     <comment>Represents an entire family of similar {@link ch.algotrader.entity.security.Security Securities}
 (e.g. All Options of the SP500)</comment>
                 </column>
@@ -329,7 +329,7 @@ For example the pattern 00.05 | 30.1 says, that the TickSize is 0.05 for prices 
 (e.g. All Options of the SP500)</meta>
             <cache usage="read-write" />
             <key foreign-key="BROKER_PARAMETERS_SECURITY_FAC">
-                <column name="SECURITY_FAMILY_FK" sql-type="INTEGER">
+                <column name="SECURITY_FAMILY_FK" sql-type="BIGINT">
                     <comment>Represents an entire family of similar {@link ch.algotrader.entity.security.Security Securities}
 (e.g. All Options of the SP500)</comment>
                 </column>
@@ -345,7 +345,7 @@ For example the pattern 00.05 | 30.1 says, that the TickSize is 0.05 for prices 
 ]]>   
             </meta>  
             <key foreign-key="FUTURE_FAMILYIFKC">
-                <column name="ID" sql-type="INTEGER"/>
+                <column name="ID" sql-type="BIGINT"/>
             </key>
             <property name="intrest">
                 <meta attribute="field-description">The current Intrest relevant to the pricing of {@link Future Futures} of this FutureFamily.</meta>
@@ -404,7 +404,7 @@ For example the pattern 00.05 | 30.1 says, that the TickSize is 0.05 for prices 
 ]]>   
             </meta>  
             <key foreign-key="OPTION_FAMILYIFKC">
-                <column name="ID" sql-type="INTEGER"/>
+                <column name="ID" sql-type="BIGINT"/>
             </key>
             <property name="intrest">
                 <meta attribute="field-description">The current Intrest relevant to the pricing of {@link Option Options} of this OptionFamily.</meta>
@@ -470,7 +470,7 @@ For example the pattern 00.05 | 30.1 says, that the TickSize is 0.05 for prices 
 ]]>   
             </meta>  
             <key foreign-key="GENERIC_FUTURE_FAMILYIFKC">
-                <column name="ID" sql-type="INTEGER"/>
+                <column name="ID" sql-type="BIGINT"/>
             </key>
             <property name="expirationType">
                 <meta attribute="field-description">The Type of Expiration Logic utilized by {@link GenericFuture GenericFutures} of this GenericFutureFamily.</meta>
@@ -501,7 +501,7 @@ For example the pattern 00.05 | 30.1 says, that the TickSize is 0.05 for prices 
 ]]>   
             </meta>  
             <key foreign-key="BOND_FAMILYIFKC">
-                <column name="ID" sql-type="INTEGER"/>
+                <column name="ID" sql-type="BIGINT"/>
             </key>
             <property name="maturityDistance">
                 <meta attribute="field-description">The {@link Duration} between two {@link Bond Bonds} of this BondFamily. (e.g. 3 Months)</meta>

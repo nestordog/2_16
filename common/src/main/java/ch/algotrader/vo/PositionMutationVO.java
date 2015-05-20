@@ -31,22 +31,12 @@ public class PositionMutationVO implements Serializable {
     /**
      * The Id of the Position.
      */
-    private int id;
-
-    /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setId = false;
+    private long id;
 
     /**
      * The Id of the Security.
      */
-    private int securityId;
-
-    /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setSecurityId = false;
+    private long securityId;
 
     /**
      * The name of the Strategy
@@ -87,9 +77,7 @@ public class PositionMutationVO implements Serializable {
     public PositionMutationVO(final int idIn, final int securityIdIn, final String strategyIn, final long quantityIn, final Direction directionIn) {
 
         this.id = idIn;
-        this.setId = true;
         this.securityId = securityIdIn;
-        this.setSecurityId = true;
         this.strategy = strategyIn;
         this.quantity = quantityIn;
         this.setQuantity = true;
@@ -105,9 +93,7 @@ public class PositionMutationVO implements Serializable {
     public PositionMutationVO(final PositionMutationVO otherBean) {
 
         this.id = otherBean.getId();
-        this.setId = true;
         this.securityId = otherBean.getSecurityId();
-        this.setSecurityId = true;
         this.strategy = otherBean.getStrategy();
         this.quantity = otherBean.getQuantity();
         this.setQuantity = true;
@@ -118,7 +104,7 @@ public class PositionMutationVO implements Serializable {
      * The Id of the Position.
      * @return id int
      */
-    public int getId() {
+    public long getId() {
 
         return this.id;
     }
@@ -127,26 +113,16 @@ public class PositionMutationVO implements Serializable {
      * The Id of the Position.
      * @param value int
      */
-    public void setId(final int value) {
+    public void setId(final long value) {
 
         this.id = value;
-        this.setId = true;
-    }
-
-    /**
-     * Return true if the primitive attribute id is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetId() {
-
-        return this.setId;
     }
 
     /**
      * The Id of the Security.
      * @return securityId int
      */
-    public int getSecurityId() {
+    public long getSecurityId() {
 
         return this.securityId;
     }
@@ -155,19 +131,9 @@ public class PositionMutationVO implements Serializable {
      * The Id of the Security.
      * @param value int
      */
-    public void setSecurityId(final int value) {
+    public void setSecurityId(final long value) {
 
         this.securityId = value;
-        this.setSecurityId = true;
-    }
-
-    /**
-     * Return true if the primitive attribute securityId is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetSecurityId() {
-
-        return this.setSecurityId;
     }
 
     /**
@@ -240,12 +206,8 @@ public class PositionMutationVO implements Serializable {
         StringBuilder builder = new StringBuilder();
         builder.append("PositionMutationVO [id=");
         builder.append(this.id);
-        builder.append(", setId=");
-        builder.append(this.setId);
         builder.append(", securityId=");
         builder.append(this.securityId);
-        builder.append(", setSecurityId=");
-        builder.append(this.setSecurityId);
         builder.append(", strategy=");
         builder.append(this.strategy);
         builder.append(", quantity=");

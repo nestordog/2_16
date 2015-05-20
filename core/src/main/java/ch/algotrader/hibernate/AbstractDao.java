@@ -17,8 +17,10 @@
  ***********************************************************************************/
 package ch.algotrader.hibernate;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -65,11 +67,11 @@ public class AbstractDao<E extends BaseEntityI> {
         return this.entityClass;
     }
 
-    public E get(final int id) {
+    public E get(final long id) {
         return get(id, null);
     }
 
-    public E get(final int id, final LockOptions lockOptions) {
+    public E get(final long id, final LockOptions lockOptions) {
 
         Session currentSession = getCurrentSession();
         Object result;
@@ -85,15 +87,15 @@ public class AbstractDao<E extends BaseEntityI> {
         }
     }
 
-    public E getLocked(int id) {
+    public E getLocked(long id) {
         return get(id, LockOptions.UPGRADE);
     }
 
-    public E load(final int id) {
+    public E load(final long id) {
         return get(id, null);
     }
 
-    public E load(final int id, final LockOptions lockOptions) {
+    public E load(final long id, final LockOptions lockOptions) {
 
         Session currentSession = getCurrentSession();
         Object result;
@@ -105,7 +107,7 @@ public class AbstractDao<E extends BaseEntityI> {
         return entityClass.cast(result);
     }
 
-    public E loadLocked(int id) {
+    public E loadLocked(long id) {
         return load(id, LockOptions.UPGRADE);
     }
 
@@ -145,6 +147,32 @@ public class AbstractDao<E extends BaseEntityI> {
 
             currentSession.saveOrUpdate(entity);
         }
+    }
+
+    protected static Long convertId(final Object obj) {
+        if (obj == null) {
+            return null;
+        }
+        if (obj instanceof Long) {
+            return (Long) obj;
+        } else if (obj instanceof BigInteger) {
+            return ((BigInteger) obj).longValue();
+        } else if (obj instanceof Integer) {
+            return ((Integer) obj).longValue();
+        } else {
+            throw new IllegalStateException("Unexpected id class: " + obj.getClass());
+        }
+    }
+
+    protected static List<Long> convertIds(final List<?> objects) {
+        if (objects == null || objects.isEmpty()) {
+            return Collections.emptyList();
+        }
+        final List<Long> ids = new ArrayList<>(objects.size());
+        for (int i = 0; i < objects.size(); i++) {
+            ids.add(convertId(objects.get(i)));
+        }
+        return ids;
     }
 
     protected static <T> List<T> convertToList(final List<?> list, final Class<? extends T> clazz) {
@@ -571,7 +599,7 @@ public class AbstractDao<E extends BaseEntityI> {
         }
     }
 
-    public boolean deleteById (final int id) {
+    public boolean deleteById (final long id) {
 
         Session currentSession = getCurrentSession();
         Query query = currentSession.createQuery("delete from " + this.entityClass.getSimpleName() +  " where id = :id");

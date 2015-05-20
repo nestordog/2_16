@@ -184,7 +184,7 @@ public class TransactionServiceImpl implements TransactionService {
     // This method needs to be non-transaction in ensure correct creation of position and cash balance records in a separate transaction
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     @Override
-    public void createTransaction(final int securityId, final String strategyName, final String extId, final Date dateTime, final long quantity, final BigDecimal price,
+    public void createTransaction(final long securityId, final String strategyName, final String extId, final Date dateTime, final long quantity, final BigDecimal price,
             final BigDecimal executionCommission, final BigDecimal clearingCommission, final BigDecimal fee, final Currency currency, final TransactionType transactionType, final String accountName,
             final String description) {
 

@@ -31,7 +31,7 @@ public interface OptionFamilyDao extends ReadWriteDao<OptionFamily> {
      * @param underlyingId
      * @return OptionFamily
      */
-    OptionFamily findByUnderlying(int underlyingId);
+    OptionFamily findByUnderlying(long underlyingId);
 
     // spring-dao merge-point
 }

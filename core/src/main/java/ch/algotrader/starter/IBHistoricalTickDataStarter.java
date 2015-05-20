@@ -73,9 +73,9 @@ public class IBHistoricalTickDataStarter {
         }
 
         String[] securityIdStrings = args[3].split(":");
-        int[] securityIds = new int[securityIdStrings.length];
+        long[] securityIds = new long[securityIdStrings.length];
         for (int i = 0; i < securityIdStrings.length; i++) {
-            securityIds[i] = Integer.valueOf(securityIdStrings[i]);
+            securityIds[i] = Long.parseLong(securityIdStrings[i]);
         }
 
         ServiceLocator.instance().runServices();
@@ -85,9 +85,9 @@ public class IBHistoricalTickDataStarter {
         ServiceLocator.instance().shutdown();
     }
 
-    private static void download1MinTicks(int[] securityIds, Set<BarType> barTypes, Date startDate, Date endDate) throws Exception {
+    private static void download1MinTicks(long[] securityIds, Set<BarType> barTypes, Date startDate, Date endDate) throws Exception {
 
-        for (int securityId : securityIds) {
+        for (long securityId : securityIds) {
 
             Security security = ServiceLocator.instance().getLookupService().getSecurityInclFamilyAndUnderlying(securityId);
 

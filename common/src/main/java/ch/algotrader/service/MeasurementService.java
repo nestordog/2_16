@@ -42,6 +42,6 @@ public interface MeasurementService {
     /**
      * Deletes the specified Measurement.
      */
-    public void deleteMeasurement(int measurementId);
+    public void deleteMeasurement(long measurementId);
 
 }

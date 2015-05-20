@@ -73,7 +73,7 @@ public class SubscriptionServiceImpl implements SubscriptionService, Application
      * {@inheritDoc}
      */
     @Override
-    public void subscribeMarketDataEvent(final String strategyName, final int securityId) {
+    public void subscribeMarketDataEvent(final String strategyName, final long securityId) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
@@ -87,7 +87,7 @@ public class SubscriptionServiceImpl implements SubscriptionService, Application
      * {@inheritDoc}
      */
     @Override
-    public void subscribeMarketDataEvent(final String strategyName, final int securityId, final FeedType feedType) {
+    public void subscribeMarketDataEvent(final String strategyName, final long securityId, final FeedType feedType) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
         Validate.notNull(feedType, "Feed type is null");
@@ -102,7 +102,7 @@ public class SubscriptionServiceImpl implements SubscriptionService, Application
      * {@inheritDoc}
      */
     @Override
-    public void unsubscribeMarketDataEvent(final String strategyName, final int securityId) {
+    public void unsubscribeMarketDataEvent(final String strategyName, final long securityId) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
@@ -116,7 +116,7 @@ public class SubscriptionServiceImpl implements SubscriptionService, Application
      * {@inheritDoc}
      */
     @Override
-    public void unsubscribeMarketDataEvent(final String strategyName, final int securityId, final FeedType feedType) {
+    public void unsubscribeMarketDataEvent(final String strategyName, final long securityId, final FeedType feedType) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
         Validate.notNull(feedType, "Feed type is null");

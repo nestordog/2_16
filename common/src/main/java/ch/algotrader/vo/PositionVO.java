@@ -33,7 +33,7 @@ public class PositionVO implements Serializable {
     /**
      * The Id of the Position.
      */
-    private int id;
+    private long id;
 
     /**
      * boolean setter for primitive attribute, so we can tell if it's initialized
@@ -43,7 +43,7 @@ public class PositionVO implements Serializable {
     /**
      * The Id of the Security.
      */
-    private int securityId;
+    private long securityId;
 
     /**
      * boolean setter for primitive attribute, so we can tell if it's initialized
@@ -212,7 +212,7 @@ public class PositionVO implements Serializable {
      * The Id of the Position.
      * @return id int
      */
-    public int getId() {
+    public long getId() {
 
         return this.id;
     }
@@ -221,7 +221,7 @@ public class PositionVO implements Serializable {
      * The Id of the Position.
      * @param value int
      */
-    public void setId(final int value) {
+    public void setId(final long value) {
 
         this.id = value;
         this.setId = true;
@@ -240,7 +240,7 @@ public class PositionVO implements Serializable {
      * The Id of the Security.
      * @return securityId int
      */
-    public int getSecurityId() {
+    public long getSecurityId() {
 
         return this.securityId;
     }
@@ -249,7 +249,7 @@ public class PositionVO implements Serializable {
      * The Id of the Security.
      * @param value int
      */
-    public void setSecurityId(final int value) {
+    public void setSecurityId(final long value) {
 
         this.securityId = value;
         this.setSecurityId = true;

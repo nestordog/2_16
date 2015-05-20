@@ -110,7 +110,7 @@ public class ChartTab extends ChartPanel {
 
     private ChartDefinitionVO chartDefinition;
 
-    private Map<Integer, OHLCSeries> bars;
+    private Map<Long, OHLCSeries> bars;
     private Map<String, TimeSeries> indicators;
     private Map<String, Marker> markers;
     private Map<String, Boolean> markersSelectionStatus;

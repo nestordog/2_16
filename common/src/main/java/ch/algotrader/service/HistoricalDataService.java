@@ -45,7 +45,7 @@ public interface HistoricalDataService {
      * @param barType The {@link BarType BarType} that should be retrieved.
      * @param properties Arbitrary properties that should be added to the request
      */
-    public List<Bar> getHistoricalBars(int securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, Duration barSize, BarType barType, Map<String, String> properties);
+    public List<Bar> getHistoricalBars(long securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, Duration barSize, BarType barType, Map<String, String> properties);
 
     /**
      * Downloads historical Bars for the specified Security and stores them in the database,
@@ -60,7 +60,7 @@ public interface HistoricalDataService {
      * @param barType The {@link BarType BarType} that should be retrieved.
      * @param properties Arbitrary properties that should be added to the request
      */
-    public void updateHistoricalBars(int securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, Duration barSize, BarType barType, Map<String, String> properties);
+    public void updateHistoricalBars(long securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, Duration barSize, BarType barType, Map<String, String> properties);
 
     /**
      * Downloads historical Bars for the specified Security and stores them in the database,
@@ -75,6 +75,6 @@ public interface HistoricalDataService {
      * @param barType The {@link BarType BarType} that should be retrieved.
      * @param properties Arbitrary properties that should be added to the request
      */
-    public void replaceHistoricalBars(int securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, Duration barSize, BarType barType, Map<String, String> properties);
+    public void replaceHistoricalBars(long securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, Duration barSize, BarType barType, Map<String, String> properties);
 
 }

@@ -61,14 +61,14 @@ public abstract class HistoricalDataServiceImpl implements HistoricalDataService
      * {@inheritDoc}
      */
     @Override
-    public abstract List<Bar> getHistoricalBars(int securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, Duration barSize, BarType barType, Map<String,String> properties);
+    public abstract List<Bar> getHistoricalBars(long securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, Duration barSize, BarType barType, Map<String,String> properties);
 
     /**
      * {@inheritDoc}
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public void updateHistoricalBars(final int securityId, final Date endDate, final int timePeriodLength, final TimePeriod timePeriod, final Duration barSize, final BarType barType, Map<String,String> properties) {
+    public void updateHistoricalBars(final long securityId, final Date endDate, final int timePeriodLength, final TimePeriod timePeriod, final Duration barSize, final BarType barType, Map<String,String> properties) {
 
         Validate.notNull(endDate, "End date is null");
         Validate.notNull(timePeriod, "Time period is null");
@@ -104,7 +104,7 @@ public abstract class HistoricalDataServiceImpl implements HistoricalDataService
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public void replaceHistoricalBars(final int securityId, final Date endDate, final int timePeriodLength, final TimePeriod timePeriod, final Duration barSize, final BarType barType, Map<String,String> properties) {
+    public void replaceHistoricalBars(final long securityId, final Date endDate, final int timePeriodLength, final TimePeriod timePeriod, final Duration barSize, final BarType barType, Map<String,String> properties) {
 
         Validate.notNull(endDate, "End date is null");
         Validate.notNull(timePeriod, "Time period is null");

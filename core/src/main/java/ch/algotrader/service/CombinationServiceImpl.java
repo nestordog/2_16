@@ -119,7 +119,7 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public Combination createCombination(final CombinationType type, final int securityFamilyId) {
+    public Combination createCombination(final CombinationType type, final long securityFamilyId) {
 
         Validate.notNull(type, "Type is null");
 
@@ -153,7 +153,7 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public Combination createCombination(final CombinationType type, final int securityFamilyId, final int underlyingId) {
+    public Combination createCombination(final CombinationType type, final long securityFamilyId, final long underlyingId) {
 
         Validate.notNull(type, "Type is null");
 
@@ -174,7 +174,7 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public void deleteCombination(final int combinationId) {
+    public void deleteCombination(final long combinationId) {
 
         Combination combination = this.combinationDao.get(combinationId);
 
@@ -211,7 +211,7 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public Combination addComponentQuantity(final int combinationId, final int securityId, final long quantity) {
+    public Combination addComponentQuantity(final long combinationId, final long securityId, final long quantity) {
 
         return addOrRemoveComponentQuantity(combinationId, securityId, quantity, true);
     }
@@ -221,7 +221,7 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public Combination setComponentQuantity(final int combinationId, final int securityId, final long quantity) {
+    public Combination setComponentQuantity(final long combinationId, final long securityId, final long quantity) {
 
         return addOrRemoveComponentQuantity(combinationId, securityId, quantity, false);
 
@@ -232,7 +232,7 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public Combination removeComponent(final int combinationId, final int securityId) {
+    public Combination removeComponent(final long combinationId, final long securityId) {
 
         Combination combination = this.combinationDao.get(combinationId);
 
@@ -285,7 +285,7 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public void closeCombination(final int combinationId, final String strategyName) {
+    public void closeCombination(final long combinationId, final String strategyName) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
@@ -326,7 +326,7 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public Combination reduceCombination(final int combinationId, final String strategyName, final double ratio) {
+    public Combination reduceCombination(final long combinationId, final String strategyName, final double ratio) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
@@ -421,7 +421,7 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
 
     }
 
-    private Combination addOrRemoveComponentQuantity(int combinationId, final int securityId, long quantity, boolean add) {
+    private Combination addOrRemoveComponentQuantity(long combinationId, final long securityId, long quantity, boolean add) {
 
         Combination combination = this.combinationDao.get(combinationId);
 

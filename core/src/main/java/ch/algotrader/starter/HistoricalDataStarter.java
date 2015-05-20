@@ -53,15 +53,15 @@ public class HistoricalDataStarter {
         Duration barSize = Duration.valueOf(args[5]);
 
         String[] securityIdStrings = args[6].split(":");
-        int[] securityIds = new int[securityIdStrings.length];
+        long[] securityIds = new long[securityIdStrings.length];
         for (int i = 0; i < securityIdStrings.length; i++) {
-            securityIds[i] = Integer.valueOf(securityIdStrings[i]);
+            securityIds[i] = Long.parseLong(securityIdStrings[i]);
         }
 
         ServiceLocator.instance().runServices();
 
         HistoricalDataService service = ServiceLocator.instance().getService("historicalDataService", HistoricalDataService.class);
-        for (int securityId : securityIds) {
+        for (long securityId : securityIds) {
             if (update) {
                 service.updateHistoricalBars(securityId, endDate, timePeriodLength, timePeriod, barSize, barType, new HashMap<>());
             } else {

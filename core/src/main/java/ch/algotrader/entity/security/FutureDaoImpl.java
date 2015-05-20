@@ -42,7 +42,7 @@ public class FutureDaoImpl extends AbstractDao<Future> implements FutureDao {
     }
 
     @Override
-    public Future findByExpirationInclSecurityFamily(int futureFamilyId, Date expirationDate) {
+    public Future findByExpirationInclSecurityFamily(long futureFamilyId, Date expirationDate) {
 
         Validate.notNull(expirationDate, "expirationDate is null");
 
@@ -50,7 +50,7 @@ public class FutureDaoImpl extends AbstractDao<Future> implements FutureDao {
     }
 
     @Override
-    public List<Future> findByMinExpiration(int futureFamilyId, Date targetExpirationDate) {
+    public List<Future> findByMinExpiration(long futureFamilyId, Date targetExpirationDate) {
 
         Validate.notNull(targetExpirationDate, "targetExpirationDate is null");
 
@@ -58,7 +58,7 @@ public class FutureDaoImpl extends AbstractDao<Future> implements FutureDao {
     }
 
     @Override
-    public List<Future> findByMinExpiration(int limit, int futureFamilyId, Date targetExpirationDate) {
+    public List<Future> findByMinExpiration(int limit, long futureFamilyId, Date targetExpirationDate) {
 
         Validate.notNull(targetExpirationDate, "targetExpirationDate is null");
 
@@ -72,13 +72,13 @@ public class FutureDaoImpl extends AbstractDao<Future> implements FutureDao {
     }
 
     @Override
-    public List<Future> findBySecurityFamily(int securityFamilyId) {
+    public List<Future> findBySecurityFamily(long securityFamilyId) {
 
         return find("Future.findBySecurityFamily", QueryType.BY_NAME, new NamedParam("securityFamilyId", securityFamilyId));
     }
 
     @Override
-    public Future findByExpirationMonth(int futureFamilyId, Date expirationMonth) {
+    public Future findByExpirationMonth(long futureFamilyId, Date expirationMonth) {
 
         Validate.notNull(expirationMonth, "Expiration month is null");
 

@@ -2,10 +2,10 @@
 create window
     ComponentWindow.std:groupwin(componentId).std:lastevent()
 as
-    (componentId int,
+    (componentId long,
     quantity long,
-    securityId int,
-    combinationId int,
+    securityId long,
+    combinationId long,
     componentCount int,
     dateTime java.util.Date,
     volBid int,

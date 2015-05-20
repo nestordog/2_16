@@ -71,7 +71,7 @@ public interface ServerManagementService {
      * </ul>
      * @param accountName Account Name
      */
-    public void recordTransaction(int securityId, String strategyName, String extId, String dateTime, long quantity, double price, double executionCommission, double clearingCommission, double fee,
+    public void recordTransaction(long securityId, String strategyName, String extId, String dateTime, long quantity, double price, double executionCommission, double clearingCommission, double fee,
             String currency, String transactionType, String accountName);
 
     /**
@@ -79,7 +79,7 @@ public interface ServerManagementService {
      * @param positionId Id of the Position
      * @param targetStrategyName Strategy where the Position should be moved to
      */
-    public void transferPosition(int positionId, String targetStrategyName);
+    public void transferPosition(long positionId, String targetStrategyName);
 
     /**
      * Calculates margins for all open positions
@@ -94,7 +94,7 @@ public interface ServerManagementService {
     /**
      * performs a Delta Hedge of all Securities of the specified underlyingId
      */
-    public void hedgeDelta(int underlyingId);
+    public void hedgeDelta(long underlyingId);
 
     /**
      * Creates Rebalance Transactions so that Net-Liquidation-Values of all strategies are in line

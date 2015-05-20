@@ -55,7 +55,7 @@ public interface TransactionService {
      * <li>FEES: -1</li>
      * </ul>
      */
-    public void createTransaction(int securityId, String strategyName, String extId, Date dateTime, long quantity, BigDecimal price, BigDecimal executionCommission, BigDecimal clearingCommission,
+    public void createTransaction(long securityId, String strategyName, String extId, Date dateTime, long quantity, BigDecimal price, BigDecimal executionCommission, BigDecimal clearingCommission,
             BigDecimal fee, Currency currency, TransactionType transactionType, String accountName, String description);
 
     /**

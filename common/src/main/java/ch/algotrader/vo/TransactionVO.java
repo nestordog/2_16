@@ -35,7 +35,7 @@ public class TransactionVO implements Serializable {
     /**
      * The Id of the Transaction.
      */
-    private int id;
+    private long id;
 
     /**
      * boolean setter for primitive attribute, so we can tell if it's initialized
@@ -190,7 +190,7 @@ public class TransactionVO implements Serializable {
      * The Id of the Transaction.
      * @return id int
      */
-    public int getId() {
+    public long getId() {
 
         return this.id;
     }
@@ -199,7 +199,7 @@ public class TransactionVO implements Serializable {
      * The Id of the Transaction.
      * @param value int
      */
-    public void setId(final int value) {
+    public void setId(final long value) {
 
         this.id = value;
         this.setId = true;

@@ -28,7 +28,7 @@ import org.apache.commons.collections15.Transformer;
 import org.apache.commons.lang.Validate;
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
-import org.hibernate.type.IntegerType;
+import org.hibernate.type.LongType;
 import org.springframework.stereotype.Repository;
 
 import com.espertech.esper.collection.Pair;
@@ -65,19 +65,19 @@ public class OrderDaoImpl extends AbstractDao<Order> implements OrderDao {
 
     @SuppressWarnings("unchecked")
     @Override
-    public List<Integer> findUnacknowledgedOrderIds() {
+    public List<Long> findUnacknowledgedOrderIds() {
 
-        return (List<Integer>) findObjects(null, "Order.findUnacknowledgedOrderIds", QueryType.BY_NAME);
+        return convertIds(findObjects(null, "Order.findUnacknowledgedOrderIds", QueryType.BY_NAME));
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public List<Order> findByIds(List<Integer> ids) {
+    public List<Order> findByIds(List<Long> ids) {
 
         Validate.notEmpty(ids, "Ids are empty");
 
         Query query = this.prepareQuery(null, "Order.findByIds", QueryType.BY_NAME);
-        query.setParameterList("ids", ids, IntegerType.INSTANCE);
+        query.setParameterList("ids", ids, LongType.INSTANCE);
 
         return query.list();
     }
@@ -116,7 +116,7 @@ public class OrderDaoImpl extends AbstractDao<Order> implements OrderDao {
 
     @SuppressWarnings("unchecked")
     @Override
-    public Collection<Order> findOpenOrdersByStrategyAndSecurity(String strategyName, int securityId) {
+    public Collection<Order> findOpenOrdersByStrategyAndSecurity(String strategyName, long securityId) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 

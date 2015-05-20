@@ -88,7 +88,7 @@ public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl
     }
 
     @Override
-    public synchronized List<Bar> getHistoricalBars(int securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, Duration barSize, BarType barType, Map<String, String> properties) {
+    public synchronized List<Bar> getHistoricalBars(long securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, Duration barSize, BarType barType, Map<String, String> properties) {
 
         Validate.notNull(endDate, "End date is null");
         Validate.notNull(timePeriod, "Time period is null");

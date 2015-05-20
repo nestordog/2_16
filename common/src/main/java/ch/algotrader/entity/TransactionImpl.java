@@ -239,7 +239,7 @@ public class TransactionImpl extends Transaction {
     public int hashCode() {
 
         int hash = 17;
-        hash = hash * 37 + this.getId();
+        hash = hash * 37 + Long.hashCode(getId());
         return hash;
     }
 }

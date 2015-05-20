@@ -124,8 +124,8 @@
         <meta attribute="class-description">Base Class for all Order Types</meta>
         <cache usage="read-write" />
         <comment>Base Class for all Order Types</comment>
-        <id name="id" type="int" >
-            <column name="ID" sql-type="INTEGER"/>
+        <id name="id" type="long" >
+            <column name="ID" sql-type="BIGINT"/>
             <generator class="native">
                 <!-- id-generator merge-point -->
             </generator>
@@ -190,7 +190,7 @@
             <meta attribute="field-description">Base Class for all Order Types</meta>
             <cache usage="read-write" />
             <key foreign-key="ORDER_PROPERTY_ORDER_FKC">
-                <column name="ORDER_FK" sql-type="INTEGER">
+                <column name="ORDER_FK" sql-type="BIGINT">
                     <comment>Base Class for all Order Types</comment>
                 </column>
             </key>
@@ -200,14 +200,14 @@
         <many-to-one name="security" class="ch.algotrader.entity.security.SecurityImpl" foreign-key="ORDER_SECURITY_FKC" not-null="true" lazy="proxy" fetch="select">
             <meta attribute="property-type">ch.algotrader.entity.security.Security</meta>
             <meta attribute="field-description">The base class of all Securities in the system</meta>
-            <column name="SECURITY_FK" not-null="true" sql-type="INTEGER">
+            <column name="SECURITY_FK" not-null="true" sql-type="BIGINT">
                 <comment>The base class of all Securities in the system</comment>
             </column>
         </many-to-one>
         <many-to-one name="account" class="ch.algotrader.entity.AccountImpl" foreign-key="ORDER_ACCOUNT_FKC" not-null="true" lazy="proxy" fetch="select">
             <meta attribute="property-type">ch.algotrader.entity.Account</meta>
             <meta attribute="field-description">Represents an actual Account / AccountGroup / AllocationProfile with an external Broker / Bank</meta>
-            <column name="ACCOUNT_FK" not-null="true" sql-type="INTEGER">
+            <column name="ACCOUNT_FK" not-null="true" sql-type="BIGINT">
                 <comment>Represents an actual Account / AccountGroup / AllocationProfile with an external Broker / Bank</comment>
             </column>
         </many-to-one>
@@ -215,7 +215,7 @@
             <meta attribute="property-type">ch.algotrader.entity.strategy.Strategy</meta>
             <meta attribute="field-description">Represents a running Strategy within the system. In addition the AlgoTrader Server is also
 represented by an instance of this class.</meta>
-            <column name="STRATEGY_FK" not-null="true" sql-type="INTEGER">
+            <column name="STRATEGY_FK" not-null="true" sql-type="BIGINT">
                 <comment>Represents a running Strategy within the system. In addition the AlgoTrader Server is also
 represented by an instance of this class.</comment>
             </column>

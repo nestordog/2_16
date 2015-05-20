@@ -61,7 +61,7 @@ public interface StockDao extends ReadWriteDao<Stock> {
      * @param securityFamilyId
      * @return List<Stock>
      */
-    List<Stock> findStocksBySecurityFamily(int securityFamilyId);
+    List<Stock> findStocksBySecurityFamily(long securityFamilyId);
 
     // spring-dao merge-point
 }

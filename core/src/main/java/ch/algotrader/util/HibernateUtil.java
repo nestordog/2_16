@@ -69,7 +69,7 @@ public class HibernateUtil {
 
             try {
                 // try to get the entity id (cannot use toString because of lazy initialization)
-                Integer id = (Integer) target.getClass().getMethod("getId", new Class[] {}).invoke(target, new Object[] {});
+                Long id = (Long) target.getClass().getMethod("getId", new Class[] {}).invoke(target, new Object[] {});
                 logger.debug("merged " + target.getClass() + " " + id);
             } catch (Exception e1) {
                 logger.debug("merged " + target.getClass());

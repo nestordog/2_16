@@ -25,8 +25,8 @@
         <meta attribute="class-description">Weekly Trading Hours for a particular Exchange</meta>
         <cache usage="read-write" />
         <comment>Weekly Trading Hours for a particular Exchange</comment>
-        <id name="id" type="int" >
-            <column name="ID" sql-type="INTEGER"/>
+        <id name="id" type="long" >
+            <column name="ID" sql-type="BIGINT"/>
             <generator class="native">
                 <!-- id-generator merge-point -->
             </generator>
@@ -76,7 +76,7 @@
         <many-to-one name="exchange" class="ch.algotrader.entity.exchange.ExchangeImpl" cascade="none" foreign-key="TRADING_HOURS_EXCHANGE_FKC" not-null="true" lazy="false" fetch="select">
             <meta attribute="property-type">ch.algotrader.entity.exchange.Exchange</meta>
             <meta attribute="field-description">Exchange where securities are traded</meta>
-            <column name="EXCHANGE_FK" not-null="true" sql-type="INTEGER">
+            <column name="EXCHANGE_FK" not-null="true" sql-type="BIGINT">
                 <comment>Exchange where securities are traded</comment>
             </column>
         </many-to-one>

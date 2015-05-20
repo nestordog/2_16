@@ -87,8 +87,8 @@
         <meta attribute="class-description">Base class of an Entity that can hold {@link Property Properties}.</meta>
         <cache usage="read-write" />
         <comment>Base class of an Entity that can hold {@link Property Properties}.</comment>
-        <id name="id" type="int" >
-            <column name="ID" sql-type="INTEGER"/>
+        <id name="id" type="long" >
+            <column name="ID" sql-type="BIGINT"/>
             <generator class="increment">
                 <!-- id-generator merge-point -->
             </generator>
@@ -98,7 +98,7 @@
             <meta attribute="field-description">Base class of an Entity that can hold {@link Property Properties}.</meta>
             <cache usage="read-write" />
             <key foreign-key="PROPERTY_PROPERTY_HOLDER_FKC">
-                <column name="PROPERTY_HOLDER_FK" sql-type="INTEGER">
+                <column name="PROPERTY_HOLDER_FK" sql-type="BIGINT">
                     <comment>Base class of an Entity that can hold {@link Property Properties}.</comment>
                 </column>
             </key>
@@ -236,7 +236,7 @@
                 <meta attribute="property-type">ch.algotrader.entity.strategy.Strategy</meta>
                 <meta attribute="field-description">Represents a running Strategy within the system. In addition the AlgoTrader Server is also
 represented by an instance of this class.</meta>
-                <column name="STRATEGY_FK" not-null="true" sql-type="INTEGER">
+                <column name="STRATEGY_FK" not-null="true" sql-type="BIGINT">
                     <comment>Represents a running Strategy within the system. In addition the AlgoTrader Server is also
 represented by an instance of this class.</comment>
                 </column>
@@ -244,7 +244,7 @@ represented by an instance of this class.</comment>
             <many-to-one name="security" class="ch.algotrader.entity.security.SecurityImpl" foreign-key="POSITION_SECURITY_FKC" not-null="true" lazy="proxy" fetch="select">
                 <meta attribute="property-type">ch.algotrader.entity.security.Security</meta>
                 <meta attribute="field-description">The base class of all Securities in the system</meta>
-                <column name="SECURITY_FK" not-null="true" sql-type="INTEGER">
+                <column name="SECURITY_FK" not-null="true" sql-type="BIGINT">
                     <comment>The base class of all Securities in the system</comment>
                 </column>
             </many-to-one>
@@ -277,7 +277,7 @@ represented by an instance of this class.</comment>
                 <meta attribute="property-type">ch.algotrader.entity.strategy.Strategy</meta>
                 <meta attribute="field-description">Represents a running Strategy within the system. In addition the AlgoTrader Server is also
 represented by an instance of this class.</meta>
-                <column name="STRATEGY_FK" not-null="true" sql-type="INTEGER">
+                <column name="STRATEGY_FK" not-null="true" sql-type="BIGINT">
                     <comment>Represents a running Strategy within the system. In addition the AlgoTrader Server is also
 represented by an instance of this class.</comment>
                 </column>
@@ -285,7 +285,7 @@ represented by an instance of this class.</comment>
             <many-to-one name="security" class="ch.algotrader.entity.security.SecurityImpl" foreign-key="SUBSCRIPTION_SECURITY_FKC" not-null="true" lazy="false" fetch="join">
                 <meta attribute="property-type">ch.algotrader.entity.security.Security</meta>
                 <meta attribute="field-description">The base class of all Securities in the system</meta>
-                <column name="SECURITY_FK" not-null="true" sql-type="INTEGER">
+                <column name="SECURITY_FK" not-null="true" sql-type="BIGINT">
                     <comment>The base class of all Securities in the system</comment>
                 </column>
             </many-to-one>
@@ -314,7 +314,7 @@ represented by an instance of this class.</comment>
 Properties.</meta>
                 <cache usage="read-write" />
                 <key foreign-key="ALLOCATION_ORDER_PREFERENCE_FC">
-                    <column name="ORDER_PREFERENCE_FK" sql-type="INTEGER">
+                    <column name="ORDER_PREFERENCE_FK" sql-type="BIGINT">
                         <comment>Contains certain order default values (e.g. quantity, orderType, delays, etc.). Except for the
 {@link ch.algotrader.enumeration.OrderType OrderType}, all values have to be defined through
 Properties.</comment>
@@ -325,7 +325,7 @@ Properties.</comment>
             <many-to-one name="defaultAccount" class="ch.algotrader.entity.AccountImpl" foreign-key="ORDER_PREFERENCE_DEFAULT_ACCOC" not-null="false" lazy="proxy" fetch="select">
                 <meta attribute="property-type">ch.algotrader.entity.Account</meta>
                 <meta attribute="field-description">Represents an actual Account / AccountGroup / AllocationProfile with an external Broker / Bank</meta>
-                <column name="DEFAULT_ACCOUNT_FK" not-null="false" sql-type="INTEGER">
+                <column name="DEFAULT_ACCOUNT_FK" not-null="false" sql-type="BIGINT">
                     <comment>Represents an actual Account / AccountGroup / AllocationProfile with an external Broker / Bank</comment>
                 </column>
             </many-to-one>
@@ -370,7 +370,7 @@ iNote: the total of all Allocations needs to be 1.0/i</comment>
 represented by an instance of this class.</meta>
                 <cache usage="read-write" />
                 <key foreign-key="PORTFOLIO_VALUE_STRATEGY_FKC">
-                    <column name="STRATEGY_FK" sql-type="INTEGER">
+                    <column name="STRATEGY_FK" sql-type="BIGINT">
                         <comment>Represents a running Strategy within the system. In addition the AlgoTrader Server is also
 represented by an instance of this class.</comment>
                     </column>
@@ -382,7 +382,7 @@ represented by an instance of this class.</comment>
 represented by an instance of this class.</meta>
                 <cache usage="read-write" />
                 <key foreign-key="CASH_BALANCE_STRATEGY_FKC">
-                    <column name="STRATEGY_FK" sql-type="INTEGER">
+                    <column name="STRATEGY_FK" sql-type="BIGINT">
                         <comment>Represents a running Strategy within the system. In addition the AlgoTrader Server is also
 represented by an instance of this class.</comment>
                     </column>
@@ -394,7 +394,7 @@ represented by an instance of this class.</comment>
 represented by an instance of this class.</meta>
                 <cache usage="read-write" />
                 <key foreign-key="MEASUREMENT_STRATEGY_FKC">
-                    <column name="STRATEGY_FK" sql-type="INTEGER">
+                    <column name="STRATEGY_FK" sql-type="BIGINT">
                         <comment>Represents a running Strategy within the system. In addition the AlgoTrader Server is also
 represented by an instance of this class.</comment>
                     </column>

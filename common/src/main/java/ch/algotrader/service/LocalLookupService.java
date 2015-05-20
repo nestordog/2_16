@@ -35,19 +35,19 @@ public interface LocalLookupService {
      * returns the currentMarketDataEvent of the specified security by consulting the local Engine first,
      * then the SERVER Engine and then the database
      */
-    MarketDataEvent getCurrentMarketDataEvent(int securityId);
+    MarketDataEvent getCurrentMarketDataEvent(long securityId);
 
     /**
      * returns the current value of the specified security by consulting the local Engine first,
      * then the SERVER Engine and then the database
      */
-    BigDecimal getCurrentValue(int securityId);
+    BigDecimal getCurrentValue(long securityId);
 
     /**
      * returns the current value of the specified security by consulting the local Engine first,
      * then the SERVER Engine and then the database
      */
-    double getCurrentValueDouble(int securityId);
+    double getCurrentValueDouble(long securityId);
 
     /**
      * Gets the current Exchange Rate between the {@code baseCurrency} and {@code
@@ -63,7 +63,7 @@ public interface LocalLookupService {
     /**
      * Gets the relevant exchange rate for the specified Security related to the specified {@link Currency}
      */
-    double getForexRate(int securityId, Currency transactionCurrency);
+    double getForexRate(long securityId, Currency transactionCurrency);
 
     /**
      * Gets the relevant exchange rate for the specified Security related to the specified {@link Currency}
@@ -73,7 +73,7 @@ public interface LocalLookupService {
     /**
      * Gets the relevant exchange rate for the specified Security related to the Portfolio Base Currency
      */
-    double getForexRateBase(int securityId);
+    double getForexRateBase(long securityId);
 
     /**
      * Gets the relevant exchange rate for the specified Security related to the Portfolio Base Currency

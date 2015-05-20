@@ -23,7 +23,6 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.commons.collections15.CollectionUtils;
-import org.apache.commons.collections15.Transformer;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -52,11 +51,8 @@ public abstract class TickCallback {
         List<Tick> tickList = Arrays.asList(ticks);
 
         // get the securityIds sorted asscending
-        Set<Integer> sortedSecurityIds = new TreeSet<>(CollectionUtils.collect(tickList, new Transformer<Tick, Integer>() {
-            @Override
-            public Integer transform(Tick tick) {
-                return tick.getSecurity().getId();
-            }
+        Set<Long> sortedSecurityIds = new TreeSet<>(CollectionUtils.collect(tickList, tick -> {
+            return tick.getSecurity().getId();
         }));
 
         // get the statement alias based on all security ids

@@ -30,12 +30,7 @@ public class InsertComponentEventVO implements Serializable {
     /**
      * The Id of the Component
      */
-    private int componentId;
-
-    /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setComponentId = false;
+    private long componentId;
 
     /**
      * The quantity of the Component
@@ -43,39 +38,19 @@ public class InsertComponentEventVO implements Serializable {
     private long quantity;
 
     /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setQuantity = false;
-
-    /**
      * The Security Id of the Component.
      */
-    private int securityId;
-
-    /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setSecurityId = false;
+    private long securityId;
 
     /**
      * The Security Id of the Combination
      */
-    private int combinationId;
-
-    /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setCombinationId = false;
+    private long combinationId;
 
     /**
      * The number of components the corresponding Combination consists of.
      */
     private int componentCount;
-
-    /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setComponentCount = false;
 
     /**
      * Default Constructor
@@ -96,15 +71,10 @@ public class InsertComponentEventVO implements Serializable {
     public InsertComponentEventVO(final int componentIdIn, final long quantityIn, final int securityIdIn, final int combinationIdIn, final int componentCountIn) {
 
         this.componentId = componentIdIn;
-        this.setComponentId = true;
         this.quantity = quantityIn;
-        this.setQuantity = true;
         this.securityId = securityIdIn;
-        this.setSecurityId = true;
         this.combinationId = combinationIdIn;
-        this.setCombinationId = true;
         this.componentCount = componentCountIn;
-        this.setComponentCount = true;
     }
 
     /**
@@ -116,35 +86,20 @@ public class InsertComponentEventVO implements Serializable {
     public InsertComponentEventVO(final InsertComponentEventVO otherBean) {
 
         this.componentId = otherBean.getComponentId();
-        this.setComponentId = true;
         this.quantity = otherBean.getQuantity();
-        this.setQuantity = true;
         this.securityId = otherBean.getSecurityId();
-        this.setSecurityId = true;
         this.combinationId = otherBean.getCombinationId();
-        this.setCombinationId = true;
         this.componentCount = otherBean.getComponentCount();
-        this.setComponentCount = true;
     }
 
-    public int getComponentId() {
+    public long getComponentId() {
 
         return this.componentId;
     }
 
-    public void setComponentId(final int value) {
+    public void setComponentId(final long value) {
 
         this.componentId = value;
-        this.setComponentId = true;
-    }
-
-    /**
-     * Return true if the primitive attribute componentId is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetComponentId() {
-
-        return this.setComponentId;
     }
 
     public long getQuantity() {
@@ -155,56 +110,26 @@ public class InsertComponentEventVO implements Serializable {
     public void setQuantity(final long value) {
 
         this.quantity = value;
-        this.setQuantity = true;
     }
 
-    /**
-     * Return true if the primitive attribute quantity is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetQuantity() {
-
-        return this.setQuantity;
-    }
-
-    public int getSecurityId() {
+    public long getSecurityId() {
 
         return this.securityId;
     }
 
-    public void setSecurityId(final int value) {
+    public void setSecurityId(final long value) {
 
         this.securityId = value;
-        this.setSecurityId = true;
     }
 
-    /**
-     * Return true if the primitive attribute securityId is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetSecurityId() {
-
-        return this.setSecurityId;
-    }
-
-    public int getCombinationId() {
+    public long getCombinationId() {
 
         return this.combinationId;
     }
 
-    public void setCombinationId(final int value) {
+    public void setCombinationId(final long value) {
 
         this.combinationId = value;
-        this.setCombinationId = true;
-    }
-
-    /**
-     * Return true if the primitive attribute combinationId is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetCombinationId() {
-
-        return this.setCombinationId;
     }
 
     /**
@@ -219,16 +144,6 @@ public class InsertComponentEventVO implements Serializable {
     public void setComponentCount(final int value) {
 
         this.componentCount = value;
-        this.setComponentCount = true;
-    }
-
-    /**
-     * Return true if the primitive attribute componentCount is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetComponentCount() {
-
-        return this.setComponentCount;
     }
 
     @Override
@@ -237,24 +152,14 @@ public class InsertComponentEventVO implements Serializable {
         StringBuilder builder = new StringBuilder();
         builder.append("InsertComponentEventVO [componentId=");
         builder.append(componentId);
-        builder.append(", setComponentId=");
-        builder.append(setComponentId);
         builder.append(", quantity=");
         builder.append(quantity);
-        builder.append(", setQuantity=");
-        builder.append(setQuantity);
         builder.append(", securityId=");
         builder.append(securityId);
-        builder.append(", setSecurityId=");
-        builder.append(setSecurityId);
         builder.append(", combinationId=");
         builder.append(combinationId);
-        builder.append(", setCombinationId=");
-        builder.append(setCombinationId);
         builder.append(", componentCount=");
         builder.append(componentCount);
-        builder.append(", setComponentCount=");
-        builder.append(setComponentCount);
         builder.append("]");
 
         return builder.toString();

@@ -50,5 +50,5 @@ public interface StrategyPersistenceService {
      *
      * @param strageyId the ID of the strategy to delete
      */
-    void deleteStrategy(int strageyId);
+    void deleteStrategy(long strageyId);
 }

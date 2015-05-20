@@ -63,7 +63,7 @@ public class ServiceUtil {
 
         Tick tick = pair.getFirst();
 
-        int securityId = tick.getSecurity().getId();
+        long securityId = tick.getSecurity().getId();
 
         Security security = LookupUtil.getSecurityInitialized(securityId);
         tick.setSecurity(security);

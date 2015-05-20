@@ -50,13 +50,13 @@ public class ComponentDaoImpl extends AbstractDao<Component> implements Componen
     }
 
     @Override
-    public List<Component> findSubscribedBySecurityInclSecurity(int securityId) {
+    public List<Component> findSubscribedBySecurityInclSecurity(long securityId) {
 
         return find("Component.findSubscribedBySecurityInclSecurity", QueryType.BY_NAME, new NamedParam("securityId", securityId));
     }
 
     @Override
-    public List<Component> findSubscribedByStrategyAndSecurityInclSecurity(String strategyName, int securityId) {
+    public List<Component> findSubscribedByStrategyAndSecurityInclSecurity(String strategyName, long securityId) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 

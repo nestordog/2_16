@@ -182,12 +182,12 @@ public interface ManagementService {
     /**
      * Closes the specified Position by using the defined default OrderPreference
      */
-    public void closePosition(int positionId);
+    public void closePosition(long positionId);
 
     /**
      * Reduces the Position by the specified amount by using the defined default OrderPreference
      */
-    public void reducePosition(int positionId, int quantity);
+    public void reducePosition(long positionId, int quantity);
 
     /**
      * Reduce the Component quantities and the associated Position by the specified ratio
@@ -206,12 +206,12 @@ public interface ManagementService {
     /**
      * Set or modify the ExitValue of the specified Position
      */
-    public void setExitValue(int positionId, double exitValue);
+    public void setExitValue(long positionId, double exitValue);
 
     /**
      * Remove the ExitValue from the specified Position
      */
-    public void removeExitValue(int positionId);
+    public void removeExitValue(long positionId);
 
     /**
      * Set the value of the specified Esper variable
@@ -220,8 +220,6 @@ public interface ManagementService {
 
     /**
      * Subscribe to the specified Security.
-     *  
-     *  
      * @param security
      * <ul>
      * <li>securityId (e.g. 123)</li>
@@ -270,14 +268,14 @@ public interface ManagementService {
      * <li>BOOLEAN</li>
      * </ul>
      */
-    public void addProperty(int propertyHolderId, String name, String value, String type);
+    public void addProperty(long propertyHolderId, String name, String value, String type);
 
     /**
      * Remove the specified property
      * @param propertyHolderId Id of the PropertyHolder (e.g. Subscription, Position or Strategy)
      * @param name name of the property
      */
-    public void removeProperty(int propertyHolderId, String name);
+    public void removeProperty(long propertyHolderId, String name);
 
     /**
      * creates a Combination of the specified type, securityFamilyId and optional underlying.
@@ -303,7 +301,7 @@ public interface ManagementService {
      * <li>conid, prefix with &quot;conid:&quot;, (e.g. &quot;conid:12087817&quot;)</li>
      * </ul>
      */
-    public int createCombination(String combinationType, int securityFamilyId, String underlying);
+    public long createCombination(String combinationType, long securityFamilyId, String underlying);
 
     /**
      * Set the quantity of the specified Component
@@ -319,7 +317,7 @@ public interface ManagementService {
      * <li>conid, prefix with &quot;conid:&quot;, (e.g. &quot;conid:12087817&quot;)</li>
      * </ul>
      */
-    public void setComponentQuantity(int combinationId, String component, long quantitiy);
+    public void setComponentQuantity(long combinationId, String component, long quantitiy);
 
     /**
      * Remove the specified Component from the specified Combination
@@ -335,13 +333,13 @@ public interface ManagementService {
      * <li>conid, prefix with &quot;conid:&quot;, (e.g. &quot;conid:12087817&quot;)</li>
      * </ul>
      */
-    public void removeComponent(int combinationId, String component);
+    public void removeComponent(long combinationId, String component);
 
     /**
      * deletes a Combination
      * @param combinationId the id of the combination
      */
-    public void deleteCombination(int combinationId);
+    public void deleteCombination(long combinationId);
 
     /**
      * Checks if the System is alive

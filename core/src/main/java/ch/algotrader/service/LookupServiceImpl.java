@@ -108,12 +108,12 @@ import ch.algotrader.vo.TransactionVO;
 @Transactional
 public class LookupServiceImpl implements LookupService {
 
-    private final Map<String, Integer> securitySymbolMap = new ConcurrentHashMap<>();
-    private final Map<String, Integer> securityIsinMap = new ConcurrentHashMap<>();
-    private final Map<String, Integer> securityBbgidMap = new ConcurrentHashMap<>();
-    private final Map<String, Integer> securityRicMap = new ConcurrentHashMap<>();
-    private final Map<String, Integer> securityConidMap = new ConcurrentHashMap<>();
-    private final Map<String, Integer> securityIdMap = new ConcurrentHashMap<>();
+    private final Map<String, Long> securitySymbolMap = new ConcurrentHashMap<>();
+    private final Map<String, Long> securityIsinMap = new ConcurrentHashMap<>();
+    private final Map<String, Long> securityBbgidMap = new ConcurrentHashMap<>();
+    private final Map<String, Long> securityRicMap = new ConcurrentHashMap<>();
+    private final Map<String, Long> securityConidMap = new ConcurrentHashMap<>();
+    private final Map<String, Long> securityIdMap = new ConcurrentHashMap<>();
 
     private final CommonConfig commonConfig;
 
@@ -259,7 +259,7 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
-    public Security getSecurity(final int id) {
+    public Security getSecurity(final long id) {
 
         return this.securityDao.get(id);
 
@@ -329,7 +329,7 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
-    public Security getSecurityInclFamilyAndUnderlying(final int id) {
+    public Security getSecurityInclFamilyAndUnderlying(final long id) {
 
         return this.securityDao.findByIdInclFamilyAndUnderlying(id);
 
@@ -339,7 +339,7 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
-    public Security getSecurityInitialized(final int id) {
+    public Security getSecurityInitialized(final long id) {
 
         return this.securityDao.findByIdInitialized(id);
 
@@ -349,17 +349,16 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
-    public List<Security> getSecuritiesByIds(final Collection<Integer> ids) {
+    public List<Security> getSecuritiesByIds(final Collection<Long> ids) {
 
         return this.securityDao.findByIds(ids);
-
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public int getSecurityIdBySecurityString(final String securityString) {
+    public long getSecurityIdBySecurityString(final String securityString) {
 
         Validate.notEmpty(securityString, "Security string is empty");
 
@@ -421,9 +420,9 @@ public class LookupServiceImpl implements LookupService {
 
         if (NumberUtils.isDigits(securityString)) {
 
-            security = this.securityDao.get(Integer.parseInt(securityString));
+            security = this.securityDao.get(Long.parseLong(securityString));
             if (security != null) {
-                this.securitySymbolMap.put(Integer.toString(security.getId()), security.getId());
+                this.securitySymbolMap.put(Long.toString(security.getId()), security.getId());
                 return security.getId();
             }
         }
@@ -557,7 +556,7 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
-    public Collection<Combination> getSubscribedCombinationsByStrategyAndUnderlying(final String strategyName, final int underlyingId) {
+    public Collection<Combination> getSubscribedCombinationsByStrategyAndUnderlying(final String strategyName, final long underlyingId) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
@@ -569,7 +568,7 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
-    public Collection<Combination> getSubscribedCombinationsByStrategyAndComponent(final String strategyName, final int securityId) {
+    public Collection<Combination> getSubscribedCombinationsByStrategyAndComponent(final String strategyName, final long securityId) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
@@ -621,7 +620,7 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
-    public Collection<Component> getSubscribedComponentsBySecurityInclSecurity(final int securityId) {
+    public Collection<Component> getSubscribedComponentsBySecurityInclSecurity(final long securityId) {
 
         return this.componentDao.findSubscribedBySecurityInclSecurity(securityId);
 
@@ -631,7 +630,7 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
-    public Collection<Component> getSubscribedComponentsByStrategyAndSecurityInclSecurity(final String strategyName, final int securityId) {
+    public Collection<Component> getSubscribedComponentsByStrategyAndSecurityInclSecurity(final String strategyName, final long securityId) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
@@ -643,7 +642,7 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
-    public Subscription getSubscriptionByStrategyAndSecurity(final String strategyName, final int securityId) {
+    public Subscription getSubscriptionByStrategyAndSecurity(final String strategyName, final long securityId) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
@@ -700,7 +699,7 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
-    public Strategy getStrategy(final int id) {
+    public Strategy getStrategy(final long id) {
 
         return this.strategyDao.get(id);
 
@@ -732,7 +731,7 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
-    public SecurityFamily getSecurityFamily(final int id) {
+    public SecurityFamily getSecurityFamily(final long id) {
 
         return this.securityFamilyDao.get(id);
 
@@ -754,7 +753,7 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
-    public OptionFamily getOptionFamilyByUnderlying(final int id) {
+    public OptionFamily getOptionFamilyByUnderlying(final long id) {
 
         return this.optionFamilyDao.findByUnderlying(id);
 
@@ -764,7 +763,7 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
-    public FutureFamily getFutureFamilyByUnderlying(final int id) {
+    public FutureFamily getFutureFamilyByUnderlying(final long id) {
 
         return this.futureFamilyDao.findByUnderlying(id);
 
@@ -784,7 +783,7 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
-    public Position getPosition(final int id) {
+    public Position getPosition(final long id) {
 
         return this.positionDao.get(id);
 
@@ -794,7 +793,7 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
-    public Position getPositionInclSecurityAndSecurityFamily(final int id) {
+    public Position getPositionInclSecurityAndSecurityFamily(final long id) {
 
         return this.positionDao.findByIdInclSecurityAndSecurityFamily(id);
 
@@ -816,7 +815,7 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
-    public Position getPositionBySecurityAndStrategy(final int securityId, final String strategyName) {
+    public Position getPositionBySecurityAndStrategy(final long securityId, final String strategyName) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
@@ -896,7 +895,7 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
-    public List<Position> getOpenPositionsBySecurity(final int securityId) {
+    public List<Position> getOpenPositionsBySecurity(final long securityId) {
 
         return this.positionDao.findOpenPositionsBySecurity(securityId);
 
@@ -936,7 +935,7 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
-    public List<Position> getOpenPositionsByStrategyAndSecurityFamily(final String strategyName, final int securityFamilyId) {
+    public List<Position> getOpenPositionsByStrategyAndSecurityFamily(final String strategyName, final long securityFamilyId) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
@@ -970,7 +969,7 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
-    public Transaction getTransaction(final int id) {
+    public Transaction getTransaction(final long id) {
 
         return this.transactionDao.get(id);
 
@@ -1023,7 +1022,7 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
-    public Collection<Order> getOpenOrdersByStrategyAndSecurity(final String strategyName, final int securityId) {
+    public Collection<Order> getOpenOrdersByStrategyAndSecurity(final String strategyName, final long securityId) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
@@ -1123,7 +1122,7 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
-    public Tick getLastTick(final int securityId, Date dateTime) {
+    public Tick getLastTick(final long securityId, Date dateTime) {
 
         Tick tick = CollectionUtil.getSingleElementOrNull(this.tickDao.findTicksBySecurityAndMaxDate(1, securityId, dateTime, this.coreConfig.getIntervalDays()));
 
@@ -1139,7 +1138,7 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
-    public List<Tick> getTicksByMaxDate(final int securityId, final Date maxDate) {
+    public List<Tick> getTicksByMaxDate(final long securityId, final Date maxDate) {
 
         Validate.notNull(maxDate, "Max date is null");
 
@@ -1151,7 +1150,7 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
-    public List<Tick> getTicksByMinDate(final int securityId, final Date minDate) {
+    public List<Tick> getTicksByMinDate(final long securityId, final Date minDate) {
 
         Validate.notNull(minDate, "Min date is null");
 
@@ -1163,11 +1162,11 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
-    public List<Tick> getDailyTicksBeforeTime(final int securityId, final Date time) {
+    public List<Tick> getDailyTicksBeforeTime(final long securityId, final Date time) {
 
         Validate.notNull(time, "Time is null");
 
-        List<Integer> ids = this.tickDao.findDailyTickIdsBeforeTime(securityId, time);
+        List<Long> ids = this.tickDao.findDailyTickIdsBeforeTime(securityId, time);
         if (ids.size() > 0) {
             return this.tickDao.findByIdsInclSecurityAndUnderlying(ids);
         } else {
@@ -1180,11 +1179,11 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
-    public List<Tick> getDailyTicksAfterTime(final int securityId, final Date time) {
+    public List<Tick> getDailyTicksAfterTime(final long securityId, final Date time) {
 
         Validate.notNull(time, "Time is null");
 
-        List<Integer> ids = this.tickDao.findDailyTickIdsAfterTime(securityId, time);
+        List<Long> ids = this.tickDao.findDailyTickIdsAfterTime(securityId, time);
         if (ids.size() > 0) {
             return this.tickDao.findByIdsInclSecurityAndUnderlying(ids);
         } else {
@@ -1197,11 +1196,11 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
-    public List<Tick> getHourlyTicksBeforeMinutesByMinDate(final int securityId, final int minutes, final Date minDate) {
+    public List<Tick> getHourlyTicksBeforeMinutesByMinDate(final long securityId, final int minutes, final Date minDate) {
 
         Validate.notNull(minDate, "Min date is null");
 
-        List<Integer> ids = this.tickDao.findHourlyTickIdsBeforeMinutesByMinDate(securityId, minutes, minDate);
+        List<Long> ids = this.tickDao.findHourlyTickIdsBeforeMinutesByMinDate(securityId, minutes, minDate);
         if (ids.size() > 0) {
             return this.tickDao.findByIdsInclSecurityAndUnderlying(ids);
         } else {
@@ -1214,11 +1213,11 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
-    public List<Tick> getHourlyTicksAfterMinutesByMinDate(final int securityId, final int minutes, final Date minDate) {
+    public List<Tick> getHourlyTicksAfterMinutesByMinDate(final long securityId, final int minutes, final Date minDate) {
 
         Validate.notNull(minDate, "Min date is null");
 
-        List<Integer> ids = this.tickDao.findHourlyTickIdsAfterMinutesByMinDate(securityId, minutes, minDate);
+        List<Long> ids = this.tickDao.findHourlyTickIdsAfterMinutesByMinDate(securityId, minutes, minDate);
         if (ids.size() > 0) {
             return this.tickDao.findByIdsInclSecurityAndUnderlying(ids);
         } else {
@@ -1258,7 +1257,7 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
-    public Tick getTickBySecurityAndMaxDate(final int securityId, final Date date) {
+    public Tick getTickBySecurityAndMaxDate(final long securityId, final Date date) {
 
         Validate.notNull(date, "Date is null");
 
@@ -1270,7 +1269,7 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
-    public List<Bar> getDailyBarsFromTicks(final int securityId, final Date fromDate, final Date toDate) {
+    public List<Bar> getDailyBarsFromTicks(final long securityId, final Date fromDate, final Date toDate) {
 
         Validate.notNull(fromDate, "From date is null");
         Validate.notNull(toDate, "To date is null");
@@ -1283,7 +1282,7 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
-    public List<Bar> getLastNBarsBySecurityAndBarSize(final int n, final int securityId, final Duration barSize) {
+    public List<Bar> getLastNBarsBySecurityAndBarSize(final int n, final long securityId, final Duration barSize) {
 
         Validate.notNull(barSize, "Bar size is null");
 
@@ -1295,7 +1294,7 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
-    public List<Bar> getBarsBySecurityBarSizeAndMinDate(final int securityId, final Duration barSize, final Date minDate) {
+    public List<Bar> getBarsBySecurityBarSizeAndMinDate(final long securityId, final Duration barSize, final Date minDate) {
 
         Validate.notNull(barSize, "Bar size is null");
         Validate.notNull(minDate, "Min date is null");
@@ -1624,7 +1623,7 @@ public class LookupServiceImpl implements LookupService {
 
         for (Security security : this.securityDao.findSubscribedForAutoActivateStrategies()) {
 
-            this.securityIdMap.put(Integer.toString(security.getId()), security.getId());
+            this.securityIdMap.put(Long.toString(security.getId()), security.getId());
 
             if (security.getSymbol() != null) {
                 this.securitySymbolMap.put(security.getSymbol(), security.getId());

@@ -31,7 +31,7 @@ public interface FutureFamilyDao extends ReadWriteDao<FutureFamily> {
      * @param underlyingId
      * @return FutureFamily
      */
-    FutureFamily findByUnderlying(int underlyingId);
+    FutureFamily findByUnderlying(long underlyingId);
 
     // spring-dao merge-point
 }

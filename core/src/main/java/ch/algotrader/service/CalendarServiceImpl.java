@@ -65,7 +65,7 @@ public class CalendarServiceImpl implements CalendarService {
      * {@inheritDoc}
      */
     @Override
-    public Date getCurrentTradingDate(int exchangeId, Date dateTime) {
+    public Date getCurrentTradingDate(long exchangeId, Date dateTime) {
 
         Validate.notNull(dateTime, "Data time is null");
 
@@ -81,7 +81,7 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public Date getCurrentTradingDate(int exchangeId) {
+    public Date getCurrentTradingDate(long exchangeId) {
         return getCurrentTradingDate(exchangeId, this.engineManager.getCurrentEPTime());
     }
 
@@ -89,7 +89,7 @@ public class CalendarServiceImpl implements CalendarService {
      * {@inheritDoc}
      */
     @Override
-    public boolean isOpen(final int exchangeId, final Date dateTime) {
+    public boolean isOpen(final long exchangeId, final Date dateTime) {
 
         Validate.notNull(dateTime, "Data time is null");
 
@@ -101,7 +101,7 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public boolean isOpen(int exchangeId) {
+    public boolean isOpen(long exchangeId) {
         return isOpen(exchangeId, this.engineManager.getCurrentEPTime());
     }
 
@@ -109,7 +109,7 @@ public class CalendarServiceImpl implements CalendarService {
      * {@inheritDoc}
      */
     @Override
-    public boolean isTradingDay(final int exchangeId, final Date date) {
+    public boolean isTradingDay(final long exchangeId, final Date date) {
 
         Validate.notNull(date, "Date is null");
 
@@ -120,7 +120,7 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public boolean isTradingDay(int exchangeId) {
+    public boolean isTradingDay(long exchangeId) {
         return isTradingDay(exchangeId, this.engineManager.getCurrentEPTime());
     }
 
@@ -128,7 +128,7 @@ public class CalendarServiceImpl implements CalendarService {
      * {@inheritDoc}
      */
     @Override
-    public Date getOpenTime(final int exchangeId, final Date date) {
+    public Date getOpenTime(final long exchangeId, final Date date) {
 
         Validate.notNull(date, "Date is null");
 
@@ -140,7 +140,7 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public Date getOpenTime(int exchangeId) {
+    public Date getOpenTime(long exchangeId) {
         return getOpenTime(exchangeId, this.engineManager.getCurrentEPTime());
     }
 
@@ -148,7 +148,7 @@ public class CalendarServiceImpl implements CalendarService {
      * {@inheritDoc}
      */
     @Override
-    public Date getCloseTime(final int exchangeId, final Date date) {
+    public Date getCloseTime(final long exchangeId, final Date date) {
 
         Validate.notNull(date, "Date is null");
 
@@ -160,12 +160,12 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public Date getCloseTime(int exchangeId) {
+    public Date getCloseTime(long exchangeId) {
         return getCloseTime(exchangeId, this.engineManager.getCurrentEPTime());
     }
 
     @Override
-    public Date getNextOpenTime(int exchangeId, Date dateTime) {
+    public Date getNextOpenTime(long exchangeId, Date dateTime) {
 
         Validate.notNull(dateTime, "DateTime is null");
 
@@ -182,12 +182,12 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public Date getNextOpenTime(int exchangeId) {
+    public Date getNextOpenTime(long exchangeId) {
         return getNextOpenTime(exchangeId, this.engineManager.getCurrentEPTime());
     }
 
     @Override
-    public Date getNextCloseTime(int exchangeId, Date dateTime) {
+    public Date getNextCloseTime(long exchangeId, Date dateTime) {
 
         Validate.notNull(dateTime, "DateTime is null");
 
@@ -204,7 +204,7 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public Date getNextCloseTime(int exchangeId) {
+    public Date getNextCloseTime(long exchangeId) {
         return getNextCloseTime(exchangeId, this.engineManager.getCurrentEPTime());
     }
 

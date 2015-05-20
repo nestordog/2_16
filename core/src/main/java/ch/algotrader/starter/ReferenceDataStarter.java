@@ -40,7 +40,7 @@ public class ReferenceDataStarter {
         ReferenceDataService service = ServiceLocator.instance().getService("referenceDataService", ReferenceDataService.class);
         for (String arg : args) {
 
-            int securityFamilyId = Integer.parseInt(arg);
+            long securityFamilyId = Long.parseLong(arg);
             service.retrieve(securityFamilyId);
         }
 

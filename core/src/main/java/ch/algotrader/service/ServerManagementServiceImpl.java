@@ -120,7 +120,7 @@ public class ServerManagementServiceImpl implements ServerManagementService {
             @ManagedOperationParameter(name = "currency", description = "Currency"),
             @ManagedOperationParameter(name = "transactionType", description = "<html>Transaction type: <ul> <li> B (BUY) </li> <li> S (SELL) </li> <li> E (EXPIRATION) </li> <li> T (TRANSFER) </li> <li> C (CREDIT) </li> <li> D (DEBIT) </li> <li> IP (INTREST_PAID) </li> <li> IR (INTREST_RECEIVED) </li> <li> DI (DIVIDEND) </li> <li> F (FEES) </li> <li> RF (REFUND) </li> </ul></html>"),
             @ManagedOperationParameter(name = "accountName", description = "Account Name") })
-    public void recordTransaction(final int securityId, final String strategyName, final String extId, final String dateTime, final long quantity, final double price,
+    public void recordTransaction(final long securityId, final String strategyName, final String extId, final String dateTime, final long quantity, final double price,
             final double executionCommission, final double clearingCommission, final double fee, final String currency, final String transactionType, final String accountName) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
@@ -153,7 +153,7 @@ public class ServerManagementServiceImpl implements ServerManagementService {
     @ManagedOperation(description = "Transfers a Position to another Strategy.")
     @ManagedOperationParameters({ @ManagedOperationParameter(name = "positionId", description = "Id of the Position"),
             @ManagedOperationParameter(name = "targetStrategyName", description = "Strategy where the Position should be moved to") })
-    public void transferPosition(final int positionId, final String targetStrategyName) {
+    public void transferPosition(final long positionId, final String targetStrategyName) {
 
         Validate.notEmpty(targetStrategyName, "Target strategy name is empty");
 
@@ -191,7 +191,7 @@ public class ServerManagementServiceImpl implements ServerManagementService {
     @Override
     @ManagedOperation(description = "performs a Delta Hedge of all Securities of the specified underlyingId")
     @ManagedOperationParameters({ @ManagedOperationParameter(name = "underlyingId", description = "underlyingId") })
-    public void hedgeDelta(final int underlyingId) {
+    public void hedgeDelta(final long underlyingId) {
 
         this.optionService.hedgeDelta(underlyingId);
 

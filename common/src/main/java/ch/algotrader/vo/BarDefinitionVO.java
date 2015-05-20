@@ -29,7 +29,7 @@ public class BarDefinitionVO extends SeriesDefinitionVO {
     /**
      * The Security Id this Bar Series is related to.
      */
-    private int securityId;
+    private long securityId;
 
     /**
      * boolean setter for primitive attribute, so we can tell if it's initialized
@@ -78,7 +78,7 @@ public class BarDefinitionVO extends SeriesDefinitionVO {
      * The Security Id this Bar Series is related to.
      * @return securityId int
      */
-    public int getSecurityId() {
+    public long getSecurityId() {
 
         return this.securityId;
     }

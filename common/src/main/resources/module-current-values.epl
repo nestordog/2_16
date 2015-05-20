@@ -2,7 +2,7 @@
 create window
     MarketDataWindow.std:groupwin(securityId, marketDataEvent.feedType).win:length(1)
 as
-    (securityId int,
+    (securityId long,
     feedType ch.algotrader.enumeration.FeedType,
     marketDataEvent MarketDataEvent);
     

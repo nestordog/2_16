@@ -169,7 +169,7 @@ public class PositionServiceImpl implements PositionService {
      * {@inheritDoc}
      */
     @Override
-    public void closePosition(final int positionId, final boolean unsubscribe) {
+    public void closePosition(final long positionId, final boolean unsubscribe) {
 
         final Position position = this.positionDao.get(positionId);
         if (position == null) {
@@ -202,7 +202,7 @@ public class PositionServiceImpl implements PositionService {
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public Position createNonTradeablePosition(final String strategyName, final int securityId, final long quantity) {
+    public Position createNonTradeablePosition(final String strategyName, final long securityId, final long quantity) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
@@ -239,7 +239,7 @@ public class PositionServiceImpl implements PositionService {
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public Position modifyNonTradeablePosition(final int positionId, final long quantity) {
+    public Position modifyNonTradeablePosition(final long positionId, final long quantity) {
 
         Position position = this.positionDao.getLocked(positionId);
         if (position == null) {
@@ -259,7 +259,7 @@ public class PositionServiceImpl implements PositionService {
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public void deleteNonTradeablePosition(final int positionId, final boolean unsubscribe) {
+    public void deleteNonTradeablePosition(final long positionId, final boolean unsubscribe) {
 
         Position position = this.positionDao.get(positionId);
         if (position == null) {
@@ -295,7 +295,7 @@ public class PositionServiceImpl implements PositionService {
      * {@inheritDoc}
      */
     @Override
-    public void reducePosition(final int positionId, final long quantity) {
+    public void reducePosition(final long positionId, final long quantity) {
 
         Position position = this.positionDao.get(positionId);
         if (position == null) {
@@ -314,7 +314,7 @@ public class PositionServiceImpl implements PositionService {
      * {@inheritDoc}
      */
     @Override
-    public void transferPosition(final int positionId, final String targetStrategyName) {
+    public void transferPosition(final long positionId, final String targetStrategyName) {
 
         Validate.notEmpty(targetStrategyName, "Target strategy name is empty");
 
@@ -377,7 +377,7 @@ public class PositionServiceImpl implements PositionService {
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public Position setMargin(final int positionId) {
+    public Position setMargin(final long positionId) {
 
         Position position = this.positionDao.get(positionId);
         if (position == null) {
@@ -411,7 +411,7 @@ public class PositionServiceImpl implements PositionService {
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public Position setExitValue(final int positionId, final BigDecimal exitValue, final boolean force) {
+    public Position setExitValue(final long positionId, final BigDecimal exitValue, final boolean force) {
 
         Validate.notNull(exitValue, "Exit value is null");
 
@@ -467,7 +467,7 @@ public class PositionServiceImpl implements PositionService {
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public Position removeExitValue(final int positionId) {
+    public Position removeExitValue(final long positionId) {
 
         Position position = this.positionDao.getLocked(positionId);
         if (position == null) {

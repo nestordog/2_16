@@ -28,12 +28,12 @@ public interface ReferenceDataService {
      * Retrieves the specified {@link ch.algotrader.entity.security.Future Future} or {@link
      * ch.algotrader.entity.security.Option Option} chain.
      */
-    public void retrieve(int securityFamilyId);
+    public void retrieve(long securityFamilyId);
 
     /**
      * Retrieves all {@link ch.algotrader.entity.security.Stock Stocks} of the specified {@code
      * securityFamily}
      */
-    public void retrieveStocks(int securityFamilyId, String symbol);
+    public void retrieveStocks(long securityFamilyId, String symbol);
 
 }

@@ -538,17 +538,17 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
     public Map<Order, OrderStatus> loadPendingOrders() {
 
         List<OrderStatus> pendingOrderStati = this.orderStatusDao.findPending();
-        List<Integer> unacknowledgedOrderIds = this.orderDao.findUnacknowledgedOrderIds();
+        List<Long> unacknowledgedOrderIds = this.orderDao.findUnacknowledgedOrderIds();
 
         if (pendingOrderStati.isEmpty() && unacknowledgedOrderIds.isEmpty()) {
             return Collections.emptyMap();
         }
 
-        List<Integer> pendingOrderIds = new ArrayList<>(unacknowledgedOrderIds.size() + pendingOrderStati.size());
-        Map<Integer, OrderStatus> orderStatusMap = new HashMap<>(pendingOrderStati.size());
+        List<Long> pendingOrderIds = new ArrayList<>(unacknowledgedOrderIds.size() + pendingOrderStati.size());
+        Map<Long, OrderStatus> orderStatusMap = new HashMap<>(pendingOrderStati.size());
         for (OrderStatus pendingOrderStatus: pendingOrderStati) {
 
-            int orderId = pendingOrderStatus.getOrder().getId();
+            long orderId = pendingOrderStatus.getOrder().getId();
             pendingOrderIds.add(orderId);
             orderStatusMap.put(orderId, pendingOrderStatus);
         }

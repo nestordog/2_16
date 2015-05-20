@@ -56,7 +56,7 @@ public class PropertyServiceImpl implements PropertyService {
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public PropertyHolder addProperty(final int propertyHolderId, final String name, final Object value, final boolean persistent) {
+    public PropertyHolder addProperty(final long propertyHolderId, final String name, final Object value, final boolean persistent) {
 
         Validate.notEmpty(name, "Name is empty");
         Validate.notNull(value, "Value is null");
@@ -97,7 +97,7 @@ public class PropertyServiceImpl implements PropertyService {
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public PropertyHolder removeProperty(final int propertyHolderId, final String name) {
+    public PropertyHolder removeProperty(final long propertyHolderId, final String name) {
 
         Validate.notEmpty(name, "Name is empty");
 
