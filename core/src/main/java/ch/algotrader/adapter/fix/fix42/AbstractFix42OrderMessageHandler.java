@@ -120,7 +120,6 @@ public abstract class AbstractFix42OrderMessageHandler extends AbstractFix42Mess
         }
 
         OrderStatus orderStatus = createStatus(executionReport, order);
-        orderStatus.setOrder(order);
 
         this.serverEngine.sendEvent(orderStatus);
 

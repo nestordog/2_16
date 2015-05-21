@@ -379,6 +379,13 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
                 logger.warn(message);
                 break;
 
+            case 161:
+
+                // Cancel attempted when order is not in a cancellable state
+                // do nothing, we cancelled the order just a little bit too late
+                logger.warn(message);
+                break;
+
             case 162:
 
                 // Historical market data Service error message.
@@ -403,7 +410,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
 
             case 201:
 
-                if ("Cannot cancel the filled order".equals(errorMsg)) {
+                if (errorMsg.contains("Order rejected - reason:Cannot cancel the filled order")) {
 
                     // Cannot cancel the filled order
                     // do nothing, we cancelled the order just a little bit too late
@@ -427,7 +434,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
             case 202:
 
                 // Order cancelled
-                if ("Order Canceled - reason:".equals(errorMsg)) {
+                if (errorMsg.contains("Order Canceled - reason:")) {
                     // do nothing, since we cancelled the order ourself
                     logger.debug(message);
                 } else {

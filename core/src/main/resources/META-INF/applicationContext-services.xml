@@ -140,12 +140,13 @@
     </bean>
 
     <bean id="orderPersistenceService" class="ch.algotrader.service.OrderPersistenceServiceImpl">
-        <constructor-arg index="0" ref="marketOrderDao"/>
-        <constructor-arg index="1" ref="limitOrderDao"/>
-        <constructor-arg index="2" ref="stopOrderDao"/>
-        <constructor-arg index="3" ref="stopLimitOrderDao"/>
-        <constructor-arg index="4" ref="orderPropertyDao"/>
-        <constructor-arg index="5" ref="orderStatusDao"/>
+        <constructor-arg index="0" ref="orderDao"/>
+        <constructor-arg index="1" ref="marketOrderDao"/>
+        <constructor-arg index="2" ref="limitOrderDao"/>
+        <constructor-arg index="3" ref="stopOrderDao"/>
+        <constructor-arg index="4" ref="stopLimitOrderDao"/>
+        <constructor-arg index="5" ref="orderPropertyDao"/>
+        <constructor-arg index="6" ref="orderStatusDao"/>
     </bean>
 
     <bean id="orderService" class="ch.algotrader.service.OrderServiceImpl" >

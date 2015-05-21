@@ -28,8 +28,11 @@ import org.junit.Test;
 
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.SubscriptionImpl;
+import ch.algotrader.entity.exchange.Exchange;
+import ch.algotrader.entity.exchange.ExchangeImpl;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.strategy.StrategyImpl;
+import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.hibernate.InMemoryDBTest;
@@ -322,6 +325,7 @@ public class SecurityDaoTest extends InMemoryDBTest {
         this.session.save(forex1);
         this.session.save(forex2);
         this.session.flush();
+        this.session.clear();
 
         Security forex3 = this.dao.findByIdInclFamilyAndUnderlying(0);
 
@@ -331,10 +335,57 @@ public class SecurityDaoTest extends InMemoryDBTest {
 
         Assert.assertNotNull(forex4);
 
-        Assert.assertSame(family1, forex4.getUnderlying().getSecurityFamily());
-        Assert.assertSame(forex1, forex4.getUnderlying());
-        Assert.assertSame(family2, forex4.getSecurityFamily());
-        Assert.assertSame(forex2, forex4);
+        this.session.close();
+
+        Assert.assertEquals(forex1, forex4.getUnderlying());
+        Assert.assertEquals(family2, forex4.getSecurityFamily());
+        Assert.assertEquals(forex2, forex4);
+    }
+
+    @Test
+    public void testFindByIdInclFamilyUnderlyingExchangeAndBrokerParameters() {
+
+        Exchange exchange1 = new ExchangeImpl();
+        exchange1.setCode("EX");
+        exchange1.setName("Exchange");
+        exchange1.setTimeZone("GMT");
+
+        BrokerParameters brokerParameter1 = new BrokerParametersImpl();
+        brokerParameter1.setBroker(Broker.IB);
+
+        SecurityFamily family1 = new SecurityFamilyImpl();
+        family1.setName("family1");
+        family1.setTickSizePattern("0<0.1");
+        family1.setCurrency(Currency.EUR);
+        family1.setExchange(exchange1);
+
+        Forex forex1 = new ForexImpl();
+        forex1.setSymbol("GBP.EUR");
+        forex1.setBaseCurrency(Currency.GBP);
+        forex1.setSecurityFamily(family1);
+
+        this.session.save(exchange1);
+        this.session.save(family1);
+        family1.addBrokerParameters("IB", brokerParameter1);
+        this.session.save(brokerParameter1);
+
+        this.session.save(forex1);
+        this.session.flush();
+        this.session.clear();
+
+        Security forex3 = this.dao.findByIdInclFamilyUnderlyingExchangeAndBrokerParameters(0);
+
+        Assert.assertNull(forex3);
+
+        Security forex4 = this.dao.findByIdInclFamilyUnderlyingExchangeAndBrokerParameters(forex1.getId());
+
+        this.session.close();
+
+        Assert.assertNotNull(forex4);
+
+        Assert.assertEquals(family1, forex4.getSecurityFamily());
+        Assert.assertEquals(exchange1, forex4.getSecurityFamily().getExchange());
+        Assert.assertEquals(brokerParameter1, forex4.getSecurityFamily().getBrokerParameters().get("IB"));
     }
 
     @Test

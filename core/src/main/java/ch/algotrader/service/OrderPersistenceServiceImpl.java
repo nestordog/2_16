@@ -29,6 +29,7 @@ import ch.algotrader.entity.trade.LimitOrderDao;
 import ch.algotrader.entity.trade.MarketOrder;
 import ch.algotrader.entity.trade.MarketOrderDao;
 import ch.algotrader.entity.trade.Order;
+import ch.algotrader.entity.trade.OrderDao;
 import ch.algotrader.entity.trade.OrderProperty;
 import ch.algotrader.entity.trade.OrderPropertyDao;
 import ch.algotrader.entity.trade.OrderStatus;
@@ -51,6 +52,8 @@ public class OrderPersistenceServiceImpl implements OrderPersistenceService {
 
     private static final Logger logger = LogManager.getLogger(OrderPersistenceServiceImpl.class.getName());
 
+    private final OrderDao orderDao;
+
     private final MarketOrderDao marketOrderDao;
 
     private final LimitOrderDao limitOrderDao;
@@ -64,6 +67,7 @@ public class OrderPersistenceServiceImpl implements OrderPersistenceService {
     private final OrderStatusDao orderStatusDao;
 
     public OrderPersistenceServiceImpl(
+            final OrderDao orderDao,
             final MarketOrderDao marketOrderDao,
             final LimitOrderDao limitOrderDao,
             final StopOrderDao stopOrderDao,
@@ -71,6 +75,7 @@ public class OrderPersistenceServiceImpl implements OrderPersistenceService {
             final OrderPropertyDao orderPropertyDao,
             final OrderStatusDao orderStatusDao) {
 
+        Validate.notNull(orderDao, "OrderDao is null");
         Validate.notNull(marketOrderDao, "MarketOrderDao is null");
         Validate.notNull(limitOrderDao, "LimitOrderDao is null");
         Validate.notNull(stopOrderDao, "StopOrderDao is null");
@@ -78,6 +83,7 @@ public class OrderPersistenceServiceImpl implements OrderPersistenceService {
         Validate.notNull(orderPropertyDao, "OrderPropertyDao is null");
         Validate.notNull(orderStatusDao, "OrderStatusDao is null");
 
+        this.orderDao = orderDao;
         this.marketOrderDao = marketOrderDao;
         this.limitOrderDao = limitOrderDao;
         this.stopOrderDao = stopOrderDao;
@@ -122,6 +128,15 @@ public class OrderPersistenceServiceImpl implements OrderPersistenceService {
 
         try {
             if (orderStatus.getId() == 0) {
+
+                Order order = orderStatus.getOrder();
+                if (order == null) {
+                    logger.error("OrderStatus must have an Order attached");
+                } else if (order.getId() == 0 ) {
+                    // reload persistent order instance
+                    Order persistentOrder = this.orderDao.findByIntId(order.getIntId());
+                    orderStatus.setOrder(persistentOrder);
+                }
                 this.orderStatusDao.save(orderStatus);
             } else {
                 logger.error("OrderStatus may not be updated");

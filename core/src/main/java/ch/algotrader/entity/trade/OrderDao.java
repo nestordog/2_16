@@ -45,6 +45,13 @@ public interface OrderDao extends ReadWriteDao<Order> {
     List<Integer> findUnacknowledgedOrderIds();
 
     /**
+     * Finds an order by its {@code intId}
+     * @param intId
+     * @return Order
+     */
+    Order findByIntId(String intId);
+
+    /**
      * Finds multiple Orders by their {@code ids}.
      * @param ids
      * @return List<Order>

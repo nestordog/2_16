@@ -1119,6 +1119,17 @@
     ]]>
     </query>
 
+    <query name='Security.findByIdInclFamilyUnderlyingExchangeAndBrokerParameters'>
+    <![CDATA[
+        from SecurityImpl as s
+        left join fetch s.underlying as ul
+        join fetch s.securityFamily as f
+        left join fetch f.brokerParameters as bp
+        left join fetch f.exchange as ex
+        where s.id = :id
+    ]]>
+    </query>
+
     <!-- Security DAO queries Ends -->
     
     <!-- SecurityFamily DAO queries Starts -->
@@ -1323,6 +1334,12 @@
         left outer join fetch st.props 
         join fetch o.account 
         where o.id in :ids 
+    ]]>
+    </query>
+
+    <query name='Order.findByIntId'>
+    <![CDATA[
+        from OrderImpl where intId = :intId
     ]]>
     </query>
 

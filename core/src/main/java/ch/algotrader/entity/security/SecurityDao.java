@@ -89,6 +89,15 @@ public interface SecurityDao extends ReadWriteDao<Security> {
     Security findByIdInclFamilyAndUnderlying(int id);
 
     /**
+     * Finds a Security by its {@code id} incl. In addition the corresponding {@link SecurityFamily},
+     * underlying {@link Security}, the {@link ch.algotrader.entity.exchange.Exchange} and
+     * {@link BrokerParameters} are initialized.
+     * @param id
+     * @return Security
+     */
+    Security findByIdInclFamilyUnderlyingExchangeAndBrokerParameters(int id);
+
+    /**
      * Finds all Securities that are subscribed by at least one Strategy which is marked as {@code
      * autoActive}.
      * @return List<Security>
@@ -127,7 +136,5 @@ public interface SecurityDao extends ReadWriteDao<Security> {
      * @return Integer
      */
     Integer findSecurityIdByIsin(String isin);
-
-    // spring-dao merge-point
 
 }

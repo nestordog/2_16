@@ -119,6 +119,12 @@ public class SecurityDaoImpl extends AbstractDao<Security> implements SecurityDa
     }
 
     @Override
+    public Security findByIdInclFamilyUnderlyingExchangeAndBrokerParameters(int id) {
+
+        return findUnique("Security.findByIdInclFamilyUnderlyingExchangeAndBrokerParameters", QueryType.BY_NAME, new NamedParam("id", id));
+    }
+
+    @Override
     public List<Security> findSubscribedForAutoActivateStrategies() {
 
         return find("Security.findSubscribedForAutoActivateStrategies", QueryType.BY_NAME);

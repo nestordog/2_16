@@ -82,6 +82,14 @@ public class OrderDaoImpl extends AbstractDao<Order> implements OrderDao {
         return query.list();
     }
 
+    @Override
+    public Order findByIntId(final String intId) {
+
+        Validate.notEmpty(intId, "IntId is empty");
+
+        return findUnique("Order.findByIntId", QueryType.BY_NAME, new NamedParam("intId", intId));
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public Collection<Order> findAllOpenOrders() {

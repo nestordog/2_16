@@ -71,7 +71,9 @@ public abstract class InMemoryDBTest {
         }
         if (this.session != null) {
 
-            this.session.close();
+            if (this.session.isOpen()) {
+                this.session.close();
+            }
         }
     }
 

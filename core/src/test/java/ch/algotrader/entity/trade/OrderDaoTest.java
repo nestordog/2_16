@@ -187,6 +187,33 @@ public class OrderDaoTest extends InMemoryDBTest {
     }
 
     @Test
+    public void testFindByIntId() {
+
+        Order order = new MarketOrderImpl();
+        order.setIntId("ibn123.0");
+        order.setDateTime(new Date());
+        order.setSide(Side.BUY);
+        order.setTif(TIF.ATC);
+        order.setSecurity(this.forex);
+        order.setAccount(this.account);
+        order.setStrategy(this.strategy);
+
+        this.session.save(this.strategy);
+        this.session.save(this.account);
+        this.session.save(this.family);
+        this.session.save(this.forex);
+        this.session.save(order);
+        this.session.flush();
+
+        Order order1 = this.dao.findByIntId("ibn123.0");
+
+        Assert.assertEquals(order, order1);
+
+        Order order2 = this.dao.findByIntId("blah");
+        Assert.assertNull(order2);
+    }
+
+    @Test
     public void testFindAllOpenOrders() {
 
         // Could not test the method due to EngineLocator dependency
