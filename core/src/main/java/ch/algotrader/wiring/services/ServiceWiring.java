@@ -22,6 +22,9 @@ import org.hibernate.SessionFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.TransactionManagementConfigurer;
 
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.CoreConfig;
@@ -285,6 +288,14 @@ public class ServiceWiring {
             final OrderStatusDao orderStatusDao) {
 
         return new OrderPersistenceServiceImpl(orderDao, marketOrderDao, limitOrderDao, stopOrderDao, stopLimitOrderDao, orderPropertyDao, orderStatusDao);
+    }
+
+    @Bean(name = "orderPersistExecutor")
+    public ThreadPoolTaskExecutor createOrderPersistExecutor() {
+        ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
+        taskExecutor.setCorePoolSize(1);
+        taskExecutor.setMaxPoolSize(1);
+        return taskExecutor;
     }
 
     @Bean(name = "orderService")

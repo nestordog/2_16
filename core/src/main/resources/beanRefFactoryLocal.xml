@@ -8,9 +8,7 @@
         <constructor-arg>
            <list>
                 <value>classpath:/META-INF/applicationContext-common.xml</value>
-                <value>classpath:/META-INF/applicationContext-daos.xml</value>
                 <value>classpath:/META-INF/applicationContext-server.xml</value>
-                <value>classpath:/META-INF/applicationContext-services.xml</value>
                 <value>classpath*:/META-INF/applicationContext.xml</value>
                 <value>classpath*:/META-INF/applicationContext-env.xml</value>
            </list>
