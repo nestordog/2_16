@@ -160,11 +160,8 @@ public class LifecycleManagerImpl implements LifecycleManager, ApplicationContex
     }
 
     private void broadcastLocalOnShutdown(final LifecyclePhase phase) {
-        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-            @Override
-            public void run() {
-                eventDispatcher.broadcastLocal(new LifecycleEventVO(OperationMode.REAL_TIME, phase, new Date()));
-            }
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            eventDispatcher.broadcastLocal(new LifecycleEventVO(OperationMode.REAL_TIME, phase, new Date()));
         }));
     }
 

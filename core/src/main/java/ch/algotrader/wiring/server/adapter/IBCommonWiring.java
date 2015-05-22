@@ -15,40 +15,26 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.config.spring;
+package ch.algotrader.wiring.server.adapter;
 
-import org.springframework.beans.factory.FactoryBean;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 import ch.algotrader.config.ConfigLocator;
+import ch.algotrader.config.IBConfig;
 
 /**
- * Spring factory bean for global Config beans such as {@link ch.algotrader.config.CommonConfig}.
- *
- * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
- *
- * @version $Revision$ $Date$
+ * IB Native adaptor configuration.
  */
-public class ConfigBeanFactoryBean<T> implements FactoryBean<T> {
+@Configuration
+@Profile({"iBNative", "iBMarketData", "iBReferenceData", "iBHistoricalData", "iBFix"})
+public class IBCommonWiring {
 
-    private Class<T> beanClass;
+    @Bean(name = "iBConfig")
+    public IBConfig createIBConfig() throws Exception {
 
-    public void setBeanClass(final Class<T> beanClass) {
-        this.beanClass = beanClass;
-    }
-
-    @Override
-    public T getObject() throws Exception {
-        return ConfigLocator.instance().getConfig(this.beanClass);
-    }
-
-    @Override
-    public Class<T> getObjectType() {
-        return beanClass;
-    }
-
-    @Override
-    public boolean isSingleton() {
-        return true;
+        return ConfigLocator.instance().getConfig(IBConfig.class);
     }
 
 }

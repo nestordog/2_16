@@ -15,35 +15,29 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.adapter.ib;
+package ch.algotrader.wiring.server.external;
 
-import ch.algotrader.enumeration.ConnectionState;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
+
+import ch.algotrader.adapter.fix.ManagedFixAdapter;
+import ch.algotrader.service.OrderService;
+import ch.algotrader.service.jpm.JPMFixOrderServiceImpl;
 
 /**
- * IB session life cycle
- *
- * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
+ * JPM Fix service configuration.
  */
-public interface IBSessionLifecycle {
+@Configuration
+public class JPMFixServiceWiring {
 
-    void connect();
+    @Profile("jPMFix")
+    @Bean(name = "jPMFixOrderService")
+    public JPMFixOrderServiceImpl createJPMFixOrderService(
+            final ManagedFixAdapter fixAdapter,
+            final OrderService orderService) {
 
-    void disconnect();
-
-    boolean logon(boolean maintained);
-
-    void logoff();
-
-    boolean subscribe();
-
-    boolean isConnected();
-
-    boolean isLoggedOn();
-
-    boolean isSubscribed();
-
-    ConnectionState getConnectionState();
+        return new JPMFixOrderServiceImpl(fixAdapter, orderService);
+    }
 
 }

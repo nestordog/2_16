@@ -55,10 +55,7 @@ public class PortfolioChartServiceImpl extends ChartProvidingServiceImpl impleme
         Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(portfolioService, "PortfolioService is null");
 
-        final String strategyName = commonConfig.isSimulation() ? StrategyImpl.SERVER : System.getProperty("strategyName");
-        Validate.notNull(strategyName, "System property 'strategyName' is null");
-
-        this.strategyName = strategyName;
+        this.strategyName = commonConfig.isSimulation() ? StrategyImpl.SERVER : System.getProperty("strategyName", StrategyImpl.SERVER);
         this.portfolioService = portfolioService;
     }
 

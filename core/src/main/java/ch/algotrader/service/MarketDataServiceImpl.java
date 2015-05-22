@@ -22,8 +22,10 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -355,6 +357,17 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationList
             throw new ManagementServiceException("No ExternalMarketDataService found for feed type " + feedType);
         }
         return externalMarketDataService;
+    }
+
+    @Override
+    public Set<FeedType> getSupportedFeeds() {
+        return new HashSet<>(this.externalMarketDataServiceMap.keySet());
+    }
+
+    @Override
+    public boolean isSupportedFeed(FeedType feedType) {
+
+        return this.externalMarketDataServiceMap.containsKey(feedType);
     }
 
 }

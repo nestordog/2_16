@@ -146,7 +146,7 @@ public class IBNativeOrderServiceImpl extends ExternalOrderServiceImpl implement
 
         Validate.notNull(order, "Order is null");
 
-        if (!this.iBSession.getLifecycle().isLoggedOn()) {
+        if (!this.iBSession.isLoggedOn()) {
             logger.error("order cannot be cancelled, because IB is not logged on");
             return;
         }
@@ -162,7 +162,7 @@ public class IBNativeOrderServiceImpl extends ExternalOrderServiceImpl implement
      */
     private void sendOrModifyOrder(SimpleOrder order) {
 
-        if (!this.iBSession.getLifecycle().isLoggedOn()) {
+        if (!this.iBSession.isLoggedOn()) {
             logger.error("order cannot be sent / modified, because IB is not logged on");
             return;
         }

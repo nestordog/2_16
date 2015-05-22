@@ -133,11 +133,8 @@ public class ManagementServiceImpl implements ManagementService {
         Validate.notNull(marketDataService, "MarketDataService is null");
         Validate.notNull(configParams, "ConfigParams is null");
 
-        final String strategyName = commonConfig.isSimulation() ? StrategyImpl.SERVER : System.getProperty("strategyName");
-        Validate.notNull(strategyName, "System property 'strategyName' is null");
-
-        this.strategyName = strategyName;
         this.commonConfig = commonConfig;
+        this.strategyName = commonConfig.isSimulation() ? StrategyImpl.SERVER : System.getProperty("strategyName", StrategyImpl.SERVER);
         this.engineManager = engineManager;
         this.subscriptionService = subscriptionService;
         this.lookupService = lookupService;
@@ -863,8 +860,6 @@ public class ManagementServiceImpl implements ManagementService {
         if (StrategyImpl.SERVER.equals(strategyName)) {
             this.orderService.cancelAllOrders();
         }
-        // need to force exit because grafefull shutdown of esper-service (and esper-jmx) does not work
-        System.exit(0);
 
     }
 

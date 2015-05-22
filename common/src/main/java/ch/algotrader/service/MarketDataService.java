@@ -17,6 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
+import java.util.Set;
+
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.enumeration.FeedType;
 
@@ -30,57 +32,67 @@ public interface MarketDataService {
     /**
      * Persists a Tick to the DB and CSV File.
      */
-    public void persistTick(Tick tick);
+    void persistTick(Tick tick);
 
     /**
      * Initializes current Subscriptions with the external Market Data Provider for the specified
      * {@link FeedType}
      */
-    public void initSubscriptions(FeedType feedType);
+    void initSubscriptions(FeedType feedType);
 
     /**
      * Subscribes a Security for the defined Strategy.
      */
-    public void subscribe(String strategyName, int securityId);
+    void subscribe(String strategyName, int securityId);
 
     /**
      * Subscribes a Security for the defined Strategy and {@link FeedType}.
      */
-    public void subscribe(String strategyName, int securityId, FeedType feedType);
+    void subscribe(String strategyName, int securityId, FeedType feedType);
 
     /**
      * Unsubscribes a Security for the defined Strategy.
      */
-    public void unsubscribe(String strategyName, int securityId);
+    void unsubscribe(String strategyName, int securityId);
 
     /**
      * Unsubscribes a Security for the defined Strategy and {@link FeedType}
      */
-    public void unsubscribe(String strategyName, int securityId, FeedType feedType);
+    void unsubscribe(String strategyName, int securityId, FeedType feedType);
 
     /**
      * Removes Subscriptions of a particular Strategy for which the Strategy does not have an open
      * Position.
      */
-    public void removeNonPositionSubscriptions(String strategyName);
+    void removeNonPositionSubscriptions(String strategyName);
 
     /**
      * Removes Subscriptions of a particular Strategy and type for which the Strategy does not have
      * an open Position.
      * @param type The class for which a potential Subscription should be removed. Example: {@link ch.algotrader.entity.security.Future Future}
      */
-    public void removeNonPositionSubscriptionsByType(String strategyName, Class type);
+    void removeNonPositionSubscriptionsByType(String strategyName, Class type);
 
     /**
      * Publishes the latest Market Data Events of all subscribed Securities to the corresponding
      * Strategy.
      */
-    public void requestCurrentTicks(String strategyName);
+    void requestCurrentTicks(String strategyName);
 
     /**
      * Called in situations where no Market Data Events have been received for the specified {@code
      * SecurityFamily.maxGap}
      */
-    public void logTickGap(int securityId);
+    void logTickGap(int securityId);
+
+    /**
+     * Returns all supported data feeds.
+     */
+    Set<FeedType> getSupportedFeeds();
+
+    /**
+     * Returns {@code true} if the data feed is supported.
+     */
+    boolean isSupportedFeed(FeedType feedType);
 
 }

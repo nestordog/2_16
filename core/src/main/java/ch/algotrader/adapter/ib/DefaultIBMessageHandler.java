@@ -52,7 +52,6 @@ import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.service.HistoricalDataServiceException;
 import ch.algotrader.service.LookupService;
-import ch.algotrader.service.ib.IBNativeMarketDataService;
 import ch.algotrader.util.DateTimeLegacy;
 import ch.algotrader.util.PriceUtil;
 
@@ -70,63 +69,39 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
     private static final DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("yyyyMMdd  HH:mm:ss");
     private static final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyyMMdd");
 
-    private int clientId;
-    private IBSessionLifecycle fixSessionStateHolder;
-    private IBIdGenerator iBIdGenerator;
+    private final int clientId;
+    private final IBSessionStateHolder sessionStateHolder;
+    private final IBIdGenerator iBIdGenerator;
 
-    private LookupService lookupService;
-    private IBNativeMarketDataService marketDataService;
+    private final LookupService lookupService;
 
-    private BlockingQueue<Bar> historicalDataQueue;
+    private final BlockingQueue<Bar> historicalDataQueue;
+    private final BlockingQueue<AccountUpdate> accountUpdateQueue;
+    private final BlockingQueue<Set<String>> accountsQueue;
+    private final BlockingQueue<Profile> profilesQueue;
+    private final BlockingQueue<ContractDetails> contractDetailsQueue;
+    private final Engine serverEngine;
 
-    private BlockingQueue<AccountUpdate> accountUpdateQueue;
-    private BlockingQueue<Set<String>> accountsQueue;
-    private BlockingQueue<Profile> profilesQueue;
-
-    private BlockingQueue<ContractDetails> contractDetailsQueue;
-    private Engine serverEngine;
-
-    public void setClientId(int clientId) {
+    public DefaultIBMessageHandler(
+            final int clientId,
+            final IBSessionStateHolder sessionStateHolder,
+            final IBIdGenerator iBIdGenerator,
+            final LookupService lookupService,
+            final BlockingQueue<Bar> historicalDataQueue,
+            final BlockingQueue<AccountUpdate> accountUpdateQueue,
+            final BlockingQueue<Set<String>> accountsQueue,
+            final BlockingQueue<Profile> profilesQueue,
+            final BlockingQueue<ContractDetails> contractDetailsQueue,
+            final Engine serverEngine) {
         this.clientId = clientId;
-    }
-
-    public void setSessionLifecycle(IBSessionLifecycle fixSessionStateHolder) {
-        this.fixSessionStateHolder = fixSessionStateHolder;
-    }
-
-    public void setiBIdGenerator(IBIdGenerator iBIdGenerator) {
+        this.sessionStateHolder = sessionStateHolder;
         this.iBIdGenerator = iBIdGenerator;
-    }
-
-    public void setLookupService(LookupService lookupService) {
         this.lookupService = lookupService;
-    }
-
-    public void setiBNativeMarketDataService(IBNativeMarketDataService iBNativeMarketDataService) {
-        this.marketDataService = iBNativeMarketDataService;
-    }
-
-    public void setHistoricalDataQueue(BlockingQueue<Bar> historicalDataQueue) {
         this.historicalDataQueue = historicalDataQueue;
-    }
-
-    public void setAccountUpdateQueue(BlockingQueue<AccountUpdate> accountUpdateQueue) {
         this.accountUpdateQueue = accountUpdateQueue;
-    }
-
-    public void setAccountsQueue(BlockingQueue<Set<String>> accountsQueue) {
         this.accountsQueue = accountsQueue;
-    }
-
-    public void setProfilesQueue(BlockingQueue<Profile> profilesQueue) {
         this.profilesQueue = profilesQueue;
-    }
-
-    public void setContractDetailsQueue(BlockingQueue<ContractDetails> contractDetailsQueue) {
         this.contractDetailsQueue = contractDetailsQueue;
-    }
-
-    public void setServerEngine(Engine serverEngine) {
         this.serverEngine = serverEngine;
     }
 
@@ -349,7 +324,12 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
     @Override
     public void connectionClosed() {
 
-        this.fixSessionStateHolder.disconnect();
+        // IB client executes this notification from an interrupted thread, which prevents
+        // execution of potentially blocking I/O operations such as publishing to a JMS queue
+        // This makes it necessary to execute #onDisconnect() event on a separate thread
+        final Thread disposableThread = new Thread(null, sessionStateHolder::onDisconnect, "IB-disconnect-thread");
+        disposableThread.setDaemon(true);
+        disposableThread.start();
     }
 
     @Override
@@ -461,58 +441,43 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
 
             case 502:
 
-                // Couldn't connect to TWS
-                this.fixSessionStateHolder.disconnect();
+                // Couldn't onConnect to TWS
+                this.sessionStateHolder.onDisconnect();
                 logger.debug(message);
                 break;
 
             case 1100:
 
                 // Connectivity between IB and TWS has been lost.
-                this.fixSessionStateHolder.logoff();
+                this.sessionStateHolder.onLogoff();
                 logger.debug(message);
                 break;
 
             case 1101:
 
                 // Connectivity between IB and TWS has been restored data lost.
-                if (this.fixSessionStateHolder.logon(false)) {
-                    // initSubscriptions if there is a marketDataService
-                    if (this.marketDataService != null) {
-                        this.marketDataService.initSubscriptions();
-                    }
-                }
+                this.sessionStateHolder.onLogon(false);
                 logger.debug(message);
                 break;
 
             case 1102:
 
                 // Connectivity between IB and TWS has been restored data maintained.
-                if (this.fixSessionStateHolder.logon(true)) {
-                    // initSubscriptions if there is a marketDataService
-                    if (this.marketDataService != null) {
-                        this.marketDataService.initSubscriptions();
-                    }
-                }
+                this.sessionStateHolder.onLogon(true);
                 logger.debug(message);
                 break;
 
             case 2110:
 
                 // Connectivity between TWS and server is broken. It will be restored automatically.
-                this.fixSessionStateHolder.logoff();
+                this.sessionStateHolder.onLogoff();
                 logger.debug(message);
                 break;
 
             case 2104:
 
                 // A market data farm is connected.
-                if (this.fixSessionStateHolder.logon(true)) {
-                    // initSubscriptions if there is a marketDataService
-                    if (this.marketDataService != null) {
-                        this.marketDataService.initSubscriptions();
-                    }
-                }
+                this.sessionStateHolder.onLogon(true);
                 logger.debug(message);
                 break;
 
