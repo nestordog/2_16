@@ -114,6 +114,7 @@ public class EventDispatcherImpl implements EventDispatcher, MessageListener {
                 message.setIntProperty("securityId", marketDataEvent.getSecurity().getId());
                 return message;
             });
+            this.localEventBroadcaster.broadcast(marketDataEvent);
         }
     }
 
