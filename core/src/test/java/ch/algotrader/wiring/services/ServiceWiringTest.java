@@ -48,10 +48,11 @@ import ch.algotrader.service.TransactionService;
 import ch.algotrader.wiring.HibernateNoCachingWiring;
 import ch.algotrader.wiring.common.CommonConfigWiring;
 import ch.algotrader.wiring.common.EventDispatchWiring;
-import ch.algotrader.wiring.daos.DaoWiring;
+import ch.algotrader.wiring.server.DaoWiring;
 import ch.algotrader.wiring.server.CacheWiring;
 import ch.algotrader.wiring.server.CoreConfigWiring;
 import ch.algotrader.wiring.server.ServerEngineWiring;
+import ch.algotrader.wiring.server.ServiceWiring;
 
 /**
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>

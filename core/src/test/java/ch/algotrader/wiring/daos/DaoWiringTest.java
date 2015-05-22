@@ -74,6 +74,7 @@ import ch.algotrader.entity.trade.StopLimitOrderDao;
 import ch.algotrader.entity.trade.StopOrderDao;
 import ch.algotrader.wiring.common.CommonConfigWiring;
 import ch.algotrader.wiring.HibernateNoCachingWiring;
+import ch.algotrader.wiring.server.DaoWiring;
 import ch.algotrader.wiring.server.ServerEngineWiring;
 
 /**
