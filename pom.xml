@@ -273,7 +273,6 @@
                 <module>crud</module>
                 <module>test</module>
                 <module>archetype</module>
-                <module>eclipse</module>
             </modules>
         </profile>
     </profiles>
