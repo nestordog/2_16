@@ -37,6 +37,6 @@ public class PropagateGenericEventSubscriber {
             LOGGER.trace(genericEvent);
         }
 
-        ServiceLocator.instance().getEventDispatcher().broadcastLocalStrategies(genericEvent);
+        ServiceLocator.instance().getEventDispatcher().broadcastAllStrategies(genericEvent);
     }
 }

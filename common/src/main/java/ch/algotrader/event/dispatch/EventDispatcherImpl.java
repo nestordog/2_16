@@ -157,6 +157,13 @@ public class EventDispatcherImpl implements EventDispatcher, MessageListener {
     }
 
     @Override
+    public void broadcastAllStrategies(final Object event) {
+
+        broadcastLocalStrategies(event);
+        broadcastRemote(event);
+    }
+
+    @Override
     public void broadcast(final Object event) {
 
         broadcastLocal(event);

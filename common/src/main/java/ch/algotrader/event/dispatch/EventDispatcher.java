@@ -50,7 +50,7 @@ public interface EventDispatcher {
     void broadcast(Object event);
 
     /**
-     * broadcasts an event to all local Esper Engines and event listeners.
+     * broadcasts an event to all local Esper Engines (including SERVER if local) and event listeners.
      */
     void broadcastLocal(Object event);
 
@@ -58,6 +58,11 @@ public interface EventDispatcher {
      * broadcasts an event to all local Strategy Esper Engines and event listeners.
      */
     void broadcastLocalStrategies(Object event);
+
+    /**
+     * broadcasts an event to all Strategy Esper Engines (both local and remote) and event listeners.
+     */
+    void broadcastAllStrategies(Object event);
 
     /**
      * broadcasts an event to all remote Esper Engines and event listeners.
