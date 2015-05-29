@@ -131,7 +131,7 @@ public class StrategyPersistenceServiceTest {
     @Test
     public void shouldDeleteStrategy() {
         //given
-        final int strategyId = 666;
+        final long strategyId = 666;
 
         //when
         service.deleteStrategy(strategyId);

@@ -38,35 +38,35 @@ public interface PositionService {
      * Closes the specified Position and unsubscribes the corresponding Security if {@code
      * unsubscribe} is set to true.
      */
-    public void closePosition(int positionId, boolean unsubscribe);
+    public void closePosition(long positionId, boolean unsubscribe);
 
     /**
      * Creates a Position based on a non-tradeable Security (e.g. {@link
      * ch.algotrader.entity.security.Combination Combination})
      */
-    public Position createNonTradeablePosition(String strategyName, int securityId, long quantity);
+    public Position createNonTradeablePosition(String strategyName, long securityId, long quantity);
 
     /**
      * Modifies a Position that is based on a non-tradeable Security (e.g. {@link
      * ch.algotrader.entity.security.Combination Combination})
      */
-    public Position modifyNonTradeablePosition(int positionId, long quantity);
+    public Position modifyNonTradeablePosition(long positionId, long quantity);
 
     /**
      * Deletes a Position that is based on a non-tradeable Security (e.g. {@link
      * ch.algotrader.entity.security.Combination Combination})
      */
-    public void deleteNonTradeablePosition(int positionId, boolean unsubscribe);
+    public void deleteNonTradeablePosition(long positionId, boolean unsubscribe);
 
     /**
      * Reduces the specified Position by the specified {@code quantity}
      */
-    public void reducePosition(int positionId, long quantity);
+    public void reducePosition(long positionId, long quantity);
 
     /**
      * Transfers a Position to another Strategy.
      */
-    public void transferPosition(int positionId, String targetStrategyName);
+    public void transferPosition(long positionId, String targetStrategyName);
 
     /**
      * Calculates margins for all open positions
@@ -76,7 +76,7 @@ public interface PositionService {
     /**
      * Calculates the margin for the specified position.
      */
-    public Position setMargin(int positionId);
+    public Position setMargin(long positionId);
 
     /**
      * Expires all expirable Positions. Only Positions on Securities that have an {@code
@@ -96,12 +96,12 @@ public interface PositionService {
      * (short) positions</li>
      * <ul>
      */
-    public Position setExitValue(int positionId, BigDecimal exitValue, boolean force);
+    public Position setExitValue(long positionId, BigDecimal exitValue, boolean force);
 
     /**
      * Removes the ExitValue from the specified Position.
      */
-    public Position removeExitValue(int positionId);
+    public Position removeExitValue(long positionId);
 
     /**
      * Calculates all Position {@code quantities} based on Transactions in the database and makes

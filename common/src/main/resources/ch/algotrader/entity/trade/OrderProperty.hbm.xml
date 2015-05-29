@@ -18,8 +18,8 @@
         <meta attribute="class-description">An arbitrary property that can be attached to an Order.</meta>
         <cache usage="read-write" />
         <comment>An arbitrary property that can be attached to an Order.</comment>
-        <id name="id" type="int" >
-            <column name="ID" sql-type="INTEGER"/>
+        <id name="id" type="long" >
+            <column name="ID" sql-type="BIGINT"/>
             <generator class="native">
                 <!-- id-generator merge-point -->
             </generator>
@@ -45,7 +45,7 @@
         <many-to-one name="order" class="ch.algotrader.entity.trade.OrderImpl" cascade="none" foreign-key="ORDER_PROPERTY_ORDER_FKC" not-null="true" lazy="proxy" fetch="select">
             <meta attribute="property-type">ch.algotrader.entity.trade.Order</meta>
             <meta attribute="field-description">Base Class for all Order Types</meta>
-            <column name="ORDER_FK" not-null="true" sql-type="INTEGER">
+            <column name="ORDER_FK" not-null="true" sql-type="BIGINT">
                 <comment>Base Class for all Order Types</comment>
             </column>
         </many-to-one>

@@ -116,7 +116,7 @@ public class BBReferenceDataServiceImpl extends ReferenceDataServiceImpl impleme
     }
 
     @Override
-    public void retrieve(int securityFamilyId) {
+    public void retrieve(long securityFamilyId) {
 
         SecurityFamily securityFamily = this.securityFamilyDao.get(securityFamilyId);
         if (securityFamily == null) {
@@ -231,7 +231,7 @@ public class BBReferenceDataServiceImpl extends ReferenceDataServiceImpl impleme
     }
 
     @Override
-    public void retrieveStocks(int securityFamilyId, String symbol) {
+    public void retrieveStocks(long securityFamilyId, String symbol) {
 
         throw new UnsupportedOperationException("not implemented yet");
     }

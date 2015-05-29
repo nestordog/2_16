@@ -113,7 +113,7 @@ public class MeasurementServiceImpl implements MeasurementService {
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public void deleteMeasurement(final int measurementId) {
+    public void deleteMeasurement(final long measurementId) {
 
         this.measurementDao.deleteById(measurementId);
 

@@ -24,8 +24,8 @@
         <meta attribute="class-description">Exchange where securities are traded</meta>
         <cache usage="read-write" />
         <comment>Exchange where securities are traded</comment>
-        <id name="id" type="int" >
-            <column name="ID" sql-type="INTEGER"/>
+        <id name="id" type="long" >
+            <column name="ID" sql-type="BIGINT"/>
             <generator class="native">
                 <!-- id-generator merge-point -->
             </generator>
@@ -49,7 +49,7 @@
             <meta attribute="field-description">Exchange where securities are traded</meta>
             <cache usage="read-write" />
             <key foreign-key="TRADING_HOURS_EXCHANGE_FKC">
-                <column name="EXCHANGE_FK" sql-type="INTEGER">
+                <column name="EXCHANGE_FK" sql-type="BIGINT">
                     <comment>Exchange where securities are traded</comment>
                 </column>
             </key>
@@ -59,7 +59,7 @@
             <meta attribute="field-description">Exchange where securities are traded</meta>
             <cache usage="read-write" />
             <key foreign-key="SECURITY_FAMILY_EXCHANGE_FKC">
-                <column name="EXCHANGE_FK" sql-type="INTEGER">
+                <column name="EXCHANGE_FK" sql-type="BIGINT">
                     <comment>Exchange where securities are traded</comment>
                 </column>
             </key>
@@ -69,7 +69,7 @@
             <meta attribute="field-description">Exchange where securities are traded</meta>
             <cache usage="read-write" />
             <key foreign-key="HOLIDAY_EXCHANGE_FKC">
-                <column name="EXCHANGE_FK" sql-type="INTEGER">
+                <column name="EXCHANGE_FK" sql-type="BIGINT">
                     <comment>Exchange where securities are traded</comment>
                 </column>
             </key>

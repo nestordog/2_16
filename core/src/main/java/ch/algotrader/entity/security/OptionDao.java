@@ -44,7 +44,7 @@ public interface OptionDao extends ReadWriteDao<Option> {
      * @param optionType
      * @return List<Option>
      */
-    List<Option> findByMinExpirationAndMinStrikeDistance(int limit, int underlyingId, Date targetExpirationDate, BigDecimal underlyingSpot, OptionType optionType);
+    List<Option> findByMinExpirationAndMinStrikeDistance(int limit, long underlyingId, Date targetExpirationDate, BigDecimal underlyingSpot, OptionType optionType);
 
     /**
      * Finds all Options of the give {@code underlyingId} and {@code optionType} that expire after
@@ -60,7 +60,7 @@ public interface OptionDao extends ReadWriteDao<Option> {
      * @param optionType
      * @return List<Option>
      */
-    List<Option> findByMinExpirationAndStrikeLimit(int limit, int underlyingId, Date targetExpirationDate, BigDecimal underlyingSpot, OptionType optionType);
+    List<Option> findByMinExpirationAndStrikeLimit(int limit, long underlyingId, Date targetExpirationDate, BigDecimal underlyingSpot, OptionType optionType);
 
     /**
      * Finds all Options of the give {@code underlyingId} and {@code optionType} that expire after
@@ -76,7 +76,7 @@ public interface OptionDao extends ReadWriteDao<Option> {
      * @param date
      * @return List<Option>
      */
-    List<Option> findByMinExpirationAndMinStrikeDistanceWithTicks(int limit, int underlyingId, Date targetExpirationDate, BigDecimal underlyingSpot, OptionType optionType, Date date);
+    List<Option> findByMinExpirationAndMinStrikeDistanceWithTicks(int limit, long underlyingId, Date targetExpirationDate, BigDecimal underlyingSpot, OptionType optionType, Date date);
 
     /**
      * Finds all Options of the give {@code underlyingId} and {@code optionType} that expire after
@@ -93,7 +93,7 @@ public interface OptionDao extends ReadWriteDao<Option> {
      * @param date
      * @return List<Option>
      */
-    List<Option> findByMinExpirationAndStrikeLimitWithTicks(int limit, int underlyingId, Date targetExpirationDate, BigDecimal underlyingSpot, OptionType optionType, Date date);
+    List<Option> findByMinExpirationAndStrikeLimitWithTicks(int limit, long underlyingId, Date targetExpirationDate, BigDecimal underlyingSpot, OptionType optionType, Date date);
 
     /**
      * Finds all Options that are subscribed by at least one Strategy.
@@ -106,7 +106,7 @@ public interface OptionDao extends ReadWriteDao<Option> {
      * @param securityFamilyId
      * @return List<Option>
      */
-    List<Option> findBySecurityFamily(int securityFamilyId);
+    List<Option> findBySecurityFamily(long securityFamilyId);
 
     /**
      * Finds all Expiration Dates of Options of the specified {@code underlyingId} that are
@@ -115,7 +115,7 @@ public interface OptionDao extends ReadWriteDao<Option> {
      * @param dateTime
      * @return List<Date>
      */
-    List<Date> findExpirationsByUnderlyingAndDate(int underlyingId, Date dateTime);
+    List<Date> findExpirationsByUnderlyingAndDate(long underlyingId, Date dateTime);
 
     /**
      * Finds a Option by the specified {@code expirationDate}, {@code strike}, {@code type} and
@@ -126,7 +126,7 @@ public interface OptionDao extends ReadWriteDao<Option> {
      * @param type
      * @return Option
      */
-    Option findByExpirationStrikeAndType(int optionFamilyId, Date expirationDate, BigDecimal strike, OptionType type);
+    Option findByExpirationStrikeAndType(long optionFamilyId, Date expirationDate, BigDecimal strike, OptionType type);
 
     // spring-dao merge-point
 

@@ -43,7 +43,7 @@ public class GenericItem implements BaseEntityI {
         throw new UnsupportedOperationException("accept not supported");
     }
 
-    private int id;
+    private long id;
 
     private String name;
 
@@ -60,19 +60,19 @@ public class GenericItem implements BaseEntityI {
         setName(name);
     }
 
-    public GenericItem(final int id, final String name) {
+    public GenericItem(final long id, final String name) {
 
         setId(id);
         setName(name);
     }
 
     @Override
-    public int getId() {
+    public long getId() {
 
         return this.id;
     }
 
-    protected void setId(final int id) {
+    protected void setId(final long id) {
 
         this.id = id;
     }

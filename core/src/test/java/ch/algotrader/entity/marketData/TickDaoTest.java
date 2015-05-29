@@ -246,8 +246,8 @@ public class TickDaoTest extends InMemoryDBTest {
 
         this.session.flush();
 
-        List<Integer> ids = new ArrayList<>();
-        ids.add(tick.getId());
+        List<Long> ids = new ArrayList<>();
+        ids.add((long) tick.getId());
 
         List<Tick> ticks = this.dao.findByIdsInclSecurityAndUnderlying(ids);
 

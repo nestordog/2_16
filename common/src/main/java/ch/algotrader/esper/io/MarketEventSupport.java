@@ -38,7 +38,7 @@ import ch.algotrader.vo.RawTickVO;
  */
 final class MarketEventSupport {
 
-    private static final ConcurrentMap<String, Integer> SECURITY_ID_BY_SECURITY_STRING = new ConcurrentHashMap<String, Integer>();
+    private static final ConcurrentMap<String, Long> SECURITY_ID_BY_SECURITY_STRING = new ConcurrentHashMap<>();
 
     /**
      * Same functionality as {@code TickDao#rawTickVOToEntity} which however is only availabe inside a Hibernate Session
@@ -93,7 +93,7 @@ final class MarketEventSupport {
         final ServiceLocator serviceLocator = ServiceLocator.instance();
 
         //first, lookup the security ID (does normally not change)
-        Integer securityId = SECURITY_ID_BY_SECURITY_STRING.get(securityString);
+        Long securityId = SECURITY_ID_BY_SECURITY_STRING.get(securityString);
         if (securityId == null) {
             // lookup the securityId
             securityId = serviceLocator.getLookupService().getSecurityIdBySecurityString(securityString);

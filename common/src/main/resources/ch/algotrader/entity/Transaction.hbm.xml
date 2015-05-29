@@ -93,8 +93,8 @@
         <meta attribute="class-description">A transaction stored in the database. Each Fill is recorded as a transaction using this entity. In addition the table transaction also stores transactions like intrest, debit, credit  fees.</meta>
         <cache usage="read-write" />
         <comment>A transaction stored in the database. Each Fill is recorded as a transaction using this entity. In addition the table transaction also stores transactions like intrest, debit, credit  fees.</comment>
-        <id name="id" type="int" >
-            <column name="ID" sql-type="INTEGER"/>
+        <id name="id" type="long" >
+            <column name="ID" sql-type="BIGINT"/>
             <generator class="native">
                 <!-- id-generator merge-point -->
             </generator>
@@ -225,7 +225,7 @@ liFEES: -1/li
         <many-to-one name="account" class="ch.algotrader.entity.AccountImpl" foreign-key="TRANSACTION_ACCOUNT_FKC" not-null="false" lazy="proxy" fetch="select">
             <meta attribute="property-type">ch.algotrader.entity.Account</meta>
             <meta attribute="field-description">Represents an actual Account / AccountGroup / AllocationProfile with an external Broker / Bank</meta>
-            <column name="ACCOUNT_FK" not-null="false" sql-type="INTEGER">
+            <column name="ACCOUNT_FK" not-null="false" sql-type="BIGINT">
                 <comment>Represents an actual Account / AccountGroup / AllocationProfile with an external Broker / Bank</comment>
             </column>
         </many-to-one>
@@ -252,7 +252,7 @@ The sum of above marketValues would be -1000 which is obviously wrong.
 p
 As a consequence the {@code PortfolioDAO} provides lookup-methods that aggregate positions from the
 same security (of different strategies) in the correct manner.</meta>
-            <column name="POSITION_FK" not-null="false" sql-type="INTEGER">
+            <column name="POSITION_FK" not-null="false" sql-type="BIGINT">
                 <comment>A position of a particular security owned by a particular strategy. For each opening transaction a
 position is created. The position object remains in place even if a corresponding closing
 transaction is carried out and the quantity of the position becomes 0.
@@ -279,7 +279,7 @@ same security (of different strategies) in the correct manner.</comment>
         <many-to-one name="security" class="ch.algotrader.entity.security.SecurityImpl" foreign-key="TRANSACTION_SECURITY_FKC" not-null="false" lazy="proxy" fetch="select">
             <meta attribute="property-type">ch.algotrader.entity.security.Security</meta>
             <meta attribute="field-description">The base class of all Securities in the system</meta>
-            <column name="SECURITY_FK" not-null="false" sql-type="INTEGER">
+            <column name="SECURITY_FK" not-null="false" sql-type="BIGINT">
                 <comment>The base class of all Securities in the system</comment>
             </column>
         </many-to-one>
@@ -287,7 +287,7 @@ same security (of different strategies) in the correct manner.</comment>
             <meta attribute="property-type">ch.algotrader.entity.strategy.Strategy</meta>
             <meta attribute="field-description">Represents a running Strategy within the system. In addition the AlgoTrader Server is also
 represented by an instance of this class.</meta>
-            <column name="STRATEGY_FK" not-null="true" sql-type="INTEGER">
+            <column name="STRATEGY_FK" not-null="true" sql-type="BIGINT">
                 <comment>Represents a running Strategy within the system. In addition the AlgoTrader Server is also
 represented by an instance of this class.</comment>
             </column>

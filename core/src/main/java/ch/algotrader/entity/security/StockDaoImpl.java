@@ -73,7 +73,7 @@ public class StockDaoImpl extends AbstractDao<Stock> implements StockDao {
     }
 
     @Override
-    public List<Stock> findStocksBySecurityFamily(int securityFamilyId) {
+    public List<Stock> findStocksBySecurityFamily(long securityFamilyId) {
 
         return find("Stock.findStocksBySecurityFamily", QueryType.BY_NAME, new NamedParam("securityFamilyId", securityFamilyId));
     }

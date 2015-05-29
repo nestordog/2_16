@@ -18,8 +18,8 @@
         <meta attribute="class-description">Represents Order {@link ch.algotrader.enumeration.Status Status} changes received from the Broker (i.e. PARTIALLY_EXECUTED or CANCELLED)</meta>
         <cache usage="read-write" />
         <comment>Represents Order {@link ch.algotrader.enumeration.Status Status} changes received from the Broker (i.e. PARTIALLY_EXECUTED or CANCELLED)</comment>
-        <id name="id" type="int" >
-            <column name="ID" sql-type="INTEGER"/>
+        <id name="id" type="long" >
+            <column name="ID" sql-type="BIGINT"/>
             <generator class="native">
                 <!-- id-generator merge-point -->
             </generator>
@@ -104,7 +104,7 @@
         <many-to-one name="order" class="ch.algotrader.entity.trade.OrderImpl" foreign-key="ORDER_STATUS_ORDER_FKC" not-null="true" lazy="proxy" fetch="select">
             <meta attribute="property-type">ch.algotrader.entity.trade.Order</meta>
             <meta attribute="field-description">Base Class for all Order Types</meta>
-            <column name="ORDER_FK" not-null="true" sql-type="INTEGER">
+            <column name="ORDER_FK" not-null="true" sql-type="BIGINT">
                 <comment>Base Class for all Order Types</comment>
             </column>
         </many-to-one>

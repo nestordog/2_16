@@ -43,7 +43,7 @@ public interface ComponentDao extends ReadWriteDao<Component> {
      * @param securityId
      * @return List<Component>
      */
-    List<Component> findSubscribedBySecurityInclSecurity(int securityId);
+    List<Component> findSubscribedBySecurityInclSecurity(long securityId);
 
     /**
      * Finds all Components where the Combination is subscribed by the defined Strategy and where
@@ -53,7 +53,7 @@ public interface ComponentDao extends ReadWriteDao<Component> {
      * @param securityId
      * @return List<Component>
      */
-    List<Component> findSubscribedByStrategyAndSecurityInclSecurity(String strategyName, int securityId);
+    List<Component> findSubscribedByStrategyAndSecurityInclSecurity(String strategyName, long securityId);
 
     /**
      * Finds non-persistent Components.

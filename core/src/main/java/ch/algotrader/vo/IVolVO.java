@@ -75,19 +75,9 @@ public class IVolVO implements Serializable {
     private int volume;
 
     /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setVolume = false;
-
-    /**
      * The open Intrest
      */
     private int openIntrest;
-
-    /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setOpenIntrest = false;
 
     /**
      * The un-adjusted price of the underlying
@@ -132,9 +122,7 @@ public class IVolVO implements Serializable {
         this.ask = askIn;
         this.bid = bidIn;
         this.volume = volumeIn;
-        this.setVolume = true;
         this.openIntrest = openIntrestIn;
-        this.setOpenIntrest = true;
         this.unadjustedStockPrice = unadjustedStockPriceIn;
     }
 
@@ -157,9 +145,7 @@ public class IVolVO implements Serializable {
         this.ask = otherBean.getAsk();
         this.bid = otherBean.getBid();
         this.volume = otherBean.getVolume();
-        this.setVolume = true;
         this.openIntrest = otherBean.getOpenIntrest();
-        this.setOpenIntrest = true;
         this.unadjustedStockPrice = otherBean.getUnadjustedStockPrice();
     }
 
@@ -279,16 +265,6 @@ public class IVolVO implements Serializable {
     public void setVolume(final int value) {
 
         this.volume = value;
-        this.setVolume = true;
-    }
-
-    /**
-     * Return true if the primitive attribute volume is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetVolume() {
-
-        return this.setVolume;
     }
 
     public int getOpenIntrest() {
@@ -299,16 +275,6 @@ public class IVolVO implements Serializable {
     public void setOpenIntrest(final int value) {
 
         this.openIntrest = value;
-        this.setOpenIntrest = true;
-    }
-
-    /**
-     * Return true if the primitive attribute openIntrest is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetOpenIntrest() {
-
-        return this.setOpenIntrest;
     }
 
     /**
@@ -355,12 +321,8 @@ public class IVolVO implements Serializable {
         builder.append(bid);
         builder.append(", volume=");
         builder.append(volume);
-        builder.append(", setVolume=");
-        builder.append(setVolume);
         builder.append(", openIntrest=");
         builder.append(openIntrest);
-        builder.append(", setOpenIntrest=");
-        builder.append(setOpenIntrest);
         builder.append(", unadjustedStockPrice=");
         builder.append(unadjustedStockPrice);
         builder.append("]");

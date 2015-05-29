@@ -243,13 +243,13 @@ public interface Engine {
      * Adds a {@link OpenPositionCallback} to the given Engine that will be invoked as soon as a new Position
      * on the given Security has been opened.
      */
-    public void addOpenPositionCallback(int securityId, OpenPositionCallback callback);
+    public void addOpenPositionCallback(long securityId, OpenPositionCallback callback);
 
     /**
      * Adds a {@link OpenPositionCallback} to the given Engine that will be invoked as soon as a Position
      * on the given Security has been closed.
      */
-    public void addClosePositionCallback(int securityId, ClosePositionCallback callback);
+    public void addClosePositionCallback(long securityId, ClosePositionCallback callback);
 
     /**
      * Adds a {@link TimerCallback} to the given Engine that will be invoked at the give time.

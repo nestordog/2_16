@@ -38,32 +38,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Predicate;
-import org.apache.commons.collections15.Transformer;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import ch.algotrader.config.ConfigParams;
-import ch.algotrader.config.DependencyLookup;
-import ch.algotrader.entity.security.Security;
-import ch.algotrader.entity.trade.Order;
-import ch.algotrader.esper.annotation.Condition;
-import ch.algotrader.esper.annotation.Listeners;
-import ch.algotrader.esper.annotation.RunTimeOnly;
-import ch.algotrader.esper.annotation.SimulationOnly;
-import ch.algotrader.esper.annotation.Subscriber;
-import ch.algotrader.esper.callback.ClosePositionCallback;
-import ch.algotrader.esper.callback.OpenPositionCallback;
-import ch.algotrader.esper.callback.TickCallback;
-import ch.algotrader.esper.callback.TimerCallback;
-import ch.algotrader.esper.callback.TradeCallback;
-import ch.algotrader.esper.io.CustomSender;
-import ch.algotrader.util.DateTimeUtil;
-import ch.algotrader.util.collection.CollectionUtil;
-import ch.algotrader.util.metric.MetricsUtil;
 
 import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.ConfigurationOperations;
@@ -100,6 +80,25 @@ import com.espertech.esper.epl.spec.StatementSpecMapper;
 import com.espertech.esper.util.JavaClassHelper;
 import com.espertech.esperio.AdapterCoordinatorImpl;
 import com.espertech.esperio.CoordinatedAdapter;
+
+import ch.algotrader.config.ConfigParams;
+import ch.algotrader.config.DependencyLookup;
+import ch.algotrader.entity.security.Security;
+import ch.algotrader.entity.trade.Order;
+import ch.algotrader.esper.annotation.Condition;
+import ch.algotrader.esper.annotation.Listeners;
+import ch.algotrader.esper.annotation.RunTimeOnly;
+import ch.algotrader.esper.annotation.SimulationOnly;
+import ch.algotrader.esper.annotation.Subscriber;
+import ch.algotrader.esper.callback.ClosePositionCallback;
+import ch.algotrader.esper.callback.OpenPositionCallback;
+import ch.algotrader.esper.callback.TickCallback;
+import ch.algotrader.esper.callback.TimerCallback;
+import ch.algotrader.esper.callback.TradeCallback;
+import ch.algotrader.esper.io.CustomSender;
+import ch.algotrader.util.DateTimeUtil;
+import ch.algotrader.util.collection.CollectionUtil;
+import ch.algotrader.util.metric.MetricsUtil;
 
 /**
  * Esper based implementation of an {@link Engine}
@@ -184,7 +183,7 @@ public class EngineImpl extends AbstractEngine {
 
     @Override
     public boolean isDestroyed() {
-        return serviceProvider.isDestroyed();
+        return this.serviceProvider.isDestroyed();
     }
 
     @Override
@@ -643,15 +642,11 @@ public class EngineImpl extends AbstractEngine {
 
         // get the securityIds sorted asscending and check that all orders are from the same strategy
         final Order firstOrder = CollectionUtil.getFirstElement(orders);
-        Set<Integer> sortedSecurityIds = new TreeSet<>(CollectionUtils.collect(orders, new Transformer<Order, Integer>() {
-
-            @Override
-            public Integer transform(Order order) {
-                if (!order.getStrategy().equals(firstOrder.getStrategy())) {
-                    throw new IllegalArgumentException("cannot addTradeCallback for orders of different strategies");
-                }
-                return order.getSecurity().getId();
+        Set<Long> sortedSecurityIds = new TreeSet<>(CollectionUtils.collect(orders, order -> {
+            if (!order.getStrategy().equals(firstOrder.getStrategy())) {
+                throw new IllegalArgumentException("cannot addTradeCallback for orders of different strategies");
             }
+            return order.getSecurity().getId();
         }));
 
         if (sortedSecurityIds.size() < orders.size()) {
@@ -677,12 +672,9 @@ public class EngineImpl extends AbstractEngine {
     public void addFirstTickCallback(Collection<Security> securities, TickCallback callback) {
 
         // create a list of unique security ids
-        Set<Integer> securityIds = new TreeSet<>();
-        securityIds.addAll(CollectionUtils.collect(securities, new Transformer<Security, Integer>() {
-            @Override
-            public Integer transform(Security security) {
-                return security.getId();
-            }
+        Set<Long> securityIds = new TreeSet<>();
+        securityIds.addAll(CollectionUtils.collect(securities, security -> {
+            return security.getId();
         }));
 
         String alias = "ON_FIRST_TICK_" + StringUtils.join(securityIds, "_");
@@ -694,13 +686,13 @@ public class EngineImpl extends AbstractEngine {
             }
         } else {
 
-            int[] securityIdsArray = ArrayUtils.toPrimitive(securityIds.toArray(new Integer[0]));
+            long[] securityIdsArray = ArrayUtils.toPrimitive(securityIds.toArray(new Long[0]));
             deployStatement("prepared", "ON_FIRST_TICK", alias, new Object[] { securityIds.size(), securityIdsArray }, callback);
         }
     }
 
     @Override
-    public void addOpenPositionCallback(int securityId, OpenPositionCallback callback) {
+    public void addOpenPositionCallback(long securityId, OpenPositionCallback callback) {
 
         String alias = "ON_OPEN_POSITION_" + securityId;
 
@@ -716,7 +708,7 @@ public class EngineImpl extends AbstractEngine {
     }
 
     @Override
-    public void addClosePositionCallback(int securityId, ClosePositionCallback callback) {
+    public void addClosePositionCallback(long securityId, ClosePositionCallback callback) {
 
         String alias = "ON_CLOSE_POSITION_" + securityId;
 

@@ -30,25 +30,25 @@ public interface SubscriptionService {
      * Subscribes {@link ch.algotrader.entity.marketData.MarketDataEvent MarketDataEvents} of a
      * Security for the defined Strategy. The default {@code feedType} is used.
      */
-    public void subscribeMarketDataEvent(String strategyName, int securityId);
+    public void subscribeMarketDataEvent(String strategyName, long securityId);
 
     /**
      * Subscribes {@link ch.algotrader.entity.marketData.MarketDataEvent MarketDataEvents} of a
      * Security for the defined Strategy with the specified {@link FeedType}.
      */
-    public void subscribeMarketDataEvent(String strategyName, int securityId, FeedType feedType);
+    public void subscribeMarketDataEvent(String strategyName, long securityId, FeedType feedType);
 
     /**
      * Unsubscribes {@link ch.algotrader.entity.marketData.MarketDataEvent MarketDataEvents} of a
      * Security for the defined Strategy. The default {@code feedType} is used.
      */
-    public void unsubscribeMarketDataEvent(String strategyName, int securityId);
+    public void unsubscribeMarketDataEvent(String strategyName, long securityId);
 
     /**
      * Unsubscribes {@link ch.algotrader.entity.marketData.MarketDataEvent MarketDataEvents} of a
      * Security for the defined Strategy with the specified {@link FeedType}
      */
-    public void unsubscribeMarketDataEvent(String strategyName, int securityId, FeedType feedType);
+    public void unsubscribeMarketDataEvent(String strategyName, long securityId, FeedType feedType);
 
     /**
      * Initializes current Subscriptions

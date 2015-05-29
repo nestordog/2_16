@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.TreeSet;
 
 import org.apache.commons.collections15.CollectionUtils;
-import org.apache.commons.collections15.Transformer;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -71,11 +70,8 @@ public abstract class TradeCallback {
 
         // get the securityIds sorted ascending
         List<OrderStatus> orderStatusList = Arrays.asList(orderStati);
-        TreeSet<Integer> sortedSecurityIds = new TreeSet<>(CollectionUtils.collect(orderStatusList, new Transformer<OrderStatus, Integer>() {
-            @Override
-            public Integer transform(OrderStatus order) {
-                return order.getOrder().getSecurity().getId();
-            }
+        TreeSet<Long> sortedSecurityIds = new TreeSet<>(CollectionUtils.collect(orderStatusList, order -> {
+            return order.getOrder().getSecurity().getId();
         }));
 
         String owningStrategyName = orderStati[0].getOrder().getStrategy().getName();

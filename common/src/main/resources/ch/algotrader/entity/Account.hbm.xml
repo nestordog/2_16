@@ -18,8 +18,8 @@
         <meta attribute="class-description">Represents an actual Account / AccountGroup / AllocationProfile with an external Broker / Bank</meta>
         <cache usage="read-write" />
         <comment>Represents an actual Account / AccountGroup / AllocationProfile with an external Broker / Bank</comment>
-        <id name="id" type="int" >
-            <column name="ID" sql-type="INTEGER"/>
+        <id name="id" type="long" >
+            <column name="ID" sql-type="BIGINT"/>
             <generator class="native">
                 <!-- id-generator merge-point -->
             </generator>

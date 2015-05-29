@@ -40,7 +40,7 @@ public class CombinationServiceTest extends LocalServiceTest {
         LookupService lookupService = ServiceLocator.instance().getLookupService();
 
         // create a combination
-        int combinationId = combinationService.createCombination(CombinationType.RATIO_SPREAD, 42).getId();
+        long combinationId = combinationService.createCombination(CombinationType.RATIO_SPREAD, 42).getId();
 
         // load the combination from the db
         Combination combination = (Combination)lookupService.getSecurity(combinationId);

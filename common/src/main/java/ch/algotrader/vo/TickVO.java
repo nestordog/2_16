@@ -46,11 +46,6 @@ public class TickVO extends MarketDataEventVO {
     private int volBid;
 
     /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setVolBid = false;
-
-    /**
      * The bid price.
      */
     private BigDecimal bid;
@@ -64,11 +59,6 @@ public class TickVO extends MarketDataEventVO {
      * The volume on the ask side.
      */
     private int volAsk;
-
-    /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setVolAsk = false;
 
     /**
      * Default Constructor
@@ -99,9 +89,7 @@ public class TickVO extends MarketDataEventVO {
         this.last = lastIn;
         this.lastDateTime = lastDateTimeIn;
         this.volBid = volBidIn;
-        this.setVolBid = true;
         this.volAsk = volAskIn;
-        this.setVolAsk = true;
     }
 
     /**
@@ -127,11 +115,9 @@ public class TickVO extends MarketDataEventVO {
         this.last = lastIn;
         this.lastDateTime = lastDateTimeIn;
         this.volBid = volBidIn;
-        this.setVolBid = true;
         this.bid = bidIn;
         this.ask = askIn;
         this.volAsk = volAskIn;
-        this.setVolAsk = true;
     }
 
     /**
@@ -146,11 +132,9 @@ public class TickVO extends MarketDataEventVO {
         this.last = otherBean.getLast();
         this.lastDateTime = otherBean.getLastDateTime();
         this.volBid = otherBean.getVolBid();
-        this.setVolBid = true;
         this.bid = otherBean.getBid();
         this.ask = otherBean.getAsk();
         this.volAsk = otherBean.getVolAsk();
-        this.setVolAsk = true;
     }
 
     /**
@@ -205,16 +189,6 @@ public class TickVO extends MarketDataEventVO {
     public void setVolBid(final int value) {
 
         this.volBid = value;
-        this.setVolBid = true;
-    }
-
-    /**
-     * Return true if the primitive attribute volBid is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetVolBid() {
-
-        return this.setVolBid;
     }
 
     /**
@@ -269,16 +243,6 @@ public class TickVO extends MarketDataEventVO {
     public void setVolAsk(final int value) {
 
         this.volAsk = value;
-        this.setVolAsk = true;
-    }
-
-    /**
-     * Return true if the primitive attribute volAsk is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetVolAsk() {
-
-        return this.setVolAsk;
     }
 
     @Override
@@ -291,16 +255,12 @@ public class TickVO extends MarketDataEventVO {
         builder.append(this.lastDateTime);
         builder.append(", volBid=");
         builder.append(this.volBid);
-        builder.append(", setVolBid=");
-        builder.append(this.setVolBid);
         builder.append(", bid=");
         builder.append(this.bid);
         builder.append(", ask=");
         builder.append(this.ask);
         builder.append(", volAsk=");
         builder.append(this.volAsk);
-        builder.append(", setVolAsk=");
-        builder.append(this.setVolAsk);
         builder.append(", ");
         builder.append(super.toString());
         builder.append("]");

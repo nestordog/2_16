@@ -36,8 +36,8 @@
         <meta attribute="class-description">The base class of all Securities in the system</meta>
         <cache usage="read-write" />
         <comment>The base class of all Securities in the system</comment>
-        <id name="id" type="int" >
-            <column name="ID" sql-type="INTEGER"/>
+        <id name="id" type="long" >
+            <column name="ID" sql-type="BIGINT"/>
             <generator class="native">
                 <!-- id-generator merge-point -->
             </generator>
@@ -78,7 +78,7 @@
         <many-to-one name="underlying" class="ch.algotrader.entity.security.SecurityImpl" foreign-key="SECURITY_UNDERLYING_FKC" not-null="false" lazy="proxy" fetch="select">
             <meta attribute="property-type">ch.algotrader.entity.security.Security</meta>
             <meta attribute="field-description">The base class of all Securities in the system</meta>
-            <column name="UNDERLYING_FK" not-null="false" sql-type="INTEGER">
+            <column name="UNDERLYING_FK" not-null="false" sql-type="BIGINT">
                 <comment>The base class of all Securities in the system</comment>
             </column>
         </many-to-one>
@@ -86,7 +86,7 @@
             <meta attribute="field-description">The base class of all Securities in the system</meta>
             <cache usage="read-write" />
             <key foreign-key="SUBSCRIPTION_SECURITY_FKC">
-                <column name="SECURITY_FK" sql-type="INTEGER">
+                <column name="SECURITY_FK" sql-type="BIGINT">
                     <comment>The base class of all Securities in the system</comment>
                 </column>
             </key>
@@ -96,7 +96,7 @@
             <meta attribute="field-description">The base class of all Securities in the system</meta>
             <cache usage="read-write" />
             <key foreign-key="POSITION_SECURITY_FKC">
-                <column name="SECURITY_FK" sql-type="INTEGER">
+                <column name="SECURITY_FK" sql-type="BIGINT">
                     <comment>The base class of all Securities in the system</comment>
                 </column>
             </key>
@@ -106,7 +106,7 @@
             <meta attribute="property-type">ch.algotrader.entity.security.SecurityFamily</meta>
             <meta attribute="field-description">Represents an entire family of similar {@link ch.algotrader.entity.security.Security Securities}
 (e.g. All Options of the SP500)</meta>
-            <column name="SECURITY_FAMILY_FK" not-null="true" sql-type="INTEGER">
+            <column name="SECURITY_FAMILY_FK" not-null="true" sql-type="BIGINT">
                 <comment>Represents an entire family of similar {@link ch.algotrader.entity.security.Security Securities}
 (e.g. All Options of the SP500)</comment>
             </column>
@@ -126,7 +126,7 @@
 ]]>   
             </meta>  
             <key foreign-key="GENERIC_FUTUREIFKC">
-                <column name="ID" sql-type="INTEGER"/>
+                <column name="ID" sql-type="BIGINT"/>
             </key>
             <property name="duration">
                 <meta attribute="field-description">The Duration of this GenericFuture. A Duration of @code{MONTH_1} means that this GenericFuture is equal to the physical Front Month Future. After the Expiration Date of the physical Future, the GenericFuture with Duration 1 (that until now represented the expiring Future) now switches to represent the Future that is next to expire.</meta>
@@ -160,7 +160,7 @@
 ]]>   
             </meta>  
             <key foreign-key="FOREXIFKC">
-                <column name="ID" sql-type="INTEGER"/>
+                <column name="ID" sql-type="BIGINT"/>
             </key>
             <property name="baseCurrency">
                 <meta attribute="field-description">The Base Currency of this Forex Contract (e.g. EUR for the EUR.USD Forex)</meta>
@@ -196,7 +196,7 @@
 ]]>   
             </meta>  
             <key foreign-key="OPTIONIFKC">
-                <column name="ID" sql-type="INTEGER"/>
+                <column name="ID" sql-type="BIGINT"/>
             </key>
             <property name="expiration">
                 <meta attribute="field-description">The Expiration Date</meta>
@@ -246,7 +246,7 @@
 ]]>   
             </meta>  
             <key foreign-key="FUTUREIFKC">
-                <column name="ID" sql-type="INTEGER"/>
+                <column name="ID" sql-type="BIGINT"/>
             </key>
             <property name="expiration">
                 <meta attribute="field-description">The Expiration Date</meta>
@@ -278,7 +278,7 @@
 ]]>   
             </meta>  
             <key foreign-key="INTREST_RATEIFKC">
-                <column name="ID" sql-type="INTEGER"/>
+                <column name="ID" sql-type="BIGINT"/>
             </key>
             <property name="duration">
                 <meta attribute="property-type">ch.algotrader.enumeration.Duration</meta>
@@ -296,7 +296,7 @@
 ]]>   
             </meta>  
             <key foreign-key="INDEXIFKC">
-                <column name="ID" sql-type="INTEGER"/>
+                <column name="ID" sql-type="BIGINT"/>
             </key>
             <property name="assetClass">
                 <meta attribute="property-type">ch.algotrader.enumeration.AssetClass</meta>
@@ -314,7 +314,7 @@
 ]]>   
             </meta>  
             <key foreign-key="STOCKIFKC">
-                <column name="ID" sql-type="INTEGER"/>
+                <column name="ID" sql-type="BIGINT"/>
             </key>
             <property name="gics">
                 <column name="GICS" not-null="false" unique="false" sql-type="VARCHAR(255)"/>
@@ -329,7 +329,7 @@
 ]]>   
             </meta>  
             <key foreign-key="IMPLIED_VOLATILITYIFKC">
-                <column name="ID" sql-type="INTEGER"/>
+                <column name="ID" sql-type="BIGINT"/>
             </key>
             <property name="duration">
                 <meta attribute="field-description">Duration defined as one of the Standard {@link Duration Durations}.</meta>
@@ -441,7 +441,7 @@ iNote: The ATM Delta is 50%/i</comment>
 ]]>   
             </meta>  
             <key foreign-key="COMBINATIONIFKC">
-                <column name="ID" sql-type="INTEGER"/>
+                <column name="ID" sql-type="BIGINT"/>
             </key>
             <property name="uuid">
                 <meta attribute="field-description">auto generated unique identifier. Combinations do not have any other natural identifiers.</meta>
@@ -471,7 +471,7 @@ iNote: The ATM Delta is 50%/i</comment>
                 <meta attribute="field-description">A synthetic security composed of one or many {@link Component Components}.</meta>
                 <cache usage="read-write" />
                 <key foreign-key="COMPONENT_COMBINATION_FKC">
-                    <column name="COMBINATION_FK" sql-type="INTEGER">
+                    <column name="COMBINATION_FK" sql-type="BIGINT">
                         <comment>A synthetic security composed of one or many {@link Component Components}.</comment>
                     </column>
                 </key>
@@ -486,7 +486,7 @@ iNote: The ATM Delta is 50%/i</comment>
 ]]>   
             </meta>  
             <key foreign-key="BONDIFKC">
-                <column name="ID" sql-type="INTEGER"/>
+                <column name="ID" sql-type="BIGINT"/>
             </key>
             <property name="maturity">
                 <meta attribute="field-description">The Maturity Date</meta>
@@ -511,7 +511,7 @@ iNote: The ATM Delta is 50%/i</comment>
 ]]>   
             </meta>  
             <key foreign-key="FUNDIFKC">
-                <column name="ID" sql-type="INTEGER"/>
+                <column name="ID" sql-type="BIGINT"/>
             </key>
         </joined-subclass>
         <joined-subclass name="ch.algotrader.entity.security.CommodityImpl" table="`commodity`" dynamic-insert="false" dynamic-update="false" abstract="false">
@@ -522,7 +522,7 @@ iNote: The ATM Delta is 50%/i</comment>
 ]]>   
             </meta>  
             <key foreign-key="COMMODITYIFKC">
-                <column name="ID" sql-type="INTEGER"/>
+                <column name="ID" sql-type="BIGINT"/>
             </key>
             <property name="type">
                 <meta attribute="property-type">ch.algotrader.enumeration.CommodityType</meta>

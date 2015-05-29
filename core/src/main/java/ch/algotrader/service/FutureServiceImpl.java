@@ -85,7 +85,7 @@ public class FutureServiceImpl implements FutureService {
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public void createDummyFutures(final int futureFamilyId) {
+    public void createDummyFutures(final long futureFamilyId) {
 
         FutureFamily family = this.futureFamilyDao.get(futureFamilyId);
         Security underlying = family.getUnderlying();
@@ -123,7 +123,7 @@ public class FutureServiceImpl implements FutureService {
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public Future getFutureByMinExpiration(final int futureFamilyId, final Date targetExpirationDate) {
+    public Future getFutureByMinExpiration(final long futureFamilyId, final Date targetExpirationDate) {
 
         Validate.notNull(targetExpirationDate, "Target expiration date is null");
 
@@ -150,7 +150,7 @@ public class FutureServiceImpl implements FutureService {
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public Future getFutureByExpiration(final int futureFamilyId, final Date expirationDate) {
+    public Future getFutureByExpiration(final long futureFamilyId, final Date expirationDate) {
 
         Validate.notNull(expirationDate, "Expiration date is null");
 
@@ -177,7 +177,7 @@ public class FutureServiceImpl implements FutureService {
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public Future getFutureByDuration(final int futureFamilyId, final Date targetDate, final int duration) {
+    public Future getFutureByDuration(final long futureFamilyId, final Date targetDate, final int duration) {
 
         Validate.notNull(targetDate, "Target date is null");
 
@@ -205,7 +205,7 @@ public class FutureServiceImpl implements FutureService {
      * {@inheritDoc}
      */
     @Override
-    public List<Future> getFuturesByMinExpiration(final int futureFamilyId, final Date minExpirationDate) {
+    public List<Future> getFuturesByMinExpiration(final long futureFamilyId, final Date minExpirationDate) {
 
         Validate.notNull(minExpirationDate, "Min expiration date is null");
 

@@ -50,7 +50,7 @@ public class CombinationDaoImpl extends AbstractDao<Combination> implements Comb
     }
 
     @Override
-    public List<Combination> findSubscribedByStrategyAndUnderlying(String strategyName, int underlyingId) {
+    public List<Combination> findSubscribedByStrategyAndUnderlying(String strategyName, long underlyingId) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
@@ -58,7 +58,7 @@ public class CombinationDaoImpl extends AbstractDao<Combination> implements Comb
     }
 
     @Override
-    public List<Combination> findSubscribedByStrategyAndComponent(String strategyName, int securityId) {
+    public List<Combination> findSubscribedByStrategyAndComponent(String strategyName, long securityId) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 

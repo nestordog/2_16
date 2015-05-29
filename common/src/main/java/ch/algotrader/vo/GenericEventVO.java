@@ -32,11 +32,6 @@ public class GenericEventVO implements Serializable {
     private long time;
 
     /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setTime = false;
-
-    /**
      * Default Constructor
      */
     public GenericEventVO() {
@@ -51,7 +46,6 @@ public class GenericEventVO implements Serializable {
     public GenericEventVO(final long timeIn) {
 
         this.time = timeIn;
-        this.setTime = true;
     }
 
     /**
@@ -63,7 +57,6 @@ public class GenericEventVO implements Serializable {
     public GenericEventVO(final GenericEventVO otherBean) {
 
         this.time = otherBean.getTime();
-        this.setTime = true;
     }
 
     /**
@@ -82,16 +75,6 @@ public class GenericEventVO implements Serializable {
     public void setTime(final long value) {
 
         this.time = value;
-        this.setTime = true;
-    }
-
-    /**
-     * Return true if the primitive attribute time is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetTime() {
-
-        return this.setTime;
     }
 
     @Override
@@ -100,8 +83,6 @@ public class GenericEventVO implements Serializable {
         StringBuilder builder = new StringBuilder();
         builder.append("GenericEventVO [time=");
         builder.append(this.time);
-        builder.append(", setTime=");
-        builder.append(this.setTime);
         builder.append("]");
 
         return builder.toString();

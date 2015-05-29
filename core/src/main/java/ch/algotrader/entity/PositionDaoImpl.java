@@ -44,7 +44,7 @@ public class PositionDaoImpl extends AbstractDao<Position> implements PositionDa
     }
 
     @Override
-    public Position findByIdInclSecurityAndSecurityFamily(int id) {
+    public Position findByIdInclSecurityAndSecurityFamily(long id) {
 
         return findUnique("Position.findByIdInclSecurityAndSecurityFamily", QueryType.BY_NAME, new NamedParam("id", id));
     }
@@ -66,7 +66,7 @@ public class PositionDaoImpl extends AbstractDao<Position> implements PositionDa
     }
 
     @Override
-    public Position findBySecurityAndStrategy(int securityId, String strategyName) {
+    public Position findBySecurityAndStrategy(long securityId, String strategyName) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
@@ -74,7 +74,7 @@ public class PositionDaoImpl extends AbstractDao<Position> implements PositionDa
     }
 
     @Override
-    public Position findBySecurityAndStrategyIdLocked(int securityId, int strategyId) {
+    public Position findBySecurityAndStrategyIdLocked(long securityId, long strategyId) {
 
         return findUnique(LockOptions.UPGRADE, "Position.findBySecurityAndStrategyIdLocked", QueryType.BY_NAME, new NamedParam("securityId", securityId), new NamedParam("strategyId", strategyId));
 
@@ -143,7 +143,7 @@ public class PositionDaoImpl extends AbstractDao<Position> implements PositionDa
     }
 
     @Override
-    public List<Position> findOpenPositionsByStrategyAndSecurityFamily(String strategyName, int securityFamilyId) {
+    public List<Position> findOpenPositionsByStrategyAndSecurityFamily(String strategyName, long securityFamilyId) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
@@ -151,13 +151,13 @@ public class PositionDaoImpl extends AbstractDao<Position> implements PositionDa
     }
 
     @Override
-    public List<Position> findOpenPositionsByUnderlying(int underlyingId) {
+    public List<Position> findOpenPositionsByUnderlying(long underlyingId) {
 
         return find("Position.findOpenPositionsByUnderlying", QueryType.BY_NAME, new NamedParam("underlyingId", underlyingId));
     }
 
     @Override
-    public List<Position> findOpenPositionsBySecurity(int securityId) {
+    public List<Position> findOpenPositionsBySecurity(long securityId) {
 
         return find("Position.findOpenPositionsBySecurity", QueryType.BY_NAME, new NamedParam("securityId", securityId));
     }

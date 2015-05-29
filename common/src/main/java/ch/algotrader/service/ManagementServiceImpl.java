@@ -588,7 +588,7 @@ public class ManagementServiceImpl implements ManagementService {
     @Override
     @ManagedOperation(description = "Closes the specified Position by using the defined default OrderPreference")
     @ManagedOperationParameters({ @ManagedOperationParameter(name = "positionId", description = "positionId") })
-    public void closePosition(final int positionId) {
+    public void closePosition(final long positionId) {
 
         this.positionService.closePosition(positionId, false);
 
@@ -600,7 +600,7 @@ public class ManagementServiceImpl implements ManagementService {
     @Override
     @ManagedOperation(description = "Reduces the Position by the specified amount by using the defined default OrderPreference")
     @ManagedOperationParameters({ @ManagedOperationParameter(name = "positionId", description = "positionId"), @ManagedOperationParameter(name = "quantity", description = "quantity") })
-    public void reducePosition(final int positionId, final int quantity) {
+    public void reducePosition(final long positionId, final int quantity) {
 
         this.positionService.reducePosition(positionId, quantity);
 
@@ -628,7 +628,7 @@ public class ManagementServiceImpl implements ManagementService {
     @Override
     @ManagedOperation(description = "Set or modify the ExitValue of the specified Position")
     @ManagedOperationParameters({ @ManagedOperationParameter(name = "positionId", description = "positionId"), @ManagedOperationParameter(name = "exitValue", description = "exitValue") })
-    public void setExitValue(final int positionId, final double exitValue) {
+    public void setExitValue(final long positionId, final double exitValue) {
 
         this.positionService.setExitValue(positionId, new BigDecimal(exitValue), true);
 
@@ -640,7 +640,7 @@ public class ManagementServiceImpl implements ManagementService {
     @Override
     @ManagedOperation(description = "Remove the ExitValue from the specified Position")
     @ManagedOperationParameters({ @ManagedOperationParameter(name = "positionId", description = "positionId") })
-    public void removeExitValue(final int positionId) {
+    public void removeExitValue(final long positionId) {
 
         this.positionService.removeExitValue(positionId);
 
@@ -723,7 +723,7 @@ public class ManagementServiceImpl implements ManagementService {
             @ManagedOperationParameter(name = "name", description = "Name of the Property"),
             @ManagedOperationParameter(name = "value", description = "value"),
             @ManagedOperationParameter(name = "type", description = "<html>Type of the value: <ul> <li> INT </li> <li> DOUBLE </li> <li> MONEY </li> <li> TEXT </li> <li> DATE (Format: dd.mm.yyyy hh:mm:ss) </li> <li> BOOLEAN </li> </ul></html>") })
-    public void addProperty(final int propertyHolderId, final String name, final String value, final String type) {
+    public void addProperty(final long propertyHolderId, final String name, final String value, final String type) {
 
         Validate.notEmpty(name, "Name is empty");
         Validate.notEmpty(value, "Value is empty");
@@ -762,7 +762,7 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedOperation(description = "Remove the specified property")
     @ManagedOperationParameters({ @ManagedOperationParameter(name = "propertyHolderId", description = "Id of the PropertyHolder (e.g. Subscription, Position or Strategy)"),
             @ManagedOperationParameter(name = "name", description = "name of the property") })
-    public void removeProperty(final int propertyHolderId, final String name) {
+    public void removeProperty(final long propertyHolderId, final String name) {
 
         Validate.notEmpty(name, "Name is empty");
 
@@ -779,7 +779,7 @@ public class ManagementServiceImpl implements ManagementService {
             @ManagedOperationParameter(name = "combinationType", description = "<html><ul> <li> VERTICAL_SPREAD </li> <li> COVERED_CALL </li> <li> RATIO_SPREAD </li> <li> STRADDLE </li> <li> STRANGLE </li> <li> BUTTERFLY </li> <li> CALENDAR_SPREAD </li> <li> IRON_CONDOR </li> </ul></html>"),
             @ManagedOperationParameter(name = "securityFamilyId", description = "securityFamilyId"),
             @ManagedOperationParameter(name = "underlying", description = "<html>Underlying Security: <ul> <li> securityId (e.g. 123) </li> <li> symbol (e.g. GOOG) </li> <li> isin, prefix with &quot;isin:&quot;, (e.g. &quot;isin:EU0009654078&quot;) </li> <li> bbgid, prefix with &quot;bbgid:&quot;, (e.g. &quot;bbgid:BBG005NHP5P9&quot;) </li> <li> ric, prefix with &quot;ric:&quot;, (e.g. &quot;ric:.SPX&quot;) </li> <li> conid, prefix with &quot;conid:&quot;, (e.g. &quot;conid:12087817&quot;) </li> </ul></html>") })
-    public int createCombination(final String combinationType, final int securityFamilyId, final String underlying) {
+    public long createCombination(final String combinationType, final long securityFamilyId, final String underlying) {
 
         Validate.notEmpty(combinationType, "Combination type is empty");
 
@@ -800,7 +800,7 @@ public class ManagementServiceImpl implements ManagementService {
             @ManagedOperationParameter(name = "combinationId", description = "the id of the combination"),
             @ManagedOperationParameter(name = "component", description = "<html>Component: <ul> <li> securityId (e.g. 123) </li> <li> symbol (e.g. GOOG) </li> <li> isin, prefix with &quot;isin:&quot;, (e.g. &quot;isin:EU0009654078&quot;) </li> <li> bbgid, prefix with &quot;bbgid:&quot;, (e.g. &quot;bbgid:BBG005NHP5P9&quot;) </li> <li> ric, prefix with &quot;ric:&quot;, (e.g. &quot;ric:.SPX&quot;) </li> <li> conid, prefix with &quot;conid:&quot;, (e.g. &quot;conid:12087817&quot;) </li> </ul></html>"),
             @ManagedOperationParameter(name = "quantitiy", description = "quantitiy") })
-    public void setComponentQuantity(final int combinationId, final String component, final long quantitiy) {
+    public void setComponentQuantity(final long combinationId, final String component, final long quantitiy) {
 
         Validate.notEmpty(component, "Component is empty");
 
@@ -816,7 +816,7 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedOperationParameters({
             @ManagedOperationParameter(name = "combinationId", description = "the id of the combination"),
             @ManagedOperationParameter(name = "component", description = "<html>Component: <ul> <li> securityId (e.g. 123) </li> <li> symbol (e.g. GOOG) </li> <li> isin, prefix with &quot;isin:&quot;, (e.g. &quot;isin:EU0009654078&quot;) </li> <li> bbgid, prefix with &quot;bbgid:&quot;, (e.g. &quot;bbgid:BBG005NHP5P9&quot;) </li> <li> ric, prefix with &quot;ric:&quot;, (e.g. &quot;ric:.SPX&quot;) </li> <li> conid, prefix with &quot;conid:&quot;, (e.g. &quot;conid:12087817&quot;) </li> </ul></html>") })
-    public void removeComponent(final int combinationId, final String component) {
+    public void removeComponent(final long combinationId, final String component) {
 
         Validate.notEmpty(component, "Component is empty");
 
@@ -830,7 +830,7 @@ public class ManagementServiceImpl implements ManagementService {
     @Override
     @ManagedOperation(description = "deletes a Combination")
     @ManagedOperationParameters({ @ManagedOperationParameter(name = "combinationId", description = "the id of the combination") })
-    public void deleteCombination(final int combinationId) {
+    public void deleteCombination(final long combinationId) {
 
         this.combinationService.deleteCombination(combinationId);
 
@@ -863,7 +863,7 @@ public class ManagementServiceImpl implements ManagementService {
 
     }
 
-    private int getSecurityId(String securityString) {
+    private long getSecurityId(String securityString) {
 
         if (NumberUtils.isDigits(securityString)) {
             return Integer.parseInt(securityString);

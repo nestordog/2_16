@@ -41,17 +41,7 @@ public class TradeVO implements Serializable {
 
     private double last;
 
-    /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setLast = false;
-
     private int vol;
-
-    /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setVol = false;
 
     /**
      * Default Constructor
@@ -75,9 +65,7 @@ public class TradeVO implements Serializable {
         this.feedType = feedTypeIn;
         this.lastDateTime = lastDateTimeIn;
         this.last = lastIn;
-        this.setLast = true;
         this.vol = volIn;
-        this.setVol = true;
     }
 
     /**
@@ -92,9 +80,7 @@ public class TradeVO implements Serializable {
         this.feedType = otherBean.getFeedType();
         this.lastDateTime = otherBean.getLastDateTime();
         this.last = otherBean.getLast();
-        this.setLast = true;
         this.vol = otherBean.getVol();
-        this.setVol = true;
     }
 
     /**
@@ -143,16 +129,6 @@ public class TradeVO implements Serializable {
     public void setLast(final double value) {
 
         this.last = value;
-        this.setLast = true;
-    }
-
-    /**
-     * Return true if the primitive attribute last is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetLast() {
-
-        return this.setLast;
     }
 
     public int getVol() {
@@ -163,15 +139,6 @@ public class TradeVO implements Serializable {
     public void setVol(final int value) {
 
         this.vol = value;
-        this.setVol = true;
-    }
-
-    /**
-     * Return true if the primitive attribute vol is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetVol() {
-        return this.setVol;
     }
 
     @Override
@@ -186,12 +153,8 @@ public class TradeVO implements Serializable {
         builder.append(this.lastDateTime);
         builder.append(", last=");
         builder.append(this.last);
-        builder.append(", setLast=");
-        builder.append(this.setLast);
         builder.append(", vol=");
         builder.append(this.vol);
-        builder.append(", setVol=");
-        builder.append(this.setVol);
         builder.append("]");
 
         return builder.toString();

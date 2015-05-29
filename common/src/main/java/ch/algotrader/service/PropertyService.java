@@ -31,11 +31,11 @@ public interface PropertyService {
      * PropertyHolder. If {@code persistent} is set to {@code false}, the Property will be removed
      * when resetting the database before a simulation run.
      */
-    public PropertyHolder addProperty(int propertyHolderId, String name, Object value, boolean persistent);
+    public PropertyHolder addProperty(long propertyHolderId, String name, Object value, boolean persistent);
 
     /**
      * Removes the specified Property from the specified PropertyHolder.
      */
-    public PropertyHolder removeProperty(int propertyHolderid, String name);
+    public PropertyHolder removeProperty(long propertyHolderid, String name);
 
 }

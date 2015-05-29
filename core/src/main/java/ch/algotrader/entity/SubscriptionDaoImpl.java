@@ -58,7 +58,7 @@ public class SubscriptionDaoImpl extends AbstractDao<Subscription> implements Su
     }
 
     @Override
-    public Subscription findByStrategyAndSecurity(String strategyName, int securityId) {
+    public Subscription findByStrategyAndSecurity(String strategyName, long securityId) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
@@ -66,7 +66,7 @@ public class SubscriptionDaoImpl extends AbstractDao<Subscription> implements Su
     }
 
     @Override
-    public Subscription findByStrategySecurityAndFeedType(String strategyName, int securityId, FeedType feedType) {
+    public Subscription findByStrategySecurityAndFeedType(String strategyName, long securityId, FeedType feedType) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
         Validate.notNull(feedType, "FeedType is null");
@@ -76,7 +76,7 @@ public class SubscriptionDaoImpl extends AbstractDao<Subscription> implements Su
     }
 
     @Override
-    public List<Subscription> findBySecurityAndFeedTypeForAutoActivateStrategies(int securityId, FeedType feedType) {
+    public List<Subscription> findBySecurityAndFeedTypeForAutoActivateStrategies(long securityId, FeedType feedType) {
 
         Validate.notNull(feedType, "FeedType is null");
 

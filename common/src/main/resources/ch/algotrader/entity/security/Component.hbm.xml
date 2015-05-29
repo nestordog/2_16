@@ -18,8 +18,8 @@
         <meta attribute="class-description">Represents one Component of a {@link Combination}.</meta>
         <cache usage="read-write" />
         <comment>Represents one Component of a {@link Combination}.</comment>
-        <id name="id" type="int" >
-            <column name="ID" sql-type="INTEGER"/>
+        <id name="id" type="long" >
+            <column name="ID" sql-type="BIGINT"/>
             <generator class="native">
                 <!-- id-generator merge-point -->
             </generator>
@@ -39,14 +39,14 @@
         <many-to-one name="combination" class="ch.algotrader.entity.security.CombinationImpl" cascade="none" foreign-key="COMPONENT_COMBINATION_FKC" not-null="true" lazy="proxy" fetch="select">
             <meta attribute="property-type">ch.algotrader.entity.security.Combination</meta>
             <meta attribute="field-description">A synthetic security composed of one or many {@link Component Components}.</meta>
-            <column name="COMBINATION_FK" not-null="true" sql-type="INTEGER">
+            <column name="COMBINATION_FK" not-null="true" sql-type="BIGINT">
                 <comment>A synthetic security composed of one or many {@link Component Components}.</comment>
             </column>
         </many-to-one>
         <many-to-one name="security" class="ch.algotrader.entity.security.SecurityImpl" foreign-key="COMPONENT_SECURITY_FKC" not-null="true" lazy="proxy" fetch="select">
             <meta attribute="property-type">ch.algotrader.entity.security.Security</meta>
             <meta attribute="field-description">The base class of all Securities in the system</meta>
-            <column name="SECURITY_FK" not-null="true" sql-type="INTEGER">
+            <column name="SECURITY_FK" not-null="true" sql-type="BIGINT">
                 <comment>The base class of all Securities in the system</comment>
             </column>
         </many-to-one>

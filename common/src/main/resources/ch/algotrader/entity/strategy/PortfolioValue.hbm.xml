@@ -42,8 +42,8 @@
         <meta attribute="class-description">Represents certain balances (e.g. {@code netLiqValue}, {@code cashBalance}, etc.) of a particular Strategy at a particular time. Every hour PortfolioValues are saved to the database for every Strategy. These PortfolioValues will be displayed in the PortfolioChart of the client.</meta>
         <cache usage="read-write" />
         <comment>Represents certain balances (e.g. {@code netLiqValue}, {@code cashBalance}, etc.) of a particular Strategy at a particular time. Every hour PortfolioValues are saved to the database for every Strategy. These PortfolioValues will be displayed in the PortfolioChart of the client.</comment>
-        <id name="id" type="int" >
-            <column name="ID" sql-type="INTEGER"/>
+        <id name="id" type="long" >
+            <column name="ID" sql-type="BIGINT"/>
             <generator class="native">
                 <!-- id-generator merge-point -->
             </generator>
@@ -116,7 +116,7 @@ For the AlgoTrader Base these are {@code CREDIT} and {@code DEBIT} and for strat
             <meta attribute="property-type">ch.algotrader.entity.strategy.Strategy</meta>
             <meta attribute="field-description">Represents a running Strategy within the system. In addition the AlgoTrader Server is also
 represented by an instance of this class.</meta>
-            <column name="STRATEGY_FK" not-null="true" sql-type="INTEGER">
+            <column name="STRATEGY_FK" not-null="true" sql-type="BIGINT">
                 <comment>Represents a running Strategy within the system. In addition the AlgoTrader Server is also
 represented by an instance of this class.</comment>
             </column>

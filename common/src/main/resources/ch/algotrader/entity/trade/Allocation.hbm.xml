@@ -24,8 +24,8 @@ iNote: the total of all Allocations needs to be 1.0/i</meta>
 If an OrderPreference is defined for an {@link ch.algotrader.enumeration.OrderType OrderType} that sends orders to multiple Accounts (e.g. {@link ch.algotrader.entity.trade.DistributingOrder DistributingOrder}), allocations to different Accounts can be defined.
 p
 iNote: the total of all Allocations needs to be 1.0/i</comment>
-        <id name="id" type="int" >
-            <column name="ID" sql-type="INTEGER"/>
+        <id name="id" type="long" >
+            <column name="ID" sql-type="BIGINT"/>
             <generator class="native">
                 <!-- id-generator merge-point -->
             </generator>
@@ -46,7 +46,7 @@ iNote: the total of all Allocations needs to be 1.0/i</comment>
             <meta attribute="field-description">Contains certain order default values (e.g. quantity, orderType, delays, etc.). Except for the
 {@link ch.algotrader.enumeration.OrderType OrderType}, all values have to be defined through
 Properties.</meta>
-            <column name="ORDER_PREFERENCE_FK" not-null="true" sql-type="INTEGER">
+            <column name="ORDER_PREFERENCE_FK" not-null="true" sql-type="BIGINT">
                 <comment>Contains certain order default values (e.g. quantity, orderType, delays, etc.). Except for the
 {@link ch.algotrader.enumeration.OrderType OrderType}, all values have to be defined through
 Properties.</comment>
@@ -55,7 +55,7 @@ Properties.</comment>
         <many-to-one name="account" class="ch.algotrader.entity.AccountImpl" foreign-key="ALLOCATION_ACCOUNT_FKC" not-null="true" lazy="proxy" fetch="select">
             <meta attribute="property-type">ch.algotrader.entity.Account</meta>
             <meta attribute="field-description">Represents an actual Account / AccountGroup / AllocationProfile with an external Broker / Bank</meta>
-            <column name="ACCOUNT_FK" not-null="true" sql-type="INTEGER">
+            <column name="ACCOUNT_FK" not-null="true" sql-type="BIGINT">
                 <comment>Represents an actual Account / AccountGroup / AllocationProfile with an external Broker / Bank</comment>
             </column>
         </many-to-one>

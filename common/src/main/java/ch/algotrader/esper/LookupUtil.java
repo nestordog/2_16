@@ -73,7 +73,7 @@ public class LookupUtil {
      * they are available when the Hibernate Session is closed and this Security is in a detached
      * state.
      */
-    public static Security getSecurityInitialized(int securityId) {
+    public static Security getSecurityInitialized(long securityId) {
 
         if (hasCacheManager()) {
             return getCacheManager().get(SecurityImpl.class, securityId);
@@ -85,7 +85,7 @@ public class LookupUtil {
     /**
      * Gets a {@link ch.algotrader.entity.security.SecurityFamily} id by the {@code securityId} of one of its Securities
      */
-    public static int getSecurityFamilyIdBySecurity(int securityId) {
+    public static long getSecurityFamilyIdBySecurity(long securityId) {
 
         Security security = getSecurityInitialized(securityId);
         return security != null ? security.getSecurityFamily().getId() : 0;
@@ -110,7 +110,7 @@ public class LookupUtil {
     /**
      * Gets a Subscriptions by the defined {@code strategyName} and {@code securityId}.
      */
-    public static Subscription getSubscription(String strategyName, int securityId) {
+    public static Subscription getSubscription(String strategyName, long securityId) {
 
         String queryString = getQueryString("Subscription.findByStrategyAndSecurity");
 
@@ -156,7 +156,7 @@ public class LookupUtil {
     /**
      * Gets a Position by Security and Strategy.
      */
-    public static Position getPositionBySecurityAndStrategy(int securityId, String strategyName) {
+    public static Position getPositionBySecurityAndStrategy(long securityId, String strategyName) {
 
         String queryString = getQueryString("Position.findBySecurityAndStrategy");
 
@@ -204,7 +204,7 @@ public class LookupUtil {
     /**
      * Gets open Positions for the specified Security
      */
-    public static Position[] getOpenPositionsBySecurity(int securityId) {
+    public static Position[] getOpenPositionsBySecurity(long securityId) {
 
         String queryString = getQueryString("Position.findOpenPositionsBySecurity");
 
@@ -220,7 +220,7 @@ public class LookupUtil {
     /**
      * Gets open Positions for the specified Strategy and SecurityFamily.
      */
-    public static Position[] getOpenPositionsByStrategyAndSecurityFamily(String strategyName, int securityFamilyId) {
+    public static Position[] getOpenPositionsByStrategyAndSecurityFamily(String strategyName, long securityFamilyId) {
 
         String queryString = getQueryString("Position.findOpenPositionsByStrategyAndSecurityFamily");
 
@@ -239,7 +239,7 @@ public class LookupUtil {
      * Gets the first Tick of the defined Security that is before the maxDate (but not earlier than
      * one minute before that the maxDate).
      */
-    public static Tick getTickByDateAndSecurity(int securityId, Date date) {
+    public static Tick getTickByDateAndSecurity(long securityId, Date date) {
 
         return getLookupService().getTickBySecurityAndMaxDate(securityId, date);
     }

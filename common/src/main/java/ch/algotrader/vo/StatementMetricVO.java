@@ -42,29 +42,14 @@ public class StatementMetricVO implements Serializable {
     private long cpuTime;
 
     /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setCpuTime = false;
-
-    /**
      * The elapsed wall time consumed by this statement in nanoseconds.
      */
     private long wallTime;
 
     /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setWallTime = false;
-
-    /**
      * The number of executions of this statement.
      */
     private long numInput;
-
-    /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setNumInput = false;
 
     /**
      * Default Constructor
@@ -87,11 +72,8 @@ public class StatementMetricVO implements Serializable {
         this.engineURI = engineURIIn;
         this.statementName = statementNameIn;
         this.cpuTime = cpuTimeIn;
-        this.setCpuTime = true;
         this.wallTime = wallTimeIn;
-        this.setWallTime = true;
         this.numInput = numInputIn;
-        this.setNumInput = true;
     }
 
     /**
@@ -105,11 +87,8 @@ public class StatementMetricVO implements Serializable {
         this.engineURI = otherBean.getEngineURI();
         this.statementName = otherBean.getStatementName();
         this.cpuTime = otherBean.getCpuTime();
-        this.setCpuTime = true;
         this.wallTime = otherBean.getWallTime();
-        this.setWallTime = true;
         this.numInput = otherBean.getNumInput();
-        this.setNumInput = true;
     }
 
     /**
@@ -164,16 +143,6 @@ public class StatementMetricVO implements Serializable {
     public void setCpuTime(final long value) {
 
         this.cpuTime = value;
-        this.setCpuTime = true;
-    }
-
-    /**
-     * Return true if the primitive attribute cpuTime is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetCpuTime() {
-
-        return this.setCpuTime;
     }
 
     /**
@@ -192,16 +161,6 @@ public class StatementMetricVO implements Serializable {
     public void setWallTime(final long value) {
 
         this.wallTime = value;
-        this.setWallTime = true;
-    }
-
-    /**
-     * Return true if the primitive attribute wallTime is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetWallTime() {
-
-        return this.setWallTime;
     }
 
     /**
@@ -220,16 +179,6 @@ public class StatementMetricVO implements Serializable {
     public void setNumInput(final long value) {
 
         this.numInput = value;
-        this.setNumInput = true;
-    }
-
-    /**
-     * Return true if the primitive attribute numInput is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetNumInput() {
-
-        return this.setNumInput;
     }
 
     @Override
@@ -242,16 +191,10 @@ public class StatementMetricVO implements Serializable {
         builder.append(this.statementName);
         builder.append(", cpuTime=");
         builder.append(this.cpuTime);
-        builder.append(", setCpuTime=");
-        builder.append(this.setCpuTime);
         builder.append(", wallTime=");
         builder.append(this.wallTime);
-        builder.append(", setWallTime=");
-        builder.append(this.setWallTime);
         builder.append(", numInput=");
         builder.append(this.numInput);
-        builder.append(", setNumInput=");
-        builder.append(this.setNumInput);
         builder.append("]");
 
         return builder.toString();

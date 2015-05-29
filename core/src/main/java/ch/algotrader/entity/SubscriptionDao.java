@@ -49,7 +49,7 @@ public interface SubscriptionDao extends ReadWriteDao<Subscription> {
      * @param securityId
      * @return Subscription
      */
-    Subscription findByStrategyAndSecurity(String strategyName, int securityId);
+    Subscription findByStrategyAndSecurity(String strategyName, long securityId);
 
     /**
      * Find a Subscriptions by the defined {@code strategyName}, {@code securityId} and {@code
@@ -59,7 +59,7 @@ public interface SubscriptionDao extends ReadWriteDao<Subscription> {
      * @param feedType
      * @return Subscription
      */
-    Subscription findByStrategySecurityAndFeedType(String strategyName, int securityId, FeedType feedType);
+    Subscription findByStrategySecurityAndFeedType(String strategyName, long securityId, FeedType feedType);
 
     /**
      * Finds all Subscriptions By Security and {@code feedType} for Strategies that are marked
@@ -68,7 +68,7 @@ public interface SubscriptionDao extends ReadWriteDao<Subscription> {
      * @param feedType
      * @return List<Subscription>
      */
-    List<Subscription> findBySecurityAndFeedTypeForAutoActivateStrategies(int securityId, FeedType feedType);
+    List<Subscription> findBySecurityAndFeedTypeForAutoActivateStrategies(long securityId, FeedType feedType);
 
     /**
      * Find {@code non-persistent} Subscriptions

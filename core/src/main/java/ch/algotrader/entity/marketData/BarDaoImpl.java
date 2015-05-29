@@ -44,7 +44,7 @@ public class BarDaoImpl extends AbstractDao<Bar> implements BarDao {
     }
 
     @Override
-    public List<Bar> findDailyBarsFromTicks(int securityId, Date minDate, Date maxDate) {
+    public List<Bar> findDailyBarsFromTicks(long securityId, Date minDate, Date maxDate) {
 
         Validate.notNull(minDate, "minDate is null");
         Validate.notNull(maxDate, "maxDate is null");
@@ -53,7 +53,7 @@ public class BarDaoImpl extends AbstractDao<Bar> implements BarDao {
     }
 
     @Override
-    public List<Bar> findBarsBySecurityAndBarSize(int limit, int securityId, Duration barSize) {
+    public List<Bar> findBarsBySecurityAndBarSize(int limit, long securityId, Duration barSize) {
 
         Validate.notNull(barSize, "barSize is null");
 
@@ -61,7 +61,7 @@ public class BarDaoImpl extends AbstractDao<Bar> implements BarDao {
     }
 
     @Override
-    public List<Bar> findBarsBySecurityBarSizeAndMinDate(int securityId, Duration barSize, Date minDate) {
+    public List<Bar> findBarsBySecurityBarSizeAndMinDate(long securityId, Duration barSize, Date minDate) {
 
         Validate.notNull(barSize, "barSize is null");
         Validate.notNull(minDate, "minDate is null");

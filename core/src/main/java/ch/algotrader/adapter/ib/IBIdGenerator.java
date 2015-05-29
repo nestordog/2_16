@@ -30,6 +30,6 @@ public interface IBIdGenerator {
 
     int getNextRequestId();
 
-    void initializeOrderId(int orderId);
+    void initializeOrderId(long orderId);
 
 }

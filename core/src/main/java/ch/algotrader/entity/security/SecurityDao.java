@@ -36,14 +36,14 @@ public interface SecurityDao extends ReadWriteDao<Security> {
      * @param id
      * @return Security
      */
-    Security findByIdInitialized(int id);
+    Security findByIdInitialized(long id);
 
     /**
      * Finds multiple Securities by their {@code ids}.
      * @param ids
      * @return List<Security>
      */
-    List<Security> findByIds(Collection<Integer> ids);
+    List<Security> findByIds(Collection<Long> ids);
 
     /**
      * Finds a Security by its {@code symbol}
@@ -86,7 +86,7 @@ public interface SecurityDao extends ReadWriteDao<Security> {
      * @param id
      * @return Security
      */
-    Security findByIdInclFamilyAndUnderlying(int id);
+    Security findByIdInclFamilyAndUnderlying(long id);
 
     /**
      * Finds a Security by its {@code id} incl. In addition the corresponding {@link SecurityFamily},
@@ -95,7 +95,7 @@ public interface SecurityDao extends ReadWriteDao<Security> {
      * @param id
      * @return Security
      */
-    Security findByIdInclFamilyUnderlyingExchangeAndBrokerParameters(int id);
+    Security findByIdInclFamilyUnderlyingExchangeAndBrokerParameters(long id);
 
     /**
      * Finds all Securities that are subscribed by at least one Strategy which is marked as {@code
@@ -133,8 +133,8 @@ public interface SecurityDao extends ReadWriteDao<Security> {
     /**
      * Gets the {@code securityId} of the Security defined by the specified {@code isin}.
      * @param isin
-     * @return Integer
+     * @return Long
      */
-    Integer findSecurityIdByIsin(String isin);
+    Long findSecurityIdByIsin(String isin);
 
 }

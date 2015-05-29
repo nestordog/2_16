@@ -30,13 +30,13 @@ import ch.algotrader.entity.BaseEntityI;
  */
 public interface ReadOnlyDao<E extends BaseEntityI> {
 
-    E get(int id);
+    E get(long id);
 
-    E getLocked(int id);
+    E getLocked(long id);
 
-    E load(int id);
+    E load(long id);
 
-    E loadLocked(int id);
+    E loadLocked(long id);
 
     void lock(E entity);
 

@@ -32,19 +32,9 @@ public class MaxDrawDownVO implements Serializable {
     private double amount;
 
     /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setAmount = false;
-
-    /**
      * The length of the Draw Down in milliseconds.
      */
     private long period;
-
-    /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setPeriod = false;
 
     /**
      * Default Constructor
@@ -62,9 +52,7 @@ public class MaxDrawDownVO implements Serializable {
     public MaxDrawDownVO(final double amountIn, final long periodIn) {
 
         this.amount = amountIn;
-        this.setAmount = true;
         this.period = periodIn;
-        this.setPeriod = true;
     }
 
     /**
@@ -76,9 +64,7 @@ public class MaxDrawDownVO implements Serializable {
     public MaxDrawDownVO(final MaxDrawDownVO otherBean) {
 
         this.amount = otherBean.getAmount();
-        this.setAmount = true;
         this.period = otherBean.getPeriod();
-        this.setPeriod = true;
     }
 
     public double getAmount() {
@@ -89,16 +75,6 @@ public class MaxDrawDownVO implements Serializable {
     public void setAmount(final double value) {
 
         this.amount = value;
-        this.setAmount = true;
-    }
-
-    /**
-     * Return true if the primitive attribute amount is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetAmount() {
-
-        return this.setAmount;
     }
 
     public long getPeriod() {
@@ -109,16 +85,6 @@ public class MaxDrawDownVO implements Serializable {
     public void setPeriod(final long value) {
 
         this.period = value;
-        this.setPeriod = true;
-    }
-
-    /**
-     * Return true if the primitive attribute period is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetPeriod() {
-
-        return this.setPeriod;
     }
 
     @Override
@@ -127,12 +93,8 @@ public class MaxDrawDownVO implements Serializable {
         StringBuilder builder = new StringBuilder();
         builder.append("MaxDrawDownVO [amount=");
         builder.append(amount);
-        builder.append(", setAmount=");
-        builder.append(setAmount);
         builder.append(", period=");
         builder.append(period);
-        builder.append(", setPeriod=");
-        builder.append(setPeriod);
         builder.append("]");
 
         return builder.toString();

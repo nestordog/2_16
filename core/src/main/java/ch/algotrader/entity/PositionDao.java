@@ -36,7 +36,7 @@ public interface PositionDao extends ReadWriteDao<Position> {
      * @param id
      * @return Position
      */
-    Position findByIdInclSecurityAndSecurityFamily(int id);
+    Position findByIdInclSecurityAndSecurityFamily(long id);
 
     /**
      * Finds all Positions of a Strategy
@@ -62,7 +62,7 @@ public interface PositionDao extends ReadWriteDao<Position> {
      * @param strategyName
      * @return Position
      */
-    Position findBySecurityAndStrategy(int securityId, String strategyName);
+    Position findBySecurityAndStrategy(long securityId, String strategyName);
 
     /**
      * Finds a Position by Security and Strategy and places a database lock on this Position.
@@ -70,7 +70,7 @@ public interface PositionDao extends ReadWriteDao<Position> {
      * @param strategyId
      * @return Position
      */
-    Position findBySecurityAndStrategyIdLocked(int securityId, int strategyId);
+    Position findBySecurityAndStrategyIdLocked(long securityId, long strategyId);
 
     /**
      * Finds all open Position (with a quantity != 0).
@@ -146,21 +146,21 @@ public interface PositionDao extends ReadWriteDao<Position> {
      * @param securityFamilyId
      * @return List<Position>
      */
-    List<Position> findOpenPositionsByStrategyAndSecurityFamily(String strategyName, int securityFamilyId);
+    List<Position> findOpenPositionsByStrategyAndSecurityFamily(String strategyName, long securityFamilyId);
 
     /**
      * Finds open Positions for the specified underlying.
      * @param underlyingId
      * @return List<Position>
      */
-    List<Position> findOpenPositionsByUnderlying(int underlyingId);
+    List<Position> findOpenPositionsByUnderlying(long underlyingId);
 
     /**
      * Finds open Positions for the specified Security
      * @param securityId
      * @return List<Position>
      */
-    List<Position> findOpenPositionsBySecurity(int securityId);
+    List<Position> findOpenPositionsBySecurity(long securityId);
 
     /**
      * Finds open Positions for tradeable Securities

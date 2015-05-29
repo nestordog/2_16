@@ -183,7 +183,7 @@ public class OptionServiceImpl implements OptionService {
      * {@inheritDoc}
      */
     @Override
-    public void hedgeDelta(final int underlyingId) {
+    public void hedgeDelta(final long underlyingId) {
 
         List<Position> positions = this.positionDao.findOpenPositionsByUnderlying(underlyingId);
 
@@ -243,7 +243,7 @@ public class OptionServiceImpl implements OptionService {
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public Option createOTCOption(final int optionFamilyId, final Date expirationDate, final BigDecimal strike, final OptionType type) {
+    public Option createOTCOption(final long optionFamilyId, final Date expirationDate, final BigDecimal strike, final OptionType type) {
 
         Validate.notNull(expirationDate, "Expiration date is null");
         Validate.notNull(strike, "Strike is null");
@@ -276,7 +276,7 @@ public class OptionServiceImpl implements OptionService {
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public Option createDummyOption(final int optionFamilyId, final Date targetExpirationDate, final BigDecimal targetStrike, final OptionType type) {
+    public Option createDummyOption(final long optionFamilyId, final Date targetExpirationDate, final BigDecimal targetStrike, final OptionType type) {
 
         Validate.notNull(targetExpirationDate, "Target expiration date is null");
         Validate.notNull(targetStrike, "Target strike is null");
@@ -413,7 +413,7 @@ public class OptionServiceImpl implements OptionService {
      * {@inheritDoc}
      */
     @Override
-    public SABRSmileVO calibrateSABRSmileByOptionPrice(final int underlyingId, final OptionType type, final Date expirationDate, final Date date) {
+    public SABRSmileVO calibrateSABRSmileByOptionPrice(final long underlyingId, final OptionType type, final Date expirationDate, final Date date) {
 
         Validate.notNull(type, "Type is null");
         Validate.notNull(expirationDate, "Expiration date is null");
@@ -480,7 +480,7 @@ public class OptionServiceImpl implements OptionService {
      * {@inheritDoc}
      */
     @Override
-    public SABRSmileVO calibrateSABRSmileByIVol(final int underlyingId, final Duration duration, final Date date) {
+    public SABRSmileVO calibrateSABRSmileByIVol(final long underlyingId, final Duration duration, final Date date) {
 
         Validate.notNull(duration, "Duration is null");
         Validate.notNull(date, "Date is null");
@@ -505,7 +505,7 @@ public class OptionServiceImpl implements OptionService {
      * {@inheritDoc}
      */
     @Override
-    public SABRSurfaceVO calibrateSABRSurfaceByIVol(final int underlyingId, final Date date) {
+    public SABRSurfaceVO calibrateSABRSurfaceByIVol(final long underlyingId, final Date date) {
 
         Validate.notNull(date, "Date is null");
         Tick underlyingTick = this.tickDao.findBySecurityAndMaxDate(underlyingId, date);
@@ -549,7 +549,7 @@ public class OptionServiceImpl implements OptionService {
 
     }
 
-    private SABRSmileVO internalCalibrateSABRByIVol(int underlyingId, Duration duration, Collection<Tick> ticks, double underlyingSpot) {
+    private SABRSmileVO internalCalibrateSABRByIVol(long underlyingId, Duration duration, Collection<Tick> ticks, double underlyingSpot) {
 
         // we need the OptionFamily because the IVol Family does not have intrest and dividend
         OptionFamily family = this.optionFamilyDao.findByUnderlying(underlyingId);
@@ -670,7 +670,7 @@ public class OptionServiceImpl implements OptionService {
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public Option getOptionByMinExpirationAndMinStrikeDistance(final int underlyingId, final Date targetExpirationDate, final BigDecimal underlyingSpot, final OptionType optionType) {
+    public Option getOptionByMinExpirationAndMinStrikeDistance(final long underlyingId, final Date targetExpirationDate, final BigDecimal underlyingSpot, final OptionType optionType) {
 
         Validate.notNull(targetExpirationDate, "Target expiration date is null");
         Validate.notNull(underlyingSpot, "Underlying spot is null");
@@ -701,7 +701,7 @@ public class OptionServiceImpl implements OptionService {
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public Option getOptionByMinExpirationAndStrikeLimit(final int underlyingId, final Date targetExpirationDate, final BigDecimal underlyingSpot, final OptionType optionType) {
+    public Option getOptionByMinExpirationAndStrikeLimit(final long underlyingId, final Date targetExpirationDate, final BigDecimal underlyingSpot, final OptionType optionType) {
 
         Validate.notNull(targetExpirationDate, "Target expiration date is null");
         Validate.notNull(underlyingSpot, "Underlying spot is null");
@@ -731,7 +731,7 @@ public class OptionServiceImpl implements OptionService {
      * {@inheritDoc}
      */
     @Override
-    public Option getOptionByMinExpirationAndMinStrikeDistanceWithTicks(final int underlyingId, final Date targetExpirationDate, final BigDecimal underlyingSpot, final OptionType optionType,
+    public Option getOptionByMinExpirationAndMinStrikeDistanceWithTicks(final long underlyingId, final Date targetExpirationDate, final BigDecimal underlyingSpot, final OptionType optionType,
             final Date date) {
 
         Validate.notNull(targetExpirationDate, "Target expiration date is null");
@@ -747,7 +747,7 @@ public class OptionServiceImpl implements OptionService {
      * {@inheritDoc}
      */
     @Override
-    public Option getOptionByMinExpirationAndStrikeLimitWithTicks(final int underlyingId, final Date targetExpirationDate, final BigDecimal underlyingSpot, final OptionType optionType, final Date date) {
+    public Option getOptionByMinExpirationAndStrikeLimitWithTicks(final long underlyingId, final Date targetExpirationDate, final BigDecimal underlyingSpot, final OptionType optionType, final Date date) {
 
         Validate.notNull(targetExpirationDate, "Target expiration date is null");
         Validate.notNull(underlyingSpot, "Underlying spot is null");

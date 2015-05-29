@@ -51,7 +51,7 @@ public class LocalLookupServiceImpl implements LocalLookupService, TickEventList
     private final EngineManager engineManager;
     private final LookupService lookupService;
 
-    private final ConcurrentMap<Integer, MarketDataEvent> lastMarketDataEventBySecurityId;
+    private final ConcurrentMap<Long, MarketDataEvent> lastMarketDataEventBySecurityId;
     private final ConcurrentMap<EnumSet<Currency>, Forex> forexMap;
 
     public LocalLookupServiceImpl(
@@ -71,7 +71,7 @@ public class LocalLookupServiceImpl implements LocalLookupService, TickEventList
     }
 
     @Override
-    public MarketDataEvent getCurrentMarketDataEvent(int securityId) {
+    public MarketDataEvent getCurrentMarketDataEvent(long securityId) {
 
         final MarketDataEvent last = lastMarketDataEventBySecurityId.get(securityId);
         if (last != null) {
@@ -82,13 +82,13 @@ public class LocalLookupServiceImpl implements LocalLookupService, TickEventList
     }
 
     @Override
-    public BigDecimal getCurrentValue(int securityId) {
+    public BigDecimal getCurrentValue(long securityId) {
 
         return getCurrentMarketDataEvent(securityId).getCurrentValue();
     }
 
     @Override
-    public double getCurrentValueDouble(int securityId) {
+    public double getCurrentValueDouble(long securityId) {
 
         return getCurrentMarketDataEvent(securityId).getCurrentValueDouble();
     }
@@ -141,7 +141,7 @@ public class LocalLookupServiceImpl implements LocalLookupService, TickEventList
      * {@inheritDoc}
      */
     @Override
-    public double getForexRate(int securityId, Currency transactionCurrency) {
+    public double getForexRate(long securityId, Currency transactionCurrency) {
 
         final Security security = this.lookupService.getSecurityInclFamilyAndUnderlying(securityId);
 
@@ -162,7 +162,7 @@ public class LocalLookupServiceImpl implements LocalLookupService, TickEventList
      * {@inheritDoc}
      */
     @Override
-    public double getForexRateBase(int securityId) {
+    public double getForexRateBase(long securityId) {
 
         return getForexRate(securityId, this.commonConfig.getPortfolioBaseCurrency());
     }
@@ -192,13 +192,13 @@ public class LocalLookupServiceImpl implements LocalLookupService, TickEventList
      * Clears the cached market data event for the specified security.
      * @param securityId the ID of the security whose cached market data event to clear
      */
-    public void flush(int securityId) {
+    public void flush(long securityId) {
         lastMarketDataEventBySecurityId.remove(securityId);
     }
 
     private void onMarketDataEvent(MarketDataEvent event) {
         final int maxTries = 3;
-        final Integer securityId = event.getSecurity().getId();
+        final long securityId = event.getSecurity().getId();
         MarketDataEvent old = lastMarketDataEventBySecurityId.get(securityId);
         //only accept event if it is newer than our current last
         int cnt = 0;

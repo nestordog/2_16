@@ -31,7 +31,7 @@ import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.type.IntegerType;
+import org.hibernate.type.LongType;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -115,7 +115,7 @@ public class AbstractDaoTest {
 
         this.dao.save(stuff1);
 
-        int id1 = stuff1.getId();
+        long id1 = stuff1.getId();
 
         Assert.assertNotEquals(0, id1);
 
@@ -125,7 +125,7 @@ public class AbstractDaoTest {
 
         this.dao.save(stuff2);
 
-        int id2 = stuff2.getId();
+        long id2 = stuff2.getId();
 
         Assert.assertNotEquals(0, id2);
 
@@ -175,7 +175,7 @@ public class AbstractDaoTest {
 
         this.dao.save(stuff1);
 
-        int id1 = stuff1.getId();
+        long id1 = stuff1.getId();
 
         Assert.assertNotEquals(0, id1);
 
@@ -193,7 +193,7 @@ public class AbstractDaoTest {
 
         this.dao.save(stuff1);
 
-        int id1 = stuff1.getId();
+        long id1 = stuff1.getId();
 
         Assert.assertNotEquals(0, id1);
 
@@ -230,7 +230,7 @@ public class AbstractDaoTest {
 
         this.dao.persist(stuff1);
 
-        int id1 = stuff1.getId();
+        long id1 = stuff1.getId();
 
         Assert.assertNotEquals(0, id1);
 
@@ -263,7 +263,7 @@ public class AbstractDaoTest {
 
         this.dao.save(stuff1);
 
-        int id1 = stuff1.getId();
+        long id1 = stuff1.getId();
 
         Assert.assertNotEquals(0, id1);
 
@@ -273,7 +273,7 @@ public class AbstractDaoTest {
 
         this.dao.save(stuff2);
 
-        int id2 = stuff2.getId();
+        long id2 = stuff2.getId();
 
         Assert.assertNotEquals(0, id2);
 
@@ -283,7 +283,7 @@ public class AbstractDaoTest {
 
         this.dao.save(stuff3);
 
-        int id3 = stuff3.getId();
+        long id3 = stuff3.getId();
 
         Assert.assertNotEquals(0, id3);
 
@@ -305,7 +305,7 @@ public class AbstractDaoTest {
 
         this.dao.save(stuff1);
 
-        int id1 = stuff1.getId();
+        long id1 = stuff1.getId();
 
         Assert.assertNotEquals(0, id1);
 
@@ -315,7 +315,7 @@ public class AbstractDaoTest {
 
         this.dao.save(stuff2);
 
-        int id2 = stuff2.getId();
+        long id2 = stuff2.getId();
 
         Assert.assertNotEquals(0, id2);
 
@@ -325,7 +325,7 @@ public class AbstractDaoTest {
 
         this.dao.save(stuff3);
 
-        int id3 = stuff3.getId();
+        long id3 = stuff3.getId();
 
         Assert.assertNotEquals(0, id3);
 
@@ -360,7 +360,7 @@ public class AbstractDaoTest {
 
         this.dao.save(stuff1);
 
-        int id1 = stuff1.getId();
+        long id1 = stuff1.getId();
 
         Assert.assertNotEquals(0, id1);
 
@@ -370,7 +370,7 @@ public class AbstractDaoTest {
 
         this.dao.save(stuff2);
 
-        int id2 = stuff2.getId();
+        long id2 = stuff2.getId();
 
         Assert.assertNotEquals(0, id2);
 
@@ -380,7 +380,7 @@ public class AbstractDaoTest {
 
         this.dao.save(stuff3);
 
-        int id3 = stuff3.getId();
+        long id3 = stuff3.getId();
 
         Assert.assertNotEquals(0, id3);
 
@@ -411,7 +411,7 @@ public class AbstractDaoTest {
 
         this.dao.save(stuff1);
 
-        int id1 = stuff1.getId();
+        long id1 = stuff1.getId();
 
         Assert.assertNotEquals(0, id1);
 
@@ -433,7 +433,7 @@ public class AbstractDaoTest {
 
         this.dao.save(stuff1);
 
-        int id1 = stuff1.getId();
+        long id1 = stuff1.getId();
 
         Assert.assertNotEquals(0, id1);
 
@@ -462,7 +462,7 @@ public class AbstractDaoTest {
 
         this.dao.save(stuff1);
 
-        int id1 = stuff1.getId();
+        long id1 = stuff1.getId();
 
         Assert.assertNotEquals(0, id1);
 
@@ -472,7 +472,7 @@ public class AbstractDaoTest {
 
         this.dao.save(stuff2);
 
-        int id2 = stuff2.getId();
+        long id2 = stuff2.getId();
 
         Assert.assertNotEquals(0, id2);
 
@@ -482,14 +482,14 @@ public class AbstractDaoTest {
 
         this.dao.save(stuff3);
 
-        int id3 = stuff3.getId();
+        long id3 = stuff3.getId();
 
         Assert.assertNotEquals(0, id3);
 
         this.dao.flush();
 
         Query query = this.dao.prepareQuery(null, "select s from GenericItem s where s.id in (:ids)", QueryType.HQL);
-        query.setParameterList("ids", Arrays.asList(stuff1.getId(), stuff2.getId(), stuff3.getId()), IntegerType.INSTANCE);
+        query.setParameterList("ids", Arrays.asList(stuff1.getId(), stuff2.getId(), stuff3.getId()), LongType.INSTANCE);
 
         List list1 = query.list();
 
@@ -509,7 +509,7 @@ public class AbstractDaoTest {
         this.dao.flush();
         this.session.clear();
 
-        int id = stuff1.getId();
+        long id = stuff1.getId();
 
         GenericItem stuff2 = this.dao.load(id);
 

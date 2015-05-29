@@ -33,29 +33,14 @@ public class ATMVolVO implements Serializable {
     private double years;
 
     /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setYears = false;
-
-    /**
      * the Call at-the-money Volatility
      */
     private double callVol;
 
     /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setCallVol = false;
-
-    /**
      * the Put at-the-money Volatility
      */
     private double putVol;
-
-    /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setPutVol = false;
 
     /**
      * Default Constructor
@@ -74,11 +59,8 @@ public class ATMVolVO implements Serializable {
     public ATMVolVO(final double yearsIn, final double callVolIn, final double putVolIn) {
 
         this.years = yearsIn;
-        this.setYears = true;
         this.callVol = callVolIn;
-        this.setCallVol = true;
         this.putVol = putVolIn;
-        this.setPutVol = true;
     }
 
     /**
@@ -90,11 +72,8 @@ public class ATMVolVO implements Serializable {
     public ATMVolVO(final ATMVolVO otherBean) {
 
         this.years = otherBean.getYears();
-        this.setYears = true;
         this.callVol = otherBean.getCallVol();
-        this.setCallVol = true;
         this.putVol = otherBean.getPutVol();
-        this.setPutVol = true;
     }
 
     /**
@@ -113,16 +92,6 @@ public class ATMVolVO implements Serializable {
     public void setYears(final double value) {
 
         this.years = value;
-        this.setYears = true;
-    }
-
-    /**
-     * Return true if the primitive attribute years is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetYears() {
-
-        return this.setYears;
     }
 
     /**
@@ -141,16 +110,6 @@ public class ATMVolVO implements Serializable {
     public void setCallVol(final double value) {
 
         this.callVol = value;
-        this.setCallVol = true;
-    }
-
-    /**
-     * Return true if the primitive attribute callVol is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetCallVol() {
-
-        return this.setCallVol;
     }
 
     /**
@@ -169,16 +128,6 @@ public class ATMVolVO implements Serializable {
     public void setPutVol(final double value) {
 
         this.putVol = value;
-        this.setPutVol = true;
-    }
-
-    /**
-     * Return true if the primitive attribute putVol is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetPutVol() {
-
-        return this.setPutVol;
     }
 
     @Override
@@ -187,16 +136,10 @@ public class ATMVolVO implements Serializable {
         StringBuilder builder = new StringBuilder();
         builder.append("ATMVolVO [years=");
         builder.append(this.years);
-        builder.append(", setYears=");
-        builder.append(this.setYears);
         builder.append(", callVol=");
         builder.append(this.callVol);
-        builder.append(", setCallVol=");
-        builder.append(this.setCallVol);
         builder.append(", putVol=");
         builder.append(this.putVol);
-        builder.append(", setPutVol=");
-        builder.append(this.setPutVol);
         builder.append("]");
 
         return builder.toString();

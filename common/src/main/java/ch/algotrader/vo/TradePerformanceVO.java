@@ -32,29 +32,14 @@ public class TradePerformanceVO implements Serializable {
     private double profit;
 
     /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setProfit = false;
-
-    /**
      * The percent profit of the trade (round trip).
      */
     private double profitPct;
 
     /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setProfitPct = false;
-
-    /**
      * True if this was a winning trade (round trip)
      */
     private boolean winning;
-
-    /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setWinning = false;
 
     /**
      * Default Constructor
@@ -73,11 +58,8 @@ public class TradePerformanceVO implements Serializable {
     public TradePerformanceVO(final double profitIn, final double profitPctIn, final boolean winningIn) {
 
         this.profit = profitIn;
-        this.setProfit = true;
         this.profitPct = profitPctIn;
-        this.setProfitPct = true;
         this.winning = winningIn;
-        this.setWinning = true;
     }
 
     /**
@@ -89,11 +71,8 @@ public class TradePerformanceVO implements Serializable {
     public TradePerformanceVO(final TradePerformanceVO otherBean) {
 
         this.profit = otherBean.getProfit();
-        this.setProfit = true;
         this.profitPct = otherBean.getProfitPct();
-        this.setProfitPct = true;
         this.winning = otherBean.isWinning();
-        this.setWinning = true;
     }
 
     /**
@@ -112,16 +91,6 @@ public class TradePerformanceVO implements Serializable {
     public void setProfit(final double value) {
 
         this.profit = value;
-        this.setProfit = true;
-    }
-
-    /**
-     * Return true if the primitive attribute profit is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetProfit() {
-
-        return this.setProfit;
     }
 
     /**
@@ -140,16 +109,6 @@ public class TradePerformanceVO implements Serializable {
     public void setProfitPct(final double value) {
 
         this.profitPct = value;
-        this.setProfitPct = true;
-    }
-
-    /**
-     * Return true if the primitive attribute profitPct is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetProfitPct() {
-
-        return this.setProfitPct;
     }
 
     /**
@@ -179,16 +138,6 @@ public class TradePerformanceVO implements Serializable {
     public void setWinning(final boolean value) {
 
         this.winning = value;
-        this.setWinning = true;
-    }
-
-    /**
-     * Return true if the primitive attribute winning is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetWinning() {
-
-        return this.setWinning;
     }
 
     @Override
@@ -197,16 +146,10 @@ public class TradePerformanceVO implements Serializable {
         StringBuilder builder = new StringBuilder();
         builder.append("TradePerformanceVO [profit=");
         builder.append(this.profit);
-        builder.append(", setProfit=");
-        builder.append(this.setProfit);
         builder.append(", profitPct=");
         builder.append(this.profitPct);
-        builder.append(", setProfitPct=");
-        builder.append(this.setProfitPct);
         builder.append(", winning=");
         builder.append(this.winning);
-        builder.append(", setWinning=");
-        builder.append(this.setWinning);
         builder.append("]");
 
         return builder.toString();

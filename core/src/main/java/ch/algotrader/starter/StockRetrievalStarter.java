@@ -40,7 +40,7 @@ public class StockRetrievalStarter {
         IBNativeReferenceDataService service = ServiceLocator.instance().getService("iBNativeReferenceDataService", IBNativeReferenceDataService.class);
         for (int i = 1; i < args.length; i++) {
 
-            int securityFamilyId = Integer.parseInt(args[0]);
+            long securityFamilyId = Long.parseLong(args[0]);
             service.retrieveStocks(securityFamilyId, args[i]);
         }
 

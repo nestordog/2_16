@@ -107,7 +107,7 @@ public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl imple
     }
 
     @Override
-    public List<Bar> getHistoricalBars(int securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, final Duration barSize, BarType barType, Map<String, String> properties) {
+    public List<Bar> getHistoricalBars(long securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, final Duration barSize, BarType barType, Map<String, String> properties) {
 
         Validate.notNull(endDate, "End date is null");
         Validate.notNull(timePeriod, "Time period is null");

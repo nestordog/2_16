@@ -156,7 +156,7 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationList
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public void subscribe(final String strategyName, final int securityId) {
+    public void subscribe(final String strategyName, final long securityId) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
@@ -169,7 +169,7 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationList
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public void subscribe(final String strategyName, final int securityId, final FeedType feedType) {
+    public void subscribe(final String strategyName, final long securityId, final FeedType feedType) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
         Validate.notNull(feedType, "Feed type is null");
@@ -207,7 +207,7 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationList
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public void unsubscribe(final String strategyName, final int securityId) {
+    public void unsubscribe(final String strategyName, final long securityId) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
@@ -220,7 +220,7 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationList
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public void unsubscribe(final String strategyName, final int securityId, final FeedType feedType) {
+    public void unsubscribe(final String strategyName, final long securityId, final FeedType feedType) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
         Validate.notNull(feedType, "Feed type is null");
@@ -305,7 +305,7 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationList
      * {@inheritDoc}
      */
     @Override
-    public void logTickGap(final int securityId) {
+    public void logTickGap(final long securityId) {
 
         Security security = this.securityDao.get(securityId);
 

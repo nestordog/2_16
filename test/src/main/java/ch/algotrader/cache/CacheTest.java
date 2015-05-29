@@ -275,7 +275,7 @@ public class CacheTest {
 
         Assert.assertEquals(0, security.getPositions().size());
 
-        int positionId = positionService.createNonTradeablePosition(STRATEGY_NAME, securityId3, 1000000).getId();
+        long positionId = positionService.createNonTradeablePosition(STRATEGY_NAME, securityId3, 1000000).getId();
         Assert.assertEquals(1, security.getPositions().size());
 
         positionService.modifyNonTradeablePosition(positionId, 2000000);
@@ -289,7 +289,7 @@ public class CacheTest {
     public void testCombination() {
 
         // combination / component modification
-        int combinationId = combinationService.createCombination(CombinationType.BUTTERFLY, securityFamilyId2).getId();
+        long combinationId = combinationService.createCombination(CombinationType.BUTTERFLY, securityFamilyId2).getId();
         Combination combination1 = (Combination) cache.get(SecurityImpl.class, combinationId);
         Assert.assertNotNull(combination1);
 

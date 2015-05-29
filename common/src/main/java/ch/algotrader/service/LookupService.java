@@ -62,7 +62,7 @@ public interface LookupService {
     /**
      * Gets a Security by its {@code id}.
      */
-    public Security getSecurity(int id);
+    public Security getSecurity(long id);
 
     /**
      * Gets a Security by its {@code isin}.
@@ -93,7 +93,7 @@ public interface LookupService {
      * Gets a Security by its {@code id} incl. In addition the corresponding {@link SecurityFamily}
      * and Underlying {@link Security} are initialized.
      */
-    public Security getSecurityInclFamilyAndUnderlying(int id);
+    public Security getSecurityInclFamilyAndUnderlying(long id);
 
     /**
      * Gets a Security by its {@code id} and initializes {@link Subscription Subscriptions}, {@link
@@ -101,12 +101,12 @@ public interface LookupService {
      * they are available when the Hibernate Session is closed and this Security is in a detached
      * state.
      */
-    public Security getSecurityInitialized(int id);
+    public Security getSecurityInitialized(long id);
 
     /**
      * Gets multiple Securities by their {@code ids}.
      */
-    public List<Security> getSecuritiesByIds(Collection<Integer> ids);
+    public List<Security> getSecuritiesByIds(Collection<Long> ids);
 
     /**
      * Gets the securityId by the specified securityString, by checking fields
@@ -120,7 +120,7 @@ public interface LookupService {
      * <li>id</li>
      * </ul>
      */
-    public int getSecurityIdBySecurityString(String securityString);
+    public long getSecurityIdBySecurityString(String securityString);
 
     /**
      * Returns all Securities that are defined in the system.
@@ -168,13 +168,13 @@ public interface LookupService {
      * Gets Combinations that are subscribed by the specified Strategy and have an Underlying
      * corresponding to {@code underlyingId}
      */
-    public Collection<Combination> getSubscribedCombinationsByStrategyAndUnderlying(String strategyName, int underlyingId);
+    public Collection<Combination> getSubscribedCombinationsByStrategyAndUnderlying(String strategyName, long underlyingId);
 
     /**
      * Gets Combinations that are subscribed by the specified Strategy and have a Component with the
      * specified {@code securityId}
      */
-    public Collection<Combination> getSubscribedCombinationsByStrategyAndComponent(String strategyName, int securityId);
+    public Collection<Combination> getSubscribedCombinationsByStrategyAndComponent(String strategyName, long securityId);
 
     /**
      * Gets Combinations that are subscribed by the specified Strategy and have a Component with the
@@ -199,19 +199,19 @@ public interface LookupService {
      * the Security is of the specified {@code securityId}.  In addition the Security and
      * Combination are initialized.
      */
-    public Collection<Component> getSubscribedComponentsBySecurityInclSecurity(int securityId);
+    public Collection<Component> getSubscribedComponentsBySecurityInclSecurity(long securityId);
 
     /**
      * Gets all Components where the Combination is subscribed by the defined Strategy and where the
      * Security is of the specified {@code securityId}.  In addition the Security and Combination
      * are initialized.
      */
-    public Collection<Component> getSubscribedComponentsByStrategyAndSecurityInclSecurity(String strategyName, int securityId);
+    public Collection<Component> getSubscribedComponentsByStrategyAndSecurityInclSecurity(String strategyName, long securityId);
 
     /**
      * Gets a Subscriptions by the defined {@code strategyName} and {@code securityId}.
      */
-    public Subscription getSubscriptionByStrategyAndSecurity(String strategyName, int securityId);
+    public Subscription getSubscriptionByStrategyAndSecurity(String strategyName, long securityId);
 
     /**
      * Gets all Subscriptions by the defined {@code strategyName}. If corresponding Securities are
@@ -233,7 +233,7 @@ public interface LookupService {
     /**
      * Gets a Strategy by its {@code id}.
      */
-    public Strategy getStrategy(int id);
+    public Strategy getStrategy(long id);
 
     /**
      * Gets a Strategy by its {@code strategyName}.
@@ -248,7 +248,7 @@ public interface LookupService {
     /**
      * Gets a {@code SecurityFamily} by its {@code id}.
      */
-    public SecurityFamily getSecurityFamily(int id);
+    public SecurityFamily getSecurityFamily(long id);
 
     /**
      * Gets a {@code SecurityFamily} by its {@code id}
@@ -258,12 +258,12 @@ public interface LookupService {
     /**
      * Gets a {@link OptionFamily} by the {@code id} of the Underlying {@link Security}.
      */
-    public OptionFamily getOptionFamilyByUnderlying(int id);
+    public OptionFamily getOptionFamilyByUnderlying(long id);
 
     /**
      * Gets a {@link FutureFamily} by the {@code id} of the Underlying {@link Security}.
      */
-    public FutureFamily getFutureFamilyByUnderlying(int id);
+    public FutureFamily getFutureFamilyByUnderlying(long id);
 
     /**
      * Gets all Positions.
@@ -273,13 +273,13 @@ public interface LookupService {
     /**
      * Gets a Position by its {@code id}.
      */
-    public Position getPosition(int id);
+    public Position getPosition(long id);
 
     /**
      * Gets a Position by its {@code id}. In addition its Security and {@link SecurityFamily} will
      * be initialized.
      */
-    public Position getPositionInclSecurityAndSecurityFamily(int id);
+    public Position getPositionInclSecurityAndSecurityFamily(long id);
 
     /**
      * Gets all Positions of a Strategy defined by {@code strategyName}.
@@ -289,7 +289,7 @@ public interface LookupService {
     /**
      * Gets a Position by Security and Strategy.
      */
-    public Position getPositionBySecurityAndStrategy(int securityId, String strategyName);
+    public Position getPositionBySecurityAndStrategy(long securityId, String strategyName);
 
     /**
      * Gets {@link ch.algotrader.vo.OpenPositionVO OpenPositionVOs} corresponding to the specified
@@ -321,7 +321,7 @@ public interface LookupService {
     /**
      * Gets open Positions for the specified Security
      */
-    public List<Position> getOpenPositionsBySecurity(int securityId);
+    public List<Position> getOpenPositionsBySecurity(long securityId);
 
     /**
      * Gets open Positions for the specified Strategy and SecurityType.
@@ -336,7 +336,7 @@ public interface LookupService {
     /**
      * Gets open Positions for the specified Strategy and SecurityFamily.
      */
-    public List<Position> getOpenPositionsByStrategyAndSecurityFamily(String strategyName, int securityFamilyId);
+    public List<Position> getOpenPositionsByStrategyAndSecurityFamily(String strategyName, long securityFamilyId);
 
     /**
      * Gets open Forex Positions
@@ -351,7 +351,7 @@ public interface LookupService {
     /**
      * Gets a Transaction by its {@code id}.
      */
-    public Transaction getTransaction(int id);
+    public Transaction getTransaction(long id);
 
     /**
      * Gets all Trades (either  {@code BUY} or {@code SELL}) between {@code minDate} and {@code
@@ -373,7 +373,7 @@ public interface LookupService {
     /**
      * Gets all {@link Order open Orders} for to the specified Strategy and Security.
      */
-    public Collection<Order> getOpenOrdersByStrategyAndSecurity(String strategyName, int securityId);
+    public Collection<Order> getOpenOrdersByStrategyAndSecurity(String strategyName, long securityId);
 
     /**
      * Gets an open order by its {@code intId} by querying the OpenOrderWindow
@@ -413,43 +413,43 @@ public interface LookupService {
      * Gets the last Tick for the specified Security that is within the last {@code n}
      * (specified by the config param {@code intervalDays}) days before {@code dateTime}. In addition the Security is initialized.
      */
-    public Tick getLastTick(int securityId, Date dateTime);
+    public Tick getLastTick(long securityId, Date dateTime);
 
     /**
      * Gets all Ticks of the defined Security that are before the {@code maxDate} and after {@code
      * minDate} - {@code intervalDays}
      */
-    public List<Tick> getTicksByMaxDate(int securityId, Date maxDate);
+    public List<Tick> getTicksByMaxDate(long securityId, Date maxDate);
 
     /**
      * Gets all Ticks of the defined Security that are after the {@code minDate} and before {@code
      * minDate} + {@code intervalDays}
      */
-    public List<Tick> getTicksByMinDate(int securityId, Date minDate);
+    public List<Tick> getTicksByMinDate(long securityId, Date minDate);
 
     /**
      * Gets one Tick-Id per day of the defined Security that is just before the specified {@code
      * time}.
      */
-    public List<Tick> getDailyTicksBeforeTime(int securityId, Date time);
+    public List<Tick> getDailyTicksBeforeTime(long securityId, Date time);
 
     /**
      * Gets one Tick-Id per day of the defined Security that is just after the specified {@code
      * time}.
      */
-    public List<Tick> getDailyTicksAfterTime(int securityId, Date time);
+    public List<Tick> getDailyTicksAfterTime(long securityId, Date time);
 
     /**
      * Gets one Tick-Id per hour of the defined Security that is just before the specified number of
      * {@code minutes} and after the specified {@code minDate}.
      */
-    public List<Tick> getHourlyTicksBeforeMinutesByMinDate(int securityId, int minutes, Date minDate);
+    public List<Tick> getHourlyTicksBeforeMinutesByMinDate(long securityId, int minutes, Date minDate);
 
     /**
      * Gets one Tick-Id per hour of the defined Security that is just after the specified number of
      * {@code minutes} and after the specified {@code minDate}.
      */
-    public List<Tick> getHourlyTicksAfterMinutesByMinDate(int securityId, int minutes, Date minDate);
+    public List<Tick> getHourlyTicksAfterMinutesByMinDate(long securityId, int minutes, Date minDate);
 
     /**
      * Gets all Ticks for Securities that are subscribed by any Strategy between {@code minDate} and
@@ -467,23 +467,23 @@ public interface LookupService {
      * Gets the first Tick of the defined Security that is before the maxDate (but not earlier than
      * one minute before that the maxDate).
      */
-    public Tick getTickBySecurityAndMaxDate(int securityId, Date date);
+    public Tick getTickBySecurityAndMaxDate(long securityId, Date date);
 
     /**
      * Gets daily Bars created based on Ticks between {@code minDate} and {@code maxDate}
      */
-    public List<Bar> getDailyBarsFromTicks(int securityId, Date fromDate, Date toDate);
+    public List<Bar> getDailyBarsFromTicks(long securityId, Date fromDate, Date toDate);
 
     /**
      * Returns the last nl Bars of the specified Security and {@code barSize}
      */
-    public List<Bar> getLastNBarsBySecurityAndBarSize(int n, int securityId, Duration barSize);
+    public List<Bar> getLastNBarsBySecurityAndBarSize(int n, long securityId, Duration barSize);
 
     /**
      * Returns the Bars of the specified Security {@code barSize} after the specified {@code
      * minDate}
      */
-    public List<Bar> getBarsBySecurityBarSizeAndMinDate(int securityId, Duration barSize, Date minDate);
+    public List<Bar> getBarsBySecurityBarSizeAndMinDate(long securityId, Duration barSize, Date minDate);
 
     /**
      * Gets all Ticks for Securities that are subscribed by any Strategy between {@code minDate} and

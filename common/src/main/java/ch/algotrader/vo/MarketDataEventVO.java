@@ -35,12 +35,7 @@ public class MarketDataEventVO implements Serializable {
     /**
      * The Id of the Security associated with this MarketDataEventVO
      */
-    private int securityId;
-
-    /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setSecurityId = false;
+    private long securityId;
 
     /**
      * The Symbol of the associated Security
@@ -56,11 +51,6 @@ public class MarketDataEventVO implements Serializable {
      * The current volume
      */
     private int vol;
-
-    /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setVol = false;
 
     /**
      * The most recent price of this market data event.
@@ -100,11 +90,9 @@ public class MarketDataEventVO implements Serializable {
     public MarketDataEventVO(final int securityIdIn, final String nameIn, final Date dateTimeIn, final int volIn, final FeedType feedTypeIn, final Map propertiesIn) {
 
         this.securityId = securityIdIn;
-        this.setSecurityId = true;
         this.name = nameIn;
         this.dateTime = dateTimeIn;
         this.vol = volIn;
-        this.setVol = true;
         this.feedType = feedTypeIn;
         this.properties = propertiesIn;
     }
@@ -122,11 +110,9 @@ public class MarketDataEventVO implements Serializable {
     public MarketDataEventVO(final int securityIdIn, final String nameIn, final Date dateTimeIn, final int volIn, final BigDecimal currentValueIn, final FeedType feedTypeIn, final Map propertiesIn) {
 
         this.securityId = securityIdIn;
-        this.setSecurityId = true;
         this.name = nameIn;
         this.dateTime = dateTimeIn;
         this.vol = volIn;
-        this.setVol = true;
         this.currentValue = currentValueIn;
         this.feedType = feedTypeIn;
         this.properties = propertiesIn;
@@ -141,11 +127,9 @@ public class MarketDataEventVO implements Serializable {
     public MarketDataEventVO(final MarketDataEventVO otherBean) {
 
         this.securityId = otherBean.getSecurityId();
-        this.setSecurityId = true;
         this.name = otherBean.getName();
         this.dateTime = otherBean.getDateTime();
         this.vol = otherBean.getVol();
-        this.setVol = true;
         this.currentValue = otherBean.getCurrentValue();
         this.feedType = otherBean.getFeedType();
         this.properties = otherBean.getProperties();
@@ -155,7 +139,7 @@ public class MarketDataEventVO implements Serializable {
      * The Id of the Security associated with this MarketDataEventVO
      * @return securityId int
      */
-    public int getSecurityId() {
+    public long getSecurityId() {
 
         return this.securityId;
     }
@@ -164,19 +148,9 @@ public class MarketDataEventVO implements Serializable {
      * The Id of the Security associated with this MarketDataEventVO
      * @param value int
      */
-    public void setSecurityId(final int value) {
+    public void setSecurityId(final long value) {
 
         this.securityId = value;
-        this.setSecurityId = true;
-    }
-
-    /**
-     * Return true if the primitive attribute securityId is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetSecurityId() {
-
-        return this.setSecurityId;
     }
 
     /**
@@ -231,16 +205,6 @@ public class MarketDataEventVO implements Serializable {
     public void setVol(final int value) {
 
         this.vol = value;
-        this.setVol = true;
-    }
-
-    /**
-     * Return true if the primitive attribute vol is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetVol() {
-
-        return this.setVol;
     }
 
     /**
@@ -307,16 +271,12 @@ public class MarketDataEventVO implements Serializable {
         StringBuilder builder = new StringBuilder();
         builder.append("MarketDataEventVO [securityId=");
         builder.append(this.securityId);
-        builder.append(", setSecurityId=");
-        builder.append(this.setSecurityId);
         builder.append(", name=");
         builder.append(this.name);
         builder.append(", dateTime=");
         builder.append(this.dateTime);
         builder.append(", vol=");
         builder.append(this.vol);
-        builder.append(", setVol=");
-        builder.append(this.setVol);
         builder.append(", currentValue=");
         builder.append(this.currentValue);
         builder.append(", feedType=");

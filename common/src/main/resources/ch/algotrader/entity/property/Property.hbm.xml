@@ -32,8 +32,8 @@
         <meta attribute="class-description">Custom Property of type {@code int}, {@code double}, {@code money}, {@code text}, {@code date} or {@code boolean} that can be assigned to a {@link PropertyHolder}</meta>
         <cache usage="read-write" />
         <comment>Custom Property of type {@code int}, {@code double}, {@code money}, {@code text}, {@code date} or {@code boolean} that can be assigned to a {@link PropertyHolder}</comment>
-        <id name="id" type="int" >
-            <column name="ID" sql-type="INTEGER"/>
+        <id name="id" type="long" >
+            <column name="ID" sql-type="BIGINT"/>
             <generator class="native">
                 <!-- id-generator merge-point -->
             </generator>
@@ -77,7 +77,7 @@
         <many-to-one name="propertyHolder" class="ch.algotrader.entity.property.PropertyHolderImpl" cascade="none" foreign-key="PROPERTY_PROPERTY_HOLDER_FKC" not-null="true" lazy="proxy" fetch="select">
             <meta attribute="property-type">ch.algotrader.entity.property.PropertyHolder</meta>
             <meta attribute="field-description">Base class of an Entity that can hold {@link Property Properties}.</meta>
-            <column name="PROPERTY_HOLDER_FK" not-null="true" sql-type="INTEGER">
+            <column name="PROPERTY_HOLDER_FK" not-null="true" sql-type="BIGINT">
                 <comment>Base class of an Entity that can hold {@link Property Properties}.</comment>
             </column>
         </many-to-one>

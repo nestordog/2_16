@@ -33,13 +33,13 @@ public abstract class ReferenceDataServiceImpl implements ReferenceDataService {
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public abstract void retrieve(int securityFamilyId);
+    public abstract void retrieve(long securityFamilyId);
 
     /**
      * {@inheritDoc}
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public abstract void retrieveStocks(int securityFamilyId, String symbol);
+    public abstract void retrieveStocks(long securityFamilyId, String symbol);
 
 }

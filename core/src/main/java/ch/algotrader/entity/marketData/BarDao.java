@@ -37,7 +37,7 @@ public interface BarDao extends ReadWriteDao<Bar> {
      * @param maxDate
      * @return List<Bar>
      */
-    List<Bar> findDailyBarsFromTicks(int securityId, Date minDate, Date maxDate);
+    List<Bar> findDailyBarsFromTicks(long securityId, Date minDate, Date maxDate);
 
     /**
      * Returns all Bars of the specified Security and {@code barSize}
@@ -47,7 +47,7 @@ public interface BarDao extends ReadWriteDao<Bar> {
      * @param barSize
      * @return List<Bar>
      */
-    List<Bar> findBarsBySecurityAndBarSize(int limit, int securityId, Duration barSize);
+    List<Bar> findBarsBySecurityAndBarSize(int limit, long securityId, Duration barSize);
 
     /**
      * Returns all Bars of the specified Security and {@code barSize} after the specified {@code
@@ -57,7 +57,7 @@ public interface BarDao extends ReadWriteDao<Bar> {
      * @param minDate
      * @return List<Bar>
      */
-    List<Bar> findBarsBySecurityBarSizeAndMinDate(int securityId, Duration barSize, Date minDate);
+    List<Bar> findBarsBySecurityBarSizeAndMinDate(long securityId, Duration barSize, Date minDate);
 
     /**
      * Finds all Ticks for Securities that are subscribed by any Strategy between {@code minDate}

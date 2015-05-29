@@ -40,7 +40,7 @@ public interface ReadWriteDao<E extends BaseEntityI> extends ReadOnlyDao<E> {
 
     void deleteAll(Collection<E> entities);
 
-    boolean deleteById(int id);
+    boolean deleteById(long id);
 
     void flush();
 

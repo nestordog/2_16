@@ -40,9 +40,9 @@ public interface OrderDao extends ReadWriteDao<Order> {
 
     /**
      * Finds orders that have not been acknowledged yet, i.e. have not received any OrderStatus yet.
-     * @return List<Integer>
+     * @return List<Long>
      */
-    List<Integer> findUnacknowledgedOrderIds();
+    List<Long> findUnacknowledgedOrderIds();
 
     /**
      * Finds an order by its {@code intId}
@@ -56,7 +56,7 @@ public interface OrderDao extends ReadWriteDao<Order> {
      * @param ids
      * @return List<Order>
      */
-    List<Order> findByIds(List<Integer> ids);
+    List<Order> findByIds(List<Long> ids);
 
     /**
      * Finds all open orders by querying the OpenOrderWindow
@@ -77,7 +77,7 @@ public interface OrderDao extends ReadWriteDao<Order> {
      * @param securityId
      * @return Collection<Order>
      */
-    Collection<Order> findOpenOrdersByStrategyAndSecurity(String strategyName, int securityId);
+    Collection<Order> findOpenOrdersByStrategyAndSecurity(String strategyName, long securityId);
 
     /**
      * Finds an open order by its {@code intId} by querying the OpenOrderWindow

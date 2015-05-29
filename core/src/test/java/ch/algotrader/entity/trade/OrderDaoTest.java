@@ -143,11 +143,11 @@ public class OrderDaoTest extends InMemoryDBTest {
         this.session.save(order);
         this.session.flush();
 
-        List<Integer> integers = this.dao.findUnacknowledgedOrderIds();
+        List<Long> ids = this.dao.findUnacknowledgedOrderIds();
 
-        Assert.assertEquals(1, integers.size());
+        Assert.assertEquals(1, ids.size());
 
-        Assert.assertEquals(order.getId(), integers.get(0).intValue());
+        Assert.assertEquals(order.getId(), ids.get(0).longValue());
     }
 
     @Test
@@ -169,15 +169,15 @@ public class OrderDaoTest extends InMemoryDBTest {
         this.session.save(order);
         this.session.flush();
 
-        List<Integer> ids1 = new ArrayList<>();
-        ids1.add(0);
+        List<Long> ids1 = new ArrayList<>();
+        ids1.add((long) 0);
 
         List<Order> orders1 = this.dao.findByIds(ids1);
 
         Assert.assertEquals(0, orders1.size());
 
-        List<Integer> ids2 = new ArrayList<>();
-        ids2.add(order.getId());
+        List<Long> ids2 = new ArrayList<>();
+        ids2.add((long) order.getId());
 
         List<Order> orders2 = this.dao.findByIds(ids2);
 

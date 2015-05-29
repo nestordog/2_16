@@ -42,7 +42,7 @@ public interface CombinationDao extends ReadWriteDao<Combination> {
      * @param underlyingId
      * @return Collection<Combination>
      */
-    List<Combination> findSubscribedByStrategyAndUnderlying(String strategyName, int underlyingId);
+    List<Combination> findSubscribedByStrategyAndUnderlying(String strategyName, long underlyingId);
 
     /**
      * Finds Combinations that are subscribed by the specified Strategy and have a Component with
@@ -51,7 +51,7 @@ public interface CombinationDao extends ReadWriteDao<Combination> {
      * @param securityId
      * @return Collection<Combination>
      */
-    List<Combination> findSubscribedByStrategyAndComponent(String strategyName, int securityId);
+    List<Combination> findSubscribedByStrategyAndComponent(String strategyName, long securityId);
 
     /**
      * Finds Combinations that are subscribed by the specified Strategy and have a Component with

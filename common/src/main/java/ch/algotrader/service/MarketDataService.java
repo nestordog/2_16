@@ -43,22 +43,22 @@ public interface MarketDataService {
     /**
      * Subscribes a Security for the defined Strategy.
      */
-    void subscribe(String strategyName, int securityId);
+    void subscribe(String strategyName, long securityId);
 
     /**
      * Subscribes a Security for the defined Strategy and {@link FeedType}.
      */
-    void subscribe(String strategyName, int securityId, FeedType feedType);
+    void subscribe(String strategyName, long securityId, FeedType feedType);
 
     /**
      * Unsubscribes a Security for the defined Strategy.
      */
-    void unsubscribe(String strategyName, int securityId);
+    void unsubscribe(String strategyName, long securityId);
 
     /**
      * Unsubscribes a Security for the defined Strategy and {@link FeedType}
      */
-    void unsubscribe(String strategyName, int securityId, FeedType feedType);
+    void unsubscribe(String strategyName, long securityId, FeedType feedType);
 
     /**
      * Removes Subscriptions of a particular Strategy for which the Strategy does not have an open
@@ -83,7 +83,7 @@ public interface MarketDataService {
      * Called in situations where no Market Data Events have been received for the specified {@code
      * SecurityFamily.maxGap}
      */
-    void logTickGap(int securityId);
+    void logTickGap(long securityId);
 
     /**
      * Returns all supported data feeds.

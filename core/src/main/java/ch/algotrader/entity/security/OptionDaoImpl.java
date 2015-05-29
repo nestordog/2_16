@@ -44,7 +44,7 @@ public class OptionDaoImpl extends AbstractDao<Option> implements OptionDao {
     }
 
     @Override
-    public List<Option> findByMinExpirationAndMinStrikeDistance(int limit, int underlyingId, Date targetExpirationDate, BigDecimal underlyingSpot, OptionType optionType) {
+    public List<Option> findByMinExpirationAndMinStrikeDistance(int limit, long underlyingId, Date targetExpirationDate, BigDecimal underlyingSpot, OptionType optionType) {
 
         Validate.notNull(targetExpirationDate, "targetExpirationDate is null");
         Validate.notNull(underlyingSpot, "underlyingSpot is null");
@@ -55,7 +55,7 @@ public class OptionDaoImpl extends AbstractDao<Option> implements OptionDao {
     }
 
     @Override
-    public List<Option> findByMinExpirationAndStrikeLimit(int limit, int underlyingId, Date targetExpirationDate, BigDecimal underlyingSpot, OptionType optionType) {
+    public List<Option> findByMinExpirationAndStrikeLimit(int limit, long underlyingId, Date targetExpirationDate, BigDecimal underlyingSpot, OptionType optionType) {
 
         Validate.notNull(targetExpirationDate, "targetExpirationDate is null");
         Validate.notNull(underlyingSpot, "underlyingSpot is null");
@@ -66,7 +66,7 @@ public class OptionDaoImpl extends AbstractDao<Option> implements OptionDao {
     }
 
     @Override
-    public List<Option> findByMinExpirationAndMinStrikeDistanceWithTicks(int limit, int underlyingId, Date targetExpirationDate, BigDecimal underlyingSpot, OptionType optionType, Date date) {
+    public List<Option> findByMinExpirationAndMinStrikeDistanceWithTicks(int limit, long underlyingId, Date targetExpirationDate, BigDecimal underlyingSpot, OptionType optionType, Date date) {
 
         Validate.notNull(targetExpirationDate, "targetExpirationDate is null");
         Validate.notNull(underlyingSpot, "underlyingSpot is null");
@@ -78,7 +78,7 @@ public class OptionDaoImpl extends AbstractDao<Option> implements OptionDao {
     }
 
     @Override
-    public List<Option> findByMinExpirationAndStrikeLimitWithTicks(int limit, int underlyingId, Date targetExpirationDate, BigDecimal underlyingSpot, OptionType optionType, Date date) {
+    public List<Option> findByMinExpirationAndStrikeLimitWithTicks(int limit, long underlyingId, Date targetExpirationDate, BigDecimal underlyingSpot, OptionType optionType, Date date) {
 
         Validate.notNull(targetExpirationDate, "targetExpirationDate is null");
         Validate.notNull(underlyingSpot, "underlyingSpot is null");
@@ -96,14 +96,14 @@ public class OptionDaoImpl extends AbstractDao<Option> implements OptionDao {
     }
 
     @Override
-    public List<Option> findBySecurityFamily(int securityFamilyId) {
+    public List<Option> findBySecurityFamily(long securityFamilyId) {
 
         return find("Option.findBySecurityFamily", QueryType.BY_NAME, new NamedParam("securityFamilyId", securityFamilyId));
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public List<Date> findExpirationsByUnderlyingAndDate(int underlyingId, Date dateTime) {
+    public List<Date> findExpirationsByUnderlyingAndDate(long underlyingId, Date dateTime) {
 
         Validate.notNull(dateTime, "dateTime is null");
 
@@ -111,7 +111,7 @@ public class OptionDaoImpl extends AbstractDao<Option> implements OptionDao {
     }
 
     @Override
-    public Option findByExpirationStrikeAndType(int optionFamilyId, Date expirationDate, BigDecimal strike, OptionType type) {
+    public Option findByExpirationStrikeAndType(long optionFamilyId, Date expirationDate, BigDecimal strike, OptionType type) {
 
         Validate.notNull(expirationDate, "Expiration date is null");
         Validate.notNull(strike, "Strike is null");

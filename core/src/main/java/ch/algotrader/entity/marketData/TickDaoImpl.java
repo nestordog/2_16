@@ -26,7 +26,7 @@ import java.util.Map;
 import org.apache.commons.lang.Validate;
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
-import org.hibernate.type.IntegerType;
+import org.hibernate.type.LongType;
 import org.springframework.stereotype.Repository;
 
 import ch.algotrader.entity.Subscription;
@@ -70,13 +70,13 @@ public class TickDaoImpl extends AbstractDao<Tick> implements TickDao {
     }
 
     @Override
-    public List<Tick> findBySecurity(int securityId) {
+    public List<Tick> findBySecurity(long securityId) {
 
         return find("Tick.findBySecurity", QueryType.BY_NAME, new NamedParam("securityId", securityId));
     }
 
     @Override
-    public Tick findBySecurityAndMaxDate(int securityId, Date maxDate) {
+    public Tick findBySecurityAndMaxDate(long securityId, Date maxDate) {
 
         Validate.notNull(maxDate, "maxDate is null");
 
@@ -84,7 +84,7 @@ public class TickDaoImpl extends AbstractDao<Tick> implements TickDao {
     }
 
     @Override
-    public List<Tick> findTicksBySecurityAndMinDate(int securityId, Date minDate, int intervalDays) {
+    public List<Tick> findTicksBySecurityAndMinDate(long securityId, Date minDate, int intervalDays) {
 
         Validate.notNull(minDate, "minDate is null");
 
@@ -92,7 +92,7 @@ public class TickDaoImpl extends AbstractDao<Tick> implements TickDao {
     }
 
     @Override
-    public List<Tick> findTicksBySecurityAndMinDate(int limit, int securityId, Date minDate, int intervalDays) {
+    public List<Tick> findTicksBySecurityAndMinDate(int limit, long securityId, Date minDate, int intervalDays) {
 
         Validate.notNull(minDate, "minDate is null");
 
@@ -101,7 +101,7 @@ public class TickDaoImpl extends AbstractDao<Tick> implements TickDao {
     }
 
     @Override
-    public List<Tick> findTicksBySecurityAndMaxDate(int securityId, Date maxDate, int intervalDays) {
+    public List<Tick> findTicksBySecurityAndMaxDate(long securityId, Date maxDate, int intervalDays) {
 
         Validate.notNull(maxDate, "maxDate is null");
 
@@ -109,7 +109,7 @@ public class TickDaoImpl extends AbstractDao<Tick> implements TickDao {
     }
 
     @Override
-    public List<Tick> findTicksBySecurityAndMaxDate(int limit, int securityId, Date maxDate, int intervalDays) {
+    public List<Tick> findTicksBySecurityAndMaxDate(int limit, long securityId, Date maxDate, int intervalDays) {
 
         Validate.notNull(maxDate, "maxDate is null");
 
@@ -119,50 +119,50 @@ public class TickDaoImpl extends AbstractDao<Tick> implements TickDao {
 
     @SuppressWarnings("unchecked")
     @Override
-    public List<Integer> findDailyTickIdsBeforeTime(int securityId, Date time) {
+    public List<Long> findDailyTickIdsBeforeTime(long securityId, Date time) {
 
         Validate.notNull(time, "Time is null");
 
-        return (List<Integer>) findObjects(null, "Tick.findDailyTickIdsBeforeTime", QueryType.BY_NAME, new NamedParam("securityId", securityId), new NamedParam("time", time));
+        return convertIds(findObjects(null, "Tick.findDailyTickIdsBeforeTime", QueryType.BY_NAME, new NamedParam("securityId", securityId), new NamedParam("time", time)));
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public List<Integer> findDailyTickIdsAfterTime(int securityId, Date time) {
+    public List<Long> findDailyTickIdsAfterTime(long securityId, Date time) {
 
         Validate.notNull(time, "Time is null");
 
-        return (List<Integer>) findObjects(null, "Tick.findDailyTickIdsAfterTime", QueryType.BY_NAME, new NamedParam("securityId", securityId), new NamedParam("time", time));
+        return convertIds(findObjects(null, "Tick.findDailyTickIdsAfterTime", QueryType.BY_NAME, new NamedParam("securityId", securityId), new NamedParam("time", time)));
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public List<Integer> findHourlyTickIdsBeforeMinutesByMinDate(int securityId, int minutes, Date minDate) {
+    public List<Long> findHourlyTickIdsBeforeMinutesByMinDate(long securityId, int minutes, Date minDate) {
 
         Validate.notNull(minDate, "minDate is null");
 
-        return (List<Integer>) findObjects(null, "Tick.findHourlyTickIdsBeforeMinutesByMinDate", QueryType.BY_NAME, new NamedParam("securityId", securityId), new NamedParam("minutes", minutes),
-                new NamedParam("minDate", minDate));
+        return convertIds((findObjects(null, "Tick.findHourlyTickIdsBeforeMinutesByMinDate", QueryType.BY_NAME, new NamedParam("securityId", securityId), new NamedParam("minutes", minutes),
+                new NamedParam("minDate", minDate))));
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public List<Integer> findHourlyTickIdsAfterMinutesByMinDate(int securityId, int minutes, Date minDate) {
+    public List<Long> findHourlyTickIdsAfterMinutesByMinDate(long securityId, int minutes, Date minDate) {
 
         Validate.notNull(minDate, "minDate is null");
 
-        return (List<Integer>) findObjects(null, "Tick.findHourlyTickIdsAfterMinutesByMinDate", QueryType.BY_NAME, new NamedParam("securityId", securityId), new NamedParam("minutes", minutes),
-                new NamedParam("minDate", minDate));
+        return convertIds(findObjects(null, "Tick.findHourlyTickIdsAfterMinutesByMinDate", QueryType.BY_NAME, new NamedParam("securityId", securityId), new NamedParam("minutes", minutes),
+                new NamedParam("minDate", minDate)));
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public List<Tick> findByIdsInclSecurityAndUnderlying(List<Integer> ids) {
+    public List<Tick> findByIdsInclSecurityAndUnderlying(List<Long> ids) {
 
         Validate.notEmpty(ids, "Ids are empty");
 
         Query query = this.prepareQuery(null, "Tick.findByIdsInclSecurityAndUnderlying", QueryType.BY_NAME);
-        query.setParameterList("ids", ids, IntegerType.INSTANCE);
+        query.setParameterList("ids", ids, LongType.INSTANCE);
 
         return query.list();
     }
@@ -186,7 +186,7 @@ public class TickDaoImpl extends AbstractDao<Tick> implements TickDao {
     }
 
     @Override
-    public List<Tick> findOptionTicksBySecurityDateTypeAndExpirationInclSecurity(int underlyingId, Date date, OptionType type, Date expiration) {
+    public List<Tick> findOptionTicksBySecurityDateTypeAndExpirationInclSecurity(long underlyingId, Date date, OptionType type, Date expiration) {
 
         Validate.notNull(date, "Date is null");
         Validate.notNull(type, "Type is null");
@@ -197,7 +197,7 @@ public class TickDaoImpl extends AbstractDao<Tick> implements TickDao {
     }
 
     @Override
-    public List<Tick> findImpliedVolatilityTicksBySecurityAndDate(int underlyingId, Date date) {
+    public List<Tick> findImpliedVolatilityTicksBySecurityAndDate(long underlyingId, Date date) {
 
         Validate.notNull(date, "Date is null");
 
@@ -205,7 +205,7 @@ public class TickDaoImpl extends AbstractDao<Tick> implements TickDao {
     }
 
     @Override
-    public List<Tick> findImpliedVolatilityTicksBySecurityDateAndDuration(int underlyingId, Date date, Duration duration) {
+    public List<Tick> findImpliedVolatilityTicksBySecurityDateAndDuration(long underlyingId, Date date, Duration duration) {
 
         Validate.notNull(date, "Date is null");
         Validate.notNull(duration, "Duration is null");
@@ -216,7 +216,7 @@ public class TickDaoImpl extends AbstractDao<Tick> implements TickDao {
 
     @SuppressWarnings("unchecked")
     @Override
-    public String findTickerIdBySecurity(int securityId) {
+    public String findTickerIdBySecurity(long securityId) {
 
         // sometimes Esper returns a Map instead of scalar
         String query = "select tickerId from TickWindow where security.id = " + securityId;

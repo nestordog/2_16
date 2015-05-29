@@ -114,9 +114,9 @@ public class SecurityDaoTest extends InMemoryDBTest {
         this.session.save(forex2);
         this.session.flush();
 
-        List<Integer> ids = new ArrayList<>();
+        List<Long> ids = new ArrayList<>();
 
-        ids.add(forex1.getId());
+        ids.add((long)forex1.getId());
 
         List<Security> forexes1 = this.dao.findByIds(ids);
 
@@ -125,7 +125,7 @@ public class SecurityDaoTest extends InMemoryDBTest {
         Assert.assertSame(forex1.getSecurityFamily(), forexes1.get(0).getSecurityFamily());
         Assert.assertSame(forex1, forexes1.get(0));
 
-        ids.add(forex2.getId());
+        ids.add((long)forex2.getId());
 
         List<Security> forexes2 = this.dao.findByIds(ids);
 
@@ -687,15 +687,15 @@ public class SecurityDaoTest extends InMemoryDBTest {
         this.session.save(forex1);
         this.session.flush();
 
-        Integer id1 = this.dao.findSecurityIdByIsin("Dummy");
+        Long id1 = this.dao.findSecurityIdByIsin("Dummy");
 
         Assert.assertNull(id1);
 
-        Integer id2 = this.dao.findSecurityIdByIsin("isin");
+        Long id2 = this.dao.findSecurityIdByIsin("isin");
 
         Assert.assertNotNull(id2);
 
-        Assert.assertEquals(forex1.getId(), id2.intValue());
+        Assert.assertEquals(forex1.getId(), id2.longValue());
     }
 
 }

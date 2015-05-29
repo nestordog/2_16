@@ -36,7 +36,7 @@ public interface TickDao extends ReadWriteDao<Tick> {
      * @param securityId
      * @return List<Tick>
      */
-    List<Tick> findBySecurity(int securityId);
+    List<Tick> findBySecurity(long securityId);
 
     /**
      * Finds the first Tick of the defined Security that is before the maxDate (but not earlier than
@@ -45,7 +45,7 @@ public interface TickDao extends ReadWriteDao<Tick> {
      * @param maxDate
      * @return Tick
      */
-    Tick findBySecurityAndMaxDate(int securityId, Date maxDate);
+    Tick findBySecurityAndMaxDate(long securityId, Date maxDate);
 
     /**
      * Finds all Ticks of the defined Security that are after the {@code minDate} and before {@code
@@ -55,7 +55,7 @@ public interface TickDao extends ReadWriteDao<Tick> {
      * @param intervalDays
      * @return List<Tick>
      */
-    List<Tick> findTicksBySecurityAndMinDate(int securityId, Date minDate, int intervalDays);
+    List<Tick> findTicksBySecurityAndMinDate(long securityId, Date minDate, int intervalDays);
 
     /**
      * <p>
@@ -69,7 +69,7 @@ public interface TickDao extends ReadWriteDao<Tick> {
      * @param intervalDays
      * @return List<Tick>
      */
-    List<Tick> findTicksBySecurityAndMinDate(int limit, int securityId, Date minDate, int intervalDays);
+    List<Tick> findTicksBySecurityAndMinDate(int limit, long securityId, Date minDate, int intervalDays);
 
     /**
      * Finds all Ticks of the defined Security that are before the {@code maxDate} and after {@code
@@ -79,7 +79,7 @@ public interface TickDao extends ReadWriteDao<Tick> {
      * @param intervalDays
      * @return List<Tick>
      */
-    List<Tick> findTicksBySecurityAndMaxDate(int securityId, Date maxDate, int intervalDays);
+    List<Tick> findTicksBySecurityAndMaxDate(long securityId, Date maxDate, int intervalDays);
 
     /**
      * <p>
@@ -93,25 +93,25 @@ public interface TickDao extends ReadWriteDao<Tick> {
      * @param intervalDays
      * @return List<Tick>
      */
-    List<Tick> findTicksBySecurityAndMaxDate(int limit, int securityId, Date maxDate, int intervalDays);
+    List<Tick> findTicksBySecurityAndMaxDate(int limit, long securityId, Date maxDate, int intervalDays);
 
     /**
      * Finds one Tick-Id per day of the defined Security that is just before the specified {@code
      * time}.
      * @param securityId
      * @param time
-     * @return List<Integer>
+     * @return List<Long>
      */
-    List<Integer> findDailyTickIdsBeforeTime(int securityId, Date time);
+    List<Long> findDailyTickIdsBeforeTime(long securityId, Date time);
 
     /**
      * Finds one Tick-Id per day of the defined Security that is just after the specified {@code
      * time}.
      * @param securityId
      * @param time
-     * @return List<Integer>
+     * @return List<Long>
      */
-    List<Integer> findDailyTickIdsAfterTime(int securityId, Date time);
+    List<Long> findDailyTickIdsAfterTime(long securityId, Date time);
 
     /**
      * Finds one Tick-Id per hour of the defined Security that is just before the specified number
@@ -119,9 +119,9 @@ public interface TickDao extends ReadWriteDao<Tick> {
      * @param securityId
      * @param minutes
      * @param minDate
-     * @return List<Integer>
+     * @return List<Long>
      */
-    List<Integer> findHourlyTickIdsBeforeMinutesByMinDate(int securityId, int minutes, Date minDate);
+    List<Long> findHourlyTickIdsBeforeMinutesByMinDate(long securityId, int minutes, Date minDate);
 
     /**
      * Finds one Tick-Id per hour of the defined Security that is just after the specified number of
@@ -129,16 +129,16 @@ public interface TickDao extends ReadWriteDao<Tick> {
      * @param securityId
      * @param minutes
      * @param minDate
-     * @return List<Integer>
+     * @return List<Long>
      */
-    List<Integer> findHourlyTickIdsAfterMinutesByMinDate(int securityId, int minutes, Date minDate);
+    List<Long> findHourlyTickIdsAfterMinutesByMinDate(long securityId, int minutes, Date minDate);
 
     /**
      * Returns all Ticks of the specified Ids.
      * @param ids
      * @return List<Tick>
      */
-    List<Tick> findByIdsInclSecurityAndUnderlying(List<Integer> ids);
+    List<Tick> findByIdsInclSecurityAndUnderlying(List<Long> ids);
 
     /**
      * Finds all Ticks for Securities that are subscribed by any Strategy between {@code minDate}
@@ -172,7 +172,7 @@ public interface TickDao extends ReadWriteDao<Tick> {
      * @param expiration
      * @return List<Tick>
      */
-    List<Tick> findOptionTicksBySecurityDateTypeAndExpirationInclSecurity(int underlyingId, Date date, OptionType type, Date expiration);
+    List<Tick> findOptionTicksBySecurityDateTypeAndExpirationInclSecurity(long underlyingId, Date date, OptionType type, Date expiration);
 
     /**
      * Finds all Ticks of the specified {@code date} that belong to {@link
@@ -182,7 +182,7 @@ public interface TickDao extends ReadWriteDao<Tick> {
      * @param date
      * @return List<Tick>
      */
-    List<Tick> findImpliedVolatilityTicksBySecurityAndDate(int underlyingId, Date date);
+    List<Tick> findImpliedVolatilityTicksBySecurityAndDate(long underlyingId, Date date);
 
     /**
      * Finds all Ticks of the specified {@code date} that belong to {@link
@@ -193,7 +193,7 @@ public interface TickDao extends ReadWriteDao<Tick> {
      * @param duration
      * @return List<Tick>
      */
-    List<Tick> findImpliedVolatilityTicksBySecurityDateAndDuration(int underlyingId, Date date, Duration duration);
+    List<Tick> findImpliedVolatilityTicksBySecurityDateAndDuration(long underlyingId, Date date, Duration duration);
 
     /**
      * Returns the {@code tickerId} from the TickWindow, that belongs to the defined Security. The
@@ -202,7 +202,7 @@ public interface TickDao extends ReadWriteDao<Tick> {
      * @param securityId
      * @return String
      */
-    String findTickerIdBySecurity(int securityId);
+    String findTickerIdBySecurity(long securityId);
 
     /**
      * Returns the latest Ticks from the TickWindow of all securities that are subscribed by the

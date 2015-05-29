@@ -17,6 +17,9 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.ib;
 
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+
 /**
  * IB Request and Order Id Generator.
  *
@@ -26,24 +29,25 @@ package ch.algotrader.adapter.ib;
  */
 public final class DefaultIBIdGenerator implements IBIdGenerator {
 
-    private int requestId = 1;
-    private int orderId = -1;
+    private final AtomicInteger requestId = new AtomicInteger(-1);
+    private final AtomicLong orderId =  new AtomicLong(-1);
 
     @Override
-    public synchronized String getNextOrderId() {
-        return String.valueOf(this.orderId++);
+    public String getNextOrderId() {
+        return Long.toString(this.orderId.incrementAndGet());
     }
 
     @Override
-    public synchronized int getNextRequestId() {
-        return this.requestId++;
+    public int getNextRequestId() {
+        return this.requestId.incrementAndGet();
     }
 
-    public void initializeOrderId(int orderId) {
-        this.orderId = orderId;
+    @Override
+    public void initializeOrderId(long orderId) {
+        this.orderId.set(orderId);
     }
 
     public boolean isOrderIdInitialized() {
-        return this.orderId != -1;
+        return this.orderId.get() != -1;
     }
 }

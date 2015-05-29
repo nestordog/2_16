@@ -111,7 +111,7 @@ public class EventDispatcherImpl implements EventDispatcher, MessageListener {
             this.marketDataTemplate.convertAndSend(marketDataEvent, message -> {
 
                 // add securityId Property
-                message.setIntProperty("securityId", marketDataEvent.getSecurity().getId());
+                message.setLongProperty("securityId", marketDataEvent.getSecurity().getId());
                 return message;
             });
             this.localEventBroadcaster.broadcast(marketDataEvent);

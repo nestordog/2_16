@@ -18,7 +18,6 @@
 package ch.algotrader.starter;
 
 import java.lang.reflect.Method;
-import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Date;
 import java.util.StringTokenizer;
@@ -38,9 +37,6 @@ import ch.algotrader.util.DateTimeLegacy;
  * @version $Revision$ $Date$
  */
 public class GenericStarter {
-
-    private static final DateTimeFormatter dayFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    private static final DateTimeFormatter hourFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public static void main(String[] args) throws Exception {
 
