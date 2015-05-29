@@ -42,19 +42,9 @@ public class BoxAnnotationVO extends AnnotationVO {
     private double startValue;
 
     /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setStartValue = false;
-
-    /**
      * The upper value of this Box Annotation
      */
     private double endValue;
-
-    /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setEndValue = false;
 
     /**
      * Default Constructor
@@ -78,9 +68,7 @@ public class BoxAnnotationVO extends AnnotationVO {
         this.startDateTime = startDateTimeIn;
         this.endDateTime = endDateTimeIn;
         this.startValue = startValueIn;
-        this.setStartValue = true;
         this.endValue = endValueIn;
-        this.setEndValue = true;
     }
 
     /**
@@ -96,9 +84,7 @@ public class BoxAnnotationVO extends AnnotationVO {
         this.startDateTime = otherBean.getStartDateTime();
         this.endDateTime = otherBean.getEndDateTime();
         this.startValue = otherBean.getStartValue();
-        this.setStartValue = true;
         this.endValue = otherBean.getEndValue();
-        this.setEndValue = true;
     }
 
     /**
@@ -153,16 +139,6 @@ public class BoxAnnotationVO extends AnnotationVO {
     public void setStartValue(final double value) {
 
         this.startValue = value;
-        this.setStartValue = true;
-    }
-
-    /**
-     * Return true if the primitive attribute startValue is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetStartValue() {
-
-        return this.setStartValue;
     }
 
     /**
@@ -181,16 +157,6 @@ public class BoxAnnotationVO extends AnnotationVO {
     public void setEndValue(final double value) {
 
         this.endValue = value;
-        this.setEndValue = true;
-    }
-
-    /**
-     * Return true if the primitive attribute endValue is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetEndValue() {
-
-        return this.setEndValue;
     }
 
     @Override
@@ -203,12 +169,8 @@ public class BoxAnnotationVO extends AnnotationVO {
         builder.append(this.endDateTime);
         builder.append(", startValue=");
         builder.append(this.startValue);
-        builder.append(", setStartValue=");
-        builder.append(this.setStartValue);
         builder.append(", endValue=");
         builder.append(this.endValue);
-        builder.append(", setEndValue=");
-        builder.append(this.setEndValue);
         builder.append(", ");
         builder.append(super.toString());
         builder.append("]");

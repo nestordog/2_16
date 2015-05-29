@@ -41,11 +41,6 @@ public class OrderStatusVO implements Serializable {
     private long quantity;
 
     /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setQuantity = false;
-
-    /**
      * The Order Type (e.g. Market, Limit, etc.)
      */
     private String type;
@@ -91,19 +86,9 @@ public class OrderStatusVO implements Serializable {
     private long filledQuantity;
 
     /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setFilledQuantity = false;
-
-    /**
      * The remaining quantity of the Order that has not been filled yet.
      */
     private long remainingQuantity;
-
-    /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setRemainingQuantity = false;
 
     /**
      * The extended description of the Order comprised of Order Type specific properties (i.e.
@@ -140,7 +125,6 @@ public class OrderStatusVO implements Serializable {
 
         this.side = sideIn;
         this.quantity = quantityIn;
-        this.setQuantity = true;
         this.type = typeIn;
         this.name = nameIn;
         this.strategy = strategyIn;
@@ -150,9 +134,7 @@ public class OrderStatusVO implements Serializable {
         this.extId = extIdIn;
         this.status = statusIn;
         this.filledQuantity = filledQuantityIn;
-        this.setFilledQuantity = true;
         this.remainingQuantity = remainingQuantityIn;
-        this.setRemainingQuantity = true;
         this.description = descriptionIn;
     }
 
@@ -166,7 +148,6 @@ public class OrderStatusVO implements Serializable {
 
         this.side = otherBean.getSide();
         this.quantity = otherBean.getQuantity();
-        this.setQuantity = true;
         this.type = otherBean.getType();
         this.name = otherBean.getName();
         this.strategy = otherBean.getStrategy();
@@ -176,9 +157,7 @@ public class OrderStatusVO implements Serializable {
         this.extId = otherBean.getExtId();
         this.status = otherBean.getStatus();
         this.filledQuantity = otherBean.getFilledQuantity();
-        this.setFilledQuantity = true;
         this.remainingQuantity = otherBean.getRemainingQuantity();
-        this.setRemainingQuantity = true;
         this.description = otherBean.getDescription();
     }
 
@@ -216,16 +195,6 @@ public class OrderStatusVO implements Serializable {
     public void setQuantity(final long value) {
 
         this.quantity = value;
-        this.setQuantity = true;
-    }
-
-    /**
-     * Return true if the primitive attribute quantity is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetQuantity() {
-
-        return this.setQuantity;
     }
 
     /**
@@ -388,16 +357,6 @@ public class OrderStatusVO implements Serializable {
     public void setFilledQuantity(final long value) {
 
         this.filledQuantity = value;
-        this.setFilledQuantity = true;
-    }
-
-    /**
-     * Return true if the primitive attribute filledQuantity is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetFilledQuantity() {
-
-        return this.setFilledQuantity;
     }
 
     /**
@@ -416,16 +375,6 @@ public class OrderStatusVO implements Serializable {
     public void setRemainingQuantity(final long value) {
 
         this.remainingQuantity = value;
-        this.setRemainingQuantity = true;
-    }
-
-    /**
-     * Return true if the primitive attribute remainingQuantity is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetRemainingQuantity() {
-
-        return this.setRemainingQuantity;
     }
 
     /**
@@ -456,8 +405,6 @@ public class OrderStatusVO implements Serializable {
         builder.append(this.side);
         builder.append(", quantity=");
         builder.append(this.quantity);
-        builder.append(", setQuantity=");
-        builder.append(this.setQuantity);
         builder.append(", type=");
         builder.append(this.type);
         builder.append(", name=");
@@ -476,12 +423,8 @@ public class OrderStatusVO implements Serializable {
         builder.append(this.status);
         builder.append(", filledQuantity=");
         builder.append(this.filledQuantity);
-        builder.append(", setFilledQuantity=");
-        builder.append(this.setFilledQuantity);
         builder.append(", remainingQuantity=");
         builder.append(this.remainingQuantity);
-        builder.append(", setRemainingQuantity=");
-        builder.append(this.setRemainingQuantity);
         builder.append(", description=");
         builder.append(this.description);
         builder.append("]");

@@ -36,29 +36,14 @@ public class PositionVO implements Serializable {
     private long id;
 
     /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setId = false;
-
-    /**
      * The Id of the Security.
      */
     private long securityId;
 
     /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setSecurityId = false;
-
-    /**
      * The current quantity of this Position.
      */
     private long quantity;
-
-    /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setQuantity = false;
 
     /**
      * The Symbol of the associated Security
@@ -159,11 +144,8 @@ public class PositionVO implements Serializable {
             final BigDecimal maxLossIn, final BigDecimal marginIn, final Map propertiesIn) {
 
         this.id = idIn;
-        this.setId = true;
         this.securityId = securityIdIn;
-        this.setSecurityId = true;
         this.quantity = quantityIn;
-        this.setQuantity = true;
         this.name = nameIn;
         this.strategy = strategyIn;
         this.currency = currencyIn;
@@ -188,11 +170,8 @@ public class PositionVO implements Serializable {
     public PositionVO(final PositionVO otherBean) {
 
         this.id = otherBean.getId();
-        this.setId = true;
         this.securityId = otherBean.getSecurityId();
-        this.setSecurityId = true;
         this.quantity = otherBean.getQuantity();
-        this.setQuantity = true;
         this.name = otherBean.getName();
         this.strategy = otherBean.getStrategy();
         this.currency = otherBean.getCurrency();
@@ -224,16 +203,6 @@ public class PositionVO implements Serializable {
     public void setId(final long value) {
 
         this.id = value;
-        this.setId = true;
-    }
-
-    /**
-     * Return true if the primitive attribute id is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetId() {
-
-        return this.setId;
     }
 
     /**
@@ -252,16 +221,6 @@ public class PositionVO implements Serializable {
     public void setSecurityId(final long value) {
 
         this.securityId = value;
-        this.setSecurityId = true;
-    }
-
-    /**
-     * Return true if the primitive attribute securityId is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetSecurityId() {
-
-        return this.setSecurityId;
     }
 
     /**
@@ -280,16 +239,6 @@ public class PositionVO implements Serializable {
     public void setQuantity(final long value) {
 
         this.quantity = value;
-        this.setQuantity = true;
-    }
-
-    /**
-     * Return true if the primitive attribute quantity is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetQuantity() {
-
-        return this.setQuantity;
     }
 
     /**
@@ -534,16 +483,10 @@ public class PositionVO implements Serializable {
         StringBuilder builder = new StringBuilder();
         builder.append("PositionVO [id=");
         builder.append(this.id);
-        builder.append(", setId=");
-        builder.append(this.setId);
         builder.append(", securityId=");
         builder.append(this.securityId);
-        builder.append(", setSecurityId=");
-        builder.append(this.setSecurityId);
         builder.append(", quantity=");
         builder.append(this.quantity);
-        builder.append(", setQuantity=");
-        builder.append(this.setQuantity);
         builder.append(", name=");
         builder.append(this.name);
         builder.append(", strategy=");

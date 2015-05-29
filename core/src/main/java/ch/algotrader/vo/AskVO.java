@@ -41,17 +41,7 @@ public class AskVO implements Serializable {
 
     private double ask;
 
-    /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setAsk = false;
-
     private int volAsk;
-
-    /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setVolAsk = false;
 
     /**
      * Default Constructor
@@ -75,9 +65,7 @@ public class AskVO implements Serializable {
         this.feedType = feedTypeIn;
         this.dateTime = dateTimeIn;
         this.ask = askIn;
-        this.setAsk = true;
         this.volAsk = volAskIn;
-        this.setVolAsk = true;
     }
 
     /**
@@ -92,9 +80,7 @@ public class AskVO implements Serializable {
         this.feedType = otherBean.getFeedType();
         this.dateTime = otherBean.getDateTime();
         this.ask = otherBean.getAsk();
-        this.setAsk = true;
         this.volAsk = otherBean.getVolAsk();
-        this.setVolAsk = true;
     }
 
     /**
@@ -144,16 +130,6 @@ public class AskVO implements Serializable {
     public void setAsk(final double value) {
 
         this.ask = value;
-        this.setAsk = true;
-    }
-
-    /**
-     * Return true if the primitive attribute ask is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetAsk() {
-
-        return this.setAsk;
     }
 
     public int getVolAsk() {
@@ -164,16 +140,6 @@ public class AskVO implements Serializable {
     public void setVolAsk(final int value) {
 
         this.volAsk = value;
-        this.setVolAsk = true;
-    }
-
-    /**
-     * Return true if the primitive attribute volAsk is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetVolAsk() {
-
-        return this.setVolAsk;
     }
 
     @Override
@@ -189,12 +155,8 @@ public class AskVO implements Serializable {
         builder.append(dateTime);
         builder.append(", ask=");
         builder.append(ask);
-        builder.append(", setAsk=");
-        builder.append(setAsk);
         builder.append(", volAsk=");
         builder.append(volAsk);
-        builder.append(", setVolAsk=");
-        builder.append(setVolAsk);
         builder.append("]");
 
         return builder.toString();

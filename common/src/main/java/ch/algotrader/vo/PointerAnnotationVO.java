@@ -37,11 +37,6 @@ public class PointerAnnotationVO extends AnnotationVO {
     private double value;
 
     /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setValue = false;
-
-    /**
      * The text to display.
      */
     private String text;
@@ -66,7 +61,6 @@ public class PointerAnnotationVO extends AnnotationVO {
 
         this.dateTime = dateTimeIn;
         this.value = valueIn;
-        this.setValue = true;
         this.text = textIn;
     }
 
@@ -82,7 +76,6 @@ public class PointerAnnotationVO extends AnnotationVO {
 
         this.dateTime = otherBean.getDateTime();
         this.value = otherBean.getValue();
-        this.setValue = true;
         this.text = otherBean.getText();
     }
 
@@ -120,16 +113,6 @@ public class PointerAnnotationVO extends AnnotationVO {
     public void setValue(final double value) {
 
         this.value = value;
-        this.setValue = true;
-    }
-
-    /**
-     * Return true if the primitive attribute value is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetValue() {
-
-        return this.setValue;
     }
 
     /**
@@ -158,8 +141,6 @@ public class PointerAnnotationVO extends AnnotationVO {
         builder.append(this.dateTime);
         builder.append(", value=");
         builder.append(this.value);
-        builder.append(", setValue=");
-        builder.append(this.setValue);
         builder.append(", text=");
         builder.append(this.text);
         builder.append(", ");

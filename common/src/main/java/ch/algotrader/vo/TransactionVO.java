@@ -38,11 +38,6 @@ public class TransactionVO implements Serializable {
     private long id;
 
     /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setId = false;
-
-    /**
      * The dateTime of the Transaction
      */
     private Date dateTime;
@@ -51,11 +46,6 @@ public class TransactionVO implements Serializable {
      * The quantity of the Transaction.
      */
     private long quantity;
-
-    /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setQuantity = false;
 
     /**
      * The {@link TransactionType} of the Transaction
@@ -120,10 +110,8 @@ public class TransactionVO implements Serializable {
             final BigDecimal priceIn) {
 
         this.id = idIn;
-        this.setId = true;
         this.dateTime = dateTimeIn;
         this.quantity = quantityIn;
-        this.setQuantity = true;
         this.type = typeIn;
         this.strategy = strategyIn;
         this.account = accountIn;
@@ -149,10 +137,8 @@ public class TransactionVO implements Serializable {
             final Currency currencyIn, final BigDecimal priceIn, final BigDecimal totalChargesIn, final BigDecimal valueIn) {
 
         this.id = idIn;
-        this.setId = true;
         this.dateTime = dateTimeIn;
         this.quantity = quantityIn;
-        this.setQuantity = true;
         this.type = typeIn;
         this.name = nameIn;
         this.strategy = strategyIn;
@@ -172,10 +158,8 @@ public class TransactionVO implements Serializable {
     public TransactionVO(final TransactionVO otherBean) {
 
         this.id = otherBean.getId();
-        this.setId = true;
         this.dateTime = otherBean.getDateTime();
         this.quantity = otherBean.getQuantity();
-        this.setQuantity = true;
         this.type = otherBean.getType();
         this.name = otherBean.getName();
         this.strategy = otherBean.getStrategy();
@@ -202,16 +186,6 @@ public class TransactionVO implements Serializable {
     public void setId(final long value) {
 
         this.id = value;
-        this.setId = true;
-    }
-
-    /**
-     * Return true if the primitive attribute id is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetId() {
-
-        return this.setId;
     }
 
     /**
@@ -248,16 +222,6 @@ public class TransactionVO implements Serializable {
     public void setQuantity(final long value) {
 
         this.quantity = value;
-        this.setQuantity = true;
-    }
-
-    /**
-     * Return true if the primitive attribute quantity is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetQuantity() {
-
-        return this.setQuantity;
     }
 
     /**
@@ -410,14 +374,10 @@ public class TransactionVO implements Serializable {
         StringBuilder builder = new StringBuilder();
         builder.append("TransactionVO [id=");
         builder.append(this.id);
-        builder.append(", setId=");
-        builder.append(this.setId);
         builder.append(", dateTime=");
         builder.append(this.dateTime);
         builder.append(", quantity=");
         builder.append(this.quantity);
-        builder.append(", setQuantity=");
-        builder.append(this.setQuantity);
         builder.append(", type=");
         builder.append(this.type);
         builder.append(", name=");

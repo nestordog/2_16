@@ -35,11 +35,6 @@ public class SimulationResultVO implements Serializable {
     private double mins;
 
     /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setMins = false;
-
-    /**
      * The {@code dataSet} used for this Simulation Run.
      */
     private String dataSet;
@@ -48,11 +43,6 @@ public class SimulationResultVO implements Serializable {
      * The Net-Liq-Value of the Portfolio at the end of the Simulation Run.
      */
     private double netLiqValue;
-
-    /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setNetLiqValue = false;
 
     /**
      * The Strategy specific Simulation Results returned as a Map.
@@ -124,10 +114,8 @@ public class SimulationResultVO implements Serializable {
             final MaxDrawDownVO maxDrawDownIn, final TradesVO allTradesIn, final TradesVO winningTradesIn, final TradesVO loosingTradesIn) {
 
         this.mins = minsIn;
-        this.setMins = true;
         this.dataSet = dataSetIn;
         this.netLiqValue = netLiqValueIn;
-        this.setNetLiqValue = true;
         this.strategyResults = strategyResultsIn;
         this.performanceKeys = performanceKeysIn;
         this.maxDrawDown = maxDrawDownIn;
@@ -155,10 +143,8 @@ public class SimulationResultVO implements Serializable {
             final TradesVO winningTradesIn, final TradesVO loosingTradesIn) {
 
         this.mins = minsIn;
-        this.setMins = true;
         this.dataSet = dataSetIn;
         this.netLiqValue = netLiqValueIn;
-        this.setNetLiqValue = true;
         this.strategyResults = strategyResultsIn;
         this.monthlyPerformances = monthlyPerformancesIn;
         this.yearlyPerformances = yearlyPerformancesIn;
@@ -178,10 +164,8 @@ public class SimulationResultVO implements Serializable {
     public SimulationResultVO(final SimulationResultVO otherBean) {
 
         this.mins = otherBean.getMins();
-        this.setMins = true;
         this.dataSet = otherBean.getDataSet();
         this.netLiqValue = otherBean.getNetLiqValue();
-        this.setNetLiqValue = true;
         this.strategyResults = otherBean.getStrategyResults();
         this.monthlyPerformances = otherBean.getMonthlyPerformances();
         this.yearlyPerformances = otherBean.getYearlyPerformances();
@@ -208,16 +192,6 @@ public class SimulationResultVO implements Serializable {
     public void setMins(final double value) {
 
         this.mins = value;
-        this.setMins = true;
-    }
-
-    /**
-     * Return true if the primitive attribute mins is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetMins() {
-
-        return this.setMins;
     }
 
     /**
@@ -254,16 +228,6 @@ public class SimulationResultVO implements Serializable {
     public void setNetLiqValue(final double value) {
 
         this.netLiqValue = value;
-        this.setNetLiqValue = true;
-    }
-
-    /**
-     * Return true if the primitive attribute netLiqValue is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetNetLiqValue() {
-
-        return this.setNetLiqValue;
     }
 
     /**
@@ -436,14 +400,10 @@ public class SimulationResultVO implements Serializable {
         StringBuilder builder = new StringBuilder();
         builder.append("SimulationResultVO [mins=");
         builder.append(mins);
-        builder.append(", setMins=");
-        builder.append(setMins);
         builder.append(", dataSet=");
         builder.append(dataSet);
         builder.append(", netLiqValue=");
         builder.append(netLiqValue);
-        builder.append(", setNetLiqValue=");
-        builder.append(setNetLiqValue);
         builder.append(", strategyResults=");
         builder.append(strategyResults);
         builder.append(", monthlyPerformances=");

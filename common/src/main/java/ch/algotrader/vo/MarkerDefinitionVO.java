@@ -37,11 +37,6 @@ public class MarkerDefinitionVO extends SeriesDefinitionVO {
     private boolean interval = false;
 
     /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setInterval = false;
-
-    /**
      * Default Constructor
      */
     public MarkerDefinitionVO() {
@@ -64,7 +59,6 @@ public class MarkerDefinitionVO extends SeriesDefinitionVO {
 
         this.name = nameIn;
         this.interval = intervalIn;
-        this.setInterval = true;
     }
 
     /**
@@ -79,7 +73,6 @@ public class MarkerDefinitionVO extends SeriesDefinitionVO {
 
         this.name = otherBean.getName();
         this.interval = otherBean.isInterval();
-        this.setInterval = true;
     }
 
     /**
@@ -127,16 +120,6 @@ public class MarkerDefinitionVO extends SeriesDefinitionVO {
     public void setInterval(final boolean value) {
 
         this.interval = value;
-        this.setInterval = true;
-    }
-
-    /**
-     * Return true if the primitive attribute interval is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetInterval() {
-
-        return this.setInterval;
     }
 
     @Override
@@ -147,8 +130,6 @@ public class MarkerDefinitionVO extends SeriesDefinitionVO {
         builder.append(name);
         builder.append(", interval=");
         builder.append(interval);
-        builder.append(", setInterval=");
-        builder.append(setInterval);
         builder.append(", ");
         builder.append(super.toString());
         builder.append("]");

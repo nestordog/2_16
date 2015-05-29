@@ -32,11 +32,6 @@ public class BarDefinitionVO extends SeriesDefinitionVO {
     private long securityId;
 
     /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setSecurityId = false;
-
-    /**
      * Default Constructor
      */
     public BarDefinitionVO() {
@@ -57,7 +52,6 @@ public class BarDefinitionVO extends SeriesDefinitionVO {
         super(labelIn, selectedIn, colorIn, dashedIn);
 
         this.securityId = securityIdIn;
-        this.setSecurityId = true;
     }
 
     /**
@@ -71,7 +65,6 @@ public class BarDefinitionVO extends SeriesDefinitionVO {
         super(otherBean);
 
         this.securityId = otherBean.getSecurityId();
-        this.setSecurityId = true;
     }
 
     /**
@@ -90,16 +83,6 @@ public class BarDefinitionVO extends SeriesDefinitionVO {
     public void setSecurityId(final int value) {
 
         this.securityId = value;
-        this.setSecurityId = true;
-    }
-
-    /**
-     * Return true if the primitive attribute securityId is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetSecurityId() {
-
-        return this.setSecurityId;
     }
 
     @Override
@@ -108,8 +91,6 @@ public class BarDefinitionVO extends SeriesDefinitionVO {
         StringBuilder builder = new StringBuilder();
         builder.append("BarDefinitionVO [securityId=");
         builder.append(this.securityId);
-        builder.append(", setSecurityId=");
-        builder.append(this.setSecurityId);
         builder.append(", ");
         builder.append(super.toString());
         builder.append("]");

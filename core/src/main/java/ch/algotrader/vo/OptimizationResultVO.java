@@ -38,29 +38,14 @@ public class OptimizationResultVO implements Serializable {
     private double result;
 
     /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setResult = false;
-
-    /**
      * the function value at which the maximum value occured.
      */
     private double functionValue;
 
     /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setFunctionValue = false;
-
-    /**
      * the number of iterations it toke to reach the result.
      */
     private int iterations;
-
-    /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setIterations = false;
 
     /**
      * Default Constructor
@@ -81,11 +66,8 @@ public class OptimizationResultVO implements Serializable {
 
         this.parameter = parameterIn;
         this.result = resultIn;
-        this.setResult = true;
         this.functionValue = functionValueIn;
-        this.setFunctionValue = true;
         this.iterations = iterationsIn;
-        this.setIterations = true;
     }
 
     /**
@@ -98,11 +80,8 @@ public class OptimizationResultVO implements Serializable {
 
         this.parameter = otherBean.getParameter();
         this.result = otherBean.getResult();
-        this.setResult = true;
         this.functionValue = otherBean.getFunctionValue();
-        this.setFunctionValue = true;
         this.iterations = otherBean.getIterations();
-        this.setIterations = true;
     }
 
     public String getParameter() {
@@ -122,16 +101,6 @@ public class OptimizationResultVO implements Serializable {
     public void setResult(final double value) {
 
         this.result = value;
-        this.setResult = true;
-    }
-
-    /**
-     * Return true if the primitive attribute result is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetResult() {
-
-        return this.setResult;
     }
 
     public double getFunctionValue() {
@@ -142,16 +111,6 @@ public class OptimizationResultVO implements Serializable {
     public void setFunctionValue(final double value) {
 
         this.functionValue = value;
-        this.setFunctionValue = true;
-    }
-
-    /**
-     * Return true if the primitive attribute functionValue is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetFunctionValue() {
-
-        return this.setFunctionValue;
     }
 
     /**
@@ -170,16 +129,6 @@ public class OptimizationResultVO implements Serializable {
     public void setIterations(final int value) {
 
         this.iterations = value;
-        this.setIterations = true;
-    }
-
-    /**
-     * Return true if the primitive attribute iterations is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetIterations() {
-
-        return this.setIterations;
     }
 
     @Override
@@ -190,16 +139,10 @@ public class OptimizationResultVO implements Serializable {
         builder.append(this.parameter);
         builder.append(", result=");
         builder.append(this.result);
-        builder.append(", setResult=");
-        builder.append(this.setResult);
         builder.append(", functionValue=");
         builder.append(this.functionValue);
-        builder.append(", setFunctionValue=");
-        builder.append(this.setFunctionValue);
         builder.append(", iterations=");
         builder.append(this.iterations);
-        builder.append(", setIterations=");
-        builder.append(this.setIterations);
         builder.append("]");
 
         return builder.toString();

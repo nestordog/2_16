@@ -39,11 +39,6 @@ public abstract class SeriesDefinitionVO implements Serializable {
     private boolean selected;
 
     /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setSelected = false;
-
-    /**
      * The Color of this Series.
      */
     private Color color;
@@ -52,11 +47,6 @@ public abstract class SeriesDefinitionVO implements Serializable {
      * Should this Series Line be dashed? Only valid for Indicator Series.
      */
     private boolean dashed;
-
-    /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setDashed = false;
 
     /**
      * Default Constructor
@@ -77,10 +67,8 @@ public abstract class SeriesDefinitionVO implements Serializable {
 
         this.label = labelIn;
         this.selected = selectedIn;
-        this.setSelected = true;
         this.color = colorIn;
         this.dashed = dashedIn;
-        this.setDashed = true;
     }
 
     /**
@@ -93,10 +81,8 @@ public abstract class SeriesDefinitionVO implements Serializable {
 
         this.label = otherBean.getLabel();
         this.selected = otherBean.isSelected();
-        this.setSelected = true;
         this.color = otherBean.getColor();
         this.dashed = otherBean.isDashed();
-        this.setDashed = true;
     }
 
     /**
@@ -144,16 +130,6 @@ public abstract class SeriesDefinitionVO implements Serializable {
     public void setSelected(final boolean value) {
 
         this.selected = value;
-        this.setSelected = true;
-    }
-
-    /**
-     * Return true if the primitive attribute selected is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetSelected() {
-
-        return this.setSelected;
     }
 
     /**
@@ -201,16 +177,6 @@ public abstract class SeriesDefinitionVO implements Serializable {
     public void setDashed(final boolean value) {
 
         this.dashed = value;
-        this.setDashed = true;
-    }
-
-    /**
-     * Return true if the primitive attribute dashed is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetDashed() {
-
-        return this.setDashed;
     }
 
     @Override
@@ -221,14 +187,10 @@ public abstract class SeriesDefinitionVO implements Serializable {
         builder.append(this.label);
         builder.append(", selected=");
         builder.append(this.selected);
-        builder.append(", setSelected=");
-        builder.append(this.setSelected);
         builder.append(", color=");
         builder.append(this.color);
         builder.append(", dashed=");
         builder.append(this.dashed);
-        builder.append(", setDashed=");
-        builder.append(this.setDashed);
         builder.append("]");
 
         return builder.toString();

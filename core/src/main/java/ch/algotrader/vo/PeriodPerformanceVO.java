@@ -38,11 +38,6 @@ public class PeriodPerformanceVO implements Serializable {
     private double value;
 
     /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setValue = false;
-
-    /**
      * Default Constructor
      */
     public PeriodPerformanceVO() {
@@ -59,7 +54,6 @@ public class PeriodPerformanceVO implements Serializable {
 
         this.date = dateIn;
         this.value = valueIn;
-        this.setValue = true;
     }
 
     /**
@@ -72,7 +66,6 @@ public class PeriodPerformanceVO implements Serializable {
 
         this.date = otherBean.getDate();
         this.value = otherBean.getValue();
-        this.setValue = true;
     }
 
     /**
@@ -111,16 +104,6 @@ public class PeriodPerformanceVO implements Serializable {
     public void setValue(final double value) {
 
         this.value = value;
-        this.setValue = true;
-    }
-
-    /**
-     * Return true if the primitive attribute value is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetValue() {
-
-        return this.setValue;
     }
 
     @Override
@@ -131,8 +114,6 @@ public class PeriodPerformanceVO implements Serializable {
         builder.append(this.date);
         builder.append(", value=");
         builder.append(this.value);
-        builder.append(", setValue=");
-        builder.append(this.setValue);
         builder.append("]");
 
         return builder.toString();

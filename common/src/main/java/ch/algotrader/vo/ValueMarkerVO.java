@@ -31,11 +31,6 @@ public class ValueMarkerVO extends MarkerVO {
     private double value;
 
     /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setValue = false;
-
-    /**
      * Default Constructor
      */
     public ValueMarkerVO() {
@@ -52,7 +47,6 @@ public class ValueMarkerVO extends MarkerVO {
 
         super(nameIn);
         this.value = valueIn;
-        this.setValue = true;
     }
 
     /**
@@ -65,7 +59,6 @@ public class ValueMarkerVO extends MarkerVO {
 
         super(otherBean);
         this.value = otherBean.getValue();
-        this.setValue = true;
     }
 
     /**
@@ -84,16 +77,6 @@ public class ValueMarkerVO extends MarkerVO {
     public void setValue(final double value) {
 
         this.value = value;
-        this.setValue = true;
-    }
-
-    /**
-     * Return true if the primitive attribute value is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetValue() {
-
-        return this.setValue;
     }
 
     @Override
@@ -102,8 +85,6 @@ public class ValueMarkerVO extends MarkerVO {
         StringBuilder builder = new StringBuilder();
         builder.append("ValueMarkerVO [value=");
         builder.append(this.value);
-        builder.append(", setValue=");
-        builder.append(this.setValue);
         builder.append(", ");
         builder.append(super.toString());
         builder.append("]");

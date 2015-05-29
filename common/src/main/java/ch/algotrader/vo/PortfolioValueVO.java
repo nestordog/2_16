@@ -59,29 +59,14 @@ public class PortfolioValueVO implements Serializable {
     private double leverage;
 
     /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setLeverage = false;
-
-    /**
      * Allocation assigned to the AlgoTrader Server / Strategy.
      */
     private double allocation;
 
     /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setAllocation = false;
-
-    /**
      * The Performance at the specified {@code dateTime} since the beginning of the evaluation time series.
      */
     private double performance;
-
-    /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setPerformance = false;
 
     /**
      * CashFlow value occurred at the specified time.
@@ -116,11 +101,8 @@ public class PortfolioValueVO implements Serializable {
         this.cashBalance = cashBalanceIn;
         this.maintenanceMargin = maintenanceMarginIn;
         this.leverage = leverageIn;
-        this.setLeverage = true;
         this.allocation = allocationIn;
-        this.setAllocation = true;
         this.performance = performanceIn;
-        this.setPerformance = true;
     }
 
     /**
@@ -144,11 +126,8 @@ public class PortfolioValueVO implements Serializable {
         this.cashBalance = cashBalanceIn;
         this.maintenanceMargin = maintenanceMarginIn;
         this.leverage = leverageIn;
-        this.setLeverage = true;
         this.allocation = allocationIn;
-        this.setAllocation = true;
         this.performance = performanceIn;
-        this.setPerformance = true;
         this.cashFlow = cashFlowIn;
     }
 
@@ -166,11 +145,8 @@ public class PortfolioValueVO implements Serializable {
         this.cashBalance = otherBean.getCashBalance();
         this.maintenanceMargin = otherBean.getMaintenanceMargin();
         this.leverage = otherBean.getLeverage();
-        this.setLeverage = true;
         this.allocation = otherBean.getAllocation();
-        this.setAllocation = true;
         this.performance = otherBean.getPerformance();
-        this.setPerformance = true;
         this.cashFlow = otherBean.getCashFlow();
     }
 
@@ -272,16 +248,6 @@ public class PortfolioValueVO implements Serializable {
     public void setLeverage(final double value) {
 
         this.leverage = value;
-        this.setLeverage = true;
-    }
-
-    /**
-     * Return true if the primitive attribute leverage is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetLeverage() {
-
-        return this.setLeverage;
     }
 
     /**
@@ -300,16 +266,6 @@ public class PortfolioValueVO implements Serializable {
     public void setAllocation(final double value) {
 
         this.allocation = value;
-        this.setAllocation = true;
-    }
-
-    /**
-     * Return true if the primitive attribute allocation is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetAllocation() {
-
-        return this.setAllocation;
     }
 
     /**
@@ -328,16 +284,6 @@ public class PortfolioValueVO implements Serializable {
     public void setPerformance(final double value) {
 
         this.performance = value;
-        this.setPerformance = true;
-    }
-
-    /**
-     * Return true if the primitive attribute performance is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetPerformance() {
-
-        return this.setPerformance;
     }
 
     /**
@@ -374,16 +320,10 @@ public class PortfolioValueVO implements Serializable {
         builder.append(this.maintenanceMargin);
         builder.append(", leverage=");
         builder.append(this.leverage);
-        builder.append(", setLeverage=");
-        builder.append(this.setLeverage);
         builder.append(", allocation=");
         builder.append(this.allocation);
-        builder.append(", setAllocation=");
-        builder.append(this.setAllocation);
         builder.append(", performance=");
         builder.append(this.performance);
-        builder.append(", setPerformance=");
-        builder.append(this.setPerformance);
         builder.append(", cashFlow=");
         builder.append(this.cashFlow);
         builder.append("]");

@@ -49,11 +49,6 @@ public class PositionMutationVO implements Serializable {
     private long quantity;
 
     /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setQuantity = false;
-
-    /**
      * The direction of the Position
      */
     private Direction direction;
@@ -80,7 +75,6 @@ public class PositionMutationVO implements Serializable {
         this.securityId = securityIdIn;
         this.strategy = strategyIn;
         this.quantity = quantityIn;
-        this.setQuantity = true;
         this.direction = directionIn;
     }
 
@@ -96,7 +90,6 @@ public class PositionMutationVO implements Serializable {
         this.securityId = otherBean.getSecurityId();
         this.strategy = otherBean.getStrategy();
         this.quantity = otherBean.getQuantity();
-        this.setQuantity = true;
         this.direction = otherBean.getDirection();
     }
 
@@ -170,16 +163,6 @@ public class PositionMutationVO implements Serializable {
     public void setQuantity(final long value) {
 
         this.quantity = value;
-        this.setQuantity = true;
-    }
-
-    /**
-     * Return true if the primitive attribute quantity is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetQuantity() {
-
-        return this.setQuantity;
     }
 
     /**
@@ -212,8 +195,6 @@ public class PositionMutationVO implements Serializable {
         builder.append(this.strategy);
         builder.append(", quantity=");
         builder.append(this.quantity);
-        builder.append(", setQuantity=");
-        builder.append(this.setQuantity);
         builder.append(", direction=");
         builder.append(this.direction);
         builder.append("]");

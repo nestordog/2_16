@@ -33,19 +33,9 @@ public class TradesVO implements Serializable {
     private long count;
 
     /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setCount = false;
-
-    /**
      * The total monetary profit.
      */
     private double totalProfit;
-
-    /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setTotalProfit = false;
 
     /**
      * The average monetary profit per trade (round trip).
@@ -53,19 +43,9 @@ public class TradesVO implements Serializable {
     private double avgProfit;
 
     /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setAvgProfit = false;
-
-    /**
      * The average profit in percent per trade (round trip).
      */
     private double avgProfitPct;
-
-    /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setAvgProfitPct = false;
 
     /**
      * Default Constructor
@@ -85,13 +65,9 @@ public class TradesVO implements Serializable {
     public TradesVO(final long countIn, final double totalProfitIn, final double avgProfitIn, final double avgProfitPctIn) {
 
         this.count = countIn;
-        this.setCount = true;
         this.totalProfit = totalProfitIn;
-        this.setTotalProfit = true;
         this.avgProfit = avgProfitIn;
-        this.setAvgProfit = true;
         this.avgProfitPct = avgProfitPctIn;
-        this.setAvgProfitPct = true;
     }
 
     /**
@@ -103,13 +79,9 @@ public class TradesVO implements Serializable {
     public TradesVO(final TradesVO otherBean) {
 
         this.count = otherBean.getCount();
-        this.setCount = true;
         this.totalProfit = otherBean.getTotalProfit();
-        this.setTotalProfit = true;
         this.avgProfit = otherBean.getAvgProfit();
-        this.setAvgProfit = true;
         this.avgProfitPct = otherBean.getAvgProfitPct();
-        this.setAvgProfitPct = true;
     }
 
     /**
@@ -128,16 +100,6 @@ public class TradesVO implements Serializable {
     public void setCount(final long value) {
 
         this.count = value;
-        this.setCount = true;
-    }
-
-    /**
-     * Return true if the primitive attribute count is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetCount() {
-
-        return this.setCount;
     }
 
     /**
@@ -156,16 +118,6 @@ public class TradesVO implements Serializable {
     public void setTotalProfit(final double value) {
 
         this.totalProfit = value;
-        this.setTotalProfit = true;
-    }
-
-    /**
-     * Return true if the primitive attribute totalProfit is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetTotalProfit() {
-
-        return this.setTotalProfit;
     }
 
     /**
@@ -184,16 +136,6 @@ public class TradesVO implements Serializable {
     public void setAvgProfit(final double value) {
 
         this.avgProfit = value;
-        this.setAvgProfit = true;
-    }
-
-    /**
-     * Return true if the primitive attribute avgProfit is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetAvgProfit() {
-
-        return this.setAvgProfit;
     }
 
     /**
@@ -212,16 +154,6 @@ public class TradesVO implements Serializable {
     public void setAvgProfitPct(final double value) {
 
         this.avgProfitPct = value;
-        this.setAvgProfitPct = true;
-    }
-
-    /**
-     * Return true if the primitive attribute avgProfitPct is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetAvgProfitPct() {
-
-        return this.setAvgProfitPct;
     }
 
     @Override
@@ -230,20 +162,12 @@ public class TradesVO implements Serializable {
         StringBuilder builder = new StringBuilder();
         builder.append("TradesVO [count=");
         builder.append(this.count);
-        builder.append(", setCount=");
-        builder.append(this.setCount);
         builder.append(", totalProfit=");
         builder.append(this.totalProfit);
-        builder.append(", setTotalProfit=");
-        builder.append(this.setTotalProfit);
         builder.append(", avgProfit=");
         builder.append(this.avgProfit);
-        builder.append(", setAvgProfit=");
-        builder.append(this.setAvgProfit);
         builder.append(", avgProfitPct=");
         builder.append(this.avgProfitPct);
-        builder.append(", setAvgProfitPct=");
-        builder.append(this.setAvgProfitPct);
         builder.append("]");
 
         return builder.toString();

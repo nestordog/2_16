@@ -71,11 +71,6 @@ public class BalanceVO implements Serializable {
     private double exchangeRate;
 
     /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setExchangeRate = false;
-
-    /**
      * Default Constructor
      */
     public BalanceVO() {
@@ -105,7 +100,6 @@ public class BalanceVO implements Serializable {
         this.securitiesBase = securitiesBaseIn;
         this.netLiqValueBase = netLiqValueBaseIn;
         this.exchangeRate = exchangeRateIn;
-        this.setExchangeRate = true;
     }
 
     /**
@@ -124,7 +118,6 @@ public class BalanceVO implements Serializable {
         this.securitiesBase = otherBean.getSecuritiesBase();
         this.netLiqValueBase = otherBean.getNetLiqValueBase();
         this.exchangeRate = otherBean.getExchangeRate();
-        this.setExchangeRate = true;
     }
 
     /**
@@ -261,16 +254,6 @@ public class BalanceVO implements Serializable {
     public void setExchangeRate(final double value) {
 
         this.exchangeRate = value;
-        this.setExchangeRate = true;
-    }
-
-    /**
-     * Return true if the primitive attribute exchangeRate is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetExchangeRate() {
-
-        return this.setExchangeRate;
     }
 
     @Override
@@ -293,8 +276,6 @@ public class BalanceVO implements Serializable {
         builder.append(this.netLiqValueBase);
         builder.append(", exchangeRate=");
         builder.append(this.exchangeRate);
-        builder.append(", setExchangeRate=");
-        builder.append(this.setExchangeRate);
         builder.append("]");
 
         return builder.toString();

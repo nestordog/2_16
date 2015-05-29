@@ -39,19 +39,9 @@ public class AxisDefinitionVO implements Serializable {
     private boolean autoRange;
 
     /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setAutoRange = false;
-
-    /**
      * If {@code autoRange} is set to {@code true} should this Axis contain the zero value.
      */
     private boolean autoRangeIncludesZero;
-
-    /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setAutoRangeIncludesZero = false;
 
     /**
      * the upper bound, this Axis should display
@@ -59,19 +49,9 @@ public class AxisDefinitionVO implements Serializable {
     private double upperBound;
 
     /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setUpperBound = false;
-
-    /**
      * the lower bound, this Axis should display
      */
     private double lowerBound;
-
-    /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setLowerBound = false;
 
     /**
      * The {@code java.text.NumberFormat} the Axis Labels should be formated with (e.g. for the
@@ -102,13 +82,9 @@ public class AxisDefinitionVO implements Serializable {
     public AxisDefinitionVO(final boolean autoRangeIn, final boolean autoRangeIncludesZeroIn, final double upperBoundIn, final double lowerBoundIn) {
 
         this.autoRange = autoRangeIn;
-        this.setAutoRange = true;
         this.autoRangeIncludesZero = autoRangeIncludesZeroIn;
-        this.setAutoRangeIncludesZero = true;
         this.upperBound = upperBoundIn;
-        this.setUpperBound = true;
         this.lowerBound = lowerBoundIn;
-        this.setLowerBound = true;
     }
 
     /**
@@ -126,13 +102,9 @@ public class AxisDefinitionVO implements Serializable {
 
         this.label = labelIn;
         this.autoRange = autoRangeIn;
-        this.setAutoRange = true;
         this.autoRangeIncludesZero = autoRangeIncludesZeroIn;
-        this.setAutoRangeIncludesZero = true;
         this.upperBound = upperBoundIn;
-        this.setUpperBound = true;
         this.lowerBound = lowerBoundIn;
-        this.setLowerBound = true;
         this.numberFormat = numberFormatIn;
         this.datasetDefinitions = datasetDefinitionsIn;
     }
@@ -147,13 +119,9 @@ public class AxisDefinitionVO implements Serializable {
 
         this.label = otherBean.getLabel();
         this.autoRange = otherBean.isAutoRange();
-        this.setAutoRange = true;
         this.autoRangeIncludesZero = otherBean.isAutoRangeIncludesZero();
-        this.setAutoRangeIncludesZero = true;
         this.upperBound = otherBean.getUpperBound();
-        this.setUpperBound = true;
         this.lowerBound = otherBean.getLowerBound();
-        this.setLowerBound = true;
         this.numberFormat = otherBean.getNumberFormat();
         this.datasetDefinitions = otherBean.getDatasetDefinitions();
     }
@@ -203,16 +171,6 @@ public class AxisDefinitionVO implements Serializable {
     public void setAutoRange(final boolean value) {
 
         this.autoRange = value;
-        this.setAutoRange = true;
-    }
-
-    /**
-     * Return true if the primitive attribute autoRange is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetAutoRange() {
-
-        return this.setAutoRange;
     }
 
     /**
@@ -242,16 +200,6 @@ public class AxisDefinitionVO implements Serializable {
     public void setAutoRangeIncludesZero(final boolean value) {
 
         this.autoRangeIncludesZero = value;
-        this.setAutoRangeIncludesZero = true;
-    }
-
-    /**
-     * Return true if the primitive attribute autoRangeIncludesZero is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetAutoRangeIncludesZero() {
-
-        return this.setAutoRangeIncludesZero;
     }
 
     /**
@@ -270,16 +218,6 @@ public class AxisDefinitionVO implements Serializable {
     public void setUpperBound(final double value) {
 
         this.upperBound = value;
-        this.setUpperBound = true;
-    }
-
-    /**
-     * Return true if the primitive attribute upperBound is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetUpperBound() {
-
-        return this.setUpperBound;
     }
 
     /**
@@ -298,16 +236,6 @@ public class AxisDefinitionVO implements Serializable {
     public void setLowerBound(final double value) {
 
         this.lowerBound = value;
-        this.setLowerBound = true;
-    }
-
-    /**
-     * Return true if the primitive attribute lowerBound is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetLowerBound() {
-
-        return this.setLowerBound;
     }
 
     /**
@@ -362,20 +290,12 @@ public class AxisDefinitionVO implements Serializable {
         builder.append(this.label);
         builder.append(", autoRange=");
         builder.append(this.autoRange);
-        builder.append(", setAutoRange=");
-        builder.append(this.setAutoRange);
         builder.append(", autoRangeIncludesZero=");
         builder.append(this.autoRangeIncludesZero);
-        builder.append(", setAutoRangeIncludesZero=");
-        builder.append(this.setAutoRangeIncludesZero);
         builder.append(", upperBound=");
         builder.append(this.upperBound);
-        builder.append(", setUpperBound=");
-        builder.append(this.setUpperBound);
         builder.append(", lowerBound=");
         builder.append(this.lowerBound);
-        builder.append(", setLowerBound=");
-        builder.append(this.setLowerBound);
         builder.append(", numberFormat=");
         builder.append(this.numberFormat);
         builder.append(", datasetDefinitions=");

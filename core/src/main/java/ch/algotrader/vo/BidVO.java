@@ -41,17 +41,7 @@ public class BidVO implements Serializable {
 
     private double bid;
 
-    /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setBid = false;
-
     private int volBid;
-
-    /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setVolBid = false;
 
     /**
      * Default Constructor
@@ -75,9 +65,7 @@ public class BidVO implements Serializable {
         this.feedType = feedTypeIn;
         this.dateTime = dateTimeIn;
         this.bid = bidIn;
-        this.setBid = true;
         this.volBid = volBidIn;
-        this.setVolBid = true;
     }
 
     /**
@@ -92,9 +80,7 @@ public class BidVO implements Serializable {
         this.feedType = otherBean.getFeedType();
         this.dateTime = otherBean.getDateTime();
         this.bid = otherBean.getBid();
-        this.setBid = true;
         this.volBid = otherBean.getVolBid();
-        this.setVolBid = true;
     }
 
     /**
@@ -144,16 +130,6 @@ public class BidVO implements Serializable {
     public void setBid(final double value) {
 
         this.bid = value;
-        this.setBid = true;
-    }
-
-    /**
-     * Return true if the primitive attribute bid is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetBid() {
-
-        return this.setBid;
     }
 
     public int getVolBid() {
@@ -164,16 +140,6 @@ public class BidVO implements Serializable {
     public void setVolBid(final int value) {
 
         this.volBid = value;
-        this.setVolBid = true;
-    }
-
-    /**
-     * Return true if the primitive attribute volBid is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetVolBid() {
-
-        return this.setVolBid;
     }
 
     @Override
@@ -188,12 +154,8 @@ public class BidVO implements Serializable {
         builder.append(this.dateTime);
         builder.append(", bid=");
         builder.append(this.bid);
-        builder.append(", setBid=");
-        builder.append(this.setBid);
         builder.append(", volBid=");
         builder.append(this.volBid);
-        builder.append(", setVolBid=");
-        builder.append(this.setVolBid);
         builder.append("]");
 
         return builder.toString();

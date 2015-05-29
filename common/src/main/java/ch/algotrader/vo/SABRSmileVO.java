@@ -33,19 +33,9 @@ public class SABRSmileVO implements Serializable {
     private double years;
 
     /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setYears = false;
-
-    /**
      * The SABR alpha
      */
     private double alpha;
-
-    /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setAlpha = false;
 
     /**
      * The SABR rho
@@ -53,29 +43,14 @@ public class SABRSmileVO implements Serializable {
     private double rho;
 
     /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setRho = false;
-
-    /**
      * The SABR volVol
      */
     private double volVol;
 
     /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setVolVol = false;
-
-    /**
      * The at-the-money Volatility
      */
     private double atmVol;
-
-    /**
-     * boolean setter for primitive attribute, so we can tell if it's initialized
-     */
-    private boolean setAtmVol = false;
 
     /**
      * Default Constructor
@@ -96,15 +71,10 @@ public class SABRSmileVO implements Serializable {
     public SABRSmileVO(final double yearsIn, final double alphaIn, final double rhoIn, final double volVolIn, final double atmVolIn) {
 
         this.years = yearsIn;
-        this.setYears = true;
         this.alpha = alphaIn;
-        this.setAlpha = true;
         this.rho = rhoIn;
-        this.setRho = true;
         this.volVol = volVolIn;
-        this.setVolVol = true;
         this.atmVol = atmVolIn;
-        this.setAtmVol = true;
     }
 
     /**
@@ -116,15 +86,10 @@ public class SABRSmileVO implements Serializable {
     public SABRSmileVO(final SABRSmileVO otherBean) {
 
         this.years = otherBean.getYears();
-        this.setYears = true;
         this.alpha = otherBean.getAlpha();
-        this.setAlpha = true;
         this.rho = otherBean.getRho();
-        this.setRho = true;
         this.volVol = otherBean.getVolVol();
-        this.setVolVol = true;
         this.atmVol = otherBean.getAtmVol();
-        this.setAtmVol = true;
     }
 
     /**
@@ -143,16 +108,6 @@ public class SABRSmileVO implements Serializable {
     public void setYears(final double value) {
 
         this.years = value;
-        this.setYears = true;
-    }
-
-    /**
-     * Return true if the primitive attribute years is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetYears() {
-
-        return this.setYears;
     }
 
     /**
@@ -171,16 +126,6 @@ public class SABRSmileVO implements Serializable {
     public void setAlpha(final double value) {
 
         this.alpha = value;
-        this.setAlpha = true;
-    }
-
-    /**
-     * Return true if the primitive attribute alpha is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetAlpha() {
-
-        return this.setAlpha;
     }
 
     /**
@@ -199,16 +144,6 @@ public class SABRSmileVO implements Serializable {
     public void setRho(final double value) {
 
         this.rho = value;
-        this.setRho = true;
-    }
-
-    /**
-     * Return true if the primitive attribute rho is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetRho() {
-
-        return this.setRho;
     }
 
     /**
@@ -227,16 +162,6 @@ public class SABRSmileVO implements Serializable {
     public void setVolVol(final double value) {
 
         this.volVol = value;
-        this.setVolVol = true;
-    }
-
-    /**
-     * Return true if the primitive attribute volVol is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetVolVol() {
-
-        return this.setVolVol;
     }
 
     /**
@@ -255,16 +180,6 @@ public class SABRSmileVO implements Serializable {
     public void setAtmVol(final double value) {
 
         this.atmVol = value;
-        this.setAtmVol = true;
-    }
-
-    /**
-     * Return true if the primitive attribute atmVol is set, through the setter or constructor
-     * @return true if the attribute value has been set
-     */
-    public boolean isSetAtmVol() {
-
-        return this.setAtmVol;
     }
 
     @Override
@@ -273,24 +188,14 @@ public class SABRSmileVO implements Serializable {
         StringBuilder builder = new StringBuilder();
         builder.append("SABRSmileVO [years=");
         builder.append(this.years);
-        builder.append(", setYears=");
-        builder.append(this.setYears);
         builder.append(", alpha=");
         builder.append(this.alpha);
-        builder.append(", setAlpha=");
-        builder.append(this.setAlpha);
         builder.append(", rho=");
         builder.append(this.rho);
-        builder.append(", setRho=");
-        builder.append(this.setRho);
         builder.append(", volVol=");
         builder.append(this.volVol);
-        builder.append(", setVolVol=");
-        builder.append(this.setVolVol);
         builder.append(", atmVol=");
         builder.append(this.atmVol);
-        builder.append(", setAtmVol=");
-        builder.append(this.setAtmVol);
         builder.append("]");
 
         return builder.toString();
