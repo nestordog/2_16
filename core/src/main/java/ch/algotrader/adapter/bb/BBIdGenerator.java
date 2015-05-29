@@ -17,6 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.bb;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 /**
  * BB Correlation Id Generator.
  *
@@ -27,7 +29,7 @@ package ch.algotrader.adapter.bb;
 public final class BBIdGenerator {
 
     private static BBIdGenerator instance;
-    private int requestId = 1;
+    private final AtomicLong requestId = new AtomicLong(0);
 
     public static synchronized BBIdGenerator getInstance() {
 
@@ -38,6 +40,6 @@ public final class BBIdGenerator {
     }
 
     public String getNextRequestId() {
-        return Integer.toString(this.requestId++);
+        return Long.toString(this.requestId.incrementAndGet());
     }
 }

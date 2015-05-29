@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
@@ -697,7 +698,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
 
         private static AlgoIdGenerator instance;
 
-        private int orderId = 0;
+        private final AtomicLong orderId = new AtomicLong(0);
 
         public static synchronized AlgoIdGenerator getInstance() {
 
@@ -707,8 +708,8 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
             return instance;
         }
 
-        public synchronized String getNextOrderId() {
-            return "a" + String.valueOf(this.orderId++);
+        public String getNextOrderId() {
+            return "a" + Long.toString(this.orderId.incrementAndGet());
         }
     }
 }
