@@ -65,9 +65,9 @@ import com.ib.client.ContractDetails;
 public class IBNativeReferenceDataServiceImpl extends ReferenceDataServiceImpl implements IBNativeReferenceDataService {
 
     private static final Logger logger = MyLogger.getLogger(IBNativeReferenceDataServiceImpl.class.getName());
-    private static final SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+    private static final SimpleDateFormat dayFormat = new SimpleDateFormat("yyyyMMdd");
+    private static final SimpleDateFormat monthFormat = new SimpleDateFormat("yyyyMM");
     private static final DecimalFormat decimalFormat = new DecimalFormat("#.#######");
-
     private final BlockingQueue<ContractDetails> contractDetailsQueue;
 
     private final IBSession iBSession;
@@ -218,7 +218,7 @@ public class IBNativeReferenceDataServiceImpl extends ReferenceDataServiceImpl i
             Contract contract = contractDetails.m_summary;
             OptionType type = "C".equals(contract.m_right) ? OptionType.CALL : OptionType.PUT;
             BigDecimal strike = RoundUtil.getBigDecimal(contract.m_strike, securityFamily.getScale());
-            Date expiration = format.parse(contract.m_expiry);
+            Date expiration = dayFormat.parse(contract.m_expiry);
 
             final String isin = OptionSymbol.getIsin(securityFamily, expiration, type, strike);
             String symbol = OptionSymbol.getSymbol(securityFamily, expiration, type, strike, false);
@@ -258,11 +258,12 @@ public class IBNativeReferenceDataServiceImpl extends ReferenceDataServiceImpl i
             Future future = Future.Factory.newInstance();
 
             Contract contract = contractDetails.m_summary;
-            Date expiration = format.parse(contract.m_expiry);
+            Date expiration = dayFormat.parse(contract.m_expiry);
+            Date contractMonth = monthFormat.parse(contractDetails.m_contractMonth);
 
-            String symbol = FutureSymbol.getSymbol(securityFamily, expiration);
-            final String isin = FutureSymbol.getIsin(securityFamily, expiration);
-            String ric = FutureSymbol.getRic(securityFamily, expiration);
+            String symbol = FutureSymbol.getSymbol(securityFamily, contractMonth);
+            final String isin = FutureSymbol.getIsin(securityFamily, contractMonth);
+            String ric = FutureSymbol.getRic(securityFamily, contractMonth);
             String conid = String.valueOf(contract.m_conId);
 
             future.setSymbol(symbol);
