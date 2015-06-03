@@ -17,7 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.config.spring;
 
-import static ch.algotrader.config.spring.BeanDefinitionHelper.getRequiredAttribute;
 import static org.springframework.beans.factory.support.BeanDefinitionBuilder.childBeanDefinition;
 import static org.springframework.beans.factory.support.BeanDefinitionBuilder.rootBeanDefinition;
 
@@ -31,6 +30,7 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.xml.AbstractBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
+import org.springframework.util.StringUtils;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -57,6 +57,7 @@ public final class StrategyGroupBeanDefinitionParser extends AbstractBeanDefinit
     @Override
     protected AbstractBeanDefinition parseInternal(final Element element, final ParserContext parserContext) {
 
+        String id = getRequiredAttribute(element, parserContext, "id");
         // iterate strategyItem nodes
         final NodeList childNodes = element.getChildNodes();
         final Map<String, Double> nameToWeight = new LinkedHashMap<>();
@@ -105,7 +106,7 @@ public final class StrategyGroupBeanDefinitionParser extends AbstractBeanDefinit
                     + parserContext.getDelegate().getLocalName(element) + "'", element);
         }
 
-        registerBeanDefinition("strategyGroup", parserContext, rootBeanDefinition(StrategyGroup.class)
+        registerBeanDefinition(id, parserContext, rootBeanDefinition(StrategyGroup.class)
                 .addConstructorArgValue(nameToWeight));
 
         return null;
@@ -127,4 +128,14 @@ public final class StrategyGroupBeanDefinitionParser extends AbstractBeanDefinit
         final BeanDefinitionHolder holder = new BeanDefinitionHolder(beanDefinitionBuilder.getBeanDefinition(), beanName);
         registerBeanDefinition(holder, parserContext.getRegistry());
     }
+
+    private static String getRequiredAttribute(Element element, ParserContext parserContext, String attributeName) {
+        final String value = element.getAttribute(attributeName);
+        if (!StringUtils.hasText(value)) {
+            parserContext.getReaderContext().error(attributeName + " is required for element '"
+                    + parserContext.getDelegate().getLocalName(element) + "'", element);
+        }
+        return value;
+    }
+
 }
