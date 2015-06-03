@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -37,6 +38,7 @@ import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.future.FutureSymbol;
+import ch.algotrader.util.DateTimeLegacy;
 import ch.algotrader.util.DateUtil;
 import ch.algotrader.util.collection.CollectionUtil;
 
@@ -97,7 +99,8 @@ public class FutureServiceImpl implements FutureService {
 
             int duration = i * (int) (family.getExpirationDistance().getValue() / Duration.MONTH_1.getValue());
 
-            Date expirationDate = DateUtil.getExpirationDateNMonths(family.getExpirationType(), this.engineManager.getCurrentEPTime(), duration);
+            Date expiration = DateUtil.getExpirationDateNMonths(family.getExpirationType(), this.engineManager.getCurrentEPTime(), duration);
+            LocalDate expirationDate = DateTimeLegacy.toLocalDate(expiration);
 
             String symbol = FutureSymbol.getSymbol(family, expirationDate);
             String isin = FutureSymbol.getIsin(family, expirationDate);
@@ -107,7 +110,7 @@ public class FutureServiceImpl implements FutureService {
             future.setSymbol(symbol);
             future.setIsin(isin);
             future.setRic(ric);
-            future.setExpiration(expirationDate);
+            future.setExpiration(expiration);
             future.setUnderlying(underlying);
             future.setSecurityFamily(family);
 

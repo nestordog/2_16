@@ -20,14 +20,12 @@ package ch.algotrader.option;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Arrays;
-import java.util.Date;
 
 import org.apache.commons.lang.StringUtils;
 
 import ch.algotrader.entity.security.OptionFamily;
 import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.util.BaseConverterUtil;
-import ch.algotrader.util.DateTimeLegacy;
 import ch.algotrader.util.DateTimePatterns;
 
 /**
@@ -46,17 +44,16 @@ public class OptionSymbol {
     /**
      * Generates the symbole for the specified {@link ch.algotrader.entity.security.OptionFamily}.
      */
-    public static String getSymbol(OptionFamily family, Date expiration, OptionType type, BigDecimal strike, boolean includeDay) {
+    public static String getSymbol(OptionFamily family, LocalDate expiration, OptionType type, BigDecimal strike, boolean includeDay) {
 
-        LocalDate localDate = DateTimeLegacy.toGMTDate(expiration);
-        String week = family.isWeekly() ? DateTimePatterns.WEEK_OF_MONTH.format(localDate) : "";
+        String week = family.isWeekly() ? DateTimePatterns.WEEK_OF_MONTH.format(expiration) : "";
 
         StringBuilder buffer = new StringBuilder();
         buffer.append(family.getSymbolRoot());
         buffer.append(week);
         buffer.append(" ");
-        buffer.append(includeDay ? DateTimePatterns.OPTION_DAY_MONTH_YEAR.format(localDate) :
-                DateTimePatterns.OPTION_MONTH_YEAR.format(localDate).toUpperCase());
+        buffer.append(includeDay ? DateTimePatterns.OPTION_DAY_MONTH_YEAR.format(expiration) :
+                DateTimePatterns.OPTION_MONTH_YEAR.format(expiration).toUpperCase());
         buffer.append("-");
         buffer.append(type.toString().substring(0, 1));
         buffer.append(" ");
@@ -68,19 +65,18 @@ public class OptionSymbol {
     /**
      * Generates the ISIN for the specified {@link ch.algotrader.entity.security.OptionFamily}.
      */
-    public static String getIsin(OptionFamily family, Date expiration, OptionType type, BigDecimal strike) {
+    public static String getIsin(OptionFamily family, LocalDate expiration, OptionType type, BigDecimal strike) {
 
-        LocalDate localDate= DateTimeLegacy.toGMTDate(expiration);
-        String week = family.isWeekly() ? DateTimePatterns.WEEK_OF_MONTH.format(localDate) : "";
+        String week = family.isWeekly() ? DateTimePatterns.WEEK_OF_MONTH.format(expiration) : "";
 
         String month;
         if (OptionType.CALL.equals(type)) {
-            month = monthCallEnc[localDate.getMonthValue() - 1];
+            month = monthCallEnc[expiration.getMonthValue() - 1];
         } else {
-            month = monthPutEnc[localDate.getMonthValue() - 1];
+            month = monthPutEnc[expiration.getMonthValue() - 1];
         }
 
-        int yearIndex = localDate.getYear() % 10;
+        int yearIndex = expiration.getYear() % 10;
         String year = yearEnc[yearIndex];
 
             String strike36 = BaseConverterUtil.toBase36(strike.multiply(new BigDecimal(10)).intValue());
@@ -100,19 +96,17 @@ public class OptionSymbol {
     /**
      * Generates the RIC for the specified {@link ch.algotrader.entity.security.OptionFamily}.
      */
-    public static String getRic(OptionFamily family, Date expiration, OptionType type, BigDecimal strike) {
-
-        LocalDate localDate= DateTimeLegacy.toGMTDate(expiration);
+    public static String getRic(OptionFamily family, LocalDate expiration, OptionType type, BigDecimal strike) {
 
         StringBuilder buffer = new StringBuilder();
         buffer.append(family.getRicRoot() != null ? family.getRicRoot() : family.getSymbolRoot());
         if (OptionType.CALL.equals(type)) {
-            buffer.append(monthCallEnc[localDate.getMonthValue() - 1]);
+            buffer.append(monthCallEnc[expiration.getMonthValue() - 1]);
         } else {
-            buffer.append(monthPutEnc[localDate.getMonthValue() - 1]);
+            buffer.append(monthPutEnc[expiration.getMonthValue() - 1]);
         }
-        buffer.append(DateTimePatterns.DAY_OF_MONTH.format(localDate));
-        final String s = DateTimePatterns.YEAR_4_DIGIT.format(localDate);
+        buffer.append(DateTimePatterns.DAY_OF_MONTH.format(expiration));
+        final String s = DateTimePatterns.YEAR_4_DIGIT.format(expiration);
         buffer.append(s.substring(s.length() - 2, s.length()));
         buffer.append(StringUtils.leftPad(String.valueOf((int) (strike.doubleValue() * 100)), 5, "0"));
         buffer.append(".U");

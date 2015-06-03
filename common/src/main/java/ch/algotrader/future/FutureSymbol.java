@@ -18,14 +18,10 @@
 package ch.algotrader.future;
 
 import java.time.LocalDate;
+import java.time.Month;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.TimeZone;
 
 import ch.algotrader.entity.security.SecurityFamily;
-import ch.algotrader.util.DateTimeLegacy;
 import ch.algotrader.util.DateTimePatterns;
 
 /**
@@ -43,15 +39,14 @@ public class FutureSymbol {
     /**
      * Generates the symbole for the specified {@link ch.algotrader.entity.security.FutureFamily}.
      */
-    public static String getSymbol(SecurityFamily family, Date expiration) {
+    public static String getSymbol(SecurityFamily family, LocalDate expiration) {
 
         StringBuilder buffer = new StringBuilder();
         buffer.append(family.getSymbolRoot());
         buffer.append(" ");
-        LocalDate localDate = DateTimeLegacy.toGMTDate(expiration);
-        buffer.append(DateTimePatterns.MONTH_LONG.format(localDate).toUpperCase());
+        buffer.append(DateTimePatterns.MONTH_LONG.format(expiration).toUpperCase());
         buffer.append("/");
-        final String s = DateTimePatterns.YEAR_4_DIGIT.format(localDate);
+        final String s = DateTimePatterns.YEAR_4_DIGIT.format(expiration);
         buffer.append(s.substring(s.length() - 2, s.length()));
         return buffer.toString();
     }
@@ -59,25 +54,18 @@ public class FutureSymbol {
     /**
      * Generates the ISIN for the specified {@link ch.algotrader.entity.security.FutureFamily}.
      */
-    public static String getIsin(SecurityFamily family, Date expiration) {
+    public static String getIsin(SecurityFamily family, LocalDate expiration) {
 
         int week = 0;
-
-        String month;
-        Calendar cal = new GregorianCalendar();
-        cal.setTimeZone(TimeZone.getTimeZone("GMT"));
-        cal.setTime(expiration);
-        month = monthEnc[cal.get(Calendar.MONTH)];
-
-        int yearIndex = cal.get(Calendar.YEAR) % 10;
-        String year = yearEnc[yearIndex];
+        Month month = expiration.getMonth();
+        int year = expiration.getYear();                    ;
 
         StringBuilder buffer = new StringBuilder();
         buffer.append(week);
         buffer.append("F");
         buffer.append(family.getIsinRoot() != null ? family.getIsinRoot() : family.getSymbolRoot());
-        buffer.append(month);
-        buffer.append(year);
+        buffer.append(monthEnc[month.getValue() - 1]);
+        buffer.append(yearEnc[year % 10]);
         buffer.append("00000");
 
         return buffer.toString();
@@ -86,16 +74,15 @@ public class FutureSymbol {
     /**
      * Generates the RIC for the specified {@link ch.algotrader.entity.security.FutureFamily}.
      */
-    public static String getRic(SecurityFamily family, Date expiration) {
+    public static String getRic(SecurityFamily family, LocalDate expiration) {
 
-        GregorianCalendar cal = new GregorianCalendar();
-        cal.setTimeZone(TimeZone.getTimeZone("GMT"));
-        cal.setTime(expiration);
+        Month month = expiration.getMonth();
+        int year = expiration.getYear();                    ;
 
         StringBuilder buffer = new StringBuilder();
         buffer.append(family.getRicRoot() != null ? family.getRicRoot() : family.getSymbolRoot());
-        buffer.append(monthEnc[cal.get(Calendar.MONTH)]);
-        buffer.append(String.valueOf(cal.get(Calendar.YEAR)).substring(3));
+        buffer.append(monthEnc[month.getValue() - 1]);
+        buffer.append(String.valueOf(year).substring(3));
         buffer.append(":VE");
 
         return buffer.toString();

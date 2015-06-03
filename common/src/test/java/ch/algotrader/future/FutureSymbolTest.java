@@ -24,6 +24,7 @@ import org.junit.Test;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.SecurityFamilyImpl;
 import ch.algotrader.util.DateTimeLegacy;
+import ch.algotrader.util.DateTimeUtil;
 
 /**
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
@@ -44,22 +45,22 @@ public class FutureSymbolTest {
     @Test
     public void testGetSymbol() throws Exception {
 
-        Assert.assertEquals("CL JAN/15", FutureSymbol.getSymbol(securityFamily, DateTimeLegacy.parseAsDateGMT("2015-01-01")));
-        Assert.assertEquals("CL JUN/15", FutureSymbol.getSymbol(securityFamily, DateTimeLegacy.parseAsDateGMT("2015-06-01")));
+        Assert.assertEquals("CL JAN/15", FutureSymbol.getSymbol(securityFamily, DateTimeUtil.parseLocalDate("2015-01-01")));
+        Assert.assertEquals("CL JUN/15", FutureSymbol.getSymbol(securityFamily, DateTimeUtil.parseLocalDate("2015-06-01")));
     }
 
     @Test
     public void testGetIsin() throws Exception {
 
-        Assert.assertEquals("0FCLFF00000", FutureSymbol.getIsin(securityFamily, DateTimeLegacy.parseAsDateGMT("2015-01-01")));
-        Assert.assertEquals("0FCLMF00000", FutureSymbol.getIsin(securityFamily, DateTimeLegacy.parseAsDateGMT("2015-06-01")));
+        Assert.assertEquals("0FCLFF00000", FutureSymbol.getIsin(securityFamily, DateTimeUtil.parseLocalDate("2015-01-01")));
+        Assert.assertEquals("0FCLMF00000", FutureSymbol.getIsin(securityFamily, DateTimeUtil.parseLocalDate("2015-06-01")));
     }
 
     @Test
     public void testGetRic() throws Exception {
 
-        Assert.assertEquals("CLF5:VE", FutureSymbol.getRic(securityFamily, DateTimeLegacy.parseAsDateGMT("2015-01-01")));
-        Assert.assertEquals("CLM5:VE", FutureSymbol.getRic(securityFamily, DateTimeLegacy.parseAsDateGMT("2015-06-01")));
+        Assert.assertEquals("CLF5:VE", FutureSymbol.getRic(securityFamily, DateTimeUtil.parseLocalDate("2015-01-01")));
+        Assert.assertEquals("CLM5:VE", FutureSymbol.getRic(securityFamily, DateTimeUtil.parseLocalDate("2015-06-01")));
     }
 
 }

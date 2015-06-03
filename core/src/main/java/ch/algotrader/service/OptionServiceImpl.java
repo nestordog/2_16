@@ -20,6 +20,7 @@ package ch.algotrader.service;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -253,7 +254,7 @@ public class OptionServiceImpl implements OptionService {
         Security underlying = family.getUnderlying();
 
         // symbol / isin
-        String symbol = OptionSymbol.getSymbol(family, expirationDate, type, strike, true);
+        String symbol = OptionSymbol.getSymbol(family, DateTimeLegacy.toLocalDate(expirationDate), type, strike, true);
 
         Option option = Option.Factory.newInstance();
         option.setSymbol(symbol);
@@ -286,7 +287,8 @@ public class OptionServiceImpl implements OptionService {
         Security underlying = family.getUnderlying();
 
         // get next expiration date after targetExpirationDate according to expirationType
-        Date expirationDate = DateUtil.getExpirationDate(family.getExpirationType(), targetExpirationDate);
+        Date expiration = DateUtil.getExpirationDate(family.getExpirationType(), targetExpirationDate);
+        LocalDate expirationDate = DateTimeLegacy.toLocalDate(expiration);
 
         // get nearest strike according to strikeDistance
         BigDecimal strike = roundOptionStrikeToNextN(targetStrike, family.getStrikeDistance(), type);
@@ -301,7 +303,7 @@ public class OptionServiceImpl implements OptionService {
         option.setIsin(isin);
         option.setRic(ric);
         option.setStrike(strike);
-        option.setExpiration(expirationDate);
+        option.setExpiration(expiration);
         option.setType(type);
         option.setUnderlying(underlying);
         option.setSecurityFamily(family);

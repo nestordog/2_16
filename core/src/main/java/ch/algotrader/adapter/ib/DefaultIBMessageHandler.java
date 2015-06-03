@@ -66,8 +66,8 @@ import ch.algotrader.util.PriceUtil;
 public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
 
     private static final Logger logger = LogManager.getLogger(DefaultIBMessageHandler.class.getName());
-    private static final DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("yyyyMMdd  HH:mm:ss");
-    private static final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyyMMdd");
+    private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd  HH:mm:ss");
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd");
 
     private final int clientId;
     private final IBSessionStateHolder sessionStateHolder;
@@ -216,10 +216,10 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
 
         Date date;
         try {
-            date = DateTimeLegacy.parseAsDateTimeGMT(dateString, dateTimeFormat);
+            date = DateTimeLegacy.parseAsLocalDateTime(dateString, DATE_TIME_FORMAT);
         } catch (DateTimeParseException e) {
             try {
-                date = DateTimeLegacy.parseAsDateTimeGMT(dateString, dateFormat);
+                date = DateTimeLegacy.parseAsLocalDateTime(dateString, DATE_FORMAT);
             } catch (DateTimeParseException e1) {
                 throw new RuntimeException(e1);
             }

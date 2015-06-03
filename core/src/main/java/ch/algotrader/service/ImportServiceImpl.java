@@ -20,6 +20,7 @@ package ch.algotrader.service;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
@@ -51,6 +52,7 @@ import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.option.OptionSymbol;
+import ch.algotrader.util.DateTimeLegacy;
 import ch.algotrader.util.io.CsvIVolReader;
 import ch.algotrader.util.io.CsvTickReader;
 import ch.algotrader.vo.IVolVO;
@@ -263,10 +265,11 @@ public class ImportServiceImpl implements ImportService {
 
                     BigDecimal strike = iVol.getStrike();
                     Date expiration = DateUtils.setHours(DateUtils.addDays(iVol.getExpiration(), -1), 13); // adjusted expiration date
+                    LocalDate expirationDate = DateTimeLegacy.toLocalDate(expiration);
                     OptionType type = "C".equals(iVol.getType()) ? OptionType.CALL : OptionType.PUT;
-                    String symbol = OptionSymbol.getSymbol(family, expiration, type, strike, false);
-                    String isin = OptionSymbol.getIsin(family, expiration, type, strike);
-                    String ric = OptionSymbol.getRic(family, expiration, type, strike);
+                    String symbol = OptionSymbol.getSymbol(family, expirationDate, type, strike, false);
+                    String isin = OptionSymbol.getIsin(family, expirationDate, type, strike);
+                    String ric = OptionSymbol.getRic(family, expirationDate, type, strike);
 
                     // check if we have the option already
                     Option option = options.get(symbol);

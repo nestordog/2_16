@@ -287,4 +287,82 @@ public class DateTimeLegacy {
         return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime().toLocalTime();
     }
 
+    /**
+     * Converts the given {@link LocalDate} value to {@link Date} in GMT.
+     * @param localDate local date
+     * @return legacy date
+     */
+    public static Date toGMTDate(final LocalDate localDate) {
+        if (localDate == null) {
+            return null;
+        }
+        Instant instant = localDate.atStartOfDay(DateTimePatterns.GMT).toInstant();
+        return new Date(instant.toEpochMilli());
+    }
+
+    /**
+     * Converts the given {@link LocalTime} value to {@link Date} in GMT.
+     * @param localTime local time
+     * @return legacy date
+     */
+    public static Date toGMTTime(final LocalTime localTime) {
+        if (localTime == null) {
+            return null;
+        }
+        Instant instant = localTime.atDate(LocalDate.of(1970, Month.JANUARY, 1)).atZone(DateTimePatterns.GMT).toInstant();
+        return new Date(instant.toEpochMilli());
+    }
+
+    /**
+     * Converts the given {@link LocalDateTime} value to {@link Date} in GMT.
+     * @param localDateTime local date / time
+     * @return legacy date
+     */
+    public static Date toGMTDateTime(final LocalDateTime localDateTime) {
+        if (localDateTime == null) {
+            return null;
+        }
+        Instant instant = localDateTime.atZone(DateTimePatterns.GMT).toInstant();
+        return new Date(instant.toEpochMilli());
+    }
+
+    /**
+     * Converts the given {@link LocalDate} value to {@link Date} in the default (local) time zone.
+     * @param localDate local date
+     * @return legacy date
+     */
+    public static Date toLocalDate(final LocalDate localDate) {
+        if (localDate == null) {
+            return null;
+        }
+        Instant instant = localDate.atStartOfDay(ZoneId.systemDefault()).toInstant();
+        return new Date(instant.toEpochMilli());
+    }
+
+    /**
+     * Converts the given {@link LocalTime} value to {@link Date} in the default (local) time zone.
+     * @param localTime local time
+     * @return legacy date
+     */
+    public static Date toLocalTime(final LocalTime localTime) {
+        if (localTime == null) {
+            return null;
+        }
+        Instant instant = localTime.atDate(LocalDate.of(1970, Month.JANUARY, 1)).atZone(ZoneId.systemDefault()).toInstant();
+        return new Date(instant.toEpochMilli());
+    }
+
+    /**
+     * Converts the given {@link LocalDateTime} value to {@link Date} in the default (local) time zone.
+     * @param localDateTime local date / time
+     * @return legacy date
+     */
+    public static Date toLocalDateTime(final LocalDateTime localDateTime) {
+        if (localDateTime == null) {
+            return null;
+        }
+        Instant instant = localDateTime.atZone(ZoneId.systemDefault()).toInstant();
+        return new Date(instant.toEpochMilli());
+    }
+
 }

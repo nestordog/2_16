@@ -20,9 +20,9 @@ package ch.algotrader.service.ib;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.ParseException;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -66,9 +66,9 @@ import ch.algotrader.util.RoundUtil;
 public class IBNativeReferenceDataServiceImpl extends ReferenceDataServiceImpl implements IBNativeReferenceDataService {
 
     private static final Logger logger = LogManager.getLogger(IBNativeReferenceDataServiceImpl.class.getName());
-    private static final DateTimeFormatter dayFormat = DateTimeFormatter.ofPattern("yyyyMMdd");
-    private static final DateTimeFormatter monthFormat = DateTimeFormatter.ofPattern("yyyyMM");
-    private static final DecimalFormat decimalFormat = new DecimalFormat("#.#######");
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd");
+    private static final DateTimeFormatter MONTH_FORMAT = DateTimeFormatter.ofPattern("yyyyMM");
+    private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#.#######");
 
     private final BlockingQueue<ContractDetails> contractDetailsQueue;
 
@@ -123,7 +123,7 @@ public class IBNativeReferenceDataServiceImpl extends ReferenceDataServiceImpl i
 
         contract.m_exchange = securityFamily.getExchangeCode(Broker.IB);
 
-        contract.m_multiplier = decimalFormat.format(securityFamily.getContractSize(Broker.IB));
+        contract.m_multiplier = DECIMAL_FORMAT.format(securityFamily.getContractSize(Broker.IB));
 
         if (securityFamily instanceof OptionFamily) {
             contract.m_secType = "OPT";
@@ -214,11 +214,11 @@ public class IBNativeReferenceDataServiceImpl extends ReferenceDataServiceImpl i
             Contract contract = contractDetails.m_summary;
             OptionType type = "C".equals(contract.m_right) ? OptionType.CALL : OptionType.PUT;
             BigDecimal strike = RoundUtil.getBigDecimal(contract.m_strike, securityFamily.getScale(Broker.IB));
-            Date expiration = DateTimeLegacy.parseAsDateTimeGMT(contract.m_expiry, dayFormat);
+            LocalDate expirationDate = DATE_FORMAT.parse(contract.m_expiry, LocalDate::from);
 
-            final String isin = OptionSymbol.getIsin(securityFamily, expiration, type, strike);
-            String symbol = OptionSymbol.getSymbol(securityFamily, expiration, type, strike, false);
-            String ric = OptionSymbol.getRic(securityFamily, expiration, type, strike);
+            final String isin = OptionSymbol.getIsin(securityFamily, expirationDate, type, strike);
+            String symbol = OptionSymbol.getSymbol(securityFamily, expirationDate, type, strike, false);
+            String ric = OptionSymbol.getRic(securityFamily, expirationDate, type, strike);
             String conid = String.valueOf(contract.m_conId);
 
             option.setSymbol(symbol);
@@ -227,7 +227,7 @@ public class IBNativeReferenceDataServiceImpl extends ReferenceDataServiceImpl i
             option.setConid(conid);
             option.setType(type);
             option.setStrike(strike);
-            option.setExpiration(expiration);
+            option.setExpiration(DateTimeLegacy.toLocalDate(expirationDate));
             option.setSecurityFamily(securityFamily);
             option.setUnderlying(securityFamily.getUnderlying());
 
@@ -254,8 +254,8 @@ public class IBNativeReferenceDataServiceImpl extends ReferenceDataServiceImpl i
             Future future = Future.Factory.newInstance();
 
             Contract contract = contractDetails.m_summary;
-            Date expiration = DateTimeLegacy.parseAsDateTimeGMT(contract.m_expiry, dayFormat);
-            Date contractMonth = DateTimeLegacy.parseAsDateTimeGMT(contractDetails.m_contractMonth, monthFormat);
+            LocalDate expiration = DATE_FORMAT.parse(contract.m_expiry, LocalDate::from);
+            LocalDate contractMonth = MONTH_FORMAT.parse(contractDetails.m_contractMonth, LocalDate::from);
 
             String symbol = FutureSymbol.getSymbol(securityFamily, contractMonth);
             final String isin = FutureSymbol.getIsin(securityFamily, contractMonth);
@@ -266,7 +266,7 @@ public class IBNativeReferenceDataServiceImpl extends ReferenceDataServiceImpl i
             future.setIsin(isin);
             future.setRic(ric);
             future.setConid(conid);
-            future.setExpiration(expiration);
+            future.setExpiration(DateTimeLegacy.toLocalDate(expiration));
             future.setSecurityFamily(securityFamily);
             future.setUnderlying(securityFamily.getUnderlying());
 
