@@ -55,8 +55,8 @@ public class EngineFactory {
             threading.setThreadPoolOutbound(true);
             threading.setThreadPoolOutboundNumThreads(this.configParams.getInteger("misc.outboundThreads"));
         }
-        String engineName = "SERVER";
-        return new EngineImpl(engineName, engineName, this.dependencyLookup,
+        String strategyName = "SERVER";
+        return new EngineImpl(strategyName, this.dependencyLookup,
                 configuration,
                 initModules != null ? initModules.toArray(new String[initModules.size()]) : null,
                 null,
@@ -64,13 +64,13 @@ public class EngineFactory {
     }
 
     public Engine createStrategy(
-            final String engineName, final String strategyName,
+            final String strategyName,
             final Collection<URL> configResources, final Collection<String> initModules, final Collection<String> runModules) {
         Configuration configuration = new Configuration();
         for (URL configResource: configResources) {
             configuration.configure(configResource);
         }
-        return new EngineImpl(engineName, strategyName, this.dependencyLookup,
+        return new EngineImpl(strategyName, this.dependencyLookup,
                 configuration,
                 initModules != null ? initModules.toArray(new String[initModules.size()]) : null,
                 runModules != null ? runModules.toArray(new String[runModules.size()]) : null,

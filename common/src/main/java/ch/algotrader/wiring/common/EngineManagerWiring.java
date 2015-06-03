@@ -46,7 +46,7 @@ public class EngineManagerWiring {
         final Map<String, Engine> engineMap = new HashMap<>(engineBeanMap.size());
         for (Map.Entry<String, Engine> entry: engineBeanMap.entrySet()) {
             Engine engine = entry.getValue();
-            engineMap.put(engine.getEngineName(), engine);
+            engineMap.put(engine.getStrategyName(), engine);
         }
         return new EngineManagerImpl(engineMap);
     }

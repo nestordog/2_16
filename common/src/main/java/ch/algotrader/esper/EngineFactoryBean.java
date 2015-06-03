@@ -117,7 +117,7 @@ public class EngineFactoryBean implements FactoryBean<Engine>, ApplicationContex
         }
 
         EngineFactory engineFactory = new EngineFactory(new SpringDependencyLookup(this.applicationContext), this.configParams);
-        return engineFactory.createStrategy(this.engineName != null ? this.engineName : this.strategyName, this.strategyName, configUrls,
+        return engineFactory.createStrategy(this.strategyName, configUrls,
                 parseModules(this.initModuleList, this.initModules),
                 parseModules(this.runModuleList, this.runModules));
     }

@@ -41,11 +41,6 @@ import ch.algotrader.esper.callback.TradeCallback;
 public interface Engine {
 
     /**
-     * returns the name of this engine
-     */
-    public String getEngineName();
-
-    /**
      * returns the name of this strategy
      */
     public String getStrategyName();

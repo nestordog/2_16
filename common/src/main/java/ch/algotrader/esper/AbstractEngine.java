@@ -40,25 +40,12 @@ import ch.algotrader.esper.callback.TradeCallback;
  */
 public abstract class AbstractEngine implements Engine {
 
-    private final String engineName;
     private final String strategyName;
 
     private volatile boolean internalClock;
 
-    protected AbstractEngine(final String engineName, final String strategyName) {
-        this.engineName = engineName;
+    protected AbstractEngine(final String strategyName) {
         this.strategyName = strategyName;
-    }
-
-    protected AbstractEngine(final String name) {
-        this.engineName = name;
-        this.strategyName = name;
-    }
-
-    @Override
-    public String getEngineName() {
-
-        return this.engineName;
     }
 
     @Override
@@ -275,6 +262,6 @@ public abstract class AbstractEngine implements Engine {
     @Override
     public String toString() {
 
-        return this.engineName;
+        return this.strategyName;
     }
 }
