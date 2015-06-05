@@ -24,7 +24,6 @@ import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.ConfigurationEngineDefaults;
 
 import ch.algotrader.config.ConfigParams;
-import ch.algotrader.config.DependencyLookup;
 
 /**
  * {@link Engine} factory class.
@@ -35,11 +34,11 @@ import ch.algotrader.config.DependencyLookup;
  */
 public class EngineFactory {
 
-    private final DependencyLookup dependencyLookup;
+    private final SubscriberResolver subscriberResolver;
     private final ConfigParams configParams;
 
-    public EngineFactory(final DependencyLookup dependencyLookup, final ConfigParams configParams) {
-        this.dependencyLookup = dependencyLookup;
+    public EngineFactory(final SubscriberResolver subscriberResolver, final ConfigParams configParams) {
+        this.subscriberResolver = subscriberResolver;
         this.configParams = configParams;
     }
 
@@ -56,7 +55,7 @@ public class EngineFactory {
             threading.setThreadPoolOutboundNumThreads(this.configParams.getInteger("misc.outboundThreads"));
         }
         String strategyName = "SERVER";
-        return new EngineImpl(strategyName, this.dependencyLookup,
+        return new EngineImpl(strategyName, this.subscriberResolver,
                 configuration,
                 initModules != null ? initModules.toArray(new String[initModules.size()]) : null,
                 null,
@@ -70,7 +69,7 @@ public class EngineFactory {
         for (URL configResource: configResources) {
             configuration.configure(configResource);
         }
-        return new EngineImpl(strategyName, this.dependencyLookup,
+        return new EngineImpl(strategyName, this.subscriberResolver,
                 configuration,
                 initModules != null ? initModules.toArray(new String[initModules.size()]) : null,
                 runModules != null ? runModules.toArray(new String[runModules.size()]) : null,

@@ -81,7 +81,6 @@ import com.espertech.esperio.AdapterCoordinatorImpl;
 import com.espertech.esperio.CoordinatedAdapter;
 
 import ch.algotrader.config.ConfigParams;
-import ch.algotrader.config.DependencyLookup;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.esper.annotation.Condition;
@@ -111,7 +110,7 @@ public class EngineImpl extends AbstractEngine {
     private static final Logger LOGGER = LogManager.getLogger(EngineImpl.class);
     private static final String newline = System.getProperty("line.separator");
 
-    private final DependencyLookup dependencyLookup;
+    private final SubscriberResolver subscriberResolver;
     private final String[] initModules;
     private final String[] runModules;
     private final ConfigParams configParams;
@@ -127,15 +126,16 @@ public class EngineImpl extends AbstractEngine {
         }
     };
 
-    EngineImpl(final String strategyName, final DependencyLookup dependencyLookup, final Configuration configuration, final String[] initModules, String[] runModules, final ConfigParams configParams) {
+    EngineImpl(final String strategyName, final SubscriberResolver subscriberResolver,
+               final Configuration configuration, final String[] initModules, final String[] runModules, final ConfigParams configParams) {
 
         super(strategyName);
 
-        Validate.notNull(dependencyLookup, "DependencyLookup is null");
+        Validate.notNull(subscriberResolver, "SubscriberResolver is null");
         Validate.notNull(configuration, "Configuration is null");
         Validate.notNull(configParams, "ConfigParams is null");
 
-        this.dependencyLookup = dependencyLookup;
+        this.subscriberResolver = subscriberResolver;
         this.initModules = initModules;
         this.runModules = runModules;
         this.configParams = configParams;
@@ -775,21 +775,7 @@ public class EngineImpl extends AbstractEngine {
             if (annotation instanceof Subscriber) {
 
                 Subscriber subscriber = (Subscriber) annotation;
-                String fqdn = subscriber.className();
-                try {
-                    Class<?> cl = Class.forName(fqdn);
-                    statement.setSubscriber(cl.newInstance());
-                } catch (Exception e) {
-
-                    String serviceName = StringUtils.substringBeforeLast(fqdn, ".");
-
-                    // parse full classname for backward-compatibility
-                    if (serviceName.contains(".")) {
-                        serviceName = StringUtils.remove(StringUtils.remove(StringUtils.uncapitalize(StringUtils.substringAfterLast(serviceName, ".")), "Base"), "Impl");
-                    }
-                    String serviceMethodName = StringUtils.substringAfterLast(fqdn, ".");
-                    statement.setSubscriber(this.dependencyLookup.getBean(serviceName), serviceMethodName);
-                }
+                subscriberResolver.resolve(statement, ((Subscriber) annotation).className());
 
             } else if (annotation instanceof Listeners) {
 

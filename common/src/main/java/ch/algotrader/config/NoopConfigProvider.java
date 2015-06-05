@@ -17,17 +17,26 @@
  ***********************************************************************************/
 package ch.algotrader.config;
 
+import java.util.Collections;
+import java.util.Set;
+
 /**
- * Dependency lookup interface.
+ * No-op configuration provider.
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  *
  * @version $Revision$ $Date$
  */
-public interface DependencyLookup {
+public final class NoopConfigProvider implements ConfigProvider {
 
-    Object getBean(String name);
+    @Override
+    public <T> T getParameter(String name, Class<T> clazz) {
+        return null;
+    }
 
-    <T> T getBean(String name, Class<T> requiredType);
+    @Override
+    public Set<String> getNames() {
+        return Collections.emptySet();
+    }
 
 }
