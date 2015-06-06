@@ -33,6 +33,9 @@ import java.util.concurrent.BlockingQueue;
 import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
 
+import com.ib.client.Contract;
+import com.ib.client.ContractDetails;
+
 import ch.algotrader.adapter.ib.IBIdGenerator;
 import ch.algotrader.adapter.ib.IBSession;
 import ch.algotrader.entity.security.Future;
@@ -53,9 +56,6 @@ import ch.algotrader.option.OptionSymbol;
 import ch.algotrader.service.ReferenceDataServiceImpl;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.RoundUtil;
-
-import com.ib.client.Contract;
-import com.ib.client.ContractDetails;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -330,7 +330,11 @@ public class IBNativeReferenceDataServiceImpl extends ReferenceDataServiceImpl i
         Comparator<Security> comparator = new Comparator<Security>() {
             @Override
             public int compare(Security o1, Security o2) {
-                return o1.getConid().compareTo(o2.getConid());
+                if (o1.getConid() != null && o2.getConid() != null) {
+                    return o1.getConid().compareTo(o2.getConid());
+                } else {
+                    return o1.getSymbol().compareTo(o2.getSymbol());
+                }
             }
         };
         return comparator;
