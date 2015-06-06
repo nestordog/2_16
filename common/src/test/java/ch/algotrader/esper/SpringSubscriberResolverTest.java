@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.esper;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -26,6 +27,9 @@ import org.springframework.context.ApplicationContext;
 
 import com.espertech.esper.client.EPStatement;
 
+import ch.algotrader.config.ConfigParams;
+import ch.algotrader.config.NoopConfigProvider;
+
 @RunWith(MockitoJUnitRunner.class)
 public class SpringSubscriberResolverTest {
 
@@ -34,10 +38,17 @@ public class SpringSubscriberResolverTest {
     @Mock
     private ApplicationContext applicationContext;
 
+    private ConfigParams configParams;
+    private SpringSubscriberResolver impl;
+
+    @Before
+    public void setup() {
+        configParams = new ConfigParams(new NoopConfigProvider());
+        impl = new SpringSubscriberResolver("myStrategy", configParams, applicationContext);
+    }
+
     @Test
     public void testBasicSubscriberResolution() {
-
-        SpringSubscriberResolver impl = new SpringSubscriberResolver(applicationContext);
 
         Object bean = new Object();
         Mockito.when(applicationContext.getBean("beanName")).thenReturn(bean);
@@ -48,9 +59,18 @@ public class SpringSubscriberResolverTest {
     }
 
     @Test
-    public void testBasicSubscriberResolutionOldNotation() {
+    public void testBasicSubscriberResolutionWithPlaceholderExpansion() {
 
-        SpringSubscriberResolver impl = new SpringSubscriberResolver(applicationContext);
+        Object bean = new Object();
+        Mockito.when(applicationContext.getBean("myStrategyService")).thenReturn(bean);
+
+        impl.resolve(statement, "${strategyName}Service#doStuff");
+
+        Mockito.verify(statement).setSubscriber(bean, "doStuff");
+    }
+
+    @Test
+    public void testBasicSubscriberResolutionOldNotation() {
 
         Object bean = new Object();
         Mockito.when(applicationContext.getBean("beanName")).thenReturn(bean);
@@ -63,15 +83,11 @@ public class SpringSubscriberResolverTest {
     @Test(expected = IllegalArgumentException.class)
     public void testBasicSubscriberResolutionEmptyExpression() {
 
-        SpringSubscriberResolver impl = new SpringSubscriberResolver(applicationContext);
-
         impl.resolve(statement, "  ");
     }
 
     @Test
     public void testBasicSubscriberResolutionClassName() {
-
-        SpringSubscriberResolver impl = new SpringSubscriberResolver(applicationContext);
 
         impl.resolve(statement, "java.lang.StringBuilder");
 
@@ -80,8 +96,6 @@ public class SpringSubscriberResolverTest {
 
     @Test
     public void testBasicSubscriberResolutionServiceName() {
-
-        SpringSubscriberResolver impl = new SpringSubscriberResolver(applicationContext);
 
         Object bean = new Object();
         Mockito.when(applicationContext.getBean("beanName")).thenReturn(bean);

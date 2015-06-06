@@ -111,7 +111,7 @@ public class EngineFactoryBean implements FactoryBean<Engine>, ApplicationContex
             configUrls.add(resource2.getURL());
         }
 
-        EngineFactory engineFactory = new EngineFactory(new SpringSubscriberResolver(this.applicationContext), this.configParams);
+        EngineFactory engineFactory = new EngineFactory(new SpringSubscriberResolver(this.strategyName, this.configParams, this.applicationContext), this.configParams);
         return engineFactory.createStrategy(this.strategyName, configUrls,
                 parseModules(this.initModuleList, this.initModules),
                 parseModules(this.runModuleList, this.runModules));
