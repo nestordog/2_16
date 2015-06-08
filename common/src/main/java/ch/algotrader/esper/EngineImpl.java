@@ -89,6 +89,7 @@ import ch.algotrader.esper.annotation.RunTimeOnly;
 import ch.algotrader.esper.annotation.SimulationOnly;
 import ch.algotrader.esper.annotation.Subscriber;
 import ch.algotrader.esper.callback.ClosePositionCallback;
+import ch.algotrader.esper.callback.EngineAwareCallback;
 import ch.algotrader.esper.callback.OpenPositionCallback;
 import ch.algotrader.esper.callback.TickCallback;
 import ch.algotrader.esper.callback.TimerCallback;
@@ -801,6 +802,9 @@ public class EngineImpl extends AbstractEngine {
         // in live trading stop the statement before attaching (and restart afterwards)
         // to make sure that the subscriber receives the first event
         if (callback != null) {
+            if (callback instanceof EngineAwareCallback) {
+                ((EngineAwareCallback) callback).setEngine(this);
+            }
             if (this.simulation) {
                 statement.setSubscriber(callback);
             } else {

@@ -27,8 +27,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.marketData.Tick;
+import ch.algotrader.esper.Engine;
 import ch.algotrader.util.metric.MetricsUtil;
 
 /**
@@ -39,7 +39,7 @@ import ch.algotrader.util.metric.MetricsUtil;
  *
  * @version $Revision$ $Date$
  */
-public abstract class TickCallback {
+public abstract class TickCallback extends AbstractEngineCallback {
 
     private static final Logger LOGGER = LogManager.getLogger(TickCallback.class);
 
@@ -59,7 +59,10 @@ public abstract class TickCallback {
         String alias = "ON_FIRST_TICK_" + StringUtils.join(sortedSecurityIds, "_");
 
         // undeploy the statement
-        ServiceLocator.instance().getEngineManager().getEngine(strategyName).undeployStatement(alias);
+        Engine engine = getEngine();
+        if (engine != null) {
+            engine.undeployStatement(alias);
+        }
 
         long startTime = System.nanoTime();
         if (LOGGER.isDebugEnabled()) {
