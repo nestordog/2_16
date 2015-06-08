@@ -18,7 +18,6 @@
 package ch.algotrader.wiring.server.external;
 
 import java.util.Set;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import org.springframework.context.annotation.Bean;
@@ -64,12 +63,12 @@ public class IBNativeServiceWiring {
     @Profile("iBNative")
     @Bean(name = {"iBNativeAccountService", "accountService"})
     public IBNativeAccountService createIBNativeAccountService(
-            final LinkedBlockingDeque<AccountUpdate> accountUpdateQueue,
+            final LinkedBlockingDeque<AccountUpdate> iBAccountUpdateQueue,
             final LinkedBlockingDeque<Set<String>> accountsQueue,
             final LinkedBlockingDeque<ch.algotrader.adapter.ib.Profile> profilesQueue,
             final IBSession iBSession) {
 
-        return new IBNativeAccountServiceImpl(accountUpdateQueue, accountsQueue, profilesQueue, iBSession);
+        return new IBNativeAccountServiceImpl(iBAccountUpdateQueue, accountsQueue, profilesQueue, iBSession);
     }
 
     @Profile("iBNative")
@@ -87,13 +86,13 @@ public class IBNativeServiceWiring {
     @Profile("iBHistoricalData")
     @Bean(name = {"iBNativeHistoricalDataService", "historicalDataService"})
     public IBNativeHistoricalDataService createIBNativeHistoricalDataService(
-            final LinkedBlockingDeque<Bar> historicalDataQueue,
+            final LinkedBlockingDeque<Bar> iBHistoricalDataQueue,
             final IBSession iBSession,
             final IBIdGenerator iBIdGenerator,
             final SecurityDao securityDao,
             final BarDao barDao) {
 
-        return new IBNativeHistoricalDataServiceImpl(historicalDataQueue, iBSession, iBIdGenerator, securityDao, barDao);
+        return new IBNativeHistoricalDataServiceImpl(iBHistoricalDataQueue, iBSession, iBIdGenerator, securityDao, barDao);
     }
 
     @Profile("iBMarketData")
@@ -113,7 +112,7 @@ public class IBNativeServiceWiring {
     @Profile("iBReferenceData")
     @Bean(name = { "iBNativeReferenceDataService", "referenceDataService" })
     public IBNativeReferenceDataService createIBNativeReferenceDataService(
-            final BlockingQueue<ContractDetails> contractDetailsQueue,
+            final LinkedBlockingDeque<ContractDetails> iBContractDetailsQueue,
             final IBSession iBSession,
             final IBIdGenerator iBIdGenerator,
             final OptionDao optionDao,
@@ -121,7 +120,7 @@ public class IBNativeServiceWiring {
             final SecurityFamilyDao securityFamilyDao,
             final StockDao stockDao) {
 
-        return new IBNativeReferenceDataServiceImpl(contractDetailsQueue, iBSession, iBIdGenerator, optionDao, futureDao, securityFamilyDao, stockDao);
+        return new IBNativeReferenceDataServiceImpl(iBContractDetailsQueue, iBSession, iBIdGenerator, optionDao, futureDao, securityFamilyDao, stockDao);
     }
 
 }
