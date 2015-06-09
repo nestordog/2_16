@@ -75,6 +75,8 @@ import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.SecurityFamilyDao;
+import ch.algotrader.entity.security.SecurityReference;
+import ch.algotrader.entity.security.SecurityReferenceDao;
 import ch.algotrader.entity.security.Stock;
 import ch.algotrader.entity.security.StockDao;
 import ch.algotrader.entity.strategy.CashBalance;
@@ -131,6 +133,8 @@ public class LookupServiceImpl implements LookupService {
 
     private final SecurityFamilyDao securityFamilyDao;
 
+    private final SecurityReferenceDao securityReferenceDao;
+
     private final OptionFamilyDao optionFamilyDao;
 
     private final TickDao tickDao;
@@ -178,6 +182,7 @@ public class LookupServiceImpl implements LookupService {
             final FutureDao futureDao,
             final ForexDao forexDao,
             final SecurityFamilyDao securityFamilyDao,
+ final SecurityReferenceDao securityReferenceDao,
             final OptionFamilyDao optionFamilyDao,
             final TickDao tickDao,
             final OptionDao optionDao,
@@ -206,6 +211,7 @@ public class LookupServiceImpl implements LookupService {
         Validate.notNull(futureDao, "FutureDao is null");
         Validate.notNull(forexDao, "ForexDao is null");
         Validate.notNull(securityFamilyDao, "SecurityFamilyDao is null");
+        Validate.notNull(securityReferenceDao, "securityReferenceDao is null");
         Validate.notNull(optionFamilyDao, "OptionFamilyDao is null");
         Validate.notNull(tickDao, "TickDao is null");
         Validate.notNull(optionDao, "OptionDao is null");
@@ -234,6 +240,7 @@ public class LookupServiceImpl implements LookupService {
         this.futureDao = futureDao;
         this.forexDao = forexDao;
         this.securityFamilyDao = securityFamilyDao;
+        this.securityReferenceDao = securityReferenceDao;
         this.optionFamilyDao = optionFamilyDao;
         this.tickDao = tickDao;
         this.optionDao = optionDao;
@@ -747,6 +754,17 @@ public class LookupServiceImpl implements LookupService {
 
         return this.securityFamilyDao.findByName(name);
 
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Security getSecurityReferenceTargetByOwnerAndName(long securityId, String name) {
+        Validate.notEmpty(name, "Name is empty");
+
+        final SecurityReference ref = this.securityReferenceDao.findByOwnerAndName(securityId, name);
+        return ref == null ? null : ref.getTarget();
     }
 
     /**

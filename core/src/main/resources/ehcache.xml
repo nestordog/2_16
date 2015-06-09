@@ -190,6 +190,16 @@
 	</cache>
 
     <cache
+            name="ch.algotrader.entity.security.SecurityImpl.securityReferences"
+            maxElementsInMemory="100000"
+            eternal="false"
+            timeToIdleSeconds="0"
+            timeToLiveSeconds="0"
+            overflowToDisk="false">
+        <cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory"/>
+    </cache>
+    
+    <cache
         name="ch.algotrader.entity.security.OptionImpl"
         maxElementsInMemory="100000"
         eternal="false"
@@ -248,6 +258,16 @@
         overflowToDisk="false">
 		<cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory" />
 	</cache>
+
+    <cache
+            name="ch.algotrader.entity.security.SecurityReferenceImpl"
+            maxElementsInMemory="100000"
+            eternal="false"
+            timeToIdleSeconds="0"
+            timeToLiveSeconds="0"
+            overflowToDisk="false">
+        <cacheEventListenerFactory class="ch.algotrader.cache.EntityCacheEventListenerFactory"/>
+    </cache>    
 
     <cache
         name="ch.algotrader.entity.security.IndexImpl"

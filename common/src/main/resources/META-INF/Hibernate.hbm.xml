@@ -1142,6 +1142,20 @@
     </query>
     
     <!-- SecurityFamily DAO queries Ends -->
+    
+    <!-- SecurityReference DAO queries Starts -->
+    
+    <query name='SecurityReference.findByOwnerAndName'>
+    <![CDATA[   
+        from SecurityReferenceImpl as sr 
+        join fetch sr.target as target
+        join fetch target.securityFamily
+        where sr.owner.id = :ownerSecurityId 
+        and sr.name = :name 
+    ]]>
+    </query>
+    
+    <!-- SecurityReference DAO queries Ends -->    
 
     <!-- Stock DAO queries Starts -->
 

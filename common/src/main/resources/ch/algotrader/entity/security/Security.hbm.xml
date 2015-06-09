@@ -82,15 +82,16 @@
                 <comment>The base class of all Securities in the system</comment>
             </column>
         </many-to-one>
-        <set name="subscriptions" order-by="SECURITY_FK" lazy="true" fetch="select" inverse="true">
+        <set name="securityReferences" order-by="OWNER_FK" lazy="true" fetch="select" inverse="true" cascade="delete">
             <meta attribute="field-description">The base class of all Securities in the system</meta>
+            <meta attribute="field-inverse-name">owner</meta>
             <cache usage="read-write" />
-            <key foreign-key="SUBSCRIPTION_SECURITY_FKC">
-                <column name="SECURITY_FK" sql-type="BIGINT">
+            <key foreign-key="SECURITY_REFERENCE_OWNER_FKC">
+                <column name="OWNER_FK" sql-type="BIGINT">
                     <comment>The base class of all Securities in the system</comment>
                 </column>
             </key>
-            <one-to-many class="ch.algotrader.entity.SubscriptionImpl" not-found="exception"/>
+            <one-to-many class="ch.algotrader.entity.security.SecurityReferenceImpl" not-found="exception"/>
         </set>
         <set name="positions" order-by="SECURITY_FK" lazy="true" fetch="select" inverse="true">
             <meta attribute="field-description">The base class of all Securities in the system</meta>
@@ -101,6 +102,16 @@
                 </column>
             </key>
             <one-to-many class="ch.algotrader.entity.PositionImpl" not-found="exception"/>
+        </set>
+        <set name="subscriptions" order-by="SECURITY_FK" lazy="true" fetch="select" inverse="true">
+            <meta attribute="field-description">The base class of all Securities in the system</meta>
+            <cache usage="read-write" />
+            <key foreign-key="SUBSCRIPTION_SECURITY_FKC">
+                <column name="SECURITY_FK" sql-type="BIGINT">
+                    <comment>The base class of all Securities in the system</comment>
+                </column>
+            </key>
+            <one-to-many class="ch.algotrader.entity.SubscriptionImpl" not-found="exception"/>
         </set>
         <many-to-one name="securityFamily" class="ch.algotrader.entity.security.SecurityFamilyImpl" foreign-key="SECURITY_SECURITY_FAMILY_FKC" not-null="true" lazy="proxy" fetch="select">
             <meta attribute="property-type">ch.algotrader.entity.security.SecurityFamily</meta>

@@ -18,6 +18,7 @@
     <mapping resource="ch/algotrader/entity/security/EasyToBorrow.hbm.xml" />
     <mapping resource="ch/algotrader/entity/security/Security.hbm.xml" />
     <mapping resource="ch/algotrader/entity/security/SecurityFamily.hbm.xml" />
+    <mapping resource="ch/algotrader/entity/security/SecurityReference.hbm.xml" />
     <mapping resource="ch/algotrader/entity/security/BrokerParameters.hbm.xml" />
     <mapping resource="ch/algotrader/entity/exchange/Exchange.hbm.xml" />
     <mapping resource="ch/algotrader/entity/exchange/Holiday.hbm.xml" />

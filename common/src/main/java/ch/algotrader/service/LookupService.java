@@ -128,6 +128,11 @@ public interface LookupService {
     public Collection<Security> getAllSecurities();
 
     /**
+     * Returns a Security that is referenced by another Security and a reference name
+     */
+    public Security getSecurityReferenceTargetByOwnerAndName(long securityId, String name);
+
+    /**
      * Gets all Securities that are subscribed by at least one Strategy which is marked as {@code
      * autoActive}.
      */

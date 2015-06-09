@@ -51,6 +51,8 @@ public class HibernateWiring {
         properties.setProperty("hibernate.cache.use_query_cache", "true");
         properties.setProperty("hibernate.cache.region.factory_class", "org.hibernate.cache.ehcache.EhCacheRegionFactory");
         properties.setProperty("hibernate.cache.query_cache_factory", "org.hibernate.cache.internal.StandardQueryCacheFactory");
+        // properties.setProperty("hibernate.hbm2ddl.auto", "update");
+        // properties.setProperty("hibernate.show_sql", "true");
         return properties;
     }
 

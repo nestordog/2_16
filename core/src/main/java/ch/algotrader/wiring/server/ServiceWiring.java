@@ -46,6 +46,7 @@ import ch.algotrader.entity.security.OptionDao;
 import ch.algotrader.entity.security.OptionFamilyDao;
 import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.entity.security.SecurityFamilyDao;
+import ch.algotrader.entity.security.SecurityReferenceDao;
 import ch.algotrader.entity.security.StockDao;
 import ch.algotrader.entity.strategy.CashBalanceDao;
 import ch.algotrader.entity.strategy.MeasurementDao;
@@ -120,6 +121,7 @@ public class ServiceWiring {
             final FutureDao futureDao,
             final ForexDao forexDao,
             final SecurityFamilyDao securityFamilyDao,
+            final SecurityReferenceDao securityReferenceDao,
             final OptionFamilyDao optionFamilyDao,
             final TickDao tickDao,
             final OptionDao optionDao,
@@ -140,7 +142,7 @@ public class ServiceWiring {
             final IntrestRateDao intrestRateDao,
             final EasyToBorrowDao easyToBorrowDao) {
 
-        return new LookupServiceImpl(commonConfig, coreConfig, sessionFactory, genericDao, futureFamilyDao, futureDao, forexDao, securityFamilyDao, optionFamilyDao, tickDao, optionDao,
+        return new LookupServiceImpl(commonConfig, coreConfig, sessionFactory, genericDao, futureFamilyDao, futureDao, forexDao, securityFamilyDao, securityReferenceDao, optionFamilyDao, tickDao, optionDao,
                 transactionDao, positionDao, strategyDao, securityDao, cashBalanceDao, subscriptionDao, combinationDao, componentDao, measurementDao, barDao, orderDao, orderStatusDao, accountDao,
                 stockDao, intrestRateDao, easyToBorrowDao);
     }

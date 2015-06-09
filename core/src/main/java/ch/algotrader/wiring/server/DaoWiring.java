@@ -88,6 +88,8 @@ import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.entity.security.SecurityDaoImpl;
 import ch.algotrader.entity.security.SecurityFamilyDao;
 import ch.algotrader.entity.security.SecurityFamilyDaoImpl;
+import ch.algotrader.entity.security.SecurityReferenceDao;
+import ch.algotrader.entity.security.SecurityReferenceDaoImpl;
 import ch.algotrader.entity.security.StockDao;
 import ch.algotrader.entity.security.StockDaoImpl;
 import ch.algotrader.entity.strategy.CashBalanceDao;
@@ -326,6 +328,12 @@ public class DaoWiring {
     public SecurityFamilyDao createSecurityFamilyDao(final SessionFactory sessionFactory) {
 
         return new SecurityFamilyDaoImpl(sessionFactory);
+    }
+
+    @Bean(name = "securityReferenceDao")
+    public SecurityReferenceDao createSecurityReferenceDao(final SessionFactory sessionFactory) {
+
+        return new SecurityReferenceDaoImpl(sessionFactory);
     }
 
     @Bean(name = "stockDao")

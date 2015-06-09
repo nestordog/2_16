@@ -51,6 +51,7 @@ import ch.algotrader.entity.security.Option;
 import ch.algotrader.entity.security.OptionFamily;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
+import ch.algotrader.entity.security.SecurityReference;
 import ch.algotrader.entity.security.Stock;
 import ch.algotrader.entity.strategy.CashBalance;
 import ch.algotrader.entity.strategy.Measurement;
@@ -164,6 +165,8 @@ public interface EntityVisitor<R, P> {
     R visitSecurity(Security entity, P param);
 
     R visitSecurityFamily(SecurityFamily entity, P param);
+
+    R visitSecurityReference(SecurityReference entity, P param);
 
     R visitSimpleOrder(SimpleOrder entity, P param);
 

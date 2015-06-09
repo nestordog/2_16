@@ -51,6 +51,7 @@ import ch.algotrader.entity.security.Option;
 import ch.algotrader.entity.security.OptionFamily;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
+import ch.algotrader.entity.security.SecurityReference;
 import ch.algotrader.entity.security.Stock;
 import ch.algotrader.entity.strategy.CashBalance;
 import ch.algotrader.entity.strategy.Measurement;
@@ -274,6 +275,11 @@ public class DefaultEntityVisitor<R, P> implements EntityVisitor<R, P> {
 
     @Override
     public R visitSecurityFamily(SecurityFamily entity, P param) {
+        return null;
+    }
+
+    @Override
+    public R visitSecurityReference(SecurityReference entity, P param) {
         return null;
     }
 

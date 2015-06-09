@@ -2,7 +2,7 @@
 <launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
 <stringAttribute key="bad_container_name" value="\algotraderlight-code\bi"/>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-<listEntry value="/algotrader-common/src/main/java/ch/algotrader/starter/ServerStarter.java"/>
+<listEntry value="/algotrader-core/src/main/java/ch/algotrader/starter/ServerStarter.java"/>
 </listAttribute>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
 <listEntry value="1"/>
