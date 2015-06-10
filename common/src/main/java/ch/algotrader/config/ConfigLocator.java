@@ -17,10 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.config;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
@@ -99,26 +97,13 @@ public final class ConfigLocator {
                         INSTANCE = standaloneInit();
                     } catch (Exception ex) {
 
-                        INSTANCE = new ConfigLocator(new ConfigParams(new NoOpConfigProvider()), CommonConfigBuilder.create().build());
+                        INSTANCE = new ConfigLocator(new ConfigParams(new NoopConfigProvider()), CommonConfigBuilder.create().build());
                         LOGGER.error("Unexpected I/O error reading configuration", ex);
                     }
                 }
             }
         }
         return INSTANCE;
-    }
-
-    private static class NoOpConfigProvider implements ConfigProvider {
-
-        @Override
-        public <T> T getParameter(String name, Class<T> clazz) {
-            return null;
-        }
-
-        @Override
-        public Set<String> getNames() {
-            return Collections.emptySet();
-        }
     }
 
     private static ConfigLocator standaloneInit() throws Exception {

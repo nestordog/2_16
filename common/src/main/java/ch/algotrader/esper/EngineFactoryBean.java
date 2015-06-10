@@ -43,7 +43,6 @@ import ch.algotrader.config.ConfigParams;
 
 public class EngineFactoryBean implements FactoryBean<Engine>, ApplicationContextAware {
 
-    private String engineName;
     private String strategyName;
     private String[] configResourceList;
     private String configResource;
@@ -54,10 +53,6 @@ public class EngineFactoryBean implements FactoryBean<Engine>, ApplicationContex
     private ConfigParams configParams;
 
     private volatile ApplicationContext applicationContext;
-
-    public void setEngineName(final String engineName) {
-        this.engineName = engineName;
-    }
 
     public void setStrategyName(final String strategyName) {
         this.strategyName = strategyName;
@@ -116,8 +111,8 @@ public class EngineFactoryBean implements FactoryBean<Engine>, ApplicationContex
             configUrls.add(resource2.getURL());
         }
 
-        EngineFactory engineFactory = new EngineFactory(new SpringDependencyLookup(this.applicationContext), this.configParams);
-        return engineFactory.createStrategy(this.engineName != null ? this.engineName : this.strategyName, this.strategyName, configUrls,
+        EngineFactory engineFactory = new EngineFactory(new SpringSubscriberResolver(this.strategyName, this.configParams, this.applicationContext), this.configParams);
+        return engineFactory.createStrategy(this.strategyName, configUrls,
                 parseModules(this.initModuleList, this.initModules),
                 parseModules(this.runModuleList, this.runModules));
     }

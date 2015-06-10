@@ -17,35 +17,16 @@
  ***********************************************************************************/
 package ch.algotrader.esper;
 
-import org.apache.commons.lang.Validate;
-import org.springframework.context.ApplicationContext;
-
-import ch.algotrader.config.DependencyLookup;
+import com.espertech.esper.client.EPStatement;
 
 /**
- * Dependency lookup based.
+ * Interface representing an algorithm to resolve a subscriber based on the given expression and
+ * the actual context.
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
- *
- * @version $Revision$ $Date$
  */
-public class SpringDependencyLookup implements DependencyLookup {
+public interface SubscriberResolver {
 
-    private final ApplicationContext applicationContext;
-
-    public SpringDependencyLookup(final ApplicationContext applicationContext) {
-        Validate.notNull(applicationContext, "ApplicationContext is null");
-        this.applicationContext = applicationContext;
-    }
-
-    public Object getBean(final String name) {
-
-        return this.applicationContext.getBean(name);
-    }
-
-    public <T> T getBean(final String name, final Class<T> requiredType) {
-
-        return this.applicationContext.getBean(name, requiredType);
-    }
+    void resolve(EPStatement statement, String subscriberExpression);
 
 }

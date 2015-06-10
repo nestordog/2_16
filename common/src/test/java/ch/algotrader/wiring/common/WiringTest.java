@@ -66,7 +66,6 @@ public class WiringTest {
         Engine engine = Mockito.mock(Engine.class);
         context.getDefaultListableBeanFactory().registerSingleton("someEngine", engine);
 
-        Mockito.when(engine.getEngineName()).thenReturn("someStrategy");
         Mockito.when(engine.getStrategyName()).thenReturn("someStrategy");
         Strategy strategy = new StrategyImpl();
         Mockito.when(lookupService.getStrategyByName("someStrategy")).thenReturn(strategy);

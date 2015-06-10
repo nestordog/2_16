@@ -17,7 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.config.spring;
 
-import static ch.algotrader.config.spring.BeanDefinitionHelper.getRequiredAttribute;
 import static org.springframework.beans.factory.support.BeanDefinitionBuilder.childBeanDefinition;
 import static org.springframework.beans.factory.support.BeanDefinitionBuilder.rootBeanDefinition;
 
@@ -30,6 +29,7 @@ import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.AbstractBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
+import org.springframework.util.StringUtils;
 import org.w3c.dom.Element;
 
 /**
@@ -100,4 +100,14 @@ public final class StrategyBeanDefinitionParser extends AbstractBeanDefinitionPa
         final BeanDefinitionHolder holder = new BeanDefinitionHolder(beanDefinitionBuilder.getBeanDefinition(), beanName);
         registerBeanDefinition(holder, parserContext.getRegistry());
     }
+
+    private static String getRequiredAttribute(Element element, ParserContext parserContext, String attributeName) {
+        final String value = element.getAttribute(attributeName);
+        if (!StringUtils.hasText(value)) {
+            parserContext.getReaderContext().error(attributeName + " is required for element '"
+                    + parserContext.getDelegate().getLocalName(element) + "'", element);
+        }
+        return value;
+    }
+
 }
