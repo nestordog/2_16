@@ -96,9 +96,7 @@ public class FTXFixFeedMessageHandlerTest {
 
         this.messageHandler = Mockito.spy(new FTXFixMarketDataMessageHandler());
 
-        LogFactory logFactory = new CompositeLogFactory(new LogFactory[] {
-                new FileLogFactory(settings),
-                new ScreenLogFactory(true, true, true)});
+        LogFactory logFactory = new ScreenLogFactory(true, true, true);
 
         DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, this.messageHandler, logonMessageHandler, new DefaultFixSessionLifecycle());
 

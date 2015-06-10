@@ -57,8 +57,7 @@ public class GenericFix42OrderMessageFactory implements Fix42OrderMessageFactory
         this.symbologyResolver = symbologyResolver;
     }
 
-    protected TimeInForce resolveTimeInForce(final SimpleOrder order) {
-        TIF tif = order.getTif();
+    protected TimeInForce resolveTimeInForce(final TIF tif) {
         return FixUtil.getTimeInForce(tif);
     }
 
@@ -97,7 +96,7 @@ public class GenericFix42OrderMessageFactory implements Fix42OrderMessageFactory
 
         // set TIF
         if (order.getTif() != null) {
-            message.set(resolveTimeInForce(order));
+            message.set(resolveTimeInForce(order.getTif()));
             if (order.getTif() == TIF.GTD && order.getTifDateTime() != null) {
                 message.set(new ExpireTime(order.getTifDateTime()));
             }
@@ -146,7 +145,7 @@ public class GenericFix42OrderMessageFactory implements Fix42OrderMessageFactory
 
         // set TIF
         if (order.getTif() != null) {
-            message.set(resolveTimeInForce(order));
+            message.set(resolveTimeInForce(order.getTif()));
             if (order.getTif() == TIF.GTD && order.getTifDateTime() != null) {
                 message.set(new ExpireTime(order.getTifDateTime()));
             }

@@ -17,8 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.ftx;
 
-import ch.algotrader.adapter.fix.FixApplicationException;
-import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.Security;
 import quickfix.field.QuoteReqID;
 import quickfix.field.QuoteRequestType;
@@ -34,13 +32,7 @@ public class FTXFixMarketDataRequestFactory {
 
     public QuoteRequest create(final Security security, final int requestType) {
 
-        if (!(security instanceof Forex)) {
-
-            throw new FixApplicationException("Fortex supports forex orders only");
-        }
-        Forex forex = (Forex) security;
-
-        String ftxSymbol = FTXUtil.getFTXSymbol(forex);
+        String ftxSymbol = FTXUtil.getFTXSymbol(security);
 
         QuoteRequest request = new QuoteRequest();
         request.set(new QuoteReqID(ftxSymbol));

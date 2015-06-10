@@ -17,7 +17,9 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.ftx;
 
+import ch.algotrader.adapter.fix.FixApplicationException;
 import ch.algotrader.entity.security.Forex;
+import ch.algotrader.entity.security.Security;
 
 /**
  * Fortex utilities
@@ -26,7 +28,12 @@ import ch.algotrader.entity.security.Forex;
  */
 public class FTXUtil {
 
-    public static String getFTXSymbol(Forex forex) {
+    public static String getFTXSymbol(final Security security) {
+        if (!(security instanceof Forex)) {
+
+            throw new FixApplicationException("Fortex supports forex orders only");
+        }
+        Forex forex = (Forex) security;
         return new StringBuilder()
                 .append(forex.getBaseCurrency()).append('/').append(forex.getTransactionCurrency())
                 .toString();

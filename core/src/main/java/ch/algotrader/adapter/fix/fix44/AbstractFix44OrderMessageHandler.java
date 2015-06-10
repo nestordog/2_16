@@ -88,13 +88,15 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
 
         if (isOrderRejected(executionReport)) {
 
+            String statusText = getStatusText(executionReport);
+
             if (LOGGER.isEnabledFor(Level.ERROR)) {
 
                 StringBuilder buf = new StringBuilder();
                 buf.append("Order with int ID ").append(intId).append(" has been rejected");
-                if (executionReport.isSetField(Text.FIELD)) {
+                if (statusText != null) {
 
-                    buf.append("; reason given: ").append(executionReport.getText().getValue());
+                    buf.append("; reason given: ").append(statusText);
                 }
                 LOGGER.error(buf.toString());
             }
@@ -108,9 +110,9 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
 
                 orderStatus.setExtDateTime(executionReport.getTransactTime().getValue());
             }
-            if (executionReport.isSetField(Text.FIELD)) {
+            if (statusText != null) {
 
-                orderStatus.setReason(executionReport.getText().getValue());
+                orderStatus.setReason(statusText);
             }
 
             EngineLocator.instance().getServerEngine().sendEvent(orderStatus);
@@ -129,6 +131,16 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
             fill.setOrder(order);
 
             EngineLocator.instance().getServerEngine().sendEvent(fill);
+        }
+    }
+
+    protected String getStatusText(final ExecutionReport executionReport) throws FieldNotFound {
+        if (executionReport.isSetText()) {
+
+            return executionReport.getText().getValue();
+        } else {
+
+            return null;
         }
     }
 
