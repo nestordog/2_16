@@ -17,15 +17,15 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.fix;
 
-import quickfix.field.MDReqID;
-import quickfix.field.SubscriptionRequestType;
-import quickfix.fix44.MarketDataRequest;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.EngineManager;
-import ch.algotrader.service.fix.fix44.Fix44MarketDataServiceException;
+import ch.algotrader.service.ExternalServiceException;
 import ch.algotrader.service.fix.fix44.Fix44MarketDataServiceImpl;
+import quickfix.field.MDReqID;
+import quickfix.field.SubscriptionRequestType;
+import quickfix.fix44.MarketDataRequest;
 
 /**
  * Mock FIX 4.4 market data service
@@ -55,7 +55,7 @@ class FakeFix44MarketDataService extends Fix44MarketDataServiceImpl {
             request.set(new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES));
             getFixAdapter().sendMessage(request, "FAKE");
         } catch (Exception ex) {
-            throw new Fix44MarketDataServiceException(ex.getMessage(), ex);
+            throw new ExternalServiceException(ex.getMessage(), ex);
         }
     }
 
@@ -69,7 +69,7 @@ class FakeFix44MarketDataService extends Fix44MarketDataServiceImpl {
             request.set(new SubscriptionRequestType(SubscriptionRequestType.DISABLE_PREVIOUS_SNAPSHOT_PLUS_UPDATE_REQUEST));
             getFixAdapter().sendMessage(request, "FAKE");
         } catch (Exception ex) {
-            throw new Fix44MarketDataServiceException(ex.getMessage(), ex);
+            throw new ExternalServiceException(ex.getMessage(), ex);
         }
     }
 

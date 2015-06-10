@@ -43,7 +43,9 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.ib.IBCustomMessage;
 import ch.algotrader.entity.Account;
+import ch.algotrader.service.ExternalServiceException;
 import ch.algotrader.service.LookupService;
+import ch.algotrader.service.ServiceException;
 import quickfix.SessionNotFound;
 import quickfix.field.FAConfigurationAction;
 import quickfix.field.FARequestID;
@@ -93,9 +95,9 @@ public class IBFixAllocationServiceImpl implements IBFixAllocationService {
             requestGroups(account);
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
-            throw new IBFixAccountServiceException(ex);
+            throw new ServiceException(ex);
         } catch (SessionNotFound ex) {
-            throw new IBFixAccountServiceException(ex);
+            throw new ExternalServiceException(ex);
         }
 
         return new ArrayList<>(this.groups.keySet());
@@ -121,9 +123,9 @@ public class IBFixAllocationServiceImpl implements IBFixAllocationService {
             requestGroups(account);
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
-            throw new IBFixAccountServiceException(ex);
+            throw new ServiceException(ex);
         } catch (SessionNotFound ex) {
-            throw new IBFixAccountServiceException(ex);
+            throw new ExternalServiceException(ex);
         }
 
         Group groupObject = new Group(group, defaultMethod);
@@ -134,7 +136,7 @@ public class IBFixAllocationServiceImpl implements IBFixAllocationService {
         try {
             postGroups(account);
         } catch (SessionNotFound ex) {
-            throw new IBFixAccountServiceException(ex);
+            throw new ExternalServiceException(ex);
         }
 
     }
@@ -154,9 +156,9 @@ public class IBFixAllocationServiceImpl implements IBFixAllocationService {
             requestGroups(account);
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
-            throw new IBFixAccountServiceException(ex);
+            throw new ServiceException(ex);
         } catch (SessionNotFound ex) {
-            throw new IBFixAccountServiceException(ex);
+            throw new ExternalServiceException(ex);
         }
 
         this.groups.remove(group);
@@ -164,7 +166,7 @@ public class IBFixAllocationServiceImpl implements IBFixAllocationService {
         try {
             postGroups(account);
         } catch (SessionNotFound ex) {
-            throw new IBFixAccountServiceException(ex);
+            throw new ExternalServiceException(ex);
         }
 
     }
@@ -186,9 +188,9 @@ public class IBFixAllocationServiceImpl implements IBFixAllocationService {
             requestGroups(account);
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
-            throw new IBFixAccountServiceException(ex);
+            throw new ServiceException(ex);
         } catch (SessionNotFound ex) {
-            throw new IBFixAccountServiceException(ex);
+            throw new ExternalServiceException(ex);
         }
 
         Group groupObject = this.groups.get(group);
@@ -196,13 +198,13 @@ public class IBFixAllocationServiceImpl implements IBFixAllocationService {
         if (group != null) {
             groupObject.setDefaultMethod(defaultMethod);
         } else {
-            throw new IBFixAccountServiceException("group does not exist " + group);
+            throw new ExternalServiceException("group does not exist " + group);
         }
 
         try {
             postGroups(account);
         } catch (SessionNotFound ex) {
-            throw new IBFixAccountServiceException(ex);
+            throw new ExternalServiceException(ex);
         }
 
     }
@@ -222,9 +224,9 @@ public class IBFixAllocationServiceImpl implements IBFixAllocationService {
             requestGroups(account);
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
-            throw new IBFixAccountServiceException(ex);
+            throw new ServiceException(ex);
         } catch (SessionNotFound ex) {
-            throw new IBFixAccountServiceException(ex);
+            throw new ExternalServiceException(ex);
         }
 
         Group groupObject = this.groups.get(group);
@@ -232,7 +234,7 @@ public class IBFixAllocationServiceImpl implements IBFixAllocationService {
         if (group != null) {
             return groupObject.getAccounts();
         } else {
-            throw new IBFixAccountServiceException("group does not exist " + group);
+            throw new ExternalServiceException("group does not exist " + group);
         }
 
     }
@@ -254,9 +256,9 @@ public class IBFixAllocationServiceImpl implements IBFixAllocationService {
             requestGroups(account);
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
-            throw new IBFixAccountServiceException(ex);
+            throw new ServiceException(ex);
         } catch (SessionNotFound ex) {
-            throw new IBFixAccountServiceException(ex);
+            throw new ExternalServiceException(ex);
         }
 
         Group groupObject = this.groups.get(group);
@@ -264,13 +266,13 @@ public class IBFixAllocationServiceImpl implements IBFixAllocationService {
         if (group != null) {
             groupObject.add(childAccount);
         } else {
-            throw new IBFixAccountServiceException("group does not exist " + group);
+            throw new ExternalServiceException("group does not exist " + group);
         }
 
         try {
             postGroups(account);
         } catch (SessionNotFound ex) {
-            throw new IBFixAccountServiceException(ex);
+            throw new ExternalServiceException(ex);
         }
 
     }
@@ -292,9 +294,9 @@ public class IBFixAllocationServiceImpl implements IBFixAllocationService {
             requestGroups(account);
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
-            throw new IBFixAccountServiceException(ex);
+            throw new ServiceException(ex);
         } catch (SessionNotFound ex) {
-            throw new IBFixAccountServiceException(ex);
+            throw new ExternalServiceException(ex);
         }
 
         Group groupObject = this.groups.get(group);
@@ -302,13 +304,13 @@ public class IBFixAllocationServiceImpl implements IBFixAllocationService {
         if (group != null) {
             groupObject.remove(childAccount);
         } else {
-            throw new IBFixAccountServiceException("group does not exist " + group);
+            throw new ExternalServiceException("group does not exist " + group);
         }
 
         try {
             postGroups(account);
         } catch (SessionNotFound ex) {
-            throw new IBFixAccountServiceException(ex);
+            throw new ExternalServiceException(ex);
         }
     }
 
@@ -320,7 +322,7 @@ public class IBFixAllocationServiceImpl implements IBFixAllocationService {
             Unmarshaller um = context.createUnmarshaller();
             return (GroupMap) um.unmarshal(new StringReader(xmlContent));
         } catch (JAXBException ex) {
-            throw new IBFixAccountServiceException(ex);
+            throw new ExternalServiceException(ex);
         }
     }
 
@@ -336,7 +338,7 @@ public class IBFixAllocationServiceImpl implements IBFixAllocationService {
 
             return writer.toString();
         } catch (JAXBException ex) {
-            throw new IBFixAccountServiceException(ex);
+            throw new ExternalServiceException(ex);
         }
     }
 
@@ -351,18 +353,18 @@ public class IBFixAllocationServiceImpl implements IBFixAllocationService {
         // since call is through JMX/RMI there is not HibernateSession
         Account account = this.lookupService.getAccountByName(accountName);
         if (account == null) {
-            throw new IBFixAccountServiceException("account does not exist " + accountName);
+            throw new ServiceException("account does not exist " + accountName);
         }
 
         this.fixAdapter.sendMessage(faModification, account);
 
         final IBCustomMessage message = this.messageQueue.poll(1, TimeUnit.MINUTES);
         if (message == null) {
-            throw new IBFixAccountServiceException("No response from the IB service after one minute");
+            throw new ExternalServiceException("No response from the IB service after one minute");
         }
 
         if (!accountName.equals(message.getId())) {
-            throw new IBFixAccountServiceException("Unexpected account name: " + message.getId());
+            throw new ExternalServiceException("Unexpected account name: " + message.getId());
         }
 
         this.groups = unmarshal(message.getContent());
@@ -380,7 +382,7 @@ public class IBFixAllocationServiceImpl implements IBFixAllocationService {
         // since call is through JMX/RMI there is not HibernateSession
         Account account = this.lookupService.getAccountByName(accountName);
         if (account == null) {
-            throw new IBFixAccountServiceException("account does not exist " + accountName);
+            throw new ServiceException("account does not exist " + accountName);
         }
 
         this.fixAdapter.sendMessage(faModification, account);

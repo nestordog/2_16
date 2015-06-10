@@ -199,7 +199,7 @@ public class TransactionServiceImpl implements TransactionService {
 
         Strategy strategy= this.strategyDao.findByName(strategyName);
         if (strategy == null) {
-            throw new TransactionServiceException("strategy " + strategyName + " was not found", null);
+            throw new ServiceException("strategy " + strategyName + " was not found", null);
         }
 
         int scale = this.commonConfig.getPortfolioDigits();

@@ -131,7 +131,7 @@ public class ServerManagementServiceImpl implements ServerManagementService {
         try {
             dateTimeObject = DateTimeLegacy.parseAsDateTimeGMT(dateTime);
         } catch (DateTimeParseException ex) {
-            throw new ServerManagementServiceException(ex);
+            throw new ServiceException(ex);
         }
         String extIdString = !"".equals(extId) ? extId : null;
         BigDecimal priceDecimal = RoundUtil.getBigDecimal(price);

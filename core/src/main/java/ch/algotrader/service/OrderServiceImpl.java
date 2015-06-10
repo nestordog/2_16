@@ -179,7 +179,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
             BeanUtil.populate(order, orderPreference.getPropertyNameValueMap());
 
         } catch (ReflectiveOperationException e) {
-            throw new OrderServiceException(e);
+            throw new ServiceException(e);
         }
 
         // set the account if defined
@@ -284,7 +284,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
         try {
             validateOrder(order);
         } catch (OrderValidationException ex) {
-            throw new OrderServiceException(ex);
+            throw new ServiceException(ex);
         }
 
         // set the dateTime property
@@ -397,12 +397,12 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
                 newOrder = BeanUtil.cloneAndPopulate(order, properties);
                 newOrder.setId(0);
             } catch (ReflectiveOperationException ex) {
-                throw new OrderServiceException(ex);
+                throw new ServiceException(ex);
             }
 
             internalModifyOrder(newOrder);
         } else {
-            throw new OrderServiceException("Unknown order id: " + intId, null);
+            throw new ServiceException("Unknown order id: " + intId, null);
         }
 
     }
@@ -699,7 +699,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
 
         ExternalOrderService externalOrderService = this.externalOrderServiceMap.get(orderServiceType);
         if (externalOrderService == null) {
-            throw new OrderServiceException("No ExternalOrderService found for service type " + orderServiceType);
+            throw new ServiceException("No ExternalOrderService found for service type " + orderServiceType);
         }
         return externalOrderService;
     }

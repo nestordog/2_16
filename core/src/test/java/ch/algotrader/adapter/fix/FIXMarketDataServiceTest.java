@@ -33,7 +33,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import quickfix.fix44.MarketDataRequest;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.marketData.TickDao;
 import ch.algotrader.entity.security.Forex;
@@ -47,9 +46,10 @@ import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
-import ch.algotrader.service.fix.FixMarketDataServiceException;
+import ch.algotrader.service.ServiceException;
 import ch.algotrader.service.fix.fix44.Fix44MarketDataService;
 import ch.algotrader.vo.SubscribeTickVO;
+import quickfix.fix44.MarketDataRequest;
 
 @RunWith(MockitoJUnitRunner.class)
 public class FIXMarketDataServiceTest {
@@ -194,7 +194,7 @@ public class FIXMarketDataServiceTest {
         Mockito.verify(this.serverEngine, Mockito.never()).executeQuery(Mockito.anyString());
     }
 
-    @Test(expected = FixMarketDataServiceException.class)
+    @Test(expected = ServiceException.class)
     public void testSubscribeNotLoggedOn() throws Exception {
 
         Mockito.when(this.fixSessionStateHolder.isLoggedOn()).thenReturn(Boolean.FALSE);
@@ -228,7 +228,7 @@ public class FIXMarketDataServiceTest {
         Mockito.verify(this.serverEngine).executeQuery("delete from TickWindow where security.id = 123");
     }
 
-    @Test(expected = FixMarketDataServiceException.class)
+    @Test(expected = ServiceException.class)
     public void testUnsubscribeNotSubscribed() throws Exception {
 
         Mockito.when(this.fixSessionStateHolder.isLoggedOn()).thenReturn(Boolean.TRUE);

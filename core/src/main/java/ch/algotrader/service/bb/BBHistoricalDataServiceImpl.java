@@ -51,9 +51,11 @@ import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.enumeration.InitializingServiceType;
 import ch.algotrader.enumeration.TimePeriod;
+import ch.algotrader.service.ExternalServiceException;
 import ch.algotrader.service.HistoricalDataServiceImpl;
 import ch.algotrader.service.InitializationPriority;
 import ch.algotrader.service.InitializingServiceI;
+import ch.algotrader.service.ServiceException;
 import ch.algotrader.util.DateTimeLegacy;
 import ch.algotrader.util.RoundUtil;
 
@@ -99,10 +101,10 @@ public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl imple
         try {
             session = this.bBAdapter.getReferenceDataSession();
         } catch (IOException ex) {
-            throw new BBHistoricalDataServiceException(ex);
+            throw new ExternalServiceException(ex);
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
-            throw new BBHistoricalDataServiceException(ex);
+            throw new ServiceException(ex);
         }
     }
 
@@ -116,11 +118,11 @@ public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl imple
 
         Security security = this.securityDao.get(securityId);
         if (security == null) {
-            throw new BBHistoricalDataServiceException("security was not found " + securityId);
+            throw new ServiceException("security was not found " + securityId);
         }
 
         if (security.getBbgid() == null) {
-            throw new BBHistoricalDataServiceException("security has no bbgid " + securityId);
+            throw new ServiceException("security has no bbgid " + securityId);
         }
 
         String securityString = "/bbgid/" + security.getBbgid();
@@ -133,7 +135,7 @@ public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl imple
                 sendHistoricalDataRequest(endDate, timePeriodLength, timePeriod, barSize, barType, securityString, properties);
             }
         } catch (IOException ex) {
-            throw new BBHistoricalDataServiceException(ex);
+            throw new ExternalServiceException(ex);
         }
         // instantiate the message handler
         BBHistoricalDataMessageHandler messageHandler = new BBHistoricalDataMessageHandler(security, barSize);
@@ -145,7 +147,7 @@ public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl imple
                 done = messageHandler.processEvent(session);
             } catch (InterruptedException ex) {
                 Thread.currentThread().interrupt();
-                throw new BBHistoricalDataServiceException(ex);
+                throw new ServiceException(ex);
             }
         }
 

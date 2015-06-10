@@ -182,7 +182,7 @@ public class PositionServiceImpl implements PositionService {
 
             // handle Combinations by the combination service
             if (security instanceof Combination) {
-                throw new PositionServiceException("Cannot close Combination position");
+                throw new ServiceException("Cannot close Combination position");
             } else {
                 reduceOrClosePosition(position, position.getQuantity(), unsubscribe);
             }
@@ -210,7 +210,7 @@ public class PositionServiceImpl implements PositionService {
         Strategy strategy = this.strategyDao.findByName(strategyName);
 
         if (security.getSecurityFamily().isTradeable()) {
-            throw new PositionServiceException(security + " is tradeable, can only creat non-tradeable positions");
+            throw new ServiceException(security + " is tradeable, can only creat non-tradeable positions");
         }
 
         Position position = Position.Factory.newInstance();
@@ -273,7 +273,7 @@ public class PositionServiceImpl implements PositionService {
         Security security = position.getSecurity();
 
         if (security.getSecurityFamily().isTradeable()) {
-            throw new PositionServiceException(security + " is tradeable, can only delete non-tradeable positions");
+            throw new ServiceException(security + " is tradeable, can only delete non-tradeable positions");
         }
 
         ClosePositionVO closePositionVO = ClosePositionVOProducer.INSTANCE.convert(position);
@@ -309,7 +309,7 @@ public class PositionServiceImpl implements PositionService {
         }
 
         if (Math.abs(quantity) > Math.abs(position.getQuantity())) {
-            throw new PositionServiceException("position reduction of " + quantity + " for position " + position.getId() + " is greater than current quantity " + position.getQuantity());
+            throw new ServiceException("position reduction of " + quantity + " for position " + position.getId() + " is greater than current quantity " + position.getQuantity());
         } else {
             reduceOrClosePosition(position, quantity, false);
         }
@@ -459,9 +459,9 @@ public class PositionServiceImpl implements PositionService {
         if (marketDataEvent != null) {
             BigDecimal currentValue = marketDataEvent.getCurrentValue();
             if (Direction.SHORT.equals(position.getDirection()) && exitValueNonFinal.compareTo(currentValue) < 0) {
-                throw new PositionServiceException("ExitValue (" + exitValueNonFinal + ") for short-position " + position.getId() + " is lower than currentValue: " + currentValue);
+                throw new ServiceException("ExitValue (" + exitValueNonFinal + ") for short-position " + position.getId() + " is lower than currentValue: " + currentValue);
             } else if (Direction.LONG.equals(position.getDirection()) && exitValueNonFinal.compareTo(currentValue) > 0) {
-                throw new PositionServiceException("ExitValue (" + exitValueNonFinal + ") for long-position " + position.getId() + " is higher than currentValue: " + currentValue);
+                throw new ServiceException("ExitValue (" + exitValueNonFinal + ") for long-position " + position.getId() + " is higher than currentValue: " + currentValue);
             }
         }
 

@@ -132,7 +132,7 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationList
         try {
             saveCvs(tick);
         } catch (IOException ex) {
-            throw new MarketDataServiceException(ex);
+            throw new ServiceException(ex);
         }
 
         // write the tick to the DB (even if not valid)
@@ -358,7 +358,7 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationList
 
         ExternalMarketDataService externalMarketDataService = this.externalMarketDataServiceMap.get(feedType);
         if (externalMarketDataService == null) {
-            throw new ManagementServiceException("No ExternalMarketDataService found for feed type " + feedType);
+            throw new ServiceException("No ExternalMarketDataService found for feed type " + feedType);
         }
         return externalMarketDataService;
     }

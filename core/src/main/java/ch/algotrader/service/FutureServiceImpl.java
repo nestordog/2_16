@@ -143,7 +143,7 @@ public class FutureServiceImpl implements FutureService {
         }
 
         if (future == null) {
-            throw new LookupServiceException("no future available for expiration " + targetExpirationDate);
+            throw new ServiceException("no future available for expiration " + targetExpirationDate);
         } else {
             return future;
         }
@@ -169,7 +169,7 @@ public class FutureServiceImpl implements FutureService {
         }
 
         if (future == null) {
-            throw new LookupServiceException("no future available targetExpiration " + expirationDate);
+            throw new ServiceException("no future available targetExpiration " + expirationDate);
         } else {
 
             return future;
@@ -199,7 +199,7 @@ public class FutureServiceImpl implements FutureService {
         }
 
         if (future == null) {
-            throw new LookupServiceException("no future available targetExpiration " + targetDate + " and duration " + duration);
+            throw new ServiceException("no future available targetExpiration " + targetDate + " and duration " + duration);
         } else {
             return future;
         }

@@ -339,7 +339,7 @@ public class OptionServiceImpl implements OptionService {
         try {
             closeHour = (new SimpleDateFormat("kkmmss")).parse("172000");
         } catch (ParseException ex) {
-            throw new OptionServiceException(ex);
+            throw new ServiceException(ex);
         }
 
         GregorianCalendar cal = new GregorianCalendar();
@@ -479,7 +479,7 @@ public class OptionServiceImpl implements OptionService {
         try {
             return SABR.calibrate(strikesArray, volatilitiesArray, atmVola, forward, years);
         } catch (SABRException ex) {
-            throw new OptionServiceException(ex);
+            throw new ServiceException(ex);
         }
 
     }
@@ -610,7 +610,7 @@ public class OptionServiceImpl implements OptionService {
         try {
             return SABR.calibrate(strikesArray, volatilitiesArray, atmVola, forward, years);
         } catch (SABRException ex) {
-            throw new OptionServiceException(ex);
+            throw new ServiceException(ex);
         }
     }
 
@@ -655,7 +655,7 @@ public class OptionServiceImpl implements OptionService {
             putVola = OptionUtil.getImpliedVolatility(underlyingTick.getCurrentValueDouble(), putOption.getStrike().doubleValue(), putTick.getCurrentValueDouble(), years, family.getIntrest(),
                     family.getDividend(), OptionType.PUT);
         } catch (MathException ex) {
-            throw new OptionServiceException(ex);
+            throw new ServiceException(ex);
         }
 
         return new ATMVolVO(years, callVola, putVola);
@@ -697,7 +697,7 @@ public class OptionServiceImpl implements OptionService {
         }
 
         if (option == null) {
-            throw new LookupServiceException("no option available for expiration " + targetExpirationDate + " strike " + underlyingSpot + " type " + optionType);
+            throw new ServiceException("no option available for expiration " + targetExpirationDate + " strike " + underlyingSpot + " type " + optionType);
         } else {
             return option;
         }
@@ -728,7 +728,7 @@ public class OptionServiceImpl implements OptionService {
         }
 
         if (option == null) {
-            throw new LookupServiceException("no option available for expiration " + targetExpirationDate + " strike " + underlyingSpot + " type " + optionType);
+            throw new ServiceException("no option available for expiration " + targetExpirationDate + " strike " + underlyingSpot + " type " + optionType);
         } else {
             return option;
         }

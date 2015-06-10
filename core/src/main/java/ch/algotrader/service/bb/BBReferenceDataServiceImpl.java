@@ -56,9 +56,11 @@ import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.InitializingServiceType;
 import ch.algotrader.enumeration.OptionType;
+import ch.algotrader.service.ExternalServiceException;
 import ch.algotrader.service.InitializationPriority;
 import ch.algotrader.service.InitializingServiceI;
 import ch.algotrader.service.ReferenceDataServiceImpl;
+import ch.algotrader.service.ServiceException;
 import ch.algotrader.util.DateTimeLegacy;
 import ch.algotrader.util.RoundUtil;
 
@@ -108,10 +110,10 @@ public class BBReferenceDataServiceImpl extends ReferenceDataServiceImpl impleme
         try {
             session = this.bBAdapter.getReferenceDataSession();
         } catch (IOException ex) {
-            throw new BBReferenceDataServiceException(ex);
+            throw new ExternalServiceException(ex);
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
-            throw new BBReferenceDataServiceException(ex);
+            throw new ServiceException(ex);
         }
     }
 
@@ -120,17 +122,17 @@ public class BBReferenceDataServiceImpl extends ReferenceDataServiceImpl impleme
 
         SecurityFamily securityFamily = this.securityFamilyDao.get(securityFamilyId);
         if (securityFamily == null) {
-            throw new BBReferenceDataServiceException("securityFamily was not found " + securityFamilyId);
+            throw new ServiceException("securityFamily was not found " + securityFamilyId);
         }
 
         Security underlying = securityFamily.getUnderlying();
         if (underlying == null) {
-            throw new BBReferenceDataServiceException("no underlying defined for  " + securityFamily);
+            throw new ServiceException("no underlying defined for  " + securityFamily);
         }
 
         String bbgid = underlying.getBbgid();
         if (bbgid == null) {
-            throw new BBReferenceDataServiceException("no bbgid defined for  " + underlying);
+            throw new ServiceException("no bbgid defined for  " + underlying);
         }
 
         String securityString = "/bbgid/" + bbgid;
@@ -155,7 +157,7 @@ public class BBReferenceDataServiceImpl extends ReferenceDataServiceImpl impleme
         try {
             session.sendRequest(symbolRequest, null);
         } catch (IOException ex) {
-            throw new BBReferenceDataServiceException(ex);
+            throw new ExternalServiceException(ex);
         }
 
         // instantiate the message handler
@@ -168,7 +170,7 @@ public class BBReferenceDataServiceImpl extends ReferenceDataServiceImpl impleme
                 done = symbolHandler.processEvent(session);
             } catch (InterruptedException ex) {
                 Thread.currentThread().interrupt();
-                throw new BBReferenceDataServiceException(ex);
+                throw new ServiceException(ex);
             }
         }
 
@@ -208,7 +210,7 @@ public class BBReferenceDataServiceImpl extends ReferenceDataServiceImpl impleme
         try {
             session.sendRequest(securityRequest, null);
         } catch (IOException ex) {
-            throw new BBReferenceDataServiceException(ex);
+            throw new ExternalServiceException(ex);
         }
 
         // instantiate the message handler
@@ -221,7 +223,7 @@ public class BBReferenceDataServiceImpl extends ReferenceDataServiceImpl impleme
                 done = securityHandler.processEvent(session);
             } catch (InterruptedException ex) {
                 Thread.currentThread().interrupt();
-                throw new BBReferenceDataServiceException(ex);
+                throw new ServiceException(ex);
             }
         }
 
@@ -360,7 +362,7 @@ public class BBReferenceDataServiceImpl extends ReferenceDataServiceImpl impleme
                     try {
                         processReferenceDataResponse(msg);
                     } catch (ParseException e) {
-                        throw new BBReferenceDataServiceException(e);
+                        throw new ExternalServiceException(e);
                     }
                 } else {
                     throw new IllegalArgumentException("unknown reponse type: " + msg.messageType());

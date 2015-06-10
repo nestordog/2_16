@@ -26,6 +26,7 @@ import ch.algotrader.entity.Account;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.enumeration.InitializingServiceType;
 import ch.algotrader.service.ExternalOrderServiceImpl;
+import ch.algotrader.service.ExternalServiceException;
 import ch.algotrader.service.InitializationPriority;
 import ch.algotrader.service.InitializingServiceI;
 import ch.algotrader.service.OrderService;
@@ -100,7 +101,7 @@ public abstract class FixOrderServiceImpl extends ExternalOrderServiceImpl imple
         try {
             msgType = message.getHeader().getField(new MsgType());
         } catch (FieldNotFound ex) {
-            throw new FixOrderServiceException(ex);
+            throw new ExternalServiceException(ex);
         }
 
         if (msgType.getValue().equals(MsgType.ORDER_SINGLE)) {

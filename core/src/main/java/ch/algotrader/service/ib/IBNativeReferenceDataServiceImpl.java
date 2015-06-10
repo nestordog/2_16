@@ -54,7 +54,9 @@ import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.future.FutureSymbol;
 import ch.algotrader.option.OptionSymbol;
+import ch.algotrader.service.ExternalServiceException;
 import ch.algotrader.service.ReferenceDataServiceImpl;
+import ch.algotrader.service.ServiceException;
 import ch.algotrader.util.DateTimeLegacy;
 import ch.algotrader.util.RoundUtil;
 
@@ -147,11 +149,11 @@ public class IBNativeReferenceDataServiceImpl extends ReferenceDataServiceImpl i
             } else {
                 throw new IllegalArgumentException("illegal securityFamily type");
             }
-        } catch (IllegalArgumentException | ParseException ex) {
-            throw new IBNativeReferenceDataServiceException(ex);
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
-            throw new IBNativeReferenceDataServiceException(ex);
+            throw new ServiceException(ex);
+        } catch (IllegalArgumentException | ParseException ex) {
+            throw new ExternalServiceException(ex);
         }
     }
 
@@ -184,7 +186,7 @@ public class IBNativeReferenceDataServiceImpl extends ReferenceDataServiceImpl i
             contractDetailsSet = retrieveContractDetails();
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
-            throw new IBNativeReferenceDataServiceException(ex);
+            throw new ServiceException(ex);
         }
         retrieveStocks(securityFamily, contractDetailsSet);
 

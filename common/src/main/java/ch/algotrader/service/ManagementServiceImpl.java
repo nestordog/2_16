@@ -515,7 +515,7 @@ public class ManagementServiceImpl implements ManagementService {
             try {
                 BeanUtil.populate(order, fields);
             } catch (ReflectiveOperationException ex) {
-                throw new ManagementServiceException(ex);
+                throw new ServiceException(ex);
             }
 
             // create OrderProperty Entities for the remaining properties
@@ -743,7 +743,7 @@ public class ManagementServiceImpl implements ManagementService {
                 Instant instant = DateTimeUtil.parseLocalDateTime(value, Instant::from);
                 obj = new Date(instant.toEpochMilli());
             } catch (DateTimeParseException ex) {
-                throw new ManagementServiceException(ex);
+                throw new ServiceException(ex);
             }
         } else if ("BOOLEAN".equals(type)) {
             obj = Boolean.parseBoolean(value);

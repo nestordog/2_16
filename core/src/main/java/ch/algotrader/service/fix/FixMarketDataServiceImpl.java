@@ -32,6 +32,7 @@ import ch.algotrader.esper.EngineManager;
 import ch.algotrader.service.ExternalMarketDataServiceImpl;
 import ch.algotrader.service.InitializationPriority;
 import ch.algotrader.service.InitializingServiceI;
+import ch.algotrader.service.ServiceException;
 import ch.algotrader.vo.SubscribeTickVO;
 
 /**
@@ -97,7 +98,7 @@ public abstract class FixMarketDataServiceImpl extends ExternalMarketDataService
         Validate.notNull(security, "Security is null");
 
         if (!this.lifeCycle.isLoggedOn()) {
-            throw new FixMarketDataServiceException("Fix session is not logged on to subscribe " + security);
+            throw new ServiceException("Fix session is not logged on to subscribe " + security);
         }
 
         // create the SubscribeTickEvent (must happen before reqMktData so that Esper is ready to receive marketdata)
@@ -128,7 +129,7 @@ public abstract class FixMarketDataServiceImpl extends ExternalMarketDataService
         Validate.notNull(security, "Security is null");
 
         if (!this.lifeCycle.isSubscribed()) {
-            throw new FixMarketDataServiceException("Fix session ist not subscribed, security cannot be unsubscribed " + security);
+            throw new ServiceException("Fix session ist not subscribed, security cannot be unsubscribed " + security);
         }
 
         sendUnsubscribeRequest(security);

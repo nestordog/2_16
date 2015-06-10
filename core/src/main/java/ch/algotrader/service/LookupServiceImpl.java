@@ -434,7 +434,7 @@ public class LookupServiceImpl implements LookupService {
             }
         }
 
-        throw new LookupServiceException("Security could not be found: " + securityString);
+        throw new ServiceException("Security could not be found: " + securityString);
     }
 
     /**
@@ -1405,7 +1405,7 @@ public class LookupServiceImpl implements LookupService {
 
         List<Tick> ticks = this.tickDao.findTicksBySecurityAndMaxDate(1, intrestRate.getId(), date, this.coreConfig.getIntervalDays());
         if (ticks.isEmpty()) {
-            throw new LookupServiceException("Cannot get intrestRate for " + currency + " and duration " + duration + " because no last tick is available for date " + date);
+            throw new ServiceException("Cannot get intrestRate for " + currency + " and duration " + duration + " because no last tick is available for date " + date);
         }
 
         return CollectionUtil.getFirstElement(ticks).getCurrentValueDouble();

@@ -44,7 +44,9 @@ import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.enumeration.TimePeriod;
+import ch.algotrader.service.ExternalServiceException;
 import ch.algotrader.service.HistoricalDataServiceImpl;
+import ch.algotrader.service.ServiceException;
 import ch.algotrader.util.DateTimeLegacy;
 
 /**
@@ -96,7 +98,7 @@ public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl
         Validate.notNull(barType, "Bar type is null");
 
         if (!this.iBSession.isLoggedOn()) {
-            throw new IBNativeHistoricalDataServiceException("cannot download historical data, because IB is not subscribed");
+            throw new ServiceException("cannot download historical data, because IB is not subscribed");
         }
 
         // make sure queue is empty
@@ -108,7 +110,7 @@ public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl
 
         Security security = this.securityDao.get(securityId);
         if (security == null) {
-            throw new IBNativeHistoricalDataServiceException("security was not found " + securityId);
+            throw new ServiceException("security was not found " + securityId);
         }
 
         int scale = security.getSecurityFamily().getScale(Broker.IB);
@@ -193,7 +195,7 @@ public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl
                 Thread.sleep(waitMillis);
             } catch (InterruptedException ex) {
                 Thread.currentThread().interrupt();
-                throw new IBNativeHistoricalDataServiceException(ex);
+                throw new ServiceException(ex);
             }
         }
 
@@ -209,11 +211,11 @@ public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl
                 bar = this.historicalDataQueue.poll(10, TimeUnit.SECONDS);
             } catch (InterruptedException ex) {
                 Thread.currentThread().interrupt();
-                throw new IBNativeHistoricalDataServiceException(ex);
+                throw new ServiceException(ex);
             }
 
             if (bar == null) {
-                throw new IBNativeHistoricalDataServiceException("timeout waiting for historical bars");
+                throw new ExternalServiceException("timeout waiting for historical bars");
             }
 
             // end of transmission bar does not have a DateTime

@@ -40,6 +40,7 @@ import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.service.ExternalMarketDataServiceImpl;
+import ch.algotrader.service.ServiceException;
 import ch.algotrader.vo.SubscribeTickVO;
 
 /**
@@ -97,7 +98,7 @@ public class IBNativeMarketDataServiceImpl extends ExternalMarketDataServiceImpl
         Validate.notNull(security, "Security is null");
 
         if (!this.sessionStateHolder.isLoggedOn()) {
-            throw new IBNativeMarketDataServiceException("IB is not logged on to subscribe " + security);
+            throw new ServiceException("IB is not logged on to subscribe " + security);
         }
 
         // create the SubscribeTickEvent (must happen before reqMktData so that Esper is ready to receive marketdata)
@@ -129,13 +130,13 @@ public class IBNativeMarketDataServiceImpl extends ExternalMarketDataServiceImpl
         Validate.notNull(security, "Security is null");
 
         if (!this.sessionStateHolder.isSubscribed()) {
-            throw new IBNativeMarketDataServiceException("IB ist not subscribed, security cannot be unsubscribed " + security);
+            throw new ServiceException("IB ist not subscribed, security cannot be unsubscribed " + security);
         }
 
         // get the tickerId by querying the TickWindow
         String tickerId = this.tickDao.findTickerIdBySecurity(security.getId());
         if (tickerId == null) {
-            throw new IBNativeMarketDataServiceException("tickerId for security " + security + " was not found");
+            throw new ServiceException("tickerId for security " + security + " was not found");
         }
 
         this.iBSession.cancelMktData(Integer.parseInt(tickerId));

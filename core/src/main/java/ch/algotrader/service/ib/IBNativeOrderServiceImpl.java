@@ -35,6 +35,7 @@ import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.service.ExternalOrderServiceImpl;
 import ch.algotrader.service.OrderService;
+import ch.algotrader.service.ServiceException;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -103,7 +104,7 @@ public class IBNativeOrderServiceImpl extends ExternalOrderServiceImpl implement
                     Thread.sleep(200);
                 } catch (InterruptedException ex) {
                     Thread.currentThread().interrupt();
-                    throw new IBNativeOrderServiceException(ex);
+                    throw new ServiceException(ex);
                 }
                 firstOrder = false;
             }

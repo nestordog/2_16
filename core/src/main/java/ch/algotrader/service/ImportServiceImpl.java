@@ -117,14 +117,14 @@ public class ImportServiceImpl implements ImportService {
 
             Security security = this.securityDao.findByIsin(isin);
             if (security == null) {
-                throw new ImportServiceException("security was not found: " + isin);
+                throw new ServiceException("security was not found: " + isin);
             }
 
             CsvTickReader reader;
             try {
                 reader = new CsvTickReader(isin);
             } catch (IOException ex) {
-                throw new ImportServiceException(ex);
+                throw new ServiceException(ex);
             }
 
             // create a set that will eliminate ticks of the same date (not considering milliseconds)
@@ -145,7 +145,7 @@ public class ImportServiceImpl implements ImportService {
 
                 }
             } catch (IOException ex) {
-                throw new ImportServiceException(ex);
+                throw new ServiceException(ex);
             }
 
             // eliminate ticks that are already in the DB
@@ -207,7 +207,7 @@ public class ImportServiceImpl implements ImportService {
             try {
                 csvReader = new CsvIVolReader(fileName + File.separator + file.getName());
             } catch (IOException ex) {
-                throw new ImportServiceException(ex);
+                throw new ServiceException(ex);
             }
 
             IVolVO iVol;
@@ -308,7 +308,7 @@ public class ImportServiceImpl implements ImportService {
                     ticks.add(tick);
                 }
             } catch (IOException ex) {
-                throw new ImportServiceException(ex);
+                throw new ServiceException(ex);
             }
 
             if (LOGGER.isInfoEnabled()) {

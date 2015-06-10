@@ -22,16 +22,20 @@ package ch.algotrader.service;
  *
  * @version $Revision$ $Date$
  */
-public class CalendarServiceException extends ServiceException {
+public class ExternalServiceException extends ServiceException {
 
-    private static final long serialVersionUID = -4161787933637766792L;
+    private static final long serialVersionUID = -6368765538567262340L;
 
-    public CalendarServiceException(Exception ex) {
-        super(ex);
+    public ExternalServiceException(String message, Exception ex) {
+        super(message, ex);
     }
 
-    public CalendarServiceException(String message, Exception ex) {
-        super(message, ex);
+    public ExternalServiceException(String message) {
+        super(message);
+    }
+
+    public ExternalServiceException(Exception ex) {
+        super(ex);
     }
 
 }

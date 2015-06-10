@@ -36,7 +36,7 @@ import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.entity.trade.StopOrderI;
 import ch.algotrader.enumeration.OrderPropertyType;
 import ch.algotrader.enumeration.TIF;
-import ch.algotrader.service.ib.IBNativeOrderServiceException;
+import ch.algotrader.service.ServiceException;
 import ch.algotrader.util.DateTimeLegacy;
 import ch.algotrader.util.FieldUtil;
 import ch.algotrader.util.PriceUtil;
@@ -154,7 +154,7 @@ public class DefaultIBOrderMessageFactory implements IBOrderMessageFactory {
                     Object value = this.convertUtils.convert(orderProperty.getValue(), field.getType());
                     field.set(ibOrder, value);
                 } catch (IllegalAccessException e) {
-                    throw new IBNativeOrderServiceException(e.getMessage(), e);
+                    throw new ServiceException(e.getMessage(), e);
                 }
                 propertiesMap.remove(name);
             }

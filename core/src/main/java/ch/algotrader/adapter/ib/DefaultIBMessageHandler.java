@@ -50,7 +50,7 @@ import ch.algotrader.entity.trade.Order;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.service.HistoricalDataServiceException;
+import ch.algotrader.service.ExternalServiceException;
 import ch.algotrader.service.LookupService;
 import ch.algotrader.util.DateTimeLegacy;
 import ch.algotrader.util.PriceUtil;
@@ -252,7 +252,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
                     " hasGaps=" + hasGaps;
             // @formatter:on
 
-            LOGGER.error(message, new HistoricalDataServiceException(message));
+            LOGGER.error(message, new ExternalServiceException(message));
         }
     }
 

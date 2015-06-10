@@ -42,9 +42,10 @@ import ch.algotrader.enumeration.InitializingServiceType;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.service.ExternalMarketDataServiceImpl;
+import ch.algotrader.service.ExternalServiceException;
 import ch.algotrader.service.InitializationPriority;
 import ch.algotrader.service.InitializingServiceI;
-import ch.algotrader.service.ib.IBNativeMarketDataServiceException;
+import ch.algotrader.service.ServiceException;
 import ch.algotrader.vo.SubscribeTickVO;
 
 /**
@@ -89,10 +90,10 @@ public class BBMarketDataServiceImpl extends ExternalMarketDataServiceImpl imple
         try {
             session = this.bBAdapter.getMarketDataSession();
         } catch (IOException ex) {
-            throw new BBMarketDataServiceException(ex);
+            throw new ExternalServiceException(ex);
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
-            throw new BBMarketDataServiceException(ex);
+            throw new ServiceException(ex);
         }
 
         // by this time the session is up and running, so no need to do this inside the messageHandler
@@ -106,7 +107,7 @@ public class BBMarketDataServiceImpl extends ExternalMarketDataServiceImpl imple
         Validate.notNull(security, "Security is null");
 
         if (!session.isRunning()) {
-            throw new IBNativeMarketDataServiceException("Bloomberg session is not running to subscribe " + security);
+            throw new ServiceException("Bloomberg session is not running to subscribe " + security);
         }
 
         // create the SubscribeTickEvent (must happen before reqMktData so that Esper is ready to receive marketdata)
@@ -127,7 +128,7 @@ public class BBMarketDataServiceImpl extends ExternalMarketDataServiceImpl imple
         try {
             session.subscribe(subscriptions);
         } catch (IOException ex) {
-            throw new BBMarketDataServiceException(ex);
+            throw new ExternalServiceException(ex);
         }
 
         if (LOGGER.isDebugEnabled()) {
@@ -142,13 +143,13 @@ public class BBMarketDataServiceImpl extends ExternalMarketDataServiceImpl imple
         Validate.notNull(security, "Security is null");
 
         if (!session.isRunning()) {
-            throw new IBNativeMarketDataServiceException("Bloomberg session is not running to unsubscribe " + security);
+            throw new ServiceException("Bloomberg session is not running to unsubscribe " + security);
         }
 
         // get the tickerId by querying the TickWindow
         String tickerId = this.tickDao.findTickerIdBySecurity(security.getId());
         if (tickerId == null) {
-            throw new IBNativeMarketDataServiceException("tickerId for security " + security + " was not found");
+            throw new ServiceException("tickerId for security " + security + " was not found");
         }
 
         SubscriptionList subscriptions = getSubscriptionList(security, tickerId);
@@ -156,7 +157,7 @@ public class BBMarketDataServiceImpl extends ExternalMarketDataServiceImpl imple
         try {
             session.unsubscribe(subscriptions);
         } catch (IOException ex) {
-            throw new BBMarketDataServiceException(ex);
+            throw new ExternalServiceException(ex);
         }
 
         this.serverEngine.executeQuery("delete from TickWindow where security.id = " + security.getId());

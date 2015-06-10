@@ -127,7 +127,7 @@ public abstract class TransactionPersistenceServiceImpl implements TransactionPe
                 position = this.positionDao.findBySecurityAndStrategyIdLocked(security.getId(), strategy.getId());
             }
             if (position == null) {
-                throw new TransactionServiceException("Position for strategy " + strategy.getName() +
+                throw new ServiceException("Position for strategy " + strategy.getName() +
                         " / security " + security.getId() + " not found ", null);
             }
 
@@ -171,7 +171,7 @@ public abstract class TransactionPersistenceServiceImpl implements TransactionPe
                 cashBalance = this.cashBalanceDao.findByStrategyAndCurrencyLocked(strategy, currency);
             }
             if (cashBalance == null) {
-                throw new TransactionServiceException("Cash balance for strategy " + strategy.getName() +
+                throw new ServiceException("Cash balance for strategy " + strategy.getName() +
                         " / currency " + currency + " not found ", null);
             }
             cashBalance.setAmount(cashBalance.getAmount().add(amount.getAmount()));

@@ -29,6 +29,8 @@ import ch.algotrader.adapter.ib.AccountUpdate;
 import ch.algotrader.adapter.ib.IBSession;
 import ch.algotrader.adapter.ib.Profile;
 import ch.algotrader.service.AccountServiceImpl;
+import ch.algotrader.service.ExternalServiceException;
+import ch.algotrader.service.ServiceException;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -77,11 +79,11 @@ public class IBNativeAccountServiceImpl extends AccountServiceImpl implements IB
 
                 buffer.append(" " + account + "=" + quantity);
             }
-        } catch (NumberFormatException ex) {
-            throw new IBFixAccountServiceException(ex);
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
-            throw new IBFixAccountServiceException(ex);
+            throw new ServiceException(ex);
+        } catch (NumberFormatException ex) {
+            throw new ExternalServiceException(ex);
         }
 
         LOGGER.debug(buffer.toString());
@@ -107,7 +109,7 @@ public class IBNativeAccountServiceImpl extends AccountServiceImpl implements IB
             }
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
-            throw new IBFixAccountServiceException(ex);
+            throw new ServiceException(ex);
         }
 
         LOGGER.debug(buffer.toString());
