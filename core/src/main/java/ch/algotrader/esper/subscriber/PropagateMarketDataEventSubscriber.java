@@ -29,13 +29,13 @@ import ch.algotrader.util.metric.MetricsUtil;
  */
 public class PropagateMarketDataEventSubscriber {
 
-    private static final Logger LOGGER = LogManager.getLogger(PropagateMarketDataEventSubscriber.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(PropagateMarketDataEventSubscriber.class);
 
     public void update(final MarketDataEvent marketDataEvent) {
 
         // security.toString & marketDataEvent.toString is expensive, so only log if debug is enabled
         if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace(marketDataEvent.getSecurity() + " " + marketDataEvent);
+            LOGGER.trace("{} {}", marketDataEvent.getSecurity(), marketDataEvent);
         }
 
         long startTime = System.nanoTime();

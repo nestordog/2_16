@@ -63,7 +63,7 @@ import ch.algotrader.vo.TradePerformanceVO;
  */
 public class Simulator {
 
-    private static final Logger logger = LogManager.getLogger(Simulator.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(Simulator.class);
 
     private final Map<Pair<String, Currency>, CashBalance> cashBalances;
     private final Map<Pair<String, Security>, Position> positionsByStrategyAndSecurity;
@@ -111,7 +111,9 @@ public class Simulator {
 
         createCashBalance(cashBalance);
 
-        logger.info("created cashBalance: " + cashBalance);
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("created cashBalance: {}", cashBalance);
+        }
     }
 
     public void sendOrder(Order order) {
@@ -236,8 +238,9 @@ public class Simulator {
             sendEvent(tradePerformance);
         }
 
-        logger.info("executed transaction: " + transaction);
-
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("executed transaction: {}", transaction);
+        }
         return position;
     }
 

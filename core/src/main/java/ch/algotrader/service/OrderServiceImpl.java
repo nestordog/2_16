@@ -80,8 +80,8 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
 
     private static final long serialVersionUID = 3969251081188007542L;
 
-    private static final Logger logger = LogManager.getLogger(OrderServiceImpl.class.getName());
-    private static final Logger notificationLogger = LogManager.getLogger("ch.algotrader.service.NOTIFICATION");
+    private static final Logger LOGGER = LogManager.getLogger(OrderServiceImpl.class);
+    private static final Logger NOTIFICATION_LOGGER = LogManager.getLogger("ch.algotrader.service.NOTIFICATION");
 
     private final CommonConfig commonConfig;
 
@@ -466,7 +466,9 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
         }
 
         if (!this.commonConfig.isSimulation()) {
-            logger.debug("propagated orderStatus: " + orderStatus);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("propagated orderStatus: {}", orderStatus);
+            }
 
             // only store OrderStatus for non AlgoOrders
             if (!(orderStatus.getOrder() instanceof AlgoOrder)) {
@@ -491,7 +493,9 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
         }
 
         if (!this.commonConfig.isSimulation()) {
-            logger.debug("propagated orderCompletion: " + orderCompletion);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("propagated orderCompletion: {}", orderCompletion);
+            }
         }
 
     }
@@ -524,7 +528,9 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
 
         Validate.notNull(order, "Order is null");
 
-        notificationLogger.info("order " + order);
+        if (NOTIFICATION_LOGGER.isInfoEnabled()) {
+            NOTIFICATION_LOGGER.info("order {}", order);
+        }
 
     }
 
@@ -573,14 +579,14 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
     public void init() {
 
         final Map<Order, OrderStatus> pendingOrderMap = loadPendingOrders();
-        if (logger.isInfoEnabled() && !pendingOrderMap.isEmpty()) {
+        if (LOGGER.isInfoEnabled() && !pendingOrderMap.isEmpty()) {
 
             List<Order> orderList  = new ArrayList<>(pendingOrderMap.keySet());
 
-            logger.info(orderList.size() + " order(s) are pending");
+            LOGGER.info("{} order(s) are pending", orderList.size());
             for (int i = 0; i < orderList.size(); i++) {
                 Order order = orderList.get(i);
-                logger.info((i + 1) + ": " + order);
+                LOGGER.info("{}: {}", (i + 1), order);
             }
         }
 
@@ -600,7 +606,9 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
 
         order.setIntId(AlgoIdGenerator.getInstance().getNextOrderId());
 
-        logger.info("send algo order: " + order);
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("send algo order: {}", order);
+        }
 
         // progapate the order to all corresponding esper engines
         propagateOrder(order);
@@ -643,7 +651,9 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
         // send the orderStatus
         this.serverEngine.sendEvent(orderStatus);
 
-        logger.info("cancelled algo order: " + order);
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("cancelled algo order: {}", order);
+        }
     }
 
     private void internalModifyOrder(Order order) {

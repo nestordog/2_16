@@ -76,7 +76,7 @@ import ch.algotrader.vo.PortfolioValueVO;
 @Transactional
 public class PortfolioServiceImpl implements PortfolioService {
 
-    private static final Logger logger = LogManager.getLogger(PortfolioServiceImpl.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(PortfolioServiceImpl.class);
 
     private final CommonConfig commonConfig;
 
@@ -902,10 +902,14 @@ public class PortfolioServiceImpl implements PortfolioService {
                 if (ticks.isEmpty()) {
                     ticks = this.tickDao.findTicksBySecurityAndMinDate(1, security.getId(), date, intervalDays);
                     if (ticks.isEmpty()) {
-                        logger.warn("no tick available for " + security + " on " + date);
+                        if (LOGGER.isWarnEnabled()) {
+                            LOGGER.warn("no tick available for {} on {}", security, date);
+                        }
                         continue;
                     }
-                    logger.info("no prior tick available on " + date + " next tick is " + ((ticks.get(0).getDateTime().getTime() - date.getTime()) / 86400000.0) + " days later for " + security);
+                    if (LOGGER.isInfoEnabled()) {
+                        LOGGER.info("no prior tick available on {} next tick is {} days later for {}", date, ((ticks.get(0).getDateTime().getTime() - date.getTime()) / 86400000.0), security);
+                    }
                 }
 
                 double amount = openPosition.getQuantity() * ticks.get(0).getMarketValueDouble(openPosition.getDirection());
@@ -951,10 +955,14 @@ public class PortfolioServiceImpl implements PortfolioService {
                 if (ticks.isEmpty()) {
                     ticks = this.tickDao.findTicksBySecurityAndMinDate(1, security.getId(), date, intervalDays);
                     if (ticks.isEmpty()) {
-                        logger.warn("no tick available for " + security + " on " + date);
+                        if (LOGGER.isWarnEnabled()) {
+                            LOGGER.warn("no tick available for {} on {}", security, date);
+                        }
                         continue;
                     }
-                    logger.info("no prior tick available on " + date + " next tick is " + ((ticks.get(0).getDateTime().getTime() - date.getTime()) / 86400000.0) + " days later for " + security);
+                    if (LOGGER.isInfoEnabled()) {
+                        LOGGER.info("no prior tick available on {} next tick is {} days later for {}", date, ((ticks.get(0).getDateTime().getTime() - date.getTime()) / 86400000.0), security);
+                    }
                 }
 
                 double marketValue = openPosition.getQuantity() * ticks.get(0).getMarketValueDouble(openPosition.getDirection()) * security.getSecurityFamily().getContractSize();
@@ -1044,7 +1052,7 @@ public class PortfolioServiceImpl implements PortfolioService {
 
             if (portfolioValues.size() > 0) {
 
-                logger.warn("transaction date is in the past, please restore portfolio values");
+                LOGGER.warn("transaction date is in the past, please restore portfolio values");
 
             } else {
 
@@ -1119,7 +1127,9 @@ public class PortfolioServiceImpl implements PortfolioService {
                 MultiKey<Long> key = new MultiKey<>((long) strategy.getId(), date.getTime());
                 portfolioValueMap.put(key, portfolioValue);
 
-                logger.info("processed portfolioValue for " + strategy.getName() + " " + date);
+                if (LOGGER.isInfoEnabled()) {
+                    LOGGER.info("processed portfolioValue for {} {}", strategy.getName(), date);
+                }
 
                 date = cron.next(date);
             }
@@ -1154,7 +1164,9 @@ public class PortfolioServiceImpl implements PortfolioService {
                 portfolioValueMap.put(key, portfolioValue);
             }
 
-            logger.info("processed portfolioValue for " + transaction.getStrategy().getName() + " " + transaction.getDateTime() + " cashflow " + transaction.getGrossValue());
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("processed portfolioValue for {} {} cashflow {}", transaction.getStrategy().getName(), transaction.getDateTime(), transaction.getGrossValue());
+            }
         }
 
         // perisist the PortfolioValues

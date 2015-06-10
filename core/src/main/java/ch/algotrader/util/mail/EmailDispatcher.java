@@ -38,7 +38,7 @@ import org.springframework.integration.support.MessageBuilder;
  */
 public class EmailDispatcher {
 
-    private static final Logger logger = LogManager.getLogger(EmailDispatcher.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(EmailDispatcher.class);
 
     private Set<Disposition> dispositions = new HashSet<>();
 
@@ -65,8 +65,9 @@ public class EmailDispatcher {
                 continue;
             }
 
-            logger.info("processing message \"" + mm.getSubject() + "\" from " + mm.getFrom()[0] + " sent on " + mm.getSentDate() + " by disposition " + disposition.getName());
-
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("processing message \"{}\" from {} sent on {} by disposition {}", mm.getSubject(), mm.getFrom()[0], mm.getSentDate(), disposition.getName());
+            }
             // set the headers
             return MessageBuilder.fromMessage(message)
                     .setHeader("directory", disposition.getDirectory())
@@ -74,8 +75,9 @@ public class EmailDispatcher {
                     .build();
         }
 
-        logger.info("ignoring message \"" + mm.getSubject() + "\" from " + mm.getFrom()[0] + " sent on " + mm.getSentDate());
-
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("ignoring message \"{}\" from {} sent on {}", mm.getSubject(), mm.getFrom()[0], mm.getSentDate());
+        }
         // return unmodified message
         return message;
     }

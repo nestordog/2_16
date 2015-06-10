@@ -51,7 +51,7 @@ import quickfix.fix44.MarketDataSnapshotFullRefresh;
  */
 public class LMAXFixMarketDataMessageHandler extends AbstractFix44MarketDataMessageHandler {
 
-    private static final Logger LOGGER = LogManager.getLogger(LMAXFixMarketDataMessageHandler.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(LMAXFixMarketDataMessageHandler.class);
 
     private final Engine serverEngine;
 
@@ -86,7 +86,7 @@ public class LMAXFixMarketDataMessageHandler extends AbstractFix44MarketDataMess
                     case MDEntryType.BID:
 
                         if (LOGGER.isTraceEnabled()) {
-                            LOGGER.trace(lmaxId + " BID " + size + "@" + price);
+                            LOGGER.trace("{} BID {}@{}", lmaxId, size, price);
                         }
 
                         BidVO bidVO = new BidVO(lmaxId, FeedType.LMAX, date, price, (int) size * LMAXConsts.FOREX_CONTRACT_MULTIPLIER);
@@ -95,7 +95,7 @@ public class LMAXFixMarketDataMessageHandler extends AbstractFix44MarketDataMess
                     case MDEntryType.OFFER:
 
                         if (LOGGER.isTraceEnabled()) {
-                            LOGGER.trace(lmaxId + " ASK " + size + "@" + price);
+                            LOGGER.trace("{} ASK {}@{}", lmaxId, size, price);
                         }
 
                         AskVO askVO = new AskVO(lmaxId, FeedType.LMAX, date, price, (int) size * LMAXConsts.FOREX_CONTRACT_MULTIPLIER);

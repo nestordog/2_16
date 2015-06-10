@@ -40,7 +40,7 @@ public class TickValidationVisitor extends PolymorphicEntityVisitor<Boolean, Tic
 
     public static final TickValidationVisitor INSTANCE = new TickValidationVisitor();
 
-    private static final Logger logger = LogManager.getLogger(TickValidationVisitor.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(TickValidationVisitor.class);
 
     private TickValidationVisitor() {
     }
@@ -62,7 +62,9 @@ public class TickValidationVisitor extends PolymorphicEntityVisitor<Boolean, Tic
         // spread cannot be crossed
         CommonConfig commonConfig = ConfigLocator.instance().getCommonConfig();
         if (commonConfig.isValidateCrossedSpread() && tick.getBid() != null && tick.getAsk() != null && tick.getBidAskSpreadDouble() < 0) {
-            logger.warn("crossed spread: bid " + tick.getBid() + " ask " + tick.getAsk() + " for " + this);
+            if (LOGGER.isWarnEnabled()) {
+                LOGGER.warn("crossed spread: bid {} ask {} for {}", tick.getBid(), tick.getAsk(), this);
+            }
             return false;
         } else {
             return true;

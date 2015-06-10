@@ -50,7 +50,7 @@ import ch.algotrader.util.collection.CollectionUtil;
 @Transactional
 public class FutureServiceImpl implements FutureService {
 
-    private static final Logger logger = LogManager.getLogger(FutureServiceImpl.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(FutureServiceImpl.class);
 
     private final CommonConfig commonConfig;
 
@@ -116,7 +116,9 @@ public class FutureServiceImpl implements FutureService {
 
             this.futureDao.save(future);
 
-            logger.info("created future " + future);
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("created future {}", future);
+            }
         }
 
     }

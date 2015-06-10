@@ -46,7 +46,7 @@ import ch.algotrader.util.collection.CollectionUtil;
 @Transactional
 public abstract class HistoricalDataServiceImpl implements HistoricalDataService {
 
-    private static final Logger logger = LogManager.getLogger(HistoricalDataServiceImpl.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(HistoricalDataServiceImpl.class);
 
     private final BarDao barDao;
 
@@ -95,7 +95,9 @@ public abstract class HistoricalDataServiceImpl implements HistoricalDataService
         // save the Bars
         this.barDao.saveAll(bars);
 
-        logger.info("created "+ bars.size() + " new bars for security " + securityId);
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("created {} new bars for security {}", bars.size(), securityId);
+        }
 
     }
 
@@ -165,14 +167,18 @@ public abstract class HistoricalDataServiceImpl implements HistoricalDataService
                 // remove obsolete Bars
                 this.barDao.deleteAll(dateBarMap.values());
 
-                logger.info("updated " + updatedCount + " bars for security " + securityId);
+                if (LOGGER.isInfoEnabled()) {
+                    LOGGER.info("updated {} bars for security {}", updatedCount, securityId);
+                }
             }
         }
 
         // save the newly retrieved Bars that do not exist yet in the db
         this.barDao.saveAll(newBars);
 
-        logger.info("created "+ newBars.size() + " new bars for security " + securityId);
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("created {} new bars for security {}", newBars.size(), securityId);
+        }
 
     }
 }

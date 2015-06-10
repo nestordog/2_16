@@ -49,7 +49,7 @@ import quickfix.fix44.MarketDataSnapshotFullRefresh;
  */
 public class FXCMFixMarketDataMessageHandler extends AbstractFix44MarketDataMessageHandler {
 
-    private static final Logger logger = LogManager.getLogger(FXCMFixMarketDataMessageHandler.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(FXCMFixMarketDataMessageHandler.class);
 
     private final Engine serverEngine;
 
@@ -87,8 +87,8 @@ public class FXCMFixMarketDataMessageHandler extends AbstractFix44MarketDataMess
                 switch (entryType) {
                     case MDEntryType.BID:
 
-                        if (logger.isTraceEnabled()) {
-                            logger.trace(symbol.getValue() + " BID " + size + "@" + price);
+                        if (LOGGER.isTraceEnabled()) {
+                            LOGGER.trace("{} BID {}@{}", symbol.getValue(), size, price);
                         }
 
                         BidVO bidVO = new BidVO(symbol.getValue(), FeedType.FXCM, date != null ? date : new Date(), price, (int) (size * contractMultiplier));
@@ -96,8 +96,8 @@ public class FXCMFixMarketDataMessageHandler extends AbstractFix44MarketDataMess
                         break;
                     case MDEntryType.OFFER:
 
-                        if (logger.isTraceEnabled()) {
-                            logger.trace(symbol.getValue() + " ASK " + size + "@" + price);
+                        if (LOGGER.isTraceEnabled()) {
+                            LOGGER.trace("{} ASK {}@{}", symbol.getValue(), size, price);
                         }
 
                         AskVO askVO = new AskVO(symbol.getValue(), FeedType.FXCM, date != null ? date : new Date(), price, (int) (size * contractMultiplier));

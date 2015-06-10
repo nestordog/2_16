@@ -39,7 +39,7 @@ public class SlicingOrder extends AlgoOrder {
 
     private static final long serialVersionUID = -9017761050542085585L;
 
-    private static final Logger logger = LogManager.getLogger(SlicingOrder.class);
+    private static final Logger LOGGER = LogManager.getLogger(SlicingOrder.class);
 
     private double minVolPct;
 
@@ -250,12 +250,16 @@ public class SlicingOrder extends AlgoOrder {
 
     public void increaseOffsetTicks() {
         this.currentOffsetTicks = this.currentOffsetTicks + 1;
-        logger.debug("increaseOffsetTicks of " + getDescription() + " to " + this.currentOffsetTicks);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("increaseOffsetTicks of {} to {}", getDescription(), this.currentOffsetTicks);
+        }
     }
 
     public void decreaseOffsetTicks() {
         this.currentOffsetTicks = Math.max(this.currentOffsetTicks - 1, 0);
-        logger.debug("decreaseOffsetTicks of " + getDescription() + " to " + this.currentOffsetTicks);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("decreaseOffsetTicks of {} to {}", getDescription(), this.currentOffsetTicks);
+        }
     }
 
     @Override
@@ -350,17 +354,10 @@ public class SlicingOrder extends AlgoOrder {
         // store the current order and tick
         this.pairs.add(new Pair<>(order, tick));
 
-        //@formatter:off
-        logger.info(
-                "next slice for " + getDescription() +
-                ",currentOffsetTicks=" + this.currentOffsetTicks +
-                ",qty=" + order.getQuantity() +
-                ",vol="+ (Side.BUY.equals(order.getSide()) ? tick.getVolAsk() : tick.getVolBid()) +
-                ",limit=" + limit +
-                ",bid=" + tick.getBid() +
-                ",ask=" + tick.getAsk());
-        //@formatter:on
-
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("next slice for {},currentOffsetTicks={},qty={},vol={},limit={},bid={},ask={}", getDescription(), this.currentOffsetTicks, order.getQuantity(),
+                    (Side.BUY.equals(order.getSide()) ? tick.getVolAsk() : tick.getVolBid()), limit, tick.getBid(), tick.getAsk());
+        }
         return order;
     }
 }

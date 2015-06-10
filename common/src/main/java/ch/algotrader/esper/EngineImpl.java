@@ -150,7 +150,7 @@ public class EngineImpl extends AbstractEngine {
         this.serviceProvider.getEPRuntime().sendEvent(new CurrentTimeEvent(0));
 
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Initialized service provider: " + strategyName);
+            LOGGER.debug("Initialized service provider: {}", strategyName);
         }
     }
 
@@ -191,7 +191,7 @@ public class EngineImpl extends AbstractEngine {
         this.serviceProvider.destroy();
 
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("destroyed service provider: " + getStrategyName());
+            LOGGER.debug("destroyed service provider: {}", getStrategyName());
         }
     }
 
@@ -221,7 +221,7 @@ public class EngineImpl extends AbstractEngine {
             EPStatement existingStatement = this.serviceProvider.getEPAdministrator().getStatement(statementName);
             if (existingStatement != null && existingStatement.isStarted()) {
                 if (LOGGER.isWarnEnabled()) {
-                    LOGGER.warn(statementName + " is already deployed and started");
+                    LOGGER.warn("{} is already deployed and started", statementName);
                 }
                 return;
             }
@@ -247,11 +247,11 @@ public class EngineImpl extends AbstractEngine {
 
         if (newStatement == null) {
             if (LOGGER.isWarnEnabled()) {
-                LOGGER.warn("statement " + statementName + " was not found");
+                LOGGER.warn("statement {} was not found", statementName);
             }
         } else {
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("deployed statement " + newStatement.getName());
+                LOGGER.debug("deployed statement {}", newStatement.getName());
             }
         }
     }
@@ -300,7 +300,7 @@ public class EngineImpl extends AbstractEngine {
         }
 
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("deployed module " + moduleName);
+            LOGGER.debug("deployed module {}", moduleName);
         }
     }
 
@@ -313,7 +313,7 @@ public class EngineImpl extends AbstractEngine {
         if (statementNames.length == 0) {
             return false;
         } else if (statementNames.length > 1) {
-            LOGGER.error("more than one statement matches: " + statementNameRegex);
+            LOGGER.error("more than one statement matches: {}", statementNameRegex);
         }
 
         // get the statement
@@ -351,7 +351,7 @@ public class EngineImpl extends AbstractEngine {
         if (statement != null && statement.isStarted()) {
             statement.destroy();
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("undeployed statement " + statementName);
+                LOGGER.debug("undeployed statement {}", statementName);
             }
         }
     }
@@ -366,7 +366,7 @@ public class EngineImpl extends AbstractEngine {
             statement.stop();
             statement.start();
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("restarted statement " + statementName);
+                LOGGER.debug("restarted statement {}", statementName);
             }
         }
     }
@@ -387,7 +387,7 @@ public class EngineImpl extends AbstractEngine {
         }
 
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("undeployed module " + moduleName);
+            LOGGER.debug("undeployed module {}", moduleName);
         }
     }
 
@@ -556,7 +556,7 @@ public class EngineImpl extends AbstractEngine {
         setVariableValue("internal_clock", internalClock);
 
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("set internal clock to: " + internalClock);
+            LOGGER.debug("set internal clock to: {}", internalClock);
         }
     }
 
@@ -601,7 +601,7 @@ public class EngineImpl extends AbstractEngine {
         if (runtime.getVariableValueAll().containsKey(variableName)) {
             runtime.setVariableValue(variableName, value);
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("set variable " + variableName + " to value " + value);
+                LOGGER.debug("set variable {} to value {}", variableName, value);
             }
         }
     }
@@ -623,7 +623,7 @@ public class EngineImpl extends AbstractEngine {
             }
             runtime.setVariableValue(variableName, castedObj);
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("set variable " + variableName + " to value " + value);
+                LOGGER.debug("set variable {} to value {}", variableName, value);
             }
         }
     }
@@ -658,7 +658,7 @@ public class EngineImpl extends AbstractEngine {
         if (isDeployed(alias)) {
 
             if (LOGGER.isWarnEnabled()) {
-                LOGGER.warn(alias + " is already deployed");
+                LOGGER.warn("{} is already deployed", alias);
             }
         } else {
 
@@ -681,7 +681,7 @@ public class EngineImpl extends AbstractEngine {
         if (isDeployed(alias)) {
 
             if (LOGGER.isWarnEnabled()) {
-                LOGGER.warn(alias + " is already deployed");
+                LOGGER.warn("{} is already deployed", alias);
             }
         } else {
 
@@ -698,7 +698,7 @@ public class EngineImpl extends AbstractEngine {
         if (isDeployed(alias)) {
 
             if (LOGGER.isWarnEnabled()) {
-                LOGGER.warn(alias + " is already deployed");
+                LOGGER.warn("{} is already deployed", alias);
             }
         } else {
 
@@ -714,7 +714,7 @@ public class EngineImpl extends AbstractEngine {
         if (isDeployed(alias)) {
 
             if (LOGGER.isWarnEnabled()) {
-                LOGGER.warn(alias + " is already deployed");
+                LOGGER.warn("{} is already deployed", alias);
             }
         } else {
 

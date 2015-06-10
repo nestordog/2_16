@@ -34,7 +34,7 @@ class EntityCache extends HashMap<EntityCacheKey, Map<String, Object>> {
 
     private static final long serialVersionUID = -3242571286067822619L;
 
-    private static final Logger logger = LogManager.getLogger(EntityCache.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(EntityCache.class);
 
     /**
      * attaches an object to the cache
@@ -50,7 +50,9 @@ class EntityCache extends HashMap<EntityCacheKey, Map<String, Object>> {
 
         entry.put(key, value);
 
-        logger.trace("attached " + cacheKey + ": " + key);
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("attached {}: {}", cacheKey, key);
+        }
     }
 
     /**
@@ -86,6 +88,8 @@ class EntityCache extends HashMap<EntityCacheKey, Map<String, Object>> {
 
         remove(cacheKey);
 
-        logger.trace("detached " + cacheKey);
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("detached {}", cacheKey);
+        }
     }
 }

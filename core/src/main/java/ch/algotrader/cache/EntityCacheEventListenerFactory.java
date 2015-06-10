@@ -39,7 +39,7 @@ import net.sf.ehcache.event.CacheEventListenerAdapter;
 */
 public class EntityCacheEventListenerFactory extends net.sf.ehcache.event.CacheEventListenerFactory {
 
-    private static final Logger logger = LogManager.getLogger(EntityCacheEventListenerFactory.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(EntityCacheEventListenerFactory.class);
 
     @Override
     public CacheEventListener createCacheEventListener(Properties properties) {
@@ -85,7 +85,7 @@ public class EntityCacheEventListenerFactory extends net.sf.ehcache.event.CacheE
                     CacheManagerImpl cacheManager = ServiceLocator.instance().getService("cacheManager", CacheManagerImpl.class);
                     cacheManager.update(cacheKey, CacheManagerImpl.ROOT);
                 } catch (ClassNotFoundException e) {
-                    logger.error("entityOrRoleName could not be found " + entityOrRoleName);
+                    LOGGER.error("entityOrRoleName could not be found {}", entityOrRoleName);
                 }
             }
 
@@ -101,7 +101,7 @@ public class EntityCacheEventListenerFactory extends net.sf.ehcache.event.CacheE
                     CacheManagerImpl cacheManager = ServiceLocator.instance().getService("cacheManager", CacheManagerImpl.class);
                     cacheManager.update(cacheKey, key);
                 } catch (ClassNotFoundException e) {
-                    logger.error("entityOrRoleName could not be found " + entityOrRoleName);
+                    LOGGER.error("entityOrRoleName could not be found {}", entityOrRoleName);
                 }
             }
         };

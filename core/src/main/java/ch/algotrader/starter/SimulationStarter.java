@@ -61,7 +61,7 @@ import ch.algotrader.simulation.SimulationExecutor;
  */
 public class SimulationStarter {
 
-    public static Logger logger = LogManager.getLogger(SimulationExecutor.class.getName());
+    public static Logger LOGGER = LogManager.getLogger(SimulationExecutor.class);
 
     public static void main(String[] args) throws ConvergenceException, FunctionEvaluationException {
 
@@ -174,7 +174,9 @@ public class SimulationStarter {
             serviceLocator.getService("simulationExecutor", SimulationExecutor.class).optimizeMultiParam(strategyGroup, parameters, starts);
 
         } else {
-            logger.info("invalid command " + args[0]);
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("invalid command {}", args[0]);
+            }
             return;
         }
 

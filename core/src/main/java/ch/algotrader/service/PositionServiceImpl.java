@@ -73,7 +73,7 @@ import ch.algotrader.vo.ExpirePositionVO;
 @Transactional
 public class PositionServiceImpl implements PositionService {
 
-    private static final Logger logger = LogManager.getLogger(PositionServiceImpl.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(PositionServiceImpl.class);
 
     private final CommonConfig commonConfig;
 
@@ -228,7 +228,9 @@ public class PositionServiceImpl implements PositionService {
         // reverse-associate the security (after position has received an id)
         security.getPositions().add(position);
 
-        logger.info("created non-tradeable position on " + security + " for strategy " + strategyName + " quantity " + quantity);
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("created non-tradeable position on {} for strategy {} quantity {}", security, strategyName, quantity);
+        }
 
         return position;
 
@@ -248,7 +250,9 @@ public class PositionServiceImpl implements PositionService {
 
         position.setQuantity(quantity);
 
-        logger.info("modified non-tradeable position " + positionId + " new quantity " + quantity);
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("modified non-tradeable position {} new quantity {}", positionId, quantity);
+        }
 
         return position;
 
@@ -282,7 +286,9 @@ public class PositionServiceImpl implements PositionService {
 
         this.positionDao.delete(position);
 
-        logger.info("deleted non-tradeable position " + position.getId() + " on " + security + " for strategy " + position.getStrategy().getName());
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("deleted non-tradeable position {} on {} for strategy {}", position.getId(), security, position.getStrategy().getName());
+        }
 
         // unsubscribe if necessary
         if (unsubscribe) {
@@ -427,17 +433,23 @@ public class PositionServiceImpl implements PositionService {
 
         // prevent exitValues near Zero
         if (!(position.getSecurity() instanceof Combination) && exitValueNonFinal.doubleValue() <= 0.05) {
-            logger.warn("setting of exitValue below 0.05 is prohibited: " + exitValueNonFinal);
+            if (LOGGER.isWarnEnabled()) {
+                LOGGER.warn("setting of exitValue below 0.05 is prohibited: {}", exitValueNonFinal);
+            }
             return position;
         }
 
         // The new ExitValues should not be set lower (higher) than the existing ExitValue for long (short) positions. This check can be overwritten by setting force to true
         if (!force) {
             if (Direction.SHORT.equals(position.getDirection()) && position.getExitValue() != null && exitValueNonFinal.compareTo(position.getExitValue()) > 0) {
-                logger.warn("exit value " + exitValueNonFinal + " is higher than existing exit value " + position.getExitValue() + " of short position " + positionId);
+                if (LOGGER.isWarnEnabled()) {
+                    LOGGER.warn("exit value {} is higher than existing exit value {} of short position {}", exitValueNonFinal, position.getExitValue(), positionId);
+                }
                 return position;
             } else if (Direction.LONG.equals(position.getDirection()) && position.getExitValue() != null && exitValueNonFinal.compareTo(position.getExitValue()) < 0) {
-                logger.warn("exit value " + exitValueNonFinal + " is lower than existing exit value " + position.getExitValue() + " of long position " + positionId);
+                if (LOGGER.isWarnEnabled()) {
+                    LOGGER.warn("exit value {} is lower than existing exit value {} of long position {}", exitValueNonFinal, position.getExitValue(), positionId);
+                }
                 return position;
             }
         }
@@ -456,7 +468,9 @@ public class PositionServiceImpl implements PositionService {
         // set the exitValue
         position.setExitValue(exitValueNonFinal);
 
-        logger.info("set exit value of position " + position.getId() + " to " + exitValueNonFinal);
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("set exit value of position {} to {}", position.getId(), exitValueNonFinal);
+        }
 
         return position;
 
@@ -478,7 +492,9 @@ public class PositionServiceImpl implements PositionService {
 
             position.setExitValue(null);
 
-            logger.info("removed exit value of position " + positionId);
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("removed exit value of position {}", positionId);
+            }
         }
 
         return position;
@@ -519,7 +535,7 @@ public class PositionServiceImpl implements PositionService {
 
                 String warning = "position on security " + targetOpenPosition.getSecurity() + " strategy " + targetOpenPosition.getStrategy() + " quantity " + targetOpenPosition.getQuantity()
                         + " does not exist";
-                logger.warn(warning);
+                LOGGER.warn(warning);
                 buffer.append(warning + "\n");
 
             } else {
@@ -531,7 +547,7 @@ public class PositionServiceImpl implements PositionService {
                     actualOpenPosition.setQuantity(targetOpenPosition.getQuantity());
 
                     String warning = "adjusted quantity of position " + actualOpenPosition.getId() + " from " + existingQty + " to " + targetOpenPosition.getQuantity();
-                    logger.warn(warning);
+                    LOGGER.warn(warning);
                     buffer.append(warning + "\n");
                 }
 
@@ -542,7 +558,7 @@ public class PositionServiceImpl implements PositionService {
                     actualOpenPosition.setCost(targetOpenPosition.getCost());
 
                     String warning = "adjusted cost of position " + actualOpenPosition.getId() + " from " + existingCost + " to " + targetOpenPosition.getCost();
-                    logger.warn(warning);
+                    LOGGER.warn(warning);
                     buffer.append(warning + "\n");
                 }
 
@@ -553,7 +569,7 @@ public class PositionServiceImpl implements PositionService {
                     actualOpenPosition.setRealizedPL(targetOpenPosition.getRealizedPL());
 
                     String warning = "adjusted realizedPL of position " + actualOpenPosition.getId() + " from " + existingRealizedPL + " to " + targetOpenPosition.getRealizedPL();
-                    logger.warn(warning);
+                    LOGGER.warn(warning);
                     buffer.append(warning + "\n");
                 }
             }
@@ -618,7 +634,9 @@ public class PositionServiceImpl implements PositionService {
 
             double maintenanceMargin = this.portfolioService.getMaintenanceMarginDouble(position.getStrategy().getName());
 
-            logger.debug("set margin of position " + position.getId() + " to: " + RoundUtil.getBigDecimal(marginPerContract) + " total margin: " + RoundUtil.getBigDecimal(maintenanceMargin));
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("set margin of position {} to: {} total margin: {}", position.getId(), RoundUtil.getBigDecimal(marginPerContract), RoundUtil.getBigDecimal(maintenanceMargin));
+            }
         }
     }
 

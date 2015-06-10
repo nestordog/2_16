@@ -59,7 +59,7 @@ import ch.algotrader.util.io.CsvTickWriter;
  */
 public class IBHistoricalTickDataStarter {
 
-    private static final Logger logger = LogManager.getLogger(IBHistoricalTickDataStarter.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(IBHistoricalTickDataStarter.class);
 
     public static void main(String[] args) throws Exception {
 
@@ -211,6 +211,8 @@ public class IBHistoricalTickDataStarter {
             writer.write(tick);
         }
 
-        logger.debug("wrote " + timeTickMap.entrySet().size() + " ticks for: " + security + " on date: " + date);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("wrote {} ticks for: {} on date: {}", timeTickMap.entrySet().size(), security, date);
+        }
     }
 }

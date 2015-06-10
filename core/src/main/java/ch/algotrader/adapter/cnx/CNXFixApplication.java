@@ -43,7 +43,7 @@ import quickfix.fix44.TradingSessionStatus;
  */
 public class CNXFixApplication extends AbstractFixApplication {
 
-    private static final Logger LOGGER = LogManager.getLogger(CNXFixApplication.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(CNXFixApplication.class);
 
     private final FixSessionStateHolder stateHolder;
 
@@ -75,10 +75,10 @@ public class CNXFixApplication extends AbstractFixApplication {
                 if (tradingSessionStatus.isSetText()) {
 
                     Text text = tradingSessionStatus.getText();
-                    LOGGER.error("CNX session failed: " + text.getValue());
+                    LOGGER.error("CNX session failed: {}", text.getValue());
                 } else {
 
-                    LOGGER.error("CNX session failed with status code " + status.getValue());
+                    LOGGER.error("CNX session failed with status code {}", status.getValue());
                 }
             }
 

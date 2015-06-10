@@ -58,8 +58,8 @@ import ch.algotrader.vo.TradePerformanceVO;
 @Transactional
 public abstract class TransactionPersistenceServiceImpl implements TransactionPersistenceService {
 
-    private static final Logger logger = LogManager.getLogger(TransactionPersistenceServiceImpl.class.getName());
-    private static final Logger simulationLogger = LogManager.getLogger("ch.algotrader.simulation.SimulationExecutor.RESULT");
+    private static final Logger LOGGER = LogManager.getLogger(TransactionPersistenceServiceImpl.class);
+    private static final Logger SIMULATION_LOGGER = LogManager.getLogger("ch.algotrader.simulation.SimulationExecutor.RESULT");
 
     private final CommonConfig commonConfig;
 
@@ -194,9 +194,9 @@ public abstract class TransactionPersistenceServiceImpl implements TransactionPe
         }
 
         if (this.commonConfig.isSimulation() && this.commonConfig.isSimulationLogTransactions()) {
-            simulationLogger.info(logMessage);
+            SIMULATION_LOGGER.info(logMessage);
         } else {
-            logger.info(logMessage);
+            LOGGER.info(logMessage);
         }
 
         // return PositionMutation event if existent
@@ -259,7 +259,7 @@ public abstract class TransactionPersistenceServiceImpl implements TransactionPe
                     cashBalance.setAmount(amount);
 
                     String info = "adjusted cashBalance " + cashBalance + " from " + oldAmount;
-                    logger.info(info);
+                    LOGGER.info(info);
                     buffer.append(info + "\n");
 
                 }
@@ -277,7 +277,7 @@ public abstract class TransactionPersistenceServiceImpl implements TransactionPe
                 strategy.getCashBalances().add(cashBalance);
 
                 String info = "created cashBalance " + cashBalance;
-                logger.info(info);
+                LOGGER.info(info);
                 buffer.append(info + "\n");
 
             }
@@ -290,7 +290,7 @@ public abstract class TransactionPersistenceServiceImpl implements TransactionPe
             strategy.getCashBalances().remove(cashBalance);
 
             String info = "removed cashBalance " + cashBalance;
-            logger.info(info);
+            LOGGER.info(info);
             buffer.append(info + "\n");
         }
 

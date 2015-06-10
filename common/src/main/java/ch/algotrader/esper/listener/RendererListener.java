@@ -35,7 +35,7 @@ import com.espertech.esper.client.util.XMLEventRenderer;
  */
 public class RendererListener implements StatementAwareUpdateListener {
 
-    private static final Logger logger = LogManager.getLogger(RendererListener.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(RendererListener.class);
 
     private static XMLEventRenderer renderer;
 
@@ -48,9 +48,11 @@ public class RendererListener implements StatementAwareUpdateListener {
         }
 
         // print the values
-        for (EventBean event : newEvents) {
-            String eventText = renderer.render(statement.getEventType().getName(), event);
-            logger.info("\n" + eventText);
+        if (LOGGER.isInfoEnabled()) {
+            for (EventBean event : newEvents) {
+                String eventText = renderer.render(statement.getEventType().getName(), event);
+                LOGGER.info("\n{}", eventText);
+            }
         }
     }
 }

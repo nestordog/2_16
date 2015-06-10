@@ -46,7 +46,7 @@ public abstract class FixMarketDataServiceImpl extends ExternalMarketDataService
 
     private static final long serialVersionUID = 4880040246465806082L;
 
-    private static final Logger logger = LogManager.getLogger(FixMarketDataServiceImpl.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(FixMarketDataServiceImpl.class);
 
     private final FixSessionStateHolder lifeCycle;
     private final FixAdapter fixAdapter;
@@ -116,7 +116,9 @@ public abstract class FixMarketDataServiceImpl extends ExternalMarketDataService
 
         sendSubscribeRequest(security);
 
-        logger.debug("request market data for : " + security);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("request market data for : {}", security);
+        }
 
     }
 
@@ -133,7 +135,9 @@ public abstract class FixMarketDataServiceImpl extends ExternalMarketDataService
 
         this.serverEngine.executeQuery("delete from TickWindow where security.id = " + security.getId());
 
-        logger.debug("cancelled market data for : " + security);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("cancelled market data for : {}", security);
+        }
 
     }
 

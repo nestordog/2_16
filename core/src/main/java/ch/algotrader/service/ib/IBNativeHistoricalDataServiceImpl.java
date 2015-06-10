@@ -54,7 +54,7 @@ import ch.algotrader.util.DateTimeLegacy;
  */
 public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl implements IBNativeHistoricalDataService {
 
-    private static final Logger logger = LogManager.getLogger(IBNativeHistoricalDataServiceImpl.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(IBNativeHistoricalDataServiceImpl.class);
     private static final DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("yyyyMMdd  HH:mm:ss");
     private static final int pacingMillis = 10 * 1000;
 
@@ -103,7 +103,7 @@ public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl
         Bar peek = this.historicalDataQueue.peek();
         if (peek != null) {
             this.historicalDataQueue.clear();
-            logger.warn("historicalDataQueue was not empty");
+            LOGGER.warn("historicalDataQueue was not empty");
         }
 
         Security security = this.securityDao.get(securityId);
@@ -186,7 +186,9 @@ public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl
         long gapMillis = System.currentTimeMillis() - this.lastTimeStamp;
         if (this.lastTimeStamp != 0 && gapMillis < pacingMillis) {
             long waitMillis = pacingMillis - gapMillis;
-            logger.debug("waiting " + waitMillis + " millis until next historical data request");
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("waiting {} millis until next historical data request", waitMillis);
+            }
             try {
                 Thread.sleep(waitMillis);
             } catch (InterruptedException ex) {

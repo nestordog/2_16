@@ -61,8 +61,8 @@ import ch.algotrader.vo.PositionMutationVO;
 @Transactional
 public class TransactionServiceImpl implements TransactionService {
 
-    private static final Logger logger = LogManager.getLogger(TransactionServiceImpl.class.getName());
-    private static final Logger mailLogger = LogManager.getLogger(TransactionServiceImpl.class.getName() + ".MAIL");
+    private static final Logger LOGGER = LogManager.getLogger(TransactionServiceImpl.class);
+    private static final Logger MAIL_LOGGER = LogManager.getLogger(TransactionServiceImpl.class.getName() + ".MAIL");
 
     private final CommonConfig commonConfig;
 
@@ -292,7 +292,9 @@ public class TransactionServiceImpl implements TransactionService {
         }
 
         if (!this.commonConfig.isSimulation()) {
-            logger.info("received fill: " + fill + " for order: " + fill.getOrder());
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("received fill: {} for order: {}", fill, fill.getOrder());
+            }
         }
 
     }
@@ -319,13 +321,15 @@ public class TransactionServiceImpl implements TransactionService {
             SecurityFamily securityFamily = order.getSecurity().getSecurityFamily();
 
             //@formatter:off
-            mailLogger.info("executed transaction: " +
-                    fill.getSide() +
-                    "," + totalQuantity +
-                    "," + order.getSecurity() +
-                    ",avgPrice=" + RoundUtil.getBigDecimal(totalPrice / totalQuantity, securityFamily.getScale()) +
-                    "," + securityFamily.getCurrency() +
-                    ",strategy=" + order.getStrategy());
+            if (MAIL_LOGGER.isInfoEnabled()) {
+                MAIL_LOGGER.info("executed transaction: {},{},{},avgPrice={},{},strategy={}",
+                        fill.getSide(),
+                        totalQuantity,
+                        order.getSecurity(),
+                        RoundUtil.getBigDecimal(totalPrice / totalQuantity, securityFamily.getScale()),
+                        securityFamily.getCurrency(),
+                        order.getStrategy());
+            }
             //@formatter:on
         }
 
@@ -415,7 +419,9 @@ public class TransactionServiceImpl implements TransactionService {
 
         } else {
 
-            logger.info("no rebalancing is performed because all rebalancing amounts are below min amount " + this.coreConfig.getRebalanceMinAmount());
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("no rebalancing is performed because all rebalancing amounts are below min amount {}", this.coreConfig.getRebalanceMinAmount());
+            }
         }
 
         if (!this.coreConfig.isPositionCheckDisabled()) {

@@ -92,7 +92,7 @@ import ch.algotrader.vo.SABRSurfaceVO;
 @Transactional
 public class OptionServiceImpl implements OptionService {
 
-    private static final Logger logger = LogManager.getLogger(OptionServiceImpl.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(OptionServiceImpl.class);
     private static final int advanceMinutes = 10;
 
     private final CommonConfig commonConfig;
@@ -229,7 +229,9 @@ public class OptionServiceImpl implements OptionService {
                     OptionServiceImpl.this.orderService.sendOrder(order);
                 } else {
 
-                    logger.info("no delta hedge necessary on " + underlying);
+                    if (LOGGER.isInfoEnabled()) {
+                        LOGGER.info("no delta hedge necessary on {}", underlying);
+                    }
                 }
             }
         });
@@ -266,7 +268,9 @@ public class OptionServiceImpl implements OptionService {
 
         this.optionDao.save(option);
 
-        logger.info("created OTC option " + option);
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("created OTC option {}", option);
+        }
 
         return option;
 
@@ -310,7 +314,9 @@ public class OptionServiceImpl implements OptionService {
 
         this.optionDao.save(option);
 
-        logger.info("created dummy option " + option);
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("created dummy option {}", option);
+        }
 
         return option;
 

@@ -49,7 +49,7 @@ import quickfix.fix44.MarketDataIncrementalRefresh;
  */
 public class CNXFixMarketDataMessageHandler extends AbstractFix44MarketDataMessageHandler {
 
-    private static final Logger LOGGER = LogManager.getLogger(CNXFixMarketDataMessageHandler.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(CNXFixMarketDataMessageHandler.class);
 
     private final Engine serverEngine;
 
@@ -84,7 +84,7 @@ public class CNXFixMarketDataMessageHandler extends AbstractFix44MarketDataMessa
                     case MDEntryType.BID:
 
                         if (LOGGER.isTraceEnabled()) {
-                            LOGGER.trace(id + " BID " + size + "@" + price);
+                            LOGGER.trace("{} BID {}@{}", id, size, price);
                         }
 
                         BidVO bidVO = new BidVO(id, FeedType.CNX, date, price, (int) size);
@@ -93,7 +93,7 @@ public class CNXFixMarketDataMessageHandler extends AbstractFix44MarketDataMessa
                     case MDEntryType.OFFER:
 
                         if (LOGGER.isTraceEnabled()) {
-                            LOGGER.trace(id + " ASK " + size + "@" + price);
+                            LOGGER.trace("{} ASK {}@{}", id, size, price);
                         }
 
                         AskVO askVO = new AskVO(id, FeedType.CNX, date, price, (int) size);

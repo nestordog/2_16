@@ -36,7 +36,7 @@ import ch.algotrader.util.FieldUtil;
  */
 public class EntityHandler extends AbstractHandler {
 
-    private static final Logger logger = LogManager.getLogger(EntityHandler.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(EntityHandler.class);
 
     private final CacheManagerImpl cacheManager;
 
@@ -75,7 +75,7 @@ public class EntityHandler extends AbstractHandler {
                     try {
                         value = field.get(obj);
                     } catch (Exception e) {
-                        logger.error("problem getting field", e);
+                        LOGGER.error("problem getting field", e);
                     }
 
                     // nothing to do on simplate attributes
@@ -90,7 +90,7 @@ public class EntityHandler extends AbstractHandler {
                         try {
                             field.set(obj, existingValue);
                         } catch (Exception e) {
-                            logger.error("problem setting field", e);
+                            LOGGER.error("problem setting field", e);
                         }
                     }
 
@@ -137,7 +137,7 @@ public class EntityHandler extends AbstractHandler {
                                 }
                             }
                         } catch (Exception e) {
-                            logger.error("problem accessing field", e);
+                            LOGGER.error("problem accessing field", e);
                         }
                     }
                 }

@@ -57,7 +57,7 @@ public class BBMarketDataServiceImpl extends ExternalMarketDataServiceImpl imple
 
     private static final long serialVersionUID = -3463200344945144471L;
 
-    private static final Logger logger = LogManager.getLogger(BBMarketDataServiceImpl.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(BBMarketDataServiceImpl.class);
     private static BBSession session;
 
     private final BBAdapter bBAdapter;
@@ -130,7 +130,9 @@ public class BBMarketDataServiceImpl extends ExternalMarketDataServiceImpl imple
             throw new BBMarketDataServiceException(ex);
         }
 
-        logger.debug("requested market data for: " + security + " tickerId: " + tickerId);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("requested market data for: {} tickerId: {}", security, tickerId);
+        }
 
     }
 
@@ -159,7 +161,9 @@ public class BBMarketDataServiceImpl extends ExternalMarketDataServiceImpl imple
 
         this.serverEngine.executeQuery("delete from TickWindow where security.id = " + security.getId());
 
-        logger.debug("cancelled market data for : " + security);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("cancelled market data for : {}", security);
+        }
 
     }
 

@@ -34,12 +34,14 @@ import com.espertech.esper.client.StatementAwareUpdateListener;
  */
 public class StatementAwareTestListener implements StatementAwareUpdateListener {
 
-    private static final Logger logger = LogManager.getLogger(StatementAwareTestListener.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(StatementAwareTestListener.class);
 
     @Override
     public void update(EventBean[] newEvents, EventBean[] oldEvents, EPStatement statement, EPServiceProvider epServiceProvider) {
-        for (EventBean event : newEvents) {
-            logger.info(statement.getName() + " " + event.getUnderlying());
+        if (LOGGER.isInfoEnabled()) {
+            for (EventBean event : newEvents) {
+                LOGGER.info("{} {}", statement.getName(), event.getUnderlying());
+            }
         }
     }
 }

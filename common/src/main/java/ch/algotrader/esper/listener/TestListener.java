@@ -32,12 +32,14 @@ import com.espertech.esper.client.UpdateListener;
  */
 public class TestListener implements UpdateListener {
 
-    private static final Logger logger = LogManager.getLogger(TestListener.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(TestListener.class);
 
     @Override
     public void update(EventBean[] newEvents, EventBean[] oldEvents) {
-        for (EventBean event : newEvents) {
-            logger.info(event);
+        if (LOGGER.isInfoEnabled()) {
+            for (EventBean event : newEvents) {
+                LOGGER.info(event);
+            }
         }
     }
 }

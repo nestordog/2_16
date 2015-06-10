@@ -36,7 +36,7 @@ import ch.algotrader.config.ConfigLocator;
 public class MetricsUtil {
 
     private static final boolean isMetricsEnabled = ConfigLocator.instance().getConfigParams().getBoolean("misc.metricsEnabled", false);
-    private static final Logger logger = LogManager.getLogger(MetricsUtil.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(MetricsUtil.class);
 
     private static final Map<String, Metric> metrics = new HashMap<>();
     private static long startMillis = System.nanoTime();
@@ -87,14 +87,14 @@ public class MetricsUtil {
      */
     public static void logMetrics() {
 
-        if (isMetricsEnabled) {
+        if (isMetricsEnabled && LOGGER.isInfoEnabled()) {
 
             if (ConfigLocator.instance().getCommonConfig().isSimulation()) {
-                logger.info("TotalDuration: " + (System.nanoTime() - startMillis) + " millis");
+                LOGGER.info("TotalDuration: {} millis", (System.nanoTime() - startMillis));
             }
 
             for (Metric metric : metrics.values()) {
-                logger.info(metric.getName() + ": " + metric.getTime() + " millis " + metric.getExecutions() + " executions");
+                LOGGER.info("{}: {} millis {} executions", metric.getName(), metric.getTime(), metric.getExecutions());
             }
         }
     }

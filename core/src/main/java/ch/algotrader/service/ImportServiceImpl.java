@@ -65,7 +65,7 @@ import ch.algotrader.vo.IVolVO;
 @Transactional
 public class ImportServiceImpl implements ImportService {
 
-    private static final Logger logger = LogManager.getLogger(ImportServiceImpl.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(ImportServiceImpl.class);
 
     private final CommonConfig commonConfig;
 
@@ -166,9 +166,13 @@ public class ImportServiceImpl implements ImportService {
             // gc
             System.gc();
 
-            logger.info("imported " + newTicks.size() + " ticks for: " + isin);
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("imported {} ticks for: {}", newTicks.size(), isin);
+            }
         } else {
-            logger.info("file does not exist: " + isin);
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("file does not exist: {}", isin);
+            }
         }
 
     }
@@ -249,7 +253,9 @@ public class ImportServiceImpl implements ImportService {
                     // for every day create an underlying-Tick
                     if (!iVol.getDate().equals(date)) {
 
-                        logger.info("processing " + iVol.getDate());
+                        if (LOGGER.isInfoEnabled()) {
+                            LOGGER.info("processing {}", iVol.getDate());
+                        }
 
                         date = iVol.getDate();
 
@@ -305,7 +311,9 @@ public class ImportServiceImpl implements ImportService {
                 throw new ImportServiceException(ex);
             }
 
-            logger.info("importing " + ticks.size() + " ticks");
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("importing {} ticks", ticks.size());
+            }
 
             // divide into chuncks of 10000
             List<Tick> list = new ArrayList<>(ticks);
@@ -321,13 +329,17 @@ public class ImportServiceImpl implements ImportService {
                 session.flush();
                 session.clear();
 
-                logger.info("importing chunk " + i + " - " + j);
+                if (LOGGER.isInfoEnabled()) {
+                    LOGGER.info("importing chunk {} - {}", i, j);
+                }
             }
 
             // gc
             System.gc();
 
-            logger.info("finished with file " + file.getName() + " created " + ticks.size() + " ticks");
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("finished with file {} created {} ticks", file.getName(), ticks.size());
+            }
         }
 
     }

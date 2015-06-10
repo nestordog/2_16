@@ -33,11 +33,13 @@ import org.apache.logging.log4j.Logger;
  */
 public class IndicatorSubscriber {
 
-    private static final Logger logger = LogManager.getLogger(IndicatorSubscriber.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(IndicatorSubscriber.class);
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public void update(Map<?, ?> map) {
 
-        logger.info(StringUtils.join((new TreeMap(map)).values(), ","));
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info(StringUtils.join((new TreeMap(map)).values(), ","));
+        }
     }
 }

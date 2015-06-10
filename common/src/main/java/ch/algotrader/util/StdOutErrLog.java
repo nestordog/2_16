@@ -31,7 +31,7 @@ import org.apache.logging.log4j.Logger;
  */
 public class StdOutErrLog {
 
-    private static final Logger logger = LogManager.getLogger(StdOutErrLog.class);
+    private static final Logger LOGGER = LogManager.getLogger(StdOutErrLog.class);
 
     static {
         tieSystemOutAndErrToLog();
@@ -49,36 +49,36 @@ public class StdOutErrLog {
             @Override
             public void print(final String string) {
                 if (err) {
-                    logger.error(string);
+                    LOGGER.error(string);
                 } else {
-                    logger.info(string);
+                    LOGGER.info(string);
                 }
             }
 
             @Override
             public void print(final Object obj) {
                 if (err) {
-                    logger.error(obj);
+                    LOGGER.error(obj);
                 } else {
-                    logger.info(obj);
+                    LOGGER.info(obj);
                 }
             }
 
             @Override
             public void println(final String string) {
                 if (err) {
-                    logger.error(string);
+                    LOGGER.error(string);
                 } else {
-                    logger.info(string);
+                    LOGGER.info(string);
                 }
             }
 
             @Override
             public void println(final Object obj) {
                 if (err) {
-                    logger.error(obj);
+                    LOGGER.error(obj);
                 } else {
-                    logger.info(obj);
+                    LOGGER.info(obj);
                 }
             }
         };

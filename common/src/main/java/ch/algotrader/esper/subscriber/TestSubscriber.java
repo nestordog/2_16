@@ -31,10 +31,10 @@ import org.apache.logging.log4j.Logger;
  */
 public class TestSubscriber {
 
-    private static final Logger logger = LogManager.getLogger(TestSubscriber.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(TestSubscriber.class);
 
     public void update(Map<?, ?> map) {
 
-        logger.debug(map);
+        LOGGER.debug(map);
     }
 }

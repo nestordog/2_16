@@ -29,10 +29,10 @@ import org.apache.logging.log4j.Logger;
  */
 public class ExceptionSubscriber {
 
-    private static final Logger logger = LogManager.getLogger(ExceptionSubscriber.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(ExceptionSubscriber.class);
 
     public void update(String reason) {
 
-        logger.error(reason);
+        LOGGER.error(reason);
     }
 }

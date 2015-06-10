@@ -36,7 +36,7 @@ import ch.algotrader.vo.SessionEventVO;
  */
 public class DefaultIBSessionStateHolder implements IBSessionStateHolder {
 
-    private static final Logger logger = LogManager.getLogger(DefaultIBSessionStateHolder.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(DefaultIBSessionStateHolder.class);
 
     private final String name;
     private final EventDispatcher eventDispatcher;
@@ -72,7 +72,9 @@ public class DefaultIBSessionStateHolder implements IBSessionStateHolder {
         if (previousState.compareTo(ConnectionState.DISCONNECTED) > 0) {
 
             this.connState.set(ConnectionState.DISCONNECTED);
-            logger.debug("change state to " + ConnectionState.DISCONNECTED);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("change state to {}", ConnectionState.DISCONNECTED);
+            }
 
             SessionEventVO event = new SessionEventVO(ConnectionState.DISCONNECTED, this.name);
             this.eventDispatcher.broadcast(event);
@@ -178,7 +180,9 @@ public class DefaultIBSessionStateHolder implements IBSessionStateHolder {
         boolean success = this.connState.compareAndSet(before, after);
 
         if (success) {
-            logger.debug("change state from " + before + " to " + after);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("change state from {} to {}", before, after);
+            }
         }
 
         return success;

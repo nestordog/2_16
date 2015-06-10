@@ -32,7 +32,7 @@ import ch.algotrader.entity.marketData.Tick;
  */
 public class DistributingOrder extends AlgoOrder {
 
-    private static final Logger logger = LogManager.getLogger(DistributingOrder.class);
+    private static final Logger LOGGER = LogManager.getLogger(DistributingOrder.class);
 
     private static final long serialVersionUID = -3256407214793599390L;
 
@@ -76,11 +76,17 @@ public class DistributingOrder extends AlgoOrder {
 
         // adjust quantity in case of rounding issue
         if (totalQuantity != getQuantity()) {
-            logger.info("adjusting totalQuantity of " + this + " from " + getQuantity() + " to " + totalQuantity);
+
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("adjusting totalQuantity of {} from {} to {}", this, getQuantity(), totalQuantity);
+            }
+
             setQuantity(totalQuantity);
         }
 
-        logger.info("created child orders for " + this + " " + buffer.toString());
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("created child orders for {} {}", this, buffer.toString());
+        }
 
         return orders;
     }

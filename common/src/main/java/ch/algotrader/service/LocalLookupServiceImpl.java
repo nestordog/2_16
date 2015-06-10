@@ -23,7 +23,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import org.apache.commons.lang.Validate;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.marketData.Bar;
@@ -45,7 +46,7 @@ import ch.algotrader.event.listener.TickEventListener;
  */
 public class LocalLookupServiceImpl implements LocalLookupService, TickEventListener, BarEventListener {
 
-    private static final Logger LOG = Logger.getLogger(LocalLookupServiceImpl.class);
+    private static final Logger LOGGER = LogManager.getLogger(LocalLookupServiceImpl.class);
 
     private final CommonConfig commonConfig;
     private final EngineManager engineManager;
@@ -211,7 +212,9 @@ public class LocalLookupServiceImpl implements LocalLookupService, TickEventList
             //there must have been a concurrent update for the same security
             cnt++;
             if (cnt >= maxTries) {
-                LOG.warn("ignoring market data event due to concurrent updates, giving up after " + cnt + " tries: " + event);
+                if (LOGGER.isWarnEnabled()) {
+                    LOGGER.warn("ignoring market data event due to concurrent updates, giving up after {} tries: {}", cnt, event);
+                }
                 return;
             }
             //let's try again

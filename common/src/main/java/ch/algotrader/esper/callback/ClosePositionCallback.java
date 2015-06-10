@@ -33,7 +33,7 @@ import ch.algotrader.vo.ClosePositionVO;
  */
 public abstract class ClosePositionCallback {
 
-    private static final Logger logger = LogManager.getLogger(ClosePositionCallback.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(ClosePositionCallback.class);
 
     /**
      * Called by the "ON_CLOSE_POSITION" statement. Should not be invoked directly.
@@ -47,12 +47,15 @@ public abstract class ClosePositionCallback {
         ServiceLocator.instance().getEngineManager().getEngine(positionVO.getStrategy()).undeployStatement(alias);
 
         long startTime = System.nanoTime();
-        logger.debug("onClosePosition start " + positionVO.getSecurityId());
-
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("onClosePosition start {}", positionVO.getSecurityId());
+        }
         // call orderCompleted
         onClosePosition(positionVO);
 
-        logger.debug("onClosePosition end " + positionVO.getSecurityId());
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("onClosePosition end {}", positionVO.getSecurityId());
+        }
 
         MetricsUtil.accountEnd("ClosePositionCallback." + positionVO.getStrategy(), startTime);
     }

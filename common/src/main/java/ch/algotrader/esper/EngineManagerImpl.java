@@ -154,8 +154,10 @@ public class EngineManagerImpl implements EngineManager {
                     }
                 }
 
-                for (StatementMetricVO metric : metrics) {
-                    LOGGER.info(metric.getEngineURI() + "." + metric.getStatementName() + ": " + metric.getWallTime() + " millis " + metric.getNumInput() + " events");
+                if (LOGGER.isInfoEnabled()) {
+                    for (StatementMetricVO metric : metrics) {
+                        LOGGER.info("{}.{}: {} millis {} events", metric.getEngineURI(), metric.getStatementName(), metric.getWallTime(), metric.getNumInput());
+                    }
                 }
             }
         }

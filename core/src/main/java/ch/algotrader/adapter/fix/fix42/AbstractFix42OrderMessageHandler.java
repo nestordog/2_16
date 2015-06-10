@@ -17,7 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.fix.fix42;
 
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -46,7 +45,7 @@ import quickfix.fix42.OrderCancelReject;
  */
 public abstract class AbstractFix42OrderMessageHandler extends AbstractFix42MessageHandler {
 
-    private static final Logger LOGGER = LogManager.getLogger(AbstractFix42OrderMessageHandler.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(AbstractFix42OrderMessageHandler.class);
 
     private final LookupService lookupService;
     private final Engine serverEngine;
@@ -83,13 +82,13 @@ public abstract class AbstractFix42OrderMessageHandler extends AbstractFix42Mess
 
         if (order == null) {
 
-            LOGGER.error("order with intId " + intId + " could not be found for execution " + executionReport);
+            LOGGER.error("order with intId {} could not be found for execution {}", intId, executionReport);
             return;
         }
 
         if (isOrderRejected(executionReport)) {
 
-            if (LOGGER.isEnabled(Level.ERROR)) {
+            if (LOGGER.isErrorEnabled()) {
 
                 StringBuilder buf = new StringBuilder();
                 buf.append("Order with int ID ").append(intId).append(" has been rejected");
@@ -135,7 +134,7 @@ public abstract class AbstractFix42OrderMessageHandler extends AbstractFix42Mess
 
     public void onMessage(final OrderCancelReject reject, final SessionID sessionID) throws FieldNotFound {
 
-        if (LOGGER.isEnabled(Level.ERROR)) {
+        if (LOGGER.isErrorEnabled()) {
 
             StringBuilder buf = new StringBuilder();
             buf.append("Order cancel/replace has been rejected");
@@ -156,9 +155,8 @@ public abstract class AbstractFix42OrderMessageHandler extends AbstractFix42Mess
         Order order = this.lookupService.getOpenOrderByRootIntId(intId);
         if (order == null) {
 
-            if (LOGGER.isEnabled(Level.ERROR)) {
-
-                LOGGER.error("Order with int ID " + intId + " matching the execution report could not be found");
+            if (LOGGER.isErrorEnabled()) {
+                LOGGER.error("Order with int ID {} matching the execution report could not be found", intId);
             }
             return;
         }

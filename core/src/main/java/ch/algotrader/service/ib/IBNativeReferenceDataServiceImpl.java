@@ -65,7 +65,7 @@ import ch.algotrader.util.RoundUtil;
  */
 public class IBNativeReferenceDataServiceImpl extends ReferenceDataServiceImpl implements IBNativeReferenceDataService {
 
-    private static final Logger logger = LogManager.getLogger(IBNativeReferenceDataServiceImpl.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(IBNativeReferenceDataServiceImpl.class);
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd");
     private static final DateTimeFormatter MONTH_FORMAT = DateTimeFormatter.ofPattern("yyyyMM");
     private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#.#######");
@@ -173,7 +173,9 @@ public class IBNativeReferenceDataServiceImpl extends ReferenceDataServiceImpl i
 
         contract.m_secType = "STK";
 
-        logger.debug("retrieving stock " + symbol);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("retrieving stock {}", symbol);
+        }
 
         this.iBSession.reqContractDetails(requestId, contract);
 
@@ -239,7 +241,9 @@ public class IBNativeReferenceDataServiceImpl extends ReferenceDataServiceImpl i
 
         this.optionDao.saveAll(newOptions);
 
-        logger.debug("retrieved options for optionfamily: " + securityFamily.getName() + " " + newOptions);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("retrieved options for optionfamily: {} {}", securityFamily.getName(), newOptions);
+        }
     }
 
     private void retrieveFutures(FutureFamily securityFamily, Set<ContractDetails> contractDetailsSet) throws ParseException {
@@ -278,7 +282,9 @@ public class IBNativeReferenceDataServiceImpl extends ReferenceDataServiceImpl i
 
         this.futureDao.saveAll(newFutures);
 
-        logger.debug("retrieved futures for futurefamily: " + securityFamily.getName() + " " + newFutures);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("retrieved futures for futurefamily: {} {}", securityFamily.getName(), newFutures);
+        }
     }
 
     private void retrieveStocks(SecurityFamily securityFamily, Set<ContractDetails> contractDetailsSet) {

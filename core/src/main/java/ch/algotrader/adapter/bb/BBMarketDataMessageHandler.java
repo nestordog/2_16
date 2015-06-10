@@ -42,7 +42,7 @@ import ch.algotrader.vo.TradeVO;
  */
 public class BBMarketDataMessageHandler extends BBMessageHandler {
 
-    private static final Logger logger = LogManager.getLogger(BBMarketDataMessageHandler.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(BBMarketDataMessageHandler.class);
 
     private final Engine serverEngine;
 
@@ -58,11 +58,15 @@ public class BBMarketDataMessageHandler extends BBMessageHandler {
             String cid = (String) msg.correlationID().object();
 
             if (msg.messageType() == BBConstants.SUBSCRIPTION_STARTED) {
-                logger.info("subscription for tickerId " + cid + " has started");
+                if (LOGGER.isInfoEnabled()) {
+                    LOGGER.info("subscription for tickerId {} has started", cid);
+                }
             } else if (msg.messageType() == BBConstants.SUBSCRIPTION_TERMINATED) {
-                logger.info("subscription for tickerId " + cid + " has terminated");
+                if (LOGGER.isInfoEnabled()) {
+                    LOGGER.info("subscription for tickerId {} has terminated", cid);
+                }
             } else if (msg.messageType() == BBConstants.SUBSCRIPTION_FAILURE) {
-                logger.warn(msg);
+                LOGGER.warn(msg);
             } else {
                 throw new IllegalStateException("unknown messageType " + msg.messageType());
             }

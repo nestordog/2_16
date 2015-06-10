@@ -35,7 +35,7 @@ import org.apache.logging.log4j.Logger;
  */
 class QueryCache {
 
-    private static final Logger logger = LogManager.getLogger(EntityCache.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(EntityCache.class);
 
     private final Map<String, Set<QueryCacheKey>> spaces = new HashMap<>();
     private final Map<QueryCacheKey, List<?>> queries = new HashMap<>();
@@ -60,7 +60,9 @@ class QueryCache {
         // put the query itself
         this.queries.put(cacheKey, result);
 
-        logger.trace("attached " + cacheKey);
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("attached {}", cacheKey);
+        }
     }
 
     /**
@@ -85,7 +87,9 @@ class QueryCache {
                 // remove the cacheKey
                 this.queries.remove(cacheKey);
 
-                logger.trace("detached " + cacheKey);
+                if (LOGGER.isTraceEnabled()) {
+                    LOGGER.trace("detached {}", cacheKey);
+                }
             }
 
             // remove the cacheKeys of thisSpace also from all other spaces

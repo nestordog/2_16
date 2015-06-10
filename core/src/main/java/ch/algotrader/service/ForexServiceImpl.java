@@ -57,8 +57,8 @@ import ch.algotrader.vo.BalanceVO;
 @Transactional
 public class ForexServiceImpl implements ForexService {
 
-    private static final Logger logger = LogManager.getLogger(ForexServiceImpl.class.getName());
-    private static final Logger notificationLogger = LogManager.getLogger("ch.algotrader.service.NOTIFICATION");
+    private static final Logger LOGGER = LogManager.getLogger(ForexServiceImpl.class);
+    private static final Logger NOTIFICATION_LOGGER = LogManager.getLogger("ch.algotrader.service.NOTIFICATION");
 
     private final CommonConfig commonConfig;
 
@@ -171,8 +171,9 @@ public class ForexServiceImpl implements ForexService {
             // setup an TradeCallback so that new hedge positions are only setup when existing positions are closed
             if (orders.size() > 0) {
 
-                notificationLogger.info(orders.size() + " fx hedging position(s) have been closed due to approaching expiration, please run equalizeForex again");
-
+                if (NOTIFICATION_LOGGER.isInfoEnabled()) {
+                    NOTIFICATION_LOGGER.info("{} fx hedging position(s) have been closed due to approaching expiration, please run equalizeForex again", orders.size());
+                }
                 // send the orders
                 for (Order order : orders) {
                     this.orderService.sendOrder(order);
@@ -254,8 +255,10 @@ public class ForexServiceImpl implements ForexService {
 
             } else {
 
-                logger.info("no forex hedge is performed on " + balance.getCurrency() + " because amount " + RoundUtil.getBigDecimal(Math.abs(netLiqValueBase)) + " is below "
-                        + coreConfig.getFxHedgeMinAmount());
+                if (LOGGER.isInfoEnabled()) {
+                    LOGGER.info("no forex hedge is performed on {} because amount {} is below {}", balance.getCurrency(), RoundUtil.getBigDecimal(Math.abs(netLiqValueBase)),
+                            coreConfig.getFxHedgeMinAmount());
+                }
                 continue;
             }
         }

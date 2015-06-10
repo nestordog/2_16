@@ -72,7 +72,7 @@ public class BBReferenceDataServiceImpl extends ReferenceDataServiceImpl impleme
 
     private static final long serialVersionUID = 8938937374871069522L;
 
-    private static final Logger logger = LogManager.getLogger(BBHistoricalDataServiceImpl.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(BBHistoricalDataServiceImpl.class);
     private static BBSession session;
 
     private final BBAdapter bBAdapter;
@@ -248,7 +248,7 @@ public class BBReferenceDataServiceImpl extends ReferenceDataServiceImpl impleme
                 if (msg.hasElement(BBConstants.RESPONSE_ERROR)) {
 
                     Element errorInfo = msg.getElement(BBConstants.RESPONSE_ERROR);
-                    logger.error("request failed " + errorInfo.getElementAsString(BBConstants.CATEGORY) + " (" + errorInfo.getElementAsString(BBConstants.MESSAGE) + ")");
+                    LOGGER.error("request failed {} ({})", errorInfo.getElementAsString(BBConstants.CATEGORY), errorInfo.getElementAsString(BBConstants.MESSAGE));
 
                     continue;
                 }
@@ -351,7 +351,7 @@ public class BBReferenceDataServiceImpl extends ReferenceDataServiceImpl impleme
                 if (msg.hasElement(BBConstants.RESPONSE_ERROR)) {
 
                     Element errorInfo = msg.getElement(BBConstants.RESPONSE_ERROR);
-                    logger.error("request failed " + errorInfo.getElementAsString(BBConstants.CATEGORY) + " (" + errorInfo.getElementAsString(BBConstants.MESSAGE) + ")");
+                    LOGGER.error("request failed {} ({})", errorInfo.getElementAsString(BBConstants.CATEGORY), errorInfo.getElementAsString(BBConstants.MESSAGE));
 
                     continue;
                 }
@@ -398,7 +398,9 @@ public class BBReferenceDataServiceImpl extends ReferenceDataServiceImpl impleme
 
                 // ignore securities with different currencies than the securityFamily
                 if (!(currency.equals(this.securityFamily.getCurrency()))) {
-                    logger.warn(symbol + " difference in currency, db: " + this.securityFamily.getCurrency() + " bb: " + currency);
+                    if (LOGGER.isWarnEnabled()) {
+                        LOGGER.warn("{} difference in currency, db: {} bb: {}", symbol, this.securityFamily.getCurrency(), currency);
+                    }
                 }
 
                 if (this.securityFamily instanceof OptionFamily) {
@@ -407,7 +409,9 @@ public class BBReferenceDataServiceImpl extends ReferenceDataServiceImpl impleme
 
                     // ignore securities with different contractSize than the securityFamily
                     if (this.securityFamily.getContractSize(Broker.BBG) != contractSize) {
-                        logger.warn(symbol + " difference in contract size, db: " + this.securityFamily.getContractSize(Broker.BBG) + " bb: " + contractSize);
+                        if (LOGGER.isWarnEnabled()) {
+                            LOGGER.warn("{} difference in contract size, db: {} bb: {}", symbol, this.securityFamily.getContractSize(Broker.BBG), contractSize);
+                        }
                     }
 
                     String expirationString = fields.getElementAsString(BBConstants.OPT_EXPIRE_DT);
@@ -440,7 +444,9 @@ public class BBReferenceDataServiceImpl extends ReferenceDataServiceImpl impleme
 
                     // ignore securities with different contractSize than the securityFamily
                     if (this.securityFamily.getContractSize(Broker.BBG) != contractSize) {
-                        logger.warn(symbol + " difference in contract size, db: " + this.securityFamily.getContractSize(Broker.BBG) + " bb: " + contractSize);
+                        if (LOGGER.isWarnEnabled()) {
+                            LOGGER.warn("{} difference in contract size, db: {} bb: {}", symbol, this.securityFamily.getContractSize(Broker.BBG), contractSize);
+                        }
                     }
 
                     String lastTradingString = fields.getElementAsString(BBConstants.LAST_TRADEABLE_DT);
@@ -476,12 +482,16 @@ public class BBReferenceDataServiceImpl extends ReferenceDataServiceImpl impleme
             if (this.securityFamily instanceof OptionFamily) {
 
                 BBReferenceDataServiceImpl.this.optionDao.saveAll(this.newOptions);
-                logger.debug("retrieved options for optionFamily: " + this.securityFamily.getName() + " " + this.newOptions);
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("retrieved options for optionFamily: {} {}", this.securityFamily.getName(), this.newOptions);
+                }
 
             } else if (this.securityFamily instanceof FutureFamily) {
 
                 BBReferenceDataServiceImpl.this.futureDao.saveAll(this.newFutures);
-                logger.debug("retrieved futures for futureFamily: " + this.securityFamily.getName() + " " + this.newFutures);
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("retrieved futures for futureFamily: {} {}", this.securityFamily.getName(), this.newFutures);
+                }
 
             } else {
                 throw new IllegalArgumentException("illegal securityFamily type");

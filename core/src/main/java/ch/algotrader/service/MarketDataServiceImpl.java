@@ -63,7 +63,7 @@ import ch.algotrader.util.io.CsvTickWriter;
 @Transactional
 public class MarketDataServiceImpl implements MarketDataService, ApplicationListener<ContextRefreshedEvent> {
 
-    private static final Logger logger = LogManager.getLogger(MarketDataServiceImpl.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(MarketDataServiceImpl.class);
 
     private final Map<Security, CsvTickWriter> csvWriters = new HashMap<>();
 
@@ -197,7 +197,9 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationList
             // reverse-associate security (after subscription has received an id)
             security.getSubscriptions().add(subscription);
 
-            logger.info("subscribed security " + security + " with " + feedType);
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("subscribed security {} with {}", security, feedType);
+            }
         }
 
     }
@@ -244,7 +246,9 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationList
                 }
             }
 
-            logger.info("unsubscribed security " + security + " with " + feedType);
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("unsubscribed security {} with {}", security, feedType);
+            }
         }
 
     }
@@ -309,7 +313,7 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationList
 
         Security security = this.securityDao.get(securityId);
 
-        logger.error(security + " has not received any ticks for " + security.getSecurityFamily().getMaxGap() + " minutes");
+        LOGGER.error("{} has not received any ticks for {} minutes", security, security.getSecurityFamily().getMaxGap());
 
     }
 

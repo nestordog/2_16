@@ -17,7 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.fix.fix42;
 
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -42,11 +41,11 @@ import quickfix.fix42.Reject;
  */
 public abstract class AbstractFix42MessageHandler {
 
-    private static final Logger LOGGER = LogManager.getLogger(AbstractFix42MessageHandler.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(AbstractFix42MessageHandler.class);
 
     public void onMessage(final Reject reject, final SessionID sessionID) throws FieldNotFound {
 
-        if (LOGGER.isEnabled(Level.ERROR)) {
+        if (LOGGER.isErrorEnabled()) {
             StringBuilder buf = new StringBuilder();
             buf.append("Message rejected as invalid");
             if (reject.isSetField(RefSeqNum.FIELD)) {
@@ -71,7 +70,7 @@ public abstract class AbstractFix42MessageHandler {
 
     public void onMessage(BusinessMessageReject reject, SessionID sessionID) throws FieldNotFound {
 
-        if (LOGGER.isEnabled(Level.ERROR)) {
+        if (LOGGER.isErrorEnabled()) {
 
             StringBuilder buf = new StringBuilder();
             buf.append("Message rejected as invalid (business reject)");

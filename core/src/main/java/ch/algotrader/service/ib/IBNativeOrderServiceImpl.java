@@ -43,7 +43,7 @@ import ch.algotrader.service.OrderService;
  */
 public class IBNativeOrderServiceImpl extends ExternalOrderServiceImpl implements IBNativeOrderService {
 
-    private static final Logger logger = LogManager.getLogger(IBNativeOrderServiceImpl.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(IBNativeOrderServiceImpl.class);
 
     private static boolean firstOrder = true;
 
@@ -93,7 +93,7 @@ public class IBNativeOrderServiceImpl extends ExternalOrderServiceImpl implement
 
         // Because of an IB bug only one order can be submitted at a time when
         // first connecting to IB, so wait 100ms after the first order
-        logger.info("before place");
+        LOGGER.info("before place");
 
         if (firstOrder) {
 
@@ -147,13 +147,15 @@ public class IBNativeOrderServiceImpl extends ExternalOrderServiceImpl implement
         Validate.notNull(order, "Order is null");
 
         if (!this.iBSession.isLoggedOn()) {
-            logger.error("order cannot be cancelled, because IB is not logged on");
+            LOGGER.error("order cannot be cancelled, because IB is not logged on");
             return;
         }
 
         this.iBSession.cancelOrder(Integer.parseInt(order.getIntId()));
 
-        logger.info("requested order cancellation for order: " + order);
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("requested order cancellation for order: {}", order);
+        }
 
     }
 
@@ -163,7 +165,7 @@ public class IBNativeOrderServiceImpl extends ExternalOrderServiceImpl implement
     private void sendOrModifyOrder(SimpleOrder order) {
 
         if (!this.iBSession.isLoggedOn()) {
-            logger.error("order cannot be sent / modified, because IB is not logged on");
+            LOGGER.error("order cannot be sent / modified, because IB is not logged on");
             return;
         }
 
@@ -182,7 +184,9 @@ public class IBNativeOrderServiceImpl extends ExternalOrderServiceImpl implement
         // propagate the order to all corresponding Esper engines
         this.orderService.propagateOrder(order);
 
-        logger.info("placed or modified order: " + order);
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("placed or modified order: {}", order);
+        }
     }
 
     /**

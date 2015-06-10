@@ -46,7 +46,7 @@ import quickfix.field.PossDupFlag;
  */
 public abstract class AbstractFixApplication implements Application {
 
-    private static final Logger logger = LogManager.getLogger(AbstractFixApplication.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(AbstractFixApplication.class);
 
     private final SessionID sessionID;
     private final MessageCracker incomingMessageCracker;
@@ -101,8 +101,8 @@ public abstract class AbstractFixApplication implements Application {
     public final void onLogon(SessionID sessionID) {
 
         validateSessionID(sessionID);
-        if (logger.isInfoEnabled()) {
-            logger.info("logon: " + sessionID);
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("logon: {}", sessionID);
         }
         onLogon();
     }
@@ -111,8 +111,8 @@ public abstract class AbstractFixApplication implements Application {
     public final void onLogout(SessionID sessionID)  {
 
         validateSessionID(sessionID);
-        if (logger.isInfoEnabled()) {
-            logger.info("logout: " + sessionID);
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("logout: {}", sessionID);
         }
         onLogout();
     }
@@ -126,7 +126,9 @@ public abstract class AbstractFixApplication implements Application {
         Header header = message.getHeader();
         StringField msgType = header.getField(new MsgType());
         if ((msgType.getValue().equals(MsgType.ORDER_SINGLE) || msgType.getValue().equals(MsgType.ORDER_CANCEL_REPLACE_REQUEST)) && header.isSetField(new PossDupFlag())) {
-            logger.info("prevent order / order replacement to be sent: " + message);
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("prevent order / order replacement to be sent: {}", message);
+            }
             throw new DoNotSend();
         }
         return false;
@@ -142,7 +144,7 @@ public abstract class AbstractFixApplication implements Application {
             }
             incomingMessageCracker.crack(message, sessionID);
         } catch (Exception e) {
-            logger.error(e);
+            LOGGER.error(e);
         }
     }
 
@@ -158,7 +160,7 @@ public abstract class AbstractFixApplication implements Application {
             }
             outgoingMessageCracker.crack(message, sessionID);
         } catch (Exception e) {
-            logger.error(e);
+            LOGGER.error(e);
         }
     }
 
@@ -185,7 +187,7 @@ public abstract class AbstractFixApplication implements Application {
         } catch (DoNotSend e) {
             throw e;
         } catch (Exception e) {
-            logger.error(e);
+            LOGGER.error(e);
         }
     }
 

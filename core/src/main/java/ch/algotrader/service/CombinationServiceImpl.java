@@ -58,7 +58,7 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
 
     private static final long serialVersionUID = -2720603696641382966L;
 
-    private static final Logger logger = LogManager.getLogger(CombinationServiceImpl.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(CombinationServiceImpl.class);
 
     private final CommonConfig commonConfig;
 
@@ -142,7 +142,9 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
         // reverse-associate security family (after combination has received an id)
         securityFamily.getSecurities().add(combination);
 
-        logger.debug("created combination " + combination);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("created combination {}", combination);
+        }
 
         return combination;
 
@@ -179,7 +181,9 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
         Combination combination = this.combinationDao.get(combinationId);
 
         if (combination == null) {
-            logger.warn("combination does not exist: " + combinationId);
+            if (LOGGER.isWarnEnabled()) {
+                LOGGER.warn("combination does not exist: {}", combinationId);
+            }
 
         } else {
 
@@ -201,7 +205,9 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
             // remove the combination
             this.combinationDao.delete(combination);
 
-            logger.debug("deleted combination " + combination);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("deleted combination {}", combination);
+            }
         }
 
     }
@@ -274,7 +280,9 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
             throw new IllegalArgumentException("component on securityId " + securityId + " does not exist");
         }
 
-        logger.debug("removed component " + component + " from combination " + combinationString);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("removed component {} from combination {}", component, combinationString);
+        }
 
         return combination;
 
@@ -292,7 +300,9 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
         Combination combination = this.combinationDao.get(combinationId);
 
         if (combination == null) {
-            logger.warn("combination does not exist: " + combinationId);
+            if (LOGGER.isWarnEnabled()) {
+                LOGGER.warn("combination does not exist: {}", combinationId);
+            }
             return;
         }
 
@@ -304,7 +314,9 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
 
                 Position position = this.positionDao.findBySecurityAndStrategy(component.getSecurity().getId(), strategyName);
 
-                logger.info("reduce position " + position.getId() + " by " + component.getQuantity());
+                if (LOGGER.isInfoEnabled()) {
+                    LOGGER.info("reduce position {} by {}", position.getId(), component.getQuantity());
+                }
 
                 this.positionService.reducePosition(position.getId(), component.getQuantity());
             }
@@ -356,7 +368,9 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
 
                     Position position = this.positionDao.findBySecurityAndStrategy(component.getSecurity().getId(), strategyName);
 
-                    logger.info("reduce position " + position.getId() + " of combination " + combination + " by " + absQuantity);
+                    if (LOGGER.isInfoEnabled()) {
+                        LOGGER.info("reduce position {} of combination {} by {}", position.getId(), combination, absQuantity);
+                    }
 
                     // reduce the position
                     this.positionService.reducePosition(position.getId(), absQuantity);
@@ -387,7 +401,9 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
                 deleteCombination(combination.getId());
             }
 
-            logger.debug("deleted zero quantity combinations: " + combinations);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("deleted zero quantity combinations: {}", combinations);
+            }
         }
 
     }
@@ -480,10 +496,12 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
         // update the ComponentWindow
         insertIntoComponentWindow(combination);
 
-        if (add) {
-            logger.debug("added component quantity " + quantity + " of " + component + " to combination " + combinationString);
-        } else {
-            logger.debug("set component quantity " + quantity + " of " + component + " to combination " + combinationString);
+        if (LOGGER.isDebugEnabled()) {
+            if (add) {
+                LOGGER.debug("added component quantity {} of {} to combination {}", quantity, component, combinationString);
+            } else {
+                LOGGER.debug("set component quantity {} of {} to combination {}", quantity, component, combinationString);
+            }
         }
 
         return combination;

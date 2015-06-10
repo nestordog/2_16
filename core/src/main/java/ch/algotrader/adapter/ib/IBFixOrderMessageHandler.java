@@ -48,7 +48,7 @@ import quickfix.fix42.OrderCancelReject;
  */
 public class IBFixOrderMessageHandler extends GenericFix42OrderMessageHandler {
 
-    private static final Logger LOGGER = LogManager.getLogger(IBFixOrderMessageHandler.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(IBFixOrderMessageHandler.class);
 
     private final BlockingQueue<IBCustomMessage> allocationMessageQueue;
 
@@ -97,7 +97,9 @@ public class IBFixOrderMessageHandler extends GenericFix42OrderMessageHandler {
         ClOrdID clOrdID = orderCancelReject.getClOrdID();
         OrigClOrdID origClOrdID = orderCancelReject.getOrigClOrdID();
         if ("Too late to cancel".equals(text.getValue()) || "Cannot cancel the filled order".equals(text.getValue())) {
-            LOGGER.info("cannot cancel, order has already been executed, clOrdID: " + clOrdID.getValue() + " origOrdID: " + origClOrdID.getValue());
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("cannot cancel, order has already been executed, clOrdID: {} origOrdID: {}", clOrdID.getValue(), origClOrdID.getValue());
+            }
         } else {
             super.onMessage(orderCancelReject, sessionID);
         }

@@ -65,7 +65,7 @@ import ch.algotrader.util.PriceUtil;
  */
 public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
 
-    private static final Logger logger = LogManager.getLogger(DefaultIBMessageHandler.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(DefaultIBMessageHandler.class);
     private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd  HH:mm:ss");
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd");
 
@@ -118,7 +118,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
         // get the order from the OpenOrderWindow
         Order order = this.lookupService.getOpenOrderByIntId(intId);
         if (order == null) {
-            logger.error("order could not be found " + intId + " for execution " + contract + " " + execution);
+            LOGGER.error("order could not be found {} for execution {} {}", intId, contract, execution);
             return;
         }
 
@@ -141,7 +141,9 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
         // associate the fill with the order
         fill.setOrder(order);
 
-        logger.debug(EWrapperMsgGenerator.execDetails(reqId, contract, execution));
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(EWrapperMsgGenerator.execDetails(reqId, contract, execution));
+        }
 
         this.serverEngine.sendEvent(fill);
     }
@@ -164,7 +166,9 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
             // assemble the IBOrderStatus
             IBOrderStatus orderStatus = new IBOrderStatus(status, filledQuantity, remainingQuantity, avgFillPrice, lastFillPrice, extId, order);
 
-            logger.debug(EWrapperMsgGenerator.orderStatus(orderId, statusString, filled, remaining, avgFillPrice, permId, parentId, lastFillPrice, clientId, whyHeld));
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug(EWrapperMsgGenerator.orderStatus(orderId, statusString, filled, remaining, avgFillPrice, permId, parentId, lastFillPrice, clientId, whyHeld));
+            }
 
             this.serverEngine.sendEvent(orderStatus);
         }
@@ -173,8 +177,8 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
     @Override
     public void tickPrice(final int tickerId, final int field, final double price, final int canAutoExecute) {
 
-        if(logger.isTraceEnabled()) {
-            logger.trace(EWrapperMsgGenerator.tickPrice(tickerId, field, price, canAutoExecute));
+        if(LOGGER.isTraceEnabled()) {
+            LOGGER.trace(EWrapperMsgGenerator.tickPrice(tickerId, field, price, canAutoExecute));
         }
 
         TickPrice o = new TickPrice(Integer.toString(tickerId), field, price, canAutoExecute);
@@ -184,8 +188,8 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
     @Override
     public void tickSize(final int tickerId, final int field, final int size) {
 
-        if(logger.isTraceEnabled()) {
-            logger.trace(EWrapperMsgGenerator.tickSize(tickerId, field, size));
+        if(LOGGER.isTraceEnabled()) {
+            LOGGER.trace(EWrapperMsgGenerator.tickSize(tickerId, field, size));
         }
 
         TickSize o = new TickSize(Integer.toString(tickerId), field, size);
@@ -195,8 +199,8 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
     @Override
     public void tickString(final int tickerId, final int tickType, final String value) {
 
-        if(logger.isTraceEnabled()) {
-            logger.trace(EWrapperMsgGenerator.tickString(tickerId, tickType, value));
+        if(LOGGER.isTraceEnabled()) {
+            LOGGER.trace(EWrapperMsgGenerator.tickString(tickerId, tickType, value));
         }
 
         TickString o = new TickString(Integer.toString(tickerId), tickType, value);
@@ -248,7 +252,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
                     " hasGaps=" + hasGaps;
             // @formatter:on
 
-            logger.error(message, new HistoricalDataServiceException(message));
+            LOGGER.error(message, new HistoricalDataServiceException(message));
         }
     }
 
@@ -337,7 +341,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
 
         // we get EOFException and SocketException when TWS is closed
         if (!(e instanceof EOFException || e instanceof SocketException)) {
-            logger.error("ib error", e);
+            LOGGER.error("ib error", e);
         }
     }
 
@@ -356,14 +360,14 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
 
                 // Can't modify a filled order.
                 // do nothing, we modified the order just a little bit too late
-                logger.warn(message);
+                LOGGER.warn(message);
                 break;
 
             case 161:
 
                 // Cancel attempted when order is not in a cancellable state
                 // do nothing, we cancelled the order just a little bit too late
-                logger.warn(message);
+                LOGGER.warn(message);
                 break;
 
             case 162:
@@ -372,20 +376,20 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
                 if (this.historicalDataQueue != null) {
                     this.historicalDataQueue.offer(Bar.Factory.newInstance());
                 }
-                logger.warn(message);
+                LOGGER.warn(message);
                 break;
 
             case 165:
 
                 // Historical data farm is connected
-                logger.debug(message);
+                LOGGER.debug(message);
                 break;
 
             case 200:
 
                 // No security definition has been found for the request
                 orderRejected(id, errorMsg);
-                logger.error(message);
+                LOGGER.error(message);
                 break;
 
             case 201:
@@ -394,7 +398,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
 
                     // Cannot cancel the filled order
                     // do nothing, we cancelled the order just a little bit too late
-                    logger.warn(message);
+                    LOGGER.warn(message);
 
                 } else {
 
@@ -406,7 +410,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
                     // No clearing rule found
                     // etc.
                     orderRejected(id, errorMsg);
-                    logger.error(message);
+                    LOGGER.error(message);
                 }
                 break;
 
@@ -416,10 +420,10 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
                 // Order cancelled
                 if (errorMsg.contains("Order Canceled - reason:")) {
                     // do nothing, since we cancelled the order ourself
-                    logger.debug(message);
+                    LOGGER.debug(message);
                 } else {
                     orderRejected(id, errorMsg);
-                    logger.error(message);
+                    LOGGER.error(message);
                 }
                 break;
 
@@ -427,7 +431,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
 
                 // Order Message: Warning: Your order size is below the EUR 20000 IdealPro minimum and will be routed as an odd lot order.
                 // do nothing, this is ok for small FX Orders
-                logger.info(message);
+                LOGGER.info(message);
                 break;
 
             case 434:
@@ -436,49 +440,49 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
                 // This happens in a closing order using PctChange where the percentage is
                 // small enough to round to zero for each individual client account
                 orderRejected(id, errorMsg);
-                logger.info(message);
+                LOGGER.info(message);
                 break;
 
             case 502:
 
                 // Couldn't onConnect to TWS
                 this.sessionStateHolder.onDisconnect();
-                logger.debug(message);
+                LOGGER.debug(message);
                 break;
 
             case 1100:
 
                 // Connectivity between IB and TWS has been lost.
                 this.sessionStateHolder.onLogoff();
-                logger.debug(message);
+                LOGGER.debug(message);
                 break;
 
             case 1101:
 
                 // Connectivity between IB and TWS has been restored data lost.
                 this.sessionStateHolder.onLogon(false);
-                logger.debug(message);
+                LOGGER.debug(message);
                 break;
 
             case 1102:
 
                 // Connectivity between IB and TWS has been restored data maintained.
                 this.sessionStateHolder.onLogon(true);
-                logger.debug(message);
+                LOGGER.debug(message);
                 break;
 
             case 2110:
 
                 // Connectivity between TWS and server is broken. It will be restored automatically.
                 this.sessionStateHolder.onLogoff();
-                logger.debug(message);
+                LOGGER.debug(message);
                 break;
 
             case 2104:
 
                 // A market data farm is connected.
                 this.sessionStateHolder.onLogon(true);
-                logger.debug(message);
+                LOGGER.debug(message);
                 break;
 
             case 2105:
@@ -487,7 +491,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
                 if (this.historicalDataQueue != null) {
                     this.historicalDataQueue.offer(Bar.Factory.newInstance());
                 }
-                logger.warn(message);
+                LOGGER.warn(message);
                 break;
 
             case 2107:
@@ -497,15 +501,15 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
                 if (this.historicalDataQueue != null) {
                     this.historicalDataQueue.offer(Bar.Factory.newInstance());
                 }
-                logger.warn(message);
+                LOGGER.warn(message);
                 break;
 
             default:
                 if (code < 1000) {
                     orderRejected(id, errorMsg);
-                    logger.error(message);
+                    LOGGER.error(message);
                 } else {
-                    logger.debug(message);
+                    LOGGER.debug(message);
                 }
                 break;
         }
@@ -513,7 +517,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
 
     @Override
     public void error(String str) {
-        logger.error(str, new RuntimeException(str));
+        LOGGER.error(str, new RuntimeException(str));
     }
 
     @Override
@@ -521,7 +525,9 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
 
         if (this.clientId == 0) {
             this.iBIdGenerator.initializeOrderId(orderId);
-            logger.debug("client: " + this.clientId + " " + EWrapperMsgGenerator.nextValidId(orderId));
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("client: {} {}", this.clientId, EWrapperMsgGenerator.nextValidId(orderId));
+            }
         }
     }
 

@@ -45,7 +45,7 @@ import org.apache.logging.log4j.Logger;
  */
 public class FieldUtil {
 
-    private static final Logger logger = LogManager.getLogger(FieldUtil.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(FieldUtil.class);
 
     private static final Set<Object> immediates =
         new HashSet<>(Arrays.asList(new Object[]{
@@ -116,7 +116,7 @@ public class FieldUtil {
                 Object targetValue = FieldUtils.readField(field, target, true);
                 FieldUtils.writeField(field, source, targetValue, true);
             } catch (IllegalAccessException e) {
-                logger.error("problem copying field", e);
+                LOGGER.error("problem copying field", e);
             }
         }
     }

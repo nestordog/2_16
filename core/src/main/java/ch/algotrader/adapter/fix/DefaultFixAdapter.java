@@ -48,7 +48,7 @@ import quickfix.SocketInitiator;
  */
 public class DefaultFixAdapter implements FixAdapter {
 
-    private static final Logger LOGGER = LogManager.getLogger(AbstractFixApplication.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(AbstractFixApplication.class);
 
     private final Lock lock;
     private final SocketInitiator socketInitiator;
@@ -91,8 +91,7 @@ public class DefaultFixAdapter implements FixAdapter {
         if (sessionQualifiers == null || sessionQualifiers.isEmpty()) {
 
             if (LOGGER.isWarnEnabled()) {
-
-                LOGGER.warn("There are no active sessions for order service type " + orderServiceType);
+                LOGGER.warn("There are no active sessions for order service type {}", orderServiceType);
             }
             return;
         }
@@ -108,8 +107,7 @@ public class DefaultFixAdapter implements FixAdapter {
         if (sessionQualifiers == null || sessionQualifiers.isEmpty()) {
 
             if (LOGGER.isWarnEnabled()) {
-
-                LOGGER.warn("There are no active sessions for order service type " + orderServiceType);
+                LOGGER.warn("There are no active sessions for order service type {}", orderServiceType);
             }
             return;
         }

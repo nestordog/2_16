@@ -43,7 +43,7 @@ import org.hibernate.type.Type;
  */
 public class HibernateUtil {
 
-    private static final Logger logger = LogManager.getLogger(HibernateUtil.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(HibernateUtil.class);
 
     /**
      * Tries to lock the transient object (modifications will be lost).
@@ -70,9 +70,13 @@ public class HibernateUtil {
             try {
                 // try to get the entity id (cannot use toString because of lazy initialization)
                 Long id = (Long) target.getClass().getMethod("getId", new Class[] {}).invoke(target, new Object[] {});
-                logger.debug("merged " + target.getClass() + " " + id);
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("merged {} {}", target.getClass(), id);
+                }
             } catch (Exception e1) {
-                logger.debug("merged " + target.getClass());
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("merged {}", target.getClass());
+                }
             }
 
             return obj;
@@ -159,7 +163,9 @@ public class HibernateUtil {
         }
 
         if (evicted) {
-            logger.debug("evicted " + target.getClass() + " " + target);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("evicted {} {}", target.getClass(), target);
+            }
         }
     }
 }

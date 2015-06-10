@@ -70,7 +70,7 @@ public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl imple
     private static final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyyMMdd");
     private static final DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
-    private static final Logger logger = LogManager.getLogger(BBHistoricalDataServiceImpl.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(BBHistoricalDataServiceImpl.class);
     private static BBSession session;
 
     private final BBAdapter bBAdapter;
@@ -304,7 +304,7 @@ public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl imple
                 if (msg.hasElement(BBConstants.RESPONSE_ERROR)) {
 
                     Element errorInfo = msg.getElement(BBConstants.RESPONSE_ERROR);
-                    logger.error("request failed " + errorInfo.getElementAsString(BBConstants.CATEGORY) + " (" + errorInfo.getElementAsString(BBConstants.MESSAGE) + ")");
+                    LOGGER.error("request failed {} ({})", errorInfo.getElementAsString(BBConstants.CATEGORY), errorInfo.getElementAsString(BBConstants.MESSAGE));
 
                     continue;
                 }

@@ -34,7 +34,7 @@ import com.bloomberglp.blpapi.Session;
  */
 public abstract class BBMessageHandler implements EventHandler {
 
-    private static final Logger logger = LogManager.getLogger(BBMessageHandler.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(BBMessageHandler.class);
 
     private final Object lock = new Object();
     private boolean running;
@@ -45,9 +45,9 @@ public abstract class BBMessageHandler implements EventHandler {
         try {
             internalProcessEvent(session, event);
         } catch (Exception e) {
-            logger.error("problem processing event", e);
+            LOGGER.error("problem processing event", e);
             for (Message msg : event) {
-                logger.error("correlationID: " + msg.correlationID().value() + ", " + msg);
+                LOGGER.error("correlationID: {}, {}", msg.correlationID().value(), msg);
             }
         }
     }
@@ -102,17 +102,17 @@ public abstract class BBMessageHandler implements EventHandler {
         for (Message msg : event) {
 
             if (msg.messageType() == BBConstants.SESSION_CONNECTION_UP) {
-                logger.info("session connection up");
+                LOGGER.info("session connection up");
             } else if (msg.messageType() == BBConstants.SESSION_CONNECTION_DOWN) {
-                logger.info("session connection down");
+                LOGGER.info("session connection down");
             } else if (msg.messageType() == BBConstants.SESSION_STARTED) {
                 this.running = true;
-                logger.info("session started");
+                LOGGER.info("session started");
             } else if (msg.messageType() == BBConstants.SESSION_TERMINATED) {
                 this.running = false;
-                logger.info("session terminated");
+                LOGGER.info("session terminated");
             } else if (msg.messageType() == BBConstants.SESSION_STARTUP_FAILURE) {
-                logger.error(msg);
+                LOGGER.error(msg);
             } else {
                 throw new IllegalStateException("unknown messageType " + msg.messageType());
             }
@@ -124,7 +124,9 @@ public abstract class BBMessageHandler implements EventHandler {
         for (Message msg : event) {
             if (msg.messageType() == BBConstants.SERVICE_OPENED) {
                 String serviceName = msg.getElementAsString("serviceName");
-                logger.info("service has been opened " + serviceName);
+                if (LOGGER.isInfoEnabled()) {
+                    LOGGER.info("service has been opened {}", serviceName);
+                }
             } else {
                 throw new IllegalArgumentException("unknown msgType " + msg.messageType());
             }
@@ -134,7 +136,7 @@ public abstract class BBMessageHandler implements EventHandler {
     private void processAdminEvent(Event event, Session session) {
 
         for (Message msg : event) {
-            logger.info(msg);
+            LOGGER.info(msg);
         }
     }
 

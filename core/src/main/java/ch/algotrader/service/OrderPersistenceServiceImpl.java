@@ -50,7 +50,7 @@ import ch.algotrader.entity.trade.StopOrderDao;
 @Transactional
 public class OrderPersistenceServiceImpl implements OrderPersistenceService {
 
-    private static final Logger logger = LogManager.getLogger(OrderPersistenceServiceImpl.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(OrderPersistenceServiceImpl.class);
 
     private final OrderDao orderDao;
 
@@ -117,7 +117,7 @@ public class OrderPersistenceServiceImpl implements OrderPersistenceService {
                 }
             }
         } catch (Exception e) {
-            logger.error("problem creating order", e);
+            LOGGER.error("problem creating order", e);
         }
     }
 
@@ -131,7 +131,7 @@ public class OrderPersistenceServiceImpl implements OrderPersistenceService {
 
                 Order order = orderStatus.getOrder();
                 if (order == null) {
-                    logger.error("OrderStatus must have an Order attached");
+                    LOGGER.error("OrderStatus must have an Order attached");
                 } else if (order.getId() == 0 ) {
                     // reload persistent order instance
                     Order persistentOrder = this.orderDao.findByIntId(order.getIntId());
@@ -139,10 +139,10 @@ public class OrderPersistenceServiceImpl implements OrderPersistenceService {
                 }
                 this.orderStatusDao.save(orderStatus);
             } else {
-                logger.error("OrderStatus may not be updated");
+                LOGGER.error("OrderStatus may not be updated");
             }
         } catch (Exception e) {
-            logger.error("problem creating orderStatus", e);
+            LOGGER.error("problem creating orderStatus", e);
         }
     }
 

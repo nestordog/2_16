@@ -100,8 +100,8 @@ import ch.algotrader.vo.TradesVO;
  */
 public class SimulationExecutorImpl implements SimulationExecutor, InitializingBean, ApplicationContextAware {
 
-    private static final Logger logger = LogManager.getLogger(SimulationExecutorImpl.class.getName());
-    private static final Logger resultLogger = LogManager.getLogger("ch.algotrader.simulation.SimulationExecutor.RESULT");
+    private static final Logger LOGGER = LogManager.getLogger(SimulationExecutorImpl.class);
+    private static final Logger RESULT_LOGGER = LogManager.getLogger("ch.algotrader.simulation.SimulationExecutor.RESULT");
     private static final DecimalFormat twoDigitFormat = new DecimalFormat("#,##0.00");
     private static final NumberFormat format = NumberFormat.getInstance();
 
@@ -198,7 +198,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
         initStrategies(strategyGroup);
 
         if (this.eventListenerRegistry.getListeners(LifecycleEventVO.class).isEmpty()) {
-            logger.warn("No life cycle event listeners have been registered");
+            LOGGER.warn("No life cycle event listeners have been registered");
         }
 
         // reset the db
@@ -282,7 +282,9 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
         for (final String strategyName : strategyGroup.getStrategyNames()) {
             final double weight = strategyGroup.getWeight(strategyName);
             final Strategy strategy = strategyPersistenceService.getOrCreateStrategy(strategyName, weight);
-            logger.info("Update strategy '" + strategy.getName() + "' with allocation " + strategy.getAllocation());
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("Update strategy '{}' with allocation {}", strategy.getName(), strategy.getAllocation());
+            }
         }
     }
 
@@ -330,7 +332,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
         File genericdata = new File(baseDir, "genericdata");
         File dataDir = new File(genericdata, this.commonConfig.getDataSet());
         if (dataDir == null || !dataDir.exists() || !dataDir.isDirectory()) {
-            logger.warn("no generic events available");
+            LOGGER.warn("no generic events available");
         } else {
             File[] files = dataDir.listFiles();
             File[] sortedFiles = new File[files.length];
@@ -359,7 +361,9 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
                 inputAdapter.setCoercer(new CvsTypeCoercer());
                 this.serverEngine.coordinate(inputAdapter);
 
-                logger.debug("started feeding file " + file.getName());
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("started feeding file {}", file.getName());
+                }
             }
         }
     }
@@ -373,7 +377,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
         if (this.commonConfig.isFeedAllMarketDataFiles()) {
 
             if (dataDir == null || !dataDir.exists() || !dataDir.isDirectory()) {
-                logger.warn("no market data events available");
+                LOGGER.warn("no market data events available");
             } else {
 
                 // coordinate all files
@@ -414,10 +418,14 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
                 }
 
                 if (file == null || !file.exists()) {
-                    logger.warn("no data available for " + security.getSymbol() + " in " + dataDir);
+                    if (LOGGER.isWarnEnabled()) {
+                        LOGGER.warn("no data available for {} in {}", security.getSymbol(), dataDir);
+                    }
                     continue;
                 } else {
-                    logger.info("data available for " + security.getSymbol());
+                    if (LOGGER.isInfoEnabled()) {
+                        LOGGER.info("data available for {}", security.getSymbol());
+                    }
                 }
 
                 feedFile(file);
@@ -440,7 +448,9 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
 
         this.serverEngine.coordinate(inputAdapter);
 
-        logger.debug("started feeding file " + file.getName());
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("started feeding file {}", file.getName());
+        }
     }
 
     private void feedDB() {
@@ -452,13 +462,13 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
 
             DBTickInputAdapter inputAdapter = new DBTickInputAdapter(feedBatchSize);
             this.serverEngine.coordinate(inputAdapter);
-            logger.debug("started feeding ticks from db");
+            LOGGER.debug("started feeding ticks from db");
 
         } else if (MarketDataType.BAR.equals(marketDataType)) {
 
             DBBarInputAdapter inputAdapter = new DBBarInputAdapter(feedBatchSize, this.commonConfig.getBarSize());
             this.serverEngine.coordinate(inputAdapter);
-            logger.debug("started feeding bars from db");
+            LOGGER.debug("started feeding bars from db");
 
         } else {
             throw new SimulationExecutorException("incorrect parameter for dataSetType: " + marketDataType);
@@ -488,7 +498,9 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
         System.setProperty(parameter, value);
 
         SimulationResultVO resultVO = runSimulation(strategyGroup);
-        resultLogger.info("optimize " + parameter + "=" + value + " " + convertStatisticsToShortString(resultVO));
+        if (RESULT_LOGGER.isInfoEnabled()) {
+            RESULT_LOGGER.info("optimize {}={} {}", parameter, value, convertStatisticsToShortString(resultVO));
+        }
 
     }
 
@@ -510,7 +522,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
 
         SimulationResultVO resultVO = runSimulation(strategyGroup);
         buffer.append(convertStatisticsToShortString(resultVO));
-        resultLogger.info(buffer.toString());
+        RESULT_LOGGER.info(buffer.toString());
 
     }
 
@@ -527,7 +539,9 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
             System.setProperty(parameter, format.format(i));
 
             SimulationResultVO resultVO = runSimulation(strategyGroup);
-            resultLogger.info(parameter + "=" + format.format(i) + " " + convertStatisticsToShortString(resultVO));
+            if (RESULT_LOGGER.isInfoEnabled()) {
+                RESULT_LOGGER.info("{}={} {}", parameter, format.format(i), convertStatisticsToShortString(resultVO));
+            }
 
         }
 
@@ -547,7 +561,9 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
             System.setProperty(parameter, format.format(value));
 
             SimulationResultVO resultVO = runSimulation(strategyGroup);
-            resultLogger.info(parameter + "=" + format.format(value) + " " + convertStatisticsToShortString(resultVO));
+            if (RESULT_LOGGER.isInfoEnabled()) {
+                RESULT_LOGGER.info("{}={} {}", parameter, format.format(value), convertStatisticsToShortString(resultVO));
+            }
         }
 
     }
@@ -604,16 +620,22 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
                             String message2 = parameters[2] + "=" + format.format(MathUtils.round(i2, roundDigits));
 
                             SimulationResultVO resultVO = runSimulation(strategyGroup);
-                            resultLogger.info(message0 + " " + message1 + " " + message2 + " " + convertStatisticsToShortString(resultVO));
+                            if (RESULT_LOGGER.isInfoEnabled()) {
+                                RESULT_LOGGER.info("{} {} {} {}", message0, message1, message2, convertStatisticsToShortString(resultVO));
+                            }
                         }
                     } else {
                         SimulationResultVO resultVO = runSimulation(strategyGroup);
-                        resultLogger.info(message0 + " " + message1 + " " + convertStatisticsToShortString(resultVO));
+                        if (RESULT_LOGGER.isInfoEnabled()) {
+                            RESULT_LOGGER.info("{} {} {}", message0, message1, convertStatisticsToShortString(resultVO));
+                        }
                     }
                 }
             } else {
                 SimulationResultVO resultVO = runSimulation(strategyGroup);
-                resultLogger.info(message0 + " " + convertStatisticsToShortString(resultVO));
+                if (RESULT_LOGGER.isInfoEnabled()) {
+                    RESULT_LOGGER.info("{} {}", message0, convertStatisticsToShortString(resultVO));
+                }
             }
         }
 
@@ -634,10 +656,12 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
             MultivariateRealOptimizer optimizer = new MultiDirectional();
             optimizer.setConvergenceChecker(new SimpleScalarValueChecker(0.0, 0.01));
             result = optimizer.optimize(function, GoalType.MAXIMIZE, starts);
-            for (int i = 0; i < result.getPoint().length; i++) {
-                resultLogger.info("optimal value for " + parameters[i] + "=" + format.format(result.getPoint()[i]));
+            if (RESULT_LOGGER.isInfoEnabled()) {
+                for (int i = 0; i < result.getPoint().length; i++) {
+                    RESULT_LOGGER.info("optimal value for {}={}", parameters[i], format.format(result.getPoint()[i]));
+                }
+                RESULT_LOGGER.info("functionValue: {} needed iterations: {})", format.format(result.getValue()), optimizer.getEvaluations());
             }
-            resultLogger.info("functionValue: " + format.format(result.getValue()) + " needed iterations: " + optimizer.getEvaluations() + ")");
         } catch (MathException ex) {
             throw new SimulationExecutorException(ex);
         }
@@ -873,9 +897,11 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
 
     private void logMultiLineString(String input) {
 
-        String[] lines = input.split("\r\n");
-        for (String line : lines) {
-            resultLogger.info(line);
+        if (RESULT_LOGGER.isInfoEnabled()) {
+            String[] lines = input.split("\r\n");
+            for (String line : lines) {
+                RESULT_LOGGER.info(line);
+            }
         }
     }
 
@@ -900,8 +926,9 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
             SimulationResultVO resultVO = this.simulationExecutor.runSimulation(this.strategyGroup);
             double result = resultVO.getPerformanceKeys().getSharpeRatio();
 
-            resultLogger.info("optimize on " + this.param + "=" + SimulationExecutorImpl.format.format(input) + " " + SimulationExecutorImpl.this.convertStatisticsToShortString(resultVO));
-
+            if (RESULT_LOGGER.isInfoEnabled()) {
+                RESULT_LOGGER.info("optimize on {}={} {}", this.param, SimulationExecutorImpl.format.format(input), SimulationExecutorImpl.this.convertStatisticsToShortString(resultVO));
+            }
             return result;
         }
     }
@@ -936,8 +963,9 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
             SimulationResultVO resultVO = this.simulationExecutor.runSimulation(this.strategyGroup);
             double result = resultVO.getPerformanceKeys().getSharpeRatio();
 
-            resultLogger.info(buffer.toString() + SimulationExecutorImpl.this.convertStatisticsToShortString(resultVO));
-
+            if (RESULT_LOGGER.isInfoEnabled()) {
+                RESULT_LOGGER.info("{}{}", buffer.toString(), SimulationExecutorImpl.this.convertStatisticsToShortString(resultVO));
+            }
             return result;
         }
     }

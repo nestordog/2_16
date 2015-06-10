@@ -33,7 +33,7 @@ import ch.algotrader.ServiceLocator;
  */
 public abstract class TimerCallback {
 
-    private static final Logger logger = LogManager.getLogger(TimerCallback.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(TimerCallback.class);
 
     /**
      * Called by the "ON_TIMER" statement. Should not be invoked directly.
@@ -43,12 +43,15 @@ public abstract class TimerCallback {
         // undeploy the statement
         ServiceLocator.instance().getEngineManager().getEngine(strategyName).undeployStatement(alias);
 
-        logger.debug(alias + " start");
-
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("{} start", alias);
+        }
         // call orderCompleted
         onTimer(dateTime);
 
-        logger.debug(alias + " end");
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("{} end", alias);
+        }
     }
 
     /**

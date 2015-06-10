@@ -42,7 +42,7 @@ import ch.algotrader.util.diff.reader.LinkedListReader;
  */
 public class GroupDiffer implements CsvDiffer {
 
-    private static final Logger LOG = LogManager.getLogger(GroupDiffer.class);
+    private static final Logger LOGGER = LogManager.getLogger(GroupDiffer.class);
 
     private final List<CsvColumn> expectedGroupColumns;
     private final List<CsvColumn> actualGroupColumns;
@@ -88,7 +88,9 @@ public class GroupDiffer implements CsvDiffer {
             final LinkedListReader expSubReader = expReader.readBufferAsReader(expReader.getBufferSize() - expSkip);
             final LinkedListReader actSubReader = actReader.readBufferAsReader(actReader.getBufferSize() - actSkip);
             try {
-                LOG.debug("asserting group: " + groupValues + " [exp=" + getLines(expSubReader) + ", act=" + getLines(actSubReader) + "]");
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("asserting group: {} [exp={}, act={}]", groupValues, getLines(expSubReader), getLines(actSubReader));
+                }
                 linesCompared += delegate.diffLines(expSubReader, actSubReader);
             } catch (CsvAssertionError e) {
                 throw e.addGroupValues(groupValues);

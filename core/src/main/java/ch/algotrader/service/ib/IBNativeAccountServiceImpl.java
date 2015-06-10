@@ -37,7 +37,7 @@ import ch.algotrader.service.AccountServiceImpl;
  */
 public class IBNativeAccountServiceImpl extends AccountServiceImpl implements IBNativeAccountService {
 
-    private static final Logger logger = LogManager.getLogger(IBNativeAccountServiceImpl.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(IBNativeAccountServiceImpl.class);
 
     private final BlockingQueue<AccountUpdate> accountUpdateQueue;
     private final BlockingQueue<Set<String>> accountsQueue;
@@ -84,7 +84,7 @@ public class IBNativeAccountServiceImpl extends AccountServiceImpl implements IB
             throw new IBFixAccountServiceException(ex);
         }
 
-        logger.debug(buffer.toString());
+        LOGGER.debug(buffer.toString());
 
         return quantityByMargin;
 
@@ -110,7 +110,7 @@ public class IBNativeAccountServiceImpl extends AccountServiceImpl implements IB
             throw new IBFixAccountServiceException(ex);
         }
 
-        logger.debug(buffer.toString());
+        LOGGER.debug(buffer.toString());
 
         return quantityByAllocation;
 

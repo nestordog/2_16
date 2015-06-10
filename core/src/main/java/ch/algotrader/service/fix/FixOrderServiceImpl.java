@@ -46,7 +46,7 @@ public abstract class FixOrderServiceImpl extends ExternalOrderServiceImpl imple
 
     private static final long serialVersionUID = -1571841567775158540L;
 
-    private static final Logger logger = LogManager.getLogger(FixOrderServiceImpl.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(FixOrderServiceImpl.class);
 
     private final FixAdapter fixAdapter;
 
@@ -104,11 +104,17 @@ public abstract class FixOrderServiceImpl extends ExternalOrderServiceImpl imple
         }
 
         if (msgType.getValue().equals(MsgType.ORDER_SINGLE)) {
-            logger.info("sent order: " + order);
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("sent order: {}", order);
+            }
         } else if (msgType.getValue().equals(MsgType.ORDER_CANCEL_REPLACE_REQUEST)) {
-            logger.info("sent order modification: " + order);
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("sent order modification: {}", order);
+            }
         } else if (msgType.getValue().equals(MsgType.ORDER_CANCEL_REQUEST)) {
-            logger.info("sent order cancellation: " + order);
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("sent order cancellation: {}", order);
+            }
         } else {
             throw new IllegalArgumentException("unsupported messagetype: " + msgType);
         }

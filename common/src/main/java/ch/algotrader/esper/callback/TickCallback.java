@@ -41,7 +41,7 @@ import ch.algotrader.util.metric.MetricsUtil;
  */
 public abstract class TickCallback {
 
-    private static final Logger logger = LogManager.getLogger(TickCallback.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(TickCallback.class);
 
     /**
      * Called by the "ON_FIRST_TICK" statement. Should not be invoked directly.
@@ -62,12 +62,15 @@ public abstract class TickCallback {
         ServiceLocator.instance().getEngineManager().getEngine(strategyName).undeployStatement(alias);
 
         long startTime = System.nanoTime();
-        logger.debug("onFirstTick start " + sortedSecurityIds);
-
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("onFirstTick start {}", sortedSecurityIds);
+        }
         // call orderCompleted
         onFirstTick(strategyName, tickList);
 
-        logger.debug("onFirstTick end " + sortedSecurityIds);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("onFirstTick end {}", sortedSecurityIds);
+        }
 
         MetricsUtil.accountEnd("TickCallback." + strategyName, startTime);
     }

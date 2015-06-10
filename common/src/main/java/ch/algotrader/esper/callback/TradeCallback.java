@@ -40,7 +40,7 @@ import ch.algotrader.util.metric.MetricsUtil;
  */
 public abstract class TradeCallback {
 
-    private static final Logger logger = LogManager.getLogger(TradeCallback.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(TradeCallback.class);
 
     private final boolean expectFullExecution;
 
@@ -61,9 +61,8 @@ public abstract class TradeCallback {
         if (this.expectFullExecution) {
             for (OrderStatus orderStatus : orderStati) {
                 if (orderStatus.getRemainingQuantity() > 0) {
-                    logger.error("order on " + orderStatus.getOrder().getSecurity() +
-                            " has not been fully executed, filledQty: " + orderStatus.getFilledQuantity() +
-                            " remainingQty: " + orderStatus.getRemainingQuantity());
+                    LOGGER.error("order on {} has not been fully executed, filledQty: {} remainingQty: {}", orderStatus.getOrder().getSecurity(), orderStatus.getFilledQuantity(),
+                            orderStatus.getRemainingQuantity());
                 }
             }
         }
@@ -83,13 +82,15 @@ public abstract class TradeCallback {
         ServiceLocator.instance().getEngineManager().getEngine(strategyName).undeployStatement(alias);
 
         long startTime = System.nanoTime();
-        logger.debug("onTradeCompleted start " + sortedSecurityIds + " " + owningStrategyName);
-
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("onTradeCompleted start {} {}", sortedSecurityIds, owningStrategyName);
+        }
         // call orderCompleted
         onTradeCompleted(orderStatusList);
 
-        logger.debug("onTradeCompleted end " + sortedSecurityIds + " " + owningStrategyName);
-
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("onTradeCompleted end {} {}", sortedSecurityIds, owningStrategyName);
+        }
         MetricsUtil.accountEnd("TradeCallback." + strategyName, startTime);
     }
 

@@ -41,7 +41,7 @@ import ch.algotrader.util.FieldUtil;
  */
 class CollectionHandler extends AbstractHandler {
 
-    private static final Logger logger = LogManager.getLogger(CollectionHandler.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(CollectionHandler.class);
 
     private final CacheManagerImpl cacheManager;
 
@@ -156,12 +156,12 @@ class CollectionHandler extends AbstractHandler {
                     if (updatedCollection instanceof Collection) {
                         Collection<?> col = (Collection<?>) updatedCollection;
                         if (col.size() != 0) {
-                            logger.error("non empty collection returned instead of PersistentCollection");
+                            LOGGER.error("non empty collection returned instead of PersistentCollection");
                         }
                     } else if (updatedCollection instanceof Map) {
                         Map<?, ?> map = (Map<?, ?>) updatedCollection;
                         if (map.size() != 0) {
-                            logger.error("non empty map returned instead of PersistentCollection");
+                            LOGGER.error("non empty map returned instead of PersistentCollection");
                         }
                     }
                 }

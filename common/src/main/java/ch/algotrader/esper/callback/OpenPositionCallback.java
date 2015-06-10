@@ -33,7 +33,7 @@ import ch.algotrader.vo.OpenPositionVO;
  */
 public abstract class OpenPositionCallback {
 
-    private static final Logger logger = LogManager.getLogger(OpenPositionCallback.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(OpenPositionCallback.class);
 
     /**
      * Called by the "ON_OPEN_POSITION" statement. Should not be invoked directly.
@@ -47,13 +47,15 @@ public abstract class OpenPositionCallback {
         ServiceLocator.instance().getEngineManager().getEngine(positionVO.getStrategy()).undeployStatement(alias);
 
         long startTime = System.nanoTime();
-        logger.debug("onOpenPosition start " + positionVO.getSecurityId());
-
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("onOpenPosition start {}", positionVO.getSecurityId());
+        }
         // call orderCompleted
         onOpenPosition(positionVO);
 
-        logger.debug("onOpenPosition end " + positionVO.getSecurityId());
-
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("onOpenPosition end {}", positionVO.getSecurityId());
+        }
         MetricsUtil.accountEnd("OpenPositionCallback." + positionVO.getStrategy(), startTime);
     }
 

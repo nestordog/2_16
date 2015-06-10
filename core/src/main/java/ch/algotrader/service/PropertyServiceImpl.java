@@ -36,7 +36,7 @@ import ch.algotrader.entity.property.PropertyHolderDao;
 @Transactional
 public class PropertyServiceImpl implements PropertyService {
 
-    private static final Logger logger = LogManager.getLogger(PropertyServiceImpl.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(PropertyServiceImpl.class);
 
     private final PropertyDao propertyDao;
 
@@ -86,7 +86,9 @@ public class PropertyServiceImpl implements PropertyService {
             property.setValue(value);
         }
 
-        logger.info("added property " + name + " value " + value + " to " + propertyHolder);
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("added property {} value {} to {}", name, value, propertyHolder);
+        }
 
         return propertyHolder;
 
@@ -111,7 +113,9 @@ public class PropertyServiceImpl implements PropertyService {
             this.propertyDao.deleteById(property.getId());
         }
 
-        logger.info("removed property " + name + " from " + propertyHolder);
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("removed property {} from {}", name, propertyHolder);
+        }
 
         return propertyHolder;
 

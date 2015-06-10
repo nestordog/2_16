@@ -51,7 +51,7 @@ import ch.algotrader.visitor.InitializationVisitor;
 @ManagedResource(objectName = "ch.algotrader.cache:name=CacheManager")
 public class CacheManagerImpl implements CacheManager, Initializer {
 
-    private static final Logger logger = LogManager.getLogger(CacheManagerImpl.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(CacheManagerImpl.class);
 
     public static final String ROOT = "root";
 
@@ -174,7 +174,9 @@ public class CacheManagerImpl implements CacheManager, Initializer {
 
             this.entityCache.attach(cacheKey, key, initializedObj);
 
-            logger.trace("initialized " + cacheKey + ": " + key);
+            if (LOGGER.isTraceEnabled()) {
+                LOGGER.trace("initialized {}: {}", cacheKey, key);
+            }
         }
 
         return initializedObj;
@@ -238,7 +240,9 @@ public class CacheManagerImpl implements CacheManager, Initializer {
 
             if (handler.update(obj) != null) {
 
-                logger.trace("updated " + cacheKey + ": " + key);
+                if (LOGGER.isTraceEnabled()) {
+                    LOGGER.trace("updated {}: {}", cacheKey, key);
+                }
             }
         }
     }

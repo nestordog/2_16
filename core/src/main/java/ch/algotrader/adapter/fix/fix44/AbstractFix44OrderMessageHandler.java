@@ -17,7 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.fix.fix44;
 
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -46,7 +45,7 @@ import quickfix.fix44.OrderCancelReject;
  */
 public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44MessageHandler {
 
-    private static final Logger LOGGER = LogManager.getLogger(AbstractFix44OrderMessageHandler.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(AbstractFix44OrderMessageHandler.class);
 
     private final LookupService lookupService;
     private final Engine serverEngine;
@@ -77,16 +76,15 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
         Order order = this.lookupService.getOpenOrderByRootIntId(intId);
         if (order == null) {
 
-            if (LOGGER.isEnabled(Level.ERROR)) {
-
-                LOGGER.error("Order with int ID " + intId + " matching the execution report could not be found");
+            if (LOGGER.isErrorEnabled ()) {
+                LOGGER.error("Order with int ID {} matching the execution report could not be found", intId);
             }
             return;
         }
 
         if (isOrderRejected(executionReport)) {
 
-            if (LOGGER.isEnabled(Level.ERROR)) {
+            if (LOGGER.isErrorEnabled ()) {
 
                 StringBuilder buf = new StringBuilder();
                 buf.append("Order with int ID ").append(intId).append(" has been rejected");
@@ -160,9 +158,8 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
         Order order = this.lookupService.getOpenOrderByRootIntId(intId);
         if (order == null) {
 
-            if (LOGGER.isEnabled(Level.ERROR)) {
-
-                LOGGER.error("Order with int ID " + intId + " matching the execution report could not be found");
+            if (LOGGER.isErrorEnabled()) {
+                LOGGER.error("Order with int ID {} matching the execution report could not be found", intId);
             }
             return;
         }

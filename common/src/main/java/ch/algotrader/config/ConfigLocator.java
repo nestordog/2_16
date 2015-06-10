@@ -38,7 +38,7 @@ import ch.algotrader.config.spring.DefaultSystemConfigProvider;
  */
 public final class ConfigLocator {
 
-    private static final Logger LOGGER = LogManager.getLogger(ConfigLocator.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(ConfigLocator.class);
 
     private static volatile ConfigLocator INSTANCE;
 

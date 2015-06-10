@@ -46,7 +46,7 @@ import org.springframework.integration.support.MessageBuilder;
  */
 public class EmailTransformer {
 
-    private static final Logger logger = LogManager.getLogger(EmailTransformer.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(EmailTransformer.class);
 
     @Transformer
     public Message<List<EmailFragment>> transform(Message<javax.mail.Message> message) throws MessagingException {
@@ -121,7 +121,9 @@ public class EmailTransformer {
 
                         emailFragments.add(new EmailFragment(filename, bos.toByteArray()));
 
-                        logger.info(String.format("processing file: %s", new Object[]{filename}));
+                        if (LOGGER.isInfoEnabled()) {
+                            LOGGER.info(String.format("processing file: %s", new Object[] { filename }));
+                        }
 
                     }
 

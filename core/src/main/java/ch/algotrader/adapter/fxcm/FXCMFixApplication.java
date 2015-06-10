@@ -51,7 +51,7 @@ import quickfix.fix44.UserResponse;
  */
 public class FXCMFixApplication extends AbstractFixApplication {
 
-    private static final Logger LOGGER = LogManager.getLogger(FXCMFixApplication.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(FXCMFixApplication.class);
 
     private final SessionSettings settings;
     private final FixSessionStateHolder stateHolder;
@@ -83,7 +83,7 @@ public class FXCMFixApplication extends AbstractFixApplication {
             userRequest.set(new UserRequestType(UserRequestType.LOGONUSER));
             getSession().send(userRequest);
         } catch (ConfigError ex) {
-            LOGGER.error("Session confguration error: " + ex.getMessage());
+            LOGGER.error("Session confguration error: {}", ex.getMessage());
         } catch (FieldConvertError ex) {
             LOGGER.error(ex.getMessage(), ex);
         }
@@ -100,7 +100,7 @@ public class FXCMFixApplication extends AbstractFixApplication {
                 stateHolder.onLogon();
             } else {
                 UserStatusText userStatusText = userResponse.getUserStatusText();
-                LOGGER.error("FXCM logon failed: " + userStatusText.getValue());
+                LOGGER.error("FXCM logon failed: {}", userStatusText.getValue());
             }
 
             return true;

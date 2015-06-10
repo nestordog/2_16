@@ -46,7 +46,7 @@ public final class IBSession extends EClientSocket implements InitializingServic
 
     private static final long serialVersionUID = 6821739991866153788L;
 
-    private static final Logger logger = LogManager.getLogger(IBSession.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(IBSession.class);
 
     private final int clientId;
     private final String host;
@@ -134,7 +134,7 @@ public final class IBSession extends EClientSocket implements InitializingServic
                 // during eDisconnect this thread get's interrupted so sleep again
                 Thread.sleep(10000);
             } catch (InterruptedException e2) {
-                logger.error("problem sleeping", e2);
+                LOGGER.error("problem sleeping", e2);
             }
         }
     }
@@ -150,9 +150,11 @@ public final class IBSession extends EClientSocket implements InitializingServic
                 return;
             } catch (ConnectException e) {
                 // do nothing, gateway is down
-                logger.info("please start IB Gateway / TWS on port: " + this.port);
+                if (LOGGER.isInfoEnabled()) {
+                    LOGGER.info("please start IB Gateway / TWS on port: {}", this.port);
+                }
             } catch (IOException e) {
-                logger.error("connection error", e);
+                LOGGER.error("connection error", e);
             }
             try {
                 socket.close();

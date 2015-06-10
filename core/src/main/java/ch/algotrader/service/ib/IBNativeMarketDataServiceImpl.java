@@ -49,7 +49,7 @@ import ch.algotrader.vo.SubscribeTickVO;
  */
 public class IBNativeMarketDataServiceImpl extends ExternalMarketDataServiceImpl implements IBNativeMarketDataService, DisposableBean {
 
-    private static final Logger logger = LogManager.getLogger(IBNativeMarketDataServiceImpl.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(IBNativeMarketDataServiceImpl.class);
 
     private final IBSession iBSession;
     private final IBIdGenerator iBIdGenerator;
@@ -117,7 +117,9 @@ public class IBNativeMarketDataServiceImpl extends ExternalMarketDataServiceImpl
 
         this.iBSession.reqMktData(tickerId, contract, this.iBConfig.getGenericTickList(), false, new ArrayList<TagValue>());
 
-        logger.debug("requested market data for: " + security + " tickerId: " + tickerId);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("requested market data for: {} tickerId: {}", security, tickerId);
+        }
 
     }
 
@@ -140,7 +142,9 @@ public class IBNativeMarketDataServiceImpl extends ExternalMarketDataServiceImpl
 
         this.serverEngine.executeQuery("delete from TickWindow where security.id = " + security.getId());
 
-        logger.debug("cancelled market data for : " + security);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("cancelled market data for : {}", security);
+        }
 
     }
 

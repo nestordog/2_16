@@ -36,7 +36,7 @@ import ch.algotrader.util.diff.reader.CsvReaderUtil;
  */
 public class SkipStartDiffer implements CsvDiffer {
 
-    private static final Logger LOG = LogManager.getLogger(SkipStartDiffer.class);
+    private static final Logger LOGGER = LogManager.getLogger(SkipStartDiffer.class);
 
     public static enum Mode {
         /** Skip expected rows until the value in the compared column matches the one in the actual row */
@@ -136,10 +136,14 @@ public class SkipStartDiffer implements CsvDiffer {
             final MatchResult result = mode.match(expectedColumn, expVal, actualColumn, actVal);
             if (!result.skip(expReader, actReader)) {
                 if (!isAtStart(expReader)) {
-                    LOG.info("skipped expected lines, now at " + CsvReaderUtil.getFileLocation(expReader));
+                    if (LOGGER.isInfoEnabled()) {
+                        LOGGER.info("skipped expected lines, now at {}", CsvReaderUtil.getFileLocation(expReader));
+                    }
                 }
                 if (!isAtStart(actReader)) {
-                    LOG.info("skipped actual lines, now at " + CsvReaderUtil.getFileLocation(actReader));
+                    if (LOGGER.isInfoEnabled()) {
+                        LOGGER.info("skipped actual lines, now at {}", CsvReaderUtil.getFileLocation(actReader));
+                    }
                 }
                 return;
             }

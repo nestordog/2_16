@@ -37,7 +37,7 @@ import quickfix.fix44.QuoteStatusReport;
  */
 public abstract class AbstractFix44MarketDataMessageHandler extends AbstractFix44MessageHandler {
 
-    static Logger LOGGER = LogManager.getLogger(AbstractFix44MarketDataMessageHandler.class.getName());
+    static Logger LOGGER = LogManager.getLogger(AbstractFix44MarketDataMessageHandler.class);
 
     public void onMessage(MarketDataRequestReject requestReject, SessionID sessionID) throws FieldNotFound {
 
@@ -62,8 +62,7 @@ public abstract class AbstractFix44MarketDataMessageHandler extends AbstractFix4
     public void onMessage(QuoteStatusReport quoteStatusReport, SessionID sessionID) throws FieldNotFound {
 
         if (LOGGER.isTraceEnabled()) {
-
-            LOGGER.trace("Quote status report: " + quoteStatusReport.getSymbol().getValue());
+            LOGGER.trace("Quote status report: {}", quoteStatusReport.getSymbol().getValue());
         }
     }
 

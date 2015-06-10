@@ -31,24 +31,28 @@ import ch.algotrader.util.diff.reader.CsvLine;
  */
 public class CsvDiff {
 
-    private static final Logger LOG = LogManager.getLogger(CsvDiff.class);
+    private static final Logger LOGGER = LogManager.getLogger(CsvDiff.class);
 
     public static void diffAndLogAssertionErrors(FileDiffer fileDiffer, File expectedFile, File actualFile) {
-        LOG.info("[ASSERT] ====================================================");
-        LOG.info("[ASSERT]   expected file: " + expectedFile);
-        LOG.info("[ASSERT]     actual file: " + actualFile);
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("[ASSERT] ====================================================");
+            LOGGER.info("[ASSERT]   expected file: {}", expectedFile);
+            LOGGER.info("[ASSERT]     actual file: {}", actualFile);
+        }
         try {
-            final DiffStats stats = fileDiffer.diffFiles(expectedFile, actualFile);
-            LOG.info("[ASSERT SUCCEEDED] lines: " + stats);
+            if (LOGGER.isInfoEnabled()) {
+                final DiffStats stats = fileDiffer.diffFiles(expectedFile, actualFile);
+                LOGGER.info("[ASSERT SUCCEEDED] lines: {}", stats);
+            }
         } catch (CsvAssertionError e) {
-            LOG.error("[ASSSERTION FAILED] " + e.getMessage());
-            LOG.error("[ASSSERTION FAILED] files: exp=" + e.getExpectedFile().getName() + ", act=" + e.getActualFile().getName());
-            LOG.error("[ASSSERTION FAILED] lines: exp=" + e.getLineString(true, false) + ", act=" + e.getLineString(false, true));
-            LOG.error("[ASSSERTION FAILED] group: " + e.getGroupString());
+            LOGGER.error("[ASSSERTION FAILED] {}", e.getMessage());
+            LOGGER.error("[ASSSERTION FAILED] files: exp={}, act={}", e.getExpectedFile().getName(), e.getActualFile().getName());
+            LOGGER.error("[ASSSERTION FAILED] lines: exp={}, act={}", e.getLineString(true, false), e.getLineString(false, true));
+            LOGGER.error("[ASSSERTION FAILED] group: {}", e.getGroupString());
             final int numlen = e.getDiffs().isEmpty() ? 0 : 1 + (int)Math.floor(Math.log10(e.getDiffs().size()));
-            LOG.error("[ASSSERTION FAILED] " + spaces(numlen) + "=========================================================================================");
-            LOG.error("[ASSSERTION FAILED] " + spaces(numlen) + "NUM |       COLUMN(S)      |       EXPECTED       |        ACTUAL        | MESSAGE");
-            LOG.error("[ASSSERTION FAILED] " + spaces(numlen) + "----|----------------------|----------------------|----------------------|---------------");
+            LOGGER.error("[ASSSERTION FAILED] {}=========================================================================================", spaces(numlen));
+            LOGGER.error("[ASSSERTION FAILED] {}NUM |       COLUMN(S)      |       EXPECTED       |        ACTUAL        | MESSAGE", spaces(numlen));
+            LOGGER.error("[ASSSERTION FAILED] {}----|----------------------|----------------------|----------------------|---------------", spaces(numlen));
             for (int i = 0; i < e.getDiffs().size(); i++) {
                 final DiffEntry diff = e.getDiffs().get(i);
                 final DiffEntry.Context expContext = diff.getExpectedContext();
@@ -58,23 +62,21 @@ public class CsvDiff {
                 final Object expVal = expContext.getColumn() == null ? expContext.getLine().getRawLine() == null ? "--" : "<line>" : expContext.getValue();
                 final Object actVal = actContext.getColumn() == null ? actContext.getLine().getRawLine() == null ? "--" : "<line>" : actContext.getValue();
                 final String columns = expCol.equals(actCol) ? expCol : expCol + "/" + actCol;
-                LOG.error("[ASSSERTION FAILED]  (" + fixedLen(i+1, numlen) + ") | "//
-                        + fixedLen(columns, 20) + " | " + fixedLen(expVal, 20) + " | " + fixedLen(actVal, 20) + " | " //
-                        + diff.getMessage());
+                LOGGER.error("[ASSSERTION FAILED]  ({}) | {} | {} | {} | {}", fixedLen(i + 1, numlen), fixedLen(columns, 20), fixedLen(expVal, 20), fixedLen(actVal, 20), diff.getMessage());
             }
-            LOG.error("[ASSSERTION FAILED] " + spaces(numlen) + "----|-------------------------------------------------------------------------------------");
+            LOGGER.error("[ASSSERTION FAILED] {}----|-------------------------------------------------------------------------------------", spaces(numlen));
 //            LOG.error("[ASSSERTION FAILED] " + spaces(numlen) + "----|=====================================================================================");
             for (int i = 0; i < e.getDiffs().size(); i++) {
                 final DiffEntry diff = e.getDiffs().get(i);
                 final CsvLine expLine = diff.getExpectedContext().getLine();
                 final CsvLine actLine = diff.getActualContext().getLine();
-                LOG.error("[ASSSERTION FAILED]  (" + fixedLen(i+1, numlen) + ") | exp-line: [" + expLine.getLineIndex() + "] " + expLine.getRawLine());
-                LOG.error("[ASSSERTION FAILED]   " + spaces(numlen) + "  | act-line: [" + actLine.getLineIndex() + "] " + actLine.getRawLine());
+                LOGGER.error("[ASSSERTION FAILED]  ({}) | exp-line: [{}] {}", fixedLen(i+1, numlen), expLine.getLineIndex(), expLine.getRawLine());
+                LOGGER.error("[ASSSERTION FAILED]   {}  | act-line: [{}] {}", spaces(numlen), actLine.getLineIndex(), actLine.getRawLine());
             }
-            LOG.error("[ASSSERTION FAILED] " + spaces(numlen) + "=========================================================================================");
+            LOGGER.error("[ASSSERTION FAILED] {}=========================================================================================", spaces(numlen));
             throw e;
         } catch (IOException e) {
-            LOG.error("[ASSSERTION FAILED] I/O exception");
+            LOGGER.error("[ASSSERTION FAILED] I/O exception");
             throw new RuntimeException(e);
         }
     }
