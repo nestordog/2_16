@@ -11,7 +11,7 @@
     <xsd:element name="strategy">
         <xsd:complexType>
             <xsd:attribute name="name" type="xsd:string" use="required"/>
-            <xsd:attribute name="engineName" type="xsd:string" use="optional"/>
+            <xsd:attribute name="strategyName" type="xsd:string" use="optional"/>
             <xsd:attribute name="config" type="xsd:string" use="optional"/>
             <xsd:attribute name="configClass" type="xsd:string" use="required"/>
             <xsd:attribute name="engineTemplate" type="xsd:string" use="required"/>

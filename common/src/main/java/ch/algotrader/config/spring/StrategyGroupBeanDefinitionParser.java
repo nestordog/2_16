@@ -81,7 +81,6 @@ public final class StrategyGroupBeanDefinitionParser extends AbstractBeanDefinit
 
                 //register bean: Engine
                 registerBeanDefinition(name + "Engine", parserContext, childBeanDefinition(name + "EngineTemplate")
-                        .addPropertyValue("engineName", name)
                         .addPropertyValue("strategyName", name));
                 //register bean: ConfigParams
                 registerBeanDefinition(name + "ConfigParams", parserContext, childBeanDefinition(name + "ConfigParamsTemplate"));
