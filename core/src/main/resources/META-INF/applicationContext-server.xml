@@ -227,7 +227,7 @@
 
     <!-- =================================== Fix  ========================================= -->
 
-    <beans profile="jPMFix,iBFix,dCFix,rTFix,dcMarkteData,lMAXFix,lMAXMarketData,fXCMFix,fXCMMarketData,cNXFix,cNXMarketData">
+    <beans profile="jPMFix,iBFix,dCFix,rTFix,dcMarkteData,lMAXFix,lMAXMarketData,fXCMFix,fXCMMarketData,cNXFix,cNXMarketData,fTXFix,fTXMarketData">
     
       <bean id="orderIdGenerator" class="ch.algotrader.ordermgmt.DefaultOrderIdGenerator">
         <constructor-arg index="0" ref="orderDao"/>
@@ -467,7 +467,52 @@
 
   </beans>
 
-  <!-- =========================================== RECONCILIATION ================================================ -->
+    <!-- =================================== Currenex  ========================================= -->
+
+    <beans profile="fTXMarketData,fTXFix">
+
+        <bean id="fTXLogonMessageHandler" class="ch.algotrader.adapter.fix.DefaultLogonMessageHandler">
+            <constructor-arg index="0" ref="fixSessionSettings"/>
+        </bean>
+
+    </beans>
+
+    <beans profile="fTXMarketData">
+
+        <bean id="fTXMarketDataSessionLifeCycle" class="ch.algotrader.adapter.fix.MarketDataFixSessionLifecycle">
+            <property name="marketDataService" ref="marketDataService"/>
+            <property name="feedType" value="FTX"/>
+        </bean>
+
+        <bean id="fTXMarketDataApplicationFactory" class="ch.algotrader.adapter.fix.DefaultFixApplicationFactory">
+            <property name="incomingMessageHandler">
+                <bean class="ch.algotrader.adapter.ftx.FTXFixMarketDataMessageHandler"/>
+            </property>
+            <property name="outgoingMessageHandler" ref="fTXLogonMessageHandler"/>
+            <property name="lifecycleHandler" ref="fTXMarketDataSessionLifeCycle"/>
+            <property name="name" value="FTXMD"/>
+        </bean>
+
+    </beans>
+
+    <beans profile="fTXFix">
+
+        <bean id="fTXOrderSessionLifeCycle" class="ch.algotrader.adapter.fix.DefaultFixSessionLifecycle"/>
+
+        <bean id="fTXOrderApplicationFactory" class="ch.algotrader.adapter.fix.DefaultFixApplicationFactory">
+            <property name="incomingMessageHandler">
+                <bean class="ch.algotrader.adapter.ftx.FTXFixOrderMessageHandler">
+                    <property name="lookupService" ref="lookupService"/>
+                </bean>
+            </property>
+            <property name="outgoingMessageHandler" ref="fTXLogonMessageHandler"/>
+            <property name="lifecycleHandler" ref="fTXOrderSessionLifeCycle"/>
+            <property name="name" value="FTXT"/>
+        </bean>
+
+    </beans>
+
+    <!-- =========================================== RECONCILIATION ================================================ -->
 
     <beans profile="reconciliation">
 

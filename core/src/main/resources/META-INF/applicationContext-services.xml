@@ -475,6 +475,22 @@
         </bean>
     </beans>
 
+    <beans profile="fTXMarketData">
+        <bean id="fTXFixMarketDataService" class="ch.algotrader.service.ftx.FTXFixMarketDataServiceImpl" >
+            <constructor-arg index="0" ref="commonConfig"/>
+            <constructor-arg index="1"  ref="fTXMarketDataSessionLifeCycle"/>
+            <constructor-arg index="2"  ref="fixAdapter"/>
+            <constructor-arg index="3"  ref="securityDao"/>
+        </bean>
+    </beans>
+
+    <beans profile="fTXFix">
+        <bean id="fTXFixOrderService" class="ch.algotrader.service.ftx.FTXFixOrderServiceImpl" >
+            <constructor-arg index="0"  ref="fixAdapter"/>
+            <constructor-arg index="1"  ref="orderService"/>
+        </bean>
+    </beans>
+
     <!-- ========================= End of PROFILE SERVICE DEFINITIONS ========================= -->
 
 </beans>
