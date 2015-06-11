@@ -93,6 +93,6 @@ public class FTXFixMarketDataServiceImpl extends Fix44MarketDataServiceImpl impl
     @Override
     public FeedType getFeedType() {
 
-        return FeedType.CNX;
+        return FeedType.FTX;
     }
 }
