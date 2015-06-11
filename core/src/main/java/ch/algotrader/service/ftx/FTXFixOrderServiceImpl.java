@@ -19,8 +19,6 @@ package ch.algotrader.service.ftx;
 
 import java.util.Map;
 
-import com.espertech.esper.collection.Pair;
-
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.ftx.FTXFixOrderMessageFactory;
 import ch.algotrader.entity.trade.SimpleOrder;
@@ -60,13 +58,12 @@ public class FTXFixOrderServiceImpl extends Fix44OrderServiceImpl implements FTX
         if (serverEngine != null && serverEngine.isDeployed("OPEN_ORDER_WINDOW")) {
             String intId = order.getIntId();
             @SuppressWarnings("unchecked")
-            Pair<Long, Map<?, ?>> pair = ((Pair<Long, Map<?, ?>>) serverEngine.executeSingelObjectQuery(
-                    "select filledQuantity from OpenOrderWindow where intId = '" + intId + "'"));
-            long qty = 0;
-            if (pair != null) {
-                qty = pair.getFirst();
+            Map<String, Long> map = (Map<String, Long>) serverEngine.executeSingelObjectQuery(
+                    "select filledQuantity from OpenOrderWindow where intId = '" + intId + "'");
+            Long filledQuantity = map.get("filledQuantity");
+            if (filledQuantity != null) {
+                replaceRequest.setDouble(CumQty.FIELD, filledQuantity);
             }
-            replaceRequest.setDouble(CumQty.FIELD, qty);
         }
     }
 
