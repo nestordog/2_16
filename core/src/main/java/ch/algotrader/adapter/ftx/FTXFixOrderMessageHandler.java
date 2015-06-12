@@ -24,6 +24,7 @@ import ch.algotrader.adapter.fix.fix44.GenericFix44OrderMessageHandler;
 import ch.algotrader.util.MyLogger;
 import quickfix.FieldNotFound;
 import quickfix.SessionID;
+import quickfix.field.ExecType;
 import quickfix.field.RefSeqNum;
 import quickfix.field.SessionRejectReason;
 import quickfix.fix44.ExecutionReport;
@@ -97,6 +98,16 @@ public class FTXFixOrderMessageHandler extends GenericFix44OrderMessageHandler {
             }
         }
         return null;
+    }
+
+    @Override
+    protected String resolveIntOrderId(final ExecutionReport executionReport) throws FieldNotFound {
+        ExecType execType = executionReport.getExecType();
+        if (execType.getValue() == ExecType.CANCELED) {
+            return executionReport.getOrigClOrdID().getValue();
+        } else {
+            return super.resolveIntOrderId(executionReport);
+        }
     }
 
     public void onMessage(final Reject reject, final SessionID sessionID) throws FieldNotFound {
