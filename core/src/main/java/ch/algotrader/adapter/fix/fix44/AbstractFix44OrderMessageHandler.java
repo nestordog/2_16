@@ -73,7 +73,7 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
             return;
         }
 
-        String intId = executionReport.getClOrdID().getValue();
+        String intId = resolveIntOrderId(executionReport);
 
         // get the order from the OpenOrderWindow
         Order order = getLookupService().getOpenOrderByRootIntId(intId);
@@ -134,6 +134,18 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
         }
     }
 
+    /**
+     * Resolves intId of the order this execution report is intended for.
+     */
+    protected String resolveIntOrderId(final ExecutionReport executionReport) throws FieldNotFound {
+
+        return executionReport.getClOrdID().getValue();
+    }
+
+    /**
+     * This method can be overridden to provide a custom translation of status (error) codes
+     * to human readable status (error) messages.
+     */
     protected String getStatusText(final ExecutionReport executionReport) throws FieldNotFound {
         if (executionReport.isSetText()) {
 
