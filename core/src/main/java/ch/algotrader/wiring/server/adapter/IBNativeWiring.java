@@ -25,8 +25,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
-import com.ib.client.ContractDetails;
-
 import ch.algotrader.adapter.ib.AbstractIBMessageHandler;
 import ch.algotrader.adapter.ib.AccountUpdate;
 import ch.algotrader.adapter.ib.DefaultIBAdapter;
@@ -37,11 +35,11 @@ import ch.algotrader.adapter.ib.DefaultIBSessionStateHolder;
 import ch.algotrader.adapter.ib.IBAdapter;
 import ch.algotrader.adapter.ib.IBIdGenerator;
 import ch.algotrader.adapter.ib.IBOrderMessageFactory;
+import ch.algotrader.adapter.ib.IBPendingRequests;
 import ch.algotrader.adapter.ib.IBSession;
 import ch.algotrader.adapter.ib.IBSessionEventListener;
 import ch.algotrader.adapter.ib.IBSessionStateHolder;
 import ch.algotrader.config.IBConfig;
-import ch.algotrader.entity.marketData.Bar;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.service.LookupService;
@@ -53,11 +51,6 @@ import ch.algotrader.service.MarketDataService;
 @Configuration
 @Profile(value = {"iBNative", "iBMarketData", "iBReferenceData", "iBHistoricalData"})
 public class IBNativeWiring {
-
-    @Bean(name = "iBHistoricalDataQueue")
-    public LinkedBlockingDeque<Bar> createHistoricalDataQueue() {
-        return new LinkedBlockingDeque<>();
-    }
 
     @Bean(name = "iBAccountUpdateQueue")
     public LinkedBlockingDeque<AccountUpdate> createAccountUpdateQueue() {
@@ -74,9 +67,9 @@ public class IBNativeWiring {
         return new LinkedBlockingDeque<>();
     }
 
-    @Bean(name = "iBContractDetailsQueue")
-    public LinkedBlockingDeque<ContractDetails> createContractDetailsQueue() {
-        return new LinkedBlockingDeque<>();
+    @Bean(name = "iBPendingRequests")
+    public IBPendingRequests createIBPendingRequests() {
+        return new IBPendingRequests();
     }
 
     @Bean(name = "iBSessionAdapter")
@@ -106,16 +99,14 @@ public class IBNativeWiring {
     public AbstractIBMessageHandler createIBMessageHandler(
             final IBSessionStateHolder iBSessionStateHolder,
             final IBIdGenerator iBIdGenerator,
+            final IBPendingRequests iBPendingRequests,
             final LookupService lookupService,
-            final LinkedBlockingDeque<Bar> iBHistoricalDataQueue,
             final LinkedBlockingDeque<AccountUpdate> iBAccountUpdateQueue,
             final LinkedBlockingDeque<Set<String>> iBAccountsQueue,
             final LinkedBlockingDeque<ch.algotrader.adapter.ib.Profile> iBProfilesQueue,
-            final LinkedBlockingDeque<ContractDetails> iBContractDetailsQueue,
             final Engine serverEngine) {
-        return new DefaultIBMessageHandler(0, iBSessionStateHolder, iBIdGenerator, lookupService,
-                iBHistoricalDataQueue, iBAccountUpdateQueue, iBAccountsQueue, iBProfilesQueue, iBContractDetailsQueue,
-                serverEngine);
+        return new DefaultIBMessageHandler(0, iBSessionStateHolder, iBPendingRequests, iBIdGenerator, lookupService,
+                iBAccountUpdateQueue, iBAccountsQueue, iBProfilesQueue, serverEngine);
     }
 
     @Bean(name = "iBSession")

@@ -25,10 +25,11 @@ import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
@@ -38,7 +39,10 @@ import com.ib.client.Contract;
 import com.ib.client.ContractDetails;
 
 import ch.algotrader.adapter.ib.IBIdGenerator;
+import ch.algotrader.adapter.ib.IBPendingRequests;
 import ch.algotrader.adapter.ib.IBSession;
+import ch.algotrader.concurrent.Promise;
+import ch.algotrader.concurrent.PromiseImpl;
 import ch.algotrader.entity.security.Future;
 import ch.algotrader.entity.security.FutureDao;
 import ch.algotrader.entity.security.FutureFamily;
@@ -72,11 +76,11 @@ public class IBNativeReferenceDataServiceImpl extends ReferenceDataServiceImpl i
     private static final DateTimeFormatter MONTH_FORMAT = DateTimeFormatter.ofPattern("yyyyMM");
     private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#.#######");
 
-    private final BlockingQueue<ContractDetails> contractDetailsQueue;
-
     private final IBSession iBSession;
 
-    private final IBIdGenerator iBIdGenerator;
+    private final IBPendingRequests pendingRequests;
+
+    private final IBIdGenerator idGenerator;
 
     private final OptionDao optionDao;
 
@@ -86,25 +90,26 @@ public class IBNativeReferenceDataServiceImpl extends ReferenceDataServiceImpl i
 
     private final StockDao stockDao;
 
-    public IBNativeReferenceDataServiceImpl(final BlockingQueue<ContractDetails> contractDetailsQueue,
+    public IBNativeReferenceDataServiceImpl(
             final IBSession iBSession,
-            final IBIdGenerator iBIdGenerator,
+            final IBPendingRequests pendingRequests,
+            final IBIdGenerator idGenerator,
             final OptionDao optionDao,
             final FutureDao futureDao,
             final SecurityFamilyDao securityFamilyDao,
             final StockDao stockDao) {
 
-        Validate.notNull(contractDetailsQueue, "ContractDetailsQueue is null");
         Validate.notNull(iBSession, "IBSession is null");
-        Validate.notNull(iBIdGenerator, "IBIdGenerator is null");
+        Validate.notNull(pendingRequests, "IBPendingRequests is null");
+        Validate.notNull(idGenerator, "IBIdGenerator is null");
         Validate.notNull(optionDao, "OptionDao is null");
         Validate.notNull(futureDao, "FutureDao is null");
         Validate.notNull(securityFamilyDao, "SecurityFamilyDao is null");
         Validate.notNull(stockDao, "StockDao is null");
 
-        this.contractDetailsQueue = contractDetailsQueue;
         this.iBSession = iBSession;
-        this.iBIdGenerator = iBIdGenerator;
+        this.pendingRequests = pendingRequests;
+        this.idGenerator = idGenerator;
         this.optionDao = optionDao;
         this.futureDao = futureDao;
         this.securityFamilyDao = securityFamilyDao;
@@ -116,7 +121,7 @@ public class IBNativeReferenceDataServiceImpl extends ReferenceDataServiceImpl i
 
         SecurityFamily securityFamily = this.securityFamilyDao.get(securityFamilyId);
 
-        int requestId = this.iBIdGenerator.getNextRequestId();
+        int requestId = this.idGenerator.getNextRequestId();
         Contract contract = new Contract();
 
         contract.m_symbol = securityFamily.getSymbolRoot(Broker.IB);
@@ -132,27 +137,27 @@ public class IBNativeReferenceDataServiceImpl extends ReferenceDataServiceImpl i
         } else if (securityFamily instanceof FutureFamily) {
             contract.m_secType = "FUT";
         } else {
-            throw new IllegalArgumentException("illegal securityFamily type");
+            throw new IllegalStateException("illegal securityFamily type");
         }
 
-        // send request
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Request contract details; request id = {}; symbol = {}", requestId, contract.m_symbol);
+        }
+
+        PromiseImpl<List<ContractDetails>> promise = new PromiseImpl<>(null);
+        this.pendingRequests.addContractDetailRequest(requestId, promise);
         this.iBSession.reqContractDetails(requestId, contract);
 
-        Set<ContractDetails> contractDetailsSet;
+        Set<ContractDetails> contractDetailsSet = getContractDetailsBlocking(promise);
         try {
-            contractDetailsSet = retrieveContractDetails();
-
             if (securityFamily instanceof OptionFamily) {
                 retrieveOptions((OptionFamily) securityFamily, contractDetailsSet);
             } else if (securityFamily instanceof FutureFamily) {
                 retrieveFutures((FutureFamily) securityFamily, contractDetailsSet);
             } else {
-                throw new IllegalArgumentException("illegal securityFamily type");
+                throw new IllegalStateException("illegal securityFamily type");
             }
-        } catch (InterruptedException ex) {
-            Thread.currentThread().interrupt();
-            throw new ServiceException(ex);
-        } catch (IllegalArgumentException | ParseException ex) {
+        } catch (ParseException ex) {
             throw new ExternalServiceException(ex);
         }
     }
@@ -164,7 +169,7 @@ public class IBNativeReferenceDataServiceImpl extends ReferenceDataServiceImpl i
 
         SecurityFamily securityFamily = this.securityFamilyDao.get(securityFamilyId);
 
-        int requestId = this.iBIdGenerator.getNextRequestId();
+        int requestId = this.idGenerator.getNextRequestId();
         Contract contract = new Contract();
 
         contract.m_symbol = symbol;
@@ -176,32 +181,27 @@ public class IBNativeReferenceDataServiceImpl extends ReferenceDataServiceImpl i
         contract.m_secType = "STK";
 
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("retrieving stock {}", symbol);
+            LOGGER.debug("Request stock details; request id = {}; symbol = {}", requestId, contract.m_symbol);
         }
 
+        PromiseImpl<List<ContractDetails>> promise = new PromiseImpl<>(null);
+        this.pendingRequests.addContractDetailRequest(requestId, promise);
         this.iBSession.reqContractDetails(requestId, contract);
 
-        Set<ContractDetails> contractDetailsSet;
-        try {
-            contractDetailsSet = retrieveContractDetails();
-        } catch (InterruptedException ex) {
-            Thread.currentThread().interrupt();
-            throw new ServiceException(ex);
-        }
+        Set<ContractDetails> contractDetailsSet = getContractDetailsBlocking(promise);
         retrieveStocks(securityFamily, contractDetailsSet);
 
     }
 
-    private Set<ContractDetails> retrieveContractDetails() throws InterruptedException {
-
-        Set<ContractDetails> contractDetailsSet = new HashSet<>();
-
-        ContractDetails contractDetails;
-        while (!((contractDetails = this.contractDetailsQueue.take()).m_summary.m_symbol == null)) {
-            contractDetailsSet.add(contractDetails);
+    private Set<ContractDetails> getContractDetailsBlocking(final Promise<List<ContractDetails>> promise) {
+        try {
+            return new HashSet<>(promise.get());
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+            throw new ServiceException(ex);
+        } catch (ExecutionException ex) {
+            throw IBNativeSupport.rethrow(ex.getCause());
         }
-
-        return contractDetailsSet;
     }
 
     private void retrieveOptions(OptionFamily securityFamily, Set<ContractDetails> contractDetailsSet) throws ParseException {

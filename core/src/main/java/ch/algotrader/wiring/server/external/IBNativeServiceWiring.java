@@ -24,15 +24,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
-import com.ib.client.ContractDetails;
-
 import ch.algotrader.adapter.ib.AccountUpdate;
 import ch.algotrader.adapter.ib.IBIdGenerator;
 import ch.algotrader.adapter.ib.IBOrderMessageFactory;
+import ch.algotrader.adapter.ib.IBPendingRequests;
 import ch.algotrader.adapter.ib.IBSession;
 import ch.algotrader.adapter.ib.IBSessionStateHolder;
 import ch.algotrader.config.IBConfig;
-import ch.algotrader.entity.marketData.Bar;
 import ch.algotrader.entity.marketData.BarDao;
 import ch.algotrader.entity.marketData.TickDao;
 import ch.algotrader.entity.security.FutureDao;
@@ -86,13 +84,13 @@ public class IBNativeServiceWiring {
     @Profile("iBHistoricalData")
     @Bean(name = {"iBNativeHistoricalDataService", "historicalDataService"})
     public IBNativeHistoricalDataService createIBNativeHistoricalDataService(
-            final LinkedBlockingDeque<Bar> iBHistoricalDataQueue,
             final IBSession iBSession,
+            final IBPendingRequests iBPendingRequests,
             final IBIdGenerator iBIdGenerator,
             final SecurityDao securityDao,
             final BarDao barDao) {
 
-        return new IBNativeHistoricalDataServiceImpl(iBHistoricalDataQueue, iBSession, iBIdGenerator, securityDao, barDao);
+        return new IBNativeHistoricalDataServiceImpl(iBSession, iBPendingRequests, iBIdGenerator, securityDao, barDao);
     }
 
     @Profile("iBMarketData")
@@ -112,15 +110,15 @@ public class IBNativeServiceWiring {
     @Profile("iBReferenceData")
     @Bean(name = { "iBNativeReferenceDataService", "referenceDataService" })
     public IBNativeReferenceDataService createIBNativeReferenceDataService(
-            final LinkedBlockingDeque<ContractDetails> iBContractDetailsQueue,
             final IBSession iBSession,
+            final IBPendingRequests iBPendingRequests,
             final IBIdGenerator iBIdGenerator,
             final OptionDao optionDao,
             final FutureDao futureDao,
             final SecurityFamilyDao securityFamilyDao,
             final StockDao stockDao) {
 
-        return new IBNativeReferenceDataServiceImpl(iBContractDetailsQueue, iBSession, iBIdGenerator, optionDao, futureDao, securityFamilyDao, stockDao);
+        return new IBNativeReferenceDataServiceImpl(iBSession, iBPendingRequests, iBIdGenerator, optionDao, futureDao, securityFamilyDao, stockDao);
     }
 
 }

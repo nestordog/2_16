@@ -71,37 +71,34 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
 
     private final int clientId;
     private final IBSessionStateHolder sessionStateHolder;
-    private final IBIdGenerator iBIdGenerator;
+    private final IBPendingRequests pendingRequests;
+    private final IBIdGenerator idGenerator;
 
     private final LookupService lookupService;
 
-    private final BlockingQueue<Bar> historicalDataQueue;
     private final BlockingQueue<AccountUpdate> accountUpdateQueue;
     private final BlockingQueue<Set<String>> accountsQueue;
     private final BlockingQueue<Profile> profilesQueue;
-    private final BlockingQueue<ContractDetails> contractDetailsQueue;
     private final Engine serverEngine;
 
     public DefaultIBMessageHandler(
             final int clientId,
             final IBSessionStateHolder sessionStateHolder,
-            final IBIdGenerator iBIdGenerator,
+            final IBPendingRequests pendingRequests,
+            final IBIdGenerator idGenerator,
             final LookupService lookupService,
-            final BlockingQueue<Bar> historicalDataQueue,
             final BlockingQueue<AccountUpdate> accountUpdateQueue,
             final BlockingQueue<Set<String>> accountsQueue,
             final BlockingQueue<Profile> profilesQueue,
-            final BlockingQueue<ContractDetails> contractDetailsQueue,
             final Engine serverEngine) {
         this.clientId = clientId;
         this.sessionStateHolder = sessionStateHolder;
-        this.iBIdGenerator = iBIdGenerator;
+        this.pendingRequests = pendingRequests;
+        this.idGenerator = idGenerator;
         this.lookupService = lookupService;
-        this.historicalDataQueue = historicalDataQueue;
         this.accountUpdateQueue = accountUpdateQueue;
         this.accountsQueue = accountsQueue;
         this.profilesQueue = profilesQueue;
-        this.contractDetailsQueue = contractDetailsQueue;
         this.serverEngine = serverEngine;
     }
 
@@ -210,13 +207,29 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
     @Override
     public void historicalData(int requestId, String dateString, double open, double high, double low, double close, int volume, int count, double WAP, boolean hasGaps) {
 
-        Bar bar = Bar.Factory.newInstance();
-        if (dateString.startsWith("finished")) {
-
-            this.historicalDataQueue.offer(bar);
-
+        IBPendingRequest<Bar> pendingHistoricDataRequest = pendingRequests.getHistoricDataRequest(requestId);
+        if (pendingHistoricDataRequest == null) {
+            if (LOGGER.isWarnEnabled()) {
+                LOGGER.warn("Unexpected historic data request id: " + requestId);
+            }
             return;
         }
+        if (dateString.startsWith("finished")) {
+
+            pendingRequests.removeHistoricDataRequest(requestId);
+
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Historic data request completed; request id = " + requestId);
+            }
+            pendingHistoricDataRequest.completed();
+            return;
+        }
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Historic data; request id = " + requestId + " (" + dateString + ")");
+        }
+
+        Bar bar = Bar.Factory.newInstance();
 
         Date date;
         try {
@@ -225,7 +238,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
             try {
                 date = DateTimeLegacy.parseAsLocalDateTime(dateString, DATE_FORMAT);
             } catch (DateTimeParseException e1) {
-                throw new RuntimeException(e1);
+                throw new IBSessionException(-1, "Invalid date attribute: " + dateString);
             }
         }
 
@@ -236,7 +249,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
         bar.setClose(BigDecimal.valueOf(close));
         bar.setVol(volume);
 
-        this.historicalDataQueue.offer(bar);
+        pendingHistoricDataRequest.add(bar);
 
         if (hasGaps) {
 
@@ -252,7 +265,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
                     " hasGaps=" + hasGaps;
             // @formatter:on
 
-            LOGGER.error(message, new ExternalServiceException(message));
+            LOGGER.error(message);
         }
     }
 
@@ -309,20 +322,41 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
                 }
             }
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new ExternalServiceException(e.getMessage(), e);
         }
     }
 
     @Override
     public void contractDetails(int reqId, ContractDetails contractDetails) {
 
-        this.contractDetailsQueue.offer(contractDetails);
+        IBPendingRequest<ContractDetails> pendingContractRequest = pendingRequests.getContractDetailRequest(reqId);
+        if (pendingContractRequest == null) {
+            if (LOGGER.isWarnEnabled()) {
+                LOGGER.warn("Unexpected contract detail request id: " + reqId);
+            }
+            return;
+        }
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Contract details; request id = " + reqId +
+                    " (" + contractDetails.m_longName + ", " + contractDetails.m_contractMonth + ", " + contractDetails.m_summary.m_conId + ")");
+        }
+        pendingContractRequest.add(contractDetails);
     }
 
     @Override
     public void contractDetailsEnd(int reqId) {
 
-        this.contractDetailsQueue.offer(new ContractDetails());
+        IBPendingRequest<ContractDetails> pendingContractRequest = pendingRequests.removeContractDetailRequest(reqId);
+        if (pendingContractRequest == null) {
+            if (LOGGER.isWarnEnabled()) {
+                LOGGER.warn("Unexpected contract detail request id: " + reqId);
+            }
+            return;
+        }
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Contract detail request completed; request id = " + reqId);
+        }
+        pendingContractRequest.completed();
     }
 
     @Override
@@ -346,9 +380,20 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
     }
 
     @Override
-    public void error(int id, int code, String errorMsg) {
+    public void error(int id, int errorCode, String errorMsg) {
+        try {
+            handleError(id, errorCode, errorMsg);
+        } finally {
+            IBPendingRequest<?> pendingRequest = pendingRequests.removeRequest(id);
+            if (pendingRequest != null) {
+                pendingRequest.fail(new IBSessionException(errorCode, errorMsg));
+            }
+        }
+    }
 
-        String message = "client: " + this.clientId + " id: " + id + " code: " + code + " " + errorMsg.replaceAll("\n", " ");
+    private void handleError(int id, int code, String errorMsg) {
+        String message = "client: " + this.clientId + "; request id: " + id + "; error code: " + code +
+                "; error message: " + errorMsg.replaceAll("\n", " ");
 
         switch (code) {
 
@@ -372,10 +417,6 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
 
             case 162:
 
-                // Historical market data Service error message.
-                if (this.historicalDataQueue != null) {
-                    this.historicalDataQueue.offer(Bar.Factory.newInstance());
-                }
                 LOGGER.warn(message);
                 break;
 
@@ -488,9 +529,6 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
             case 2105:
 
                 // 2105 A historical data farm is disconnected.
-                if (this.historicalDataQueue != null) {
-                    this.historicalDataQueue.offer(Bar.Factory.newInstance());
-                }
                 LOGGER.warn(message);
                 break;
 
@@ -498,9 +536,6 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
 
                 // 2107 A historical data farm connection has become inactive
                 // but should be available upon demand.
-                if (this.historicalDataQueue != null) {
-                    this.historicalDataQueue.offer(Bar.Factory.newInstance());
-                }
                 LOGGER.warn(message);
                 break;
 
@@ -524,7 +559,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
     public synchronized void nextValidId(final int orderId) {
 
         if (this.clientId == 0) {
-            this.iBIdGenerator.initializeOrderId(orderId);
+            this.idGenerator.initializeOrderId(orderId);
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("client: {} {}", this.clientId, EWrapperMsgGenerator.nextValidId(orderId));
             }

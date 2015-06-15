@@ -19,22 +19,25 @@ package ch.algotrader.service.ib;
 
 import java.math.RoundingMode;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.ib.client.Contract;
+import com.ib.client.TagValue;
 
 import ch.algotrader.adapter.ib.IBIdGenerator;
+import ch.algotrader.adapter.ib.IBPendingRequests;
 import ch.algotrader.adapter.ib.IBSession;
 import ch.algotrader.adapter.ib.IBUtil;
+import ch.algotrader.concurrent.Promise;
+import ch.algotrader.concurrent.PromiseImpl;
 import ch.algotrader.entity.marketData.Bar;
 import ch.algotrader.entity.marketData.BarDao;
 import ch.algotrader.entity.security.Security;
@@ -44,7 +47,6 @@ import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.enumeration.TimePeriod;
-import ch.algotrader.service.ExternalServiceException;
 import ch.algotrader.service.HistoricalDataServiceImpl;
 import ch.algotrader.service.ServiceException;
 import ch.algotrader.util.DateTimeLegacy;
@@ -62,30 +64,28 @@ public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl
 
     private long lastTimeStamp = 0;
 
-    private final BlockingQueue<Bar> historicalDataQueue;
-
     private final IBSession iBSession;
-
-    private final IBIdGenerator iBIdGenerator;
-
+    private final IBPendingRequests pendingRequests;
+    private final IBIdGenerator idGenerator;
     private final SecurityDao securityDao;
 
-    public IBNativeHistoricalDataServiceImpl(final BlockingQueue<Bar> historicalDataQueue,
+    public IBNativeHistoricalDataServiceImpl(
             final IBSession iBSession,
-            final IBIdGenerator iBIdGenerator,
+            final IBPendingRequests pendingRequests,
+            final IBIdGenerator idGenerator,
             final SecurityDao securityDao,
             final BarDao barDao) {
 
         super(barDao);
 
-        Validate.notNull(historicalDataQueue, "HistoricalDataQueue is null");
         Validate.notNull(iBSession, "IBSession is null");
-        Validate.notNull(iBIdGenerator, "IBIdGenerator is null");
+        Validate.notNull(pendingRequests, "IBPendingRequests is null");
+        Validate.notNull(idGenerator, "IBIdGenerator is null");
         Validate.notNull(securityDao, "SecurityDao is null");
 
-        this.historicalDataQueue = historicalDataQueue;
         this.iBSession = iBSession;
-        this.iBIdGenerator = iBIdGenerator;
+        this.pendingRequests = pendingRequests;
+        this.idGenerator = idGenerator;
         this.securityDao = securityDao;
     }
 
@@ -101,13 +101,6 @@ public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl
             throw new ServiceException("cannot download historical data, because IB is not subscribed");
         }
 
-        // make sure queue is empty
-        Bar peek = this.historicalDataQueue.peek();
-        if (peek != null) {
-            this.historicalDataQueue.clear();
-            LOGGER.warn("historicalDataQueue was not empty");
-        }
-
         Security security = this.securityDao.get(securityId);
         if (security == null) {
             throw new ServiceException("security was not found " + securityId);
@@ -115,7 +108,7 @@ public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl
 
         int scale = security.getSecurityFamily().getScale(Broker.IB);
         Contract contract = IBUtil.getContract(security);
-        int requestId = this.iBIdGenerator.getNextRequestId();
+        int requestId = this.idGenerator.getNextRequestId();
         String dateString = dateTimeFormat.format(DateTimeLegacy.toGMTDate(endDate));
 
         String durationString = timePeriodLength + " ";
@@ -199,31 +192,17 @@ public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl
             }
         }
 
-        // send the request
-        this.iBSession.reqHistoricalData(requestId, contract, dateString, durationString, barSizeString, barTypeString, 1, 1, new ArrayList<>());
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Request historic data; request id = {}; conId = {}", requestId, contract.m_conId);
+        }
 
-        // read from the queue until a Bar with no dateTime is received
-        List<Bar> barList = new ArrayList<>();
-        while (true) {
+        PromiseImpl<List<Bar>> promise = new PromiseImpl<>(null);
+        this.pendingRequests.addHistoricDataRequest(requestId, promise);
+        this.iBSession.reqHistoricalData(requestId, contract, dateString, durationString, barSizeString, barTypeString, 1, 1, Collections.<TagValue>emptyList());
+        List<Bar> bars = getBarsBlocking(promise);
 
-            Bar bar;
-            try {
-                bar = this.historicalDataQueue.poll(10, TimeUnit.SECONDS);
-            } catch (InterruptedException ex) {
-                Thread.currentThread().interrupt();
-                throw new ServiceException(ex);
-            }
-
-            if (bar == null) {
-                throw new ExternalServiceException("timeout waiting for historical bars");
-            }
-
-            // end of transmission bar does not have a DateTime
-            if (bar.getDateTime() == null) {
-                break;
-            }
-
-            // set & update fields
+        // set & update fields
+        for (Bar bar: bars) {
             bar.setSecurity(security);
             bar.setFeedType(FeedType.IB);
             bar.getOpen().setScale(scale, RoundingMode.HALF_UP);
@@ -231,13 +210,20 @@ public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl
             bar.getLow().setScale(scale, RoundingMode.HALF_UP);
             bar.getClose().setScale(scale, RoundingMode.HALF_UP);
             bar.setBarSize(barSize);
-
-            barList.add(bar);
         }
-
         this.lastTimeStamp = System.currentTimeMillis();
-
-        return barList;
-
+        return bars;
     }
+
+    private List<Bar> getBarsBlocking(final Promise<List<Bar>> promise) {
+        try {
+            return promise.get();
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+            throw new ServiceException(ex);
+        } catch (ExecutionException ex) {
+            throw IBNativeSupport.rethrow(ex.getCause());
+        }
+    }
+
 }

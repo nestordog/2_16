@@ -59,7 +59,7 @@ public final class IBSession extends EClientSocket implements InitializingServic
 
         Validate.notNull(host, "host may not be null");
         Validate.isTrue(port != 0, "port may not be 0");
-        Validate.notNull(sessionStateHolder, "IBSessionLifecycle may not be null");
+        Validate.notNull(sessionStateHolder, "IBSessionStateHolder is null");
 
         this.clientId = clientId;
         this.host = host;
