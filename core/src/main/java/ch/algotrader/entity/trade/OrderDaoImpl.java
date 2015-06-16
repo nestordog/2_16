@@ -18,11 +18,13 @@
 package ch.algotrader.entity.trade;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Transformer;
 
+import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineLocator;
 
 import com.espertech.esper.collection.Pair;
@@ -38,68 +40,98 @@ public class OrderDaoImpl extends OrderDaoBase {
     @Override
     protected Collection<Order> handleFindAllOpenOrders() throws Exception {
 
-        return convertPairCollectionToOrderCollection(EngineLocator.instance().getServerEngine().executeQuery("select * from OpenOrderWindow"));
+        Engine serverEngine = EngineLocator.instance().getServerEngine();
+        if (serverEngine != null && serverEngine.isDeployed("OPEN_ORDER_WINDOW")) {
+            return convertPairCollectionToOrderCollection(serverEngine.executeQuery(
+                    "select * from OpenOrderWindow"));
+        } else {
+            return Collections.emptyList();
+        }
     }
 
     @SuppressWarnings("unchecked")
     @Override
     protected Collection<Order> handleFindOpenOrdersByStrategy(String strategyName) throws Exception {
 
-        return convertPairCollectionToOrderCollection(EngineLocator.instance().getServerEngine().executeQuery("select * from OpenOrderWindow where strategy.name = '" + strategyName + "'"));
+        Engine serverEngine = EngineLocator.instance().getServerEngine();
+        if (serverEngine != null && serverEngine.isDeployed("OPEN_ORDER_WINDOW")) {
+            return convertPairCollectionToOrderCollection(serverEngine.executeQuery(
+                    "select * from OpenOrderWindow where strategy.name = '" + strategyName + "'"));
+        } else {
+            return Collections.emptyList();
+        }
     }
 
     @SuppressWarnings("unchecked")
     @Override
     protected Collection<Order> handleFindOpenOrdersByStrategyAndSecurity(String strategyName, int id) throws Exception {
 
-        return convertPairCollectionToOrderCollection(EngineLocator.instance().getServerEngine()
-                .executeQuery("select * from OpenOrderWindow where strategy.name = '" + strategyName + "' and security.id = " + id));
+        Engine serverEngine = EngineLocator.instance().getServerEngine();
+        if (serverEngine != null && serverEngine.isDeployed("OPEN_ORDER_WINDOW")) {
+            return convertPairCollectionToOrderCollection(serverEngine.executeQuery(
+                    "select * from OpenOrderWindow where strategy.name = '" + strategyName + "' and security.id = " + id));
+        } else {
+            return Collections.emptyList();
+        }
     }
 
     @SuppressWarnings("unchecked")
     @Override
     protected Order handleFindOpenOrderByIntId(String intId) throws Exception {
 
-        Pair<Order, Map<?, ?>> pair = ((Pair<Order, Map<?, ?>>) EngineLocator.instance().getServerEngine().executeSingelObjectQuery("select * from OpenOrderWindow where intId = '" + intId + "'"));
-        if (pair == null) {
-            return null;
-        } else {
-            return pair.getFirst();
+        Engine serverEngine = EngineLocator.instance().getServerEngine();
+        if (serverEngine != null && serverEngine.isDeployed("OPEN_ORDER_WINDOW")) {
+            Pair<Order, Map<?, ?>> pair = ((Pair<Order, Map<?, ?>>) serverEngine.executeSingelObjectQuery(
+                    "select * from OpenOrderWindow where intId = '" + intId + "'"));
+            if (pair != null) {
+                return pair.getFirst();
+            }
         }
+        return null;
     }
 
     @SuppressWarnings("unchecked")
     @Override
     protected Order handleFindOpenOrderByRootIntId(String intId) throws Exception {
 
-        String rootIntId = intId.split("\\.")[0];
-        Pair<Order, Map<?, ?>> pair = ((Pair<Order, Map<?, ?>>) EngineLocator.instance().getServerEngine()
-                .executeSingelObjectQuery("select * from OpenOrderWindow where intId like '" + rootIntId + ".%'"));
-        if (pair == null) {
-            return null;
-        } else {
-            return pair.getFirst();
+        Engine serverEngine = EngineLocator.instance().getServerEngine();
+        if (serverEngine != null && serverEngine.isDeployed("OPEN_ORDER_WINDOW")) {
+            String rootIntId = intId.split("\\.")[0];
+            Pair<Order, Map<?, ?>> pair = ((Pair<Order, Map<?, ?>>) serverEngine.executeSingelObjectQuery(
+                    "select * from OpenOrderWindow where intId like '" + rootIntId + ".%'"));
+            if (pair != null) {
+                return pair.getFirst();
+            }
         }
+        return null;
     }
 
     @SuppressWarnings("unchecked")
     @Override
     protected Order handleFindOpenOrderByExtId(String extId) throws Exception {
 
-        Pair<Order, Map<?, ?>> pair = ((Pair<Order, Map<?, ?>>) EngineLocator.instance().getServerEngine().executeSingelObjectQuery("select * from OpenOrderWindow where extId = '" + extId + "'"));
-        if (pair == null) {
-            return null;
-        } else {
-            return pair.getFirst();
+        Engine serverEngine = EngineLocator.instance().getServerEngine();
+        if (serverEngine != null && serverEngine.isDeployed("OPEN_ORDER_WINDOW")) {
+            Pair<Order, Map<?, ?>> pair = ((Pair<Order, Map<?, ?>>) serverEngine.executeSingelObjectQuery(
+                    "select * from OpenOrderWindow where extId = '" + extId + "'"));
+            if (pair != null) {
+                return pair.getFirst();
+            }
         }
+        return null;
     }
 
     @SuppressWarnings("unchecked")
     @Override
     protected Collection<Order> handleFindOpenOrdersByParentIntId(String parentIntId) throws Exception {
 
-        return convertPairCollectionToOrderCollection(EngineLocator.instance().getServerEngine()
-                .executeQuery("select * from OpenOrderWindow where not algoOrder and parentOrder.intId = '" + parentIntId + "'"));
+        Engine serverEngine = EngineLocator.instance().getServerEngine();
+        if (serverEngine != null && serverEngine.isDeployed("OPEN_ORDER_WINDOW")) {
+            return convertPairCollectionToOrderCollection(serverEngine.executeQuery(
+                    "select * from OpenOrderWindow where not algoOrder and parentOrder.intId = '" + parentIntId + "'"));
+        } else {
+            return Collections.emptyList();
+        }
     }
 
     private Collection<Order> convertPairCollectionToOrderCollection(Collection<Pair<Order, Map<?, ?>>> pairs) {
