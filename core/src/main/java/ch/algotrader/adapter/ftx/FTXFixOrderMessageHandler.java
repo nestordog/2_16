@@ -27,6 +27,7 @@ import quickfix.SessionID;
 import quickfix.field.ExecType;
 import quickfix.field.RefSeqNum;
 import quickfix.field.SessionRejectReason;
+import quickfix.field.Text;
 import quickfix.fix44.ExecutionReport;
 import quickfix.fix44.Reject;
 
@@ -119,7 +120,9 @@ public class FTXFixOrderMessageHandler extends GenericFix44OrderMessageHandler {
                 int seqNum = reject.getRefSeqNum().getValue();
                 buf.append(" [seq num: ").append(seqNum).append("]");
             }
-            if (reject.isSetField(SessionRejectReason.FIELD)) {
+            if (reject.isSetField(Text.FIELD)) {
+                buf.append(": ").append(reject.getString(Text.FIELD));
+            } else if (reject.isSetField(SessionRejectReason.FIELD)) {
                 SessionRejectReason reason = reject.getSessionRejectReason();
                 buf.append(": reason code ").append(reason.getValue());
             }
