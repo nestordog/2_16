@@ -331,6 +331,13 @@ public class IBNativeReferenceDataServiceImpl extends ReferenceDataServiceImpl i
     private Comparator<Security> getComparator() {
 
         // comparator based on conid
-        return (o1, o2) -> o1.getConid().compareTo(o2.getConid());
+        Comparator<Security> comparator = (o1, o2) -> {
+            if (o1.getConid() != null && o2.getConid() != null) {
+                return o1.getConid().compareTo(o2.getConid());
+            } else {
+                return o1.getSymbol().compareTo(o2.getSymbol());
+            }
+        };
+        return comparator;
     }
 }

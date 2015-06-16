@@ -21,11 +21,9 @@ import java.util.Date;
 
 import quickfix.FieldNotFound;
 import quickfix.field.AvgPx;
-import quickfix.field.CumQty;
 import quickfix.field.ExecType;
 import quickfix.field.LastPx;
 import quickfix.field.MsgSeqNum;
-import quickfix.field.OrderQty;
 import quickfix.field.TransactTime;
 import quickfix.fix44.ExecutionReport;
 import ch.algotrader.adapter.fix.FixUtil;
@@ -79,9 +77,16 @@ public class GenericFix44OrderMessageHandler extends AbstractFix44OrderMessageHa
     protected OrderStatus createStatus(final ExecutionReport executionReport, final Order order) throws FieldNotFound {
 
         ExecType execType = executionReport.getExecType();
-        Status status = getStatus(execType, executionReport.getOrderQty(), executionReport.getCumQty());
-        long filledQuantity = (long) executionReport.getCumQty().getValue();
-        long remainingQuantity = (long) (executionReport.getOrderQty().getValue() - executionReport.getCumQty().getValue());
+        long orderQty;
+        if (executionReport.isSetOrderQty()) {
+            orderQty = (long) executionReport.getOrderQty().getValue();
+        } else {
+            orderQty = order.getQuantity();
+        }
+        long cumQty = (long) executionReport.getCumQty().getValue();
+
+        Status status = getStatus(execType, orderQty, cumQty);
+        long remainingQuantity = orderQty - cumQty;
         String extId = executionReport.getOrderID().getValue();
         String intId = executionReport.getClOrdID().getValue();
 
@@ -91,7 +96,7 @@ public class GenericFix44OrderMessageHandler extends AbstractFix44OrderMessageHa
         orderStatus.setExtId(extId);
         orderStatus.setIntId(intId);
         orderStatus.setSequenceNumber(executionReport.getHeader().getInt(MsgSeqNum.FIELD));
-        orderStatus.setFilledQuantity(filledQuantity);
+        orderStatus.setFilledQuantity(cumQty);
         orderStatus.setRemainingQuantity(remainingQuantity);
         orderStatus.setOrder(order);
         if (executionReport.isSetField(TransactTime.FIELD)) {
@@ -148,12 +153,12 @@ public class GenericFix44OrderMessageHandler extends AbstractFix44OrderMessageHa
         }
     }
 
-    private static Status getStatus(ExecType execType, OrderQty orderQty, CumQty cumQty) {
+    private static Status getStatus(ExecType execType, long orderQty, long cumQty) {
 
         if (execType.getValue() == ExecType.NEW) {
             return Status.SUBMITTED;
         } else if (execType.getValue() == ExecType.TRADE) {
-            if (cumQty.getValue() == orderQty.getValue()) {
+            if (cumQty == orderQty) {
                 return Status.EXECUTED;
             } else {
                 return Status.PARTIALLY_EXECUTED;
@@ -164,7 +169,7 @@ public class GenericFix44OrderMessageHandler extends AbstractFix44OrderMessageHa
         } else if (execType.getValue() == ExecType.REJECTED) {
             return Status.REJECTED;
         } else if (execType.getValue() == ExecType.REPLACE) {
-            if (cumQty.getValue() == 0) {
+            if (cumQty == 0) {
                 return Status.SUBMITTED;
             } else {
                 return Status.PARTIALLY_EXECUTED;

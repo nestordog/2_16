@@ -15,43 +15,27 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.enumeration;
+package ch.algotrader.adapter.ftx;
+
+import ch.algotrader.adapter.fix.FixApplicationException;
+import ch.algotrader.entity.security.Forex;
+import ch.algotrader.entity.security.Security;
 
 /**
- * Types of Broker
+ * Fortex utilities
+ *
+ * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  */
-public enum Broker {
+public class FTXUtil {
 
-    //InteractiveBrokers
-    IB,
+    public static String getFTXSymbol(final Security security) {
+        if (!(security instanceof Forex)) {
 
-    // J.P.Morgan
-    JPM,
-
-    // DukasCopy
-    DC,
-
-    //Royal Bank of Scotland
-    RBS,
-
-    //RealTick
-    RT,
-
-    // FXCM
-    FXCM,
-
-    // LMAX
-    LMAX,
-
-    // CNX
-    CNX,
-
-    // CNX
-    FTX,
-
-    // Bloomberg
-    BBG;
-
-    private static final long serialVersionUID = -6191895924586464902L;
-
+            throw new FixApplicationException("Fortex supports forex orders only");
+        }
+        Forex forex = (Forex) security;
+        return new StringBuilder()
+                .append(forex.getBaseCurrency()).append('/').append(forex.getTransactionCurrency())
+                .toString();
+    }
 }

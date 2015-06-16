@@ -70,7 +70,7 @@ public abstract class AbstractFix42OrderMessageHandler extends AbstractFix42Mess
             return;
         }
 
-        String intId = executionReport.getClOrdID().getValue();
+        String intId = resolveIntOrderId(executionReport);
 
         // check ExecTransType
         if (executionReport.isSetExecTransType() && executionReport.getExecTransType().getValue() != ExecTransType.NEW) {
@@ -130,6 +130,14 @@ public abstract class AbstractFix42OrderMessageHandler extends AbstractFix42Mess
 
             this.serverEngine.sendEvent(fill);
         }
+    }
+
+    /**
+     * Resolves intId of the order this execution report is intended for.
+     */
+    protected String resolveIntOrderId(final ExecutionReport executionReport) throws FieldNotFound {
+
+        return executionReport.getClOrdID().getValue();
     }
 
     public void onMessage(final OrderCancelReject reject, final SessionID sessionID) throws FieldNotFound {

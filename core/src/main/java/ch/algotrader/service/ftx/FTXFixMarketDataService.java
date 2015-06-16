@@ -15,43 +15,14 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.enumeration;
+package ch.algotrader.service.ftx;
+
+import ch.algotrader.service.fix.fix44.Fix44MarketDataService;
 
 /**
- * Types of Broker
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
+ *
+ * @version $Revision$ $Date$
  */
-public enum Broker {
-
-    //InteractiveBrokers
-    IB,
-
-    // J.P.Morgan
-    JPM,
-
-    // DukasCopy
-    DC,
-
-    //Royal Bank of Scotland
-    RBS,
-
-    //RealTick
-    RT,
-
-    // FXCM
-    FXCM,
-
-    // LMAX
-    LMAX,
-
-    // CNX
-    CNX,
-
-    // CNX
-    FTX,
-
-    // Bloomberg
-    BBG;
-
-    private static final long serialVersionUID = -6191895924586464902L;
-
+public interface FTXFixMarketDataService extends Fix44MarketDataService {
 }

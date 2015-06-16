@@ -15,43 +15,31 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.enumeration;
+package ch.algotrader.adapter.ftx;
+
+import ch.algotrader.entity.security.Security;
+import quickfix.field.QuoteReqID;
+import quickfix.field.QuoteRequestType;
+import quickfix.field.Symbol;
+import quickfix.fix44.QuoteRequest;
 
 /**
- * Types of Broker
+ * Fortex market data request factory.
+ *
+ * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  */
-public enum Broker {
+public class FTXFixMarketDataRequestFactory {
 
-    //InteractiveBrokers
-    IB,
+    public QuoteRequest create(final Security security, final int requestType) {
 
-    // J.P.Morgan
-    JPM,
+        String ftxSymbol = FTXUtil.getFTXSymbol(security);
 
-    // DukasCopy
-    DC,
+        QuoteRequest request = new QuoteRequest();
+        request.set(new QuoteReqID(ftxSymbol));
+        request.setString(Symbol.FIELD, ftxSymbol);
+        request.setInt(QuoteRequestType.FIELD, requestType);
 
-    //Royal Bank of Scotland
-    RBS,
-
-    //RealTick
-    RT,
-
-    // FXCM
-    FXCM,
-
-    // LMAX
-    LMAX,
-
-    // CNX
-    CNX,
-
-    // CNX
-    FTX,
-
-    // Bloomberg
-    BBG;
-
-    private static final long serialVersionUID = -6191895924586464902L;
+        return request;
+    }
 
 }

@@ -54,6 +54,11 @@ public enum FeedType {
     CNX,
 
     /**
+     * FTX
+     */
+    FTX,
+
+    /**
      * Simulation
      */
     SIM;

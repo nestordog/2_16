@@ -63,7 +63,12 @@ public enum OrderServiceType {
     /**
      * Currenex Fix interface
      */
-    CNX_FIX;
+    CNX_FIX,
+
+    /**
+     * Fortex Fix interface
+     */
+    FTX_FIX;
 
     private static final long serialVersionUID = -1547849286749430155L;
 

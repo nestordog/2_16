@@ -70,7 +70,7 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
             return;
         }
 
-        String intId = executionReport.getClOrdID().getValue();
+        String intId = resolveIntOrderId(executionReport);
 
         // get the order from the OpenOrderWindow
         Order order = this.lookupService.getOpenOrderByRootIntId(intId);
@@ -84,13 +84,15 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
 
         if (isOrderRejected(executionReport)) {
 
+            String statusText = getStatusText(executionReport);
+
             if (LOGGER.isErrorEnabled ()) {
 
                 StringBuilder buf = new StringBuilder();
                 buf.append("Order with int ID ").append(intId).append(" has been rejected");
-                if (executionReport.isSetField(Text.FIELD)) {
+                if (statusText != null) {
 
-                    buf.append("; reason given: ").append(executionReport.getText().getValue());
+                    buf.append("; reason given: ").append(statusText);
                 }
                 LOGGER.error(buf.toString());
             }
@@ -104,9 +106,9 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
 
                 orderStatus.setExtDateTime(executionReport.getTransactTime().getValue());
             }
-            if (executionReport.isSetField(Text.FIELD)) {
+            if (statusText != null) {
 
-                orderStatus.setReason(executionReport.getText().getValue());
+                orderStatus.setReason(statusText);
             }
 
             this.serverEngine.sendEvent(orderStatus);
@@ -125,6 +127,28 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
             fill.setOrder(order);
 
             this.serverEngine.sendEvent(fill);
+        }
+    }
+
+    /**
+     * Resolves intId of the order this execution report is intended for.
+     */
+    protected String resolveIntOrderId(final ExecutionReport executionReport) throws FieldNotFound {
+
+        return executionReport.getClOrdID().getValue();
+    }
+
+    /**
+     * This method can be overridden to provide a custom translation of status (error) codes
+     * to human readable status (error) messages.
+     */
+    protected String getStatusText(final ExecutionReport executionReport) throws FieldNotFound {
+        if (executionReport.isSetText()) {
+
+            return executionReport.getText().getValue();
+        } else {
+
+            return null;
         }
     }
 

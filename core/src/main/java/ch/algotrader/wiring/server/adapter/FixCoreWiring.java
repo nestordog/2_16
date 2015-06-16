@@ -52,7 +52,8 @@ import quickfix.SocketInitiator;
  * Fix core configuration.
  */
 @Configuration
-@Profile({"jPMFix", "iBFix", "dCFix", "rTFix", "dcMarkteData", "lMAXFix", "lMAXMarketData", "fXCMFix", "fXCMMarketData", "cNXFix", "cNXMarketData"})
+@Profile({"jPMFix", "iBFix", "dCFix", "rTFix", "dcMarkteData", "lMAXFix", "lMAXMarketData", "fXCMFix", "fXCMMarketData", "cNXFix", "cNXMarketData",
+        "fTXFix", "fTXMarketData"})
 public class FixCoreWiring {
 
     @Bean(name = "orderIdGenerator")

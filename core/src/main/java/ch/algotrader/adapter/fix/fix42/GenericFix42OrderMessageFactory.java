@@ -27,6 +27,7 @@ import quickfix.field.OrderQty;
 import quickfix.field.OrigClOrdID;
 import quickfix.field.Price;
 import quickfix.field.StopPx;
+import quickfix.field.TimeInForce;
 import quickfix.field.TransactTime;
 import quickfix.fix42.NewOrderSingle;
 import quickfix.fix42.OrderCancelReplaceRequest;
@@ -55,6 +56,10 @@ public class GenericFix42OrderMessageFactory implements Fix42OrderMessageFactory
     public GenericFix42OrderMessageFactory(final Fix42SymbologyResolver symbologyResolver) {
         Validate.notNull(symbologyResolver, "FIX symbology resolver is null");
         this.symbologyResolver = symbologyResolver;
+    }
+
+    protected TimeInForce resolveTimeInForce(final TIF tif) {
+        return FixUtil.getTimeInForce(tif);
     }
 
     @Override
@@ -94,7 +99,7 @@ public class GenericFix42OrderMessageFactory implements Fix42OrderMessageFactory
 
         // set TIF
         if (order.getTif() != null) {
-            message.set(FixUtil.getTimeInForce(order.getTif()));
+            message.set(resolveTimeInForce(order.getTif()));
             if (order.getTif() == TIF.GTD && order.getTifDateTime() != null) {
                 message.set(new ExpireTime(order.getTifDateTime()));
             }
@@ -145,7 +150,7 @@ public class GenericFix42OrderMessageFactory implements Fix42OrderMessageFactory
 
         // set TIF
         if (order.getTif() != null) {
-            message.set(FixUtil.getTimeInForce(order.getTif()));
+            message.set(resolveTimeInForce(order.getTif()));
             if (order.getTif() == TIF.GTD && order.getTifDateTime() != null) {
                 message.set(new ExpireTime(order.getTifDateTime()));
             }
