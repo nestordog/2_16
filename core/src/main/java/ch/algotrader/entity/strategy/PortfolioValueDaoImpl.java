@@ -48,7 +48,7 @@ public class PortfolioValueDaoImpl extends AbstractDao<PortfolioValue> implement
         Validate.notEmpty(strategyName, "Strategy name is empty");
         Validate.notNull(minDate, "minDate is null");
 
-        return find("PortfolioValue.findByStrategyAndMinDate", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("minDate", minDate));
+        return findCaching("PortfolioValue.findByStrategyAndMinDate", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("minDate", minDate));
     }
 
     @Override

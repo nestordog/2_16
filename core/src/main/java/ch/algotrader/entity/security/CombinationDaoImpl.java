@@ -46,7 +46,7 @@ public class CombinationDaoImpl extends AbstractDao<Combination> implements Comb
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        return find("Combination.findSubscribedByStrategy", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
+        return findCaching("Combination.findSubscribedByStrategy", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
     }
 
     @Override
@@ -54,7 +54,7 @@ public class CombinationDaoImpl extends AbstractDao<Combination> implements Comb
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        return find("Combination.findSubscribedByStrategyAndUnderlying", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("underlyingId", underlyingId));
+        return findCaching("Combination.findSubscribedByStrategyAndUnderlying", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("underlyingId", underlyingId));
     }
 
     @Override
@@ -62,7 +62,7 @@ public class CombinationDaoImpl extends AbstractDao<Combination> implements Comb
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        return find("Combination.findSubscribedByStrategyAndComponent", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("securityId", securityId));
+        return findCaching("Combination.findSubscribedByStrategyAndComponent", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("securityId", securityId));
     }
 
     @Override
@@ -70,7 +70,7 @@ public class CombinationDaoImpl extends AbstractDao<Combination> implements Comb
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        return find("Combination.findSubscribedByStrategyAndComponentType", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("type", type));
+        return findCaching("Combination.findSubscribedByStrategyAndComponentType", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("type", type));
     }
 
     @Override
@@ -78,13 +78,13 @@ public class CombinationDaoImpl extends AbstractDao<Combination> implements Comb
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        return find("Combination.findSubscribedByStrategyAndComponentTypeWithZeroQty", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("type", type));
+        return findCaching("Combination.findSubscribedByStrategyAndComponentTypeWithZeroQty", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("type", type));
     }
 
     @Override
     public List<Combination> findNonPersistent() {
 
-        return find("Combination.findNonPersistent", QueryType.BY_NAME);
+        return findCaching("Combination.findNonPersistent", QueryType.BY_NAME);
     }
 
 }

@@ -50,7 +50,7 @@ public class OptionDaoImpl extends AbstractDao<Option> implements OptionDao {
         Validate.notNull(underlyingSpot, "underlyingSpot is null");
         Validate.notNull(optionType, "optionType is null");
 
-        return find("Option.findByMinExpirationAndMinStrikeDistance", limit, QueryType.BY_NAME, new NamedParam("underlyingId", underlyingId), new NamedParam("targetExpirationDate",
+        return findCaching("Option.findByMinExpirationAndMinStrikeDistance", limit, QueryType.BY_NAME, new NamedParam("underlyingId", underlyingId), new NamedParam("targetExpirationDate",
                 targetExpirationDate), new NamedParam("underlyingSpot", underlyingSpot), new NamedParam("optionType", optionType));
     }
 
@@ -61,7 +61,7 @@ public class OptionDaoImpl extends AbstractDao<Option> implements OptionDao {
         Validate.notNull(underlyingSpot, "underlyingSpot is null");
         Validate.notNull(optionType, "optionType is null");
 
-        return find("Option.findByMinExpirationAndStrikeLimit", limit, QueryType.BY_NAME, new NamedParam("underlyingId", underlyingId), new NamedParam("targetExpirationDate", targetExpirationDate),
+        return findCaching("Option.findByMinExpirationAndStrikeLimit", limit, QueryType.BY_NAME, new NamedParam("underlyingId", underlyingId), new NamedParam("targetExpirationDate", targetExpirationDate),
                 new NamedParam("underlyingSpot", underlyingSpot.doubleValue()), new NamedParam("optionType", optionType));
     }
 
@@ -73,7 +73,7 @@ public class OptionDaoImpl extends AbstractDao<Option> implements OptionDao {
         Validate.notNull(optionType, "optionType is null");
         Validate.notNull(date, "Date is null");
 
-        return find("Option.findByMinExpirationAndMinStrikeDistanceWithTicks", limit, QueryType.BY_NAME, new NamedParam("underlyingId", underlyingId), new NamedParam("targetExpirationDate",
+        return findCaching("Option.findByMinExpirationAndMinStrikeDistanceWithTicks", limit, QueryType.BY_NAME, new NamedParam("underlyingId", underlyingId), new NamedParam("targetExpirationDate",
                 targetExpirationDate), new NamedParam("underlyingSpot", underlyingSpot), new NamedParam("optionType", optionType), new NamedParam("date", date));
     }
 
@@ -85,20 +85,20 @@ public class OptionDaoImpl extends AbstractDao<Option> implements OptionDao {
         Validate.notNull(optionType, "optionType is null");
         Validate.notNull(date, "Date is null");
 
-        return find("Option.findByMinExpirationAndStrikeLimitWithTicks", limit, QueryType.BY_NAME, new NamedParam("underlyingId", underlyingId), new NamedParam("targetExpirationDate",
+        return findCaching("Option.findByMinExpirationAndStrikeLimitWithTicks", limit, QueryType.BY_NAME, new NamedParam("underlyingId", underlyingId), new NamedParam("targetExpirationDate",
                 targetExpirationDate), new NamedParam("underlyingSpot", underlyingSpot.doubleValue()), new NamedParam("optionType", optionType), new NamedParam("date", date));
     }
 
     @Override
     public List<Option> findSubscribedOptions() {
 
-        return find("Option.findSubscribedOptions", QueryType.BY_NAME);
+        return findCaching("Option.findSubscribedOptions", QueryType.BY_NAME);
     }
 
     @Override
     public List<Option> findBySecurityFamily(long securityFamilyId) {
 
-        return find("Option.findBySecurityFamily", QueryType.BY_NAME, new NamedParam("securityFamilyId", securityFamilyId));
+        return findCaching("Option.findBySecurityFamily", QueryType.BY_NAME, new NamedParam("securityFamilyId", securityFamilyId));
     }
 
     @SuppressWarnings("unchecked")
@@ -117,7 +117,7 @@ public class OptionDaoImpl extends AbstractDao<Option> implements OptionDao {
         Validate.notNull(strike, "Strike is null");
         Validate.notNull(type, "Type is null");
 
-        return findUnique("Option.findByExpirationStrikeAndType", QueryType.BY_NAME, new NamedParam("optionFamilyId", optionFamilyId), new NamedParam("expirationDate", expirationDate),
+        return findUniqueCaching("Option.findByExpirationStrikeAndType", QueryType.BY_NAME, new NamedParam("optionFamilyId", optionFamilyId), new NamedParam("expirationDate", expirationDate),
                 new NamedParam("strike", strike), new NamedParam("type", type));
     }
 

@@ -45,7 +45,7 @@ public class StockDaoImpl extends AbstractDao<Stock> implements StockDao {
 
         Validate.notEmpty(code, "Code is empty");
 
-        return find("Stock.findBySectory", QueryType.BY_NAME, new NamedParam("code", code));
+        return findCaching("Stock.findBySectory", QueryType.BY_NAME, new NamedParam("code", code));
     }
 
     @Override
@@ -53,7 +53,7 @@ public class StockDaoImpl extends AbstractDao<Stock> implements StockDao {
 
         Validate.notEmpty(code, "Code is empty");
 
-        return find("Stock.findByIndustryGroup", QueryType.BY_NAME, new NamedParam("code", code));
+        return findCaching("Stock.findByIndustryGroup", QueryType.BY_NAME, new NamedParam("code", code));
     }
 
     @Override
@@ -61,7 +61,7 @@ public class StockDaoImpl extends AbstractDao<Stock> implements StockDao {
 
         Validate.notEmpty(code, "Code is empty");
 
-        return find("Stock.findByIndustry", QueryType.BY_NAME, new NamedParam("code", code));
+        return findCaching("Stock.findByIndustry", QueryType.BY_NAME, new NamedParam("code", code));
     }
 
     @Override
@@ -69,13 +69,13 @@ public class StockDaoImpl extends AbstractDao<Stock> implements StockDao {
 
         Validate.notEmpty(code, "Code is empty");
 
-        return find("Stock.findBySubIndustry", QueryType.BY_NAME, new NamedParam("code", code));
+        return findCaching("Stock.findBySubIndustry", QueryType.BY_NAME, new NamedParam("code", code));
     }
 
     @Override
     public List<Stock> findStocksBySecurityFamily(long securityFamilyId) {
 
-        return find("Stock.findStocksBySecurityFamily", QueryType.BY_NAME, new NamedParam("securityFamilyId", securityFamilyId));
+        return findCaching("Stock.findStocksBySecurityFamily", QueryType.BY_NAME, new NamedParam("securityFamilyId", securityFamilyId));
     }
 
 }

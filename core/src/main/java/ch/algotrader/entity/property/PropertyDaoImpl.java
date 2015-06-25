@@ -41,7 +41,7 @@ public class PropertyDaoImpl extends AbstractDao<Property> implements PropertyDa
     @Override
     public List<Property> findNonPersistent() {
 
-        return find("Property.findNonPersistent", QueryType.BY_NAME);
+        return findCaching("Property.findNonPersistent", QueryType.BY_NAME);
     }
 
 }

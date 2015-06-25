@@ -46,13 +46,13 @@ public class ComponentDaoImpl extends AbstractDao<Component> implements Componen
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        return find("Component.findSubscribedByStrategyInclSecurity", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
+        return findCaching("Component.findSubscribedByStrategyInclSecurity", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
     }
 
     @Override
     public List<Component> findSubscribedBySecurityInclSecurity(long securityId) {
 
-        return find("Component.findSubscribedBySecurityInclSecurity", QueryType.BY_NAME, new NamedParam("securityId", securityId));
+        return findCaching("Component.findSubscribedBySecurityInclSecurity", QueryType.BY_NAME, new NamedParam("securityId", securityId));
     }
 
     @Override
@@ -60,13 +60,13 @@ public class ComponentDaoImpl extends AbstractDao<Component> implements Componen
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        return find("Component.findSubscribedByStrategyAndSecurityInclSecurity", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("securityId", securityId));
+        return findCaching("Component.findSubscribedByStrategyAndSecurityInclSecurity", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("securityId", securityId));
     }
 
     @Override
     public List<Component> findNonPersistent() {
 
-        return find("Component.findNonPersistent", QueryType.BY_NAME);
+        return findCaching("Component.findNonPersistent", QueryType.BY_NAME);
     }
 
 }

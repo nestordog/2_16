@@ -46,7 +46,7 @@ public class FutureDaoImpl extends AbstractDao<Future> implements FutureDao {
 
         Validate.notNull(expirationDate, "expirationDate is null");
 
-        return findUnique("Future.findByExpirationInclSecurityFamily", QueryType.BY_NAME, new NamedParam("futureFamilyId", futureFamilyId), new NamedParam("expirationDate", expirationDate));
+        return findUniqueCaching("Future.findByExpirationInclSecurityFamily", QueryType.BY_NAME, new NamedParam("futureFamilyId", futureFamilyId), new NamedParam("expirationDate", expirationDate));
     }
 
     @Override
@@ -54,7 +54,7 @@ public class FutureDaoImpl extends AbstractDao<Future> implements FutureDao {
 
         Validate.notNull(targetExpirationDate, "targetExpirationDate is null");
 
-        return find("Future.findByMinExpiration", QueryType.BY_NAME, new NamedParam("futureFamilyId", futureFamilyId), new NamedParam("targetExpirationDate", targetExpirationDate));
+        return findCaching("Future.findByMinExpiration", QueryType.BY_NAME, new NamedParam("futureFamilyId", futureFamilyId), new NamedParam("targetExpirationDate", targetExpirationDate));
     }
 
     @Override
@@ -62,19 +62,19 @@ public class FutureDaoImpl extends AbstractDao<Future> implements FutureDao {
 
         Validate.notNull(targetExpirationDate, "targetExpirationDate is null");
 
-        return find("Future.findByMinExpiration", limit, QueryType.BY_NAME, new NamedParam("futureFamilyId", futureFamilyId), new NamedParam("targetExpirationDate", targetExpirationDate));
+        return findCaching("Future.findByMinExpiration", limit, QueryType.BY_NAME, new NamedParam("futureFamilyId", futureFamilyId), new NamedParam("targetExpirationDate", targetExpirationDate));
     }
 
     @Override
     public List<Future> findSubscribedFutures() {
 
-        return find("Future.findSubscribedFutures", QueryType.BY_NAME);
+        return findCaching("Future.findSubscribedFutures", QueryType.BY_NAME);
     }
 
     @Override
     public List<Future> findBySecurityFamily(long securityFamilyId) {
 
-        return find("Future.findBySecurityFamily", QueryType.BY_NAME, new NamedParam("securityFamilyId", securityFamilyId));
+        return findCaching("Future.findBySecurityFamily", QueryType.BY_NAME, new NamedParam("securityFamilyId", securityFamilyId));
     }
 
     @Override
@@ -82,7 +82,7 @@ public class FutureDaoImpl extends AbstractDao<Future> implements FutureDao {
 
         Validate.notNull(expirationMonth, "Expiration month is null");
 
-        return findUnique("Future.findByExpirationMonth", QueryType.BY_NAME, new NamedParam("futureFamilyId", futureFamilyId), new NamedParam("expirationMonth", expirationMonth));
+        return findUniqueCaching("Future.findByExpirationMonth", QueryType.BY_NAME, new NamedParam("futureFamilyId", futureFamilyId), new NamedParam("expirationMonth", expirationMonth));
     }
 
 }

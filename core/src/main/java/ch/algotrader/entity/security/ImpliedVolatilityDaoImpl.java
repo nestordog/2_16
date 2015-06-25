@@ -46,7 +46,7 @@ public class ImpliedVolatilityDaoImpl extends AbstractDao<ImpliedVolatility> imp
         Validate.notNull(duration, "Duration is null");
         Validate.notNull(type, "Type is null");
 
-        return findUnique("ImpliedVolatility.findByDurationDeltaAndType", QueryType.BY_NAME, new NamedParam("duration", duration), new NamedParam("delta", delta), new NamedParam("type", type));
+        return findUniqueCaching("ImpliedVolatility.findByDurationDeltaAndType", QueryType.BY_NAME, new NamedParam("duration", duration), new NamedParam("delta", delta), new NamedParam("type", type));
     }
 
     @Override
@@ -55,7 +55,7 @@ public class ImpliedVolatilityDaoImpl extends AbstractDao<ImpliedVolatility> imp
         Validate.notNull(duration, "Duration is null");
         Validate.notNull(type, "Type is null");
 
-        return findUnique("ImpliedVolatility.findByDurationMoneynessAndType", QueryType.BY_NAME, new NamedParam("duration", duration), new NamedParam("moneyness", moneyness), new NamedParam("type",
+        return findUniqueCaching("ImpliedVolatility.findByDurationMoneynessAndType", QueryType.BY_NAME, new NamedParam("duration", duration), new NamedParam("moneyness", moneyness), new NamedParam("type",
                 type));
     }
 

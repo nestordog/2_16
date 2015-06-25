@@ -72,7 +72,7 @@ public class TickDaoImpl extends AbstractDao<Tick> implements TickDao {
     @Override
     public List<Tick> findBySecurity(long securityId) {
 
-        return find("Tick.findBySecurity", QueryType.BY_NAME, new NamedParam("securityId", securityId));
+        return findCaching("Tick.findBySecurity", QueryType.BY_NAME, new NamedParam("securityId", securityId));
     }
 
     @Override
@@ -80,7 +80,7 @@ public class TickDaoImpl extends AbstractDao<Tick> implements TickDao {
 
         Validate.notNull(maxDate, "maxDate is null");
 
-        return findUnique("Tick.findBySecurityAndMaxDate", QueryType.BY_NAME, new NamedParam("securityId", securityId), new NamedParam("maxDate", maxDate));
+        return findUniqueCaching("Tick.findBySecurityAndMaxDate", QueryType.BY_NAME, new NamedParam("securityId", securityId), new NamedParam("maxDate", maxDate));
     }
 
     @Override
@@ -192,7 +192,7 @@ public class TickDaoImpl extends AbstractDao<Tick> implements TickDao {
         Validate.notNull(type, "Type is null");
         Validate.notNull(expiration, "expiration is null");
 
-        return find("Tick.findOptionTicksBySecurityDateTypeAndExpirationInclSecurity", QueryType.BY_NAME, new NamedParam("underlyingId", underlyingId), new NamedParam("date", date), new NamedParam(
+        return findCaching("Tick.findOptionTicksBySecurityDateTypeAndExpirationInclSecurity", QueryType.BY_NAME, new NamedParam("underlyingId", underlyingId), new NamedParam("date", date), new NamedParam(
                 "type", type), new NamedParam("expiration", expiration));
     }
 
@@ -201,7 +201,7 @@ public class TickDaoImpl extends AbstractDao<Tick> implements TickDao {
 
         Validate.notNull(date, "Date is null");
 
-        return find("Tick.findImpliedVolatilityTicksBySecurityAndDate", QueryType.BY_NAME, new NamedParam("underlyingId", underlyingId), new NamedParam("date", date));
+        return findCaching("Tick.findImpliedVolatilityTicksBySecurityAndDate", QueryType.BY_NAME, new NamedParam("underlyingId", underlyingId), new NamedParam("date", date));
     }
 
     @Override
@@ -210,7 +210,7 @@ public class TickDaoImpl extends AbstractDao<Tick> implements TickDao {
         Validate.notNull(date, "Date is null");
         Validate.notNull(duration, "Duration is null");
 
-        return find("Tick.findImpliedVolatilityTicksBySecurityDateAndDuration", QueryType.BY_NAME, new NamedParam("underlyingId", underlyingId), new NamedParam("date", date), new NamedParam(
+        return findCaching("Tick.findImpliedVolatilityTicksBySecurityDateAndDuration", QueryType.BY_NAME, new NamedParam("underlyingId", underlyingId), new NamedParam("date", date), new NamedParam(
                 "duration", duration));
     }
 

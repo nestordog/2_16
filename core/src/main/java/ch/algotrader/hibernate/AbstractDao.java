@@ -195,24 +195,13 @@ public class AbstractDao<E extends BaseEntityI> {
         return results;
     }
 
-    private void initalize(final Query query, final LockOptions lockOptions, final int maxResults) {
-        if (lockOptions != null) {
-            query.setLockOptions(lockOptions);
-        }
-        if (maxResults > 0) {
-            query.setMaxResults(maxResults);
-        }
-    }
-
-    private void applyParameters(final Query query, final LockOptions lockOptions, final int maxResults, final Object... params) {
-        initalize(query, lockOptions, maxResults);
+    private void applyParameters(final Query query, final Object... params) {
         for (int i = 0; i < params.length; i++) {
             query.setParameter(i, params[i]);
         }
     }
 
-    private void applyParameters(final Query query, final LockOptions lockOptions, final int maxResults, final NamedParam... params) {
-        initalize(query, lockOptions, maxResults);
+    private void applyParameters(final Query query, final NamedParam... params) {
         for (int i = 0; i < params.length; i++) {
             NamedParam param = params[i];
             query.setParameter(param.getName(), param.getValue());
@@ -237,21 +226,79 @@ public class AbstractDao<E extends BaseEntityI> {
     protected Query prepareQuery(final LockOptions lockOptions, final String queryString, final int maxResults, final QueryType type) {
 
         Query query = createQuery(queryString, type);
-        initalize(query, lockOptions, maxResults);
+        if (lockOptions != null) {
+            query.setLockOptions(lockOptions);
+        }
+        if (maxResults > 0) {
+            query.setMaxResults(maxResults);
+        }
         return query;
     }
 
     protected Query prepareQuery(final LockOptions lockOptions, final String queryString, final int maxResults, final QueryType type, final Object... params) {
 
         Query query = createQuery(queryString, type);
-        applyParameters(query, lockOptions, maxResults, params);
+        if (lockOptions != null) {
+            query.setLockOptions(lockOptions);
+        }
+        if (maxResults > 0) {
+            query.setMaxResults(maxResults);
+        }
+        applyParameters(query, params);
         return query;
     }
 
     protected Query prepareQuery(final LockOptions lockOptions, final String queryString, final int maxResults, final QueryType type, final NamedParam... params) {
 
         Query query = createQuery(queryString, type);
-        applyParameters(query, lockOptions, maxResults, params);
+        if (lockOptions != null) {
+            query.setLockOptions(lockOptions);
+        }
+        if (maxResults > 0) {
+            query.setMaxResults(maxResults);
+        }
+        applyParameters(query, params);
+        return query;
+    }
+
+    protected Query prepareQuery(final LockOptions lockOptions, final String queryString, final boolean cacheable, final int maxResults, final QueryType type) {
+
+        Query query = createQuery(queryString, type);
+        if (lockOptions != null) {
+            query.setLockOptions(lockOptions);
+        }
+        query.setCacheable(cacheable);
+        if (maxResults > 0) {
+            query.setMaxResults(maxResults);
+        }
+        return query;
+    }
+
+    protected Query prepareQuery(final LockOptions lockOptions, final String queryString, final boolean cacheable, final int maxResults, final QueryType type, final Object... params) {
+
+        Query query = createQuery(queryString, type);
+        if (lockOptions != null) {
+            query.setLockOptions(lockOptions);
+        }
+        query.setCacheable(cacheable);
+        if (maxResults > 0) {
+            query.setMaxResults(maxResults);
+        }
+        applyParameters(query, params);
+        return query;
+    }
+
+    protected Query prepareQuery(final LockOptions lockOptions, final String queryString, final boolean cacheable, final int maxResults, final QueryType type, final NamedParam... params) {
+
+        Query query = createQuery(queryString, type);
+        if (lockOptions != null) {
+            query.setLockOptions(lockOptions);
+        }
+        query.setCacheable(cacheable);
+        if (maxResults > 0) {
+            query.setMaxResults(maxResults);
+        }
+        applyParameters(query, params);
         return query;
     }
 
@@ -259,7 +306,12 @@ public class AbstractDao<E extends BaseEntityI> {
 
         Session currentSession = getCurrentSession();
         SQLQuery query = currentSession.createSQLQuery(queryString);
-        initalize(query, lockOptions, maxResults);
+        if (lockOptions != null) {
+            query.setLockOptions(lockOptions);
+        }
+        if (maxResults > 0) {
+            query.setMaxResults(maxResults);
+        }
         return query;
     }
 
@@ -267,7 +319,13 @@ public class AbstractDao<E extends BaseEntityI> {
 
         Session currentSession = getCurrentSession();
         SQLQuery query = currentSession.createSQLQuery(queryString);
-        applyParameters(query, lockOptions, maxResults, params);
+        if (lockOptions != null) {
+            query.setLockOptions(lockOptions);
+        }
+        if (maxResults > 0) {
+            query.setMaxResults(maxResults);
+        }
+        applyParameters(query, params);
         return query;
     }
 
@@ -275,23 +333,46 @@ public class AbstractDao<E extends BaseEntityI> {
 
         Session currentSession = getCurrentSession();
         SQLQuery query = currentSession.createSQLQuery(queryString);
-        applyParameters(query, lockOptions, maxResults, params);
+        if (lockOptions != null) {
+            query.setLockOptions(lockOptions);
+        }
+        if (maxResults > 0) {
+            query.setMaxResults(maxResults);
+        }
+        applyParameters(query, params);
         return query;
     }
 
     protected Query prepareQuery(final LockOptions lockOptions, final String queryString, final QueryType type) {
 
-        return prepareQuery(lockOptions, queryString, NO_LIMIT, type);
+        Session currentSession = getCurrentSession();
+        Query query = createQuery(queryString, type);
+        if (lockOptions != null) {
+            query.setLockOptions(lockOptions);
+        }
+        return query;
     }
 
     protected Query prepareQuery(final LockOptions lockOptions, final String queryString, final QueryType type, final Object... params) {
 
-        return prepareQuery(lockOptions, queryString, NO_LIMIT, type, params);
+        Session currentSession = getCurrentSession();
+        Query query = createQuery(queryString, type);
+        if (lockOptions != null) {
+            query.setLockOptions(lockOptions);
+        }
+        applyParameters(query, params);
+        return query;
     }
 
     protected Query prepareQuery(final LockOptions lockOptions, final String queryString, final QueryType type, final NamedParam... params) {
 
-        return prepareQuery(lockOptions, queryString, NO_LIMIT, type, params);
+        Session currentSession = getCurrentSession();
+        Query query = createQuery(queryString, type);
+        if (lockOptions != null) {
+            query.setLockOptions(lockOptions);
+        }
+        applyParameters(query, params);
+        return query;
     }
 
     protected SQLQuery prepareSQLQuery(final LockOptions lockOptions, final String queryString) {
@@ -339,6 +420,36 @@ public class AbstractDao<E extends BaseEntityI> {
         return prepareQuery(lockOptions, queryString, maxResults, type, params).list();
     }
 
+    protected List<?> findObjectsCaching(final LockOptions lockOptions, final String queryString, final QueryType type) {
+
+        return prepareQuery(lockOptions, queryString, true, NO_LIMIT, type).list();
+    }
+
+    protected List<?> findObjectsCaching(final LockOptions lockOptions, final String queryString, final QueryType type, final Object... params) {
+
+        return prepareQuery(lockOptions, queryString, true, NO_LIMIT, type, params).list();
+    }
+
+    protected List<?> findObjectsCaching(final LockOptions lockOptions, final String queryString, final QueryType type, final NamedParam... params) {
+
+        return prepareQuery(lockOptions, queryString, true, NO_LIMIT, type, params).list();
+    }
+
+    protected List<?> findObjectsCaching(final LockOptions lockOptions, final String queryString, final int maxResults, final QueryType type) {
+
+        return prepareQuery(lockOptions, queryString, true, maxResults, type).list();
+    }
+
+    protected List<?> findObjectsCaching(final LockOptions lockOptions, final String queryString, final int maxResults, final QueryType type, final Object... params) {
+
+        return prepareQuery(lockOptions, queryString, true, maxResults, type, params).list();
+    }
+
+    protected List<?> findObjectsCaching(final LockOptions lockOptions, final String queryString, final int maxResults, final QueryType type, final NamedParam... params) {
+
+        return prepareQuery(lockOptions, queryString, true, maxResults, type, params).list();
+    }
+
     protected Object findUniqueObject(final LockOptions lockOptions, final String queryString, final QueryType type) {
 
         return prepareQuery(lockOptions, queryString, type).uniqueResult();
@@ -369,6 +480,36 @@ public class AbstractDao<E extends BaseEntityI> {
         return this.entityClass.cast(prepareQuery(lockOptions, queryString, type, params).uniqueResult());
     }
 
+    protected E findUniqueCaching(final LockOptions lockOptions, final String queryString, final QueryType type) {
+
+        return this.entityClass.cast(prepareQuery(lockOptions, queryString, true, NO_LIMIT, type).uniqueResult());
+    }
+
+    protected E findUniqueCaching(final LockOptions lockOptions, final String queryString, final QueryType type, final Object... params) {
+
+        return this.entityClass.cast(prepareQuery(lockOptions, queryString, true, NO_LIMIT, type, params).uniqueResult());
+    }
+
+    protected E findUniqueCaching(final LockOptions lockOptions, final String queryString, final QueryType type, final NamedParam... params) {
+
+        return this.entityClass.cast(prepareQuery(lockOptions, queryString, true, NO_LIMIT, type, params).uniqueResult());
+    }
+
+    protected E findUniqueCaching(final LockOptions lockOptions, final String queryString, final int maxResults, final QueryType type) {
+
+        return this.entityClass.cast(prepareQuery(lockOptions, queryString, true, maxResults, type).uniqueResult());
+    }
+
+    protected E findUniqueCaching(final LockOptions lockOptions, final String queryString, final int maxResults, final QueryType type, final Object... params) {
+
+        return this.entityClass.cast(prepareQuery(lockOptions, queryString, true, maxResults, type, params).uniqueResult());
+    }
+
+    protected E findUniqueCaching(final LockOptions lockOptions, final String queryString, final int maxResults, final QueryType type, final NamedParam... params) {
+
+        return this.entityClass.cast(prepareQuery(lockOptions, queryString, true, maxResults, type, params).uniqueResult());
+    }
+
     protected E findUnique(final String queryString, final QueryType type) {
 
         return findUnique(null, queryString, type);
@@ -382,6 +523,21 @@ public class AbstractDao<E extends BaseEntityI> {
     protected E findUnique(final String queryString, final QueryType type, final NamedParam... params) {
 
         return findUnique(null, queryString, type, params);
+    }
+
+    protected E findUniqueCaching(final String queryString, final QueryType type) {
+
+        return findUniqueCaching(null, queryString, type);
+    }
+
+    protected E findUniqueCaching(final String queryString, final QueryType type, final Object... params) {
+
+        return findUniqueCaching(null, queryString, type, params);
+    }
+
+    protected E findUniqueCaching(final String queryString, final QueryType type, final NamedParam... params) {
+
+        return findUniqueCaching(null, queryString, type, params);
     }
 
     protected Object findUniqueSQL( final LockOptions lockOptions, final String queryString, final QueryType type) {
@@ -433,6 +589,42 @@ public class AbstractDao<E extends BaseEntityI> {
     }
 
     @SuppressWarnings("unchecked")
+    protected List<E> findCaching(final LockOptions lockOptions, final String queryString, final QueryType type) {
+
+        return (List<E>) findObjectsCaching(lockOptions, queryString, type);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected List<E> findCaching(final LockOptions lockOptions, final String queryString, final QueryType type, final Object... params) {
+
+        return (List<E>) findObjectsCaching(lockOptions, queryString, type, params);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected List<E> findCaching(final LockOptions lockOptions, final String queryString, final QueryType type, final NamedParam... params) {
+
+        return (List<E>) findObjectsCaching(lockOptions, queryString, type, params);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected List<E> findCaching(final LockOptions lockOptions, final String queryString, final int maxResults, final QueryType type) {
+
+        return (List<E>) findObjectsCaching(lockOptions, queryString, maxResults, type);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected List<E> findCaching(final LockOptions lockOptions, final String queryString, final int maxResults, final QueryType type, final Object... params) {
+
+        return (List<E>) findObjectsCaching(lockOptions, queryString, maxResults, type, params);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected List<E> findCaching(final LockOptions lockOptions, final String queryString, final int maxResults, final QueryType type, final NamedParam... params) {
+
+        return (List<E>) findObjectsCaching(lockOptions, queryString, maxResults, type, params);
+    }
+
+    @SuppressWarnings("unchecked")
     protected List<E> find(final LockOptions lockOptions, final String queryString, final QueryType type) {
 
         return (List<E>) findObjects(lockOptions, queryString, type);
@@ -466,6 +658,42 @@ public class AbstractDao<E extends BaseEntityI> {
     protected List<E> find(final String queryString, final int maxResults, final QueryType type, final NamedParam... params) {
 
         return (List<E>) findObjects(null, queryString, maxResults, type, params);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected List<E> findCaching(final String queryString, final QueryType type) {
+
+        return (List<E>) findObjectsCaching(null, queryString, type);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected List<E> findCaching(final String queryString, final QueryType type, final Object... params) {
+
+        return (List<E>) findObjectsCaching(null, queryString, type, params);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected List<E> findCaching(final String queryString, final QueryType type, final NamedParam... params) {
+
+        return (List<E>) findObjectsCaching(null, queryString, type, params);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected List<E> findCaching(final String queryString,final int maxResults,  final QueryType type) {
+
+        return (List<E>) findObjectsCaching(null, queryString, maxResults, type);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected List<E> findCaching(final String queryString, final int maxResults, final QueryType type, final Object... params) {
+
+        return (List<E>) findObjectsCaching(null, queryString, maxResults, type, params);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected List<E> findCaching(final String queryString, final int maxResults, final QueryType type, final NamedParam... params) {
+
+        return (List<E>) findObjectsCaching(null, queryString, maxResults, type, params);
     }
 
     @SuppressWarnings("unchecked")
@@ -561,6 +789,36 @@ public class AbstractDao<E extends BaseEntityI> {
     protected Set<E> findAsSet(final String queryString, final QueryType type, final NamedParam... params) {
 
         return convertToSet(findObjects(null, queryString, type, params), this.entityClass);
+    }
+
+    protected Set<E> findAsSetCaching(final LockOptions lockOptions, final String queryString, final QueryType type) {
+
+        return convertToSet(findObjectsCaching(lockOptions, queryString, type), this.entityClass);
+    }
+
+    protected Set<E> findAsSetCaching(final LockOptions lockOptions, final String queryString, final QueryType type, final Object... params) {
+
+        return convertToSet(findObjectsCaching(lockOptions, queryString, type, params), this.entityClass);
+    }
+
+    protected Set<E> findAsSetCaching(final LockOptions lockOptions, final String queryString, final QueryType type, final NamedParam... params) {
+
+        return convertToSet(findObjectsCaching(lockOptions, queryString, type, params), this.entityClass);
+    }
+
+    protected Set<E> findAsSetCaching(final String queryString, final QueryType type) {
+
+        return convertToSet(findObjectsCaching(null, queryString, type), this.entityClass);
+    }
+
+    protected Set<E> findAsSetCaching(final String queryString, final QueryType type, final Object... params) {
+
+        return convertToSet(findObjectsCaching(null, queryString, type, params), this.entityClass);
+    }
+
+    protected Set<E> findAsSetCaching(final String queryString, final QueryType type, final NamedParam... params) {
+
+        return convertToSet(findObjectsCaching(null, queryString, type, params), this.entityClass);
     }
 
     private Query createLoadAllQuery() {

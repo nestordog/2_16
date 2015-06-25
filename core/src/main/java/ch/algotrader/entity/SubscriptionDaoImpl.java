@@ -46,7 +46,7 @@ public class SubscriptionDaoImpl extends AbstractDao<Subscription> implements Su
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        return find("Subscription.findByStrategy", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
+        return findCaching("Subscription.findByStrategy", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
     }
 
     @Override
@@ -62,7 +62,7 @@ public class SubscriptionDaoImpl extends AbstractDao<Subscription> implements Su
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        return findUnique("Subscription.findByStrategyAndSecurity", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("securityId", securityId));
+        return findUniqueCaching("Subscription.findByStrategyAndSecurity", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("securityId", securityId));
     }
 
     @Override
@@ -71,7 +71,7 @@ public class SubscriptionDaoImpl extends AbstractDao<Subscription> implements Su
         Validate.notEmpty(strategyName, "Strategy name is empty");
         Validate.notNull(feedType, "FeedType is null");
 
-        return findUnique("Subscription.findByStrategySecurityAndFeedType", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("securityId", securityId), new NamedParam(
+        return findUniqueCaching("Subscription.findByStrategySecurityAndFeedType", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("securityId", securityId), new NamedParam(
                 "feedType", feedType));
     }
 
@@ -80,13 +80,13 @@ public class SubscriptionDaoImpl extends AbstractDao<Subscription> implements Su
 
         Validate.notNull(feedType, "FeedType is null");
 
-        return find("Subscription.findBySecurityAndFeedTypeForAutoActivateStrategies", QueryType.BY_NAME, new NamedParam("securityId", securityId), new NamedParam("feedType", feedType));
+        return findCaching("Subscription.findBySecurityAndFeedTypeForAutoActivateStrategies", QueryType.BY_NAME, new NamedParam("securityId", securityId), new NamedParam("feedType", feedType));
     }
 
     @Override
     public List<Subscription> findNonPersistent() {
 
-        return find("Subscription.findNonPersistent", QueryType.BY_NAME);
+        return findCaching("Subscription.findNonPersistent", QueryType.BY_NAME);
     }
 
     @Override
@@ -94,7 +94,7 @@ public class SubscriptionDaoImpl extends AbstractDao<Subscription> implements Su
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        return find("Subscription.findNonPositionSubscriptions", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
+        return findCaching("Subscription.findNonPositionSubscriptions", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
     }
 
     @Override
@@ -102,7 +102,7 @@ public class SubscriptionDaoImpl extends AbstractDao<Subscription> implements Su
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        return find("Subscription.findNonPositionSubscriptionsByType", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("type", type));
+        return findCaching("Subscription.findNonPositionSubscriptionsByType", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("type", type));
     }
 
 }

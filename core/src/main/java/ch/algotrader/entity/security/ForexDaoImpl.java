@@ -87,12 +87,12 @@ public class ForexDaoImpl extends AbstractDao<Forex> implements ForexDao {
         Validate.notNull(baseCurrency, "Base currency is null");
         Validate.notNull(transactionCurrency, "Transaction currency is null");
 
-        Forex forex = findUnique("Forex.findByBaseAndTransactionCurrency", QueryType.BY_NAME, new NamedParam("baseCurrency", baseCurrency), new NamedParam("transactionCurrency", transactionCurrency));
+        Forex forex = findUniqueCaching("Forex.findByBaseAndTransactionCurrency", QueryType.BY_NAME, new NamedParam("baseCurrency", baseCurrency), new NamedParam("transactionCurrency", transactionCurrency));
 
         if (forex == null) {
 
             // reverse lookup
-            forex = findUnique("Forex.findByBaseAndTransactionCurrency", QueryType.BY_NAME, new NamedParam("baseCurrency", transactionCurrency), new NamedParam("transactionCurrency", baseCurrency));
+            forex = findUniqueCaching("Forex.findByBaseAndTransactionCurrency", QueryType.BY_NAME, new NamedParam("baseCurrency", transactionCurrency), new NamedParam("transactionCurrency", baseCurrency));
 
             if (forex == null) {
                 throw new IllegalStateException("Forex does not exist: " + transactionCurrency + "." + baseCurrency);
