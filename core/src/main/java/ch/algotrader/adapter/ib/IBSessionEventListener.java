@@ -53,9 +53,18 @@ public final class IBSessionEventListener implements SessionEventListener, Dispo
     @Override
     public void onChange(final SessionEventVO event) {
 
-        if (this.name.equals(event.getQualifier()) && event.getState() == ConnectionState.DISCONNECTED) {
+        if (this.name.equals(event.getQualifier()) && event.getState() == ConnectionState.DISCONNECTED && !this.session.isTerminated()) {
 
-            this.executorService.execute(session::connect);
+            this.executorService.execute(() -> {
+                try {
+                    // Sleep a little in case the session got disconnected due to JVM shutdown
+                    Thread.sleep(1000);
+                    if (!session.isTerminated()) {
+                        session.connect();
+                    }
+                } catch (InterruptedException ex) {
+                }
+            });
         }
     }
 

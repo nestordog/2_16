@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
@@ -52,6 +53,7 @@ public final class IBSession extends EClientSocket implements InitializingServic
     private final String host;
     private final int port;
     private final IBSessionStateHolder sessionStateHolder;
+    private final AtomicBoolean terminated;
 
     public IBSession(final int clientId, final String host, final int port, final IBSessionStateHolder sessionStateHolder, final AbstractIBMessageHandler messageHandler) {
 
@@ -65,6 +67,7 @@ public final class IBSession extends EClientSocket implements InitializingServic
         this.host = host;
         this.port = port;
         this.sessionStateHolder = sessionStateHolder;
+        this.terminated = new AtomicBoolean(false);
     }
 
     @Override
@@ -75,9 +78,21 @@ public final class IBSession extends EClientSocket implements InitializingServic
     @Override
     public void destroy() {
 
-        if (isConnected()) {
-            eDisconnect();
+        shutdown();
+    }
+
+    public void shutdown() {
+
+        if (this.terminated.compareAndSet(false, true)) {
+            if (isConnected()) {
+                eDisconnect();
+            }
         }
+    }
+
+    public boolean isTerminated() {
+
+        return this.terminated.get();
     }
 
     public int getClientId() {
@@ -105,7 +120,7 @@ public final class IBSession extends EClientSocket implements InitializingServic
 
         waitAndConnect();
 
-        if (isConnected()) {
+        if (isConnected() && !isTerminated()) {
             this.sessionStateHolder.onConnect();
 
             // in case there is no 2104 message from the IB Gateway (Market data farm connection is OK)
@@ -141,7 +156,7 @@ public final class IBSession extends EClientSocket implements InitializingServic
 
     private void waitAndConnect() {
 
-        for (;;) {
+        while (!isTerminated()) {
 
             Socket socket = new Socket();
             try {
