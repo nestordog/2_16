@@ -46,7 +46,7 @@ public class PositionDaoImpl extends AbstractDao<Position> implements PositionDa
     @Override
     public Position findByIdInclSecurityAndSecurityFamily(long id) {
 
-        return findUnique("Position.findByIdInclSecurityAndSecurityFamily", QueryType.BY_NAME, new NamedParam("id", id));
+        return findUniqueCaching("Position.findByIdInclSecurityAndSecurityFamily", QueryType.BY_NAME, new NamedParam("id", id));
     }
 
     @Override
@@ -54,7 +54,7 @@ public class PositionDaoImpl extends AbstractDao<Position> implements PositionDa
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        return find("Position.findByStrategy", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
+        return findCaching("Position.findByStrategy", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
     }
 
     @Override
@@ -70,7 +70,7 @@ public class PositionDaoImpl extends AbstractDao<Position> implements PositionDa
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        return findUnique("Position.findBySecurityAndStrategy", QueryType.BY_NAME, new NamedParam("securityId", securityId), new NamedParam("strategyName", strategyName));
+        return findUniqueCaching("Position.findBySecurityAndStrategy", QueryType.BY_NAME, new NamedParam("securityId", securityId), new NamedParam("strategyName", strategyName));
     }
 
     @Override
@@ -83,7 +83,7 @@ public class PositionDaoImpl extends AbstractDao<Position> implements PositionDa
     @Override
     public List<Position> findOpenPositions() {
 
-        return find("Position.findOpenPositions", QueryType.BY_NAME);
+        return findCaching("Position.findOpenPositions", QueryType.BY_NAME);
     }
 
     @Override
@@ -105,7 +105,7 @@ public class PositionDaoImpl extends AbstractDao<Position> implements PositionDa
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        return find("Position.findOpenPositionsByStrategy", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
+        return findCaching("Position.findOpenPositionsByStrategy", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
     }
 
     @Override
@@ -130,7 +130,7 @@ public class PositionDaoImpl extends AbstractDao<Position> implements PositionDa
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        return find("Position.findOpenPositionsByStrategyAndType", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("type", type));
+        return findCaching("Position.findOpenPositionsByStrategyAndType", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("type", type));
     }
 
     @Override
@@ -138,7 +138,7 @@ public class PositionDaoImpl extends AbstractDao<Position> implements PositionDa
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        return find("Position.findOpenPositionsByStrategyTypeAndUnderlyingType", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("type", type), new NamedParam(
+        return findCaching("Position.findOpenPositionsByStrategyTypeAndUnderlyingType", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("type", type), new NamedParam(
                 "underlyingType", underlyingType));
     }
 
@@ -147,31 +147,31 @@ public class PositionDaoImpl extends AbstractDao<Position> implements PositionDa
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        return find("Position.findOpenPositionsByStrategyAndSecurityFamily", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("securityFamilyId", securityFamilyId));
+        return findCaching("Position.findOpenPositionsByStrategyAndSecurityFamily", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("securityFamilyId", securityFamilyId));
     }
 
     @Override
     public List<Position> findOpenPositionsByUnderlying(long underlyingId) {
 
-        return find("Position.findOpenPositionsByUnderlying", QueryType.BY_NAME, new NamedParam("underlyingId", underlyingId));
+        return findCaching("Position.findOpenPositionsByUnderlying", QueryType.BY_NAME, new NamedParam("underlyingId", underlyingId));
     }
 
     @Override
     public List<Position> findOpenPositionsBySecurity(long securityId) {
 
-        return find("Position.findOpenPositionsBySecurity", QueryType.BY_NAME, new NamedParam("securityId", securityId));
+        return findCaching("Position.findOpenPositionsBySecurity", QueryType.BY_NAME, new NamedParam("securityId", securityId));
     }
 
     @Override
     public List<Position> findOpenTradeablePositions() {
 
-        return find("Position.findOpenTradeablePositions", QueryType.BY_NAME);
+        return findCaching("Position.findOpenTradeablePositions", QueryType.BY_NAME);
     }
 
     @Override
     public List<Position> findOpenTradeablePositionsAggregated() {
 
-        return find("Position.findOpenTradeablePositionsAggregated", QueryType.BY_NAME);
+        return findCaching("Position.findOpenTradeablePositionsAggregated", QueryType.BY_NAME);
     }
 
     @Override
@@ -179,19 +179,19 @@ public class PositionDaoImpl extends AbstractDao<Position> implements PositionDa
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        return find("Position.findOpenTradeablePositionsByStrategy", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
+        return findCaching("Position.findOpenTradeablePositionsByStrategy", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
     }
 
     @Override
     public List<Position> findOpenFXPositions() {
 
-        return find("Position.findOpenFXPositions", QueryType.BY_NAME);
+        return findCaching("Position.findOpenFXPositions", QueryType.BY_NAME);
     }
 
     @Override
     public List<Position> findOpenFXPositionsAggregated() {
 
-        return find("Position.findOpenFXPositionsAggregated", QueryType.BY_NAME);
+        return findCaching("Position.findOpenFXPositionsAggregated", QueryType.BY_NAME);
     }
 
     @Override
@@ -199,7 +199,7 @@ public class PositionDaoImpl extends AbstractDao<Position> implements PositionDa
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        return find("Position.findOpenFXPositionsByStrategy", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
+        return findCaching("Position.findOpenFXPositionsByStrategy", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
     }
 
     @Override
@@ -207,25 +207,25 @@ public class PositionDaoImpl extends AbstractDao<Position> implements PositionDa
 
         Validate.notNull(currentTime, "currentTime is null");
 
-        return find("Position.findExpirablePositions", QueryType.BY_NAME, new NamedParam("currentTime", currentTime));
+        return findCaching("Position.findExpirablePositions", QueryType.BY_NAME, new NamedParam("currentTime", currentTime));
     }
 
     @Override
     public List<Position> findPersistent() {
 
-        return find("Position.findPersistent", QueryType.BY_NAME);
+        return findCaching("Position.findPersistent", QueryType.BY_NAME);
     }
 
     @Override
     public List<Position> findNonPersistent() {
 
-        return find("Position.findNonPersistent", QueryType.BY_NAME);
+        return findCaching("Position.findNonPersistent", QueryType.BY_NAME);
     }
 
     @Override
     public List<Position> findOpenPositionsAggregated() {
 
-        return find("Position.findOpenPositionsAggregated", QueryType.BY_NAME);
+        return findCaching("Position.findOpenPositionsAggregated", QueryType.BY_NAME);
     }
 
 }

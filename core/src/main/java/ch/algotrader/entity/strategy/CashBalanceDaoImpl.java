@@ -47,7 +47,7 @@ public class CashBalanceDaoImpl extends AbstractDao<CashBalance> implements Cash
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        return find("CashBalance.findCashBalancesByStrategy", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
+        return findCaching("CashBalance.findCashBalancesByStrategy", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
     }
 
     @Override
@@ -56,7 +56,7 @@ public class CashBalanceDaoImpl extends AbstractDao<CashBalance> implements Cash
         Validate.notNull(strategy, "Strategy is null");
         Validate.notNull(currency, "Currency is null");
 
-        return findUnique("CashBalance.findByStrategyAndCurrency", QueryType.BY_NAME, new NamedParam("strategy", strategy), new NamedParam("currency", currency));
+        return findUniqueCaching("CashBalance.findByStrategyAndCurrency", QueryType.BY_NAME, new NamedParam("strategy", strategy), new NamedParam("currency", currency));
     }
 
     @Override

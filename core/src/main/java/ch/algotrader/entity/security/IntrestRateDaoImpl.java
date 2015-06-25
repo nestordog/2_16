@@ -46,6 +46,6 @@ public class IntrestRateDaoImpl extends AbstractDao<IntrestRate> implements Intr
         Validate.notNull(currency, "Currency is null");
         Validate.notNull(duration, "Duration is null");
 
-        return findUnique("IntrestRate.findByCurrencyAndDuration", QueryType.BY_NAME, new NamedParam("currency", currency), new NamedParam("duration", duration));
+        return findUniqueCaching("IntrestRate.findByCurrencyAndDuration", QueryType.BY_NAME, new NamedParam("currency", currency), new NamedParam("duration", duration));
     }
 }

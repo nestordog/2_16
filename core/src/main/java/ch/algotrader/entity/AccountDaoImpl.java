@@ -45,7 +45,7 @@ public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao {
 
         Validate.notEmpty(name, "Account name is empty");
 
-        return findUnique("Account.findByName", QueryType.BY_NAME, new NamedParam("name", name));
+        return findUniqueCaching("Account.findByName", QueryType.BY_NAME, new NamedParam("name", name));
     }
 
     @SuppressWarnings("unchecked")

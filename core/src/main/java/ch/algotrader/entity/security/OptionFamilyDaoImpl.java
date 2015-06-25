@@ -40,7 +40,7 @@ public class OptionFamilyDaoImpl extends AbstractDao<OptionFamily> implements Op
     @Override
     public OptionFamily findByUnderlying(long underlyingId) {
 
-        return findUnique("OptionFamily.findByUnderlying", QueryType.BY_NAME, new NamedParam("underlyingId", underlyingId));
+        return findUniqueCaching("OptionFamily.findByUnderlying", QueryType.BY_NAME, new NamedParam("underlyingId", underlyingId));
     }
 
 }

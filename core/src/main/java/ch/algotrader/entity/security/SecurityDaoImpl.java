@@ -77,7 +77,7 @@ public class SecurityDaoImpl extends AbstractDao<Security> implements SecurityDa
 
         Validate.notEmpty(symbol, "Symbol is empty");
 
-        return findUnique("Security.findBySymbol", QueryType.BY_NAME, new NamedParam("symbol", symbol));
+        return findUniqueCaching("Security.findBySymbol", QueryType.BY_NAME, new NamedParam("symbol", symbol));
     }
 
     @Override
@@ -85,7 +85,7 @@ public class SecurityDaoImpl extends AbstractDao<Security> implements SecurityDa
 
         Validate.notEmpty(isin, "isin is empty");
 
-        return findUnique("Security.findByIsin", QueryType.BY_NAME, new NamedParam("isin", isin));
+        return findUniqueCaching("Security.findByIsin", QueryType.BY_NAME, new NamedParam("isin", isin));
     }
 
     @Override
@@ -93,7 +93,7 @@ public class SecurityDaoImpl extends AbstractDao<Security> implements SecurityDa
 
         Validate.notEmpty(bbgid, "bbgid is empty");
 
-        return findUnique("Security.findByBbgid", QueryType.BY_NAME, new NamedParam("bbgid", bbgid));
+        return findUniqueCaching("Security.findByBbgid", QueryType.BY_NAME, new NamedParam("bbgid", bbgid));
     }
 
     @Override
@@ -101,7 +101,7 @@ public class SecurityDaoImpl extends AbstractDao<Security> implements SecurityDa
 
         Validate.notEmpty(ric, "ric is empty");
 
-        return findUnique("Security.findByRic", QueryType.BY_NAME, new NamedParam("ric", ric));
+        return findUniqueCaching("Security.findByRic", QueryType.BY_NAME, new NamedParam("ric", ric));
     }
 
     @Override
@@ -109,13 +109,13 @@ public class SecurityDaoImpl extends AbstractDao<Security> implements SecurityDa
 
         Validate.notEmpty(conid, "conid is empty");
 
-        return findUnique("Security.findByConid", QueryType.BY_NAME, new NamedParam("conid", conid));
+        return findUniqueCaching("Security.findByConid", QueryType.BY_NAME, new NamedParam("conid", conid));
     }
 
     @Override
     public Security findByIdInclFamilyAndUnderlying(long id) {
 
-        return findUnique("Security.findByIdInclFamilyAndUnderlying", QueryType.BY_NAME, new NamedParam("id", id));
+        return findUniqueCaching("Security.findByIdInclFamilyAndUnderlying", QueryType.BY_NAME, new NamedParam("id", id));
     }
 
     @Override
@@ -127,7 +127,7 @@ public class SecurityDaoImpl extends AbstractDao<Security> implements SecurityDa
     @Override
     public List<Security> findSubscribedForAutoActivateStrategies() {
 
-        return find("Security.findSubscribedForAutoActivateStrategies", QueryType.BY_NAME);
+        return findCaching("Security.findSubscribedForAutoActivateStrategies", QueryType.BY_NAME);
     }
 
     @Override
@@ -135,7 +135,7 @@ public class SecurityDaoImpl extends AbstractDao<Security> implements SecurityDa
 
         Validate.notNull(feedType, "Feed type is null");
 
-        return find("Security.findSubscribedByFeedTypeForAutoActivateStrategiesInclFamily", QueryType.BY_NAME, new NamedParam("feedType", feedType));
+        return findCaching("Security.findSubscribedByFeedTypeForAutoActivateStrategiesInclFamily", QueryType.BY_NAME, new NamedParam("feedType", feedType));
     }
 
     @Override
@@ -144,7 +144,7 @@ public class SecurityDaoImpl extends AbstractDao<Security> implements SecurityDa
         Validate.notNull(feedType, "Feed type is null");
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        return find("Security.findSubscribedByFeedTypeAndStrategyInclFamily", QueryType.BY_NAME, new NamedParam("feedType", feedType), new NamedParam("strategyName", strategyName));
+        return findCaching("Security.findSubscribedByFeedTypeAndStrategyInclFamily", QueryType.BY_NAME, new NamedParam("feedType", feedType), new NamedParam("strategyName", strategyName));
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })

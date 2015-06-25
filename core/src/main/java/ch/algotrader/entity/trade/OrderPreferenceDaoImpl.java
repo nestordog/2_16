@@ -43,7 +43,7 @@ public class OrderPreferenceDaoImpl extends AbstractDao<OrderPreference> impleme
 
         Validate.notEmpty(name, "Name is empty");
 
-        return findUnique("OrderPreference.findByName", QueryType.BY_NAME, new NamedParam("name", name));
+        return findUniqueCaching("OrderPreference.findByName", QueryType.BY_NAME, new NamedParam("name", name));
     }
 
 }

@@ -48,7 +48,7 @@ public class MeasurementDaoImpl extends AbstractDao<Measurement> implements Meas
         Validate.notEmpty(strategyName, "Name is empty");
         Validate.notNull(dateTime, "dateTime is null");
 
-        return findUnique("Measurement.findMeasurementByDate", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("name", name), new NamedParam("dateTime", dateTime));
+        return findUniqueCaching("Measurement.findMeasurementByDate", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("name", name), new NamedParam("dateTime", dateTime));
     }
 
     @Override
@@ -58,7 +58,7 @@ public class MeasurementDaoImpl extends AbstractDao<Measurement> implements Meas
         Validate.notEmpty(name, "Name is empty");
         Validate.notNull(maxDateTime, "maxDateTime is null");
 
-        return find("Measurement.findMeasurementsByMaxDate", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("name", name), new NamedParam("maxDateTime", maxDateTime));
+        return findCaching("Measurement.findMeasurementsByMaxDate", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("name", name), new NamedParam("maxDateTime", maxDateTime));
     }
 
     @Override
@@ -78,7 +78,7 @@ public class MeasurementDaoImpl extends AbstractDao<Measurement> implements Meas
         Validate.notEmpty(strategyName, "Strategy name is empty");
         Validate.notNull(maxDateTime, "maxDateTime is null");
 
-        return find("Measurement.findAllMeasurementsByMaxDate", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("maxDateTime", maxDateTime));
+        return findCaching("Measurement.findAllMeasurementsByMaxDate", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("maxDateTime", maxDateTime));
     }
 
     @Override
@@ -88,7 +88,7 @@ public class MeasurementDaoImpl extends AbstractDao<Measurement> implements Meas
         Validate.notEmpty(name, "Name is empty");
         Validate.notNull(minDateTime, "minDateTime is null");
 
-        return find("Measurement.findMeasurementsByMinDate", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("name", name), new NamedParam("minDateTime", minDateTime));
+        return findCaching("Measurement.findMeasurementsByMinDate", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("name", name), new NamedParam("minDateTime", minDateTime));
     }
 
     @Override
@@ -108,7 +108,7 @@ public class MeasurementDaoImpl extends AbstractDao<Measurement> implements Meas
         Validate.notEmpty(strategyName, "Strategy name is empty");
         Validate.notNull(minDateTime, "minDateTime is null");
 
-        return find("Measurement.findAllMeasurementsByMinDate", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("minDateTime", minDateTime));
+        return findCaching("Measurement.findAllMeasurementsByMinDate", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("minDateTime", minDateTime));
     }
 
 }

@@ -43,7 +43,7 @@ public class StrategyDaoImpl extends AbstractDao<Strategy> implements StrategyDa
     @Override
     public Strategy findServer() {
 
-        return findUnique("Strategy.findServer", QueryType.BY_NAME);
+        return findUniqueCaching("Strategy.findServer", QueryType.BY_NAME);
     }
 
     @Override
@@ -51,13 +51,13 @@ public class StrategyDaoImpl extends AbstractDao<Strategy> implements StrategyDa
 
         Validate.notEmpty(name, "Strategy name is empty");
 
-        return findUnique("Strategy.findByName", QueryType.BY_NAME, new NamedParam("name", name));
+        return findUniqueCaching("Strategy.findByName", QueryType.BY_NAME, new NamedParam("name", name));
     }
 
     @Override
     public Set<Strategy> findAutoActivateStrategies() {
 
-        return findAsSet("Strategy.findAutoActivateStrategies", QueryType.BY_NAME);
+        return findAsSetCaching("Strategy.findAutoActivateStrategies", QueryType.BY_NAME);
     }
 
     @Override

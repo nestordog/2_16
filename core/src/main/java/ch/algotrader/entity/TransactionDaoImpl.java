@@ -49,7 +49,7 @@ public class TransactionDaoImpl extends AbstractDao<Transaction> implements Tran
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        return find("Transaction.findByStrategy", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
+        return findCaching("Transaction.findByStrategy", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
     }
 
     @Override
@@ -72,7 +72,7 @@ public class TransactionDaoImpl extends AbstractDao<Transaction> implements Tran
     @Override
     public List<Transaction> findAllTradesInclSecurity() {
 
-        return find("Transaction.findAllTradesInclSecurity", QueryType.BY_NAME);
+        return findCaching("Transaction.findAllTradesInclSecurity", QueryType.BY_NAME);
     }
 
     @Override
@@ -81,7 +81,7 @@ public class TransactionDaoImpl extends AbstractDao<Transaction> implements Tran
         Validate.notEmpty(strategyName, "Strategy name is empty");
         Validate.notNull(minDate, "minDate is null");
 
-        return find("Transaction.findCashflowsByStrategyAndMinDate", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("minDate", minDate));
+        return findCaching("Transaction.findCashflowsByStrategyAndMinDate", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("minDate", minDate));
     }
 
     @Override
