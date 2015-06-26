@@ -20,7 +20,6 @@ package ch.algotrader.wiring.server;
 import org.hibernate.SessionFactory;
 import org.junit.Assert;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseFactory;
@@ -31,7 +30,6 @@ import org.springframework.transaction.support.TransactionTemplate;
 import ch.algotrader.config.CoreConfig;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.lifecycle.LifecycleManager;
-import ch.algotrader.service.LookupService;
 import ch.algotrader.wiring.HibernateNoCachingWiring;
 import ch.algotrader.wiring.common.CommonConfigWiring;
 import ch.algotrader.wiring.common.EngineManagerWiring;
@@ -68,9 +66,6 @@ public class WiringTest {
     public void testLifecycleManagerWiring() throws Exception {
 
         AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
-
-        LookupService lookupService = Mockito.mock(LookupService.class);
-        context.getDefaultListableBeanFactory().registerSingleton("lookupService", lookupService);
 
         context.register(
                 CommonConfigWiring.class, EngineManagerWiring.class, ServerEngineWiring.class,

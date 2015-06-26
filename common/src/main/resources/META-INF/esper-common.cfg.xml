@@ -77,6 +77,11 @@
 
     <!-- Variables -->
     <variable name="internal_clock" type="boolean" initialization-value="false"/>
+    <variable name="lookupService" type="ch.algotrader.service.LookupService"/>
+    <variable name="calendarService" type="ch.algotrader.service.CalendarService"/>
+    <variable name="portfolioService" type="ch.algotrader.service.PortfolioService"/>
+    <variable name="orderService" type="ch.algotrader.service.OrderService"/>
+    <variable name="positionService" type="ch.algotrader.service.PositionService"/>
     <variable name="engineStrategy" type="ch.algotrader.entity.strategy.Strategy"/>
 
     <!-- Esper JMX -->

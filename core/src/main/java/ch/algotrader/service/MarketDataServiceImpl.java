@@ -44,6 +44,7 @@ import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.CoreConfig;
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.SubscriptionDao;
+import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.marketData.TickDao;
 import ch.algotrader.entity.security.Security;
@@ -53,7 +54,10 @@ import ch.algotrader.entity.strategy.StrategyDao;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.util.HibernateUtil;
+import ch.algotrader.util.collection.Pair;
 import ch.algotrader.util.io.CsvTickWriter;
+import ch.algotrader.util.metric.MetricsUtil;
+import ch.algotrader.vo.GenericEventVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -138,6 +142,12 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationList
         // write the tick to the DB (even if not valid)
         this.tickDao.save(tick);
 
+    }
+
+    @Override
+    public void persistTick(final Pair<Tick, Object> pair) {
+
+        persistTick(pair.getFirst());
     }
 
     /**
@@ -372,6 +382,28 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationList
     public boolean isSupportedFeed(FeedType feedType) {
 
         return this.externalMarketDataServiceMap.containsKey(feedType);
+    }
+
+    @Override
+    public void propagateMarketData(final MarketDataEvent marketDataEvent) {
+
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("{} {}", marketDataEvent.getSecurity(), marketDataEvent);
+        }
+
+        long startTime = System.nanoTime();
+        this.eventDispatcher.sendMarketDataEvent(marketDataEvent);
+        MetricsUtil.accountEnd("PropagateMarketDataEventSubscriber.update", startTime);
+    }
+
+    @Override
+    public void propagateGenericEvent(final GenericEventVO genericEvent) {
+
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace(genericEvent);
+
+        }
+        this.eventDispatcher.broadcastAllStrategies(genericEvent);
     }
 
 }

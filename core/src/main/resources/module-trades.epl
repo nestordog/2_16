@@ -40,7 +40,7 @@ where
 
 @Name('UPDATE_ORDER')
 @RunTimeOnly()
-@Subscriber(className='ch.algotrader.service.OrderService.updateOrderId')
+@Subscriber(className='orderService#updateOrderId')
 select
     orderStatus.`order`,
     orderStatus.intId,
@@ -104,7 +104,7 @@ from
 
 @Name('SEND_INITIAL_ALGO_ORDERS')
 @RunTimeOnly
-@Subscriber(className='ch.algotrader.service.OrderService.sendOrders')
+@Subscriber(className='orderService#sendOrders')
 select
     currentOrder.getInitialOrders(cast(marketDataWindow.marketDataEvent, ch.algotrader.entity.marketData.Tick))
 from
@@ -151,7 +151,7 @@ where
 
 @Name('LOG_TRANSACTION_SUMMARY')
 @RunTimeOnly()
-@Subscriber(className='ch.algotrader.esper.subscriber.LogTransactionSummarySubscriber')
+@Subscriber(className='transactionService#logFillSummary')
 select
     fill,
     orderStatus
@@ -163,7 +163,7 @@ from
 
 @Name('PROPAGATE_ORDER_STATUS')
 @RunTimeOnly()
-@Subscriber(className='ch.algotrader.service.OrderService.propagateOrderStatus')
+@Subscriber(className='orderService#propagateOrderStatus')
 select
     *
 from
@@ -171,7 +171,7 @@ from
 
 @Name('PROPAGATE_ORDER_COMPLETION')
 @RunTimeOnly()
-@Subscriber(className='ch.algotrader.service.OrderService.propagateOrderCompletion')
+@Subscriber(className='orderService#propagateOrderCompletion')
 select
     *
 from
@@ -180,7 +180,7 @@ from
 @Name('PROPAGATE_FILL')
 @Priority(1)
 @RunTimeOnly()
-@Subscriber(className='ch.algotrader.service.TransactionService.propagateFill')
+@Subscriber(className='transactionService#propagateFill')
 select
     *
 from
@@ -188,7 +188,7 @@ from
 
 @Name('CREATE_TRANSACTION')
 @RunTimeOnly()
-@Subscriber(className='ch.algotrader.esper.subscriber.CreateTransactionSubscriber')
+@Subscriber(className='transactionService#createTransaction')
 select
     *
 from

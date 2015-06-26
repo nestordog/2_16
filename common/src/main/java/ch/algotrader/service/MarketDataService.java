@@ -19,8 +19,11 @@ package ch.algotrader.service;
 
 import java.util.Set;
 
+import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.enumeration.FeedType;
+import ch.algotrader.util.collection.Pair;
+import ch.algotrader.vo.GenericEventVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -33,6 +36,11 @@ public interface MarketDataService {
      * Persists a Tick to the DB and CSV File.
      */
     void persistTick(Tick tick);
+
+    /**
+     * Persists a Tick to the DB and CSV File.
+     */
+    void persistTick(Pair<Tick, Object> pair);
 
     /**
      * Initializes current Subscriptions with the external Market Data Provider for the specified
@@ -94,5 +102,15 @@ public interface MarketDataService {
      * Returns {@code true} if the data feed is supported.
      */
     boolean isSupportedFeed(FeedType feedType);
+
+    /**
+     * Propagates market data event to its recipients.
+     */
+    void propagateMarketData(MarketDataEvent marketDataEvent);
+
+    /**
+     * Propagates generic event to its recipients.
+     */
+    void propagateGenericEvent(GenericEventVO genericEvent);
 
 }

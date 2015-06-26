@@ -2,7 +2,7 @@
 
 @Name('INCREMENTAL_MODIFY_ORDER')
 @RunTimeOnly
-@Subscriber(className='ch.algotrader.service.OrderService.modifyOrder')
+@Subscriber(className='orderService#modifyOrder')
 select
     cast(currentOrder.parentOrder, ch.algotrader.entity.trade.IncrementalOrder).modifyOrder(cast(marketDataWindow.marketDataEvent, ch.algotrader.entity.marketData.Tick))
 from
@@ -20,7 +20,7 @@ limit
 
 @Name('INCREMENTAL_CANCEL_ORDER')
 @RunTimeOnly
-@Subscriber(className='ch.algotrader.service.OrderService.cancelOrder')
+@Subscriber(className='orderService#cancelOrder')
 select
     currentOrder.parentOrder
 from

@@ -151,7 +151,6 @@ public class ServiceWiring {
     public PortfolioService createPortfolioService(final CommonConfig commonConfig,
             final CoreConfig coreConfig,
             final SessionFactory sessionFactory,
-            final LookupService lookupService,
             final LocalLookupService localLookupService,
             final GenericDao genericDao,
             final StrategyDao strategyDao,
@@ -163,7 +162,7 @@ public class ServiceWiring {
             final ForexDao forexDao,
             final EngineManager engineManager) {
 
-        return new PortfolioServiceImpl(commonConfig, coreConfig, sessionFactory, lookupService, localLookupService, genericDao, strategyDao, transactionDao, positionDao, cashBalanceDao,
+        return new PortfolioServiceImpl(commonConfig, coreConfig, sessionFactory, localLookupService, genericDao, strategyDao, transactionDao, positionDao, cashBalanceDao,
                 portfolioValueDao, tickDao, forexDao, engineManager);
     }
 
