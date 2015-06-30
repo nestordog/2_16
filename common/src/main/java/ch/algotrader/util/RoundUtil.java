@@ -38,9 +38,9 @@ public class RoundUtil {
         return MathUtils.round((value) / n, 0) * n;
     }
 
-    public static BigDecimal roundToNextN(BigDecimal value, double n) {
+    public static BigDecimal roundToNextN(BigDecimal value, BigDecimal n) {
 
-        return RoundUtil.getBigDecimal(roundToNextN(value.doubleValue(), n), getDigits(n));
+        return RoundUtil.getBigDecimal(roundToNextN(value.doubleValue(), n.doubleValue()), getDigits(n));
     }
 
     public static double roundToNextN(double value, double n, int roundingMethod) {
@@ -48,9 +48,9 @@ public class RoundUtil {
         return MathUtils.round((value) / n, 0, roundingMethod) * n;
     }
 
-    public static BigDecimal roundToNextN(BigDecimal value, double n, int roundingMethod) {
+    public static BigDecimal roundToNextN(BigDecimal value, BigDecimal n, int roundingMethod) {
 
-        return RoundUtil.getBigDecimal(roundToNextN(value.doubleValue(), n, roundingMethod), getDigits(n));
+        return RoundUtil.getBigDecimal(roundToNextN(value.doubleValue(), n.doubleValue(), roundingMethod), getDigits(n));
     }
 
     public static BigDecimal getBigDecimal(double value) {
@@ -83,9 +83,10 @@ public class RoundUtil {
         }
     }
 
-    public static int getDigits(double n) {
-        int exponent = -(int) Math.floor(Math.log10(n));
-        int digits = exponent >= 0 ? exponent : 0;
-        return digits;
+    public static int getDigits(BigDecimal value) {
+        String string = value.stripTrailingZeros().toPlainString();
+        int index = string.indexOf(".");
+        int scale = index < 0 ? 0 : string.length() - index - 1;
+        return scale;
     }
 }

@@ -259,7 +259,7 @@ public class SecurityFamilyImpl extends SecurityFamily {
 
         Validate.notNull(price, "Price cannot be null");
 
-        return RoundUtil.roundToNextN(price, getTickSize(broker, price, true).doubleValue(), BigDecimal.ROUND_UP);
+        return RoundUtil.roundToNextN(price, getTickSize(broker, price, true), BigDecimal.ROUND_UP);
     }
 
     @Override
@@ -272,7 +272,7 @@ public class SecurityFamilyImpl extends SecurityFamily {
 
         Validate.notNull(price, "Price cannot be null");
 
-        return RoundUtil.roundToNextN(price, getTickSize(broker, price, false).doubleValue(), BigDecimal.ROUND_DOWN);
+        return RoundUtil.roundToNextN(price, getTickSize(broker, price, false), BigDecimal.ROUND_DOWN);
     }
 
     @Override
