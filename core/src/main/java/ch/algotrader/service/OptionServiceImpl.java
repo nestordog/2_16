@@ -275,7 +275,7 @@ public class OptionServiceImpl implements OptionService {
         Date expirationDate = DateUtil.getExpirationDate(family.getExpirationType(), targetExpirationDate);
 
         // get nearest strike according to strikeDistance
-        BigDecimal strike = roundOptionStrikeToNextN(targetStrike, family.getStrikeDistance(), type);
+        BigDecimal strike = roundOptionStrikeToNextN(targetStrike, new BigDecimal(family.getStrikeDistance()), type);
 
         // symbol / isin
         String symbol = OptionSymbol.getSymbol(family, expirationDate, type, strike, false);
@@ -415,7 +415,7 @@ public class OptionServiceImpl implements OptionService {
         BigDecimal underlyingSpot = underlyingTick.getLast();
 
         double forward = OptionUtil.getForward(underlyingSpot.doubleValue(), years, family.getIntrest(), family.getDividend());
-        double atmStrike = roundOptionStrikeToNextN(underlyingSpot, family.getStrikeDistance(), type).doubleValue();
+        double atmStrike = roundOptionStrikeToNextN(underlyingSpot, new BigDecimal(family.getStrikeDistance()), type).doubleValue();
 
         List<Tick> ticks = this.tickDao.findOptionTicksBySecurityDateTypeAndExpirationInclSecurity(underlyingId, date, type, expirationDate);
         List<Double> strikes = new ArrayList<Double>();
@@ -638,7 +638,7 @@ public class OptionServiceImpl implements OptionService {
 
     }
 
-    private BigDecimal roundOptionStrikeToNextN(BigDecimal spot, double n, OptionType type) {
+    private BigDecimal roundOptionStrikeToNextN(BigDecimal spot, BigDecimal n, OptionType type) {
 
         if (OptionType.CALL.equals(type)) {
             // increase by strikeOffset and round to upper n
