@@ -95,6 +95,14 @@ public class FTXFixOrderMessageHandler extends GenericFix44OrderMessageHandler {
                         return "Incorrect To Open Or To Close";
                     case 109:
                         return "Bad Price";
+                    case 110:
+                        return "Order In Progress";
+                    case 111:
+                        return "Timed Out";
+                    case 112:
+                        return "No Liquidity";
+                    case 113:
+                        return "Duplicated Order ID";
                     default:
                         return "Error code: " + code;
                 }
