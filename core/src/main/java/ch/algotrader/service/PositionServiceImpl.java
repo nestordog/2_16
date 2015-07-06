@@ -24,6 +24,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
@@ -337,6 +338,7 @@ public class PositionServiceImpl implements PositionService {
 
         // debit transaction
         Transaction debitTransaction = Transaction.Factory.newInstance();
+        debitTransaction.setUuid(UUID.randomUUID().toString());
         debitTransaction.setDateTime(this.engineManager.getCurrentEPTime());
         debitTransaction.setQuantity(-position.getQuantity());
         debitTransaction.setPrice(price);
@@ -350,6 +352,7 @@ public class PositionServiceImpl implements PositionService {
 
         // credit transaction
         Transaction creditTransaction = Transaction.Factory.newInstance();
+        creditTransaction.setUuid(UUID.randomUUID().toString());
         creditTransaction.setDateTime(this.engineManager.getCurrentEPTime());
         creditTransaction.setQuantity(position.getQuantity());
         creditTransaction.setPrice(price);
@@ -647,6 +650,7 @@ public class PositionServiceImpl implements PositionService {
         ExpirePositionVO expirePositionEvent = ExpirePositionVOProducer.INSTANCE.convert(position);
 
         Transaction transaction = Transaction.Factory.newInstance();
+        transaction.setUuid(UUID.randomUUID().toString());
         transaction.setDateTime(this.engineManager.getCurrentEPTime());
         transaction.setType(TransactionType.EXPIRATION);
         transaction.setQuantity(-position.getQuantity());

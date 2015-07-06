@@ -17,8 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.entity;
 
-import java.util.Objects;
-
 import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.Future;
@@ -186,31 +184,13 @@ public class PositionImpl extends Position {
     @Override
     public String toString() {
 
-        return getQuantity() + "," + getSecurity() + "," + getStrategy();
+        StringBuilder buffer = new StringBuilder();
+        buffer.append(getQuantity());
+        buffer.append(",");
+        buffer.append(getSecurity());
+        buffer.append(",");
+        buffer.append(getStrategy());
+        return buffer.toString();
     }
 
-
-    @Override
-    public boolean equals(Object obj) {
-
-        if (this == obj) {
-            return true;
-        }
-        if (obj instanceof Position) {
-            Position that = (Position) obj;
-            return Objects.equals(this.getSecurity(), that.getSecurity()) &&
-                    Objects.equals(this.getStrategy(), that.getStrategy());
-        } else {
-            return false;
-        }
-    }
-
-    @Override
-    public int hashCode() {
-
-        int hash = 17;
-        hash = hash * 37 + Objects.hashCode(getSecurity());
-        hash = hash * 37 + Objects.hashCode(getStrategy());
-        return hash;
-    }
 }

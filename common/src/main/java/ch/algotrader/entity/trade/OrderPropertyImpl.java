@@ -29,6 +29,12 @@ public class OrderPropertyImpl extends OrderProperty {
 
     @Override
     public String toString() {
-        return this.getValue() + "(" + getType() + ")";
+
+        StringBuilder buffer = new StringBuilder();
+        buffer.append(getValue());
+        buffer.append("(");
+        buffer.append(getType());
+        buffer.append(")");
+        return buffer.toString();
     }
 }

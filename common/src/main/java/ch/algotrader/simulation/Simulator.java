@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import org.apache.commons.collections15.MultiMap;
 import org.apache.commons.collections15.multimap.MultiHashMap;
@@ -88,7 +89,7 @@ public class Simulator {
     }
 
     protected LocalLookupService getLocalLookupService() {
-        return localLookupService;
+        return this.localLookupService;
     }
 
     public void clear() {
@@ -157,6 +158,7 @@ public class Simulator {
         BigDecimal clearingCommission = getClearingCommission(fill);
 
         Transaction transaction = Transaction.Factory.newInstance();
+        transaction.setUuid(UUID.randomUUID().toString());
         transaction.setDateTime(fill.getExtDateTime());
         transaction.setExtId(fill.getExtId());
         transaction.setQuantity(quantity);
@@ -201,7 +203,7 @@ public class Simulator {
         Position position = findPositionByStrategyAndSecurity(transaction.getStrategy().getName(), transaction.getSecurity());
         if (position == null) {
 
-            position = positionTracker.processFirstTransaction(transaction);
+            position = this.positionTracker.processFirstTransaction(transaction);
 
             // associate strategy
             position.setStrategy(transaction.getStrategy());
@@ -214,7 +216,7 @@ public class Simulator {
         } else {
 
             // process the transaction (adjust quantity, cost and realizedPL)
-            tradePerformance = positionTracker.processTransaction(position, transaction);
+            tradePerformance = this.positionTracker.processTransaction(position, transaction);
 
             // in case a position was closed reset exitValue and margin
             if (!position.isOpen()) {
@@ -341,7 +343,7 @@ public class Simulator {
     }
 
     protected PositionTracker getPositionTracker() {
-        return positionTracker;
+        return this.positionTracker;
     }
 
     /**

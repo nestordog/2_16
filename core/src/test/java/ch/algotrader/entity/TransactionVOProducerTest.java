@@ -19,6 +19,7 @@ package ch.algotrader.entity;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.UUID;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -65,6 +66,7 @@ public class TransactionVOProducerTest {
         strategy.setName("Strategy");
 
         Transaction transaction = new TransactionImpl();
+        transaction.setUuid(UUID.randomUUID().toString());
         transaction.setId(111);
         transaction.setDateTime(new Date());
         transaction.setQuantity(222);
@@ -108,6 +110,7 @@ public class TransactionVOProducerTest {
         strategy.setName("Strategy");
 
         Transaction transaction = new TransactionImpl();
+        transaction.setUuid(UUID.randomUUID().toString());
         transaction.setId(111);
         transaction.setDateTime(new Date());
         transaction.setQuantity(222);
@@ -156,7 +159,7 @@ public class TransactionVOProducerTest {
         account.setName("Account");
 
         Transaction transaction = new TransactionImpl();
-
+        transaction.setUuid(UUID.randomUUID().toString());
         transaction.setId(111);
         transaction.setDateTime(new Date());
         transaction.setQuantity(222);

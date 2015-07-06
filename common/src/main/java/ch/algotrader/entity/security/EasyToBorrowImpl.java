@@ -17,11 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.entity.security;
 
-import java.time.LocalDate;
-import java.util.Date;
-import java.util.Objects;
-
-import ch.algotrader.util.DateTimePatterns;
+import ch.algotrader.util.DateTimeLegacy;
 import ch.algotrader.util.DateTimeUtil;
 
 /**
@@ -36,40 +32,14 @@ public class EasyToBorrowImpl extends EasyToBorrow {
     @Override
     public String toString() {
         StringBuilder buffer = new StringBuilder();
-        Date dateTime = getDate();
-        if (dateTime != null) {
-            LocalDate localDate = dateTime.toInstant().atZone(DateTimePatterns.GMT).toLocalDate();
-            DateTimeUtil.formatLocalDate(localDate, buffer);
-        } else {
-            buffer.append(" ");
-        }
-        buffer.append(getBroker()).append(" ").append(getStock()).append(" ").append(getQuantity());
+        DateTimeUtil.formatLocalDate(DateTimeLegacy.toLocalDate(getDate()), buffer);
+        buffer.append(",");
+        buffer.append(getBroker());
+        buffer.append(",");
+        buffer.append(getStock());
+        buffer.append(",");
+        buffer.append(getQuantity());
         return buffer.toString();
     }
 
-    @Override
-    public boolean equals(Object obj) {
-
-        if (this == obj) {
-            return true;
-        }
-        if (obj instanceof EasyToBorrow) {
-            EasyToBorrow that = (EasyToBorrow) obj;
-            return Objects.equals(this.getStock(), that.getStock()) &&
-                    Objects.equals(this.getDate(), that.getDate()) &&
-                    Objects.equals(this.getBroker(), that.getBroker());
-        } else {
-            return false;
-        }
-    }
-
-    @Override
-    public int hashCode() {
-
-        int hash = 17;
-        hash = hash * 37 + Objects.hashCode(getStock());
-        hash = hash * 37 + Objects.hashCode(getDate());
-        hash = hash * 37 + Objects.hashCode(getBroker());
-        return hash;
-    }
 }

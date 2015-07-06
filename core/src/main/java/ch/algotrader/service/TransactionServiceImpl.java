@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import org.apache.commons.lang.Validate;
 import org.apache.commons.math.util.MathUtils;
@@ -144,6 +145,7 @@ public class TransactionServiceImpl implements TransactionService {
         long quantity = Side.BUY.equals(fill.getSide()) ? fill.getQuantity() : -fill.getQuantity();
 
         Transaction transaction = Transaction.Factory.newInstance();
+        transaction.setUuid(UUID.randomUUID().toString());
         transaction.setDateTime(fill.getExtDateTime());
         transaction.setExtId(fill.getExtId());
         transaction.setIntOrderId(fill.getOrder().getIntId());
@@ -248,6 +250,7 @@ public class TransactionServiceImpl implements TransactionService {
 
         // create the transaction
         Transaction transaction = Transaction.Factory.newInstance();
+        transaction.setUuid(UUID.randomUUID().toString());
         transaction.setDateTime(dateTime);
         transaction.setExtId(extId);
         transaction.setQuantity(quantityNonFinal);
@@ -388,6 +391,7 @@ public class TransactionServiceImpl implements TransactionService {
                 totalRebalanceAmount += rebalanceAmount;
 
                 Transaction transaction = Transaction.Factory.newInstance();
+                transaction.setUuid(UUID.randomUUID().toString());
                 transaction.setDateTime(this.engineManager.getCurrentEPTime());
                 transaction.setQuantity(targetNetLiqValue > actualNetLiqValue ? +1 : -1);
                 transaction.setPrice(RoundUtil.getBigDecimal(Math.abs(rebalanceAmount)));
@@ -408,6 +412,7 @@ public class TransactionServiceImpl implements TransactionService {
         if (transactions.size() != 0) {
 
             Transaction transaction = Transaction.Factory.newInstance();
+            transaction.setUuid(UUID.randomUUID().toString());
             transaction.setDateTime(this.engineManager.getCurrentEPTime());
             transaction.setQuantity((int) Math.signum(-1.0 * totalRebalanceAmount));
             transaction.setPrice(RoundUtil.getBigDecimal(Math.abs(totalRebalanceAmount)));

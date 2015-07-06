@@ -17,8 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.entity.strategy;
 
-import java.util.Objects;
-
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
@@ -31,30 +29,13 @@ public class CashBalanceImpl extends CashBalance {
     @Override
     public String toString() {
 
-        return getStrategy() + "," + getCurrency() + "," + getAmount();
+        StringBuilder buffer = new StringBuilder();
+        buffer.append(getStrategy());
+        buffer.append(",");
+        buffer.append(getCurrency());
+        buffer.append(",");
+        buffer.append(getAmount());
+        return buffer.toString();
     }
 
-    @Override
-    public boolean equals(Object obj) {
-
-        if (this == obj) {
-            return true;
-        }
-        if (obj instanceof CashBalance) {
-            CashBalance that = (CashBalance) obj;
-            return Objects.equals(this.getStrategy(), that.getStrategy()) &&
-                    Objects.equals(this.getCurrency(), that.getCurrency());
-        } else {
-            return false;
-        }
-    }
-
-    @Override
-    public int hashCode() {
-
-        int hash = 17;
-        hash = hash * 37 + Objects.hashCode(getStrategy());
-        hash = hash * 37 + Objects.hashCode(getCurrency());
-        return hash;
-    }
 }

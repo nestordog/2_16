@@ -17,8 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.entity.security;
 
-import java.util.Objects;
-
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Predicate;
 import org.apache.commons.collections15.Transformer;
@@ -112,28 +110,4 @@ public class CombinationImpl extends Combination {
         }), " + ");
     }
 
-    @Override
-    public boolean equals(Object obj) {
-
-        if (this == obj) {
-            return true;
-        }
-        if (obj instanceof Combination) {
-            Combination that = (Combination) obj;
-            return Objects.equals(this.getUuid(), that.getUuid());
-        } else {
-            return false;
-        }
-    }
-
-    @Override
-    public int hashCode() {
-
-        int hash = 17;
-        hash = hash * 37 + Objects.hashCode(this.getUuid());
-        if (this.getUuid() != null) {
-            hash =  hash * 37 + this.getUuid().hashCode();
-        }
-        return hash;
-    }
 }

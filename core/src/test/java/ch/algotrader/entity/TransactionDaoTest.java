@@ -22,6 +22,7 @@ import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -111,6 +112,7 @@ public class TransactionDaoTest extends InMemoryDBTest {
         this.session.save(this.strategy1);
 
         Transaction transaction1 = new TransactionImpl();
+        transaction1.setUuid(UUID.randomUUID().toString());
         transaction1.setSecurity(this.forex1);
         transaction1.setQuantity(222);
         transaction1.setDateTime(new Date());
@@ -125,6 +127,7 @@ public class TransactionDaoTest extends InMemoryDBTest {
         this.session.save(this.strategy2);
 
         Transaction transaction2 = new TransactionImpl();
+        transaction2.setUuid(UUID.randomUUID().toString());
         transaction2.setSecurity(this.forex2);
         transaction2.setQuantity(222);
         transaction2.setDateTime(new Date());
@@ -171,6 +174,7 @@ public class TransactionDaoTest extends InMemoryDBTest {
         this.session.save(this.strategy1);
 
         Transaction transaction1 = new TransactionImpl();
+        transaction1.setUuid(UUID.randomUUID().toString());
         transaction1.setSecurity(this.forex1);
         transaction1.setQuantity(222);
         transaction1.setDateTime(new Date());
@@ -184,6 +188,7 @@ public class TransactionDaoTest extends InMemoryDBTest {
         this.session.save(this.strategy2);
 
         Transaction transaction2 = new TransactionImpl();
+        transaction2.setUuid(UUID.randomUUID().toString());
         transaction2.setSecurity(this.forex2);
         transaction2.setQuantity(222);
 
@@ -239,6 +244,7 @@ public class TransactionDaoTest extends InMemoryDBTest {
         this.session.save(this.strategy1);
 
         Transaction transaction1 = new TransactionImpl();
+        transaction1.setUuid(UUID.randomUUID().toString());
         transaction1.setSecurity(this.forex1);
         transaction1.setQuantity(222);
         transaction1.setDateTime(new Date());
@@ -253,6 +259,7 @@ public class TransactionDaoTest extends InMemoryDBTest {
         this.session.save(this.strategy2);
 
         Transaction transaction2 = new TransactionImpl();
+        transaction2.setUuid(UUID.randomUUID().toString());
         transaction2.setSecurity(this.forex2);
         transaction2.setQuantity(222);
         transaction2.setDateTime(new Date());
@@ -301,6 +308,7 @@ public class TransactionDaoTest extends InMemoryDBTest {
         this.session.save(this.strategy1);
 
         Transaction transaction1 = new TransactionImpl();
+        transaction1.setUuid(UUID.randomUUID().toString());
         transaction1.setSecurity(this.forex1);
         transaction1.setQuantity(222);
         transaction1.setDateTime(new Date());
@@ -314,6 +322,7 @@ public class TransactionDaoTest extends InMemoryDBTest {
         this.session.save(this.strategy2);
 
         Transaction transaction2 = new TransactionImpl();
+        transaction2.setUuid(UUID.randomUUID().toString());
         transaction2.setSecurity(this.forex2);
         transaction2.setQuantity(222);
         transaction2.setDateTime(new Date());
@@ -323,6 +332,7 @@ public class TransactionDaoTest extends InMemoryDBTest {
         transaction2.setStrategy(this.strategy2);
 
         Transaction transaction3 = new TransactionImpl();
+        transaction3.setUuid(UUID.randomUUID().toString());
         transaction3.setSecurity(this.forex2);
         transaction3.setQuantity(222);
         transaction3.setDateTime(new Date());
@@ -332,6 +342,7 @@ public class TransactionDaoTest extends InMemoryDBTest {
         transaction3.setStrategy(this.strategy1);
 
         Transaction transaction4 = new TransactionImpl();
+        transaction4.setUuid(UUID.randomUUID().toString());
         transaction4.setSecurity(this.forex2);
         transaction4.setQuantity(222);
         transaction4.setDateTime(new Date());
@@ -387,6 +398,7 @@ public class TransactionDaoTest extends InMemoryDBTest {
         this.session.save(this.strategy1);
 
         Transaction transaction1 = new TransactionImpl();
+        transaction1.setUuid(UUID.randomUUID().toString());
         transaction1.setSecurity(this.forex1);
         transaction1.setQuantity(222);
         transaction1.setDateTime(new Date());
@@ -400,6 +412,7 @@ public class TransactionDaoTest extends InMemoryDBTest {
         this.session.save(this.strategy2);
 
         Transaction transaction2 = new TransactionImpl();
+        transaction2.setUuid(UUID.randomUUID().toString());
         transaction2.setSecurity(this.forex2);
         transaction2.setQuantity(222);
         transaction2.setDateTime(new Date());
@@ -444,6 +457,7 @@ public class TransactionDaoTest extends InMemoryDBTest {
         this.session.save(this.strategy1);
 
         Transaction transaction1 = new TransactionImpl();
+        transaction1.setUuid(UUID.randomUUID().toString());
         transaction1.setSecurity(this.forex1);
         transaction1.setQuantity(222);
         transaction1.setDateTime(new Date());
@@ -457,6 +471,7 @@ public class TransactionDaoTest extends InMemoryDBTest {
         this.session.save(this.strategy2);
 
         Transaction transaction2 = new TransactionImpl();
+        transaction2.setUuid(UUID.randomUUID().toString());
         transaction2.setSecurity(this.forex2);
         transaction2.setQuantity(222);
         transaction2.setDateTime(new Date());
@@ -504,6 +519,7 @@ public class TransactionDaoTest extends InMemoryDBTest {
         this.session.save(this.strategy1);
 
         Transaction transaction1 = new TransactionImpl();
+        transaction1.setUuid(UUID.randomUUID().toString());
         transaction1.setSecurity(this.forex1);
         transaction1.setQuantity(222);
         transaction1.setDateTime(new Date());
@@ -517,6 +533,7 @@ public class TransactionDaoTest extends InMemoryDBTest {
         this.session.save(this.strategy2);
 
         Transaction transaction2 = new TransactionImpl();
+        transaction2.setUuid(UUID.randomUUID().toString());
         transaction2.setSecurity(this.forex2);
         transaction2.setQuantity(222);
         transaction2.setDateTime(new Date());
@@ -563,6 +580,7 @@ public class TransactionDaoTest extends InMemoryDBTest {
         this.session.save(this.strategy1);
 
         Transaction transaction1 = new TransactionImpl();
+        transaction1.setUuid(UUID.randomUUID().toString());
         transaction1.setSecurity(this.forex1);
         transaction1.setQuantity(222);
         transaction1.setDateTime(new Date());
@@ -576,6 +594,7 @@ public class TransactionDaoTest extends InMemoryDBTest {
         this.session.save(this.strategy2);
 
         Transaction transaction2 = new TransactionImpl();
+        transaction2.setUuid(UUID.randomUUID().toString());
         transaction2.setSecurity(this.forex2);
         transaction2.setQuantity(222);
         transaction2.setDateTime(new Date());

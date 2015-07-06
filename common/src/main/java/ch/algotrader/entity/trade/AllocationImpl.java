@@ -17,8 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.entity.trade;
 
-import java.util.Objects;
-
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
@@ -31,30 +29,11 @@ public class AllocationImpl extends Allocation {
     @Override
     public String toString() {
 
-        return getAccount() + ":" + getValue();
+        StringBuilder buffer = new StringBuilder();
+        buffer.append(getAccount());
+        buffer.append(",");
+        buffer.append(getValue());
+        return buffer.toString();
     }
 
-    @Override
-    public boolean equals(Object obj) {
-
-        if (this == obj) {
-            return true;
-        }
-        if (obj instanceof Allocation) {
-            Allocation that = (Allocation) obj;
-            return Objects.equals(this.getOrderPreference(), that.getOrderPreference()) &&
-                    Objects.equals(this.getAccount(), that.getAccount());
-        } else {
-            return false;
-        }
-    }
-
-    @Override
-    public int hashCode() {
-
-        int hash = 17;
-        hash = hash * 37 + Objects.hashCode(getOrderPreference());
-        hash = hash * 37 + Objects.hashCode(getAccount());
-        return hash;
-    }
 }

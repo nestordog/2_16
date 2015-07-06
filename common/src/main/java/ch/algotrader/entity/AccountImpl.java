@@ -17,8 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.entity;
 
-import java.util.Objects;
-
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
@@ -30,29 +28,7 @@ public class AccountImpl extends Account {
 
     @Override
     public String toString() {
-
         return getName();
     }
 
-    @Override
-    public boolean equals(Object obj) {
-
-        if (this == obj) {
-            return true;
-        }
-        if (obj instanceof Account) {
-            Account that = (Account) obj;
-            return Objects.equals(this.getName(), that.getName());
-        } else {
-            return false;
-        }
-    }
-
-    @Override
-    public int hashCode() {
-
-        int hash = 17;
-        hash = hash * 37 + Objects.hashCode(getName());
-        return hash;
-    }
 }

@@ -12,7 +12,7 @@
 	    <meta attribute="implements">ch.algotrader.entity.property.PropertyHolderI</meta>      
 	    <meta attribute="generated-class">ch.algotrader.entity.property.PropertyHolder</meta>
 	    <meta attribute="class-code">
-<![CDATA[	    
+<![CDATA[
     /**
      * Gets the {@code int} Property of the specified name, that belongs to this PropertyHolder. If
      * the specified Property does not exist or is not of type {@code int} and {@link
@@ -84,23 +84,22 @@
 
 ]]>   
 	    </meta> 	    
-        <meta attribute="class-description">Base class of an Entity that can hold {@link Property Properties}.</meta>
+        <meta attribute="class-description"><![CDATA[Base class of an Entity that can hold {@link Property Properties}.]]></meta>
         <cache usage="read-write" />
-        <comment>Base class of an Entity that can hold {@link Property Properties}.</comment>
         <id name="id" type="long" >
             <column name="ID" sql-type="BIGINT"/>
+
             <generator class="increment">
                 <!-- id-generator merge-point -->
             </generator>
         </id>
         <version name="version" type="int" column="VERSION"/>
         <map name="props" order-by="PROPERTY_HOLDER_FK" lazy="false" fetch="select" inverse="true" cascade="delete">
-            <meta attribute="field-description">Base class of an Entity that can hold {@link Property Properties}.</meta>
+            <meta attribute="field-description"><![CDATA[Base class of an Entity that can hold {@link Property Properties}.]]></meta>
             <cache usage="read-write" />
             <key foreign-key="PROPERTY_PROPERTY_HOLDER_FKC">
-                <column name="PROPERTY_HOLDER_FK" sql-type="BIGINT">
-                    <comment>Base class of an Entity that can hold {@link Property Properties}.</comment>
-                </column>
+                <column name="PROPERTY_HOLDER_FK" sql-type="BIGINT"/>
+
             </key>
             <map-key column="NAME" type="java.lang.String"/>
             <one-to-many class="ch.algotrader.entity.property.PropertyImpl" not-found="exception"/>
@@ -191,62 +190,55 @@
 ]]>   
             </meta>  
             <property name="quantity">
-                <meta attribute="field-description">The current quantity of this Position.</meta>
-                <column name="QUANTITY" not-null="true" unique="false" sql-type="BIGINT">
-                    <comment>The current quantity of this Position.</comment>
-                </column>
+                <meta attribute="field-description"><![CDATA[The current quantity of this Position.]]></meta>
+                <column name="QUANTITY" not-null="true" unique="false" sql-type="BIGINT"/>
+
                 <type name="long"/>
             </property>
             <property name="cost">
-                <meta attribute="field-description">the cost associated with the current holdings of this Position. Based on the average cost method.</meta>
-                <column name="COST" not-null="true" unique="false" sql-type="DOUBLE">
-                    <comment>the cost associated with the current holdings of this Position. Based on the average cost method.</comment>
-                </column>
+                <meta attribute="field-description"><![CDATA[the cost associated with the current holdings of this Position. Based on the average cost method.]]></meta>
+                <column name="COST" not-null="true" unique="false" sql-type="DOUBLE"/>
+
                 <type name="double"/>
             </property>
             <property name="realizedPL">
-                <meta attribute="field-description">the realized Profit-and-Loss of this Position</meta>
-                <column name="REALIZED_P_L" not-null="true" unique="false" sql-type="DOUBLE">
-                    <comment>the realized Profit-and-Loss of this Position</comment>
-                </column>
+                <meta attribute="field-description"><![CDATA[the realized Profit-and-Loss of this Position]]></meta>
+                <column name="REALIZED_P_L" not-null="true" unique="false" sql-type="DOUBLE"/>
+
                 <type name="double"/>
             </property>
             <property name="exitValue">
-                <meta attribute="field-description">The price at which the Position will be closed. If an exitValue is defined, the Position will be closed using the defined default {@link ch.algotrader.entity.trade.OrderPreference DefaultOrderPreference}. A Position is closed by the AlgoTrader Server, therefore a corresponding Strategy does not have to be running.</meta>
-                <column name="EXIT_VALUE" not-null="false" unique="false" sql-type="Decimal(15,6)">
-                    <comment>The price at which the Position will be closed. If an exitValue is defined, the Position will be closed using the defined default {@link ch.algotrader.entity.trade.OrderPreference DefaultOrderPreference}. A Position is closed by the AlgoTrader Server, therefore a corresponding Strategy does not have to be running.</comment>
-                </column>
+                <meta attribute="field-description"><![CDATA[The price at which the Position will be closed. If an exitValue is defined, the Position will be closed using the defined default {@link ch.algotrader.entity.trade.OrderPreference DefaultOrderPreference}. A Position is closed by the AlgoTrader Server, therefore a corresponding Strategy does not have to be running.]]></meta>
+                <column name="EXIT_VALUE" not-null="false" unique="false" sql-type="Decimal(15,6)"/>
+
                 <type name="java.math.BigDecimal"/>
             </property>
             <property name="maintenanceMargin">
-                <meta attribute="field-description">The current margin needed by this Position.</meta>
-                <column name="MAINTENANCE_MARGIN" not-null="false" unique="false" sql-type="Decimal(15,6)">
-                    <comment>The current margin needed by this Position.</comment>
-                </column>
+                <meta attribute="field-description"><![CDATA[The current margin needed by this Position.]]></meta>
+                <column name="MAINTENANCE_MARGIN" not-null="false" unique="false" sql-type="Decimal(15,6)"/>
+
                 <type name="java.math.BigDecimal"/>
             </property>
             <property name="persistent">
-                <meta attribute="field-description">If set to {@code false}, the Position will be removed when resetting the database before a simulation run.</meta>
-                <column name="PERSISTENT" not-null="true" unique="false" sql-type="TINYINT">
-                    <comment>If set to {@code false}, the Position will be removed when resetting the database before a simulation run.</comment>
-                </column>
+                <meta attribute="field-description"><![CDATA[If set to {@code false}, the Position will be removed when resetting the database before a simulation run.]]></meta>
+                <column name="PERSISTENT" not-null="true" unique="false" sql-type="TINYINT"/>
+
                 <type name="boolean"/>
             </property>
             <many-to-one name="strategy" class="ch.algotrader.entity.strategy.StrategyImpl" foreign-key="POSITION_STRATEGY_FKC" not-null="true" lazy="proxy" fetch="select">
                 <meta attribute="property-type">ch.algotrader.entity.strategy.Strategy</meta>
-                <meta attribute="field-description">Represents a running Strategy within the system. In addition the AlgoTrader Server is also
-represented by an instance of this class.</meta>
-                <column name="STRATEGY_FK" not-null="true" sql-type="BIGINT">
-                    <comment>Represents a running Strategy within the system. In addition the AlgoTrader Server is also
-represented by an instance of this class.</comment>
-                </column>
+                <meta attribute="field-description"><![CDATA[Represents a running Strategy within the system. In addition the AlgoTrader Server is also
+represented by an instance of this class.]]></meta>
+                <meta attribute="use-in-equals">true</meta>
+                <column name="STRATEGY_FK" not-null="true" sql-type="BIGINT"/>
+
             </many-to-one>
             <many-to-one name="security" class="ch.algotrader.entity.security.SecurityImpl" foreign-key="POSITION_SECURITY_FKC" not-null="true" lazy="proxy" fetch="select">
                 <meta attribute="property-type">ch.algotrader.entity.security.Security</meta>
-                <meta attribute="field-description">The base class of all Securities in the system</meta>
-                <column name="SECURITY_FK" not-null="true" sql-type="BIGINT">
-                    <comment>The base class of all Securities in the system</comment>
-                </column>
+                <meta attribute="field-description"><![CDATA[The base class of all Securities in the system]]></meta>
+                <meta attribute="use-in-equals">true</meta>
+                <column name="SECURITY_FK" not-null="true" sql-type="BIGINT"/>
+
             </many-to-one>
         </union-subclass>
         <union-subclass name="ch.algotrader.entity.SubscriptionImpl" table="`subscription`" dynamic-insert="false" dynamic-update="false" abstract="false">
@@ -257,37 +249,35 @@ represented by an instance of this class.</comment>
 ]]>   
             </meta>  
             <property name="feedType">
-                <meta attribute="field-description">The market data feed that this Subscription is valid for.</meta>
+                <meta attribute="field-description"><![CDATA[The market data feed that this Subscription is valid for.]]></meta>
+                <meta attribute="use-in-equals">true</meta>
                 <meta attribute="property-type">ch.algotrader.enumeration.FeedType</meta>
-                <column name="FEED_TYPE" not-null="true" unique="false" sql-type="VARCHAR(255)">
-                    <comment>The market data feed that this Subscription is valid for.</comment>
-                </column>
+                <column name="FEED_TYPE" not-null="true" unique="false" sql-type="VARCHAR(255)"/>
+
                 <type name="ch.algotrader.hibernate.HibernateEnumType">
                  <param name="enumClassName">ch.algotrader.enumeration.FeedType</param>
                 </type>
             </property>
             <property name="persistent">
-                <meta attribute="field-description">A {@code persistent} Subscription will always be delivered to the strategy (i.e. for SP500). A {@code non-persistent} Subscription requested by a strategy for a specific duration of time (i.e. Options on SP500). When resetting the database before a simulation run, these Subscriptions will be removed</meta>
-                <column name="PERSISTENT" not-null="true" unique="false" sql-type="TINYINT">
-                    <comment>A {@code persistent} Subscription will always be delivered to the strategy (i.e. for SP500). A {@code non-persistent} Subscription requested by a strategy for a specific duration of time (i.e. Options on SP500). When resetting the database before a simulation run, these Subscriptions will be removed</comment>
-                </column>
+                <meta attribute="field-description"><![CDATA[A {@code persistent} Subscription will always be delivered to the strategy (i.e. for S&P500). A {@code non-persistent} Subscription requested by a strategy for a specific duration of time (i.e. Options on S&P500). When resetting the database before a simulation run, these Subscriptions will be removed]]></meta>
+                <column name="PERSISTENT" not-null="true" unique="false" sql-type="TINYINT"/>
+
                 <type name="boolean"/>
             </property>
             <many-to-one name="strategy" class="ch.algotrader.entity.strategy.StrategyImpl" foreign-key="SUBSCRIPTION_STRATEGY_FKC" not-null="true" lazy="false" fetch="join">
                 <meta attribute="property-type">ch.algotrader.entity.strategy.Strategy</meta>
-                <meta attribute="field-description">Represents a running Strategy within the system. In addition the AlgoTrader Server is also
-represented by an instance of this class.</meta>
-                <column name="STRATEGY_FK" not-null="true" sql-type="BIGINT">
-                    <comment>Represents a running Strategy within the system. In addition the AlgoTrader Server is also
-represented by an instance of this class.</comment>
-                </column>
+                <meta attribute="field-description"><![CDATA[Represents a running Strategy within the system. In addition the AlgoTrader Server is also
+represented by an instance of this class.]]></meta>
+                <meta attribute="use-in-equals">true</meta>
+                <column name="STRATEGY_FK" not-null="true" sql-type="BIGINT"/>
+
             </many-to-one>
             <many-to-one name="security" class="ch.algotrader.entity.security.SecurityImpl" foreign-key="SUBSCRIPTION_SECURITY_FKC" not-null="true" lazy="false" fetch="join">
                 <meta attribute="property-type">ch.algotrader.entity.security.Security</meta>
-                <meta attribute="field-description">The base class of all Securities in the system</meta>
-                <column name="SECURITY_FK" not-null="true" sql-type="BIGINT">
-                    <comment>The base class of all Securities in the system</comment>
-                </column>
+                <meta attribute="field-description"><![CDATA[The base class of all Securities in the system]]></meta>
+                <meta attribute="use-in-equals">true</meta>
+                <column name="SECURITY_FK" not-null="true" sql-type="BIGINT"/>
+
             </many-to-one>
         </union-subclass>
         <union-subclass name="ch.algotrader.entity.trade.OrderPreferenceImpl" table="`order_preference`" dynamic-insert="false" dynamic-update="false" abstract="false">
@@ -298,36 +288,35 @@ represented by an instance of this class.</comment>
 ]]>   
             </meta>  
             <property name="name">
+                <meta attribute="use-in-equals">true</meta>
                 <column name="NAME" not-null="true" unique="true" sql-type="VARCHAR(255)"/>
+
                 <type name="java.lang.String"/>
             </property>
             <property name="orderType">
                 <meta attribute="property-type">ch.algotrader.enumeration.OrderType</meta>
                 <column name="ORDER_TYPE" not-null="true" unique="false" sql-type="VARCHAR(255)"/>
+
                 <type name="ch.algotrader.hibernate.HibernateEnumType">
                  <param name="enumClassName">ch.algotrader.enumeration.OrderType</param>
                 </type>
             </property>
             <set name="allocations" order-by="ORDER_PREFERENCE_FK" lazy="true" fetch="select" inverse="true">
-                <meta attribute="field-description">Contains certain order default values (e.g. quantity, orderType, delays, etc.). Except for the
+                <meta attribute="field-description"><![CDATA[Contains certain order default values (e.g. quantity, orderType, delays, etc.). Except for the
 {@link ch.algotrader.enumeration.OrderType OrderType}, all values have to be defined through
-Properties.</meta>
+Properties.]]></meta>
                 <cache usage="read-write" />
                 <key foreign-key="ALLOCATION_ORDER_PREFERENCE_FC">
-                    <column name="ORDER_PREFERENCE_FK" sql-type="BIGINT">
-                        <comment>Contains certain order default values (e.g. quantity, orderType, delays, etc.). Except for the
-{@link ch.algotrader.enumeration.OrderType OrderType}, all values have to be defined through
-Properties.</comment>
-                    </column>
+                    <column name="ORDER_PREFERENCE_FK" sql-type="BIGINT"/>
+
                 </key>
                 <one-to-many class="ch.algotrader.entity.trade.AllocationImpl" not-found="exception"/>
             </set>
             <many-to-one name="defaultAccount" class="ch.algotrader.entity.AccountImpl" foreign-key="ORDER_PREFERENCE_DEFAULT_ACCOC" not-null="false" lazy="proxy" fetch="select">
                 <meta attribute="property-type">ch.algotrader.entity.Account</meta>
-                <meta attribute="field-description">Represents an actual Account / AccountGroup / AllocationProfile with an external Broker / Bank</meta>
-                <column name="DEFAULT_ACCOUNT_FK" not-null="false" sql-type="BIGINT">
-                    <comment>Represents an actual Account / AccountGroup / AllocationProfile with an external Broker / Bank</comment>
-                </column>
+                <meta attribute="field-description"><![CDATA[Represents an actual Account / AccountGroup / AllocationProfile with an external Broker / Bank]]></meta>
+                <column name="DEFAULT_ACCOUNT_FK" not-null="false" sql-type="BIGINT"/>
+
             </many-to-one>
         </union-subclass>
         <union-subclass name="ch.algotrader.entity.strategy.StrategyImpl" table="`strategy`" dynamic-insert="false" dynamic-update="false" abstract="false">
@@ -344,60 +333,52 @@ Properties.</comment>
 ]]>   
             </meta>  
             <property name="name">
+                <meta attribute="use-in-equals">true</meta>
                 <column name="NAME" not-null="true" unique="true" sql-type="VARCHAR(255)"/>
+
                 <type name="java.lang.String"/>
             </property>
             <property name="autoActivate">
-                <meta attribute="field-description">In simulation mode all Strategies marked as autoActivate are started</meta>
-                <column name="AUTO_ACTIVATE" not-null="true" unique="false" sql-type="TINYINT">
-                    <comment>In simulation mode all Strategies marked as autoActivate are started</comment>
-                </column>
+                <meta attribute="field-description"><![CDATA[In simulation mode all Strategies marked as autoActivate are started]]></meta>
+                <column name="AUTO_ACTIVATE" not-null="true" unique="false" sql-type="TINYINT"/>
+
                 <type name="boolean"/>
             </property>
             <property name="allocation">
-                <meta attribute="field-description">Allocation assigned to this strategy
-p
-iNote: the total of all Allocations needs to be 1.0/i</meta>
-                <column name="ALLOCATION" not-null="true" unique="false" sql-type="DOUBLE">
-                    <comment>Allocation assigned to this strategy
-p
-iNote: the total of all Allocations needs to be 1.0/i</comment>
-                </column>
+                <meta attribute="field-description"><![CDATA[Allocation assigned to this strategy
+<p>
+<i>Note: the total of all Allocations needs to be 1.0</i>]]></meta>
+                <column name="ALLOCATION" not-null="true" unique="false" sql-type="DOUBLE"/>
+
                 <type name="double"/>
             </property>
             <set name="portfolioValues" order-by="STRATEGY_FK" lazy="true" fetch="select" inverse="true" cascade="delete">
-                <meta attribute="field-description">Represents a running Strategy within the system. In addition the AlgoTrader Server is also
-represented by an instance of this class.</meta>
+                <meta attribute="field-description"><![CDATA[Represents a running Strategy within the system. In addition the AlgoTrader Server is also
+represented by an instance of this class.]]></meta>
                 <cache usage="read-write" />
                 <key foreign-key="PORTFOLIO_VALUE_STRATEGY_FKC">
-                    <column name="STRATEGY_FK" sql-type="BIGINT">
-                        <comment>Represents a running Strategy within the system. In addition the AlgoTrader Server is also
-represented by an instance of this class.</comment>
-                    </column>
+                    <column name="STRATEGY_FK" sql-type="BIGINT"/>
+
                 </key>
                 <one-to-many class="ch.algotrader.entity.strategy.PortfolioValueImpl" not-found="exception"/>
             </set>
             <set name="cashBalances" order-by="STRATEGY_FK" lazy="true" fetch="select" inverse="true" cascade="delete">
-                <meta attribute="field-description">Represents a running Strategy within the system. In addition the AlgoTrader Server is also
-represented by an instance of this class.</meta>
+                <meta attribute="field-description"><![CDATA[Represents a running Strategy within the system. In addition the AlgoTrader Server is also
+represented by an instance of this class.]]></meta>
                 <cache usage="read-write" />
                 <key foreign-key="CASH_BALANCE_STRATEGY_FKC">
-                    <column name="STRATEGY_FK" sql-type="BIGINT">
-                        <comment>Represents a running Strategy within the system. In addition the AlgoTrader Server is also
-represented by an instance of this class.</comment>
-                    </column>
+                    <column name="STRATEGY_FK" sql-type="BIGINT"/>
+
                 </key>
                 <one-to-many class="ch.algotrader.entity.strategy.CashBalanceImpl" not-found="exception"/>
             </set>
             <set name="measurements" order-by="STRATEGY_FK" lazy="true" fetch="select" inverse="true" cascade="delete">
-                <meta attribute="field-description">Represents a running Strategy within the system. In addition the AlgoTrader Server is also
-represented by an instance of this class.</meta>
+                <meta attribute="field-description"><![CDATA[Represents a running Strategy within the system. In addition the AlgoTrader Server is also
+represented by an instance of this class.]]></meta>
                 <cache usage="read-write" />
                 <key foreign-key="MEASUREMENT_STRATEGY_FKC">
-                    <column name="STRATEGY_FK" sql-type="BIGINT">
-                        <comment>Represents a running Strategy within the system. In addition the AlgoTrader Server is also
-represented by an instance of this class.</comment>
-                    </column>
+                    <column name="STRATEGY_FK" sql-type="BIGINT"/>
+
                 </key>
                 <one-to-many class="ch.algotrader.entity.strategy.MeasurementImpl" not-found="exception"/>
             </set>

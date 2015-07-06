@@ -8,21 +8,21 @@
             return new ${pojo.getDeclarationName()}Impl();
         }
 
-<#if pojo.needsMinimalConstructor()>    
-        public static ${pojo.getDeclarationName()} newInstance(${c2j.asParameterList(pojo.getPropertyClosureForMinimalConstructor(), jdk5, pojo)}) {
+<#if pojo.needsMinimalConstructor(false)>    
+        public static ${pojo.getDeclarationName()} newInstance(${c2j.asParameterList(pojo.getPropertyClosureForMinimalConstructor(false), jdk5, pojo)}) {
             final  ${pojo.getDeclarationName()} entity = new  ${pojo.getDeclarationName()}Impl();
-<#foreach field in pojo.getPropertyClosureForMinimalConstructor()>
+<#foreach field in pojo.getPropertyClosureForMinimalConstructor(false)>
             entity.set${field.name?cap_first}(${field.name});
 </#foreach>
             return entity;
         }
 </#if>    
-<#if pojo.needsFullConstructor()>
+<#if pojo.needsFullConstructor(false)>
 
-        public static ${pojo.getDeclarationName()} newInstance(${c2j.asParameterList(pojo.getPropertyClosureForFullConstructor(), jdk5, pojo)}) {
+        public static ${pojo.getDeclarationName()} newInstance(${c2j.asParameterList(pojo.getPropertyClosureForFullConstructor(false), jdk5, pojo)}) {
             final  ${pojo.getDeclarationName()} entity = new  ${pojo.getDeclarationName()}Impl();
-<#foreach field in pojo.getPropertiesForFullConstructor()> 
-               entity.set${field.name?cap_first}(${field.name});
+<#foreach field in pojo.getPropertyClosureForFullConstructor(false)> 
+            entity.set${field.name?cap_first}(${field.name});
 </#foreach>
             return entity;
         }

@@ -12,82 +12,76 @@
 	    <meta attribute="implements">ch.algotrader.entity.AccountI</meta>      
 	    <meta attribute="generated-class">ch.algotrader.entity.Account</meta>
 	    <meta attribute="class-code">
-<![CDATA[	    
+<![CDATA[
 ]]>   
 	    </meta> 	    
-        <meta attribute="class-description">Represents an actual Account / AccountGroup / AllocationProfile with an external Broker / Bank</meta>
+        <meta attribute="class-description"><![CDATA[Represents an actual Account / AccountGroup / AllocationProfile with an external Broker / Bank]]></meta>
         <cache usage="read-write" />
-        <comment>Represents an actual Account / AccountGroup / AllocationProfile with an external Broker / Bank</comment>
         <id name="id" type="long" >
             <column name="ID" sql-type="BIGINT"/>
+
             <generator class="native">
                 <!-- id-generator merge-point -->
             </generator>
         </id>
         <property name="name">
+            <meta attribute="use-in-equals">true</meta>
             <column name="NAME" not-null="true" unique="true" sql-type="VARCHAR(255)"/>
+
             <type name="java.lang.String"/>
         </property>
         <property name="active">
-            <meta attribute="field-description">An {@code active} Account will start a corresponding Session in Live Trading.</meta>
-            <column name="ACTIVE" not-null="true" unique="false" sql-type="TINYINT">
-                <comment>An {@code active} Account will start a corresponding Session in Live Trading.</comment>
-            </column>
+            <meta attribute="field-description"><![CDATA[An {@code active} Account will start a corresponding Session in Live Trading.]]></meta>
+            <column name="ACTIVE" not-null="true" unique="false" sql-type="TINYINT"/>
+
             <type name="boolean"/>
         </property>
         <property name="broker">
-            <meta attribute="field-description">The {@link Broker} associated with this Account.</meta>
+            <meta attribute="field-description"><![CDATA[The {@link Broker} associated with this Account.]]></meta>
             <meta attribute="property-type">ch.algotrader.enumeration.Broker</meta>
-            <column name="BROKER" not-null="true" unique="false" sql-type="VARCHAR(255)">
-                <comment>The {@link Broker} associated with this Account.</comment>
-            </column>
+            <column name="BROKER" not-null="true" unique="false" sql-type="VARCHAR(255)"/>
+
             <type name="ch.algotrader.hibernate.HibernateEnumType">
                  <param name="enumClassName">ch.algotrader.enumeration.Broker</param>
             </type>
         </property>
         <property name="orderServiceType">
-            <meta attribute="field-description">The {@link OrderServiceType} associated with this Account.</meta>
+            <meta attribute="field-description"><![CDATA[The {@link OrderServiceType} associated with this Account.]]></meta>
             <meta attribute="property-type">ch.algotrader.enumeration.OrderServiceType</meta>
-            <column name="ORDER_SERVICE_TYPE" not-null="true" unique="false" sql-type="VARCHAR(255)">
-                <comment>The {@link OrderServiceType} associated with this Account.</comment>
-            </column>
+            <column name="ORDER_SERVICE_TYPE" not-null="true" unique="false" sql-type="VARCHAR(255)"/>
+
             <type name="ch.algotrader.hibernate.HibernateEnumType">
                  <param name="enumClassName">ch.algotrader.enumeration.OrderServiceType</param>
             </type>
         </property>
         <property name="sessionQualifier">
-            <meta attribute="field-description">The name of the session in place for Live Trading. Primarily used for FIX Connections.</meta>
-            <column name="SESSION_QUALIFIER" not-null="false" unique="false" sql-type="VARCHAR(255)">
-                <comment>The name of the session in place for Live Trading. Primarily used for FIX Connections.</comment>
-            </column>
+            <meta attribute="field-description"><![CDATA[The name of the session in place for Live Trading. Primarily used for FIX Connections.]]></meta>
+            <column name="SESSION_QUALIFIER" not-null="false" unique="false" sql-type="VARCHAR(255)"/>
+
             <type name="java.lang.String"/>
         </property>
         <property name="extAccount">
-            <meta attribute="field-description">External Account Number</meta>
-            <column name="EXT_ACCOUNT" not-null="false" unique="true" sql-type="VARCHAR(255)">
-                <comment>External Account Number</comment>
-            </column>
+            <meta attribute="field-description"><![CDATA[External Account Number]]></meta>
+            <column name="EXT_ACCOUNT" not-null="false" unique="true" sql-type="VARCHAR(255)"/>
+
             <type name="java.lang.String"/>
         </property>
         <property name="extAccountGroup">
-            <meta attribute="field-description">External Account Group</meta>
-            <column name="EXT_ACCOUNT_GROUP" not-null="false" unique="true" sql-type="VARCHAR(255)">
-                <comment>External Account Group</comment>
-            </column>
+            <meta attribute="field-description"><![CDATA[External Account Group]]></meta>
+            <column name="EXT_ACCOUNT_GROUP" not-null="false" unique="true" sql-type="VARCHAR(255)"/>
+
             <type name="java.lang.String"/>
         </property>
         <property name="extAllocationProfile">
-            <meta attribute="field-description">External Allocation Profile</meta>
-            <column name="EXT_ALLOCATION_PROFILE" not-null="false" unique="true" sql-type="VARCHAR(255)">
-                <comment>External Allocation Profile</comment>
-            </column>
+            <meta attribute="field-description"><![CDATA[External Allocation Profile]]></meta>
+            <column name="EXT_ALLOCATION_PROFILE" not-null="false" unique="true" sql-type="VARCHAR(255)"/>
+
             <type name="java.lang.String"/>
         </property>
         <property name="extClearingAccount">
-            <meta attribute="field-description">External Clearing Account Number</meta>
-            <column name="EXT_CLEARING_ACCOUNT" not-null="false" unique="true" sql-type="VARCHAR(255)">
-                <comment>External Clearing Account Number</comment>
-            </column>
+            <meta attribute="field-description"><![CDATA[External Clearing Account Number]]></meta>
+            <column name="EXT_CLEARING_ACCOUNT" not-null="false" unique="true" sql-type="VARCHAR(255)"/>
+
             <type name="java.lang.String"/>
         </property>
     </class>

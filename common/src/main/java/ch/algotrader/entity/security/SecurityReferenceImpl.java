@@ -28,6 +28,13 @@ public class SecurityReferenceImpl extends SecurityReference {
 
     @Override
     public String toString() {
-        return getOwner() + "," + getName() + "" + getTarget();
+
+        StringBuilder buffer = new StringBuilder();
+        buffer.append(getOwner());
+        buffer.append(",");
+        buffer.append(getName());
+        buffer.append(",");
+        buffer.append(getTarget());
+        return buffer.toString();
     }
 }

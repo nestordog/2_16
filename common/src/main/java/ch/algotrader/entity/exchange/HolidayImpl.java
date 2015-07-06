@@ -18,8 +18,6 @@
 
 package ch.algotrader.entity.exchange;
 
-import java.util.Objects;
-
 import ch.algotrader.util.DateTimeLegacy;
 import ch.algotrader.util.DateTimeUtil;
 
@@ -41,41 +39,18 @@ public class HolidayImpl extends Holiday {
     public String toString() {
 
         StringBuilder buffer = new StringBuilder();
-        DateTimeUtil.formatLocalDate(DateTimeLegacy.toGMTDate(getDate()), buffer);
+        DateTimeUtil.formatLocalDate(DateTimeLegacy.toLocalDate(getDate()), buffer);
         if (getLateOpen() != null) {
-            buffer.append(" lateOpen: ");
-            DateTimeUtil.formatLocalTime(DateTimeLegacy.toGMTTime(getLateOpen()), buffer);
+            buffer.append(",lateOpen: ");
+            DateTimeUtil.formatLocalTime(DateTimeLegacy.toLocalTime(getLateOpen()), buffer);
         }
 
         if (getEarlyClose() != null) {
-            buffer.append(" earlyClose: ");
-            DateTimeUtil.formatLocalTime(DateTimeLegacy.toGMTTime(getEarlyClose()), buffer);
+            buffer.append(",earlyClose: ");
+            DateTimeUtil.formatLocalTime(DateTimeLegacy.toLocalTime(getEarlyClose()), buffer);
         }
 
         return buffer.toString();
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-
-        if (this == obj) {
-            return true;
-        }
-        if (obj instanceof Holiday) {
-            Holiday that = (Holiday) obj;
-            return Objects.equals(this.getExchange(), that.getExchange()) && Objects.equals(this.getDate(), that.getDate());
-        } else {
-            return false;
-        }
-    }
-
-    @Override
-    public int hashCode() {
-
-        int hash = 17;
-        hash = hash * 37 + Objects.hashCode(getExchange());
-        hash = hash * 37 + Objects.hashCode(getDate());
-        return hash;
     }
 
 }

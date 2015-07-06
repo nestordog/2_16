@@ -17,8 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.entity.trade;
 
-import java.util.Objects;
-
 import org.apache.commons.lang.ClassUtils;
 
 import ch.algotrader.enumeration.OrderPropertyType;
@@ -48,21 +46,6 @@ public abstract class OrderImpl extends Order {
         } else {
             return getIntId();
         }
-    }
-
-    @Override
-    public String toString() {
-
-        StringBuilder buffer = new StringBuilder();
-
-        buffer.append(getDescription());
-
-        if (!"".equals(getExtDescription())) {
-            buffer.append(",");
-            buffer.append(getExtDescription());
-        }
-
-        return buffer.toString();
     }
 
     @Override
@@ -101,7 +84,7 @@ public abstract class OrderImpl extends Order {
     @Override
     public void addProperty(String name, String value, OrderPropertyType type) {
 
-        getOrderProperties().put(name, OrderProperty.Factory.newInstance(name, value, type, this));
+        getOrderProperties().put(name, OrderProperty.Factory.newInstance(name, type, value, this));
     }
 
     @Override
@@ -111,24 +94,18 @@ public abstract class OrderImpl extends Order {
     }
 
     @Override
-    public boolean equals(final Object obj) {
+    public String toString() {
 
-        if (this == obj) {
-            return true;
+        StringBuilder buffer = new StringBuilder();
+
+        buffer.append(getDescription());
+
+        if (!"".equals(getExtDescription())) {
+            buffer.append(",");
+            buffer.append(getExtDescription());
         }
-        if (obj instanceof Order) {
-            Order that = (Order) obj;
-            return Objects.equals(this.getIntId(), that.getIntId());
-        } else {
-            return false;
-        }
+
+        return buffer.toString();
     }
 
-    @Override
-    public int hashCode() {
-
-        int hash = 17;
-        hash = hash * 37 + Objects.hashCode(getIntId());
-        return hash;
-    }
 }

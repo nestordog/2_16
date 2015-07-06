@@ -18,8 +18,6 @@
 package ch.algotrader.entity.strategy;
 
 import java.util.Date;
-import java.util.Objects;
-
 import ch.algotrader.util.DateTimeUtil;
 import ch.algotrader.util.RoundUtil;
 
@@ -86,28 +84,4 @@ public class PortfolioValueImpl extends PortfolioValue {
         return buffer.toString();
     }
 
-
-    @Override
-    public boolean equals(Object obj) {
-
-        if (this == obj) {
-            return true;
-        }
-        if (obj instanceof PortfolioValue) {
-            PortfolioValue that = (PortfolioValue) obj;
-            return Objects.equals(this.getStrategy(), that.getStrategy()) &&
-                    Objects.equals(this.getDateTime(), that.getDateTime());
-        } else {
-            return false;
-        }
-    }
-
-    @Override
-    public int hashCode() {
-
-        int hash = 17;
-        hash = hash * 37 + Objects.hashCode(getStrategy());
-        hash = hash * 37 + Objects.hashCode(getDateTime());
-        return hash;
-    }
 }

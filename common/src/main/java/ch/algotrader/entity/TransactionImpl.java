@@ -215,31 +215,4 @@ public class TransactionImpl extends Transaction {
         return buffer.toString();
     }
 
-    @Override
-    public boolean equals(Object obj) {
-
-        if (this == obj) {
-            return true;
-        }
-        if (obj instanceof Transaction) {
-            Transaction that = (Transaction) obj;
-            if (this.getId() == 0 || that.getId() == 0) {
-                return false;
-            }
-            return this.getId() == that.getId();
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * WARNING: hashCode changes when inserting a new transaction into the database, therefore uncommitted transaction should not be added to a collection
-     */
-    @Override
-    public int hashCode() {
-
-        int hash = 17;
-        hash = hash * 37 + Long.hashCode(getId());
-        return hash;
-    }
 }

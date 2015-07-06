@@ -19,8 +19,6 @@ package ch.algotrader.entity.security;
 
 import java.math.BigDecimal;
 import java.text.ChoiceFormat;
-import java.util.Objects;
-
 import org.apache.commons.lang.Validate;
 
 import ch.algotrader.entity.exchange.Exchange;
@@ -35,12 +33,6 @@ import ch.algotrader.util.RoundUtil;
 public class SecurityFamilyImpl extends SecurityFamily {
 
     private static final long serialVersionUID = -2318908709333325986L;
-
-    @Override
-    public String toString() {
-
-        return getName();
-    }
 
     @Override
     public String getSymbolRoot(Broker broker) {
@@ -281,25 +273,8 @@ public class SecurityFamilyImpl extends SecurityFamily {
     }
 
     @Override
-    public boolean equals(Object obj) {
-
-        if (this == obj) {
-            return true;
-        }
-        if (obj instanceof SecurityFamily) {
-            SecurityFamily that = (SecurityFamily) obj;
-            return Objects.equals(this.getName(), that.getName());
-
-        } else {
-            return false;
-        }
+    public String toString() {
+        return getName();
     }
 
-    @Override
-    public int hashCode() {
-
-        int hash = 17;
-        hash = hash * 37 + Objects.hashCode(getName());
-        return hash;
-    }
 }

@@ -12,7 +12,7 @@
 	    <meta attribute="implements">ch.algotrader.entity.strategy.PortfolioValueI</meta>      
 	    <meta attribute="generated-class">ch.algotrader.entity.strategy.PortfolioValue</meta>
 	    <meta attribute="class-code">
-<![CDATA[	    
+<![CDATA[
     /**
      * 
      * @return double
@@ -39,87 +39,75 @@
 
 ]]>   
 	    </meta> 	    
-        <meta attribute="class-description">Represents certain balances (e.g. {@code netLiqValue}, {@code cashBalance}, etc.) of a particular Strategy at a particular time. Every hour PortfolioValues are saved to the database for every Strategy. These PortfolioValues will be displayed in the PortfolioChart of the client.</meta>
+        <meta attribute="class-description"><![CDATA[Represents certain balances (e.g. {@code netLiqValue}, {@code cashBalance}, etc.) of a particular Strategy at a particular time. Every hour PortfolioValues are saved to the database for every Strategy. These PortfolioValues will be displayed in the PortfolioChart of the client.]]></meta>
         <cache usage="read-write" />
-        <comment>Represents certain balances (e.g. {@code netLiqValue}, {@code cashBalance}, etc.) of a particular Strategy at a particular time. Every hour PortfolioValues are saved to the database for every Strategy. These PortfolioValues will be displayed in the PortfolioChart of the client.</comment>
         <id name="id" type="long" >
             <column name="ID" sql-type="BIGINT"/>
+
             <generator class="native">
                 <!-- id-generator merge-point -->
             </generator>
         </id>
         <property name="dateTime">
-            <meta attribute="field-description">The dateTime of this PortfolioValue</meta>
-            <column name="DATE_TIME" not-null="true" unique="false" sql-type="TIMESTAMP">
-                <comment>The dateTime of this PortfolioValue</comment>
-            </column>
+            <meta attribute="field-description"><![CDATA[The dateTime of this PortfolioValue]]></meta>
+            <meta attribute="use-in-equals">true</meta>
+            <column name="DATE_TIME" not-null="true" unique="false" sql-type="TIMESTAMP"/>
+
             <type name="java.util.Date"/>
         </property>
         <property name="netLiqValue">
-            <meta attribute="field-description">Current market value of all Assets. {@code cashBalance} + {@code securitiesCurrentValue}</meta>
-            <column name="NET_LIQ_VALUE" not-null="true" unique="false" sql-type="Decimal(15,6)">
-                <comment>Current market value of all Assets. {@code cashBalance} + {@code securitiesCurrentValue}</comment>
-            </column>
+            <meta attribute="field-description"><![CDATA[Current market value of all Assets. {@code cashBalance} + {@code securitiesCurrentValue}]]></meta>
+            <column name="NET_LIQ_VALUE" not-null="true" unique="false" sql-type="Decimal(15,6)"/>
+
             <type name="java.math.BigDecimal"/>
         </property>
         <property name="securitiesCurrentValue">
-            <meta attribute="field-description">Current market value of all positions.</meta>
-            <column name="SECURITIES_CURRENT_VALUE" not-null="true" unique="false" sql-type="Decimal(15,6)">
-                <comment>Current market value of all positions.</comment>
-            </column>
+            <meta attribute="field-description"><![CDATA[Current market value of all positions.]]></meta>
+            <column name="SECURITIES_CURRENT_VALUE" not-null="true" unique="false" sql-type="Decimal(15,6)"/>
+
             <type name="java.math.BigDecimal"/>
         </property>
         <property name="cashBalance">
-            <meta attribute="field-description">Total cash</meta>
-            <column name="CASH_BALANCE" not-null="true" unique="false" sql-type="Decimal(15,6)">
-                <comment>Total cash</comment>
-            </column>
+            <meta attribute="field-description"><![CDATA[Total cash]]></meta>
+            <column name="CASH_BALANCE" not-null="true" unique="false" sql-type="Decimal(15,6)"/>
+
             <type name="java.math.BigDecimal"/>
         </property>
         <property name="maintenanceMargin">
-            <meta attribute="field-description">Current Maintenance Margin of all marginable positions</meta>
-            <column name="MAINTENANCE_MARGIN" not-null="false" unique="false" sql-type="Decimal(15,6)">
-                <comment>Current Maintenance Margin of all marginable positions</comment>
-            </column>
+            <meta attribute="field-description"><![CDATA[Current Maintenance Margin of all marginable positions]]></meta>
+            <column name="MAINTENANCE_MARGIN" not-null="false" unique="false" sql-type="Decimal(15,6)"/>
+
             <type name="java.math.BigDecimal"/>
         </property>
         <property name="leverage">
-            <meta attribute="field-description">Current (delta-adjusted) Notional Exposure</meta>
-            <column name="LEVERAGE" not-null="true" unique="false" sql-type="DOUBLE">
-                <comment>Current (delta-adjusted) Notional Exposure</comment>
-            </column>
+            <meta attribute="field-description"><![CDATA[Current (delta-adjusted) Notional Exposure]]></meta>
+            <column name="LEVERAGE" not-null="true" unique="false" sql-type="DOUBLE"/>
+
             <type name="double"/>
         </property>
         <property name="allocation">
-            <meta attribute="field-description">Allocation assigned to the AlgoTrader Server / Strategy.
-p
-The total of all allocations needs to be {@code 1.0}</meta>
-            <column name="ALLOCATION" not-null="true" unique="false" sql-type="DOUBLE">
-                <comment>Allocation assigned to the AlgoTrader Server / Strategy.
-p
-The total of all allocations needs to be {@code 1.0}</comment>
-            </column>
+            <meta attribute="field-description"><![CDATA[Allocation assigned to the AlgoTrader Server / Strategy.
+<p>
+The total of all allocations needs to be {@code 1.0}]]></meta>
+            <column name="ALLOCATION" not-null="true" unique="false" sql-type="DOUBLE"/>
+
             <type name="double"/>
         </property>
         <property name="cashFlow">
-            <meta attribute="field-description">CashFlow value occurred at the specified time.
+            <meta attribute="field-description"><![CDATA[CashFlow value occurred at the specified time.
 PortfolioValues are recorded every time a transaction occurs that influences performance.
-For the AlgoTrader Base these are {@code CREDIT} and {@code DEBIT} and for strategies, these are {@code REBALANCE}</meta>
-            <column name="CASH_FLOW" not-null="false" unique="false" sql-type="Decimal(15,6)">
-                <comment>CashFlow value occurred at the specified time.
-PortfolioValues are recorded every time a transaction occurs that influences performance.
-For the AlgoTrader Base these are {@code CREDIT} and {@code DEBIT} and for strategies, these are {@code REBALANCE}</comment>
-            </column>
+For the AlgoTrader Base these are {@code CREDIT} and {@code DEBIT} and for strategies, these are {@code REBALANCE}]]></meta>
+            <column name="CASH_FLOW" not-null="false" unique="false" sql-type="Decimal(15,6)"/>
+
             <type name="java.math.BigDecimal"/>
         </property>
         <many-to-one name="strategy" class="ch.algotrader.entity.strategy.StrategyImpl" cascade="none" foreign-key="PORTFOLIO_VALUE_STRATEGY_FKC" not-null="true" lazy="proxy" fetch="select">
             <meta attribute="property-type">ch.algotrader.entity.strategy.Strategy</meta>
-            <meta attribute="field-description">Represents a running Strategy within the system. In addition the AlgoTrader Server is also
-represented by an instance of this class.</meta>
-            <column name="STRATEGY_FK" not-null="true" sql-type="BIGINT">
-                <comment>Represents a running Strategy within the system. In addition the AlgoTrader Server is also
-represented by an instance of this class.</comment>
-            </column>
+            <meta attribute="field-description"><![CDATA[Represents a running Strategy within the system. In addition the AlgoTrader Server is also
+represented by an instance of this class.]]></meta>
+            <meta attribute="use-in-equals">true</meta>
+            <column name="STRATEGY_FK" not-null="true" sql-type="BIGINT"/>
+
         </many-to-one>
     </class>
 </hibernate-mapping>

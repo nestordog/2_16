@@ -12,7 +12,7 @@
 	    <meta attribute="implements">ch.algotrader.entity.trade.OrderI</meta>      
 	    <meta attribute="generated-class">ch.algotrader.entity.trade.Order</meta>
 	    <meta attribute="class-code">
-<![CDATA[	  
+<![CDATA[
 
    private Order parentOrder;
 
@@ -70,7 +70,7 @@
     public boolean removeChildOrders(Order elementToRemove) {
         return this.childOrders.remove(elementToRemove);
     }
-      
+
     /**
      * Gets the description of this Order composed of quantity, OrderType, Security, Strategy &
      * Account
@@ -121,104 +121,93 @@
 
 ]]>   
 	    </meta> 	    
-        <meta attribute="class-description">Base Class for all Order Types</meta>
+        <meta attribute="class-description"><![CDATA[Base Class for all Order Types]]></meta>
         <cache usage="read-write" />
-        <comment>Base Class for all Order Types</comment>
         <id name="id" type="long" >
             <column name="ID" sql-type="BIGINT"/>
+
             <generator class="native">
                 <!-- id-generator merge-point -->
             </generator>
         </id>
         <discriminator column="class" type="string"/>
         <property name="intId">
-            <meta attribute="field-description">The Internal Order Id. The Id is typically comprised of a {@code sessionQualifier}, a {@code rootId} and potentially a {@code version}. Example: ibn123.0</meta>
-            <column name="INT_ID" not-null="true" unique="false" sql-type="VARCHAR(255)">
-                <comment>The Internal Order Id. The Id is typically comprised of a {@code sessionQualifier}, a {@code rootId} and potentially a {@code version}. Example: ibn123.0</comment>
-            </column>
+            <meta attribute="field-description"><![CDATA[The Internal Order Id. The Id is typically comprised of a {@code sessionQualifier}, a {@code rootId} and potentially a {@code version}. Example: ibn123.0]]></meta>
+            <meta attribute="use-in-equals">true</meta>
+            <column name="INT_ID" not-null="true" unique="false" sql-type="VARCHAR(255)"/>
+
             <type name="java.lang.String"/>
         </property>
         <property name="extId">
-            <meta attribute="field-description">The External Order Id assigned by the external Broker</meta>
-            <column name="EXT_ID" not-null="false" unique="false" sql-type="VARCHAR(255)">
-                <comment>The External Order Id assigned by the external Broker</comment>
-            </column>
+            <meta attribute="field-description"><![CDATA[The External Order Id assigned by the external Broker]]></meta>
+            <column name="EXT_ID" not-null="false" unique="false" sql-type="VARCHAR(255)"/>
+
             <type name="java.lang.String"/>
         </property>
         <property name="dateTime">
-            <meta attribute="field-description">The dateTime the order was sent. This is set automatically by the {@link ch.algotrader.service.OrderService OrderService}</meta>
-            <column name="DATE_TIME" not-null="true" unique="false" sql-type="TIMESTAMP">
-                <comment>The dateTime the order was sent. This is set automatically by the {@link ch.algotrader.service.OrderService OrderService}</comment>
-            </column>
+            <meta attribute="field-description"><![CDATA[The dateTime the order was sent. This is set automatically by the {@link ch.algotrader.service.OrderService OrderService}]]></meta>
+            <column name="DATE_TIME" not-null="true" unique="false" sql-type="TIMESTAMP"/>
+
             <type name="java.util.Date"/>
         </property>
         <property name="side">
-            <meta attribute="field-description">{@code BUY} or {@code SELL}</meta>
+            <meta attribute="field-description"><![CDATA[{@code BUY} or {@code SELL}]]></meta>
             <meta attribute="property-type">ch.algotrader.enumeration.Side</meta>
-            <column name="SIDE" not-null="true" unique="false" sql-type="VARCHAR(255)">
-                <comment>{@code BUY} or {@code SELL}</comment>
-            </column>
+            <column name="SIDE" not-null="true" unique="false" sql-type="VARCHAR(255)"/>
+
             <type name="ch.algotrader.hibernate.HibernateEnumType">
                  <param name="enumClassName">ch.algotrader.enumeration.Side</param>
             </type>
         </property>
         <property name="quantity">
-            <meta attribute="field-description">The requested number of contracts</meta>
-            <column name="QUANTITY" not-null="true" unique="false" sql-type="BIGINT">
-                <comment>The requested number of contracts</comment>
-            </column>
+            <meta attribute="field-description"><![CDATA[The requested number of contracts]]></meta>
+            <column name="QUANTITY" not-null="true" unique="false" sql-type="BIGINT"/>
+
             <type name="long"/>
         </property>
         <property name="tif">
-            <meta attribute="field-description">Time-In-Force, see {@link TIF}</meta>
+            <meta attribute="field-description"><![CDATA[Time-In-Force, see {@link TIF}]]></meta>
             <meta attribute="property-type">ch.algotrader.enumeration.TIF</meta>
-            <column name="TIF" not-null="true" unique="false" sql-type="VARCHAR(255)">
-                <comment>Time-In-Force, see {@link TIF}</comment>
-            </column>
+            <column name="TIF" not-null="true" unique="false" sql-type="VARCHAR(255)"/>
+
             <type name="ch.algotrader.hibernate.HibernateEnumType">
                  <param name="enumClassName">ch.algotrader.enumeration.TIF</param>
             </type>
         </property>
         <property name="tifDateTime">
-            <meta attribute="field-description">The Time-in-Force date</meta>
-            <column name="TIF_DATE_TIME" not-null="false" unique="false" sql-type="TIMESTAMP">
-                <comment>The Time-in-Force date</comment>
-            </column>
+            <meta attribute="field-description"><![CDATA[The Time-in-Force date]]></meta>
+            <column name="TIF_DATE_TIME" not-null="false" unique="false" sql-type="TIMESTAMP"/>
+
             <type name="java.util.Date"/>
         </property>
         <map name="orderProperties" order-by="ORDER_FK" lazy="false" fetch="select" inverse="true" cascade="delete">
-            <meta attribute="field-description">Base Class for all Order Types</meta>
+            <meta attribute="field-description"><![CDATA[Base Class for all Order Types]]></meta>
             <cache usage="read-write" />
             <key foreign-key="ORDER_PROPERTY_ORDER_FKC">
-                <column name="ORDER_FK" sql-type="BIGINT">
-                    <comment>Base Class for all Order Types</comment>
-                </column>
+                <column name="ORDER_FK" sql-type="BIGINT"/>
+
             </key>
             <map-key column="NAME" type="java.lang.String"/>
             <one-to-many class="ch.algotrader.entity.trade.OrderPropertyImpl" not-found="exception"/>
         </map>
         <many-to-one name="security" class="ch.algotrader.entity.security.SecurityImpl" foreign-key="ORDER_SECURITY_FKC" not-null="true" lazy="proxy" fetch="select">
             <meta attribute="property-type">ch.algotrader.entity.security.Security</meta>
-            <meta attribute="field-description">The base class of all Securities in the system</meta>
-            <column name="SECURITY_FK" not-null="true" sql-type="BIGINT">
-                <comment>The base class of all Securities in the system</comment>
-            </column>
+            <meta attribute="field-description"><![CDATA[The base class of all Securities in the system]]></meta>
+            <column name="SECURITY_FK" not-null="true" sql-type="BIGINT"/>
+
         </many-to-one>
         <many-to-one name="account" class="ch.algotrader.entity.AccountImpl" foreign-key="ORDER_ACCOUNT_FKC" not-null="true" lazy="proxy" fetch="select">
             <meta attribute="property-type">ch.algotrader.entity.Account</meta>
-            <meta attribute="field-description">Represents an actual Account / AccountGroup / AllocationProfile with an external Broker / Bank</meta>
-            <column name="ACCOUNT_FK" not-null="true" sql-type="BIGINT">
-                <comment>Represents an actual Account / AccountGroup / AllocationProfile with an external Broker / Bank</comment>
-            </column>
+            <meta attribute="field-description"><![CDATA[Represents an actual Account / AccountGroup / AllocationProfile with an external Broker / Bank]]></meta>
+            <column name="ACCOUNT_FK" not-null="true" sql-type="BIGINT"/>
+
         </many-to-one>
         <many-to-one name="strategy" class="ch.algotrader.entity.strategy.StrategyImpl" foreign-key="ORDER_STRATEGY_FKC" not-null="true" lazy="proxy" fetch="select">
             <meta attribute="property-type">ch.algotrader.entity.strategy.Strategy</meta>
-            <meta attribute="field-description">Represents a running Strategy within the system. In addition the AlgoTrader Server is also
-represented by an instance of this class.</meta>
-            <column name="STRATEGY_FK" not-null="true" sql-type="BIGINT">
-                <comment>Represents a running Strategy within the system. In addition the AlgoTrader Server is also
-represented by an instance of this class.</comment>
-            </column>
+            <meta attribute="field-description"><![CDATA[Represents a running Strategy within the system. In addition the AlgoTrader Server is also
+represented by an instance of this class.]]></meta>
+            <column name="STRATEGY_FK" not-null="true" sql-type="BIGINT"/>
+
         </many-to-one>
         <subclass name="ch.algotrader.entity.trade.SimpleOrderImpl" discriminator-value="SimpleOrderImpl" dynamic-insert="false" dynamic-update="false" abstract="true">
             <meta attribute="implements">ch.algotrader.entity.trade.SimpleOrderI</meta>
@@ -242,32 +231,29 @@ represented by an instance of this class.</comment>
 ]]>   
                 </meta>  
                 <property name="limit">
-                    <meta attribute="field-description">The limit price.</meta>
-                    <column name="`LIMIT`" not-null="false" unique="false" sql-type="Decimal(15,6)">
-                        <comment>The limit price.</comment>
-                    </column>
+                    <meta attribute="field-description"><![CDATA[The limit price.]]></meta>
+                    <column name="`LIMIT`" not-null="false" unique="false" sql-type="Decimal(15,6)"/>
+
                     <type name="java.math.BigDecimal"/>
                 </property>
             </subclass>
             <subclass name="ch.algotrader.entity.trade.StopLimitOrderImpl" discriminator-value="StopLimitOrderImpl" dynamic-insert="false" dynamic-update="false" abstract="false">
-                <meta attribute="implements">ch.algotrader.entity.trade.StopLimitOrderI,ch.algotrader.entity.trade.LimitOrderI, ch.algotrader.entity.trade.StopOrderI</meta>
+                <meta attribute="implements">ch.algotrader.entity.trade.StopLimitOrderI,ch.algotrader.entity.trade.StopOrderI, ch.algotrader.entity.trade.LimitOrderI</meta>
                 <meta attribute="generated-class">ch.algotrader.entity.trade.StopLimitOrder</meta>
                 <meta attribute="class-code">
 <![CDATA[
 ]]>   
                 </meta>  
                 <property name="limit">
-                    <meta attribute="field-description">the limit price.</meta>
-                    <column name="`LIMIT`" not-null="false" unique="false" sql-type="Decimal(15,6)">
-                        <comment>the limit price.</comment>
-                    </column>
+                    <meta attribute="field-description"><![CDATA[the limit price.]]></meta>
+                    <column name="`LIMIT`" not-null="false" unique="false" sql-type="Decimal(15,6)"/>
+
                     <type name="java.math.BigDecimal"/>
                 </property>
                 <property name="stop">
-                    <meta attribute="field-description">The stop price.</meta>
-                    <column name="STOP" not-null="false" unique="false" sql-type="Decimal(15,6)">
-                        <comment>The stop price.</comment>
-                    </column>
+                    <meta attribute="field-description"><![CDATA[The stop price.]]></meta>
+                    <column name="STOP" not-null="false" unique="false" sql-type="Decimal(15,6)"/>
+
                     <type name="java.math.BigDecimal"/>
                 </property>
             </subclass>
@@ -287,10 +273,9 @@ represented by an instance of this class.</comment>
 ]]>   
                 </meta>  
                 <property name="stop">
-                    <meta attribute="field-description">The stop price.</meta>
-                    <column name="STOP" not-null="false" unique="false" sql-type="Decimal(15,6)">
-                        <comment>The stop price.</comment>
-                    </column>
+                    <meta attribute="field-description"><![CDATA[The stop price.]]></meta>
+                    <column name="STOP" not-null="false" unique="false" sql-type="Decimal(15,6)"/>
+
                     <type name="java.math.BigDecimal"/>
                 </property>
             </subclass>

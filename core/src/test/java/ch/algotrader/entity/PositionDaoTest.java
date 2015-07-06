@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -472,6 +473,7 @@ public class PositionDaoTest extends InMemoryDBTest {
     public void testFindOpenPositionsByMaxDateAggregated() {
 
         Transaction transaction = new TransactionImpl();
+        transaction.setUuid(UUID.randomUUID().toString());
         transaction.setSecurity(this.forex1);
         transaction.setQuantity(222);
         transaction.setDateTime(new Date());
@@ -529,6 +531,7 @@ public class PositionDaoTest extends InMemoryDBTest {
     public void testFindOpenPositionsByStrategyAndMaxDate() {
 
         Transaction transaction = new TransactionImpl();
+        transaction.setUuid(UUID.randomUUID().toString());
         transaction.setSecurity(this.forex1);
         transaction.setQuantity(222);
         transaction.setDateTime(new Date());

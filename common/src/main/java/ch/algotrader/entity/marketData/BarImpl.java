@@ -18,9 +18,6 @@
 package ch.algotrader.entity.marketData;
 
 import java.math.BigDecimal;
-import java.util.Date;
-import java.util.Objects;
-
 import ch.algotrader.enumeration.Direction;
 import ch.algotrader.util.DateTimeUtil;
 
@@ -51,11 +48,8 @@ public class BarImpl extends Bar {
         StringBuilder buffer = new StringBuilder();
 
         buffer.append(getSecurity());
-        Date date = getDateTime();
-        if (date != null) {
-            buffer.append(",");
-            DateTimeUtil.formatLocalZone(date.toInstant(), buffer);
-        }
+        buffer.append(",");
+        DateTimeUtil.formatLocalZone(getDateTime().toInstant(), buffer);
         buffer.append(",open=");
         buffer.append(getOpen());
         buffer.append(",high=");
@@ -74,31 +68,4 @@ public class BarImpl extends Bar {
         return buffer.toString();
     }
 
-    @Override
-    public boolean equals(Object obj) {
-
-        if (this == obj) {
-            return true;
-        }
-        if (obj instanceof Bar) {
-            Bar that = (Bar) obj;
-            return Objects.equals(this.getSecurity(), that.getSecurity()) &&
-                    Objects.equals(this.getDateTime(), that.getDateTime()) &&
-                    Objects.equals(this.getFeedType(), that.getFeedType()) &&
-                    Objects.equals(this.getBarSize(), that.getBarSize());
-        } else {
-            return false;
-        }
-    }
-
-    @Override
-    public int hashCode() {
-
-        int hash = 17;
-        hash = hash * 37 + Objects.hashCode(getSecurity());
-        hash = hash * 37 + Objects.hashCode(getDateTime());
-        hash = hash * 37 + Objects.hashCode(getFeedType());
-        hash = hash * 37 + Objects.hashCode(getBarSize());
-        return hash;
-    }
 }

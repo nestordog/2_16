@@ -19,7 +19,6 @@ package ch.algotrader.entity.property;
 
 import java.math.BigDecimal;
 import java.util.Date;
-import java.util.Objects;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -79,34 +78,9 @@ public class PropertyImpl extends Property {
         }
     }
 
-
     @Override
     public String toString() {
-
         return getValue().toString();
     }
 
-    @Override
-    public boolean equals(Object obj) {
-
-        if (this == obj) {
-            return true;
-        }
-        if (obj instanceof Property) {
-            Property that = (Property) obj;
-            return Objects.equals(this.getPropertyHolder(), that.getPropertyHolder()) &&
-                    Objects.equals(this.getName(), that.getName());
-        } else {
-            return false;
-        }
-    }
-
-    @Override
-    public int hashCode() {
-
-        int hash = 17;
-        hash = hash * 37 + Objects.hashCode(getPropertyHolder());
-        hash = hash * 37 + Objects.hashCode(getName());
-        return hash;
-    }
 }

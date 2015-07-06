@@ -27,13 +27,33 @@
             <plugin>
                 <groupId>algotrader</groupId>
                 <artifactId>model-codegen-plugin</artifactId>
-                <version>0.1.1</version>
+                <version>0.1.3</version>
                 <executions>
                     <execution>
                         <id>generate-model</id>
                         <goals>
                             <goal>codegen</goal>
                         </goals>
+                        <configuration>
+                            <templates>
+                                <template>
+                                    <file>pojo/Pojo.ftl</file>
+                                    <pattern>{package-name}/{class-name}.java</pattern>
+                                </template>
+                                <template>
+                                    <file>pojo/Interface.ftl</file>
+                                    <pattern>{package-name}/{class-name}I.java</pattern>
+                                </template>
+                                <template>
+                                    <file>pojo/ValueObject.ftl</file>
+                                    <pattern>{package-name}/{class-name}VO.java</pattern>
+                                </template>
+                                <template>
+                                    <file>pojo/Converter.ftl</file>
+                                    <pattern>{package-name}/{class-name}Converter.java</pattern>
+                                </template>
+                            </templates>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

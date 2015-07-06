@@ -12,103 +12,91 @@
 	    <meta attribute="implements">ch.algotrader.entity.security.BrokerParametersI</meta>      
 	    <meta attribute="generated-class">ch.algotrader.entity.security.BrokerParameters</meta>
 	    <meta attribute="class-code">
-<![CDATA[	    
+<![CDATA[
 ]]>   
 	    </meta> 	    
-        <meta attribute="class-description">Represents broker specific variants of parameters defined by the {@link SecurityFamily}</meta>
+        <meta attribute="class-description"><![CDATA[Represents broker specific variants of parameters defined by the {@link SecurityFamily}]]></meta>
         <cache usage="read-write" />
-        <comment>Represents broker specific variants of parameters defined by the {@link SecurityFamily}</comment>
         <id name="id" type="long" >
             <column name="ID" sql-type="BIGINT"/>
+
             <generator class="native">
                 <!-- id-generator merge-point -->
             </generator>
         </id>
         <property name="broker">
-            <meta attribute="field-description">The {@link Broker} which these parameters apply to.</meta>
+            <meta attribute="field-description"><![CDATA[The {@link Broker} which these parameters apply to.]]></meta>
+            <meta attribute="use-in-equals">true</meta>
             <meta attribute="property-type">ch.algotrader.enumeration.Broker</meta>
-            <column name="BROKER" not-null="true" unique="false" sql-type="VARCHAR(255)">
-                <comment>The {@link Broker} which these parameters apply to.</comment>
-            </column>
+            <column name="BROKER" not-null="true" unique="false" sql-type="VARCHAR(255)"/>
+
             <type name="ch.algotrader.hibernate.HibernateEnumType">
                  <param name="enumClassName">ch.algotrader.enumeration.Broker</param>
             </type>
         </property>
         <property name="symbolRoot">
-            <meta attribute="field-description">The common part of Symbol (e.g. VIX for the VIX Future FVIX AUG/10 1000)</meta>
-            <column name="SYMBOL_ROOT" not-null="false" unique="false" sql-type="VARCHAR(255)">
-                <comment>The common part of Symbol (e.g. VIX for the VIX Future FVIX AUG/10 1000)</comment>
-            </column>
+            <meta attribute="field-description"><![CDATA[The common part of Symbol (e.g. VIX for the VIX Future FVIX AUG/10 1000)]]></meta>
+            <column name="SYMBOL_ROOT" not-null="false" unique="false" sql-type="VARCHAR(255)"/>
+
             <type name="java.lang.String"/>
         </property>
         <property name="contractSize">
-            <meta attribute="field-description">The contractSize of the Securities of this SecurityFamily (e.g. 100 for SPX Options).</meta>
-            <column name="CONTRACT_SIZE" not-null="false" unique="false" sql-type="DOUBLE">
-                <comment>The contractSize of the Securities of this SecurityFamily (e.g. 100 for SPX Options).</comment>
-            </column>
+            <meta attribute="field-description"><![CDATA[The contractSize of the Securities of this SecurityFamily (e.g. 100 for SPX Options).]]></meta>
+            <column name="CONTRACT_SIZE" not-null="false" unique="false" sql-type="DOUBLE"/>
+
             <type name="java.lang.Double"/>
         </property>
         <property name="scale">
-            <meta attribute="field-description">The number of digits that prices of Securities of this SecurityFamily are quoted in.</meta>
-            <column name="SCALE" not-null="false" unique="false" sql-type="INTEGER">
-                <comment>The number of digits that prices of Securities of this SecurityFamily are quoted in.</comment>
-            </column>
+            <meta attribute="field-description"><![CDATA[The number of digits that prices of Securities of this SecurityFamily are quoted in.]]></meta>
+            <column name="SCALE" not-null="false" unique="false" sql-type="INTEGER"/>
+
             <type name="java.lang.Integer"/>
         </property>
         <property name="tickSizePattern">
-            <meta attribute="field-description">A {@link java.text.ChoiceFormat} representing a pattern that defines the TickSize at different Price Levels.
-p
-For example the pattern 00.05 | 30.1 says, that the TickSize is 0.05 for prices from 0 to (but not including) 3 and 0.1 for prices above 3.</meta>
-            <column name="TICK_SIZE_PATTERN" not-null="false" unique="false" sql-type="VARCHAR(255)">
-                <comment>A {@link java.text.ChoiceFormat} representing a pattern that defines the TickSize at different Price Levels.
-p
-For example the pattern 00.05 | 30.1 says, that the TickSize is 0.05 for prices from 0 to (but not including) 3 and 0.1 for prices above 3.</comment>
-            </column>
+            <meta attribute="field-description"><![CDATA[A {@link java.text.ChoiceFormat} representing a pattern that defines the TickSize at different Price Levels.
+<p>
+For example the pattern "0<0.05 | 3<0.1" says, that the TickSize is 0.05 for prices from 0 to (but not including) 3 and 0.1 for prices above 3.]]></meta>
+            <column name="TICK_SIZE_PATTERN" not-null="false" unique="false" sql-type="VARCHAR(255)"/>
+
             <type name="java.lang.String"/>
         </property>
         <property name="executionCommission">
-            <meta attribute="field-description">The Execution Commission for one Contract of a Security of this SecurityFamily.</meta>
-            <column name="EXECUTION_COMMISSION" not-null="false" unique="false" sql-type="Decimal(15,6)">
-                <comment>The Execution Commission for one Contract of a Security of this SecurityFamily.</comment>
-            </column>
+            <meta attribute="field-description"><![CDATA[The Execution Commission for one Contract of a Security of this SecurityFamily.]]></meta>
+            <column name="EXECUTION_COMMISSION" not-null="false" unique="false" sql-type="Decimal(15,6)"/>
+
             <type name="java.math.BigDecimal"/>
         </property>
         <property name="clearingCommission">
-            <meta attribute="field-description">The Clearing Commission for one Contract of a Security of this SecurityFamily.</meta>
-            <column name="CLEARING_COMMISSION" not-null="false" unique="false" sql-type="Decimal(15,6)">
-                <comment>The Clearing Commission for one Contract of a Security of this SecurityFamily.</comment>
-            </column>
+            <meta attribute="field-description"><![CDATA[The Clearing Commission for one Contract of a Security of this SecurityFamily.]]></meta>
+            <column name="CLEARING_COMMISSION" not-null="false" unique="false" sql-type="Decimal(15,6)"/>
+
             <type name="java.math.BigDecimal"/>
         </property>
         <property name="fee">
-            <meta attribute="field-description">The Exchange Fee for one Contract of a Security of this SecurityFamily.</meta>
-            <column name="FEE" not-null="false" unique="false" sql-type="Decimal(15,6)">
-                <comment>The Exchange Fee for one Contract of a Security of this SecurityFamily.</comment>
-            </column>
+            <meta attribute="field-description"><![CDATA[The Exchange Fee for one Contract of a Security of this SecurityFamily.]]></meta>
+            <column name="FEE" not-null="false" unique="false" sql-type="Decimal(15,6)"/>
+
             <type name="java.math.BigDecimal"/>
         </property>
         <property name="priceMultiplier">
-            <meta attribute="field-description">multiplier to be applied to  price and contract size for this Broker</meta>
-            <column name="PRICE_MULTIPLIER" not-null="false" unique="false" sql-type="DOUBLE">
-                <comment>multiplier to be applied to  price and contract size for this Broker</comment>
-            </column>
+            <meta attribute="field-description"><![CDATA[multiplier to be applied to  price and contract size for this Broker]]></meta>
+            <column name="PRICE_MULTIPLIER" not-null="false" unique="false" sql-type="DOUBLE"/>
+
             <type name="java.lang.Double"/>
         </property>
         <property name="exchangeCode">
-            <meta attribute="field-description">The code of the exchange</meta>
-            <column name="EXCHANGE_CODE" not-null="false" unique="false" sql-type="VARCHAR(255)">
-                <comment>The code of the exchange</comment>
-            </column>
+            <meta attribute="field-description"><![CDATA[The code of the exchange]]></meta>
+            <column name="EXCHANGE_CODE" not-null="false" unique="false" sql-type="VARCHAR(255)"/>
+
             <type name="java.lang.String"/>
         </property>
         <many-to-one name="securityFamily" class="ch.algotrader.entity.security.SecurityFamilyImpl" cascade="none" foreign-key="BROKER_PARAMETERS_SECURITY_FAC" not-null="true" lazy="proxy" fetch="select">
             <meta attribute="property-type">ch.algotrader.entity.security.SecurityFamily</meta>
-            <meta attribute="field-description">Represents an entire family of similar {@link ch.algotrader.entity.security.Security Securities}
-(e.g. All Options of the SP500)</meta>
-            <column name="SECURITY_FAMILY_FK" not-null="true" sql-type="BIGINT">
-                <comment>Represents an entire family of similar {@link ch.algotrader.entity.security.Security Securities}
-(e.g. All Options of the SP500)</comment>
-            </column>
+            <meta attribute="field-description"><![CDATA[Represents an entire family of similar {@link ch.algotrader.entity.security.Security Securities}
+(e.g. All Options of the S&P500)]]></meta>
+            <meta attribute="use-in-equals">true</meta>
+            <column name="SECURITY_FAMILY_FK" not-null="true" sql-type="BIGINT"/>
+
         </many-to-one>
     </class>
 </hibernate-mapping>

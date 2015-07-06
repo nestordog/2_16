@@ -17,7 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.event;
 
-import java.io.Serializable;
 import java.util.Set;
 
 import org.junit.Assert;
@@ -98,7 +97,6 @@ public class EventListenerRegistryImplTest {
                 Future.class,
                 FutureI.class,
                 ExpirableI.class,
-                Serializable.class,
                 BaseEntityI.class,
                 SecurityImpl.class,
                 Security.class,

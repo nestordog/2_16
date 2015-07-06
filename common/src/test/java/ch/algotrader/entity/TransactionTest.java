@@ -17,6 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.entity;
 
+import java.util.UUID;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -33,18 +35,21 @@ public class TransactionTest {
         Transaction order1 = new TransactionImpl();
         Transaction order2 = new TransactionImpl();
 
+        String uuid1 = UUID.randomUUID().toString();
+        String uuid2 = UUID.randomUUID().toString();
+
+        Assert.assertEquals(order1, order2);
+
+        order1.setUuid(uuid1);
+
         Assert.assertNotEquals(order1, order2);
 
-        order1.setId(1);
-
-        Assert.assertNotEquals(order1, order2);
-
-        order2.setId(2);
+        order2.setUuid(uuid2);
 
         Assert.assertNotEquals(order1, order2);
 
         Transaction order3 = new TransactionImpl();
-        order3.setId(1);
+        order3.setUuid(uuid1);
 
         Assert.assertEquals(order1, order3);
     }

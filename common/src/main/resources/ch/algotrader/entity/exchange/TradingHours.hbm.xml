@@ -12,7 +12,7 @@
 	    <meta attribute="implements">ch.algotrader.entity.exchange.TradingHoursI</meta>      
 	    <meta attribute="generated-class">ch.algotrader.entity.exchange.TradingHours</meta>
 	    <meta attribute="class-code">
-<![CDATA[	    
+<![CDATA[
     /**
      * 
      * @param weekDay 
@@ -22,63 +22,77 @@
 
 ]]>   
 	    </meta> 	    
-        <meta attribute="class-description">Weekly Trading Hours for a particular Exchange</meta>
+        <meta attribute="class-description"><![CDATA[Weekly Trading Hours for a particular Exchange]]></meta>
         <cache usage="read-write" />
-        <comment>Weekly Trading Hours for a particular Exchange</comment>
         <id name="id" type="long" >
             <column name="ID" sql-type="BIGINT"/>
+
             <generator class="native">
                 <!-- id-generator merge-point -->
             </generator>
         </id>
         <property name="open">
-            <meta attribute="field-description">the time when the Exchange opens. If close time is before open time it is considered to take place on the next day.</meta>
-            <column name="OPEN" not-null="true" unique="false" sql-type="TIME">
-                <comment>the time when the Exchange opens. If close time is before open time it is considered to take place on the next day.</comment>
-            </column>
+            <meta attribute="field-description"><![CDATA[the time when the Exchange opens. If close time is before open time it is considered to take place on the next day.]]></meta>
+            <meta attribute="use-in-equals">true</meta>
+            <column name="OPEN" not-null="true" unique="false" sql-type="TIME"/>
+
             <type name="java.util.Date"/>
         </property>
         <property name="close">
-            <meta attribute="field-description">the time when the Exchange closes. If close time is before open time it is considered to take place on the next day.</meta>
-            <column name="CLOSE" not-null="true" unique="false" sql-type="TIME">
-                <comment>the time when the Exchange closes. If close time is before open time it is considered to take place on the next day.</comment>
-            </column>
+            <meta attribute="field-description"><![CDATA[the time when the Exchange closes. If close time is before open time it is considered to take place on the next day.]]></meta>
+            <meta attribute="use-in-equals">true</meta>
+            <column name="CLOSE" not-null="true" unique="false" sql-type="TIME"/>
+
             <type name="java.util.Date"/>
         </property>
         <property name="sunday">
+            <meta attribute="use-in-equals">true</meta>
             <column name="SUNDAY" not-null="true" unique="false" sql-type="TINYINT"/>
+
             <type name="boolean"/>
         </property>
         <property name="monday">
+            <meta attribute="use-in-equals">true</meta>
             <column name="MONDAY" not-null="true" unique="false" sql-type="TINYINT"/>
+
             <type name="boolean"/>
         </property>
         <property name="tuesday">
+            <meta attribute="use-in-equals">true</meta>
             <column name="TUESDAY" not-null="true" unique="false" sql-type="TINYINT"/>
+
             <type name="boolean"/>
         </property>
         <property name="wednesday">
+            <meta attribute="use-in-equals">true</meta>
             <column name="WEDNESDAY" not-null="true" unique="false" sql-type="TINYINT"/>
+
             <type name="boolean"/>
         </property>
         <property name="thursday">
+            <meta attribute="use-in-equals">true</meta>
             <column name="THURSDAY" not-null="true" unique="false" sql-type="TINYINT"/>
+
             <type name="boolean"/>
         </property>
         <property name="friday">
+            <meta attribute="use-in-equals">true</meta>
             <column name="FRIDAY" not-null="true" unique="false" sql-type="TINYINT"/>
+
             <type name="boolean"/>
         </property>
         <property name="saturday">
+            <meta attribute="use-in-equals">true</meta>
             <column name="SATURDAY" not-null="true" unique="false" sql-type="TINYINT"/>
+
             <type name="boolean"/>
         </property>
         <many-to-one name="exchange" class="ch.algotrader.entity.exchange.ExchangeImpl" cascade="none" foreign-key="TRADING_HOURS_EXCHANGE_FKC" not-null="true" lazy="false" fetch="select">
             <meta attribute="property-type">ch.algotrader.entity.exchange.Exchange</meta>
-            <meta attribute="field-description">Exchange where securities are traded</meta>
-            <column name="EXCHANGE_FK" not-null="true" sql-type="BIGINT">
-                <comment>Exchange where securities are traded</comment>
-            </column>
+            <meta attribute="field-description"><![CDATA[Exchange where securities are traded]]></meta>
+            <meta attribute="use-in-equals">true</meta>
+            <column name="EXCHANGE_FK" not-null="true" sql-type="BIGINT"/>
+
         </many-to-one>
     </class>
 </hibernate-mapping>

@@ -2,10 +2,9 @@ ${pojo.getPackageDeclaration()}
 // Generated ${date} by Hibernate Tools ${version} for AlgoTrader
 
 <#assign classbody>
-${pojo.getClassModifiers()} interface ${pojo.getDeclarationName()}I {
+<#include "InterfaceTypeDeclaration.ftl"/> {
 
-<#include "PojoInterfacePropertyAccessors.ftl"/>
-
+<#include "InterfacePropertyAccessors.ftl"/>
 }
 </#assign>
 

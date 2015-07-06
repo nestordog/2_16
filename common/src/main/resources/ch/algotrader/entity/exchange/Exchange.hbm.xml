@@ -12,7 +12,7 @@
 	    <meta attribute="implements">ch.algotrader.entity.exchange.ExchangeI</meta>      
 	    <meta attribute="generated-class">ch.algotrader.entity.exchange.Exchange</meta>
 	    <meta attribute="class-code">
-<![CDATA[	    
+<![CDATA[
     /**
      * 
      * @return java.util.TimeZone
@@ -21,57 +21,56 @@
 
 ]]>   
 	    </meta> 	    
-        <meta attribute="class-description">Exchange where securities are traded</meta>
+        <meta attribute="class-description"><![CDATA[Exchange where securities are traded]]></meta>
         <cache usage="read-write" />
-        <comment>Exchange where securities are traded</comment>
         <id name="id" type="long" >
             <column name="ID" sql-type="BIGINT"/>
+
             <generator class="native">
                 <!-- id-generator merge-point -->
             </generator>
         </id>
         <property name="name">
-            <meta attribute="field-description">The market where the Securities of this Family are traded.</meta>
-            <column name="NAME" not-null="true" unique="true" sql-type="VARCHAR(255)">
-                <comment>The market where the Securities of this Family are traded.</comment>
-            </column>
+            <meta attribute="field-description"><![CDATA[The market where the Securities of this Family are traded.]]></meta>
+            <meta attribute="use-in-equals">true</meta>
+            <column name="NAME" not-null="true" unique="true" sql-type="VARCHAR(255)"/>
+
             <type name="java.lang.String"/>
         </property>
         <property name="code">
             <column name="CODE" not-null="true" unique="false" sql-type="VARCHAR(255)"/>
+
             <type name="java.lang.String"/>
         </property>
         <property name="timeZone">
             <column name="TIME_ZONE" not-null="true" unique="false" sql-type="VARCHAR(255)"/>
+
             <type name="java.lang.String"/>
         </property>
         <set name="tradingHours" order-by="EXCHANGE_FK" lazy="false" fetch="select" inverse="true" cascade="delete">
-            <meta attribute="field-description">Exchange where securities are traded</meta>
+            <meta attribute="field-description"><![CDATA[Exchange where securities are traded]]></meta>
             <cache usage="read-write" />
             <key foreign-key="TRADING_HOURS_EXCHANGE_FKC">
-                <column name="EXCHANGE_FK" sql-type="BIGINT">
-                    <comment>Exchange where securities are traded</comment>
-                </column>
+                <column name="EXCHANGE_FK" sql-type="BIGINT"/>
+
             </key>
             <one-to-many class="ch.algotrader.entity.exchange.TradingHoursImpl" not-found="exception"/>
         </set>
         <set name="securityFamilies" order-by="EXCHANGE_FK" lazy="true" fetch="select" inverse="true">
-            <meta attribute="field-description">Exchange where securities are traded</meta>
+            <meta attribute="field-description"><![CDATA[Exchange where securities are traded]]></meta>
             <cache usage="read-write" />
             <key foreign-key="SECURITY_FAMILY_EXCHANGE_FKC">
-                <column name="EXCHANGE_FK" sql-type="BIGINT">
-                    <comment>Exchange where securities are traded</comment>
-                </column>
+                <column name="EXCHANGE_FK" sql-type="BIGINT"/>
+
             </key>
             <one-to-many class="ch.algotrader.entity.security.SecurityFamilyImpl" not-found="exception"/>
         </set>
         <set name="holidays" order-by="EXCHANGE_FK" lazy="false" fetch="select" inverse="true" cascade="delete">
-            <meta attribute="field-description">Exchange where securities are traded</meta>
+            <meta attribute="field-description"><![CDATA[Exchange where securities are traded]]></meta>
             <cache usage="read-write" />
             <key foreign-key="HOLIDAY_EXCHANGE_FKC">
-                <column name="EXCHANGE_FK" sql-type="BIGINT">
-                    <comment>Exchange where securities are traded</comment>
-                </column>
+                <column name="EXCHANGE_FK" sql-type="BIGINT"/>
+
             </key>
             <one-to-many class="ch.algotrader.entity.exchange.HolidayImpl" not-found="exception"/>
         </set>

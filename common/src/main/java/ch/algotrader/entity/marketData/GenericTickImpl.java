@@ -18,8 +18,6 @@
 package ch.algotrader.entity.marketData;
 
 import java.math.BigDecimal;
-import java.util.Date;
-
 import ch.algotrader.enumeration.Direction;
 import ch.algotrader.util.DateTimeUtil;
 
@@ -56,11 +54,8 @@ public class GenericTickImpl extends GenericTick {
         StringBuilder buffer = new StringBuilder();
 
         buffer.append(getSecurity());
-        Date date = getDateTime();
-        if (date != null) {
-            buffer.append(",");
-            DateTimeUtil.formatLocalZone(date.toInstant(), buffer);
-        }
+        buffer.append(",");
+        DateTimeUtil.formatLocalZone(getDateTime().toInstant(), buffer);
         buffer.append(",");
         buffer.append(getTickType());
         buffer.append("=");

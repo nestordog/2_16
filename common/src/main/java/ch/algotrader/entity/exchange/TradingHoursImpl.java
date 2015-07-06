@@ -19,8 +19,6 @@
 package ch.algotrader.entity.exchange;
 
 import java.util.Calendar;
-import java.util.Objects;
-
 import ch.algotrader.enumeration.WeekDay;
 import ch.algotrader.util.DateTimeLegacy;
 import ch.algotrader.util.DateTimeUtil;
@@ -69,79 +67,38 @@ public class TradingHoursImpl extends TradingHours {
 
         if (this.isSunday()) {
             buffer.append(WeekDay.SUNDAY);
-            buffer.append(" ");
+            buffer.append(",");
         }
         if (this.isMonday()) {
             buffer.append(WeekDay.MONDAY);
-            buffer.append(" ");
+            buffer.append(",");
         }
         if (this.isTuesday()) {
             buffer.append(WeekDay.TUESDAY);
-            buffer.append(" ");
+            buffer.append(",");
         }
         if (this.isWednesday()) {
             buffer.append(WeekDay.WEDNESDAY);
-            buffer.append(" ");
+            buffer.append(",");
         }
         if (this.isThursday()) {
             buffer.append(WeekDay.THURSDAY);
-            buffer.append(" ");
+            buffer.append(",");
         }
         if (this.isFriday()) {
             buffer.append(WeekDay.FRIDAY);
-            buffer.append(" ");
+            buffer.append(",");
         }
         if (this.isSaturday()) {
             buffer.append(WeekDay.SATURDAY);
-            buffer.append(" ");
+            buffer.append(",");
         }
 
-        DateTimeUtil.formatLocalTime(DateTimeLegacy.toGMTTime(getOpen()), buffer);
+        DateTimeUtil.formatLocalTime(DateTimeLegacy.toLocalTime(getOpen()), buffer);
         buffer.append("-");
-        DateTimeUtil.formatLocalTime(DateTimeLegacy.toGMTTime(getClose()), buffer);
+        DateTimeUtil.formatLocalTime(DateTimeLegacy.toLocalTime(getClose()), buffer);
 
         return buffer.toString();
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-
-        if (this == obj) {
-            return true;
-        }
-        if (obj instanceof TradingHours) {
-            TradingHours that = (TradingHours) obj;
-            return Objects.equals(this.getExchange(), that.getExchange())
-                    && Objects.equals(this.getOpen(), that.getOpen())
-                    && Objects.equals(this.getClose(), that.getClose())
-                    && this.isSunday() == that.isSunday()
-                    && this.isMonday() == that.isMonday()
-                    && this.isTuesday() == that.isTuesday()
-                    && this.isWednesday() == that.isWednesday()
-                    && this.isThursday() == that.isThursday()
-                    && this.isFriday() == that.isFriday()
-                    && this.isSaturday() == that.isSaturday();
-        } else {
-            return false;
-        }
-    }
-
-    @Override
-    public int hashCode() {
-
-        int hash = 17;
-        hash = hash * 37 + Objects.hashCode(getExchange());
-        hash = hash * 37 + Objects.hashCode(getOpen());
-        hash = hash * 37 + Objects.hashCode(getClose());
-        hash = hash * 37 + (isSunday() ? 1231 : 1237);
-        hash = hash * 37 + (isMonday() ? 1231 : 1237);
-        hash = hash * 37 + (isTuesday() ? 1231 : 1237);
-        hash = hash * 37 + (isWednesday() ? 1231 : 1237);
-        hash = hash * 37 + (isThursday() ? 1231 : 1237);
-        hash = hash * 37 + (isFriday() ? 1231 : 1237);
-        hash = hash * 37 + (isSaturday() ? 1231 : 1237);
-
-        return hash;
     }
 
 }

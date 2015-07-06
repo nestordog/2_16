@@ -18,7 +18,8 @@
 package ch.algotrader.entity.strategy;
 
 import java.math.BigDecimal;
-import java.util.Objects;
+
+import ch.algotrader.util.DateTimeUtil;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -76,32 +77,13 @@ public class MeasurementImpl extends Measurement {
     @Override
     public String toString() {
 
-        return getName() + "," + getDateTime() + "," + getValue();
+        StringBuilder buffer = new StringBuilder();
+        buffer.append(getName());
+        buffer.append(",");
+        DateTimeUtil.formatLocalZone(getDateTime().toInstant(), buffer);
+        buffer.append(",");
+        buffer.append(getValue());
+        return buffer.toString();
     }
 
-    @Override
-    public boolean equals(Object obj) {
-
-        if (this == obj) {
-            return true;
-        }
-        if (obj instanceof Measurement) {
-            Measurement that = (Measurement) obj;
-            return Objects.equals(this.getStrategy(), that.getStrategy()) &&
-                    Objects.equals(this.getName(), that.getName()) &&
-                    Objects.equals(this.getDateTime(), that.getDateTime());
-        } else {
-            return false;
-        }
-    }
-
-    @Override
-    public int hashCode() {
-
-        int hash = 17;
-        hash = hash * 37 + Objects.hashCode(getStrategy());
-        hash = hash * 37 + Objects.hashCode(getName());
-        hash = hash * 37 + Objects.hashCode(getDateTime());
-        return hash;
-    }
 }

@@ -18,9 +18,6 @@
 package ch.algotrader.entity.marketData;
 
 import java.math.BigDecimal;
-import java.util.Date;
-import java.util.Objects;
-
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.ConfigLocator;
 import ch.algotrader.enumeration.Direction;
@@ -106,11 +103,8 @@ public class TickImpl extends Tick {
         StringBuilder buffer = new StringBuilder();
 
         buffer.append(getSecurity());
-        Date date = getDateTime();
-        if (date != null) {
-            buffer.append(",");
-            DateTimeUtil.formatLocalZone(date.toInstant(), buffer);
-        }
+        buffer.append(",");
+        DateTimeUtil.formatLocalZone(getDateTime().toInstant(), buffer);
         buffer.append(",last=");
         buffer.append(getLast());
         buffer.append(",lastDateTime=");
@@ -131,29 +125,4 @@ public class TickImpl extends Tick {
         return buffer.toString();
     }
 
-    @Override
-    public boolean equals(Object obj) {
-
-        if (this == obj) {
-            return true;
-        }
-        if (obj instanceof Tick) {
-            Tick that = (Tick) obj;
-            return Objects.equals(this.getSecurity(), that.getSecurity()) &&
-                    Objects.equals(this.getDateTime(), that.getDateTime())  &&
-                    Objects.equals(this.getFeedType(), that.getFeedType());
-        } else {
-            return false;
-        }
-    }
-
-    @Override
-    public int hashCode() {
-
-        int hash = 17;
-        hash = hash * 37 + Objects.hashCode(getSecurity());
-        hash = hash * 37 + Objects.hashCode(getDateTime());
-        hash = hash * 37 + Objects.hashCode(getFeedType());
-        return hash;
-    }
 }
