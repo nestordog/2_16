@@ -17,7 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.future;
 
-import ch.algotrader.ServiceLocator;
+import java.util.Date;
+
 import ch.algotrader.entity.security.Future;
 import ch.algotrader.entity.security.FutureFamily;
 import ch.algotrader.enumeration.Duration;
@@ -35,11 +36,11 @@ public class FutureUtil {
      * Gets the fair-price of a {@link Future} based on the price of the {@code underlyingSpot}.
      * {@code duration}, {@code intrest} and {@code dividend} are retrieved from the {@link FutureFamily}.
      */
-    public static double getFuturePrice(Future future, double underlyingSpot) {
+    public static double getFuturePrice(Future future, double underlyingSpot, Date now) {
 
         FutureFamily family = (FutureFamily) future.getSecurityFamily();
 
-        double years = (future.getExpiration().getTime() - ServiceLocator.instance().getEngineManager().getCurrentEPTime().getTime()) / (double) Duration.YEAR_1.getValue();
+        double years = (future.getExpiration().getTime() - now.getTime()) / (double) Duration.YEAR_1.getValue();
 
         return getFuturePrice(underlyingSpot, years, family.getIntrest(), family.getDividend());
     }

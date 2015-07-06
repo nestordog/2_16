@@ -24,7 +24,7 @@ from
 
 @Name('SLICING_CANCEL_ORDER')
 @RunTimeOnly
-@Subscriber(className='ch.algotrader.service.OrderService.cancelOrder')
+@Subscriber(className='orderService#cancelOrder')
 select
     currentOrder.submittedOrder
 from
@@ -35,7 +35,7 @@ from
 
 @Name('SLICING_NEXT_ORDER')
 @RunTimeOnly
-@Subscriber(className='ch.algotrader.service.OrderService.sendOrder')
+@Subscriber(className='orderService#sendOrder')
 select
     slicingOrder.nextOrder(openOrderWindow.remainingQuantity, cast(marketDataWindow.marketDataEvent, ch.algotrader.entity.marketData.Tick))
 from

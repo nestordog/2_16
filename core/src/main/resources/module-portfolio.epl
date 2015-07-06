@@ -1,6 +1,6 @@
 @Name('SAVE_PORTFOLIO_VALUE')
 @RunTimeOnly()
-@Subscriber(className='ch.algotrader.service.PortfolioService.savePortfolioValues')
+@Subscriber(className='portfolioService#savePortfolioValues')
 select
     null
 from
@@ -10,11 +10,11 @@ where
 
 @Name('INSERT_INTO_PORTFOLIO_VALUE')
 @SimulationOnly
-@Subscriber(className='ch.algotrader.esper.subscriber.PortfolioValueSubscriber')
+@Subscriber(className='portfolioService#printPortfolioValue')
 insert into
     PortfolioValue
 select
-    transpose(ServiceUtil.getPortfolioValue())
+    transpose(portfolioService.getPortfolioValue())
 from
     pattern[every (timer:at (0, 0, *, *, 1:5) or EndOfSimulation)]
 where
@@ -22,7 +22,7 @@ where
 
 @Name('SET_MARGINS')
 @Condition(key='statement.setMargins')
-@Subscriber(className='ch.algotrader.service.PositionService.setMargins')
+@Subscriber(className='positionService#setMargins')
 select
     null
 from
@@ -30,7 +30,7 @@ from
 
 @Name('EXPIRE_POSITION')
 @Condition(key='statement.expirePosition')
-@Subscriber(className='ch.algotrader.service.PositionService.expirePositions')
+@Subscriber(className='positionService#expirePositions')
 select
     null
 from
@@ -38,7 +38,7 @@ from
 
 @Name('CLOSE_POSITION')
 @Condition(key='statement.closePosition')
-@Subscriber(className='ch.algotrader.service.PositionService.closePosition')
+@Subscriber(className='positionService#closePosition')
 @Priority(2)
 select
     position.id as positionId,
@@ -81,7 +81,7 @@ output
 
 @Name('HEDGE_FOREX')
 @Condition(key='statement.hedgeForex')
-@Subscriber(className='ch.algotrader.service.ForexService.hedgeForex')
+@Subscriber(className='forexService#hedgeForex')
 select
     null
 from
@@ -89,7 +89,7 @@ from
 
 @Name('REBALANCE_PORTFOLIO')
 @Condition(key='statement.rebalancePortfolio')
-@Subscriber(className='ch.algotrader.service.TransactionService.rebalancePortfolio')
+@Subscriber(className='transactionService#rebalancePortfolio')
 select
     null
 from

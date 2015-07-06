@@ -62,8 +62,11 @@ import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.hibernate.GenericDao;
+import ch.algotrader.report.ListReporter;
+import ch.algotrader.util.DateTimeUtil;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.collection.DoubleMap;
+import ch.algotrader.util.metric.MetricsUtil;
 import ch.algotrader.vo.BalanceVO;
 import ch.algotrader.vo.CurrencyAmountVO;
 import ch.algotrader.vo.PortfolioValueVO;
@@ -83,8 +86,6 @@ public class PortfolioServiceImpl implements PortfolioService {
     private final CoreConfig coreConfig;
 
     private final SessionFactory sessionFactory;
-
-    private final LookupService lookupService;
 
     private final LocalLookupService localLookupService;
 
@@ -109,7 +110,6 @@ public class PortfolioServiceImpl implements PortfolioService {
     public PortfolioServiceImpl(final CommonConfig commonConfig,
             final CoreConfig coreConfig,
             final SessionFactory sessionFactory,
-            final LookupService lookupService,
             final LocalLookupService localLookupService,
             final GenericDao genericDao,
             final StrategyDao strategyDao,
@@ -124,7 +124,6 @@ public class PortfolioServiceImpl implements PortfolioService {
         Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(coreConfig, "CoreConfig is null");
         Validate.notNull(sessionFactory, "SessionFactory is null");
-        Validate.notNull(lookupService, "LookupService is null");
         Validate.notNull(localLookupService, "LocalLookupService is null");
         Validate.notNull(genericDao, "GenericDao is null");
         Validate.notNull(strategyDao, "StrategyDao is null");
@@ -139,7 +138,6 @@ public class PortfolioServiceImpl implements PortfolioService {
         this.commonConfig = commonConfig;
         this.coreConfig = coreConfig;
         this.sessionFactory = sessionFactory;
-        this.lookupService = lookupService;
         this.localLookupService = localLookupService;
         this.genericDao = genericDao;
         this.strategyDao = strategyDao;
@@ -1171,6 +1169,34 @@ public class PortfolioServiceImpl implements PortfolioService {
 
         // perisist the PortfolioValues
         this.portfolioValueDao.saveAll(portfolioValueMap.values());
+    }
+
+    private boolean initialized = false;
+    private ListReporter reporter;
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void printPortfolioValue(final PortfolioValue portfolioValue) {
+
+        long startTime = System.nanoTime();
+
+        if (this.reporter == null) {
+            this.reporter = new ListReporter("PortfolioReport", new String[] { "dateTime", "cashBalance", "securitiesCurrentValue", "netLiqValue" });
+        }
+
+        // don't log anything until any trades took place
+        if (!portfolioValue.getNetLiqValue().equals(this.commonConfig.getSimulationInitialBalance())) {
+            this.initialized = true;
+        }
+
+        if (this.initialized) {
+            final Date currentDateTime = this.engineManager.getCurrentEPTime();
+            this.reporter.write(DateTimeUtil.formatAsGMT(currentDateTime.toInstant()), portfolioValue.getCashBalance(), portfolioValue.getSecuritiesCurrentValue(), portfolioValue.getNetLiqValue());
+        }
+
+        MetricsUtil.accountEnd("LogPortfolioValueSubscriber", startTime);
     }
 
 }

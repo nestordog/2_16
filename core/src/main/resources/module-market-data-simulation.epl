@@ -40,7 +40,17 @@ insert into
     Tick
 select
     current_timestamp.toDate() as dateTime,
-    RoundUtil.getBigDecimal(OptionUtil.getOptionPrice(option, fxTick.currentValueDouble, OptionUtil.getImpliedVolatilitySABR(option, fxTick.currentValueDouble, surface)), option.securityFamily.scale) as last,
+    RoundUtil.getBigDecimal(
+        OptionUtil.getOptionPrice(
+            option,
+            fxTick.currentValueDouble,
+            OptionUtil.getImpliedVolatilitySABR(
+                option,
+                fxTick.currentValueDouble,
+                surface,
+                current_timestamp.toDate()),
+            current_timestamp.toDate()),
+        option.securityFamily.scale) as last,
     current_timestamp.toDate() as lastDateTime,
     0 as vol, 0 as volBid, 0 as volAsk, cast(0.0, BigDecimal) as bid, cast(0.0, BigDecimal) as ask,
     LookupUtil.getSecurityInitialized(option.id) as security
@@ -59,7 +69,11 @@ insert into
     Tick
 select
     current_timestamp.toDate() as dateTime,
-    RoundUtil.getBigDecimal(FutureUtil.getFuturePrice(future, indexTick.currentValueDouble)) as last,
+    RoundUtil.getBigDecimal(
+        FutureUtil.getFuturePrice(
+            future,
+            indexTick.currentValueDouble,
+            current_timestamp.toDate())) as last,
     current_timestamp.toDate() as lastDateTime,
     0 as vol, 0 as volBid, 0 as volAsk, cast(0.0, BigDecimal) as bid, cast(0.0, BigDecimal) as ask,
     LookupUtil.getSecurityInitialized(future.id) as security

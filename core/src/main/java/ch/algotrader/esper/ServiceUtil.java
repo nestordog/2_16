@@ -17,17 +17,11 @@
  ***********************************************************************************/
 package ch.algotrader.esper;
 
-import java.util.Date;
-import java.util.Map;
+import com.espertech.esper.collection.Pair;
 
-import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.Security;
-import ch.algotrader.entity.security.SecurityFamily;
-import ch.algotrader.entity.strategy.PortfolioValue;
 import ch.algotrader.visitor.TickValidationVisitor;
-
-import com.espertech.esper.collection.Pair;
 
 /**
  * Provides service convenience methods.
@@ -37,24 +31,6 @@ import com.espertech.esper.collection.Pair;
  * @version $Revision$ $Date$
  */
 public class ServiceUtil {
-
-    /**
-     * Gets the current {@link ch.algotrader.entity.strategy.PortfolioValue} of the system
-     */
-    public static PortfolioValue getPortfolioValue() {
-
-        return ServiceLocator.instance().getPortfolioService().getPortfolioValue();
-    }
-
-    /**
-     * Returns true if the MarketDataWindow contains any {@link ch.algotrader.entity.marketData.MarketDataEvent MarketDataEvents}
-     */
-    @SuppressWarnings("unchecked")
-    public static boolean hasCurrentMarketDataEvents() {
-
-        Map<String, Long> map = (Map<String, Long>) ServiceLocator.instance().getEngineManager().getServerEngine().executeSingelObjectQuery("select count(*) as cnt from MarketDataWindow");
-        return (map.get("cnt") > 0);
-    }
 
     /**
      * attaches the fully initialized Security to the Tick contained in the {@link com.espertech.esper.collection.Pair}
@@ -77,14 +53,6 @@ public class ServiceUtil {
     public static boolean isTickValid(Tick tick) {
 
         return tick.getSecurity().accept(TickValidationVisitor.INSTANCE, tick);
-    }
-
-    /**
-     * Returns true if the specified {@code currentDateTime} is within the Market Hours of the specified {@link ch.algotrader.entity.security.SecurityFamily}
-     */
-    public static boolean isMarketOpen(SecurityFamily securityFamily, Date currentDateTime) {
-
-        return ServiceLocator.instance().getCalendarService().isOpen(securityFamily.getExchange().getId(), currentDateTime);
     }
 
 }

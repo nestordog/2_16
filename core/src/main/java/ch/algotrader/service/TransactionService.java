@@ -20,6 +20,7 @@ package ch.algotrader.service;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.trade.Fill;
@@ -76,6 +77,11 @@ public interface TransactionService {
      * Logs aggregated Information of all Fills belonging to one Order.
      */
     public void logFillSummary(List<Fill> fills);
+
+    /**
+     * Logs aggregated Information of all Fills belonging to one Order from the given insert stream.
+     */
+    public void logFillSummary(Map<?, ?>[] insertStream);
 
     /**
      * Creates Rebalance Transactions so that Net-Liquidation-Values of all strategies are in line

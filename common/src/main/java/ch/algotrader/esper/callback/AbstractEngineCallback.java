@@ -15,24 +15,23 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.esper.subscriber;
+package ch.algotrader.esper.callback;
+
+import ch.algotrader.esper.Engine;
 
 /**
- * Base class for all Subscribers being created througn {@link SubscriberCreator}.
- *
- * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
+ * {@link Engine} aware callback.
  */
-public class Subscriber {
+public abstract class AbstractEngineCallback implements EngineAwareCallback {
 
-    private Object service;
+    private volatile Engine engine;
 
-    public void setService(Object service) {
-        this.service = service;
+    public void setEngine(final Engine engine) {
+        this.engine = engine;
     }
 
-    public Object getService() {
-        return this.service;
+    protected Engine getEngine() {
+        return this.engine;
     }
+
 }

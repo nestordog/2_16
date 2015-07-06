@@ -326,4 +326,9 @@ public interface PortfolioService {
      */
     public void restorePortfolioValues(Strategy strategy, Date fromDate, Date toDate);
 
+    /**
+     * Prints portfolio values.
+     */
+    void printPortfolioValue(final PortfolioValue portfolioValue);
+
 }

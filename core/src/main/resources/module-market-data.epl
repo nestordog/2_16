@@ -84,7 +84,7 @@ on
 insert into
     Tick
 select
-    transpose(ServiceUtil.completeTick(tickWindow))
+    transpose(ServiceUtil.completeTick(tickWindow.first))
 from
     TickWindow as tickWindow
 where
@@ -94,10 +94,10 @@ and
 and
     ServiceUtil.isTickValid(cast(tickWindow.getFirst(),ch.algotrader.entity.marketData.Tick))
 and
-    ServiceUtil.isMarketOpen(tickWindow.security.securityFamily, current_timestamp.toDate());
+    calendarService.isOpen(tickWindow.security.securityFamily.exchange.id, current_timestamp.toDate());
 
 @Name('CHECK_TICK_GAPS')
-@Subscriber(className='ch.algotrader.service.MarketDataService.logTickGap')
+@Subscriber(className='marketDataService#logTickGap')
 @RunTimeOnly()
 select
     tick.security.id
@@ -105,10 +105,10 @@ from
     pattern [every tick=Tick(not security.securityFamily.maxGap is null)
             -> (timer:interval(tick.security.securityFamily.maxGap * 60) and not Tick(security.id = tick.security.id))]
 where
-    ServiceUtil.isMarketOpen(tick.security.securityFamily, current_timestamp.toDate());
+    calendarService.isOpen(tick.security.securityFamily.exchange.id, current_timestamp.toDate());
 
 @Name('PROPAGATE_MARKET_DATA_EVENTS')
-@Subscriber(className='ch.algotrader.esper.subscriber.PropagateMarketDataEventSubscriber')
+@Subscriber(className='marketDataService#propagateMarketData')
 @Priority(1)
 select
     *
@@ -118,7 +118,7 @@ where
     security is not null;
 
 @Name('PROPAGATE_GENERIC_EVENTS')
-@Subscriber(className='ch.algotrader.esper.subscriber.PropagateGenericEventSubscriber')
+@Subscriber(className='marketDataService#propagateGenericEvent')
 @Priority(1)
 select
     *
@@ -127,7 +127,7 @@ from
 
 @Name('PERSIST_HOUR_TICKS')
 @RunTimeOnly()
-@Subscriber(className='ch.algotrader.esper.subscriber.PersistTickSubscriber')
+@Subscriber(className='marketDataService#persistTick')
 on pattern
     [every timer:at(0, *, *, *, *)]
 select
@@ -137,13 +137,13 @@ from
 where
     ServiceUtil.isTickValid(cast(tickWindow.getFirst(),ch.algotrader.entity.marketData.Tick))
 and
-    ServiceUtil.isMarketOpen(tickWindow.security.securityFamily, current_timestamp.toDate())
+    calendarService.isOpen(tickWindow.security.securityFamily.exchange.id, current_timestamp.toDate())
 and
     tickWindow.security.securityFamily.periodicity = TimePeriod.valueOf('HOUR'); // (HOUR is a reserved keyword)
 
 @Name('PERSIST_MINUTE_TICKS')
 @RunTimeOnly()
-@Subscriber(className='ch.algotrader.esper.subscriber.PersistTickSubscriber')
+@Subscriber(className='marketDataService#persistTick')
 on pattern
     [every timer:at(*, *, *, *, *)]
 select
@@ -153,6 +153,6 @@ from
 where
     ServiceUtil.isTickValid(cast(tickWindow.getFirst(),ch.algotrader.entity.marketData.Tick))
 and
-    ServiceUtil.isMarketOpen(tickWindow.security.securityFamily, current_timestamp.toDate())
+    calendarService.isOpen(tickWindow.security.securityFamily.exchange.id, current_timestamp.toDate())
 and
     tickWindow.security.securityFamily.periodicity = TimePeriod.valueOf('MIN');

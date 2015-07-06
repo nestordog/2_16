@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.apache.commons.lang.Validate;
@@ -52,6 +53,7 @@ import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.collection.CollectionUtil;
+import ch.algotrader.util.metric.MetricsUtil;
 import ch.algotrader.vo.PositionMutationVO;
 
 /**
@@ -127,6 +129,9 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public void createTransaction(final Fill fill) {
 
+        long startTime = System.nanoTime();
+        LOGGER.debug("createTransaction start");
+
         Validate.notNull(fill, "Fill is null");
 
         Order order = fill.getOrder();
@@ -178,6 +183,8 @@ public class TransactionServiceImpl implements TransactionService {
 
         processTransaction(transaction);
 
+        LOGGER.debug("createTransaction end");
+        MetricsUtil.accountEnd("CreateTransactionSubscriber", startTime);
     }
 
     /**
@@ -336,6 +343,17 @@ public class TransactionServiceImpl implements TransactionService {
             //@formatter:on
         }
 
+    }
+
+    @Override
+    public void logFillSummary(final Map<?, ?>[] insertStream) {
+
+        List<Fill> fills = new ArrayList<>();
+        for (Map<?, ?> element : insertStream) {
+            Fill fill = (Fill) element.get("fill");
+            fills.add(fill);
+        }
+        logFillSummary(fills);
     }
 
     private void processTransaction(final Transaction transaction) {

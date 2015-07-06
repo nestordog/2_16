@@ -15,28 +15,15 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.esper.subscriber;
+package ch.algotrader.esper.callback;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import ch.algotrader.ServiceLocator;
-import ch.algotrader.vo.GenericEventVO;
+import ch.algotrader.esper.Engine;
 
 /**
- * Esper event subscriber for {@link ch.algotrader.event.dispatch.EventDispatcher#broadcastLocal(Object)}.
+ * {@link Engine} aware callback.
  */
-public class PropagateGenericEventSubscriber {
+public interface EngineAwareCallback {
 
-    private static Logger LOGGER = LogManager.getLogger(PropagateGenericEventSubscriber.class);
+    void setEngine(Engine engine);
 
-    public void update(final GenericEventVO genericEvent) {
-
-        // security.toString & marketDataEvent.toString is expensive, so only log if debug is enabled
-        if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace(genericEvent);
-        }
-
-        ServiceLocator.instance().getEventDispatcher().broadcastAllStrategies(genericEvent);
-    }
 }

@@ -37,4 +37,8 @@
     <variable name="misc_defaultRetrievalSeconds" type="double" constant="true"/>
     <variable name="misc_orderAckSeconds" type="long" constant="true"/>
 
+    <!-- Variables -->
+    <variable name="transactionService" type="ch.algotrader.service.TransactionService"/>
+    <variable name="forexService" type="ch.algotrader.service.ForexService"/>
+
 </esper-configuration>

@@ -26,8 +26,6 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.ConfigParams;
-import ch.algotrader.entity.strategy.Strategy;
-import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.enumeration.ConnectionState;
 import ch.algotrader.enumeration.LifecyclePhase;
 import ch.algotrader.enumeration.OperationMode;
@@ -35,7 +33,6 @@ import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.EventListenerRegistry;
 import ch.algotrader.event.listener.LifecycleEventListener;
-import ch.algotrader.service.LookupService;
 import ch.algotrader.vo.LifecycleEventVO;
 import ch.algotrader.vo.SessionEventVO;
 
@@ -60,29 +57,20 @@ public class WiringTest {
 
         AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
 
-        LookupService lookupService = Mockito.mock(LookupService.class);
-        context.getDefaultListableBeanFactory().registerSingleton("lookupService", lookupService);
-
         Engine engine = Mockito.mock(Engine.class);
         context.getDefaultListableBeanFactory().registerSingleton("someEngine", engine);
 
         Mockito.when(engine.getStrategyName()).thenReturn("someStrategy");
-        Strategy strategy = new StrategyImpl();
-        Mockito.when(lookupService.getStrategyByName("someStrategy")).thenReturn(strategy);
 
         context.register(CommonConfigWiring.class, EngineManagerWiring.class);
         context.refresh();
         Assert.assertNotNull(context.getBean(EngineManager.class));
-
-        Mockito.verify(engine).setVariableValue("engineStrategy", strategy);
     }
 
     @Test
     public void testEventDispatcherWiring() throws Exception {
 
         AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
-        LookupService lookupService = Mockito.mock(LookupService.class);
-        context.getDefaultListableBeanFactory().registerSingleton("lookupService", lookupService);
 
         LifecycleEventListener lifecycleEventListener = Mockito.mock(LifecycleEventListener.class);
         context.getDefaultListableBeanFactory().registerSingleton("lifecycleEventListener", lifecycleEventListener);

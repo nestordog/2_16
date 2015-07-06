@@ -22,7 +22,7 @@ import java.util.Date;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import ch.algotrader.ServiceLocator;
+import ch.algotrader.esper.Engine;
 
 /**
  * Base Esper Callback Class that will be invoked on the give dateTime
@@ -31,7 +31,7 @@ import ch.algotrader.ServiceLocator;
  *
  * @version $Revision$ $Date$
  */
-public abstract class TimerCallback {
+public abstract class TimerCallback extends AbstractEngineCallback {
 
     private static final Logger LOGGER = LogManager.getLogger(TimerCallback.class);
 
@@ -41,7 +41,10 @@ public abstract class TimerCallback {
     public void update(String strategyName, Date dateTime, String alias) throws Exception {
 
         // undeploy the statement
-        ServiceLocator.instance().getEngineManager().getEngine(strategyName).undeployStatement(alias);
+        Engine engine = getEngine();
+        if (engine != null) {
+            engine.undeployStatement(alias);
+        }
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("{} start", alias);

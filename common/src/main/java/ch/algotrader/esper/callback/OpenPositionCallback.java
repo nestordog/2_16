@@ -20,7 +20,7 @@ package ch.algotrader.esper.callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import ch.algotrader.ServiceLocator;
+import ch.algotrader.esper.Engine;
 import ch.algotrader.util.metric.MetricsUtil;
 import ch.algotrader.vo.OpenPositionVO;
 
@@ -31,7 +31,7 @@ import ch.algotrader.vo.OpenPositionVO;
  *
  * @version $Revision$ $Date$
  */
-public abstract class OpenPositionCallback {
+public abstract class OpenPositionCallback extends AbstractEngineCallback {
 
     private static final Logger LOGGER = LogManager.getLogger(OpenPositionCallback.class);
 
@@ -44,7 +44,10 @@ public abstract class OpenPositionCallback {
         String alias = "ON_OPEN_POSITION_" + positionVO.getSecurityId();
 
         // undeploy the statement
-        ServiceLocator.instance().getEngineManager().getEngine(positionVO.getStrategy()).undeployStatement(alias);
+        Engine engine = getEngine();
+        if (engine != null) {
+            engine.undeployStatement(alias);
+        }
 
         long startTime = System.nanoTime();
         if (LOGGER.isDebugEnabled()) {

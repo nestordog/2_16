@@ -22,6 +22,7 @@ import java.util.Date;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.math.MathException;
 
+import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.option.OptionUtil;
 import ch.algotrader.util.DateUtil;
@@ -45,7 +46,8 @@ public class OptionImpl extends Option {
         double underlyingCurrentValue = marketDataEvent.getCurrentValueDouble();
 
         try {
-            double delta = OptionUtil.getDelta(this, currentValue, underlyingCurrentValue);
+            double delta = OptionUtil.getDelta(this, currentValue, underlyingCurrentValue,
+                    ServiceLocator.instance().getEngineManager().getCurrentEPTime());
             return underlyingCurrentValue / currentValue * delta;
         } catch (MathException e) {
             throw new RuntimeException(e);
@@ -56,7 +58,8 @@ public class OptionImpl extends Option {
     public double getMargin(double currentValue, double underlyingCurrentValue) {
 
         try {
-            return OptionUtil.getMaintenanceMargin(this, currentValue, underlyingCurrentValue) * getSecurityFamily().getContractSize();
+            return OptionUtil.getMaintenanceMargin(this, currentValue, underlyingCurrentValue,
+                    ServiceLocator.instance().getEngineManager().getCurrentEPTime()) * getSecurityFamily().getContractSize();
         } catch (MathException e) {
             throw new RuntimeException(e);
         }
