@@ -27,15 +27,20 @@ import ch.algotrader.config.CoreConfig;
 import ch.algotrader.entity.PositionDao;
 import ch.algotrader.entity.SubscriptionDao;
 import ch.algotrader.entity.TransactionDao;
+import ch.algotrader.entity.marketData.BarDao;
+import ch.algotrader.entity.marketData.TickDao;
 import ch.algotrader.entity.property.PropertyDao;
 import ch.algotrader.entity.security.CombinationDao;
 import ch.algotrader.entity.security.ComponentDao;
 import ch.algotrader.entity.security.FutureDao;
 import ch.algotrader.entity.security.OptionDao;
-import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.entity.strategy.CashBalanceDao;
 import ch.algotrader.entity.strategy.MeasurementDao;
+import ch.algotrader.entity.strategy.PortfolioValueDao;
 import ch.algotrader.entity.strategy.StrategyDao;
+import ch.algotrader.entity.trade.OrderDao;
+import ch.algotrader.entity.trade.OrderPropertyDao;
+import ch.algotrader.entity.trade.OrderStatusDao;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.EventListenerRegistry;
@@ -93,9 +98,10 @@ public class SimulationWiring {
 
     @Profile({"simulation", "noopSimulation"})
     @Bean(name = "resetService")
-    public ResetService createResetService(
-            final CoreConfig coreConfig,
-            final SecurityDao securityDao,
+    public ResetService createResetService(final CoreConfig coreConfig,
+            final OrderDao orderDao,
+            final OrderStatusDao orderStatusDao,
+            final OrderPropertyDao orderPropertyDao,
             final FutureDao futureDao,
             final TransactionDao transactionDao,
             final PositionDao positionDao,
@@ -106,10 +112,13 @@ public class SimulationWiring {
             final CombinationDao combinationDao,
             final ComponentDao componentDao,
             final PropertyDao propertyDao,
-            final MeasurementDao measurementDao) {
+            final MeasurementDao measurementDao,
+            final PortfolioValueDao portfolioValueDao,
+            final BarDao barDao,
+            final TickDao tickDao) {
 
-        return new ResetServiceImpl(coreConfig, securityDao, futureDao, transactionDao, positionDao, subscriptionDao, optionDao, strategyDao, cashBalanceDao,
-                combinationDao, componentDao, propertyDao, measurementDao);
+        return new ResetServiceImpl(coreConfig, orderDao, orderStatusDao, orderPropertyDao, futureDao, transactionDao, positionDao, subscriptionDao, optionDao, strategyDao, cashBalanceDao,
+                combinationDao, componentDao, propertyDao, measurementDao, portfolioValueDao, barDao, tickDao);
     }
 
 }
