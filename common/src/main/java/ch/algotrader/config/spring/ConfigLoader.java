@@ -20,10 +20,13 @@ package ch.algotrader.config.spring;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.core.io.Resource;
@@ -44,10 +47,6 @@ public final class ConfigLoader {
 
     static void loadResource(final Map<String, String> paramMap, final Resource resource) throws IOException {
 
-        if (resource == null || !resource.exists()) {
-            return;
-        }
-
         try (InputStream inputStream = resource.getInputStream()) {
             Properties props = new Properties();
             props.load(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
@@ -64,13 +63,7 @@ public final class ConfigLoader {
     }
 
     static void loadResources(final Map<String, String> paramMap, final Resource... resources) throws IOException {
-
-        if (resources == null || resources.length == 0) {
-
-            return;
-        }
         for (Resource resource: resources) {
-
             loadResource(paramMap, resource);
         }
     }
@@ -79,7 +72,9 @@ public final class ConfigLoader {
 
         // Load common and core parameters
         Map<String, String> paramMap = new LinkedHashMap<>();
-        loadResources(paramMap, resources);
+        for (Resource resource: resources) {
+            loadResource(paramMap, resource);
+        }
         return paramMap;
     }
 
@@ -99,10 +94,33 @@ public final class ConfigLoader {
         Assert.notNull(resourceResolver, "ResourcePatternResolver is null");
 
         Map<String, String> paramMap = new LinkedHashMap<>();
-        ConfigLoader.loadResource(paramMap, resourceResolver.getResource("classpath:META-INF/conf.properties"));
-        ConfigLoader.loadResource(paramMap, resourceResolver.getResource("classpath:META-INF/conf-core.properties"));
-        ConfigLoader.loadResources(paramMap, resourceResolver.getResources("classpath*:META-INF/conf-*.properties"));
-        ConfigLoader.loadResource(paramMap, resourceResolver.getResource("classpath:META-INF/conf-override.properties"));
+        Set<URL> usedResources = new HashSet<>();
+        Resource resource1 = resourceResolver.getResource("classpath:META-INF/conf.properties");
+        if (resource1 != null && resource1.exists()) {
+            URL url = resource1.getURL();
+            if (!usedResources.contains(url)) {
+                ConfigLoader.loadResource(paramMap, resource1);
+                usedResources.add(url);
+            }
+        }
+        Resource resource2 = resourceResolver.getResource("classpath:META-INF/conf-core.properties");
+        if (resource2 != null && resource2.exists() && !usedResources.contains(resource2.getURL())) {
+            URL url = resource2.getURL();
+            if (!usedResources.contains(url)) {
+                ConfigLoader.loadResource(paramMap, resource2);
+                usedResources.add(url);
+            }
+        }
+        Resource[] resources = resourceResolver.getResources("classpath*:META-INF/conf-*.properties");
+        for (Resource resource: resources) {
+            if (resource.exists() && !usedResources.contains(resource.getURL())) {
+                URL url = resource.getURL();
+                if (!usedResources.contains(url)) {
+                    ConfigLoader.loadResource(paramMap, resource);
+                    usedResources.add(url);
+                }
+            }
+        }
         return paramMap;
     }
 

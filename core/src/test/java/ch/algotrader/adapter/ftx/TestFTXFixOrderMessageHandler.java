@@ -50,6 +50,7 @@ import quickfix.field.ClOrdID;
 import quickfix.field.ExecType;
 import quickfix.field.OrdStatus;
 import quickfix.fix44.ExecutionReport;
+import quickfix.fix44.Reject;
 
 /**
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
@@ -236,6 +237,19 @@ public class TestFTXFixOrderMessageHandler {
         Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2015-06-10 08:50:34.000"), orderStatus1.getExtDateTime());
         Assert.assertEquals(null, orderStatus1.getLastPrice());
         Assert.assertEquals(null, orderStatus1.getAvgPrice());
+    }
+
+    @Test
+    public void testReject() throws Exception {
+
+        String s = "8=FIX.4.4|9=155|35=3|49=AMIFXDEMO.FORTEX.NET|56=DAMCON_DM_FX|34=52|52=20150616-07:57:59.302|" +
+                "45=15|58=message sequence number is too small,it should be 24(15)|372=A|373=99|10=073|";
+        Reject reject = FixTestUtils.parseFix44Message(s, Reject.class);
+        Assert.assertNotNull(reject);
+
+        impl.onMessage(reject, FixTestUtils.fakeFix44Session());
+
+        Mockito.verify(engine, Mockito.never()).sendEvent(Mockito.any());
     }
 
 }

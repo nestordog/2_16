@@ -1,9 +1,9 @@
 ALGOTRADER END USER LICENSE AGREEMENT
 
 LICENSOR:
-AlgoTrader GmbH
-Badenerstrasse 16
-8004 Zurich
+Algotrader GmbH
+Aeschstrasse 6
+8834 Schindellegi
 Switzerland
 +41 44 291 14 85
 info@algotrader.ch
