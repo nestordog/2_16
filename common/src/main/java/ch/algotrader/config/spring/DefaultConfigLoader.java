@@ -21,10 +21,13 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.core.io.Resource;
@@ -67,10 +70,6 @@ public class DefaultConfigLoader {
 
     void loadResource(final Map<String, String> paramMap, final Resource resource) throws IOException {
 
-        if (resource == null || !resource.exists()) {
-            return;
-        }
-
         InputStream inputStream = resource.getInputStream();
         try {
             Properties props = new Properties();
@@ -112,15 +111,30 @@ public class DefaultConfigLoader {
     public Map<String, String> getParams() throws IOException {
 
         // Load common and core parameters
-        Map<String, String> paramMap = new HashMap<String, String>();
-        loadResource(paramMap, this.resourceResolver.getResource("classpath:META-INF/conf.properties"));
-        loadResource(paramMap, this.resourceResolver.getResource("classpath:META-INF/conf-core.properties"));
+        Set<URL> usedResources = new HashSet<>();
+        Map<String, String> paramMap = new HashMap<>();
+        Resource resource1 = this.resourceResolver.getResource("classpath:META-INF/conf.properties");
+        if (resource1 != null && resource1.exists()) {
+
+            loadResource(paramMap, resource1);
+            usedResources.add(resource1.getURL());
+        }
+        Resource resource2 = this.resourceResolver.getResource("classpath:META-INF/conf-core.properties");
+        if (resource2 != null && resource2.exists()) {
+
+            loadResource(paramMap, resource2);
+            usedResources.add(resource2.getURL());
+        }
 
         // Load component parameters
         Resource[] resources = this.resourceResolver.getResources("classpath*:META-INF/conf-*.properties");
         for (Resource resource: resources) {
 
-            loadResource(paramMap, resource);
+            if (resource.exists() && !usedResources.contains(resource.getURL())) {
+
+                loadResource(paramMap, resource);
+                usedResources.add(resource.getURL());
+            }
         }
 
         // Load strategy specific parameters
@@ -143,7 +157,11 @@ public class DefaultConfigLoader {
 
             for (String module: modules) {
 
-                loadResource(paramMap, this.resourceResolver.getResource("classpath:META-INF/" + module.trim() + ".properties"));
+                Resource resource = this.resourceResolver.getResource("classpath:META-INF/" + module.trim() + ".properties");
+                if (resource != null && resource.exists() && !usedResources.contains(resource.getURL())) {
+
+                    loadResource(paramMap, resource);
+                }
             }
         }
 
