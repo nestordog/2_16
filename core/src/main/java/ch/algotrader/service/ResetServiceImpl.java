@@ -27,25 +27,25 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.algotrader.config.CoreConfig;
+import ch.algotrader.dao.PositionDao;
+import ch.algotrader.dao.SubscriptionDao;
+import ch.algotrader.dao.TransactionDao;
+import ch.algotrader.dao.property.PropertyDao;
+import ch.algotrader.dao.security.CombinationDao;
+import ch.algotrader.dao.security.ComponentDao;
+import ch.algotrader.dao.security.FutureDao;
+import ch.algotrader.dao.security.OptionDao;
+import ch.algotrader.dao.security.SecurityDao;
+import ch.algotrader.dao.strategy.CashBalanceDao;
+import ch.algotrader.dao.strategy.MeasurementDao;
+import ch.algotrader.dao.strategy.StrategyDao;
 import ch.algotrader.entity.Position;
-import ch.algotrader.entity.PositionDao;
 import ch.algotrader.entity.Subscription;
-import ch.algotrader.entity.SubscriptionDao;
 import ch.algotrader.entity.Transaction;
-import ch.algotrader.entity.TransactionDao;
 import ch.algotrader.entity.property.Property;
-import ch.algotrader.entity.property.PropertyDao;
-import ch.algotrader.entity.security.CombinationDao;
 import ch.algotrader.entity.security.Component;
-import ch.algotrader.entity.security.ComponentDao;
-import ch.algotrader.entity.security.FutureDao;
-import ch.algotrader.entity.security.OptionDao;
-import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.entity.strategy.CashBalance;
-import ch.algotrader.entity.strategy.CashBalanceDao;
-import ch.algotrader.entity.strategy.MeasurementDao;
 import ch.algotrader.entity.strategy.Strategy;
-import ch.algotrader.entity.strategy.StrategyDao;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

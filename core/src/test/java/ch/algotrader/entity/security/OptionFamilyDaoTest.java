@@ -23,13 +23,15 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import ch.algotrader.dao.security.OptionFamilyDao;
+import ch.algotrader.dao.security.OptionFamilyDaoImpl;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.ExpirationType;
 import ch.algotrader.hibernate.InMemoryDBTest;
 
 /**
- * Unit tests for {@link ch.algotrader.entity.security.OptionFamilyDaoImpl}.
+ * Unit tests for {@link OptionFamilyDaoImpl}.
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  *

@@ -25,6 +25,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import ch.algotrader.dao.security.CombinationDao;
+import ch.algotrader.dao.security.CombinationDaoImpl;
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.SubscriptionImpl;
 import ch.algotrader.entity.strategy.Strategy;
@@ -36,7 +38,7 @@ import ch.algotrader.hibernate.InMemoryDBTest;
 import ch.algotrader.util.HibernateUtil;
 
 /**
-* Unit tests for {@link ch.algotrader.entity.security.CombinationDaoImpl}.
+* Unit tests for {@link CombinationDaoImpl}.
 *
 * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
 *

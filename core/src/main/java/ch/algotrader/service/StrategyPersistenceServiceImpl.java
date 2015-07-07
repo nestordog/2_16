@@ -21,8 +21,8 @@ import org.apache.commons.lang.Validate;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import ch.algotrader.dao.strategy.StrategyDao;
 import ch.algotrader.entity.strategy.Strategy;
-import ch.algotrader.entity.strategy.StrategyDao;
 
 /**
  * {@link StrategyPersistenceService} implementation that directly

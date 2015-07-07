@@ -24,20 +24,20 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import ch.algotrader.dao.trade.LimitOrderDao;
+import ch.algotrader.dao.trade.MarketOrderDao;
+import ch.algotrader.dao.trade.OrderDao;
+import ch.algotrader.dao.trade.OrderPropertyDao;
+import ch.algotrader.dao.trade.OrderStatusDao;
+import ch.algotrader.dao.trade.StopLimitOrderDao;
+import ch.algotrader.dao.trade.StopOrderDao;
 import ch.algotrader.entity.trade.LimitOrder;
-import ch.algotrader.entity.trade.LimitOrderDao;
 import ch.algotrader.entity.trade.MarketOrder;
-import ch.algotrader.entity.trade.MarketOrderDao;
 import ch.algotrader.entity.trade.Order;
-import ch.algotrader.entity.trade.OrderDao;
 import ch.algotrader.entity.trade.OrderProperty;
-import ch.algotrader.entity.trade.OrderPropertyDao;
 import ch.algotrader.entity.trade.OrderStatus;
-import ch.algotrader.entity.trade.OrderStatusDao;
 import ch.algotrader.entity.trade.StopLimitOrder;
-import ch.algotrader.entity.trade.StopLimitOrderDao;
 import ch.algotrader.entity.trade.StopOrder;
-import ch.algotrader.entity.trade.StopOrderDao;
 
 /**
  * {@link OrderPersistenceService} implementation that directly

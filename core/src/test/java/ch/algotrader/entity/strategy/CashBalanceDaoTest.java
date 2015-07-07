@@ -25,11 +25,13 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import ch.algotrader.dao.strategy.CashBalanceDao;
+import ch.algotrader.dao.strategy.CashBalanceDaoImpl;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.hibernate.InMemoryDBTest;
 
 /**
- * Unit tests for {@link ch.algotrader.entity.strategy.CashBalanceDaoImpl}.
+ * Unit tests for {@link CashBalanceDaoImpl}.
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  *

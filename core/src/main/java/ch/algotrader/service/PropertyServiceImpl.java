@@ -23,10 +23,10 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import ch.algotrader.dao.property.PropertyDao;
+import ch.algotrader.dao.property.PropertyHolderDao;
 import ch.algotrader.entity.property.Property;
-import ch.algotrader.entity.property.PropertyDao;
 import ch.algotrader.entity.property.PropertyHolder;
-import ch.algotrader.entity.property.PropertyHolderDao;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

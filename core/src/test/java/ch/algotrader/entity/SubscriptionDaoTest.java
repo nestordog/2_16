@@ -27,6 +27,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import ch.algotrader.dao.SubscriptionDao;
+import ch.algotrader.dao.SubscriptionDaoImpl;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.ForexImpl;
 import ch.algotrader.entity.security.Security;

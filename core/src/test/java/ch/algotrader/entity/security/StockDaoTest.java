@@ -24,11 +24,13 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import ch.algotrader.dao.security.StockDao;
+import ch.algotrader.dao.security.StockDaoImpl;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.hibernate.InMemoryDBTest;
 
 /**
- * Unit tests for {@link ch.algotrader.entity.security.StockDaoImpl}.
+ * Unit tests for {@link StockDaoImpl}.
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  *

@@ -34,14 +34,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.CoreConfig;
+import ch.algotrader.dao.AccountDao;
+import ch.algotrader.dao.security.SecurityDao;
+import ch.algotrader.dao.strategy.StrategyDao;
 import ch.algotrader.entity.Account;
-import ch.algotrader.entity.AccountDao;
 import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.security.Security;
-import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.strategy.Strategy;
-import ch.algotrader.entity.strategy.StrategyDao;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.enumeration.Broker;

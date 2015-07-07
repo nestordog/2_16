@@ -23,7 +23,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.util.Date;
 
 import org.junit.Assert;
@@ -33,8 +32,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import ch.algotrader.dao.exchange.ExchangeDao;
 import ch.algotrader.entity.exchange.Exchange;
-import ch.algotrader.entity.exchange.ExchangeDao;
 import ch.algotrader.entity.exchange.Holiday;
 import ch.algotrader.entity.exchange.TradingHours;
 import ch.algotrader.esper.EngineManager;

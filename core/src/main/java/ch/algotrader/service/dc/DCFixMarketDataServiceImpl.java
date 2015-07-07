@@ -19,17 +19,17 @@ package ch.algotrader.service.dc;
 
 import org.apache.commons.lang.Validate;
 
-import quickfix.field.SubscriptionRequestType;
-import quickfix.fix44.MarketDataRequest;
 import ch.algotrader.adapter.dc.DCFixMarketDataRequestFactory;
 import ch.algotrader.adapter.dc.DCUtil;
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.fix.FixSessionStateHolder;
+import ch.algotrader.dao.security.SecurityDao;
 import ch.algotrader.entity.security.Security;
-import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.service.fix.fix44.Fix44MarketDataServiceImpl;
+import quickfix.field.SubscriptionRequestType;
+import quickfix.fix44.MarketDataRequest;
 
 /**
  * DukasCopy market data service implementation.

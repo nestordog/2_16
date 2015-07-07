@@ -23,11 +23,13 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import ch.algotrader.dao.security.SecurityFamilyDao;
+import ch.algotrader.dao.security.SecurityFamilyDaoImpl;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.hibernate.InMemoryDBTest;
 
 /**
- * Unit tests for {@link ch.algotrader.entity.security.SecurityFamilyDaoImpl}.
+ * Unit tests for {@link SecurityFamilyDaoImpl}.
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  *

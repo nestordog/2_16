@@ -19,19 +19,19 @@ package ch.algotrader.service.cnx;
 
 import org.apache.commons.lang.Validate;
 
-import quickfix.field.SubscriptionRequestType;
-import quickfix.fix44.MarketDataRequest;
 import ch.algotrader.adapter.cnx.CNXFixMarketDataRequestFactory;
 import ch.algotrader.adapter.cnx.CNXUtil;
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.fix.FixApplicationException;
 import ch.algotrader.adapter.fix.FixSessionStateHolder;
+import ch.algotrader.dao.security.SecurityDao;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.Security;
-import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.service.fix.fix44.Fix44MarketDataServiceImpl;
+import quickfix.field.SubscriptionRequestType;
+import quickfix.fix44.MarketDataRequest;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

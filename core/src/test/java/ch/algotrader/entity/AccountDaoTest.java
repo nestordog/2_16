@@ -25,6 +25,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import ch.algotrader.dao.AccountDao;
+import ch.algotrader.dao.AccountDaoImpl;
 import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.hibernate.InMemoryDBTest;

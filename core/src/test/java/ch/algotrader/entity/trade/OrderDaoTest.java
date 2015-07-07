@@ -27,6 +27,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import ch.algotrader.dao.trade.OrderDao;
+import ch.algotrader.dao.trade.OrderDaoImpl;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.AccountImpl;
 import ch.algotrader.entity.security.Forex;
@@ -44,7 +46,7 @@ import ch.algotrader.esper.NoopEngine;
 import ch.algotrader.hibernate.InMemoryDBTest;
 
 /**
-* Unit tests for {@link ch.algotrader.entity.trade.OrderDaoImpl}.
+* Unit tests for {@link OrderDaoImpl}.
 *
 * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
 *

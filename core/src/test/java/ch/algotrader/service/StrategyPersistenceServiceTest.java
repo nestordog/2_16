@@ -35,8 +35,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import ch.algotrader.dao.strategy.StrategyDao;
 import ch.algotrader.entity.strategy.Strategy;
-import ch.algotrader.entity.strategy.StrategyDao;
 
 /**
  * Unit test for {@link StrategyPersistenceServiceImpl}.

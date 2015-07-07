@@ -23,7 +23,7 @@ import org.springframework.context.annotation.Profile;
 
 import ch.algotrader.adapter.fix.ManagedFixAdapter;
 import ch.algotrader.adapter.fix.MarketDataFixSessionStateHolder;
-import ch.algotrader.entity.security.SecurityDao;
+import ch.algotrader.dao.security.SecurityDao;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.service.OrderService;
 import ch.algotrader.service.fxcm.FXCMFixMarketDataService;

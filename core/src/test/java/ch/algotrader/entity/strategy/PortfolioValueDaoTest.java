@@ -26,6 +26,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import ch.algotrader.dao.strategy.PortfolioValueDao;
+import ch.algotrader.dao.strategy.PortfolioValueDaoImpl;
+import ch.algotrader.dao.strategy.PortfolioValueVOProducer;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.SecurityFamilyImpl;
 import ch.algotrader.entity.trade.OrderPreference;
@@ -36,7 +39,7 @@ import ch.algotrader.hibernate.InMemoryDBTest;
 import ch.algotrader.vo.PortfolioValueVO;
 
 /**
-* Unit tests for {@link ch.algotrader.entity.strategy.PortfolioValueDaoImpl}.
+* Unit tests for {@link PortfolioValueDaoImpl}.
 *
 * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
 *

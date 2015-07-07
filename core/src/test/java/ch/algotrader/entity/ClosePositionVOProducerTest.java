@@ -23,6 +23,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import ch.algotrader.dao.ClosePositionVOProducer;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.ForexImpl;
 import ch.algotrader.entity.strategy.Strategy;
@@ -30,7 +31,7 @@ import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.vo.ClosePositionVO;
 
 /**
-* Unit tests for {@link ch.algotrader.entity.ClosePositionVOProducer}.
+* Unit tests for {@link ClosePositionVOProducer}.
 *
 * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
 *

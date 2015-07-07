@@ -19,17 +19,17 @@ package ch.algotrader.service.fxcm;
 
 import org.apache.commons.lang.Validate;
 
-import quickfix.field.SubscriptionRequestType;
-import quickfix.fix44.MarketDataRequest;
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.fix.FixSessionStateHolder;
 import ch.algotrader.adapter.fxcm.FXCMFixMarketDataRequestFactory;
 import ch.algotrader.adapter.fxcm.FXCMUtil;
+import ch.algotrader.dao.security.SecurityDao;
 import ch.algotrader.entity.security.Security;
-import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.service.fix.fix44.Fix44MarketDataServiceImpl;
+import quickfix.field.SubscriptionRequestType;
+import quickfix.fix44.MarketDataRequest;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

@@ -31,8 +31,8 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import ch.algotrader.dao.marketData.BarDao;
 import ch.algotrader.entity.marketData.Bar;
-import ch.algotrader.entity.marketData.BarDao;
 import ch.algotrader.enumeration.BarType;
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.TimePeriod;

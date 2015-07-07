@@ -17,8 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.fix;
 
+import ch.algotrader.dao.security.SecurityDao;
 import ch.algotrader.entity.security.Security;
-import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.service.ExternalServiceException;

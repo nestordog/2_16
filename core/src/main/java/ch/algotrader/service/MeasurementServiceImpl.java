@@ -23,10 +23,10 @@ import org.apache.commons.lang.Validate;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import ch.algotrader.dao.strategy.MeasurementDao;
+import ch.algotrader.dao.strategy.StrategyDao;
 import ch.algotrader.entity.strategy.Measurement;
-import ch.algotrader.entity.strategy.MeasurementDao;
 import ch.algotrader.entity.strategy.Strategy;
-import ch.algotrader.entity.strategy.StrategyDao;
 import ch.algotrader.esper.EngineManager;
 
 /**

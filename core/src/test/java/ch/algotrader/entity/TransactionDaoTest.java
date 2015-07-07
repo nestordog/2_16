@@ -30,6 +30,9 @@ import org.junit.Test;
 
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.CommonConfigBuilder;
+import ch.algotrader.dao.TransactionDao;
+import ch.algotrader.dao.TransactionDaoImpl;
+import ch.algotrader.dao.TransactionVOProducer;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.ForexImpl;
 import ch.algotrader.entity.security.SecurityFamily;

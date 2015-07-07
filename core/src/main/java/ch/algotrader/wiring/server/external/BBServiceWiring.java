@@ -22,12 +22,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 import ch.algotrader.adapter.bb.BBAdapter;
-import ch.algotrader.entity.marketData.BarDao;
-import ch.algotrader.entity.marketData.TickDao;
-import ch.algotrader.entity.security.FutureDao;
-import ch.algotrader.entity.security.OptionDao;
-import ch.algotrader.entity.security.SecurityDao;
-import ch.algotrader.entity.security.SecurityFamilyDao;
+import ch.algotrader.dao.marketData.BarDao;
+import ch.algotrader.dao.marketData.TickDao;
+import ch.algotrader.dao.security.FutureDao;
+import ch.algotrader.dao.security.OptionDao;
+import ch.algotrader.dao.security.SecurityDao;
+import ch.algotrader.dao.security.SecurityFamilyDao;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.service.bb.BBHistoricalDataService;
 import ch.algotrader.service.bb.BBHistoricalDataServiceImpl;

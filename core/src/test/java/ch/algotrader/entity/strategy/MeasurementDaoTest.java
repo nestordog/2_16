@@ -25,10 +25,12 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import ch.algotrader.dao.strategy.MeasurementDao;
+import ch.algotrader.dao.strategy.MeasurementDaoImpl;
 import ch.algotrader.hibernate.InMemoryDBTest;
 
 /**
-* Unit tests for {@link ch.algotrader.entity.strategy.MeasurementDaoImpl}.
+* Unit tests for {@link MeasurementDaoImpl}.
 *
 * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
 *

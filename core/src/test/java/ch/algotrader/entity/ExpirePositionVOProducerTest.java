@@ -21,12 +21,13 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import ch.algotrader.dao.ExpirePositionVOProducer;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.ForexImpl;
 import ch.algotrader.vo.ExpirePositionVO;
 
 /**
-* Unit tests for {@link ch.algotrader.entity.ExpirePositionVOProducer}.
+* Unit tests for {@link ExpirePositionVOProducer}.
 *
 * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
 *

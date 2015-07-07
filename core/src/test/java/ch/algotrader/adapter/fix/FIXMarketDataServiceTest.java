@@ -33,12 +33,12 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import ch.algotrader.dao.marketData.TickDao;
+import ch.algotrader.dao.security.SecurityDao;
 import ch.algotrader.entity.marketData.Tick;
-import ch.algotrader.entity.marketData.TickDao;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.ForexImpl;
 import ch.algotrader.entity.security.Security;
-import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.SecurityFamilyImpl;
 import ch.algotrader.entity.strategy.StrategyImpl;

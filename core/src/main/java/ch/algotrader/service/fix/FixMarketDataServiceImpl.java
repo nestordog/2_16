@@ -23,9 +23,9 @@ import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.fix.FixSessionStateHolder;
+import ch.algotrader.dao.security.SecurityDao;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.Security;
-import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.enumeration.InitializingServiceType;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;

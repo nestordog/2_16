@@ -32,8 +32,8 @@ import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.time.DateUtils;
 import org.springframework.transaction.annotation.Transactional;
 
+import ch.algotrader.dao.exchange.ExchangeDao;
 import ch.algotrader.entity.exchange.Exchange;
-import ch.algotrader.entity.exchange.ExchangeDao;
 import ch.algotrader.entity.exchange.Holiday;
 import ch.algotrader.entity.exchange.TradingHours;
 import ch.algotrader.enumeration.WeekDay;

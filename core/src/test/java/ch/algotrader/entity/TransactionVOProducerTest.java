@@ -27,6 +27,7 @@ import org.junit.Test;
 
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.CommonConfigBuilder;
+import ch.algotrader.dao.TransactionVOProducer;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.ForexImpl;
 import ch.algotrader.entity.security.SecurityFamily;
@@ -38,7 +39,7 @@ import ch.algotrader.enumeration.TransactionType;
 import ch.algotrader.vo.TransactionVO;
 
 /**
-* Unit tests for {@link ch.algotrader.entity.TransactionVOProducer}.
+* Unit tests for {@link TransactionVOProducer}.
 *
 * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
 *

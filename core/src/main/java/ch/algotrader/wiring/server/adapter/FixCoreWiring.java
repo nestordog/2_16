@@ -32,7 +32,7 @@ import ch.algotrader.adapter.fix.DefaultFixEventScheduler;
 import ch.algotrader.adapter.fix.FixApplicationFactory;
 import ch.algotrader.adapter.fix.FixMultiApplicationSessionFactory;
 import ch.algotrader.adapter.fix.ManagedFixAdapter;
-import ch.algotrader.entity.trade.OrderDao;
+import ch.algotrader.dao.trade.OrderDao;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.ordermgmt.DefaultOrderIdGenerator;
 import ch.algotrader.ordermgmt.OrderIdGenerator;

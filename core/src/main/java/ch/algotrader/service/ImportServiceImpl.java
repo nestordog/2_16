@@ -42,14 +42,14 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.algotrader.config.CommonConfig;
+import ch.algotrader.dao.marketData.TickDao;
+import ch.algotrader.dao.security.OptionDao;
+import ch.algotrader.dao.security.OptionFamilyDao;
+import ch.algotrader.dao.security.SecurityDao;
 import ch.algotrader.entity.marketData.Tick;
-import ch.algotrader.entity.marketData.TickDao;
 import ch.algotrader.entity.security.Option;
-import ch.algotrader.entity.security.OptionDao;
 import ch.algotrader.entity.security.OptionFamily;
-import ch.algotrader.entity.security.OptionFamilyDao;
 import ch.algotrader.entity.security.Security;
-import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.option.OptionSymbol;
 import ch.algotrader.util.DateTimeLegacy;

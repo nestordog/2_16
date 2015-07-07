@@ -25,12 +25,14 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import ch.algotrader.dao.security.EasyToBorrowDao;
+import ch.algotrader.dao.security.EasyToBorrowDaoImpl;
 import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.hibernate.InMemoryDBTest;
 
 /**
- * Unit tests for {@link ch.algotrader.entity.security.EasyToBorrowDaoImpl}.
+ * Unit tests for {@link EasyToBorrowDaoImpl}.
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  *

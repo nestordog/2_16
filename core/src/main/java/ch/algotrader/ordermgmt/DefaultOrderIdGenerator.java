@@ -21,12 +21,12 @@ import java.math.BigDecimal;
 
 import org.apache.commons.lang.Validate;
 
-import ch.algotrader.entity.trade.OrderDao;
+import ch.algotrader.dao.trade.OrderDao;
 import ch.algotrader.util.collection.IntegerMap;
 
 /**
  * Default {@link ch.algotrader.ordermgmt.OrderIdGenerator} implementation backed by
- * {@link ch.algotrader.entity.TransactionDao#findLastIntOrderId(String)}..
+ * {@link ch.algotrader.dao.TransactionDao#findLastIntOrderId(String)}..
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  *

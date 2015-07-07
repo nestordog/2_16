@@ -23,13 +23,16 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import ch.algotrader.dao.security.ImpliedVolatilityDao;
+import ch.algotrader.dao.security.ImpliedVolatilityDaoImpl;
+import ch.algotrader.dao.security.IntrestRateDaoImpl;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.hibernate.InMemoryDBTest;
 
 /**
- * Unit tests for {@link ch.algotrader.entity.security.IntrestRateDaoImpl}.
+ * Unit tests for {@link IntrestRateDaoImpl}.
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  *

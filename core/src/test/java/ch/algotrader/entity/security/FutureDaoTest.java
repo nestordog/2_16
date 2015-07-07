@@ -26,6 +26,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import ch.algotrader.dao.security.FutureDao;
+import ch.algotrader.dao.security.FutureDaoImpl;
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.SubscriptionImpl;
 import ch.algotrader.entity.strategy.Strategy;
@@ -35,7 +37,7 @@ import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.hibernate.InMemoryDBTest;
 
 /**
- * Unit tests for {@link ch.algotrader.entity.security.FutureDaoImpl}.
+ * Unit tests for {@link FutureDaoImpl}.
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  *

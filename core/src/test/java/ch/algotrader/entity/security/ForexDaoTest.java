@@ -26,16 +26,20 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import ch.algotrader.entity.SubscriptionDao;
-import ch.algotrader.entity.SubscriptionDaoImpl;
-import ch.algotrader.entity.marketData.TickDao;
-import ch.algotrader.entity.marketData.TickDaoImpl;
+import ch.algotrader.dao.SubscriptionDao;
+import ch.algotrader.dao.SubscriptionDaoImpl;
+import ch.algotrader.dao.marketData.TickDao;
+import ch.algotrader.dao.marketData.TickDaoImpl;
+import ch.algotrader.dao.security.ForexDao;
+import ch.algotrader.dao.security.ForexDaoImpl;
+import ch.algotrader.dao.security.SecurityDao;
+import ch.algotrader.dao.security.SecurityDaoImpl;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.esper.NoopEngine;
 import ch.algotrader.hibernate.InMemoryDBTest;
 
 /**
- * Unit tests for {@link ch.algotrader.entity.security.ForexDaoImpl}.
+ * Unit tests for {@link ForexDaoImpl}.
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  *

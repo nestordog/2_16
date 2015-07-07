@@ -22,11 +22,13 @@ import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
 
+import ch.algotrader.dao.trade.OrderStatusDao;
+import ch.algotrader.dao.trade.OrderStatusDaoImpl;
 import ch.algotrader.esper.NoopEngine;
 import ch.algotrader.hibernate.InMemoryDBTest;
 
 /**
-* Unit tests for {@link ch.algotrader.entity.trade.OrderStatusDaoImpl}.
+* Unit tests for {@link OrderStatusDaoImpl}.
 *
 * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
 *

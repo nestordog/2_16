@@ -24,6 +24,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import ch.algotrader.dao.property.PropertyDao;
+import ch.algotrader.dao.property.PropertyDaoImpl;
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.SubscriptionImpl;
 import ch.algotrader.entity.security.Forex;
@@ -37,7 +39,7 @@ import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.hibernate.InMemoryDBTest;
 
 /**
-* Unit tests for {@link ch.algotrader.entity.property.PropertyDaoImpl}.
+* Unit tests for {@link PropertyDaoImpl}.
 *
 * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
 *

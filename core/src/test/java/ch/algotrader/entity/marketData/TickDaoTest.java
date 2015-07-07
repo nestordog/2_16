@@ -31,9 +31,13 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import ch.algotrader.dao.SubscriptionDao;
+import ch.algotrader.dao.SubscriptionDaoImpl;
+import ch.algotrader.dao.marketData.TickDao;
+import ch.algotrader.dao.marketData.TickDaoImpl;
+import ch.algotrader.dao.security.SecurityDao;
+import ch.algotrader.dao.security.SecurityDaoImpl;
 import ch.algotrader.entity.Subscription;
-import ch.algotrader.entity.SubscriptionDao;
-import ch.algotrader.entity.SubscriptionDaoImpl;
 import ch.algotrader.entity.SubscriptionImpl;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.ForexImpl;
@@ -41,8 +45,6 @@ import ch.algotrader.entity.security.ImpliedVolatility;
 import ch.algotrader.entity.security.ImpliedVolatilityImpl;
 import ch.algotrader.entity.security.Option;
 import ch.algotrader.entity.security.OptionImpl;
-import ch.algotrader.entity.security.SecurityDao;
-import ch.algotrader.entity.security.SecurityDaoImpl;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.SecurityFamilyImpl;
 import ch.algotrader.entity.strategy.Strategy;
@@ -55,7 +57,7 @@ import ch.algotrader.esper.NoopEngine;
 import ch.algotrader.hibernate.InMemoryDBTest;
 
 /**
- * Unit tests for {@link ch.algotrader.entity.marketData.TickDaoImpl}.
+ * Unit tests for {@link TickDaoImpl}.
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  *

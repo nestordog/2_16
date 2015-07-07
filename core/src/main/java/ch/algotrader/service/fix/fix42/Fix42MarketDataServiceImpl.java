@@ -19,7 +19,7 @@ package ch.algotrader.service.fix.fix42;
 
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.fix.FixSessionStateHolder;
-import ch.algotrader.entity.security.SecurityDao;
+import ch.algotrader.dao.security.SecurityDao;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.service.fix.FixMarketDataServiceImpl;
 

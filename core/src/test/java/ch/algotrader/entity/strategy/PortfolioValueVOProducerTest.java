@@ -24,10 +24,11 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import ch.algotrader.dao.strategy.PortfolioValueVOProducer;
 import ch.algotrader.vo.PortfolioValueVO;
 
 /**
-* Unit tests for {@link ch.algotrader.entity.strategy.PortfolioValueVOProducer}.
+* Unit tests for {@link PortfolioValueVOProducer}.
 *
 * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
 *

@@ -23,6 +23,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import ch.algotrader.dao.PositionVOProducer;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.ForexImpl;
@@ -35,7 +36,7 @@ import ch.algotrader.util.RoundUtil;
 import ch.algotrader.vo.PositionVO;
 
 /**
-* Unit tests for {@link ch.algotrader.entity.PositionVOProducer}.
+* Unit tests for {@link PositionVOProducer}.
 *
 * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
 *
