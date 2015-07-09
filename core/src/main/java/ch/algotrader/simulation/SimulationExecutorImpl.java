@@ -202,7 +202,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
         }
 
         // reset the db
-        this.resetService.resetDB();
+        this.resetService.resetSimulation();
 
         // rebalance portfolio (to distribute initial CREDIT to strategies)
         this.transactionService.rebalancePortfolio();
