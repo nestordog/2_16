@@ -134,7 +134,6 @@ public class PositionDaoTest extends InMemoryDBTest {
 
         Position position1 = new PositionImpl();
         position1.setQuantity(222);
-        position1.setExitValue(new BigDecimal(333));
         position1.setSecurity(this.forex1);
         position1.setStrategy(this.strategy1);
 
@@ -162,7 +161,6 @@ public class PositionDaoTest extends InMemoryDBTest {
 
         Position position1 = new PositionImpl();
         position1.setQuantity(222);
-        position1.setExitValue(new BigDecimal(333));
         position1.setSecurity(this.forex1);
         position1.setStrategy(this.strategy1);
 
@@ -174,7 +172,6 @@ public class PositionDaoTest extends InMemoryDBTest {
 
         Position position2 = new PositionImpl();
         position2.setQuantity(222);
-        position2.setExitValue(new BigDecimal(333));
         position2.setSecurity(this.forex2);
         position2.setStrategy(this.strategy1);
 
@@ -209,7 +206,6 @@ public class PositionDaoTest extends InMemoryDBTest {
 
         Position position1 = new PositionImpl();
         position1.setQuantity(222);
-        position1.setExitValue(new BigDecimal(333));
         position1.setSecurity(this.forex1);
         position1.setStrategy(this.strategy1);
 
@@ -221,7 +217,6 @@ public class PositionDaoTest extends InMemoryDBTest {
 
         Position position2 = new PositionImpl();
         position2.setQuantity(222);
-        position2.setExitValue(new BigDecimal(333));
         position2.setSecurity(this.forex2);
         position2.setStrategy(this.strategy1);
 
@@ -237,11 +232,9 @@ public class PositionDaoTest extends InMemoryDBTest {
         Assert.assertEquals(2, positions2.size());
 
         Assert.assertEquals(222, positions2.get(0).getQuantity());
-        Assert.assertEquals(new BigDecimal(333), positions2.get(0).getExitValue());
         Assert.assertEquals("Strategy1", positions2.get(0).getStrategy());
 
         Assert.assertEquals(222, positions2.get(1).getQuantity());
-        Assert.assertEquals(new BigDecimal(333), positions2.get(1).getExitValue());
         Assert.assertEquals("Strategy1", positions2.get(1).getStrategy());
     }
 
@@ -254,7 +247,6 @@ public class PositionDaoTest extends InMemoryDBTest {
 
         Position position1 = new PositionImpl();
         position1.setQuantity(222);
-        position1.setExitValue(new BigDecimal(333));
         position1.setSecurity(this.forex1);
         position1.setStrategy(this.strategy1);
 
@@ -266,7 +258,6 @@ public class PositionDaoTest extends InMemoryDBTest {
 
         Position position2 = new PositionImpl();
         position2.setQuantity(222);
-        position2.setExitValue(new BigDecimal(333));
         position2.setSecurity(this.forex2);
         position2.setStrategy(this.strategy1);
 
@@ -295,7 +286,6 @@ public class PositionDaoTest extends InMemoryDBTest {
 
         Position position1 = new PositionImpl();
         position1.setQuantity(222);
-        position1.setExitValue(new BigDecimal(333));
         position1.setSecurity(this.forex1);
         position1.setStrategy(this.strategy1);
 
@@ -307,7 +297,6 @@ public class PositionDaoTest extends InMemoryDBTest {
 
         Position position2 = new PositionImpl();
         position2.setQuantity(222);
-        position2.setExitValue(new BigDecimal(333));
         position2.setSecurity(this.forex2);
         position2.setStrategy(this.strategy1);
 
@@ -338,7 +327,6 @@ public class PositionDaoTest extends InMemoryDBTest {
 
         Position position1 = new PositionImpl();
         position1.setQuantity(0);
-        position1.setExitValue(new BigDecimal(333));
         position1.setSecurity(this.forex1);
         position1.setStrategy(this.strategy1);
 
@@ -350,7 +338,6 @@ public class PositionDaoTest extends InMemoryDBTest {
 
         Position position2 = new PositionImpl();
         position2.setQuantity(0);
-        position2.setExitValue(new BigDecimal(333));
         position2.setSecurity(this.forex2);
         position2.setStrategy(this.strategy1);
 
@@ -366,10 +353,8 @@ public class PositionDaoTest extends InMemoryDBTest {
         Assert.assertEquals(2, positions2.size());
 
         Assert.assertEquals(0, positions2.get(0).getQuantity());
-        Assert.assertEquals(new BigDecimal(333), positions2.get(0).getExitValue());
 
         Assert.assertEquals(0, positions2.get(1).getQuantity());
-        Assert.assertEquals(new BigDecimal(333), positions2.get(1).getExitValue());
     }
 
     @Test
@@ -381,7 +366,6 @@ public class PositionDaoTest extends InMemoryDBTest {
 
         Position position1 = new PositionImpl();
         position1.setQuantity(222);
-        position1.setExitValue(new BigDecimal(333));
         position1.setSecurity(this.forex1);
         position1.setStrategy(this.strategy1);
 
@@ -411,7 +395,6 @@ public class PositionDaoTest extends InMemoryDBTest {
 
         Position position1 = new PositionImpl();
         position1.setQuantity(222);
-        position1.setExitValue(new BigDecimal(333));
         position1.setSecurity(this.forex1);
         position1.setStrategy(this.strategy1);
 
@@ -441,7 +424,6 @@ public class PositionDaoTest extends InMemoryDBTest {
 
         Position position1 = new PositionImpl();
         position1.setQuantity(0);
-        position1.setExitValue(new BigDecimal(333));
         position1.setSecurity(this.forex1);
         position1.setStrategy(this.strategy1);
 
@@ -458,7 +440,6 @@ public class PositionDaoTest extends InMemoryDBTest {
 
         Position position2 = new PositionImpl();
         position2.setQuantity(222);
-        position2.setExitValue(new BigDecimal(333));
         position2.setSecurity(this.forex2);
         position2.setStrategy(this.strategy2);
 
@@ -512,7 +493,6 @@ public class PositionDaoTest extends InMemoryDBTest {
 
         Position position1 = new PositionImpl();
         position1.setQuantity(222);
-        position1.setExitValue(new BigDecimal(333));
         position1.setSecurity(this.forex1);
         position1.setStrategy(this.strategy1);
 
@@ -573,7 +553,6 @@ public class PositionDaoTest extends InMemoryDBTest {
 
         Position position1 = new PositionImpl();
         position1.setQuantity(222);
-        position1.setExitValue(new BigDecimal(333));
         position1.setSecurity(this.forex1);
         position1.setStrategy(this.strategy1);
 
@@ -603,7 +582,6 @@ public class PositionDaoTest extends InMemoryDBTest {
 
         Position position1 = new PositionImpl();
         position1.setQuantity(222);
-        position1.setExitValue(new BigDecimal(333));
         position1.setSecurity(this.forex1);
         position1.setStrategy(this.strategy1);
 
@@ -635,7 +613,6 @@ public class PositionDaoTest extends InMemoryDBTest {
 
         Position position1 = new PositionImpl();
         position1.setQuantity(222);
-        position1.setExitValue(new BigDecimal(333));
         position1.setSecurity(this.forex1);
         position1.setStrategy(this.strategy1);
 
@@ -668,7 +645,6 @@ public class PositionDaoTest extends InMemoryDBTest {
 
         Position position1 = new PositionImpl();
         position1.setQuantity(222);
-        position1.setExitValue(new BigDecimal(333));
         position1.setSecurity(this.forex1);
         position1.setStrategy(this.strategy1);
 
@@ -698,7 +674,6 @@ public class PositionDaoTest extends InMemoryDBTest {
 
         Position position1 = new PositionImpl();
         position1.setQuantity(222);
-        position1.setExitValue(new BigDecimal(333));
         position1.setSecurity(this.forex1);
         position1.setStrategy(this.strategy1);
 
@@ -728,7 +703,6 @@ public class PositionDaoTest extends InMemoryDBTest {
 
         Position position1 = new PositionImpl();
         position1.setQuantity(222);
-        position1.setExitValue(new BigDecimal(333));
         position1.setSecurity(this.forex1);
         position1.setStrategy(this.strategy1);
 
@@ -764,7 +738,6 @@ public class PositionDaoTest extends InMemoryDBTest {
 
         Position position1 = new PositionImpl();
         position1.setQuantity(222);
-        position1.setExitValue(new BigDecimal(333));
         position1.setSecurity(this.forex1);
         position1.setStrategy(this.strategy1);
 
@@ -772,7 +745,6 @@ public class PositionDaoTest extends InMemoryDBTest {
 
         Position position2 = new PositionImpl();
         position2.setQuantity(222);
-        position2.setExitValue(new BigDecimal(333));
         position2.setSecurity(this.forex1);
         position2.setStrategy(this.strategy2);
 
@@ -806,7 +778,6 @@ public class PositionDaoTest extends InMemoryDBTest {
 
         Position position1 = new PositionImpl();
         position1.setQuantity(222);
-        position1.setExitValue(new BigDecimal(333));
         position1.setSecurity(this.forex1);
         position1.setStrategy(this.strategy1);
 
@@ -839,7 +810,6 @@ public class PositionDaoTest extends InMemoryDBTest {
 
         Position position1 = new PositionImpl();
         position1.setQuantity(222);
-        position1.setExitValue(new BigDecimal(333));
         position1.setSecurity(this.forex1);
         position1.setStrategy(this.strategy1);
 
@@ -868,7 +838,6 @@ public class PositionDaoTest extends InMemoryDBTest {
 
         Position position1 = new PositionImpl();
         position1.setQuantity(222);
-        position1.setExitValue(new BigDecimal(333));
         position1.setSecurity(this.forex1);
         position1.setStrategy(this.strategy1);
 
@@ -876,7 +845,6 @@ public class PositionDaoTest extends InMemoryDBTest {
 
         Position position2 = new PositionImpl();
         position2.setQuantity(222);
-        position2.setExitValue(new BigDecimal(333));
         position2.setSecurity(this.forex1);
         position2.setStrategy(this.strategy2);
 
@@ -901,7 +869,6 @@ public class PositionDaoTest extends InMemoryDBTest {
 
         Position position1 = new PositionImpl();
         position1.setQuantity(222);
-        position1.setExitValue(new BigDecimal(333));
         position1.setSecurity(this.forex1);
         position1.setStrategy(this.strategy1);
 
@@ -936,7 +903,6 @@ public class PositionDaoTest extends InMemoryDBTest {
 
         Position position = new PositionImpl();
         position.setQuantity(222);
-        position.setExitValue(new BigDecimal(333));
         position.setSecurity(future);
         position.setStrategy(this.strategy1);
 
@@ -978,7 +944,6 @@ public class PositionDaoTest extends InMemoryDBTest {
 
         Position position1 = new PositionImpl();
         position1.setQuantity(222);
-        position1.setExitValue(new BigDecimal(333));
         position1.setSecurity(this.forex1);
         position1.setStrategy(this.strategy1);
 
@@ -1011,7 +976,6 @@ public class PositionDaoTest extends InMemoryDBTest {
 
         Position position1 = new PositionImpl();
         position1.setQuantity(222);
-        position1.setExitValue(new BigDecimal(333));
         position1.setSecurity(this.forex1);
         position1.setStrategy(this.strategy1);
         position1.setPersistent(false);
@@ -1044,7 +1008,6 @@ public class PositionDaoTest extends InMemoryDBTest {
 
         Position position1 = new PositionImpl();
         position1.setQuantity(222);
-        position1.setExitValue(new BigDecimal(333));
         position1.setSecurity(this.forex1);
         position1.setStrategy(this.strategy1);
 
@@ -1072,13 +1035,11 @@ public class PositionDaoTest extends InMemoryDBTest {
 
         Position position1 = new PositionImpl();
         position1.setQuantity(0);
-        position1.setExitValue(new BigDecimal(333));
         position1.setSecurity(this.forex1);
         position1.setStrategy(this.strategy1);
 
         Position position2 = new PositionImpl();
         position2.setQuantity(0);
-        position2.setExitValue(new BigDecimal(444));
         position2.setSecurity(this.forex2);
         position2.setStrategy(this.strategy2);
 
@@ -1090,9 +1051,7 @@ public class PositionDaoTest extends InMemoryDBTest {
 
         Assert.assertEquals(2, positions1.size());
         Assert.assertEquals(0, positions1.get(0).getQuantity());
-        Assert.assertEquals(new BigDecimal(333), positions1.get(0).getExitValue());
         Assert.assertEquals(0, positions1.get(1).getQuantity());
-        Assert.assertEquals(new BigDecimal(444), positions1.get(1).getExitValue());
     }
 
     @Test
@@ -1100,13 +1059,11 @@ public class PositionDaoTest extends InMemoryDBTest {
 
         Position position1 = new PositionImpl();
         position1.setQuantity(0);
-        position1.setExitValue(new BigDecimal(333));
         position1.setSecurity(this.forex1);
         position1.setStrategy(this.strategy1);
 
         Position position2 = new PositionImpl();
         position2.setQuantity(0);
-        position2.setExitValue(new BigDecimal(333));
         position2.setSecurity(this.forex2);
         position2.setStrategy(this.strategy2);
 

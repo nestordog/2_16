@@ -17,8 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.entity.security;
 
-import ch.algotrader.config.CommonConfig;
-import ch.algotrader.config.ConfigLocator;
 import ch.algotrader.entity.marketData.MarketDataEvent;
 
 /**
@@ -33,17 +31,6 @@ public abstract class SecurityImpl extends Security {
     @Override
     public double getLeverage(MarketDataEvent marketDataEvent, MarketDataEvent underlyingMarketDataEvent) {
         return 0;
-    }
-
-    /**
-     * generic default margin
-     */
-    @Override
-    public double getMargin(double currentValue, double underlyingCurrentValue) {
-
-        double contractSize = getSecurityFamily().getContractSize();
-        CommonConfig commonConfig = ConfigLocator.instance().getCommonConfig();
-        return currentValue * contractSize / commonConfig.getInitialMarginMarkup().doubleValue();
     }
 
     @Override

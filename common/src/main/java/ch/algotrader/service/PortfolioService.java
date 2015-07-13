@@ -178,46 +178,6 @@ public interface PortfolioService {
     public double getSecuritiesCurrentValueDouble(String filter, Map namedParameters, Date date);
 
     /**
-     * Gets the Maintenance Margin of the entire System.
-     */
-    public BigDecimal getMaintenanceMargin();
-
-    /**
-     * Gets the Maintenance Margin of the specified Strategy.
-     */
-    public BigDecimal getMaintenanceMargin(String strategyName);
-
-    /**
-     * Gets the Maintenance Margin of the entire System.
-     */
-    public double getMaintenanceMarginDouble();
-
-    /**
-     * Gets the Maintenance Margin of the specified Strategy.
-     */
-    public double getMaintenanceMarginDouble(String strategyName);
-
-    /**
-     * Gets the Initial Margin of the entire System.
-     */
-    public BigDecimal getInitialMargin();
-
-    /**
-     * Gets the Initial Margin of the specified Strategy.
-     */
-    public BigDecimal getInitialMargin(String strategyName);
-
-    /**
-     * Gets the Initial Margin of the entire System.
-     */
-    public double getInitialMarginDouble();
-
-    /**
-     * Gets the Initial Margin of the specified Strategy.
-     */
-    public double getInitialMarginDouble(String strategyName);
-
-    /**
      * Gets the Net-Liquidation-Value of the entire System.
      */
     public BigDecimal getNetLiqValue();
@@ -236,26 +196,6 @@ public interface PortfolioService {
      * Gets the Net-Liquidation-Value of the specified Strategy.
      */
     public double getNetLiqValueDouble(String strategyName);
-
-    /**
-     * Gets the available Funds of the entire System.
-     */
-    public BigDecimal getAvailableFunds();
-
-    /**
-     * Gets the available Funds of the specified Strategy.
-     */
-    public BigDecimal getAvailableFunds(String strategyName);
-
-    /**
-     * Gets the available Funds of the entire System.
-     */
-    public double getAvailableFundsDouble();
-
-    /**
-     * Gets the available Funds of the specified Strategy.
-     */
-    public double getAvailableFundsDouble(String strategyName);
 
     /**
      * Gets the current Leverage of the entire System.

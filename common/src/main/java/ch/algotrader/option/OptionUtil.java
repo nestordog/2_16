@@ -322,47 +322,6 @@ public class OptionUtil {
     }
 
     /**
-     * Gets the current maintenace margin for an Option using the Eurex Risk based Margining.
-     * {@code duration}, {@code intrest}, {@code dividend} and {@code marginParameter} are retrieved from the {@link OptionFamily}.
-     */
-    public static double getMaintenanceMargin(Option option, double optionSettlement, double underlyingSettlement, Date now) throws MathException {
-
-        return getTotalMargin(option, optionSettlement, underlyingSettlement, now) - optionSettlement;
-    }
-
-    /**
-     * Gets the total maintenace margin for an Option using the Eurex Risk based Margining
-     * {@code duration}, {@code intrest}, {@code dividend} and {@code marginParameter} are retrieved from the {@link OptionFamily}.
-     */
-    public static double getTotalMargin(Option option, double optionSettlement, double underlyingSettlement, Date now) throws MathException {
-
-        OptionFamily family = (OptionFamily) option.getSecurityFamily();
-
-        double years = (option.getExpiration().getTime() - now.getTime()) / (double) Duration.YEAR_1.getValue();
-
-        return getTotalMargin(underlyingSettlement, option.getStrike().doubleValue(), optionSettlement, years, family.getIntrest(), family.getDividend(), option.getType(),
-                family.getMarginParameter());
-    }
-
-    /**
-     * Gets the total maintenace margin for a {@link Option} using the Eurex Risk based Margining
-     */
-    public static double getTotalMargin(double underlyingSettlement, double strike, double optionSettlement, double years, double intrest,
-            double dividend, OptionType type, double marginParameter) throws MathException {
-
-        double marginLevel;
-        if (OptionType.CALL.equals(type)) {
-            marginLevel = underlyingSettlement * (1.0 + marginParameter);
-        } else {
-            marginLevel = underlyingSettlement * (1.0 - marginParameter);
-        }
-
-        double volatility = OptionUtil.getImpliedVolatility(underlyingSettlement, strike, optionSettlement, years, intrest, dividend, type);
-
-        return getOptionPrice(marginLevel, strike, volatility, years, intrest, 0, type);
-    }
-
-    /**
      * Gets the forward price of a {@link Option}
      */
     public static double getForward(double spot, double years, double intrest, double dividend) {

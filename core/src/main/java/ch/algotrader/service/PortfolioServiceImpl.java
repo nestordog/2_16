@@ -449,104 +449,6 @@ public class PortfolioServiceImpl implements PortfolioService {
      * {@inheritDoc}
      */
     @Override
-    public BigDecimal getMaintenanceMargin() {
-
-        return RoundUtil.getBigDecimal(getMaintenanceMarginDouble());
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public BigDecimal getMaintenanceMargin(final String strategyName) {
-
-        Validate.notEmpty(strategyName, "Strategy name is empty");
-
-        return RoundUtil.getBigDecimal(getMaintenanceMarginDouble(strategyName));
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public double getMaintenanceMarginDouble() {
-
-        double margin = 0.0;
-        Collection<Position> positions = this.positionDao.findOpenTradeablePositions();
-        for (Position position : positions) {
-            margin += position.getMaintenanceMargin() != null ? position.getMaintenanceMargin().doubleValue() * this.localLookupService.getForexRateBase(position.getSecurity()) : 0.0;
-        }
-        return margin;
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public double getMaintenanceMarginDouble(final String strategyName) {
-
-        Validate.notEmpty(strategyName, "Strategy name is empty");
-
-        double margin = 0.0;
-        List<Position> positions = this.positionDao.findOpenTradeablePositionsByStrategy(strategyName);
-        for (Position position : positions) {
-            margin += position.getMaintenanceMargin().doubleValue() * this.localLookupService.getForexRateBase(position.getSecurity());
-        }
-        return margin;
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public BigDecimal getInitialMargin() {
-
-        return RoundUtil.getBigDecimal(getInitialMarginDouble());
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public BigDecimal getInitialMargin(final String strategyName) {
-
-        Validate.notEmpty(strategyName, "Strategy name is empty");
-
-        return RoundUtil.getBigDecimal(getInitialMarginDouble(strategyName));
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public double getInitialMarginDouble() {
-
-        return this.commonConfig.getInitialMarginMarkup().doubleValue() * getMaintenanceMarginDouble();
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public double getInitialMarginDouble(final String strategyName) {
-
-        Validate.notEmpty(strategyName, "Strategy name is empty");
-
-        return this.commonConfig.getInitialMarginMarkup().doubleValue() * getMaintenanceMarginDouble(strategyName);
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public BigDecimal getNetLiqValue() {
 
         return RoundUtil.getBigDecimal(getNetLiqValueDouble());
@@ -584,50 +486,6 @@ public class PortfolioServiceImpl implements PortfolioService {
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
         return getCashBalanceDouble(strategyName) + getSecuritiesCurrentValueDouble(strategyName);
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public BigDecimal getAvailableFunds() {
-
-        return RoundUtil.getBigDecimal(getAvailableFundsDouble());
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public BigDecimal getAvailableFunds(final String strategyName) {
-
-        Validate.notEmpty(strategyName, "Strategy name is empty");
-
-        return RoundUtil.getBigDecimal(getAvailableFundsDouble(strategyName));
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public double getAvailableFundsDouble() {
-
-        return getNetLiqValueDouble() - getInitialMarginDouble();
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public double getAvailableFundsDouble(final String strategyName) {
-
-        Validate.notEmpty(strategyName, "Strategy name is empty");
-
-        return getNetLiqValueDouble(strategyName) - getInitialMarginDouble(strategyName);
 
     }
 
@@ -723,18 +581,15 @@ public class PortfolioServiceImpl implements PortfolioService {
 
         BigDecimal cashBalance;
         BigDecimal securitiesCurrentValue;
-        BigDecimal maintenanceMargin;
         double leverage;
         if (strategy.isServer()) {
             cashBalance = getCashBalance();
             securitiesCurrentValue = getSecuritiesCurrentValue();
-            maintenanceMargin = getMaintenanceMargin();
             leverage = getLeverage();
 
         } else {
             cashBalance = getCashBalance(strategy.getName());
             securitiesCurrentValue = getSecuritiesCurrentValue(strategy.getName());
-            maintenanceMargin = getMaintenanceMargin(strategy.getName());
             leverage = getLeverage(strategy.getName());
         }
 
@@ -744,7 +599,6 @@ public class PortfolioServiceImpl implements PortfolioService {
         portfolioValue.setDateTime(this.engineManager.getCurrentEPTime());
         portfolioValue.setCashBalance(cashBalance);
         portfolioValue.setSecuritiesCurrentValue(securitiesCurrentValue); // might be null if there was no last tick for a particular security
-        portfolioValue.setMaintenanceMargin(maintenanceMargin);
         portfolioValue.setNetLiqValue(securitiesCurrentValue != null ? cashBalance.add(securitiesCurrentValue) : null); // add here to prevent another lookup
         portfolioValue.setLeverage(Double.isNaN(leverage) ? 0 : leverage);
         portfolioValue.setAllocation(strategy.getAllocation());
@@ -782,7 +636,6 @@ public class PortfolioServiceImpl implements PortfolioService {
         portfolioValue.setCashBalance(cashBalance);
         portfolioValue.setSecuritiesCurrentValue(securitiesCurrentValue);
         portfolioValue.setNetLiqValue(cashBalance.add(securitiesCurrentValue)); // add here to prevent another lookup
-        portfolioValue.setMaintenanceMargin(new BigDecimal(0));
 
         return portfolioValue;
 
@@ -1122,7 +975,7 @@ public class PortfolioServiceImpl implements PortfolioService {
                 date = cron.next(date);
                 continue;
             } else {
-                MultiKey<Long> key = new MultiKey<>((long) strategy.getId(), date.getTime());
+                MultiKey<Long> key = new MultiKey<>(strategy.getId(), date.getTime());
                 portfolioValueMap.put(key, portfolioValue);
 
                 if (LOGGER.isInfoEnabled()) {
@@ -1148,7 +1001,7 @@ public class PortfolioServiceImpl implements PortfolioService {
             }
 
             // if there is an existing PortfolioValue, add the cashFlow
-            MultiKey<Long> key = new MultiKey<>((long) transaction.getStrategy().getId(), transaction.getDateTime().getTime());
+            MultiKey<Long> key = new MultiKey<>(transaction.getStrategy().getId(), transaction.getDateTime().getTime());
             if (portfolioValueMap.containsKey(key)) {
                 PortfolioValue portfolioValue = portfolioValueMap.get(key);
                 if (portfolioValue.getCashFlow() != null) {

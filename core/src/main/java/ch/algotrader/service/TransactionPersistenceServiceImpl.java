@@ -139,15 +139,8 @@ public abstract class TransactionPersistenceServiceImpl implements TransactionPe
             // process the transaction (adjust quantity, cost and realizedPL)
             tradePerformance = PositionTrackerImpl.INSTANCE.processTransaction(position, transaction);
 
-            // in case a position was closed reset exitValue and margin
-            if (!position.isOpen()) {
-
-                // set all values to null
-                position.setExitValue(null);
-                position.setMaintenanceMargin(null);
-            } else {
-
-                // reset the closePosition event
+            // in case a position is open reset the closePosition event
+            if (position.isOpen()) {
                 closePositionVO = null;
             }
 

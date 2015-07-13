@@ -17,7 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
-import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -188,12 +187,6 @@ public interface LookupService {
     public Collection<Combination> getSubscribedCombinationsByStrategyAndComponentClass(String strategyName, Class type);
 
     /**
-     * Gets Combinations that are subscribed by the specified Strategy, have a Component with the
-     * specified Security Type and a Component quantity of zero.
-     */
-    public Collection<Combination> getSubscribedCombinationsByStrategyAndComponentClassWithZeroQty(String strategyName, Class type);
-
-    /**
      * Gets all Components where the Combination is subscribed by the defined Strategy.  In addition
      * the Security and Combination are initialized.
      */
@@ -244,11 +237,6 @@ public interface LookupService {
      * Gets a Strategy by its {@code strategyName}.
      */
     public Strategy getStrategyByName(String name);
-
-    /**
-     * Gets all Strategies which are marked as {@code autoActivate}
-     */
-    public Collection<Strategy> getAutoActivateStrategies();
 
     /**
      * Gets a {@code SecurityFamily} by its {@code id}.
@@ -359,12 +347,6 @@ public interface LookupService {
     public Transaction getTransaction(long id);
 
     /**
-     * Gets all Trades (either  {@code BUY} or {@code SELL}) between {@code minDate} and {@code
-     * maxDate}
-     */
-    public List<Transaction> getTradesByMinDateAndMaxDate(Date minDate, Date maxDate);
-
-    /**
      * Gets {@link TransactionVO TransactionVOs} corresponding to the specified Strategy. Only the
      * latest {@code transactionDisplayCount} will be returned.
      */
@@ -401,8 +383,6 @@ public interface LookupService {
      */
     public Collection<OrderStatusVO> getOpenOrdersVOByStrategy(String strategyName);
 
-
-    public BigDecimal getLastIntOrderId(String sessionQualifier);
 
     /**
      * Gets an Account by its {@code accountName}.

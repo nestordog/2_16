@@ -244,8 +244,6 @@ public class CacheTest {
     @Test
     public void testHQL() {
 
-        Position position1 = LookupUtil.getPositionBySecurityAndStrategy(securityId2, STRATEGY_NAME);
-
         String queryString = "from PositionImpl as p join fetch p.security as s where s.id = :id";
         SingletonMap<String, Object> namedParameters = new SingletonMap<>("id", securityId2);
 
@@ -256,15 +254,6 @@ public class CacheTest {
         Assert.assertNotNull(position2);
         Assert.assertEquals(position2, position3);
         Assert.assertSame(position2, position3);
-
-        // exit Value
-        Assert.assertNull(position1.getExitValue());
-
-        BigDecimal exitValue = new BigDecimal(1);
-        positionService.setExitValue(position1.getId(), exitValue, true);
-
-        Position position5 = (Position) cache.query(queryString, namedParameters).iterator().next();
-        Assert.assertTrue(position5.getExitValue().compareTo(exitValue) == 0);
 
     }
 

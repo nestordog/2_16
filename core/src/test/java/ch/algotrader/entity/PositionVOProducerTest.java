@@ -17,8 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.entity;
 
-import java.math.BigDecimal;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -79,11 +77,9 @@ public class PositionVOProducerTest {
         position.setQuantity(0);
         position.setCost(333.33);
         position.setRealizedPL(444.44);
-        position.setExitValue(new BigDecimal(103.55));
         position.setSecurity(forex);
         position.setStrategy(strategy);
         position.setRealizedPL(102);
-        position.setMaintenanceMargin(new BigDecimal(104.666));
 
         int scale = position.getSecurity().getSecurityFamily().getScale();
 
@@ -104,9 +100,6 @@ public class PositionVOProducerTest {
         Assert.assertEquals(RoundUtil.getBigDecimal(position.getCost()), vo.getCost());
         Assert.assertEquals(RoundUtil.getBigDecimal(position.getUnrealizedPL(this.tick)), vo.getUnrealizedPL());
         Assert.assertEquals(RoundUtil.getBigDecimal(position.getRealizedPL()), vo.getRealizedPL());
-        Assert.assertEquals(RoundUtil.getBigDecimal(position.getMaxLoss(this.tick)), vo.getMaxLoss());
-        Assert.assertEquals(position.getExitValue().setScale(scale, BigDecimal.ROUND_HALF_UP), vo.getExitValue());
-        Assert.assertEquals(position.getMaintenanceMargin().setScale(scale, BigDecimal.ROUND_HALF_UP), vo.getMargin());
     }
 
 }

@@ -44,7 +44,6 @@ import ch.algotrader.entity.security.Future;
 import ch.algotrader.entity.security.FutureFamily;
 import ch.algotrader.entity.security.GenericFuture;
 import ch.algotrader.entity.security.GenericFutureFamily;
-import ch.algotrader.entity.security.ImpliedVolatility;
 import ch.algotrader.entity.security.Index;
 import ch.algotrader.entity.security.IntrestRate;
 import ch.algotrader.entity.security.Option;
@@ -127,8 +126,6 @@ public interface EntityVisitor<R, P> {
     R visitGenericTick(GenericTick entity, P param);
 
     R visitHoliday(Holiday entity, P param);
-
-    R visitImpliedVolatility(ImpliedVolatility entity, P param);
 
     R visitIndex(Index entity, P param);
 

@@ -22,15 +22,6 @@
      */
     public abstract double getLeverage(ch.algotrader.entity.marketData.MarketDataEvent marketDataEvent, ch.algotrader.entity.marketData.MarketDataEvent underlyingMarketDataEvent);
 
-    /**
-     * Gets the margin (per contract) of this Security. This method has to be overwritten by
-     * marginable subclasses.
-     * @param currentValue 
-     * @param underlyingCurrentValue 
-     * @return double
-     */
-    public abstract double getMargin(double currentValue, double underlyingCurrentValue);
-
 ]]>   
 	    </meta> 	    
         <meta attribute="class-description"><![CDATA[The base class of all Securities in the system]]></meta>
@@ -326,61 +317,6 @@
                 <column name="GICS" not-null="false" unique="false" sql-type="VARCHAR(255)"/>
 
                 <type name="java.lang.String"/>
-            </property>
-        </joined-subclass>
-        <joined-subclass name="ch.algotrader.entity.security.ImpliedVolatilityImpl" table="`implied_volatility`" dynamic-insert="false" dynamic-update="false" abstract="false">
-            <meta attribute="implements">ch.algotrader.entity.security.ImpliedVolatilityI</meta>
-            <meta attribute="generated-class">ch.algotrader.entity.security.ImpliedVolatility</meta>
-            <meta attribute="class-code">
-<![CDATA[
-]]>   
-            </meta>  
-            <key foreign-key="IMPLIED_VOLATILITYIFKC">
-                <column name="ID" sql-type="BIGINT"/>
-            </key>
-            <property name="duration">
-                <meta attribute="field-description"><![CDATA[Duration defined as one of the Standard {@link Duration Durations}.]]></meta>
-                <meta attribute="property-type">ch.algotrader.enumeration.Duration</meta>
-                <column name="DURATION" not-null="true" unique="false" sql-type="BIGINT"/>
-
-                <type name="ch.algotrader.hibernate.HibernateEnumType">
-                 <param name="enumClassName">ch.algotrader.enumeration.Duration</param>
-                </type>
-            </property>
-            <property name="moneyness">
-                <meta attribute="field-description"><![CDATA[The Moneyness of this ImpliedVolatility.
-<p>
-Example:
-<ul>
-<li>Call: 1 - strike/spot</li>
-<li>Put: strike/spot - 1</li>
-</ul>
-<i>Note: The ATM Moneyness is 0</i>]]></meta>
-                <column name="MONEYNESS" not-null="false" unique="false" sql-type="DOUBLE"/>
-
-                <type name="java.lang.Double"/>
-            </property>
-            <property name="delta">
-                <meta attribute="field-description"><![CDATA[The Delta of this ImpliedVolatility.
-<p>
-Example:
-<ul>
-<li>Call: 0% (OTM) - 100% (ITM)</li>
-<li>Put: 0% (ITM) - 100% (OTM)</li>
-</ul>
-<i>Note: The ATM Delta is 50%</i>]]></meta>
-                <column name="DELTA" not-null="false" unique="false" sql-type="DOUBLE"/>
-
-                <type name="java.lang.Double"/>
-            </property>
-            <property name="type">
-                <meta attribute="field-description"><![CDATA[The {@link OptionType} (i.e. Put or Call)]]></meta>
-                <meta attribute="property-type">ch.algotrader.enumeration.OptionType</meta>
-                <column name="TYPE" not-null="true" unique="false" sql-type="VARCHAR(255)"/>
-
-                <type name="ch.algotrader.hibernate.HibernateEnumType">
-                 <param name="enumClassName">ch.algotrader.enumeration.OptionType</param>
-                </type>
             </property>
         </joined-subclass>
         <joined-subclass name="ch.algotrader.entity.security.CombinationImpl" table="`combination`" dynamic-insert="false" dynamic-update="false" abstract="false">

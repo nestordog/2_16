@@ -281,21 +281,6 @@ public class ManagementServiceImpl implements ManagementService {
      * {@inheritDoc}
      */
     @Override
-    @ManagedAttribute(description = "Gets the available Funds of this Strategy (or the entire System if called from the AlgoTrader Server)")
-    public BigDecimal getStrategyAvailableFunds() {
-
-        if (strategyName.equals(StrategyImpl.SERVER)) {
-            return this.portfolioService.getAvailableFunds();
-        } else {
-            return this.portfolioService.getAvailableFunds(strategyName);
-        }
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     @ManagedAttribute(description = "Gets the Allocation that is assigned to this Strategy (or to the AlgoTrader Server)")
     public double getStrategyAllocation() {
 
@@ -329,21 +314,6 @@ public class ManagementServiceImpl implements ManagementService {
             return this.portfolioService.getLeverage();
         } else {
             return this.portfolioService.getLeverage(strategyName);
-        }
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @ManagedAttribute(description = "Gets the Maintenance Margin of this Strategy (or the entire System if called from the AlgoTrader Server)")
-    public BigDecimal getStrategyMaintenanceMargin() {
-
-        if (strategyName.equals(StrategyImpl.SERVER)) {
-            return this.portfolioService.getMaintenanceMargin();
-        } else {
-            return this.portfolioService.getMaintenanceMargin(strategyName);
         }
 
     }
@@ -619,30 +589,6 @@ public class ManagementServiceImpl implements ManagementService {
         Validate.notEmpty(combination, "Combination is empty");
 
         this.combinationService.reduceCombination(getSecurityId(combination), strategyName, ratio);
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @ManagedOperation(description = "Set or modify the ExitValue of the specified Position")
-    @ManagedOperationParameters({ @ManagedOperationParameter(name = "positionId", description = "positionId"), @ManagedOperationParameter(name = "exitValue", description = "exitValue") })
-    public void setExitValue(final long positionId, final double exitValue) {
-
-        this.positionService.setExitValue(positionId, new BigDecimal(exitValue), true);
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @ManagedOperation(description = "Remove the ExitValue from the specified Position")
-    @ManagedOperationParameters({ @ManagedOperationParameter(name = "positionId", description = "positionId") })
-    public void removeExitValue(final long positionId) {
-
-        this.positionService.removeExitValue(positionId);
 
     }
 

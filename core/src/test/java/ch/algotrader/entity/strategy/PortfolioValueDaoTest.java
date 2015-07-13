@@ -91,7 +91,6 @@ public class PortfolioValueDaoTest extends InMemoryDBTest {
         portfolioValue1.setNetLiqValue(new BigDecimal("11.1"));
         portfolioValue1.setSecuritiesCurrentValue(new BigDecimal("12.2"));
         portfolioValue1.setCashBalance(new BigDecimal("13.3"));
-        portfolioValue1.setMaintenanceMargin(new BigDecimal("14.4"));
         portfolioValue1.setLeverage(15.5);
         portfolioValue1.setAllocation(16.6);
         portfolioValue1.setCashFlow(new BigDecimal("17.7"));
@@ -105,7 +104,6 @@ public class PortfolioValueDaoTest extends InMemoryDBTest {
         portfolioValue2.setNetLiqValue(new BigDecimal("21.1"));
         portfolioValue2.setSecuritiesCurrentValue(new BigDecimal("22.2"));
         portfolioValue2.setCashBalance(new BigDecimal("23.3"));
-        portfolioValue2.setMaintenanceMargin(new BigDecimal("24.4"));
         portfolioValue2.setLeverage(25.5);
         portfolioValue2.setAllocation(26.6);
         portfolioValue2.setCashFlow(new BigDecimal("27.7"));
@@ -147,7 +145,6 @@ public class PortfolioValueDaoTest extends InMemoryDBTest {
         portfolioValue1.setNetLiqValue(new BigDecimal("11.1"));
         portfolioValue1.setSecuritiesCurrentValue(new BigDecimal("12.2"));
         portfolioValue1.setCashBalance(new BigDecimal("13.3"));
-        portfolioValue1.setMaintenanceMargin(new BigDecimal("14.4"));
         portfolioValue1.setLeverage(15.5);
         portfolioValue1.setAllocation(16.6);
         portfolioValue1.setCashFlow(new BigDecimal("17.7"));
@@ -161,7 +158,6 @@ public class PortfolioValueDaoTest extends InMemoryDBTest {
         portfolioValue2.setNetLiqValue(new BigDecimal("21.1"));
         portfolioValue2.setSecuritiesCurrentValue(new BigDecimal("22.2"));
         portfolioValue2.setCashBalance(new BigDecimal("23.3"));
-        portfolioValue2.setMaintenanceMargin(new BigDecimal("24.4"));
         portfolioValue2.setLeverage(25.5);
         portfolioValue2.setAllocation(26.6);
         portfolioValue2.setCashFlow(new BigDecimal("27.7"));
@@ -188,7 +184,6 @@ public class PortfolioValueDaoTest extends InMemoryDBTest {
         Assert.assertEquals(portfolioValue2.getNetLiqValue(), portfolioValueVO1.getNetLiqValue());
         Assert.assertEquals(portfolioValue2.getSecuritiesCurrentValue(), portfolioValueVO1.getSecuritiesCurrentValue());
         Assert.assertEquals(portfolioValue2.getCashBalance(), portfolioValueVO1.getCashBalance());
-        Assert.assertEquals(portfolioValue2.getMaintenanceMargin(), portfolioValueVO1.getMaintenanceMargin());
         Assert.assertEquals(new Double(portfolioValue2.getLeverage()), new Double(portfolioValueVO1.getLeverage()));
         Assert.assertEquals(new Double(portfolioValue2.getAllocation()), new Double(portfolioValueVO1.getAllocation()));
         Assert.assertEquals(portfolioValue2.getCashFlow(), portfolioValueVO1.getCashFlow());
@@ -209,7 +204,6 @@ public class PortfolioValueDaoTest extends InMemoryDBTest {
         Assert.assertEquals(portfolioValue1.getNetLiqValue(), portfolioValueVO2.getNetLiqValue());
         Assert.assertEquals(portfolioValue1.getSecuritiesCurrentValue(), portfolioValueVO2.getSecuritiesCurrentValue());
         Assert.assertEquals(portfolioValue1.getCashBalance(), portfolioValueVO2.getCashBalance());
-        Assert.assertEquals(portfolioValue1.getMaintenanceMargin(), portfolioValueVO2.getMaintenanceMargin());
         Assert.assertEquals(new Double(portfolioValue1.getLeverage()), new Double(portfolioValueVO2.getLeverage()));
         Assert.assertEquals(new Double(portfolioValue1.getAllocation()), new Double(portfolioValueVO2.getAllocation()));
         Assert.assertEquals(portfolioValue1.getCashFlow(), portfolioValueVO2.getCashFlow());
@@ -218,7 +212,6 @@ public class PortfolioValueDaoTest extends InMemoryDBTest {
         Assert.assertEquals(portfolioValue2.getNetLiqValue(), portfolioValueVO3.getNetLiqValue());
         Assert.assertEquals(portfolioValue2.getSecuritiesCurrentValue(), portfolioValueVO3.getSecuritiesCurrentValue());
         Assert.assertEquals(portfolioValue2.getCashBalance(), portfolioValueVO3.getCashBalance());
-        Assert.assertEquals(portfolioValue2.getMaintenanceMargin(), portfolioValueVO3.getMaintenanceMargin());
         Assert.assertEquals(new Double(portfolioValue2.getLeverage()), new Double(portfolioValueVO3.getLeverage()));
         Assert.assertEquals(new Double(portfolioValue2.getAllocation()), new Double(portfolioValueVO3.getAllocation()));
         Assert.assertEquals(portfolioValue2.getCashFlow(), portfolioValueVO3.getCashFlow());

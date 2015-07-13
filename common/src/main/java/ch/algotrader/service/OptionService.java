@@ -21,12 +21,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 import ch.algotrader.entity.security.Option;
-import ch.algotrader.entity.security.Security;
-import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.OptionType;
-import ch.algotrader.vo.ATMVolVO;
-import ch.algotrader.vo.SABRSmileVO;
-import ch.algotrader.vo.SABRSurfaceVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -55,44 +50,6 @@ public interface OptionService {
      * SecurityFamily.strikeDistance}.
      */
     public Option createDummyOption(long optionFamilyId, Date targetExpirationDate, BigDecimal targetStrike, OptionType type);
-
-    /**
-     * Prints SABR {@code alpha} / {@code rho} / {@code volvol} as well as Call & Put {@code
-     * atmVola} for defined underlying {@code isin}, {@code expirationDate} and {@code optionType}
-     * The calculation is done from {code startDate} to {@code expirationDate} 09:00 - 17:20:00.
-     */
-    public void printSABRSmileByOptionPrice(String isin, Date expirationDate, OptionType optionType, Date startDate);
-
-    /**
-     * Prints SABR {@code alpha} / {@code rho} / {@code volvol} for defined underlying {@code isin}
-     * and {@code duration}.
-     * The calculation is done from {@code startDate} to {@code endDate} once a day.
-     */
-    public void printSABRSmileByIVol(String isin, Duration duration, Date startDate, Date endDate);
-
-    /**
-     * Calculates the {@link SABRSmileVO} for defined {@code underlyingId}, {@code optionType} and
-     * {@code expirationDate} for the specified {@code date}.
-     */
-    public SABRSmileVO calibrateSABRSmileByOptionPrice(long underlyingId, OptionType type, Date expirationDate, Date date);
-
-    /**
-     * Calculates the {@link SABRSmileVO} for defined {@code underlyingId}, and {@code duration} for
-     * the specified {@code date}.
-     */
-    public SABRSmileVO calibrateSABRSmileByIVol(long underlyingId, Duration duration, Date date);
-
-    /**
-     * Calculates a {@link SABRSurfaceVO} for defined {@code underlyingId}, and {@code duration} for
-     * the specified {@code date}
-     */
-    public SABRSurfaceVO calibrateSABRSurfaceByIVol(long underlyingId, Date date);
-
-    /**
-     * Calculates the {@link ATMVolVO} for defined {@code underlying} and {@code date}
-     * the calculation considers the Call Option and Put Option closest to the spot.
-     */
-    public ATMVolVO calculateATMVol(Security underlying, Date date);
 
     /**
      * Gets the first Options of the give {@code underlyingId} and {@code optionType} that expire

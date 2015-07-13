@@ -152,13 +152,6 @@
     public abstract double getUnrealizedPL(ch.algotrader.entity.marketData.MarketDataEvent marketDataEvent);
 
     /**
-     * Gets the potential loss that would incur, if the price reached the {@code exitValue}
-     * @param marketDataEvent 
-     * @return double
-     */
-    public abstract double getMaxLoss(ch.algotrader.entity.marketData.MarketDataEvent marketDataEvent);
-
-    /**
      * Gets the current market exposure (market value x leverage).
      * @param marketDataEvent 
      * @param underlyingMarketDataEvent 
@@ -206,18 +199,6 @@
                 <column name="REALIZED_P_L" not-null="true" unique="false" sql-type="DOUBLE"/>
 
                 <type name="double"/>
-            </property>
-            <property name="exitValue">
-                <meta attribute="field-description"><![CDATA[The price at which the Position will be closed. If an exitValue is defined, the Position will be closed using the defined default {@link ch.algotrader.entity.trade.OrderPreference DefaultOrderPreference}. A Position is closed by the AlgoTrader Server, therefore a corresponding Strategy does not have to be running.]]></meta>
-                <column name="EXIT_VALUE" not-null="false" unique="false" sql-type="Decimal(15,6)"/>
-
-                <type name="java.math.BigDecimal"/>
-            </property>
-            <property name="maintenanceMargin">
-                <meta attribute="field-description"><![CDATA[The current margin needed by this Position.]]></meta>
-                <column name="MAINTENANCE_MARGIN" not-null="false" unique="false" sql-type="Decimal(15,6)"/>
-
-                <type name="java.math.BigDecimal"/>
             </property>
             <property name="persistent">
                 <meta attribute="field-description"><![CDATA[If set to {@code false}, the Position will be removed when resetting the database before a simulation run.]]></meta>

@@ -114,23 +114,6 @@ public class PositionImpl extends Position {
     }
 
     @Override
-    public double getMaxLoss(MarketDataEvent marketDataEvent) {
-
-        if (isOpen() && getExitValue() != null) {
-
-            double maxLossPerItem;
-            if (Direction.LONG.equals(getDirection())) {
-                maxLossPerItem = getMarketPrice(marketDataEvent) - getExitValue().doubleValue();
-            } else {
-                maxLossPerItem = getExitValue().doubleValue() - getMarketPrice(marketDataEvent);
-            }
-            return -getQuantity() * getSecurity().getSecurityFamily().getContractSize() * maxLossPerItem;
-        } else {
-            return 0.0;
-        }
-    }
-
-    @Override
     public double getExposure(MarketDataEvent marketDataEvent, MarketDataEvent underlyingMarketDataEvent) {
 
         return getMarketValue(marketDataEvent) * getSecurity().getLeverage(marketDataEvent, underlyingMarketDataEvent);

@@ -44,7 +44,6 @@ import ch.algotrader.entity.security.Future;
 import ch.algotrader.entity.security.FutureFamily;
 import ch.algotrader.entity.security.GenericFuture;
 import ch.algotrader.entity.security.GenericFutureFamily;
-import ch.algotrader.entity.security.ImpliedVolatility;
 import ch.algotrader.entity.security.Index;
 import ch.algotrader.entity.security.IntrestRate;
 import ch.algotrader.entity.security.Option;
@@ -180,11 +179,6 @@ public class DefaultEntityVisitor<R, P> implements EntityVisitor<R, P> {
 
     @Override
     public R visitHoliday(Holiday entity, P param) {
-        return null;
-    }
-
-    @Override
-    public R visitImpliedVolatility(ImpliedVolatility entity, P param) {
         return null;
     }
 

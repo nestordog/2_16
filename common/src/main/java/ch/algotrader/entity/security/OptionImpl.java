@@ -55,17 +55,6 @@ public class OptionImpl extends Option {
     }
 
     @Override
-    public double getMargin(double currentValue, double underlyingCurrentValue) {
-
-        try {
-            return OptionUtil.getMaintenanceMargin(this, currentValue, underlyingCurrentValue,
-                    ServiceLocator.instance().getEngineManager().getCurrentEPTime()) * getSecurityFamily().getContractSize();
-        } catch (MathException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
     public long getTimeToExpiration(Date dateTime) {
 
         return getExpiration().getTime() - dateTime.getTime();

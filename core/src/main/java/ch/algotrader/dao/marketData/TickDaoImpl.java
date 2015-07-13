@@ -35,8 +35,6 @@ import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.marketData.TickImpl;
 import ch.algotrader.entity.security.Security;
-import ch.algotrader.enumeration.Duration;
-import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.enumeration.QueryType;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.hibernate.AbstractDao;
@@ -119,7 +117,6 @@ public class TickDaoImpl extends AbstractDao<Tick> implements TickDao {
                 intervalDays));
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public List<Long> findDailyTickIdsBeforeTime(long securityId, Date time) {
 
@@ -128,7 +125,6 @@ public class TickDaoImpl extends AbstractDao<Tick> implements TickDao {
         return convertIds(findObjects(null, "Tick.findDailyTickIdsBeforeTime", QueryType.BY_NAME, new NamedParam("securityId", securityId), new NamedParam("time", time)));
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public List<Long> findDailyTickIdsAfterTime(long securityId, Date time) {
 
@@ -137,7 +133,6 @@ public class TickDaoImpl extends AbstractDao<Tick> implements TickDao {
         return convertIds(findObjects(null, "Tick.findDailyTickIdsAfterTime", QueryType.BY_NAME, new NamedParam("securityId", securityId), new NamedParam("time", time)));
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public List<Long> findHourlyTickIdsBeforeMinutesByMinDate(long securityId, int minutes, Date minDate) {
 
@@ -147,7 +142,6 @@ public class TickDaoImpl extends AbstractDao<Tick> implements TickDao {
                 new NamedParam("minDate", minDate))));
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public List<Long> findHourlyTickIdsAfterMinutesByMinDate(long securityId, int minutes, Date minDate) {
 
@@ -185,35 +179,6 @@ public class TickDaoImpl extends AbstractDao<Tick> implements TickDao {
         Validate.notNull(maxDate, "maxDate is null");
 
         return find("Tick.findSubscribedByTimePeriod", limit, QueryType.BY_NAME, new NamedParam("minDate", minDate), new NamedParam("maxDate", maxDate));
-    }
-
-    @Override
-    public List<Tick> findOptionTicksBySecurityDateTypeAndExpirationInclSecurity(long underlyingId, Date date, OptionType type, Date expiration) {
-
-        Validate.notNull(date, "Date is null");
-        Validate.notNull(type, "Type is null");
-        Validate.notNull(expiration, "expiration is null");
-
-        return findCaching("Tick.findOptionTicksBySecurityDateTypeAndExpirationInclSecurity", QueryType.BY_NAME, new NamedParam("underlyingId", underlyingId), new NamedParam("date", date), new NamedParam(
-                "type", type), new NamedParam("expiration", expiration));
-    }
-
-    @Override
-    public List<Tick> findImpliedVolatilityTicksBySecurityAndDate(long underlyingId, Date date) {
-
-        Validate.notNull(date, "Date is null");
-
-        return findCaching("Tick.findImpliedVolatilityTicksBySecurityAndDate", QueryType.BY_NAME, new NamedParam("underlyingId", underlyingId), new NamedParam("date", date));
-    }
-
-    @Override
-    public List<Tick> findImpliedVolatilityTicksBySecurityDateAndDuration(long underlyingId, Date date, Duration duration) {
-
-        Validate.notNull(date, "Date is null");
-        Validate.notNull(duration, "Duration is null");
-
-        return findCaching("Tick.findImpliedVolatilityTicksBySecurityDateAndDuration", QueryType.BY_NAME, new NamedParam("underlyingId", underlyingId), new NamedParam("date", date), new NamedParam(
-                "duration", duration));
     }
 
     @SuppressWarnings("unchecked")

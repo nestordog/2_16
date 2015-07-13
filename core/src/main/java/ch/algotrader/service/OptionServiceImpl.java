@@ -18,24 +18,13 @@
 package ch.algotrader.service;
 
 import java.math.BigDecimal;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
-import java.util.TreeSet;
 
-import org.apache.commons.collections15.MultiMap;
-import org.apache.commons.collections15.multimap.MultiHashMap;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.time.DateUtils;
-import org.apache.commons.math.MathException;
 import org.apache.commons.math.util.MathUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -46,7 +35,6 @@ import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.CoreConfig;
 import ch.algotrader.dao.PositionDao;
 import ch.algotrader.dao.SubscriptionDao;
-import ch.algotrader.dao.marketData.TickDao;
 import ch.algotrader.dao.security.FutureFamilyDao;
 import ch.algotrader.dao.security.OptionDao;
 import ch.algotrader.dao.security.OptionFamilyDao;
@@ -58,31 +46,22 @@ import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.Future;
 import ch.algotrader.entity.security.FutureFamily;
-import ch.algotrader.entity.security.ImpliedVolatility;
 import ch.algotrader.entity.security.Option;
 import ch.algotrader.entity.security.OptionFamily;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.entity.trade.Order;
-import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.esper.callback.TickCallback;
 import ch.algotrader.option.OptionSymbol;
-import ch.algotrader.option.OptionUtil;
-import ch.algotrader.option.SABR;
-import ch.algotrader.option.SABRException;
 import ch.algotrader.util.DateTimeLegacy;
-import ch.algotrader.util.DateTimeUtil;
 import ch.algotrader.util.DateUtil;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.collection.CollectionUtil;
-import ch.algotrader.vo.ATMVolVO;
-import ch.algotrader.vo.SABRSmileVO;
-import ch.algotrader.vo.SABRSurfaceVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -93,7 +72,6 @@ import ch.algotrader.vo.SABRSurfaceVO;
 public class OptionServiceImpl implements OptionService {
 
     private static final Logger LOGGER = LogManager.getLogger(OptionServiceImpl.class);
-    private static final int advanceMinutes = 10;
 
     private final CommonConfig commonConfig;
 
@@ -108,8 +86,6 @@ public class OptionServiceImpl implements OptionService {
     private final LocalLookupService localLookupService;
 
     private final SecurityDao securityDao;
-
-    private final TickDao tickDao;
 
     private final OptionFamilyDao optionFamilyDao;
 
@@ -135,7 +111,6 @@ public class OptionServiceImpl implements OptionService {
             final OrderService orderService,
             final LocalLookupService localLookupService,
             final SecurityDao securityDao,
-            final TickDao tickDao,
             final OptionFamilyDao optionFamilyDao,
             final OptionDao optionDao,
             final PositionDao positionDao,
@@ -152,7 +127,6 @@ public class OptionServiceImpl implements OptionService {
         Validate.notNull(orderService, "OrderService is null");
         Validate.notNull(localLookupService, "LocalLookupService is null");
         Validate.notNull(securityDao, "SecurityDao is null");
-        Validate.notNull(tickDao, "TickDao is null");
         Validate.notNull(optionFamilyDao, "OptionFamilyDao is null");
         Validate.notNull(optionDao, "OptionDao is null");
         Validate.notNull(positionDao, "PositionDao is null");
@@ -169,7 +143,6 @@ public class OptionServiceImpl implements OptionService {
         this.orderService = orderService;
         this.localLookupService = localLookupService;
         this.securityDao = securityDao;
-        this.tickDao = tickDao;
         this.optionFamilyDao = optionFamilyDao;
         this.optionDao = optionDao;
         this.positionDao = positionDao;
@@ -319,346 +292,6 @@ public class OptionServiceImpl implements OptionService {
         }
 
         return option;
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void printSABRSmileByOptionPrice(final String isin, final Date expirationDate, final OptionType optionType, final Date startDate) {
-
-        Validate.notEmpty(isin, "isin is empty");
-        Validate.notNull(expirationDate, "Expiration date is null");
-        Validate.notNull(optionType, "Option type is null");
-        Validate.notNull(startDate, "Start date is null");
-
-        Security underlying = this.securityDao.findByIsin(isin);
-
-        Date closeHour;
-        try {
-            closeHour = (new SimpleDateFormat("kkmmss")).parse("172000");
-        } catch (ParseException ex) {
-            throw new ServiceException(ex);
-        }
-
-        GregorianCalendar cal = new GregorianCalendar();
-        cal.setTime(startDate);
-
-        while (cal.getTime().compareTo(expirationDate) < 0) {
-
-            if ((cal.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) || cal.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
-                cal.add(Calendar.DAY_OF_YEAR, 1);
-                continue;
-            }
-
-            while (DateUtil.compareTime(cal.getTime(), closeHour) <= 0) {
-
-                System.out.print(DateTimeUtil.formatLocalDateTime(DateTimeLegacy.toLocalDateTime(cal.getTime())));
-
-                SABRSmileVO SABRparams = calibrateSABRSmileByOptionPrice(underlying.getId(), optionType, cal.getTime(), expirationDate);
-
-                if (SABRparams != null && SABRparams.getAlpha() < 100) {
-                    System.out.print(DateTimeUtil.formatLocalDateTime(DateTimeLegacy.toLocalDateTime(cal.getTime()))
-                            + " " + SABRparams.getAlpha() + " " + SABRparams.getRho() + " " + SABRparams.getVolVol());
-                }
-
-                ATMVolVO atmVola = calculateATMVol(underlying, cal.getTime());
-                if (atmVola != null) {
-                    System.out.print(" " + atmVola.getYears() + " " + atmVola.getCallVol() + " " + atmVola.getPutVol());
-                }
-
-                System.out.println();
-
-                cal.add(Calendar.MINUTE, advanceMinutes);
-            }
-
-            cal.add(Calendar.DAY_OF_YEAR, 1);
-            cal.set(Calendar.HOUR_OF_DAY, 9);
-            cal.set(Calendar.MINUTE, 00);
-        }
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void printSABRSmileByIVol(final String isin, final Duration duration, final Date startDate, final Date endDate) {
-
-        Validate.notEmpty(isin, "isin is empty");
-        Validate.notNull(duration, "Duration is null");
-        Validate.notNull(startDate, "Start date is null");
-        Validate.notNull(endDate, "End date is null");
-
-        Security underlying = this.securityDao.findByIsin(isin);
-
-        GregorianCalendar cal = new GregorianCalendar();
-        cal.setTime(startDate);
-        cal.set(Calendar.HOUR_OF_DAY, 0);
-        cal.set(Calendar.MINUTE, 0);
-
-        while (cal.getTime().compareTo(endDate) < 0) {
-
-            if ((cal.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) || cal.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
-                cal.add(Calendar.DAY_OF_YEAR, 1);
-                continue;
-            }
-
-            SABRSmileVO SABRparams = calibrateSABRSmileByIVol(underlying.getId(), duration, cal.getTime());
-
-            if (SABRparams != null) {
-                System.out.println(DateTimeUtil.formatLocalDateTime(DateTimeLegacy.toLocalDateTime(cal.getTime()))
-                        + " " + SABRparams.getAlpha() + " " + SABRparams.getRho() + " " + SABRparams.getVolVol());
-            }
-
-            cal.add(Calendar.DAY_OF_YEAR, 1);
-        }
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public SABRSmileVO calibrateSABRSmileByOptionPrice(final long underlyingId, final OptionType type, final Date expirationDate, final Date date) {
-
-        Validate.notNull(type, "Type is null");
-        Validate.notNull(expirationDate, "Expiration date is null");
-        Validate.notNull(date, "Date is null");
-
-        OptionFamily family = this.optionFamilyDao.findByUnderlying(underlyingId);
-
-        double years = (expirationDate.getTime() - date.getTime()) / (double) Duration.YEAR_1.getValue();
-
-        Tick underlyingTick = this.tickDao.findBySecurityAndMaxDate(underlyingId, date);
-        if (underlyingTick == null || underlyingTick.getLast() == null) {
-            return null;
-        }
-
-        BigDecimal underlyingSpot = underlyingTick.getLast();
-
-        double forward = OptionUtil.getForward(underlyingSpot.doubleValue(), years, family.getIntrest(), family.getDividend());
-        double atmStrike = roundOptionStrikeToNextN(underlyingSpot, new BigDecimal(family.getStrikeDistance()), type).doubleValue();
-
-        List<Tick> ticks = this.tickDao.findOptionTicksBySecurityDateTypeAndExpirationInclSecurity(underlyingId, date, type, expirationDate);
-        List<Double> strikes = new ArrayList<>();
-        List<Double> currentValues = new ArrayList<>();
-        List<Double> volatilities = new ArrayList<>();
-        double atmVola = 0;
-        for (Tick tick : ticks) {
-
-            Option option = (Option) tick.getSecurity();
-
-            double strike = option.getStrike().doubleValue();
-            double currentValue = tick.getCurrentValueDouble();
-
-            try {
-                double volatility = OptionUtil.getImpliedVolatility(underlyingSpot.doubleValue(), option.getStrike().doubleValue(), currentValue, years, family.getIntrest(), family.getDividend(),
-                        type);
-
-                strikes.add(strike);
-                currentValues.add(currentValue);
-                volatilities.add(volatility);
-
-                if (atmStrike == strike) {
-                    atmVola = volatility;
-                }
-            } catch (Exception e) {
-                // do nothing
-            }
-        }
-
-        if (strikes.size() < 10 || atmVola == 0) {
-            return null;
-        }
-
-        Double[] strikesArray = strikes.toArray(new Double[0]);
-        Double[] volatilitiesArray = volatilities.toArray(new Double[0]);
-
-        try {
-            return SABR.calibrate(strikesArray, volatilitiesArray, atmVola, forward, years);
-        } catch (SABRException ex) {
-            throw new ServiceException(ex);
-        }
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public SABRSmileVO calibrateSABRSmileByIVol(final long underlyingId, final Duration duration, final Date date) {
-
-        Validate.notNull(duration, "Duration is null");
-        Validate.notNull(date, "Date is null");
-
-        Tick underlyingTick = this.tickDao.findBySecurityAndMaxDate(underlyingId, date);
-        if (underlyingTick == null || underlyingTick.getLast() == null) {
-            return null;
-        }
-
-        double underlyingSpot = underlyingTick.getLast().doubleValue();
-
-        List<Tick> ticks = this.tickDao.findImpliedVolatilityTicksBySecurityDateAndDuration(underlyingId, date, duration);
-        if (ticks.size() < 3) {
-            return null;
-        }
-
-        return internalCalibrateSABRByIVol(underlyingId, duration, ticks, underlyingSpot);
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public SABRSurfaceVO calibrateSABRSurfaceByIVol(final long underlyingId, final Date date) {
-
-        Validate.notNull(date, "Date is null");
-        Tick underlyingTick = this.tickDao.findBySecurityAndMaxDate(underlyingId, date);
-        if (underlyingTick == null || underlyingTick.getLast() == null) {
-            return null;
-        }
-
-        double underlyingSpot = underlyingTick.getLast().doubleValue();
-
-        List<Tick> allTicks = this.tickDao.findImpliedVolatilityTicksBySecurityAndDate(underlyingId, date);
-
-        // group by duration
-        MultiMap<Duration, Tick> durationMap = new MultiHashMap<>();
-        for (Tick tick : allTicks) {
-            ImpliedVolatility impliedVolatility = (ImpliedVolatility) tick.getSecurity();
-            durationMap.put(impliedVolatility.getDuration(), tick);
-        }
-
-        // sort durations ascending
-        TreeSet<Duration> durations = new TreeSet<>(new Comparator<Duration>() {
-            @Override
-            public int compare(Duration d1, Duration d2) {
-                return ((d1.getValue() == d2.getValue()) ? 0 : (d1.getValue() < d2.getValue()) ? -1 : 1);
-            }
-        });
-        durations.addAll(durationMap.keySet());
-
-        // process each duration
-        SABRSurfaceVO surface = new SABRSurfaceVO();
-        for (Duration duration : durations) {
-
-            Collection<Tick> ticksPerDuration = durationMap.get(duration);
-
-            SABRSmileVO sabr;
-            sabr = internalCalibrateSABRByIVol(underlyingId, duration, ticksPerDuration, underlyingSpot);
-
-            surface.getSmiles().add(sabr);
-        }
-
-        return surface;
-
-    }
-
-    private SABRSmileVO internalCalibrateSABRByIVol(long underlyingId, Duration duration, Collection<Tick> ticks, double underlyingSpot) {
-
-        // we need the OptionFamily because the IVol Family does not have intrest and dividend
-        OptionFamily family = this.optionFamilyDao.findByUnderlying(underlyingId);
-
-        double years = (double) duration.getValue() / Duration.YEAR_1.getValue();
-
-        double forward = OptionUtil.getForward(underlyingSpot, years, family.getIntrest(), family.getDividend());
-
-        List<Double> strikes = new ArrayList<>();
-        List<Double> volatilities = new ArrayList<>();
-        double atmVola = 0;
-        for (Tick tick : ticks) {
-
-            ImpliedVolatility impliedVola = (ImpliedVolatility) tick.getSecurity();
-
-            double volatility = tick.getCurrentValueDouble();
-            double strike = 0;
-            if (impliedVola.getDelta() != null) {
-
-                if (impliedVola.getDelta() == 0.5) {
-                    atmVola = volatility;
-                    strike = forward;
-                } else {
-                    strike = OptionUtil.getStrikeByDelta(impliedVola.getDelta(), volatility, years, forward, family.getIntrest(), impliedVola.getType());
-                }
-
-            } else if (impliedVola.getMoneyness() != null) {
-
-                if (impliedVola.getMoneyness() == 0.0) {
-                    atmVola = volatility;
-                    strike = forward;
-                } else {
-                    if (OptionType.CALL.equals(impliedVola.getType())) {
-                        strike = underlyingSpot * (1.0 - impliedVola.getMoneyness());
-                    } else {
-                        strike = underlyingSpot * (1.0 + impliedVola.getMoneyness());
-                    }
-                }
-            } else {
-                throw new IllegalArgumentException("either moneyness or delta is needed for SABR calibration");
-            }
-
-            strikes.add(strike);
-            volatilities.add(volatility);
-        }
-
-        Double[] strikesArray = strikes.toArray(new Double[0]);
-        Double[] volatilitiesArray = volatilities.toArray(new Double[0]);
-
-        try {
-            return SABR.calibrate(strikesArray, volatilitiesArray, atmVola, forward, years);
-        } catch (SABRException ex) {
-            throw new ServiceException(ex);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public ATMVolVO calculateATMVol(final Security underlying, final Date date) {
-
-        Validate.notNull(underlying, "Underlying is null");
-        Validate.notNull(date, "Date is null");
-
-        OptionFamily family = this.optionFamilyDao.findByUnderlying(underlying.getId());
-
-        Tick underlyingTick = this.tickDao.findBySecurityAndMaxDate(underlying.getId(), date);
-        if (underlyingTick == null || underlyingTick.getLast() == null) {
-            return null;
-        }
-
-        List<Option> callOptions = this.optionDao.findByMinExpirationAndStrikeLimit(1, underlying.getId(), date, underlyingTick.getLast(), OptionType.CALL);
-        List<Option> putOptions = this.optionDao.findByMinExpirationAndStrikeLimit(1, underlying.getId(), date, underlyingTick.getLast(), OptionType.PUT);
-
-        Option callOption = CollectionUtil.getFirstElementOrNull(callOptions);
-        Option putOption = CollectionUtil.getFirstElementOrNull(putOptions);
-
-        Tick callTick = this.tickDao.findBySecurityAndMaxDate(callOption.getId(), date);
-        if (callTick == null || callTick.getBid() == null || callTick.getAsk() == null) {
-            return null;
-        }
-
-        Tick putTick = this.tickDao.findBySecurityAndMaxDate(putOption.getId(), date);
-        if (putTick == null || putTick.getBid() == null || putTick.getAsk() == null) {
-            return null;
-        }
-
-        double years = (callOption.getExpiration().getTime() - date.getTime()) / (double) Duration.YEAR_1.getValue();
-
-        double callVola, putVola;
-        try {
-            callVola = OptionUtil.getImpliedVolatility(underlyingTick.getCurrentValueDouble(), callOption.getStrike().doubleValue(), callTick.getCurrentValueDouble(), years, family.getIntrest(),
-                    family.getDividend(), OptionType.CALL);
-            putVola = OptionUtil.getImpliedVolatility(underlyingTick.getCurrentValueDouble(), putOption.getStrike().doubleValue(), putTick.getCurrentValueDouble(), years, family.getIntrest(),
-                    family.getDividend(), OptionType.PUT);
-        } catch (MathException ex) {
-            throw new ServiceException(ex);
-        }
-
-        return new ATMVolVO(years, callVola, putVola);
 
     }
 

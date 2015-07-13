@@ -72,11 +72,6 @@ public interface ManagementService {
     public Map getProperties();
 
     /**
-     * Gets the available Funds of this Strategy (or the entire System if called from the AlgoTrader Server)
-     */
-    public BigDecimal getStrategyAvailableFunds();
-
-    /**
      * Gets the Allocation that is assigned to this Strategy (or to the AlgoTrader Server)
      */
     public double getStrategyAllocation();
@@ -90,11 +85,6 @@ public interface ManagementService {
      * Gets the current Leverage of this Strategy
      */
     public double getStrategyLeverage();
-
-    /**
-     * Gets the Maintenance Margin of this Strategy (or the entire System if called from the AlgoTrader Server)
-     */
-    public BigDecimal getStrategyMaintenanceMargin();
 
     /**
      * Gets the name of this Strategy
@@ -202,16 +192,6 @@ public interface ManagementService {
      * </ul>
      */
     public void reduceCombination(String combination, double ratio);
-
-    /**
-     * Set or modify the ExitValue of the specified Position
-     */
-    public void setExitValue(long positionId, double exitValue);
-
-    /**
-     * Remove the ExitValue from the specified Position
-     */
-    public void removeExitValue(long positionId);
 
     /**
      * Set the value of the specified Esper variable

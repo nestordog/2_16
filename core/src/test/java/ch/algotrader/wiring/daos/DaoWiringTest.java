@@ -50,7 +50,6 @@ import ch.algotrader.dao.security.FutureDao;
 import ch.algotrader.dao.security.FutureFamilyDao;
 import ch.algotrader.dao.security.GenericFutureDao;
 import ch.algotrader.dao.security.GenericFutureFamilyDao;
-import ch.algotrader.dao.security.ImpliedVolatilityDao;
 import ch.algotrader.dao.security.IndexDao;
 import ch.algotrader.dao.security.IntrestRateDao;
 import ch.algotrader.dao.security.OptionDao;
@@ -123,7 +122,6 @@ public class DaoWiringTest {
         Assert.assertNotNull(context.getBean(FutureFamilyDao.class));
         Assert.assertNotNull(context.getBean(GenericFutureDao.class));
         Assert.assertNotNull(context.getBean(GenericFutureFamilyDao.class));
-        Assert.assertNotNull(context.getBean(ImpliedVolatilityDao.class));
         Assert.assertNotNull(context.getBean(IndexDao.class));
         Assert.assertNotNull(context.getBean(IntrestRateDao.class));
         Assert.assertNotNull(context.getBean(OptionDao.class));

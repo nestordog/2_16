@@ -80,29 +80,4 @@ public class AccountDaoTest extends InMemoryDBTest {
         Assert.assertEquals(OrderServiceType.CNX_FIX, account3.getOrderServiceType());
     }
 
-    @Test
-    public void testFindActiveSessionsByOrderServiceType() {
-
-        Collection<String> sessionQualifiers1 = this.dao.findActiveSessionsByOrderServiceType(OrderServiceType.SIMULATION);
-
-        Assert.assertNotNull(sessionQualifiers1);
-        Assert.assertEquals(0, sessionQualifiers1.size());
-
-        Account account = new AccountImpl();
-
-        account.setName("name1");
-        account.setBroker(Broker.CNX);
-        account.setOrderServiceType(OrderServiceType.CNX_FIX);
-        account.setSessionQualifier("CNX_FIX");
-        account.setActive(true);
-
-        this.dao.save(account);
-        this.dao.flush();
-
-        Collection<String> sessionQualifiers2 = this.dao.findActiveSessionsByOrderServiceType(OrderServiceType.CNX_FIX);
-        Assert.assertNotNull(sessionQualifiers2);
-        Assert.assertEquals(1, sessionQualifiers2.size());
-        Assert.assertTrue(sessionQualifiers2.contains("CNX_FIX"));
-    }
-
 }

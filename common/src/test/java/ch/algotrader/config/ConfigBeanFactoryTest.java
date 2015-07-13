@@ -44,32 +44,31 @@ public class ConfigBeanFactoryTest {
 
     @Before
     public void setup() {
-        map = new HashMap<>();
-        map.put("dataSource.dataSet", "someDataSet");
-        map.put("dataSource.dataSetType", "BAR");
-        map.put("dataSource.dataSetLocation", "stuff/more-stuff");
-        map.put("dataSource.barSize", "MIN_5");
-        map.put("dataSource.feedCSV", "false");
-        map.put("dataSource.feedDB", "false");
-        map.put("dataSource.feedGenericEvents", "true");
-        map.put("dataSource.feedAllMarketDataFiles", "true");
-        map.put("dataSource.feedBatchSize", "20");
-        map.put("report.reportLocation", "stuff/report-stuff");
-        map.put("simulation", "true");
-        map.put("simulation.initialBalance", "500.5");
-        map.put("simulation.logTransactions", "true");
-        map.put("misc.embedded", "true");
-        map.put("misc.portfolioDigits", "5");
-        map.put("misc.portfolioBaseCurrency", "EUR");
-        map.put("misc.initialMarginMarkup", "1.52");
-        map.put("misc.validateCrossedSpread", "true");
-        map.put("misc.displayClosedPositions", "true");
+        this.map = new HashMap<>();
+        this.map.put("dataSource.dataSet", "someDataSet");
+        this.map.put("dataSource.dataSetType", "BAR");
+        this.map.put("dataSource.dataSetLocation", "stuff/more-stuff");
+        this.map.put("dataSource.barSize", "MIN_5");
+        this.map.put("dataSource.feedCSV", "false");
+        this.map.put("dataSource.feedDB", "false");
+        this.map.put("dataSource.feedGenericEvents", "true");
+        this.map.put("dataSource.feedAllMarketDataFiles", "true");
+        this.map.put("dataSource.feedBatchSize", "20");
+        this.map.put("report.reportLocation", "stuff/report-stuff");
+        this.map.put("simulation", "true");
+        this.map.put("simulation.initialBalance", "500.5");
+        this.map.put("simulation.logTransactions", "true");
+        this.map.put("misc.embedded", "true");
+        this.map.put("misc.portfolioDigits", "5");
+        this.map.put("misc.portfolioBaseCurrency", "EUR");
+        this.map.put("misc.validateCrossedSpread", "true");
+        this.map.put("misc.displayClosedPositions", "true");
     }
 
     @Test
     public void testCommonConfigConstruction() throws Exception {
 
-        ConfigProvider configProvider = new DefaultConfigProvider(map);
+        ConfigProvider configProvider = new DefaultConfigProvider(this.map);
         ConfigParams configParams = new ConfigParams(configProvider);
 
         ConfigBeanFactory factory = new ConfigBeanFactory();
@@ -88,7 +87,6 @@ public class ConfigBeanFactoryTest {
         Assert.assertTrue(atConfig.isEmbedded());
         Assert.assertEquals(5, atConfig.getPortfolioDigits());
         Assert.assertEquals(Currency.EUR, atConfig.getPortfolioBaseCurrency());
-        Assert.assertEquals(new BigDecimal("1.52"), atConfig.getInitialMarginMarkup());
         Assert.assertEquals(true, atConfig.isValidateCrossedSpread());
         Assert.assertEquals(true, atConfig.isDisplayClosedPositions());
     }
@@ -96,8 +94,8 @@ public class ConfigBeanFactoryTest {
     @Test(expected = ConfigBeanCreationException.class)
     public void testCommonConfigConstructionMissingParam() throws Exception {
 
-        map.remove("dataSource.dataSet");
-        ConfigProvider configProvider = new DefaultConfigProvider(map);
+        this.map.remove("dataSource.dataSet");
+        ConfigProvider configProvider = new DefaultConfigProvider(this.map);
         ConfigParams configParams = new ConfigParams(configProvider);
 
         ConfigBeanFactory factory = new ConfigBeanFactory();
@@ -112,10 +110,10 @@ public class ConfigBeanFactoryTest {
 
     @Test
     public void testCommonConfigConstructionAllParamsRequired() throws Exception {
-        final Set<String> keys = new LinkedHashSet<>(map.keySet());//copy map to avoid concurrent modification problems
+        final Set<String> keys = new LinkedHashSet<>(this.map.keySet());//copy map to avoid concurrent modification problems
         for (final String key : keys) {
-            map.remove(key);
-            ConfigProvider configProvider = new DefaultConfigProvider(map);
+            this.map.remove(key);
+            ConfigProvider configProvider = new DefaultConfigProvider(this.map);
             ConfigParams configParams = new ConfigParams(configProvider);
 
             ConfigBeanFactory factory = new ConfigBeanFactory();

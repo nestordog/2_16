@@ -49,11 +49,6 @@ public class PortfolioValueVO implements Serializable {
     private BigDecimal cashBalance;
 
     /**
-     * Current Maintenance Margin of all marginable positions
-     */
-    private BigDecimal maintenanceMargin;
-
-    /**
      * Current (delta-adjusted) Notional Exposure
      */
     private double leverage;
@@ -87,19 +82,17 @@ public class PortfolioValueVO implements Serializable {
      * @param netLiqValueIn BigDecimal Current market value of all Assets.
      * @param securitiesCurrentValueIn BigDecimal Current market value of all positions.
      * @param cashBalanceIn BigDecimal Total cash
-     * @param maintenanceMarginIn BigDecimal Current Maintenance Margin of all marginable positions
      * @param leverageIn double Current (delta-adjusted) Notional Exposure
      * @param allocationIn double Allocation assigned to the AlgoTrader Server / Strategy.
      * @param performanceIn double The Performance at the specified {@code dateTime} since the beginning of the evaluation time series.
      */
-    public PortfolioValueVO(final Date dateTimeIn, final BigDecimal netLiqValueIn, final BigDecimal securitiesCurrentValueIn, final BigDecimal cashBalanceIn, final BigDecimal maintenanceMarginIn,
+    public PortfolioValueVO(final Date dateTimeIn, final BigDecimal netLiqValueIn, final BigDecimal securitiesCurrentValueIn, final BigDecimal cashBalanceIn,
             final double leverageIn, final double allocationIn, final double performanceIn) {
 
         this.dateTime = dateTimeIn;
         this.netLiqValue = netLiqValueIn;
         this.securitiesCurrentValue = securitiesCurrentValueIn;
         this.cashBalance = cashBalanceIn;
-        this.maintenanceMargin = maintenanceMarginIn;
         this.leverage = leverageIn;
         this.allocation = allocationIn;
         this.performance = performanceIn;
@@ -111,20 +104,18 @@ public class PortfolioValueVO implements Serializable {
      * @param netLiqValueIn BigDecimal
      * @param securitiesCurrentValueIn BigDecimal
      * @param cashBalanceIn BigDecimal
-     * @param maintenanceMarginIn BigDecimal
      * @param leverageIn double
      * @param allocationIn double
      * @param performanceIn double
      * @param cashFlowIn BigDecimal
      */
-    public PortfolioValueVO(final Date dateTimeIn, final BigDecimal netLiqValueIn, final BigDecimal securitiesCurrentValueIn, final BigDecimal cashBalanceIn, final BigDecimal maintenanceMarginIn,
+    public PortfolioValueVO(final Date dateTimeIn, final BigDecimal netLiqValueIn, final BigDecimal securitiesCurrentValueIn, final BigDecimal cashBalanceIn,
             final double leverageIn, final double allocationIn, final double performanceIn, final BigDecimal cashFlowIn) {
 
         this.dateTime = dateTimeIn;
         this.netLiqValue = netLiqValueIn;
         this.securitiesCurrentValue = securitiesCurrentValueIn;
         this.cashBalance = cashBalanceIn;
-        this.maintenanceMargin = maintenanceMarginIn;
         this.leverage = leverageIn;
         this.allocation = allocationIn;
         this.performance = performanceIn;
@@ -143,7 +134,6 @@ public class PortfolioValueVO implements Serializable {
         this.netLiqValue = otherBean.getNetLiqValue();
         this.securitiesCurrentValue = otherBean.getSecuritiesCurrentValue();
         this.cashBalance = otherBean.getCashBalance();
-        this.maintenanceMargin = otherBean.getMaintenanceMargin();
         this.leverage = otherBean.getLeverage();
         this.allocation = otherBean.getAllocation();
         this.performance = otherBean.getPerformance();
@@ -212,24 +202,6 @@ public class PortfolioValueVO implements Serializable {
     public void setCashBalance(final BigDecimal value) {
 
         this.cashBalance = value;
-    }
-
-    /**
-     * Current Maintenance Margin of all marginable positions
-     * @return maintenanceMargin BigDecimal
-     */
-    public BigDecimal getMaintenanceMargin() {
-
-        return this.maintenanceMargin;
-    }
-
-    /**
-     * Current Maintenance Margin of all marginable positions
-     * @param value BigDecimal
-     */
-    public void setMaintenanceMargin(final BigDecimal value) {
-
-        this.maintenanceMargin = value;
     }
 
     /**
@@ -316,8 +288,6 @@ public class PortfolioValueVO implements Serializable {
         builder.append(this.securitiesCurrentValue);
         builder.append(", cashBalance=");
         builder.append(this.cashBalance);
-        builder.append(", maintenanceMargin=");
-        builder.append(this.maintenanceMargin);
         builder.append(", leverage=");
         builder.append(this.leverage);
         builder.append(", allocation=");

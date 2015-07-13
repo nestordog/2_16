@@ -337,12 +337,6 @@ For example the pattern "0<0.05 | 3<0.1" says, that the TickSize is 0.05 for pri
 
                 <type name="double"/>
             </property>
-            <property name="marginParameter">
-                <meta attribute="field-description"><![CDATA[The Margin Parameter used to calculate the Margin of a {@code Future} Contract of this FutureFamily.]]></meta>
-                <column name="MARGIN_PARAMETER" not-null="true" unique="false" sql-type="DOUBLE"/>
-
-                <type name="double"/>
-            </property>
             <property name="expirationType">
                 <meta attribute="field-description"><![CDATA[The Type of Expiration Logic utilized by {@link Future Futures} of this FutureFamily.]]></meta>
                 <meta attribute="property-type">ch.algotrader.enumeration.ExpirationType</meta>
@@ -387,12 +381,6 @@ For example the pattern "0<0.05 | 3<0.1" says, that the TickSize is 0.05 for pri
             <property name="dividend">
                 <meta attribute="field-description"><![CDATA[The current Dividend relevant to the pricing of {@link Option Options} of this OptionFamily.]]></meta>
                 <column name="DIVIDEND" not-null="true" unique="false" sql-type="DOUBLE"/>
-
-                <type name="double"/>
-            </property>
-            <property name="marginParameter">
-                <meta attribute="field-description"><![CDATA[The Margin Parameter used to calculate the Margin of a {@code Option} Contract of this OptionFamily.]]></meta>
-                <column name="MARGIN_PARAMETER" not-null="true" unique="false" sql-type="DOUBLE"/>
 
                 <type name="double"/>
             </property>

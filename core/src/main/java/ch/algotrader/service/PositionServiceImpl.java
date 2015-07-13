@@ -52,7 +52,6 @@ import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderStatus;
-import ch.algotrader.enumeration.Direction;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.enumeration.TransactionType;
@@ -86,8 +85,6 @@ public class PositionServiceImpl implements PositionService {
 
     private final OrderService orderService;
 
-    private final PortfolioService portfolioService;
-
     private final LocalLookupService localLookupService;
 
     private final PositionDao positionDao;
@@ -109,7 +106,6 @@ public class PositionServiceImpl implements PositionService {
             final TransactionService transactionService,
             final MarketDataService marketDataService,
             final OrderService orderService,
-            final PortfolioService portfolioService,
             final LocalLookupService localLookupService,
             final PositionDao positionDao,
             final SecurityDao securityDao,
@@ -124,7 +120,6 @@ public class PositionServiceImpl implements PositionService {
         Validate.notNull(transactionService, "TransactionService is null");
         Validate.notNull(marketDataService, "MarketDataService is null");
         Validate.notNull(orderService, "OrderService is null");
-        Validate.notNull(portfolioService, "PortfolioService is null");
         Validate.notNull(localLookupService, "LocalLookupService is null");
         Validate.notNull(positionDao, "PositionDao is null");
         Validate.notNull(securityDao, "SecurityDao is null");
@@ -139,7 +134,6 @@ public class PositionServiceImpl implements PositionService {
         this.transactionService = transactionService;
         this.marketDataService = marketDataService;
         this.orderService = orderService;
-        this.portfolioService = portfolioService;
         this.localLookupService = localLookupService;
         this.positionDao = positionDao;
         this.securityDao = securityDao;
@@ -216,9 +210,6 @@ public class PositionServiceImpl implements PositionService {
 
         Position position = Position.Factory.newInstance();
         position.setQuantity(quantity);
-
-        position.setExitValue(null);
-        position.setMaintenanceMargin(null);
 
         // associate strategy and security
         position.setStrategy(strategy);
@@ -371,39 +362,6 @@ public class PositionServiceImpl implements PositionService {
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public void setMargins() {
-
-        List<Position> positions = this.positionDao.findOpenPositions();
-
-        for (Position position : positions) {
-            setMargin(position);
-        }
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @Transactional(propagation = Propagation.REQUIRED)
-    public Position setMargin(final long positionId) {
-
-        Position position = this.positionDao.get(positionId);
-        if (position == null) {
-            throw new IllegalArgumentException("position with id " + positionId + " does not exist");
-        }
-
-        setMargin(position);
-
-        return position;
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @Transactional(propagation = Propagation.REQUIRED)
     public void expirePositions() {
 
         Date date = this.engineManager.getCurrentEPTime();
@@ -412,95 +370,6 @@ public class PositionServiceImpl implements PositionService {
         for (Position position : positions) {
             expirePosition(position);
         }
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @Transactional(propagation = Propagation.REQUIRED)
-    public Position setExitValue(final long positionId, final BigDecimal exitValue, final boolean force) {
-
-        Validate.notNull(exitValue, "Exit value is null");
-
-        BigDecimal exitValueNonFinal = exitValue;
-        Position position = this.positionDao.getLocked(positionId);
-        if (position == null) {
-            throw new IllegalArgumentException("position with id " + positionId + " does not exist");
-        }
-
-        // set the scale
-        int scale = position.getSecurity().getSecurityFamily().getScale();
-        exitValueNonFinal = exitValueNonFinal.setScale(scale, BigDecimal.ROUND_HALF_UP);
-
-        // prevent exitValues near Zero
-        if (!(position.getSecurity() instanceof Combination) && exitValueNonFinal.doubleValue() <= 0.05) {
-            if (LOGGER.isWarnEnabled()) {
-                LOGGER.warn("setting of exitValue below 0.05 is prohibited: {}", exitValueNonFinal);
-            }
-            return position;
-        }
-
-        // The new ExitValues should not be set lower (higher) than the existing ExitValue for long (short) positions. This check can be overwritten by setting force to true
-        if (!force) {
-            if (Direction.SHORT.equals(position.getDirection()) && position.getExitValue() != null && exitValueNonFinal.compareTo(position.getExitValue()) > 0) {
-                if (LOGGER.isWarnEnabled()) {
-                    LOGGER.warn("exit value {} is higher than existing exit value {} of short position {}", exitValueNonFinal, position.getExitValue(), positionId);
-                }
-                return position;
-            } else if (Direction.LONG.equals(position.getDirection()) && position.getExitValue() != null && exitValueNonFinal.compareTo(position.getExitValue()) < 0) {
-                if (LOGGER.isWarnEnabled()) {
-                    LOGGER.warn("exit value {} is lower than existing exit value {} of long position {}", exitValueNonFinal, position.getExitValue(), positionId);
-                }
-                return position;
-            }
-        }
-
-        // The new ExitValues cannot be higher (lower) than the currentValue for long (short) positions
-        MarketDataEvent marketDataEvent = this.localLookupService.getCurrentMarketDataEvent(position.getSecurity().getId());
-        if (marketDataEvent != null) {
-            BigDecimal currentValue = marketDataEvent.getCurrentValue();
-            if (Direction.SHORT.equals(position.getDirection()) && exitValueNonFinal.compareTo(currentValue) < 0) {
-                throw new ServiceException("ExitValue (" + exitValueNonFinal + ") for short-position " + position.getId() + " is lower than currentValue: " + currentValue);
-            } else if (Direction.LONG.equals(position.getDirection()) && exitValueNonFinal.compareTo(currentValue) > 0) {
-                throw new ServiceException("ExitValue (" + exitValueNonFinal + ") for long-position " + position.getId() + " is higher than currentValue: " + currentValue);
-            }
-        }
-
-        // set the exitValue
-        position.setExitValue(exitValueNonFinal);
-
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("set exit value of position {} to {}", position.getId(), exitValueNonFinal);
-        }
-
-        return position;
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @Transactional(propagation = Propagation.REQUIRED)
-    public Position removeExitValue(final long positionId) {
-
-        Position position = this.positionDao.getLocked(positionId);
-        if (position == null) {
-            throw new IllegalArgumentException("position with id " + positionId + " does not exist");
-        }
-
-        if (position.getExitValue() != null) {
-
-            position.setExitValue(null);
-
-            if (LOGGER.isInfoEnabled()) {
-                LOGGER.info("removed exit value of position {}", positionId);
-            }
-        }
-
-        return position;
 
     }
 
@@ -619,28 +488,6 @@ public class PositionServiceImpl implements PositionService {
         }
 
         this.orderService.sendOrder(order);
-    }
-
-    private void setMargin(Position position) {
-
-        Security security = position.getSecurity();
-        double currentValue = this.localLookupService.getCurrentValueDouble(security.getId());
-        double underlyingCurrentValue = this.localLookupService.getCurrentValueDouble(security.getUnderlying().getId());
-        double marginPerContract = security.getMargin(currentValue, underlyingCurrentValue);
-
-        if (marginPerContract != 0) {
-
-            long numberOfContracts = Math.abs(position.getQuantity());
-            BigDecimal totalMargin = RoundUtil.getBigDecimal(marginPerContract * numberOfContracts);
-
-            position.setMaintenanceMargin(totalMargin);
-
-            double maintenanceMargin = this.portfolioService.getMaintenanceMarginDouble(position.getStrategy().getName());
-
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("set margin of position {} to: {} total margin: {}", position.getId(), RoundUtil.getBigDecimal(marginPerContract), RoundUtil.getBigDecimal(maintenanceMargin));
-            }
-        }
     }
 
     private void expirePosition(Position position) {

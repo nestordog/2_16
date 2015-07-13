@@ -20,7 +20,6 @@ package ch.algotrader.entity.security;
 import java.util.Date;
 
 import ch.algotrader.entity.marketData.MarketDataEvent;
-import ch.algotrader.future.FutureUtil;
 import ch.algotrader.util.DateUtil;
 
 /**
@@ -36,12 +35,6 @@ public class FutureImpl extends Future {
     public double getLeverage(MarketDataEvent marketDataEvent, MarketDataEvent underlyingMarketDataEvent) {
 
         return 1.0;
-    }
-
-    @Override
-    public double getMargin(double currentValue, double underlyingCurrentValue) {
-
-        return FutureUtil.getMaintenanceMargin(this) * getSecurityFamily().getContractSize();
     }
 
     @Override

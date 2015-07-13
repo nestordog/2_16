@@ -52,7 +52,6 @@ public class PositionVOProducer implements EntityConverter<Position, PositionVO>
         // No conversion for target.strategy (can't convert source.getStrategy():Strategy to String)
         vo.setCost(new BigDecimal(entity.getCost()));
         vo.setRealizedPL(new BigDecimal(entity.getRealizedPL()));
-        vo.setExitValue(entity.getExitValue());
 
         int scale = entity.getSecurity().getSecurityFamily().getScale();
 
@@ -66,9 +65,6 @@ public class PositionVOProducer implements EntityConverter<Position, PositionVO>
         vo.setCost(RoundUtil.getBigDecimal(entity.getCost()));
         vo.setUnrealizedPL(RoundUtil.getBigDecimal(entity.getUnrealizedPL(marketDataEvent)));
         vo.setRealizedPL(RoundUtil.getBigDecimal(entity.getRealizedPL()));
-        vo.setExitValue(entity.getExitValue() != null ? entity.getExitValue().setScale(scale, BigDecimal.ROUND_HALF_UP) : null);
-        vo.setMaxLoss(RoundUtil.getBigDecimal(entity.getMaxLoss(marketDataEvent)));
-        vo.setMargin(entity.getMaintenanceMargin() != null ? entity.getMaintenanceMargin().setScale(scale, BigDecimal.ROUND_HALF_UP) : null);
 
         // add properties if any
         Map<String, Property> properties = entity.getProps();

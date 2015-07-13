@@ -453,68 +453,6 @@ public class TransactionDaoTest extends InMemoryDBTest {
     }
 
     @Test
-    public void testFindTradesByMinDateAndMaxDate() {
-
-        this.session.save(this.family1);
-        this.session.save(this.forex1);
-        this.session.save(this.strategy1);
-
-        Transaction transaction1 = new TransactionImpl();
-        transaction1.setUuid(UUID.randomUUID().toString());
-        transaction1.setSecurity(this.forex1);
-        transaction1.setQuantity(222);
-        transaction1.setDateTime(new Date());
-        transaction1.setPrice(new BigDecimal(111));
-        transaction1.setCurrency(Currency.INR);
-        transaction1.setType(TransactionType.SELL);
-        transaction1.setStrategy(this.strategy1);
-
-        this.session.save(this.family2);
-        this.session.save(this.forex2);
-        this.session.save(this.strategy2);
-
-        Transaction transaction2 = new TransactionImpl();
-        transaction2.setUuid(UUID.randomUUID().toString());
-        transaction2.setSecurity(this.forex2);
-        transaction2.setQuantity(222);
-        transaction2.setDateTime(new Date());
-        transaction2.setPrice(new BigDecimal(111));
-        transaction2.setCurrency(Currency.NZD);
-        transaction2.setType(TransactionType.BUY);
-        transaction2.setStrategy(this.strategy1);
-
-        this.session.save(transaction1);
-        this.session.save(transaction2);
-        this.session.flush();
-
-        List<Transaction> transactions1 = this.dao.findTradesByMinDateAndMaxDate(new Date(), new Date());
-
-        Assert.assertEquals(0, transactions1.size());
-
-        Calendar calendar1 = Calendar.getInstance();
-        calendar1.add(Calendar.DAY_OF_MONTH, -1);
-
-        Calendar calendar2 = Calendar.getInstance();
-        calendar2.add(Calendar.DAY_OF_MONTH, 1);
-
-        List<Transaction> transactions2 = this.dao.findTradesByMinDateAndMaxDate(calendar1.getTime(), calendar2.getTime());
-
-        Assert.assertEquals(2, transactions2.size());
-
-        Assert.assertEquals(222, transactions2.get(0).getQuantity());
-        Assert.assertEquals(new BigDecimal(111), transactions2.get(0).getPrice());
-        Assert.assertEquals(Currency.INR, transactions2.get(0).getCurrency());
-        Assert.assertEquals(TransactionType.SELL, transactions2.get(0).getType());
-        Assert.assertEquals(this.strategy1, transactions2.get(0).getStrategy());
-
-        Assert.assertEquals(222, transactions2.get(1).getQuantity());
-        Assert.assertEquals(new BigDecimal(111), transactions2.get(1).getPrice());
-        Assert.assertEquals(Currency.NZD, transactions2.get(1).getCurrency());
-        Assert.assertEquals(TransactionType.BUY, transactions2.get(1).getType());
-        Assert.assertEquals(this.strategy1, transactions2.get(1).getStrategy());
-    }
-
-    @Test
     public void testFindByMaxDate() {
 
         this.session.save(this.family1);

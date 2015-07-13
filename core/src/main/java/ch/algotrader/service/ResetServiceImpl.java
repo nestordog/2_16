@@ -277,8 +277,6 @@ public class ResetServiceImpl implements ResetService {
         Collection<Position> persistentPositions = this.positionDao.findPersistent();
         for (Position position : persistentPositions) {
             position.setQuantity(0);
-            position.setExitValue(null);
-            position.setMaintenanceMargin(null);
         }
     }
 

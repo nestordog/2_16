@@ -82,11 +82,6 @@ public interface ServerManagementService {
     public void transferPosition(long positionId, String targetStrategyName);
 
     /**
-     * Calculates margins for all open positions
-     */
-    public void setMargins();
-
-    /**
      * Hedges all non-base currency exposures with a corresponding FX / FX Future Position
      */
     public void hedgeForex();

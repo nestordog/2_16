@@ -17,8 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.vo;
 
-import java.math.BigDecimal;
-
 import ch.algotrader.enumeration.Direction;
 
 /**
@@ -27,11 +25,6 @@ import ch.algotrader.enumeration.Direction;
 public class ClosePositionVO extends PositionMutationVO {
 
     private static final long serialVersionUID = 4175765086214246002L;
-
-    /**
-     * The last {@code exitValue} defined on the Position before it was closed.
-     */
-    private BigDecimal exitValue;
 
     /**
      * Default Constructor
@@ -48,13 +41,10 @@ public class ClosePositionVO extends PositionMutationVO {
      * @param strategyIn String
      * @param quantityIn long
      * @param directionIn Direction
-     * @param exitValueIn BigDecimal
      */
-    public ClosePositionVO(final int idIn, final int securityIdIn, final String strategyIn, final long quantityIn, final Direction directionIn, final BigDecimal exitValueIn) {
+    public ClosePositionVO(final int idIn, final int securityIdIn, final String strategyIn, final long quantityIn, final Direction directionIn) {
 
         super(idIn, securityIdIn, strategyIn, quantityIn, directionIn);
-
-        this.exitValue = exitValueIn;
     }
 
     /**
@@ -66,35 +56,13 @@ public class ClosePositionVO extends PositionMutationVO {
     public ClosePositionVO(final ClosePositionVO otherBean) {
 
         super(otherBean);
-
-        this.exitValue = otherBean.getExitValue();
-    }
-
-    /**
-     * The last {@code exitValue} defined on the Position before it was closed.
-     * @return exitValue BigDecimal
-     */
-    public BigDecimal getExitValue() {
-
-        return this.exitValue;
-    }
-
-    /**
-     * The last {@code exitValue} defined on the Position before it was closed.
-     * @param value BigDecimal
-     */
-    public void setExitValue(final BigDecimal value) {
-
-        this.exitValue = value;
     }
 
     @Override
     public String toString() {
 
         StringBuilder builder = new StringBuilder();
-        builder.append("ClosePositionVO [exitValue=");
-        builder.append(this.exitValue);
-        builder.append(", ");
+        builder.append("ClosePositionVO [");
         builder.append(super.toString());
         builder.append("]");
 

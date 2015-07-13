@@ -165,18 +165,6 @@ public class ServerManagementServiceImpl implements ServerManagementService {
      * {@inheritDoc}
      */
     @Override
-    @ManagedOperation(description = "Calculates margins for all open positions")
-    @ManagedOperationParameters({})
-    public void setMargins() {
-
-        this.positionService.setMargins();
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     @ManagedOperation(description = "Hedges all non-base currency exposures with a corresponding FX / FX Future Position")
     @ManagedOperationParameters({})
     public void hedgeForex() {

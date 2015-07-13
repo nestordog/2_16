@@ -26,7 +26,7 @@ import ch.algotrader.util.collection.IntegerMap;
 
 /**
  * Default {@link ch.algotrader.ordermgmt.OrderIdGenerator} implementation backed by
- * {@link ch.algotrader.dao.TransactionDao#findLastIntOrderId(String)}..
+ * {@link ch.algotrader.dao.OrderDao#findLastIntOrderId(String)}..
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  *

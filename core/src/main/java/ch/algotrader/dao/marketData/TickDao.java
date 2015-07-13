@@ -21,8 +21,6 @@ import java.util.Date;
 import java.util.List;
 
 import ch.algotrader.entity.marketData.Tick;
-import ch.algotrader.enumeration.Duration;
-import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.hibernate.ReadWriteDao;
 
 /**
@@ -162,39 +160,6 @@ public interface TickDao extends ReadWriteDao<Tick> {
      * @return List<Tick>
      */
     List<Tick> findSubscribedByTimePeriod(int limit, Date minDate, Date maxDate);
-
-    /**
-     * Finds all Ticks of the specified {@code date} that belong to {@link
-     * ch.algotrader.entity.security.Option Options} based on the specified {@code underlyingId} and
-     * have the specified {@code optionType} and {@code expirationDate}.
-     * @param underlyingId
-     * @param date
-     * @param type
-     * @param expiration
-     * @return List<Tick>
-     */
-    List<Tick> findOptionTicksBySecurityDateTypeAndExpirationInclSecurity(long underlyingId, Date date, OptionType type, Date expiration);
-
-    /**
-     * Finds all Ticks of the specified {@code date} that belong to {@link
-     * ch.algotrader.entity.security.ImpliedVolatility ImpliedVolatilities} that are based on the
-     * specified {@code underlyingId}.
-     * @param underlyingId
-     * @param date
-     * @return List<Tick>
-     */
-    List<Tick> findImpliedVolatilityTicksBySecurityAndDate(long underlyingId, Date date);
-
-    /**
-     * Finds all Ticks of the specified {@code date} that belong to {@link
-     * ch.algotrader.entity.security.ImpliedVolatility ImpliedVolatilities} that are based on the
-     * specified {@code underlyingId} and have the specified {@code duration}
-     * @param underlyingId
-     * @param date
-     * @param duration
-     * @return List<Tick>
-     */
-    List<Tick> findImpliedVolatilityTicksBySecurityDateAndDuration(long underlyingId, Date date, Duration duration);
 
     /**
      * Returns the {@code tickerId} from the TickWindow, that belongs to the defined Security. The

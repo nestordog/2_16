@@ -92,21 +92,6 @@ public class PositionVO implements Serializable {
     private BigDecimal realizedPL;
 
     /**
-     * The price at which the Position will be closed.
-     */
-    private BigDecimal exitValue;
-
-    /**
-     * The potential loss that would incur, if the price reached the {@code exitValue}
-     */
-    private BigDecimal maxLoss;
-
-    /**
-     * The current margin needed by this Position.
-     */
-    private BigDecimal margin;
-
-    /**
      * Any {@link ch.algotrader.entity.property.Property Property Properties} associated with the
      * Position
      */
@@ -134,14 +119,10 @@ public class PositionVO implements Serializable {
      * @param costIn BigDecimal
      * @param unrealizedPLIn BigDecimal
      * @param realizedPLIn BigDecimal
-     * @param exitValueIn BigDecimal
-     * @param maxLossIn BigDecimal
-     * @param marginIn BigDecimal
      * @param propertiesIn Map
      */
     public PositionVO(final int idIn, final int securityIdIn, final long quantityIn, final String nameIn, final String strategyIn, final Currency currencyIn, final BigDecimal marketPriceIn,
-            final BigDecimal marketValueIn, final BigDecimal averagePriceIn, final BigDecimal costIn, final BigDecimal unrealizedPLIn, final BigDecimal realizedPLIn, final BigDecimal exitValueIn,
-            final BigDecimal maxLossIn, final BigDecimal marginIn, final Map propertiesIn) {
+            final BigDecimal marketValueIn, final BigDecimal averagePriceIn, final BigDecimal costIn, final BigDecimal unrealizedPLIn, final BigDecimal realizedPLIn, final Map propertiesIn) {
 
         this.id = idIn;
         this.securityId = securityIdIn;
@@ -155,9 +136,6 @@ public class PositionVO implements Serializable {
         this.cost = costIn;
         this.unrealizedPL = unrealizedPLIn;
         this.realizedPL = realizedPLIn;
-        this.exitValue = exitValueIn;
-        this.maxLoss = maxLossIn;
-        this.margin = marginIn;
         this.properties = propertiesIn;
     }
 
@@ -181,9 +159,6 @@ public class PositionVO implements Serializable {
         this.cost = otherBean.getCost();
         this.unrealizedPL = otherBean.getUnrealizedPL();
         this.realizedPL = otherBean.getRealizedPL();
-        this.exitValue = otherBean.getExitValue();
-        this.maxLoss = otherBean.getMaxLoss();
-        this.margin = otherBean.getMargin();
         this.properties = otherBean.getProperties();
     }
 
@@ -406,60 +381,6 @@ public class PositionVO implements Serializable {
     }
 
     /**
-     * The price at which the Position will be closed.
-     * @return exitValue BigDecimal
-     */
-    public BigDecimal getExitValue() {
-
-        return this.exitValue;
-    }
-
-    /**
-     * The price at which the Position will be closed.
-     * @param value BigDecimal
-     */
-    public void setExitValue(final BigDecimal value) {
-
-        this.exitValue = value;
-    }
-
-    /**
-     * The potential loss that would incur, if the price reached the {@code exitValue}
-     * @return maxLoss BigDecimal
-     */
-    public BigDecimal getMaxLoss() {
-
-        return this.maxLoss;
-    }
-
-    /**
-     * The potential loss that would incur, if the price reached the {@code exitValue}
-     * @param value BigDecimal
-     */
-    public void setMaxLoss(final BigDecimal value) {
-
-        this.maxLoss = value;
-    }
-
-    /**
-     * The current margin needed by this Position.
-     * @return margin BigDecimal
-     */
-    public BigDecimal getMargin() {
-
-        return this.margin;
-    }
-
-    /**
-     * The current margin needed by this Position.
-     * @param value BigDecimal
-     */
-    public void setMargin(final BigDecimal value) {
-
-        this.margin = value;
-    }
-
-    /**
      * Any {@link ch.algotrader.entity.property.Property Property Properties} associated with the Position
      * @return properties Map
      */
@@ -505,12 +426,6 @@ public class PositionVO implements Serializable {
         builder.append(this.unrealizedPL);
         builder.append(", realizedPL=");
         builder.append(this.realizedPL);
-        builder.append(", exitValue=");
-        builder.append(this.exitValue);
-        builder.append(", maxLoss=");
-        builder.append(this.maxLoss);
-        builder.append(", margin=");
-        builder.append(this.margin);
         builder.append(", properties=");
         builder.append(this.properties);
         builder.append("]");

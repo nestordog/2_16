@@ -17,8 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.entity;
 
-import java.math.BigDecimal;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -60,7 +58,6 @@ public class ClosePositionVOProducerTest {
 
         position.setId(111);
         position.setQuantity(222);
-        position.setExitValue(new BigDecimal(555.55));
         position.setSecurity(forex);
         position.setStrategy(strategy);
 
@@ -70,7 +67,6 @@ public class ClosePositionVOProducerTest {
 
         Assert.assertEquals(111, closePositionVO.getId());
         Assert.assertEquals(222, closePositionVO.getQuantity());
-        Assert.assertEquals(new BigDecimal(555.55), closePositionVO.getExitValue());
         Assert.assertEquals(666, closePositionVO.getSecurityId());
         Assert.assertEquals(position.getStrategy().toString(), closePositionVO.getStrategy());
     }

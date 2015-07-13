@@ -17,8 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
-import java.math.BigDecimal;
-
 import ch.algotrader.entity.Position;
 
 /**
@@ -69,39 +67,10 @@ public interface PositionService {
     public void transferPosition(long positionId, String targetStrategyName);
 
     /**
-     * Calculates margins for all open positions
-     */
-    public void setMargins();
-
-    /**
-     * Calculates the margin for the specified position.
-     */
-    public Position setMargin(long positionId);
-
-    /**
      * Expires all expirable Positions. Only Positions on Securities that have an {@code
      * expirationDate} in the past will be expired.
      */
     public void expirePositions();
-
-    /**
-     * Sets or modifies the ExitValue of the specified Position. The ExitValue is set according to
-     * the {@code scale} defined by the {@link ch.algotrader.entity.security.SecurityFamily
-     * SecurityFamily}.
-     * The method performs the following checks:
-     * <ul>
-     * <li>The new ExitValues should not be set lower (higher) than the existing ExitValue for long
-     * (short) positions. This check can be overwritten by setting {@code force} to true</li>
-     * <li>The new ExitValues cannot be higher (lower) than the {@code currentValue} for long
-     * (short) positions</li>
-     * <ul>
-     */
-    public Position setExitValue(long positionId, BigDecimal exitValue, boolean force);
-
-    /**
-     * Removes the ExitValue from the specified Position.
-     */
-    public Position removeExitValue(long positionId);
 
     /**
      * Calculates all Position {@code quantities} based on Transactions in the database and makes

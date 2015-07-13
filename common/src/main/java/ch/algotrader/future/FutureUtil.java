@@ -52,13 +52,4 @@ public class FutureUtil {
 
         return underlyingSpot + (underlyingSpot * intrest - dividend) * years;
     }
-
-    /**
-     * Gets the current maintenace margin of a {@link Future} as defined by the {@link FutureFamily}.
-     */
-    public static double getMaintenanceMargin(Future future) {
-
-        FutureFamily family = (FutureFamily) future.getSecurityFamily();
-        return family.getMarginParameter();
-    }
 }

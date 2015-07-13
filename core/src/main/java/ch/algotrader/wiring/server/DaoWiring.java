@@ -74,8 +74,6 @@ import ch.algotrader.dao.security.GenericFutureDao;
 import ch.algotrader.dao.security.GenericFutureDaoImpl;
 import ch.algotrader.dao.security.GenericFutureFamilyDao;
 import ch.algotrader.dao.security.GenericFutureFamilyDaoImpl;
-import ch.algotrader.dao.security.ImpliedVolatilityDao;
-import ch.algotrader.dao.security.ImpliedVolatilityDaoImpl;
 import ch.algotrader.dao.security.IndexDao;
 import ch.algotrader.dao.security.IndexDaoImpl;
 import ch.algotrader.dao.security.IntrestRateDao;
@@ -286,12 +284,6 @@ public class DaoWiring {
     public GenericFutureFamilyDao createGenericFutureFamilyDao(final SessionFactory sessionFactory) {
 
         return new GenericFutureFamilyDaoImpl(sessionFactory);
-    }
-
-    @Bean(name = "impliedVolatilityDao")
-    public ImpliedVolatilityDao createImpliedVolatilityDao(final SessionFactory sessionFactory) {
-
-        return new ImpliedVolatilityDaoImpl(sessionFactory);
     }
 
     @Bean(name = "indexDao")

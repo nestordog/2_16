@@ -17,7 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -601,20 +600,6 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
-    public Collection<Combination> getSubscribedCombinationsByStrategyAndComponentClassWithZeroQty(final String strategyName, final Class type) {
-
-        Validate.notEmpty(strategyName, "Strategy name is empty");
-        Validate.notNull(type, "Type is null");
-
-        int discriminator = HibernateUtil.getDisriminatorValue(this.sessionFactory, type);
-        return this.combinationDao.findSubscribedByStrategyAndComponentTypeWithZeroQty(strategyName, discriminator);
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public Collection<Component> getSubscribedComponentsByStrategyInclSecurity(final String strategyName) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
@@ -721,16 +706,6 @@ public class LookupServiceImpl implements LookupService {
         Validate.notEmpty(name, "Name is empty");
 
         return this.strategyDao.findByName(name);
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Collection<Strategy> getAutoActivateStrategies() {
-
-        return this.strategyDao.findAutoActivateStrategies();
 
     }
 
@@ -997,19 +972,6 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
-    public List<Transaction> getTradesByMinDateAndMaxDate(final Date minDate, final Date maxDate) {
-
-        Validate.notNull(minDate, "Min date is null");
-        Validate.notNull(maxDate, "Max date is null");
-
-        return this.transactionDao.findTradesByMinDateAndMaxDate(minDate, maxDate);
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public List<TransactionVO> getTransactionsVO(final String strategyName) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
@@ -1097,18 +1059,6 @@ public class LookupServiceImpl implements LookupService {
         } else {
             return this.orderStatusDao.findOrderStatiByStrategy(strategyName);
         }
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public BigDecimal getLastIntOrderId(final String sessionQualifier) {
-
-        Validate.notEmpty(sessionQualifier, "Session qualifier is empty");
-
-        return this.transactionDao.findLastIntOrderId(sessionQualifier);
 
     }
 

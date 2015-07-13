@@ -428,17 +428,6 @@
     ]]>
     </query>
     
-    <query name='Transaction.findTradesByMinDateAndMaxDate'>
-    <![CDATA[
-        from TransactionImpl as t 
-        where t.dateTime > :minDate 
-        and t.dateTime < :maxDate 
-        and (t.type = 'BUY' 
-        or t.type = 'SELL') 
-        order by t.dateTime 
-    ]]>
-    </query>
-    
     <query name='Transaction.findByMaxDate'>
     <![CDATA[
         from TransactionImpl as t 
@@ -455,17 +444,6 @@
         order by t.dateTime 
     ]]>
     </query>
-    
-    <sql-query name='Transaction.findLastIntOrderId'>
-    <![CDATA[
-        select distinct convert(substring(t.int_order_id, length(a.session_qualifier) + 1), decimal(5,2)) as order_id 
-        from transaction as t 
-        join account as a on (t.account_fk = a.id) 
-        where a.session_qualifier = :sessionQualifier 
-        order by order_id desc 
-        limit 1 
-    ]]>
-    </sql-query>
          
     <!-- Transaction DAO queries Ends -->
      
@@ -650,43 +628,6 @@
         order by t.dateTime 
     ]]>
     </query>
-    
-    <query name='Tick.findOptionTicksBySecurityDateTypeAndExpirationInclSecurity'>
-    <![CDATA[
-        from TickImpl as t 
-        join fetch t.security as s 
-        where t.dateTime = :date 
-        and s.underlying.id = :underlyingId 
-        and s.type = :type 
-        and s.expiration = :expiration 
-        order by s.strike 
-    ]]>
-    </query>
-    
-    <query name='Tick.findImpliedVolatilityTicksBySecurityAndDate'>
-    <![CDATA[
-        select t 
-        from ImpliedVolatilityImpl as i, 
-        TickImpl as t 
-        where t.security = i 
-        and t.dateTime = :date 
-        and i.underlying.id = :underlyingId 
-        order by i.moneyness desc 
-    ]]>
-    </query>
-    
-    <query name='Tick.findImpliedVolatilityTicksBySecurityDateAndDuration'>
-    <![CDATA[
-        select t 
-        from ImpliedVolatilityImpl as i, 
-        TickImpl as t 
-        where t.security = i 
-        and t.dateTime = :date 
-        and i.underlying.id = :underlyingId 
-        and i.duration = :duration 
-        order by i.moneyness desc 
-    ]]>
-    </query>    
     
     <!-- Tick DAO queries Ends -->
     
@@ -1374,26 +1315,5 @@
 
     <!-- OrderStatus DAO queries Ends -->
 
-    <!-- ImpliedVolatility DAO queries Starts -->
-    
-    <query name='ImpliedVolatility.findByDurationDeltaAndType'>
-    <![CDATA[
-        from ImpliedVolatilityImpl 
-        where duration = :duration 
-        and delta = :delta 
-        and type = :type 
-    ]]>
-    </query>
-
-    <query name='ImpliedVolatility.findByDurationMoneynessAndType'>
-    <![CDATA[
-        from ImpliedVolatilityImpl 
-        where duration = :duration 
-        and moneyness = :moneyness 
-        and type = :type 
-    ]]>
-    </query>
-
-    <!-- ImpliedVolatility DAO queries Ends -->
 
 </hibernate-mapping>

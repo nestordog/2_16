@@ -31,12 +31,6 @@
      */
     public abstract double getCashBalanceDouble();
 
-    /**
-     * 
-     * @return double
-     */
-    public abstract double getMaintenanceMarginDouble();
-
 ]]>   
 	    </meta> 	    
         <meta attribute="class-description"><![CDATA[Represents certain balances (e.g. {@code netLiqValue}, {@code cashBalance}, etc.) of a particular Strategy at a particular time. Every hour PortfolioValues are saved to the database for every Strategy. These PortfolioValues will be displayed in the PortfolioChart of the client.]]></meta>
@@ -70,12 +64,6 @@
         <property name="cashBalance">
             <meta attribute="field-description"><![CDATA[Total cash]]></meta>
             <column name="CASH_BALANCE" not-null="true" unique="false" sql-type="Decimal(15,6)"/>
-
-            <type name="java.math.BigDecimal"/>
-        </property>
-        <property name="maintenanceMargin">
-            <meta attribute="field-description"><![CDATA[Current Maintenance Margin of all marginable positions]]></meta>
-            <column name="MAINTENANCE_MARGIN" not-null="false" unique="false" sql-type="Decimal(15,6)"/>
 
             <type name="java.math.BigDecimal"/>
         </property>

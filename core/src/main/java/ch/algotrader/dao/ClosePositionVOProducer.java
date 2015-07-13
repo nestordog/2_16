@@ -40,13 +40,9 @@ public class ClosePositionVOProducer implements EntityConverter<Position, CloseP
         ClosePositionVO vo = new ClosePositionVO();
 
         vo.setId(entity.getId());
-        // No conversion for closePositionVO.strategy (can't convert position.getStrategy():Strategy to String)
         vo.setQuantity(entity.getQuantity());
-        vo.setExitValue(entity.getExitValue());
-
         vo.setSecurityId(entity.getSecurity().getId());
         vo.setStrategy(entity.getStrategy().toString());
-        vo.setExitValue(entity.getExitValue());
         vo.setDirection(entity.getDirection());
 
         return vo;

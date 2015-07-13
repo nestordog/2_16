@@ -49,12 +49,6 @@ public class PortfolioValueImpl extends PortfolioValue {
     }
 
     @Override
-    public double getMaintenanceMarginDouble() {
-
-        return getMaintenanceMargin().doubleValue();
-    }
-
-    @Override
     public String toString() {
 
         StringBuilder buffer = new StringBuilder();
@@ -69,8 +63,6 @@ public class PortfolioValueImpl extends PortfolioValue {
         buffer.append(getSecuritiesCurrentValue());
         buffer.append(",cashBalance=");
         buffer.append(getCashBalance());
-        buffer.append(",maintenanceMargin=");
-        buffer.append(getMaintenanceMargin());
         buffer.append(",leverage=");
         buffer.append(RoundUtil.getBigDecimal(getLeverage()));
         buffer.append(",allocation=");

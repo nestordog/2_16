@@ -17,7 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.dao;
 
-import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -73,15 +72,6 @@ public interface TransactionDao extends ReadWriteDao<Transaction> {
     List<Transaction> findCashflowsByStrategyAndMinDate(String strategyName, Date minDate);
 
     /**
-     * Finds all Trades (either  {@code BUY} or {@code SELL}) between {@code minDate} and {@code
-     * maxDate}
-     * @param minDate
-     * @param maxDate
-     * @return List<Transaction>
-     */
-    List<Transaction> findTradesByMinDateAndMaxDate(Date minDate, Date maxDate);
-
-    /**
      * Finds all Transaction before the specified {@code maxDate}
      * @param maxDate
      * @return List<Transaction>
@@ -95,14 +85,6 @@ public interface TransactionDao extends ReadWriteDao<Transaction> {
      * @return List<Transaction>
      */
     List<Transaction> findByStrategyAndMaxDate(String strategyName, Date maxDate);
-
-    /**
-     * Finds one Tick-Id per hour of the defined Security that is just before the specified number
-     * of {@code minutes} and after the specified {@code minDate}.
-     * @param sessionQualifier
-     * @return BigDecimal
-     */
-    BigDecimal findLastIntOrderId(String sessionQualifier);
 
     // spring-dao merge-point
 }

@@ -18,7 +18,6 @@
 
 package ch.algotrader.dao;
 
-import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -87,15 +86,6 @@ public class TransactionDaoImpl extends AbstractDao<Transaction> implements Tran
     }
 
     @Override
-    public List<Transaction> findTradesByMinDateAndMaxDate(Date minDate, Date maxDate) {
-
-        Validate.notNull(minDate, "minDate name is empty");
-        Validate.notNull(maxDate, "maxDate is null");
-
-        return find("Transaction.findTradesByMinDateAndMaxDate", QueryType.BY_NAME, new NamedParam("minDate", minDate), new NamedParam("maxDate", maxDate));
-    }
-
-    @Override
     public List<Transaction> findByMaxDate(Date maxDate) {
 
         Validate.notNull(maxDate, "maxDate is null");
@@ -110,13 +100,5 @@ public class TransactionDaoImpl extends AbstractDao<Transaction> implements Tran
         Validate.notNull(maxDate, "maxDate is null");
 
         return find("Transaction.findByStrategyAndMaxDate", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("maxDate", maxDate));
-    }
-
-    @Override
-    public BigDecimal findLastIntOrderId(String sessionQualifier) {
-
-        Validate.notEmpty(sessionQualifier, "sessionQualifier is empty");
-
-        return (BigDecimal) findUniqueObject(null, "Transaction.findLastIntOrderId", QueryType.BY_NAME, new NamedParam("sessionQualifier", sessionQualifier));
     }
 }

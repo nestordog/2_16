@@ -41,8 +41,6 @@ import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.SubscriptionImpl;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.ForexImpl;
-import ch.algotrader.entity.security.ImpliedVolatility;
-import ch.algotrader.entity.security.ImpliedVolatilityImpl;
 import ch.algotrader.entity.security.Option;
 import ch.algotrader.entity.security.OptionImpl;
 import ch.algotrader.entity.security.SecurityFamily;
@@ -50,7 +48,6 @@ import ch.algotrader.entity.security.SecurityFamilyImpl;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.enumeration.Currency;
-import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.esper.NoopEngine;
@@ -249,7 +246,7 @@ public class TickDaoTest extends InMemoryDBTest {
         this.session.flush();
 
         List<Long> ids = new ArrayList<>();
-        ids.add((long) tick.getId());
+        ids.add(tick.getId());
 
         List<Tick> ticks = this.dao.findByIdsInclSecurityAndUnderlying(ids);
 
@@ -371,114 +368,6 @@ public class TickDaoTest extends InMemoryDBTest {
 
         Assert.assertSame(tick2, ticks2.get(1));
         Assert.assertSame(this.forex1, ticks2.get(1).getSecurity());
-    }
-
-    @Test
-    public void testFindOptionTicksBySecurityDateTypeAndExpirationInclSecurity() {
-
-        Calendar cal1 = Calendar.getInstance();
-
-        Calendar expiration = Calendar.getInstance();
-        expiration.set(Calendar.HOUR_OF_DAY, 0);
-        expiration.set(Calendar.MINUTE, 0);
-        expiration.set(Calendar.SECOND, 0);
-        expiration.set(Calendar.MILLISECOND, 0);
-
-        Option option = new OptionImpl();
-        option.setExpiration(expiration.getTime());
-        option.setSecurityFamily(this.family1);
-        option.setType(OptionType.CALL);
-        option.setStrike(new BigDecimal(111.11));
-        option.setUnderlying(this.forex1);
-
-        Tick tick = new TickImpl();
-        tick.setDateTime(cal1.getTime());
-        tick.setFeedType(FeedType.BB);
-        tick.setSecurity(option);
-
-        this.session.save(this.family1);
-        this.session.save(this.forex1);
-        this.session.save(option);
-
-        this.session.save(tick);
-
-        this.session.flush();
-
-        List<Tick> ticks1 = this.dao.findOptionTicksBySecurityDateTypeAndExpirationInclSecurity(0, cal1.getTime(), OptionType.CALL, option.getExpiration());
-        Assert.assertEquals(0, ticks1.size());
-
-        List<Tick> ticks2 = this.dao.findOptionTicksBySecurityDateTypeAndExpirationInclSecurity(this.forex1.getId(), cal1.getTime(), OptionType.CALL, option.getExpiration());
-
-        Assert.assertEquals(1, ticks2.size());
-        Assert.assertSame(tick, ticks2.get(0));
-        Assert.assertSame(option, ticks2.get(0).getSecurity());
-        Assert.assertSame(this.forex1, ticks2.get(0).getSecurity().getUnderlying());
-    }
-
-    @Test
-    public void testFindImpliedVolatilityTicksBySecurityAndDate() {
-
-        ImpliedVolatility impliedVolatility = new ImpliedVolatilityImpl();
-        impliedVolatility.setSecurityFamily(this.family1);
-        impliedVolatility.setDuration(Duration.DAY_1);
-        impliedVolatility.setType(OptionType.CALL);
-        impliedVolatility.setUnderlying(this.forex1);
-
-        Calendar cal1 = Calendar.getInstance();
-
-        Tick tick = new TickImpl();
-        tick.setDateTime(cal1.getTime());
-        tick.setFeedType(FeedType.BB);
-        tick.setSecurity(impliedVolatility);
-
-        this.session.save(this.family1);
-        this.session.save(impliedVolatility);
-        this.session.save(this.forex1);
-        this.session.save(tick);
-
-        this.session.flush();
-
-        List<Tick> ticks1 = this.dao.findImpliedVolatilityTicksBySecurityAndDate(0, cal1.getTime());
-        Assert.assertEquals(0, ticks1.size());
-
-        List<Tick> ticks2 = this.dao.findImpliedVolatilityTicksBySecurityAndDate(this.forex1.getId(), cal1.getTime());
-
-        Assert.assertEquals(1, ticks2.size());
-        Assert.assertSame(tick, ticks2.get(0));
-        Assert.assertSame(impliedVolatility, ticks2.get(0).getSecurity());
-    }
-
-    @Test
-    public void testFindImpliedVolatilityTicksBySecurityDateAndDuration() {
-
-        ImpliedVolatility impliedVolatility = new ImpliedVolatilityImpl();
-        impliedVolatility.setSecurityFamily(this.family1);
-        impliedVolatility.setDuration(Duration.DAY_1);
-        impliedVolatility.setType(OptionType.CALL);
-        impliedVolatility.setUnderlying(this.forex1);
-
-        Calendar cal1 = Calendar.getInstance();
-
-        Tick tick = new TickImpl();
-        tick.setDateTime(cal1.getTime());
-        tick.setFeedType(FeedType.BB);
-        tick.setSecurity(impliedVolatility);
-
-        this.session.save(this.family1);
-        this.session.save(impliedVolatility);
-        this.session.save(this.forex1);
-        this.session.save(tick);
-
-        this.session.flush();
-
-        List<Tick> ticks1 = this.dao.findImpliedVolatilityTicksBySecurityDateAndDuration(this.forex1.getId(), cal1.getTime(), Duration.DAY_2);
-        Assert.assertEquals(0, ticks1.size());
-
-        List<Tick> ticks2 = this.dao.findImpliedVolatilityTicksBySecurityDateAndDuration(this.forex1.getId(), cal1.getTime(), Duration.DAY_1);
-
-        Assert.assertEquals(1, ticks2.size());
-        Assert.assertSame(tick, ticks2.get(0));
-        Assert.assertSame(impliedVolatility, ticks2.get(0).getSecurity());
     }
 
     @Test

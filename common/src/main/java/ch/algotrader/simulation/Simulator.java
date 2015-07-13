@@ -218,14 +218,6 @@ public class Simulator {
             // process the transaction (adjust quantity, cost and realizedPL)
             tradePerformance = this.positionTracker.processTransaction(position, transaction);
 
-            // in case a position was closed reset exitValue and margin
-            if (!position.isOpen()) {
-
-                // set all values to null
-                position.setExitValue(null);
-                position.setMaintenanceMargin(null);
-            }
-
             // associate the position
             transaction.setPosition(position);
         }

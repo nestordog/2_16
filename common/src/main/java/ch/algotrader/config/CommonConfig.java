@@ -49,7 +49,6 @@ public final class CommonConfig {
     private final boolean embedded;
     private final int portfolioDigits;
     private final Currency portfolioBaseCurrency;
-    private final BigDecimal initialMarginMarkup;
     private final boolean validateCrossedSpread;
     private final boolean displayClosedPositions;
 
@@ -70,7 +69,6 @@ public final class CommonConfig {
             @ConfigName("misc.embedded") final boolean embedded,
             @ConfigName("misc.portfolioDigits") final int portfolioDigits,
             @ConfigName("misc.portfolioBaseCurrency") final Currency portfolioBaseCurrency,
-            @ConfigName("misc.initialMarginMarkup") final BigDecimal initialMarginMarkup,
             @ConfigName("misc.validateCrossedSpread") final boolean validateCrossedSpread,
             @ConfigName("misc.displayClosedPositions") final boolean displayClosedPositions) {
         this.dataSet = dataSet;
@@ -89,7 +87,6 @@ public final class CommonConfig {
         this.embedded = embedded;
         this.portfolioDigits = portfolioDigits;
         this.portfolioBaseCurrency = portfolioBaseCurrency;
-        this.initialMarginMarkup = initialMarginMarkup;
         this.validateCrossedSpread = validateCrossedSpread;
         this.displayClosedPositions = displayClosedPositions;
     }
@@ -158,10 +155,6 @@ public final class CommonConfig {
         return this.portfolioBaseCurrency;
     }
 
-    public BigDecimal getInitialMarginMarkup() {
-        return this.initialMarginMarkup;
-    }
-
     public boolean isValidateCrossedSpread() {
         return this.validateCrossedSpread;
     }
@@ -188,7 +181,6 @@ public final class CommonConfig {
         sb.append(", embedded=").append(this.embedded);
         sb.append(", portfolioDigits=").append(this.portfolioDigits);
         sb.append(", portfolioBaseCurrency=").append(this.portfolioBaseCurrency);
-        sb.append(", initialMarginMarkup=").append(this.initialMarginMarkup);
         sb.append(", validateCrossedSpread=").append(this.validateCrossedSpread);
         sb.append(", displayClosedPositions=").append(this.displayClosedPositions);
         sb.append(']');

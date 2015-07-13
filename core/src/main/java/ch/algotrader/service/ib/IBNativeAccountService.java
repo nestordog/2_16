@@ -17,12 +17,19 @@
  ***********************************************************************************/
 package ch.algotrader.service.ib;
 
-import ch.algotrader.service.AccountService;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public interface IBNativeAccountService extends AccountService {
+public interface IBNativeAccountService {
+
+    public String retrieveAccountValue(String accountName, String currency, String key);
+
+    public Set<String> getAccounts();
+
+    public Map<String, Double> getAllocations(String profileName);
 }

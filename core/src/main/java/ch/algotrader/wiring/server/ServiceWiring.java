@@ -182,7 +182,7 @@ public class ServiceWiring {
             final EngineManager engineManager,
             final Engine serverEngine) {
 
-        return new PositionServiceImpl(commonConfig, coreConfig, transactionService, marketDataService, orderService, portfolioService, localLookupService, positionDao, securityDao, strategyDao,
+        return new PositionServiceImpl(commonConfig, coreConfig, transactionService, marketDataService, orderService, localLookupService, positionDao, securityDao, strategyDao,
                 transactionDao, eventDispatcher, engineManager, serverEngine);
     }
 
@@ -217,7 +217,6 @@ public class ServiceWiring {
             final OrderService orderService,
             final LocalLookupService localLookupService,
             final SecurityDao securityDao,
-            final TickDao tickDao,
             final OptionFamilyDao optionFamilyDao,
             final OptionDao optionDao,
             final PositionDao positionDao,
@@ -227,7 +226,7 @@ public class ServiceWiring {
             final EngineManager engineManager,
             final Engine serverEngine) {
 
-        return new OptionServiceImpl(commonConfig, coreConfig, marketDataService, futureService, orderService, localLookupService, securityDao, tickDao, optionFamilyDao, optionDao, positionDao,
+        return new OptionServiceImpl(commonConfig, coreConfig, marketDataService, futureService, orderService, localLookupService, securityDao, optionFamilyDao, optionDao, positionDao,
                 subscriptionDao, futureFamilyDao, strategyDao, engineManager, serverEngine);
     }
 

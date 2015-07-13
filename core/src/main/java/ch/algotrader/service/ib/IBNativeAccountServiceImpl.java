@@ -22,14 +22,10 @@ import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 
 import org.apache.commons.lang.Validate;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.adapter.ib.AccountUpdate;
 import ch.algotrader.adapter.ib.IBSession;
 import ch.algotrader.adapter.ib.Profile;
-import ch.algotrader.service.AccountServiceImpl;
-import ch.algotrader.service.ExternalServiceException;
 import ch.algotrader.service.ServiceException;
 
 /**
@@ -37,9 +33,7 @@ import ch.algotrader.service.ServiceException;
  *
  * @version $Revision$ $Date$
  */
-public class IBNativeAccountServiceImpl extends AccountServiceImpl implements IBNativeAccountService {
-
-    private static final Logger LOGGER = LogManager.getLogger(IBNativeAccountServiceImpl.class);
+public class IBNativeAccountServiceImpl implements IBNativeAccountService {
 
     private final BlockingQueue<AccountUpdate> accountUpdateQueue;
     private final BlockingQueue<Set<String>> accountsQueue;
@@ -64,90 +58,53 @@ public class IBNativeAccountServiceImpl extends AccountServiceImpl implements IB
     }
 
     @Override
-    public long getQuantityByMargin(String strategyName, double initialMarginPerContractInBase) {
-
-        Validate.notEmpty(strategyName, "Strategy name is empty");
-
-        long quantityByMargin = 0;
-        StringBuilder buffer = new StringBuilder("quantityByMargin:");
+    public String retrieveAccountValue(String accountName, String currency, String key)  {
 
         try {
-            for (String account : getAccounts()) {
-                double availableAmount = Double.parseDouble(retrieveAccountValue(account, "CHF", "AvailableFunds"));
-                long quantity = (long) (availableAmount / initialMarginPerContractInBase);
-                quantityByMargin += quantity;
+            this.iBSession.reqAccountUpdates(true, accountName);
 
-                buffer.append(" " + account + "=" + quantity);
+            while (true) {
+
+                AccountUpdate accountUpdate = this.accountUpdateQueue.take();
+                if (accountName.equals(accountUpdate.getAccountName()) && key.equals(accountUpdate.getKey()) && currency.equals(accountUpdate.getCurrency())) {
+                    return accountUpdate.getValue();
+                }
             }
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
             throw new ServiceException(ex);
-        } catch (NumberFormatException ex) {
-            throw new ExternalServiceException(ex);
         }
-
-        LOGGER.debug(buffer.toString());
-
-        return quantityByMargin;
-
     }
 
     @Override
-    public long getQuantityByAllocation(String strategyName, long requestedQuantity) {
-
-        Validate.notEmpty(strategyName, "Strategy name is empty");
-
-        long quantityByAllocation = 0;
-        StringBuilder buffer = new StringBuilder("quantityByAllocation:");
+    public Set<String> getAccounts() {
 
         try {
-            for (Map.Entry<String, Double> entry : getAllocations(strategyName).entrySet()) {
-                long quantity = (long) (entry.getValue() / 100.0 * requestedQuantity);
-                quantityByAllocation += quantity;
+            this.iBSession.requestFA(1);
 
-                buffer.append(" " + entry.getKey() + "=" + quantity);
-            }
+            return this.accountsQueue.take();
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
             throw new ServiceException(ex);
         }
-
-        LOGGER.debug(buffer.toString());
-
-        return quantityByAllocation;
-
     }
 
-    private String retrieveAccountValue(String accountName, String currency, String key) throws InterruptedException {
+    @Override
+    public Map<String, Double> getAllocations(String profileName) {
 
-        this.iBSession.reqAccountUpdates(true, accountName);
+        try {
+            this.iBSession.requestFA(2);
 
-        while (true) {
+            while (true) {
 
-            AccountUpdate accountUpdate = this.accountUpdateQueue.take();
-            if (accountName.equals(accountUpdate.getAccountName()) && key.equals(accountUpdate.getKey())) {
-                return accountUpdate.getValue();
+                Profile profile = this.profilesQueue.take();
+                if (profileName.toUpperCase().equals(profile.getName())) {
+                    return profile.getAllocations();
+                }
             }
-        }
-    }
-
-    private Set<String> getAccounts() throws InterruptedException {
-
-        this.iBSession.requestFA(1);
-
-        return this.accountsQueue.take();
-    }
-
-    private Map<String, Double> getAllocations(String strategyName) throws InterruptedException {
-
-        this.iBSession.requestFA(2);
-
-        while (true) {
-
-            Profile profile = this.profilesQueue.take();
-            if (strategyName.toUpperCase().equals(profile.getName())) {
-                return profile.getAllocations();
-            }
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+            throw new ServiceException(ex);
         }
     }
 }

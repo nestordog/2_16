@@ -49,7 +49,6 @@ public final class CommonConfigBuilder {
     private boolean embedded;
     private int portfolioDigits;
     private Currency portfolioBaseCurrency;
-    private BigDecimal initialMarginMarkup;
     private boolean validateCrossedSpread;
     private boolean displayClosedPositions;
 
@@ -67,7 +66,6 @@ public final class CommonConfigBuilder {
         this.embedded = false;
         this.portfolioDigits = 2;
         this.portfolioBaseCurrency = Currency.USD;
-        this.initialMarginMarkup = new BigDecimal("1.25");
     }
 
     public static CommonConfigBuilder create() {
@@ -139,11 +137,6 @@ public final class CommonConfigBuilder {
         return this;
     }
 
-    public CommonConfigBuilder setInitialMarginMarkup(BigDecimal initialMarginMarkup) {
-        this.initialMarginMarkup = initialMarginMarkup;
-        return this;
-    }
-
     public CommonConfigBuilder setValidateCrossedSpread(boolean validateCrossedSpread) {
         this.validateCrossedSpread = validateCrossedSpread;
         return this;
@@ -158,7 +151,7 @@ public final class CommonConfigBuilder {
         return new CommonConfig(
                 this.dataSet, this.dataSetType, this.dataSetLocation, this.barSize, this.feedCSV, this.feedDB, this.feedGenericEvents, this.feedAllMarketDataFiles,
                 this.feedBatchSize, this.reportLocation, this.simulation, this.simulationInitialBalance, this.simulationLogTransactions, this.embedded,
-                this.portfolioDigits, this.portfolioBaseCurrency, this.initialMarginMarkup, this.validateCrossedSpread, this.displayClosedPositions);
+                this.portfolioDigits, this.portfolioBaseCurrency, this.validateCrossedSpread, this.displayClosedPositions);
     }
 
 }
