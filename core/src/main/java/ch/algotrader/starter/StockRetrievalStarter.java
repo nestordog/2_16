@@ -26,6 +26,8 @@ import ch.algotrader.service.ib.IBNativeReferenceDataService;
  * Starter Class for downloading {@link ch.algotrader.entity.security.Stock Stocks}
  * <p>
  * Usage: {@code ReferenceDataStarter securityFamilyId symbol1 symbol2 ...}
+ * <p>
+ * E.g. to download all S&P 500 Stocks get the list of symbols from http://www.cboe.com/products/snp500.aspx
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *

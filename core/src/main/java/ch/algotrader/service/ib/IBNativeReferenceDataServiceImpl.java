@@ -35,9 +35,6 @@ import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.ib.client.Contract;
-import com.ib.client.ContractDetails;
-
 import ch.algotrader.adapter.ib.IBIdGenerator;
 import ch.algotrader.adapter.ib.IBPendingRequests;
 import ch.algotrader.adapter.ib.IBSession;
@@ -63,6 +60,9 @@ import ch.algotrader.service.ReferenceDataServiceImpl;
 import ch.algotrader.service.ServiceException;
 import ch.algotrader.util.DateTimeLegacy;
 import ch.algotrader.util.RoundUtil;
+
+import com.ib.client.Contract;
+import com.ib.client.ContractDetails;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -299,7 +299,7 @@ public class IBNativeReferenceDataServiceImpl extends ReferenceDataServiceImpl i
         }
 
         // contractDetailsList most likely only contains one entry
-        Set<Stock> newStocks = new TreeSet<>();
+        Set<Stock> newStocks = new HashSet<>();
         for (ContractDetails contractDetails : contractDetailsSet) {
 
             Contract contract = contractDetails.m_summary;
