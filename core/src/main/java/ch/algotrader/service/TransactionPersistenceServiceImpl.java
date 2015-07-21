@@ -37,6 +37,7 @@ import ch.algotrader.entity.strategy.CashBalanceDao;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.esper.EngineLocator;
+import ch.algotrader.report.TradeReport;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.PositionUtil;
 import ch.algotrader.util.RoundUtil;
@@ -58,7 +59,6 @@ import ch.algotrader.vo.TradePerformanceVO;
 public abstract class TransactionPersistenceServiceImpl implements TransactionPersistenceService {
 
     private static Logger logger = MyLogger.getLogger(TransactionPersistenceServiceImpl.class.getName());
-    private static Logger simulationLogger = MyLogger.getLogger(SimulationServiceImpl.class.getName() + ".RESULT");
 
     private final CommonConfig commonConfig;
 
@@ -69,6 +69,8 @@ public abstract class TransactionPersistenceServiceImpl implements TransactionPe
     private final TransactionDao transactionDao;
 
     private final CashBalanceDao cashBalanceDao;
+    
+    private final TradeReport tradeReport;
 
     public TransactionPersistenceServiceImpl(
             final CommonConfig commonConfig,
@@ -88,6 +90,8 @@ public abstract class TransactionPersistenceServiceImpl implements TransactionPe
         this.positionDao = positionDao;
         this.transactionDao = transactionDao;
         this.cashBalanceDao = cashBalanceDao;
+        
+        tradeReport = new TradeReport();
     }
 
     /**
@@ -187,13 +191,12 @@ public abstract class TransactionPersistenceServiceImpl implements TransactionPe
             if (this.commonConfig.isSimulation() && EngineLocator.instance().hasServerEngine()) {
                 EngineLocator.instance().getServerEngine().sendEvent(tradePerformance);
             }
+            
+            // log trade report
+            tradeReport.write(transaction, tradePerformance);
         }
-
-        if (this.commonConfig.isSimulation() && this.commonConfig.isSimulationLogTransactions()) {
-            simulationLogger.info(logMessage);
-        } else {
-            logger.info(logMessage);
-        }
+        
+        logger.info(logMessage);
 
         // return PositionMutation event if existent
         return openPositionVO != null ? openPositionVO : closePositionVO != null ? closePositionVO : null;
