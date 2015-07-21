@@ -70,7 +70,7 @@ public abstract class TransactionPersistenceServiceImpl implements TransactionPe
     private final TransactionDao transactionDao;
 
     private final CashBalanceDao cashBalanceDao;
-    
+
     private final TradeReport tradeReport;
 
     private final Engine serverEngine;
@@ -187,7 +187,7 @@ public abstract class TransactionPersistenceServiceImpl implements TransactionPe
 
             // propagate the TradePerformance event
             this.serverEngine.sendEvent(tradePerformance);
-            
+
             // log trade report
             this.tradeReport.write(transaction, tradePerformance);
         }
