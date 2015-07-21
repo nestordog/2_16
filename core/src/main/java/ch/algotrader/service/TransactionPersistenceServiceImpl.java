@@ -41,6 +41,7 @@ import ch.algotrader.entity.strategy.CashBalance;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.esper.Engine;
+import ch.algotrader.report.TradeReport;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.collection.BigDecimalMap;
 import ch.algotrader.util.collection.Pair;
@@ -59,7 +60,6 @@ import ch.algotrader.vo.TradePerformanceVO;
 public abstract class TransactionPersistenceServiceImpl implements TransactionPersistenceService {
 
     private static final Logger LOGGER = LogManager.getLogger(TransactionPersistenceServiceImpl.class);
-    private static final Logger SIMULATION_LOGGER = LogManager.getLogger("ch.algotrader.simulation.SimulationExecutor.RESULT");
 
     private final CommonConfig commonConfig;
 
@@ -70,6 +70,8 @@ public abstract class TransactionPersistenceServiceImpl implements TransactionPe
     private final TransactionDao transactionDao;
 
     private final CashBalanceDao cashBalanceDao;
+    
+    private final TradeReport tradeReport;
 
     private final Engine serverEngine;
 
@@ -94,6 +96,7 @@ public abstract class TransactionPersistenceServiceImpl implements TransactionPe
         this.transactionDao = transactionDao;
         this.cashBalanceDao = cashBalanceDao;
         this.serverEngine = serverEngine;
+        this.tradeReport = new TradeReport();
     }
 
     /**
@@ -184,13 +187,12 @@ public abstract class TransactionPersistenceServiceImpl implements TransactionPe
 
             // propagate the TradePerformance event
             this.serverEngine.sendEvent(tradePerformance);
+            
+            // log trade report
+            this.tradeReport.write(transaction, tradePerformance);
         }
 
-        if (this.commonConfig.isSimulation() && this.commonConfig.isSimulationLogTransactions()) {
-            SIMULATION_LOGGER.info(logMessage);
-        } else {
-            LOGGER.info(logMessage);
-        }
+        LOGGER.info(logMessage);
 
         // return PositionMutation event if existent
         return openPositionVO != null ? openPositionVO : closePositionVO != null ? closePositionVO : null;
