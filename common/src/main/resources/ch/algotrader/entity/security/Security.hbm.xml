@@ -39,6 +39,11 @@
 
             <type name="java.lang.String"/>
         </property>
+        <property name="description">
+            <column name="DESCRIPTION" not-null="false" unique="false" sql-type="VARCHAR(255)"/>
+
+            <type name="java.lang.String"/>
+        </property>
         <property name="isin">
             <meta attribute="field-description"><![CDATA[International Securities Identification Number]]></meta>
             <meta attribute="use-in-equals">true</meta>

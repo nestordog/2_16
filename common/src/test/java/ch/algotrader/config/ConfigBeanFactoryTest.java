@@ -59,8 +59,9 @@ public class ConfigBeanFactoryTest {
         this.map.put("simulation.initialBalance", "500.5");
         this.map.put("simulation.logTransactions", "true");
         this.map.put("misc.embedded", "true");
-        this.map.put("misc.portfolioDigits", "5");
         this.map.put("misc.portfolioBaseCurrency", "EUR");
+        this.map.put("misc.portfolioDigits", "5");
+        this.map.put("misc.defaultAccountName", "IB_NATIVE_TEST");
         this.map.put("misc.validateCrossedSpread", "true");
         this.map.put("misc.displayClosedPositions", "true");
     }

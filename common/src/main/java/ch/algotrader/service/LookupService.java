@@ -26,6 +26,7 @@ import ch.algotrader.entity.Account;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.Transaction;
+import ch.algotrader.entity.exchange.Exchange;
 import ch.algotrader.entity.marketData.Bar;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.Combination;
@@ -257,6 +258,11 @@ public interface LookupService {
      * Gets a {@link FutureFamily} by the {@code id} of the Underlying {@link Security}.
      */
     public FutureFamily getFutureFamilyByUnderlying(long id);
+
+    /**
+     * Gets a {@link Exchange} by the {@code name}
+     */
+    public Exchange getExchangeByName(String name);
 
     /**
      * Gets all Positions.

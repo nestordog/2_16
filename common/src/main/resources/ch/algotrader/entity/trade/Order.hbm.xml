@@ -119,6 +119,13 @@
      */
     public abstract java.lang.String getProperty(java.lang.String name);
 
+    /**
+     * gets the Exchange associated with this Order. The Exchange can either be directly associated
+     * with the Order or via SecurityFamily
+     * @return ch.algotrader.entity.exchange.Exchange
+     */
+    public abstract ch.algotrader.entity.exchange.Exchange getEffectiveExchange();
+
 ]]>   
 	    </meta> 	    
         <meta attribute="class-description"><![CDATA[Base Class for all Order Types]]></meta>
@@ -180,16 +187,12 @@
 
             <type name="java.util.Date"/>
         </property>
-        <map name="orderProperties" order-by="ORDER_FK" lazy="false" fetch="select" inverse="true" cascade="delete">
-            <meta attribute="field-description"><![CDATA[Base Class for all Order Types]]></meta>
-            <cache usage="read-write" />
-            <key foreign-key="ORDER_PROPERTY_ORDER_FKC">
-                <column name="ORDER_FK" sql-type="BIGINT"/>
+        <many-to-one name="exchange" class="ch.algotrader.entity.exchange.ExchangeImpl" foreign-key="ORDER_EXCHANGE_FKC" not-null="false" lazy="proxy" fetch="select">
+            <meta attribute="property-type">ch.algotrader.entity.exchange.Exchange</meta>
+            <meta attribute="field-description"><![CDATA[Exchange where securities are traded]]></meta>
+            <column name="EXCHANGE_FK" not-null="false" sql-type="BIGINT"/>
 
-            </key>
-            <map-key column="NAME" type="java.lang.String"/>
-            <one-to-many class="ch.algotrader.entity.trade.OrderPropertyImpl" not-found="exception"/>
-        </map>
+        </many-to-one>
         <many-to-one name="security" class="ch.algotrader.entity.security.SecurityImpl" foreign-key="ORDER_SECURITY_FKC" not-null="true" lazy="proxy" fetch="select">
             <meta attribute="property-type">ch.algotrader.entity.security.Security</meta>
             <meta attribute="field-description"><![CDATA[The base class of all Securities in the system]]></meta>
@@ -202,6 +205,16 @@
             <column name="ACCOUNT_FK" not-null="true" sql-type="BIGINT"/>
 
         </many-to-one>
+        <map name="orderProperties" order-by="ORDER_FK" lazy="false" fetch="select" inverse="true" cascade="delete">
+            <meta attribute="field-description"><![CDATA[Base Class for all Order Types]]></meta>
+            <cache usage="read-write" />
+            <key foreign-key="ORDER_PROPERTY_ORDER_FKC">
+                <column name="ORDER_FK" sql-type="BIGINT"/>
+
+            </key>
+            <map-key column="NAME" type="java.lang.String"/>
+            <one-to-many class="ch.algotrader.entity.trade.OrderPropertyImpl" not-found="exception"/>
+        </map>
         <many-to-one name="strategy" class="ch.algotrader.entity.strategy.StrategyImpl" foreign-key="ORDER_STRATEGY_FKC" not-null="true" lazy="proxy" fetch="select">
             <meta attribute="property-type">ch.algotrader.entity.strategy.Strategy</meta>
             <meta attribute="field-description"><![CDATA[Represents a running Strategy within the system. In addition the AlgoTrader Server is also

@@ -86,14 +86,6 @@
     public abstract double getPriceMultiplier(ch.algotrader.enumeration.Broker broker);
 
     /**
-     * Gets the {@code exchangeCode} defined by the corresponding {@link BrokerParameters} or from
-     * this SecurityFamily as a fallback.
-     * @param broker 
-     * @return java.lang.String
-     */
-    public abstract java.lang.String getExchangeCode(ch.algotrader.enumeration.Broker broker);
-
-    /**
      * Gets the current Spread between {@code bid} and {@code ask} in number of Ticks.
      * @param broker 
      * @param bid 

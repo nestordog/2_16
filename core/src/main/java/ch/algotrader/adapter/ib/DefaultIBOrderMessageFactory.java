@@ -67,6 +67,11 @@ public class DefaultIBOrderMessageFactory implements IBOrderMessageFactory {
         ibOrder.m_orderType = IBUtil.getIBOrderType(order);
         ibOrder.m_transmit = true;
 
+        // overwrite the default exchange (defined by SecurityFamily) in case a different exchange is defined on the order
+        if (order.getExchange() != null) {
+            contract.m_exchange = order.getExchange().getIbCode();
+        }
+
         // handle a potentially defined account
         if (order.getAccount().getExtAccount() != null) {
 

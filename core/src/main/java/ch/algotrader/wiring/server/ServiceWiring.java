@@ -123,6 +123,7 @@ public class ServiceWiring {
             final SecurityFamilyDao securityFamilyDao,
             final SecurityReferenceDao securityReferenceDao,
             final OptionFamilyDao optionFamilyDao,
+            final ExchangeDao exchangeDao,
             final TickDao tickDao,
             final OptionDao optionDao,
             final TransactionDao transactionDao,
@@ -142,7 +143,7 @@ public class ServiceWiring {
             final IntrestRateDao intrestRateDao,
             final EasyToBorrowDao easyToBorrowDao) {
 
-        return new LookupServiceImpl(commonConfig, coreConfig, sessionFactory, genericDao, futureFamilyDao, futureDao, forexDao, securityFamilyDao, securityReferenceDao, optionFamilyDao, tickDao, optionDao,
+        return new LookupServiceImpl(commonConfig, coreConfig, sessionFactory, genericDao, futureFamilyDao, futureDao, forexDao, securityFamilyDao, securityReferenceDao, optionFamilyDao, exchangeDao, tickDao, optionDao,
                 transactionDao, positionDao, strategyDao, securityDao, cashBalanceDao, subscriptionDao, combinationDao, componentDao, measurementDao, barDao, orderDao, orderStatusDao, accountDao,
                 stockDao, intrestRateDao, easyToBorrowDao);
     }
@@ -306,12 +307,13 @@ public class ServiceWiring {
             final StrategyDao strategyDao,
             final SecurityDao securityDao,
             final AccountDao accountDao,
+            final ExchangeDao exchangeDao,
             final OrderPreferenceDao orderPreferenceDao,
             final EventDispatcher eventDispatcher,
             final EngineManager engineManager,
             final Engine serverEngine) {
 
-        return new OrderServiceImpl(commonConfig, sessionFactory, orderPersistService, localLookupService, orderDao, orderStatusDao, strategyDao, securityDao, accountDao, orderPreferenceDao,
+        return new OrderServiceImpl(commonConfig, sessionFactory, orderPersistService, localLookupService, orderDao, orderStatusDao, strategyDao, securityDao, accountDao, exchangeDao, orderPreferenceDao,
                 eventDispatcher, engineManager, serverEngine);
     }
 

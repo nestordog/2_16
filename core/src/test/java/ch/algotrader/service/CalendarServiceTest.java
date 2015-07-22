@@ -72,24 +72,24 @@ public class CalendarServiceTest {
 
         Mockito.when(this.engineManager.getCurrentEPTime()).thenReturn(new Date());
 
-        Exchange regular = Exchange.Factory.newInstance("REGULAR", "REG", "US/Eastern");
+        Exchange regular = Exchange.Factory.newInstance("REGULAR", "US/Eastern");
         regular.addTradingHours(TradingHours.Factory.newInstance(parseAsTime("08:30:00"), parseAsTime("16:00:00"), false, true, true, true, true, true, false, regular));
         regular.addHolidays(Holiday.Factory.newInstance(parseAsDate("2012-12-31"), regular)); // New Years Eve
         regular.addHolidays(Holiday.Factory.newInstance(parseAsDate("2013-01-01"), regular)); // New Year
         regular.addHolidays(Holiday.Factory.newInstance(parseAsDate("2012-12-24"), null, parseAsTime("12:00:00"), regular)); // Christmas
         regular.addHolidays(Holiday.Factory.newInstance(parseAsDate("2013-01-02"), parseAsTime("12:00:00"), null, regular)); // Jan 2nd
 
-        Exchange forex = Exchange.Factory.newInstance("FOREX", "FX", "Europe/Berlin");
+        Exchange forex = Exchange.Factory.newInstance("FOREX", "Europe/Berlin");
         forex.addTradingHours(TradingHours.Factory.newInstance(parseAsTime("23:15:00"), parseAsTime("23:00:00"), true, true, true, true, true, false, false, forex));
         forex.addHolidays(Holiday.Factory.newInstance(parseAsDate("2012-12-31"), forex)); // New Years Eve
         forex.addHolidays(Holiday.Factory.newInstance(parseAsDate("2013-01-01"), forex)); // New Year
         forex.addHolidays(Holiday.Factory.newInstance(parseAsDate("2012-12-24"), null, parseAsTime("22:00:00"), forex)); // Christmas
         forex.addHolidays(Holiday.Factory.newInstance(parseAsDate("2013-01-02"), parseAsTime("23:30:00"), null, forex)); // Jan 2nd
 
-        Exchange roundTheClock = Exchange.Factory.newInstance("ROUND_THE_CLOCK", "24H", "Europe/Berlin");
+        Exchange roundTheClock = Exchange.Factory.newInstance("ROUND_THE_CLOCK", "Europe/Berlin");
         roundTheClock.addTradingHours(TradingHours.Factory.newInstance(parseAsTime("00:00:00"), parseAsTime("23:59:59"), false, true, true, true, true, true, false, roundTheClock));
 
-        Exchange futures = Exchange.Factory.newInstance("FUTURES", "FUT", "Europe/Berlin");
+        Exchange futures = Exchange.Factory.newInstance("FUTURES", "Europe/Berlin");
         futures.addTradingHours(TradingHours.Factory.newInstance(parseAsTime("10:00:00"), parseAsTime("16:00:00"), false, true, true, true, true, true, false, futures));
         futures.addTradingHours(TradingHours.Factory.newInstance(parseAsTime("17:00:00"), parseAsTime("18:00:00"), false, true, true, true, true, true, false, futures));
 

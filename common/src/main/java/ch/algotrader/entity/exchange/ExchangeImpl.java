@@ -32,11 +32,7 @@ public class ExchangeImpl extends Exchange {
     @Override
     public String toString() {
 
-        StringBuilder buffer = new StringBuilder();
-        buffer.append(getName());
-        buffer.append(",");
-        buffer.append(getCode());
-        return buffer.toString();
+        return getName();
     }
 
     @Override

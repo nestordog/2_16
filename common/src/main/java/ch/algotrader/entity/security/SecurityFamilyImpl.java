@@ -21,7 +21,6 @@ import java.math.BigDecimal;
 import java.text.ChoiceFormat;
 import org.apache.commons.lang.Validate;
 
-import ch.algotrader.entity.exchange.Exchange;
 import ch.algotrader.enumeration.Broker;
 import ch.algotrader.util.RoundUtil;
 
@@ -160,20 +159,6 @@ public class SecurityFamilyImpl extends SecurityFamily {
             return 1.0;
         }
 
-    }
-
-    @Override
-    public String getExchangeCode(Broker broker) {
-
-        if (broker != null) {
-            BrokerParameters brokerParams = getBrokerParameters().get(broker.toString());
-            if (brokerParams != null && brokerParams.getExchangeCode() != null) {
-                return brokerParams.getExchangeCode();
-            }
-        }
-
-        Exchange exchange = getExchange();
-        return exchange != null ? exchange.getCode() : null;
     }
 
     @Override

@@ -17,12 +17,15 @@
  ***********************************************************************************/
 package ch.algotrader.dao.exchange;
 
+import org.apache.commons.lang.Validate;
 import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
 
 import ch.algotrader.entity.exchange.Exchange;
 import ch.algotrader.entity.exchange.ExchangeImpl;
+import ch.algotrader.enumeration.QueryType;
 import ch.algotrader.hibernate.AbstractDao;
+import ch.algotrader.hibernate.NamedParam;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -35,6 +38,14 @@ public class ExchangeDaoImpl extends AbstractDao<Exchange> implements ExchangeDa
     public ExchangeDaoImpl(final SessionFactory sessionFactory) {
 
         super(ExchangeImpl.class, sessionFactory);
+    }
+
+    @Override
+    public Exchange findByName(String name) {
+
+        Validate.notEmpty(name, "Exchange name is empty");
+
+        return findUniqueCaching("Exchange.findByName", QueryType.BY_NAME, new NamedParam("name", name));
     }
 
 }

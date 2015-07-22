@@ -122,6 +122,7 @@ public class OrderStatusDaoImpl extends AbstractDao<OrderStatus> implements Orde
         orderStatusVO.setName(order.getSecurity().toString());
         orderStatusVO.setStrategy(order.getStrategy().toString());
         orderStatusVO.setAccount(order.getAccount() != null ? order.getAccount().toString() : "");
+        orderStatusVO.setExchange(order.getEffectiveExchange() != null ? order.getEffectiveExchange().toString() : "");
         orderStatusVO.setTif(order.getTif() != null ? order.getTif().toString() : "");
         orderStatusVO.setIntId(order.getIntId());
         orderStatusVO.setExtId(order.getExtId());

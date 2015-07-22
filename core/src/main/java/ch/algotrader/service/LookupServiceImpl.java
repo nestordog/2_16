@@ -44,6 +44,7 @@ import ch.algotrader.dao.PositionVOProducer;
 import ch.algotrader.dao.SubscriptionDao;
 import ch.algotrader.dao.TransactionDao;
 import ch.algotrader.dao.TransactionVOProducer;
+import ch.algotrader.dao.exchange.ExchangeDao;
 import ch.algotrader.dao.marketData.BarDao;
 import ch.algotrader.dao.marketData.TickDao;
 import ch.algotrader.dao.security.CombinationDao;
@@ -68,6 +69,7 @@ import ch.algotrader.entity.Account;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.Transaction;
+import ch.algotrader.entity.exchange.Exchange;
 import ch.algotrader.entity.marketData.Bar;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.Combination;
@@ -136,6 +138,8 @@ public class LookupServiceImpl implements LookupService {
 
     private final OptionFamilyDao optionFamilyDao;
 
+    private final ExchangeDao exchangeDao;
+
     private final TickDao tickDao;
 
     private final OptionDao optionDao;
@@ -181,8 +185,9 @@ public class LookupServiceImpl implements LookupService {
             final FutureDao futureDao,
             final ForexDao forexDao,
             final SecurityFamilyDao securityFamilyDao,
- final SecurityReferenceDao securityReferenceDao,
+            final SecurityReferenceDao securityReferenceDao,
             final OptionFamilyDao optionFamilyDao,
+            final ExchangeDao exchangeDao,
             final TickDao tickDao,
             final OptionDao optionDao,
             final TransactionDao transactionDao,
@@ -212,6 +217,7 @@ public class LookupServiceImpl implements LookupService {
         Validate.notNull(securityFamilyDao, "SecurityFamilyDao is null");
         Validate.notNull(securityReferenceDao, "securityReferenceDao is null");
         Validate.notNull(optionFamilyDao, "OptionFamilyDao is null");
+        Validate.notNull(exchangeDao, "ExchangeDao is null");
         Validate.notNull(tickDao, "TickDao is null");
         Validate.notNull(optionDao, "OptionDao is null");
         Validate.notNull(transactionDao, "TransactionDao is null");
@@ -241,6 +247,7 @@ public class LookupServiceImpl implements LookupService {
         this.securityFamilyDao = securityFamilyDao;
         this.securityReferenceDao = securityReferenceDao;
         this.optionFamilyDao = optionFamilyDao;
+        this.exchangeDao = exchangeDao;
         this.tickDao = tickDao;
         this.optionDao = optionDao;
         this.transactionDao = transactionDao;
@@ -760,6 +767,15 @@ public class LookupServiceImpl implements LookupService {
 
         return this.futureFamilyDao.findByUnderlying(id);
 
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Exchange getExchangeByName(String name) {
+
+        return this.exchangeDao.findByName(name);
     }
 
     /**
@@ -1648,5 +1664,6 @@ public class LookupServiceImpl implements LookupService {
 
         return nameValuePairsByDate;
     }
+
 
 }

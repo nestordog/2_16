@@ -47,8 +47,9 @@ public final class CommonConfig {
     private final BigDecimal simulationInitialBalance;
     private final boolean simulationLogTransactions;
     private final boolean embedded;
-    private final int portfolioDigits;
     private final Currency portfolioBaseCurrency;
+    private final int portfolioDigits;
+    private final String defaultAccountName;
     private final boolean validateCrossedSpread;
     private final boolean displayClosedPositions;
 
@@ -67,8 +68,9 @@ public final class CommonConfig {
             @ConfigName("simulation.initialBalance") final BigDecimal simulationInitialBalance,
             @ConfigName("simulation.logTransactions") final boolean simulationLogTransactions,
             @ConfigName("misc.embedded") final boolean embedded,
-            @ConfigName("misc.portfolioDigits") final int portfolioDigits,
             @ConfigName("misc.portfolioBaseCurrency") final Currency portfolioBaseCurrency,
+            @ConfigName("misc.portfolioDigits") final int portfolioDigits,
+            @ConfigName("misc.defaultAccountName") final String defaultAccountName,
             @ConfigName("misc.validateCrossedSpread") final boolean validateCrossedSpread,
             @ConfigName("misc.displayClosedPositions") final boolean displayClosedPositions) {
         this.dataSet = dataSet;
@@ -85,8 +87,9 @@ public final class CommonConfig {
         this.simulationInitialBalance = simulationInitialBalance;
         this.simulationLogTransactions = simulationLogTransactions;
         this.embedded = embedded;
-        this.portfolioDigits = portfolioDigits;
         this.portfolioBaseCurrency = portfolioBaseCurrency;
+        this.portfolioDigits = portfolioDigits;
+        this.defaultAccountName = defaultAccountName;
         this.validateCrossedSpread = validateCrossedSpread;
         this.displayClosedPositions = displayClosedPositions;
     }
@@ -147,12 +150,16 @@ public final class CommonConfig {
         return this.embedded;
     }
 
+    public Currency getPortfolioBaseCurrency() {
+        return this.portfolioBaseCurrency;
+    }
+
     public int getPortfolioDigits() {
         return this.portfolioDigits;
     }
 
-    public Currency getPortfolioBaseCurrency() {
-        return this.portfolioBaseCurrency;
+    public String getDefaultAccountName() {
+        return this.defaultAccountName;
     }
 
     public boolean isValidateCrossedSpread() {
@@ -179,8 +186,9 @@ public final class CommonConfig {
         sb.append(", simulationInitialBalance=").append(this.simulationInitialBalance);
         sb.append(", simulationLogTransactions=").append(this.simulationLogTransactions);
         sb.append(", embedded=").append(this.embedded);
-        sb.append(", portfolioDigits=").append(this.portfolioDigits);
         sb.append(", portfolioBaseCurrency=").append(this.portfolioBaseCurrency);
+        sb.append(", portfolioDigits=").append(this.portfolioDigits);
+        sb.append(", defaultAccountName=").append(this.defaultAccountName);
         sb.append(", validateCrossedSpread=").append(this.validateCrossedSpread);
         sb.append(", displayClosedPositions=").append(this.displayClosedPositions);
         sb.append(']');

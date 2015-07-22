@@ -31,18 +31,38 @@
             </generator>
         </id>
         <property name="name">
-            <meta attribute="field-description"><![CDATA[The market where the Securities of this Family are traded.]]></meta>
+            <meta attribute="field-description"><![CDATA[Name of the exchange]]></meta>
             <meta attribute="use-in-equals">true</meta>
             <column name="NAME" not-null="true" unique="true" sql-type="VARCHAR(255)"/>
 
             <type name="java.lang.String"/>
         </property>
         <property name="code">
-            <column name="CODE" not-null="true" unique="false" sql-type="VARCHAR(255)"/>
+            <meta attribute="field-description"><![CDATA[the exchange code. Used by Fix adapters]]></meta>
+            <column name="CODE" not-null="false" unique="false" sql-type="VARCHAR(255)"/>
+
+            <type name="java.lang.String"/>
+        </property>
+        <property name="mic">
+            <meta attribute="field-description"><![CDATA[The Market Identifier Code (see http://www.iso10383.org/)]]></meta>
+            <column name="MIC" not-null="false" unique="false" sql-type="VARCHAR(255)"/>
+
+            <type name="java.lang.String"/>
+        </property>
+        <property name="bloombergCode">
+            <meta attribute="field-description"><![CDATA[The Bloomberg exchange code]]></meta>
+            <column name="BLOOMBERG_CODE" not-null="false" unique="false" sql-type="VARCHAR(255)"/>
+
+            <type name="java.lang.String"/>
+        </property>
+        <property name="ibCode">
+            <meta attribute="field-description"><![CDATA[The InteractiveBrokers exchange code]]></meta>
+            <column name="IB_CODE" not-null="false" unique="false" sql-type="VARCHAR(255)"/>
 
             <type name="java.lang.String"/>
         </property>
         <property name="timeZone">
+            <meta attribute="field-description"><![CDATA[The timezone of the exchange]]></meta>
             <column name="TIME_ZONE" not-null="true" unique="false" sql-type="VARCHAR(255)"/>
 
             <type name="java.lang.String"/>

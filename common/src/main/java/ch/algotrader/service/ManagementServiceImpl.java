@@ -44,6 +44,7 @@ import ch.algotrader.config.ConfigParams;
 import ch.algotrader.config.ConfigProvider;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.Subscription;
+import ch.algotrader.entity.exchange.Exchange;
 import ch.algotrader.entity.marketData.Bar;
 import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.entity.marketData.Tick;
@@ -414,9 +415,10 @@ public class ManagementServiceImpl implements ManagementService {
             @ManagedOperationParameter(name = "quantity", description = "The requested quantity (positive value)"),
             @ManagedOperationParameter(name = "side", description = "<html>Side: <ul> <li> B (BUY) </li> <li> S (SELL) </li> <li> SS (SELL_SHORT) </li> </ul></html>"),
             @ManagedOperationParameter(name = "type", description = "<html>Order type: <ul> <li> M (Market) </li> <li> L (Limit) </li> <li> S (Stop) </li> <li> SL (StopLimit) </li> <li> TI (TickwiseIncremental) </li> <li> VI (VariableIncremental) </li> <li> SLI (Slicing) </li> </ul> or order preference (e.g. 'FVIX' or 'OVIX')</html>"),
-            @ManagedOperationParameter(name = "accountName", description = "accountName"),
+            @ManagedOperationParameter(name = "accountName", description = "accountName (optional)"),
+            @ManagedOperationParameter(name = "exchangeName", description = "exchangeName (optional)"),
             @ManagedOperationParameter(name = "properties", description = "<html>Additional properties to be set on the order as a comma separated list (e.g. stop=12.0,limit=12.5).<p> In addition custom properties can be set on the order (e.g. FIX123=12, INTERNALportfolio=TEST)</hmlt>") })
-    public void sendOrder(final String security, final long quantity, final String side, final String type, final String accountName, final String properties) {
+    public void sendOrder(final String security, final long quantity, final String side, final String type, String accountName, final String exchangeName, final String properties) {
 
         Validate.notEmpty(security, "Security is empty");
         Validate.notEmpty(side, "Side is empty");
@@ -455,10 +457,18 @@ public class ManagementServiceImpl implements ManagementService {
         order.setQuantity(Math.abs(quantity));
         order.setSide(sideObject);
 
-        // set the account (if defined)
-        if (!"".equals(accountName)) {
-            Account account = this.lookupService.getAccountByName(accountName);
-            order.setAccount(account);
+        // set the account
+        if ("".equals(accountName)) {
+            accountName = this.commonConfig.getDefaultAccountName();
+        }
+
+        Account account = this.lookupService.getAccountByName(accountName);
+        order.setAccount(account);
+
+        // set the exchange
+        if (!"".equals(exchangeName)) {
+            Exchange exchange = this.lookupService.getExchangeByName(exchangeName);
+            order.setExchange(exchange);
         }
 
         // set additional properties

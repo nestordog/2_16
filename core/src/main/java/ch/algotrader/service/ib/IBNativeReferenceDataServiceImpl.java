@@ -128,7 +128,7 @@ public class IBNativeReferenceDataServiceImpl extends ReferenceDataServiceImpl i
 
         contract.m_currency = securityFamily.getCurrency().toString();
 
-        contract.m_exchange = securityFamily.getExchangeCode(Broker.IB);
+        contract.m_exchange = securityFamily.getExchange().getIbCode();
 
         contract.m_multiplier = DECIMAL_FORMAT.format(securityFamily.getContractSize(Broker.IB));
 
@@ -176,7 +176,7 @@ public class IBNativeReferenceDataServiceImpl extends ReferenceDataServiceImpl i
 
         contract.m_currency = securityFamily.getCurrency().toString();
 
-        contract.m_exchange = securityFamily.getExchangeCode(Broker.IB);
+        contract.m_exchange = securityFamily.getExchange().getIbCode();
 
         contract.m_secType = "STK";
 
@@ -306,6 +306,7 @@ public class IBNativeReferenceDataServiceImpl extends ReferenceDataServiceImpl i
 
             String symbol = contract.m_symbol;
             String conid = String.valueOf(contract.m_conId);
+            String description = contractDetails.m_longName;
 
             // update stocks (conid) that already exist
             if (existingStocks.containsKey(symbol)) {
@@ -317,6 +318,7 @@ public class IBNativeReferenceDataServiceImpl extends ReferenceDataServiceImpl i
 
                 Stock stock = Stock.Factory.newInstance();
                 stock.setSymbol(symbol);
+                stock.setDescription(description);
                 stock.setConid(conid);
                 stock.setSecurityFamily(securityFamily);
                 stock.setUnderlying(securityFamily.getUnderlying());

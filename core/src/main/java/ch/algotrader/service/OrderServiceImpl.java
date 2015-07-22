@@ -41,6 +41,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.dao.AccountDao;
+import ch.algotrader.dao.exchange.ExchangeDao;
 import ch.algotrader.dao.security.SecurityDao;
 import ch.algotrader.dao.strategy.StrategyDao;
 import ch.algotrader.dao.trade.OrderDao;
@@ -101,6 +102,8 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
 
     private final AccountDao accountDao;
 
+    private final ExchangeDao exchangeDao;
+
     private final OrderPreferenceDao orderPreferenceDao;
 
     private final EventDispatcher eventDispatcher;
@@ -122,6 +125,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
             final StrategyDao strategyDao,
             final SecurityDao securityDao,
             final AccountDao accountDao,
+            final ExchangeDao exchangeDao,
             final OrderPreferenceDao orderPreferenceDao,
             final EventDispatcher eventDispatcher,
             final EngineManager engineManager,
@@ -136,6 +140,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
         Validate.notNull(strategyDao, "StrategyDao is null");
         Validate.notNull(securityDao, "SecurityDao is null");
         Validate.notNull(accountDao, "AccountDao is null");
+        Validate.notNull(exchangeDao, "ExchangeDao is null");
         Validate.notNull(orderPreferenceDao, "OrderPreferenceDao is null");
         Validate.notNull(eventDispatcher, "PlatformEventDispatcher is null");
         Validate.notNull(engineManager, "EngineManager is null");
@@ -150,6 +155,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
         this.strategyDao = strategyDao;
         this.securityDao = securityDao;
         this.accountDao = accountDao;
+        this.exchangeDao = exchangeDao;
         this.orderPreferenceDao = orderPreferenceDao;
         this.eventDispatcher = eventDispatcher;
         this.engineManager = engineManager;
@@ -278,6 +284,11 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
         // reload the account if necessary to get potential changes
         if (order.getAccount() != null) {
             order.setAccount(this.accountDao.load(order.getAccount().getId()));
+        }
+
+        // reload the exchange if necessary to get potential changes
+        if (order.getExchange() != null) {
+            order.setExchange(this.exchangeDao.load(order.getExchange().getId()));
         }
 
         // validate the order before sending it

@@ -1138,6 +1138,17 @@
 
     <!-- Stock DAO queries Ends -->
     
+    <!-- Exchange DAO queries Starts -->
+    
+    <query name='Exchange.findByName'>
+    <![CDATA[   
+        from ExchangeImpl as e 
+        where e.name = :name
+    ]]>
+    </query>
+    
+    <!-- Exchange DAO queries Ends -->        
+    
     <!-- CashBalance DAO queries Starts -->
     
     <query name='CashBalance.findCashBalancesByStrategy'>

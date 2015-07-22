@@ -66,7 +66,7 @@ public class IBUtil {
         Validate.notNull(securityFamily.getExchange(), "securityFamily.exchange");
 
         Contract contract = new Contract();
-        contract.m_exchange = securityFamily.getExchangeCode(Broker.IB);
+        contract.m_exchange = securityFamily.getExchange().getIbCode();
 
         // use Conid if available
         if (security.getConid() != null) {
@@ -85,7 +85,7 @@ public class IBUtil {
 
                 contract.m_secType = "OPT";
                 contract.m_symbol = securityFamily.getSymbolRoot(Broker.IB);
-                contract.m_primaryExch = securityFamily.getExchangeCode(Broker.IB);
+                contract.m_primaryExch = securityFamily.getExchange().getIbCode();
                 contract.m_strike = option.getStrike().doubleValue();
                 contract.m_right = option.getType().toString();
                 contract.m_multiplier = decimalFormat.format(securityFamily.getContractSize(Broker.IB));
@@ -113,7 +113,7 @@ public class IBUtil {
 
                 contract.m_secType = "STK";
                 contract.m_symbol = security.getSymbol();
-                contract.m_primaryExch = securityFamily.getExchangeCode(Broker.IB);
+                contract.m_primaryExch = securityFamily.getExchange().getIbCode();
 
             } else if (security instanceof Index) {
 

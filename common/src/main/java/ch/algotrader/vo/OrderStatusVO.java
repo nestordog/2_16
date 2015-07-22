@@ -61,6 +61,11 @@ public class OrderStatusVO implements Serializable {
     private String account;
 
     /**
+     * The name of the Account
+     */
+    private String exchange;
+
+    /**
      * The time-in-force
      */
     private String tif;
@@ -152,6 +157,7 @@ public class OrderStatusVO implements Serializable {
         this.name = otherBean.getName();
         this.strategy = otherBean.getStrategy();
         this.account = otherBean.getAccount();
+        this.exchange = otherBean.getExchange();
         this.tif = otherBean.getTif();
         this.intId = otherBean.getIntId();
         this.extId = otherBean.getExtId();
@@ -267,6 +273,24 @@ public class OrderStatusVO implements Serializable {
     public void setAccount(final String value) {
 
         this.account = value;
+    }
+
+    /**
+     * The name of the Exchange
+     * @return exchange String
+     */
+    public String getExchange() {
+
+        return this.exchange;
+    }
+
+    /**
+     * The name of the Exchange
+     * @param value String
+     */
+    public void setExchange(final String value) {
+
+        this.exchange = value;
     }
 
     /**
@@ -413,6 +437,8 @@ public class OrderStatusVO implements Serializable {
         builder.append(this.strategy);
         builder.append(", account=");
         builder.append(this.account);
+        builder.append(", exchange=");
+        builder.append(this.exchange);
         builder.append(", tif=");
         builder.append(this.tif);
         builder.append(", intId=");

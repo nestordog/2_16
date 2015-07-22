@@ -35,7 +35,6 @@ import ch.algotrader.util.DateTimeLegacy;
 import quickfix.field.CFICode;
 import quickfix.field.ContractMultiplier;
 import quickfix.field.Currency;
-import quickfix.field.ExDestination;
 import quickfix.field.MaturityDate;
 import quickfix.field.MaturityMonthYear;
 import quickfix.field.SecurityType;
@@ -124,12 +123,6 @@ public class GenericFix44SymbologyResolver implements Fix44SymbologyResolver {
 
             message.set(new SecurityType(SecurityType.COMMON_STOCK));
             message.set(new Currency(securityFamily.getCurrency().toString()));
-        }
-
-        String exchangeCode = securityFamily.getExchangeCode(broker);
-        if (exchangeCode != null) {
-
-            message.set(new ExDestination(exchangeCode));
         }
     }
 

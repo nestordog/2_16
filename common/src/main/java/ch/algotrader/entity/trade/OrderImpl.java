@@ -19,6 +19,7 @@ package ch.algotrader.entity.trade;
 
 import org.apache.commons.lang.ClassUtils;
 
+import ch.algotrader.entity.exchange.Exchange;
 import ch.algotrader.enumeration.OrderPropertyType;
 
 /**
@@ -78,7 +79,22 @@ public abstract class OrderImpl extends Order {
             buffer.append(getAccount());
         }
 
+        if (getExchange() != null) {
+            buffer.append(",exchange=");
+            buffer.append(getExchange());
+        }
+
         return buffer.toString();
+    }
+
+    @Override
+    public Exchange getEffectiveExchange() {
+
+        if (getExchange() != null) {
+            return getExchange();
+        } else {
+            return getSecurity().getSecurityFamily().getExchange();
+        }
     }
 
     @Override

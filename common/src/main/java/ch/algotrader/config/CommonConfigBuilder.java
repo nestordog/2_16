@@ -47,8 +47,9 @@ public final class CommonConfigBuilder {
     private BigDecimal simulationInitialBalance;
     private boolean simulationLogTransactions;
     private boolean embedded;
-    private int portfolioDigits;
     private Currency portfolioBaseCurrency;
+    private int portfolioDigits;
+    private String defaultAccountName;
     private boolean validateCrossedSpread;
     private boolean displayClosedPositions;
 
@@ -64,8 +65,9 @@ public final class CommonConfigBuilder {
         this.simulation = false;
         this.simulationInitialBalance = new BigDecimal(1000000L);
         this.embedded = false;
-        this.portfolioDigits = 2;
         this.portfolioBaseCurrency = Currency.USD;
+        this.portfolioDigits = 2;
+        this.defaultAccountName = "IB_NATIVE_TEST";
     }
 
     public static CommonConfigBuilder create() {
@@ -127,13 +129,18 @@ public final class CommonConfigBuilder {
         return this;
     }
 
+    public CommonConfigBuilder setPortfolioBaseCurrency(final Currency portfolioBaseCurrency) {
+        this.portfolioBaseCurrency = portfolioBaseCurrency;
+        return this;
+    }
+
     public CommonConfigBuilder setPortfolioDigits(final int portfolioDigits) {
         this.portfolioDigits = portfolioDigits;
         return this;
     }
 
-    public CommonConfigBuilder setPortfolioBaseCurrency(final Currency portfolioBaseCurrency) {
-        this.portfolioBaseCurrency = portfolioBaseCurrency;
+    public CommonConfigBuilder setDefaultAccountName(final String defaultAccountName) {
+        this.defaultAccountName = defaultAccountName;
         return this;
     }
 
@@ -151,7 +158,7 @@ public final class CommonConfigBuilder {
         return new CommonConfig(
                 this.dataSet, this.dataSetType, this.dataSetLocation, this.barSize, this.feedCSV, this.feedDB, this.feedGenericEvents, this.feedAllMarketDataFiles,
                 this.feedBatchSize, this.reportLocation, this.simulation, this.simulationInitialBalance, this.simulationLogTransactions, this.embedded,
-                this.portfolioDigits, this.portfolioBaseCurrency, this.validateCrossedSpread, this.displayClosedPositions);
+                this.portfolioBaseCurrency, this.portfolioDigits, this.defaultAccountName, this.validateCrossedSpread, this.displayClosedPositions);
     }
 
 }

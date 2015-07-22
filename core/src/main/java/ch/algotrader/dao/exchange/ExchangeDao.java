@@ -27,5 +27,11 @@ import ch.algotrader.hibernate.ReadWriteDao;
  */
 public interface ExchangeDao extends ReadWriteDao<Exchange> {
 
-    // spring-dao merge-point
+    /**
+     * Finds an Exchange by the specified name.
+     * @param code
+     * @return
+     */
+    public Exchange findByName(String name);
+
 }

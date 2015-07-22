@@ -22,6 +22,7 @@ import java.util.Date;
 import org.apache.commons.lang.Validate;
 
 import quickfix.field.ClOrdID;
+import quickfix.field.ExDestination;
 import quickfix.field.ExpireTime;
 import quickfix.field.OrderQty;
 import quickfix.field.OrigClOrdID;
@@ -80,18 +81,30 @@ public class GenericFix44OrderMessageFactory implements Fix44OrderMessageFactory
         message.set(new OrderQty(order.getQuantity()));
         message.set(FixUtil.getFixOrderType(order));
 
-        // handling for accounts
+        // exchange
+        String exchangeCode = null;
+        if (order.getExchange() != null) {
+            exchangeCode = order.getExchange().getCode();
+        } else if (security.getSecurityFamily().getExchange() != null) {
+            exchangeCode = security.getSecurityFamily().getExchange().getCode();
+        }
+
+        if (exchangeCode != null) {
+            message.set(new ExDestination(exchangeCode));
+        }
+
+        // account
         if (account.getExtAccount() != null) {
             message.set(new quickfix.field.Account(account.getExtAccount()));
         }
 
-        //set the limit price if order is a limit order or stop limit order
+        // set the limit price if order is a limit order or stop limit order
         if (order instanceof LimitOrderI) {
             LimitOrderI limitOrder = (LimitOrderI) order;
             message.set(new Price(PriceUtil.denormalizePrice(order, limitOrder.getLimit())));
         }
 
-        //set the stop price if order is a stop order or stop limit order
+        // set the stop price if order is a stop order or stop limit order
         if (order instanceof StopOrderI) {
             StopOrderI stopOrder = (StopOrderI) order;
             message.set(new StopPx(PriceUtil.denormalizePrice(order, stopOrder.getStop())));
