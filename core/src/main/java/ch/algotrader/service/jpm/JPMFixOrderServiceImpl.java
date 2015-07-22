@@ -17,26 +17,17 @@
  ***********************************************************************************/
 package ch.algotrader.service.jpm;
 
-import java.util.Date;
-
-import org.apache.commons.lang.Validate;
-
+import quickfix.field.HandlInst;
+import quickfix.fix42.NewOrderSingle;
+import quickfix.fix42.OrderCancelReplaceRequest;
+import quickfix.fix42.OrderCancelRequest;
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.fix.fix42.GenericFix42OrderMessageFactory;
 import ch.algotrader.adapter.fix.fix42.GenericFix42SymbologyResolver;
 import ch.algotrader.entity.trade.SimpleOrder;
-import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.service.OrderService;
 import ch.algotrader.service.fix.fix42.Fix42OrderServiceImpl;
-import quickfix.field.Account;
-import quickfix.field.ExDestination;
-import quickfix.field.HandlInst;
-import quickfix.field.SecurityExchange;
-import quickfix.field.TransactTime;
-import quickfix.fix42.NewOrderSingle;
-import quickfix.fix42.OrderCancelReplaceRequest;
-import quickfix.fix42.OrderCancelRequest;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -55,48 +46,16 @@ public class JPMFixOrderServiceImpl extends Fix42OrderServiceImpl implements JPM
 
     @Override
     public void prepareSendOrder(SimpleOrder order, NewOrderSingle newOrder) {
-
-        Validate.notNull(order, "Order is null");
-        Validate.notNull(newOrder, "New order is null");
-
-        newOrder.set(new Account(order.getAccount().getExtAccount()));
         newOrder.set(new HandlInst('1'));
-        newOrder.set(new TransactTime(new Date()));
-
-        String exchange = order.getSecurity().getSecurityFamily().getExchangeCode(Broker.JPM);
-        newOrder.set(new ExDestination(exchange));
-        newOrder.set(new SecurityExchange(exchange));
-
     }
 
     @Override
     public void prepareModifyOrder(SimpleOrder order, OrderCancelReplaceRequest replaceRequest) {
-
-        Validate.notNull(order, "Order is null");
-        Validate.notNull(replaceRequest, "Replace request is null");
-
-        replaceRequest.set(new Account(order.getAccount().getExtAccount()));
         replaceRequest.set(new HandlInst('1'));
-        replaceRequest.set(new TransactTime(new Date()));
-
-        String exchange = order.getSecurity().getSecurityFamily().getExchangeCode(Broker.JPM);
-        replaceRequest.set(new ExDestination(exchange));
-        replaceRequest.set(new SecurityExchange(exchange));
-
     }
 
     @Override
     public void prepareCancelOrder(SimpleOrder order, OrderCancelRequest cancelRequest) {
-
-        Validate.notNull(order, "Order is null");
-        Validate.notNull(cancelRequest, "Cancel request is null");
-
-        cancelRequest.set(new Account(order.getAccount().getExtAccount()));
-        cancelRequest.set(new TransactTime(new Date()));
-
-        String exchange = order.getSecurity().getSecurityFamily().getExchangeCode(Broker.JPM);
-        cancelRequest.set(new SecurityExchange(exchange));
-
     }
 
     @Override
