@@ -84,7 +84,7 @@ on
 insert into
     Tick
 select
-    transpose(ServiceUtil.completeTick(tickWindow.first))
+    transpose(ServiceUtil.completeTick(tickWindow))
 from
     TickWindow as tickWindow
 where

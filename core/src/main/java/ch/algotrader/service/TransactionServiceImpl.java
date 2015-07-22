@@ -346,7 +346,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public void logFillSummary(final Map<?, ?>[] insertStream) {
+    public void logFillSummary(final Map<?, ?>[] insertStream, Map<?, ?>[] removeStream) {
 
         List<Fill> fills = new ArrayList<>();
         for (Map<?, ?> element : insertStream) {

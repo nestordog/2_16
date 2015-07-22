@@ -40,6 +40,8 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.espertech.esper.collection.Pair;
+
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.CoreConfig;
 import ch.algotrader.dao.SubscriptionDao;
@@ -54,7 +56,6 @@ import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.util.HibernateUtil;
-import ch.algotrader.util.collection.Pair;
 import ch.algotrader.util.io.CsvTickWriter;
 import ch.algotrader.util.metric.MetricsUtil;
 import ch.algotrader.vo.GenericEventVO;
@@ -145,7 +146,7 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationList
     }
 
     @Override
-    public void persistTick(final Pair<Tick, Object> pair) {
+    public void persistTick(final Pair<Tick, Object> pair, Map<?, ?> map) {
 
         persistTick(pair.getFirst());
     }

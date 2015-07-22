@@ -81,7 +81,7 @@ public interface TransactionService {
     /**
      * Logs aggregated Information of all Fills belonging to one Order from the given insert stream.
      */
-    public void logFillSummary(Map<?, ?>[] insertStream);
+    public void logFillSummary(Map<?, ?>[] insertStream, Map<?, ?>[] removeStream);
 
     /**
      * Creates Rebalance Transactions so that Net-Liquidation-Values of all strategies are in line
