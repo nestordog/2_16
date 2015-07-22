@@ -24,6 +24,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import ch.algotrader.cache.CacheManager;
 import ch.algotrader.cache.CacheManagerImpl;
+import ch.algotrader.cache.CacheManagerMBean;
 import ch.algotrader.hibernate.GenericDao;
 
 /**
@@ -43,10 +44,12 @@ public class CacheWiring {
     @Bean(name = "cacheManager")
     public CacheManager createCacheManager(final GenericDao genericDao) {
 
-        CacheManagerImpl cacheManager = new CacheManagerImpl();
-        cacheManager.setGenericDao(genericDao);
-
-        return cacheManager;
+        return new CacheManagerImpl(genericDao);
     }
 
+    @Bean(name = "cacheManagerMBean")
+    public CacheManagerMBean createCacheManagerMBean(final CacheManagerImpl cacheManager) {
+
+        return new CacheManagerMBean(cacheManager);
+    }
 }

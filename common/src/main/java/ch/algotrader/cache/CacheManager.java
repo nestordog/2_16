@@ -66,4 +66,14 @@ public interface CacheManager {
      * performs the given HQL {@code query} by passing defined {@code namedParameters}
      */
     public Object queryUnique(String queryString, Map<String, Object> namedParameters);
+
+    /**
+     * clears the entire cache
+     */
+    public void clear();
+
+    /**
+     * retrieves a map of all caches including their sizes
+     */
+    public Map<String, Integer> getCacheSize();
 }

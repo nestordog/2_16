@@ -29,11 +29,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.collection.internal.AbstractPersistentCollection;
 import org.hibernate.proxy.HibernateProxy;
-import org.springframework.jmx.export.annotation.ManagedAttribute;
-import org.springframework.jmx.export.annotation.ManagedOperation;
-import org.springframework.jmx.export.annotation.ManagedOperationParameters;
-import org.springframework.jmx.export.annotation.ManagedResource;
-
 import ch.algotrader.entity.BaseEntityI;
 import ch.algotrader.entity.Initializer;
 import ch.algotrader.hibernate.GenericDao;
@@ -48,7 +43,6 @@ import ch.algotrader.visitor.InitializationVisitor;
  *
  * @version $Revision$ $Date$
  */
-@ManagedResource(objectName = "ch.algotrader.cache:name=CacheManager")
 public class CacheManagerImpl implements CacheManager, Initializer {
 
     private static final Logger LOGGER = LogManager.getLogger(CacheManagerImpl.class);
@@ -61,17 +55,14 @@ public class CacheManagerImpl implements CacheManager, Initializer {
     private final EntityCache entityCache;
     private final QueryCache queryCache;
 
-    private GenericDao genericDao;
+    private final GenericDao genericDao;
 
-    public CacheManagerImpl() {
+    public CacheManagerImpl(GenericDao genericDao) {
 
         this.collectionHandler = new CollectionHandler(this);
         this.entityHandler = new EntityHandler(this);
         this.entityCache = new EntityCache();
         this.queryCache = new QueryCache();
-    }
-
-    public void setGenericDao(GenericDao genericDao) {
         this.genericDao = genericDao;
     }
 
@@ -258,17 +249,14 @@ public class CacheManagerImpl implements CacheManager, Initializer {
         throw new IllegalArgumentException("Can not manage object " + clazz.getName());
     }
 
-    // Management Operations
-
-    @ManagedOperation
-    @ManagedOperationParameters({})
+    @Override
     public void clear() {
 
         this.entityCache.clear();
         this.queryCache.clear();
     }
 
-    @ManagedAttribute
+    @Override
     public Map<String, Integer> getCacheSize() {
 
         Map<String, Integer> numCached = new HashMap<>();
