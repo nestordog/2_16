@@ -212,7 +212,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
         this.serverEngine.deployAllModules();
 
         //strategy engines
-        final Collection<Engine> strategyEngines = engineManager.getStrategyEngines().values();
+        final Collection<Engine> strategyEngines = engineManager.getStrategyEngines();
 
         // LifecycleEvent: INIT
         broadcastLocal(LifecyclePhase.INIT);

@@ -139,7 +139,7 @@ public class SubscriptionServiceImpl implements SubscriptionService, Application
         }
 
         // assemble the message selector
-        List<String> selections = new ArrayList<String>();
+        List<String> selections = new ArrayList<>();
         for (Subscription subscription : this.lookupService.getSubscriptionsByStrategyInclComponentsAndProps(engine.getStrategyName())) {
             selections.add("securityId=" + subscription.getSecurity().getId());
         }
@@ -182,7 +182,7 @@ public class SubscriptionServiceImpl implements SubscriptionService, Application
             return null;
         }
 
-        final List<Engine> strategyEngines = new ArrayList<>(engineManager.getStrategyEngines().values());
+        final List<Engine> strategyEngines = new ArrayList<>(engineManager.getStrategyEngines());
         return strategyEngines.size() == 1 ? strategyEngines.get(0) : null;
     }
 
