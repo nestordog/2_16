@@ -85,6 +85,13 @@ public final class ConfigLocator {
         }
     }
 
+    public static void reset() {
+
+        synchronized(ConfigLocator.class) {
+            INSTANCE = null;
+        }
+    }
+
     public static ConfigLocator instance() {
 
         if (INSTANCE == null) {
