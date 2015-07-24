@@ -17,8 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.event.dispatch;
 
-import java.util.Objects;
-
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
@@ -27,24 +25,20 @@ import org.apache.commons.lang.Validate;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.support.converter.MessageConverter;
 
-import ch.algotrader.config.CommonConfig;
-import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.marketData.MarketDataEvent;
-import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.EventBroadcaster;
 
 /**
-* {@link ch.algotrader.esper.EngineManager} implementation.
+* {@link EngineManager} implementation.
 *
 * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
 *
 * @version $Revision$ $Date$
 */
-public class EventDispatcherImpl implements EventDispatcher, MessageListener {
+public class DistributedEventDispatcherImpl implements EventDispatcher, MessageListener {
 
-    private final CommonConfig commonConfig;
     private final EventBroadcaster localEventBroadcaster;
     private final EngineManager engineManager;
     private final JmsTemplate genericTemplate;
@@ -52,8 +46,7 @@ public class EventDispatcherImpl implements EventDispatcher, MessageListener {
     private final JmsTemplate marketDataTemplate;
     private final MessageConverter messageConverter;
 
-    public EventDispatcherImpl(
-            final CommonConfig commonConfig,
+    public DistributedEventDispatcherImpl(
             final EventBroadcaster localEventBroadcaster,
             final EngineManager engineManager,
             final JmsTemplate genericTemplate,
@@ -61,12 +54,13 @@ public class EventDispatcherImpl implements EventDispatcher, MessageListener {
             final JmsTemplate marketDataTemplate,
             final MessageConverter messageConverter) {
 
-        Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(localEventBroadcaster, "EventBroadcaster is null");
         Validate.notNull(engineManager, "EngineManager is null");
+        Validate.notNull(genericTemplate, "Generic JmsTemplate is null");
+        Validate.notNull(strategyTemplate, "Strategy JmsTemplate is null");
+        Validate.notNull(marketDataTemplate, "MarketData JmsTemplate is null");
         Validate.notNull(messageConverter, "MessageConverter is null");
 
-        this.commonConfig = commonConfig;
         this.localEventBroadcaster = localEventBroadcaster;
         this.engineManager = engineManager;
         this.genericTemplate = genericTemplate;
@@ -82,40 +76,19 @@ public class EventDispatcherImpl implements EventDispatcher, MessageListener {
         if (engine != null) {
             engine.sendEvent(obj);
         } else {
-            if (!this.commonConfig.isSimulation() && !this.commonConfig.isEmbedded()) {
-                // sent to the strategy queue
-                Objects.requireNonNull(this.strategyTemplate, "Strategy JMS template is null");
-                this.strategyTemplate.convertAndSend(engineName + ".QUEUE", obj);
-            }
+            this.strategyTemplate.convertAndSend(engineName + ".QUEUE", obj);
         }
     }
 
     @Override
     public void sendMarketDataEvent(final MarketDataEvent marketDataEvent) {
 
-        if (this.commonConfig.isSimulation() || this.commonConfig.isEmbedded()) {
-            for (final Subscription subscription : marketDataEvent.getSecurity().getSubscriptions()) {
-                if (!subscription.getStrategy().getName().equals(StrategyImpl.SERVER)) {
-                    final String strategyName = subscription.getStrategy().getName();
-                    final Engine engine = this.engineManager.getEngine(strategyName);
-                    if (engine != null) {
-                        engine.sendEvent(marketDataEvent);
-                    }
-                }
-            }
-            this.localEventBroadcaster.broadcast(marketDataEvent);//TODO should engines receive the event first or the local VM ?
-        } else {
-
-            // send using the jms template
-            Objects.requireNonNull(this.marketDataTemplate, "Market JMS template is null");
-            this.marketDataTemplate.convertAndSend(marketDataEvent, message -> {
-
-                // add securityId Property
-                message.setLongProperty("securityId", marketDataEvent.getSecurity().getId());
-                return message;
-            });
-            this.localEventBroadcaster.broadcast(marketDataEvent);
-        }
+        this.marketDataTemplate.convertAndSend(marketDataEvent, message -> {
+            // add securityId Property
+            message.setLongProperty("securityId", marketDataEvent.getSecurity().getId());
+            return message;
+        });
+        this.localEventBroadcaster.broadcast(marketDataEvent);
     }
 
     @Override
@@ -143,17 +116,12 @@ public class EventDispatcherImpl implements EventDispatcher, MessageListener {
     @Override
     public void broadcastRemote(final Object event) {
 
-        if (!this.commonConfig.isSimulation() && !this.commonConfig.isEmbedded()) {
+        this.genericTemplate.convertAndSend(event, message -> {
 
-            // send using the jms template
-            Objects.requireNonNull(this.genericTemplate, "Generic JMS template is null");
-            this.genericTemplate.convertAndSend(event, message -> {
-
-                // add class Property
-                message.setStringProperty("clazz", event.getClass().getName());
-                return message;
-            });
-        }
+            // add class Property
+            message.setStringProperty("clazz", event.getClass().getName());
+            return message;
+        });
     }
 
     @Override
