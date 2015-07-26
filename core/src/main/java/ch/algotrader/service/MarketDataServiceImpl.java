@@ -185,6 +185,8 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationList
         Validate.notEmpty(strategyName, "Strategy name is empty");
         Validate.notNull(feedType, "Feed type is null");
 
+        eventDispatcher.registerMarketDataSubscription(strategyName, securityId);
+
         if (this.subscriptionDao.findByStrategySecurityAndFeedType(strategyName, securityId, feedType) == null) {
 
             Strategy strategy = this.strategyDao.findByName(strategyName);
@@ -237,6 +239,8 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationList
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
         Validate.notNull(feedType, "Feed type is null");
+
+        eventDispatcher.unregisterMarketDataSubscription(strategyName, securityId);
 
         Subscription subscription = this.subscriptionDao.findByStrategySecurityAndFeedType(strategyName, securityId, feedType);
         if (subscription != null && !subscription.isPersistent()) {

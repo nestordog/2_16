@@ -17,11 +17,14 @@
  ***********************************************************************************/
 package ch.algotrader.event.dispatch;
 
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArraySet;
+
 import org.apache.commons.lang.Validate;
 
-import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.marketData.MarketDataEvent;
-import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.EventBroadcaster;
@@ -37,6 +40,7 @@ public class LocalEventDispatcherImpl implements EventDispatcher {
 
     private final EventBroadcaster localEventBroadcaster;
     private final EngineManager engineManager;
+    private final ConcurrentMap<Long, Set<String>> marketDataSubscriptionMap;
 
     public LocalEventDispatcherImpl(
             final EventBroadcaster localEventBroadcaster,
@@ -47,6 +51,7 @@ public class LocalEventDispatcherImpl implements EventDispatcher {
 
         this.localEventBroadcaster = localEventBroadcaster;
         this.engineManager = engineManager;
+        this.marketDataSubscriptionMap = new ConcurrentHashMap<>();
     }
 
     @Override
@@ -59,11 +64,51 @@ public class LocalEventDispatcherImpl implements EventDispatcher {
     }
 
     @Override
+    public void registerMarketDataSubscription(final String strategyName, final long securityId) {
+
+        Validate.notNull(strategyName, "Strategy name is null");
+
+        Set<String> strategySet = this.marketDataSubscriptionMap.get(securityId);
+        if (strategySet == null) {
+            Set<String> newStrategySet = new CopyOnWriteArraySet<>();
+            strategySet = this.marketDataSubscriptionMap.putIfAbsent(securityId, newStrategySet);
+            if (strategySet == null) {
+                strategySet = newStrategySet;
+            }
+        }
+        strategySet.add(strategyName);
+    }
+
+    @Override
+    public void unregisterMarketDataSubscription(final String strategyName, final long securityId) {
+
+        Validate.notNull(strategyName, "Strategy name is null");
+
+        Set<String> strategySet = this.marketDataSubscriptionMap.get(securityId);
+        if (strategySet != null) {
+            strategySet.remove(strategyName);
+        }
+    }
+
+    public boolean isMarketDataSubscriptionRegistered(final long securityId, final String strategyName) {
+
+        Validate.notNull(strategyName, "Strategy name is null");
+
+        Set<String> strategySet = this.marketDataSubscriptionMap.get(securityId);
+        if (strategySet != null) {
+            return strategySet.contains(strategyName);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
     public void sendMarketDataEvent(final MarketDataEvent marketDataEvent) {
 
-        for (final Subscription subscription : marketDataEvent.getSecurity().getSubscriptions()) {
-            if (!subscription.getStrategy().getName().equals(StrategyImpl.SERVER)) {
-                final String strategyName = subscription.getStrategy().getName();
+        long securityId = marketDataEvent.getSecurity().getId();
+        Set<String> strategySet = this.marketDataSubscriptionMap.get(securityId);
+        if (strategySet != null && !strategySet.isEmpty()) {
+            for (String strategyName: strategySet) {
                 final Engine engine = this.engineManager.getEngine(strategyName);
                 if (engine != null) {
                     engine.sendEvent(marketDataEvent);

@@ -39,12 +39,6 @@ public interface EventDispatcher {
     void sendEvent(String engineName, Object event);
 
     /**
-     * Sends a MarketDataEvent into the corresponding Esper Engine.
-     * In Live-Trading the {@code marketDataTemplate} will be used.
-     */
-    void sendMarketDataEvent(MarketDataEvent marketDataEvent);
-
-    /**
      * broadcasts an event to all Esper Engines and event listeners both local and remote.
      */
     void broadcast(Object event);
@@ -68,5 +62,21 @@ public interface EventDispatcher {
      * broadcasts an event to all remote Esper Engines and event listeners.
      */
     void broadcastRemote(Object event);
+
+    /**
+     * Registers market data subscription subscription
+     */
+    void registerMarketDataSubscription(String strategyName, long securityId);
+
+    /**
+     * Un-registers market data subscription subscription
+     */
+    void unregisterMarketDataSubscription(String strategyName, long securityId);
+
+    /**
+     * Sends a MarketDataEvent into the corresponding Esper Engine.
+     * In Live-Trading the {@code marketDataTemplate} will be used.
+     */
+    void sendMarketDataEvent(MarketDataEvent marketDataEvent);
 
 }

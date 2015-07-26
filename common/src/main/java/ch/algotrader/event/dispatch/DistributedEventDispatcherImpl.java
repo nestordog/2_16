@@ -81,6 +81,14 @@ public class DistributedEventDispatcherImpl implements EventDispatcher, MessageL
     }
 
     @Override
+    public void registerMarketDataSubscription(final String strategyName, final long securityId) {
+    }
+
+    @Override
+    public void unregisterMarketDataSubscription(final String strategyName, final long securityId) {
+    }
+
+    @Override
     public void sendMarketDataEvent(final MarketDataEvent marketDataEvent) {
 
         this.marketDataTemplate.convertAndSend(marketDataEvent, message -> {
