@@ -19,6 +19,8 @@ package ch.algotrader.service;
 
 import java.math.BigDecimal;
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -69,6 +71,12 @@ public class LocalLookupServiceImpl implements LocalLookupService, TickEventList
         this.lookupService = lookupService;
         this.lastMarketDataEventBySecurityId = new ConcurrentHashMap<>();
         this.forexMap = new ConcurrentHashMap<>();
+    }
+
+    @Override
+    public Map<Long, MarketDataEvent> getCurrentMarketDataEvents() {
+
+        return new HashMap<>(lastMarketDataEventBySecurityId);
     }
 
     @Override

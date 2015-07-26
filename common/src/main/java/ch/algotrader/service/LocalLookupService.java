@@ -18,6 +18,7 @@
 package ch.algotrader.service;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.entity.security.Security;
@@ -32,26 +33,27 @@ import ch.algotrader.enumeration.Currency;
 public interface LocalLookupService {
 
     /**
-     * returns the currentMarketDataEvent of the specified security by consulting the local Engine first,
-     * then the SERVER Engine and then the database
+     * Returns all last market events for all securities,
+     */
+    Map<Long, MarketDataEvent> getCurrentMarketDataEvents();
+
+    /**
+     * Returns last market event of the specified security.
      */
     MarketDataEvent getCurrentMarketDataEvent(long securityId);
 
     /**
-     * returns the current value of the specified security by consulting the local Engine first,
-     * then the SERVER Engine and then the database
+     * Returns the current value of the specified security.
      */
     BigDecimal getCurrentValue(long securityId);
 
     /**
-     * returns the current value of the specified security by consulting the local Engine first,
-     * then the SERVER Engine and then the database
+     * Returns the current value of the specified security.
      */
     double getCurrentValueDouble(long securityId);
 
     /**
-     * Gets the current Exchange Rate between the {@code baseCurrency} and {@code
-     * transactionCurrency} by consulting the local Engine first, then the SERVER Engine and then the database
+     * Gets the current Exchange Rate between the {@code baseCurrency} and {@code transactionCurrency}.
      */
     double getForexRate(Currency baseCurrency, Currency transactionCurrency);
 

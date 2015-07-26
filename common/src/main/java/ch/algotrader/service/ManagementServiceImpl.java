@@ -30,7 +30,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections15.CollectionUtils;
-import org.apache.commons.collections15.Predicate;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.jmx.export.annotation.ManagedAttribute;
@@ -66,7 +65,7 @@ import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.enumeration.MarketDataType;
 import ch.algotrader.enumeration.OrderPropertyType;
 import ch.algotrader.enumeration.Side;
-import ch.algotrader.esper.EngineManager;
+import ch.algotrader.esper.Engine;
 import ch.algotrader.util.BeanUtil;
 import ch.algotrader.util.DateTimeUtil;
 import ch.algotrader.vo.BalanceVO;
@@ -85,15 +84,15 @@ import ch.algotrader.vo.TransactionVO;
 @ManagedResource(objectName="ch.algotrader.service:name=ManagementService")
 public class ManagementServiceImpl implements ManagementService {
 
-    private final String strategyName;//TODO make management service capable of handling multiple strategies
-
     private final CommonConfig commonConfig;
 
-    private final EngineManager engineManager;
+    private final Engine engine;
 
     private final SubscriptionService subscriptionService;
 
     private final LookupService lookupService;
+
+    private final LocalLookupService localLookupService;
 
     private final PortfolioService portfolioService;
 
@@ -111,9 +110,10 @@ public class ManagementServiceImpl implements ManagementService {
 
     public ManagementServiceImpl(
             final CommonConfig commonConfig,
-            final EngineManager engineManager,
+            final Engine engine,
             final SubscriptionService subscriptionService,
             final LookupService lookupService,
+            final LocalLookupService localLookupService,
             final PortfolioService portfolioService,
             final OrderService orderService,
             final PositionService positionService,
@@ -123,9 +123,10 @@ public class ManagementServiceImpl implements ManagementService {
             final ConfigParams configParams) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
-        Validate.notNull(engineManager, "EngineManager is null");
+        Validate.notNull(engine, "Engine is null");
         Validate.notNull(subscriptionService, "SubscriptionService is null");
         Validate.notNull(lookupService, "LookupService is null");
+        Validate.notNull(localLookupService, "LocalLookupService is null");
         Validate.notNull(portfolioService, "PortfolioService is null");
         Validate.notNull(orderService, "OrderService is null");
         Validate.notNull(positionService, "PositionService is null");
@@ -135,10 +136,10 @@ public class ManagementServiceImpl implements ManagementService {
         Validate.notNull(configParams, "ConfigParams is null");
 
         this.commonConfig = commonConfig;
-        this.strategyName = commonConfig.isSimulation() ? StrategyImpl.SERVER : System.getProperty("strategyName", StrategyImpl.SERVER);
-        this.engineManager = engineManager;
+        this.engine = engine;
         this.subscriptionService = subscriptionService;
         this.lookupService = lookupService;
+        this.localLookupService = localLookupService;
         this.portfolioService = portfolioService;
         this.orderService = orderService;
         this.positionService = positionService;
@@ -155,7 +156,7 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedAttribute(description = "Gets the current System Time")
     public Date getCurrentTime() {
 
-        return this.engineManager.getEngine(strategyName).getCurrentTime();
+        return this.engine.getCurrentTime();
 
     }
 
@@ -166,10 +167,10 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedAttribute(description = "Gets all available Currency Balances (only available for the AlgoTrader Server)")
     public Collection<BalanceVO> getDataBalances() {
 
-        if (StrategyImpl.SERVER.equals(strategyName)) {
+        if (StrategyImpl.SERVER.equals(this.engine.getStrategyName())) {
             return this.portfolioService.getBalances();
         } else {
-            return this.portfolioService.getBalances(strategyName);
+            return this.portfolioService.getBalances(this.engine.getStrategyName());
         }
 
     }
@@ -181,7 +182,7 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedAttribute(description = "Gets current open Orders")
     public Collection<OrderStatusVO> getDataOrders() {
 
-        return this.lookupService.getOpenOrdersVOByStrategy(strategyName);
+        return this.lookupService.getOpenOrdersVOByStrategy(this.engine.getStrategyName());
 
     }
 
@@ -192,7 +193,7 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedAttribute(description = "Gets current open Positions")
     public List<PositionVO> getDataPositions() {
 
-        return this.lookupService.getPositionsVO(strategyName, this.commonConfig.isDisplayClosedPositions());
+        return this.lookupService.getPositionsVO(this.engine.getStrategyName(), this.commonConfig.isDisplayClosedPositions());
 
     }
 
@@ -203,7 +204,7 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedAttribute(description = "Gets the latest Transactions")
     public List<TransactionVO> getDataTransactions() {
 
-        return this.lookupService.getTransactionsVO(strategyName);
+        return this.lookupService.getTransactionsVO(this.engine.getStrategyName());
 
     }
 
@@ -215,13 +216,13 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedAttribute(description = "Gets the latest MarketDataEvents of all subscribed Securities")
     public List<MarketDataEventVO> getMarketDataEvents() {
 
-        List<MarketDataEvent> marketDataEvents = this.engineManager.getEngine(strategyName).executeQuery("select marketDataEvent.* from MarketDataWindow order by securityId");
+        Map<Long, MarketDataEvent> marketDataEvents = localLookupService.getCurrentMarketDataEvents();
 
-        List<MarketDataEventVO> marketDataEventVOs = getMarketDataEventVOs(marketDataEvents);
+        List<MarketDataEventVO> marketDataEventVOs = getMarketDataEventVOs(marketDataEvents.values());
 
         // get all subscribed securities
         List<MarketDataEventVO> processedMarketDataEventVOs = new ArrayList<>();
-        if (strategyName.equalsIgnoreCase(StrategyImpl.SERVER)) {
+        if (this.engine.getStrategyName().equalsIgnoreCase(StrategyImpl.SERVER)) {
 
             // for the AlgoTrader Server iterate over a distinct list of subscribed securities and feedType
             List<Map<String, Object>> subscriptions = this.lookupService.getSubscribedSecuritiesAndFeedTypeForAutoActivateStrategiesInclComponents();
@@ -239,7 +240,7 @@ public class ManagementServiceImpl implements ManagementService {
         } else {
 
             // for strategies iterate over all subscriptions
-            List<Subscription> subscriptions = this.lookupService.getSubscriptionsByStrategyInclComponentsAndProps(strategyName);
+            List<Subscription> subscriptions = this.lookupService.getSubscriptionsByStrategyInclComponentsAndProps(this.engine.getStrategyName());
             for (Subscription subscription : subscriptions) {
 
                 Security security = subscription.getSecurity();
@@ -285,7 +286,7 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedAttribute(description = "Gets the Allocation that is assigned to this Strategy (or to the AlgoTrader Server)")
     public double getStrategyAllocation() {
 
-        return this.lookupService.getStrategyByName(strategyName).getAllocation();
+        return this.lookupService.getStrategyByName(this.engine.getStrategyName()).getAllocation();
 
     }
 
@@ -296,10 +297,10 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedAttribute(description = "Gets the Cash Balance of this Strategy (or the entire System if called from the AlgoTrader Server)")
     public BigDecimal getStrategyCashBalance() {
 
-        if (strategyName.equals(StrategyImpl.SERVER)) {
+        if (this.engine.getStrategyName().equals(StrategyImpl.SERVER)) {
             return this.portfolioService.getCashBalance();
         } else {
-            return this.portfolioService.getCashBalance(strategyName);
+            return this.portfolioService.getCashBalance(this.engine.getStrategyName());
         }
 
     }
@@ -311,10 +312,10 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedAttribute(description = "Gets the current Leverage of this Strategy")
     public double getStrategyLeverage() {
 
-        if (strategyName.equals(StrategyImpl.SERVER)) {
+        if (this.engine.getStrategyName().equals(StrategyImpl.SERVER)) {
             return this.portfolioService.getLeverage();
         } else {
-            return this.portfolioService.getLeverage(strategyName);
+            return this.portfolioService.getLeverage(this.engine.getStrategyName());
         }
 
     }
@@ -326,8 +327,7 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedAttribute(description = "Gets the name of this Strategy")
     public String getStrategyName() {
 
-        return this.strategyName;
-
+        return this.engine.getStrategyName();
     }
 
     /**
@@ -337,10 +337,10 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedAttribute(description = "Gets the Net-Liquidation-Value of this Strategy (or the entire System if called from the AlgoTrader Server)")
     public BigDecimal getStrategyNetLiqValue() {
 
-        if (strategyName.equals(StrategyImpl.SERVER)) {
+        if (this.engine.getStrategyName().equals(StrategyImpl.SERVER)) {
             return this.portfolioService.getNetLiqValue();
         } else {
-            return this.portfolioService.getNetLiqValue(strategyName);
+            return this.portfolioService.getNetLiqValue(this.engine.getStrategyName());
         }
 
     }
@@ -352,10 +352,10 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedAttribute(description = "Gets the performance since the beginning of the month of this Strategy (or the entire System if called from the AlgoTrader Server)")
     public double getStrategyPerformance() {
 
-        if (strategyName.equals(StrategyImpl.SERVER)) {
+        if (this.engine.getStrategyName().equals(StrategyImpl.SERVER)) {
             return this.portfolioService.getPerformance();
         } else {
-            return this.portfolioService.getPerformance(strategyName);
+            return this.portfolioService.getPerformance(this.engine.getStrategyName());
         }
 
     }
@@ -367,10 +367,10 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedAttribute(description = "Gets the total Market Value of all Positions of this Strategy (or the entire System if called from the AlgoTrader Server)")
     public BigDecimal getStrategySecuritiesCurrentValue() {
 
-        if (strategyName.equals(StrategyImpl.SERVER)) {
+        if (this.engine.getStrategyName().equals(StrategyImpl.SERVER)) {
             return this.portfolioService.getSecuritiesCurrentValue();
         } else {
-            return this.portfolioService.getSecuritiesCurrentValue(strategyName);
+            return this.portfolioService.getSecuritiesCurrentValue(this.engine.getStrategyName());
         }
 
     }
@@ -387,7 +387,7 @@ public class ManagementServiceImpl implements ManagementService {
         Validate.notEmpty(moduleName, "Module name is empty");
         Validate.notEmpty(statementName, "Statement name is empty");
 
-        this.engineManager.getEngine(strategyName).deployStatement(moduleName, statementName);
+        this.engine.deployStatement(moduleName, statementName);
 
     }
 
@@ -401,7 +401,7 @@ public class ManagementServiceImpl implements ManagementService {
 
         Validate.notEmpty(moduleName, "Module name is empty");
 
-        this.engineManager.getEngine(strategyName).deployModule(moduleName);
+        this.engine.deployModule(moduleName);
 
     }
 
@@ -426,7 +426,7 @@ public class ManagementServiceImpl implements ManagementService {
 
         Side sideObject = Side.fromValue(side);
 
-        Strategy strategy = this.lookupService.getStrategyByName(strategyName);
+        Strategy strategy = this.lookupService.getStrategyByName(this.engine.getStrategyName());
         Security securityObject = this.lookupService.getSecurity(getSecurityId(security));
 
         // instantiate the order
@@ -598,7 +598,7 @@ public class ManagementServiceImpl implements ManagementService {
 
         Validate.notEmpty(combination, "Combination is empty");
 
-        this.combinationService.reduceCombination(getSecurityId(combination), strategyName, ratio);
+        this.combinationService.reduceCombination(getSecurityId(combination), this.engine.getStrategyName(), ratio);
 
     }
 
@@ -613,7 +613,7 @@ public class ManagementServiceImpl implements ManagementService {
         Validate.notEmpty(variableName, "Variable name is empty");
         Validate.notEmpty(value, "Value is empty");
 
-        this.engineManager.getEngine(strategyName).setVariableValueFromString(variableName, value);
+        this.engine.setVariableValueFromString(variableName, value);
 
     }
 
@@ -630,9 +630,9 @@ public class ManagementServiceImpl implements ManagementService {
         Validate.notEmpty(security, "Security is empty");
 
         if (!"".equals(feedType)) {
-            this.subscriptionService.subscribeMarketDataEvent(strategyName, getSecurityId(security), FeedType.valueOf(feedType));
+            this.subscriptionService.subscribeMarketDataEvent(this.engine.getStrategyName(), getSecurityId(security), FeedType.valueOf(feedType));
         } else {
-            this.subscriptionService.subscribeMarketDataEvent(strategyName, getSecurityId(security));
+            this.subscriptionService.subscribeMarketDataEvent(this.engine.getStrategyName(), getSecurityId(security));
         }
 
     }
@@ -650,9 +650,9 @@ public class ManagementServiceImpl implements ManagementService {
         Validate.notEmpty(security, "Security is empty");
 
         if (!"".equals(feedType)) {
-            this.subscriptionService.unsubscribeMarketDataEvent(strategyName, getSecurityId(security), FeedType.valueOf(feedType));
+            this.subscriptionService.unsubscribeMarketDataEvent(this.engine.getStrategyName(), getSecurityId(security), FeedType.valueOf(feedType));
         } else {
-            this.subscriptionService.unsubscribeMarketDataEvent(strategyName, getSecurityId(security));
+            this.subscriptionService.unsubscribeMarketDataEvent(this.engine.getStrategyName(), getSecurityId(security));
         }
 
     }
@@ -665,7 +665,7 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedOperationParameters({})
     public void requestCurrentTicks() {
 
-        this.marketDataService.requestCurrentTicks(strategyName);
+        this.marketDataService.requestCurrentTicks(this.engine.getStrategyName());
 
     }
 
@@ -813,7 +813,7 @@ public class ManagementServiceImpl implements ManagementService {
     public void shutdown() {
 
         // cancel all orders if we called from the AlgoTrader Server
-        if (StrategyImpl.SERVER.equals(strategyName)) {
+        if (StrategyImpl.SERVER.equals(this.engine.getStrategyName())) {
             this.orderService.cancelAllOrders();
         }
 
@@ -847,7 +847,7 @@ public class ManagementServiceImpl implements ManagementService {
         }
     }
 
-    private List<MarketDataEventVO> getMarketDataEventVOs(List<MarketDataEvent> marketDataEvents) {
+    private List<MarketDataEventVO> getMarketDataEventVOs(Collection<MarketDataEvent> marketDataEvents) {
 
         // create MarketDataEventVOs based on the MarketDataEvents (have to do this manually since we have no access to the Dao)
         List<MarketDataEventVO> marketDataEventVOs = new ArrayList<>();
@@ -898,12 +898,8 @@ public class ManagementServiceImpl implements ManagementService {
     private MarketDataEventVO getMarketDataEventVO(List<MarketDataEventVO> marketDataEventVOs, final Security security, final FeedType feedType) {
 
         // get the marketDataEventVO matching the securityId
-        MarketDataEventVO marketDataEventVO = CollectionUtils.find(marketDataEventVOs, new Predicate<MarketDataEventVO>() {
-            @Override
-            public boolean evaluate(MarketDataEventVO marketDataEventVO) {
-                return marketDataEventVO.getSecurityId() == security.getId() && marketDataEventVO.getFeedType().equals(feedType);
-            }
-        });
+        MarketDataEventVO marketDataEventVO = CollectionUtils.find(marketDataEventVOs,
+                marketDataEventVO1 -> marketDataEventVO1.getSecurityId() == security.getId() && marketDataEventVO1.getFeedType().equals(feedType));
 
         // create an empty MarketDataEventVO if non exists
         if (marketDataEventVO == null) {
