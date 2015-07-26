@@ -380,7 +380,7 @@ public class ServiceLocator {
 
     public void runEmbedded() {
         init(EMBEDDED_BEAN_REFERENCE_LOCATION);
-        getLifecycleManager().runServer();
+        getLifecycleManager().runEmbedded();
     }
 
     public void runStrategy() {
