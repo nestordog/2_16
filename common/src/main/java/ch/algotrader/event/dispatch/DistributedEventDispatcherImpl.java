@@ -17,6 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.event.dispatch;
 
+import java.util.Objects;
+
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
@@ -56,9 +58,6 @@ public class DistributedEventDispatcherImpl implements EventDispatcher, MessageL
 
         Validate.notNull(localEventBroadcaster, "EventBroadcaster is null");
         Validate.notNull(engineManager, "EngineManager is null");
-        Validate.notNull(genericTemplate, "Generic JmsTemplate is null");
-        Validate.notNull(strategyTemplate, "Strategy JmsTemplate is null");
-        Validate.notNull(marketDataTemplate, "MarketData JmsTemplate is null");
         Validate.notNull(messageConverter, "MessageConverter is null");
 
         this.localEventBroadcaster = localEventBroadcaster;
@@ -76,6 +75,7 @@ public class DistributedEventDispatcherImpl implements EventDispatcher, MessageL
         if (engine != null) {
             engine.sendEvent(obj);
         } else {
+            Objects.requireNonNull(this.strategyTemplate, "Strategy template is null");
             this.strategyTemplate.convertAndSend(engineName + ".QUEUE", obj);
         }
     }
@@ -91,6 +91,7 @@ public class DistributedEventDispatcherImpl implements EventDispatcher, MessageL
     @Override
     public void sendMarketDataEvent(final MarketDataEvent marketDataEvent) {
 
+        Objects.requireNonNull(this.marketDataTemplate, "Market data template is null");
         this.marketDataTemplate.convertAndSend(marketDataEvent, message -> {
             // add securityId Property
             message.setLongProperty("securityId", marketDataEvent.getSecurity().getId());
@@ -124,6 +125,7 @@ public class DistributedEventDispatcherImpl implements EventDispatcher, MessageL
     @Override
     public void broadcastRemote(final Object event) {
 
+        Objects.requireNonNull(this.genericTemplate, "Generic template is null");
         this.genericTemplate.convertAndSend(event, message -> {
 
             // add class Property

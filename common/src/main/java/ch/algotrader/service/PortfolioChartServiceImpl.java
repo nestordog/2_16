@@ -28,8 +28,6 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
-import ch.algotrader.config.CommonConfig;
-import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.vo.ChartDefinitionVO;
 import ch.algotrader.vo.IndicatorVO;
 import ch.algotrader.vo.PortfolioValueVO;
