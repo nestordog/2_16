@@ -28,8 +28,6 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
-import ch.algotrader.config.CommonConfig;
-import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.vo.ChartDefinitionVO;
 import ch.algotrader.vo.IndicatorVO;
 import ch.algotrader.vo.PortfolioValueVO;
@@ -42,20 +40,19 @@ import ch.algotrader.vo.PortfolioValueVO;
 @ManagedResource(objectName = "ch.algotrader.service:name=PortfolioChart,type=chart")
 public class PortfolioChartServiceImpl extends ChartProvidingServiceImpl implements PortfolioChartService {
 
-    private final String strategyName;//TODO make chart service capable of handling multiple strategies
-
+    private final String strategyName;
     private final PortfolioService portfolioService;
 
     public PortfolioChartServiceImpl(final ChartDefinitionVO diagramDefinition,
-            final CommonConfig commonConfig,
+            final String strategyName,
             final PortfolioService portfolioService) {
 
         super(diagramDefinition);
 
-        Validate.notNull(commonConfig, "CommonConfig is null");
+        Validate.notNull(strategyName, "Strategy name is null");
         Validate.notNull(portfolioService, "PortfolioService is null");
 
-        this.strategyName = commonConfig.isSimulation() ? StrategyImpl.SERVER : System.getProperty("strategyName", StrategyImpl.SERVER);
+        this.strategyName = strategyName;
         this.portfolioService = portfolioService;
     }
 

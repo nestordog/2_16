@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -54,6 +55,8 @@ import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.enumeration.FeedType;
+import ch.algotrader.esper.Engine;
+import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.util.HibernateUtil;
 import ch.algotrader.util.io.CsvTickWriter;
@@ -86,6 +89,8 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationList
 
     private final SubscriptionDao subscriptionDao;
 
+    private final EngineManager engineManager;
+
     private final EventDispatcher eventDispatcher;
 
     private final AtomicBoolean initialized;
@@ -99,6 +104,7 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationList
             final SecurityDao securityDao,
             final StrategyDao strategyDao,
             final SubscriptionDao subscriptionDao,
+            final EngineManager engineManager,
             final EventDispatcher eventDispatcher) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
@@ -108,7 +114,8 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationList
         Validate.notNull(securityDao, "SecurityDao is null");
         Validate.notNull(strategyDao, "StrategyDao is null");
         Validate.notNull(subscriptionDao, "SubscriptionDao is null");
-        Validate.notNull(eventDispatcher, "PlatformEventDispatcher is null");
+        Validate.notNull(engineManager, "EngineManager is null");
+        Validate.notNull(eventDispatcher, "EventDispatcher is null");
 
         this.commonConfig = commonConfig;
         this.coreConfig = coreConfig;
@@ -117,6 +124,7 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationList
         this.securityDao = securityDao;
         this.strategyDao = strategyDao;
         this.subscriptionDao = subscriptionDao;
+        this.engineManager = engineManager;
         this.eventDispatcher = eventDispatcher;
         this.initialized = new AtomicBoolean(false);
         this.externalMarketDataServiceMap = new ConcurrentHashMap<>();
@@ -159,7 +167,19 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationList
 
         Validate.notNull(feedType, "Feed type is null");
 
-        getExternalMarketDataService(feedType).initSubscriptions();
+        ExternalMarketDataService externalMarketDataService = getExternalMarketDataService(feedType);
+        if (externalMarketDataService.initSubscriptions()) {
+            final Set<Security> securities = new LinkedHashSet<>();
+            for (final Engine engine : this.engineManager.getEngines()) {
+                securities.addAll(this.securityDao.findSubscribedByFeedTypeAndStrategyInclFamily(feedType, engine.getStrategyName()));
+            }
+
+            for (Security security : securities) {
+                if (!security.getSecurityFamily().isSynthetic()) {
+                    externalMarketDataService.subscribe(security);
+                }
+            }
+        }
     }
 
     /**
@@ -184,6 +204,8 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationList
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
         Validate.notNull(feedType, "Feed type is null");
+
+        eventDispatcher.registerMarketDataSubscription(strategyName, securityId);
 
         if (this.subscriptionDao.findByStrategySecurityAndFeedType(strategyName, securityId, feedType) == null) {
 
@@ -237,6 +259,8 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationList
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
         Validate.notNull(feedType, "Feed type is null");
+
+        eventDispatcher.unregisterMarketDataSubscription(strategyName, securityId);
 
         Subscription subscription = this.subscriptionDao.findByStrategySecurityAndFeedType(strategyName, securityId, feedType);
         if (subscription != null && !subscription.isPersistent()) {

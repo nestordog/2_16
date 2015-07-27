@@ -23,9 +23,7 @@ import org.springframework.context.annotation.Profile;
 
 import ch.algotrader.adapter.fix.ManagedFixAdapter;
 import ch.algotrader.adapter.fix.MarketDataFixSessionStateHolder;
-import ch.algotrader.dao.security.SecurityDao;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.esper.EngineManager;
 import ch.algotrader.service.OrderService;
 import ch.algotrader.service.ftx.FTXFixMarketDataService;
 import ch.algotrader.service.ftx.FTXFixMarketDataServiceImpl;
@@ -53,10 +51,9 @@ public class FTXFixServiceWiring {
     public FTXFixMarketDataService createFTXFixMarketDataService(
             final MarketDataFixSessionStateHolder fTXMarketDataSessionStateHolder,
             final ManagedFixAdapter fixAdapter,
-            final EngineManager engineManager,
-            final SecurityDao securityDao) {
+            final Engine serverEngine) {
 
-        return new FTXFixMarketDataServiceImpl(fTXMarketDataSessionStateHolder, fixAdapter, engineManager, securityDao);
+        return new FTXFixMarketDataServiceImpl(fTXMarketDataSessionStateHolder, fixAdapter, serverEngine);
     }
 
 }

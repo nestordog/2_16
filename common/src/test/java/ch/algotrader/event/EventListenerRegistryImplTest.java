@@ -22,9 +22,11 @@ import java.util.Set;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import ch.algotrader.entity.BaseEntityI;
 import ch.algotrader.entity.security.ExpirableI;
@@ -43,9 +45,8 @@ import ch.algotrader.entity.security.StockImpl;
 
 /**
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
- *
- * @version $Revision$ $Date$
  */
+@RunWith(MockitoJUnitRunner.class)
 public class EventListenerRegistryImplTest {
 
     @Mock
@@ -56,11 +57,6 @@ public class EventListenerRegistryImplTest {
     private EventListener<Future> listener3;
     @Mock
     private EventListener<ExpirableI> listener4;
-
-    @Before
-    public void setup() {
-        MockitoAnnotations.initMocks(this);
-    }
 
     @Test
     public void testRegisterUnregister() throws Exception {

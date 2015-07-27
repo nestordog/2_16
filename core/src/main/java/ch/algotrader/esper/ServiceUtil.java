@@ -17,8 +17,11 @@
  ***********************************************************************************/
 package ch.algotrader.esper;
 
+import java.util.Date;
+
 import com.espertech.esper.collection.Pair;
 
+import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.visitor.TickValidationVisitor;
@@ -55,4 +58,9 @@ public class ServiceUtil {
         return tick.getSecurity().accept(TickValidationVisitor.INSTANCE, tick);
     }
 
+
+    public static boolean isMarketOpen(final long exchangeId, final Date dateTime) {
+
+        return ServiceLocator.instance().getCalendarService().isOpen(exchangeId, dateTime);
+    }
 }

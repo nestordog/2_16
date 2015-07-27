@@ -35,11 +35,12 @@ import ch.algotrader.event.EventListenerRegistry;
 import ch.algotrader.event.listener.LifecycleEventListener;
 import ch.algotrader.vo.LifecycleEventVO;
 import ch.algotrader.vo.SessionEventVO;
+import ch.algotrader.wiring.DefaultConfigTestBase;
 
 /**
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  */
-public class WiringTest {
+public class WiringTest extends DefaultConfigTestBase {
 
     @Test
     public void testCommonConfigWiring() throws Exception {

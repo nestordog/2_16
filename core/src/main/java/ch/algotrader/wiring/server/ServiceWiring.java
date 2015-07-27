@@ -272,9 +272,10 @@ public class ServiceWiring {
             final SecurityDao securityDao,
             final StrategyDao strategyDao,
             final SubscriptionDao subscriptionDao,
+            final EngineManager engineManager,
             final EventDispatcher eventDispatcher) {
 
-        return new MarketDataServiceImpl(commonConfig, coreConfig, sessionFactory, tickDao, securityDao, strategyDao, subscriptionDao, eventDispatcher);
+        return new MarketDataServiceImpl(commonConfig, coreConfig, sessionFactory, tickDao, securityDao, strategyDao, subscriptionDao, engineManager, eventDispatcher);
     }
 
     @Bean(name = "orderPersistenceService")

@@ -18,6 +18,8 @@
 package ch.algotrader.entity.marketData;
 
 import java.math.BigDecimal;
+import java.util.Date;
+
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.ConfigLocator;
 import ch.algotrader.enumeration.Direction;
@@ -104,7 +106,10 @@ public class TickImpl extends Tick {
 
         buffer.append(getSecurity());
         buffer.append(",");
-        DateTimeUtil.formatLocalZone(getDateTime().toInstant(), buffer);
+        final Date dateTime = getDateTime();
+        if (dateTime != null) {
+            DateTimeUtil.formatLocalZone(dateTime.toInstant(), buffer);
+        }
         buffer.append(",last=");
         buffer.append(getLast());
         buffer.append(",lastDateTime=");

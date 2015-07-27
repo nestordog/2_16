@@ -23,10 +23,9 @@ import ch.algotrader.adapter.dc.DCFixMarketDataRequestFactory;
 import ch.algotrader.adapter.dc.DCUtil;
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.fix.FixSessionStateHolder;
-import ch.algotrader.dao.security.SecurityDao;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.FeedType;
-import ch.algotrader.esper.EngineManager;
+import ch.algotrader.esper.Engine;
 import ch.algotrader.service.fix.fix44.Fix44MarketDataServiceImpl;
 import quickfix.field.SubscriptionRequestType;
 import quickfix.fix44.MarketDataRequest;
@@ -47,10 +46,9 @@ public class DCFixMarketDataServiceImpl extends Fix44MarketDataServiceImpl imple
     public DCFixMarketDataServiceImpl(
             final FixSessionStateHolder lifeCycle,
             final FixAdapter fixAdapter,
-            final EngineManager engineManager,
-            final SecurityDao securityDao) {
+            final Engine serverEngine) {
 
-        super(lifeCycle, fixAdapter, engineManager, securityDao);
+        super(lifeCycle, fixAdapter, serverEngine);
 
         this.requestFactory = new DCFixMarketDataRequestFactory();
     }

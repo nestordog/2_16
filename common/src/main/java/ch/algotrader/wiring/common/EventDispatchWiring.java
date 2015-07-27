@@ -39,8 +39,9 @@ import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.EventListenerRegistry;
 import ch.algotrader.event.EventListenerRegistryImpl;
+import ch.algotrader.event.dispatch.DistributedEventDispatcherImpl;
 import ch.algotrader.event.dispatch.EventDispatcher;
-import ch.algotrader.event.dispatch.EventDispatcherImpl;
+import ch.algotrader.event.dispatch.LocalEventDispatcherImpl;
 import ch.algotrader.event.listener.BarEventListener;
 import ch.algotrader.event.listener.ClosePositionEventListener;
 import ch.algotrader.event.listener.ExpirePositionEventListener;
@@ -78,14 +79,17 @@ public class EventDispatchWiring {
             final EngineManager engineManager,
             final ApplicationContext applicationContext) {
 
-        return new EventDispatcherImpl(
-                commonConfig,
-                eventListenerRegistry,
-                engineManager,
-                applicationContext.containsBean("genericTemplate") ? applicationContext.getBean("genericTemplate", JmsTemplate.class) : null,
-                applicationContext.containsBean("strategyTemplate") ? applicationContext.getBean("strategyTemplate", JmsTemplate.class) : null,
-                applicationContext.containsBean("marketDataTemplate") ? applicationContext.getBean("marketDataTemplate", JmsTemplate.class) : null,
-                new SimpleMessageConverter());
+        if (commonConfig.isSimulation() || commonConfig.isEmbedded()) {
+            return new LocalEventDispatcherImpl(eventListenerRegistry, engineManager);
+        } else {
+            return new DistributedEventDispatcherImpl(
+                    eventListenerRegistry,
+                    engineManager,
+                    applicationContext.containsBean("genericTemplate") ? applicationContext.getBean("genericTemplate", JmsTemplate.class) : null,
+                    applicationContext.containsBean("strategyTemplate") ? applicationContext.getBean("strategyTemplate", JmsTemplate.class) : null,
+                    applicationContext.containsBean("marketDataTemplate") ? applicationContext.getBean("marketDataTemplate", JmsTemplate.class) : null,
+                    new SimpleMessageConverter());
+        }
     }
 
     @Bean(name = "eventDispatcherPostprocessor")

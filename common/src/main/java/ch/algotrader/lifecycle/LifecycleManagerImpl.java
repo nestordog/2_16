@@ -108,7 +108,7 @@ public class LifecycleManagerImpl implements LifecycleManager, ApplicationContex
 
         runServices();
 
-        Collection<Engine> engines = this.engineManager.getStrategyEngines().values();
+        Collection<Engine> engines = this.engineManager.getStrategyEngines();
 
         broadcastLocal(LifecyclePhase.INIT);
 

@@ -20,6 +20,7 @@ package ch.algotrader.service.bb;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
@@ -34,14 +35,11 @@ import ch.algotrader.adapter.bb.BBAdapter;
 import ch.algotrader.adapter.bb.BBIdGenerator;
 import ch.algotrader.adapter.bb.BBSession;
 import ch.algotrader.dao.marketData.TickDao;
-import ch.algotrader.dao.security.SecurityDao;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.enumeration.InitializingServiceType;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.esper.EngineManager;
-import ch.algotrader.service.ExternalMarketDataServiceImpl;
 import ch.algotrader.service.ExternalServiceException;
 import ch.algotrader.service.InitializationPriority;
 import ch.algotrader.service.InitializingServiceI;
@@ -54,7 +52,7 @@ import ch.algotrader.vo.SubscribeTickVO;
  * @version $Revision$ $Date$
  */
 @InitializationPriority(InitializingServiceType.BROKER_INTERFACE)
-public class BBMarketDataServiceImpl extends ExternalMarketDataServiceImpl implements BBMarketDataService, InitializingServiceI, DisposableBean {
+public class BBMarketDataServiceImpl implements BBMarketDataService, InitializingServiceI, DisposableBean {
 
     private static final long serialVersionUID = -3463200344945144471L;
 
@@ -64,21 +62,21 @@ public class BBMarketDataServiceImpl extends ExternalMarketDataServiceImpl imple
     private final BBAdapter bBAdapter;
     private final TickDao tickDao;
     private final Engine serverEngine;
+    private final AtomicBoolean initalized;
 
     public BBMarketDataServiceImpl(
             final BBAdapter bBAdapter,
-            final EngineManager engineManager,
-            final TickDao tickDao,
-            final SecurityDao securityDao) {
-
-        super(engineManager, securityDao);
+            final Engine serverEngine,
+            final TickDao tickDao) {
 
         Validate.notNull(bBAdapter, "BBAdapter is null");
+        Validate.notNull(serverEngine, "Engine is null");
         Validate.notNull(tickDao, "TickDao is null");
 
         this.bBAdapter = bBAdapter;
         this.tickDao = tickDao;
-        this.serverEngine = engineManager.getServerEngine();
+        this.serverEngine = serverEngine;
+        this.initalized = new AtomicBoolean(false);
     }
 
     /**
@@ -95,10 +93,12 @@ public class BBMarketDataServiceImpl extends ExternalMarketDataServiceImpl imple
             Thread.currentThread().interrupt();
             throw new ServiceException(ex);
         }
+    }
 
-        // by this time the session is up and running, so no need to do this inside the messageHandler
-        initSubscriptions();
+    @Override
+    public boolean initSubscriptions() {
 
+        return this.initalized.compareAndSet(false, true);
     }
 
     @Override

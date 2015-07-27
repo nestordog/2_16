@@ -20,10 +20,10 @@ package ch.algotrader.esper;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Predicate;
@@ -91,10 +91,11 @@ public class EngineManagerImpl implements EngineManager {
     }
 
     @Override
-    public Map<String, Engine> getStrategyEngines() {
-        final Map<String, Engine> result = new LinkedHashMap<String, Engine>(engineMap);
-        result.remove(SERVER_ENGINE);
-        return result;
+    public Collection<Engine> getStrategyEngines() {
+        return this.engineMap.entrySet().stream()
+                .filter(entry -> !entry.getKey().equals(SERVER_ENGINE))
+                .map(Map.Entry::getValue)
+                .collect(Collectors.toList());
     }
 
     @Override

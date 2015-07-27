@@ -46,6 +46,7 @@ import ch.algotrader.service.SubscriptionService;
 import ch.algotrader.service.TransactionPersistenceService;
 import ch.algotrader.service.TransactionService;
 import ch.algotrader.wiring.HibernateNoCachingWiring;
+import ch.algotrader.wiring.DefaultConfigTestBase;
 import ch.algotrader.wiring.common.CommonConfigWiring;
 import ch.algotrader.wiring.common.EventDispatchWiring;
 import ch.algotrader.wiring.server.DaoWiring;
@@ -57,7 +58,7 @@ import ch.algotrader.wiring.server.ServiceWiring;
 /**
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  */
-public class ServiceWiringTest {
+public class ServiceWiringTest extends DefaultConfigTestBase {
 
     @Test
     public void testServicesWiring() {

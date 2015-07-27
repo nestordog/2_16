@@ -19,6 +19,8 @@ package ch.algotrader.service;
 
 import java.math.BigDecimal;
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -69,6 +71,12 @@ public class LocalLookupServiceImpl implements LocalLookupService, TickEventList
         this.lookupService = lookupService;
         this.lastMarketDataEventBySecurityId = new ConcurrentHashMap<>();
         this.forexMap = new ConcurrentHashMap<>();
+    }
+
+    @Override
+    public Map<Long, MarketDataEvent> getCurrentMarketDataEvents() {
+
+        return new HashMap<>(lastMarketDataEventBySecurityId);
     }
 
     @Override
@@ -198,29 +206,26 @@ public class LocalLookupServiceImpl implements LocalLookupService, TickEventList
     }
 
     private void onMarketDataEvent(MarketDataEvent event) {
-        final int maxTries = 3;
-        final long securityId = event.getSecurity().getId();
-        MarketDataEvent old = lastMarketDataEventBySecurityId.get(securityId);
-        //only accept event if it is newer than our current last
-        int cnt = 0;
-        while (old == null || old != event & old.getDateTime().compareTo(event.getDateTime()) <= 0) {
-            if (old == null && null != lastMarketDataEventBySecurityId.putIfAbsent(securityId, event)) {
-                return;
-            } else if (old != null && lastMarketDataEventBySecurityId.replace(securityId, old, event)) {
-                return;
+
+        if (event.getDateTime() == null) {
+            if (LOGGER.isWarnEnabled()) {
+                LOGGER.warn("Market data event with missing timestamp: {}", event);
             }
-            //there must have been a concurrent update for the same security
-            cnt++;
-            if (cnt >= maxTries) {
-                if (LOGGER.isWarnEnabled()) {
-                    LOGGER.warn("ignoring market data event due to concurrent updates, giving up after {} tries: {}", cnt, event);
-                }
-                return;
-            }
-            //let's try again
-            old = lastMarketDataEventBySecurityId.get(securityId);
+            return;
         }
-        //else: event is older than our current last
+        if (event.getSecurity() == null) {
+            if (LOGGER.isWarnEnabled()) {
+                LOGGER.warn("Market data event with missing security: {}", event);
+            }
+            return;
+        }
+        lastMarketDataEventBySecurityId.merge(event.getSecurity().getId(), event, (lastEvent, newEvent) -> {
+            if (lastEvent == null) {
+                return newEvent;
+            } else {
+                return newEvent.getDateTime().compareTo(lastEvent.getDateTime()) >= 0 ? newEvent : lastEvent;
+            }
+        });
     }
 
     @Override

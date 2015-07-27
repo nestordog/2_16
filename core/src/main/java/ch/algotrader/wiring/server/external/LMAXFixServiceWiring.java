@@ -23,8 +23,7 @@ import org.springframework.context.annotation.Profile;
 
 import ch.algotrader.adapter.fix.ManagedFixAdapter;
 import ch.algotrader.adapter.fix.MarketDataFixSessionStateHolder;
-import ch.algotrader.dao.security.SecurityDao;
-import ch.algotrader.esper.EngineManager;
+import ch.algotrader.esper.Engine;
 import ch.algotrader.service.OrderService;
 import ch.algotrader.service.lmax.LMAXFixMarketDataService;
 import ch.algotrader.service.lmax.LMAXFixMarketDataServiceImpl;
@@ -50,10 +49,9 @@ public class LMAXFixServiceWiring {
     public LMAXFixMarketDataService createLMAXFixMarketDataService(
             final MarketDataFixSessionStateHolder lMAXMarketDataSessionStateHolder,
             final ManagedFixAdapter fixAdapter,
-            final EngineManager engineManager,
-            final SecurityDao securityDao) {
+            final Engine serverEngine) {
 
-        return new LMAXFixMarketDataServiceImpl(lMAXMarketDataSessionStateHolder, fixAdapter, engineManager, securityDao);
+        return new LMAXFixMarketDataServiceImpl(lMAXMarketDataSessionStateHolder, fixAdapter, serverEngine);
     }
 
 }

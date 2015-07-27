@@ -28,7 +28,7 @@ import ch.algotrader.dao.security.FutureDao;
 import ch.algotrader.dao.security.OptionDao;
 import ch.algotrader.dao.security.SecurityDao;
 import ch.algotrader.dao.security.SecurityFamilyDao;
-import ch.algotrader.esper.EngineManager;
+import ch.algotrader.esper.Engine;
 import ch.algotrader.service.bb.BBHistoricalDataService;
 import ch.algotrader.service.bb.BBHistoricalDataServiceImpl;
 import ch.algotrader.service.bb.BBMarketDataService;
@@ -56,11 +56,10 @@ public class BBServiceWiring {
     @Bean(name = "bBMarketDataService")
     public BBMarketDataService createBBMarketDataService(
             final BBAdapter bBAdapter,
-            final EngineManager engineManager,
-            final TickDao tickDao,
-            final SecurityDao securityDao) {
+            final Engine serverEngine,
+            final TickDao tickDao) {
 
-        return new BBMarketDataServiceImpl(bBAdapter, engineManager, tickDao, securityDao);
+        return new BBMarketDataServiceImpl(bBAdapter, serverEngine, tickDao);
     }
 
     @Profile("bBReferenceData")

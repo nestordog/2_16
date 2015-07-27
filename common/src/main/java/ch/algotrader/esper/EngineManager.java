@@ -19,7 +19,6 @@ package ch.algotrader.esper;
 
 import java.util.Collection;
 import java.util.Date;
-import java.util.Map;
 
 /**
  * Management interface for multiple {@link ch.algotrader.esper.Engine}s.
@@ -57,10 +56,10 @@ public interface EngineManager {
     Engine getServerEngine();
 
     /**
-     * Returns the strategy engines by engine name
-     * @return a map with all non-SERVER engines by engine name
+     * Returns all strategy engines.
+     * @return a collection with all strategy engines.
      */
-    Map<String, Engine> getStrategyEngines();
+    Collection<Engine> getStrategyEngines();
 
     /**
      * Destroys engine with the given name

@@ -52,6 +52,10 @@ public class TickValidationVisitor extends PolymorphicEntityVisitor<Boolean, Tic
     @Override
     public Boolean visitSecurity(Security entity, Tick tick) {
 
+        if (tick.getDateTime() == null) {
+            return false;
+        }
+
         // BId / ASK cannot be negative
         if (tick.getBid() != null && tick.getBid().doubleValue() < 0) {
             return false;

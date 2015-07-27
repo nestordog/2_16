@@ -23,8 +23,7 @@ import org.springframework.context.annotation.Profile;
 
 import ch.algotrader.adapter.fix.ManagedFixAdapter;
 import ch.algotrader.adapter.fix.MarketDataFixSessionStateHolder;
-import ch.algotrader.dao.security.SecurityDao;
-import ch.algotrader.esper.EngineManager;
+import ch.algotrader.esper.Engine;
 import ch.algotrader.service.OrderService;
 import ch.algotrader.service.fxcm.FXCMFixMarketDataService;
 import ch.algotrader.service.fxcm.FXCMFixMarketDataServiceImpl;
@@ -51,10 +50,9 @@ public class FXCMFixServiceWiring {
     public FXCMFixMarketDataService createFXCMFixMarketDataService(
             final MarketDataFixSessionStateHolder fXCMSessionLifeCycle,
             final ManagedFixAdapter fixAdapter,
-            final EngineManager engineManager,
-            final SecurityDao securityDao) {
+            final Engine serverEngine) {
 
-        return new FXCMFixMarketDataServiceImpl(fXCMSessionLifeCycle, fixAdapter, engineManager, securityDao);
+        return new FXCMFixMarketDataServiceImpl(fXCMSessionLifeCycle, fixAdapter, serverEngine);
     }
 
 }

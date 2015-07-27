@@ -31,6 +31,7 @@ import ch.algotrader.config.CoreConfig;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.lifecycle.LifecycleManager;
 import ch.algotrader.wiring.HibernateNoCachingWiring;
+import ch.algotrader.wiring.DefaultConfigTestBase;
 import ch.algotrader.wiring.common.CommonConfigWiring;
 import ch.algotrader.wiring.common.EngineManagerWiring;
 import ch.algotrader.wiring.common.EventDispatchWiring;
@@ -38,7 +39,7 @@ import ch.algotrader.wiring.common.EventDispatchWiring;
 /**
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  */
-public class WiringTest {
+public class WiringTest extends DefaultConfigTestBase {
 
     @Test
     public void testCoreConfigWiring() throws Exception {
