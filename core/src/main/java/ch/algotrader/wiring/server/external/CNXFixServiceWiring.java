@@ -23,8 +23,7 @@ import org.springframework.context.annotation.Profile;
 
 import ch.algotrader.adapter.fix.ManagedFixAdapter;
 import ch.algotrader.adapter.fix.MarketDataFixSessionStateHolder;
-import ch.algotrader.dao.security.SecurityDao;
-import ch.algotrader.esper.EngineManager;
+import ch.algotrader.esper.Engine;
 import ch.algotrader.service.OrderService;
 import ch.algotrader.service.cnx.CNXFixMarketDataService;
 import ch.algotrader.service.cnx.CNXFixMarketDataServiceImpl;
@@ -51,10 +50,9 @@ public class CNXFixServiceWiring {
     public CNXFixMarketDataService createCNXFixMarketDataService(
             final MarketDataFixSessionStateHolder cNXMarketDataSessionStateHolder,
             final ManagedFixAdapter fixAdapter,
-            final EngineManager engineManager,
-            final SecurityDao securityDao) {
+            final Engine serverEngine) {
 
-        return new CNXFixMarketDataServiceImpl(cNXMarketDataSessionStateHolder, fixAdapter, engineManager, securityDao);
+        return new CNXFixMarketDataServiceImpl(cNXMarketDataSessionStateHolder, fixAdapter, serverEngine);
     }
 
 }

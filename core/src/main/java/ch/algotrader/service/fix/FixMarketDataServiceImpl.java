@@ -23,13 +23,10 @@ import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.fix.FixSessionStateHolder;
-import ch.algotrader.dao.security.SecurityDao;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.InitializingServiceType;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.esper.EngineManager;
-import ch.algotrader.service.ExternalMarketDataServiceImpl;
 import ch.algotrader.service.InitializationPriority;
 import ch.algotrader.service.InitializingServiceI;
 import ch.algotrader.service.ServiceException;
@@ -43,30 +40,28 @@ import ch.algotrader.vo.SubscribeTickVO;
  * @version $Revision$ $Date$
  */
 @InitializationPriority(InitializingServiceType.BROKER_INTERFACE)
-public abstract class FixMarketDataServiceImpl extends ExternalMarketDataServiceImpl implements FixMarketDataService, InitializingServiceI {
+public abstract class FixMarketDataServiceImpl implements FixMarketDataService, InitializingServiceI {
 
     private static final long serialVersionUID = 4880040246465806082L;
 
     private static final Logger LOGGER = LogManager.getLogger(FixMarketDataServiceImpl.class);
 
-    private final FixSessionStateHolder lifeCycle;
+    private final FixSessionStateHolder stateHolder;
     private final FixAdapter fixAdapter;
     private final Engine serverEngine;
 
     public FixMarketDataServiceImpl(
-            final FixSessionStateHolder lifeCycle,
+            final FixSessionStateHolder stateHolder,
             final FixAdapter fixAdapter,
-            final EngineManager engineManager,
-            final SecurityDao securityDao) {
+            final Engine serverEngine) {
 
-        super(engineManager, securityDao);
-
-        Validate.notNull(lifeCycle, "FixSessionStateHolder is null");
+        Validate.notNull(stateHolder, "FixSessionStateHolder is null");
         Validate.notNull(fixAdapter, "FixAdapter is null");
+        Validate.notNull(fixAdapter, "Engine is null");
 
-        this.lifeCycle = lifeCycle;
+        this.stateHolder = stateHolder;
         this.fixAdapter = fixAdapter;
-        this.serverEngine = engineManager.getServerEngine();
+        this.serverEngine = serverEngine;
     }
 
     protected FixAdapter getFixAdapter() {
@@ -84,12 +79,9 @@ public abstract class FixMarketDataServiceImpl extends ExternalMarketDataService
     }
 
     @Override
-    public void initSubscriptions() {
+    public boolean initSubscriptions() {
 
-        if (this.lifeCycle.onSubscribe()) {
-            super.initSubscriptions();
-        }
-
+        return this.stateHolder.onSubscribe();
     }
 
     @Override
@@ -97,7 +89,7 @@ public abstract class FixMarketDataServiceImpl extends ExternalMarketDataService
 
         Validate.notNull(security, "Security is null");
 
-        if (!this.lifeCycle.isLoggedOn()) {
+        if (!this.stateHolder.isLoggedOn()) {
             throw new ServiceException("Fix session is not logged on to subscribe " + security);
         }
 
@@ -128,7 +120,7 @@ public abstract class FixMarketDataServiceImpl extends ExternalMarketDataService
 
         Validate.notNull(security, "Security is null");
 
-        if (!this.lifeCycle.isSubscribed()) {
+        if (!this.stateHolder.isSubscribed()) {
             throw new ServiceException("Fix session ist not subscribed, security cannot be unsubscribed " + security);
         }
 

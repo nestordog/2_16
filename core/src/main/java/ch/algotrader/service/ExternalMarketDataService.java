@@ -30,7 +30,7 @@ public interface ExternalMarketDataService {
     /**
      * Initializes current Subscriptions with the external Market Data Provider.
      */
-    public void initSubscriptions();
+    public boolean initSubscriptions();
 
     /**
      * Subscribes a Security with the external Market Data Provider.

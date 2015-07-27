@@ -25,7 +25,6 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
 
 import com.ib.client.Contract;
-import com.ib.client.TagValue;
 
 import ch.algotrader.adapter.ib.IBIdGenerator;
 import ch.algotrader.adapter.ib.IBSession;
@@ -33,13 +32,10 @@ import ch.algotrader.adapter.ib.IBSessionStateHolder;
 import ch.algotrader.adapter.ib.IBUtil;
 import ch.algotrader.config.IBConfig;
 import ch.algotrader.dao.marketData.TickDao;
-import ch.algotrader.dao.security.SecurityDao;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.esper.EngineManager;
-import ch.algotrader.service.ExternalMarketDataServiceImpl;
 import ch.algotrader.service.ServiceException;
 import ch.algotrader.vo.SubscribeTickVO;
 
@@ -48,7 +44,7 @@ import ch.algotrader.vo.SubscribeTickVO;
  *
  * @version $Revision$ $Date$
  */
-public class IBNativeMarketDataServiceImpl extends ExternalMarketDataServiceImpl implements IBNativeMarketDataService, DisposableBean {
+public class IBNativeMarketDataServiceImpl implements IBNativeMarketDataService, DisposableBean {
 
     private static final Logger LOGGER = LogManager.getLogger(IBNativeMarketDataServiceImpl.class);
 
@@ -64,32 +60,28 @@ public class IBNativeMarketDataServiceImpl extends ExternalMarketDataServiceImpl
             final IBSessionStateHolder sessionStateHolder,
             final IBIdGenerator iBIdGenerator,
             final IBConfig iBConfig,
-            final EngineManager engineManager,
-            final TickDao tickDao,
-            final SecurityDao securityDao) {
-
-        super(engineManager, securityDao);
+            final Engine serverEngine,
+            final TickDao tickDao) {
 
         Validate.notNull(iBSession, "IBSession is null");
         Validate.notNull(sessionStateHolder, "IBSessionStateHolder is null");
         Validate.notNull(iBIdGenerator, "IBIdGenerator is null");
         Validate.notNull(iBConfig, "IBConfig is null");
+        Validate.notNull(serverEngine, "Engine is null");
         Validate.notNull(tickDao, "TickDao is null");
 
         this.iBSession = iBSession;
         this.sessionStateHolder = sessionStateHolder;
         this.iBIdGenerator = iBIdGenerator;
         this.iBConfig = iBConfig;
-        this.serverEngine = engineManager.getServerEngine();
+        this.serverEngine = serverEngine;
         this.tickDao = tickDao;
     }
 
     @Override
-    public void initSubscriptions() {
+    public boolean initSubscriptions() {
 
-        if (this.sessionStateHolder.subscribe()) {
-            super.initSubscriptions();
-        }
+        return this.sessionStateHolder.subscribe();
     }
 
     @Override
@@ -116,7 +108,7 @@ public class IBNativeMarketDataServiceImpl extends ExternalMarketDataServiceImpl
         // requestMarketData from IB
         Contract contract = IBUtil.getContract(security);
 
-        this.iBSession.reqMktData(tickerId, contract, this.iBConfig.getGenericTickList(), false, new ArrayList<TagValue>());
+        this.iBSession.reqMktData(tickerId, contract, this.iBConfig.getGenericTickList(), false, new ArrayList<>());
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("requested market data for: {} tickerId: {}", security, tickerId);

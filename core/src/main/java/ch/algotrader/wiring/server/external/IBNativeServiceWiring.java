@@ -39,7 +39,6 @@ import ch.algotrader.dao.security.SecurityDao;
 import ch.algotrader.dao.security.SecurityFamilyDao;
 import ch.algotrader.dao.security.StockDao;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.esper.EngineManager;
 import ch.algotrader.service.OrderService;
 import ch.algotrader.service.ib.IBNativeAccountService;
 import ch.algotrader.service.ib.IBNativeAccountServiceImpl;
@@ -100,11 +99,10 @@ public class IBNativeServiceWiring {
             final IBSessionStateHolder iBSessionStateHolder,
             final IBIdGenerator iBIdGenerator,
             final IBConfig iBConfig,
-            final EngineManager engineManager,
-            final TickDao tickDao,
-            final SecurityDao securityDao) {
+            final Engine serverEngine,
+            final TickDao tickDao) {
 
-        return new IBNativeMarketDataServiceImpl(iBSession, iBSessionStateHolder, iBIdGenerator, iBConfig, engineManager, tickDao, securityDao);
+        return new IBNativeMarketDataServiceImpl(iBSession, iBSessionStateHolder, iBIdGenerator, iBConfig, serverEngine, tickDao);
     }
 
     @Profile("iBReferenceData")

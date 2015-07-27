@@ -24,11 +24,10 @@ import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.fix.FixApplicationException;
 import ch.algotrader.adapter.fix.FixSessionStateHolder;
 import ch.algotrader.adapter.ftx.FTXFixMarketDataRequestFactory;
-import ch.algotrader.dao.security.SecurityDao;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.FeedType;
-import ch.algotrader.esper.EngineManager;
+import ch.algotrader.esper.Engine;
 import ch.algotrader.service.fix.fix44.Fix44MarketDataServiceImpl;
 import quickfix.fix44.QuoteRequest;
 
@@ -44,10 +43,9 @@ public class FTXFixMarketDataServiceImpl extends Fix44MarketDataServiceImpl impl
     public FTXFixMarketDataServiceImpl(
             final FixSessionStateHolder stateHolder,
             final FixAdapter fixAdapter,
-            final EngineManager engineManager,
-            final SecurityDao securityDao) {
+            final Engine serverEngine) {
 
-        super(stateHolder, fixAdapter, engineManager, securityDao);
+        super(stateHolder, fixAdapter, serverEngine);
 
         this.requestFactory = new FTXFixMarketDataRequestFactory();
     }

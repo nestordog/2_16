@@ -17,10 +17,9 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.fix;
 
-import ch.algotrader.dao.security.SecurityDao;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.FeedType;
-import ch.algotrader.esper.EngineManager;
+import ch.algotrader.esper.Engine;
 import ch.algotrader.service.ExternalServiceException;
 import ch.algotrader.service.fix.fix44.Fix44MarketDataServiceImpl;
 import quickfix.field.MDReqID;
@@ -39,10 +38,9 @@ class FakeFix44MarketDataService extends Fix44MarketDataServiceImpl {
     public FakeFix44MarketDataService(
             final FixSessionStateHolder lifeCycle,
             final FixAdapter fixAdapter,
-            final EngineManager engineManager,
-            final SecurityDao securityDao) {
+            final Engine serverEngine) {
 
-        super(lifeCycle, fixAdapter, engineManager, securityDao);
+        super(lifeCycle, fixAdapter, serverEngine);
     }
 
     @Override

@@ -23,8 +23,7 @@ import org.springframework.context.annotation.Profile;
 
 import ch.algotrader.adapter.fix.ManagedFixAdapter;
 import ch.algotrader.adapter.fix.MarketDataFixSessionStateHolder;
-import ch.algotrader.dao.security.SecurityDao;
-import ch.algotrader.esper.EngineManager;
+import ch.algotrader.esper.Engine;
 import ch.algotrader.service.OrderService;
 import ch.algotrader.service.dc.DCFixMarketDataService;
 import ch.algotrader.service.dc.DCFixMarketDataServiceImpl;
@@ -51,10 +50,9 @@ public class DCFixServiceWiring {
     public DCFixMarketDataService createDCFixMarketDataService(
             final MarketDataFixSessionStateHolder dCMarketDataSessionStateHolder,
             final ManagedFixAdapter fixAdapter,
-            final EngineManager engineManager,
-            final SecurityDao securityDao) {
+            final Engine serverEngine) {
 
-        return new DCFixMarketDataServiceImpl(dCMarketDataSessionStateHolder, fixAdapter, engineManager, securityDao);
+        return new DCFixMarketDataServiceImpl(dCMarketDataSessionStateHolder, fixAdapter, serverEngine);
     }
 
 }

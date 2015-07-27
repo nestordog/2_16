@@ -24,11 +24,10 @@ import ch.algotrader.adapter.cnx.CNXUtil;
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.fix.FixApplicationException;
 import ch.algotrader.adapter.fix.FixSessionStateHolder;
-import ch.algotrader.dao.security.SecurityDao;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.FeedType;
-import ch.algotrader.esper.EngineManager;
+import ch.algotrader.esper.Engine;
 import ch.algotrader.service.fix.fix44.Fix44MarketDataServiceImpl;
 import quickfix.field.SubscriptionRequestType;
 import quickfix.fix44.MarketDataRequest;
@@ -45,12 +44,11 @@ public class CNXFixMarketDataServiceImpl extends Fix44MarketDataServiceImpl impl
     private final CNXFixMarketDataRequestFactory requestFactory;
 
     public CNXFixMarketDataServiceImpl(
-            final FixSessionStateHolder lifeCycle,
+            final FixSessionStateHolder stateHolder,
             final FixAdapter fixAdapter,
-            final EngineManager engineManager,
-            final SecurityDao securityDao) {
+            final Engine serverEngine) {
 
-        super(lifeCycle, fixAdapter, engineManager, securityDao);
+        super(stateHolder, fixAdapter, serverEngine);
 
         this.requestFactory = new CNXFixMarketDataRequestFactory();
     }

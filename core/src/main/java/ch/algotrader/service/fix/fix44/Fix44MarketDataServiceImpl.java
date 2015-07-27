@@ -19,8 +19,7 @@ package ch.algotrader.service.fix.fix44;
 
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.fix.FixSessionStateHolder;
-import ch.algotrader.dao.security.SecurityDao;
-import ch.algotrader.esper.EngineManager;
+import ch.algotrader.esper.Engine;
 import ch.algotrader.service.fix.FixMarketDataServiceImpl;
 
 /**
@@ -35,11 +34,10 @@ public abstract class Fix44MarketDataServiceImpl extends FixMarketDataServiceImp
     private static final long serialVersionUID = 3043686661971232423L;
 
     public Fix44MarketDataServiceImpl(
-            final FixSessionStateHolder lifeCycle,
+            final FixSessionStateHolder stateHolder,
             final FixAdapter fixAdapter,
-            final EngineManager engineManager,
-            final SecurityDao securityDao) {
+            final Engine serverEngine) {
 
-        super(lifeCycle, fixAdapter, engineManager, securityDao);
+        super(stateHolder, fixAdapter, serverEngine);
     }
 }

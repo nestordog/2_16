@@ -17,11 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.fix;
 
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import org.junit.Assert;
@@ -34,18 +31,14 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import ch.algotrader.dao.marketData.TickDao;
-import ch.algotrader.dao.security.SecurityDao;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.ForexImpl;
-import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.SecurityFamilyImpl;
 import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.enumeration.Currency;
-import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.esper.EngineManager;
 import ch.algotrader.service.ServiceException;
 import ch.algotrader.service.fix.fix44.Fix44MarketDataService;
 import ch.algotrader.vo.SubscribeTickVO;
@@ -57,15 +50,11 @@ public class FIXMarketDataServiceTest {
     private static final String STRATEGY_NAME = "MyStrategy";
 
     @Mock
-    private SecurityDao securityDao;
-    @Mock
     private TickDao tickDao;
     @Mock
     private FixAdapter fixAdapter;
     @Mock
     private FixSessionStateHolder fixSessionStateHolder;
-    @Mock
-    private EngineManager engineManager;
     @Mock
     private Engine engine;
     @Mock
@@ -78,10 +67,8 @@ public class FIXMarketDataServiceTest {
 
         when(engine.getStrategyName()).thenReturn(STRATEGY_NAME);
         when(serverEngine.getStrategyName()).thenReturn(StrategyImpl.SERVER);
-        when(engineManager.getServerEngine()).thenReturn(serverEngine);
-        when(engineManager.getEngines()).thenReturn(Arrays.asList(serverEngine, engine));
 
-        FakeFix44MarketDataService fakeFix44MarketDataService = new FakeFix44MarketDataService(this.fixSessionStateHolder, this.fixAdapter, this.engineManager, this.securityDao );
+        FakeFix44MarketDataService fakeFix44MarketDataService = new FakeFix44MarketDataService(this.fixSessionStateHolder, this.fixAdapter, this.serverEngine);
 
         this.impl = Mockito.spy(fakeFix44MarketDataService);
     }
@@ -98,68 +85,6 @@ public class FIXMarketDataServiceTest {
     }
 
     @Test
-    public void testInitialSubscriptions() throws Exception {
-
-
-        Mockito.when(this.fixSessionStateHolder.isLoggedOn()).thenReturn(Boolean.TRUE);
-        Mockito.when(this.fixSessionStateHolder.isSubscribed()).thenReturn(Boolean.FALSE);
-        Mockito.when(this.fixSessionStateHolder.onSubscribe()).thenReturn(Boolean.TRUE);
-
-        Forex forex = createForex(Currency.EUR, Currency.USD);
-
-        Mockito.when(this.securityDao.findSubscribedByFeedTypeForAutoActivateStrategiesInclFamily(eq(FeedType.SIM)))
-            .thenReturn(Collections.singletonList((Security) forex));
-        Mockito.when(this.securityDao.findSubscribedByFeedTypeAndStrategyInclFamily(eq(FeedType.SIM), eq(STRATEGY_NAME)))
-            .thenReturn(Collections.singletonList((Security) forex));
-
-        // do initSubscriptions
-        this.impl.initSubscriptions();
-
-        // verify externalMarketDataService.subscribe
-        Mockito.verify(this.impl).subscribe(forex);
-
-        // verify engine.sendEvent
-        ArgumentCaptor<Object> argumentCaptor1 = ArgumentCaptor.forClass(Object.class);
-        Mockito.verify(this.serverEngine).sendEvent(argumentCaptor1.capture());
-
-        List<Object> allEvents = argumentCaptor1.getAllValues();
-
-        Assert.assertNotNull(allEvents);
-        Assert.assertEquals(1, allEvents.size());
-        Object event = allEvents.get(0);
-
-        Assert.assertTrue(event instanceof SubscribeTickVO);
-        SubscribeTickVO subscribeTick = (SubscribeTickVO) event;
-        Tick tick = subscribeTick.getTick();
-        Assert.assertNotNull(tick);
-        Assert.assertSame(forex, tick.getSecurity());
-
-        // verify fixAdapter.sendMessage
-        Mockito.verify(this.fixAdapter, Mockito.times(1)).sendMessage(Mockito.<MarketDataRequest>any(), Mockito.anyString());
-
-        // verify no event has been sent to the engine
-        Mockito.verify(this.serverEngine, Mockito.never()).executeQuery(Mockito.anyString());
-    }
-
-    @Test
-    public void testInitialSubscriptionsAlreadySubscribed() throws Exception {
-
-        Mockito.when(this.fixSessionStateHolder.isLoggedOn()).thenReturn(Boolean.TRUE);
-        Mockito.when(this.fixSessionStateHolder.isSubscribed()).thenReturn(Boolean.TRUE);
-        Mockito.when(this.fixSessionStateHolder.onSubscribe()).thenReturn(Boolean.FALSE);
-
-        Forex forex = createForex(Currency.EUR, Currency.USD);
-        Mockito.when(this.securityDao.findSubscribedByFeedTypeForAutoActivateStrategiesInclFamily(FeedType.SIM))
-                .thenReturn(Collections.singletonList((Security) forex));
-
-        // do initSubscriptions
-        this.impl.initSubscriptions();
-
-        // verify externalMarketDataService.subscribe
-        Mockito.verify(this.impl, Mockito.never()).subscribe(Mockito.<Security>any());
-    }
-
-    @Test
     public void testSubscribe() throws Exception {
 
         Mockito.when(this.fixSessionStateHolder.isLoggedOn()).thenReturn(Boolean.TRUE);
@@ -171,7 +96,6 @@ public class FIXMarketDataServiceTest {
 
         Mockito.verify(this.impl).getTickerId(forex);
 
-        // verify engine.sendEvent
         ArgumentCaptor<Object> argumentCaptor1 = ArgumentCaptor.forClass(Object.class);
         Mockito.verify(this.serverEngine).sendEvent(argumentCaptor1.capture());
 
@@ -187,7 +111,7 @@ public class FIXMarketDataServiceTest {
         Assert.assertNotNull(tick);
         Assert.assertSame(forex, tick.getSecurity());
 
-        // verify fixSessionFactory.sendMessage
+        // verify a FIX message has been sent
         Mockito.verify(this.fixAdapter, Mockito.times(1)).sendMessage(Mockito.<MarketDataRequest>any(), Mockito.anyString());
 
         // verify engine.executeQuery does not get called
@@ -220,8 +144,7 @@ public class FIXMarketDataServiceTest {
         // verify no event has been sent to the engine
         Mockito.verify(this.serverEngine, Mockito.never()).sendEvent(Mockito.any());
 
-        // verify fixSessionFactory.sendMessage
-        // verify fixSessionFactory.sendMessage
+        // verify a FIX message has been sent
         Mockito.verify(this.fixAdapter, Mockito.times(1)).sendMessage(Mockito.<MarketDataRequest>any(), Mockito.anyString());
 
         // verify the esper delete statement has been executed
