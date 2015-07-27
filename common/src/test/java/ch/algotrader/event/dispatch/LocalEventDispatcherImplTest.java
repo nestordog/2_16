@@ -55,6 +55,7 @@ public class LocalEventDispatcherImplTest {
 
     private SecurityFamily usdFx;
     private Forex eurusd;
+    private Forex chfusd;
 
     private LocalEventDispatcherImpl impl;
 
@@ -73,6 +74,12 @@ public class LocalEventDispatcherImplTest {
         eurusd.setSymbol("EUR.USD");
         eurusd.setBaseCurrency(Currency.EUR);
         eurusd.setSecurityFamily(usdFx);
+
+        chfusd = Forex.Factory.newInstance();
+        chfusd.setId(2L);
+        chfusd.setSymbol("CHF.USD");
+        chfusd.setBaseCurrency(Currency.CHF);
+        chfusd.setSecurityFamily(usdFx);
 
         Mockito.when(engineManager.hasEngine("SERVER")).thenReturn(true);
         Mockito.when(engineManager.hasEngine("this")).thenReturn(true);
@@ -122,13 +129,16 @@ public class LocalEventDispatcherImplTest {
         impl.registerMarketDataSubscription("that", 1L);
 
         Tick tick1 = Tick.Factory.newInstance(new Date(), null, eurusd, 0, 0, 0);
-        Tick tick2 = Tick.Factory.newInstance(new Date(), null, eurusd, 0, 0, 0);
+        Tick tick2 = Tick.Factory.newInstance(new Date(), null, chfusd, 0, 0, 0);
         impl.sendMarketDataEvent(tick1);
         impl.sendMarketDataEvent(tick2);
 
-        Mockito.verify(engine1).sendEvent(tick1);
-        Mockito.verify(engine2).sendEvent(tick1);
-        Mockito.verify(localEventBroadcaster).broadcast(tick1);
+        Mockito.verify(engine1, Mockito.times(1)).sendEvent(tick1);
+        Mockito.verify(engine1, Mockito.never()).sendEvent(tick2);
+        Mockito.verify(engine2, Mockito.times(1)).sendEvent(tick1);
+        Mockito.verify(engine2, Mockito.never()).sendEvent(tick2);
+        Mockito.verify(localEventBroadcaster, Mockito.times(1)).broadcast(tick1);
+        Mockito.verify(localEventBroadcaster, Mockito.times(1)).broadcast(tick2);
     }
 
     @Test
