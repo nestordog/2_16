@@ -21,13 +21,14 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.TreeSet;
 
 import org.apache.commons.collections15.keyvalue.MultiKey;
 import org.apache.commons.lang.Validate;
@@ -65,6 +66,7 @@ import ch.algotrader.util.collection.DoubleMap;
 import ch.algotrader.util.spring.HibernateSession;
 import ch.algotrader.vo.BalanceVO;
 import ch.algotrader.vo.CurrencyAmountVO;
+import ch.algotrader.vo.FxExposureVO;
 import ch.algotrader.vo.PortfolioValueVO;
 
 /**
@@ -100,6 +102,20 @@ public class PortfolioServiceImpl implements PortfolioService {
     private final TickDao tickDao;
 
     private final ForexDao forexDao;
+
+    private Comparator<Currency> currencyComparator = new Comparator<Currency>() {
+
+        @Override
+        public int compare(Currency currency1, Currency currency2) {
+            if (currency1 == PortfolioServiceImpl.this.commonConfig.getPortfolioBaseCurrency()) {
+                return Integer.MIN_VALUE;
+            } else if (currency2 == PortfolioServiceImpl.this.commonConfig.getPortfolioBaseCurrency()) {
+                return Integer.MAX_VALUE;
+            } else {
+                return currency1.getValue().compareTo(currency2.getValue());
+            }
+        }
+    };
 
     public PortfolioServiceImpl(final CommonConfig commonConfig,
             final CoreConfig coreConfig,
@@ -444,6 +460,54 @@ public class PortfolioServiceImpl implements PortfolioService {
     public BigDecimal getMaintenanceMargin() {
 
         return RoundUtil.getBigDecimal(getMaintenanceMarginDouble());
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BigDecimal getUnrealizedPL() {
+
+        return RoundUtil.getBigDecimal(getUnrealizedPLDouble());
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BigDecimal getUnrealizedPL(final String strategyName) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+
+        return RoundUtil.getBigDecimal(getUnrealizedPLDouble(strategyName));
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getUnrealizedPLDouble() {
+
+        Collection<Position> openPositions = this.positionDao.findOpenTradeablePositionsAggregated();
+
+        return getUnrealizePLDoubleInternal(openPositions);
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getUnrealizedPLDouble(final String strategyName) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+
+        List<Position> openPositions = this.positionDao.findOpenTradeablePositionsByStrategy(strategyName);
+
+        return getUnrealizePLDoubleInternal(openPositions);
 
     }
 
@@ -846,6 +910,20 @@ public class PortfolioServiceImpl implements PortfolioService {
 
     }
 
+    @Override
+    public Collection<FxExposureVO> getFxExposure() {
+
+        List<Position> positions = this.positionDao.findOpenFXPositionsAggregated();
+        return getFxExposure(positions);
+    }
+
+    @Override
+    public Collection<FxExposureVO> getFxExposure(String strategyName) {
+
+        List<Position> positions = this.positionDao.findOpenFXPositionsByStrategy(strategyName);
+        return getFxExposure(positions);
+    }
+
     private double getCashBalanceDoubleInternal(Collection<CashBalance> cashBalances, List<Position> positions) {
 
         // sum of all cashBalances
@@ -951,10 +1029,22 @@ public class PortfolioServiceImpl implements PortfolioService {
         return amount;
     }
 
+
+    private double getUnrealizePLDoubleInternal(Collection<Position> openPositions) {
+
+        // sum of all positions
+        double amount = 0.0;
+        for (Position openPosition : openPositions) {
+            amount += openPosition.getUnrealizedPLBase();
+        }
+        return amount;
+    }
+
     private List<BalanceVO> getBalances(Collection<CashBalance> cashBalances, Collection<Position> positions) {
 
         DoubleMap<Currency> cashMap = new DoubleMap<Currency>();
         DoubleMap<Currency> securitiesMap = new DoubleMap<Currency>();
+        DoubleMap<Currency> unrealizedPLMap = new DoubleMap<Currency>();
 
         // sum of all cashBalances
         for (CashBalance cashBalance : cashBalances) {
@@ -973,10 +1063,12 @@ public class PortfolioServiceImpl implements PortfolioService {
                 } else {
                     securitiesMap.increment(currencyAmount.getCurrency(), currencyAmount.getAmount().doubleValue());
                 }
+                unrealizedPLMap.increment(position.getSecurity().getSecurityFamily().getCurrency(), position.getUnrealizedPL());
             }
         }
 
-        Set<Currency> currencies = new HashSet<Currency>(cashMap.keySet());
+        Set<Currency> currencies = new TreeSet<Currency>(this.currencyComparator);
+        currencies.addAll(cashMap.keySet());
         currencies.addAll(securitiesMap.keySet());
 
         List<BalanceVO> balances = new ArrayList<BalanceVO>();
@@ -985,24 +1077,64 @@ public class PortfolioServiceImpl implements PortfolioService {
             double cash = cashMap.containsKey(currency) ? cashMap.get(currency) : 0.0;
             double securities = securitiesMap.containsKey(currency) ? securitiesMap.get(currency) : 0.0;
             double netLiqValue = cash + securities;
+            double unrealizedPL = unrealizedPLMap.containsKey(currency) ? unrealizedPLMap.get(currency) : 0.0;
             double exchangeRate = this.lookupService.getForexRateDouble(currency, this.commonConfig.getPortfolioBaseCurrency());
             double cashBase = cash * exchangeRate;
             double securitiesBase = securities * exchangeRate;
             double netLiqValueBase = netLiqValue * exchangeRate;
+            double unrealizedPLBase = unrealizedPL * exchangeRate;
 
             BalanceVO balance = new BalanceVO();
             balance.setCurrency(currency);
             balance.setCash(RoundUtil.getBigDecimal(cash));
             balance.setSecurities(RoundUtil.getBigDecimal(securities));
+            balance.setUnrealizedPL(RoundUtil.getBigDecimal(unrealizedPL));
             balance.setNetLiqValue(RoundUtil.getBigDecimal(netLiqValue));
             balance.setCashBase(RoundUtil.getBigDecimal(cashBase));
             balance.setSecuritiesBase(RoundUtil.getBigDecimal(securitiesBase));
+            balance.setUnrealizedPLBase(RoundUtil.getBigDecimal(unrealizedPLBase));
             balance.setNetLiqValueBase(RoundUtil.getBigDecimal(netLiqValueBase));
             balance.setExchangeRate(exchangeRate);
 
             balances.add(balance);
         }
         return balances;
+    }
+
+    private Collection<FxExposureVO> getFxExposure(List<Position> positions) {
+
+        DoubleMap<Currency> currencyMap = new DoubleMap<Currency>();
+
+        // sum of all positions
+        for (Position position : positions) {
+
+            position.getSecurityInitialized();
+            CurrencyAmountVO currencyAmount = position.getAttribution();
+            if (currencyAmount.getAmount() != null) {
+                currencyMap.increment(currencyAmount.getCurrency(), currencyAmount.getAmount().doubleValue());
+                currencyMap.increment(position.getSecurity().getSecurityFamily().getCurrency(), -position.getMarketValue());
+            }
+        }
+
+        Set<Currency> currencies = new TreeSet<Currency>(this.currencyComparator);
+        currencies.addAll(currencyMap.keySet());
+
+        List<FxExposureVO> exposures = new ArrayList<FxExposureVO>();
+        for (Currency currency : currencies) {
+
+            double amount = currencyMap.getDouble(currency);
+            double exchangeRate = this.lookupService.getForexRateDouble(currency, this.commonConfig.getPortfolioBaseCurrency());
+            double amountBase = amount * exchangeRate;
+
+            FxExposureVO exposure = new FxExposureVO();
+            exposure.setCurrency(currency);
+            exposure.setAmount(RoundUtil.getBigDecimal(amount));
+            exposure.setAmountBase(RoundUtil.getBigDecimal(amountBase));
+            exposure.setExchangeRate(exchangeRate);
+
+            exposures.add(exposure);
+        }
+        return exposures;
     }
 
     /**
