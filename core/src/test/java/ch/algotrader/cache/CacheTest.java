@@ -19,17 +19,31 @@ package ch.algotrader.cache;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.collections15.map.SingletonMap;
+import org.apache.commons.io.Charsets;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.collection.internal.AbstractPersistentCollection;
 import org.hibernate.proxy.HibernateProxy;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import ch.algotrader.ServiceLocator;
-import ch.algotrader.adapter.ib.IBSession;
+import org.mockito.Mockito;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseFactory;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
+import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
+import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
+import org.springframework.transaction.support.TransactionTemplate;
+
+import ch.algotrader.cache.CacheManager;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.AccountImpl;
 import ch.algotrader.entity.Position;
@@ -59,12 +73,21 @@ import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.enumeration.TransactionType;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.esper.LookupUtil;
+import ch.algotrader.esper.EngineManager;
+import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.service.CombinationService;
+import ch.algotrader.service.ExternalMarketDataService;
 import ch.algotrader.service.MarketDataService;
 import ch.algotrader.service.PositionService;
 import ch.algotrader.service.PropertyService;
+import ch.algotrader.service.TransactionPersistenceService;
 import ch.algotrader.service.TransactionService;
+import ch.algotrader.wiring.common.CommonConfigWiring;
+import ch.algotrader.wiring.server.CacheWiring;
+import ch.algotrader.wiring.server.CoreConfigWiring;
+import ch.algotrader.wiring.server.DaoWiring;
+import ch.algotrader.wiring.server.HibernateWiring;
+import ch.algotrader.wiring.server.ServiceWiring;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -77,48 +100,63 @@ public class CacheTest {
     private static final String PROPERTY_NAME = "TEST_PROPERTY";
     private static final String STRATEGY_NAME = "TEST_STRATEGY";
 
-    private static PositionService positionService;
-    private static MarketDataService marketDataService;
-    private static CombinationService combinationService;
-    private static PropertyService propertyService;
-    private static TransactionService transactionService;
     private static CacheManager cache;
-    private static SessionFactory sessionFactory;
+    private static AnnotationConfigApplicationContext context;
+    private static TransactionTemplate txTemplate;
+    private static EmbeddedDatabase database;
 
-    private static int securityFamilyId2; // NON_TRADEABLE
-    private static int strategyId1;
-    private static int securityId1; // EUR.USD
-    private static int securityId2; // USD.CHF
-    private static int securityId3; // NON_TRADEABLE
+    private static long securityFamilyId2; // NON_TRADEABLE
+    private static long strategyId1;
+    private static long securityId1; // EUR.USD
+    private static long securityId2; // USD.CHF
+    private static long securityId3; // NON_TRADEABLE
 
     @BeforeClass
-    public static void setupClass() {
+    public static void beforeClass() {
 
-        System.setProperty("spring.profiles.active", "singleDataSource,iBMarketData,iBNative");
-        System.setProperty("misc.embedded", "true");
-        System.setProperty("logLevel", "trace");
+        context = new AnnotationConfigApplicationContext();
 
-        ServiceLocator serviceLocator = ServiceLocator.instance();
-        serviceLocator.init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
+        // register in-memory db
+        EmbeddedDatabaseFactory dbFactory = new EmbeddedDatabaseFactory();
+        dbFactory.setDatabaseType(EmbeddedDatabaseType.H2);
+        dbFactory.setDatabaseName("testdb;MODE=MYSQL;DATABASE_TO_UPPER=FALSE");
 
-        positionService = serviceLocator.getPositionService();
-        marketDataService = serviceLocator.getMarketDataService();
-        combinationService = serviceLocator.getCombinationService();
-        propertyService = serviceLocator.getPropertyService();
-        transactionService = serviceLocator.getService("transactionService", TransactionService.class);
-        cache = serviceLocator.getService("cacheManager", CacheManager.class);
-        sessionFactory = serviceLocator.getService("sessionFactory", SessionFactory.class);
+        database = dbFactory.getDatabase();
+        context.getDefaultListableBeanFactory().registerSingleton("dataSource", database);
 
-        Engine engine = serviceLocator.getService("serverEngine", Engine.class);
-        engine.setInternalClock(true);
-        engine.deployModule("current-values");
-        engine.deployModule("market-data");
-        engine.deployModule("trades");
-        engine.deployModule("combination");
+        // register mocked services
+        TransactionPersistenceService transactionPersistenceService = Mockito.mock(TransactionPersistenceService.class);
+        context.getDefaultListableBeanFactory().registerSingleton("transactionPersistenceService", transactionPersistenceService);
 
-        serviceLocator.getService("iBSession", IBSession.class).init();
+        EngineManager engineManager = Mockito.mock(EngineManager.class);
+        context.getDefaultListableBeanFactory().registerSingleton("engineManager", engineManager);
 
-        // setup database
+        Engine engine = Mockito.mock(Engine.class);
+        context.getDefaultListableBeanFactory().registerSingleton("serverEngine", engine);
+
+        EventDispatcher eventDispatcher = Mockito.mock(EventDispatcher.class);
+        context.getDefaultListableBeanFactory().registerSingleton("eventDispatcher", eventDispatcher);
+
+        ExternalMarketDataService externalMarketDataService = Mockito.mock(ExternalMarketDataService.class);
+        context.getDefaultListableBeanFactory().registerSingleton("externalMarketDataService", externalMarketDataService);
+
+        Mockito.when(externalMarketDataService.getFeedType()).thenReturn(FeedType.IB);
+
+        // register Wirings
+        context.register(CommonConfigWiring.class, CoreConfigWiring.class, HibernateWiring.class, CacheWiring.class, DaoWiring.class, ServiceWiring.class);
+
+        context.refresh();
+
+        cache = context.getBean(CacheManager.class);
+        txTemplate = context.getBean(TransactionTemplate.class);
+
+        // create the database
+        ResourceDatabasePopulator dbPopulator = new ResourceDatabasePopulator();
+        dbPopulator.addScript(new ClassPathResource("/db/h2/h2.sql"));
+        DatabasePopulatorUtils.execute(dbPopulator, database);
+
+        // populate the database
+        SessionFactory sessionFactory = context.getBean(SessionFactory.class);
         Session session = sessionFactory.openSession();
 
         Exchange exchange1 = new ExchangeImpl();
@@ -139,31 +177,31 @@ public class CacheTest {
         family2.setTickSizePattern("0<0.1");
         family2.setCurrency(Currency.USD);
         family2.setTradeable(false);
-        securityFamilyId2 = (Integer) session.save(family2);
+        securityFamilyId2 = (Long) session.save(family2);
 
         Forex security1 = new ForexImpl();
         security1.setSymbol("EUR.USD");
         security1.setBaseCurrency(Currency.EUR);
         security1.setSecurityFamily(family1);
-        securityId1 = (Integer) session.save(security1);
+        securityId1 = (Long) session.save(security1);
 
         Forex security2 = new ForexImpl();
         security2.setSymbol("GBP.USD");
         security2.setBaseCurrency(Currency.GBP);
         security2.setSecurityFamily(family1);
         security2.setUnderlying(security1);
-        securityId2 = (Integer) session.save(security2);
+        securityId2 = (Long) session.save(security2);
 
         Index security3 = new IndexImpl();
         security3.setSymbol("NON-TRADEABLE");
         security3.setSecurityFamily(family2);
         security3.setUnderlying(security1);
         security3.setAssetClass(AssetClass.EQUITY);
-        securityId3 = (Integer) session.save(security3);
+        securityId3 = (Long) session.save(security3);
 
         Strategy strategy1 = new StrategyImpl();
         strategy1.setName(STRATEGY_NAME);
-        strategyId1 = (Integer) session.save(strategy1);
+        strategyId1 = (Long) session.save(strategy1);
 
         Subscription subscription1 = new SubscriptionImpl();
         subscription1.setStrategy(strategy1);
@@ -196,10 +234,22 @@ public class CacheTest {
         session.close();
     }
 
+    @AfterClass
+    public static void afterClass() {
+
+        // cleanup the database
+        ResourceDatabasePopulator dbPopulator = new ResourceDatabasePopulator();
+        dbPopulator.addScript(new ByteArrayResource("DROP ALL OBJECTS".getBytes(Charsets.US_ASCII)));
+
+        DatabasePopulatorUtils.execute(dbPopulator, database);
+
+        context.close();
+    }
+
     @Test
     public void testSecurity() {
 
-        Security security = LookupUtil.getSecurityInitialized(securityId2);
+        Security security = cache.get(SecurityImpl.class, securityId2);
         Assert.assertNotNull(security);
 
         Assert.assertNotNull(security.getSecurityFamily());
@@ -218,11 +268,24 @@ public class CacheTest {
     @Test
     public void testPosition() {
 
-        transactionService.createTransaction(securityId2, STRATEGY_NAME, null, new Date(), 10000, new BigDecimal(1.0), null, null, null, Currency.USD, TransactionType.BUY, ACCOUNT_NAME, null);
+        TransactionService transactionService = context.getBean(TransactionService.class);
 
-        Position position1 = LookupUtil.getPositionBySecurityAndStrategy(securityId2, STRATEGY_NAME);
+        txTemplate.execute(txStatus -> {
 
+            transactionService.createTransaction(securityId2, STRATEGY_NAME, null, new Date(), 10000, new BigDecimal(1.0), null, null, null, Currency.USD, TransactionType.BUY, ACCOUNT_NAME, null);
+            return null;
+        });
+        
+        String queryString = "select p from PositionImpl as p join p.strategy as s where p.security.id = :securityId and s.name = :strategyName";
+
+        Map<String, Object> namedParameters = new HashMap<>();
+        namedParameters.put("strategyName", STRATEGY_NAME);
+        namedParameters.put("securityId", securityId2);
+
+        Position position1 = (Position) cache.queryUnique(queryString, namedParameters);
+            
         Position position2 = cache.get(PositionImpl.class, position1.getId());
+        
         Assert.assertNotNull(position2);
         Assert.assertEquals(position1, position2);
         Assert.assertSame(position1, position2);
@@ -231,13 +294,23 @@ public class CacheTest {
     @Test
     public void testSubscription() {
 
+        MarketDataService marketDataService = context.getBean(MarketDataService.class);
+
         Security security = cache.get(SecurityImpl.class, securityId1);
         Assert.assertEquals(0, security.getSubscriptions().size());
 
-        marketDataService.subscribe(STRATEGY_NAME, securityId1);
+        txTemplate.execute(txStatus -> {
+            marketDataService.subscribe(STRATEGY_NAME, securityId1);
+            return null;
+        });
+
         Assert.assertEquals(1, security.getSubscriptions().size());
 
-        marketDataService.unsubscribe(STRATEGY_NAME, securityId1);
+        txTemplate.execute(txStatus -> {
+            marketDataService.unsubscribe(STRATEGY_NAME, securityId1);
+            return null;
+        });
+
         Assert.assertEquals(0, security.getSubscriptions().size());
     }
 
@@ -260,45 +333,75 @@ public class CacheTest {
     @Test
     public void testNonTradeablePosition() {
 
+        PositionService positionService = context.getBean(PositionService.class);
+
         Security security = cache.get(SecurityImpl.class, securityId3);
 
         Assert.assertEquals(0, security.getPositions().size());
 
-        long positionId = positionService.createNonTradeablePosition(STRATEGY_NAME, securityId3, 1000000).getId();
+        long positionId = txTemplate.execute(txStatus -> {
+            return positionService.createNonTradeablePosition(STRATEGY_NAME, securityId3, 1000000).getId();
+        });
+
         Assert.assertEquals(1, security.getPositions().size());
 
-        positionService.modifyNonTradeablePosition(positionId, 2000000);
+        txTemplate.execute(txStatus -> {
+            return positionService.modifyNonTradeablePosition(positionId, 2000000);
+        });
+
         Assert.assertEquals(2000000, security.getPositions().iterator().next().getQuantity());
 
-        positionService.deleteNonTradeablePosition(positionId, false);
+        txTemplate.execute(txStatus -> {
+            positionService.deleteNonTradeablePosition(positionId, false);
+            return null;
+        });
+
         Assert.assertEquals(0, security.getPositions().size());
     }
 
     @Test
     public void testCombination() {
 
+        CombinationService combinationService = context.getBean(CombinationService.class);
+
         // combination / component modification
-        long combinationId = combinationService.createCombination(CombinationType.BUTTERFLY, securityFamilyId2).getId();
+        long combinationId = txTemplate.execute(txStatus -> {
+            return combinationService.createCombination(CombinationType.BUTTERFLY, securityFamilyId2).getId();
+        });
+
         Combination combination1 = (Combination) cache.get(SecurityImpl.class, combinationId);
         Assert.assertNotNull(combination1);
 
-        Combination combination2 = combinationService.addComponentQuantity(combinationId, securityId1, 1000);
+        Combination combination2 = txTemplate.execute(txStatus -> {
+            return combinationService.addComponentQuantity(combinationId, securityId1, 1000);
+        });
+
         Assert.assertEquals(1, combination1.getComponentCount());
         Assert.assertEquals(1000, combination1.getComponents().iterator().next().getQuantity());
         Assert.assertEquals(1, combination2.getComponentCount());
         Assert.assertEquals(1000, combination2.getComponents().iterator().next().getQuantity());
 
-        Combination combination3 = combinationService.addComponentQuantity(combinationId, securityId2, 5000);
+        Combination combination3 = txTemplate.execute(txStatus -> {
+            return combinationService.addComponentQuantity(combinationId, securityId2, 5000);
+        });
+
         Assert.assertEquals(2, combination1.getComponentCount());
         Assert.assertEquals(6000, combination1.getComponentTotalQuantity());
         Assert.assertEquals(2, combination3.getComponentCount());
         Assert.assertEquals(6000, combination3.getComponentTotalQuantity());
 
-        Combination combination4 = combinationService.removeComponent(combinationId, securityId1);
+        Combination combination4 = txTemplate.execute(txStatus -> {
+            return combinationService.removeComponent(combinationId, securityId1);
+        });
+
         Assert.assertEquals(1, combination1.getComponentCount());
         Assert.assertEquals(1, combination4.getComponentCount());
 
-        combinationService.deleteCombination(combinationId);
+        txTemplate.execute(txStatus -> {
+            combinationService.deleteCombination(combinationId);
+            return null;
+        });
+
         Combination combination5 = (Combination) cache.get(SecurityImpl.class, combinationId);
         Assert.assertNull(combination5);
     }
@@ -306,15 +409,23 @@ public class CacheTest {
     @Test
     public void testProperty() {
 
+        PropertyService propertyService = context.getBean(PropertyService.class);
+
         // property
         Strategy strategy = cache.get(StrategyImpl.class, strategyId1);
         Assert.assertEquals(1, strategy.getProps().size());
 
-        propertyService.addProperty(strategyId1, "test", 12, false);
+        txTemplate.execute(txStatus -> {
+            return propertyService.addProperty(strategyId1, "test", 12, false);
+        });
+
         //        Assert.assertEquals(2, strategy.getProps().size());
         //        Assert.assertEquals(12, strategy.getIntProperty("test"));
 
-        propertyService.removeProperty(strategyId1, "test");
+        txTemplate.execute(txStatus -> {
+            return propertyService.removeProperty(strategyId1, "test");
+        });
+
         //        Assert.assertEquals(1, strategy.getProps().size());
     }
 }
