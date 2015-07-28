@@ -72,6 +72,7 @@ import ch.algotrader.esper.Engine;
 import ch.algotrader.util.BeanUtil;
 import ch.algotrader.util.DateTimeUtil;
 import ch.algotrader.vo.BalanceVO;
+import ch.algotrader.vo.FxExposureVO;
 import ch.algotrader.vo.client.BarVO;
 import ch.algotrader.vo.client.MarketDataEventVO;
 import ch.algotrader.vo.client.OrderStatusVO;
@@ -178,6 +179,17 @@ public class ManagementServiceImpl implements ManagementService {
 
     }
 
+    @Override
+    @ManagedAttribute(description = "Gets the Net FX Currency Exposure of all FX positions")
+    public Collection<FxExposureVO> getDataFxExposure() {
+
+        if (this.engine.getStrategyName().equals(StrategyImpl.SERVER)) {
+            return this.portfolioService.getFxExposure();
+        } else {
+            return this.portfolioService.getFxExposure(this.engine.getStrategyName());
+        }
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -216,7 +228,7 @@ public class ManagementServiceImpl implements ManagementService {
                 positions = this.lookupService.get(Position.class, baseQuery + "where p.strategy.name = :strategyName and p.quantity != 0 order by p.id", QueryType.HQL, new NamedParam("strategyName", this.engine.getStrategyName()));
             }
         }
-        PositionVOProducer converter = new PositionVOProducer(localLookupService);
+        PositionVOProducer converter = new PositionVOProducer(this.localLookupService);
         return CollectionUtils.collect(positions, converter::convert);
     }
 
@@ -399,6 +411,21 @@ public class ManagementServiceImpl implements ManagementService {
             return this.portfolioService.getSecuritiesCurrentValue();
         } else {
             return this.portfolioService.getSecuritiesCurrentValue(this.engine.getStrategyName());
+        }
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @ManagedAttribute(description = "Gets the total UnrealizedPL of all Positions of this Strategy (or the entire System if called from the AlgoTrader Server)")
+    public BigDecimal getStrategyUnrealizedPL() {
+
+        if (this.engine.getStrategyName().equals(StrategyImpl.SERVER)) {
+            return this.portfolioService.getUnrealizedPL();
+        } else {
+            return this.portfolioService.getUnrealizedPL(this.engine.getStrategyName());
         }
 
     }

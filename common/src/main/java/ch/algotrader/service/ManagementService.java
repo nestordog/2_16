@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.Map;
 
 import ch.algotrader.vo.BalanceVO;
+import ch.algotrader.vo.FxExposureVO;
 import ch.algotrader.vo.client.MarketDataEventVO;
 import ch.algotrader.vo.client.OrderStatusVO;
 import ch.algotrader.vo.client.PositionVO;
@@ -44,6 +45,11 @@ public interface ManagementService {
      * Gets all available Currency Balances (only available for AlgoTrader Server)
      */
     public Collection<BalanceVO> getDataBalances();
+
+    /**
+     * Gets the Net FX Currency Exposure of all FX positions
+     */
+    public Collection<FxExposureVO> getDataFxExposure();
 
     /**
      * Gets current open Orders
@@ -107,6 +113,12 @@ public interface ManagementService {
      * from the AlgoTrader Server)
      */
     public BigDecimal getStrategySecuritiesCurrentValue();
+
+    /**
+     * Gets the total UnrealizedPL of all Positions of this Strategy (or the entire System if called
+     * from the AlgoTrader Server)
+     */
+    public BigDecimal getStrategyUnrealizedPL();
 
     /**
      * Deploy the specified Statement

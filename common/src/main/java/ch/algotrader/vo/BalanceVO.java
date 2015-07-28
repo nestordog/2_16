@@ -51,6 +51,11 @@ public class BalanceVO implements Serializable {
     private BigDecimal netLiqValue;
 
     /**
+     * Current market value of all positions.
+     */
+    private BigDecimal unrealizedPL;
+
+    /**
      * Total cash in Base {@link Currency}.
      */
     private BigDecimal cashBase;
@@ -64,6 +69,11 @@ public class BalanceVO implements Serializable {
      * Current market value of all Assets in Base {@link Currency}.
      */
     private BigDecimal netLiqValueBase;
+
+    /**
+     * Current market value of all positions in Base {@link Currency}.
+     */
+    private BigDecimal unrealizedPLBase;
 
     /**
      * The exchange Rate between the {@link Currency} of this BalanceVO and the Base Currency.
@@ -84,21 +94,25 @@ public class BalanceVO implements Serializable {
      * @param cashIn BigDecimal
      * @param securitiesIn BigDecimal
      * @param netLiqValueIn BigDecimal
+     * @param unrealizedPLIn BigDecimal
      * @param cashBaseIn BigDecimal
      * @param securitiesBaseIn BigDecimal
      * @param netLiqValueBaseIn BigDecimal
+     * @param unrealizedPLBaseIn BigDecimal
      * @param exchangeRateIn double
      */
-    public BalanceVO(final Currency currencyIn, final BigDecimal cashIn, final BigDecimal securitiesIn, final BigDecimal netLiqValueIn, final BigDecimal cashBaseIn, final BigDecimal securitiesBaseIn,
-            final BigDecimal netLiqValueBaseIn, final double exchangeRateIn) {
+    public BalanceVO(final Currency currencyIn, final BigDecimal cashIn, final BigDecimal securitiesIn, final BigDecimal netLiqValueIn, final BigDecimal unrealizedPLIn, final BigDecimal cashBaseIn,
+            final BigDecimal securitiesBaseIn, final BigDecimal netLiqValueBaseIn, final BigDecimal unrealizedPLBaseIn, final double exchangeRateIn) {
 
         this.currency = currencyIn;
         this.cash = cashIn;
         this.securities = securitiesIn;
         this.netLiqValue = netLiqValueIn;
+        this.unrealizedPL = unrealizedPLIn;
         this.cashBase = cashBaseIn;
         this.securitiesBase = securitiesBaseIn;
         this.netLiqValueBase = netLiqValueBaseIn;
+        this.unrealizedPLBase = unrealizedPLBaseIn;
         this.exchangeRate = exchangeRateIn;
     }
 
@@ -114,9 +128,11 @@ public class BalanceVO implements Serializable {
         this.cash = otherBean.getCash();
         this.securities = otherBean.getSecurities();
         this.netLiqValue = otherBean.getNetLiqValue();
+        this.unrealizedPL = otherBean.getUnrealizedPL();
         this.cashBase = otherBean.getCashBase();
         this.securitiesBase = otherBean.getSecuritiesBase();
         this.netLiqValueBase = otherBean.getNetLiqValueBase();
+        this.unrealizedPLBase = otherBean.getUnrealizedPLBase();
         this.exchangeRate = otherBean.getExchangeRate();
     }
 
@@ -185,6 +201,25 @@ public class BalanceVO implements Serializable {
     }
 
     /**
+     * Current market value of all positions.
+     * Get the unrealizedPL Attribute
+     * @return unrealizedPL BigDecimal
+     */
+    public BigDecimal getUnrealizedPL() {
+
+        return this.unrealizedPL;
+    }
+
+    /**
+     * Current market value of all positions.
+     * @param value BigDecimal
+     */
+    public void setUnrealizedPL(final BigDecimal value) {
+
+        this.unrealizedPL = value;
+    }
+
+    /**
      * Total cash in Base {@link Currency}.
      * @return cashBase BigDecimal
      */
@@ -238,6 +273,26 @@ public class BalanceVO implements Serializable {
         this.netLiqValueBase = value;
     }
 
+
+        /**
+     * Current market value of all positions in Base {@link Currency}.
+     * Get the unrealizedPLBase Attribute
+     * @return unrealizedPLBase BigDecimal
+     */
+    public BigDecimal getUnrealizedPLBase() {
+
+        return this.unrealizedPLBase;
+    }
+
+    /**
+     * Current market value of all positions in Base {@link Currency}.
+     * @param value BigDecimal
+     */
+    public void setUnrealizedPLBase(final BigDecimal value) {
+
+        this.unrealizedPLBase = value;
+    }
+
     /**
      * The exchange Rate between the {@link Currency} of this BalanceVO and the Base Currency.
      * @return exchangeRate double
@@ -268,12 +323,16 @@ public class BalanceVO implements Serializable {
         builder.append(this.securities);
         builder.append(", netLiqValue=");
         builder.append(this.netLiqValue);
+        builder.append(", unrealizedPL=");
+        builder.append(this.unrealizedPL);
         builder.append(", cashBase=");
         builder.append(this.cashBase);
         builder.append(", securitiesBase=");
         builder.append(this.securitiesBase);
         builder.append(", netLiqValueBase=");
         builder.append(this.netLiqValueBase);
+        builder.append(", unrealizedPLBase=");
+        builder.append(this.unrealizedPLBase);
         builder.append(", exchangeRate=");
         builder.append(this.exchangeRate);
         builder.append("]");

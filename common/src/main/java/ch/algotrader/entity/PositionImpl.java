@@ -63,6 +63,16 @@ public class PositionImpl extends Position {
         setSecurity(security);
     }
 
+    /**
+     * used by hibernate hql expression to instantiate a virtual position
+     */
+    public PositionImpl(long quantity, double cost, Security security) {
+        super();
+        setQuantity(quantity);
+        setCost(cost);
+        setSecurity(security);
+    }
+
     @Override
     public Direction getDirection() {
 
