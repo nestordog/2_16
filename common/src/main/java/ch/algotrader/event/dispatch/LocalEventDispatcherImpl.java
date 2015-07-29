@@ -55,12 +55,53 @@ public class LocalEventDispatcherImpl implements EventDispatcher {
     }
 
     @Override
-    public void sendEvent(final String engineName, final Object obj) {
-        // check if it is a local engine
-        final Engine engine = this.engineManager.getEngine(engineName);
-        if (engine != null) {
-            engine.sendEvent(obj);
+    public void broadcastLocalEventListeners(Object event) {
+
+        this.localEventBroadcaster.broadcast(event);
+    }
+
+    @Override
+    public void broadcastLocalStrategies(final Object event) {
+
+        for (Engine engine : this.engineManager.getStrategyEngines()) {
+
+            engine.sendEvent(event);
         }
+
+        broadcastLocalEventListeners(event);
+    }
+
+    @Override
+    public void broadcastLocal(final Object event) {
+
+        for (Engine engine : this.engineManager.getEngines()) {
+
+            engine.sendEvent(event);
+        }
+
+        broadcastLocalEventListeners(event);
+    }
+
+    @Override
+    public void broadcastRemote(final Object event) {
+    }
+
+    @Override
+    public void broadcastEventListeners(Object event) {
+
+        broadcastLocalEventListeners(event);
+    }
+
+    @Override
+    public void broadcastAllStrategies(final Object event) {
+
+        broadcastLocalStrategies(event);
+    }
+
+    @Override
+    public void broadcast(final Object event) {
+
+        broadcastLocal(event);
     }
 
     @Override
@@ -119,41 +160,12 @@ public class LocalEventDispatcherImpl implements EventDispatcher {
     }
 
     @Override
-    public void broadcastLocal(final Object event) {
-
-        for (Engine engine : this.engineManager.getEngines()) {
-
-            engine.sendEvent(event);
+    public void sendEvent(final String engineName, final Object obj) {
+        // check if it is a local engine
+        final Engine engine = this.engineManager.getEngine(engineName);
+        if (engine != null) {
+            engine.sendEvent(obj);
         }
-
-        this.localEventBroadcaster.broadcast(event);
-    }
-
-    @Override
-    public void broadcastLocalStrategies(final Object event) {
-
-        for (Engine engine : this.engineManager.getStrategyEngines()) {
-
-            engine.sendEvent(event);
-        }
-
-        this.localEventBroadcaster.broadcast(event);
-    }
-
-    @Override
-    public void broadcastRemote(final Object event) {
-    }
-
-    @Override
-    public void broadcastAllStrategies(final Object event) {
-
-        broadcastLocalStrategies(event);
-    }
-
-    @Override
-    public void broadcast(final Object event) {
-
-        broadcastLocal(event);
     }
 
 }
