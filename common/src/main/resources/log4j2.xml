@@ -22,6 +22,7 @@
         <logger name="org.hibernate.engine.StatefulPersistenceContext.ProxyWarnLog" level="error" />
         <!-- Logs warnings when inserting position / cash balance records through native SQL -->
         <logger name="org.hibernate.cache.ReadWriteCache" level="error" />
+        <logger name="org.hibernate.cache.ehcache.AbstractEhcacheRegionFactory" level="error" />
         <logger name="com.espertech.esper.util.MethodResolver" level="error" />
 
         <logger name="ch.algotrader.esper.subscriber.TestSubscriber" level="debug" />

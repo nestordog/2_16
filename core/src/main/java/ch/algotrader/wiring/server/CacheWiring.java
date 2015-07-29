@@ -28,8 +28,10 @@ import org.springframework.transaction.support.TransactionTemplate;
 import ch.algotrader.cache.CacheManager;
 import ch.algotrader.cache.CacheManagerImpl;
 import ch.algotrader.cache.CacheManagerMBean;
-import ch.algotrader.cache.EntityCacheEventListener;
-import ch.algotrader.cache.QueryCacheEventListener;
+import ch.algotrader.ehcache.CollectionCacheEventListener;
+import ch.algotrader.ehcache.EntityCacheEventListener;
+import ch.algotrader.ehcache.QueryCacheEventListener;
+import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.hibernate.GenericDao;
 
 /**
@@ -47,25 +49,36 @@ public class CacheWiring {
     }
 
     @Bean(name = "cacheManager")
-    public CacheManager createCacheManager(final GenericDao genericDao) {
-
-        CacheManagerImpl cacheManager = new CacheManagerImpl(genericDao);
+    public CacheManager createCacheManager(final GenericDao genericDao, final EventDispatcher eventDispatcher) throws ClassNotFoundException {
 
         // register CacheEventListeners
         net.sf.ehcache.CacheManager ehCacheManager = net.sf.ehcache.CacheManager.getInstance();
 
         for (String cacheName : ehCacheManager.getCacheNames()) {
             Cache cache = ehCacheManager.getCache(cacheName);
-            RegisteredEventListeners cacheEventNotificationService = ehCacheManager.getCache(cacheName).getCacheEventNotificationService();
-            if (cache.getName().startsWith("ch.algotrader.entity")) {
-                cacheEventNotificationService.registerListener(new EntityCacheEventListener(cacheManager));
-            } else if (cache.getName().equals("org.hibernate.cache.spi.UpdateTimestampsCache")) {
-                cacheEventNotificationService.registerListener(new QueryCacheEventListener(cacheManager));
+            RegisteredEventListeners eventListeners = ehCacheManager.getCache(cacheName).getCacheEventNotificationService();
+
+            String name = cache.getName();
+            if (name.startsWith("ch.algotrader.entity")) {
+                if (name.endsWith("Impl")) {
+                    Class<?> entityClass = Class.forName(name);
+                    eventListeners.registerListener(new EntityCacheEventListener(eventDispatcher, entityClass));
+                } else {
+                    int lastDot = name.lastIndexOf(".");
+                    String entityName = name.substring(0, lastDot);
+                    String roleName = name.substring(lastDot + 1);
+                    Class<?> entityClass = Class.forName(entityName);
+                    eventListeners.registerListener(new CollectionCacheEventListener(eventDispatcher, entityClass, roleName));
+                }
+            } else if (name.equals("org.hibernate.cache.spi.UpdateTimestampsCache")) {
+                eventListeners.registerListener(new QueryCacheEventListener(eventDispatcher));
             }
         }
 
-        return cacheManager;
+        // create the CacheManager
+        return new CacheManagerImpl(genericDao);
     }
+
 
     @Bean(name = "cacheManagerMBean")
     public CacheManagerMBean createCacheManagerMBean(final CacheManagerImpl cacheManager) {

@@ -29,8 +29,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.collection.internal.AbstractPersistentCollection;
 import org.hibernate.proxy.HibernateProxy;
+
 import ch.algotrader.entity.BaseEntityI;
 import ch.algotrader.entity.Initializer;
+import ch.algotrader.event.listener.EntityCacheEventListener;
+import ch.algotrader.event.listener.QueryCacheEventListener;
 import ch.algotrader.hibernate.GenericDao;
 import ch.algotrader.util.collection.CollectionUtil;
 import ch.algotrader.util.metric.MetricsUtil;
@@ -43,7 +46,7 @@ import ch.algotrader.visitor.InitializationVisitor;
  *
  * @version $Revision$ $Date$
  */
-public class CacheManagerImpl implements CacheManager, Initializer {
+public class CacheManagerImpl implements CacheManager, Initializer, EntityCacheEventListener, QueryCacheEventListener {
 
     private static final Logger LOGGER = LogManager.getLogger(CacheManagerImpl.class);
 
@@ -79,9 +82,9 @@ public class CacheManagerImpl implements CacheManager, Initializer {
     }
 
     @Override
-    public <T extends BaseEntityI> T get(Class<T> clazz, Serializable key) {
+    public <T extends BaseEntityI> T get(Class<T> clazz, Serializable id) {
 
-        EntityCacheKey cacheKey = new EntityCacheKey(clazz, key);
+        EntityCacheKey cacheKey = new EntityCacheKey(clazz, id);
 
         T entity = clazz.cast(this.entityCache.find(cacheKey, ROOT));
 
@@ -89,7 +92,7 @@ public class CacheManagerImpl implements CacheManager, Initializer {
         if (entity == null) {
 
             // load the object from the database
-            entity = clazz.cast(this.genericDao.get(clazz, key));
+            entity = clazz.cast(this.genericDao.get(clazz, id));
 
             // put into the cache
             if (entity != null) {
@@ -115,9 +118,9 @@ public class CacheManagerImpl implements CacheManager, Initializer {
     }
 
     @Override
-    public boolean contains(Class<?> clazz, Serializable key) {
+    public boolean contains(Class<?> clazz, Serializable id) {
 
-        EntityCacheKey cacheKey = new EntityCacheKey(clazz, key);
+        EntityCacheKey cacheKey = new EntityCacheKey(clazz, id);
 
         return this.entityCache.exists(cacheKey, ROOT);
     }
@@ -265,5 +268,16 @@ public class CacheManagerImpl implements CacheManager, Initializer {
         numCached.put("queries", this.queryCache.size());
 
         return numCached;
+    }
+
+    @Override
+    public void onEvent(QueryCacheEvictionEvent event) {
+        this.queryCache.detach(event.getSpaceName());
+    }
+
+    @Override
+    public void onEvent(EntityCacheEvictionEvent event) {
+        EntityCacheKey cacheKey = new EntityCacheKey(event.getEntityClass(), event.getId());
+        update(cacheKey, event.getKey());
     }
 }

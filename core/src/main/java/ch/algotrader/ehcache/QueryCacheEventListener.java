@@ -15,8 +15,10 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.cache;
+package ch.algotrader.ehcache;
 
+import ch.algotrader.cache.QueryCacheEvictionEvent;
+import ch.algotrader.event.dispatch.EventDispatcher;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
@@ -31,16 +33,19 @@ import net.sf.ehcache.event.CacheEventListenerAdapter;
  */
 public class QueryCacheEventListener extends CacheEventListenerAdapter {
 
-    private CacheManagerImpl cacheManager;
+    private EventDispatcher eventDispatcher;
 
-    public QueryCacheEventListener(CacheManagerImpl cacheManager) {
-        this.cacheManager = cacheManager;
+    public QueryCacheEventListener(EventDispatcher eventDispatcher) {
+        this.eventDispatcher = eventDispatcher;
     }
 
     @Override
     public void notifyElementUpdated(Ehcache cache, Element element) throws CacheException {
 
-        this.cacheManager.getQueryCache().detach((String) element.getKey());
+        String spaceName = (String) element.getObjectKey();
+
+        QueryCacheEvictionEvent event = new QueryCacheEvictionEvent(spaceName);
+        this.eventDispatcher.broadcastEventListeners(event);
     }
 
     @Override

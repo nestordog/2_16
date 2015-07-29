@@ -43,7 +43,6 @@ import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import ch.algotrader.cache.CacheManager;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.AccountImpl;
 import ch.algotrader.entity.Position;
@@ -74,7 +73,6 @@ import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.enumeration.TransactionType;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
-import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.service.CombinationService;
 import ch.algotrader.service.ExternalMarketDataService;
 import ch.algotrader.service.MarketDataService;
@@ -82,7 +80,9 @@ import ch.algotrader.service.PositionService;
 import ch.algotrader.service.PropertyService;
 import ch.algotrader.service.TransactionPersistenceService;
 import ch.algotrader.service.TransactionService;
+import ch.algotrader.wiring.DefaultConfigTestBase;
 import ch.algotrader.wiring.common.CommonConfigWiring;
+import ch.algotrader.wiring.common.EventDispatchWiring;
 import ch.algotrader.wiring.server.CacheWiring;
 import ch.algotrader.wiring.server.CoreConfigWiring;
 import ch.algotrader.wiring.server.DaoWiring;
@@ -94,7 +94,7 @@ import ch.algotrader.wiring.server.ServiceWiring;
  *
  * @version $Revision$ $Date$
  */
-public class CacheTest {
+public class CacheTest extends DefaultConfigTestBase {
 
     private static final String ACCOUNT_NAME = "TEST_ACCOUNT";
     private static final String PROPERTY_NAME = "TEST_PROPERTY";
@@ -134,16 +134,13 @@ public class CacheTest {
         Engine engine = Mockito.mock(Engine.class);
         context.getDefaultListableBeanFactory().registerSingleton("serverEngine", engine);
 
-        EventDispatcher eventDispatcher = Mockito.mock(EventDispatcher.class);
-        context.getDefaultListableBeanFactory().registerSingleton("eventDispatcher", eventDispatcher);
-
         ExternalMarketDataService externalMarketDataService = Mockito.mock(ExternalMarketDataService.class);
         context.getDefaultListableBeanFactory().registerSingleton("externalMarketDataService", externalMarketDataService);
 
         Mockito.when(externalMarketDataService.getFeedType()).thenReturn(FeedType.IB);
 
         // register Wirings
-        context.register(CommonConfigWiring.class, CoreConfigWiring.class, HibernateWiring.class, CacheWiring.class, DaoWiring.class, ServiceWiring.class);
+        context.register(CommonConfigWiring.class, CoreConfigWiring.class, EventDispatchWiring.class, HibernateWiring.class, CacheWiring.class, DaoWiring.class, ServiceWiring.class);
 
         context.refresh();
 

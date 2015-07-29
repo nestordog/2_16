@@ -15,16 +15,20 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.cache;
+package ch.algotrader.ehcache;
+
+import java.io.Serializable;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.event.CacheEventListenerAdapter;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.hibernate.cache.spi.CacheKey;
+
+import ch.algotrader.cache.CacheManagerImpl;
+import ch.algotrader.cache.EntityCacheEvictionEvent;
+import ch.algotrader.event.dispatch.EventDispatcher;
 
 /**
 * EhCache CacheEventListener which notifies on Entities being updated in the 2nd level cache.
@@ -35,24 +39,22 @@ import org.hibernate.cache.spi.CacheKey;
 */
 public class EntityCacheEventListener extends CacheEventListenerAdapter {
 
-    static final Logger LOGGER = LogManager.getLogger(EntityCacheEventListener.class);
+    private EventDispatcher eventDispatcher;
+    private final Class<?> entityClass;
 
-    private CacheManagerImpl cacheManager;
-
-    public EntityCacheEventListener(CacheManagerImpl cacheManager) {
-        this.cacheManager = cacheManager;
+    public EntityCacheEventListener(EventDispatcher eventDispatcher, Class<?> entityClass) {
+        this.eventDispatcher = eventDispatcher;
+        this.entityClass = entityClass;
     }
 
     @Override
     public void notifyElementUpdated(Ehcache cache, Element element) throws CacheException {
 
         CacheKey hibernateCacheKey = (CacheKey) element.getObjectKey();
-        String entityOrRoleName = hibernateCacheKey.getEntityOrRoleName();
-        if (entityOrRoleName.endsWith("Impl")) {
-            updateEntity(hibernateCacheKey);
-        } else {
-            updateCollection(hibernateCacheKey);
-        }
+        Serializable id = hibernateCacheKey.getKey();
+
+        EntityCacheEvictionEvent event = new EntityCacheEvictionEvent(this.entityClass, id, CacheManagerImpl.ROOT);
+        this.eventDispatcher.broadcastEventListeners(event);
     }
 
     @Override
@@ -71,32 +73,5 @@ public class EntityCacheEventListener extends CacheEventListenerAdapter {
     public void notifyElementEvicted(Ehcache cache, Element element) {
 
         // do nothing
-    }
-
-    private void updateEntity(CacheKey hibernateCacheKey) {
-
-        String entityOrRoleName = hibernateCacheKey.getEntityOrRoleName();
-
-        try {
-            EntityCacheKey cacheKey = new EntityCacheKey(entityOrRoleName, hibernateCacheKey.getKey());
-            this.cacheManager.update(cacheKey, CacheManagerImpl.ROOT);
-        } catch (ClassNotFoundException e) {
-            LOGGER.error("entityOrRoleName could not be found {}", entityOrRoleName);
-        }
-    }
-
-    private void updateCollection(CacheKey hibernateCacheKey) {
-
-        String entityOrRoleName = hibernateCacheKey.getEntityOrRoleName();
-        int lastDot = entityOrRoleName.lastIndexOf(".");
-        String entityName = entityOrRoleName.substring(0, lastDot);
-        String key = entityOrRoleName.substring(lastDot + 1);
-
-        try {
-            EntityCacheKey cacheKey = new EntityCacheKey(entityName, hibernateCacheKey.getKey());
-            this.cacheManager.update(cacheKey, key);
-        } catch (ClassNotFoundException e) {
-            LOGGER.error("entityOrRoleName could not be found {}", entityOrRoleName);
-        }
     }
 }
