@@ -297,7 +297,7 @@ public class PortfolioServiceImpl implements PortfolioService {
                     + "where " + filter + " "
                     + "and t.dateTime <= :maxDate";
           //@formatter:on
-        Collection<Transaction> transactions = (Collection<Transaction>) this.genericDao.find(query, copy);
+        Collection<Transaction> transactions = this.genericDao.find(Transaction.class, query, copy);
 
         return getCashBalanceDoubleInternal(transactions, new ArrayList<>(), date);
 
@@ -448,7 +448,7 @@ public class PortfolioServiceImpl implements PortfolioService {
         System.arraycopy(namedParams, 0, copy, 0, namedParams.length);
         copy[namedParams.length] = new NamedParam("maxDate", date);
 
-        List<Position> openPositions = (List<Position>) this.genericDao.find(queryString, namedParams);
+        List<Position> openPositions = this.genericDao.find(Position.class, queryString, namedParams);
 
         return getSecuritiesCurrentValueDoubleInternal(openPositions, date);
 

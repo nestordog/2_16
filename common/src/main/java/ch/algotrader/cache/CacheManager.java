@@ -34,9 +34,14 @@ import ch.algotrader.enumeration.QueryType;
 public interface CacheManager {
 
     /**
-     * gets a {@link BaseEntityI} of the given {@code clazz} by the defined {@code key}.
+     * gets an Entity of the given {@code clazz} by the defined {@code id}.
      */
-    public <T extends BaseEntityI> T get(Class<T> clazz, long key);
+    public <T extends BaseEntityI> T get(Class<T> clazz, long id);
+
+    /**
+     * gets all Entities of the given {@code clazz}.
+     */
+    public <T extends BaseEntityI> List<T> getAll(Class<T> clazz);
 
     /**
      * Adds an object recursively into the Cache and returns the existingObject if it was already in the Cache
@@ -44,19 +49,19 @@ public interface CacheManager {
     public Object put(Object obj);
 
     /**
-     * checks whether an object of the given {@code clazz} and {@code key} is in the cache
+     * checks whether an object of the given {@code clazz} and {@code id} is in the cache
      */
-    public boolean contains(Class<?> clazz, long key);
+    public <T extends BaseEntityI> boolean contains(Class<T> clazz, long id);
 
     /**
      * performs the given HQL {@code query} by passing defined {@code namedParameters}
      */
-    public List<?> query(String queryString, QueryType type, NamedParam... params);
+    public <T> List<T> query(Class<T> clazz, String query, QueryType type, NamedParam... namedParams);
 
     /**
      * performs the given HQL {@code query} by passing defined {@code namedParameters}
      */
-    public Object queryUnique(String queryString, QueryType type, NamedParam... params);
+    public <T> T queryUnique(Class<T> clazz, String query, QueryType type, NamedParam... namedParams);
 
     /**
      * clears the entire cache

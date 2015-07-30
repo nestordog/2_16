@@ -33,7 +33,7 @@ public interface GenericDao {
 
     /**
      * gets any Entity by its {@code class} and {@code id}.
-     * Securities will get initialzed. For {@link ch.algotrader.entity.security.Combination Combinations} all
+     * Securities will get initialized. For {@link ch.algotrader.entity.security.Combination Combinations} all
      * {@link ch.algotrader.entity.security.Component Components} will get initialized.
      */
     public BaseEntityI get(Class<? extends BaseEntityI> clazz, long id);
@@ -42,19 +42,19 @@ public interface GenericDao {
      * Performs a HQL query based on the given {@code queryString} and {@code namedParameters}
      * @return a List of Objects
      */
-    public List<?> find(String queryString, NamedParam... namedParams);
+    public <T> List<T> find(Class<T> clazz, String queryString, NamedParam... namedParams);
 
     /**
      * Performs a HQL query based on the given {@code queryString}, {@code namedParameters} and {@code maxResults}
      * @return a List of Objects
      */
-    public List<?> find(String queryString, int maxResults, NamedParam... namedParams);
+    public <T> List<T> find(Class<T> clazz, String queryString, int maxResults, NamedParam... namedParams);
 
     /**
      * Performs a HQL query based on the given {@code queryString} and {@code namedParameters}
      * @return a unique Object
      */
-    public Object findUnique(String queryString, NamedParam... namedParams);
+    public <T> T findUnique(Class<T> clazz, String queryString, NamedParam... namedParams);
 
     /**
      * gets the initialized Collection specified by its {@code role} and entity {@code id}

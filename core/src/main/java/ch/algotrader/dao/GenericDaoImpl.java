@@ -78,24 +78,26 @@ public class GenericDaoImpl extends AbstractDao<BaseEntityI> implements GenericD
     }
 
     @Override
-    public List<BaseEntityI> find(final String queryString, final NamedParam... namedParams) {
+    public <T> List<T> find(Class<T> clazz, final String queryString, final NamedParam... namedParams) {
 
-        return find(queryString, 0, namedParams);
+        return find(clazz, queryString, 0, namedParams);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public List<BaseEntityI> find(final String queryString, final int maxResults, final NamedParam... namedParams) {
+    public <T> List<T> find(Class<T> clazz, final String queryString, final int maxResults, final NamedParam... namedParams) {
 
         return this.txTemplate.execute(txStatus -> {
-            return super.find(queryString, maxResults, QueryType.HQL, namedParams);
+            return (List<T>) super.find(queryString, maxResults, QueryType.HQL, namedParams);
         });
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public BaseEntityI findUnique(final String queryString, final NamedParam... namedParams) {
+    public <T> T findUnique(Class<T> clazz, final String queryString, final NamedParam... namedParams) {
 
         return this.txTemplate.execute(txStatus -> {
-            return super.findUnique(queryString, QueryType.HQL, namedParams);
+            return (T) super.findUnique(queryString, QueryType.HQL, namedParams);
         });
     }
 

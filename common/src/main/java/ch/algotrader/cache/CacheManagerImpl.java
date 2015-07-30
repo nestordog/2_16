@@ -114,6 +114,12 @@ public class CacheManagerImpl implements CacheManager, Initializer, EntityCacheE
     }
 
     @Override
+    public <T extends BaseEntityI> List<T> getAll(Class<T> clazz) {
+
+        return query(clazz, "from " + clazz, QueryType.HQL);
+    }
+
+    @Override
     public Object put(Object obj) {
 
         AbstractHandler handler = getHandler(obj.getClass());
@@ -122,7 +128,7 @@ public class CacheManagerImpl implements CacheManager, Initializer, EntityCacheE
     }
 
     @Override
-    public boolean contains(Class<?> clazz, long id) {
+    public <T extends BaseEntityI> boolean contains(Class<T> clazz, long id) {
 
         EntityCacheKey cacheKey = new EntityCacheKey(clazz, id);
 
@@ -180,18 +186,19 @@ public class CacheManagerImpl implements CacheManager, Initializer, EntityCacheE
         return initializedObj;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public List<?> query(String query, QueryType type, NamedParam... namedParams) {
+    public <T> List<T> query(Class<T> clazz, String query, QueryType type, NamedParam... namedParams) {
 
         String queryString = getQueryString(query, type);
 
         QueryCacheKey cacheKey = new QueryCacheKey(queryString, namedParams);
 
-        List<?> result = this.queryCache.find(cacheKey);
+        List<T> result = (List<T>) this.queryCache.find(cacheKey);
 
         if (result == null) {
 
-            result = this.genericDao.find(queryString, namedParams);
+            result = this.genericDao.find(clazz, queryString, namedParams);
 
             // get the spaceNames
             Set<String> spaceNames = this.genericDao.getQuerySpaces(cacheKey.getQueryString());
@@ -207,8 +214,8 @@ public class CacheManagerImpl implements CacheManager, Initializer, EntityCacheE
     }
 
     @Override
-    public Object queryUnique(String queryString, QueryType type, NamedParam... namedParams) {
-        return CollectionUtil.getSingleElementOrNull(query(queryString, type, namedParams));
+    public <T> T queryUnique(Class<T> clazz, String query, QueryType type, NamedParam... namedParams) {
+        return CollectionUtil.getSingleElementOrNull(query(clazz, query, type, namedParams));
     }
 
     /**
