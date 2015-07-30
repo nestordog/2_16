@@ -43,12 +43,12 @@ import ch.algotrader.visitor.InitializationVisitor;
  *
  * @version $Revision$ $Date$
  */
-public class GenericDao {
+public class GenericDaoImpl implements GenericDao {
 
     private final SessionFactory sessionFactory;
     private final TransactionTemplate txTemplate;
 
-    public GenericDao(final SessionFactory sessionFactory, final TransactionTemplate txTemplate) {
+    public GenericDaoImpl(final SessionFactory sessionFactory, final TransactionTemplate txTemplate) {
 
         Validate.notNull(sessionFactory, "SessionFactory is null");
         Validate.notNull(txTemplate, "TransactionTemplate is null");
@@ -57,11 +57,10 @@ public class GenericDao {
         this.txTemplate = txTemplate;
     }
 
-    /**
-     * gets any Entity by its {@code class} and {@code id}.
-     * Securities will get initialzed. For {@link ch.algotrader.entity.security.Combination Combinations} all
-     * {@link ch.algotrader.entity.security.Component Components} will get initialized.
+    /* (non-Javadoc)
+     * @see ch.algotrader.hibernate.GenericDao#get(java.lang.Class, java.io.Serializable)
      */
+    @Override
     public Object get(final Class<?> clazz, final Serializable id) {
 
         return this.txTemplate.execute(txStatus -> {
@@ -80,9 +79,10 @@ public class GenericDao {
         });
     }
 
-    /**
-     * gets the initialized Collection specified by its {@code role} and entity {@code id}
+    /* (non-Javadoc)
+     * @see ch.algotrader.hibernate.GenericDao#getInitializedCollection(java.lang.String, java.io.Serializable)
      */
+    @Override
     public Object getInitializedCollection(final String role, final Serializable id) {
 
         return this.txTemplate.execute(txStatus -> {
@@ -116,9 +116,10 @@ public class GenericDao {
         });
     }
 
-    /**
-     * Performs a HQL query based on the given {@code queryString}
+    /* (non-Javadoc)
+     * @see ch.algotrader.hibernate.GenericDao#find(java.lang.String)
      */
+    @Override
     public List<?> find(final String queryString) {
 
         return this.txTemplate.execute(txStatus -> {
@@ -130,9 +131,10 @@ public class GenericDao {
         });
     }
 
-    /**
-     * Performs a HQL query based on the given {@code queryString} and {@code maxResults}
+    /* (non-Javadoc)
+     * @see ch.algotrader.hibernate.GenericDao#find(java.lang.String, int)
      */
+    @Override
     public List<?> find(final String queryString, final int maxResults) {
 
         return this.txTemplate.execute(txStatus -> {
@@ -145,10 +147,10 @@ public class GenericDao {
         });
     }
 
-    /**
-     * Performs a HQL query based on the given {@code queryString} and {@code namedParameters}
-     * @return a List of Objects
+    /* (non-Javadoc)
+     * @see ch.algotrader.hibernate.GenericDao#find(java.lang.String, java.util.Map)
      */
+    @Override
     public List<?> find(final String queryString, final Map<String, Object> namedParameters) {
 
         return this.txTemplate.execute(txStatus -> {
@@ -163,10 +165,10 @@ public class GenericDao {
         });
     }
 
-    /**
-     * Performs a HQL query based on the given {@code queryString}, {@code namedParameters} and {@code maxResults}
-     * @return a List of Objects
+    /* (non-Javadoc)
+     * @see ch.algotrader.hibernate.GenericDao#find(java.lang.String, java.util.Map, int)
      */
+    @Override
     public List<?> find(final String queryString, final Map<String, Object> namedParameters, final int maxResults) {
 
         return this.txTemplate.execute(txStatus -> {
@@ -183,10 +185,10 @@ public class GenericDao {
     }
 
 
-    /**
-     * Performs a HQL query based on the given {@code queryString}
-     * @return a unique Object
+    /* (non-Javadoc)
+     * @see ch.algotrader.hibernate.GenericDao#findUnique(java.lang.String)
      */
+    @Override
     public Object findUnique(final String queryString) {
 
         return this.txTemplate.execute(txStatus -> {
@@ -199,10 +201,10 @@ public class GenericDao {
     }
 
 
-    /**
-     * Performs a HQL query based on the given {@code queryString} and {@code namedParameters}
-     * @return a unique Object
+    /* (non-Javadoc)
+     * @see ch.algotrader.hibernate.GenericDao#findUnique(java.lang.String, java.util.Map)
      */
+    @Override
     public Object findUnique(final String queryString, final Map<String, Object> namedParameters) {
 
         return this.txTemplate.execute(txStatus -> {

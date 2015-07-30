@@ -19,13 +19,8 @@ package ch.algotrader.wiring.client.service;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
-
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.esper.EngineManager;
-import ch.algotrader.event.dispatch.EventDispatcher;
-import ch.algotrader.lifecycle.LifecycleManager;
-import ch.algotrader.lifecycle.LifecycleManagerImpl;
 import ch.algotrader.service.LocalLookupService;
 import ch.algotrader.service.LocalLookupServiceImpl;
 import ch.algotrader.service.LookupService;
@@ -56,16 +51,6 @@ public class ClientServicesWiring {
             final LookupService lookupService) {
 
         return new LocalLookupServiceImpl(commonConfig, engineManager, lookupService);
-    }
-
-    @Profile("live")
-    @Bean(name = "lifecycleManager")
-    public static LifecycleManager createLifecycleManager(
-            final EngineManager engineManager,
-            final EventDispatcher eventDispatcher,
-            final SubscriptionService subscriptionService) {
-
-        return new LifecycleManagerImpl(engineManager, eventDispatcher, subscriptionService);
     }
 
 }

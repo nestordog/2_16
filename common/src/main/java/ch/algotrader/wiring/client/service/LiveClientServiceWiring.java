@@ -26,10 +26,16 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
+import ch.algotrader.cache.CacheManager;
+import ch.algotrader.cache.CacheManagerImpl;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.ConfigParams;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
+import ch.algotrader.event.dispatch.EventDispatcher;
+import ch.algotrader.hibernate.GenericDao;
+import ch.algotrader.lifecycle.LifecycleManager;
+import ch.algotrader.lifecycle.LifecycleManagerImpl;
 import ch.algotrader.service.CombinationService;
 import ch.algotrader.service.LocalLookupService;
 import ch.algotrader.service.LookupService;
@@ -52,9 +58,9 @@ import ch.algotrader.vo.ChartDefinitionVO;
  */
 @Profile(value = "live")
 @Configuration
-public class ClientManagementServiceWiring {
+public class LiveClientServiceWiring {
 
-    private static final Logger LOGGER = LogManager.getLogger(ClientManagementServiceWiring.class);
+    private static final Logger LOGGER = LogManager.getLogger(LiveClientServiceWiring.class);
 
     private Engine getMainEngine(final EngineManager engineManager) {
         Engine engine;
@@ -101,4 +107,18 @@ public class ClientManagementServiceWiring {
         return new PortfolioChartServiceImpl(portfolioChartDefinition, getMainEngine(engineManager).getStrategyName(), portfolioService);
     }
 
+    @Bean(name = "lifecycleManager")
+    public static LifecycleManager createLifecycleManager(
+            final EngineManager engineManager,
+            final EventDispatcher eventDispatcher,
+            final SubscriptionService subscriptionService) {
+
+        return new LifecycleManagerImpl(engineManager, eventDispatcher, subscriptionService);
+    }
+
+    @Bean(name = "cacheManager")
+    public CacheManager createCacheManager(final GenericDao genericDao) {
+
+        return new CacheManagerImpl(genericDao);
+    }
 }

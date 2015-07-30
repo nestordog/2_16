@@ -124,6 +124,14 @@
         <property name="serviceInterface" value="ch.algotrader.service.FixSessionService"/>
     </bean>
 
+    <bean name="GenericDao" class="org.springframework.remoting.rmi.RmiServiceExporter">
+        <property name="serviceName" value="GenericDao"/>
+        <property name="registryPort" value="${remotePort}"/>
+        <property name="servicePort" value="${remoteServicePort}"/>
+        <property name="service" ref="genericDao"/>
+        <property name="serviceInterface" value="ch.algotrader.hibernate.GenericDao"/>
+    </bean>
+
     <!-- ==================== Start of PROFILE REMOTE SERVICE DEFINITIONS ===================== -->
 
     <beans profile="iBHistoricalData,bBHistoricalData">

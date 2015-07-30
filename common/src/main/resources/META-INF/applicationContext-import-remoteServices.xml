@@ -155,6 +155,17 @@
         <property name="proxyInterfaces"><value>ch.algotrader.service.CalendarService</value></property>
     </bean>
 
+    <bean id="genericDao" class="org.springframework.aop.framework.ProxyFactoryBean">
+        <property name="target">
+            <bean class="org.springframework.remoting.rmi.RmiProxyFactoryBean">
+                <property name="refreshStubOnConnectFailure"><value>true</value></property>
+                <property name="serviceUrl"><value>${remoteRmiScheme}://${remoteServer}:${remotePort}/GenericDao</value></property>
+                <property name="serviceInterface"><value>ch.algotrader.hibernate.GenericDao</value></property>
+            </bean>
+        </property>
+        <property name="proxyInterfaces"><value>ch.algotrader.hibernate.GenericDao</value></property>
+    </bean>
+    
     <!-- ========================= End of SERVICE DEFINITIONS ========================= -->
 
 

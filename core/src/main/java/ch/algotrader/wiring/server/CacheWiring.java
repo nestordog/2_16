@@ -33,6 +33,7 @@ import ch.algotrader.ehcache.EntityCacheEventListener;
 import ch.algotrader.ehcache.QueryCacheEventListener;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.hibernate.GenericDao;
+import ch.algotrader.hibernate.GenericDaoImpl;
 
 /**
  * Cache configuration.
@@ -45,7 +46,7 @@ public class CacheWiring {
             final SessionFactory sessionFactory,
             final TransactionTemplate transactionTemplate) throws Exception {
 
-        return new GenericDao(sessionFactory, transactionTemplate);
+        return new GenericDaoImpl(sessionFactory, transactionTemplate);
     }
 
     @Bean(name = "cacheManager")
