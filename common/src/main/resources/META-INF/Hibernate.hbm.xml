@@ -1271,7 +1271,7 @@
 
     <sql-query name='Order.findLastIntOrderId'>
     <![CDATA[
-        select distinct convert(substring(o.int_id, length(a.session_qualifier) + 1), decimal(5,2)) as order_id 
+        select distinct cast(substring(o.int_id, length(a.session_qualifier) + 1) as decimal(12,0)) as order_id
         from `order` as o 
         join account as a on (o.account_fk = a.id) 
         where a.session_qualifier = :sessionQualifier 
