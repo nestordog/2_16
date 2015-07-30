@@ -31,10 +31,10 @@ public class EntityCacheEvictionEvent implements Serializable {
     private static final long serialVersionUID = -9201194174175757269L;
 
     private final Class<?> entityClass;
-    private final Serializable id;
+    private final long id;
     private final String key;
 
-    public EntityCacheEvictionEvent(Class<?> entityClass, Serializable id, String key) {
+    public EntityCacheEvictionEvent(Class<?> entityClass, long id, String key) {
         this.entityClass = entityClass;
         this.id = id;
         this.key = key;
@@ -44,7 +44,7 @@ public class EntityCacheEvictionEvent implements Serializable {
         return this.entityClass;
     }
 
-    public Serializable getId() {
+    public long getId() {
         return this.id;
     }
 

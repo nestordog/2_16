@@ -17,9 +17,10 @@
  ***********************************************************************************/
 package ch.algotrader.dao;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
+
+import ch.algotrader.entity.BaseEntityI;
 
 /**
  * A generic Data Access Object providing Hibernate lookup methods.
@@ -35,12 +36,7 @@ public interface GenericDao {
      * Securities will get initialzed. For {@link ch.algotrader.entity.security.Combination Combinations} all
      * {@link ch.algotrader.entity.security.Component Components} will get initialized.
      */
-    public Object get(Class<?> clazz, Serializable id);
-
-    /**
-     * gets the initialized Collection specified by its {@code role} and entity {@code id}
-     */
-    public Object getInitializedCollection(String role, Serializable id);
+    public BaseEntityI get(Class<? extends BaseEntityI> clazz, long id);
 
     /**
      * Performs a HQL query based on the given {@code queryString} and {@code namedParameters}
@@ -61,7 +57,17 @@ public interface GenericDao {
     public Object findUnique(String queryString, NamedParam... namedParams);
 
     /**
+     * gets the initialized Collection specified by its {@code role} and entity {@code id}
+     */
+    public Object getInitializedCollection(String role, long id);
+
+    /**
      * Gets the querySpaces (tables) associated with a query
      */
     public Set<String> getQuerySpaces(String queryString);
+
+    /**
+     * Returns the queryString of a named query
+     */
+    public String getNamedQuery(String queryName);
 }

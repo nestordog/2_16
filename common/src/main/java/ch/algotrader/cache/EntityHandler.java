@@ -109,7 +109,7 @@ public class EntityHandler extends AbstractHandler {
 
             // get the updatedObj
             BaseEntityI origEntity = (BaseEntityI) obj;
-            BaseEntityI updatedEntity = (BaseEntityI) this.cacheManager.getGenericDao().get(obj.getClass(), origEntity.getId());
+            BaseEntityI updatedEntity = this.cacheManager.getGenericDao().get(origEntity.getClass(), origEntity.getId());
             // updatedObj does not exist anymore so remove it from the cache
             if (updatedEntity == null) {
 
@@ -158,7 +158,7 @@ public class EntityHandler extends AbstractHandler {
 
             HibernateProxy proxy = (HibernateProxy) obj;
             LazyInitializer initializer = proxy.getHibernateLazyInitializer();
-            Object initializedObj = this.cacheManager.getGenericDao().get(initializer.getPersistentClass(), initializer.getIdentifier());
+            Object initializedObj = this.cacheManager.getGenericDao().get(initializer.getPersistentClass(), (Long) initializer.getIdentifier());
             Object existingObj = put(initializedObj);
 
             // return the exstingObj if it was already in the cache otherwise the newly initialized obj

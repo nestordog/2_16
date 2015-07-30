@@ -45,6 +45,7 @@ import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.orm.hibernate4.SessionHolder;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
+import ch.algotrader.entity.GenericItem;
 import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.QueryType;
 import ch.algotrader.hibernate.EmbeddedTestDB;

@@ -130,7 +130,7 @@ class CollectionHandler extends AbstractHandler {
                 return null;
             }
 
-            Object updatedCollection = this.cacheManager.getGenericDao().getInitializedCollection(origCollection.getRole(), origCollection.getKey());
+            Object updatedCollection = this.cacheManager.getGenericDao().getInitializedCollection(origCollection.getRole(), (Long) origCollection.getKey());
 
             // owner does not exist anymore so remove it
             if (updatedCollection == null) {
@@ -184,7 +184,7 @@ class CollectionHandler extends AbstractHandler {
                 return null;
             }
 
-            Object initializedObj = this.cacheManager.getGenericDao().getInitializedCollection(col.getRole(), col.getKey());
+            Object initializedObj = this.cacheManager.getGenericDao().getInitializedCollection(col.getRole(), (Long) col.getKey());
 
             Object existingObj = put(initializedObj);
 

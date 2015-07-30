@@ -20,6 +20,7 @@ package ch.algotrader.dao;
 import org.hibernate.SessionFactory;
 
 import ch.algotrader.dao.AbstractDao;
+import ch.algotrader.entity.GenericItem;
 
 public class GenericItemDao extends AbstractDao<GenericItem> {
 

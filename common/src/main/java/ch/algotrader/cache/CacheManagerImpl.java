@@ -17,7 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.cache;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -34,6 +33,7 @@ import ch.algotrader.dao.GenericDao;
 import ch.algotrader.dao.NamedParam;
 import ch.algotrader.entity.BaseEntityI;
 import ch.algotrader.entity.Initializer;
+import ch.algotrader.enumeration.QueryType;
 import ch.algotrader.event.listener.EntityCacheEventListener;
 import ch.algotrader.event.listener.QueryCacheEventListener;
 import ch.algotrader.util.collection.CollectionUtil;
@@ -61,6 +61,8 @@ public class CacheManagerImpl implements CacheManager, Initializer, EntityCacheE
 
     private final GenericDao genericDao;
 
+    private final Map<String, String> queryStringMap;
+
     public CacheManagerImpl(GenericDao genericDao) {
 
         this.collectionHandler = new CollectionHandler(this);
@@ -68,6 +70,7 @@ public class CacheManagerImpl implements CacheManager, Initializer, EntityCacheE
         this.entityCache = new EntityCache();
         this.queryCache = new QueryCache();
         this.genericDao = genericDao;
+        this.queryStringMap = new HashMap<String, String>();
     }
 
     EntityCache getEntityCache() {
@@ -83,7 +86,7 @@ public class CacheManagerImpl implements CacheManager, Initializer, EntityCacheE
     }
 
     @Override
-    public <T extends BaseEntityI> T get(Class<T> clazz, Serializable id) {
+    public <T extends BaseEntityI> T get(Class<T> clazz, long id) {
 
         EntityCacheKey cacheKey = new EntityCacheKey(clazz, id);
 
@@ -119,7 +122,7 @@ public class CacheManagerImpl implements CacheManager, Initializer, EntityCacheE
     }
 
     @Override
-    public boolean contains(Class<?> clazz, Serializable id) {
+    public boolean contains(Class<?> clazz, long id) {
 
         EntityCacheKey cacheKey = new EntityCacheKey(clazz, id);
 
@@ -178,7 +181,9 @@ public class CacheManagerImpl implements CacheManager, Initializer, EntityCacheE
     }
 
     @Override
-    public List<?> query(String queryString, NamedParam... namedParams) {
+    public List<?> query(String query, QueryType type, NamedParam... namedParams) {
+
+        String queryString = getQueryString(query, type);
 
         QueryCacheKey cacheKey = new QueryCacheKey(queryString, namedParams);
 
@@ -186,12 +191,7 @@ public class CacheManagerImpl implements CacheManager, Initializer, EntityCacheE
 
         if (result == null) {
 
-            // do the query
-            if (namedParams != null) {
-                result = this.genericDao.find(queryString, namedParams);
-            } else {
-                result = this.genericDao.find(queryString);
-            }
+            result = this.genericDao.find(queryString, namedParams);
 
             // get the spaceNames
             Set<String> spaceNames = this.genericDao.getQuerySpaces(cacheKey.getQueryString());
@@ -207,8 +207,8 @@ public class CacheManagerImpl implements CacheManager, Initializer, EntityCacheE
     }
 
     @Override
-    public Object queryUnique(String queryString, NamedParam... namedParams) {
-        return CollectionUtil.getSingleElementOrNull(query(queryString, namedParams));
+    public Object queryUnique(String queryString, QueryType type, NamedParam... namedParams) {
+        return CollectionUtil.getSingleElementOrNull(query(queryString, type, namedParams));
     }
 
     /**
@@ -240,6 +240,24 @@ public class CacheManagerImpl implements CacheManager, Initializer, EntityCacheE
             return this.collectionHandler;
 
         throw new IllegalArgumentException("Can not manage object " + clazz.getName());
+    }
+
+    private String getQueryString(String query, QueryType type) {
+
+        switch (type) {
+            case HQL:
+                return query;
+            case BY_NAME:
+                String queryString = this.queryStringMap.get(query);
+                if (queryString == null) {
+                    queryString = this.genericDao.getNamedQuery(query);
+                    this.queryStringMap.put(query, queryString);
+                }
+                return queryString;
+
+            default:
+                throw new IllegalStateException("Unexpected query type: " + type);
+        }
     }
 
     @Override

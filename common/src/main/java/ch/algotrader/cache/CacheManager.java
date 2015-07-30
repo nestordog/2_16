@@ -17,12 +17,12 @@
  ***********************************************************************************/
 package ch.algotrader.cache;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
 import ch.algotrader.dao.NamedParam;
 import ch.algotrader.entity.BaseEntityI;
+import ch.algotrader.enumeration.QueryType;
 
 /**
  * Entry point to the Level-0 Cache
@@ -36,7 +36,7 @@ public interface CacheManager {
     /**
      * gets a {@link BaseEntityI} of the given {@code clazz} by the defined {@code key}.
      */
-    public <T extends BaseEntityI> T get(Class<T> clazz, Serializable key);
+    public <T extends BaseEntityI> T get(Class<T> clazz, long key);
 
     /**
      * Adds an object recursively into the Cache and returns the existingObject if it was already in the Cache
@@ -46,17 +46,17 @@ public interface CacheManager {
     /**
      * checks whether an object of the given {@code clazz} and {@code key} is in the cache
      */
-    public boolean contains(Class<?> clazz, Serializable key);
+    public boolean contains(Class<?> clazz, long key);
 
     /**
      * performs the given HQL {@code query} by passing defined {@code namedParameters}
      */
-    public List<?> query(String queryString, NamedParam... params);
+    public List<?> query(String queryString, QueryType type, NamedParam... params);
 
     /**
      * performs the given HQL {@code query} by passing defined {@code namedParameters}
      */
-    public Object queryUnique(String queryString, NamedParam... params);
+    public Object queryUnique(String queryString, QueryType type, NamedParam... params);
 
     /**
      * clears the entire cache

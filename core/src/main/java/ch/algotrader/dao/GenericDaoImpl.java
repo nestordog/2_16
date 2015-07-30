@@ -17,13 +17,11 @@
  ***********************************************************************************/
 package ch.algotrader.dao;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.Validate;
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.collection.spi.PersistentCollection;
@@ -32,7 +30,9 @@ import org.hibernate.metadata.ClassMetadata;
 import org.hibernate.persister.collection.CollectionPersister;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import ch.algotrader.entity.BaseEntityI;
 import ch.algotrader.entity.security.Security;
+import ch.algotrader.enumeration.QueryType;
 import ch.algotrader.visitor.InitializationVisitor;
 
 /**
@@ -42,12 +42,14 @@ import ch.algotrader.visitor.InitializationVisitor;
  *
  * @version $Revision$ $Date$
  */
-public class GenericDaoImpl implements GenericDao {
+public class GenericDaoImpl extends AbstractDao<BaseEntityI> implements GenericDao {
 
     private final SessionFactory sessionFactory;
     private final TransactionTemplate txTemplate;
 
     public GenericDaoImpl(final SessionFactory sessionFactory, final TransactionTemplate txTemplate) {
+
+        super(BaseEntityI.class, sessionFactory);
 
         Validate.notNull(sessionFactory, "SessionFactory is null");
         Validate.notNull(txTemplate, "TransactionTemplate is null");
@@ -57,12 +59,12 @@ public class GenericDaoImpl implements GenericDao {
     }
 
     @Override
-    public Object get(final Class<?> clazz, final Serializable id) {
+    public BaseEntityI get(final Class<? extends BaseEntityI> clazz, final long id) {
 
         return this.txTemplate.execute(txStatus -> {
 
             Session session = this.sessionFactory.getCurrentSession();
-            Object result = session.get(clazz, id);
+            BaseEntityI result = (BaseEntityI) session.get(clazz, id);
 
             // initialize Securities
             if (result instanceof Security) {
@@ -76,7 +78,29 @@ public class GenericDaoImpl implements GenericDao {
     }
 
     @Override
-    public Object getInitializedCollection(final String role, final Serializable id) {
+    public List<BaseEntityI> find(final String queryString, final NamedParam... namedParams) {
+
+        return find(queryString, 0, namedParams);
+    }
+
+    @Override
+    public List<BaseEntityI> find(final String queryString, final int maxResults, final NamedParam... namedParams) {
+
+        return this.txTemplate.execute(txStatus -> {
+            return super.find(queryString, maxResults, QueryType.HQL, namedParams);
+        });
+    }
+
+    @Override
+    public BaseEntityI findUnique(final String queryString, final NamedParam... namedParams) {
+
+        return this.txTemplate.execute(txStatus -> {
+            return super.findUnique(queryString, QueryType.HQL, namedParams);
+        });
+    }
+
+    @Override
+    public Object getInitializedCollection(final String role, final long id) {
 
         return this.txTemplate.execute(txStatus -> {
 
@@ -110,50 +134,17 @@ public class GenericDaoImpl implements GenericDao {
     }
 
     @Override
-    public List<?> find(final String queryString, final NamedParam... namedParams) {
-
-        return find(queryString, 0, namedParams);
-    }
-
-    @Override
-    public List<?> find(final String queryString, final int maxResults, final NamedParam... namedParams) {
-
-        return this.txTemplate.execute(txStatus -> {
-
-            Session session = this.sessionFactory.getCurrentSession();
-            Query query = session.createQuery(queryString);
-            query.setCacheable(true);
-            query.setMaxResults(maxResults);
-            for (NamedParam namedParam : namedParams) {
-                query.setParameter(namedParam.getName(), namedParam.getValue());
-            }
-            return query.list();
-        });
-    }
-
-    @Override
-    public Object findUnique(final String queryString, final NamedParam... namedParams) {
-
-        return this.txTemplate.execute(txStatus -> {
-
-            Session session = this.sessionFactory.getCurrentSession();
-            Query query = session.createQuery(queryString);
-            query.setCacheable(true);
-            for (NamedParam namedParam : namedParams) {
-                query.setParameter(namedParam.getName(), namedParam.getValue());
-            }
-            return query.uniqueResult();
-        });
-    }
-
-    /**
-     * Gets the querySpaces (tables) associated with a query
-     */
-    @Override
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public Set<String> getQuerySpaces(String queryString) {
 
         SessionFactoryImpl sessionFactoryImpl = (SessionFactoryImpl) this.sessionFactory;
         return sessionFactoryImpl.getQueryPlanCache().getHQLQueryPlan(queryString, false, new HashMap()).getQuerySpaces();
+    }
+
+    @Override
+    public String getNamedQuery(String queryName) {
+
+        SessionFactoryImpl sessionFactoryImpl = (SessionFactoryImpl) this.sessionFactory;
+        return sessionFactoryImpl.getNamedQuery(queryName).getQueryString();
     }
 }

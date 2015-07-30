@@ -17,8 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.cache;
 
-import java.io.Serializable;
-
 import ch.algotrader.entity.BaseEntityI;
 
 /**
@@ -30,7 +28,7 @@ import ch.algotrader.entity.BaseEntityI;
  */
 public class EntityCacheKey {
 
-    private final Serializable id;
+    private final long id;
     private final Class<?> clazz;
     private final Class<?> rootClass;
     private final int hashCode;
@@ -40,12 +38,12 @@ public class EntityCacheKey {
         this(entity.getClass(), entity.getId());
     }
 
-    public EntityCacheKey(String entityName, Serializable id) throws ClassNotFoundException {
+    public EntityCacheKey(String entityName, long id) throws ClassNotFoundException {
 
         this(Class.forName(entityName), id);
     }
 
-    public EntityCacheKey(Class<?> clazz, Serializable id) {
+    public EntityCacheKey(Class<?> clazz, long id) {
 
         this.clazz = clazz;
         this.id = id;
@@ -58,13 +56,13 @@ public class EntityCacheKey {
         this.rootClass = clazz;
 
         // create the hashCode based on the rootClass and the key
-        this.hashCode = (17 * 37 + this.rootClass.getName().hashCode()) * 37 + id.hashCode();
+        this.hashCode = (17 * 37 + this.rootClass.getName().hashCode()) * 37 + Long.hashCode(id);
     }
 
     @Override
     public String toString() {
 
-        return this.clazz.getName() + '#' + this.id.toString();
+        return this.clazz.getName() + '#' + this.id;
     }
 
     @Override
@@ -76,7 +74,7 @@ public class EntityCacheKey {
 
         // compate based on the rootClass and the key
         EntityCacheKey that = (EntityCacheKey) other;
-        return this.rootClass.equals(that.rootClass) && this.id.equals(that.id);
+        return this.rootClass.equals(that.rootClass) && this.id == that.id;
     }
 
     @Override

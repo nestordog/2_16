@@ -17,8 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.ehcache;
 
-import java.io.Serializable;
-
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
@@ -52,7 +50,7 @@ public class CollectionCacheEventListener extends CacheEventListenerAdapter {
     public void notifyElementUpdated(Ehcache cache, Element element) throws CacheException {
 
         CacheKey hibernateCacheKey = (CacheKey) element.getObjectKey();
-        Serializable id = hibernateCacheKey.getKey();
+        long id = (Long) hibernateCacheKey.getKey();
 
         EntityCacheEvictionEvent event = new EntityCacheEvictionEvent(this.entityClass, id, this.roleName);
         this.eventDispatcher.broadcastEventListeners(event);

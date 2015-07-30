@@ -19,6 +19,7 @@ package ch.algotrader.cache;
 
 import java.math.BigDecimal;
 import java.util.Date;
+
 import org.apache.commons.io.Charsets;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -67,6 +68,7 @@ import ch.algotrader.enumeration.CombinationType;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.enumeration.OrderServiceType;
+import ch.algotrader.enumeration.QueryType;
 import ch.algotrader.enumeration.TransactionType;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
@@ -272,7 +274,7 @@ public class CacheTest extends DefaultConfigTestBase {
         
         String queryString = "select p from PositionImpl as p join p.strategy as s where p.security.id = :securityId and s.name = :strategyName";
 
-        Position position1 = (Position) cache.queryUnique(queryString, new NamedParam("strategyName", STRATEGY_NAME), new NamedParam("securityId", securityId2));
+        Position position1 = (Position) cache.queryUnique(queryString, QueryType.HQL, new NamedParam("strategyName", STRATEGY_NAME), new NamedParam("securityId", securityId2));
             
         Position position2 = cache.get(PositionImpl.class, position1.getId());
         
@@ -310,10 +312,10 @@ public class CacheTest extends DefaultConfigTestBase {
         String queryString = "from PositionImpl as p join fetch p.security as s where s.id = :id";
         NamedParam namedParam = new NamedParam("id", securityId2);
 
-        Position position2 = (Position) cache.query(queryString, namedParam).iterator().next();
+        Position position2 = (Position) cache.query(queryString, QueryType.HQL, namedParam).iterator().next();
         Assert.assertNotNull(position2);
 
-        Position position3 = (Position) cache.query(queryString, namedParam).iterator().next();
+        Position position3 = (Position) cache.query(queryString, QueryType.HQL, namedParam).iterator().next();
         Assert.assertNotNull(position2);
         Assert.assertEquals(position2, position3);
         Assert.assertSame(position2, position3);
