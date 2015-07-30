@@ -4,7 +4,7 @@
     <parent>
         <groupId>algotrader</groupId>
         <artifactId>algotrader-eclipse</artifactId>
-        <version>2.2.6.Ac-SNAPSHOT</version>
+        <version>2.2.6.Ac1</version>
     </parent>
 
     <artifactId>ch.algotrader.config-editor</artifactId>

@@ -3,7 +3,7 @@
     <parent>
         <groupId>algotrader</groupId>
         <artifactId>algotrader</artifactId>
-        <version>2.2.6.Ac-SNAPSHOT</version>
+        <version>2.2.6.Ac1</version>
     </parent>
     <artifactId>algotrader-mda</artifactId>
     <packaging>pom</packaging>
@@ -34,7 +34,7 @@
         <dependency>
             <groupId>algotrader</groupId>
             <artifactId>algotrader-uml</artifactId>
-            <version>${project.version}</version>
+            <version>2.2.6</version>
         </dependency>
         <dependency>
             <groupId>org.andromda.cartridges</groupId>
@@ -82,7 +82,7 @@
         <!-- Avoid JDK6 XJC runtime error on wdsl2java from conflicting Jaxb2.2 -->
         <!-- Versioned independently from CXF core -->
         <cxf.xjc.version>2.3.0</cxf.xjc.version>
-        <model.uri>jar:file:${settings.localRepository}/algotrader/algotrader-uml/${project.version}/algotrader-uml-${project.version}.jar!/algoTrader.uml</model.uri>
+        <model.uri>jar:file:${settings.localRepository}/algotrader/algotrader-uml/2.2.6/algotrader-uml-2.2.6.jar!/algoTrader.uml</model.uri>
         <filter />
         <validation>true</validation>
         <!-- ant script location for temp copy of resources -->
