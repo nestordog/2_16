@@ -18,7 +18,9 @@
 package ch.algotrader.service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
@@ -27,6 +29,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 
+import ch.algotrader.cache.EntityCacheEvictionEvent;
+import ch.algotrader.cache.QueryCacheEvictionEvent;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.enumeration.FeedType;
@@ -151,20 +155,45 @@ public class SubscriptionServiceImpl implements SubscriptionService, Application
 
         final DefaultMessageListenerContainer marketDataMessageListenerContainer = this.applicationContext.getBean("marketDataMessageListenerContainer", DefaultMessageListenerContainer.class);
 
-        // update the message selector
-        marketDataMessageListenerContainer.setMessageSelector(messageSelector);
+        updateMessageSelector(marketDataMessageListenerContainer, messageSelector);
 
-        // restart the container (must do this in a separate thread to prevent dead-locks)
-        (new Thread() {
-            @Override
-            public void run() {
-                marketDataMessageListenerContainer.stop();
-                marketDataMessageListenerContainer.shutdown();
-                marketDataMessageListenerContainer.start();
-                marketDataMessageListenerContainer.initialize();
-            }
-        }).start();
+    }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void subscribeGenericEvents(final Set<Class<?>> classes) {
+    
+        Validate.notNull(classes, "Classes is null");
+    
+        if (getStrategyEngine() == null) {
+            return;
+        }
+
+        classes.add(EntityCacheEvictionEvent.class);
+        classes.add(QueryCacheEvictionEvent.class);
+    
+        // assemble the message selector
+        List<String> selections = new ArrayList<>();
+        for (Class<?> clazz : classes) {
+            selections.add("clazz='" + clazz.getName() + "'");
+        }
+    
+        String messageSelector = StringUtils.join(selections, " OR ");
+        if ("".equals(messageSelector)) {
+            messageSelector = "false";
+        }
+    
+        final DefaultMessageListenerContainer genericMessageListenerContainer = this.applicationContext.getBean("genericMessageListenerContainer", DefaultMessageListenerContainer.class);
+    
+        updateMessageSelector(genericMessageListenerContainer, messageSelector);
+    
+    }
+
+    @Override
+    public void initGenericEventSubscriptions() {
+        subscribeGenericEvents(new HashSet<Class<?>>());
     }
 
     /**
@@ -182,36 +211,12 @@ public class SubscriptionServiceImpl implements SubscriptionService, Application
             return null;
         }
 
-        final List<Engine> strategyEngines = new ArrayList<>(engineManager.getStrategyEngines());
+        final List<Engine> strategyEngines = new ArrayList<>(this.engineManager.getStrategyEngines());
         return strategyEngines.size() == 1 ? strategyEngines.get(0) : null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void subscribeGenericEvents(final Class<?>[] classes) {
+    private void updateMessageSelector(final DefaultMessageListenerContainer genericMessageListenerContainer, String messageSelector) {
 
-        Validate.notNull(classes, "Classes is null");
-
-        if (getStrategyEngine() == null) {
-            return;
-        }
-
-        // assemble the message selector
-        List<String> selections = new ArrayList<>();
-        for (Class<?> clazz : classes) {
-            selections.add("clazz='" + clazz.getName() + "'");
-        }
-
-        String messageSelector = StringUtils.join(selections, " OR ");
-        if ("".equals(messageSelector)) {
-            messageSelector = "false";
-        }
-
-        final DefaultMessageListenerContainer genericMessageListenerContainer = this.applicationContext.getBean("genericMessageListenerContainer", DefaultMessageListenerContainer.class);
-
-        // update the message selector
         genericMessageListenerContainer.setMessageSelector(messageSelector);
 
         // restart the container (must do this in a separate thread to prevent dead-locks)
@@ -224,6 +229,5 @@ public class SubscriptionServiceImpl implements SubscriptionService, Application
                 genericMessageListenerContainer.initialize();
             }
         }).start();
-
     }
 }
