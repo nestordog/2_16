@@ -19,10 +19,10 @@ package ch.algotrader.dao.strategy;
 
 import java.util.List;
 
+import ch.algotrader.dao.ReadWriteDao;
 import ch.algotrader.entity.strategy.CashBalance;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.enumeration.Currency;
-import ch.algotrader.hibernate.ReadWriteDao;
 
 /**
  * DAO for {@link ch.algotrader.entity.strategy.CashBalance} objects.

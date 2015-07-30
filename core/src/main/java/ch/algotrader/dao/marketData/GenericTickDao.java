@@ -17,8 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.dao.marketData;
 
+import ch.algotrader.dao.ReadWriteDao;
 import ch.algotrader.entity.marketData.GenericTick;
-import ch.algotrader.hibernate.ReadWriteDao;
 
 /**
  * DAO for {@link ch.algotrader.entity.marketData.GenericTick} objects.

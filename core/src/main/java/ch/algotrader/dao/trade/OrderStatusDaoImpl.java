@@ -33,13 +33,13 @@ import org.springframework.stereotype.Repository;
 
 import com.espertech.esper.collection.Pair;
 
+import ch.algotrader.dao.AbstractDao;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.entity.trade.OrderStatusImpl;
 import ch.algotrader.enumeration.QueryType;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.hibernate.AbstractDao;
 import ch.algotrader.vo.OrderStatusVO;
 
 /**

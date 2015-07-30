@@ -33,12 +33,12 @@ import org.springframework.stereotype.Repository;
 
 import com.espertech.esper.collection.Pair;
 
+import ch.algotrader.dao.AbstractDao;
 import ch.algotrader.dao.NamedParam;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderImpl;
 import ch.algotrader.enumeration.QueryType;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.hibernate.AbstractDao;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

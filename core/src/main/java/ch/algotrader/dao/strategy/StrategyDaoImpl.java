@@ -24,11 +24,11 @@ import org.apache.commons.lang.Validate;
 import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
 
+import ch.algotrader.dao.AbstractDao;
 import ch.algotrader.dao.NamedParam;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.enumeration.QueryType;
-import ch.algotrader.hibernate.AbstractDao;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

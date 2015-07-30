@@ -20,9 +20,9 @@ package ch.algotrader.dao.property;
 import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
 
+import ch.algotrader.dao.AbstractDao;
 import ch.algotrader.entity.property.PropertyHolder;
 import ch.algotrader.entity.property.PropertyHolderImpl;
-import ch.algotrader.hibernate.AbstractDao;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

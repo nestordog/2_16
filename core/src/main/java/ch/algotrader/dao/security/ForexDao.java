@@ -19,9 +19,9 @@ package ch.algotrader.dao.security;
 
 import java.util.Date;
 
+import ch.algotrader.dao.ReadWriteDao;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.enumeration.Currency;
-import ch.algotrader.hibernate.ReadWriteDao;
 
 /**
  * DAO for {@link ch.algotrader.entity.security.Forex} objects.

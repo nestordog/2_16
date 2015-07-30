@@ -19,8 +19,8 @@ package ch.algotrader.dao.strategy;
 
 import org.apache.commons.lang.Validate;
 
+import ch.algotrader.dao.EntityConverter;
 import ch.algotrader.entity.strategy.PortfolioValue;
-import ch.algotrader.hibernate.EntityConverter;
 import ch.algotrader.vo.PortfolioValueVO;
 
 /**

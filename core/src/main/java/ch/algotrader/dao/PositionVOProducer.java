@@ -25,7 +25,6 @@ import org.apache.commons.lang.Validate;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.entity.property.Property;
-import ch.algotrader.hibernate.EntityConverter;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.vo.PositionVO;
 

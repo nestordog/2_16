@@ -33,7 +33,6 @@ import org.hibernate.persister.collection.CollectionPersister;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import ch.algotrader.entity.security.Security;
-import ch.algotrader.hibernate.HibernateInitializer;
 import ch.algotrader.visitor.InitializationVisitor;
 
 /**

@@ -28,8 +28,6 @@ import org.springframework.stereotype.Repository;
 import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.TransactionImpl;
 import ch.algotrader.enumeration.QueryType;
-import ch.algotrader.hibernate.AbstractDao;
-import ch.algotrader.hibernate.EntityConverter;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

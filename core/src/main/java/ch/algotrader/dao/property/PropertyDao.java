@@ -19,8 +19,8 @@ package ch.algotrader.dao.property;
 
 import java.util.List;
 
+import ch.algotrader.dao.ReadWriteDao;
 import ch.algotrader.entity.property.Property;
-import ch.algotrader.hibernate.ReadWriteDao;
 
 /**
  * DAO for {@link ch.algotrader.entity.property.Property} objects.

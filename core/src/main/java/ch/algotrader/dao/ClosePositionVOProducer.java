@@ -20,7 +20,6 @@ package ch.algotrader.dao;
 import org.apache.commons.lang.Validate;
 
 import ch.algotrader.entity.Position;
-import ch.algotrader.hibernate.EntityConverter;
 import ch.algotrader.vo.ClosePositionVO;
 
 /**

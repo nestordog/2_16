@@ -21,9 +21,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import ch.algotrader.dao.ReadWriteDao;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.FeedType;
-import ch.algotrader.hibernate.ReadWriteDao;
 
 /**
  * DAO for {@link ch.algotrader.entity.security.Security} objects.

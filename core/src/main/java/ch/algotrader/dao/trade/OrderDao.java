@@ -21,8 +21,8 @@ import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
 
+import ch.algotrader.dao.ReadWriteDao;
 import ch.algotrader.entity.trade.Order;
-import ch.algotrader.hibernate.ReadWriteDao;
 
 /**
  * DAO for {@link ch.algotrader.entity.trade.Order} objects.

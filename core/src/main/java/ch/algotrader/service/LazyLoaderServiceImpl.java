@@ -22,8 +22,8 @@ import java.util.Collection;
 import org.apache.commons.lang.Validate;
 import org.springframework.transaction.annotation.Transactional;
 
+import ch.algotrader.dao.HibernateInitializer;
 import ch.algotrader.entity.BaseEntityI;
-import ch.algotrader.hibernate.HibernateInitializer;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

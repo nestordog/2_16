@@ -25,7 +25,6 @@ import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.security.Security;
-import ch.algotrader.hibernate.EntityConverter;
 import ch.algotrader.vo.TransactionVO;
 
 /**

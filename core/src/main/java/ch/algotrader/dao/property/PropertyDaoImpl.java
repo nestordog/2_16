@@ -22,10 +22,10 @@ import java.util.List;
 import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
 
+import ch.algotrader.dao.AbstractDao;
 import ch.algotrader.entity.property.Property;
 import ch.algotrader.entity.property.PropertyImpl;
 import ch.algotrader.enumeration.QueryType;
-import ch.algotrader.hibernate.AbstractDao;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

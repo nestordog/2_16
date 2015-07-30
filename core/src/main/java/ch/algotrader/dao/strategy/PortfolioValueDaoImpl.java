@@ -24,12 +24,12 @@ import org.apache.commons.lang.Validate;
 import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
 
+import ch.algotrader.dao.AbstractDao;
+import ch.algotrader.dao.EntityConverter;
 import ch.algotrader.dao.NamedParam;
 import ch.algotrader.entity.strategy.PortfolioValue;
 import ch.algotrader.entity.strategy.PortfolioValueImpl;
 import ch.algotrader.enumeration.QueryType;
-import ch.algotrader.hibernate.AbstractDao;
-import ch.algotrader.hibernate.EntityConverter;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

@@ -24,13 +24,13 @@ import org.hibernate.LockOptions;
 import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
 
+import ch.algotrader.dao.AbstractDao;
 import ch.algotrader.dao.NamedParam;
 import ch.algotrader.entity.strategy.CashBalance;
 import ch.algotrader.entity.strategy.CashBalanceImpl;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.QueryType;
-import ch.algotrader.hibernate.AbstractDao;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

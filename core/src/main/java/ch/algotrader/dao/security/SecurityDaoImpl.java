@@ -27,13 +27,13 @@ import org.hibernate.SessionFactory;
 import org.hibernate.type.LongType;
 import org.springframework.stereotype.Repository;
 
+import ch.algotrader.dao.AbstractDao;
+import ch.algotrader.dao.HibernateInitializer;
 import ch.algotrader.dao.NamedParam;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityImpl;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.enumeration.QueryType;
-import ch.algotrader.hibernate.AbstractDao;
-import ch.algotrader.hibernate.HibernateInitializer;
 import ch.algotrader.visitor.InitializationVisitor;
 
 /**

@@ -21,8 +21,6 @@ import java.util.Date;
 import java.util.List;
 
 import ch.algotrader.entity.Transaction;
-import ch.algotrader.hibernate.EntityConverter;
-import ch.algotrader.hibernate.ReadWriteDao;
 
 /**
  * DAO for {@link ch.algotrader.entity.Transaction} objects.
