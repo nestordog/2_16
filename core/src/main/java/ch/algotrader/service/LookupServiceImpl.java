@@ -40,6 +40,7 @@ import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.CoreConfig;
 import ch.algotrader.dao.AccountDao;
 import ch.algotrader.dao.GenericDao;
+import ch.algotrader.dao.NamedParam;
 import ch.algotrader.dao.PositionDao;
 import ch.algotrader.dao.PositionVOProducer;
 import ch.algotrader.dao.SubscriptionDao;
@@ -1519,11 +1520,12 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
-    public List<?> get(final String query) {
+    public List<?> get(final String query, final NamedParam... namedParams) {
 
         Validate.notEmpty(query, "Query is empty");
+        Validate.notNull(namedParams, "Named parameters is null");
 
-        return this.genericDao.find(query);
+        return this.genericDao.find(query, namedParams);
 
     }
 
@@ -1531,11 +1533,12 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
-    public List<?> get(final String query, final int maxResults) {
+    public List<?> get(final String query, final int maxResults, final NamedParam... namedParams) {
 
         Validate.notEmpty(query, "Query is empty");
+        Validate.notNull(namedParams, "Named parameters is null");
 
-        return this.genericDao.find(query, maxResults);
+        return this.genericDao.find(query, maxResults, namedParams);
 
     }
 
@@ -1543,50 +1546,12 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
-    public List<?> get(final String query, final Map namedParameters) {
+    public Object getUnique(final String query, final NamedParam... namedParams) {
 
         Validate.notEmpty(query, "Query is empty");
-        Validate.notNull(namedParameters, "Named parameters is null");
+        Validate.notNull(namedParams, "Named parameters is null");
 
-        return this.genericDao.find(query, namedParameters);
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<?> get(final String query, final Map namedParameters, final int maxResults) {
-
-        Validate.notEmpty(query, "Query is empty");
-        Validate.notNull(namedParameters, "Named parameters is null");
-
-        return this.genericDao.find(query, namedParameters, maxResults);
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Object getUnique(final String query) {
-
-        Validate.notEmpty(query, "Query is empty");
-
-        return this.genericDao.findUnique(query);
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Object getUnique(final String query, final Map namedParameters) {
-
-        Validate.notEmpty(query, "Query is empty");
-        Validate.notNull(namedParameters, "Named parameters is null");
-
-        return this.genericDao.findUnique(query, namedParameters);
+        return this.genericDao.findUnique(query, namedParams);
 
     }
 

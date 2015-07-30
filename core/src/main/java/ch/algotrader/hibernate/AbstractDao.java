@@ -34,6 +34,7 @@ import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
+import ch.algotrader.dao.NamedParam;
 import ch.algotrader.entity.BaseEntityI;
 import ch.algotrader.enumeration.QueryType;
 

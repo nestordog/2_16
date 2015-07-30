@@ -21,7 +21,7 @@ import java.io.Serializable;
 
 /**
  * Notifies that a particular key (e.g. ROOT or collection) of the specified entityClass  and id has been modified.
- * 
+ *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$

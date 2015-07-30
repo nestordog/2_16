@@ -24,7 +24,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
-import ch.algotrader.cache.CacheManager;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.CoreConfig;
 import ch.algotrader.dao.AccountDao;
@@ -142,12 +141,11 @@ public class ServiceWiring {
             final AccountDao accountDao,
             final StockDao stockDao,
             final IntrestRateDao intrestRateDao,
-            final EasyToBorrowDao easyToBorrowDao,
-            final CacheManager cacheManager) {
+            final EasyToBorrowDao easyToBorrowDao) {
 
         return new LookupServiceImpl(commonConfig, coreConfig, sessionFactory, genericDao, futureFamilyDao, futureDao, forexDao, securityFamilyDao, securityReferenceDao, optionFamilyDao, exchangeDao, tickDao, optionDao,
                 transactionDao, positionDao, strategyDao, securityDao, cashBalanceDao, subscriptionDao, combinationDao, componentDao, measurementDao, barDao, orderDao, orderStatusDao, accountDao,
-                stockDao, intrestRateDao, easyToBorrowDao, cacheManager);
+                stockDao, intrestRateDao, easyToBorrowDao);
     }
 
     @Bean(name = "portfolioService")

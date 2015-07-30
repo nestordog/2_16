@@ -31,6 +31,7 @@ import org.hibernate.collection.internal.AbstractPersistentCollection;
 import org.hibernate.proxy.HibernateProxy;
 
 import ch.algotrader.dao.GenericDao;
+import ch.algotrader.dao.NamedParam;
 import ch.algotrader.entity.BaseEntityI;
 import ch.algotrader.entity.Initializer;
 import ch.algotrader.event.listener.EntityCacheEventListener;
@@ -177,23 +178,17 @@ public class CacheManagerImpl implements CacheManager, Initializer, EntityCacheE
     }
 
     @Override
-    public List<?> query(String queryString) {
+    public List<?> query(String queryString, NamedParam... namedParams) {
 
-        return query(queryString, null);
-    }
-
-    @Override
-    public List<?> query(String queryString, Map<String, Object> namedParameters) {
-
-        QueryCacheKey cacheKey = new QueryCacheKey(queryString, namedParameters);
+        QueryCacheKey cacheKey = new QueryCacheKey(queryString, namedParams);
 
         List<?> result = this.queryCache.find(cacheKey);
 
         if (result == null) {
 
             // do the query
-            if (namedParameters != null) {
-                result = this.genericDao.find(queryString, namedParameters);
+            if (namedParams != null) {
+                result = this.genericDao.find(queryString, namedParams);
             } else {
                 result = this.genericDao.find(queryString);
             }
@@ -212,13 +207,8 @@ public class CacheManagerImpl implements CacheManager, Initializer, EntityCacheE
     }
 
     @Override
-    public Object queryUnique(String queryString) {
-        return CollectionUtil.getSingleElementOrNull(query(queryString));
-    }
-
-    @Override
-    public Object queryUnique(String queryString, Map<String, Object> namedParameters) {
-        return CollectionUtil.getSingleElementOrNull(query(queryString, namedParameters));
+    public Object queryUnique(String queryString, NamedParam... namedParams) {
+        return CollectionUtil.getSingleElementOrNull(query(queryString, namedParams));
     }
 
     /**

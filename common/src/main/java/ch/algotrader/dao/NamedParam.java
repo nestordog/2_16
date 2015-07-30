@@ -15,7 +15,7 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.hibernate;
+package ch.algotrader.dao;
 
 import org.apache.commons.lang.Validate;
 

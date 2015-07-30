@@ -28,7 +28,6 @@ import ch.algotrader.entity.AccountImpl;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.enumeration.QueryType;
 import ch.algotrader.hibernate.AbstractDao;
-import ch.algotrader.hibernate.NamedParam;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

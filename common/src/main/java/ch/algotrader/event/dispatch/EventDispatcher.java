@@ -87,7 +87,7 @@ import ch.algotrader.entity.marketData.MarketDataEvent;
  *   <td>x</td>
  *  </tr>
  * </table>
- * 
+ *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$

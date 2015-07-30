@@ -21,6 +21,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
+import ch.algotrader.dao.NamedParam;
 import ch.algotrader.entity.BaseEntityI;
 
 /**
@@ -48,24 +49,14 @@ public interface CacheManager {
     public boolean contains(Class<?> clazz, Serializable key);
 
     /**
-     * performs the given HQL {@code query}
+     * performs the given HQL {@code query} by passing defined {@code namedParameters}
      */
-    public List<?> query(String queryString);
+    public List<?> query(String queryString, NamedParam... params);
 
     /**
      * performs the given HQL {@code query} by passing defined {@code namedParameters}
      */
-    public List<?> query(String queryString, Map<String, Object> namedParameters);
-
-    /**
-     * performs the given HQL {@code query}
-     */
-    public Object queryUnique(String queryString);
-
-    /**
-     * performs the given HQL {@code query} by passing defined {@code namedParameters}
-     */
-    public Object queryUnique(String queryString, Map<String, Object> namedParameters);
+    public Object queryUnique(String queryString, NamedParam... params);
 
     /**
      * clears the entire cache

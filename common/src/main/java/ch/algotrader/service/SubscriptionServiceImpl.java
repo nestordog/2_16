@@ -164,31 +164,31 @@ public class SubscriptionServiceImpl implements SubscriptionService, Application
      */
     @Override
     public void subscribeGenericEvents(final Set<Class<?>> classes) {
-    
+
         Validate.notNull(classes, "Classes is null");
-    
+
         if (getStrategyEngine() == null) {
             return;
         }
 
         classes.add(EntityCacheEvictionEvent.class);
         classes.add(QueryCacheEvictionEvent.class);
-    
+
         // assemble the message selector
         List<String> selections = new ArrayList<>();
         for (Class<?> clazz : classes) {
             selections.add("clazz='" + clazz.getName() + "'");
         }
-    
+
         String messageSelector = StringUtils.join(selections, " OR ");
         if ("".equals(messageSelector)) {
             messageSelector = "false";
         }
-    
+
         final DefaultMessageListenerContainer genericMessageListenerContainer = this.applicationContext.getBean("genericMessageListenerContainer", DefaultMessageListenerContainer.class);
-    
+
         updateMessageSelector(genericMessageListenerContainer, messageSelector);
-    
+
     }
 
     @Override

@@ -29,6 +29,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.type.LongType;
 import org.springframework.stereotype.Repository;
 
+import ch.algotrader.dao.NamedParam;
 import ch.algotrader.dao.SubscriptionDao;
 import ch.algotrader.dao.security.SecurityDao;
 import ch.algotrader.entity.Subscription;
@@ -38,7 +39,6 @@ import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.QueryType;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.hibernate.AbstractDao;
-import ch.algotrader.hibernate.NamedParam;
 import ch.algotrader.util.collection.Pair;
 import ch.algotrader.visitor.TickValidationVisitor;
 

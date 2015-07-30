@@ -17,8 +17,9 @@
  ***********************************************************************************/
 package ch.algotrader.cache;
 
-import java.util.Map;
 import java.util.Objects;
+
+import ch.algotrader.dao.NamedParam;
 
 /**
  * A CacheKey for Queries composed of a {@code queryString} and {@code namedParameters}.
@@ -30,16 +31,11 @@ import java.util.Objects;
 public class QueryCacheKey {
 
     private final String queryString;
-    private final Map<String, Object> namedParameters;
+    private final NamedParam[] namedParameters;
 
     private final int hashCode;
 
-    public QueryCacheKey(String queryString) {
-
-        this(queryString, null);
-    }
-
-    public QueryCacheKey(String queryString, Map<String, Object> namedParameters) {
+    public QueryCacheKey(String queryString, NamedParam... namedParameters) {
 
         this.queryString = queryString;
         this.namedParameters = namedParameters;

@@ -20,7 +20,6 @@ package ch.algotrader.dao;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.Validate;
@@ -33,7 +32,6 @@ import org.hibernate.metadata.ClassMetadata;
 import org.hibernate.persister.collection.CollectionPersister;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import ch.algotrader.dao.GenericDao;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.hibernate.HibernateInitializer;
 import ch.algotrader.visitor.InitializationVisitor;
@@ -59,15 +57,12 @@ public class GenericDaoImpl implements GenericDao {
         this.txTemplate = txTemplate;
     }
 
-    /* (non-Javadoc)
-     * @see ch.algotrader.hibernate.GenericDao#get(java.lang.Class, java.io.Serializable)
-     */
     @Override
     public Object get(final Class<?> clazz, final Serializable id) {
 
         return this.txTemplate.execute(txStatus -> {
 
-            Session session = sessionFactory.getCurrentSession();
+            Session session = this.sessionFactory.getCurrentSession();
             Object result = session.get(clazz, id);
 
             // initialize Securities
@@ -81,20 +76,17 @@ public class GenericDaoImpl implements GenericDao {
         });
     }
 
-    /* (non-Javadoc)
-     * @see ch.algotrader.hibernate.GenericDao#getInitializedCollection(java.lang.String, java.io.Serializable)
-     */
     @Override
     public Object getInitializedCollection(final String role, final Serializable id) {
 
         return this.txTemplate.execute(txStatus -> {
 
-            SessionFactoryImpl sessionFactoryImpl = (SessionFactoryImpl) sessionFactory;
+            SessionFactoryImpl sessionFactoryImpl = (SessionFactoryImpl) this.sessionFactory;
             CollectionPersister persister = sessionFactoryImpl.getCollectionPersister(role);
 
             // load the owner entity
             ClassMetadata ownerMetadata = persister.getOwnerEntityPersister().getClassMetadata();
-            Session session = sessionFactory.getCurrentSession();
+            Session session = this.sessionFactory.getCurrentSession();
             Object owner = session.get(ownerMetadata.getEntityName(), id);
 
             // owner does not exist anymore so no point in loading the collection
@@ -118,104 +110,38 @@ public class GenericDaoImpl implements GenericDao {
         });
     }
 
-    /* (non-Javadoc)
-     * @see ch.algotrader.hibernate.GenericDao#find(java.lang.String)
-     */
     @Override
-    public List<?> find(final String queryString) {
+    public List<?> find(final String queryString, final NamedParam... namedParams) {
 
-        return this.txTemplate.execute(txStatus -> {
-
-            Session session = sessionFactory.getCurrentSession();
-            Query query = session.createQuery(queryString);
-            query.setCacheable(true);
-            return query.list();
-        });
+        return find(queryString, 0, namedParams);
     }
 
-    /* (non-Javadoc)
-     * @see ch.algotrader.hibernate.GenericDao#find(java.lang.String, int)
-     */
     @Override
-    public List<?> find(final String queryString, final int maxResults) {
+    public List<?> find(final String queryString, final int maxResults, final NamedParam... namedParams) {
 
         return this.txTemplate.execute(txStatus -> {
 
-            Session session = sessionFactory.getCurrentSession();
+            Session session = this.sessionFactory.getCurrentSession();
             Query query = session.createQuery(queryString);
             query.setCacheable(true);
             query.setMaxResults(maxResults);
-            return query.list();
-        });
-    }
-
-    /* (non-Javadoc)
-     * @see ch.algotrader.hibernate.GenericDao#find(java.lang.String, java.util.Map)
-     */
-    @Override
-    public List<?> find(final String queryString, final Map<String, Object> namedParameters) {
-
-        return this.txTemplate.execute(txStatus -> {
-
-            Session session = sessionFactory.getCurrentSession();
-            Query query = session.createQuery(queryString);
-            query.setCacheable(true);
-            for (Map.Entry<String, Object> entry : namedParameters.entrySet()) {
-                query.setParameter(entry.getKey(), entry.getValue());
+            for (NamedParam namedParam : namedParams) {
+                query.setParameter(namedParam.getName(), namedParam.getValue());
             }
             return query.list();
         });
     }
 
-    /* (non-Javadoc)
-     * @see ch.algotrader.hibernate.GenericDao#find(java.lang.String, java.util.Map, int)
-     */
     @Override
-    public List<?> find(final String queryString, final Map<String, Object> namedParameters, final int maxResults) {
+    public Object findUnique(final String queryString, final NamedParam... namedParams) {
 
         return this.txTemplate.execute(txStatus -> {
 
-            Session session = sessionFactory.getCurrentSession();
+            Session session = this.sessionFactory.getCurrentSession();
             Query query = session.createQuery(queryString);
             query.setCacheable(true);
-            query.setMaxResults(maxResults);
-            for (Map.Entry<String, Object> entry : namedParameters.entrySet()) {
-                query.setParameter(entry.getKey(), entry.getValue());
-            }
-            return query.list();
-        });
-    }
-
-
-    /* (non-Javadoc)
-     * @see ch.algotrader.hibernate.GenericDao#findUnique(java.lang.String)
-     */
-    @Override
-    public Object findUnique(final String queryString) {
-
-        return this.txTemplate.execute(txStatus -> {
-
-            Session session = sessionFactory.getCurrentSession();
-            Query query = session.createQuery(queryString);
-            query.setCacheable(true);
-            return query.uniqueResult();
-        });
-    }
-
-
-    /* (non-Javadoc)
-     * @see ch.algotrader.hibernate.GenericDao#findUnique(java.lang.String, java.util.Map)
-     */
-    @Override
-    public Object findUnique(final String queryString, final Map<String, Object> namedParameters) {
-
-        return this.txTemplate.execute(txStatus -> {
-
-            Session session = sessionFactory.getCurrentSession();
-            Query query = session.createQuery(queryString);
-            query.setCacheable(true);
-            for (Map.Entry<String, Object> entry : namedParameters.entrySet()) {
-                query.setParameter(entry.getKey(), entry.getValue());
+            for (NamedParam namedParam : namedParams) {
+                query.setParameter(namedParam.getName(), namedParam.getValue());
             }
             return query.uniqueResult();
         });
@@ -224,6 +150,7 @@ public class GenericDaoImpl implements GenericDao {
     /**
      * Gets the querySpaces (tables) associated with a query
      */
+    @Override
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public Set<String> getQuerySpaces(String queryString) {
 

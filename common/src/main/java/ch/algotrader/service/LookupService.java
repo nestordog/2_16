@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import ch.algotrader.dao.NamedParam;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.Subscription;
@@ -558,50 +559,28 @@ public interface LookupService {
     public Date getCurrentDBTime();
 
     /**
-     * Retrieves an arbitrary list of Entities or values based on a Hibernate query. Example:
-     * from Strategy
-     * or
-     * select name from Strategy where id = 1
-     */
-    public List<?> get(String query);
-
-    /**
-     * Retrieves an arbitrary list of Entities or values based on a Hibernate query. Example:
-     * from Strategy
-     * or
-     * select name from Strategy where id = 1
-     */
-    public List<?> get(String query, int maxResults);
-
-    /**
-     * Retrieves an arbitrary list of Entities or values based on a Hibernate query. In addition a
-     * Map containing named parameters can be passed. Example:
+     * Retrieves an arbitrary list of Entities or values based on a Hibernate query.
+     * In addition named parameters can be passed. Example:
      * from Strategy where name = :strategyName
-     * and the Map containing an entry with {@code key='strategyName'} and {@code value='SERVER'}
+     * and a NamedParam with {@code name='strategyName'} and {@code value='SERVER'}
      */
-    public List<?> get(String query, Map namedParameters);
+    public List<?> get(String query, NamedParam... namedParams);
 
     /**
-     * Retrieves an arbitrary list of Entities or values based on a Hibernate query. In addition a
-     * Map containing named parameters can be passed. Example:
+     * Retrieves an arbitrary list of Entities or values based on a Hibernate query.
+     * In addition named parameters can be passed. Example:
      * from Strategy where name = :strategyName
-     * and the Map containing an entry with {@code key='strategyName'} and {@code value='SERVER'}
+     * and a NamedParam with {@code name='strategyName'} and {@code value='SERVER'}
      */
-    public List<?> get(String query, Map namedParameters, int maxResults);
+    public List<?> get(String query, int maxResults, NamedParam... namedParams);
 
     /**
-     * Retrieves a unique Object based on a Hibernate query. Example:
-     * from Strategy where id = 1
-     */
-    public Object getUnique(String query);
-
-    /**
-     * Retrieves a unique Object based on a Hibernate query. In addition a
-     * Map containing named parameters can be passed. Example:
+     * Retrieves a unique Object based on a Hibernate query.
+     * In addition named parameters can be passed. Example:
      * from Strategy where name = :strategyName
-     * and the Map containing an entry with {@code key='strategyName'} and {@code value='SERVER'}
+     * and a NamedParam with {@code name='strategyName'} and {@code value='SERVER'}
      */
-    public Object getUnique(String query, Map namedParameters);
+    public Object getUnique(String query, NamedParam... namedParams);
 
     /**
      * returns the specified hibernate named query

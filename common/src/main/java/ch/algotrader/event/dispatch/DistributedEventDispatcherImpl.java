@@ -88,32 +88,32 @@ public class DistributedEventDispatcherImpl implements EventDispatcher, MessageL
 
     @Override
     public void broadcastLocalStrategies(final Object event) {
-    
+
         for (Engine engine : this.engineManager.getStrategyEngines()) {
-    
+
             engine.sendEvent(event);
         }
-    
+
         broadcastLocalEventListeners(event);
     }
 
     @Override
     public void broadcastLocal(final Object event) {
-    
+
         for (Engine engine : this.engineManager.getEngines()) {
-    
+
             engine.sendEvent(event);
         }
-    
+
         broadcastLocalEventListeners(event);
     }
 
     @Override
     public void broadcastRemote(final Object event) {
-    
+
         Objects.requireNonNull(this.genericTemplate, "Generic template is null");
         this.genericTemplate.convertAndSend(event, message -> {
-    
+
             // add class Property
             message.setStringProperty("clazz", event.getClass().getName());
             return message;
@@ -122,21 +122,21 @@ public class DistributedEventDispatcherImpl implements EventDispatcher, MessageL
 
     @Override
     public void broadcastEventListeners(final Object event) {
-    
+
         broadcastLocalEventListeners(event);
         broadcastRemote(event);
     }
 
     @Override
     public void broadcastAllStrategies(final Object event) {
-    
+
         broadcastLocalStrategies(event);
         broadcastRemote(event);
     }
 
     @Override
     public void broadcast(final Object event) {
-    
+
         broadcastLocal(event);
         broadcastRemote(event);
     }
@@ -151,14 +151,14 @@ public class DistributedEventDispatcherImpl implements EventDispatcher, MessageL
 
     @Override
     public void sendMarketDataEvent(final MarketDataEvent marketDataEvent) {
-    
+
         Objects.requireNonNull(this.marketDataTemplate, "Market data template is null");
         this.marketDataTemplate.convertAndSend(marketDataEvent, message -> {
             // add securityId Property
             message.setLongProperty("securityId", marketDataEvent.getSecurity().getId());
             return message;
         });
-    
+
         broadcastLocalEventListeners(marketDataEvent);
     }
 

@@ -22,7 +22,7 @@ import java.io.Serializable;
 /**
  * Notifies that a particular spaceName (table) has been modified.
  * All cached queries based on this spaceName should be evicted.
- * 
+ *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$

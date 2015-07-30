@@ -42,6 +42,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.CoreConfig;
 import ch.algotrader.dao.GenericDao;
+import ch.algotrader.dao.NamedParam;
 import ch.algotrader.dao.PositionDao;
 import ch.algotrader.dao.TransactionDao;
 import ch.algotrader.dao.marketData.TickDao;
@@ -201,13 +202,13 @@ public class PortfolioServiceImpl implements PortfolioService {
      * {@inheritDoc}
      */
     @Override
-    public BigDecimal getCashBalance(final String filter, final Map namedParameters, final Date date) {
+    public BigDecimal getCashBalance(final String filter, final Date date, final NamedParam... namedParams) {
 
         Validate.notEmpty(filter, "Filter is empty");
-        Validate.notNull(namedParameters, "Named parameters is null");
+        Validate.notNull(namedParams, "Named parameters is null");
         Validate.notNull(date, "Date is null");
 
-        return RoundUtil.getBigDecimal(getCashBalanceDouble(filter, namedParameters, date));
+        return RoundUtil.getBigDecimal(getCashBalanceDouble(filter, date, namedParams));
 
     }
 
@@ -277,14 +278,18 @@ public class PortfolioServiceImpl implements PortfolioService {
     /**
      * {@inheritDoc}
      */
+    @SuppressWarnings("unchecked")
     @Override
-    public double getCashBalanceDouble(final String filter, final Map namedParameters, final Date date) {
+    public double getCashBalanceDouble(final String filter, final Date date, final NamedParam... namedParams) {
 
         Validate.notEmpty(filter, "Filter is empty");
-        Validate.notNull(namedParameters, "Named parameters is null");
+        Validate.notNull(namedParams, "Named parameters is null");
         Validate.notNull(date, "Date is null");
 
-        namedParameters.put("maxDate", date);
+        // add maxDate
+        NamedParam[] copy = new NamedParam[namedParams.length + 1];
+        System.arraycopy(namedParams, 0, copy, 0, namedParams.length);
+        copy[namedParams.length] = new NamedParam("maxDate", date);
 
         //@formatter:off
             String query =
@@ -292,7 +297,7 @@ public class PortfolioServiceImpl implements PortfolioService {
                     + "where " + filter + " "
                     + "and t.dateTime <= :maxDate";
           //@formatter:on
-        Collection<Transaction> transactions = (Collection<Transaction>) this.genericDao.find(query, namedParameters);
+        Collection<Transaction> transactions = (Collection<Transaction>) this.genericDao.find(query, copy);
 
         return getCashBalanceDoubleInternal(transactions, new ArrayList<>(), date);
 
@@ -349,13 +354,13 @@ public class PortfolioServiceImpl implements PortfolioService {
      * {@inheritDoc}
      */
     @Override
-    public BigDecimal getSecuritiesCurrentValue(final String filter, final Map namedParameters, final Date date) {
+    public BigDecimal getSecuritiesCurrentValue(final String filter, final Date date, final NamedParam... namedParams) {
 
         Validate.notEmpty(filter, "Filter is empty");
-        Validate.notNull(namedParameters, "Named parameters is null");
+        Validate.notNull(namedParams, "Named parameters is null");
         Validate.notNull(date, "Date is null");
 
-        return RoundUtil.getBigDecimal(getSecuritiesCurrentValueDouble(filter, namedParameters, date));
+        return RoundUtil.getBigDecimal(getSecuritiesCurrentValueDouble(filter, date, namedParams));
 
     }
 
@@ -417,11 +422,12 @@ public class PortfolioServiceImpl implements PortfolioService {
     /**
      * {@inheritDoc}
      */
+    @SuppressWarnings("unchecked")
     @Override
-    public double getSecuritiesCurrentValueDouble(final String filter, final Map namedParameters, final Date date) {
+    public double getSecuritiesCurrentValueDouble(final String filter, final Date date, final NamedParam... namedParams) {
 
         Validate.notEmpty(filter, "Filter is empty");
-        Validate.notNull(namedParameters, "Named parameters is null");
+        Validate.notNull(namedParams, "Named parameters is null");
         Validate.notNull(date, "Date is null");
 
         //@formatter:off
@@ -437,9 +443,12 @@ public class PortfolioServiceImpl implements PortfolioService {
                     + "order by s.id";
             //@formatter:on
 
-        namedParameters.put("maxDate", date);
+        // add maxDate
+        NamedParam[] copy = new NamedParam[namedParams.length + 1];
+        System.arraycopy(namedParams, 0, copy, 0, namedParams.length);
+        copy[namedParams.length] = new NamedParam("maxDate", date);
 
-        List<Position> openPositions = (List<Position>) this.genericDao.find(queryString, namedParameters);
+        List<Position> openPositions = (List<Position>) this.genericDao.find(queryString, namedParams);
 
         return getSecuritiesCurrentValueDoubleInternal(openPositions, date);
 

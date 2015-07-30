@@ -24,6 +24,7 @@ import org.apache.commons.lang.Validate;
 import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
 
+import ch.algotrader.dao.NamedParam;
 import ch.algotrader.dao.marketData.TickDao;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.Forex;
@@ -31,7 +32,6 @@ import ch.algotrader.entity.security.ForexImpl;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.QueryType;
 import ch.algotrader.hibernate.AbstractDao;
-import ch.algotrader.hibernate.NamedParam;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
