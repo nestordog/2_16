@@ -1,4 +1,4 @@
-package ch.algotrader.hibernate;
+package ch.algotrader.dao;
 
 import java.io.Serializable;
 import java.util.List;

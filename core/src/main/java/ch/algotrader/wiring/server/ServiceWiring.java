@@ -24,9 +24,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
+import ch.algotrader.cache.CacheManager;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.CoreConfig;
 import ch.algotrader.dao.AccountDao;
+import ch.algotrader.dao.GenericDao;
 import ch.algotrader.dao.PositionDao;
 import ch.algotrader.dao.SubscriptionDao;
 import ch.algotrader.dao.TransactionDao;
@@ -63,7 +65,6 @@ import ch.algotrader.dao.trade.StopOrderDao;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.dispatch.EventDispatcher;
-import ch.algotrader.hibernate.GenericDao;
 import ch.algotrader.service.CalendarService;
 import ch.algotrader.service.CalendarServiceImpl;
 import ch.algotrader.service.CombinationService;
@@ -141,11 +142,12 @@ public class ServiceWiring {
             final AccountDao accountDao,
             final StockDao stockDao,
             final IntrestRateDao intrestRateDao,
-            final EasyToBorrowDao easyToBorrowDao) {
+            final EasyToBorrowDao easyToBorrowDao,
+            final CacheManager cacheManager) {
 
         return new LookupServiceImpl(commonConfig, coreConfig, sessionFactory, genericDao, futureFamilyDao, futureDao, forexDao, securityFamilyDao, securityReferenceDao, optionFamilyDao, exchangeDao, tickDao, optionDao,
                 transactionDao, positionDao, strategyDao, securityDao, cashBalanceDao, subscriptionDao, combinationDao, componentDao, measurementDao, barDao, orderDao, orderStatusDao, accountDao,
-                stockDao, intrestRateDao, easyToBorrowDao);
+                stockDao, intrestRateDao, easyToBorrowDao, cacheManager);
     }
 
     @Bean(name = "portfolioService")

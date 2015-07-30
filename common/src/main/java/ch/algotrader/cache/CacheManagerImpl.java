@@ -30,11 +30,11 @@ import org.apache.logging.log4j.Logger;
 import org.hibernate.collection.internal.AbstractPersistentCollection;
 import org.hibernate.proxy.HibernateProxy;
 
+import ch.algotrader.dao.GenericDao;
 import ch.algotrader.entity.BaseEntityI;
 import ch.algotrader.entity.Initializer;
 import ch.algotrader.event.listener.EntityCacheEventListener;
 import ch.algotrader.event.listener.QueryCacheEventListener;
-import ch.algotrader.hibernate.GenericDao;
 import ch.algotrader.util.collection.CollectionUtil;
 import ch.algotrader.util.metric.MetricsUtil;
 import ch.algotrader.visitor.InitializationVisitor;

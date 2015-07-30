@@ -41,6 +41,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.CoreConfig;
+import ch.algotrader.dao.GenericDao;
 import ch.algotrader.dao.PositionDao;
 import ch.algotrader.dao.TransactionDao;
 import ch.algotrader.dao.marketData.TickDao;
@@ -61,7 +62,6 @@ import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.esper.EngineManager;
-import ch.algotrader.hibernate.GenericDao;
 import ch.algotrader.report.ListReporter;
 import ch.algotrader.util.DateTimeUtil;
 import ch.algotrader.util.RoundUtil;

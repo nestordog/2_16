@@ -15,7 +15,7 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.hibernate;
+package ch.algotrader.dao;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -33,7 +33,9 @@ import org.hibernate.metadata.ClassMetadata;
 import org.hibernate.persister.collection.CollectionPersister;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import ch.algotrader.dao.GenericDao;
 import ch.algotrader.entity.security.Security;
+import ch.algotrader.hibernate.HibernateInitializer;
 import ch.algotrader.visitor.InitializationVisitor;
 
 /**

@@ -28,12 +28,12 @@ import org.springframework.transaction.support.TransactionTemplate;
 import ch.algotrader.cache.CacheManager;
 import ch.algotrader.cache.CacheManagerImpl;
 import ch.algotrader.cache.CacheManagerMBean;
+import ch.algotrader.dao.GenericDao;
+import ch.algotrader.dao.GenericDaoImpl;
 import ch.algotrader.ehcache.CollectionCacheEventListener;
 import ch.algotrader.ehcache.EntityCacheEventListener;
 import ch.algotrader.ehcache.QueryCacheEventListener;
 import ch.algotrader.event.dispatch.EventDispatcher;
-import ch.algotrader.hibernate.GenericDao;
-import ch.algotrader.hibernate.GenericDaoImpl;
 
 /**
  * Cache configuration.
