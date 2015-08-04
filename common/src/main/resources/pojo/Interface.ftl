@@ -5,6 +5,8 @@ ${pojo.getPackageDeclaration()}
 <#include "InterfaceTypeDeclaration.ftl"/> {
 
 <#include "InterfacePropertyAccessors.ftl"/>
+
+<#include "InterfaceExtraClassCode.ftl"/>
 }
 </#assign>
 

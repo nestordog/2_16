@@ -13,6 +13,8 @@ ${pojo.getPackageDeclaration()}
 <#include "ValueObjectToString.ftl"/>
 
 <#include "ValueObjectEqualsHashcode.ftl"/>
+
+<#include "ValueObjectExtraClassCode.ftl"/>
 }
 </#assign>
 
