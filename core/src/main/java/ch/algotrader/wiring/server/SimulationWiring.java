@@ -52,6 +52,7 @@ import ch.algotrader.service.PortfolioService;
 import ch.algotrader.service.PositionService;
 import ch.algotrader.service.ResetService;
 import ch.algotrader.service.ResetServiceImpl;
+import ch.algotrader.service.ServerLookupService;
 import ch.algotrader.service.StrategyPersistenceService;
 import ch.algotrader.service.TransactionService;
 import ch.algotrader.service.sim.SimulationOrderService;
@@ -75,6 +76,7 @@ public class SimulationWiring {
             final PortfolioService portfolioService,
             final StrategyPersistenceService strategyPersistenceService,
             final LookupService lookupService,
+            final ServerLookupService serverLookupService,
             final EventListenerRegistry eventListenerRegistry,
             final EventDispatcher eventDispatcher,
             final EngineManager engineManager,
@@ -82,7 +84,7 @@ public class SimulationWiring {
             final CacheManager cacheManager) {
 
         return new SimulationExecutorImpl(commonConfig, positionService, resetService, transactionService, portfolioService, strategyPersistenceService,
-                lookupService, eventListenerRegistry, eventDispatcher, engineManager, serverEngine, cacheManager);
+                lookupService, serverLookupService, eventListenerRegistry, eventDispatcher, engineManager, serverEngine, cacheManager);
     }
 
     @Profile({"simulation", "noopSimulation"})

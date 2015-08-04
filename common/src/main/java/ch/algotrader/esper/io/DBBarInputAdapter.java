@@ -27,6 +27,7 @@ import org.apache.commons.lang.time.DateUtils;
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.marketData.Bar;
 import ch.algotrader.enumeration.Duration;
+import ch.algotrader.service.ServerLookupService;
 
 import com.espertech.esper.adapter.AdapterState;
 import com.espertech.esper.client.EPException;
@@ -48,13 +49,15 @@ public class DBBarInputAdapter extends AbstractCoordinatedAdapter {
     private Date startDate;
     private final int batchSize;
     private final Duration barSize;
+    private final ServerLookupService serverLookupService;
 
     public DBBarInputAdapter(int batchSize, Duration barSize) {
         super(null, true, true, true);
         this.batchSize = batchSize;
         this.barSize = barSize;
 
-        Bar bar = ServiceLocator.instance().getLookupService().getFirstSubscribedBarByBarSize(this.barSize);
+        this.serverLookupService = ServiceLocator.instance().getService("serverLookupService", ServerLookupService.class);
+        Bar bar = this.serverLookupService.getFirstSubscribedBarByBarSize(this.barSize);
         this.startDate = bar.getDateTime();
     }
 
@@ -91,7 +94,7 @@ public class DBBarInputAdapter extends AbstractCoordinatedAdapter {
             if (!this.iterator.hasNext()) {
                 Date endDate = DateUtils.addDays(this.startDate, this.batchSize);
 
-                List<Bar> bars = ServiceLocator.instance().getLookupService().getSubscribedBarsByTimePeriodAndBarSize(this.startDate, endDate, this.barSize);
+                List<Bar> bars = this.serverLookupService.getSubscribedBarsByTimePeriodAndBarSize(this.startDate, endDate, this.barSize);
 
                 if (bars.size() > 0) {
                     this.iterator = bars.iterator();

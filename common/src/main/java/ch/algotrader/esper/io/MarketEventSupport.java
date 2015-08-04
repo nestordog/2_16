@@ -26,6 +26,7 @@ import ch.algotrader.entity.marketData.Bar;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityImpl;
+import ch.algotrader.service.ServerLookupService;
 import ch.algotrader.vo.RawBarVO;
 import ch.algotrader.vo.RawTickVO;
 
@@ -96,7 +97,8 @@ final class MarketEventSupport {
         Long securityId = SECURITY_ID_BY_SECURITY_STRING.get(securityString);
         if (securityId == null) {
             // lookup the securityId
-            securityId = serviceLocator.getLookupService().getSecurityIdBySecurityString(securityString);
+            ServerLookupService serverLookupService = ServiceLocator.instance().getService("serverLookupService", ServerLookupService.class);
+            securityId = serverLookupService.getSecurityIdBySecurityString(securityString);
             SECURITY_ID_BY_SECURITY_STRING.put(securityString, securityId);//due to racing we may replace an existing entry but that's fine
         }
 
