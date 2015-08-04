@@ -50,7 +50,6 @@ public class ServerEngineWiring {
                 "market-data",
                 "combination",
                 "current-values",
-                "market-data-simulation",
                 "trades",
                 "portfolio",
                 "performance",
