@@ -71,8 +71,8 @@ public class DistributedEventDispatcherImpl implements EventDispatcher, MessageL
     @Override
     public void sendEvent(final String engineName, final Object obj) {
         // check if it is a local engine
-        final Engine engine = this.engineManager.getEngine(engineName);
-        if (engine != null) {
+        if (this.engineManager.hasEngine(engineName)) {
+            final Engine engine = this.engineManager.getEngine(engineName);
             engine.sendEvent(obj);
         } else {
             Objects.requireNonNull(this.strategyTemplate, "Strategy template is null");
