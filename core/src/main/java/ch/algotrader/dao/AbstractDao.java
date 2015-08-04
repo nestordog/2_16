@@ -203,7 +203,11 @@ public class AbstractDao<E extends BaseEntityI> {
 
     private void applyParameters(final Query query, final NamedParam... params) {
         for (NamedParam param : params) {
-            query.setParameter(param.getName(), param.getValue());
+            if (param.getValue() instanceof Collection) {
+                query.setParameterList(param.getName(), (Collection<?>) param.getValue());
+            } else {
+                query.setParameter(param.getName(), param.getValue());
+            }
         }
     }
 

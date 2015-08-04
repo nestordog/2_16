@@ -129,7 +129,7 @@ public interface SecurityDao extends ReadWriteDao<Security> {
      * Strategy which is marked as {@code autoActive} and the specified {@code feedType}.
      * @return List<Map>
      */
-    List<Map> findSubscribedAndFeedTypeForAutoActivateStrategies();
+    List<Map<String, Object>> findSubscribedAndFeedTypeForAutoActivateStrategies();
 
     /**
      * Gets the {@code securityId} of the Security defined by the specified {@code isin}.

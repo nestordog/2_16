@@ -22,9 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.Validate;
-import org.hibernate.Query;
 import org.hibernate.SessionFactory;
-import org.hibernate.type.LongType;
 import org.springframework.stereotype.Repository;
 
 import ch.algotrader.dao.AbstractDao;
@@ -62,16 +60,12 @@ public class SecurityDaoImpl extends AbstractDao<Security> implements SecurityDa
         return security;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public List<Security> findByIds(Collection<Long> ids) {
 
         Validate.notEmpty(ids, "Ids are empty");
 
-        Query query = this.prepareQuery(null, "Security.findByIds", QueryType.BY_NAME);
-        query.setParameterList("ids", ids, LongType.INSTANCE);
-
-        return query.list();
+        return this.find("Security.findByIds", QueryType.BY_NAME, new NamedParam("ids", ids));
     }
 
     @Override
@@ -149,11 +143,10 @@ public class SecurityDaoImpl extends AbstractDao<Security> implements SecurityDa
         return findCaching("Security.findSubscribedByFeedTypeAndStrategyInclFamily", QueryType.BY_NAME, new NamedParam("feedType", feedType), new NamedParam("strategyName", strategyName));
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
-    public List<Map> findSubscribedAndFeedTypeForAutoActivateStrategies() {
+    public List<Map<String, Object>> findSubscribedAndFeedTypeForAutoActivateStrategies() {
 
-        return (List<Map>) findObjects(null, "Security.findSubscribedAndFeedTypeForAutoActivateStrategies", QueryType.BY_NAME);
+        return (List<Map<String, Object>>) findObjects(null, "Security.findSubscribedAndFeedTypeForAutoActivateStrategies", QueryType.BY_NAME);
     }
 
     @Override

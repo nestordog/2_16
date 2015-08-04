@@ -24,9 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.Validate;
-import org.hibernate.Query;
 import org.hibernate.SessionFactory;
-import org.hibernate.type.LongType;
 import org.springframework.stereotype.Repository;
 
 import ch.algotrader.dao.AbstractDao;
@@ -151,16 +149,12 @@ public class TickDaoImpl extends AbstractDao<Tick> implements TickDao {
                 new NamedParam("minDate", minDate)));
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public List<Tick> findByIdsInclSecurityAndUnderlying(List<Long> ids) {
 
         Validate.notEmpty(ids, "Ids are empty");
 
-        Query query = this.prepareQuery(null, "Tick.findByIdsInclSecurityAndUnderlying", QueryType.BY_NAME);
-        query.setParameterList("ids", ids, LongType.INSTANCE);
-
-        return query.list();
+        return find("Tick.findByIdsInclSecurityAndUnderlying", QueryType.BY_NAME, new NamedParam("ids", ids));
     }
 
     @Override
