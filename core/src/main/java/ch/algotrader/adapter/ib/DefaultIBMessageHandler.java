@@ -39,11 +39,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.traversal.NodeIterator;
 import org.xml.sax.InputSource;
 
-import com.ib.client.Contract;
-import com.ib.client.ContractDetails;
-import com.ib.client.EWrapperMsgGenerator;
-import com.ib.client.Execution;
-
 import ch.algotrader.entity.marketData.Bar;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.Order;
@@ -51,9 +46,14 @@ import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.service.ExternalServiceException;
-import ch.algotrader.service.LookupService;
+import ch.algotrader.service.OrderService;
 import ch.algotrader.util.DateTimeLegacy;
 import ch.algotrader.util.PriceUtil;
+
+import com.ib.client.Contract;
+import com.ib.client.ContractDetails;
+import com.ib.client.EWrapperMsgGenerator;
+import com.ib.client.Execution;
 
 /**
  * Esper specific MessageHandler.
@@ -74,7 +74,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
     private final IBPendingRequests pendingRequests;
     private final IBIdGenerator idGenerator;
 
-    private final LookupService lookupService;
+    private final OrderService orderService;
 
     private final BlockingQueue<AccountUpdate> accountUpdateQueue;
     private final BlockingQueue<Set<String>> accountsQueue;
@@ -86,7 +86,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
             final IBSessionStateHolder sessionStateHolder,
             final IBPendingRequests pendingRequests,
             final IBIdGenerator idGenerator,
-            final LookupService lookupService,
+            final OrderService orderService,
             final BlockingQueue<AccountUpdate> accountUpdateQueue,
             final BlockingQueue<Set<String>> accountsQueue,
             final BlockingQueue<Profile> profilesQueue,
@@ -95,7 +95,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
         this.sessionStateHolder = sessionStateHolder;
         this.pendingRequests = pendingRequests;
         this.idGenerator = idGenerator;
-        this.lookupService = lookupService;
+        this.orderService = orderService;
         this.accountUpdateQueue = accountUpdateQueue;
         this.accountsQueue = accountsQueue;
         this.profilesQueue = profilesQueue;
@@ -113,7 +113,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
         String intId = String.valueOf(execution.m_orderId);
 
         // get the order from the OpenOrderWindow
-        Order order = this.lookupService.getOpenOrderByIntId(intId);
+        Order order = this.orderService.getOpenOrderByIntId(intId);
         if (order == null) {
             LOGGER.error("order could not be found {} for execution {} {}", intId, contract, execution);
             return;
@@ -150,7 +150,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
             final int parentId, final double lastFillPrice, final int clientId, final String whyHeld) {
 
         // get the order from the OpenOrderWindow
-        Order order = this.lookupService.getOpenOrderByIntId(String.valueOf(orderId));
+        Order order = this.orderService.getOpenOrderByIntId(String.valueOf(orderId));
 
         if (order != null) {
 
@@ -207,7 +207,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
     @Override
     public void historicalData(int requestId, String dateString, double open, double high, double low, double close, int volume, int count, double WAP, boolean hasGaps) {
 
-        IBPendingRequest<Bar> pendingHistoricDataRequest = pendingRequests.getHistoricDataRequest(requestId);
+        IBPendingRequest<Bar> pendingHistoricDataRequest = this.pendingRequests.getHistoricDataRequest(requestId);
         if (pendingHistoricDataRequest == null) {
             if (LOGGER.isWarnEnabled()) {
                 LOGGER.warn("Unexpected historic data request id: " + requestId);
@@ -216,7 +216,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
         }
         if (dateString.startsWith("finished")) {
 
-            pendingRequests.removeHistoricDataRequest(requestId);
+            this.pendingRequests.removeHistoricDataRequest(requestId);
 
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Historic data request completed; request id = " + requestId);
@@ -329,7 +329,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
     @Override
     public void contractDetails(int reqId, ContractDetails contractDetails) {
 
-        IBPendingRequest<ContractDetails> pendingContractRequest = pendingRequests.getContractDetailRequest(reqId);
+        IBPendingRequest<ContractDetails> pendingContractRequest = this.pendingRequests.getContractDetailRequest(reqId);
         if (pendingContractRequest == null) {
             if (LOGGER.isWarnEnabled()) {
                 LOGGER.warn("Unexpected contract detail request id: " + reqId);
@@ -346,7 +346,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
     @Override
     public void contractDetailsEnd(int reqId) {
 
-        IBPendingRequest<ContractDetails> pendingContractRequest = pendingRequests.removeContractDetailRequest(reqId);
+        IBPendingRequest<ContractDetails> pendingContractRequest = this.pendingRequests.removeContractDetailRequest(reqId);
         if (pendingContractRequest == null) {
             if (LOGGER.isWarnEnabled()) {
                 LOGGER.warn("Unexpected contract detail request id: " + reqId);
@@ -365,7 +365,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
         // IB client executes this notification from an interrupted thread, which prevents
         // execution of potentially blocking I/O operations such as publishing to a JMS queue
         // This makes it necessary to execute #onDisconnect() event on a separate thread
-        final Thread disposableThread = new Thread(null, sessionStateHolder::onDisconnect, "IB-disconnect-thread");
+        final Thread disposableThread = new Thread(null, this.sessionStateHolder::onDisconnect, "IB-disconnect-thread");
         disposableThread.setDaemon(true);
         disposableThread.start();
     }
@@ -384,7 +384,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
         try {
             handleError(id, errorCode, errorMsg);
         } finally {
-            IBPendingRequest<?> pendingRequest = pendingRequests.removeRequest(id);
+            IBPendingRequest<?> pendingRequest = this.pendingRequests.removeRequest(id);
             if (pendingRequest != null) {
                 pendingRequest.fail(new IBSessionException(errorCode, errorMsg));
             }
@@ -569,7 +569,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
     private void orderRejected(int orderId, String reason) {
 
         // get the order from the OpenOrderWindow
-        Order order = this.lookupService.getOpenOrderByIntId(String.valueOf(orderId));
+        Order order = this.orderService.getOpenOrderByIntId(String.valueOf(orderId));
 
         if (order != null) {
 

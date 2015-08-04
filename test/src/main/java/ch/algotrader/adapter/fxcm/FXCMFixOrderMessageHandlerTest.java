@@ -29,26 +29,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import ch.algotrader.adapter.fix.DefaultFixApplication;
-import ch.algotrader.adapter.fix.DefaultFixSessionStateHolder;
-import ch.algotrader.adapter.fix.DefaultLogonMessageHandler;
-import ch.algotrader.adapter.fix.FixConfigUtils;
-import ch.algotrader.adapter.fix.NoopSessionStateListener;
-import ch.algotrader.entity.security.Forex;
-import ch.algotrader.entity.security.ForexImpl;
-import ch.algotrader.entity.security.SecurityFamily;
-import ch.algotrader.entity.security.SecurityFamilyImpl;
-import ch.algotrader.entity.strategy.StrategyImpl;
-import ch.algotrader.entity.trade.Fill;
-import ch.algotrader.entity.trade.MarketOrder;
-import ch.algotrader.entity.trade.MarketOrderImpl;
-import ch.algotrader.entity.trade.OrderStatus;
-import ch.algotrader.enumeration.Currency;
-import ch.algotrader.enumeration.Status;
-import ch.algotrader.esper.AbstractEngine;
-import ch.algotrader.esper.Engine;
-import ch.algotrader.event.dispatch.EventDispatcher;
-import ch.algotrader.service.LookupService;
 import quickfix.DefaultSessionFactory;
 import quickfix.LogFactory;
 import quickfix.MemoryStoreFactory;
@@ -70,12 +50,32 @@ import quickfix.field.TransactTime;
 import quickfix.fix44.NewOrderSingle;
 import quickfix.fix44.OrderCancelReplaceRequest;
 import quickfix.fix44.OrderCancelRequest;
+import ch.algotrader.adapter.fix.DefaultFixApplication;
+import ch.algotrader.adapter.fix.DefaultFixSessionStateHolder;
+import ch.algotrader.adapter.fix.DefaultLogonMessageHandler;
+import ch.algotrader.adapter.fix.FixConfigUtils;
+import ch.algotrader.adapter.fix.NoopSessionStateListener;
+import ch.algotrader.entity.security.Forex;
+import ch.algotrader.entity.security.ForexImpl;
+import ch.algotrader.entity.security.SecurityFamily;
+import ch.algotrader.entity.security.SecurityFamilyImpl;
+import ch.algotrader.entity.strategy.StrategyImpl;
+import ch.algotrader.entity.trade.Fill;
+import ch.algotrader.entity.trade.MarketOrder;
+import ch.algotrader.entity.trade.MarketOrderImpl;
+import ch.algotrader.entity.trade.OrderStatus;
+import ch.algotrader.enumeration.Currency;
+import ch.algotrader.enumeration.Status;
+import ch.algotrader.esper.AbstractEngine;
+import ch.algotrader.esper.Engine;
+import ch.algotrader.event.dispatch.EventDispatcher;
+import ch.algotrader.service.OrderService;
 
 public class FXCMFixOrderMessageHandlerTest {
 
     private LinkedBlockingQueue<Object> eventQueue;
     private EventDispatcher eventDispatcher;
-    private LookupService lookupService;
+    private OrderService orderService;
     private String account;
     private FXCMFixOrderMessageHandler messageHandler;
     private Session session;
@@ -112,8 +112,8 @@ public class FXCMFixOrderMessageHandlerTest {
 
         DefaultLogonMessageHandler logonHandler = new DefaultLogonMessageHandler(settings);
 
-        this.lookupService = Mockito.mock(LookupService.class);
-        FXCMFixOrderMessageHandler messageHandlerImpl = new FXCMFixOrderMessageHandler(this.lookupService, engine);
+        this.orderService = Mockito.mock(OrderService.class);
+        FXCMFixOrderMessageHandler messageHandlerImpl = new FXCMFixOrderMessageHandler(this.orderService, engine);
         this.messageHandler = Mockito.spy(messageHandlerImpl);
 
         DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, this.messageHandler, logonHandler,
@@ -197,7 +197,7 @@ public class FXCMFixOrderMessageHandlerTest {
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(forex);
 
-        Mockito.when(this.lookupService.getOpenOrderByRootIntId(orderId)).thenReturn(order);
+        Mockito.when(this.orderService.getOpenOrderByRootIntId(orderId)).thenReturn(order);
 
         this.session.send(orderSingle);
 
@@ -313,7 +313,7 @@ public class FXCMFixOrderMessageHandlerTest {
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(forex);
 
-        Mockito.when(this.lookupService.getOpenOrderByRootIntId(orderId1)).thenReturn(order);
+        Mockito.when(this.orderService.getOpenOrderByRootIntId(orderId1)).thenReturn(order);
 
         this.session.send(orderSingle);
 
@@ -338,7 +338,7 @@ public class FXCMFixOrderMessageHandlerTest {
         cancelRequest.set(new TransactTime(new Date()));
         cancelRequest.set(new OrderQty(1000.0d));
 
-        Mockito.when(this.lookupService.getOpenOrderByRootIntId(orderId2)).thenReturn(order);
+        Mockito.when(this.orderService.getOpenOrderByRootIntId(orderId2)).thenReturn(order);
 
         this.session.send(cancelRequest);
 
@@ -384,7 +384,7 @@ public class FXCMFixOrderMessageHandlerTest {
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(forex);
 
-        Mockito.when(this.lookupService.getOpenOrderByRootIntId(orderId1)).thenReturn(order);
+        Mockito.when(this.orderService.getOpenOrderByRootIntId(orderId1)).thenReturn(order);
 
         this.session.send(orderSingle);
 
@@ -411,7 +411,7 @@ public class FXCMFixOrderMessageHandlerTest {
         replaceRequest.set(new OrdType(OrdType.STOP));
         replaceRequest.set(new StopPx(1.9d));
 
-        Mockito.when(this.lookupService.getOpenOrderByRootIntId(orderId2)).thenReturn(order);
+        Mockito.when(this.orderService.getOpenOrderByRootIntId(orderId2)).thenReturn(order);
 
         this.session.send(replaceRequest);
 

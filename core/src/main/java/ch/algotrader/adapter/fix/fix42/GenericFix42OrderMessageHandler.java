@@ -20,15 +20,6 @@ package ch.algotrader.adapter.fix.fix42;
 import java.math.BigDecimal;
 import java.util.Date;
 
-import ch.algotrader.adapter.fix.FixUtil;
-import ch.algotrader.entity.trade.Fill;
-import ch.algotrader.entity.trade.Order;
-import ch.algotrader.entity.trade.OrderStatus;
-import ch.algotrader.enumeration.Side;
-import ch.algotrader.enumeration.Status;
-import ch.algotrader.esper.Engine;
-import ch.algotrader.service.LookupService;
-import ch.algotrader.util.PriceUtil;
 import quickfix.FieldNotFound;
 import quickfix.field.AvgPx;
 import quickfix.field.CumQty;
@@ -37,6 +28,15 @@ import quickfix.field.LastPx;
 import quickfix.field.MsgSeqNum;
 import quickfix.field.TransactTime;
 import quickfix.fix42.ExecutionReport;
+import ch.algotrader.adapter.fix.FixUtil;
+import ch.algotrader.entity.trade.Fill;
+import ch.algotrader.entity.trade.Order;
+import ch.algotrader.entity.trade.OrderStatus;
+import ch.algotrader.enumeration.Side;
+import ch.algotrader.enumeration.Status;
+import ch.algotrader.esper.Engine;
+import ch.algotrader.service.OrderService;
+import ch.algotrader.util.PriceUtil;
 
 /**
  * Generic Fix42OrderMessageHandler. Needs to be overwritten by specific broker interfaces.
@@ -47,8 +47,8 @@ import quickfix.fix42.ExecutionReport;
  */
 public class GenericFix42OrderMessageHandler extends AbstractFix42OrderMessageHandler {
 
-    public GenericFix42OrderMessageHandler(final LookupService lookupService, final Engine serverEngine) {
-        super(lookupService, serverEngine);
+    public GenericFix42OrderMessageHandler(final OrderService orderService, final Engine serverEngine) {
+        super(orderService, serverEngine);
     }
 
     @Override

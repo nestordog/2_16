@@ -25,7 +25,7 @@ import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.service.LookupService;
+import ch.algotrader.service.OrderService;
 import quickfix.FieldNotFound;
 import quickfix.SessionID;
 import quickfix.field.ExecTransType;
@@ -47,11 +47,11 @@ public abstract class AbstractFix42OrderMessageHandler extends AbstractFix42Mess
 
     private static final Logger LOGGER = LogManager.getLogger(AbstractFix42OrderMessageHandler.class);
 
-    private final LookupService lookupService;
+    private final OrderService orderService;
     private final Engine serverEngine;
 
-    protected AbstractFix42OrderMessageHandler(final LookupService lookupService, final Engine serverEngine) {
-        this.lookupService = lookupService;
+    protected AbstractFix42OrderMessageHandler(final OrderService orderService, final Engine serverEngine) {
+        this.orderService = orderService;
         this.serverEngine = serverEngine;
     }
 
@@ -78,7 +78,7 @@ public abstract class AbstractFix42OrderMessageHandler extends AbstractFix42Mess
         }
 
         // get the order from the OpenOrderWindow
-        Order order = lookupService.getOpenOrderByRootIntId(intId);
+        Order order = this.orderService.getOpenOrderByRootIntId(intId);
 
         if (order == null) {
 
@@ -160,7 +160,7 @@ public abstract class AbstractFix42OrderMessageHandler extends AbstractFix42Mess
         String intId = reject.getClOrdID().getValue();
 
         // get the order from the OpenOrderWindow
-        Order order = this.lookupService.getOpenOrderByRootIntId(intId);
+        Order order = this.orderService.getOpenOrderByRootIntId(intId);
         if (order == null) {
 
             if (LOGGER.isErrorEnabled()) {

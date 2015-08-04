@@ -20,16 +20,6 @@ package ch.algotrader.adapter.fxcm;
 import java.math.BigDecimal;
 import java.util.Date;
 
-import ch.algotrader.adapter.fix.FixUtil;
-import ch.algotrader.adapter.fix.fix44.AbstractFix44OrderMessageHandler;
-import ch.algotrader.entity.trade.Fill;
-import ch.algotrader.entity.trade.Order;
-import ch.algotrader.entity.trade.OrderStatus;
-import ch.algotrader.enumeration.Side;
-import ch.algotrader.enumeration.Status;
-import ch.algotrader.esper.Engine;
-import ch.algotrader.service.LookupService;
-import ch.algotrader.util.PriceUtil;
 import quickfix.FieldNotFound;
 import quickfix.field.AvgPx;
 import quickfix.field.CumQty;
@@ -39,6 +29,16 @@ import quickfix.field.MsgSeqNum;
 import quickfix.field.OrdStatus;
 import quickfix.field.TransactTime;
 import quickfix.fix44.ExecutionReport;
+import ch.algotrader.adapter.fix.FixUtil;
+import ch.algotrader.adapter.fix.fix44.AbstractFix44OrderMessageHandler;
+import ch.algotrader.entity.trade.Fill;
+import ch.algotrader.entity.trade.Order;
+import ch.algotrader.entity.trade.OrderStatus;
+import ch.algotrader.enumeration.Side;
+import ch.algotrader.enumeration.Status;
+import ch.algotrader.esper.Engine;
+import ch.algotrader.service.OrderService;
+import ch.algotrader.util.PriceUtil;
 
 /**
  * FXCM specific FIX order message handler.
@@ -49,8 +49,8 @@ import quickfix.fix44.ExecutionReport;
  */
 public class FXCMFixOrderMessageHandler extends AbstractFix44OrderMessageHandler {
 
-    public FXCMFixOrderMessageHandler(final LookupService lookupService, final Engine serverEngine) {
-        super(lookupService, serverEngine);
+    public FXCMFixOrderMessageHandler(final OrderService orderService, final Engine serverEngine) {
+        super(orderService, serverEngine);
     }
 
     @Override

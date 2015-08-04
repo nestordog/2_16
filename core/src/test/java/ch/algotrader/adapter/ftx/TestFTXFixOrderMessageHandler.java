@@ -28,6 +28,11 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import quickfix.field.ClOrdID;
+import quickfix.field.ExecType;
+import quickfix.field.OrdStatus;
+import quickfix.fix44.ExecutionReport;
+import quickfix.fix44.Reject;
 import ch.algotrader.adapter.fix.fix44.FixTestUtils;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.AccountImpl;
@@ -44,13 +49,8 @@ import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.service.LookupService;
+import ch.algotrader.service.OrderService;
 import ch.algotrader.util.DateTimeLegacy;
-import quickfix.field.ClOrdID;
-import quickfix.field.ExecType;
-import quickfix.field.OrdStatus;
-import quickfix.fix44.ExecutionReport;
-import quickfix.fix44.Reject;
 
 /**
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
@@ -60,7 +60,7 @@ import quickfix.fix44.Reject;
 public class TestFTXFixOrderMessageHandler {
 
     @Mock
-    private LookupService lookupService;
+ private OrderService orderService;
     @Mock
     private Engine engine;
 
@@ -71,7 +71,7 @@ public class TestFTXFixOrderMessageHandler {
 
         MockitoAnnotations.initMocks(this);
 
-        impl = new FTXFixOrderMessageHandler(lookupService, engine);
+        this.impl = new FTXFixOrderMessageHandler(this.orderService, this.engine);
     }
 
     @Test
@@ -97,12 +97,12 @@ public class TestFTXFixOrderMessageHandler {
         order.setSecurity(forex);
         order.setQuantity(2000);
 
-        Mockito.when(lookupService.getOpenOrderByRootIntId("14ddd87a9d2")).thenReturn(order);
+        Mockito.when(this.orderService.getOpenOrderByRootIntId("14ddd87a9d2")).thenReturn(order);
 
-        impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
+        this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
         ArgumentCaptor<Object> argumentCaptor = ArgumentCaptor.forClass(Object.class);
-        Mockito.verify(engine, Mockito.times(1)).sendEvent(argumentCaptor.capture());
+        Mockito.verify(this.engine, Mockito.times(1)).sendEvent(argumentCaptor.capture());
 
         Object event1 = argumentCaptor.getValue();
         Assert.assertTrue(event1 instanceof OrderStatus);
@@ -144,12 +144,12 @@ public class TestFTXFixOrderMessageHandler {
         order.setSecurity(forex);
         order.setQuantity(2000);
         order.setAccount(account);
-        Mockito.when(lookupService.getOpenOrderByRootIntId("14ddd87a9d2")).thenReturn(order);
+        Mockito.when(this.orderService.getOpenOrderByRootIntId("14ddd87a9d2")).thenReturn(order);
 
-        impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
+        this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
         ArgumentCaptor<Object> argumentCaptor = ArgumentCaptor.forClass(Object.class);
-        Mockito.verify(engine, Mockito.times(2)).sendEvent(argumentCaptor.capture());
+        Mockito.verify(this.engine, Mockito.times(2)).sendEvent(argumentCaptor.capture());
 
         List<Object> events = argumentCaptor.getAllValues();
         Assert.assertEquals(2, events.size());
@@ -184,12 +184,12 @@ public class TestFTXFixOrderMessageHandler {
         executionReport.set(new ExecType(ExecType.NEW));
         executionReport.set(new ClOrdID("123"));
 
-        Mockito.when(lookupService.getOpenOrderByRootIntId(Mockito.anyString())).thenReturn(null);
+        Mockito.when(this.orderService.getOpenOrderByRootIntId(Mockito.anyString())).thenReturn(null);
 
-        impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
+        this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
-        Mockito.verify(lookupService, Mockito.times(1)).getOpenOrderByRootIntId("123");
-        Mockito.verify(engine, Mockito.never()).sendEvent(Mockito.any());
+        Mockito.verify(this.orderService, Mockito.times(1)).getOpenOrderByRootIntId("123");
+        Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
     }
 
     @Test
@@ -218,12 +218,12 @@ public class TestFTXFixOrderMessageHandler {
         order.setQuantity(2000);
         order.setAccount(account);
 
-        Mockito.when(lookupService.getOpenOrderByRootIntId("14ddd84fb8e")).thenReturn(order);
+        Mockito.when(this.orderService.getOpenOrderByRootIntId("14ddd84fb8e")).thenReturn(order);
 
-        impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
+        this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
         ArgumentCaptor<Object> argumentCaptor = ArgumentCaptor.forClass(Object.class);
-        Mockito.verify(engine, Mockito.times(1)).sendEvent(argumentCaptor.capture());
+        Mockito.verify(this.engine, Mockito.times(1)).sendEvent(argumentCaptor.capture());
 
         Object event1 = argumentCaptor.getValue();
         Assert.assertTrue(event1 instanceof OrderStatus);
@@ -247,9 +247,9 @@ public class TestFTXFixOrderMessageHandler {
         Reject reject = FixTestUtils.parseFix44Message(s, Reject.class);
         Assert.assertNotNull(reject);
 
-        impl.onMessage(reject, FixTestUtils.fakeFix44Session());
+        this.impl.onMessage(reject, FixTestUtils.fakeFix44Session());
 
-        Mockito.verify(engine, Mockito.never()).sendEvent(Mockito.any());
+        Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
     }
 
 }

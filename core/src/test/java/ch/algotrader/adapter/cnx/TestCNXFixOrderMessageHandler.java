@@ -28,6 +28,10 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import quickfix.field.ClOrdID;
+import quickfix.field.ExecType;
+import quickfix.field.OrdStatus;
+import quickfix.fix44.ExecutionReport;
 import ch.algotrader.adapter.fix.fix44.FixTestUtils;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.AccountImpl;
@@ -44,12 +48,8 @@ import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.service.LookupService;
+import ch.algotrader.service.OrderService;
 import ch.algotrader.util.DateTimeLegacy;
-import quickfix.field.ClOrdID;
-import quickfix.field.ExecType;
-import quickfix.field.OrdStatus;
-import quickfix.fix44.ExecutionReport;
 
 /**
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
@@ -59,7 +59,7 @@ import quickfix.fix44.ExecutionReport;
 public class TestCNXFixOrderMessageHandler {
 
     @Mock
-    private LookupService lookupService;
+ private OrderService orderService;
     @Mock
     private Engine engine;
 
@@ -70,7 +70,7 @@ public class TestCNXFixOrderMessageHandler {
 
         MockitoAnnotations.initMocks(this);
 
-        this.impl = new CNXFixOrderMessageHandler(this.lookupService, this.engine);
+        this.impl = new CNXFixOrderMessageHandler(this.orderService, this.engine);
     }
 
     @Test
@@ -84,7 +84,7 @@ public class TestCNXFixOrderMessageHandler {
         Assert.assertNotNull(executionReport);
 
         MarketOrder order = new MarketOrderImpl();
-        Mockito.when(this.lookupService.getOpenOrderByRootIntId("1475f81bdee")).thenReturn(order);
+        Mockito.when(this.orderService.getOpenOrderByRootIntId("1475f81bdee")).thenReturn(order);
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
@@ -132,7 +132,7 @@ public class TestCNXFixOrderMessageHandler {
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(forex);
         order.setAccount(account);
-        Mockito.when(this.lookupService.getOpenOrderByRootIntId("1475f81bdee")).thenReturn(order);
+        Mockito.when(this.orderService.getOpenOrderByRootIntId("1475f81bdee")).thenReturn(order);
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
@@ -172,11 +172,11 @@ public class TestCNXFixOrderMessageHandler {
         executionReport.set(new ExecType(ExecType.NEW));
         executionReport.set(new ClOrdID("123"));
 
-        Mockito.when(this.lookupService.getOpenOrderByRootIntId(Mockito.anyString())).thenReturn(null);
+        Mockito.when(this.orderService.getOpenOrderByRootIntId(Mockito.anyString())).thenReturn(null);
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
-        Mockito.verify(this.lookupService, Mockito.times(1)).getOpenOrderByRootIntId("123");
+        Mockito.verify(this.orderService, Mockito.times(1)).getOpenOrderByRootIntId("123");
         Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
     }
 
@@ -202,7 +202,7 @@ public class TestCNXFixOrderMessageHandler {
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(forex);
 
-        Mockito.when(this.lookupService.getOpenOrderByRootIntId("14763e2fd3e")).thenReturn(order);
+        Mockito.when(this.orderService.getOpenOrderByRootIntId("14763e2fd3e")).thenReturn(order);
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
@@ -244,7 +244,7 @@ public class TestCNXFixOrderMessageHandler {
 
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(forex);
-        Mockito.when(this.lookupService.getOpenOrderByRootIntId("14764071b06")).thenReturn(order);
+        Mockito.when(this.orderService.getOpenOrderByRootIntId("14764071b06")).thenReturn(order);
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
@@ -288,7 +288,7 @@ public class TestCNXFixOrderMessageHandler {
         MarketOrder order = new MarketOrderImpl();
         order.setIntId("147648b2394");
         order.setSecurity(forex);
-        Mockito.when(this.lookupService.getOpenOrderByRootIntId("147648b2485")).thenReturn(order);
+        Mockito.when(this.orderService.getOpenOrderByRootIntId("147648b2485")).thenReturn(order);
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 

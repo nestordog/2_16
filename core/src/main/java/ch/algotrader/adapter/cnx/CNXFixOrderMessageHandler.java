@@ -19,7 +19,7 @@ package ch.algotrader.adapter.cnx;
 
 import ch.algotrader.adapter.fix.fix44.GenericFix44OrderMessageHandler;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.service.LookupService;
+import ch.algotrader.service.OrderService;
 
 /**
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
@@ -28,8 +28,8 @@ import ch.algotrader.service.LookupService;
  */
 public class CNXFixOrderMessageHandler extends GenericFix44OrderMessageHandler {
 
-    public CNXFixOrderMessageHandler(final LookupService lookupService, final Engine serverEngine) {
-        super(lookupService, serverEngine);
+    public CNXFixOrderMessageHandler(final OrderService orderService, final Engine serverEngine) {
+        super(orderService, serverEngine);
     }
 
 }

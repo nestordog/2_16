@@ -29,7 +29,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import ch.algotrader.util.DateTimeLegacy;
 import quickfix.DataDictionary;
 import quickfix.field.ClOrdID;
 import quickfix.field.ExecType;
@@ -51,7 +50,8 @@ import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.service.LookupService;
+import ch.algotrader.service.OrderService;
+import ch.algotrader.util.DateTimeLegacy;
 
 /**
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
@@ -63,7 +63,7 @@ public class TestLMAXFixOrderMessageHandler {
     private static DataDictionary DATA_DICT;
 
     @Mock
-    private LookupService lookupService;
+ private OrderService orderService;
     @Mock
     private Engine engine;
 
@@ -80,7 +80,7 @@ public class TestLMAXFixOrderMessageHandler {
 
         MockitoAnnotations.initMocks(this);
 
-        this.impl = new LMAXFixOrderMessageHandler(this.lookupService, this.engine);
+        this.impl = new LMAXFixOrderMessageHandler(this.orderService, this.engine);
     }
 
     @Test
@@ -103,7 +103,7 @@ public class TestLMAXFixOrderMessageHandler {
 
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(forex);
-        Mockito.when(this.lookupService.getOpenOrderByRootIntId("144d196a0cf")).thenReturn(order);
+        Mockito.when(this.orderService.getOpenOrderByRootIntId("144d196a0cf")).thenReturn(order);
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
@@ -149,7 +149,7 @@ public class TestLMAXFixOrderMessageHandler {
         order.setSecurity(forex);
         order.setAccount(account);
 
-        Mockito.when(this.lookupService.getOpenOrderByRootIntId("144d196a0cf")).thenReturn(order);
+        Mockito.when(this.orderService.getOpenOrderByRootIntId("144d196a0cf")).thenReturn(order);
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
@@ -188,11 +188,11 @@ public class TestLMAXFixOrderMessageHandler {
         executionReport.set(new ExecType(ExecType.NEW));
         executionReport.set(new ClOrdID("123"));
 
-        Mockito.when(this.lookupService.getOpenOrderByRootIntId(Mockito.anyString())).thenReturn(null);
+        Mockito.when(this.orderService.getOpenOrderByRootIntId(Mockito.anyString())).thenReturn(null);
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
-        Mockito.verify(this.lookupService, Mockito.times(1)).getOpenOrderByRootIntId("123");
+        Mockito.verify(this.orderService, Mockito.times(1)).getOpenOrderByRootIntId("123");
         Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
     }
 
@@ -205,7 +205,7 @@ public class TestLMAXFixOrderMessageHandler {
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
-        Mockito.verify(this.lookupService, Mockito.never()).getOpenOrderByRootIntId("123");
+        Mockito.verify(this.orderService, Mockito.never()).getOpenOrderByRootIntId("123");
         Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
     }
 
@@ -218,7 +218,7 @@ public class TestLMAXFixOrderMessageHandler {
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
-        Mockito.verify(this.lookupService, Mockito.never()).getOpenOrderByRootIntId("123");
+        Mockito.verify(this.orderService, Mockito.never()).getOpenOrderByRootIntId("123");
         Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
     }
 
@@ -231,7 +231,7 @@ public class TestLMAXFixOrderMessageHandler {
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
-        Mockito.verify(this.lookupService, Mockito.never()).getOpenOrderByRootIntId("123");
+        Mockito.verify(this.orderService, Mockito.never()).getOpenOrderByRootIntId("123");
         Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
     }
 
@@ -255,7 +255,7 @@ public class TestLMAXFixOrderMessageHandler {
 
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(forex);
-        Mockito.when(this.lookupService.getOpenOrderByRootIntId("144da150f4b")).thenReturn(order);
+        Mockito.when(this.orderService.getOpenOrderByRootIntId("144da150f4b")).thenReturn(order);
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 

@@ -21,6 +21,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
+import quickfix.SessionSettings;
 import ch.algotrader.adapter.fix.DefaultFixApplicationFactory;
 import ch.algotrader.adapter.fix.DefaultFixSessionStateHolder;
 import ch.algotrader.adapter.fix.DefaultLogonMessageHandler;
@@ -32,9 +33,8 @@ import ch.algotrader.adapter.lmax.LMAXFixOrderMessageHandler;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.event.dispatch.EventDispatcher;
-import ch.algotrader.service.LookupService;
 import ch.algotrader.service.MarketDataService;
-import quickfix.SessionSettings;
+import ch.algotrader.service.OrderService;
 
 /**
  * LMAX FIX configuration.
@@ -58,12 +58,12 @@ public class LMAXFixWiring {
 
     @Profile("lMAXFix")
     @Bean(name = "lMAXOrderApplicationFactory")
-    public FixApplicationFactory createLMAXOrderApplicationFactory(final LookupService lookupService,
+    public FixApplicationFactory createLMAXOrderApplicationFactory(final OrderService orderService,
             final Engine serverEngine,
             final DefaultLogonMessageHandler lMAXLogonMessageHandler,
             final FixSessionStateHolder lMAXOrderSessionStateHolder) {
 
-        LMAXFixOrderMessageHandler lMAXFixOrderMessageHandler = new LMAXFixOrderMessageHandler(lookupService, serverEngine);
+        LMAXFixOrderMessageHandler lMAXFixOrderMessageHandler = new LMAXFixOrderMessageHandler(orderService, serverEngine);
         return new DefaultFixApplicationFactory(lMAXFixOrderMessageHandler, lMAXLogonMessageHandler, lMAXOrderSessionStateHolder);
     }
 

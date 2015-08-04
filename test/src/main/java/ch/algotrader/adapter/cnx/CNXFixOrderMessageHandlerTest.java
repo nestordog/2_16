@@ -29,6 +29,17 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import quickfix.DefaultSessionFactory;
+import quickfix.FileStoreFactory;
+import quickfix.LogFactory;
+import quickfix.ScreenLogFactory;
+import quickfix.Session;
+import quickfix.SessionID;
+import quickfix.SessionSettings;
+import quickfix.SocketInitiator;
+import quickfix.fix44.NewOrderSingle;
+import quickfix.fix44.OrderCancelReplaceRequest;
+import quickfix.fix44.OrderCancelRequest;
 import ch.algotrader.adapter.fix.DefaultFixApplication;
 import ch.algotrader.adapter.fix.DefaultFixSessionStateHolder;
 import ch.algotrader.adapter.fix.DefaultLogonMessageHandler;
@@ -54,24 +65,13 @@ import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.AbstractEngine;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.event.dispatch.EventDispatcher;
-import ch.algotrader.service.LookupService;
-import quickfix.DefaultSessionFactory;
-import quickfix.FileStoreFactory;
-import quickfix.LogFactory;
-import quickfix.ScreenLogFactory;
-import quickfix.Session;
-import quickfix.SessionID;
-import quickfix.SessionSettings;
-import quickfix.SocketInitiator;
-import quickfix.fix44.NewOrderSingle;
-import quickfix.fix44.OrderCancelReplaceRequest;
-import quickfix.fix44.OrderCancelRequest;
+import ch.algotrader.service.OrderService;
 
 public class CNXFixOrderMessageHandlerTest {
 
     private LinkedBlockingQueue<Object> eventQueue;
     private EventDispatcher eventDispatcher;
-    private LookupService lookupService;
+    private OrderService orderService;
     private CNXFixOrderMessageFactory messageFactory;
     private CNXFixOrderMessageHandler messageHandler;
     private Session session;
@@ -105,13 +105,13 @@ public class CNXFixOrderMessageHandlerTest {
         SessionSettings settings = FixConfigUtils.loadSettings();
         SessionID sessionId = FixConfigUtils.getSessionID(settings, "CNXT");
 
-        this.lookupService = Mockito.mock(LookupService.class);
-        CNXFixOrderMessageHandler messageHandlerImpl = new CNXFixOrderMessageHandler(this.lookupService, engine);
+        this.orderService = Mockito.mock(OrderService.class);
+        CNXFixOrderMessageHandler messageHandlerImpl = new CNXFixOrderMessageHandler(this.orderService, engine);
         this.messageHandler = Mockito.spy(messageHandlerImpl);
         this.messageFactory = new CNXFixOrderMessageFactory();
 
         DefaultLogonMessageHandler logonMessageHandler = new DefaultLogonMessageHandler(settings);
-        DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, messageHandler, logonMessageHandler,
+        DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, this.messageHandler, logonMessageHandler,
                 new DefaultFixSessionStateHolder("CNX", this.eventDispatcher));
 
         LogFactory logFactory = new ScreenLogFactory(true, true, true);
@@ -150,7 +150,7 @@ public class CNXFixOrderMessageHandlerTest {
         }
 
         // Purge the queue
-        while (eventQueue.poll(5, TimeUnit.SECONDS) != null) {
+        while (this.eventQueue.poll(5, TimeUnit.SECONDS) != null) {
         }
     }
 
@@ -191,13 +191,13 @@ public class CNXFixOrderMessageHandlerTest {
         order.setSide(Side.BUY);
         order.setQuantity(2000);
 
-        NewOrderSingle message = messageFactory.createNewOrderMessage(order, orderId);
+        NewOrderSingle message = this.messageFactory.createNewOrderMessage(order, orderId);
 
-        Mockito.when(lookupService.getOpenOrderByRootIntId(orderId)).thenReturn(order);
+        Mockito.when(this.orderService.getOpenOrderByRootIntId(orderId)).thenReturn(order);
 
-        session.send(message);
+        this.session.send(message);
 
-        Object event1 = eventQueue.poll(20, TimeUnit.SECONDS);
+        Object event1 = this.eventQueue.poll(20, TimeUnit.SECONDS);
         Assert.assertTrue(event1 instanceof OrderStatus);
         OrderStatus orderStatus1 = (OrderStatus) event1;
         Assert.assertEquals(orderId, orderStatus1.getIntId());
@@ -206,7 +206,7 @@ public class CNXFixOrderMessageHandlerTest {
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(0, orderStatus1.getFilledQuantity());
 
-        Object event2 = eventQueue.poll(20, TimeUnit.SECONDS);
+        Object event2 = this.eventQueue.poll(20, TimeUnit.SECONDS);
         Assert.assertTrue(event2 instanceof OrderStatus);
         OrderStatus orderStatus2 = (OrderStatus) event2;
         Assert.assertEquals(orderId, orderStatus2.getIntId());
@@ -215,7 +215,7 @@ public class CNXFixOrderMessageHandlerTest {
         Assert.assertSame(order, orderStatus2.getOrder());
         Assert.assertEquals(2000L, orderStatus2.getFilledQuantity());
 
-        Object event3 = eventQueue.poll(20, TimeUnit.SECONDS);
+        Object event3 = this.eventQueue.poll(20, TimeUnit.SECONDS);
         Assert.assertTrue(event3 instanceof Fill);
         Fill fill1 = (Fill) event3;
         Assert.assertEquals(orderStatus2.getExtId(), fill1.getExtId());
@@ -225,7 +225,7 @@ public class CNXFixOrderMessageHandlerTest {
         Assert.assertEquals(2000L, fill1.getQuantity());
         Assert.assertNotNull(fill1.getPrice());
 
-        Object event4 = eventQueue.poll(5, TimeUnit.SECONDS);
+        Object event4 = this.eventQueue.poll(5, TimeUnit.SECONDS);
         Assert.assertNull(event4);
     }
 
@@ -250,11 +250,11 @@ public class CNXFixOrderMessageHandlerTest {
         order.setQuantity(3000);
         order.setSide(Side.BUY);
 
-        NewOrderSingle message = messageFactory.createNewOrderMessage(order, orderId);
+        NewOrderSingle message = this.messageFactory.createNewOrderMessage(order, orderId);
 
-        session.send(message);
+        this.session.send(message);
 
-        Object event4 = eventQueue.poll(5, TimeUnit.SECONDS);
+        Object event4 = this.eventQueue.poll(5, TimeUnit.SECONDS);
         Assert.assertNull(event4);
     }
 
@@ -280,13 +280,13 @@ public class CNXFixOrderMessageHandlerTest {
         order.setSide(Side.BUY);
         order.setLimit(new BigDecimal("1.0"));
 
-        NewOrderSingle message1 = messageFactory.createNewOrderMessage(order, orderId1);
+        NewOrderSingle message1 = this.messageFactory.createNewOrderMessage(order, orderId1);
 
-        Mockito.when(lookupService.getOpenOrderByRootIntId(orderId1)).thenReturn(order);
+        Mockito.when(this.orderService.getOpenOrderByRootIntId(orderId1)).thenReturn(order);
 
-        session.send(message1);
+        this.session.send(message1);
 
-        Object event1 = eventQueue.poll(20, TimeUnit.SECONDS);
+        Object event1 = this.eventQueue.poll(20, TimeUnit.SECONDS);
         Assert.assertTrue(event1 instanceof OrderStatus);
         OrderStatus orderStatus1 = (OrderStatus) event1;
         Assert.assertEquals(orderId1, orderStatus1.getIntId());
@@ -300,13 +300,13 @@ public class CNXFixOrderMessageHandlerTest {
 
         String orderId2 = Long.toHexString(System.currentTimeMillis());
 
-        OrderCancelRequest message2 = messageFactory.createOrderCancelMessage(order, orderId2);
+        OrderCancelRequest message2 = this.messageFactory.createOrderCancelMessage(order, orderId2);
 
-        Mockito.when(lookupService.getOpenOrderByRootIntId(orderId2)).thenReturn(order);
+        Mockito.when(this.orderService.getOpenOrderByRootIntId(orderId2)).thenReturn(order);
 
-        session.send(message2);
+        this.session.send(message2);
 
-        Object event2 = eventQueue.poll(20, TimeUnit.SECONDS);
+        Object event2 = this.eventQueue.poll(20, TimeUnit.SECONDS);
 
         Assert.assertTrue(event2 instanceof OrderStatus);
         OrderStatus orderStatus2 = (OrderStatus) event2;
@@ -317,7 +317,7 @@ public class CNXFixOrderMessageHandlerTest {
         Assert.assertEquals(0, orderStatus2.getFilledQuantity());
         Assert.assertEquals(1000, orderStatus2.getRemainingQuantity());
 
-        Object event3 = eventQueue.poll(5, TimeUnit.SECONDS);
+        Object event3 = this.eventQueue.poll(5, TimeUnit.SECONDS);
         Assert.assertNull(event3);
     }
 
@@ -343,13 +343,13 @@ public class CNXFixOrderMessageHandlerTest {
         order.setSide(Side.BUY);
         order.setLimit(new BigDecimal("1.0"));
 
-        NewOrderSingle message1 = messageFactory.createNewOrderMessage(order, orderId1);
+        NewOrderSingle message1 = this.messageFactory.createNewOrderMessage(order, orderId1);
 
-        Mockito.when(lookupService.getOpenOrderByRootIntId(orderId1)).thenReturn(order);
+        Mockito.when(this.orderService.getOpenOrderByRootIntId(orderId1)).thenReturn(order);
 
-        session.send(message1);
+        this.session.send(message1);
 
-        Object event1 = eventQueue.poll(20, TimeUnit.SECONDS);
+        Object event1 = this.eventQueue.poll(20, TimeUnit.SECONDS);
         Assert.assertTrue(event1 instanceof OrderStatus);
         OrderStatus orderStatus1 = (OrderStatus) event1;
         Assert.assertEquals(orderId1, orderStatus1.getIntId());
@@ -365,13 +365,13 @@ public class CNXFixOrderMessageHandlerTest {
 
         order.setLimit(new BigDecimal("1.01"));
 
-        OrderCancelReplaceRequest message2 = messageFactory.createModifyOrderMessage(order, orderId2);
+        OrderCancelReplaceRequest message2 = this.messageFactory.createModifyOrderMessage(order, orderId2);
 
-        Mockito.when(lookupService.getOpenOrderByRootIntId(orderId2)).thenReturn(order);
+        Mockito.when(this.orderService.getOpenOrderByRootIntId(orderId2)).thenReturn(order);
 
-        session.send(message2);
+        this.session.send(message2);
 
-        Object event2 = eventQueue.poll(20, TimeUnit.SECONDS);
+        Object event2 = this.eventQueue.poll(20, TimeUnit.SECONDS);
 
         Assert.assertTrue(event2 instanceof OrderStatus);
         OrderStatus orderStatus2 = (OrderStatus) event2;
@@ -387,13 +387,13 @@ public class CNXFixOrderMessageHandlerTest {
 
         String orderId3 = Long.toHexString(System.currentTimeMillis());
 
-        OrderCancelRequest message3 = messageFactory.createOrderCancelMessage(order, orderId3);
+        OrderCancelRequest message3 = this.messageFactory.createOrderCancelMessage(order, orderId3);
 
-        Mockito.when(lookupService.getOpenOrderByRootIntId(orderId3)).thenReturn(order);
+        Mockito.when(this.orderService.getOpenOrderByRootIntId(orderId3)).thenReturn(order);
 
-        session.send(message3);
+        this.session.send(message3);
 
-        Object event3 = eventQueue.poll(20, TimeUnit.SECONDS);
+        Object event3 = this.eventQueue.poll(20, TimeUnit.SECONDS);
 
         Assert.assertTrue(event3 instanceof OrderStatus);
         OrderStatus orderStatus3 = (OrderStatus) event3;
@@ -404,7 +404,7 @@ public class CNXFixOrderMessageHandlerTest {
         Assert.assertEquals(0, orderStatus3.getFilledQuantity());
         Assert.assertEquals(1000, orderStatus3.getRemainingQuantity());
 
-        Object event4 = eventQueue.poll(5, TimeUnit.SECONDS);
+        Object event4 = this.eventQueue.poll(5, TimeUnit.SECONDS);
         Assert.assertNull(event4);
     }
 
