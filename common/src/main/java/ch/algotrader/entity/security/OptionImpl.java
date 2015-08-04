@@ -23,7 +23,7 @@ import org.apache.commons.lang.Validate;
 import org.apache.commons.math.MathException;
 
 import ch.algotrader.ServiceLocator;
-import ch.algotrader.entity.marketData.MarketDataEvent;
+import ch.algotrader.entity.marketData.MarketDataEventI;
 import ch.algotrader.option.OptionUtil;
 import ch.algotrader.util.DateUtil;
 
@@ -37,7 +37,7 @@ public class OptionImpl extends Option {
     private static final long serialVersionUID = -3168298592370987085L;
 
     @Override
-    public double getLeverage(MarketDataEvent marketDataEvent, MarketDataEvent underlyingMarketDataEvent) {
+    public double getLeverage(MarketDataEventI marketDataEvent, MarketDataEventI underlyingMarketDataEvent) {
 
         Validate.notNull(marketDataEvent, "MarketDataEvent is missing");
         Validate.notNull(underlyingMarketDataEvent, "underlying MarketDataEvent is missing");

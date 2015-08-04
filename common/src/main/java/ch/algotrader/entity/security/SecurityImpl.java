@@ -17,7 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.entity.security;
 
-import ch.algotrader.entity.marketData.MarketDataEvent;
+import ch.algotrader.entity.marketData.MarketDataEventI;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -29,7 +29,7 @@ public abstract class SecurityImpl extends Security {
     private static final long serialVersionUID = -6631052475125813394L;
 
     @Override
-    public double getLeverage(MarketDataEvent marketDataEvent, MarketDataEvent underlyingMarketDataEvent) {
+    public double getLeverage(MarketDataEventI marketDataEvent, MarketDataEventI underlyingMarketDataEvent) {
         return 0;
     }
 

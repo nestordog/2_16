@@ -19,7 +19,7 @@ package ch.algotrader.entity.security;
 
 import java.util.Date;
 
-import ch.algotrader.entity.marketData.MarketDataEvent;
+import ch.algotrader.entity.marketData.MarketDataEventI;
 import ch.algotrader.util.DateUtil;
 
 /**
@@ -32,7 +32,7 @@ public class FutureImpl extends Future {
     private static final long serialVersionUID = -7436972192801577685L;
 
     @Override
-    public double getLeverage(MarketDataEvent marketDataEvent, MarketDataEvent underlyingMarketDataEvent) {
+    public double getLeverage(MarketDataEventI marketDataEvent, MarketDataEventI underlyingMarketDataEvent) {
 
         return 1.0;
     }

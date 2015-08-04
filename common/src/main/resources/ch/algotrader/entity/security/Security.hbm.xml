@@ -20,7 +20,7 @@
      * @param underlyingMarketDataEvent 
      * @return double
      */
-    public abstract double getLeverage(ch.algotrader.entity.marketData.MarketDataEvent marketDataEvent, ch.algotrader.entity.marketData.MarketDataEvent underlyingMarketDataEvent);
+    public abstract double getLeverage(ch.algotrader.entity.marketData.MarketDataEventI marketDataEvent, ch.algotrader.entity.marketData.MarketDataEventI underlyingMarketDataEvent);
 
 ]]>   
 	    </meta> 	    
