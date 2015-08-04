@@ -27,7 +27,7 @@
             <plugin>
                 <groupId>algotrader</groupId>
                 <artifactId>model-codegen-plugin</artifactId>
-                <version>0.1.3</version>
+                <version>0.1.4</version>
                 <executions>
                     <execution>
                         <id>generate-model</id>
