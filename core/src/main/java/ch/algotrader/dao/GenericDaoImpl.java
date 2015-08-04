@@ -33,6 +33,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 import ch.algotrader.entity.BaseEntityI;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.QueryType;
+import ch.algotrader.util.HibernateUtil;
 import ch.algotrader.visitor.InitializationVisitor;
 
 /**
@@ -78,26 +79,26 @@ public class GenericDaoImpl extends AbstractDao<BaseEntityI> implements GenericD
     }
 
     @Override
-    public <T> List<T> find(Class<T> clazz, final String queryString, final NamedParam... namedParams) {
+    public <T> List<T> find(Class<T> clazz, final String queryString, final QueryType type, final NamedParam... namedParams) {
 
-        return find(clazz, queryString, 0, namedParams);
+        return find(clazz, queryString, 0, type, namedParams);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> List<T> find(Class<T> clazz, final String queryString, final int maxResults, final NamedParam... namedParams) {
+    public <T> List<T> find(Class<T> clazz, final String queryString, final int maxResults, final QueryType type, final NamedParam... namedParams) {
 
         return this.txTemplate.execute(txStatus -> {
-            return (List<T>) super.find(queryString, maxResults, QueryType.HQL, namedParams);
+            return (List<T>) super.findObjects(null, queryString, maxResults, type, namedParams);
         });
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> T findUnique(Class<T> clazz, final String queryString, final NamedParam... namedParams) {
+    public <T> T findUnique(Class<T> clazz, final String queryString, final QueryType type, final NamedParam... namedParams) {
 
         return this.txTemplate.execute(txStatus -> {
-            return (T) super.findUnique(queryString, QueryType.HQL, namedParams);
+            return (T) super.findUniqueObject(null, queryString, type, namedParams);
         });
     }
 
@@ -148,5 +149,11 @@ public class GenericDaoImpl extends AbstractDao<BaseEntityI> implements GenericD
 
         SessionFactoryImpl sessionFactoryImpl = (SessionFactoryImpl) this.sessionFactory;
         return sessionFactoryImpl.getNamedQuery(queryName).getQueryString();
+    }
+
+    @Override
+    public int getDiscriminatorValue(final Class<?> type) {
+
+        return HibernateUtil.getDisriminatorValue(this.sessionFactory, type);
     }
 }

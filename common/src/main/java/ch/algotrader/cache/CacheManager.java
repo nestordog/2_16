@@ -69,6 +69,11 @@ public interface CacheManager {
     public void clear();
 
     /**
+     * Gets the descriminator value based on the given class.
+     */
+    public int getDiscriminatorValue(final Class<?> type);
+
+    /**
      * retrieves a map of all caches including their sizes
      */
     public Map<String, Integer> getCacheSize();

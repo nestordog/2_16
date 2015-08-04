@@ -17,6 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.dao;
 
+import java.io.Serializable;
+
 import org.apache.commons.lang.Validate;
 
 /**
@@ -26,7 +28,9 @@ import org.apache.commons.lang.Validate;
  *
  * @version $Revision$ $Date$
  */
-public class NamedParam {
+public class NamedParam implements Serializable {
+
+    private static final long serialVersionUID = -1987464357175551952L;
 
     private final String name;
     private final Object value;

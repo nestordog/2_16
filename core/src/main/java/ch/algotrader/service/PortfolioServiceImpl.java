@@ -62,6 +62,7 @@ import ch.algotrader.entity.strategy.PortfolioValue;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.enumeration.Currency;
+import ch.algotrader.enumeration.QueryType;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.report.ListReporter;
 import ch.algotrader.util.DateTimeUtil;
@@ -278,7 +279,6 @@ public class PortfolioServiceImpl implements PortfolioService {
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
     @Override
     public double getCashBalanceDouble(final String filter, final Date date, final NamedParam... namedParams) {
 
@@ -297,7 +297,7 @@ public class PortfolioServiceImpl implements PortfolioService {
                     + "where " + filter + " "
                     + "and t.dateTime <= :maxDate";
           //@formatter:on
-        Collection<Transaction> transactions = this.genericDao.find(Transaction.class, query, copy);
+        Collection<Transaction> transactions = this.genericDao.find(Transaction.class, query, QueryType.HQL, copy);
 
         return getCashBalanceDoubleInternal(transactions, new ArrayList<>(), date);
 
@@ -422,7 +422,6 @@ public class PortfolioServiceImpl implements PortfolioService {
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("unchecked")
     @Override
     public double getSecuritiesCurrentValueDouble(final String filter, final Date date, final NamedParam... namedParams) {
 
@@ -448,7 +447,7 @@ public class PortfolioServiceImpl implements PortfolioService {
         System.arraycopy(namedParams, 0, copy, 0, namedParams.length);
         copy[namedParams.length] = new NamedParam("maxDate", date);
 
-        List<Position> openPositions = this.genericDao.find(Position.class, queryString, namedParams);
+        List<Position> openPositions = this.genericDao.find(Position.class, queryString, QueryType.HQL, namedParams);
 
         return getSecuritiesCurrentValueDoubleInternal(openPositions, date);
 
@@ -530,7 +529,10 @@ public class PortfolioServiceImpl implements PortfolioService {
         List<Position> positions = this.positionDao.findOpenTradeablePositionsByStrategy(strategyName);
         for (Position position : positions) {
             MarketDataEvent marketDataEvent = this.localLookupService.getCurrentMarketDataEvent(position.getSecurity().getId());
-            MarketDataEvent underlyingMarketDataEvent = this.localLookupService.getCurrentMarketDataEvent(position.getSecurity().getUnderlying().getId());
+            MarketDataEvent underlyingMarketDataEvent = null;
+            if (position.getSecurity().getUnderlying() != null) {
+                underlyingMarketDataEvent = this.localLookupService.getCurrentMarketDataEvent(position.getSecurity().getUnderlying().getId());
+            }
             exposure += position.getExposure(marketDataEvent, underlyingMarketDataEvent);
         }
 

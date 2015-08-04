@@ -24,6 +24,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
+import ch.algotrader.cache.CacheManager;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.CoreConfig;
 import ch.algotrader.dao.AccountDao;
@@ -32,23 +33,18 @@ import ch.algotrader.dao.PositionDao;
 import ch.algotrader.dao.SubscriptionDao;
 import ch.algotrader.dao.TransactionDao;
 import ch.algotrader.dao.exchange.ExchangeDao;
-import ch.algotrader.dao.marketData.BarDao;
 import ch.algotrader.dao.marketData.TickDao;
 import ch.algotrader.dao.property.PropertyDao;
 import ch.algotrader.dao.property.PropertyHolderDao;
 import ch.algotrader.dao.security.CombinationDao;
 import ch.algotrader.dao.security.ComponentDao;
-import ch.algotrader.dao.security.EasyToBorrowDao;
 import ch.algotrader.dao.security.ForexDao;
 import ch.algotrader.dao.security.FutureDao;
 import ch.algotrader.dao.security.FutureFamilyDao;
-import ch.algotrader.dao.security.IntrestRateDao;
 import ch.algotrader.dao.security.OptionDao;
 import ch.algotrader.dao.security.OptionFamilyDao;
 import ch.algotrader.dao.security.SecurityDao;
 import ch.algotrader.dao.security.SecurityFamilyDao;
-import ch.algotrader.dao.security.SecurityReferenceDao;
-import ch.algotrader.dao.security.StockDao;
 import ch.algotrader.dao.strategy.CashBalanceDao;
 import ch.algotrader.dao.strategy.MeasurementDao;
 import ch.algotrader.dao.strategy.PortfolioValueDao;
@@ -113,39 +109,12 @@ import ch.algotrader.service.mysql.MySqlTransactionPersistenceServiceImpl;
 public class ServiceWiring {
 
     @Bean(name = "lookupService")
-    public LookupService createLookupService(final CommonConfig commonConfig,
+    public LookupService createLookupService(
             final CoreConfig coreConfig,
-            final SessionFactory sessionFactory,
             final GenericDao genericDao,
-            final FutureFamilyDao futureFamilyDao,
-            final FutureDao futureDao,
-            final ForexDao forexDao,
-            final SecurityFamilyDao securityFamilyDao,
-            final SecurityReferenceDao securityReferenceDao,
-            final OptionFamilyDao optionFamilyDao,
-            final ExchangeDao exchangeDao,
-            final TickDao tickDao,
-            final OptionDao optionDao,
-            final TransactionDao transactionDao,
-            final PositionDao positionDao,
-            final StrategyDao strategyDao,
-            final SecurityDao securityDao,
-            final CashBalanceDao cashBalanceDao,
-            final SubscriptionDao subscriptionDao,
-            final CombinationDao combinationDao,
-            final ComponentDao componentDao,
-            final MeasurementDao measurementDao,
-            final BarDao barDao,
-            final OrderDao orderDao,
-            final OrderStatusDao orderStatusDao,
-            final AccountDao accountDao,
-            final StockDao stockDao,
-            final IntrestRateDao intrestRateDao,
-            final EasyToBorrowDao easyToBorrowDao) {
+            final CacheManager cacheManager) {
 
-        return new LookupServiceImpl(commonConfig, coreConfig, sessionFactory, genericDao, futureFamilyDao, futureDao, forexDao, securityFamilyDao, securityReferenceDao, optionFamilyDao, exchangeDao, tickDao, optionDao,
-                transactionDao, positionDao, strategyDao, securityDao, cashBalanceDao, subscriptionDao, combinationDao, componentDao, measurementDao, barDao, orderDao, orderStatusDao, accountDao,
-                stockDao, intrestRateDao, easyToBorrowDao);
+        return new LookupServiceImpl(genericDao, cacheManager);
     }
 
     @Bean(name = "portfolioService")

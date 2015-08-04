@@ -32,14 +32,6 @@
         <property name="serviceInterface" value="ch.algotrader.service.OptionService"/>
     </bean>
 
-    <bean name="LookupService" class="org.springframework.remoting.rmi.RmiServiceExporter">
-        <property name="serviceName" value="LookupService"/>
-        <property name="registryPort" value="${remotePort}"/>
-        <property name="servicePort" value="${remoteServicePort}"/>
-        <property name="service" ref="lookupService"/>
-        <property name="serviceInterface" value="ch.algotrader.service.LookupService"/>
-    </bean>
-
     <bean name="MarketDataService" class="org.springframework.remoting.rmi.RmiServiceExporter">
         <property name="serviceName" value="MarketDataService"/>
         <property name="registryPort" value="${remotePort}"/>

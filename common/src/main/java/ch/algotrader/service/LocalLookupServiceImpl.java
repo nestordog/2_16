@@ -87,7 +87,7 @@ public class LocalLookupServiceImpl implements LocalLookupService, TickEventList
             return last;
         }
 
-        return this.lookupService.getLastTick(securityId, this.engineManager.getCurrentEPTime());
+        return this.lookupService.getLastTick(securityId, this.engineManager.getCurrentEPTime(), 4);
     }
 
     @Override

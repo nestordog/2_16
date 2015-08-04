@@ -125,7 +125,7 @@ public class SecurityDaoTest extends InMemoryDBTest {
 
         List<Long> ids = new ArrayList<>();
 
-        ids.add((long)forex1.getId());
+        ids.add(forex1.getId());
 
         List<Security> forexes1 = this.dao.findByIds(ids);
 
@@ -134,7 +134,7 @@ public class SecurityDaoTest extends InMemoryDBTest {
         Assert.assertSame(forex1.getSecurityFamily(), forexes1.get(0).getSecurityFamily());
         Assert.assertSame(forex1, forexes1.get(0));
 
-        ids.add((long)forex2.getId());
+        ids.add(forex2.getId());
 
         List<Security> forexes2 = this.dao.findByIds(ids);
 
@@ -663,14 +663,14 @@ public class SecurityDaoTest extends InMemoryDBTest {
 
         this.session.flush();
 
-        List<Map> maps1 = this.dao.findSubscribedAndFeedTypeForAutoActivateStrategies();
+        List<Map<String, Object>> maps1 = this.dao.findSubscribedAndFeedTypeForAutoActivateStrategies();
 
         Assert.assertEquals(0, maps1.size());
 
         strategy1.setAutoActivate(Boolean.TRUE);
         this.session.flush();
 
-        List<Map> maps2 = this.dao.findSubscribedAndFeedTypeForAutoActivateStrategies();
+        List<Map<String, Object>> maps2 = this.dao.findSubscribedAndFeedTypeForAutoActivateStrategies();
 
         Assert.assertEquals(1, maps2.size());
 

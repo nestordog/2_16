@@ -63,6 +63,8 @@ public class CacheManagerImpl implements CacheManager, Initializer, EntityCacheE
 
     private final Map<String, String> queryStringMap;
 
+    private final Map<Class<?>, Integer> discriminatorValueMap;
+
     public CacheManagerImpl(GenericDao genericDao) {
 
         this.collectionHandler = new CollectionHandler(this);
@@ -70,7 +72,8 @@ public class CacheManagerImpl implements CacheManager, Initializer, EntityCacheE
         this.entityCache = new EntityCache();
         this.queryCache = new QueryCache();
         this.genericDao = genericDao;
-        this.queryStringMap = new HashMap<String, String>();
+        this.queryStringMap = new HashMap<>();
+        this.discriminatorValueMap = new HashMap<>();
     }
 
     EntityCache getEntityCache() {
@@ -116,7 +119,11 @@ public class CacheManagerImpl implements CacheManager, Initializer, EntityCacheE
     @Override
     public <T extends BaseEntityI> List<T> getAll(Class<T> clazz) {
 
-        return query(clazz, "from " + clazz, QueryType.HQL);
+        String className = clazz.getSimpleName();
+        if (!className.endsWith("Impl")) {
+            className = className + "Impl";
+        }
+        return query(clazz, "from " + className, QueryType.HQL);
     }
 
     @Override
@@ -198,7 +205,7 @@ public class CacheManagerImpl implements CacheManager, Initializer, EntityCacheE
 
         if (result == null) {
 
-            result = this.genericDao.find(clazz, queryString, namedParams);
+            result = this.genericDao.find(clazz, queryString, QueryType.HQL, namedParams);
 
             // get the spaceNames
             Set<String> spaceNames = this.genericDao.getQuerySpaces(cacheKey.getQueryString());
@@ -272,6 +279,17 @@ public class CacheManagerImpl implements CacheManager, Initializer, EntityCacheE
 
         this.entityCache.clear();
         this.queryCache.clear();
+    }
+
+    @Override
+    public int getDiscriminatorValue(final Class<?> type) {
+
+        Integer discriminator = this.discriminatorValueMap.get(type);
+        if (discriminator == null) {
+            discriminator = this.genericDao.getDiscriminatorValue(type);
+            this.discriminatorValueMap.put(type, discriminator);
+        }
+        return discriminator;
     }
 
     @Override

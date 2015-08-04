@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Set;
 
 import ch.algotrader.entity.BaseEntityI;
+import ch.algotrader.enumeration.QueryType;
 
 /**
  * A generic Data Access Object providing Hibernate lookup methods.
@@ -42,19 +43,19 @@ public interface GenericDao {
      * Performs a HQL query based on the given {@code queryString} and {@code namedParameters}
      * @return a List of Objects
      */
-    public <T> List<T> find(Class<T> clazz, String queryString, NamedParam... namedParams);
+    public <T> List<T> find(Class<T> clazz, String queryString, QueryType type, NamedParam... namedParams);
 
     /**
      * Performs a HQL query based on the given {@code queryString}, {@code namedParameters} and {@code maxResults}
      * @return a List of Objects
      */
-    public <T> List<T> find(Class<T> clazz, String queryString, int maxResults, NamedParam... namedParams);
+    public <T> List<T> find(Class<T> clazz, String queryString, int maxResults, QueryType type, NamedParam... namedParams);
 
     /**
      * Performs a HQL query based on the given {@code queryString} and {@code namedParameters}
      * @return a unique Object
      */
-    public <T> T findUnique(Class<T> clazz, String queryString, NamedParam... namedParams);
+    public <T> T findUnique(Class<T> clazz, final String queryString, final QueryType type, final NamedParam... namedParams);
 
     /**
      * gets the initialized Collection specified by its {@code role} and entity {@code id}
@@ -70,4 +71,9 @@ public interface GenericDao {
      * Returns the queryString of a named query
      */
     public String getNamedQuery(String queryName);
+
+    /**
+     * Gets the descriminator value based on the given class.
+     */
+    public int getDiscriminatorValue(Class<?> type);
 }

@@ -24,6 +24,7 @@ import java.util.Map;
 
 import ch.algotrader.dao.NamedParam;
 import ch.algotrader.entity.Account;
+import ch.algotrader.entity.BaseEntityI;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.Transaction;
@@ -44,14 +45,11 @@ import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.Stock;
 import ch.algotrader.entity.strategy.CashBalance;
 import ch.algotrader.entity.strategy.Strategy;
-import ch.algotrader.entity.trade.Order;
 import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.OrderServiceType;
-import ch.algotrader.vo.OrderStatusVO;
-import ch.algotrader.vo.PositionVO;
-import ch.algotrader.vo.TransactionVO;
+import ch.algotrader.enumeration.QueryType;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -97,31 +95,9 @@ public interface LookupService {
     public Security getSecurityInclFamilyAndUnderlying(long id);
 
     /**
-     * Gets a Security by its {@code id} and initializes {@link Subscription Subscriptions}, {@link
-     * Position Positions}, Underlying {@link Security} and {@link SecurityFamily} to make sure that
-     * they are available when the Hibernate Session is closed and this Security is in a detached
-     * state.
-     */
-    public Security getSecurityInitialized(long id);
-
-    /**
      * Gets multiple Securities by their {@code ids}.
      */
     public List<Security> getSecuritiesByIds(Collection<Long> ids);
-
-    /**
-     * Gets the securityId by the specified securityString, by checking fields
-     * in the following order:<br>
-     * <ul>
-     * <li>symbol</li>
-     * <li>isin</li>
-     * <li>bbgid</li>
-     * <li>ric</li>
-     * <li>conid</li>
-     * <li>id</li>
-     * </ul>
-     */
-    public long getSecurityIdBySecurityString(String securityString);
 
     /**
      * Returns all Securities that are defined in the system.
@@ -186,7 +162,7 @@ public interface LookupService {
      * Gets Combinations that are subscribed by the specified Strategy and have a Component with the
      * specified Security Type.
      */
-    public Collection<Combination> getSubscribedCombinationsByStrategyAndComponentClass(String strategyName, Class type);
+    public Collection<Combination> getSubscribedCombinationsByStrategyAndComponentClass(String strategyName, Class<?> type);
 
     /**
      * Gets all Components where the Combination is subscribed by the defined Strategy.  In addition
@@ -292,13 +268,6 @@ public interface LookupService {
     public Position getPositionBySecurityAndStrategy(long securityId, String strategyName);
 
     /**
-     * Gets {@link ch.algotrader.vo.OpenPositionVO OpenPositionVOs} corresponding to the specified
-     * Strategy. If {@code displayClosedPositions} is selected, Positions will also be displayed if
-     * they are (currently) closed (qty=0).
-     */
-    public List<PositionVO> getPositionsVO(String strategyName, boolean openPositions);
-
-    /**
      * Gets all open Position (with a quantity != 0).
      */
     public List<Position> getOpenPositions();
@@ -326,12 +295,12 @@ public interface LookupService {
     /**
      * Gets open Positions for the specified Strategy and SecurityType.
      */
-    public List<Position> getOpenPositionsByStrategyAndType(String strategyName, Class type);
+    public List<Position> getOpenPositionsByStrategyAndType(String strategyName, Class<? extends BaseEntityI> type);
 
     /**
      * Gets open Positions for the specified Strategy and SecurityType.
      */
-    public List<Position> getOpenPositionsByStrategyTypeAndUnderlyingType(String strategyName, Class type, Class underlyingType);
+    public List<Position> getOpenPositionsByStrategyTypeAndUnderlyingType(String strategyName, Class<? extends BaseEntityI> type, Class<? extends BaseEntityI> underlyingType);
 
     /**
      * Gets open Positions for the specified Strategy and SecurityFamily.
@@ -354,42 +323,14 @@ public interface LookupService {
     public Transaction getTransaction(long id);
 
     /**
-     * Gets {@link TransactionVO TransactionVOs} corresponding to the specified Strategy. Only the
-     * latest {@code transactionDisplayCount} will be returned.
+     * Finds all Transactions of the current day in descending {@code dateTime} order.
      */
-    public List<TransactionVO> getTransactionsVO(String strategyName);
+    public List<Transaction> getDailyTransactionsDesc();
 
     /**
-     * Gets all {@link Order open Orders} for to the specified Strategy.
+     * Finds all Transactions of the current day of a specific Strategy in descending {@code dateTime} order.
      */
-    public Collection<Order> getOpenOrdersByStrategy(String strategyName);
-
-    /**
-     * Gets all {@link Order open Orders} for to the specified Strategy and Security.
-     */
-    public Collection<Order> getOpenOrdersByStrategyAndSecurity(String strategyName, long securityId);
-
-    /**
-     * Gets an open order by its {@code intId} by querying the OpenOrderWindow
-     */
-    public Order getOpenOrderByIntId(String intId);
-
-    /**
-     * Gets an open order by its {@code rootIntId} by querying the OpenOrderWindow
-     */
-    public Order getOpenOrderByRootIntId(String intId);
-
-    /**
-     * Gets an open order by its {@code extId} by querying the OpenOrderWindow
-     */
-    public Order getOpenOrderByExtId(String extId);
-
-    /**
-     * Gets all {@link OrderStatusVO OrderStatusVOs} for open Orders corresponding to the specified
-     * Strategy.
-     */
-    public Collection<OrderStatusVO> getOpenOrdersVOByStrategy(String strategyName);
-
+    public List<Transaction> getDailyTransactionsByStrategyDesc(String strategyName);
 
     /**
      * Gets an Account by its {@code accountName}.
@@ -404,20 +345,23 @@ public interface LookupService {
     /**
      * Gets the last Tick for the specified Security that is within the last {@code n}
      * (specified by the config param {@code intervalDays}) days before {@code dateTime}. In addition the Security is initialized.
+     * @param intervalDays TODO
      */
-    public Tick getLastTick(long securityId, Date dateTime);
+    public Tick getLastTick(long securityId, Date dateTime, int intervalDays);
 
     /**
      * Gets all Ticks of the defined Security that are before the {@code maxDate} and after {@code
      * minDate} - {@code intervalDays}
+     * @param intervalDays TODO
      */
-    public List<Tick> getTicksByMaxDate(long securityId, Date maxDate);
+    public List<Tick> getTicksByMaxDate(long securityId, Date maxDate, int intervalDays);
 
     /**
      * Gets all Ticks of the defined Security that are after the {@code minDate} and before {@code
      * minDate} + {@code intervalDays}
+     * @param intervalDays TODO
      */
-    public List<Tick> getTicksByMinDate(long securityId, Date minDate);
+    public List<Tick> getTicksByMinDate(long securityId, Date minDate, int intervalDays);
 
     /**
      * Gets one Tick-Id per day of the defined Security that is just before the specified {@code
@@ -444,18 +388,6 @@ public interface LookupService {
     public List<Tick> getHourlyTicksAfterMinutesByMinDate(long securityId, int minutes, Date minDate);
 
     /**
-     * Gets all Ticks for Securities that are subscribed by any Strategy between {@code minDate} and
-     * {@code maxDate}
-     */
-    public List<Tick> getSubscribedTicksByTimePeriod(Date startDate, Date endDate);
-
-    /**
-     * Gets all Ticks for Securities that are subscribed by any Strategy between {@code minDate} and
-     * {@code maxDate}
-     */
-    public Tick getFirstSubscribedTick();
-
-    /**
      * Gets the first Tick of the defined Security that is before the maxDate (but not earlier than
      * one minute before that the maxDate).
      */
@@ -476,18 +408,6 @@ public interface LookupService {
      * minDate}
      */
     public List<Bar> getBarsBySecurityBarSizeAndMinDate(long securityId, Duration barSize, Date minDate);
-
-    /**
-     * Gets all Ticks for Securities that are subscribed by any Strategy between {@code minDate} and
-     * {@code maxDate}
-     */
-    public List<Bar> getSubscribedBarsByTimePeriodAndBarSize(Date startDate, Date endDate, Duration barSize);
-
-    /**
-     * Gets all Ticks for Securities that are subscribed by any Strategy between {@code minDate} and
-     * {@code maxDate}
-     */
-    public Bar getFirstSubscribedBarByBarSize(Duration barSize);
 
     /**
      * Gets the Forex associated with the{@code baseCurrency} and {@code transactionCurrency}.
@@ -524,22 +444,22 @@ public interface LookupService {
     /**
      * Gets all Measurements before the specified Date with the specified name
      */
-    public Map getMeasurementsByMaxDate(String strategyName, String name, Date maxDate);
+    public Map<Date, Object> getMeasurementsByMaxDate(String strategyName, String name, Date maxDate);
 
     /**
      * Gets all Measurements before the specified Date
      */
-    public Map getAllMeasurementsByMaxDate(String strategyName, Date maxDate);
+    public Map<Date, Map<String, Object>> getAllMeasurementsByMaxDate(String strategyName, Date maxDate);
 
     /**
      * Gets all Measurements after the specified Date with the specified name
      */
-    public Map getMeasurementsByMinDate(String strategyName, String name, Date minDate);
+    public Map<Date, Object> getMeasurementsByMinDate(String strategyName, String name, Date minDate);
 
     /**
      * Gets all Measurements after the specified Date
      */
-    public Map getAllMeasurementsByMinDate(String strategyName, Date minDate);
+    public Map<Date, Map<String, Object>> getAllMeasurementsByMinDate(String strategyName, Date minDate);
 
     /**
      * Gets the first Measurement before the specified Date with the specified name
@@ -564,7 +484,7 @@ public interface LookupService {
      * from Strategy where name = :strategyName
      * and a NamedParam with {@code name='strategyName'} and {@code value='SERVER'}
      */
-    public List<?> get(String query, NamedParam... namedParams);
+    public <T> List<T> get(Class<T> clazz, String query, QueryType type, NamedParam... namedParams);
 
     /**
      * Retrieves an arbitrary list of Entities or values based on a Hibernate query.
@@ -572,7 +492,7 @@ public interface LookupService {
      * from Strategy where name = :strategyName
      * and a NamedParam with {@code name='strategyName'} and {@code value='SERVER'}
      */
-    public List<?> get(String query, int maxResults, NamedParam... namedParams);
+    public <T> List<T> get(Class<T> clazz, String query, int maxResults, QueryType type, NamedParam... namedParams);
 
     /**
      * Retrieves a unique Object based on a Hibernate query.
@@ -580,16 +500,7 @@ public interface LookupService {
      * from Strategy where name = :strategyName
      * and a NamedParam with {@code name='strategyName'} and {@code value='SERVER'}
      */
-    public Object getUnique(String query, NamedParam... namedParams);
+    public <T> T getUnique(Class<T> clazz, String query, QueryType type, NamedParam... namedParams);
 
-    /**
-     * returns the specified hibernate named query
-     */
-    public String getNamedQuery(String queryName);
-
-    /**
-     * initialize all security Strings for subscribed Securities
-     */
-    public void initSecurityStrings();
 
 }

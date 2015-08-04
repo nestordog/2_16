@@ -34,6 +34,7 @@ import ch.algotrader.ServiceLocator;
 import ch.algotrader.dao.NamedParam;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.enumeration.Currency;
+import ch.algotrader.enumeration.QueryType;
 import ch.algotrader.enumeration.TransactionType;
 import ch.algotrader.service.LookupService;
 import ch.algotrader.service.TransactionService;
@@ -58,7 +59,7 @@ public class PersistTransactionStressTest {
             for (Currency transact: currencies) {
                 if (!base.equals(transact)) {
                     Forex forex = lookupService.getUnique(Forex.class, "from ForexImpl f join f.securityFamily sf where f.baseCurrency = :baseCurrency and sf.currency = :transactionCurrency",
-                            new NamedParam("baseCurrency", base), new NamedParam("transactionCurrency", transact));
+                            QueryType.HQL, new NamedParam("baseCurrency", base), new NamedParam("transactionCurrency", transact));
                     if (forex != null) {
                         forexList.add(forex);
                     }

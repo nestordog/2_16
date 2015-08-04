@@ -55,17 +55,6 @@
         <property name="proxyInterfaces"><value>ch.algotrader.service.OptionService</value></property>
     </bean>
 
-    <bean id="lookupService" class="org.springframework.aop.framework.ProxyFactoryBean">
-        <property name="target">
-            <bean class="org.springframework.remoting.rmi.RmiProxyFactoryBean">
-                <property name="refreshStubOnConnectFailure"><value>true</value></property>
-                <property name="serviceUrl"><value>${remoteRmiScheme}://${remoteServer}:${remotePort}/LookupService</value></property>
-                <property name="serviceInterface"><value>ch.algotrader.service.LookupService</value></property>
-            </bean>
-        </property>
-        <property name="proxyInterfaces"><value>ch.algotrader.service.LookupService</value></property>
-    </bean>
-
     <bean id="marketDataService" class="org.springframework.aop.framework.ProxyFactoryBean">
         <property name="target">
             <bean class="org.springframework.remoting.rmi.RmiProxyFactoryBean">
@@ -151,7 +140,7 @@
                 <property name="serviceInterface"><value>ch.algotrader.dao.GenericDao</value></property>
             </bean>
         </property>
-        <property name="proxyInterfaces"><value>ch.algotrader.hibernate.GenericDao</value></property>
+        <property name="proxyInterfaces"><value>ch.algotrader.dao.GenericDao</value></property>
     </bean>
     
     <!-- ========================= End of SERVICE DEFINITIONS ========================= -->

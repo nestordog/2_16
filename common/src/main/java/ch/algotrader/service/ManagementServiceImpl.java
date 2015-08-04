@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections15.CollectionUtils;
+import org.apache.commons.collections15.Transformer;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.jmx.export.annotation.ManagedAttribute;
@@ -41,8 +42,13 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.ConfigParams;
 import ch.algotrader.config.ConfigProvider;
+import ch.algotrader.dao.NamedParam;
+import ch.algotrader.dao.PositionVOProducer;
+import ch.algotrader.dao.TransactionVOProducer;
 import ch.algotrader.entity.Account;
+import ch.algotrader.entity.Position;
 import ch.algotrader.entity.Subscription;
+import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.exchange.Exchange;
 import ch.algotrader.entity.marketData.Bar;
 import ch.algotrader.entity.marketData.MarketDataEvent;
@@ -64,6 +70,7 @@ import ch.algotrader.enumeration.CombinationType;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.enumeration.MarketDataType;
 import ch.algotrader.enumeration.OrderPropertyType;
+import ch.algotrader.enumeration.QueryType;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.util.BeanUtil;
@@ -182,7 +189,11 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedAttribute(description = "Gets current open Orders")
     public Collection<OrderStatusVO> getDataOrders() {
 
-        return this.lookupService.getOpenOrdersVOByStrategy(this.engine.getStrategyName());
+        if (this.engine.getStrategyName().equals(StrategyImpl.SERVER)) {
+            return this.orderService.getAllOpenOrders();
+        } else {
+            return this.orderService.getOpenOrdersByStrategy(this.engine.getStrategyName());
+        }
 
     }
 
@@ -191,9 +202,32 @@ public class ManagementServiceImpl implements ManagementService {
      */
     @Override
     @ManagedAttribute(description = "Gets current open Positions")
-    public List<PositionVO> getDataPositions() {
+    public Collection<PositionVO> getDataPositions() {
 
-        return this.lookupService.getPositionsVO(this.engine.getStrategyName(), this.commonConfig.isDisplayClosedPositions());
+        String baseQuery = "from PositionImpl as p join fetch p.strategy join fetch p.security as s join fetch s.securityFamily ";
+
+        Collection<Position> positions;
+        if (this.engine.getStrategyName().equals(StrategyImpl.SERVER)) {
+            if (this.commonConfig.isDisplayClosedPositions()) {
+                positions = this.lookupService.get(Position.class, baseQuery + "order by p.id", QueryType.HQL);
+            } else {
+                positions = this.lookupService.get(Position.class, baseQuery + "where p.quantity != 0 order by p.id", QueryType.HQL);
+            }
+        } else {
+            if (this.commonConfig.isDisplayClosedPositions()) {
+                positions = this.lookupService.get(Position.class, baseQuery + "where p.strategy.name = :strategyName order by p.id", QueryType.HQL, new NamedParam("strategyName", this.engine.getStrategyName()));
+            } else {
+                positions = this.lookupService.get(Position.class, baseQuery + "where p.strategy.name = :strategyName and p.quantity != 0 order by p.id", QueryType.HQL, new NamedParam("strategyName", this.engine.getStrategyName()));
+            }
+        }
+
+        return CollectionUtils.collect(positions, new Transformer<Position, PositionVO>() {
+            @Override
+            public PositionVO transform(Position entity) {
+
+                return PositionVOProducer.INSTANCE.convert(entity);
+            }
+        });
 
     }
 
@@ -202,9 +236,24 @@ public class ManagementServiceImpl implements ManagementService {
      */
     @Override
     @ManagedAttribute(description = "Gets the latest Transactions")
-    public List<TransactionVO> getDataTransactions() {
+    public Collection<TransactionVO> getDataTransactions() {
 
-        return this.lookupService.getTransactionsVO(this.engine.getStrategyName());
+        Validate.notEmpty(this.engine.getStrategyName(), "Strategy name is empty");
+
+        Collection<Transaction> transactions;
+        if (this.engine.getStrategyName().equals(StrategyImpl.SERVER)) {
+            transactions = this.lookupService.getDailyTransactionsDesc();
+        } else {
+            transactions = this.lookupService.getDailyTransactionsByStrategyDesc(this.engine.getStrategyName());
+        }
+
+        TransactionVOProducer converter = new TransactionVOProducer(this.commonConfig);
+        return CollectionUtils.collect(transactions, new Transformer<Transaction, TransactionVO>() {
+            @Override
+            public TransactionVO transform(Transaction entity) {
+                return converter.convert(entity);
+            }
+        });
 
     }
 
@@ -266,11 +315,11 @@ public class ManagementServiceImpl implements ManagementService {
      */
     @Override
     @ManagedAttribute(description = "Gets the Properties that are defined for this Strategy (or AlgoTrader Server)")
-    public Map getProperties() {
+    public Map<String, Object> getProperties() {
 
         ConfigProvider configProvider = this.configParams.getConfigProvider();
         Set<String> names = configProvider.getNames();
-        Map<Object, Object> props = new HashMap<>();
+        Map<String, Object> props = new HashMap<>();
         for (String name : names) {
 
             props.put(name, configProvider.getParameter(name, String.class));
@@ -918,4 +967,5 @@ public class ManagementServiceImpl implements ManagementService {
         marketDataEventVO.setName(security.toString());
         return marketDataEventVO;
     }
+
 }

@@ -39,6 +39,7 @@ import ch.algotrader.lifecycle.LifecycleManagerImpl;
 import ch.algotrader.service.CombinationService;
 import ch.algotrader.service.LocalLookupService;
 import ch.algotrader.service.LookupService;
+import ch.algotrader.service.LookupServiceImpl;
 import ch.algotrader.service.ManagementService;
 import ch.algotrader.service.ManagementServiceImpl;
 import ch.algotrader.service.MarketDataService;
@@ -120,5 +121,11 @@ public class LiveClientServiceWiring {
     public CacheManager createCacheManager(final GenericDao genericDao) {
 
         return new CacheManagerImpl(genericDao);
+    }
+
+    @Bean(name = "lookupService")
+    public LookupService createLookupService(final GenericDao genericDao, final CacheManager cacheManager) {
+
+        return new LookupServiceImpl(genericDao, cacheManager);
     }
 }
