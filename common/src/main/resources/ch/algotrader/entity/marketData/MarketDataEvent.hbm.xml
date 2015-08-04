@@ -10,8 +10,8 @@
     <class name="ch.algotrader.entity.marketData.MarketDataEventImpl"
         table="`market_data_event`" dynamic-insert="false" dynamic-update="false" abstract="true">
 	    <meta attribute="implements">ch.algotrader.entity.marketData.MarketDataEventI</meta>      
-	    <meta attribute="generated-class">ch.algotrader.entity.marketData.MarketDataEvent</meta>
-	    <meta attribute="class-code">
+	    <meta attribute="generated-class">ch.algotrader.entity.marketData.MarketDataEvent</meta>	
+	    <meta attribute="interface-code">
 <![CDATA[
     /**
      * get the most recent price of this market data event. subclass need to implement this method
@@ -24,7 +24,10 @@
      * @see #getCurrentValue
      * @return double
      */
-    public abstract double getCurrentValueDouble();
+    public default double getCurrentValueDouble() {
+        java.math.BigDecimal currentValue = getCurrentValue();
+        return currentValue != null ? currentValue.doubleValue() : 0.0d;
+    }
 
     /**
      * get the relevant market price that would need to be payed to close a corresponding position
@@ -39,10 +42,13 @@
      * @param direction 
      * @return double
      */
-    public abstract double getMarketValueDouble(ch.algotrader.enumeration.Direction direction);
+    public default double getMarketValueDouble(ch.algotrader.enumeration.Direction direction) {
+        java.math.BigDecimal marketValue = getMarketValue(direction);
+        return marketValue != null ? marketValue.doubleValue() : 0.0d;
+    }  
 
 ]]>   
-	    </meta> 	    
+	    </meta> 	        
         <meta attribute="class-description"><![CDATA[Any type of market data related to a particular Security]]></meta>
         <cache usage="read-write" />
         <id name="id" type="long" >
@@ -79,8 +85,20 @@
         <union-subclass name="ch.algotrader.entity.marketData.BarImpl" table="`bar`" dynamic-insert="false" dynamic-update="false" abstract="false">
             <meta attribute="implements">ch.algotrader.entity.marketData.BarI</meta>
             <meta attribute="generated-class">ch.algotrader.entity.marketData.Bar</meta>
-            <meta attribute="class-code">
+            <meta attribute="vo-code">
 <![CDATA[
+    @Override
+    public BigDecimal getCurrentValue() {
+
+        return getClose();
+    }
+
+    @Override
+    public BigDecimal getMarketValue(ch.algotrader.enumeration.Direction direction) {
+
+        return getClose();
+    }
+    
 ]]>   
             </meta>  
             <property name="barSize">
@@ -143,6 +161,30 @@
 
 ]]>   
             </meta>  
+            <meta attribute="vo-code">
+<![CDATA[
+    @Override
+    public BigDecimal getCurrentValue() {
+
+        return getLast();
+    }
+
+    @Override
+    public BigDecimal getMarketValue(ch.algotrader.enumeration.Direction direction) {
+
+        if (ch.algotrader.enumeration.Direction.LONG.equals(direction)) {
+
+            // bid might be null
+            return getBid() != null ? getBid() : new BigDecimal(0);
+        } else if (ch.algotrader.enumeration.Direction.SHORT.equals(direction)) {
+            return getAsk();
+        } else {
+            return new BigDecimal(0);
+        }
+    }
+
+]]>   
+            </meta>             
             <property name="last">
                 <meta attribute="field-description"><![CDATA[The last price.]]></meta>
                 <column name="LAST" not-null="false" unique="false" sql-type="Decimal(15,6)"/>
@@ -189,8 +231,26 @@
         <union-subclass name="ch.algotrader.entity.marketData.GenericTickImpl" table="`generic_tick`" dynamic-insert="false" dynamic-update="false" abstract="false">
             <meta attribute="implements">ch.algotrader.entity.marketData.GenericTickI</meta>
             <meta attribute="generated-class">ch.algotrader.entity.marketData.GenericTick</meta>
-            <meta attribute="class-code">
+            <meta attribute="vo-code">
 <![CDATA[
+    @Override
+    public BigDecimal getCurrentValue() {
+        if (getMoneyValue() != null) {
+            return getMoneyValue();
+        } else if (getDoubleValue() != null) {
+            return new BigDecimal(getDoubleValue());
+        } else if (getIntValue() != null) {
+            return new BigDecimal(getIntValue());
+        } else {
+            return new BigDecimal(0);
+        }
+    }
+
+    @Override
+    public BigDecimal getMarketValue(ch.algotrader.enumeration.Direction direction) {
+        return getCurrentValue();
+    }
+    
 ]]>   
             </meta>  
             <property name="tickType">

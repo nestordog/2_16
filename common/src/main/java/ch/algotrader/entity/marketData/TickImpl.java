@@ -20,8 +20,6 @@ package ch.algotrader.entity.marketData;
 import java.math.BigDecimal;
 import java.util.Date;
 
-import ch.algotrader.config.CommonConfig;
-import ch.algotrader.config.ConfigLocator;
 import ch.algotrader.enumeration.Direction;
 import ch.algotrader.util.DateTimeUtil;
 import ch.algotrader.util.RoundUtil;
@@ -35,38 +33,9 @@ public class TickImpl extends Tick {
 
     private static final long serialVersionUID = 7518020445322413106L;
 
-    /**
-     * Note: ticks that are not valid (i.e. low volume) are not fed into esper, so we don't need to check
-     */
     @Override
     public BigDecimal getCurrentValue() {
-
-        int scale = getSecurity().getSecurityFamily().getScale();
-        CommonConfig commonConfig = ConfigLocator.instance().getCommonConfig();
-        if (commonConfig.isSimulation()) {
-            if ((super.getBid().doubleValue() != 0) && (super.getAsk().doubleValue() != 0)) {
-                return RoundUtil.getBigDecimal((getAsk().doubleValue() + getBid().doubleValue()) / 2.0, scale);
-            } else {
-                return getLast();
-            }
-        } else {
-            if (this.getSecurity().getSecurityFamily().isTradeable() || this.getSecurity().getSecurityFamily().isSynthetic()) {
-
-                // options just before expiration might not have a BID anymore
-                if (getBid() != null && getAsk() != null) {
-                    return RoundUtil.getBigDecimal((getAsk().doubleValue() + getBid().doubleValue()) / 2.0, scale);
-                } else if (getBid() != null) {
-                    return RoundUtil.getBigDecimal(getBid().doubleValue(), scale);
-                } else if (getAsk() != null) {
-                    return RoundUtil.getBigDecimal(getAsk().doubleValue(), scale);
-                } else {
-                    return getLast();
-                }
-
-            } else {
-                return getLast();
-            }
-        }
+        return getLast();
     }
 
     @Override

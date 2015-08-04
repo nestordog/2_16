@@ -32,13 +32,11 @@ public class BarImpl extends Bar {
 
     @Override
     public BigDecimal getCurrentValue() {
-
         return getClose();
     }
 
     @Override
     public BigDecimal getMarketValue(Direction direction) {
-
         return getClose();
     }
 
