@@ -390,7 +390,7 @@
         join fetch t.strategy
         join fetch t.security as s
         join fetch s.securityFamily
-        join fetch t.account
+        left join fetch t.account
         where t.dateTime >= curdate()
         order by t.dateTime desc 
     ]]>
@@ -402,7 +402,7 @@
         join fetch t.strategy
         join fetch t.security as s
         join fetch s.securityFamily
-        join fetch t.account
+        left join fetch t.account
         where t.strategy.name = :strategyName 
         and t.dateTime >= curdate() 
         order by t.dateTime desc 

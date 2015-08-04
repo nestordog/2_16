@@ -56,12 +56,12 @@ public interface CacheManager {
     /**
      * performs the given HQL {@code query} by passing defined {@code namedParameters}
      */
-    public <T> List<T> query(Class<T> clazz, String query, QueryType type, NamedParam... namedParams);
+    public <T> List<T> find(Class<T> clazz, String query, QueryType type, NamedParam... namedParams);
 
     /**
      * performs the given HQL {@code query} by passing defined {@code namedParameters}
      */
-    public <T> T queryUnique(Class<T> clazz, String query, QueryType type, NamedParam... namedParams);
+    public <T> T findUnique(Class<T> clazz, String query, QueryType type, NamedParam... namedParams);
 
     /**
      * clears the entire cache

@@ -274,7 +274,7 @@ public class CacheTest extends DefaultConfigTestBase {
         
         String queryString = "select p from PositionImpl as p join p.strategy as s where p.security.id = :securityId and s.name = :strategyName";
 
-        Position position1 = cache.queryUnique(Position.class, queryString, QueryType.HQL, new NamedParam("strategyName", STRATEGY_NAME), new NamedParam("securityId", securityId2));
+        Position position1 = cache.findUnique(Position.class, queryString, QueryType.HQL, new NamedParam("strategyName", STRATEGY_NAME), new NamedParam("securityId", securityId2));
             
         Position position2 = cache.get(PositionImpl.class, position1.getId());
         
@@ -312,10 +312,10 @@ public class CacheTest extends DefaultConfigTestBase {
         String queryString = "from PositionImpl as p join fetch p.security as s where s.id = :id";
         NamedParam namedParam = new NamedParam("id", securityId2);
 
-        Position position2 = cache.query(Position.class, queryString, QueryType.HQL, namedParam).iterator().next();
+        Position position2 = cache.find(Position.class, queryString, QueryType.HQL, namedParam).iterator().next();
         Assert.assertNotNull(position2);
 
-        Position position3 = cache.query(Position.class, queryString, QueryType.HQL, namedParam).iterator().next();
+        Position position3 = cache.find(Position.class, queryString, QueryType.HQL, namedParam).iterator().next();
         Assert.assertNotNull(position2);
         Assert.assertEquals(position2, position3);
         Assert.assertSame(position2, position3);

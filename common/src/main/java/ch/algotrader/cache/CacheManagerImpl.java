@@ -123,7 +123,7 @@ public class CacheManagerImpl implements CacheManager, Initializer, EntityCacheE
         if (!className.endsWith("Impl")) {
             className = className + "Impl";
         }
-        return query(clazz, "from " + className, QueryType.HQL);
+        return find(clazz, "from " + className, QueryType.HQL);
     }
 
     @Override
@@ -195,7 +195,7 @@ public class CacheManagerImpl implements CacheManager, Initializer, EntityCacheE
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> List<T> query(Class<T> clazz, String query, QueryType type, NamedParam... namedParams) {
+    public <T> List<T> find(Class<T> clazz, String query, QueryType type, NamedParam... namedParams) {
 
         String queryString = getQueryString(query, type);
 
@@ -221,8 +221,8 @@ public class CacheManagerImpl implements CacheManager, Initializer, EntityCacheE
     }
 
     @Override
-    public <T> T queryUnique(Class<T> clazz, String query, QueryType type, NamedParam... namedParams) {
-        return CollectionUtil.getSingleElementOrNull(query(clazz, query, type, namedParams));
+    public <T> T findUnique(Class<T> clazz, String query, QueryType type, NamedParam... namedParams) {
+        return CollectionUtil.getSingleElementOrNull(find(clazz, query, type, namedParams));
     }
 
     /**

@@ -69,7 +69,6 @@ import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.enumeration.QueryType;
 import ch.algotrader.util.collection.CollectionUtil;
-import ch.algotrader.visitor.InitializationVisitor;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -112,7 +111,7 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(isin, "isin is empty");
 
-        return  this.cacheManager.queryUnique(Security.class, "Security.findByIsin", QueryType.BY_NAME, new NamedParam("isin", isin));
+        return  this.cacheManager.findUnique(Security.class, "Security.findByIsin", QueryType.BY_NAME, new NamedParam("isin", isin));
 
     }
 
@@ -122,7 +121,7 @@ public class LookupServiceImpl implements LookupService {
     @Override
     public Security getSecurityBySymbol(final String symbol) {
 
-        return this.cacheManager.queryUnique(Security.class, "Security.findBySymbol", QueryType.BY_NAME, new NamedParam("symbol", symbol));
+        return this.cacheManager.findUnique(Security.class, "Security.findBySymbol", QueryType.BY_NAME, new NamedParam("symbol", symbol));
 
     }
 
@@ -134,7 +133,7 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(bbgid, "bbgid is empty");
 
-        return this.cacheManager.queryUnique(Security.class, "Security.findByBbgid", QueryType.BY_NAME, new NamedParam("bbgid", bbgid));
+        return this.cacheManager.findUnique(Security.class, "Security.findByBbgid", QueryType.BY_NAME, new NamedParam("bbgid", bbgid));
 
     }
 
@@ -146,7 +145,7 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(ric, "ric is empty");
 
-        return this.cacheManager.queryUnique(Security.class, "Security.findByRic", QueryType.BY_NAME, new NamedParam("ric", ric));
+        return this.cacheManager.findUnique(Security.class, "Security.findByRic", QueryType.BY_NAME, new NamedParam("ric", ric));
 
     }
 
@@ -158,7 +157,7 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(conid, "Con id is empty");
 
-        return this.cacheManager.queryUnique(Security.class, "Security.findByConid", QueryType.BY_NAME, new NamedParam("conid", conid));
+        return this.cacheManager.findUnique(Security.class, "Security.findByConid", QueryType.BY_NAME, new NamedParam("conid", conid));
 
     }
 
@@ -168,7 +167,7 @@ public class LookupServiceImpl implements LookupService {
     @Override
     public Security getSecurityInclFamilyAndUnderlying(final long id) {
 
-        return this.cacheManager.queryUnique(Security.class, "Security.findByIdInclFamilyAndUnderlying", QueryType.BY_NAME, new NamedParam("id", id));
+        return this.cacheManager.findUnique(Security.class, "Security.findByIdInclFamilyAndUnderlying", QueryType.BY_NAME, new NamedParam("id", id));
 
     }
 
@@ -178,7 +177,7 @@ public class LookupServiceImpl implements LookupService {
     @Override
     public List<Security> getSecuritiesByIds(final Collection<Long> ids) {
 
-        return this.cacheManager.query(Security.class, "Security.findByIds", QueryType.BY_NAME, new NamedParam("ids", ids));
+        return this.cacheManager.find(Security.class, "Security.findByIds", QueryType.BY_NAME, new NamedParam("ids", ids));
     }
 
     /**
@@ -197,7 +196,7 @@ public class LookupServiceImpl implements LookupService {
     @Override
     public Collection<Security> getSubscribedSecuritiesForAutoActivateStrategies() {
 
-        return this.cacheManager.query(Security.class, "Security.findSubscribedForAutoActivateStrategies", QueryType.BY_NAME);
+        return this.cacheManager.find(Security.class, "Security.findSubscribedForAutoActivateStrategies", QueryType.BY_NAME);
 
     }
 
@@ -220,7 +219,7 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(code, "Code is empty");
 
-        return this.cacheManager.query(Stock.class, "Stock.findBySectory", QueryType.BY_NAME, new NamedParam("code", code));
+        return this.cacheManager.find(Stock.class, "Stock.findBySectory", QueryType.BY_NAME, new NamedParam("code", code));
 
     }
 
@@ -232,7 +231,7 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(code, "Code is empty");
 
-        return this.cacheManager.query(Stock.class, "Stock.findByIndustryGroup", QueryType.BY_NAME, new NamedParam("code", code));
+        return this.cacheManager.find(Stock.class, "Stock.findByIndustryGroup", QueryType.BY_NAME, new NamedParam("code", code));
 
     }
 
@@ -244,7 +243,7 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(code, "Code is empty");
 
-        return this.cacheManager.query(Stock.class, "Stock.findByIndustry", QueryType.BY_NAME, new NamedParam("code", code));
+        return this.cacheManager.find(Stock.class, "Stock.findByIndustry", QueryType.BY_NAME, new NamedParam("code", code));
 
     }
 
@@ -256,7 +255,7 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(code, "Code is empty");
 
-        return this.cacheManager.query(Stock.class, "Stock.findBySubIndustry", QueryType.BY_NAME, new NamedParam("code", code));
+        return this.cacheManager.find(Stock.class, "Stock.findBySubIndustry", QueryType.BY_NAME, new NamedParam("code", code));
 
     }
 
@@ -266,7 +265,7 @@ public class LookupServiceImpl implements LookupService {
     @Override
     public List<Option> getSubscribedOptions() {
 
-        return this.cacheManager.query(Option.class, "Option.findSubscribedOptions", QueryType.BY_NAME);
+        return this.cacheManager.find(Option.class, "Option.findSubscribedOptions", QueryType.BY_NAME);
 
     }
 
@@ -276,7 +275,7 @@ public class LookupServiceImpl implements LookupService {
     @Override
     public List<Future> getSubscribedFutures() {
 
-        return this.cacheManager.query(Future.class, "Future.findSubscribedFutures", QueryType.BY_NAME);
+        return this.cacheManager.find(Future.class, "Future.findSubscribedFutures", QueryType.BY_NAME);
 
     }
 
@@ -288,7 +287,7 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        return this.cacheManager.query(Combination.class, "Combination.findSubscribedByStrategy", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
+        return this.cacheManager.find(Combination.class, "Combination.findSubscribedByStrategy", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
 
     }
 
@@ -300,7 +299,7 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        return this.cacheManager.query(Combination.class, "Combination.findSubscribedByStrategyAndUnderlying", QueryType.BY_NAME, new NamedParam("strategyName", strategyName),new NamedParam("underlyingId", underlyingId));
+        return this.cacheManager.find(Combination.class, "Combination.findSubscribedByStrategyAndUnderlying", QueryType.BY_NAME, new NamedParam("strategyName", strategyName),new NamedParam("underlyingId", underlyingId));
 
     }
 
@@ -312,7 +311,7 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        return this.cacheManager.query(Combination.class, "Combination.findSubscribedByStrategyAndComponent", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("securityId", securityId));
+        return this.cacheManager.find(Combination.class, "Combination.findSubscribedByStrategyAndComponent", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("securityId", securityId));
 
     }
 
@@ -326,7 +325,7 @@ public class LookupServiceImpl implements LookupService {
         Validate.notNull(type, "Type is null");
 
         int discriminator = this.cacheManager.getDiscriminatorValue(type);
-        return this.cacheManager.query(Combination.class, "Combination.findSubscribedByStrategyAndComponentType", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("type", discriminator));
+        return this.cacheManager.find(Combination.class, "Combination.findSubscribedByStrategyAndComponentType", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("type", discriminator));
 
     }
 
@@ -338,7 +337,7 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        return this.cacheManager.query(Component.class, "Component.findSubscribedByStrategyInclSecurity", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
+        return this.cacheManager.find(Component.class, "Component.findSubscribedByStrategyInclSecurity", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
 
     }
 
@@ -348,7 +347,7 @@ public class LookupServiceImpl implements LookupService {
     @Override
     public Collection<Component> getSubscribedComponentsBySecurityInclSecurity(final long securityId) {
 
-        return this.cacheManager.query(Component.class, "Component.findSubscribedBySecurityInclSecurity", QueryType.BY_NAME, new NamedParam("securityId", securityId));
+        return this.cacheManager.find(Component.class, "Component.findSubscribedBySecurityInclSecurity", QueryType.BY_NAME, new NamedParam("securityId", securityId));
 
     }
 
@@ -360,7 +359,7 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        return this.cacheManager.query(Component.class, "Component.findSubscribedByStrategyAndSecurityInclSecurity", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("securityId", securityId));
+        return this.cacheManager.find(Component.class, "Component.findSubscribedByStrategyAndSecurityInclSecurity", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("securityId", securityId));
 
     }
 
@@ -372,7 +371,7 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        return this.cacheManager.queryUnique(Subscription.class, "Subscription.findByStrategyAndSecurity", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("securityId", securityId));
+        return this.cacheManager.findUnique(Subscription.class, "Subscription.findByStrategyAndSecurity", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("securityId", securityId));
 
     }
 
@@ -384,7 +383,7 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        return this.cacheManager.query(Subscription.class, "Subscription.findByStrategyInclProps", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
+        return this.cacheManager.find(Subscription.class, "Subscription.findByStrategyInclProps", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
 
     }
 
@@ -396,7 +395,7 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        return this.cacheManager.query(Subscription.class, "Subscription.findNonPositionSubscriptions", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
+        return this.cacheManager.find(Subscription.class, "Subscription.findNonPositionSubscriptions", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
 
     }
 
@@ -428,7 +427,7 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(name, "Name is empty");
 
-        return this.cacheManager.queryUnique(Strategy.class, "Strategy.findByName", QueryType.BY_NAME, new NamedParam("name", name));
+        return this.cacheManager.findUnique(Strategy.class, "Strategy.findByName", QueryType.BY_NAME, new NamedParam("name", name));
 
     }
 
@@ -450,7 +449,7 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(name, "Name is empty");
 
-        return this.cacheManager.queryUnique(SecurityFamily.class, "SecurityFamily.findByName", QueryType.BY_NAME, new NamedParam("name", name));
+        return this.cacheManager.findUnique(SecurityFamily.class, "SecurityFamily.findByName", QueryType.BY_NAME, new NamedParam("name", name));
 
     }
 
@@ -462,7 +461,7 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(name, "Name is empty");
 
-        final SecurityReference ref = this.cacheManager.queryUnique(SecurityReference.class, "SecurityReference.findByOwnerAndName", QueryType.BY_NAME, new NamedParam("ownerSecurityId", securityId), new NamedParam("name", name));
+        final SecurityReference ref = this.cacheManager.findUnique(SecurityReference.class, "SecurityReference.findByOwnerAndName", QueryType.BY_NAME, new NamedParam("ownerSecurityId", securityId), new NamedParam("name", name));
         return ref == null ? null : ref.getTarget();
     }
 
@@ -472,7 +471,7 @@ public class LookupServiceImpl implements LookupService {
     @Override
     public OptionFamily getOptionFamilyByUnderlying(final long underlyingId) {
 
-        return this.cacheManager.queryUnique(OptionFamily.class, "OptionFamily.findByUnderlying", QueryType.BY_NAME, new NamedParam("underlyingId", underlyingId));
+        return this.cacheManager.findUnique(OptionFamily.class, "OptionFamily.findByUnderlying", QueryType.BY_NAME, new NamedParam("underlyingId", underlyingId));
 
     }
 
@@ -482,7 +481,7 @@ public class LookupServiceImpl implements LookupService {
     @Override
     public FutureFamily getFutureFamilyByUnderlying(final long underlyingId) {
 
-        return this.cacheManager.queryUnique(FutureFamily.class, "FutureFamily.findByUnderlying", QueryType.BY_NAME, new NamedParam("underlyingId", underlyingId));
+        return this.cacheManager.findUnique(FutureFamily.class, "FutureFamily.findByUnderlying", QueryType.BY_NAME, new NamedParam("underlyingId", underlyingId));
 
     }
 
@@ -492,7 +491,7 @@ public class LookupServiceImpl implements LookupService {
     @Override
     public Exchange getExchangeByName(String name) {
 
-        return this.cacheManager.queryUnique(Exchange.class, "Exchange.findByName", QueryType.BY_NAME, new NamedParam("name", name));
+        return this.cacheManager.findUnique(Exchange.class, "Exchange.findByName", QueryType.BY_NAME, new NamedParam("name", name));
     }
 
     /**
@@ -521,7 +520,7 @@ public class LookupServiceImpl implements LookupService {
     @Override
     public Position getPositionInclSecurityAndSecurityFamily(final long id) {
 
-        return this.cacheManager.queryUnique(Position.class, "Position.findByIdInclSecurityAndSecurityFamily", QueryType.BY_NAME, new NamedParam("id", id));
+        return this.cacheManager.findUnique(Position.class, "Position.findByIdInclSecurityAndSecurityFamily", QueryType.BY_NAME, new NamedParam("id", id));
 
     }
 
@@ -533,7 +532,7 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        return this.cacheManager.query(Position.class, "Position.findByStrategy", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
+        return this.cacheManager.find(Position.class, "Position.findByStrategy", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
 
     }
 
@@ -545,7 +544,7 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        return this.cacheManager.queryUnique(Position.class, "Position.findBySecurityAndStrategy", QueryType.BY_NAME, new NamedParam("securityId", securityId), new NamedParam("strategyName", strategyName));
+        return this.cacheManager.findUnique(Position.class, "Position.findBySecurityAndStrategy", QueryType.BY_NAME, new NamedParam("securityId", securityId), new NamedParam("strategyName", strategyName));
 
     }
 
@@ -555,7 +554,7 @@ public class LookupServiceImpl implements LookupService {
     @Override
     public List<Position> getOpenPositions() {
 
-        return this.cacheManager.query(Position.class, "Position.findOpenPositions", QueryType.BY_NAME);
+        return this.cacheManager.find(Position.class, "Position.findOpenPositions", QueryType.BY_NAME);
 
     }
 
@@ -565,7 +564,7 @@ public class LookupServiceImpl implements LookupService {
     @Override
     public List<Position> getOpenTradeablePositions() {
 
-        return this.cacheManager.query(Position.class, "Position.findOpenTradeablePositions", QueryType.BY_NAME);
+        return this.cacheManager.find(Position.class, "Position.findOpenTradeablePositions", QueryType.BY_NAME);
 
     }
 
@@ -577,7 +576,7 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        return this.cacheManager.query(Position.class, "Position.findOpenPositionsByStrategy", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
+        return this.cacheManager.find(Position.class, "Position.findOpenPositionsByStrategy", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
 
     }
 
@@ -589,7 +588,7 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        return this.cacheManager.query(Position.class, "Position.findOpenTradeablePositionsByStrategy", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
+        return this.cacheManager.find(Position.class, "Position.findOpenTradeablePositionsByStrategy", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
 
     }
 
@@ -599,7 +598,7 @@ public class LookupServiceImpl implements LookupService {
     @Override
     public List<Position> getOpenPositionsBySecurity(final long securityId) {
 
-        return this.cacheManager.query(Position.class, "Position.findOpenPositionsBySecurity", QueryType.BY_NAME, new NamedParam("securityId", securityId));
+        return this.cacheManager.find(Position.class, "Position.findOpenPositionsBySecurity", QueryType.BY_NAME, new NamedParam("securityId", securityId));
 
     }
 
@@ -614,7 +613,7 @@ public class LookupServiceImpl implements LookupService {
 
         int discriminator = this.cacheManager.getDiscriminatorValue(type);
 
-        return this.cacheManager.query(Position.class, "Position.findOpenPositionsByStrategyAndType", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("type", discriminator));
+        return this.cacheManager.find(Position.class, "Position.findOpenPositionsByStrategyAndType", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("type", discriminator));
 
     }
 
@@ -631,7 +630,7 @@ public class LookupServiceImpl implements LookupService {
         int discriminator = this.cacheManager.getDiscriminatorValue(type);
         int underlyingDiscriminator = this.cacheManager.getDiscriminatorValue(underlyingType);
 
-        return this.cacheManager.query(Position.class, "Position.findOpenPositionsByStrategyTypeAndUnderlyingType", QueryType.BY_NAME,
+        return this.cacheManager.find(Position.class, "Position.findOpenPositionsByStrategyTypeAndUnderlyingType", QueryType.BY_NAME,
                 new NamedParam("strategyName", strategyName),
                 new NamedParam("type", discriminator),
                 new NamedParam("underlyingType", underlyingDiscriminator));
@@ -646,7 +645,7 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        return this.cacheManager.query(Position.class, "Position.findOpenPositionsByStrategyAndSecurityFamily", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam(
+        return this.cacheManager.find(Position.class, "Position.findOpenPositionsByStrategyAndSecurityFamily", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam(
                 "securityFamilyId", securityFamilyId));
 
     }
@@ -657,7 +656,7 @@ public class LookupServiceImpl implements LookupService {
     @Override
     public List<Position> getOpenFXPositions() {
 
-        return this.cacheManager.query(Position.class, "Position.findOpenFXPositions", QueryType.BY_NAME);
+        return this.cacheManager.find(Position.class, "Position.findOpenFXPositions", QueryType.BY_NAME);
 
     }
 
@@ -669,7 +668,7 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        return this.cacheManager.query(Position.class, "Position.findOpenFXPositionsByStrategy", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
+        return this.cacheManager.find(Position.class, "Position.findOpenFXPositionsByStrategy", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
 
     }
 
@@ -686,7 +685,7 @@ public class LookupServiceImpl implements LookupService {
     @Override
     public List<Transaction> getDailyTransactionsDesc() {
 
-        return this.cacheManager.query(Transaction.class, "Transaction.findDailyTransactionsDesc", QueryType.BY_NAME);
+        return this.cacheManager.find(Transaction.class, "Transaction.findDailyTransactionsDesc", QueryType.BY_NAME);
     }
 
     @Override
@@ -694,7 +693,7 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        return this.cacheManager.query(Transaction.class, "Transaction.findDailyTransactionsByStrategyDesc", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
+        return this.cacheManager.find(Transaction.class, "Transaction.findDailyTransactionsByStrategyDesc", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
     }
 
     /**
@@ -705,7 +704,7 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(accountName, "Account name is empty");
 
-        return this.cacheManager.queryUnique(Account.class, "Account.findByName", QueryType.BY_NAME, new NamedParam("name", accountName));
+        return this.cacheManager.findUnique(Account.class, "Account.findByName", QueryType.BY_NAME, new NamedParam("name", accountName));
 
     }
 
@@ -775,7 +774,7 @@ public class LookupServiceImpl implements LookupService {
         List<Long> ids = this.genericDao.find(Long.class, "Tick.findDailyTickIdsBeforeTime", QueryType.BY_NAME, new NamedParam("securityId", securityId), new NamedParam("time", time));
 
         if (ids.size() > 0) {
-            return this.cacheManager.query(Tick.class, "Tick.findByIdsInclSecurityAndUnderlying", QueryType.BY_NAME, new NamedParam("ids", ids));
+            return this.cacheManager.find(Tick.class, "Tick.findByIdsInclSecurityAndUnderlying", QueryType.BY_NAME, new NamedParam("ids", ids));
         } else {
             return new ArrayList<>();
         }
@@ -793,7 +792,7 @@ public class LookupServiceImpl implements LookupService {
         List<Long> ids = this.genericDao.find(Long.class, "Tick.findDailyTickIdsAfterTime", QueryType.BY_NAME, new NamedParam("securityId", securityId), new NamedParam("time", time));
 
         if (ids.size() > 0) {
-            return this.cacheManager.query(Tick.class, "Tick.findByIdsInclSecurityAndUnderlying", QueryType.BY_NAME, new NamedParam("ids", ids));
+            return this.cacheManager.find(Tick.class, "Tick.findByIdsInclSecurityAndUnderlying", QueryType.BY_NAME, new NamedParam("ids", ids));
         } else {
             return new ArrayList<>();
         }
@@ -814,7 +813,7 @@ public class LookupServiceImpl implements LookupService {
                 new NamedParam("minDate", minDate));
 
         if (ids.size() > 0) {
-            return this.cacheManager.query(Tick.class, "Tick.findByIdsInclSecurityAndUnderlying", QueryType.BY_NAME, new NamedParam("ids", ids));
+            return this.cacheManager.find(Tick.class, "Tick.findByIdsInclSecurityAndUnderlying", QueryType.BY_NAME, new NamedParam("ids", ids));
         } else {
             return new ArrayList<>();
         }
@@ -835,7 +834,7 @@ public class LookupServiceImpl implements LookupService {
                 new NamedParam("minDate", minDate));
 
         if (ids.size() > 0) {
-            return this.cacheManager.query(Tick.class, "Tick.findByIdsInclSecurityAndUnderlying", QueryType.BY_NAME, new NamedParam("ids", ids));
+            return this.cacheManager.find(Tick.class, "Tick.findByIdsInclSecurityAndUnderlying", QueryType.BY_NAME, new NamedParam("ids", ids));
         } else {
             return new ArrayList<>();
         }
@@ -902,13 +901,13 @@ public class LookupServiceImpl implements LookupService {
         Validate.notNull(baseCurrency, "Base currency is null");
         Validate.notNull(transactionCurrency, "Transaction currency is null");
 
-        Forex forex = this.cacheManager.queryUnique(Forex.class, "Forex.findByBaseAndTransactionCurrency", QueryType.BY_NAME, new NamedParam("baseCurrency", baseCurrency), new NamedParam(
+        Forex forex = this.cacheManager.findUnique(Forex.class, "Forex.findByBaseAndTransactionCurrency", QueryType.BY_NAME, new NamedParam("baseCurrency", baseCurrency), new NamedParam(
                 "transactionCurrency", transactionCurrency));
 
         if (forex == null) {
 
             // reverse lookup
-            forex = this.cacheManager.queryUnique(Forex.class, "Forex.findByBaseAndTransactionCurrency", QueryType.BY_NAME, new NamedParam("baseCurrency", transactionCurrency), new NamedParam(
+            forex = this.cacheManager.findUnique(Forex.class, "Forex.findByBaseAndTransactionCurrency", QueryType.BY_NAME, new NamedParam("baseCurrency", transactionCurrency), new NamedParam(
                     "transactionCurrency", baseCurrency));
 
             if (forex == null) {
@@ -961,7 +960,7 @@ public class LookupServiceImpl implements LookupService {
         Validate.notNull(currency, "Currency is null");
         Validate.notNull(duration, "Duration is null");
 
-        return this.cacheManager.queryUnique(IntrestRate.class, "IntrestRate.findByCurrencyAndDuration", QueryType.BY_NAME, new NamedParam("currency", currency), new NamedParam("duration", duration));
+        return this.cacheManager.findUnique(IntrestRate.class, "IntrestRate.findByCurrencyAndDuration", QueryType.BY_NAME, new NamedParam("currency", currency), new NamedParam("duration", duration));
 
     }
 
@@ -1004,7 +1003,7 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notNull(strategyName, "Strategy name is null");
 
-        return this.cacheManager.query(CashBalance.class, "CashBalance.findCashBalancesByStrategy", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
+        return this.cacheManager.find(CashBalance.class, "CashBalance.findCashBalancesByStrategy", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
 
     }
 
@@ -1018,7 +1017,7 @@ public class LookupServiceImpl implements LookupService {
         Validate.notNull(name, "Name is null");
         Validate.notNull(maxDate, "Max date is null");
 
-        List<Measurement> measurements = this.cacheManager.query(Measurement.class, "Measurement.findMeasurementsByMaxDate", QueryType.BY_NAME,
+        List<Measurement> measurements = this.cacheManager.find(Measurement.class, "Measurement.findMeasurementsByMaxDate", QueryType.BY_NAME,
                 new NamedParam("strategyName", strategyName),
                 new NamedParam("name", name),
                 new NamedParam("maxDateTime", maxDate));
@@ -1036,7 +1035,7 @@ public class LookupServiceImpl implements LookupService {
         Validate.notNull(strategyName, "Strategy name is null");
         Validate.notNull(maxDate, "Max date is null");
 
-        List<Measurement> measurements = this.cacheManager.query(Measurement.class, "Measurement.findAllMeasurementsByMaxDate", QueryType.BY_NAME,
+        List<Measurement> measurements = this.cacheManager.find(Measurement.class, "Measurement.findAllMeasurementsByMaxDate", QueryType.BY_NAME,
                 new NamedParam("strategyName", strategyName),
                 new NamedParam("maxDateTime", maxDate));
 
@@ -1054,7 +1053,7 @@ public class LookupServiceImpl implements LookupService {
         Validate.notNull(name, "Name is null");
         Validate.notNull(minDate, "Min date is null");
 
-        List<Measurement> measurements = this.cacheManager.query(Measurement.class, "Measurement.findMeasurementsByMinDate", QueryType.BY_NAME,
+        List<Measurement> measurements = this.cacheManager.find(Measurement.class, "Measurement.findMeasurementsByMinDate", QueryType.BY_NAME,
                 new NamedParam("strategyName", strategyName),
                 new NamedParam("name", name),
                 new NamedParam("minDateTime", minDate));
@@ -1072,7 +1071,7 @@ public class LookupServiceImpl implements LookupService {
         Validate.notNull(strategyName, "Strategy name is null");
         Validate.notNull(minDate, "Min date is null");
 
-        List<Measurement> measurements = this.cacheManager.query(Measurement.class, "Measurement.findAllMeasurementsByMinDate", QueryType.BY_NAME,
+        List<Measurement> measurements = this.cacheManager.find(Measurement.class, "Measurement.findAllMeasurementsByMinDate", QueryType.BY_NAME,
                 new NamedParam("strategyName", strategyName),
                 new NamedParam("minDateTime", minDate));
 
@@ -1090,7 +1089,7 @@ public class LookupServiceImpl implements LookupService {
         Validate.notNull(name, "Name is null");
         Validate.notNull(maxDate, "Max date is null");
 
-        Measurement measurement = this.cacheManager.queryUnique(Measurement.class, "Measurement.findMeasurementsByMaxDate", QueryType.BY_NAME, new NamedParam("strategyName", strategyName),
+        Measurement measurement = this.cacheManager.findUnique(Measurement.class, "Measurement.findMeasurementsByMaxDate", QueryType.BY_NAME, new NamedParam("strategyName", strategyName),
                 new NamedParam("name", name),
                 new NamedParam("maxDateTime",maxDate));
 
@@ -1108,7 +1107,7 @@ public class LookupServiceImpl implements LookupService {
         Validate.notNull(name, "Name is null");
         Validate.notNull(minDate, "Min date is null");
 
-        Measurement measurement = this.cacheManager.queryUnique(Measurement.class, "Measurement.findMeasurementsByMinDate", QueryType.BY_NAME, new NamedParam("strategyName", strategyName),
+        Measurement measurement = this.cacheManager.findUnique(Measurement.class, "Measurement.findMeasurementsByMinDate", QueryType.BY_NAME, new NamedParam("strategyName", strategyName),
                 new NamedParam("name", name),
                 new NamedParam("minDateTime", minDate));
 
@@ -1126,7 +1125,7 @@ public class LookupServiceImpl implements LookupService {
         Validate.notNull(broker, "Broker is null");
 
         Date truncatedDate = DateUtils.truncate(date, Calendar.DATE);
-        return this.cacheManager.query(EasyToBorrow.class, "EasyToBorrow.findByDateAndBroker", QueryType.BY_NAME, new NamedParam("date", truncatedDate), new NamedParam("broker", broker));
+        return this.cacheManager.find(EasyToBorrow.class, "EasyToBorrow.findByDateAndBroker", QueryType.BY_NAME, new NamedParam("date", truncatedDate), new NamedParam("broker", broker));
 
     }
 
