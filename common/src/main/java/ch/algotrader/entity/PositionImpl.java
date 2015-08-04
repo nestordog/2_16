@@ -17,7 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.entity;
 
-import ch.algotrader.entity.marketData.MarketDataEvent;
+import ch.algotrader.entity.marketData.MarketDataEventI;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.Future;
 import ch.algotrader.entity.security.Security;
@@ -76,7 +76,7 @@ public class PositionImpl extends Position {
     }
 
     @Override
-    public double getMarketPrice(MarketDataEvent marketDataEvent) {
+    public double getMarketPrice(MarketDataEventI marketDataEvent) {
 
         if (isOpen()) {
 
@@ -91,7 +91,7 @@ public class PositionImpl extends Position {
     }
 
     @Override
-    public double getMarketValue(MarketDataEvent marketDataEvent) {
+    public double getMarketValue(MarketDataEventI marketDataEvent) {
 
         if (isOpen()) {
 
@@ -108,19 +108,19 @@ public class PositionImpl extends Position {
     }
 
     @Override
-    public double getUnrealizedPL(MarketDataEvent marketDataEvent) {
+    public double getUnrealizedPL(MarketDataEventI marketDataEvent) {
 
         return getMarketValue(marketDataEvent) - getCost();
     }
 
     @Override
-    public double getExposure(MarketDataEvent marketDataEvent, MarketDataEvent underlyingMarketDataEvent) {
+    public double getExposure(MarketDataEventI marketDataEvent, MarketDataEventI underlyingMarketDataEvent) {
 
         return getMarketValue(marketDataEvent) * getSecurity().getLeverage(marketDataEvent, underlyingMarketDataEvent);
     }
 
     @Override
-    public CurrencyAmountVO getAttribution(MarketDataEvent marketDataEvent) {
+    public CurrencyAmountVO getAttribution(MarketDataEventI marketDataEvent) {
 
         double amount = 0;
         Currency currency = null;

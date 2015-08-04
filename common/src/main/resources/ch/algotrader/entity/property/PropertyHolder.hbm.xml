@@ -122,7 +122,7 @@
      * @param marketDataEvent 
      * @return double
      */
-    public abstract double getMarketPrice(ch.algotrader.entity.marketData.MarketDataEvent marketDataEvent);
+    public abstract double getMarketPrice(ch.algotrader.entity.marketData.MarketDataEventI marketDataEvent);
 
     /**
      * Gets the value of the position based on either {@code bid} or {@code ask} depending on the
@@ -134,7 +134,7 @@
      * @param marketDataEvent 
      * @return double
      */
-    public abstract double getMarketValue(ch.algotrader.entity.marketData.MarketDataEvent marketDataEvent);
+    public abstract double getMarketValue(ch.algotrader.entity.marketData.MarketDataEventI marketDataEvent);
 
     /**
      * Gets the average price of the position based on all relevant opening transactions (always
@@ -149,7 +149,7 @@
      * @param marketDataEvent 
      * @return double
      */
-    public abstract double getUnrealizedPL(ch.algotrader.entity.marketData.MarketDataEvent marketDataEvent);
+    public abstract double getUnrealizedPL(ch.algotrader.entity.marketData.MarketDataEventI marketDataEvent);
 
     /**
      * Gets the current market exposure (market value x leverage).
@@ -157,7 +157,7 @@
      * @param underlyingMarketDataEvent 
      * @return double
      */
-    public abstract double getExposure(ch.algotrader.entity.marketData.MarketDataEvent marketDataEvent, ch.algotrader.entity.marketData.MarketDataEvent underlyingMarketDataEvent);
+    public abstract double getExposure(ch.algotrader.entity.marketData.MarketDataEventI marketDataEvent, ch.algotrader.entity.marketData.MarketDataEventI underlyingMarketDataEvent);
 
     /**
      * The Currency Attribution of this Position.
@@ -166,7 +166,7 @@
      * @param marketDataEvent 
      * @return ch.algotrader.vo.CurrencyAmountVO
      */
-    public abstract ch.algotrader.vo.CurrencyAmountVO getAttribution(ch.algotrader.entity.marketData.MarketDataEvent marketDataEvent);
+    public abstract ch.algotrader.vo.CurrencyAmountVO getAttribution(ch.algotrader.entity.marketData.MarketDataEventI marketDataEvent);
 
     /**
      * Returns {@code true} if the Position is open
