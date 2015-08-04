@@ -28,11 +28,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import ch.algotrader.config.CommonConfig;
-import ch.algotrader.config.CommonConfigBuilder;
 import ch.algotrader.dao.TransactionDao;
 import ch.algotrader.dao.TransactionDaoImpl;
-import ch.algotrader.dao.TransactionVOProducer;
 import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.TransactionImpl;
 import ch.algotrader.entity.security.Forex;
@@ -44,7 +41,6 @@ import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.TransactionType;
 import ch.algotrader.hibernate.InMemoryDBTest;
-import ch.algotrader.vo.TransactionVO;
 
 /**
 * Unit tests for {@link ch.algotrader.entity.Transaction}.
@@ -172,7 +168,7 @@ public class TransactionDaoTest extends InMemoryDBTest {
     }
 
     @Test
-    public void testFindTransactionsDesc() {
+    public void testFindDailyTransactionsDesc() {
 
         this.session.save(this.family1);
         this.session.save(this.forex1);
@@ -206,43 +202,29 @@ public class TransactionDaoTest extends InMemoryDBTest {
         transaction2.setType(TransactionType.BUY);
         transaction2.setStrategy(this.strategy2);
 
-        CommonConfig commonConfig = CommonConfigBuilder.create().build();
+        List<Transaction> transactionVOs1 = this.dao.findDailyTransactionsDesc();
 
-        TransactionVOProducer converter = new TransactionVOProducer(commonConfig);
-
-        List<TransactionVO> transactionVOs1 = this.dao.findTransactionsDesc(1, converter);
-
-        Assert.assertEquals(1, transactionVOs1.size());
+        Assert.assertEquals(0, transactionVOs1.size());
 
         this.session.save(transaction1);
         this.session.save(transaction2);
         this.session.flush();
 
-        List<TransactionVO> transactionVOs2 = this.dao.findTransactionsDesc(3, converter);
+        List<Transaction> transactionVOs2 = this.dao.findDailyTransactionsDesc();
 
-        Assert.assertEquals(3, transactionVOs2.size());
+        Assert.assertEquals(1, transactionVOs2.size());
 
-        TransactionVO transactionVO1 = transactionVOs2.get(0);
+        Transaction transactionVO1 = transactionVOs2.get(0);
         Assert.assertEquals(222, transactionVO1.getQuantity());
         Assert.assertEquals(new BigDecimal(111), transactionVO1.getPrice());
         Assert.assertEquals(Currency.INR, transactionVO1.getCurrency());
         Assert.assertEquals(TransactionType.CREDIT, transactionVO1.getType());
-        Assert.assertSame(this.strategy1.toString(), transactionVO1.getStrategy());
+        Assert.assertEquals(this.strategy1, transactionVO1.getStrategy());
 
-        TransactionVO transactionVO2 = transactionVOs2.get(1);
-        Assert.assertEquals(222, transactionVO2.getQuantity());
-        Assert.assertEquals(new BigDecimal(111), transactionVO2.getPrice());
-        Assert.assertEquals(Currency.NZD, transactionVO2.getCurrency());
-        Assert.assertEquals(TransactionType.BUY, transactionVO2.getType());
-        Assert.assertSame(this.strategy2.toString(), transactionVO2.getStrategy());
-
-        List<TransactionVO> transactionVOs3 = this.dao.findTransactionsDesc(2, converter);
-
-        Assert.assertEquals(2, transactionVOs3.size());
     }
 
     @Test
-    public void testFindTransactionsByStrategyDesc() {
+    public void testFindDailyTransactionsByStrategyDesc() {
 
         this.session.save(this.family1);
         this.session.save(this.forex1);
@@ -267,7 +249,11 @@ public class TransactionDaoTest extends InMemoryDBTest {
         transaction2.setUuid(UUID.randomUUID().toString());
         transaction2.setSecurity(this.forex2);
         transaction2.setQuantity(222);
-        transaction2.setDateTime(new Date());
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DAY_OF_MONTH, -1);
+
+        transaction2.setDateTime(calendar.getTime());
         transaction2.setPrice(new BigDecimal(111));
         transaction2.setCurrency(Currency.NZD);
         transaction2.setType(TransactionType.BUY);
@@ -276,33 +262,19 @@ public class TransactionDaoTest extends InMemoryDBTest {
         this.session.save(transaction2);
         this.session.flush();
 
-        CommonConfig commonConfig = CommonConfigBuilder.create().build();
-
-        TransactionVOProducer converter = new TransactionVOProducer(commonConfig);
-
-        List<TransactionVO> transactionVOs1 = this.dao.findTransactionsByStrategyDesc(1, "Dummy", converter);
+        List<Transaction> transactionVOs1 = this.dao.findDailyTransactionsByStrategyDesc("Dummy");
 
         Assert.assertEquals(0, transactionVOs1.size());
 
-        List<TransactionVO> transactionVOs2 = this.dao.findTransactionsByStrategyDesc(2, "Strategy1", converter);
+        List<Transaction> transactionVOs2 = this.dao.findDailyTransactionsByStrategyDesc("Strategy1");
 
-        Assert.assertEquals(2, transactionVOs2.size());
+        Assert.assertEquals(1, transactionVOs2.size());
 
         Assert.assertEquals(222, transactionVOs2.get(0).getQuantity());
         Assert.assertEquals(new BigDecimal(111), transactionVOs2.get(0).getPrice());
-        Assert.assertEquals(Currency.NZD, transactionVOs2.get(0).getCurrency());
-        Assert.assertEquals(TransactionType.BUY, transactionVOs2.get(0).getType());
-        Assert.assertSame(this.strategy1.toString(), transactionVOs2.get(0).getStrategy());
-
-        Assert.assertEquals(222, transactionVOs2.get(1).getQuantity());
-        Assert.assertEquals(new BigDecimal(111), transactionVOs2.get(1).getPrice());
-        Assert.assertEquals(Currency.INR, transactionVOs2.get(1).getCurrency());
-        Assert.assertEquals(TransactionType.CREDIT, transactionVOs2.get(1).getType());
-        Assert.assertSame(this.strategy1.toString(), transactionVOs2.get(1).getStrategy());
-
-        List<TransactionVO> transactionVOs3 = this.dao.findTransactionsByStrategyDesc(1, "Strategy1", converter);
-
-        Assert.assertEquals(1, transactionVOs3.size());
+        Assert.assertEquals(Currency.INR, transactionVOs2.get(0).getCurrency());
+        Assert.assertEquals(TransactionType.CREDIT, transactionVOs2.get(0).getType());
+        Assert.assertEquals(this.strategy1, transactionVOs2.get(0).getStrategy());
     }
 
     @Test

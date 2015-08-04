@@ -384,17 +384,27 @@
     ]]>
     </query>
     
-    <query name='Transaction.findTransactionsDesc'>
+    <query name='Transaction.findDailyTransactionsDesc'>
     <![CDATA[
-        from TransactionImpl as t 
+        from TransactionImpl as t
+        join fetch t.strategy
+        join fetch t.security as s
+        join fetch s.securityFamily
+        join fetch t.account
+        where t.dateTime >= curdate()
         order by t.dateTime desc 
     ]]>
     </query>
     
-    <query name='Transaction.findTransactionsByStrategyDesc'>
+    <query name='Transaction.findDailyTransactionsByStrategyDesc'>
     <![CDATA[
         from TransactionImpl as t 
+        join fetch t.strategy
+        join fetch t.security as s
+        join fetch s.securityFamily
+        join fetch t.account
         where t.strategy.name = :strategyName 
+        and t.dateTime >= curdate() 
         order by t.dateTime desc 
     ]]>
     </query>
