@@ -33,6 +33,7 @@ import ch.algotrader.dao.PositionDao;
 import ch.algotrader.dao.SubscriptionDao;
 import ch.algotrader.dao.TransactionDao;
 import ch.algotrader.dao.exchange.ExchangeDao;
+import ch.algotrader.dao.marketData.BarDao;
 import ch.algotrader.dao.marketData.TickDao;
 import ch.algotrader.dao.property.PropertyDao;
 import ch.algotrader.dao.property.PropertyHolderDao;
@@ -64,6 +65,7 @@ import ch.algotrader.service.CalendarService;
 import ch.algotrader.service.CalendarServiceImpl;
 import ch.algotrader.service.CombinationService;
 import ch.algotrader.service.CombinationServiceImpl;
+import ch.algotrader.service.EventPropagator;
 import ch.algotrader.service.ForexService;
 import ch.algotrader.service.ForexServiceImpl;
 import ch.algotrader.service.FutureService;
@@ -90,6 +92,8 @@ import ch.algotrader.service.PositionService;
 import ch.algotrader.service.PositionServiceImpl;
 import ch.algotrader.service.PropertyService;
 import ch.algotrader.service.PropertyServiceImpl;
+import ch.algotrader.service.ServerLookupService;
+import ch.algotrader.service.ServerLookupServiceImpl;
 import ch.algotrader.service.ServerManagementService;
 import ch.algotrader.service.ServerManagementServiceImpl;
 import ch.algotrader.service.StrategyPersistenceService;
@@ -345,6 +349,21 @@ public class ServiceWiring {
     public StrategyPersistenceService createStrategyPersistenceService(final StrategyDao strategyDao) {
 
         return new StrategyPersistenceServiceImpl(strategyDao);
+    }
+
+    @Bean(name = "serverLookupService")
+    public ServerLookupService createServerLookupService(
+            final SecurityDao securityDao,
+            final SubscriptionDao subscriptionDao,
+            final TickDao tickDao,
+            final BarDao barDao) {
+        return new ServerLookupServiceImpl(tickDao, securityDao, subscriptionDao, barDao);
+    }
+
+    @Bean(name = "eventPropagator")
+    public EventPropagator createEventPropagator(final EventDispatcher eventDispatcher) {
+
+        return new EventPropagator(eventDispatcher);
     }
 
     @Bean(name = "lazyLoaderService")

@@ -108,7 +108,7 @@ where
     ServiceUtil.isMarketOpen(tick.security.securityFamily.exchange.id, current_timestamp.toDate());
 
 @Name('PROPAGATE_MARKET_DATA_EVENTS')
-@Subscriber(className='marketDataService#propagateMarketData')
+@Subscriber(className='eventPropagator#propagateMarketData')
 @Priority(1)
 select
     *
@@ -118,7 +118,7 @@ where
     security is not null;
 
 @Name('PROPAGATE_GENERIC_EVENTS')
-@Subscriber(className='marketDataService#propagateGenericEvent')
+@Subscriber(className='eventPropagator#propagateGenericEvent')
 @Priority(1)
 select
     *

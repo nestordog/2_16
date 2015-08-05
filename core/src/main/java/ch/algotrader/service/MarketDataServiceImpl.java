@@ -50,7 +50,6 @@ import ch.algotrader.dao.marketData.TickDao;
 import ch.algotrader.dao.security.SecurityDao;
 import ch.algotrader.dao.strategy.StrategyDao;
 import ch.algotrader.entity.Subscription;
-import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.strategy.Strategy;
@@ -60,8 +59,6 @@ import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.util.HibernateUtil;
 import ch.algotrader.util.io.CsvTickWriter;
-import ch.algotrader.util.metric.MetricsUtil;
-import ch.algotrader.vo.GenericEventVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -407,28 +404,6 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationList
     public boolean isSupportedFeed(FeedType feedType) {
 
         return this.externalMarketDataServiceMap.containsKey(feedType);
-    }
-
-    @Override
-    public void propagateMarketData(final MarketDataEvent marketDataEvent) {
-
-        if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("{} {}", marketDataEvent.getSecurity(), marketDataEvent);
-        }
-
-        long startTime = System.nanoTime();
-        this.eventDispatcher.sendMarketDataEvent(marketDataEvent);
-        MetricsUtil.accountEnd("PropagateMarketDataEventSubscriber.update", startTime);
-    }
-
-    @Override
-    public void propagateGenericEvent(final GenericEventVO genericEvent) {
-
-        if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace(genericEvent);
-
-        }
-        this.eventDispatcher.broadcastAllStrategies(genericEvent);
     }
 
 }

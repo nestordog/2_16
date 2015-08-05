@@ -22,10 +22,8 @@ import java.util.Set;
 
 import com.espertech.esper.collection.Pair;
 
-import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.enumeration.FeedType;
-import ch.algotrader.vo.GenericEventVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -104,15 +102,5 @@ public interface MarketDataService {
      * Returns {@code true} if the data feed is supported.
      */
     boolean isSupportedFeed(FeedType feedType);
-
-    /**
-     * Propagates market data event to its recipients.
-     */
-    void propagateMarketData(MarketDataEvent marketDataEvent);
-
-    /**
-     * Propagates generic event to its recipients.
-     */
-    void propagateGenericEvent(GenericEventVO genericEvent);
 
 }
