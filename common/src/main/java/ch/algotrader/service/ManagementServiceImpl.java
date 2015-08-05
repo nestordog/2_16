@@ -265,7 +265,7 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedAttribute(description = "Gets the latest MarketDataEvents of all subscribed Securities")
     public List<MarketDataEventVO> getMarketDataEvents() {
 
-        Map<Long, MarketDataEvent> marketDataEvents = localLookupService.getCurrentMarketDataEvents();
+        Map<Long, MarketDataEvent> marketDataEvents = this.localLookupService.getCurrentMarketDataEvents();
 
         List<MarketDataEventVO> marketDataEventVOs = getMarketDataEventVOs(marketDataEvents.values());
 
@@ -274,7 +274,7 @@ public class ManagementServiceImpl implements ManagementService {
         if (this.engine.getStrategyName().equalsIgnoreCase(StrategyImpl.SERVER)) {
 
             // for the AlgoTrader Server iterate over a distinct list of subscribed securities and feedType
-            List<Map<String, Object>> subscriptions = this.lookupService.getSubscribedSecuritiesAndFeedTypeForAutoActivateStrategiesInclComponents();
+            List<Map> subscriptions = this.lookupService.getSubscribedSecuritiesAndFeedTypeForAutoActivateStrategiesInclComponents();
             for (Map<String, Object> subscription : subscriptions) {
 
                 Security security = (Security) subscription.get("security");

@@ -121,7 +121,7 @@ public interface LookupService {
      * Combinations, all Components will be initialized as well. The return value is a List of Maps
      * (containing key-value-pairs)
      */
-    public List getSubscribedSecuritiesAndFeedTypeForAutoActivateStrategiesInclComponents();
+    public List<Map> getSubscribedSecuritiesAndFeedTypeForAutoActivateStrategiesInclComponents();
 
     public Collection<Stock> getStocksBySector(String code);
 
