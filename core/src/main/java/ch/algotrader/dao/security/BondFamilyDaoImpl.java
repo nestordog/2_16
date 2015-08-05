@@ -20,9 +20,9 @@ package ch.algotrader.dao.security;
 
 import org.hibernate.SessionFactory;
 
+import ch.algotrader.dao.AbstractDao;
 import ch.algotrader.entity.security.BondFamily;
 import ch.algotrader.entity.security.BondFamilyImpl;
-import ch.algotrader.hibernate.AbstractDao;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

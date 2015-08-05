@@ -20,11 +20,11 @@ package ch.algotrader.dao.security;
 import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
 
+import ch.algotrader.dao.AbstractDao;
+import ch.algotrader.dao.NamedParam;
 import ch.algotrader.entity.security.OptionFamily;
 import ch.algotrader.entity.security.OptionFamilyImpl;
 import ch.algotrader.enumeration.QueryType;
-import ch.algotrader.hibernate.AbstractDao;
-import ch.algotrader.hibernate.NamedParam;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

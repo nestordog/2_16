@@ -26,6 +26,7 @@ import org.apache.commons.lang.time.DateUtils;
 
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.marketData.Tick;
+import ch.algotrader.service.ServerLookupService;
 
 import com.espertech.esper.adapter.AdapterState;
 import com.espertech.esper.client.EPException;
@@ -46,12 +47,14 @@ public class DBTickInputAdapter extends AbstractCoordinatedAdapter {
     private Iterator<Tick> iterator = (new ArrayList<Tick>()).iterator();
     private Date startDate;
     private final int batchSize;
+    private final ServerLookupService serverLookupService;
 
     public DBTickInputAdapter(int batchSize) {
         super(null, true, true, true);
         this.batchSize = batchSize;
 
-        Tick tick = ServiceLocator.instance().getLookupService().getFirstSubscribedTick();
+        this.serverLookupService = ServiceLocator.instance().getService("serverLookupService", ServerLookupService.class);
+        Tick tick = this.serverLookupService.getFirstSubscribedTick();
         if (tick == null) {
             this.startDate = new Date(0);
         } else {
@@ -92,7 +95,7 @@ public class DBTickInputAdapter extends AbstractCoordinatedAdapter {
             if (!this.iterator.hasNext()) {
 
                 Date endDate = DateUtils.addDays(this.startDate, this.batchSize);
-                List<Tick> ticks = ServiceLocator.instance().getLookupService().getSubscribedTicksByTimePeriod(this.startDate, endDate);
+                List<Tick> ticks = this.serverLookupService.getSubscribedTicksByTimePeriod(this.startDate, endDate);
 
                 if (ticks.size() > 0) {
                     this.iterator = ticks.iterator();

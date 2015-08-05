@@ -20,9 +20,9 @@ package ch.algotrader.dao.security;
 import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
 
+import ch.algotrader.dao.AbstractDao;
 import ch.algotrader.entity.security.Index;
 import ch.algotrader.entity.security.IndexImpl;
-import ch.algotrader.hibernate.AbstractDao;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

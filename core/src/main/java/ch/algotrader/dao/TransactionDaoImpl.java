@@ -28,9 +28,6 @@ import org.springframework.stereotype.Repository;
 import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.TransactionImpl;
 import ch.algotrader.enumeration.QueryType;
-import ch.algotrader.hibernate.AbstractDao;
-import ch.algotrader.hibernate.EntityConverter;
-import ch.algotrader.hibernate.NamedParam;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -54,20 +51,17 @@ public class TransactionDaoImpl extends AbstractDao<Transaction> implements Tran
     }
 
     @Override
-    public <V> List<V> findTransactionsDesc(int limit, EntityConverter<Transaction, V> converter) {
+    public List<Transaction> findDailyTransactionsDesc() {
 
-        Validate.notNull(converter, "EntityConverter is null");
-
-        return find(converter, "Transaction.findTransactionsDesc", limit, QueryType.BY_NAME);
+        return find("Transaction.findDailyTransactionsDesc", QueryType.BY_NAME);
     }
 
     @Override
-    public <V> List<V> findTransactionsByStrategyDesc(int limit, String strategyName, EntityConverter<Transaction, V> converter) {
+    public List<Transaction> findDailyTransactionsByStrategyDesc(String strategyName) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
-        Validate.notNull(converter, "EntityConverter is null");
 
-        return find(converter, "Transaction.findTransactionsByStrategyDesc", limit, QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
+        return find("Transaction.findDailyTransactionsByStrategyDesc", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
     }
 
     @Override

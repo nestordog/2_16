@@ -20,9 +20,6 @@ package ch.algotrader.adapter.ftx;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import ch.algotrader.adapter.fix.fix44.GenericFix44OrderMessageHandler;
-import ch.algotrader.esper.Engine;
-import ch.algotrader.service.LookupService;
 import quickfix.FieldNotFound;
 import quickfix.SessionID;
 import quickfix.field.ExecType;
@@ -31,6 +28,9 @@ import quickfix.field.SessionRejectReason;
 import quickfix.field.Text;
 import quickfix.fix44.ExecutionReport;
 import quickfix.fix44.Reject;
+import ch.algotrader.adapter.fix.fix44.GenericFix44OrderMessageHandler;
+import ch.algotrader.esper.Engine;
+import ch.algotrader.service.OrderService;
 
 /**
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
@@ -39,8 +39,8 @@ public class FTXFixOrderMessageHandler extends GenericFix44OrderMessageHandler {
 
     private static final Logger LOGGER = LogManager.getLogger(FTXFixOrderMessageHandler.class);
 
-    public FTXFixOrderMessageHandler(final LookupService lookupService, final Engine serverEngine) {
-        super(lookupService, serverEngine);
+    public FTXFixOrderMessageHandler(final OrderService orderService, final Engine serverEngine) {
+        super(orderService, serverEngine);
     }
 
     @Override
@@ -124,6 +124,7 @@ public class FTXFixOrderMessageHandler extends GenericFix44OrderMessageHandler {
         }
     }
 
+    @Override
     public void onMessage(final Reject reject, final SessionID sessionID) throws FieldNotFound {
 
         if (LOGGER.isErrorEnabled()) {

@@ -17,11 +17,12 @@
  ***********************************************************************************/
 package ch.algotrader.cache;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
+import ch.algotrader.dao.NamedParam;
 import ch.algotrader.entity.BaseEntityI;
+import ch.algotrader.enumeration.QueryType;
 
 /**
  * Entry point to the Level-0 Cache
@@ -33,9 +34,14 @@ import ch.algotrader.entity.BaseEntityI;
 public interface CacheManager {
 
     /**
-     * gets a {@link BaseEntityI} of the given {@code clazz} by the defined {@code key}.
+     * gets an Entity of the given {@code clazz} by the defined {@code id}.
      */
-    public <T extends BaseEntityI> T get(Class<T> clazz, Serializable key);
+    public <T extends BaseEntityI> T get(Class<T> clazz, long id);
+
+    /**
+     * gets all Entities of the given {@code clazz}.
+     */
+    public <T extends BaseEntityI> List<T> getAll(Class<T> clazz);
 
     /**
      * Adds an object recursively into the Cache and returns the existingObject if it was already in the Cache
@@ -43,34 +49,35 @@ public interface CacheManager {
     public Object put(Object obj);
 
     /**
-     * checks whether an object of the given {@code clazz} and {@code key} is in the cache
+     * checks whether an object of the given {@code clazz} and {@code id} is in the cache
      */
-    public boolean contains(Class<?> clazz, Serializable key);
-
-    /**
-     * performs the given HQL {@code query}
-     */
-    public List<?> query(String queryString);
+    public <T extends BaseEntityI> boolean contains(Class<T> clazz, long id);
 
     /**
      * performs the given HQL {@code query} by passing defined {@code namedParameters}
      */
-    public List<?> query(String queryString, Map<String, Object> namedParameters);
+    public <T> List<T> find(Class<T> clazz, String query, QueryType type, NamedParam... namedParams);
 
     /**
-     * performs the given HQL {@code query}
+     * performs the given HQL {@code query} by passing defined {@code maxResults} (passing zero will return all elements)
+     * and {@code namedParameters}
      */
-    public Object queryUnique(String queryString);
+    public <T> List<T> find(Class<T> clazz, String query, int maxResults, QueryType type, NamedParam... namedParams);
 
     /**
      * performs the given HQL {@code query} by passing defined {@code namedParameters}
      */
-    public Object queryUnique(String queryString, Map<String, Object> namedParameters);
+    public <T> T findUnique(Class<T> clazz, String query, QueryType type, NamedParam... namedParams);
 
     /**
      * clears the entire cache
      */
     public void clear();
+
+    /**
+     * Gets the descriminator value based on the given class.
+     */
+    public int getDiscriminatorValue(final Class<?> type);
 
     /**
      * retrieves a map of all caches including their sizes

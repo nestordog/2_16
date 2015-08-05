@@ -26,19 +26,17 @@ import java.util.Map;
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Transformer;
 import org.apache.commons.lang.Validate;
-import org.hibernate.Query;
 import org.hibernate.SessionFactory;
-import org.hibernate.type.LongType;
 import org.springframework.stereotype.Repository;
 
 import com.espertech.esper.collection.Pair;
 
+import ch.algotrader.dao.AbstractDao;
+import ch.algotrader.dao.NamedParam;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderImpl;
 import ch.algotrader.enumeration.QueryType;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.hibernate.AbstractDao;
-import ch.algotrader.hibernate.NamedParam;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -65,23 +63,18 @@ public class OrderDaoImpl extends AbstractDao<Order> implements OrderDao {
         return (BigDecimal) findUniqueObject(null, "Order.findLastIntOrderId", QueryType.BY_NAME, new NamedParam("sessionQualifier", sessionQualifier));
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public List<Long> findUnacknowledgedOrderIds() {
 
         return convertIds(findObjects(null, "Order.findUnacknowledgedOrderIds", QueryType.BY_NAME));
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public List<Order> findByIds(List<Long> ids) {
 
         Validate.notEmpty(ids, "Ids are empty");
 
-        Query query = this.prepareQuery(null, "Order.findByIds", QueryType.BY_NAME);
-        query.setParameterList("ids", ids, LongType.INSTANCE);
-
-        return query.list();
+        return this.find("Order.findByIds", QueryType.BY_NAME, new NamedParam("ids", ids));
     }
 
     @Override

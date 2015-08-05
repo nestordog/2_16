@@ -20,9 +20,9 @@ package ch.algotrader.dao.security;
 import java.util.Date;
 import java.util.List;
 
+import ch.algotrader.dao.ReadWriteDao;
 import ch.algotrader.entity.security.EasyToBorrow;
 import ch.algotrader.enumeration.Broker;
-import ch.algotrader.hibernate.ReadWriteDao;
 
 /**
  * DAO for {@link ch.algotrader.entity.security.EasyToBorrow} objects.

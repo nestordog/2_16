@@ -33,7 +33,7 @@ import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.service.LookupService;
+import ch.algotrader.service.OrderService;
 import ch.algotrader.util.PriceUtil;
 
 /**
@@ -45,8 +45,8 @@ import ch.algotrader.util.PriceUtil;
  */
 public class GenericFix44OrderMessageHandler extends AbstractFix44OrderMessageHandler {
 
-    public GenericFix44OrderMessageHandler(final LookupService lookupService, final Engine serverEngine) {
-        super(lookupService, serverEngine);
+    public GenericFix44OrderMessageHandler(final OrderService orderService, final Engine serverEngine) {
+        super(orderService, serverEngine);
     }
 
     @Override

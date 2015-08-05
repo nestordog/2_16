@@ -20,8 +20,8 @@ package ch.algotrader.dao.marketData;
 import java.util.Date;
 import java.util.List;
 
+import ch.algotrader.dao.ReadWriteDao;
 import ch.algotrader.entity.marketData.Tick;
-import ch.algotrader.hibernate.ReadWriteDao;
 
 /**
  * DAO for {@link ch.algotrader.entity.marketData.Tick} objects.

@@ -20,10 +20,8 @@ package ch.algotrader.loadtest.db;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -33,8 +31,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import ch.algotrader.ServiceLocator;
+import ch.algotrader.dao.NamedParam;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.enumeration.Currency;
+import ch.algotrader.enumeration.QueryType;
 import ch.algotrader.enumeration.TransactionType;
 import ch.algotrader.service.LookupService;
 import ch.algotrader.service.TransactionService;
@@ -58,14 +58,9 @@ public class PersistTransactionStressTest {
         for (Currency base: currencies) {
             for (Currency transact: currencies) {
                 if (!base.equals(transact)) {
-                    Map<String, Object> params = new HashMap<>();
-                    params.put("baseCurrency", base);
-                    params.put("transactionCurrency", transact);
-                    List<?> list = lookupService.get(
-                            "from ForexImpl f join f.securityFamily sf where f.baseCurrency = :baseCurrency and sf.currency = :transactionCurrency", params);
-                    if (!list.isEmpty()) {
-                        Object[] objs = (Object[]) list.get(0);
-                        Forex forex = (Forex) objs[0];
+                    Forex forex = lookupService.getUnique(Forex.class, "from ForexImpl f join f.securityFamily sf where f.baseCurrency = :baseCurrency and sf.currency = :transactionCurrency",
+                            QueryType.HQL, new NamedParam("baseCurrency", base), new NamedParam("transactionCurrency", transact));
+                    if (forex != null) {
                         forexList.add(forex);
                     }
                 }

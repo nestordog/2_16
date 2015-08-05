@@ -25,6 +25,7 @@ import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderCompletion;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.entity.trade.OrderValidationException;
+import ch.algotrader.vo.OrderStatusVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -115,6 +116,36 @@ public interface OrderService {
      * Generates next order id for the given account.
      */
     public String getNextOrderId(Account account);
+
+    /**
+     * Finds all OrderStati of currently open Orders.
+     */
+    public Collection<OrderStatusVO> getAllOpenOrders();
+
+    /**
+     * Finds the current OrderStatus of the Order with the specified {@code intId}
+     */
+    public Collection<OrderStatusVO> getOpenOrdersByStrategy(String strategyName);
+
+    /**
+     * Gets all {@link Order open Orders} for to the specified Strategy and Security.
+     */
+    public Collection<Order> getOpenOrdersByStrategyAndSecurity(String strategyName, long securityId);
+
+    /**
+     * Gets an open order by its {@code intId} by querying the OpenOrderWindow
+     */
+    public Order getOpenOrderByIntId(String intId);
+
+    /**
+     * Gets an open order by its {@code rootIntId} by querying the OpenOrderWindow
+     */
+    public Order getOpenOrderByRootIntId(String intId);
+
+    /**
+     * Gets an open order by its {@code extId} by querying the OpenOrderWindow
+     */
+    public Order getOpenOrderByExtId(String extId);
 
     /**
      * Loads pending orders. An order is considered pending if the status of the last

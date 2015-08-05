@@ -71,13 +71,74 @@ public class DistributedEventDispatcherImpl implements EventDispatcher, MessageL
     @Override
     public void sendEvent(final String engineName, final Object obj) {
         // check if it is a local engine
-        final Engine engine = this.engineManager.getEngine(engineName);
-        if (engine != null) {
+        if (this.engineManager.hasEngine(engineName)) {
+            final Engine engine = this.engineManager.getEngine(engineName);
             engine.sendEvent(obj);
         } else {
             Objects.requireNonNull(this.strategyTemplate, "Strategy template is null");
             this.strategyTemplate.convertAndSend(engineName + ".QUEUE", obj);
         }
+    }
+
+    @Override
+    public void broadcastLocalEventListeners(final Object event) {
+
+        this.localEventBroadcaster.broadcast(event);
+    }
+
+    @Override
+    public void broadcastLocalStrategies(final Object event) {
+
+        for (Engine engine : this.engineManager.getStrategyEngines()) {
+
+            engine.sendEvent(event);
+        }
+
+        broadcastLocalEventListeners(event);
+    }
+
+    @Override
+    public void broadcastLocal(final Object event) {
+
+        for (Engine engine : this.engineManager.getEngines()) {
+
+            engine.sendEvent(event);
+        }
+
+        broadcastLocalEventListeners(event);
+    }
+
+    @Override
+    public void broadcastRemote(final Object event) {
+
+        Objects.requireNonNull(this.genericTemplate, "Generic template is null");
+        this.genericTemplate.convertAndSend(event, message -> {
+
+            // add class Property
+            message.setStringProperty("clazz", event.getClass().getName());
+            return message;
+        });
+    }
+
+    @Override
+    public void broadcastEventListeners(final Object event) {
+
+        broadcastLocalEventListeners(event);
+        broadcastRemote(event);
+    }
+
+    @Override
+    public void broadcastAllStrategies(final Object event) {
+
+        broadcastLocalStrategies(event);
+        broadcastRemote(event);
+    }
+
+    @Override
+    public void broadcast(final Object event) {
+
+        broadcastLocal(event);
+        broadcastRemote(event);
     }
 
     @Override
@@ -97,55 +158,8 @@ public class DistributedEventDispatcherImpl implements EventDispatcher, MessageL
             message.setLongProperty("securityId", marketDataEvent.getSecurity().getId());
             return message;
         });
-        this.localEventBroadcaster.broadcast(marketDataEvent);
-    }
 
-    @Override
-    public void broadcastLocal(final Object event) {
-
-        for (Engine engine : this.engineManager.getEngines()) {
-
-            engine.sendEvent(event);
-        }
-
-        this.localEventBroadcaster.broadcast(event);
-    }
-
-    @Override
-    public void broadcastLocalStrategies(final Object event) {
-
-        for (Engine engine : this.engineManager.getStrategyEngines()) {
-
-            engine.sendEvent(event);
-        }
-
-        this.localEventBroadcaster.broadcast(event);
-    }
-
-    @Override
-    public void broadcastRemote(final Object event) {
-
-        Objects.requireNonNull(this.genericTemplate, "Generic template is null");
-        this.genericTemplate.convertAndSend(event, message -> {
-
-            // add class Property
-            message.setStringProperty("clazz", event.getClass().getName());
-            return message;
-        });
-    }
-
-    @Override
-    public void broadcastAllStrategies(final Object event) {
-
-        broadcastLocalStrategies(event);
-        broadcastRemote(event);
-    }
-
-    @Override
-    public void broadcast(final Object event) {
-
-        broadcastLocal(event);
-        broadcastRemote(event);
+        broadcastLocalEventListeners(marketDataEvent);
     }
 
     @Override

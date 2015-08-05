@@ -21,7 +21,6 @@ import java.util.Collection;
 
 import ch.algotrader.entity.Account;
 import ch.algotrader.enumeration.OrderServiceType;
-import ch.algotrader.hibernate.ReadWriteDao;
 
 /**
  * DAO for {@link ch.algotrader.entity.Account} objects.

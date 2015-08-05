@@ -20,7 +20,6 @@ package ch.algotrader.service;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 import ch.algotrader.vo.BalanceVO;
@@ -54,22 +53,22 @@ public interface ManagementService {
     /**
      * Gets current open Positions
      */
-    public List<PositionVO> getDataPositions();
+    public Collection<PositionVO> getDataPositions();
 
     /**
      * Gets the latest Transactions
      */
-    public List<TransactionVO> getDataTransactions();
+    public Collection<TransactionVO> getDataTransactions();
 
     /**
      * Gets the latest MarketDataEvents of all subscribed Securities
      */
-    public List<MarketDataEventVO> getMarketDataEvents();
+    public Collection<MarketDataEventVO> getMarketDataEvents();
 
     /**
      * Gets the Properties that are defined for this Strategy (or AlgoTrader Server)
      */
-    public Map getProperties();
+    public Map<String, Object> getProperties();
 
     /**
      * Gets the Allocation that is assigned to this Strategy (or to the AlgoTrader Server)

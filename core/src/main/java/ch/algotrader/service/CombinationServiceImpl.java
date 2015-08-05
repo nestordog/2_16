@@ -247,9 +247,8 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
         }
 
         String combinationString = combination.toString();
-        final Security security = this.securityDao.load(securityId);
 
-        if (security == null) {
+        if (this.securityDao.load(securityId) == null) {
             throw new IllegalArgumentException("security does not exist: " + securityId);
         }
 
@@ -257,7 +256,7 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
         Component component = CollectionUtils.find(combination.getComponents(), new Predicate<Component>() {
             @Override
             public boolean evaluate(Component component) {
-                return security.equals(component.getSecurity());
+                return component.getSecurity().getId() == securityId;
             }
         });
 

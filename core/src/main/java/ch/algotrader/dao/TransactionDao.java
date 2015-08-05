@@ -21,8 +21,6 @@ import java.util.Date;
 import java.util.List;
 
 import ch.algotrader.entity.Transaction;
-import ch.algotrader.hibernate.EntityConverter;
-import ch.algotrader.hibernate.ReadWriteDao;
 
 /**
  * DAO for {@link ch.algotrader.entity.Transaction} objects.
@@ -38,23 +36,17 @@ public interface TransactionDao extends ReadWriteDao<Transaction> {
     List<Transaction> findByStrategy(String strategyName);
 
     /**
-     * Finds Transactions in descending {@code dateTime} order.
-     * The <code>limit</code> argument allows you to specify the limit when you are paging the results.
-     * @param limit
-     * @param converter
+     * Finds all Transactions of the current day in descending {@code dateTime} order.
      * @return List<V>
      */
-    <V> List<V> findTransactionsDesc(int limit, EntityConverter<Transaction, V> converter);
+    List<Transaction> findDailyTransactionsDesc();
 
     /**
-     * Finds Transactions of a specific Strategy in descending {@code dateTime} order.
-     * The <code>limit</code> argument allows you to specify the limit when you are paging the results.
-     * @param limit
+     * Finds all Transactions of the current day of a specific Strategy in descending {@code dateTime} order.
      * @param strategyName
-     * @param converter
      * @return List<V>
      */
-    <V> List<V> findTransactionsByStrategyDesc(int limit, String strategyName, EntityConverter<Transaction, V> converter);
+    List<Transaction> findDailyTransactionsByStrategyDesc(String strategyName);
 
     /**
      * Finds all Trades (either  {@code BUY}, {@code SELL}, {@code EXPIRATION} or {@code TRANSFER})

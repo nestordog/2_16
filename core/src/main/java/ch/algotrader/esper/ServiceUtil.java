@@ -19,12 +19,12 @@ package ch.algotrader.esper;
 
 import java.util.Date;
 
-import com.espertech.esper.collection.Pair;
-
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.visitor.TickValidationVisitor;
+
+import com.espertech.esper.collection.Pair;
 
 /**
  * Provides service convenience methods.
@@ -44,7 +44,7 @@ public class ServiceUtil {
 
         long securityId = tick.getSecurity().getId();
 
-        Security security = LookupUtil.getSecurityInitialized(securityId);
+        Security security = ServiceLocator.instance().getLookupService().getSecurity(securityId);
         tick.setSecurity(security);
 
         return tick;

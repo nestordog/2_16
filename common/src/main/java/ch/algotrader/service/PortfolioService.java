@@ -20,8 +20,7 @@ package ch.algotrader.service;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Date;
-import java.util.Map;
-
+import ch.algotrader.dao.NamedParam;
 import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.strategy.PortfolioValue;
 import ch.algotrader.entity.strategy.Strategy;
@@ -68,7 +67,7 @@ public interface PortfolioService {
      * <i>Note: The current value of {@link ch.algotrader.entity.security.Forex} Positions will not
      * be taken into account</i>
      */
-    public BigDecimal getCashBalance(String filter, Map namedParameters, Date date);
+    public BigDecimal getCashBalance(String filter, Date date, NamedParam... namedParams);
 
     /**
      * Gets the Cash Balance of the entire System.
@@ -103,7 +102,7 @@ public interface PortfolioService {
      * <i>Note: The current value of {@link ch.algotrader.entity.security.Forex} Positions will not
      * be taken into account</i>
      */
-    public double getCashBalanceDouble(String filter, Map namedParameters, Date date);
+    public double getCashBalanceDouble(String filter, Date date, NamedParam... namedParams);
 
     /**
      * Gets the total Market Value of all Positions of the entire System.
@@ -139,7 +138,7 @@ public interface PortfolioService {
      * s.gics like '12______'
      * }
      */
-    public BigDecimal getSecuritiesCurrentValue(String filter, Map namedParameters, Date date);
+    public BigDecimal getSecuritiesCurrentValue(String filter, Date date, NamedParam... namedParams);
 
     /**
      * Gets the total Market Value of all Positions of the entire System.
@@ -175,7 +174,7 @@ public interface PortfolioService {
      * s.gics like '12______'
      * }
      */
-    public double getSecuritiesCurrentValueDouble(String filter, Map namedParameters, Date date);
+    public double getSecuritiesCurrentValueDouble(String filter, Date date, NamedParam... namedParams);
 
     /**
      * Gets the Net-Liquidation-Value of the entire System.

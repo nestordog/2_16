@@ -20,9 +20,9 @@ package ch.algotrader.dao.exchange;
 import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
 
+import ch.algotrader.dao.AbstractDao;
 import ch.algotrader.entity.exchange.TradingHours;
 import ch.algotrader.entity.exchange.TradingHoursImpl;
-import ch.algotrader.hibernate.AbstractDao;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

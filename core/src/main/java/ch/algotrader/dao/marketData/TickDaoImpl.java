@@ -24,11 +24,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.Validate;
-import org.hibernate.Query;
 import org.hibernate.SessionFactory;
-import org.hibernate.type.LongType;
 import org.springframework.stereotype.Repository;
 
+import ch.algotrader.dao.AbstractDao;
+import ch.algotrader.dao.NamedParam;
 import ch.algotrader.dao.SubscriptionDao;
 import ch.algotrader.dao.security.SecurityDao;
 import ch.algotrader.entity.Subscription;
@@ -37,8 +37,6 @@ import ch.algotrader.entity.marketData.TickImpl;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.QueryType;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.hibernate.AbstractDao;
-import ch.algotrader.hibernate.NamedParam;
 import ch.algotrader.util.collection.Pair;
 import ch.algotrader.visitor.TickValidationVisitor;
 
@@ -151,16 +149,12 @@ public class TickDaoImpl extends AbstractDao<Tick> implements TickDao {
                 new NamedParam("minDate", minDate)));
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public List<Tick> findByIdsInclSecurityAndUnderlying(List<Long> ids) {
 
         Validate.notEmpty(ids, "Ids are empty");
 
-        Query query = this.prepareQuery(null, "Tick.findByIdsInclSecurityAndUnderlying", QueryType.BY_NAME);
-        query.setParameterList("ids", ids, LongType.INSTANCE);
-
-        return query.list();
+        return find("Tick.findByIdsInclSecurityAndUnderlying", QueryType.BY_NAME, new NamedParam("ids", ids));
     }
 
     @Override

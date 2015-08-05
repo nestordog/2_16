@@ -133,7 +133,7 @@ select
     FeedType.IB as feedType,
     TickType.OPEN as tickType,
     tickPrice.price as doubleValue,
-    LookupUtil.getSecurityInitialized(last(tickWindow.security.id)) as security
+    lookupService.getSecurity(last(tickWindow.security.id)) as security
 from
     TickWindow as tickWindow
 where
@@ -153,7 +153,7 @@ select
     FeedType.IB as feedType,
     TickType.CLOSE as tickType,
     tickPrice.price as doubleValue,
-    LookupUtil.getSecurityInitialized(last(tickWindow.security.id)) as security
+    lookupService.getSecurity(last(tickWindow.security.id)) as security
 from
     TickWindow as tickWindow
 where

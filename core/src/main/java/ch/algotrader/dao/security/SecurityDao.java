@@ -21,9 +21,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import ch.algotrader.dao.ReadWriteDao;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.FeedType;
-import ch.algotrader.hibernate.ReadWriteDao;
 
 /**
  * DAO for {@link ch.algotrader.entity.security.Security} objects.
@@ -129,7 +129,7 @@ public interface SecurityDao extends ReadWriteDao<Security> {
      * Strategy which is marked as {@code autoActive} and the specified {@code feedType}.
      * @return List<Map>
      */
-    List<Map> findSubscribedAndFeedTypeForAutoActivateStrategies();
+    List<Map<String, Object>> findSubscribedAndFeedTypeForAutoActivateStrategies();
 
     /**
      * Gets the {@code securityId} of the Security defined by the specified {@code isin}.

@@ -8,7 +8,6 @@
 
     <!-- ==================== Start of REMOTE SERVICE DEFINITIONS ===================== -->
 
-    <!-- FutureService Remote Service exporter  -->
     <bean name="FutureService" class="org.springframework.remoting.rmi.RmiServiceExporter">
         <property name="serviceName" value="FutureService"/>
         <property name="registryPort" value="${remotePort}"/>
@@ -17,7 +16,6 @@
         <property name="serviceInterface" value="ch.algotrader.service.FutureService"/>
     </bean>
 
-    <!-- PositionService Remote Service exporter  -->
     <bean name="PositionService" class="org.springframework.remoting.rmi.RmiServiceExporter">
         <property name="serviceName" value="PositionService"/>
         <property name="registryPort" value="${remotePort}"/>
@@ -26,7 +24,6 @@
         <property name="serviceInterface" value="ch.algotrader.service.PositionService"/>
     </bean>
 
-    <!-- OptionService Remote Service exporter  -->
     <bean name="OptionService" class="org.springframework.remoting.rmi.RmiServiceExporter">
         <property name="serviceName" value="OptionService"/>
         <property name="registryPort" value="${remotePort}"/>
@@ -35,16 +32,6 @@
         <property name="serviceInterface" value="ch.algotrader.service.OptionService"/>
     </bean>
 
-    <!-- LookupService Remote Service exporter  -->
-    <bean name="LookupService" class="org.springframework.remoting.rmi.RmiServiceExporter">
-        <property name="serviceName" value="LookupService"/>
-        <property name="registryPort" value="${remotePort}"/>
-        <property name="servicePort" value="${remoteServicePort}"/>
-        <property name="service" ref="lookupService"/>
-        <property name="serviceInterface" value="ch.algotrader.service.LookupService"/>
-    </bean>
-
-    <!-- MarketDataService Remote Service exporter  -->
     <bean name="MarketDataService" class="org.springframework.remoting.rmi.RmiServiceExporter">
         <property name="serviceName" value="MarketDataService"/>
         <property name="registryPort" value="${remotePort}"/>
@@ -53,7 +40,6 @@
         <property name="serviceInterface" value="ch.algotrader.service.MarketDataService"/>
     </bean>
 
-    <!-- OrderService Remote Service exporter  -->
     <bean name="OrderService" class="org.springframework.remoting.rmi.RmiServiceExporter">
         <property name="serviceName" value="OrderService"/>
         <property name="registryPort" value="${remotePort}"/>
@@ -62,7 +48,6 @@
         <property name="serviceInterface" value="ch.algotrader.service.OrderService"/>
     </bean>
 
-    <!-- CombinationService Remote Service exporter  -->
     <bean name="CombinationService" class="org.springframework.remoting.rmi.RmiServiceExporter">
         <property name="serviceName" value="CombinationService"/>
         <property name="registryPort" value="${remotePort}"/>
@@ -71,7 +56,6 @@
         <property name="serviceInterface" value="ch.algotrader.service.CombinationService"/>
     </bean>
 
-    <!-- MeasurementService Remote Service exporter  -->
     <bean name="MeasurementService" class="org.springframework.remoting.rmi.RmiServiceExporter">
         <property name="serviceName" value="MeasurementService"/>
         <property name="registryPort" value="${remotePort}"/>
@@ -80,7 +64,6 @@
         <property name="serviceInterface" value="ch.algotrader.service.MeasurementService"/>
     </bean>
 
-    <!-- PropertyService Remote Service exporter  -->
     <bean name="PropertyService" class="org.springframework.remoting.rmi.RmiServiceExporter">
         <property name="serviceName" value="PropertyService"/>
         <property name="registryPort" value="${remotePort}"/>
@@ -89,7 +72,6 @@
         <property name="serviceInterface" value="ch.algotrader.service.PropertyService"/>
     </bean>
 
-    <!-- PortfolioService Remote Service exporter  -->
     <bean name="PortfolioService" class="org.springframework.remoting.rmi.RmiServiceExporter">
         <property name="serviceName" value="PortfolioService"/>
         <property name="registryPort" value="${remotePort}"/>
@@ -98,7 +80,6 @@
         <property name="serviceInterface" value="ch.algotrader.service.PortfolioService"/>
     </bean>
 
-    <!-- CalendarService Remote Service exporter  -->
     <bean name="CalendarService" class="org.springframework.remoting.rmi.RmiServiceExporter">
         <property name="serviceName" value="CalendarService"/>
         <property name="registryPort" value="${remotePort}"/>
@@ -107,7 +88,6 @@
         <property name="serviceInterface" value="ch.algotrader.service.CalendarService"/>
     </bean>
 
-    <!-- LazyLoaderService Remote Service exporter  -->
     <bean name="LazyLoaderService" class="org.springframework.remoting.rmi.RmiServiceExporter">
         <property name="serviceName" value="LazyLoaderService"/>
         <property name="registryPort" value="${remotePort}"/>
@@ -124,10 +104,17 @@
         <property name="serviceInterface" value="ch.algotrader.service.FixSessionService"/>
     </bean>
 
+    <bean name="GenericDao" class="org.springframework.remoting.rmi.RmiServiceExporter">
+        <property name="serviceName" value="GenericDao"/>
+        <property name="registryPort" value="${remotePort}"/>
+        <property name="servicePort" value="${remoteServicePort}"/>
+        <property name="service" ref="genericDao"/>
+        <property name="serviceInterface" value="ch.algotrader.dao.GenericDao"/>
+    </bean>
+
     <!-- ==================== Start of PROFILE REMOTE SERVICE DEFINITIONS ===================== -->
 
     <beans profile="iBHistoricalData,bBHistoricalData">
-        <!-- HistoricalDataService Remote Service exporter  -->
         <bean name="HistoricalDataService" class="org.springframework.remoting.rmi.RmiServiceExporter">
             <property name="serviceName" value="HistoricalDataService"/>
             <property name="registryPort" value="${remotePort}"/>
@@ -138,7 +125,6 @@
     </beans>
 
     <beans profile="iBReferenceData,bBReferenceData">
-        <!-- ReferenceDataService Remote Service exporter  -->
         <bean name="ReferenceDataService" class="org.springframework.remoting.rmi.RmiServiceExporter">
             <property name="serviceName" value="ReferenceDataService"/>
             <property name="registryPort" value="${remotePort}"/>

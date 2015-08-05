@@ -11,7 +11,6 @@
 
     <!-- ========================= Start of SERVICE DEFINITIONS ========================= -->
 
-    <!-- FutureService Remote Service Local Proxy with inner FutureService Remote Service invoker -->
     <bean id="futureService" class="org.springframework.aop.framework.ProxyFactoryBean">
         <property name="target">
             <bean class="org.springframework.remoting.rmi.RmiProxyFactoryBean">
@@ -23,7 +22,6 @@
         <property name="proxyInterfaces"><value>ch.algotrader.service.FutureService</value></property>
     </bean>
 
-    <!-- LazyLoaderService Remote Service Local Proxy with inner LazyLoaderService Remote Service invoker -->
     <bean id="lazyLoaderService" class="org.springframework.aop.framework.ProxyFactoryBean">
         <property name="target">
             <bean class="org.springframework.remoting.rmi.RmiProxyFactoryBean">
@@ -35,7 +33,6 @@
         <property name="proxyInterfaces"><value>ch.algotrader.service.LazyLoaderService</value></property>
     </bean>
 
-    <!-- PositionService Remote Service Local Proxy with inner PositionService Remote Service invoker -->
     <bean id="positionService" class="org.springframework.aop.framework.ProxyFactoryBean">
         <property name="target">
             <bean class="org.springframework.remoting.rmi.RmiProxyFactoryBean">
@@ -47,7 +44,6 @@
         <property name="proxyInterfaces"><value>ch.algotrader.service.PositionService</value></property>
     </bean>
 
-    <!-- OptionService Remote Service Local Proxy with inner OptionService Remote Service invoker -->
     <bean id="optionService" class="org.springframework.aop.framework.ProxyFactoryBean">
         <property name="target">
             <bean class="org.springframework.remoting.rmi.RmiProxyFactoryBean">
@@ -59,19 +55,6 @@
         <property name="proxyInterfaces"><value>ch.algotrader.service.OptionService</value></property>
     </bean>
 
-    <!-- LookupService Remote Service Local Proxy with inner LookupService Remote Service invoker -->
-    <bean id="lookupService" class="org.springframework.aop.framework.ProxyFactoryBean">
-        <property name="target">
-            <bean class="org.springframework.remoting.rmi.RmiProxyFactoryBean">
-                <property name="refreshStubOnConnectFailure"><value>true</value></property>
-                <property name="serviceUrl"><value>${remoteRmiScheme}://${remoteServer}:${remotePort}/LookupService</value></property>
-                <property name="serviceInterface"><value>ch.algotrader.service.LookupService</value></property>
-            </bean>
-        </property>
-        <property name="proxyInterfaces"><value>ch.algotrader.service.LookupService</value></property>
-    </bean>
-
-    <!-- MarketDataService Remote Service Local Proxy with inner MarketDataService Remote Service invoker -->
     <bean id="marketDataService" class="org.springframework.aop.framework.ProxyFactoryBean">
         <property name="target">
             <bean class="org.springframework.remoting.rmi.RmiProxyFactoryBean">
@@ -83,7 +66,6 @@
         <property name="proxyInterfaces"><value>ch.algotrader.service.MarketDataService</value></property>
     </bean>
 
-    <!-- OrderService Remote Service Local Proxy with inner OrderService Remote Service invoker -->
     <bean id="orderService" class="org.springframework.aop.framework.ProxyFactoryBean">
         <property name="target">
             <bean class="org.springframework.remoting.rmi.RmiProxyFactoryBean">
@@ -95,7 +77,6 @@
         <property name="proxyInterfaces"><value>ch.algotrader.service.OrderService</value></property>
     </bean>
 
-    <!-- CombinationService Remote Service Local Proxy with inner CombinationService Remote Service invoker -->
     <bean id="combinationService" class="org.springframework.aop.framework.ProxyFactoryBean">
         <property name="target">
             <bean class="org.springframework.remoting.rmi.RmiProxyFactoryBean">
@@ -107,7 +88,6 @@
         <property name="proxyInterfaces"><value>ch.algotrader.service.CombinationService</value></property>
     </bean>
 
-    <!-- MeasurementService Remote Service Local Proxy with inner MeasurementService Remote Service invoker -->
     <bean id="measurementService" class="org.springframework.aop.framework.ProxyFactoryBean">
         <property name="target">
             <bean class="org.springframework.remoting.rmi.RmiProxyFactoryBean">
@@ -119,7 +99,6 @@
         <property name="proxyInterfaces"><value>ch.algotrader.service.MeasurementService</value></property>
     </bean>
 
-    <!-- PropertyService Remote Service Local Proxy with inner PropertyService Remote Service invoker -->
     <bean id="propertyService" class="org.springframework.aop.framework.ProxyFactoryBean">
         <property name="target">
             <bean class="org.springframework.remoting.rmi.RmiProxyFactoryBean">
@@ -131,7 +110,6 @@
         <property name="proxyInterfaces"><value>ch.algotrader.service.PropertyService</value></property>
     </bean>
 
-    <!-- PortfolioService Remote Service Local Proxy with inner PortfolioService Remote Service invoker -->
     <bean id="portfolioService" class="org.springframework.aop.framework.ProxyFactoryBean">
         <property name="target">
             <bean class="org.springframework.remoting.rmi.RmiProxyFactoryBean">
@@ -143,7 +121,6 @@
         <property name="proxyInterfaces"><value>ch.algotrader.service.PortfolioService</value></property>
     </bean>
 
-    <!-- CalendarService Remote Service Local Proxy with inner CalendarService Remote Service invoker -->
     <bean id="calendarService" class="org.springframework.aop.framework.ProxyFactoryBean">
         <property name="target">
             <bean class="org.springframework.remoting.rmi.RmiProxyFactoryBean">
@@ -155,13 +132,23 @@
         <property name="proxyInterfaces"><value>ch.algotrader.service.CalendarService</value></property>
     </bean>
 
+    <bean id="genericDao" class="org.springframework.aop.framework.ProxyFactoryBean">
+        <property name="target">
+            <bean class="org.springframework.remoting.rmi.RmiProxyFactoryBean">
+                <property name="refreshStubOnConnectFailure"><value>true</value></property>
+                <property name="serviceUrl"><value>${remoteRmiScheme}://${remoteServer}:${remotePort}/GenericDao</value></property>
+                <property name="serviceInterface"><value>ch.algotrader.dao.GenericDao</value></property>
+            </bean>
+        </property>
+        <property name="proxyInterfaces"><value>ch.algotrader.dao.GenericDao</value></property>
+    </bean>
+    
     <!-- ========================= End of SERVICE DEFINITIONS ========================= -->
 
 
     <!-- ========================= Start of PROFILE SERVICE DEFINITIONS ========================= -->
 
     <beans profile="historicalData">
-        <!-- HistoricalDataService Remote Service Local Proxy with inner HistoricalDataService Remote Service invoker -->
         <bean id="historicalDataService" class="org.springframework.aop.framework.ProxyFactoryBean">
             <property name="target">
                 <bean class="org.springframework.remoting.rmi.RmiProxyFactoryBean">
@@ -175,7 +162,6 @@
     </beans>
 
     <beans profile="referenceData">
-        <!-- ReferenceDataService Remote Service Local Proxy with inner ReferenceDataService Remote Service invoker -->
         <bean id="referenceDataService" class="org.springframework.aop.framework.ProxyFactoryBean">
             <property name="target">
                 <bean class="org.springframework.remoting.rmi.RmiProxyFactoryBean">

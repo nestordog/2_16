@@ -20,8 +20,8 @@ package ch.algotrader.dao.trade;
 import java.util.Collection;
 import java.util.List;
 
+import ch.algotrader.dao.ReadWriteDao;
 import ch.algotrader.entity.trade.OrderStatus;
-import ch.algotrader.hibernate.ReadWriteDao;
 import ch.algotrader.vo.OrderStatusVO;
 
 /**

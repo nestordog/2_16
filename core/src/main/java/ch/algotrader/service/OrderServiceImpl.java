@@ -551,6 +551,76 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
         return getExternalOrderService(account).getNextOrderId(account);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Collection<OrderStatusVO> getAllOpenOrders() {
+
+        return this.orderStatusDao.findAllOrderStati();
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Collection<OrderStatusVO> getOpenOrdersByStrategy(final String strategyName) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+
+        return this.orderStatusDao.findOrderStatiByStrategy(strategyName);
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Collection<Order> getOpenOrdersByStrategyAndSecurity(final String strategyName, final long securityId) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+
+        return this.orderDao.findOpenOrdersByStrategyAndSecurity(strategyName, securityId);
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Order getOpenOrderByIntId(final String intId) {
+
+        Validate.notEmpty(intId, "Int id is empty");
+
+        return this.orderDao.findOpenOrderByIntId(intId);
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Order getOpenOrderByRootIntId(final String intId) {
+
+        Validate.notEmpty(intId, "Int id is empty");
+
+        return this.orderDao.findOpenOrderByRootIntId(intId);
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Order getOpenOrderByExtId(final String extId) {
+
+        Validate.notEmpty(extId, "Ext id is empty");
+
+        return this.orderDao.findOpenOrderByExtId(extId);
+
+    }
+
     @Override
     @Transactional(propagation = Propagation.SUPPORTS)
     public Map<Order, OrderStatus> loadPendingOrders() {

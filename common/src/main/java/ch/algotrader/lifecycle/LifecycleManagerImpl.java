@@ -150,6 +150,7 @@ public class LifecycleManagerImpl implements LifecycleManager, ApplicationContex
 
         if (this.subscriptionService != null) {
             this.subscriptionService.initMarketDataEventSubscriptions();
+            this.subscriptionService.initGenericEventSubscriptions();
         }
 
         broadcastLocalOnShutdown(LifecyclePhase.EXIT);
@@ -161,7 +162,7 @@ public class LifecycleManagerImpl implements LifecycleManager, ApplicationContex
 
     private void broadcastLocalOnShutdown(final LifecyclePhase phase) {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            eventDispatcher.broadcastLocal(new LifecycleEventVO(OperationMode.REAL_TIME, phase, new Date()));
+            this.eventDispatcher.broadcastLocal(new LifecycleEventVO(OperationMode.REAL_TIME, phase, new Date()));
         }));
     }
 

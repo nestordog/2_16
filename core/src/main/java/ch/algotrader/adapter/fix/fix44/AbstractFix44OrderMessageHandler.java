@@ -20,12 +20,6 @@ package ch.algotrader.adapter.fix.fix44;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import ch.algotrader.entity.trade.Fill;
-import ch.algotrader.entity.trade.Order;
-import ch.algotrader.entity.trade.OrderStatus;
-import ch.algotrader.enumeration.Status;
-import ch.algotrader.esper.Engine;
-import ch.algotrader.service.LookupService;
 import quickfix.FieldNotFound;
 import quickfix.SessionID;
 import quickfix.field.MsgSeqNum;
@@ -34,6 +28,12 @@ import quickfix.field.Text;
 import quickfix.field.TransactTime;
 import quickfix.fix44.ExecutionReport;
 import quickfix.fix44.OrderCancelReject;
+import ch.algotrader.entity.trade.Fill;
+import ch.algotrader.entity.trade.Order;
+import ch.algotrader.entity.trade.OrderStatus;
+import ch.algotrader.enumeration.Status;
+import ch.algotrader.esper.Engine;
+import ch.algotrader.service.OrderService;
 
 /**
  * Abstract FIX44 order message handler implementing generic functionality common to all broker specific
@@ -47,11 +47,11 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
 
     private static final Logger LOGGER = LogManager.getLogger(AbstractFix44OrderMessageHandler.class);
 
-    private final LookupService lookupService;
+    private final OrderService orderService;
     private final Engine serverEngine;
 
-    protected AbstractFix44OrderMessageHandler(final LookupService lookupService, final Engine serverEngine) {
-        this.lookupService = lookupService;
+    protected AbstractFix44OrderMessageHandler(final OrderService orderService, final Engine serverEngine) {
+        this.orderService = orderService;
         this.serverEngine = serverEngine;
     }
 
@@ -73,7 +73,7 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
         String intId = resolveIntOrderId(executionReport);
 
         // get the order from the OpenOrderWindow
-        Order order = this.lookupService.getOpenOrderByRootIntId(intId);
+        Order order = this.orderService.getOpenOrderByRootIntId(intId);
         if (order == null) {
 
             if (LOGGER.isErrorEnabled ()) {
@@ -179,7 +179,7 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
         String intId = reject.getClOrdID().getValue();
 
         // get the order from the OpenOrderWindow
-        Order order = this.lookupService.getOpenOrderByRootIntId(intId);
+        Order order = this.orderService.getOpenOrderByRootIntId(intId);
         if (order == null) {
 
             if (LOGGER.isErrorEnabled()) {

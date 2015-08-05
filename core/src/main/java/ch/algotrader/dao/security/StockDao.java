@@ -19,8 +19,8 @@ package ch.algotrader.dao.security;
 
 import java.util.List;
 
+import ch.algotrader.dao.ReadWriteDao;
 import ch.algotrader.entity.security.Stock;
-import ch.algotrader.hibernate.ReadWriteDao;
 
 /**
  * DAO for {@link ch.algotrader.entity.security.Stock} objects.

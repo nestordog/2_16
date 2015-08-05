@@ -21,9 +21,9 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
+import ch.algotrader.dao.ReadWriteDao;
 import ch.algotrader.entity.security.Option;
 import ch.algotrader.enumeration.OptionType;
-import ch.algotrader.hibernate.ReadWriteDao;
 
 /**
  * DAO for {@link ch.algotrader.entity.security.Option} objects.

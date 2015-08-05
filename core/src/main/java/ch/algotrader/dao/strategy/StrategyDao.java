@@ -20,8 +20,8 @@ package ch.algotrader.dao.strategy;
 import java.util.Date;
 import java.util.Set;
 
+import ch.algotrader.dao.ReadWriteDao;
 import ch.algotrader.entity.strategy.Strategy;
-import ch.algotrader.hibernate.ReadWriteDao;
 
 /**
  * DAO for {@link ch.algotrader.entity.strategy.Strategy} objects.

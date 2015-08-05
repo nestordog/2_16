@@ -45,7 +45,7 @@ import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.service.LookupService;
+import ch.algotrader.service.OrderService;
 import ch.algotrader.util.DateTimeLegacy;
 import quickfix.DataDictionary;
 import quickfix.SessionID;
@@ -66,7 +66,7 @@ public class TestFXCMFixOrderMessageHandler {
     private Account account;
 
     @Mock
-    private LookupService lookupService;
+ private OrderService orderService;
     @Mock
     private Engine engine;
 
@@ -83,7 +83,7 @@ public class TestFXCMFixOrderMessageHandler {
 
         MockitoAnnotations.initMocks(this);
 
-        this.impl = new FXCMFixOrderMessageHandler(this.lookupService, this.engine);
+        this.impl = new FXCMFixOrderMessageHandler(this.orderService, this.engine);
 
         this.account = new AccountImpl();
         this.account.setBroker(Broker.IB);
@@ -112,7 +112,7 @@ public class TestFXCMFixOrderMessageHandler {
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(forex);
         order.setAccount(this.account);
-        Mockito.when(this.lookupService.getOpenOrderByRootIntId("1450524ad9d")).thenReturn(order);
+        Mockito.when(this.orderService.getOpenOrderByRootIntId("1450524ad9d")).thenReturn(order);
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
@@ -154,7 +154,7 @@ public class TestFXCMFixOrderMessageHandler {
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(forex);
         order.setAccount(this.account);
-        Mockito.when(this.lookupService.getOpenOrderByRootIntId("1450524ad9d")).thenReturn(order);
+        Mockito.when(this.orderService.getOpenOrderByRootIntId("1450524ad9d")).thenReturn(order);
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
@@ -208,7 +208,7 @@ public class TestFXCMFixOrderMessageHandler {
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(forex);
         order.setAccount(this.account);
-        Mockito.when(this.lookupService.getOpenOrderByRootIntId("1450524ad9d")).thenReturn(order);
+        Mockito.when(this.orderService.getOpenOrderByRootIntId("1450524ad9d")).thenReturn(order);
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
@@ -238,11 +238,11 @@ public class TestFXCMFixOrderMessageHandler {
         executionReport.set(new ExecType(ExecType.NEW));
         executionReport.set(new ClOrdID("123"));
 
-        Mockito.when(this.lookupService.getOpenOrderByRootIntId(Mockito.anyString())).thenReturn(null);
+        Mockito.when(this.orderService.getOpenOrderByRootIntId(Mockito.anyString())).thenReturn(null);
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
-        Mockito.verify(this.lookupService, Mockito.times(1)).getOpenOrderByRootIntId("123");
+        Mockito.verify(this.orderService, Mockito.times(1)).getOpenOrderByRootIntId("123");
         Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
     }
 
@@ -268,7 +268,7 @@ public class TestFXCMFixOrderMessageHandler {
 
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(forex);
-        Mockito.when(this.lookupService.getOpenOrderByRootIntId("145096a919f")).thenReturn(order);
+        Mockito.when(this.orderService.getOpenOrderByRootIntId("145096a919f")).thenReturn(order);
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
@@ -312,7 +312,7 @@ public class TestFXCMFixOrderMessageHandler {
 
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(forex);
-        Mockito.when(this.lookupService.getOpenOrderByRootIntId("14509816818")).thenReturn(order);
+        Mockito.when(this.orderService.getOpenOrderByRootIntId("14509816818")).thenReturn(order);
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
@@ -341,7 +341,7 @@ public class TestFXCMFixOrderMessageHandler {
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(forex);
         order.setAccount(this.account);
-        Mockito.when(this.lookupService.getOpenOrderByRootIntId("145098db835")).thenReturn(order);
+        Mockito.when(this.orderService.getOpenOrderByRootIntId("145098db835")).thenReturn(order);
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
@@ -383,7 +383,7 @@ public class TestFXCMFixOrderMessageHandler {
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(forex);
         order.setAccount(this.account);
-        Mockito.when(this.lookupService.getOpenOrderByRootIntId("14509b2ae84")).thenReturn(order);
+        Mockito.when(this.orderService.getOpenOrderByRootIntId("14509b2ae84")).thenReturn(order);
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
@@ -419,7 +419,7 @@ public class TestFXCMFixOrderMessageHandler {
         order.setSecurity(forex);
         order.setAccount(this.account);
         order.setQuantity(20000);
-        Mockito.when(this.lookupService.getOpenOrderByRootIntId("fxcml2.0")).thenReturn(order);
+        Mockito.when(this.orderService.getOpenOrderByRootIntId("fxcml2.0")).thenReturn(order);
 
         String s1 = "8=FIX.4.4|9=458|35=8|34=8|49=FXCM|50=U100R12|52=20140714-11:40:20.239|56=6444012301_client1|" +
                 "1=6444012301|6=1.36248|11=fxcml2.0|14=0|15=EUR|17=82166892|31=1.36248|32=0|37=43179208|38=20000|" +

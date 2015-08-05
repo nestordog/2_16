@@ -21,6 +21,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
+import quickfix.SessionSettings;
 import ch.algotrader.adapter.fix.DefaultFixApplicationFactory;
 import ch.algotrader.adapter.fix.DefaultFixSessionStateHolder;
 import ch.algotrader.adapter.fix.DefaultLogonMessageHandler;
@@ -32,9 +33,8 @@ import ch.algotrader.adapter.ftx.FTXFixOrderMessageHandler;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.event.dispatch.EventDispatcher;
-import ch.algotrader.service.LookupService;
 import ch.algotrader.service.MarketDataService;
-import quickfix.SessionSettings;
+import ch.algotrader.service.OrderService;
 
 /**
  * Fortex Fix configuration.
@@ -58,12 +58,12 @@ public class FTXFixWiring {
 
     @Profile("fTXFix")
     @Bean(name = "fTXOrderApplicationFactory")
-    public FixApplicationFactory createFTXOrderApplicationFactory(final LookupService lookupService,
+    public FixApplicationFactory createFTXOrderApplicationFactory(final OrderService orderService,
             final Engine serverEngine,
             final DefaultLogonMessageHandler fTXLogonMessageHandler,
             final FixSessionStateHolder fTXOrderSessionStateHolder) {
 
-        FTXFixOrderMessageHandler cnxFixOrderMessageHandler = new FTXFixOrderMessageHandler(lookupService, serverEngine);
+        FTXFixOrderMessageHandler cnxFixOrderMessageHandler = new FTXFixOrderMessageHandler(orderService, serverEngine);
         return new DefaultFixApplicationFactory(cnxFixOrderMessageHandler, fTXLogonMessageHandler, fTXOrderSessionStateHolder);
     }
 

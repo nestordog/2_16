@@ -28,6 +28,8 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.support.converter.SimpleMessageConverter;
 
+import ch.algotrader.cache.EntityCacheEvictionEvent;
+import ch.algotrader.cache.QueryCacheEvictionEvent;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.marketData.Bar;
@@ -44,6 +46,7 @@ import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.event.dispatch.LocalEventDispatcherImpl;
 import ch.algotrader.event.listener.BarEventListener;
 import ch.algotrader.event.listener.ClosePositionEventListener;
+import ch.algotrader.event.listener.EntityCacheEventListener;
 import ch.algotrader.event.listener.ExpirePositionEventListener;
 import ch.algotrader.event.listener.FillEventListener;
 import ch.algotrader.event.listener.LifecycleEventListener;
@@ -51,6 +54,7 @@ import ch.algotrader.event.listener.OpenPositionEventListener;
 import ch.algotrader.event.listener.OrderCompletionEventListener;
 import ch.algotrader.event.listener.OrderEventListener;
 import ch.algotrader.event.listener.OrderStatusEventListener;
+import ch.algotrader.event.listener.QueryCacheEventListener;
 import ch.algotrader.event.listener.SessionEventListener;
 import ch.algotrader.event.listener.TickEventListener;
 import ch.algotrader.event.listener.TransactionEventListener;
@@ -118,20 +122,6 @@ public class EventDispatchWiring {
                         final BarEventListener listener = entry.getValue();
                         eventListenerRegistry.register(listener::onBar, Bar.class);
                     }
-                    Map<String, SessionEventListener> sessionEventSinkMap = applicationContext.getBeansOfType(SessionEventListener.class);
-                    for (Map.Entry<String, SessionEventListener> entry: sessionEventSinkMap.entrySet()) {
-
-                        final SessionEventListener listener = entry.getValue();
-
-                        eventListenerRegistry.register(listener::onChange, SessionEventVO.class);
-                    }
-                    Map<String, LifecycleEventListener> lifecycleEventMap = applicationContext.getBeansOfType(LifecycleEventListener.class);
-                    for (Map.Entry<String, LifecycleEventListener> entry: lifecycleEventMap.entrySet()) {
-
-                        final LifecycleEventListener listener = entry.getValue();
-
-                        eventListenerRegistry.register(listener::onChange, LifecycleEventVO.class);
-                    }
                     Map<String, OrderEventListener> orderEventListenerMap = applicationContext.getBeansOfType(OrderEventListener.class);
                     for (Map.Entry<String, OrderEventListener> entry: orderEventListenerMap.entrySet()) {
 
@@ -188,6 +178,35 @@ public class EventDispatchWiring {
 
                         eventListenerRegistry.register(listener::onExpirePosition, ExpirePositionVO.class);
                     }
+                    Map<String, SessionEventListener> sessionEventSinkMap = applicationContext.getBeansOfType(SessionEventListener.class);
+                    for (Map.Entry<String, SessionEventListener> entry : sessionEventSinkMap.entrySet()) {
+
+                        final SessionEventListener listener = entry.getValue();
+
+                        eventListenerRegistry.register(listener::onChange, SessionEventVO.class);
+                    }
+                    Map<String, LifecycleEventListener> lifecycleEventMap = applicationContext.getBeansOfType(LifecycleEventListener.class);
+                    for (Map.Entry<String, LifecycleEventListener> entry : lifecycleEventMap.entrySet()) {
+
+                        final LifecycleEventListener listener = entry.getValue();
+
+                        eventListenerRegistry.register(listener::onChange, LifecycleEventVO.class);
+                    }
+                    Map<String, EntityCacheEventListener> entityCacheEventMap = applicationContext.getBeansOfType(EntityCacheEventListener.class);
+                    for (Map.Entry<String, EntityCacheEventListener> entry : entityCacheEventMap.entrySet()) {
+
+                        final EntityCacheEventListener listener = entry.getValue();
+
+                        eventListenerRegistry.register(listener::onEvent, EntityCacheEvictionEvent.class);
+                    }
+                    Map<String, QueryCacheEventListener> queryCacheEventMap = applicationContext.getBeansOfType(QueryCacheEventListener.class);
+                    for (Map.Entry<String, QueryCacheEventListener> entry : queryCacheEventMap.entrySet()) {
+
+                        final QueryCacheEventListener listener = entry.getValue();
+
+                        eventListenerRegistry.register(listener::onEvent, QueryCacheEvictionEvent.class);
+                    }
+
                 }
             }
         };

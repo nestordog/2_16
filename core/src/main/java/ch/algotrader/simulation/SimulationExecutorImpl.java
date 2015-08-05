@@ -51,8 +51,6 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
-import com.espertech.esperio.csv.CSVInputAdapter;
-
 import ch.algotrader.cache.CacheManager;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.Position;
@@ -78,6 +76,7 @@ import ch.algotrader.service.LookupService;
 import ch.algotrader.service.PortfolioService;
 import ch.algotrader.service.PositionService;
 import ch.algotrader.service.ResetService;
+import ch.algotrader.service.ServerLookupService;
 import ch.algotrader.service.StrategyPersistenceService;
 import ch.algotrader.service.TransactionService;
 import ch.algotrader.service.groups.StrategyGroup;
@@ -92,6 +91,8 @@ import ch.algotrader.vo.PerformanceKeysVO;
 import ch.algotrader.vo.PeriodPerformanceVO;
 import ch.algotrader.vo.SimulationResultVO;
 import ch.algotrader.vo.TradesVO;
+
+import com.espertech.esperio.csv.CSVInputAdapter;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -119,6 +120,8 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
 
     private final LookupService lookupService;
 
+    private final ServerLookupService serverLookupService;
+
     private final EventListenerRegistry eventListenerRegistry;
 
     private final EventDispatcher eventDispatcher;
@@ -138,6 +141,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
                                   final PortfolioService portfolioService,
                                   final StrategyPersistenceService strategyPersistenceService,
                                   final LookupService lookupService,
+                                  final ServerLookupService serverLookupService,
                                   final EventListenerRegistry eventListenerRegistry,
                                   final EventDispatcher eventDispatcher,
                                   final EngineManager engineManager,
@@ -151,6 +155,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
         Validate.notNull(portfolioService, "PortfolioService is null");
         Validate.notNull(strategyPersistenceService, "StrategyPersistenceService is null");
         Validate.notNull(lookupService, "LookupService is null");
+        Validate.notNull(serverLookupService, "ServerLookupService is null");
         Validate.notNull(eventListenerRegistry, "EventListenerRegistry is null");
         Validate.notNull(eventDispatcher, "EventDispatcher is null");
         Validate.notNull(engineManager, "EngineManager is null");
@@ -164,6 +169,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
         this.portfolioService = portfolioService;
         this.strategyPersistenceService = strategyPersistenceService;
         this.lookupService = lookupService;
+        this.serverLookupService = serverLookupService;
         this.eventListenerRegistry = eventListenerRegistry;
         this.eventDispatcher = eventDispatcher;
         this.engineManager = engineManager;
@@ -212,7 +218,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
         this.serverEngine.deployAllModules();
 
         //strategy engines
-        final Collection<Engine> strategyEngines = engineManager.getStrategyEngines();
+        final Collection<Engine> strategyEngines = this.engineManager.getStrategyEngines();
 
         // LifecycleEvent: INIT
         broadcastLocal(LifecyclePhase.INIT);
@@ -258,7 +264,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
         for (final Engine engine : strategyEngines) {
             engine.destroy();
         }
-        serverEngine.destroy();
+        this.serverEngine.destroy();
 
         // clear the second-level cache
         net.sf.ehcache.CacheManager.getInstance().clearAll();
@@ -281,7 +287,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
         //add or update strategy for each group item
         for (final String strategyName : strategyGroup.getStrategyNames()) {
             final double weight = strategyGroup.getWeight(strategyName);
-            final Strategy strategy = strategyPersistenceService.getOrCreateStrategy(strategyName, weight);
+            final Strategy strategy = this.strategyPersistenceService.getOrCreateStrategy(strategyName, weight);
             if (LOGGER.isInfoEnabled()) {
                 LOGGER.info("Update strategy '{}' with allocation {}", strategy.getName(), strategy.getAllocation());
             }
@@ -319,7 +325,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
         }
 
         // initialize all securityStrings for subscribed securities
-        this.lookupService.initSecurityStrings();
+        this.serverLookupService.initSecurityStrings();
         for (Security security : securities) {
             this.cacheManager.put(security);
         }

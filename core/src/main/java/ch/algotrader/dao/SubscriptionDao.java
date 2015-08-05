@@ -21,7 +21,6 @@ import java.util.List;
 
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.enumeration.FeedType;
-import ch.algotrader.hibernate.ReadWriteDao;
 
 /**
  * DAO for {@link ch.algotrader.entity.Subscription} objects.

@@ -17,6 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
+import java.util.Set;
+
 import ch.algotrader.enumeration.FeedType;
 
 /**
@@ -51,13 +53,18 @@ public interface SubscriptionService {
     public void unsubscribeMarketDataEvent(String strategyName, long securityId, FeedType feedType);
 
     /**
-     * Initializes current Subscriptions
+     * Initializes market data subscriptions
      */
     public void initMarketDataEventSubscriptions();
 
     /**
      * Subscribes Generic Events of the specified class.
      */
-    public void subscribeGenericEvents(Class<?>[] classes);
+    public void subscribeGenericEvents(Set<Class<?>> classes);
+
+    /**
+     * Initializes generic event subscriptions
+     */
+    public void initGenericEventSubscriptions();
 
 }

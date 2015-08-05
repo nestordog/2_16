@@ -17,8 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.dao.exchange;
 
+import ch.algotrader.dao.ReadWriteDao;
 import ch.algotrader.entity.exchange.Holiday;
-import ch.algotrader.hibernate.ReadWriteDao;
 
 /**
  * DAO for {@link ch.algotrader.entity.exchange.Holiday} objects.

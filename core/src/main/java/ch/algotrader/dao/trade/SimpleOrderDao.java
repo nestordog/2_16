@@ -17,8 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.dao.trade;
 
+import ch.algotrader.dao.ReadWriteDao;
 import ch.algotrader.entity.trade.SimpleOrder;
-import ch.algotrader.hibernate.ReadWriteDao;
 
 /**
  * DAO for {@link ch.algotrader.entity.trade.SimpleOrder} objects.

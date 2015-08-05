@@ -17,8 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.dao.security;
 
+import ch.algotrader.dao.ReadWriteDao;
 import ch.algotrader.entity.security.SecurityReference;
-import ch.algotrader.hibernate.ReadWriteDao;
 
 /**
  * DAO for {@link ch.algotrader.entity.security.SecurityReference} objects.

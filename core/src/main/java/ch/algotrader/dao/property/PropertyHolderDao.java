@@ -17,8 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.dao.property;
 
+import ch.algotrader.dao.ReadWriteDao;
 import ch.algotrader.entity.property.PropertyHolder;
-import ch.algotrader.hibernate.ReadWriteDao;
 
 /**
  * DAO for {@link ch.algotrader.entity.property.PropertyHolder} objects.

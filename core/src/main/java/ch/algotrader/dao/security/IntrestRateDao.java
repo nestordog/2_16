@@ -17,10 +17,10 @@
  ***********************************************************************************/
 package ch.algotrader.dao.security;
 
+import ch.algotrader.dao.ReadWriteDao;
 import ch.algotrader.entity.security.IntrestRate;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Duration;
-import ch.algotrader.hibernate.ReadWriteDao;
 
 /**
  * DAO for {@link ch.algotrader.entity.security.IntrestRate} objects.
