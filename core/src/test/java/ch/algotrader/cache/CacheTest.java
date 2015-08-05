@@ -240,6 +240,9 @@ public class CacheTest extends DefaultConfigTestBase {
         DatabasePopulatorUtils.execute(dbPopulator, database);
 
         context.close();
+
+        net.sf.ehcache.CacheManager ehCacheManager = net.sf.ehcache.CacheManager.getInstance();
+        ehCacheManager.shutdown();
     }
 
     @Test
