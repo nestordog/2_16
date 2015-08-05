@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.wiring.services;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -45,13 +46,13 @@ import ch.algotrader.service.ServerManagementService;
 import ch.algotrader.service.SubscriptionService;
 import ch.algotrader.service.TransactionPersistenceService;
 import ch.algotrader.service.TransactionService;
-import ch.algotrader.wiring.HibernateNoCachingWiring;
 import ch.algotrader.wiring.DefaultConfigTestBase;
+import ch.algotrader.wiring.HibernateNoCachingWiring;
 import ch.algotrader.wiring.common.CommonConfigWiring;
 import ch.algotrader.wiring.common.EventDispatchWiring;
-import ch.algotrader.wiring.server.DaoWiring;
 import ch.algotrader.wiring.server.CacheWiring;
 import ch.algotrader.wiring.server.CoreConfigWiring;
+import ch.algotrader.wiring.server.DaoWiring;
 import ch.algotrader.wiring.server.ServerEngineWiring;
 import ch.algotrader.wiring.server.ServiceWiring;
 
@@ -59,6 +60,12 @@ import ch.algotrader.wiring.server.ServiceWiring;
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  */
 public class ServiceWiringTest extends DefaultConfigTestBase {
+
+    @After
+    public void cleanup() {
+        net.sf.ehcache.CacheManager ehCacheManager = net.sf.ehcache.CacheManager.getInstance();
+        ehCacheManager.shutdown();
+    }
 
     @Test
     public void testServicesWiring() {

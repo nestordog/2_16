@@ -113,6 +113,9 @@ public class CacheTest extends DefaultConfigTestBase {
     @BeforeClass
     public static void beforeClass() {
 
+        net.sf.ehcache.CacheManager ehCacheManager = net.sf.ehcache.CacheManager.getInstance();
+        ehCacheManager.shutdown();
+
         context = new AnnotationConfigApplicationContext();
 
         // register in-memory db

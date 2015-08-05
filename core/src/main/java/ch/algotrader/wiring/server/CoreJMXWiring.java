@@ -23,6 +23,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jmx.support.MBeanServerFactoryBean;
 
+import ch.algotrader.cache.CacheManagerImpl;
+import ch.algotrader.cache.CacheManagerMBean;
+
 /**
  * Core JMX configuration.
  */
@@ -36,6 +39,12 @@ public class CoreJMXWiring {
         mBeanServerFactoryBean.setLocateExistingServerIfPossible(true);
 
         return mBeanServerFactoryBean.getObject();
+    }
+
+    @Bean(name = "cacheManagerMBean")
+    public CacheManagerMBean createCacheManagerMBean(final CacheManagerImpl cacheManager) {
+
+        return new CacheManagerMBean(cacheManager);
     }
 
 }

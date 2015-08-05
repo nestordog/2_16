@@ -17,9 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.wiring.server;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.event.RegisteredEventListeners;
-
 import org.hibernate.SessionFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,13 +24,14 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import ch.algotrader.cache.CacheManager;
 import ch.algotrader.cache.CacheManagerImpl;
-import ch.algotrader.cache.CacheManagerMBean;
 import ch.algotrader.dao.GenericDao;
 import ch.algotrader.dao.GenericDaoImpl;
 import ch.algotrader.ehcache.CollectionCacheEventListener;
 import ch.algotrader.ehcache.EntityCacheEventListener;
 import ch.algotrader.ehcache.QueryCacheEventListener;
 import ch.algotrader.event.dispatch.EventDispatcher;
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.event.RegisteredEventListeners;
 
 /**
  * Cache configuration.
@@ -80,10 +78,4 @@ public class CacheWiring {
         return new CacheManagerImpl(genericDao);
     }
 
-
-    @Bean(name = "cacheManagerMBean")
-    public CacheManagerMBean createCacheManagerMBean(final CacheManagerImpl cacheManager) {
-
-        return new CacheManagerMBean(cacheManager);
-    }
 }
