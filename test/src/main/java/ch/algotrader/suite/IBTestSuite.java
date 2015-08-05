@@ -22,7 +22,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 import ch.algotrader.ServiceLocator;
-import ch.algotrader.cache.CacheTest;
 import ch.algotrader.service.HistoricalDataServiceTest;
 import ch.algotrader.service.OrderServiceTest;
 
@@ -33,7 +32,6 @@ import ch.algotrader.service.OrderServiceTest;
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-    CacheTest.class,
     HistoricalDataServiceTest.class,
     OrderServiceTest.class
  })
