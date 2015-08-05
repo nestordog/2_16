@@ -31,13 +31,15 @@ import ch.algotrader.dao.NamedParam;
 public class QueryCacheKey {
 
     private final String queryString;
+    private final int maxResults;
     private final NamedParam[] namedParameters;
 
     private final int hashCode;
 
-    public QueryCacheKey(String queryString, NamedParam... namedParameters) {
+    public QueryCacheKey(String queryString, int maxResults, NamedParam... namedParameters) {
 
         this.queryString = queryString;
+        this.maxResults = maxResults;
         this.namedParameters = namedParameters;
 
         this.hashCode = generateHashCode();
@@ -46,8 +48,9 @@ public class QueryCacheKey {
     public int generateHashCode() {
 
         int hashCode = 17;
-        hashCode = 37 * hashCode + (this.namedParameters == null ? 0 : this.namedParameters.hashCode());
         hashCode = 37 * hashCode + this.queryString.hashCode();
+        hashCode = 37 * hashCode + this.maxResults;
+        hashCode = 37 * hashCode + (this.namedParameters == null ? 0 : this.namedParameters.hashCode());
 
         return hashCode;
     }

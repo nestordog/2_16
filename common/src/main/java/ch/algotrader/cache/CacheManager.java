@@ -59,6 +59,12 @@ public interface CacheManager {
     public <T> List<T> find(Class<T> clazz, String query, QueryType type, NamedParam... namedParams);
 
     /**
+     * performs the given HQL {@code query} by passing defined {@code maxResults} (passing zero will return all elements)
+     * and {@code namedParameters}
+     */
+    public <T> List<T> find(Class<T> clazz, String query, int maxResults, QueryType type, NamedParam... namedParams);
+
+    /**
      * performs the given HQL {@code query} by passing defined {@code namedParameters}
      */
     public <T> T findUnique(Class<T> clazz, String query, QueryType type, NamedParam... namedParams);

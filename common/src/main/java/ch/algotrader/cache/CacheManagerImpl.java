@@ -193,19 +193,24 @@ public class CacheManagerImpl implements CacheManager, Initializer, EntityCacheE
         return initializedObj;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public <T> List<T> find(Class<T> clazz, String query, QueryType type, NamedParam... namedParams) {
+        return find(clazz, query, 0, type, namedParams);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> List<T> find(Class<T> clazz, String query, int maxResults, QueryType type, NamedParam... namedParams) {
 
         String queryString = getQueryString(query, type);
 
-        QueryCacheKey cacheKey = new QueryCacheKey(queryString, namedParams);
+        QueryCacheKey cacheKey = new QueryCacheKey(queryString, maxResults, namedParams);
 
         List<T> result = (List<T>) this.queryCache.find(cacheKey);
 
         if (result == null) {
 
-            result = this.genericDao.find(clazz, queryString, QueryType.HQL, namedParams);
+            result = this.genericDao.find(clazz, queryString, maxResults, QueryType.HQL, namedParams);
 
             // get the spaceNames
             Set<String> spaceNames = this.genericDao.getQuerySpaces(cacheKey.getQueryString());
@@ -222,7 +227,7 @@ public class CacheManagerImpl implements CacheManager, Initializer, EntityCacheE
 
     @Override
     public <T> T findUnique(Class<T> clazz, String query, QueryType type, NamedParam... namedParams) {
-        return CollectionUtil.getSingleElementOrNull(find(clazz, query, type, namedParams));
+        return CollectionUtil.getSingleElementOrNull(find(clazz, query, 1, type, namedParams));
     }
 
     /**
