@@ -25,7 +25,6 @@ import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.enumeration.InitializingServiceType;
-import ch.algotrader.service.ExternalOrderServiceImpl;
 import ch.algotrader.service.ExternalServiceException;
 import ch.algotrader.service.InitializationPriority;
 import ch.algotrader.service.InitializingServiceI;
@@ -43,7 +42,7 @@ import quickfix.field.MsgType;
  * @version $Revision$ $Date$
  */
 @InitializationPriority(InitializingServiceType.BROKER_INTERFACE)
-public abstract class FixOrderServiceImpl extends ExternalOrderServiceImpl implements FixOrderService, InitializingServiceI {
+public abstract class FixOrderServiceImpl implements FixOrderService, InitializingServiceI {
 
     private static final long serialVersionUID = -1571841567775158540L;
 

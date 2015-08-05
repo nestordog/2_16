@@ -47,7 +47,7 @@ import ch.algotrader.entity.trade.StopOrder;
  *
  * @version $Revision$ $Date$
  */
-@Transactional
+@Transactional(propagation = Propagation.SUPPORTS)
 public class OrderPersistenceServiceImpl implements OrderPersistenceService {
 
     private static final Logger LOGGER = LogManager.getLogger(OrderPersistenceServiceImpl.class);

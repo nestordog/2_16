@@ -32,7 +32,7 @@ import ch.algotrader.entity.strategy.Strategy;
  *
  * @version $Revision$ $Date$
  */
-@Transactional
+@Transactional(propagation = Propagation.SUPPORTS)
 public class StrategyPersistenceServiceImpl implements StrategyPersistenceService {
 
     private final StrategyDao strategyDao;

@@ -55,7 +55,7 @@ import ch.algotrader.vo.TradePerformanceVO;
  *
  * @version $Revision$ $Date$
  */
-@Transactional
+@Transactional(propagation = Propagation.SUPPORTS)
 public abstract class TransactionPersistenceServiceImpl implements TransactionPersistenceService {
 
     private static final Logger LOGGER = LogManager.getLogger(TransactionPersistenceServiceImpl.class);

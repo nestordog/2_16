@@ -52,7 +52,7 @@ import ch.algotrader.vo.InsertComponentEventVO;
  *
  * @version $Revision$ $Date$
  */
-@Transactional
+@Transactional(propagation = Propagation.SUPPORTS)
 @InitializationPriority(InitializingServiceType.CORE)
 public class CombinationServiceImpl implements CombinationService, InitializingServiceI {
 

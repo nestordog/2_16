@@ -33,7 +33,7 @@ import ch.algotrader.entity.property.PropertyHolder;
  *
  * @version $Revision$ $Date$
  */
-@Transactional
+@Transactional(propagation = Propagation.SUPPORTS)
 public class PropertyServiceImpl implements PropertyService {
 
     private static final Logger LOGGER = LogManager.getLogger(PropertyServiceImpl.class);

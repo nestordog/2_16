@@ -78,7 +78,7 @@ import ch.algotrader.vo.PortfolioValueVO;
  *
  * @version $Revision$ $Date$
  */
-@Transactional
+@Transactional(propagation = Propagation.SUPPORTS)
 public class PortfolioServiceImpl implements PortfolioService {
 
     private static final Logger LOGGER = LogManager.getLogger(PortfolioServiceImpl.class);

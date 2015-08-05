@@ -25,7 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * @version $Revision$ $Date$
  */
-@Transactional
+@Transactional(propagation = Propagation.SUPPORTS)
 public abstract class ReferenceDataServiceImpl implements ReferenceDataService {
 
     /**

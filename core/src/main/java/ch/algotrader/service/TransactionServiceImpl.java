@@ -61,7 +61,7 @@ import ch.algotrader.vo.PositionMutationVO;
  *
  * @version $Revision$ $Date$
  */
-@Transactional
+@Transactional(propagation = Propagation.SUPPORTS)
 public class TransactionServiceImpl implements TransactionService {
 
     private static final Logger LOGGER = LogManager.getLogger(TransactionServiceImpl.class);

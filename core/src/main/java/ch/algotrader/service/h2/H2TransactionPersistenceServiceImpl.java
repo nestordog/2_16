@@ -48,7 +48,7 @@ import ch.algotrader.vo.CurrencyAmountVO;
  *
  * @version $Revision$ $Date$
  */
-@Transactional
+@Transactional(propagation = Propagation.SUPPORTS)
 public class H2TransactionPersistenceServiceImpl extends TransactionPersistenceServiceImpl {
 
     private final SessionFactory sessionFactory;

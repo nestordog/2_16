@@ -70,7 +70,7 @@ import ch.algotrader.vo.ExpirePositionVO;
  *
  * @version $Revision$ $Date$
  */
-@Transactional
+@Transactional(propagation = Propagation.SUPPORTS)
 public class PositionServiceImpl implements PositionService {
 
     private static final Logger LOGGER = LogManager.getLogger(PositionServiceImpl.class);

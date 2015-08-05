@@ -65,7 +65,7 @@ import ch.algotrader.util.io.CsvTickWriter;
  *
  * @version $Revision$ $Date$
  */
-@Transactional
+@Transactional(propagation = Propagation.SUPPORTS)
 public class MarketDataServiceImpl implements MarketDataService, ApplicationListener<ContextRefreshedEvent> {
 
     private static final Logger LOGGER = LogManager.getLogger(MarketDataServiceImpl.class);

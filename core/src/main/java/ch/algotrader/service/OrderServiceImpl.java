@@ -75,7 +75,7 @@ import ch.algotrader.vo.OrderStatusVO;
  *
  * @version $Revision$ $Date$
  */
-@Transactional
+@Transactional(propagation = Propagation.SUPPORTS)
 @InitializationPriority(value = InitializingServiceType.CORE)
 public class OrderServiceImpl implements OrderService, InitializingServiceI, ApplicationListener<ContextRefreshedEvent> {
 

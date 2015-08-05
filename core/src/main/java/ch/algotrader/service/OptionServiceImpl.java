@@ -68,7 +68,7 @@ import ch.algotrader.util.collection.CollectionUtil;
  *
  * @version $Revision$ $Date$
  */
-@Transactional
+@Transactional(propagation = Propagation.SUPPORTS)
 public class OptionServiceImpl implements OptionService {
 
     private static final Logger LOGGER = LogManager.getLogger(OptionServiceImpl.class);

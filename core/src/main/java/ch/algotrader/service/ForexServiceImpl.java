@@ -27,6 +27,7 @@ import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.math.util.MathUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.algotrader.config.CommonConfig;
@@ -54,7 +55,7 @@ import ch.algotrader.vo.BalanceVO;
  *
  * @version $Revision$ $Date$
  */
-@Transactional
+@Transactional(propagation = Propagation.SUPPORTS)
 public class ForexServiceImpl implements ForexService {
 
     private static final Logger LOGGER = LogManager.getLogger(ForexServiceImpl.class);

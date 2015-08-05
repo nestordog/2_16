@@ -35,7 +35,6 @@ import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
-import ch.algotrader.service.ExternalOrderServiceImpl;
 import ch.algotrader.service.LocalLookupService;
 import ch.algotrader.service.OrderService;
 import ch.algotrader.service.TransactionService;
@@ -45,7 +44,7 @@ import ch.algotrader.service.TransactionService;
  *
  * @version $Revision$ $Date$
  */
-public class SimulationOrderServiceImpl extends ExternalOrderServiceImpl implements SimulationOrderService {
+public class SimulationOrderServiceImpl implements SimulationOrderService {
 
     private final TransactionService transactionService;
     private final OrderService orderService;

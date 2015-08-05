@@ -20,6 +20,7 @@ package ch.algotrader.service;
 import java.util.Collection;
 
 import org.apache.commons.lang.Validate;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.algotrader.dao.HibernateInitializer;
@@ -30,7 +31,7 @@ import ch.algotrader.entity.BaseEntityI;
  *
  * @version $Revision$ $Date$
  */
-@Transactional
+@Transactional(propagation = Propagation.SUPPORTS)
 public class LazyLoaderServiceImpl implements LazyLoaderService {
 
     public LazyLoaderServiceImpl() {

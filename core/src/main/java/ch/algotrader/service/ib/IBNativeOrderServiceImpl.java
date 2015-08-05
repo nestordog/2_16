@@ -33,7 +33,6 @@ import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.service.ExternalOrderServiceImpl;
 import ch.algotrader.service.OrderService;
 import ch.algotrader.service.ServiceException;
 
@@ -42,7 +41,7 @@ import ch.algotrader.service.ServiceException;
  *
  * @version $Revision$ $Date$
  */
-public class IBNativeOrderServiceImpl extends ExternalOrderServiceImpl implements IBNativeOrderService {
+public class IBNativeOrderServiceImpl implements IBNativeOrderService {
 
     private static final Logger LOGGER = LogManager.getLogger(IBNativeOrderServiceImpl.class);
 

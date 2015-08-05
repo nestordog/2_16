@@ -29,6 +29,7 @@ import java.util.Set;
 import org.apache.commons.collections.map.MultiValueMap;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.time.DateUtils;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.algotrader.cache.CacheManager;
@@ -75,7 +76,7 @@ import ch.algotrader.util.collection.CollectionUtil;
  *
  * @version $Revision$ $Date$
  */
-@Transactional
+@Transactional(propagation = Propagation.SUPPORTS)
 public class LookupServiceImpl implements LookupService {
 
     private final GenericDao genericDao;

@@ -34,7 +34,7 @@ import ch.algotrader.esper.EngineManager;
  *
  * @version $Revision$ $Date$
  */
-@Transactional
+@Transactional(propagation = Propagation.SUPPORTS)
 public class MeasurementServiceImpl implements MeasurementService {
 
     private final MeasurementDao measurementDao;

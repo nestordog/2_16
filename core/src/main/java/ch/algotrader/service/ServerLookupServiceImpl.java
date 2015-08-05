@@ -25,6 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.math.NumberUtils;
 import org.hibernate.Hibernate;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.algotrader.dao.HibernateInitializer;
@@ -46,7 +47,7 @@ import ch.algotrader.visitor.InitializationVisitor;
  *
  * @version $Revision$ $Date$
  */
-@Transactional
+@Transactional(propagation = Propagation.SUPPORTS)
 public class ServerLookupServiceImpl implements ServerLookupService {
 
     private final Map<String, Long> securitySymbolMap = new ConcurrentHashMap<>();

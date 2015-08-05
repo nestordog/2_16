@@ -47,7 +47,7 @@ import ch.algotrader.util.collection.CollectionUtil;
  *
  * @version $Revision$ $Date$
  */
-@Transactional
+@Transactional(propagation = Propagation.SUPPORTS)
 public class FutureServiceImpl implements FutureService {
 
     private static final Logger LOGGER = LogManager.getLogger(FutureServiceImpl.class);

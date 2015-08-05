@@ -30,6 +30,7 @@ import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Predicate;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.time.DateUtils;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.algotrader.dao.exchange.ExchangeDao;
@@ -46,7 +47,7 @@ import ch.algotrader.esper.EngineManager;
  *
  * @version $Revision$ $Date$
  */
-@Transactional
+@Transactional(propagation = Propagation.SUPPORTS)
 public class CalendarServiceImpl implements CalendarService {
 
     private final ExchangeDao exchangeDao;
