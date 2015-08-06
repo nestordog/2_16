@@ -30,26 +30,39 @@ import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import ch.algotrader.ServiceLocator;
 import ch.algotrader.accounting.PositionTracker;
+import ch.algotrader.dao.ClosePositionVOProducer;
+import ch.algotrader.dao.OpenPositionVOProducer;
+import ch.algotrader.dao.PositionVOProducer;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.Transaction;
+import ch.algotrader.entity.TransactionConverter;
 import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.strategy.CashBalance;
 import ch.algotrader.entity.strategy.PortfolioValue;
 import ch.algotrader.entity.strategy.Strategy;
+import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.LimitOrderI;
 import ch.algotrader.entity.trade.Order;
+import ch.algotrader.entity.trade.OrderConverter;
+import ch.algotrader.entity.trade.OrderStatus;
+import ch.algotrader.entity.trade.OrderStatusConverter;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Side;
+import ch.algotrader.enumeration.Status;
 import ch.algotrader.enumeration.TransactionType;
+import ch.algotrader.esper.EngineManager;
+import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.service.LocalLookupService;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.collection.Pair;
+import ch.algotrader.vo.ClosePositionVO;
 import ch.algotrader.vo.CurrencyAmountVO;
+import ch.algotrader.vo.OpenPositionVO;
+import ch.algotrader.vo.PositionVO;
 import ch.algotrader.vo.TradePerformanceVO;
 
 /**
@@ -73,14 +86,20 @@ public class Simulator {
 
     private final LocalLookupService localLookupService;
     private final PositionTracker positionTracker;
+    private final EventDispatcher eventDispatcher;
+    private final EngineManager engineManager;
 
-    public Simulator(final LocalLookupService localLookupService, final PositionTracker positionTracker) {
+    public Simulator(final LocalLookupService localLookupService, final PositionTracker positionTracker, final EventDispatcher eventDispatcher, final EngineManager engineManager) {
 
         Validate.notNull(localLookupService, "LocalLookupService is null");
         Validate.notNull(positionTracker, "PositionTracker is null");
+        Validate.notNull(eventDispatcher, "EventDispatcher is null");
+        Validate.notNull(engineManager, "EngineManager is null");
 
         this.localLookupService = localLookupService;
         this.positionTracker = positionTracker;
+        this.eventDispatcher = eventDispatcher;
+        this.engineManager = engineManager;
 
         this.cashBalances = new HashMap<>();
         this.positionsByStrategyAndSecurity = new HashMap<>();
@@ -99,7 +118,7 @@ public class Simulator {
         this.cashBalances.clear();
     }
 
-    public void createCashBalance(String strategyName, Currency currency, BigDecimal amount) {
+    public void createCashBalance(final String strategyName, final Currency currency, final BigDecimal amount) {
 
         if (findCashBalanceByStrategyAndCurrency(strategyName, currency) != null) {
             throw new IllegalStateException("cashBalance already exists");
@@ -117,17 +136,24 @@ public class Simulator {
         }
     }
 
-    public void sendOrder(Order order) {
+    public void sendOrder(final Order order) {
 
         // validate strategy and security
         Validate.notNull(order.getStrategy(), "missing strategy for order " + order);
         Validate.notNull(order.getSecurity(), "missing security for order " + order);
 
+        if (order.getDateTime() == null) {
+            order.setDateTime(getCurrentTime());
+        }
+
+        // propagate order
+        this.eventDispatcher.sendEvent(order.getStrategy().getName(), OrderConverter.INSTANCE.convert(order));
+
         // get the price
         BigDecimal price = new BigDecimal(0);
         if (order instanceof LimitOrderI) {
 
-            // limitorders are executed at their limit price
+            // limit orders are executed at their limit price
             price = ((LimitOrderI) order).getLimit();
         } else {
             throw new UnsupportedOperationException("only MarketOrders allowed at this time");
@@ -135,16 +161,32 @@ public class Simulator {
 
         // create one fill per order
         Fill fill = new Fill();
+        fill.setDateTime(order.getDateTime());
         fill.setSide(order.getSide());
         fill.setQuantity(order.getQuantity());
         fill.setPrice(price);
         fill.setOrder(order);
 
+        // propagate order
+        this.eventDispatcher.sendEvent(fill.getOrder().getStrategy().getName(), fill);
+
+        // create and OrderStatus
+        OrderStatus orderStatus = OrderStatus.Factory.newInstance();
+        orderStatus.setDateTime(getCurrentTime());
+        orderStatus.setStatus(Status.EXECUTED);
+        orderStatus.setFilledQuantity(order.getQuantity());
+        orderStatus.setRemainingQuantity(0);
+        orderStatus.setOrder(order);
+        orderStatus.setAvgPrice(price);
+
+        // propagate order status
+        this.eventDispatcher.sendEvent(orderStatus.getOrder().getStrategy().getName(), OrderStatusConverter.INSTANCE.convert(orderStatus));
+
         // create the transaction
         createTransaction(fill);
     }
 
-    protected Transaction createTransaction(Fill fill) {
+    protected Transaction createTransaction(final Fill fill) {
 
         Order order = fill.getOrder();
         Security security = order.getSecurity();
@@ -159,7 +201,7 @@ public class Simulator {
 
         Transaction transaction = Transaction.Factory.newInstance();
         transaction.setUuid(UUID.randomUUID().toString());
-        transaction.setDateTime(fill.getExtDateTime());
+        transaction.setDateTime(fill.getDateTime());
         transaction.setExtId(fill.getExtId());
         transaction.setQuantity(quantity);
         transaction.setPrice(fill.getPrice());
@@ -176,14 +218,14 @@ public class Simulator {
         return transaction;
     }
 
-    protected BigDecimal getClearingCommission(Fill fill) {
+    protected BigDecimal getClearingCommission(final Fill fill) {
 
         double clearingCommissionPerContract = fill.getOrder().getSecurity().getSecurityFamily().getClearingCommission(fill.getOrder().getAccount().getBroker()).doubleValue();
         return RoundUtil.getBigDecimal(Math.abs(clearingCommissionPerContract * Math.abs(fill.getQuantity())));
     }
 
 
-    protected BigDecimal getExecutionCommission(Fill fill) {
+    protected BigDecimal getExecutionCommission(final Fill fill) {
 
         double executionCommissionPerContract = fill.getOrder().getSecurity().getSecurityFamily().getExecutionCommission(fill.getOrder().getAccount().getBroker()).doubleValue();
         return RoundUtil.getBigDecimal(Math.abs(executionCommissionPerContract * Math.abs(fill.getQuantity())));
@@ -193,13 +235,14 @@ public class Simulator {
      * @param reason
      * @copy ch.algotrader.service.TransactionServiceImpl.handlePersistTransaction(Transaction)
      */
-    protected Position persistTransaction(Transaction transaction) {
+    protected Position persistTransaction(final Transaction transaction) {
 
+        OpenPositionVO openPositionVO = null;
+        ClosePositionVO closePositionVO = null;
         TradePerformanceVO tradePerformance = null;
 
-        // position handling (incl ClosePositionVO and TradePerformanceVO)
-
         // create a new position if necessary
+        boolean existingOpenPosition = false;
         Position position = findPositionByStrategyAndSecurity(transaction.getStrategy().getName(), transaction.getSecurity());
         if (position == null) {
 
@@ -215,21 +258,47 @@ public class Simulator {
 
         } else {
 
+            existingOpenPosition = position.isOpen();
+
+            // get the closePositionVO (must be done before closing the position)
+            closePositionVO = ClosePositionVOProducer.INSTANCE.convert(position);
+
             // process the transaction (adjust quantity, cost and realizedPL)
             tradePerformance = this.positionTracker.processTransaction(position, transaction);
+
+            if (position.isOpen()) {
+
+                // reset the closePosition event
+                closePositionVO = null;
+            }
 
             // associate the position
             transaction.setPosition(position);
         }
 
+        // if no position was open before initialize the openPosition event
+        if (!existingOpenPosition) {
+            openPositionVO = OpenPositionVOProducer.INSTANCE.convert(position);
+            this.eventDispatcher.sendEvent(transaction.getStrategy().getName(), openPositionVO);
+        } else if (closePositionVO != null) {
+            this.eventDispatcher.sendEvent(transaction.getStrategy().getName(), closePositionVO);
+        } else {
+            PositionVO positionVO = PositionVOProducer.INSTANCE.convert(position);
+            this.eventDispatcher.sendEvent(transaction.getStrategy().getName(), positionVO);
+        }
+
+
         // add the amount to the corresponding cashBalance
         processTransaction(transaction);
+
+        // propagate Transaction
+        this.eventDispatcher.sendEvent(transaction.getStrategy().getName(), TransactionConverter.INSTANCE.convert(transaction));
 
         // propagate tradePerformance
         if (tradePerformance != null && tradePerformance.getProfit() != 0.0) {
 
             // propagate the TradePerformance event
-            sendEvent(tradePerformance);
+            this.eventDispatcher.sendEvent(StrategyImpl.SERVER, tradePerformance);
         }
 
         if (LOGGER.isInfoEnabled()) {
@@ -238,14 +307,10 @@ public class Simulator {
         return position;
     }
 
-    protected void sendEvent(TradePerformanceVO tradePerformance) {
-        ServiceLocator.instance().getEventDispatcher().broadcast(tradePerformance);
-    }
-
     /**
      * @copy ch.algotrader.service.CashBalanceServiceImpl.handleProcessTransaction(Transaction)
      */
-    private void processTransaction(Transaction transaction) {
+    private void processTransaction(final Transaction transaction) {
 
         // process all currenyAmounts
         for (CurrencyAmountVO currencyAmount : transaction.getAttributions()) {
@@ -256,7 +321,7 @@ public class Simulator {
     /**
      * @copy ch.algotrader.service.CashBalanceServiceImpl.handleProcessAmount(String, CurrencyAmountVO)
      */
-    private void processAmount(Strategy strategy, CurrencyAmountVO currencyAmount) {
+    private void processAmount(final Strategy strategy, final CurrencyAmountVO currencyAmount) {
 
         CashBalance cashBalance = findCashBalanceByStrategyAndCurrency(strategy.getName(), currencyAmount.getCurrency());
 
@@ -278,7 +343,7 @@ public class Simulator {
         }
     }
 
-    protected void createPosition(Position position) {
+    protected void createPosition(final Position position) {
 
         String name = position.getStrategy().getName();
         Security security = position.getSecurity();
@@ -288,7 +353,7 @@ public class Simulator {
         this.positionsBySecurity.put(security, position);
     }
 
-    private void createCashBalance(CashBalance cashBalance) {
+    private void createCashBalance(final CashBalance cashBalance) {
         this.cashBalances.put(new Pair<>(cashBalance.getStrategy().getName(), cashBalance.getCurrency()), cashBalance);
     }
 
@@ -296,19 +361,19 @@ public class Simulator {
         return this.positionsByStrategy.values();
     }
 
-    public Position findPositionByStrategyAndSecurity(String strategyName, Security security) {
+    public Position findPositionByStrategyAndSecurity(final String strategyName, final Security security) {
         return this.positionsByStrategyAndSecurity.get(new Pair<>(strategyName, security));
     }
 
-    public Collection<Position> findPositionsByStrategy(String strategyName) {
+    public Collection<Position> findPositionsByStrategy(final String strategyName) {
         return this.positionsByStrategy.get(strategyName);
     }
 
-    public Collection<Position> findPositionsBySecurity(Security security) {
+    public Collection<Position> findPositionsBySecurity(final Security security) {
         return this.positionsBySecurity.get(security);
     }
 
-    public CashBalance findCashBalanceByStrategyAndCurrency(String strategyName, Currency currency) {
+    public CashBalance findCashBalanceByStrategyAndCurrency(final String strategyName, final Currency currency) {
         return this.cashBalances.get(new Pair<>(strategyName, currency));
     }
 
@@ -331,7 +396,7 @@ public class Simulator {
     }
 
     protected Date getCurrentTime() {
-        return ServiceLocator.instance().getEngineManager().getCurrentEPTime();
+        return this.engineManager.getCurrentEPTime();
     }
 
     protected PositionTracker getPositionTracker() {
@@ -341,7 +406,7 @@ public class Simulator {
     /**
      * @copy ch.algotrader.service.PortfolioServiceImpl.getSecuritiesCurrentValueDoubleInternal(Collection<Position>)
      */
-    private double getSecuritiesCurrentValueDoubleInternal(Collection<Position> openPositions) {
+    private double getSecuritiesCurrentValueDoubleInternal(final Collection<Position> openPositions) {
 
         // sum of all positions
         double amount = 0.0;
@@ -355,7 +420,7 @@ public class Simulator {
     /**
      * @copy ch.algotrader.service.PortfolioServiceImpl.getCashBalanceDoubleInternal(Collection<CashBalance>, List<Position>)
      */
-    private double getCashBalanceDoubleInternal(Collection<CashBalance> cashBalances) {
+    private double getCashBalanceDoubleInternal(final Collection<CashBalance> cashBalances) {
 
         // sum of all cashBalances
         double amount = 0.0;
