@@ -44,7 +44,7 @@ import ch.algotrader.service.ExternalServiceException;
 import ch.algotrader.service.InitializationPriority;
 import ch.algotrader.service.InitializingServiceI;
 import ch.algotrader.service.ServiceException;
-import ch.algotrader.vo.SubscribeTickVO;
+import ch.algotrader.vo.marketData.SubscribeTickVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

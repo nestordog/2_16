@@ -18,7 +18,6 @@
 package ch.algotrader.esper.io;
 
 import ch.algotrader.enumeration.Duration;
-import ch.algotrader.vo.RawBarVO;
 
 import com.espertech.esper.client.EPException;
 import com.espertech.esperio.SendableBeanEvent;

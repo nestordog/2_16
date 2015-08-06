@@ -31,7 +31,7 @@ import sun.tools.jconsole.WarningProducer;
 // CHECKSTYLE:ON
 import ch.algotrader.service.ChartProvidingService;
 import ch.algotrader.service.ManagementService;
-import ch.algotrader.vo.ChartDataVO;
+import ch.algotrader.vo.client.ChartDataVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

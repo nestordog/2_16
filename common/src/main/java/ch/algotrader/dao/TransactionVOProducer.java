@@ -25,7 +25,7 @@ import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.security.Security;
-import ch.algotrader.vo.TransactionVO;
+import ch.algotrader.vo.client.TransactionVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

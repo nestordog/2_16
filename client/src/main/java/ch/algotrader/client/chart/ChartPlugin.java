@@ -29,7 +29,7 @@ import javax.swing.SwingWorker;
 
 import com.sun.tools.jconsole.JConsolePlugin;
 
-import ch.algotrader.vo.ChartDataVO;
+import ch.algotrader.vo.client.ChartDataVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

@@ -40,7 +40,7 @@ import ch.algotrader.entity.trade.OrderStatusImpl;
 import ch.algotrader.enumeration.QueryType;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.vo.OrderStatusVO;
+import ch.algotrader.vo.client.OrderStatusVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

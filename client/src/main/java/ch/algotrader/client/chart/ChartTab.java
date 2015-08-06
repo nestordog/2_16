@@ -80,22 +80,22 @@ import org.jfree.ui.TextAnchor;
 import ch.algotrader.enumeration.Color;
 import ch.algotrader.enumeration.DatasetType;
 import ch.algotrader.enumeration.TimePeriod;
-import ch.algotrader.vo.AnnotationVO;
-import ch.algotrader.vo.AxisDefinitionVO;
-import ch.algotrader.vo.BarDefinitionVO;
-import ch.algotrader.vo.BarVO;
-import ch.algotrader.vo.BoxAnnotationVO;
-import ch.algotrader.vo.ChartDataVO;
-import ch.algotrader.vo.ChartDefinitionVO;
-import ch.algotrader.vo.DatasetDefinitionVO;
-import ch.algotrader.vo.IndicatorDefinitionVO;
-import ch.algotrader.vo.IndicatorVO;
-import ch.algotrader.vo.IntervalMarkerVO;
-import ch.algotrader.vo.MarkerDefinitionVO;
-import ch.algotrader.vo.MarkerVO;
-import ch.algotrader.vo.PointerAnnotationVO;
-import ch.algotrader.vo.SeriesDefinitionVO;
-import ch.algotrader.vo.ValueMarkerVO;
+import ch.algotrader.vo.client.AnnotationVO;
+import ch.algotrader.vo.client.AxisDefinitionVO;
+import ch.algotrader.vo.client.BarDefinitionVO;
+import ch.algotrader.vo.client.BarVO;
+import ch.algotrader.vo.client.BoxAnnotationVO;
+import ch.algotrader.vo.client.ChartDataVO;
+import ch.algotrader.vo.client.ChartDefinitionVO;
+import ch.algotrader.vo.client.DatasetDefinitionVO;
+import ch.algotrader.vo.client.IndicatorDefinitionVO;
+import ch.algotrader.vo.client.IndicatorVO;
+import ch.algotrader.vo.client.IntervalMarkerVO;
+import ch.algotrader.vo.client.MarkerDefinitionVO;
+import ch.algotrader.vo.client.MarkerVO;
+import ch.algotrader.vo.client.PointerAnnotationVO;
+import ch.algotrader.vo.client.SeriesDefinitionVO;
+import ch.algotrader.vo.client.ValueMarkerVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

@@ -23,8 +23,6 @@ import org.apache.commons.math.optimization.GoalType;
 import org.apache.commons.math.optimization.RealPointValuePair;
 import org.apache.commons.math.optimization.direct.NelderMead;
 
-import ch.algotrader.vo.SABRSmileVO;
-
 /**
  * Static methods around the SABR Volatility model.
  *

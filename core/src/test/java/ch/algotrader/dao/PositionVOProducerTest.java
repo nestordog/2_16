@@ -21,7 +21,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import ch.algotrader.dao.PositionVOProducer;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.PositionImpl;
 import ch.algotrader.entity.marketData.Tick;
@@ -33,7 +32,7 @@ import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.util.RoundUtil;
-import ch.algotrader.vo.PositionVO;
+import ch.algotrader.vo.client.PositionVO;
 
 /**
 * Unit tests for {@link PositionVOProducer}.

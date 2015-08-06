@@ -71,7 +71,7 @@ import ch.algotrader.util.collection.DoubleMap;
 import ch.algotrader.util.metric.MetricsUtil;
 import ch.algotrader.vo.BalanceVO;
 import ch.algotrader.vo.CurrencyAmountVO;
-import ch.algotrader.vo.PortfolioValueVO;
+import ch.algotrader.vo.legacy.PortfolioValueVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

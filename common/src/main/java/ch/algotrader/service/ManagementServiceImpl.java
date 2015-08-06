@@ -76,12 +76,12 @@ import ch.algotrader.esper.Engine;
 import ch.algotrader.util.BeanUtil;
 import ch.algotrader.util.DateTimeUtil;
 import ch.algotrader.vo.BalanceVO;
-import ch.algotrader.vo.BarVO;
-import ch.algotrader.vo.MarketDataEventVO;
-import ch.algotrader.vo.OrderStatusVO;
-import ch.algotrader.vo.PositionVO;
-import ch.algotrader.vo.TickVO;
-import ch.algotrader.vo.TransactionVO;
+import ch.algotrader.vo.client.BarVO;
+import ch.algotrader.vo.client.MarketDataEventVO;
+import ch.algotrader.vo.client.OrderStatusVO;
+import ch.algotrader.vo.client.PositionVO;
+import ch.algotrader.vo.client.TickVO;
+import ch.algotrader.vo.client.TransactionVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

@@ -41,7 +41,7 @@ import ch.algotrader.enumeration.Currency;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.service.ServiceException;
 import ch.algotrader.service.fix.fix44.Fix44MarketDataService;
-import ch.algotrader.vo.SubscribeTickVO;
+import ch.algotrader.vo.marketData.SubscribeTickVO;
 import quickfix.fix44.MarketDataRequest;
 
 @RunWith(MockitoJUnitRunner.class)

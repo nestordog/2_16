@@ -37,7 +37,7 @@ import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.service.ServiceException;
-import ch.algotrader.vo.SubscribeTickVO;
+import ch.algotrader.vo.marketData.SubscribeTickVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

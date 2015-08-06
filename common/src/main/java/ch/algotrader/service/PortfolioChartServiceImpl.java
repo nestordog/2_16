@@ -28,9 +28,9 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
-import ch.algotrader.vo.ChartDefinitionVO;
-import ch.algotrader.vo.IndicatorVO;
-import ch.algotrader.vo.PortfolioValueVO;
+import ch.algotrader.vo.client.ChartDefinitionVO;
+import ch.algotrader.vo.client.IndicatorVO;
+import ch.algotrader.vo.legacy.PortfolioValueVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

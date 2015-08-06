@@ -18,8 +18,8 @@
 package ch.algotrader.simulation;
 
 import ch.algotrader.service.groups.StrategyGroup;
-import ch.algotrader.vo.OptimizationResultVO;
-import ch.algotrader.vo.SimulationResultVO;
+import ch.algotrader.vo.performance.OptimizationResultVO;
+import ch.algotrader.vo.performance.SimulationResultVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

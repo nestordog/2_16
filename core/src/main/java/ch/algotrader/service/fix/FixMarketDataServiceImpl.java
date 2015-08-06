@@ -30,7 +30,7 @@ import ch.algotrader.esper.Engine;
 import ch.algotrader.service.InitializationPriority;
 import ch.algotrader.service.InitializingServiceI;
 import ch.algotrader.service.ServiceException;
-import ch.algotrader.vo.SubscribeTickVO;
+import ch.algotrader.vo.marketData.SubscribeTickVO;
 
 /**
  * Generic FIX market data service

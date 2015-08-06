@@ -43,7 +43,7 @@ import ch.algotrader.service.PortfolioService;
 import ch.algotrader.service.PositionService;
 import ch.algotrader.service.PropertyService;
 import ch.algotrader.service.SubscriptionService;
-import ch.algotrader.vo.ChartDefinitionVO;
+import ch.algotrader.vo.client.ChartDefinitionVO;
 
 /**
  * Management Service configuration.

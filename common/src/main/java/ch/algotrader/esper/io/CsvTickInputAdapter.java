@@ -17,8 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.esper.io;
 
-import ch.algotrader.vo.RawTickVO;
-
 import com.espertech.esper.client.EPException;
 import com.espertech.esperio.SendableBeanEvent;
 import com.espertech.esperio.SendableEvent;

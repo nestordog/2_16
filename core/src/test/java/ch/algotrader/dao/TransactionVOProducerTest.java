@@ -27,7 +27,6 @@ import org.junit.Test;
 
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.CommonConfigBuilder;
-import ch.algotrader.dao.TransactionVOProducer;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.AccountImpl;
 import ch.algotrader.entity.Transaction;
@@ -40,7 +39,7 @@ import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.TransactionType;
-import ch.algotrader.vo.TransactionVO;
+import ch.algotrader.vo.client.TransactionVO;
 
 /**
 * Unit tests for {@link TransactionVOProducer}.

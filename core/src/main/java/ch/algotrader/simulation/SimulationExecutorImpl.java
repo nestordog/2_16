@@ -85,12 +85,12 @@ import ch.algotrader.util.DateTimePatterns;
 import ch.algotrader.util.metric.MetricsUtil;
 import ch.algotrader.vo.EndOfSimulationVO;
 import ch.algotrader.vo.LifecycleEventVO;
-import ch.algotrader.vo.MaxDrawDownVO;
-import ch.algotrader.vo.OptimizationResultVO;
-import ch.algotrader.vo.PerformanceKeysVO;
-import ch.algotrader.vo.PeriodPerformanceVO;
-import ch.algotrader.vo.SimulationResultVO;
-import ch.algotrader.vo.TradesVO;
+import ch.algotrader.vo.performance.MaxDrawDownVO;
+import ch.algotrader.vo.performance.OptimizationResultVO;
+import ch.algotrader.vo.performance.PerformanceKeysVO;
+import ch.algotrader.vo.performance.PeriodPerformanceVO;
+import ch.algotrader.vo.performance.SimulationResultVO;
+import ch.algotrader.vo.performance.TradesVO;
 
 import com.espertech.esperio.csv.CSVInputAdapter;
 

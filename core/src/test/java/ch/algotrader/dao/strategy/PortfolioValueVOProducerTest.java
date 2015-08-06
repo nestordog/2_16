@@ -24,10 +24,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import ch.algotrader.dao.strategy.PortfolioValueVOProducer;
 import ch.algotrader.entity.strategy.PortfolioValue;
 import ch.algotrader.entity.strategy.PortfolioValueImpl;
-import ch.algotrader.vo.PortfolioValueVO;
+import ch.algotrader.vo.legacy.PortfolioValueVO;
 
 /**
 * Unit tests for {@link PortfolioValueVOProducer}.

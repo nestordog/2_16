@@ -23,10 +23,10 @@ import java.util.Date;
 import java.util.Map;
 
 import ch.algotrader.vo.BalanceVO;
-import ch.algotrader.vo.MarketDataEventVO;
-import ch.algotrader.vo.OrderStatusVO;
-import ch.algotrader.vo.PositionVO;
-import ch.algotrader.vo.TransactionVO;
+import ch.algotrader.vo.client.MarketDataEventVO;
+import ch.algotrader.vo.client.OrderStatusVO;
+import ch.algotrader.vo.client.PositionVO;
+import ch.algotrader.vo.client.TransactionVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

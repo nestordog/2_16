@@ -28,8 +28,6 @@ import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.marketData.Bar;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.util.metric.MetricsUtil;
-import ch.algotrader.vo.RawBarVO;
-import ch.algotrader.vo.RawTickVO;
 
 /**
  * Custom Esper Sender that initializes Ticks and Bars.

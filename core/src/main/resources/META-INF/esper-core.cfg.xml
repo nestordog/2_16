@@ -4,28 +4,28 @@
     xsi:schemaLocation="http://www.espertech.com/schema/esper http://www.espertech.com/schema/esper/esper-configuration-4-0.xsd">
 
     <!-- Raw Events -->
-    <event-type name="RawTick" class="ch.algotrader.vo.RawTickVO"/>
-    <event-type name="RawBar" class="ch.algotrader.vo.RawBarVO"/>
+    <event-type name="RawTick" class="ch.algotrader.esper.io.RawTickVO"/>
+    <event-type name="RawBar" class="ch.algotrader.esper.io.RawBarVO"/>
 
     <!-- Tick Window -->
-    <event-type name="SubscribeTickEvent" class="ch.algotrader.vo.SubscribeTickVO"/>
+    <event-type name="SubscribeTickEvent" class="ch.algotrader.vo.marketData.SubscribeTickVO"/>
 
     <!-- Trade / Bid / Ask -->
-    <event-type name="Trade" class="ch.algotrader.vo.TradeVO"/>
-    <event-type name="Bid" class="ch.algotrader.vo.BidVO"/>
-    <event-type name="Ask" class="ch.algotrader.vo.AskVO"/>
+    <event-type name="Trade" class="ch.algotrader.vo.marketData.TradeVO"/>
+    <event-type name="Bid" class="ch.algotrader.vo.marketData.BidVO"/>
+    <event-type name="Ask" class="ch.algotrader.vo.marketData.AskVO"/>
 
     <!-- Combinations / Components -->
     <event-type name="InsertComponentEvent" class="ch.algotrader.vo.InsertComponentEventVO"/>
 
     <!-- Performance -->
-    <event-type name="MonthlyPerformance" class="ch.algotrader.vo.PeriodPerformanceVO"/>
-    <event-type name="PerformanceKeys" class="ch.algotrader.vo.PerformanceKeysVO"/>
-    <event-type name="MaxDrawDown" class="ch.algotrader.vo.MaxDrawDownVO"/>
+    <event-type name="MonthlyPerformance" class="ch.algotrader.vo.performance.PeriodPerformanceVO"/>
+    <event-type name="PerformanceKeys" class="ch.algotrader.vo.performance.PerformanceKeysVO"/>
+    <event-type name="MaxDrawDown" class="ch.algotrader.vo.performance.MaxDrawDownVO"/>
     <event-type name="TradePerformance" class="ch.algotrader.vo.TradePerformanceVO"/>
-    <event-type name="AllTrades" class="ch.algotrader.vo.TradesVO"/>
-    <event-type name="WinningTrades" class="ch.algotrader.vo.TradesVO"/>
-    <event-type name="LoosingTrades" class="ch.algotrader.vo.TradesVO"/>
+    <event-type name="AllTrades" class="ch.algotrader.vo.performance.TradesVO"/>
+    <event-type name="WinningTrades" class="ch.algotrader.vo.performance.TradesVO"/>
+    <event-type name="LoosingTrades" class="ch.algotrader.vo.performance.TradesVO"/>
     <event-type name="EndOfSimulation" class="ch.algotrader.vo.EndOfSimulationVO"/>
 
     <auto-import import-name="ch.algotrader.esper.ServiceUtil"/>

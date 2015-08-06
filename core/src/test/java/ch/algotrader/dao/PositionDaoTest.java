@@ -27,12 +27,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import ch.algotrader.dao.ClosePositionVOProducer;
-import ch.algotrader.dao.ExpirePositionVOProducer;
-import ch.algotrader.dao.OpenPositionVOProducer;
-import ch.algotrader.dao.PositionDao;
-import ch.algotrader.dao.PositionDaoImpl;
-import ch.algotrader.dao.PositionVOProducer;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.PositionImpl;
 import ch.algotrader.entity.Transaction;
@@ -57,7 +51,7 @@ import ch.algotrader.util.HibernateUtil;
 import ch.algotrader.vo.ClosePositionVO;
 import ch.algotrader.vo.ExpirePositionVO;
 import ch.algotrader.vo.OpenPositionVO;
-import ch.algotrader.vo.PositionVO;
+import ch.algotrader.vo.client.PositionVO;
 
 /**
 * Unit tests for {@link ch.algotrader.entity.Position}.

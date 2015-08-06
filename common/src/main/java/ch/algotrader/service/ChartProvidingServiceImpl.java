@@ -25,11 +25,11 @@ import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 
-import ch.algotrader.vo.AnnotationVO;
-import ch.algotrader.vo.BarVO;
-import ch.algotrader.vo.ChartDefinitionVO;
-import ch.algotrader.vo.IndicatorVO;
-import ch.algotrader.vo.MarkerVO;
+import ch.algotrader.vo.client.AnnotationVO;
+import ch.algotrader.vo.client.BarVO;
+import ch.algotrader.vo.client.ChartDefinitionVO;
+import ch.algotrader.vo.client.IndicatorVO;
+import ch.algotrader.vo.client.MarkerVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

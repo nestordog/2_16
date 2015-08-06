@@ -29,9 +29,9 @@ import com.bloomberglp.blpapi.Session;
 
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.vo.AskVO;
-import ch.algotrader.vo.BidVO;
-import ch.algotrader.vo.TradeVO;
+import ch.algotrader.vo.marketData.AskVO;
+import ch.algotrader.vo.marketData.BidVO;
+import ch.algotrader.vo.marketData.TradeVO;
 
 /**
  * Bloomberg MessageHandler for MarketData events.

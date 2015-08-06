@@ -26,7 +26,7 @@ import ch.algotrader.entity.Position;
 import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.entity.property.Property;
 import ch.algotrader.util.RoundUtil;
-import ch.algotrader.vo.PositionVO;
+import ch.algotrader.vo.client.PositionVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

@@ -25,7 +25,7 @@ import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderCompletion;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.entity.trade.OrderValidationException;
-import ch.algotrader.vo.OrderStatusVO;
+import ch.algotrader.vo.client.OrderStatusVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

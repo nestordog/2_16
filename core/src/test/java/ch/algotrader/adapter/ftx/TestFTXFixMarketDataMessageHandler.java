@@ -33,8 +33,8 @@ import ch.algotrader.adapter.fix.fix44.FixTestUtils;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.util.DateTimeLegacy;
-import ch.algotrader.vo.AskVO;
-import ch.algotrader.vo.BidVO;
+import ch.algotrader.vo.marketData.AskVO;
+import ch.algotrader.vo.marketData.BidVO;
 import quickfix.fix44.Quote;
 import quickfix.fix44.Reject;
 

@@ -68,7 +68,7 @@ import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.util.BeanUtil;
-import ch.algotrader.vo.OrderStatusVO;
+import ch.algotrader.vo.client.OrderStatusVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

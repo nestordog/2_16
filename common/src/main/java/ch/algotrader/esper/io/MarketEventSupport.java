@@ -27,8 +27,6 @@ import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityImpl;
 import ch.algotrader.service.ServerLookupService;
-import ch.algotrader.vo.RawBarVO;
-import ch.algotrader.vo.RawTickVO;
 
 /**
  * Provides convenience factory methods for market event entities.

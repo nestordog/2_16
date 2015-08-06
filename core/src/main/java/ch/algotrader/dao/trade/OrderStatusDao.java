@@ -22,7 +22,7 @@ import java.util.List;
 
 import ch.algotrader.dao.ReadWriteDao;
 import ch.algotrader.entity.trade.OrderStatus;
-import ch.algotrader.vo.OrderStatusVO;
+import ch.algotrader.vo.client.OrderStatusVO;
 
 /**
  * DAO for {@link ch.algotrader.entity.trade.OrderStatus} objects.

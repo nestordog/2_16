@@ -30,8 +30,6 @@ import ch.algotrader.entity.security.Option;
 import ch.algotrader.entity.security.OptionFamily;
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.OptionType;
-import ch.algotrader.vo.SABRSmileVO;
-import ch.algotrader.vo.SABRSurfaceVO;
 
 /**
  * Utility class containing static methods around {@link Option Options}.
