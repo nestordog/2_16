@@ -23,7 +23,7 @@ import java.util.Date;
 import org.apache.commons.lang.Validate;
 
 import ch.algotrader.entity.Account;
-import ch.algotrader.entity.marketData.MarketDataEvent;
+import ch.algotrader.entity.marketData.MarketDataEventVO;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.LimitOrderI;
@@ -129,7 +129,7 @@ public class SimulationOrderServiceImpl implements SimulationOrderService {
             Security security = order.getSecurity();
 
             // all other orders are executed the the market
-            MarketDataEvent marketDataEvent = this.localLookupService.getCurrentMarketDataEvent(security.getId());
+            MarketDataEventVO marketDataEvent = this.localLookupService.getCurrentMarketDataEvent(security.getId());
             return marketDataEvent.getMarketValue(Side.BUY.equals(order.getSide()) ? Direction.SHORT : Direction.LONG)
                     .setScale(security.getSecurityFamily().getScale(), BigDecimal.ROUND_HALF_UP);
         }

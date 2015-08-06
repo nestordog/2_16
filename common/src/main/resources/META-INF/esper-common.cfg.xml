@@ -4,16 +4,10 @@
     xsi:schemaLocation="http://www.espertech.com/schema/esper http://www.espertech.com/schema/esper/esper-configuration-4-0.xsd">
 
     <!--  Market Data Events -->
-    <event-type name="MarketDataEvent" class="ch.algotrader.entity.marketData.MarketDataEvent"/>
-    <event-type name="Tick" class="ch.algotrader.entity.marketData.Tick">
-        <legacy-type accessor-style="javabean" code-generation="enabled" property-resolution-style="case_sensitive" factory-method="ch.algotrader.entity.marketData.Tick$Factory.newInstance"/>
-    </event-type>
-    <event-type name="Bar" class="ch.algotrader.entity.marketData.Bar">
-        <legacy-type accessor-style="javabean" code-generation="enabled" property-resolution-style="case_sensitive" factory-method="ch.algotrader.entity.marketData.Bar$Factory.newInstance"/>
-    </event-type>
-    <event-type name="GenericTick" class="ch.algotrader.entity.marketData.GenericTick">
-        <legacy-type accessor-style="javabean" code-generation="enabled" property-resolution-style="case_sensitive" factory-method="ch.algotrader.entity.marketData.GenericTick$Factory.newInstance"/>
-    </event-type>
+    <event-type name="MarketDataEvent" class="ch.algotrader.entity.marketData.MarketDataEventVO"/>
+    <event-type name="Tick" class="ch.algotrader.entity.marketData.TickVO"/>
+    <event-type name="Bar" class="ch.algotrader.entity.marketData.BarVO"/>
+    <event-type name="GenericTick" class="ch.algotrader.entity.marketData.GenericTickVO"/>
 
     <!-- Trades -->
     <event-type name="Order" class="ch.algotrader.entity.trade.Order"/>
@@ -28,6 +22,9 @@
         <legacy-type accessor-style="javabean" code-generation="enabled" property-resolution-style="case_sensitive"  factory-method="ch.algotrader.entity.trade.Fill$Factory.newInstance"/>
     </event-type>
     <event-type name="Transaction" class="ch.algotrader.entity.Transaction"/>
+
+    <!-- Performance -->
+    <event-type name="PortfolioValue" class="ch.algotrader.entity.strategy.PortfolioValue"/>
 
     <!-- Value Objects -->
     <event-type name="OpenPosition" class="ch.algotrader.vo.OpenPositionVO"/>
@@ -82,6 +79,8 @@
     <variable name="portfolioService" type="ch.algotrader.service.PortfolioService"/>
     <variable name="orderService" type="ch.algotrader.service.OrderService"/>
     <variable name="positionService" type="ch.algotrader.service.PositionService"/>
+    <variable name="marketDataService" type="ch.algotrader.service.MarketDataService"/>
+    <variable name="optionService" type="ch.algotrader.service.OptionService"/>
     <variable name="engineStrategy" type="ch.algotrader.entity.strategy.Strategy"/>
 
     <!-- Esper JMX -->

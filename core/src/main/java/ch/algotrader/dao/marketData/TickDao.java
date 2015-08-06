@@ -58,7 +58,7 @@ public interface TickDao extends ReadWriteDao<Tick> {
 
     /**
      * <p>
-     * Does the same thing as {@link #findTicksBySecurityAndMinDate(int, Date, int)} with an
+     * Does the same thing as {@link #findTicksBySecurityAndMinDate(long, Date, int)} with an
      * additional argument called <code>limit</code>. The <code>limit</code>
      * argument allows you to specify the limit when you are paging the results.
      * </p>
@@ -82,7 +82,7 @@ public interface TickDao extends ReadWriteDao<Tick> {
 
     /**
      * <p>
-     * Does the same thing as {@link #findTicksBySecurityAndMaxDate(int, Date, int)} with an
+     * Does the same thing as {@link #findTicksBySecurityAndMaxDate(long, Date, int)} with an
      * additional argument called <code>limit</code>. The <code>limit</code>
      * argument allows you to specify the limit when you are paging the results.
      * </p>
@@ -170,13 +170,4 @@ public interface TickDao extends ReadWriteDao<Tick> {
      */
     String findTickerIdBySecurity(long securityId);
 
-    /**
-     * Returns the latest Ticks from the TickWindow of all securities that are subscribed by the
-     * defined Strategy.
-     * @param strategyName
-     * @return List<Tick>
-     */
-    List<Tick> findCurrentTicksByStrategy(String strategyName);
-
-    // spring-dao merge-point
 }

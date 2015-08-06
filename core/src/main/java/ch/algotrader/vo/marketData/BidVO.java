@@ -23,8 +23,9 @@ import java.util.Date;
 import ch.algotrader.enumeration.FeedType;
 
 /**
- * A ValueObject used add a new {@link ch.algotrader.entity.Subscription Subscription} to the
- * TickWindow
+ * Represents the bid price provided by a data feed.
+ * <p>
+ * The bid price represents the maximum price that a buyer or buyers are willing to pay for a security.
  */
 public class BidVO implements Serializable {
 
@@ -33,23 +34,15 @@ public class BidVO implements Serializable {
     /**
      * The {@code tickerId} as assigned by the external Market Data Provider
      */
-    private String tickerId;
+    private final String tickerId;
 
-    private FeedType feedType;
+    private final FeedType feedType;
 
-    private Date dateTime;
+    private final Date dateTime;
 
-    private double bid;
+    private final double bid;
 
-    private int volBid;
-
-    /**
-     * Default Constructor
-     */
-    public BidVO() {
-
-        // Documented empty block - avoid compiler warning - no super constructor
-    }
+    private final int volBid;
 
     /**
      * Constructor with all properties
@@ -93,23 +86,9 @@ public class BidVO implements Serializable {
         return this.tickerId;
     }
 
-    /**
-     * The {@code tickerId} as assigned by the external Market Data Provider
-     * @param value String
-     */
-    public void setTickerId(final String value) {
-
-        this.tickerId = value;
-    }
-
     public FeedType getFeedType() {
 
         return this.feedType;
-    }
-
-    public void setFeedType(final FeedType value) {
-
-        this.feedType = value;
     }
 
     public Date getDateTime() {
@@ -117,19 +96,9 @@ public class BidVO implements Serializable {
         return this.dateTime;
     }
 
-    public void setDateTime(final Date value) {
-
-        this.dateTime = value;
-    }
-
     public double getBid() {
 
         return this.bid;
-    }
-
-    public void setBid(final double value) {
-
-        this.bid = value;
     }
 
     public int getVolBid() {
@@ -137,26 +106,20 @@ public class BidVO implements Serializable {
         return this.volBid;
     }
 
-    public void setVolBid(final int value) {
-
-        this.volBid = value;
-    }
-
     @Override
     public String toString() {
 
         StringBuilder builder = new StringBuilder();
-        builder.append("BidVO [tickerId=");
+        builder.append("tickerId=");
         builder.append(this.tickerId);
-        builder.append(", feedType=");
+        builder.append(",feedType=");
         builder.append(this.feedType);
-        builder.append(", dateTime=");
+        builder.append(",dateTime=");
         builder.append(this.dateTime);
-        builder.append(", bid=");
+        builder.append(",bid=");
         builder.append(this.bid);
-        builder.append(", volBid=");
+        builder.append(",volBid=");
         builder.append(this.volBid);
-        builder.append("]");
 
         return builder.toString();
     }

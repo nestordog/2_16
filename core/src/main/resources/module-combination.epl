@@ -46,7 +46,7 @@ set
     componentWindow.ask = tick.ask,
     componentWindow.feedType = tick.feedType
 where
-    componentWindow.securityId = tick.security.id;
+    componentWindow.securityId = tick.securityId;
 
 @Name('INSERT_INTO_COMBINATION_TICK')
 insert into
@@ -77,19 +77,27 @@ order by
 insert into
     Tick
 select
+    0L,
     dateTime,
-    volBid,
-    volAsk,
+    FeedType.SIM,
+    combinationId,
+    null,
+    null,
     bid,
     ask,
-    feedType,
-    security
+    volBid,
+    volAsk,
+    0
 from
     CombinationTick(not combinationId is null),
     method:lookupService.getSecurity(combinationId) as security
 where
-    countDiff = 0 // total count of non-ignored components must equal component count of the parent
+    // total count of non-ignored components must equal component count of the parent
+    countDiff = 0
 and
-    ((not simulation) or (timeDiff = 0)) // during simulation generate only one tick per time_stamp
+    // during simulation generate only one tick per time_stamp
+    ((not simulation) or (timeDiff = 0))
 and
-    (simulation or (timeDiff < DateUtil.getDuration('HOUR_1'))); // during live-trading ignore components older hand an hour
+    // during live-trading ignore components older hand an hour
+    (simulation or (timeDiff < DateUtil.getDuration('HOUR_1')));
+

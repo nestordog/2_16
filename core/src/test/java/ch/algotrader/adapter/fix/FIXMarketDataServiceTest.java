@@ -31,7 +31,6 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import ch.algotrader.dao.marketData.TickDao;
-import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.ForexImpl;
 import ch.algotrader.entity.security.SecurityFamily;
@@ -107,9 +106,7 @@ public class FIXMarketDataServiceTest {
 
         Assert.assertTrue(event instanceof SubscribeTickVO);
         SubscribeTickVO subscribeTick = (SubscribeTickVO) event;
-        Tick tick = subscribeTick.getTick();
-        Assert.assertNotNull(tick);
-        Assert.assertSame(forex, tick.getSecurity());
+        Assert.assertEquals(forex.getId(), subscribeTick.getSecurityId());
 
         // verify a FIX message has been sent
         Mockito.verify(this.fixAdapter, Mockito.times(1)).sendMessage(Mockito.<MarketDataRequest>any(), Mockito.anyString());
@@ -148,7 +145,7 @@ public class FIXMarketDataServiceTest {
         Mockito.verify(this.fixAdapter, Mockito.times(1)).sendMessage(Mockito.<MarketDataRequest>any(), Mockito.anyString());
 
         // verify the esper delete statement has been executed
-        Mockito.verify(this.serverEngine).executeQuery("delete from TickWindow where security.id = 123");
+        Mockito.verify(this.serverEngine).executeQuery("delete from TickWindow where securityId = 123");
     }
 
     @Test(expected = ServiceException.class)

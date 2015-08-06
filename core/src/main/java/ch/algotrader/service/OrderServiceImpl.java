@@ -48,8 +48,8 @@ import ch.algotrader.dao.trade.OrderDao;
 import ch.algotrader.dao.trade.OrderPreferenceDao;
 import ch.algotrader.dao.trade.OrderStatusDao;
 import ch.algotrader.entity.Account;
-import ch.algotrader.entity.marketData.MarketDataEvent;
-import ch.algotrader.entity.marketData.Tick;
+import ch.algotrader.entity.marketData.MarketDataEventVO;
+import ch.algotrader.entity.marketData.TickVO;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.trade.AlgoOrder;
 import ch.algotrader.entity.trade.Allocation;
@@ -253,10 +253,10 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
                 throw new OrderValidationException(security + " is not subscribed for " + order);
             }
 
-            MarketDataEvent marketDataEvent = this.localLookupService.getCurrentMarketDataEvent(security.getId());
+            MarketDataEventVO marketDataEvent = this.localLookupService.getCurrentMarketDataEvent(security.getId());
             if (marketDataEvent == null) {
                 throw new OrderValidationException("no marketDataEvent available to initialize SlicingOrder");
-            } else if (!(marketDataEvent instanceof Tick)) {
+            } else if (!(marketDataEvent instanceof TickVO)) {
                 throw new OrderValidationException("only ticks are supported, " + marketDataEvent.getClass() + " are not supported");
             }
         }

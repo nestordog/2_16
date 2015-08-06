@@ -35,7 +35,6 @@ import ch.algotrader.adapter.bb.BBAdapter;
 import ch.algotrader.adapter.bb.BBIdGenerator;
 import ch.algotrader.adapter.bb.BBSession;
 import ch.algotrader.dao.marketData.TickDao;
-import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.enumeration.InitializingServiceType;
@@ -112,14 +111,7 @@ public class BBMarketDataServiceImpl implements BBMarketDataService, Initializin
 
         // create the SubscribeTickEvent (must happen before reqMktData so that Esper is ready to receive marketdata)
         String tickerId = BBIdGenerator.getInstance().getNextRequestId();
-        Tick tick = Tick.Factory.newInstance();
-        tick.setSecurity(security);
-        tick.setFeedType(FeedType.BB);
-
-        // create the SubscribeTickEvent and propagate it
-        SubscribeTickVO subscribeTickEvent = new SubscribeTickVO();
-        subscribeTickEvent.setTick(tick);
-        subscribeTickEvent.setTickerId(tickerId);
+        SubscribeTickVO subscribeTickEvent = new SubscribeTickVO(tickerId, security.getId(), FeedType.BB);
 
         this.serverEngine.sendEvent(subscribeTickEvent);
 
@@ -160,7 +152,7 @@ public class BBMarketDataServiceImpl implements BBMarketDataService, Initializin
             throw new ExternalServiceException(ex);
         }
 
-        this.serverEngine.executeQuery("delete from TickWindow where security.id = " + security.getId());
+        this.serverEngine.executeQuery("delete from TickWindow where securityId = " + security.getId());
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("cancelled market data for : {}", security);

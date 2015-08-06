@@ -29,9 +29,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.config.CommonConfig;
-import ch.algotrader.entity.marketData.Bar;
-import ch.algotrader.entity.marketData.MarketDataEvent;
+import ch.algotrader.entity.marketData.BarVO;
+import ch.algotrader.entity.marketData.MarketDataEventVO;
 import ch.algotrader.entity.marketData.Tick;
+import ch.algotrader.entity.marketData.TickVO;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.Currency;
@@ -54,7 +55,7 @@ public class LocalLookupServiceImpl implements LocalLookupService, TickEventList
     private final EngineManager engineManager;
     private final LookupService lookupService;
 
-    private final ConcurrentMap<Long, MarketDataEvent> lastMarketDataEventBySecurityId;
+    private final ConcurrentMap<Long, MarketDataEventVO> lastMarketDataEventBySecurityId;
     private final ConcurrentMap<EnumSet<Currency>, Forex> forexMap;
 
     public LocalLookupServiceImpl(
@@ -74,20 +75,20 @@ public class LocalLookupServiceImpl implements LocalLookupService, TickEventList
     }
 
     @Override
-    public Map<Long, MarketDataEvent> getCurrentMarketDataEvents() {
+    public Map<Long, MarketDataEventVO> getCurrentMarketDataEvents() {
 
         return new HashMap<>(lastMarketDataEventBySecurityId);
     }
 
     @Override
-    public MarketDataEvent getCurrentMarketDataEvent(long securityId) {
+    public MarketDataEventVO getCurrentMarketDataEvent(long securityId) {
 
-        final MarketDataEvent last = lastMarketDataEventBySecurityId.get(securityId);
+        MarketDataEventVO last = lastMarketDataEventBySecurityId.get(securityId);
         if (last != null) {
             return last;
         }
-
-        return this.lookupService.getLastTick(securityId, this.engineManager.getCurrentEPTime(), 4);
+        Tick entity = this.lookupService.getLastTick(securityId, this.engineManager.getCurrentEPTime(), 4);
+        return entity != null ? Tick.Converter.INSTANCE.convert(entity) : null;
     }
 
     @Override
@@ -119,7 +120,7 @@ public class LocalLookupServiceImpl implements LocalLookupService, TickEventList
             this.forexMap.put(key, forex);//we may replace an existing forex entry due to racing but that's ok
         }
 
-        final MarketDataEvent marketDataEvent = getCurrentMarketDataEvent(forex.getId());
+        final MarketDataEventVO marketDataEvent = getCurrentMarketDataEvent(forex.getId());
 
         if (marketDataEvent == null) {
             throw new IllegalStateException("Cannot get exchangeRate for " + baseCurrency + "." + transactionCurrency + " because no marketDataEvent is available");
@@ -205,7 +206,7 @@ public class LocalLookupServiceImpl implements LocalLookupService, TickEventList
         lastMarketDataEventBySecurityId.remove(securityId);
     }
 
-    private void onMarketDataEvent(MarketDataEvent event) {
+    private void onMarketDataEvent(MarketDataEventVO event) {
 
         if (event.getDateTime() == null) {
             if (LOGGER.isWarnEnabled()) {
@@ -213,13 +214,7 @@ public class LocalLookupServiceImpl implements LocalLookupService, TickEventList
             }
             return;
         }
-        if (event.getSecurity() == null) {
-            if (LOGGER.isWarnEnabled()) {
-                LOGGER.warn("Market data event with missing security: {}", event);
-            }
-            return;
-        }
-        lastMarketDataEventBySecurityId.merge(event.getSecurity().getId(), event, (lastEvent, newEvent) -> {
+        lastMarketDataEventBySecurityId.merge(event.getSecurityId(), event, (lastEvent, newEvent) -> {
             if (lastEvent == null) {
                 return newEvent;
             } else {
@@ -229,12 +224,12 @@ public class LocalLookupServiceImpl implements LocalLookupService, TickEventList
     }
 
     @Override
-    public void onTick(Tick tick) {
+    public void onTick(TickVO tick) {
         onMarketDataEvent(tick);
     }
 
     @Override
-    public void onBar(Bar bar) {
+    public void onBar(BarVO bar) {
         onMarketDataEvent(bar);
     }
 }

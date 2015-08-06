@@ -18,7 +18,6 @@
 
 package ch.algotrader.dao.marketData;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -29,16 +28,10 @@ import org.springframework.stereotype.Repository;
 
 import ch.algotrader.dao.AbstractDao;
 import ch.algotrader.dao.NamedParam;
-import ch.algotrader.dao.SubscriptionDao;
-import ch.algotrader.dao.security.SecurityDao;
-import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.marketData.TickImpl;
-import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.QueryType;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.util.collection.Pair;
-import ch.algotrader.visitor.TickValidationVisitor;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -48,22 +41,14 @@ import ch.algotrader.visitor.TickValidationVisitor;
 @Repository // Required for exception translation
 public class TickDaoImpl extends AbstractDao<Tick> implements TickDao {
 
-    private final SubscriptionDao subscriptionDao;
-
-    private final SecurityDao securityDao;
-
     private final Engine serverEngine;
 
-    public TickDaoImpl(final SessionFactory sessionFactory, final SubscriptionDao subscriptionDao, final SecurityDao securityDao, final Engine serverEngine) {
+    public TickDaoImpl(final SessionFactory sessionFactory, final Engine serverEngine) {
 
         super(TickImpl.class, sessionFactory);
 
-        Validate.notNull(subscriptionDao);
-        Validate.notNull(securityDao);
         Validate.notNull(serverEngine, "Engine is null");
 
-        this.subscriptionDao = subscriptionDao;
-        this.securityDao = securityDao;
         this.serverEngine = serverEngine;
     }
 
@@ -187,36 +172,6 @@ public class TickDaoImpl extends AbstractDao<Tick> implements TickDao {
         } else {
             return (String) obj;
         }
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public List<Tick> findCurrentTicksByStrategy(String strategyName) {
-
-        Validate.notNull(strategyName, "Strategy name is null");
-
-        List<Subscription> subscriptions = this.subscriptionDao.findByStrategy(strategyName);
-
-        List<Tick> ticks = new ArrayList<>();
-        for (Subscription subscription : subscriptions) {
-            String query = "select * from TickWindow where security.id = " + subscription.getSecurity().getId();
-            Pair<Tick, Object> pair = (Pair<Tick, Object>) this.serverEngine.executeSingelObjectQuery(query);
-            if (pair != null) {
-
-                Tick tick = pair.getFirst();
-                tick.setDateTime(new Date());
-
-                // refresh the security (associated entities might have been modified
-                Security security = this.securityDao.findByIdInitialized(tick.getSecurity().getId());
-                tick.setSecurity(security);
-
-                if (security.accept(TickValidationVisitor.INSTANCE, tick)) {
-                    ticks.add(tick);
-                }
-            }
-        }
-
-        return ticks;
     }
 
 }

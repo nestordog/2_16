@@ -26,14 +26,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import ch.algotrader.dao.SubscriptionDao;
-import ch.algotrader.dao.SubscriptionDaoImpl;
 import ch.algotrader.dao.marketData.TickDao;
 import ch.algotrader.dao.marketData.TickDaoImpl;
-import ch.algotrader.dao.security.ForexDao;
-import ch.algotrader.dao.security.ForexDaoImpl;
-import ch.algotrader.dao.security.SecurityDao;
-import ch.algotrader.dao.security.SecurityDaoImpl;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.ForexImpl;
 import ch.algotrader.entity.security.SecurityFamily;
@@ -64,10 +58,7 @@ public class ForexDaoTest extends InMemoryDBTest {
 
         super.setup();
 
-        SubscriptionDao subscriptionDao = new SubscriptionDaoImpl(this.sessionFactory);
-        SecurityDao securityDao = new SecurityDaoImpl(this.sessionFactory);
-
-        TickDao tickDao = new TickDaoImpl(this.sessionFactory, subscriptionDao, securityDao, NoopEngine.SERVER);
+        TickDao tickDao = new TickDaoImpl(this.sessionFactory, NoopEngine.SERVER);
 
         this.dao = new ForexDaoImpl(this.sessionFactory, tickDao, 4);
     }

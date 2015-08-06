@@ -81,7 +81,7 @@ public class PositionImpl extends Position {
         if (isOpen()) {
 
             if (marketDataEvent != null) {
-                return marketDataEvent.getMarketValueDouble(getDirection());
+                return marketDataEvent.getMarketValue(getDirection()).doubleValue();
             } else {
                 return Double.NaN;
             }

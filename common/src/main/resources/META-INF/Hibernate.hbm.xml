@@ -1009,7 +1009,7 @@
         where s.conid = :conid 
     ]]>
     </query>
-    
+
     <query name='Security.findByIdInclFamilyAndUnderlying'>
     <![CDATA[
         from SecurityImpl as s left 

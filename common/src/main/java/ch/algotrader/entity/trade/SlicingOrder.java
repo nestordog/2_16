@@ -25,7 +25,7 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import ch.algotrader.entity.marketData.Tick;
+import ch.algotrader.entity.marketData.TickI;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.util.collection.Pair;
@@ -59,7 +59,7 @@ public class SlicingOrder extends AlgoOrder {
 
     private int currentOffsetTicks = 1;
 
-    private final List<Pair<LimitOrder, Tick>> pairs = new ArrayList<>();
+    private final List<Pair<LimitOrder, TickI>> pairs = new ArrayList<>();
 
     /**
      * minimum part of the market volume (bidVol or askVol) that should be ordered (i.e. 50% of
@@ -243,7 +243,7 @@ public class SlicingOrder extends AlgoOrder {
     }
 
     @Override
-    public List<SimpleOrder> getInitialOrders(Tick tick) {
+    public List<SimpleOrder> getInitialOrders(TickI tick) {
 
         return Collections.singletonList(nextOrder(getQuantity(), tick));
     }
@@ -263,7 +263,7 @@ public class SlicingOrder extends AlgoOrder {
     }
 
     @Override
-    public SimpleOrder nextOrder(long remainingQuantity, Tick tick) {
+    public SimpleOrder nextOrder(long remainingQuantity, TickI tick) {
 
         SecurityFamily family = getSecurity().getSecurityFamily();
 

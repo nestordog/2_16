@@ -12,7 +12,7 @@ from
 @Subscriber(className='${package}.${serviceName}Service.openPosition')
 select
     strategyName,
-    tick.security.id as securityId,
+    tick.securityId as securityId,
     tick.currentValue as price
 from
     pattern [every (tick=Tick -> indicator=Indicator)]

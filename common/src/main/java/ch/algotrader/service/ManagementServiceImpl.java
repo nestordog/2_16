@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -50,10 +51,6 @@ import ch.algotrader.entity.Position;
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.exchange.Exchange;
-import ch.algotrader.entity.marketData.Bar;
-import ch.algotrader.entity.marketData.MarketDataEvent;
-import ch.algotrader.entity.marketData.Tick;
-import ch.algotrader.entity.property.Property;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.strategy.StrategyImpl;
@@ -68,7 +65,6 @@ import ch.algotrader.entity.trade.TickwiseIncrementalOrder;
 import ch.algotrader.entity.trade.VariableIncrementalOrder;
 import ch.algotrader.enumeration.CombinationType;
 import ch.algotrader.enumeration.FeedType;
-import ch.algotrader.enumeration.MarketDataType;
 import ch.algotrader.enumeration.OrderPropertyType;
 import ch.algotrader.enumeration.QueryType;
 import ch.algotrader.enumeration.Side;
@@ -220,15 +216,8 @@ public class ManagementServiceImpl implements ManagementService {
                 positions = this.lookupService.get(Position.class, baseQuery + "where p.strategy.name = :strategyName and p.quantity != 0 order by p.id", QueryType.HQL, new NamedParam("strategyName", this.engine.getStrategyName()));
             }
         }
-
-        return CollectionUtils.collect(positions, new Transformer<Position, PositionVO>() {
-            @Override
-            public PositionVO transform(Position entity) {
-
-                return PositionVOProducer.INSTANCE.convert(entity);
-            }
-        });
-
+        PositionVOProducer converter = new PositionVOProducer(localLookupService);
+        return CollectionUtils.collect(positions, converter::convert);
     }
 
     /**
@@ -263,14 +252,13 @@ public class ManagementServiceImpl implements ManagementService {
     @Override
     @SuppressWarnings("unchecked")
     @ManagedAttribute(description = "Gets the latest MarketDataEvents of all subscribed Securities")
-    public List<MarketDataEventVO> getMarketDataEvents() {
+    public Collection<MarketDataEventVO> getMarketDataEvents() {
 
-        Map<Long, MarketDataEvent> marketDataEvents = this.localLookupService.getCurrentMarketDataEvents();
-
-        List<MarketDataEventVO> marketDataEventVOs = getMarketDataEventVOs(marketDataEvents.values());
+        Map<Long, ch.algotrader.entity.marketData.MarketDataEventVO> marketDataEventMap = this.localLookupService.getCurrentMarketDataEvents();
+        List<MarketDataEventVO> subscribedMarketDataEvent = new ArrayList<>();
+        Set<Long> processedSubscriptions = new HashSet<>();
 
         // get all subscribed securities
-        List<MarketDataEventVO> processedMarketDataEventVOs = new ArrayList<>();
         if (this.engine.getStrategyName().equalsIgnoreCase(StrategyImpl.SERVER)) {
 
             // for the AlgoTrader Server iterate over a distinct list of subscribed securities and feedType
@@ -278,14 +266,12 @@ public class ManagementServiceImpl implements ManagementService {
             for (Map<String, Object> subscription : subscriptions) {
 
                 Security security = (Security) subscription.get("security");
-                FeedType feedType = (FeedType) subscription.get("feedType");
-
-                // try to get the processedMarketDataEvent
-                MarketDataEventVO marketDataEventVO = getMarketDataEventVO(marketDataEventVOs, security, feedType);
-
-                processedMarketDataEventVOs.add(marketDataEventVO);
+                ch.algotrader.entity.marketData.MarketDataEventVO marketDataEvent = marketDataEventMap.get(security.getId());
+                if (marketDataEvent != null && !processedSubscriptions.contains(security.getId())) {
+                    processedSubscriptions.add(security.getId());
+                    subscribedMarketDataEvent.add(convert(marketDataEvent));
+                }
             }
-
         } else {
 
             // for strategies iterate over all subscriptions
@@ -293,21 +279,14 @@ public class ManagementServiceImpl implements ManagementService {
             for (Subscription subscription : subscriptions) {
 
                 Security security = subscription.getSecurity();
-                FeedType feedType = subscription.getFeedType();
-
-                MarketDataEventVO marketDataEventVO = getMarketDataEventVO(marketDataEventVOs, security, feedType);
-
-                // add properties from this strategies subscription
-                Map<String, Property> properties = subscription.getProps();
-                if (!properties.isEmpty()) {
-                    marketDataEventVO.setProperties(properties);
+                ch.algotrader.entity.marketData.MarketDataEventVO marketDataEvent = marketDataEventMap.get(security.getId());
+                if (marketDataEvent != null && !processedSubscriptions.contains(security.getId())) {
+                    processedSubscriptions.add(security.getId());
+                    subscribedMarketDataEvent.add(convert(marketDataEvent));
                 }
-
-                processedMarketDataEventVOs.add(marketDataEventVO);
             }
         }
-        return processedMarketDataEventVOs;
-
+        return subscribedMarketDataEvent;
     }
 
     /**
@@ -715,7 +694,6 @@ public class ManagementServiceImpl implements ManagementService {
     public void requestCurrentTicks() {
 
         this.marketDataService.requestCurrentTicks(this.engine.getStrategyName());
-
     }
 
     /**
@@ -896,75 +874,42 @@ public class ManagementServiceImpl implements ManagementService {
         }
     }
 
-    private List<MarketDataEventVO> getMarketDataEventVOs(Collection<MarketDataEvent> marketDataEvents) {
+    private MarketDataEventVO convert(ch.algotrader.entity.marketData.MarketDataEventVO marketDataEvent) {
 
-        // create MarketDataEventVOs based on the MarketDataEvents (have to do this manually since we have no access to the Dao)
-        List<MarketDataEventVO> marketDataEventVOs = new ArrayList<>();
-        for (MarketDataEvent marketDataEvent : marketDataEvents) {
+        MarketDataEventVO marketDataEventVO;
+        if (marketDataEvent instanceof ch.algotrader.entity.marketData.TickVO) {
 
-            MarketDataEventVO marketDataEventVO;
-            if (marketDataEvent instanceof Tick) {
+            ch.algotrader.entity.marketData.TickVO tick = (ch.algotrader.entity.marketData.TickVO) marketDataEvent;
+            TickVO tickVO = new TickVO();
+            tickVO.setLast(tick.getLast());
+            tickVO.setLastDateTime(tick.getLastDateTime());
+            tickVO.setVolBid(tick.getVolBid());
+            tickVO.setVolAsk(tick.getVolAsk());
+            tickVO.setBid(tick.getBid());
+            tickVO.setAsk(tick.getAsk());
+            tickVO.setVol(tick.getVol());
 
-                Tick tick = (Tick) marketDataEvent;
-                TickVO tickVO = new TickVO();
-                tickVO.setLast(tick.getLast());
-                tickVO.setLastDateTime(tick.getLastDateTime());
-                tickVO.setVolBid(tick.getVolBid());
-                tickVO.setVolAsk(tick.getVolAsk());
-                tickVO.setBid(tick.getBid());
-                tickVO.setAsk(tick.getAsk());
-                tickVO.setVol(tick.getVol());
+            marketDataEventVO = tickVO;
 
-                marketDataEventVO = tickVO;
+        } else if (marketDataEvent instanceof ch.algotrader.entity.marketData.BarVO) {
 
-            } else if (marketDataEvent instanceof Bar) {
+            ch.algotrader.entity.marketData.BarVO bar = (ch.algotrader.entity.marketData.BarVO) marketDataEvent;
+            BarVO barVO = new BarVO();
+            barVO.setOpen(bar.getOpen());
+            barVO.setHigh(bar.getHigh());
+            barVO.setLow(bar.getLow());
+            barVO.setClose(bar.getClose());
+            barVO.setVol(bar.getVol());
 
-                Bar bar = (Bar) marketDataEvent;
-                BarVO barVO = new BarVO();
-                barVO.setOpen(bar.getOpen());
-                barVO.setHigh(bar.getHigh());
-                barVO.setLow(bar.getLow());
-                barVO.setClose(bar.getClose());
-                barVO.setVol(bar.getVol());
-
-                marketDataEventVO = barVO;
-
-            } else {
-                continue;
-            }
-
-            marketDataEventVO.setDateTime(marketDataEvent.getDateTime());
-            marketDataEventVO.setSecurityId(marketDataEvent.getSecurity().getId());
-            marketDataEventVO.setCurrentValue(marketDataEvent.getCurrentValue());
-            marketDataEventVO.setFeedType(marketDataEvent.getFeedType());
-
-            marketDataEventVOs.add(marketDataEventVO);
+            marketDataEventVO = barVO;
+        } else {
+            return null;
         }
 
-        return marketDataEventVOs;
-    }
-
-    private MarketDataEventVO getMarketDataEventVO(List<MarketDataEventVO> marketDataEventVOs, final Security security, final FeedType feedType) {
-
-        // get the marketDataEventVO matching the securityId
-        MarketDataEventVO marketDataEventVO = CollectionUtils.find(marketDataEventVOs,
-                marketDataEventVO1 -> marketDataEventVO1.getSecurityId() == security.getId() && marketDataEventVO1.getFeedType().equals(feedType));
-
-        // create an empty MarketDataEventVO if non exists
-        if (marketDataEventVO == null) {
-            CommonConfig commonConfig = this.commonConfig;
-            if (MarketDataType.TICK.equals(commonConfig.getDataSetType())) {
-                marketDataEventVO = new TickVO();
-            } else if (MarketDataType.BAR.equals(commonConfig.getDataSetType())) {
-                marketDataEventVO = new BarVO();
-            } else {
-                throw new IllegalStateException("unknown dataSetType " + commonConfig.getDataSetType());
-            }
-        }
-
-        // set db data
-        marketDataEventVO.setSecurityId(security.getId());
-        marketDataEventVO.setName(security.toString());
+        marketDataEventVO.setDateTime(marketDataEvent.getDateTime());
+        marketDataEventVO.setSecurityId(marketDataEvent.getSecurityId());
+        marketDataEventVO.setCurrentValue(marketDataEvent.getCurrentValue());
+        marketDataEventVO.setFeedType(marketDataEvent.getFeedType());
         return marketDataEventVO;
     }
 

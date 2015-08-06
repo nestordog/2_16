@@ -1,9 +1,9 @@
 @Name('MARKET_DATA_WINDOW')
 create window
-    MarketDataWindow.std:groupwin(securityId, marketDataEvent.feedType).win:length(1)
+    MarketDataWindow.std:unique(securityId, feedType)
 as
     (securityId long,
-    feedType ch.algotrader.enumeration.FeedType,
+    feedType FeedType,
     marketDataEvent MarketDataEvent);
     
 @Name('INSERT_INTO_CURRENT_MARKET_DATA_EVENT')
@@ -11,7 +11,7 @@ as
 insert into
     MarketDataWindow
 select
-    marketDataEvent.security.id as securityId,
+    marketDataEvent.securityId as securityId,
     marketDataEvent.feedType as feedType,
     marketDataEvent.* as marketDataEvent
 from

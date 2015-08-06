@@ -23,7 +23,7 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import ch.algotrader.entity.marketData.Tick;
+import ch.algotrader.entity.marketData.TickI;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -47,7 +47,7 @@ public class DistributingOrder extends AlgoOrder {
     }
 
     @Override
-    public List<SimpleOrder> getInitialOrders(Tick tick) {
+    public List<SimpleOrder> getInitialOrders(TickI tick) {
 
         List<SimpleOrder> orders = new ArrayList<>();
         long totalQuantity = 0;

@@ -28,10 +28,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import ch.algotrader.entity.marketData.Tick;
-import ch.algotrader.entity.security.Forex;
-import ch.algotrader.entity.security.SecurityFamily;
-import ch.algotrader.enumeration.Currency;
+import ch.algotrader.entity.marketData.TickVO;
+import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.EventBroadcaster;
@@ -53,34 +51,10 @@ public class LocalEventDispatcherImplTest {
     @Mock
     private Engine engine2;
 
-    private SecurityFamily usdFx;
-    private Forex eurusd;
-    private Forex chfusd;
-
     private LocalEventDispatcherImpl impl;
 
     @Before
     public void setup() {
-        usdFx = SecurityFamily.Factory.newInstance();
-        usdFx.setId(1L);
-        usdFx.setSymbolRoot("USD FX");
-        usdFx.setCurrency(Currency.USD);
-        usdFx.setTickSizePattern("0<0.00005");
-        usdFx.setTradeable(true);
-        usdFx.setScale(4);
-
-        eurusd = Forex.Factory.newInstance();
-        eurusd.setId(1L);
-        eurusd.setSymbol("EUR.USD");
-        eurusd.setBaseCurrency(Currency.EUR);
-        eurusd.setSecurityFamily(usdFx);
-
-        chfusd = Forex.Factory.newInstance();
-        chfusd.setId(2L);
-        chfusd.setSymbol("CHF.USD");
-        chfusd.setBaseCurrency(Currency.CHF);
-        chfusd.setSecurityFamily(usdFx);
-
         Mockito.when(engineManager.hasEngine("SERVER")).thenReturn(true);
         Mockito.when(engineManager.hasEngine("this")).thenReturn(true);
         Mockito.when(engineManager.hasEngine("that")).thenReturn(true);
@@ -128,8 +102,8 @@ public class LocalEventDispatcherImplTest {
         impl.registerMarketDataSubscription("this", 1L);
         impl.registerMarketDataSubscription("that", 1L);
 
-        Tick tick1 = Tick.Factory.newInstance(new Date(), null, eurusd, 0, 0, 0);
-        Tick tick2 = Tick.Factory.newInstance(new Date(), null, chfusd, 0, 0, 0);
+        TickVO tick1 = new TickVO(1L, new Date(), FeedType.IB, 1L, 0, 0, 0);
+        TickVO tick2 = new TickVO(2L, new Date(), FeedType.IB, 2L, 0, 0, 0);
         impl.sendMarketDataEvent(tick1);
         impl.sendMarketDataEvent(tick2);
 

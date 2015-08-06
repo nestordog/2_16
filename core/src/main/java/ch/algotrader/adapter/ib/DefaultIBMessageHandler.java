@@ -178,7 +178,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
             LOGGER.trace(EWrapperMsgGenerator.tickPrice(tickerId, field, price, canAutoExecute));
         }
 
-        TickPrice o = new TickPrice(Integer.toString(tickerId), field, price, canAutoExecute);
+        TickPriceVO o = new TickPriceVO(Integer.toString(tickerId), field, price, canAutoExecute);
         this.serverEngine.sendEvent(o);
     }
 
@@ -189,7 +189,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
             LOGGER.trace(EWrapperMsgGenerator.tickSize(tickerId, field, size));
         }
 
-        TickSize o = new TickSize(Integer.toString(tickerId), field, size);
+        TickSizeVO o = new TickSizeVO(Integer.toString(tickerId), field, size);
         this.serverEngine.sendEvent(o);
     }
 
@@ -200,7 +200,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
             LOGGER.trace(EWrapperMsgGenerator.tickString(tickerId, tickType, value));
         }
 
-        TickString o = new TickString(Integer.toString(tickerId), tickType, value);
+        TickStringVO o = new TickStringVO(Integer.toString(tickerId), tickType, value);
         this.serverEngine.sendEvent(o);
     }
 

@@ -27,7 +27,7 @@ import org.apache.commons.lang.Validate;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.support.converter.MessageConverter;
 
-import ch.algotrader.entity.marketData.MarketDataEvent;
+import ch.algotrader.entity.marketData.MarketDataEventVO;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.EventBroadcaster;
@@ -150,12 +150,12 @@ public class DistributedEventDispatcherImpl implements EventDispatcher, MessageL
     }
 
     @Override
-    public void sendMarketDataEvent(final MarketDataEvent marketDataEvent) {
+    public void sendMarketDataEvent(final MarketDataEventVO marketDataEvent) {
 
         Objects.requireNonNull(this.marketDataTemplate, "Market data template is null");
         this.marketDataTemplate.convertAndSend(marketDataEvent, message -> {
             // add securityId Property
-            message.setLongProperty("securityId", marketDataEvent.getSecurity().getId());
+            message.setLongProperty("securityId", marketDataEvent.getSecurityId());
             return message;
         });
 

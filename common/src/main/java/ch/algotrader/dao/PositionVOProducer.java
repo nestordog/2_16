@@ -23,8 +23,9 @@ import java.util.Map;
 import org.apache.commons.lang.Validate;
 
 import ch.algotrader.entity.Position;
-import ch.algotrader.entity.marketData.MarketDataEvent;
+import ch.algotrader.entity.marketData.MarketDataEventVO;
 import ch.algotrader.entity.property.Property;
+import ch.algotrader.service.LocalLookupService;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.vo.client.PositionVO;
 
@@ -35,14 +36,18 @@ import ch.algotrader.vo.client.PositionVO;
  */
 public class PositionVOProducer implements EntityConverter<Position, PositionVO> {
 
-    public static final PositionVOProducer INSTANCE = new PositionVOProducer();
+    private final LocalLookupService localLookupService;
+
+    public PositionVOProducer(final LocalLookupService localLookupService) {
+        this.localLookupService = localLookupService;
+    }
 
     @Override
     public PositionVO convert(final Position entity) {
 
         Validate.notNull(entity, "Position is null");
 
-        MarketDataEvent marketDataEvent = null;// this.localLookupService.getCurrentMarketDataEvent(entity.getSecurity().getId());
+        MarketDataEventVO marketDataEvent = this.localLookupService.getCurrentMarketDataEvent(entity.getSecurity().getId());
 
         PositionVO vo = new PositionVO();
 

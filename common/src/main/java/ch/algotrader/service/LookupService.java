@@ -104,6 +104,16 @@ public interface LookupService {
      */
     public Collection<Security> getAllSecurities();
 
+     /**
+     * Gets {@link SecurityFamily} associated with the security with the given id
+     */
+    public SecurityFamily getSecurityFamilyBySecurity(long securityId);
+
+     /**
+     * Get {@link Exchange} associated with the security with the given id
+     */
+    public Exchange getExchangeBySecurity(long securityId);
+
     /**
      * Returns a Security that is referenced by another Security and a reference name
      */

@@ -43,7 +43,7 @@ import ch.algotrader.dao.security.SecurityDao;
 import ch.algotrader.dao.strategy.StrategyDao;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.Transaction;
-import ch.algotrader.entity.marketData.MarketDataEvent;
+import ch.algotrader.entity.marketData.MarketDataEventVO;
 import ch.algotrader.entity.security.Combination;
 import ch.algotrader.entity.security.Future;
 import ch.algotrader.entity.security.Option;
@@ -324,7 +324,7 @@ public class PositionServiceImpl implements PositionService {
         Strategy targetStrategy = this.strategyDao.findByName(targetStrategyName);
         Security security = position.getSecurity();
         SecurityFamily family = security.getSecurityFamily();
-        MarketDataEvent marketDataEvent = this.localLookupService.getCurrentMarketDataEvent(security.getId());
+        MarketDataEventVO marketDataEvent = this.localLookupService.getCurrentMarketDataEvent(security.getId());
         BigDecimal price = RoundUtil.getBigDecimal(position.getMarketPrice(marketDataEvent), family.getScale());
 
         // debit transaction

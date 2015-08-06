@@ -53,12 +53,13 @@ import ch.algotrader.dao.strategy.PortfolioValueVOProducer;
 import ch.algotrader.dao.strategy.StrategyDao;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.Transaction;
-import ch.algotrader.entity.marketData.MarketDataEvent;
+import ch.algotrader.entity.marketData.MarketDataEventVO;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.strategy.CashBalance;
 import ch.algotrader.entity.strategy.PortfolioValue;
+import ch.algotrader.entity.strategy.PortfolioValueI;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.enumeration.Currency;
@@ -506,8 +507,8 @@ public class PortfolioServiceImpl implements PortfolioService {
         double exposure = 0.0;
         Collection<Position> positions = this.positionDao.findOpenTradeablePositions();
         for (Position position : positions) {
-            MarketDataEvent marketDataEvent = this.localLookupService.getCurrentMarketDataEvent(position.getSecurity().getId());
-            MarketDataEvent underlyingMarketDataEvent = null;
+            MarketDataEventVO marketDataEvent = this.localLookupService.getCurrentMarketDataEvent(position.getSecurity().getId());
+            MarketDataEventVO underlyingMarketDataEvent = null;
             if (position.getSecurity().getUnderlying() != null) {
                 underlyingMarketDataEvent = this.localLookupService.getCurrentMarketDataEvent(position.getSecurity().getUnderlying().getId());
             }
@@ -528,8 +529,8 @@ public class PortfolioServiceImpl implements PortfolioService {
         double exposure = 0.0;
         List<Position> positions = this.positionDao.findOpenTradeablePositionsByStrategy(strategyName);
         for (Position position : positions) {
-            MarketDataEvent marketDataEvent = this.localLookupService.getCurrentMarketDataEvent(position.getSecurity().getId());
-            MarketDataEvent underlyingMarketDataEvent = null;
+            MarketDataEventVO marketDataEvent = this.localLookupService.getCurrentMarketDataEvent(position.getSecurity().getId());
+            MarketDataEventVO underlyingMarketDataEvent = null;
             if (position.getSecurity().getUnderlying() != null) {
                 underlyingMarketDataEvent = this.localLookupService.getCurrentMarketDataEvent(position.getSecurity().getUnderlying().getId());
             }
@@ -735,7 +736,7 @@ public class PortfolioServiceImpl implements PortfolioService {
 
         // sum of all FX positions
         for (Position position : positions) {
-            MarketDataEvent marketDataEvent = this.localLookupService.getCurrentMarketDataEvent(position.getSecurity().getId());
+            MarketDataEventVO marketDataEvent = this.localLookupService.getCurrentMarketDataEvent(position.getSecurity().getId());
             amount += position.getMarketValue(marketDataEvent) * this.localLookupService.getForexRateBase(position.getSecurity());
         }
 
@@ -796,7 +797,7 @@ public class PortfolioServiceImpl implements PortfolioService {
 
             Security security = openPosition.getSecurity();
             if (!(security instanceof Forex)) {
-                MarketDataEvent marketDataEvent = this.localLookupService.getCurrentMarketDataEvent(security.getId());
+                MarketDataEventVO marketDataEvent = this.localLookupService.getCurrentMarketDataEvent(security.getId());
                 amount += openPosition.getMarketValue(marketDataEvent) * this.localLookupService.getForexRateBase(openPosition.getSecurity());
             }
         }
@@ -854,7 +855,7 @@ public class PortfolioServiceImpl implements PortfolioService {
         // sum of all positions
         for (Position position : positions) {
 
-            MarketDataEvent marketDataEvent = this.localLookupService.getCurrentMarketDataEvent(position.getSecurity().getId());
+            MarketDataEventVO marketDataEvent = this.localLookupService.getCurrentMarketDataEvent(position.getSecurity().getId());
             CurrencyAmountVO currencyAmount = position.getAttribution(marketDataEvent);
             if (currencyAmount.getAmount() != null) {
                 if (position.isCashPosition()) {
@@ -1042,7 +1043,7 @@ public class PortfolioServiceImpl implements PortfolioService {
      * {@inheritDoc}
      */
     @Override
-    public void printPortfolioValue(final PortfolioValue portfolioValue) {
+    public void printPortfolioValue(final PortfolioValueI portfolioValue) {
 
         long startTime = System.nanoTime();
 

@@ -26,6 +26,7 @@ import java.util.UUID;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.PositionImpl;
@@ -47,6 +48,7 @@ import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.ExpirationType;
 import ch.algotrader.enumeration.TransactionType;
 import ch.algotrader.hibernate.InMemoryDBTest;
+import ch.algotrader.service.LocalLookupService;
 import ch.algotrader.util.HibernateUtil;
 import ch.algotrader.vo.ClosePositionVO;
 import ch.algotrader.vo.ExpirePositionVO;
@@ -342,11 +344,14 @@ public class PositionDaoTest extends InMemoryDBTest {
         this.session.save(position2);
         this.session.flush();
 
-        List<PositionVO> positions1 = this.dao.findByStrategy("Dummy", PositionVOProducer.INSTANCE);
+        LocalLookupService localLookupService = Mockito.mock(LocalLookupService.class);
+        PositionVOProducer converter = new PositionVOProducer(localLookupService);
+
+        List<PositionVO> positions1 = this.dao.findByStrategy("Dummy", converter);
 
         Assert.assertEquals(0, positions1.size());
 
-        List<PositionVO> positions2 = this.dao.findByStrategy("Strategy1", PositionVOProducer.INSTANCE);
+        List<PositionVO> positions2 = this.dao.findByStrategy("Strategy1", converter);
 
         Assert.assertEquals(2, positions2.size());
 
@@ -1045,7 +1050,10 @@ public class PositionDaoTest extends InMemoryDBTest {
         this.session.save(position2);
         this.session.flush();
 
-        List<PositionVO> positions1 = this.dao.loadAll(PositionVOProducer.INSTANCE);
+        LocalLookupService localLookupService = Mockito.mock(LocalLookupService.class);
+        PositionVOProducer converter = new PositionVOProducer(localLookupService);
+
+        List<PositionVO> positions1 = this.dao.loadAll(converter);
 
         Assert.assertEquals(2, positions1.size());
         Assert.assertEquals(0, positions1.get(0).getQuantity());

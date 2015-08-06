@@ -42,7 +42,7 @@ import ch.algotrader.dao.security.SecurityDao;
 import ch.algotrader.dao.strategy.StrategyDao;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.Subscription;
-import ch.algotrader.entity.marketData.MarketDataEvent;
+import ch.algotrader.entity.marketData.MarketDataEventVO;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.Future;
 import ch.algotrader.entity.security.FutureFamily;
@@ -164,8 +164,8 @@ public class OptionServiceImpl implements OptionService {
         // get the deltaAdjustedMarketValue
         double deltaAdjustedMarketValue = 0;
         for (Position position : positions) {
-            MarketDataEvent marketDataEvent = this.localLookupService.getCurrentMarketDataEvent(position.getSecurity().getId());
-            MarketDataEvent underlyingMarketDataEvent = this.localLookupService.getCurrentMarketDataEvent(position.getSecurity().getUnderlying().getId());
+            MarketDataEventVO marketDataEvent = this.localLookupService.getCurrentMarketDataEvent(position.getSecurity().getId());
+            MarketDataEventVO underlyingMarketDataEvent = this.localLookupService.getCurrentMarketDataEvent(position.getSecurity().getUnderlying().getId());
 
             deltaAdjustedMarketValue += position.getMarketValue(marketDataEvent) * position.getSecurity().getLeverage(marketDataEvent, underlyingMarketDataEvent);
         }

@@ -191,9 +191,9 @@ public class DaoWiring {
     }
 
     @Bean(name = "tickDao")
-    public TickDao createTickDao(final SessionFactory sessionFactory, final SubscriptionDao subscriptionDao, final SecurityDao securityDao, final Engine serverEngine) {
+    public TickDao createTickDao(final SessionFactory sessionFactory, final Engine serverEngine) {
 
-        return new TickDaoImpl(sessionFactory, subscriptionDao, securityDao, serverEngine);
+        return new TickDaoImpl(sessionFactory, serverEngine);
     }
 
     @Bean(name = "propertyDao")

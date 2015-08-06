@@ -23,6 +23,7 @@ import java.util.Date;
 import ch.algotrader.dao.NamedParam;
 import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.strategy.PortfolioValue;
+import ch.algotrader.entity.strategy.PortfolioValueI;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.vo.BalanceVO;
 import ch.algotrader.vo.legacy.PortfolioValueVO;
@@ -268,6 +269,6 @@ public interface PortfolioService {
     /**
      * Prints portfolio values.
      */
-    void printPortfolioValue(final PortfolioValue portfolioValue);
+    void printPortfolioValue(final PortfolioValueI portfolioValue);
 
 }

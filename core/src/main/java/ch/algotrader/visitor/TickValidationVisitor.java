@@ -22,7 +22,7 @@ import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.ConfigLocator;
-import ch.algotrader.entity.marketData.Tick;
+import ch.algotrader.entity.marketData.TickVO;
 import ch.algotrader.entity.security.Future;
 import ch.algotrader.entity.security.Index;
 import ch.algotrader.entity.security.Option;
@@ -36,7 +36,7 @@ import ch.algotrader.entity.security.Stock;
  *
  * @version $Revision$ $Date$
  */
-public class TickValidationVisitor extends PolymorphicEntityVisitor<Boolean, Tick> {
+public class TickValidationVisitor extends PolymorphicEntityVisitor<Boolean, TickVO> {
 
     public static final TickValidationVisitor INSTANCE = new TickValidationVisitor();
 
@@ -50,7 +50,7 @@ public class TickValidationVisitor extends PolymorphicEntityVisitor<Boolean, Tic
     }
 
     @Override
-    public Boolean visitSecurity(Security entity, Tick tick) {
+    public Boolean visitSecurity(Security entity, TickVO tick) {
 
         if (tick.getDateTime() == null) {
             return false;
@@ -65,7 +65,8 @@ public class TickValidationVisitor extends PolymorphicEntityVisitor<Boolean, Tic
 
         // spread cannot be crossed
         CommonConfig commonConfig = ConfigLocator.instance().getCommonConfig();
-        if (commonConfig.isValidateCrossedSpread() && tick.getBid() != null && tick.getAsk() != null && tick.getBidAskSpreadDouble() < 0) {
+        if (commonConfig.isValidateCrossedSpread() && tick.getBid() != null && tick.getAsk() != null &&
+                tick.getAsk().doubleValue() - tick.getBid().doubleValue() < 0) {
             if (LOGGER.isWarnEnabled()) {
                 LOGGER.warn("crossed spread: bid {} ask {} for {}", tick.getBid(), tick.getAsk(), this);
             }
@@ -76,7 +77,7 @@ public class TickValidationVisitor extends PolymorphicEntityVisitor<Boolean, Tic
     }
 
     @Override
-    public Boolean visitOption(Option entity, Tick tick) {
+    public Boolean visitOption(Option entity, TickVO tick) {
 
         // options need to have an ASK (but might not have a BID just before expiration)
         if (tick.getVolAsk() == 0) {
@@ -89,7 +90,7 @@ public class TickValidationVisitor extends PolymorphicEntityVisitor<Boolean, Tic
     }
 
     @Override
-    public Boolean visitFuture(Future entity, Tick tick) {
+    public Boolean visitFuture(Future entity, TickVO tick) {
 
         // futures need to have a BID and ASK
         if (tick.getBid() == null) {
@@ -107,7 +108,7 @@ public class TickValidationVisitor extends PolymorphicEntityVisitor<Boolean, Tic
     }
 
     @Override
-    public Boolean visitStock(Stock entity, Tick tick) {
+    public Boolean visitStock(Stock entity, TickVO tick) {
 
         // stocks need to have a BID and ASK
         if (tick.getBid() == null) {
@@ -125,7 +126,7 @@ public class TickValidationVisitor extends PolymorphicEntityVisitor<Boolean, Tic
     }
 
     @Override
-    public Boolean visitIndex(Index entity, Tick tick) {
+    public Boolean visitIndex(Index entity, TickVO tick) {
 
         if (tick.getLast() == null) {
             return false;

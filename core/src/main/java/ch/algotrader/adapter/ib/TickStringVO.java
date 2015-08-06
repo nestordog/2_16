@@ -20,33 +20,30 @@ package ch.algotrader.adapter.ib;
 import java.io.Serializable;
 
 /**
- * POJO representing an IB price event.
+ * POJO representing an IB string event.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class TickPrice implements Serializable {
+public class TickStringVO implements Serializable {
 
-    private static final long serialVersionUID = -4096826680075105503L;
+    private static final long serialVersionUID = -5497096398709248042L;
 
-    protected String tickerId;
-    protected int field;
-    protected double price;
-    protected int canAutoExecute;
+    private final String tickerId;
+    private final int field;
+    private final String value;
 
     /**
      * Constructor with all properties
-     * @param tickerIdIn int
-     * @param fieldIn int
-     * @param priceIn double
-     * @param canAutoExecuteIn int
+     * @param tickerId int
+     * @param field int
+     * @param value String
      */
-    public TickPrice(final String tickerIdIn, final int fieldIn, final double priceIn, final int canAutoExecuteIn) {
-        this.tickerId = tickerIdIn;
-        this.field = fieldIn;
-        this.price = priceIn;
-        this.canAutoExecute = canAutoExecuteIn;
+    public TickStringVO(final String tickerId, final int field, final String value) {
+        this.tickerId = tickerId;
+        this.field = field;
+        this.value = value;
     }
 
     /**
@@ -58,14 +55,6 @@ public class TickPrice implements Serializable {
     }
 
     /**
-     *
-     * @param value int
-     */
-    public void setTickerId(final String value) {
-        this.tickerId = value;
-    }
-
-    /**
      * Get the field Attribute
      * @return field int
      */
@@ -74,34 +63,20 @@ public class TickPrice implements Serializable {
     }
 
     /**
-     *
-     * @param value int
+     * Get the value Attribute
+     * @return value String
      */
-    public void setField(final int value) {
-        this.field = value;
+    public String getValue() {
+        return this.value;
     }
 
-    /**
-     * Get the price Attribute
-     * @return price double
-     */
-    public double getPrice() {
-        return this.price;
+    @Override
+    public String toString() {
+        return "TickString{" +
+                "tickerId='" + tickerId + '\'' +
+                ", field=" + field +
+                ", value='" + value + '\'' +
+                '}';
     }
 
-    /**
-     *
-     * @param value double
-     */
-    public void setPrice(final double value) {
-        this.price = value;
-    }
-
-    /**
-     * Get the canAutoExecute Attribute
-     * @return canAutoExecute int
-     */
-    public int getCanAutoExecute() {
-        return this.canAutoExecute;
-    }
 }

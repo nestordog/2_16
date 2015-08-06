@@ -17,7 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.event.dispatch;
 
-import ch.algotrader.entity.marketData.MarketDataEvent;
+import ch.algotrader.entity.marketData.MarketDataEventVO;
 
 /**
  * Platform wide communication interface capable of submitting events to multiple
@@ -151,6 +151,6 @@ public interface EventDispatcher {
      * Sends a MarketDataEvent into the corresponding Esper Engine.
      * In Live-Trading the {@code marketDataTemplate} will be used.
      */
-    void sendMarketDataEvent(MarketDataEvent marketDataEvent);
+    void sendMarketDataEvent(MarketDataEventVO marketDataEvent);
 
 }

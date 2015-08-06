@@ -19,7 +19,7 @@ package ch.algotrader.vo.marketData;
 
 import java.io.Serializable;
 
-import ch.algotrader.entity.marketData.Tick;
+import ch.algotrader.enumeration.FeedType;
 
 /**
  * A ValueObject used add a new {@link ch.algotrader.entity.Subscription Subscription} to the
@@ -30,32 +30,28 @@ public class SubscribeTickVO implements Serializable {
     private static final long serialVersionUID = 7876356657006589699L;
 
     /**
-     * And "empty" Tick with an associated Security to be populated to the TickWindow.
-     */
-    private Tick tick;
-
-    /**
      * The {@code tickerId} as assigned by the external Market Data Provider
      */
-    private String tickerId;
+    private final String tickerId;
 
     /**
-     * Default Constructor
+     * The base class of all Securities in the system
      */
-    public SubscribeTickVO() {
+    private final long securityId;
 
-        // Documented empty block - avoid compiler warning - no super constructor
-    }
+    /**
+     * The market data feed that provided this  MarketDataEvent
+     */
+    private final FeedType feedType;
 
     /**
      * Constructor with all properties
-     * @param tickIn Tick
-     * @param tickerIdIn String
      */
-    public SubscribeTickVO(final Tick tickIn, final String tickerIdIn) {
+    public SubscribeTickVO(final String tickerId, final long securityId, final FeedType feedType) {
 
-        this.tick = tickIn;
-        this.tickerId = tickerIdIn;
+        this.tickerId = tickerId;
+        this.securityId = securityId;
+        this.feedType = feedType;
     }
 
     /**
@@ -66,26 +62,9 @@ public class SubscribeTickVO implements Serializable {
      */
     public SubscribeTickVO(final SubscribeTickVO otherBean) {
 
-        this.tick = otherBean.getTick();
         this.tickerId = otherBean.getTickerId();
-    }
-
-    /**
-     * And "empty" Tick with an associated Security to be populated to the TickWindow.
-     * @return tick Tick
-     */
-    public Tick getTick() {
-
-        return this.tick;
-    }
-
-    /**
-     * And "empty" Tick with an associated Security to be populated to the TickWindow.
-     * @param value Tick
-     */
-    public void setTick(final Tick value) {
-
-        this.tick = value;
+        this.securityId = otherBean.getSecurityId();
+        this.feedType = otherBean.getFeedType();
     }
 
     /**
@@ -98,23 +77,29 @@ public class SubscribeTickVO implements Serializable {
     }
 
     /**
-     * The {@code tickerId} as assigned by the external Market Data Provider
-     * @param value String
+     * The base class of all Securities in the system
      */
-    public void setTickerId(final String value) {
+    public long getSecurityId() {
+        return this.securityId;
+    }
 
-        this.tickerId = value;
+    /**
+     * The market data feed that provided this  MarketDataEvent
+     */
+    public FeedType getFeedType() {
+        return this.feedType;
     }
 
     @Override
     public String toString() {
 
         StringBuilder builder = new StringBuilder();
-        builder.append("SubscribeTickVO [tick=");
-        builder.append(this.tick);
-        builder.append(", tickerId=");
+        builder.append("tickerId=");
         builder.append(this.tickerId);
-        builder.append("]");
+        builder.append(",securityId=");
+        builder.append(this.securityId);
+        builder.append(",feedType=");
+        builder.append(this.feedType);
 
         return builder.toString();
     }

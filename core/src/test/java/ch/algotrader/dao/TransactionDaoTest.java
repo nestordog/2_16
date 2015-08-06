@@ -28,8 +28,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import ch.algotrader.dao.TransactionDao;
-import ch.algotrader.dao.TransactionDaoImpl;
 import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.TransactionImpl;
 import ch.algotrader.entity.security.Forex;

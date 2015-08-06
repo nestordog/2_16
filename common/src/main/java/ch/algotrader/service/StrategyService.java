@@ -22,8 +22,8 @@ import java.util.Map;
 
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.Transaction;
-import ch.algotrader.entity.marketData.Bar;
-import ch.algotrader.entity.marketData.Tick;
+import ch.algotrader.entity.marketData.BarVO;
+import ch.algotrader.entity.marketData.TickVO;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderCompletion;
@@ -254,11 +254,11 @@ public class StrategyService implements
     }
 
     @Override
-    public void onTick(final Tick bar) {
+    public void onTick(final TickVO bar) {
     }
 
     @Override
-    public void onBar(final Bar bar) {
+    public void onBar(final BarVO bar) {
     }
 
     @Override

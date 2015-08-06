@@ -195,6 +195,26 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
+    public SecurityFamily getSecurityFamilyBySecurity(long securityId) {
+
+        Security security = getSecurity(securityId);
+        return security != null ? security.getSecurityFamily() : null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Exchange getExchangeBySecurity(long securityId) {
+
+        Security security = getSecurity(securityId);
+        return security != null ? security.getSecurityFamily().getExchange() : null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Collection<Security> getSubscribedSecuritiesForAutoActivateStrategies() {
 
         return this.cacheManager.find(Security.class, "Security.findSubscribedForAutoActivateStrategies", QueryType.BY_NAME);

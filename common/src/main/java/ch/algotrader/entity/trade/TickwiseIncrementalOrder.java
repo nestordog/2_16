@@ -23,7 +23,7 @@ import java.util.List;
 
 import org.apache.commons.beanutils.BeanUtils;
 
-import ch.algotrader.entity.marketData.Tick;
+import ch.algotrader.entity.marketData.TickI;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.enumeration.Side;
 
@@ -115,7 +115,7 @@ public class TickwiseIncrementalOrder extends IncrementalOrder {
     }
 
     @Override
-    public List<SimpleOrder> getInitialOrders(Tick tick) {
+    public List<SimpleOrder> getInitialOrders(TickI tick) {
 
         SecurityFamily family = getSecurity().getSecurityFamily();
 
@@ -174,7 +174,7 @@ public class TickwiseIncrementalOrder extends IncrementalOrder {
     }
 
     @Override
-    public SimpleOrder modifyOrder(Tick tick) {
+    public SimpleOrder modifyOrder(TickI tick) {
 
         SecurityFamily family = getSecurity().getSecurityFamily();
 

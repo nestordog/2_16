@@ -5,7 +5,7 @@ select
     tick
 from
     pattern[[?] (every-distinct(security.id)
-        (tick=Tick(not bid is null, not ask is null, security.id in (?))))];
+        (tick=Tick(not bid is null, not ask is null, securityId in (?))))];
 
 @Name('ON_TRADE_COMPLETED')
 select

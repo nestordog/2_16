@@ -20,7 +20,7 @@ package ch.algotrader.service;
 import java.math.BigDecimal;
 import java.util.Map;
 
-import ch.algotrader.entity.marketData.MarketDataEvent;
+import ch.algotrader.entity.marketData.MarketDataEventVO;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.Currency;
 
@@ -35,12 +35,12 @@ public interface LocalLookupService {
     /**
      * Returns all last market events for all securities,
      */
-    Map<Long, MarketDataEvent> getCurrentMarketDataEvents();
+    Map<Long, MarketDataEventVO> getCurrentMarketDataEvents();
 
     /**
      * Returns last market event of the specified security.
      */
-    MarketDataEvent getCurrentMarketDataEvent(long securityId);
+    MarketDataEventVO getCurrentMarketDataEvent(long securityId);
 
     /**
      * Returns the current value of the specified security.

@@ -22,10 +22,11 @@ import java.util.concurrent.ConcurrentMap;
 
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.cache.CacheManager;
-import ch.algotrader.entity.marketData.Bar;
-import ch.algotrader.entity.marketData.Tick;
+import ch.algotrader.entity.marketData.BarVO;
+import ch.algotrader.entity.marketData.TickVO;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityImpl;
+import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.service.ServerLookupService;
 
 /**
@@ -39,53 +40,17 @@ final class MarketEventSupport {
 
     private static final ConcurrentMap<String, Long> SECURITY_ID_BY_SECURITY_STRING = new ConcurrentHashMap<>();
 
-    /**
-     * Same functionality as {@code TickDao#rawTickVOToEntity} which however is only availabe inside a Hibernate Session
-     */
-    public static Tick rawTickVOToEntity(RawTickVO rawTickVO) {
+    public static TickVO rawTickToEvent(RawTickVO raw) {
 
-        Tick tick = Tick.Factory.newInstance();
-
-        // copy all properties
-        tick.setDateTime(rawTickVO.getDateTime());
-        tick.setVol(rawTickVO.getVol());
-        tick.setLast(rawTickVO.getLast());
-        tick.setLastDateTime(rawTickVO.getLastDateTime());
-        tick.setBid(rawTickVO.getBid());
-        tick.setAsk(rawTickVO.getAsk());
-        tick.setVolBid(rawTickVO.getVolBid());
-        tick.setVolAsk(rawTickVO.getVolAsk());
-
-        // cache securities, as queries by isin, symbol etc. get evicted from cache whenever any change to security table happens
-        String securityString = rawTickVO.getSecurity();
-        Security security = getSecurity(securityString);
-        tick.setSecurity(security);
-
-        return tick;
+        Security security = getSecurity(raw.getSecurity());
+        return new TickVO(0L, raw.getDateTime(), FeedType.SIM, security.getId(), raw.getLast(), raw.getLastDateTime(),
+                raw.getBid(), raw.getAsk(), raw.getVol(), raw.getVolAsk(), raw.getVolBid());
     }
 
-    /**
-     * Same functionality as {@code TickDao#rawBarVOToEntity} which however is only availabe inside a Hibernate Session
-     */
-    public static Bar rawBarVOToEntity(RawBarVO rawBarVO) {
+    public static BarVO rawBarToEvent(RawBarVO raw) {
 
-        Bar bar = Bar.Factory.newInstance();
-
-        // copy all properties
-        bar.setDateTime(rawBarVO.getDateTime());
-        bar.setVol(rawBarVO.getVol());
-        bar.setBarSize(rawBarVO.getBarSize());
-        bar.setOpen(rawBarVO.getOpen());
-        bar.setHigh(rawBarVO.getHigh());
-        bar.setLow(rawBarVO.getLow());
-        bar.setClose(rawBarVO.getClose());
-
-        // cache securities, as queries by isin, symbol etc. get evicted from cache whenever any change to security table happens
-        String securityString = rawBarVO.getSecurity();
-        Security security = getSecurity(securityString);
-        bar.setSecurity(security);
-
-        return bar;
+        Security security = getSecurity(raw.getSecurity());
+        return new BarVO(0L, raw.getDateTime(), FeedType.SIM, security.getId(), raw.getBarSize(), raw.getOpen(), raw.getHigh(), raw.getLow(), raw.getClose(), raw.getVol());
     }
 
     private static Security getSecurity(String securityString) {

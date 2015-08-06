@@ -23,8 +23,7 @@ import java.util.Date;
 import ch.algotrader.enumeration.FeedType;
 
 /**
- * A ValueObject used add a new {@link ch.algotrader.entity.Subscription Subscription} to the
- * TickWindow
+ * Represents the last trade provided by a data feed.
  */
 public class TradeVO implements Serializable {
 
@@ -33,23 +32,15 @@ public class TradeVO implements Serializable {
     /**
      * The {@code tickerId} as assigned by the external Market Data Provider
      */
-    private String tickerId;
+    private final String tickerId;
 
-    private FeedType feedType;
+    private final FeedType feedType;
 
-    private Date lastDateTime;
+    private final Date lastDateTime;
 
-    private double last;
+    private final double last;
 
-    private int vol;
-
-    /**
-     * Default Constructor
-     */
-    public TradeVO() {
-
-        // Documented empty block - avoid compiler warning - no super constructor
-    }
+    private final int vol;
 
     /**
      * Constructor with all properties
@@ -92,23 +83,9 @@ public class TradeVO implements Serializable {
         return this.tickerId;
     }
 
-    /**
-     * The {@code tickerId} as assigned by the external Market Data Provider
-     * @param value String
-     */
-    public void setTickerId(final String value) {
-
-        this.tickerId = value;
-    }
-
     public FeedType getFeedType() {
 
         return this.feedType;
-    }
-
-    public void setFeedType(final FeedType value) {
-
-        this.feedType = value;
     }
 
     public Date getLastDateTime() {
@@ -116,19 +93,9 @@ public class TradeVO implements Serializable {
         return this.lastDateTime;
     }
 
-    public void setLastDateTime(final Date value) {
-
-        this.lastDateTime = value;
-    }
-
     public double getLast() {
 
         return this.last;
-    }
-
-    public void setLast(final double value) {
-
-        this.last = value;
     }
 
     public int getVol() {
@@ -136,26 +103,20 @@ public class TradeVO implements Serializable {
         return this.vol;
     }
 
-    public void setVol(final int value) {
-
-        this.vol = value;
-    }
-
     @Override
     public String toString() {
 
         StringBuilder builder = new StringBuilder();
-        builder.append("TradeVO [tickerId=");
+        builder.append("tickerId=");
         builder.append(this.tickerId);
-        builder.append(", feedType=");
+        builder.append(",feedType=");
         builder.append(this.feedType);
-        builder.append(", lastDateTime=");
+        builder.append(",lastDateTime=");
         builder.append(this.lastDateTime);
-        builder.append(", last=");
+        builder.append(",last=");
         builder.append(this.last);
-        builder.append(", vol=");
+        builder.append(",vol=");
         builder.append(this.vol);
-        builder.append("]");
 
         return builder.toString();
     }

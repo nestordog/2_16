@@ -17,13 +17,17 @@
  ***********************************************************************************/
 package ch.algotrader.dao;
 
+import java.math.BigDecimal;
+import java.util.Date;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.PositionImpl;
-import ch.algotrader.entity.marketData.Tick;
+import ch.algotrader.entity.marketData.TickVO;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.ForexImpl;
 import ch.algotrader.entity.security.SecurityFamily;
@@ -31,6 +35,8 @@ import ch.algotrader.entity.security.SecurityFamilyImpl;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.enumeration.Currency;
+import ch.algotrader.enumeration.FeedType;
+import ch.algotrader.service.LocalLookupService;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.vo.client.PositionVO;
 
@@ -43,16 +49,15 @@ import ch.algotrader.vo.client.PositionVO;
 */
 public class PositionVOProducerTest {
 
-    private PositionVOProducer instance;
+    private LocalLookupService localLookupService;
 
-    private Tick tick;
+    private PositionVOProducer instance;
 
     @Before
     public void setup() throws Exception {
 
-        this.instance = PositionVOProducer.INSTANCE;
-
-        this.tick = Tick.Factory.newInstance();
+        this.localLookupService = Mockito.mock(LocalLookupService.class);
+        this.instance = new PositionVOProducer(this.localLookupService);
     }
 
     @Test
@@ -84,6 +89,9 @@ public class PositionVOProducerTest {
 
         int scale = position.getSecurity().getSecurityFamily().getScale();
 
+        TickVO tick = new TickVO(0L, new Date(), FeedType.SIM, 101, new BigDecimal("1.1"), new Date(), new BigDecimal("1.12"), new BigDecimal("1.09"), 1, 2, 3);
+        Mockito.when(localLookupService.getCurrentMarketDataEvent(101L)).thenReturn(tick);
+
         PositionVO vo = this.instance.convert(position);
 
         Assert.assertNotNull(vo);
@@ -95,11 +103,11 @@ public class PositionVOProducerTest {
         Assert.assertEquals(position.getSecurity().toString(), vo.getName());
         Assert.assertEquals(position.getStrategy().toString(), vo.getStrategy());
         Assert.assertEquals(position.getSecurity().getSecurityFamily().getCurrency(), vo.getCurrency());
-        Assert.assertEquals(RoundUtil.getBigDecimal(position.getMarketPrice(this.tick), scale), vo.getMarketPrice());
-        Assert.assertEquals(RoundUtil.getBigDecimal(position.getMarketValue(this.tick)), vo.getMarketValue());
+        Assert.assertEquals(RoundUtil.getBigDecimal(position.getMarketPrice(tick), scale), vo.getMarketPrice());
+        Assert.assertEquals(RoundUtil.getBigDecimal(position.getMarketValue(tick)), vo.getMarketValue());
         Assert.assertEquals(RoundUtil.getBigDecimal(position.getAveragePrice(), scale), vo.getAveragePrice());
         Assert.assertEquals(RoundUtil.getBigDecimal(position.getCost()), vo.getCost());
-        Assert.assertEquals(RoundUtil.getBigDecimal(position.getUnrealizedPL(this.tick)), vo.getUnrealizedPL());
+        Assert.assertEquals(RoundUtil.getBigDecimal(position.getUnrealizedPL(tick)), vo.getUnrealizedPL());
         Assert.assertEquals(RoundUtil.getBigDecimal(position.getRealizedPL()), vo.getRealizedPL());
     }
 

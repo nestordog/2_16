@@ -32,8 +32,8 @@ import ch.algotrader.cache.EntityCacheEvictionEvent;
 import ch.algotrader.cache.QueryCacheEvictionEvent;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.Transaction;
-import ch.algotrader.entity.marketData.Bar;
-import ch.algotrader.entity.marketData.Tick;
+import ch.algotrader.entity.marketData.BarVO;
+import ch.algotrader.entity.marketData.TickVO;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderCompletion;
@@ -114,13 +114,13 @@ public class EventDispatchWiring {
                     for (Map.Entry<String, TickEventListener> entry: tickListenerMap.entrySet()) {
 
                         final TickEventListener listener = entry.getValue();
-                        eventListenerRegistry.register(listener::onTick, Tick.class);
+                        eventListenerRegistry.register(listener::onTick, TickVO.class);
                     }
                     Map<String, BarEventListener> barListenerMap = applicationContext.getBeansOfType(BarEventListener.class);
                     for (Map.Entry<String, BarEventListener> entry: barListenerMap.entrySet()) {
 
                         final BarEventListener listener = entry.getValue();
-                        eventListenerRegistry.register(listener::onBar, Bar.class);
+                        eventListenerRegistry.register(listener::onBar, BarVO.class);
                     }
                     Map<String, OrderEventListener> orderEventListenerMap = applicationContext.getBeansOfType(OrderEventListener.class);
                     for (Map.Entry<String, OrderEventListener> entry: orderEventListenerMap.entrySet()) {

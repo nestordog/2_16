@@ -20,7 +20,7 @@ package ch.algotrader.service;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import ch.algotrader.entity.marketData.MarketDataEvent;
+import ch.algotrader.entity.marketData.MarketDataEventVO;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.util.metric.MetricsUtil;
 import ch.algotrader.vo.GenericEventVO;
@@ -40,10 +40,10 @@ public class EventPropagator {
         this.eventDispatcher = eventDispatcher;
     }
 
-    public void propagateMarketData(final MarketDataEvent marketDataEvent) {
+    public void propagateMarketData(final MarketDataEventVO marketDataEvent) {
 
         if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("{} {}", marketDataEvent.getSecurity(), marketDataEvent);
+            LOGGER.trace(marketDataEvent);
         }
 
         long startTime = System.nanoTime();
@@ -55,7 +55,6 @@ public class EventPropagator {
 
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace(genericEvent);
-
         }
         this.eventDispatcher.broadcastAllStrategies(genericEvent);
     }

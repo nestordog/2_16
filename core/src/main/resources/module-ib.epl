@@ -3,12 +3,12 @@
 @Name('UPDATE_TICK_WINDOW_IB_LAST')
 @RunTimeOnly()
 on
-    ch.algotrader.adapter.ib.TickPrice as tickPrice
+    ch.algotrader.adapter.ib.TickPriceVO as tickPrice
 update
     TickWindow as tickWindow
 set
     tickWindow.dateTime = current_timestamp.toDate(),
-    tickWindow.last = RoundUtil.getBigDecimal(tickPrice.price, tickWindow.security.securityFamily.scale),
+    tickWindow.last = RoundUtil.getBigDecimal(tickPrice.price, lookupService.getSecurityFamilyBySecurity(tickWindow.securityId).getScale()),
     tickWindow.refresh = true
 where
     tickPrice.field = 4 // TickType.LAST (LAST is a reserved keyword)
@@ -20,7 +20,7 @@ and
 @Name('UPDATE_TICK_WINDOW_IB_LAST_TIMESTAMP')
 @RunTimeOnly()
 on
-    ch.algotrader.adapter.ib.TickString as tickString
+    ch.algotrader.adapter.ib.TickStringVO as tickString
 update
     TickWindow as tickWindow
 set
@@ -37,7 +37,7 @@ and
 @Name('UPDATE_TICK_WINDOW_IB_VOL')
 @RunTimeOnly()
 on
-    ch.algotrader.adapter.ib.TickSize as tickSize
+    ch.algotrader.adapter.ib.TickSizeVO as tickSize
 update
     TickWindow as tickWindow
 set
@@ -54,12 +54,13 @@ and
 @Name('UPDATE_TICK_WINDOW_IB_BID')
 @RunTimeOnly()
 on
-    ch.algotrader.adapter.ib.TickPrice as tickPrice
+    ch.algotrader.adapter.ib.TickPriceVO as tickPrice
 update
     TickWindow as tickWindow
 set
     tickWindow.dateTime = current_timestamp.toDate(),
-    tickWindow.bid = (case when tickPrice.price = -1 then null else RoundUtil.getBigDecimal(tickPrice.price, tickWindow.security.securityFamily.scale) end),
+    tickWindow.bid = (case when tickPrice.price = -1 then null
+        else RoundUtil.getBigDecimal(tickPrice.price, lookupService.getSecurityFamilyBySecurity(tickWindow.securityId).getScale()) end),
     tickWindow.refresh = true
 where
     tickPrice.field = com.ib.client.TickType.BID
@@ -71,12 +72,13 @@ and
 @Name('UPDATE_TICK_WINDOW_IB_ASK')
 @RunTimeOnly()
 on
-    ch.algotrader.adapter.ib.TickPrice as tickPrice
+    ch.algotrader.adapter.ib.TickPriceVO as tickPrice
 update
     TickWindow as tickWindow
 set
     tickWindow.dateTime = current_timestamp.toDate(),
-    tickWindow.ask = (case when tickPrice.price = -1 then null else RoundUtil.getBigDecimal(tickPrice.price, tickWindow.security.securityFamily.scale) end),
+    tickWindow.ask = (case when tickPrice.price = -1 then null
+        else RoundUtil.getBigDecimal(tickPrice.price, lookupService.getSecurityFamilyBySecurity(tickWindow.securityId).getScale()) end),
     tickWindow.refresh = true
 where
     tickPrice.field = com.ib.client.TickType.ASK
@@ -88,13 +90,13 @@ and
 @Name('UPDATE_TICK_WINDOW_IB_VOL_BID')
 @RunTimeOnly()
 on
-    ch.algotrader.adapter.ib.TickSize as tickSize
+    ch.algotrader.adapter.ib.TickSizeVO as tickSize
 update
     TickWindow as tickWindow
 set
     tickWindow.dateTime = current_timestamp.toDate(),
     tickWindow.volBid = tickSize.size,
-    tickWindow.refresh = (case when instanceof(tickWindow.security,ch.algotrader.entity.security.Forex) then false else true end)
+    tickWindow.refresh = (case when instanceof(lookupService.getSecurity(tickWindow.securityId), ch.algotrader.entity.security.Forex) then false else true end)
 where
     tickSize.field = com.ib.client.TickType.BID_SIZE
 and
@@ -105,13 +107,13 @@ and
 @Name('UPDATE_TICK_WINDOW_IB_VOL_ASK')
 @RunTimeOnly()
 on
-    ch.algotrader.adapter.ib.TickSize as tickSize
+    ch.algotrader.adapter.ib.TickSizeVO as tickSize
 update
     TickWindow as tickWindow
 set
     tickWindow.dateTime = current_timestamp.toDate(),
     tickWindow.volAsk = tickSize.size,
-    tickWindow.refresh = (case when instanceof(tickWindow.security,ch.algotrader.entity.security.Forex) then false else true end)
+    tickWindow.refresh = (case when instanceof(lookupService.getSecurity(tickWindow.securityId), ch.algotrader.entity.security.Forex) then false else true end)
 where
     tickSize.field = com.ib.client.TickType.ASK_SIZE
 and
@@ -125,15 +127,18 @@ and
 @Condition(key='statement.emitGeneticTicks')
 @RunTimeOnly()
 on
-    ch.algotrader.adapter.ib.TickPrice(field = com.ib.client.TickType.OPEN) as tickPrice
+    ch.algotrader.adapter.ib.TickPriceVO(field = com.ib.client.TickType.OPEN) as tickPrice
 insert into
     GenericTick
 select
-    current_timestamp.toDate() as dateTime,
-    FeedType.IB as feedType,
-    TickType.OPEN as tickType,
-    tickPrice.price as doubleValue,
-    lookupService.getSecurity(last(tickWindow.security.id)) as security
+    0L,
+    current_timestamp.toDate(),
+    FeedType.IB,
+    last(tickWindow.securityId),
+    TickType.OPEN,
+    null,
+    tickPrice.price,
+    null
 from
     TickWindow as tickWindow
 where
@@ -145,15 +150,18 @@ and
 @Condition(key='statement.emitGeneticTicks')
 @RunTimeOnly()
 on
-    ch.algotrader.adapter.ib.TickPrice(field = com.ib.client.TickType.CLOSE) as tickPrice
+    ch.algotrader.adapter.ib.TickPriceVO(field = com.ib.client.TickType.CLOSE) as tickPrice
 insert into
     GenericTick
 select
-    current_timestamp.toDate() as dateTime,
-    FeedType.IB as feedType,
-    TickType.CLOSE as tickType,
-    tickPrice.price as doubleValue,
-    lookupService.getSecurity(last(tickWindow.security.id)) as security
+    0L,
+    current_timestamp.toDate(),
+    FeedType.IB,
+    last(tickWindow.securityId),
+    TickType.CLOSE,
+    null,
+    tickPrice.price,
+    null
 from
     TickWindow as tickWindow
 where

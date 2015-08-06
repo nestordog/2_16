@@ -25,8 +25,8 @@ import com.espertech.esperio.AbstractSendableEvent;
 import com.espertech.esperio.AbstractSender;
 
 import ch.algotrader.ServiceLocator;
-import ch.algotrader.entity.marketData.Bar;
-import ch.algotrader.entity.marketData.Tick;
+import ch.algotrader.entity.marketData.BarVO;
+import ch.algotrader.entity.marketData.TickVO;
 import ch.algotrader.util.metric.MetricsUtil;
 
 /**
@@ -46,7 +46,7 @@ public class CustomSender extends AbstractSender {
         if (beanToSend instanceof RawTickVO) {
 
             long beforeCompleteRawT = System.nanoTime();
-            Tick tick = MarketEventSupport.rawTickVOToEntity((RawTickVO) beanToSend);
+            TickVO tick = MarketEventSupport.rawTickToEvent((RawTickVO) beanToSend);
             long afterCompleteRaw = System.nanoTime();
 
             long beforeSendEvent = System.nanoTime();
@@ -60,7 +60,7 @@ public class CustomSender extends AbstractSender {
         } else if (beanToSend instanceof RawBarVO) {
 
             long beforeCompleteRawT = System.nanoTime();
-            Bar bar = MarketEventSupport.rawBarVOToEntity((RawBarVO) beanToSend);
+            BarVO bar = MarketEventSupport.rawBarToEvent((RawBarVO) beanToSend);
             long afterCompleteRaw = System.nanoTime();
 
             long beforeSendEvent = System.nanoTime();

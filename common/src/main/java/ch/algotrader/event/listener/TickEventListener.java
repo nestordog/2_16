@@ -17,10 +17,10 @@
  ***********************************************************************************/
 package ch.algotrader.event.listener;
 
-import ch.algotrader.entity.marketData.Tick;
+import ch.algotrader.entity.marketData.TickVO;
 
 public interface TickEventListener {
 
-    void onTick(Tick tick);
+    void onTick(TickVO tick);
 
 }

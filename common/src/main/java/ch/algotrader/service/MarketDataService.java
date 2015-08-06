@@ -17,12 +17,10 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
-import java.util.Map;
 import java.util.Set;
 
-import com.espertech.esper.collection.Pair;
-
 import ch.algotrader.entity.marketData.Tick;
+import ch.algotrader.entity.marketData.TickVO;
 import ch.algotrader.enumeration.FeedType;
 
 /**
@@ -36,11 +34,6 @@ public interface MarketDataService {
      * Persists a Tick to the DB and CSV File.
      */
     void persistTick(Tick tick);
-
-    /**
-     * Persists a Tick to the DB and CSV File.
-     */
-    void persistTick(Pair<Tick, Object> pair, Map<?, ?> map);
 
     /**
      * Initializes current Subscriptions with the external Market Data Provider for the specified
@@ -102,5 +95,10 @@ public interface MarketDataService {
      * Returns {@code true} if the data feed is supported.
      */
     boolean isSupportedFeed(FeedType feedType);
+
+    /**
+     * Verifies if the tick is valid for the security associated with it.
+     */
+    boolean isTickValid(TickVO tick);
 
 }

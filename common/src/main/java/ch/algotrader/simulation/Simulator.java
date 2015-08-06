@@ -34,10 +34,10 @@ import org.apache.logging.log4j.Logger;
 import ch.algotrader.accounting.PositionTracker;
 import ch.algotrader.dao.ClosePositionVOProducer;
 import ch.algotrader.dao.OpenPositionVOProducer;
-import ch.algotrader.dao.PositionVOProducer;
 import ch.algotrader.entity.Position;
+import ch.algotrader.entity.PositionVO;
 import ch.algotrader.entity.Transaction;
-import ch.algotrader.entity.marketData.MarketDataEvent;
+import ch.algotrader.entity.marketData.MarketDataEventVO;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.strategy.CashBalance;
@@ -60,7 +60,6 @@ import ch.algotrader.util.collection.Pair;
 import ch.algotrader.vo.ClosePositionVO;
 import ch.algotrader.vo.CurrencyAmountVO;
 import ch.algotrader.vo.OpenPositionVO;
-import ch.algotrader.vo.PositionVO;
 import ch.algotrader.vo.TradePerformanceVO;
 
 /**
@@ -285,7 +284,7 @@ public class Simulator {
         } else if (closePositionVO != null) {
             this.eventDispatcher.sendEvent(transaction.getStrategy().getName(), closePositionVO);
         } else {
-            PositionVO positionVO = PositionVOProducer.INSTANCE.convert(position);
+            PositionVO positionVO = Position.Converter.INSTANCE.convert(position);
             this.eventDispatcher.sendEvent(transaction.getStrategy().getName(), positionVO);
         }
 
@@ -416,7 +415,7 @@ public class Simulator {
         // sum of all positions
         double amount = 0.0;
         for (Position openPosition : openPositions) {
-            final MarketDataEvent marketDataEvent = this.localLookupService.getCurrentMarketDataEvent(openPosition.getSecurity().getId());
+            final MarketDataEventVO marketDataEvent = this.localLookupService.getCurrentMarketDataEvent(openPosition.getSecurity().getId());
             amount += openPosition.getMarketValue(marketDataEvent);
         }
         return amount;

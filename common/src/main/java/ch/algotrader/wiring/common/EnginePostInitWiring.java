@@ -30,6 +30,8 @@ import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.service.CalendarService;
 import ch.algotrader.service.LookupService;
+import ch.algotrader.service.MarketDataService;
+import ch.algotrader.service.OptionService;
 import ch.algotrader.service.OrderService;
 import ch.algotrader.service.PortfolioService;
 import ch.algotrader.service.PositionService;
@@ -57,6 +59,8 @@ public class EnginePostInitWiring {
                     CalendarService calendarService = applicationContext.getBean("calendarService", CalendarService.class);
                     OrderService orderService = applicationContext.getBean("orderService", OrderService.class);
                     PositionService positionService = applicationContext.getBean("positionService", PositionService.class);
+                    MarketDataService marketDataService = applicationContext.getBean("marketDataService", MarketDataService.class);
+                    OptionService optionService = applicationContext.getBean("optionService", OptionService.class);
 
                     Map<String, Engine> engineBeanMap = applicationContext.getBeansOfType(Engine.class);
                     for (Map.Entry<String, Engine> entry: engineBeanMap.entrySet()) {
@@ -67,6 +71,8 @@ public class EnginePostInitWiring {
                         engine.setVariableValue("calendarService", calendarService);
                         engine.setVariableValue("orderService", orderService);
                         engine.setVariableValue("positionService", positionService);
+                        engine.setVariableValue("marketDataService", marketDataService);
+                        engine.setVariableValue("optionService", optionService);
                         Strategy strategy = lookupService.getStrategyByName(engine.getStrategyName());
                         if (strategy != null) {
 

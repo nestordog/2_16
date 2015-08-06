@@ -32,12 +32,11 @@ import ch.algotrader.adapter.ib.IBSessionStateHolder;
 import ch.algotrader.adapter.ib.IBUtil;
 import ch.algotrader.config.IBConfig;
 import ch.algotrader.dao.marketData.TickDao;
-import ch.algotrader.entity.marketData.Tick;
+import ch.algotrader.vo.marketData.SubscribeTickVO;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.service.ServiceException;
-import ch.algotrader.vo.marketData.SubscribeTickVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -95,13 +94,7 @@ public class IBNativeMarketDataServiceImpl implements IBNativeMarketDataService,
 
         // create the SubscribeTickEvent (must happen before reqMktData so that Esper is ready to receive marketdata)
         int tickerId = this.iBIdGenerator.getNextRequestId();
-        Tick tick = Tick.Factory.newInstance();
-        tick.setSecurity(security);
-        tick.setFeedType(FeedType.IB);
-
-        SubscribeTickVO subscribeTickEvent = new SubscribeTickVO();
-        subscribeTickEvent.setTick(tick);
-        subscribeTickEvent.setTickerId(Integer.toString(tickerId));
+        SubscribeTickVO subscribeTickEvent = new SubscribeTickVO(Integer.toString(tickerId), security.getId(), FeedType.IB);
 
         this.serverEngine.sendEvent(subscribeTickEvent);
 
@@ -133,7 +126,7 @@ public class IBNativeMarketDataServiceImpl implements IBNativeMarketDataService,
 
         this.iBSession.cancelMktData(Integer.parseInt(tickerId));
 
-        this.serverEngine.executeQuery("delete from TickWindow where security.id = " + security.getId());
+        this.serverEngine.executeQuery("delete from TickWindow where securityId = " + security.getId());
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("cancelled market data for : {}", security);

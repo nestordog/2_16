@@ -24,7 +24,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.apache.commons.lang.Validate;
 
-import ch.algotrader.entity.marketData.MarketDataEvent;
+import ch.algotrader.entity.marketData.MarketDataEventVO;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.EventBroadcaster;
@@ -144,10 +144,9 @@ public class LocalEventDispatcherImpl implements EventDispatcher {
     }
 
     @Override
-    public void sendMarketDataEvent(final MarketDataEvent marketDataEvent) {
+    public void sendMarketDataEvent(final MarketDataEventVO marketDataEvent) {
 
-        long securityId = marketDataEvent.getSecurity().getId();
-        Set<String> strategySet = this.marketDataSubscriptionMap.get(securityId);
+        Set<String> strategySet = this.marketDataSubscriptionMap.get(marketDataEvent.getSecurityId());
         if (strategySet != null && !strategySet.isEmpty()) {
             for (String strategyName: strategySet) {
                 final Engine engine = this.engineManager.getEngine(strategyName);

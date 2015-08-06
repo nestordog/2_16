@@ -17,10 +17,10 @@
  ***********************************************************************************/
 package ch.algotrader.event.listener;
 
-import ch.algotrader.entity.marketData.Bar;
+import ch.algotrader.entity.marketData.BarVO;
 
 public interface BarEventListener {
 
-    void onBar(Bar bar);
+    void onBar(BarVO bar);
 
 }

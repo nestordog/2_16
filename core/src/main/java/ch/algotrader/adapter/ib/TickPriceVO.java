@@ -20,30 +20,33 @@ package ch.algotrader.adapter.ib;
 import java.io.Serializable;
 
 /**
- * POJO representing an IB size event.
+ * POJO representing an IB price event.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class TickSize implements Serializable {
+public class TickPriceVO implements Serializable {
 
-    private static final long serialVersionUID = 7514087845300720397L;
+    private static final long serialVersionUID = -4096826680075105503L;
 
-    protected String tickerId;
-    protected int field;
-    protected int size;
+    private final String tickerId;
+    private final int field;
+    private final double price;
+    private final int canAutoExecute;
 
     /**
      * Constructor with all properties
-     * @param tickerIdIn int
-     * @param fieldIn int
-     * @param sizeIn int
+     * @param tickerId int
+     * @param field int
+     * @param price double
+     * @param canAutoExecute int
      */
-    public TickSize(final String tickerIdIn, final int fieldIn, final int sizeIn) {
-        this.tickerId = tickerIdIn;
-        this.field = fieldIn;
-        this.size = sizeIn;
+    public TickPriceVO(final String tickerId, final int field, final double price, final int canAutoExecute) {
+        this.tickerId = tickerId;
+        this.field = field;
+        this.price = price;
+        this.canAutoExecute = canAutoExecute;
     }
 
     /**
@@ -55,14 +58,6 @@ public class TickSize implements Serializable {
     }
 
     /**
-     *
-     * @param value int
-     */
-    public void setTickerId(final String value) {
-        this.tickerId = value;
-    }
-
-    /**
      * Get the field Attribute
      * @return field int
      */
@@ -71,26 +66,29 @@ public class TickSize implements Serializable {
     }
 
     /**
-     *
-     * @param value int
+     * Get the price Attribute
+     * @return price double
      */
-    public void setField(final int value) {
-        this.field = value;
+    public double getPrice() {
+        return this.price;
     }
 
     /**
-     * Get the size Attribute
-     * @return size int
+     * Get the canAutoExecute Attribute
+     * @return canAutoExecute int
      */
-    public int getSize() {
-        return this.size;
+    public int getCanAutoExecute() {
+        return this.canAutoExecute;
     }
 
-    /**
-     *
-     * @param value int
-     */
-    public void setSize(final int value) {
-        this.size = value;
+    @Override
+    public String toString() {
+        return "TickPrice{" +
+                "tickerId='" + tickerId + '\'' +
+                ", field=" + field +
+                ", price=" + price +
+                ", canAutoExecute=" + canAutoExecute +
+                '}';
     }
+
 }

@@ -82,7 +82,7 @@ public interface SecurityDao extends ReadWriteDao<Security> {
     Security findByConid(String conid);
 
     /**
-     * Finds a Security by its {@code id} incl. In addition the corresponding {@link SecurityFamily}
+     * Finds a Security by its {@code id} incl. In addition the corresponding {@link ch.algotrader.entity.security.SecurityFamily}
      * and Underlying {@link Security} are initialized.
      * @param id
      * @return Security
@@ -90,9 +90,9 @@ public interface SecurityDao extends ReadWriteDao<Security> {
     Security findByIdInclFamilyAndUnderlying(long id);
 
     /**
-     * Finds a Security by its {@code id} incl. In addition the corresponding {@link SecurityFamily},
+     * Finds a Security by its {@code id} incl. In addition the corresponding {@link ch.algotrader.entity.security.SecurityFamily},
      * underlying {@link Security}, the {@link ch.algotrader.entity.exchange.Exchange} and
-     * {@link BrokerParameters} are initialized.
+     * {@link ch.algotrader.entity.security.BrokerParameters} are initialized.
      * @param id
      * @return Security
      */
@@ -107,7 +107,7 @@ public interface SecurityDao extends ReadWriteDao<Security> {
 
     /**
      * Finds all Securities that are subscribed by at least one Strategy which is marked as {@code
-     * autoActive} and by the specified {@code feedType}. In addition the {@link SecurityFamily}
+     * autoActive} and by the specified {@code feedType}. In addition the {@link ch.algotrader.entity.security.SecurityFamily}
      * will be initialized.
      * @param feedType
      * @return List<Security>
@@ -116,7 +116,7 @@ public interface SecurityDao extends ReadWriteDao<Security> {
 
     /**
      * Finds all Securities that are subscribed by at least one Strategy which is marked as {@code
-     * autoActive} and by the specified {@code feedType}. In addition the {@link SecurityFamily}
+     * autoActive} and by the specified {@code feedType}. In addition the {@link ch.algotrader.entity.security.SecurityFamily}
      * will be initialized.
      * @param feedType
      * @param strategyName

@@ -37,7 +37,7 @@ from
 @RunTimeOnly
 @Subscriber(className='orderService#sendOrder')
 select
-    slicingOrder.nextOrder(openOrderWindow.remainingQuantity, cast(marketDataWindow.marketDataEvent, ch.algotrader.entity.marketData.Tick))
+    slicingOrder.nextOrder(openOrderWindow.remainingQuantity, cast(marketDataWindow.marketDataEvent, ch.algotrader.entity.marketData.TickVO))
 from
     // every SlicingOrder -> every ((OrderStatusLimit -> timer:interval) and not OrderStatusSlicing)
     pattern [every slicingOrder=ch.algotrader.entity.trade.SlicingOrder

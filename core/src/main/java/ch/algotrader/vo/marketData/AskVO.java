@@ -23,8 +23,9 @@ import java.util.Date;
 import ch.algotrader.enumeration.FeedType;
 
 /**
- * A ValueObject used add a new {@link ch.algotrader.entity.Subscription Subscription} to the
- * TickWindow
+ * Represents the ask price provided by a data feed.
+ * <p>
+ * The ask price represents the minimum price that a seller or sellers are willing to receive for the security
  */
 public class AskVO implements Serializable {
 
@@ -33,23 +34,15 @@ public class AskVO implements Serializable {
     /**
      * The {@code tickerId} as assigned by the external Market Data Provider
      */
-    private String tickerId;
+    private final String tickerId;
 
-    private FeedType feedType;
+    private final FeedType feedType;
 
-    private Date dateTime;
+    private final Date dateTime;
 
-    private double ask;
+    private final double ask;
 
-    private int volAsk;
-
-    /**
-     * Default Constructor
-     */
-    public AskVO() {
-
-        // Documented empty block - avoid compiler warning - no super constructor
-    }
+    private final int volAsk;
 
     /**
      * Constructor with all properties
@@ -93,23 +86,9 @@ public class AskVO implements Serializable {
         return this.tickerId;
     }
 
-    /**
-     * The {@code tickerId} as assigned by the external Market Data Provider
-     * @param value String
-     */
-    public void setTickerId(final String value) {
-
-        this.tickerId = value;
-    }
-
     public FeedType getFeedType() {
 
         return this.feedType;
-    }
-
-    public void setFeedType(final FeedType value) {
-
-        this.feedType = value;
     }
 
     public Date getDateTime() {
@@ -117,19 +96,9 @@ public class AskVO implements Serializable {
         return this.dateTime;
     }
 
-    public void setDateTime(final Date value) {
-
-        this.dateTime = value;
-    }
-
     public double getAsk() {
 
         return this.ask;
-    }
-
-    public void setAsk(final double value) {
-
-        this.ask = value;
     }
 
     public int getVolAsk() {
@@ -137,27 +106,21 @@ public class AskVO implements Serializable {
         return this.volAsk;
     }
 
-    public void setVolAsk(final int value) {
-
-        this.volAsk = value;
-    }
-
     @Override
     public String toString() {
 
         StringBuilder builder = new StringBuilder();
 
-        builder.append("AskVO [tickerId=");
+        builder.append("tickerId=");
         builder.append(tickerId);
-        builder.append(", feedType=");
+        builder.append(",feedType=");
         builder.append(feedType);
-        builder.append(", dateTime=");
+        builder.append(",dateTime=");
         builder.append(dateTime);
-        builder.append(", ask=");
+        builder.append(",ask=");
         builder.append(ask);
-        builder.append(", volAsk=");
+        builder.append(",volAsk=");
         builder.append(volAsk);
-        builder.append("]");
 
         return builder.toString();
     }

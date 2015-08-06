@@ -19,7 +19,6 @@
 package ch.algotrader.dao.marketData;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -31,27 +30,20 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import ch.algotrader.dao.SubscriptionDao;
-import ch.algotrader.dao.SubscriptionDaoImpl;
 import ch.algotrader.dao.marketData.TickDao;
 import ch.algotrader.dao.marketData.TickDaoImpl;
-import ch.algotrader.dao.security.SecurityDao;
-import ch.algotrader.dao.security.SecurityDaoImpl;
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.SubscriptionImpl;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.marketData.TickImpl;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.ForexImpl;
-import ch.algotrader.entity.security.Option;
-import ch.algotrader.entity.security.OptionImpl;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.SecurityFamilyImpl;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.FeedType;
-import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.esper.NoopEngine;
 import ch.algotrader.hibernate.InMemoryDBTest;
 
@@ -89,10 +81,7 @@ public class TickDaoTest extends InMemoryDBTest {
 
         super.setup();
 
-        SubscriptionDao subscriptionDao = new SubscriptionDaoImpl(this.sessionFactory);
-        SecurityDao securityDao = new SecurityDaoImpl(this.sessionFactory);
-
-        this.dao = new TickDaoImpl(this.sessionFactory, subscriptionDao, securityDao, NoopEngine.SERVER);
+        this.dao = new TickDaoImpl(this.sessionFactory, NoopEngine.SERVER);
 
         this.family1 = new SecurityFamilyImpl();
         this.family1.setName("Forex1");

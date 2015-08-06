@@ -24,7 +24,7 @@ import java.util.List;
 
 import org.apache.commons.lang.ClassUtils;
 
-import ch.algotrader.entity.marketData.Tick;
+import ch.algotrader.entity.marketData.TickI;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -59,7 +59,7 @@ public abstract class AlgoOrder extends OrderImpl {
      * @param tick
      * @return List<SimpleOrder>
      */
-    public abstract List<SimpleOrder> getInitialOrders(Tick tick);
+    public abstract List<SimpleOrder> getInitialOrders(TickI tick);
 
     @Override
     public boolean isAlgoOrder() {
@@ -72,7 +72,7 @@ public abstract class AlgoOrder extends OrderImpl {
      * @param tick
      * @return SimpleOrder
      */
-    public SimpleOrder modifyOrder(Tick tick) {
+    public SimpleOrder modifyOrder(TickI tick) {
         throw new UnsupportedOperationException("modify order not supported by " + ClassUtils.getShortClassName(this.getClass()));
     }
 
@@ -82,7 +82,7 @@ public abstract class AlgoOrder extends OrderImpl {
      * @param tick
      * @return SimpleOrder
      */
-    public SimpleOrder nextOrder(long remainingQuantity, Tick tick) {
+    public SimpleOrder nextOrder(long remainingQuantity, TickI tick) {
         throw new UnsupportedOperationException("next order not supported by " + ClassUtils.getShortClassName(this.getClass()));
     }
 }

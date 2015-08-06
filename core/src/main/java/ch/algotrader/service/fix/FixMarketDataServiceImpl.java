@@ -23,7 +23,6 @@ import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.fix.FixSessionStateHolder;
-import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.InitializingServiceType;
 import ch.algotrader.esper.Engine;
@@ -93,17 +92,9 @@ public abstract class FixMarketDataServiceImpl implements FixMarketDataService, 
             throw new ServiceException("Fix session is not logged on to subscribe " + security);
         }
 
-        // create the SubscribeTickEvent (must happen before reqMktData so that Esper is ready to receive marketdata)
-        Tick tick = Tick.Factory.newInstance();
-        tick.setSecurity(security);
-        tick.setFeedType(getFeedType());
-
-        String tickerId = getTickerId(security);
-
         // create the SubscribeTickEvent and propagate it
-        SubscribeTickVO subscribeTickEvent = new SubscribeTickVO();
-        subscribeTickEvent.setTick(tick);
-        subscribeTickEvent.setTickerId(tickerId);
+        String tickerId = getTickerId(security);
+        SubscribeTickVO subscribeTickEvent = new SubscribeTickVO(tickerId, security.getId(), getFeedType());
 
         this.serverEngine.sendEvent(subscribeTickEvent);
 
@@ -126,7 +117,7 @@ public abstract class FixMarketDataServiceImpl implements FixMarketDataService, 
 
         sendUnsubscribeRequest(security);
 
-        this.serverEngine.executeQuery("delete from TickWindow where security.id = " + security.getId());
+        this.serverEngine.executeQuery("delete from TickWindow where securityId = " + security.getId());
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("cancelled market data for : {}", security);

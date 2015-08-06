@@ -9,10 +9,19 @@
 @Name('TICK_WINDOW')
 @RunTimeOnly()
 create window
-    TickWindow.std:groupwin(security.id, feedType).std:lastevent()
+    TickWindow.std:unique(securityId, feedType)
 as select
-    *,
     "" as tickerId,
+    securityId,
+    feedType,
+    dateTime,
+    last,
+    lastDateTime,
+    bid,
+    ask,
+    vol,
+    volBid,
+    volAsk,
     true as refresh
 from
     Tick;
@@ -22,8 +31,17 @@ from
 insert into
     TickWindow
 select
-    tick.*,
     tickerId,
+    feedType,
+    securityId,
+    current_timestamp.toDate() as dateTime,
+    null as last,
+    null as lastDateTime,
+    null as bid,
+    null as ask,
+    0 as vol,
+    0 as volBid,
+    0 as volAsk,
     true as refresh
 from
     SubscribeTickEvent;
@@ -37,7 +55,8 @@ update
 set
     tickWindow.dateTime = trade.lastDateTime,
     tickWindow.lastDateTime = trade.lastDateTime,
-    tickWindow.last = (case when trade.last = 0 then null else RoundUtil.getBigDecimal(trade.last, tickWindow.security.securityFamily.scale) end),
+    tickWindow.last = (case when trade.last = 0 then null
+        else RoundUtil.getBigDecimal(trade.last, lookupService.getSecurityFamilyBySecurity(tickWindow.securityId).getScale()) end),
     tickWindow.vol = trade.vol,
     tickWindow.refresh = true
 where
@@ -53,7 +72,8 @@ update
     TickWindow as tickWindow
 set
     tickWindow.dateTime = bid.dateTime,
-    tickWindow.bid = (case when bid.bid = 0 then null else RoundUtil.getBigDecimal(bid.bid, tickWindow.security.securityFamily.scale) end),
+    tickWindow.bid = (case when bid.bid = 0 then null
+        else RoundUtil.getBigDecimal(bid.bid, lookupService.getSecurityFamilyBySecurity(tickWindow.securityId).getScale()) end),
     tickWindow.volBid = bid.volBid,
     tickWindow.refresh = true
 where
@@ -69,7 +89,8 @@ update
     TickWindow as tickWindow
 set
     tickWindow.dateTime = ask.dateTime,
-    tickWindow.ask = (case when ask.ask = 0 then null else RoundUtil.getBigDecimal(ask.ask, tickWindow.security.securityFamily.scale) end),
+    tickWindow.ask = (case when ask.ask = 0 then null
+        else RoundUtil.getBigDecimal(ask.ask, lookupService.getSecurityFamilyBySecurity(tickWindow.securityId).getScale()) end),
     tickWindow.volAsk = ask.volAsk,
     tickWindow.refresh = true
 where
@@ -77,35 +98,55 @@ where
 and
     tickWindow.tickerId = ask.tickerId;
 
-@Name('INSERT_INTO_TICK')
+@Name('INCOMING_TICK')
 @RunTimeOnly()
 on
     TickWindow as trigger
 insert into
-    Tick
+    IncomingTick
 select
-    transpose(ServiceUtil.completeTick(tickWindow))
+    new ch.algotrader.entity.marketData.TickVO(
+        0L,
+        tickWindow.dateTime,
+        tickWindow.feedType,
+        tickWindow.securityId,
+        tickWindow.last,
+        tickWindow.lastDateTime,
+        tickWindow.bid,
+        tickWindow.ask,
+        tickWindow.volBid,
+        tickWindow.volAsk,
+        tickWindow.vol) as value
 from
     TickWindow as tickWindow
 where
-    trigger.security.id = tickWindow.security.id
+    trigger.securityId = tickWindow.securityId and trigger.feedType = tickWindow.feedType
 and
     tickWindow.refresh
 and
-    ServiceUtil.isTickValid(cast(tickWindow.getFirst(),ch.algotrader.entity.marketData.Tick))
-and
-    ServiceUtil.isMarketOpen(tickWindow.security.securityFamily.exchange.id, current_timestamp.toDate());
+    calendarService.isOpen(lookupService.getExchangeBySecurity(tickWindow.securityId).getId(), current_timestamp.toDate());
+
+@Name('VALIDATE_TICK')
+@RunTimeOnly()
+insert into
+    Tick
+select
+    transpose(incomingTick.value)
+from
+    IncomingTick as incomingTick
+where
+    marketDataService.isTickValid(incomingTick.value);
 
 @Name('CHECK_TICK_GAPS')
 @Subscriber(className='marketDataService#logTickGap')
 @RunTimeOnly()
 select
-    tick.security.id
+    tick.securityId
 from
-    pattern [every tick=Tick(not security.securityFamily.maxGap is null)
-            -> (timer:interval(tick.security.securityFamily.maxGap * 60) and not Tick(security.id = tick.security.id))]
+    pattern [every tick=Tick(not lookupService.getSecurityFamilyBySecurity(tick.securityId).getMaxGap() is null)
+            -> (timer:interval(lookupService.getSecurityFamilyBySecurity(tick.securityId).getMaxGap() * 60) and not Tick(securityId = tick.securityId))]
 where
-    ServiceUtil.isMarketOpen(tick.security.securityFamily.exchange.id, current_timestamp.toDate());
+    calendarService.isOpen(lookupService.getExchangeBySecurity(tick.securityId).getId(), current_timestamp.toDate());
 
 @Name('PROPAGATE_MARKET_DATA_EVENTS')
 @Subscriber(className='eventPropagator#propagateMarketData')
@@ -113,9 +154,7 @@ where
 select
     *
 from
-    MarketDataEvent
-where
-    security is not null;
+    MarketDataEvent;
 
 @Name('PROPAGATE_GENERIC_EVENTS')
 @Subscriber(className='eventPropagator#propagateGenericEvent')
@@ -124,35 +163,3 @@ select
     *
 from
     ch.algotrader.vo.GenericEventVO;
-
-@Name('PERSIST_HOUR_TICKS')
-@RunTimeOnly()
-@Subscriber(className='marketDataService#persistTick')
-on pattern
-    [every timer:at(0, *, *, *, *)]
-select
-    *
-from
-    TickWindow as tickWindow
-where
-    ServiceUtil.isTickValid(cast(tickWindow.getFirst(),ch.algotrader.entity.marketData.Tick))
-and
-    ServiceUtil.isMarketOpen(tickWindow.security.securityFamily.exchange.id, current_timestamp.toDate())
-and
-    tickWindow.security.securityFamily.periodicity = TimePeriod.valueOf('HOUR'); // (HOUR is a reserved keyword)
-
-@Name('PERSIST_MINUTE_TICKS')
-@RunTimeOnly()
-@Subscriber(className='marketDataService#persistTick')
-on pattern
-    [every timer:at(*, *, *, *, *)]
-select
-    *
-from
-    TickWindow as tickWindow
-where
-    ServiceUtil.isTickValid(cast(tickWindow.getFirst(),ch.algotrader.entity.marketData.Tick))
-and
-    ServiceUtil.isMarketOpen(tickWindow.security.securityFamily.exchange.id, current_timestamp.toDate())
-and
-    tickWindow.security.securityFamily.periodicity = TimePeriod.valueOf('MIN');

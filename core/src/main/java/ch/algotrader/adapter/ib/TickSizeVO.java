@@ -20,30 +20,30 @@ package ch.algotrader.adapter.ib;
 import java.io.Serializable;
 
 /**
- * POJO representing an IB string event.
+ * POJO representing an IB size event.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class TickString implements Serializable {
+public class TickSizeVO implements Serializable {
 
-    private static final long serialVersionUID = -5497096398709248042L;
+    private static final long serialVersionUID = 7514087845300720397L;
 
-    protected String tickerId;
-    protected int field;
-    protected String value;
+    private final String tickerId;
+    private final int field;
+    private final int size;
 
     /**
      * Constructor with all properties
-     * @param tickerIdIn int
-     * @param fieldIn int
-     * @param valueIn String
+     * @param tickerId int
+     * @param field int
+     * @param size int
      */
-    public TickString(final String tickerIdIn, final int fieldIn, final String valueIn) {
-        this.tickerId = tickerIdIn;
-        this.field = fieldIn;
-        this.value = valueIn;
+    public TickSizeVO(final String tickerId, final int field, final int size) {
+        this.tickerId = tickerId;
+        this.field = field;
+        this.size = size;
     }
 
     /**
@@ -55,14 +55,6 @@ public class TickString implements Serializable {
     }
 
     /**
-     *
-     * @param value int
-     */
-    public void setTickerId(final String value) {
-        this.tickerId = value;
-    }
-
-    /**
      * Get the field Attribute
      * @return field int
      */
@@ -71,26 +63,20 @@ public class TickString implements Serializable {
     }
 
     /**
-     *
-     * @param value int
+     * Get the size Attribute
+     * @return size int
      */
-    public void setField(final int value) {
-        this.field = value;
+    public int getSize() {
+        return this.size;
     }
 
-    /**
-     * Get the value Attribute
-     * @return value String
-     */
-    public String getValue() {
-        return this.value;
+    @Override
+    public String toString() {
+        return "TickSizeVO{" +
+                "tickerId='" + tickerId + '\'' +
+                ", field=" + field +
+                ", size=" + size +
+                '}';
     }
 
-    /**
-     *
-     * @param value String
-     */
-    public void setValue(final String value) {
-        this.value = value;
-    }
 }
