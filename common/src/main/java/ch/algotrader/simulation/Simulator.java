@@ -36,7 +36,6 @@ import ch.algotrader.dao.OpenPositionVOProducer;
 import ch.algotrader.dao.PositionVOProducer;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.Transaction;
-import ch.algotrader.entity.TransactionConverter;
 import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
@@ -47,9 +46,7 @@ import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.LimitOrderI;
 import ch.algotrader.entity.trade.Order;
-import ch.algotrader.entity.trade.OrderConverter;
 import ch.algotrader.entity.trade.OrderStatus;
-import ch.algotrader.entity.trade.OrderStatusConverter;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
@@ -147,7 +144,7 @@ public class Simulator {
         }
 
         // propagate order
-        this.eventDispatcher.sendEvent(order.getStrategy().getName(), OrderConverter.INSTANCE.convert(order));
+        this.eventDispatcher.sendEvent(order.getStrategy().getName(), order.convertToVO());
 
         // get the price
         BigDecimal price = new BigDecimal(0);
@@ -180,7 +177,7 @@ public class Simulator {
         orderStatus.setAvgPrice(price);
 
         // propagate order status
-        this.eventDispatcher.sendEvent(orderStatus.getOrder().getStrategy().getName(), OrderStatusConverter.INSTANCE.convert(orderStatus));
+        this.eventDispatcher.sendEvent(orderStatus.getOrder().getStrategy().getName(), orderStatus.convertToVO());
 
         // create the transaction
         createTransaction(fill);
@@ -292,7 +289,7 @@ public class Simulator {
         processTransaction(transaction);
 
         // propagate Transaction
-        this.eventDispatcher.sendEvent(transaction.getStrategy().getName(), TransactionConverter.INSTANCE.convert(transaction));
+        this.eventDispatcher.sendEvent(transaction.getStrategy().getName(), transaction.convertToVO());
 
         // propagate tradePerformance
         if (tradePerformance != null && tradePerformance.getProfit() != 0.0) {

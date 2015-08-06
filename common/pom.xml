@@ -27,7 +27,7 @@
             <plugin>
                 <groupId>algotrader</groupId>
                 <artifactId>model-codegen-plugin</artifactId>
-                <version>0.1.4</version>
+                <version>0.1.5</version>
                 <executions>
                     <execution>
                         <id>generate-model</id>
@@ -47,10 +47,6 @@
                                 <template>
                                     <file>pojo/ValueObject.ftl</file>
                                     <pattern>{package-name}/{class-name}VO.java</pattern>
-                                </template>
-                                <template>
-                                    <file>pojo/Converter.ftl</file>
-                                    <pattern>{package-name}/{class-name}Converter.java</pattern>
                                 </template>
                             </templates>
                         </configuration>

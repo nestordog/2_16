@@ -14,6 +14,8 @@ ${pojo.getPackageDeclaration()}
 
 <#include "PojoExtraClassCode.ftl"/>
 
+<#include "PojoToVOConverter.ftl"/>
+
 <#include "PojoFactory.ftl"/>
 }
 </#assign>

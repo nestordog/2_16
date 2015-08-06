@@ -48,9 +48,8 @@ import ch.algotrader.entity.strategy.PortfolioValue;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.LimitOrder;
-import ch.algotrader.entity.trade.OrderConverter;
+import ch.algotrader.entity.trade.LimitOrderVO;
 import ch.algotrader.entity.trade.OrderStatusVO;
-import ch.algotrader.entity.trade.OrderVO;
 import ch.algotrader.enumeration.AssetClass;
 import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Currency;
@@ -150,9 +149,9 @@ public class SimulatorTest {
         List<Object> values1 = argCaptor1.getAllValues();
         Assert.assertEquals(5, values1.size());
 
-        Assert.assertEquals(OrderVO.class, values1.get(0).getClass());
-        OrderVO orderVO1 = (OrderVO) values1.get(0);
-        Assert.assertEquals(OrderConverter.INSTANCE.convert(order1), orderVO1);
+        Assert.assertEquals(LimitOrderVO.class, values1.get(0).getClass());
+        LimitOrderVO orderVO1 = (LimitOrderVO) values1.get(0);
+        Assert.assertEquals(order1.convertToVO(), orderVO1);
 
         Assert.assertEquals(Fill.class, values1.get(1).getClass());
         Fill fill1 = (Fill) values1.get(1);
@@ -212,9 +211,9 @@ public class SimulatorTest {
         List<Object> values2 = argCaptor2.getAllValues();
         Assert.assertEquals(6, values2.size());
 
-        Assert.assertEquals(OrderVO.class, values2.get(0).getClass());
-        OrderVO orderVO2 = (OrderVO) values2.get(0);
-        Assert.assertEquals(OrderConverter.INSTANCE.convert(order2), orderVO2);
+        Assert.assertEquals(LimitOrderVO.class, values2.get(0).getClass());
+        LimitOrderVO orderVO2 = (LimitOrderVO) values2.get(0);
+        Assert.assertEquals(order2.convertToVO(), orderVO2);
 
         Assert.assertEquals(Fill.class, values2.get(1).getClass());
         Fill fill2 = (Fill) values2.get(1);

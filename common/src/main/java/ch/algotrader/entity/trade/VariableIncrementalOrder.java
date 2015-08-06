@@ -225,4 +225,9 @@ public class VariableIncrementalOrder extends IncrementalOrder {
             return this.currentLimit.subtract(roundedIncrement).compareTo(this.endLimit) >= 0;
         }
     }
+
+    @Override
+    public OrderVO convertToVO() {
+        throw new UnsupportedOperationException();
+    }
 }

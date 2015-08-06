@@ -90,4 +90,9 @@ public class DistributingOrder extends AlgoOrder {
 
         return orders;
     }
+
+    @Override
+    public OrderVO convertToVO() {
+        throw new UnsupportedOperationException();
+    }
 }

@@ -1,6 +1,6 @@
 <#if !pojo.isAbstract()>    
     /**
-     * Constructs new instances of {@link ${pojo.getDeclarationName()}.
+     * Constructs new instances of {@link ${pojo.getDeclarationName()}}.
      */
     public static final class Factory {
     

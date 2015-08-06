@@ -204,4 +204,9 @@ public class TickwiseIncrementalOrder extends IncrementalOrder {
             return family.adjustPrice(null, this.currentLimit, -1).compareTo(this.endLimit) >= 0;
         }
     }
+
+    @Override
+    public OrderVO convertToVO() {
+        throw new UnsupportedOperationException();
+    }
 }

@@ -245,7 +245,7 @@ public class SlicingOrder extends AlgoOrder {
     @Override
     public List<SimpleOrder> getInitialOrders(Tick tick) {
 
-        return Collections.singletonList((SimpleOrder) nextOrder(getQuantity(), tick));
+        return Collections.singletonList(nextOrder(getQuantity(), tick));
     }
 
     public void increaseOffsetTicks() {
@@ -359,5 +359,10 @@ public class SlicingOrder extends AlgoOrder {
                     (Side.BUY.equals(order.getSide()) ? tick.getVolAsk() : tick.getVolBid()), limit, tick.getBid(), tick.getAsk());
         }
         return order;
+    }
+
+    @Override
+    public OrderVO convertToVO() {
+        throw new UnsupportedOperationException();
     }
 }
