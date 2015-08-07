@@ -143,6 +143,10 @@ public class Simulator {
             order.setDateTime(getCurrentTime());
         }
 
+        if (order.getExchange() == null) {
+            order.setExchange(order.getSecurity().getSecurityFamily().getExchange());
+        }
+
         // propagate order
         this.eventDispatcher.sendEvent(order.getStrategy().getName(), order.convertToVO());
 
@@ -153,7 +157,7 @@ public class Simulator {
             // limit orders are executed at their limit price
             price = ((LimitOrderI) order).getLimit();
         } else {
-            throw new UnsupportedOperationException("only MarketOrders allowed at this time");
+            throw new UnsupportedOperationException("only LimitOrders allowed at this time");
         }
 
         // create one fill per order
