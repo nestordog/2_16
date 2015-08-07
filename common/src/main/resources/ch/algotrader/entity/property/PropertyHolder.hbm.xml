@@ -181,7 +181,7 @@
     public abstract boolean isCashPosition();
 
 ]]>   
-            </meta>  
+            </meta> 	    
             <property name="quantity">
                 <meta attribute="field-description"><![CDATA[The current quantity of this Position.]]></meta>
                 <column name="QUANTITY" not-null="true" unique="false" sql-type="BIGINT"/>
@@ -228,7 +228,7 @@ represented by an instance of this class.]]></meta>
             <meta attribute="class-code">
 <![CDATA[
 ]]>   
-            </meta>  
+            </meta> 	    
             <property name="feedType">
                 <meta attribute="field-description"><![CDATA[The market data feed that this Subscription is valid for.]]></meta>
                 <meta attribute="use-in-equals">true</meta>
@@ -267,7 +267,7 @@ represented by an instance of this class.]]></meta>
             <meta attribute="class-code">
 <![CDATA[
 ]]>   
-            </meta>  
+            </meta> 	    
             <property name="name">
                 <meta attribute="use-in-equals">true</meta>
                 <column name="NAME" not-null="true" unique="true" sql-type="VARCHAR(255)"/>
@@ -312,7 +312,7 @@ Properties.]]></meta>
     public abstract boolean isServer();
 
 ]]>   
-            </meta>  
+            </meta> 	    
             <property name="name">
                 <meta attribute="use-in-equals">true</meta>
                 <column name="NAME" not-null="true" unique="true" sql-type="VARCHAR(255)"/>

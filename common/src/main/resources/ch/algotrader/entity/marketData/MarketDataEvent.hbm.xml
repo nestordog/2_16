@@ -10,9 +10,14 @@
     <class name="ch.algotrader.entity.marketData.MarketDataEventImpl"
         table="`market_data_event`" dynamic-insert="false" dynamic-update="false" abstract="true">
 	    <meta attribute="implements">ch.algotrader.entity.marketData.MarketDataEventI</meta>      
-	    <meta attribute="generated-class">ch.algotrader.entity.marketData.MarketDataEvent</meta>	
+	    <meta attribute="generated-class">ch.algotrader.entity.marketData.MarketDataEvent</meta>
+	    <meta attribute="class-code">
+<![CDATA[
+]]>   
+	    </meta> 	    
 	    <meta attribute="interface-code">
 <![CDATA[
+
     /**
      * get the most recent price of this market data event. subclass need to implement this method
      * with appropriate logic
@@ -45,10 +50,10 @@
     public default double getMarketValueDouble(ch.algotrader.enumeration.Direction direction) {
         java.math.BigDecimal marketValue = getMarketValue(direction);
         return marketValue != null ? marketValue.doubleValue() : 0.0d;
-    }  
+    } 
 
 ]]>   
-	    </meta> 	        
+	    </meta> 	    
         <meta attribute="class-description"><![CDATA[Any type of market data related to a particular Security]]></meta>
         <cache usage="read-write" />
         <id name="id" type="long" >
@@ -85,8 +90,13 @@
         <union-subclass name="ch.algotrader.entity.marketData.BarImpl" table="`bar`" dynamic-insert="false" dynamic-update="false" abstract="false">
             <meta attribute="implements">ch.algotrader.entity.marketData.BarI</meta>
             <meta attribute="generated-class">ch.algotrader.entity.marketData.Bar</meta>
+            <meta attribute="class-code">
+<![CDATA[
+]]>   
+            </meta> 	    
             <meta attribute="vo-code">
 <![CDATA[
+
     @Override
     public BigDecimal getCurrentValue() {
 
@@ -98,9 +108,9 @@
 
         return getClose();
     }
-    
+
 ]]>   
-            </meta>  
+            </meta> 	    
             <property name="barSize">
                 <meta attribute="field-description"><![CDATA[The size of this Bar (e.g. 1Min, 15Min, 1Hour, etc..)]]></meta>
                 <meta attribute="use-in-equals">true</meta>
@@ -160,9 +170,10 @@
     public abstract double getBidAskSpreadDouble();
 
 ]]>   
-            </meta>  
+            </meta> 	    
             <meta attribute="vo-code">
 <![CDATA[
+
     @Override
     public BigDecimal getCurrentValue() {
 
@@ -184,7 +195,7 @@
     }
 
 ]]>   
-            </meta>             
+            </meta> 	    
             <property name="last">
                 <meta attribute="field-description"><![CDATA[The last price.]]></meta>
                 <column name="LAST" not-null="false" unique="false" sql-type="Decimal(15,6)"/>
@@ -231,8 +242,13 @@
         <union-subclass name="ch.algotrader.entity.marketData.GenericTickImpl" table="`generic_tick`" dynamic-insert="false" dynamic-update="false" abstract="false">
             <meta attribute="implements">ch.algotrader.entity.marketData.GenericTickI</meta>
             <meta attribute="generated-class">ch.algotrader.entity.marketData.GenericTick</meta>
+            <meta attribute="class-code">
+<![CDATA[
+]]>   
+            </meta> 	    
             <meta attribute="vo-code">
 <![CDATA[
+
     @Override
     public BigDecimal getCurrentValue() {
         if (getMoneyValue() != null) {
@@ -250,9 +266,9 @@
     public BigDecimal getMarketValue(ch.algotrader.enumeration.Direction direction) {
         return getCurrentValue();
     }
-    
+
 ]]>   
-            </meta>  
+            </meta> 	    
             <property name="tickType">
                 <meta attribute="use-in-equals">true</meta>
                 <meta attribute="property-type">ch.algotrader.enumeration.TickType</meta>

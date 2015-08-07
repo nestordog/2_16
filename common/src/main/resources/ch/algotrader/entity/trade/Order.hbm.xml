@@ -235,14 +235,14 @@ represented by an instance of this class.]]></meta>
         throws ch.algotrader.entity.trade.OrderValidationException;
 
 ]]>   
-            </meta>  
+            </meta> 	    
             <subclass name="ch.algotrader.entity.trade.LimitOrderImpl" discriminator-value="LimitOrderImpl" dynamic-insert="false" dynamic-update="false" abstract="false">
                 <meta attribute="implements">ch.algotrader.entity.trade.LimitOrderI</meta>
                 <meta attribute="generated-class">ch.algotrader.entity.trade.LimitOrder</meta>
                 <meta attribute="class-code">
 <![CDATA[
 ]]>   
-                </meta>  
+                </meta> 	    
                 <property name="limit">
                     <meta attribute="field-description"><![CDATA[The limit price.]]></meta>
                     <column name="`LIMIT`" not-null="false" unique="false" sql-type="Decimal(15,6)"/>
@@ -256,7 +256,7 @@ represented by an instance of this class.]]></meta>
                 <meta attribute="class-code">
 <![CDATA[
 ]]>   
-                </meta>  
+                </meta> 	    
                 <property name="limit">
                     <meta attribute="field-description"><![CDATA[the limit price.]]></meta>
                     <column name="`LIMIT`" not-null="false" unique="false" sql-type="Decimal(15,6)"/>
@@ -276,7 +276,7 @@ represented by an instance of this class.]]></meta>
                 <meta attribute="class-code">
 <![CDATA[
 ]]>   
-                </meta>  
+                </meta> 	    
             </subclass>
             <subclass name="ch.algotrader.entity.trade.StopOrderImpl" discriminator-value="StopOrderImpl" dynamic-insert="false" dynamic-update="false" abstract="false">
                 <meta attribute="implements">ch.algotrader.entity.trade.StopOrderI</meta>
@@ -284,7 +284,7 @@ represented by an instance of this class.]]></meta>
                 <meta attribute="class-code">
 <![CDATA[
 ]]>   
-                </meta>  
+                </meta> 	    
                 <property name="stop">
                     <meta attribute="field-description"><![CDATA[The stop price.]]></meta>
                     <column name="STOP" not-null="false" unique="false" sql-type="Decimal(15,6)"/>

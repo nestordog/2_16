@@ -131,7 +131,7 @@
     public abstract java.util.Date getExpiration(java.util.Date dateTime);
 
 ]]>   
-            </meta>  
+            </meta> 	    
             <key foreign-key="GENERIC_FUTUREIFKC">
                 <column name="ID" sql-type="BIGINT"/>
             </key>
@@ -165,7 +165,7 @@
     public abstract ch.algotrader.enumeration.Currency getTransactionCurrency();
 
 ]]>   
-            </meta>  
+            </meta> 	    
             <key foreign-key="FOREXIFKC">
                 <column name="ID" sql-type="BIGINT"/>
             </key>
@@ -200,7 +200,7 @@
     public abstract int getDuration(java.util.Date dateTime);
 
 ]]>   
-            </meta>  
+            </meta> 	    
             <key foreign-key="OPTIONIFKC">
                 <column name="ID" sql-type="BIGINT"/>
             </key>
@@ -247,7 +247,7 @@
     public abstract int getDuration(java.util.Date dateTime);
 
 ]]>   
-            </meta>  
+            </meta> 	    
             <key foreign-key="FUTUREIFKC">
                 <column name="ID" sql-type="BIGINT"/>
             </key>
@@ -276,7 +276,7 @@
             <meta attribute="class-code">
 <![CDATA[
 ]]>   
-            </meta>  
+            </meta> 	    
             <key foreign-key="INTREST_RATEIFKC">
                 <column name="ID" sql-type="BIGINT"/>
             </key>
@@ -295,7 +295,7 @@
             <meta attribute="class-code">
 <![CDATA[
 ]]>   
-            </meta>  
+            </meta> 	    
             <key foreign-key="INDEXIFKC">
                 <column name="ID" sql-type="BIGINT"/>
             </key>
@@ -314,7 +314,7 @@
             <meta attribute="class-code">
 <![CDATA[
 ]]>   
-            </meta>  
+            </meta> 	    
             <key foreign-key="STOCKIFKC">
                 <column name="ID" sql-type="BIGINT"/>
             </key>
@@ -369,7 +369,7 @@
     public abstract long getComponentTotalQuantity();
 
 ]]>   
-            </meta>  
+            </meta> 	    
             <key foreign-key="COMBINATIONIFKC">
                 <column name="ID" sql-type="BIGINT"/>
             </key>
@@ -411,7 +411,7 @@
             <meta attribute="class-code">
 <![CDATA[
 ]]>   
-            </meta>  
+            </meta> 	    
             <key foreign-key="BONDIFKC">
                 <column name="ID" sql-type="BIGINT"/>
             </key>
@@ -434,7 +434,7 @@
             <meta attribute="class-code">
 <![CDATA[
 ]]>   
-            </meta>  
+            </meta> 	    
             <key foreign-key="FUNDIFKC">
                 <column name="ID" sql-type="BIGINT"/>
             </key>
@@ -445,7 +445,7 @@
             <meta attribute="class-code">
 <![CDATA[
 ]]>   
-            </meta>  
+            </meta> 	    
             <key foreign-key="COMMODITYIFKC">
                 <column name="ID" sql-type="BIGINT"/>
             </key>
