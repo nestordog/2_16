@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.MultiMap;
 import org.apache.commons.collections15.multimap.MultiHashMap;
 import org.apache.commons.lang.Validate;
@@ -362,6 +363,9 @@ public class Simulator {
         return this.positionsByStrategy.values();
     }
 
+    public Collection<Position> findOpenPositions() {
+        return CollectionUtils.select(this.positionsByStrategy.values(), entity -> entity.getQuantity() != 0);
+    }
     public Position findPositionByStrategyAndSecurity(final String strategyName, final Security security) {
         return this.positionsByStrategyAndSecurity.get(new Pair<>(strategyName, security));
     }
