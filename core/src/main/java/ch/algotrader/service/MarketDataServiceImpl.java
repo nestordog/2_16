@@ -28,16 +28,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.SessionFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -67,7 +63,7 @@ import ch.algotrader.visitor.TickValidationVisitor;
  * @version $Revision$ $Date$
  */
 @Transactional(propagation = Propagation.SUPPORTS)
-public class MarketDataServiceImpl implements MarketDataService, ApplicationListener<ContextRefreshedEvent> {
+public class MarketDataServiceImpl implements MarketDataService {
 
     private static final Logger LOGGER = LogManager.getLogger(MarketDataServiceImpl.class);
 
@@ -93,8 +89,6 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationList
 
     private final LocalLookupService localLookupService;
 
-    private final AtomicBoolean initialized;
-
     private final Map<FeedType, ExternalMarketDataService> externalMarketDataServiceMap;
 
     public MarketDataServiceImpl(final CommonConfig commonConfig,
@@ -106,7 +100,8 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationList
             final SubscriptionDao subscriptionDao,
             final EngineManager engineManager,
             final EventDispatcher eventDispatcher,
- final LocalLookupService localLookupService) {
+            final LocalLookupService localLookupService,
+            final Map<FeedType, ExternalMarketDataService> externalMarketDataServiceMap) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(coreConfig, "CoreConfig is null");
@@ -118,6 +113,7 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationList
         Validate.notNull(engineManager, "EngineManager is null");
         Validate.notNull(eventDispatcher, "EventDispatcher is null");
         Validate.notNull(localLookupService, "LocalLookupService is null");
+        Validate.notNull(externalMarketDataServiceMap, "Map<FeedType, ExternalMarketDataService> is null");
 
         this.commonConfig = commonConfig;
         this.coreConfig = coreConfig;
@@ -129,8 +125,7 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationList
         this.engineManager = engineManager;
         this.eventDispatcher = eventDispatcher;
         this.localLookupService = localLookupService;
-        this.initialized = new AtomicBoolean(false);
-        this.externalMarketDataServiceMap = new ConcurrentHashMap<>();
+        this.externalMarketDataServiceMap = new ConcurrentHashMap<>(externalMarketDataServiceMap);
     }
 
     /**
@@ -368,22 +363,6 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationList
 
         synchronized (csvWriter) {
             csvWriter.write(tick);
-        }
-    }
-
-    @Override
-    public void onApplicationEvent(final ContextRefreshedEvent event) {
-
-        if (this.initialized.compareAndSet(false, true)) {
-
-            ApplicationContext applicationContext = event.getApplicationContext();
-            this.externalMarketDataServiceMap.clear();
-            Map<String, ExternalMarketDataService> map = applicationContext.getBeansOfType(ExternalMarketDataService.class);
-            for (Map.Entry<String, ExternalMarketDataService> entry: map.entrySet()) {
-
-                ExternalMarketDataService externalMarketDataService = entry.getValue();
-                this.externalMarketDataServiceMap.put(externalMarketDataService.getFeedType(), externalMarketDataService);
-            }
         }
     }
 

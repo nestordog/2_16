@@ -24,7 +24,7 @@ import org.springframework.context.annotation.Profile;
 import ch.algotrader.adapter.fix.ManagedFixAdapter;
 import ch.algotrader.adapter.fix.MarketDataFixSessionStateHolder;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.service.OrderService;
+import ch.algotrader.ordermgmt.OpenOrderRegistry;
 import ch.algotrader.service.dc.DCFixMarketDataService;
 import ch.algotrader.service.dc.DCFixMarketDataServiceImpl;
 import ch.algotrader.service.dc.DCFixOrderService;
@@ -40,9 +40,9 @@ public class DCFixServiceWiring {
     @Bean(name = "dCFixOrderService")
     public DCFixOrderService createDCFixOrderService(
             final ManagedFixAdapter fixAdapter,
-            final OrderService orderService) {
+            final OpenOrderRegistry openOrderRegistry) {
 
-        return new DCFixOrderServiceImpl(fixAdapter, orderService);
+        return new DCFixOrderServiceImpl(fixAdapter, openOrderRegistry);
     }
 
     @Profile("dCMarketData")

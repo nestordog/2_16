@@ -22,7 +22,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 import ch.algotrader.adapter.fix.ManagedFixAdapter;
-import ch.algotrader.service.OrderService;
+import ch.algotrader.ordermgmt.OpenOrderRegistry;
 import ch.algotrader.service.jpm.JPMFixOrderServiceImpl;
 
 /**
@@ -35,9 +35,9 @@ public class JPMFixServiceWiring {
     @Bean(name = "jPMFixOrderService")
     public JPMFixOrderServiceImpl createJPMFixOrderService(
             final ManagedFixAdapter fixAdapter,
-            final OrderService orderService) {
+            final OpenOrderRegistry openOrderRegistry) {
 
-        return new JPMFixOrderServiceImpl(fixAdapter, orderService);
+        return new JPMFixOrderServiceImpl(fixAdapter, openOrderRegistry);
     }
 
 }

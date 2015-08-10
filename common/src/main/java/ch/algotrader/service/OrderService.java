@@ -20,7 +20,6 @@ package ch.algotrader.service;
 import java.util.Collection;
 import java.util.Map;
 
-import ch.algotrader.entity.Account;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderCompletion;
 import ch.algotrader.entity.trade.OrderStatus;
@@ -83,11 +82,6 @@ public interface OrderService {
     public void modifyOrder(String intId, Map<String, String> properties);
 
     /**
-     * Persists the Order into the database
-     */
-    public void persistOrder(Order order);
-
-    /**
      * Propagates an Order to the corresponding Strategy.
      */
     public void propagateOrder(Order order);
@@ -98,6 +92,11 @@ public interface OrderService {
     public void propagateOrderStatus(OrderStatus orderStatus);
 
     /**
+     * PAsses the last {@link OrderStatus} upon order completion..
+     */
+    public void orderCompleted(OrderStatus orderStatus);
+
+    /**
      * Propagates an {@link OrderCompletion} to the corresponding Strategy.
      */
     public void propagateOrderCompletion(OrderCompletion orderCompletion);
@@ -106,11 +105,6 @@ public interface OrderService {
      * Propagates an {@link OrderStatus} to the corresponding Strategy.
      */
     public void updateOrderId(Order order, String intId, String extId);
-
-    /**
-     * Generates next order id for the given account.
-     */
-    public String getNextOrderId(Account account);
 
     /**
      * Finds all OrderStati of currently open Orders.

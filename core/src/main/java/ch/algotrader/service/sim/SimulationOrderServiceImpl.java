@@ -19,6 +19,7 @@ package ch.algotrader.service.sim;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.lang.Validate;
 
@@ -35,9 +36,8 @@ import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
+import ch.algotrader.ordermgmt.OpenOrderRegistry;
 import ch.algotrader.service.LocalLookupService;
-import ch.algotrader.service.OrderService;
-import ch.algotrader.service.TransactionService;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -46,36 +46,54 @@ import ch.algotrader.service.TransactionService;
  */
 public class SimulationOrderServiceImpl implements SimulationOrderService {
 
-    private final TransactionService transactionService;
-    private final OrderService orderService;
     private final LocalLookupService localLookupService;
+    private final OpenOrderRegistry openOrderRegistry;
     private final EngineManager engineManager;
     private final Engine serverEngine;
+    private final AtomicLong counter;
 
     public SimulationOrderServiceImpl(
-            final TransactionService transactionService,
-            final OrderService orderService,
+            final OpenOrderRegistry openOrderRegistry,
             final LocalLookupService localLookupService,
             final EngineManager engineManager,
             final Engine serverEngine) {
 
-        Validate.notNull(transactionService, "TransactionService is null");
-        Validate.notNull(orderService, "OrderService is null");
+        Validate.notNull(openOrderRegistry, "OpenOrderRegistry is null");
         Validate.notNull(localLookupService, "LocalLookupService is null");
         Validate.notNull(engineManager, "EngineManager is null");
         Validate.notNull(serverEngine, "Engine is null");
 
-        this.transactionService = transactionService;
-        this.orderService = orderService;
+        this.openOrderRegistry = openOrderRegistry;
         this.engineManager = engineManager;
         this.serverEngine = serverEngine;
         this.localLookupService = localLookupService;
+        this.counter = new AtomicLong(0);
     }
 
     @Override
     public void sendOrder(SimpleOrder order) {
 
         Validate.notNull(order, "Order is null");
+
+        String intId = order.getIntId();
+        if (intId == null) {
+
+            intId = getNextOrderId(order.getAccount());
+            order.setIntId(intId);
+        }
+
+        this.openOrderRegistry.add(order);
+
+        // create and OrderStatus
+        OrderStatus orderStatus = OrderStatus.Factory.newInstance();
+        orderStatus.setStatus(Status.EXECUTED);
+        orderStatus.setIntId(order.getIntId());
+        orderStatus.setFilledQuantity(order.getQuantity());
+        orderStatus.setRemainingQuantity(0);
+        orderStatus.setOrder(order);
+
+        // send the orderStatus to the AlgoTrader Server
+        this.serverEngine.sendEvent(orderStatus);
 
         // create one fill per order
         Fill fill = new Fill();
@@ -91,23 +109,7 @@ public class SimulationOrderServiceImpl implements SimulationOrderService {
         fill.setFee(getFee(order));
 
         // propagate the fill
-        this.transactionService.propagateFill(fill);
-
-        // create the transaction
-        this.transactionService.createTransaction(fill);
-
-        // create and OrderStatus
-        OrderStatus orderStatus = OrderStatus.Factory.newInstance();
-        orderStatus.setStatus(Status.EXECUTED);
-        orderStatus.setFilledQuantity(order.getQuantity());
-        orderStatus.setRemainingQuantity(0);
-        orderStatus.setOrder(order);
-
-        // send the orderStatus to the AlgoTrader Server
-        this.serverEngine.sendEvent(orderStatus);
-
-        // propagate the OrderStatus to the strategy
-        this.orderService.propagateOrderStatus(orderStatus);
+        this.serverEngine.sendEvent(fill);
 
     }
 
@@ -178,7 +180,8 @@ public class SimulationOrderServiceImpl implements SimulationOrderService {
     @Override
     public String getNextOrderId(final Account account) {
 
-        throw new UnsupportedOperationException("get next order id not supported in simulation");
+        long n = counter.incrementAndGet();
+        return "sim" + n + ".0";
     }
 
     @Override

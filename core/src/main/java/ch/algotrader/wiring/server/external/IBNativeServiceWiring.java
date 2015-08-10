@@ -38,7 +38,7 @@ import ch.algotrader.dao.security.SecurityDao;
 import ch.algotrader.dao.security.SecurityFamilyDao;
 import ch.algotrader.dao.security.StockDao;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.service.OrderService;
+import ch.algotrader.ordermgmt.OpenOrderRegistry;
 import ch.algotrader.service.ib.IBNativeAccountService;
 import ch.algotrader.service.ib.IBNativeAccountServiceImpl;
 import ch.algotrader.service.ib.IBNativeHistoricalDataService;
@@ -72,11 +72,11 @@ public class IBNativeServiceWiring {
     public IBNativeOrderService createIBNativeOrderService(
             final IBSession iBSession,
             final IBIdGenerator iBIdGenerator,
+            final OpenOrderRegistry openOrderRegistry,
             final IBOrderMessageFactory iBOrderMessageFactory,
-            final Engine serverEngine,
-            final OrderService orderService) {
+            final Engine serverEngine) {
 
-        return new IBNativeOrderServiceImpl(iBSession, iBIdGenerator, iBOrderMessageFactory, serverEngine, orderService);
+        return new IBNativeOrderServiceImpl(iBSession, iBIdGenerator, openOrderRegistry, iBOrderMessageFactory, serverEngine);
     }
 
     @Profile("iBHistoricalData")

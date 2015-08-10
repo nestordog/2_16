@@ -18,7 +18,11 @@
 
 package ch.algotrader.wiring.server;
 
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.hibernate.SessionFactory;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -58,14 +62,19 @@ import ch.algotrader.dao.trade.OrderPropertyDao;
 import ch.algotrader.dao.trade.OrderStatusDao;
 import ch.algotrader.dao.trade.StopLimitOrderDao;
 import ch.algotrader.dao.trade.StopOrderDao;
+import ch.algotrader.enumeration.FeedType;
+import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.dispatch.EventDispatcher;
+import ch.algotrader.ordermgmt.OpenOrderRegistry;
 import ch.algotrader.service.CalendarService;
 import ch.algotrader.service.CalendarServiceImpl;
 import ch.algotrader.service.CombinationService;
 import ch.algotrader.service.CombinationServiceImpl;
 import ch.algotrader.service.EventPropagator;
+import ch.algotrader.service.ExternalMarketDataService;
+import ch.algotrader.service.ExternalOrderService;
 import ch.algotrader.service.ForexService;
 import ch.algotrader.service.ForexServiceImpl;
 import ch.algotrader.service.FutureService;
@@ -247,10 +256,15 @@ public class ServiceWiring {
             final SubscriptionDao subscriptionDao,
             final EngineManager engineManager,
             final EventDispatcher eventDispatcher,
-            final LocalLookupService localLookupService) {
+            final LocalLookupService localLookupService,
+            final ApplicationContext applicationContext) {
+
+        Map<String, ExternalMarketDataService> serviceMap1 = applicationContext.getBeansOfType(ExternalMarketDataService.class);
+        Map<FeedType, ExternalMarketDataService> serviceMap2 = serviceMap1.values().stream()
+                .collect(Collectors.toMap(ExternalMarketDataService::getFeedType, service -> service));
 
         return new MarketDataServiceImpl(commonConfig, coreConfig, sessionFactory, tickDao, securityDao, strategyDao, subscriptionDao, engineManager,
-                eventDispatcher, localLookupService);
+                eventDispatcher, localLookupService, serviceMap2);
     }
 
     @Bean(name = "orderPersistenceService")
@@ -273,6 +287,11 @@ public class ServiceWiring {
         return taskExecutor;
     }
 
+    @Bean(name = "openOrderRegistry")
+    public OpenOrderRegistry createOpenOrderRegistry() {
+        return new OpenOrderRegistry();
+    }
+
     @Bean(name = "orderService")
     public OrderService createOrderService(final CommonConfig commonConfig,
             final SessionFactory sessionFactory,
@@ -285,12 +304,18 @@ public class ServiceWiring {
             final AccountDao accountDao,
             final ExchangeDao exchangeDao,
             final OrderPreferenceDao orderPreferenceDao,
+            final OpenOrderRegistry openOrderRegistry,
             final EventDispatcher eventDispatcher,
             final EngineManager engineManager,
-            final Engine serverEngine) {
+            final Engine serverEngine,
+            final ApplicationContext applicationContext) {
+
+        Map<String, ExternalOrderService> serviceMap1 = applicationContext.getBeansOfType(ExternalOrderService.class);
+        Map<OrderServiceType, ExternalOrderService> serviceMap2 = serviceMap1.values().stream()
+                .collect(Collectors.toMap(ExternalOrderService::getOrderServiceType, service -> service));
 
         return new OrderServiceImpl(commonConfig, sessionFactory, orderPersistService, localLookupService, orderDao, orderStatusDao, strategyDao, securityDao, accountDao, exchangeDao, orderPreferenceDao,
-                eventDispatcher, engineManager, serverEngine);
+                openOrderRegistry, eventDispatcher, engineManager, serverEngine, serviceMap2);
     }
 
     @Bean(name = "combinationService")

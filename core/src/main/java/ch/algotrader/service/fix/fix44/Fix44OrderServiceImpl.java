@@ -22,7 +22,7 @@ import org.apache.commons.lang.Validate;
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.fix.fix44.Fix44OrderMessageFactory;
 import ch.algotrader.entity.trade.SimpleOrder;
-import ch.algotrader.service.OrderService;
+import ch.algotrader.ordermgmt.OpenOrderRegistry;
 import ch.algotrader.service.fix.FixOrderServiceImpl;
 import quickfix.fix44.NewOrderSingle;
 import quickfix.fix44.OrderCancelReplaceRequest;
@@ -37,16 +37,20 @@ public abstract class Fix44OrderServiceImpl extends FixOrderServiceImpl implemen
 
     private static final long serialVersionUID = -3694423160435186473L;
 
+    private final OpenOrderRegistry openOrderRegistry;
     private final Fix44OrderMessageFactory messageFactory;
 
-    public Fix44OrderServiceImpl(final FixAdapter fixAdapter,
-            final OrderService orderService,
+    public Fix44OrderServiceImpl(
+            final FixAdapter fixAdapter,
+            final OpenOrderRegistry openOrderRegistry,
             final Fix44OrderMessageFactory messageFactory) {
 
-        super(fixAdapter, orderService);
+        super(fixAdapter);
 
-        Validate.notNull(orderService, "Fix44OrderMessageFactory is null");
+        Validate.notNull(openOrderRegistry, "OpenOrderRegistry is null");
+        Validate.notNull(messageFactory, "Fix44OrderMessageFactory is null");
 
+        this.openOrderRegistry = openOrderRegistry;
         this.messageFactory = messageFactory;
     }
 
@@ -73,8 +77,10 @@ public abstract class Fix44OrderServiceImpl extends FixOrderServiceImpl implemen
         // broker-specific settings
         prepareSendOrder(order, message);
 
+        this.openOrderRegistry.add(order);
+
         // send the message
-        sendOrder(order, message, true);
+        sendOrder(order, message);
 
     }
 
@@ -95,9 +101,10 @@ public abstract class Fix44OrderServiceImpl extends FixOrderServiceImpl implemen
         order.setIntId(clOrdID);
         order.setExtId(null);
 
-        // send the message
-        sendOrder(order, message, true);
+        this.openOrderRegistry.add(order);
 
+        // send the message
+        sendOrder(order, message);
     }
 
     @Override
@@ -114,8 +121,7 @@ public abstract class Fix44OrderServiceImpl extends FixOrderServiceImpl implemen
         prepareCancelOrder(order, message);
 
         // send the message
-        sendOrder(order, message, false);
-
+        sendOrder(order, message);
     }
 
     /**

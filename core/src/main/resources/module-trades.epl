@@ -53,17 +53,11 @@ or
     (orderStatus.extId is not null and (orderStatus.`order`.extId is null or orderStatus.extId != orderStatus.`order`.extId));
 
 @Name('DELETE_FROM_OPEN_ORDER_WINDOW')
-@RunTimeOnly()
-on
-    pattern[every orderStatus=OrderStatus(status = Status.EXECUTED or status = Status.CANCELED  or status = Status.REJECTED) -> timer:interval(1 sec)]
-delete from
-    OpenOrderWindow as openOrderWindow
-where
-    orderStatus.`order` is null
-or
-    orderStatus.`order`.intId = openOrderWindow.intId
-or
-    orderStatus.intId = openOrderWindow.intId;
+@Subscriber(className='orderService#orderCompleted')
+select
+    orderStatus
+from
+    pattern[every orderStatus=OrderStatus(status = Status.EXECUTED or status = Status.CANCELED  or status = Status.REJECTED) -> timer:interval(1 sec)];
 
 @Name('INSERT_INTO_ORDER_COMPLETION')
 @RunTimeOnly()
@@ -162,7 +156,6 @@ from
         (fill.`order`.parentOrder is null and `order`.intId = fill.`order`.intId))];
 
 @Name('PROPAGATE_ORDER_STATUS')
-@RunTimeOnly()
 @Subscriber(className='orderService#propagateOrderStatus')
 select
     *
@@ -179,7 +172,6 @@ from
 
 @Name('PROPAGATE_FILL')
 @Priority(1)
-@RunTimeOnly()
 @Subscriber(className='transactionService#propagateFill')
 select
     *
@@ -187,7 +179,6 @@ from
     Fill;
 
 @Name('CREATE_TRANSACTION')
-@RunTimeOnly()
 @Subscriber(className='transactionService#createTransaction')
 select
     *

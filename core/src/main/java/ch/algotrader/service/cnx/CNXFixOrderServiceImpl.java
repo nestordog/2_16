@@ -21,7 +21,7 @@ import ch.algotrader.adapter.cnx.CNXFixOrderMessageFactory;
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
-import ch.algotrader.service.OrderService;
+import ch.algotrader.ordermgmt.OpenOrderRegistry;
 import ch.algotrader.service.fix.fix44.Fix44OrderServiceImpl;
 import quickfix.fix44.NewOrderSingle;
 import quickfix.fix44.OrderCancelReplaceRequest;
@@ -36,10 +36,11 @@ public class CNXFixOrderServiceImpl extends Fix44OrderServiceImpl implements CNX
 
     private static final long serialVersionUID = -5811426083268336866L;
 
-    public CNXFixOrderServiceImpl(final FixAdapter fixAdapter,
-            final OrderService orderService) {
+    public CNXFixOrderServiceImpl(
+            final FixAdapter fixAdapter,
+            final OpenOrderRegistry openOrderRegistry) {
 
-        super(fixAdapter, orderService, new CNXFixOrderMessageFactory());
+        super(fixAdapter, openOrderRegistry, new CNXFixOrderMessageFactory());
     }
 
     @Override

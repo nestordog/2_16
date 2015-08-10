@@ -26,8 +26,8 @@ import org.springframework.context.annotation.Profile;
 import ch.algotrader.adapter.fix.ManagedFixAdapter;
 import ch.algotrader.adapter.ib.IBCustomMessage;
 import ch.algotrader.config.IBConfig;
+import ch.algotrader.ordermgmt.OpenOrderRegistry;
 import ch.algotrader.service.LookupService;
-import ch.algotrader.service.OrderService;
 import ch.algotrader.service.ib.IBFixAllocationService;
 import ch.algotrader.service.ib.IBFixAllocationServiceImpl;
 import ch.algotrader.service.ib.IBFixOrderService;
@@ -44,9 +44,9 @@ public class IBFixServiceWiring {
     public IBFixOrderService createIBFixOrderService(
             final IBConfig iBConfig,
             final ManagedFixAdapter fixAdapter,
-            final OrderService orderService) {
+            final OpenOrderRegistry openOrderRegistry) {
 
-        return new IBFixOrderServiceImpl(iBConfig, fixAdapter, orderService);
+        return new IBFixOrderServiceImpl(iBConfig, fixAdapter, openOrderRegistry);
     }
 
     @Bean(name = "iBFixAllocationService")

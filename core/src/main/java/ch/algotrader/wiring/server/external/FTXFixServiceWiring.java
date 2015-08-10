@@ -24,7 +24,7 @@ import org.springframework.context.annotation.Profile;
 import ch.algotrader.adapter.fix.ManagedFixAdapter;
 import ch.algotrader.adapter.fix.MarketDataFixSessionStateHolder;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.service.OrderService;
+import ch.algotrader.ordermgmt.OpenOrderRegistry;
 import ch.algotrader.service.ftx.FTXFixMarketDataService;
 import ch.algotrader.service.ftx.FTXFixMarketDataServiceImpl;
 import ch.algotrader.service.ftx.FTXFixOrderService;
@@ -40,10 +40,10 @@ public class FTXFixServiceWiring {
     @Bean(name = "fTXFixOrderService")
     public FTXFixOrderService createFTXFixOrderService(
             final ManagedFixAdapter fixAdapter,
-            final OrderService orderService,
+            final OpenOrderRegistry openOrderRegistry,
             final Engine serverEngine) {
 
-        return new FTXFixOrderServiceImpl(fixAdapter, orderService, serverEngine);
+        return new FTXFixOrderServiceImpl(fixAdapter, openOrderRegistry, serverEngine);
     }
 
     @Profile("fTXMarketData")

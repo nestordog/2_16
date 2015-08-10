@@ -17,9 +17,9 @@
  ***********************************************************************************/
 package ch.algotrader.service.fix;
 
-import quickfix.Message;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.service.ExternalOrderService;
+import quickfix.Message;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -31,6 +31,6 @@ public interface FixOrderService extends ExternalOrderService {
     /**
      * Sends an Order to the external Broker and propagates the Order to the AlgoTrader Server Esper Engine.
      */
-    public void sendOrder(Order order, Message message, boolean propagate);
+    public void sendOrder(Order order, Message message);
 
 }

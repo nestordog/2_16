@@ -17,17 +17,17 @@
  ***********************************************************************************/
 package ch.algotrader.service.jpm;
 
-import quickfix.field.HandlInst;
-import quickfix.fix42.NewOrderSingle;
-import quickfix.fix42.OrderCancelReplaceRequest;
-import quickfix.fix42.OrderCancelRequest;
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.fix.fix42.GenericFix42OrderMessageFactory;
 import ch.algotrader.adapter.fix.fix42.GenericFix42SymbologyResolver;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
-import ch.algotrader.service.OrderService;
+import ch.algotrader.ordermgmt.OpenOrderRegistry;
 import ch.algotrader.service.fix.fix42.Fix42OrderServiceImpl;
+import quickfix.field.HandlInst;
+import quickfix.fix42.NewOrderSingle;
+import quickfix.fix42.OrderCancelReplaceRequest;
+import quickfix.fix42.OrderCancelRequest;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -38,10 +38,9 @@ public class JPMFixOrderServiceImpl extends Fix42OrderServiceImpl implements JPM
 
     private static final long serialVersionUID = -8881034489922372443L;
 
-    public JPMFixOrderServiceImpl(final FixAdapter fixAdapter,
-            final OrderService orderService) {
+    public JPMFixOrderServiceImpl(final FixAdapter fixAdapter, final OpenOrderRegistry openOrderRegistry) {
 
-        super(fixAdapter, orderService, new GenericFix42OrderMessageFactory(new GenericFix42SymbologyResolver()));
+        super(fixAdapter, openOrderRegistry, new GenericFix42OrderMessageFactory(new GenericFix42SymbologyResolver()));
     }
 
     @Override

@@ -45,9 +45,9 @@ import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.EventListenerRegistry;
 import ch.algotrader.event.dispatch.EventDispatcher;
+import ch.algotrader.ordermgmt.OpenOrderRegistry;
 import ch.algotrader.service.LocalLookupService;
 import ch.algotrader.service.LookupService;
-import ch.algotrader.service.OrderService;
 import ch.algotrader.service.PortfolioService;
 import ch.algotrader.service.PositionService;
 import ch.algotrader.service.ResetService;
@@ -89,13 +89,13 @@ public class SimulationWiring {
 
     @Profile({"simulation", "noopSimulation"})
     @Bean(name = "simulationOrderService")
-    public SimulationOrderService createSimulationOrderService(final TransactionService transactionService,
-            final OrderService orderService,
+    public SimulationOrderService createSimulationOrderService(
+            final OpenOrderRegistry openOrderRegistry,
             final LocalLookupService localLookupService,
             final EngineManager engineManager,
             final Engine serverEngine) {
 
-        return new SimulationOrderServiceImpl(transactionService, orderService, localLookupService, engineManager, serverEngine);
+        return new SimulationOrderServiceImpl(openOrderRegistry, localLookupService, engineManager, serverEngine);
     }
 
     @Profile({"simulation", "noopSimulation"})

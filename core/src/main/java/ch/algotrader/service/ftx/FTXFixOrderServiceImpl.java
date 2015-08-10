@@ -22,7 +22,7 @@ import ch.algotrader.adapter.ftx.FTXFixOrderMessageFactory;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.service.OrderService;
+import ch.algotrader.ordermgmt.OpenOrderRegistry;
 import ch.algotrader.service.fix.fix44.Fix44OrderServiceImpl;
 import quickfix.field.CumQty;
 import quickfix.fix44.NewOrderSingle;
@@ -41,10 +41,10 @@ public class FTXFixOrderServiceImpl extends Fix44OrderServiceImpl implements FTX
     private final Engine serverEngine;
 
     public FTXFixOrderServiceImpl(final FixAdapter fixAdapter,
-                                  final OrderService orderService,
+                                  final OpenOrderRegistry openOrderRegistry,
                                   final Engine serverEngine) {
 
-        super(fixAdapter, orderService, new FTXFixOrderMessageFactory());
+        super(fixAdapter, openOrderRegistry, new FTXFixOrderMessageFactory());
         this.serverEngine = serverEngine;
     }
 

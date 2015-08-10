@@ -24,7 +24,7 @@ import org.springframework.context.annotation.Profile;
 import ch.algotrader.adapter.fix.ManagedFixAdapter;
 import ch.algotrader.adapter.fix.MarketDataFixSessionStateHolder;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.service.OrderService;
+import ch.algotrader.ordermgmt.OpenOrderRegistry;
 import ch.algotrader.service.cnx.CNXFixMarketDataService;
 import ch.algotrader.service.cnx.CNXFixMarketDataServiceImpl;
 import ch.algotrader.service.cnx.CNXFixOrderService;
@@ -40,9 +40,9 @@ public class CNXFixServiceWiring {
     @Bean(name = "cNXFixOrderService")
     public CNXFixOrderService createCNXFixOrderService(
             final ManagedFixAdapter fixAdapter,
-            final OrderService orderService) {
+            final OpenOrderRegistry openOrderRegistry) {
 
-        return new CNXFixOrderServiceImpl(fixAdapter, orderService);
+        return new CNXFixOrderServiceImpl(fixAdapter, openOrderRegistry);
     }
 
     @Profile("cNXMarketData")

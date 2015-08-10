@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang.Validate;
 
-import ch.algotrader.entity.trade.Order;
+import ch.algotrader.entity.trade.SimpleOrder;
 
 /**
 * Registry of open orders.
@@ -35,13 +35,13 @@ import ch.algotrader.entity.trade.Order;
 */
 public class OpenOrderRegistry {
 
-    private final Map<String, Order> mapByIntId;
+    private final Map<String, SimpleOrder> mapByIntId;
 
     public OpenOrderRegistry() {
         this.mapByIntId = new ConcurrentHashMap<>();
     }
 
-    public void add(final Order order) {
+    public void add(final SimpleOrder order) {
 
         Validate.notNull(order, "Order is null");
         Validate.notNull(order.getIntId(), "Order IntId is null");
@@ -49,32 +49,32 @@ public class OpenOrderRegistry {
         this.mapByIntId.put(order.getIntId(), order);
     }
 
-    public Order findByIntId(final String intId) {
+    public SimpleOrder findByIntId(final String intId) {
 
         Validate.notNull(intId, "Order IntId is null");
 
         return this.mapByIntId.get(intId);
     }
 
-    public Order remove(final String intId) {
+    public SimpleOrder remove(final String intId) {
 
         Validate.notNull(intId, "Order IntId is null");
 
         return this.mapByIntId.remove(intId);
     }
 
-    public List<Order> getAll() {
+    public List<SimpleOrder> getAll() {
         return new ArrayList<>(this.mapByIntId.values());
     }
 
-    public Order findOpenOrderByRootIntId(final String rootId) {
+    public SimpleOrder findOpenOrderByRootIntId(final String rootId) {
         return mapByIntId.values().stream()
                 .filter(order -> order.getIntId().startsWith(rootId))
                 .findFirst()
                 .get();
     }
 
-    public Collection<Order> findOpenOrdersByParentIntId(final String parentIntId) {
+    public Collection<SimpleOrder> findOpenOrdersByParentIntId(final String parentIntId) {
         return mapByIntId.values().stream()
                 .filter(order -> !order.isAlgoOrder() && order.getParentOrder() != null && order.getParentOrder().getIntId().equals(parentIntId))
                 .collect(Collectors.toList());
