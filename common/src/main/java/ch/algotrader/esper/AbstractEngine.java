@@ -148,7 +148,7 @@ public abstract class AbstractEngine implements Engine {
     }
 
     @Override
-    public Object executeSingelObjectQuery(String query) {
+    public Object executeSingelObjectQuery(String query, String objectName) {
 
         return null;
     }

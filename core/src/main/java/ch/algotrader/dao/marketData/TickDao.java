@@ -161,13 +161,4 @@ public interface TickDao extends ReadWriteDao<Tick> {
      */
     List<Tick> findSubscribedByTimePeriod(int limit, Date minDate, Date maxDate);
 
-    /**
-     * Returns the {@code tickerId} from the TickWindow, that belongs to the defined Security. The
-     * {@code tickerId} is assigned by external Brokers to corresponding {@link
-     * ch.algotrader.entity.Subscription Subscription}
-     * @param securityId
-     * @return String
-     */
-    String findTickerIdBySecurity(long securityId);
-
 }

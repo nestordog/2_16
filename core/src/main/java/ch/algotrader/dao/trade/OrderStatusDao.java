@@ -17,12 +17,10 @@
  ***********************************************************************************/
 package ch.algotrader.dao.trade;
 
-import java.util.Collection;
 import java.util.List;
 
 import ch.algotrader.dao.ReadWriteDao;
 import ch.algotrader.entity.trade.OrderStatus;
-import ch.algotrader.vo.client.OrderStatusVO;
 
 /**
  * DAO for {@link ch.algotrader.entity.trade.OrderStatus} objects.
@@ -37,25 +35,4 @@ public interface OrderStatusDao extends ReadWriteDao<OrderStatus> {
      */
     List<OrderStatus> findPending();
 
-    /**
-     * Finds all OrderStati of currently open Orders.
-     * @return Collection<OrderStatusVO>
-     */
-    Collection<OrderStatusVO> findAllOrderStati();
-
-    /**
-     * Finds the current OrderStatus of the Order with the specified {@code intId}
-     * @param intId
-     * @return OrderStatusVO
-     */
-    OrderStatusVO findOrderStatusByIntId(String intId);
-
-    /**
-     * Returns all OrderStati for open Orders of the specified Strategy.
-     * @param strategyName
-     * @return Collection<OrderStatusVO>
-     */
-    Collection<OrderStatusVO> findOrderStatiByStrategy(String strategyName);
-
-    // spring-dao merge-point
 }

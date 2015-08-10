@@ -33,7 +33,6 @@ import ch.algotrader.entity.security.ForexImpl;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.SecurityFamilyImpl;
 import ch.algotrader.enumeration.Currency;
-import ch.algotrader.esper.NoopEngine;
 import ch.algotrader.hibernate.InMemoryDBTest;
 
 /**
@@ -58,7 +57,7 @@ public class ForexDaoTest extends InMemoryDBTest {
 
         super.setup();
 
-        TickDao tickDao = new TickDaoImpl(this.sessionFactory, NoopEngine.SERVER);
+        TickDao tickDao = new TickDaoImpl(this.sessionFactory);
 
         this.dao = new ForexDaoImpl(this.sessionFactory, tickDao, 4);
     }

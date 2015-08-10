@@ -31,12 +31,11 @@ import ch.algotrader.adapter.ib.IBSession;
 import ch.algotrader.adapter.ib.IBSessionStateHolder;
 import ch.algotrader.adapter.ib.IBUtil;
 import ch.algotrader.config.IBConfig;
-import ch.algotrader.dao.marketData.TickDao;
-import ch.algotrader.vo.marketData.SubscribeTickVO;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.service.ServiceException;
+import ch.algotrader.vo.marketData.SubscribeTickVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -51,7 +50,6 @@ public class IBNativeMarketDataServiceImpl implements IBNativeMarketDataService,
     private final IBIdGenerator iBIdGenerator;
     private final IBSessionStateHolder sessionStateHolder;
     private final IBConfig iBConfig;
-    private final TickDao tickDao;
     private final Engine serverEngine;
 
     public IBNativeMarketDataServiceImpl(
@@ -59,22 +57,19 @@ public class IBNativeMarketDataServiceImpl implements IBNativeMarketDataService,
             final IBSessionStateHolder sessionStateHolder,
             final IBIdGenerator iBIdGenerator,
             final IBConfig iBConfig,
-            final Engine serverEngine,
-            final TickDao tickDao) {
+            final Engine serverEngine) {
 
         Validate.notNull(iBSession, "IBSession is null");
         Validate.notNull(sessionStateHolder, "IBSessionStateHolder is null");
         Validate.notNull(iBIdGenerator, "IBIdGenerator is null");
         Validate.notNull(iBConfig, "IBConfig is null");
         Validate.notNull(serverEngine, "Engine is null");
-        Validate.notNull(tickDao, "TickDao is null");
 
         this.iBSession = iBSession;
         this.sessionStateHolder = sessionStateHolder;
         this.iBIdGenerator = iBIdGenerator;
         this.iBConfig = iBConfig;
         this.serverEngine = serverEngine;
-        this.tickDao = tickDao;
     }
 
     @Override
@@ -119,7 +114,9 @@ public class IBNativeMarketDataServiceImpl implements IBNativeMarketDataService,
         }
 
         // get the tickerId by querying the TickWindow
-        String tickerId = this.tickDao.findTickerIdBySecurity(security.getId());
+        String tickerId = (String) this.serverEngine.executeSingelObjectQuery(
+                "select tickerId from TickWindow where securityId = " + security.getId(),
+                "tickerId");
         if (tickerId == null) {
             throw new ServiceException("tickerId for security " + security + " was not found");
         }

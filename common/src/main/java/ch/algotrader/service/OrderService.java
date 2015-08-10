@@ -108,11 +108,6 @@ public interface OrderService {
     public void updateOrderId(Order order, String intId, String extId);
 
     /**
-     * Sends a Trade Suggestion via Email / Text Message.
-     */
-    public void suggestOrder(Order order);
-
-    /**
      * Generates next order id for the given account.
      */
     public String getNextOrderId(Account account);
@@ -128,11 +123,6 @@ public interface OrderService {
     public Collection<OrderStatusVO> getOpenOrdersByStrategy(String strategyName);
 
     /**
-     * Gets all {@link Order open Orders} for to the specified Strategy and Security.
-     */
-    public Collection<Order> getOpenOrdersByStrategyAndSecurity(String strategyName, long securityId);
-
-    /**
      * Gets an open order by its {@code intId} by querying the OpenOrderWindow
      */
     public Order getOpenOrderByIntId(String intId);
@@ -141,11 +131,6 @@ public interface OrderService {
      * Gets an open order by its {@code rootIntId} by querying the OpenOrderWindow
      */
     public Order getOpenOrderByRootIntId(String intId);
-
-    /**
-     * Gets an open order by its {@code extId} by querying the OpenOrderWindow
-     */
-    public Order getOpenOrderByExtId(String extId);
 
     /**
      * Loads pending orders. An order is considered pending if the status of the last

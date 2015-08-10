@@ -30,8 +30,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import ch.algotrader.dao.marketData.TickDao;
-import ch.algotrader.dao.marketData.TickDaoImpl;
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.SubscriptionImpl;
 import ch.algotrader.entity.marketData.Tick;
@@ -44,7 +42,6 @@ import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.FeedType;
-import ch.algotrader.esper.NoopEngine;
 import ch.algotrader.hibernate.InMemoryDBTest;
 
 /**
@@ -81,7 +78,7 @@ public class TickDaoTest extends InMemoryDBTest {
 
         super.setup();
 
-        this.dao = new TickDaoImpl(this.sessionFactory, NoopEngine.SERVER);
+        this.dao = new TickDaoImpl(this.sessionFactory);
 
         this.family1 = new SecurityFamilyImpl();
         this.family1.setName("Forex1");

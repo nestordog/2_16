@@ -118,7 +118,6 @@ import ch.algotrader.dao.trade.StopLimitOrderDao;
 import ch.algotrader.dao.trade.StopLimitOrderDaoImpl;
 import ch.algotrader.dao.trade.StopOrderDao;
 import ch.algotrader.dao.trade.StopOrderDaoImpl;
-import ch.algotrader.esper.Engine;
 
 /**
  * Dao configuration.
@@ -191,9 +190,9 @@ public class DaoWiring {
     }
 
     @Bean(name = "tickDao")
-    public TickDao createTickDao(final SessionFactory sessionFactory, final Engine serverEngine) {
+    public TickDao createTickDao(final SessionFactory sessionFactory) {
 
-        return new TickDaoImpl(sessionFactory, serverEngine);
+        return new TickDaoImpl(sessionFactory);
     }
 
     @Bean(name = "propertyDao")
@@ -383,9 +382,9 @@ public class DaoWiring {
     }
 
     @Bean(name = "orderDao")
-    public OrderDao createOrderDao(final SessionFactory sessionFactory, final Engine serverEngine) {
+    public OrderDao createOrderDao(final SessionFactory sessionFactory) {
 
-        return new OrderDaoImpl(sessionFactory, serverEngine);
+        return new OrderDaoImpl(sessionFactory);
     }
 
     @Bean(name = "orderPropertyDao")
@@ -395,9 +394,9 @@ public class DaoWiring {
     }
 
     @Bean(name = "orderStatusDao")
-    public OrderStatusDao createOrderStatusDao(final SessionFactory sessionFactory, final Engine serverEngine) {
+    public OrderStatusDao createOrderStatusDao(final SessionFactory sessionFactory) {
 
-        return new OrderStatusDaoImpl(sessionFactory, serverEngine);
+        return new OrderStatusDaoImpl(sessionFactory);
     }
 
     @Bean(name = "simpleOrderDao")

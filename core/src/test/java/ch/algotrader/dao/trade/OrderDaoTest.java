@@ -27,8 +27,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import ch.algotrader.dao.trade.OrderDao;
-import ch.algotrader.dao.trade.OrderDaoImpl;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.AccountImpl;
 import ch.algotrader.entity.security.Forex;
@@ -44,7 +42,6 @@ import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.TIF;
-import ch.algotrader.esper.NoopEngine;
 import ch.algotrader.hibernate.InMemoryDBTest;
 
 /**
@@ -77,7 +74,7 @@ public class OrderDaoTest extends InMemoryDBTest {
 
         super.setup();
 
-        this.dao = new OrderDaoImpl(this.sessionFactory, NoopEngine.SERVER);
+        this.dao = new OrderDaoImpl(this.sessionFactory);
 
         this.family = new SecurityFamilyImpl();
         this.family.setName("Forex1");

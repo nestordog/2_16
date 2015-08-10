@@ -23,7 +23,6 @@ import org.springframework.context.annotation.Profile;
 
 import ch.algotrader.adapter.bb.BBAdapter;
 import ch.algotrader.dao.marketData.BarDao;
-import ch.algotrader.dao.marketData.TickDao;
 import ch.algotrader.dao.security.FutureDao;
 import ch.algotrader.dao.security.OptionDao;
 import ch.algotrader.dao.security.SecurityDao;
@@ -56,10 +55,9 @@ public class BBServiceWiring {
     @Bean(name = "bBMarketDataService")
     public BBMarketDataService createBBMarketDataService(
             final BBAdapter bBAdapter,
-            final Engine serverEngine,
-            final TickDao tickDao) {
+            final Engine serverEngine) {
 
-        return new BBMarketDataServiceImpl(bBAdapter, serverEngine, tickDao);
+        return new BBMarketDataServiceImpl(bBAdapter, serverEngine);
     }
 
     @Profile("bBReferenceData")

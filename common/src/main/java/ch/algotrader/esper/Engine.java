@@ -148,7 +148,7 @@ public interface Engine {
     /**
      * Executes an arbitrary EPL query that is supposed to return one single object on the Engine.
      */
-    public Object executeSingelObjectQuery(String query);
+    public Object executeSingelObjectQuery(String query, String objectName);
 
     /**
      * Retrieves the last event currently held by the given statement.

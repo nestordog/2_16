@@ -32,7 +32,6 @@ import ch.algotrader.adapter.ib.IBSession;
 import ch.algotrader.adapter.ib.IBSessionStateHolder;
 import ch.algotrader.config.IBConfig;
 import ch.algotrader.dao.marketData.BarDao;
-import ch.algotrader.dao.marketData.TickDao;
 import ch.algotrader.dao.security.FutureDao;
 import ch.algotrader.dao.security.OptionDao;
 import ch.algotrader.dao.security.SecurityDao;
@@ -100,10 +99,9 @@ public class IBNativeServiceWiring {
             final IBSessionStateHolder iBSessionStateHolder,
             final IBIdGenerator iBIdGenerator,
             final IBConfig iBConfig,
-            final Engine serverEngine,
-            final TickDao tickDao) {
+            final Engine serverEngine) {
 
-        return new IBNativeMarketDataServiceImpl(iBSession, iBSessionStateHolder, iBIdGenerator, iBConfig, serverEngine, tickDao);
+        return new IBNativeMarketDataServiceImpl(iBSession, iBSessionStateHolder, iBIdGenerator, iBConfig, serverEngine);
     }
 
     @Profile("iBReferenceData")

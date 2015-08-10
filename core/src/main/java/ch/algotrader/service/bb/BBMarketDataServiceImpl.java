@@ -34,7 +34,6 @@ import com.bloomberglp.blpapi.SubscriptionList;
 import ch.algotrader.adapter.bb.BBAdapter;
 import ch.algotrader.adapter.bb.BBIdGenerator;
 import ch.algotrader.adapter.bb.BBSession;
-import ch.algotrader.dao.marketData.TickDao;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.enumeration.InitializingServiceType;
@@ -59,21 +58,17 @@ public class BBMarketDataServiceImpl implements BBMarketDataService, Initializin
     private static BBSession session;
 
     private final BBAdapter bBAdapter;
-    private final TickDao tickDao;
     private final Engine serverEngine;
     private final AtomicBoolean initalized;
 
     public BBMarketDataServiceImpl(
             final BBAdapter bBAdapter,
-            final Engine serverEngine,
-            final TickDao tickDao) {
+            final Engine serverEngine) {
 
         Validate.notNull(bBAdapter, "BBAdapter is null");
         Validate.notNull(serverEngine, "Engine is null");
-        Validate.notNull(tickDao, "TickDao is null");
 
         this.bBAdapter = bBAdapter;
-        this.tickDao = tickDao;
         this.serverEngine = serverEngine;
         this.initalized = new AtomicBoolean(false);
     }
@@ -138,8 +133,9 @@ public class BBMarketDataServiceImpl implements BBMarketDataService, Initializin
             throw new ServiceException("Bloomberg session is not running to unsubscribe " + security);
         }
 
-        // get the tickerId by querying the TickWindow
-        String tickerId = this.tickDao.findTickerIdBySecurity(security.getId());
+        String tickerId = (String) this.serverEngine.executeSingelObjectQuery(
+                "select tickerId from TickWindow where securityId = " + security.getId(),
+                "tickerId");
         if (tickerId == null) {
             throw new ServiceException("tickerId for security " + security + " was not found");
         }
