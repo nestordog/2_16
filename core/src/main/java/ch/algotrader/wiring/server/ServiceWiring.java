@@ -67,6 +67,7 @@ import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.dispatch.EventDispatcher;
+import ch.algotrader.ordermgmt.DefaultOpenOrderRegistry;
 import ch.algotrader.ordermgmt.OpenOrderRegistry;
 import ch.algotrader.service.CalendarService;
 import ch.algotrader.service.CalendarServiceImpl;
@@ -289,7 +290,7 @@ public class ServiceWiring {
 
     @Bean(name = "openOrderRegistry")
     public OpenOrderRegistry createOpenOrderRegistry() {
-        return new OpenOrderRegistry();
+        return new DefaultOpenOrderRegistry();
     }
 
     @Bean(name = "orderService")

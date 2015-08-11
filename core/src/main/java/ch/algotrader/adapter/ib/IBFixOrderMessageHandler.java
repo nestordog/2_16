@@ -22,6 +22,9 @@ import java.util.concurrent.BlockingQueue;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import ch.algotrader.adapter.fix.fix42.GenericFix42OrderMessageHandler;
+import ch.algotrader.esper.Engine;
+import ch.algotrader.ordermgmt.OpenOrderRegistry;
 import quickfix.FieldNotFound;
 import quickfix.SessionID;
 import quickfix.field.ClOrdID;
@@ -35,9 +38,6 @@ import quickfix.field.XMLContent;
 import quickfix.fix42.ExecutionReport;
 import quickfix.fix42.IBFAModification;
 import quickfix.fix42.OrderCancelReject;
-import ch.algotrader.adapter.fix.fix42.GenericFix42OrderMessageHandler;
-import ch.algotrader.esper.Engine;
-import ch.algotrader.service.OrderService;
 
 /**
  * IB specific Fix42MessageHandler.
@@ -52,8 +52,8 @@ public class IBFixOrderMessageHandler extends GenericFix42OrderMessageHandler {
 
     private final BlockingQueue<IBCustomMessage> allocationMessageQueue;
 
-    public IBFixOrderMessageHandler(final OrderService orderService, final BlockingQueue<IBCustomMessage> allocationMessageQueue, final Engine serverEngine) {
-        super(orderService, serverEngine);
+    public IBFixOrderMessageHandler(final OpenOrderRegistry openOrderRegistry, final BlockingQueue<IBCustomMessage> allocationMessageQueue, final Engine serverEngine) {
+        super(openOrderRegistry, serverEngine);
         this.allocationMessageQueue = allocationMessageQueue;
     }
 

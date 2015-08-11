@@ -17,14 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.ordermgmt;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang.Validate;
 
 import ch.algotrader.entity.trade.SimpleOrder;
 
@@ -33,51 +27,18 @@ import ch.algotrader.entity.trade.SimpleOrder;
 *
 * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
 */
-public class OpenOrderRegistry {
+public interface OpenOrderRegistry {
 
-    private final Map<String, SimpleOrder> mapByIntId;
+    void add(final SimpleOrder order);
 
-    public OpenOrderRegistry() {
-        this.mapByIntId = new ConcurrentHashMap<>();
-    }
+    SimpleOrder remove(String intId);
 
-    public void add(final SimpleOrder order) {
+    SimpleOrder findByIntId(String intId);
 
-        Validate.notNull(order, "Order is null");
-        Validate.notNull(order.getIntId(), "Order IntId is null");
+    List<SimpleOrder> getAll();
 
-        this.mapByIntId.put(order.getIntId(), order);
-    }
+    SimpleOrder findOpenOrderByRootIntId(String rootId);
 
-    public SimpleOrder findByIntId(final String intId) {
-
-        Validate.notNull(intId, "Order IntId is null");
-
-        return this.mapByIntId.get(intId);
-    }
-
-    public SimpleOrder remove(final String intId) {
-
-        Validate.notNull(intId, "Order IntId is null");
-
-        return this.mapByIntId.remove(intId);
-    }
-
-    public List<SimpleOrder> getAll() {
-        return new ArrayList<>(this.mapByIntId.values());
-    }
-
-    public SimpleOrder findOpenOrderByRootIntId(final String rootId) {
-        return mapByIntId.values().stream()
-                .filter(order -> order.getIntId().startsWith(rootId))
-                .findFirst()
-                .get();
-    }
-
-    public Collection<SimpleOrder> findOpenOrdersByParentIntId(final String parentIntId) {
-        return mapByIntId.values().stream()
-                .filter(order -> !order.isAlgoOrder() && order.getParentOrder() != null && order.getParentOrder().getIntId().equals(parentIntId))
-                .collect(Collectors.toList());
-    }
+    Collection<SimpleOrder> findOpenOrdersByParentIntId(String parentIntId);
 
 }

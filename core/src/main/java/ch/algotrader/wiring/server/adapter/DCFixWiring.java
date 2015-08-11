@@ -21,7 +21,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
-import quickfix.SessionSettings;
 import ch.algotrader.adapter.dc.DCFixMarketDataMessageHandler;
 import ch.algotrader.adapter.dc.DCFixOrderMessageHandler;
 import ch.algotrader.adapter.fix.DefaultFixApplicationFactory;
@@ -33,8 +32,9 @@ import ch.algotrader.adapter.fix.MarketDataFixSessionStateHolder;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.event.dispatch.EventDispatcher;
+import ch.algotrader.ordermgmt.OpenOrderRegistry;
 import ch.algotrader.service.MarketDataService;
-import ch.algotrader.service.OrderService;
+import quickfix.SessionSettings;
 
 /**
  * Dukas Copy FIX configuration.
@@ -58,12 +58,13 @@ public class DCFixWiring {
 
     @Profile("dCFix")
     @Bean(name = "dCOrderApplicationFactory")
-    public FixApplicationFactory createDCOrderApplicationFactory(final OrderService orderService,
+    public FixApplicationFactory createDCOrderApplicationFactory(
+            final OpenOrderRegistry openOrderRegistry,
             final Engine serverEngine,
             final DefaultLogonMessageHandler dCLogonMessageHandler,
             final FixSessionStateHolder dCOrderSessionStateHolder) {
 
-        DCFixOrderMessageHandler dCFixOrderMessageHandler = new DCFixOrderMessageHandler(orderService, serverEngine);
+        DCFixOrderMessageHandler dCFixOrderMessageHandler = new DCFixOrderMessageHandler(openOrderRegistry, serverEngine);
         return new DefaultFixApplicationFactory(dCFixOrderMessageHandler, dCLogonMessageHandler, dCOrderSessionStateHolder);
     }
 

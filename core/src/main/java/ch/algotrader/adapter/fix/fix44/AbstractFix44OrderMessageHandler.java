@@ -20,20 +20,21 @@ package ch.algotrader.adapter.fix.fix44;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import ch.algotrader.entity.trade.Fill;
+import ch.algotrader.entity.trade.Order;
+import ch.algotrader.entity.trade.OrderStatus;
+import ch.algotrader.enumeration.Status;
+import ch.algotrader.esper.Engine;
+import ch.algotrader.ordermgmt.OpenOrderRegistry;
 import quickfix.FieldNotFound;
 import quickfix.SessionID;
+import quickfix.field.ExecType;
 import quickfix.field.MsgSeqNum;
 import quickfix.field.OrdStatus;
 import quickfix.field.Text;
 import quickfix.field.TransactTime;
 import quickfix.fix44.ExecutionReport;
 import quickfix.fix44.OrderCancelReject;
-import ch.algotrader.entity.trade.Fill;
-import ch.algotrader.entity.trade.Order;
-import ch.algotrader.entity.trade.OrderStatus;
-import ch.algotrader.enumeration.Status;
-import ch.algotrader.esper.Engine;
-import ch.algotrader.service.OrderService;
 
 /**
  * Abstract FIX44 order message handler implementing generic functionality common to all broker specific
@@ -47,17 +48,19 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
 
     private static final Logger LOGGER = LogManager.getLogger(AbstractFix44OrderMessageHandler.class);
 
-    private final OrderService orderService;
+    private final OpenOrderRegistry openOrderRegistry;
     private final Engine serverEngine;
 
-    protected AbstractFix44OrderMessageHandler(final OrderService orderService, final Engine serverEngine) {
-        this.orderService = orderService;
+    protected AbstractFix44OrderMessageHandler(final OpenOrderRegistry openOrderRegistry, final Engine serverEngine) {
+        this.openOrderRegistry = openOrderRegistry;
         this.serverEngine = serverEngine;
     }
 
     protected abstract boolean discardReport(ExecutionReport executionReport) throws FieldNotFound;
 
     protected abstract boolean isOrderRejected(ExecutionReport executionReport) throws FieldNotFound;
+
+    protected abstract boolean isOrderReplaced(ExecutionReport executionReport) throws FieldNotFound;
 
     protected abstract OrderStatus createStatus(ExecutionReport executionReport, Order order) throws FieldNotFound;
 
@@ -70,14 +73,19 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
             return;
         }
 
-        String intId = resolveIntOrderId(executionReport);
+        String intId;
+        ExecType execType = executionReport.getExecType();
+        if (execType.getValue() == ExecType.CANCELED) {
+            intId = executionReport.getOrigClOrdID().getValue();
+        } else {
+            intId = executionReport.getClOrdID().getValue();
+        }
 
-        // get the order from the OpenOrderWindow
-        Order order = this.orderService.getOpenOrderByRootIntId(intId);
+        Order order = this.openOrderRegistry.findByIntId(intId);
         if (order == null) {
 
             if (LOGGER.isErrorEnabled ()) {
-                LOGGER.error("Order with int ID {} matching the execution report could not be found", intId);
+                LOGGER.error("Could not find an open order with IntID {}", intId);
             }
             return;
         }
@@ -89,7 +97,7 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
             if (LOGGER.isErrorEnabled ()) {
 
                 StringBuilder buf = new StringBuilder();
-                buf.append("Order with int ID ").append(intId).append(" has been rejected");
+                buf.append("Order with IntID ").append(intId).append(" has been rejected");
                 if (statusText != null) {
 
                     buf.append("; reason given: ").append(statusText);
@@ -116,6 +124,28 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
             return;
         }
 
+        if (isOrderReplaced(executionReport)) {
+
+            // Send status report for replaced order
+            String oldIntId = executionReport.getOrigClOrdID().getValue();
+            Order oldOrder = this.openOrderRegistry.findByIntId(oldIntId);
+
+            if (oldOrder != null) {
+
+                OrderStatus orderStatus = OrderStatus.Factory.newInstance();
+                orderStatus.setStatus(Status.CANCELED);
+                orderStatus.setIntId(oldIntId);
+                orderStatus.setSequenceNumber(executionReport.getHeader().getInt(MsgSeqNum.FIELD));
+                orderStatus.setOrder(oldOrder);
+                if (executionReport.isSetField(TransactTime.FIELD)) {
+
+                    orderStatus.setExtDateTime(executionReport.getTransactTime().getValue());
+                }
+
+                this.serverEngine.sendEvent(orderStatus);
+            }
+        }
+
         OrderStatus orderStatus = createStatus(executionReport, order);
 
         this.serverEngine.sendEvent(orderStatus);
@@ -128,14 +158,6 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
 
             this.serverEngine.sendEvent(fill);
         }
-    }
-
-    /**
-     * Resolves intId of the order this execution report is intended for.
-     */
-    protected String resolveIntOrderId(final ExecutionReport executionReport) throws FieldNotFound {
-
-        return executionReport.getClOrdID().getValue();
     }
 
     /**
@@ -178,31 +200,26 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
 
         String intId = reject.getClOrdID().getValue();
 
-        // get the order from the OpenOrderWindow
-        Order order = this.orderService.getOpenOrderByRootIntId(intId);
+        Order order = this.openOrderRegistry.findByIntId(intId);
         if (order == null) {
 
-            if (LOGGER.isErrorEnabled()) {
-                LOGGER.error("Order with int ID {} matching the execution report could not be found", intId);
+            OrderStatus orderStatus = OrderStatus.Factory.newInstance();
+            orderStatus.setStatus(Status.REJECTED);
+            orderStatus.setIntId(intId);
+            orderStatus.setSequenceNumber(reject.getHeader().getInt(MsgSeqNum.FIELD));
+            orderStatus.setOrder(order);
+            if (reject.isSetField(TransactTime.FIELD)) {
+
+                orderStatus.setExtDateTime(reject.getTransactTime().getValue());
             }
-            return;
+            if (reject.isSetField(Text.FIELD)) {
+
+                orderStatus.setReason(reject.getText().getValue());
+            }
+
+            this.serverEngine.sendEvent(orderStatus);
         }
 
-        OrderStatus orderStatus = OrderStatus.Factory.newInstance();
-        orderStatus.setStatus(Status.REJECTED);
-        orderStatus.setIntId(intId);
-        orderStatus.setSequenceNumber(reject.getHeader().getInt(MsgSeqNum.FIELD));
-        orderStatus.setOrder(order);
-        if (reject.isSetField(TransactTime.FIELD)) {
-
-            orderStatus.setExtDateTime(reject.getTransactTime().getValue());
-        }
-        if (reject.isSetField(Text.FIELD)) {
-
-            orderStatus.setReason(reject.getText().getValue());
-        }
-
-        this.serverEngine.sendEvent(orderStatus);
     }
 
 }

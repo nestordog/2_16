@@ -29,25 +29,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import quickfix.DefaultSessionFactory;
-import quickfix.LogFactory;
-import quickfix.MemoryStoreFactory;
-import quickfix.ScreenLogFactory;
-import quickfix.Session;
-import quickfix.SessionID;
-import quickfix.SessionSettings;
-import quickfix.SocketInitiator;
-import quickfix.field.ClOrdID;
-import quickfix.field.OrdType;
-import quickfix.field.OrderQty;
-import quickfix.field.OrigClOrdID;
-import quickfix.field.SecurityID;
-import quickfix.field.SecurityIDSource;
-import quickfix.field.Side;
-import quickfix.field.StopPx;
-import quickfix.field.TransactTime;
-import quickfix.fix44.NewOrderSingle;
-import quickfix.fix44.OrderCancelRequest;
 import ch.algotrader.adapter.fix.DefaultFixApplication;
 import ch.algotrader.adapter.fix.DefaultFixSessionStateHolder;
 import ch.algotrader.adapter.fix.DefaultLogonMessageHandler;
@@ -67,13 +48,32 @@ import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.AbstractEngine;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.event.dispatch.EventDispatcher;
-import ch.algotrader.service.OrderService;
+import ch.algotrader.ordermgmt.OpenOrderRegistry;
+import quickfix.DefaultSessionFactory;
+import quickfix.LogFactory;
+import quickfix.MemoryStoreFactory;
+import quickfix.ScreenLogFactory;
+import quickfix.Session;
+import quickfix.SessionID;
+import quickfix.SessionSettings;
+import quickfix.SocketInitiator;
+import quickfix.field.ClOrdID;
+import quickfix.field.OrdType;
+import quickfix.field.OrderQty;
+import quickfix.field.OrigClOrdID;
+import quickfix.field.SecurityID;
+import quickfix.field.SecurityIDSource;
+import quickfix.field.Side;
+import quickfix.field.StopPx;
+import quickfix.field.TransactTime;
+import quickfix.fix44.NewOrderSingle;
+import quickfix.fix44.OrderCancelRequest;
 
 public class LMAXFixOrderMessageHandlerTest {
 
     private LinkedBlockingQueue<Object> eventQueue;
     private EventDispatcher eventDispatcher;
-    private OrderService orderService;
+    private OpenOrderRegistry openOrderRegistry;
     private LMAXFixOrderMessageHandler messageHandler;
     private Session session;
     private SocketInitiator socketInitiator;
@@ -108,8 +108,8 @@ public class LMAXFixOrderMessageHandlerTest {
 
         DefaultLogonMessageHandler logonHandler = new DefaultLogonMessageHandler(settings);
 
-        this.orderService = Mockito.mock(OrderService.class);
-        LMAXFixOrderMessageHandler messageHandlerImpl = new LMAXFixOrderMessageHandler(this.orderService, engine);
+        this.openOrderRegistry = Mockito.mock(OpenOrderRegistry.class);
+        LMAXFixOrderMessageHandler messageHandlerImpl = new LMAXFixOrderMessageHandler(this.openOrderRegistry, engine);
         this.messageHandler = Mockito.spy(messageHandlerImpl);
 
         DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, this.messageHandler, logonHandler,
@@ -193,7 +193,7 @@ public class LMAXFixOrderMessageHandlerTest {
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(forex);
 
-        Mockito.when(this.orderService.getOpenOrderByRootIntId(orderId)).thenReturn(order);
+        Mockito.when(this.openOrderRegistry.findByIntId(orderId)).thenReturn(order);
 
         this.session.send(orderSingle);
 
@@ -276,7 +276,7 @@ public class LMAXFixOrderMessageHandlerTest {
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(forex);
 
-        Mockito.when(this.orderService.getOpenOrderByRootIntId(orderId1)).thenReturn(order);
+        Mockito.when(this.openOrderRegistry.findByIntId(orderId1)).thenReturn(order);
 
         this.session.send(orderSingle);
 
@@ -300,7 +300,7 @@ public class LMAXFixOrderMessageHandlerTest {
         cancelRequest.set(new TransactTime(new Date()));
         cancelRequest.set(new OrderQty(10.0d));
 
-        Mockito.when(this.orderService.getOpenOrderByRootIntId(orderId2)).thenReturn(order);
+        Mockito.when(this.openOrderRegistry.findByIntId(orderId2)).thenReturn(order);
 
         this.session.send(cancelRequest);
 

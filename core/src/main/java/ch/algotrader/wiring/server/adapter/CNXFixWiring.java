@@ -21,7 +21,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
-import quickfix.SessionSettings;
 import ch.algotrader.adapter.cnx.CNXFixApplicationFactory;
 import ch.algotrader.adapter.cnx.CNXFixMarketDataMessageHandler;
 import ch.algotrader.adapter.cnx.CNXFixOrderMessageHandler;
@@ -32,8 +31,9 @@ import ch.algotrader.adapter.fix.MarketDataFixSessionStateHolder;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.event.dispatch.EventDispatcher;
+import ch.algotrader.ordermgmt.OpenOrderRegistry;
 import ch.algotrader.service.MarketDataService;
-import ch.algotrader.service.OrderService;
+import quickfix.SessionSettings;
 
 /**
  * Currenex Fix configuration.
@@ -57,12 +57,13 @@ public class CNXFixWiring {
 
     @Profile("cNXFix")
     @Bean(name = "cNXOrderApplicationFactory")
-    public CNXFixApplicationFactory createCNXOrderApplicationFactory(final OrderService orderService,
+    public CNXFixApplicationFactory createCNXOrderApplicationFactory(
+            final OpenOrderRegistry openOrderRegistry,
             final Engine serverEngine,
             final DefaultLogonMessageHandler cNXLogonMessageHandler,
             final FixSessionStateHolder cNXOrderSessionStateHolder) {
 
-        CNXFixOrderMessageHandler cnxFixOrderMessageHandler = new CNXFixOrderMessageHandler(orderService, serverEngine);
+        CNXFixOrderMessageHandler cnxFixOrderMessageHandler = new CNXFixOrderMessageHandler(openOrderRegistry, serverEngine);
         return new CNXFixApplicationFactory(cnxFixOrderMessageHandler, cNXLogonMessageHandler, cNXOrderSessionStateHolder);
     }
 

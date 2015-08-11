@@ -619,14 +619,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
 
             if (intId != null) {
 
-                String previous = order.getIntId();
                 order.setIntId(intId);
-                if (order instanceof SimpleOrder) {
-                    this.openOrderRegistry.add((SimpleOrder) order);
-                    if (previous != null) {
-                        this.openOrderRegistry.remove(previous);
-                    }
-                }
             }
             if (extId != null) {
 
