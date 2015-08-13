@@ -363,7 +363,7 @@
             <dependency>
                 <groupId>com.espertech</groupId>
                 <artifactId>esper</artifactId>
-                <version>${esper.version}-at</version>
+                <version>${esper.version}-at1</version>
                 <exclusions>
                     <exclusion>
                         <groupId>log4j</groupId>
