@@ -96,7 +96,7 @@ public class PositionDaoImpl extends AbstractDao<Position> implements PositionDa
 
         Validate.notNull(maxDate, "maxDate is null");
 
-        return find("Position.findOpenPositionsByMaxDateAggregated", QueryType.BY_NAME, new NamedParam("maxDate", maxDate));
+        return initializeSecurities(find("Position.findOpenPositionsByMaxDateAggregated", QueryType.BY_NAME, new NamedParam("maxDate", maxDate)));
     }
 
     @Override
@@ -170,7 +170,7 @@ public class PositionDaoImpl extends AbstractDao<Position> implements PositionDa
     @Override
     public List<Position> findOpenTradeablePositionsAggregated() {
 
-        return findCaching("Position.findOpenTradeablePositionsAggregated", QueryType.BY_NAME);
+        return initializeSecurities(findCaching("Position.findOpenTradeablePositionsAggregated", QueryType.BY_NAME));
     }
 
     @Override
@@ -190,7 +190,7 @@ public class PositionDaoImpl extends AbstractDao<Position> implements PositionDa
     @Override
     public List<Position> findOpenFXPositionsAggregated() {
 
-        return findCaching("Position.findOpenFXPositionsAggregated", QueryType.BY_NAME);
+        return initializeSecurities(findCaching("Position.findOpenFXPositionsAggregated", QueryType.BY_NAME));
     }
 
     @Override
@@ -224,7 +224,15 @@ public class PositionDaoImpl extends AbstractDao<Position> implements PositionDa
     @Override
     public List<Position> findOpenPositionsAggregated() {
 
-        return findCaching("Position.findOpenPositionsAggregated", QueryType.BY_NAME);
+        return initializeSecurities(findCaching("Position.findOpenPositionsAggregated", QueryType.BY_NAME));
+    }
+
+    private List<Position> initializeSecurities(final List<Position> positions) {
+
+        for (Position position : positions) {
+            position.setSecurity(HibernateInitializer.INSTANCE.initializeProxy(position, "security", position.getSecurity()));
+        }
+        return positions;
     }
 
 }

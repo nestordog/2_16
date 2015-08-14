@@ -485,6 +485,7 @@ public class PositionDaoTest extends InMemoryDBTest {
 
         Assert.assertEquals(222, positions1.get(0).getQuantity());
         Assert.assertSame(this.forex1, positions1.get(0).getSecurity());
+        Assert.assertTrue(positions1.get(0).getSecurity() instanceof Security);
     }
 
     @Test
@@ -770,6 +771,7 @@ public class PositionDaoTest extends InMemoryDBTest {
 
         Assert.assertEquals(444, positions2.get(0).getQuantity());
         Assert.assertSame(this.forex1, positions2.get(0).getSecurity());
+        Assert.assertTrue(positions2.get(0).getSecurity() instanceof Security);
     }
 
     @Test
@@ -861,6 +863,7 @@ public class PositionDaoTest extends InMemoryDBTest {
 
         Assert.assertEquals(444, positions1.get(0).getQuantity());
         Assert.assertSame(this.forex1, positions1.get(0).getSecurity());
+        Assert.assertTrue(positions1.get(0).getSecurity() instanceof Security);
     }
 
     @Test
