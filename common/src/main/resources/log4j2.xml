@@ -11,22 +11,31 @@
         </Console>
     </Appenders>
     <Loggers>
-        <Root level="warn">
+        <Root level="debug">
             <AppenderRef ref="StdOut"/>
             <AppenderRef ref="StdErr"/>
         </Root>
+        <logger name="org.springframework" level="warn" />
         <logger name="org.springframework.beans.factory.support.DisposableBeanAdapter" level="error" />
+        <logger name="org.hibernate" level="warn" />
+        <logger name="org.hibernate.cache.ehcache.AbstractEhcacheRegionFactory" level="error" />
         <!-- logs error messages that are also logged by HibernateInterceptor -->
         <logger name="org.hibernate.event.def.AbstractFlushingEventListener" level="fatal" />
         <!-- logs error messages that are also logged by HibernateInterceptor -->
+        <logger name="org.hibernate.util.JDBCExceptionReporter" level="warn" />
         <logger name="org.hibernate.engine.StatefulPersistenceContext.ProxyWarnLog" level="error" />
         <!-- Logs warnings when inserting position / cash balance records through native SQL -->
         <logger name="org.hibernate.cache.ReadWriteCache" level="error" />
-        <logger name="org.hibernate.cache.ehcache.AbstractEhcacheRegionFactory" level="error" />
+        <logger name="org.apache.commons" level="warn" />
+        <logger name="net.sf.ehcache" level="warn" />
+        <logger name="com.espertech" level="warn" />
         <logger name="com.espertech.esper.util.MethodResolver" level="error" />
-
-        <logger name="ch.algotrader.esper.subscriber.TestSubscriber" level="debug" />
-        <logger name="ch.algotrader" level="debug" />
-        <logger name="ch.algotrader.simulation.SimulationExecutor.RESULT" level="info" />
+        <logger name="httpclient" level="warn" />
+        <logger name="org.apache.http" level="warn" />
+        <logger name="org.apache.activemq" level="warn" />
+        <logger name="org.mortbay" level="warn" />
+        <logger name="com.mchange.v2" level="warn" />
+        <logger name="quickfix" level="warn" />
+        <logger name="com.jcraft.jsch" level="warn" />
     </Loggers>
 </Configuration>
