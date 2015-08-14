@@ -59,7 +59,7 @@ public class PortfolioValueImpl extends PortfolioValue {
         buffer.append(getStrategy());
         buffer.append(",netLiqValue=");
         buffer.append(getNetLiqValue());
-        buffer.append(buffer.append(",securitiesCurrentValue="));
+        buffer.append(",securitiesCurrentValue=");
         buffer.append(getSecuritiesCurrentValue());
         buffer.append(",cashBalance=");
         buffer.append(getCashBalance());
