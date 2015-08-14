@@ -65,11 +65,9 @@ import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.QueryType;
 import ch.algotrader.esper.EngineManager;
-import ch.algotrader.report.ListReporter;
-import ch.algotrader.util.DateTimeUtil;
+import ch.algotrader.report.PortfolioReport;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.collection.DoubleMap;
-import ch.algotrader.util.metric.MetricsUtil;
 import ch.algotrader.vo.BalanceVO;
 import ch.algotrader.vo.CurrencyAmountVO;
 import ch.algotrader.vo.legacy.PortfolioValueVO;
@@ -109,6 +107,8 @@ public class PortfolioServiceImpl implements PortfolioService {
     private final ForexDao forexDao;
 
     private final EngineManager engineManager;
+
+    private final PortfolioReport portfolioReport;
 
     public PortfolioServiceImpl(final CommonConfig commonConfig,
             final CoreConfig coreConfig,
@@ -151,6 +151,7 @@ public class PortfolioServiceImpl implements PortfolioService {
         this.tickDao = tickDao;
         this.forexDao = forexDao;
         this.engineManager = engineManager;
+        this.portfolioReport = new PortfolioReport(this.commonConfig.getSimulationInitialBalance());
     }
 
     /**
@@ -1036,8 +1037,6 @@ public class PortfolioServiceImpl implements PortfolioService {
         this.portfolioValueDao.saveAll(portfolioValueMap.values());
     }
 
-    private boolean initialized = false;
-    private ListReporter reporter;
 
     /**
      * {@inheritDoc}
@@ -1045,23 +1044,8 @@ public class PortfolioServiceImpl implements PortfolioService {
     @Override
     public void printPortfolioValue(final PortfolioValueI portfolioValue) {
 
-        long startTime = System.nanoTime();
+        this.portfolioReport.write(this.engineManager.getCurrentEPTime(), portfolioValue);
 
-        if (this.reporter == null) {
-            this.reporter = new ListReporter("PortfolioReport", new String[] { "dateTime", "cashBalance", "securitiesCurrentValue", "netLiqValue" });
-        }
-
-        // don't log anything until any trades took place
-        if (!portfolioValue.getNetLiqValue().equals(this.commonConfig.getSimulationInitialBalance())) {
-            this.initialized = true;
-        }
-
-        if (this.initialized) {
-            final Date currentDateTime = this.engineManager.getCurrentEPTime();
-            this.reporter.write(DateTimeUtil.formatAsGMT(currentDateTime.toInstant()), portfolioValue.getCashBalance(), portfolioValue.getSecuritiesCurrentValue(), portfolioValue.getNetLiqValue());
-        }
-
-        MetricsUtil.accountEnd("LogPortfolioValueSubscriber", startTime);
     }
 
 }
