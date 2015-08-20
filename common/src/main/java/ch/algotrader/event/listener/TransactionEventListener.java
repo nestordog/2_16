@@ -17,10 +17,10 @@
  ***********************************************************************************/
 package ch.algotrader.event.listener;
 
-import ch.algotrader.entity.Transaction;
+import ch.algotrader.entity.TransactionVO;
 
 public interface TransactionEventListener {
 
-    void onTransaction(Transaction transaction);
+    void onTransaction(TransactionVO transaction);
 
 }

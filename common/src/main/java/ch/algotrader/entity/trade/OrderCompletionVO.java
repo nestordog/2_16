@@ -28,7 +28,7 @@ import ch.algotrader.enumeration.Status;
  *
  * @version $Revision$ $Date$
  */
-public class OrderCompletion implements Serializable {
+public class OrderCompletionVO implements Serializable {
 
     private static final long serialVersionUID = 8510334378552535810L;
 
@@ -54,8 +54,8 @@ public class OrderCompletion implements Serializable {
 
     private final double executionTime;
 
-    public OrderCompletion(final String orderIntId, final Date dateTime, final Status status, final long filledQuantity, final long remainingQuantity, final BigDecimal avgPrice,
-                           final BigDecimal grossValue, final BigDecimal netValue, final BigDecimal totalCharges, final int fills, final double executionTime) {
+    public OrderCompletionVO(final String orderIntId, final Date dateTime, final Status status, final long filledQuantity, final long remainingQuantity, final BigDecimal avgPrice,
+                             final BigDecimal grossValue, final BigDecimal netValue, final BigDecimal totalCharges, final int fills, final double executionTime) {
         this.orderIntId = orderIntId;
         this.dateTime = dateTime;
         this.status = status;

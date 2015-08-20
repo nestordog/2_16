@@ -22,7 +22,7 @@ import java.util.Map;
 
 import ch.algotrader.entity.trade.ExecutionStatus;
 import ch.algotrader.entity.trade.Order;
-import ch.algotrader.entity.trade.OrderCompletion;
+import ch.algotrader.entity.trade.OrderCompletionVO;
 import ch.algotrader.entity.trade.OrderDetails;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.entity.trade.OrderValidationException;
@@ -93,9 +93,9 @@ public interface OrderService {
     public void orderCompleted(OrderStatus orderStatus);
 
     /**
-     * Propagates an {@link OrderCompletion} to the corresponding Strategy.
+     * Propagates an {@link OrderCompletionVO} to the corresponding Strategy.
      */
-    public void propagateOrderCompletion(OrderCompletion orderCompletion);
+    public void propagateOrderCompletion(OrderCompletionVO orderCompletion);
 
     /**
      * Finds all details of currently open Orders.

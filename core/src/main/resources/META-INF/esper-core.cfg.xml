@@ -19,6 +19,7 @@
     <event-type name="SubmittedOrder" class="ch.algotrader.entity.trade.SubmittedOrder"/>
     <event-type name="Transaction" class="ch.algotrader.entity.Transaction"/>
     <event-type name="OrderStatus" class="ch.algotrader.entity.trade.OrderStatus"/>
+    <event-type name="Fill" class="ch.algotrader.entity.trade.Fill"/>
 
     <!-- Performance entities used internally -->
     <event-type name="PortfolioValue" class="ch.algotrader.entity.strategy.PortfolioValue"/>

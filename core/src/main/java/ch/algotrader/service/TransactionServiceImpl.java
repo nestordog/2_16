@@ -300,7 +300,7 @@ public class TransactionServiceImpl implements TransactionService {
         // send the fill to the strategy that placed the corresponding order
         Strategy strategy = order.getStrategy();
         if (!strategy.isServer()) {
-            this.eventDispatcher.sendEvent(strategy.getName(), fill);
+            this.eventDispatcher.sendEvent(strategy.getName(), fill.convertToVO());
         }
 
         if (!this.commonConfig.isSimulation()) {
@@ -372,8 +372,10 @@ public class TransactionServiceImpl implements TransactionService {
         }
 
         // propagate the transaction to the corresponding strategy and AlgoTrader Server
-        if (!transaction.getStrategy().isServer()) {
-            this.eventDispatcher.sendEvent(transaction.getStrategy().getName(), transaction);
+        Strategy strategy = transaction.getStrategy();
+        if (!strategy.isServer()) {
+
+            this.eventDispatcher.sendEvent(strategy.getName(), transaction.convertToVO());
         }
 
         this.serverEngine.sendEvent(transaction);

@@ -50,7 +50,7 @@ import ch.algotrader.entity.trade.AlgoOrder;
 import ch.algotrader.entity.trade.Allocation;
 import ch.algotrader.entity.trade.ExecutionStatus;
 import ch.algotrader.entity.trade.Order;
-import ch.algotrader.entity.trade.OrderCompletion;
+import ch.algotrader.entity.trade.OrderCompletionVO;
 import ch.algotrader.entity.trade.OrderDetails;
 import ch.algotrader.entity.trade.OrderPreference;
 import ch.algotrader.entity.trade.OrderStatus;
@@ -526,7 +526,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
         Strategy strategy = order.getStrategy();
         if (!strategy.isServer()) {
 
-            this.eventDispatcher.sendEvent(strategy.getName(), order);
+            this.eventDispatcher.sendEvent(strategy.getName(), order.convertToVO());
         }
     }
 
@@ -545,8 +545,9 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
         }
         // send the fill to the strategy that placed the corresponding order
         Strategy strategy = order.getStrategy();
-        if (strategy.isServer()) {
-            this.eventDispatcher.sendEvent(strategy.getName(), orderStatus);
+        if (!strategy.isServer()) {
+
+            this.eventDispatcher.sendEvent(strategy.getName(), orderStatus.convertToVO());
         }
 
         if (!this.commonConfig.isSimulation()) {
@@ -574,7 +575,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
      * {@inheritDoc}
      */
     @Override
-    public void propagateOrderCompletion(final OrderCompletion orderCompletion) {
+    public void propagateOrderCompletion(final OrderCompletionVO orderCompletion) {
 
         Validate.notNull(orderCompletion, "Order completion is null");
 
@@ -669,7 +670,6 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
     }
 
     @Override
-    @Transactional(propagation = Propagation.SUPPORTS)
     public Map<Order, OrderStatus> loadPendingOrders() {
 
         List<OrderStatus> pendingOrderStati = this.orderStatusDao.findPending();

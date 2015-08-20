@@ -16,6 +16,9 @@
     <event-type name="OrderCompletionVO" class="ch.algotrader.entity.trade.OrderCompletionVO"/>
     <event-type name="FillVO" class="ch.algotrader.entity.trade.FillVO"/>
 
+    <!-- Transaction events -->
+    <event-type name="TransactionVO" class="ch.algotrader.entity.TransactionVO"/>
+
     <!-- Performance -->
     <event-type name="PortfolioValueVO" class="ch.algotrader.entity.strategy.PortfolioValueVO"/>
 

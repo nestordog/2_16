@@ -17,10 +17,10 @@
  ***********************************************************************************/
 package ch.algotrader.event.listener;
 
-import ch.algotrader.entity.trade.Fill;
+import ch.algotrader.entity.trade.FillVO;
 
 public interface FillEventListener {
 
-    void onFill(Fill fill);
+    void onFill(FillVO fill);
 
 }

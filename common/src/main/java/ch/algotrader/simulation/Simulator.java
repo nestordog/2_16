@@ -135,10 +135,10 @@ public class Simulator {
 
     public void sendOrder(final Order order) {
 
-        // validate strategy and security
-        Validate.notNull(order.getStrategy(), "missing strategy for order " + order);
-        Validate.notNull(order.getSecurity(), "missing security for order " + order);
         Strategy strategy = order.getStrategy();
+        Validate.notNull(strategy, "missing strategy for order " + order);
+        Security security = order.getSecurity();
+        Validate.notNull(security, "missing security for order " + order);
 
         final Date now = getCurrentTime();
         if (order.getDateTime() == null) {
@@ -146,7 +146,7 @@ public class Simulator {
         }
 
         if (order.getExchange() == null) {
-            order.setExchange(order.getSecurity().getSecurityFamily().getExchange());
+            order.setExchange(security.getSecurityFamily().getExchange());
         }
 
         // propagate order
@@ -245,13 +245,14 @@ public class Simulator {
 
         // create a new position if necessary
         boolean existingOpenPosition = false;
-        Position position = findPositionByStrategyAndSecurity(transaction.getStrategy().getName(), transaction.getSecurity());
+        Strategy strategy = transaction.getStrategy();
+        Position position = findPositionByStrategyAndSecurity(strategy.getName(), transaction.getSecurity());
         if (position == null) {
 
             position = this.positionTracker.processFirstTransaction(transaction);
 
             // associate strategy
-            position.setStrategy(transaction.getStrategy());
+            position.setStrategy(strategy);
 
             createPosition(position);
 
@@ -281,12 +282,12 @@ public class Simulator {
         // if no position was open before initialize the openPosition event
         if (!existingOpenPosition) {
             openPositionVO = OpenPositionVOProducer.INSTANCE.convert(position);
-            this.eventDispatcher.sendEvent(transaction.getStrategy().getName(), openPositionVO);
+            this.eventDispatcher.sendEvent(strategy.getName(), openPositionVO);
         } else if (closePositionVO != null) {
-            this.eventDispatcher.sendEvent(transaction.getStrategy().getName(), closePositionVO);
+            this.eventDispatcher.sendEvent(strategy.getName(), closePositionVO);
         } else {
             PositionVO positionVO = Position.Converter.INSTANCE.convert(position);
-            this.eventDispatcher.sendEvent(transaction.getStrategy().getName(), positionVO);
+            this.eventDispatcher.sendEvent(strategy.getName(), positionVO);
         }
 
 
@@ -294,7 +295,7 @@ public class Simulator {
         processTransaction(transaction);
 
         // propagate Transaction
-        this.eventDispatcher.sendEvent(transaction.getStrategy().getName(), transaction.convertToVO());
+        this.eventDispatcher.sendEvent(strategy.getName(), transaction.convertToVO());
 
         // propagate tradePerformance
         if (tradePerformance != null && tradePerformance.getProfit() != 0.0) {

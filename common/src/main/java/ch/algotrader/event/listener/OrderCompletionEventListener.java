@@ -17,10 +17,10 @@
  ***********************************************************************************/
 package ch.algotrader.event.listener;
 
-import ch.algotrader.entity.trade.OrderCompletion;
+import ch.algotrader.entity.trade.OrderCompletionVO;
 
 public interface OrderCompletionEventListener {
 
-    void onOrderCompletion(OrderCompletion orderCompletion);
+    void onOrderCompletion(OrderCompletionVO orderCompletion);
 
 }
