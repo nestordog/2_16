@@ -47,9 +47,9 @@ public class CurrentValuesEsperTest extends EsperTestBase {
     @Before
     public void setupEsper() {
         Configuration config = new Configuration();
-        config.addEventType("MarketDataEvent", MarketDataEventVO.class.getName());
-        config.addEventType("Tick", TickVO.class.getName());
-        config.addEventType("Bar", BarVO.class.getName());
+        config.addEventType("MarketDataEventVO", MarketDataEventVO.class.getName());
+        config.addEventType("TickVO", TickVO.class.getName());
+        config.addEventType("BarVO", BarVO.class.getName());
         config.addImport(FeedType.class);
         config.getEngineDefaults().getExpression().setMathContext(new MathContext(4, RoundingMode.HALF_EVEN));
 

@@ -40,7 +40,7 @@ public class CsvTickInputAdapterSpec extends CSVInputAdapterSpec {
 
     public CsvTickInputAdapterSpec(File file) {
 
-        super(new AdapterInputSource(file), "RawTick");
+        super(new AdapterInputSource(file), "RawTickVO");
 
         this.file = file;
 

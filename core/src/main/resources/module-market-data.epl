@@ -1,5 +1,5 @@
 /*
- * Priorities on Tick:
+ * Priorities on TickVO:
  * Prio 4: CURRENT_MARKET_DATA_EVENT
  * Prio 3: UPDATE_COMPONENT_WINDOW
  * Prio 2: CLOSE_POSITION
@@ -24,7 +24,7 @@ as select
     volAsk,
     true as refresh
 from
-    Tick;
+    TickVO;
 
 @Name('INSERT_INTO_TICK_WINDOW')
 @RunTimeOnly()
@@ -44,12 +44,12 @@ select
     0 as volAsk,
     true as refresh
 from
-    SubscribeTickEvent;
+    SubscribeTickEventVO;
 
 @Name('UPDATE_TICK_WINDOW_FROM_TRADE')
 @RunTimeOnly()
 on
-    Trade as trade
+    TradeVO as trade
 update
     TickWindow as tickWindow
 set
@@ -67,7 +67,7 @@ and
 @Name('UPDATE_TICK_WINDOW_FROM_BID')
 @RunTimeOnly()
 on
-    Bid as bid
+    BidVO as bid
 update
     TickWindow as tickWindow
 set
@@ -84,7 +84,7 @@ and
 @Name('UPDATE_TICK_WINDOW_FROM_ASK')
 @RunTimeOnly()
 on
-    Ask as ask
+    AskVO as ask
 update
     TickWindow as tickWindow
 set
@@ -129,7 +129,7 @@ and
 @Name('VALIDATE_TICK')
 @RunTimeOnly()
 insert into
-    Tick
+    TickVO
 select
     transpose(incomingTick.value)
 from
@@ -143,8 +143,8 @@ where
 select
     tick.securityId
 from
-    pattern [every tick=Tick(not lookupService.getSecurityFamilyBySecurity(tick.securityId).getMaxGap() is null)
-            -> (timer:interval(lookupService.getSecurityFamilyBySecurity(tick.securityId).getMaxGap() * 60) and not Tick(securityId = tick.securityId))]
+    pattern [every tick=TickVO(not lookupService.getSecurityFamilyBySecurity(tick.securityId).getMaxGap() is null)
+            -> (timer:interval(lookupService.getSecurityFamilyBySecurity(tick.securityId).getMaxGap() * 60) and not TickVO(securityId = tick.securityId))]
 where
     calendarService.isOpen(lookupService.getExchangeBySecurity(tick.securityId).getId(), current_timestamp.toDate());
 
@@ -154,7 +154,7 @@ where
 select
     *
 from
-    MarketDataEvent;
+    MarketDataEventVO;
 
 @Name('PROPAGATE_GENERIC_EVENTS')
 @Subscriber(className='eventPropagator#propagateGenericEvent')

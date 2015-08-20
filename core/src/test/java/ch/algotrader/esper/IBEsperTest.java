@@ -229,7 +229,7 @@ public class IBEsperTest extends EsperTestBase {
         deployModule(epService, getClass().getResource("/module-ib.epl"),
                 "INSERT_INTO_GENERIC_TICK_IB_OPEN", "INSERT_INTO_GENERIC_TICK_IB_CLOSE");
 
-        EPStatement statement1 = epService.getEPAdministrator().createEPL("select * from GenericTick");
+        EPStatement statement1 = epService.getEPAdministrator().createEPL("select * from GenericTickVO");
         final Queue<GenericTickVO> genericTickQueue = new ConcurrentLinkedQueue<>();
         Assert.assertNotNull(statement1);
         statement1.setSubscriber(new Object() {

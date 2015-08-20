@@ -5,7 +5,7 @@ create window
 as select
     *
 from
-    Tick;
+    TickVO;
 
 @Name('PERSIST_HOUR_TICKS')
 @RunTimeOnly()
