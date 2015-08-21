@@ -26,6 +26,9 @@
         <logger name="org.hibernate.engine.StatefulPersistenceContext.ProxyWarnLog" level="error" />
         <!-- Logs warnings when inserting position / cash balance records through native SQL -->
         <logger name="org.hibernate.cache.ReadWriteCache" level="error" />
+        <!-- mute ehcache warnings about soft-locked entry expiry -->
+        <logger name="org.hibernate.cache.ehcache.internal.strategy.AbstractReadWriteEhcacheAccessStrategy" level="error" />
+
         <logger name="org.apache.commons" level="warn" />
         <logger name="net.sf.ehcache" level="warn" />
         <logger name="com.espertech" level="warn" />
