@@ -31,51 +31,35 @@ public class PositionMutationVO implements Serializable {
     /**
      * The Id of the Position.
      */
-    private long id;
+    private final long id;
 
     /**
      * The Id of the Security.
      */
-    private long securityId;
+    private final long securityId;
 
     /**
      * The name of the Strategy
      */
-    private String strategy;
+    private final String strategy;
 
     /**
      * The current quantity of the Position
      */
-    private long quantity;
+    private final long quantity;
 
     /**
      * The direction of the Position
      */
-    private Direction direction;
+    private final Direction direction;
 
-    /**
-     * Default Constructor
-     */
-    public PositionMutationVO() {
+    public PositionMutationVO(final long id, final long securityId, final String strategy, final long quantity, final Direction direction) {
 
-        // Documented empty block - avoid compiler warning - no super constructor
-    }
-
-    /**
-     * Constructor with all properties
-     * @param idIn int
-     * @param securityIdIn int
-     * @param strategyIn String
-     * @param quantityIn long
-     * @param directionIn Direction
-     */
-    public PositionMutationVO(final int idIn, final int securityIdIn, final String strategyIn, final long quantityIn, final Direction directionIn) {
-
-        this.id = idIn;
-        this.securityId = securityIdIn;
-        this.strategy = strategyIn;
-        this.quantity = quantityIn;
-        this.direction = directionIn;
+        this.id = id;
+        this.securityId = securityId;
+        this.strategy = strategy;
+        this.quantity = quantity;
+        this.direction = direction;
     }
 
     /**
@@ -103,30 +87,12 @@ public class PositionMutationVO implements Serializable {
     }
 
     /**
-     * The Id of the Position.
-     * @param value int
-     */
-    public void setId(final long value) {
-
-        this.id = value;
-    }
-
-    /**
      * The Id of the Security.
      * @return securityId int
      */
     public long getSecurityId() {
 
         return this.securityId;
-    }
-
-    /**
-     * The Id of the Security.
-     * @param value int
-     */
-    public void setSecurityId(final long value) {
-
-        this.securityId = value;
     }
 
     /**
@@ -139,30 +105,12 @@ public class PositionMutationVO implements Serializable {
     }
 
     /**
-     * The name of the Strategy
-     * @param value String
-     */
-    public void setStrategy(final String value) {
-
-        this.strategy = value;
-    }
-
-    /**
      * The current quantity of the Position
      * @return quantity long
      */
     public long getQuantity() {
 
         return this.quantity;
-    }
-
-    /**
-     * The current quantity of the Position
-     * @param value long
-     */
-    public void setQuantity(final long value) {
-
-        this.quantity = value;
     }
 
     /**
@@ -174,20 +122,11 @@ public class PositionMutationVO implements Serializable {
         return this.direction;
     }
 
-    /**
-     * The direction of the Position
-     * @param value Direction
-     */
-    public void setDirection(final Direction value) {
-
-        this.direction = value;
-    }
-
     @Override
     public String toString() {
 
         StringBuilder builder = new StringBuilder();
-        builder.append("PositionMutationVO [id=");
+        builder.append("{id=");
         builder.append(this.id);
         builder.append(", securityId=");
         builder.append(this.securityId);
@@ -197,7 +136,7 @@ public class PositionMutationVO implements Serializable {
         builder.append(this.quantity);
         builder.append(", direction=");
         builder.append(this.direction);
-        builder.append("]");
+        builder.append("}");
 
         return builder.toString();
     }

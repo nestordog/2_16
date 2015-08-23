@@ -43,7 +43,7 @@ import ch.algotrader.dao.strategy.StrategyDao;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.marketData.MarketDataEventVO;
-import ch.algotrader.entity.marketData.Tick;
+import ch.algotrader.entity.marketData.TickVO;
 import ch.algotrader.entity.security.Future;
 import ch.algotrader.entity.security.FutureFamily;
 import ch.algotrader.entity.security.Option;
@@ -186,7 +186,7 @@ public class OptionServiceImpl implements OptionService {
 
         this.serverEngine.addFirstTickCallback(Collections.singleton((Security) future), new TickCallback() {
             @Override
-            public void onFirstTick(String strategyName, List<Tick> ticks) throws Exception {
+            public void onFirstTick(String strategyName, List<TickVO> ticks) throws Exception {
 
                 // round to the number of contracts
                 int qty = (int) MathUtils.round(deltaAdjustedMarketValuePerContract / ticks.get(0).getCurrentValueDouble(), 0);

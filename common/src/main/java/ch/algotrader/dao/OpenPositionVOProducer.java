@@ -36,17 +36,8 @@ public class OpenPositionVOProducer implements EntityConverter<Position, OpenPos
 
         Validate.notNull(entity, "Position is null");
 
-        OpenPositionVO openPositionVO = new OpenPositionVO();
-
-        openPositionVO.setId(entity.getId());
-        // No conversion for openPositionVO.strategy (can't convert position.getStrategy():Strategy to String)
-        openPositionVO.setQuantity(entity.getQuantity());
-
-        openPositionVO.setSecurityId(entity.getSecurity().getId());
-        openPositionVO.setStrategy(entity.getStrategy().toString());
-        openPositionVO.setDirection(entity.getDirection());
-
-        return openPositionVO;
+        return new OpenPositionVO(
+                entity.getId(), entity.getSecurity().getId(), entity.getStrategy().getName(), entity.getQuantity(), entity.getDirection());
     }
 
 }

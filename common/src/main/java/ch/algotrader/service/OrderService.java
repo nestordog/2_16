@@ -20,6 +20,7 @@ package ch.algotrader.service;
 import java.util.Collection;
 import java.util.Map;
 
+import ch.algotrader.entity.Account;
 import ch.algotrader.entity.trade.ExecutionStatusVO;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderCompletionVO;
@@ -107,6 +108,11 @@ public interface OrderService {
      * Propagates an {@link OrderCompletionVO} to the corresponding Strategy.
      */
     public void propagateOrderCompletion(OrderCompletionVO orderCompletion);
+
+    /**
+     * Generates next order intId for the given account.
+     */
+    public String getNextOrderId(Account account);
 
     /**
      * Finds all details of currently open Orders.

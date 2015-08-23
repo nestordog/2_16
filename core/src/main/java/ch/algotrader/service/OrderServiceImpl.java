@@ -613,6 +613,15 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
      * {@inheritDoc}
      */
     @Override
+    public String getNextOrderId(final Account account) {
+
+        return getExternalOrderService(account).getNextOrderId(account);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Collection<OrderDetailsVO> getAllOpenOrders() {
 
         return this.openOrderRegistry.getAllOrderDetails();

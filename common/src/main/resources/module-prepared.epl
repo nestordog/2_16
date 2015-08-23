@@ -4,19 +4,16 @@ select
     strategyName,
     tick
 from
-    pattern[[?] (every-distinct(security.id)
-        (tick=Tick(not bid is null, not ask is null, securityId in (?))))];
+    pattern[[?] (every-distinct(tick.securityId)
+        (tick=TickVO(not bid is null, not ask is null, securityId in (?))))];
 
 @Name('ON_TRADE_COMPLETED')
 select
     strategyName,
     orderStatus
 from
-    pattern[[?] (every-distinct(`order`.security.id)
-        (orderStatus=OrderStatus(status = Status.EXECUTED or status = Status.CANCELED or status = Status.REJECTED,
-            `order`.security.id in (?),
-            `order`.strategy.name = ?,
-            `order`.algoOrder = ?)))];
+    pattern[[?] (every-distinct(intId)
+        (orderStatus=OrderStatusVO(status = Status.EXECUTED or status = Status.CANCELED or status = Status.REJECTED, intId in (?))))];
 
 @Name('ON_OPEN_POSITION')
 select
@@ -39,9 +36,3 @@ from
     pattern[every timer:at (?, ?, ?, ?, *, ?)]
 where 
     current_timestamp.getYear() = ?;    
-
-@Name('FIX_SESSION')
-select
-    null
-from
-    pattern[every timer:at (?, ?, *, *, ?, ?)];
