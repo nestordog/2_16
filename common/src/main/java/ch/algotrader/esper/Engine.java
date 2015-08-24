@@ -147,8 +147,17 @@ public interface Engine {
 
     /**
      * Executes an arbitrary EPL query that is supposed to return one single object on the Engine.
+     *
+     * @param query EPL expression
+     * @param attributeName name of the attribute if the query produces a result
+     *                      represented by a map of attributes.
      */
-    public Object executeSingelObjectQuery(String query, String objectName);
+    public Object executeSingelObjectQuery(String query, String attributeName);
+
+    /**
+     * Executes an arbitrary EPL query that is supposed to return one single object on the Engine.
+     */
+    public Object executeSingelObjectQuery(String query);
 
     /**
      * Retrieves the last event currently held by the given statement.

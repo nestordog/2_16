@@ -433,21 +433,27 @@ public class EngineImpl extends AbstractEngine {
 
     @Override
     @SuppressWarnings("unchecked")
-    public Object executeSingelObjectQuery(String query, String objectName) {
+    public Object executeSingelObjectQuery(String query, String attributeName) {
 
         List<Object> events = executeQuery(query);
         if (events.size() == 0) {
             return null;
         } else if (events.size() == 1) {
             Object result = events.get(0);
-            if (objectName != null && result instanceof Map) {
-                return ((Map) result).get(objectName);
+            if (attributeName != null && result instanceof Map) {
+                return ((Map) result).get(attributeName);
             } else {
                 return result;
             }
         } else {
             throw new IllegalArgumentException("query returned more than one object");
         }
+    }
+
+    @Override
+    public Object executeSingelObjectQuery(String query) {
+
+        return executeSingelObjectQuery(query, null);
     }
 
     @Override

@@ -154,6 +154,12 @@ public abstract class AbstractEngine implements Engine {
     }
 
     @Override
+    public Object executeSingelObjectQuery(String query) {
+
+        return null;
+    }
+
+    @Override
     public Object getLastEvent(String statementName) {
 
         return null;
