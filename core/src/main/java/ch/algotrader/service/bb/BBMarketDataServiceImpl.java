@@ -42,8 +42,8 @@ import ch.algotrader.service.ExternalMarketDataService;
 import ch.algotrader.service.ExternalServiceException;
 import ch.algotrader.service.InitializationPriority;
 import ch.algotrader.service.InitializingServiceI;
+import ch.algotrader.service.NativeMarketDataServiceImpl;
 import ch.algotrader.service.ServiceException;
-import ch.algotrader.vo.marketData.SubscribeTickVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -51,7 +51,7 @@ import ch.algotrader.vo.marketData.SubscribeTickVO;
  * @version $Revision$ $Date$
  */
 @InitializationPriority(InitializingServiceType.BROKER_INTERFACE)
-public class BBMarketDataServiceImpl implements ExternalMarketDataService, InitializingServiceI, DisposableBean {
+public class BBMarketDataServiceImpl extends NativeMarketDataServiceImpl implements ExternalMarketDataService, InitializingServiceI, DisposableBean {
 
     private static final long serialVersionUID = -3463200344945144471L;
 
@@ -59,18 +59,18 @@ public class BBMarketDataServiceImpl implements ExternalMarketDataService, Initi
     private static BBSession session;
 
     private final BBAdapter bBAdapter;
-    private final Engine serverEngine;
     private final AtomicBoolean initalized;
 
     public BBMarketDataServiceImpl(
             final BBAdapter bBAdapter,
             final Engine serverEngine) {
 
+        super(serverEngine);
+
         Validate.notNull(bBAdapter, "BBAdapter is null");
         Validate.notNull(serverEngine, "Engine is null");
 
         this.bBAdapter = bBAdapter;
-        this.serverEngine = serverEngine;
         this.initalized = new AtomicBoolean(false);
     }
 
@@ -107,9 +107,7 @@ public class BBMarketDataServiceImpl implements ExternalMarketDataService, Initi
 
         // create the SubscribeTickEvent (must happen before reqMktData so that Esper is ready to receive marketdata)
         String tickerId = BBIdGenerator.getInstance().getNextRequestId();
-        SubscribeTickVO subscribeTickEvent = new SubscribeTickVO(tickerId, security.getId(), FeedType.BB);
-
-        this.serverEngine.sendEvent(subscribeTickEvent);
+        esperSubscribe(security, tickerId);
 
         SubscriptionList subscriptions = getSubscriptionList(security, tickerId);
 
@@ -134,12 +132,7 @@ public class BBMarketDataServiceImpl implements ExternalMarketDataService, Initi
             throw new ServiceException("Bloomberg session is not running to unsubscribe " + security);
         }
 
-        String tickerId = (String) this.serverEngine.executeSingelObjectQuery(
-                "select tickerId from TickWindow where securityId = " + security.getId(),
-                "tickerId");
-        if (tickerId == null) {
-            throw new ServiceException("tickerId for security " + security + " was not found");
-        }
+        String tickerId = esperUnsubscribe(security);
 
         SubscriptionList subscriptions = getSubscriptionList(security, tickerId);
 
@@ -148,8 +141,6 @@ public class BBMarketDataServiceImpl implements ExternalMarketDataService, Initi
         } catch (IOException ex) {
             throw new ExternalServiceException(ex);
         }
-
-        this.serverEngine.executeQuery("delete from TickWindow where securityId = " + security.getId());
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("cancelled market data for : {}", security);
