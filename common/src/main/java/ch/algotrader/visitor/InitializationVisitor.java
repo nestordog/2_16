@@ -41,7 +41,7 @@ public class InitializationVisitor extends PolymorphicEntityVisitor<Void, Initia
 
         if (!combination.isInitialized()) {
 
-            combination.setComponents(initializer.initializeCollection(combination, "components", combination.getComponents()));
+            combination.initializeComponents(initializer);
 
             combination.setInitialized();
         }
@@ -57,10 +57,10 @@ public class InitializationVisitor extends PolymorphicEntityVisitor<Void, Initia
             // initialize subscriptions before positions because the lazy loaded (= Proxy) Strategy
             // so subscriptions would also get the Proxy instead of the implementation
 
-            security.setSubscriptions(initializer.initializeCollection(security, "subscriptions", security.getSubscriptions()));
-            security.setPositions(initializer.initializeCollection(security, "positions", security.getPositions()));
-            security.setUnderlying(initializer.initializeProxy(security, "underlying", security.getUnderlying()));
-            security.setSecurityFamily(initializer.initializeProxy(security, "securityFamily", security.getSecurityFamily()));
+            security.initializeSubscriptions(initializer);
+            security.initializePositions(initializer);
+            security.initializeUnderlying(initializer);
+            security.initializeSecurityFamily(initializer);
 
             security.setInitialized();
         }

@@ -229,9 +229,8 @@ public class PositionDaoImpl extends AbstractDao<Position> implements PositionDa
 
     private List<Position> initializeSecurities(final List<Position> positions) {
 
-        for (Position position : positions) {
-            position.setSecurity(HibernateInitializer.INSTANCE.initializeProxy(position, "security", position.getSecurity()));
-        }
+        positions.stream().forEach((p) -> p.initializeSecurity(HibernateInitializer.INSTANCE));
+
         return positions;
     }
 

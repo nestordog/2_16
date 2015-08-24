@@ -51,5 +51,15 @@ ${pojo.getFieldJavaDoc(property, 4)}
     
 </#if>		       
 </#if>
+<#if c2h.isCollection(property) || c2h.isToOne(property)>
+    ${pojo.getPropertyGetModifiers(property)} void initialize${pojo.getPropertyName(property)}(ch.algotrader.entity.Initializer initializer) {
+<#if !c2h.isCollection(property)>
+        this.${property.name} = initializer.initializeProxy(this, "${property.name}", this.${property.name});
+<#elseif !property.getValue().isIndexed()>
+        this.${property.name} = initializer.initializeCollection(this, "${property.name}", this.${property.name});
+</#if>		       
+    }
+
+</#if>
 </#if>
 </#foreach>
