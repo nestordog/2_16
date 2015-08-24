@@ -192,7 +192,7 @@ public class ServerLookupServiceImpl implements ServerLookupService {
 
         List<Tick> ticks = this.tickDao.findSubscribedByTimePeriod(startDate, endDate);
         for (Tick tick : ticks) {
-            tick.accept(InitializationVisitor.INSTANCE, HibernateInitializer.INSTANCE);
+            tick.getSecurity().accept(InitializationVisitor.INSTANCE, HibernateInitializer.INSTANCE);
         }
         return ticks;
 
@@ -220,7 +220,7 @@ public class ServerLookupServiceImpl implements ServerLookupService {
 
         List<Bar> bars = this.barDao.findSubscribedByTimePeriodAndBarSize(startDate, endDate, barSize);
         for (Bar bar : bars) {
-            bar.accept(InitializationVisitor.INSTANCE, HibernateInitializer.INSTANCE);
+            bar.getSecurity().accept(InitializationVisitor.INSTANCE, HibernateInitializer.INSTANCE);
         }
         return bars;
 

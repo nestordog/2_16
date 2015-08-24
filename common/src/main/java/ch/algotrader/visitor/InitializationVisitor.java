@@ -18,7 +18,6 @@
 package ch.algotrader.visitor;
 
 import ch.algotrader.entity.Initializer;
-import ch.algotrader.entity.marketData.MarketDataEvent;
 import ch.algotrader.entity.security.Combination;
 import ch.algotrader.entity.security.Security;
 
@@ -66,12 +65,6 @@ public class InitializationVisitor extends PolymorphicEntityVisitor<Void, Initia
         }
 
         return super.visitSecurity(security, initializer);
-    }
-
-    @Override
-    public Void visitMarketDataEvent(MarketDataEvent marketDataEvent, Initializer initializer) {
-
-        return visitSecurity(marketDataEvent.getSecurity(), initializer);
     }
 
 }

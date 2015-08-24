@@ -103,10 +103,10 @@ public class CacheManagerImpl implements CacheManager, Initializer, EntityCacheE
 
             // put into the cache
             if (entity != null) {
+
                 put(entity);
             }
 
-            // make sure Securities are initialized (as they might have been put into the cache by the CollectionHandler)
         } else {
 
             // make sure the entity is initialized
