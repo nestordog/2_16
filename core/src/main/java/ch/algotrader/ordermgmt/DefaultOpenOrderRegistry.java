@@ -17,16 +17,18 @@
  ***********************************************************************************/
 package ch.algotrader.ordermgmt;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.Validate;
 
-import ch.algotrader.entity.trade.SimpleOrder;
+import ch.algotrader.entity.strategy.Strategy;
+import ch.algotrader.entity.trade.ExecutionStatus;
+import ch.algotrader.entity.trade.Order;
+import ch.algotrader.entity.trade.OrderDetails;
+import ch.algotrader.enumeration.Status;
 
 /**
 * Default implementation of {@link OpenOrderRegistry}.
@@ -35,48 +37,103 @@ import ch.algotrader.entity.trade.SimpleOrder;
 */
 public class DefaultOpenOrderRegistry implements OpenOrderRegistry {
 
-    private final Map<String, SimpleOrder> mapByIntId;
+    private final ConcurrentMap<String, OrderDetails> mapByIntId;
 
     public DefaultOpenOrderRegistry() {
         this.mapByIntId = new ConcurrentHashMap<>();
     }
 
-    public void add(final SimpleOrder order) {
+    @Override
+    public void add(final Order order) {
 
         Validate.notNull(order, "Order is null");
-        Validate.notNull(order.getIntId(), "Order IntId is null");
+        String intId = order.getIntId();
+        Validate.notNull(intId, "Order IntId is null");
 
-        this.mapByIntId.put(order.getIntId(), order);
+        OrderDetails entry = this.mapByIntId.putIfAbsent(intId,
+                new OrderDetails(order, new ExecutionStatus(intId, Status.OPEN, 0L, order.getQuantity())));
+        if (entry != null) {
+            throw new IllegalStateException("Entry with IntId " + intId + " already present");
+        }
     }
 
-    public SimpleOrder findByIntId(final String intId) {
+    @Override
+    public Order remove(final String intId) {
 
         Validate.notNull(intId, "Order IntId is null");
 
+        OrderDetails entry =  this.mapByIntId.remove(intId);
+        return entry != null ? entry.getOrder() : null;
+    }
+
+    @Override
+    public Order getByIntId(final String intId) {
+
+        Validate.notNull(intId, "Order IntId is null");
+
+        OrderDetails entry = this.mapByIntId.get(intId);
+        return entry != null ? entry.getOrder() : null;
+    }
+
+    @Override
+    public ExecutionStatus getStatusByIntId(String intId) {
+
+        Validate.notNull(intId, "Order IntId is null");
+
+        OrderDetails entry = this.mapByIntId.get(intId);
+        return entry != null ? entry.getExecutionStatus() : null;
+    }
+
+    @Override
+    public OrderDetails getDetailsByIntId(final String intId) {
+
+        Validate.notNull(intId, "Order IntId is null");
         return this.mapByIntId.get(intId);
     }
 
-    public SimpleOrder remove(final String intId) {
+    @Override
+    public void updateExecutionStatus(final String intId, final Status status, final long filledQuantity, final long remainingQuantity) {
 
         Validate.notNull(intId, "Order IntId is null");
-
-        return this.mapByIntId.remove(intId);
+        OrderDetails entry = this.mapByIntId.get(intId);
+        if (entry == null) {
+            throw new IllegalStateException("Entry with IntId " + intId + " not found");
+        }
+        this.mapByIntId.replace(intId, entry, new OrderDetails(entry.getOrder(),
+                new ExecutionStatus(intId, status, filledQuantity, remainingQuantity)));
     }
 
-    public List<SimpleOrder> getAll() {
-        return new ArrayList<>(this.mapByIntId.values());
+    @Override
+    public List<Order> getAllOrders() {
+        return this.mapByIntId.values().stream()
+                .map(OrderDetails::getOrder)
+                .collect(Collectors.toList());
     }
 
-    public SimpleOrder findOpenOrderByRootIntId(final String rootId) {
+    @Override
+    public List<OrderDetails> getAllOrderDetails() {
+        return this.mapByIntId.values().stream()
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<OrderDetails> getOrderDetailsForStrategy(String strategyName) {
+        return this.mapByIntId.values().stream()
+                .filter(entry -> {
+                    Strategy strategy = entry.getOrder().getStrategy();
+                    return strategy != null && strategyName.equals(strategy.getName());
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Order> findByParentIntId(final String parentIntId) {
         return mapByIntId.values().stream()
-                .filter(order -> order.getIntId().startsWith(rootId))
-                .findFirst()
-                .get();
-    }
-
-    public Collection<SimpleOrder> findOpenOrdersByParentIntId(final String parentIntId) {
-        return mapByIntId.values().stream()
-                .filter(order -> !order.isAlgoOrder() && order.getParentOrder() != null && order.getParentOrder().getIntId().equals(parentIntId))
+                .filter(entry -> {
+                    Order order = entry.getOrder();
+                    return !order.isAlgoOrder() && order.getParentOrder() != null && order.getParentOrder().getIntId().equals(parentIntId);
+                })
+                .map(OrderDetails::getOrder)
                 .collect(Collectors.toList());
     }
 

@@ -134,6 +134,7 @@ public class IBNativeOrderServiceImpl implements IBNativeOrderService {
 
         Validate.notNull(order, "Order is null");
 
+        this.openOrderRegistry.remove(order.getIntId());
         this.openOrderRegistry.add(order);
 
         sendOrModifyOrder(order);

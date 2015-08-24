@@ -73,19 +73,19 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
             return;
         }
 
-        String intId;
+        String orderIntId;
         ExecType execType = executionReport.getExecType();
         if (execType.getValue() == ExecType.CANCELED) {
-            intId = executionReport.getOrigClOrdID().getValue();
+            orderIntId = executionReport.getOrigClOrdID().getValue();
         } else {
-            intId = executionReport.getClOrdID().getValue();
+            orderIntId = executionReport.getClOrdID().getValue();
         }
 
-        Order order = this.openOrderRegistry.findByIntId(intId);
+        Order order = this.openOrderRegistry.getByIntId(orderIntId);
         if (order == null) {
 
             if (LOGGER.isErrorEnabled ()) {
-                LOGGER.error("Could not find an open order with IntID {}", intId);
+                LOGGER.error("Could not find an open order with IntID {}", orderIntId);
             }
             return;
         }
@@ -96,6 +96,7 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
 
             if (LOGGER.isErrorEnabled ()) {
 
+                String intId = executionReport.getClOrdID().getValue();
                 StringBuilder buf = new StringBuilder();
                 buf.append("Order with IntID ").append(intId).append(" has been rejected");
                 if (statusText != null) {
@@ -107,7 +108,7 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
 
             OrderStatus orderStatus = OrderStatus.Factory.newInstance();
             orderStatus.setStatus(Status.REJECTED);
-            orderStatus.setIntId(intId);
+            orderStatus.setIntId(orderIntId);
             orderStatus.setSequenceNumber(executionReport.getHeader().getInt(MsgSeqNum.FIELD));
             orderStatus.setOrder(order);
             if (executionReport.isSetField(TransactTime.FIELD)) {
@@ -128,20 +129,13 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
 
             // Send status report for replaced order
             String oldIntId = executionReport.getOrigClOrdID().getValue();
-            Order oldOrder = this.openOrderRegistry.findByIntId(oldIntId);
+            Order oldOrder = this.openOrderRegistry.getByIntId(oldIntId);
 
             if (oldOrder != null) {
 
-                OrderStatus orderStatus = OrderStatus.Factory.newInstance();
+                OrderStatus orderStatus = createStatus(executionReport, oldOrder);
                 orderStatus.setStatus(Status.CANCELED);
-                orderStatus.setIntId(oldIntId);
-                orderStatus.setSequenceNumber(executionReport.getHeader().getInt(MsgSeqNum.FIELD));
-                orderStatus.setOrder(oldOrder);
-                if (executionReport.isSetField(TransactTime.FIELD)) {
-
-                    orderStatus.setExtDateTime(executionReport.getTransactTime().getValue());
-                }
-
+                orderStatus.setExtId(null);
                 this.serverEngine.sendEvent(orderStatus);
             }
         }
@@ -152,9 +146,6 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
 
         Fill fill = createFill(executionReport, order);
         if (fill != null) {
-
-            // associate the fill with the order
-            fill.setOrder(order);
 
             this.serverEngine.sendEvent(fill);
         }
@@ -198,14 +189,14 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
             }
         }
 
-        String intId = reject.getClOrdID().getValue();
+        String orderIntId = reject.getClOrdID().getValue();
 
-        Order order = this.openOrderRegistry.findByIntId(intId);
-        if (order == null) {
+        Order order = this.openOrderRegistry.getByIntId(orderIntId);
+        if (order != null) {
 
             OrderStatus orderStatus = OrderStatus.Factory.newInstance();
             orderStatus.setStatus(Status.REJECTED);
-            orderStatus.setIntId(intId);
+            orderStatus.setIntId(orderIntId);
             orderStatus.setSequenceNumber(reject.getHeader().getInt(MsgSeqNum.FIELD));
             orderStatus.setOrder(order);
             if (reject.isSetField(TransactTime.FIELD)) {

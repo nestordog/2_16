@@ -103,7 +103,7 @@ public class TestLMAXFixOrderMessageHandler {
 
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(forex);
-        Mockito.when(this.openOrderRegistry.findByIntId("144d196a0cf")).thenReturn(order);
+        Mockito.when(this.openOrderRegistry.getByIntId("144d196a0cf")).thenReturn(order);
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
@@ -149,7 +149,7 @@ public class TestLMAXFixOrderMessageHandler {
         order.setSecurity(forex);
         order.setAccount(account);
 
-        Mockito.when(this.openOrderRegistry.findByIntId("144d196a0cf")).thenReturn(order);
+        Mockito.when(this.openOrderRegistry.getByIntId("144d196a0cf")).thenReturn(order);
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
@@ -188,11 +188,11 @@ public class TestLMAXFixOrderMessageHandler {
         executionReport.set(new ExecType(ExecType.NEW));
         executionReport.set(new ClOrdID("123"));
 
-        Mockito.when(this.openOrderRegistry.findByIntId(Mockito.anyString())).thenReturn(null);
+        Mockito.when(this.openOrderRegistry.getByIntId(Mockito.anyString())).thenReturn(null);
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
-        Mockito.verify(this.openOrderRegistry, Mockito.times(1)).findByIntId("123");
+        Mockito.verify(this.openOrderRegistry, Mockito.times(1)).getByIntId("123");
         Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
     }
 
@@ -205,7 +205,7 @@ public class TestLMAXFixOrderMessageHandler {
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
-        Mockito.verify(this.openOrderRegistry, Mockito.never()).findByIntId("123");
+        Mockito.verify(this.openOrderRegistry, Mockito.never()).getByIntId("123");
         Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
     }
 
@@ -218,7 +218,7 @@ public class TestLMAXFixOrderMessageHandler {
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
-        Mockito.verify(this.openOrderRegistry, Mockito.never()).findByIntId("123");
+        Mockito.verify(this.openOrderRegistry, Mockito.never()).getByIntId("123");
         Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
     }
 
@@ -231,7 +231,7 @@ public class TestLMAXFixOrderMessageHandler {
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
-        Mockito.verify(this.openOrderRegistry, Mockito.never()).findByIntId("123");
+        Mockito.verify(this.openOrderRegistry, Mockito.never()).getByIntId("123");
         Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
     }
 
@@ -255,7 +255,7 @@ public class TestLMAXFixOrderMessageHandler {
 
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(forex);
-        Mockito.when(this.openOrderRegistry.findByIntId("144da150f4b")).thenReturn(order);
+        Mockito.when(this.openOrderRegistry.getByIntId("144da150f4b")).thenReturn(order);
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 

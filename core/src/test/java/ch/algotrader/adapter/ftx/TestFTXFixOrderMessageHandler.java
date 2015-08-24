@@ -97,7 +97,7 @@ public class TestFTXFixOrderMessageHandler {
         order.setSecurity(forex);
         order.setQuantity(2000);
 
-        Mockito.when(this.openOrderRegistry.findByIntId("14ddd87a9d2")).thenReturn(order);
+        Mockito.when(this.openOrderRegistry.getByIntId("14ddd87a9d2")).thenReturn(order);
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
@@ -144,7 +144,7 @@ public class TestFTXFixOrderMessageHandler {
         order.setSecurity(forex);
         order.setQuantity(2000);
         order.setAccount(account);
-        Mockito.when(this.openOrderRegistry.findByIntId("14ddd87a9d2")).thenReturn(order);
+        Mockito.when(this.openOrderRegistry.getByIntId("14ddd87a9d2")).thenReturn(order);
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
@@ -184,11 +184,11 @@ public class TestFTXFixOrderMessageHandler {
         executionReport.set(new ExecType(ExecType.NEW));
         executionReport.set(new ClOrdID("123"));
 
-        Mockito.when(this.openOrderRegistry.findByIntId(Mockito.anyString())).thenReturn(null);
+        Mockito.when(this.openOrderRegistry.getByIntId(Mockito.anyString())).thenReturn(null);
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
-        Mockito.verify(this.openOrderRegistry, Mockito.times(1)).findByIntId("123");
+        Mockito.verify(this.openOrderRegistry, Mockito.times(1)).getByIntId("123");
         Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
     }
 
@@ -218,7 +218,7 @@ public class TestFTXFixOrderMessageHandler {
         order.setQuantity(2000);
         order.setAccount(account);
 
-        Mockito.when(this.openOrderRegistry.findByIntId("14ddd84fb8e")).thenReturn(order);
+        Mockito.when(this.openOrderRegistry.getByIntId("14ddd84fb8e")).thenReturn(order);
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 

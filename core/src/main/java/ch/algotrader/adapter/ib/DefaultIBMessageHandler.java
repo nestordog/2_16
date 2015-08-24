@@ -39,21 +39,21 @@ import org.w3c.dom.Node;
 import org.w3c.dom.traversal.NodeIterator;
 import org.xml.sax.InputSource;
 
+import com.ib.client.Contract;
+import com.ib.client.ContractDetails;
+import com.ib.client.EWrapperMsgGenerator;
+import com.ib.client.Execution;
+
 import ch.algotrader.entity.marketData.Bar;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
+import ch.algotrader.ordermgmt.OpenOrderRegistry;
 import ch.algotrader.service.ExternalServiceException;
-import ch.algotrader.service.OrderService;
 import ch.algotrader.util.DateTimeLegacy;
 import ch.algotrader.util.PriceUtil;
-
-import com.ib.client.Contract;
-import com.ib.client.ContractDetails;
-import com.ib.client.EWrapperMsgGenerator;
-import com.ib.client.Execution;
 
 /**
  * Esper specific MessageHandler.
@@ -74,7 +74,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
     private final IBPendingRequests pendingRequests;
     private final IBIdGenerator idGenerator;
 
-    private final OrderService orderService;
+    private final OpenOrderRegistry openOrderRegistry;
 
     private final BlockingQueue<AccountUpdate> accountUpdateQueue;
     private final BlockingQueue<Set<String>> accountsQueue;
@@ -86,7 +86,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
             final IBSessionStateHolder sessionStateHolder,
             final IBPendingRequests pendingRequests,
             final IBIdGenerator idGenerator,
-            final OrderService orderService,
+            final OpenOrderRegistry openOrderRegistry,
             final BlockingQueue<AccountUpdate> accountUpdateQueue,
             final BlockingQueue<Set<String>> accountsQueue,
             final BlockingQueue<Profile> profilesQueue,
@@ -95,7 +95,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
         this.sessionStateHolder = sessionStateHolder;
         this.pendingRequests = pendingRequests;
         this.idGenerator = idGenerator;
-        this.orderService = orderService;
+        this.openOrderRegistry = openOrderRegistry;
         this.accountUpdateQueue = accountUpdateQueue;
         this.accountsQueue = accountsQueue;
         this.profilesQueue = profilesQueue;
@@ -113,7 +113,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
         String intId = String.valueOf(execution.m_orderId);
 
         // get the order from the OpenOrderWindow
-        Order order = this.orderService.getOpenOrderByIntId(intId);
+        Order order = this.openOrderRegistry.getByIntId(intId);
         if (order == null) {
             LOGGER.error("order could not be found {} for execution {} {}", intId, contract, execution);
             return;
@@ -149,8 +149,8 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
     public void orderStatus(final int orderId, final String statusString, final int filled, final int remaining, final double avgFillPrice, final int permId,
             final int parentId, final double lastFillPrice, final int clientId, final String whyHeld) {
 
-        // get the order from the OpenOrderWindow
-        Order order = this.orderService.getOpenOrderByIntId(String.valueOf(orderId));
+        String intId = String.valueOf(orderId);
+        Order order = this.openOrderRegistry.getByIntId(intId);
 
         if (order != null) {
 
@@ -568,8 +568,8 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
 
     private void orderRejected(int orderId, String reason) {
 
-        // get the order from the OpenOrderWindow
-        Order order = this.orderService.getOpenOrderByIntId(String.valueOf(orderId));
+        String intId = String.valueOf(orderId);
+        Order order = this.openOrderRegistry.getByIntId(intId);
 
         if (order != null) {
 

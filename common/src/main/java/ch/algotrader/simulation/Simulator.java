@@ -138,9 +138,11 @@ public class Simulator {
         // validate strategy and security
         Validate.notNull(order.getStrategy(), "missing strategy for order " + order);
         Validate.notNull(order.getSecurity(), "missing security for order " + order);
+        Strategy strategy = order.getStrategy();
 
+        final Date now = getCurrentTime();
         if (order.getDateTime() == null) {
-            order.setDateTime(getCurrentTime());
+            order.setDateTime(now);
         }
 
         if (order.getExchange() == null) {
@@ -148,10 +150,10 @@ public class Simulator {
         }
 
         // propagate order
-        this.eventDispatcher.sendEvent(order.getStrategy().getName(), order.convertToVO());
+        this.eventDispatcher.sendEvent(strategy.getName(), order.convertToVO());
 
         // get the price
-        BigDecimal price = new BigDecimal(0);
+        BigDecimal price;
         if (order instanceof LimitOrderI) {
 
             // limit orders are executed at their limit price
@@ -169,7 +171,7 @@ public class Simulator {
         fill.setOrder(order);
 
         // propagate order
-        this.eventDispatcher.sendEvent(fill.getOrder().getStrategy().getName(), fill);
+        this.eventDispatcher.sendEvent(strategy.getName(), fill);
 
         // create and OrderStatus
         OrderStatus orderStatus = OrderStatus.Factory.newInstance();
@@ -181,7 +183,7 @@ public class Simulator {
         orderStatus.setAvgPrice(price);
 
         // propagate order status
-        this.eventDispatcher.sendEvent(orderStatus.getOrder().getStrategy().getName(), orderStatus.convertToVO());
+        this.eventDispatcher.sendEvent(strategy.getName(), orderStatus.convertToVO());
 
         // create the transaction
         createTransaction(fill);
@@ -197,8 +199,8 @@ public class Simulator {
         TransactionType transactionType = Side.BUY.equals(fill.getSide()) ? TransactionType.BUY : TransactionType.SELL;
         long quantity = Side.BUY.equals(fill.getSide()) ? fill.getQuantity() : -fill.getQuantity();
 
-        BigDecimal executionCommission = getExecutionCommission(fill);
-        BigDecimal clearingCommission = getClearingCommission(fill);
+        BigDecimal executionCommission = getExecutionCommission(order, fill);
+        BigDecimal clearingCommission = getClearingCommission(order, fill);
 
         Transaction transaction = Transaction.Factory.newInstance();
         transaction.setUuid(UUID.randomUUID().toString());
@@ -219,21 +221,20 @@ public class Simulator {
         return transaction;
     }
 
-    protected BigDecimal getClearingCommission(final Fill fill) {
+    protected BigDecimal getClearingCommission(final Order order, final Fill fill) {
 
-        double clearingCommissionPerContract = fill.getOrder().getSecurity().getSecurityFamily().getClearingCommission(fill.getOrder().getAccount().getBroker()).doubleValue();
+        double clearingCommissionPerContract = order.getSecurity().getSecurityFamily().getClearingCommission(order.getAccount().getBroker()).doubleValue();
         return RoundUtil.getBigDecimal(Math.abs(clearingCommissionPerContract * Math.abs(fill.getQuantity())));
     }
 
 
-    protected BigDecimal getExecutionCommission(final Fill fill) {
+    protected BigDecimal getExecutionCommission(final Order order, final Fill fill) {
 
-        double executionCommissionPerContract = fill.getOrder().getSecurity().getSecurityFamily().getExecutionCommission(fill.getOrder().getAccount().getBroker()).doubleValue();
+        double executionCommissionPerContract = order.getSecurity().getSecurityFamily().getExecutionCommission(order.getAccount().getBroker()).doubleValue();
         return RoundUtil.getBigDecimal(Math.abs(executionCommissionPerContract * Math.abs(fill.getQuantity())));
     }
 
     /**
-     * @param reason
      * @copy ch.algotrader.service.TransactionServiceImpl.handlePersistTransaction(Transaction)
      */
     protected Position persistTransaction(final Transaction transaction) {

@@ -73,24 +73,24 @@ public abstract class AbstractFix42OrderMessageHandler extends AbstractFix42Mess
             return;
         }
 
-        String intId;
+        String orderIntId;
         ExecType execType = executionReport.getExecType();
         if (execType.getValue() == ExecType.CANCELED) {
-            intId = executionReport.getOrigClOrdID().getValue();
+            orderIntId = executionReport.getOrigClOrdID().getValue();
         } else {
-            intId = executionReport.getClOrdID().getValue();
+            orderIntId = executionReport.getClOrdID().getValue();
         }
 
         // check ExecTransType
         if (executionReport.isSetExecTransType() && executionReport.getExecTransType().getValue() != ExecTransType.NEW) {
-            throw new UnsupportedOperationException("order " + intId + " has received an unsupported ExecTransType of: " + executionReport.getExecTransType().getValue());
+            throw new UnsupportedOperationException("order " + orderIntId + " has received an unsupported ExecTransType of: " + executionReport.getExecTransType().getValue());
         }
 
-        Order order = this.openOrderRegistry.findByIntId(intId);
+        Order order = this.openOrderRegistry.getByIntId(orderIntId);
         if (order == null) {
 
             if (LOGGER.isErrorEnabled ()) {
-                LOGGER.error("Could not find an open order with IntID {}", intId);
+                LOGGER.error("Could not find an open order with IntID {}", orderIntId);
             }
             return;
         }
@@ -100,6 +100,7 @@ public abstract class AbstractFix42OrderMessageHandler extends AbstractFix42Mess
             if (LOGGER.isErrorEnabled()) {
 
                 StringBuilder buf = new StringBuilder();
+                String intId = executionReport.getClOrdID().getValue();
                 buf.append("Order with IntID ").append(intId).append(" has been rejected");
                 if (executionReport.isSetField(Text.FIELD)) {
 
@@ -110,7 +111,7 @@ public abstract class AbstractFix42OrderMessageHandler extends AbstractFix42Mess
 
             OrderStatus orderStatus = OrderStatus.Factory.newInstance();
             orderStatus.setStatus(Status.REJECTED);
-            orderStatus.setIntId(intId);
+            orderStatus.setIntId(orderIntId);
             orderStatus.setSequenceNumber(executionReport.getHeader().getInt(MsgSeqNum.FIELD));
             orderStatus.setOrder(order);
             if (executionReport.isSetField(TransactTime.FIELD)) {
@@ -131,20 +132,13 @@ public abstract class AbstractFix42OrderMessageHandler extends AbstractFix42Mess
 
             // Send status report for replaced order
             String oldIntId = executionReport.getOrigClOrdID().getValue();
-            Order oldOrder = this.openOrderRegistry.findByIntId(oldIntId);
+            Order oldOrder = this.openOrderRegistry.getByIntId(oldIntId);
 
             if (oldOrder != null) {
 
-                OrderStatus orderStatus = OrderStatus.Factory.newInstance();
+                OrderStatus orderStatus = createStatus(executionReport, order);
                 orderStatus.setStatus(Status.CANCELED);
-                orderStatus.setIntId(oldIntId);
-                orderStatus.setSequenceNumber(executionReport.getHeader().getInt(MsgSeqNum.FIELD));
-                orderStatus.setOrder(oldOrder);
-                if (executionReport.isSetField(TransactTime.FIELD)) {
-
-                    orderStatus.setExtDateTime(executionReport.getTransactTime().getValue());
-                }
-
+                orderStatus.setExtId(null);
                 this.serverEngine.sendEvent(orderStatus);
             }
         }
@@ -155,10 +149,6 @@ public abstract class AbstractFix42OrderMessageHandler extends AbstractFix42Mess
 
         Fill fill = createFill(executionReport, order);
         if (fill != null) {
-
-            // associate the fill with the order
-            fill.setOrder(order);
-
             this.serverEngine.sendEvent(fill);
         }
     }
@@ -180,14 +170,14 @@ public abstract class AbstractFix42OrderMessageHandler extends AbstractFix42Mess
             LOGGER.error(buf.toString());
         }
 
-        String intId = reject.getClOrdID().getValue();
+        String orderIntId = reject.getClOrdID().getValue();
 
-        Order order = this.openOrderRegistry.findByIntId(intId);
+        Order order = this.openOrderRegistry.getByIntId(orderIntId);
         if (order != null) {
 
             OrderStatus orderStatus = OrderStatus.Factory.newInstance();
             orderStatus.setStatus(Status.REJECTED);
-            orderStatus.setIntId(intId);
+            orderStatus.setIntId(orderIntId);
             orderStatus.setSequenceNumber(reject.getHeader().getInt(MsgSeqNum.FIELD));
             orderStatus.setOrder(order);
             if (reject.isSetField(TransactTime.FIELD)) {

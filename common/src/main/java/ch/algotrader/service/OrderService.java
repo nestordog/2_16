@@ -20,11 +20,12 @@ package ch.algotrader.service;
 import java.util.Collection;
 import java.util.Map;
 
+import ch.algotrader.entity.trade.ExecutionStatus;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderCompletion;
+import ch.algotrader.entity.trade.OrderDetails;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.entity.trade.OrderValidationException;
-import ch.algotrader.vo.client.OrderStatusVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -82,11 +83,6 @@ public interface OrderService {
     public void modifyOrder(String intId, Map<String, String> properties);
 
     /**
-     * Propagates an Order to the corresponding Strategy.
-     */
-    public void propagateOrder(Order order);
-
-    /**
      * Propagates an {@link OrderStatus} to the corresponding Strategy.
      */
     public void propagateOrderStatus(OrderStatus orderStatus);
@@ -102,29 +98,34 @@ public interface OrderService {
     public void propagateOrderCompletion(OrderCompletion orderCompletion);
 
     /**
-     * Propagates an {@link OrderStatus} to the corresponding Strategy.
+     * Finds all details of currently open Orders.
      */
-    public void updateOrderId(Order order, String intId, String extId);
+    public Collection<OrderDetails> getAllOpenOrders();
 
     /**
-     * Finds all OrderStati of currently open Orders.
+     * Finds details of currently open Orders for the given strategy.
      */
-    public Collection<OrderStatusVO> getAllOpenOrders();
+    public Collection<OrderDetails> getOpenOrdersByStrategy(String strategyName);
 
     /**
-     * Finds the current OrderStatus of the Order with the specified {@code intId}
-     */
-    public Collection<OrderStatusVO> getOpenOrdersByStrategy(String strategyName);
-
-    /**
-     * Gets an open order by its {@code intId} by querying the OpenOrderWindow
+     * Returns the order with the given {@code IntId}.
      */
     public Order getOpenOrderByIntId(String intId);
 
     /**
-     * Gets an open order by its {@code rootIntId} by querying the OpenOrderWindow
+     * Returns execution status of the order with the given {@code IntId}.
      */
-    public Order getOpenOrderByRootIntId(String intId);
+    ExecutionStatus getStatusByIntId(String intId);
+
+    /**
+     * Returns full details of the open order with the given {@code IntId}.
+     */
+    public OrderDetails getOpenOrderDetailsByIntId(String intId);
+
+    /**
+     * Gets an order (open or completed) by its {@code intId}.
+     */
+    public Order getOrderByIntId(String intId);
 
     /**
      * Loads pending orders. An order is considered pending if the status of the last

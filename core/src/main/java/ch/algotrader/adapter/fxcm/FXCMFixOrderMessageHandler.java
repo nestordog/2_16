@@ -91,8 +91,8 @@ public class FXCMFixOrderMessageHandler extends AbstractFix44OrderMessageHandler
         Status status = getStatus(executionReport.getOrdStatus(), executionReport.getExecType(), executionReport.getCumQty());
         long filledQuantity = (long) executionReport.getCumQty().getValue();
         long remainingQuantity = (long) (executionReport.getOrderQty().getValue() - executionReport.getCumQty().getValue());
+        String intId = order.getIntId() != null ? order.getIntId(): executionReport.getClOrdID().getValue();
         String extId = executionReport.getOrderID().getValue();
-        String intId = executionReport.getClOrdID().getValue();
 
         // assemble the orderStatus
         OrderStatus orderStatus = OrderStatus.Factory.newInstance();
@@ -151,6 +151,7 @@ public class FXCMFixOrderMessageHandler extends AbstractFix44OrderMessageHandler
             fill.setSide(side);
             fill.setQuantity(quantity);
             fill.setPrice(price);
+            fill.setOrder(order);
 
             return fill;
         } else {

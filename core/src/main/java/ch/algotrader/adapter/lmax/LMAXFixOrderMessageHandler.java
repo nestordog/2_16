@@ -48,7 +48,7 @@ import quickfix.fix44.ExecutionReport;
  */
 public class LMAXFixOrderMessageHandler extends AbstractFix44OrderMessageHandler {
 
-    private static final double MULTPLIER = 10000.0;
+    private static final double MULTIPLIER = 10000.0;
 
     public LMAXFixOrderMessageHandler(final OpenOrderRegistry openOrderRegistry, final Engine serverEngine) {
         super(openOrderRegistry, serverEngine);
@@ -88,16 +88,16 @@ public class LMAXFixOrderMessageHandler extends AbstractFix44OrderMessageHandler
 
         ExecType execType = executionReport.getExecType();
         Status status = getStatus(execType, executionReport.getOrderQty(), executionReport.getCumQty());
-        long filledQuantity = Math.round(executionReport.getCumQty().getValue() * MULTPLIER);
-        long remainingQuantity = Math.round((executionReport.getOrderQty().getValue() - executionReport.getCumQty().getValue()) * MULTPLIER);
+        long filledQuantity = Math.round(executionReport.getCumQty().getValue() * MULTIPLIER);
+        long remainingQuantity = Math.round((executionReport.getOrderQty().getValue() - executionReport.getCumQty().getValue()) * MULTIPLIER);
+        String intId = order.getIntId() != null ? order.getIntId(): executionReport.getClOrdID().getValue();
         String extId = executionReport.getOrderID().getValue();
-        String intId = executionReport.getClOrdID().getValue();
 
         // assemble the orderStatus
         OrderStatus orderStatus = OrderStatus.Factory.newInstance();
         orderStatus.setStatus(status);
-        orderStatus.setExtId(extId);
         orderStatus.setIntId(intId);
+        orderStatus.setExtId(extId);
         orderStatus.setSequenceNumber(executionReport.getHeader().getInt(MsgSeqNum.FIELD));
         orderStatus.setFilledQuantity(filledQuantity);
         orderStatus.setRemainingQuantity(remainingQuantity);
@@ -134,7 +134,7 @@ public class LMAXFixOrderMessageHandler extends AbstractFix44OrderMessageHandler
             // get the fields
             Date extDateTime = executionReport.getTransactTime().getValue();
             Side side = FixUtil.getSide(executionReport.getSide());
-            long quantity = Math.round(executionReport.getLastQty().getValue() * MULTPLIER);
+            long quantity = Math.round(executionReport.getLastQty().getValue() * MULTIPLIER);
             double price = executionReport.getLastPx().getValue();
             String extId = executionReport.getExecID().getValue();
 
@@ -147,6 +147,7 @@ public class LMAXFixOrderMessageHandler extends AbstractFix44OrderMessageHandler
             fill.setSide(side);
             fill.setQuantity(quantity);
             fill.setPrice(PriceUtil.normalizePrice(order,price));
+            fill.setOrder(order);
 
             return fill;
         } else {

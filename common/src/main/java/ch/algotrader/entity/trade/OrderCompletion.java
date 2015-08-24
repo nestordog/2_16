@@ -32,27 +32,49 @@ public class OrderCompletion implements Serializable {
 
     private static final long serialVersionUID = 8510334378552535810L;
 
-    private Date dateTime;
+    private final String orderIntId;
 
-    private Status status;
+    private final Date dateTime;
 
-    private long filledQuantity;
+    private final Status status;
 
-    private long remainingQuantity;
+    private final long filledQuantity;
 
-    private BigDecimal avgPrice;
+    private final long remainingQuantity;
 
-    private BigDecimal grossValue;
+    private final BigDecimal avgPrice;
 
-    private BigDecimal netValue;
+    private final BigDecimal grossValue;
 
-    private BigDecimal totalCharges;
+    private final BigDecimal netValue;
 
-    private int fills;
+    private final BigDecimal totalCharges;
 
-    private double executionTime;
+    private final int fills;
 
-    private Order order;
+    private final double executionTime;
+
+    public OrderCompletion(final String orderIntId, final Date dateTime, final Status status, final long filledQuantity, final long remainingQuantity, final BigDecimal avgPrice,
+                           final BigDecimal grossValue, final BigDecimal netValue, final BigDecimal totalCharges, final int fills, final double executionTime) {
+        this.orderIntId = orderIntId;
+        this.dateTime = dateTime;
+        this.status = status;
+        this.filledQuantity = filledQuantity;
+        this.remainingQuantity = remainingQuantity;
+        this.avgPrice = avgPrice;
+        this.grossValue = grossValue;
+        this.netValue = netValue;
+        this.totalCharges = totalCharges;
+        this.fills = fills;
+        this.executionTime = executionTime;
+    }
+
+    /**
+     * Internal ID of the order.
+     */
+    public String getOrderIntId() {
+        return this.orderIntId;
+    }
 
     /**
      * The dateTime the order was fully executed. This is set automatically by the {@link
@@ -64,28 +86,11 @@ public class OrderCompletion implements Serializable {
     }
 
     /**
-     * The dateTime the order was fully executed. This is set automatically by the {@link
-     * ch.algotrader.service.OrderService OrderService}
-     * @param dateTimeIn Date
-     */
-    public void setDateTime(Date dateTimeIn) {
-        this.dateTime = dateTimeIn;
-    }
-
-    /**
      * The Order {@link Status}
      * @return this.status Status
      */
     public Status getStatus() {
         return this.status;
-    }
-
-    /**
-     * The Order {@link Status}
-     * @param statusIn Status
-     */
-    public void setStatus(Status statusIn) {
-        this.status = statusIn;
     }
 
     /**
@@ -97,27 +102,11 @@ public class OrderCompletion implements Serializable {
     }
 
     /**
-     * The quantity of the Order that has already been filled.
-     * @param filledQuantityIn long
-     */
-    public void setFilledQuantity(long filledQuantityIn) {
-        this.filledQuantity = filledQuantityIn;
-    }
-
-    /**
      * The remaining quantity of the Order that has not been filled yet.
      * @return this.remainingQuantity long
      */
     public long getRemainingQuantity() {
         return this.remainingQuantity;
-    }
-
-    /**
-     * The remaining quantity of the Order that has not been filled yet.
-     * @param remainingQuantityIn long
-     */
-    public void setRemainingQuantity(long remainingQuantityIn) {
-        this.remainingQuantity = remainingQuantityIn;
     }
 
     /**
@@ -129,27 +118,11 @@ public class OrderCompletion implements Serializable {
     }
 
     /**
-     * The volume weighted average price of all associated transactions.
-     * @param avgPriceIn BigDecimal
-     */
-    public void setAvgPrice(BigDecimal avgPriceIn) {
-        this.avgPrice = avgPriceIn;
-    }
-
-    /**
      * The total Transaction Value without Commissions of all Transactions.
      * @return this.grossValue BigDecimal
      */
     public BigDecimal getGrossValue() {
         return this.grossValue;
-    }
-
-    /**
-     * The total Transaction Value without Commissions of all Transactions.
-     * @param grossValueIn BigDecimal
-     */
-    public void setGrossValue(BigDecimal grossValueIn) {
-        this.grossValue = grossValueIn;
     }
 
     /**
@@ -161,27 +134,11 @@ public class OrderCompletion implements Serializable {
     }
 
     /**
-     * The total Transaction Value incl. Commissions and Fees of all Transactions.
-     * @param netValueIn BigDecimal
-     */
-    public void setNetValue(BigDecimal netValueIn) {
-        this.netValue = netValueIn;
-    }
-
-    /**
      * The total of all Commissions and Fees
      * @return this.totalCharges BigDecimal
      */
     public BigDecimal getTotalCharges() {
         return this.totalCharges;
-    }
-
-    /**
-     * The total of all Commissions and Fees
-     * @param totalChargesIn BigDecimal
-     */
-    public void setTotalCharges(BigDecimal totalChargesIn) {
-        this.totalCharges = totalChargesIn;
     }
 
     /**
@@ -193,43 +150,11 @@ public class OrderCompletion implements Serializable {
     }
 
     /**
-     * The number of Fills received
-     * @param fillsIn int
-     */
-    public void setFills(int fillsIn) {
-        this.fills = fillsIn;
-    }
-
-    /**
      * The total execution time in seconds.
      * @return this.executionTime double
      */
     public double getExecutionTime() {
         return this.executionTime;
-    }
-
-    /**
-     * The total execution time in seconds.
-     * @param executionTimeIn double
-     */
-    public void setExecutionTime(double executionTimeIn) {
-        this.executionTime = executionTimeIn;
-    }
-
-    /**
-     * Base Class for all Order Types
-     * @return this.order Order
-     */
-    public Order getOrder() {
-        return this.order;
-    }
-
-    /**
-     * Base Class for all Order Types
-     * @param orderIn Order
-     */
-    public void setOrder(Order orderIn) {
-        this.order = orderIn;
     }
 
     @Override
@@ -238,75 +163,26 @@ public class OrderCompletion implements Serializable {
         StringBuilder buffer = new StringBuilder();
 
         buffer.append(getStatus());
-
-        if (getOrder() != null) {
-            buffer.append(",");
-            buffer.append(getOrder().getDescription());
-        }
-
+        buffer.append(",orderIntId=");
+        buffer.append(this.orderIntId);
         buffer.append(",filledQuantity=");
-        buffer.append(getFilledQuantity());
+        buffer.append(this.remainingQuantity);
         buffer.append(",remainingQuantity=");
-        buffer.append(getRemainingQuantity());
+        buffer.append(this.remainingQuantity);
         buffer.append(",avgPrice=");
-        buffer.append(getAvgPrice());
+        buffer.append(this.avgPrice);
         buffer.append(",grossValue=");
-        buffer.append(getGrossValue());
+        buffer.append(this.grossValue);
         buffer.append(",netValue=");
-        buffer.append(getNetValue());
+        buffer.append(this.netValue);
         buffer.append(",totalCharges=");
-        buffer.append(getTotalCharges());
+        buffer.append(this.totalCharges);
         buffer.append(",fills=");
-        buffer.append(getFills());
+        buffer.append(this.fills);
         buffer.append(",executionTime=");
-        buffer.append(getExecutionTime());
+        buffer.append(this.executionTime);
 
         return buffer.toString();
-    }
-
-    public static final class Factory {
-        /**
-         * Constructs a new instance of {@link OrderCompletion}.
-         *
-         * @return new OrderCompletionImpl()
-         */
-        public static OrderCompletion newInstance() {
-            return new OrderCompletion();
-        }
-
-
-        /**
-         * Constructs a new instance of {@link OrderCompletion}, taking all possible properties
-         * (except the identifier(s))as arguments.
-         *
-         * @param dateTime          Date
-         * @param status            Status
-         * @param filledQuantity    long
-         * @param remainingQuantity long
-         * @param avgPrice          BigDecimal
-         * @param grossValue        BigDecimal
-         * @param netValue          BigDecimal
-         * @param totalCharges      BigDecimal
-         * @param fills             int
-         * @param executionTime     double
-         * @param order             Order
-         * @return newInstance OrderCompletion
-         */
-        public static OrderCompletion newInstance(Date dateTime, Status status, long filledQuantity, long remainingQuantity, BigDecimal avgPrice, BigDecimal grossValue, BigDecimal netValue, BigDecimal totalCharges, int fills, double executionTime, Order order) {
-            final OrderCompletion entity = new OrderCompletion();
-            entity.setDateTime(dateTime);
-            entity.setStatus(status);
-            entity.setFilledQuantity(filledQuantity);
-            entity.setRemainingQuantity(remainingQuantity);
-            entity.setAvgPrice(avgPrice);
-            entity.setGrossValue(grossValue);
-            entity.setNetValue(netValue);
-            entity.setTotalCharges(totalCharges);
-            entity.setFills(fills);
-            entity.setExecutionTime(executionTime);
-            entity.setOrder(order);
-            return entity;
-        }
     }
 
 }

@@ -198,7 +198,7 @@ public class FTXFixOrderMessageHandlerTest {
 
         NewOrderSingle message = this.messageFactory.createNewOrderMessage(order, orderId);
 
-        Mockito.when(this.openOrderRegistry.findByIntId(orderId)).thenReturn(order);
+        Mockito.when(this.openOrderRegistry.getByIntId(orderId)).thenReturn(order);
 
         this.session.send(message);
 
@@ -258,7 +258,7 @@ public class FTXFixOrderMessageHandlerTest {
 
         NewOrderSingle message1 = this.messageFactory.createNewOrderMessage(order, orderId1);
 
-        Mockito.when(this.openOrderRegistry.findByIntId(orderId1)).thenReturn(order);
+        Mockito.when(this.openOrderRegistry.getByIntId(orderId1)).thenReturn(order);
 
         this.session.send(message1);
 
@@ -278,7 +278,7 @@ public class FTXFixOrderMessageHandlerTest {
 
         OrderCancelRequest message2 = this.messageFactory.createOrderCancelMessage(order, orderId2);
 
-        Mockito.when(this.openOrderRegistry.findByIntId(orderId2)).thenReturn(order);
+        Mockito.when(this.openOrderRegistry.getByIntId(orderId2)).thenReturn(order);
 
         this.session.send(message2);
 
@@ -322,7 +322,7 @@ public class FTXFixOrderMessageHandlerTest {
 
         NewOrderSingle message1 = this.messageFactory.createNewOrderMessage(order, orderId1);
 
-        Mockito.when(this.openOrderRegistry.findByIntId(orderId1)).thenReturn(order);
+        Mockito.when(this.openOrderRegistry.getByIntId(orderId1)).thenReturn(order);
 
         this.session.send(message1);
 
@@ -344,7 +344,7 @@ public class FTXFixOrderMessageHandlerTest {
 
         OrderCancelReplaceRequest message2 = this.messageFactory.createModifyOrderMessage(order, orderId2, 0);
 
-        Mockito.when(this.openOrderRegistry.findByIntId(orderId2)).thenReturn(order);
+        Mockito.when(this.openOrderRegistry.getByIntId(orderId2)).thenReturn(order);
 
         this.session.send(message2);
 
@@ -366,7 +366,7 @@ public class FTXFixOrderMessageHandlerTest {
 
         OrderCancelRequest message3 = this.messageFactory.createOrderCancelMessage(order, orderId3);
 
-        Mockito.when(this.openOrderRegistry.findByIntId(orderId3)).thenReturn(order);
+        Mockito.when(this.openOrderRegistry.getByIntId(orderId3)).thenReturn(order);
 
         this.session.send(message3);
 

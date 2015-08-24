@@ -197,7 +197,7 @@ public class FXCMFixOrderMessageHandlerTest {
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(forex);
 
-        Mockito.when(this.openOrderRegistry.findByIntId(orderId)).thenReturn(order);
+        Mockito.when(this.openOrderRegistry.getByIntId(orderId)).thenReturn(order);
 
         this.session.send(orderSingle);
 
@@ -313,7 +313,7 @@ public class FXCMFixOrderMessageHandlerTest {
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(forex);
 
-        Mockito.when(this.openOrderRegistry.findByIntId(orderId1)).thenReturn(order);
+        Mockito.when(this.openOrderRegistry.getByIntId(orderId1)).thenReturn(order);
 
         this.session.send(orderSingle);
 
@@ -338,7 +338,7 @@ public class FXCMFixOrderMessageHandlerTest {
         cancelRequest.set(new TransactTime(new Date()));
         cancelRequest.set(new OrderQty(1000.0d));
 
-        Mockito.when(this.openOrderRegistry.findByIntId(orderId2)).thenReturn(order);
+        Mockito.when(this.openOrderRegistry.getByIntId(orderId2)).thenReturn(order);
 
         this.session.send(cancelRequest);
 
@@ -384,7 +384,7 @@ public class FXCMFixOrderMessageHandlerTest {
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(forex);
 
-        Mockito.when(this.openOrderRegistry.findByIntId(orderId1)).thenReturn(order);
+        Mockito.when(this.openOrderRegistry.getByIntId(orderId1)).thenReturn(order);
 
         this.session.send(orderSingle);
 
@@ -411,7 +411,7 @@ public class FXCMFixOrderMessageHandlerTest {
         replaceRequest.set(new OrdType(OrdType.STOP));
         replaceRequest.set(new StopPx(1.9d));
 
-        Mockito.when(this.openOrderRegistry.findByIntId(orderId2)).thenReturn(order);
+        Mockito.when(this.openOrderRegistry.getByIntId(orderId2)).thenReturn(order);
 
         this.session.send(replaceRequest);
 

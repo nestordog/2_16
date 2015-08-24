@@ -198,7 +198,7 @@ public class RTFixOrderMessageHandlerTest {
 
         NewOrderSingle message = this.messageFactory.createNewOrderMessage(order, orderId);
 
-        Mockito.when(this.openOrderRegistry.findByIntId(orderId)).thenReturn(order);
+        Mockito.when(this.openOrderRegistry.getByIntId(orderId)).thenReturn(order);
 
         this.session.send(message);
 
@@ -264,7 +264,7 @@ public class RTFixOrderMessageHandlerTest {
 
         NewOrderSingle message = this.messageFactory.createNewOrderMessage(order, orderId);
 
-        Mockito.when(this.openOrderRegistry.findByIntId(orderId)).thenReturn(order);
+        Mockito.when(this.openOrderRegistry.getByIntId(orderId)).thenReturn(order);
 
         this.session.send(message);
 
@@ -362,7 +362,7 @@ public class RTFixOrderMessageHandlerTest {
 
         NewOrderSingle message1 = this.messageFactory.createNewOrderMessage(order, orderId1);
 
-        Mockito.when(this.openOrderRegistry.findByIntId(orderId1)).thenReturn(order);
+        Mockito.when(this.openOrderRegistry.getByIntId(orderId1)).thenReturn(order);
 
         this.session.send(message1);
 
@@ -380,7 +380,7 @@ public class RTFixOrderMessageHandlerTest {
         order.setIntId(orderId1);
         OrderCancelRequest message2 = this.messageFactory.createOrderCancelMessage(order, orderId2);
 
-        Mockito.when(this.openOrderRegistry.findByIntId(orderId2)).thenReturn(order);
+        Mockito.when(this.openOrderRegistry.getByIntId(orderId2)).thenReturn(order);
 
         this.session.send(message2);
 

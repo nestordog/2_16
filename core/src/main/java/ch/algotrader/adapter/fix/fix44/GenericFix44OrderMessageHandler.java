@@ -94,8 +94,8 @@ public class GenericFix44OrderMessageHandler extends AbstractFix44OrderMessageHa
 
         Status status = getStatus(execType, orderQty, cumQty);
         long remainingQuantity = orderQty - cumQty;
+        String intId = order.getIntId() != null ? order.getIntId(): executionReport.getClOrdID().getValue();
         String extId = executionReport.getOrderID().getValue();
-        String intId = executionReport.getClOrdID().getValue();
 
         // assemble the orderStatus
         OrderStatus orderStatus = OrderStatus.Factory.newInstance();
@@ -152,6 +152,7 @@ public class GenericFix44OrderMessageHandler extends AbstractFix44OrderMessageHa
             if (executionReport.isSetField(TransactTime.FIELD)) {
                 fill.setExtDateTime(executionReport.getTransactTime().getValue());
             }
+            fill.setOrder(order);
 
             return fill;
         } else {

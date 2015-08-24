@@ -193,7 +193,7 @@ public class LMAXFixOrderMessageHandlerTest {
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(forex);
 
-        Mockito.when(this.openOrderRegistry.findByIntId(orderId)).thenReturn(order);
+        Mockito.when(this.openOrderRegistry.getByIntId(orderId)).thenReturn(order);
 
         this.session.send(orderSingle);
 
@@ -276,7 +276,7 @@ public class LMAXFixOrderMessageHandlerTest {
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(forex);
 
-        Mockito.when(this.openOrderRegistry.findByIntId(orderId1)).thenReturn(order);
+        Mockito.when(this.openOrderRegistry.getByIntId(orderId1)).thenReturn(order);
 
         this.session.send(orderSingle);
 
@@ -300,7 +300,7 @@ public class LMAXFixOrderMessageHandlerTest {
         cancelRequest.set(new TransactTime(new Date()));
         cancelRequest.set(new OrderQty(10.0d));
 
-        Mockito.when(this.openOrderRegistry.findByIntId(orderId2)).thenReturn(order);
+        Mockito.when(this.openOrderRegistry.getByIntId(orderId2)).thenReturn(order);
 
         this.session.send(cancelRequest);
 

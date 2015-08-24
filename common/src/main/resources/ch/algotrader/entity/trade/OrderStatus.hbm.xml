@@ -71,7 +71,7 @@
         </property>
         <property name="intId">
             <meta attribute="field-description"><![CDATA[The internal Id of the Order.]]></meta>
-            <column name="INT_ID" not-null="false" unique="false" sql-type="VARCHAR(255)"/>
+            <column name="INT_ID" not-null="true" unique="false" sql-type="VARCHAR(255)"/>
 
             <type name="java.lang.String"/>
         </property>

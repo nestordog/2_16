@@ -153,8 +153,8 @@ public class TransactionServiceImpl implements TransactionService {
         transaction.setUuid(UUID.randomUUID().toString());
         transaction.setDateTime(fill.getExtDateTime());
         transaction.setExtId(fill.getExtId());
-        transaction.setIntOrderId(fill.getOrder().getIntId());
-        transaction.setExtOrderId(fill.getOrder().getExtId());
+        transaction.setIntOrderId(order.getIntId());
+        transaction.setExtOrderId(order.getExtId());
         transaction.setQuantity(quantity);
         transaction.setPrice(fill.getPrice());
         transaction.setType(transactionType);
@@ -296,14 +296,16 @@ public class TransactionServiceImpl implements TransactionService {
 
         Validate.notNull(fill, "Fill is null");
 
+        Order order = fill.getOrder();
         // send the fill to the strategy that placed the corresponding order
-        if (!fill.getOrder().getStrategy().isServer()) {
-            this.eventDispatcher.sendEvent(fill.getOrder().getStrategy().getName(), fill);
+        Strategy strategy = order.getStrategy();
+        if (!strategy.isServer()) {
+            this.eventDispatcher.sendEvent(strategy.getName(), fill);
         }
 
         if (!this.commonConfig.isSimulation()) {
             if (LOGGER.isInfoEnabled()) {
-                LOGGER.info("received fill: {} for order: {}", fill, fill.getOrder());
+                LOGGER.info("received fill: {} for order: {}", fill, order);
             }
         }
 

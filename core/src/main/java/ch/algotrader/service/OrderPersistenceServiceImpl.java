@@ -117,7 +117,7 @@ public class OrderPersistenceServiceImpl implements OrderPersistenceService {
                 }
             }
         } catch (Exception e) {
-            LOGGER.error("problem creating order", e);
+            LOGGER.error("Failed to save Order", e);
         }
     }
 
@@ -142,7 +142,7 @@ public class OrderPersistenceServiceImpl implements OrderPersistenceService {
                 LOGGER.error("OrderStatus may not be updated");
             }
         } catch (Exception e) {
-            LOGGER.error("problem creating orderStatus", e);
+            LOGGER.error("Failed to save OrderStatus", e);
         }
     }
 
