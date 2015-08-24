@@ -23,6 +23,7 @@ import ch.algotrader.adapter.fix.fix42.GenericFix42SymbologyResolver;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.ordermgmt.OpenOrderRegistry;
+import ch.algotrader.service.fix.fix42.Fix42OrderService;
 import ch.algotrader.service.fix.fix42.Fix42OrderServiceImpl;
 import quickfix.field.HandlInst;
 import quickfix.fix42.NewOrderSingle;
@@ -34,7 +35,7 @@ import quickfix.fix42.OrderCancelRequest;
  *
  * @version $Revision$ $Date$
  */
-public class JPMFixOrderServiceImpl extends Fix42OrderServiceImpl implements JPMFixOrderService {
+public class JPMFixOrderServiceImpl extends Fix42OrderServiceImpl implements Fix42OrderService {
 
     private static final long serialVersionUID = -8881034489922372443L;
 

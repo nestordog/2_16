@@ -25,9 +25,9 @@ import ch.algotrader.adapter.fix.ManagedFixAdapter;
 import ch.algotrader.adapter.fix.MarketDataFixSessionStateHolder;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.ordermgmt.OpenOrderRegistry;
-import ch.algotrader.service.lmax.LMAXFixMarketDataService;
+import ch.algotrader.service.ExternalMarketDataService;
+import ch.algotrader.service.ExternalOrderService;
 import ch.algotrader.service.lmax.LMAXFixMarketDataServiceImpl;
-import ch.algotrader.service.lmax.LMAXFixOrderService;
 import ch.algotrader.service.lmax.LMAXFixOrderServiceImpl;
 
 /**
@@ -38,7 +38,7 @@ public class LMAXFixServiceWiring {
 
     @Profile("lMAXFix")
     @Bean(name = "lMAXFixOrderService")
-    public LMAXFixOrderService createLMAXFixOrderService(
+    public ExternalOrderService createLMAXFixOrderService(
             final ManagedFixAdapter fixAdapter,
             final OpenOrderRegistry openOrderRegistry) {
 
@@ -47,7 +47,7 @@ public class LMAXFixServiceWiring {
 
     @Profile("lMAXMarketData")
     @Bean(name = "lMAXFixMarketDataService")
-    public LMAXFixMarketDataService createLMAXFixMarketDataService(
+    public ExternalMarketDataService createLMAXFixMarketDataService(
             final MarketDataFixSessionStateHolder lMAXMarketDataSessionStateHolder,
             final ManagedFixAdapter fixAdapter,
             final Engine serverEngine) {

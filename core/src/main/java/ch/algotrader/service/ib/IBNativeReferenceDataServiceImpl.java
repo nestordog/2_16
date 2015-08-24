@@ -35,6 +35,9 @@ import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.ib.client.Contract;
+import com.ib.client.ContractDetails;
+
 import ch.algotrader.adapter.ib.IBIdGenerator;
 import ch.algotrader.adapter.ib.IBPendingRequests;
 import ch.algotrader.adapter.ib.IBSession;
@@ -56,20 +59,17 @@ import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.future.FutureSymbol;
 import ch.algotrader.option.OptionSymbol;
 import ch.algotrader.service.ExternalServiceException;
-import ch.algotrader.service.ReferenceDataServiceImpl;
+import ch.algotrader.service.ReferenceDataService;
 import ch.algotrader.service.ServiceException;
 import ch.algotrader.util.DateTimeLegacy;
 import ch.algotrader.util.RoundUtil;
-
-import com.ib.client.Contract;
-import com.ib.client.ContractDetails;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class IBNativeReferenceDataServiceImpl extends ReferenceDataServiceImpl implements IBNativeReferenceDataService {
+public class IBNativeReferenceDataServiceImpl implements ReferenceDataService {
 
     private static final Logger LOGGER = LogManager.getLogger(IBNativeReferenceDataServiceImpl.class);
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd");

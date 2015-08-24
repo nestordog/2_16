@@ -23,6 +23,7 @@ import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.ordermgmt.OpenOrderRegistry;
+import ch.algotrader.service.fix.fix44.Fix44OrderService;
 import ch.algotrader.service.fix.fix44.Fix44OrderServiceImpl;
 import quickfix.field.CumQty;
 import quickfix.fix44.NewOrderSingle;
@@ -34,7 +35,7 @@ import quickfix.fix44.OrderCancelRequest;
  *
  * @version $Revision$ $Date$
  */
-public class FTXFixOrderServiceImpl extends Fix44OrderServiceImpl implements FTXFixOrderService {
+public class FTXFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fix44OrderService {
 
     private static final long serialVersionUID = -4332474115892611530L;
 

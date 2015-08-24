@@ -25,9 +25,9 @@ import ch.algotrader.adapter.fix.ManagedFixAdapter;
 import ch.algotrader.adapter.fix.MarketDataFixSessionStateHolder;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.ordermgmt.OpenOrderRegistry;
-import ch.algotrader.service.dc.DCFixMarketDataService;
+import ch.algotrader.service.ExternalMarketDataService;
+import ch.algotrader.service.ExternalOrderService;
 import ch.algotrader.service.dc.DCFixMarketDataServiceImpl;
-import ch.algotrader.service.dc.DCFixOrderService;
 import ch.algotrader.service.dc.DCFixOrderServiceImpl;
 
 /**
@@ -38,7 +38,7 @@ public class DCFixServiceWiring {
 
     @Profile("dCFix")
     @Bean(name = "dCFixOrderService")
-    public DCFixOrderService createDCFixOrderService(
+    public ExternalOrderService createDCFixOrderService(
             final ManagedFixAdapter fixAdapter,
             final OpenOrderRegistry openOrderRegistry) {
 
@@ -47,7 +47,7 @@ public class DCFixServiceWiring {
 
     @Profile("dCMarketData")
     @Bean(name = "dCFixMarketDataService")
-    public DCFixMarketDataService createDCFixMarketDataService(
+    public ExternalMarketDataService createDCFixMarketDataService(
             final MarketDataFixSessionStateHolder dCMarketDataSessionStateHolder,
             final ManagedFixAdapter fixAdapter,
             final Engine serverEngine) {

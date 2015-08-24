@@ -28,11 +28,11 @@ import ch.algotrader.dao.security.OptionDao;
 import ch.algotrader.dao.security.SecurityDao;
 import ch.algotrader.dao.security.SecurityFamilyDao;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.service.bb.BBHistoricalDataService;
+import ch.algotrader.service.ExternalMarketDataService;
+import ch.algotrader.service.HistoricalDataService;
+import ch.algotrader.service.ReferenceDataService;
 import ch.algotrader.service.bb.BBHistoricalDataServiceImpl;
-import ch.algotrader.service.bb.BBMarketDataService;
 import ch.algotrader.service.bb.BBMarketDataServiceImpl;
-import ch.algotrader.service.bb.BBReferenceDataService;
 import ch.algotrader.service.bb.BBReferenceDataServiceImpl;
 
 /**
@@ -43,7 +43,7 @@ public class BBServiceWiring {
 
     @Profile("bBHistoricalData")
     @Bean(name = {"bBHistoricalDataService", "historicalDataService"})
-    public BBHistoricalDataService createBBHistoricalDataService(
+    public HistoricalDataService createBBHistoricalDataService(
             final BBAdapter bBAdapter,
             final SecurityDao securityDao,
             final BarDao barDao) {
@@ -53,7 +53,7 @@ public class BBServiceWiring {
 
     @Profile("bBMarketData")
     @Bean(name = "bBMarketDataService")
-    public BBMarketDataService createBBMarketDataService(
+    public ExternalMarketDataService createBBMarketDataService(
             final BBAdapter bBAdapter,
             final Engine serverEngine) {
 
@@ -62,7 +62,7 @@ public class BBServiceWiring {
 
     @Profile("bBReferenceData")
     @Bean(name = {"bBReferenceDataService", "referenceDataService"})
-    public BBReferenceDataService createBBReferenceDataService(
+    public ReferenceDataService createBBReferenceDataService(
             final BBAdapter bBAdapter,
             final SecurityFamilyDao securityFamilyDao,
             final OptionDao optionDao,

@@ -48,6 +48,7 @@ import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.enumeration.TimePeriod;
+import ch.algotrader.service.HistoricalDataService;
 import ch.algotrader.service.HistoricalDataServiceImpl;
 import ch.algotrader.service.ServiceException;
 import ch.algotrader.util.DateTimeLegacy;
@@ -57,7 +58,7 @@ import ch.algotrader.util.DateTimeLegacy;
  *
  * @version $Revision$ $Date$
  */
-public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl implements IBNativeHistoricalDataService {
+public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl implements HistoricalDataService {
 
     private static final Logger LOGGER = LogManager.getLogger(IBNativeHistoricalDataServiceImpl.class);
     private static final DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("yyyyMMdd  HH:mm:ss");

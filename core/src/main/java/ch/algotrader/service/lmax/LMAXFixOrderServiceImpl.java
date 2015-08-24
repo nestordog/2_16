@@ -22,6 +22,7 @@ import ch.algotrader.adapter.lmax.LMAXFixOrderMessageFactory;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.ordermgmt.OpenOrderRegistry;
+import ch.algotrader.service.fix.fix44.Fix44OrderService;
 import ch.algotrader.service.fix.fix44.Fix44OrderServiceImpl;
 import quickfix.fix44.NewOrderSingle;
 import quickfix.fix44.OrderCancelReplaceRequest;
@@ -32,7 +33,7 @@ import quickfix.fix44.OrderCancelRequest;
  *
  * @version $Revision$ $Date$
  */
-public class LMAXFixOrderServiceImpl extends Fix44OrderServiceImpl implements LMAXFixOrderService {
+public class LMAXFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fix44OrderService {
 
     private static final long serialVersionUID = 5822672325566918821L;
 

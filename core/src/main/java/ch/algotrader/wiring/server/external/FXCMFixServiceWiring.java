@@ -25,9 +25,9 @@ import ch.algotrader.adapter.fix.ManagedFixAdapter;
 import ch.algotrader.adapter.fix.MarketDataFixSessionStateHolder;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.ordermgmt.OpenOrderRegistry;
-import ch.algotrader.service.fxcm.FXCMFixMarketDataService;
+import ch.algotrader.service.ExternalMarketDataService;
+import ch.algotrader.service.ExternalOrderService;
 import ch.algotrader.service.fxcm.FXCMFixMarketDataServiceImpl;
-import ch.algotrader.service.fxcm.FXCMFixOrderService;
 import ch.algotrader.service.fxcm.FXCMFixOrderServiceImpl;
 
 /**
@@ -38,7 +38,7 @@ public class FXCMFixServiceWiring {
 
     @Profile("fXCMFix")
     @Bean(name = "fXCMFixOrderService")
-    public FXCMFixOrderService createFXCMFixOrderService(
+    public ExternalOrderService createFXCMFixOrderService(
             final ManagedFixAdapter fixAdapter,
             final OpenOrderRegistry openOrderRegistry) {
 
@@ -47,7 +47,7 @@ public class FXCMFixServiceWiring {
 
     @Profile("fXCMMarketData")
     @Bean(name = "fXCMFixMarketDataService")
-    public FXCMFixMarketDataService createFXCMFixMarketDataService(
+    public ExternalMarketDataService createFXCMFixMarketDataService(
             final MarketDataFixSessionStateHolder fXCMSessionLifeCycle,
             final ManagedFixAdapter fixAdapter,
             final Engine serverEngine) {

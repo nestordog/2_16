@@ -23,6 +23,7 @@ import ch.algotrader.adapter.rt.RTFixOrderMessageFactory;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.ordermgmt.OpenOrderRegistry;
+import ch.algotrader.service.fix.fix44.Fix44OrderService;
 import ch.algotrader.service.fix.fix44.Fix44OrderServiceImpl;
 import quickfix.fix44.NewOrderSingle;
 import quickfix.fix44.OrderCancelReplaceRequest;
@@ -33,7 +34,7 @@ import quickfix.fix44.OrderCancelRequest;
  *
  * @version $Revision$ $Date$
  */
-public class RTFixOrderServiceImpl extends Fix44OrderServiceImpl implements RTFixOrderService {
+public class RTFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fix44OrderService {
 
     private static final long serialVersionUID = 1030392480992545177L;
 

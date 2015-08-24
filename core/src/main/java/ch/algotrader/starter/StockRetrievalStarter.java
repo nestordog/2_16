@@ -20,7 +20,7 @@ package ch.algotrader.starter;
 import java.text.ParseException;
 
 import ch.algotrader.ServiceLocator;
-import ch.algotrader.service.ib.IBNativeReferenceDataService;
+import ch.algotrader.service.ReferenceDataService;
 
 /**
  * Starter Class for downloading {@link ch.algotrader.entity.security.Stock Stocks}
@@ -39,7 +39,7 @@ public class StockRetrievalStarter {
 
         ServiceLocator.instance().runServices();
 
-        IBNativeReferenceDataService service = ServiceLocator.instance().getService("iBNativeReferenceDataService", IBNativeReferenceDataService.class);
+        ReferenceDataService service = ServiceLocator.instance().getService("iBNativeReferenceDataService", ReferenceDataService.class);
         for (int i = 1; i < args.length; i++) {
 
             long securityFamilyId = Long.parseLong(args[0]);

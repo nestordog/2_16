@@ -34,6 +34,7 @@ import ch.algotrader.config.IBConfig;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.Engine;
+import ch.algotrader.service.ExternalMarketDataService;
 import ch.algotrader.service.ServiceException;
 import ch.algotrader.vo.marketData.SubscribeTickVO;
 
@@ -42,7 +43,7 @@ import ch.algotrader.vo.marketData.SubscribeTickVO;
  *
  * @version $Revision$ $Date$
  */
-public class IBNativeMarketDataServiceImpl implements IBNativeMarketDataService, DisposableBean {
+public class IBNativeMarketDataServiceImpl implements ExternalMarketDataService, DisposableBean {
 
     private static final Logger LOGGER = LogManager.getLogger(IBNativeMarketDataServiceImpl.class);
 

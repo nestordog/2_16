@@ -25,9 +25,9 @@ import ch.algotrader.adapter.fix.ManagedFixAdapter;
 import ch.algotrader.adapter.fix.MarketDataFixSessionStateHolder;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.ordermgmt.OpenOrderRegistry;
-import ch.algotrader.service.cnx.CNXFixMarketDataService;
+import ch.algotrader.service.ExternalMarketDataService;
+import ch.algotrader.service.ExternalOrderService;
 import ch.algotrader.service.cnx.CNXFixMarketDataServiceImpl;
-import ch.algotrader.service.cnx.CNXFixOrderService;
 import ch.algotrader.service.cnx.CNXFixOrderServiceImpl;
 
 /**
@@ -38,7 +38,7 @@ public class CNXFixServiceWiring {
 
     @Profile("cNXFix")
     @Bean(name = "cNXFixOrderService")
-    public CNXFixOrderService createCNXFixOrderService(
+    public ExternalOrderService createCNXFixOrderService(
             final ManagedFixAdapter fixAdapter,
             final OpenOrderRegistry openOrderRegistry) {
 
@@ -47,7 +47,7 @@ public class CNXFixServiceWiring {
 
     @Profile("cNXMarketData")
     @Bean(name = "cNXFixMarketDataService")
-    public CNXFixMarketDataService createCNXFixMarketDataService(
+    public ExternalMarketDataService createCNXFixMarketDataService(
             final MarketDataFixSessionStateHolder cNXMarketDataSessionStateHolder,
             final ManagedFixAdapter fixAdapter,
             final Engine serverEngine) {

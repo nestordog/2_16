@@ -27,10 +27,10 @@ import ch.algotrader.adapter.fix.ManagedFixAdapter;
 import ch.algotrader.adapter.ib.IBCustomMessage;
 import ch.algotrader.config.IBConfig;
 import ch.algotrader.ordermgmt.OpenOrderRegistry;
+import ch.algotrader.service.ExternalOrderService;
 import ch.algotrader.service.LookupService;
 import ch.algotrader.service.ib.IBFixAllocationService;
 import ch.algotrader.service.ib.IBFixAllocationServiceImpl;
-import ch.algotrader.service.ib.IBFixOrderService;
 import ch.algotrader.service.ib.IBFixOrderServiceImpl;
 
 /**
@@ -41,7 +41,7 @@ import ch.algotrader.service.ib.IBFixOrderServiceImpl;
 public class IBFixServiceWiring {
 
     @Bean(name = "iBFixOrderService")
-    public IBFixOrderService createIBFixOrderService(
+    public ExternalOrderService createIBFixOrderService(
             final IBConfig iBConfig,
             final ManagedFixAdapter fixAdapter,
             final OpenOrderRegistry openOrderRegistry) {

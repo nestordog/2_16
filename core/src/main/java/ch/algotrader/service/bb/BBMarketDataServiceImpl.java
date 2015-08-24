@@ -38,6 +38,7 @@ import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.enumeration.InitializingServiceType;
 import ch.algotrader.esper.Engine;
+import ch.algotrader.service.ExternalMarketDataService;
 import ch.algotrader.service.ExternalServiceException;
 import ch.algotrader.service.InitializationPriority;
 import ch.algotrader.service.InitializingServiceI;
@@ -50,7 +51,7 @@ import ch.algotrader.vo.marketData.SubscribeTickVO;
  * @version $Revision$ $Date$
  */
 @InitializationPriority(InitializingServiceType.BROKER_INTERFACE)
-public class BBMarketDataServiceImpl implements BBMarketDataService, InitializingServiceI, DisposableBean {
+public class BBMarketDataServiceImpl implements ExternalMarketDataService, InitializingServiceI, DisposableBean {
 
     private static final long serialVersionUID = -3463200344945144471L;
 

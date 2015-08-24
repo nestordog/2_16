@@ -30,6 +30,7 @@ import ch.algotrader.entity.trade.StopOrder;
 import ch.algotrader.entity.trade.StopOrderI;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.ordermgmt.OpenOrderRegistry;
+import ch.algotrader.service.fix.fix44.Fix44OrderService;
 import ch.algotrader.service.fix.fix44.Fix44OrderServiceImpl;
 import ch.algotrader.util.PriceUtil;
 import quickfix.field.OrdType;
@@ -50,7 +51,7 @@ import quickfix.fix44.OrderCancelRequest;
  *
  * @version $Revision$ $Date$
  */
-public class DCFixOrderServiceImpl extends Fix44OrderServiceImpl implements DCFixOrderService {
+public class DCFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fix44OrderService {
 
     private static final long serialVersionUID = -8251827446524602573L;
 
