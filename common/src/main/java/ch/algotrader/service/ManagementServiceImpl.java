@@ -269,7 +269,7 @@ public class ManagementServiceImpl implements ManagementService {
                 ch.algotrader.entity.marketData.MarketDataEventVO marketDataEvent = marketDataEventMap.get(security.getId());
                 if (marketDataEvent != null && !processedSubscriptions.contains(security.getId())) {
                     processedSubscriptions.add(security.getId());
-                    subscribedMarketDataEvent.add(convert(marketDataEvent));
+                    subscribedMarketDataEvent.add(convert(marketDataEvent, security));
                 }
             }
         } else {
@@ -282,7 +282,7 @@ public class ManagementServiceImpl implements ManagementService {
                 ch.algotrader.entity.marketData.MarketDataEventVO marketDataEvent = marketDataEventMap.get(security.getId());
                 if (marketDataEvent != null && !processedSubscriptions.contains(security.getId())) {
                     processedSubscriptions.add(security.getId());
-                    subscribedMarketDataEvent.add(convert(marketDataEvent));
+                    subscribedMarketDataEvent.add(convert(marketDataEvent, security));
                 }
             }
         }
@@ -874,7 +874,7 @@ public class ManagementServiceImpl implements ManagementService {
         }
     }
 
-    private MarketDataEventVO convert(ch.algotrader.entity.marketData.MarketDataEventVO marketDataEvent) {
+    private MarketDataEventVO convert(ch.algotrader.entity.marketData.MarketDataEventVO marketDataEvent, Security security) {
 
         MarketDataEventVO marketDataEventVO;
         if (marketDataEvent instanceof ch.algotrader.entity.marketData.TickVO) {
@@ -906,6 +906,7 @@ public class ManagementServiceImpl implements ManagementService {
             return null;
         }
 
+        marketDataEventVO.setName(security.toString());
         marketDataEventVO.setDateTime(marketDataEvent.getDateTime());
         marketDataEventVO.setSecurityId(marketDataEvent.getSecurityId());
         marketDataEventVO.setCurrentValue(marketDataEvent.getCurrentValue());
