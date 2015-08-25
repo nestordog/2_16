@@ -97,7 +97,7 @@ public class CalendarServiceImpl implements CalendarService {
         Exchange exchange = this.exchangeDao.get(exchangeId);
         Date date = truncateToDayUsingTimeZone(dateTime, exchange.getTZ());
         TimeIntervals timeIntervals = getTimeIntervalsPlusMinusOneDay(exchange, date);
-        return timeIntervals.contains(dateTime);
+        return timeIntervals.contains(dateTime) || exchange.getTradingHours().size() == 0;
 
     }
 
