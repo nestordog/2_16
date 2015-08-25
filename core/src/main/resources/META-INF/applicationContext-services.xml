@@ -271,9 +271,10 @@
         <bean id="iBNativeHistoricalDataService" class="ch.algotrader.service.ib.IBNativeHistoricalDataServiceImpl" >
             <constructor-arg index="0"  ref="historicalDataQueue"/>
             <constructor-arg index="1"  ref="iBSession"/>
-            <constructor-arg index="2"  ref="iBIdGenerator"/>
-            <constructor-arg index="3"  ref="securityDao"/>
-            <constructor-arg index="4"  ref="barDao"/>
+            <constructor-arg index="2"  ref="iBConfig"/>
+            <constructor-arg index="3"  ref="iBIdGenerator"/>
+            <constructor-arg index="4"  ref="securityDao"/>
+            <constructor-arg index="5"  ref="barDao"/>
         </bean>
 
         <alias name="iBNativeHistoricalDataService" alias="historicalDataService"/>

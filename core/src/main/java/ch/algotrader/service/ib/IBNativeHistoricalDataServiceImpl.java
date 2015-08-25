@@ -29,9 +29,13 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
 
+import com.ib.client.Contract;
+import com.ib.client.TagValue;
+
 import ch.algotrader.adapter.ib.IBIdGenerator;
 import ch.algotrader.adapter.ib.IBSession;
 import ch.algotrader.adapter.ib.IBUtil;
+import ch.algotrader.config.IBConfig;
 import ch.algotrader.entity.marketData.Bar;
 import ch.algotrader.entity.marketData.BarDao;
 import ch.algotrader.entity.security.Security;
@@ -42,9 +46,6 @@ import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.enumeration.TimePeriod;
 import ch.algotrader.service.HistoricalDataServiceImpl;
 import ch.algotrader.util.MyLogger;
-
-import com.ib.client.Contract;
-import com.ib.client.TagValue;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -63,12 +64,15 @@ public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl
 
     private final IBSession iBSession;
 
+    private final IBConfig iBConfig;
+
     private final IBIdGenerator iBIdGenerator;
 
     private final SecurityDao securityDao;
 
     public IBNativeHistoricalDataServiceImpl(final BlockingQueue<Bar> historicalDataQueue,
             final IBSession iBSession,
+            final IBConfig iBConfig,
             final IBIdGenerator iBIdGenerator,
             final SecurityDao securityDao,
             final BarDao barDao) {
@@ -77,11 +81,13 @@ public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl
 
         Validate.notNull(historicalDataQueue, "HistoricalDataQueue is null");
         Validate.notNull(iBSession, "IBSession is null");
+        Validate.notNull(iBConfig, "IBConfig is null");
         Validate.notNull(iBIdGenerator, "IBIdGenerator is null");
         Validate.notNull(securityDao, "SecurityDao is null");
 
         this.historicalDataQueue = historicalDataQueue;
         this.iBSession = iBSession;
+        this.iBConfig = iBConfig;
         this.iBIdGenerator = iBIdGenerator;
         this.securityDao = securityDao;
     }
@@ -190,7 +196,7 @@ public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl
         }
 
         // send the request
-        this.iBSession.reqHistoricalData(requestId, contract, dateString, durationString, barSizeString, barTypeString, 1, 1, new ArrayList<TagValue>());
+        this.iBSession.reqHistoricalData(requestId, contract, dateString, durationString, barSizeString, barTypeString, this.iBConfig.useRTH() ? 1 : 0, 1, new ArrayList<TagValue>());
 
         // read from the queue until a Bar with no dateTime is received
         List<Bar> barList = new ArrayList<Bar>();

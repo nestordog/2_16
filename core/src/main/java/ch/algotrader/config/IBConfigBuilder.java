@@ -28,6 +28,7 @@ public final class IBConfigBuilder {
 
     private String faMethod;
     private String genericTickList;
+    private boolean useRTH;
 
     IBConfigBuilder() {
     }
@@ -46,8 +47,13 @@ public final class IBConfigBuilder {
         return this;
     }
 
+    public IBConfigBuilder setUseRTH(boolean useRTH) {
+        this.useRTH = useRTH;
+        return this;
+    }
+
     public IBConfig build() {
-        return new IBConfig(faMethod, genericTickList);
+        return new IBConfig(faMethod, genericTickList, useRTH);
     }
 
 }
