@@ -9,7 +9,7 @@ from
     //every Order -> (OrderStatusC and not (OrderStatusEorPE or Order))
     pattern [every currentOrder=SubmittedOrder(instanceof(submittedOrder.parentOrder,ch.algotrader.entity.trade.SlicingOrder))
         -> (OrderStatus(status = Status.CANCELED, `order`.intId = currentOrder.submittedOrder.intId)
-            and not (OrderStatus(status = Status.EXECUTED or status = Status.PARTIALLY_EXECUTED, `order`.intId = currentOrder.submittedOrder.intId) or `Order`(intId = currentOrder.submittedOrder.intId)))];
+            and not (OrderStatus(status = Status.EXECUTED or status = Status.PARTIALLY_EXECUTED, `order`.intId = currentOrder.submittedOrder.intId) or SubmittedOrder(submittedOrder.intId = currentOrder.submittedOrder.intId)))];
 
 @Name('SLICING_INCREASE_OFFSET_TICKS')
 @RunTimeOnly
@@ -20,7 +20,7 @@ from
     //every Order -> (OrderStatusEorPE and not (OrderStatusC or Order))
     pattern [every currentOrder=SubmittedOrder(instanceof(submittedOrder.parentOrder,ch.algotrader.entity.trade.SlicingOrder))
         -> (OrderStatus(status = Status.EXECUTED or status = Status.PARTIALLY_EXECUTED, `order`.intId = currentOrder.submittedOrder.intId)
-            and not (OrderStatus(status = Status.CANCELED, `order`.intId = currentOrder.submittedOrder.intId) or `Order`(intId = currentOrder.submittedOrder.intId)))];
+            and not (OrderStatus(status = Status.CANCELED, `order`.intId = currentOrder.submittedOrder.intId) or SubmittedOrder(submittedOrder.intId = currentOrder.submittedOrder.intId)))];
 
 @Name('SLICING_CANCEL_ORDER')
 @RunTimeOnly
