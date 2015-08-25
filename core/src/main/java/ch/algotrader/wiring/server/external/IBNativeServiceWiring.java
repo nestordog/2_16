@@ -84,12 +84,13 @@ public class IBNativeServiceWiring {
     @Bean(name = {"iBNativeHistoricalDataService", "historicalDataService"})
     public IBNativeHistoricalDataService createIBNativeHistoricalDataService(
             final IBSession iBSession,
+            final IBConfig iBConfig,
             final IBPendingRequests iBPendingRequests,
             final IBIdGenerator iBIdGenerator,
             final SecurityDao securityDao,
             final BarDao barDao) {
 
-        return new IBNativeHistoricalDataServiceImpl(iBSession, iBPendingRequests, iBIdGenerator, securityDao, barDao);
+        return new IBNativeHistoricalDataServiceImpl(iBSession, iBConfig, iBPendingRequests, iBIdGenerator, securityDao, barDao);
     }
 
     @Profile("iBMarketData")

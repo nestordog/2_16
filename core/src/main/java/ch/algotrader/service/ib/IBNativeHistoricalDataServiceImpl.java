@@ -38,6 +38,7 @@ import ch.algotrader.adapter.ib.IBSession;
 import ch.algotrader.adapter.ib.IBUtil;
 import ch.algotrader.concurrent.Promise;
 import ch.algotrader.concurrent.PromiseImpl;
+import ch.algotrader.config.IBConfig;
 import ch.algotrader.dao.marketData.BarDao;
 import ch.algotrader.dao.security.SecurityDao;
 import ch.algotrader.entity.marketData.Bar;
@@ -65,12 +66,14 @@ public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl
     private long lastTimeStamp = 0;
 
     private final IBSession iBSession;
+    private final IBConfig iBConfig;
     private final IBPendingRequests pendingRequests;
     private final IBIdGenerator idGenerator;
     private final SecurityDao securityDao;
 
     public IBNativeHistoricalDataServiceImpl(
             final IBSession iBSession,
+            final IBConfig iBConfig,
             final IBPendingRequests pendingRequests,
             final IBIdGenerator idGenerator,
             final SecurityDao securityDao,
@@ -79,11 +82,13 @@ public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl
         super(barDao);
 
         Validate.notNull(iBSession, "IBSession is null");
+        Validate.notNull(iBConfig, "IBConfig is null");
         Validate.notNull(pendingRequests, "IBPendingRequests is null");
         Validate.notNull(idGenerator, "IBIdGenerator is null");
         Validate.notNull(securityDao, "SecurityDao is null");
 
         this.iBSession = iBSession;
+        this.iBConfig = iBConfig;
         this.pendingRequests = pendingRequests;
         this.idGenerator = idGenerator;
         this.securityDao = securityDao;
@@ -198,7 +203,7 @@ public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl
 
         PromiseImpl<List<Bar>> promise = new PromiseImpl<>(null);
         this.pendingRequests.addHistoricDataRequest(requestId, promise);
-        this.iBSession.reqHistoricalData(requestId, contract, dateString, durationString, barSizeString, barTypeString, 1, 1, Collections.<TagValue>emptyList());
+        this.iBSession.reqHistoricalData(requestId, contract, dateString, durationString, barSizeString, barTypeString, iBConfig.useRTH() ? 1 : 0, 1, Collections.<TagValue>emptyList());
         List<Bar> bars = getBarsBlocking(promise);
 
         // set & update fields

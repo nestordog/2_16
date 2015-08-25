@@ -54,7 +54,7 @@ public class IBOrderPropertyTest {
     @Before
     public void setup() {
 
-        this.iBOrderMessageFactory = new DefaultIBOrderMessageFactory(new IBConfig("", ""));
+        this.iBOrderMessageFactory = new DefaultIBOrderMessageFactory(new IBConfig("", "", true));
     }
 
     @Test
