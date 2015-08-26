@@ -24,6 +24,7 @@ import ch.algotrader.entity.marketData.MarketDataEventVO;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.util.metric.MetricsUtil;
 import ch.algotrader.vo.GenericEventVO;
+import ch.algotrader.vo.marketData.TradingStatusEventVO;
 
 /**
  * A utility class that propagates generic and market data events through {@link EventDispatcher}.
@@ -57,6 +58,14 @@ public class EventPropagator {
             LOGGER.trace(genericEvent);
         }
         this.eventDispatcher.broadcastAllStrategies(genericEvent);
+    }
+
+    public void propagateTradingStatusEvent(final TradingStatusEventVO tradingStatusEvent) {
+
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace(tradingStatusEvent);
+        }
+        this.eventDispatcher.broadcastAllStrategies(tradingStatusEvent);
     }
 
 }
