@@ -37,10 +37,12 @@ import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.ConfigLocator;
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.marketData.MarketDataEvent;
+import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.vo.GenericEventVO;
 import ch.algotrader.vo.StatementMetricVO;
+import ch.algotrader.vo.marketData.TradingStatusEventVO;
 
 /**
  * Singleton class to locate {@link Engine Engines}.
@@ -203,6 +205,32 @@ public class EngineLocator {
 
                     // add class Property
                     message.setStringProperty("clazz", event.getClass().getName());
+                    return message;
+                }
+            });
+        }
+    }
+
+    public void sendTradingStatusEvent(final TradingStatusEventVO event) {
+
+        if (CONFIG.isSimulation() || CONFIG.isEmbedded()) {
+            Security security = ServiceLocator.instance().getLookupService().getSecurity(event.getSecurityId());
+            for (Subscription subscription : security.getSubscriptionsInitialized()) {
+                if (!subscription.getStrategyInitialized().getName().equals(StrategyImpl.SERVER)) {
+                    String strategyName = subscription.getStrategy().getName();
+                    if (hasEngine(strategyName)) {
+                        getEngine(strategyName).sendEvent(event);
+                    }
+                }
+            }
+        } else {
+            getTemplate("marketDataTemplate").convertAndSend(event, new MessagePostProcessor() {
+
+                @Override
+                public Message postProcessMessage(Message message) throws JMSException {
+
+                    // add securityId Property
+                    message.setIntProperty("securityId", event.getSecurityId());
                     return message;
                 }
             });
