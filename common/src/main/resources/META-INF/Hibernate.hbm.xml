@@ -204,7 +204,7 @@
    
     <query name='Position.findOpenTradeablePositionsAggregated'>
     <![CDATA[
-        select new Position(sum(p.quantity), p.security) 
+        select new Position(sum(p.quantity), sum(p.cost), p.security) 
         from PositionImpl as p 
         join p.security.securityFamily as f 
         where f.tradeable = true 
@@ -237,7 +237,7 @@
 
     <query name='Position.findOpenFXPositionsAggregated'>
     <![CDATA[
-        select new Position(sum(p.quantity), p.security) 
+        select new Position(sum(p.quantity), sum(p.cost), p.security) 
         from PositionImpl as p 
         join p.security as s 
         where s.class  = ForexImpl 
@@ -285,7 +285,7 @@
 
     <query name='Position.findOpenPositionsAggregated'>
     <![CDATA[
-        select new Position(sum(p.quantity), p.security) 
+        select new Position(sum(p.quantity), sum(p.cost), p.security) 
         from PositionImpl as p 
         group by p.security.id 
         having sum(p.quantity) != 0 
