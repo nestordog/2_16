@@ -163,3 +163,60 @@ select
     *
 from
     ch.algotrader.vo.GenericEventVO;
+
+// ------------------------------TRADING STATUS--------------------------------
+
+@Name('TRADING_CONTEXT')
+create context
+    TradingStatusContext
+partition by
+    feedType and tickerId
+from
+    TradingHaltVO;
+
+@Name('TRADING_HALTED')
+@RunTimeOnly()
+insert into
+    TradingStatusEventVO
+select
+    TradingStatus.TRADING_HALT,
+    tickWindow.securityId,
+    halt.feedType,
+    halt.dateTime
+from
+    TradingHaltVO as halt unidirectional,
+    TickWindow as tickWindow
+where
+    tickWindow.feedType = halt.feedType
+and
+    tickWindow.tickerId = halt.tickerId;
+
+@Name('TRADING_RESUMED')
+@RunTimeOnly()
+context TradingStatusContext
+insert into
+    TradingStatusEventVO
+select
+    TradingStatus.READY_TO_TRADE,
+    tickWindow.securityId,
+    halt.feedType,
+    halt.dateTime
+from
+    pattern[every (halt=TradingHaltVO -> (
+        Ask(tickerId=halt.tickerId, feedType=halt.feedType) or
+        Bid(tickerId=halt.tickerId, feedType=halt.feedType) or
+        Trade(tickerId=halt.tickerId, feedType=halt.feedType)))] unidirectional,
+    TickWindow as tickWindow
+where
+    tickWindow.feedType = halt.feedType
+and
+    tickWindow.tickerId = halt.tickerId;
+
+@Name('PROPAGATE_TRADING_STATUS_EVENTS')
+@Subscriber(className='eventPropagator#propagateTradingStatusEvent')
+@Priority(1)
+select
+    *
+from
+    TradingStatusEventVO;
+

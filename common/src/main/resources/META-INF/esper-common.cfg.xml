@@ -8,6 +8,7 @@
     <event-type name="Tick" class="ch.algotrader.entity.marketData.TickVO"/>
     <event-type name="Bar" class="ch.algotrader.entity.marketData.BarVO"/>
     <event-type name="GenericTick" class="ch.algotrader.entity.marketData.GenericTickVO"/>
+    <event-type name="TradingStatusEventVO" class="ch.algotrader.vo.marketData.TradingStatusEventVO"/>
 
     <!-- Trades -->
     <event-type name="Order" class="ch.algotrader.entity.trade.Order"/>

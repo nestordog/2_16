@@ -36,6 +36,7 @@ import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.FeedType;
+import ch.algotrader.enumeration.TradingStatus;
 import ch.algotrader.esper.io.CollectionInputAdapter;
 import ch.algotrader.service.CalendarService;
 import ch.algotrader.service.LookupService;
@@ -45,6 +46,8 @@ import ch.algotrader.vo.marketData.AskVO;
 import ch.algotrader.vo.marketData.BidVO;
 import ch.algotrader.vo.marketData.SubscribeTickVO;
 import ch.algotrader.vo.marketData.TradeVO;
+import ch.algotrader.vo.marketData.TradingHaltVO;
+import ch.algotrader.vo.marketData.TradingStatusEventVO;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MarketDataEsperTest extends EsperTestBase {
@@ -337,5 +340,91 @@ public class MarketDataEsperTest extends EsperTestBase {
         Assert.assertEquals(Long.valueOf(1L), securityWithGap);
         Assert.assertEquals(0, securityWithGapQueue.size());
     }
+
+    @Test
+    public void testTradingStatusEvent() throws Exception {
+
+        deployModule(epService,
+                getClass().getResource("/module-market-data.epl"),
+                "TICK_WINDOW", "INSERT_INTO_TICK_WINDOW",
+                "TRADING_CONTEXT", "TRADING_HALTED", "TRADING_RESUMED");
+
+        final Queue<TradingStatusEventVO> tradingStatusEventQueue = new ConcurrentLinkedQueue<>();
+        EPStatement statement = epService.getEPAdministrator().createEPL("select * from TradingStatusEventVO");
+        statement.setSubscriber(new Object() {
+            public void update(final TradingStatusEventVO event) {
+                tradingStatusEventQueue.add(event);
+            }
+        });
+
+        SubscribeTickVO subscribeEvent1 = new SubscribeTickVO("some-ticker1", 1L, FeedType.IB);
+        epRuntime.sendEvent(subscribeEvent1);
+        SubscribeTickVO subscribeEvent3 = new SubscribeTickVO("some-ticker2", 2L, FeedType.LMAX);
+        epRuntime.sendEvent(subscribeEvent3);
+
+        TradingHaltVO halt1 = new TradingHaltVO("some-ticker1", FeedType.IB, null);
+        epRuntime.sendEvent(halt1);
+        TradingHaltVO halt2 = new TradingHaltVO("some-ticker2", FeedType.LMAX, null);
+        epRuntime.sendEvent(halt2);
+        TradingHaltVO halt3 = new TradingHaltVO("some-ticker1", FeedType.IB, null);
+        epRuntime.sendEvent(halt3);
+        TradingHaltVO halt4 = new TradingHaltVO("some-ticker2", FeedType.LMAX, null);
+        epRuntime.sendEvent(halt4);
+
+        TradingStatusEventVO tradingStatusEvent1 = tradingStatusEventQueue.poll();
+        Assert.assertNotNull(tradingStatusEvent1);
+        Assert.assertEquals(TradingStatus.TRADING_HALT, tradingStatusEvent1.getStatus());
+        Assert.assertEquals(1L, tradingStatusEvent1.getSecurityId());
+        Assert.assertEquals(FeedType.IB, tradingStatusEvent1.getFeedType());
+
+        TradingStatusEventVO tradingStatusEvent2 = tradingStatusEventQueue.poll();
+        Assert.assertNotNull(tradingStatusEvent2);
+        Assert.assertEquals(TradingStatus.TRADING_HALT, tradingStatusEvent2.getStatus());
+        Assert.assertEquals(2L, tradingStatusEvent2.getSecurityId());
+        Assert.assertEquals(FeedType.LMAX, tradingStatusEvent2.getFeedType());
+
+        TradingStatusEventVO tradingStatusEvent3 = tradingStatusEventQueue.poll();
+        Assert.assertNotNull(tradingStatusEvent3);
+        Assert.assertEquals(TradingStatus.TRADING_HALT, tradingStatusEvent3.getStatus());
+        Assert.assertEquals(1L, tradingStatusEvent3.getSecurityId());
+        Assert.assertEquals(FeedType.IB, tradingStatusEvent3.getFeedType());
+
+        TradingStatusEventVO tradingStatusEvent4 = tradingStatusEventQueue.poll();
+        Assert.assertNotNull(tradingStatusEvent4);
+        Assert.assertEquals(TradingStatus.TRADING_HALT, tradingStatusEvent4.getStatus());
+        Assert.assertEquals(2L, tradingStatusEvent4.getSecurityId());
+        Assert.assertEquals(FeedType.LMAX, tradingStatusEvent4.getFeedType());
+
+        TradeVO trade1 = new TradeVO("some-ticker1", FeedType.IB, new Date(), 1.23d, 567);
+        epRuntime.sendEvent(trade1);
+
+        TradingStatusEventVO tradingStatusEvent5 = tradingStatusEventQueue.poll();
+        Assert.assertNotNull(tradingStatusEvent5);
+        Assert.assertEquals(TradingStatus.READY_TO_TRADE, tradingStatusEvent5.getStatus());
+        Assert.assertEquals(1L, tradingStatusEvent5.getSecurityId());
+        Assert.assertEquals(FeedType.IB, tradingStatusEvent5.getFeedType());
+
+        TradingStatusEventVO tradingStatusEvent6 = tradingStatusEventQueue.poll();
+        Assert.assertNull(tradingStatusEvent6);
+
+        BidVO bid1 = new BidVO("some-ticker1", FeedType.IB, new Date(), 1.23d, 567);
+        epRuntime.sendEvent(bid1);
+
+        TradingStatusEventVO tradingStatusEvent7 = tradingStatusEventQueue.poll();
+        Assert.assertNull(tradingStatusEvent7);
+
+        AskVO ask1 = new AskVO("some-ticker2", FeedType.LMAX, new Date(), 1.23d, 567);
+        epRuntime.sendEvent(ask1);
+
+        TradingStatusEventVO tradingStatusEvent8 = tradingStatusEventQueue.poll();
+        Assert.assertNotNull(tradingStatusEvent8);
+        Assert.assertEquals(TradingStatus.READY_TO_TRADE, tradingStatusEvent8.getStatus());
+        Assert.assertEquals(2L, tradingStatusEvent8.getSecurityId());
+        Assert.assertEquals(FeedType.LMAX, tradingStatusEvent8.getFeedType());
+
+        TradingStatusEventVO tradingStatusEvent9 = tradingStatusEventQueue.poll();
+        Assert.assertNull(tradingStatusEvent9);
+    }
+
 }
 
