@@ -41,7 +41,6 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import ch.algotrader.cache.CacheManager;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.CoreConfig;
 import ch.algotrader.dao.SubscriptionDao;
@@ -53,7 +52,6 @@ import ch.algotrader.entity.marketData.MarketDataEventVO;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.marketData.TickVO;
 import ch.algotrader.entity.security.Security;
-import ch.algotrader.entity.security.SecurityImpl;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.Engine;
@@ -95,8 +93,6 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationList
 
     private final LocalLookupService localLookupService;
 
-    private final CacheManager cacheManager;
-
     private final AtomicBoolean initialized;
 
     private final Map<FeedType, ExternalMarketDataService> externalMarketDataServiceMap;
@@ -110,8 +106,7 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationList
             final SubscriptionDao subscriptionDao,
             final EngineManager engineManager,
             final EventDispatcher eventDispatcher,
-            final LocalLookupService localLookupService,
-            final CacheManager cacheManager) {
+ final LocalLookupService localLookupService) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(coreConfig, "CoreConfig is null");
@@ -123,7 +118,6 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationList
         Validate.notNull(engineManager, "EngineManager is null");
         Validate.notNull(eventDispatcher, "EventDispatcher is null");
         Validate.notNull(localLookupService, "LocalLookupService is null");
-        Validate.notNull(cacheManager, "CacheManager is null");
 
         this.commonConfig = commonConfig;
         this.coreConfig = coreConfig;
@@ -135,7 +129,6 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationList
         this.engineManager = engineManager;
         this.eventDispatcher = eventDispatcher;
         this.localLookupService = localLookupService;
-        this.cacheManager = cacheManager;
         this.initialized = new AtomicBoolean(false);
         this.externalMarketDataServiceMap = new ConcurrentHashMap<>();
     }
@@ -209,12 +202,12 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationList
         Validate.notEmpty(strategyName, "Strategy name is empty");
         Validate.notNull(feedType, "Feed type is null");
 
-        eventDispatcher.registerMarketDataSubscription(strategyName, securityId);
+        this.eventDispatcher.registerMarketDataSubscription(strategyName, securityId);
 
         if (this.subscriptionDao.findByStrategySecurityAndFeedType(strategyName, securityId, feedType) == null) {
 
             Strategy strategy = this.strategyDao.findByName(strategyName);
-            Security security = this.cacheManager.get(SecurityImpl.class, securityId);
+            Security security = this.securityDao.get(securityId);
 
             // only external subscribe if nobody was watching the specified security with the specified feedType so far
             if (!this.commonConfig.isSimulation()) {
@@ -264,12 +257,12 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationList
         Validate.notEmpty(strategyName, "Strategy name is empty");
         Validate.notNull(feedType, "Feed type is null");
 
-        eventDispatcher.unregisterMarketDataSubscription(strategyName, securityId);
+        this.eventDispatcher.unregisterMarketDataSubscription(strategyName, securityId);
 
         Subscription subscription = this.subscriptionDao.findByStrategySecurityAndFeedType(strategyName, securityId, feedType);
         if (subscription != null && !subscription.isPersistent()) {
 
-            Security security = this.cacheManager.get(SecurityImpl.class, securityId);
+            Security security = this.securityDao.get(securityId);
 
             // update links
             security.getSubscriptions().remove(subscription);
@@ -336,7 +329,7 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationList
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        Map<Long, MarketDataEventVO> currentMarketDataEvents = localLookupService.getCurrentMarketDataEvents();
+        Map<Long, MarketDataEventVO> currentMarketDataEvents = this.localLookupService.getCurrentMarketDataEvents();
         List<Subscription> subscriptions = this.subscriptionDao.findByStrategy(strategyName);
         for (Subscription subscription: subscriptions) {
             long securityId = subscription.getSecurity().getId();
@@ -353,7 +346,7 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationList
     @Override
     public void logTickGap(final long securityId) {
 
-        Security security = this.cacheManager.get(SecurityImpl.class, securityId);
+        Security security = this.securityDao.get(securityId);
 
         LOGGER.error("{} has not received any ticks for {} minutes", security, security.getSecurityFamily().getMaxGap());
 
@@ -422,7 +415,7 @@ public class MarketDataServiceImpl implements MarketDataService, ApplicationList
         if (tick == null) {
             return false;
         }
-        Security security = this.cacheManager.get(SecurityImpl.class, tick.getSecurityId());
+        Security security = this.securityDao.get(tick.getSecurityId());
         if (security == null) {
             return false;
         }

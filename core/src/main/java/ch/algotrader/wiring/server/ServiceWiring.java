@@ -247,11 +247,10 @@ public class ServiceWiring {
             final SubscriptionDao subscriptionDao,
             final EngineManager engineManager,
             final EventDispatcher eventDispatcher,
-            final LocalLookupService localLookupService,
-            final CacheManager cacheManager) {
+            final LocalLookupService localLookupService) {
 
         return new MarketDataServiceImpl(commonConfig, coreConfig, sessionFactory, tickDao, securityDao, strategyDao, subscriptionDao, engineManager,
-                eventDispatcher, localLookupService, cacheManager);
+                eventDispatcher, localLookupService);
     }
 
     @Bean(name = "orderPersistenceService")
