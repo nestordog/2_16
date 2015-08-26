@@ -14,6 +14,7 @@
     <event-type name="Trade" class="ch.algotrader.vo.TradeVO"/>
     <event-type name="Bid" class="ch.algotrader.vo.BidVO"/>
     <event-type name="Ask" class="ch.algotrader.vo.AskVO"/>
+    <event-type name="TradingHaltVO" class="ch.algotrader.vo.marketData.TradingHaltVO"/>
 
     <!-- Combinations / Components -->
     <event-type name="InsertComponentEvent" class="ch.algotrader.vo.InsertComponentEventVO"/>
