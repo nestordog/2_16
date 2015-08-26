@@ -35,7 +35,17 @@ public class TickImpl extends Tick {
 
     @Override
     public BigDecimal getCurrentValue() {
-        return getLast();
+
+        if (getBid() != null && getAsk() != null) {
+            int scale = Math.max(getBid().scale(), getAsk().scale());
+            return RoundUtil.getBigDecimal((getAsk().doubleValue() + getBid().doubleValue()) / 2.0, scale);
+        } else if (getBid() != null) {
+            return getBid();
+        } else if (getAsk() != null) {
+            return getAsk();
+        } else {
+            return getLast();
+        }
     }
 
     @Override
