@@ -204,3 +204,12 @@ where
     tickWindow.feedType = halt.feedType
 and
     tickWindow.tickerId = halt.tickerId;
+
+@Name('PROPAGATE_TRADING_STATUS_EVENTS')
+@Subscriber(className='ch.algotrader.esper.subscriber.PropagateTradingStatusEventSubscriber')
+@Priority(1)
+select
+    *
+from
+    TradingStatusEventVO;
+
