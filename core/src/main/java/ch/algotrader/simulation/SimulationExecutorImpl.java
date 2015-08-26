@@ -697,28 +697,28 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
 
         // compile yearly performance
         List<PeriodPerformanceVO> yearlyPerformances = null;
+        Date lastDate = null;
         if (monthlyPerformances.size() != 0) {
-            if ((monthlyPerformances != null)) {
-                yearlyPerformances = new ArrayList<>();
-                double currentPerformance = 1.0;
-                for (PeriodPerformanceVO monthlyPerformance : monthlyPerformances) {
-                    currentPerformance *= 1.0 + monthlyPerformance.getValue();
-                    if (DateUtils.toCalendar(monthlyPerformance.getDate()).get(Calendar.MONTH) == 11) {
-                        PeriodPerformanceVO yearlyPerformance = new PeriodPerformanceVO();
-                        yearlyPerformance.setDate(monthlyPerformance.getDate());
-                        yearlyPerformance.setValue(currentPerformance - 1.0);
-                        yearlyPerformances.add(yearlyPerformance);
-                        currentPerformance = 1.0;
-                    }
-                }
-
-                PeriodPerformanceVO lastMonthlyPerformance = monthlyPerformances.get(monthlyPerformances.size() - 1);
-                if (DateUtils.toCalendar(lastMonthlyPerformance.getDate()).get(Calendar.MONTH) != 11) {
+            yearlyPerformances = new ArrayList<PeriodPerformanceVO>();
+            double currentPerformance = 1.0;
+            for (PeriodPerformanceVO monthlyPerformance : monthlyPerformances) {
+                if (lastDate != null && DateUtils.toCalendar(monthlyPerformance.getDate()).get(Calendar.YEAR) != DateUtils.toCalendar(lastDate).get(Calendar.YEAR)) {
                     PeriodPerformanceVO yearlyPerformance = new PeriodPerformanceVO();
-                    yearlyPerformance.setDate(lastMonthlyPerformance.getDate());
+                    yearlyPerformance.setDate(lastDate);
                     yearlyPerformance.setValue(currentPerformance - 1.0);
                     yearlyPerformances.add(yearlyPerformance);
+                    currentPerformance = 1.0;
                 }
+                currentPerformance *= 1.0 + monthlyPerformance.getValue();
+                lastDate = monthlyPerformance.getDate();
+            }
+
+            PeriodPerformanceVO lastMonthlyPerformance = monthlyPerformances.get(monthlyPerformances.size() - 1);
+            if (DateUtils.toCalendar(lastMonthlyPerformance.getDate()).get(Calendar.MONTH) != 11) {
+                PeriodPerformanceVO yearlyPerformance = new PeriodPerformanceVO();
+                yearlyPerformance.setDate(lastMonthlyPerformance.getDate());
+                yearlyPerformance.setValue(currentPerformance - 1.0);
+                yearlyPerformances.add(yearlyPerformance);
             }
         }
 
