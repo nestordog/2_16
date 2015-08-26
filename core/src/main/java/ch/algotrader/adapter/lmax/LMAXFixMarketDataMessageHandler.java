@@ -28,6 +28,7 @@ import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.util.MyLogger;
 import ch.algotrader.vo.AskVO;
 import ch.algotrader.vo.BidVO;
+import ch.algotrader.vo.marketData.TradingHaltVO;
 import quickfix.FieldNotFound;
 import quickfix.Group;
 import quickfix.SessionID;
@@ -40,6 +41,7 @@ import quickfix.field.MDReqID;
 import quickfix.field.MDReqRejReason;
 import quickfix.field.NoMDEntries;
 import quickfix.field.SecurityID;
+import quickfix.field.SendingTime;
 import quickfix.fix44.MarketDataRequestReject;
 import quickfix.fix44.MarketDataSnapshotFullRefresh;
 
@@ -61,6 +63,13 @@ public class LMAXFixMarketDataMessageHandler extends AbstractFix44MarketDataMess
 
         Date date = null;
         int count = marketData.getGroupCount(NoMDEntries.FIELD);
+        if (count == 0) {
+
+            TradingHaltVO suspension = new TradingHaltVO(lmaxId, FeedType.LMAX, marketData.getHeader().getUtcTimeStamp(SendingTime.FIELD));
+            EngineLocator.instance().getServerEngine().sendEvent(suspension);
+            return;
+        }
+
         for (int i = 1; i <= count; i++) {
 
             Group group = marketData.getGroup(i, NoMDEntries.FIELD);
