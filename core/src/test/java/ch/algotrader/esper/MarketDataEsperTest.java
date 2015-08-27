@@ -137,7 +137,7 @@ public class MarketDataEsperTest extends EsperTestBase {
         });
         final Queue<TickVO> validatedTickQueue = new ConcurrentLinkedQueue<>();
         EPStatement statement2 = epService.getEPAdministrator().getStatement("VALIDATE_TICK");
-        Assert.assertNotNull(statement1);
+        Assert.assertNotNull(statement2);
         statement2.setSubscriber(new Object() {
             public void update(final TickVO event) {
                 validatedTickQueue.add(event);

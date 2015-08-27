@@ -18,6 +18,7 @@
 package ch.algotrader.entity.trade;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import ch.algotrader.enumeration.Status;
 
@@ -108,6 +109,10 @@ public class SubmittedOrder implements Serializable {
      */
     public void setSubmittedOrder(Order submittedOrderIn) {
         this.submittedOrder = submittedOrderIn;
+    }
+
+    public Date getDateTime() {
+        return submittedOrder.getDateTime();
     }
 
     @Override

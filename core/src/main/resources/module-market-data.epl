@@ -203,9 +203,9 @@ select
     halt.dateTime
 from
     pattern[every (halt=TradingHaltVO -> (
-        Ask(tickerId=halt.tickerId, feedType=halt.feedType) or
-        Bid(tickerId=halt.tickerId, feedType=halt.feedType) or
-        Trade(tickerId=halt.tickerId, feedType=halt.feedType)))] unidirectional,
+        AskVO(tickerId=halt.tickerId, feedType=halt.feedType) or
+        BidVO(tickerId=halt.tickerId, feedType=halt.feedType) or
+        TradeVO(tickerId=halt.tickerId, feedType=halt.feedType)))] unidirectional,
     TickWindow as tickWindow
 where
     tickWindow.feedType = halt.feedType
