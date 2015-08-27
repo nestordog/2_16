@@ -25,9 +25,9 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang.Validate;
 
 import ch.algotrader.entity.strategy.Strategy;
-import ch.algotrader.entity.trade.ExecutionStatus;
+import ch.algotrader.entity.trade.ExecutionStatusVO;
 import ch.algotrader.entity.trade.Order;
-import ch.algotrader.entity.trade.OrderDetails;
+import ch.algotrader.entity.trade.OrderDetailsVO;
 import ch.algotrader.enumeration.Status;
 
 /**
@@ -37,7 +37,7 @@ import ch.algotrader.enumeration.Status;
 */
 public class DefaultOpenOrderRegistry implements OpenOrderRegistry {
 
-    private final ConcurrentMap<String, OrderDetails> mapByIntId;
+    private final ConcurrentMap<String, OrderDetailsVO> mapByIntId;
 
     public DefaultOpenOrderRegistry() {
         this.mapByIntId = new ConcurrentHashMap<>();
@@ -50,8 +50,8 @@ public class DefaultOpenOrderRegistry implements OpenOrderRegistry {
         String intId = order.getIntId();
         Validate.notNull(intId, "Order IntId is null");
 
-        OrderDetails entry = this.mapByIntId.putIfAbsent(intId,
-                new OrderDetails(order, new ExecutionStatus(intId, Status.OPEN, 0L, order.getQuantity())));
+        OrderDetailsVO entry = this.mapByIntId.putIfAbsent(intId,
+                new OrderDetailsVO(order, new ExecutionStatusVO(intId, Status.OPEN, 0L, order.getQuantity())));
         if (entry != null) {
             throw new IllegalStateException("Entry with IntId " + intId + " already present");
         }
@@ -62,7 +62,7 @@ public class DefaultOpenOrderRegistry implements OpenOrderRegistry {
 
         Validate.notNull(intId, "Order IntId is null");
 
-        OrderDetails entry =  this.mapByIntId.remove(intId);
+        OrderDetailsVO entry =  this.mapByIntId.remove(intId);
         return entry != null ? entry.getOrder() : null;
     }
 
@@ -71,21 +71,21 @@ public class DefaultOpenOrderRegistry implements OpenOrderRegistry {
 
         Validate.notNull(intId, "Order IntId is null");
 
-        OrderDetails entry = this.mapByIntId.get(intId);
+        OrderDetailsVO entry = this.mapByIntId.get(intId);
         return entry != null ? entry.getOrder() : null;
     }
 
     @Override
-    public ExecutionStatus getStatusByIntId(String intId) {
+    public ExecutionStatusVO getStatusByIntId(String intId) {
 
         Validate.notNull(intId, "Order IntId is null");
 
-        OrderDetails entry = this.mapByIntId.get(intId);
+        OrderDetailsVO entry = this.mapByIntId.get(intId);
         return entry != null ? entry.getExecutionStatus() : null;
     }
 
     @Override
-    public OrderDetails getDetailsByIntId(final String intId) {
+    public OrderDetailsVO getDetailsByIntId(final String intId) {
 
         Validate.notNull(intId, "Order IntId is null");
         return this.mapByIntId.get(intId);
@@ -95,29 +95,29 @@ public class DefaultOpenOrderRegistry implements OpenOrderRegistry {
     public void updateExecutionStatus(final String intId, final Status status, final long filledQuantity, final long remainingQuantity) {
 
         Validate.notNull(intId, "Order IntId is null");
-        OrderDetails entry = this.mapByIntId.get(intId);
+        OrderDetailsVO entry = this.mapByIntId.get(intId);
         if (entry == null) {
             throw new IllegalStateException("Entry with IntId " + intId + " not found");
         }
-        this.mapByIntId.replace(intId, entry, new OrderDetails(entry.getOrder(),
-                new ExecutionStatus(intId, status, filledQuantity, remainingQuantity)));
+        this.mapByIntId.replace(intId, entry, new OrderDetailsVO(entry.getOrder(),
+                new ExecutionStatusVO(intId, status, filledQuantity, remainingQuantity)));
     }
 
     @Override
     public List<Order> getAllOrders() {
         return this.mapByIntId.values().stream()
-                .map(OrderDetails::getOrder)
+                .map(OrderDetailsVO::getOrder)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<OrderDetails> getAllOrderDetails() {
+    public List<OrderDetailsVO> getAllOrderDetails() {
         return this.mapByIntId.values().stream()
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<OrderDetails> getOrderDetailsForStrategy(String strategyName) {
+    public List<OrderDetailsVO> getOrderDetailsForStrategy(String strategyName) {
         return this.mapByIntId.values().stream()
                 .filter(entry -> {
                     Strategy strategy = entry.getOrder().getStrategy();
@@ -133,7 +133,7 @@ public class DefaultOpenOrderRegistry implements OpenOrderRegistry {
                     Order order = entry.getOrder();
                     return !order.isAlgoOrder() && order.getParentOrder() != null && order.getParentOrder().getIntId().equals(parentIntId);
                 })
-                .map(OrderDetails::getOrder)
+                .map(OrderDetailsVO::getOrder)
                 .collect(Collectors.toList());
     }
 

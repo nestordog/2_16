@@ -17,7 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.ehcache;
 
-import ch.algotrader.cache.QueryCacheEvictionEvent;
+import ch.algotrader.cache.QueryCacheEvictionEventVO;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
@@ -44,7 +44,7 @@ public class QueryCacheEventListener extends CacheEventListenerAdapter {
 
         String spaceName = (String) element.getObjectKey();
 
-        QueryCacheEvictionEvent event = new QueryCacheEvictionEvent(spaceName);
+        QueryCacheEvictionEventVO event = new QueryCacheEvictionEventVO(spaceName);
         this.eventDispatcher.broadcastEventListeners(event);
     }
 

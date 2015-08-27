@@ -27,13 +27,13 @@ import java.io.Serializable;
  *
  * @version $Revision$ $Date$
  */
-public class QueryCacheEvictionEvent implements Serializable {
+public class QueryCacheEvictionEventVO implements Serializable {
 
     private static final long serialVersionUID = -9201194174175757269L;
 
     private final String spaceName;
 
-    public QueryCacheEvictionEvent(String spaceName) {
+    public QueryCacheEvictionEventVO(String spaceName) {
         this.spaceName = spaceName;
     }
 

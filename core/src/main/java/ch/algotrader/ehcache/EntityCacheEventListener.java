@@ -25,7 +25,7 @@ import net.sf.ehcache.event.CacheEventListenerAdapter;
 import org.hibernate.cache.spi.CacheKey;
 
 import ch.algotrader.cache.CacheManagerImpl;
-import ch.algotrader.cache.EntityCacheEvictionEvent;
+import ch.algotrader.cache.EntityCacheEvictionEventVO;
 import ch.algotrader.event.dispatch.EventDispatcher;
 
 /**
@@ -51,7 +51,7 @@ public class EntityCacheEventListener extends CacheEventListenerAdapter {
         CacheKey hibernateCacheKey = (CacheKey) element.getObjectKey();
         long id = (Long) hibernateCacheKey.getKey();
 
-        EntityCacheEvictionEvent event = new EntityCacheEvictionEvent(this.entityClass, id, CacheManagerImpl.ROOT);
+        EntityCacheEvictionEventVO event = new EntityCacheEvictionEventVO(this.entityClass, id, CacheManagerImpl.ROOT);
         this.eventDispatcher.broadcastEventListeners(event);
     }
 

@@ -29,8 +29,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 
-import ch.algotrader.cache.EntityCacheEvictionEvent;
-import ch.algotrader.cache.QueryCacheEvictionEvent;
+import ch.algotrader.cache.EntityCacheEvictionEventVO;
+import ch.algotrader.cache.QueryCacheEvictionEventVO;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.enumeration.FeedType;
@@ -171,8 +171,8 @@ public class SubscriptionServiceImpl implements SubscriptionService, Application
             return;
         }
 
-        classes.add(EntityCacheEvictionEvent.class);
-        classes.add(QueryCacheEvictionEvent.class);
+        classes.add(EntityCacheEvictionEventVO.class);
+        classes.add(QueryCacheEvictionEventVO.class);
 
         // assemble the message selector
         List<String> selections = new ArrayList<>();

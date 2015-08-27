@@ -20,10 +20,10 @@ package ch.algotrader.service;
 import java.util.Collection;
 import java.util.Map;
 
-import ch.algotrader.entity.trade.ExecutionStatus;
+import ch.algotrader.entity.trade.ExecutionStatusVO;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderCompletionVO;
-import ch.algotrader.entity.trade.OrderDetails;
+import ch.algotrader.entity.trade.OrderDetailsVO;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.entity.trade.OrderValidationException;
 
@@ -100,12 +100,12 @@ public interface OrderService {
     /**
      * Finds all details of currently open Orders.
      */
-    public Collection<OrderDetails> getAllOpenOrders();
+    public Collection<OrderDetailsVO> getAllOpenOrders();
 
     /**
      * Finds details of currently open Orders for the given strategy.
      */
-    public Collection<OrderDetails> getOpenOrdersByStrategy(String strategyName);
+    public Collection<OrderDetailsVO> getOpenOrdersByStrategy(String strategyName);
 
     /**
      * Returns the order with the given {@code IntId}.
@@ -115,12 +115,12 @@ public interface OrderService {
     /**
      * Returns execution status of the order with the given {@code IntId}.
      */
-    ExecutionStatus getStatusByIntId(String intId);
+    ExecutionStatusVO getStatusByIntId(String intId);
 
     /**
      * Returns full details of the open order with the given {@code IntId}.
      */
-    public OrderDetails getOpenOrderDetailsByIntId(String intId);
+    public OrderDetailsVO getOpenOrderDetailsByIntId(String intId);
 
     /**
      * Gets an order (open or completed) by its {@code intId}.

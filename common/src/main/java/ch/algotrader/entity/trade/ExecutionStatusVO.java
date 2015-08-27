@@ -17,34 +17,51 @@
  ***********************************************************************************/
 package ch.algotrader.entity.trade;
 
+import ch.algotrader.enumeration.Status;
+
 /**
-* Details of an open order.
+* Execution status of an order.
 *
 * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
 */
-public class OrderDetails {
+public class ExecutionStatusVO {
 
-    private final Order order;
-    private final ExecutionStatus executionStatus;
+    private final String intId;
+    private final Status status;
+    private final long filledQuantity;
+    private final long remainingQuantity;
 
-    public OrderDetails(final Order order, final ExecutionStatus executionStatus) {
-        this.order = order;
-        this.executionStatus = executionStatus;
+
+    public ExecutionStatusVO(final String intId, final Status status, final long filledQuantity, final long remainingQuantity) {
+        this.intId = intId;
+        this.status = status;
+        this.filledQuantity = filledQuantity;
+        this.remainingQuantity = remainingQuantity;
     }
 
-    public Order getOrder() {
-        return order;
+    public String getIntId() {
+        return intId;
     }
 
-    public ExecutionStatus getExecutionStatus() {
-        return executionStatus;
+    public Status getStatus() {
+        return status;
+    }
+
+    public long getFilledQuantity() {
+        return filledQuantity;
+    }
+
+    public long getRemainingQuantity() {
+        return remainingQuantity;
     }
 
     @Override
     public String toString() {
         return "{" +
-                "order=" + order +
-                ", status=" + executionStatus +
+                "intId='" + intId + '\'' +
+                ", status=" + status +
+                ", filledQuantity=" + filledQuantity +
+                ", remainingQuantity=" + remainingQuantity +
                 '}';
     }
 

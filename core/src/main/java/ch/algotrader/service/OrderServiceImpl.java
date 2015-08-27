@@ -48,10 +48,10 @@ import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.trade.AlgoOrder;
 import ch.algotrader.entity.trade.Allocation;
-import ch.algotrader.entity.trade.ExecutionStatus;
+import ch.algotrader.entity.trade.ExecutionStatusVO;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderCompletionVO;
-import ch.algotrader.entity.trade.OrderDetails;
+import ch.algotrader.entity.trade.OrderDetailsVO;
 import ch.algotrader.entity.trade.OrderPreference;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.entity.trade.OrderValidationException;
@@ -386,7 +386,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
             getExternalOrderService(account).cancelOrder((SimpleOrder) childOrder);
         });
 
-        ExecutionStatus executionStatus = this.openOrderRegistry.getStatusByIntId(order.getIntId());
+        ExecutionStatusVO executionStatus = this.openOrderRegistry.getStatusByIntId(order.getIntId());
 
         // assemble a new OrderStatus Entity
         OrderStatus orderStatus = OrderStatus.Factory.newInstance();
@@ -606,7 +606,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
      * {@inheritDoc}
      */
     @Override
-    public Collection<OrderDetails> getAllOpenOrders() {
+    public Collection<OrderDetailsVO> getAllOpenOrders() {
 
         return this.openOrderRegistry.getAllOrderDetails();
     }
@@ -615,7 +615,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
      * {@inheritDoc}
      */
     @Override
-    public Collection<OrderDetails> getOpenOrdersByStrategy(final String strategyName) {
+    public Collection<OrderDetailsVO> getOpenOrdersByStrategy(final String strategyName) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
@@ -637,7 +637,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
      * {@inheritDoc}
      */
     @Override
-    public ExecutionStatus getStatusByIntId(final String intId) {
+    public ExecutionStatusVO getStatusByIntId(final String intId) {
 
         Validate.notEmpty(intId, "Order IntId is empty");
 
@@ -648,7 +648,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
      * {@inheritDoc}
      */
     @Override
-    public OrderDetails getOpenOrderDetailsByIntId(String intId) {
+    public OrderDetailsVO getOpenOrderDetailsByIntId(String intId) {
 
         Validate.notEmpty(intId, "Order IntId is empty");
 

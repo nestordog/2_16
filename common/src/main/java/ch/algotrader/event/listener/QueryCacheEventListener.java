@@ -17,10 +17,10 @@
  ***********************************************************************************/
 package ch.algotrader.event.listener;
 
-import ch.algotrader.cache.QueryCacheEvictionEvent;
+import ch.algotrader.cache.QueryCacheEvictionEventVO;
 
 public interface QueryCacheEventListener {
 
-    void onEvent(QueryCacheEvictionEvent event);
+    void onEvent(QueryCacheEvictionEventVO event);
 
 }

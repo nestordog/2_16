@@ -56,11 +56,11 @@ import ch.algotrader.entity.exchange.Exchange;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.strategy.StrategyImpl;
-import ch.algotrader.entity.trade.ExecutionStatus;
+import ch.algotrader.entity.trade.ExecutionStatusVO;
 import ch.algotrader.entity.trade.LimitOrder;
 import ch.algotrader.entity.trade.MarketOrder;
 import ch.algotrader.entity.trade.Order;
-import ch.algotrader.entity.trade.OrderDetails;
+import ch.algotrader.entity.trade.OrderDetailsVO;
 import ch.algotrader.entity.trade.OrderProperty;
 import ch.algotrader.entity.trade.SlicingOrder;
 import ch.algotrader.entity.trade.StopLimitOrder;
@@ -201,7 +201,7 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedAttribute(description = "Gets current open Orders")
     public Collection<OrderStatusVO> getDataOrders() {
 
-        Collection<OrderDetails> openOrders;
+        Collection<OrderDetailsVO> openOrders;
         if (this.engine.getStrategyName().equals(StrategyImpl.SERVER)) {
             openOrders = this.orderService.getAllOpenOrders();
         } else {
@@ -212,10 +212,10 @@ public class ManagementServiceImpl implements ManagementService {
                 .collect(Collectors.toList());
     }
 
-    private OrderStatusVO convert(final OrderDetails entry) {
+    private OrderStatusVO convert(final OrderDetailsVO entry) {
 
         Order order = entry.getOrder();
-        ExecutionStatus details = entry.getExecutionStatus();
+        ExecutionStatusVO details = entry.getExecutionStatus();
 
         OrderStatusVO orderStatusVO = new OrderStatusVO();
         orderStatusVO.setSide(order.getSide());

@@ -309,12 +309,12 @@ public class CacheManagerImpl implements CacheManager, Initializer, EntityCacheE
     }
 
     @Override
-    public void onEvent(QueryCacheEvictionEvent event) {
+    public void onEvent(QueryCacheEvictionEventVO event) {
         this.queryCache.detach(event.getSpaceName());
     }
 
     @Override
-    public void onEvent(EntityCacheEvictionEvent event) {
+    public void onEvent(EntityCacheEvictionEventVO event) {
         EntityCacheKey cacheKey = new EntityCacheKey(event.getEntityClass(), event.getId());
         update(cacheKey, event.getKey());
     }

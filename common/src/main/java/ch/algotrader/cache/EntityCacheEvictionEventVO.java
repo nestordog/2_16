@@ -26,7 +26,7 @@ import java.io.Serializable;
  *
  * @version $Revision$ $Date$
  */
-public class EntityCacheEvictionEvent implements Serializable {
+public class EntityCacheEvictionEventVO implements Serializable {
 
     private static final long serialVersionUID = -9201194174175757269L;
 
@@ -34,7 +34,7 @@ public class EntityCacheEvictionEvent implements Serializable {
     private final long id;
     private final String key;
 
-    public EntityCacheEvictionEvent(Class<?> entityClass, long id, String key) {
+    public EntityCacheEvictionEventVO(Class<?> entityClass, long id, String key) {
         this.entityClass = entityClass;
         this.id = id;
         this.key = key;

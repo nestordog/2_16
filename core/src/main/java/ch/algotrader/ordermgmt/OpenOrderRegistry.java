@@ -19,9 +19,9 @@ package ch.algotrader.ordermgmt;
 
 import java.util.List;
 
-import ch.algotrader.entity.trade.ExecutionStatus;
+import ch.algotrader.entity.trade.ExecutionStatusVO;
 import ch.algotrader.entity.trade.Order;
-import ch.algotrader.entity.trade.OrderDetails;
+import ch.algotrader.entity.trade.OrderDetailsVO;
 import ch.algotrader.enumeration.Status;
 
 /**
@@ -51,13 +51,13 @@ public interface OpenOrderRegistry {
      * Returns execution status of the order with the given {@code IntId} or {@code null} if no order
      * with the given {@code IntId} can be found in the registry.
      */
-    ExecutionStatus getStatusByIntId(String intId);
+    ExecutionStatusVO getStatusByIntId(String intId);
 
     /**
      * Returns full details of the order with the given {@code IntId} or {@code null} if no order
      * with the given {@code IntId} can be found in the registry.
      */
-    OrderDetails getDetailsByIntId(String intId);
+    OrderDetailsVO getDetailsByIntId(String intId);
 
     /**
      * Updates execution status of the order with the given {@code IntId}.
@@ -72,12 +72,12 @@ public interface OpenOrderRegistry {
     /**
      * Returns full details of orders tracked by th registry.
      */
-    List<OrderDetails> getAllOrderDetails();
+    List<OrderDetailsVO> getAllOrderDetails();
 
     /**
      * Returns full details of orders tracked by th registry for the given strategy.
      */
-    List<OrderDetails> getOrderDetailsForStrategy(String strategyName);
+    List<OrderDetailsVO> getOrderDetailsForStrategy(String strategyName);
 
     /**
      * Returns all child orders of the parent order with the given {@code IntId}.

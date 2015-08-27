@@ -28,8 +28,8 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.support.converter.SimpleMessageConverter;
 
-import ch.algotrader.cache.EntityCacheEvictionEvent;
-import ch.algotrader.cache.QueryCacheEvictionEvent;
+import ch.algotrader.cache.EntityCacheEvictionEventVO;
+import ch.algotrader.cache.QueryCacheEvictionEventVO;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.TransactionVO;
 import ch.algotrader.entity.marketData.BarVO;
@@ -197,14 +197,14 @@ public class EventDispatchWiring {
 
                         final EntityCacheEventListener listener = entry.getValue();
 
-                        eventListenerRegistry.register(listener::onEvent, EntityCacheEvictionEvent.class);
+                        eventListenerRegistry.register(listener::onEvent, EntityCacheEvictionEventVO.class);
                     }
                     Map<String, QueryCacheEventListener> queryCacheEventMap = applicationContext.getBeansOfType(QueryCacheEventListener.class);
                     for (Map.Entry<String, QueryCacheEventListener> entry : queryCacheEventMap.entrySet()) {
 
                         final QueryCacheEventListener listener = entry.getValue();
 
-                        eventListenerRegistry.register(listener::onEvent, QueryCacheEvictionEvent.class);
+                        eventListenerRegistry.register(listener::onEvent, QueryCacheEvictionEventVO.class);
                     }
 
                 }
