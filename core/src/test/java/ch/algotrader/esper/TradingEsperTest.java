@@ -47,7 +47,6 @@ import ch.algotrader.entity.trade.MarketOrder;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderCompletionVO;
 import ch.algotrader.entity.trade.OrderStatus;
-import ch.algotrader.entity.trade.SubmittedOrder;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.enumeration.Side;
@@ -227,9 +226,7 @@ public class TradingEsperTest extends EsperTestBase {
         order.setSecurity(eurusd);
         order.setDateTime(new Date(epService.getEPRuntime().getCurrentTime()));
 
-        SubmittedOrder submittedOrder = new SubmittedOrder(Status.OPEN, 0, order.getQuantity(), order);
-
-        epRuntime.sendEvent(submittedOrder);
+        epRuntime.sendEvent(order);
 
         OrderStatus orderStatus1 = OrderStatus.Factory.newInstance();
         orderStatus1.setStatus(Status.SUBMITTED);
@@ -316,9 +313,7 @@ public class TradingEsperTest extends EsperTestBase {
         order.setSecurity(eurusd);
         order.setDateTime(new Date(epService.getEPRuntime().getCurrentTime()));
 
-        SubmittedOrder submittedOrder = new SubmittedOrder(Status.OPEN, 0, order.getQuantity(), order);
-
-        epRuntime.sendEvent(submittedOrder);
+        epRuntime.sendEvent(order);
 
         OrderStatus orderStatus1 = OrderStatus.Factory.newInstance();
         orderStatus1.setStatus(Status.SUBMITTED);
@@ -394,8 +389,6 @@ public class TradingEsperTest extends EsperTestBase {
         order.setTif(TIF.DAY);
         order.setDateTime(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:01"));
 
-        SubmittedOrder submittedOrder = new SubmittedOrder(Status.OPEN, 0, order.getQuantity(), order);
-
         OrderStatus orderStatus = OrderStatus.Factory.newInstance();
         orderStatus.setStatus(Status.SUBMITTED);
         orderStatus.setOrder(order);
@@ -405,8 +398,7 @@ public class TradingEsperTest extends EsperTestBase {
         epRuntime.sendEvent(new CurrentTimeEvent(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:00").getTime()));
 
         AdapterCoordinator coordinator = new AdapterCoordinatorImpl(epService, true, true, true);
-        CollectionInputAdapter inputAdapter = new CollectionInputAdapter(Arrays.asList(
-                submittedOrder, orderStatus), "dateTime");
+        CollectionInputAdapter inputAdapter = new CollectionInputAdapter(Arrays.asList(order, orderStatus), "dateTime");
         coordinator.coordinate(inputAdapter);
         coordinator.start();
 
@@ -436,8 +428,6 @@ public class TradingEsperTest extends EsperTestBase {
         order.setTif(TIF.DAY);
         order.setDateTime(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:01"));
 
-        SubmittedOrder submittedOrder = new SubmittedOrder(Status.OPEN, 0, order.getQuantity(), order);
-
         OrderStatus orderStatus = OrderStatus.Factory.newInstance();
         orderStatus.setStatus(Status.SUBMITTED);
         orderStatus.setIntId("some-other-int-id");
@@ -446,8 +436,7 @@ public class TradingEsperTest extends EsperTestBase {
         epRuntime.sendEvent(new CurrentTimeEvent(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:00").getTime()));
 
         AdapterCoordinator coordinator = new AdapterCoordinatorImpl(epService, true, true, true);
-        CollectionInputAdapter inputAdapter = new CollectionInputAdapter(Arrays.asList(
-                submittedOrder, orderStatus), "dateTime");
+        CollectionInputAdapter inputAdapter = new CollectionInputAdapter(Arrays.asList(order, orderStatus), "dateTime");
         coordinator.coordinate(inputAdapter);
         coordinator.start();
 

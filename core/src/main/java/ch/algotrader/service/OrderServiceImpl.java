@@ -56,7 +56,6 @@ import ch.algotrader.entity.trade.OrderPreference;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.entity.trade.OrderValidationException;
 import ch.algotrader.entity.trade.SimpleOrder;
-import ch.algotrader.entity.trade.SubmittedOrder;
 import ch.algotrader.enumeration.InitializingServiceType;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.enumeration.Status;
@@ -520,7 +519,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
         Validate.notNull(order, "Order is null");
 
         // send the order into the AlgoTrader Server engine to be correlated with fills
-        this.serverEngine.sendEvent(new SubmittedOrder(Status.OPEN, 0, order.getQuantity(), order));
+        this.serverEngine.sendEvent(order);
 
         // also send the order to the strategy that placed the order
         Strategy strategy = order.getStrategy();
@@ -726,9 +725,6 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
             OrderStatus orderStatus = entry.getValue();
             if (orderStatus != null) {
                 this.openOrderRegistry.updateExecutionStatus(order.getIntId(), orderStatus.getStatus(), orderStatus.getFilledQuantity(), orderStatus.getRemainingQuantity());
-                this.serverEngine.sendEvent(new SubmittedOrder(orderStatus.getStatus(), orderStatus.getFilledQuantity(), orderStatus.getRemainingQuantity(), order));
-            } else {
-                this.serverEngine.sendEvent(new SubmittedOrder(Status.OPEN, 0, order.getQuantity(), order));
             }
         }
     }
