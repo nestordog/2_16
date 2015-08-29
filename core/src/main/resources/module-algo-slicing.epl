@@ -53,7 +53,7 @@ and
     slicingOrderExec.status != Status.REJECTED
 and
 	marketDataWindow.securityId = slicingOrder.security.id
-order by 
-	marketDataWindow.marketDataEvent.dateTime desc 
-limit 
-	1;    
+order by
+	marketDataWindow.marketDataEvent.dateTime desc
+limit
+	1;
