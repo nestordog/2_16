@@ -68,7 +68,6 @@ import ch.algotrader.entity.trade.StopOrderVO;
 import ch.algotrader.enumeration.InitializingServiceType;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.enumeration.Status;
-import ch.algotrader.enumeration.TIF;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.dispatch.EventDispatcher;
@@ -305,14 +304,6 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
             throw new ServiceException(ex);
         }
 
-        // set the dateTime property
-        order.setDateTime(this.engineManager.getCurrentEPTime());
-
-        // in case no TIF was specified set DAY
-        if (order.getTif() == null) {
-            order.setTif(TIF.DAY);
-        }
-
         if (order instanceof AlgoOrder) {
             sendAlgoOrder((AlgoOrder) order);
         } else if (order instanceof SimpleOrder){
@@ -346,6 +337,14 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
         }
 
         ExternalOrderService externalOrderService = getExternalOrderService(account);
+
+        if (order.getDateTime() == null) {
+            order.setDateTime(this.engineManager.getCurrentEPTime());
+        }
+        if (order.getTif() == null) {
+            order.setTif(externalOrderService.getDefaultTIF());
+        }
+
         externalOrderService.sendOrder(order);
 
         if (!this.commonConfig.isSimulation()) {
@@ -816,19 +815,15 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
             order.setExchange(this.exchangeDao.load(orderVO.getExchangeId()));
         }
 
+        order.setDateTime(orderVO.getDateTime());
+        order.setTif(orderVO.getTif());
+
         // validate the order before sending it
         try {
             validateOrder(order);
         } catch (OrderValidationException ex) {
             throw new ServiceException(ex);
         }
-
-        // set the dateTime property
-        order.setDateTime(this.engineManager.getCurrentEPTime());
-
-        // in case no TIF was specified set DAY
-        order.setTif(orderVO.getTif() != null ? orderVO.getTif() : TIF.DAY);
-
         return order;
     }
 

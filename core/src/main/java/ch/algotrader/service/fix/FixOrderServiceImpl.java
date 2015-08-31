@@ -25,6 +25,7 @@ import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.enumeration.InitializingServiceType;
+import ch.algotrader.enumeration.TIF;
 import ch.algotrader.service.ExternalServiceException;
 import ch.algotrader.service.InitializationPriority;
 import ch.algotrader.service.InitializingServiceI;
@@ -112,6 +113,14 @@ public abstract class FixOrderServiceImpl implements FixOrderService, Initializi
     @Override
     public String getNextOrderId(final Account account) {
         return getFixAdapter().getNextOrderId(account);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public TIF getDefaultTIF() {
+        return TIF.DAY;
     }
 
 }

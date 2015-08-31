@@ -21,6 +21,7 @@ import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.lmax.LMAXFixOrderMessageFactory;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
+import ch.algotrader.enumeration.TIF;
 import ch.algotrader.ordermgmt.OpenOrderRegistry;
 import ch.algotrader.service.fix.fix44.Fix44OrderService;
 import ch.algotrader.service.fix.fix44.Fix44OrderServiceImpl;
@@ -61,4 +62,10 @@ public class LMAXFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fi
 
         return OrderServiceType.LMAX_FIX;
     }
+
+    @Override
+    public TIF getDefaultTIF() {
+        return TIF.IOC;
+    }
+
 }

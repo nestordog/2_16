@@ -20,6 +20,7 @@ package ch.algotrader.service;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
+import ch.algotrader.enumeration.TIF;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -57,5 +58,10 @@ public interface ExternalOrderService {
      * Generates next order id for the given account.
      */
     public String getNextOrderId(Account account);
+
+    /**
+     * Returns default time-in-force value.
+     */
+    public TIF getDefaultTIF();
 
 }

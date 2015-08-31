@@ -34,6 +34,7 @@ import ch.algotrader.enumeration.Direction;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
+import ch.algotrader.enumeration.TIF;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.ordermgmt.OpenOrderRegistry;
@@ -207,4 +208,13 @@ public class SimulationOrderServiceImpl implements SimulationOrderService {
 
         return OrderServiceType.SIMULATION;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public TIF getDefaultTIF() {
+        return TIF.DAY;
+    }
+
 }
