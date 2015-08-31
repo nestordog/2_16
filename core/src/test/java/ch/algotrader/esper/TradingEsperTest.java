@@ -1,10 +1,12 @@
 package ch.algotrader.esper;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -631,6 +633,121 @@ public class TradingEsperTest extends EsperTestBase {
         Assert.assertSame(algoOrder, orderStatus2.getOrder());
         Assert.assertEquals(199L, orderStatus2.getFilledQuantity());
         Assert.assertEquals(0L, orderStatus2.getRemainingQuantity());
+    }
+
+    @Test
+    public void testTransactionSummary() throws Exception {
+
+        deployModule(epService,
+                getClass().getResource("/module-trades.epl"), "LOG_TRANSACTION_SUMMARY");
+
+        final Queue<List<Fill>> fillListQueue = new ConcurrentLinkedQueue<>();
+        EPStatement statement1 = epService.getEPAdministrator().getStatement("LOG_TRANSACTION_SUMMARY");
+        Assert.assertNotNull(statement1);
+        statement1.setSubscriber(new Object() {
+            public void update(Map<?, ?>[] insertStream, Map<?, ?>[] removeStream) {
+                List<Fill> fills = new ArrayList<>();
+                for (Map<?, ?> element : insertStream) {
+                    Fill fill = (Fill) element.get("fill");
+                    fills.add(fill);
+                }
+                fillListQueue.add(fills);
+            }
+        });
+
+        MarketOrder order = MarketOrder.Factory.newInstance();
+        order.setIntId("my-order");
+        order.setSecurity(eurusd);
+        order.setQuantity(40);
+        order.setSide(Side.BUY);
+
+        epRuntime.sendEvent(order);
+
+        Fill fill1 = new Fill();
+        fill1.setOrder(order);
+        fill1.setSide(Side.BUY);
+        fill1.setQuantity(10L);
+        epRuntime.sendEvent(fill1);
+
+        OrderStatus orderStatus1 = OrderStatus.Factory.newInstance();
+        orderStatus1.setIntId("my-order");
+        orderStatus1.setOrder(order);
+        orderStatus1.setStatus(Status.PARTIALLY_EXECUTED);
+        orderStatus1.setFilledQuantity(10L);
+        orderStatus1.setRemainingQuantity(30L);
+        epRuntime.sendEvent(orderStatus1);
+
+        Assert.assertNull(fillListQueue.poll());
+
+        Fill fill2 = new Fill();
+        fill2.setOrder(order);
+        fill2.setSide(Side.BUY);
+        fill2.setQuantity(10L);
+        epRuntime.sendEvent(fill2);
+
+        OrderStatus orderStatus2 = OrderStatus.Factory.newInstance();
+        orderStatus2.setIntId("my-order");
+        orderStatus2.setOrder(order);
+        orderStatus2.setStatus(Status.PARTIALLY_EXECUTED);
+        orderStatus2.setFilledQuantity(20L);
+        orderStatus2.setRemainingQuantity(20L);
+        epRuntime.sendEvent(orderStatus2);
+
+        Assert.assertNull(fillListQueue.poll());
+
+        Fill fill3 = new Fill();
+        fill3.setOrder(order);
+        fill3.setSide(Side.BUY);
+        fill3.setQuantity(10L);
+        epRuntime.sendEvent(fill3);
+
+        OrderStatus orderStatus3 = OrderStatus.Factory.newInstance();
+        orderStatus3.setIntId("my-order");
+        orderStatus3.setOrder(order);
+        orderStatus3.setStatus(Status.PARTIALLY_EXECUTED);
+        orderStatus3.setFilledQuantity(30L);
+        orderStatus3.setRemainingQuantity(10L);
+        epRuntime.sendEvent(orderStatus3);
+
+        Assert.assertNull(fillListQueue.poll());
+
+        Fill fill4 = new Fill();
+        fill4.setOrder(null);
+        fill4.setSide(Side.BUY);
+        fill4.setQuantity(10L);
+        epRuntime.sendEvent(fill4);
+
+        OrderStatus orderStatus4 = OrderStatus.Factory.newInstance();
+        orderStatus4.setIntId("some-other-order");
+        orderStatus4.setOrder(null);
+        orderStatus4.setStatus(Status.EXECUTED);
+        orderStatus4.setFilledQuantity(40L);
+        orderStatus4.setRemainingQuantity(0L);
+        epRuntime.sendEvent(orderStatus4);
+
+        Assert.assertNull(fillListQueue.poll());
+
+        Fill fill5 = new Fill();
+        fill5.setOrder(order);
+        fill5.setSide(Side.BUY);
+        fill5.setQuantity(10L);
+        epRuntime.sendEvent(fill5);
+
+        OrderStatus orderStatus5 = OrderStatus.Factory.newInstance();
+        orderStatus5.setIntId("my-order");
+        orderStatus5.setOrder(order);
+        orderStatus5.setStatus(Status.EXECUTED);
+        orderStatus5.setFilledQuantity(40L);
+        orderStatus5.setRemainingQuantity(0L);
+        epRuntime.sendEvent(orderStatus5);
+
+        List<Fill> fillList = fillListQueue.poll();
+        Assert.assertNotNull(fillList);
+        Assert.assertEquals(4, fillList.size());
+        Assert.assertSame(fill1, fillList.get(0));
+        Assert.assertSame(fill2, fillList.get(1));
+        Assert.assertSame(fill3, fillList.get(2));
+        Assert.assertSame(fill5, fillList.get(3));
     }
 
 }

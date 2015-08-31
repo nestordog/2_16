@@ -296,7 +296,7 @@ public class SlicingEsperTest extends EsperTestBase {
     }
 
     @Test
-    public void testSlicingCancelChildCanceled() throws Exception {
+    public void testSlicingCancelAborted() throws Exception {
 
         deployModule(epService,
                 getClass().getResource("/module-algo-slicing.epl"), "SLICING_CANCEL_ORDER");
