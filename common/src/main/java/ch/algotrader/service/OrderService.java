@@ -25,6 +25,7 @@ import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderCompletionVO;
 import ch.algotrader.entity.trade.OrderDetailsVO;
 import ch.algotrader.entity.trade.OrderStatus;
+import ch.algotrader.entity.trade.OrderVO;
 import ch.algotrader.entity.trade.OrderValidationException;
 
 /**
@@ -50,6 +51,11 @@ public interface OrderService {
      * Sends an Order.
      */
     public void sendOrder(Order order);
+
+    /**
+     * Sends an Order.
+     */
+    public void sendOrder(OrderVO order);
 
     /**
      * Sends multiple Orders.
@@ -81,6 +87,11 @@ public interface OrderService {
      * defined {@code properties}.
      */
     public void modifyOrder(String intId, Map<String, String> properties);
+
+    /**
+     * Modifies an Order by overwriting the current Order with the Order passed to this method.
+     */
+    public void modifyOrder(OrderVO order);
 
     /**
      * Propagates an {@link OrderStatus} to the corresponding Strategy.

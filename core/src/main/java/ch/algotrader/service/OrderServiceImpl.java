@@ -49,13 +49,22 @@ import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.trade.AlgoOrder;
 import ch.algotrader.entity.trade.Allocation;
 import ch.algotrader.entity.trade.ExecutionStatusVO;
+import ch.algotrader.entity.trade.LimitOrder;
+import ch.algotrader.entity.trade.LimitOrderVO;
+import ch.algotrader.entity.trade.MarketOrder;
+import ch.algotrader.entity.trade.MarketOrderVO;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderCompletionVO;
 import ch.algotrader.entity.trade.OrderDetailsVO;
 import ch.algotrader.entity.trade.OrderPreference;
 import ch.algotrader.entity.trade.OrderStatus;
+import ch.algotrader.entity.trade.OrderVO;
 import ch.algotrader.entity.trade.OrderValidationException;
 import ch.algotrader.entity.trade.SimpleOrder;
+import ch.algotrader.entity.trade.StopLimitOrder;
+import ch.algotrader.entity.trade.StopLimitOrderVO;
+import ch.algotrader.entity.trade.StopOrder;
+import ch.algotrader.entity.trade.StopOrderVO;
 import ch.algotrader.enumeration.InitializingServiceType;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.enumeration.Status;
@@ -765,6 +774,74 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
         public String getNextOrderId() {
             return "a" + Long.toString(this.orderId.incrementAndGet());
         }
+    }
+
+    private SimpleOrder convert(final OrderVO orderVO) {
+
+        SimpleOrder order;
+        if (orderVO instanceof MarketOrderVO) {
+
+            order = MarketOrder.Factory.newInstance();
+        } else if (orderVO instanceof LimitOrderVO) {
+
+            LimitOrder limitOrder = LimitOrder.Factory.newInstance();
+            limitOrder.setLimit(((LimitOrderVO) orderVO).getLimit());
+            order = limitOrder;
+        } else if (orderVO instanceof StopOrderVO) {
+
+            StopOrder stopOrder = StopOrder.Factory.newInstance();
+            stopOrder.setStop(((StopOrderVO) orderVO).getStop());
+            order = stopOrder;
+        } else if (orderVO instanceof StopLimitOrderVO) {
+
+            StopLimitOrder stopLimitOrder = StopLimitOrder.Factory.newInstance();
+            stopLimitOrder.setLimit(((StopLimitOrderVO) orderVO).getLimit());
+            stopLimitOrder.setStop(((StopLimitOrderVO) orderVO).getStop());
+            order = stopLimitOrder;
+        } else {
+            throw new IllegalArgumentException("Unexpected order VO class: " + orderVO.getClass());
+        }
+
+        // reload the strategy and security to get potential changes
+        order.setStrategy(this.strategyDao.load(orderVO.getStrategyId()));
+        order.setSecurity(this.securityDao.findByIdInclFamilyUnderlyingExchangeAndBrokerParameters(orderVO.getSecurityId()));
+
+        // reload the account if necessary to get potential changes
+        if (orderVO.getAccountId() > 0) {
+            order.setAccount(this.accountDao.load(orderVO.getAccountId()));
+        }
+
+        // reload the exchange if necessary to get potential changes
+        if (orderVO.getExchangeId() > 0) {
+            order.setExchange(this.exchangeDao.load(orderVO.getExchangeId()));
+        }
+
+        // validate the order before sending it
+        try {
+            validateOrder(order);
+        } catch (OrderValidationException ex) {
+            throw new ServiceException(ex);
+        }
+
+        // set the dateTime property
+        order.setDateTime(this.engineManager.getCurrentEPTime());
+
+        // in case no TIF was specified set DAY
+        order.setTif(orderVO.getTif() != null ? orderVO.getTif() : TIF.DAY);
+
+        return order;
+    }
+
+    @Override
+    public void sendOrder(final OrderVO order) {
+
+        sendSimpleOrder(convert(order));
+    }
+
+    @Override
+    public void modifyOrder(OrderVO order) {
+
+        modifySimpleOrder(convert(order));
     }
 
 }
