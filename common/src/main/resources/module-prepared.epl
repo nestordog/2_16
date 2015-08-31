@@ -15,6 +15,14 @@ from
     pattern[[?] (every-distinct(intId)
         (orderStatus=OrderStatusVO(status = Status.EXECUTED or status = Status.CANCELED or status = Status.REJECTED, intId in (?))))];
 
+@Name('ON_TRADE_PERSISTED')
+select
+    strategyName,
+    orderCompletion
+from
+    pattern[[?] (every-distinct(orderIntId)
+        (orderCompletion=OrderCompletionVO(orderIntId in (?))))];
+
 @Name('ON_OPEN_POSITION')
 select
     openPosition

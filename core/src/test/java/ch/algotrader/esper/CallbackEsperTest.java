@@ -19,6 +19,7 @@ import com.espertech.esper.client.EPStatement;
 
 import ch.algotrader.entity.marketData.TickVO;
 import ch.algotrader.entity.trade.MarketOrder;
+import ch.algotrader.entity.trade.OrderCompletionVO;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.entity.trade.OrderStatusVO;
 import ch.algotrader.enumeration.Direction;
@@ -26,6 +27,7 @@ import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.callback.TickCallback;
 import ch.algotrader.esper.callback.TradeCallback;
+import ch.algotrader.esper.callback.TradePersistedCallback;
 import ch.algotrader.vo.ClosePositionVO;
 import ch.algotrader.vo.OpenPositionVO;
 
@@ -224,6 +226,41 @@ public class CallbackEsperTest extends EsperTestBase {
         epRuntime.sendEvent(openPosition2);
 
         Assert.assertSame(openPosition2, closedPositionQueue.poll());
+    }
+
+    @Test
+    public void testTradePersisted() throws Exception {
+
+        EPStatement statement = deployPreparedStatement(epService,
+                getClass().getResource("/module-prepared.epl"), "ON_TRADE_PERSISTED",
+                2, new String[] {"this-order", "that-order"});
+
+        final Queue<List<OrderCompletionVO>> orderComlpetionListQueue = new ConcurrentLinkedQueue<>();
+        statement.setSubscriber(new TradePersistedCallback() {
+            @Override
+            public void onTradePersisted(final List<OrderCompletionVO> orderCompletionList) throws Exception {
+                orderComlpetionListQueue.add(orderCompletionList);
+            }
+        });
+
+        OrderCompletionVO orderCompletion1 = new OrderCompletionVO("this-order", new Date(), Status.EXECUTED, 10L, 20L, null, null, null, null, 0, 0.0d);
+        epRuntime.sendEvent(orderCompletion1);
+
+        Assert.assertNull(orderComlpetionListQueue.poll());
+
+        OrderCompletionVO orderCompletion2 = new OrderCompletionVO("blah", new Date(), Status.EXECUTED, 10L, 20L, null, null, null, null, 0, 0.0d);
+        epRuntime.sendEvent(orderCompletion2);
+
+        Assert.assertNull(orderComlpetionListQueue.poll());
+
+        OrderCompletionVO orderCompletion3 = new OrderCompletionVO("that-order", new Date(), Status.CANCELED, 10L, 20L, null, null, null, null, 0, 0.0d);
+        epRuntime.sendEvent(orderCompletion3);
+
+        List<OrderCompletionVO> orderCompletionList = orderComlpetionListQueue.poll();
+        Assert.assertNotNull(orderCompletionList);
+        Assert.assertEquals(2, orderCompletionList.size());
+        Assert.assertSame(orderCompletion1, orderCompletionList.get(0));
+        Assert.assertSame(orderCompletion3, orderCompletionList.get(1));
     }
 
 }

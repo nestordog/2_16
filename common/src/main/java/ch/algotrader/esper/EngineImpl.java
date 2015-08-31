@@ -96,6 +96,7 @@ import ch.algotrader.esper.callback.OpenPositionCallback;
 import ch.algotrader.esper.callback.TickCallback;
 import ch.algotrader.esper.callback.TimerCallback;
 import ch.algotrader.esper.callback.TradeCallback;
+import ch.algotrader.esper.callback.TradePersistedCallback;
 import ch.algotrader.esper.io.CustomSender;
 import ch.algotrader.util.DateTimeUtil;
 import ch.algotrader.util.collection.CollectionUtil;
@@ -201,7 +202,7 @@ public class EngineImpl extends AbstractEngine {
     @Override
     public void deployStatement(String moduleName, String statementName) {
 
-        deployStatement(moduleName, statementName, null, new Object[] {}, null);
+        deployStatement(moduleName, statementName, null, new Object[]{}, null);
     }
 
     @Override
@@ -650,13 +651,8 @@ public class EngineImpl extends AbstractEngine {
         return runtime.getVariableValue(variableName);
     }
 
-    @Override
-    public void addTradeCallback(Collection<Order> orders, TradeCallback callback) {
-
-        // get the securityIds sorted asscending and check that all orders are from the same strategy
-        Order firstOrder = CollectionUtil.getFirstElement(orders);
-        Strategy strategy = firstOrder.getStrategy();
-        Set<String> orderIntIds = orders.stream()
+    private Set<String> collectIntIds(final Collection<Order> orders, final Strategy strategy) {
+        return orders.stream()
                 .map(order -> {
                     String intId = order.getIntId();
                     if (intId == null) {
@@ -667,6 +663,14 @@ public class EngineImpl extends AbstractEngine {
                     }
                     return intId;
                 }).collect(Collectors.toCollection(LinkedHashSet::new));
+    }
+
+    @Override
+    public void addTradeCallback(Collection<Order> orders, TradeCallback callback) {
+
+        Order firstOrder = CollectionUtil.getFirstElement(orders);
+        Strategy strategy = firstOrder.getStrategy();
+        Set<String> orderIntIds = collectIntIds(orders, strategy);
 
         // get the statement alias based on all security ids
         String alias = "ON_TRADE_COMPLETED_" + StringUtils.join(orderIntIds, "_");
@@ -680,6 +684,28 @@ public class EngineImpl extends AbstractEngine {
 
             Object[] params = new Object[] { orderIntIds.size(), orderIntIds };
             deployStatement("prepared", "ON_TRADE_COMPLETED", alias, params, callback);
+        }
+    }
+
+    @Override
+    public void addTradePersistedCallback(Collection<Order> orders, TradePersistedCallback callback) {
+
+        Order firstOrder = CollectionUtil.getFirstElement(orders);
+        Strategy strategy = firstOrder.getStrategy();
+        Set<String> orderIntIds = collectIntIds(orders, strategy);
+
+        // get the statement alias based on all security ids
+        String alias = "ON_TRADE_PERSISTED_" + StringUtils.join(orderIntIds, "_");
+
+        if (isDeployed(alias)) {
+
+            if (LOGGER.isWarnEnabled()) {
+                LOGGER.warn("{} is already deployed", alias);
+            }
+        } else {
+
+            Object[] params = new Object[] { orderIntIds.size(), orderIntIds };
+            deployStatement("prepared", "ON_TRADE_PERSISTED", alias, params, callback);
         }
     }
 

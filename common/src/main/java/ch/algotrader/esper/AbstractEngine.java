@@ -30,6 +30,7 @@ import ch.algotrader.esper.callback.OpenPositionCallback;
 import ch.algotrader.esper.callback.TickCallback;
 import ch.algotrader.esper.callback.TimerCallback;
 import ch.algotrader.esper.callback.TradeCallback;
+import ch.algotrader.esper.callback.TradePersistedCallback;
 
 /**
  * Abstract implementation of an {@link Engine}
@@ -242,6 +243,11 @@ public abstract class AbstractEngine implements Engine {
 
     @Override
     public void addTradeCallback(Collection<Order> orders, TradeCallback callback) {
+
+    }
+
+    @Override
+    public void addTradePersistedCallback(Collection<Order> orders, TradePersistedCallback callback) {
 
     }
 
