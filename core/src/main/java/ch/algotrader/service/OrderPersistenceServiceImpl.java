@@ -17,6 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
+import java.util.Date;
+
 import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -129,6 +131,13 @@ public class OrderPersistenceServiceImpl implements OrderPersistenceService {
         try {
             if (orderStatus.getId() == 0) {
 
+                if (orderStatus.getDateTime() == null) {
+                    if (orderStatus.getExtDateTime() != null) {
+                        orderStatus.setDateTime(orderStatus.getExtDateTime());
+                    } else {
+                        orderStatus.setDateTime(new Date());
+                    }
+                }
                 Order order = orderStatus.getOrder();
                 if (order == null) {
                     LOGGER.error("OrderStatus must have an Order attached");
