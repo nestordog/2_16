@@ -50,6 +50,7 @@ import ch.algotrader.entity.trade.AlgoOrder;
 import ch.algotrader.entity.trade.Allocation;
 import ch.algotrader.entity.trade.ExecutionStatusVO;
 import ch.algotrader.entity.trade.LimitOrder;
+import ch.algotrader.entity.trade.LimitOrderI;
 import ch.algotrader.entity.trade.LimitOrderVO;
 import ch.algotrader.entity.trade.MarketOrder;
 import ch.algotrader.entity.trade.MarketOrderVO;
@@ -64,10 +65,12 @@ import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.entity.trade.StopLimitOrder;
 import ch.algotrader.entity.trade.StopLimitOrderVO;
 import ch.algotrader.entity.trade.StopOrder;
+import ch.algotrader.entity.trade.StopOrderI;
 import ch.algotrader.entity.trade.StopOrderVO;
 import ch.algotrader.enumeration.InitializingServiceType;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.enumeration.Status;
+import ch.algotrader.enumeration.TIF;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.dispatch.EventDispatcher;
@@ -342,7 +345,11 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
             order.setDateTime(this.engineManager.getCurrentEPTime());
         }
         if (order.getTif() == null) {
-            order.setTif(externalOrderService.getDefaultTIF());
+            if (order instanceof LimitOrderI || order instanceof StopOrderI) {
+                order.setTif(TIF.DAY);
+            } else {
+                order.setTif(externalOrderService.getDefaultTIF());
+            }
         }
 
         externalOrderService.sendOrder(order);
