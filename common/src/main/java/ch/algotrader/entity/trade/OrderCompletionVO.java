@@ -34,6 +34,8 @@ public class OrderCompletionVO implements Serializable {
 
     private final String orderIntId;
 
+    private final String strategy;
+
     private final Date dateTime;
 
     private final Status status;
@@ -54,9 +56,10 @@ public class OrderCompletionVO implements Serializable {
 
     private final double executionTime;
 
-    public OrderCompletionVO(final String orderIntId, final Date dateTime, final Status status, final long filledQuantity, final long remainingQuantity, final BigDecimal avgPrice,
+    public OrderCompletionVO(final String orderIntId, final String strategy, final Date dateTime, final Status status, final long filledQuantity, final long remainingQuantity, final BigDecimal avgPrice,
                              final BigDecimal grossValue, final BigDecimal netValue, final BigDecimal totalCharges, final int fills, final double executionTime) {
         this.orderIntId = orderIntId;
+        this.strategy = strategy;
         this.dateTime = dateTime;
         this.status = status;
         this.filledQuantity = filledQuantity;
@@ -74,6 +77,13 @@ public class OrderCompletionVO implements Serializable {
      */
     public String getOrderIntId() {
         return this.orderIntId;
+    }
+
+    /**
+     * Name of the corresponding strategy.
+     */
+    public String getStrategy() {
+        return strategy;
     }
 
     /**
@@ -165,6 +175,8 @@ public class OrderCompletionVO implements Serializable {
         buffer.append(getStatus());
         buffer.append(",orderIntId=");
         buffer.append(this.orderIntId);
+        buffer.append(",strategy=");
+        buffer.append(this.strategy);
         buffer.append(",filledQuantity=");
         buffer.append(this.remainingQuantity);
         buffer.append(",remainingQuantity=");

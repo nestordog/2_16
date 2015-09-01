@@ -12,7 +12,8 @@ from
 insert into
     OrderCompletionVO
 select
-    orderStatus.intId,
+    currentOrder.intId,
+    currentOrder.strategy.name,
     current_timestamp.toDate() as dateTime,
     orderStatus.status as status,
     orderStatus.filledQuantity as filledQuantity,

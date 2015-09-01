@@ -586,15 +586,10 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
 
         Validate.notNull(orderCompletion, "Order completion is null");
 
-        String intId = orderCompletion.getOrderIntId();
-        Order order = this.openOrderRegistry.getByIntId(intId);
-        if (order == null) {
-            throw new ServiceException("Could not find order with IntId " + intId);
-        }
         // send the fill to the strategy that placed the corresponding order
-        Strategy strategy = order.getStrategy();
-        if (strategy.isServer()) {
-            this.eventDispatcher.sendEvent(strategy.getName(), orderCompletion);
+        Strategy strategy = strategyDao.findByName(orderCompletion.getStrategy());
+        if (!strategy.isServer()) {
+            this.eventDispatcher.sendEvent(orderCompletion.getStrategy(), orderCompletion);
         }
 
     }
@@ -607,6 +602,10 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
 
         String intId = orderStatus.getIntId();
         this.openOrderRegistry.remove(intId);
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Open order {} removed", intId);
+        }
     }
 
     /**
