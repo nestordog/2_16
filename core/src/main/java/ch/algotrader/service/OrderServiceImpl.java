@@ -359,10 +359,11 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
 
         externalOrderService.sendOrder(order);
 
+        propagateOrder(order);
+
         if (!this.commonConfig.isSimulation()) {
             this.orderPersistService.persistOrder(order);
         }
-        propagateOrder(order);
     }
 
     /**
@@ -504,10 +505,10 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
         ExternalOrderService externalOrderService = getExternalOrderService(account);
         externalOrderService.modifyOrder(order);
 
+        propagateOrder(order);
         if (!this.commonConfig.isSimulation()) {
             this.orderPersistService.persistOrder(order);
         }
-        propagateOrder(order);
     }
 
     /**
@@ -560,7 +561,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
         String intId = orderStatus.getIntId();
         Order order = this.openOrderRegistry.getByIntId(intId);
         if (order == null) {
-            throw new ServiceException("Could not find order with IntId " + intId);
+            throw new ServiceException("Order with IntID " + intId + " not found");
         }
         // send the fill to the strategy that placed the corresponding order
         Strategy strategy = order.getStrategy();
@@ -573,13 +574,6 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("propagated orderStatus: {}", orderStatus);
             }
-
-            String extId = orderStatus.getExtId();
-            if (extId != null && order.getExtId() == null) {
-                order.setExtId(extId);
-                this.orderPersistService.persistOrder(order);
-            }
-
             // only store OrderStatus for non AlgoOrders
             // and ignore order status message with synthetic (non-positive) sequence number
             if (orderStatus.getSequenceNumber() > 0 && !(order instanceof AlgoOrder)) {

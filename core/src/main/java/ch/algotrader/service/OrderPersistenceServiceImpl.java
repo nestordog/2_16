@@ -128,7 +128,26 @@ public class OrderPersistenceServiceImpl implements OrderPersistenceService {
     @Transactional(propagation = Propagation.REQUIRED)
     public void persistOrderStatus(final OrderStatus orderStatus) {
 
+        if (orderStatus.getId() != 0) {
+            LOGGER.error("OrderStatus may not be updated");
+            return;
+        }
         try {
+            Order order = orderStatus.getOrder();
+            if (order == null) {
+                LOGGER.error("OrderStatus does not have an order associated with it");
+                return;
+            }
+            if (order.getId() == 0 ) {
+                // reload persistent order instance
+                Order persistentOrder = this.orderDao.findByIntId(order.getIntId());
+                orderStatus.setOrder(persistentOrder);
+            }
+            String extId = orderStatus.getExtId();
+            if (extId != null && order.getExtId() == null) {
+                order.setExtId(extId);
+                this.orderDao.persist(order).setExtId(extId);
+            }
             if (orderStatus.getId() == 0) {
 
                 if (orderStatus.getDateTime() == null) {
@@ -138,17 +157,7 @@ public class OrderPersistenceServiceImpl implements OrderPersistenceService {
                         orderStatus.setDateTime(new Date());
                     }
                 }
-                Order order = orderStatus.getOrder();
-                if (order == null) {
-                    LOGGER.error("OrderStatus must have an Order attached");
-                } else if (order.getId() == 0 ) {
-                    // reload persistent order instance
-                    Order persistentOrder = this.orderDao.findByIntId(order.getIntId());
-                    orderStatus.setOrder(persistentOrder);
-                }
                 this.orderStatusDao.save(orderStatus);
-            } else {
-                LOGGER.error("OrderStatus may not be updated");
             }
         } catch (Exception e) {
             LOGGER.error("Failed to save OrderStatus", e);
