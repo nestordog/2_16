@@ -33,7 +33,6 @@ import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.ordermgmt.OpenOrderRegistry;
-import ch.algotrader.service.MarketDataService;
 import quickfix.SessionSettings;
 
 /**
@@ -70,11 +69,9 @@ public class LMAXFixWiring {
 
     @Profile("lMAXMarketData")
     @Bean(name = "lMAXMarketDataSessionStateHolder")
-    public MarketDataFixSessionStateHolder createLMAXMarketDataSessionStateHolder(
-            final EventDispatcher eventDispatcher,
-            final MarketDataService marketDataService) {
+    public MarketDataFixSessionStateHolder createLMAXMarketDataSessionStateHolder(final EventDispatcher eventDispatcher) {
 
-        return new MarketDataFixSessionStateHolder("LMAXMD", eventDispatcher, marketDataService, FeedType.LMAX);
+        return new MarketDataFixSessionStateHolder("LMAXMD", eventDispatcher, FeedType.LMAX);
     }
 
     @Profile("lMAXMarketData")
@@ -82,7 +79,7 @@ public class LMAXFixWiring {
     public FixApplicationFactory createLMAXMarketDataApplicationFactory(
             final Engine serverEngine,
             final DefaultLogonMessageHandler lMAXLogonMessageHandler,
-            final MarketDataFixSessionStateHolder lMAXMarketDataSessionStateHolder) {
+            final FixSessionStateHolder lMAXMarketDataSessionStateHolder) {
 
         LMAXFixMarketDataMessageHandler lMAXFixMarketDataMessageHandler = new LMAXFixMarketDataMessageHandler(serverEngine);
 

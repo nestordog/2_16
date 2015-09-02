@@ -161,6 +161,9 @@ public class MarketDataServiceImpl implements MarketDataService {
 
         ExternalMarketDataService externalMarketDataService = getExternalMarketDataService(feedType);
         if (externalMarketDataService.initSubscriptions()) {
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("Initializing subscriptions for data feed {}", feedType);
+            }
             final Set<Security> securities = new LinkedHashSet<>();
             for (final Engine engine : this.engineManager.getEngines()) {
                 securities.addAll(this.securityDao.findSubscribedByFeedTypeAndStrategyInclFamily(feedType, engine.getStrategyName()));

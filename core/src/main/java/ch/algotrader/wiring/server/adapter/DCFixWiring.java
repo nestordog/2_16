@@ -33,7 +33,6 @@ import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.ordermgmt.OpenOrderRegistry;
-import ch.algotrader.service.MarketDataService;
 import quickfix.SessionSettings;
 
 /**
@@ -70,11 +69,10 @@ public class DCFixWiring {
 
     @Profile("dCMarketData")
     @Bean(name = "dCMarketDataSessionStateHolder")
-    public MarketDataFixSessionStateHolder createDCMarketDataSessionStateHolder(
-            final EventDispatcher eventDispatcher,
-            final MarketDataService marketDataService) {
+    public DefaultFixSessionStateHolder createDCMarketDataSessionStateHolder(
+            final EventDispatcher eventDispatcher) {
 
-        return new MarketDataFixSessionStateHolder("DCMD", eventDispatcher, marketDataService, FeedType.DC);
+        return new MarketDataFixSessionStateHolder("DCMD", eventDispatcher, FeedType.DC);
     }
 
     @Profile("dCMarketData")
@@ -82,7 +80,7 @@ public class DCFixWiring {
     public FixApplicationFactory createDCMarketDataApplicationFactory(
             final Engine serverEngine,
             final DefaultLogonMessageHandler dCLogonMessageHandler,
-            final MarketDataFixSessionStateHolder dCMarketDataSessionStateHolder) {
+            final FixSessionStateHolder dCMarketDataSessionStateHolder) {
 
         DCFixMarketDataMessageHandler dcFixMarketDataMessageHandler = new DCFixMarketDataMessageHandler(serverEngine);
         return new DefaultFixApplicationFactory(dcFixMarketDataMessageHandler, dCLogonMessageHandler, dCMarketDataSessionStateHolder);

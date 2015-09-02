@@ -33,7 +33,6 @@ import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.ordermgmt.OpenOrderRegistry;
-import ch.algotrader.service.MarketDataService;
 import quickfix.SessionSettings;
 
 /**
@@ -70,11 +69,9 @@ public class FTXFixWiring {
 
     @Profile("fTXMarketData")
     @Bean(name = "fTXMarketDataSessionStateHolder")
-    public MarketDataFixSessionStateHolder createFTXMarketDataSessionStateHolder(
-            final EventDispatcher eventDispatcher,
-            final MarketDataService marketDataService) {
+    public FixSessionStateHolder createFTXMarketDataSessionStateHolder(final EventDispatcher eventDispatcher) {
 
-        return new MarketDataFixSessionStateHolder("FTXMD", eventDispatcher, marketDataService, FeedType.FTX);
+        return new MarketDataFixSessionStateHolder("FTXMD", eventDispatcher, FeedType.FTX);
     }
 
     @Profile("fTXMarketData")
@@ -82,7 +79,7 @@ public class FTXFixWiring {
     public FixApplicationFactory createFTXMarketDataApplicationFactory(
             final Engine serverEngine,
             final DefaultLogonMessageHandler fTXLogonMessageHandler,
-            final MarketDataFixSessionStateHolder fTXMarketDataSessionStateHolder) {
+            final FixSessionStateHolder fTXMarketDataSessionStateHolder) {
 
         FTXFixMarketDataMessageHandler ftxFixMarketDataMessageHandler = new FTXFixMarketDataMessageHandler(serverEngine);
         return new DefaultFixApplicationFactory(ftxFixMarketDataMessageHandler, fTXLogonMessageHandler, fTXMarketDataSessionStateHolder);

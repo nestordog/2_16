@@ -32,7 +32,6 @@ import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.ordermgmt.OpenOrderRegistry;
-import ch.algotrader.service.MarketDataService;
 import quickfix.SessionSettings;
 
 /**
@@ -69,11 +68,9 @@ public class CNXFixWiring {
 
     @Profile("cNXMarketData")
     @Bean(name = "cNXMarketDataSessionStateHolder")
-    public MarketDataFixSessionStateHolder createCNXMarketDataSessionStateHolder(
-            final EventDispatcher eventDispatcher,
-            final MarketDataService marketDataService) {
+    public FixSessionStateHolder createCNXMarketDataSessionStateHolder(final EventDispatcher eventDispatcher) {
 
-        return new MarketDataFixSessionStateHolder("CNXMD", eventDispatcher, marketDataService, FeedType.CNX);
+        return new MarketDataFixSessionStateHolder("CNXMD", eventDispatcher, FeedType.CNX);
     }
 
     @Profile("cNXMarketData")
@@ -81,7 +78,7 @@ public class CNXFixWiring {
     public CNXFixApplicationFactory createCNXMarketDataApplicationFactory(
             final Engine serverEngine,
             final DefaultLogonMessageHandler cNXLogonMessageHandler,
-            final MarketDataFixSessionStateHolder cNXMarketDataSessionStateHolder) {
+            final FixSessionStateHolder cNXMarketDataSessionStateHolder) {
 
         CNXFixMarketDataMessageHandler cnxFixMarketDataMessageHandler = new CNXFixMarketDataMessageHandler(serverEngine);
         return new CNXFixApplicationFactory(cnxFixMarketDataMessageHandler, cNXLogonMessageHandler, cNXMarketDataSessionStateHolder);
