@@ -35,6 +35,7 @@ import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.CoreConfig;
 import ch.algotrader.dao.ClosePositionVOProducer;
 import ch.algotrader.dao.ExpirePositionVOProducer;
+import ch.algotrader.dao.HibernateInitializer;
 import ch.algotrader.dao.PositionDao;
 import ch.algotrader.dao.TransactionDao;
 import ch.algotrader.dao.security.SecurityDao;
@@ -169,6 +170,7 @@ public class PositionServiceImpl implements PositionService {
             throw new IllegalArgumentException("position with id " + positionId + " does not exist");
         }
 
+        position.initializeSecurity(HibernateInitializer.INSTANCE);
         Security security = position.getSecurity();
 
         if (position.isOpen()) {

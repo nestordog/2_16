@@ -35,6 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.dao.AccountDao;
+import ch.algotrader.dao.HibernateInitializer;
 import ch.algotrader.dao.exchange.ExchangeDao;
 import ch.algotrader.dao.security.SecurityDao;
 import ch.algotrader.dao.strategy.StrategyDao;
@@ -45,6 +46,7 @@ import ch.algotrader.entity.Account;
 import ch.algotrader.entity.marketData.MarketDataEventVO;
 import ch.algotrader.entity.marketData.TickVO;
 import ch.algotrader.entity.security.Security;
+import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.trade.AlgoOrder;
 import ch.algotrader.entity.trade.Allocation;
@@ -286,18 +288,21 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
         Validate.notNull(order.getStrategy());
         Validate.notNull(order.getSecurity());
 
-        // reload the strategy and security to get potential changes
         order.setStrategy(this.strategyDao.load(order.getStrategy().getId()));
+        order.initializeStrategy(HibernateInitializer.INSTANCE);
         order.setSecurity(this.securityDao.findByIdInclFamilyUnderlyingExchangeAndBrokerParameters(order.getSecurity().getId()));
+        order.initializeSecurity(HibernateInitializer.INSTANCE);
 
         // reload the account if necessary to get potential changes
         if (order.getAccount() != null) {
             order.setAccount(this.accountDao.load(order.getAccount().getId()));
+            order.initializeAccount(HibernateInitializer.INSTANCE);
         }
 
         // reload the exchange if necessary to get potential changes
         if (order.getExchange() != null) {
             order.setExchange(this.exchangeDao.load(order.getExchange().getId()));
+            order.initializeExchange(HibernateInitializer.INSTANCE);
         }
 
         // validate the order before sending it
@@ -725,6 +730,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
         return pendingOrderMap;
     }
 
+    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public void init() {
 
@@ -743,6 +749,10 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
         for (Map.Entry<Order, OrderStatus> entry: pendingOrderMap.entrySet()) {
 
             Order order = entry.getKey();
+            Security security = order.getSecurity();
+            security.initializeSecurityFamily(HibernateInitializer.INSTANCE);
+            SecurityFamily securityFamily = security.getSecurityFamily();
+            securityFamily.initializeExchange(HibernateInitializer.INSTANCE);
             this.openOrderRegistry.add(order);
 
             OrderStatus orderStatus = entry.getValue();
@@ -816,18 +826,21 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
             throw new IllegalArgumentException("Unexpected order VO class: " + orderVO.getClass());
         }
 
-        // reload the strategy and security to get potential changes
         order.setStrategy(this.strategyDao.load(orderVO.getStrategyId()));
+        order.initializeStrategy(HibernateInitializer.INSTANCE);
         order.setSecurity(this.securityDao.findByIdInclFamilyUnderlyingExchangeAndBrokerParameters(orderVO.getSecurityId()));
+        order.initializeSecurity(HibernateInitializer.INSTANCE);
 
         // reload the account if necessary to get potential changes
         if (orderVO.getAccountId() > 0) {
             order.setAccount(this.accountDao.load(orderVO.getAccountId()));
+            order.initializeAccount(HibernateInitializer.INSTANCE);
         }
 
         // reload the exchange if necessary to get potential changes
         if (orderVO.getExchangeId() > 0) {
             order.setExchange(this.exchangeDao.load(orderVO.getExchangeId()));
+            order.initializeExchange(HibernateInitializer.INSTANCE);
         }
 
         order.setDateTime(orderVO.getDateTime());

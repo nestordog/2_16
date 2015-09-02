@@ -35,6 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.CoreConfig;
 import ch.algotrader.dao.AccountDao;
+import ch.algotrader.dao.HibernateInitializer;
 import ch.algotrader.dao.security.SecurityDao;
 import ch.algotrader.dao.strategy.StrategyDao;
 import ch.algotrader.entity.Account;
@@ -135,15 +136,14 @@ public class TransactionServiceImpl implements TransactionService {
         Validate.notNull(fill, "Fill is null");
 
         Order order = fill.getOrder();
-        Broker broker = order.getAccount().getBroker();
+        order.initializeSecurity(HibernateInitializer.INSTANCE);
+        order.initializeSecurity(HibernateInitializer.INSTANCE);
+        order.initializeAccount(HibernateInitializer.INSTANCE);
+        order.initializeExchange(HibernateInitializer.INSTANCE);
 
         // reload the strategy and security to get potential changes
         Strategy strategy = this.strategyDao.load(order.getStrategy().getId());
         Security security = this.securityDao.findByIdInclFamilyUnderlyingExchangeAndBrokerParameters(order.getSecurity().getId());
-
-        // and update the strategy and security of the order
-        order.setStrategy(strategy);
-        order.setSecurity(security);
 
         SecurityFamily securityFamily = security.getSecurityFamily();
         TransactionType transactionType = Side.BUY.equals(fill.getSide()) ? TransactionType.BUY : TransactionType.SELL;
@@ -163,6 +163,7 @@ public class TransactionServiceImpl implements TransactionService {
         transaction.setCurrency(securityFamily.getCurrency());
         transaction.setAccount(order.getAccount());
 
+        Broker broker = order.getAccount().getBroker();
         if (fill.getExecutionCommission() != null) {
             transaction.setExecutionCommission(fill.getExecutionCommission());
         } else if (securityFamily.getExecutionCommission(broker) != null) {
