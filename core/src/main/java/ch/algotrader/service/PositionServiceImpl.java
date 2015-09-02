@@ -478,25 +478,26 @@ public class PositionServiceImpl implements PositionService {
                 this.marketDataService.unsubscribe(order.getStrategy().getName(), order.getSecurity().getId());
             }
         } else {
+            if (unsubscribe) {
+                String alias = "ON_INTERNAL_TRADE_COMPLETED_" + order.getIntId();
+                if (this.serverEngine.isDeployed(alias)) {
 
-            String alias = "ON_INTERNAL_TRADE_COMPLETED_" + order.getIntId();
-            if (this.serverEngine.isDeployed(alias)) {
-
-                if (LOGGER.isWarnEnabled()) {
-                    LOGGER.warn("{} is already deployed", alias);
-                }
-            } else {
-                this.serverEngine.deployStatement("server-prepared", "ON_TRADE_COMPLETED", alias, new Object[]{order.getIntId()}, new Object() {
-
-                    public void update(final OrderStatus orderStatus) {
-
-                        serverEngine.undeployStatement(alias);
-                        if (unsubscribe && orderStatus.getStatus() == Status.EXECUTED) {
-                            PositionServiceImpl.this.marketDataService.unsubscribe(strategy.getName(), security.getId());
-                        }
+                    if (LOGGER.isWarnEnabled()) {
+                        LOGGER.warn("{} is already deployed", alias);
                     }
+                } else {
+                    this.serverEngine.deployStatement("server-prepared", "ON_TRADE_COMPLETED", alias, new Object[]{order.getIntId()}, new Object() {
 
-                });
+                        public void update(final OrderStatus orderStatus) {
+
+                            serverEngine.undeployStatement(alias);
+                            if (orderStatus.getStatus() == Status.EXECUTED) {
+                                PositionServiceImpl.this.marketDataService.unsubscribe(strategy.getName(), security.getId());
+                            }
+                        }
+
+                    });
+                }
             }
         }
 
