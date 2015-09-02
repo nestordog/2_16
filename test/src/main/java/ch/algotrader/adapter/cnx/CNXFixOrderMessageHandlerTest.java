@@ -29,17 +29,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import quickfix.DefaultSessionFactory;
-import quickfix.FileStoreFactory;
-import quickfix.LogFactory;
-import quickfix.ScreenLogFactory;
-import quickfix.Session;
-import quickfix.SessionID;
-import quickfix.SessionSettings;
-import quickfix.SocketInitiator;
-import quickfix.fix44.NewOrderSingle;
-import quickfix.fix44.OrderCancelReplaceRequest;
-import quickfix.fix44.OrderCancelRequest;
 import ch.algotrader.adapter.fix.DefaultFixApplication;
 import ch.algotrader.adapter.fix.DefaultFixSessionStateHolder;
 import ch.algotrader.adapter.fix.DefaultLogonMessageHandler;
@@ -65,13 +54,24 @@ import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.AbstractEngine;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.event.dispatch.EventDispatcher;
-import ch.algotrader.service.OrderService;
+import ch.algotrader.ordermgmt.OpenOrderRegistry;
+import quickfix.DefaultSessionFactory;
+import quickfix.FileStoreFactory;
+import quickfix.LogFactory;
+import quickfix.ScreenLogFactory;
+import quickfix.Session;
+import quickfix.SessionID;
+import quickfix.SessionSettings;
+import quickfix.SocketInitiator;
+import quickfix.fix44.NewOrderSingle;
+import quickfix.fix44.OrderCancelReplaceRequest;
+import quickfix.fix44.OrderCancelRequest;
 
 public class CNXFixOrderMessageHandlerTest {
 
     private LinkedBlockingQueue<Object> eventQueue;
     private EventDispatcher eventDispatcher;
-    private OrderService orderService;
+    private OpenOrderRegistry openOrderRegistry;
     private CNXFixOrderMessageFactory messageFactory;
     private CNXFixOrderMessageHandler messageHandler;
     private Session session;
@@ -105,8 +105,8 @@ public class CNXFixOrderMessageHandlerTest {
         SessionSettings settings = FixConfigUtils.loadSettings();
         SessionID sessionId = FixConfigUtils.getSessionID(settings, "CNXT");
 
-        this.orderService = Mockito.mock(OrderService.class);
-        CNXFixOrderMessageHandler messageHandlerImpl = new CNXFixOrderMessageHandler(this.orderService, engine);
+        this.openOrderRegistry = Mockito.mock(OpenOrderRegistry.class);
+        CNXFixOrderMessageHandler messageHandlerImpl = new CNXFixOrderMessageHandler(this.openOrderRegistry, engine);
         this.messageHandler = Mockito.spy(messageHandlerImpl);
         this.messageFactory = new CNXFixOrderMessageFactory();
 
@@ -193,7 +193,7 @@ public class CNXFixOrderMessageHandlerTest {
 
         NewOrderSingle message = this.messageFactory.createNewOrderMessage(order, orderId);
 
-        Mockito.when(this.orderService.getOpenOrderByRootIntId(orderId)).thenReturn(order);
+        Mockito.when(this.openOrderRegistry.getByIntId(orderId)).thenReturn(order);
 
         this.session.send(message);
 
@@ -282,7 +282,7 @@ public class CNXFixOrderMessageHandlerTest {
 
         NewOrderSingle message1 = this.messageFactory.createNewOrderMessage(order, orderId1);
 
-        Mockito.when(this.orderService.getOpenOrderByRootIntId(orderId1)).thenReturn(order);
+        Mockito.when(this.openOrderRegistry.getByIntId(orderId1)).thenReturn(order);
 
         this.session.send(message1);
 
@@ -302,7 +302,7 @@ public class CNXFixOrderMessageHandlerTest {
 
         OrderCancelRequest message2 = this.messageFactory.createOrderCancelMessage(order, orderId2);
 
-        Mockito.when(this.orderService.getOpenOrderByRootIntId(orderId2)).thenReturn(order);
+        Mockito.when(this.openOrderRegistry.getByIntId(orderId2)).thenReturn(order);
 
         this.session.send(message2);
 
@@ -345,7 +345,7 @@ public class CNXFixOrderMessageHandlerTest {
 
         NewOrderSingle message1 = this.messageFactory.createNewOrderMessage(order, orderId1);
 
-        Mockito.when(this.orderService.getOpenOrderByRootIntId(orderId1)).thenReturn(order);
+        Mockito.when(this.openOrderRegistry.getByIntId(orderId1)).thenReturn(order);
 
         this.session.send(message1);
 
@@ -367,7 +367,7 @@ public class CNXFixOrderMessageHandlerTest {
 
         OrderCancelReplaceRequest message2 = this.messageFactory.createModifyOrderMessage(order, orderId2);
 
-        Mockito.when(this.orderService.getOpenOrderByRootIntId(orderId2)).thenReturn(order);
+        Mockito.when(this.openOrderRegistry.getByIntId(orderId2)).thenReturn(order);
 
         this.session.send(message2);
 
@@ -389,7 +389,7 @@ public class CNXFixOrderMessageHandlerTest {
 
         OrderCancelRequest message3 = this.messageFactory.createOrderCancelMessage(order, orderId3);
 
-        Mockito.when(this.orderService.getOpenOrderByRootIntId(orderId3)).thenReturn(order);
+        Mockito.when(this.openOrderRegistry.getByIntId(orderId3)).thenReturn(order);
 
         this.session.send(message3);
 

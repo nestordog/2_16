@@ -19,6 +19,16 @@ package ch.algotrader.adapter.lmax;
 
 import java.util.Date;
 
+import ch.algotrader.adapter.fix.FixUtil;
+import ch.algotrader.adapter.fix.fix44.AbstractFix44OrderMessageHandler;
+import ch.algotrader.entity.trade.Fill;
+import ch.algotrader.entity.trade.Order;
+import ch.algotrader.entity.trade.OrderStatus;
+import ch.algotrader.enumeration.Side;
+import ch.algotrader.enumeration.Status;
+import ch.algotrader.esper.Engine;
+import ch.algotrader.ordermgmt.OpenOrderRegistry;
+import ch.algotrader.util.PriceUtil;
 import quickfix.FieldNotFound;
 import quickfix.field.AvgPx;
 import quickfix.field.CumQty;
@@ -28,16 +38,6 @@ import quickfix.field.MsgSeqNum;
 import quickfix.field.OrderQty;
 import quickfix.field.TransactTime;
 import quickfix.fix44.ExecutionReport;
-import ch.algotrader.adapter.fix.FixUtil;
-import ch.algotrader.adapter.fix.fix44.AbstractFix44OrderMessageHandler;
-import ch.algotrader.entity.trade.Fill;
-import ch.algotrader.entity.trade.Order;
-import ch.algotrader.entity.trade.OrderStatus;
-import ch.algotrader.enumeration.Side;
-import ch.algotrader.enumeration.Status;
-import ch.algotrader.esper.Engine;
-import ch.algotrader.service.OrderService;
-import ch.algotrader.util.PriceUtil;
 
 /**
  * LMFX specific Fix44MessageHandler.
@@ -48,10 +48,10 @@ import ch.algotrader.util.PriceUtil;
  */
 public class LMAXFixOrderMessageHandler extends AbstractFix44OrderMessageHandler {
 
-    private static final double MULTPLIER = 10000.0;
+    private static final double MULTIPLIER = 10000.0;
 
-    public LMAXFixOrderMessageHandler(final OrderService orderService, final Engine serverEngine) {
-        super(orderService, serverEngine);
+    public LMAXFixOrderMessageHandler(final OpenOrderRegistry openOrderRegistry, final Engine serverEngine) {
+        super(openOrderRegistry, serverEngine);
     }
 
     @Override
@@ -77,20 +77,27 @@ public class LMAXFixOrderMessageHandler extends AbstractFix44OrderMessageHandler
     }
 
     @Override
+    protected boolean isOrderReplaced(ExecutionReport executionReport) throws FieldNotFound {
+
+        ExecType execType = executionReport.getExecType();
+        return execType.getValue() == ExecType.REPLACE;
+    }
+
+    @Override
     protected OrderStatus createStatus(final ExecutionReport executionReport, final Order order) throws FieldNotFound {
 
         ExecType execType = executionReport.getExecType();
         Status status = getStatus(execType, executionReport.getOrderQty(), executionReport.getCumQty());
-        long filledQuantity = Math.round(executionReport.getCumQty().getValue() * MULTPLIER);
-        long remainingQuantity = Math.round((executionReport.getOrderQty().getValue() - executionReport.getCumQty().getValue()) * MULTPLIER);
+        long filledQuantity = Math.round(executionReport.getCumQty().getValue() * MULTIPLIER);
+        long remainingQuantity = Math.round((executionReport.getOrderQty().getValue() - executionReport.getCumQty().getValue()) * MULTIPLIER);
+        String intId = order.getIntId() != null ? order.getIntId(): executionReport.getClOrdID().getValue();
         String extId = executionReport.getOrderID().getValue();
-        String intId = executionReport.getClOrdID().getValue();
 
         // assemble the orderStatus
         OrderStatus orderStatus = OrderStatus.Factory.newInstance();
         orderStatus.setStatus(status);
-        orderStatus.setExtId(extId);
         orderStatus.setIntId(intId);
+        orderStatus.setExtId(extId);
         orderStatus.setSequenceNumber(executionReport.getHeader().getInt(MsgSeqNum.FIELD));
         orderStatus.setFilledQuantity(filledQuantity);
         orderStatus.setRemainingQuantity(remainingQuantity);
@@ -127,7 +134,7 @@ public class LMAXFixOrderMessageHandler extends AbstractFix44OrderMessageHandler
             // get the fields
             Date extDateTime = executionReport.getTransactTime().getValue();
             Side side = FixUtil.getSide(executionReport.getSide());
-            long quantity = Math.round(executionReport.getLastQty().getValue() * MULTPLIER);
+            long quantity = Math.round(executionReport.getLastQty().getValue() * MULTIPLIER);
             double price = executionReport.getLastPx().getValue();
             String extId = executionReport.getExecID().getValue();
 
@@ -140,6 +147,7 @@ public class LMAXFixOrderMessageHandler extends AbstractFix44OrderMessageHandler
             fill.setSide(side);
             fill.setQuantity(quantity);
             fill.setPrice(PriceUtil.normalizePrice(order,price));
+            fill.setOrder(order);
 
             return fill;
         } else {

@@ -31,11 +31,11 @@ import ch.algotrader.adapter.ib.IBSession;
 import ch.algotrader.adapter.ib.IBSessionStateHolder;
 import ch.algotrader.adapter.ib.IBUtil;
 import ch.algotrader.config.IBConfig;
-import ch.algotrader.dao.marketData.TickDao;
-import ch.algotrader.vo.marketData.SubscribeTickVO;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.Engine;
+import ch.algotrader.service.ExternalMarketDataService;
+import ch.algotrader.service.NativeMarketDataServiceImpl;
 import ch.algotrader.service.ServiceException;
 
 /**
@@ -43,7 +43,7 @@ import ch.algotrader.service.ServiceException;
  *
  * @version $Revision$ $Date$
  */
-public class IBNativeMarketDataServiceImpl implements IBNativeMarketDataService, DisposableBean {
+public class IBNativeMarketDataServiceImpl extends NativeMarketDataServiceImpl implements ExternalMarketDataService, DisposableBean {
 
     private static final Logger LOGGER = LogManager.getLogger(IBNativeMarketDataServiceImpl.class);
 
@@ -51,30 +51,26 @@ public class IBNativeMarketDataServiceImpl implements IBNativeMarketDataService,
     private final IBIdGenerator iBIdGenerator;
     private final IBSessionStateHolder sessionStateHolder;
     private final IBConfig iBConfig;
-    private final TickDao tickDao;
-    private final Engine serverEngine;
 
     public IBNativeMarketDataServiceImpl(
             final IBSession iBSession,
             final IBSessionStateHolder sessionStateHolder,
             final IBIdGenerator iBIdGenerator,
             final IBConfig iBConfig,
-            final Engine serverEngine,
-            final TickDao tickDao) {
+            final Engine serverEngine) {
+
+        super(serverEngine);
 
         Validate.notNull(iBSession, "IBSession is null");
         Validate.notNull(sessionStateHolder, "IBSessionStateHolder is null");
         Validate.notNull(iBIdGenerator, "IBIdGenerator is null");
         Validate.notNull(iBConfig, "IBConfig is null");
         Validate.notNull(serverEngine, "Engine is null");
-        Validate.notNull(tickDao, "TickDao is null");
 
         this.iBSession = iBSession;
         this.sessionStateHolder = sessionStateHolder;
         this.iBIdGenerator = iBIdGenerator;
         this.iBConfig = iBConfig;
-        this.serverEngine = serverEngine;
-        this.tickDao = tickDao;
     }
 
     @Override
@@ -94,9 +90,7 @@ public class IBNativeMarketDataServiceImpl implements IBNativeMarketDataService,
 
         // create the SubscribeTickEvent (must happen before reqMktData so that Esper is ready to receive marketdata)
         int tickerId = this.iBIdGenerator.getNextRequestId();
-        SubscribeTickVO subscribeTickEvent = new SubscribeTickVO(Integer.toString(tickerId), security.getId(), FeedType.IB);
-
-        this.serverEngine.sendEvent(subscribeTickEvent);
+        esperSubscribe(security, Integer.toString(tickerId));
 
         // requestMarketData from IB
         Contract contract = IBUtil.getContract(security);
@@ -118,15 +112,9 @@ public class IBNativeMarketDataServiceImpl implements IBNativeMarketDataService,
             throw new ServiceException("IB ist not subscribed, security cannot be unsubscribed " + security);
         }
 
-        // get the tickerId by querying the TickWindow
-        String tickerId = this.tickDao.findTickerIdBySecurity(security.getId());
-        if (tickerId == null) {
-            throw new ServiceException("tickerId for security " + security + " was not found");
-        }
+        String tickerId = esperUnsubscribe(security);
 
         this.iBSession.cancelMktData(Integer.parseInt(tickerId));
-
-        this.serverEngine.executeQuery("delete from TickWindow where securityId = " + security.getId());
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("cancelled market data for : {}", security);

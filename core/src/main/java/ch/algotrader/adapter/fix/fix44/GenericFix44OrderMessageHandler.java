@@ -19,13 +19,6 @@ package ch.algotrader.adapter.fix.fix44;
 
 import java.util.Date;
 
-import quickfix.FieldNotFound;
-import quickfix.field.AvgPx;
-import quickfix.field.ExecType;
-import quickfix.field.LastPx;
-import quickfix.field.MsgSeqNum;
-import quickfix.field.TransactTime;
-import quickfix.fix44.ExecutionReport;
 import ch.algotrader.adapter.fix.FixUtil;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.Order;
@@ -33,8 +26,15 @@ import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.service.OrderService;
+import ch.algotrader.ordermgmt.OpenOrderRegistry;
 import ch.algotrader.util.PriceUtil;
+import quickfix.FieldNotFound;
+import quickfix.field.AvgPx;
+import quickfix.field.ExecType;
+import quickfix.field.LastPx;
+import quickfix.field.MsgSeqNum;
+import quickfix.field.TransactTime;
+import quickfix.fix44.ExecutionReport;
 
 /**
  * Generic Fix44OrderMessageHandler. Can still be overwritten by specific broker interfaces.
@@ -45,8 +45,8 @@ import ch.algotrader.util.PriceUtil;
  */
 public class GenericFix44OrderMessageHandler extends AbstractFix44OrderMessageHandler {
 
-    public GenericFix44OrderMessageHandler(final OrderService orderService, final Engine serverEngine) {
-        super(orderService, serverEngine);
+    public GenericFix44OrderMessageHandler(final OpenOrderRegistry openOrderRegistry, final Engine serverEngine) {
+        super(openOrderRegistry, serverEngine);
     }
 
     @Override
@@ -74,6 +74,13 @@ public class GenericFix44OrderMessageHandler extends AbstractFix44OrderMessageHa
     }
 
     @Override
+    protected boolean isOrderReplaced(ExecutionReport executionReport) throws FieldNotFound {
+
+        ExecType execType = executionReport.getExecType();
+        return execType.getValue() == ExecType.REPLACE;
+    }
+
+    @Override
     protected OrderStatus createStatus(final ExecutionReport executionReport, final Order order) throws FieldNotFound {
 
         ExecType execType = executionReport.getExecType();
@@ -87,8 +94,8 @@ public class GenericFix44OrderMessageHandler extends AbstractFix44OrderMessageHa
 
         Status status = getStatus(execType, orderQty, cumQty);
         long remainingQuantity = orderQty - cumQty;
+        String intId = order.getIntId() != null ? order.getIntId(): executionReport.getClOrdID().getValue();
         String extId = executionReport.getOrderID().getValue();
-        String intId = executionReport.getClOrdID().getValue();
 
         // assemble the orderStatus
         OrderStatus orderStatus = OrderStatus.Factory.newInstance();
@@ -145,6 +152,7 @@ public class GenericFix44OrderMessageHandler extends AbstractFix44OrderMessageHa
             if (executionReport.isSetField(TransactTime.FIELD)) {
                 fill.setExtDateTime(executionReport.getTransactTime().getValue());
             }
+            fill.setOrder(order);
 
             return fill;
         } else {

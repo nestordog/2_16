@@ -20,30 +20,39 @@ package ch.algotrader.cache;
 import java.io.Serializable;
 
 /**
- * Notifies that a particular spaceName (table) has been modified.
- * All cached queries based on this spaceName should be evicted.
+ * Notifies that a particular key (e.g. ROOT or collection) of the specified entityClass  and id has been modified.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class QueryCacheEvictionEvent implements Serializable {
+public class EntityCacheEvictionEventVO implements Serializable {
 
     private static final long serialVersionUID = -9201194174175757269L;
 
-    private final String spaceName;
+    private final Class<?> entityClass;
+    private final long id;
+    private final String key;
 
-    public QueryCacheEvictionEvent(String spaceName) {
-        this.spaceName = spaceName;
+    public EntityCacheEvictionEventVO(Class<?> entityClass, long id, String key) {
+        this.entityClass = entityClass;
+        this.id = id;
+        this.key = key;
     }
 
-    public String getSpaceName() {
-        return this.spaceName;
+    public Class<?> getEntityClass() {
+        return this.entityClass;
     }
 
+    public long getId() {
+        return this.id;
+    }
+
+    public String getKey() {
+        return this.key;
+    }
     @Override
     public String toString() {
-        return this.spaceName + "]";
+        return "entityClass=" + this.entityClass + ", id=" + this.id + ", key=" + this.key;
     }
-
 }

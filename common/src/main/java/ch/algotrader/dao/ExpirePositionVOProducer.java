@@ -36,15 +36,8 @@ public class ExpirePositionVOProducer implements EntityConverter<Position, Expir
 
         Validate.notNull(entity, "Position is null");
 
-        ExpirePositionVO vo = new ExpirePositionVO();
-
-        vo.setId(entity.getId());
-        // No conversion for vo.strategy (can't convert position.getStrategy():Strategy to String)
-        vo.setQuantity(entity.getQuantity());
-
-        vo.setSecurityId(entity.getSecurity().getId());
-        vo.setDirection(entity.getDirection());
-        return vo;
+        return new ExpirePositionVO(
+                entity.getId(), entity.getSecurity().getId(), null, entity.getQuantity(), entity.getDirection());
     }
 
 }

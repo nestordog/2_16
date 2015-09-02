@@ -25,10 +25,10 @@ import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.enumeration.InitializingServiceType;
+import ch.algotrader.enumeration.TIF;
 import ch.algotrader.service.ExternalServiceException;
 import ch.algotrader.service.InitializationPriority;
 import ch.algotrader.service.InitializingServiceI;
-import ch.algotrader.service.OrderService;
 import quickfix.FieldNotFound;
 import quickfix.Message;
 import quickfix.StringField;
@@ -50,16 +50,11 @@ public abstract class FixOrderServiceImpl implements FixOrderService, Initializi
 
     private final FixAdapter fixAdapter;
 
-    private final OrderService orderService;
-
-    public FixOrderServiceImpl(final FixAdapter fixAdapter,
-            final OrderService orderService) {
+    public FixOrderServiceImpl(final FixAdapter fixAdapter) {
 
         Validate.notNull(fixAdapter, "FixAdapter is null");
-        Validate.notNull(orderService, "OrderService is null");
 
         this.fixAdapter = fixAdapter;
-        this.orderService = orderService;
     }
 
     protected FixAdapter getFixAdapter() {
@@ -80,18 +75,10 @@ public abstract class FixOrderServiceImpl implements FixOrderService, Initializi
      * {@inheritDoc}
      */
     @Override
-    public void sendOrder(final Order order, final Message message, final boolean propagate) {
+    public void sendOrder(final Order order, final Message message) {
 
         Validate.notNull(order, "Order is null");
         Validate.notNull(message, "Message is null");
-
-        // persist the order into the database
-        this.orderService.persistOrder(order);
-
-        // propagate the order to all corresponding Esper engines
-        if (propagate) {
-            this.orderService.propagateOrder(order);
-        }
 
         // send the message to the Fix Adapter
         this.fixAdapter.sendMessage(message, order.getAccount());
@@ -126,6 +113,14 @@ public abstract class FixOrderServiceImpl implements FixOrderService, Initializi
     @Override
     public String getNextOrderId(final Account account) {
         return getFixAdapter().getNextOrderId(account);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public TIF getDefaultTIF() {
+        return TIF.DAY;
     }
 
 }

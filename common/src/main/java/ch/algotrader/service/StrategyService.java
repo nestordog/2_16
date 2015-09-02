@@ -21,13 +21,13 @@ import java.util.Collections;
 import java.util.Map;
 
 import ch.algotrader.config.CommonConfig;
-import ch.algotrader.entity.Transaction;
+import ch.algotrader.entity.TransactionVO;
 import ch.algotrader.entity.marketData.BarVO;
 import ch.algotrader.entity.marketData.TickVO;
-import ch.algotrader.entity.trade.Fill;
-import ch.algotrader.entity.trade.Order;
-import ch.algotrader.entity.trade.OrderCompletion;
-import ch.algotrader.entity.trade.OrderStatus;
+import ch.algotrader.entity.trade.FillVO;
+import ch.algotrader.entity.trade.OrderCompletionVO;
+import ch.algotrader.entity.trade.OrderStatusVO;
+import ch.algotrader.entity.trade.OrderVO;
 import ch.algotrader.event.listener.BarEventListener;
 import ch.algotrader.event.listener.ClosePositionEventListener;
 import ch.algotrader.event.listener.ExpirePositionEventListener;
@@ -262,23 +262,23 @@ public class StrategyService implements
     }
 
     @Override
-    public void onOrder(final Order order) {
+    public void onOrder(final OrderVO order) {
     }
 
     @Override
-    public void onOrderStatus(final OrderStatus orderStatus) {
+    public void onOrderStatus(final OrderStatusVO orderStatus) {
     }
 
     @Override
-    public void onOrderCompletion(final OrderCompletion orderCompletion) {
+    public void onOrderCompletion(final OrderCompletionVO orderCompletion) {
     }
 
     @Override
-    public void onFill(final Fill fill) {
+    public void onFill(final FillVO fill) {
     }
 
     @Override
-    public void onTransaction(final Transaction transaction) {
+    public void onTransaction(final TransactionVO transaction) {
     }
 
     @Override

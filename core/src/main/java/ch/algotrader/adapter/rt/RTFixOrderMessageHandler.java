@@ -19,7 +19,7 @@ package ch.algotrader.adapter.rt;
 
 import ch.algotrader.adapter.fix.fix44.GenericFix44OrderMessageHandler;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.service.OrderService;
+import ch.algotrader.ordermgmt.OpenOrderRegistry;
 
 /**
  * RealTick specific Fix44MessageHandler.
@@ -30,8 +30,8 @@ import ch.algotrader.service.OrderService;
  */
 public class RTFixOrderMessageHandler extends GenericFix44OrderMessageHandler {
 
-    public RTFixOrderMessageHandler(final OrderService orderService, final Engine serverEngine) {
-        super(orderService, serverEngine);
+    public RTFixOrderMessageHandler(final OpenOrderRegistry openOrderRegistry, final Engine serverEngine) {
+        super(openOrderRegistry, serverEngine);
     }
 
 }

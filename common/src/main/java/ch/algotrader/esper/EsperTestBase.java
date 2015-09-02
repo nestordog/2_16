@@ -29,7 +29,9 @@ import org.apache.commons.io.Charsets;
 import org.apache.commons.io.IOUtils;
 
 import com.espertech.esper.client.EPAdministrator;
+import com.espertech.esper.client.EPPreparedStatement;
 import com.espertech.esper.client.EPServiceProvider;
+import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.deploy.Module;
 import com.espertech.esper.client.deploy.ModuleItem;
 import com.espertech.esper.client.deploy.ParseException;
@@ -97,6 +99,37 @@ public class EsperTestBase {
                 epAdministrator.create(compiledStatement);
             }
         }
+    }
+
+    protected static EPStatement deployPreparedStatement(
+            final EPServiceProvider epServiceProvider,
+            final URL resource,
+            final String name,
+            final Object... params) throws IOException, ParseException {
+
+        Module module = load(resource, "unit-test");
+        EPAdministrator epAdministrator = epServiceProvider.getEPAdministrator();
+        for (ModuleItem moduleItem : module.getItems()) {
+            String expression = moduleItem.getExpression();
+            EPStatementObjectModel compiledStatement = epAdministrator.compileEPL(expression.replace('?', '1'));
+            for (AnnotationPart annotationPart: compiledStatement.getAnnotations()) {
+                if (annotationPart.getName().equals("Name")) {
+                    for (AnnotationAttribute attribute: annotationPart.getAttributes()) {
+                        if (attribute.getName().equals("value")) {
+                            if (name.equals(attribute.getValue())) {
+                                EPPreparedStatement preparedStatement = epAdministrator.prepareEPL(expression);
+                                for (int i = 0; i < params.length; i++) {
+                                    preparedStatement.setObject(i + 1, params[i]);
+                                }
+                                return epAdministrator.create(preparedStatement, name);
+                            }
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+        throw new IllegalStateException("Statement '" + name + "' not found");
     }
 
 }

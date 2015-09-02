@@ -43,7 +43,7 @@ public class CsvBarInputAdapterSpec extends CSVInputAdapterSpec {
 
     public CsvBarInputAdapterSpec(File file, Duration barSize) {
 
-        super(new AdapterInputSource(file), "RawBar");
+        super(new AdapterInputSource(file), "RawBarVO");
 
         this.file = file;
         this.barSize = barSize;

@@ -30,11 +30,12 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.lang.ArrayUtils;
@@ -82,6 +83,7 @@ import com.espertech.esperio.CoordinatedAdapter;
 
 import ch.algotrader.config.ConfigParams;
 import ch.algotrader.entity.security.Security;
+import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.esper.annotation.Condition;
 import ch.algotrader.esper.annotation.Listeners;
@@ -94,6 +96,7 @@ import ch.algotrader.esper.callback.OpenPositionCallback;
 import ch.algotrader.esper.callback.TickCallback;
 import ch.algotrader.esper.callback.TimerCallback;
 import ch.algotrader.esper.callback.TradeCallback;
+import ch.algotrader.esper.callback.TradePersistedCallback;
 import ch.algotrader.esper.io.CustomSender;
 import ch.algotrader.util.DateTimeUtil;
 import ch.algotrader.util.collection.CollectionUtil;
@@ -199,11 +202,11 @@ public class EngineImpl extends AbstractEngine {
     @Override
     public void deployStatement(String moduleName, String statementName) {
 
-        deployStatement(moduleName, statementName, null, new Object[] {}, null);
+        deployStatement(moduleName, statementName, null, new Object[]{}, null);
     }
 
     @Override
-    public void deployStatement(String moduleName, String statementName, String alias, Object[] params) {
+    public void deployStatement(String moduleName, String statementName, String alias, Object... params) {
 
         deployStatement(moduleName, statementName, alias, params, null);
     }
@@ -433,16 +436,27 @@ public class EngineImpl extends AbstractEngine {
 
     @Override
     @SuppressWarnings("unchecked")
-    public Object executeSingelObjectQuery(String query) {
+    public Object executeSingelObjectQuery(String query, String attributeName) {
 
         List<Object> events = executeQuery(query);
         if (events.size() == 0) {
             return null;
         } else if (events.size() == 1) {
-            return events.get(0);
+            Object result = events.get(0);
+            if (attributeName != null && result instanceof Map) {
+                return ((Map) result).get(attributeName);
+            } else {
+                return result;
+            }
         } else {
             throw new IllegalArgumentException("query returned more than one object");
         }
+    }
+
+    @Override
+    public Object executeSingelObjectQuery(String query) {
+
+        return executeSingelObjectQuery(query, null);
     }
 
     @Override
@@ -637,24 +651,29 @@ public class EngineImpl extends AbstractEngine {
         return runtime.getVariableValue(variableName);
     }
 
+    private Set<String> collectIntIds(final Collection<Order> orders, final Strategy strategy) {
+        return orders.stream()
+                .map(order -> {
+                    String intId = order.getIntId();
+                    if (intId == null) {
+                        throw new IllegalArgumentException("Cannot add trade callback for orders with null IntId");
+                    }
+                    if (!order.getStrategy().equals(strategy)) {
+                        throw new IllegalArgumentException("Cannot add trade callback for orders of different strategies");
+                    }
+                    return intId;
+                }).collect(Collectors.toCollection(LinkedHashSet::new));
+    }
+
     @Override
     public void addTradeCallback(Collection<Order> orders, TradeCallback callback) {
 
-        // get the securityIds sorted asscending and check that all orders are from the same strategy
-        final Order firstOrder = CollectionUtil.getFirstElement(orders);
-        Set<Long> sortedSecurityIds = new TreeSet<>(CollectionUtils.collect(orders, order -> {
-            if (!order.getStrategy().equals(firstOrder.getStrategy())) {
-                throw new IllegalArgumentException("cannot addTradeCallback for orders of different strategies");
-            }
-            return order.getSecurity().getId();
-        }));
-
-        if (sortedSecurityIds.size() < orders.size()) {
-            throw new IllegalArgumentException("cannot addTradeCallback for multiple orders on the same security");
-        }
+        Order firstOrder = CollectionUtil.getFirstElement(orders);
+        Strategy strategy = firstOrder.getStrategy();
+        Set<String> orderIntIds = collectIntIds(orders, strategy);
 
         // get the statement alias based on all security ids
-        String alias = "ON_TRADE_COMPLETED_" + StringUtils.join(sortedSecurityIds, "_") + "_" + firstOrder.getStrategy().getName();
+        String alias = "ON_TRADE_COMPLETED_" + StringUtils.join(orderIntIds, "_");
 
         if (isDeployed(alias)) {
 
@@ -663,8 +682,30 @@ public class EngineImpl extends AbstractEngine {
             }
         } else {
 
-            Object[] params = new Object[] { sortedSecurityIds.size(), sortedSecurityIds, firstOrder.getStrategy().getName(), firstOrder.isAlgoOrder() };
+            Object[] params = new Object[] { orderIntIds.size(), orderIntIds };
             deployStatement("prepared", "ON_TRADE_COMPLETED", alias, params, callback);
+        }
+    }
+
+    @Override
+    public void addTradePersistedCallback(Collection<Order> orders, TradePersistedCallback callback) {
+
+        Order firstOrder = CollectionUtil.getFirstElement(orders);
+        Strategy strategy = firstOrder.getStrategy();
+        Set<String> orderIntIds = collectIntIds(orders, strategy);
+
+        // get the statement alias based on all security ids
+        String alias = "ON_TRADE_PERSISTED_" + StringUtils.join(orderIntIds, "_");
+
+        if (isDeployed(alias)) {
+
+            if (LOGGER.isWarnEnabled()) {
+                LOGGER.warn("{} is already deployed", alias);
+            }
+        } else {
+
+            Object[] params = new Object[] { orderIntIds.size(), orderIntIds };
+            deployStatement("prepared", "ON_TRADE_PERSISTED", alias, params, callback);
         }
     }
 
@@ -672,10 +713,9 @@ public class EngineImpl extends AbstractEngine {
     public void addFirstTickCallback(Collection<Security> securities, TickCallback callback) {
 
         // create a list of unique security ids
-        Set<Long> securityIds = new TreeSet<>();
-        securityIds.addAll(CollectionUtils.collect(securities, security -> {
-            return security.getId();
-        }));
+        Set<Long> securityIds = securities.stream()
+                .map(Security::getId)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
 
         String alias = "ON_FIRST_TICK_" + StringUtils.join(securityIds, "_");
 
@@ -687,7 +727,7 @@ public class EngineImpl extends AbstractEngine {
         } else {
 
             long[] securityIdsArray = ArrayUtils.toPrimitive(securityIds.toArray(new Long[0]));
-            deployStatement("prepared", "ON_FIRST_TICK", alias, new Object[] { securityIds.size(), securityIdsArray }, callback);
+            deployStatement("prepared", "ON_FIRST_TICK", alias, new Object[]{securityIds.size(), securityIdsArray}, callback);
         }
     }
 
@@ -703,7 +743,7 @@ public class EngineImpl extends AbstractEngine {
             }
         } else {
 
-            deployStatement("prepared", "ON_OPEN_POSITION", alias, new Object[] { securityId }, callback);
+            deployStatement("prepared", "ON_OPEN_POSITION", alias, new Object[]{securityId}, callback);
         }
     }
 

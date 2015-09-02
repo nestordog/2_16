@@ -25,7 +25,8 @@ import ch.algotrader.adapter.lmax.LMAXFixMarketDataRequestFactory;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.service.fix.fix44.Fix44MarketDataServiceImpl;
+import ch.algotrader.service.fix.FixMarketDataServiceImpl;
+import ch.algotrader.service.fix.fix44.Fix44MarketDataService;
 import quickfix.field.SubscriptionRequestType;
 import quickfix.fix44.MarketDataRequest;
 
@@ -34,7 +35,7 @@ import quickfix.fix44.MarketDataRequest;
  *
  * @version $Revision$ $Date$
  */
-public class LMAXFixMarketDataServiceImpl extends Fix44MarketDataServiceImpl implements LMAXFixMarketDataService {
+public class LMAXFixMarketDataServiceImpl extends FixMarketDataServiceImpl implements Fix44MarketDataService {
 
     private static final long serialVersionUID = 1144501885597028244L;
 

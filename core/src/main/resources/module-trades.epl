@@ -1,80 +1,23 @@
-// ------------------------------OPEN_ORDER_WINDOW--------------------------------
+// ------------------------------OPEN ORDER MANAGEMENT--------------------------------
 
-@Name('OPEN_ORDER_WINDOW')
-create
-    window OpenOrderWindow.std:groupwin(rootIntId).std:lastevent()
-as select
-    *,
-    Status.OPEN as status,
-    0L as filledQuantity,
-    0L as remainingQuantity
-from
-    `Order`;
-
-@Name('INSERT_INTO_OPEN_ORDER_WINDOW')
-@RunTimeOnly()
-insert into
-    OpenOrderWindow
+@Name('ORDER_COMPLETED')
+@Subscriber(className='orderService#orderCompleted')
 select
-    submittedOrder.*,
-    status,
-    filledQuantity,
-    remainingQuantity
+    orderStatus
 from
-    SubmittedOrder;
-
-@Name('UPDATE_OPEN_ORDER_WINDOW')
-@RunTimeOnly()
-on
-    OrderStatus as orderStatus
-update
-    OpenOrderWindow  as openOrderWindow
-set
-    openOrderWindow.status = orderStatus.status,
-    openOrderWindow.filledQuantity = orderStatus.filledQuantity,
-    openOrderWindow.remainingQuantity = orderStatus.remainingQuantity,
-    openOrderWindow.intId = (case when orderStatus.intId is not null then orderStatus.intId else orderStatus.`order`.intId end),
-    openOrderWindow.extId = (case when orderStatus.extId is not null then orderStatus.extId else orderStatus.`order`.extId end)
-where
-    openOrderWindow.intId = orderStatus.`order`.intId;
-
-@Name('UPDATE_ORDER')
-@RunTimeOnly()
-@Subscriber(className='orderService#updateOrderId')
-select
-    orderStatus.`order`,
-    orderStatus.intId,
-    orderStatus.extId
-from
-    OrderStatus as orderStatus
-where
-    (orderStatus.intId is not null and (orderStatus.`order`.intId is null or orderStatus.intId != orderStatus.`order`.intId))
-or
-    (orderStatus.extId is not null and (orderStatus.`order`.extId is null or orderStatus.extId != orderStatus.`order`.extId));
-
-@Name('DELETE_FROM_OPEN_ORDER_WINDOW')
-@RunTimeOnly()
-on
-    pattern[every orderStatus=OrderStatus(status = Status.EXECUTED or status = Status.CANCELED  or status = Status.REJECTED) -> timer:interval(1 sec)]
-delete from
-    OpenOrderWindow as openOrderWindow
-where
-    orderStatus.`order` is null
-or
-    orderStatus.`order`.intId = openOrderWindow.intId
-or
-    orderStatus.intId = openOrderWindow.intId;
+    pattern[every orderStatus=OrderStatus(status = Status.EXECUTED or status = Status.CANCELED  or status = Status.REJECTED) -> timer:interval(1 sec)];
 
 @Name('INSERT_INTO_ORDER_COMPLETION')
 @RunTimeOnly()
 insert into
-    OrderCompletion
+    OrderCompletionVO
 select
+    currentOrder.intId,
+    currentOrder.strategy.name,
     current_timestamp.toDate() as dateTime,
     orderStatus.status as status,
     orderStatus.filledQuantity as filledQuantity,
     orderStatus.remainingQuantity as remainingQuantity,
-    orderStatus.`order` as `order`,
     sum(transaction.price * transaction.quantity) / sum(transaction.quantity) as avgPrice,
     sum(transaction.grossValue) as grossValue,
     sum(transaction.netValue) as netValue,
@@ -106,15 +49,15 @@ from
 @RunTimeOnly
 @Subscriber(className='orderService#sendOrders')
 select
-    currentOrder.getInitialOrders(cast(marketDataWindow.marketDataEvent, ch.algotrader.entity.marketData.Tick))
+    currentOrder.getInitialOrders(cast(marketDataWindow.marketDataEvent, ch.algotrader.entity.marketData.TickI))
 from
     ch.algotrader.entity.trade.AlgoOrder as currentOrder unidirectional,
     MarketDataWindow as marketDataWindow
-where 
-	marketDataWindow.securityId = currentOrder.security.id 
-order by 
-	marketDataWindow.marketDataEvent.dateTime desc 
-limit 
+where
+	marketDataWindow.securityId = currentOrder.security.id
+order by
+	marketDataWindow.marketDataEvent.dateTime desc
+limit
 	1;
 
 @Name('INSERT_INTO_ALGO_ORDER_STATUS_SUBMITTED')
@@ -122,30 +65,36 @@ limit
 insert into
     OrderStatus
 select
+    0L as id,
+    current_timestamp.toDate() as dateTime,
     Status.SUBMITTED as status,
-    0 as filledQuantity,
-    openOrderWindow.remainingQuantity as remainingQuantity,
+    0L as filledQuantity,
+    orderExec.remainingQuantity as remainingQuantity,
+    `order`.parentOrder.intId as intId,
+    0 as sequenceNumber,
     `order`.parentOrder as `order`
 from
     OrderStatus(status = Status.SUBMITTED, `order`.parentOrder.algoOrder) as orderStatus unidirectional,
-    OpenOrderWindow(status = Status.OPEN) as openOrderWindow
+    method:orderService.getStatusByIntId(`order`.parentOrder.intId) as orderExec
 where
-    openOrderWindow.intId = orderStatus.`order`.parentOrder.intId;
+    orderExec.status = Status.OPEN;
 
 @Name('INSERT_INTO_ALGO_ORDER_STATUS_FROM_FILL')
 @RunTimeOnly()
 insert into
     OrderStatus
 select
-    case when openOrderWindow.remainingQuantity - fill.quantity > 0 then Status.PARTIALLY_EXECUTED else Status.EXECUTED end as status,
-    openOrderWindow.filledQuantity + fill.quantity as filledQuantity,
-    openOrderWindow.remainingQuantity - fill.quantity as remainingQuantity,
+    0L as id,
+    current_timestamp.toDate() as dateTime,
+    case when orderExec.remainingQuantity - fill.quantity > 0 then Status.PARTIALLY_EXECUTED else Status.EXECUTED end as status,
+    orderExec.filledQuantity + fill.quantity as filledQuantity,
+    orderExec.remainingQuantity - fill.quantity as remainingQuantity,
+    `order`.parentOrder.intId as intId,
+    0 as sequenceNumber,
     `order`.parentOrder as `order`
 from
     Fill(`order`.parentOrder.algoOrder) as fill unidirectional,
-    OpenOrderWindow() as openOrderWindow
-where
-    openOrderWindow.intId = fill.`order`.parentOrder.intId;
+    method:orderService.getStatusByIntId(`order`.parentOrder.intId) as orderExec;
 
 // ------------------------------LOGGING / PROPAGATION--------------------------------
 
@@ -153,8 +102,7 @@ where
 @RunTimeOnly()
 @Subscriber(className='transactionService#logFillSummary')
 select
-    fill,
-    orderStatus
+    fill
 from
     pattern [every fill=Fill -> orderStatus=OrderStatus(
         status = Status.EXECUTED or status = Status.CANCELED,
@@ -162,7 +110,6 @@ from
         (fill.`order`.parentOrder is null and `order`.intId = fill.`order`.intId))];
 
 @Name('PROPAGATE_ORDER_STATUS')
-@RunTimeOnly()
 @Subscriber(className='orderService#propagateOrderStatus')
 select
     *
@@ -175,11 +122,10 @@ from
 select
     *
 from
-    OrderCompletion;
+    OrderCompletionVO;
 
 @Name('PROPAGATE_FILL')
 @Priority(1)
-@RunTimeOnly()
 @Subscriber(className='transactionService#propagateFill')
 select
     *
@@ -187,7 +133,6 @@ from
     Fill;
 
 @Name('CREATE_TRANSACTION')
-@RunTimeOnly()
 @Subscriber(className='transactionService#createTransaction')
 select
     *

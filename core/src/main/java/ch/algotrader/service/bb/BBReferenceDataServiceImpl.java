@@ -59,7 +59,7 @@ import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.service.ExternalServiceException;
 import ch.algotrader.service.InitializationPriority;
 import ch.algotrader.service.InitializingServiceI;
-import ch.algotrader.service.ReferenceDataServiceImpl;
+import ch.algotrader.service.ReferenceDataService;
 import ch.algotrader.service.ServiceException;
 import ch.algotrader.util.DateTimeLegacy;
 import ch.algotrader.util.RoundUtil;
@@ -70,7 +70,7 @@ import ch.algotrader.util.RoundUtil;
  * @version $Revision$ $Date$
  */
 @InitializationPriority(value = InitializingServiceType.BROKER_INTERFACE)
-public class BBReferenceDataServiceImpl extends ReferenceDataServiceImpl implements BBReferenceDataService, InitializingServiceI {
+public class BBReferenceDataServiceImpl implements ReferenceDataService, InitializingServiceI {
 
     private static final long serialVersionUID = 8938937374871069522L;
 

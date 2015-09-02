@@ -28,10 +28,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import quickfix.field.ClOrdID;
-import quickfix.field.ExecType;
-import quickfix.field.OrdStatus;
-import quickfix.fix44.ExecutionReport;
 import ch.algotrader.adapter.fix.fix44.FixTestUtils;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.AccountImpl;
@@ -48,8 +44,12 @@ import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.service.OrderService;
+import ch.algotrader.ordermgmt.OpenOrderRegistry;
 import ch.algotrader.util.DateTimeLegacy;
+import quickfix.field.ClOrdID;
+import quickfix.field.ExecType;
+import quickfix.field.OrdStatus;
+import quickfix.fix44.ExecutionReport;
 
 /**
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
@@ -59,7 +59,7 @@ import ch.algotrader.util.DateTimeLegacy;
 public class TestCNXFixOrderMessageHandler {
 
     @Mock
- private OrderService orderService;
+    private OpenOrderRegistry openOrderRegistry;
     @Mock
     private Engine engine;
 
@@ -70,7 +70,7 @@ public class TestCNXFixOrderMessageHandler {
 
         MockitoAnnotations.initMocks(this);
 
-        this.impl = new CNXFixOrderMessageHandler(this.orderService, this.engine);
+        this.impl = new CNXFixOrderMessageHandler(this.openOrderRegistry, this.engine);
     }
 
     @Test
@@ -84,7 +84,7 @@ public class TestCNXFixOrderMessageHandler {
         Assert.assertNotNull(executionReport);
 
         MarketOrder order = new MarketOrderImpl();
-        Mockito.when(this.orderService.getOpenOrderByRootIntId("1475f81bdee")).thenReturn(order);
+        Mockito.when(this.openOrderRegistry.getByIntId("1475f81bdee")).thenReturn(order);
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
@@ -132,7 +132,7 @@ public class TestCNXFixOrderMessageHandler {
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(forex);
         order.setAccount(account);
-        Mockito.when(this.orderService.getOpenOrderByRootIntId("1475f81bdee")).thenReturn(order);
+        Mockito.when(this.openOrderRegistry.getByIntId("1475f81bdee")).thenReturn(order);
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
@@ -172,11 +172,11 @@ public class TestCNXFixOrderMessageHandler {
         executionReport.set(new ExecType(ExecType.NEW));
         executionReport.set(new ClOrdID("123"));
 
-        Mockito.when(this.orderService.getOpenOrderByRootIntId(Mockito.anyString())).thenReturn(null);
+        Mockito.when(this.openOrderRegistry.getByIntId(Mockito.anyString())).thenReturn(null);
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
-        Mockito.verify(this.orderService, Mockito.times(1)).getOpenOrderByRootIntId("123");
+        Mockito.verify(this.openOrderRegistry, Mockito.times(1)).getByIntId("123");
         Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
     }
 
@@ -202,7 +202,7 @@ public class TestCNXFixOrderMessageHandler {
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(forex);
 
-        Mockito.when(this.orderService.getOpenOrderByRootIntId("14763e2fd3e")).thenReturn(order);
+        Mockito.when(this.openOrderRegistry.getByIntId("14763e2fd3e")).thenReturn(order);
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
@@ -244,7 +244,7 @@ public class TestCNXFixOrderMessageHandler {
 
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(forex);
-        Mockito.when(this.orderService.getOpenOrderByRootIntId("14764071b06")).thenReturn(order);
+        Mockito.when(this.openOrderRegistry.getByIntId("14764071493")).thenReturn(order);
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
@@ -286,28 +286,41 @@ public class TestCNXFixOrderMessageHandler {
         forex.setSecurityFamily(family);
 
         MarketOrder order = new MarketOrderImpl();
-        order.setIntId("147648b2394");
+        order.setIntId("147648b2485");
         order.setSecurity(forex);
-        Mockito.when(this.orderService.getOpenOrderByRootIntId("147648b2485")).thenReturn(order);
+        Mockito.when(this.openOrderRegistry.getByIntId("147648b2485")).thenReturn(order);
+
+        MarketOrder oldOrder = new MarketOrderImpl();
+        oldOrder.setIntId("147648b2394");
+        oldOrder.setSecurity(forex);
+        Mockito.when(this.openOrderRegistry.getByIntId("147648b2394")).thenReturn(oldOrder);
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
         ArgumentCaptor<Object> argumentCaptor = ArgumentCaptor.forClass(Object.class);
-        Mockito.verify(this.engine, Mockito.times(1)).sendEvent(argumentCaptor.capture());
+        Mockito.verify(this.engine, Mockito.times(2)).sendEvent(argumentCaptor.capture());
 
         List<Object> events = argumentCaptor.getAllValues();
-        Assert.assertEquals(1, events.size());
+        Assert.assertEquals(2, events.size());
         Object event1 = events.get(0);
         Assert.assertTrue(event1 instanceof OrderStatus);
         OrderStatus orderStatus1 = (OrderStatus) event1;
-        Assert.assertEquals("147648b2485", orderStatus1.getIntId());
-        Assert.assertEquals("2532836283", orderStatus1.getExtId());
-        Assert.assertEquals(Status.SUBMITTED, orderStatus1.getStatus());
-        Assert.assertSame(order, orderStatus1.getOrder());
-        Assert.assertEquals(0, orderStatus1.getFilledQuantity());
+        Assert.assertEquals("147648b2394", orderStatus1.getIntId());
+        Assert.assertEquals(Status.CANCELED, orderStatus1.getStatus());
+        Assert.assertSame(oldOrder, orderStatus1.getOrder());
         Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2014-07-23 18:45:46.334"), orderStatus1.getExtDateTime());
-        Assert.assertEquals(null, orderStatus1.getLastPrice());
-        Assert.assertEquals(null, orderStatus1.getAvgPrice());
+
+        Object event2 = events.get(1);
+        Assert.assertTrue(event2 instanceof OrderStatus);
+        OrderStatus orderStatus2 = (OrderStatus) event2;
+        Assert.assertEquals("147648b2485", orderStatus2.getIntId());
+        Assert.assertEquals("2532836283", orderStatus2.getExtId());
+        Assert.assertEquals(Status.SUBMITTED, orderStatus2.getStatus());
+        Assert.assertSame(order, orderStatus2.getOrder());
+        Assert.assertEquals(0, orderStatus2.getFilledQuantity());
+        Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2014-07-23 18:45:46.334"), orderStatus2.getExtDateTime());
+        Assert.assertEquals(null, orderStatus2.getLastPrice());
+        Assert.assertEquals(null, orderStatus2.getAvgPrice());
     }
 
 }

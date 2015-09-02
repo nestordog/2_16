@@ -34,16 +34,16 @@ import com.bloomberglp.blpapi.SubscriptionList;
 import ch.algotrader.adapter.bb.BBAdapter;
 import ch.algotrader.adapter.bb.BBIdGenerator;
 import ch.algotrader.adapter.bb.BBSession;
-import ch.algotrader.dao.marketData.TickDao;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.enumeration.InitializingServiceType;
 import ch.algotrader.esper.Engine;
+import ch.algotrader.service.ExternalMarketDataService;
 import ch.algotrader.service.ExternalServiceException;
 import ch.algotrader.service.InitializationPriority;
 import ch.algotrader.service.InitializingServiceI;
+import ch.algotrader.service.NativeMarketDataServiceImpl;
 import ch.algotrader.service.ServiceException;
-import ch.algotrader.vo.marketData.SubscribeTickVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -51,7 +51,7 @@ import ch.algotrader.vo.marketData.SubscribeTickVO;
  * @version $Revision$ $Date$
  */
 @InitializationPriority(InitializingServiceType.BROKER_INTERFACE)
-public class BBMarketDataServiceImpl implements BBMarketDataService, InitializingServiceI, DisposableBean {
+public class BBMarketDataServiceImpl extends NativeMarketDataServiceImpl implements ExternalMarketDataService, InitializingServiceI, DisposableBean {
 
     private static final long serialVersionUID = -3463200344945144471L;
 
@@ -59,22 +59,18 @@ public class BBMarketDataServiceImpl implements BBMarketDataService, Initializin
     private static BBSession session;
 
     private final BBAdapter bBAdapter;
-    private final TickDao tickDao;
-    private final Engine serverEngine;
     private final AtomicBoolean initalized;
 
     public BBMarketDataServiceImpl(
             final BBAdapter bBAdapter,
-            final Engine serverEngine,
-            final TickDao tickDao) {
+            final Engine serverEngine) {
+
+        super(serverEngine);
 
         Validate.notNull(bBAdapter, "BBAdapter is null");
         Validate.notNull(serverEngine, "Engine is null");
-        Validate.notNull(tickDao, "TickDao is null");
 
         this.bBAdapter = bBAdapter;
-        this.tickDao = tickDao;
-        this.serverEngine = serverEngine;
         this.initalized = new AtomicBoolean(false);
     }
 
@@ -111,9 +107,7 @@ public class BBMarketDataServiceImpl implements BBMarketDataService, Initializin
 
         // create the SubscribeTickEvent (must happen before reqMktData so that Esper is ready to receive marketdata)
         String tickerId = BBIdGenerator.getInstance().getNextRequestId();
-        SubscribeTickVO subscribeTickEvent = new SubscribeTickVO(tickerId, security.getId(), FeedType.BB);
-
-        this.serverEngine.sendEvent(subscribeTickEvent);
+        esperSubscribe(security, tickerId);
 
         SubscriptionList subscriptions = getSubscriptionList(security, tickerId);
 
@@ -138,11 +132,7 @@ public class BBMarketDataServiceImpl implements BBMarketDataService, Initializin
             throw new ServiceException("Bloomberg session is not running to unsubscribe " + security);
         }
 
-        // get the tickerId by querying the TickWindow
-        String tickerId = this.tickDao.findTickerIdBySecurity(security.getId());
-        if (tickerId == null) {
-            throw new ServiceException("tickerId for security " + security + " was not found");
-        }
+        String tickerId = esperUnsubscribe(security);
 
         SubscriptionList subscriptions = getSubscriptionList(security, tickerId);
 
@@ -151,8 +141,6 @@ public class BBMarketDataServiceImpl implements BBMarketDataService, Initializin
         } catch (IOException ex) {
             throw new ExternalServiceException(ex);
         }
-
-        this.serverEngine.executeQuery("delete from TickWindow where securityId = " + security.getId());
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("cancelled market data for : {}", security);

@@ -21,13 +21,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
+import ch.algotrader.adapter.fix.FixSessionStateHolder;
 import ch.algotrader.adapter.fix.ManagedFixAdapter;
-import ch.algotrader.adapter.fix.MarketDataFixSessionStateHolder;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.service.OrderService;
-import ch.algotrader.service.lmax.LMAXFixMarketDataService;
+import ch.algotrader.ordermgmt.OpenOrderRegistry;
+import ch.algotrader.service.ExternalMarketDataService;
+import ch.algotrader.service.ExternalOrderService;
 import ch.algotrader.service.lmax.LMAXFixMarketDataServiceImpl;
-import ch.algotrader.service.lmax.LMAXFixOrderService;
 import ch.algotrader.service.lmax.LMAXFixOrderServiceImpl;
 
 /**
@@ -38,16 +38,17 @@ public class LMAXFixServiceWiring {
 
     @Profile("lMAXFix")
     @Bean(name = "lMAXFixOrderService")
-    public LMAXFixOrderService createLMAXFixOrderService(final ManagedFixAdapter fixAdapter,
-            final OrderService orderService) {
+    public ExternalOrderService createLMAXFixOrderService(
+            final ManagedFixAdapter fixAdapter,
+            final OpenOrderRegistry openOrderRegistry) {
 
-        return new LMAXFixOrderServiceImpl(fixAdapter, orderService);
+        return new LMAXFixOrderServiceImpl(fixAdapter, openOrderRegistry);
     }
 
     @Profile("lMAXMarketData")
     @Bean(name = "lMAXFixMarketDataService")
-    public LMAXFixMarketDataService createLMAXFixMarketDataService(
-            final MarketDataFixSessionStateHolder lMAXMarketDataSessionStateHolder,
+    public ExternalMarketDataService createLMAXFixMarketDataService(
+            final FixSessionStateHolder lMAXMarketDataSessionStateHolder,
             final ManagedFixAdapter fixAdapter,
             final Engine serverEngine) {
 

@@ -18,16 +18,17 @@
 package ch.algotrader.esper.callback;
 
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
+import java.util.stream.Collectors;
 
-import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import ch.algotrader.entity.marketData.Tick;
+import ch.algotrader.entity.marketData.MarketDataEventVO;
+import ch.algotrader.entity.marketData.TickVO;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.util.metric.MetricsUtil;
 
@@ -46,14 +47,14 @@ public abstract class TickCallback extends AbstractEngineCallback {
     /**
      * Called by the "ON_FIRST_TICK" statement. Should not be invoked directly.
      */
-    public void update(String strategyName, Tick[] ticks) throws Exception {
+    public void update(String strategyName, TickVO[] ticks) throws Exception {
 
-        List<Tick> tickList = Arrays.asList(ticks);
+        List<TickVO> tickList = Arrays.asList(ticks);
 
         // get the securityIds sorted asscending
-        Set<Long> sortedSecurityIds = new TreeSet<>(CollectionUtils.collect(tickList, tick -> {
-            return tick.getSecurity().getId();
-        }));
+        Set<Long> sortedSecurityIds = tickList.stream()
+                .map(MarketDataEventVO::getSecurityId)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
 
         // get the statement alias based on all security ids
         String alias = "ON_FIRST_TICK_" + StringUtils.join(sortedSecurityIds, "_");
@@ -82,5 +83,5 @@ public abstract class TickCallback extends AbstractEngineCallback {
      * Will be exectued by the Esper Engine as soon as at least one Tick has arrived for each of the {@code securities}.
      * Needs to be overwritten by implementing classes.
      */
-    public abstract void onFirstTick(String strategyName, List<Tick> ticks) throws Exception;
+    public abstract void onFirstTick(String strategyName, List<TickVO> ticks) throws Exception;
 }

@@ -17,10 +17,10 @@
  ***********************************************************************************/
 package ch.algotrader.event.listener;
 
-import ch.algotrader.cache.EntityCacheEvictionEvent;
+import ch.algotrader.cache.EntityCacheEvictionEventVO;
 
 public interface EntityCacheEventListener {
 
-    void onEvent(EntityCacheEvictionEvent event);
+    void onEvent(EntityCacheEvictionEventVO event);
 
 }

@@ -21,13 +21,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
+import ch.algotrader.adapter.fix.FixSessionStateHolder;
 import ch.algotrader.adapter.fix.ManagedFixAdapter;
-import ch.algotrader.adapter.fix.MarketDataFixSessionStateHolder;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.service.OrderService;
-import ch.algotrader.service.ftx.FTXFixMarketDataService;
+import ch.algotrader.ordermgmt.OpenOrderRegistry;
+import ch.algotrader.service.ExternalMarketDataService;
+import ch.algotrader.service.ExternalOrderService;
 import ch.algotrader.service.ftx.FTXFixMarketDataServiceImpl;
-import ch.algotrader.service.ftx.FTXFixOrderService;
 import ch.algotrader.service.ftx.FTXFixOrderServiceImpl;
 
 /**
@@ -38,18 +38,18 @@ public class FTXFixServiceWiring {
 
     @Profile("fTXFix")
     @Bean(name = "fTXFixOrderService")
-    public FTXFixOrderService createFTXFixOrderService(
+    public ExternalOrderService createFTXFixOrderService(
             final ManagedFixAdapter fixAdapter,
-            final OrderService orderService,
+            final OpenOrderRegistry openOrderRegistry,
             final Engine serverEngine) {
 
-        return new FTXFixOrderServiceImpl(fixAdapter, orderService, serverEngine);
+        return new FTXFixOrderServiceImpl(fixAdapter, openOrderRegistry, serverEngine);
     }
 
     @Profile("fTXMarketData")
     @Bean(name = "fTXFixMarketDataService")
-    public FTXFixMarketDataService createFTXFixMarketDataService(
-            final MarketDataFixSessionStateHolder fTXMarketDataSessionStateHolder,
+    public ExternalMarketDataService createFTXFixMarketDataService(
+            final FixSessionStateHolder fTXMarketDataSessionStateHolder,
             final ManagedFixAdapter fixAdapter,
             final Engine serverEngine) {
 

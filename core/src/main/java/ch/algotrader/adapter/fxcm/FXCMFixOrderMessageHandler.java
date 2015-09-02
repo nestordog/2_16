@@ -20,6 +20,16 @@ package ch.algotrader.adapter.fxcm;
 import java.math.BigDecimal;
 import java.util.Date;
 
+import ch.algotrader.adapter.fix.FixUtil;
+import ch.algotrader.adapter.fix.fix44.AbstractFix44OrderMessageHandler;
+import ch.algotrader.entity.trade.Fill;
+import ch.algotrader.entity.trade.Order;
+import ch.algotrader.entity.trade.OrderStatus;
+import ch.algotrader.enumeration.Side;
+import ch.algotrader.enumeration.Status;
+import ch.algotrader.esper.Engine;
+import ch.algotrader.ordermgmt.OpenOrderRegistry;
+import ch.algotrader.util.PriceUtil;
 import quickfix.FieldNotFound;
 import quickfix.field.AvgPx;
 import quickfix.field.CumQty;
@@ -29,16 +39,6 @@ import quickfix.field.MsgSeqNum;
 import quickfix.field.OrdStatus;
 import quickfix.field.TransactTime;
 import quickfix.fix44.ExecutionReport;
-import ch.algotrader.adapter.fix.FixUtil;
-import ch.algotrader.adapter.fix.fix44.AbstractFix44OrderMessageHandler;
-import ch.algotrader.entity.trade.Fill;
-import ch.algotrader.entity.trade.Order;
-import ch.algotrader.entity.trade.OrderStatus;
-import ch.algotrader.enumeration.Side;
-import ch.algotrader.enumeration.Status;
-import ch.algotrader.esper.Engine;
-import ch.algotrader.service.OrderService;
-import ch.algotrader.util.PriceUtil;
 
 /**
  * FXCM specific FIX order message handler.
@@ -49,8 +49,8 @@ import ch.algotrader.util.PriceUtil;
  */
 public class FXCMFixOrderMessageHandler extends AbstractFix44OrderMessageHandler {
 
-    public FXCMFixOrderMessageHandler(final OrderService orderService, final Engine serverEngine) {
-        super(orderService, serverEngine);
+    public FXCMFixOrderMessageHandler(final OpenOrderRegistry openOrderRegistry, final Engine serverEngine) {
+        super(openOrderRegistry, serverEngine);
     }
 
     @Override
@@ -78,14 +78,21 @@ public class FXCMFixOrderMessageHandler extends AbstractFix44OrderMessageHandler
     }
 
     @Override
+    protected boolean isOrderReplaced(ExecutionReport executionReport) throws FieldNotFound {
+
+        ExecType execType = executionReport.getExecType();
+        return execType.getValue() == ExecType.REPLACE;
+    }
+
+    @Override
     protected OrderStatus createStatus(final ExecutionReport executionReport, final Order order) throws FieldNotFound {
 
         // get the other fields
         Status status = getStatus(executionReport.getOrdStatus(), executionReport.getExecType(), executionReport.getCumQty());
         long filledQuantity = (long) executionReport.getCumQty().getValue();
         long remainingQuantity = (long) (executionReport.getOrderQty().getValue() - executionReport.getCumQty().getValue());
+        String intId = order.getIntId() != null ? order.getIntId(): executionReport.getClOrdID().getValue();
         String extId = executionReport.getOrderID().getValue();
-        String intId = executionReport.getClOrdID().getValue();
 
         // assemble the orderStatus
         OrderStatus orderStatus = OrderStatus.Factory.newInstance();
@@ -144,6 +151,7 @@ public class FXCMFixOrderMessageHandler extends AbstractFix44OrderMessageHandler
             fill.setSide(side);
             fill.setQuantity(quantity);
             fill.setPrice(price);
+            fill.setOrder(order);
 
             return fill;
         } else {

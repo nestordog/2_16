@@ -26,7 +26,8 @@ import ch.algotrader.adapter.fxcm.FXCMUtil;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.service.fix.fix44.Fix44MarketDataServiceImpl;
+import ch.algotrader.service.fix.FixMarketDataServiceImpl;
+import ch.algotrader.service.fix.fix44.Fix44MarketDataService;
 import quickfix.field.SubscriptionRequestType;
 import quickfix.fix44.MarketDataRequest;
 
@@ -35,7 +36,7 @@ import quickfix.fix44.MarketDataRequest;
  *
  * @version $Revision$ $Date$
  */
-public class FXCMFixMarketDataServiceImpl extends Fix44MarketDataServiceImpl implements FXCMFixMarketDataService {
+public class FXCMFixMarketDataServiceImpl extends FixMarketDataServiceImpl implements Fix44MarketDataService {
 
     private static final long serialVersionUID = 4881654181517654955L;
 

@@ -29,9 +29,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections15.CollectionUtils;
-import org.apache.commons.collections15.Transformer;
+import org.apache.commons.lang.ClassUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.jmx.export.annotation.ManagedAttribute;
@@ -54,9 +56,11 @@ import ch.algotrader.entity.exchange.Exchange;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.strategy.StrategyImpl;
+import ch.algotrader.entity.trade.ExecutionStatusVO;
 import ch.algotrader.entity.trade.LimitOrder;
 import ch.algotrader.entity.trade.MarketOrder;
 import ch.algotrader.entity.trade.Order;
+import ch.algotrader.entity.trade.OrderDetailsVO;
 import ch.algotrader.entity.trade.OrderProperty;
 import ch.algotrader.entity.trade.SlicingOrder;
 import ch.algotrader.entity.trade.StopLimitOrder;
@@ -197,12 +201,39 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedAttribute(description = "Gets current open Orders")
     public Collection<OrderStatusVO> getDataOrders() {
 
+        Collection<OrderDetailsVO> openOrders;
         if (this.engine.getStrategyName().equals(StrategyImpl.SERVER)) {
-            return this.orderService.getAllOpenOrders();
+            openOrders = this.orderService.getAllOpenOrders();
         } else {
-            return this.orderService.getOpenOrdersByStrategy(this.engine.getStrategyName());
+            openOrders = this.orderService.getOpenOrdersByStrategy(this.engine.getStrategyName());
         }
+        return openOrders.stream()
+                .map(this::convert)
+                .collect(Collectors.toList());
+    }
 
+    private OrderStatusVO convert(final OrderDetailsVO entry) {
+
+        Order order = entry.getOrder();
+        ExecutionStatusVO details = entry.getExecutionStatus();
+
+        OrderStatusVO orderStatusVO = new OrderStatusVO();
+        orderStatusVO.setSide(order.getSide());
+        orderStatusVO.setQuantity(order.getQuantity());
+        orderStatusVO.setType(StringUtils.substringBefore(ClassUtils.getShortClassName(order.getClass()), "OrderImpl"));
+        orderStatusVO.setName(order.getSecurity().toString());
+        orderStatusVO.setStrategy(order.getStrategy().toString());
+        orderStatusVO.setAccount(order.getAccount() != null ? order.getAccount().toString() : "");
+        orderStatusVO.setExchange(order.getEffectiveExchange() != null ? order.getEffectiveExchange().toString() : "");
+        orderStatusVO.setTif(order.getTif() != null ? order.getTif().toString() : "");
+        orderStatusVO.setIntId(order.getIntId());
+        orderStatusVO.setExtId(order.getExtId());
+        orderStatusVO.setStatus(details.getStatus());
+        orderStatusVO.setFilledQuantity(details.getFilledQuantity());
+        orderStatusVO.setRemainingQuantity(details.getRemainingQuantity());
+        orderStatusVO.setDescription(order.getExtDescription());
+
+        return orderStatusVO;
     }
 
     /**
@@ -249,13 +280,7 @@ public class ManagementServiceImpl implements ManagementService {
         }
 
         TransactionVOProducer converter = new TransactionVOProducer(this.commonConfig);
-        return CollectionUtils.collect(transactions, new Transformer<Transaction, TransactionVO>() {
-            @Override
-            public TransactionVO transform(Transaction entity) {
-                return converter.convert(entity);
-            }
-        });
-
+        return CollectionUtils.collect(transactions, converter::convert);
     }
 
     /**

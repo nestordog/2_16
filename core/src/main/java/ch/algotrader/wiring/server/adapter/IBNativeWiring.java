@@ -42,8 +42,8 @@ import ch.algotrader.adapter.ib.IBSessionStateHolder;
 import ch.algotrader.config.IBConfig;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.event.dispatch.EventDispatcher;
+import ch.algotrader.ordermgmt.OpenOrderRegistry;
 import ch.algotrader.service.MarketDataService;
-import ch.algotrader.service.OrderService;
 
 /**
  * IB Native configuration.
@@ -100,12 +100,12 @@ public class IBNativeWiring {
             final IBSessionStateHolder iBSessionStateHolder,
             final IBIdGenerator iBIdGenerator,
             final IBPendingRequests iBPendingRequests,
-            final OrderService orderService,
+            final OpenOrderRegistry openOrderRegistry,
             final LinkedBlockingDeque<AccountUpdate> iBAccountUpdateQueue,
             final LinkedBlockingDeque<Set<String>> iBAccountsQueue,
             final LinkedBlockingDeque<ch.algotrader.adapter.ib.Profile> iBProfilesQueue,
             final Engine serverEngine) {
-        return new DefaultIBMessageHandler(0, iBSessionStateHolder, iBPendingRequests, iBIdGenerator, orderService,
+        return new DefaultIBMessageHandler(0, iBSessionStateHolder, iBPendingRequests, iBIdGenerator, openOrderRegistry,
                 iBAccountUpdateQueue, iBAccountsQueue, iBProfilesQueue, serverEngine);
     }
 

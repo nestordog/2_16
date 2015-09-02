@@ -21,13 +21,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
+import ch.algotrader.adapter.fix.FixSessionStateHolder;
 import ch.algotrader.adapter.fix.ManagedFixAdapter;
-import ch.algotrader.adapter.fix.MarketDataFixSessionStateHolder;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.service.OrderService;
-import ch.algotrader.service.cnx.CNXFixMarketDataService;
+import ch.algotrader.ordermgmt.OpenOrderRegistry;
+import ch.algotrader.service.ExternalMarketDataService;
+import ch.algotrader.service.ExternalOrderService;
 import ch.algotrader.service.cnx.CNXFixMarketDataServiceImpl;
-import ch.algotrader.service.cnx.CNXFixOrderService;
 import ch.algotrader.service.cnx.CNXFixOrderServiceImpl;
 
 /**
@@ -38,17 +38,17 @@ public class CNXFixServiceWiring {
 
     @Profile("cNXFix")
     @Bean(name = "cNXFixOrderService")
-    public CNXFixOrderService createCNXFixOrderService(
+    public ExternalOrderService createCNXFixOrderService(
             final ManagedFixAdapter fixAdapter,
-            final OrderService orderService) {
+            final OpenOrderRegistry openOrderRegistry) {
 
-        return new CNXFixOrderServiceImpl(fixAdapter, orderService);
+        return new CNXFixOrderServiceImpl(fixAdapter, openOrderRegistry);
     }
 
     @Profile("cNXMarketData")
     @Bean(name = "cNXFixMarketDataService")
-    public CNXFixMarketDataService createCNXFixMarketDataService(
-            final MarketDataFixSessionStateHolder cNXMarketDataSessionStateHolder,
+    public ExternalMarketDataService createCNXFixMarketDataService(
+            final FixSessionStateHolder cNXMarketDataSessionStateHolder,
             final ManagedFixAdapter fixAdapter,
             final Engine serverEngine) {
 

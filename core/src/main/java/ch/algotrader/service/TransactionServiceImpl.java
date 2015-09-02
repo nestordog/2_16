@@ -35,6 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.CoreConfig;
 import ch.algotrader.dao.AccountDao;
+import ch.algotrader.dao.HibernateInitializer;
 import ch.algotrader.dao.security.SecurityDao;
 import ch.algotrader.dao.strategy.StrategyDao;
 import ch.algotrader.entity.Account;
@@ -135,15 +136,14 @@ public class TransactionServiceImpl implements TransactionService {
         Validate.notNull(fill, "Fill is null");
 
         Order order = fill.getOrder();
-        Broker broker = order.getAccount().getBroker();
+        order.initializeSecurity(HibernateInitializer.INSTANCE);
+        order.initializeSecurity(HibernateInitializer.INSTANCE);
+        order.initializeAccount(HibernateInitializer.INSTANCE);
+        order.initializeExchange(HibernateInitializer.INSTANCE);
 
         // reload the strategy and security to get potential changes
         Strategy strategy = this.strategyDao.load(order.getStrategy().getId());
         Security security = this.securityDao.findByIdInclFamilyUnderlyingExchangeAndBrokerParameters(order.getSecurity().getId());
-
-        // and update the strategy and security of the order
-        order.setStrategy(strategy);
-        order.setSecurity(security);
 
         SecurityFamily securityFamily = security.getSecurityFamily();
         TransactionType transactionType = Side.BUY.equals(fill.getSide()) ? TransactionType.BUY : TransactionType.SELL;
@@ -153,8 +153,8 @@ public class TransactionServiceImpl implements TransactionService {
         transaction.setUuid(UUID.randomUUID().toString());
         transaction.setDateTime(fill.getExtDateTime());
         transaction.setExtId(fill.getExtId());
-        transaction.setIntOrderId(fill.getOrder().getIntId());
-        transaction.setExtOrderId(fill.getOrder().getExtId());
+        transaction.setIntOrderId(order.getIntId());
+        transaction.setExtOrderId(order.getExtId());
         transaction.setQuantity(quantity);
         transaction.setPrice(fill.getPrice());
         transaction.setType(transactionType);
@@ -163,6 +163,7 @@ public class TransactionServiceImpl implements TransactionService {
         transaction.setCurrency(securityFamily.getCurrency());
         transaction.setAccount(order.getAccount());
 
+        Broker broker = order.getAccount().getBroker();
         if (fill.getExecutionCommission() != null) {
             transaction.setExecutionCommission(fill.getExecutionCommission());
         } else if (securityFamily.getExecutionCommission(broker) != null) {
@@ -296,14 +297,16 @@ public class TransactionServiceImpl implements TransactionService {
 
         Validate.notNull(fill, "Fill is null");
 
+        Order order = fill.getOrder();
         // send the fill to the strategy that placed the corresponding order
-        if (!fill.getOrder().getStrategy().isServer()) {
-            this.eventDispatcher.sendEvent(fill.getOrder().getStrategy().getName(), fill);
+        Strategy strategy = order.getStrategy();
+        if (!strategy.isServer()) {
+            this.eventDispatcher.sendEvent(strategy.getName(), fill.convertToVO());
         }
 
         if (!this.commonConfig.isSimulation()) {
             if (LOGGER.isInfoEnabled()) {
-                LOGGER.info("received fill: {} for order: {}", fill, fill.getOrder());
+                LOGGER.info("received fill: {} for order: {}", fill, order);
             }
         }
 
@@ -370,8 +373,10 @@ public class TransactionServiceImpl implements TransactionService {
         }
 
         // propagate the transaction to the corresponding strategy and AlgoTrader Server
-        if (!transaction.getStrategy().isServer()) {
-            this.eventDispatcher.sendEvent(transaction.getStrategy().getName(), transaction);
+        Strategy strategy = transaction.getStrategy();
+        if (!strategy.isServer()) {
+
+            this.eventDispatcher.sendEvent(strategy.getName(), transaction.convertToVO());
         }
 
         this.serverEngine.sendEvent(transaction);

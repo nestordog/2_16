@@ -17,6 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
+import java.util.Date;
+
 import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -117,7 +119,7 @@ public class OrderPersistenceServiceImpl implements OrderPersistenceService {
                 }
             }
         } catch (Exception e) {
-            LOGGER.error("problem creating order", e);
+            LOGGER.error("Failed to save Order", e);
         }
     }
 
@@ -126,23 +128,39 @@ public class OrderPersistenceServiceImpl implements OrderPersistenceService {
     @Transactional(propagation = Propagation.REQUIRED)
     public void persistOrderStatus(final OrderStatus orderStatus) {
 
+        if (orderStatus.getId() != 0) {
+            LOGGER.error("OrderStatus may not be updated");
+            return;
+        }
         try {
+            Order order = orderStatus.getOrder();
+            if (order == null) {
+                LOGGER.error("OrderStatus does not have an order associated with it");
+                return;
+            }
+            if (order.getId() == 0 ) {
+                // reload persistent order instance
+                Order persistentOrder = this.orderDao.findByIntId(order.getIntId());
+                orderStatus.setOrder(persistentOrder);
+            }
+            String extId = orderStatus.getExtId();
+            if (extId != null && order.getExtId() == null) {
+                order.setExtId(extId);
+                this.orderDao.persist(order).setExtId(extId);
+            }
             if (orderStatus.getId() == 0) {
 
-                Order order = orderStatus.getOrder();
-                if (order == null) {
-                    LOGGER.error("OrderStatus must have an Order attached");
-                } else if (order.getId() == 0 ) {
-                    // reload persistent order instance
-                    Order persistentOrder = this.orderDao.findByIntId(order.getIntId());
-                    orderStatus.setOrder(persistentOrder);
+                if (orderStatus.getDateTime() == null) {
+                    if (orderStatus.getExtDateTime() != null) {
+                        orderStatus.setDateTime(orderStatus.getExtDateTime());
+                    } else {
+                        orderStatus.setDateTime(new Date());
+                    }
                 }
                 this.orderStatusDao.save(orderStatus);
-            } else {
-                LOGGER.error("OrderStatus may not be updated");
             }
         } catch (Exception e) {
-            LOGGER.error("problem creating orderStatus", e);
+            LOGGER.error("Failed to save OrderStatus", e);
         }
     }
 

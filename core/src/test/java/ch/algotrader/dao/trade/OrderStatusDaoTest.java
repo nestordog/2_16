@@ -22,9 +22,6 @@ import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
 
-import ch.algotrader.dao.trade.OrderStatusDao;
-import ch.algotrader.dao.trade.OrderStatusDaoImpl;
-import ch.algotrader.esper.NoopEngine;
 import ch.algotrader.hibernate.InMemoryDBTest;
 
 /**
@@ -49,7 +46,7 @@ public class OrderStatusDaoTest extends InMemoryDBTest {
 
         super.setup();
 
-        this.dao = new OrderStatusDaoImpl(this.sessionFactory, NoopEngine.SERVER);
+        this.dao = new OrderStatusDaoImpl(this.sessionFactory);
     }
 
     @Test

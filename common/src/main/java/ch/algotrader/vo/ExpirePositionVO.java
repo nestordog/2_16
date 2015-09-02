@@ -26,25 +26,9 @@ public class ExpirePositionVO extends PositionMutationVO {
 
     private static final long serialVersionUID = 7652065951089486073L;
 
-    /**
-     * Default Constructor
-     */
-    public ExpirePositionVO() {
+    public ExpirePositionVO(final long id, final long securityId, final String strategy, final long quantity, final Direction direction) {
 
-        super();
-    }
-
-    /**
-     * Constructor with all properties
-     * @param idIn int
-     * @param securityIdIn int
-     * @param strategyIn String
-     * @param quantityIn long
-     * @param directionIn Direction
-     */
-    public ExpirePositionVO(final int idIn, final int securityIdIn, final String strategyIn, final long quantityIn, final Direction directionIn) {
-
-        super(idIn, securityIdIn, strategyIn, quantityIn, directionIn);
+        super(id, securityId, strategy, quantity, direction);
     }
 
     /**
@@ -61,12 +45,7 @@ public class ExpirePositionVO extends PositionMutationVO {
     @Override
     public String toString() {
 
-        StringBuilder builder = new StringBuilder();
-        builder.append("ExpirePositionVO [");
-        builder.append(super.toString());
-        builder.append("]");
-
-        return builder.toString();
+        return super.toString();
     }
 
 }

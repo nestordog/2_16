@@ -20,27 +20,22 @@ package ch.algotrader.service;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.SessionFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.dao.AccountDao;
+import ch.algotrader.dao.HibernateInitializer;
 import ch.algotrader.dao.exchange.ExchangeDao;
 import ch.algotrader.dao.security.SecurityDao;
 import ch.algotrader.dao.strategy.StrategyDao;
@@ -51,15 +46,29 @@ import ch.algotrader.entity.Account;
 import ch.algotrader.entity.marketData.MarketDataEventVO;
 import ch.algotrader.entity.marketData.TickVO;
 import ch.algotrader.entity.security.Security;
+import ch.algotrader.entity.security.SecurityFamily;
+import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.trade.AlgoOrder;
 import ch.algotrader.entity.trade.Allocation;
+import ch.algotrader.entity.trade.ExecutionStatusVO;
+import ch.algotrader.entity.trade.LimitOrder;
+import ch.algotrader.entity.trade.LimitOrderI;
+import ch.algotrader.entity.trade.LimitOrderVO;
+import ch.algotrader.entity.trade.MarketOrder;
+import ch.algotrader.entity.trade.MarketOrderVO;
 import ch.algotrader.entity.trade.Order;
-import ch.algotrader.entity.trade.OrderCompletion;
+import ch.algotrader.entity.trade.OrderCompletionVO;
+import ch.algotrader.entity.trade.OrderDetailsVO;
 import ch.algotrader.entity.trade.OrderPreference;
 import ch.algotrader.entity.trade.OrderStatus;
+import ch.algotrader.entity.trade.OrderVO;
 import ch.algotrader.entity.trade.OrderValidationException;
 import ch.algotrader.entity.trade.SimpleOrder;
-import ch.algotrader.entity.trade.SubmittedOrder;
+import ch.algotrader.entity.trade.StopLimitOrder;
+import ch.algotrader.entity.trade.StopLimitOrderVO;
+import ch.algotrader.entity.trade.StopOrder;
+import ch.algotrader.entity.trade.StopOrderI;
+import ch.algotrader.entity.trade.StopOrderVO;
 import ch.algotrader.enumeration.InitializingServiceType;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.enumeration.Status;
@@ -67,8 +76,8 @@ import ch.algotrader.enumeration.TIF;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.dispatch.EventDispatcher;
+import ch.algotrader.ordermgmt.OpenOrderRegistry;
 import ch.algotrader.util.BeanUtil;
-import ch.algotrader.vo.client.OrderStatusVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -77,12 +86,11 @@ import ch.algotrader.vo.client.OrderStatusVO;
  */
 @Transactional(propagation = Propagation.SUPPORTS)
 @InitializationPriority(value = InitializingServiceType.CORE)
-public class OrderServiceImpl implements OrderService, InitializingServiceI, ApplicationListener<ContextRefreshedEvent> {
+public class OrderServiceImpl implements OrderService, InitializingServiceI {
 
     private static final long serialVersionUID = 3969251081188007542L;
 
     private static final Logger LOGGER = LogManager.getLogger(OrderServiceImpl.class);
-    private static final Logger NOTIFICATION_LOGGER = LogManager.getLogger("ch.algotrader.service.NOTIFICATION");
 
     private final CommonConfig commonConfig;
 
@@ -106,13 +114,13 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
 
     private final OrderPreferenceDao orderPreferenceDao;
 
+    private final OpenOrderRegistry openOrderRegistry;
+
     private final EventDispatcher eventDispatcher;
 
     private final EngineManager engineManager;
 
     private final Engine serverEngine;
-
-    private final AtomicBoolean initialized;
 
     private final Map<OrderServiceType, ExternalOrderService> externalOrderServiceMap;
 
@@ -127,9 +135,11 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
             final AccountDao accountDao,
             final ExchangeDao exchangeDao,
             final OrderPreferenceDao orderPreferenceDao,
+            final OpenOrderRegistry openOrderRegistry,
             final EventDispatcher eventDispatcher,
             final EngineManager engineManager,
-            final Engine serverEngine) {
+            final Engine serverEngine,
+            final Map<OrderServiceType, ExternalOrderService> externalOrderServiceMap) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(sessionFactory, "SessionFactory is null");
@@ -142,6 +152,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
         Validate.notNull(accountDao, "AccountDao is null");
         Validate.notNull(exchangeDao, "ExchangeDao is null");
         Validate.notNull(orderPreferenceDao, "OrderPreferenceDao is null");
+        Validate.notNull(openOrderRegistry, "OpenOrderRegistry is null");
         Validate.notNull(eventDispatcher, "PlatformEventDispatcher is null");
         Validate.notNull(engineManager, "EngineManager is null");
         Validate.notNull(serverEngine, "Engine is null");
@@ -157,11 +168,11 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
         this.accountDao = accountDao;
         this.exchangeDao = exchangeDao;
         this.orderPreferenceDao = orderPreferenceDao;
+        this.openOrderRegistry = openOrderRegistry;
         this.eventDispatcher = eventDispatcher;
         this.engineManager = engineManager;
         this.serverEngine = serverEngine;
-        this.initialized = new AtomicBoolean(false);
-        this.externalOrderServiceMap = new ConcurrentHashMap<>();
+        this.externalOrderServiceMap = new ConcurrentHashMap<>(externalOrderServiceMap);
     }
 
     @Override
@@ -277,18 +288,21 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
         Validate.notNull(order.getStrategy());
         Validate.notNull(order.getSecurity());
 
-        // reload the strategy and security to get potential changes
         order.setStrategy(this.strategyDao.load(order.getStrategy().getId()));
+        order.initializeStrategy(HibernateInitializer.INSTANCE);
         order.setSecurity(this.securityDao.findByIdInclFamilyUnderlyingExchangeAndBrokerParameters(order.getSecurity().getId()));
+        order.initializeSecurity(HibernateInitializer.INSTANCE);
 
         // reload the account if necessary to get potential changes
         if (order.getAccount() != null) {
             order.setAccount(this.accountDao.load(order.getAccount().getId()));
+            order.initializeAccount(HibernateInitializer.INSTANCE);
         }
 
         // reload the exchange if necessary to get potential changes
         if (order.getExchange() != null) {
             order.setExchange(this.exchangeDao.load(order.getExchange().getId()));
+            order.initializeExchange(HibernateInitializer.INSTANCE);
         }
 
         // validate the order before sending it
@@ -298,22 +312,58 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
             throw new ServiceException(ex);
         }
 
-        // set the dateTime property
-        order.setDateTime(this.engineManager.getCurrentEPTime());
-
-        // in case no TIF was specified set DAY
-        if (order.getTif() == null) {
-            order.setTif(TIF.DAY);
-        }
-
         if (order instanceof AlgoOrder) {
             sendAlgoOrder((AlgoOrder) order);
+        } else if (order instanceof SimpleOrder){
+            sendSimpleOrder((SimpleOrder) order);
         } else {
-            Account account = order.getAccount();
-            Validate.notNull(account, "missing account for order: " + order);
-            getExternalOrderService(account).sendOrder((SimpleOrder) order);
+            throw new ServiceException("Unexpected order class: " + order.getClass());
+        }
+    }
+
+    private void sendAlgoOrder(final AlgoOrder order) {
+
+        order.setIntId(AlgoIdGenerator.getInstance().getNextOrderId());
+
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("send algo order: {}", order);
         }
 
+        this.openOrderRegistry.add(order);
+
+        // progapate the order to all corresponding esper engines
+        propagateOrder(order);
+
+        this.serverEngine.sendEvent(order);
+    }
+
+    private void sendSimpleOrder(final SimpleOrder order) {
+
+        Account account = order.getAccount();
+        if (account == null) {
+            throw new ServiceException("Order with missing account");
+        }
+
+        ExternalOrderService externalOrderService = getExternalOrderService(account);
+
+        if (order.getDateTime() == null) {
+            order.setDateTime(this.engineManager.getCurrentEPTime());
+        }
+        if (order.getTif() == null) {
+            if (order instanceof LimitOrderI || order instanceof StopOrderI) {
+                order.setTif(TIF.DAY);
+            } else {
+                order.setTif(externalOrderService.getDefaultTIF());
+            }
+        }
+
+        externalOrderService.sendOrder(order);
+
+        propagateOrder(order);
+
+        if (!this.commonConfig.isSimulation()) {
+            this.orderPersistService.persistOrder(order);
+        }
     }
 
     /**
@@ -336,13 +386,56 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
 
         Validate.notNull(order, "Order is null");
 
-        // check if order exists
-        if (this.orderDao.findOpenOrderByIntId(order.getIntId()) != null) {
-            internalCancelOrder(order);
+        if (order instanceof AlgoOrder) {
+            cancelAlgoOrder((AlgoOrder) order);
+        } else if (order instanceof SimpleOrder){
+            cancelSimpleOrder((SimpleOrder) order);
         } else {
-            throw new IllegalArgumentException("order does not exist " + order.getIntId());
+            throw new ServiceException("Unexpected order class: " + order.getClass());
         }
 
+    }
+
+    private void cancelAlgoOrder(AlgoOrder order) {
+
+        // cancel existing child orders
+        Collection<Order> openOrders = this.openOrderRegistry.findByParentIntId(order.getIntId());
+        openOrders.forEach(childOrder -> {
+            Account account = order.getAccount();
+            Validate.notNull(account, "missing account for order: " + order);
+            getExternalOrderService(account).cancelOrder((SimpleOrder) childOrder);
+        });
+
+        ExecutionStatusVO executionStatus = this.openOrderRegistry.getStatusByIntId(order.getIntId());
+
+        // assemble a new OrderStatus Entity
+        OrderStatus orderStatus = OrderStatus.Factory.newInstance();
+        orderStatus.setStatus(Status.CANCELED);
+        orderStatus.setFilledQuantity(executionStatus != null ? executionStatus.getFilledQuantity() : 0L);
+        orderStatus.setRemainingQuantity(executionStatus != null ? executionStatus.getRemainingQuantity() : 0L);
+        orderStatus.setOrder(order);
+
+        // send the orderStatus
+        this.serverEngine.sendEvent(orderStatus);
+
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("cancelled algo order: {}", order);
+        }
+    }
+
+    private void cancelSimpleOrder(final SimpleOrder order) {
+
+        Account account = order.getAccount();
+        if (account == null) {
+            throw new ServiceException("Order with missing account");
+        }
+
+        ExternalOrderService externalOrderService = getExternalOrderService(account);
+        externalOrderService.cancelOrder(order);
+
+        if (!this.commonConfig.isSimulation()) {
+            this.orderPersistService.persistOrder(order);
+        }
     }
 
     /**
@@ -353,13 +446,11 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
 
         Validate.notNull(intId, "Int id is null");
 
-        Order order = this.orderDao.findOpenOrderByIntId(intId);
-        if (order != null) {
-            internalCancelOrder(order);
-        } else {
-            throw new IllegalArgumentException("order does not exist " + intId);
+        Order order = this.openOrderRegistry.getByIntId(intId);
+        if (order == null) {
+            throw new ServiceException("Could not find order with IntId " + intId);
         }
-
+        cancelOrder(order);
     }
 
     /**
@@ -368,7 +459,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
     @Override
     public void cancelAllOrders() {
 
-        for (Order order : this.orderDao.findAllOpenOrders()) {
+        for (Order order : this.openOrderRegistry.getAllOrders()) {
             cancelOrder(order);
         }
 
@@ -382,13 +473,42 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
 
         Validate.notNull(order, "Order is null");
 
-        // check if order exists
-        if (this.orderDao.findOpenOrderByIntId(order.getIntId()) != null) {
-            internalModifyOrder(order);
+        if (order instanceof AlgoOrder) {
+            throw new ServiceException("Modification of AlgoOrders is not permitted");
+        } else if (order instanceof SimpleOrder){
+
+            SimpleOrder newOrder;
+            if (order.getId() != 0) {
+                try {
+                    newOrder = BeanUtil.clone((SimpleOrder) order);
+                    newOrder.setId(0);
+                } catch (ReflectiveOperationException ex) {
+                    throw new ServiceException(ex);
+                }
+            } else {
+                newOrder = (SimpleOrder) order;
+            }
+
+            modifySimpleOrder(newOrder);
         } else {
-            throw new IllegalArgumentException("order does not exist " + order.getIntId());
+            throw new ServiceException("Unexpected order class: " + order.getClass());
+        }
+    }
+
+    private void modifySimpleOrder(final SimpleOrder order) {
+
+        Account account = order.getAccount();
+        if (account == null) {
+            throw new ServiceException("Order with missing account");
         }
 
+        ExternalOrderService externalOrderService = getExternalOrderService(account);
+        externalOrderService.modifyOrder(order);
+
+        propagateOrder(order);
+        if (!this.commonConfig.isSimulation()) {
+            this.orderPersistService.persistOrder(order);
+        }
     }
 
     /**
@@ -400,54 +520,34 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
         Validate.notNull(intId, "Int id is null");
         Validate.notNull(properties, "Properties is null");
 
-        Order order = this.orderDao.findOpenOrderByIntId(intId);
-        if (order != null) {
-
-            Order newOrder;
-            try {
-                newOrder = BeanUtil.cloneAndPopulate(order, properties);
-                newOrder.setId(0);
-            } catch (ReflectiveOperationException ex) {
-                throw new ServiceException(ex);
-            }
-
-            internalModifyOrder(newOrder);
-        } else {
-            throw new ServiceException("Unknown order id: " + intId, null);
+        Order order = this.openOrderRegistry.getByIntId(intId);
+        if (order == null) {
+            throw new ServiceException("Could not find order with IntId " + intId);
+        }
+        Order newOrder;
+        try {
+            newOrder = BeanUtil.cloneAndPopulate(order, properties);
+            newOrder.setId(0);
+        } catch (ReflectiveOperationException ex) {
+            throw new ServiceException(ex);
         }
 
+        modifyOrder(newOrder);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void persistOrder(Order order) {
-
-        if (this.commonConfig.isSimulation()) {
-            return;
-        }
-
-        // save order to the DB by using the corresponding OrderDao
-        this.orderPersistService.persistOrder(order);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void propagateOrder(final Order order) {
+    private void propagateOrder(final Order order) {
 
         Validate.notNull(order, "Order is null");
 
         // send the order into the AlgoTrader Server engine to be correlated with fills
-        this.serverEngine.sendEvent(new SubmittedOrder(Status.OPEN, 0, order.getQuantity(), order));
+        this.serverEngine.sendEvent(order);
 
         // also send the order to the strategy that placed the order
-        if (!order.getStrategy().isServer()) {
-            this.eventDispatcher.sendEvent(order.getStrategy().getName(), order);
-        }
+        Strategy strategy = order.getStrategy();
+        if (!strategy.isServer()) {
 
+            this.eventDispatcher.sendEvent(strategy.getName(), order.convertToVO());
+        }
     }
 
     /**
@@ -458,31 +558,25 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
 
         Validate.notNull(orderStatus, "Order status is null");
 
-        // ignore OrderStatus with no Order (stemming from emptyOpenOrderWindow)
-        if (orderStatus.getOrder() == null) {
-            return;
+        String intId = orderStatus.getIntId();
+        Order order = this.openOrderRegistry.getByIntId(intId);
+        if (order == null) {
+            throw new ServiceException("Order with IntID " + intId + " not found");
         }
-
-        if (orderStatus.getDateTime() == null) {
-            orderStatus.setDateTime(new Date());
-        }
-
-        if (orderStatus.getExtDateTime() == null) {
-            orderStatus.setExtDateTime(new Date());
-        }
-
         // send the fill to the strategy that placed the corresponding order
-        if (orderStatus.getOrder() != null && !orderStatus.getOrder().getStrategy().isServer()) {
-            this.eventDispatcher.sendEvent(orderStatus.getOrder().getStrategy().getName(), orderStatus);
+        Strategy strategy = order.getStrategy();
+        if (!strategy.isServer()) {
+
+            this.eventDispatcher.sendEvent(strategy.getName(), orderStatus.convertToVO());
         }
 
         if (!this.commonConfig.isSimulation()) {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("propagated orderStatus: {}", orderStatus);
             }
-
             // only store OrderStatus for non AlgoOrders
-            if (!(orderStatus.getOrder() instanceof AlgoOrder)) {
+            // and ignore order status message with synthetic (non-positive) sequence number
+            if (orderStatus.getSequenceNumber() > 0 && !(order instanceof AlgoOrder)) {
 
                 this.orderPersistService.persistOrderStatus(orderStatus);
             }
@@ -494,19 +588,14 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
      * {@inheritDoc}
      */
     @Override
-    public void propagateOrderCompletion(final OrderCompletion orderCompletion) {
+    public void propagateOrderCompletion(final OrderCompletionVO orderCompletion) {
 
         Validate.notNull(orderCompletion, "Order completion is null");
 
         // send the fill to the strategy that placed the corresponding order
-        if (orderCompletion.getOrder() != null && !orderCompletion.getOrder().getStrategy().isServer()) {
-            this.eventDispatcher.sendEvent(orderCompletion.getOrder().getStrategy().getName(), orderCompletion);
-        }
-
-        if (!this.commonConfig.isSimulation()) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("propagated orderCompletion: {}", orderCompletion);
-            }
+        Strategy strategy = strategyDao.findByName(orderCompletion.getStrategy());
+        if (!strategy.isServer()) {
+            this.eventDispatcher.sendEvent(orderCompletion.getStrategy(), orderCompletion);
         }
 
     }
@@ -515,36 +604,19 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
      * {@inheritDoc}
      */
     @Override
-    public void updateOrderId(final Order order, final String intId, final String extId) {
+    public void orderCompleted(final OrderStatus orderStatus) {
 
-        if (Objects.equals(intId, order.getIntId()) || Objects.equals(extId, order.getExtId())) {
+        String intId = orderStatus.getIntId();
+        this.openOrderRegistry.remove(intId);
 
-            if (intId != null) {
-
-                order.setIntId(intId);
-            }
-            if (extId != null) {
-
-                order.setExtId(extId);
-            }
-            this.orderPersistService.persistOrder(order);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Open order {} removed", intId);
         }
     }
 
     /**
      * {@inheritDoc}
      */
-    @Override
-    public void suggestOrder(final Order order) {
-
-        Validate.notNull(order, "Order is null");
-
-        if (NOTIFICATION_LOGGER.isInfoEnabled()) {
-            NOTIFICATION_LOGGER.info("order {}", order);
-        }
-
-    }
-
     @Override
     public String getNextOrderId(final Account account) {
 
@@ -555,34 +627,20 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
      * {@inheritDoc}
      */
     @Override
-    public Collection<OrderStatusVO> getAllOpenOrders() {
+    public Collection<OrderDetailsVO> getAllOpenOrders() {
 
-        return this.orderStatusDao.findAllOrderStati();
-
+        return this.openOrderRegistry.getAllOrderDetails();
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Collection<OrderStatusVO> getOpenOrdersByStrategy(final String strategyName) {
+    public Collection<OrderDetailsVO> getOpenOrdersByStrategy(final String strategyName) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        return this.orderStatusDao.findOrderStatiByStrategy(strategyName);
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Collection<Order> getOpenOrdersByStrategyAndSecurity(final String strategyName, final long securityId) {
-
-        Validate.notEmpty(strategyName, "Strategy name is empty");
-
-        return this.orderDao.findOpenOrdersByStrategyAndSecurity(strategyName, securityId);
-
+        return this.openOrderRegistry.getOrderDetailsForStrategy(strategyName);
     }
 
     /**
@@ -591,38 +649,48 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
     @Override
     public Order getOpenOrderByIntId(final String intId) {
 
-        Validate.notEmpty(intId, "Int id is empty");
+        Validate.notEmpty(intId, "Order IntId is empty");
 
-        return this.orderDao.findOpenOrderByIntId(intId);
-
+        return this.openOrderRegistry.getByIntId(intId);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Order getOpenOrderByRootIntId(final String intId) {
+    public ExecutionStatusVO getStatusByIntId(final String intId) {
 
-        Validate.notEmpty(intId, "Int id is empty");
+        Validate.notEmpty(intId, "Order IntId is empty");
 
-        return this.orderDao.findOpenOrderByRootIntId(intId);
-
+        return this.openOrderRegistry.getStatusByIntId(intId);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Order getOpenOrderByExtId(final String extId) {
+    public OrderDetailsVO getOpenOrderDetailsByIntId(String intId) {
 
-        Validate.notEmpty(extId, "Ext id is empty");
+        Validate.notEmpty(intId, "Order IntId is empty");
 
-        return this.orderDao.findOpenOrderByExtId(extId);
+        return this.openOrderRegistry.getDetailsByIntId(intId);
+    }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Order getOrderByIntId(String intId) {
+
+        Order order = this.openOrderRegistry.getByIntId(intId);
+        if (order != null) {
+            return order;
+        } else {
+            return this.orderDao.findByIntId(intId);
+        }
     }
 
     @Override
-    @Transactional(propagation = Propagation.SUPPORTS)
     public Map<Order, OrderStatus> loadPendingOrders() {
 
         List<OrderStatus> pendingOrderStati = this.orderStatusDao.findPending();
@@ -656,6 +724,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
         return pendingOrderMap;
     }
 
+    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public void init() {
 
@@ -674,94 +743,15 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
         for (Map.Entry<Order, OrderStatus> entry: pendingOrderMap.entrySet()) {
 
             Order order = entry.getKey();
+            Security security = order.getSecurity();
+            security.initializeSecurityFamily(HibernateInitializer.INSTANCE);
+            SecurityFamily securityFamily = security.getSecurityFamily();
+            securityFamily.initializeExchange(HibernateInitializer.INSTANCE);
+            this.openOrderRegistry.add(order);
+
             OrderStatus orderStatus = entry.getValue();
             if (orderStatus != null) {
-                this.serverEngine.sendEvent(new SubmittedOrder(orderStatus.getStatus(), orderStatus.getFilledQuantity(), orderStatus.getRemainingQuantity(), order));
-            } else {
-                this.serverEngine.sendEvent(new SubmittedOrder(Status.OPEN, 0, order.getQuantity(), order));
-            }
-        }
-    }
-
-    private void sendAlgoOrder(AlgoOrder order) {
-
-        order.setIntId(AlgoIdGenerator.getInstance().getNextOrderId());
-
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("send algo order: {}", order);
-        }
-
-        // progapate the order to all corresponding esper engines
-        propagateOrder(order);
-
-        this.serverEngine.sendEvent(order);
-    }
-
-    private void internalCancelOrder(Order order) {
-
-        if (order instanceof AlgoOrder) {
-            cancelAlgoOrder((AlgoOrder) order);
-        } else {
-
-            Account account = order.getAccount();
-            Validate.notNull(account, "missing account for order: " + order);
-            getExternalOrderService(account).cancelOrder((SimpleOrder) order);
-        }
-    }
-
-    private void cancelAlgoOrder(AlgoOrder order) {
-
-        // cancel existing child orders
-        for (Order childOrder : this.orderDao.findOpenOrdersByParentIntId(order.getIntId())) {
-
-            Account account = order.getAccount();
-            Validate.notNull(account, "missing account for order: " + order);
-            getExternalOrderService(account).cancelOrder((SimpleOrder) childOrder);
-        }
-
-        // get the current OrderStatusVO
-        OrderStatusVO orderStatusVO = this.orderStatusDao.findOrderStatusByIntId(order.getIntId());
-
-        // assemble a new OrderStatus Entity
-        OrderStatus orderStatus = OrderStatus.Factory.newInstance();
-        orderStatus.setStatus(Status.CANCELED);
-        orderStatus.setFilledQuantity(orderStatusVO.getFilledQuantity());
-        orderStatus.setRemainingQuantity(orderStatusVO.getRemainingQuantity());
-        orderStatus.setOrder(order);
-
-        // send the orderStatus
-        this.serverEngine.sendEvent(orderStatus);
-
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("cancelled algo order: {}", order);
-        }
-    }
-
-    private void internalModifyOrder(Order order) {
-
-        if (order instanceof AlgoOrder) {
-            throw new UnsupportedOperationException("modification of AlgoOrders are not permitted");
-        } else {
-
-            Account account = order.getAccount();
-            Validate.notNull(account, "missing account for order: " + order);
-            getExternalOrderService(account).modifyOrder((SimpleOrder) order);
-        }
-    }
-
-
-    @Override
-    public void onApplicationEvent(final ContextRefreshedEvent event) {
-
-        if (this.initialized.compareAndSet(false, true)) {
-
-            ApplicationContext applicationContext = event.getApplicationContext();
-            this.externalOrderServiceMap.clear();
-            Map<String, ExternalOrderService> map = applicationContext.getBeansOfType(ExternalOrderService.class);
-            for (Map.Entry<String, ExternalOrderService> entry: map.entrySet()) {
-
-                ExternalOrderService externalOrderService = entry.getValue();
-                this.externalOrderServiceMap.put(externalOrderService.getOrderServiceType(), externalOrderService);
+                this.openOrderRegistry.updateExecutionStatus(order.getIntId(), orderStatus.getStatus(), orderStatus.getFilledQuantity(), orderStatus.getRemainingQuantity());
             }
         }
     }
@@ -803,4 +793,72 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI, App
             return "a" + Long.toString(this.orderId.incrementAndGet());
         }
     }
+
+    private SimpleOrder convert(final OrderVO orderVO) {
+
+        SimpleOrder order;
+        if (orderVO instanceof MarketOrderVO) {
+
+            order = MarketOrder.Factory.newInstance();
+        } else if (orderVO instanceof LimitOrderVO) {
+
+            LimitOrder limitOrder = LimitOrder.Factory.newInstance();
+            limitOrder.setLimit(((LimitOrderVO) orderVO).getLimit());
+            order = limitOrder;
+        } else if (orderVO instanceof StopOrderVO) {
+
+            StopOrder stopOrder = StopOrder.Factory.newInstance();
+            stopOrder.setStop(((StopOrderVO) orderVO).getStop());
+            order = stopOrder;
+        } else if (orderVO instanceof StopLimitOrderVO) {
+
+            StopLimitOrder stopLimitOrder = StopLimitOrder.Factory.newInstance();
+            stopLimitOrder.setLimit(((StopLimitOrderVO) orderVO).getLimit());
+            stopLimitOrder.setStop(((StopLimitOrderVO) orderVO).getStop());
+            order = stopLimitOrder;
+        } else {
+            throw new IllegalArgumentException("Unexpected order VO class: " + orderVO.getClass());
+        }
+
+        order.setStrategy(this.strategyDao.load(orderVO.getStrategyId()));
+        order.initializeStrategy(HibernateInitializer.INSTANCE);
+        order.setSecurity(this.securityDao.findByIdInclFamilyUnderlyingExchangeAndBrokerParameters(orderVO.getSecurityId()));
+        order.initializeSecurity(HibernateInitializer.INSTANCE);
+
+        // reload the account if necessary to get potential changes
+        if (orderVO.getAccountId() > 0) {
+            order.setAccount(this.accountDao.load(orderVO.getAccountId()));
+            order.initializeAccount(HibernateInitializer.INSTANCE);
+        }
+
+        // reload the exchange if necessary to get potential changes
+        if (orderVO.getExchangeId() > 0) {
+            order.setExchange(this.exchangeDao.load(orderVO.getExchangeId()));
+            order.initializeExchange(HibernateInitializer.INSTANCE);
+        }
+
+        order.setDateTime(orderVO.getDateTime());
+        order.setTif(orderVO.getTif());
+
+        // validate the order before sending it
+        try {
+            validateOrder(order);
+        } catch (OrderValidationException ex) {
+            throw new ServiceException(ex);
+        }
+        return order;
+    }
+
+    @Override
+    public void sendOrder(final OrderVO order) {
+
+        sendSimpleOrder(convert(order));
+    }
+
+    @Override
+    public void modifyOrder(OrderVO order) {
+
+        modifySimpleOrder(convert(order));
+    }
+
 }

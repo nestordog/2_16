@@ -17,10 +17,10 @@
  ***********************************************************************************/
 package ch.algotrader.event.listener;
 
-import ch.algotrader.entity.trade.Order;
+import ch.algotrader.entity.trade.OrderVO;
 
 public interface OrderEventListener {
 
-    void onOrder(Order order);
+    void onOrder(OrderVO order);
 
 }

@@ -30,12 +30,12 @@ select
     null as bid,
     null as ask
 from
-    InsertComponentEvent;
+    InsertComponentEventVO;
 
 @Name('UPDATE_COMPONENT_WINDOW')
 @Priority(3)
 on
-    Tick as tick
+    TickVO as tick
 update
     ComponentWindow as componentWindow
 set
@@ -75,7 +75,7 @@ order by
 // filter CombinationTicks (must be done in separate statement due to Esper Bug)
 @Name('INSERT_INTO_TICK_FROM_COMPONENT_WINDOW')
 insert into
-    Tick
+    TickVO
 select
     0L,
     dateTime,

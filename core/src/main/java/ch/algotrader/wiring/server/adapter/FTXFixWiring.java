@@ -21,7 +21,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
-import quickfix.SessionSettings;
 import ch.algotrader.adapter.fix.DefaultFixApplicationFactory;
 import ch.algotrader.adapter.fix.DefaultFixSessionStateHolder;
 import ch.algotrader.adapter.fix.DefaultLogonMessageHandler;
@@ -33,8 +32,8 @@ import ch.algotrader.adapter.ftx.FTXFixOrderMessageHandler;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.event.dispatch.EventDispatcher;
-import ch.algotrader.service.MarketDataService;
-import ch.algotrader.service.OrderService;
+import ch.algotrader.ordermgmt.OpenOrderRegistry;
+import quickfix.SessionSettings;
 
 /**
  * Fortex Fix configuration.
@@ -58,22 +57,21 @@ public class FTXFixWiring {
 
     @Profile("fTXFix")
     @Bean(name = "fTXOrderApplicationFactory")
-    public FixApplicationFactory createFTXOrderApplicationFactory(final OrderService orderService,
+    public FixApplicationFactory createFTXOrderApplicationFactory(
+            final OpenOrderRegistry openOrderRegistry,
             final Engine serverEngine,
             final DefaultLogonMessageHandler fTXLogonMessageHandler,
             final FixSessionStateHolder fTXOrderSessionStateHolder) {
 
-        FTXFixOrderMessageHandler cnxFixOrderMessageHandler = new FTXFixOrderMessageHandler(orderService, serverEngine);
+        FTXFixOrderMessageHandler cnxFixOrderMessageHandler = new FTXFixOrderMessageHandler(openOrderRegistry, serverEngine);
         return new DefaultFixApplicationFactory(cnxFixOrderMessageHandler, fTXLogonMessageHandler, fTXOrderSessionStateHolder);
     }
 
     @Profile("fTXMarketData")
     @Bean(name = "fTXMarketDataSessionStateHolder")
-    public MarketDataFixSessionStateHolder createFTXMarketDataSessionStateHolder(
-            final EventDispatcher eventDispatcher,
-            final MarketDataService marketDataService) {
+    public FixSessionStateHolder createFTXMarketDataSessionStateHolder(final EventDispatcher eventDispatcher) {
 
-        return new MarketDataFixSessionStateHolder("FTXMD", eventDispatcher, marketDataService, FeedType.FTX);
+        return new MarketDataFixSessionStateHolder("FTXMD", eventDispatcher, FeedType.FTX);
     }
 
     @Profile("fTXMarketData")
@@ -81,7 +79,7 @@ public class FTXFixWiring {
     public FixApplicationFactory createFTXMarketDataApplicationFactory(
             final Engine serverEngine,
             final DefaultLogonMessageHandler fTXLogonMessageHandler,
-            final MarketDataFixSessionStateHolder fTXMarketDataSessionStateHolder) {
+            final FixSessionStateHolder fTXMarketDataSessionStateHolder) {
 
         FTXFixMarketDataMessageHandler ftxFixMarketDataMessageHandler = new FTXFixMarketDataMessageHandler(serverEngine);
         return new DefaultFixApplicationFactory(ftxFixMarketDataMessageHandler, fTXLogonMessageHandler, fTXMarketDataSessionStateHolder);

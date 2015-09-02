@@ -21,7 +21,8 @@ import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.fxcm.FXCMFixOrderMessageFactory;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
-import ch.algotrader.service.OrderService;
+import ch.algotrader.ordermgmt.OpenOrderRegistry;
+import ch.algotrader.service.fix.fix44.Fix44OrderService;
 import ch.algotrader.service.fix.fix44.Fix44OrderServiceImpl;
 import quickfix.fix44.NewOrderSingle;
 import quickfix.fix44.OrderCancelReplaceRequest;
@@ -32,14 +33,13 @@ import quickfix.fix44.OrderCancelRequest;
  *
  * @version $Revision$ $Date$
  */
-public class FXCMFixOrderServiceImpl extends Fix44OrderServiceImpl implements FXCMFixOrderService {
+public class FXCMFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fix44OrderService {
 
     private static final long serialVersionUID = -3160564098018866170L;
 
-    public FXCMFixOrderServiceImpl(final FixAdapter fixAdapter,
-            final OrderService orderService) {
+    public FXCMFixOrderServiceImpl(final FixAdapter fixAdapter, final OpenOrderRegistry openOrderRegistry) {
 
-        super(fixAdapter, orderService, new FXCMFixOrderMessageFactory());
+        super(fixAdapter, openOrderRegistry, new FXCMFixOrderMessageFactory());
     }
 
     @Override

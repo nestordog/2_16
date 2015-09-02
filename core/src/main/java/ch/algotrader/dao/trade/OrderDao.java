@@ -18,7 +18,6 @@
 package ch.algotrader.dao.trade;
 
 import java.math.BigDecimal;
-import java.util.Collection;
 import java.util.List;
 
 import ch.algotrader.dao.ReadWriteDao;
@@ -59,54 +58,4 @@ public interface OrderDao extends ReadWriteDao<Order> {
      */
     List<Order> findByIds(List<Long> ids);
 
-    /**
-     * Finds all open orders by querying the OpenOrderWindow
-     * @return Collection<Order>
-     */
-    Collection<Order> findAllOpenOrders();
-
-    /**
-     * Finds all open orders for the specified Strategy by querying the OpenOrderWindow
-     * @param strategyName
-     * @return Collection<Order>
-     */
-    Collection<Order> findOpenOrdersByStrategy(String strategyName);
-
-    /**
-     * Finds all open orders for the specified Strategy and Security by querying the OpenOrderWindow
-     * @param strategyName
-     * @param securityId
-     * @return Collection<Order>
-     */
-    Collection<Order> findOpenOrdersByStrategyAndSecurity(String strategyName, long securityId);
-
-    /**
-     * Finds an open order by its {@code intId} by querying the OpenOrderWindow
-     * @param intId
-     * @return Order
-     */
-    Order findOpenOrderByIntId(String intId);
-
-    /**
-     * Finds an open order by its {@code rootIntId} by querying the OpenOrderWindow
-     * @param intId
-     * @return Order
-     */
-    Order findOpenOrderByRootIntId(String intId);
-
-    /**
-     * Finds an open order by its {@code extId} by querying the OpenOrderWindow
-     * @param extId
-     * @return Order
-     */
-    Order findOpenOrderByExtId(String extId);
-
-    /**
-     * Finds an open order by the {@code intId} of its parent order by querying the OpenOrderWindow
-     * @param parentIntId
-     * @return Collection<Order>
-     */
-    Collection<Order> findOpenOrdersByParentIntId(String parentIntId);
-
-    // spring-dao merge-point
 }

@@ -22,7 +22,8 @@ import ch.algotrader.adapter.ib.IBFixOrderMessageFactory;
 import ch.algotrader.config.IBConfig;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
-import ch.algotrader.service.OrderService;
+import ch.algotrader.ordermgmt.OpenOrderRegistry;
+import ch.algotrader.service.fix.fix42.Fix42OrderService;
 import ch.algotrader.service.fix.fix42.Fix42OrderServiceImpl;
 import quickfix.fix42.NewOrderSingle;
 import quickfix.fix42.OrderCancelReplaceRequest;
@@ -33,15 +34,13 @@ import quickfix.fix42.OrderCancelRequest;
  *
  * @version $Revision$ $Date$
  */
-public class IBFixOrderServiceImpl extends Fix42OrderServiceImpl implements IBFixOrderService {
+public class IBFixOrderServiceImpl extends Fix42OrderServiceImpl implements Fix42OrderService {
 
     private static final long serialVersionUID = -537844523983750001L;
 
-    public IBFixOrderServiceImpl(final IBConfig iBConfig,
-            final FixAdapter fixAdapter,
-            final OrderService orderService) {
+    public IBFixOrderServiceImpl(final IBConfig iBConfig, final FixAdapter fixAdapter, final OpenOrderRegistry openOrderRegistry) {
 
-        super(fixAdapter, orderService, new IBFixOrderMessageFactory(iBConfig));
+        super(fixAdapter, openOrderRegistry, new IBFixOrderMessageFactory(iBConfig));
     }
 
     @Override

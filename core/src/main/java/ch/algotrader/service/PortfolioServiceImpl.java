@@ -124,7 +124,7 @@ public class PortfolioServiceImpl implements PortfolioService {
 
     private final EngineManager engineManager;
 
-    private final PortfolioReport portfolioReport;
+    private volatile PortfolioReport portfolioReport;
 
     public PortfolioServiceImpl(final CommonConfig commonConfig,
             final CoreConfig coreConfig,
@@ -167,7 +167,6 @@ public class PortfolioServiceImpl implements PortfolioService {
         this.tickDao = tickDao;
         this.forexDao = forexDao;
         this.engineManager = engineManager;
-        this.portfolioReport = new PortfolioReport(this.commonConfig.getSimulationInitialBalance());
     }
 
     /**
@@ -1177,8 +1176,12 @@ public class PortfolioServiceImpl implements PortfolioService {
     @Override
     public void printPortfolioValue(final PortfolioValueI portfolioValue) {
 
-        this.portfolioReport.write(this.engineManager.getCurrentEPTime(), portfolioValue);
-
+        synchronized(this) {
+            if (this.portfolioReport == null) {
+                this.portfolioReport = new PortfolioReport(this.commonConfig.getSimulationInitialBalance());
+            }
+            this.portfolioReport.write(this.engineManager.getCurrentEPTime(), portfolioValue);
+        }
     }
 
 }

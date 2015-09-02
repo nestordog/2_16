@@ -21,7 +21,8 @@ import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.service.ExternalServiceException;
-import ch.algotrader.service.fix.fix44.Fix44MarketDataServiceImpl;
+import ch.algotrader.service.fix.FixMarketDataServiceImpl;
+import ch.algotrader.service.fix.fix44.Fix44MarketDataService;
 import quickfix.field.MDReqID;
 import quickfix.field.SubscriptionRequestType;
 import quickfix.fix44.MarketDataRequest;
@@ -31,7 +32,7 @@ import quickfix.fix44.MarketDataRequest;
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  */
-class FakeFix44MarketDataService extends Fix44MarketDataServiceImpl {
+class FakeFix44MarketDataService extends FixMarketDataServiceImpl implements Fix44MarketDataService {
 
     private static final long serialVersionUID = -1901678386181476171L;
 

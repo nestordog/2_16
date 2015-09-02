@@ -32,8 +32,10 @@ import ch.algotrader.entity.Account;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.enumeration.Status;
+import ch.algotrader.enumeration.TIF;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.service.OrderService;
+import ch.algotrader.ordermgmt.OpenOrderRegistry;
+import ch.algotrader.service.ExternalOrderService;
 import ch.algotrader.service.ServiceException;
 
 /**
@@ -41,7 +43,7 @@ import ch.algotrader.service.ServiceException;
  *
  * @version $Revision$ $Date$
  */
-public class IBNativeOrderServiceImpl implements IBNativeOrderService {
+public class IBNativeOrderServiceImpl implements ExternalOrderService {
 
     private static final Logger LOGGER = LogManager.getLogger(IBNativeOrderServiceImpl.class);
 
@@ -49,27 +51,27 @@ public class IBNativeOrderServiceImpl implements IBNativeOrderService {
 
     private final IBSession iBSession;
     private final IBIdGenerator iBIdGenerator;
+    private final OpenOrderRegistry openOrderRegistry;
     private final IBOrderMessageFactory iBOrderMessageFactory;
     private final Engine serverEngine;
-    private final OrderService orderService;
 
     public IBNativeOrderServiceImpl(final IBSession iBSession,
             final IBIdGenerator iBIdGenerator,
+            final OpenOrderRegistry openOrderRegistry,
             final IBOrderMessageFactory iBOrderMessageFactory,
-            final Engine serverEngine,
-            final OrderService orderService) {
+            final Engine serverEngine) {
 
         Validate.notNull(iBSession, "IBSession is null");
         Validate.notNull(iBIdGenerator, "IBIdGenerator is null");
-        Validate.notNull(iBOrderMessageFactory, "IBConfig is null");
+        Validate.notNull(openOrderRegistry, "OpenOrderRegistry is null");
+        Validate.notNull(iBOrderMessageFactory, "IBOrderMessageFactory is null");
         Validate.notNull(serverEngine, "Engine is null");
-        Validate.notNull(orderService, "OrderService is null");
 
         this.iBSession = iBSession;
         this.iBIdGenerator = iBIdGenerator;
+        this.openOrderRegistry = openOrderRegistry;
         this.iBOrderMessageFactory = iBOrderMessageFactory;
         this.serverEngine = serverEngine;
-        this.orderService = orderService;
     }
 
     @Override
@@ -94,6 +96,8 @@ public class IBNativeOrderServiceImpl implements IBNativeOrderService {
         // Because of an IB bug only one order can be submitted at a time when
         // first connecting to IB, so wait 100ms after the first order
         LOGGER.info("before place");
+
+        this.openOrderRegistry.add(order);
 
         if (firstOrder) {
 
@@ -131,6 +135,9 @@ public class IBNativeOrderServiceImpl implements IBNativeOrderService {
     public void modifyOrder(SimpleOrder order) {
 
         Validate.notNull(order, "Order is null");
+
+        this.openOrderRegistry.remove(order.getIntId());
+        this.openOrderRegistry.add(order);
 
         sendOrModifyOrder(order);
 
@@ -175,15 +182,10 @@ public class IBNativeOrderServiceImpl implements IBNativeOrderService {
         // create the IB order object
         com.ib.client.Order iBOrder = this.iBOrderMessageFactory.createOrderMessage(order, contract);
 
-        // persist the order into the database
-        this.orderService.persistOrder(order);
-
         // place the order through IBSession
         this.iBSession.placeOrder(Integer.parseInt(order.getIntId()), contract, iBOrder);
 
         // propagate the order to all corresponding Esper engines
-        this.orderService.propagateOrder(order);
-
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info("placed or modified order: {}", order);
         }
@@ -198,8 +200,20 @@ public class IBNativeOrderServiceImpl implements IBNativeOrderService {
         return this.iBIdGenerator.getNextOrderId();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public OrderServiceType getOrderServiceType() {
         return OrderServiceType.IB_NATIVE;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public TIF getDefaultTIF() {
+        return TIF.DAY;
+    }
+
 }

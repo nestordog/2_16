@@ -20,7 +20,6 @@ package ch.algotrader.dao.marketData;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 import org.hibernate.SessionFactory;
@@ -31,7 +30,6 @@ import ch.algotrader.dao.NamedParam;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.marketData.TickImpl;
 import ch.algotrader.enumeration.QueryType;
-import ch.algotrader.esper.Engine;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -41,15 +39,8 @@ import ch.algotrader.esper.Engine;
 @Repository // Required for exception translation
 public class TickDaoImpl extends AbstractDao<Tick> implements TickDao {
 
-    private final Engine serverEngine;
-
-    public TickDaoImpl(final SessionFactory sessionFactory, final Engine serverEngine) {
-
+    public TickDaoImpl(final SessionFactory sessionFactory) {
         super(TickImpl.class, sessionFactory);
-
-        Validate.notNull(serverEngine, "Engine is null");
-
-        this.serverEngine = serverEngine;
     }
 
     @Override
@@ -158,20 +149,6 @@ public class TickDaoImpl extends AbstractDao<Tick> implements TickDao {
         Validate.notNull(maxDate, "maxDate is null");
 
         return find("Tick.findSubscribedByTimePeriod", limit, QueryType.BY_NAME, new NamedParam("minDate", minDate), new NamedParam("maxDate", maxDate));
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public String findTickerIdBySecurity(long securityId) {
-
-        // sometimes Esper returns a Map instead of scalar
-        String query = "select tickerId from TickWindow where security.id = " + securityId;
-        Object obj = this.serverEngine.executeSingelObjectQuery(query);
-        if (obj instanceof Map) {
-            return ((Map<String, String>) obj).get("tickerId");
-        } else {
-            return (String) obj;
-        }
     }
 
 }

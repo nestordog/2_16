@@ -30,6 +30,7 @@ import ch.algotrader.esper.callback.OpenPositionCallback;
 import ch.algotrader.esper.callback.TickCallback;
 import ch.algotrader.esper.callback.TimerCallback;
 import ch.algotrader.esper.callback.TradeCallback;
+import ch.algotrader.esper.callback.TradePersistedCallback;
 
 /**
  * Interface representing a CEP Engine.
@@ -147,6 +148,15 @@ public interface Engine {
 
     /**
      * Executes an arbitrary EPL query that is supposed to return one single object on the Engine.
+     *
+     * @param query EPL expression
+     * @param attributeName name of the attribute if the query produces a result
+     *                      represented by a map of attributes.
+     */
+    public Object executeSingelObjectQuery(String query, String attributeName);
+
+    /**
+     * Executes an arbitrary EPL query that is supposed to return one single object on the Engine.
      */
     public Object executeSingelObjectQuery(String query);
 
@@ -224,9 +234,15 @@ public interface Engine {
 
     /**
      * Adds a {@link TradeCallback} to the given Engine that will be invoked as soon as all {@code orders} have been
-     * fully exectured or cancelled.
+     * fully executed, rejected or cancelled.
      */
     public void addTradeCallback(Collection<Order> orders, TradeCallback callback);
+
+    /**
+     * Adds a {@link TradePersistedCallback} to the given Engine that will be invoked as soon as all {@code orders}
+     * have been fully executed or cancelled and fully persisted.
+     */
+    public void addTradePersistedCallback(Collection<Order> orders, TradePersistedCallback callback);
 
     /**
      * Adds a {@link TickCallback} to the given Engine that will be invoked as soon as at least one Tick has arrived

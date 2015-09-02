@@ -17,14 +17,13 @@
  ***********************************************************************************/
 package ch.algotrader.service.ftx;
 
-import java.util.Map;
-
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.ftx.FTXFixOrderMessageFactory;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.service.OrderService;
+import ch.algotrader.ordermgmt.OpenOrderRegistry;
+import ch.algotrader.service.fix.fix44.Fix44OrderService;
 import ch.algotrader.service.fix.fix44.Fix44OrderServiceImpl;
 import quickfix.field.CumQty;
 import quickfix.fix44.NewOrderSingle;
@@ -36,17 +35,17 @@ import quickfix.fix44.OrderCancelRequest;
  *
  * @version $Revision$ $Date$
  */
-public class FTXFixOrderServiceImpl extends Fix44OrderServiceImpl implements FTXFixOrderService {
+public class FTXFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fix44OrderService {
 
     private static final long serialVersionUID = -4332474115892611530L;
 
     private final Engine serverEngine;
 
     public FTXFixOrderServiceImpl(final FixAdapter fixAdapter,
-                                  final OrderService orderService,
+                                  final OpenOrderRegistry openOrderRegistry,
                                   final Engine serverEngine) {
 
-        super(fixAdapter, orderService, new FTXFixOrderMessageFactory());
+        super(fixAdapter, openOrderRegistry, new FTXFixOrderMessageFactory());
         this.serverEngine = serverEngine;
     }
 
@@ -59,10 +58,9 @@ public class FTXFixOrderServiceImpl extends Fix44OrderServiceImpl implements FTX
 
         if (this.serverEngine.isDeployed("OPEN_ORDER_WINDOW")) {
             String intId = order.getIntId();
-            @SuppressWarnings("unchecked")
-            Map<String, Long> map = (Map<String, Long>) this.serverEngine.executeSingelObjectQuery(
-                    "select filledQuantity from OpenOrderWindow where intId = '" + intId + "'");
-            Long filledQuantity = map.get("filledQuantity");
+            Long filledQuantity = (Long) this.serverEngine.executeSingelObjectQuery(
+                    "select filledQuantity from OpenOrderWindow where intId = '" + intId + "'",
+                    "filledQuantity");
             if (filledQuantity != null) {
                 replaceRequest.setDouble(CumQty.FIELD, filledQuantity);
             }

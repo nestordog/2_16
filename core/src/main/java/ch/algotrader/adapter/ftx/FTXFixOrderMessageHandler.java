@@ -20,17 +20,16 @@ package ch.algotrader.adapter.ftx;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import ch.algotrader.adapter.fix.fix44.GenericFix44OrderMessageHandler;
+import ch.algotrader.esper.Engine;
+import ch.algotrader.ordermgmt.OpenOrderRegistry;
 import quickfix.FieldNotFound;
 import quickfix.SessionID;
-import quickfix.field.ExecType;
 import quickfix.field.RefSeqNum;
 import quickfix.field.SessionRejectReason;
 import quickfix.field.Text;
 import quickfix.fix44.ExecutionReport;
 import quickfix.fix44.Reject;
-import ch.algotrader.adapter.fix.fix44.GenericFix44OrderMessageHandler;
-import ch.algotrader.esper.Engine;
-import ch.algotrader.service.OrderService;
 
 /**
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
@@ -39,8 +38,8 @@ public class FTXFixOrderMessageHandler extends GenericFix44OrderMessageHandler {
 
     private static final Logger LOGGER = LogManager.getLogger(FTXFixOrderMessageHandler.class);
 
-    public FTXFixOrderMessageHandler(final OrderService orderService, final Engine serverEngine) {
-        super(orderService, serverEngine);
+    public FTXFixOrderMessageHandler(final OpenOrderRegistry openOrderRegistry, final Engine serverEngine) {
+        super(openOrderRegistry, serverEngine);
     }
 
     @Override
@@ -112,16 +111,6 @@ public class FTXFixOrderMessageHandler extends GenericFix44OrderMessageHandler {
             }
         }
         return null;
-    }
-
-    @Override
-    protected String resolveIntOrderId(final ExecutionReport executionReport) throws FieldNotFound {
-        ExecType execType = executionReport.getExecType();
-        if (execType.getValue() == ExecType.CANCELED) {
-            return executionReport.getOrigClOrdID().getValue();
-        } else {
-            return super.resolveIntOrderId(executionReport);
-        }
     }
 
     @Override

@@ -21,13 +21,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
+import ch.algotrader.adapter.fix.FixSessionStateHolder;
 import ch.algotrader.adapter.fix.ManagedFixAdapter;
-import ch.algotrader.adapter.fix.MarketDataFixSessionStateHolder;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.service.OrderService;
-import ch.algotrader.service.fxcm.FXCMFixMarketDataService;
+import ch.algotrader.ordermgmt.OpenOrderRegistry;
+import ch.algotrader.service.ExternalMarketDataService;
+import ch.algotrader.service.ExternalOrderService;
 import ch.algotrader.service.fxcm.FXCMFixMarketDataServiceImpl;
-import ch.algotrader.service.fxcm.FXCMFixOrderService;
 import ch.algotrader.service.fxcm.FXCMFixOrderServiceImpl;
 
 /**
@@ -38,17 +38,17 @@ public class FXCMFixServiceWiring {
 
     @Profile("fXCMFix")
     @Bean(name = "fXCMFixOrderService")
-    public FXCMFixOrderService createFXCMFixOrderService(
+    public ExternalOrderService createFXCMFixOrderService(
             final ManagedFixAdapter fixAdapter,
-            final OrderService orderService) {
+            final OpenOrderRegistry openOrderRegistry) {
 
-        return new FXCMFixOrderServiceImpl(fixAdapter, orderService);
+        return new FXCMFixOrderServiceImpl(fixAdapter, openOrderRegistry);
     }
 
     @Profile("fXCMMarketData")
     @Bean(name = "fXCMFixMarketDataService")
-    public FXCMFixMarketDataService createFXCMFixMarketDataService(
-            final MarketDataFixSessionStateHolder fXCMSessionLifeCycle,
+    public ExternalMarketDataService createFXCMFixMarketDataService(
+            final FixSessionStateHolder fXCMSessionLifeCycle,
             final ManagedFixAdapter fixAdapter,
             final Engine serverEngine) {
 

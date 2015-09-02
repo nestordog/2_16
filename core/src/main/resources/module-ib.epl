@@ -129,7 +129,7 @@ and
 on
     ch.algotrader.adapter.ib.TickPriceVO(field = com.ib.client.TickType.OPEN) as tickPrice
 insert into
-    GenericTick
+    GenericTickVO
 select
     0L,
     current_timestamp.toDate(),
@@ -152,7 +152,7 @@ and
 on
     ch.algotrader.adapter.ib.TickPriceVO(field = com.ib.client.TickType.CLOSE) as tickPrice
 insert into
-    GenericTick
+    GenericTickVO
 select
     0L,
     current_timestamp.toDate(),

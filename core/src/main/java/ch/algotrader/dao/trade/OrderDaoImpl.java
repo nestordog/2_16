@@ -18,25 +18,17 @@
 package ch.algotrader.dao.trade;
 
 import java.math.BigDecimal;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
-import org.apache.commons.collections15.CollectionUtils;
-import org.apache.commons.collections15.Transformer;
 import org.apache.commons.lang.Validate;
 import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
-
-import com.espertech.esper.collection.Pair;
 
 import ch.algotrader.dao.AbstractDao;
 import ch.algotrader.dao.NamedParam;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderImpl;
 import ch.algotrader.enumeration.QueryType;
-import ch.algotrader.esper.Engine;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -46,13 +38,9 @@ import ch.algotrader.esper.Engine;
 @Repository // Required for exception translation
 public class OrderDaoImpl extends AbstractDao<Order> implements OrderDao {
 
-    private final Engine serverEngine;
-
-    public OrderDaoImpl(final SessionFactory sessionFactory, final Engine serverEngine) {
+    public OrderDaoImpl(final SessionFactory sessionFactory) {
 
         super(OrderImpl.class, sessionFactory);
-        Validate.notNull(serverEngine, "Engine is null");
-        this.serverEngine = serverEngine;
     }
 
     @Override
@@ -83,116 +71,6 @@ public class OrderDaoImpl extends AbstractDao<Order> implements OrderDao {
         Validate.notEmpty(intId, "IntId is empty");
 
         return findUnique("Order.findByIntId", QueryType.BY_NAME, new NamedParam("intId", intId));
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public Collection<Order> findAllOpenOrders() {
-
-        if (this.serverEngine.isDeployed("OPEN_ORDER_WINDOW")) {
-            return this.convertPairCollectionToOrderCollection(this.serverEngine.executeQuery("select * from OpenOrderWindow"));
-        } else {
-            return Collections.emptyList();
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public Collection<Order> findOpenOrdersByStrategy(String strategyName) {
-
-        Validate.notEmpty(strategyName, "Strategy name is empty");
-
-        if (this.serverEngine.isDeployed("OPEN_ORDER_WINDOW")) {
-            return this.convertPairCollectionToOrderCollection(this.serverEngine.executeQuery("select * from OpenOrderWindow where strategy.name = '" + strategyName + "'"));
-        } else {
-            return Collections.emptyList();
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public Collection<Order> findOpenOrdersByStrategyAndSecurity(String strategyName, long securityId) {
-
-        Validate.notEmpty(strategyName, "Strategy name is empty");
-
-        if (this.serverEngine.isDeployed("OPEN_ORDER_WINDOW")) {
-            return this.convertPairCollectionToOrderCollection(this.serverEngine.executeQuery("select * from OpenOrderWindow where strategy.name = '" + strategyName + "' and security.id = "
-                    + securityId));
-        } else {
-            return Collections.emptyList();
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public Order findOpenOrderByIntId(String intId) {
-
-        Validate.notEmpty(intId, "intId is empty");
-
-        if (this.serverEngine.isDeployed("OPEN_ORDER_WINDOW")) {
-            Pair<Order, Map<?, ?>> pair = ((Pair<Order, Map<?, ?>>) this.serverEngine.executeSingelObjectQuery("select * from OpenOrderWindow where intId = '" + intId + "'"));
-            if (pair != null) {
-                return pair.getFirst();
-            }
-        }
-
-        return null;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public Order findOpenOrderByRootIntId(String intId) {
-
-        Validate.notEmpty(intId, "intId is empty");
-
-        if (this.serverEngine.isDeployed("OPEN_ORDER_WINDOW")) {
-            String rootIntId = intId.split("\\.")[0];
-            Pair<Order, Map<?, ?>> pair = ((Pair<Order, Map<?, ?>>) this.serverEngine.executeSingelObjectQuery("select * from OpenOrderWindow where intId like '" + rootIntId + ".%'"));
-            if (pair != null) {
-                return pair.getFirst();
-            }
-        }
-
-        return null;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public Order findOpenOrderByExtId(String extId) {
-
-        Validate.notEmpty(extId, "extId is empty");
-
-        if (this.serverEngine.isDeployed("OPEN_ORDER_WINDOW")) {
-            Pair<Order, Map<?, ?>> pair = ((Pair<Order, Map<?, ?>>) this.serverEngine.executeSingelObjectQuery("select * from OpenOrderWindow where extId = '" + extId + "'"));
-            if (pair != null) {
-                return pair.getFirst();
-            }
-        }
-
-        return null;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public Collection<Order> findOpenOrdersByParentIntId(String parentIntId) {
-
-        Validate.notEmpty(parentIntId, "parentIntId is empty");
-
-        if (this.serverEngine.isDeployed("OPEN_ORDER_WINDOW")) {
-            return this.convertPairCollectionToOrderCollection(this.serverEngine.executeQuery("select * from OpenOrderWindow where not algoOrder and parentOrder.intId = '" + parentIntId + "'"));
-        } else {
-            return Collections.emptyList();
-        }
-    }
-
-    private Collection<Order> convertPairCollectionToOrderCollection(Collection<Pair<Order, Map<?, ?>>> pairs) {
-
-        return CollectionUtils.collect(pairs, new Transformer<Pair<Order, Map<?, ?>>, Order>() {
-            @Override
-            public Order transform(Pair<Order, Map<?, ?>> pair) {
-                return pair.getFirst();
-            }
-        });
     }
 
 }

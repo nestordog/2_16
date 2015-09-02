@@ -36,15 +36,8 @@ public class ClosePositionVOProducer implements EntityConverter<Position, CloseP
 
         Validate.notNull(entity, "Position is null");
 
-        ClosePositionVO vo = new ClosePositionVO();
-
-        vo.setId(entity.getId());
-        vo.setQuantity(entity.getQuantity());
-        vo.setSecurityId(entity.getSecurity().getId());
-        vo.setStrategy(entity.getStrategy().toString());
-        vo.setDirection(entity.getDirection());
-
-        return vo;
+        return new ClosePositionVO(
+                entity.getId(), entity.getSecurity().getId(), entity.getStrategy().getName(), entity.getQuantity(), entity.getDirection());
     }
 
 }

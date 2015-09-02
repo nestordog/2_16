@@ -52,6 +52,7 @@ import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.enumeration.InitializingServiceType;
 import ch.algotrader.enumeration.TimePeriod;
 import ch.algotrader.service.ExternalServiceException;
+import ch.algotrader.service.HistoricalDataService;
 import ch.algotrader.service.HistoricalDataServiceImpl;
 import ch.algotrader.service.InitializationPriority;
 import ch.algotrader.service.InitializingServiceI;
@@ -65,7 +66,7 @@ import ch.algotrader.util.RoundUtil;
  * @version $Revision$ $Date$
  */
 @InitializationPriority(value = InitializingServiceType.BROKER_INTERFACE)
-public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl implements BBHistoricalDataService, InitializingServiceI, DisposableBean {
+public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl implements HistoricalDataService, InitializingServiceI, DisposableBean {
 
     private static final long serialVersionUID = 1339545758324165650L;
 

@@ -15,31 +15,35 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.service;
+package ch.algotrader.cache;
 
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
+import java.io.Serializable;
 
 /**
+ * Notifies that a particular spaceName (table) has been modified.
+ * All cached queries based on this spaceName should be evicted.
+ *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-@Transactional(propagation = Propagation.SUPPORTS)
-public abstract class ReferenceDataServiceImpl implements ReferenceDataService {
+public class QueryCacheEvictionEventVO implements Serializable {
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @Transactional(propagation = Propagation.REQUIRED)
-    public abstract void retrieve(long securityFamilyId);
+    private static final long serialVersionUID = -9201194174175757269L;
 
-    /**
-     * {@inheritDoc}
-     */
+    private final String spaceName;
+
+    public QueryCacheEvictionEventVO(String spaceName) {
+        this.spaceName = spaceName;
+    }
+
+    public String getSpaceName() {
+        return this.spaceName;
+    }
+
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
-    public abstract void retrieveStocks(long securityFamilyId, String symbol);
+    public String toString() {
+        return this.spaceName + "]";
+    }
 
 }

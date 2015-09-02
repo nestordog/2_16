@@ -19,10 +19,8 @@ package ch.algotrader.service;
 
 import java.math.BigDecimal;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -37,10 +35,12 @@ import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.CoreConfig;
 import ch.algotrader.dao.ClosePositionVOProducer;
 import ch.algotrader.dao.ExpirePositionVOProducer;
+import ch.algotrader.dao.HibernateInitializer;
 import ch.algotrader.dao.PositionDao;
 import ch.algotrader.dao.TransactionDao;
 import ch.algotrader.dao.security.SecurityDao;
 import ch.algotrader.dao.strategy.StrategyDao;
+import ch.algotrader.entity.Account;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.marketData.MarketDataEventVO;
@@ -57,7 +57,6 @@ import ch.algotrader.enumeration.Status;
 import ch.algotrader.enumeration.TransactionType;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
-import ch.algotrader.esper.callback.TradeCallback;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.option.OptionUtil;
 import ch.algotrader.util.RoundUtil;
@@ -171,6 +170,7 @@ public class PositionServiceImpl implements PositionService {
             throw new IllegalArgumentException("position with id " + positionId + " does not exist");
         }
 
+        position.initializeSecurity(HibernateInitializer.INSTANCE);
         Security security = position.getSecurity();
 
         if (position.isOpen()) {
@@ -460,6 +460,15 @@ public class PositionServiceImpl implements PositionService {
 
         Order order = this.orderService.createOrderByOrderPreference(this.coreConfig.getDefaultOrderPreference());
 
+        if (order.getIntId() == null) {
+            Account account = order.getAccount();
+            if (account == null) {
+                throw new ServiceException("Cannot execute an order without an account");
+            }
+            String intId = this.orderService.getNextOrderId(account);
+            order.setIntId(intId);
+        }
+
         order.setStrategy(strategy);
         order.setSecurity(security);
         order.setQuantity(Math.abs(quantity));
@@ -471,20 +480,27 @@ public class PositionServiceImpl implements PositionService {
                 this.marketDataService.unsubscribe(order.getStrategy().getName(), order.getSecurity().getId());
             }
         } else {
-            this.serverEngine.addTradeCallback(Collections.singleton(order), new TradeCallback(true) {
-                @Override
-                public void onTradeCompleted(List<OrderStatus> orderStati) throws Exception {
-                    if (unsubscribe) {
-                        for (OrderStatus orderStatus : orderStati) {
-                            Order order = orderStatus.getOrder();
-                            if (Status.EXECUTED.equals(orderStatus.getStatus())) {
-                                // use ServiceLocator because TradeCallback is executed in a new thread
-                                PositionServiceImpl.this.marketDataService.unsubscribe(order.getStrategy().getName(), order.getSecurity().getId());
+            if (unsubscribe) {
+                String alias = "ON_INTERNAL_TRADE_COMPLETED_" + order.getIntId();
+                if (this.serverEngine.isDeployed(alias)) {
+
+                    if (LOGGER.isWarnEnabled()) {
+                        LOGGER.warn("{} is already deployed", alias);
+                    }
+                } else {
+                    this.serverEngine.deployStatement("server-prepared", "ON_TRADE_COMPLETED", alias, new Object[]{order.getIntId()}, new Object() {
+
+                        public void update(final OrderStatus orderStatus) {
+
+                            serverEngine.undeployStatement(alias);
+                            if (orderStatus.getStatus() == Status.EXECUTED) {
+                                PositionServiceImpl.this.marketDataService.unsubscribe(strategy.getName(), security.getId());
                             }
                         }
-                    }
+
+                    });
                 }
-            });
+            }
         }
 
         this.orderService.sendOrder(order);

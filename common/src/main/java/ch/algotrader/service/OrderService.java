@@ -21,11 +21,13 @@ import java.util.Collection;
 import java.util.Map;
 
 import ch.algotrader.entity.Account;
+import ch.algotrader.entity.trade.ExecutionStatusVO;
 import ch.algotrader.entity.trade.Order;
-import ch.algotrader.entity.trade.OrderCompletion;
+import ch.algotrader.entity.trade.OrderCompletionVO;
+import ch.algotrader.entity.trade.OrderDetailsVO;
 import ch.algotrader.entity.trade.OrderStatus;
+import ch.algotrader.entity.trade.OrderVO;
 import ch.algotrader.entity.trade.OrderValidationException;
-import ch.algotrader.vo.client.OrderStatusVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -50,6 +52,11 @@ public interface OrderService {
      * Sends an Order.
      */
     public void sendOrder(Order order);
+
+    /**
+     * Sends an Order.
+     */
+    public void sendOrder(OrderVO order);
 
     /**
      * Sends multiple Orders.
@@ -83,14 +90,9 @@ public interface OrderService {
     public void modifyOrder(String intId, Map<String, String> properties);
 
     /**
-     * Persists the Order into the database
+     * Modifies an Order by overwriting the current Order with the Order passed to this method.
      */
-    public void persistOrder(Order order);
-
-    /**
-     * Propagates an Order to the corresponding Strategy.
-     */
-    public void propagateOrder(Order order);
+    public void modifyOrder(OrderVO order);
 
     /**
      * Propagates an {@link OrderStatus} to the corresponding Strategy.
@@ -98,54 +100,49 @@ public interface OrderService {
     public void propagateOrderStatus(OrderStatus orderStatus);
 
     /**
-     * Propagates an {@link OrderCompletion} to the corresponding Strategy.
+     * PAsses the last {@link OrderStatus} upon order completion..
      */
-    public void propagateOrderCompletion(OrderCompletion orderCompletion);
+    public void orderCompleted(OrderStatus orderStatus);
 
     /**
-     * Propagates an {@link OrderStatus} to the corresponding Strategy.
+     * Propagates an {@link OrderCompletionVO} to the corresponding Strategy.
      */
-    public void updateOrderId(Order order, String intId, String extId);
+    public void propagateOrderCompletion(OrderCompletionVO orderCompletion);
 
     /**
-     * Sends a Trade Suggestion via Email / Text Message.
-     */
-    public void suggestOrder(Order order);
-
-    /**
-     * Generates next order id for the given account.
+     * Generates next order intId for the given account.
      */
     public String getNextOrderId(Account account);
 
     /**
-     * Finds all OrderStati of currently open Orders.
+     * Finds all details of currently open Orders.
      */
-    public Collection<OrderStatusVO> getAllOpenOrders();
+    public Collection<OrderDetailsVO> getAllOpenOrders();
 
     /**
-     * Finds the current OrderStatus of the Order with the specified {@code intId}
+     * Finds details of currently open Orders for the given strategy.
      */
-    public Collection<OrderStatusVO> getOpenOrdersByStrategy(String strategyName);
+    public Collection<OrderDetailsVO> getOpenOrdersByStrategy(String strategyName);
 
     /**
-     * Gets all {@link Order open Orders} for to the specified Strategy and Security.
-     */
-    public Collection<Order> getOpenOrdersByStrategyAndSecurity(String strategyName, long securityId);
-
-    /**
-     * Gets an open order by its {@code intId} by querying the OpenOrderWindow
+     * Returns the order with the given {@code IntId}.
      */
     public Order getOpenOrderByIntId(String intId);
 
     /**
-     * Gets an open order by its {@code rootIntId} by querying the OpenOrderWindow
+     * Returns execution status of the order with the given {@code IntId}.
      */
-    public Order getOpenOrderByRootIntId(String intId);
+    ExecutionStatusVO getStatusByIntId(String intId);
 
     /**
-     * Gets an open order by its {@code extId} by querying the OpenOrderWindow
+     * Returns full details of the open order with the given {@code IntId}.
      */
-    public Order getOpenOrderByExtId(String extId);
+    public OrderDetailsVO getOpenOrderDetailsByIntId(String intId);
+
+    /**
+     * Gets an order (open or completed) by its {@code intId}.
+     */
+    public Order getOrderByIntId(String intId);
 
     /**
      * Loads pending orders. An order is considered pending if the status of the last

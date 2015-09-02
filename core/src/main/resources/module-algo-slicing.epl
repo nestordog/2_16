@@ -4,58 +4,56 @@
 @RunTimeOnly
 @Subscriber(className='ch.algotrader.esper.subscriber.VoidSubscriber')
 select
-    cast(currentOrder.submittedOrder.parentOrder, ch.algotrader.entity.trade.SlicingOrder).decreaseOffsetTicks()
+    cast(currentOrder.parentOrder, ch.algotrader.entity.trade.SlicingOrder).decreaseOffsetTicks()
 from
     //every Order -> (OrderStatusC and not (OrderStatusEorPE or Order))
-    pattern [every currentOrder=SubmittedOrder(instanceof(submittedOrder.parentOrder,ch.algotrader.entity.trade.SlicingOrder))
-        -> (OrderStatus(status = Status.CANCELED, `order`.intId = currentOrder.submittedOrder.intId)
-            and not (OrderStatus(status = Status.EXECUTED or status = Status.PARTIALLY_EXECUTED, `order`.intId = currentOrder.submittedOrder.intId) or `Order`(intId = currentOrder.submittedOrder.intId)))];
+    pattern [every currentOrder=`Order`(instanceof(parentOrder,ch.algotrader.entity.trade.SlicingOrder))
+        -> (OrderStatus(status = Status.CANCELED, `order`.intId = currentOrder.intId)
+            and not (OrderStatus(status = Status.EXECUTED or status = Status.PARTIALLY_EXECUTED, `order`.intId = currentOrder.intId) or `Order`(intId = currentOrder.intId)))];
 
 @Name('SLICING_INCREASE_OFFSET_TICKS')
 @RunTimeOnly
 @Subscriber(className='ch.algotrader.esper.subscriber.VoidSubscriber')
 select
-    cast(currentOrder.submittedOrder.parentOrder, ch.algotrader.entity.trade.SlicingOrder).increaseOffsetTicks()
+    cast(currentOrder.parentOrder, ch.algotrader.entity.trade.SlicingOrder).increaseOffsetTicks()
 from
     //every Order -> (OrderStatusEorPE and not (OrderStatusC or Order))
-    pattern [every currentOrder=SubmittedOrder(instanceof(submittedOrder.parentOrder,ch.algotrader.entity.trade.SlicingOrder))
-        -> (OrderStatus(status = Status.EXECUTED or status = Status.PARTIALLY_EXECUTED, `order`.intId = currentOrder.submittedOrder.intId)
-            and not (OrderStatus(status = Status.CANCELED, `order`.intId = currentOrder.submittedOrder.intId) or `Order`(intId = currentOrder.submittedOrder.intId)))];
+    pattern [every currentOrder=`Order`(instanceof(parentOrder,ch.algotrader.entity.trade.SlicingOrder))
+        -> (OrderStatus(status = Status.EXECUTED or status = Status.PARTIALLY_EXECUTED, `order`.intId = currentOrder.intId)
+            and not (OrderStatus(status = Status.CANCELED, `order`.intId = currentOrder.intId) or `Order`(intId = currentOrder.intId)))];
 
 @Name('SLICING_CANCEL_ORDER')
 @RunTimeOnly
 @Subscriber(className='orderService#cancelOrder')
 select
-    currentOrder.submittedOrder
+    currentOrder
 from
     //every Order -> (timer:interval and not OrderStatusEorCorR)
-    pattern [every currentOrder=SubmittedOrder(instanceof(submittedOrder.parentOrder,ch.algotrader.entity.trade.SlicingOrder))
-        -> (timer:interval(cast(currentOrder.submittedOrder.parentOrder.minDuration?,double) + (cast(currentOrder.submittedOrder.parentOrder.maxDuration?,double) - cast(currentOrder.submittedOrder.parentOrder.minDuration?,double)) * Math.random())
-            and not OrderStatus(status = Status.EXECUTED or status = Status.CANCELED or status = Status.REJECTED, `order`.intId = currentOrder.submittedOrder.intId))];
+    pattern [every currentOrder=`Order`(instanceof(parentOrder,ch.algotrader.entity.trade.SlicingOrder))
+        -> (timer:interval(cast(currentOrder.parentOrder.minDuration?,double) + (cast(currentOrder.parentOrder.maxDuration?,double) - cast(currentOrder.parentOrder.minDuration?,double)) * Math.random())
+            and not OrderStatus(status = Status.EXECUTED or status = Status.CANCELED or status = Status.REJECTED, `order`.intId = currentOrder.intId))];
 
 @Name('SLICING_NEXT_ORDER')
 @RunTimeOnly
 @Subscriber(className='orderService#sendOrder')
 select
-    slicingOrder.nextOrder(openOrderWindow.remainingQuantity, cast(marketDataWindow.marketDataEvent, ch.algotrader.entity.marketData.TickVO))
+    slicingOrder.nextOrder(slicingOrderExec.remainingQuantity, cast(marketDataWindow.marketDataEvent, ch.algotrader.entity.marketData.TickVO))
 from
     // every SlicingOrder -> every ((OrderStatusLimit -> timer:interval) and not OrderStatusSlicing)
     pattern [every slicingOrder=ch.algotrader.entity.trade.SlicingOrder
             -> every (OrderStatus(status = Status.EXECUTED or status = Status.CANCELED, `order`.parentOrder.intId = slicingOrder.intId)
             -> timer:interval(slicingOrder.minDelay + (slicingOrder.maxDelay - slicingOrder.minDelay) * Math.random()))] unidirectional,
-    OpenOrderWindow as openOrderWindow,
-    MarketDataWindow as marketDataWindow
+    MarketDataWindow as marketDataWindow,
+    method:orderService.getStatusByIntId(slicingOrder.intId) as slicingOrderExec
 where
-    openOrderWindow.intId = slicingOrder.intId
+    slicingOrderExec.status != Status.EXECUTED
 and
-    openOrderWindow.status != Status.EXECUTED
+    slicingOrderExec.status != Status.CANCELED
 and
-    openOrderWindow.status != Status.CANCELED
+    slicingOrderExec.status != Status.REJECTED
 and
-    openOrderWindow.status != Status.REJECTED
-and
-	marketDataWindow.securityId = slicingOrder.security.id 
-order by 
-	marketDataWindow.marketDataEvent.dateTime desc 
-limit 
-	1;    
+	marketDataWindow.securityId = slicingOrder.security.id
+order by
+	marketDataWindow.marketDataEvent.dateTime desc
+limit
+	1;

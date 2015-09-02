@@ -32,23 +32,22 @@ import ch.algotrader.adapter.ib.IBSession;
 import ch.algotrader.adapter.ib.IBSessionStateHolder;
 import ch.algotrader.config.IBConfig;
 import ch.algotrader.dao.marketData.BarDao;
-import ch.algotrader.dao.marketData.TickDao;
 import ch.algotrader.dao.security.FutureDao;
 import ch.algotrader.dao.security.OptionDao;
 import ch.algotrader.dao.security.SecurityDao;
 import ch.algotrader.dao.security.SecurityFamilyDao;
 import ch.algotrader.dao.security.StockDao;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.service.OrderService;
+import ch.algotrader.ordermgmt.OpenOrderRegistry;
+import ch.algotrader.service.ExternalMarketDataService;
+import ch.algotrader.service.ExternalOrderService;
+import ch.algotrader.service.HistoricalDataService;
+import ch.algotrader.service.ReferenceDataService;
 import ch.algotrader.service.ib.IBNativeAccountService;
 import ch.algotrader.service.ib.IBNativeAccountServiceImpl;
-import ch.algotrader.service.ib.IBNativeHistoricalDataService;
 import ch.algotrader.service.ib.IBNativeHistoricalDataServiceImpl;
-import ch.algotrader.service.ib.IBNativeMarketDataService;
 import ch.algotrader.service.ib.IBNativeMarketDataServiceImpl;
-import ch.algotrader.service.ib.IBNativeOrderService;
 import ch.algotrader.service.ib.IBNativeOrderServiceImpl;
-import ch.algotrader.service.ib.IBNativeReferenceDataService;
 import ch.algotrader.service.ib.IBNativeReferenceDataServiceImpl;
 
 /**
@@ -70,19 +69,19 @@ public class IBNativeServiceWiring {
 
     @Profile("iBNative")
     @Bean(name = "iBNativeOrderService")
-    public IBNativeOrderService createIBNativeOrderService(
+    public ExternalOrderService createIBNativeOrderService(
             final IBSession iBSession,
             final IBIdGenerator iBIdGenerator,
+            final OpenOrderRegistry openOrderRegistry,
             final IBOrderMessageFactory iBOrderMessageFactory,
-            final Engine serverEngine,
-            final OrderService orderService) {
+            final Engine serverEngine) {
 
-        return new IBNativeOrderServiceImpl(iBSession, iBIdGenerator, iBOrderMessageFactory, serverEngine, orderService);
+        return new IBNativeOrderServiceImpl(iBSession, iBIdGenerator, openOrderRegistry, iBOrderMessageFactory, serverEngine);
     }
 
     @Profile("iBHistoricalData")
     @Bean(name = {"iBNativeHistoricalDataService", "historicalDataService"})
-    public IBNativeHistoricalDataService createIBNativeHistoricalDataService(
+    public HistoricalDataService createIBNativeHistoricalDataService(
             final IBSession iBSession,
             final IBConfig iBConfig,
             final IBPendingRequests iBPendingRequests,
@@ -95,20 +94,19 @@ public class IBNativeServiceWiring {
 
     @Profile("iBMarketData")
     @Bean(name = "iBNativeMarketDataService")
-    public IBNativeMarketDataService createIBNativeMarketDataService(
+    public ExternalMarketDataService createIBNativeMarketDataService(
             final IBSession iBSession,
             final IBSessionStateHolder iBSessionStateHolder,
             final IBIdGenerator iBIdGenerator,
             final IBConfig iBConfig,
-            final Engine serverEngine,
-            final TickDao tickDao) {
+            final Engine serverEngine) {
 
-        return new IBNativeMarketDataServiceImpl(iBSession, iBSessionStateHolder, iBIdGenerator, iBConfig, serverEngine, tickDao);
+        return new IBNativeMarketDataServiceImpl(iBSession, iBSessionStateHolder, iBIdGenerator, iBConfig, serverEngine);
     }
 
     @Profile("iBReferenceData")
     @Bean(name = { "iBNativeReferenceDataService", "referenceDataService" })
-    public IBNativeReferenceDataService createIBNativeReferenceDataService(
+    public ReferenceDataService createIBNativeReferenceDataService(
             final IBSession iBSession,
             final IBPendingRequests iBPendingRequests,
             final IBIdGenerator iBIdGenerator,

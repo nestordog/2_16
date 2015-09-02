@@ -15,14 +15,37 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.service.lmax;
-
-import ch.algotrader.service.fix.fix44.Fix44MarketDataService;
+package ch.algotrader.entity.trade;
 
 /**
- * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
- */
-public interface LMAXFixMarketDataService extends Fix44MarketDataService {
+* Details of an open order.
+*
+* @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
+*/
+public class OrderDetailsVO {
+
+    private final Order order;
+    private final ExecutionStatusVO executionStatus;
+
+    public OrderDetailsVO(final Order order, final ExecutionStatusVO executionStatus) {
+        this.order = order;
+        this.executionStatus = executionStatus;
+    }
+
+    public Order getOrder() {
+        return order;
+    }
+
+    public ExecutionStatusVO getExecutionStatus() {
+        return executionStatus;
+    }
+
+    @Override
+    public String toString() {
+        return "{" +
+                "order=" + order +
+                ", status=" + executionStatus +
+                '}';
+    }
+
 }

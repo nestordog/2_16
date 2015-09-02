@@ -1,0 +1,11 @@
+@Name('ON_TRADE_COMPLETED')
+select
+    orderStatus
+from
+    pattern [orderStatus=OrderStatus(status = Status.EXECUTED or status = Status.CANCELED or status = Status.REJECTED, intId = ?)];
+
+@Name('FIX_SESSION')
+select
+    null
+from
+    pattern[every timer:at (?, ?, *, *, ?, ?)];

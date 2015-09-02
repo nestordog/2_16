@@ -4,34 +4,28 @@
     xsi:schemaLocation="http://www.espertech.com/schema/esper http://www.espertech.com/schema/esper/esper-configuration-4-0.xsd">
 
     <!--  Market Data Events -->
-    <event-type name="MarketDataEvent" class="ch.algotrader.entity.marketData.MarketDataEventVO"/>
-    <event-type name="Tick" class="ch.algotrader.entity.marketData.TickVO"/>
-    <event-type name="Bar" class="ch.algotrader.entity.marketData.BarVO"/>
-    <event-type name="GenericTick" class="ch.algotrader.entity.marketData.GenericTickVO"/>
+    <event-type name="MarketDataEventVO" class="ch.algotrader.entity.marketData.MarketDataEventVO"/>
+    <event-type name="TickVO" class="ch.algotrader.entity.marketData.TickVO"/>
+    <event-type name="BarVO" class="ch.algotrader.entity.marketData.BarVO"/>
+    <event-type name="GenericTickVO" class="ch.algotrader.entity.marketData.GenericTickVO"/>
     <event-type name="TradingStatusEventVO" class="ch.algotrader.vo.marketData.TradingStatusEventVO"/>
 
-    <!-- Trades -->
-    <event-type name="Order" class="ch.algotrader.entity.trade.Order"/>
-    <event-type name="SubmittedOrder" class="ch.algotrader.entity.trade.SubmittedOrder"/>
-    <event-type name="OrderStatus" class="ch.algotrader.entity.trade.OrderStatus">
-        <legacy-type accessor-style="javabean" code-generation="enabled" property-resolution-style="case_sensitive" factory-method="ch.algotrader.entity.trade.OrderStatus$Factory.newInstance"/>
-    </event-type>
-    <event-type name="OrderCompletion" class="ch.algotrader.entity.trade.OrderCompletion">
-        <legacy-type accessor-style="javabean" code-generation="enabled" property-resolution-style="case_sensitive" factory-method="ch.algotrader.entity.trade.OrderCompletion$Factory.newInstance"/>
-    </event-type>
-    <event-type name="Fill" class="ch.algotrader.entity.trade.Fill">
-        <legacy-type accessor-style="javabean" code-generation="enabled" property-resolution-style="case_sensitive"  factory-method="ch.algotrader.entity.trade.Fill$Factory.newInstance"/>
-    </event-type>
-    <event-type name="Transaction" class="ch.algotrader.entity.Transaction"/>
+    <!-- Trading events -->
+    <event-type name="OrderVO" class="ch.algotrader.entity.trade.OrderVO"/>
+    <event-type name="OrderStatusVO" class="ch.algotrader.entity.trade.OrderStatusVO"/>
+    <event-type name="OrderCompletionVO" class="ch.algotrader.entity.trade.OrderCompletionVO"/>
+    <event-type name="FillVO" class="ch.algotrader.entity.trade.FillVO"/>
+
+    <!-- Transaction events -->
+    <event-type name="TransactionVO" class="ch.algotrader.entity.TransactionVO"/>
 
     <!-- Performance -->
-    <event-type name="PortfolioValue" class="ch.algotrader.entity.strategy.PortfolioValue"/>
+    <event-type name="PortfolioValueVO" class="ch.algotrader.entity.strategy.PortfolioValueVO"/>
 
     <!-- Value Objects -->
     <event-type name="OpenPosition" class="ch.algotrader.vo.OpenPositionVO"/>
     <event-type name="ClosePosition" class="ch.algotrader.vo.ClosePositionVO"/>
     <event-type name="ExpirePosition" class="ch.algotrader.vo.ExpirePositionVO"/>
-    <event-type name="BarVO" class="ch.algotrader.vo.client.BarVO"/>
 
     <!-- Session events -->
     <event-type name="SessionEventVO" class="ch.algotrader.vo.SessionEventVO"/>

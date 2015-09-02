@@ -259,4 +259,16 @@ public class Fill implements Serializable {
 
         return buffer.toString();
     }
+
+    /**
+     * converts this entity to its corresponding value object
+     */
+    public FillVO convertToVO() {
+
+        return new FillVO(getOrder() != null ? getOrder().getIntId() : null, getExtId(), getDateTime(), getExtDateTime(),
+                getSequenceNumber(), getSide(), getQuantity(), getPrice(),
+                getExecutionCommission(), getClearingCommission(), getFee());
+
+    }
+
 }
