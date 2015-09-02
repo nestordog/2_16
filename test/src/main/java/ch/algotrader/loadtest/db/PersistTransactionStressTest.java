@@ -30,6 +30,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.springframework.dao.CannotAcquireLockException;
+
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.dao.NamedParam;
 import ch.algotrader.entity.security.Forex;
@@ -58,7 +60,9 @@ public class PersistTransactionStressTest {
         for (Currency base: currencies) {
             for (Currency transact: currencies) {
                 if (!base.equals(transact)) {
-                    Forex forex = lookupService.getUnique(Forex.class, "from ForexImpl f join f.securityFamily sf where f.baseCurrency = :baseCurrency and sf.currency = :transactionCurrency",
+                    Forex forex = lookupService.getUnique(Forex.class,
+                            "from ForexImpl f join fetch f.securityFamily sf " +
+                                    "where f.baseCurrency = :baseCurrency and sf.currency = :transactionCurrency",
                             QueryType.HQL, new NamedParam("baseCurrency", base), new NamedParam("transactionCurrency", transact));
                     if (forex != null) {
                         forexList.add(forex);
@@ -80,7 +84,7 @@ public class PersistTransactionStressTest {
 
                     transactionService.createTransaction(
                             forex.getId(),
-                            "LOAD_TEST",
+                            "SERVER",
                             Long.toString(System.currentTimeMillis()) + "-" + Long.toString(count.incrementAndGet()),
                             new Date(),
                             1, BigDecimal.ONE, null, null, null, forex.getTransactionCurrency(),
