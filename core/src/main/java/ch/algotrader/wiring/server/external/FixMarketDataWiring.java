@@ -32,7 +32,7 @@ import ch.algotrader.service.MarketDataService;
  * Fix market data subscriber.
  */
 @Configuration
-@Profile({"dcMarkteData", "lMAXMarketData", "fXCMMarketData", "cNXMarketData", "fTXMarketData"})
+@Profile({"iBMarketData", "dcMarkteData", "lMAXMarketData", "fXCMMarketData", "cNXMarketData", "fTXMarketData"})
 public class FixMarketDataWiring {
 
     @Bean(name = "fixMarketDataSubscriber")

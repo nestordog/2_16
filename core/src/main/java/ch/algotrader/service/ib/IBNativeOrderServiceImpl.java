@@ -97,6 +97,13 @@ public class IBNativeOrderServiceImpl implements ExternalOrderService {
         // first connecting to IB, so wait 100ms after the first order
         LOGGER.info("before place");
 
+        String intId = order.getIntId();
+        if (intId == null) {
+
+            intId = this.iBIdGenerator.getNextOrderId();
+            order.setIntId(intId);
+        }
+
         this.openOrderRegistry.add(order);
 
         if (firstOrder) {
@@ -119,13 +126,6 @@ public class IBNativeOrderServiceImpl implements ExternalOrderService {
     }
 
     private synchronized void internalSendOrder(SimpleOrder order) {
-
-        String intId = order.getIntId();
-        if (intId == null) {
-
-            intId = this.iBIdGenerator.getNextOrderId();
-            order.setIntId(intId);
-        }
 
         sendOrModifyOrder(order);
 
