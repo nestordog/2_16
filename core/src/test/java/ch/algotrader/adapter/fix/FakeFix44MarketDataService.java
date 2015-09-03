@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.fix;
 
+import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.Engine;
@@ -37,7 +38,7 @@ class FakeFix44MarketDataService extends FixMarketDataServiceImpl implements Fix
     private static final long serialVersionUID = -1901678386181476171L;
 
     public FakeFix44MarketDataService(
-            final FixSessionStateHolder lifeCycle,
+            final ExternalSessionStateHolder lifeCycle,
             final FixAdapter fixAdapter,
             final Engine serverEngine) {
 

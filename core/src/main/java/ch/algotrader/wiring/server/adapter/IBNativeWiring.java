@@ -43,7 +43,6 @@ import ch.algotrader.config.IBConfig;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.ordermgmt.OpenOrderRegistry;
-import ch.algotrader.service.MarketDataService;
 
 /**
  * IB Native configuration.
@@ -84,10 +83,8 @@ public class IBNativeWiring {
     }
 
     @Bean(name = "iBSessionStateHolder")
-    public IBSessionStateHolder createIBSessionStateHolder(
-            final EventDispatcher eventDispatcher,
-            final MarketDataService marketDataService) {
-        return new DefaultIBSessionStateHolder("IB_NATIVE", eventDispatcher, marketDataService);
+    public IBSessionStateHolder createIBSessionStateHolder(final EventDispatcher eventDispatcher) {
+        return new DefaultIBSessionStateHolder("IB_NATIVE", eventDispatcher);
     }
 
     @Bean(name = "iBIdGenerator")

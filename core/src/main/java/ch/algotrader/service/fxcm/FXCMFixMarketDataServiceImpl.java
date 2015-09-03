@@ -20,7 +20,7 @@ package ch.algotrader.service.fxcm;
 import org.apache.commons.lang.Validate;
 
 import ch.algotrader.adapter.fix.FixAdapter;
-import ch.algotrader.adapter.fix.FixSessionStateHolder;
+import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.adapter.fxcm.FXCMFixMarketDataRequestFactory;
 import ch.algotrader.adapter.fxcm.FXCMUtil;
 import ch.algotrader.entity.security.Security;
@@ -43,7 +43,7 @@ public class FXCMFixMarketDataServiceImpl extends FixMarketDataServiceImpl imple
     private final FXCMFixMarketDataRequestFactory requestFactory;
 
     public FXCMFixMarketDataServiceImpl(
-            final FixSessionStateHolder stateHolder,
+            final ExternalSessionStateHolder stateHolder,
             final FixAdapter fixAdapter,
             final Engine serverEngine) {
 

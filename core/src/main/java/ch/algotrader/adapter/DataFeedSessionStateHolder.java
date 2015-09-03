@@ -15,28 +15,17 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.adapter.fix;
+package ch.algotrader.adapter;
 
-import ch.algotrader.adapter.DataFeedSessionStateHolder;
 import ch.algotrader.enumeration.FeedType;
-import ch.algotrader.event.dispatch.EventDispatcher;
 
 /**
- * Market Data feed specific {@link ch.algotrader.adapter.ExternalSessionStateHolder}
+ * External data feed session life cycle
  *
- * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
+ * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  */
-public class MarketDataFixSessionStateHolder extends DefaultFixSessionStateHolder implements DataFeedSessionStateHolder {
+public interface DataFeedSessionStateHolder extends ExternalSessionStateHolder {
 
-    private final FeedType feedType;
-
-    public MarketDataFixSessionStateHolder(final String name, final EventDispatcher eventDispatcher, final FeedType feedType) {
-        super(name, eventDispatcher);
-        this.feedType = feedType;
-    }
-
-    public FeedType getFeedType() {
-        return this.feedType;
-    }
+    FeedType getFeedType();
 
 }

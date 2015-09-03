@@ -19,6 +19,7 @@ package ch.algotrader.adapter.fix;
 
 import org.apache.commons.lang.Validate;
 
+import ch.algotrader.adapter.ExternalSessionStateHolder;
 import quickfix.SessionID;
 
 /**
@@ -30,15 +31,15 @@ import quickfix.SessionID;
  */
 public class DefaultFixApplication extends AbstractFixApplication {
 
-    private final FixSessionStateHolder stateHolder;
+    private final ExternalSessionStateHolder stateHolder;
 
-    public DefaultFixApplication(SessionID sessionID, Object incomingMessageHandler, Object outgoingMessageHandler, FixSessionStateHolder stateHolder) {
+    public DefaultFixApplication(SessionID sessionID, Object incomingMessageHandler, Object outgoingMessageHandler, ExternalSessionStateHolder stateHolder) {
         super(sessionID, incomingMessageHandler, outgoingMessageHandler);
         Validate.notNull(sessionID, "FixSessionStateHolder may not be null");
         this.stateHolder = stateHolder;
     }
 
-    public DefaultFixApplication(SessionID sessionID, Object incomingMessageHandler, FixSessionStateHolder stateHolder) {
+    public DefaultFixApplication(SessionID sessionID, Object incomingMessageHandler, ExternalSessionStateHolder stateHolder) {
         this(sessionID, incomingMessageHandler, null, stateHolder);
     }
 

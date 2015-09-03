@@ -24,7 +24,7 @@ import org.springframework.context.annotation.Profile;
 import ch.algotrader.adapter.fix.DefaultFixApplicationFactory;
 import ch.algotrader.adapter.fix.DefaultFixSessionStateHolder;
 import ch.algotrader.adapter.fix.FixApplicationFactory;
-import ch.algotrader.adapter.fix.FixSessionStateHolder;
+import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.adapter.rt.RTFixOrderMessageHandler;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.event.dispatch.EventDispatcher;
@@ -38,7 +38,7 @@ import ch.algotrader.ordermgmt.OpenOrderRegistry;
 public class RTFixWiring {
 
     @Bean(name = "rTOrderSessionStateHolder")
-    public FixSessionStateHolder createRTOrderSessionStateHolder(final EventDispatcher eventDispatcher) {
+    public ExternalSessionStateHolder createRTOrderSessionStateHolder(final EventDispatcher eventDispatcher) {
 
         return new DefaultFixSessionStateHolder("RTT", eventDispatcher);
     }
@@ -47,7 +47,7 @@ public class RTFixWiring {
     public FixApplicationFactory createRTOrderApplicationFactory(
             final OpenOrderRegistry openOrderRegistry,
             final Engine serverEngine,
-            final FixSessionStateHolder rTOrderSessionStateHolder) {
+            final ExternalSessionStateHolder rTOrderSessionStateHolder) {
 
         RTFixOrderMessageHandler rtFixOrderMessageHandler = new RTFixOrderMessageHandler(openOrderRegistry, serverEngine);
         return new DefaultFixApplicationFactory(rtFixOrderMessageHandler, rTOrderSessionStateHolder);

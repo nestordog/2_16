@@ -15,18 +15,18 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.adapter.fix;
+package ch.algotrader.adapter;
 
 import ch.algotrader.enumeration.ConnectionState;
 
 /**
- * FIX session life cycle
+ * External session life cycle
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  *
  * @version $Revision$ $Date$
  */
-public interface FixSessionStateHolder {
+public interface ExternalSessionStateHolder {
 
     String getName();
 

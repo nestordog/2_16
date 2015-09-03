@@ -30,6 +30,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.dao.marketData.TickDao;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.ForexImpl;
@@ -53,7 +54,7 @@ public class FIXMarketDataServiceTest {
     @Mock
     private FixAdapter fixAdapter;
     @Mock
-    private FixSessionStateHolder fixSessionStateHolder;
+    private ExternalSessionStateHolder fixSessionStateHolder;
     @Mock
     private Engine engine;
     @Mock

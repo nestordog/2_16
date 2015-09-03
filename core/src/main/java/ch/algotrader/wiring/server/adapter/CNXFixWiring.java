@@ -26,7 +26,7 @@ import ch.algotrader.adapter.cnx.CNXFixMarketDataMessageHandler;
 import ch.algotrader.adapter.cnx.CNXFixOrderMessageHandler;
 import ch.algotrader.adapter.fix.DefaultFixSessionStateHolder;
 import ch.algotrader.adapter.fix.DefaultLogonMessageHandler;
-import ch.algotrader.adapter.fix.FixSessionStateHolder;
+import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.adapter.fix.MarketDataFixSessionStateHolder;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.Engine;
@@ -49,7 +49,7 @@ public class CNXFixWiring {
 
     @Profile("cNXFix")
     @Bean(name = "cNXOrderSessionStateHolder")
-    public FixSessionStateHolder createCNXOrderSessionStateHolder(final EventDispatcher eventDispatcher) throws Exception {
+    public ExternalSessionStateHolder createCNXOrderSessionStateHolder(final EventDispatcher eventDispatcher) throws Exception {
 
         return new DefaultFixSessionStateHolder("CNXT", eventDispatcher);
     }
@@ -60,7 +60,7 @@ public class CNXFixWiring {
             final OpenOrderRegistry openOrderRegistry,
             final Engine serverEngine,
             final DefaultLogonMessageHandler cNXLogonMessageHandler,
-            final FixSessionStateHolder cNXOrderSessionStateHolder) {
+            final ExternalSessionStateHolder cNXOrderSessionStateHolder) {
 
         CNXFixOrderMessageHandler cnxFixOrderMessageHandler = new CNXFixOrderMessageHandler(openOrderRegistry, serverEngine);
         return new CNXFixApplicationFactory(cnxFixOrderMessageHandler, cNXLogonMessageHandler, cNXOrderSessionStateHolder);
@@ -68,7 +68,7 @@ public class CNXFixWiring {
 
     @Profile("cNXMarketData")
     @Bean(name = "cNXMarketDataSessionStateHolder")
-    public FixSessionStateHolder createCNXMarketDataSessionStateHolder(final EventDispatcher eventDispatcher) {
+    public ExternalSessionStateHolder createCNXMarketDataSessionStateHolder(final EventDispatcher eventDispatcher) {
 
         return new MarketDataFixSessionStateHolder("CNXMD", eventDispatcher, FeedType.CNX);
     }
@@ -78,7 +78,7 @@ public class CNXFixWiring {
     public CNXFixApplicationFactory createCNXMarketDataApplicationFactory(
             final Engine serverEngine,
             final DefaultLogonMessageHandler cNXLogonMessageHandler,
-            final FixSessionStateHolder cNXMarketDataSessionStateHolder) {
+            final ExternalSessionStateHolder cNXMarketDataSessionStateHolder) {
 
         CNXFixMarketDataMessageHandler cnxFixMarketDataMessageHandler = new CNXFixMarketDataMessageHandler(serverEngine);
         return new CNXFixApplicationFactory(cnxFixMarketDataMessageHandler, cNXLogonMessageHandler, cNXMarketDataSessionStateHolder);

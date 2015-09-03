@@ -27,7 +27,7 @@ import org.springframework.context.annotation.Profile;
 import ch.algotrader.adapter.fix.DefaultFixApplicationFactory;
 import ch.algotrader.adapter.fix.DefaultFixSessionStateHolder;
 import ch.algotrader.adapter.fix.FixApplicationFactory;
-import ch.algotrader.adapter.fix.FixSessionStateHolder;
+import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.adapter.ib.IBCustomMessage;
 import ch.algotrader.adapter.ib.IBFixOrderMessageHandler;
 import ch.algotrader.esper.Engine;
@@ -42,7 +42,7 @@ import ch.algotrader.ordermgmt.OpenOrderRegistry;
 public class IBFixWiring {
 
     @Bean(name = "iBOrderSessionStateHolder")
-    public FixSessionStateHolder createIBOrderSessionStateHolder(final EventDispatcher eventDispatcher) {
+    public ExternalSessionStateHolder createIBOrderSessionStateHolder(final EventDispatcher eventDispatcher) {
 
         return new DefaultFixSessionStateHolder("IBFT", eventDispatcher);
     }
@@ -58,7 +58,7 @@ public class IBFixWiring {
             final OpenOrderRegistry openOrderRegistry,
             final BlockingQueue<IBCustomMessage> iBAllocationMessageQueue,
             final Engine serverEngine,
-            final FixSessionStateHolder iBOrderSessionStateHolder) {
+            final ExternalSessionStateHolder iBOrderSessionStateHolder) {
 
         IBFixOrderMessageHandler ibFixOrderMessageHandler = new IBFixOrderMessageHandler(openOrderRegistry, iBAllocationMessageQueue, serverEngine);
 

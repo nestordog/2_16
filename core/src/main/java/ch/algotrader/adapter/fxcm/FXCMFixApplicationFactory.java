@@ -20,7 +20,7 @@ package ch.algotrader.adapter.fxcm;
 import org.apache.commons.lang.Validate;
 
 import ch.algotrader.adapter.fix.FixApplicationFactory;
-import ch.algotrader.adapter.fix.FixSessionStateHolder;
+import ch.algotrader.adapter.ExternalSessionStateHolder;
 import quickfix.Application;
 import quickfix.ConfigError;
 import quickfix.SessionID;
@@ -36,9 +36,9 @@ import quickfix.SessionSettings;
 public class FXCMFixApplicationFactory implements FixApplicationFactory {
 
     private final Object incomingMessageHandler;
-    private final FixSessionStateHolder stateHolder;
+    private final ExternalSessionStateHolder stateHolder;
 
-    public FXCMFixApplicationFactory(final Object incomingMessageHandler, final FixSessionStateHolder stateHolder) {
+    public FXCMFixApplicationFactory(final Object incomingMessageHandler, final ExternalSessionStateHolder stateHolder) {
         Validate.notNull(incomingMessageHandler, "IncomingMessageHandler may not be null");
         Validate.notNull(stateHolder, "FixSessionStateHolder may not be null");
 

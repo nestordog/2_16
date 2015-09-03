@@ -21,7 +21,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
-import ch.algotrader.adapter.fix.FixSessionStateHolder;
+import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.adapter.fix.ManagedFixAdapter;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.ordermgmt.OpenOrderRegistry;
@@ -48,7 +48,7 @@ public class CNXFixServiceWiring {
     @Profile("cNXMarketData")
     @Bean(name = "cNXFixMarketDataService")
     public ExternalMarketDataService createCNXFixMarketDataService(
-            final FixSessionStateHolder cNXMarketDataSessionStateHolder,
+            final ExternalSessionStateHolder cNXMarketDataSessionStateHolder,
             final ManagedFixAdapter fixAdapter,
             final Engine serverEngine) {
 

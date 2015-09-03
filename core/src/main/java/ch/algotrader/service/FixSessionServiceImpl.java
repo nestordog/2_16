@@ -26,7 +26,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
-import ch.algotrader.adapter.fix.FixSessionStateHolder;
+import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.enumeration.ConnectionState;
 
 /**
@@ -38,7 +38,7 @@ import ch.algotrader.enumeration.ConnectionState;
  */
 public class FixSessionServiceImpl implements FixSessionService, ApplicationContextAware, InitializingBean {
 
-    private final Map<String, FixSessionStateHolder> fixSessionStateHolderMap;
+    private final Map<String, ExternalSessionStateHolder> fixSessionStateHolderMap;
 
     private volatile ApplicationContext applicationContext;
 
@@ -54,9 +54,9 @@ public class FixSessionServiceImpl implements FixSessionService, ApplicationCont
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        Map<String, FixSessionStateHolder> map = applicationContext.getBeansOfType(FixSessionStateHolder.class);
-        for (Map.Entry<String, FixSessionStateHolder> entry : map.entrySet()) {
-            FixSessionStateHolder fixSessionStateHolder = entry.getValue();
+        Map<String, ExternalSessionStateHolder> map = applicationContext.getBeansOfType(ExternalSessionStateHolder.class);
+        for (Map.Entry<String, ExternalSessionStateHolder> entry : map.entrySet()) {
+            ExternalSessionStateHolder fixSessionStateHolder = entry.getValue();
             fixSessionStateHolderMap.put(fixSessionStateHolder.getName(), fixSessionStateHolder);
         }
     }
@@ -65,8 +65,8 @@ public class FixSessionServiceImpl implements FixSessionService, ApplicationCont
     public Map<String, ConnectionState> getAllSessionState() {
 
         Map<String, ConnectionState> connectionStates = new HashMap<>(fixSessionStateHolderMap.size());
-        for (Map.Entry<String, FixSessionStateHolder> entry : fixSessionStateHolderMap.entrySet()) {
-            FixSessionStateHolder fixSessionStateHolder = entry.getValue();
+        for (Map.Entry<String, ExternalSessionStateHolder> entry : fixSessionStateHolderMap.entrySet()) {
+            ExternalSessionStateHolder fixSessionStateHolder = entry.getValue();
             connectionStates.put(fixSessionStateHolder.getName(), fixSessionStateHolder.getConnectionState());
         }
         return connectionStates;
@@ -78,7 +78,7 @@ public class FixSessionServiceImpl implements FixSessionService, ApplicationCont
         if (name == null) {
             return null;
         }
-        FixSessionStateHolder fixSessionStateHolder = fixSessionStateHolderMap.get(name);
+        ExternalSessionStateHolder fixSessionStateHolder = fixSessionStateHolderMap.get(name);
         return fixSessionStateHolder != null ? fixSessionStateHolder.getConnectionState() : null;
     }
 

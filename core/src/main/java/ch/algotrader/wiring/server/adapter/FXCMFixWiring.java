@@ -22,7 +22,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 import ch.algotrader.adapter.fix.FixApplicationFactory;
-import ch.algotrader.adapter.fix.FixSessionStateHolder;
+import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.adapter.fix.MarketDataFixSessionStateHolder;
 import ch.algotrader.adapter.fxcm.FXCMFixApplicationFactory;
 import ch.algotrader.adapter.fxcm.FXCMFixMarketDataMessageHandler;
@@ -41,7 +41,7 @@ import ch.algotrader.ordermgmt.OpenOrderRegistry;
 public class FXCMFixWiring {
 
     @Bean(name = "fXCMSessionLifeCycle")
-    public FixSessionStateHolder createFXCMSessionLifeCycle(final EventDispatcher eventDispatcher) {
+    public ExternalSessionStateHolder createFXCMSessionLifeCycle(final EventDispatcher eventDispatcher) {
 
         return new MarketDataFixSessionStateHolder("FXCM", eventDispatcher, FeedType.FXCM);
     }
@@ -50,7 +50,7 @@ public class FXCMFixWiring {
     public FixApplicationFactory createFXCMApplicationFactory(
             final Engine serverEngine,
             final OpenOrderRegistry openOrderRegistry,
-            final FixSessionStateHolder fXCMSessionLifeCycle) {
+            final ExternalSessionStateHolder fXCMSessionLifeCycle) {
 
         FXCMFixMarketDataMessageHandler fxcmFixMarketDataMessageHandler = new FXCMFixMarketDataMessageHandler(serverEngine);
         FXCMFixOrderMessageHandler fxcmFixOrderMessageHandler = new FXCMFixOrderMessageHandler(openOrderRegistry, serverEngine);

@@ -21,7 +21,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
-import ch.algotrader.adapter.fix.FixSessionStateHolder;
+import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.adapter.fix.ManagedFixAdapter;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.ordermgmt.OpenOrderRegistry;
@@ -48,7 +48,7 @@ public class FXCMFixServiceWiring {
     @Profile("fXCMMarketData")
     @Bean(name = "fXCMFixMarketDataService")
     public ExternalMarketDataService createFXCMFixMarketDataService(
-            final FixSessionStateHolder fXCMSessionLifeCycle,
+            final ExternalSessionStateHolder fXCMSessionLifeCycle,
             final ManagedFixAdapter fixAdapter,
             final Engine serverEngine) {
 

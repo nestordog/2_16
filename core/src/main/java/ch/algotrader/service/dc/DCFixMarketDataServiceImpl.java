@@ -22,7 +22,7 @@ import org.apache.commons.lang.Validate;
 import ch.algotrader.adapter.dc.DCFixMarketDataRequestFactory;
 import ch.algotrader.adapter.dc.DCUtil;
 import ch.algotrader.adapter.fix.FixAdapter;
-import ch.algotrader.adapter.fix.FixSessionStateHolder;
+import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.Engine;
@@ -45,7 +45,7 @@ public class DCFixMarketDataServiceImpl extends FixMarketDataServiceImpl impleme
     private final DCFixMarketDataRequestFactory requestFactory;
 
     public DCFixMarketDataServiceImpl(
-            final FixSessionStateHolder lifeCycle,
+            final ExternalSessionStateHolder lifeCycle,
             final FixAdapter fixAdapter,
             final Engine serverEngine) {
 

@@ -24,7 +24,7 @@ import org.springframework.context.annotation.Profile;
 import ch.algotrader.adapter.fix.DefaultFixApplicationFactory;
 import ch.algotrader.adapter.fix.DefaultFixSessionStateHolder;
 import ch.algotrader.adapter.fix.FixApplicationFactory;
-import ch.algotrader.adapter.fix.FixSessionStateHolder;
+import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.adapter.fix.fix42.GenericFix42OrderMessageHandler;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.event.dispatch.EventDispatcher;
@@ -38,7 +38,7 @@ import ch.algotrader.ordermgmt.OpenOrderRegistry;
 public class JPMFixWiring {
 
     @Bean(name = "jPMOrderSessionStateHolder")
-    public FixSessionStateHolder createJPMOrderSessionStateHolder(final EventDispatcher eventDispatcher) {
+    public ExternalSessionStateHolder createJPMOrderSessionStateHolder(final EventDispatcher eventDispatcher) {
 
         return new DefaultFixSessionStateHolder("JPMO", eventDispatcher);
     }
@@ -47,7 +47,7 @@ public class JPMFixWiring {
     public FixApplicationFactory createJPMOrderApplicationFactory(
             final OpenOrderRegistry openOrderRegistry,
             final Engine serverEngine,
-            final FixSessionStateHolder jPMOrderSessionStateHolder) {
+            final ExternalSessionStateHolder jPMOrderSessionStateHolder) {
 
         GenericFix42OrderMessageHandler genericFix42OrderMessageHandler = new GenericFix42OrderMessageHandler(openOrderRegistry, serverEngine);
         return new DefaultFixApplicationFactory(genericFix42OrderMessageHandler, jPMOrderSessionStateHolder);

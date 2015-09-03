@@ -22,7 +22,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.adapter.fix.AbstractFixApplication;
-import ch.algotrader.adapter.fix.FixSessionStateHolder;
+import ch.algotrader.adapter.ExternalSessionStateHolder;
 import quickfix.ConfigError;
 import quickfix.FieldConvertError;
 import quickfix.FieldNotFound;
@@ -54,9 +54,9 @@ public class FXCMFixApplication extends AbstractFixApplication {
     private static final Logger LOGGER = LogManager.getLogger(FXCMFixApplication.class);
 
     private final SessionSettings settings;
-    private final FixSessionStateHolder stateHolder;
+    private final ExternalSessionStateHolder stateHolder;
 
-    public FXCMFixApplication(SessionID sessionID, Object incomingMessageHandler, SessionSettings settings, FixSessionStateHolder stateHolder) {
+    public FXCMFixApplication(SessionID sessionID, Object incomingMessageHandler, SessionSettings settings, ExternalSessionStateHolder stateHolder) {
         super(sessionID, incomingMessageHandler, null);
 
         Validate.notNull(settings, "Session settings not be null");

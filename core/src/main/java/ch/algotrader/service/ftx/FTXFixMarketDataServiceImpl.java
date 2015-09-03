@@ -22,7 +22,7 @@ import org.apache.commons.lang.Validate;
 import ch.algotrader.adapter.cnx.CNXUtil;
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.fix.FixApplicationException;
-import ch.algotrader.adapter.fix.FixSessionStateHolder;
+import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.adapter.ftx.FTXFixMarketDataRequestFactory;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.Security;
@@ -42,7 +42,7 @@ public class FTXFixMarketDataServiceImpl extends FixMarketDataServiceImpl implem
     private final FTXFixMarketDataRequestFactory requestFactory;
 
     public FTXFixMarketDataServiceImpl(
-            final FixSessionStateHolder stateHolder,
+            final ExternalSessionStateHolder stateHolder,
             final FixAdapter fixAdapter,
             final Engine serverEngine) {
 

@@ -76,7 +76,7 @@ public class IBNativeMarketDataServiceImpl extends NativeMarketDataServiceImpl i
     @Override
     public boolean initSubscriptions() {
 
-        return this.sessionStateHolder.subscribe();
+        return this.sessionStateHolder.onSubscribe();
     }
 
     @Override

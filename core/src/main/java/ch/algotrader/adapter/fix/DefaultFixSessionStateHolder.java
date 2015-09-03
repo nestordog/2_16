@@ -21,19 +21,20 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.lang.Validate;
 
+import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.enumeration.ConnectionState;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.vo.SessionEventVO;
 
 /**
- * Default implementation of {@link FixSessionStateHolder} that keeps track of
+ * Default implementation of {@link ExternalSessionStateHolder} that keeps track of
  * FIX connection state state.
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  *
  * @version $Revision$ $Date$
  */
-public class DefaultFixSessionStateHolder implements FixSessionStateHolder {
+public class DefaultFixSessionStateHolder implements ExternalSessionStateHolder {
 
     private final String name;
     private final EventDispatcher eventDispatcher;

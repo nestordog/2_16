@@ -19,6 +19,7 @@ package ch.algotrader.adapter.fix;
 
 import org.apache.commons.lang.Validate;
 
+import ch.algotrader.adapter.ExternalSessionStateHolder;
 import quickfix.Application;
 import quickfix.ConfigError;
 import quickfix.SessionID;
@@ -35,9 +36,9 @@ public class DefaultFixApplicationFactory implements FixApplicationFactory {
 
     private final Object incomingMessageHandler;
     private final Object outgoingMessageHandler;
-    private final FixSessionStateHolder stateHolder;
+    private final ExternalSessionStateHolder stateHolder;
 
-    public DefaultFixApplicationFactory(final Object incomingMessageHandler, final Object outgoingMessageHandler, final FixSessionStateHolder stateHolder) {
+    public DefaultFixApplicationFactory(final Object incomingMessageHandler, final Object outgoingMessageHandler, final ExternalSessionStateHolder stateHolder) {
         Validate.notNull(incomingMessageHandler, "IncomingMessageHandler may not be null");
         Validate.notNull(stateHolder, "FixSessionStateHolder may not be null");
 
@@ -46,7 +47,7 @@ public class DefaultFixApplicationFactory implements FixApplicationFactory {
         this.stateHolder = stateHolder;
     }
 
-    public DefaultFixApplicationFactory(final Object incomingMessageHandler, final FixSessionStateHolder stateHolder) {
+    public DefaultFixApplicationFactory(final Object incomingMessageHandler, final ExternalSessionStateHolder stateHolder) {
         this(incomingMessageHandler, null, stateHolder);
     }
 
@@ -60,7 +61,7 @@ public class DefaultFixApplicationFactory implements FixApplicationFactory {
         return stateHolder.getName() + " FIX application factory";
     }
 
-    protected Application createApplication(SessionID sessionID, Object incomingMessageHandler, Object outgoingMessageHandler, FixSessionStateHolder stateHolder) {
+    protected Application createApplication(SessionID sessionID, Object incomingMessageHandler, Object outgoingMessageHandler, ExternalSessionStateHolder stateHolder) {
 
         return new DefaultFixApplication(sessionID, incomingMessageHandler, outgoingMessageHandler, stateHolder);
     }

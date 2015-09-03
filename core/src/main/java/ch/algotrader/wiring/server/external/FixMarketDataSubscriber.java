@@ -22,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.Validate;
 
-import ch.algotrader.adapter.fix.MarketDataFixSessionStateHolder;
+import ch.algotrader.adapter.DataFeedSessionStateHolder;
 import ch.algotrader.enumeration.ConnectionState;
 import ch.algotrader.event.listener.SessionEventListener;
 import ch.algotrader.service.MarketDataService;
@@ -36,9 +36,9 @@ import ch.algotrader.vo.SessionEventVO;
 public class FixMarketDataSubscriber implements SessionEventListener {
 
     private final MarketDataService marketDataService;
-    private final Map<String, MarketDataFixSessionStateHolder> sessionStateHolderMap;
+    private final Map<String, DataFeedSessionStateHolder> sessionStateHolderMap;
 
-    public FixMarketDataSubscriber(final MarketDataService marketDataService, final Map<String, MarketDataFixSessionStateHolder> sessionStateHolderMap) {
+    public FixMarketDataSubscriber(final MarketDataService marketDataService, final Map<String, DataFeedSessionStateHolder> sessionStateHolderMap) {
 
         Validate.notNull(marketDataService, "MarketDataService is null");
 
@@ -49,7 +49,7 @@ public class FixMarketDataSubscriber implements SessionEventListener {
     @Override
     public void onChange(final SessionEventVO event) {
         if (event.getState() == ConnectionState.LOGGED_ON) {
-            final MarketDataFixSessionStateHolder sessionStateHolder = sessionStateHolderMap.get(event.getQualifier());
+            final DataFeedSessionStateHolder sessionStateHolder = sessionStateHolderMap.get(event.getQualifier());
             if (sessionStateHolder != null) {
                 marketDataService.initSubscriptions(sessionStateHolder.getFeedType());
             }

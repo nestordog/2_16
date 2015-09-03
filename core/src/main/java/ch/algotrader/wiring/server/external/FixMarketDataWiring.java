@@ -25,7 +25,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
-import ch.algotrader.adapter.fix.MarketDataFixSessionStateHolder;
+import ch.algotrader.adapter.DataFeedSessionStateHolder;
 import ch.algotrader.service.MarketDataService;
 
 /**
@@ -38,9 +38,9 @@ public class FixMarketDataWiring {
     @Bean(name = "fixMarketDataSubscriber")
     public FixMarketDataSubscriber createFixMarketDataSubscriber(final MarketDataService marketDataService, final ApplicationContext applicationContext) {
 
-        Map<String, MarketDataFixSessionStateHolder> beanMap1 = applicationContext.getBeansOfType(MarketDataFixSessionStateHolder.class);
-        Map<String, MarketDataFixSessionStateHolder> beanMap2 = beanMap1.values().stream()
-                .collect(Collectors.toMap(MarketDataFixSessionStateHolder::getName, bean -> bean));
+        Map<String, DataFeedSessionStateHolder> beanMap1 = applicationContext.getBeansOfType(DataFeedSessionStateHolder.class);
+        Map<String, DataFeedSessionStateHolder> beanMap2 = beanMap1.values().stream()
+                .collect(Collectors.toMap(DataFeedSessionStateHolder::getName, bean -> bean));
 
         return new FixMarketDataSubscriber(marketDataService, beanMap2);
     }

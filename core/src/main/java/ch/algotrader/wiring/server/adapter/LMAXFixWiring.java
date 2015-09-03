@@ -25,7 +25,7 @@ import ch.algotrader.adapter.fix.DefaultFixApplicationFactory;
 import ch.algotrader.adapter.fix.DefaultFixSessionStateHolder;
 import ch.algotrader.adapter.fix.DefaultLogonMessageHandler;
 import ch.algotrader.adapter.fix.FixApplicationFactory;
-import ch.algotrader.adapter.fix.FixSessionStateHolder;
+import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.adapter.fix.MarketDataFixSessionStateHolder;
 import ch.algotrader.adapter.lmax.LMAXFixMarketDataMessageHandler;
 import ch.algotrader.adapter.lmax.LMAXFixOrderMessageHandler;
@@ -50,7 +50,7 @@ public class LMAXFixWiring {
 
     @Profile("lMAXFix")
     @Bean(name = "lMAXOrderSessionStateHolder")
-    public FixSessionStateHolder createLMAXOrderSessionStateHolder(final EventDispatcher eventDispatcher) {
+    public ExternalSessionStateHolder createLMAXOrderSessionStateHolder(final EventDispatcher eventDispatcher) {
 
         return new DefaultFixSessionStateHolder("LMAXT", eventDispatcher);
     }
@@ -61,7 +61,7 @@ public class LMAXFixWiring {
             final OpenOrderRegistry openOrderRegistry,
             final Engine serverEngine,
             final DefaultLogonMessageHandler lMAXLogonMessageHandler,
-            final FixSessionStateHolder lMAXOrderSessionStateHolder) {
+            final ExternalSessionStateHolder lMAXOrderSessionStateHolder) {
 
         LMAXFixOrderMessageHandler lMAXFixOrderMessageHandler = new LMAXFixOrderMessageHandler(openOrderRegistry, serverEngine);
         return new DefaultFixApplicationFactory(lMAXFixOrderMessageHandler, lMAXLogonMessageHandler, lMAXOrderSessionStateHolder);
@@ -79,7 +79,7 @@ public class LMAXFixWiring {
     public FixApplicationFactory createLMAXMarketDataApplicationFactory(
             final Engine serverEngine,
             final DefaultLogonMessageHandler lMAXLogonMessageHandler,
-            final FixSessionStateHolder lMAXMarketDataSessionStateHolder) {
+            final ExternalSessionStateHolder lMAXMarketDataSessionStateHolder) {
 
         LMAXFixMarketDataMessageHandler lMAXFixMarketDataMessageHandler = new LMAXFixMarketDataMessageHandler(serverEngine);
 

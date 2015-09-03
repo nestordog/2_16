@@ -22,7 +22,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.adapter.fix.FixAdapter;
-import ch.algotrader.adapter.fix.FixSessionStateHolder;
+import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.InitializingServiceType;
 import ch.algotrader.esper.Engine;
@@ -45,12 +45,12 @@ public abstract class FixMarketDataServiceImpl implements FixMarketDataService, 
 
     private static final Logger LOGGER = LogManager.getLogger(FixMarketDataServiceImpl.class);
 
-    private final FixSessionStateHolder stateHolder;
+    private final ExternalSessionStateHolder stateHolder;
     private final FixAdapter fixAdapter;
     private final Engine serverEngine;
 
     public FixMarketDataServiceImpl(
-            final FixSessionStateHolder stateHolder,
+            final ExternalSessionStateHolder stateHolder,
             final FixAdapter fixAdapter,
             final Engine serverEngine) {
 

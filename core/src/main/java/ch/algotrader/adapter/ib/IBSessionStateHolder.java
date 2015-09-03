@@ -17,7 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.ib;
 
-import ch.algotrader.enumeration.ConnectionState;
+import ch.algotrader.adapter.ExternalSessionStateHolder;
 
 /**
  * IB session life cycle
@@ -26,7 +26,7 @@ import ch.algotrader.enumeration.ConnectionState;
  *
  * @version $Revision$ $Date$
  */
-public interface IBSessionStateHolder {
+public interface IBSessionStateHolder extends ExternalSessionStateHolder {
 
     void onConnect();
 
@@ -34,16 +34,8 @@ public interface IBSessionStateHolder {
 
     void onLogon(boolean maintained);
 
-    void onLogoff();
-
-    boolean subscribe();
-
-    boolean isConnected();
-
     boolean isLoggedOn();
 
     boolean isSubscribed();
-
-    ConnectionState getConnectionState();
 
 }

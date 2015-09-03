@@ -27,7 +27,7 @@ import ch.algotrader.adapter.fix.DefaultFixApplicationFactory;
 import ch.algotrader.adapter.fix.DefaultFixSessionStateHolder;
 import ch.algotrader.adapter.fix.DefaultLogonMessageHandler;
 import ch.algotrader.adapter.fix.FixApplicationFactory;
-import ch.algotrader.adapter.fix.FixSessionStateHolder;
+import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.adapter.fix.MarketDataFixSessionStateHolder;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.Engine;
@@ -50,7 +50,7 @@ public class DCFixWiring {
 
     @Profile("dCFix")
     @Bean(name = "dCOrderSessionStateHolder")
-    public FixSessionStateHolder createDCOrderSessionStateHolder(final EventDispatcher eventDispatcher) {
+    public ExternalSessionStateHolder createDCOrderSessionStateHolder(final EventDispatcher eventDispatcher) {
 
         return new DefaultFixSessionStateHolder("DCT", eventDispatcher);
     }
@@ -61,7 +61,7 @@ public class DCFixWiring {
             final OpenOrderRegistry openOrderRegistry,
             final Engine serverEngine,
             final DefaultLogonMessageHandler dCLogonMessageHandler,
-            final FixSessionStateHolder dCOrderSessionStateHolder) {
+            final ExternalSessionStateHolder dCOrderSessionStateHolder) {
 
         DCFixOrderMessageHandler dCFixOrderMessageHandler = new DCFixOrderMessageHandler(openOrderRegistry, serverEngine);
         return new DefaultFixApplicationFactory(dCFixOrderMessageHandler, dCLogonMessageHandler, dCOrderSessionStateHolder);
@@ -80,7 +80,7 @@ public class DCFixWiring {
     public FixApplicationFactory createDCMarketDataApplicationFactory(
             final Engine serverEngine,
             final DefaultLogonMessageHandler dCLogonMessageHandler,
-            final FixSessionStateHolder dCMarketDataSessionStateHolder) {
+            final ExternalSessionStateHolder dCMarketDataSessionStateHolder) {
 
         DCFixMarketDataMessageHandler dcFixMarketDataMessageHandler = new DCFixMarketDataMessageHandler(serverEngine);
         return new DefaultFixApplicationFactory(dcFixMarketDataMessageHandler, dCLogonMessageHandler, dCMarketDataSessionStateHolder);

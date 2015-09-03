@@ -22,7 +22,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.adapter.fix.AbstractFixApplication;
-import ch.algotrader.adapter.fix.FixSessionStateHolder;
+import ch.algotrader.adapter.ExternalSessionStateHolder;
 import quickfix.FieldNotFound;
 import quickfix.IncorrectDataFormat;
 import quickfix.IncorrectTagValue;
@@ -45,9 +45,9 @@ public class CNXFixApplication extends AbstractFixApplication {
 
     private static final Logger LOGGER = LogManager.getLogger(CNXFixApplication.class);
 
-    private final FixSessionStateHolder stateHolder;
+    private final ExternalSessionStateHolder stateHolder;
 
-    public CNXFixApplication(SessionID sessionID, Object incomingMessageHandler, Object outgoingMessageHandler, FixSessionStateHolder stateHolder) {
+    public CNXFixApplication(SessionID sessionID, Object incomingMessageHandler, Object outgoingMessageHandler, ExternalSessionStateHolder stateHolder) {
         super(sessionID, incomingMessageHandler, outgoingMessageHandler);
 
         Validate.notNull(sessionID, "Session ID may not be null");

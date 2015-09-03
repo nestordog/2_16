@@ -18,7 +18,7 @@
 package ch.algotrader.adapter.cnx;
 
 import ch.algotrader.adapter.fix.DefaultFixApplicationFactory;
-import ch.algotrader.adapter.fix.FixSessionStateHolder;
+import ch.algotrader.adapter.ExternalSessionStateHolder;
 import quickfix.Application;
 import quickfix.SessionID;
 
@@ -31,16 +31,16 @@ import quickfix.SessionID;
  */
 public class CNXFixApplicationFactory extends DefaultFixApplicationFactory {
 
-    public CNXFixApplicationFactory(final Object incomingMessageHandler, final Object outgoingMessageHandler, final FixSessionStateHolder stateHolder) {
+    public CNXFixApplicationFactory(final Object incomingMessageHandler, final Object outgoingMessageHandler, final ExternalSessionStateHolder stateHolder) {
         super(incomingMessageHandler, outgoingMessageHandler, stateHolder);
     }
 
-    public CNXFixApplicationFactory(final Object incomingMessageHandler, final FixSessionStateHolder stateHolder) {
+    public CNXFixApplicationFactory(final Object incomingMessageHandler, final ExternalSessionStateHolder stateHolder) {
         super(incomingMessageHandler, null, stateHolder);
     }
 
     @Override
-    protected Application createApplication(SessionID sessionID, Object incomingMessageHandler, Object outgoingMessageHandler, FixSessionStateHolder stateHolder) {
+    protected Application createApplication(SessionID sessionID, Object incomingMessageHandler, Object outgoingMessageHandler, ExternalSessionStateHolder stateHolder) {
 
         return new CNXFixApplication(sessionID, incomingMessageHandler, outgoingMessageHandler, stateHolder);
     }
