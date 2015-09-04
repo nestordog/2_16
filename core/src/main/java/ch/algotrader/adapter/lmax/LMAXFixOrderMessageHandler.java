@@ -90,6 +90,8 @@ public class LMAXFixOrderMessageHandler extends AbstractFix44OrderMessageHandler
         Status status = getStatus(execType, executionReport.getOrderQty(), executionReport.getCumQty());
         long filledQuantity = Math.round(executionReport.getCumQty().getValue() * MULTIPLIER);
         long remainingQuantity = Math.round((executionReport.getOrderQty().getValue() - executionReport.getCumQty().getValue()) * MULTIPLIER);
+        long lastQuantity = executionReport.isSetLastQty() ? (long) executionReport.getLastQty().getValue() : 0L;
+
         String intId = order.getIntId() != null ? order.getIntId(): executionReport.getClOrdID().getValue();
         String extId = executionReport.getOrderID().getValue();
 
@@ -101,6 +103,7 @@ public class LMAXFixOrderMessageHandler extends AbstractFix44OrderMessageHandler
         orderStatus.setSequenceNumber(executionReport.getHeader().getInt(MsgSeqNum.FIELD));
         orderStatus.setFilledQuantity(filledQuantity);
         orderStatus.setRemainingQuantity(remainingQuantity);
+        orderStatus.setLastQuantity(lastQuantity);
         orderStatus.setOrder(order);
         if (executionReport.isSetField(TransactTime.FIELD)) {
 

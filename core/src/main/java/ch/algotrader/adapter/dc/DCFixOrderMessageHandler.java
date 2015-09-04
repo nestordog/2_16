@@ -79,6 +79,7 @@ public class DCFixOrderMessageHandler extends AbstractFix44OrderMessageHandler {
         Status status = getStatus(executionReport.getOrdStatus(), executionReport.getCumQty());
         long filledQuantity = (long) executionReport.getCumQty().getValue();
         long remainingQuantity = (long) (executionReport.getOrderQty().getValue() - executionReport.getCumQty().getValue());
+        long lastQuantity = executionReport.isSetLastQty() ? (long) executionReport.getLastQty().getValue() : 0L;
 
         // Note: store OrderID since DukasCopy requires it for cancels and replaces
         String intId = order.getIntId() != null ? order.getIntId(): executionReport.getClOrdID().getValue();
@@ -92,6 +93,7 @@ public class DCFixOrderMessageHandler extends AbstractFix44OrderMessageHandler {
         orderStatus.setSequenceNumber(executionReport.getHeader().getInt(MsgSeqNum.FIELD));
         orderStatus.setFilledQuantity(filledQuantity);
         orderStatus.setRemainingQuantity(remainingQuantity);
+        orderStatus.setLastQuantity(lastQuantity);
         orderStatus.setOrder(order);
         if (executionReport.isSetField(TransactTime.FIELD)) {
 

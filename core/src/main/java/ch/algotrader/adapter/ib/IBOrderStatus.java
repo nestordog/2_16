@@ -113,4 +113,30 @@ public class IBOrderStatus {
     public long getSequenceNumber() {
         return sequenceNumber;
     }
+
+    @Override
+    public String toString() {
+
+        StringBuilder buffer = new StringBuilder();
+        buffer.append(getStatus());
+        if (getOrder() != null) {
+            buffer.append(",");
+            buffer.append(getOrder().getDescription());
+        }
+        buffer.append(",filledQuantity=");
+        buffer.append(getFilledQuantity());
+        buffer.append(",remainingQuantity=");
+        buffer.append(getRemainingQuantity());
+        buffer.append(",avgFillPrice=");
+        buffer.append(getAvgFillPrice());
+        buffer.append(",lastFillPrice=");
+        buffer.append(getLastFillPrice());
+        if (getReason() != null) {
+            buffer.append(",reason=");
+            buffer.append(getReason());
+        }
+
+        return buffer.toString();
+    }
+
 }
