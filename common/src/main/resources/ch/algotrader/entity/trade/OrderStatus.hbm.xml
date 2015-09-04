@@ -57,6 +57,12 @@
 
             <type name="long"/>
         </property>
+        <property name="lastQuantity">
+            <meta attribute="field-description"><![CDATA[The quantity of the last fill]]></meta>
+            <column name="LAST_QUANTITY" not-null="true" unique="false" sql-type="BIGINT"/>
+
+            <type name="long"/>
+        </property>
         <property name="avgPrice">
             <meta attribute="field-description"><![CDATA[The volume weighted average price of all associated transactions.]]></meta>
             <column name="AVG_PRICE" not-null="false" unique="false" sql-type="Decimal(15,6)"/>

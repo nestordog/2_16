@@ -105,22 +105,22 @@ public class CallbackEsperTest extends EsperTestBase {
             }
         });
 
-        OrderStatusVO orderStatus1 = new OrderStatusVO(0L, new Date(), Status.EXECUTED, 10L, 20L, "this-order", 0L, 0L);
+        OrderStatusVO orderStatus1 = new OrderStatusVO(0L, new Date(), Status.EXECUTED, 10L, 20L, 0L, "this-order", 0L, 0L);
         epRuntime.sendEvent(orderStatus1);
 
         Assert.assertNull(orderStatusListQueue.poll());
 
-        OrderStatusVO orderStatus2 = new OrderStatusVO(0L, new Date(), Status.PARTIALLY_EXECUTED, 10L, 20L, "this-order", 0L, 0L);
+        OrderStatusVO orderStatus2 = new OrderStatusVO(0L, new Date(), Status.PARTIALLY_EXECUTED, 10L, 20L, 0L, "this-order", 0L, 0L);
         epRuntime.sendEvent(orderStatus2);
 
         Assert.assertNull(orderStatusListQueue.poll());
 
-        OrderStatusVO orderStatus3 = new OrderStatusVO(0L, new Date(), Status.EXECUTED, 10L, 20L, "blah", 0L, 0L);
+        OrderStatusVO orderStatus3 = new OrderStatusVO(0L, new Date(), Status.EXECUTED, 10L, 20L, 0L, "blah", 0L, 0L);
         epRuntime.sendEvent(orderStatus3);
 
         Assert.assertNull(orderStatusListQueue.poll());
 
-        OrderStatusVO orderStatus4 = new OrderStatusVO(0L, new Date(), Status.CANCELED, 10L, 20L, "that-order", 0L, 0L);
+        OrderStatusVO orderStatus4 = new OrderStatusVO(0L, new Date(), Status.CANCELED, 10L, 20L, 0L, "that-order", 0L, 0L);
         epRuntime.sendEvent(orderStatus4);
 
         List<OrderStatusVO> orderStati = orderStatusListQueue.poll();
