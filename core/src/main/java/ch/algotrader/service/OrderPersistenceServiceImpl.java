@@ -140,7 +140,11 @@ public class OrderPersistenceServiceImpl implements OrderPersistenceService {
             }
             if (order.getId() == 0 ) {
                 // reload persistent order instance
-                Order persistentOrder = this.orderDao.findByIntId(order.getIntId());
+                String intId = order.getIntId();
+                Order persistentOrder = this.orderDao.findByIntId(intId);
+                if (persistentOrder == null) {
+                    throw new ServiceException("Order with IntId " + intId + " has not been persisted");
+                }
                 orderStatus.setOrder(persistentOrder);
             }
             String extId = orderStatus.getExtId();

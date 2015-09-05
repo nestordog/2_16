@@ -169,37 +169,3 @@ where
 and
     tickPrice.price != -1.0;
 
-// ----------------------------------------------- ORDER STATUS ----------------------------------------------
-
-@Name('INSERT_INTO_ORDER_STATUS_IB')
-@RunTimeOnly()
-insert into
-    OrderStatus
-select
-    status,
-    filledQuantity,
-    remainingQuantity,
-     (case when avgFillPrice = 0.0 then null else RoundUtil.getBigDecimal(avgFillPrice, `order`.security.securityFamily.scale) end) as avgPrice,
-     (case when lastFillPrice = 0.0 then null else RoundUtil.getBigDecimal(lastFillPrice, `order`.security.securityFamily.scale) end) as lastPrice,
-    `order`.intId as intId,
-    extId,
-    current_timestamp.toDate() as extDateTime,
-    sequenceNumber,
-    `order`,
-    reason
-from
-    ch.algotrader.adapter.ib.IBOrderStatus.std:groupwin(`order`.intId).win:length(2)
-where
-        (prev(1, status) is null
-    or
-        status != prev(1, status)
-    or
-        filledQuantity != prev(1,filledQuantity)
-    or
-        remainingQuantity != prev(1,remainingQuantity)
-    or
-        extId != prev(1,extId))
-and
-        (filledQuantity != 0
-    or
-        remainingQuantity != 0);

@@ -25,6 +25,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 import ch.algotrader.adapter.ib.AccountUpdate;
+import ch.algotrader.adapter.ib.IBExecutions;
 import ch.algotrader.adapter.ib.IBIdGenerator;
 import ch.algotrader.adapter.ib.IBOrderMessageFactory;
 import ch.algotrader.adapter.ib.IBPendingRequests;
@@ -75,13 +76,12 @@ public class IBNativeServiceWiring {
             final IBSession iBSession,
             final IBIdGenerator iBIdGenerator,
             final OpenOrderRegistry openOrderRegistry,
+            final IBExecutions ibExecutions,
             final IBOrderMessageFactory iBOrderMessageFactory,
             final OrderPersistenceService orderPersistenceService,
-            final Engine serverEngine,
             final CommonConfig commonConfig) {
 
-        return new IBNativeOrderServiceImpl(iBSession, iBIdGenerator, openOrderRegistry, iBOrderMessageFactory,
-                orderPersistenceService, serverEngine, commonConfig);
+        return new IBNativeOrderServiceImpl(iBSession, iBIdGenerator, openOrderRegistry, ibExecutions, iBOrderMessageFactory, orderPersistenceService, commonConfig);
     }
 
     @Profile("iBHistoricalData")

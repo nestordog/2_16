@@ -27,6 +27,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.atomic.AtomicLong;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -47,6 +48,7 @@ import com.ib.client.Execution;
 import ch.algotrader.entity.marketData.Bar;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.Order;
+import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
@@ -65,6 +67,8 @@ import ch.algotrader.util.PriceUtil;
  */
 public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
 
+    private final static AtomicLong MSG_SEQ = new AtomicLong(0);
+
     private static final Logger LOGGER = LogManager.getLogger(DefaultIBMessageHandler.class);
     private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd  HH:mm:ss");
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd");
@@ -75,6 +79,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
     private final IBIdGenerator idGenerator;
 
     private final OpenOrderRegistry openOrderRegistry;
+    private final IBExecutions executions;
 
     private final BlockingQueue<AccountUpdate> accountUpdateQueue;
     private final BlockingQueue<Set<String>> accountsQueue;
@@ -87,6 +92,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
             final IBPendingRequests pendingRequests,
             final IBIdGenerator idGenerator,
             final OpenOrderRegistry openOrderRegistry,
+            final IBExecutions executions,
             final BlockingQueue<AccountUpdate> accountUpdateQueue,
             final BlockingQueue<Set<String>> accountsQueue,
             final BlockingQueue<Profile> profilesQueue,
@@ -96,6 +102,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
         this.pendingRequests = pendingRequests;
         this.idGenerator = idGenerator;
         this.openOrderRegistry = openOrderRegistry;
+        this.executions = executions;
         this.accountUpdateQueue = accountUpdateQueue;
         this.accountsQueue = accountsQueue;
         this.profilesQueue = profilesQueue;
@@ -110,13 +117,43 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
             return;
         }
 
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(EWrapperMsgGenerator.execDetails(reqId, contract, execution));
+        }
+
         String intId = String.valueOf(execution.m_orderId);
 
         // get the order from the OpenOrderWindow
         Order order = this.openOrderRegistry.getByIntId(intId);
         if (order == null) {
-            LOGGER.error("order could not be found {} for execution {} {}", intId, contract, execution);
+            LOGGER.error("Order with IntId {} could not be found for execution {} {}", intId, contract, execution);
             return;
+        }
+
+        OrderStatus orderStatus = null;
+        IBExecution executionEntry = this.executions.get(intId);
+        synchronized (executionEntry) {
+            executionEntry.setLastQuantity(execution.m_shares);
+            if (executionEntry.getStatus() == Status.OPEN) {
+
+                executionEntry.setStatus(Status.SUBMITTED);
+
+                orderStatus = OrderStatus.Factory.newInstance();
+                orderStatus.setStatus(Status.SUBMITTED);
+                orderStatus.setExtId(Integer.toString(execution.m_permId));
+                orderStatus.setIntId(intId);
+                orderStatus.setSequenceNumber(MSG_SEQ.incrementAndGet());
+                orderStatus.setFilledQuantity(0L);
+                orderStatus.setRemainingQuantity(order.getQuantity());
+                orderStatus.setLastQuantity(0L);
+                orderStatus.setOrder(order);
+                orderStatus.setExtDateTime(this.serverEngine.getCurrentTime());
+
+            }
+        }
+
+        if (orderStatus != null) {
+            this.serverEngine.sendEvent(orderStatus);
         }
 
         // get the fields
@@ -138,36 +175,70 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
         // associate the fill with the order
         fill.setOrder(order);
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(EWrapperMsgGenerator.execDetails(reqId, contract, execution));
-        }
-
         this.serverEngine.sendEvent(fill);
     }
 
     @Override
-    public void orderStatus(final int orderId, final String statusString, final int filled, final int remaining, final double avgFillPrice, final int permId,
+    public void orderStatus(final int reqId, final String statusString, final int filled, final int remaining, final double avgFillPrice, final int permId,
             final int parentId, final double lastFillPrice, final int clientId, final String whyHeld) {
 
-        String intId = String.valueOf(orderId);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(EWrapperMsgGenerator.orderStatus(reqId, statusString, filled, remaining, avgFillPrice, permId, parentId, lastFillPrice, clientId, whyHeld));
+        }
+
+        Status status = IBUtil.getStatus(statusString, filled);
+        if (status == Status.REJECTED) {
+            // Reject status needs to be processed from #handleError method in order to get the reason message
+            return;
+        }
+
+        String intId = String.valueOf(reqId);
+        String extId = String.valueOf(permId);
+
         Order order = this.openOrderRegistry.getByIntId(intId);
 
         if (order != null) {
 
-            // get the fields
-            Status status = IBUtil.getStatus(statusString, filled);
-            long filledQuantity = filled;
-            long remainingQuantity = remaining;
-            String extId = String.valueOf(permId);
+            OrderStatus orderStatus = null;
+            IBExecution executionEntry = this.executions.get(intId);
+            synchronized (executionEntry) {
 
-            // assemble the IBOrderStatus
-            IBOrderStatus orderStatus = new IBOrderStatus(status, filledQuantity, remainingQuantity, avgFillPrice, lastFillPrice, extId, order);
+                if (executionEntry.getStatus() != status
+                        || executionEntry.getFilledQuantity() != filled
+                        || executionEntry.getRemainingQuantity() != remaining) {
 
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug(EWrapperMsgGenerator.orderStatus(orderId, statusString, filled, remaining, avgFillPrice, permId, parentId, lastFillPrice, clientId, whyHeld));
+                    orderStatus = OrderStatus.Factory.newInstance();
+                    orderStatus.setStatus(status);
+                    orderStatus.setExtId(extId);
+                    orderStatus.setIntId(intId);
+                    orderStatus.setSequenceNumber(MSG_SEQ.incrementAndGet());
+                    orderStatus.setFilledQuantity(filled);
+                    orderStatus.setRemainingQuantity(remaining);
+                    orderStatus.setLastQuantity(executionEntry.getLastQuantity());
+                    orderStatus.setOrder(order);
+                    orderStatus.setExtDateTime(this.serverEngine.getCurrentTime());
+                    if (lastFillPrice != 0.0) {
+                        orderStatus.setLastPrice(PriceUtil.normalizePrice(order, lastFillPrice));
+                    }
+                    if (avgFillPrice != 0.0) {
+                        orderStatus.setAvgPrice(PriceUtil.normalizePrice(order, avgFillPrice));
+                    }
+
+                    executionEntry.setStatus(status);
+                    executionEntry.setLastQuantity(0L);
+                    executionEntry.setFilledQuantity(filled);
+                    executionEntry.setRemainingQuantity(remaining);
+
+                }
+            }
+            if (orderStatus != null) {
+                this.serverEngine.sendEvent(orderStatus);
             }
 
-            this.serverEngine.sendEvent(orderStatus);
+        } else {
+            if (LOGGER.isWarnEnabled()) {
+                LOGGER.warn("Unknown order with IntId {}", intId);
+            }
         }
     }
 
@@ -573,10 +644,30 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
 
         if (order != null) {
 
-            // assemble the IBOrderStatus
-            IBOrderStatus orderStatus = new IBOrderStatus(Status.REJECTED, 0, order.getQuantity(), null, order, reason);
+            IBExecution executionEntry = this.executions.get(intId);
+            OrderStatus orderStatus = null;
+            synchronized (executionEntry) {
+                if (executionEntry.getStatus() != Status.REJECTED) {
 
-            this.serverEngine.sendEvent(orderStatus);
+                    executionEntry.setStatus(Status.REJECTED);
+
+                    orderStatus = OrderStatus.Factory.newInstance();
+                    orderStatus.setFilledQuantity(executionEntry.getFilledQuantity());
+                    orderStatus.setRemainingQuantity(executionEntry.getRemainingQuantity());
+                    orderStatus.setStatus(Status.REJECTED);
+                    orderStatus.setIntId(intId);
+                    orderStatus.setSequenceNumber(MSG_SEQ.incrementAndGet());
+                    orderStatus.setOrder(order);
+                    orderStatus.setExtDateTime(this.serverEngine.getCurrentTime());
+                    orderStatus.setReason(reason);
+
+                }
+            }
+
+            if (orderStatus != null) {
+                this.serverEngine.sendEvent(orderStatus);
+            }
         }
     }
+
 }
