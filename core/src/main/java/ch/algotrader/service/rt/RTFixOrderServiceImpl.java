@@ -20,9 +20,11 @@ package ch.algotrader.service.rt;
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.fix.fix44.GenericFix44SymbologyResolver;
 import ch.algotrader.adapter.rt.RTFixOrderMessageFactory;
+import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.ordermgmt.OpenOrderRegistry;
+import ch.algotrader.service.OrderPersistenceService;
 import ch.algotrader.service.fix.fix44.Fix44OrderService;
 import ch.algotrader.service.fix.fix44.Fix44OrderServiceImpl;
 import quickfix.fix44.NewOrderSingle;
@@ -38,9 +40,13 @@ public class RTFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fix4
 
     private static final long serialVersionUID = 1030392480992545177L;
 
-    public RTFixOrderServiceImpl(final FixAdapter fixAdapter, final OpenOrderRegistry openOrderRegistry) {
+    public RTFixOrderServiceImpl(
+            final FixAdapter fixAdapter,
+            final OpenOrderRegistry openOrderRegistry,
+            final OrderPersistenceService orderPersistenceService,
+            final CommonConfig commonConfig) {
 
-        super(fixAdapter, openOrderRegistry, new RTFixOrderMessageFactory(new GenericFix44SymbologyResolver()));
+        super(fixAdapter, openOrderRegistry, orderPersistenceService, new RTFixOrderMessageFactory(new GenericFix44SymbologyResolver()), commonConfig);
     }
 
     @Override

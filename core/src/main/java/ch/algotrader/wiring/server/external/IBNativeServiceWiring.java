@@ -30,6 +30,7 @@ import ch.algotrader.adapter.ib.IBOrderMessageFactory;
 import ch.algotrader.adapter.ib.IBPendingRequests;
 import ch.algotrader.adapter.ib.IBSession;
 import ch.algotrader.adapter.ib.IBSessionStateHolder;
+import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.IBConfig;
 import ch.algotrader.dao.marketData.BarDao;
 import ch.algotrader.dao.security.FutureDao;
@@ -42,6 +43,7 @@ import ch.algotrader.ordermgmt.OpenOrderRegistry;
 import ch.algotrader.service.ExternalMarketDataService;
 import ch.algotrader.service.ExternalOrderService;
 import ch.algotrader.service.HistoricalDataService;
+import ch.algotrader.service.OrderPersistenceService;
 import ch.algotrader.service.ReferenceDataService;
 import ch.algotrader.service.ib.IBNativeAccountService;
 import ch.algotrader.service.ib.IBNativeAccountServiceImpl;
@@ -74,9 +76,12 @@ public class IBNativeServiceWiring {
             final IBIdGenerator iBIdGenerator,
             final OpenOrderRegistry openOrderRegistry,
             final IBOrderMessageFactory iBOrderMessageFactory,
-            final Engine serverEngine) {
+            final OrderPersistenceService orderPersistenceService,
+            final Engine serverEngine,
+            final CommonConfig commonConfig) {
 
-        return new IBNativeOrderServiceImpl(iBSession, iBIdGenerator, openOrderRegistry, iBOrderMessageFactory, serverEngine);
+        return new IBNativeOrderServiceImpl(iBSession, iBIdGenerator, openOrderRegistry, iBOrderMessageFactory,
+                orderPersistenceService, serverEngine, commonConfig);
     }
 
     @Profile("iBHistoricalData")

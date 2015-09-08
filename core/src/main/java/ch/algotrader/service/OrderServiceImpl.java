@@ -360,10 +360,6 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
         externalOrderService.sendOrder(order);
 
         propagateOrder(order);
-
-        if (!this.commonConfig.isSimulation()) {
-            this.orderPersistService.persistOrder(order);
-        }
     }
 
     /**
@@ -432,10 +428,6 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
 
         ExternalOrderService externalOrderService = getExternalOrderService(account);
         externalOrderService.cancelOrder(order);
-
-        if (!this.commonConfig.isSimulation()) {
-            this.orderPersistService.persistOrder(order);
-        }
     }
 
     /**
@@ -506,9 +498,6 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
         externalOrderService.modifyOrder(order);
 
         propagateOrder(order);
-        if (!this.commonConfig.isSimulation()) {
-            this.orderPersistService.persistOrder(order);
-        }
     }
 
     /**

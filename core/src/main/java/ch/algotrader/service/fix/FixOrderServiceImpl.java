@@ -22,6 +22,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.adapter.fix.FixAdapter;
+import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.enumeration.InitializingServiceType;
@@ -29,9 +30,9 @@ import ch.algotrader.enumeration.TIF;
 import ch.algotrader.service.ExternalServiceException;
 import ch.algotrader.service.InitializationPriority;
 import ch.algotrader.service.InitializingServiceI;
+import ch.algotrader.service.OrderPersistenceService;
 import quickfix.FieldNotFound;
 import quickfix.Message;
-import quickfix.StringField;
 import quickfix.field.MsgType;
 
 /**
@@ -49,12 +50,21 @@ public abstract class FixOrderServiceImpl implements FixOrderService, Initializi
     private static final Logger LOGGER = LogManager.getLogger(FixOrderServiceImpl.class);
 
     private final FixAdapter fixAdapter;
+    private final OrderPersistenceService orderPersistenceService;
+    private final CommonConfig commonConfig;
 
-    public FixOrderServiceImpl(final FixAdapter fixAdapter) {
+    public FixOrderServiceImpl(
+            final FixAdapter fixAdapter,
+            final OrderPersistenceService orderPersistenceService,
+            final CommonConfig commonConfig) {
 
         Validate.notNull(fixAdapter, "FixAdapter is null");
+        Validate.notNull(orderPersistenceService, "OrderPersistenceService is null");
+        Validate.notNull(commonConfig, "CommonConfig is null");
 
         this.fixAdapter = fixAdapter;
+        this.orderPersistenceService = orderPersistenceService;
+        this.commonConfig = commonConfig;
     }
 
     protected FixAdapter getFixAdapter() {
@@ -80,25 +90,30 @@ public abstract class FixOrderServiceImpl implements FixOrderService, Initializi
         Validate.notNull(order, "Order is null");
         Validate.notNull(message, "Message is null");
 
-        // send the message to the Fix Adapter
-        this.fixAdapter.sendMessage(message, order.getAccount());
-
-        StringField msgType;
+        String msgType;
         try {
-            msgType = message.getHeader().getField(new MsgType());
+            msgType = message.getHeader().getString(MsgType.FIELD);
         } catch (FieldNotFound ex) {
             throw new ExternalServiceException(ex);
         }
 
-        if (msgType.getValue().equals(MsgType.ORDER_SINGLE)) {
+        if (!this.commonConfig.isSimulation()
+                && (msgType.equals(MsgType.ORDER_SINGLE) || msgType.equals(MsgType.ORDER_CANCEL_REPLACE_REQUEST))) {
+            this.orderPersistenceService.persistOrder(order);
+        }
+
+        // send the message to the Fix Adapter
+        this.fixAdapter.sendMessage(message, order.getAccount());
+
+        if (msgType.equals(MsgType.ORDER_SINGLE)) {
             if (LOGGER.isInfoEnabled()) {
                 LOGGER.info("sent order: {}", order);
             }
-        } else if (msgType.getValue().equals(MsgType.ORDER_CANCEL_REPLACE_REQUEST)) {
+        } else if (msgType.equals(MsgType.ORDER_CANCEL_REPLACE_REQUEST)) {
             if (LOGGER.isInfoEnabled()) {
                 LOGGER.info("sent order modification: {}", order);
             }
-        } else if (msgType.getValue().equals(MsgType.ORDER_CANCEL_REQUEST)) {
+        } else if (msgType.equals(MsgType.ORDER_CANCEL_REQUEST)) {
             if (LOGGER.isInfoEnabled()) {
                 LOGGER.info("sent order cancellation: {}", order);
             }

@@ -28,6 +28,7 @@ import ch.algotrader.adapter.ib.IBOrderMessageFactory;
 import ch.algotrader.adapter.ib.IBOrderStatus;
 import ch.algotrader.adapter.ib.IBSession;
 import ch.algotrader.adapter.ib.IBUtil;
+import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
@@ -36,6 +37,7 @@ import ch.algotrader.enumeration.TIF;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.ordermgmt.OpenOrderRegistry;
 import ch.algotrader.service.ExternalOrderService;
+import ch.algotrader.service.OrderPersistenceService;
 import ch.algotrader.service.ServiceException;
 
 /**
@@ -53,25 +55,33 @@ public class IBNativeOrderServiceImpl implements ExternalOrderService {
     private final IBIdGenerator iBIdGenerator;
     private final OpenOrderRegistry openOrderRegistry;
     private final IBOrderMessageFactory iBOrderMessageFactory;
+    private final OrderPersistenceService orderPersistenceService;
     private final Engine serverEngine;
+    private final CommonConfig commonConfig;
 
     public IBNativeOrderServiceImpl(final IBSession iBSession,
             final IBIdGenerator iBIdGenerator,
             final OpenOrderRegistry openOrderRegistry,
             final IBOrderMessageFactory iBOrderMessageFactory,
-            final Engine serverEngine) {
+            final OrderPersistenceService orderPersistenceService,
+            final Engine serverEngine,
+            final CommonConfig commonConfig) {
 
         Validate.notNull(iBSession, "IBSession is null");
         Validate.notNull(iBIdGenerator, "IBIdGenerator is null");
         Validate.notNull(openOrderRegistry, "OpenOrderRegistry is null");
         Validate.notNull(iBOrderMessageFactory, "IBOrderMessageFactory is null");
+        Validate.notNull(orderPersistenceService, "OrderPersistenceService is null");
         Validate.notNull(serverEngine, "Engine is null");
+        Validate.notNull(commonConfig, "CommonConfig is null");
 
         this.iBSession = iBSession;
         this.iBIdGenerator = iBIdGenerator;
         this.openOrderRegistry = openOrderRegistry;
         this.iBOrderMessageFactory = iBOrderMessageFactory;
+        this.orderPersistenceService = orderPersistenceService;
         this.serverEngine = serverEngine;
+        this.commonConfig = commonConfig;
     }
 
     @Override
@@ -106,6 +116,10 @@ public class IBNativeOrderServiceImpl implements ExternalOrderService {
 
         this.openOrderRegistry.add(order);
 
+        if (!this.commonConfig.isSimulation()) {
+            this.orderPersistenceService.persistOrder(order);
+        }
+
         if (firstOrder) {
 
             synchronized (this) {
@@ -138,6 +152,10 @@ public class IBNativeOrderServiceImpl implements ExternalOrderService {
 
         this.openOrderRegistry.remove(order.getIntId());
         this.openOrderRegistry.add(order);
+
+        if (!this.commonConfig.isSimulation()) {
+            this.orderPersistenceService.persistOrder(order);
+        }
 
         sendOrModifyOrder(order);
 

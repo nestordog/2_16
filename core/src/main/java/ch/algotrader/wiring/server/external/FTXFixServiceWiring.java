@@ -23,10 +23,12 @@ import org.springframework.context.annotation.Profile;
 
 import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.adapter.fix.ManagedFixAdapter;
+import ch.algotrader.config.CommonConfig;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.ordermgmt.OpenOrderRegistry;
 import ch.algotrader.service.ExternalMarketDataService;
 import ch.algotrader.service.ExternalOrderService;
+import ch.algotrader.service.OrderPersistenceService;
 import ch.algotrader.service.ftx.FTXFixMarketDataServiceImpl;
 import ch.algotrader.service.ftx.FTXFixOrderServiceImpl;
 
@@ -41,9 +43,11 @@ public class FTXFixServiceWiring {
     public ExternalOrderService createFTXFixOrderService(
             final ManagedFixAdapter fixAdapter,
             final OpenOrderRegistry openOrderRegistry,
-            final Engine serverEngine) {
+            final OrderPersistenceService orderPersistenceService,
+            final Engine serverEngine,
+            final CommonConfig commonConfig) {
 
-        return new FTXFixOrderServiceImpl(fixAdapter, openOrderRegistry, serverEngine);
+        return new FTXFixOrderServiceImpl(fixAdapter, openOrderRegistry, orderPersistenceService, serverEngine, commonConfig);
     }
 
     @Profile("fTXMarketData")

@@ -23,10 +23,12 @@ import org.springframework.context.annotation.Profile;
 
 import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.adapter.fix.ManagedFixAdapter;
+import ch.algotrader.config.CommonConfig;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.ordermgmt.OpenOrderRegistry;
 import ch.algotrader.service.ExternalMarketDataService;
 import ch.algotrader.service.ExternalOrderService;
+import ch.algotrader.service.OrderPersistenceService;
 import ch.algotrader.service.lmax.LMAXFixMarketDataServiceImpl;
 import ch.algotrader.service.lmax.LMAXFixOrderServiceImpl;
 
@@ -40,9 +42,11 @@ public class LMAXFixServiceWiring {
     @Bean(name = "lMAXFixOrderService")
     public ExternalOrderService createLMAXFixOrderService(
             final ManagedFixAdapter fixAdapter,
-            final OpenOrderRegistry openOrderRegistry) {
+            final OpenOrderRegistry openOrderRegistry,
+            final OrderPersistenceService orderPersistenceService,
+            final CommonConfig commonConfig) {
 
-        return new LMAXFixOrderServiceImpl(fixAdapter, openOrderRegistry);
+        return new LMAXFixOrderServiceImpl(fixAdapter, openOrderRegistry, orderPersistenceService, commonConfig);
     }
 
     @Profile("lMAXMarketData")

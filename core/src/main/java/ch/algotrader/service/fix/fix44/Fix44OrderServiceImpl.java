@@ -21,8 +21,10 @@ import org.apache.commons.lang.Validate;
 
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.fix.fix44.Fix44OrderMessageFactory;
+import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.ordermgmt.OpenOrderRegistry;
+import ch.algotrader.service.OrderPersistenceService;
 import ch.algotrader.service.fix.FixOrderServiceImpl;
 import quickfix.fix44.NewOrderSingle;
 import quickfix.fix44.OrderCancelReplaceRequest;
@@ -43,9 +45,11 @@ public abstract class Fix44OrderServiceImpl extends FixOrderServiceImpl implemen
     public Fix44OrderServiceImpl(
             final FixAdapter fixAdapter,
             final OpenOrderRegistry openOrderRegistry,
-            final Fix44OrderMessageFactory messageFactory) {
+            final OrderPersistenceService orderPersistenceService,
+            final Fix44OrderMessageFactory messageFactory,
+            final CommonConfig commonConfig) {
 
-        super(fixAdapter);
+        super(fixAdapter, orderPersistenceService, commonConfig);
 
         Validate.notNull(openOrderRegistry, "OpenOrderRegistry is null");
         Validate.notNull(messageFactory, "Fix44OrderMessageFactory is null");

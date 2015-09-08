@@ -19,10 +19,12 @@ package ch.algotrader.service.ib;
 
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.ib.IBFixOrderMessageFactory;
+import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.IBConfig;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.ordermgmt.OpenOrderRegistry;
+import ch.algotrader.service.OrderPersistenceService;
 import ch.algotrader.service.fix.fix42.Fix42OrderService;
 import ch.algotrader.service.fix.fix42.Fix42OrderServiceImpl;
 import quickfix.fix42.NewOrderSingle;
@@ -38,9 +40,14 @@ public class IBFixOrderServiceImpl extends Fix42OrderServiceImpl implements Fix4
 
     private static final long serialVersionUID = -537844523983750001L;
 
-    public IBFixOrderServiceImpl(final IBConfig iBConfig, final FixAdapter fixAdapter, final OpenOrderRegistry openOrderRegistry) {
+    public IBFixOrderServiceImpl(
+            final FixAdapter fixAdapter,
+            final OpenOrderRegistry openOrderRegistry,
+            final OrderPersistenceService orderPersistenceService,
+            final CommonConfig commonConfig,
+            final IBConfig iBConfig) {
 
-        super(fixAdapter, openOrderRegistry, new IBFixOrderMessageFactory(iBConfig));
+        super(fixAdapter, openOrderRegistry, orderPersistenceService, new IBFixOrderMessageFactory(iBConfig), commonConfig);
     }
 
     @Override

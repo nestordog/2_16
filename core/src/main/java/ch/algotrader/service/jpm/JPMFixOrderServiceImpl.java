@@ -20,9 +20,11 @@ package ch.algotrader.service.jpm;
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.fix.fix42.GenericFix42OrderMessageFactory;
 import ch.algotrader.adapter.fix.fix42.GenericFix42SymbologyResolver;
+import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.ordermgmt.OpenOrderRegistry;
+import ch.algotrader.service.OrderPersistenceService;
 import ch.algotrader.service.fix.fix42.Fix42OrderService;
 import ch.algotrader.service.fix.fix42.Fix42OrderServiceImpl;
 import quickfix.field.HandlInst;
@@ -39,9 +41,13 @@ public class JPMFixOrderServiceImpl extends Fix42OrderServiceImpl implements Fix
 
     private static final long serialVersionUID = -8881034489922372443L;
 
-    public JPMFixOrderServiceImpl(final FixAdapter fixAdapter, final OpenOrderRegistry openOrderRegistry) {
+    public JPMFixOrderServiceImpl(
+            final FixAdapter fixAdapter,
+            final OpenOrderRegistry openOrderRegistry,
+            final OrderPersistenceService orderPersistenceService,
+            final CommonConfig commonConfig) {
 
-        super(fixAdapter, openOrderRegistry, new GenericFix42OrderMessageFactory(new GenericFix42SymbologyResolver()));
+        super(fixAdapter, openOrderRegistry, orderPersistenceService, new GenericFix42OrderMessageFactory(new GenericFix42SymbologyResolver()), commonConfig);
     }
 
     @Override

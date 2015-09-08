@@ -29,8 +29,8 @@ import quickfix.Message;
 public interface FixOrderService extends ExternalOrderService {
 
     /**
-     * Sends an Order to the external Broker and propagates the Order to the AlgoTrader Server Esper Engine.
+     * Sends Order to the external Broker.
      */
-    public void sendOrder(Order order, Message message);
+    void sendOrder(Order order, Message message);
 
 }

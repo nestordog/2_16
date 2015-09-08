@@ -19,10 +19,12 @@ package ch.algotrader.service.lmax;
 
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.lmax.LMAXFixOrderMessageFactory;
+import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.enumeration.TIF;
 import ch.algotrader.ordermgmt.OpenOrderRegistry;
+import ch.algotrader.service.OrderPersistenceService;
 import ch.algotrader.service.fix.fix44.Fix44OrderService;
 import ch.algotrader.service.fix.fix44.Fix44OrderServiceImpl;
 import quickfix.fix44.NewOrderSingle;
@@ -40,9 +42,11 @@ public class LMAXFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fi
 
     public LMAXFixOrderServiceImpl(
             final FixAdapter fixAdapter,
-            final OpenOrderRegistry openOrderRegistry) {
+            final OpenOrderRegistry openOrderRegistry,
+            final OrderPersistenceService orderPersistenceService,
+            final CommonConfig commonConfig) {
 
-        super(fixAdapter, openOrderRegistry, new LMAXFixOrderMessageFactory());
+        super(fixAdapter, openOrderRegistry, orderPersistenceService, new LMAXFixOrderMessageFactory(), commonConfig);
     }
 
     @Override

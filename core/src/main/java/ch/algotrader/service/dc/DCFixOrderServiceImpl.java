@@ -22,6 +22,7 @@ import org.apache.commons.lang.Validate;
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.fix.fix44.GenericFix44OrderMessageFactory;
 import ch.algotrader.adapter.fix.fix44.GenericFix44SymbologyResolver;
+import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.trade.LimitOrder;
 import ch.algotrader.entity.trade.SimpleOrder;
@@ -30,6 +31,7 @@ import ch.algotrader.entity.trade.StopOrder;
 import ch.algotrader.entity.trade.StopOrderI;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.ordermgmt.OpenOrderRegistry;
+import ch.algotrader.service.OrderPersistenceService;
 import ch.algotrader.service.fix.fix44.Fix44OrderService;
 import ch.algotrader.service.fix.fix44.Fix44OrderServiceImpl;
 import ch.algotrader.util.PriceUtil;
@@ -55,9 +57,14 @@ public class DCFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fix4
 
     private static final long serialVersionUID = -8251827446524602573L;
 
-    public DCFixOrderServiceImpl(final FixAdapter fixAdapter, final OpenOrderRegistry openOrderRegistry) {
+    public DCFixOrderServiceImpl(
+            final FixAdapter fixAdapter,
+            final OpenOrderRegistry openOrderRegistry,
+            final OrderPersistenceService orderPersistenceService,
+            final CommonConfig commonConfig) {
 
-        super(fixAdapter, openOrderRegistry, new GenericFix44OrderMessageFactory(new GenericFix44SymbologyResolver()));
+        super(fixAdapter, openOrderRegistry, orderPersistenceService,
+                new GenericFix44OrderMessageFactory(new GenericFix44SymbologyResolver()), commonConfig);
     }
 
     @Override
