@@ -18,6 +18,7 @@
 package ch.algotrader.service;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import ch.algotrader.entity.Account;
@@ -100,11 +101,6 @@ public interface OrderService {
     public void propagateOrderStatus(OrderStatus orderStatus);
 
     /**
-     * PAsses the last {@link OrderStatus} upon order completion..
-     */
-    public void orderCompleted(OrderStatus orderStatus);
-
-    /**
      * Propagates an {@link OrderCompletionVO} to the corresponding Strategy.
      */
     public void propagateOrderCompletion(OrderCompletionVO orderCompletion);
@@ -115,29 +111,20 @@ public interface OrderService {
     public String getNextOrderId(Account account);
 
     /**
-     * Finds all details of currently open Orders.
+     * Returns details of currently open orders.
      */
-    public Collection<OrderDetailsVO> getAllOpenOrders();
+    public List<OrderDetailsVO> getOpenOrderDetails();
 
     /**
-     * Finds details of currently open Orders for the given strategy.
+     * Returns details of recently executed orders.
      */
-    public Collection<OrderDetailsVO> getOpenOrdersByStrategy(String strategyName);
+    public List<OrderDetailsVO> getRecentOrderDetails();
 
     /**
-     * Returns the order with the given {@code IntId}.
-     */
-    public Order getOpenOrderByIntId(String intId);
-
-    /**
-     * Returns execution status of the order with the given {@code IntId}.
+     * Returns execution status of the order with the given {@code IntId} or {@code null}
+     * if an order with this {@code IntId} has been fully executed.
      */
     ExecutionStatusVO getStatusByIntId(String intId);
-
-    /**
-     * Returns full details of the open order with the given {@code IntId}.
-     */
-    public OrderDetailsVO getOpenOrderDetailsByIntId(String intId);
 
     /**
      * Gets an order (open or completed) by its {@code intId}.

@@ -37,7 +37,7 @@ import ch.algotrader.enumeration.Status;
 import ch.algotrader.enumeration.TIF;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
-import ch.algotrader.ordermgmt.OpenOrderRegistry;
+import ch.algotrader.ordermgmt.OrderRegistry;
 import ch.algotrader.service.LocalLookupService;
 
 /**
@@ -48,23 +48,23 @@ import ch.algotrader.service.LocalLookupService;
 public class SimulationOrderServiceImpl implements SimulationOrderService {
 
     private final LocalLookupService localLookupService;
-    private final OpenOrderRegistry openOrderRegistry;
+    private final OrderRegistry orderRegistry;
     private final EngineManager engineManager;
     private final Engine serverEngine;
     private final AtomicLong counter;
 
     public SimulationOrderServiceImpl(
-            final OpenOrderRegistry openOrderRegistry,
+            final OrderRegistry orderRegistry,
             final LocalLookupService localLookupService,
             final EngineManager engineManager,
             final Engine serverEngine) {
 
-        Validate.notNull(openOrderRegistry, "OpenOrderRegistry is null");
+        Validate.notNull(orderRegistry, "OpenOrderRegistry is null");
         Validate.notNull(localLookupService, "LocalLookupService is null");
         Validate.notNull(engineManager, "EngineManager is null");
         Validate.notNull(serverEngine, "Engine is null");
 
-        this.openOrderRegistry = openOrderRegistry;
+        this.orderRegistry = orderRegistry;
         this.engineManager = engineManager;
         this.serverEngine = serverEngine;
         this.localLookupService = localLookupService;
@@ -83,7 +83,7 @@ public class SimulationOrderServiceImpl implements SimulationOrderService {
             order.setIntId(intId);
         }
 
-        this.openOrderRegistry.add(order);
+        this.orderRegistry.add(order);
 
         // create and OrderStatus
         OrderStatus orderStatus = OrderStatus.Factory.newInstance();

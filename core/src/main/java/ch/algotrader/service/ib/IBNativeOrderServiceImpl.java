@@ -35,7 +35,7 @@ import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.enumeration.TIF;
-import ch.algotrader.ordermgmt.OpenOrderRegistry;
+import ch.algotrader.ordermgmt.OrderRegistry;
 import ch.algotrader.service.ExternalOrderService;
 import ch.algotrader.service.OrderPersistenceService;
 import ch.algotrader.service.ServiceException;
@@ -53,7 +53,7 @@ public class IBNativeOrderServiceImpl implements ExternalOrderService {
 
     private final IBSession iBSession;
     private final IBIdGenerator iBIdGenerator;
-    private final OpenOrderRegistry openOrderRegistry;
+    private final OrderRegistry orderRegistry;
     private final IBExecutions iBExecutions;
     private final IBOrderMessageFactory iBOrderMessageFactory;
     private final OrderPersistenceService orderPersistenceService;
@@ -61,7 +61,7 @@ public class IBNativeOrderServiceImpl implements ExternalOrderService {
 
     public IBNativeOrderServiceImpl(final IBSession iBSession,
             final IBIdGenerator iBIdGenerator,
-            final OpenOrderRegistry openOrderRegistry,
+            final OrderRegistry orderRegistry,
             final IBExecutions iBExecutions,
             final IBOrderMessageFactory iBOrderMessageFactory,
             final OrderPersistenceService orderPersistenceService,
@@ -69,7 +69,7 @@ public class IBNativeOrderServiceImpl implements ExternalOrderService {
 
         Validate.notNull(iBSession, "IBSession is null");
         Validate.notNull(iBIdGenerator, "IBIdGenerator is null");
-        Validate.notNull(openOrderRegistry, "OpenOrderRegistry is null");
+        Validate.notNull(orderRegistry, "OpenOrderRegistry is null");
         Validate.notNull(iBExecutions, "IBExecutions is null");
         Validate.notNull(iBOrderMessageFactory, "IBOrderMessageFactory is null");
         Validate.notNull(orderPersistenceService, "OrderPersistenceService is null");
@@ -77,7 +77,7 @@ public class IBNativeOrderServiceImpl implements ExternalOrderService {
 
         this.iBSession = iBSession;
         this.iBIdGenerator = iBIdGenerator;
-        this.openOrderRegistry = openOrderRegistry;
+        this.orderRegistry = orderRegistry;
         this.iBExecutions = iBExecutions;
         this.iBOrderMessageFactory = iBOrderMessageFactory;
         this.orderPersistenceService = orderPersistenceService;
@@ -114,7 +114,7 @@ public class IBNativeOrderServiceImpl implements ExternalOrderService {
             order.setIntId(intId);
         }
 
-        this.openOrderRegistry.add(order);
+        this.orderRegistry.add(order);
         IBExecution execution = this.iBExecutions.add(intId);
 
         synchronized (execution) {
@@ -156,8 +156,8 @@ public class IBNativeOrderServiceImpl implements ExternalOrderService {
         Validate.notNull(order, "Order is null");
 
         String intId = order.getIntId();
-        this.openOrderRegistry.remove(intId);
-        this.openOrderRegistry.add(order);
+        this.orderRegistry.remove(intId);
+        this.orderRegistry.add(order);
 
         IBExecution execution = this.iBExecutions.add(intId);
         synchronized (execution) {

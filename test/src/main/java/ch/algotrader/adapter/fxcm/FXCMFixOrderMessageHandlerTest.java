@@ -48,7 +48,7 @@ import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.AbstractEngine;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.event.dispatch.EventDispatcher;
-import ch.algotrader.ordermgmt.OpenOrderRegistry;
+import ch.algotrader.ordermgmt.OrderRegistry;
 import quickfix.DefaultSessionFactory;
 import quickfix.LogFactory;
 import quickfix.MemoryStoreFactory;
@@ -75,7 +75,7 @@ public class FXCMFixOrderMessageHandlerTest {
 
     private LinkedBlockingQueue<Object> eventQueue;
     private EventDispatcher eventDispatcher;
-    private OpenOrderRegistry openOrderRegistry;
+    private OrderRegistry orderRegistry;
     private String account;
     private FXCMFixOrderMessageHandler messageHandler;
     private Session session;
@@ -112,8 +112,8 @@ public class FXCMFixOrderMessageHandlerTest {
 
         DefaultLogonMessageHandler logonHandler = new DefaultLogonMessageHandler(settings);
 
-        this.openOrderRegistry = Mockito.mock(OpenOrderRegistry.class);
-        FXCMFixOrderMessageHandler messageHandlerImpl = new FXCMFixOrderMessageHandler(this.openOrderRegistry, engine);
+        this.orderRegistry = Mockito.mock(OrderRegistry.class);
+        FXCMFixOrderMessageHandler messageHandlerImpl = new FXCMFixOrderMessageHandler(this.orderRegistry, engine);
         this.messageHandler = Mockito.spy(messageHandlerImpl);
 
         DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, this.messageHandler, logonHandler,
@@ -197,7 +197,7 @@ public class FXCMFixOrderMessageHandlerTest {
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(forex);
 
-        Mockito.when(this.openOrderRegistry.getByIntId(orderId)).thenReturn(order);
+        Mockito.when(this.orderRegistry.getByIntId(orderId)).thenReturn(order);
 
         this.session.send(orderSingle);
 
@@ -313,7 +313,7 @@ public class FXCMFixOrderMessageHandlerTest {
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(forex);
 
-        Mockito.when(this.openOrderRegistry.getByIntId(orderId1)).thenReturn(order);
+        Mockito.when(this.orderRegistry.getByIntId(orderId1)).thenReturn(order);
 
         this.session.send(orderSingle);
 
@@ -338,7 +338,7 @@ public class FXCMFixOrderMessageHandlerTest {
         cancelRequest.set(new TransactTime(new Date()));
         cancelRequest.set(new OrderQty(1000.0d));
 
-        Mockito.when(this.openOrderRegistry.getByIntId(orderId2)).thenReturn(order);
+        Mockito.when(this.orderRegistry.getByIntId(orderId2)).thenReturn(order);
 
         this.session.send(cancelRequest);
 
@@ -384,7 +384,7 @@ public class FXCMFixOrderMessageHandlerTest {
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(forex);
 
-        Mockito.when(this.openOrderRegistry.getByIntId(orderId1)).thenReturn(order);
+        Mockito.when(this.orderRegistry.getByIntId(orderId1)).thenReturn(order);
 
         this.session.send(orderSingle);
 
@@ -411,7 +411,7 @@ public class FXCMFixOrderMessageHandlerTest {
         replaceRequest.set(new OrdType(OrdType.STOP));
         replaceRequest.set(new StopPx(1.9d));
 
-        Mockito.when(this.openOrderRegistry.getByIntId(orderId2)).thenReturn(order);
+        Mockito.when(this.orderRegistry.getByIntId(orderId2)).thenReturn(order);
 
         this.session.send(replaceRequest);
 

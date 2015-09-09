@@ -17,6 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.entity.trade;
 
+import java.time.LocalDateTime;
+
 import ch.algotrader.enumeration.Status;
 
 /**
@@ -30,13 +32,14 @@ public class ExecutionStatusVO {
     private final Status status;
     private final long filledQuantity;
     private final long remainingQuantity;
+    private final LocalDateTime dateTime;
 
-
-    public ExecutionStatusVO(final String intId, final Status status, final long filledQuantity, final long remainingQuantity) {
+    public ExecutionStatusVO(final String intId, final Status status, final long filledQuantity, final long remainingQuantity, final LocalDateTime dateTime) {
         this.intId = intId;
         this.status = status;
         this.filledQuantity = filledQuantity;
         this.remainingQuantity = remainingQuantity;
+        this.dateTime = dateTime;
     }
 
     public String getIntId() {
@@ -55,6 +58,29 @@ public class ExecutionStatusVO {
         return remainingQuantity;
     }
 
+    public LocalDateTime getDateTime() {
+        return dateTime;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        } else if (obj == null) {
+            return false;
+        } else if (getClass() == obj.getClass()) {
+            ExecutionStatusVO that = (ExecutionStatusVO) obj;
+            return this.intId.equals(that.intId);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return intId.hashCode();
+    }
+
     @Override
     public String toString() {
         return "{" +
@@ -62,6 +88,7 @@ public class ExecutionStatusVO {
                 ", status=" + status +
                 ", filledQuantity=" + filledQuantity +
                 ", remainingQuantity=" + remainingQuantity +
+                ", dateTime=" + dateTime +
                 '}';
     }
 

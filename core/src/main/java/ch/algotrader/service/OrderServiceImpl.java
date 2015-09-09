@@ -76,7 +76,7 @@ import ch.algotrader.enumeration.TIF;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.dispatch.EventDispatcher;
-import ch.algotrader.ordermgmt.OpenOrderRegistry;
+import ch.algotrader.ordermgmt.OrderRegistry;
 import ch.algotrader.util.BeanUtil;
 
 /**
@@ -114,7 +114,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
 
     private final OrderPreferenceDao orderPreferenceDao;
 
-    private final OpenOrderRegistry openOrderRegistry;
+    private final OrderRegistry orderRegistry;
 
     private final EventDispatcher eventDispatcher;
 
@@ -135,7 +135,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
             final AccountDao accountDao,
             final ExchangeDao exchangeDao,
             final OrderPreferenceDao orderPreferenceDao,
-            final OpenOrderRegistry openOrderRegistry,
+            final OrderRegistry orderRegistry,
             final EventDispatcher eventDispatcher,
             final EngineManager engineManager,
             final Engine serverEngine,
@@ -152,7 +152,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
         Validate.notNull(accountDao, "AccountDao is null");
         Validate.notNull(exchangeDao, "ExchangeDao is null");
         Validate.notNull(orderPreferenceDao, "OrderPreferenceDao is null");
-        Validate.notNull(openOrderRegistry, "OpenOrderRegistry is null");
+        Validate.notNull(orderRegistry, "OpenOrderRegistry is null");
         Validate.notNull(eventDispatcher, "PlatformEventDispatcher is null");
         Validate.notNull(engineManager, "EngineManager is null");
         Validate.notNull(serverEngine, "Engine is null");
@@ -168,7 +168,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
         this.accountDao = accountDao;
         this.exchangeDao = exchangeDao;
         this.orderPreferenceDao = orderPreferenceDao;
-        this.openOrderRegistry = openOrderRegistry;
+        this.orderRegistry = orderRegistry;
         this.eventDispatcher = eventDispatcher;
         this.engineManager = engineManager;
         this.serverEngine = serverEngine;
@@ -329,7 +329,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
             LOGGER.info("send algo order: {}", order);
         }
 
-        this.openOrderRegistry.add(order);
+        this.orderRegistry.add(order);
 
         // progapate the order to all corresponding esper engines
         propagateOrder(order);
@@ -395,14 +395,14 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
     private void cancelAlgoOrder(AlgoOrder order) {
 
         // cancel existing child orders
-        Collection<Order> openOrders = this.openOrderRegistry.findByParentIntId(order.getIntId());
+        Collection<Order> openOrders = this.orderRegistry.getOpenOrdersByParentIntId(order.getIntId());
         openOrders.forEach(childOrder -> {
             Account account = order.getAccount();
             Validate.notNull(account, "missing account for order: " + order);
             getExternalOrderService(account).cancelOrder((SimpleOrder) childOrder);
         });
 
-        ExecutionStatusVO executionStatus = this.openOrderRegistry.getStatusByIntId(order.getIntId());
+        ExecutionStatusVO executionStatus = this.orderRegistry.getStatusByIntId(order.getIntId());
 
         // assemble a new OrderStatus Entity
         OrderStatus orderStatus = OrderStatus.Factory.newInstance();
@@ -438,9 +438,9 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
 
         Validate.notNull(intId, "Int id is null");
 
-        Order order = this.openOrderRegistry.getByIntId(intId);
+        Order order = this.orderRegistry.getOpenOrderByIntId(intId);
         if (order == null) {
-            throw new ServiceException("Could not find order with IntId " + intId);
+            throw new ServiceException("Could not find open order with IntId " + intId);
         }
         cancelOrder(order);
     }
@@ -451,7 +451,8 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
     @Override
     public void cancelAllOrders() {
 
-        for (Order order : this.openOrderRegistry.getAllOrders()) {
+        final List<Order> orders = this.orderRegistry.getAllOpenOrders();
+        for (Order order: orders) {
             cancelOrder(order);
         }
 
@@ -509,9 +510,9 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
         Validate.notNull(intId, "Int id is null");
         Validate.notNull(properties, "Properties is null");
 
-        Order order = this.openOrderRegistry.getByIntId(intId);
+        Order order = this.orderRegistry.getOpenOrderByIntId(intId);
         if (order == null) {
-            throw new ServiceException("Could not find order with IntId " + intId);
+            throw new ServiceException("Could not find open order with IntId " + intId);
         }
         Order newOrder;
         try {
@@ -548,10 +549,13 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
         Validate.notNull(orderStatus, "Order status is null");
 
         String intId = orderStatus.getIntId();
-        Order order = this.openOrderRegistry.getByIntId(intId);
+        Order order = this.orderRegistry.getOpenOrderByIntId(intId);
         if (order == null) {
-            throw new ServiceException("Order with IntID " + intId + " not found");
+            throw new ServiceException("Open order with IntID " + intId + " not found");
         }
+
+        this.orderRegistry.updateExecutionStatus(order.getIntId(), orderStatus.getStatus(), orderStatus.getFilledQuantity(), orderStatus.getRemainingQuantity());
+
         // send the fill to the strategy that placed the corresponding order
         Strategy strategy = order.getStrategy();
         if (!strategy.isServer()) {
@@ -593,54 +597,9 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
      * {@inheritDoc}
      */
     @Override
-    public void orderCompleted(final OrderStatus orderStatus) {
-
-        String intId = orderStatus.getIntId();
-        this.openOrderRegistry.remove(intId);
-
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Open order {} removed", intId);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public String getNextOrderId(final Account account) {
 
         return getExternalOrderService(account).getNextOrderId(account);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Collection<OrderDetailsVO> getAllOpenOrders() {
-
-        return this.openOrderRegistry.getAllOrderDetails();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Collection<OrderDetailsVO> getOpenOrdersByStrategy(final String strategyName) {
-
-        Validate.notEmpty(strategyName, "Strategy name is empty");
-
-        return this.openOrderRegistry.getOrderDetailsForStrategy(strategyName);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Order getOpenOrderByIntId(final String intId) {
-
-        Validate.notEmpty(intId, "Order IntId is empty");
-
-        return this.openOrderRegistry.getByIntId(intId);
     }
 
     /**
@@ -651,18 +610,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
 
         Validate.notEmpty(intId, "Order IntId is empty");
 
-        return this.openOrderRegistry.getStatusByIntId(intId);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public OrderDetailsVO getOpenOrderDetailsByIntId(String intId) {
-
-        Validate.notEmpty(intId, "Order IntId is empty");
-
-        return this.openOrderRegistry.getDetailsByIntId(intId);
+        return this.orderRegistry.getStatusByIntId(intId);
     }
 
     /**
@@ -671,12 +619,30 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
     @Override
     public Order getOrderByIntId(String intId) {
 
-        Order order = this.openOrderRegistry.getByIntId(intId);
+        Order order = this.orderRegistry.getOpenOrderByIntId(intId);
         if (order != null) {
             return order;
         } else {
             return this.orderDao.findByIntId(intId);
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<OrderDetailsVO> getOpenOrderDetails() {
+
+        return this.orderRegistry.getOpenOrderDetails();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<OrderDetailsVO> getRecentOrderDetails() {
+
+        return this.orderRegistry.getRecentOrderDetails();
     }
 
     @Override
@@ -736,11 +702,11 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
             security.initializeSecurityFamily(HibernateInitializer.INSTANCE);
             SecurityFamily securityFamily = security.getSecurityFamily();
             securityFamily.initializeExchange(HibernateInitializer.INSTANCE);
-            this.openOrderRegistry.add(order);
+            this.orderRegistry.add(order);
 
             OrderStatus orderStatus = entry.getValue();
             if (orderStatus != null) {
-                this.openOrderRegistry.updateExecutionStatus(order.getIntId(), orderStatus.getStatus(), orderStatus.getFilledQuantity(), orderStatus.getRemainingQuantity());
+                this.orderRegistry.updateExecutionStatus(order.getIntId(), orderStatus.getStatus(), orderStatus.getFilledQuantity(), orderStatus.getRemainingQuantity());
             }
         }
     }

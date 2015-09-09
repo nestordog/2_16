@@ -28,7 +28,7 @@ import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.adapter.rt.RTFixOrderMessageHandler;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.event.dispatch.EventDispatcher;
-import ch.algotrader.ordermgmt.OpenOrderRegistry;
+import ch.algotrader.ordermgmt.OrderRegistry;
 
 /**
  * RealTick Fix configuration.
@@ -45,11 +45,11 @@ public class RTFixWiring {
 
     @Bean(name = "rTOrderApplicationFactory")
     public FixApplicationFactory createRTOrderApplicationFactory(
-            final OpenOrderRegistry openOrderRegistry,
+            final OrderRegistry orderRegistry,
             final Engine serverEngine,
             final ExternalSessionStateHolder rTOrderSessionStateHolder) {
 
-        RTFixOrderMessageHandler rtFixOrderMessageHandler = new RTFixOrderMessageHandler(openOrderRegistry, serverEngine);
+        RTFixOrderMessageHandler rtFixOrderMessageHandler = new RTFixOrderMessageHandler(orderRegistry, serverEngine);
         return new DefaultFixApplicationFactory(rtFixOrderMessageHandler, rTOrderSessionStateHolder);
     }
 

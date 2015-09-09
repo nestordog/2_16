@@ -1,12 +1,5 @@
 // ------------------------------OPEN ORDER MANAGEMENT--------------------------------
 
-@Name('ORDER_COMPLETED')
-@Subscriber(className='orderService#orderCompleted')
-select
-    orderStatus
-from
-    pattern[every orderStatus=OrderStatus(status = Status.EXECUTED or status = Status.CANCELED  or status = Status.REJECTED) -> timer:interval(1 sec)];
-
 @Name('INSERT_INTO_ORDER_COMPLETION')
 @RunTimeOnly()
 insert into

@@ -31,7 +31,7 @@ import ch.algotrader.adapter.fxcm.FXCMFixOrderMessageHandler;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.event.dispatch.EventDispatcher;
-import ch.algotrader.ordermgmt.OpenOrderRegistry;
+import ch.algotrader.ordermgmt.OrderRegistry;
 
 /**
  * FXCM Fix configuration.
@@ -49,11 +49,11 @@ public class FXCMFixWiring {
     @Bean(name = "fXCMApplicationFactory")
     public FixApplicationFactory createFXCMApplicationFactory(
             final Engine serverEngine,
-            final OpenOrderRegistry openOrderRegistry,
+            final OrderRegistry orderRegistry,
             final ExternalSessionStateHolder fXCMSessionLifeCycle) {
 
         FXCMFixMarketDataMessageHandler fxcmFixMarketDataMessageHandler = new FXCMFixMarketDataMessageHandler(serverEngine);
-        FXCMFixOrderMessageHandler fxcmFixOrderMessageHandler = new FXCMFixOrderMessageHandler(openOrderRegistry, serverEngine);
+        FXCMFixOrderMessageHandler fxcmFixOrderMessageHandler = new FXCMFixOrderMessageHandler(orderRegistry, serverEngine);
         FXCMFixMessageHandler fxcmFixMessageHandler = new FXCMFixMessageHandler(fxcmFixMarketDataMessageHandler, fxcmFixOrderMessageHandler);
         return new FXCMFixApplicationFactory(fxcmFixMessageHandler, fXCMSessionLifeCycle);
     }

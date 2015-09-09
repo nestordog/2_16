@@ -17,30 +17,39 @@
  ***********************************************************************************/
 package ch.algotrader.ordermgmt;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.Validate;
 
-import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.trade.ExecutionStatusVO;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderDetailsVO;
 import ch.algotrader.enumeration.Status;
 
 /**
-* Default implementation of {@link OpenOrderRegistry}.
+* Default implementation of {@link OrderRegistry}.
 *
 * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
 */
-public class DefaultOpenOrderRegistry implements OpenOrderRegistry {
+public class DefaultOrderRegistry implements OrderRegistry {
 
-    private final ConcurrentMap<String, OrderDetailsVO> mapByIntId;
+    private static final int MAX_RECENT_COMPLETED_ORDERS = 10;
 
-    public DefaultOpenOrderRegistry() {
-        this.mapByIntId = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, Order> orderMap;
+    private final ConcurrentMap<String, OrderDetailsVO> orderExecMap;
+    private final Deque<OrderDetailsVO> completedOrders;
+
+    public DefaultOrderRegistry() {
+        this.orderMap = new ConcurrentHashMap<>();
+        this.orderExecMap = new ConcurrentHashMap<>();
+        this.completedOrders = new ConcurrentLinkedDeque<>();
     }
 
     @Override
@@ -50,9 +59,11 @@ public class DefaultOpenOrderRegistry implements OpenOrderRegistry {
         String intId = order.getIntId();
         Validate.notNull(intId, "Order IntId is null");
 
-        OrderDetailsVO entry = this.mapByIntId.putIfAbsent(intId,
-                new OrderDetailsVO(order, new ExecutionStatusVO(intId, Status.OPEN, 0L, order.getQuantity())));
-        if (entry != null) {
+        if (this.orderExecMap.putIfAbsent(intId, new OrderDetailsVO(order,
+                new ExecutionStatusVO(intId, Status.OPEN, 0L, order.getQuantity(), LocalDateTime.now()))) != null) {
+            throw new IllegalStateException("Entry with IntId " + intId + " already present");
+        }
+        if (this.orderMap.putIfAbsent(intId, order) != null) {
             throw new IllegalStateException("Entry with IntId " + intId + " already present");
         }
     }
@@ -62,8 +73,8 @@ public class DefaultOpenOrderRegistry implements OpenOrderRegistry {
 
         Validate.notNull(intId, "Order IntId is null");
 
-        OrderDetailsVO entry =  this.mapByIntId.remove(intId);
-        return entry != null ? entry.getOrder() : null;
+        this.orderExecMap.remove(intId);
+        return this.orderMap.remove(intId);
     }
 
     @Override
@@ -71,64 +82,69 @@ public class DefaultOpenOrderRegistry implements OpenOrderRegistry {
 
         Validate.notNull(intId, "Order IntId is null");
 
-        OrderDetailsVO entry = this.mapByIntId.get(intId);
+        return this.orderMap.get(intId);
+    }
+
+    @Override
+    public Order getOpenOrderByIntId(final String intId) {
+
+        Validate.notNull(intId, "Order IntId is null");
+
+        OrderDetailsVO entry = this.orderExecMap.get(intId);
         return entry != null ? entry.getOrder() : null;
     }
 
     @Override
-    public ExecutionStatusVO getStatusByIntId(String intId) {
+    public ExecutionStatusVO getStatusByIntId(final String intId) {
 
         Validate.notNull(intId, "Order IntId is null");
 
-        OrderDetailsVO entry = this.mapByIntId.get(intId);
+        OrderDetailsVO entry = this.orderExecMap.get(intId);
         return entry != null ? entry.getExecutionStatus() : null;
-    }
-
-    @Override
-    public OrderDetailsVO getDetailsByIntId(final String intId) {
-
-        Validate.notNull(intId, "Order IntId is null");
-        return this.mapByIntId.get(intId);
     }
 
     @Override
     public void updateExecutionStatus(final String intId, final Status status, final long filledQuantity, final long remainingQuantity) {
 
         Validate.notNull(intId, "Order IntId is null");
-        OrderDetailsVO entry = this.mapByIntId.get(intId);
+        OrderDetailsVO entry = this.orderExecMap.get(intId);
         if (entry == null) {
             throw new IllegalStateException("Entry with IntId " + intId + " not found");
         }
-        this.mapByIntId.replace(intId, entry, new OrderDetailsVO(entry.getOrder(),
-                new ExecutionStatusVO(intId, status, filledQuantity, remainingQuantity)));
+        OrderDetailsVO updatedEntry = new OrderDetailsVO(entry.getOrder(),
+                new ExecutionStatusVO(intId, status, filledQuantity, remainingQuantity, LocalDateTime.now()));
+        if (status == Status.EXECUTED || status == Status.CANCELED || status == Status.REJECTED) {
+            this.completedOrders.addFirst(updatedEntry);
+            this.orderExecMap.remove(intId);
+            if (this.completedOrders.size() > MAX_RECENT_COMPLETED_ORDERS) {
+                this.completedOrders.pollLast();
+            }
+        } else {
+            this.orderExecMap.replace(intId, entry, updatedEntry);
+        }
     }
 
     @Override
-    public List<Order> getAllOrders() {
-        return this.mapByIntId.values().stream()
+    public List<Order> getAllOpenOrders() {
+        return this.orderExecMap.values().stream()
                 .map(OrderDetailsVO::getOrder)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<OrderDetailsVO> getAllOrderDetails() {
-        return this.mapByIntId.values().stream()
+    public List<OrderDetailsVO> getOpenOrderDetails() {
+        return this.orderExecMap.values().stream()
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<OrderDetailsVO> getOrderDetailsForStrategy(String strategyName) {
-        return this.mapByIntId.values().stream()
-                .filter(entry -> {
-                    Strategy strategy = entry.getOrder().getStrategy();
-                    return strategy != null && strategyName.equals(strategy.getName());
-                })
-                .collect(Collectors.toList());
+    public List<OrderDetailsVO> getRecentOrderDetails() {
+        return new ArrayList<>(this.completedOrders);
     }
 
     @Override
-    public List<Order> findByParentIntId(final String parentIntId) {
-        return mapByIntId.values().stream()
+    public List<Order> getOpenOrdersByParentIntId(final String parentIntId) {
+        return this.orderExecMap.values().stream()
                 .filter(entry -> {
                     Order order = entry.getOrder();
                     return !order.isAlgoOrder() && order.getParentOrder() != null && order.getParentOrder().getIntId().equals(parentIntId);

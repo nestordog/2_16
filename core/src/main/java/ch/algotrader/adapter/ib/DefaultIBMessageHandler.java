@@ -52,7 +52,7 @@ import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.ordermgmt.OpenOrderRegistry;
+import ch.algotrader.ordermgmt.OrderRegistry;
 import ch.algotrader.service.ExternalServiceException;
 import ch.algotrader.util.DateTimeLegacy;
 import ch.algotrader.util.PriceUtil;
@@ -78,7 +78,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
     private final IBPendingRequests pendingRequests;
     private final IBIdGenerator idGenerator;
 
-    private final OpenOrderRegistry openOrderRegistry;
+    private final OrderRegistry orderRegistry;
     private final IBExecutions executions;
 
     private final BlockingQueue<AccountUpdate> accountUpdateQueue;
@@ -91,7 +91,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
             final IBSessionStateHolder sessionStateHolder,
             final IBPendingRequests pendingRequests,
             final IBIdGenerator idGenerator,
-            final OpenOrderRegistry openOrderRegistry,
+            final OrderRegistry orderRegistry,
             final IBExecutions executions,
             final BlockingQueue<AccountUpdate> accountUpdateQueue,
             final BlockingQueue<Set<String>> accountsQueue,
@@ -101,7 +101,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
         this.sessionStateHolder = sessionStateHolder;
         this.pendingRequests = pendingRequests;
         this.idGenerator = idGenerator;
-        this.openOrderRegistry = openOrderRegistry;
+        this.orderRegistry = orderRegistry;
         this.executions = executions;
         this.accountUpdateQueue = accountUpdateQueue;
         this.accountsQueue = accountsQueue;
@@ -124,7 +124,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
         String intId = String.valueOf(execution.m_orderId);
 
         // get the order from the OpenOrderWindow
-        Order order = this.openOrderRegistry.getByIntId(intId);
+        Order order = this.orderRegistry.getOpenOrderByIntId(intId);
         if (order == null) {
             LOGGER.error("Order with IntId {} could not be found for execution {} {}", intId, contract, execution);
             return;
@@ -195,7 +195,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
         String intId = String.valueOf(reqId);
         String extId = String.valueOf(permId);
 
-        Order order = this.openOrderRegistry.getByIntId(intId);
+        Order order = this.orderRegistry.getOpenOrderByIntId(intId);
 
         if (order != null) {
 
@@ -640,7 +640,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
     private void orderRejected(int orderId, String reason) {
 
         String intId = String.valueOf(orderId);
-        Order order = this.openOrderRegistry.getByIntId(intId);
+        Order order = this.orderRegistry.getOpenOrderByIntId(intId);
 
         if (order != null) {
 

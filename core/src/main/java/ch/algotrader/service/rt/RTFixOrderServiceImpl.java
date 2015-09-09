@@ -23,7 +23,7 @@ import ch.algotrader.adapter.rt.RTFixOrderMessageFactory;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
-import ch.algotrader.ordermgmt.OpenOrderRegistry;
+import ch.algotrader.ordermgmt.OrderRegistry;
 import ch.algotrader.service.OrderPersistenceService;
 import ch.algotrader.service.fix.fix44.Fix44OrderService;
 import ch.algotrader.service.fix.fix44.Fix44OrderServiceImpl;
@@ -42,11 +42,11 @@ public class RTFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fix4
 
     public RTFixOrderServiceImpl(
             final FixAdapter fixAdapter,
-            final OpenOrderRegistry openOrderRegistry,
+            final OrderRegistry orderRegistry,
             final OrderPersistenceService orderPersistenceService,
             final CommonConfig commonConfig) {
 
-        super(fixAdapter, openOrderRegistry, orderPersistenceService, new RTFixOrderMessageFactory(new GenericFix44SymbologyResolver()), commonConfig);
+        super(fixAdapter, orderRegistry, orderPersistenceService, new RTFixOrderMessageFactory(new GenericFix44SymbologyResolver()), commonConfig);
     }
 
     @Override

@@ -23,11 +23,13 @@ import java.time.Instant;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -116,6 +118,8 @@ public class ManagementServiceImpl implements ManagementService {
 
     private final ConfigParams configParams;
 
+    private final boolean serverMode;
+
     public ManagementServiceImpl(
             final CommonConfig commonConfig,
             final Engine engine,
@@ -155,6 +159,7 @@ public class ManagementServiceImpl implements ManagementService {
         this.propertyService = propertyService;
         this.marketDataService = marketDataService;
         this.configParams = configParams;
+        this.serverMode = engine.getStrategyName().equals(StrategyImpl.SERVER);
     }
 
     /**
@@ -175,7 +180,7 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedAttribute(description = "Gets all available Currency Balances (only available for the AlgoTrader Server)")
     public Collection<BalanceVO> getDataBalances() {
 
-        if (StrategyImpl.SERVER.equals(this.engine.getStrategyName())) {
+        if (this.serverMode) {
             return this.portfolioService.getBalances();
         } else {
             return this.portfolioService.getBalances(this.engine.getStrategyName());
@@ -187,11 +192,18 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedAttribute(description = "Gets the Net FX Currency Exposure of all FX positions")
     public Collection<FxExposureVO> getDataFxExposure() {
 
-        if (this.engine.getStrategyName().equals(StrategyImpl.SERVER)) {
+        if (this.serverMode) {
             return this.portfolioService.getFxExposure();
         } else {
             return this.portfolioService.getFxExposure(this.engine.getStrategyName());
         }
+    }
+
+    private Collection<OrderStatusVO> convert(Collection<OrderDetailsVO> orderDetails) {
+        return orderDetails.stream()
+                .filter(entry -> this.serverMode || entry.getOrder().getStrategy().getName().equals(this.engine.getStrategyName()))
+                .map(this::convert)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -200,16 +212,18 @@ public class ManagementServiceImpl implements ManagementService {
     @Override
     @ManagedAttribute(description = "Gets current open Orders")
     public Collection<OrderStatusVO> getDataOrders() {
+        List<OrderDetailsVO> openOrders = this.orderService.getOpenOrderDetails();
+        Collections.sort(openOrders, (o1, o2) -> Objects.compare(o1.getOrder().getDateTime(), o2.getOrder().getDateTime(), Date::compareTo));
+        return convert(openOrders);
+    }
 
-        Collection<OrderDetailsVO> openOrders;
-        if (this.engine.getStrategyName().equals(StrategyImpl.SERVER)) {
-            openOrders = this.orderService.getAllOpenOrders();
-        } else {
-            openOrders = this.orderService.getOpenOrdersByStrategy(this.engine.getStrategyName());
-        }
-        return openOrders.stream()
-                .map(this::convert)
-                .collect(Collectors.toList());
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @ManagedAttribute(description = "Gets recently executed Orders")
+    public Collection<OrderStatusVO> getDataRecentOrders() {
+        return convert(this.orderService.getRecentOrderDetails());
     }
 
     private OrderStatusVO convert(final OrderDetailsVO entry) {
@@ -246,7 +260,7 @@ public class ManagementServiceImpl implements ManagementService {
         String baseQuery = "from PositionImpl as p join fetch p.strategy join fetch p.security as s join fetch s.securityFamily ";
 
         Collection<Position> positions;
-        if (this.engine.getStrategyName().equals(StrategyImpl.SERVER)) {
+        if (this.serverMode) {
             if (this.commonConfig.isDisplayClosedPositions()) {
                 positions = this.lookupService.get(Position.class, baseQuery + "order by p.id", QueryType.HQL);
             } else {
@@ -273,7 +287,7 @@ public class ManagementServiceImpl implements ManagementService {
         Validate.notEmpty(this.engine.getStrategyName(), "Strategy name is empty");
 
         Collection<Transaction> transactions;
-        if (this.engine.getStrategyName().equals(StrategyImpl.SERVER)) {
+        if (this.serverMode) {
             transactions = this.lookupService.getDailyTransactionsDesc();
         } else {
             transactions = this.lookupService.getDailyTransactionsByStrategyDesc(this.engine.getStrategyName());
@@ -296,7 +310,7 @@ public class ManagementServiceImpl implements ManagementService {
         Set<Long> processedSubscriptions = new HashSet<>();
 
         // get all subscribed securities
-        if (this.engine.getStrategyName().equalsIgnoreCase(StrategyImpl.SERVER)) {
+        if (this.serverMode) {
 
             // for the AlgoTrader Server iterate over a distinct list of subscribed securities and feedType
             List<Map> subscriptions = this.lookupService.getSubscribedSecuritiesAndFeedTypeForAutoActivateStrategiesInclComponents();
@@ -362,7 +376,7 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedAttribute(description = "Gets the Cash Balance of this Strategy (or the entire System if called from the AlgoTrader Server)")
     public BigDecimal getStrategyCashBalance() {
 
-        if (this.engine.getStrategyName().equals(StrategyImpl.SERVER)) {
+        if (this.serverMode) {
             return this.portfolioService.getCashBalance();
         } else {
             return this.portfolioService.getCashBalance(this.engine.getStrategyName());
@@ -377,7 +391,7 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedAttribute(description = "Gets the current Leverage of this Strategy")
     public double getStrategyLeverage() {
 
-        if (this.engine.getStrategyName().equals(StrategyImpl.SERVER)) {
+        if (this.serverMode) {
             return this.portfolioService.getLeverage();
         } else {
             return this.portfolioService.getLeverage(this.engine.getStrategyName());
@@ -402,7 +416,7 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedAttribute(description = "Gets the Net-Liquidation-Value of this Strategy (or the entire System if called from the AlgoTrader Server)")
     public BigDecimal getStrategyNetLiqValue() {
 
-        if (this.engine.getStrategyName().equals(StrategyImpl.SERVER)) {
+        if (this.serverMode) {
             return this.portfolioService.getNetLiqValue();
         } else {
             return this.portfolioService.getNetLiqValue(this.engine.getStrategyName());
@@ -417,7 +431,7 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedAttribute(description = "Gets the performance since the beginning of the month of this Strategy (or the entire System if called from the AlgoTrader Server)")
     public double getStrategyPerformance() {
 
-        if (this.engine.getStrategyName().equals(StrategyImpl.SERVER)) {
+        if (this.serverMode) {
             return this.portfolioService.getPerformance();
         } else {
             return this.portfolioService.getPerformance(this.engine.getStrategyName());
@@ -432,7 +446,7 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedAttribute(description = "Gets the total Market Value of all Positions of this Strategy (or the entire System if called from the AlgoTrader Server)")
     public BigDecimal getStrategySecuritiesCurrentValue() {
 
-        if (this.engine.getStrategyName().equals(StrategyImpl.SERVER)) {
+        if (this.serverMode) {
             return this.portfolioService.getSecuritiesCurrentValue();
         } else {
             return this.portfolioService.getSecuritiesCurrentValue(this.engine.getStrategyName());
@@ -447,7 +461,7 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedAttribute(description = "Gets the total UnrealizedPL of all Positions of this Strategy (or the entire System if called from the AlgoTrader Server)")
     public BigDecimal getStrategyUnrealizedPL() {
 
-        if (this.engine.getStrategyName().equals(StrategyImpl.SERVER)) {
+        if (this.serverMode) {
             return this.portfolioService.getUnrealizedPL();
         } else {
             return this.portfolioService.getUnrealizedPL(this.engine.getStrategyName());
