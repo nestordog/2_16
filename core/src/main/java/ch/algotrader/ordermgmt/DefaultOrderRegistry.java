@@ -20,7 +20,9 @@ package ch.algotrader.ordermgmt;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Deque;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentMap;
@@ -153,4 +155,15 @@ public class DefaultOrderRegistry implements OrderRegistry {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public void evictCompleted() {
+        this.completedOrders.clear();
+        for (Iterator<Map.Entry<String, Order>> it = this.orderMap.entrySet().iterator(); it.hasNext(); ) {
+            Map.Entry<String, Order> entry = it.next();
+            String intId = entry.getKey();
+            if (!this.orderExecMap.containsKey(intId)) {
+                it.remove();
+            }
+        }
+    }
 }

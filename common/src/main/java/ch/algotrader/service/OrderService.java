@@ -132,6 +132,11 @@ public interface OrderService {
     public Order getOrderByIntId(String intId);
 
     /**
+     * Evicts executed orders from the internal cache.
+     */
+    public void evictExecutedOrders();
+
+    /**
      * Loads pending orders. An order is considered pending if the status of the last
      * {@link ch.algotrader.entity.trade.OrderStatus} event associated with the order is either
      * {@link ch.algotrader.enumeration.Status#OPEN},

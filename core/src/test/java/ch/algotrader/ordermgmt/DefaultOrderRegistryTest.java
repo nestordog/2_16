@@ -146,4 +146,36 @@ public class DefaultOrderRegistryTest {
         Assert.assertSame(order2, recentOrderDetails3.get(1).getOrder());
     }
 
+    @Test
+    public void testEvictExecutedOrders() {
+
+        Order order1 = MarketOrder.Factory.newInstance();
+        order1.setIntId("Blah");
+        order1.setQuantity(123L);
+        impl.add(order1);
+
+        Order order2 = MarketOrder.Factory.newInstance();
+        order2.setIntId("Yada");
+        order2.setQuantity(123L);
+        impl.add(order2);
+
+        Order order3 = MarketOrder.Factory.newInstance();
+        order3.setIntId("Booh");
+        order3.setQuantity(123L);
+        impl.add(order3);
+
+        impl.evictCompleted();
+        Assert.assertSame(order1, impl.getByIntId("Blah"));
+        Assert.assertSame(order2, impl.getByIntId("Yada"));
+        Assert.assertSame(order3, impl.getByIntId("Booh"));
+
+        impl.updateExecutionStatus("Yada", Status.CANCELED, 123L, 0L);
+        impl.updateExecutionStatus("Blah", Status.REJECTED, 123L, 0L);
+
+        impl.evictCompleted();
+        Assert.assertNull(impl.getByIntId("Blah"));
+        Assert.assertNull(impl.getByIntId("Yada"));
+        Assert.assertSame(order3, impl.getByIntId("Booh"));
+    }
+
 }

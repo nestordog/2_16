@@ -645,6 +645,15 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
         return this.orderRegistry.getRecentOrderDetails();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void evictExecutedOrders() {
+
+        this.orderRegistry.evictCompleted();
+    }
+
     @Override
     public Map<Order, OrderStatus> loadPendingOrders() {
 

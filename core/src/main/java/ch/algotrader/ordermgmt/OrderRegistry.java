@@ -84,4 +84,9 @@ public interface OrderRegistry {
      */
     List<Order> getOpenOrdersByParentIntId(String parentIntId);
 
+    /**
+     * Evicts completed orders.
+     */
+    void evictCompleted();
+
 }
