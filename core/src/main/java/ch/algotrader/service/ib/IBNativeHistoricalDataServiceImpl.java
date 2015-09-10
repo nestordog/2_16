@@ -42,8 +42,9 @@ import ch.algotrader.config.IBConfig;
 import ch.algotrader.dao.marketData.BarDao;
 import ch.algotrader.dao.security.SecurityDao;
 import ch.algotrader.entity.marketData.Bar;
+import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.Security;
-import ch.algotrader.enumeration.BarType;
+import ch.algotrader.enumeration.MarketDataEventType;
 import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.FeedType;
@@ -54,6 +55,8 @@ import ch.algotrader.service.ServiceException;
 import ch.algotrader.util.DateTimeLegacy;
 
 /**
+ * See <a href="http://www.interactivebrokers.com/php/apiUsersGuide/apiguide/api/historical_data_limitations.htm">Historical Data Limitations</a> for further details.
+ *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
@@ -96,12 +99,12 @@ public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl
     }
 
     @Override
-    public synchronized List<Bar> getHistoricalBars(long securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, Duration barSize, BarType barType, Map<String, String> properties) {
+    public synchronized List<Bar> getHistoricalBars(long securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, Duration barSize, MarketDataEventType marketDataEventType, Map<String, String> properties) {
 
         Validate.notNull(endDate, "End date is null");
         Validate.notNull(timePeriod, "Time period is null");
         Validate.notNull(barSize, "Bar size is null");
-        Validate.notNull(barType, "Bar type is null");
+        Validate.notNull(marketDataEventType, "Bar type is null");
 
         if (!this.iBSession.isLoggedOn()) {
             throw new ServiceException("cannot download historical data, because IB is not subscribed");
@@ -162,25 +165,25 @@ public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl
             barSizeString += "s";
         }
 
-        String barTypeString;
-        switch (barType) {
+        String marketDataEventTypeString;
+        switch (marketDataEventType) {
             case TRADES:
-                barTypeString = "TRADES";
+                marketDataEventTypeString = "TRADES";
                 break;
             case MIDPOINT:
-                barTypeString = "MIDPOINT";
+                marketDataEventTypeString = "MIDPOINT";
                 break;
             case BID:
-                barTypeString = "BID";
+                marketDataEventTypeString = "BID";
                 break;
             case ASK:
-                barTypeString = "ASK";
+                marketDataEventTypeString = "ASK";
                 break;
             case BID_ASK:
-                barTypeString = "BID_ASK";
+                marketDataEventTypeString = "BID_ASK";
                 break;
             default:
-                throw new IllegalArgumentException("unsupported barType " + barType);
+                throw new IllegalArgumentException("unsupported marketDataEventType " + marketDataEventType);
         }
 
         // avoid pacing violations
@@ -204,7 +207,7 @@ public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl
 
         PromiseImpl<List<Bar>> promise = new PromiseImpl<>(null);
         this.pendingRequests.addHistoricDataRequest(requestId, promise);
-        this.iBSession.reqHistoricalData(requestId, contract, dateString, durationString, barSizeString, barTypeString, iBConfig.useRTH() ? 1 : 0, 1, Collections.<TagValue>emptyList());
+        this.iBSession.reqHistoricalData(requestId, contract, dateString, durationString, barSizeString, marketDataEventTypeString, this.iBConfig.useRTH() ? 1 : 0, 1, Collections.<TagValue>emptyList());
         List<Bar> bars = getBarsBlocking(promise);
 
         // set & update fields
@@ -219,6 +222,12 @@ public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl
         }
         this.lastTimeStamp = System.currentTimeMillis();
         return bars;
+    }
+
+    @Override
+    public List<Tick> getHistoricalTicks(long securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, MarketDataEventType marketDataEventType, Map<String, String> properties) {
+
+        throw new UnsupportedOperationException("historical ticks not supported for IB");
     }
 
     private List<Bar> getBarsBlocking(final Promise<List<Bar>> promise) {

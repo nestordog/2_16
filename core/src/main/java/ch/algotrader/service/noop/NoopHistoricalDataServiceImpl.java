@@ -23,7 +23,8 @@ import java.util.List;
 import java.util.Map;
 
 import ch.algotrader.entity.marketData.Bar;
-import ch.algotrader.enumeration.BarType;
+import ch.algotrader.entity.marketData.Tick;
+import ch.algotrader.enumeration.MarketDataEventType;
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.TimePeriod;
 import ch.algotrader.service.HistoricalDataService;
@@ -31,17 +32,17 @@ import ch.algotrader.service.HistoricalDataService;
 public class NoopHistoricalDataServiceImpl implements HistoricalDataService {
 
     @Override
-    public List<Bar> getHistoricalBars(long securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, Duration barSize, BarType barType, Map<String, String> properties) {
+    public List<Bar> getHistoricalBars(long securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, Duration barSize, MarketDataEventType marketDataEventType, Map<String, String> properties) {
         return new ArrayList<>();
     }
 
     @Override
-    public void updateHistoricalBars(long securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, Duration barSize, BarType barType, Map<String, String> properties) {
-        // do nothing
+    public List<Tick> getHistoricalTicks(long securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, MarketDataEventType marketDataEventType, Map<String, String> properties) {
+        return new ArrayList<>();
     }
 
     @Override
-    public void replaceHistoricalBars(long securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, Duration barSize, BarType barType, Map<String, String> properties) {
+    public void storeHistoricalBars(long securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, Duration barSize, MarketDataEventType marketDataEventType, boolean replace, Map<String, String> properties) {
         // do nothing
     }
 
