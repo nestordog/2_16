@@ -224,8 +224,9 @@ public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl imple
                 throw new IllegalArgumentException("unsupported marketDataEventType " + marketDataEventType);
         }
 
-        String startDateString = dateTimeFormat.format(DateTimeLegacy.toGMTDate(getStartDate(endDate, timePeriodLength, timePeriod)));
-        String endDateString = dateTimeFormat.format(DateTimeLegacy.toGMTDate(endDate));
+        Date startDate = getStartDate(endDate, timePeriodLength, timePeriod);
+		String startDateString = dateTimeFormat.format(DateTimeLegacy.toGMTDateTime(startDate));
+        String endDateString = dateTimeFormat.format(DateTimeLegacy.toGMTDateTime(endDate));
 
         Service service = session.getService();
 
@@ -267,14 +268,15 @@ public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl imple
                 throw new IllegalArgumentException("unsupported marketDataEventType " + marketDataEventType);
         }
 
-        String startDateString = dateTimeFormat.format(DateTimeLegacy.toGMTDate(getStartDate(endDate, timePeriodLength, timePeriod)));
-        String endDateString = dateTimeFormat.format(DateTimeLegacy.toGMTDate(endDate));
+        Date startDate = getStartDate(endDate, timePeriodLength, timePeriod);
+		String startDateString = dateTimeFormat.format(DateTimeLegacy.toGMTDateTime(startDate));
+        String endDateString = dateTimeFormat.format(DateTimeLegacy.toGMTDateTime(endDate));
 
         Service service = session.getService();
 
         Request request = service.createRequest("IntradayTickRequest");
         request.set("security", securityString);
-        request.set("eventType", marketDataEventTypeString);
+        request.append("eventTypes", marketDataEventTypeString);
         request.set("startDateTime", startDateString);
         request.set("endDateTime", endDateString);
 
@@ -316,7 +318,8 @@ public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl imple
             throw new IllegalArgumentException("unsupported marketDataEventType " + marketDataEventType);
         }
 
-        String startDateString = dateFormat.format(DateTimeLegacy.toGMTDate(getStartDate(endDate, timePeriodLength, timePeriod)));
+        Date startDate = getStartDate(endDate, timePeriodLength, timePeriod);
+		String startDateString = dateFormat.format(DateTimeLegacy.toGMTDate(startDate));
         String endDateString = dateFormat.format(DateTimeLegacy.toGMTDate(endDate));
 
         Service service = session.getService();
@@ -535,7 +538,7 @@ public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl imple
 
         private void processIntradayTickResponse(Message msg) {
 
-            Element data = msg.getElement(BBConstants.BAR_DATA).getElement(BBConstants.BAR_TICK_DATA);
+            Element data = msg.getElement(BBConstants.TICK_DATA).getElement(BBConstants.TICK_TICK_DATA);
 
             int numBars = data.numValues();
             for (int i = 0; i < numBars; ++i) {
@@ -547,6 +550,10 @@ public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl imple
                 double value = fields.getElementAsFloat64(BBConstants.VALUE);
                 int size = fields.getElementAsInt32(BBConstants.SIZE);
 
+            	if (value == 0.0) {
+            		continue;
+            	}
+
                 int scale = this.security.getSecurityFamily().getScale(Broker.BBG);
                 BigDecimal valueBD = RoundUtil.getBigDecimal(value, scale);
 
@@ -554,16 +561,16 @@ public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl imple
                 tick.setDateTime(time);
 
                 switch (type) {
-                    case "last":
+                    case "TRADE":
                         tick.setLast(valueBD);
                         tick.setVol(size);
                         tick.setLastDateTime(time);
                         break;
-                    case "bid":
+                    case "BID":
                         tick.setBid(valueBD);
                         tick.setVolBid(size);
                         break;
-                    case "ask":
+                    case "ASK":
                         tick.setAsk(valueBD);
                         tick.setVolAsk(size);
                         break;

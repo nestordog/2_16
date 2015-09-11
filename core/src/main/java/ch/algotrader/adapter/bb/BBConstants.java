@@ -44,7 +44,9 @@ public class BBConstants {
     public static final Name MESSAGE = Name.getName("message");
 
     public static final Name BAR_DATA = Name.getName("barData");
+    public static final Name TICK_DATA = Name.getName("tickData");
     public static final Name BAR_TICK_DATA = Name.getName("barTickData");
+    public static final Name TICK_TICK_DATA = Name.getName("tickData");
     public static final Name SECURITY_DATA = Name.getName("securityData");
     public static final Name FIELD_DATA = Name.getName("fieldData");
     public static final Name FIELD_EXCEPTIONS = new Name("fieldExceptions");
