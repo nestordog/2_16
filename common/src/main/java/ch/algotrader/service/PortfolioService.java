@@ -26,6 +26,7 @@ import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.strategy.PortfolioValue;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.vo.BalanceVO;
+import ch.algotrader.vo.FxExposureVO;
 import ch.algotrader.vo.PortfolioValueVO;
 
 /**
@@ -106,27 +107,27 @@ public interface PortfolioService {
     public double getCashBalanceDouble(String filter, Map namedParameters, Date date);
 
     /**
-     * Gets the total Market Value of all Positions of the entire System.
+     * Gets the total Market Value of all non-FX Positions of the entire System.
      */
     public BigDecimal getSecuritiesCurrentValue();
 
     /**
-     * Gets the total Market Value of all Positions of the specified Strategy.
+     * Gets the total Market Value of all non-FX Positions of the specified Strategy.
      */
     public BigDecimal getSecuritiesCurrentValue(String strategyName);
 
     /**
-     * Gets the total Market Value of all Positions of the entire System on the specified Date.
+     * Gets the total Market Value of all non-FX Positions of the entire System on the specified Date.
      */
     public BigDecimal getSecuritiesCurrentValue(Date date);
 
     /**
-     * Gets the total Market Value of all Positions of the specified Strategy on the specified Date.
+     * Gets the total Market Value of all non-FX Positions of the specified Strategy on the specified Date.
      */
     public BigDecimal getSecuritiesCurrentValue(String strategyName, Date date);
 
     /**
-     * Gets the total Market Value of all Positions on the specified Date by an arbitrary filter by
+     * Gets the total Market Value of all non-FX Positions on the specified Date by an arbitrary filter by
      * aggregating all relevant transactions.
      * The variable {@code s} and {@code t} can be used to reference the Security and Transaction.
      * Examples:
@@ -176,6 +177,26 @@ public interface PortfolioService {
      * }
      */
     public double getSecuritiesCurrentValueDouble(String filter, Map namedParameters, Date date);
+
+    /**
+     * Gets the total Market Value of all FX Positions of the entire System.
+     */
+    public BigDecimal getUnrealizedPL();
+
+    /**
+     * Gets the total Market Value of all FXPositions of the specified Strategy.
+     */
+    public BigDecimal getUnrealizedPL(String strategyName);
+
+    /**
+     * Gets the total Market Value of all FX Positions of the entire System.
+     */
+    public double getUnrealizedPLDouble();
+
+    /**
+     * Gets the total Market Value of all FX Positions of the specified Strategy.
+     */
+    public double getUnrealizedPLDouble(String strategyName);
 
     /**
      * Gets the Maintenance Margin of the entire System.
@@ -307,6 +328,16 @@ public interface PortfolioService {
      * Gets the {@link BalanceVO CashBalances} for the specified Strategy.
      */
     public Collection<BalanceVO> getBalances(String strategyName);
+
+    /**
+     * Gets the Net FX Currency Exposure of all FX positions of the entire system.
+     */
+    public Collection<FxExposureVO> getFxExposure();
+
+    /**
+     * Gets the Net FX Currency Exposure of all FX positions for the specified Strategy.
+     */
+    public Collection<FxExposureVO> getFxExposure(String strategyName);
 
     /**
      * Saves current Portfolio Values as a consequence for a performance relevant Transaction. See

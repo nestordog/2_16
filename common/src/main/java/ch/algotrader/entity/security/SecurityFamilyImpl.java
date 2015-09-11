@@ -202,7 +202,7 @@ public class SecurityFamilyImpl extends SecurityFamily {
 
     @Override
     public BigDecimal roundUp(BigDecimal price) {
-        return RoundUtil.roundToNextN(price, getTickSize(price, true).doubleValue(), BigDecimal.ROUND_UP);
+        return RoundUtil.roundToNextN(price, getTickSize(price, true), BigDecimal.ROUND_UP);
     }
 
     @Override
@@ -212,7 +212,7 @@ public class SecurityFamilyImpl extends SecurityFamily {
 
     @Override
     public BigDecimal roundDown(BigDecimal price) {
-        return RoundUtil.roundToNextN(price, getTickSize(price, false).doubleValue(), BigDecimal.ROUND_DOWN);
+        return RoundUtil.roundToNextN(price, getTickSize(price, false), BigDecimal.ROUND_DOWN);
     }
 
     @Override

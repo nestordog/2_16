@@ -25,7 +25,10 @@ import java.util.List;
 
 import org.apache.commons.lang.Validate;
 import org.apache.commons.math.util.MathUtils;
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.hibernate.exception.LockAcquisitionException;
+import org.springframework.dao.CannotAcquireLockException;
 
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.CoreConfig;
@@ -62,6 +65,8 @@ public class TransactionServiceImpl implements TransactionService {
 
     private static Logger logger = MyLogger.getLogger(TransactionServiceImpl.class.getName());
     private static Logger mailLogger = MyLogger.getLogger(TransactionServiceImpl.class.getName() + ".MAIL");
+
+    private static final int MAX_COMMIT_TRANSACTION_RETRIES = 5;
 
     private final CommonConfig commonConfig;
 
@@ -310,13 +315,29 @@ public class TransactionServiceImpl implements TransactionService {
 
     }
 
+    private PositionMutationVO commitTransaction(final Transaction transaction) {
+
+        for (int n = 0;; n++) {
+            try {
+                if (!this.coreConfig.isPositionCheckDisabled()) {
+
+                    this.transactionPersistenceService.ensurePositionAndCashBalance(transaction);
+                }
+                return this.transactionPersistenceService.saveTransaction(transaction);
+            } catch (LockAcquisitionException|CannotAcquireLockException ex) {
+                if (logger.isEnabledFor(Level.WARN)) {
+                    logger.warn("Retrying transaction due to " + ex.getClass().getName());
+                }
+                if (n >= MAX_COMMIT_TRANSACTION_RETRIES) {
+                    throw ex;
+                }
+            }
+        }
+    }
+
     private void processTransaction(final Transaction transaction) {
 
-        if (!this.coreConfig.isPositionCheckDisabled()) {
-
-            this.transactionPersistenceService.ensurePositionAndCashBalance(transaction);
-        }
-        PositionMutationVO positionMutationEvent = this.transactionPersistenceService.saveTransaction(transaction);
+        PositionMutationVO positionMutationEvent = commitTransaction(transaction);
 
         // check if esper is initialized
         if (EngineLocator.instance().hasServerEngine()) {

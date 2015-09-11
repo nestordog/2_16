@@ -2,15 +2,15 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: ch.algotrader.wrapper
 Bundle-SymbolicName: ch.algotrader.wrapper
-Bundle-Version: 2.2.6
+Bundle-Version: 2.2.7
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-Vendor: AlgoTrader GmbH
 Bundle-ClassPath: target/lib/activation-1.1.jar,
  target/lib/activemq-broker-5.10.0.jar,
  target/lib/activemq-client-5.10.0.jar,
  target/lib/activemq-openwire-legacy-5.10.0.jar,
- target/lib/algotrader-common-2.2.6.jar,
- target/lib/algotrader-core-2.2.6.jar,
+ target/lib/algotrader-common-2.2.7.jar,
+ target/lib/algotrader-core-2.2.7.jar,
  target/lib/antlr-2.7.6.jar,
  target/lib/antlr4-runtime-4.1.jar,
  target/lib/aopalliance-1.0.jar,

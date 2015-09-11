@@ -69,6 +69,7 @@ import ch.algotrader.esper.EngineLocator;
 import ch.algotrader.util.BeanUtil;
 import ch.algotrader.vo.BalanceVO;
 import ch.algotrader.vo.BarVO;
+import ch.algotrader.vo.FxExposureVO;
 import ch.algotrader.vo.MarketDataEventVO;
 import ch.algotrader.vo.OrderStatusVO;
 import ch.algotrader.vo.PositionVO;
@@ -163,6 +164,18 @@ public class ManagementServiceImpl implements ManagementService {
             return this.portfolioService.getBalances(strategyName);
         }
 
+    }
+
+    @Override
+    @ManagedAttribute(description = "Gets the Net FX Currency Exposure of all FX positions")
+    public Collection<FxExposureVO> getDataFxExposure() {
+
+        String strategyName = this.commonConfig.getStartedStrategyName();
+        if (StrategyImpl.SERVER.equals(strategyName)) {
+            return this.portfolioService.getFxExposure();
+        } else {
+            return this.portfolioService.getFxExposure(strategyName);
+        }
     }
 
     /**
@@ -274,22 +287,6 @@ public class ManagementServiceImpl implements ManagementService {
      * {@inheritDoc}
      */
     @Override
-    @ManagedAttribute(description = "Gets the available Funds of this Strategy (or the entire System if called from the AlgoTrader Server)")
-    public BigDecimal getStrategyAvailableFunds() {
-
-        String strategyName = this.commonConfig.getStartedStrategyName();
-        if (strategyName.equals(StrategyImpl.SERVER)) {
-            return this.portfolioService.getAvailableFunds();
-        } else {
-            return this.portfolioService.getAvailableFunds(strategyName);
-        }
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     @ManagedAttribute(description = "Gets the Allocation that is assigned to this Strategy (or to the AlgoTrader Server)")
     public double getStrategyAllocation() {
 
@@ -326,22 +323,6 @@ public class ManagementServiceImpl implements ManagementService {
             return this.portfolioService.getLeverage();
         } else {
             return this.portfolioService.getLeverage(strategyName);
-        }
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @ManagedAttribute(description = "Gets the Maintenance Margin of this Strategy (or the entire System if called from the AlgoTrader Server)")
-    public BigDecimal getStrategyMaintenanceMargin() {
-
-        String strategyName = this.commonConfig.getStartedStrategyName();
-        if (strategyName.equals(StrategyImpl.SERVER)) {
-            return this.portfolioService.getMaintenanceMargin();
-        } else {
-            return this.portfolioService.getMaintenanceMargin(strategyName);
         }
 
     }
@@ -401,6 +382,22 @@ public class ManagementServiceImpl implements ManagementService {
             return this.portfolioService.getSecuritiesCurrentValue();
         } else {
             return this.portfolioService.getSecuritiesCurrentValue(strategyName);
+        }
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @ManagedAttribute(description = "Gets the total UnrealizedPL of all Positions of this Strategy (or the entire System if called from the AlgoTrader Server)")
+    public BigDecimal getStrategyUnrealizedPL() {
+
+        String strategyName = this.commonConfig.getStartedStrategyName();
+        if (strategyName.equals(StrategyImpl.SERVER)) {
+            return this.portfolioService.getUnrealizedPL();
+        } else {
+            return this.portfolioService.getUnrealizedPL(strategyName);
         }
 
     }
