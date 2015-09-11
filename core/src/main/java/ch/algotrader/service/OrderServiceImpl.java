@@ -567,6 +567,13 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
             // and ignore order status message with synthetic (non-positive) sequence number
             if (orderStatus.getSequenceNumber() > 0 && !(order instanceof AlgoOrder)) {
 
+                if (orderStatus.getDateTime() == null) {
+                    if (orderStatus.getExtDateTime() != null) {
+                        orderStatus.setDateTime(orderStatus.getExtDateTime());
+                    } else {
+                        orderStatus.setDateTime(this.serverEngine.getCurrentTime());
+                    }
+                }
                 this.orderPersistService.persistOrderStatus(orderStatus);
             }
         }

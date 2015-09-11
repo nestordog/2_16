@@ -17,8 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
-import java.util.Date;
-
 import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -149,14 +147,6 @@ public class OrderPersistenceServiceImpl implements OrderPersistenceService {
                 this.orderDao.persist(order).setExtId(extId);
             }
             if (orderStatus.getId() == 0) {
-
-                if (orderStatus.getDateTime() == null) {
-                    if (orderStatus.getExtDateTime() != null) {
-                        orderStatus.setDateTime(orderStatus.getExtDateTime());
-                    } else {
-                        orderStatus.setDateTime(new Date());
-                    }
-                }
                 this.orderStatusDao.save(orderStatus);
             }
         } catch (Exception e) {
