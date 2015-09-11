@@ -11,18 +11,6 @@
 
     <context:component-scan base-package="ch.algotrader.wiring.common"/>
 
-    <bean class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor"/>
-
-    <bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-        <property name="locations">
-            <list>
-                <value>classpath:/META-INF/conf.properties</value>
-                <value>classpath*:/META-INF/conf-*.properties</value>
-            </list>
-        </property>
-        <property name="systemPropertiesModeName"><value>SYSTEM_PROPERTIES_MODE_NEVER</value></property>
-    </bean>
-
     <!-- ================================= Portfolio Chart Definition======================================= -->
 
     <bean id="portfolioChartDefinition" class="ch.algotrader.vo.client.ChartDefinitionVO" p:timePeriod="MIN" p:startTime="${misc.portfolioStartHour}:00:00" p:endTime="${misc.portfolioEndHour}:00:00" >

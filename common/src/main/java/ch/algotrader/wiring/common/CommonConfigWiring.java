@@ -18,7 +18,10 @@
 package ch.algotrader.wiring.common;
 
 import java.util.Date;
+import java.util.Properties;
+import java.util.Set;
 
+import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.ConversionService;
@@ -54,6 +57,24 @@ public class CommonConfigWiring {
     public CommonConfig createCommonConfig() {
 
         return ConfigLocator.instance().getConfig(CommonConfig.class);
+    }
+
+    @Bean
+    public static PropertyPlaceholderConfigurer createPropertyPlaceholderConfigurer() {
+
+        ConfigParams configParams = ConfigLocator.instance().getConfigParams();
+        Properties properties = new Properties();
+        Set<String> names = configParams.getConfigProvider().getNames();
+        for (String name: names) {
+            String value = configParams.getString(name);
+            if (value != null) {
+                properties.put(name, value);
+            }
+        }
+        PropertyPlaceholderConfigurer configurer = new PropertyPlaceholderConfigurer();
+        configurer.setProperties(properties);
+        configurer.setSystemPropertiesMode(PropertyPlaceholderConfigurer.SYSTEM_PROPERTIES_MODE_OVERRIDE);
+        return configurer;
     }
 
 }
