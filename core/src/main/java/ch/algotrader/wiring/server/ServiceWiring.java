@@ -67,8 +67,8 @@ import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.dispatch.EventDispatcher;
-import ch.algotrader.ordermgmt.DefaultOpenOrderRegistry;
-import ch.algotrader.ordermgmt.OpenOrderRegistry;
+import ch.algotrader.ordermgmt.DefaultOrderRegistry;
+import ch.algotrader.ordermgmt.OrderRegistry;
 import ch.algotrader.service.CalendarService;
 import ch.algotrader.service.CalendarServiceImpl;
 import ch.algotrader.service.CombinationService;
@@ -289,8 +289,8 @@ public class ServiceWiring {
     }
 
     @Bean(name = "openOrderRegistry")
-    public OpenOrderRegistry createOpenOrderRegistry() {
-        return new DefaultOpenOrderRegistry();
+    public OrderRegistry createOpenOrderRegistry() {
+        return new DefaultOrderRegistry();
     }
 
     @Bean(name = "orderService")
@@ -305,7 +305,7 @@ public class ServiceWiring {
             final AccountDao accountDao,
             final ExchangeDao exchangeDao,
             final OrderPreferenceDao orderPreferenceDao,
-            final OpenOrderRegistry openOrderRegistry,
+            final OrderRegistry orderRegistry,
             final EventDispatcher eventDispatcher,
             final EngineManager engineManager,
             final Engine serverEngine,
@@ -316,7 +316,7 @@ public class ServiceWiring {
                 .collect(Collectors.toMap(ExternalOrderService::getOrderServiceType, service -> service));
 
         return new OrderServiceImpl(commonConfig, sessionFactory, orderPersistService, localLookupService, orderDao, orderStatusDao, strategyDao, securityDao, accountDao, exchangeDao, orderPreferenceDao,
-                openOrderRegistry, eventDispatcher, engineManager, serverEngine, serviceMap2);
+                orderRegistry, eventDispatcher, engineManager, serverEngine, serviceMap2);
     }
 
     @Bean(name = "combinationService")

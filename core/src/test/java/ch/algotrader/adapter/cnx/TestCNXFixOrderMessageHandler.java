@@ -44,7 +44,7 @@ import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.ordermgmt.OpenOrderRegistry;
+import ch.algotrader.ordermgmt.OrderRegistry;
 import ch.algotrader.util.DateTimeLegacy;
 import quickfix.field.ClOrdID;
 import quickfix.field.ExecType;
@@ -59,7 +59,7 @@ import quickfix.fix44.ExecutionReport;
 public class TestCNXFixOrderMessageHandler {
 
     @Mock
-    private OpenOrderRegistry openOrderRegistry;
+    private OrderRegistry orderRegistry;
     @Mock
     private Engine engine;
 
@@ -70,7 +70,7 @@ public class TestCNXFixOrderMessageHandler {
 
         MockitoAnnotations.initMocks(this);
 
-        this.impl = new CNXFixOrderMessageHandler(this.openOrderRegistry, this.engine);
+        this.impl = new CNXFixOrderMessageHandler(this.orderRegistry, this.engine);
     }
 
     @Test
@@ -84,7 +84,7 @@ public class TestCNXFixOrderMessageHandler {
         Assert.assertNotNull(executionReport);
 
         MarketOrder order = new MarketOrderImpl();
-        Mockito.when(this.openOrderRegistry.getByIntId("1475f81bdee")).thenReturn(order);
+        Mockito.when(this.orderRegistry.getOpenOrderByIntId("1475f81bdee")).thenReturn(order);
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
@@ -132,7 +132,7 @@ public class TestCNXFixOrderMessageHandler {
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(forex);
         order.setAccount(account);
-        Mockito.when(this.openOrderRegistry.getByIntId("1475f81bdee")).thenReturn(order);
+        Mockito.when(this.orderRegistry.getOpenOrderByIntId("1475f81bdee")).thenReturn(order);
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
@@ -172,11 +172,11 @@ public class TestCNXFixOrderMessageHandler {
         executionReport.set(new ExecType(ExecType.NEW));
         executionReport.set(new ClOrdID("123"));
 
-        Mockito.when(this.openOrderRegistry.getByIntId(Mockito.anyString())).thenReturn(null);
+        Mockito.when(this.orderRegistry.getOpenOrderByIntId(Mockito.anyString())).thenReturn(null);
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
-        Mockito.verify(this.openOrderRegistry, Mockito.times(1)).getByIntId("123");
+        Mockito.verify(this.orderRegistry, Mockito.times(1)).getOpenOrderByIntId("123");
         Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
     }
 
@@ -202,7 +202,7 @@ public class TestCNXFixOrderMessageHandler {
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(forex);
 
-        Mockito.when(this.openOrderRegistry.getByIntId("14763e2fd3e")).thenReturn(order);
+        Mockito.when(this.orderRegistry.getOpenOrderByIntId("14763e2fd3e")).thenReturn(order);
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
@@ -244,7 +244,7 @@ public class TestCNXFixOrderMessageHandler {
 
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(forex);
-        Mockito.when(this.openOrderRegistry.getByIntId("14764071493")).thenReturn(order);
+        Mockito.when(this.orderRegistry.getOpenOrderByIntId("14764071493")).thenReturn(order);
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
@@ -288,12 +288,12 @@ public class TestCNXFixOrderMessageHandler {
         MarketOrder order = new MarketOrderImpl();
         order.setIntId("147648b2485");
         order.setSecurity(forex);
-        Mockito.when(this.openOrderRegistry.getByIntId("147648b2485")).thenReturn(order);
+        Mockito.when(this.orderRegistry.getOpenOrderByIntId("147648b2485")).thenReturn(order);
 
         MarketOrder oldOrder = new MarketOrderImpl();
         oldOrder.setIntId("147648b2394");
         oldOrder.setSecurity(forex);
-        Mockito.when(this.openOrderRegistry.getByIntId("147648b2394")).thenReturn(oldOrder);
+        Mockito.when(this.orderRegistry.getOpenOrderByIntId("147648b2394")).thenReturn(oldOrder);
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 

@@ -1,6 +1,7 @@
 package ch.algotrader.esper;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -146,64 +147,6 @@ public class TradingEsperTest extends EsperTestBase {
         if (epService != null) {
             epService.destroy();
         }
-    }
-
-    @Test
-    public void testOrderCompleted() throws Exception {
-
-        deployModule(epService,
-                getClass().getResource("/module-trades.epl"), "ORDER_COMPLETED");
-
-        final Queue<OrderStatus> orderStatusQueue = new ConcurrentLinkedQueue<>();
-        EPStatement statement1 = epService.getEPAdministrator().getStatement("ORDER_COMPLETED");
-        Assert.assertNotNull(statement1);
-        statement1.setSubscriber(new Object() {
-            public void update(final OrderStatus event) {
-                orderStatusQueue.add(event);
-            }
-        });
-
-        OrderStatus orderStatus1 = OrderStatus.Factory.newInstance();
-        orderStatus1.setStatus(Status.OPEN);
-        orderStatus1.setDateTime(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:00"));
-
-        OrderStatus orderStatus2 = OrderStatus.Factory.newInstance();
-        orderStatus2.setStatus(Status.SUBMITTED);
-        orderStatus2.setDateTime(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:01"));
-
-        OrderStatus orderStatus3 = OrderStatus.Factory.newInstance();
-        orderStatus3.setStatus(Status.PARTIALLY_EXECUTED);
-        orderStatus3.setDateTime(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:02"));
-
-        OrderStatus orderStatus4 = OrderStatus.Factory.newInstance();
-        orderStatus4.setStatus(Status.EXECUTED);
-        orderStatus4.setDateTime(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:03"));
-
-        OrderStatus orderStatus5 = OrderStatus.Factory.newInstance();
-        orderStatus5.setStatus(Status.CANCELED);
-        orderStatus5.setDateTime(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:04"));
-
-        OrderStatus orderStatus6 = OrderStatus.Factory.newInstance();
-        orderStatus6.setStatus(Status.REJECTED);
-        orderStatus6.setDateTime(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:05"));
-
-        OrderStatus orderStatus7 = OrderStatus.Factory.newInstance();
-        orderStatus7.setStatus(Status.OPEN);
-        orderStatus7.setDateTime(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:15"));
-
-        epRuntime.sendEvent(new CurrentTimeEvent(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:00").getTime()));
-
-        AdapterCoordinator coordinator = new AdapterCoordinatorImpl(epService, true, true, true);
-        CollectionInputAdapter inputAdapter = new CollectionInputAdapter(Arrays.asList(
-                orderStatus1, orderStatus2, orderStatus3, orderStatus4, orderStatus5, orderStatus6, orderStatus7),
-                "dateTime");
-        coordinator.coordinate(inputAdapter);
-        coordinator.start();
-
-        Assert.assertEquals(3, orderStatusQueue.size());
-        Assert.assertSame(orderStatus4, orderStatusQueue.poll());
-        Assert.assertSame(orderStatus5, orderStatusQueue.poll());
-        Assert.assertSame(orderStatus6, orderStatusQueue.poll());
     }
 
     @Test
@@ -546,7 +489,7 @@ public class TradingEsperTest extends EsperTestBase {
         orderStatus1.setStatus(Status.SUBMITTED);
 
         Mockito.when(orderService.getStatusByIntId("my-algo-order")).thenReturn(
-                new ExecutionStatusVO("my-algo-order", Status.OPEN, 0L, 199L));
+                new ExecutionStatusVO("my-algo-order", Status.OPEN, 0L, 199L, LocalDateTime.now()));
 
         epRuntime.sendEvent(orderStatus1);
 
@@ -604,7 +547,7 @@ public class TradingEsperTest extends EsperTestBase {
         childOrder.setAccount(account1);
 
         Mockito.when(orderService.getStatusByIntId("my-algo-order")).thenReturn(
-                new ExecutionStatusVO("my-algo-order", Status.OPEN, 0L, 199L));
+                new ExecutionStatusVO("my-algo-order", Status.OPEN, 0L, 199L, LocalDateTime.now()));
 
         Fill fill1 = new Fill();
         fill1.setOrder(childOrder);

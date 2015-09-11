@@ -23,7 +23,7 @@ import org.springframework.context.annotation.Profile;
 
 import ch.algotrader.adapter.fix.ManagedFixAdapter;
 import ch.algotrader.config.CommonConfig;
-import ch.algotrader.ordermgmt.OpenOrderRegistry;
+import ch.algotrader.ordermgmt.OrderRegistry;
 import ch.algotrader.service.ExternalOrderService;
 import ch.algotrader.service.OrderPersistenceService;
 import ch.algotrader.service.rt.RTFixOrderServiceImpl;
@@ -38,11 +38,11 @@ public class RTFixServiceWiring {
     @Bean(name = "rTFixOrderService")
     public ExternalOrderService rTFixOrderService(
             final ManagedFixAdapter fixAdapter,
-            final OpenOrderRegistry openOrderRegistry,
+            final OrderRegistry orderRegistry,
             final OrderPersistenceService orderPersistenceService,
             final CommonConfig commonConfig) {
 
-        return new RTFixOrderServiceImpl(fixAdapter, openOrderRegistry, orderPersistenceService, commonConfig);
+        return new RTFixOrderServiceImpl(fixAdapter, orderRegistry, orderPersistenceService, commonConfig);
     }
 
 }

@@ -39,6 +39,8 @@ public class OrderStatusImpl extends OrderStatus {
             buffer.append(getOrder().getDescription());
         }
 
+        buffer.append(",lastQuantity=");
+        buffer.append(getLastQuantity());
         buffer.append(",filledQuantity=");
         buffer.append(getFilledQuantity());
         buffer.append(",remainingQuantity=");

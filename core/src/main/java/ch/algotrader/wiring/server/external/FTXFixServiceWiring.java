@@ -25,7 +25,7 @@ import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.adapter.fix.ManagedFixAdapter;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.ordermgmt.OpenOrderRegistry;
+import ch.algotrader.ordermgmt.OrderRegistry;
 import ch.algotrader.service.ExternalMarketDataService;
 import ch.algotrader.service.ExternalOrderService;
 import ch.algotrader.service.OrderPersistenceService;
@@ -42,12 +42,12 @@ public class FTXFixServiceWiring {
     @Bean(name = "fTXFixOrderService")
     public ExternalOrderService createFTXFixOrderService(
             final ManagedFixAdapter fixAdapter,
-            final OpenOrderRegistry openOrderRegistry,
+            final OrderRegistry orderRegistry,
             final OrderPersistenceService orderPersistenceService,
             final Engine serverEngine,
             final CommonConfig commonConfig) {
 
-        return new FTXFixOrderServiceImpl(fixAdapter, openOrderRegistry, orderPersistenceService, serverEngine, commonConfig);
+        return new FTXFixOrderServiceImpl(fixAdapter, orderRegistry, orderPersistenceService, serverEngine, commonConfig);
     }
 
     @Profile("fTXMarketData")

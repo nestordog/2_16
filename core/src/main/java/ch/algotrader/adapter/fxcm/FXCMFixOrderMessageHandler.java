@@ -28,7 +28,7 @@ import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.ordermgmt.OpenOrderRegistry;
+import ch.algotrader.ordermgmt.OrderRegistry;
 import ch.algotrader.util.PriceUtil;
 import quickfix.FieldNotFound;
 import quickfix.field.AvgPx;
@@ -49,8 +49,8 @@ import quickfix.fix44.ExecutionReport;
  */
 public class FXCMFixOrderMessageHandler extends AbstractFix44OrderMessageHandler {
 
-    public FXCMFixOrderMessageHandler(final OpenOrderRegistry openOrderRegistry, final Engine serverEngine) {
-        super(openOrderRegistry, serverEngine);
+    public FXCMFixOrderMessageHandler(final OrderRegistry orderRegistry, final Engine serverEngine) {
+        super(orderRegistry, serverEngine);
     }
 
     @Override
@@ -91,6 +91,8 @@ public class FXCMFixOrderMessageHandler extends AbstractFix44OrderMessageHandler
         Status status = getStatus(executionReport.getOrdStatus(), executionReport.getExecType(), executionReport.getCumQty());
         long filledQuantity = (long) executionReport.getCumQty().getValue();
         long remainingQuantity = (long) (executionReport.getOrderQty().getValue() - executionReport.getCumQty().getValue());
+        long lastQuantity = executionReport.isSetLastQty() ? (long) executionReport.getLastQty().getValue() : 0L;
+
         String intId = order.getIntId() != null ? order.getIntId(): executionReport.getClOrdID().getValue();
         String extId = executionReport.getOrderID().getValue();
 
@@ -102,6 +104,7 @@ public class FXCMFixOrderMessageHandler extends AbstractFix44OrderMessageHandler
         orderStatus.setSequenceNumber(executionReport.getHeader().getInt(MsgSeqNum.FIELD));
         orderStatus.setFilledQuantity(filledQuantity);
         orderStatus.setRemainingQuantity(remainingQuantity);
+        orderStatus.setLastQuantity(lastQuantity);
         orderStatus.setOrder(order);
 
         if (executionReport.isSetField(TransactTime.FIELD)) {

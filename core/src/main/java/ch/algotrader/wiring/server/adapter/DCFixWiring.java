@@ -32,7 +32,7 @@ import ch.algotrader.adapter.fix.MarketDataFixSessionStateHolder;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.event.dispatch.EventDispatcher;
-import ch.algotrader.ordermgmt.OpenOrderRegistry;
+import ch.algotrader.ordermgmt.OrderRegistry;
 import quickfix.SessionSettings;
 
 /**
@@ -58,12 +58,12 @@ public class DCFixWiring {
     @Profile("dCFix")
     @Bean(name = "dCOrderApplicationFactory")
     public FixApplicationFactory createDCOrderApplicationFactory(
-            final OpenOrderRegistry openOrderRegistry,
+            final OrderRegistry orderRegistry,
             final Engine serverEngine,
             final DefaultLogonMessageHandler dCLogonMessageHandler,
             final ExternalSessionStateHolder dCOrderSessionStateHolder) {
 
-        DCFixOrderMessageHandler dCFixOrderMessageHandler = new DCFixOrderMessageHandler(openOrderRegistry, serverEngine);
+        DCFixOrderMessageHandler dCFixOrderMessageHandler = new DCFixOrderMessageHandler(orderRegistry, serverEngine);
         return new DefaultFixApplicationFactory(dCFixOrderMessageHandler, dCLogonMessageHandler, dCOrderSessionStateHolder);
     }
 

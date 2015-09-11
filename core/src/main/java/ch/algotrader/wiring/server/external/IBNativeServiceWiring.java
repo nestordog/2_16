@@ -25,6 +25,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 import ch.algotrader.adapter.ib.AccountUpdate;
+import ch.algotrader.adapter.ib.IBExecutions;
 import ch.algotrader.adapter.ib.IBIdGenerator;
 import ch.algotrader.adapter.ib.IBOrderMessageFactory;
 import ch.algotrader.adapter.ib.IBPendingRequests;
@@ -39,7 +40,7 @@ import ch.algotrader.dao.security.SecurityDao;
 import ch.algotrader.dao.security.SecurityFamilyDao;
 import ch.algotrader.dao.security.StockDao;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.ordermgmt.OpenOrderRegistry;
+import ch.algotrader.ordermgmt.OrderRegistry;
 import ch.algotrader.service.ExternalMarketDataService;
 import ch.algotrader.service.ExternalOrderService;
 import ch.algotrader.service.HistoricalDataService;
@@ -74,14 +75,13 @@ public class IBNativeServiceWiring {
     public ExternalOrderService createIBNativeOrderService(
             final IBSession iBSession,
             final IBIdGenerator iBIdGenerator,
-            final OpenOrderRegistry openOrderRegistry,
+            final OrderRegistry orderRegistry,
+            final IBExecutions ibExecutions,
             final IBOrderMessageFactory iBOrderMessageFactory,
             final OrderPersistenceService orderPersistenceService,
-            final Engine serverEngine,
             final CommonConfig commonConfig) {
 
-        return new IBNativeOrderServiceImpl(iBSession, iBIdGenerator, openOrderRegistry, iBOrderMessageFactory,
-                orderPersistenceService, serverEngine, commonConfig);
+        return new IBNativeOrderServiceImpl(iBSession, iBIdGenerator, orderRegistry, ibExecutions, iBOrderMessageFactory, orderPersistenceService, commonConfig);
     }
 
     @Profile("iBHistoricalData")

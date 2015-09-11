@@ -27,7 +27,7 @@ import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.ordermgmt.OpenOrderRegistry;
+import ch.algotrader.ordermgmt.OrderRegistry;
 import ch.algotrader.util.PriceUtil;
 import quickfix.FieldNotFound;
 import quickfix.field.AvgPx;
@@ -47,8 +47,8 @@ import quickfix.fix42.ExecutionReport;
  */
 public class GenericFix42OrderMessageHandler extends AbstractFix42OrderMessageHandler {
 
-    public GenericFix42OrderMessageHandler(final OpenOrderRegistry openOrderRegistry, final Engine serverEngine) {
-        super(openOrderRegistry, serverEngine);
+    public GenericFix42OrderMessageHandler(final OrderRegistry orderRegistry, final Engine serverEngine) {
+        super(orderRegistry, serverEngine);
     }
 
     @Override
@@ -84,6 +84,8 @@ public class GenericFix42OrderMessageHandler extends AbstractFix42OrderMessageHa
         Status status = getStatus(execType, executionReport.getCumQty());
         long filledQuantity = (long) executionReport.getCumQty().getValue();
         long remainingQuantity = (long) (executionReport.getOrderQty().getValue() - executionReport.getCumQty().getValue());
+        long lastQuantity = executionReport.isSetLastShares() ? (long) executionReport.getLastShares().getValue() : 0L;
+
         String intId = order.getIntId() != null ? order.getIntId(): executionReport.getClOrdID().getValue();
         String extId = executionReport.getOrderID().getValue();
 
@@ -95,6 +97,7 @@ public class GenericFix42OrderMessageHandler extends AbstractFix42OrderMessageHa
         orderStatus.setSequenceNumber(executionReport.getHeader().getInt(MsgSeqNum.FIELD));
         orderStatus.setFilledQuantity(filledQuantity);
         orderStatus.setRemainingQuantity(remainingQuantity);
+        orderStatus.setLastQuantity(lastQuantity);
         orderStatus.setOrder(order);
         if (executionReport.isSetField(TransactTime.FIELD)) {
 

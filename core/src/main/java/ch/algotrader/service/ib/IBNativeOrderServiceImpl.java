@@ -23,9 +23,10 @@ import org.apache.logging.log4j.Logger;
 
 import com.ib.client.Contract;
 
+import ch.algotrader.adapter.ib.IBExecution;
+import ch.algotrader.adapter.ib.IBExecutions;
 import ch.algotrader.adapter.ib.IBIdGenerator;
 import ch.algotrader.adapter.ib.IBOrderMessageFactory;
-import ch.algotrader.adapter.ib.IBOrderStatus;
 import ch.algotrader.adapter.ib.IBSession;
 import ch.algotrader.adapter.ib.IBUtil;
 import ch.algotrader.config.CommonConfig;
@@ -34,8 +35,7 @@ import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.enumeration.TIF;
-import ch.algotrader.esper.Engine;
-import ch.algotrader.ordermgmt.OpenOrderRegistry;
+import ch.algotrader.ordermgmt.OrderRegistry;
 import ch.algotrader.service.ExternalOrderService;
 import ch.algotrader.service.OrderPersistenceService;
 import ch.algotrader.service.ServiceException;
@@ -53,34 +53,34 @@ public class IBNativeOrderServiceImpl implements ExternalOrderService {
 
     private final IBSession iBSession;
     private final IBIdGenerator iBIdGenerator;
-    private final OpenOrderRegistry openOrderRegistry;
+    private final OrderRegistry orderRegistry;
+    private final IBExecutions iBExecutions;
     private final IBOrderMessageFactory iBOrderMessageFactory;
     private final OrderPersistenceService orderPersistenceService;
-    private final Engine serverEngine;
     private final CommonConfig commonConfig;
 
     public IBNativeOrderServiceImpl(final IBSession iBSession,
             final IBIdGenerator iBIdGenerator,
-            final OpenOrderRegistry openOrderRegistry,
+            final OrderRegistry orderRegistry,
+            final IBExecutions iBExecutions,
             final IBOrderMessageFactory iBOrderMessageFactory,
             final OrderPersistenceService orderPersistenceService,
-            final Engine serverEngine,
             final CommonConfig commonConfig) {
 
         Validate.notNull(iBSession, "IBSession is null");
         Validate.notNull(iBIdGenerator, "IBIdGenerator is null");
-        Validate.notNull(openOrderRegistry, "OpenOrderRegistry is null");
+        Validate.notNull(orderRegistry, "OpenOrderRegistry is null");
+        Validate.notNull(iBExecutions, "IBExecutions is null");
         Validate.notNull(iBOrderMessageFactory, "IBOrderMessageFactory is null");
         Validate.notNull(orderPersistenceService, "OrderPersistenceService is null");
-        Validate.notNull(serverEngine, "Engine is null");
         Validate.notNull(commonConfig, "CommonConfig is null");
 
         this.iBSession = iBSession;
         this.iBIdGenerator = iBIdGenerator;
-        this.openOrderRegistry = openOrderRegistry;
+        this.orderRegistry = orderRegistry;
+        this.iBExecutions = iBExecutions;
         this.iBOrderMessageFactory = iBOrderMessageFactory;
         this.orderPersistenceService = orderPersistenceService;
-        this.serverEngine = serverEngine;
         this.commonConfig = commonConfig;
     }
 
@@ -114,7 +114,12 @@ public class IBNativeOrderServiceImpl implements ExternalOrderService {
             order.setIntId(intId);
         }
 
-        this.openOrderRegistry.add(order);
+        this.orderRegistry.add(order);
+        IBExecution execution = this.iBExecutions.add(intId);
+
+        synchronized (execution) {
+            execution.setStatus(Status.OPEN);
+        }
 
         if (!this.commonConfig.isSimulation()) {
             this.orderPersistenceService.persistOrder(order);
@@ -150,19 +155,20 @@ public class IBNativeOrderServiceImpl implements ExternalOrderService {
 
         Validate.notNull(order, "Order is null");
 
-        this.openOrderRegistry.remove(order.getIntId());
-        this.openOrderRegistry.add(order);
+        String intId = order.getIntId();
+        this.orderRegistry.remove(intId);
+        this.orderRegistry.add(order);
+
+        IBExecution execution = this.iBExecutions.add(intId);
+        synchronized (execution) {
+            execution.setStatus(Status.OPEN);
+        }
 
         if (!this.commonConfig.isSimulation()) {
             this.orderPersistenceService.persistOrder(order);
         }
 
         sendOrModifyOrder(order);
-
-        // send a 0:0 OrderStatus to validate the first SUBMITTED OrderStatus just after the modification
-        IBOrderStatus orderStatus = new IBOrderStatus(Status.SUBMITTED, 0, 0, null, order);
-
-        this.serverEngine.sendEvent(orderStatus);
 
     }
 

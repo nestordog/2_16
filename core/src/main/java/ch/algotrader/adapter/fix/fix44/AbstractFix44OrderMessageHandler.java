@@ -25,7 +25,7 @@ import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.ordermgmt.OpenOrderRegistry;
+import ch.algotrader.ordermgmt.OrderRegistry;
 import quickfix.FieldNotFound;
 import quickfix.SessionID;
 import quickfix.field.ExecType;
@@ -48,11 +48,11 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
 
     private static final Logger LOGGER = LogManager.getLogger(AbstractFix44OrderMessageHandler.class);
 
-    private final OpenOrderRegistry openOrderRegistry;
+    private final OrderRegistry orderRegistry;
     private final Engine serverEngine;
 
-    protected AbstractFix44OrderMessageHandler(final OpenOrderRegistry openOrderRegistry, final Engine serverEngine) {
-        this.openOrderRegistry = openOrderRegistry;
+    protected AbstractFix44OrderMessageHandler(final OrderRegistry orderRegistry, final Engine serverEngine) {
+        this.orderRegistry = orderRegistry;
         this.serverEngine = serverEngine;
     }
 
@@ -81,7 +81,7 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
             orderIntId = executionReport.getClOrdID().getValue();
         }
 
-        Order order = this.openOrderRegistry.getByIntId(orderIntId);
+        Order order = this.orderRegistry.getOpenOrderByIntId(orderIntId);
         if (order == null) {
 
             if (LOGGER.isErrorEnabled ()) {
@@ -129,7 +129,7 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
 
             // Send status report for replaced order
             String oldIntId = executionReport.getOrigClOrdID().getValue();
-            Order oldOrder = this.openOrderRegistry.getByIntId(oldIntId);
+            Order oldOrder = this.orderRegistry.getOpenOrderByIntId(oldIntId);
 
             if (oldOrder != null) {
 
@@ -191,7 +191,7 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
 
         String orderIntId = reject.getClOrdID().getValue();
 
-        Order order = this.openOrderRegistry.getByIntId(orderIntId);
+        Order order = this.orderRegistry.getOpenOrderByIntId(orderIntId);
         if (order != null) {
 
             OrderStatus orderStatus = OrderStatus.Factory.newInstance();

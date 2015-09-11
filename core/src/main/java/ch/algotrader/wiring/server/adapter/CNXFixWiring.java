@@ -31,7 +31,7 @@ import ch.algotrader.adapter.fix.MarketDataFixSessionStateHolder;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.event.dispatch.EventDispatcher;
-import ch.algotrader.ordermgmt.OpenOrderRegistry;
+import ch.algotrader.ordermgmt.OrderRegistry;
 import quickfix.SessionSettings;
 
 /**
@@ -57,12 +57,12 @@ public class CNXFixWiring {
     @Profile("cNXFix")
     @Bean(name = "cNXOrderApplicationFactory")
     public CNXFixApplicationFactory createCNXOrderApplicationFactory(
-            final OpenOrderRegistry openOrderRegistry,
+            final OrderRegistry orderRegistry,
             final Engine serverEngine,
             final DefaultLogonMessageHandler cNXLogonMessageHandler,
             final ExternalSessionStateHolder cNXOrderSessionStateHolder) {
 
-        CNXFixOrderMessageHandler cnxFixOrderMessageHandler = new CNXFixOrderMessageHandler(openOrderRegistry, serverEngine);
+        CNXFixOrderMessageHandler cnxFixOrderMessageHandler = new CNXFixOrderMessageHandler(orderRegistry, serverEngine);
         return new CNXFixApplicationFactory(cnxFixOrderMessageHandler, cNXLogonMessageHandler, cNXOrderSessionStateHolder);
     }
 

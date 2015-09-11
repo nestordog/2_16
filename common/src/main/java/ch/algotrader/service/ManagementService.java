@@ -56,6 +56,12 @@ public interface ManagementService {
      */
     public Collection<OrderStatusVO> getDataOrders();
 
+
+    /**
+     * Gets recently executed Orders
+     */
+    public Collection<OrderStatusVO> getDataRecentOrders();
+
     /**
      * Gets current open Positions
      */

@@ -32,7 +32,7 @@ import ch.algotrader.adapter.lmax.LMAXFixOrderMessageHandler;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.event.dispatch.EventDispatcher;
-import ch.algotrader.ordermgmt.OpenOrderRegistry;
+import ch.algotrader.ordermgmt.OrderRegistry;
 import quickfix.SessionSettings;
 
 /**
@@ -58,12 +58,12 @@ public class LMAXFixWiring {
     @Profile("lMAXFix")
     @Bean(name = "lMAXOrderApplicationFactory")
     public FixApplicationFactory createLMAXOrderApplicationFactory(
-            final OpenOrderRegistry openOrderRegistry,
+            final OrderRegistry orderRegistry,
             final Engine serverEngine,
             final DefaultLogonMessageHandler lMAXLogonMessageHandler,
             final ExternalSessionStateHolder lMAXOrderSessionStateHolder) {
 
-        LMAXFixOrderMessageHandler lMAXFixOrderMessageHandler = new LMAXFixOrderMessageHandler(openOrderRegistry, serverEngine);
+        LMAXFixOrderMessageHandler lMAXFixOrderMessageHandler = new LMAXFixOrderMessageHandler(orderRegistry, serverEngine);
         return new DefaultFixApplicationFactory(lMAXFixOrderMessageHandler, lMAXLogonMessageHandler, lMAXOrderSessionStateHolder);
     }
 

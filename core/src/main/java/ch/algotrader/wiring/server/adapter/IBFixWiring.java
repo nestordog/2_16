@@ -32,7 +32,7 @@ import ch.algotrader.adapter.ib.IBCustomMessage;
 import ch.algotrader.adapter.ib.IBFixOrderMessageHandler;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.event.dispatch.EventDispatcher;
-import ch.algotrader.ordermgmt.OpenOrderRegistry;
+import ch.algotrader.ordermgmt.OrderRegistry;
 
 /**
  * IB Fix configuration.
@@ -55,12 +55,12 @@ public class IBFixWiring {
 
     @Bean(name = "iBOrderApplicationFactory")
     public FixApplicationFactory createIBOrderApplicationFactory(
-            final OpenOrderRegistry openOrderRegistry,
+            final OrderRegistry orderRegistry,
             final BlockingQueue<IBCustomMessage> iBAllocationMessageQueue,
             final Engine serverEngine,
             final ExternalSessionStateHolder iBOrderSessionStateHolder) {
 
-        IBFixOrderMessageHandler ibFixOrderMessageHandler = new IBFixOrderMessageHandler(openOrderRegistry, iBAllocationMessageQueue, serverEngine);
+        IBFixOrderMessageHandler ibFixOrderMessageHandler = new IBFixOrderMessageHandler(orderRegistry, iBAllocationMessageQueue, serverEngine);
 
         return new DefaultFixApplicationFactory(ibFixOrderMessageHandler, iBOrderSessionStateHolder);
     }

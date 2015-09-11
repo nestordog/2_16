@@ -24,7 +24,7 @@ import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.adapter.fix.fix42.GenericFix42OrderMessageHandler;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.ordermgmt.OpenOrderRegistry;
+import ch.algotrader.ordermgmt.OrderRegistry;
 import quickfix.FieldNotFound;
 import quickfix.SessionID;
 import quickfix.field.ClOrdID;
@@ -52,8 +52,8 @@ public class IBFixOrderMessageHandler extends GenericFix42OrderMessageHandler {
 
     private final BlockingQueue<IBCustomMessage> allocationMessageQueue;
 
-    public IBFixOrderMessageHandler(final OpenOrderRegistry openOrderRegistry, final BlockingQueue<IBCustomMessage> allocationMessageQueue, final Engine serverEngine) {
-        super(openOrderRegistry, serverEngine);
+    public IBFixOrderMessageHandler(final OrderRegistry orderRegistry, final BlockingQueue<IBCustomMessage> allocationMessageQueue, final Engine serverEngine) {
+        super(orderRegistry, serverEngine);
         this.allocationMessageQueue = allocationMessageQueue;
     }
 

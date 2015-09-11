@@ -41,6 +41,25 @@ public class OrderDetailsVO {
     }
 
     @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        } else if (obj == null) {
+            return false;
+        } else if (getClass() == obj.getClass()) {
+            OrderDetailsVO that = (OrderDetailsVO) obj;
+            return this.executionStatus.getIntId().equals(that.executionStatus.getIntId());
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return this.executionStatus.getIntId().hashCode();
+    }
+
+    @Override
     public String toString() {
         return "{" +
                 "order=" + order +

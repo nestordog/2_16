@@ -29,7 +29,7 @@ import ch.algotrader.enumeration.Status;
 *
 * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
 */
-public interface OpenOrderRegistry {
+public interface OrderRegistry {
 
     /**
      * Adds the order to the registry.
@@ -48,16 +48,16 @@ public interface OpenOrderRegistry {
     Order getByIntId(String intId);
 
     /**
+     * Returns open order with the given {@code IntId} or {@code null} if no order with the given {@code IntId}
+     * can be found in the registry.
+     */
+    Order getOpenOrderByIntId(String intId);
+
+    /**
      * Returns execution status of the order with the given {@code IntId} or {@code null} if no order
      * with the given {@code IntId} can be found in the registry.
      */
     ExecutionStatusVO getStatusByIntId(String intId);
-
-    /**
-     * Returns full details of the order with the given {@code IntId} or {@code null} if no order
-     * with the given {@code IntId} can be found in the registry.
-     */
-    OrderDetailsVO getDetailsByIntId(String intId);
 
     /**
      * Updates execution status of the order with the given {@code IntId}.
@@ -65,23 +65,28 @@ public interface OpenOrderRegistry {
     void updateExecutionStatus(String intId, Status status, long filledQuantity, long remainingQuantity);
 
     /**
-     * Returns all orders tracked by th registry.
+     * Returns all open orders.
      */
-    List<Order> getAllOrders();
+    List<Order> getAllOpenOrders();
 
     /**
-     * Returns full details of orders tracked by th registry.
+     * Returns full details of currently open orders.
      */
-    List<OrderDetailsVO> getAllOrderDetails();
+    List<OrderDetailsVO> getOpenOrderDetails();
 
     /**
-     * Returns full details of orders tracked by th registry for the given strategy.
+     * Returns full details of recently executed orders.
      */
-    List<OrderDetailsVO> getOrderDetailsForStrategy(String strategyName);
+    List<OrderDetailsVO> getRecentOrderDetails();
 
     /**
-     * Returns all child orders of the parent order with the given {@code IntId}.
+     * Returns all open child orders of the parent order with the given {@code IntId}.
      */
-    List<Order> findByParentIntId(String parentIntId);
+    List<Order> getOpenOrdersByParentIntId(String parentIntId);
+
+    /**
+     * Evicts completed orders.
+     */
+    void evictCompleted();
 
 }

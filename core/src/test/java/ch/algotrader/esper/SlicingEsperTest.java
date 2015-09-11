@@ -1,6 +1,7 @@
 package ch.algotrader.esper;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -173,7 +174,7 @@ public class SlicingEsperTest extends EsperTestBase {
         orderStatus1.setStatus(Status.SUBMITTED);
 
         Mockito.when(orderService.getStatusByIntId("my-algo-order")).thenReturn(
-                new ExecutionStatusVO("my-algo-order", Status.OPEN, 0L, 199L));
+                new ExecutionStatusVO("my-algo-order", Status.OPEN, 0L, 199L, LocalDateTime.now()));
 
         epRuntime.sendEvent(orderStatus1);
 
@@ -215,7 +216,7 @@ public class SlicingEsperTest extends EsperTestBase {
         childOrder.setSide(Side.BUY);
 
         Mockito.when(orderService.getStatusByIntId("my-algo-order")).thenReturn(
-                new ExecutionStatusVO("my-algo-order", Status.OPEN, 0L, 199L));
+                new ExecutionStatusVO("my-algo-order", Status.OPEN, 0L, 199L, LocalDateTime.now()));
 
         Fill fill1 = new Fill();
         fill1.setOrder(childOrder);
@@ -634,7 +635,7 @@ public class SlicingEsperTest extends EsperTestBase {
         orderStatus1.setDateTime(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:07"));
 
         Mockito.when(orderService.getStatusByIntId("my-algo-order")).thenReturn(
-                new ExecutionStatusVO("my-algo-order", Status.OPEN, 40L, 199L));
+                new ExecutionStatusVO("my-algo-order", Status.OPEN, 40L, 199L, LocalDateTime.now()));
 
         AdapterCoordinator coordinator = new AdapterCoordinatorImpl(epService, true, true, true);
         CollectionInputAdapter inputAdapter = new CollectionInputAdapter(Arrays.asList(tick1, algoOrder, childOrder, orderStatus1),

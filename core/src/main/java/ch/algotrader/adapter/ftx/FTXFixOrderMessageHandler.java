@@ -22,7 +22,7 @@ import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.adapter.fix.fix44.GenericFix44OrderMessageHandler;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.ordermgmt.OpenOrderRegistry;
+import ch.algotrader.ordermgmt.OrderRegistry;
 import quickfix.FieldNotFound;
 import quickfix.SessionID;
 import quickfix.field.RefSeqNum;
@@ -38,8 +38,8 @@ public class FTXFixOrderMessageHandler extends GenericFix44OrderMessageHandler {
 
     private static final Logger LOGGER = LogManager.getLogger(FTXFixOrderMessageHandler.class);
 
-    public FTXFixOrderMessageHandler(final OpenOrderRegistry openOrderRegistry, final Engine serverEngine) {
-        super(openOrderRegistry, serverEngine);
+    public FTXFixOrderMessageHandler(final OrderRegistry orderRegistry, final Engine serverEngine) {
+        super(orderRegistry, serverEngine);
     }
 
     @Override

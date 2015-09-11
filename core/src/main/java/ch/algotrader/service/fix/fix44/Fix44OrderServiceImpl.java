@@ -23,7 +23,7 @@ import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.fix.fix44.Fix44OrderMessageFactory;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.trade.SimpleOrder;
-import ch.algotrader.ordermgmt.OpenOrderRegistry;
+import ch.algotrader.ordermgmt.OrderRegistry;
 import ch.algotrader.service.OrderPersistenceService;
 import ch.algotrader.service.fix.FixOrderServiceImpl;
 import quickfix.fix44.NewOrderSingle;
@@ -39,22 +39,22 @@ public abstract class Fix44OrderServiceImpl extends FixOrderServiceImpl implemen
 
     private static final long serialVersionUID = -3694423160435186473L;
 
-    private final OpenOrderRegistry openOrderRegistry;
+    private final OrderRegistry orderRegistry;
     private final Fix44OrderMessageFactory messageFactory;
 
     public Fix44OrderServiceImpl(
             final FixAdapter fixAdapter,
-            final OpenOrderRegistry openOrderRegistry,
+            final OrderRegistry orderRegistry,
             final OrderPersistenceService orderPersistenceService,
             final Fix44OrderMessageFactory messageFactory,
             final CommonConfig commonConfig) {
 
         super(fixAdapter, orderPersistenceService, commonConfig);
 
-        Validate.notNull(openOrderRegistry, "OpenOrderRegistry is null");
+        Validate.notNull(orderRegistry, "OpenOrderRegistry is null");
         Validate.notNull(messageFactory, "Fix44OrderMessageFactory is null");
 
-        this.openOrderRegistry = openOrderRegistry;
+        this.orderRegistry = orderRegistry;
         this.messageFactory = messageFactory;
     }
 
@@ -81,7 +81,7 @@ public abstract class Fix44OrderServiceImpl extends FixOrderServiceImpl implemen
         // broker-specific settings
         prepareSendOrder(order, message);
 
-        this.openOrderRegistry.add(order);
+        this.orderRegistry.add(order);
 
         // send the message
         sendOrder(order, message);
@@ -105,7 +105,7 @@ public abstract class Fix44OrderServiceImpl extends FixOrderServiceImpl implemen
         order.setIntId(clOrdID);
         order.setExtId(null);
 
-        this.openOrderRegistry.add(order);
+        this.orderRegistry.add(order);
 
         // send the message
         sendOrder(order, message);

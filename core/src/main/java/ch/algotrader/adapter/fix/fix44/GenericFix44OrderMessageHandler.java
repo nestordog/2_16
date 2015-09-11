@@ -26,7 +26,7 @@ import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.ordermgmt.OpenOrderRegistry;
+import ch.algotrader.ordermgmt.OrderRegistry;
 import ch.algotrader.util.PriceUtil;
 import quickfix.FieldNotFound;
 import quickfix.field.AvgPx;
@@ -45,8 +45,8 @@ import quickfix.fix44.ExecutionReport;
  */
 public class GenericFix44OrderMessageHandler extends AbstractFix44OrderMessageHandler {
 
-    public GenericFix44OrderMessageHandler(final OpenOrderRegistry openOrderRegistry, final Engine serverEngine) {
-        super(openOrderRegistry, serverEngine);
+    public GenericFix44OrderMessageHandler(final OrderRegistry orderRegistry, final Engine serverEngine) {
+        super(orderRegistry, serverEngine);
     }
 
     @Override
@@ -94,6 +94,8 @@ public class GenericFix44OrderMessageHandler extends AbstractFix44OrderMessageHa
 
         Status status = getStatus(execType, orderQty, cumQty);
         long remainingQuantity = orderQty - cumQty;
+        long lastQuantity = executionReport.isSetLastQty() ? (long) executionReport.getLastQty().getValue() : 0L;
+
         String intId = order.getIntId() != null ? order.getIntId(): executionReport.getClOrdID().getValue();
         String extId = executionReport.getOrderID().getValue();
 
@@ -105,6 +107,7 @@ public class GenericFix44OrderMessageHandler extends AbstractFix44OrderMessageHa
         orderStatus.setSequenceNumber(executionReport.getHeader().getInt(MsgSeqNum.FIELD));
         orderStatus.setFilledQuantity(cumQty);
         orderStatus.setRemainingQuantity(remainingQuantity);
+        orderStatus.setLastQuantity(lastQuantity);
         orderStatus.setOrder(order);
         if (executionReport.isSetField(TransactTime.FIELD)) {
 

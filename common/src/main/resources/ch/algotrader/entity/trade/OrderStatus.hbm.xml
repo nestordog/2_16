@@ -45,6 +45,12 @@
                  <param name="enumClassName">ch.algotrader.enumeration.Status</param>
             </type>
         </property>
+        <property name="lastQuantity">
+            <meta attribute="field-description"><![CDATA[The last filled quantity of the Order.]]></meta>
+            <column name="LAST_QUANTITY" not-null="true" unique="false" sql-type="BIGINT"/>
+
+            <type name="long"/>
+        </property>
         <property name="filledQuantity">
             <meta attribute="field-description"><![CDATA[The quantity of the Order that has already been filled.]]></meta>
             <column name="FILLED_QUANTITY" not-null="true" unique="false" sql-type="BIGINT"/>
@@ -54,12 +60,6 @@
         <property name="remainingQuantity">
             <meta attribute="field-description"><![CDATA[The remaining quantity of the Order that has not been filled yet.]]></meta>
             <column name="REMAINING_QUANTITY" not-null="true" unique="false" sql-type="BIGINT"/>
-
-            <type name="long"/>
-        </property>
-        <property name="lastQuantity">
-            <meta attribute="field-description"><![CDATA[The quantity of the last fill]]></meta>
-            <column name="LAST_QUANTITY" not-null="true" unique="false" sql-type="BIGINT"/>
 
             <type name="long"/>
         </property>

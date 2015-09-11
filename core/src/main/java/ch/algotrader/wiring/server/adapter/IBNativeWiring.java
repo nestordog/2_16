@@ -33,6 +33,7 @@ import ch.algotrader.adapter.ib.DefaultIBMessageHandler;
 import ch.algotrader.adapter.ib.DefaultIBOrderMessageFactory;
 import ch.algotrader.adapter.ib.DefaultIBSessionStateHolder;
 import ch.algotrader.adapter.ib.IBAdapter;
+import ch.algotrader.adapter.ib.IBExecutions;
 import ch.algotrader.adapter.ib.IBIdGenerator;
 import ch.algotrader.adapter.ib.IBOrderMessageFactory;
 import ch.algotrader.adapter.ib.IBPendingRequests;
@@ -42,7 +43,7 @@ import ch.algotrader.adapter.ib.IBSessionStateHolder;
 import ch.algotrader.config.IBConfig;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.event.dispatch.EventDispatcher;
-import ch.algotrader.ordermgmt.OpenOrderRegistry;
+import ch.algotrader.ordermgmt.OrderRegistry;
 
 /**
  * IB Native configuration.
@@ -92,17 +93,23 @@ public class IBNativeWiring {
         return new DefaultIBIdGenerator();
     }
 
+    @Bean(name = "iBExecutions")
+    public IBExecutions createIBExecutions() {
+        return new IBExecutions();
+    }
+
     @Bean(name = "iBMessageHandler")
     public AbstractIBMessageHandler createIBMessageHandler(
             final IBSessionStateHolder iBSessionStateHolder,
             final IBIdGenerator iBIdGenerator,
             final IBPendingRequests iBPendingRequests,
-            final OpenOrderRegistry openOrderRegistry,
+            final OrderRegistry orderRegistry,
+            final IBExecutions ibExecutions,
             final LinkedBlockingDeque<AccountUpdate> iBAccountUpdateQueue,
             final LinkedBlockingDeque<Set<String>> iBAccountsQueue,
             final LinkedBlockingDeque<ch.algotrader.adapter.ib.Profile> iBProfilesQueue,
             final Engine serverEngine) {
-        return new DefaultIBMessageHandler(0, iBSessionStateHolder, iBPendingRequests, iBIdGenerator, openOrderRegistry,
+        return new DefaultIBMessageHandler(0, iBSessionStateHolder, iBPendingRequests, iBIdGenerator, orderRegistry, ibExecutions,
                 iBAccountUpdateQueue, iBAccountsQueue, iBProfilesQueue, serverEngine);
     }
 

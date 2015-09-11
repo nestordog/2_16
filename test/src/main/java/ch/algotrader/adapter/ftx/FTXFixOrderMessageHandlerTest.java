@@ -54,7 +54,7 @@ import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.AbstractEngine;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.event.dispatch.EventDispatcher;
-import ch.algotrader.ordermgmt.OpenOrderRegistry;
+import ch.algotrader.ordermgmt.OrderRegistry;
 import quickfix.CompositeLogFactory;
 import quickfix.DefaultSessionFactory;
 import quickfix.FileLogFactory;
@@ -73,7 +73,7 @@ public class FTXFixOrderMessageHandlerTest {
 
     private LinkedBlockingQueue<Object> eventQueue;
     private EventDispatcher eventDispatcher;
-    private OpenOrderRegistry openOrderRegistry;
+    private OrderRegistry orderRegistry;
     private FTXFixOrderMessageFactory messageFactory;
     private FTXFixOrderMessageHandler messageHandler;
     private Session session;
@@ -107,8 +107,8 @@ public class FTXFixOrderMessageHandlerTest {
         SessionSettings settings = FixConfigUtils.loadSettings();
         SessionID sessionId = FixConfigUtils.getSessionID(settings, "FTXT");
 
-        this.openOrderRegistry = Mockito.mock(OpenOrderRegistry.class);
-        FTXFixOrderMessageHandler messageHandlerImpl = new FTXFixOrderMessageHandler(this.openOrderRegistry, engine);
+        this.orderRegistry = Mockito.mock(OrderRegistry.class);
+        FTXFixOrderMessageHandler messageHandlerImpl = new FTXFixOrderMessageHandler(this.orderRegistry, engine);
         this.messageHandler = Mockito.spy(messageHandlerImpl);
         this.messageFactory = new FTXFixOrderMessageFactory();
 
@@ -198,7 +198,7 @@ public class FTXFixOrderMessageHandlerTest {
 
         NewOrderSingle message = this.messageFactory.createNewOrderMessage(order, orderId);
 
-        Mockito.when(this.openOrderRegistry.getByIntId(orderId)).thenReturn(order);
+        Mockito.when(this.orderRegistry.getByIntId(orderId)).thenReturn(order);
 
         this.session.send(message);
 
@@ -258,7 +258,7 @@ public class FTXFixOrderMessageHandlerTest {
 
         NewOrderSingle message1 = this.messageFactory.createNewOrderMessage(order, orderId1);
 
-        Mockito.when(this.openOrderRegistry.getByIntId(orderId1)).thenReturn(order);
+        Mockito.when(this.orderRegistry.getByIntId(orderId1)).thenReturn(order);
 
         this.session.send(message1);
 
@@ -278,7 +278,7 @@ public class FTXFixOrderMessageHandlerTest {
 
         OrderCancelRequest message2 = this.messageFactory.createOrderCancelMessage(order, orderId2);
 
-        Mockito.when(this.openOrderRegistry.getByIntId(orderId2)).thenReturn(order);
+        Mockito.when(this.orderRegistry.getByIntId(orderId2)).thenReturn(order);
 
         this.session.send(message2);
 
@@ -322,7 +322,7 @@ public class FTXFixOrderMessageHandlerTest {
 
         NewOrderSingle message1 = this.messageFactory.createNewOrderMessage(order, orderId1);
 
-        Mockito.when(this.openOrderRegistry.getByIntId(orderId1)).thenReturn(order);
+        Mockito.when(this.orderRegistry.getByIntId(orderId1)).thenReturn(order);
 
         this.session.send(message1);
 
@@ -344,7 +344,7 @@ public class FTXFixOrderMessageHandlerTest {
 
         OrderCancelReplaceRequest message2 = this.messageFactory.createModifyOrderMessage(order, orderId2, 0);
 
-        Mockito.when(this.openOrderRegistry.getByIntId(orderId2)).thenReturn(order);
+        Mockito.when(this.orderRegistry.getByIntId(orderId2)).thenReturn(order);
 
         this.session.send(message2);
 
@@ -366,7 +366,7 @@ public class FTXFixOrderMessageHandlerTest {
 
         OrderCancelRequest message3 = this.messageFactory.createOrderCancelMessage(order, orderId3);
 
-        Mockito.when(this.openOrderRegistry.getByIntId(orderId3)).thenReturn(order);
+        Mockito.when(this.orderRegistry.getByIntId(orderId3)).thenReturn(order);
 
         this.session.send(message3);
 
