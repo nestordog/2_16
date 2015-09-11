@@ -3,7 +3,7 @@
     <parent>
         <groupId>algotrader</groupId>
         <artifactId>algotrader</artifactId>
-        <version>2.2.6</version>
+        <version>2.2.7-SNAPSHOT</version>
     </parent>
     <artifactId>algotrader-crud</artifactId>
     <name>AlgoTrader Reference Data Manager</name>
