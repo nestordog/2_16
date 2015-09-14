@@ -28,6 +28,7 @@ import javax.jms.JMSException;
 import javax.jms.ObjectMessage;
 import javax.jms.Session;
 
+import ch.algotrader.entity.trade.OrderProperty;
 import org.apache.activemq.command.ActiveMQObjectMessage;
 import org.apache.activemq.util.ByteArrayOutputStream;
 import org.springframework.jms.support.converter.SimpleMessageConverter;
@@ -80,11 +81,19 @@ public class CollectionIgnoringMessageConverter extends SimpleMessageConverter {
         @Override
         protected Object replaceObject(Object obj) throws IOException {
 
-            if (obj instanceof Collection || obj instanceof Map) {
-
-                // do not serialize Collections or Maps
+            if (obj instanceof Collection) {
+                // do not serialize Collections
                 return null;
-            } else {
+            } else if(obj instanceof Map){
+                // workaround to ensure order properties are serialized.
+                Map m = (Map)(obj);
+                if(!m.isEmpty() && m.values().toArray()[0] instanceof OrderProperty){
+                    return super.replaceObject(obj);
+                } else {
+                    return null;
+                }
+            }
+            else {
                 return super.replaceObject(obj);
             }
         }

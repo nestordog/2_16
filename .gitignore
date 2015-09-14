@@ -19,3 +19,4 @@ test/src/main/resources/fix.cfg
 test/src/main/resources/log4j.xml
 uml/src/main/uml/*.mdr
 uml/src/main/uml/*.uml
+.DS_Store
