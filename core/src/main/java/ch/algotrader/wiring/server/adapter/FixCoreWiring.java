@@ -18,15 +18,15 @@
 package ch.algotrader.wiring.server.adapter;
 
 import java.io.InputStream;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 
 import ch.algotrader.adapter.fix.DefaultFixEventScheduler;
 import ch.algotrader.adapter.fix.FixApplicationFactory;
@@ -63,10 +63,10 @@ public class FixCoreWiring {
     }
 
     @Bean(name = "fixSessionSettings")
-    public SessionSettings createFixSessionSettings() throws Exception {
+    public SessionSettings createFixSessionSettings(
+            @Value("${quickfix.config-url}") final URL configUrl) throws Exception {
 
-        Resource resource = new ClassPathResource("/fix.cfg");
-        try (InputStream inputStream = resource.getInputStream()) {
+        try (InputStream inputStream = configUrl.openStream()) {
             return new SessionSettings(inputStream);
         }
     }
