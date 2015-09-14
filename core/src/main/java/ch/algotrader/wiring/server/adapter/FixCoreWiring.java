@@ -37,13 +37,9 @@ import ch.algotrader.esper.Engine;
 import ch.algotrader.ordermgmt.DefaultOrderIdGenerator;
 import ch.algotrader.ordermgmt.OrderIdGenerator;
 import ch.algotrader.service.LookupService;
-import quickfix.CompositeLogFactory;
 import quickfix.DefaultMessageFactory;
-import quickfix.FileLogFactory;
 import quickfix.FileStoreFactory;
-import quickfix.LogFactory;
 import quickfix.MessageStoreFactory;
-import quickfix.SLF4JLogFactory;
 import quickfix.SessionFactory;
 import quickfix.SessionSettings;
 import quickfix.SocketInitiator;
@@ -77,17 +73,10 @@ public class FixCoreWiring {
         return new FileStoreFactory(fixSessionSettings);
     }
 
-    @Bean(name = "fixLogFactory")
-    public LogFactory createFixLogFactory(final SessionSettings fixSessionSettings) {
-
-        return new CompositeLogFactory(new LogFactory[] { new SLF4JLogFactory(fixSessionSettings), new FileLogFactory(fixSessionSettings) });
-    }
-
     @Bean(name = "fixSocketInitiator", initMethod = "start", destroyMethod = "stop")
     public SocketInitiator createFixSocketInitiator(
             final SessionSettings fixSessionSettings,
             final MessageStoreFactory fixMessageStoreFactory,
-            final LogFactory fixLogFactory,
             final ApplicationContext applicationContext) throws Exception {
 
         Map<String, FixApplicationFactory> applicationFactoryMap = applicationContext.getBeansOfType(FixApplicationFactory.class);
@@ -97,11 +86,7 @@ public class FixCoreWiring {
             FixApplicationFactory applicationFactory = entry.getValue();
             applicationFactoryMapByName.put(applicationFactory.getName(), applicationFactory);
         }
-        SessionFactory sessionFactory = new FixMultiApplicationSessionFactory(
-                applicationFactoryMapByName,
-                fixMessageStoreFactory,
-                fixLogFactory,
-                new DefaultMessageFactory());
+        SessionFactory sessionFactory = new FixMultiApplicationSessionFactory(applicationFactoryMapByName, fixMessageStoreFactory, new DefaultMessageFactory());
         return new SocketInitiator(sessionFactory, fixSessionSettings);
     }
 
