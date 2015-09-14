@@ -68,7 +68,6 @@ import com.espertech.esper.client.deploy.ModuleItem;
 import com.espertech.esper.client.deploy.ParseException;
 import com.espertech.esper.client.soda.AnnotationPart;
 import com.espertech.esper.client.soda.EPStatementObjectModel;
-import com.espertech.esper.client.time.CurrentTimeEvent;
 import com.espertech.esper.client.time.TimerControlEvent;
 import com.espertech.esper.core.deploy.EPLModuleUtil;
 import com.espertech.esper.core.service.EPServiceProviderImpl;
@@ -149,13 +148,6 @@ public class EngineImpl extends AbstractEngine {
         configuration.getVariables().get("strategyName").setInitializationValue(strategyName);
 
         this.serviceProvider = EPServiceProviderManager.getProvider(strategyName, configuration);
-
-        // must send time event before first schedule pattern
-        this.serviceProvider.getEPRuntime().sendEvent(new CurrentTimeEvent(0));
-
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Initialized service provider: {}", strategyName);
-        }
     }
 
     private void initVariables(final Configuration configuration, final ConfigParams configParams) {

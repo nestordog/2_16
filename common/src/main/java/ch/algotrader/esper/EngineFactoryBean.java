@@ -19,7 +19,6 @@ package ch.algotrader.esper;
 
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -117,7 +116,7 @@ public class EngineFactoryBean implements FactoryBean<Engine>, ApplicationContex
                 parseModules(this.runModuleList, this.runModules));
     }
 
-    private static Collection<String> parseModules(final String[] array, final String text) {
+    private static String[] parseModules(final String[] array, final String text) {
         if (array == null && text == null) {
             return null;
         }
@@ -132,7 +131,7 @@ public class EngineFactoryBean implements FactoryBean<Engine>, ApplicationContex
                 list.add(s);
             }
         }
-        return !list.isEmpty() ? list : null;
+        return !list.isEmpty() ? list.toArray(new String[list.size()]) : null;
     }
 
     @Override

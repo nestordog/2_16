@@ -22,6 +22,7 @@ import java.util.Collection;
 
 import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.ConfigurationEngineDefaults;
+import com.espertech.esper.client.time.CurrentTimeEvent;
 
 import ch.algotrader.config.ConfigParams;
 
@@ -42,7 +43,7 @@ public class EngineFactory {
         this.configParams = configParams;
     }
 
-    public Engine createServer(final Collection<URL> configResources, final Collection<String> initModules) {
+    public Engine createServer(final Collection<URL> configResources, final String[] initModules, final String[] runModules) {
         Configuration configuration = new Configuration();
         for (URL configResource: configResources) {
             configuration.configure(configResource);
@@ -55,25 +56,25 @@ public class EngineFactory {
             threading.setThreadPoolOutboundNumThreads(this.configParams.getInteger("misc.outboundThreads"));
         }
         String strategyName = "SERVER";
-        return new EngineImpl(strategyName, this.subscriberResolver,
-                configuration,
-                initModules != null ? initModules.toArray(new String[initModules.size()]) : null,
-                null,
-                this.configParams);
+        Engine engine = new EngineImpl(strategyName, this.subscriberResolver, configuration, initModules, runModules, this.configParams);
+
+        // must send time event before first schedule pattern
+        engine.sendEvent(new CurrentTimeEvent(0));
+        return engine;
     }
 
     public Engine createStrategy(
             final String strategyName,
-            final Collection<URL> configResources, final Collection<String> initModules, final Collection<String> runModules) {
+            final Collection<URL> configResources, final String[] initModules, final String[] runModules) {
         Configuration configuration = new Configuration();
         for (URL configResource: configResources) {
             configuration.configure(configResource);
         }
-        return new EngineImpl(strategyName, this.subscriberResolver,
-                configuration,
-                initModules != null ? initModules.toArray(new String[initModules.size()]) : null,
-                runModules != null ? runModules.toArray(new String[runModules.size()]) : null,
-                this.configParams);
+        Engine engine = new EngineImpl(strategyName, this.subscriberResolver, configuration, initModules, runModules, this.configParams);
+
+        // must send time event before first schedule pattern
+        engine.sendEvent(new CurrentTimeEvent(0));
+        return engine;
     }
 
 }

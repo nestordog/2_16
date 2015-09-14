@@ -46,18 +46,17 @@ public class ServerEngineWiring {
         Resource resource2 = applicationContext.getResource("classpath:/META-INF/esper-core.cfg.xml");
 
         List<URL> configResources = Arrays.asList(resource1.getURL(), resource2.getURL());
-        List<String> initModules = Arrays.asList(
-                "market-data",
-                "combination",
-                "current-values",
-                "trades",
-                "portfolio",
-                "performance",
-                "algo-slicing",
-                "ib"
-        );
+        return engineFactory.createServer(configResources,
+                split(configParams.getString("server-engine.init")),
+                split(configParams.getString("server-engine.run")));
+    }
 
-        return engineFactory.createServer(configResources, initModules);
+    private static String[] split(final String s) {
+
+        if (s == null) {
+            return null;
+        }
+        return s.split(" *, *");
     }
 
 }
