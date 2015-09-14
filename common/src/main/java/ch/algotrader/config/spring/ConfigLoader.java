@@ -27,7 +27,7 @@ import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.ResourcePatternResolver;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.util.Assert;
 
 /**
@@ -84,7 +84,7 @@ public final class ConfigLoader {
      * <p><tt>/conf-bb.properties</tt><p/>
      * <p/>
      */
-    public static Map<String, String> load(final ResourcePatternResolver resourceResolver) throws IOException {
+    public static Map<String, String> load(final ResourceLoader resourceResolver) throws IOException {
 
         Assert.notNull(resourceResolver, "ResourcePatternResolver is null");
 
