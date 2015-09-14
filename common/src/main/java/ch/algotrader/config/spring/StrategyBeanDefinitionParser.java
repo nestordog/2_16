@@ -83,14 +83,14 @@ public final class StrategyBeanDefinitionParser extends AbstractBeanDefinitionPa
     private static List<String> getResources(String name) {
         final String configParamsExtra = System.getProperty(SYS_PROP_CONFIG_PARAMS_EXTRA);
         if (configParamsExtra == null) {
-            return Collections.singletonList("classpath:/META-INF/" + name + ".properties");
+            return Collections.singletonList("classpath:/" + name + ".properties");
         } else {
             final List<String> resourceList = new ArrayList<>(2);
-            resourceList.add("classpath:/META-INF/" + name + ".properties");
+            resourceList.add("classpath:/" + name + ".properties");
             if (configParamsExtra.contains(":")) {
                 resourceList.add(configParamsExtra);
             } else {
-                resourceList.add("classpath:/META-INF/" + configParamsExtra);
+                resourceList.add("classpath:/" + configParamsExtra);
             }
             return resourceList;
         }

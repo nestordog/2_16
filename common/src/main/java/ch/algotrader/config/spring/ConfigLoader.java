@@ -78,10 +78,10 @@ public final class ConfigLoader {
     /**
      * Loads system parameters.
      * <p/>
-     * <p><tt>META-INF/conf.properties</tt><p/>
-     * <p><tt>META-INF/conf-core.properties</tt><p/>
-     * <p><tt>META-INF/conf-ib.properties</tt><p/>
-     * <p><tt>META-INF/conf-bb.properties</tt><p/>
+     * <p><tt>/conf.properties</tt><p/>
+     * <p><tt>/conf-core.properties</tt><p/>
+     * <p><tt>/conf-ib.properties</tt><p/>
+     * <p><tt>/conf-bb.properties</tt><p/>
      * <p/>
      */
     public static Map<String, String> load(final ResourcePatternResolver resourceResolver) throws IOException {
@@ -91,7 +91,7 @@ public final class ConfigLoader {
         Map<String, String> paramMap = new LinkedHashMap<>();
         String[] resourceNames = new String[] { "conf.properties", "conf-core.properties", "conf-ib.properties", "conf-bb.properties" };
         for (String resourceName : resourceNames) {
-            Resource resource = resourceResolver.getResource("classpath:META-INF/" + resourceName);
+            Resource resource = resourceResolver.getResource("classpath:/" + resourceName);
             if (resource != null && resource.exists()) {
                 ConfigLoader.loadResource(paramMap, resource);
             }
