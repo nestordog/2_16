@@ -275,6 +275,12 @@
                 <module>archetype</module>
             </modules>
         </profile>
+        <profile>
+            <id>dist</id>
+            <modules>
+                <module>assembly</module>
+            </modules>
+        </profile>
     </profiles>
 
     <modules>
