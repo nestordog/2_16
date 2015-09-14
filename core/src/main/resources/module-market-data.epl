@@ -140,6 +140,7 @@ where
 @Name('CHECK_TICK_GAPS')
 @Subscriber(className='marketDataService#logTickGap')
 @RunTimeOnly()
+@Condition(key='statement.marketDataGap')
 select
     tick.securityId
 from
