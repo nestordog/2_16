@@ -67,7 +67,7 @@ or
 
 @Name('EVICT_COMPLETED_ORDERS')
 @RunTimeOnly
-@Subscriber(className='ch.algotrader.ordermgmt.OpenOrderCache')
+@Subscriber(className='ch.algotrader.ordermgmt.OpenOrderCache.evict')
 select
     orderStatus
 from

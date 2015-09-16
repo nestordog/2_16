@@ -299,6 +299,7 @@
             <constructor-arg index="1"  ref="iBIdGenerator"/>
             <constructor-arg index="2"  ref="iBOrderMessageFactory"/>
             <constructor-arg index="3"  ref="orderService"/>
+            <constructor-arg index="4"  ref="openOrderCache"/>
         </bean>
     </beans>
 

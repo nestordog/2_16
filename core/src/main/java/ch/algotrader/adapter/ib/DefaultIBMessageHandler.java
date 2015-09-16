@@ -85,6 +85,10 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
 
     private BlockingQueue<ContractDetails> contractDetailsQueue;
 
+    private OpenOrderCache openOrderCache;
+
+    public void setOpenOrderCache(OpenOrderCache openOrderCache){ this.openOrderCache = openOrderCache; }
+
     public void setClientId(int clientId) {
         this.clientId = clientId;
     }
@@ -138,7 +142,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
         // get the order from the OpenOrderWindow
         // Order order = this.lookupService.getOpenOrderByIntId(intId);
         // Get the order from the open order cache to avoid race condition where order hasn't been store in esper.
-        Order order = OpenOrderCache.getOrder(intId);
+        Order order = openOrderCache.getOrder(intId);
         if (order == null) {
             logger.error("order could not be found " + intId + " for execution " + contract + " " + execution);
             return;
@@ -175,7 +179,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
         // get the order from the OpenOrderWindow
         //Order order = this.lookupService.getOpenOrderByIntId(String.valueOf(orderId));
         // Get the order from the open order cache to avoid race condition where order hasn't been store in esper.
-        Order order = OpenOrderCache.getOrder(String.valueOf(orderId));
+        Order order = openOrderCache.getOrder(String.valueOf(orderId));
 
         if (order != null) {
 

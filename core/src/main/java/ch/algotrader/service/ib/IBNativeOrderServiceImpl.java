@@ -56,10 +56,13 @@ public class IBNativeOrderServiceImpl extends ExternalOrderServiceImpl implement
 
     private final OrderService orderService;
 
+    private final OpenOrderCache openOrderCache;
+
     public IBNativeOrderServiceImpl(final IBSession iBSession,
             final IBIdGenerator iBIdGenerator,
             final IBOrderMessageFactory iBOrderMessageFactory,
-            final OrderService orderService) {
+            final OrderService orderService,
+            final OpenOrderCache openOrderCache) {
 
         Validate.notNull(iBSession, "IBSession is null");
         Validate.notNull(iBIdGenerator, "IBIdGenerator is null");
@@ -70,6 +73,7 @@ public class IBNativeOrderServiceImpl extends ExternalOrderServiceImpl implement
         this.iBIdGenerator = iBIdGenerator;
         this.iBOrderMessageFactory = iBOrderMessageFactory;
         this.orderService = orderService;
+        this.openOrderCache = openOrderCache;
     }
 
     @Override
@@ -177,7 +181,7 @@ public class IBNativeOrderServiceImpl extends ExternalOrderServiceImpl implement
         this.orderService.persistOrder(order);
 
         // cache the order to fix race condition where we receive executions or fills prior to the order being stored in esper.
-        OpenOrderCache.add(order.getIntId(), order);
+        openOrderCache.add(order.getIntId(), order);
 
         // place the order through IBSession
         this.iBSession.placeOrder(Integer.parseInt(order.getIntId()), contract, iBOrder);

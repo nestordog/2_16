@@ -31,19 +31,21 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class OpenOrderCache {
 
-  private static final Logger logger = MyLogger.getLogger(OpenOrderCache.class.getName());
+  private final Logger logger = MyLogger.getLogger(OpenOrderCache.class.getName());
 
-  private static final Map<String, Order> openOrderCache = new ConcurrentHashMap<>();
+  private final Map<String, Order> openOrderCache = new ConcurrentHashMap<>();
 
-  public static void add(String orderId, Order order){
+  public OpenOrderCache(){}
+
+  public void add(String orderId, Order order){
     if( openOrderCache.put(orderId, order) != null){
-      logger.warn("duplicate order id for id: " + orderId + " order " + order);
+      logger.info("updating order cache for id: " + orderId + " order " + order);
     } else {
       logger.info("caching order id " + orderId + " for order " + order);
     }
   }
 
-  public static Order getOrder(String orderId){
+  public Order getOrder(String orderId){
     return openOrderCache.get(orderId);
   }
 
@@ -51,7 +53,7 @@ public class OpenOrderCache {
    * Eviction callback from Esper.
    * @param orderStatus
    */
-  public void update(OrderStatus orderStatus){
+  public void evict(OrderStatus orderStatus){
     Order order = orderStatus.getOrder();
     if(order != null && order.getIntId() != null){
       openOrderCache.remove(order.getIntId());

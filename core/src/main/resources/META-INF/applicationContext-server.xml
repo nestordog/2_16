@@ -31,6 +31,8 @@
         <constructor-arg index="1" value="ch.algotrader.config.CoreConfig"/>
     </bean>
 
+    <bean id="openOrderCache" class="ch.algotrader.ordermgmt.OpenOrderCache"/>
+
     <!-- =========================================== JMX ================================================ -->
 
     <!--  MBean Server -->
@@ -186,6 +188,7 @@
         <bean id="iBMessageHandler" class="ch.algotrader.adapter.ib.DefaultIBMessageHandler" autowire="byName">
             <property name="clientId" value="0"/>
             <property name="sessionLifecycle" ref="iBSessionLifecycle"/>
+            <property name="openOrderCache" ref="openOrderCache"/>
         </bean>
 
         <bean id="iBSession" class="ch.algotrader.adapter.ib.IBSession">
