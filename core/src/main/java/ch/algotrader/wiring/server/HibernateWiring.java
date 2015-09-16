@@ -33,12 +33,14 @@ import org.springframework.core.io.Resource;
 import org.springframework.orm.hibernate4.HibernateTransactionManager;
 import org.springframework.orm.hibernate4.LocalSessionFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.support.TransactionTemplate;
 
 /**
  * Hibernate configuration.
  */
 @Configuration
+@EnableTransactionManagement
 public class HibernateWiring {
 
     @Bean(name = "hibernateProperties")

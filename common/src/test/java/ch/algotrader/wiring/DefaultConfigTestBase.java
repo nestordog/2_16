@@ -23,11 +23,7 @@ import java.util.Map;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
-import ch.algotrader.config.CommonConfig;
-import ch.algotrader.config.ConfigBeanFactory;
 import ch.algotrader.config.ConfigLocator;
-import ch.algotrader.config.ConfigParams;
-import ch.algotrader.config.spring.DefaultConfigProvider;
 
 public class DefaultConfigTestBase {
 
@@ -58,10 +54,7 @@ public class DefaultConfigTestBase {
         CONFIG_MAP.put("misc.validateCrossedSpread", "true");
         CONFIG_MAP.put("misc.displayClosedPositions", "true");
 
-        DefaultConfigProvider configProvider = new DefaultConfigProvider(CONFIG_MAP);
-        ConfigParams configParams = new ConfigParams(configProvider);
-        CommonConfig commonConfig = new ConfigBeanFactory().create(configParams, CommonConfig.class);
-        ConfigLocator.initialize(configParams, commonConfig);
+        ConfigLocator.initialize(CONFIG_MAP);
     }
 
     @AfterClass

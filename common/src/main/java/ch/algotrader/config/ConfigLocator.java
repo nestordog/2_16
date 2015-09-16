@@ -23,8 +23,7 @@ import java.util.Map;
 import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.core.io.support.ResourcePatternResolver;
+import org.springframework.core.io.DefaultResourceLoader;
 
 import ch.algotrader.config.spring.ConfigLoader;
 import ch.algotrader.config.spring.DefaultSystemConfigProvider;
@@ -85,6 +84,15 @@ public final class ConfigLocator {
         }
     }
 
+    public static void initialize(final Map<String, String> paramMap) {
+
+        Validate.notNull(paramMap, "Map is null");
+
+        synchronized(ConfigLocator.class) {
+            INSTANCE = standaloneInit(paramMap);
+        }
+    }
+
     public static void reset() {
 
         synchronized(ConfigLocator.class) {
@@ -113,13 +121,18 @@ public final class ConfigLocator {
         return INSTANCE;
     }
 
-    private static ConfigLocator standaloneInit() throws Exception {
+    private static ConfigLocator standaloneInit(final Map<String, String> paramMap) {
 
-        ResourcePatternResolver patternResolver = new PathMatchingResourcePatternResolver(ConfigLocator.class.getClassLoader());
-        DefaultSystemConfigProvider configProvider = new DefaultSystemConfigProvider(ConfigLoader.load(patternResolver));
+        DefaultSystemConfigProvider configProvider = new DefaultSystemConfigProvider(paramMap);
         ConfigParams configParams = new ConfigParams(configProvider);
         CommonConfig commonConfig = new ConfigBeanFactory().create(configParams, CommonConfig.class);
         return new ConfigLocator(configParams, commonConfig);
+    }
+
+    private static ConfigLocator standaloneInit() throws Exception {
+
+        DefaultResourceLoader resourceLoader = new DefaultResourceLoader(ConfigLocator.class.getClassLoader());
+        return standaloneInit(ConfigLoader.load(resourceLoader));
     }
 
 }

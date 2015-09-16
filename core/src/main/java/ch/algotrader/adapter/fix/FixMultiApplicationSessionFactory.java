@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.fix;
 
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -25,9 +26,13 @@ import org.apache.commons.lang.Validate;
 import quickfix.Application;
 import quickfix.ConfigError;
 import quickfix.DefaultSessionFactory;
+import quickfix.FieldConvertError;
+import quickfix.FileLogFactory;
 import quickfix.LogFactory;
 import quickfix.MessageFactory;
 import quickfix.MessageStoreFactory;
+import quickfix.SLF4JLogFactory;
+import quickfix.ScreenLogFactory;
 import quickfix.Session;
 import quickfix.SessionFactory;
 import quickfix.SessionID;
@@ -52,19 +57,16 @@ public class FixMultiApplicationSessionFactory implements SessionFactory {
 
     private final Map<String, FixApplicationFactory> applicationFactoryMap;
     private final MessageStoreFactory messageStoreFactory;
-    private final LogFactory logFactory;
     private final MessageFactory messageFactory;
 
-    public FixMultiApplicationSessionFactory(final Map<String, FixApplicationFactory> applicationFactoryMap, final MessageStoreFactory messageStoreFactory, final LogFactory logFactory, final MessageFactory messageFactory) {
+    public FixMultiApplicationSessionFactory(final Map<String, FixApplicationFactory> applicationFactoryMap, final MessageStoreFactory messageStoreFactory, final MessageFactory messageFactory) {
 
         Validate.notNull(applicationFactoryMap, "FixApplicationFactory map may not be null");
         Validate.notNull(messageStoreFactory, "MessageStoreFactory may not be null");
-        Validate.notNull(logFactory, "LogFactory may not be null");
         Validate.notNull(messageFactory, "MessageFactory may not be null");
 
         this.applicationFactoryMap = new ConcurrentHashMap<>(applicationFactoryMap);
         this.messageStoreFactory = messageStoreFactory;
-        this.logFactory = logFactory;
         this.messageFactory = messageFactory;
     }
 
@@ -82,10 +84,38 @@ public class FixMultiApplicationSessionFactory implements SessionFactory {
 
         // find the application factory by its name
         FixApplicationFactory applicationFactory = this.applicationFactoryMap.get(applicationFactoryName);
-        Validate.notNull(applicationFactory, "no FixApplicationFactory found for name " + applicationFactoryName);
-
+        if (applicationFactory == null) {
+            throw new FixApplicationException("FixApplicationFactory not found: " + applicationFactoryName);
+        }
+        String logImpl = "";
+        try {
+            logImpl = settings.getString(sessionID, "LogImpl");
+        } catch (ConfigError | FieldConvertError ignore) {
+        }
+        if (logImpl != null) {
+            logImpl = logImpl.toLowerCase(Locale.ROOT);
+        } else {
+            logImpl = "";
+        }
+        LogFactory logFactory;
+        switch (logImpl) {
+            case "slf4j":
+                logFactory = new SLF4JLogFactory(settings);
+                break;
+            case "file":
+                logFactory = new FileLogFactory(settings);
+                break;
+            case "screen":
+                logFactory = new ScreenLogFactory(settings);
+                break;
+            case "none":
+                logFactory = null;
+                break;
+            default:
+                logFactory = new FileLogFactory(settings);
+        }
         Application application = applicationFactory.create(sessionID, settings);
-        DefaultSessionFactory sessionFactory = new DefaultSessionFactory(application, this.messageStoreFactory, this.logFactory, this.messageFactory);
+        DefaultSessionFactory sessionFactory = new DefaultSessionFactory(application, this.messageStoreFactory, logFactory, this.messageFactory);
         return sessionFactory.create(sessionID, settings);
     }
 }

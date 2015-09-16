@@ -81,6 +81,7 @@ import ch.algotrader.service.TransactionPersistenceService;
 import ch.algotrader.service.TransactionService;
 import ch.algotrader.wiring.DefaultConfigTestBase;
 import ch.algotrader.wiring.common.CommonConfigWiring;
+import ch.algotrader.wiring.common.EventDispatchPostInitWiring;
 import ch.algotrader.wiring.common.EventDispatchWiring;
 import ch.algotrader.wiring.server.CacheWiring;
 import ch.algotrader.wiring.server.CoreConfigWiring;
@@ -142,7 +143,8 @@ public class CacheTest extends DefaultConfigTestBase {
         Mockito.when(externalMarketDataService.getFeedType()).thenReturn(FeedType.IB);
 
         // register Wirings
-        context.register(CommonConfigWiring.class, CoreConfigWiring.class, EventDispatchWiring.class, HibernateWiring.class, CacheWiring.class, DaoWiring.class, ServiceWiring.class);
+        context.register(CommonConfigWiring.class, CoreConfigWiring.class, EventDispatchWiring.class, EventDispatchPostInitWiring.class,
+                HibernateWiring.class, CacheWiring.class, DaoWiring.class, ServiceWiring.class);
 
         context.refresh();
 

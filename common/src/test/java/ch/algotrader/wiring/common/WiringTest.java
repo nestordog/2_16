@@ -76,7 +76,7 @@ public class WiringTest extends DefaultConfigTestBase {
         LifecycleEventListener lifecycleEventListener = Mockito.mock(LifecycleEventListener.class);
         context.getDefaultListableBeanFactory().registerSingleton("lifecycleEventListener", lifecycleEventListener);
 
-        context.register(CommonConfigWiring.class, EngineManagerWiring.class, EventDispatchWiring.class);
+        context.register(CommonConfigWiring.class, EngineManagerWiring.class, EventDispatchWiring.class, EventDispatchPostInitWiring.class);
         context.refresh();
 
         EventListenerRegistry registry = context.getBean(EventListenerRegistry.class);
