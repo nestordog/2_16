@@ -65,6 +65,14 @@ or
 or
     orderStatus.intId = openOrderWindow.intId;
 
+@Name('EVICT_COMPLETED_ORDERS')
+@RunTimeOnly
+@Subscriber(className='ch.algotrader.ordermgmt.OpenOrderCache')
+select
+    orderStatus
+from
+    pattern[every orderStatus=OrderStatus(status = Status.EXECUTED or status = Status.CANCELED  or status = Status.REJECTED) -> timer:interval(30 sec)];
+
 @Name('INSERT_INTO_ORDER_COMPLETION')
 @RunTimeOnly()
 insert into

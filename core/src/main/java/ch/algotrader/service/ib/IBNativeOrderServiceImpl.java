@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.service.ib;
 
+import ch.algotrader.ordermgmt.OpenOrderCache;
 import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
 
@@ -174,6 +175,9 @@ public class IBNativeOrderServiceImpl extends ExternalOrderServiceImpl implement
 
         // persist the order into the database
         this.orderService.persistOrder(order);
+
+        // cache the order to fix race condition where we receive executions or fills prior to the order being stored in esper.
+        OpenOrderCache.add(order.getIntId(), order);
 
         // place the order through IBSession
         this.iBSession.placeOrder(Integer.parseInt(order.getIntId()), contract, iBOrder);

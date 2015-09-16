@@ -31,6 +31,7 @@ import java.util.concurrent.BlockingQueue;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import ch.algotrader.ordermgmt.OpenOrderCache;
 import org.apache.log4j.Logger;
 import org.apache.xpath.XPathAPI;
 import org.w3c.dom.Document;
@@ -135,7 +136,9 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
         String intId = String.valueOf(execution.m_orderId);
 
         // get the order from the OpenOrderWindow
-        Order order = this.lookupService.getOpenOrderByIntId(intId);
+        // Order order = this.lookupService.getOpenOrderByIntId(intId);
+        // Get the order from the open order cache to avoid race condition where order hasn't been store in esper.
+        Order order = OpenOrderCache.getOrder(intId);
         if (order == null) {
             logger.error("order could not be found " + intId + " for execution " + contract + " " + execution);
             return;
@@ -170,7 +173,9 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
             final int parentId, final double lastFillPrice, final int clientId, final String whyHeld) {
 
         // get the order from the OpenOrderWindow
-        Order order = this.lookupService.getOpenOrderByIntId(String.valueOf(orderId));
+        //Order order = this.lookupService.getOpenOrderByIntId(String.valueOf(orderId));
+        // Get the order from the open order cache to avoid race condition where order hasn't been store in esper.
+        Order order = OpenOrderCache.getOrder(String.valueOf(orderId));
 
         if (order != null) {
 
@@ -186,6 +191,8 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
             logger.debug(EWrapperMsgGenerator.orderStatus(orderId, statusString, filled, remaining, avgFillPrice, permId, parentId, lastFillPrice, clientId, whyHeld));
 
             EngineLocator.instance().getServerEngine().sendEvent(orderStatus);
+        } else {
+            logger.error("order could not be found for " + orderId + " on order status update" );
         }
     }
 
