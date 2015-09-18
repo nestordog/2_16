@@ -626,7 +626,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
     @Override
     public Order getOrderByIntId(String intId) {
 
-        Order order = this.orderRegistry.getOpenOrderByIntId(intId);
+        Order order = this.orderRegistry.getByIntId(intId);
         if (order != null) {
             return order;
         } else {
