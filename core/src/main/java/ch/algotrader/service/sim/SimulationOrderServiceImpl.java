@@ -85,12 +85,15 @@ public class SimulationOrderServiceImpl implements SimulationOrderService {
 
         this.orderRegistry.add(order);
 
+        Date d = this.engineManager.getCurrentEPTime();
         // create and OrderStatus
         OrderStatus orderStatus = OrderStatus.Factory.newInstance();
         orderStatus.setStatus(Status.EXECUTED);
         orderStatus.setIntId(order.getIntId());
         orderStatus.setFilledQuantity(order.getQuantity());
         orderStatus.setRemainingQuantity(0);
+        orderStatus.setExtDateTime(d);
+        orderStatus.setDateTime(d);
         orderStatus.setOrder(order);
 
         // send the orderStatus to the AlgoTrader Server
@@ -98,7 +101,6 @@ public class SimulationOrderServiceImpl implements SimulationOrderService {
 
         // create one fill per order
         Fill fill = new Fill();
-        Date d = this.engineManager.getCurrentEPTime();
         fill.setDateTime(d);
         fill.setExtDateTime(d);
         fill.setSide(order.getSide());
