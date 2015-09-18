@@ -27,11 +27,8 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
-import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.Currency;
-import ch.algotrader.enumeration.Status;
 import ch.algotrader.enumeration.TransactionType;
-import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.util.DateTimeLegacy;
 import ch.algotrader.util.RoundUtil;
@@ -59,8 +56,6 @@ public class ServerManagementServiceImpl implements ServerManagementService {
 
     private final EngineManager engineManager;
 
-    private final Engine serverEngine;
-
     public ServerManagementServiceImpl(
             final PositionService positionService,
             final ForexService forexService,
@@ -68,8 +63,7 @@ public class ServerManagementServiceImpl implements ServerManagementService {
             final TransactionService transactionService,
             final OptionService optionService,
             final OrderService orderService,
-            final EngineManager engineManager,
-            final Engine serverEngine) {
+            final EngineManager engineManager) {
 
         Validate.notNull(positionService, "PositionService is null");
         Validate.notNull(forexService, "ForexService is null");
@@ -78,7 +72,6 @@ public class ServerManagementServiceImpl implements ServerManagementService {
         Validate.notNull(optionService, "OptionService is null");
         Validate.notNull(orderService, "OrderService is null");
         Validate.notNull(engineManager, "EngineManager is null");
-        Validate.notNull(serverEngine, "Engine is null");
 
         this.positionService = positionService;
         this.forexService = forexService;
@@ -87,7 +80,6 @@ public class ServerManagementServiceImpl implements ServerManagementService {
         this.optionService = optionService;
         this.orderService = orderService;
         this.engineManager = engineManager;
-        this.serverEngine = serverEngine;
     }
 
     /**
@@ -219,20 +211,6 @@ public class ServerManagementServiceImpl implements ServerManagementService {
 
         this.combinationService.resetComponentWindow();
 
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @ManagedOperation(description = "Clears the Open Order Window. Should only be called if there are no open orders outstanding with the external Broker")
-    @ManagedOperationParameters({})
-    public void emptyOpenOrderWindow() {
-
-        OrderStatus orderStatus = OrderStatus.Factory.newInstance();
-        orderStatus.setStatus(Status.CANCELED);
-
-        this.serverEngine.sendEvent(orderStatus);
     }
 
     /**

@@ -110,12 +110,6 @@ public interface ServerManagementService {
     public void resetComponentWindow();
 
     /**
-     * Clears the Open Order Window. Should only be called if there are no open orders outstanding
-     * with the external Broker
-     */
-    public void emptyOpenOrderWindow();
-
-    /**
      * Logs current Esper / Java Metrics.
      */
     public void logMetrics();

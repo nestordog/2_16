@@ -187,10 +187,9 @@ public class ServiceWiring {
             final TransactionService transactionService,
             final OptionService optionService,
             final OrderService orderService,
-            final EngineManager engineManager,
-            final Engine serverEngine) {
+            final EngineManager engineManager) {
 
-        return new ServerManagementServiceImpl(positionService, forexService, combinationService, transactionService, optionService, orderService, engineManager, serverEngine);
+        return new ServerManagementServiceImpl(positionService, forexService, combinationService, transactionService, optionService, orderService, engineManager);
     }
 
     @Bean(name = "optionService")
