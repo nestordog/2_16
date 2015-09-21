@@ -141,7 +141,6 @@ public class TransactionServiceImpl implements TransactionService {
 
         Order order = fill.getOrder();
         order.initializeSecurity(HibernateInitializer.INSTANCE);
-        order.initializeSecurity(HibernateInitializer.INSTANCE);
         order.initializeAccount(HibernateInitializer.INSTANCE);
         order.initializeExchange(HibernateInitializer.INSTANCE);
 
