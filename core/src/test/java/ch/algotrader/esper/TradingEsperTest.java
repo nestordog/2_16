@@ -1,6 +1,8 @@
 package ch.algotrader.esper;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -112,6 +114,7 @@ public class TradingEsperTest extends EsperTestBase {
         config.configure("/META-INF/esper-common.cfg.xml");
         config.configure("/META-INF/esper-core.cfg.xml");
         config.getVariables().get("misc_orderAckSeconds").setInitializationValue(10);
+        config.getEngineDefaults().getExpression().setMathContext(new MathContext(3, RoundingMode.HALF_EVEN));
 
         epService = EPServiceProviderManager.getDefaultProvider(config);
         epRuntime = epService.getEPRuntime();
