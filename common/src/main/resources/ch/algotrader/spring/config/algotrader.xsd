@@ -12,8 +12,8 @@
         <xsd:complexType>
             <xsd:attribute name="name" type="xsd:string" use="required"/>
             <xsd:attribute name="strategyName" type="xsd:string" use="optional"/>
-            <xsd:attribute name="config" type="xsd:string" use="optional"/>
             <xsd:attribute name="configClass" type="xsd:string" use="required"/>
+            <xsd:attribute name="resourceName" type="xsd:string" use="optional"/>
             <xsd:attribute name="engineTemplate" type="xsd:string" use="required"/>
             <xsd:attribute name="serviceTemplate" type="xsd:string" use="required"/>
         </xsd:complexType>

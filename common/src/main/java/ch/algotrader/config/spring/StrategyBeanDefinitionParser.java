@@ -58,9 +58,10 @@ public final class StrategyBeanDefinitionParser extends AbstractBeanDefinitionPa
         final String configClass = getRequiredAttribute(element, parserContext, "configClass");
         final String engineTemplate = getRequiredAttribute(element, parserContext, "engineTemplate");
         final String serviceTemplate = getRequiredAttribute(element, parserContext, "serviceTemplate");
+        final String configResource = getOptionalAttribute(element, "configResource");
 
         //resource list
-        final List<String> resources = getResources(name);
+        final List<String> resources = configResource != null ? getResources(configResource) : getResources(name + ".properties");
 
         //register beans
         registerBeanDefinition(name + "ConfigParamsTemplate", parserContext, rootBeanDefinition(CustomConfigParamsFactoryBean.class)
@@ -80,13 +81,13 @@ public final class StrategyBeanDefinitionParser extends AbstractBeanDefinitionPa
         return null;
     }
 
-    private static List<String> getResources(String name) {
+    private static List<String> getResources(final String resourceName) {
         final String configParamsExtra = System.getProperty(SYS_PROP_CONFIG_PARAMS_EXTRA);
         if (configParamsExtra == null) {
-            return Collections.singletonList("classpath:/" + name + ".properties");
+            return Collections.singletonList("classpath:/" + resourceName);
         } else {
             final List<String> resourceList = new ArrayList<>(2);
-            resourceList.add("classpath:/" + name + ".properties");
+            resourceList.add("classpath:/" + resourceName);
             if (configParamsExtra.contains(":")) {
                 resourceList.add(configParamsExtra);
             } else {
@@ -110,4 +111,11 @@ public final class StrategyBeanDefinitionParser extends AbstractBeanDefinitionPa
         return value;
     }
 
+    private static String getOptionalAttribute(Element element, String attributeName) {
+        final String value = element.getAttribute(attributeName);
+        if (!StringUtils.hasText(value)) {
+            return null;
+        }
+        return value;
+    }
 }
