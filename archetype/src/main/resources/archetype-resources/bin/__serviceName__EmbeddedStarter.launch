@@ -10,8 +10,8 @@
 </listAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.CLASSPATH_PROVIDER" value="org.eclipse.m2e.launchconfig.classpathProvider"/>
 <booleanAttribute key="org.eclipse.jdt.launching.DEFAULT_CLASSPATH" value="false"/>
-<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="${package}.${serviceName}EmbeddedStarter"/>
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="ch.algotrader.starter.EmbeddedStrategyStarter"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="algotrader-core"/>
 <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dsimulation=false&#13;&#10;-Dmisc.embedded=true&#13;&#10;-DdataSource.url=jdbc:mysql://127.0.0.1:3306/${dataBase}&#13;&#10;-Dcom.sun.management.jmxremote.port=1099&#13;&#10;-Dcom.sun.management.jmxremote.authenticate=false&#13;&#10;-Dcom.sun.management.jmxremote.ssl=false&#13;&#10;-Dspring.profiles.active=pooledDataSource,iBMarketData,iBNative,iBHistoricalData"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dsimulation=false&#13;&#10;-Dmisc.embedded=true&#13;&#10;-DdataSource.url=jdbc:mysql://127.0.0.1:3306/${dataBase}&#13;&#10;-Dcom.sun.management.jmxremote.port=1099&#13;&#10;-Dcom.sun.management.jmxremote.authenticate=false&#13;&#10;-Dcom.sun.management.jmxremote.ssl=false&#13;&#10;-Dspring.profiles.active=pooledDataSource,live,iBMarketData,iBNative,iBHistoricalData"/>
 </launchConfiguration>
