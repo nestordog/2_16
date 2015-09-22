@@ -19,8 +19,8 @@ package ch.algotrader.service.fxcm;
 
 import org.apache.commons.lang.Validate;
 
-import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.ExternalSessionStateHolder;
+import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.fxcm.FXCMFixMarketDataRequestFactory;
 import ch.algotrader.adapter.fxcm.FXCMUtil;
 import ch.algotrader.entity.security.Security;
@@ -59,9 +59,9 @@ public class FXCMFixMarketDataServiceImpl extends FixMarketDataServiceImpl imple
     }
 
     @Override
-    public FeedType getFeedType() {
+    public String getFeedType() {
 
-        return FeedType.FXCM;
+        return FeedType.FXCM.name();
     }
 
     @Override

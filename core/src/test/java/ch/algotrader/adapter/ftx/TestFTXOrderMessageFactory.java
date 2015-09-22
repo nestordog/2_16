@@ -30,8 +30,6 @@ import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.ForexImpl;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.SecurityFamilyImpl;
-import ch.algotrader.entity.security.Stock;
-import ch.algotrader.entity.security.StockImpl;
 import ch.algotrader.entity.trade.LimitOrder;
 import ch.algotrader.entity.trade.LimitOrderImpl;
 import ch.algotrader.entity.trade.MarketOrder;
@@ -50,7 +48,6 @@ import quickfix.field.OrderQty;
 import quickfix.field.OrigClOrdID;
 import quickfix.field.Price;
 import quickfix.field.SecurityType;
-import quickfix.field.StopPx;
 import quickfix.field.Symbol;
 import quickfix.field.TimeInForce;
 import quickfix.fix44.NewOrderSingle;
@@ -77,7 +74,7 @@ public class TestFTXOrderMessageFactory {
         this.forex.setSecurityFamily(family);
 
         this.account = new AccountImpl();
-        this.account.setBroker(Broker.FTX);
+        this.account.setBroker(Broker.FTX.name());
 
 
         this.requestFactory = new FTXFixOrderMessageFactory();

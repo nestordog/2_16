@@ -24,8 +24,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import ch.algotrader.dao.property.PropertyDao;
-import ch.algotrader.dao.property.PropertyDaoImpl;
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.SubscriptionImpl;
 import ch.algotrader.entity.property.Property;
@@ -84,7 +82,7 @@ public class PropertyDaoTest extends InMemoryDBTest {
         strategy.setName("Strategy1");
 
         Subscription subscription = new SubscriptionImpl();
-        subscription.setFeedType(FeedType.SIM);
+        subscription.setFeedType(FeedType.SIM.name());
         subscription.setSecurity(forex);
         subscription.setStrategy(strategy);
 

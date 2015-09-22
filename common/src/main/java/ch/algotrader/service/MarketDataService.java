@@ -21,7 +21,6 @@ import java.util.Set;
 
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.marketData.TickVO;
-import ch.algotrader.enumeration.FeedType;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -37,9 +36,9 @@ public interface MarketDataService {
 
     /**
      * Initializes current Subscriptions with the external Market Data Provider for the specified
-     * {@link FeedType}
+     * feed type
      */
-    void initSubscriptions(FeedType feedType);
+    void initSubscriptions(String feedType);
 
     /**
      * Subscribes a Security for the defined Strategy.
@@ -47,9 +46,9 @@ public interface MarketDataService {
     void subscribe(String strategyName, long securityId);
 
     /**
-     * Subscribes a Security for the defined Strategy and {@link FeedType}.
+     * Subscribes a Security for the defined Strategy and feed type.
      */
-    void subscribe(String strategyName, long securityId, FeedType feedType);
+    void subscribe(String strategyName, long securityId, String feedType);
 
     /**
      * Unsubscribes a Security for the defined Strategy.
@@ -57,9 +56,9 @@ public interface MarketDataService {
     void unsubscribe(String strategyName, long securityId);
 
     /**
-     * Unsubscribes a Security for the defined Strategy and {@link FeedType}
+     * Unsubscribes a Security for the defined Strategy and feed type
      */
-    void unsubscribe(String strategyName, long securityId, FeedType feedType);
+    void unsubscribe(String strategyName, long securityId, String feedType);
 
     /**
      * Removes Subscriptions of a particular Strategy for which the Strategy does not have an open
@@ -89,12 +88,12 @@ public interface MarketDataService {
     /**
      * Returns all supported data feeds.
      */
-    Set<FeedType> getSupportedFeeds();
+    Set<String> getSupportedFeeds();
 
     /**
      * Returns {@code true} if the data feed is supported.
      */
-    boolean isSupportedFeed(FeedType feedType);
+    boolean isSupportedFeed(String feedType);
 
     /**
      * Verifies if the tick is valid for the security associated with it.

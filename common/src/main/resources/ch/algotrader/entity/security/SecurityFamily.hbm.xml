@@ -19,7 +19,7 @@
      * @param broker 
      * @return java.lang.String
      */
-    public abstract java.lang.String getSymbolRoot(ch.algotrader.enumeration.Broker broker);
+    public abstract java.lang.String getSymbolRoot(String broker);
 
     /**
      * Gets the {@code contractSize} defined by the corresponding {@link BrokerParameters} or from
@@ -27,7 +27,7 @@
      * @param broker 
      * @return double
      */
-    public abstract double getContractSize(ch.algotrader.enumeration.Broker broker);
+    public abstract double getContractSize(String broker);
 
     /**
      * Gets the {@code scale} defined by the corresponding {@link BrokerParameters} or from this
@@ -35,7 +35,7 @@
      * @param broker 
      * @return int
      */
-    public abstract int getScale(ch.algotrader.enumeration.Broker broker);
+    public abstract int getScale(String broker);
 
     /**
      * Gets the {@code tickSizePattern} defined by the corresponding {@link BrokerParameters} or
@@ -43,7 +43,7 @@
      * @param broker 
      * @return java.lang.String
      */
-    public abstract java.lang.String getTickSizePattern(ch.algotrader.enumeration.Broker broker);
+    public abstract java.lang.String getTickSizePattern(String broker);
 
     /**
      * Gets the {@code executionCommission} defined by the corresponding {@link BrokerParameters} or
@@ -51,7 +51,7 @@
      * @param broker 
      * @return java.math.BigDecimal
      */
-    public abstract java.math.BigDecimal getExecutionCommission(ch.algotrader.enumeration.Broker broker);
+    public abstract java.math.BigDecimal getExecutionCommission(String broker);
 
     /**
      * Gets the {@code clearingCommission} defined by the corresponding {@link BrokerParameters} or
@@ -59,7 +59,7 @@
      * @param broker 
      * @return java.math.BigDecimal
      */
-    public abstract java.math.BigDecimal getClearingCommission(ch.algotrader.enumeration.Broker broker);
+    public abstract java.math.BigDecimal getClearingCommission(String broker);
 
     /**
      * Gets the {@code fee} defined by the corresponding {@link BrokerParameters} or from this
@@ -67,7 +67,7 @@
      * @param broker 
      * @return java.math.BigDecimal
      */
-    public abstract java.math.BigDecimal getFee(ch.algotrader.enumeration.Broker broker);
+    public abstract java.math.BigDecimal getFee(String broker);
 
     /**
      * Gets the {@code totalCharges} defined by the corresponding {@link BrokerParameters} or from
@@ -75,7 +75,7 @@
      * @param broker 
      * @return java.math.BigDecimal
      */
-    public abstract java.math.BigDecimal getTotalCharges(ch.algotrader.enumeration.Broker broker);
+    public abstract java.math.BigDecimal getTotalCharges(String broker);
 
     /**
      * Gets the {@code priceMultiplier} defined by the corresponding {@link BrokerParameters} or
@@ -83,7 +83,7 @@
      * @param broker 
      * @return double
      */
-    public abstract double getPriceMultiplier(ch.algotrader.enumeration.Broker broker);
+    public abstract double getPriceMultiplier(String broker);
 
     /**
      * Gets the current Spread between {@code bid} and {@code ask} in number of Ticks.
@@ -92,7 +92,7 @@
      * @param ask 
      * @return int
      */
-    public abstract int getSpreadTicks(ch.algotrader.enumeration.Broker broker, java.math.BigDecimal bid, java.math.BigDecimal ask);
+    public abstract int getSpreadTicks(String broker, java.math.BigDecimal bid, java.math.BigDecimal ask);
 
     /**
      * Gets the Tick Size (as a double) for prices above (if upwards = true) or below (for upwards =
@@ -102,7 +102,7 @@
      * @param upwards 
      * @return double
      */
-    public abstract double getTickSize(ch.algotrader.enumeration.Broker broker, double price, boolean upwards);
+    public abstract double getTickSize(String broker, double price, boolean upwards);
 
     /**
      * Gets the Tick Size (as a Money) for prices above (if upwards = true) or below (for upwards =
@@ -112,7 +112,7 @@
      * @param upwards 
      * @return java.math.BigDecimal
      */
-    public abstract java.math.BigDecimal getTickSize(ch.algotrader.enumeration.Broker broker, java.math.BigDecimal price, boolean upwards);
+    public abstract java.math.BigDecimal getTickSize(String broker, java.math.BigDecimal price, boolean upwards);
 
     /**
      * Adjusts the specified price by the number of {@code ticks}
@@ -121,7 +121,7 @@
      * @param ticks 
      * @return java.math.BigDecimal
      */
-    public abstract java.math.BigDecimal adjustPrice(ch.algotrader.enumeration.Broker broker, java.math.BigDecimal price, int ticks);
+    public abstract java.math.BigDecimal adjustPrice(String broker, java.math.BigDecimal price, int ticks);
 
     /**
      * Adjusts the specified price by the number of {@code ticks}
@@ -130,7 +130,7 @@
      * @param ticks 
      * @return double
      */
-    public abstract double adjustPrice(ch.algotrader.enumeration.Broker broker, double price, int ticks);
+    public abstract double adjustPrice(String broker, double price, int ticks);
 
     /**
      * Rounds the specified price up to the next tick
@@ -138,7 +138,7 @@
      * @param price 
      * @return java.math.BigDecimal
      */
-    public abstract java.math.BigDecimal roundUp(ch.algotrader.enumeration.Broker broker, java.math.BigDecimal price);
+    public abstract java.math.BigDecimal roundUp(String broker, java.math.BigDecimal price);
 
     /**
      * Rounds the specified price up to the next tick
@@ -146,7 +146,7 @@
      * @param price 
      * @return double
      */
-    public abstract double roundUp(ch.algotrader.enumeration.Broker broker, double price);
+    public abstract double roundUp(String broker, double price);
 
     /**
      * Rounds the specified price down to the next tick
@@ -154,7 +154,7 @@
      * @param price 
      * @return java.math.BigDecimal
      */
-    public abstract java.math.BigDecimal roundDown(ch.algotrader.enumeration.Broker broker, java.math.BigDecimal price);
+    public abstract java.math.BigDecimal roundDown(String broker, java.math.BigDecimal price);
 
     /**
      * Rounds the specified price down to the next tick
@@ -162,7 +162,7 @@
      * @param price 
      * @return double
      */
-    public abstract double roundDown(ch.algotrader.enumeration.Broker broker, double price);
+    public abstract double roundDown(String broker, double price);
 
 ]]>   
 	    </meta> 	    

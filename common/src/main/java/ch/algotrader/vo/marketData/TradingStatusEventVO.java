@@ -20,17 +20,16 @@ package ch.algotrader.vo.marketData;
 import java.io.Serializable;
 import java.util.Date;
 
-import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.enumeration.TradingStatus;
 
 public class TradingStatusEventVO implements Serializable  {
 
     private final TradingStatus status;
     private final long securityId;
-    private final FeedType feedType;
+    private final String feedType;
     private final Date dateTime;
 
-    public TradingStatusEventVO(final TradingStatus status, final long securityId, final FeedType feedType, final Date dateTime) {
+    public TradingStatusEventVO(final TradingStatus status, final long securityId, final String feedType, final Date dateTime) {
         this.status = status;
         this.securityId = securityId;
         this.feedType = feedType;
@@ -45,7 +44,7 @@ public class TradingStatusEventVO implements Serializable  {
         return securityId;
     }
 
-    public FeedType getFeedType() {
+    public String getFeedType() {
         return this.feedType;
     }
 

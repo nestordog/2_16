@@ -21,6 +21,14 @@ import java.util.Date;
 
 import org.apache.commons.lang.Validate;
 
+import ch.algotrader.adapter.fix.FixUtil;
+import ch.algotrader.entity.Account;
+import ch.algotrader.entity.security.Security;
+import ch.algotrader.entity.trade.LimitOrderI;
+import ch.algotrader.entity.trade.SimpleOrder;
+import ch.algotrader.entity.trade.StopOrderI;
+import ch.algotrader.enumeration.TIF;
+import ch.algotrader.util.PriceUtil;
 import quickfix.field.ClOrdID;
 import quickfix.field.ExDestination;
 import quickfix.field.ExpireTime;
@@ -33,15 +41,6 @@ import quickfix.field.TransactTime;
 import quickfix.fix44.NewOrderSingle;
 import quickfix.fix44.OrderCancelReplaceRequest;
 import quickfix.fix44.OrderCancelRequest;
-import ch.algotrader.adapter.fix.FixUtil;
-import ch.algotrader.entity.Account;
-import ch.algotrader.entity.security.Security;
-import ch.algotrader.entity.trade.LimitOrderI;
-import ch.algotrader.entity.trade.SimpleOrder;
-import ch.algotrader.entity.trade.StopOrderI;
-import ch.algotrader.enumeration.Broker;
-import ch.algotrader.enumeration.TIF;
-import ch.algotrader.util.PriceUtil;
 
 /**
  * Generic FIX/4.4 order message factory implementation.
@@ -69,7 +68,7 @@ public class GenericFix44OrderMessageFactory implements Fix44OrderMessageFactory
         NewOrderSingle message = new NewOrderSingle();
         Security security = order.getSecurity();
         Account account = order.getAccount();
-        Broker broker = account.getBroker();
+        String broker = account.getBroker();
 
         // common info
         message.set(new ClOrdID(clOrdID));
@@ -132,7 +131,7 @@ public class GenericFix44OrderMessageFactory implements Fix44OrderMessageFactory
         OrderCancelReplaceRequest message = new OrderCancelReplaceRequest();
         Security security = order.getSecurity();
         Account account = order.getAccount();
-        Broker broker = account.getBroker();
+        String broker = account.getBroker();
 
         // common info
         message.set(new ClOrdID(clOrdID));
@@ -184,7 +183,7 @@ public class GenericFix44OrderMessageFactory implements Fix44OrderMessageFactory
         OrderCancelRequest message = new OrderCancelRequest();
         Security security = order.getSecurity();
         Account account = order.getAccount();
-        Broker broker = account.getBroker();
+        String broker = account.getBroker();
 
         // common info
         message.set(new ClOrdID(clOrdID));

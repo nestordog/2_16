@@ -12,7 +12,7 @@ as
     volAsk int,
     bid java.math.BigDecimal,
     ask java.math.BigDecimal,
-    feedType ch.algotrader.enumeration.FeedType);
+    feedType String);
 
 @Name('INSERT_INTO_COMPONENT_WINDOW')
 insert into
@@ -79,7 +79,7 @@ insert into
 select
     0L,
     dateTime,
-    FeedType.SIM,
+    FeedType.SIM.name(),
     combinationId,
     null,
     null,

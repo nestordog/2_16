@@ -33,7 +33,6 @@ import ch.algotrader.cache.EntityCacheEvictionEventVO;
 import ch.algotrader.cache.QueryCacheEvictionEventVO;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.Subscription;
-import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 
@@ -91,7 +90,7 @@ public class SubscriptionServiceImpl implements SubscriptionService, Application
      * {@inheritDoc}
      */
     @Override
-    public void subscribeMarketDataEvent(final String strategyName, final long securityId, final FeedType feedType) {
+    public void subscribeMarketDataEvent(final String strategyName, final long securityId, final String feedType) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
         Validate.notNull(feedType, "Feed type is null");
@@ -120,7 +119,7 @@ public class SubscriptionServiceImpl implements SubscriptionService, Application
      * {@inheritDoc}
      */
     @Override
-    public void unsubscribeMarketDataEvent(final String strategyName, final long securityId, final FeedType feedType) {
+    public void unsubscribeMarketDataEvent(final String strategyName, final long securityId, final String feedType) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
         Validate.notNull(feedType, "Feed type is null");

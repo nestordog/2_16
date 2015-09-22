@@ -47,7 +47,6 @@ import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.Order;
-import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.TransactionType;
@@ -166,7 +165,7 @@ public class TransactionServiceImpl implements TransactionService {
         transaction.setCurrency(securityFamily.getCurrency());
         transaction.setAccount(order.getAccount());
 
-        Broker broker = order.getAccount().getBroker();
+        String broker = order.getAccount().getBroker();
         if (fill.getExecutionCommission() != null) {
             transaction.setExecutionCommission(fill.getExecutionCommission());
         } else if (securityFamily.getExecutionCommission(broker) != null) {

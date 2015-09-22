@@ -19,10 +19,10 @@ package ch.algotrader.service.dc;
 
 import org.apache.commons.lang.Validate;
 
+import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.adapter.dc.DCFixMarketDataRequestFactory;
 import ch.algotrader.adapter.dc.DCUtil;
 import ch.algotrader.adapter.fix.FixAdapter;
-import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.Engine;
@@ -55,9 +55,9 @@ public class DCFixMarketDataServiceImpl extends FixMarketDataServiceImpl impleme
     }
 
     @Override
-    public FeedType getFeedType() {
+    public String getFeedType() {
 
-        return FeedType.DC;
+        return FeedType.DC.name();
     }
 
     @Override

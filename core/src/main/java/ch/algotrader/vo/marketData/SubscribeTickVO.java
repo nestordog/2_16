@@ -19,8 +19,6 @@ package ch.algotrader.vo.marketData;
 
 import java.io.Serializable;
 
-import ch.algotrader.enumeration.FeedType;
-
 /**
  * A ValueObject used add a new {@link ch.algotrader.entity.Subscription Subscription} to the
  * TickWindow
@@ -42,12 +40,12 @@ public class SubscribeTickVO implements Serializable {
     /**
      * The market data feed that provided this  MarketDataEvent
      */
-    private final FeedType feedType;
+    private final String feedType;
 
     /**
      * Constructor with all properties
      */
-    public SubscribeTickVO(final String tickerId, final long securityId, final FeedType feedType) {
+    public SubscribeTickVO(final String tickerId, final long securityId, final String feedType) {
 
         this.tickerId = tickerId;
         this.securityId = securityId;
@@ -86,7 +84,7 @@ public class SubscribeTickVO implements Serializable {
     /**
      * The market data feed that provided this  MarketDataEvent
      */
-    public FeedType getFeedType() {
+    public String getFeedType() {
         return this.feedType;
     }
 

@@ -30,8 +30,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import ch.algotrader.dao.marketData.BarDao;
-import ch.algotrader.dao.marketData.BarDaoImpl;
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.SubscriptionImpl;
 import ch.algotrader.entity.marketData.Bar;
@@ -104,7 +102,7 @@ public class BarDaoTest extends InMemoryDBTest {
         bar1.setHigh(new BigDecimal(333));
         bar1.setLow(new BigDecimal(111));
         bar1.setClose(new BigDecimal(444));
-        bar1.setFeedType(FeedType.CNX);
+        bar1.setFeedType(FeedType.CNX.name());
         bar1.setSecurity(this.forex1);
 
         Bar bar2 = new BarImpl();
@@ -118,7 +116,7 @@ public class BarDaoTest extends InMemoryDBTest {
         bar2.setHigh(new BigDecimal(666));
         bar2.setLow(new BigDecimal(777));
         bar2.setClose(new BigDecimal(888));
-        bar2.setFeedType(FeedType.BB);
+        bar2.setFeedType(FeedType.BB.name());
         bar2.setSecurity(this.forex1);
 
         this.session.save(bar1);
@@ -149,7 +147,7 @@ public class BarDaoTest extends InMemoryDBTest {
         bar1.setHigh(new BigDecimal(333));
         bar1.setLow(new BigDecimal(111));
         bar1.setClose(new BigDecimal(444));
-        bar1.setFeedType(FeedType.CNX);
+        bar1.setFeedType(FeedType.CNX.name());
         bar1.setSecurity(this.forex1);
 
         Bar bar2 = new BarImpl();
@@ -163,7 +161,7 @@ public class BarDaoTest extends InMemoryDBTest {
         bar2.setHigh(new BigDecimal(666));
         bar2.setLow(new BigDecimal(777));
         bar2.setClose(new BigDecimal(888));
-        bar2.setFeedType(FeedType.BB);
+        bar2.setFeedType(FeedType.BB.name());
         bar2.setSecurity(this.forex1);
 
         this.session.save(this.family1);
@@ -194,7 +192,7 @@ public class BarDaoTest extends InMemoryDBTest {
     public void testFindSubscribedByTimePeriodAndBarSize() {
 
         Subscription subscription1 = new SubscriptionImpl();
-        subscription1.setFeedType(FeedType.SIM);
+        subscription1.setFeedType(FeedType.SIM.name());
         subscription1.setSecurity(this.forex1);
         subscription1.setStrategy(this.strategy1);
 
@@ -205,7 +203,7 @@ public class BarDaoTest extends InMemoryDBTest {
         bar.setHigh(new BigDecimal(333));
         bar.setLow(new BigDecimal(111));
         bar.setClose(new BigDecimal(444));
-        bar.setFeedType(FeedType.CNX);
+        bar.setFeedType(FeedType.CNX.name());
         bar.setSecurity(this.forex1);
 
         this.session.save(this.strategy1);
@@ -234,7 +232,7 @@ public class BarDaoTest extends InMemoryDBTest {
     public void testFindSubscribedByTimePeriodAndBarSizeWithLimit() {
 
         Subscription subscription1 = new SubscriptionImpl();
-        subscription1.setFeedType(FeedType.SIM);
+        subscription1.setFeedType(FeedType.SIM.name());
         subscription1.setSecurity(this.forex1);
         subscription1.setStrategy(this.strategy1);
 
@@ -245,7 +243,7 @@ public class BarDaoTest extends InMemoryDBTest {
         bar.setHigh(new BigDecimal(333));
         bar.setLow(new BigDecimal(111));
         bar.setClose(new BigDecimal(444));
-        bar.setFeedType(FeedType.CNX);
+        bar.setFeedType(FeedType.CNX.name());
         bar.setSecurity(this.forex1);
 
         Set<Subscription> subscriptions = new HashSet<>();

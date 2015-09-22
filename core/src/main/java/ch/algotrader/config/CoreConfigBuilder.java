@@ -19,8 +19,6 @@ package ch.algotrader.config;
 
 import java.math.BigDecimal;
 
-import ch.algotrader.enumeration.FeedType;
-
 /**
  * Factory for Algotrader core platform configuration objects.
  *
@@ -36,7 +34,7 @@ public final class CoreConfigBuilder {
     private int transactionDisplayCount;
     private int intervalDays;
     private BigDecimal rebalanceMinAmount;
-    private FeedType defaultFeedType;
+    private String defaultFeedType;
     private String defaultOrderPreference;
     private boolean fxFutureHedgeEnabled;
     private int fxFutureHedgeMinTimeToExpiration;
@@ -49,7 +47,7 @@ public final class CoreConfigBuilder {
 
     CoreConfigBuilder() {
         this.rebalanceMinAmount = new BigDecimal("1000");
-        this.defaultFeedType = FeedType.IB;
+        this.defaultFeedType = "IB";
         this.defaultOrderPreference = "FX";
         this.fxHedgeOrderPreference = "FX";
         this.deltaHedgeOrderPreference = "OPT";
@@ -89,7 +87,7 @@ public final class CoreConfigBuilder {
         return this;
     }
 
-    public CoreConfigBuilder setDefaultFeedType(FeedType defaultFeedType) {
+    public CoreConfigBuilder setDefaultFeedType(String defaultFeedType) {
         this.defaultFeedType = defaultFeedType;
         return this;
     }

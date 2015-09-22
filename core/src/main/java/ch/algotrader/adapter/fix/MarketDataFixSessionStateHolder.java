@@ -18,7 +18,6 @@
 package ch.algotrader.adapter.fix;
 
 import ch.algotrader.adapter.DataFeedSessionStateHolder;
-import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.event.dispatch.EventDispatcher;
 
 /**
@@ -28,14 +27,14 @@ import ch.algotrader.event.dispatch.EventDispatcher;
  */
 public class MarketDataFixSessionStateHolder extends DefaultFixSessionStateHolder implements DataFeedSessionStateHolder {
 
-    private final FeedType feedType;
+    private final String feedType;
 
-    public MarketDataFixSessionStateHolder(final String name, final EventDispatcher eventDispatcher, final FeedType feedType) {
+    public MarketDataFixSessionStateHolder(final String name, final EventDispatcher eventDispatcher, final String feedType) {
         super(name, eventDispatcher);
         this.feedType = feedType;
     }
 
-    public FeedType getFeedType() {
+    public String getFeedType() {
         return this.feedType;
     }
 

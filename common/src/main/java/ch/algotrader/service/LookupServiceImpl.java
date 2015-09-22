@@ -64,10 +64,8 @@ import ch.algotrader.entity.strategy.CashBalance;
 import ch.algotrader.entity.strategy.Measurement;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.strategy.StrategyImpl;
-import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Duration;
-import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.enumeration.QueryType;
 import ch.algotrader.util.collection.CollectionUtil;
 
@@ -733,7 +731,7 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
-    public Collection<String> getActiveSessionsByOrderServiceType(final OrderServiceType orderServiceType) {
+    public Collection<String> getActiveSessionsByOrderServiceType(final String orderServiceType) {
 
         Validate.notNull(orderServiceType, "Order service type is null");
 
@@ -1140,7 +1138,7 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
-    public Collection<EasyToBorrow> getEasyToBorrowByDateAndBroker(final Date date, final Broker broker) {
+    public Collection<EasyToBorrow> getEasyToBorrowByDateAndBroker(final Date date, final String broker) {
 
         Validate.notNull(date, "Date is null");
         Validate.notNull(broker, "Broker is null");

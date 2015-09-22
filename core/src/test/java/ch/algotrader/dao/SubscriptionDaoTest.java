@@ -26,8 +26,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import ch.algotrader.dao.SubscriptionDao;
-import ch.algotrader.dao.SubscriptionDaoImpl;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.PositionImpl;
 import ch.algotrader.entity.Subscription;
@@ -115,7 +113,7 @@ public class SubscriptionDaoTest extends InMemoryDBTest {
         this.session.save(this.strategy1);
 
         Subscription subscription1 = new SubscriptionImpl();
-        subscription1.setFeedType(FeedType.SIM);
+        subscription1.setFeedType(FeedType.SIM.name());
         subscription1.setSecurity(this.forex1);
         subscription1.setStrategy(this.strategy1);
 
@@ -125,7 +123,7 @@ public class SubscriptionDaoTest extends InMemoryDBTest {
         this.session.save(this.strategy2);
 
         Subscription subscription2 = new SubscriptionImpl();
-        subscription2.setFeedType(FeedType.IB);
+        subscription2.setFeedType(FeedType.IB.name());
         subscription2.setSecurity(this.forex2);
         subscription2.setStrategy(this.strategy1);
 
@@ -159,7 +157,7 @@ public class SubscriptionDaoTest extends InMemoryDBTest {
         this.session.save(this.strategy1);
 
         Subscription subscription1 = new SubscriptionImpl();
-        subscription1.setFeedType(FeedType.SIM);
+        subscription1.setFeedType(FeedType.SIM.name());
         subscription1.setSecurity(this.forex1);
         subscription1.setStrategy(this.strategy1);
 
@@ -174,7 +172,7 @@ public class SubscriptionDaoTest extends InMemoryDBTest {
 
         Assert.assertNotNull(subscription3);
 
-        Assert.assertEquals(FeedType.SIM, subscription3.getFeedType());
+        Assert.assertEquals(FeedType.SIM.name(), subscription3.getFeedType());
         Assert.assertSame(this.forex1, subscription3.getSecurity());
         Assert.assertSame(this.family1, subscription3.getSecurity().getSecurityFamily());
         Assert.assertSame(this.strategy1, subscription3.getStrategy());
@@ -188,22 +186,22 @@ public class SubscriptionDaoTest extends InMemoryDBTest {
         this.session.save(this.strategy1);
 
         Subscription subscription1 = new SubscriptionImpl();
-        subscription1.setFeedType(FeedType.SIM);
+        subscription1.setFeedType(FeedType.SIM.name());
         subscription1.setSecurity(this.forex1);
         subscription1.setStrategy(this.strategy1);
 
         this.session.save(subscription1);
         this.session.flush();
 
-        Subscription subscription2 = this.dao.findByStrategySecurityAndFeedType("Strategy1", this.forex1.getId(), FeedType.BB);
+        Subscription subscription2 = this.dao.findByStrategySecurityAndFeedType("Strategy1", this.forex1.getId(), FeedType.BB.name());
 
         Assert.assertNull(subscription2);
 
-        Subscription subscription3 = this.dao.findByStrategySecurityAndFeedType("Strategy1", this.forex1.getId(), FeedType.SIM);
+        Subscription subscription3 = this.dao.findByStrategySecurityAndFeedType("Strategy1", this.forex1.getId(), FeedType.SIM.name());
 
         Assert.assertNotNull(subscription3);
 
-        Assert.assertEquals(FeedType.SIM, subscription3.getFeedType());
+        Assert.assertEquals(FeedType.SIM.name(), subscription3.getFeedType());
         Assert.assertSame(this.forex1, subscription3.getSecurity());
         Assert.assertSame(this.family1, subscription3.getSecurity().getSecurityFamily());
         Assert.assertSame(this.strategy1, subscription3.getStrategy());
@@ -217,7 +215,7 @@ public class SubscriptionDaoTest extends InMemoryDBTest {
         this.session.save(this.strategy1);
 
         Subscription subscription1 = new SubscriptionImpl();
-        subscription1.setFeedType(FeedType.SIM);
+        subscription1.setFeedType(FeedType.SIM.name());
         subscription1.setSecurity(this.forex1);
         subscription1.setStrategy(this.strategy1);
 
@@ -228,13 +226,13 @@ public class SubscriptionDaoTest extends InMemoryDBTest {
 
         Subscription subscription2 = new SubscriptionImpl();
         subscription2.setSecurity(this.forex1);
-        subscription2.setFeedType(FeedType.SIM);
+        subscription2.setFeedType(FeedType.SIM.name());
         subscription2.setStrategy(this.strategy2);
 
         this.session.save(subscription2);
         this.session.flush();
 
-        List<Subscription> subscriptions1 = this.dao.findBySecurityAndFeedTypeForAutoActivateStrategies(this.forex1.getId(), FeedType.SIM);
+        List<Subscription> subscriptions1 = this.dao.findBySecurityAndFeedTypeForAutoActivateStrategies(this.forex1.getId(), FeedType.SIM.name());
 
         Assert.assertEquals(0, subscriptions1.size());
 
@@ -243,7 +241,7 @@ public class SubscriptionDaoTest extends InMemoryDBTest {
 
         this.session.flush();
 
-        List<Subscription> subscriptions2 = this.dao.findBySecurityAndFeedTypeForAutoActivateStrategies(this.forex1.getId(), FeedType.SIM);
+        List<Subscription> subscriptions2 = this.dao.findBySecurityAndFeedTypeForAutoActivateStrategies(this.forex1.getId(), FeedType.SIM.name());
 
         Assert.assertEquals(2, subscriptions2.size());
 
@@ -266,7 +264,7 @@ public class SubscriptionDaoTest extends InMemoryDBTest {
         this.session.save(this.strategy1);
 
         Subscription subscription1 = new SubscriptionImpl();
-        subscription1.setFeedType(FeedType.SIM);
+        subscription1.setFeedType(FeedType.SIM.name());
         subscription1.setSecurity(this.forex1);
         subscription1.setStrategy(this.strategy1);
         subscription1.setPersistent(true);
@@ -277,7 +275,7 @@ public class SubscriptionDaoTest extends InMemoryDBTest {
         this.session.save(this.strategy2);
 
         Subscription subscription2 = new SubscriptionImpl();
-        subscription2.setFeedType(FeedType.IB);
+        subscription2.setFeedType(FeedType.IB.name());
         subscription2.setSecurity(this.forex2);
         subscription2.setStrategy(this.strategy2);
         subscription2.setPersistent(true);
@@ -307,12 +305,12 @@ public class SubscriptionDaoTest extends InMemoryDBTest {
         this.session.save(this.strategy1);
 
         Subscription subscription1 = new SubscriptionImpl();
-        subscription1.setFeedType(FeedType.SIM);
+        subscription1.setFeedType(FeedType.SIM.name());
         subscription1.setSecurity(this.forex1);
         subscription1.setStrategy(this.strategy1);
 
         Subscription subscription2 = new SubscriptionImpl();
-        subscription2.setFeedType(FeedType.IB);
+        subscription2.setFeedType(FeedType.IB.name());
         subscription2.setStrategy(this.strategy1);
         subscription2.setSecurity(this.forex1);
 
@@ -347,13 +345,13 @@ public class SubscriptionDaoTest extends InMemoryDBTest {
         this.session.save(this.strategy1);
 
         Subscription subscription1 = new SubscriptionImpl();
-        subscription1.setFeedType(FeedType.SIM);
+        subscription1.setFeedType(FeedType.SIM.name());
         subscription1.setSecurity(this.forex1);
         subscription1.setStrategy(this.strategy1);
         subscription1.setPersistent(true);
 
         Subscription subscription2 = new SubscriptionImpl();
-        subscription2.setFeedType(FeedType.IB);
+        subscription2.setFeedType(FeedType.IB.name());
         subscription2.setStrategy(this.strategy1);
         subscription2.setSecurity(this.forex1);
 
@@ -381,15 +379,15 @@ public class SubscriptionDaoTest extends InMemoryDBTest {
 
         Assert.assertEquals(2, subscriptions2.size());
 
-        Map<FeedType, Subscription> map = new HashMap<>();
+        Map<String, Subscription> map = new HashMap<>();
 
         for (Subscription subscription: subscriptions2) {
 
             map.put(subscription.getFeedType(), subscription);
         }
 
-        Assert.assertSame(subscription1, map.get(FeedType.SIM));
-        Assert.assertSame(subscription2, map.get(FeedType.IB));
+        Assert.assertSame(subscription1, map.get(FeedType.SIM.name()));
+        Assert.assertSame(subscription2, map.get(FeedType.IB.name()));
     }
 
 }

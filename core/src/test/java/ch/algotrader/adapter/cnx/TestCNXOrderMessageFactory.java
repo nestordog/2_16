@@ -74,7 +74,7 @@ public class TestCNXOrderMessageFactory {
         this.requestFactory = new CNXFixOrderMessageFactory();
 
         this.account = new AccountImpl();
-        this.account.setBroker(Broker.IB);
+        this.account.setBroker(Broker.IB.name());
         this.account.setExtAccount("test-account");
     }
 

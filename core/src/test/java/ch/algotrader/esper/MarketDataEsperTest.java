@@ -150,11 +150,11 @@ public class MarketDataEsperTest extends EsperTestBase {
         Mockito.when(calendarService.isOpen(Mockito.anyLong(), Mockito.<Date>any())).thenReturn(true);
         Mockito.when(marketDataService.isTickValid(Mockito.any())).thenReturn(false);
 
-        SubscribeTickVO subscribeEvent1 = new SubscribeTickVO("some-ticker1", 1L, FeedType.IB);
+        SubscribeTickVO subscribeEvent1 = new SubscribeTickVO("some-ticker1", 1L, FeedType.IB.name());
         epRuntime.sendEvent(subscribeEvent1);
-        SubscribeTickVO subscribeEvent2 = new SubscribeTickVO("some-ticker2", 2L, FeedType.BB);
+        SubscribeTickVO subscribeEvent2 = new SubscribeTickVO("some-ticker2", 2L, FeedType.BB.name());
         epRuntime.sendEvent(subscribeEvent2);
-        SubscribeTickVO subscribeEvent3 = new SubscribeTickVO("some-ticker3", 1L, FeedType.LMAX);
+        SubscribeTickVO subscribeEvent3 = new SubscribeTickVO("some-ticker3", 1L, FeedType.LMAX.name());
         epRuntime.sendEvent(subscribeEvent3);
 
         EPOnDemandQueryResult result = epRuntime.executeQuery("select * from TickWindow");
@@ -163,17 +163,17 @@ public class MarketDataEsperTest extends EsperTestBase {
         Assert.assertEquals(3, entries.length);
         EventBean entry1 = entries[0];
         Assert.assertEquals("some-ticker1", entry1.get("tickerId"));
-        Assert.assertEquals(FeedType.IB, entry1.get("feedType"));
+        Assert.assertEquals(FeedType.IB.name(), entry1.get("feedType"));
         Assert.assertEquals(1L, entry1.get("securityId"));
         Assert.assertEquals(true, entry1.get("refresh"));
         EventBean entry2 = entries[1];
         Assert.assertEquals("some-ticker2", entry2.get("tickerId"));
-        Assert.assertEquals(FeedType.BB, entry2.get("feedType"));
+        Assert.assertEquals(FeedType.BB.name(), entry2.get("feedType"));
         Assert.assertEquals(2L, entry2.get("securityId"));
         Assert.assertEquals(true, entry2.get("refresh"));
         EventBean entry3 = entries[2];
         Assert.assertEquals("some-ticker3", entry3.get("tickerId"));
-        Assert.assertEquals(FeedType.LMAX, entry3.get("feedType"));
+        Assert.assertEquals(FeedType.LMAX.name(), entry3.get("feedType"));
         Assert.assertEquals(1L, entry3.get("securityId"));
         Assert.assertEquals(true, entry3.get("refresh"));
 
@@ -183,7 +183,7 @@ public class MarketDataEsperTest extends EsperTestBase {
 
         Mockito.when(marketDataService.isTickValid(Mockito.any())).thenReturn(true);
 
-        TradeVO trade = new TradeVO("some-ticker1", FeedType.IB, new Date(), 1.23d, 567);
+        TradeVO trade = new TradeVO("some-ticker1", FeedType.IB.name(), new Date(), 1.23d, 567);
         epRuntime.sendEvent(trade);
 
         Assert.assertEquals(1, unvalidatedTickQueue.size());
@@ -191,7 +191,7 @@ public class MarketDataEsperTest extends EsperTestBase {
         final TickVO tick1 = validatedTickQueue.remove();
 
         Assert.assertEquals(1l, tick1.getSecurityId());
-        Assert.assertEquals(FeedType.IB, tick1.getFeedType());
+        Assert.assertEquals(FeedType.IB.name(), tick1.getFeedType());
         Assert.assertEquals(new BigDecimal("1.2300"), tick1.getLast());
         Assert.assertEquals(567, tick1.getVol());
         Assert.assertEquals(null, tick1.getAsk());
@@ -199,12 +199,12 @@ public class MarketDataEsperTest extends EsperTestBase {
         Assert.assertEquals(null, tick1.getBid());
         Assert.assertEquals(0, tick1.getVolBid());
 
-        AskVO ask = new AskVO("some-ticker1", FeedType.IB, new Date(), 1.24d, 568);
+        AskVO ask = new AskVO("some-ticker1", FeedType.IB.name(), new Date(), 1.24d, 568);
         epRuntime.sendEvent(ask);
 
         final TickVO tick2 = validatedTickQueue.remove();
         Assert.assertEquals(1l, tick2.getSecurityId());
-        Assert.assertEquals(FeedType.IB, tick2.getFeedType());
+        Assert.assertEquals(FeedType.IB.name(), tick2.getFeedType());
         Assert.assertEquals(new BigDecimal("1.2300"), tick2.getLast());
         Assert.assertEquals(567, tick2.getVol());
         Assert.assertEquals(new BigDecimal("1.2400"), tick2.getAsk());
@@ -212,12 +212,12 @@ public class MarketDataEsperTest extends EsperTestBase {
         Assert.assertEquals(null, tick2.getBid());
         Assert.assertEquals(0, tick2.getVolBid());
 
-        BidVO bid = new BidVO("some-ticker1", FeedType.IB, new Date(), 1.25d, 569);
+        BidVO bid = new BidVO("some-ticker1", FeedType.IB.name(), new Date(), 1.25d, 569);
         epRuntime.sendEvent(bid);
 
         final TickVO tick3 = validatedTickQueue.remove();
         Assert.assertEquals(1l, tick3.getSecurityId());
-        Assert.assertEquals(FeedType.IB, tick3.getFeedType());
+        Assert.assertEquals(FeedType.IB.name(), tick3.getFeedType());
         Assert.assertEquals(new BigDecimal("1.2300"), tick3.getLast());
         Assert.assertEquals(567, tick3.getVol());
         Assert.assertEquals(new BigDecimal("1.2400"), tick3.getAsk());
@@ -244,10 +244,10 @@ public class MarketDataEsperTest extends EsperTestBase {
 
         Mockito.when(calendarService.isOpen(Mockito.anyLong(), Mockito.<Date>any())).thenReturn(false);
 
-        SubscribeTickVO subscribeEvent1 = new SubscribeTickVO("some-ticker1", 1L, FeedType.IB);
+        SubscribeTickVO subscribeEvent1 = new SubscribeTickVO("some-ticker1", 1L, FeedType.IB.name());
         epRuntime.sendEvent(subscribeEvent1);
 
-        TradeVO trade = new TradeVO("some-ticker1", FeedType.IB, new Date(), 1.23d, 567);
+        TradeVO trade = new TradeVO("some-ticker1", FeedType.IB.name(), new Date(), 1.23d, 567);
         epRuntime.sendEvent(trade);
 
         Mockito.verify(calendarService, Mockito.times(2)).isOpen(Mockito.eq(exchange.getId()), Mockito.any());
@@ -282,19 +282,19 @@ public class MarketDataEsperTest extends EsperTestBase {
         Mockito.when(calendarService.isOpen(Mockito.anyLong(), Mockito.<Date>any())).thenReturn(true);
         Mockito.when(marketDataService.isTickValid(Mockito.any())).thenReturn(false);
 
-        SubscribeTickVO subscribeEvent1 = new SubscribeTickVO("some-ticker1", 1L, FeedType.IB);
+        SubscribeTickVO subscribeEvent1 = new SubscribeTickVO("some-ticker1", 1L, FeedType.IB.name());
         epRuntime.sendEvent(subscribeEvent1);
 
         Mockito.when(marketDataService.isTickValid(Mockito.any())).thenReturn(true);
 
-        TradeVO trade = new TradeVO("some-ticker1", FeedType.IB, new Date(), 1.23d, 567);
+        TradeVO trade = new TradeVO("some-ticker1", FeedType.IB.name(), new Date(), 1.23d, 567);
         epRuntime.sendEvent(trade);
 
         Assert.assertEquals(2, unvalidatedTickQueue.size());
         final TickVO tick1 = validatedTickQueue.remove();
 
         Assert.assertEquals(1l, tick1.getSecurityId());
-        Assert.assertEquals(FeedType.IB, tick1.getFeedType());
+        Assert.assertEquals(FeedType.IB.name(), tick1.getFeedType());
         Assert.assertEquals(new BigDecimal("1.2300"), tick1.getLast());
         Assert.assertEquals(567, tick1.getVol());
 
@@ -321,14 +321,14 @@ public class MarketDataEsperTest extends EsperTestBase {
         usdFx.setMaxGap(1);
 
         LocalDateTime start = LocalDateTime.of(2015, Month.JUNE, 1, 12, 0);
-        TickVO tick1 = new TickVO(0L, DateTimeLegacy.toLocalDateTime(start.plusSeconds(5)), FeedType.IB, usdFx.getId(), 0, 0, 0);
-        TickVO tick2 = new TickVO(0L, DateTimeLegacy.toLocalDateTime(start.plusSeconds(5)), FeedType.IB, chfusd.getId(), 0, 0, 0);
-        TickVO tick3 = new TickVO(0L, DateTimeLegacy.toLocalDateTime(start.plusSeconds(10)), FeedType.IB, usdFx.getId(), 0, 0, 0);
-        TickVO tick4 = new TickVO(0L, DateTimeLegacy.toLocalDateTime(start.plusSeconds(10)), FeedType.IB, chfusd.getId(), 0, 0, 0);
-        TickVO tick5 = new TickVO(0L, DateTimeLegacy.toLocalDateTime(start.plusSeconds(50)), FeedType.IB, chfusd.getId(), 0, 0, 0);
-        TickVO tick6 = new TickVO(0L, DateTimeLegacy.toLocalDateTime(start.plusSeconds(100)), FeedType.IB, chfusd.getId(), 0, 0, 0);
-        TickVO tick7 = new TickVO(0L, DateTimeLegacy.toLocalDateTime(start.plusSeconds(120)), FeedType.IB, usdFx.getId(), 0, 0, 0);
-        TickVO tick8 = new TickVO(0L, DateTimeLegacy.toLocalDateTime(start.plusSeconds(120)), FeedType.IB, chfusd.getId(), 0, 0, 0);
+        TickVO tick1 = new TickVO(0L, DateTimeLegacy.toLocalDateTime(start.plusSeconds(5)), FeedType.IB.name(), usdFx.getId(), 0, 0, 0);
+        TickVO tick2 = new TickVO(0L, DateTimeLegacy.toLocalDateTime(start.plusSeconds(5)), FeedType.IB.name(), chfusd.getId(), 0, 0, 0);
+        TickVO tick3 = new TickVO(0L, DateTimeLegacy.toLocalDateTime(start.plusSeconds(10)), FeedType.IB.name(), usdFx.getId(), 0, 0, 0);
+        TickVO tick4 = new TickVO(0L, DateTimeLegacy.toLocalDateTime(start.plusSeconds(10)), FeedType.IB.name(), chfusd.getId(), 0, 0, 0);
+        TickVO tick5 = new TickVO(0L, DateTimeLegacy.toLocalDateTime(start.plusSeconds(50)), FeedType.IB.name(), chfusd.getId(), 0, 0, 0);
+        TickVO tick6 = new TickVO(0L, DateTimeLegacy.toLocalDateTime(start.plusSeconds(100)), FeedType.IB.name(), chfusd.getId(), 0, 0, 0);
+        TickVO tick7 = new TickVO(0L, DateTimeLegacy.toLocalDateTime(start.plusSeconds(120)), FeedType.IB.name(), usdFx.getId(), 0, 0, 0);
+        TickVO tick8 = new TickVO(0L, DateTimeLegacy.toLocalDateTime(start.plusSeconds(120)), FeedType.IB.name(), chfusd.getId(), 0, 0, 0);
 
         epRuntime.sendEvent(new TimerControlEvent(TimerControlEvent.ClockType.CLOCK_EXTERNAL));
         epRuntime.sendEvent(new CurrentTimeEvent(DateTimeLegacy.toLocalDateTime(start).getTime()));
@@ -360,70 +360,70 @@ public class MarketDataEsperTest extends EsperTestBase {
             }
         });
 
-        SubscribeTickVO subscribeEvent1 = new SubscribeTickVO("some-ticker1", 1L, FeedType.IB);
+        SubscribeTickVO subscribeEvent1 = new SubscribeTickVO("some-ticker1", 1L, FeedType.IB.name());
         epRuntime.sendEvent(subscribeEvent1);
-        SubscribeTickVO subscribeEvent3 = new SubscribeTickVO("some-ticker2", 2L, FeedType.LMAX);
+        SubscribeTickVO subscribeEvent3 = new SubscribeTickVO("some-ticker2", 2L, FeedType.LMAX.name());
         epRuntime.sendEvent(subscribeEvent3);
 
-        TradingHaltVO halt1 = new TradingHaltVO("some-ticker1", FeedType.IB, null);
+        TradingHaltVO halt1 = new TradingHaltVO("some-ticker1", FeedType.IB.name(), null);
         epRuntime.sendEvent(halt1);
-        TradingHaltVO halt2 = new TradingHaltVO("some-ticker2", FeedType.LMAX, null);
+        TradingHaltVO halt2 = new TradingHaltVO("some-ticker2", FeedType.LMAX.name(), null);
         epRuntime.sendEvent(halt2);
-        TradingHaltVO halt3 = new TradingHaltVO("some-ticker1", FeedType.IB, null);
+        TradingHaltVO halt3 = new TradingHaltVO("some-ticker1", FeedType.IB.name(), null);
         epRuntime.sendEvent(halt3);
-        TradingHaltVO halt4 = new TradingHaltVO("some-ticker2", FeedType.LMAX, null);
+        TradingHaltVO halt4 = new TradingHaltVO("some-ticker2", FeedType.LMAX.name(), null);
         epRuntime.sendEvent(halt4);
 
         TradingStatusEventVO tradingStatusEvent1 = tradingStatusEventQueue.poll();
         Assert.assertNotNull(tradingStatusEvent1);
         Assert.assertEquals(TradingStatus.TRADING_HALT, tradingStatusEvent1.getStatus());
         Assert.assertEquals(1L, tradingStatusEvent1.getSecurityId());
-        Assert.assertEquals(FeedType.IB, tradingStatusEvent1.getFeedType());
+        Assert.assertEquals(FeedType.IB.name(), tradingStatusEvent1.getFeedType());
 
         TradingStatusEventVO tradingStatusEvent2 = tradingStatusEventQueue.poll();
         Assert.assertNotNull(tradingStatusEvent2);
         Assert.assertEquals(TradingStatus.TRADING_HALT, tradingStatusEvent2.getStatus());
         Assert.assertEquals(2L, tradingStatusEvent2.getSecurityId());
-        Assert.assertEquals(FeedType.LMAX, tradingStatusEvent2.getFeedType());
+        Assert.assertEquals(FeedType.LMAX.name(), tradingStatusEvent2.getFeedType());
 
         TradingStatusEventVO tradingStatusEvent3 = tradingStatusEventQueue.poll();
         Assert.assertNotNull(tradingStatusEvent3);
         Assert.assertEquals(TradingStatus.TRADING_HALT, tradingStatusEvent3.getStatus());
         Assert.assertEquals(1L, tradingStatusEvent3.getSecurityId());
-        Assert.assertEquals(FeedType.IB, tradingStatusEvent3.getFeedType());
+        Assert.assertEquals(FeedType.IB.name(), tradingStatusEvent3.getFeedType());
 
         TradingStatusEventVO tradingStatusEvent4 = tradingStatusEventQueue.poll();
         Assert.assertNotNull(tradingStatusEvent4);
         Assert.assertEquals(TradingStatus.TRADING_HALT, tradingStatusEvent4.getStatus());
         Assert.assertEquals(2L, tradingStatusEvent4.getSecurityId());
-        Assert.assertEquals(FeedType.LMAX, tradingStatusEvent4.getFeedType());
+        Assert.assertEquals(FeedType.LMAX.name(), tradingStatusEvent4.getFeedType());
 
-        TradeVO trade1 = new TradeVO("some-ticker1", FeedType.IB, new Date(), 1.23d, 567);
+        TradeVO trade1 = new TradeVO("some-ticker1", FeedType.IB.name(), new Date(), 1.23d, 567);
         epRuntime.sendEvent(trade1);
 
         TradingStatusEventVO tradingStatusEvent5 = tradingStatusEventQueue.poll();
         Assert.assertNotNull(tradingStatusEvent5);
         Assert.assertEquals(TradingStatus.READY_TO_TRADE, tradingStatusEvent5.getStatus());
         Assert.assertEquals(1L, tradingStatusEvent5.getSecurityId());
-        Assert.assertEquals(FeedType.IB, tradingStatusEvent5.getFeedType());
+        Assert.assertEquals(FeedType.IB.name(), tradingStatusEvent5.getFeedType());
 
         TradingStatusEventVO tradingStatusEvent6 = tradingStatusEventQueue.poll();
         Assert.assertNull(tradingStatusEvent6);
 
-        BidVO bid1 = new BidVO("some-ticker1", FeedType.IB, new Date(), 1.23d, 567);
+        BidVO bid1 = new BidVO("some-ticker1", FeedType.IB.name(), new Date(), 1.23d, 567);
         epRuntime.sendEvent(bid1);
 
         TradingStatusEventVO tradingStatusEvent7 = tradingStatusEventQueue.poll();
         Assert.assertNull(tradingStatusEvent7);
 
-        AskVO ask1 = new AskVO("some-ticker2", FeedType.LMAX, new Date(), 1.23d, 567);
+        AskVO ask1 = new AskVO("some-ticker2", FeedType.LMAX.name(), new Date(), 1.23d, 567);
         epRuntime.sendEvent(ask1);
 
         TradingStatusEventVO tradingStatusEvent8 = tradingStatusEventQueue.poll();
         Assert.assertNotNull(tradingStatusEvent8);
         Assert.assertEquals(TradingStatus.READY_TO_TRADE, tradingStatusEvent8.getStatus());
         Assert.assertEquals(2L, tradingStatusEvent8.getSecurityId());
-        Assert.assertEquals(FeedType.LMAX, tradingStatusEvent8.getFeedType());
+        Assert.assertEquals(FeedType.LMAX.name(), tradingStatusEvent8.getFeedType());
 
         TradingStatusEventVO tradingStatusEvent9 = tradingStatusEventQueue.poll();
         Assert.assertNull(tradingStatusEvent9);

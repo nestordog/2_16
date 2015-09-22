@@ -17,8 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.adapter;
 
-import ch.algotrader.enumeration.FeedType;
-
 /**
  * External data feed session life cycle
  *
@@ -26,6 +24,6 @@ import ch.algotrader.enumeration.FeedType;
  */
 public interface DataFeedSessionStateHolder extends ExternalSessionStateHolder {
 
-    FeedType getFeedType();
+    String getFeedType();
 
 }

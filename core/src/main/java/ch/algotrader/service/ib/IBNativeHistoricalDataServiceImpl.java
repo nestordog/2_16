@@ -112,7 +112,7 @@ public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl
             throw new ServiceException("security was not found " + securityId);
         }
 
-        int scale = security.getSecurityFamily().getScale(Broker.IB);
+        int scale = security.getSecurityFamily().getScale(Broker.IB.name());
         Contract contract = IBUtil.getContract(security);
         int requestId = this.idGenerator.getNextRequestId();
         String dateString = dateTimeFormat.format(DateTimeLegacy.toGMTDate(endDate));
@@ -210,7 +210,7 @@ public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl
         // set & update fields
         for (Bar bar: bars) {
             bar.setSecurity(security);
-            bar.setFeedType(FeedType.IB);
+            bar.setFeedType(FeedType.IB.name());
             bar.getOpen().setScale(scale, RoundingMode.HALF_UP);
             bar.getHigh().setScale(scale, RoundingMode.HALF_UP);
             bar.getLow().setScale(scale, RoundingMode.HALF_UP);

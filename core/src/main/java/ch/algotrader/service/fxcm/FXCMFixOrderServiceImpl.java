@@ -51,7 +51,7 @@ public class FXCMFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fi
     @Override
     public void init() {
 
-        getFixAdapter().openSession(getOrderServiceType());
+        getFixAdapter().openSessionForService(getOrderServiceType());
     }
 
     @Override
@@ -67,8 +67,8 @@ public class FXCMFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fi
     }
 
     @Override
-    public OrderServiceType getOrderServiceType() {
+    public String getOrderServiceType() {
 
-        return OrderServiceType.FXCM_FIX;
+        return OrderServiceType.FXCM_FIX.name();
     }
 }

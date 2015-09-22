@@ -140,7 +140,7 @@ public class CacheTest extends DefaultConfigTestBase {
         ExternalMarketDataService externalMarketDataService = Mockito.mock(ExternalMarketDataService.class);
         context.getDefaultListableBeanFactory().registerSingleton("externalMarketDataService", externalMarketDataService);
 
-        Mockito.when(externalMarketDataService.getFeedType()).thenReturn(FeedType.IB);
+        Mockito.when(externalMarketDataService.getFeedType()).thenReturn(FeedType.IB.name());
 
         // register Wirings
         context.register(CommonConfigWiring.class, CoreConfigWiring.class, EventDispatchWiring.class, EventDispatchPostInitWiring.class,
@@ -206,7 +206,7 @@ public class CacheTest extends DefaultConfigTestBase {
 
         Subscription subscription1 = new SubscriptionImpl();
         subscription1.setStrategy(strategy1);
-        subscription1.setFeedType(FeedType.IB);
+        subscription1.setFeedType(FeedType.IB.name());
         subscription1.setSecurity(security2);
         session.save(subscription1);
         security2.addSubscriptions(subscription1);
@@ -220,8 +220,8 @@ public class CacheTest extends DefaultConfigTestBase {
 
         Account account1 = new AccountImpl();
         account1.setName(ACCOUNT_NAME);
-        account1.setBroker(Broker.IB);
-        account1.setOrderServiceType(OrderServiceType.IB_NATIVE);
+        account1.setBroker(Broker.IB.name());
+        account1.setOrderServiceType(OrderServiceType.IB_NATIVE.name());
         session.save(account1);
 
         Property property1 = new PropertyImpl();

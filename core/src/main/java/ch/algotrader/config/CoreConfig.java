@@ -20,8 +20,6 @@ package ch.algotrader.config;
 
 import java.math.BigDecimal;
 
-import ch.algotrader.enumeration.FeedType;
-
 /**
  * Algotrader core configuration object.
  *
@@ -37,7 +35,7 @@ public final class CoreConfig {
     private final int transactionDisplayCount;
     private final int intervalDays;
     private final BigDecimal rebalanceMinAmount;
-    private final FeedType defaultFeedType;
+    private final String defaultFeedType;
     private final String defaultOrderPreference;
     private final boolean fxFutureHedgeEnabled;
     private final int fxFutureHedgeMinTimeToExpiration;
@@ -55,7 +53,7 @@ public final class CoreConfig {
             @ConfigName("misc.transactionDisplayCount") int transactionDisplayCount,
             @ConfigName("misc.intervalDays") int intervalDays,
             @ConfigName("misc.rebalanceMinAmount") BigDecimal rebalanceMinAmount,
-            @ConfigName("misc.defaultFeedType") FeedType defaultFeedType,
+            @ConfigName("misc.defaultFeedType") String defaultFeedType,
             @ConfigName("misc.defaultOrderPreference") String defaultOrderPreference,
             @ConfigName("fx.futureHedgeEnabled") boolean fxFutureHedgeEnabled,
             @ConfigName("fx.futureHedgeMinTimeToExpiration") int fxFutureHedgeMinTimeToExpiration,
@@ -107,7 +105,7 @@ public final class CoreConfig {
         return rebalanceMinAmount;
     }
 
-    public FeedType getDefaultFeedType() {
+    public String getDefaultFeedType() {
         return defaultFeedType;
     }
 

@@ -20,8 +20,6 @@ package ch.algotrader.vo.marketData;
 import java.io.Serializable;
 import java.util.Date;
 
-import ch.algotrader.enumeration.FeedType;
-
 /**
  * Represents the last trade provided by a data feed.
  */
@@ -34,7 +32,7 @@ public class TradeVO implements Serializable {
      */
     private final String tickerId;
 
-    private final FeedType feedType;
+    private final String feedType;
 
     private final Date lastDateTime;
 
@@ -44,13 +42,8 @@ public class TradeVO implements Serializable {
 
     /**
      * Constructor with all properties
-     * @param tickerIdIn String
-     * @param feedTypeIn FeedType
-     * @param lastDateTimeIn Date
-     * @param lastIn double
-     * @param volIn int
      */
-    public TradeVO(final String tickerIdIn, final FeedType feedTypeIn, final Date lastDateTimeIn, final double lastIn, final int volIn) {
+    public TradeVO(final String tickerIdIn, final String feedTypeIn, final Date lastDateTimeIn, final double lastIn, final int volIn) {
 
         this.tickerId = tickerIdIn;
         this.feedType = feedTypeIn;
@@ -83,7 +76,7 @@ public class TradeVO implements Serializable {
         return this.tickerId;
     }
 
-    public FeedType getFeedType() {
+    public String getFeedType() {
 
         return this.feedType;
     }

@@ -19,9 +19,9 @@ package ch.algotrader.entity.security;
 
 import java.math.BigDecimal;
 import java.text.ChoiceFormat;
+
 import org.apache.commons.lang.Validate;
 
-import ch.algotrader.enumeration.Broker;
 import ch.algotrader.util.RoundUtil;
 
 /**
@@ -34,10 +34,10 @@ public class SecurityFamilyImpl extends SecurityFamily {
     private static final long serialVersionUID = -2318908709333325986L;
 
     @Override
-    public String getSymbolRoot(Broker broker) {
+    public String getSymbolRoot(String broker) {
 
         if (broker != null) {
-            BrokerParameters brokerParams = getBrokerParameters().get(broker.toString());
+            BrokerParameters brokerParams = getBrokerParameters().get(broker);
             if (brokerParams != null && brokerParams.getSymbolRoot() != null) {
                 return brokerParams.getSymbolRoot();
             }
@@ -47,10 +47,10 @@ public class SecurityFamilyImpl extends SecurityFamily {
     }
 
     @Override
-    public double getContractSize(Broker broker) {
+    public double getContractSize(String broker) {
 
         if (broker != null) {
-            BrokerParameters brokerParams = getBrokerParameters().get(broker.toString());
+            BrokerParameters brokerParams = getBrokerParameters().get(broker);
             if (brokerParams != null && brokerParams.getContractSize() != null) {
                 return brokerParams.getContractSize();
             }
@@ -60,10 +60,10 @@ public class SecurityFamilyImpl extends SecurityFamily {
     }
 
     @Override
-    public int getScale(Broker broker) {
+    public int getScale(String broker) {
 
         if (broker != null) {
-            BrokerParameters brokerParams = getBrokerParameters().get(broker.toString());
+            BrokerParameters brokerParams = getBrokerParameters().get(broker);
             if (brokerParams != null && brokerParams.getScale() != null) {
                 return brokerParams.getScale();
             }
@@ -73,10 +73,10 @@ public class SecurityFamilyImpl extends SecurityFamily {
     }
 
     @Override
-    public String getTickSizePattern(Broker broker) {
+    public String getTickSizePattern(String broker) {
 
         if (broker != null) {
-            BrokerParameters brokerParams = getBrokerParameters().get(broker.toString());
+            BrokerParameters brokerParams = getBrokerParameters().get(broker);
             if (brokerParams != null && brokerParams.getTickSizePattern() != null) {
                 return brokerParams.getTickSizePattern();
             }
@@ -86,10 +86,10 @@ public class SecurityFamilyImpl extends SecurityFamily {
     }
 
     @Override
-    public BigDecimal getExecutionCommission(Broker broker) {
+    public BigDecimal getExecutionCommission(String broker) {
 
         if (broker != null) {
-            BrokerParameters brokerParams = getBrokerParameters().get(broker.toString());
+            BrokerParameters brokerParams = getBrokerParameters().get(broker);
             if (brokerParams != null && brokerParams.getExecutionCommission() != null) {
                 return brokerParams.getExecutionCommission();
             }
@@ -99,10 +99,10 @@ public class SecurityFamilyImpl extends SecurityFamily {
     }
 
     @Override
-    public BigDecimal getClearingCommission(Broker broker) {
+    public BigDecimal getClearingCommission(String broker) {
 
         if (broker != null) {
-            BrokerParameters brokerParams = getBrokerParameters().get(broker.toString());
+            BrokerParameters brokerParams = getBrokerParameters().get(broker);
             if (brokerParams != null && brokerParams.getClearingCommission() != null) {
                 return brokerParams.getClearingCommission();
             }
@@ -112,10 +112,10 @@ public class SecurityFamilyImpl extends SecurityFamily {
     }
 
     @Override
-    public BigDecimal getFee(Broker broker) {
+    public BigDecimal getFee(String broker) {
 
         if (broker != null) {
-            BrokerParameters brokerParams = getBrokerParameters().get(broker.toString());
+            BrokerParameters brokerParams = getBrokerParameters().get(broker);
             if (brokerParams != null && brokerParams.getFee() != null) {
                 return brokerParams.getFee();
             }
@@ -125,7 +125,7 @@ public class SecurityFamilyImpl extends SecurityFamily {
     }
 
     @Override
-    public BigDecimal getTotalCharges(Broker broker) {
+    public BigDecimal getTotalCharges(String broker) {
 
         BigDecimal totalCharges = new BigDecimal(0.0);
 
@@ -148,11 +148,11 @@ public class SecurityFamilyImpl extends SecurityFamily {
     }
 
     @Override
-    public double getPriceMultiplier(Broker broker) {
+    public double getPriceMultiplier(String broker) {
 
-        Validate.notNull(broker, "Broker cannot be null");
+        Validate.notNull(broker, "String cannot be null");
 
-        BrokerParameters brokerParams = getBrokerParameters().get(broker.toString());
+        BrokerParameters brokerParams = getBrokerParameters().get(broker);
         if (brokerParams != null && brokerParams.getPriceMultiplier() != null) {
             return brokerParams.getPriceMultiplier();
         } else {
@@ -162,7 +162,7 @@ public class SecurityFamilyImpl extends SecurityFamily {
     }
 
     @Override
-    public int getSpreadTicks(Broker broker, BigDecimal bid, BigDecimal ask) {
+    public int getSpreadTicks(String broker, BigDecimal bid, BigDecimal ask) {
 
         Validate.notNull(bid, "Bid cannot be null");
         Validate.notNull(ask, "Ask cannot be null");
@@ -184,7 +184,7 @@ public class SecurityFamilyImpl extends SecurityFamily {
     }
 
     @Override
-    public BigDecimal getTickSize(Broker broker, BigDecimal price, boolean upwards) {
+    public BigDecimal getTickSize(String broker, BigDecimal price, boolean upwards) {
 
         Validate.notNull(price, "Price cannot be null");
 
@@ -192,7 +192,7 @@ public class SecurityFamilyImpl extends SecurityFamily {
     }
 
     @Override
-    public double getTickSize(Broker broker, double price, boolean upwards) {
+    public double getTickSize(String broker, double price, boolean upwards) {
 
         // add or subtract a very small amount to the price to get the tickSize just above or below the trigger
         double adjustedPrice = upwards ? price * 1.00000000001 : price / 1.00000000001;
@@ -200,7 +200,7 @@ public class SecurityFamilyImpl extends SecurityFamily {
     }
 
     @Override
-    public BigDecimal adjustPrice(Broker broker, BigDecimal price, int ticks) {
+    public BigDecimal adjustPrice(String broker, BigDecimal price, int ticks) {
 
         Validate.notNull(price, "Price cannot be null");
 
@@ -217,7 +217,7 @@ public class SecurityFamilyImpl extends SecurityFamily {
     }
 
     @Override
-    public double adjustPrice(Broker broker, double price, int ticks) {
+    public double adjustPrice(String broker, double price, int ticks) {
 
         if (ticks > 0) {
             for (int i = 0; i < ticks; i++) {
@@ -232,7 +232,7 @@ public class SecurityFamilyImpl extends SecurityFamily {
     }
 
     @Override
-    public BigDecimal roundUp(Broker broker, BigDecimal price) {
+    public BigDecimal roundUp(String broker, BigDecimal price) {
 
         Validate.notNull(price, "Price cannot be null");
 
@@ -240,12 +240,12 @@ public class SecurityFamilyImpl extends SecurityFamily {
     }
 
     @Override
-    public double roundUp(Broker broker, double price) {
+    public double roundUp(String broker, double price) {
         return RoundUtil.roundToNextN(price, getTickSize(broker, price, true), BigDecimal.ROUND_UP);
     }
 
     @Override
-    public BigDecimal roundDown(Broker broker, BigDecimal price) {
+    public BigDecimal roundDown(String broker, BigDecimal price) {
 
         Validate.notNull(price, "Price cannot be null");
 
@@ -253,7 +253,7 @@ public class SecurityFamilyImpl extends SecurityFamily {
     }
 
     @Override
-    public double roundDown(Broker broker, double price) {
+    public double roundDown(String broker, double price) {
         return RoundUtil.roundToNextN(price, getTickSize(broker, price, false), BigDecimal.ROUND_DOWN);
     }
 

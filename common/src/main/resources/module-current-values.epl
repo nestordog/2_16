@@ -3,7 +3,7 @@ create window
     MarketDataWindow.std:unique(securityId, feedType)
 as
     (securityId long,
-    feedType FeedType,
+    feedType String,
     marketDataEvent MarketDataEventVO);
     
 @Name('INSERT_INTO_CURRENT_MARKET_DATA_EVENT')

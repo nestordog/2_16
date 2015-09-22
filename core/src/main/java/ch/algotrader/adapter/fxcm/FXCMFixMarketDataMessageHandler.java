@@ -91,7 +91,7 @@ public class FXCMFixMarketDataMessageHandler extends AbstractFix44MarketDataMess
                             LOGGER.trace("{} BID {}@{}", symbol.getValue(), size, price);
                         }
 
-                        BidVO bidVO = new BidVO(symbol.getValue(), FeedType.FXCM, date != null ? date : new Date(), price, (int) (size * contractMultiplier));
+                        BidVO bidVO = new BidVO(symbol.getValue(), FeedType.FXCM.name(), date != null ? date : new Date(), price, (int) (size * contractMultiplier));
                         this.serverEngine.sendEvent(bidVO);
                         break;
                     case MDEntryType.OFFER:
@@ -100,7 +100,7 @@ public class FXCMFixMarketDataMessageHandler extends AbstractFix44MarketDataMess
                             LOGGER.trace("{} ASK {}@{}", symbol.getValue(), size, price);
                         }
 
-                        AskVO askVO = new AskVO(symbol.getValue(), FeedType.FXCM, date != null ? date : new Date(), price, (int) (size * contractMultiplier));
+                        AskVO askVO = new AskVO(symbol.getValue(), FeedType.FXCM.name(), date != null ? date : new Date(), price, (int) (size * contractMultiplier));
 
                         this.serverEngine.sendEvent(askVO);
                         break;

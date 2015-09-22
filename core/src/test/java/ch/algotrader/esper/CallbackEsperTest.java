@@ -70,17 +70,17 @@ public class CallbackEsperTest extends EsperTestBase {
 
         });
 
-        TickVO tick1 = new TickVO(0L, new Date(), FeedType.IB, 123L, new BigDecimal("1.1"), new Date(), new BigDecimal("1.11"), new BigDecimal("1.09"), 0, 0, 0);
+        TickVO tick1 = new TickVO(0L, new Date(), FeedType.IB.name(), 123L, new BigDecimal("1.1"), new Date(), new BigDecimal("1.11"), new BigDecimal("1.09"), 0, 0, 0);
         epRuntime.sendEvent(tick1);
 
         Assert.assertNull(tickListQueue.poll());
 
-        TickVO tick2 = new TickVO(0L, new Date(), FeedType.IB, 333L, new BigDecimal("1.2"), new Date(), new BigDecimal("1.21"), new BigDecimal("1.19"), 0, 0, 0);
+        TickVO tick2 = new TickVO(0L, new Date(), FeedType.IB.name(), 333L, new BigDecimal("1.2"), new Date(), new BigDecimal("1.21"), new BigDecimal("1.19"), 0, 0, 0);
         epRuntime.sendEvent(tick2);
 
         Assert.assertNull(tickListQueue.poll());
 
-        TickVO tick3 = new TickVO(0L, new Date(), FeedType.IB, 456L, new BigDecimal("1.3"), new Date(), new BigDecimal("1.31"), new BigDecimal("1.29"), 0, 0, 0);
+        TickVO tick3 = new TickVO(0L, new Date(), FeedType.IB.name(), 456L, new BigDecimal("1.3"), new Date(), new BigDecimal("1.31"), new BigDecimal("1.29"), 0, 0, 0);
         epRuntime.sendEvent(tick3);
 
         List<TickVO> ticks = tickListQueue.poll();

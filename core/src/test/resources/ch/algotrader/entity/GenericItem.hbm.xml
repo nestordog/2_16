@@ -19,9 +19,7 @@
         </property>
         <property name="broker">
             <column name="`BROKER`" not-null="true" unique="false" sql-type="VARCHAR(255)" />
-            <type name="ch.algotrader.hibernate.HibernateEnumType">
-                 <param name="enumClassName">ch.algotrader.enumeration.Broker</param>
-            </type>
+            <type name="java.lang.String"/>
         </property>
     </class>
 </hibernate-mapping>

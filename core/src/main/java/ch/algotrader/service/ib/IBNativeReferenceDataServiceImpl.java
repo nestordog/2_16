@@ -124,13 +124,13 @@ public class IBNativeReferenceDataServiceImpl implements ReferenceDataService {
         int requestId = this.idGenerator.getNextRequestId();
         Contract contract = new Contract();
 
-        contract.m_symbol = securityFamily.getSymbolRoot(Broker.IB);
+        contract.m_symbol = securityFamily.getSymbolRoot(Broker.IB.name());
 
         contract.m_currency = securityFamily.getCurrency().toString();
 
         contract.m_exchange = securityFamily.getExchange().getIbCode();
 
-        contract.m_multiplier = DECIMAL_FORMAT.format(securityFamily.getContractSize(Broker.IB));
+        contract.m_multiplier = DECIMAL_FORMAT.format(securityFamily.getContractSize(Broker.IB.name()));
 
         if (securityFamily instanceof OptionFamily) {
             contract.m_secType = "OPT";
@@ -217,7 +217,7 @@ public class IBNativeReferenceDataServiceImpl implements ReferenceDataService {
 
             Contract contract = contractDetails.m_summary;
             OptionType type = "C".equals(contract.m_right) ? OptionType.CALL : OptionType.PUT;
-            BigDecimal strike = RoundUtil.getBigDecimal(contract.m_strike, securityFamily.getScale(Broker.IB));
+            BigDecimal strike = RoundUtil.getBigDecimal(contract.m_strike, securityFamily.getScale(Broker.IB.name()));
             LocalDate expirationDate = DATE_FORMAT.parse(contract.m_expiry, LocalDate::from);
 
             final String isin = OptionSymbol.getIsin(securityFamily, expirationDate, type, strike);

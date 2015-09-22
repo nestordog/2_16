@@ -207,9 +207,9 @@ public class SimulationOrderServiceImpl implements SimulationOrderService {
     }
 
     @Override
-    public OrderServiceType getOrderServiceType() {
+    public String getOrderServiceType() {
 
-        return OrderServiceType.SIMULATION;
+        return OrderServiceType.SIMULATION.name();
     }
 
     /**

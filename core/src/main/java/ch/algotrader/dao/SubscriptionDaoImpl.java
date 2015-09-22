@@ -25,7 +25,6 @@ import org.springframework.stereotype.Repository;
 
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.SubscriptionImpl;
-import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.enumeration.QueryType;
 
 /**
@@ -66,19 +65,19 @@ public class SubscriptionDaoImpl extends AbstractDao<Subscription> implements Su
     }
 
     @Override
-    public Subscription findByStrategySecurityAndFeedType(String strategyName, long securityId, FeedType feedType) {
+    public Subscription findByStrategySecurityAndFeedType(String strategyName, long securityId, String feedType) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
-        Validate.notNull(feedType, "FeedType is null");
+        Validate.notNull(feedType, "String is null");
 
         return findUniqueCaching("Subscription.findByStrategySecurityAndFeedType", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("securityId", securityId), new NamedParam(
                 "feedType", feedType));
     }
 
     @Override
-    public List<Subscription> findBySecurityAndFeedTypeForAutoActivateStrategies(long securityId, FeedType feedType) {
+    public List<Subscription> findBySecurityAndFeedTypeForAutoActivateStrategies(long securityId, String feedType) {
 
-        Validate.notNull(feedType, "FeedType is null");
+        Validate.notNull(feedType, "String is null");
 
         return findCaching("Subscription.findBySecurityAndFeedTypeForAutoActivateStrategies", QueryType.BY_NAME, new NamedParam("securityId", securityId), new NamedParam("feedType", feedType));
     }

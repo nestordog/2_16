@@ -21,8 +21,6 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Map;
 
-import ch.algotrader.enumeration.FeedType;
-
 /**
  * A ValueObject representing a {@link ch.algotrader.entity.marketData.Bar Bar}.
  */
@@ -64,7 +62,7 @@ public class BarVO extends MarketDataEventVO {
      * @param nameIn String The Symbol of the associated Security
      * @param dateTimeIn Date The dateTime of this MarketDataEventVO
      * @param volIn int The current volume
-     * @param feedTypeIn FeedType The market data feed that provided this  MarketDataEventVO
+     * @param feedTypeIn String The market data feed that provided this  MarketDataEventVO
      * @param propertiesIn Map Any {@link ch.algotrader.entity.property.Property Properties} associated with {@link
      * ch.algotrader.entity.Subscription Subscriptions} of this MarketDataEventVO by the corresponding Strategy
      * @param openIn BigDecimal The opening price of this Bar
@@ -72,7 +70,7 @@ public class BarVO extends MarketDataEventVO {
      * @param lowIn BigDecimal The lowest price during this Bar
      * @param closeIn BigDecimal The closing price of this Bar
      */
-    public BarVO(final int securityIdIn, final String nameIn, final Date dateTimeIn, final int volIn, final FeedType feedTypeIn, final Map propertiesIn, final BigDecimal openIn,
+    public BarVO(final int securityIdIn, final String nameIn, final Date dateTimeIn, final int volIn, final String feedTypeIn, final Map propertiesIn, final BigDecimal openIn,
             final BigDecimal highIn, final BigDecimal lowIn, final BigDecimal closeIn) {
 
         super(securityIdIn, nameIn, dateTimeIn, volIn, feedTypeIn, propertiesIn);
@@ -89,14 +87,14 @@ public class BarVO extends MarketDataEventVO {
      * @param dateTimeIn Date
      * @param volIn int
      * @param currentValueIn BigDecimal
-     * @param feedTypeIn FeedType
+     * @param feedTypeIn String
      * @param propertiesIn Map
      * @param openIn BigDecimal
      * @param highIn BigDecimal
      * @param lowIn BigDecimal
      * @param closeIn BigDecimal
      */
-    public BarVO(final int securityIdIn, final String nameIn, final Date dateTimeIn, final int volIn, final BigDecimal currentValueIn, final FeedType feedTypeIn, final Map propertiesIn,
+    public BarVO(final int securityIdIn, final String nameIn, final Date dateTimeIn, final int volIn, final BigDecimal currentValueIn, final String feedTypeIn, final Map propertiesIn,
             final BigDecimal openIn, final BigDecimal highIn, final BigDecimal lowIn, final BigDecimal closeIn) {
 
         super(securityIdIn, nameIn, dateTimeIn, volIn, currentValueIn, feedTypeIn, propertiesIn);

@@ -20,7 +20,6 @@ package ch.algotrader.dao;
 import java.util.List;
 
 import ch.algotrader.entity.Subscription;
-import ch.algotrader.enumeration.FeedType;
 
 /**
  * DAO for {@link ch.algotrader.entity.Subscription} objects.
@@ -59,7 +58,7 @@ public interface SubscriptionDao extends ReadWriteDao<Subscription> {
      * @param feedType
      * @return Subscription
      */
-    Subscription findByStrategySecurityAndFeedType(String strategyName, long securityId, FeedType feedType);
+    Subscription findByStrategySecurityAndFeedType(String strategyName, long securityId, String feedType);
 
     /**
      * Finds all Subscriptions By Security and {@code feedType} for Strategies that are marked
@@ -68,7 +67,7 @@ public interface SubscriptionDao extends ReadWriteDao<Subscription> {
      * @param feedType
      * @return List<Subscription>
      */
-    List<Subscription> findBySecurityAndFeedTypeForAutoActivateStrategies(long securityId, FeedType feedType);
+    List<Subscription> findBySecurityAndFeedTypeForAutoActivateStrategies(long securityId, String feedType);
 
     /**
      * Find {@code non-persistent} Subscriptions

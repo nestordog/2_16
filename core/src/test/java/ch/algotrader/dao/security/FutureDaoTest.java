@@ -26,8 +26,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import ch.algotrader.dao.security.FutureDao;
-import ch.algotrader.dao.security.FutureDaoImpl;
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.SubscriptionImpl;
 import ch.algotrader.entity.security.Future;
@@ -234,7 +232,7 @@ public class FutureDaoTest extends InMemoryDBTest {
         Assert.assertEquals(0, futures1.size());
 
         Subscription subscription1 = new SubscriptionImpl();
-        subscription1.setFeedType(FeedType.SIM);
+        subscription1.setFeedType(FeedType.SIM.name());
         subscription1.setSecurity(future1);
         subscription1.setStrategy(this.strategy1);
 
@@ -254,7 +252,7 @@ public class FutureDaoTest extends InMemoryDBTest {
         Assert.assertSame(1, futures2.get(0).getSubscriptions().size());
 
         Subscription subscription2 = new SubscriptionImpl();
-        subscription2.setFeedType(FeedType.BB);
+        subscription2.setFeedType(FeedType.BB.name());
         subscription2.setSecurity(future2);
         subscription2.setStrategy(this.strategy1);
 

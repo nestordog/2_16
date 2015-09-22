@@ -117,7 +117,7 @@ public class IBEsperTest extends EsperTestBase {
         Mockito.when(calendarService.isOpen(Mockito.anyLong(), Mockito.<Date>any())).thenReturn(true);
         Mockito.when(marketDataService.isTickValid(Mockito.any())).thenReturn(true);
 
-        SubscribeTickVO subscribeEvent1 = new SubscribeTickVO("some-ticker1", 1L, FeedType.IB);
+        SubscribeTickVO subscribeEvent1 = new SubscribeTickVO("some-ticker1", 1L, FeedType.IB.name());
         epRuntime.sendEvent(subscribeEvent1);
 
         TickPriceVO tickPrice1 = new TickPriceVO("some-ticker1", TickType.LAST, 1.12222d, 0);
@@ -140,7 +140,7 @@ public class IBEsperTest extends EsperTestBase {
 
         final TickVO tick1 = validatedTickQueue.remove();
         Assert.assertEquals(1l, tick1.getSecurityId());
-        Assert.assertEquals(FeedType.IB, tick1.getFeedType());
+        Assert.assertEquals(FeedType.IB.name(), tick1.getFeedType());
         Assert.assertEquals(null, tick1.getLast());
         Assert.assertEquals(0, tick1.getVol());
         Assert.assertEquals(null, tick1.getAsk());
@@ -150,7 +150,7 @@ public class IBEsperTest extends EsperTestBase {
 
         final TickVO tick2 = validatedTickQueue.remove();
         Assert.assertEquals(1l, tick2.getSecurityId());
-        Assert.assertEquals(FeedType.IB, tick2.getFeedType());
+        Assert.assertEquals(FeedType.IB.name(), tick2.getFeedType());
         Assert.assertEquals(new BigDecimal("1.1222"), tick2.getLast());
         Assert.assertEquals(0, tick2.getVol());
         Assert.assertEquals(null, tick2.getAsk());
@@ -160,7 +160,7 @@ public class IBEsperTest extends EsperTestBase {
 
         final TickVO tick3 = validatedTickQueue.remove();
         Assert.assertEquals(1l, tick3.getSecurityId());
-        Assert.assertEquals(FeedType.IB, tick3.getFeedType());
+        Assert.assertEquals(FeedType.IB.name(), tick3.getFeedType());
         Assert.assertEquals(new BigDecimal("1.1222"), tick3.getLast());
         Assert.assertNotNull(tick3.getLastDateTime());
         Assert.assertEquals(0, tick3.getVol());
@@ -171,7 +171,7 @@ public class IBEsperTest extends EsperTestBase {
 
         final TickVO tick4 = validatedTickQueue.remove();
         Assert.assertEquals(1l, tick4.getSecurityId());
-        Assert.assertEquals(FeedType.IB, tick4.getFeedType());
+        Assert.assertEquals(FeedType.IB.name(), tick4.getFeedType());
         Assert.assertEquals(new BigDecimal("1.1222"), tick4.getLast());
         Assert.assertNotNull(tick4.getLastDateTime());
         Assert.assertEquals(0, tick4.getVol());
@@ -182,7 +182,7 @@ public class IBEsperTest extends EsperTestBase {
 
         final TickVO tick5 = validatedTickQueue.remove();
         Assert.assertEquals(1l, tick5.getSecurityId());
-        Assert.assertEquals(FeedType.IB, tick5.getFeedType());
+        Assert.assertEquals(FeedType.IB.name(), tick5.getFeedType());
         Assert.assertEquals(new BigDecimal("1.1222"), tick5.getLast());
         Assert.assertNotNull(tick5.getLastDateTime());
         Assert.assertEquals(0, tick5.getVol());
@@ -193,7 +193,7 @@ public class IBEsperTest extends EsperTestBase {
 
         final TickVO tick6 = validatedTickQueue.remove();
         Assert.assertEquals(1l, tick6.getSecurityId());
-        Assert.assertEquals(FeedType.IB, tick6.getFeedType());
+        Assert.assertEquals(FeedType.IB.name(), tick6.getFeedType());
         Assert.assertEquals(new BigDecimal("1.1222"), tick6.getLast());
         Assert.assertNotNull(tick6.getLastDateTime());
         Assert.assertEquals(10, tick6.getVol());
@@ -204,7 +204,7 @@ public class IBEsperTest extends EsperTestBase {
 
         final TickVO tick7 = validatedTickQueue.remove();
         Assert.assertEquals(1l, tick7.getSecurityId());
-        Assert.assertEquals(FeedType.IB, tick7.getFeedType());
+        Assert.assertEquals(FeedType.IB.name(), tick7.getFeedType());
         Assert.assertEquals(new BigDecimal("1.1222"), tick7.getLast());
         Assert.assertNotNull(tick7.getLastDateTime());
         Assert.assertEquals(10, tick7.getVol());
@@ -215,7 +215,7 @@ public class IBEsperTest extends EsperTestBase {
 
         final TickVO tick8 = validatedTickQueue.remove();
         Assert.assertEquals(1l, tick8.getSecurityId());
-        Assert.assertEquals(FeedType.IB, tick8.getFeedType());
+        Assert.assertEquals(FeedType.IB.name(), tick8.getFeedType());
         Assert.assertEquals(new BigDecimal("1.1222"), tick8.getLast());
         Assert.assertNotNull(tick8.getLastDateTime());
         Assert.assertEquals(10, tick8.getVol());
@@ -244,7 +244,7 @@ public class IBEsperTest extends EsperTestBase {
         Mockito.when(calendarService.isOpen(Mockito.anyLong(), Mockito.<Date>any())).thenReturn(true);
         Mockito.when(marketDataService.isTickValid(Mockito.any())).thenReturn(true);
 
-        SubscribeTickVO subscribeEvent1 = new SubscribeTickVO("some-ticker1", 1L, FeedType.IB);
+        SubscribeTickVO subscribeEvent1 = new SubscribeTickVO("some-ticker1", 1L, FeedType.IB.name());
         epRuntime.sendEvent(subscribeEvent1);
 
         TickPriceVO tickPrice1 = new TickPriceVO("some-ticker1", TickType.OPEN, 1.12222d, 0);
@@ -257,13 +257,13 @@ public class IBEsperTest extends EsperTestBase {
         GenericTickVO genericTick1 = genericTickQueue.remove();
         Assert.assertEquals(1l, genericTick1.getSecurityId());
         Assert.assertEquals(ch.algotrader.enumeration.TickType.OPEN, genericTick1.getTickType());
-        Assert.assertEquals(FeedType.IB, genericTick1.getFeedType());
+        Assert.assertEquals(FeedType.IB.name(), genericTick1.getFeedType());
         Assert.assertEquals(1.12222d, genericTick1.getDoubleValue(), 0.00001);
 
         GenericTickVO genericTick2 = genericTickQueue.remove();
         Assert.assertEquals(1l, genericTick2.getSecurityId());
         Assert.assertEquals(ch.algotrader.enumeration.TickType.CLOSE, genericTick2.getTickType());
-        Assert.assertEquals(FeedType.IB, genericTick2.getFeedType());
+        Assert.assertEquals(FeedType.IB.name(), genericTick2.getFeedType());
         Assert.assertEquals(1.13333d, genericTick2.getDoubleValue(), 0.00001);
     }
 

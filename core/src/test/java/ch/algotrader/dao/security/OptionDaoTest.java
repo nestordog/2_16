@@ -27,8 +27,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import ch.algotrader.dao.security.OptionDao;
-import ch.algotrader.dao.security.OptionDaoImpl;
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.SubscriptionImpl;
 import ch.algotrader.entity.marketData.Tick;
@@ -242,12 +240,12 @@ public class OptionDaoTest extends InMemoryDBTest {
         option2.setUnderlying(this.forex1);
 
         Tick tick1 = new TickImpl();
-        tick1.setFeedType(FeedType.BB);
+        tick1.setFeedType(FeedType.BB.name());
         tick1.setSecurity(this.forex1);
         tick1.setDateTime(cal2.getTime());
 
         Tick tick2 = new TickImpl();
-        tick2.setFeedType(FeedType.DC);
+        tick2.setFeedType(FeedType.DC.name());
         tick2.setSecurity(this.forex1);
         tick2.setDateTime(cal2.getTime());
 
@@ -320,12 +318,12 @@ public class OptionDaoTest extends InMemoryDBTest {
         option2.setUnderlying(this.forex1);
 
         Tick tick1 = new TickImpl();
-        tick1.setFeedType(FeedType.BB);
+        tick1.setFeedType(FeedType.BB.name());
         tick1.setSecurity(this.forex1);
         tick1.setDateTime(cal2.getTime());
 
         Tick tick2 = new TickImpl();
-        tick2.setFeedType(FeedType.DC);
+        tick2.setFeedType(FeedType.DC.name());
         tick2.setSecurity(this.forex1);
         tick2.setDateTime(cal2.getTime());
 
@@ -380,7 +378,7 @@ public class OptionDaoTest extends InMemoryDBTest {
         option1.setUnderlying(this.forex1);
 
         Subscription subscription1 = new SubscriptionImpl();
-        subscription1.setFeedType(FeedType.SIM);
+        subscription1.setFeedType(FeedType.SIM.name());
         subscription1.setSecurity(option1);
         subscription1.setStrategy(this.strategy1);
 
@@ -474,7 +472,7 @@ public class OptionDaoTest extends InMemoryDBTest {
 
         Tick tick = new TickImpl();
         tick.setDateTime(cal2.getTime());
-        tick.setFeedType(FeedType.BB);
+        tick.setFeedType(FeedType.BB.name());
         tick.setSecurity(option1);
 
         this.session.save(this.family1);

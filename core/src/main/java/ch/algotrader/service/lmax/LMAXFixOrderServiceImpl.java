@@ -63,9 +63,9 @@ public class LMAXFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fi
     }
 
     @Override
-    public OrderServiceType getOrderServiceType() {
+    public String getOrderServiceType() {
 
-        return OrderServiceType.LMAX_FIX;
+        return OrderServiceType.LMAX_FIX.name();
     }
 
     @Override

@@ -70,7 +70,7 @@ public class LMAXFixMarketDataMessageHandler extends AbstractFix44MarketDataMess
         int count = marketData.getGroupCount(NoMDEntries.FIELD);
         if (count == 0) {
 
-            TradingHaltVO suspension = new TradingHaltVO(lmaxId, FeedType.LMAX, marketData.getHeader().getUtcTimeStamp(SendingTime.FIELD));
+            TradingHaltVO suspension = new TradingHaltVO(lmaxId, "LMAX", marketData.getHeader().getUtcTimeStamp(SendingTime.FIELD));
             this.serverEngine.sendEvent(suspension);
             return;
         }
@@ -98,7 +98,7 @@ public class LMAXFixMarketDataMessageHandler extends AbstractFix44MarketDataMess
                             LOGGER.trace("{} BID {}@{}", lmaxId, size, price);
                         }
 
-                        BidVO bidVO = new BidVO(lmaxId, FeedType.LMAX, date, price, (int) size * LMAXConsts.FOREX_CONTRACT_MULTIPLIER);
+                        BidVO bidVO = new BidVO(lmaxId, FeedType.LMAX.name(), date, price, (int) size * LMAXConsts.FOREX_CONTRACT_MULTIPLIER);
                         this.serverEngine.sendEvent(bidVO);
                         break;
                     case MDEntryType.OFFER:
@@ -107,7 +107,7 @@ public class LMAXFixMarketDataMessageHandler extends AbstractFix44MarketDataMess
                             LOGGER.trace("{} ASK {}@{}", lmaxId, size, price);
                         }
 
-                        AskVO askVO = new AskVO(lmaxId, FeedType.LMAX, date, price, (int) size * LMAXConsts.FOREX_CONTRACT_MULTIPLIER);
+                        AskVO askVO = new AskVO(lmaxId, FeedType.LMAX.name(), date, price, (int) size * LMAXConsts.FOREX_CONTRACT_MULTIPLIER);
 
                         this.serverEngine.sendEvent(askVO);
                         break;

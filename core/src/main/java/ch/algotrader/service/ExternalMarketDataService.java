@@ -18,7 +18,6 @@
 package ch.algotrader.service;
 
 import ch.algotrader.entity.security.Security;
-import ch.algotrader.enumeration.FeedType;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -43,8 +42,8 @@ public interface ExternalMarketDataService {
     public void unsubscribe(Security security);
 
     /**
-     * returns the {@link FeedType} for this ExternalMarketDataService
+     * returns the feed type for this ExternalMarketDataService
      */
-    public FeedType getFeedType();
+    public String getFeedType();
 
 }

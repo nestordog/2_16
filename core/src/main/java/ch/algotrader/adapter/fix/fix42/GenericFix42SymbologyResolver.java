@@ -29,7 +29,6 @@ import ch.algotrader.entity.security.OptionFamily;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.Stock;
-import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.util.DateTimeLegacy;
 import quickfix.field.ContractMultiplier;
@@ -75,13 +74,13 @@ public class GenericFix42SymbologyResolver implements Fix42SymbologyResolver {
         return this.dayFormat.format(DateTimeLegacy.toGMTDate(date));
     }
 
-    protected Symbol resolveSymbol(final Security security, final Broker broker) {
+    protected Symbol resolveSymbol(final Security security, final String broker) {
 
         return FixUtil.getFixSymbol(security, broker);
     }
 
     @Override
-    public void resolve(final NewOrderSingle message, final Security security, final Broker broker) throws FixApplicationException {
+    public void resolve(final NewOrderSingle message, final Security security, final String broker) throws FixApplicationException {
 
         message.set(resolveSymbol(security, broker));
 
@@ -128,7 +127,7 @@ public class GenericFix42SymbologyResolver implements Fix42SymbologyResolver {
     }
 
     @Override
-    public void resolve(final OrderCancelReplaceRequest message, final Security security, final Broker broker) throws FixApplicationException {
+    public void resolve(final OrderCancelReplaceRequest message, final Security security, final String broker) throws FixApplicationException {
 
         message.set(resolveSymbol(security, broker));
 
@@ -159,7 +158,7 @@ public class GenericFix42SymbologyResolver implements Fix42SymbologyResolver {
     }
 
     @Override
-    public void resolve(final OrderCancelRequest message, final Security security, final Broker broker) throws FixApplicationException {
+    public void resolve(final OrderCancelRequest message, final Security security, final String broker) throws FixApplicationException {
 
         message.set(resolveSymbol(security, broker));
 

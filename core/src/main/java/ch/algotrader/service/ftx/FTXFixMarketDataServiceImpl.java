@@ -19,10 +19,10 @@ package ch.algotrader.service.ftx;
 
 import org.apache.commons.lang.Validate;
 
+import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.adapter.cnx.CNXUtil;
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.fix.FixApplicationException;
-import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.adapter.ftx.FTXFixMarketDataRequestFactory;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.Security;
@@ -90,8 +90,8 @@ public class FTXFixMarketDataServiceImpl extends FixMarketDataServiceImpl implem
     }
 
     @Override
-    public FeedType getFeedType() {
+    public String getFeedType() {
 
-        return FeedType.FTX;
+        return FeedType.FTX.name();
     }
 }

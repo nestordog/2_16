@@ -126,7 +126,7 @@ public class TestCNXFixOrderMessageHandler {
 
 
         Account account = new AccountImpl();
-        account.setBroker(Broker.IB);
+        account.setBroker(Broker.IB.name());
         account.setExtAccount("test-account");
 
         MarketOrder order = new MarketOrderImpl();

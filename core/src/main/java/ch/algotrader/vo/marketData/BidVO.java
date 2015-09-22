@@ -20,8 +20,6 @@ package ch.algotrader.vo.marketData;
 import java.io.Serializable;
 import java.util.Date;
 
-import ch.algotrader.enumeration.FeedType;
-
 /**
  * Represents the bid price provided by a data feed.
  * <p>
@@ -36,7 +34,7 @@ public class BidVO implements Serializable {
      */
     private final String tickerId;
 
-    private final FeedType feedType;
+    private final String feedType;
 
     private final Date dateTime;
 
@@ -46,13 +44,8 @@ public class BidVO implements Serializable {
 
     /**
      * Constructor with all properties
-     * @param tickerIdIn String
-     * @param feedTypeIn FeedType
-     * @param dateTimeIn Date
-     * @param bidIn double
-     * @param volBidIn int
      */
-    public BidVO(final String tickerIdIn, final FeedType feedTypeIn, final Date dateTimeIn, final double bidIn, final int volBidIn) {
+    public BidVO(final String tickerIdIn, final String feedTypeIn, final Date dateTimeIn, final double bidIn, final int volBidIn) {
 
         this.tickerId = tickerIdIn;
         this.feedType = feedTypeIn;
@@ -86,7 +79,7 @@ public class BidVO implements Serializable {
         return this.tickerId;
     }
 
-    public FeedType getFeedType() {
+    public String getFeedType() {
 
         return this.feedType;
     }

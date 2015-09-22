@@ -17,8 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.ib;
 
-import java.time.format.DateTimeFormatter;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,7 +40,6 @@ import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.OrderPropertyType;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.util.DateTimeLegacy;
-import ch.algotrader.util.DateTimeUtil;
 import quickfix.field.AllocationGroup;
 import quickfix.field.AllocationMethod;
 import quickfix.field.AllocationProfile;
@@ -90,7 +87,7 @@ public class TestIBFixOrderMessageFactory {
         this.future.setExpiration(DateTimeLegacy.parseAsDateGMT("2015-03-31"));
 
         this.account = new AccountImpl();
-        this.account.setBroker(Broker.RT);
+        this.account.setBroker(Broker.RT.name());
         this.account.setExtAccount("U1449112");
         this.account.setExtClearingAccount("U1449112");
         this.account.setExtAccountGroup("acc-group");

@@ -62,8 +62,6 @@ import ch.algotrader.dao.trade.OrderPropertyDao;
 import ch.algotrader.dao.trade.OrderStatusDao;
 import ch.algotrader.dao.trade.StopLimitOrderDao;
 import ch.algotrader.dao.trade.StopOrderDao;
-import ch.algotrader.enumeration.FeedType;
-import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.dispatch.EventDispatcher;
@@ -260,7 +258,7 @@ public class ServiceWiring {
             final ApplicationContext applicationContext) {
 
         Map<String, ExternalMarketDataService> serviceMap1 = applicationContext.getBeansOfType(ExternalMarketDataService.class);
-        Map<FeedType, ExternalMarketDataService> serviceMap2 = serviceMap1.values().stream()
+        Map<String, ExternalMarketDataService> serviceMap2 = serviceMap1.values().stream()
                 .collect(Collectors.toMap(ExternalMarketDataService::getFeedType, service -> service));
 
         return new MarketDataServiceImpl(commonConfig, coreConfig, sessionFactory, tickDao, securityDao, strategyDao, subscriptionDao, engineManager,
@@ -311,7 +309,7 @@ public class ServiceWiring {
             final ApplicationContext applicationContext) {
 
         Map<String, ExternalOrderService> serviceMap1 = applicationContext.getBeansOfType(ExternalOrderService.class);
-        Map<OrderServiceType, ExternalOrderService> serviceMap2 = serviceMap1.values().stream()
+        Map<String, ExternalOrderService> serviceMap2 = serviceMap1.values().stream()
                 .collect(Collectors.toMap(ExternalOrderService::getOrderServiceType, service -> service));
 
         return new OrderServiceImpl(commonConfig, sessionFactory, orderPersistService, localLookupService, orderDao, orderStatusDao, strategyDao, securityDao, accountDao, exchangeDao, orderPreferenceDao,

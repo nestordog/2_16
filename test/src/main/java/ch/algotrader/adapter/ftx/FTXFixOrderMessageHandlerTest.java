@@ -187,7 +187,7 @@ public class FTXFixOrderMessageHandlerTest {
         forex.setSecurityFamily(securityFamily);
 
         Account testAccount = new AccountImpl();
-        testAccount.setBroker(Broker.FTX);
+        testAccount.setBroker(Broker.FTX.name());
         testAccount.setExtAccount("DAMCON_DM_FX");
 
         MarketOrder order = new MarketOrderImpl();
@@ -246,7 +246,7 @@ public class FTXFixOrderMessageHandlerTest {
         forex.setSecurityFamily(securityFamily);
 
         Account testAccount = new AccountImpl();
-        testAccount.setBroker(Broker.FTX);
+        testAccount.setBroker(Broker.FTX.name());
         testAccount.setExtAccount("DAMCON_DM_FX");
 
         LimitOrder order = new LimitOrderImpl();
@@ -310,7 +310,7 @@ public class FTXFixOrderMessageHandlerTest {
         forex.setSecurityFamily(securityFamily);
 
         Account testAccount = new AccountImpl();
-        testAccount.setBroker(Broker.FTX);
+        testAccount.setBroker(Broker.FTX.name());
         testAccount.setExtAccount("DAMCON_DM_FX");
 
         LimitOrder order = new LimitOrderImpl();

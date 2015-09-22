@@ -86,7 +86,7 @@ public class TestFXCMFixOrderMessageHandler {
         this.impl = new FXCMFixOrderMessageHandler(this.orderRegistry, this.engine);
 
         this.account = new AccountImpl();
-        this.account.setBroker(Broker.IB);
+        this.account.setBroker(Broker.IB.name());
         this.account.setExtAccount("test-account");
     }
 

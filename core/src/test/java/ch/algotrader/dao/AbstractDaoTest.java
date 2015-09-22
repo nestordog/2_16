@@ -111,7 +111,7 @@ public class AbstractDaoTest {
 
         GenericItem stuff1 = new GenericItem("this");
         stuff1.setActive(true);
-        stuff1.setBroker(Broker.DC);
+        stuff1.setBroker(Broker.DC.name());
 
         this.dao.save(stuff1);
 
@@ -121,7 +121,7 @@ public class AbstractDaoTest {
 
         GenericItem stuff2 = new GenericItem("that");
         stuff2.setActive(true);
-        stuff2.setBroker(Broker.IB);
+        stuff2.setBroker(Broker.IB.name());
 
         this.dao.save(stuff2);
 
@@ -171,7 +171,7 @@ public class AbstractDaoTest {
 
         GenericItem stuff1 = new GenericItem("this");
         stuff1.setActive(true);
-        stuff1.setBroker(Broker.DC);
+        stuff1.setBroker(Broker.DC.name());
 
         this.dao.save(stuff1);
 
@@ -189,7 +189,7 @@ public class AbstractDaoTest {
 
         GenericItem stuff1 = new GenericItem("this");
         stuff1.setActive(true);
-        stuff1.setBroker(Broker.DC);
+        stuff1.setBroker(Broker.DC.name());
 
         this.dao.save(stuff1);
 
@@ -200,7 +200,7 @@ public class AbstractDaoTest {
         this.dao.flush();
 
         // Update persistent
-        stuff1.setBroker(Broker.RT);
+        stuff1.setBroker(Broker.RT.name());
 
         this.dao.save(stuff1);
         this.dao.flush();
@@ -208,7 +208,7 @@ public class AbstractDaoTest {
         // Update detached
         GenericItem detached = new GenericItem(id1, "this");
         detached.setActive(true);
-        detached.setBroker(Broker.CNX);
+        detached.setBroker(Broker.CNX.name());
 
         try {
 
@@ -226,7 +226,7 @@ public class AbstractDaoTest {
 
         GenericItem stuff1 = new GenericItem("this");
         stuff1.setActive(true);
-        stuff1.setBroker(Broker.DC);
+        stuff1.setBroker(Broker.DC.name());
 
         this.dao.persist(stuff1);
 
@@ -237,7 +237,7 @@ public class AbstractDaoTest {
         this.dao.flush();
 
         // Update persistent
-        stuff1.setBroker(Broker.RT);
+        stuff1.setBroker(Broker.RT.name());
 
         this.dao.persist(stuff1);
         this.dao.flush();
@@ -245,7 +245,7 @@ public class AbstractDaoTest {
         // Update detached
         GenericItem detached = new GenericItem(id1, "this");
         detached.setActive(true);
-        detached.setBroker(Broker.CNX);
+        detached.setBroker(Broker.CNX.name());
         GenericItem stuff2 = this.dao.persist(detached);
 
         this.dao.flush();
@@ -259,7 +259,7 @@ public class AbstractDaoTest {
 
         GenericItem stuff1 = new GenericItem("this");
         stuff1.setActive(true);
-        stuff1.setBroker(Broker.DC);
+        stuff1.setBroker(Broker.DC.name());
 
         this.dao.save(stuff1);
 
@@ -269,7 +269,7 @@ public class AbstractDaoTest {
 
         GenericItem stuff2 = new GenericItem("that");
         stuff2.setActive(true);
-        stuff2.setBroker(Broker.IB);
+        stuff2.setBroker(Broker.IB.name());
 
         this.dao.save(stuff2);
 
@@ -279,7 +279,7 @@ public class AbstractDaoTest {
 
         GenericItem stuff3 = new GenericItem("this and that");
         stuff3.setActive(true);
-        stuff3.setBroker(Broker.RT);
+        stuff3.setBroker(Broker.RT.name());
 
         this.dao.save(stuff3);
 
@@ -301,7 +301,7 @@ public class AbstractDaoTest {
 
         GenericItem stuff1 = new GenericItem("this");
         stuff1.setActive(true);
-        stuff1.setBroker(Broker.DC);
+        stuff1.setBroker(Broker.DC.name());
 
         this.dao.save(stuff1);
 
@@ -311,7 +311,7 @@ public class AbstractDaoTest {
 
         GenericItem stuff2 = new GenericItem("that");
         stuff2.setActive(true);
-        stuff2.setBroker(Broker.IB);
+        stuff2.setBroker(Broker.IB.name());
 
         this.dao.save(stuff2);
 
@@ -321,7 +321,7 @@ public class AbstractDaoTest {
 
         GenericItem stuff3 = new GenericItem("this and that");
         stuff3.setActive(true);
-        stuff3.setBroker(Broker.RT);
+        stuff3.setBroker(Broker.RT.name());
 
         this.dao.save(stuff3);
 
@@ -343,7 +343,7 @@ public class AbstractDaoTest {
 
         Assert.assertEquals(3, set1.size());
 
-        Set<GenericItem> set2 = this.dao.findAsSet("select s from GenericItem s where s.broker = ?", QueryType.HQL, Broker.IB);
+        Set<GenericItem> set2 = this.dao.findAsSet("select s from GenericItem s where s.broker = ?", QueryType.HQL, Broker.IB.name());
 
         Assert.assertNotNull(set2);
 
@@ -356,7 +356,7 @@ public class AbstractDaoTest {
 
         GenericItem stuff1 = new GenericItem("this");
         stuff1.setActive(true);
-        stuff1.setBroker(Broker.DC);
+        stuff1.setBroker(Broker.DC.name());
 
         this.dao.save(stuff1);
 
@@ -366,7 +366,7 @@ public class AbstractDaoTest {
 
         GenericItem stuff2 = new GenericItem("that");
         stuff2.setActive(true);
-        stuff2.setBroker(Broker.IB);
+        stuff2.setBroker(Broker.IB.name());
 
         this.dao.save(stuff2);
 
@@ -376,7 +376,7 @@ public class AbstractDaoTest {
 
         GenericItem stuff3 = new GenericItem("this and that");
         stuff3.setActive(true);
-        stuff3.setBroker(Broker.RT);
+        stuff3.setBroker(Broker.RT.name());
 
         this.dao.save(stuff3);
 
@@ -407,7 +407,7 @@ public class AbstractDaoTest {
 
         GenericItem stuff1 = new GenericItem("this");
         stuff1.setActive(true);
-        stuff1.setBroker(Broker.DC);
+        stuff1.setBroker(Broker.DC.name());
 
         this.dao.save(stuff1);
 
@@ -429,7 +429,7 @@ public class AbstractDaoTest {
 
         GenericItem stuff1 = new GenericItem("this");
         stuff1.setActive(true);
-        stuff1.setBroker(Broker.DC);
+        stuff1.setBroker(Broker.DC.name());
 
         this.dao.save(stuff1);
 
@@ -458,7 +458,7 @@ public class AbstractDaoTest {
 
         GenericItem stuff1 = new GenericItem("this");
         stuff1.setActive(true);
-        stuff1.setBroker(Broker.DC);
+        stuff1.setBroker(Broker.DC.name());
 
         this.dao.save(stuff1);
 
@@ -468,7 +468,7 @@ public class AbstractDaoTest {
 
         GenericItem stuff2 = new GenericItem("that");
         stuff2.setActive(true);
-        stuff2.setBroker(Broker.IB);
+        stuff2.setBroker(Broker.IB.name());
 
         this.dao.save(stuff2);
 
@@ -478,7 +478,7 @@ public class AbstractDaoTest {
 
         GenericItem stuff3 = new GenericItem("this and that");
         stuff3.setActive(true);
-        stuff3.setBroker(Broker.RT);
+        stuff3.setBroker(Broker.RT.name());
 
         this.dao.save(stuff3);
 
@@ -503,7 +503,7 @@ public class AbstractDaoTest {
 
         GenericItem stuff1 = new GenericItem("this");
         stuff1.setActive(true);
-        stuff1.setBroker(Broker.DC);
+        stuff1.setBroker(Broker.DC.name());
 
         this.dao.save(stuff1);
         this.dao.flush();

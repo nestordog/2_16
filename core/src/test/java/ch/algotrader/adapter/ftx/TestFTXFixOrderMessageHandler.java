@@ -138,7 +138,7 @@ public class TestFTXFixOrderMessageHandler {
         forex.setSecurityFamily(family);
 
         Account account = new AccountImpl();
-        account.setBroker(Broker.FTX);
+        account.setBroker(Broker.FTX.name());
 
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(forex);
@@ -211,7 +211,7 @@ public class TestFTXFixOrderMessageHandler {
         forex.setSecurityFamily(family);
 
         Account account = new AccountImpl();
-        account.setBroker(Broker.FTX);
+        account.setBroker(Broker.FTX.name());
 
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(forex);

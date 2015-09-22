@@ -23,7 +23,6 @@ import java.util.Map;
 
 import ch.algotrader.dao.ReadWriteDao;
 import ch.algotrader.entity.security.Security;
-import ch.algotrader.enumeration.FeedType;
 
 /**
  * DAO for {@link ch.algotrader.entity.security.Security} objects.
@@ -112,7 +111,7 @@ public interface SecurityDao extends ReadWriteDao<Security> {
      * @param feedType
      * @return List<Security>
      */
-    List<Security> findSubscribedByFeedTypeForAutoActivateStrategiesInclFamily(FeedType feedType);
+    List<Security> findSubscribedByFeedTypeForAutoActivateStrategiesInclFamily(String feedType);
 
     /**
      * Finds all Securities that are subscribed by at least one Strategy which is marked as {@code
@@ -122,10 +121,10 @@ public interface SecurityDao extends ReadWriteDao<Security> {
      * @param strategyName
      * @return List<Security>
      */
-    List<Security> findSubscribedByFeedTypeAndStrategyInclFamily(FeedType feedType, String strategyName);
+    List<Security> findSubscribedByFeedTypeAndStrategyInclFamily(String feedType, String strategyName);
 
     /**
-     * Finds all Securities and corresponding {@link FeedType} that are subscribed by at least one
+     * Finds all Securities and corresponding feed types that are subscribed by at least one
      * Strategy which is marked as {@code autoActive} and the specified {@code feedType}.
      * @return List<Map>
      */

@@ -22,7 +22,6 @@ import java.util.List;
 
 import ch.algotrader.dao.ReadWriteDao;
 import ch.algotrader.entity.security.EasyToBorrow;
-import ch.algotrader.enumeration.Broker;
 
 /**
  * DAO for {@link ch.algotrader.entity.security.EasyToBorrow} objects.
@@ -37,7 +36,7 @@ public interface EasyToBorrowDao extends ReadWriteDao<EasyToBorrow> {
      * @param broker
      * @return List<EasyToBorrow>
      */
-    List<EasyToBorrow> findByDateAndBroker(Date date, Broker broker);
+    List<EasyToBorrow> findByDateAndBroker(Date date, String broker);
 
     // spring-dao merge-point
 }

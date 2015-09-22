@@ -86,8 +86,8 @@ class FakeFix44MarketDataService extends FixMarketDataServiceImpl implements Fix
     }
 
     @Override
-    public FeedType getFeedType() {
+    public String getFeedType() {
 
-        return FeedType.SIM;
+        return FeedType.SIM.name();
     }
 }

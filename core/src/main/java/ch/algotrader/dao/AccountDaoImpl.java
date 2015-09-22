@@ -25,7 +25,6 @@ import org.springframework.stereotype.Repository;
 
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.AccountImpl;
-import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.enumeration.QueryType;
 
 /**
@@ -50,7 +49,7 @@ public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao {
 
     @SuppressWarnings("unchecked")
     @Override
-    public Collection<String> findActiveSessionsByOrderServiceType(OrderServiceType orderServiceType) {
+    public Collection<String> findActiveSessionsByOrderServiceType(String orderServiceType) {
 
         Validate.notNull(orderServiceType, "OrderServiceType is null");
 

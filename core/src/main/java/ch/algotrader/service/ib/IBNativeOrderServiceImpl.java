@@ -229,8 +229,8 @@ public class IBNativeOrderServiceImpl implements ExternalOrderService {
      * {@inheritDoc}
      */
     @Override
-    public OrderServiceType getOrderServiceType() {
-        return OrderServiceType.IB_NATIVE;
+    public String getOrderServiceType() {
+        return OrderServiceType.IB_NATIVE.name();
     }
 
     /**

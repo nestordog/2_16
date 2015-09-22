@@ -123,9 +123,9 @@ public class IBNativeMarketDataServiceImpl extends NativeMarketDataServiceImpl i
     }
 
     @Override
-    public FeedType getFeedType() {
+    public String getFeedType() {
 
-        return FeedType.IB;
+        return FeedType.IB.name();
     }
 
     @Override

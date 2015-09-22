@@ -120,7 +120,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
 
     private final Engine serverEngine;
 
-    private final Map<OrderServiceType, ExternalOrderService> externalOrderServiceMap;
+    private final Map<String, ExternalOrderService> externalOrderServiceMap;
 
     public OrderServiceImpl(final CommonConfig commonConfig,
             final SessionFactory sessionFactory,
@@ -137,7 +137,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
             final EventDispatcher eventDispatcher,
             final EngineManager engineManager,
             final Engine serverEngine,
-            final Map<OrderServiceType, ExternalOrderService> externalOrderServiceMap) {
+            final Map<String, ExternalOrderService> externalOrderServiceMap) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(sessionFactory, "SessionFactory is null");
@@ -737,10 +737,10 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
 
         Validate.notNull(account, "Account is null");
 
-        OrderServiceType orderServiceType;
+        String orderServiceType;
 
         if (this.commonConfig.isSimulation()) {
-            orderServiceType = OrderServiceType.SIMULATION;
+            orderServiceType = OrderServiceType.SIMULATION.name();
         } else {
             orderServiceType = account.getOrderServiceType();
         }

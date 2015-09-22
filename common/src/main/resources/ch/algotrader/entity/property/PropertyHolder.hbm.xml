@@ -232,12 +232,8 @@ represented by an instance of this class.]]></meta>
             <property name="feedType">
                 <meta attribute="field-description"><![CDATA[The market data feed that this Subscription is valid for.]]></meta>
                 <meta attribute="use-in-equals">true</meta>
-                <meta attribute="property-type">ch.algotrader.enumeration.FeedType</meta>
                 <column name="FEED_TYPE" not-null="true" unique="false" sql-type="VARCHAR(255)"/>
-
-                <type name="ch.algotrader.hibernate.HibernateEnumType">
-                 <param name="enumClassName">ch.algotrader.enumeration.FeedType</param>
-                </type>
+                <type name="java.lang.String"/>
             </property>
             <property name="persistent">
                 <meta attribute="field-description"><![CDATA[A {@code persistent} Subscription will always be delivered to the strategy (i.e. for S&P500). A {@code non-persistent} Subscription requested by a strategy for a specific duration of time (i.e. Options on S&P500). When resetting the database before a simulation run, these Subscriptions will be removed]]></meta>

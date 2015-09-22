@@ -18,33 +18,11 @@
 package ch.algotrader.adapter.rt;
 
 import java.math.BigDecimal;
-import java.time.format.DateTimeFormatter;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import ch.algotrader.util.DateTimeLegacy;
-import quickfix.field.CFICode;
-import quickfix.field.ClOrdID;
-import quickfix.field.ContractMultiplier;
-import quickfix.field.ExpireTime;
-import quickfix.field.HandlInst;
-import quickfix.field.LocateReqd;
-import quickfix.field.MaturityDate;
-import quickfix.field.MaturityMonthYear;
-import quickfix.field.OrdType;
-import quickfix.field.OrderQty;
-import quickfix.field.OrigClOrdID;
-import quickfix.field.Price;
-import quickfix.field.SecurityType;
-import quickfix.field.StopPx;
-import quickfix.field.StrikePrice;
-import quickfix.field.Symbol;
-import quickfix.field.TimeInForce;
-import quickfix.fix44.NewOrderSingle;
-import quickfix.fix44.OrderCancelReplaceRequest;
-import quickfix.fix44.OrderCancelRequest;
 import ch.algotrader.adapter.fix.fix44.GenericFix44SymbologyResolver;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.AccountImpl;
@@ -73,7 +51,27 @@ import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.TIF;
-import ch.algotrader.util.DateTimeUtil;
+import ch.algotrader.util.DateTimeLegacy;
+import quickfix.field.CFICode;
+import quickfix.field.ClOrdID;
+import quickfix.field.ContractMultiplier;
+import quickfix.field.ExpireTime;
+import quickfix.field.HandlInst;
+import quickfix.field.LocateReqd;
+import quickfix.field.MaturityDate;
+import quickfix.field.MaturityMonthYear;
+import quickfix.field.OrdType;
+import quickfix.field.OrderQty;
+import quickfix.field.OrigClOrdID;
+import quickfix.field.Price;
+import quickfix.field.SecurityType;
+import quickfix.field.StopPx;
+import quickfix.field.StrikePrice;
+import quickfix.field.Symbol;
+import quickfix.field.TimeInForce;
+import quickfix.fix44.NewOrderSingle;
+import quickfix.fix44.OrderCancelReplaceRequest;
+import quickfix.fix44.OrderCancelRequest;
 
 public class TestRTOrderMessageFactory {
 
@@ -102,7 +100,7 @@ public class TestRTOrderMessageFactory {
         option.setExpiration(DateTimeLegacy.parseAsDateGMT("2014-12-31"));
 
         Account account = new AccountImpl();
-        account.setBroker(Broker.RT);
+        account.setBroker(Broker.RT.name());
         account.setExtAccount("Bahamas");
 
         MarketOrder order = new MarketOrderImpl();
@@ -146,7 +144,7 @@ public class TestRTOrderMessageFactory {
         future.setExpiration(DateTimeLegacy.parseAsDateGMT("2014-12-31"));
 
         Account account = new AccountImpl();
-        account.setBroker(Broker.RT);
+        account.setBroker(Broker.RT.name());
         account.setExtAccount("Bahamas");
 
         MarketOrder order = new MarketOrderImpl();
@@ -185,7 +183,7 @@ public class TestRTOrderMessageFactory {
         stock.setSymbol("APPL");
 
         Account account = new AccountImpl();
-        account.setBroker(Broker.RT);
+        account.setBroker(Broker.RT.name());
         account.setExtAccount("Bahamas");
 
         MarketOrder order = new MarketOrderImpl();
@@ -222,7 +220,7 @@ public class TestRTOrderMessageFactory {
         stock.setSymbol("APPL");
 
         Account account = new AccountImpl();
-        account.setBroker(Broker.RT);
+        account.setBroker(Broker.RT.name());
 
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(stock);
@@ -260,7 +258,7 @@ public class TestRTOrderMessageFactory {
         forex.setSecurityFamily(family);
 
         Account account = new AccountImpl();
-        account.setBroker(Broker.RT);
+        account.setBroker(Broker.RT.name());
         account.setExtAccount("Bahamas");
 
         MarketOrder order = new MarketOrderImpl();
@@ -298,7 +296,7 @@ public class TestRTOrderMessageFactory {
         stock.setSymbol("APPL");
 
         Account account = new AccountImpl();
-        account.setBroker(Broker.RT);
+        account.setBroker(Broker.RT.name());
         account.setExtAccount("Bahamas");
 
         LimitOrder order = new LimitOrderImpl();
@@ -338,7 +336,7 @@ public class TestRTOrderMessageFactory {
         stock.setSymbol("APPL");
 
         Account account = new AccountImpl();
-        account.setBroker(Broker.RT);
+        account.setBroker(Broker.RT.name());
         account.setExtAccount("Bahamas");
 
         StopOrder order = new StopOrderImpl();
@@ -378,7 +376,7 @@ public class TestRTOrderMessageFactory {
         stock.setSymbol("APPL");
 
         Account account = new AccountImpl();
-        account.setBroker(Broker.RT);
+        account.setBroker(Broker.RT.name());
         account.setExtAccount("Bahamas");
 
         StopLimitOrder order = new StopLimitOrderImpl();
@@ -422,7 +420,7 @@ public class TestRTOrderMessageFactory {
         stock.setSymbol("APPL");
 
         Account account = new AccountImpl();
-        account.setBroker(Broker.RT);
+        account.setBroker(Broker.RT.name());
         account.setExtAccount("Bahamas");
 
         StopLimitOrder order = new StopLimitOrderImpl();
@@ -472,7 +470,7 @@ public class TestRTOrderMessageFactory {
         option.setExpiration(DateTimeLegacy.parseAsDateGMT("2014-12-31"));
 
         Account account = new AccountImpl();
-        account.setBroker(Broker.RT);
+        account.setBroker(Broker.RT.name());
         account.setExtAccount("Bahamas");
 
         MarketOrder order = new MarketOrderImpl();
@@ -514,7 +512,7 @@ public class TestRTOrderMessageFactory {
         future.setExpiration(DateTimeLegacy.parseAsDateGMT("2014-12-31"));
 
         Account account = new AccountImpl();
-        account.setBroker(Broker.RT);
+        account.setBroker(Broker.RT.name());
         account.setExtAccount("Bahamas");
 
         MarketOrder order = new MarketOrderImpl();
@@ -552,7 +550,7 @@ public class TestRTOrderMessageFactory {
         stock.setSymbol("APPL");
 
         Account account = new AccountImpl();
-        account.setBroker(Broker.RT);
+        account.setBroker(Broker.RT.name());
         account.setExtAccount("Bahamas");
 
         MarketOrder order = new MarketOrderImpl();
@@ -590,7 +588,7 @@ public class TestRTOrderMessageFactory {
         forex.setSecurityFamily(family);
 
         Account account = new AccountImpl();
-        account.setBroker(Broker.RT);
+        account.setBroker(Broker.RT.name());
         account.setExtAccount("Bahamas");
 
         MarketOrder order = new MarketOrderImpl();
@@ -627,7 +625,7 @@ public class TestRTOrderMessageFactory {
         stock.setSymbol("APPL");
 
         Account account = new AccountImpl();
-        account.setBroker(Broker.RT);
+        account.setBroker(Broker.RT.name());
         account.setExtAccount("Bahamas");
 
         LimitOrder order = new LimitOrderImpl();
@@ -667,7 +665,7 @@ public class TestRTOrderMessageFactory {
         stock.setSymbol("APPL");
 
         Account account = new AccountImpl();
-        account.setBroker(Broker.RT);
+        account.setBroker(Broker.RT.name());
         account.setExtAccount("Bahamas");
 
         StopOrder order = new StopOrderImpl();
@@ -706,7 +704,7 @@ public class TestRTOrderMessageFactory {
         stock.setSymbol("APPL");
 
         Account account = new AccountImpl();
-        account.setBroker(Broker.RT);
+        account.setBroker(Broker.RT.name());
 
         StopOrder order = new StopOrderImpl();
         order.setIntId("previous-test-id");
@@ -744,7 +742,7 @@ public class TestRTOrderMessageFactory {
         stock.setSymbol("APPL");
 
         Account account = new AccountImpl();
-        account.setBroker(Broker.RT);
+        account.setBroker(Broker.RT.name());
         account.setExtAccount("Bahamas");
 
         StopLimitOrder order = new StopLimitOrderImpl();
@@ -787,7 +785,7 @@ public class TestRTOrderMessageFactory {
         stock.setSymbol("APPL");
 
         Account account = new AccountImpl();
-        account.setBroker(Broker.RT);
+        account.setBroker(Broker.RT.name());
         account.setExtAccount("Bahamas");
 
         StopLimitOrder order = new StopLimitOrderImpl();
@@ -836,7 +834,7 @@ public class TestRTOrderMessageFactory {
         option.setExpiration(DateTimeLegacy.parseAsDateGMT("2014-12-31"));
 
         Account account = new AccountImpl();
-        account.setBroker(Broker.RT);
+        account.setBroker(Broker.RT.name());
         account.setExtAccount("Bahamas");
 
         MarketOrder order = new MarketOrderImpl();
@@ -874,7 +872,7 @@ public class TestRTOrderMessageFactory {
         future.setExpiration(DateTimeLegacy.parseAsDateGMT("2014-12-31"));
 
         Account account = new AccountImpl();
-        account.setBroker(Broker.RT);
+        account.setBroker(Broker.RT.name());
         account.setExtAccount("Bahamas");
 
         MarketOrder order = new MarketOrderImpl();
@@ -909,7 +907,7 @@ public class TestRTOrderMessageFactory {
         stock.setSymbol("APPL");
 
         Account account = new AccountImpl();
-        account.setBroker(Broker.RT);
+        account.setBroker(Broker.RT.name());
         account.setExtAccount("Bahamas");
 
         MarketOrder order = new MarketOrderImpl();
@@ -942,7 +940,7 @@ public class TestRTOrderMessageFactory {
         stock.setSymbol("APPL");
 
         Account account = new AccountImpl();
-        account.setBroker(Broker.RT);
+        account.setBroker(Broker.RT.name());
 
         MarketOrder order = new MarketOrderImpl();
         order.setIntId("previous-test-id");
@@ -976,7 +974,7 @@ public class TestRTOrderMessageFactory {
         forex.setSecurityFamily(family);
 
         Account account = new AccountImpl();
-        account.setBroker(Broker.RT);
+        account.setBroker(Broker.RT.name());
         account.setExtAccount("Bahamas");
 
         MarketOrder order = new MarketOrderImpl();

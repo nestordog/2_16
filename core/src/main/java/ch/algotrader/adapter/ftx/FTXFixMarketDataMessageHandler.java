@@ -59,7 +59,7 @@ public class FTXFixMarketDataMessageHandler extends AbstractFix44MarketDataMessa
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace(id + " BID " + bidSize + "@" + bidPx);
         }
-        BidVO bidVO = new BidVO(id, FeedType.FTX, date, bidPx, (int) bidSize);
+        BidVO bidVO = new BidVO(id, FeedType.FTX.name(), date, bidPx, (int) bidSize);
         this.serverEngine.sendEvent(bidVO);
 
         final double offerPx = quote.getOfferPx().getValue();
@@ -67,7 +67,7 @@ public class FTXFixMarketDataMessageHandler extends AbstractFix44MarketDataMessa
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace(id + " ASK " + offerSize + "@" + offerPx);
         }
-        AskVO askVO = new AskVO(id, FeedType.FTX, date, offerPx, (int) offerSize);
+        AskVO askVO = new AskVO(id, FeedType.FTX.name(), date, offerPx, (int) offerSize);
         this.serverEngine.sendEvent(askVO);
     }
 

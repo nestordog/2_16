@@ -95,8 +95,6 @@ import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.enumeration.TransactionType;
 import ch.algotrader.hibernate.InMemoryDBTest;
-import ch.algotrader.service.LookupService;
-import ch.algotrader.service.LookupServiceImpl;
 
 /**
 * Unit tests for {@link ch.algotrader.entity.Transaction}.
@@ -468,7 +466,7 @@ public class LookupServiceTest extends InMemoryDBTest {
         strategy1.setAutoActivate(Boolean.FALSE);
     
         Subscription subscription1 = new SubscriptionImpl();
-        subscription1.setFeedType(FeedType.SIM);
+        subscription1.setFeedType(FeedType.SIM.name());
         subscription1.setSecurity(forex1);
         subscription1.setStrategy(strategy1);
     
@@ -487,7 +485,7 @@ public class LookupServiceTest extends InMemoryDBTest {
         strategy2.setAutoActivate(Boolean.FALSE);
     
         Subscription subscription2 = new SubscriptionImpl();
-        subscription2.setFeedType(FeedType.SIM);
+        subscription2.setFeedType(FeedType.SIM.name());
         subscription2.setSecurity(forex2);
         subscription2.setStrategy(strategy2);
     
@@ -548,7 +546,7 @@ public class LookupServiceTest extends InMemoryDBTest {
         strategy1.setAutoActivate(Boolean.FALSE);
     
         Subscription subscription1 = new SubscriptionImpl();
-        subscription1.setFeedType(FeedType.SIM);
+        subscription1.setFeedType(FeedType.SIM.name());
         subscription1.setSecurity(forex1);
         subscription1.setStrategy(strategy1);
     
@@ -572,7 +570,7 @@ public class LookupServiceTest extends InMemoryDBTest {
     
         Assert.assertEquals(1, maps2.size());
     
-        Assert.assertSame(FeedType.SIM, maps2.get(0).get("feedType"));
+        Assert.assertSame(FeedType.SIM.name(), maps2.get(0).get("feedType"));
         Assert.assertSame(forex1, maps2.get(0).get("security"));
     }
 
@@ -798,7 +796,7 @@ public class LookupServiceTest extends InMemoryDBTest {
         option1.setUnderlying(forex1);
     
         Subscription subscription1 = new SubscriptionImpl();
-        subscription1.setFeedType(FeedType.SIM);
+        subscription1.setFeedType(FeedType.SIM.name());
         subscription1.setSecurity(option1);
         subscription1.setStrategy(strategy1);
     
@@ -853,7 +851,7 @@ public class LookupServiceTest extends InMemoryDBTest {
         Assert.assertEquals(0, futures1.size());
     
         Subscription subscription1 = new SubscriptionImpl();
-        subscription1.setFeedType(FeedType.SIM);
+        subscription1.setFeedType(FeedType.SIM.name());
         subscription1.setSecurity(future1);
         subscription1.setStrategy(strategy1);
     
@@ -873,7 +871,7 @@ public class LookupServiceTest extends InMemoryDBTest {
         Assert.assertSame(1, futures2.get(0).getSubscriptions().size());
     
         Subscription subscription2 = new SubscriptionImpl();
-        subscription2.setFeedType(FeedType.BB);
+        subscription2.setFeedType(FeedType.BB.name());
         subscription2.setSecurity(future2);
         subscription2.setStrategy(strategy1);
     
@@ -922,7 +920,7 @@ public class LookupServiceTest extends InMemoryDBTest {
         combination1.addComponents(component1);
     
         Subscription subscription1 = new SubscriptionImpl();
-        subscription1.setFeedType(FeedType.SIM);
+        subscription1.setFeedType(FeedType.SIM.name());
         subscription1.setSecurity(combination1);
         subscription1.setStrategy(strategy1);
     
@@ -972,7 +970,7 @@ public class LookupServiceTest extends InMemoryDBTest {
         combination1.setUnderlying(forex1);
     
         Subscription subscription1 = new SubscriptionImpl();
-        subscription1.setFeedType(FeedType.SIM);
+        subscription1.setFeedType(FeedType.SIM.name());
         subscription1.setSecurity(combination1);
         subscription1.setStrategy(strategy1);
     
@@ -1026,7 +1024,7 @@ public class LookupServiceTest extends InMemoryDBTest {
         combination1.addComponents(component1);
     
         Subscription subscription1 = new SubscriptionImpl();
-        subscription1.setFeedType(FeedType.SIM);
+        subscription1.setFeedType(FeedType.SIM.name());
         subscription1.setSecurity(combination1);
         subscription1.setStrategy(strategy1);
     
@@ -1084,7 +1082,7 @@ public class LookupServiceTest extends InMemoryDBTest {
         combination1.addComponents(component1);
     
         Subscription subscription1 = new SubscriptionImpl();
-        subscription1.setFeedType(FeedType.SIM);
+        subscription1.setFeedType(FeedType.SIM.name());
         subscription1.setSecurity(combination1);
         subscription1.setStrategy(strategy1);
     
@@ -1136,7 +1134,7 @@ public class LookupServiceTest extends InMemoryDBTest {
         combination1.setType(CombinationType.BUTTERFLY);
     
         Subscription subscription1 = new SubscriptionImpl();
-        subscription1.setFeedType(FeedType.SIM);
+        subscription1.setFeedType(FeedType.SIM.name());
         subscription1.setSecurity(combination1);
         subscription1.setStrategy(strategy1);
     
@@ -1190,7 +1188,7 @@ public class LookupServiceTest extends InMemoryDBTest {
         combination1.setType(CombinationType.BUTTERFLY);
     
         Subscription subscription1 = new SubscriptionImpl();
-        subscription1.setFeedType(FeedType.SIM);
+        subscription1.setFeedType(FeedType.SIM.name());
         subscription1.setSecurity(combination1);
         subscription1.setStrategy(strategy1);
     
@@ -1248,7 +1246,7 @@ public class LookupServiceTest extends InMemoryDBTest {
         combination1.setType(CombinationType.BUTTERFLY);
     
         Subscription subscription1 = new SubscriptionImpl();
-        subscription1.setFeedType(FeedType.SIM);
+        subscription1.setFeedType(FeedType.SIM.name());
         subscription1.setSecurity(combination1);
         subscription1.setStrategy(strategy1);
     
@@ -1301,7 +1299,7 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(strategy1);
 
         Subscription subscription1 = new SubscriptionImpl();
-        subscription1.setFeedType(FeedType.SIM);
+        subscription1.setFeedType(FeedType.SIM.name());
         subscription1.setSecurity(forex1);
         subscription1.setStrategy(strategy1);
 
@@ -1316,7 +1314,7 @@ public class LookupServiceTest extends InMemoryDBTest {
 
         Assert.assertNotNull(subscription3);
 
-        Assert.assertEquals(FeedType.SIM, subscription3.getFeedType());
+        Assert.assertEquals(FeedType.SIM.name(), subscription3.getFeedType());
         Assert.assertSame(forex1, subscription3.getSecurity());
         Assert.assertSame(family1, subscription3.getSecurity().getSecurityFamily());
         Assert.assertSame(strategy1, subscription3.getStrategy());
@@ -1343,12 +1341,12 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(strategy1);
 
         Subscription subscription1 = new SubscriptionImpl();
-        subscription1.setFeedType(FeedType.SIM);
+        subscription1.setFeedType(FeedType.SIM.name());
         subscription1.setSecurity(forex1);
         subscription1.setStrategy(strategy1);
 
         Subscription subscription2 = new SubscriptionImpl();
-        subscription2.setFeedType(FeedType.IB);
+        subscription2.setFeedType(FeedType.IB.name());
         subscription2.setStrategy(strategy1);
         subscription2.setSecurity(forex1);
 
@@ -2281,8 +2279,8 @@ public class LookupServiceTest extends InMemoryDBTest {
         Account account2 = new AccountImpl();
     
         account2.setName("name2");
-        account2.setBroker(Broker.CNX);
-        account2.setOrderServiceType(OrderServiceType.CNX_FIX);
+        account2.setBroker(Broker.CNX.name());
+        account2.setOrderServiceType(OrderServiceType.CNX_FIX.name());
     
         this.session.save(account2);
         this.session.flush();
@@ -2291,14 +2289,14 @@ public class LookupServiceTest extends InMemoryDBTest {
     
         Assert.assertNotNull(account3);
         Assert.assertEquals("name2", account3.getName());
-        Assert.assertEquals(Broker.CNX, account3.getBroker());
-        Assert.assertEquals(OrderServiceType.CNX_FIX, account3.getOrderServiceType());
+        Assert.assertEquals(Broker.CNX.name(), account3.getBroker());
+        Assert.assertEquals(OrderServiceType.CNX_FIX.name(), account3.getOrderServiceType());
     }
 
     @Test
     public void testgetActiveSessionsByOrderServiceType() {
 
-        List<String> activeSessions1 = (List<String>) this.lookupService.getActiveSessionsByOrderServiceType(OrderServiceType.FTX_FIX);
+        List<String> activeSessions1 = (List<String>) this.lookupService.getActiveSessionsByOrderServiceType(OrderServiceType.FTX_FIX.name());
 
         Assert.assertEquals(0, activeSessions1.size());
 
@@ -2306,37 +2304,37 @@ public class LookupServiceTest extends InMemoryDBTest {
 
         account1.setName("name1");
         account1.setSessionQualifier("qualifier1");
-        account1.setBroker(Broker.CNX);
+        account1.setBroker(Broker.CNX.name());
         account1.setActive(true);
-        account1.setOrderServiceType(OrderServiceType.CNX_FIX);
+        account1.setOrderServiceType(OrderServiceType.CNX_FIX.name());
 
         Account account2 = new AccountImpl();
 
         account2.setName("name2");
         account2.setSessionQualifier("qualifier2");
-        account2.setBroker(Broker.CNX);
+        account2.setBroker(Broker.CNX.name());
         account2.setActive(false);
-        account2.setOrderServiceType(OrderServiceType.CNX_FIX);
+        account2.setOrderServiceType(OrderServiceType.CNX_FIX.name());
 
         Account account3 = new AccountImpl();
 
         account3.setName("name3");
         account3.setSessionQualifier("qualifier3");
-        account3.setBroker(Broker.DC);
+        account3.setBroker(Broker.DC.name());
         account3.setActive(true);
-        account3.setOrderServiceType(OrderServiceType.DC_FIX);
+        account3.setOrderServiceType(OrderServiceType.DC_FIX.name());
 
         this.session.save(account1);
         this.session.save(account2);
         this.session.save(account3);
         this.session.flush();
 
-        List<String> activeSessions2 = (List<String>) this.lookupService.getActiveSessionsByOrderServiceType(OrderServiceType.CNX_FIX);
+        List<String> activeSessions2 = (List<String>) this.lookupService.getActiveSessionsByOrderServiceType(OrderServiceType.CNX_FIX.name());
 
         Assert.assertEquals(1, activeSessions2.size());
         Assert.assertEquals(account1.getSessionQualifier(), activeSessions2.get(0));
 
-        List<String> activeSessions3 = (List<String>) this.lookupService.getActiveSessionsByOrderServiceType(OrderServiceType.DC_FIX);
+        List<String> activeSessions3 = (List<String>) this.lookupService.getActiveSessionsByOrderServiceType(OrderServiceType.DC_FIX.name());
 
         Assert.assertEquals(1, activeSessions3.size());
         Assert.assertEquals(account3.getSessionQualifier(), activeSessions3.get(0));
@@ -2397,7 +2395,7 @@ public class LookupServiceTest extends InMemoryDBTest {
         bar1.setHigh(new BigDecimal(333));
         bar1.setLow(new BigDecimal(111));
         bar1.setClose(new BigDecimal(444));
-        bar1.setFeedType(FeedType.CNX);
+        bar1.setFeedType(FeedType.CNX.name());
         bar1.setSecurity(forex1);
     
         Bar bar2 = new BarImpl();
@@ -2411,7 +2409,7 @@ public class LookupServiceTest extends InMemoryDBTest {
         bar2.setHigh(new BigDecimal(666));
         bar2.setLow(new BigDecimal(777));
         bar2.setClose(new BigDecimal(888));
-        bar2.setFeedType(FeedType.BB);
+        bar2.setFeedType(FeedType.BB.name());
         bar2.setSecurity(forex1);
     
         this.session.save(bar1);
@@ -2452,7 +2450,7 @@ public class LookupServiceTest extends InMemoryDBTest {
         bar1.setHigh(new BigDecimal(333));
         bar1.setLow(new BigDecimal(111));
         bar1.setClose(new BigDecimal(444));
-        bar1.setFeedType(FeedType.CNX);
+        bar1.setFeedType(FeedType.CNX.name());
         bar1.setSecurity(forex1);
     
         Bar bar2 = new BarImpl();
@@ -2466,7 +2464,7 @@ public class LookupServiceTest extends InMemoryDBTest {
         bar2.setHigh(new BigDecimal(666));
         bar2.setLow(new BigDecimal(777));
         bar2.setClose(new BigDecimal(888));
-        bar2.setFeedType(FeedType.BB);
+        bar2.setFeedType(FeedType.BB.name());
         bar2.setSecurity(forex1);
     
         this.session.save(family1);
@@ -3086,12 +3084,12 @@ public class LookupServiceTest extends InMemoryDBTest {
         cal1.set(Calendar.SECOND, 0);
         cal1.set(Calendar.MILLISECOND, 0);
         easyToBorrow1.setDate(cal1.getTime());
-        easyToBorrow1.setBroker(Broker.CNX);
+        easyToBorrow1.setBroker(Broker.CNX.name());
         easyToBorrow1.setStock(stock1);
     
         EasyToBorrow easyToBorrow2 = new EasyToBorrowImpl();
         easyToBorrow2.setDate(cal1.getTime());
-        easyToBorrow2.setBroker(Broker.CNX);
+        easyToBorrow2.setBroker(Broker.CNX.name());
         easyToBorrow2.setStock(stock2);
     
         this.session.save(family);
@@ -3102,26 +3100,26 @@ public class LookupServiceTest extends InMemoryDBTest {
     
         this.session.flush();
     
-        List<EasyToBorrow> easyToBorrows1 = (List<EasyToBorrow>) this.lookupService.getEasyToBorrowByDateAndBroker(cal1.getTime(), Broker.DC);
+        List<EasyToBorrow> easyToBorrows1 = (List<EasyToBorrow>) this.lookupService.getEasyToBorrowByDateAndBroker(cal1.getTime(), Broker.DC.name());
     
         Assert.assertEquals(0, easyToBorrows1.size());
     
         Calendar cal2 = Calendar.getInstance();
         cal2.set(Calendar.HOUR, 2);
     
-        List<EasyToBorrow> easyToBorrows2 = (List<EasyToBorrow>) this.lookupService.getEasyToBorrowByDateAndBroker(cal2.getTime(), Broker.CNX);
+        List<EasyToBorrow> easyToBorrows2 = (List<EasyToBorrow>) this.lookupService.getEasyToBorrowByDateAndBroker(cal2.getTime(), Broker.CNX.name());
     
         Assert.assertEquals(2, easyToBorrows2.size());
     
-        List<EasyToBorrow> easyToBorrows3 = (List<EasyToBorrow>) this.lookupService.getEasyToBorrowByDateAndBroker(cal1.getTime(), Broker.CNX);
+        List<EasyToBorrow> easyToBorrows3 = (List<EasyToBorrow>) this.lookupService.getEasyToBorrowByDateAndBroker(cal1.getTime(), Broker.CNX.name());
     
         Assert.assertEquals(2, easyToBorrows3.size());
     
         Assert.assertSame(easyToBorrow1, easyToBorrows3.get(0));
-        Assert.assertSame(Broker.CNX, easyToBorrows3.get(0).getBroker());
+        Assert.assertEquals(Broker.CNX.name(), easyToBorrows3.get(0).getBroker());
         Assert.assertSame(stock1, easyToBorrows3.get(0).getStock());
         Assert.assertSame(easyToBorrow2, easyToBorrows3.get(1));
-        Assert.assertSame(Broker.CNX, easyToBorrows3.get(1).getBroker());
+        Assert.assertEquals(Broker.CNX.name(), easyToBorrows3.get(1).getBroker());
         Assert.assertSame(stock2, easyToBorrows3.get(1).getStock());
     }
 

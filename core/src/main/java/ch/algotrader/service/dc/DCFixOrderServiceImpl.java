@@ -147,8 +147,8 @@ public class DCFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fix4
     }
 
     @Override
-    public OrderServiceType getOrderServiceType() {
+    public String getOrderServiceType() {
 
-        return OrderServiceType.DC_FIX;
+        return OrderServiceType.DC_FIX.name();
     }
 }

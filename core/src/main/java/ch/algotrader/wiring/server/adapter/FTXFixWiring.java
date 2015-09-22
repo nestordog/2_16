@@ -21,11 +21,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
+import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.adapter.fix.DefaultFixApplicationFactory;
 import ch.algotrader.adapter.fix.DefaultFixSessionStateHolder;
 import ch.algotrader.adapter.fix.DefaultLogonMessageHandler;
 import ch.algotrader.adapter.fix.FixApplicationFactory;
-import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.adapter.fix.MarketDataFixSessionStateHolder;
 import ch.algotrader.adapter.ftx.FTXFixMarketDataMessageHandler;
 import ch.algotrader.adapter.ftx.FTXFixOrderMessageHandler;
@@ -71,7 +71,7 @@ public class FTXFixWiring {
     @Bean(name = "fTXMarketDataSessionStateHolder")
     public ExternalSessionStateHolder createFTXMarketDataSessionStateHolder(final EventDispatcher eventDispatcher) {
 
-        return new MarketDataFixSessionStateHolder("FTXMD", eventDispatcher, FeedType.FTX);
+        return new MarketDataFixSessionStateHolder("FTXMD", eventDispatcher, FeedType.FTX.name());
     }
 
     @Profile("fTXMarketData")

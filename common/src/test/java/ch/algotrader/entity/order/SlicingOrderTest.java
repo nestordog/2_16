@@ -174,7 +174,7 @@ public class SlicingOrderTest {
 
         Security security = Mockito.mock(Security.class);
         Strategy strategy = Strategy.Factory.newInstance("TEST_STRATEGY", false, 0);
-        Subscription subscription = Subscription.Factory.newInstance(null, FeedType.IB, true, strategy, security);
+        Subscription subscription = Subscription.Factory.newInstance(null, FeedType.IB.name(), true, strategy, security);
         SecurityFamily securityFamily = SecurityFamily.Factory.newInstance("", Currency.USD, 1, 2, "0<0.01", true, false);
 
         Mockito.when(security.getSubscriptions()).thenReturn(Collections.singleton(subscription));

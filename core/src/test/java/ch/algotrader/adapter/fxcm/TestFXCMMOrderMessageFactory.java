@@ -75,7 +75,7 @@ public class TestFXCMMOrderMessageFactory {
         this.forex.setSecurityFamily(this.family);
 
         this.account = new AccountImpl();
-        this.account.setBroker(Broker.IB);
+        this.account.setBroker(Broker.IB.name());
         this.account.setExtAccount("test-account");
 
         this.requestFactory = new FXCMFixOrderMessageFactory();

@@ -50,7 +50,7 @@ public class GenericItem implements BaseEntityI {
 
     private boolean active;
 
-    private Broker broker;
+    private String broker;
 
     protected GenericItem() {
 
@@ -98,12 +98,12 @@ public class GenericItem implements BaseEntityI {
         this.active = active;
     }
 
-    public Broker getBroker() {
+    public String getBroker() {
 
         return this.broker;
     }
 
-    public void setBroker(final Broker broker) {
+    public void setBroker(final String broker) {
 
         this.broker = broker;
     }

@@ -21,8 +21,6 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Map;
 
-import ch.algotrader.enumeration.FeedType;
-
 /**
  * A ValueObject representing a {@link ch.algotrader.entity.marketData.Tick Tick}. Used for Client display.
  */
@@ -82,7 +80,7 @@ public class TickVO extends MarketDataEventVO {
      * @param volBidIn int The volume on the bid side.
      * @param volAskIn int The volume on the ask side.
      */
-    public TickVO(final int securityIdIn, final String nameIn, final Date dateTimeIn, final int volIn, final FeedType feedTypeIn, final Map propertiesIn, final BigDecimal lastIn,
+    public TickVO(final int securityIdIn, final String nameIn, final Date dateTimeIn, final int volIn, final String feedTypeIn, final Map propertiesIn, final BigDecimal lastIn,
             final Date lastDateTimeIn, final int volBidIn, final int volAskIn) {
 
         super(securityIdIn, nameIn, dateTimeIn, volIn, feedTypeIn, propertiesIn);
@@ -108,7 +106,7 @@ public class TickVO extends MarketDataEventVO {
      * @param askIn BigDecimal
      * @param volAskIn int
      */
-    public TickVO(final int securityIdIn, final String nameIn, final Date dateTimeIn, final int volIn, final BigDecimal currentValueIn, final FeedType feedTypeIn, final Map propertiesIn,
+    public TickVO(final int securityIdIn, final String nameIn, final Date dateTimeIn, final int volIn, final BigDecimal currentValueIn, final String feedTypeIn, final Map propertiesIn,
             final BigDecimal lastIn, final Date lastDateTimeIn, final int volBidIn, final BigDecimal bidIn, final BigDecimal askIn, final int volAskIn) {
 
         super(securityIdIn, nameIn, dateTimeIn, volIn, currentValueIn, feedTypeIn, propertiesIn);

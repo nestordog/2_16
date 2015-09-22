@@ -38,21 +38,15 @@
         </property>
         <property name="broker">
             <meta attribute="field-description"><![CDATA[The {@link Broker} associated with this Account.]]></meta>
-            <meta attribute="property-type">ch.algotrader.enumeration.Broker</meta>
             <column name="BROKER" not-null="true" unique="false" sql-type="VARCHAR(255)"/>
 
-            <type name="ch.algotrader.hibernate.HibernateEnumType">
-                 <param name="enumClassName">ch.algotrader.enumeration.Broker</param>
-            </type>
+            <type name="java.lang.String"/>
         </property>
         <property name="orderServiceType">
             <meta attribute="field-description"><![CDATA[The {@link OrderServiceType} associated with this Account.]]></meta>
-            <meta attribute="property-type">ch.algotrader.enumeration.OrderServiceType</meta>
             <column name="ORDER_SERVICE_TYPE" not-null="true" unique="false" sql-type="VARCHAR(255)"/>
 
-            <type name="ch.algotrader.hibernate.HibernateEnumType">
-                 <param name="enumClassName">ch.algotrader.enumeration.OrderServiceType</param>
-            </type>
+            <type name="java.lang.String"/>
         </property>
         <property name="sessionQualifier">
             <meta attribute="field-description"><![CDATA[The name of the session in place for Live Trading. Primarily used for FIX Connections.]]></meta>

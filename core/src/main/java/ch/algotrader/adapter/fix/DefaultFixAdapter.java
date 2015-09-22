@@ -29,7 +29,6 @@ import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.trade.Order;
-import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.ordermgmt.OrderIdGenerator;
 import ch.algotrader.service.LookupService;
 import quickfix.ConfigError;
@@ -85,7 +84,7 @@ public class DefaultFixAdapter implements FixAdapter {
      * creates an individual session
      */
     @Override
-    public void createSession(OrderServiceType orderServiceType) throws FixApplicationException {
+    public void createSessionForService(String orderServiceType) throws FixApplicationException {
 
         Collection<String> sessionQualifiers = this.lookupService.getActiveSessionsByOrderServiceType(orderServiceType);
         if (sessionQualifiers == null || sessionQualifiers.isEmpty()) {
@@ -101,7 +100,7 @@ public class DefaultFixAdapter implements FixAdapter {
     }
 
     @Override
-    public void openSession(OrderServiceType orderServiceType) throws FixApplicationException {
+    public void openSessionForService(String orderServiceType) throws FixApplicationException {
 
         Collection<String> sessionQualifiers = this.lookupService.getActiveSessionsByOrderServiceType(orderServiceType);
         if (sessionQualifiers == null || sessionQualifiers.isEmpty()) {

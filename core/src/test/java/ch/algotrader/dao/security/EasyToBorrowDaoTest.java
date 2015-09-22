@@ -25,8 +25,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import ch.algotrader.dao.security.EasyToBorrowDao;
-import ch.algotrader.dao.security.EasyToBorrowDaoImpl;
 import ch.algotrader.entity.security.EasyToBorrow;
 import ch.algotrader.entity.security.EasyToBorrowImpl;
 import ch.algotrader.entity.security.SecurityFamily;
@@ -83,12 +81,12 @@ public class EasyToBorrowDaoTest extends InMemoryDBTest {
         cal1.set(Calendar.SECOND, 0);
         cal1.set(Calendar.MILLISECOND, 0);
         easyToBorrow1.setDate(cal1.getTime());
-        easyToBorrow1.setBroker(Broker.CNX);
+        easyToBorrow1.setBroker(Broker.CNX.name());
         easyToBorrow1.setStock(stock1);
 
         EasyToBorrow easyToBorrow2 = new EasyToBorrowImpl();
         easyToBorrow2.setDate(cal1.getTime());
-        easyToBorrow2.setBroker(Broker.CNX);
+        easyToBorrow2.setBroker(Broker.CNX.name());
         easyToBorrow2.setStock(stock2);
 
         this.session.save(family);
@@ -99,26 +97,26 @@ public class EasyToBorrowDaoTest extends InMemoryDBTest {
 
         this.session.flush();
 
-        List<EasyToBorrow> easyToBorrows1 = this.dao.findByDateAndBroker(cal1.getTime(), Broker.DC);
+        List<EasyToBorrow> easyToBorrows1 = this.dao.findByDateAndBroker(cal1.getTime(), Broker.DC.name());
 
         Assert.assertEquals(0, easyToBorrows1.size());
 
         Calendar cal2 = Calendar.getInstance();
         cal2.set(Calendar.HOUR, 2);
 
-        List<EasyToBorrow> easyToBorrows2 = this.dao.findByDateAndBroker(cal2.getTime(), Broker.CNX);
+        List<EasyToBorrow> easyToBorrows2 = this.dao.findByDateAndBroker(cal2.getTime(), Broker.CNX.name());
 
         Assert.assertEquals(0, easyToBorrows2.size());
 
-        List<EasyToBorrow> easyToBorrows3 = this.dao.findByDateAndBroker(cal1.getTime(), Broker.CNX);
+        List<EasyToBorrow> easyToBorrows3 = this.dao.findByDateAndBroker(cal1.getTime(), Broker.CNX.name());
 
         Assert.assertEquals(2, easyToBorrows3.size());
 
         Assert.assertSame(easyToBorrow1, easyToBorrows3.get(0));
-        Assert.assertSame(Broker.CNX, easyToBorrows3.get(0).getBroker());
+        Assert.assertEquals(Broker.CNX.name(), easyToBorrows3.get(0).getBroker());
         Assert.assertSame(stock1, easyToBorrows3.get(0).getStock());
         Assert.assertSame(easyToBorrow2, easyToBorrows3.get(1));
-        Assert.assertSame(Broker.CNX, easyToBorrows3.get(1).getBroker());
+        Assert.assertEquals(Broker.CNX.name(), easyToBorrows3.get(1).getBroker());
         Assert.assertSame(stock2, easyToBorrows3.get(1).getStock());
     }
 

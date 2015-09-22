@@ -19,8 +19,6 @@ package ch.algotrader.service;
 
 import java.util.Set;
 
-import ch.algotrader.enumeration.FeedType;
-
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
@@ -36,9 +34,9 @@ public interface SubscriptionService {
 
     /**
      * Subscribes {@link ch.algotrader.entity.marketData.MarketDataEvent MarketDataEvents} of a
-     * Security for the defined Strategy with the specified {@link FeedType}.
+     * Security for the defined Strategy with the specified feed type.
      */
-    public void subscribeMarketDataEvent(String strategyName, long securityId, FeedType feedType);
+    public void subscribeMarketDataEvent(String strategyName, long securityId, String feedType);
 
     /**
      * Unsubscribes {@link ch.algotrader.entity.marketData.MarketDataEvent MarketDataEvents} of a
@@ -48,9 +46,9 @@ public interface SubscriptionService {
 
     /**
      * Unsubscribes {@link ch.algotrader.entity.marketData.MarketDataEvent MarketDataEvents} of a
-     * Security for the defined Strategy with the specified {@link FeedType}
+     * Security for the defined Strategy with the specified feed type
      */
-    public void unsubscribeMarketDataEvent(String strategyName, long securityId, FeedType feedType);
+    public void unsubscribeMarketDataEvent(String strategyName, long securityId, String feedType);
 
     /**
      * Initializes market data subscriptions

@@ -58,8 +58,8 @@ public class DefaultIBSessionStateHolder implements IBSessionStateHolder, DataFe
     }
 
     @Override
-    public FeedType getFeedType() {
-        return FeedType.IB;
+    public String getFeedType() {
+        return FeedType.IB.name();
     }
 
     @Override

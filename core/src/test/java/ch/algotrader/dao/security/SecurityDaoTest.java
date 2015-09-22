@@ -26,8 +26,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import ch.algotrader.dao.security.SecurityDao;
-import ch.algotrader.dao.security.SecurityDaoImpl;
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.SubscriptionImpl;
 import ch.algotrader.entity.exchange.Exchange;
@@ -360,7 +358,7 @@ public class SecurityDaoTest extends InMemoryDBTest {
         exchange1.setTimeZone("GMT");
 
         BrokerParameters brokerParameter1 = new BrokerParametersImpl();
-        brokerParameter1.setBroker(Broker.IB);
+        brokerParameter1.setBroker(Broker.IB.name());
 
         SecurityFamily family1 = new SecurityFamilyImpl();
         family1.setName("family1");
@@ -415,7 +413,7 @@ public class SecurityDaoTest extends InMemoryDBTest {
         strategy1.setAutoActivate(Boolean.FALSE);
 
         Subscription subscription1 = new SubscriptionImpl();
-        subscription1.setFeedType(FeedType.SIM);
+        subscription1.setFeedType(FeedType.SIM.name());
         subscription1.setSecurity(forex1);
         subscription1.setStrategy(strategy1);
 
@@ -434,7 +432,7 @@ public class SecurityDaoTest extends InMemoryDBTest {
         strategy2.setAutoActivate(Boolean.FALSE);
 
         Subscription subscription2 = new SubscriptionImpl();
-        subscription2.setFeedType(FeedType.SIM);
+        subscription2.setFeedType(FeedType.SIM.name());
         subscription2.setSecurity(forex2);
         subscription2.setStrategy(strategy2);
 
@@ -494,7 +492,7 @@ public class SecurityDaoTest extends InMemoryDBTest {
         strategy1.setAutoActivate(Boolean.TRUE);
 
         Subscription subscription1 = new SubscriptionImpl();
-        subscription1.setFeedType(FeedType.SIM);
+        subscription1.setFeedType(FeedType.SIM.name());
         subscription1.setSecurity(forex1);
         subscription1.setStrategy(strategy1);
 
@@ -513,7 +511,7 @@ public class SecurityDaoTest extends InMemoryDBTest {
         strategy2.setAutoActivate(Boolean.TRUE);
 
         Subscription subscription2 = new SubscriptionImpl();
-        subscription2.setFeedType(FeedType.SIM);
+        subscription2.setFeedType(FeedType.SIM.name());
         subscription2.setSecurity(forex2);
         subscription2.setStrategy(strategy2);
 
@@ -531,23 +529,23 @@ public class SecurityDaoTest extends InMemoryDBTest {
 
         this.session.flush();
 
-        List<Security> forexes1 = this.dao.findSubscribedByFeedTypeForAutoActivateStrategiesInclFamily(FeedType.BB);
+        List<Security> forexes1 = this.dao.findSubscribedByFeedTypeForAutoActivateStrategiesInclFamily(FeedType.BB.name());
 
         Assert.assertEquals(0, forexes1.size());
 
-        subscription1.setFeedType(FeedType.BB);
+        subscription1.setFeedType(FeedType.BB.name());
         this.session.flush();
 
-        List<Security> forexes2 = this.dao.findSubscribedByFeedTypeForAutoActivateStrategiesInclFamily(FeedType.BB);
+        List<Security> forexes2 = this.dao.findSubscribedByFeedTypeForAutoActivateStrategiesInclFamily(FeedType.BB.name());
 
         Assert.assertEquals(1, forexes2.size());
 
         Assert.assertSame(forex1, forexes2.get(0));
 
-        subscription2.setFeedType(FeedType.BB);
+        subscription2.setFeedType(FeedType.BB.name());
         this.session.flush();
 
-        List<Security> forexes3 = this.dao.findSubscribedByFeedTypeForAutoActivateStrategiesInclFamily(FeedType.BB);
+        List<Security> forexes3 = this.dao.findSubscribedByFeedTypeForAutoActivateStrategiesInclFamily(FeedType.BB.name());
 
         Assert.assertEquals(2, forexes3.size());
 
@@ -573,7 +571,7 @@ public class SecurityDaoTest extends InMemoryDBTest {
         strategy1.setAutoActivate(Boolean.TRUE);
 
         Subscription subscription1 = new SubscriptionImpl();
-        subscription1.setFeedType(FeedType.BB);
+        subscription1.setFeedType(FeedType.BB.name());
         subscription1.setSecurity(forex1);
         subscription1.setStrategy(strategy1);
 
@@ -592,7 +590,7 @@ public class SecurityDaoTest extends InMemoryDBTest {
         strategy2.setAutoActivate(Boolean.TRUE);
 
         Subscription subscription2 = new SubscriptionImpl();
-        subscription2.setFeedType(FeedType.BB);
+        subscription2.setFeedType(FeedType.BB.name());
         subscription2.setSecurity(forex2);
         subscription2.setStrategy(strategy2);
 
@@ -610,11 +608,11 @@ public class SecurityDaoTest extends InMemoryDBTest {
 
         this.session.flush();
 
-        List<Security> forexes1 = this.dao.findSubscribedByFeedTypeAndStrategyInclFamily(FeedType.BB, "Dummy");
+        List<Security> forexes1 = this.dao.findSubscribedByFeedTypeAndStrategyInclFamily(FeedType.BB.name(), "Dummy");
 
         Assert.assertEquals(0, forexes1.size());
 
-        List<Security> forexes2 = this.dao.findSubscribedByFeedTypeAndStrategyInclFamily(FeedType.BB, "Strategy1");
+        List<Security> forexes2 = this.dao.findSubscribedByFeedTypeAndStrategyInclFamily(FeedType.BB.name(), "Strategy1");
 
         Assert.assertEquals(1, forexes2.size());
 
@@ -623,7 +621,7 @@ public class SecurityDaoTest extends InMemoryDBTest {
         subscription2.setStrategy(strategy1);
         this.session.flush();
 
-        List<Security> forexes3 = this.dao.findSubscribedByFeedTypeAndStrategyInclFamily(FeedType.BB, "Strategy1");
+        List<Security> forexes3 = this.dao.findSubscribedByFeedTypeAndStrategyInclFamily(FeedType.BB.name(), "Strategy1");
 
         Assert.assertEquals(2, forexes3.size());
 
@@ -650,7 +648,7 @@ public class SecurityDaoTest extends InMemoryDBTest {
         strategy1.setAutoActivate(Boolean.FALSE);
 
         Subscription subscription1 = new SubscriptionImpl();
-        subscription1.setFeedType(FeedType.SIM);
+        subscription1.setFeedType(FeedType.SIM.name());
         subscription1.setSecurity(forex1);
         subscription1.setStrategy(strategy1);
 
@@ -674,7 +672,7 @@ public class SecurityDaoTest extends InMemoryDBTest {
 
         Assert.assertEquals(1, maps2.size());
 
-        Assert.assertSame(FeedType.SIM, maps2.get(0).get("feedType"));
+        Assert.assertSame(FeedType.SIM.name(), maps2.get(0).get("feedType"));
         Assert.assertSame(forex1, maps2.get(0).get("security"));
     }
 

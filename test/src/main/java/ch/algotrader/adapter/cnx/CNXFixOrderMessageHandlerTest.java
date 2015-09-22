@@ -183,7 +183,7 @@ public class CNXFixOrderMessageHandlerTest {
         forex.setSecurityFamily(securityFamily);
 
         Account testAccount = new AccountImpl();
-        testAccount.setBroker(Broker.CNX);
+        testAccount.setBroker(Broker.CNX.name());
 
         MarketOrder order = new MarketOrderImpl();
         order.setAccount(testAccount);
@@ -242,7 +242,7 @@ public class CNXFixOrderMessageHandlerTest {
         forex.setSecurityFamily(securityFamily);
 
         Account testAccount = new AccountImpl();
-        testAccount.setBroker(Broker.CNX);
+        testAccount.setBroker(Broker.CNX.name());
 
         MarketOrder order = new MarketOrderImpl();
         order.setAccount(testAccount);
@@ -271,7 +271,7 @@ public class CNXFixOrderMessageHandlerTest {
         forex.setSecurityFamily(securityFamily);
 
         Account testAccount = new AccountImpl();
-        testAccount.setBroker(Broker.CNX);
+        testAccount.setBroker(Broker.CNX.name());
 
         LimitOrder order = new LimitOrderImpl();
         order.setAccount(testAccount);
@@ -334,7 +334,7 @@ public class CNXFixOrderMessageHandlerTest {
         forex.setSecurityFamily(securityFamily);
 
         Account testAccount = new AccountImpl();
-        testAccount.setBroker(Broker.CNX);
+        testAccount.setBroker(Broker.CNX.name());
 
         LimitOrder order = new LimitOrderImpl();
         order.setAccount(testAccount);

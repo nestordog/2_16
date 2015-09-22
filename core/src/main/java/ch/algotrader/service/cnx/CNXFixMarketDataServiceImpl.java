@@ -19,11 +19,11 @@ package ch.algotrader.service.cnx;
 
 import org.apache.commons.lang.Validate;
 
+import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.adapter.cnx.CNXFixMarketDataRequestFactory;
 import ch.algotrader.adapter.cnx.CNXUtil;
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.fix.FixApplicationException;
-import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.FeedType;
@@ -93,8 +93,8 @@ public class CNXFixMarketDataServiceImpl extends FixMarketDataServiceImpl implem
     }
 
     @Override
-    public FeedType getFeedType() {
+    public String getFeedType() {
 
-        return FeedType.CNX;
+        return FeedType.CNX.name();
     }
 }

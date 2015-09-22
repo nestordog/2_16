@@ -83,7 +83,7 @@ public class TestFTXFixMarketDataMessageHandler {
         Assert.assertEquals("EUR/USD", bid.getTickerId());
         Assert.assertEquals(new BigDecimal("1.13653"), new BigDecimal(bid.getBid()).setScale(5, RoundingMode.HALF_EVEN));
         Assert.assertEquals(1000000, bid.getVolBid());
-        Assert.assertEquals(FeedType.FTX, bid.getFeedType());
+        Assert.assertEquals(FeedType.FTX.name(), bid.getFeedType());
         Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2015-06-10 08:03:36.656"), bid.getDateTime());
 
         Object event2 = events.get(1);
@@ -93,7 +93,7 @@ public class TestFTXFixMarketDataMessageHandler {
         Assert.assertEquals("EUR/USD", ask.getTickerId());
         Assert.assertEquals(new BigDecimal("1.13677"), new BigDecimal(ask.getAsk()).setScale(5, RoundingMode.HALF_EVEN));
         Assert.assertEquals(1000000, ask.getVolAsk());
-        Assert.assertEquals(FeedType.FTX, ask.getFeedType());
+        Assert.assertEquals(FeedType.FTX.name(), ask.getFeedType());
         Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2015-06-10 08:03:36.656"), ask.getDateTime());
     }
 

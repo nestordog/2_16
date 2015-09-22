@@ -21,7 +21,6 @@ import java.math.BigDecimal;
 
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.trade.Order;
-import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Side;
 
 
@@ -45,7 +44,7 @@ public class PriceUtil {
     public static BigDecimal normalizePrice(final Order order, double price) {
 
         SecurityFamily securityFamily = order.getSecurity().getSecurityFamily();
-        Broker broker = order.getAccount().getBroker();
+        String broker = order.getAccount().getBroker();
 
         double normalizedPrice = price / securityFamily.getPriceMultiplier(broker);
 
@@ -64,7 +63,7 @@ public class PriceUtil {
     public static double denormalizePrice(final Order order, final BigDecimal price) {
 
         SecurityFamily securityFamily = order.getSecurity().getSecurityFamily();
-        Broker broker = order.getAccount().getBroker();
+        String broker = order.getAccount().getBroker();
 
         double denormalizedPrice = price.doubleValue() * securityFamily.getPriceMultiplier(broker);
 

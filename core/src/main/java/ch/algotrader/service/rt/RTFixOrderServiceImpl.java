@@ -62,8 +62,8 @@ public class RTFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fix4
     }
 
     @Override
-    public OrderServiceType getOrderServiceType() {
+    public String getOrderServiceType() {
 
-        return OrderServiceType.RT_FIX;
+        return OrderServiceType.RT_FIX.name();
     }
 }

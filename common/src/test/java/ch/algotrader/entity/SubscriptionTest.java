@@ -54,14 +54,13 @@ public class SubscriptionTest {
 
         Assert.assertNotEquals(subscription1, subscription2);
 
-        FeedType feedType = FeedType.IB;
-        subscription1.setFeedType(feedType);
+        subscription1.setFeedType(FeedType.IB.name());
 
         Assert.assertNotEquals(subscription1, subscription2);
 
         subscription2.setStrategy(strategy);
         subscription2.setSecurity(security1);
-        subscription2.setFeedType(feedType);
+        subscription2.setFeedType(FeedType.IB.name());
 
         Assert.assertEquals(subscription1, subscription2);
 

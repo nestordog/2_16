@@ -338,7 +338,7 @@ public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl imple
                 double close = fields.getElementAsFloat64(BBConstants.CLOSE);
                 long volume = fields.getElementAsInt64(BBConstants.VOLUME);
 
-                int scale = this.security.getSecurityFamily().getScale(Broker.BBG);
+                int scale = this.security.getSecurityFamily().getScale(Broker.BBG.name());
 
                 Bar bar = Bar.Factory.newInstance();
                 bar.setDateTime(time);
@@ -348,7 +348,7 @@ public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl imple
                 bar.setClose(RoundUtil.getBigDecimal(close, scale));
                 bar.setVol((int) volume);
                 bar.setBarSize(this.barSize);
-                bar.setFeedType(FeedType.BB);
+                bar.setFeedType(FeedType.BB.name());
                 bar.setSecurity(this.security);
 
                 this.barList.add(bar);
@@ -393,7 +393,7 @@ public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl imple
                     volume = bbBar.getElementAsInt64("VOLUME");
                 }
 
-                int scale = this.security.getSecurityFamily().getScale(Broker.BBG);
+                int scale = this.security.getSecurityFamily().getScale(Broker.BBG.name());
 
                 Bar bar = Bar.Factory.newInstance();
                 bar.setDateTime(date);
@@ -403,7 +403,7 @@ public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl imple
                 bar.setClose(RoundUtil.getBigDecimal(close, scale));
                 bar.setVol((int) volume);
                 bar.setBarSize(this.barSize);
-                bar.setFeedType(FeedType.BB);
+                bar.setFeedType(FeedType.BB.name());
                 bar.setSecurity(this.security);
 
                 this.barList.add(bar);

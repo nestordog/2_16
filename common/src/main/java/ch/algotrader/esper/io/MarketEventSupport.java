@@ -26,7 +26,6 @@ import ch.algotrader.entity.marketData.BarVO;
 import ch.algotrader.entity.marketData.TickVO;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityImpl;
-import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.service.ServerLookupService;
 
 /**
@@ -43,14 +42,14 @@ final class MarketEventSupport {
     public static TickVO rawTickToEvent(RawTickVO raw) {
 
         Security security = getSecurity(raw.getSecurity());
-        return new TickVO(0L, raw.getDateTime(), FeedType.SIM, security.getId(), raw.getLast(), raw.getLastDateTime(),
+        return new TickVO(0L, raw.getDateTime(), "SIM", security.getId(), raw.getLast(), raw.getLastDateTime(),
                 raw.getBid(), raw.getAsk(), raw.getVol(), raw.getVolAsk(), raw.getVolBid());
     }
 
     public static BarVO rawBarToEvent(RawBarVO raw) {
 
         Security security = getSecurity(raw.getSecurity());
-        return new BarVO(0L, raw.getDateTime(), FeedType.SIM, security.getId(), raw.getBarSize(), raw.getOpen(), raw.getHigh(), raw.getLow(), raw.getClose(), raw.getVol());
+        return new BarVO(0L, raw.getDateTime(), "SIM", security.getId(), raw.getBarSize(), raw.getOpen(), raw.getHigh(), raw.getLow(), raw.getClose(), raw.getVol());
     }
 
     private static Security getSecurity(String securityString) {

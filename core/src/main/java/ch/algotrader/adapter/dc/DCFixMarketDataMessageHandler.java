@@ -86,7 +86,7 @@ public class DCFixMarketDataMessageHandler extends AbstractFix44MarketDataMessag
                             LOGGER.trace("{} BID {}@{}", symbol.getValue(), size, price);
                         }
 
-                        BidVO bidVO = new BidVO(tickerId, FeedType.DC, date, price, (int) size);
+                        BidVO bidVO = new BidVO(tickerId, FeedType.DC.name(), date, price, (int) size);
                         this.serverEngine.sendEvent(bidVO);
                         break;
                     case MDEntryType.OFFER:
@@ -95,7 +95,7 @@ public class DCFixMarketDataMessageHandler extends AbstractFix44MarketDataMessag
                             LOGGER.trace("{} ASK {}@{}", symbol.getValue(), size, price);
                         }
 
-                        AskVO askVO = new AskVO(tickerId, FeedType.DC, date, price, (int) size);
+                        AskVO askVO = new AskVO(tickerId, FeedType.DC.name(), date, price, (int) size);
 
                         this.serverEngine.sendEvent(askVO);
                         break;

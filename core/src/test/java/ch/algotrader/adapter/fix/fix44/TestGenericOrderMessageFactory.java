@@ -99,7 +99,7 @@ public class TestGenericOrderMessageFactory {
         option.setExpiration(DateTimeLegacy.parseAsDateGMT("2014-12-31"));
 
         Account account = new AccountImpl();
-        account.setBroker(Broker.RT);
+        account.setBroker(Broker.RT.name());
 
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(option);
@@ -139,7 +139,7 @@ public class TestGenericOrderMessageFactory {
         future.setExpiration(DateTimeLegacy.parseAsDateGMT("2014-12-31"));
 
         Account account = new AccountImpl();
-        account.setBroker(Broker.RT);
+        account.setBroker(Broker.RT.name());
 
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(future);
@@ -173,7 +173,7 @@ public class TestGenericOrderMessageFactory {
         stock.setSymbol("APPL");
 
         Account account = new AccountImpl();
-        account.setBroker(Broker.RT);
+        account.setBroker(Broker.RT.name());
 
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(stock);
@@ -206,7 +206,7 @@ public class TestGenericOrderMessageFactory {
         forex.setSecurityFamily(family);
 
         Account account = new AccountImpl();
-        account.setBroker(Broker.RT);
+        account.setBroker(Broker.RT.name());
 
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(forex);
@@ -239,7 +239,7 @@ public class TestGenericOrderMessageFactory {
         stock.setSymbol("APPL");
 
         Account account = new AccountImpl();
-        account.setBroker(Broker.RT);
+        account.setBroker(Broker.RT.name());
 
         LimitOrder order = new LimitOrderImpl();
         order.setSecurity(stock);
@@ -274,7 +274,7 @@ public class TestGenericOrderMessageFactory {
         stock.setSymbol("APPL");
 
         Account account = new AccountImpl();
-        account.setBroker(Broker.RT);
+        account.setBroker(Broker.RT.name());
 
         StopOrder order = new StopOrderImpl();
         order.setSecurity(stock);
@@ -309,7 +309,7 @@ public class TestGenericOrderMessageFactory {
         stock.setSymbol("APPL");
 
         Account account = new AccountImpl();
-        account.setBroker(Broker.RT);
+        account.setBroker(Broker.RT.name());
 
         StopLimitOrder order = new StopLimitOrderImpl();
         order.setSecurity(stock);
@@ -348,7 +348,7 @@ public class TestGenericOrderMessageFactory {
         stock.setSymbol("APPL");
 
         Account account = new AccountImpl();
-        account.setBroker(Broker.RT);
+        account.setBroker(Broker.RT.name());
 
         StopLimitOrder order = new StopLimitOrderImpl();
         order.setSecurity(stock);
@@ -393,7 +393,7 @@ public class TestGenericOrderMessageFactory {
         option.setExpiration(DateTimeLegacy.parseAsDateGMT("2014-12-31"));
 
         Account account = new AccountImpl();
-        account.setBroker(Broker.RT);
+        account.setBroker(Broker.RT.name());
 
         MarketOrder order = new MarketOrderImpl();
         order.setIntId("previous-test-id");
@@ -430,7 +430,7 @@ public class TestGenericOrderMessageFactory {
         future.setExpiration(DateTimeLegacy.parseAsDateGMT("2014-12-31"));
 
         Account account = new AccountImpl();
-        account.setBroker(Broker.RT);
+        account.setBroker(Broker.RT.name());
 
         MarketOrder order = new MarketOrderImpl();
         order.setIntId("previous-test-id");
@@ -463,7 +463,7 @@ public class TestGenericOrderMessageFactory {
         stock.setSymbol("APPL");
 
         Account account = new AccountImpl();
-        account.setBroker(Broker.RT);
+        account.setBroker(Broker.RT.name());
 
         MarketOrder order = new MarketOrderImpl();
         order.setIntId("previous-test-id");
@@ -495,7 +495,7 @@ public class TestGenericOrderMessageFactory {
         forex.setSecurityFamily(family);
 
         Account account = new AccountImpl();
-        account.setBroker(Broker.RT);
+        account.setBroker(Broker.RT.name());
 
         MarketOrder order = new MarketOrderImpl();
         order.setIntId("previous-test-id");
@@ -527,7 +527,7 @@ public class TestGenericOrderMessageFactory {
         stock.setSymbol("APPL");
 
         Account account = new AccountImpl();
-        account.setBroker(Broker.RT);
+        account.setBroker(Broker.RT.name());
 
         LimitOrder order = new LimitOrderImpl();
         order.setIntId("previous-test-id");
@@ -562,7 +562,7 @@ public class TestGenericOrderMessageFactory {
         stock.setSymbol("APPL");
 
         Account account = new AccountImpl();
-        account.setBroker(Broker.RT);
+        account.setBroker(Broker.RT.name());
 
         StopOrder order = new StopOrderImpl();
         order.setIntId("previous-test-id");
@@ -596,7 +596,7 @@ public class TestGenericOrderMessageFactory {
         stock.setSymbol("APPL");
 
         Account account = new AccountImpl();
-        account.setBroker(Broker.RT);
+        account.setBroker(Broker.RT.name());
 
         StopLimitOrder order = new StopLimitOrderImpl();
         order.setIntId("previous-test-id");
@@ -634,7 +634,7 @@ public class TestGenericOrderMessageFactory {
         stock.setSymbol("APPL");
 
         Account account = new AccountImpl();
-        account.setBroker(Broker.RT);
+        account.setBroker(Broker.RT.name());
 
         StopLimitOrder order = new StopLimitOrderImpl();
         order.setIntId("previous-test-id");
@@ -678,7 +678,7 @@ public class TestGenericOrderMessageFactory {
         option.setExpiration(DateTimeLegacy.parseAsDateGMT("2014-12-31"));
 
         Account account = new AccountImpl();
-        account.setBroker(Broker.RT);
+        account.setBroker(Broker.RT.name());
 
         MarketOrder order = new MarketOrderImpl();
         order.setIntId("previous-test-id");
@@ -714,7 +714,7 @@ public class TestGenericOrderMessageFactory {
         future.setExpiration(DateTimeLegacy.parseAsDateGMT("2014-12-31"));
 
         Account account = new AccountImpl();
-        account.setBroker(Broker.RT);
+        account.setBroker(Broker.RT.name());
 
         MarketOrder order = new MarketOrderImpl();
         order.setIntId("previous-test-id");
@@ -747,7 +747,7 @@ public class TestGenericOrderMessageFactory {
         stock.setSymbol("APPL");
 
         Account account = new AccountImpl();
-        account.setBroker(Broker.RT);
+        account.setBroker(Broker.RT.name());
 
         MarketOrder order = new MarketOrderImpl();
         order.setIntId("previous-test-id");
@@ -779,7 +779,7 @@ public class TestGenericOrderMessageFactory {
         forex.setSecurityFamily(family);
 
         Account account = new AccountImpl();
-        account.setBroker(Broker.RT);
+        account.setBroker(Broker.RT.name());
 
         MarketOrder order = new MarketOrderImpl();
         order.setIntId("previous-test-id");
@@ -811,7 +811,7 @@ public class TestGenericOrderMessageFactory {
         forex.setSecurityFamily(family);
 
         Account account = new AccountImpl();
-        account.setBroker(Broker.RT);
+        account.setBroker(Broker.RT.name());
 
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(forex);

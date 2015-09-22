@@ -65,8 +65,8 @@ public class JPMFixOrderServiceImpl extends Fix42OrderServiceImpl implements Fix
     }
 
     @Override
-    public OrderServiceType getOrderServiceType() {
+    public String getOrderServiceType() {
 
-        return OrderServiceType.JPM_FIX;
+        return OrderServiceType.JPM_FIX.name();
     }
 }

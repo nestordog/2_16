@@ -29,7 +29,6 @@ import ch.algotrader.dao.AbstractDao;
 import ch.algotrader.dao.NamedParam;
 import ch.algotrader.entity.security.EasyToBorrow;
 import ch.algotrader.entity.security.EasyToBorrowImpl;
-import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.QueryType;
 
 /**
@@ -46,7 +45,7 @@ public class EasyToBorrowDaoImpl extends AbstractDao<EasyToBorrow> implements Ea
     }
 
     @Override
-    public List<EasyToBorrow> findByDateAndBroker(Date date, Broker broker) {
+    public List<EasyToBorrow> findByDateAndBroker(Date date, String broker) {
 
         Validate.notNull(date, "Date is null");
         Validate.notNull(broker, "Broker is null");

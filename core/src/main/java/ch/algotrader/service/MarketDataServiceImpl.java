@@ -49,7 +49,6 @@ import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.marketData.TickVO;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.strategy.Strategy;
-import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.dispatch.EventDispatcher;
@@ -89,7 +88,7 @@ public class MarketDataServiceImpl implements MarketDataService {
 
     private final LocalLookupService localLookupService;
 
-    private final Map<FeedType, ExternalMarketDataService> externalMarketDataServiceMap;
+    private final Map<String, ExternalMarketDataService> externalMarketDataServiceMap;
 
     public MarketDataServiceImpl(final CommonConfig commonConfig,
             final CoreConfig coreConfig,
@@ -101,7 +100,7 @@ public class MarketDataServiceImpl implements MarketDataService {
             final EngineManager engineManager,
             final EventDispatcher eventDispatcher,
             final LocalLookupService localLookupService,
-            final Map<FeedType, ExternalMarketDataService> externalMarketDataServiceMap) {
+            final Map<String, ExternalMarketDataService> externalMarketDataServiceMap) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(coreConfig, "CoreConfig is null");
@@ -113,7 +112,7 @@ public class MarketDataServiceImpl implements MarketDataService {
         Validate.notNull(engineManager, "EngineManager is null");
         Validate.notNull(eventDispatcher, "EventDispatcher is null");
         Validate.notNull(localLookupService, "LocalLookupService is null");
-        Validate.notNull(externalMarketDataServiceMap, "Map<FeedType, ExternalMarketDataService> is null");
+        Validate.notNull(externalMarketDataServiceMap, "Map<String, ExternalMarketDataService> is null");
 
         this.commonConfig = commonConfig;
         this.coreConfig = coreConfig;
@@ -155,7 +154,7 @@ public class MarketDataServiceImpl implements MarketDataService {
      * {@inheritDoc}
      */
     @Override
-    public void initSubscriptions(final FeedType feedType) {
+    public void initSubscriptions(final String feedType) {
 
         Validate.notNull(feedType, "Feed type is null");
 
@@ -195,7 +194,7 @@ public class MarketDataServiceImpl implements MarketDataService {
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public void subscribe(final String strategyName, final long securityId, final FeedType feedType) {
+    public void subscribe(final String strategyName, final long securityId, final String feedType) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
         Validate.notNull(feedType, "Feed type is null");
@@ -250,7 +249,7 @@ public class MarketDataServiceImpl implements MarketDataService {
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public void unsubscribe(final String strategyName, final long securityId, final FeedType feedType) {
+    public void unsubscribe(final String strategyName, final long securityId, final String feedType) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
         Validate.notNull(feedType, "Feed type is null");
@@ -369,9 +368,9 @@ public class MarketDataServiceImpl implements MarketDataService {
         }
     }
 
-    private ExternalMarketDataService getExternalMarketDataService(final FeedType feedType) {
+    private ExternalMarketDataService getExternalMarketDataService(final String feedType) {
 
-        Validate.notNull(feedType, "FeedType is null");
+        Validate.notNull(feedType, "String is null");
 
         ExternalMarketDataService externalMarketDataService = this.externalMarketDataServiceMap.get(feedType);
         if (externalMarketDataService == null) {
@@ -381,12 +380,12 @@ public class MarketDataServiceImpl implements MarketDataService {
     }
 
     @Override
-    public Set<FeedType> getSupportedFeeds() {
+    public Set<String> getSupportedFeeds() {
         return new HashSet<>(this.externalMarketDataServiceMap.keySet());
     }
 
     @Override
-    public boolean isSupportedFeed(FeedType feedType) {
+    public boolean isSupportedFeed(String feedType) {
 
         return this.externalMarketDataServiceMap.containsKey(feedType);
     }

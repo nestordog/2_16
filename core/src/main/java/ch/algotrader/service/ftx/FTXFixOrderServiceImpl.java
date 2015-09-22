@@ -79,9 +79,9 @@ public class FTXFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fix
     }
 
     @Override
-    public OrderServiceType getOrderServiceType() {
+    public String getOrderServiceType() {
 
-        return OrderServiceType.FTX_FIX;
+        return OrderServiceType.FTX_FIX.name();
     }
 
 }

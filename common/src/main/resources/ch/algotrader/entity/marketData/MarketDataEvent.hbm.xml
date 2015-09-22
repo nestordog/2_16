@@ -73,12 +73,8 @@
         <property name="feedType">
             <meta attribute="field-description"><![CDATA[The market data feed that provided this  MarketDataEvent]]></meta>
             <meta attribute="use-in-equals">true</meta>
-            <meta attribute="property-type">ch.algotrader.enumeration.FeedType</meta>
             <column name="FEED_TYPE" not-null="true" unique="false" sql-type="VARCHAR(255)"/>
-
-            <type name="ch.algotrader.hibernate.HibernateEnumType">
-                 <param name="enumClassName">ch.algotrader.enumeration.FeedType</param>
-            </type>
+            <type name="java.lang.String"/>
         </property>
         <many-to-one name="security" class="ch.algotrader.entity.security.SecurityImpl" foreign-key="MARKET_DATA_EVENT_SECURITY_FKC" not-null="true" lazy="proxy" fetch="select">
             <meta attribute="property-type">ch.algotrader.entity.security.Security</meta>

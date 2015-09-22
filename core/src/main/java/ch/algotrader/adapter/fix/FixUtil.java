@@ -21,10 +21,6 @@ import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 
-import quickfix.FieldMap;
-import quickfix.field.OrdType;
-import quickfix.field.Symbol;
-import quickfix.field.TimeInForce;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.Future;
 import ch.algotrader.entity.security.Option;
@@ -36,10 +32,13 @@ import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderProperty;
 import ch.algotrader.entity.trade.StopLimitOrder;
 import ch.algotrader.entity.trade.StopOrder;
-import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.OrderPropertyType;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.TIF;
+import quickfix.FieldMap;
+import quickfix.field.OrdType;
+import quickfix.field.Symbol;
+import quickfix.field.TimeInForce;
 
 /**
  * Utility class providing conversion methods for Fix specific types.
@@ -63,7 +62,7 @@ public class FixUtil {
         }
     }
 
-    public static Symbol getFixSymbol(Security security, Broker broker) {
+    public static Symbol getFixSymbol(Security security, String broker) {
 
         if (security instanceof Option) {
             return new Symbol(security.getSecurityFamily().getSymbolRoot(broker));

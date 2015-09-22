@@ -146,7 +146,7 @@ public class TestLMAXMOrderMessageFactory {
 
         Account account = new AccountImpl();
         account.setName("TEST");
-        account.setBroker(Broker.IB);
+        account.setBroker(Broker.IB.name());
 
         LimitOrder order = new LimitOrderImpl();
         order.setSecurity(forex);
@@ -184,7 +184,7 @@ public class TestLMAXMOrderMessageFactory {
 
         Account account = new AccountImpl();
         account.setName("TEST");
-        account.setBroker(Broker.IB);
+        account.setBroker(Broker.IB.name());
 
         StopOrder order = new StopOrderImpl();
         order.setSecurity(forex);
@@ -244,7 +244,7 @@ public class TestLMAXMOrderMessageFactory {
 
         Account account = new AccountImpl();
         account.setName("TEST");
-        account.setBroker(Broker.IB);
+        account.setBroker(Broker.IB.name());
 
         LimitOrder order = new LimitOrderImpl();
         order.setIntId("test-id");

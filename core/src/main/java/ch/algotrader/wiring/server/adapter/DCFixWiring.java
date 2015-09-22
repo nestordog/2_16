@@ -21,13 +21,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
+import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.adapter.dc.DCFixMarketDataMessageHandler;
 import ch.algotrader.adapter.dc.DCFixOrderMessageHandler;
 import ch.algotrader.adapter.fix.DefaultFixApplicationFactory;
 import ch.algotrader.adapter.fix.DefaultFixSessionStateHolder;
 import ch.algotrader.adapter.fix.DefaultLogonMessageHandler;
 import ch.algotrader.adapter.fix.FixApplicationFactory;
-import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.adapter.fix.MarketDataFixSessionStateHolder;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.Engine;
@@ -72,7 +72,7 @@ public class DCFixWiring {
     public DefaultFixSessionStateHolder createDCMarketDataSessionStateHolder(
             final EventDispatcher eventDispatcher) {
 
-        return new MarketDataFixSessionStateHolder("DCMD", eventDispatcher, FeedType.DC);
+        return new MarketDataFixSessionStateHolder("DCMD", eventDispatcher, FeedType.DC.name());
     }
 
     @Profile("dCMarketData")

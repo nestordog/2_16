@@ -20,7 +20,6 @@ package ch.algotrader.dao;
 import java.util.Collection;
 
 import ch.algotrader.entity.Account;
-import ch.algotrader.enumeration.OrderServiceType;
 
 /**
  * DAO for {@link ch.algotrader.entity.Account} objects.
@@ -37,10 +36,10 @@ public interface AccountDao extends ReadWriteDao<Account> {
     public Account findByName(String name);
 
     /**
-     * Finds all active Accounts for the specified {@link OrderServiceType}
+     * Finds all active Accounts for the specified order type
      * @param orderServiceType
      * @return Collection<String>
      */
-    public Collection<String> findActiveSessionsByOrderServiceType(OrderServiceType orderServiceType);
+    public Collection<String> findActiveSessionsByOrderServiceType(String orderServiceType);
 
 }

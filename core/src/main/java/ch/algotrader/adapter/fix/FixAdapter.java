@@ -19,7 +19,6 @@ package ch.algotrader.adapter.fix;
 
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.trade.Order;
-import ch.algotrader.enumeration.OrderServiceType;
 import quickfix.Message;
 
 /**
@@ -34,13 +33,13 @@ public interface FixAdapter {
     /**
      * creates an individual session
      */
-    void createSession(OrderServiceType orderServiceType) throws FixApplicationException;
+    void createSessionForService(String orderServiceType) throws FixApplicationException;
 
     /**
      * Makes sure there is an existing session with the given qualifier. New session will be created
      * if there is no session with the given qualifier.
      */
-    void openSession(OrderServiceType orderServiceType) throws FixApplicationException;
+    void openSessionForService(String orderServiceType) throws FixApplicationException;
 
     /**
      * creates an individual session with the given qualifier

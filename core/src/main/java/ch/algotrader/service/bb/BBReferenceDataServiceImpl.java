@@ -410,9 +410,9 @@ public class BBReferenceDataServiceImpl implements ReferenceDataService, Initial
                     int contractSize = fields.getElementAsInt32(BBConstants.OPT_CONT_SIZE);
 
                     // ignore securities with different contractSize than the securityFamily
-                    if (this.securityFamily.getContractSize(Broker.BBG) != contractSize) {
+                    if (this.securityFamily.getContractSize(Broker.BBG.name()) != contractSize) {
                         if (LOGGER.isWarnEnabled()) {
-                            LOGGER.warn("{} difference in contract size, db: {} bb: {}", symbol, this.securityFamily.getContractSize(Broker.BBG), contractSize);
+                            LOGGER.warn("{} difference in contract size, db: {} bb: {}", symbol, this.securityFamily.getContractSize(Broker.BBG.name()), contractSize);
                         }
                     }
 
@@ -421,7 +421,7 @@ public class BBReferenceDataServiceImpl implements ReferenceDataService, Initial
                     String typeString = fields.getElementAsString(BBConstants.OPT_PUT_CALL);
 
                     Date expiration = DateTimeLegacy.parseAsDateTimeGMT(expirationString);
-                    BigDecimal strike = RoundUtil.getBigDecimal(strikeDouble, this.securityFamily.getScale(Broker.BBG));
+                    BigDecimal strike = RoundUtil.getBigDecimal(strikeDouble, this.securityFamily.getScale(Broker.BBG.name()));
                     OptionType type = OptionType.valueOf(typeString.toUpperCase());
 
                     Option option = Option.Factory.newInstance();
@@ -445,9 +445,9 @@ public class BBReferenceDataServiceImpl implements ReferenceDataService, Initial
                     int contractSize = fields.getElementAsInt32(BBConstants.FUT_CONT_SIZE);
 
                     // ignore securities with different contractSize than the securityFamily
-                    if (this.securityFamily.getContractSize(Broker.BBG) != contractSize) {
+                    if (this.securityFamily.getContractSize(Broker.BBG.name()) != contractSize) {
                         if (LOGGER.isWarnEnabled()) {
-                            LOGGER.warn("{} difference in contract size, db: {} bb: {}", symbol, this.securityFamily.getContractSize(Broker.BBG), contractSize);
+                            LOGGER.warn("{} difference in contract size, db: {} bb: {}", symbol, this.securityFamily.getContractSize(Broker.BBG.name()), contractSize);
                         }
                     }
 

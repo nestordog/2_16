@@ -119,7 +119,7 @@ public class SimulatorTest {
         Account account = Account.Factory.newInstance();
         account.setId(1);
         account.setName("ACCOUNT_1");
-        account.setBroker(Broker.IB);
+        account.setBroker(Broker.IB.name());
 
         Exchange exchange = Exchange.Factory.newInstance();
         exchange.setId(1);

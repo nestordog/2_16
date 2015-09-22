@@ -21,12 +21,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
+import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.adapter.cnx.CNXFixApplicationFactory;
 import ch.algotrader.adapter.cnx.CNXFixMarketDataMessageHandler;
 import ch.algotrader.adapter.cnx.CNXFixOrderMessageHandler;
 import ch.algotrader.adapter.fix.DefaultFixSessionStateHolder;
 import ch.algotrader.adapter.fix.DefaultLogonMessageHandler;
-import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.adapter.fix.MarketDataFixSessionStateHolder;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.Engine;
@@ -70,7 +70,7 @@ public class CNXFixWiring {
     @Bean(name = "cNXMarketDataSessionStateHolder")
     public ExternalSessionStateHolder createCNXMarketDataSessionStateHolder(final EventDispatcher eventDispatcher) {
 
-        return new MarketDataFixSessionStateHolder("CNXMD", eventDispatcher, FeedType.CNX);
+        return new MarketDataFixSessionStateHolder("CNXMD", eventDispatcher, FeedType.CNX.name());
     }
 
     @Profile("cNXMarketData")

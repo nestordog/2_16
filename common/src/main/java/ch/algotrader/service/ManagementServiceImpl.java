@@ -70,7 +70,6 @@ import ch.algotrader.entity.trade.StopOrder;
 import ch.algotrader.entity.trade.TickwiseIncrementalOrder;
 import ch.algotrader.entity.trade.VariableIncrementalOrder;
 import ch.algotrader.enumeration.CombinationType;
-import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.enumeration.OrderPropertyType;
 import ch.algotrader.enumeration.QueryType;
 import ch.algotrader.enumeration.Side;
@@ -724,7 +723,7 @@ public class ManagementServiceImpl implements ManagementService {
         Validate.notEmpty(security, "Security is empty");
 
         if (!"".equals(feedType)) {
-            this.subscriptionService.subscribeMarketDataEvent(this.engine.getStrategyName(), getSecurityId(security), FeedType.valueOf(feedType));
+            this.subscriptionService.subscribeMarketDataEvent(this.engine.getStrategyName(), getSecurityId(security), feedType);
         } else {
             this.subscriptionService.subscribeMarketDataEvent(this.engine.getStrategyName(), getSecurityId(security));
         }
@@ -744,7 +743,7 @@ public class ManagementServiceImpl implements ManagementService {
         Validate.notEmpty(security, "Security is empty");
 
         if (!"".equals(feedType)) {
-            this.subscriptionService.unsubscribeMarketDataEvent(this.engine.getStrategyName(), getSecurityId(security), FeedType.valueOf(feedType));
+            this.subscriptionService.unsubscribeMarketDataEvent(this.engine.getStrategyName(), getSecurityId(security), feedType);
         } else {
             this.subscriptionService.unsubscribeMarketDataEvent(this.engine.getStrategyName(), getSecurityId(security));
         }

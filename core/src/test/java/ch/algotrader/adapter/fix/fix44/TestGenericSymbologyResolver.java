@@ -18,7 +18,6 @@
 package ch.algotrader.adapter.fix.fix44;
 
 import java.math.BigDecimal;
-import java.time.format.DateTimeFormatter;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -40,7 +39,6 @@ import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.util.DateTimeLegacy;
-import ch.algotrader.util.DateTimeUtil;
 import quickfix.field.CFICode;
 import quickfix.field.ContractMultiplier;
 import quickfix.field.MaturityDate;
@@ -80,7 +78,7 @@ public class TestGenericSymbologyResolver {
 
         NewOrderSingle message = new NewOrderSingle();
 
-        this.symbologyResolver.resolve(message, option, Broker.RT);
+        this.symbologyResolver.resolve(message, option, Broker.RT.name());
 
         Assert.assertEquals(new Symbol("STUFF"), message.getSymbol());
         Assert.assertEquals(new quickfix.field.Currency("BRL"), message.getCurrency());
@@ -106,7 +104,7 @@ public class TestGenericSymbologyResolver {
 
         NewOrderSingle message = new NewOrderSingle();
 
-        this.symbologyResolver.resolve(message, future, Broker.RT);
+        this.symbologyResolver.resolve(message, future, Broker.RT.name());
 
         Assert.assertEquals(new Symbol("STUFF"), message.getSymbol());
         Assert.assertEquals(new quickfix.field.Currency("BRL"), message.getCurrency());
@@ -125,7 +123,7 @@ public class TestGenericSymbologyResolver {
         stock.setSymbol("APPL");
         NewOrderSingle message = new NewOrderSingle();
 
-        this.symbologyResolver.resolve(message, stock, Broker.RT);
+        this.symbologyResolver.resolve(message, stock, Broker.RT.name());
 
         Assert.assertEquals(new Symbol("APPL"), message.getSymbol());
         Assert.assertEquals(new quickfix.field.Currency("USD"), message.getCurrency());
@@ -146,7 +144,7 @@ public class TestGenericSymbologyResolver {
 
         NewOrderSingle message = new NewOrderSingle();
 
-        this.symbologyResolver.resolve(message, forex, Broker.RT);
+        this.symbologyResolver.resolve(message, forex, Broker.RT.name());
 
         Assert.assertEquals(new Symbol("EUR"), message.getSymbol());
         Assert.assertEquals(new quickfix.field.Currency("USD"), message.getCurrency());
@@ -170,7 +168,7 @@ public class TestGenericSymbologyResolver {
 
         OrderCancelReplaceRequest message = new OrderCancelReplaceRequest();
 
-        this.symbologyResolver.resolve(message, option, Broker.RT);
+        this.symbologyResolver.resolve(message, option, Broker.RT.name());
 
         Assert.assertEquals(new Symbol("STUFF"), message.getSymbol());
         Assert.assertEquals(new CFICode("OC"), message.getCFICode());
@@ -192,7 +190,7 @@ public class TestGenericSymbologyResolver {
 
         OrderCancelReplaceRequest message = new OrderCancelReplaceRequest();
 
-        this.symbologyResolver.resolve(message, future, Broker.RT);
+        this.symbologyResolver.resolve(message, future, Broker.RT.name());
 
         Assert.assertEquals(new Symbol("STUFF"), message.getSymbol());
         Assert.assertEquals(new MaturityMonthYear("201412"), message.getMaturityMonthYear());
@@ -210,7 +208,7 @@ public class TestGenericSymbologyResolver {
 
         OrderCancelReplaceRequest message = new OrderCancelReplaceRequest();
 
-        this.symbologyResolver.resolve(message, stock, Broker.RT);
+        this.symbologyResolver.resolve(message, stock, Broker.RT.name());
 
         Assert.assertEquals(new Symbol("APPL"), message.getSymbol());
     }
@@ -229,7 +227,7 @@ public class TestGenericSymbologyResolver {
 
         OrderCancelReplaceRequest message = new OrderCancelReplaceRequest();
 
-        this.symbologyResolver.resolve(message, forex, Broker.RT);
+        this.symbologyResolver.resolve(message, forex, Broker.RT.name());
 
         Assert.assertEquals(new Symbol("EUR"), message.getSymbol());
     }
@@ -251,7 +249,7 @@ public class TestGenericSymbologyResolver {
 
         OrderCancelRequest message = new OrderCancelRequest();
 
-        this.symbologyResolver.resolve(message, option, Broker.RT);
+        this.symbologyResolver.resolve(message, option, Broker.RT.name());
 
         Assert.assertEquals(new Symbol("STUFF"), message.getSymbol());
         Assert.assertEquals(new SecurityType(SecurityType.OPTION), message.getSecurityType());
@@ -274,7 +272,7 @@ public class TestGenericSymbologyResolver {
 
         OrderCancelRequest message = new OrderCancelRequest();
 
-        this.symbologyResolver.resolve(message, future, Broker.RT);
+        this.symbologyResolver.resolve(message, future, Broker.RT.name());
 
         Assert.assertEquals(new Symbol("STUFF"), message.getSymbol());
         Assert.assertEquals(new SecurityType(SecurityType.FUTURE), message.getSecurityType());
@@ -293,7 +291,7 @@ public class TestGenericSymbologyResolver {
 
         OrderCancelRequest message = new OrderCancelRequest();
 
-        this.symbologyResolver.resolve(message, stock, Broker.RT);
+        this.symbologyResolver.resolve(message, stock, Broker.RT.name());
 
         Assert.assertEquals(new Symbol("APPL"), message.getSymbol());
         Assert.assertEquals(new SecurityType(SecurityType.COMMON_STOCK), message.getSecurityType());
@@ -313,7 +311,7 @@ public class TestGenericSymbologyResolver {
 
         OrderCancelRequest message = new OrderCancelRequest();
 
-        this.symbologyResolver.resolve(message, forex, Broker.RT);
+        this.symbologyResolver.resolve(message, forex, Broker.RT.name());
 
         Assert.assertEquals(new Symbol("EUR"), message.getSymbol());
         Assert.assertEquals(new SecurityType(SecurityType.CASH), message.getSecurityType());

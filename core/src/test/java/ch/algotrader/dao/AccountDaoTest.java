@@ -19,14 +19,11 @@
 package ch.algotrader.dao;
 
 import java.io.IOException;
-import java.util.Collection;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import ch.algotrader.dao.AccountDao;
-import ch.algotrader.dao.AccountDaoImpl;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.AccountImpl;
 import ch.algotrader.enumeration.Broker;
@@ -68,8 +65,8 @@ public class AccountDaoTest extends InMemoryDBTest {
         Account account2 = new AccountImpl();
 
         account2.setName("name2");
-        account2.setBroker(Broker.CNX);
-        account2.setOrderServiceType(OrderServiceType.CNX_FIX);
+        account2.setBroker(Broker.CNX.name());
+        account2.setOrderServiceType(OrderServiceType.CNX_FIX.name());
 
         this.dao.save(account2);
         this.dao.flush();
@@ -78,8 +75,8 @@ public class AccountDaoTest extends InMemoryDBTest {
 
         Assert.assertNotNull(account3);
         Assert.assertEquals("name2", account3.getName());
-        Assert.assertEquals(Broker.CNX, account3.getBroker());
-        Assert.assertEquals(OrderServiceType.CNX_FIX, account3.getOrderServiceType());
+        Assert.assertEquals(Broker.CNX.name(), account3.getBroker());
+        Assert.assertEquals(OrderServiceType.CNX_FIX.name(), account3.getOrderServiceType());
     }
 
 }

@@ -127,7 +127,7 @@ public class TestRTFixOrderMessageHandler {
 
         Account account = new AccountImpl();
         account.setName("TEST");
-        account.setBroker(Broker.IB);
+        account.setBroker(Broker.IB.name());
 
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(msft);

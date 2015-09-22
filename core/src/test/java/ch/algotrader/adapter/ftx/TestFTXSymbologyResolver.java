@@ -61,7 +61,7 @@ public class TestFTXSymbologyResolver {
 
         NewOrderSingle message = new NewOrderSingle();
 
-        this.symbologyResolver.resolve(message, this.forex, Broker.FTX);
+        this.symbologyResolver.resolve(message, this.forex, Broker.FTX.name());
 
         Assert.assertEquals(new Symbol("EUR/USD"), message.getSymbol());
         Assert.assertEquals(new SecurityType(SecurityType.FOREIGN_EXCHANGE_CONTRACT), message.getSecurityType());
@@ -78,7 +78,7 @@ public class TestFTXSymbologyResolver {
         stock.setSymbol("APPL");
         NewOrderSingle message = new NewOrderSingle();
 
-        this.symbologyResolver.resolve(message, stock, Broker.FTX);
+        this.symbologyResolver.resolve(message, stock, Broker.FTX.name());
     }
 
     @Test
@@ -86,7 +86,7 @@ public class TestFTXSymbologyResolver {
 
         OrderCancelReplaceRequest message = new OrderCancelReplaceRequest();
 
-        this.symbologyResolver.resolve(message, this.forex, Broker.FTX);
+        this.symbologyResolver.resolve(message, this.forex, Broker.FTX.name());
 
         Assert.assertEquals(new Symbol("EUR/USD"), message.getSymbol());
         Assert.assertEquals(new SecurityType(SecurityType.FOREIGN_EXCHANGE_CONTRACT), message.getSecurityType());
@@ -97,7 +97,7 @@ public class TestFTXSymbologyResolver {
 
         OrderCancelRequest message = new OrderCancelRequest();
 
-        this.symbologyResolver.resolve(message, this.forex, Broker.FTX);
+        this.symbologyResolver.resolve(message, this.forex, Broker.FTX.name());
 
         Assert.assertEquals(new Symbol("EUR/USD"), message.getSymbol());
         Assert.assertEquals(new SecurityType(SecurityType.FOREIGN_EXCHANGE_CONTRACT), message.getSecurityType());

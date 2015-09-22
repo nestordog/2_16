@@ -22,8 +22,6 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Map;
 
-import ch.algotrader.enumeration.FeedType;
-
 /**
  * A ValueObject representing a {@link ch.algotrader.entity.marketData.MarketDataEvent
  * MarketDataEvent}. Used for Client display.
@@ -60,7 +58,7 @@ public class MarketDataEventVO implements Serializable {
     /**
      * The market data feed that provided this  MarketDataEventVO
      */
-    private FeedType feedType;
+    private String feedType;
 
     /**
      * Any {@link ch.algotrader.entity.property.Property Properties} associated with {@link
@@ -87,7 +85,7 @@ public class MarketDataEventVO implements Serializable {
      * @param propertiesIn Map Any {@link ch.algotrader.entity.property.Property Properties} associated with {@link
      * ch.algotrader.entity.Subscription Subscriptions} of this MarketDataEventVO by the corresponding Strategy
      */
-    public MarketDataEventVO(final int securityIdIn, final String nameIn, final Date dateTimeIn, final int volIn, final FeedType feedTypeIn, final Map propertiesIn) {
+    public MarketDataEventVO(final int securityIdIn, final String nameIn, final Date dateTimeIn, final int volIn, final String feedTypeIn, final Map propertiesIn) {
 
         this.securityId = securityIdIn;
         this.name = nameIn;
@@ -104,10 +102,10 @@ public class MarketDataEventVO implements Serializable {
      * @param dateTimeIn Date
      * @param volIn int
      * @param currentValueIn BigDecimal
-     * @param feedTypeIn FeedType
+     * @param feedTypeIn String
      * @param propertiesIn Map
      */
-    public MarketDataEventVO(final int securityIdIn, final String nameIn, final Date dateTimeIn, final int volIn, final BigDecimal currentValueIn, final FeedType feedTypeIn, final Map propertiesIn) {
+    public MarketDataEventVO(final int securityIdIn, final String nameIn, final Date dateTimeIn, final int volIn, final BigDecimal currentValueIn, final String feedTypeIn, final Map propertiesIn) {
 
         this.securityId = securityIdIn;
         this.name = nameIn;
@@ -229,16 +227,16 @@ public class MarketDataEventVO implements Serializable {
      * The market data feed that provided this  MarketDataEventVO
      * @return feedType FeedType
      */
-    public FeedType getFeedType() {
+    public String getFeedType() {
 
         return this.feedType;
     }
 
     /**
      * The market data feed that provided this  MarketDataEventVO
-     * @param value FeedType
+     * @param value String
      */
-    public void setFeedType(final FeedType value) {
+    public void setFeedType(final String value) {
 
         this.feedType = value;
     }

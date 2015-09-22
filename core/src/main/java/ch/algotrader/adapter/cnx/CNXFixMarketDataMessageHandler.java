@@ -87,7 +87,7 @@ public class CNXFixMarketDataMessageHandler extends AbstractFix44MarketDataMessa
                             LOGGER.trace("{} BID {}@{}", id, size, price);
                         }
 
-                        BidVO bidVO = new BidVO(id, FeedType.CNX, date, price, (int) size);
+                        BidVO bidVO = new BidVO(id, FeedType.CNX.name(), date, price, (int) size);
                         this.serverEngine.sendEvent(bidVO);
                         break;
                     case MDEntryType.OFFER:
@@ -96,7 +96,7 @@ public class CNXFixMarketDataMessageHandler extends AbstractFix44MarketDataMessa
                             LOGGER.trace("{} ASK {}@{}", id, size, price);
                         }
 
-                        AskVO askVO = new AskVO(id, FeedType.CNX, date, price, (int) size);
+                        AskVO askVO = new AskVO(id, FeedType.CNX.name(), date, price, (int) size);
 
                         this.serverEngine.sendEvent(askVO);
                         break;

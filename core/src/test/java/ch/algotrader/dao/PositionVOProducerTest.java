@@ -89,7 +89,7 @@ public class PositionVOProducerTest {
 
         int scale = position.getSecurity().getSecurityFamily().getScale();
 
-        TickVO tick = new TickVO(0L, new Date(), FeedType.SIM, 101, new BigDecimal("1.1"), new Date(), new BigDecimal("1.12"), new BigDecimal("1.09"), 1, 2, 3);
+        TickVO tick = new TickVO(0L, new Date(), FeedType.SIM.name(), 101, new BigDecimal("1.1"), new Date(), new BigDecimal("1.12"), new BigDecimal("1.09"), 1, 2, 3);
         Mockito.when(localLookupService.getCurrentMarketDataEvent(101L)).thenReturn(tick);
 
         PositionVO vo = this.instance.convert(position);

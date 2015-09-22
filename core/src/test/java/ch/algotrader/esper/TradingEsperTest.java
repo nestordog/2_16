@@ -410,7 +410,7 @@ public class TradingEsperTest extends EsperTestBase {
             }
         });
 
-        TickVO tick1 = new TickVO(0L, new Date(), FeedType.IB, eurusd.getId(),
+        TickVO tick1 = new TickVO(0L, new Date(), FeedType.IB.name(), eurusd.getId(),
                 new BigDecimal("1.11"), new Date(epService.getEPRuntime().getCurrentTime()), new BigDecimal("1.12"), new BigDecimal("1.1"), 0, 0, 0);
         epRuntime.sendEvent(tick1);
 

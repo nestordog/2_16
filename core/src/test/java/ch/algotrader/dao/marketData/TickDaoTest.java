@@ -118,12 +118,12 @@ public class TickDaoTest extends InMemoryDBTest {
 
         Tick tick1 = new TickImpl();
         tick1.setDateTime(cal1.getTime());
-        tick1.setFeedType(FeedType.BB);
+        tick1.setFeedType(FeedType.BB.name());
         tick1.setSecurity(this.forex1);
 
         Tick tick2 = new TickImpl();
         tick2.setDateTime(cal2.getTime());
-        tick2.setFeedType(FeedType.CNX);
+        tick2.setFeedType(FeedType.CNX.name());
         tick2.setSecurity(this.forex2);
 
         this.session.save(this.family1);
@@ -219,7 +219,7 @@ public class TickDaoTest extends InMemoryDBTest {
 
         Tick tick = new TickImpl();
         tick.setDateTime(new Date());
-        tick.setFeedType(FeedType.BB);
+        tick.setFeedType(FeedType.BB.name());
         tick.setSecurity(this.forex1);
 
         this.forex1.setUnderlying(this.forex2);
@@ -252,7 +252,7 @@ public class TickDaoTest extends InMemoryDBTest {
 
         Tick tick = new TickImpl();
         tick.setDateTime(cal1.getTime());
-        tick.setFeedType(FeedType.BB);
+        tick.setFeedType(FeedType.BB.name());
         tick.setSecurity(this.forex1);
 
         this.session.save(this.family1);
@@ -272,7 +272,7 @@ public class TickDaoTest extends InMemoryDBTest {
         Assert.assertEquals(0, ticks1.size());
 
         Subscription subscription1 = new SubscriptionImpl();
-        subscription1.setFeedType(FeedType.SIM);
+        subscription1.setFeedType(FeedType.SIM.name());
         subscription1.setSecurity(this.forex1);
         subscription1.setStrategy(this.strategy1);
 
@@ -302,7 +302,7 @@ public class TickDaoTest extends InMemoryDBTest {
 
         Tick tick1 = new TickImpl();
         tick1.setDateTime(cal1.getTime());
-        tick1.setFeedType(FeedType.BB);
+        tick1.setFeedType(FeedType.BB.name());
         tick1.setSecurity(this.forex1);
 
         Calendar cal2 = Calendar.getInstance();
@@ -310,7 +310,7 @@ public class TickDaoTest extends InMemoryDBTest {
 
         Tick tick2 = new TickImpl();
         tick2.setDateTime(cal2.getTime());
-        tick2.setFeedType(FeedType.BB);
+        tick2.setFeedType(FeedType.BB.name());
         tick2.setSecurity(this.forex1);
 
         this.session.save(this.family1);
@@ -319,7 +319,7 @@ public class TickDaoTest extends InMemoryDBTest {
         this.session.save(tick2);
 
         Subscription subscription1 = new SubscriptionImpl();
-        subscription1.setFeedType(FeedType.SIM);
+        subscription1.setFeedType(FeedType.SIM.name());
         subscription1.setSecurity(this.forex1);
         subscription1.setStrategy(this.strategy1);
 

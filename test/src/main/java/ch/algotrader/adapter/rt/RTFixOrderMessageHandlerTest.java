@@ -187,7 +187,7 @@ public class RTFixOrderMessageHandlerTest {
         stock.setSecurityFamily(securityFamily);
 
         Account testAccount = new AccountImpl();
-        testAccount.setBroker(Broker.RT);
+        testAccount.setBroker(Broker.RT.name());
         testAccount.setExtAccount("20580736-2");
 
         MarketOrder order = new MarketOrderImpl();
@@ -252,7 +252,7 @@ public class RTFixOrderMessageHandlerTest {
         future.setExpiration(DateTimeLegacy.parseAsDateGMT("2014-12-01"));
 
         Account testAccount = new AccountImpl();
-        testAccount.setBroker(Broker.RT);
+        testAccount.setBroker(Broker.RT.name());
 
         long totalQuantity = 10L;
 
@@ -320,7 +320,7 @@ public class RTFixOrderMessageHandlerTest {
         stock.setSecurityFamily(securityFamily);
 
         Account testAccount = new AccountImpl();
-        testAccount.setBroker(Broker.RT);
+        testAccount.setBroker(Broker.RT.name());
         testAccount.setExtAccount("20580736-2");
 
         MarketOrder order = new MarketOrderImpl();
@@ -350,7 +350,7 @@ public class RTFixOrderMessageHandlerTest {
         stock.setSecurityFamily(securityFamily);
 
         Account testAccount = new AccountImpl();
-        testAccount.setBroker(Broker.RT);
+        testAccount.setBroker(Broker.RT.name());
         testAccount.setExtAccount("20580736-2");
 
         LimitOrder order = new LimitOrderImpl();

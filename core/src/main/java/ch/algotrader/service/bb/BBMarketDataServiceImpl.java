@@ -172,9 +172,9 @@ public class BBMarketDataServiceImpl extends NativeMarketDataServiceImpl impleme
     }
 
     @Override
-    public FeedType getFeedType() {
+    public String getFeedType() {
 
-        return FeedType.BB;
+        return FeedType.BB.name();
     }
 
     @Override

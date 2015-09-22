@@ -45,10 +45,8 @@ import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.Stock;
 import ch.algotrader.entity.strategy.CashBalance;
 import ch.algotrader.entity.strategy.Strategy;
-import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Duration;
-import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.enumeration.QueryType;
 
 /**
@@ -126,7 +124,7 @@ public interface LookupService {
     public Collection<Security> getSubscribedSecuritiesForAutoActivateStrategies();
 
     /**
-     * Gets all subscribed Securities and corresponding {@link ch.algotrader.enumeration.FeedType}
+     * Gets all subscribed Securities and corresponding feed type
      * for Strategies that are marked {@code autoActivate}. If corresponding Securities are
      * Combinations, all Components will be initialized as well. The return value is a List of Maps
      * (containing key-value-pairs)
@@ -348,9 +346,9 @@ public interface LookupService {
     public Account getAccountByName(String accountName);
 
     /**
-     * Gets all active Accounts for the specified {@link OrderServiceType}.
+     * Gets all active Accounts for the specified order service tyoe.
      */
-    public Collection<String> getActiveSessionsByOrderServiceType(OrderServiceType orderServiceType);
+    public Collection<String> getActiveSessionsByOrderServiceType(String orderServiceType);
 
     /**
      * Gets the last Tick for the specified Security that is within the last {@code n}
@@ -481,7 +479,7 @@ public interface LookupService {
      */
     public Object getMeasurementByMinDate(String strategyName, String name, Date minDate);
 
-    public Collection<EasyToBorrow> getEasyToBorrowByDateAndBroker(Date date, Broker broker);
+    public Collection<EasyToBorrow> getEasyToBorrowByDateAndBroker(Date date, String broker);
 
     /**
      * Gets the current Esper-Time of the System.

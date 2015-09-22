@@ -63,8 +63,8 @@ public class IBFixOrderServiceImpl extends Fix42OrderServiceImpl implements Fix4
     }
 
     @Override
-    public OrderServiceType getOrderServiceType() {
+    public String getOrderServiceType() {
 
-        return OrderServiceType.IB_FIX;
+        return OrderServiceType.IB_FIX.name();
     }
 }

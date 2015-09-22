@@ -73,7 +73,7 @@ public class CoreConfigBeanFactoryTest {
         Assert.assertEquals(20, coreConfig.getTransactionDisplayCount());
         Assert.assertEquals(4, coreConfig.getIntervalDays());
         Assert.assertEquals(new BigDecimal("1000"), coreConfig.getRebalanceMinAmount());
-        Assert.assertEquals(FeedType.IB, coreConfig.getDefaultFeedType());
+        Assert.assertEquals(FeedType.IB.name(), coreConfig.getDefaultFeedType());
         Assert.assertEquals(true, coreConfig.isFxFutureHedgeEnabled());
         Assert.assertEquals(604800000, coreConfig.getFxFutureHedgeMinTimeToExpiration());
         Assert.assertEquals(8000, coreConfig.getFxHedgeMinAmount());

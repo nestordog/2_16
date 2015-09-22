@@ -103,7 +103,7 @@ public class BBMarketDataMessageHandler extends BBMessageHandler {
                         vol = (int) fields.getElementAsInt64("VOLUME");
                     }
 
-                    TradeVO tradeVO = new TradeVO(cid, FeedType.BB, lastDateTime, last, vol);
+                    TradeVO tradeVO = new TradeVO(cid, FeedType.BB.name(), lastDateTime, last, vol);
                     this.serverEngine.sendEvent(tradeVO);
 
                     // there are no BIDs for indices
@@ -117,7 +117,7 @@ public class BBMarketDataMessageHandler extends BBMessageHandler {
                             volBid = fields.getElementAsInt32("BID_SIZE");
                         }
 
-                        BidVO bidVO = new BidVO(cid, FeedType.BB, lastDateTime, bid, volBid);
+                        BidVO bidVO = new BidVO(cid, FeedType.BB.name(), lastDateTime, bid, volBid);
                         this.serverEngine.sendEvent(bidVO);
                     }
 
@@ -132,7 +132,7 @@ public class BBMarketDataMessageHandler extends BBMessageHandler {
                             volAsk = fields.getElementAsInt32("ASK_SIZE");
                         }
 
-                        AskVO askVO = new AskVO(cid, FeedType.BB, lastDateTime, ask, volAsk);
+                        AskVO askVO = new AskVO(cid, FeedType.BB.name(), lastDateTime, ask, volAsk);
                         this.serverEngine.sendEvent(askVO);
                     }
                 }
@@ -151,7 +151,7 @@ public class BBMarketDataMessageHandler extends BBMessageHandler {
                         vol = (int) fields.getElementAsInt64("VOLUME");
                     }
 
-                    TradeVO tradeVO = new TradeVO(cid, FeedType.BB, lastDateTime, last, vol);
+                    TradeVO tradeVO = new TradeVO(cid, "BB", lastDateTime, last, vol);
                     this.serverEngine.sendEvent(tradeVO);
                 }
 
@@ -174,7 +174,7 @@ public class BBMarketDataMessageHandler extends BBMessageHandler {
                         volBid = fields.getElementAsInt32("BID_SIZE");
                     }
 
-                    BidVO bidVO = new BidVO(cid, FeedType.BB, dateTime, bid, volBid);
+                    BidVO bidVO = new BidVO(cid, "BB", dateTime, bid, volBid);
                     this.serverEngine.sendEvent(bidVO);
 
                 } else if ("ASK".equals(marketDataEventSubType)) {
@@ -193,7 +193,7 @@ public class BBMarketDataMessageHandler extends BBMessageHandler {
                         volAsk = fields.getElementAsInt32("ASK_SIZE");
                     }
 
-                    AskVO askVO = new AskVO(cid, FeedType.BB, dateTime, ask, volAsk);
+                    AskVO askVO = new AskVO(cid, "BB", dateTime, ask, volAsk);
                     this.serverEngine.sendEvent(askVO);
 
                 } else {

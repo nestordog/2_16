@@ -61,8 +61,8 @@ public class CNXFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fix
     }
 
     @Override
-    public OrderServiceType getOrderServiceType() {
+    public String getOrderServiceType() {
 
-        return OrderServiceType.CNX_FIX;
+        return OrderServiceType.CNX_FIX.name();
     }
 }

@@ -102,8 +102,8 @@ public class LocalEventDispatcherImplTest {
         impl.registerMarketDataSubscription("this", 1L);
         impl.registerMarketDataSubscription("that", 1L);
 
-        TickVO tick1 = new TickVO(1L, new Date(), FeedType.IB, 1L, 0, 0, 0);
-        TickVO tick2 = new TickVO(2L, new Date(), FeedType.IB, 2L, 0, 0, 0);
+        TickVO tick1 = new TickVO(1L, new Date(), FeedType.IB.name(), 1L, 0, 0, 0);
+        TickVO tick2 = new TickVO(2L, new Date(), FeedType.IB.name(), 2L, 0, 0, 0);
         impl.sendMarketDataEvent(tick1);
         impl.sendMarketDataEvent(tick2);
 

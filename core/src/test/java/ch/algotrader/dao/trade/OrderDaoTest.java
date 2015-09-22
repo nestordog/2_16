@@ -88,8 +88,8 @@ public class OrderDaoTest extends InMemoryDBTest {
 
         this.account = new AccountImpl();
         this.account.setName("name1");
-        this.account.setBroker(Broker.CNX);
-        this.account.setOrderServiceType(OrderServiceType.CNX_FIX);
+        this.account.setBroker(Broker.CNX.name());
+        this.account.setOrderServiceType(OrderServiceType.CNX_FIX.name());
         this.account.setSessionQualifier("CNX_FIX");
         this.account.setActive(true);
 

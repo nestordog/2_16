@@ -21,11 +21,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
+import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.adapter.fix.DefaultFixApplicationFactory;
 import ch.algotrader.adapter.fix.DefaultFixSessionStateHolder;
 import ch.algotrader.adapter.fix.DefaultLogonMessageHandler;
 import ch.algotrader.adapter.fix.FixApplicationFactory;
-import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.adapter.fix.MarketDataFixSessionStateHolder;
 import ch.algotrader.adapter.lmax.LMAXFixMarketDataMessageHandler;
 import ch.algotrader.adapter.lmax.LMAXFixOrderMessageHandler;
@@ -71,7 +71,7 @@ public class LMAXFixWiring {
     @Bean(name = "lMAXMarketDataSessionStateHolder")
     public MarketDataFixSessionStateHolder createLMAXMarketDataSessionStateHolder(final EventDispatcher eventDispatcher) {
 
-        return new MarketDataFixSessionStateHolder("LMAXMD", eventDispatcher, FeedType.LMAX);
+        return new MarketDataFixSessionStateHolder("LMAXMD", eventDispatcher, FeedType.LMAX.name());
     }
 
     @Profile("lMAXMarketData")

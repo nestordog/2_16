@@ -20,15 +20,13 @@ package ch.algotrader.vo.marketData;
 import java.io.Serializable;
 import java.util.Date;
 
-import ch.algotrader.enumeration.FeedType;
-
 public class TradingHaltVO implements Serializable  {
 
     private final String tickerId;
-    private final FeedType feedType;
+    private final String feedType;
     private final Date dateTime;
 
-    public TradingHaltVO(final String tickerId, final FeedType feedType, final Date dateTime) {
+    public TradingHaltVO(final String tickerId, final String feedType, final Date dateTime) {
         this.tickerId = tickerId;
         this.feedType = feedType;
         this.dateTime = dateTime;
@@ -38,7 +36,7 @@ public class TradingHaltVO implements Serializable  {
         return this.tickerId;
     }
 
-    public FeedType getFeedType() {
+    public String getFeedType() {
         return this.feedType;
     }
 

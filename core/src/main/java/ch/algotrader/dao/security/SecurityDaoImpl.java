@@ -30,7 +30,6 @@ import ch.algotrader.dao.HibernateInitializer;
 import ch.algotrader.dao.NamedParam;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityImpl;
-import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.enumeration.QueryType;
 import ch.algotrader.visitor.InitializationVisitor;
 
@@ -127,7 +126,7 @@ public class SecurityDaoImpl extends AbstractDao<Security> implements SecurityDa
     }
 
     @Override
-    public List<Security> findSubscribedByFeedTypeForAutoActivateStrategiesInclFamily(FeedType feedType) {
+    public List<Security> findSubscribedByFeedTypeForAutoActivateStrategiesInclFamily(String feedType) {
 
         Validate.notNull(feedType, "Feed type is null");
 
@@ -135,7 +134,7 @@ public class SecurityDaoImpl extends AbstractDao<Security> implements SecurityDa
     }
 
     @Override
-    public List<Security> findSubscribedByFeedTypeAndStrategyInclFamily(FeedType feedType, String strategyName) {
+    public List<Security> findSubscribedByFeedTypeAndStrategyInclFamily(String feedType, String strategyName) {
 
         Validate.notNull(feedType, "Feed type is null");
         Validate.notEmpty(strategyName, "Strategy name is empty");
@@ -144,6 +143,7 @@ public class SecurityDaoImpl extends AbstractDao<Security> implements SecurityDa
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public List<Map<String, Object>> findSubscribedAndFeedTypeForAutoActivateStrategies() {
 
         return (List<Map<String, Object>>) findObjects(null, "Security.findSubscribedAndFeedTypeForAutoActivateStrategies", QueryType.BY_NAME);

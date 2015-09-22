@@ -25,8 +25,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import ch.algotrader.dao.security.CombinationDao;
-import ch.algotrader.dao.security.CombinationDaoImpl;
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.SubscriptionImpl;
 import ch.algotrader.entity.security.Combination;
@@ -104,7 +102,7 @@ public class CombinationDaoTest extends InMemoryDBTest {
         combination1.addComponents(component1);
 
         Subscription subscription1 = new SubscriptionImpl();
-        subscription1.setFeedType(FeedType.SIM);
+        subscription1.setFeedType(FeedType.SIM.name());
         subscription1.setSecurity(combination1);
         subscription1.setStrategy(this.strategy1);
 
@@ -141,7 +139,7 @@ public class CombinationDaoTest extends InMemoryDBTest {
         combination1.setUnderlying(this.forex1);
 
         Subscription subscription1 = new SubscriptionImpl();
-        subscription1.setFeedType(FeedType.SIM);
+        subscription1.setFeedType(FeedType.SIM.name());
         subscription1.setSecurity(combination1);
         subscription1.setStrategy(this.strategy1);
 
@@ -182,7 +180,7 @@ public class CombinationDaoTest extends InMemoryDBTest {
         combination1.addComponents(component1);
 
         Subscription subscription1 = new SubscriptionImpl();
-        subscription1.setFeedType(FeedType.SIM);
+        subscription1.setFeedType(FeedType.SIM.name());
         subscription1.setSecurity(combination1);
         subscription1.setStrategy(this.strategy1);
 
@@ -227,7 +225,7 @@ public class CombinationDaoTest extends InMemoryDBTest {
         combination1.addComponents(component1);
 
         Subscription subscription1 = new SubscriptionImpl();
-        subscription1.setFeedType(FeedType.SIM);
+        subscription1.setFeedType(FeedType.SIM.name());
         subscription1.setSecurity(combination1);
         subscription1.setStrategy(this.strategy1);
 
@@ -276,7 +274,7 @@ public class CombinationDaoTest extends InMemoryDBTest {
         combination1.addComponents(component1);
 
         Subscription subscription1 = new SubscriptionImpl();
-        subscription1.setFeedType(FeedType.SIM);
+        subscription1.setFeedType(FeedType.SIM.name());
         subscription1.setSecurity(combination1);
         subscription1.setStrategy(this.strategy1);
 
@@ -329,7 +327,7 @@ public class CombinationDaoTest extends InMemoryDBTest {
         combination1.setPersistent(false);
 
         Subscription subscription1 = new SubscriptionImpl();
-        subscription1.setFeedType(FeedType.SIM);
+        subscription1.setFeedType(FeedType.SIM.name());
         subscription1.setSecurity(combination1);
         subscription1.setStrategy(this.strategy1);
 
@@ -345,7 +343,7 @@ public class CombinationDaoTest extends InMemoryDBTest {
         combination2.setPersistent(true);
 
         Subscription subscription2 = new SubscriptionImpl();
-        subscription2.setFeedType(FeedType.BB);
+        subscription2.setFeedType(FeedType.BB.name());
         subscription2.setSecurity(combination2);
         subscription2.setStrategy(this.strategy1);
 
