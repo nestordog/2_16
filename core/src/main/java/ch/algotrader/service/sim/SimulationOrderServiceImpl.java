@@ -33,6 +33,7 @@ import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.Direction;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.enumeration.Side;
+import ch.algotrader.enumeration.SimpleOrderType;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.enumeration.TIF;
 import ch.algotrader.esper.Engine;
@@ -215,7 +216,7 @@ public class SimulationOrderServiceImpl implements SimulationOrderService {
      * {@inheritDoc}
      */
     @Override
-    public TIF getDefaultTIF() {
+    public TIF getDefaultTIF(final SimpleOrderType type) {
         return TIF.DAY;
     }
 

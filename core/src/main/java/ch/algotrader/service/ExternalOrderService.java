@@ -20,6 +20,7 @@ package ch.algotrader.service;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
+import ch.algotrader.enumeration.SimpleOrderType;
 import ch.algotrader.enumeration.TIF;
 
 /**
@@ -62,6 +63,6 @@ public interface ExternalOrderService {
     /**
      * Returns default time-in-force value.
      */
-    public TIF getDefaultTIF();
+    public TIF getDefaultTIF(SimpleOrderType orderType);
 
 }

@@ -22,6 +22,8 @@ import ch.algotrader.adapter.ftx.FTXFixOrderMessageFactory;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
+import ch.algotrader.enumeration.SimpleOrderType;
+import ch.algotrader.enumeration.TIF;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.ordermgmt.OrderRegistry;
 import ch.algotrader.service.OrderPersistenceService;
@@ -77,8 +79,14 @@ public class FTXFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fix
     }
 
     @Override
+    public TIF getDefaultTIF(final SimpleOrderType type) {
+        return TIF.GTC;
+    }
+
+    @Override
     public OrderServiceType getOrderServiceType() {
 
         return OrderServiceType.FTX_FIX;
     }
+
 }

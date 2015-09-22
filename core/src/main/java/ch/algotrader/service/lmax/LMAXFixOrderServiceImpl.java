@@ -22,6 +22,7 @@ import ch.algotrader.adapter.lmax.LMAXFixOrderMessageFactory;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
+import ch.algotrader.enumeration.SimpleOrderType;
 import ch.algotrader.enumeration.TIF;
 import ch.algotrader.ordermgmt.OrderRegistry;
 import ch.algotrader.service.OrderPersistenceService;
@@ -68,8 +69,12 @@ public class LMAXFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fi
     }
 
     @Override
-    public TIF getDefaultTIF() {
-        return TIF.IOC;
+    public TIF getDefaultTIF(final SimpleOrderType type) {
+        if (type == SimpleOrderType.MARKET) {
+            return TIF.IOC;
+        } else {
+            return TIF.DAY;
+        }
     }
 
 }
