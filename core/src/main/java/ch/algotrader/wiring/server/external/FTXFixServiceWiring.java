@@ -44,10 +44,9 @@ public class FTXFixServiceWiring {
             final ManagedFixAdapter fixAdapter,
             final OrderRegistry orderRegistry,
             final OrderPersistenceService orderPersistenceService,
-            final Engine serverEngine,
             final CommonConfig commonConfig) {
 
-        return new FTXFixOrderServiceImpl(fixAdapter, orderRegistry, orderPersistenceService, serverEngine, commonConfig);
+        return new FTXFixOrderServiceImpl(fixAdapter, orderRegistry, orderPersistenceService, commonConfig);
     }
 
     @Profile("fTXMarketData")

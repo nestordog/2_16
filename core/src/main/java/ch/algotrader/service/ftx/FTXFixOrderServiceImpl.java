@@ -20,11 +20,11 @@ package ch.algotrader.service.ftx;
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.ftx.FTXFixOrderMessageFactory;
 import ch.algotrader.config.CommonConfig;
+import ch.algotrader.entity.trade.ExecutionStatusVO;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.enumeration.SimpleOrderType;
 import ch.algotrader.enumeration.TIF;
-import ch.algotrader.esper.Engine;
 import ch.algotrader.ordermgmt.OrderRegistry;
 import ch.algotrader.service.OrderPersistenceService;
 import ch.algotrader.service.fix.fix44.Fix44OrderService;
@@ -43,17 +43,16 @@ public class FTXFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fix
 
     private static final long serialVersionUID = -4332474115892611530L;
 
-    private final Engine serverEngine;
+    private final OrderRegistry orderRegistry;
 
     public FTXFixOrderServiceImpl(
             final FixAdapter fixAdapter,
             final OrderRegistry orderRegistry,
             final OrderPersistenceService orderPersistenceService,
-            final Engine serverEngine,
             final CommonConfig commonConfig) {
 
         super(fixAdapter, orderRegistry, orderPersistenceService, new FTXFixOrderMessageFactory(), commonConfig);
-        this.serverEngine = serverEngine;
+        this.orderRegistry = orderRegistry;
     }
 
     @Override
@@ -63,14 +62,10 @@ public class FTXFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fix
     @Override
     public void prepareModifyOrder(SimpleOrder order, OrderCancelReplaceRequest replaceRequest) {
 
-        if (this.serverEngine.isDeployed("OPEN_ORDER_WINDOW")) {
-            String intId = order.getIntId();
-            Long filledQuantity = (Long) this.serverEngine.executeSingelObjectQuery(
-                    "select filledQuantity from OpenOrderWindow where intId = '" + intId + "'",
-                    "filledQuantity");
-            if (filledQuantity != null) {
-                replaceRequest.setDouble(CumQty.FIELD, filledQuantity);
-            }
+        String intId = order.getIntId();
+        ExecutionStatusVO execStatus = this.orderRegistry.getStatusByIntId(intId);
+        if (execStatus != null) {
+            replaceRequest.setDouble(CumQty.FIELD, execStatus.getFilledQuantity());
         }
     }
 
