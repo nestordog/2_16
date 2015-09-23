@@ -225,7 +225,7 @@ public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl imple
         }
 
         Date startDate = getStartDate(endDate, timePeriodLength, timePeriod);
-		String startDateString = dateTimeFormat.format(DateTimeLegacy.toGMTDateTime(startDate));
+        String startDateString = dateTimeFormat.format(DateTimeLegacy.toGMTDateTime(startDate));
         String endDateString = dateTimeFormat.format(DateTimeLegacy.toGMTDateTime(endDate));
 
         Service service = session.getService();
@@ -269,7 +269,7 @@ public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl imple
         }
 
         Date startDate = getStartDate(endDate, timePeriodLength, timePeriod);
-		String startDateString = dateTimeFormat.format(DateTimeLegacy.toGMTDateTime(startDate));
+        String startDateString = dateTimeFormat.format(DateTimeLegacy.toGMTDateTime(startDate));
         String endDateString = dateTimeFormat.format(DateTimeLegacy.toGMTDateTime(endDate));
 
         Service service = session.getService();
@@ -319,7 +319,7 @@ public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl imple
         }
 
         Date startDate = getStartDate(endDate, timePeriodLength, timePeriod);
-		String startDateString = dateFormat.format(DateTimeLegacy.toGMTDate(startDate));
+        String startDateString = dateFormat.format(DateTimeLegacy.toGMTDate(startDate));
         String endDateString = dateFormat.format(DateTimeLegacy.toGMTDate(endDate));
 
         Service service = session.getService();
@@ -550,11 +550,11 @@ public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl imple
                 double value = fields.getElementAsFloat64(BBConstants.VALUE);
                 int size = fields.getElementAsInt32(BBConstants.SIZE);
 
-            	if (value == 0.0) {
-            		continue;
-            	}
+                if (value == 0.0) {
+                    continue;
+                }
 
-                int scale = this.security.getSecurityFamily().getScale(Broker.BBG);
+                int scale = this.security.getSecurityFamily().getScale(Broker.BBG.name());
                 BigDecimal valueBD = RoundUtil.getBigDecimal(value, scale);
 
                 Tick tick = Tick.Factory.newInstance();
@@ -579,7 +579,7 @@ public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl imple
                 }
 
                 tick.setVol(size);
-                tick.setFeedType(FeedType.BB);
+                tick.setFeedType(FeedType.BB.name());
                 tick.setSecurity(this.security);
 
                 this.tickList.add(tick);
