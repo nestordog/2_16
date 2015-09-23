@@ -26,7 +26,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -70,12 +69,14 @@ import ch.algotrader.entity.trade.StopOrder;
 import ch.algotrader.entity.trade.TickwiseIncrementalOrder;
 import ch.algotrader.entity.trade.VariableIncrementalOrder;
 import ch.algotrader.enumeration.CombinationType;
+import ch.algotrader.enumeration.MarketDataType;
 import ch.algotrader.enumeration.OrderPropertyType;
 import ch.algotrader.enumeration.QueryType;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.util.BeanUtil;
 import ch.algotrader.util.DateTimeUtil;
+import ch.algotrader.util.collection.Pair;
 import ch.algotrader.vo.BalanceVO;
 import ch.algotrader.vo.FxExposureVO;
 import ch.algotrader.vo.client.BarVO;
@@ -306,21 +307,18 @@ public class ManagementServiceImpl implements ManagementService {
 
         Map<Long, ch.algotrader.entity.marketData.MarketDataEventVO> marketDataEventMap = this.localLookupService.getCurrentMarketDataEvents();
         List<MarketDataEventVO> subscribedMarketDataEvent = new ArrayList<>();
-        Set<Long> processedSubscriptions = new HashSet<>();
 
         // get all subscribed securities
         if (this.serverMode) {
 
             // for the AlgoTrader Server iterate over a distinct list of subscribed securities and feedType
-            List<Map> subscriptions = this.lookupService.getSubscribedSecuritiesAndFeedTypeForAutoActivateStrategiesInclComponents();
-            for (Map<String, Object> subscription : subscriptions) {
+            List<Pair<Security, String>> subscribedSecurities = this.lookupService.getSubscribedSecuritiesAndFeedTypeForAutoActivateStrategiesInclComponents();
+            for (Pair<Security, String> subscribedSecurity : subscribedSecurities) {
 
-                Security security = (Security) subscription.get("security");
+                Security security = subscribedSecurity.getFirst();
+                String feedType = subscribedSecurity.getSecond();
                 ch.algotrader.entity.marketData.MarketDataEventVO marketDataEvent = marketDataEventMap.get(security.getId());
-                if (marketDataEvent != null && !processedSubscriptions.contains(security.getId())) {
-                    processedSubscriptions.add(security.getId());
-                    subscribedMarketDataEvent.add(convert(marketDataEvent, security));
-                }
+                subscribedMarketDataEvent.add(convert(marketDataEvent, security, feedType));
             }
         } else {
 
@@ -329,11 +327,9 @@ public class ManagementServiceImpl implements ManagementService {
             for (Subscription subscription : subscriptions) {
 
                 Security security = subscription.getSecurity();
+                String feedType = subscription.getFeedType();
                 ch.algotrader.entity.marketData.MarketDataEventVO marketDataEvent = marketDataEventMap.get(security.getId());
-                if (marketDataEvent != null && !processedSubscriptions.contains(security.getId())) {
-                    processedSubscriptions.add(security.getId());
-                    subscribedMarketDataEvent.add(convert(marketDataEvent, security));
-                }
+                subscribedMarketDataEvent.add(convert(marketDataEvent, security, feedType));
             }
         }
         return subscribedMarketDataEvent;
@@ -939,7 +935,7 @@ public class ManagementServiceImpl implements ManagementService {
         }
     }
 
-    private MarketDataEventVO convert(ch.algotrader.entity.marketData.MarketDataEventVO marketDataEvent, Security security) {
+    private MarketDataEventVO convert(ch.algotrader.entity.marketData.MarketDataEventVO marketDataEvent, Security security, String feedType) {
 
         MarketDataEventVO marketDataEventVO;
         if (marketDataEvent instanceof ch.algotrader.entity.marketData.TickVO) {
@@ -968,14 +964,24 @@ public class ManagementServiceImpl implements ManagementService {
 
             marketDataEventVO = barVO;
         } else {
-            return null;
+            CommonConfig commonConfig = this.commonConfig;
+            if (MarketDataType.TICK.equals(commonConfig.getDataSetType())) {
+                marketDataEventVO = new TickVO();
+            } else if (MarketDataType.BAR.equals(commonConfig.getDataSetType())) {
+                marketDataEventVO = new BarVO();
+            } else {
+                throw new IllegalStateException("Unknown dataSetType " + commonConfig.getDataSetType());
+            }
         }
-
+        marketDataEventVO.setSecurityId(security.getId());
         marketDataEventVO.setName(security.toString());
-        marketDataEventVO.setDateTime(marketDataEvent.getDateTime());
-        marketDataEventVO.setSecurityId(marketDataEvent.getSecurityId());
-        marketDataEventVO.setCurrentValue(marketDataEvent.getCurrentValue());
-        marketDataEventVO.setFeedType(marketDataEvent.getFeedType());
+        marketDataEventVO.setFeedType(feedType);
+
+        if (marketDataEvent != null) {
+            marketDataEventVO.setDateTime(marketDataEvent.getDateTime());
+            marketDataEventVO.setSecurityId(marketDataEvent.getSecurityId());
+            marketDataEventVO.setCurrentValue(marketDataEvent.getCurrentValue());
+        }
         return marketDataEventVO;
     }
 

@@ -95,6 +95,7 @@ import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.enumeration.TransactionType;
 import ch.algotrader.hibernate.InMemoryDBTest;
+import ch.algotrader.util.collection.Pair;
 
 /**
 * Unit tests for {@link ch.algotrader.entity.Transaction}.
@@ -559,19 +560,20 @@ public class LookupServiceTest extends InMemoryDBTest {
     
         this.session.flush();
     
-        List<Map> maps1 = this.lookupService.getSubscribedSecuritiesAndFeedTypeForAutoActivateStrategiesInclComponents();
+        List<Pair<Security, String>> subscribedSecurityList1 = this.lookupService.getSubscribedSecuritiesAndFeedTypeForAutoActivateStrategiesInclComponents();
     
-        Assert.assertEquals(0, maps1.size());
+        Assert.assertEquals(0, subscribedSecurityList1.size());
     
         strategy1.setAutoActivate(Boolean.TRUE);
         this.session.flush();
     
-        List<Map> maps2 = this.lookupService.getSubscribedSecuritiesAndFeedTypeForAutoActivateStrategiesInclComponents();
+        List<Pair<Security, String>> subscribedSecurityList2 = this.lookupService.getSubscribedSecuritiesAndFeedTypeForAutoActivateStrategiesInclComponents();
     
-        Assert.assertEquals(1, maps2.size());
-    
-        Assert.assertSame(FeedType.SIM.name(), maps2.get(0).get("feedType"));
-        Assert.assertSame(forex1, maps2.get(0).get("security"));
+        Assert.assertEquals(1, subscribedSecurityList2.size());
+
+        Pair<Security, String> securityStringPair1 = subscribedSecurityList2.get(0);
+        Assert.assertSame(forex1, securityStringPair1.getFirst());
+        Assert.assertSame(FeedType.SIM.name(), securityStringPair1.getSecond());
     }
 
     @Test

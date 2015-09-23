@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections.map.MultiValueMap;
 import org.apache.commons.lang.Validate;
@@ -68,6 +69,7 @@ import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.QueryType;
 import ch.algotrader.util.collection.CollectionUtil;
+import ch.algotrader.util.collection.Pair;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -224,9 +226,12 @@ public class LookupServiceImpl implements LookupService {
      */
     @SuppressWarnings("rawtypes")
     @Override
-    public List<Map> getSubscribedSecuritiesAndFeedTypeForAutoActivateStrategiesInclComponents() {
+    public List<Pair<Security, String>> getSubscribedSecuritiesAndFeedTypeForAutoActivateStrategiesInclComponents() {
 
-        return this.genericDao.find(Map.class, "Security.findSubscribedAndFeedTypeForAutoActivateStrategies", QueryType.BY_NAME);
+        List<Map> listOfMaps = this.genericDao.find(Map.class, "Security.findSubscribedAndFeedTypeForAutoActivateStrategies", QueryType.BY_NAME);
+        return listOfMaps.stream()
+                .map(map -> new Pair<>((Security) map.get("security"), (String) map.get("feedType")))
+                .collect(Collectors.toList());
 
     }
 

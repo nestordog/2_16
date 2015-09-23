@@ -48,6 +48,7 @@ import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.QueryType;
+import ch.algotrader.util.collection.Pair;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -126,10 +127,9 @@ public interface LookupService {
     /**
      * Gets all subscribed Securities and corresponding feed type
      * for Strategies that are marked {@code autoActivate}. If corresponding Securities are
-     * Combinations, all Components will be initialized as well. The return value is a List of Maps
-     * (containing key-value-pairs)
+     * Combinations, all Components will be initialized as well.
      */
-    public List<Map> getSubscribedSecuritiesAndFeedTypeForAutoActivateStrategiesInclComponents();
+    public List<Pair<Security, String>> getSubscribedSecuritiesAndFeedTypeForAutoActivateStrategiesInclComponents();
 
     public Collection<Stock> getStocksBySector(String code);
 
