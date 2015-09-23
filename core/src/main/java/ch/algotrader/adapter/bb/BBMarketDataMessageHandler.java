@@ -17,7 +17,9 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.bb;
 
+import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -87,7 +89,9 @@ public class BBMarketDataMessageHandler extends BBMessageHandler {
             String marketDataEventType = fields.getElementAsString("MKTDATA_EVENT_TYPE");
             String marketDataEventSubType = fields.getElementAsString("MKTDATA_EVENT_SUBTYPE");
 
-            if ("SUMMARY".equals(marketDataEventType)) {
+            Calendar calendar = fields.getElementAsDate("TRADE_UPDATE_STAMP_RT").calendar();
+			calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
+			if ("SUMMARY".equals(marketDataEventType)) {
 
                 if (!"INTRADAY".equals(marketDataEventSubType)) {
 
@@ -95,7 +99,7 @@ public class BBMarketDataMessageHandler extends BBMessageHandler {
                     Date lastDateTime = null;
                     double last = 0;
                     if (fields.hasElement("LAST_PRICE") && fields.getElement("LAST_PRICE").numValues() == 1) {
-                        lastDateTime = fields.getElementAsDate("TRADE_UPDATE_STAMP_RT").calendar().getTime();
+                        lastDateTime = calendar.getTime();
                         last = fields.getElementAsFloat64("LAST_PRICE");
                     }
 
@@ -144,7 +148,7 @@ public class BBMarketDataMessageHandler extends BBMessageHandler {
                 // ignore TRADES without a LAST_PRICE
                 if (fields.hasElement("LAST_PRICE")) {
 
-                    Date lastDateTime = fields.getElementAsDate("TRADE_UPDATE_STAMP_RT").calendar().getTime();
+                    Date lastDateTime = calendar.getTime();
                     double last = fields.getElementAsFloat64("LAST_PRICE");
 
                     // ASK_SIZE is null for FX and indices
@@ -162,7 +166,9 @@ public class BBMarketDataMessageHandler extends BBMessageHandler {
 
                 if ("BID".equals(marketDataEventSubType)) {
 
-                    Date dateTime = fields.getElementAsDate("BID_UPDATE_STAMP_RT").calendar().getTime();
+                    Calendar bidCalendar = fields.getElementAsDate("BID_UPDATE_STAMP_RT").calendar();
+    				bidCalendar.setTimeZone(TimeZone.getTimeZone("UTC"));                    
+					Date dateTime = bidCalendar.getTime();
 
                     // remove existing BID if there is no value
                     double bid = 0;
@@ -181,7 +187,9 @@ public class BBMarketDataMessageHandler extends BBMessageHandler {
 
                 } else if ("ASK".equals(marketDataEventSubType)) {
 
-                    Date dateTime = fields.getElementAsDate("ASK_UPDATE_STAMP_RT").calendar().getTime();
+                    Calendar askCalendar = fields.getElementAsDate("ASK_UPDATE_STAMP_RT").calendar();
+    				askCalendar.setTimeZone(TimeZone.getTimeZone("UTC"));                    
+					Date dateTime = askCalendar.getTime();
 
                     // remove existing ASK if there is no value
                     double ask = 0;
