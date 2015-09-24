@@ -17,14 +17,11 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
-import ch.algotrader.util.spring.HibernateSession;
-
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-@HibernateSession
 public abstract class AccountServiceImpl implements AccountService {
 
     /**
