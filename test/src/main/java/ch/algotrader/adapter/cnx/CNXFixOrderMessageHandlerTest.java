@@ -19,11 +19,9 @@ package ch.algotrader.adapter.cnx;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,8 +30,8 @@ import org.mockito.Mockito;
 import ch.algotrader.adapter.fix.DefaultFixApplication;
 import ch.algotrader.adapter.fix.DefaultFixSessionStateHolder;
 import ch.algotrader.adapter.fix.DefaultLogonMessageHandler;
+import ch.algotrader.adapter.fix.FixApplicationTestBase;
 import ch.algotrader.adapter.fix.FixConfigUtils;
-import ch.algotrader.adapter.fix.NoopSessionStateListener;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.AccountImpl;
 import ch.algotrader.entity.security.Forex;
@@ -55,27 +53,19 @@ import ch.algotrader.esper.AbstractEngine;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.ordermgmt.OrderRegistry;
-import quickfix.DefaultSessionFactory;
-import quickfix.FileStoreFactory;
-import quickfix.LogFactory;
-import quickfix.ScreenLogFactory;
-import quickfix.Session;
 import quickfix.SessionID;
 import quickfix.SessionSettings;
-import quickfix.SocketInitiator;
 import quickfix.fix44.NewOrderSingle;
 import quickfix.fix44.OrderCancelReplaceRequest;
 import quickfix.fix44.OrderCancelRequest;
 
-public class CNXFixOrderMessageHandlerTest {
+public class CNXFixOrderMessageHandlerTest extends FixApplicationTestBase {
 
     private LinkedBlockingQueue<Object> eventQueue;
     private EventDispatcher eventDispatcher;
     private OrderRegistry orderRegistry;
     private CNXFixOrderMessageFactory messageFactory;
     private CNXFixOrderMessageHandler messageHandler;
-    private Session session;
-    private SocketInitiator socketInitiator;
 
     @Before
     public void setup() throws Exception {
@@ -114,60 +104,7 @@ public class CNXFixOrderMessageHandlerTest {
         DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, this.messageHandler, logonMessageHandler,
                 new DefaultFixSessionStateHolder("CNX", this.eventDispatcher));
 
-        LogFactory logFactory = new ScreenLogFactory(true, true, true);
-
-        DefaultSessionFactory sessionFactory = new DefaultSessionFactory(fixApplication, new FileStoreFactory(settings), logFactory);
-
-        SocketInitiator socketInitiator = new SocketInitiator(sessionFactory, settings);
-        socketInitiator.start();
-
-        socketInitiator.createDynamicSession(sessionId);
-
-        this.session = Session.lookupSession(sessionId);
-
-        final CountDownLatch latch = new CountDownLatch(1);
-
-        this.session.addStateListener(new NoopSessionStateListener() {
-
-            @Override
-            public void onDisconnect() {
-                latch.countDown();
-            }
-
-            @Override
-            public void onLogon() {
-                latch.countDown();
-            }
-
-        });
-
-        if (!this.session.isLoggedOn()) {
-            latch.await(30, TimeUnit.SECONDS);
-        }
-
-        if (!this.session.isLoggedOn()) {
-            Assert.fail("Session logon failed");
-        }
-
-        // Purge the queue
-        while (this.eventQueue.poll(5, TimeUnit.SECONDS) != null) {
-        }
-    }
-
-    @After
-    public void shutDown() throws Exception {
-
-        if (this.session != null) {
-            if (this.session.isLoggedOn()) {
-                this.session.logout("Testing");
-            }
-            this.session.close();
-            this.session = null;
-        }
-        if (this.socketInitiator != null) {
-            this.socketInitiator.stop();
-            this.socketInitiator = null;
-        }
+        setupSession(settings, sessionId, fixApplication);
     }
 
     @Test

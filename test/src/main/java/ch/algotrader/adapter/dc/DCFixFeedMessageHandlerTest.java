@@ -18,11 +18,9 @@
 package ch.algotrader.adapter.dc;
 
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,8 +29,8 @@ import org.mockito.Mockito;
 import ch.algotrader.adapter.fix.DefaultFixApplication;
 import ch.algotrader.adapter.fix.DefaultFixSessionStateHolder;
 import ch.algotrader.adapter.fix.DefaultLogonMessageHandler;
+import ch.algotrader.adapter.fix.FixApplicationTestBase;
 import ch.algotrader.adapter.fix.FixConfigUtils;
-import ch.algotrader.adapter.fix.NoopSessionStateListener;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.ForexImpl;
 import ch.algotrader.entity.security.SecurityFamily;
@@ -44,24 +42,15 @@ import ch.algotrader.esper.Engine;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.vo.marketData.AskVO;
 import ch.algotrader.vo.marketData.BidVO;
-import quickfix.CompositeLogFactory;
-import quickfix.DefaultSessionFactory;
-import quickfix.LogFactory;
-import quickfix.MemoryStoreFactory;
-import quickfix.SLF4JLogFactory;
-import quickfix.Session;
 import quickfix.SessionID;
 import quickfix.SessionSettings;
-import quickfix.SocketInitiator;
 import quickfix.field.SubscriptionRequestType;
 import quickfix.fix44.MarketDataRequest;
 
-public class DCFixFeedMessageHandlerTest {
+public class DCFixFeedMessageHandlerTest extends FixApplicationTestBase {
 
     private LinkedBlockingQueue<Object> eventQueue;
     private EventDispatcher eventDispatcher;
-    private Session session;
-    private SocketInitiator socketInitiator;
 
     @Before
     public void setup() throws Exception {
@@ -97,56 +86,7 @@ public class DCFixFeedMessageHandlerTest {
         DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId,
                 new DCFixMarketDataMessageHandler(engine), dcLogonHandler, new DefaultFixSessionStateHolder("DC", this.eventDispatcher));
 
-        LogFactory logFactory = new CompositeLogFactory(new LogFactory[] { new SLF4JLogFactory(settings) });
-
-        DefaultSessionFactory sessionFactory = new DefaultSessionFactory(fixApplication, new MemoryStoreFactory(), logFactory);
-
-        SocketInitiator socketInitiator = new SocketInitiator(sessionFactory, settings);
-        socketInitiator.start();
-
-        socketInitiator.createDynamicSession(sessionId);
-
-        this.session = Session.lookupSession(sessionId);
-
-        final CountDownLatch latch = new CountDownLatch(1);
-
-        this.session.addStateListener(new NoopSessionStateListener() {
-
-            @Override
-            public void onDisconnect() {
-                latch.countDown();
-            }
-
-            @Override
-            public void onLogon() {
-                latch.countDown();
-            }
-
-        });
-
-        if (!this.session.isLoggedOn()) {
-            latch.await(30, TimeUnit.SECONDS);
-        }
-
-        if (!this.session.isLoggedOn()) {
-            Assert.fail("Session logon failed");
-        }
-    }
-
-    @After
-    public void shutDown() throws Exception {
-
-        if (this.session != null) {
-            if (this.session.isLoggedOn()) {
-                this.session.logout("Testing");
-            }
-            this.session.close();
-            this.session = null;
-        }
-        if (this.socketInitiator != null) {
-            this.socketInitiator.stop();
-            this.socketInitiator = null;
-        }
+        setupSession(settings, sessionId, fixApplication);
     }
 
     @Test

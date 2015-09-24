@@ -29,6 +29,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import ch.algotrader.adapter.fix.DefaultFixSessionStateHolder;
+import ch.algotrader.adapter.fix.FixApplicationTestBase;
 import ch.algotrader.adapter.fix.FixConfigUtils;
 import ch.algotrader.adapter.fix.NoopSessionStateListener;
 import ch.algotrader.entity.security.Forex;
@@ -59,13 +60,11 @@ import quickfix.field.Symbol;
 import quickfix.fix44.MarketDataRequest;
 import quickfix.fix44.MarketDataSnapshotFullRefresh;
 
-public class FXCMFixFeedMessageHandlerTest {
+public class FXCMFixFeedMessageHandlerTest extends FixApplicationTestBase {
 
     private LinkedBlockingQueue<Object> eventQueue;
     private EventDispatcher eventDispatcher;
     private FXCMFixMarketDataMessageHandler messageHandler;
-    private Session session;
-    private SocketInitiator socketInitiator;
 
     @Before
     public void setup() throws Exception {
@@ -100,63 +99,7 @@ public class FXCMFixFeedMessageHandlerTest {
         DefaultFixSessionStateHolder fixSessionStateHolder = new DefaultFixSessionStateHolder("FXCM", this.eventDispatcher);
         FXCMFixApplication fixApplication = new FXCMFixApplication(sessionId, this.messageHandler, settings, fixSessionStateHolder);
 
-        LogFactory logFactory = new ScreenLogFactory(true, true, true);
-
-        DefaultSessionFactory sessionFactory = new DefaultSessionFactory(fixApplication, new MemoryStoreFactory(), logFactory);
-
-        SocketInitiator socketInitiator = new SocketInitiator(sessionFactory, settings);
-        socketInitiator.start();
-
-        socketInitiator.createDynamicSession(sessionId);
-
-        this.session = Session.lookupSession(sessionId);
-
-        final CountDownLatch latch = new CountDownLatch(1);
-
-        this.session.addStateListener(new NoopSessionStateListener() {
-
-            @Override
-            public void onDisconnect() {
-                latch.countDown();
-            }
-
-            @Override
-            public void onLogon() {
-                latch.countDown();
-            }
-
-        });
-
-        if (!this.session.isLoggedOn()) {
-
-            latch.await(30, TimeUnit.SECONDS);
-        }
-
-        if (!this.session.isLoggedOn()) {
-
-            Assert.fail("Session logon failed");
-        }
-        if (!fixSessionStateHolder.isLoggedOn()) {
-
-            // Allow UserRequest message to get through
-            Thread.sleep(1000);
-        }
-    }
-
-    @After
-    public void shutDown() throws Exception {
-
-        if (this.session != null) {
-            if (this.session.isLoggedOn()) {
-                this.session.logout("Testing");
-            }
-            this.session.close();
-            this.session = null;
-        }
-        if (this.socketInitiator != null) {
-            this.socketInitiator.stop();
-            this.socketInitiator = null;
-        }
+        setupSession(settings, sessionId, fixApplication);
     }
 
     @Test
