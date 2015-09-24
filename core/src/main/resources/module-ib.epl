@@ -15,7 +15,10 @@ where
 and
     tickWindow.feedType = FeedType.IB.name()
 and
-    tickWindow.tickerId = tickPrice.tickerId;
+    tickWindow.tickerId = tickPrice.tickerId
+and
+    // Issue with variable initialization affecting Esper 5.2 and 5.3
+    lookupService is not null;
 
 @Name('UPDATE_TICK_WINDOW_IB_LAST_TIMESTAMP')
 @RunTimeOnly()
@@ -32,7 +35,10 @@ where
 and
     tickWindow.feedType = FeedType.IB.name()
 and
-    tickWindow.tickerId = tickString.tickerId;
+    tickWindow.tickerId = tickString.tickerId
+and
+    // Issue with variable initialization affecting Esper 5.2 and 5.3
+    lookupService is not null;
 
 @Name('UPDATE_TICK_WINDOW_IB_VOL')
 @RunTimeOnly()
@@ -49,7 +55,10 @@ where
 and
     tickWindow.feedType = FeedType.IB.name()
 and
-    tickWindow.tickerId = tickSize.tickerId;
+    tickWindow.tickerId = tickSize.tickerId
+and
+    // Issue with variable initialization affecting Esper 5.2 and 5.3
+    lookupService is not null;
 
 @Name('UPDATE_TICK_WINDOW_IB_BID')
 @RunTimeOnly()
@@ -67,7 +76,10 @@ where
 and
     tickWindow.feedType = FeedType.IB.name()
 and
-    tickWindow.tickerId = tickPrice.tickerId;
+    tickWindow.tickerId = tickPrice.tickerId
+and
+    // Issue with variable initialization affecting Esper 5.2 and 5.3
+    lookupService is not null;
 
 @Name('UPDATE_TICK_WINDOW_IB_ASK')
 @RunTimeOnly()
@@ -85,7 +97,10 @@ where
 and
     tickWindow.feedType = FeedType.IB.name()
 and
-    tickWindow.tickerId = tickPrice.tickerId;
+    tickWindow.tickerId = tickPrice.tickerId
+and
+    // Issue with variable initialization affecting Esper 5.2 and 5.3
+    lookupService is not null;
 
 @Name('UPDATE_TICK_WINDOW_IB_VOL_BID')
 @RunTimeOnly()
@@ -102,7 +117,10 @@ where
 and
     tickWindow.feedType = FeedType.IB.name()
 and
-    tickWindow.tickerId = tickSize.tickerId;
+    tickWindow.tickerId = tickSize.tickerId
+and
+    // Issue with variable initialization affecting Esper 5.2 and 5.3
+    lookupService is not null;
 
 @Name('UPDATE_TICK_WINDOW_IB_VOL_ASK')
 @RunTimeOnly()
@@ -119,7 +137,10 @@ where
 and
     tickWindow.feedType = FeedType.IB.name()
 and
-    tickWindow.tickerId = tickSize.tickerId;
+    tickWindow.tickerId = tickSize.tickerId
+and
+    // Issue with variable initialization affecting Esper 5.2 and 5.3
+    lookupService is not null;
 
 // ------------------------------GENERIC TICKS--------------------------------
 
