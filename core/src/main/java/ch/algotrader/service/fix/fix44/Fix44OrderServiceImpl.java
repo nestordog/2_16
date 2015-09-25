@@ -37,8 +37,6 @@ import quickfix.fix44.OrderCancelRequest;
  */
 public abstract class Fix44OrderServiceImpl extends FixOrderServiceImpl implements Fix44OrderService {
 
-    private static final long serialVersionUID = -3694423160435186473L;
-
     private final OrderRegistry orderRegistry;
     private final Fix44OrderMessageFactory messageFactory;
 

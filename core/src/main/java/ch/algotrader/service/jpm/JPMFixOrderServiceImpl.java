@@ -39,8 +39,6 @@ import quickfix.fix42.OrderCancelRequest;
  */
 public class JPMFixOrderServiceImpl extends Fix42OrderServiceImpl implements Fix42OrderService {
 
-    private static final long serialVersionUID = -8881034489922372443L;
-
     public JPMFixOrderServiceImpl(
             final FixAdapter fixAdapter,
             final OrderRegistry orderRegistry,

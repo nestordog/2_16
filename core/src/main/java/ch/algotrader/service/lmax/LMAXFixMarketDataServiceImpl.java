@@ -38,8 +38,6 @@ import quickfix.fix44.MarketDataRequest;
  */
 public class LMAXFixMarketDataServiceImpl extends FixMarketDataServiceImpl implements FixMarketDataService {
 
-    private static final long serialVersionUID = 1144501885597028244L;
-
     private final LMAXFixMarketDataRequestFactory requestFactory;
 
     public LMAXFixMarketDataServiceImpl(

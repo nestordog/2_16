@@ -39,8 +39,6 @@ import quickfix.fix44.OrderCancelRequest;
  */
 public class LMAXFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fix44OrderService {
 
-    private static final long serialVersionUID = 5822672325566918821L;
-
     public LMAXFixOrderServiceImpl(
             final FixAdapter fixAdapter,
             final OrderRegistry orderRegistry,

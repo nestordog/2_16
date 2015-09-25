@@ -53,8 +53,6 @@ import ch.algotrader.service.ServiceException;
 @InitializationPriority(InitializingServiceType.BROKER_INTERFACE)
 public class BBMarketDataServiceImpl extends NativeMarketDataServiceImpl implements ExternalMarketDataService, InitializingServiceI, DisposableBean {
 
-    private static final long serialVersionUID = -3463200344945144471L;
-
     private static final Logger LOGGER = LogManager.getLogger(BBMarketDataServiceImpl.class);
     private static BBSession session;
 

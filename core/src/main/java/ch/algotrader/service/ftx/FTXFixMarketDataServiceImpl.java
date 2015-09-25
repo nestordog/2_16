@@ -35,8 +35,6 @@ import quickfix.fix44.QuoteRequest;
  */
 public class FTXFixMarketDataServiceImpl extends FixMarketDataServiceImpl implements FixMarketDataService {
 
-    private static final long serialVersionUID = 2946126163433296876L;
-
     private final FTXFixMarketDataRequestFactory requestFactory;
 
     public FTXFixMarketDataServiceImpl(

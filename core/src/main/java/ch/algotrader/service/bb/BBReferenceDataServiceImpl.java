@@ -72,9 +72,8 @@ import ch.algotrader.util.RoundUtil;
 @InitializationPriority(value = InitializingServiceType.BROKER_INTERFACE)
 public class BBReferenceDataServiceImpl implements ReferenceDataService, InitializingServiceI {
 
-    private static final long serialVersionUID = 8938937374871069522L;
-
     private static final Logger LOGGER = LogManager.getLogger(BBHistoricalDataServiceImpl.class);
+
     private static BBSession session;
 
     private final BBAdapter bBAdapter;

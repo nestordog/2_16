@@ -42,8 +42,6 @@ import ch.algotrader.vo.marketData.SubscribeTickVO;
 @InitializationPriority(InitializingServiceType.BROKER_INTERFACE)
 public abstract class FixMarketDataServiceImpl implements FixMarketDataService, InitializingServiceI {
 
-    private static final long serialVersionUID = 4880040246465806082L;
-
     private static final Logger LOGGER = LogManager.getLogger(FixMarketDataServiceImpl.class);
 
     private final String feedType;

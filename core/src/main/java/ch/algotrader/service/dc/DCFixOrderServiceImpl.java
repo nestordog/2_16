@@ -55,8 +55,6 @@ import quickfix.fix44.OrderCancelRequest;
  */
 public class DCFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fix44OrderService {
 
-    private static final long serialVersionUID = -8251827446524602573L;
-
     public DCFixOrderServiceImpl(
             final FixAdapter fixAdapter,
             final OrderRegistry orderRegistry,

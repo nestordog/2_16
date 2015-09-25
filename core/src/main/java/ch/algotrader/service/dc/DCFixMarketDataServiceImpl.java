@@ -40,8 +40,6 @@ import quickfix.fix44.MarketDataRequest;
  */
 public class DCFixMarketDataServiceImpl extends FixMarketDataServiceImpl implements FixMarketDataService {
 
-    private static final long serialVersionUID = 7765025849172510539L;
-
     private final DCFixMarketDataRequestFactory requestFactory;
 
     public DCFixMarketDataServiceImpl(

@@ -46,8 +46,6 @@ import quickfix.field.MsgType;
 @InitializationPriority(InitializingServiceType.BROKER_INTERFACE)
 public abstract class FixOrderServiceImpl implements FixOrderService, InitializingServiceI {
 
-    private static final long serialVersionUID = -1571841567775158540L;
-
     private static final Logger LOGGER = LogManager.getLogger(FixOrderServiceImpl.class);
 
     private final String orderServiceType;

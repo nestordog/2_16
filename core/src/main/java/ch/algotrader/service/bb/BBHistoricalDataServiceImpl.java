@@ -68,8 +68,6 @@ import ch.algotrader.util.RoundUtil;
 @InitializationPriority(value = InitializingServiceType.BROKER_INTERFACE)
 public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl implements HistoricalDataService, InitializingServiceI, DisposableBean {
 
-    private static final long serialVersionUID = 1339545758324165650L;
-
     private static final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyyMMdd");
     private static final DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 

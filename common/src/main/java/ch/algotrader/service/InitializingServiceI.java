@@ -17,19 +17,17 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
-import java.io.Serializable;
-
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public interface InitializingServiceI extends Serializable {
+public interface InitializingServiceI {
 
     /**
      * Abstract initialization method that needs to be overwritten by the Service implementing this
      * Interface
      */
-    public void init();
+    void init();
 
 }

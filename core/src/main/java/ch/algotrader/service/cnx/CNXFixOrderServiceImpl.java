@@ -37,8 +37,6 @@ import quickfix.fix44.OrderCancelRequest;
  */
 public class CNXFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fix44OrderService {
 
-    private static final long serialVersionUID = -5811426083268336866L;
-
     public CNXFixOrderServiceImpl(
             final FixAdapter fixAdapter,
             final OrderRegistry orderRegistry,

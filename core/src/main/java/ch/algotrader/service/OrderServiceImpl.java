@@ -86,8 +86,6 @@ import ch.algotrader.util.BeanUtil;
 @InitializationPriority(value = InitializingServiceType.CORE)
 public class OrderServiceImpl implements OrderService, InitializingServiceI {
 
-    private static final long serialVersionUID = 3969251081188007542L;
-
     private static final Logger LOGGER = LogManager.getLogger(OrderServiceImpl.class);
 
     private final CommonConfig commonConfig;

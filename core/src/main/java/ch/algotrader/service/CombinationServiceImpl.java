@@ -56,8 +56,6 @@ import ch.algotrader.vo.InsertComponentEventVO;
 @InitializationPriority(InitializingServiceType.CORE)
 public class CombinationServiceImpl implements CombinationService, InitializingServiceI {
 
-    private static final long serialVersionUID = -2720603696641382966L;
-
     private static final Logger LOGGER = LogManager.getLogger(CombinationServiceImpl.class);
 
     private final CommonConfig commonConfig;
