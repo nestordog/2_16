@@ -24,6 +24,11 @@ package ch.algotrader.enumeration;
 public enum ExpirationType {
 
     /**
+     * Expires on every next Friday.
+     */
+    NEXT_FRIDAY,
+
+    /**
      * Expires on the 3rd Friday every Month.
      */
     NEXT_3_RD_FRIDAY,
