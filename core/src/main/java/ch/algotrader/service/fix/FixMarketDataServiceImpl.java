@@ -21,8 +21,9 @@ import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.ExternalSessionStateHolder;
+import ch.algotrader.adapter.RequestIdGenerator;
+import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.InitializingServiceType;
 import ch.algotrader.esper.Engine;
@@ -45,21 +46,33 @@ public abstract class FixMarketDataServiceImpl implements FixMarketDataService, 
 
     private static final Logger LOGGER = LogManager.getLogger(FixMarketDataServiceImpl.class);
 
+    private final String feedType;
+    private final String sessionQualifier;
     private final ExternalSessionStateHolder stateHolder;
     private final FixAdapter fixAdapter;
+    private final RequestIdGenerator<Security> tickerIdGenerator;
     private final Engine serverEngine;
 
     public FixMarketDataServiceImpl(
+            final String feedType,
+            final String sessionQualifier,
             final ExternalSessionStateHolder stateHolder,
             final FixAdapter fixAdapter,
+            final RequestIdGenerator<Security> tickerIdGenerator,
             final Engine serverEngine) {
 
+        Validate.notEmpty(feedType, "FeedType is null");
+        Validate.notEmpty(sessionQualifier, "SessionQualifier is empty");
         Validate.notNull(stateHolder, "FixSessionStateHolder is null");
         Validate.notNull(fixAdapter, "FixAdapter is null");
-        Validate.notNull(fixAdapter, "Engine is null");
+        Validate.notNull(tickerIdGenerator, "RequestIdGenerator is null");
+        Validate.notNull(serverEngine, "Engine is null");
 
+        this.feedType = feedType;
+        this.sessionQualifier = sessionQualifier;
         this.stateHolder = stateHolder;
         this.fixAdapter = fixAdapter;
+        this.tickerIdGenerator = tickerIdGenerator;
         this.serverEngine = serverEngine;
     }
 
@@ -125,28 +138,21 @@ public abstract class FixMarketDataServiceImpl implements FixMarketDataService, 
 
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public abstract void sendSubscribeRequest(Security security);
+    public final String getTickerId(final Security security) {
 
-    /**
-     * {@inheritDoc}
-     */
+        return this.tickerIdGenerator.generateId(security);
+    }
+
     @Override
-    public abstract void sendUnsubscribeRequest(Security security);
+    public final String getFeedType() {
 
-    /**
-     * {@inheritDoc}
-     */
+        return this.feedType;
+    }
+
     @Override
-    public abstract String getSessionQualifier();
+    public final String getSessionQualifier() {
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public abstract String getTickerId(Security security);
-
+        return this.sessionQualifier;
+    }
 }

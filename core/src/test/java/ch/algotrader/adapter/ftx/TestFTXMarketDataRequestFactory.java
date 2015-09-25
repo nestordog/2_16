@@ -22,6 +22,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import ch.algotrader.adapter.fix.FixApplicationException;
+import ch.algotrader.adapter.fxcm.FXCTickerIdGenerator;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.ForexImpl;
 import ch.algotrader.entity.security.SecurityFamily;
@@ -40,7 +41,7 @@ public class TestFTXMarketDataRequestFactory {
     @Before
     public void setup() throws Exception {
 
-        this.requestFactory = new FTXFixMarketDataRequestFactory();
+        this.requestFactory = new FTXFixMarketDataRequestFactory(new FXCTickerIdGenerator());
     }
 
     @Test

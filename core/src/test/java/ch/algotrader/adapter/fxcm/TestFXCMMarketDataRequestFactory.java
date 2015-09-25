@@ -45,7 +45,7 @@ public class TestFXCMMarketDataRequestFactory {
     @Before
     public void setup() throws Exception {
 
-        requestFactory = new FXCMFixMarketDataRequestFactory();
+        requestFactory = new FXCMFixMarketDataRequestFactory(new FXCTickerIdGenerator());
     }
 
     @Test
@@ -59,7 +59,7 @@ public class TestFXCMMarketDataRequestFactory {
         forex.setBaseCurrency(Currency.EUR);
         forex.setSecurityFamily(family);
 
-        MarketDataRequest marketDataRequest = requestFactory.create(forex, new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES));
+        MarketDataRequest marketDataRequest = requestFactory.create(forex, SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES);
 
         Assert.assertEquals(1, marketDataRequest.getGroupCount(NoRelatedSym.FIELD));
         Group symGroup = marketDataRequest.getGroup(1, NoRelatedSym.FIELD);
@@ -83,7 +83,7 @@ public class TestFXCMMarketDataRequestFactory {
         Stock stock = new StockImpl();
         stock.setSymbol("GOOG");
 
-        MarketDataRequest marketDataRequest = requestFactory.create(stock, new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES));
+        MarketDataRequest marketDataRequest = requestFactory.create(stock, SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES);
 
         Assert.assertEquals(1, marketDataRequest.getGroupCount(NoRelatedSym.FIELD));
         Group symGroup = marketDataRequest.getGroup(1, NoRelatedSym.FIELD);
@@ -112,7 +112,7 @@ public class TestFXCMMarketDataRequestFactory {
         forex.setBaseCurrency(Currency.EUR);
         forex.setSecurityFamily(family);
 
-        MarketDataRequest marketDataRequest = requestFactory.create(forex, new SubscriptionRequestType(SubscriptionRequestType.DISABLE_PREVIOUS_SNAPSHOT_PLUS_UPDATE_REQUEST));
+        MarketDataRequest marketDataRequest = requestFactory.create(forex, SubscriptionRequestType.DISABLE_PREVIOUS_SNAPSHOT_PLUS_UPDATE_REQUEST);
 
         Assert.assertEquals(1, marketDataRequest.getGroupCount(NoRelatedSym.FIELD));
         Group symGroup = marketDataRequest.getGroup(1, NoRelatedSym.FIELD);

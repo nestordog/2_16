@@ -45,13 +45,14 @@ public abstract class Fix42OrderServiceImpl extends FixOrderServiceImpl implemen
     private final Fix42OrderMessageFactory messageFactory;
 
     public Fix42OrderServiceImpl(
+            final String orderServiceType,
             final FixAdapter fixAdapter,
             final OrderRegistry orderRegistry,
             final OrderPersistenceService orderPersistenceService,
             final Fix42OrderMessageFactory messageFactory,
             final CommonConfig commonConfig) {
 
-        super(fixAdapter, orderPersistenceService, commonConfig);
+        super(orderServiceType, fixAdapter, orderPersistenceService, commonConfig);
 
         Validate.notNull(orderRegistry, "OpenOrderRegistry is null");
         Validate.notNull(messageFactory, "Fix42OrderMessageFactory is null");

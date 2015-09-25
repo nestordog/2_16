@@ -47,7 +47,7 @@ public class IBFixOrderServiceImpl extends Fix42OrderServiceImpl implements Fix4
             final CommonConfig commonConfig,
             final IBConfig iBConfig) {
 
-        super(fixAdapter, orderRegistry, orderPersistenceService, new IBFixOrderMessageFactory(iBConfig), commonConfig);
+        super(OrderServiceType.IB_FIX.name(), fixAdapter, orderRegistry, orderPersistenceService, new IBFixOrderMessageFactory(iBConfig), commonConfig);
     }
 
     @Override
@@ -62,9 +62,4 @@ public class IBFixOrderServiceImpl extends Fix42OrderServiceImpl implements Fix4
     public void prepareCancelOrder(SimpleOrder order, OrderCancelRequest cancelRequest) {
     }
 
-    @Override
-    public String getOrderServiceType() {
-
-        return OrderServiceType.IB_FIX.name();
-    }
 }

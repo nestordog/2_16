@@ -22,8 +22,8 @@ import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.service.ExternalServiceException;
+import ch.algotrader.service.fix.FixMarketDataService;
 import ch.algotrader.service.fix.FixMarketDataServiceImpl;
-import ch.algotrader.service.fix.fix44.Fix44MarketDataService;
 import quickfix.field.MDReqID;
 import quickfix.field.SubscriptionRequestType;
 import quickfix.fix44.MarketDataRequest;
@@ -33,7 +33,7 @@ import quickfix.fix44.MarketDataRequest;
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  */
-class FakeFix44MarketDataService extends FixMarketDataServiceImpl implements Fix44MarketDataService {
+class FakeFix44MarketDataService extends FixMarketDataServiceImpl implements FixMarketDataService {
 
     private static final long serialVersionUID = -1901678386181476171L;
 
@@ -42,7 +42,7 @@ class FakeFix44MarketDataService extends FixMarketDataServiceImpl implements Fix
             final FixAdapter fixAdapter,
             final Engine serverEngine) {
 
-        super(lifeCycle, fixAdapter, serverEngine);
+        super(FeedType.SIM.name(), "FAKE", lifeCycle, fixAdapter, Security::getSymbol, serverEngine);
     }
 
     @Override
@@ -53,7 +53,7 @@ class FakeFix44MarketDataService extends FixMarketDataServiceImpl implements Fix
             MarketDataRequest request = new MarketDataRequest();
             request.set(new MDReqID(symbol));
             request.set(new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES));
-            getFixAdapter().sendMessage(request, "FAKE");
+            getFixAdapter().sendMessage(request, getSessionQualifier());
         } catch (Exception ex) {
             throw new ExternalServiceException(ex.getMessage(), ex);
         }
@@ -73,21 +73,4 @@ class FakeFix44MarketDataService extends FixMarketDataServiceImpl implements Fix
         }
     }
 
-    @Override
-    public String getSessionQualifier() {
-
-        return "FAKE";
-    }
-
-    @Override
-    public String getTickerId(final Security security) {
-
-        return security.getSymbol();
-    }
-
-    @Override
-    public String getFeedType() {
-
-        return FeedType.SIM.name();
-    }
 }

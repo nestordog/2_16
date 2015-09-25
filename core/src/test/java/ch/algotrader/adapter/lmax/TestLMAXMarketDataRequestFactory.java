@@ -47,7 +47,7 @@ public class TestLMAXMarketDataRequestFactory {
     @Before
     public void setup() throws Exception {
 
-        this.requestFactory = new LMAXFixMarketDataRequestFactory();
+        this.requestFactory = new LMAXFixMarketDataRequestFactory(new LMAXTickerIdGenerator());
     }
 
     @Test
@@ -62,7 +62,7 @@ public class TestLMAXMarketDataRequestFactory {
         forex.setBaseCurrency(Currency.EUR);
         forex.setSecurityFamily(family);
 
-        MarketDataRequest marketDataRequest = this.requestFactory.create(forex, new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES));
+        MarketDataRequest marketDataRequest = this.requestFactory.create(forex, SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES);
 
         Assert.assertEquals(1, marketDataRequest.getGroupCount(NoRelatedSym.FIELD));
         Group symGroup = marketDataRequest.getGroup(1, NoRelatedSym.FIELD);
@@ -86,7 +86,7 @@ public class TestLMAXMarketDataRequestFactory {
         idx.setSymbol("NDX");
         idx.setLmaxid("100095");
 
-        MarketDataRequest marketDataRequest = this.requestFactory.create(idx, new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES));
+        MarketDataRequest marketDataRequest = this.requestFactory.create(idx, SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES);
 
         Assert.assertEquals(1, marketDataRequest.getGroupCount(NoRelatedSym.FIELD));
         Group symGroup = marketDataRequest.getGroup(1, NoRelatedSym.FIELD);
@@ -109,7 +109,7 @@ public class TestLMAXMarketDataRequestFactory {
         Stock stock = new StockImpl();
         stock.setSymbol("stuff");
 
-        this.requestFactory.create(stock, new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES));
+        this.requestFactory.create(stock, SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES);
     }
 
 }

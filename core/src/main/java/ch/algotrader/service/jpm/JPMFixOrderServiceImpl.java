@@ -47,7 +47,8 @@ public class JPMFixOrderServiceImpl extends Fix42OrderServiceImpl implements Fix
             final OrderPersistenceService orderPersistenceService,
             final CommonConfig commonConfig) {
 
-        super(fixAdapter, orderRegistry, orderPersistenceService, new GenericFix42OrderMessageFactory(new GenericFix42SymbologyResolver()), commonConfig);
+        super(OrderServiceType.JPM_FIX.name(), fixAdapter, orderRegistry, orderPersistenceService,
+                new GenericFix42OrderMessageFactory(new GenericFix42SymbologyResolver()), commonConfig);
     }
 
     @Override
@@ -64,9 +65,4 @@ public class JPMFixOrderServiceImpl extends Fix42OrderServiceImpl implements Fix
     public void prepareCancelOrder(SimpleOrder order, OrderCancelRequest cancelRequest) {
     }
 
-    @Override
-    public String getOrderServiceType() {
-
-        return OrderServiceType.JPM_FIX.name();
-    }
 }

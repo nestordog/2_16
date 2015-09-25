@@ -23,6 +23,7 @@ import org.springframework.context.annotation.Profile;
 
 import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.adapter.fix.ManagedFixAdapter;
+import ch.algotrader.adapter.ftx.FTXTickerIdGenerator;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.ordermgmt.OrderRegistry;
@@ -56,7 +57,7 @@ public class FTXFixServiceWiring {
             final ManagedFixAdapter fixAdapter,
             final Engine serverEngine) {
 
-        return new FTXFixMarketDataServiceImpl(fTXMarketDataSessionStateHolder, fixAdapter, serverEngine);
+        return new FTXFixMarketDataServiceImpl("FTXMD", fTXMarketDataSessionStateHolder, fixAdapter, new FTXTickerIdGenerator(), serverEngine);
     }
 
 }

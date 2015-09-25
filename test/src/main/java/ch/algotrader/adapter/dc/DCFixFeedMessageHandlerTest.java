@@ -49,12 +49,14 @@ import quickfix.fix44.MarketDataRequest;
 
 public class DCFixFeedMessageHandlerTest extends FixApplicationTestBase {
 
+    private DCFixMarketDataRequestFactory requestFactory;
     private LinkedBlockingQueue<Object> eventQueue;
     private EventDispatcher eventDispatcher;
 
     @Before
     public void setup() throws Exception {
 
+        this.requestFactory = new DCFixMarketDataRequestFactory(new DCTickerIdGenerator());
         final LinkedBlockingQueue<Object> queue = new LinkedBlockingQueue<>();
         this.eventQueue = queue;
 
@@ -100,8 +102,7 @@ public class DCFixFeedMessageHandlerTest extends FixApplicationTestBase {
         forex.setBaseCurrency(Currency.EUR);
         forex.setSecurityFamily(family);
 
-        DCFixMarketDataRequestFactory requestFactory = new DCFixMarketDataRequestFactory();
-        MarketDataRequest request = requestFactory.create(forex, new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES));
+        MarketDataRequest request = this.requestFactory.create(forex, SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES);
 
         this.session.send(request);
 

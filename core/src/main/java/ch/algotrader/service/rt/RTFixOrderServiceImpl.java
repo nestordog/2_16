@@ -46,7 +46,8 @@ public class RTFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fix4
             final OrderPersistenceService orderPersistenceService,
             final CommonConfig commonConfig) {
 
-        super(fixAdapter, orderRegistry, orderPersistenceService, new RTFixOrderMessageFactory(new GenericFix44SymbologyResolver()), commonConfig);
+        super(OrderServiceType.RT_FIX.name(), fixAdapter, orderRegistry, orderPersistenceService,
+                new RTFixOrderMessageFactory(new GenericFix44SymbologyResolver()), commonConfig);
     }
 
     @Override
@@ -61,9 +62,4 @@ public class RTFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fix4
     public void prepareCancelOrder(SimpleOrder order, OrderCancelRequest cancelRequest) {
     }
 
-    @Override
-    public String getOrderServiceType() {
-
-        return OrderServiceType.RT_FIX.name();
-    }
 }

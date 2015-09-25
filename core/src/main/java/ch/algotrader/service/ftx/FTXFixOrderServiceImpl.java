@@ -51,7 +51,7 @@ public class FTXFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fix
             final OrderPersistenceService orderPersistenceService,
             final CommonConfig commonConfig) {
 
-        super(fixAdapter, orderRegistry, orderPersistenceService, new FTXFixOrderMessageFactory(), commonConfig);
+        super(OrderServiceType.FTX_FIX.name(), fixAdapter, orderRegistry, orderPersistenceService, new FTXFixOrderMessageFactory(), commonConfig);
         this.orderRegistry = orderRegistry;
     }
 
@@ -76,12 +76,6 @@ public class FTXFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fix
     @Override
     public TIF getDefaultTIF(final SimpleOrderType type) {
         return TIF.GTC;
-    }
-
-    @Override
-    public String getOrderServiceType() {
-
-        return OrderServiceType.FTX_FIX.name();
     }
 
 }

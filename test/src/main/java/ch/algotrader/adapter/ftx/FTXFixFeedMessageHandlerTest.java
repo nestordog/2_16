@@ -31,6 +31,7 @@ import ch.algotrader.adapter.fix.DefaultFixSessionStateHolder;
 import ch.algotrader.adapter.fix.DefaultLogonMessageHandler;
 import ch.algotrader.adapter.fix.FixApplicationTestBase;
 import ch.algotrader.adapter.fix.FixConfigUtils;
+import ch.algotrader.adapter.fxcm.FXCTickerIdGenerator;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.ForexImpl;
 import ch.algotrader.entity.security.SecurityFamily;
@@ -51,12 +52,15 @@ import quickfix.fix44.QuoteRequest;
 
 public class FTXFixFeedMessageHandlerTest extends FixApplicationTestBase {
 
+    private FTXFixMarketDataRequestFactory requestFactory;
     private LinkedBlockingQueue<Object> eventQueue;
     private EventDispatcher eventDispatcher;
     private FTXFixMarketDataMessageHandler messageHandler;
 
     @Before
     public void setup() throws Exception {
+
+        this.requestFactory = new FTXFixMarketDataRequestFactory(new FXCTickerIdGenerator());
 
         final LinkedBlockingQueue<Object> queue = new LinkedBlockingQueue<Object>();
         this.eventQueue = queue;
@@ -104,8 +108,7 @@ public class FTXFixFeedMessageHandlerTest extends FixApplicationTestBase {
         forex.setBaseCurrency(Currency.EUR);
         forex.setSecurityFamily(family);
 
-        FTXFixMarketDataRequestFactory requestFactory = new FTXFixMarketDataRequestFactory();
-        QuoteRequest request = requestFactory.create(forex, 1);
+        QuoteRequest request = this.requestFactory.create(forex, 1);
 
         this.session.send(request);
 

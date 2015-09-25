@@ -29,8 +29,8 @@ import org.mockito.Mockito;
 import ch.algotrader.adapter.fix.DefaultFixApplication;
 import ch.algotrader.adapter.fix.DefaultFixSessionStateHolder;
 import ch.algotrader.adapter.fix.DefaultLogonMessageHandler;
-import ch.algotrader.adapter.fix.FixConfigUtils;
 import ch.algotrader.adapter.fix.FixApplicationTestBase;
+import ch.algotrader.adapter.fix.FixConfigUtils;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.ForexImpl;
 import ch.algotrader.entity.security.SecurityFamily;
@@ -50,12 +50,15 @@ import quickfix.fix44.MarketDataSnapshotFullRefresh;
 
 public class LMAXFixFeedMessageHandlerTest extends FixApplicationTestBase {
 
+    private LMAXFixMarketDataRequestFactory requestFactory;
     private LinkedBlockingQueue<Object> eventQueue;
     private EventDispatcher eventDispatcher;
     private LMAXFixMarketDataMessageHandler messageHandler;
 
     @Before
     public void setup() throws Exception {
+
+        this.requestFactory = new LMAXFixMarketDataRequestFactory(new LMAXTickerIdGenerator());
 
         final LinkedBlockingQueue<Object> queue = new LinkedBlockingQueue<>();
         this.eventQueue = queue;
@@ -104,8 +107,7 @@ public class LMAXFixFeedMessageHandlerTest extends FixApplicationTestBase {
         forex.setBaseCurrency(Currency.EUR);
         forex.setSecurityFamily(family);
 
-        LMAXFixMarketDataRequestFactory requestFactory = new LMAXFixMarketDataRequestFactory();
-        MarketDataRequest request = requestFactory.create(forex, new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES));
+        MarketDataRequest request = this.requestFactory.create(forex, SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES);
 
         this.session.send(request);
 

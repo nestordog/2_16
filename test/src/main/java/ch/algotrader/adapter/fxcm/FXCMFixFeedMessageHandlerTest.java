@@ -18,11 +18,9 @@
 package ch.algotrader.adapter.fxcm;
 
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,7 +29,6 @@ import org.mockito.Mockito;
 import ch.algotrader.adapter.fix.DefaultFixSessionStateHolder;
 import ch.algotrader.adapter.fix.FixApplicationTestBase;
 import ch.algotrader.adapter.fix.FixConfigUtils;
-import ch.algotrader.adapter.fix.NoopSessionStateListener;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.ForexImpl;
 import ch.algotrader.entity.security.SecurityFamily;
@@ -43,14 +40,8 @@ import ch.algotrader.esper.Engine;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.vo.marketData.AskVO;
 import ch.algotrader.vo.marketData.BidVO;
-import quickfix.DefaultSessionFactory;
-import quickfix.LogFactory;
-import quickfix.MemoryStoreFactory;
-import quickfix.ScreenLogFactory;
-import quickfix.Session;
 import quickfix.SessionID;
 import quickfix.SessionSettings;
-import quickfix.SocketInitiator;
 import quickfix.field.MDEntryType;
 import quickfix.field.MDReqID;
 import quickfix.field.MDUpdateType;
@@ -62,12 +53,15 @@ import quickfix.fix44.MarketDataSnapshotFullRefresh;
 
 public class FXCMFixFeedMessageHandlerTest extends FixApplicationTestBase {
 
+    private FXCMFixMarketDataRequestFactory requestFactory;
     private LinkedBlockingQueue<Object> eventQueue;
     private EventDispatcher eventDispatcher;
     private FXCMFixMarketDataMessageHandler messageHandler;
 
     @Before
     public void setup() throws Exception {
+
+        this.requestFactory = new FXCMFixMarketDataRequestFactory(new FXCTickerIdGenerator());
 
         final LinkedBlockingQueue<Object> queue = new LinkedBlockingQueue<>();
         this.eventQueue = queue;
@@ -113,8 +107,7 @@ public class FXCMFixFeedMessageHandlerTest extends FixApplicationTestBase {
         forex.setBaseCurrency(Currency.EUR);
         forex.setSecurityFamily(family);
 
-        FXCMFixMarketDataRequestFactory requestFactory = new FXCMFixMarketDataRequestFactory();
-        MarketDataRequest subscribeRequest = requestFactory.create(forex, new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES));
+        MarketDataRequest subscribeRequest = this.requestFactory.create(forex, SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES);
 
         this.session.send(subscribeRequest);
 
@@ -138,7 +131,7 @@ public class FXCMFixFeedMessageHandlerTest extends FixApplicationTestBase {
             }
         }
 
-        MarketDataRequest unsubscribeRequest = requestFactory.create(forex, new SubscriptionRequestType(SubscriptionRequestType.DISABLE_PREVIOUS_SNAPSHOT_PLUS_UPDATE_REQUEST));
+        MarketDataRequest unsubscribeRequest = this.requestFactory.create(forex, SubscriptionRequestType.DISABLE_PREVIOUS_SNAPSHOT_PLUS_UPDATE_REQUEST);
 
         this.session.send(unsubscribeRequest);
     }

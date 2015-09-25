@@ -45,7 +45,7 @@ public class FXCMFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fi
             final OrderPersistenceService orderPersistenceService,
             final CommonConfig commonConfig) {
 
-        super(fixAdapter, orderRegistry, orderPersistenceService, new FXCMFixOrderMessageFactory(), commonConfig);
+        super(OrderServiceType.FXCM_FIX.name(), fixAdapter, orderRegistry, orderPersistenceService, new FXCMFixOrderMessageFactory(), commonConfig);
     }
 
     @Override
@@ -66,9 +66,4 @@ public class FXCMFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fi
     public void prepareCancelOrder(SimpleOrder order, OrderCancelRequest cancelRequest) {
     }
 
-    @Override
-    public String getOrderServiceType() {
-
-        return OrderServiceType.FXCM_FIX.name();
-    }
 }

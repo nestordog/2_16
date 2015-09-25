@@ -15,14 +15,22 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.service.fix.fix44;
+package ch.algotrader.adapter.dc;
 
-import ch.algotrader.service.fix.FixMarketDataService;
+import ch.algotrader.adapter.RequestIdGenerator;
+import ch.algotrader.entity.security.Security;
 
 /**
- * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
+ * DukasCopy ticket id generator.
  *
- * @version $Revision$ $Date$
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  */
-public interface Fix44MarketDataService extends FixMarketDataService {
+public class DCTickerIdGenerator implements RequestIdGenerator<Security> {
+
+    @Override
+    public String generateId(final Security security) {
+
+        return DCUtil.getDCSymbol(security);
+    }
+
 }

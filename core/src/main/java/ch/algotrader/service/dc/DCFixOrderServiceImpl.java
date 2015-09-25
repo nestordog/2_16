@@ -63,7 +63,7 @@ public class DCFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fix4
             final OrderPersistenceService orderPersistenceService,
             final CommonConfig commonConfig) {
 
-        super(fixAdapter, orderRegistry, orderPersistenceService,
+        super(OrderServiceType.DC_FIX.name(), fixAdapter, orderRegistry, orderPersistenceService,
                 new GenericFix44OrderMessageFactory(new GenericFix44SymbologyResolver()), commonConfig);
     }
 
@@ -146,9 +146,4 @@ public class DCFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fix4
 
     }
 
-    @Override
-    public String getOrderServiceType() {
-
-        return OrderServiceType.DC_FIX.name();
-    }
 }

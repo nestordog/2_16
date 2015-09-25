@@ -47,7 +47,7 @@ public class LMAXFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fi
             final OrderPersistenceService orderPersistenceService,
             final CommonConfig commonConfig) {
 
-        super(fixAdapter, orderRegistry, orderPersistenceService, new LMAXFixOrderMessageFactory(), commonConfig);
+        super(OrderServiceType.LMAX_FIX.name(), fixAdapter, orderRegistry, orderPersistenceService, new LMAXFixOrderMessageFactory(), commonConfig);
     }
 
     @Override
@@ -60,12 +60,6 @@ public class LMAXFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fi
 
     @Override
     public void prepareCancelOrder(SimpleOrder order, OrderCancelRequest cancelRequest) {
-    }
-
-    @Override
-    public String getOrderServiceType() {
-
-        return OrderServiceType.LMAX_FIX.name();
     }
 
     @Override

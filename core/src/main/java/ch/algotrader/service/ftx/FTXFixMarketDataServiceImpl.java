@@ -20,35 +20,34 @@ package ch.algotrader.service.ftx;
 import org.apache.commons.lang.Validate;
 
 import ch.algotrader.adapter.ExternalSessionStateHolder;
-import ch.algotrader.adapter.cnx.CNXUtil;
+import ch.algotrader.adapter.RequestIdGenerator;
 import ch.algotrader.adapter.fix.FixAdapter;
-import ch.algotrader.adapter.fix.FixApplicationException;
 import ch.algotrader.adapter.ftx.FTXFixMarketDataRequestFactory;
-import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.Engine;
+import ch.algotrader.service.fix.FixMarketDataService;
 import ch.algotrader.service.fix.FixMarketDataServiceImpl;
-import ch.algotrader.service.fix.fix44.Fix44MarketDataService;
 import quickfix.fix44.QuoteRequest;
 
 /**
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  */
-public class FTXFixMarketDataServiceImpl extends FixMarketDataServiceImpl implements Fix44MarketDataService {
+public class FTXFixMarketDataServiceImpl extends FixMarketDataServiceImpl implements FixMarketDataService {
 
     private static final long serialVersionUID = 2946126163433296876L;
 
     private final FTXFixMarketDataRequestFactory requestFactory;
 
     public FTXFixMarketDataServiceImpl(
+            final String sessionQualifier,
             final ExternalSessionStateHolder stateHolder,
             final FixAdapter fixAdapter,
+            final RequestIdGenerator<Security> tickerIdGenerator,
             final Engine serverEngine) {
 
-        super(stateHolder, fixAdapter, serverEngine);
-
-        this.requestFactory = new FTXFixMarketDataRequestFactory();
+        super(FeedType.FTX.name(), sessionQualifier, stateHolder, fixAdapter, tickerIdGenerator, serverEngine);
+        this.requestFactory = new FTXFixMarketDataRequestFactory(tickerIdGenerator);
     }
 
     @Override
@@ -62,18 +61,6 @@ public class FTXFixMarketDataServiceImpl extends FixMarketDataServiceImpl implem
     }
 
     @Override
-    public String getTickerId(Security security) {
-
-        Validate.notNull(security, "Security is null");
-
-        if (!(security instanceof Forex)) {
-            throw new FixApplicationException("Fortex supports forex orders only");
-        }
-        Forex forex = (Forex) security;
-        return CNXUtil.getCNXSymbol(forex);
-    }
-
-    @Override
     public void sendUnsubscribeRequest(Security security) {
 
         Validate.notNull(security, "Security is null");
@@ -83,15 +70,4 @@ public class FTXFixMarketDataServiceImpl extends FixMarketDataServiceImpl implem
         getFixAdapter().sendMessage(request, getSessionQualifier());
     }
 
-    @Override
-    public String getSessionQualifier() {
-
-        return "FTXMD";
-    }
-
-    @Override
-    public String getFeedType() {
-
-        return FeedType.FTX.name();
-    }
 }

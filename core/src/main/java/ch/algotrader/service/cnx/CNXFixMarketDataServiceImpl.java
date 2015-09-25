@@ -20,16 +20,14 @@ package ch.algotrader.service.cnx;
 import org.apache.commons.lang.Validate;
 
 import ch.algotrader.adapter.ExternalSessionStateHolder;
+import ch.algotrader.adapter.RequestIdGenerator;
 import ch.algotrader.adapter.cnx.CNXFixMarketDataRequestFactory;
-import ch.algotrader.adapter.cnx.CNXUtil;
 import ch.algotrader.adapter.fix.FixAdapter;
-import ch.algotrader.adapter.fix.FixApplicationException;
-import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.Engine;
+import ch.algotrader.service.fix.FixMarketDataService;
 import ch.algotrader.service.fix.FixMarketDataServiceImpl;
-import ch.algotrader.service.fix.fix44.Fix44MarketDataService;
 import quickfix.field.SubscriptionRequestType;
 import quickfix.fix44.MarketDataRequest;
 
@@ -38,20 +36,22 @@ import quickfix.fix44.MarketDataRequest;
  *
  * @version $Revision$ $Date$
  */
-public class CNXFixMarketDataServiceImpl extends FixMarketDataServiceImpl implements Fix44MarketDataService {
+public class CNXFixMarketDataServiceImpl extends FixMarketDataServiceImpl implements FixMarketDataService {
 
     private static final long serialVersionUID = 2946126163433296876L;
 
     private final CNXFixMarketDataRequestFactory requestFactory;
 
     public CNXFixMarketDataServiceImpl(
+            final String sessionQualifier,
             final ExternalSessionStateHolder stateHolder,
             final FixAdapter fixAdapter,
+            final RequestIdGenerator<Security> tickerIdGenerator,
             final Engine serverEngine) {
 
-        super(stateHolder, fixAdapter, serverEngine);
+        super(FeedType.CNX.name(), sessionQualifier, stateHolder, fixAdapter, tickerIdGenerator, serverEngine);
 
-        this.requestFactory = new CNXFixMarketDataRequestFactory();
+        this.requestFactory = new CNXFixMarketDataRequestFactory(tickerIdGenerator);
     }
 
     @Override
@@ -59,21 +59,9 @@ public class CNXFixMarketDataServiceImpl extends FixMarketDataServiceImpl implem
 
         Validate.notNull(security, "Security is null");
 
-        MarketDataRequest request = this.requestFactory.create(security, new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES));
+        MarketDataRequest request = this.requestFactory.create(security, SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES);
 
         getFixAdapter().sendMessage(request, getSessionQualifier());
-    }
-
-    @Override
-    public String getTickerId(Security security) {
-
-        Validate.notNull(security, "Security is null");
-
-        if (!(security instanceof Forex)) {
-            throw new FixApplicationException("Currenex supports forex orders only");
-        }
-        Forex forex = (Forex) security;
-        return CNXUtil.getCNXSymbol(forex);
     }
 
     @Override
@@ -81,20 +69,9 @@ public class CNXFixMarketDataServiceImpl extends FixMarketDataServiceImpl implem
 
         Validate.notNull(security, "Security is null");
 
-        MarketDataRequest request = this.requestFactory.create(security, new SubscriptionRequestType(SubscriptionRequestType.DISABLE_PREVIOUS_SNAPSHOT_PLUS_UPDATE_REQUEST));
+        MarketDataRequest request = this.requestFactory.create(security, SubscriptionRequestType.DISABLE_PREVIOUS_SNAPSHOT_PLUS_UPDATE_REQUEST);
 
         getFixAdapter().sendMessage(request, getSessionQualifier());
     }
 
-    @Override
-    public String getSessionQualifier() {
-
-        return "CNXMD";
-    }
-
-    @Override
-    public String getFeedType() {
-
-        return FeedType.CNX.name();
-    }
 }

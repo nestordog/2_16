@@ -46,7 +46,7 @@ public class TestCNXMarketDataRequestFactory {
     @Before
     public void setup() throws Exception {
 
-        this.requestFactory = new CNXFixMarketDataRequestFactory();
+        this.requestFactory = new CNXFixMarketDataRequestFactory(new CNXTickerIdGenerator());
     }
 
     @Test
@@ -60,7 +60,7 @@ public class TestCNXMarketDataRequestFactory {
         forex.setBaseCurrency(Currency.EUR);
         forex.setSecurityFamily(family);
 
-        MarketDataRequest marketDataRequest = requestFactory.create(forex, new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES));
+        MarketDataRequest marketDataRequest = requestFactory.create(forex, SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES);
 
         Assert.assertEquals(1, marketDataRequest.getGroupCount(NoRelatedSym.FIELD));
         Group symGroup = marketDataRequest.getGroup(1, NoRelatedSym.FIELD);
@@ -84,7 +84,7 @@ public class TestCNXMarketDataRequestFactory {
         Stock stock = new StockImpl();
         stock.setSymbol("MSFT");
 
-        requestFactory.create(stock, new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES));
+        requestFactory.create(stock, SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES);
     }
 
     @Test
@@ -98,7 +98,7 @@ public class TestCNXMarketDataRequestFactory {
         forex.setBaseCurrency(Currency.EUR);
         forex.setSecurityFamily(family);
 
-        MarketDataRequest marketDataRequest = requestFactory.create(forex, new SubscriptionRequestType(SubscriptionRequestType.DISABLE_PREVIOUS_SNAPSHOT_PLUS_UPDATE_REQUEST));
+        MarketDataRequest marketDataRequest = requestFactory.create(forex, SubscriptionRequestType.DISABLE_PREVIOUS_SNAPSHOT_PLUS_UPDATE_REQUEST);
 
         Assert.assertEquals(1, marketDataRequest.getGroupCount(NoRelatedSym.FIELD));
         Group symGroup = marketDataRequest.getGroup(1, NoRelatedSym.FIELD);

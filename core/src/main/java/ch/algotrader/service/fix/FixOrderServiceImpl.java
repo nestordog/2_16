@@ -50,19 +50,23 @@ public abstract class FixOrderServiceImpl implements FixOrderService, Initializi
 
     private static final Logger LOGGER = LogManager.getLogger(FixOrderServiceImpl.class);
 
+    private final String orderServiceType;
     private final FixAdapter fixAdapter;
     private final OrderPersistenceService orderPersistenceService;
     private final CommonConfig commonConfig;
 
     public FixOrderServiceImpl(
+            final String orderServiceType,
             final FixAdapter fixAdapter,
             final OrderPersistenceService orderPersistenceService,
             final CommonConfig commonConfig) {
 
+        Validate.notEmpty(orderServiceType, "OrderServiceType is empty");
         Validate.notNull(fixAdapter, "FixAdapter is null");
         Validate.notNull(orderPersistenceService, "OrderPersistenceService is null");
         Validate.notNull(commonConfig, "CommonConfig is null");
 
+        this.orderServiceType = orderServiceType;
         this.fixAdapter = fixAdapter;
         this.orderPersistenceService = orderPersistenceService;
         this.commonConfig = commonConfig;
@@ -127,7 +131,7 @@ public abstract class FixOrderServiceImpl implements FixOrderService, Initializi
      * {@inheritDoc}
      */
     @Override
-    public String getNextOrderId(final Account account) {
+    public final String getNextOrderId(final Account account) {
         return getFixAdapter().getNextOrderId(account);
     }
 
@@ -137,6 +141,12 @@ public abstract class FixOrderServiceImpl implements FixOrderService, Initializi
     @Override
     public TIF getDefaultTIF(final SimpleOrderType type) {
         return TIF.DAY;
+    }
+
+    @Override
+    public final String getOrderServiceType() {
+
+        return this.orderServiceType;
     }
 
 }

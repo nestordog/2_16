@@ -40,7 +40,7 @@ import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.service.ServiceException;
-import ch.algotrader.service.fix.fix44.Fix44MarketDataService;
+import ch.algotrader.service.fix.FixMarketDataService;
 import ch.algotrader.vo.marketData.SubscribeTickVO;
 import quickfix.fix44.MarketDataRequest;
 
@@ -60,7 +60,7 @@ public class FIXMarketDataServiceTest {
     @Mock
     private Engine serverEngine;
 
-    private Fix44MarketDataService impl;
+    private FixMarketDataService impl;
 
     @Before
     public void setup() {
@@ -93,8 +93,6 @@ public class FIXMarketDataServiceTest {
 
         // Do subscribe
         this.impl.subscribe(forex);
-
-        Mockito.verify(this.impl).getTickerId(forex);
 
         ArgumentCaptor<Object> argumentCaptor1 = ArgumentCaptor.forClass(Object.class);
         Mockito.verify(this.serverEngine).sendEvent(argumentCaptor1.capture());

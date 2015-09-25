@@ -55,12 +55,15 @@ import quickfix.fix44.MarketDataRequest;
 
 public class CNXFixFeedMessageHandlerTest extends FixApplicationTestBase {
 
+    private CNXFixMarketDataRequestFactory requestFactory;
     private LinkedBlockingQueue<Object> eventQueue;
     private EventDispatcher eventDispatcher;
     private CNXFixMarketDataMessageHandler messageHandler;
 
     @Before
     public void setup() throws Exception {
+
+        this.requestFactory = new CNXFixMarketDataRequestFactory(new CNXTickerIdGenerator());
 
         final LinkedBlockingQueue<Object> queue = new LinkedBlockingQueue<>();
         this.eventQueue = queue;
@@ -107,8 +110,7 @@ public class CNXFixFeedMessageHandlerTest extends FixApplicationTestBase {
         forex.setBaseCurrency(Currency.EUR);
         forex.setSecurityFamily(family);
 
-        CNXFixMarketDataRequestFactory requestFactory = new CNXFixMarketDataRequestFactory();
-        MarketDataRequest request = requestFactory.create(forex, new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES));
+        MarketDataRequest request = this.requestFactory.create(forex, SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES);
 
         this.session.send(request);
 

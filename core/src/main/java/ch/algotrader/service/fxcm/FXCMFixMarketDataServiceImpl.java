@@ -20,14 +20,14 @@ package ch.algotrader.service.fxcm;
 import org.apache.commons.lang.Validate;
 
 import ch.algotrader.adapter.ExternalSessionStateHolder;
+import ch.algotrader.adapter.RequestIdGenerator;
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.fxcm.FXCMFixMarketDataRequestFactory;
-import ch.algotrader.adapter.fxcm.FXCMUtil;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.Engine;
+import ch.algotrader.service.fix.FixMarketDataService;
 import ch.algotrader.service.fix.FixMarketDataServiceImpl;
-import ch.algotrader.service.fix.fix44.Fix44MarketDataService;
 import quickfix.field.SubscriptionRequestType;
 import quickfix.fix44.MarketDataRequest;
 
@@ -36,20 +36,21 @@ import quickfix.fix44.MarketDataRequest;
  *
  * @version $Revision$ $Date$
  */
-public class FXCMFixMarketDataServiceImpl extends FixMarketDataServiceImpl implements Fix44MarketDataService {
+public class FXCMFixMarketDataServiceImpl extends FixMarketDataServiceImpl implements FixMarketDataService {
 
     private static final long serialVersionUID = 4881654181517654955L;
 
     private final FXCMFixMarketDataRequestFactory requestFactory;
 
     public FXCMFixMarketDataServiceImpl(
+            final String sessionQualifier,
             final ExternalSessionStateHolder stateHolder,
             final FixAdapter fixAdapter,
+            final RequestIdGenerator<Security> tickerIdGenerator,
             final Engine serverEngine) {
 
-        super(stateHolder, fixAdapter, serverEngine);
-
-        this.requestFactory = new FXCMFixMarketDataRequestFactory();
+        super(FeedType.FXCM.name(), sessionQualifier, stateHolder, fixAdapter, tickerIdGenerator, serverEngine);
+        this.requestFactory = new FXCMFixMarketDataRequestFactory(tickerIdGenerator);
     }
 
     @Override
@@ -59,23 +60,11 @@ public class FXCMFixMarketDataServiceImpl extends FixMarketDataServiceImpl imple
     }
 
     @Override
-    public String getFeedType() {
-
-        return FeedType.FXCM.name();
-    }
-
-    @Override
-    public String getSessionQualifier() {
-
-        return "FXCM";
-    }
-
-    @Override
     public void sendSubscribeRequest(Security security) {
 
         Validate.notNull(security, "Security is null");
 
-        MarketDataRequest request = this.requestFactory.create(security, new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES));
+        MarketDataRequest request = this.requestFactory.create(security, SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES);
 
         getFixAdapter().sendMessage(request, getSessionQualifier());
     }
@@ -85,17 +74,9 @@ public class FXCMFixMarketDataServiceImpl extends FixMarketDataServiceImpl imple
 
         Validate.notNull(security, "Security is null");
 
-        MarketDataRequest request = this.requestFactory.create(security, new SubscriptionRequestType(SubscriptionRequestType.DISABLE_PREVIOUS_SNAPSHOT_PLUS_UPDATE_REQUEST));
+        MarketDataRequest request = this.requestFactory.create(security, SubscriptionRequestType.DISABLE_PREVIOUS_SNAPSHOT_PLUS_UPDATE_REQUEST);
 
         getFixAdapter().sendMessage(request, getSessionQualifier());
     }
 
-    @Override
-    public String getTickerId(Security security) {
-
-        Validate.notNull(security, "Security is null");
-
-        return FXCMUtil.getFXCMSymbol(security);
-
-    }
 }

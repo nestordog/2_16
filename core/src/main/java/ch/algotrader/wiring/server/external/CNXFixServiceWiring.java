@@ -22,6 +22,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 import ch.algotrader.adapter.ExternalSessionStateHolder;
+import ch.algotrader.adapter.cnx.CNXTickerIdGenerator;
 import ch.algotrader.adapter.fix.ManagedFixAdapter;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.esper.Engine;
@@ -56,7 +57,7 @@ public class CNXFixServiceWiring {
             final ManagedFixAdapter fixAdapter,
             final Engine serverEngine) {
 
-        return new CNXFixMarketDataServiceImpl(cNXMarketDataSessionStateHolder, fixAdapter, serverEngine);
+        return new CNXFixMarketDataServiceImpl("CNXMD", cNXMarketDataSessionStateHolder, fixAdapter, new CNXTickerIdGenerator(), serverEngine);
     }
 
 }

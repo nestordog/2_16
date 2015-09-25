@@ -45,7 +45,7 @@ public class CNXFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fix
             final OrderPersistenceService orderPersistenceService,
             final CommonConfig commonConfig) {
 
-        super(fixAdapter, orderRegistry, orderPersistenceService, new CNXFixOrderMessageFactory(), commonConfig);
+        super(OrderServiceType.CNX_FIX.name(), fixAdapter, orderRegistry, orderPersistenceService, new CNXFixOrderMessageFactory(), commonConfig);
     }
 
     @Override
@@ -60,9 +60,4 @@ public class CNXFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fix
     public void prepareCancelOrder(SimpleOrder order, OrderCancelRequest cancelRequest) {
     }
 
-    @Override
-    public String getOrderServiceType() {
-
-        return OrderServiceType.CNX_FIX.name();
-    }
 }

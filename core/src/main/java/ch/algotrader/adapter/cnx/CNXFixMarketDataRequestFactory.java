@@ -17,6 +17,9 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.cnx;
 
+import org.apache.commons.lang.Validate;
+
+import ch.algotrader.adapter.RequestIdGenerator;
 import ch.algotrader.adapter.fix.FixApplicationException;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.Security;
@@ -38,19 +41,25 @@ import quickfix.fix44.MarketDataRequest;
  */
 public class CNXFixMarketDataRequestFactory {
 
-    public MarketDataRequest create(Security security, SubscriptionRequestType type) {
+    private final RequestIdGenerator<Security> tickerIdGenerator;
+
+    public CNXFixMarketDataRequestFactory(final RequestIdGenerator<Security> tickerIdGenerator) {
+
+        Validate.notNull(tickerIdGenerator, "RequestIdGenerator is null");
+
+        this.tickerIdGenerator = tickerIdGenerator;
+    }
+
+    public MarketDataRequest create(final Security security, final char type) {
 
         if (!(security instanceof Forex)) {
-
-            throw new FixApplicationException("Currenex supports forex orders only");
+            throw new FixApplicationException("Currenex supports Forex only");
         }
         Forex forex = (Forex) security;
 
-        String cnxSymbol = CNXUtil.getCNXSymbol(forex);
-
         MarketDataRequest request = new MarketDataRequest();
-        request.set(new MDReqID(cnxSymbol));
-        request.set(type);
+        request.set(new MDReqID(this.tickerIdGenerator.generateId(forex)));
+        request.set(new SubscriptionRequestType(type));
         request.set(new MarketDepth(1)); // top of the book
         request.set(new MDUpdateType(MDUpdateType.INCREMENTAL_REFRESH));
         request.set(new AggregatedBook(true));
@@ -64,7 +73,7 @@ public class CNXFixMarketDataRequestFactory {
         request.addGroup(offer);
 
         MarketDataRequest.NoRelatedSym symbol = new MarketDataRequest.NoRelatedSym();
-        symbol.set(new Symbol(cnxSymbol));
+        symbol.set(new Symbol(CNXUtil.getCNXSymbol(forex)));
         request.addGroup(symbol);
 
         return request;

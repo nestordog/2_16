@@ -15,41 +15,24 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.adapter.ftx;
-
-import org.apache.commons.lang.Validate;
+package ch.algotrader.adapter.fxcm;
 
 import ch.algotrader.adapter.RequestIdGenerator;
 import ch.algotrader.entity.security.Security;
-import quickfix.field.QuoteReqID;
-import quickfix.field.QuoteRequestType;
-import quickfix.field.Symbol;
-import quickfix.fix44.QuoteRequest;
 
 /**
- * Fortex market data request factory.
+ * FXCM ticker id generator.
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
+ *
+ * @version $Revision$ $Date$
  */
-public class FTXFixMarketDataRequestFactory {
+public class FXCTickerIdGenerator implements RequestIdGenerator<Security> {
 
-    private final RequestIdGenerator<Security> tickerIdGenerator;
+    @Override
+    public String generateId(final Security security) {
 
-    public FTXFixMarketDataRequestFactory(final RequestIdGenerator<Security> tickerIdGenerator) {
-
-        Validate.notNull(tickerIdGenerator, "RequestIdGenerator is null");
-
-        this.tickerIdGenerator = tickerIdGenerator;
-    }
-
-    public QuoteRequest create(final Security security, final int requestType) {
-
-        QuoteRequest request = new QuoteRequest();
-        request.set(new QuoteReqID(this.tickerIdGenerator.generateId(security)));
-        request.setString(Symbol.FIELD, FTXUtil.getFTXSymbol(security));
-        request.setInt(QuoteRequestType.FIELD, requestType);
-
-        return request;
+        return FXCMUtil.getFXCMSymbol(security);
     }
 
 }

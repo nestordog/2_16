@@ -23,6 +23,7 @@ import org.springframework.context.annotation.Profile;
 
 import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.adapter.fix.ManagedFixAdapter;
+import ch.algotrader.adapter.fxcm.FXCTickerIdGenerator;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.ordermgmt.OrderRegistry;
@@ -56,7 +57,7 @@ public class FXCMFixServiceWiring {
             final ManagedFixAdapter fixAdapter,
             final Engine serverEngine) {
 
-        return new FXCMFixMarketDataServiceImpl(fXCMSessionLifeCycle, fixAdapter, serverEngine);
+        return new FXCMFixMarketDataServiceImpl("FXCM", fXCMSessionLifeCycle, fixAdapter, new FXCTickerIdGenerator(), serverEngine);
     }
 
 }

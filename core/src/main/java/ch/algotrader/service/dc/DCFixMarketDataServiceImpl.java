@@ -20,14 +20,14 @@ package ch.algotrader.service.dc;
 import org.apache.commons.lang.Validate;
 
 import ch.algotrader.adapter.ExternalSessionStateHolder;
+import ch.algotrader.adapter.RequestIdGenerator;
 import ch.algotrader.adapter.dc.DCFixMarketDataRequestFactory;
-import ch.algotrader.adapter.dc.DCUtil;
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.Engine;
+import ch.algotrader.service.fix.FixMarketDataService;
 import ch.algotrader.service.fix.FixMarketDataServiceImpl;
-import ch.algotrader.service.fix.fix44.Fix44MarketDataService;
 import quickfix.field.SubscriptionRequestType;
 import quickfix.fix44.MarketDataRequest;
 
@@ -38,32 +38,22 @@ import quickfix.fix44.MarketDataRequest;
  *
  * @version $Revision$ $Date$
  */
-public class DCFixMarketDataServiceImpl extends FixMarketDataServiceImpl implements Fix44MarketDataService {
+public class DCFixMarketDataServiceImpl extends FixMarketDataServiceImpl implements FixMarketDataService {
 
     private static final long serialVersionUID = 7765025849172510539L;
 
     private final DCFixMarketDataRequestFactory requestFactory;
 
     public DCFixMarketDataServiceImpl(
+            final String sessionQualifier,
             final ExternalSessionStateHolder lifeCycle,
             final FixAdapter fixAdapter,
+            final RequestIdGenerator<Security> tickerIdGenerator,
             final Engine serverEngine) {
 
-        super(lifeCycle, fixAdapter, serverEngine);
+        super(FeedType.DC.name(), sessionQualifier, lifeCycle, fixAdapter, tickerIdGenerator, serverEngine);
 
-        this.requestFactory = new DCFixMarketDataRequestFactory();
-    }
-
-    @Override
-    public String getFeedType() {
-
-        return FeedType.DC.name();
-    }
-
-    @Override
-    public String getSessionQualifier() {
-
-        return "DCMD";
+        this.requestFactory = new DCFixMarketDataRequestFactory(tickerIdGenerator);
     }
 
     @Override
@@ -71,7 +61,7 @@ public class DCFixMarketDataServiceImpl extends FixMarketDataServiceImpl impleme
 
         Validate.notNull(security, "Security is null");
 
-        MarketDataRequest request = this.requestFactory.create(security, new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES));
+        MarketDataRequest request = this.requestFactory.create(security, SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES);
 
         getFixAdapter().sendMessage(request, getSessionQualifier());
     }
@@ -81,17 +71,9 @@ public class DCFixMarketDataServiceImpl extends FixMarketDataServiceImpl impleme
 
         Validate.notNull(security, "Security is null");
 
-        MarketDataRequest request = this.requestFactory.create(security, new SubscriptionRequestType(SubscriptionRequestType.DISABLE_PREVIOUS_SNAPSHOT_PLUS_UPDATE_REQUEST));
+        MarketDataRequest request = this.requestFactory.create(security, SubscriptionRequestType.DISABLE_PREVIOUS_SNAPSHOT_PLUS_UPDATE_REQUEST);
 
         getFixAdapter().sendMessage(request, getSessionQualifier());
     }
 
-    @Override
-    public String getTickerId(Security security) {
-
-        Validate.notNull(security, "Security is null");
-
-        return DCUtil.getDCSymbol(security);
-
-    }
 }
