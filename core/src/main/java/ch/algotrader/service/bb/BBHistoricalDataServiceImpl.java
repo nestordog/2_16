@@ -33,7 +33,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
 
-import com.bloomberglp.blpapi.Datetime;
 import com.bloomberglp.blpapi.Element;
 import com.bloomberglp.blpapi.Event;
 import com.bloomberglp.blpapi.Message;
@@ -423,8 +422,8 @@ public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl imple
                 Element fields = data.getValueAsElement(i);
 
                 Calendar calendar = fields.getElementAsDate(BBConstants.TIME).calendar();
-				calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
-				Date time = calendar.getTime();
+                calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
+                Date time = calendar.getTime();
                 double open = fields.getElementAsFloat64(BBConstants.OPEN);
                 double high = fields.getElementAsFloat64(BBConstants.HIGH);
                 double low = fields.getElementAsFloat64(BBConstants.LOW);
@@ -463,8 +462,8 @@ public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl imple
                 }
 
                 Calendar calendar = bbBar.getElementAsDate(BBConstants.DATE).calendar();
-				calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
-				Date date = calendar.getTime();
+                calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
+                Date date = calendar.getTime();
                 double close = bbBar.getElementAsFloat64("PX_LAST");
 
                 // instruments might only have a PX_LAST
@@ -552,9 +551,9 @@ public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl imple
 
                 Element fields = data.getValueAsElement(i);
 
-				Calendar calendar = fields.getElementAsDate(BBConstants.TIME).calendar();
-				calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
-				Date time = calendar.getTime();
+                Calendar calendar = fields.getElementAsDate(BBConstants.TIME).calendar();
+                calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
+                Date time = calendar.getTime();
                 String type = fields.getElementAsString(BBConstants.TYPE);
                 double value = fields.getElementAsFloat64(BBConstants.VALUE);
                 int size = fields.getElementAsInt32(BBConstants.SIZE);
