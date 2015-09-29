@@ -48,7 +48,7 @@ import quickfix.SocketInitiator;
  */
 @Configuration
 @Profile({"jPMFix", "iBFix", "dCFix", "rTFix", "dcMarkteData", "lMAXFix", "lMAXMarketData", "fXCMFix", "fXCMMarketData", "cNXFix", "cNXMarketData",
-        "fTXFix", "fTXMarketData"})
+        "fTXFix", "fTXMarketData", "tTReferenceData"})
 public class FixCoreWiring {
 
     @Bean(name = "orderIdGenerator")

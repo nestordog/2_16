@@ -15,46 +15,43 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.enumeration;
+package ch.algotrader.adapter.tt;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import ch.algotrader.concurrent.PromiseImpl;
 
 /**
- * Types of Broker
  */
-public enum Broker {
+public final class TTPendingRequest<T> {
 
-    //InteractiveBrokers
-    IB,
+    private final PromiseImpl<List<T>> promise;
+    private final List<T> resultList;
 
-    // J.P.Morgan
-    JPM,
+    TTPendingRequest(final PromiseImpl<List<T>> promise) {
+        this.promise = promise;
+        this.resultList = new ArrayList<>();
+    }
 
-    // DukasCopy
-    DC,
+    public List<T> getResultList() {
+        return this.resultList;
+    }
 
-    //Royal Bank of Scotland
-    RBS,
+    public void add(final T result) {
+        this.resultList.add(result);
+    }
 
-    //RealTick
-    RT,
+    public void completed() {
+        this.promise.completed(this.resultList);
+    }
 
-    // FXCM
-    FXCM,
+    public void fail(final Exception ex) {
+        this.promise.failed(ex);
+    }
 
-    // LMAX
-    LMAX,
-
-    // CNX
-    CNX,
-
-    // Fortex
-    FTX,
-
-    // Trading Technologies
-    TT,
-
-    // Bloomberg
-    BBG;
-
-    private static final long serialVersionUID = -6191895924586464902L;
+    public void cancel() {
+        this.promise.cancel();
+    }
 
 }

@@ -78,6 +78,12 @@
 
             <type name="java.lang.String"/>
         </property>
+        <property name="ttid">
+            <meta attribute="use-in-equals">true</meta>
+            <column name="TTID" not-null="false" unique="true" sql-type="VARCHAR(255)"/>
+
+            <type name="java.lang.String"/>
+        </property>
         <many-to-one name="underlying" class="ch.algotrader.entity.security.SecurityImpl" foreign-key="SECURITY_UNDERLYING_FKC" not-null="false" lazy="proxy" fetch="select">
             <meta attribute="property-type">ch.algotrader.entity.security.Security</meta>
             <meta attribute="field-description"><![CDATA[The base class of all Securities in the system]]></meta>

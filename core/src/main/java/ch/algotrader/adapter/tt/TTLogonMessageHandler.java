@@ -15,46 +15,27 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.enumeration;
+package ch.algotrader.adapter.tt;
 
-/**
- * Types of Broker
- */
-public enum Broker {
+import quickfix.ConfigError;
+import quickfix.FieldConvertError;
+import quickfix.SessionID;
+import quickfix.SessionSettings;
+import quickfix.field.RawData;
+import quickfix.fix42.Logon;
 
-    //InteractiveBrokers
-    IB,
+public class TTLogonMessageHandler {
 
-    // J.P.Morgan
-    JPM,
+    private final SessionSettings settings;
 
-    // DukasCopy
-    DC,
+    public TTLogonMessageHandler(final SessionSettings settings) {
+        this.settings = settings;
+    }
 
-    //Royal Bank of Scotland
-    RBS,
-
-    //RealTick
-    RT,
-
-    // FXCM
-    FXCM,
-
-    // LMAX
-    LMAX,
-
-    // CNX
-    CNX,
-
-    // Fortex
-    FTX,
-
-    // Trading Technologies
-    TT,
-
-    // Bloomberg
-    BBG;
-
-    private static final long serialVersionUID = -6191895924586464902L;
-
+    public void onMessage(final Logon logon, final SessionID sessionID) throws ConfigError, FieldConvertError {
+        String password = this.settings.getString(sessionID, "Password");
+        if (password != null) {
+            logon.set(new RawData(password));
+        }
+    }
 }

@@ -15,46 +15,26 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.enumeration;
+package ch.algotrader.adapter.tt;
+
+import java.util.concurrent.atomic.AtomicLong;
+
+import ch.algotrader.adapter.RequestIdGenerator;
+import ch.algotrader.entity.security.SecurityFamily;
 
 /**
- * Types of Broker
+ * Trading technologies security definition request id generator.
+ *
+ * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  */
-public enum Broker {
+public class TTSecurityDefinitionRequestIdGenerator implements RequestIdGenerator<SecurityFamily> {
 
-    //InteractiveBrokers
-    IB,
+    private final AtomicLong count = new AtomicLong(0);
 
-    // J.P.Morgan
-    JPM,
+    @Override
+    public String generateId(final SecurityFamily securityFamily) {
 
-    // DukasCopy
-    DC,
-
-    //Royal Bank of Scotland
-    RBS,
-
-    //RealTick
-    RT,
-
-    // FXCM
-    FXCM,
-
-    // LMAX
-    LMAX,
-
-    // CNX
-    CNX,
-
-    // Fortex
-    FTX,
-
-    // Trading Technologies
-    TT,
-
-    // Bloomberg
-    BBG;
-
-    private static final long serialVersionUID = -6191895924586464902L;
+        return "at-" + this.count.incrementAndGet();
+    }
 
 }
