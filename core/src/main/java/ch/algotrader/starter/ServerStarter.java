@@ -17,6 +17,9 @@
  ***********************************************************************************/
 package ch.algotrader.starter;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import ch.algotrader.ServiceLocator;
 
 /**
@@ -28,9 +31,23 @@ import ch.algotrader.ServiceLocator;
  */
 public abstract class ServerStarter {
 
+    private static final Logger LOGGER = LogManager.getLogger(ServerStarter.class);
+
     public static void main(String[] args) throws Exception {
 
-        ServiceLocator.instance().runServer();
+        try {
+            LOGGER.info("Starting Algotrader Server in distributed mode");
+            ServiceLocator.instance().runServer();
+            LOGGER.info("Algotrader started");
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                LOGGER.info("Algotrader terminated");
+            }));
+            Thread.sleep(Long.MAX_VALUE);
+        } catch (InterruptedException ignore) {
+        } catch (Exception ex) {
+            LOGGER.error(ex.getMessage(), ex);
+            ServiceLocator.instance().shutdown();
+        }
     }
 
 }
