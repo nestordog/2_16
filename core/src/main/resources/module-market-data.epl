@@ -62,7 +62,10 @@ set
 where
     tickWindow.feedType = trade.feedType
 and
-    tickWindow.tickerId = trade.tickerId;
+    tickWindow.tickerId = trade.tickerId
+and
+    // Issue with variable initialization affecting Esper 5.2 and 5.3
+    lookupService is not null;
 
 @Name('UPDATE_TICK_WINDOW_FROM_BID')
 @RunTimeOnly()
@@ -79,7 +82,10 @@ set
 where
     tickWindow.feedType = bid.feedType
 and
-    tickWindow.tickerId = bid.tickerId;
+    tickWindow.tickerId = bid.tickerId
+and
+    // Issue with variable initialization affecting Esper 5.2 and 5.3
+    lookupService is not null;
 
 @Name('UPDATE_TICK_WINDOW_FROM_ASK')
 @RunTimeOnly()
@@ -96,7 +102,10 @@ set
 where
     tickWindow.feedType = ask.feedType
 and
-    tickWindow.tickerId = ask.tickerId;
+    tickWindow.tickerId = ask.tickerId
+and
+    // Issue with variable initialization affecting Esper 5.2 and 5.3
+    lookupService is not null;
 
 @Name('INCOMING_TICK')
 @RunTimeOnly()
