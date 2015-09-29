@@ -98,7 +98,8 @@ public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl imple
     public void init() {
 
         try {
-            session = this.bBAdapter.getReferenceDataSession();
+            session = this.bBAdapter.createReferenceDataSession();
+            session.startService();
         } catch (IOException ex) {
             throw new ExternalServiceException(ex);
         } catch (InterruptedException ex) {

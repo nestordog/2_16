@@ -21,6 +21,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
+import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.adapter.bb.BBAdapter;
 import ch.algotrader.dao.marketData.BarDao;
 import ch.algotrader.dao.security.FutureDao;
@@ -55,9 +56,10 @@ public class BBServiceWiring {
     @Bean(name = "bBMarketDataService")
     public ExternalMarketDataService createBBMarketDataService(
             final BBAdapter bBAdapter,
+            final ExternalSessionStateHolder bBMarketDataSessionStateHolder,
             final Engine serverEngine) {
 
-        return new BBMarketDataServiceImpl(bBAdapter, serverEngine);
+        return new BBMarketDataServiceImpl(bBAdapter, bBMarketDataSessionStateHolder, serverEngine);
     }
 
     @Profile("bBReferenceData")

@@ -17,6 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.bb;
 
+import java.io.IOException;
+
 import com.bloomberglp.blpapi.Service;
 import com.bloomberglp.blpapi.Session;
 import com.bloomberglp.blpapi.SessionOptions;
@@ -82,4 +84,21 @@ public final class BBSession extends Session {
 
         return this.messageHandler != null && this.messageHandler.isRunning();
     }
+
+    /**
+     * Convenience method to start the BBSession and open the associated service.
+     */
+    public void startService() throws InterruptedException, IOException {
+
+        // start the session
+        if (!start()) {
+            throw new BBSessionException("Failed to start session for service " + this.serviceName);
+        }
+        // open the service
+        if (!openService("//blp/" + this.serviceName)) {
+            stop();
+            throw new BBSessionException("Failed to open service " + this.serviceName);
+        }
+    }
+
 }

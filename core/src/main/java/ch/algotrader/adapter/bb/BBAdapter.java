@@ -30,7 +30,6 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 import com.bloomberglp.blpapi.SessionOptions;
 
 import ch.algotrader.config.BBConfig;
-import ch.algotrader.esper.Engine;
 
 /**
  * Factory class for Bloomberg Sessions.
@@ -45,36 +44,35 @@ import ch.algotrader.esper.Engine;
 public class BBAdapter {
 
     private final BBConfig bbConfig;
-    private final Engine serverEngine;
     private final Map<String, BBSession> sessions;
 
-    public BBAdapter(final BBConfig bbConfig, final Engine serverEngine) {
+    public BBAdapter(final BBConfig bbConfig) {
         this.bbConfig = bbConfig;
-        this.serverEngine = serverEngine;
         this.sessions = new ConcurrentHashMap<>();
     }
 
     /**
      * Returns an asynchronous market data session using the {@link BBMarketDataMessageHandler}
      */
-    public BBSession getMarketDataSession() throws IOException, InterruptedException {
+    public BBSession createMarketDataSession(final BBMarketDataMessageHandler messageHandler) throws IOException, InterruptedException {
 
-        return getSession("mktdata", new BBMarketDataMessageHandler(serverEngine));
+        return createSession("mktdata", messageHandler);
     }
 
     /**
      * Returns a synchronous reference data session
      */
-    public BBSession getReferenceDataSession() throws IOException, InterruptedException {
+    public BBSession createReferenceDataSession() throws IOException, InterruptedException {
 
-        return getSession("refdata", null);
+        return createSession("refdata", null);
     }
 
-    private BBSession getSession(String serviceName, BBMessageHandler messageHandler) throws InterruptedException, IOException {
+    private BBSession createSession(final String serviceName, final BBMessageHandler messageHandler) throws InterruptedException, IOException {
 
         // stop eventual session
-        if (this.sessions.containsKey(serviceName)) {
-            this.sessions.get(serviceName).stop();
+        BBSession previousSession = this.sessions.remove(serviceName);
+        if (previousSession != null) {
+            previousSession.stop();
         }
 
         // create the session options
@@ -88,17 +86,6 @@ public class BBAdapter {
             session = new BBSession(serviceName, sessionOptions, messageHandler);
         } else {
             session = new BBSession(serviceName, sessionOptions);
-        }
-
-        // start the session
-        if (!session.start()) {
-            throw new IllegalStateException("Failed to start session");
-        }
-
-        // open the service
-        if (!session.openService("//blp/" + serviceName)) {
-            session.stop();
-            throw new IllegalStateException("Failed to open service " + serviceName);
         }
 
         this.sessions.put(serviceName, session);

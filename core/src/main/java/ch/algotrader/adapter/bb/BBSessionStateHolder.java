@@ -15,12 +15,13 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.adapter.fix;
+package ch.algotrader.adapter.bb;
 
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.lang.Validate;
 
+import ch.algotrader.adapter.DataFeedSessionStateHolder;
 import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.enumeration.ConnectionState;
 import ch.algotrader.event.dispatch.EventDispatcher;
@@ -34,18 +35,21 @@ import ch.algotrader.vo.SessionEventVO;
  *
  * @version $Revision$ $Date$
  */
-public class DefaultFixSessionStateHolder implements ExternalSessionStateHolder {
+public class BBSessionStateHolder implements ExternalSessionStateHolder, DataFeedSessionStateHolder {
 
     private final String name;
     private final EventDispatcher eventDispatcher;
     private final AtomicReference<ConnectionState> connState;
+    private final String feedType;
 
-    public DefaultFixSessionStateHolder(final String name, final EventDispatcher eventDispatcher) {
+    public BBSessionStateHolder(final String name, final EventDispatcher eventDispatcher, final String feedType) {
         Validate.notEmpty(name, "Session name is null");
         Validate.notNull(eventDispatcher, "PlatformEventDispatcher is null");
+        Validate.notEmpty(name, "Feed type is null");
 
         this.name = name;
         this.eventDispatcher = eventDispatcher;
+        this.feedType = feedType;
         this.connState = new AtomicReference<>(ConnectionState.DISCONNECTED);
     }
 
@@ -116,4 +120,10 @@ public class DefaultFixSessionStateHolder implements ExternalSessionStateHolder 
 
         return this.connState.get();
     }
+
+    @Override
+    public String getFeedType() {
+        return this.feedType;
+    }
+
 }

@@ -20,7 +20,6 @@ package ch.algotrader.service.bb;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
@@ -31,8 +30,10 @@ import com.bloomberglp.blpapi.CorrelationID;
 import com.bloomberglp.blpapi.Subscription;
 import com.bloomberglp.blpapi.SubscriptionList;
 
+import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.adapter.bb.BBAdapter;
 import ch.algotrader.adapter.bb.BBIdGenerator;
+import ch.algotrader.adapter.bb.BBMarketDataMessageHandler;
 import ch.algotrader.adapter.bb.BBSession;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.FeedType;
@@ -57,19 +58,23 @@ public class BBMarketDataServiceImpl extends NativeMarketDataServiceImpl impleme
     private static BBSession session;
 
     private final BBAdapter bBAdapter;
-    private final AtomicBoolean initalized;
+    private final ExternalSessionStateHolder sessionStateHolder;
+    private final Engine serverEngine;
 
     public BBMarketDataServiceImpl(
             final BBAdapter bBAdapter,
+            final ExternalSessionStateHolder sessionStateHolder,
             final Engine serverEngine) {
 
         super(serverEngine);
 
         Validate.notNull(bBAdapter, "BBAdapter is null");
+        Validate.notNull(sessionStateHolder, "ExternalSessionStateHolder is null");
         Validate.notNull(serverEngine, "Engine is null");
 
         this.bBAdapter = bBAdapter;
-        this.initalized = new AtomicBoolean(false);
+        this.sessionStateHolder = sessionStateHolder;
+        this.serverEngine = serverEngine;
     }
 
     /**
@@ -79,7 +84,8 @@ public class BBMarketDataServiceImpl extends NativeMarketDataServiceImpl impleme
     public void init() {
 
         try {
-            session = this.bBAdapter.getMarketDataSession();
+            session = this.bBAdapter.createMarketDataSession(new BBMarketDataMessageHandler(this.serverEngine, this.sessionStateHolder));
+            session.startService();
         } catch (IOException ex) {
             throw new ExternalServiceException(ex);
         } catch (InterruptedException ex) {
@@ -91,7 +97,7 @@ public class BBMarketDataServiceImpl extends NativeMarketDataServiceImpl impleme
     @Override
     public boolean initSubscriptions() {
 
-        return this.initalized.compareAndSet(false, true);
+        return this.sessionStateHolder.onSubscribe();
     }
 
     @Override

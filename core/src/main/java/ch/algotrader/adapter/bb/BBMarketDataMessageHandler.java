@@ -27,6 +27,7 @@ import com.bloomberglp.blpapi.Event;
 import com.bloomberglp.blpapi.Message;
 import com.bloomberglp.blpapi.Session;
 
+import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.vo.marketData.AskVO;
@@ -46,7 +47,8 @@ public class BBMarketDataMessageHandler extends BBMessageHandler {
 
     private final Engine serverEngine;
 
-    public BBMarketDataMessageHandler(Engine serverEngine) {
+    public BBMarketDataMessageHandler(final Engine serverEngine, final ExternalSessionStateHolder sessionStateHolder) {
+        super(sessionStateHolder);
         this.serverEngine = serverEngine;
     }
 

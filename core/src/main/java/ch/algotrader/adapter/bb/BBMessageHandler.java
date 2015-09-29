@@ -25,6 +25,8 @@ import com.bloomberglp.blpapi.EventHandler;
 import com.bloomberglp.blpapi.Message;
 import com.bloomberglp.blpapi.Session;
 
+import ch.algotrader.adapter.ExternalSessionStateHolder;
+
 /**
  * Abstract Bloomberg MessageHandler.
  *
@@ -36,8 +38,17 @@ public abstract class BBMessageHandler implements EventHandler {
 
     private static final Logger LOGGER = LogManager.getLogger(BBMessageHandler.class);
 
+    private final ExternalSessionStateHolder sessionStateHolder;
     private final Object lock = new Object();
     private boolean running;
+
+    public BBMessageHandler(final ExternalSessionStateHolder sessionStateHolder) {
+        this.sessionStateHolder = sessionStateHolder;
+    }
+
+    public BBMessageHandler() {
+        this(null);
+    }
 
     @Override
     public void processEvent(Event event, Session session) {
@@ -84,6 +95,14 @@ public abstract class BBMessageHandler implements EventHandler {
                 processResponseEvent(event, session);
                 return true;
             case Event.EventType.Constants.SUBSCRIPTION_STATUS:
+
+                for (Message msg : event) {
+                    if (msg.messageType() == BBConstants.SUBSCRIPTION_STARTED) {
+                        if (this.sessionStateHolder != null) {
+                            this.sessionStateHolder.onSubscribe();
+                        }
+                    }
+                }
                 synchronized (this.lock) {
                     processSubscriptionStatus(event, session);
                 }
@@ -103,14 +122,26 @@ public abstract class BBMessageHandler implements EventHandler {
 
             if (msg.messageType() == BBConstants.SESSION_CONNECTION_UP) {
                 LOGGER.info("session connection up");
+
+                if (this.sessionStateHolder != null) {
+                    this.sessionStateHolder.onCreate();
+                }
             } else if (msg.messageType() == BBConstants.SESSION_CONNECTION_DOWN) {
                 LOGGER.info("session connection down");
             } else if (msg.messageType() == BBConstants.SESSION_STARTED) {
                 this.running = true;
                 LOGGER.info("session started");
+
+                if (this.sessionStateHolder != null) {
+                    this.sessionStateHolder.onLogon();
+                }
             } else if (msg.messageType() == BBConstants.SESSION_TERMINATED) {
                 this.running = false;
                 LOGGER.info("session terminated");
+
+                if (this.sessionStateHolder != null) {
+                    this.sessionStateHolder.onLogoff();
+                }
             } else if (msg.messageType() == BBConstants.SESSION_STARTUP_FAILURE) {
                 LOGGER.error(msg);
             } else {
