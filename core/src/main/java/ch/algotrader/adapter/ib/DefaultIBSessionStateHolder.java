@@ -23,9 +23,7 @@ import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import ch.algotrader.adapter.DataFeedSessionStateHolder;
 import ch.algotrader.enumeration.ConnectionState;
-import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.vo.SessionEventVO;
 
@@ -34,7 +32,7 @@ import ch.algotrader.vo.SessionEventVO;
  *
  * @version $Revision$ $Date$
  */
-public class DefaultIBSessionStateHolder implements IBSessionStateHolder, DataFeedSessionStateHolder {
+public class DefaultIBSessionStateHolder implements IBSessionStateHolder {
 
     private static final Logger LOGGER = LogManager.getLogger(DefaultIBSessionStateHolder.class);
 
@@ -55,11 +53,6 @@ public class DefaultIBSessionStateHolder implements IBSessionStateHolder, DataFe
     @Override
     public String getName() {
         return this.name;
-    }
-
-    @Override
-    public String getFeedType() {
-        return FeedType.IB.name();
     }
 
     @Override

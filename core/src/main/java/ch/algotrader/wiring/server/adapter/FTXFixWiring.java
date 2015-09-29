@@ -26,10 +26,8 @@ import ch.algotrader.adapter.fix.DefaultFixApplicationFactory;
 import ch.algotrader.adapter.fix.DefaultFixSessionStateHolder;
 import ch.algotrader.adapter.fix.DefaultLogonMessageHandler;
 import ch.algotrader.adapter.fix.FixApplicationFactory;
-import ch.algotrader.adapter.fix.MarketDataFixSessionStateHolder;
 import ch.algotrader.adapter.ftx.FTXFixMarketDataMessageHandler;
 import ch.algotrader.adapter.ftx.FTXFixOrderMessageHandler;
-import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.ordermgmt.OrderRegistry;
@@ -71,7 +69,7 @@ public class FTXFixWiring {
     @Bean(name = "fTXMarketDataSessionStateHolder")
     public ExternalSessionStateHolder createFTXMarketDataSessionStateHolder(final EventDispatcher eventDispatcher) {
 
-        return new MarketDataFixSessionStateHolder("FTXMD", eventDispatcher, FeedType.FTX.name());
+        return new DefaultFixSessionStateHolder("FTXMD", eventDispatcher);
     }
 
     @Profile("fTXMarketData")

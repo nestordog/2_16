@@ -89,7 +89,7 @@ public abstract class FixMarketDataServiceImpl implements FixMarketDataService, 
     }
 
     @Override
-    public boolean initSubscriptions() {
+    public boolean initSubscriptionReady() {
 
         return this.stateHolder.onSubscribe();
     }

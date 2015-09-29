@@ -74,7 +74,7 @@ public class IBNativeMarketDataServiceImpl extends NativeMarketDataServiceImpl i
     }
 
     @Override
-    public boolean initSubscriptions() {
+    public boolean initSubscriptionReady() {
 
         return this.sessionStateHolder.onSubscribe();
     }
@@ -126,6 +126,12 @@ public class IBNativeMarketDataServiceImpl extends NativeMarketDataServiceImpl i
     public String getFeedType() {
 
         return FeedType.IB.name();
+    }
+
+    @Override
+    public String getSessionQualifier() {
+
+        return this.sessionStateHolder.getName();
     }
 
     @Override

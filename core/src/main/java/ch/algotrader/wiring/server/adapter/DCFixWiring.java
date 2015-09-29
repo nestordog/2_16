@@ -28,8 +28,6 @@ import ch.algotrader.adapter.fix.DefaultFixApplicationFactory;
 import ch.algotrader.adapter.fix.DefaultFixSessionStateHolder;
 import ch.algotrader.adapter.fix.DefaultLogonMessageHandler;
 import ch.algotrader.adapter.fix.FixApplicationFactory;
-import ch.algotrader.adapter.fix.MarketDataFixSessionStateHolder;
-import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.ordermgmt.OrderRegistry;
@@ -69,10 +67,10 @@ public class DCFixWiring {
 
     @Profile("dCMarketData")
     @Bean(name = "dCMarketDataSessionStateHolder")
-    public DefaultFixSessionStateHolder createDCMarketDataSessionStateHolder(
+    public ExternalSessionStateHolder createDCMarketDataSessionStateHolder(
             final EventDispatcher eventDispatcher) {
 
-        return new MarketDataFixSessionStateHolder("DCMD", eventDispatcher, FeedType.DC.name());
+        return new DefaultFixSessionStateHolder("DCMD", eventDispatcher);
     }
 
     @Profile("dCMarketData")

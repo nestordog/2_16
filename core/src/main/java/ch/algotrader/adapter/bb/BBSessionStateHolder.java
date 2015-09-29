@@ -21,7 +21,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.lang.Validate;
 
-import ch.algotrader.adapter.DataFeedSessionStateHolder;
 import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.enumeration.ConnectionState;
 import ch.algotrader.event.dispatch.EventDispatcher;
@@ -35,21 +34,18 @@ import ch.algotrader.vo.SessionEventVO;
  *
  * @version $Revision$ $Date$
  */
-public class BBSessionStateHolder implements ExternalSessionStateHolder, DataFeedSessionStateHolder {
+public class BBSessionStateHolder implements ExternalSessionStateHolder {
 
     private final String name;
     private final EventDispatcher eventDispatcher;
     private final AtomicReference<ConnectionState> connState;
-    private final String feedType;
 
-    public BBSessionStateHolder(final String name, final EventDispatcher eventDispatcher, final String feedType) {
+    public BBSessionStateHolder(final String name, final EventDispatcher eventDispatcher) {
         Validate.notEmpty(name, "Session name is null");
         Validate.notNull(eventDispatcher, "PlatformEventDispatcher is null");
-        Validate.notEmpty(name, "Feed type is null");
 
         this.name = name;
         this.eventDispatcher = eventDispatcher;
-        this.feedType = feedType;
         this.connState = new AtomicReference<>(ConnectionState.DISCONNECTED);
     }
 
@@ -119,11 +115,6 @@ public class BBSessionStateHolder implements ExternalSessionStateHolder, DataFee
     public ConnectionState getConnectionState() {
 
         return this.connState.get();
-    }
-
-    @Override
-    public String getFeedType() {
-        return this.feedType;
     }
 
 }

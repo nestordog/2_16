@@ -38,12 +38,6 @@ public interface FixMarketDataService extends ExternalMarketDataService {
     public void sendUnsubscribeRequest(Security security);
 
     /**
-     * Returns the session qualifier to use when looking up the corresponding fix session
-     * configuration in the configuration file.
-     */
-    public String getSessionQualifier();
-
-    /**
      * Converts a Security into a market data feed specific tickerId
      */
     public String getTickerId(Security security);

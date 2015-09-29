@@ -26,10 +26,8 @@ import ch.algotrader.adapter.fix.DefaultFixApplicationFactory;
 import ch.algotrader.adapter.fix.DefaultFixSessionStateHolder;
 import ch.algotrader.adapter.fix.DefaultLogonMessageHandler;
 import ch.algotrader.adapter.fix.FixApplicationFactory;
-import ch.algotrader.adapter.fix.MarketDataFixSessionStateHolder;
 import ch.algotrader.adapter.lmax.LMAXFixMarketDataMessageHandler;
 import ch.algotrader.adapter.lmax.LMAXFixOrderMessageHandler;
-import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.ordermgmt.OrderRegistry;
@@ -69,9 +67,9 @@ public class LMAXFixWiring {
 
     @Profile("lMAXMarketData")
     @Bean(name = "lMAXMarketDataSessionStateHolder")
-    public MarketDataFixSessionStateHolder createLMAXMarketDataSessionStateHolder(final EventDispatcher eventDispatcher) {
+    public ExternalSessionStateHolder createLMAXMarketDataSessionStateHolder(final EventDispatcher eventDispatcher) {
 
-        return new MarketDataFixSessionStateHolder("LMAXMD", eventDispatcher, FeedType.LMAX.name());
+        return new DefaultFixSessionStateHolder("LMAXMD", eventDispatcher);
     }
 
     @Profile("lMAXMarketData")

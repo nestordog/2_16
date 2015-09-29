@@ -27,8 +27,6 @@ import ch.algotrader.adapter.cnx.CNXFixMarketDataMessageHandler;
 import ch.algotrader.adapter.cnx.CNXFixOrderMessageHandler;
 import ch.algotrader.adapter.fix.DefaultFixSessionStateHolder;
 import ch.algotrader.adapter.fix.DefaultLogonMessageHandler;
-import ch.algotrader.adapter.fix.MarketDataFixSessionStateHolder;
-import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.ordermgmt.OrderRegistry;
@@ -70,7 +68,7 @@ public class CNXFixWiring {
     @Bean(name = "cNXMarketDataSessionStateHolder")
     public ExternalSessionStateHolder createCNXMarketDataSessionStateHolder(final EventDispatcher eventDispatcher) {
 
-        return new MarketDataFixSessionStateHolder("CNXMD", eventDispatcher, FeedType.CNX.name());
+        return new DefaultFixSessionStateHolder("CNXMD", eventDispatcher);
     }
 
     @Profile("cNXMarketData")

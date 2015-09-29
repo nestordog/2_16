@@ -25,7 +25,6 @@ import ch.algotrader.adapter.bb.BBAdapter;
 import ch.algotrader.adapter.bb.BBSessionStateHolder;
 import ch.algotrader.config.BBConfig;
 import ch.algotrader.config.ConfigLocator;
-import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.event.dispatch.EventDispatcher;
 
 /**
@@ -50,7 +49,7 @@ public class BBWiring {
     @Profile("bBMarketData")
     @Bean(name = "bBMarketDataSessionStateHolder")
     public BBSessionStateHolder createBBSessionStateHolder(final EventDispatcher eventDispatcher) {
-        return new BBSessionStateHolder("BBMD", eventDispatcher, FeedType.BB.name());
+        return new BBSessionStateHolder("BBMD", eventDispatcher);
     }
 
 }

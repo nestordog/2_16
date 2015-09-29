@@ -27,23 +27,30 @@ import ch.algotrader.entity.security.Security;
 public interface ExternalMarketDataService {
 
     /**
-     * Initializes current Subscriptions with the external Market Data Provider.
+     * Returns {@code true} if the external service is ready to accept initial
+     * subscriptions. Returns {@code false} if the external service is not ready
+     * or initial subscriptions have already been activated.
      */
-    public boolean initSubscriptions();
+    boolean initSubscriptionReady();
 
     /**
-     * Subscribes a Security with the external Market Data Provider.
+     * Subscribes the given security with the external market data provider.
      */
-    public void subscribe(Security security);
+    void subscribe(Security security);
 
     /**
-     * Unsubscribes a Security with the external Market Data Provider.
+     * Un-subscribes the given security with the external market data provider.
      */
-    public void unsubscribe(Security security);
+    void unsubscribe(Security security);
 
     /**
-     * returns the feed type for this ExternalMarketDataService
+     * returns the feed type for this for this service
      */
-    public String getFeedType();
+    String getFeedType();
+
+    /**
+     * returns the session qualifier for this service
+     */
+    String getSessionQualifier();
 
 }

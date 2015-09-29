@@ -159,7 +159,7 @@ public class MarketDataServiceImpl implements MarketDataService {
         Validate.notNull(feedType, "Feed type is null");
 
         ExternalMarketDataService externalMarketDataService = getExternalMarketDataService(feedType);
-        if (externalMarketDataService.initSubscriptions()) {
+        if (externalMarketDataService.initSubscriptionReady()) {
             if (LOGGER.isInfoEnabled()) {
                 LOGGER.info("Initializing subscriptions for data feed {}", feedType);
             }
@@ -204,7 +204,13 @@ public class MarketDataServiceImpl implements MarketDataService {
         if (this.subscriptionDao.findByStrategySecurityAndFeedType(strategyName, securityId, feedType) == null) {
 
             Strategy strategy = this.strategyDao.findByName(strategyName);
+            if (strategy == null) {
+                throw new ServiceException("Unknown strategy: " + strategyName);
+            }
             Security security = this.securityDao.get(securityId);
+            if (security == null) {
+                throw new ServiceException("Unknown security: " + securityId);
+            }
 
             // only external subscribe if nobody was watching the specified security with the specified feedType so far
             if (!this.commonConfig.isSimulation()) {
