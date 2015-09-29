@@ -50,7 +50,7 @@ public class EventDispatchWiring {
             final EngineManager engineManager,
             final ApplicationContext applicationContext) {
 
-        if (commonConfig.isSimulation() || commonConfig.isEmbedded()) {
+        if (commonConfig.isSimulation() || commonConfig.isEmbedded() || !applicationContext.containsBean("jmsActiveMQFactory")) {
             return new LocalEventDispatcherImpl(eventListenerRegistry, engineManager);
         } else {
             return new DistributedEventDispatcherImpl(
