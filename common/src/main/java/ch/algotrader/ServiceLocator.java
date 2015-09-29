@@ -28,6 +28,7 @@ import org.springframework.context.access.ContextSingletonBeanFactoryLocator;
 import org.springframework.context.support.AbstractApplicationContext;
 
 import ch.algotrader.esper.EngineManager;
+import ch.algotrader.event.EventListenerRegistry;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.lifecycle.LifecycleManager;
 import ch.algotrader.service.CalendarService;
@@ -350,11 +351,19 @@ public class ServiceLocator {
     }
 
     /**
-     * Gets an instance of {@link ch.algotrader.esper.EngineManagerImpl}.
+     * Gets an instance of {@link EngineManager}.
      * @return EngineManager from getContext().getBean("engineManager")
      */
     public EngineManager getEngineManager() {
         return getContext().getBean("engineManager", EngineManager.class);
+    }
+
+    /**
+     * Gets an instance of {@link EventListenerRegistry}.
+     * @return EventListenerRegistry from getContext().getBean("eventListenerRegistry")
+     */
+    public EventListenerRegistry getEventListenerRegistry() {
+        return getContext().getBean("eventListenerRegistry", EventListenerRegistry.class);
     }
 
     /**

@@ -22,6 +22,9 @@ import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoField;
+import java.time.temporal.TemporalAccessor;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -34,6 +37,8 @@ import java.util.concurrent.ExecutionException;
 import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.ib.client.Contract;
 import com.ib.client.ContractDetails;
@@ -69,11 +74,12 @@ import ch.algotrader.util.RoundUtil;
  *
  * @version $Revision$ $Date$
  */
+@Transactional(propagation = Propagation.SUPPORTS)
 public class IBNativeReferenceDataServiceImpl implements ReferenceDataService {
 
     private static final Logger LOGGER = LogManager.getLogger(IBNativeReferenceDataServiceImpl.class);
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd");
-    private static final DateTimeFormatter MONTH_FORMAT = DateTimeFormatter.ofPattern("yyyyMM");
+    private static final DateTimeFormatter YEAR_MONTH_FORMAT = DateTimeFormatter.ofPattern("yyyyMM");
     private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#.#######");
 
     private final IBSession iBSession;
@@ -207,10 +213,10 @@ public class IBNativeReferenceDataServiceImpl implements ReferenceDataService {
     private void retrieveOptions(OptionFamily securityFamily, Set<ContractDetails> contractDetailsSet) throws ParseException {
 
         // get all current options
-        Set<Security> existingOptions = new TreeSet<>(getComparator());
+        Set<Security> existingOptions = new TreeSet<>(SECURITY_COMPARATOR);
         existingOptions.addAll(this.optionDao.findBySecurityFamily(securityFamily.getId()));
 
-        Set<Option> newOptions = new TreeSet<>();
+        Set<Option> newOptions = new HashSet<>();
         for (ContractDetails contractDetails : contractDetailsSet) {
 
             Option option = Option.Factory.newInstance();
@@ -251,17 +257,17 @@ public class IBNativeReferenceDataServiceImpl implements ReferenceDataService {
     private void retrieveFutures(FutureFamily securityFamily, Set<ContractDetails> contractDetailsSet) throws ParseException {
 
         // get all current futures
-        Set<Future> existingFutures = new TreeSet<>(getComparator());
+        Set<Future> existingFutures = new TreeSet<>(SECURITY_COMPARATOR);
         existingFutures.addAll(this.futureDao.findBySecurityFamily(securityFamily.getId()));
 
-        Set<Future> newFutures = new TreeSet<>();
+        Set<Future> newFutures = new HashSet<>();
         for (ContractDetails contractDetails : contractDetailsSet) {
 
             Future future = Future.Factory.newInstance();
 
             Contract contract = contractDetails.m_summary;
             LocalDate expiration = DATE_FORMAT.parse(contract.m_expiry, LocalDate::from);
-            LocalDate contractMonth = MONTH_FORMAT.parse(contractDetails.m_contractMonth, LocalDate::from);
+            LocalDate contractMonth = parseYearMonth(contractDetails.m_contractMonth);
 
             String symbol = FutureSymbol.getSymbol(securityFamily, contractMonth);
             final String isin = FutureSymbol.getIsin(securityFamily, contractMonth);
@@ -330,16 +336,26 @@ public class IBNativeReferenceDataServiceImpl implements ReferenceDataService {
         this.stockDao.saveAll(newStocks);
     }
 
-    private Comparator<Security> getComparator() {
+    private static final Comparator<Security> SECURITY_COMPARATOR = (o1, o2) -> {
+        if (o1.getConid() != null && o2.getConid() != null) {
+            return o1.getConid().compareTo(o2.getConid());
+        } else {
+            return o1.getSymbol().compareTo(o2.getSymbol());
+        }
+    };
 
-        // comparator based on conid
-        Comparator<Security> comparator = (o1, o2) -> {
-            if (o1.getConid() != null && o2.getConid() != null) {
-                return o1.getConid().compareTo(o2.getConid());
-            } else {
-                return o1.getSymbol().compareTo(o2.getSymbol());
-            }
-        };
-        return comparator;
+    private LocalDate parseYearMonth(final CharSequence s) {
+        if (s == null || s.length() == 0) {
+            return null;
+        }
+        try {
+            TemporalAccessor parsed = YEAR_MONTH_FORMAT.parse(s);
+            int year = parsed.get(ChronoField.YEAR);
+            int month = parsed.get(ChronoField.MONTH_OF_YEAR);
+            return LocalDate.of(year, month, 1);
+        } catch (DateTimeParseException ex) {
+            throw new ServiceException("Invalid year/month format: " + s);
+        }
     }
+
 }
