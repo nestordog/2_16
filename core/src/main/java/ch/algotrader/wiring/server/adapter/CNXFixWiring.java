@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.wiring.server.adapter;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -47,9 +48,12 @@ public class CNXFixWiring {
 
     @Profile("cNXFix")
     @Bean(name = "cNXOrderSessionStateHolder")
-    public ExternalSessionStateHolder createCNXOrderSessionStateHolder(final EventDispatcher eventDispatcher) throws Exception {
+    public ExternalSessionStateHolder createCNXOrderSessionStateHolder(
+            @Value("${fix.cnx.trading.sessionQualifier}")
+            final String sessionQualifier,
+            final EventDispatcher eventDispatcher) throws Exception {
 
-        return new DefaultFixSessionStateHolder("CNXT", eventDispatcher);
+        return new DefaultFixSessionStateHolder(sessionQualifier, eventDispatcher);
     }
 
     @Profile("cNXFix")
@@ -66,9 +70,12 @@ public class CNXFixWiring {
 
     @Profile("cNXMarketData")
     @Bean(name = "cNXMarketDataSessionStateHolder")
-    public ExternalSessionStateHolder createCNXMarketDataSessionStateHolder(final EventDispatcher eventDispatcher) {
+    public ExternalSessionStateHolder createCNXMarketDataSessionStateHolder(
+            @Value("${fix.cnx.marketdata.sessionQualifier}")
+            final String sessionQualifier,
+            final EventDispatcher eventDispatcher) {
 
-        return new DefaultFixSessionStateHolder("CNXMD", eventDispatcher);
+        return new DefaultFixSessionStateHolder(sessionQualifier, eventDispatcher);
     }
 
     @Profile("cNXMarketData")

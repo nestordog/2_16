@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.wiring.server.adapter;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -48,9 +49,12 @@ public class FTXFixWiring {
 
     @Profile("fTXFix")
     @Bean(name = "fTXOrderSessionStateHolder")
-    public ExternalSessionStateHolder createFTXOrderSessionStateHolder(final EventDispatcher eventDispatcher) throws Exception {
+    public ExternalSessionStateHolder createFTXOrderSessionStateHolder(
+            @Value("${fix.ftx.trading.sessionQualifier}")
+            final String sessionQualifier,
+            final EventDispatcher eventDispatcher) throws Exception {
 
-        return new DefaultFixSessionStateHolder("FTXT", eventDispatcher);
+        return new DefaultFixSessionStateHolder(sessionQualifier, eventDispatcher);
     }
 
     @Profile("fTXFix")
@@ -67,9 +71,12 @@ public class FTXFixWiring {
 
     @Profile("fTXMarketData")
     @Bean(name = "fTXMarketDataSessionStateHolder")
-    public ExternalSessionStateHolder createFTXMarketDataSessionStateHolder(final EventDispatcher eventDispatcher) {
+    public ExternalSessionStateHolder createFTXMarketDataSessionStateHolder(
+            @Value("${fix.ftx.marketdata.sessionQualifier}")
+            final String sessionQualifier,
+            final EventDispatcher eventDispatcher) {
 
-        return new DefaultFixSessionStateHolder("FTXMD", eventDispatcher);
+        return new DefaultFixSessionStateHolder(sessionQualifier, eventDispatcher);
     }
 
     @Profile("fTXMarketData")

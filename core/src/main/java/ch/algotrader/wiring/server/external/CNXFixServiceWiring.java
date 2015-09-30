@@ -57,7 +57,7 @@ public class CNXFixServiceWiring {
             final ManagedFixAdapter fixAdapter,
             final Engine serverEngine) {
 
-        return new CNXFixMarketDataServiceImpl("CNXMD", cNXMarketDataSessionStateHolder, fixAdapter, new CNXTickerIdGenerator(), serverEngine);
+        return new CNXFixMarketDataServiceImpl(cNXMarketDataSessionStateHolder, fixAdapter, new CNXTickerIdGenerator(), serverEngine);
     }
 
 }

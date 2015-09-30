@@ -57,7 +57,7 @@ public class FXCMFixServiceWiring {
             final ManagedFixAdapter fixAdapter,
             final Engine serverEngine) {
 
-        return new FXCMFixMarketDataServiceImpl("FXCM", fXCMSessionLifeCycle, fixAdapter, new FXCTickerIdGenerator(), serverEngine);
+        return new FXCMFixMarketDataServiceImpl(fXCMSessionLifeCycle, fixAdapter, new FXCTickerIdGenerator(), serverEngine);
     }
 
 }

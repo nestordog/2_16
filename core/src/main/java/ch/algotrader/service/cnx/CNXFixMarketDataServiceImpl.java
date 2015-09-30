@@ -41,13 +41,12 @@ public class CNXFixMarketDataServiceImpl extends FixMarketDataServiceImpl implem
     private final CNXFixMarketDataRequestFactory requestFactory;
 
     public CNXFixMarketDataServiceImpl(
-            final String sessionQualifier,
             final ExternalSessionStateHolder stateHolder,
             final FixAdapter fixAdapter,
             final RequestIdGenerator<Security> tickerIdGenerator,
             final Engine serverEngine) {
 
-        super(FeedType.CNX.name(), sessionQualifier, stateHolder, fixAdapter, tickerIdGenerator, serverEngine);
+        super(FeedType.CNX.name(), stateHolder, fixAdapter, tickerIdGenerator, serverEngine);
 
         this.requestFactory = new CNXFixMarketDataRequestFactory(tickerIdGenerator);
     }

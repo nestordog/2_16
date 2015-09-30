@@ -41,13 +41,12 @@ public class FXCMFixMarketDataServiceImpl extends FixMarketDataServiceImpl imple
     private final FXCMFixMarketDataRequestFactory requestFactory;
 
     public FXCMFixMarketDataServiceImpl(
-            final String sessionQualifier,
             final ExternalSessionStateHolder stateHolder,
             final FixAdapter fixAdapter,
             final RequestIdGenerator<Security> tickerIdGenerator,
             final Engine serverEngine) {
 
-        super(FeedType.FXCM.name(), sessionQualifier, stateHolder, fixAdapter, tickerIdGenerator, serverEngine);
+        super(FeedType.FXCM.name(), stateHolder, fixAdapter, tickerIdGenerator, serverEngine);
         this.requestFactory = new FXCMFixMarketDataRequestFactory(tickerIdGenerator);
     }
 

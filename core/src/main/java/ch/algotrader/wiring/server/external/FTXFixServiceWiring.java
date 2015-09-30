@@ -57,7 +57,7 @@ public class FTXFixServiceWiring {
             final ManagedFixAdapter fixAdapter,
             final Engine serverEngine) {
 
-        return new FTXFixMarketDataServiceImpl("FTXMD", fTXMarketDataSessionStateHolder, fixAdapter, new FTXTickerIdGenerator(), serverEngine);
+        return new FTXFixMarketDataServiceImpl(fTXMarketDataSessionStateHolder, fixAdapter, new FTXTickerIdGenerator(), serverEngine);
     }
 
 }

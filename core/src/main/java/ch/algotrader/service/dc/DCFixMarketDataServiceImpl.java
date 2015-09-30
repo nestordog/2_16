@@ -43,13 +43,12 @@ public class DCFixMarketDataServiceImpl extends FixMarketDataServiceImpl impleme
     private final DCFixMarketDataRequestFactory requestFactory;
 
     public DCFixMarketDataServiceImpl(
-            final String sessionQualifier,
-            final ExternalSessionStateHolder lifeCycle,
+            final ExternalSessionStateHolder stateHolder,
             final FixAdapter fixAdapter,
             final RequestIdGenerator<Security> tickerIdGenerator,
             final Engine serverEngine) {
 
-        super(FeedType.DC.name(), sessionQualifier, lifeCycle, fixAdapter, tickerIdGenerator, serverEngine);
+        super(FeedType.DC.name(), stateHolder, fixAdapter, tickerIdGenerator, serverEngine);
 
         this.requestFactory = new DCFixMarketDataRequestFactory(tickerIdGenerator);
     }

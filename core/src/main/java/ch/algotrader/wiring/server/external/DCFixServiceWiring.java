@@ -57,7 +57,7 @@ public class DCFixServiceWiring {
             final ManagedFixAdapter fixAdapter,
             final Engine serverEngine) {
 
-        return new DCFixMarketDataServiceImpl("DCMD", dCMarketDataSessionStateHolder, fixAdapter, new DCTickerIdGenerator(), serverEngine);
+        return new DCFixMarketDataServiceImpl(dCMarketDataSessionStateHolder, fixAdapter, new DCTickerIdGenerator(), serverEngine);
     }
 
 }

@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.wiring.server.adapter;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -48,8 +49,11 @@ public class BBWiring {
 
     @Profile("bBMarketData")
     @Bean(name = "bBMarketDataSessionStateHolder")
-    public BBSessionStateHolder createBBSessionStateHolder(final EventDispatcher eventDispatcher) {
-        return new BBSessionStateHolder("BBMD", eventDispatcher);
+    public BBSessionStateHolder createBBSessionStateHolder(
+            @Value("${bb.marketdata.sessionQualifier}")
+            final String sessionQualifier,
+            final EventDispatcher eventDispatcher) {
+        return new BBSessionStateHolder(sessionQualifier, eventDispatcher);
     }
 
 }

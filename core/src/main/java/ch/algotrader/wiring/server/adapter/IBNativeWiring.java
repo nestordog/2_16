@@ -83,8 +83,11 @@ public class IBNativeWiring {
     }
 
     @Bean(name = "iBSessionStateHolder")
-    public IBSessionStateHolder createIBSessionStateHolder(final EventDispatcher eventDispatcher) {
-        return new DefaultIBSessionStateHolder("IB_NATIVE", eventDispatcher);
+    public IBSessionStateHolder createIBSessionStateHolder(
+            @Value("${bb.native.sessionQualifier}")
+            final String sessionQualifier,
+            final EventDispatcher eventDispatcher) {
+        return new DefaultIBSessionStateHolder(sessionQualifier, eventDispatcher);
     }
 
     @Bean(name = "iBIdGenerator")
@@ -123,8 +126,11 @@ public class IBNativeWiring {
     }
 
     @Bean(name = "iBSessionReconnector", destroyMethod = "destroy")
-    public IBSessionReconnector createIBSessionEventListener(final IBSession iBSession) {
-        return new IBSessionReconnector("IB_NATIVE", iBSession);
+    public IBSessionReconnector createIBSessionEventListener(
+            @Value("${bb.native.sessionQualifier}")
+            final String sessionQualifier,
+            final IBSession iBSession) {
+        return new IBSessionReconnector(sessionQualifier, iBSession);
     }
 
 }

@@ -45,7 +45,6 @@ public abstract class FixMarketDataServiceImpl implements FixMarketDataService, 
     private static final Logger LOGGER = LogManager.getLogger(FixMarketDataServiceImpl.class);
 
     private final String feedType;
-    private final String sessionQualifier;
     private final ExternalSessionStateHolder stateHolder;
     private final FixAdapter fixAdapter;
     private final RequestIdGenerator<Security> tickerIdGenerator;
@@ -53,21 +52,18 @@ public abstract class FixMarketDataServiceImpl implements FixMarketDataService, 
 
     public FixMarketDataServiceImpl(
             final String feedType,
-            final String sessionQualifier,
             final ExternalSessionStateHolder stateHolder,
             final FixAdapter fixAdapter,
             final RequestIdGenerator<Security> tickerIdGenerator,
             final Engine serverEngine) {
 
         Validate.notEmpty(feedType, "FeedType is null");
-        Validate.notEmpty(sessionQualifier, "SessionQualifier is empty");
         Validate.notNull(stateHolder, "FixSessionStateHolder is null");
         Validate.notNull(fixAdapter, "FixAdapter is null");
         Validate.notNull(tickerIdGenerator, "RequestIdGenerator is null");
         Validate.notNull(serverEngine, "Engine is null");
 
         this.feedType = feedType;
-        this.sessionQualifier = sessionQualifier;
         this.stateHolder = stateHolder;
         this.fixAdapter = fixAdapter;
         this.tickerIdGenerator = tickerIdGenerator;
@@ -151,6 +147,6 @@ public abstract class FixMarketDataServiceImpl implements FixMarketDataService, 
     @Override
     public final String getSessionQualifier() {
 
-        return this.sessionQualifier;
+        return this.stateHolder.getName();
     }
 }

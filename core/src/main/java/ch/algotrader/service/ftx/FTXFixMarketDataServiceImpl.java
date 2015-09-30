@@ -38,13 +38,12 @@ public class FTXFixMarketDataServiceImpl extends FixMarketDataServiceImpl implem
     private final FTXFixMarketDataRequestFactory requestFactory;
 
     public FTXFixMarketDataServiceImpl(
-            final String sessionQualifier,
             final ExternalSessionStateHolder stateHolder,
             final FixAdapter fixAdapter,
             final RequestIdGenerator<Security> tickerIdGenerator,
             final Engine serverEngine) {
 
-        super(FeedType.FTX.name(), sessionQualifier, stateHolder, fixAdapter, tickerIdGenerator, serverEngine);
+        super(FeedType.FTX.name(), stateHolder, fixAdapter, tickerIdGenerator, serverEngine);
         this.requestFactory = new FTXFixMarketDataRequestFactory(tickerIdGenerator);
     }
 

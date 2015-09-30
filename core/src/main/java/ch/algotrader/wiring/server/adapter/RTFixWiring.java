@@ -17,14 +17,15 @@
  ***********************************************************************************/
 package ch.algotrader.wiring.server.adapter;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
+import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.adapter.fix.DefaultFixApplicationFactory;
 import ch.algotrader.adapter.fix.DefaultFixSessionStateHolder;
 import ch.algotrader.adapter.fix.FixApplicationFactory;
-import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.adapter.rt.RTFixOrderMessageHandler;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.event.dispatch.EventDispatcher;
@@ -38,9 +39,12 @@ import ch.algotrader.ordermgmt.OrderRegistry;
 public class RTFixWiring {
 
     @Bean(name = "rTOrderSessionStateHolder")
-    public ExternalSessionStateHolder createRTOrderSessionStateHolder(final EventDispatcher eventDispatcher) {
+    public ExternalSessionStateHolder createRTOrderSessionStateHolder(
+            @Value("${fix.rt.trading.sessionQualifier}")
+            final String sessionQualifier,
+            final EventDispatcher eventDispatcher) {
 
-        return new DefaultFixSessionStateHolder("RTT", eventDispatcher);
+        return new DefaultFixSessionStateHolder(sessionQualifier, eventDispatcher);
     }
 
     @Bean(name = "rTOrderApplicationFactory")

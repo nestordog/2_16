@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.wiring.server.adapter;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -48,9 +49,12 @@ public class DCFixWiring {
 
     @Profile("dCFix")
     @Bean(name = "dCOrderSessionStateHolder")
-    public ExternalSessionStateHolder createDCOrderSessionStateHolder(final EventDispatcher eventDispatcher) {
+    public ExternalSessionStateHolder createDCOrderSessionStateHolder(
+            @Value("${fix.dc.trading.sessionQualifier}")
+            final String sessionQualifier,
+            final EventDispatcher eventDispatcher) {
 
-        return new DefaultFixSessionStateHolder("DCT", eventDispatcher);
+        return new DefaultFixSessionStateHolder(sessionQualifier, eventDispatcher);
     }
 
     @Profile("dCFix")
@@ -68,9 +72,11 @@ public class DCFixWiring {
     @Profile("dCMarketData")
     @Bean(name = "dCMarketDataSessionStateHolder")
     public ExternalSessionStateHolder createDCMarketDataSessionStateHolder(
+            @Value("${fix.dc.marketdata.sessionQualifier}")
+            final String sessionQualifier,
             final EventDispatcher eventDispatcher) {
 
-        return new DefaultFixSessionStateHolder("DCMD", eventDispatcher);
+        return new DefaultFixSessionStateHolder(sessionQualifier, eventDispatcher);
     }
 
     @Profile("dCMarketData")

@@ -60,7 +60,8 @@ public class FixCoreWiring {
 
     @Bean(name = "fixSessionSettings")
     public SessionSettings createFixSessionSettings(
-            @Value("${quickfix.config-url}") final String configUrl,
+            @Value("${fix.quickfix.config-url}")
+            final String configUrl,
             final ApplicationContext applicationContext) throws Exception {
         Resource resource = applicationContext.getResource(configUrl);
         try (InputStream inputStream = resource.getInputStream()) {

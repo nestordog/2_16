@@ -41,13 +41,12 @@ public class LMAXFixMarketDataServiceImpl extends FixMarketDataServiceImpl imple
     private final LMAXFixMarketDataRequestFactory requestFactory;
 
     public LMAXFixMarketDataServiceImpl(
-            final String sessionQualifier,
-            final ExternalSessionStateHolder lifeCycle,
+            final ExternalSessionStateHolder stateHolder,
             final FixAdapter fixAdapter,
             final RequestIdGenerator<Security> tickerIdGenerator,
             final Engine serverEngine) {
 
-        super(FeedType.LMAX.name(), sessionQualifier, lifeCycle, fixAdapter, tickerIdGenerator, serverEngine);
+        super(FeedType.LMAX.name(), stateHolder, fixAdapter, tickerIdGenerator, serverEngine);
         this.requestFactory = new LMAXFixMarketDataRequestFactory(tickerIdGenerator);
     }
 

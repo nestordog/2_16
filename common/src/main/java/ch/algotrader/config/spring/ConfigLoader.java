@@ -80,6 +80,7 @@ public final class ConfigLoader {
      * <p/>
      * <p><tt>/conf.properties</tt><p/>
      * <p><tt>/conf-core.properties</tt><p/>
+     * <p><tt>/conf-fix.properties</tt><p/>
      * <p><tt>/conf-ib.properties</tt><p/>
      * <p><tt>/conf-bb.properties</tt><p/>
      * <p/>
@@ -89,7 +90,7 @@ public final class ConfigLoader {
         Assert.notNull(resourceResolver, "ResourcePatternResolver is null");
 
         Map<String, String> paramMap = new LinkedHashMap<>();
-        String[] resourceNames = new String[] { "conf.properties", "conf-core.properties", "conf-ib.properties", "conf-bb.properties" };
+        String[] resourceNames = new String[] { "conf.properties", "conf-core.properties", "conf-fix.properties", "conf-ib.properties", "conf-bb.properties" };
         for (String resourceName : resourceNames) {
             Resource resource = resourceResolver.getResource("classpath:/" + resourceName);
             if (resource != null && resource.exists()) {

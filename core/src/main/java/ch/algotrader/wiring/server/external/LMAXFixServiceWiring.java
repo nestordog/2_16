@@ -57,7 +57,7 @@ public class LMAXFixServiceWiring {
             final ManagedFixAdapter fixAdapter,
             final Engine serverEngine) {
 
-        return new LMAXFixMarketDataServiceImpl("LMAXMD", lMAXMarketDataSessionStateHolder, fixAdapter, new LMAXTickerIdGenerator(), serverEngine);
+        return new LMAXFixMarketDataServiceImpl(lMAXMarketDataSessionStateHolder, fixAdapter, new LMAXTickerIdGenerator(), serverEngine);
     }
 
 }

@@ -35,14 +35,12 @@ import quickfix.fix44.MarketDataRequest;
  */
 class FakeFix44MarketDataService extends FixMarketDataServiceImpl implements FixMarketDataService {
 
-    private static final long serialVersionUID = -1901678386181476171L;
-
     public FakeFix44MarketDataService(
             final ExternalSessionStateHolder lifeCycle,
             final FixAdapter fixAdapter,
             final Engine serverEngine) {
 
-        super(FeedType.SIM.name(), "FAKE", lifeCycle, fixAdapter, Security::getSymbol, serverEngine);
+        super(FeedType.SIM.name(), lifeCycle, fixAdapter, Security::getSymbol, serverEngine);
     }
 
     @Override

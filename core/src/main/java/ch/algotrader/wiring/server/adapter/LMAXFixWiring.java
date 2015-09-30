@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.wiring.server.adapter;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -48,9 +49,12 @@ public class LMAXFixWiring {
 
     @Profile("lMAXFix")
     @Bean(name = "lMAXOrderSessionStateHolder")
-    public ExternalSessionStateHolder createLMAXOrderSessionStateHolder(final EventDispatcher eventDispatcher) {
+    public ExternalSessionStateHolder createLMAXOrderSessionStateHolder(
+            @Value("${fix.lmax.trading.sessionQualifier}")
+            final String sessionQualifier,
+            final EventDispatcher eventDispatcher) {
 
-        return new DefaultFixSessionStateHolder("LMAXT", eventDispatcher);
+        return new DefaultFixSessionStateHolder(sessionQualifier, eventDispatcher);
     }
 
     @Profile("lMAXFix")
@@ -67,9 +71,12 @@ public class LMAXFixWiring {
 
     @Profile("lMAXMarketData")
     @Bean(name = "lMAXMarketDataSessionStateHolder")
-    public ExternalSessionStateHolder createLMAXMarketDataSessionStateHolder(final EventDispatcher eventDispatcher) {
+    public ExternalSessionStateHolder createLMAXMarketDataSessionStateHolder(
+            @Value("${fix.lmax.marketdata.sessionQualifier}")
+            final String sessionQualifier,
+            final EventDispatcher eventDispatcher) {
 
-        return new DefaultFixSessionStateHolder("LMAXMD", eventDispatcher);
+        return new DefaultFixSessionStateHolder(sessionQualifier, eventDispatcher);
     }
 
     @Profile("lMAXMarketData")

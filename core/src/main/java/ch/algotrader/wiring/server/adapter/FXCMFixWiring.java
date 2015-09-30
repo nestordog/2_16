@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.wiring.server.adapter;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -40,9 +41,12 @@ import ch.algotrader.ordermgmt.OrderRegistry;
 public class FXCMFixWiring {
 
     @Bean(name = "fXCMSessionLifeCycle")
-    public ExternalSessionStateHolder createFXCMSessionLifeCycle(final EventDispatcher eventDispatcher) {
+    public ExternalSessionStateHolder createFXCMSessionLifeCycle(
+            @Value("${fix.fxcm.sessionQualifier}")
+            final String sessionQualifier,
+            final EventDispatcher eventDispatcher) {
 
-        return new DefaultFixSessionStateHolder("FXCM", eventDispatcher);
+        return new DefaultFixSessionStateHolder(sessionQualifier, eventDispatcher);
     }
 
     @Bean(name = "fXCMApplicationFactory")
