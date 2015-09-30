@@ -38,7 +38,6 @@ import ch.algotrader.adapter.ib.IBIdGenerator;
 import ch.algotrader.adapter.ib.IBOrderMessageFactory;
 import ch.algotrader.adapter.ib.IBPendingRequests;
 import ch.algotrader.adapter.ib.IBSession;
-import ch.algotrader.adapter.ib.IBSessionEventListener;
 import ch.algotrader.adapter.ib.IBSessionStateHolder;
 import ch.algotrader.config.IBConfig;
 import ch.algotrader.esper.Engine;
@@ -123,9 +122,9 @@ public class IBNativeWiring {
         return new IBSession(defaultSessionId, host, port, iBSessionStateHolder, iBMessageHandler);
     }
 
-    @Bean(name = "iBSessionEventListener")
-    public IBSessionEventListener createIBSessionEventListener(final IBSession iBSession) {
-        return new IBSessionEventListener("IB_NATIVE", iBSession);
+    @Bean(name = "iBSessionReconnector", destroyMethod = "destroy")
+    public IBSessionReconnector createIBSessionEventListener(final IBSession iBSession) {
+        return new IBSessionReconnector("IB_NATIVE", iBSession);
     }
 
 }
