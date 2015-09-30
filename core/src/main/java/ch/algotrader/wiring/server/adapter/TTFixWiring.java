@@ -25,10 +25,13 @@ import org.springframework.context.annotation.Profile;
 import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.adapter.fix.DefaultFixApplicationFactory;
 import ch.algotrader.adapter.fix.DefaultFixSessionStateHolder;
+import ch.algotrader.adapter.fix.DefaultLogonMessageHandler;
 import ch.algotrader.adapter.fix.FixApplicationFactory;
+import ch.algotrader.adapter.tt.TTFixMarketDataMessageHandler;
 import ch.algotrader.adapter.tt.TTFixSecurityDefinitionMessageHandler;
 import ch.algotrader.adapter.tt.TTLogonMessageHandler;
 import ch.algotrader.adapter.tt.TTPendingRequests;
+import ch.algotrader.esper.Engine;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import quickfix.SessionSettings;
 
@@ -38,7 +41,7 @@ import quickfix.SessionSettings;
 @Configuration
 public class TTFixWiring {
 
-    @Profile("tTReferenceData")
+    @Profile({"tTReferenceData", "tTMarketData"})
     @Bean(name = "tTLogonMessageHandler")
     public TTLogonMessageHandler createTTLogonMessageHandler(final SessionSettings fixSessionSettings) {
 
@@ -47,7 +50,7 @@ public class TTFixWiring {
 
     @Profile("tTReferenceData")
     @Bean(name = "tTSecurityDefinitionSessionStateHolder")
-    public ExternalSessionStateHolder createLMAXOrderSessionStateHolder(
+    public ExternalSessionStateHolder createTTSecurityDefinitionSessionStateHolder(
             @Value("${fix.tt.refdata.sessionQualifier}")
             final String sessionQualifier,
             final EventDispatcher eventDispatcher) {
@@ -72,5 +75,28 @@ public class TTFixWiring {
         TTFixSecurityDefinitionMessageHandler tTSecurityDefinitionMessageHandler = new TTFixSecurityDefinitionMessageHandler(tTPendingRequests);
         return new DefaultFixApplicationFactory(tTSecurityDefinitionMessageHandler, tTLogonMessageHandler, tTSecurityDefinitionSessionStateHolder);
     }
+
+    @Profile("tTMarketData")
+    @Bean(name = "tTMarketDataSessionStateHolder")
+    public ExternalSessionStateHolder createTTMarketDataSessionStateHolder(
+            @Value("${fix.tt.marketdata.sessionQualifier}")
+            final String sessionQualifier,
+            final EventDispatcher eventDispatcher) {
+
+        return new DefaultFixSessionStateHolder(sessionQualifier, eventDispatcher);
+    }
+
+    @Profile("tTMarketData")
+    @Bean(name = "tTMarketDataApplicationFactory")
+    public FixApplicationFactory createTTMarketDataApplicationFactory(
+            final Engine serverEngine,
+            final TTLogonMessageHandler tTLogonMessageHandler,
+            final ExternalSessionStateHolder tTMarketDataSessionStateHolder) {
+
+        TTFixMarketDataMessageHandler tTFixMarketDataMessageHandler = new TTFixMarketDataMessageHandler(serverEngine);
+
+        return new DefaultFixApplicationFactory(tTFixMarketDataMessageHandler, tTLogonMessageHandler, tTMarketDataSessionStateHolder);
+    }
+
 
 }

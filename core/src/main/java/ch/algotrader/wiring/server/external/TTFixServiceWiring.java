@@ -22,12 +22,16 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 import ch.algotrader.adapter.ExternalSessionStateHolder;
+import ch.algotrader.adapter.fix.DefaultFixTicketIdGenerator;
 import ch.algotrader.adapter.fix.ManagedFixAdapter;
 import ch.algotrader.adapter.tt.TTPendingRequests;
 import ch.algotrader.dao.security.FutureDao;
 import ch.algotrader.dao.security.OptionDao;
 import ch.algotrader.dao.security.SecurityFamilyDao;
+import ch.algotrader.esper.Engine;
+import ch.algotrader.service.ExternalMarketDataService;
 import ch.algotrader.service.ReferenceDataService;
+import ch.algotrader.service.tt.TTFixMarketDataServiceImpl;
 import ch.algotrader.service.tt.TTFixReferenceDataServiceImpl;
 
 /**
@@ -47,6 +51,16 @@ public class TTFixServiceWiring {
             final SecurityFamilyDao securityFamilyDao) {
 
         return new TTFixReferenceDataServiceImpl(fixAdapter, tTSecurityDefinitionSessionStateHolder, tTPendingRequests, optionDao, futureDao, securityFamilyDao);
+    }
+
+    @Profile("tTMarketData")
+    @Bean(name = "tTFixMarketDataService")
+    public ExternalMarketDataService createTTFixMarketDataService(
+            final ExternalSessionStateHolder tTMarketDataSessionStateHolder,
+            final ManagedFixAdapter fixAdapter,
+            final Engine serverEngine) {
+
+        return new TTFixMarketDataServiceImpl(tTMarketDataSessionStateHolder, fixAdapter, new DefaultFixTicketIdGenerator(), serverEngine);
     }
 
 }

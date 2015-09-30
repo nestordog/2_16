@@ -54,9 +54,14 @@ public enum FeedType {
     CNX,
 
     /**
-     * FTX
+     * Fortex
      */
     FTX,
+
+    /**
+     * Trading Technologies
+     */
+    TT,
 
     /**
      * Simulation
