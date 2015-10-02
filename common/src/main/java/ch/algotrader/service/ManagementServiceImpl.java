@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -37,6 +38,10 @@ import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.math.NumberUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.jmx.export.annotation.ManagedAttribute;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedOperationParameter;
@@ -74,6 +79,7 @@ import ch.algotrader.enumeration.OrderPropertyType;
 import ch.algotrader.enumeration.QueryType;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.esper.Engine;
+import ch.algotrader.esper.EngineManager;
 import ch.algotrader.util.BeanUtil;
 import ch.algotrader.util.DateTimeUtil;
 import ch.algotrader.util.collection.Pair;
@@ -92,11 +98,13 @@ import ch.algotrader.vo.client.TransactionVO;
  * @version $Revision$ $Date$
  */
 @ManagedResource(objectName="ch.algotrader.service:name=ManagementService")
-public class ManagementServiceImpl implements ManagementService {
+public class ManagementServiceImpl implements ManagementService, ApplicationListener<ContextRefreshedEvent> {
+
+    private static final Logger LOGGER = LogManager.getLogger(ManagementServiceImpl.class);
 
     private final CommonConfig commonConfig;
 
-    private final Engine engine;
+    private final EngineManager engineManager;
 
     private final SubscriptionService subscriptionService;
 
@@ -118,11 +126,12 @@ public class ManagementServiceImpl implements ManagementService {
 
     private final ConfigParams configParams;
 
-    private final boolean serverMode;
+    private volatile boolean serverMode;
+    private volatile Engine engine;
 
     public ManagementServiceImpl(
             final CommonConfig commonConfig,
-            final Engine engine,
+            final EngineManager engineManager,
             final SubscriptionService subscriptionService,
             final LookupService lookupService,
             final LocalLookupService localLookupService,
@@ -135,7 +144,7 @@ public class ManagementServiceImpl implements ManagementService {
             final ConfigParams configParams) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
-        Validate.notNull(engine, "Engine is null");
+        Validate.notNull(engineManager, "EngineManager is null");
         Validate.notNull(subscriptionService, "SubscriptionService is null");
         Validate.notNull(lookupService, "LookupService is null");
         Validate.notNull(localLookupService, "LocalLookupService is null");
@@ -148,7 +157,7 @@ public class ManagementServiceImpl implements ManagementService {
         Validate.notNull(configParams, "ConfigParams is null");
 
         this.commonConfig = commonConfig;
-        this.engine = engine;
+        this.engineManager = engineManager;
         this.subscriptionService = subscriptionService;
         this.lookupService = lookupService;
         this.localLookupService = localLookupService;
@@ -159,6 +168,28 @@ public class ManagementServiceImpl implements ManagementService {
         this.propertyService = propertyService;
         this.marketDataService = marketDataService;
         this.configParams = configParams;
+    }
+
+    private Engine getMainEngine() {
+        Engine engine;
+        Collection<Engine> strategyEngines = this.engineManager.getStrategyEngines();
+        if (strategyEngines.isEmpty()) {
+            throw new IllegalStateException("No strategy engine found");
+        } else {
+            Iterator<Engine> it = strategyEngines.iterator();
+            engine = it.next();
+            if (it.hasNext()) {
+                if (LOGGER.isWarnEnabled()) {
+                    LOGGER.warn("Management services do not support multiple strategies. Using strategy {}", engine.getStrategyName());
+                }
+            }
+        }
+        return engine;
+    }
+
+    @Override
+    public void onApplicationEvent(final ContextRefreshedEvent contextRefreshedEvent) {
+        this.engine = getMainEngine();
         this.serverMode = engine.getStrategyName().equals(StrategyImpl.SERVER);
     }
 

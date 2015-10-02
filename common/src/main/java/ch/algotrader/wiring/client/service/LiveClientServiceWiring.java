@@ -17,11 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.wiring.client.service;
 
-import java.util.Collection;
-import java.util.Iterator;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -31,7 +26,6 @@ import ch.algotrader.cache.CacheManagerImpl;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.ConfigParams;
 import ch.algotrader.dao.GenericDao;
-import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.lifecycle.LifecycleManager;
@@ -61,25 +55,6 @@ import ch.algotrader.vo.client.ChartDefinitionVO;
 @Configuration
 public class LiveClientServiceWiring {
 
-    private static final Logger LOGGER = LogManager.getLogger(LiveClientServiceWiring.class);
-
-    private Engine getMainEngine(final EngineManager engineManager) {
-        Engine engine;
-        Collection<Engine> strategyEngines = engineManager.getStrategyEngines();
-        if (strategyEngines.isEmpty()) {
-            throw new IllegalStateException("No strategy engine found");
-        } else {
-            Iterator<Engine> it = strategyEngines.iterator();
-            engine = it.next();
-            if (it.hasNext()) {
-                if (LOGGER.isWarnEnabled()) {
-                    LOGGER.warn("Management services do not support multiple strategies. Using strategy {}", engine.getStrategyName());
-                }
-            }
-        }
-        return engine;
-    }
-
     @Bean(name = "managementService")
     public ManagementService createManagementService(
             final CommonConfig commonConfig,
@@ -95,7 +70,7 @@ public class LiveClientServiceWiring {
             final MarketDataService marketDataService,
             final ConfigParams configParams) {
 
-        return new ManagementServiceImpl(commonConfig, getMainEngine(engineManager), subscriptionService, lookupService, localLookupService, portfolioService, orderService, positionService,
+        return new ManagementServiceImpl(commonConfig, engineManager, subscriptionService, lookupService, localLookupService, portfolioService, orderService, positionService,
                 combinationService, propertyService, marketDataService, configParams);
     }
 
@@ -105,7 +80,7 @@ public class LiveClientServiceWiring {
             final EngineManager engineManager,
             final PortfolioService portfolioService) {
 
-        return new PortfolioChartServiceImpl(portfolioChartDefinition, getMainEngine(engineManager).getStrategyName(), portfolioService);
+        return new PortfolioChartServiceImpl(portfolioChartDefinition, engineManager, portfolioService);
     }
 
     @Bean(name = "lifecycleManager")

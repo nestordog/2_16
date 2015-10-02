@@ -20,14 +20,21 @@ package ch.algotrader.service;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.lang.Validate;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
+import ch.algotrader.esper.Engine;
+import ch.algotrader.esper.EngineManager;
 import ch.algotrader.vo.client.ChartDefinitionVO;
 import ch.algotrader.vo.client.IndicatorVO;
 import ch.algotrader.vo.legacy.PortfolioValueVO;
@@ -38,22 +45,48 @@ import ch.algotrader.vo.legacy.PortfolioValueVO;
  * @version $Revision$ $Date$
  */
 @ManagedResource(objectName = "ch.algotrader.service:name=PortfolioChart,type=chart")
-public class PortfolioChartServiceImpl extends ChartProvidingServiceImpl implements PortfolioChartService {
+public class PortfolioChartServiceImpl extends ChartProvidingServiceImpl implements PortfolioChartService, ApplicationListener<ContextRefreshedEvent> {
 
-    private final String strategyName;
+    private static final Logger LOGGER = LogManager.getLogger(PortfolioChartServiceImpl.class);
+
+    private final EngineManager engineManager;
     private final PortfolioService portfolioService;
+    private volatile String strategyName;
 
     public PortfolioChartServiceImpl(final ChartDefinitionVO diagramDefinition,
-            final String strategyName,
+            final EngineManager engineManager,
             final PortfolioService portfolioService) {
 
         super(diagramDefinition);
 
-        Validate.notNull(strategyName, "Strategy name is null");
+        Validate.notNull(engineManager, "EngineManager name is null");
         Validate.notNull(portfolioService, "PortfolioService is null");
 
-        this.strategyName = strategyName;
+        this.engineManager = engineManager;
         this.portfolioService = portfolioService;
+    }
+
+    private Engine getMainEngine() {
+        Engine engine;
+        Collection<Engine> strategyEngines = this.engineManager.getStrategyEngines();
+        if (strategyEngines.isEmpty()) {
+            throw new IllegalStateException("No strategy engine found");
+        } else {
+            Iterator<Engine> it = strategyEngines.iterator();
+            engine = it.next();
+            if (it.hasNext()) {
+                if (LOGGER.isWarnEnabled()) {
+                    LOGGER.warn("Management services do not support multiple strategies. Using strategy {}", engine.getStrategyName());
+                }
+            }
+        }
+        return engine;
+    }
+
+    @Override
+    public void onApplicationEvent(final ContextRefreshedEvent contextRefreshedEvent) {
+        Engine engine = getMainEngine();
+        this.strategyName = engine.getStrategyName();
     }
 
     /**
