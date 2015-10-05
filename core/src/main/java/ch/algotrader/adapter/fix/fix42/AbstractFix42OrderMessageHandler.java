@@ -136,7 +136,7 @@ public abstract class AbstractFix42OrderMessageHandler extends AbstractFix42Mess
 
             if (oldOrder != null) {
 
-                OrderStatus orderStatus = createStatus(executionReport, order);
+                OrderStatus orderStatus = createStatus(executionReport, oldOrder);
                 orderStatus.setStatus(Status.CANCELED);
                 orderStatus.setExtId(null);
                 this.serverEngine.sendEvent(orderStatus);
