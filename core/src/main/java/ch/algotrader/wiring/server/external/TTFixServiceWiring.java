@@ -25,13 +25,20 @@ import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.adapter.fix.DefaultFixTicketIdGenerator;
 import ch.algotrader.adapter.fix.ManagedFixAdapter;
 import ch.algotrader.adapter.tt.TTPendingRequests;
+import ch.algotrader.config.CommonConfig;
+import ch.algotrader.dao.AccountDao;
 import ch.algotrader.dao.security.FutureDao;
 import ch.algotrader.dao.security.OptionDao;
 import ch.algotrader.dao.security.SecurityFamilyDao;
+import ch.algotrader.dao.trade.OrderDao;
 import ch.algotrader.esper.Engine;
+import ch.algotrader.ordermgmt.OrderRegistry;
 import ch.algotrader.service.ExternalMarketDataService;
+import ch.algotrader.service.ExternalOrderService;
+import ch.algotrader.service.OrderPersistenceService;
 import ch.algotrader.service.ReferenceDataService;
 import ch.algotrader.service.tt.TTFixMarketDataServiceImpl;
+import ch.algotrader.service.tt.TTFixOrderServiceImpl;
 import ch.algotrader.service.tt.TTFixReferenceDataServiceImpl;
 
 /**
@@ -39,6 +46,19 @@ import ch.algotrader.service.tt.TTFixReferenceDataServiceImpl;
  */
 @Configuration
 public class TTFixServiceWiring {
+
+    @Profile("tTFix")
+    @Bean(name = "tTFixOrderService")
+    public ExternalOrderService createTTFixOrderService(
+            final ManagedFixAdapter fixAdapter,
+            final OrderRegistry orderRegistry,
+            final OrderPersistenceService orderPersistenceService,
+            final OrderDao orderDao,
+            final AccountDao accountDao,
+            final CommonConfig commonConfig) {
+
+        return new TTFixOrderServiceImpl(fixAdapter, orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig);
+    }
 
     @Profile("tTReferenceData")
     @Bean(name = { "tTReferenceDataService", "referenceDataService" })

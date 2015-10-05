@@ -68,7 +68,12 @@ public enum OrderServiceType {
     /**
      * Fortex Fix interface
      */
-    FTX_FIX;
+    FTX_FIX,
+
+    /**
+     * Trading Technologies Fix interface
+     */
+    TT_FIX;
 
     private static final long serialVersionUID = -1547849286749430155L;
 
