@@ -70,7 +70,7 @@ public class PortfolioChartServiceImpl extends ChartProvidingServiceImpl impleme
         Engine engine;
         Collection<Engine> strategyEngines = this.engineManager.getStrategyEngines();
         if (strategyEngines.isEmpty()) {
-            throw new IllegalStateException("No strategy engine found");
+            engine = engineManager.getServerEngine();
         } else {
             Iterator<Engine> it = strategyEngines.iterator();
             engine = it.next();
