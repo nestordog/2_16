@@ -81,7 +81,7 @@ public abstract class FixOrderServiceImpl implements FixOrderService, Initializi
     @Override
     public void init() {
 
-        this.fixAdapter.createSession(getOrderServiceType());
+        this.fixAdapter.createSessionForService(getOrderServiceType());
     }
 
     /**
