@@ -18,6 +18,8 @@
 package ch.algotrader.adapter.fix.fix42;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 
@@ -51,10 +53,20 @@ import quickfix.fix42.OrderCancelRequest;
 public class GenericFix42OrderMessageFactory implements Fix42OrderMessageFactory {
 
     private final Fix42SymbologyResolver symbologyResolver;
+    private final Map<Integer, Double> priceMultiplierMap = new HashMap<Integer, Double>();
 
     public GenericFix42OrderMessageFactory(final Fix42SymbologyResolver symbologyResolver) {
         Validate.notNull(symbologyResolver, "FIX symbology resolver is null");
         this.symbologyResolver = symbologyResolver;
+
+        String priceMultipliers = System.getProperty("misc.priceMultipliers");
+        if (priceMultipliers != null && !"".equals(priceMultipliers)) {
+            for (String priceMultiplier : priceMultipliers.split(",")) {
+                int securityFamilyId = Integer.parseInt(priceMultiplier.split(":")[0]);
+                double multiplier = Double.parseDouble(priceMultiplier.split(":")[1]);
+                this.priceMultiplierMap.put(securityFamilyId, multiplier);
+            }
+        }
     }
 
     protected TimeInForce resolveTimeInForce(final TIF tif) {
@@ -73,7 +85,7 @@ public class GenericFix42OrderMessageFactory implements Fix42OrderMessageFactory
         message.set(new ClOrdID(clOrdID));
         message.set(new TransactTime(new Date()));
 
-        symbologyResolver.resolve(message, security, broker);
+        this.symbologyResolver.resolve(message, security, broker);
 
         message.set(FixUtil.getFixSide(order.getSide()));
         message.set(new OrderQty(order.getQuantity()));
@@ -84,14 +96,16 @@ public class GenericFix42OrderMessageFactory implements Fix42OrderMessageFactory
             message.set(new quickfix.field.Account(account.getExtAccount()));
         }
 
+        double multiplier = getPriceMultiplier(order.getSecurity().getSecurityFamily().getId());
+
         //set the limit price if order is a limit order or stop limit order
         if (order instanceof LimitOrderI) {
-            message.set(new Price(((LimitOrderI) order).getLimit().doubleValue()));
+            message.set(new Price(((LimitOrderI) order).getLimit().doubleValue() * multiplier));
         }
 
         //set the stop price if order is a stop order or stop limit order
         if (order instanceof StopOrderI) {
-            message.set(new StopPx(((StopOrderI) order).getStop().doubleValue()));
+            message.set(new StopPx(((StopOrderI) order).getStop().doubleValue() * multiplier));
         }
 
         // set TIF
@@ -122,7 +136,7 @@ public class GenericFix42OrderMessageFactory implements Fix42OrderMessageFactory
         message.set(new OrigClOrdID(origClOrdID));
         message.set(new TransactTime(new Date()));
 
-        symbologyResolver.resolve(message, security, broker);
+        this.symbologyResolver.resolve(message, security, broker);
 
         message.set(FixUtil.getFixSide(order.getSide()));
         message.set(new OrderQty(order.getQuantity()));
@@ -133,14 +147,16 @@ public class GenericFix42OrderMessageFactory implements Fix42OrderMessageFactory
             message.set(new quickfix.field.Account(account.getExtAccount()));
         }
 
+        double multiplier = getPriceMultiplier(order.getSecurity().getSecurityFamily().getId());
+
         //set the limit price if order is a limit order or stop limit order
         if (order instanceof LimitOrderI) {
-            message.set(new Price(((LimitOrderI) order).getLimit().doubleValue()));
+            message.set(new Price(((LimitOrderI) order).getLimit().doubleValue() * multiplier));
         }
 
         //set the stop price if order is a stop order or stop limit order
         if (order instanceof StopOrderI) {
-            message.set(new StopPx(((StopOrderI) order).getStop().doubleValue()));
+            message.set(new StopPx(((StopOrderI) order).getStop().doubleValue() * multiplier));
         }
 
         // set TIF
@@ -171,7 +187,7 @@ public class GenericFix42OrderMessageFactory implements Fix42OrderMessageFactory
         message.set(new OrigClOrdID(origClOrdID));
         message.set(new TransactTime(new Date()));
 
-        symbologyResolver.resolve(message, security, broker);
+        this.symbologyResolver.resolve(message, security, broker);
 
         message.set(FixUtil.getFixSide(order.getSide()));
         message.set(new OrderQty(order.getQuantity()));
@@ -182,6 +198,16 @@ public class GenericFix42OrderMessageFactory implements Fix42OrderMessageFactory
         }
 
         return message;
+    }
+
+    private double getPriceMultiplier(int securityFamilyId) {
+
+        Double multiplier = this.priceMultiplierMap.get(securityFamilyId);
+        if (multiplier != null) {
+            return multiplier;
+        } else {
+            return 1.0;
+        }
     }
 
 }

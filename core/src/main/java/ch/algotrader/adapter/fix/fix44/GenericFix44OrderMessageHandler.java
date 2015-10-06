@@ -18,6 +18,8 @@
 package ch.algotrader.adapter.fix.fix44;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import ch.algotrader.adapter.fix.FixUtil;
 import ch.algotrader.entity.trade.Fill;
@@ -42,6 +44,20 @@ import quickfix.fix44.ExecutionReport;
  * @version $Revision$ $Date$
  */
 public class GenericFix44OrderMessageHandler extends AbstractFix44OrderMessageHandler {
+
+    private final Map<Integer, Double> priceMultiplierMap = new HashMap<Integer, Double>();
+
+    public GenericFix44OrderMessageHandler() {
+
+        String priceMultipliers = System.getProperty("misc.priceMultipliers");
+        if (priceMultipliers != null && !"".equals(priceMultipliers)) {
+            for (String priceMultiplier : priceMultipliers.split(",")) {
+                int securityFamilyId = Integer.parseInt(priceMultiplier.split(":")[0]);
+                double multiplier = Double.parseDouble(priceMultiplier.split(":")[1]);
+                this.priceMultiplierMap.put(securityFamilyId, multiplier);
+            }
+        }
+    }
 
     @Override
     protected boolean discardReport(final ExecutionReport executionReport) throws FieldNotFound {
@@ -101,7 +117,8 @@ public class GenericFix44OrderMessageHandler extends AbstractFix44OrderMessageHa
 
             double d = executionReport.getLastPx().getValue();
             if (d != 0.0) {
-                orderStatus.setLastPrice(RoundUtil.getBigDecimal(d, order.getSecurity().getSecurityFamily().getScale()));
+                double multiplier = getPriceMultiplier(order.getSecurity().getSecurityFamily().getId());
+                orderStatus.setLastPrice(RoundUtil.getBigDecimal(d / multiplier, order.getSecurity().getSecurityFamily().getScale()));
             }
         }
         if (executionReport.isSetField(AvgPx.FIELD)) {
@@ -125,7 +142,8 @@ public class GenericFix44OrderMessageHandler extends AbstractFix44OrderMessageHa
             // get the fields
             Side side = FixUtil.getSide(executionReport.getSide());
             long quantity = (long) executionReport.getLastQty().getValue();
-            double price = executionReport.getLastPx().getValue();
+            double multiplier = getPriceMultiplier(order.getSecurity().getSecurityFamily().getId());
+            double price = executionReport.getLastPx().getValue() / multiplier;
             String extId = executionReport.getExecID().getValue();
 
             // assemble the fill
@@ -170,6 +188,16 @@ public class GenericFix44OrderMessageHandler extends AbstractFix44OrderMessageHa
             }
         } else {
             throw new IllegalArgumentException("unknown execType " + execType.getValue());
+        }
+    }
+
+    private double getPriceMultiplier(int securityFamilyId) {
+
+        Double multiplier = this.priceMultiplierMap.get(securityFamilyId);
+        if (multiplier != null) {
+            return multiplier;
+        } else {
+            return 1.0;
         }
     }
 
