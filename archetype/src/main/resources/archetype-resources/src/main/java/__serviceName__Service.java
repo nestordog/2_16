@@ -1,43 +1,43 @@
 package ${package};
 
-import java.math.BigDecimal;
+import ch.algotrader.config.ConfigParams;
+import ch.algotrader.entity.trade.MarketOrderVO;
+import ch.algotrader.entity.trade.MarketOrderVOBuilder;
+import ch.algotrader.enumeration.Side;
 import ch.algotrader.service.StrategyService;
-import org.springframework.beans.factory.annotation.Value;
+import ch.algotrader.vo.LifecycleEventVO;
 
 /**
  * The main service class of the ${serviceName} Strategy
  */
 public class ${serviceName}Service extends StrategyService {
 
-    // configuration variables
-    private @Value("${strategyName}") String strategyName;
+    private final long accountId;
+    private final long securityId;
+    private final long orderQuantity;
 
-    public void openPosition(String strategyName, long securityId, BigDecimal price) {
-
-        //TODO: implement logic
+    public ${serviceName}Service(ConfigParams params) {
+        this.accountId = params.getInteger("accountId");
+        this.securityId = params.getInteger("securityId");
+        this.orderQuantity = params.getInteger("orderQuantity");
     }
 
-    public String getStrategyName() {
+    public void sendOrder(Side side) {
 
-        return this.strategyName;
+        MarketOrderVO order = MarketOrderVOBuilder.create()
+            .setStrategyId(getStrategy().getId())
+            .setAccountId(this.accountId)
+            .setSecurityId(this.securityId)
+            .setQuantity(this.orderQuantity)
+            .setSide(side)
+            .build();
+
+        getOrderService().sendOrder(order);
     }
 
     @Override
     public void onInit(final LifecycleEventVO event) {
-        switch (event.getOperationMode()) {
-            case SIMULATION:
-                break;
-            case REAL_TIME:
-                break;
-        }
-    }
-
-    @Override
-    public void onPrefeed(final LifecycleEventVO event) {
-        switch (event.getOperationMode()) {
-            case REAL_TIME:
-                break;
-        }
+        getSubscriptionService().subscribeMarketDataEvent(getStrategyName(), this.securityId);
     }
 
 }

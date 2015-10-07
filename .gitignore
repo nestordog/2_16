@@ -7,7 +7,7 @@
 *.log
 target
 log
-files/
+core/files/
 core/data/
 core/lib/
 core/src/main/java/ch/algotrader/test
@@ -15,6 +15,7 @@ core/src/main/java/ch/algotrader/tools
 core/src/main/resources/fix.cfg
 core/webapps
 crud/plugins
+test/files/
 test/src/main/resources/fix.cfg
 test/src/main/resources/log4j.xml
 uml/src/main/uml/*.mdr

@@ -4,11 +4,8 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
     <requiredProperties>
+        <requiredProperty key="name"/>
         <requiredProperty key="serviceName"/>
-        <requiredProperty key="dataSetType"/>
-        <requiredProperty key="dataSet"/>
-        <requiredProperty key="dataBase"/>        
-        <requiredProperty key="instruments"/>
     </requiredProperties>
 
     <fileSets>
@@ -28,10 +25,15 @@
             </includes>
         </fileSet>
         <fileSet filtered="true" encoding="UTF-8">
-            <directory>bin</directory>
+            <directory>launch</directory>
+            <includes>
+                <include>**/*.launch</include>
+            </includes>
+        </fileSet>
+        <fileSet filtered="true" encoding="UTF-8">
+            <directory>runtime</directory>
             <includes>
                 <include>**/*.xml</include>
-                <include>**/*.launch</include>
             </includes>
         </fileSet>
         <fileSet filtered="true" encoding="UTF-8">

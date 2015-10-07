@@ -1,0 +1,19 @@
+@Name('MOVING_AVERAGE')
+insert into
+    Indicator
+select
+    talib("movingAverage", currentValueDouble, movingAveragePeriodShort, "Sma") - 
+    talib("movingAverage", currentValueDouble, movingAveragePeriodLong, "Sma") as value
+from
+    TickVO;
+
+@Name('SEND_ORDER')
+@Subscriber(className='${serviceName.toLowerCase()}Service#sendOrder')
+select
+    case when indicator.value > 0 then Side.BUY else Side.SELL end as side
+from
+    pattern [every indicator=Indicator]
+where
+    (indicator.value > 0 and prior(1, indicator.value) <= 0)
+or
+    (indicator.value < 0 and prior(1, indicator.value) >= 0)    
