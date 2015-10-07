@@ -607,9 +607,6 @@ public class EngineImpl extends AbstractEngine {
         EPRuntime runtime = this.serviceProvider.getEPRuntime();
         if (runtime.getVariableValueAll().containsKey(variableName)) {
             runtime.setVariableValue(variableName, value);
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("set variable {} to value {}", variableName, value);
-            }
         }
     }
 
@@ -629,9 +626,6 @@ public class EngineImpl extends AbstractEngine {
                 castedObj = JavaClassHelper.parse(clazz, value);
             }
             runtime.setVariableValue(variableName, castedObj);
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("set variable {} to value {}", variableName, value);
-            }
         }
     }
 
