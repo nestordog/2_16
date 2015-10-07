@@ -795,6 +795,12 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
             throw new IllegalArgumentException("Unexpected order VO class: " + orderVO.getClass());
         }
 
+        order.setIntId(orderVO.getIntId());
+        order.setSide(orderVO.getSide());
+        order.setQuantity(orderVO.getQuantity());
+        order.setTif(orderVO.getTif());
+        order.setTifDateTime(orderVO.getTifDateTime());
+
         order.setStrategy(this.strategyDao.load(orderVO.getStrategyId()));
         order.initializeStrategy(HibernateInitializer.INSTANCE);
         order.setSecurity(this.securityDao.findByIdInclFamilyUnderlyingExchangeAndBrokerParameters(orderVO.getSecurityId()));
@@ -811,9 +817,6 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
             order.setExchange(this.exchangeDao.load(orderVO.getExchangeId()));
             order.initializeExchange(HibernateInitializer.INSTANCE);
         }
-
-        order.setDateTime(orderVO.getDateTime());
-        order.setTif(orderVO.getTif());
 
         // validate the order before sending it
         try {
