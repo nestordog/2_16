@@ -87,7 +87,7 @@ public class SimulationWiring {
                 lookupService, serverLookupService, eventListenerRegistry, eventDispatcher, engineManager, serverEngine, cacheManager);
     }
 
-    @Profile({"simulation", "noopSimulation"})
+    @Profile({ "simulation" })
     @Bean(name = "simulationOrderService")
     public SimulationOrderService createSimulationOrderService(
             final OrderRegistry orderRegistry,
@@ -98,7 +98,7 @@ public class SimulationWiring {
         return new SimulationOrderServiceImpl(orderRegistry, localLookupService, engineManager, serverEngine);
     }
 
-    @Profile({"simulation", "noopSimulation"})
+    @Profile({ "simulation" })
     @Bean(name = "resetService")
     public ResetService createResetService(final CoreConfig coreConfig,
             final OrderDao orderDao,
