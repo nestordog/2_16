@@ -24,10 +24,12 @@ import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.TransactionVO;
 import ch.algotrader.entity.marketData.BarVO;
 import ch.algotrader.entity.marketData.TickVO;
+import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.trade.FillVO;
 import ch.algotrader.entity.trade.OrderCompletionVO;
 import ch.algotrader.entity.trade.OrderStatusVO;
 import ch.algotrader.entity.trade.OrderVO;
+import ch.algotrader.esper.Engine;
 import ch.algotrader.event.listener.BarEventListener;
 import ch.algotrader.event.listener.ClosePositionEventListener;
 import ch.algotrader.event.listener.ExpirePositionEventListener;
@@ -86,6 +88,9 @@ public class StrategyService implements
     private PropertyService propertyService;
     private ReferenceDataService referenceDataService;
     private SubscriptionService subscriptionService;
+    private String strategyName;
+    private double weight;
+    private Engine engine;
 
     public CommonConfig getCommonConfig() {
         return this.commonConfig;
@@ -213,6 +218,34 @@ public class StrategyService implements
 
     public void setSubscriptionService(SubscriptionService subscriptionService) {
         this.subscriptionService = subscriptionService;
+    }
+
+    public void setStrategyName(final String strategyName) {
+        this.strategyName = strategyName;
+    }
+
+    public String getStrategyName() {
+        return this.strategyName;
+    }
+
+    public void setEngine(final Engine engine) {
+        this.engine = engine;
+    }
+
+    public Engine getEngine() {
+        return this.engine;
+    }
+
+    public void setWeight(double weight) {
+        this.weight = weight;
+    }
+
+    public double getWeight() {
+        return this.weight;
+    }
+
+    public Strategy getStrategy() {
+        return getLookupService().getStrategyByName(this.strategyName);
     }
 
     @Override

@@ -17,8 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
-import ch.algotrader.entity.strategy.Strategy;
-import ch.algotrader.esper.Engine;
 import ch.algotrader.service.groups.StrategyContextAware;
 
 /**
@@ -39,37 +37,7 @@ import ch.algotrader.service.groups.StrategyContextAware;
  */
 public class StrategyContextAwareService<C> extends StrategyService implements StrategyContextAware<C> {
 
-    private String strategyName;
-    private double weight;
-    private Engine engine;
     private C config;
-
-    @Override
-    public void setStrategyName(final String strategyName) {
-        this.strategyName = strategyName;
-    }
-
-    public String getStrategyName() {
-        return this.strategyName;
-    }
-
-    @Override
-    public void setEngine(final Engine engine) {
-        this.engine = engine;
-    }
-
-    public Engine getEngine() {
-        return this.engine;
-    }
-
-    @Override
-    public void setWeight(double weight) {
-        this.weight = weight;
-    }
-
-    public double getWeight() {
-        return this.weight;
-    }
 
     @Override
     public void setConfig(final C config) {
@@ -78,10 +46,6 @@ public class StrategyContextAwareService<C> extends StrategyService implements S
 
     public C getConfig() {
         return this.config;
-    }
-
-    public Strategy getStrategy() {
-        return getLookupService().getStrategyByName(getStrategyName());
     }
 
 }
