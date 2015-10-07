@@ -130,14 +130,14 @@ public class GenericTALibFunctionFactory implements AggregationFunctionFactory {
                             this.inputParamCount++;
                             paramCounter++;
                         } else {
-                            throw new IllegalArgumentException("param number " + paramCounter + " needs must be of type double");
+                            throw new IllegalArgumentException("param number " + paramCounter + " must be of type double");
                         }
                     } else if (inputParameterInfo.type().equals(InputParameterType.TA_Input_Integer)) {
                         if (paramTypes[paramCounter].equals(int.class) || paramTypes[paramCounter].equals(Integer.class)) {
                             this.inputParamCount++;
                             paramCounter++;
                         } else {
-                            throw new IllegalArgumentException("param number " + paramCounter + " needs must be of type int");
+                            throw new IllegalArgumentException("param number " + paramCounter + " must be of type int");
                         }
                     } else if (inputParameterInfo.type().equals(InputParameterType.TA_Input_Price)) {
 
@@ -148,7 +148,7 @@ public class GenericTALibFunctionFactory implements AggregationFunctionFactory {
                                 this.inputParamCount++;
                                 paramCounter++;
                             } else {
-                                throw new IllegalArgumentException("param number " + paramCounter + " needs must be of type double");
+                                throw new IllegalArgumentException("param number " + paramCounter + " must be of type double");
                             }
                         }
                     }
