@@ -21,9 +21,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.entity.marketData.MarketDataEventVO;
+import ch.algotrader.enumeration.LifecyclePhase;
 import ch.algotrader.event.dispatch.EventDispatcher;
+import ch.algotrader.event.listener.LifecycleEventListener;
 import ch.algotrader.util.metric.MetricsUtil;
 import ch.algotrader.vo.GenericEventVO;
+import ch.algotrader.vo.LifecycleEventVO;
 import ch.algotrader.vo.marketData.TradingStatusEventVO;
 
 /**
@@ -31,25 +34,40 @@ import ch.algotrader.vo.marketData.TradingStatusEventVO;
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  */
-public class EventPropagator {
+public class EventPropagator implements LifecycleEventListener {
 
     private static final Logger LOGGER = LogManager.getLogger(EventPropagator.class);
 
     private final EventDispatcher eventDispatcher;
+    private volatile boolean active;
 
     public EventPropagator(final EventDispatcher eventDispatcher) {
         this.eventDispatcher = eventDispatcher;
+        this.active = false;
+    }
+
+    @Override
+    public void onChange(final LifecycleEventVO event) {
+        if (event.getPhase() == LifecyclePhase.START) {
+            this.active = true;
+        }
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Life-cycle phase {}", event.getPhase());
+        }
     }
 
     public void propagateMarketData(final MarketDataEventVO marketDataEvent) {
 
-        if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace(marketDataEvent);
-        }
+        if (this.active) {
 
-        long startTime = System.nanoTime();
-        this.eventDispatcher.sendMarketDataEvent(marketDataEvent);
-        MetricsUtil.accountEnd("PropagateMarketDataEventSubscriber.update", startTime);
+            if (LOGGER.isTraceEnabled()) {
+                LOGGER.trace(marketDataEvent);
+            }
+
+            long startTime = System.nanoTime();
+            this.eventDispatcher.sendMarketDataEvent(marketDataEvent);
+            MetricsUtil.accountEnd("PropagateMarketDataEventSubscriber.update", startTime);
+        }
     }
 
     public void propagateGenericEvent(final GenericEventVO genericEvent) {
@@ -62,10 +80,12 @@ public class EventPropagator {
 
     public void propagateTradingStatusEvent(final TradingStatusEventVO tradingStatusEvent) {
 
-        if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace(tradingStatusEvent);
+        if (this.active) {
+            if (LOGGER.isTraceEnabled()) {
+                LOGGER.trace(tradingStatusEvent);
+            }
+            this.eventDispatcher.broadcastAllStrategies(tradingStatusEvent);
         }
-        this.eventDispatcher.broadcastAllStrategies(tradingStatusEvent);
     }
 
 }
