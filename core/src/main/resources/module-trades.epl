@@ -132,9 +132,16 @@ select
 from
     Fill;
 
-@Name('CREATE_TRANSACTION')
+@Name('CREATE_TRANSACTION_FROM_FILL')
 @Subscriber(className='transactionService#createTransaction')
 select
     *
 from
     Fill;
+
+@Name('CREATE_TRANSACTION_FROM_EXTERNAL_FILL')
+@Subscriber(className='transactionService#createTransaction')
+select
+    *
+from
+    ExternalFill;

@@ -125,7 +125,7 @@ public class TTFixOrderMessageHandlerTest extends FixApplicationTestBase {
 
         this.messageFactory = new TTFixOrderMessageFactory();
 
-        TTFixOrderMessageHandler messageHandlerImpl = new TTFixOrderMessageHandler(this.orderRegistry, engine);
+        TTFixOrderMessageHandler messageHandlerImpl = new TTFixOrderMessageHandler(this.orderRegistry, engine, null);
         this.messageHandler = Mockito.spy(messageHandlerImpl);
 
         DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, this.messageHandler, logonHandler,

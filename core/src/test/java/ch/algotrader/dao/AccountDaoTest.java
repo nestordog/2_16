@@ -111,4 +111,29 @@ public class AccountDaoTest extends InMemoryDBTest {
         Assert.assertEquals(OrderServiceType.CNX_FIX.name(), account2.getOrderServiceType());
     }
 
+    @Test
+    public void testFindByExtAccount() {
+
+        Account account1 = this.dao.findByExtAccount("blah");
+
+        Assert.assertNull(account1);
+
+        Account account2 = new AccountImpl();
+
+        account2.setName("name");
+        account2.setExtAccount("some-ext-id");
+        account2.setBroker(Broker.TT.name());
+        account2.setOrderServiceType(OrderServiceType.TT_FIX.name());
+
+        this.dao.save(account2);
+        this.dao.flush();
+
+        Account account3 = this.dao.findByExtAccount("some-ext-id");
+
+        Assert.assertNotNull(account3);
+        Assert.assertEquals("name", account3.getName());
+        Assert.assertEquals(Broker.TT.name(), account3.getBroker());
+        Assert.assertEquals(OrderServiceType.TT_FIX.name(), account3.getOrderServiceType());
+    }
+
 }

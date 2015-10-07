@@ -45,6 +45,7 @@ import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.strategy.Strategy;
+import ch.algotrader.entity.trade.ExternalFill;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.enumeration.Currency;
@@ -133,10 +134,10 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public void createTransaction(final Fill fill) {
 
+        Validate.notNull(fill, "Fill is null");
+
         long startTime = System.nanoTime();
         LOGGER.debug("createTransaction start");
-
-        Validate.notNull(fill, "Fill is null");
 
         Order order = fill.getOrder();
         order.initializeSecurity(HibernateInitializer.INSTANCE);
@@ -182,6 +183,72 @@ public class TransactionServiceImpl implements TransactionService {
             transaction.setFee(fill.getFee());
         } else if (securityFamily.getFee(broker) != null) {
             transaction.setFee(RoundUtil.getBigDecimal(Math.abs(quantity * securityFamily.getFee(broker).doubleValue())));
+        }
+
+        processTransaction(transaction);
+
+        LOGGER.debug("createTransaction end");
+        MetricsUtil.accountEnd("CreateTransactionSubscriber", startTime);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    @Override
+    public void createTransaction(final ExternalFill fill) {
+
+        long startTime = System.nanoTime();
+        LOGGER.debug("createTransaction start");
+
+
+        Security security = fill.getSecurity();
+        SecurityFamily securityFamily = security != null ? security.getSecurityFamily() : null;
+        Currency currency = securityFamily != null ? securityFamily.getCurrency() : fill.getCurrency();
+        Account account = fill.getAccount();
+        TransactionType transactionType = Side.BUY.equals(fill.getSide()) ? TransactionType.BUY : TransactionType.SELL;
+        long quantity = Side.BUY.equals(fill.getSide()) ? fill.getQuantity() : -fill.getQuantity();
+
+        Transaction transaction = Transaction.Factory.newInstance();
+        transaction.setUuid(UUID.randomUUID().toString());
+        transaction.setDateTime(fill.getExtDateTime());
+        transaction.setExtId(fill.getExtId());
+        transaction.setIntOrderId(null);
+        transaction.setExtOrderId(fill.getExtOrderId());
+        transaction.setQuantity(quantity);
+        transaction.setPrice(fill.getPrice());
+        transaction.setType(transactionType);
+        transaction.setSecurity(security);
+        transaction.setStrategy(fill.getStrategy());
+        transaction.setCurrency(currency);
+        transaction.setAccount(account);
+
+        String broker = account != null ? account.getBroker() : null;
+        if (fill.getExecutionCommission() != null) {
+            transaction.setExecutionCommission(fill.getExecutionCommission());
+        } else if (securityFamily != null) {
+            BigDecimal executionCommission = securityFamily.getExecutionCommission(broker);
+            if (executionCommission != null) {
+                transaction.setExecutionCommission(RoundUtil.getBigDecimal(Math.abs(quantity * executionCommission.doubleValue())));
+            }
+        }
+
+        if (fill.getClearingCommission() != null) {
+            transaction.setClearingCommission(fill.getClearingCommission());
+        } else if (securityFamily != null) {
+            BigDecimal clearingCommission = securityFamily.getClearingCommission(broker);
+            if (clearingCommission != null) {
+                transaction.setClearingCommission(RoundUtil.getBigDecimal(Math.abs(quantity * clearingCommission.doubleValue())));
+            }
+        }
+
+        if (fill.getFee() != null) {
+            transaction.setFee(fill.getFee());
+        } else if (securityFamily != null) {
+            final BigDecimal fee = securityFamily.getFee(broker);
+            if (fee != null) {
+                transaction.setFee(RoundUtil.getBigDecimal(Math.abs(quantity * fee.doubleValue())));
+            }
         }
 
         processTransaction(transaction);

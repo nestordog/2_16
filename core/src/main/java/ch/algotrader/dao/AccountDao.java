@@ -45,6 +45,14 @@ public interface AccountDao extends ReadWriteDao<Account> {
 
     /**
      * Finds all active sessions for the specified order type
+     * Finds an Account by the specified external account.
+     * @param extAccount
+     * @return Account
+     */
+    public Account findByExtAccount(String extAccount);
+
+    /**
+     * Finds all active Accounts for the specified order type
      * @param orderServiceType
      * @return Collection<String>
      */

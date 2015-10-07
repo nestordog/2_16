@@ -25,6 +25,7 @@ import org.springframework.context.annotation.Profile;
 import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.adapter.fix.DefaultFixApplicationFactory;
 import ch.algotrader.adapter.fix.DefaultFixSessionStateHolder;
+import ch.algotrader.adapter.fix.DropCopyAllocator;
 import ch.algotrader.adapter.fix.FixApplicationFactory;
 import ch.algotrader.adapter.tt.TTFixMarketDataMessageHandler;
 import ch.algotrader.adapter.tt.TTFixOrderMessageHandler;
@@ -65,9 +66,10 @@ public class TTFixWiring {
             final OrderRegistry orderRegistry,
             final Engine serverEngine,
             final TTLogonMessageHandler tTLogonMessageHandler,
-            final ExternalSessionStateHolder tTOrderSessionStateHolder) {
+            final ExternalSessionStateHolder tTOrderSessionStateHolder,
+            final DropCopyAllocator tTFixDropCopyAllocator) {
 
-        TTFixOrderMessageHandler tTFixOrderMessageHandler = new TTFixOrderMessageHandler(orderRegistry, serverEngine);
+        TTFixOrderMessageHandler tTFixOrderMessageHandler = new TTFixOrderMessageHandler(orderRegistry, serverEngine, tTFixDropCopyAllocator);
 
         return new DefaultFixApplicationFactory(tTFixOrderMessageHandler, tTLogonMessageHandler, tTOrderSessionStateHolder);
     }

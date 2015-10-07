@@ -58,6 +58,10 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
 
     protected abstract boolean discardReport(ExecutionReport executionReport) throws FieldNotFound;
 
+    protected abstract void handleExternal(ExecutionReport executionReport) throws FieldNotFound;
+
+    protected abstract void handleUnknown(ExecutionReport executionReport) throws FieldNotFound;
+
     protected abstract boolean isOrderRejected(ExecutionReport executionReport) throws FieldNotFound;
 
     protected abstract boolean isOrderReplaced(ExecutionReport executionReport) throws FieldNotFound;
@@ -73,6 +77,12 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
             return;
         }
 
+        if (!executionReport.isSetClOrdID()) {
+
+            handleExternal(executionReport);
+            return;
+        }
+
         String orderIntId;
         ExecType execType = executionReport.getExecType();
         if (execType.getValue() == ExecType.CANCELED) {
@@ -84,9 +94,7 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
         Order order = this.orderRegistry.getOpenOrderByIntId(orderIntId);
         if (order == null) {
 
-            if (LOGGER.isErrorEnabled ()) {
-                LOGGER.error("Could not find an open order with IntID {}", orderIntId);
-            }
+            handleUnknown(executionReport);
             return;
         }
 
