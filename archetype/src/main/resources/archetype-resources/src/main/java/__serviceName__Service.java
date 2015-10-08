@@ -1,5 +1,7 @@
 package ${package};
 
+import org.springframework.beans.factory.annotation.Value;
+
 import ch.algotrader.config.ConfigParams;
 import ch.algotrader.entity.trade.MarketOrderVO;
 import ch.algotrader.entity.trade.MarketOrderVOBuilder;
@@ -12,15 +14,9 @@ import ch.algotrader.vo.LifecycleEventVO;
  */
 public class ${serviceName}Service extends StrategyService {
 
-    private final long accountId;
-    private final long securityId;
-    private final long orderQuantity;
-
-    public ${serviceName}Service(ConfigParams params) {
-        this.accountId = params.getInteger("accountId");
-        this.securityId = params.getInteger("securityId");
-        this.orderQuantity = params.getInteger("orderQuantity");
-    }
+    private @Value("#{@testConfigParams.accountId}") long accountId;
+    private @Value("#{@testConfigParams.securityId}") long securityId;
+    private @Value("#{@testConfigParams.orderQuantity}") long orderQuantity;
 
     public void sendOrder(Side side) {
 
