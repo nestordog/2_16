@@ -9,3 +9,5 @@ INSERT INTO `security` (`ID`, `SYMBOL`, `SECURITY_FAMILY_FK`) VALUES (1,'EUR.USD
 INSERT INTO `forex` (`ID`, `BASE_CURRENCY`) VALUES (1,'EUR');
 
 INSERT INTO `strategy` (`ID`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `VERSION`) VALUES (2, '${name.toUpperCase()}', True, 1, 0);
+
+INSERT INTO `order_preference` (`ID`, `NAME`, `ORDER_TYPE`, `DEFAULT_ACCOUNT_FK`, `VERSION`) VALUES (200, 'DEFAULT', 'MARKET', 1, 0);

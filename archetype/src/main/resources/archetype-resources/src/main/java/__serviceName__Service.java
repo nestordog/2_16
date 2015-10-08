@@ -36,7 +36,7 @@ public class ${serviceName}Service extends StrategyService {
     }
 
     @Override
-    public void onInit(final LifecycleEventVO event) {
+    public void onStart(final LifecycleEventVO event) {
         getSubscriptionService().subscribeMarketDataEvent(getStrategyName(), this.securityId);
     }
 
