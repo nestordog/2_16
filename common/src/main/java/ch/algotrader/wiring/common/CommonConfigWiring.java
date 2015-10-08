@@ -21,11 +21,14 @@ import java.util.Date;
 import java.util.Properties;
 import java.util.Set;
 
+import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.expression.StandardBeanExpressionResolver;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.support.DefaultConversionService;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.ConfigLocator;
@@ -57,6 +60,22 @@ public class CommonConfigWiring {
     public CommonConfig createCommonConfig() {
 
         return ConfigLocator.instance().getConfig(CommonConfig.class);
+    }
+
+    @Bean(name = "commonConfigBeanFactoryPostProcessor")
+    public static BeanFactoryPostProcessor createCommonConfigBeanFactoryPostProcessor() {
+
+        return beanFactory -> {
+            StandardBeanExpressionResolver beanExpressionResolver = new StandardBeanExpressionResolver(beanFactory.getBeanClassLoader()) {
+                @Override
+                protected void customizeEvaluationContext(final StandardEvaluationContext evalContext) {
+
+                    evalContext.addPropertyAccessor(new ConfigParamAccessor());
+                }
+            };
+            beanFactory.setBeanExpressionResolver(beanExpressionResolver);
+        };
+
     }
 
     @Bean
