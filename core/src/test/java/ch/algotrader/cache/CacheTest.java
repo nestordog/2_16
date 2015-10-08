@@ -41,8 +41,6 @@ import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import ch.algotrader.dao.NamedParam;
-import ch.algotrader.entity.Account;
-import ch.algotrader.entity.AccountImpl;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.PositionImpl;
 import ch.algotrader.entity.Subscription;
@@ -63,11 +61,9 @@ import ch.algotrader.entity.security.SecurityImpl;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.enumeration.AssetClass;
-import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.CombinationType;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.FeedType;
-import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.enumeration.QueryType;
 import ch.algotrader.enumeration.TransactionType;
 import ch.algotrader.esper.Engine;
@@ -217,12 +213,6 @@ public class CacheTest extends DefaultConfigTestBase {
         position1.setSecurity(security2);
         session.save(position1);
         security2.addPositions(position1);
-
-        Account account1 = new AccountImpl();
-        account1.setName(ACCOUNT_NAME);
-        account1.setBroker(Broker.IB.name());
-        account1.setOrderServiceType(OrderServiceType.IB_NATIVE.name());
-        session.save(account1);
 
         Property property1 = new PropertyImpl();
         property1.setName(PROPERTY_NAME);
