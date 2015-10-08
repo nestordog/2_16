@@ -145,7 +145,7 @@ public class DefaultIBOrderMessageFactory implements IBOrderMessageFactory {
 
             // set the TIF-Date
             if (order.getTifDateTime() != null) {
-                ibOrder.m_goodTillDate = format.format(DateTimeLegacy.toGMTDate(order.getTifDateTime()));
+                ibOrder.m_goodTillDate = format.format(DateTimeLegacy.toLocalDate(order.getTifDateTime()));
             }
         }
 

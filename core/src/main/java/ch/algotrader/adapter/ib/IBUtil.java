@@ -89,7 +89,7 @@ public class IBUtil {
                 contract.m_strike = option.getStrike().doubleValue();
                 contract.m_right = option.getType().toString();
                 contract.m_multiplier = decimalFormat.format(securityFamily.getContractSize(Broker.IB.name()));
-                contract.m_expiry = dayFormat.format(DateTimeLegacy.toGMTDate(option.getExpiration()));
+                contract.m_expiry = dayFormat.format(DateTimeLegacy.toLocalDate(option.getExpiration()));
 
             } else if (security instanceof Future) {
 
@@ -100,7 +100,7 @@ public class IBUtil {
                 contract.m_secType = "FUT";
                 contract.m_symbol = securityFamily.getSymbolRoot(Broker.IB.name());
                 contract.m_multiplier = decimalFormat.format(securityFamily.getContractSize(Broker.IB.name()));
-                contract.m_expiry = monthFormat.format(DateTimeLegacy.toGMTDate(future.getExpiration()));
+                contract.m_expiry = monthFormat.format(DateTimeLegacy.toLocalDate(future.getExpiration()));
 
             } else if (security instanceof Forex) {
 
@@ -170,7 +170,7 @@ public class IBUtil {
     public static Date getExecutionDateTime(Execution execution) {
 
         try {
-            return DateTimeLegacy.parseAsDateTimeGMT(execution.m_time, executionFormat);
+            return DateTimeLegacy.parseAsLocalDateTime(execution.m_time, executionFormat);
         } catch (DateTimeParseException e) {
             throw new RuntimeException(e);
         }
