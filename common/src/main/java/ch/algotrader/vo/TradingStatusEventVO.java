@@ -15,7 +15,7 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.vo.marketData;
+package ch.algotrader.vo;
 
 import java.io.Serializable;
 import java.util.Date;

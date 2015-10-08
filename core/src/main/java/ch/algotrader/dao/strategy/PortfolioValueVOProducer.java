@@ -21,7 +21,7 @@ import org.apache.commons.lang.Validate;
 
 import ch.algotrader.dao.EntityConverter;
 import ch.algotrader.entity.strategy.PortfolioValue;
-import ch.algotrader.vo.legacy.PortfolioValueVO;
+import ch.algotrader.vo.PortfolioValueVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

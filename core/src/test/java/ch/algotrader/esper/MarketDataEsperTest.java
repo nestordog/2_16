@@ -44,12 +44,12 @@ import ch.algotrader.service.CalendarService;
 import ch.algotrader.service.LookupService;
 import ch.algotrader.service.MarketDataService;
 import ch.algotrader.util.DateTimeLegacy;
+import ch.algotrader.vo.TradingStatusEventVO;
 import ch.algotrader.vo.marketData.AskVO;
 import ch.algotrader.vo.marketData.BidVO;
 import ch.algotrader.vo.marketData.SubscribeTickVO;
 import ch.algotrader.vo.marketData.TradeVO;
 import ch.algotrader.vo.marketData.TradingHaltVO;
-import ch.algotrader.vo.marketData.TradingStatusEventVO;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MarketDataEsperTest extends EsperTestBase {

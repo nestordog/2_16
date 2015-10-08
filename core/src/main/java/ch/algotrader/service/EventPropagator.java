@@ -27,7 +27,7 @@ import ch.algotrader.event.listener.LifecycleEventListener;
 import ch.algotrader.util.metric.MetricsUtil;
 import ch.algotrader.vo.GenericEventVO;
 import ch.algotrader.vo.LifecycleEventVO;
-import ch.algotrader.vo.marketData.TradingStatusEventVO;
+import ch.algotrader.vo.TradingStatusEventVO;
 
 /**
  * A utility class that propagates generic and market data events through {@link EventDispatcher}.

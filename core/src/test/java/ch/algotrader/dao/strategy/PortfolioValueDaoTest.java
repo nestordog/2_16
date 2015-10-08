@@ -37,7 +37,7 @@ import ch.algotrader.entity.trade.OrderPreferenceImpl;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.OrderType;
 import ch.algotrader.hibernate.InMemoryDBTest;
-import ch.algotrader.vo.legacy.PortfolioValueVO;
+import ch.algotrader.vo.PortfolioValueVO;
 
 /**
 * Unit tests for {@link PortfolioValueDaoImpl}.

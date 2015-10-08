@@ -28,7 +28,7 @@ import ch.algotrader.entity.strategy.PortfolioValueI;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.vo.BalanceVO;
 import ch.algotrader.vo.FxExposureVO;
-import ch.algotrader.vo.legacy.PortfolioValueVO;
+import ch.algotrader.vo.PortfolioValueVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

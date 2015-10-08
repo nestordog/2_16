@@ -35,9 +35,9 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
+import ch.algotrader.vo.PortfolioValueVO;
 import ch.algotrader.vo.client.ChartDefinitionVO;
 import ch.algotrader.vo.client.IndicatorVO;
-import ch.algotrader.vo.legacy.PortfolioValueVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
