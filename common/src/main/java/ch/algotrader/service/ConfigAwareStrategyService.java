@@ -28,14 +28,13 @@ import ch.algotrader.service.groups.StrategyContextAware;
  * all implementors of these interfaces should be managed by the Spring
  * container.
  * <p>
- * In addition the service contains information that make up the strategy context.
- * The elements are injected into the service as properties.
+ * In addition the service receives a reference to the strategy config
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
  * @version $Revision$ $Date$
  */
-public class StrategyContextAwareService<C> extends StrategyService implements StrategyContextAware<C> {
+public class ConfigAwareStrategyService<C> extends StrategyService implements StrategyContextAware<C> {
 
     private C config;
 
