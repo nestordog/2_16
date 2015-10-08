@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>${artifactId}</name>
+	<natures>
+		<nature>ch.algotrader.quant.ui.algotradernature</nature>
+	</natures>
+</projectDescription>

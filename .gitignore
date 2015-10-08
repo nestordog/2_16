@@ -1,6 +1,7 @@
 .checkstyle
 .classpath
 .project
+!archetype/src/main/resources/archetype-resources/.project
 .settings
 .idea
 *.iml
