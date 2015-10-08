@@ -193,51 +193,49 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
         }
 
         String intId = String.valueOf(reqId);
-        String extId = String.valueOf(permId);
 
-        Order order = this.orderRegistry.getOpenOrderByIntId(intId);
+        long lastQuantity = 0L;
+        boolean statusUpdate = false;
 
-        if (order != null) {
+        IBExecution executionEntry = this.executions.get(intId);
+        synchronized (executionEntry) {
 
-            OrderStatus orderStatus = null;
-            IBExecution executionEntry = this.executions.get(intId);
-            synchronized (executionEntry) {
+            if (executionEntry.getStatus() != status
+                    || executionEntry.getFilledQuantity() != filled
+                    || executionEntry.getRemainingQuantity() != remaining) {
 
-                if (executionEntry.getStatus() != status
-                        || executionEntry.getFilledQuantity() != filled
-                        || executionEntry.getRemainingQuantity() != remaining) {
+                statusUpdate = true;
+                lastQuantity = executionEntry.getLastQuantity();
 
-                    orderStatus = OrderStatus.Factory.newInstance();
-                    orderStatus.setStatus(status);
-                    orderStatus.setExtId(extId);
-                    orderStatus.setIntId(intId);
-                    orderStatus.setSequenceNumber(MSG_SEQ.incrementAndGet());
-                    orderStatus.setFilledQuantity(filled);
-                    orderStatus.setRemainingQuantity(remaining);
-                    orderStatus.setLastQuantity(executionEntry.getLastQuantity());
-                    orderStatus.setOrder(order);
-                    orderStatus.setExtDateTime(this.serverEngine.getCurrentTime());
-                    if (lastFillPrice != 0.0) {
-                        orderStatus.setLastPrice(PriceUtil.normalizePrice(order, lastFillPrice));
-                    }
-                    if (avgFillPrice != 0.0) {
-                        orderStatus.setAvgPrice(PriceUtil.normalizePrice(order, avgFillPrice));
-                    }
+                executionEntry.setStatus(status);
+                executionEntry.setLastQuantity(0L);
+                executionEntry.setFilledQuantity(filled);
+                executionEntry.setRemainingQuantity(remaining);
+            }
+        }
 
-                    executionEntry.setStatus(status);
-                    executionEntry.setLastQuantity(0L);
-                    executionEntry.setFilledQuantity(filled);
-                    executionEntry.setRemainingQuantity(remaining);
+        if (statusUpdate) {
+            Order order = this.orderRegistry.getOpenOrderByIntId(intId);
+            if (order != null) {
 
+                OrderStatus orderStatus = OrderStatus.Factory.newInstance();
+                orderStatus.setStatus(status);
+                orderStatus.setExtId(String.valueOf(permId));
+                orderStatus.setIntId(intId);
+                orderStatus.setSequenceNumber(MSG_SEQ.incrementAndGet());
+                orderStatus.setFilledQuantity(filled);
+                orderStatus.setRemainingQuantity(remaining);
+                orderStatus.setLastQuantity(lastQuantity);
+                orderStatus.setOrder(order);
+                orderStatus.setExtDateTime(this.serverEngine.getCurrentTime());
+                if (lastFillPrice != 0.0) {
+                    orderStatus.setLastPrice(PriceUtil.normalizePrice(order, lastFillPrice));
                 }
-            }
-            if (orderStatus != null) {
-                this.serverEngine.sendEvent(orderStatus);
-            }
+                if (avgFillPrice != 0.0) {
+                    orderStatus.setAvgPrice(PriceUtil.normalizePrice(order, avgFillPrice));
+                }
 
-        } else {
-            if (LOGGER.isWarnEnabled()) {
-                LOGGER.warn("Unknown order with IntId {}", intId);
+                this.serverEngine.sendEvent(orderStatus);
             }
         }
     }
