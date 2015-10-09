@@ -18,11 +18,14 @@
 package ch.algotrader.service.bb;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.time.DateUtils;
@@ -44,8 +47,9 @@ import ch.algotrader.adapter.bb.BBSession;
 import ch.algotrader.dao.marketData.BarDao;
 import ch.algotrader.dao.security.SecurityDao;
 import ch.algotrader.entity.marketData.Bar;
+import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.Security;
-import ch.algotrader.enumeration.BarType;
+import ch.algotrader.enumeration.MarketDataEventType;
 import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.FeedType;
@@ -109,12 +113,12 @@ public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl imple
     }
 
     @Override
-    public List<Bar> getHistoricalBars(long securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, final Duration barSize, BarType barType, Map<String, String> properties) {
+    public List<Bar> getHistoricalBars(long securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, final Duration barSize, MarketDataEventType marketDataEventType, Map<String, String> properties) {
 
         Validate.notNull(endDate, "End date is null");
         Validate.notNull(timePeriod, "Time period is null");
         Validate.notNull(barSize, "Bar size is null");
-        Validate.notNull(barType, "Bar type is null");
+        Validate.notNull(marketDataEventType, "Market data request type is null");
 
         Security security = this.securityDao.get(securityId);
         if (security == null) {
@@ -130,15 +134,15 @@ public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl imple
         // send the request by using either IntrayBarRequest or HistoricalDataRequest
         try {
             if (barSize.getValue() < Duration.DAY_1.getValue()) {
-                sendIntradayBarRequest(endDate, timePeriodLength, timePeriod, barSize, barType, securityString, properties);
+                sendIntradayBarRequest(endDate, timePeriodLength, timePeriod, barSize, marketDataEventType, securityString, properties);
             } else {
-                sendHistoricalDataRequest(endDate, timePeriodLength, timePeriod, barSize, barType, securityString, properties);
+                sendHistoricalDataRequest(endDate, timePeriodLength, timePeriod, barSize, marketDataEventType, securityString, properties);
             }
         } catch (IOException ex) {
             throw new ExternalServiceException(ex);
         }
         // instantiate the message handler
-        BBHistoricalDataMessageHandler messageHandler = new BBHistoricalDataMessageHandler(security, barSize);
+        BBHistoricalBarMessageHandler messageHandler = new BBHistoricalBarMessageHandler(security, barSize);
 
         // process responses
         boolean done = false;
@@ -155,39 +159,82 @@ public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl imple
 
     }
 
-    private void sendIntradayBarRequest(Date endDate, int timePeriodLength, TimePeriod timePeriod, final Duration barSize, BarType barType, final String securityString, Map<String, String> properties) throws IOException {
+    @Override
+    public List<Tick> getHistoricalTicks(long securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, MarketDataEventType marketDataEventType, Map<String, String> properties) {
+
+        Validate.notNull(endDate, "End date is null");
+        Validate.notNull(timePeriod, "Time period is null");
+        Validate.notNull(marketDataEventType, "Market data request type is null");
+
+        Security security = this.securityDao.get(securityId);
+        if (security == null) {
+            throw new ServiceException("security was not found " + securityId);
+        }
+
+        if (security.getBbgid() == null) {
+            throw new ServiceException("security has no bbgid " + securityId);
+        }
+
+        String securityString = "/bbgid/" + security.getBbgid();
+
+        // send the request by using either IntrayBarRequest or HistoricalDataRequest
+        try {
+            sendIntradayTickRequest(endDate, timePeriodLength, timePeriod, marketDataEventType, securityString, properties);
+        } catch (IOException ex) {
+            throw new ExternalServiceException(ex);
+        }
+        // instantiate the message handler
+        BBHistoricalTickMessageHandler messageHandler = new BBHistoricalTickMessageHandler(security);
+
+        // process responses
+        boolean done = false;
+        while (!done) {
+            try {
+                done = messageHandler.processEvent(session);
+            } catch (InterruptedException ex) {
+                Thread.currentThread().interrupt();
+                throw new ServiceException(ex);
+            }
+        }
+
+        return messageHandler.getTickList();
+
+    }
+
+    private void sendIntradayBarRequest(Date endDate, int timePeriodLength, TimePeriod timePeriod, final Duration barSize, MarketDataEventType marketDataEventType, final String securityString, Map<String, String> properties) throws IOException {
 
         int barSizeInt = (int) (barSize.getValue() / 60000);
 
-        String barTypeString;
-        switch (barType) {
+        String marketDataEventTypeString;
+        switch (marketDataEventType) {
             case TRADES:
-                barTypeString = "TRADE";
+                marketDataEventTypeString = "TRADE";
                 break;
             case BID:
-                barTypeString = "BID";
+                marketDataEventTypeString = "BID";
                 break;
             case ASK:
-                barTypeString = "ASK";
+                marketDataEventTypeString = "ASK";
                 break;
             case BEST_BID:
-                barTypeString = "BEST_BID";
+                marketDataEventTypeString = "BEST_BID";
                 break;
             case BEST_ASK:
-                barTypeString = "BEST_ASK";
+                marketDataEventTypeString = "BEST_ASK";
                 break;
             default:
-                throw new IllegalArgumentException("unsupported barType " + barType);
+                throw new IllegalArgumentException("unsupported marketDataEventType " + marketDataEventType);
         }
 
-        String startDateString = dateTimeFormat.format(DateTimeLegacy.toGMTDate(getStartDate(endDate, timePeriodLength, timePeriod)));
-        String endDateString = dateTimeFormat.format(DateTimeLegacy.toGMTDate(endDate));
+        Date startDate = getStartDate(endDate, timePeriodLength, timePeriod);
+        String startDateString = dateTimeFormat.format(DateTimeLegacy.toGMTDateTime(startDate));
+        String endDateString = dateTimeFormat.format(DateTimeLegacy.toGMTDateTime(endDate));
 
         Service service = session.getService();
 
         Request request = service.createRequest("IntradayBarRequest");
         request.set("security", securityString);
-        request.set("eventType", barTypeString);
+        request.set("eventType", marketDataEventTypeString);
         request.set("interval", barSizeInt);
         request.set("startDateTime", startDateString);
         request.set("endDateTime", endDateString);
@@ -200,7 +247,50 @@ public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl imple
         session.sendRequest(request, null);
     }
 
-    private void sendHistoricalDataRequest(Date endDate, int timePeriodLength, TimePeriod timePeriod, Duration barSize, BarType barType, String securityString, Map<String, String> properties) throws IOException {
+    private void sendIntradayTickRequest(Date endDate, int timePeriodLength, TimePeriod timePeriod, MarketDataEventType marketDataEventType, final String securityString, Map<String, String> properties) throws IOException {
+
+        String marketDataEventTypeString;
+        switch (marketDataEventType) {
+            case TRADES:
+                marketDataEventTypeString = "TRADE";
+                break;
+            case BID:
+                marketDataEventTypeString = "BID";
+                break;
+            case ASK:
+                marketDataEventTypeString = "ASK";
+                break;
+            case BEST_BID:
+                marketDataEventTypeString = "BEST_BID";
+                break;
+            case BEST_ASK:
+                marketDataEventTypeString = "BEST_ASK";
+                break;
+            default:
+                throw new IllegalArgumentException("unsupported marketDataEventType " + marketDataEventType);
+        }
+
+        Date startDate = getStartDate(endDate, timePeriodLength, timePeriod);
+        String startDateString = dateTimeFormat.format(DateTimeLegacy.toGMTDateTime(startDate));
+        String endDateString = dateTimeFormat.format(DateTimeLegacy.toGMTDateTime(endDate));
+
+        Service service = session.getService();
+
+        Request request = service.createRequest("IntradayTickRequest");
+        request.set("security", securityString);
+        request.append("eventTypes", marketDataEventTypeString);
+        request.set("startDateTime", startDateString);
+        request.set("endDateTime", endDateString);
+
+        for (Map.Entry<String, String> entry : properties.entrySet()) {
+            request.set(entry.getKey(), entry.getValue());
+        }
+
+        // send request
+        session.sendRequest(request, null);
+    }
+
+    private void sendHistoricalDataRequest(Date endDate, int timePeriodLength, TimePeriod timePeriod, Duration barSize, MarketDataEventType marketDataEventType, String securityString, Map<String, String> properties) throws IOException {
 
         String barSizeString;
         switch (barSize) {
@@ -226,11 +316,12 @@ public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl imple
                 throw new IllegalArgumentException("unsupported barSize " + barSize);
         }
 
-        if (!BarType.TRADES.equals(barType)) {
-            throw new IllegalArgumentException("unsupported barType " + barType);
+        if (!MarketDataEventType.TRADES.equals(marketDataEventType)) {
+            throw new IllegalArgumentException("unsupported marketDataEventType " + marketDataEventType);
         }
 
-        String startDateString = dateFormat.format(DateTimeLegacy.toGMTDate(getStartDate(endDate, timePeriodLength, timePeriod)));
+        Date startDate = getStartDate(endDate, timePeriodLength, timePeriod);
+        String startDateString = dateFormat.format(DateTimeLegacy.toGMTDate(startDate));
         String endDateString = dateFormat.format(DateTimeLegacy.toGMTDate(endDate));
 
         Service service = session.getService();
@@ -285,13 +376,13 @@ public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl imple
         }
     }
 
-    private class BBHistoricalDataMessageHandler extends BBMessageHandler {
+    private class BBHistoricalBarMessageHandler extends BBMessageHandler {
 
         private final Security security;
         private final Duration barSize;
         private final List<Bar> barList;
 
-        public BBHistoricalDataMessageHandler(Security security, Duration barSize) {
+        public BBHistoricalBarMessageHandler(Security security, Duration barSize) {
 
             this.security = security;
             this.barSize = barSize;
@@ -330,7 +421,9 @@ public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl imple
 
                 Element fields = data.getValueAsElement(i);
 
-                Date time = fields.getElementAsDate(BBConstants.TIME2).calendar().getTime();
+                Calendar calendar = fields.getElementAsDate(BBConstants.TIME).calendar();
+                calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
+                Date time = calendar.getTime();
                 double open = fields.getElementAsFloat64(BBConstants.OPEN);
                 double high = fields.getElementAsFloat64(BBConstants.HIGH);
                 double low = fields.getElementAsFloat64(BBConstants.LOW);
@@ -368,7 +461,9 @@ public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl imple
                     continue;
                 }
 
-                Date date = bbBar.getElementAsDate(BBConstants.DATE).calendar().getTime();
+                Calendar calendar = bbBar.getElementAsDate(BBConstants.DATE).calendar();
+                calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
+                Date date = calendar.getTime();
                 double close = bbBar.getElementAsFloat64("PX_LAST");
 
                 // instruments might only have a PX_LAST
@@ -412,6 +507,96 @@ public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl imple
         public List<Bar> getBarList() {
 
             return this.barList;
+        }
+    }
+
+    private class BBHistoricalTickMessageHandler extends BBMessageHandler {
+
+        private final Security security;
+        private final List<Tick> tickList;
+
+        public BBHistoricalTickMessageHandler(Security security) {
+
+            this.security = security;
+            this.tickList = new ArrayList<>();
+        }
+
+        @Override
+        protected void processResponseEvent(Event event, Session session) {
+
+            for (Message msg : event) {
+
+                if (msg.hasElement(BBConstants.RESPONSE_ERROR)) {
+
+                    Element errorInfo = msg.getElement(BBConstants.RESPONSE_ERROR);
+                    LOGGER.error("request failed {} ({})", errorInfo.getElementAsString(BBConstants.CATEGORY), errorInfo.getElementAsString(BBConstants.MESSAGE));
+
+                    continue;
+                }
+
+                if (msg.messageType() == BBConstants.INTRADAY_TICK_RESPONSE) {
+                    processIntradayTickResponse(msg);
+                } else {
+                    throw new IllegalArgumentException("unknown reponse type: " + msg.messageType());
+                }
+            }
+        }
+
+        private void processIntradayTickResponse(Message msg) {
+
+            Element data = msg.getElement(BBConstants.TICK_DATA).getElement(BBConstants.TICK_TICK_DATA);
+
+            int numBars = data.numValues();
+            for (int i = 0; i < numBars; ++i) {
+
+                Element fields = data.getValueAsElement(i);
+
+                Calendar calendar = fields.getElementAsDate(BBConstants.TIME).calendar();
+                calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
+                Date time = calendar.getTime();
+                String type = fields.getElementAsString(BBConstants.TYPE);
+                double value = fields.getElementAsFloat64(BBConstants.VALUE);
+                int size = fields.getElementAsInt32(BBConstants.SIZE);
+
+                if (value == 0.0) {
+                    continue;
+                }
+
+                int scale = this.security.getSecurityFamily().getScale(Broker.BBG.name());
+                BigDecimal valueBD = RoundUtil.getBigDecimal(value, scale);
+
+                Tick tick = Tick.Factory.newInstance();
+                tick.setDateTime(time);
+
+                switch (type) {
+                    case "TRADE":
+                        tick.setLast(valueBD);
+                        tick.setVol(size);
+                        tick.setLastDateTime(time);
+                        break;
+                    case "BID":
+                        tick.setBid(valueBD);
+                        tick.setVolBid(size);
+                        break;
+                    case "ASK":
+                        tick.setAsk(valueBD);
+                        tick.setVolAsk(size);
+                        break;
+                    default:
+                        throw new IllegalArgumentException("unknown type " + type);
+                }
+
+                tick.setVol(size);
+                tick.setFeedType(FeedType.BB.name());
+                tick.setSecurity(this.security);
+
+                this.tickList.add(tick);
+            }
+        }
+
+        public List<Tick> getTickList() {
+
+            return this.tickList;
         }
     }
 }

@@ -18,9 +18,9 @@
 package ch.algotrader.enumeration;
 
 /**
- * Defines the Price that is represented by a {@link ch.algotrader.entity.marketData.Bar Bar}
+ * Defines the Price that is represented by a {@link ch.algotrader.entity.marketData.MarketDataEvent MarketDataEvent}
  */
-public enum BarType {
+public enum MarketDataEventType {
 
     TRADES, MIDPOINT, BID, ASK, BID_ASK, BEST_BID, BEST_ASK;
 

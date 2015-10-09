@@ -44,23 +44,29 @@ public class BBConstants {
     public static final Name MESSAGE = Name.getName("message");
 
     public static final Name BAR_DATA = Name.getName("barData");
+    public static final Name TICK_DATA = Name.getName("tickData");
     public static final Name BAR_TICK_DATA = Name.getName("barTickData");
+    public static final Name TICK_TICK_DATA = Name.getName("tickData");
     public static final Name SECURITY_DATA = Name.getName("securityData");
     public static final Name FIELD_DATA = Name.getName("fieldData");
     public static final Name FIELD_EXCEPTIONS = new Name("fieldExceptions");
     public static final Name FIELD_ID = new Name("fieldId");
     public static final Name ERROR_INFO = new Name("errorInfo");
 
-    public static final Name TIME2 = Name.getName("time");
+    public static final Name TIME = Name.getName("time");
     public static final Name DATE = Name.getName("date");
+    public static final Name TYPE = Name.getName("type");
+    public static final Name VALUE = Name.getName("value");
     public static final Name OPEN = Name.getName("open");
     public static final Name HIGH = Name.getName("high");
     public static final Name LOW = Name.getName("low");
     public static final Name CLOSE = Name.getName("low");
     public static final Name VOLUME = Name.getName("volume");
+    public static final Name SIZE = Name.getName("size");
 
     public static final Name HISTORICAL_DATA_RESPONSE = Name.getName("HistoricalDataResponse");
     public static final Name INTRADAY_BAR_RESPONSE = Name.getName("IntradayBarResponse");
+    public static final Name INTRADAY_TICK_RESPONSE = Name.getName("IntradayTickResponse");
     public static final Name REFERENCE_DATA_RESPONSE = Name.getName("ReferenceDataResponse");
 
     public static final Name ID_BB_GLOBAL = Name.getName("ID_BB_GLOBAL");
