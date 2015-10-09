@@ -1256,9 +1256,10 @@
     <!-- OrderPreference DAO queries Starts -->
 
     <query name='OrderPreference.findByName'>
-    <![CDATA[
-        from OrderPreferenceImpl 
-        where name = :name 
+        <![CDATA[
+        from OrderPreferenceImpl op
+        left outer join fetch op.defaultAccount
+        where op.name = :name
     ]]>
     </query>
 

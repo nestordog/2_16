@@ -608,8 +608,12 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
      * {@inheritDoc}
      */
     @Override
-    public String getNextOrderId(final Account account) {
+    public String getNextOrderId(final long accountId) {
 
+        Account account = this.accountDao.load(accountId);
+        if (account == null) {
+            throw new ServiceException("Unknown account id: " + accountId);
+        }
         return getExternalOrderService(account).getNextOrderId(account);
     }
 

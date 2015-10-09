@@ -21,7 +21,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import ch.algotrader.entity.Account;
 import ch.algotrader.entity.trade.ExecutionStatusVO;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderCompletionVO;
@@ -108,7 +107,7 @@ public interface OrderService {
     /**
      * Generates next order intId for the given account.
      */
-    public String getNextOrderId(Account account);
+    public String getNextOrderId(long accountId);
 
     /**
      * Returns details of currently open orders.
