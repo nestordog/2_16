@@ -90,7 +90,8 @@ public class SpringSubscriberResolver implements SubscriberResolver {
             try {
                 statement.setSubscriber(bean, beanMethod);
             } catch (EPSubscriberException ex) {
-                throw new EPSubscriberException("Subscriber expression '" + subscriberExpression + "' could not be resolved to a service method");
+                throw new SubscriberResolutionException("Subscriber expression '" + subscriberExpression +
+                        "' could not be resolved to a service method", ex);
             }
         } else {
             // Assuming to be a fully qualified class name otherwise
