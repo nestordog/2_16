@@ -20,6 +20,7 @@ package ch.algotrader.service;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.marketData.MarketDataEventVO;
 import ch.algotrader.enumeration.LifecyclePhase;
 import ch.algotrader.event.dispatch.EventDispatcher;
@@ -41,9 +42,9 @@ public class EventPropagator implements LifecycleEventListener {
     private final EventDispatcher eventDispatcher;
     private volatile boolean active;
 
-    public EventPropagator(final EventDispatcher eventDispatcher) {
+    public EventPropagator(final EventDispatcher eventDispatcher, final CommonConfig commonConfig) {
         this.eventDispatcher = eventDispatcher;
-        this.active = false;
+        this.active = !commonConfig.isEmbedded() && !commonConfig.isSimulation();
     }
 
     @Override

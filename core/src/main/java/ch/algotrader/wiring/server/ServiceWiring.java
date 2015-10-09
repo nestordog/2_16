@@ -71,7 +71,6 @@ import ch.algotrader.service.CalendarService;
 import ch.algotrader.service.CalendarServiceImpl;
 import ch.algotrader.service.CombinationService;
 import ch.algotrader.service.CombinationServiceImpl;
-import ch.algotrader.service.EventPropagator;
 import ch.algotrader.service.ExternalMarketDataService;
 import ch.algotrader.service.ExternalOrderService;
 import ch.algotrader.service.ForexService;
@@ -104,10 +103,12 @@ import ch.algotrader.service.ServerLookupService;
 import ch.algotrader.service.ServerLookupServiceImpl;
 import ch.algotrader.service.ServerManagementService;
 import ch.algotrader.service.ServerManagementServiceImpl;
+import ch.algotrader.service.EventPropagator;
 import ch.algotrader.service.StrategyPersistenceService;
 import ch.algotrader.service.StrategyPersistenceServiceImpl;
 import ch.algotrader.service.SubscriptionService;
 import ch.algotrader.service.SubscriptionServiceImpl;
+import ch.algotrader.service.TickPersister;
 import ch.algotrader.service.TransactionPersistenceService;
 import ch.algotrader.service.TransactionService;
 import ch.algotrader.service.TransactionServiceImpl;
@@ -265,6 +266,14 @@ public class ServiceWiring {
                 eventDispatcher, localLookupService, serviceMap2);
     }
 
+    @Bean(name = "tickPersister", destroyMethod = "destroy")
+    public TickPersister createTickPersistEventPropagator(
+            final LookupService lookupService,
+            final MarketDataService marketDataService) {
+
+        return new TickPersister(lookupService, marketDataService);
+    }
+
     @Bean(name = "orderPersistenceService")
     public OrderPersistenceService createOrderPersistenceService(final OrderDao orderDao,
             final MarketOrderDao marketOrderDao,
@@ -386,9 +395,11 @@ public class ServiceWiring {
     }
 
     @Bean(name = "eventPropagator")
-    public EventPropagator createEventPropagator(final EventDispatcher eventDispatcher) {
+    public EventPropagator createEventPropagator(
+            final EventDispatcher eventDispatcher,
+            final CommonConfig commonConfig) {
 
-        return new EventPropagator(eventDispatcher);
+        return new EventPropagator(eventDispatcher, commonConfig);
     }
 
     @Bean(name = "lazyLoaderService")

@@ -7,9 +7,18 @@ as select
 from
     TickVO;
 
+@Name('INSERT_INTO_LAST_TICK_WINDOW')
+@RunTimeOnly()
+insert into
+    LastTickWindow
+select
+    *
+from
+    TickVO;
+
 @Name('PERSIST_HOUR_TICKS')
 @RunTimeOnly()
-@Subscriber(className='marketDataService#persistTick')
+@Subscriber(className='tickPersister#persist')
 on pattern
     [every timer:at(0, *, *, *, *)]
 select
@@ -23,7 +32,7 @@ and
 
 @Name('PERSIST_MINUTE_TICKS')
 @RunTimeOnly()
-@Subscriber(className='marketDataService#persistTick')
+@Subscriber(className='tickPersister#persist')
 on pattern
     [every timer:at(*, *, *, *, *)]
 select

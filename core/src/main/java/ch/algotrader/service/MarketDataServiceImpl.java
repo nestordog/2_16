@@ -17,11 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
-import java.io.IOException;
-import java.util.Calendar;
 import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -30,7 +26,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.Validate;
-import org.apache.commons.lang.time.DateUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.SessionFactory;
@@ -53,7 +48,6 @@ import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.util.HibernateUtil;
-import ch.algotrader.util.io.CsvTickWriter;
 import ch.algotrader.visitor.TickValidationVisitor;
 
 /**
@@ -65,8 +59,6 @@ import ch.algotrader.visitor.TickValidationVisitor;
 public class MarketDataServiceImpl implements MarketDataService {
 
     private static final Logger LOGGER = LogManager.getLogger(MarketDataServiceImpl.class);
-
-    private final Map<Security, CsvTickWriter> csvWriters = new HashMap<>();
 
     private final CommonConfig commonConfig;
 
@@ -134,20 +126,8 @@ public class MarketDataServiceImpl implements MarketDataService {
     public void persistTick(final Tick tick) {
 
         Validate.notNull(tick, "Tick is null");
-
-        // get the current Date rounded to MINUTES
-        Date date = DateUtils.round(new Date(), Calendar.MINUTE);
-        tick.setDateTime(date);
-
-        try {
-            saveCvs(tick);
-        } catch (IOException ex) {
-            throw new ServiceException(ex);
-        }
-
         // write the tick to the DB (even if not valid)
         this.tickDao.save(tick);
-
     }
 
     /**
@@ -353,25 +333,6 @@ public class MarketDataServiceImpl implements MarketDataService {
 
         LOGGER.error("{} has not received any ticks for {} minutes", security, security.getSecurityFamily().getMaxGap());
 
-    }
-
-    private void saveCvs(Tick tick) throws IOException {
-
-        Security security = tick.getSecurity();
-
-        CsvTickWriter csvWriter;
-        synchronized (this.csvWriters) {
-            csvWriter = this.csvWriters.get(security);
-            if (csvWriter == null) {
-                String fileName = security.getIsin() != null ? security.getIsin() : security.getSymbol() != null ? security.getSymbol() : String.valueOf(security.getId());
-                csvWriter = new CsvTickWriter(fileName);
-                this.csvWriters.put(security, csvWriter);
-            }
-        }
-
-        synchronized (csvWriter) {
-            csvWriter.write(tick);
-        }
     }
 
     private ExternalMarketDataService getExternalMarketDataService(final String feedType) {
