@@ -9,14 +9,14 @@
     <includeBaseDirectory>false</includeBaseDirectory>
     <fileSets>
         <fileSet>
-            <directory>${user.dir}</directory>
+            <directory>..</directory>
             <outputDirectory>.</outputDirectory>
             <includes>
                 <include>LICENSE.txt</include>
             </includes>
         </fileSet>
         <fileSet>
-            <directory>${user.dir}/common/src/main/resources/</directory>
+            <directory>../common/src/main/resources/</directory>
             <outputDirectory>conf</outputDirectory>
             <includes>
                 <include>conf.properties</include>
@@ -24,7 +24,7 @@
             </includes>
         </fileSet>
         <fileSet>
-            <directory>${user.dir}/core/src/main/resources/</directory>
+            <directory>../core/src/main/resources/</directory>
             <outputDirectory>conf</outputDirectory>
             <includes>
                 <include>conf-core.properties</include>
@@ -34,19 +34,18 @@
             </includes>
         </fileSet>
         <fileSet>
-            <directory>${user.dir}/client/bin/</directory>
+            <directory>../client/bin/</directory>
             <outputDirectory>bin</outputDirectory>
             <includes>
                 <include>client.bat</include>
-                <include>client-ssl.bat</include>
             </includes>
         </fileSet>
         <fileSet>
-            <directory>${user.dir}/core/bin/</directory>
+            <directory>../core/bin/</directory>
             <outputDirectory>bin</outputDirectory>
             <includes>
                 <include>run.bat</include>
-                <include>run-prod.sh</include>
+                <include>run.sh</include>
             </includes>
         </fileSet>
     </fileSets>

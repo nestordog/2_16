@@ -4,4 +4,4 @@ cd ..
 
 rmdir target /s /q
 
-mvn -U -f bin\pom.xml dependency:copy-dependencies -DoutputDirectory=..\target
+mvn -U -f bin\pom.xml dependency:copy-dependencies -DoutputDirectory=..\lib

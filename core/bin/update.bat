@@ -4,4 +4,4 @@ cd ..
 
 del target\*.jar
 
-mvn -U -f bin\pom.xml dependency:copy-dependencies -DoutputDirectory=..\target
+mvn -U -f bin\pom.xml dependency:copy-dependencies -DoutputDirectory=..\lib

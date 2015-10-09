@@ -8,6 +8,7 @@
 *.log
 target
 log
+lib
 core/files/
 core/data/
 core/lib/

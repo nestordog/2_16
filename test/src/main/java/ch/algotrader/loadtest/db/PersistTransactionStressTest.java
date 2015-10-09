@@ -30,8 +30,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.springframework.dao.CannotAcquireLockException;
-
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.dao.NamedParam;
 import ch.algotrader.entity.security.Forex;
