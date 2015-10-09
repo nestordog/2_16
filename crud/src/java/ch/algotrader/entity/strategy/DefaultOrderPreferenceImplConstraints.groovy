@@ -1,5 +1,0 @@
-constraints = {
-    strategy()
-    securityFamily()
-    orderPreference()
-}
