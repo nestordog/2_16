@@ -20,6 +20,7 @@ package ch.algotrader.adapter.ib;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import ch.algotrader.entity.trade.ExecutionStatusVO;
 import ch.algotrader.enumeration.Status;
 
 public final class IBExecutions {
@@ -30,7 +31,7 @@ public final class IBExecutions {
         this.executionMap = new ConcurrentHashMap<>();
     }
 
-    public IBExecution add(final String id) {
+    public IBExecution addNew(final String id) {
 
         IBExecution newEntry = new IBExecution();
         newEntry.setStatus(Status.OPEN);
@@ -38,18 +39,18 @@ public final class IBExecutions {
         return existingEntry != null ? existingEntry : newEntry;
     }
 
-    public IBExecution get(final String id) {
+    public IBExecution getOpen(final String id, final ExecutionStatusVO executionStatus) {
 
         IBExecution execution = this.executionMap.get(id);
         if (execution == null) {
-            throw new IllegalStateException("Unexpected execution id: " + id);
+            IBExecution newEntry = new IBExecution();
+            newEntry.setStatus(executionStatus.getStatus());
+            newEntry.setFilledQuantity(executionStatus.getFilledQuantity());
+            newEntry.setRemainingQuantity(executionStatus.getRemainingQuantity());
+            IBExecution existingEntry = this.executionMap.putIfAbsent(id, newEntry);
+            execution = existingEntry != null ? existingEntry : newEntry;
         }
         return execution;
-    }
-
-    public IBExecution remove(final String id) {
-
-        return this.executionMap.remove(id);
     }
 
 }

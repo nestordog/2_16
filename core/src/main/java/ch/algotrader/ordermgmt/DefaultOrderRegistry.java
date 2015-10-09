@@ -88,6 +88,12 @@ public class DefaultOrderRegistry implements OrderRegistry {
     }
 
     @Override
+    public OrderDetailsVO getOpenOrderDetailsByIntId(String intId) {
+
+        return this.orderExecMap.get(intId);
+    }
+
+    @Override
     public Order getOpenOrderByIntId(final String intId) {
 
         Validate.notNull(intId, "Order IntId is null");

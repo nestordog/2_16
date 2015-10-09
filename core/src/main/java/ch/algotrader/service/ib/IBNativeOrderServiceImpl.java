@@ -116,7 +116,7 @@ public class IBNativeOrderServiceImpl implements ExternalOrderService {
         }
 
         this.orderRegistry.add(order);
-        IBExecution execution = this.iBExecutions.add(intId);
+        IBExecution execution = this.iBExecutions.addNew(intId);
 
         synchronized (execution) {
             execution.setStatus(Status.OPEN);
@@ -160,7 +160,7 @@ public class IBNativeOrderServiceImpl implements ExternalOrderService {
         this.orderRegistry.remove(intId);
         this.orderRegistry.add(order);
 
-        IBExecution execution = this.iBExecutions.add(intId);
+        IBExecution execution = this.iBExecutions.addNew(intId);
         synchronized (execution) {
             execution.setStatus(Status.OPEN);
         }

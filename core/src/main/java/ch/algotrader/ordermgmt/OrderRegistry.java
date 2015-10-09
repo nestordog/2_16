@@ -48,6 +48,12 @@ public interface OrderRegistry {
     Order getByIntId(String intId);
 
     /**
+     * Returns details of the open order with the given {@code IntId} or {@code null} if no order with the given
+     * {@code IntId} can be found in the registry.
+     */
+    OrderDetailsVO getOpenOrderDetailsByIntId(String intId);
+
+    /**
      * Returns open order with the given {@code IntId} or {@code null} if no order with the given {@code IntId}
      * can be found in the registry.
      */

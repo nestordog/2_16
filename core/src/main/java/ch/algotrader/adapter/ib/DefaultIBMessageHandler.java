@@ -46,8 +46,10 @@ import com.ib.client.EWrapperMsgGenerator;
 import com.ib.client.Execution;
 
 import ch.algotrader.entity.marketData.Bar;
+import ch.algotrader.entity.trade.ExecutionStatusVO;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.Order;
+import ch.algotrader.entity.trade.OrderDetailsVO;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
@@ -123,15 +125,18 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
 
         String intId = String.valueOf(execution.m_orderId);
 
-        // get the order from the OpenOrderWindow
-        Order order = this.orderRegistry.getOpenOrderByIntId(intId);
-        if (order == null) {
+        IBExecution executionEntry;
+        OrderDetailsVO orderDetails = this.orderRegistry.getOpenOrderDetailsByIntId(intId);
+        if (orderDetails != null) {
+            executionEntry = this.executions.getOpen(intId, orderDetails.getExecutionStatus());
+        } else {
             LOGGER.error("Order with IntId {} could not be found for execution {} {}", intId, contract, execution);
             return;
         }
 
+        Order order = orderDetails.getOrder();
         OrderStatus orderStatus = null;
-        IBExecution executionEntry = this.executions.get(intId);
+
         synchronized (executionEntry) {
             executionEntry.setLastQuantity(execution.m_shares);
             if (executionEntry.getStatus() == Status.OPEN) {
@@ -194,49 +199,53 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
 
         String intId = String.valueOf(reqId);
 
-        long lastQuantity = 0L;
-        boolean statusUpdate = false;
+        IBExecution executionEntry;
+        OrderDetailsVO orderDetails = this.orderRegistry.getOpenOrderDetailsByIntId(intId);
+        if (orderDetails != null) {
+            executionEntry = this.executions.getOpen(intId, orderDetails.getExecutionStatus());
+        } else {
+            return;
+        }
 
-        IBExecution executionEntry = this.executions.get(intId);
+        long lastQuantity;
         synchronized (executionEntry) {
 
             if (executionEntry.getStatus() != status
                     || executionEntry.getFilledQuantity() != filled
                     || executionEntry.getRemainingQuantity() != remaining) {
 
-                statusUpdate = true;
                 lastQuantity = executionEntry.getLastQuantity();
 
                 executionEntry.setStatus(status);
                 executionEntry.setLastQuantity(0L);
                 executionEntry.setFilledQuantity(filled);
                 executionEntry.setRemainingQuantity(remaining);
+            } else {
+                return;
             }
         }
 
-        if (statusUpdate) {
-            Order order = this.orderRegistry.getOpenOrderByIntId(intId);
-            if (order != null) {
+        Order order = orderDetails.getOrder();
+        if (order != null) {
 
-                OrderStatus orderStatus = OrderStatus.Factory.newInstance();
-                orderStatus.setStatus(status);
-                orderStatus.setExtId(String.valueOf(permId));
-                orderStatus.setIntId(intId);
-                orderStatus.setSequenceNumber(MSG_SEQ.incrementAndGet());
-                orderStatus.setFilledQuantity(filled);
-                orderStatus.setRemainingQuantity(remaining);
-                orderStatus.setLastQuantity(lastQuantity);
-                orderStatus.setOrder(order);
-                orderStatus.setExtDateTime(this.serverEngine.getCurrentTime());
-                if (lastFillPrice != 0.0) {
-                    orderStatus.setLastPrice(PriceUtil.normalizePrice(order, lastFillPrice));
-                }
-                if (avgFillPrice != 0.0) {
-                    orderStatus.setAvgPrice(PriceUtil.normalizePrice(order, avgFillPrice));
-                }
-
-                this.serverEngine.sendEvent(orderStatus);
+            OrderStatus orderStatus = OrderStatus.Factory.newInstance();
+            orderStatus.setStatus(status);
+            orderStatus.setExtId(String.valueOf(permId));
+            orderStatus.setIntId(intId);
+            orderStatus.setSequenceNumber(MSG_SEQ.incrementAndGet());
+            orderStatus.setFilledQuantity(filled);
+            orderStatus.setRemainingQuantity(remaining);
+            orderStatus.setLastQuantity(lastQuantity);
+            orderStatus.setOrder(order);
+            orderStatus.setExtDateTime(this.serverEngine.getCurrentTime());
+            if (lastFillPrice != 0.0) {
+                orderStatus.setLastPrice(PriceUtil.normalizePrice(order, lastFillPrice));
             }
+            if (avgFillPrice != 0.0) {
+                orderStatus.setAvgPrice(PriceUtil.normalizePrice(order, avgFillPrice));
+            }
+
+            this.serverEngine.sendEvent(orderStatus);
         }
     }
 
@@ -638,17 +647,19 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
     private void orderRejected(int orderId, String reason) {
 
         String intId = String.valueOf(orderId);
-        Order order = this.orderRegistry.getOpenOrderByIntId(intId);
+        OrderDetailsVO orderDetails= this.orderRegistry.getOpenOrderDetailsByIntId(intId);
 
-        if (order != null) {
+        if (orderDetails != null) {
 
-            IBExecution executionEntry = this.executions.get(intId);
+            ExecutionStatusVO executionStatus = orderDetails.getExecutionStatus();
+            IBExecution executionEntry = this.executions.getOpen(intId, executionStatus);
             OrderStatus orderStatus = null;
             synchronized (executionEntry) {
                 if (executionEntry.getStatus() != Status.REJECTED) {
 
                     executionEntry.setStatus(Status.REJECTED);
 
+                    Order order = orderDetails.getOrder();
                     orderStatus = OrderStatus.Factory.newInstance();
                     orderStatus.setFilledQuantity(executionEntry.getFilledQuantity());
                     orderStatus.setRemainingQuantity(executionEntry.getRemainingQuantity());
