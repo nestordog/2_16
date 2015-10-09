@@ -32,7 +32,7 @@ import ch.algotrader.util.DateTimeLegacy;
  * <p>
  * Usage: {@code HistoricalDataStarter replaceBars endDate timePeriodLength timePeriod marketDataEventType barSize securityId(s)}
  * <p>
- * Example: {@code HistoricalDataStarter true 20120101 4 WEEK TRADES DAY_1 10:11:12}
+ * Example: {@code HistoricalDataStarter true 2015-10-01 4 WEEK TRADES DAY_1 10:11:12}
  *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *

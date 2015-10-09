@@ -118,7 +118,7 @@ public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl
         int scale = security.getSecurityFamily().getScale(Broker.IB.name());
         Contract contract = IBUtil.getContract(security);
         int requestId = this.idGenerator.getNextRequestId();
-        String dateString = dateTimeFormat.format(DateTimeLegacy.toGMTDate(endDate));
+        String dateString = dateTimeFormat.format(DateTimeLegacy.toLocalDate(endDate).atStartOfDay());
 
         String durationString = timePeriodLength + " ";
         switch (timePeriod) {
