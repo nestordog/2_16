@@ -15,23 +15,15 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.ordermgmt;
-
-import ch.algotrader.util.collection.IntegerMap;
+package ch.algotrader.adapter;
 
 /**
- * Order ID generator.
+ * Abstract long id generator
  *
- * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
+ * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  */
-public interface OrderIdGenerator {
+public interface IdGenerator {
 
-    String getNextOrderId(String sessionQualifier);
-
-    void setOrderId(String sessionQualifier, int orderId);
-
-    IntegerMap<String> getOrderIds();
+    long generateId();
 
 }

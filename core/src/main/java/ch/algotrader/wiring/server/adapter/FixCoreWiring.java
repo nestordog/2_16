@@ -28,14 +28,13 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.Resource;
 
+import ch.algotrader.adapter.DefaultOrderIdGenerator;
+import ch.algotrader.adapter.OrderIdGenerator;
 import ch.algotrader.adapter.fix.DefaultFixEventScheduler;
 import ch.algotrader.adapter.fix.FixApplicationFactory;
 import ch.algotrader.adapter.fix.FixMultiApplicationSessionFactory;
 import ch.algotrader.adapter.fix.ManagedFixAdapter;
-import ch.algotrader.dao.trade.OrderDao;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.ordermgmt.DefaultOrderIdGenerator;
-import ch.algotrader.ordermgmt.OrderIdGenerator;
 import ch.algotrader.service.LookupService;
 import quickfix.DefaultMessageFactory;
 import quickfix.FileStoreFactory;
@@ -53,9 +52,9 @@ import quickfix.SocketInitiator;
 public class FixCoreWiring {
 
     @Bean(name = "orderIdGenerator")
-    public OrderIdGenerator createOrderIdGenerator(final OrderDao orderDao) {
+    public OrderIdGenerator createOrderIdGenerator() {
 
-        return new DefaultOrderIdGenerator(orderDao);
+        return new DefaultOrderIdGenerator();
     }
 
     @Bean(name = "fixSessionSettings")

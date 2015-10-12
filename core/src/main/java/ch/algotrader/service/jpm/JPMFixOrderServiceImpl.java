@@ -21,6 +21,8 @@ import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.fix.fix42.GenericFix42OrderMessageFactory;
 import ch.algotrader.adapter.fix.fix42.GenericFix42SymbologyResolver;
 import ch.algotrader.config.CommonConfig;
+import ch.algotrader.dao.AccountDao;
+import ch.algotrader.dao.trade.OrderDao;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.ordermgmt.OrderRegistry;
@@ -43,10 +45,12 @@ public class JPMFixOrderServiceImpl extends Fix42OrderServiceImpl implements Fix
             final FixAdapter fixAdapter,
             final OrderRegistry orderRegistry,
             final OrderPersistenceService orderPersistenceService,
+            final OrderDao orderDao,
+            final AccountDao accountDao,
             final CommonConfig commonConfig) {
 
-        super(OrderServiceType.JPM_FIX.name(), fixAdapter, orderRegistry, orderPersistenceService,
-                new GenericFix42OrderMessageFactory(new GenericFix42SymbologyResolver()), commonConfig);
+        super(OrderServiceType.JPM_FIX.name(), fixAdapter, new GenericFix42OrderMessageFactory(new GenericFix42SymbologyResolver()),
+                orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig);
     }
 
     @Override

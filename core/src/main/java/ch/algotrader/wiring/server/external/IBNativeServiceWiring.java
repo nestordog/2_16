@@ -24,9 +24,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
+import ch.algotrader.adapter.AutoIncrementIdGenerator;
+import ch.algotrader.adapter.IdGenerator;
 import ch.algotrader.adapter.ib.AccountUpdate;
 import ch.algotrader.adapter.ib.IBExecutions;
-import ch.algotrader.adapter.ib.IBIdGenerator;
 import ch.algotrader.adapter.ib.IBOrderMessageFactory;
 import ch.algotrader.adapter.ib.IBPendingRequests;
 import ch.algotrader.adapter.ib.IBSession;
@@ -39,6 +40,7 @@ import ch.algotrader.dao.security.OptionDao;
 import ch.algotrader.dao.security.SecurityDao;
 import ch.algotrader.dao.security.SecurityFamilyDao;
 import ch.algotrader.dao.security.StockDao;
+import ch.algotrader.dao.trade.OrderDao;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.ordermgmt.OrderRegistry;
 import ch.algotrader.service.ExternalMarketDataService;
@@ -74,14 +76,16 @@ public class IBNativeServiceWiring {
     @Bean(name = "iBNativeOrderService")
     public ExternalOrderService createIBNativeOrderService(
             final IBSession iBSession,
-            final IBIdGenerator iBIdGenerator,
+            final AutoIncrementIdGenerator iBOrderIdGenerator,
             final OrderRegistry orderRegistry,
             final IBExecutions ibExecutions,
             final IBOrderMessageFactory iBOrderMessageFactory,
             final OrderPersistenceService orderPersistenceService,
+            final OrderDao orderDao,
             final CommonConfig commonConfig) {
 
-        return new IBNativeOrderServiceImpl(iBSession, iBIdGenerator, orderRegistry, ibExecutions, iBOrderMessageFactory, orderPersistenceService, commonConfig);
+        return new IBNativeOrderServiceImpl(iBSession, iBOrderIdGenerator, orderRegistry, ibExecutions,
+                iBOrderMessageFactory, orderPersistenceService, orderDao, commonConfig);
     }
 
     @Profile("iBHistoricalData")
@@ -90,11 +94,12 @@ public class IBNativeServiceWiring {
             final IBSession iBSession,
             final IBConfig iBConfig,
             final IBPendingRequests iBPendingRequests,
-            final IBIdGenerator iBIdGenerator,
+            final IdGenerator iBRequestIdGenerator,
             final SecurityDao securityDao,
             final BarDao barDao) {
 
-        return new IBNativeHistoricalDataServiceImpl(iBSession, iBConfig, iBPendingRequests, iBIdGenerator, securityDao, barDao);
+        return new IBNativeHistoricalDataServiceImpl(iBSession, iBConfig, iBPendingRequests, iBRequestIdGenerator,
+                securityDao, barDao);
     }
 
     @Profile("iBMarketData")
@@ -102,11 +107,12 @@ public class IBNativeServiceWiring {
     public ExternalMarketDataService createIBNativeMarketDataService(
             final IBSession iBSession,
             final IBSessionStateHolder iBSessionStateHolder,
-            final IBIdGenerator iBIdGenerator,
+            final IdGenerator iBRequestIdGenerator,
             final IBConfig iBConfig,
             final Engine serverEngine) {
 
-        return new IBNativeMarketDataServiceImpl(iBSession, iBSessionStateHolder, iBIdGenerator, iBConfig, serverEngine);
+        return new IBNativeMarketDataServiceImpl(iBSession, iBSessionStateHolder, iBRequestIdGenerator,
+                iBConfig, serverEngine);
     }
 
     @Profile("iBReferenceData")
@@ -114,13 +120,14 @@ public class IBNativeServiceWiring {
     public ReferenceDataService createIBNativeReferenceDataService(
             final IBSession iBSession,
             final IBPendingRequests iBPendingRequests,
-            final IBIdGenerator iBIdGenerator,
+            final IdGenerator iBRequestIdGenerator,
             final OptionDao optionDao,
             final FutureDao futureDao,
             final SecurityFamilyDao securityFamilyDao,
             final StockDao stockDao) {
 
-        return new IBNativeReferenceDataServiceImpl(iBSession, iBPendingRequests, iBIdGenerator, optionDao, futureDao, securityFamilyDao, stockDao);
+        return new IBNativeReferenceDataServiceImpl(iBSession, iBPendingRequests, iBRequestIdGenerator,
+                optionDao, futureDao, securityFamilyDao, stockDao);
     }
 
 }

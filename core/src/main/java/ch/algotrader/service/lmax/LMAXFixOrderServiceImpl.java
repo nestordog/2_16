@@ -20,6 +20,8 @@ package ch.algotrader.service.lmax;
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.lmax.LMAXFixOrderMessageFactory;
 import ch.algotrader.config.CommonConfig;
+import ch.algotrader.dao.AccountDao;
+import ch.algotrader.dao.trade.OrderDao;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.enumeration.SimpleOrderType;
@@ -43,9 +45,12 @@ public class LMAXFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fi
             final FixAdapter fixAdapter,
             final OrderRegistry orderRegistry,
             final OrderPersistenceService orderPersistenceService,
+            final OrderDao orderDao,
+            final AccountDao accountDao,
             final CommonConfig commonConfig) {
 
-        super(OrderServiceType.LMAX_FIX.name(), fixAdapter, orderRegistry, orderPersistenceService, new LMAXFixOrderMessageFactory(), commonConfig);
+        super(OrderServiceType.LMAX_FIX.name(), fixAdapter, new LMAXFixOrderMessageFactory(),
+                orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig);
     }
 
     @Override

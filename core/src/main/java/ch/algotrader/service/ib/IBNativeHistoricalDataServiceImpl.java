@@ -32,7 +32,7 @@ import org.apache.logging.log4j.Logger;
 import com.ib.client.Contract;
 import com.ib.client.TagValue;
 
-import ch.algotrader.adapter.ib.IBIdGenerator;
+import ch.algotrader.adapter.IdGenerator;
 import ch.algotrader.adapter.ib.IBPendingRequests;
 import ch.algotrader.adapter.ib.IBSession;
 import ch.algotrader.adapter.ib.IBUtil;
@@ -44,10 +44,10 @@ import ch.algotrader.dao.security.SecurityDao;
 import ch.algotrader.entity.marketData.Bar;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.Security;
-import ch.algotrader.enumeration.MarketDataEventType;
 import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.FeedType;
+import ch.algotrader.enumeration.MarketDataEventType;
 import ch.algotrader.enumeration.TimePeriod;
 import ch.algotrader.service.HistoricalDataService;
 import ch.algotrader.service.HistoricalDataServiceImpl;
@@ -72,14 +72,14 @@ public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl
     private final IBSession iBSession;
     private final IBConfig iBConfig;
     private final IBPendingRequests pendingRequests;
-    private final IBIdGenerator idGenerator;
+    private final IdGenerator requestIdGenerator;
     private final SecurityDao securityDao;
 
     public IBNativeHistoricalDataServiceImpl(
             final IBSession iBSession,
             final IBConfig iBConfig,
             final IBPendingRequests pendingRequests,
-            final IBIdGenerator idGenerator,
+            final IdGenerator requestIdGenerator,
             final SecurityDao securityDao,
             final BarDao barDao) {
 
@@ -88,13 +88,13 @@ public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl
         Validate.notNull(iBSession, "IBSession is null");
         Validate.notNull(iBConfig, "IBConfig is null");
         Validate.notNull(pendingRequests, "IBPendingRequests is null");
-        Validate.notNull(idGenerator, "IBIdGenerator is null");
+        Validate.notNull(requestIdGenerator, "IdGenerator is null");
         Validate.notNull(securityDao, "SecurityDao is null");
 
         this.iBSession = iBSession;
         this.iBConfig = iBConfig;
         this.pendingRequests = pendingRequests;
-        this.idGenerator = idGenerator;
+        this.requestIdGenerator = requestIdGenerator;
         this.securityDao = securityDao;
     }
 
@@ -117,7 +117,7 @@ public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl
 
         int scale = security.getSecurityFamily().getScale(Broker.IB.name());
         Contract contract = IBUtil.getContract(security);
-        int requestId = this.idGenerator.getNextRequestId();
+        int requestId = (int) this.requestIdGenerator.generateId();
         String dateString = dateTimeFormat.format(DateTimeLegacy.toLocalDate(endDate).atStartOfDay());
 
         String durationString = timePeriodLength + " ";

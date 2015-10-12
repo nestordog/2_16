@@ -26,7 +26,7 @@ import org.springframework.beans.factory.DisposableBean;
 
 import com.ib.client.Contract;
 
-import ch.algotrader.adapter.ib.IBIdGenerator;
+import ch.algotrader.adapter.IdGenerator;
 import ch.algotrader.adapter.ib.IBSession;
 import ch.algotrader.adapter.ib.IBSessionStateHolder;
 import ch.algotrader.adapter.ib.IBUtil;
@@ -48,14 +48,14 @@ public class IBNativeMarketDataServiceImpl extends NativeMarketDataServiceImpl i
     private static final Logger LOGGER = LogManager.getLogger(IBNativeMarketDataServiceImpl.class);
 
     private final IBSession iBSession;
-    private final IBIdGenerator iBIdGenerator;
+    private final IdGenerator requestIdGenerator;
     private final IBSessionStateHolder sessionStateHolder;
     private final IBConfig iBConfig;
 
     public IBNativeMarketDataServiceImpl(
             final IBSession iBSession,
             final IBSessionStateHolder sessionStateHolder,
-            final IBIdGenerator iBIdGenerator,
+            final IdGenerator requestIdGenerator,
             final IBConfig iBConfig,
             final Engine serverEngine) {
 
@@ -63,13 +63,13 @@ public class IBNativeMarketDataServiceImpl extends NativeMarketDataServiceImpl i
 
         Validate.notNull(iBSession, "IBSession is null");
         Validate.notNull(sessionStateHolder, "IBSessionStateHolder is null");
-        Validate.notNull(iBIdGenerator, "IBIdGenerator is null");
+        Validate.notNull(requestIdGenerator, "IdGenerator is null");
         Validate.notNull(iBConfig, "IBConfig is null");
         Validate.notNull(serverEngine, "Engine is null");
 
         this.iBSession = iBSession;
         this.sessionStateHolder = sessionStateHolder;
-        this.iBIdGenerator = iBIdGenerator;
+        this.requestIdGenerator = requestIdGenerator;
         this.iBConfig = iBConfig;
     }
 
@@ -89,7 +89,7 @@ public class IBNativeMarketDataServiceImpl extends NativeMarketDataServiceImpl i
         }
 
         // create the SubscribeTickEvent (must happen before reqMktData so that Esper is ready to receive marketdata)
-        int tickerId = this.iBIdGenerator.getNextRequestId();
+        int tickerId = (int) this.requestIdGenerator.generateId();
         esperSubscribe(security, Integer.toString(tickerId));
 
         // requestMarketData from IB

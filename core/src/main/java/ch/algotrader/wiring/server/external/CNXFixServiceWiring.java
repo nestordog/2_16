@@ -25,6 +25,8 @@ import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.adapter.cnx.CNXTickerIdGenerator;
 import ch.algotrader.adapter.fix.ManagedFixAdapter;
 import ch.algotrader.config.CommonConfig;
+import ch.algotrader.dao.AccountDao;
+import ch.algotrader.dao.trade.OrderDao;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.ordermgmt.OrderRegistry;
 import ch.algotrader.service.ExternalMarketDataService;
@@ -45,9 +47,12 @@ public class CNXFixServiceWiring {
             final ManagedFixAdapter fixAdapter,
             final OrderRegistry orderRegistry,
             final OrderPersistenceService orderPersistenceService,
+            final OrderDao orderDao,
+            final AccountDao accountDao,
             final CommonConfig commonConfig) {
 
-        return new CNXFixOrderServiceImpl(fixAdapter, orderRegistry, orderPersistenceService, commonConfig);
+        return new CNXFixOrderServiceImpl(fixAdapter, orderRegistry, orderPersistenceService,
+                orderDao, accountDao, commonConfig);
     }
 
     @Profile("cNXMarketData")

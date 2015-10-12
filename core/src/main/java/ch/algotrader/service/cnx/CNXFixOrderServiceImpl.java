@@ -20,6 +20,8 @@ package ch.algotrader.service.cnx;
 import ch.algotrader.adapter.cnx.CNXFixOrderMessageFactory;
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.config.CommonConfig;
+import ch.algotrader.dao.AccountDao;
+import ch.algotrader.dao.trade.OrderDao;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.ordermgmt.OrderRegistry;
@@ -41,9 +43,12 @@ public class CNXFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fix
             final FixAdapter fixAdapter,
             final OrderRegistry orderRegistry,
             final OrderPersistenceService orderPersistenceService,
+            final OrderDao orderDao,
+            final AccountDao accountDao,
             final CommonConfig commonConfig) {
 
-        super(OrderServiceType.CNX_FIX.name(), fixAdapter, orderRegistry, orderPersistenceService, new CNXFixOrderMessageFactory(), commonConfig);
+        super(OrderServiceType.CNX_FIX.name(), fixAdapter, new CNXFixOrderMessageFactory(),
+                orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig);
     }
 
     @Override

@@ -43,7 +43,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.ib.client.Contract;
 import com.ib.client.ContractDetails;
 
-import ch.algotrader.adapter.ib.IBIdGenerator;
+import ch.algotrader.adapter.IdGenerator;
 import ch.algotrader.adapter.ib.IBPendingRequests;
 import ch.algotrader.adapter.ib.IBSession;
 import ch.algotrader.concurrent.Promise;
@@ -86,7 +86,7 @@ public class IBNativeReferenceDataServiceImpl implements ReferenceDataService {
 
     private final IBPendingRequests pendingRequests;
 
-    private final IBIdGenerator idGenerator;
+    private final IdGenerator requestIdGenerator;
 
     private final OptionDao optionDao;
 
@@ -99,7 +99,7 @@ public class IBNativeReferenceDataServiceImpl implements ReferenceDataService {
     public IBNativeReferenceDataServiceImpl(
             final IBSession iBSession,
             final IBPendingRequests pendingRequests,
-            final IBIdGenerator idGenerator,
+            final IdGenerator requestIdGenerator,
             final OptionDao optionDao,
             final FutureDao futureDao,
             final SecurityFamilyDao securityFamilyDao,
@@ -107,7 +107,7 @@ public class IBNativeReferenceDataServiceImpl implements ReferenceDataService {
 
         Validate.notNull(iBSession, "IBSession is null");
         Validate.notNull(pendingRequests, "IBPendingRequests is null");
-        Validate.notNull(idGenerator, "IBIdGenerator is null");
+        Validate.notNull(requestIdGenerator, "IdGenerator is null");
         Validate.notNull(optionDao, "OptionDao is null");
         Validate.notNull(futureDao, "FutureDao is null");
         Validate.notNull(securityFamilyDao, "SecurityFamilyDao is null");
@@ -115,7 +115,7 @@ public class IBNativeReferenceDataServiceImpl implements ReferenceDataService {
 
         this.iBSession = iBSession;
         this.pendingRequests = pendingRequests;
-        this.idGenerator = idGenerator;
+        this.requestIdGenerator = requestIdGenerator;
         this.optionDao = optionDao;
         this.futureDao = futureDao;
         this.securityFamilyDao = securityFamilyDao;
@@ -127,7 +127,7 @@ public class IBNativeReferenceDataServiceImpl implements ReferenceDataService {
 
         SecurityFamily securityFamily = this.securityFamilyDao.get(securityFamilyId);
 
-        int requestId = this.idGenerator.getNextRequestId();
+        int requestId = (int) this.requestIdGenerator.generateId();
         Contract contract = new Contract();
 
         contract.m_symbol = securityFamily.getSymbolRoot(Broker.IB.name());
@@ -175,7 +175,7 @@ public class IBNativeReferenceDataServiceImpl implements ReferenceDataService {
 
         SecurityFamily securityFamily = this.securityFamilyDao.get(securityFamilyId);
 
-        int requestId = this.idGenerator.getNextRequestId();
+        int requestId = (int) this.requestIdGenerator.generateId();
         Contract contract = new Contract();
 
         contract.m_symbol = symbol;

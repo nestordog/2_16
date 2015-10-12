@@ -17,12 +17,19 @@
  ***********************************************************************************/
 package ch.algotrader.service.fix;
 
+import java.math.BigDecimal;
+import java.util.List;
+
 import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.config.CommonConfig;
+import ch.algotrader.dao.AccountDao;
+import ch.algotrader.dao.trade.OrderDao;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.enumeration.InitializingServiceType;
@@ -44,6 +51,7 @@ import quickfix.field.MsgType;
  * @version $Revision$ $Date$
  */
 @InitializationPriority(InitializingServiceType.BROKER_INTERFACE)
+@Transactional(propagation = Propagation.SUPPORTS)
 public abstract class FixOrderServiceImpl implements FixOrderService, InitializingServiceI {
 
     private static final Logger LOGGER = LogManager.getLogger(FixOrderServiceImpl.class);
@@ -51,22 +59,30 @@ public abstract class FixOrderServiceImpl implements FixOrderService, Initializi
     private final String orderServiceType;
     private final FixAdapter fixAdapter;
     private final OrderPersistenceService orderPersistenceService;
+    private final OrderDao orderDao;
+    private final AccountDao accountDao;
     private final CommonConfig commonConfig;
 
     public FixOrderServiceImpl(
             final String orderServiceType,
             final FixAdapter fixAdapter,
             final OrderPersistenceService orderPersistenceService,
+            final OrderDao orderDao,
+            final AccountDao accountDao,
             final CommonConfig commonConfig) {
 
         Validate.notEmpty(orderServiceType, "OrderServiceType is empty");
         Validate.notNull(fixAdapter, "FixAdapter is null");
         Validate.notNull(orderPersistenceService, "OrderPersistenceService is null");
+        Validate.notNull(orderDao, "OrderDao is null");
+        Validate.notNull(accountDao, "AccountDao is null");
         Validate.notNull(commonConfig, "CommonConfig is null");
 
         this.orderServiceType = orderServiceType;
         this.fixAdapter = fixAdapter;
         this.orderPersistenceService = orderPersistenceService;
+        this.orderDao = orderDao;
+        this.accountDao = accountDao;
         this.commonConfig = commonConfig;
     }
 
@@ -81,6 +97,16 @@ public abstract class FixOrderServiceImpl implements FixOrderService, Initializi
     @Override
     public void init() {
 
+        List<Account> accounts = this.accountDao.findByByOrderServiceType(this.orderServiceType);
+
+        for (Account account: accounts) {
+            String sessionQualifier = account.getSessionQualifier();
+            BigDecimal orderId = this.orderDao.findLastIntOrderIdBySessionQualifier(sessionQualifier);
+            this.fixAdapter.setOrderId(sessionQualifier, orderId != null ? orderId.intValue() : 0);
+            if (LOGGER.isDebugEnabled() && orderId != null) {
+                LOGGER.debug("Current order count for session {}: {}", sessionQualifier, orderId.intValue());
+            }
+        }
         this.fixAdapter.createSessionForService(getOrderServiceType());
     }
 

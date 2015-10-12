@@ -31,12 +31,18 @@ import ch.algotrader.entity.trade.Order;
 public interface OrderDao extends ReadWriteDao<Order> {
 
     /**
-      * Finds one Tick-Id per hour of the defined Security that is just before the specified number
-      * of {@code minutes} and after the specified {@code minDate}.
-      * @param sessionQualifier
+      * Finds last order id for the given session qualifier.
+      * @param sessionQualifier session qualifier
       * @return BigDecimal
       */
-    BigDecimal findLastIntOrderId(String sessionQualifier);
+    BigDecimal findLastIntOrderIdBySessionQualifier(String sessionQualifier);
+
+    /**
+     * Finds last order id for the given order service type.
+     * @param orderServiceType order service type
+     * @return BigDecimal
+     */
+    BigDecimal findLastIntOrderIdByServiceType(String orderServiceType);
 
     /**
      * Finds orders that have not been acknowledged yet, i.e. have not received any OrderStatus yet.

@@ -19,6 +19,7 @@
 package ch.algotrader.dao;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -77,6 +78,37 @@ public class AccountDaoTest extends InMemoryDBTest {
         Assert.assertEquals("name2", account3.getName());
         Assert.assertEquals(Broker.CNX.name(), account3.getBroker());
         Assert.assertEquals(OrderServiceType.CNX_FIX.name(), account3.getOrderServiceType());
+    }
+
+    @Test
+    public void testFindByOrderServiceType() {
+
+        List<Account> accounts1 = this.dao.findByByOrderServiceType(OrderServiceType.CNX_FIX.name());
+        Assert.assertNotNull(accounts1);
+        Assert.assertEquals(0, accounts1.size());
+
+        Account account1 = new AccountImpl();
+
+        account1.setName("name2");
+        account1.setBroker(Broker.CNX.name());
+        account1.setOrderServiceType(OrderServiceType.CNX_FIX.name());
+
+        this.dao.save(account1);
+        this.dao.flush();
+
+        List<Account> accounts2 = this.dao.findByByOrderServiceType(OrderServiceType.LMAX_FIX.name());
+        Assert.assertNotNull(accounts2);
+        Assert.assertEquals(0, accounts2.size());
+
+        List<Account> accounts3 = this.dao.findByByOrderServiceType(OrderServiceType.CNX_FIX.name());
+        Assert.assertNotNull(accounts3);
+        Assert.assertEquals(1, accounts3.size());
+
+        Account account2 = accounts3.get(0);
+        Assert.assertNotNull(account2);
+        Assert.assertEquals("name2", account2.getName());
+        Assert.assertEquals(Broker.CNX.name(), account2.getBroker());
+        Assert.assertEquals(OrderServiceType.CNX_FIX.name(), account2.getOrderServiceType());
     }
 
 }

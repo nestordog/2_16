@@ -98,7 +98,7 @@ public class OrderDaoTest extends InMemoryDBTest {
     }
 
     @Test
-    public void testFindLastIntOrderId() {
+    public void testFindLastIntOrderIdBySessionQualifier() {
 
         Order order = new MarketOrderImpl();
         order.setIntId("ibn123.0");
@@ -116,13 +116,42 @@ public class OrderDaoTest extends InMemoryDBTest {
         this.session.save(order);
         this.session.flush();
 
-        BigDecimal bigDecimal1 = this.dao.findLastIntOrderId("FAKE");
+        BigDecimal bigDecimal1 = this.dao.findLastIntOrderIdBySessionQualifier("FAKE");
 
         Assert.assertNull(bigDecimal1);
 
-        BigDecimal bigDecimal2 = this.dao.findLastIntOrderId("CNX_FIX");
+        BigDecimal bigDecimal2 = this.dao.findLastIntOrderIdBySessionQualifier("CNX_FIX");
 
         Assert.assertNotNull(bigDecimal2);
+    }
+
+    @Test
+    public void testFindLastIntOrderIdByOrderServiceType() {
+
+        Order order = new MarketOrderImpl();
+        order.setIntId("35");
+        order.setDateTime(new Date());
+        order.setSide(Side.BUY);
+        order.setTif(TIF.ATC);
+        order.setSecurity(this.forex);
+        order.setAccount(this.account);
+        order.setStrategy(this.strategy);
+
+        this.session.save(this.strategy);
+        this.session.save(this.account);
+        this.session.save(this.family);
+        this.session.save(this.forex);
+        this.session.save(order);
+        this.session.flush();
+
+        BigDecimal bigDecimal1 = this.dao.findLastIntOrderIdByServiceType("FAKE");
+
+        Assert.assertNull(bigDecimal1);
+
+        BigDecimal bigDecimal2 = this.dao.findLastIntOrderIdByServiceType("CNX_FIX");
+
+        Assert.assertNotNull(bigDecimal2);
+        Assert.assertEquals(35, bigDecimal2.intValue());
     }
 
     @Test

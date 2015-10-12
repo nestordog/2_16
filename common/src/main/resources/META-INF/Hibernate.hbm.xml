@@ -48,6 +48,12 @@
     ]]>
     </query>
 
+    <query name='Account.findAccountsByOrderServiceType'>
+        <![CDATA[
+        select a from AccountImpl a where a.orderServiceType = :orderServiceType
+    ]]>
+    </query>
+
     <query name='Account.findActiveSessionsByOrderServiceType'>
     <![CDATA[
         select distinct sessionQualifier 
@@ -1280,14 +1286,25 @@
 
     <!-- Order DAO queries Start -->
 
-    <sql-query name='Order.findLastIntOrderId'>
+    <sql-query name='Order.findLastIntOrderIdBySessionQualifier'>
     <![CDATA[
-        select distinct cast(substring(o.int_id, length(a.session_qualifier) + 1) as decimal(12,0)) as order_id
+        select distinct cast(substring(o.int_id, length(a.`session_qualifier`) + 1) as decimal(12,0)) as order_id
         from `order` as o 
-        join account as a on (o.account_fk = a.id) 
-        where a.session_qualifier = :sessionQualifier 
+        join `account` as a on (o.`account_fk` = a.`id`)
+        where a.`session_qualifier` = :sessionQualifier
         order by order_id desc 
         limit 1 
+    ]]>
+    </sql-query>
+
+    <sql-query name='Order.findLastIntOrderIdByServiceType'>
+        <![CDATA[
+        select distinct cast(o.int_id as decimal(12,0)) as order_id
+        from `order` as o
+        join `account` as a on (o.`account_fk` = a.`id`)
+        where a.`order_service_type` = :orderServiceType
+        order by order_id desc
+        limit 1
     ]]>
     </sql-query>
 

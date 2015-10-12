@@ -33,7 +33,7 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 
 import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.enumeration.ConnectionState;
-import ch.algotrader.ordermgmt.OrderIdGenerator;
+import ch.algotrader.adapter.OrderIdGenerator;
 import ch.algotrader.service.LookupService;
 import ch.algotrader.util.collection.IntegerMap;
 import quickfix.Session;
