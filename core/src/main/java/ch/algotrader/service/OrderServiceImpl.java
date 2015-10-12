@@ -319,6 +319,9 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
 
     private void sendAlgoOrder(final AlgoOrder order) {
 
+        if (order.getDateTime() == null) {
+            order.setDateTime(this.engineManager.getCurrentEPTime());
+        }
         order.setIntId(AlgoIdGenerator.getInstance().getNextOrderId());
 
         if (LOGGER.isInfoEnabled()) {
@@ -597,7 +600,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
         Validate.notNull(orderCompletion, "Order completion is null");
 
         // send the fill to the strategy that placed the corresponding order
-        Strategy strategy = strategyDao.findByName(orderCompletion.getStrategy());
+        Strategy strategy = this.strategyDao.findByName(orderCompletion.getStrategy());
         if (!strategy.isServer()) {
             this.eventDispatcher.sendEvent(orderCompletion.getStrategy(), orderCompletion);
         }
