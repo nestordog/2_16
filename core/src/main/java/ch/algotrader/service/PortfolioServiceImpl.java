@@ -112,7 +112,9 @@ public class PortfolioServiceImpl implements PortfolioService {
 
         @Override
         public int compare(Currency currency1, Currency currency2) {
-            if (currency1 == PortfolioServiceImpl.this.commonConfig.getPortfolioBaseCurrency()) {
+            if (currency1 == currency2) {
+                return 1;
+            } else if (currency1 == PortfolioServiceImpl.this.commonConfig.getPortfolioBaseCurrency()) {
                 return Integer.MIN_VALUE;
             } else if (currency2 == PortfolioServiceImpl.this.commonConfig.getPortfolioBaseCurrency()) {
                 return Integer.MAX_VALUE;
