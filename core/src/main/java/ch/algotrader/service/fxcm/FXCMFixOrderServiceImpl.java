@@ -20,6 +20,8 @@ package ch.algotrader.service.fxcm;
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.fxcm.FXCMFixOrderMessageFactory;
 import ch.algotrader.config.CommonConfig;
+import ch.algotrader.dao.AccountDao;
+import ch.algotrader.dao.trade.OrderDao;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.ordermgmt.OrderRegistry;
@@ -41,9 +43,12 @@ public class FXCMFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fi
             final FixAdapter fixAdapter,
             final OrderRegistry orderRegistry,
             final OrderPersistenceService orderPersistenceService,
+            final OrderDao orderDao,
+            final AccountDao accountDao,
             final CommonConfig commonConfig) {
 
-        super(OrderServiceType.FXCM_FIX.name(), fixAdapter, orderRegistry, orderPersistenceService, new FXCMFixOrderMessageFactory(), commonConfig);
+        super(OrderServiceType.FXCM_FIX.name(), fixAdapter, new FXCMFixOrderMessageFactory(),
+                orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig);
     }
 
     @Override

@@ -18,6 +18,7 @@
 package ch.algotrader.dao;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.apache.commons.lang.Validate;
 import org.hibernate.SessionFactory;
@@ -45,6 +46,14 @@ public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao {
         Validate.notEmpty(name, "Account name is empty");
 
         return findUniqueCaching("Account.findByName", QueryType.BY_NAME, new NamedParam("name", name));
+    }
+
+    @Override
+    public List<Account> findByByOrderServiceType(final String orderServiceType) {
+
+        Validate.notNull(orderServiceType, "OrderServiceType is null");
+
+        return find("Account.findAccountsByOrderServiceType", QueryType.BY_NAME, new NamedParam("orderServiceType", orderServiceType));
     }
 
     @SuppressWarnings("unchecked")

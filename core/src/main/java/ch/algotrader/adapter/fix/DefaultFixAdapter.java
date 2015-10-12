@@ -27,9 +27,9 @@ import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import ch.algotrader.adapter.OrderIdGenerator;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.trade.Order;
-import ch.algotrader.ordermgmt.OrderIdGenerator;
 import ch.algotrader.service.LookupService;
 import quickfix.ConfigError;
 import quickfix.FieldConvertError;
@@ -272,6 +272,11 @@ public class DefaultFixAdapter implements FixAdapter {
 
             this.eventScheduler.scheduleLogout(sessionId, new EventPattern(logoutDay, logoutHour, logoutMinute, logoutSecond));
         }
+    }
+
+    public void setOrderId(String sessionQualifier, int orderId) {
+
+        this.orderIdGenerator.setOrderId(sessionQualifier, orderId);
     }
 
 }

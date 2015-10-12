@@ -23,6 +23,8 @@ import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.fix.fix44.GenericFix44OrderMessageFactory;
 import ch.algotrader.adapter.fix.fix44.GenericFix44SymbologyResolver;
 import ch.algotrader.config.CommonConfig;
+import ch.algotrader.dao.AccountDao;
+import ch.algotrader.dao.trade.OrderDao;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.trade.LimitOrder;
 import ch.algotrader.entity.trade.SimpleOrder;
@@ -59,10 +61,13 @@ public class DCFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fix4
             final FixAdapter fixAdapter,
             final OrderRegistry orderRegistry,
             final OrderPersistenceService orderPersistenceService,
+            final OrderDao orderDao,
+            final AccountDao accountDao,
             final CommonConfig commonConfig) {
 
-        super(OrderServiceType.DC_FIX.name(), fixAdapter, orderRegistry, orderPersistenceService,
-                new GenericFix44OrderMessageFactory(new GenericFix44SymbologyResolver()), commonConfig);
+        super(OrderServiceType.DC_FIX.name(), fixAdapter,
+                new GenericFix44OrderMessageFactory(new GenericFix44SymbologyResolver()),
+                orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig);
     }
 
     @Override

@@ -15,7 +15,7 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.ordermgmt;
+package ch.algotrader.adapter;
 
 import ch.algotrader.util.collection.IntegerMap;
 

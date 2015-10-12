@@ -25,6 +25,8 @@ import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.adapter.fix.ManagedFixAdapter;
 import ch.algotrader.adapter.fxcm.FXCTickerIdGenerator;
 import ch.algotrader.config.CommonConfig;
+import ch.algotrader.dao.AccountDao;
+import ch.algotrader.dao.trade.OrderDao;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.ordermgmt.OrderRegistry;
 import ch.algotrader.service.ExternalMarketDataService;
@@ -45,9 +47,11 @@ public class FXCMFixServiceWiring {
             final ManagedFixAdapter fixAdapter,
             final OrderRegistry orderRegistry,
             final OrderPersistenceService orderPersistenceService,
+            final OrderDao orderDao,
+            final AccountDao accountDao,
             final CommonConfig commonConfig) {
 
-        return new FXCMFixOrderServiceImpl(fixAdapter, orderRegistry, orderPersistenceService, commonConfig);
+        return new FXCMFixOrderServiceImpl(fixAdapter, orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig);
     }
 
     @Profile("fXCMMarketData")

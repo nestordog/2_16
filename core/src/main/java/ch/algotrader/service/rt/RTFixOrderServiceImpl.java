@@ -21,6 +21,8 @@ import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.fix.fix44.GenericFix44SymbologyResolver;
 import ch.algotrader.adapter.rt.RTFixOrderMessageFactory;
 import ch.algotrader.config.CommonConfig;
+import ch.algotrader.dao.AccountDao;
+import ch.algotrader.dao.trade.OrderDao;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.ordermgmt.OrderRegistry;
@@ -42,10 +44,12 @@ public class RTFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fix4
             final FixAdapter fixAdapter,
             final OrderRegistry orderRegistry,
             final OrderPersistenceService orderPersistenceService,
+            final OrderDao orderDao,
+            final AccountDao accountDao,
             final CommonConfig commonConfig) {
 
-        super(OrderServiceType.RT_FIX.name(), fixAdapter, orderRegistry, orderPersistenceService,
-                new RTFixOrderMessageFactory(new GenericFix44SymbologyResolver()), commonConfig);
+        super(OrderServiceType.RT_FIX.name(), fixAdapter, new RTFixOrderMessageFactory(new GenericFix44SymbologyResolver()),
+                orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig);
     }
 
     @Override

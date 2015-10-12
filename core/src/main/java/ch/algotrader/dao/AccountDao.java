@@ -18,6 +18,7 @@
 package ch.algotrader.dao;
 
 import java.util.Collection;
+import java.util.List;
 
 import ch.algotrader.entity.Account;
 
@@ -36,7 +37,14 @@ public interface AccountDao extends ReadWriteDao<Account> {
     public Account findByName(String name);
 
     /**
-     * Finds all active Accounts for the specified order type
+     * Finds all Accounts for the specified order type
+     * @param name
+     * @return Account
+     */
+    public List<Account> findByByOrderServiceType(String name);
+
+    /**
+     * Finds all active sessions for the specified order type
      * @param orderServiceType
      * @return Collection<String>
      */

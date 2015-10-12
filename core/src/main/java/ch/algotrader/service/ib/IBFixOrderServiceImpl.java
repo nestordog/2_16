@@ -21,6 +21,8 @@ import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.ib.IBFixOrderMessageFactory;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.IBConfig;
+import ch.algotrader.dao.AccountDao;
+import ch.algotrader.dao.trade.OrderDao;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.ordermgmt.OrderRegistry;
@@ -42,10 +44,13 @@ public class IBFixOrderServiceImpl extends Fix42OrderServiceImpl implements Fix4
             final FixAdapter fixAdapter,
             final OrderRegistry orderRegistry,
             final OrderPersistenceService orderPersistenceService,
+            final OrderDao orderDao,
+            final AccountDao accountDao,
             final CommonConfig commonConfig,
             final IBConfig iBConfig) {
 
-        super(OrderServiceType.IB_FIX.name(), fixAdapter, orderRegistry, orderPersistenceService, new IBFixOrderMessageFactory(iBConfig), commonConfig);
+        super(OrderServiceType.IB_FIX.name(), fixAdapter, new IBFixOrderMessageFactory(iBConfig),
+                orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig);
     }
 
     @Override

@@ -15,18 +15,14 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.ordermgmt;
-
-import java.math.BigDecimal;
+package ch.algotrader.adapter;
 
 import org.apache.commons.lang.Validate;
 
-import ch.algotrader.dao.trade.OrderDao;
 import ch.algotrader.util.collection.IntegerMap;
 
 /**
- * Default {@link ch.algotrader.ordermgmt.OrderIdGenerator} implementation backed by
- * {@link ch.algotrader.dao.OrderDao#findLastIntOrderId(String)}..
+ * Default {@link OrderIdGenerator} implementation.
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  *
@@ -34,14 +30,9 @@ import ch.algotrader.util.collection.IntegerMap;
  */
 public class DefaultOrderIdGenerator implements OrderIdGenerator {
 
-    private final OrderDao orderDao;
     private final IntegerMap<String> orderIds;
 
-    public DefaultOrderIdGenerator(final OrderDao orderDao) {
-
-        Validate.notNull(orderDao, "orderDao is null");
-
-        this.orderDao = orderDao;
+    public DefaultOrderIdGenerator() {
         this.orderIds = new IntegerMap<>();
     }
 
@@ -49,15 +40,9 @@ public class DefaultOrderIdGenerator implements OrderIdGenerator {
      * Gets the next {@code orderId} for the specified {@code sessionQualifier}
      */
     @Override
-    public synchronized String getNextOrderId(final String sessionQualifier) {
+    public String getNextOrderId(final String sessionQualifier) {
 
         Validate.notNull(sessionQualifier, "Session qualifier is null");
-
-        if (!this.orderIds.containsKey(sessionQualifier)) {
-
-            BigDecimal orderId = this.orderDao.findLastIntOrderIdBySessionQualifier(sessionQualifier);
-            this.orderIds.put(sessionQualifier, orderId != null ? orderId.intValue() : 0);
-        }
 
         int rootOrderId = this.orderIds.increment(sessionQualifier, 1);
         return sessionQualifier.toLowerCase() + rootOrderId + ".0";

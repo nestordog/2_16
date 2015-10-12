@@ -20,6 +20,8 @@ package ch.algotrader.service.ftx;
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.ftx.FTXFixOrderMessageFactory;
 import ch.algotrader.config.CommonConfig;
+import ch.algotrader.dao.AccountDao;
+import ch.algotrader.dao.trade.OrderDao;
 import ch.algotrader.entity.trade.ExecutionStatusVO;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
@@ -47,9 +49,12 @@ public class FTXFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fix
             final FixAdapter fixAdapter,
             final OrderRegistry orderRegistry,
             final OrderPersistenceService orderPersistenceService,
+            final OrderDao orderDao,
+            final AccountDao accountDao,
             final CommonConfig commonConfig) {
 
-        super(OrderServiceType.FTX_FIX.name(), fixAdapter, orderRegistry, orderPersistenceService, new FTXFixOrderMessageFactory(), commonConfig);
+        super(OrderServiceType.FTX_FIX.name(), fixAdapter, new FTXFixOrderMessageFactory(),
+                orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig);
         this.orderRegistry = orderRegistry;
     }
 

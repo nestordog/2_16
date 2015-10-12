@@ -48,6 +48,12 @@
     ]]>
     </query>
 
+    <query name='Account.findAccountsByOrderServiceType'>
+        <![CDATA[
+        select a from AccountImpl a where a.orderServiceType = :orderServiceType
+    ]]>
+    </query>
+
     <query name='Account.findActiveSessionsByOrderServiceType'>
     <![CDATA[
         select distinct sessionQualifier 

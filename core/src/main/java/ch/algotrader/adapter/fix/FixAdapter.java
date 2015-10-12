@@ -72,4 +72,9 @@ public interface FixAdapter {
      */
     String getNextOrderIdVersion(Order order);
 
+    /**
+     * Sets the current order count for the given session qualifier.
+     */
+    void setOrderId(String sessionQualifier, int orderId);
+
 }

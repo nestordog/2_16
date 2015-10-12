@@ -23,6 +23,8 @@ import org.springframework.context.annotation.Profile;
 
 import ch.algotrader.adapter.fix.ManagedFixAdapter;
 import ch.algotrader.config.CommonConfig;
+import ch.algotrader.dao.AccountDao;
+import ch.algotrader.dao.trade.OrderDao;
 import ch.algotrader.ordermgmt.OrderRegistry;
 import ch.algotrader.service.ExternalOrderService;
 import ch.algotrader.service.OrderPersistenceService;
@@ -40,9 +42,11 @@ public class RTFixServiceWiring {
             final ManagedFixAdapter fixAdapter,
             final OrderRegistry orderRegistry,
             final OrderPersistenceService orderPersistenceService,
+            final OrderDao orderDao,
+            final AccountDao accountDao,
             final CommonConfig commonConfig) {
 
-        return new RTFixOrderServiceImpl(fixAdapter, orderRegistry, orderPersistenceService, commonConfig);
+        return new RTFixOrderServiceImpl(fixAdapter, orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig);
     }
 
 }
