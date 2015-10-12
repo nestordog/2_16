@@ -39,10 +39,7 @@ public class InitializationVisitor extends PolymorphicEntityVisitor<Void, Initia
     public Void visitCombination(Combination combination, Initializer initializer) {
 
         if (!combination.isInitialized()) {
-
             combination.initializeComponents(initializer);
-
-            combination.setInitialized();
         }
 
         return super.visitCombination(combination, initializer);

@@ -70,6 +70,7 @@ import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.QueryType;
 import ch.algotrader.util.collection.CollectionUtil;
 import ch.algotrader.util.collection.Pair;
+import ch.algotrader.visitor.InitializationVisitor;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -229,10 +230,16 @@ public class LookupServiceImpl implements LookupService {
     public List<Pair<Security, String>> getSubscribedSecuritiesAndFeedTypeForAutoActivateStrategiesInclComponents() {
 
         List<Map> listOfMaps = this.genericDao.find(Map.class, "Security.findSubscribedAndFeedTypeForAutoActivateStrategies", QueryType.BY_NAME);
-        return listOfMaps.stream()
-                .map(map -> new Pair<>((Security) map.get("security"), (String) map.get("feedType")))
-                .collect(Collectors.toList());
+        List<Pair<Security, String>> list = listOfMaps.stream().map(map -> new Pair<>((Security) map.get("security"), (String) map.get("feedType"))).collect(Collectors.toList());
 
+        // initialize components
+        for (Pair<Security, String> pair : list) {
+            if (pair.getFirst() instanceof Combination) {
+                pair.getFirst().accept(InitializationVisitor.INSTANCE, this.cacheManager);
+            }
+        }
+
+        return list;
     }
 
     /**
@@ -407,7 +414,16 @@ public class LookupServiceImpl implements LookupService {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        return this.cacheManager.find(Subscription.class, "Subscription.findByStrategyInclProps", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
+        List<Subscription> subscriptions = this.cacheManager.find(Subscription.class, "Subscription.findByStrategyInclProps", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
+
+        // initialize components
+        for (Subscription subscription : subscriptions) {
+            if (subscription.getSecurity() instanceof Combination) {
+                subscription.getSecurity().accept(InitializationVisitor.INSTANCE, this.cacheManager);
+            }
+        }
+
+        return subscriptions;
 
     }
 

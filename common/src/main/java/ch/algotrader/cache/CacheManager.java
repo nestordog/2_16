@@ -22,6 +22,7 @@ import java.util.Map;
 
 import ch.algotrader.dao.NamedParam;
 import ch.algotrader.entity.BaseEntityI;
+import ch.algotrader.entity.Initializer;
 import ch.algotrader.enumeration.QueryType;
 
 /**
@@ -31,7 +32,7 @@ import ch.algotrader.enumeration.QueryType;
  *
  * @version $Revision$ $Date$
  */
-public interface CacheManager {
+public interface CacheManager extends Initializer {
 
     /**
      * gets an Entity of the given {@code clazz} by the defined {@code id}.

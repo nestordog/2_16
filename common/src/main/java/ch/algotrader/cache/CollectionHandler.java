@@ -181,7 +181,7 @@ class CollectionHandler extends AbstractHandler {
 
             AbstractPersistentCollection col = (AbstractPersistentCollection) obj;
             if (col.wasInitialized()) {
-                return null;
+                return col;
             }
 
             Object initializedObj = this.cacheManager.getGenericDao().getInitializedCollection(col.getRole(), (Long) col.getKey());
