@@ -45,6 +45,7 @@ import com.ib.client.ContractDetails;
 import com.ib.client.EWrapperMsgGenerator;
 import com.ib.client.Execution;
 
+import ch.algotrader.adapter.AutoIncrementIdGenerator;
 import ch.algotrader.entity.marketData.Bar;
 import ch.algotrader.entity.trade.ExecutionStatusVO;
 import ch.algotrader.entity.trade.Fill;
@@ -78,7 +79,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
     private final int clientId;
     private final IBSessionStateHolder sessionStateHolder;
     private final IBPendingRequests pendingRequests;
-    private final IBIdGenerator idGenerator;
+    private final AutoIncrementIdGenerator orderIdGenerator;
 
     private final OrderRegistry orderRegistry;
     private final IBExecutions executions;
@@ -92,7 +93,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
             final int clientId,
             final IBSessionStateHolder sessionStateHolder,
             final IBPendingRequests pendingRequests,
-            final IBIdGenerator idGenerator,
+            final AutoIncrementIdGenerator orderIdGenerator,
             final OrderRegistry orderRegistry,
             final IBExecutions executions,
             final BlockingQueue<AccountUpdate> accountUpdateQueue,
@@ -102,7 +103,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
         this.clientId = clientId;
         this.sessionStateHolder = sessionStateHolder;
         this.pendingRequests = pendingRequests;
-        this.idGenerator = idGenerator;
+        this.orderIdGenerator = orderIdGenerator;
         this.orderRegistry = orderRegistry;
         this.executions = executions;
         this.accountUpdateQueue = accountUpdateQueue;
@@ -634,12 +635,12 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
     }
 
     @Override
-    public synchronized void nextValidId(final int orderId) {
+    public void nextValidId(final int orderId) {
 
         if (this.clientId == 0) {
-            this.idGenerator.initializeOrderId(orderId);
+            long currentId = this.orderIdGenerator.updateIfGreater(orderId);
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("client: {} {}", this.clientId, EWrapperMsgGenerator.nextValidId(orderId));
+                LOGGER.debug(EWrapperMsgGenerator.nextValidId((int) (currentId + 1)));
             }
         }
     }

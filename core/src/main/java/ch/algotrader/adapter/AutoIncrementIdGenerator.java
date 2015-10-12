@@ -15,39 +15,34 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.adapter.ib;
+package ch.algotrader.adapter;
 
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * IB Request and Order Id Generator.
+ * Simple autoincrement Id Generator.
  *
- * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
+ * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  *
  * @version $Revision$ $Date$
  */
-public final class DefaultIBIdGenerator implements IBIdGenerator {
+public class AutoIncrementIdGenerator implements IdGenerator {
 
-    private final AtomicInteger requestId = new AtomicInteger(-1);
-    private final AtomicLong orderId =  new AtomicLong(-1);
-
-    @Override
-    public String getNextOrderId() {
-        return Long.toString(this.orderId.incrementAndGet());
-    }
+    private final AtomicLong idCount = new AtomicLong(0);
 
     @Override
-    public int getNextRequestId() {
-        return this.requestId.incrementAndGet();
+    public long generateId() {
+        return this.idCount.incrementAndGet();
     }
 
-    @Override
-    public void initializeOrderId(long orderId) {
-        this.orderId.set(orderId);
+    public void update(final long newValue) {
+
+        this.idCount.set(newValue);
     }
 
-    public boolean isOrderIdInitialized() {
-        return this.orderId.get() != -1;
+    public long updateIfGreater(final long newValue) {
+
+        return this.idCount.updateAndGet(currentValue -> Math.max(currentValue, newValue));
     }
+
 }

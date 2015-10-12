@@ -15,21 +15,15 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.adapter.ib;
+package ch.algotrader.adapter;
 
 /**
- * IB Request and Order Id Generator.
+ * Abstract long id generator
  *
- * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
+ * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  */
-public interface IBIdGenerator {
+public interface IdGenerator {
 
-    String getNextOrderId();
-
-    int getNextRequestId();
-
-    void initializeOrderId(long orderId);
+    long generateId();
 
 }

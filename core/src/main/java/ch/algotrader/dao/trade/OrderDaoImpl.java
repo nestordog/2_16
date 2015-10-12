@@ -44,11 +44,19 @@ public class OrderDaoImpl extends AbstractDao<Order> implements OrderDao {
     }
 
     @Override
-    public BigDecimal findLastIntOrderId(String sessionQualifier) {
+    public BigDecimal findLastIntOrderIdBySessionQualifier(String sessionQualifier) {
 
         Validate.notEmpty(sessionQualifier, "Session qualifier is empty");
 
-        return (BigDecimal) findUniqueObject(null, "Order.findLastIntOrderId", QueryType.BY_NAME, new NamedParam("sessionQualifier", sessionQualifier));
+        return (BigDecimal) findUniqueObject(null, "Order.findLastIntOrderIdBySessionQualifier", QueryType.BY_NAME, new NamedParam("sessionQualifier", sessionQualifier));
+    }
+
+    @Override
+    public BigDecimal findLastIntOrderIdByServiceType(String orderServiceType) {
+
+        Validate.notEmpty(orderServiceType, "Order service type is empty");
+
+        return (BigDecimal) findUniqueObject(null, "Order.findLastIntOrderIdByServiceType", QueryType.BY_NAME, new NamedParam("orderServiceType", orderServiceType));
     }
 
     @Override

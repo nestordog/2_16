@@ -25,16 +25,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
+import ch.algotrader.adapter.AutoIncrementIdGenerator;
 import ch.algotrader.adapter.ib.AbstractIBMessageHandler;
 import ch.algotrader.adapter.ib.AccountUpdate;
 import ch.algotrader.adapter.ib.DefaultIBAdapter;
-import ch.algotrader.adapter.ib.DefaultIBIdGenerator;
 import ch.algotrader.adapter.ib.DefaultIBMessageHandler;
 import ch.algotrader.adapter.ib.DefaultIBOrderMessageFactory;
 import ch.algotrader.adapter.ib.DefaultIBSessionStateHolder;
 import ch.algotrader.adapter.ib.IBAdapter;
 import ch.algotrader.adapter.ib.IBExecutions;
-import ch.algotrader.adapter.ib.IBIdGenerator;
 import ch.algotrader.adapter.ib.IBOrderMessageFactory;
 import ch.algotrader.adapter.ib.IBPendingRequests;
 import ch.algotrader.adapter.ib.IBSession;
@@ -90,9 +89,14 @@ public class IBNativeWiring {
         return new DefaultIBSessionStateHolder(sessionQualifier, eventDispatcher);
     }
 
-    @Bean(name = "iBIdGenerator")
-    public IBIdGenerator createIBIdGenerator() {
-        return new DefaultIBIdGenerator();
+    @Bean(name = "iBRequestIdGenerator")
+    public AutoIncrementIdGenerator createIBRequestIdGenerator() {
+        return new AutoIncrementIdGenerator();
+    }
+
+    @Bean(name = "iBOrderIdGenerator")
+    public AutoIncrementIdGenerator createIBOrderIdGenerator() {
+        return new AutoIncrementIdGenerator();
     }
 
     @Bean(name = "iBExecutions")
@@ -103,7 +107,7 @@ public class IBNativeWiring {
     @Bean(name = "iBMessageHandler")
     public AbstractIBMessageHandler createIBMessageHandler(
             final IBSessionStateHolder iBSessionStateHolder,
-            final IBIdGenerator iBIdGenerator,
+            final AutoIncrementIdGenerator iBOrderIdGenerator,
             final IBPendingRequests iBPendingRequests,
             final OrderRegistry orderRegistry,
             final IBExecutions ibExecutions,
@@ -111,7 +115,7 @@ public class IBNativeWiring {
             final LinkedBlockingDeque<Set<String>> iBAccountsQueue,
             final LinkedBlockingDeque<ch.algotrader.adapter.ib.Profile> iBProfilesQueue,
             final Engine serverEngine) {
-        return new DefaultIBMessageHandler(0, iBSessionStateHolder, iBPendingRequests, iBIdGenerator, orderRegistry, ibExecutions,
+        return new DefaultIBMessageHandler(0, iBSessionStateHolder, iBPendingRequests, iBOrderIdGenerator, orderRegistry, ibExecutions,
                 iBAccountUpdateQueue, iBAccountsQueue, iBProfilesQueue, serverEngine);
     }
 

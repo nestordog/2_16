@@ -55,7 +55,7 @@ public class DefaultOrderIdGenerator implements OrderIdGenerator {
 
         if (!this.orderIds.containsKey(sessionQualifier)) {
 
-            BigDecimal orderId = this.orderDao.findLastIntOrderId(sessionQualifier);
+            BigDecimal orderId = this.orderDao.findLastIntOrderIdBySessionQualifier(sessionQualifier);
             this.orderIds.put(sessionQualifier, orderId != null ? orderId.intValue() : 0);
         }
 
