@@ -750,10 +750,11 @@ public class LookupServiceImpl implements LookupService {
     @Override
     public Tick getLastTick(final long securityId, Date dateTime, int intervalDays) {
 
-        return this.genericDao.findUnique(Tick.class, "Tick.findTicksBySecurityAndMaxDate", QueryType.BY_NAME,
+        return CollectionUtil.getSingleElementOrNull(
+                this.genericDao.find(Tick.class, "Tick.findTicksBySecurityAndMaxDate", 1, QueryType.BY_NAME,
                 new NamedParam("securityId", securityId),
                 new NamedParam("maxDate", dateTime),
-                new NamedParam("intervalDays", intervalDays));
+                new NamedParam("intervalDays", intervalDays)));
 
     }
 
