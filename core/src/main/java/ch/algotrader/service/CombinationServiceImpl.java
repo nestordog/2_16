@@ -453,7 +453,7 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
         Component component = CollectionUtils.find(combination.getComponents(), new Predicate<Component>() {
             @Override
             public boolean evaluate(Component component) {
-                return security.equals(component.getSecurity());
+                return security.getId() == component.getSecurity().getId();
             }
         });
 
