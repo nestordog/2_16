@@ -2,7 +2,6 @@ package ${package};
 
 import org.springframework.beans.factory.annotation.Value;
 
-import ch.algotrader.config.ConfigParams;
 import ch.algotrader.entity.trade.MarketOrderVO;
 import ch.algotrader.entity.trade.MarketOrderVOBuilder;
 import ch.algotrader.enumeration.Side;

@@ -20,7 +20,6 @@
     </bean>
 
     <bean id="${name}Service" class="${package}.${serviceName}Service" autowire="byName">
-        <constructor-arg index="0" ref="${name}ConfigParams"/>
         <property name="strategyName" value="${name.toUpperCase()}"/>
         <property name="engine" ref="${name}Engine"/>
      </bean>
