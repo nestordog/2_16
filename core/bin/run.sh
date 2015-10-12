@@ -3,7 +3,7 @@
 cd "`dirname \"$0\"`"/..
 
 java \
--cp "lib/*" \
+-cp "conf;lib/*" \
 -DstrategyName=SERVER \
 -Dcom.sun.management.jmxremote.port=1099 \
 -Dcom.sun.management.jmxremote.authenticate=false \

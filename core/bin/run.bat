@@ -3,7 +3,7 @@ cd %mypath:~0,-1%
 cd ..
 
 java.exe ^
--cp "lib/*" ^
+-cp "conf;lib/*" ^
 -DstrategyName=SERVER ^
 -Dcom.sun.management.jmxremote.port=1099 ^
 -Dcom.sun.management.jmxremote.authenticate=false ^
