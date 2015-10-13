@@ -35,6 +35,7 @@
                             <goal>codegen</goal>
                         </goals>
                         <configuration>
+                            <templateDirectory>${project.basedir}/src/main/templates</templateDirectory>
                             <templates>
                                 <template>
                                     <file>pojo/Pojo.ftl</file>
