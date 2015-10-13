@@ -265,7 +265,7 @@ public class ServiceWiring {
                 eventDispatcher, marketDataCache, serviceMap2);
     }
 
-    @Bean(name = "tickPersister", destroyMethod = "destroy")
+    @Bean(name = "tickPersister")
     public TickPersister createTickPersistEventPropagator(
             final LookupService lookupService,
             final MarketDataService marketDataService) {
