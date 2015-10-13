@@ -9,6 +9,9 @@
 target
 log
 files
+lib
+core/data/
+core/webapps
 core/src/main/resources/fix.cfg
 test/src/main/resources/fix.cfg
 tmp
