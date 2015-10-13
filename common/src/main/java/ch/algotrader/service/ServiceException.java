@@ -34,7 +34,7 @@ public class ServiceException extends RuntimeException {
         super(ex);
     }
 
-    public ServiceException(String message, Exception ex) {
+    public ServiceException(String message, Throwable ex) {
         super(message, ex);
     }
 

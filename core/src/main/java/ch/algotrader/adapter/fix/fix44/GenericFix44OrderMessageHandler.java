@@ -19,6 +19,9 @@ package ch.algotrader.adapter.fix.fix44;
 
 import java.util.Date;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import ch.algotrader.adapter.fix.FixUtil;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.Order;
@@ -45,6 +48,8 @@ import quickfix.fix44.ExecutionReport;
  */
 public class GenericFix44OrderMessageHandler extends AbstractFix44OrderMessageHandler {
 
+    private static final Logger LOGGER = LogManager.getLogger(GenericFix44OrderMessageHandler.class);
+
     public GenericFix44OrderMessageHandler(final OrderRegistry orderRegistry, final Engine serverEngine) {
         super(orderRegistry, serverEngine);
     }
@@ -63,6 +68,19 @@ public class GenericFix44OrderMessageHandler extends AbstractFix44OrderMessageHa
         } else {
 
             return false;
+        }
+    }
+
+    @Override
+    protected void handleExternal(final ExecutionReport executionReport) throws FieldNotFound {
+    }
+
+    @Override
+    protected void handleUnknown(final ExecutionReport executionReport) throws FieldNotFound {
+
+        if (LOGGER.isErrorEnabled() && executionReport.isSetClOrdID()) {
+            String orderIntId = executionReport.getClOrdID().getValue();
+            LOGGER.error("Cannot find open order with IntID {}", orderIntId);
         }
     }
 

@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import ch.algotrader.entity.Transaction;
+import ch.algotrader.entity.trade.ExternalFill;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.TransactionType;
@@ -38,6 +39,11 @@ public interface TransactionService {
      * Creates a Transaction based on a {@link Fill}
      */
     public void createTransaction(Fill fill);
+
+    /**
+     * Creates a Transaction based on a {@link ExternalFill}
+     */
+    public void createTransaction(ExternalFill fill);
 
     /**
      * Creates a Transaction based on the specified parameters.

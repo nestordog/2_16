@@ -56,6 +56,14 @@ public class AccountDaoImpl extends AbstractDao<Account> implements AccountDao {
         return find("Account.findAccountsByOrderServiceType", QueryType.BY_NAME, new NamedParam("orderServiceType", orderServiceType));
     }
 
+    @Override
+    public Account findByExtAccount(final String extAccount) {
+
+        Validate.notEmpty(extAccount, "External account is empty");
+
+        return findUniqueCaching("Account.findByExtAccount", QueryType.BY_NAME, new NamedParam("extAccount", extAccount));
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public Collection<String> findActiveSessionsByOrderServiceType(String orderServiceType) {

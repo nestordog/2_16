@@ -25,7 +25,6 @@ import org.junit.Assert;
 
 import quickfix.Application;
 import quickfix.DefaultSessionFactory;
-import quickfix.LogFactory;
 import quickfix.MemoryStoreFactory;
 import quickfix.ScreenLogFactory;
 import quickfix.Session;
@@ -43,7 +42,8 @@ public class FixApplicationTestBase {
             final SessionID sessionId,
             final Application fixApplication) throws Exception {
 
-        LogFactory logFactory = new ScreenLogFactory(true, true, true);
+//        FileLogFactory logFactory = new FileLogFactory(settings);
+        ScreenLogFactory logFactory = new ScreenLogFactory(true, true, true);
 
         DefaultSessionFactory sessionFactory = new DefaultSessionFactory(fixApplication, new MemoryStoreFactory(), logFactory);
 

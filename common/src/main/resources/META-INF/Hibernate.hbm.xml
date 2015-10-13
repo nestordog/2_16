@@ -54,6 +54,13 @@
     ]]>
     </query>
 
+    <query name='Account.findByExtAccount'>
+        <![CDATA[
+        from AccountImpl
+        where extAccount = :extAccount
+    ]]>
+    </query>
+
     <query name='Account.findActiveSessionsByOrderServiceType'>
     <![CDATA[
         select distinct sessionQualifier 
@@ -1013,6 +1020,13 @@
     <![CDATA[
         from SecurityImpl as s 
         where s.conid = :conid 
+    ]]>
+    </query>
+
+    <query name='Security.findByTtid'>
+        <![CDATA[
+        from SecurityImpl as s
+        where s.ttid = :ttid
     ]]>
     </query>
 

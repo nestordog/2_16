@@ -108,6 +108,14 @@ public class SecurityDaoImpl extends AbstractDao<Security> implements SecurityDa
     }
 
     @Override
+    public Security findByTtid(String ttid) {
+
+        Validate.notEmpty(ttid, "ttid is empty");
+
+        return findUniqueCaching("Security.findByTtid", QueryType.BY_NAME, new NamedParam("ttid", ttid));
+    }
+
+    @Override
     public Security findByIdInclFamilyAndUnderlying(long id) {
 
         return findUniqueCaching("Security.findByIdInclFamilyAndUnderlying", QueryType.BY_NAME, new NamedParam("id", id));

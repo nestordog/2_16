@@ -46,8 +46,11 @@ public enum Broker {
     // CNX
     CNX,
 
-    // CNX
+    // Fortex
     FTX,
+
+    // Trading Technologies
+    TT,
 
     // Bloomberg
     BBG;

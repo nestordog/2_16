@@ -37,7 +37,7 @@ public class FutureSymbol {
     private static final String[] yearEnc = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J" };
 
     /**
-     * Generates the symbole for the specified {@link ch.algotrader.entity.security.FutureFamily}.
+     * Generates the symbol for the specified {@link ch.algotrader.entity.security.FutureFamily}.
      */
     public static String getSymbol(SecurityFamily family, LocalDate expiration) {
 

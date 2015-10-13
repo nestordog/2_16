@@ -20,6 +20,9 @@ package ch.algotrader.adapter.dc;
 import java.math.BigDecimal;
 import java.util.Date;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import ch.algotrader.adapter.fix.FixUtil;
 import ch.algotrader.adapter.fix.fix44.AbstractFix44OrderMessageHandler;
 import ch.algotrader.entity.trade.Fill;
@@ -48,6 +51,8 @@ import quickfix.fix44.ExecutionReport;
  */
 public class DCFixOrderMessageHandler extends AbstractFix44OrderMessageHandler {
 
+    private static final Logger LOGGER = LogManager.getLogger(DCFixOrderMessageHandler.class);
+
     public DCFixOrderMessageHandler(final OrderRegistry orderRegistry, final Engine serverEngine) {
         super(orderRegistry, serverEngine);
     }
@@ -56,6 +61,19 @@ public class DCFixOrderMessageHandler extends AbstractFix44OrderMessageHandler {
     protected boolean discardReport(final ExecutionReport executionReport) throws FieldNotFound {
 
         return false;
+    }
+
+    @Override
+    protected void handleExternal(final ExecutionReport executionReport) throws FieldNotFound {
+    }
+
+    @Override
+    protected void handleUnknown(final ExecutionReport executionReport) throws FieldNotFound {
+
+        if (LOGGER.isErrorEnabled() && executionReport.isSetClOrdID()) {
+            String orderIntId = executionReport.getClOrdID().getValue();
+            LOGGER.error("Cannot find open order with IntID {}", orderIntId);
+        }
     }
 
     @Override

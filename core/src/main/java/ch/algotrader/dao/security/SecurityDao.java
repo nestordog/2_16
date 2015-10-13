@@ -81,6 +81,13 @@ public interface SecurityDao extends ReadWriteDao<Security> {
     Security findByConid(String conid);
 
     /**
+     * Finds a Security by its {@code TT security ID}
+     * @param ttid
+     * @return Security
+     */
+    Security findByTtid(String ttid);
+
+    /**
      * Finds a Security by its {@code id} incl. In addition the corresponding {@link ch.algotrader.entity.security.SecurityFamily}
      * and Underlying {@link Security} are initialized.
      * @param id
