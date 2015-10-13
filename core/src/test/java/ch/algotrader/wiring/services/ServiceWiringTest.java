@@ -32,7 +32,7 @@ import ch.algotrader.service.CombinationService;
 import ch.algotrader.service.ForexService;
 import ch.algotrader.service.FutureService;
 import ch.algotrader.service.LazyLoaderService;
-import ch.algotrader.service.LocalLookupService;
+import ch.algotrader.service.MarketDataCache;
 import ch.algotrader.service.LookupService;
 import ch.algotrader.service.MarketDataService;
 import ch.algotrader.service.MeasurementService;
@@ -106,7 +106,7 @@ public class ServiceWiringTest extends DefaultConfigTestBase {
         Assert.assertNotNull(context.getBean(PropertyService.class));
         Assert.assertNotNull(context.getBean(CalendarService.class));
         Assert.assertNotNull(context.getBean(SubscriptionService.class));
-        Assert.assertNotNull(context.getBean(LocalLookupService.class));
+        Assert.assertNotNull(context.getBean(MarketDataCache.class));
         Assert.assertNotNull(context.getBean(LazyLoaderService.class));
 
         context.close();

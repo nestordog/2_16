@@ -83,7 +83,7 @@ public class OptionServiceImpl implements OptionService {
 
     private final OrderService orderService;
 
-    private final LocalLookupService localLookupService;
+    private final MarketDataCache marketDataCache;
 
     private final SecurityDao securityDao;
 
@@ -109,7 +109,7 @@ public class OptionServiceImpl implements OptionService {
             final MarketDataService marketDataService,
             final FutureService futureService,
             final OrderService orderService,
-            final LocalLookupService localLookupService,
+            final MarketDataCache marketDataCache,
             final SecurityDao securityDao,
             final OptionFamilyDao optionFamilyDao,
             final OptionDao optionDao,
@@ -125,7 +125,7 @@ public class OptionServiceImpl implements OptionService {
         Validate.notNull(marketDataService, "MarketDataService is null");
         Validate.notNull(futureService, "FutureService is null");
         Validate.notNull(orderService, "OrderService is null");
-        Validate.notNull(localLookupService, "LocalLookupService is null");
+        Validate.notNull(marketDataCache, "MarketDataCache is null");
         Validate.notNull(securityDao, "SecurityDao is null");
         Validate.notNull(optionFamilyDao, "OptionFamilyDao is null");
         Validate.notNull(optionDao, "OptionDao is null");
@@ -141,7 +141,7 @@ public class OptionServiceImpl implements OptionService {
         this.marketDataService = marketDataService;
         this.futureService = futureService;
         this.orderService = orderService;
-        this.localLookupService = localLookupService;
+        this.marketDataCache = marketDataCache;
         this.securityDao = securityDao;
         this.optionFamilyDao = optionFamilyDao;
         this.optionDao = optionDao;
@@ -165,8 +165,8 @@ public class OptionServiceImpl implements OptionService {
         // get the deltaAdjustedMarketValue
         double deltaAdjustedMarketValue = 0;
         for (Position position : positions) {
-            MarketDataEventVO marketDataEvent = this.localLookupService.getCurrentMarketDataEvent(position.getSecurity().getId());
-            MarketDataEventVO underlyingMarketDataEvent = this.localLookupService.getCurrentMarketDataEvent(position.getSecurity().getUnderlying().getId());
+            MarketDataEventVO marketDataEvent = this.marketDataCache.getCurrentMarketDataEvent(position.getSecurity().getId());
+            MarketDataEventVO underlyingMarketDataEvent = this.marketDataCache.getCurrentMarketDataEvent(position.getSecurity().getUnderlying().getId());
 
             deltaAdjustedMarketValue += position.getMarketValue(marketDataEvent) * position.getSecurity().getLeverage(marketDataEvent, underlyingMarketDataEvent, currentEPTime);
         }

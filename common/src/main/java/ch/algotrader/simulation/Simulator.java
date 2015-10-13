@@ -54,7 +54,7 @@ import ch.algotrader.enumeration.Status;
 import ch.algotrader.enumeration.TransactionType;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.dispatch.EventDispatcher;
-import ch.algotrader.service.LocalLookupService;
+import ch.algotrader.service.MarketDataCache;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.collection.Pair;
 import ch.algotrader.vo.ClosePositionVO;
@@ -81,19 +81,19 @@ public class Simulator {
     private final MultiMap<String, Position> positionsByStrategy;
     private final MultiMap<Security, Position> positionsBySecurity;
 
-    private final LocalLookupService localLookupService;
+    private final MarketDataCache marketDataCache;
     private final PositionTracker positionTracker;
     private final EventDispatcher eventDispatcher;
     private final EngineManager engineManager;
 
-    public Simulator(final LocalLookupService localLookupService, final PositionTracker positionTracker, final EventDispatcher eventDispatcher, final EngineManager engineManager) {
+    public Simulator(final MarketDataCache marketDataCache, final PositionTracker positionTracker, final EventDispatcher eventDispatcher, final EngineManager engineManager) {
 
-        Validate.notNull(localLookupService, "LocalLookupService is null");
+        Validate.notNull(marketDataCache, "MarketDataCache is null");
         Validate.notNull(positionTracker, "PositionTracker is null");
         Validate.notNull(eventDispatcher, "EventDispatcher is null");
         Validate.notNull(engineManager, "EngineManager is null");
 
-        this.localLookupService = localLookupService;
+        this.marketDataCache = marketDataCache;
         this.positionTracker = positionTracker;
         this.eventDispatcher = eventDispatcher;
         this.engineManager = engineManager;
@@ -104,8 +104,8 @@ public class Simulator {
         this.positionsBySecurity = new MultiHashMap<>();
     }
 
-    protected LocalLookupService getLocalLookupService() {
-        return this.localLookupService;
+    protected MarketDataCache getMarketDataCache() {
+        return this.marketDataCache;
     }
 
     public void clear() {
@@ -417,7 +417,7 @@ public class Simulator {
         // sum of all positions
         double amount = 0.0;
         for (Position openPosition : openPositions) {
-            final MarketDataEventVO marketDataEvent = this.localLookupService.getCurrentMarketDataEvent(openPosition.getSecurity().getId());
+            final MarketDataEventVO marketDataEvent = this.marketDataCache.getCurrentMarketDataEvent(openPosition.getSecurity().getId());
             amount += openPosition.getMarketValue(marketDataEvent);
         }
         return amount;

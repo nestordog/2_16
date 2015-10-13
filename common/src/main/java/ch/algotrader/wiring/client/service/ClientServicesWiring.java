@@ -21,8 +21,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.esper.EngineManager;
-import ch.algotrader.service.LocalLookupService;
-import ch.algotrader.service.LocalLookupServiceImpl;
+import ch.algotrader.service.MarketDataCache;
+import ch.algotrader.service.MarketDataCacheImpl;
 import ch.algotrader.service.LookupService;
 import ch.algotrader.service.MarketDataService;
 import ch.algotrader.service.SubscriptionService;
@@ -44,13 +44,13 @@ public class ClientServicesWiring {
         return new SubscriptionServiceImpl(commonConfig, marketDataService, lookupService, engineManager);
     }
 
-    @Bean(name = "localLookupService")
-    public LocalLookupService createLocalLookupService(
+    @Bean(name = "marketDataCache")
+    public MarketDataCache createMarketDataCache(
             final CommonConfig commonConfig,
             final EngineManager engineManager,
             final LookupService lookupService) {
 
-        return new LocalLookupServiceImpl(commonConfig, engineManager, lookupService);
+        return new MarketDataCacheImpl(commonConfig, engineManager, lookupService);
     }
 
 }

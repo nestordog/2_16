@@ -110,7 +110,7 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
 
     private final LookupService lookupService;
 
-    private final LocalLookupService localLookupService;
+    private final MarketDataCache marketDataCache;
 
     private final PortfolioService portfolioService;
 
@@ -134,7 +134,7 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
             final EngineManager engineManager,
             final SubscriptionService subscriptionService,
             final LookupService lookupService,
-            final LocalLookupService localLookupService,
+            final MarketDataCache marketDataCache,
             final PortfolioService portfolioService,
             final OrderService orderService,
             final PositionService positionService,
@@ -147,7 +147,7 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
         Validate.notNull(engineManager, "EngineManager is null");
         Validate.notNull(subscriptionService, "SubscriptionService is null");
         Validate.notNull(lookupService, "LookupService is null");
-        Validate.notNull(localLookupService, "LocalLookupService is null");
+        Validate.notNull(marketDataCache, "MarketDataCache is null");
         Validate.notNull(portfolioService, "PortfolioService is null");
         Validate.notNull(orderService, "OrderService is null");
         Validate.notNull(positionService, "PositionService is null");
@@ -160,7 +160,7 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
         this.engineManager = engineManager;
         this.subscriptionService = subscriptionService;
         this.lookupService = lookupService;
-        this.localLookupService = localLookupService;
+        this.marketDataCache = marketDataCache;
         this.portfolioService = portfolioService;
         this.orderService = orderService;
         this.positionService = positionService;
@@ -304,7 +304,7 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
                 positions = this.lookupService.get(Position.class, baseQuery + "where p.strategy.name = :strategyName and p.quantity != 0 order by p.id", QueryType.HQL, new NamedParam("strategyName", this.engine.getStrategyName()));
             }
         }
-        PositionVOProducer converter = new PositionVOProducer(this.localLookupService);
+        PositionVOProducer converter = new PositionVOProducer(this.marketDataCache);
         return CollectionUtils.collect(positions, converter::convert);
     }
 
@@ -336,7 +336,7 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
     @ManagedAttribute(description = "Gets the latest MarketDataEvents of all subscribed Securities")
     public Collection<MarketDataEventVO> getMarketDataEvents() {
 
-        Map<Long, ch.algotrader.entity.marketData.MarketDataEventVO> marketDataEventMap = this.localLookupService.getCurrentMarketDataEvents();
+        Map<Long, ch.algotrader.entity.marketData.MarketDataEventVO> marketDataEventMap = this.marketDataCache.getCurrentMarketDataEvents();
         List<MarketDataEventVO> subscribedMarketDataEvent = new ArrayList<>();
 
         // get all subscribed securities

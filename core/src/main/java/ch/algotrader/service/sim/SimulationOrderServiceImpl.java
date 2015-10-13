@@ -39,7 +39,7 @@ import ch.algotrader.enumeration.TIF;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.ordermgmt.OrderRegistry;
-import ch.algotrader.service.LocalLookupService;
+import ch.algotrader.service.MarketDataCache;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -48,7 +48,7 @@ import ch.algotrader.service.LocalLookupService;
  */
 public class SimulationOrderServiceImpl implements SimulationOrderService {
 
-    private final LocalLookupService localLookupService;
+    private final MarketDataCache marketDataCache;
     private final OrderRegistry orderRegistry;
     private final EngineManager engineManager;
     private final Engine serverEngine;
@@ -56,19 +56,19 @@ public class SimulationOrderServiceImpl implements SimulationOrderService {
 
     public SimulationOrderServiceImpl(
             final OrderRegistry orderRegistry,
-            final LocalLookupService localLookupService,
+            final MarketDataCache marketDataCache,
             final EngineManager engineManager,
             final Engine serverEngine) {
 
         Validate.notNull(orderRegistry, "OpenOrderRegistry is null");
-        Validate.notNull(localLookupService, "LocalLookupService is null");
+        Validate.notNull(marketDataCache, "MarketDataCache is null");
         Validate.notNull(engineManager, "EngineManager is null");
         Validate.notNull(serverEngine, "Engine is null");
 
         this.orderRegistry = orderRegistry;
         this.engineManager = engineManager;
         this.serverEngine = serverEngine;
-        this.localLookupService = localLookupService;
+        this.marketDataCache = marketDataCache;
         this.counter = new AtomicLong(0);
     }
 
@@ -135,7 +135,7 @@ public class SimulationOrderServiceImpl implements SimulationOrderService {
             Security security = order.getSecurity();
 
             // all other orders are executed the the market
-            MarketDataEventVO marketDataEvent = this.localLookupService.getCurrentMarketDataEvent(security.getId());
+            MarketDataEventVO marketDataEvent = this.marketDataCache.getCurrentMarketDataEvent(security.getId());
             return marketDataEvent.getMarketValue(Side.BUY.equals(order.getSide()) ? Direction.SHORT : Direction.LONG)
                     .setScale(security.getSecurityFamily().getScale(), BigDecimal.ROUND_HALF_UP);
         }

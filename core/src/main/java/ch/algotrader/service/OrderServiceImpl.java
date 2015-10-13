@@ -94,7 +94,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
 
     private final OrderPersistenceService orderPersistService;
 
-    private final LocalLookupService localLookupService;
+    private final MarketDataCache marketDataCache;
 
     private final OrderDao orderDao;
 
@@ -123,7 +123,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
     public OrderServiceImpl(final CommonConfig commonConfig,
             final SessionFactory sessionFactory,
             final OrderPersistenceService orderPersistService,
-            final LocalLookupService localLookupService,
+            final MarketDataCache marketDataCache,
             final OrderDao orderDao,
             final OrderStatusDao orderStatusDao,
             final StrategyDao strategyDao,
@@ -140,7 +140,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
         Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(sessionFactory, "SessionFactory is null");
         Validate.notNull(orderPersistService, "OrderPersistStrategy is null");
-        Validate.notNull(localLookupService, "LocalLookupService is null");
+        Validate.notNull(marketDataCache, "MarketDataCache is null");
         Validate.notNull(orderDao, "OrderDao is null");
         Validate.notNull(orderStatusDao, "OrderStatusDao is null");
         Validate.notNull(strategyDao, "StrategyDao is null");
@@ -156,7 +156,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
         this.commonConfig = commonConfig;
         this.sessionFactory = sessionFactory;
         this.orderPersistService = orderPersistService;
-        this.localLookupService = localLookupService;
+        this.marketDataCache = marketDataCache;
         this.orderDao = orderDao;
         this.orderStatusDao = orderStatusDao;
         this.strategyDao = strategyDao;
@@ -260,7 +260,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
                 throw new OrderValidationException(security + " is not subscribed for " + order);
             }
 
-            MarketDataEventVO marketDataEvent = this.localLookupService.getCurrentMarketDataEvent(security.getId());
+            MarketDataEventVO marketDataEvent = this.marketDataCache.getCurrentMarketDataEvent(security.getId());
             if (marketDataEvent == null) {
                 throw new OrderValidationException("no marketDataEvent available to initialize SlicingOrder");
             } else if (!(marketDataEvent instanceof TickVO)) {

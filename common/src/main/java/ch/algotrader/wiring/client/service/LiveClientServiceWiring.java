@@ -31,7 +31,7 @@ import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.lifecycle.LifecycleManager;
 import ch.algotrader.lifecycle.LifecycleManagerImpl;
 import ch.algotrader.service.CombinationService;
-import ch.algotrader.service.LocalLookupService;
+import ch.algotrader.service.MarketDataCache;
 import ch.algotrader.service.LookupService;
 import ch.algotrader.service.LookupServiceImpl;
 import ch.algotrader.service.ManagementService;
@@ -61,7 +61,7 @@ public class LiveClientServiceWiring {
             final EngineManager engineManager,
             final SubscriptionService subscriptionService,
             final LookupService lookupService,
-            final LocalLookupService localLookupService,
+            final MarketDataCache marketDataCache,
             final PortfolioService portfolioService,
             final OrderService orderService,
             final PositionService positionService,
@@ -70,7 +70,7 @@ public class LiveClientServiceWiring {
             final MarketDataService marketDataService,
             final ConfigParams configParams) {
 
-        return new ManagementServiceImpl(commonConfig, engineManager, subscriptionService, lookupService, localLookupService, portfolioService, orderService, positionService,
+        return new ManagementServiceImpl(commonConfig, engineManager, subscriptionService, lookupService, marketDataCache, portfolioService, orderService, positionService,
                 combinationService, propertyService, marketDataService, configParams);
     }
 

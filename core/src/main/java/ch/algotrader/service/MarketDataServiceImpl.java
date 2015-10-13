@@ -78,7 +78,7 @@ public class MarketDataServiceImpl implements MarketDataService {
 
     private final EventDispatcher eventDispatcher;
 
-    private final LocalLookupService localLookupService;
+    private final MarketDataCache marketDataCache;
 
     private final Map<String, ExternalMarketDataService> externalMarketDataServiceMap;
 
@@ -91,7 +91,7 @@ public class MarketDataServiceImpl implements MarketDataService {
             final SubscriptionDao subscriptionDao,
             final EngineManager engineManager,
             final EventDispatcher eventDispatcher,
-            final LocalLookupService localLookupService,
+            final MarketDataCache marketDataCache,
             final Map<String, ExternalMarketDataService> externalMarketDataServiceMap) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
@@ -103,7 +103,7 @@ public class MarketDataServiceImpl implements MarketDataService {
         Validate.notNull(subscriptionDao, "SubscriptionDao is null");
         Validate.notNull(engineManager, "EngineManager is null");
         Validate.notNull(eventDispatcher, "EventDispatcher is null");
-        Validate.notNull(localLookupService, "LocalLookupService is null");
+        Validate.notNull(marketDataCache, "MarketDataCache is null");
         Validate.notNull(externalMarketDataServiceMap, "Map<String, ExternalMarketDataService> is null");
 
         this.commonConfig = commonConfig;
@@ -115,7 +115,7 @@ public class MarketDataServiceImpl implements MarketDataService {
         this.subscriptionDao = subscriptionDao;
         this.engineManager = engineManager;
         this.eventDispatcher = eventDispatcher;
-        this.localLookupService = localLookupService;
+        this.marketDataCache = marketDataCache;
         this.externalMarketDataServiceMap = new ConcurrentHashMap<>(externalMarketDataServiceMap);
     }
 
@@ -312,7 +312,7 @@ public class MarketDataServiceImpl implements MarketDataService {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        Map<Long, MarketDataEventVO> currentMarketDataEvents = this.localLookupService.getCurrentMarketDataEvents();
+        Map<Long, MarketDataEventVO> currentMarketDataEvents = this.marketDataCache.getCurrentMarketDataEvents();
         List<Subscription> subscriptions = this.subscriptionDao.findByStrategy(strategyName);
         for (Subscription subscription: subscriptions) {
             long securityId = subscription.getSecurity().getId();

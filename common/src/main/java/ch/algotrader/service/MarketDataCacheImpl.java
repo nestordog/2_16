@@ -47,9 +47,9 @@ import ch.algotrader.event.listener.TickEventListener;
  *
  * @version $Revision$ $Date$
  */
-public class LocalLookupServiceImpl implements LocalLookupService, TickEventListener, BarEventListener {
+public class MarketDataCacheImpl implements MarketDataCache, TickEventListener, BarEventListener {
 
-    private static final Logger LOGGER = LogManager.getLogger(LocalLookupServiceImpl.class);
+    private static final Logger LOGGER = LogManager.getLogger(MarketDataCacheImpl.class);
 
     private final CommonConfig commonConfig;
     private final EngineManager engineManager;
@@ -58,7 +58,7 @@ public class LocalLookupServiceImpl implements LocalLookupService, TickEventList
     private final ConcurrentMap<Long, MarketDataEventVO> lastMarketDataEventBySecurityId;
     private final ConcurrentMap<EnumSet<Currency>, Forex> forexMap;
 
-    public LocalLookupServiceImpl(
+    public MarketDataCacheImpl(
             final CommonConfig commonConfig,
             final EngineManager engineManager,
             final LookupService lookupService) {

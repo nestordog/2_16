@@ -84,7 +84,7 @@ public class PositionServiceImpl implements PositionService {
 
     private final OrderService orderService;
 
-    private final LocalLookupService localLookupService;
+    private final MarketDataCache marketDataCache;
 
     private final PositionDao positionDao;
 
@@ -105,7 +105,7 @@ public class PositionServiceImpl implements PositionService {
             final TransactionService transactionService,
             final MarketDataService marketDataService,
             final OrderService orderService,
-            final LocalLookupService localLookupService,
+            final MarketDataCache marketDataCache,
             final PositionDao positionDao,
             final SecurityDao securityDao,
             final StrategyDao strategyDao,
@@ -119,7 +119,7 @@ public class PositionServiceImpl implements PositionService {
         Validate.notNull(transactionService, "TransactionService is null");
         Validate.notNull(marketDataService, "MarketDataService is null");
         Validate.notNull(orderService, "OrderService is null");
-        Validate.notNull(localLookupService, "LocalLookupService is null");
+        Validate.notNull(marketDataCache, "MarketDataCache is null");
         Validate.notNull(positionDao, "PositionDao is null");
         Validate.notNull(securityDao, "SecurityDao is null");
         Validate.notNull(strategyDao, "StrategyDao is null");
@@ -133,7 +133,7 @@ public class PositionServiceImpl implements PositionService {
         this.transactionService = transactionService;
         this.marketDataService = marketDataService;
         this.orderService = orderService;
-        this.localLookupService = localLookupService;
+        this.marketDataCache = marketDataCache;
         this.positionDao = positionDao;
         this.securityDao = securityDao;
         this.strategyDao = strategyDao;
@@ -324,7 +324,7 @@ public class PositionServiceImpl implements PositionService {
         Strategy targetStrategy = this.strategyDao.findByName(targetStrategyName);
         Security security = position.getSecurity();
         SecurityFamily family = security.getSecurityFamily();
-        MarketDataEventVO marketDataEvent = this.localLookupService.getCurrentMarketDataEvent(security.getId());
+        MarketDataEventVO marketDataEvent = this.marketDataCache.getCurrentMarketDataEvent(security.getId());
         BigDecimal price = RoundUtil.getBigDecimal(position.getMarketPrice(marketDataEvent), family.getScale());
 
         // debit transaction
@@ -525,14 +525,14 @@ public class PositionServiceImpl implements PositionService {
 
             Option option = (Option) security;
             int scale = security.getSecurityFamily().getScale();
-            double underlyingSpot = this.localLookupService.getCurrentValueDouble(security.getUnderlying().getId());
+            double underlyingSpot = this.marketDataCache.getCurrentValueDouble(security.getUnderlying().getId());
             double intrinsicValue = OptionUtil.getIntrinsicValue(option, underlyingSpot);
             BigDecimal price = RoundUtil.getBigDecimal(intrinsicValue, scale);
             transaction.setPrice(price);
 
         } else if (security instanceof Future) {
 
-            BigDecimal price = this.localLookupService.getCurrentValue(security.getUnderlying().getId());
+            BigDecimal price = this.marketDataCache.getCurrentValue(security.getUnderlying().getId());
             transaction.setPrice(price);
 
         } else {

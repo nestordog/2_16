@@ -25,7 +25,7 @@ import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.ConfigParams;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.service.CombinationService;
-import ch.algotrader.service.LocalLookupService;
+import ch.algotrader.service.MarketDataCache;
 import ch.algotrader.service.LookupService;
 import ch.algotrader.service.ManagementService;
 import ch.algotrader.service.ManagementServiceImpl;
@@ -52,7 +52,7 @@ public class ManagementServiceWiring {
             final EngineManager engineManager,
             final SubscriptionService subscriptionService,
             final LookupService lookupService,
-            final LocalLookupService localLookupService,
+            final MarketDataCache marketDataCache,
             final PortfolioService portfolioService,
             final OrderService orderService,
             final PositionService positionService,
@@ -61,7 +61,7 @@ public class ManagementServiceWiring {
             final MarketDataService marketDataService,
             final ConfigParams configParams) {
 
-        return new ManagementServiceImpl(commonConfig, engineManager, subscriptionService, lookupService, localLookupService, portfolioService, orderService, positionService,
+        return new ManagementServiceImpl(commonConfig, engineManager, subscriptionService, lookupService, marketDataCache, portfolioService, orderService, positionService,
                 combinationService, propertyService, marketDataService, configParams);
     }
 

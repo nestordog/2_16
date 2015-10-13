@@ -37,7 +37,6 @@ import ch.algotrader.service.CombinationService;
 import ch.algotrader.service.FutureService;
 import ch.algotrader.service.HistoricalDataService;
 import ch.algotrader.service.LazyLoaderService;
-import ch.algotrader.service.LocalLookupService;
 import ch.algotrader.service.LookupService;
 import ch.algotrader.service.ManagementService;
 import ch.algotrader.service.MarketDataService;
@@ -260,14 +259,6 @@ public class ServiceLocator {
      */
     public LookupService getLookupService() {
         return getContext().getBean("lookupService", LookupService.class);
-    }
-
-    /**
-     * Gets an instance of {@link LocalLookupService}.
-     * @return LocalLookupService from getContext().getBean("localLookupService")
-     */
-    public LocalLookupService getLocalLookupService() {
-        return getContext().getBean("localLookupService", LocalLookupService.class);
     }
 
     /**

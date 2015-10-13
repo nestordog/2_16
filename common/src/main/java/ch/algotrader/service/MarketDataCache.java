@@ -24,13 +24,12 @@ import ch.algotrader.entity.marketData.MarketDataEventVO;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.Currency;
 
-
 /**
- * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
+ * Local market data cache.
  *
- * @version $Revision$ $Date$
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  */
-public interface LocalLookupService {
+public interface MarketDataCache {
 
     /**
      * Returns all last market events for all securities,

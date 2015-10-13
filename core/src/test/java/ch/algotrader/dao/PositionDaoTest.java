@@ -48,7 +48,7 @@ import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.ExpirationType;
 import ch.algotrader.enumeration.TransactionType;
 import ch.algotrader.hibernate.InMemoryDBTest;
-import ch.algotrader.service.LocalLookupService;
+import ch.algotrader.service.MarketDataCache;
 import ch.algotrader.util.HibernateUtil;
 import ch.algotrader.vo.ClosePositionVO;
 import ch.algotrader.vo.ExpirePositionVO;
@@ -344,8 +344,8 @@ public class PositionDaoTest extends InMemoryDBTest {
         this.session.save(position2);
         this.session.flush();
 
-        LocalLookupService localLookupService = Mockito.mock(LocalLookupService.class);
-        PositionVOProducer converter = new PositionVOProducer(localLookupService);
+        MarketDataCache marketDataCache = Mockito.mock(MarketDataCache.class);
+        PositionVOProducer converter = new PositionVOProducer(marketDataCache);
 
         List<PositionVO> positions1 = this.dao.findByStrategy("Dummy", converter);
 
@@ -1053,8 +1053,8 @@ public class PositionDaoTest extends InMemoryDBTest {
         this.session.save(position2);
         this.session.flush();
 
-        LocalLookupService localLookupService = Mockito.mock(LocalLookupService.class);
-        PositionVOProducer converter = new PositionVOProducer(localLookupService);
+        MarketDataCache marketDataCache = Mockito.mock(MarketDataCache.class);
+        PositionVOProducer converter = new PositionVOProducer(marketDataCache);
 
         List<PositionVO> positions1 = this.dao.loadAll(converter);
 

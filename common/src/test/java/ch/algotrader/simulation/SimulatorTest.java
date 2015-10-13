@@ -59,7 +59,7 @@ import ch.algotrader.enumeration.Status;
 import ch.algotrader.enumeration.TransactionType;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.dispatch.EventDispatcher;
-import ch.algotrader.service.LocalLookupService;
+import ch.algotrader.service.MarketDataCache;
 import ch.algotrader.vo.ClosePositionVO;
 import ch.algotrader.vo.OpenPositionVO;
 import ch.algotrader.vo.TradePerformanceVO;
@@ -82,7 +82,7 @@ public class SimulatorTest {
 
         this.eventDispatcher = mock(EventDispatcher.class);
 
-        this.simulator = new Simulator(mock(LocalLookupService.class), PositionTrackerImpl.INSTANCE, this.eventDispatcher, engineManager);
+        this.simulator = new Simulator(mock(MarketDataCache.class), PositionTrackerImpl.INSTANCE, this.eventDispatcher, engineManager);
 
         doReturn(new Date()).when(engineManager).getCurrentEPTime();
     }

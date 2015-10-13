@@ -71,6 +71,7 @@ import ch.algotrader.service.CalendarService;
 import ch.algotrader.service.CalendarServiceImpl;
 import ch.algotrader.service.CombinationService;
 import ch.algotrader.service.CombinationServiceImpl;
+import ch.algotrader.service.EventPropagator;
 import ch.algotrader.service.ExternalMarketDataService;
 import ch.algotrader.service.ExternalOrderService;
 import ch.algotrader.service.ForexService;
@@ -79,10 +80,10 @@ import ch.algotrader.service.FutureService;
 import ch.algotrader.service.FutureServiceImpl;
 import ch.algotrader.service.LazyLoaderService;
 import ch.algotrader.service.LazyLoaderServiceImpl;
-import ch.algotrader.service.LocalLookupService;
-import ch.algotrader.service.LocalLookupServiceImpl;
 import ch.algotrader.service.LookupService;
 import ch.algotrader.service.LookupServiceImpl;
+import ch.algotrader.service.MarketDataCache;
+import ch.algotrader.service.MarketDataCacheImpl;
 import ch.algotrader.service.MarketDataService;
 import ch.algotrader.service.MarketDataServiceImpl;
 import ch.algotrader.service.MeasurementService;
@@ -103,7 +104,6 @@ import ch.algotrader.service.ServerLookupService;
 import ch.algotrader.service.ServerLookupServiceImpl;
 import ch.algotrader.service.ServerManagementService;
 import ch.algotrader.service.ServerManagementServiceImpl;
-import ch.algotrader.service.EventPropagator;
 import ch.algotrader.service.StrategyPersistenceService;
 import ch.algotrader.service.StrategyPersistenceServiceImpl;
 import ch.algotrader.service.SubscriptionService;
@@ -134,7 +134,7 @@ public class ServiceWiring {
     public PortfolioService createPortfolioService(final CommonConfig commonConfig,
             final CoreConfig coreConfig,
             final SessionFactory sessionFactory,
-            final LocalLookupService localLookupService,
+            final MarketDataCache marketDataCache,
             final GenericDao genericDao,
             final StrategyDao strategyDao,
             final TransactionDao transactionDao,
@@ -145,7 +145,7 @@ public class ServiceWiring {
             final ForexDao forexDao,
             final EngineManager engineManager) {
 
-        return new PortfolioServiceImpl(commonConfig, coreConfig, sessionFactory, localLookupService, genericDao, strategyDao, transactionDao, positionDao, cashBalanceDao,
+        return new PortfolioServiceImpl(commonConfig, coreConfig, sessionFactory, marketDataCache, genericDao, strategyDao, transactionDao, positionDao, cashBalanceDao,
                 portfolioValueDao, tickDao, forexDao, engineManager);
     }
 
@@ -155,8 +155,7 @@ public class ServiceWiring {
             final TransactionService transactionService,
             final MarketDataService marketDataService,
             final OrderService orderService,
-            final PortfolioService portfolioService,
-            final LocalLookupService localLookupService,
+            final MarketDataCache marketDataCache,
             final PositionDao positionDao,
             final SecurityDao securityDao,
             final StrategyDao strategyDao,
@@ -165,7 +164,7 @@ public class ServiceWiring {
             final EngineManager engineManager,
             final Engine serverEngine) {
 
-        return new PositionServiceImpl(commonConfig, coreConfig, transactionService, marketDataService, orderService, localLookupService, positionDao, securityDao, strategyDao,
+        return new PositionServiceImpl(commonConfig, coreConfig, transactionService, marketDataService, orderService, marketDataCache, positionDao, securityDao, strategyDao,
                 transactionDao, eventDispatcher, engineManager, serverEngine);
     }
 
@@ -197,7 +196,7 @@ public class ServiceWiring {
             final MarketDataService marketDataService,
             final FutureService futureService,
             final OrderService orderService,
-            final LocalLookupService localLookupService,
+            final MarketDataCache marketDataCache,
             final SecurityDao securityDao,
             final OptionFamilyDao optionFamilyDao,
             final OptionDao optionDao,
@@ -208,7 +207,7 @@ public class ServiceWiring {
             final EngineManager engineManager,
             final Engine serverEngine) {
 
-        return new OptionServiceImpl(commonConfig, coreConfig, marketDataService, futureService, orderService, localLookupService, securityDao, optionFamilyDao, optionDao, positionDao,
+        return new OptionServiceImpl(commonConfig, coreConfig, marketDataService, futureService, orderService, marketDataCache, securityDao, optionFamilyDao, optionDao, positionDao,
                 subscriptionDao, futureFamilyDao, strategyDao, engineManager, serverEngine);
     }
 
@@ -255,7 +254,7 @@ public class ServiceWiring {
             final SubscriptionDao subscriptionDao,
             final EngineManager engineManager,
             final EventDispatcher eventDispatcher,
-            final LocalLookupService localLookupService,
+            final MarketDataCache marketDataCache,
             final ApplicationContext applicationContext) {
 
         Map<String, ExternalMarketDataService> serviceMap1 = applicationContext.getBeansOfType(ExternalMarketDataService.class);
@@ -263,7 +262,7 @@ public class ServiceWiring {
                 .collect(Collectors.toMap(ExternalMarketDataService::getFeedType, service -> service));
 
         return new MarketDataServiceImpl(commonConfig, coreConfig, sessionFactory, tickDao, securityDao, strategyDao, subscriptionDao, engineManager,
-                eventDispatcher, localLookupService, serviceMap2);
+                eventDispatcher, marketDataCache, serviceMap2);
     }
 
     @Bean(name = "tickPersister", destroyMethod = "destroy")
@@ -303,7 +302,7 @@ public class ServiceWiring {
     public OrderService createOrderService(final CommonConfig commonConfig,
             final SessionFactory sessionFactory,
             final OrderPersistenceService orderPersistService,
-            final LocalLookupService localLookupService,
+            final MarketDataCache marketDataCache,
             final OrderDao orderDao,
             final OrderStatusDao orderStatusDao,
             final StrategyDao strategyDao,
@@ -321,7 +320,7 @@ public class ServiceWiring {
         Map<String, ExternalOrderService> serviceMap2 = serviceMap1.values().stream()
                 .collect(Collectors.toMap(ExternalOrderService::getOrderServiceType, service -> service));
 
-        return new OrderServiceImpl(commonConfig, sessionFactory, orderPersistService, localLookupService, orderDao, orderStatusDao, strategyDao, securityDao, accountDao, exchangeDao, orderPreferenceDao,
+        return new OrderServiceImpl(commonConfig, sessionFactory, orderPersistService, marketDataCache, orderDao, orderStatusDao, strategyDao, securityDao, accountDao, exchangeDao, orderPreferenceDao,
                 orderRegistry, eventDispatcher, engineManager, serverEngine, serviceMap2);
     }
 
@@ -371,12 +370,12 @@ public class ServiceWiring {
         return new SubscriptionServiceImpl(commonConfig, marketDataService, lookupService, engineManager);
     }
 
-    @Bean(name = "localLookupService")
-    public LocalLookupService createLocalLookupService(final CommonConfig commonConfig,
+    @Bean(name = "marketDataCache")
+    public MarketDataCache createMarketDataCache(final CommonConfig commonConfig,
             final EngineManager engineManager,
             final LookupService lookupService) {
 
-        return new LocalLookupServiceImpl(commonConfig, engineManager, lookupService);
+        return new MarketDataCacheImpl(commonConfig, engineManager, lookupService);
     }
 
     @Bean(name = "strategyPersistenceService")
