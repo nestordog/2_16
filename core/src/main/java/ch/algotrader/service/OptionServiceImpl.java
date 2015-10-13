@@ -161,13 +161,14 @@ public class OptionServiceImpl implements OptionService {
 
         List<Position> positions = this.positionDao.findOpenPositionsByUnderlying(underlyingId);
 
+        Date currentEPTime = this.engineManager.getCurrentEPTime();
         // get the deltaAdjustedMarketValue
         double deltaAdjustedMarketValue = 0;
         for (Position position : positions) {
             MarketDataEventVO marketDataEvent = this.localLookupService.getCurrentMarketDataEvent(position.getSecurity().getId());
             MarketDataEventVO underlyingMarketDataEvent = this.localLookupService.getCurrentMarketDataEvent(position.getSecurity().getUnderlying().getId());
 
-            deltaAdjustedMarketValue += position.getMarketValue(marketDataEvent) * position.getSecurity().getLeverage(marketDataEvent, underlyingMarketDataEvent);
+            deltaAdjustedMarketValue += position.getMarketValue(marketDataEvent) * position.getSecurity().getLeverage(marketDataEvent, underlyingMarketDataEvent, currentEPTime);
         }
 
         final Security underlying = this.securityDao.get(underlyingId);
@@ -180,7 +181,7 @@ public class OptionServiceImpl implements OptionService {
 
         final FutureFamily futureFamily = this.futureFamilyDao.load(underlyingSubscription.getIntProperty("hedgingFamily"));
 
-        Date targetDate = DateUtils.addMilliseconds(this.engineManager.getCurrentEPTime(), this.coreConfig.getDeltaHedgeMinTimeToExpiration());
+        Date targetDate = DateUtils.addMilliseconds(currentEPTime, this.coreConfig.getDeltaHedgeMinTimeToExpiration());
         final Future future = this.futureService.getFutureByMinExpiration(futureFamily.getId(), targetDate);
         final double deltaAdjustedMarketValuePerContract = deltaAdjustedMarketValue / futureFamily.getContractSize();
 

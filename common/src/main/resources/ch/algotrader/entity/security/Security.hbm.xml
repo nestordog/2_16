@@ -18,9 +18,10 @@
      * returns zero by default).
      * @param marketDataEvent 
      * @param underlyingMarketDataEvent 
+     * @param currentTime
      * @return double
      */
-    public abstract double getLeverage(ch.algotrader.entity.marketData.MarketDataEventI marketDataEvent, ch.algotrader.entity.marketData.MarketDataEventI underlyingMarketDataEvent);
+    public abstract double getLeverage(ch.algotrader.entity.marketData.MarketDataEventI marketDataEvent, ch.algotrader.entity.marketData.MarketDataEventI underlyingMarketDataEvent, java.util.Date currentTime);
 
 ]]>   
 	    </meta> 	    

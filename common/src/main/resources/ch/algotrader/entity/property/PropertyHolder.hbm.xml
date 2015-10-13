@@ -108,7 +108,7 @@
             <meta attribute="implements">ch.algotrader.entity.PositionI</meta>
             <meta attribute="generated-class">ch.algotrader.entity.Position</meta>
             <meta attribute="class-code">
-<![CDATA[
+                <![CDATA[
     /**
      * Gets the current {@link Direction} of this Position ({@code LONG}, {@code SHORT} or {@code
      * FLAT})
@@ -154,10 +154,11 @@
     /**
      * Gets the current market exposure (market value x leverage).
      * @param marketDataEvent 
-     * @param underlyingMarketDataEvent 
+     * @param underlyingMarketDataEvent
+     * @param currentTime
      * @return double
      */
-    public abstract double getExposure(ch.algotrader.entity.marketData.MarketDataEventI marketDataEvent, ch.algotrader.entity.marketData.MarketDataEventI underlyingMarketDataEvent);
+    public abstract double getExposure(ch.algotrader.entity.marketData.MarketDataEventI marketDataEvent, ch.algotrader.entity.marketData.MarketDataEventI underlyingMarketDataEvent, java.util.Date currentTime);
 
     /**
      * The Currency Attribution of this Position.
@@ -180,7 +181,7 @@
      */
     public abstract boolean isCashPosition();
 
-]]>   
+]]>
             </meta> 	    
             <property name="quantity">
                 <meta attribute="field-description"><![CDATA[The current quantity of this Position.]]></meta>

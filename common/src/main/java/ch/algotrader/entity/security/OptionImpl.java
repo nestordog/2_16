@@ -22,7 +22,6 @@ import java.util.Date;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.math.MathException;
 
-import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.marketData.MarketDataEventI;
 import ch.algotrader.option.OptionUtil;
 import ch.algotrader.util.DateUtil;
@@ -37,17 +36,17 @@ public class OptionImpl extends Option {
     private static final long serialVersionUID = -3168298592370987085L;
 
     @Override
-    public double getLeverage(MarketDataEventI marketDataEvent, MarketDataEventI underlyingMarketDataEvent) {
+    public double getLeverage(MarketDataEventI marketDataEvent, MarketDataEventI underlyingMarketDataEvent, Date currentTime) {
 
-        Validate.notNull(marketDataEvent, "MarketDataEvent is missing");
-        Validate.notNull(underlyingMarketDataEvent, "underlying MarketDataEvent is missing");
+        Validate.notNull(marketDataEvent, "MarketDataEvent is null");
+        Validate.notNull(underlyingMarketDataEvent, "Underlying MarketDataEvent is null");
+        Validate.notNull(currentTime, "Current time is null");
 
         double currentValue = marketDataEvent.getCurrentValueDouble();
         double underlyingCurrentValue = marketDataEvent.getCurrentValueDouble();
 
         try {
-            double delta = OptionUtil.getDelta(this, currentValue, underlyingCurrentValue,
-                    ServiceLocator.instance().getEngineManager().getCurrentEPTime());
+            double delta = OptionUtil.getDelta(this, currentValue, underlyingCurrentValue, currentTime);
             return underlyingCurrentValue / currentValue * delta;
         } catch (MathException e) {
             throw new RuntimeException(e);

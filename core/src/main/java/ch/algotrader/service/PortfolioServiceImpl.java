@@ -578,7 +578,7 @@ public class PortfolioServiceImpl implements PortfolioService {
             if (position.getSecurity().getUnderlying() != null) {
                 underlyingMarketDataEvent = this.localLookupService.getCurrentMarketDataEvent(position.getSecurity().getUnderlying().getId());
             }
-            exposure += position.getExposure(marketDataEvent, underlyingMarketDataEvent);
+            exposure += position.getExposure(marketDataEvent, underlyingMarketDataEvent, this.engineManager.getCurrentEPTime());
         }
         return exposure / getNetLiqValueDouble();
 
@@ -600,7 +600,7 @@ public class PortfolioServiceImpl implements PortfolioService {
             if (position.getSecurity().getUnderlying() != null) {
                 underlyingMarketDataEvent = this.localLookupService.getCurrentMarketDataEvent(position.getSecurity().getUnderlying().getId());
             }
-            exposure += position.getExposure(marketDataEvent, underlyingMarketDataEvent);
+            exposure += position.getExposure(marketDataEvent, underlyingMarketDataEvent, this.engineManager.getCurrentEPTime());
         }
 
         return exposure / getNetLiqValueDouble(strategyName);

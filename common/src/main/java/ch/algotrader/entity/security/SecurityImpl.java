@@ -17,6 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.entity.security;
 
+import java.util.Date;
+
 import ch.algotrader.entity.marketData.MarketDataEventI;
 
 /**
@@ -29,7 +31,7 @@ public abstract class SecurityImpl extends Security {
     private static final long serialVersionUID = -6631052475125813394L;
 
     @Override
-    public double getLeverage(MarketDataEventI marketDataEvent, MarketDataEventI underlyingMarketDataEvent) {
+    public double getLeverage(MarketDataEventI marketDataEvent, MarketDataEventI underlyingMarketDataEvent, Date currentTime) {
         return 0;
     }
 

@@ -32,7 +32,7 @@ public class FutureImpl extends Future {
     private static final long serialVersionUID = -7436972192801577685L;
 
     @Override
-    public double getLeverage(MarketDataEventI marketDataEvent, MarketDataEventI underlyingMarketDataEvent) {
+    public double getLeverage(MarketDataEventI marketDataEvent, MarketDataEventI underlyingMarketDataEvent, Date currentTime) {
 
         return 1.0;
     }

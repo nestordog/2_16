@@ -17,6 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.entity;
 
+import java.util.Date;
+
 import ch.algotrader.entity.marketData.MarketDataEventI;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.Future;
@@ -124,9 +126,9 @@ public class PositionImpl extends Position {
     }
 
     @Override
-    public double getExposure(MarketDataEventI marketDataEvent, MarketDataEventI underlyingMarketDataEvent) {
+    public double getExposure(MarketDataEventI marketDataEvent, MarketDataEventI underlyingMarketDataEvent, Date currentTime) {
 
-        return getMarketValue(marketDataEvent) * getSecurity().getLeverage(marketDataEvent, underlyingMarketDataEvent);
+        return getMarketValue(marketDataEvent) * getSecurity().getLeverage(marketDataEvent, underlyingMarketDataEvent, currentTime);
     }
 
     @Override
