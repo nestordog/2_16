@@ -382,15 +382,15 @@ public class PositionServiceImpl implements PositionService {
 
         Collection<Transaction> transactions = this.transactionDao.findAllTradesInclSecurity();
 
-        // process all transactions to establis current position states
-        Map<Pair<Security, Strategy>, Position> positionMap = new HashMap<>();
+        // process all transactions to establish current position states
+        Map<Pair<Long, Long>, Position> positionMap = new HashMap<>();
         for (Transaction transaction : transactions) {
 
             // crate a position if we come across a security for the first time
-            Position position = positionMap.get(new Pair<>(transaction.getSecurity(), transaction.getStrategy()));
+            Position position = positionMap.get(new Pair<>(transaction.getSecurity().getId(), transaction.getStrategy().getId()));
             if (position == null) {
                 position = PositionTrackerImpl.INSTANCE.processFirstTransaction(transaction);
-                positionMap.put(new Pair<>(position.getSecurity(), position.getStrategy()), position);
+                positionMap.put(new Pair<>(position.getSecurity().getId(), position.getStrategy().getId()), position);
             } else {
                 PositionTrackerImpl.INSTANCE.processTransaction(position, transaction);
             }
@@ -492,7 +492,7 @@ public class PositionServiceImpl implements PositionService {
 
                         public void update(final OrderStatus orderStatus) {
 
-                            serverEngine.undeployStatement(alias);
+                            PositionServiceImpl.this.serverEngine.undeployStatement(alias);
                             if (orderStatus.getStatus() == Status.EXECUTED) {
                                 PositionServiceImpl.this.marketDataService.unsubscribe(strategy.getName(), security.getId());
                             }
