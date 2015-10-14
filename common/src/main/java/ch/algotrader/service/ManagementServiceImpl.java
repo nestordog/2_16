@@ -336,7 +336,6 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
     @ManagedAttribute(description = "Gets the latest MarketDataEvents of all subscribed Securities")
     public Collection<MarketDataEventVO> getMarketDataEvents() {
 
-        Map<Long, ch.algotrader.entity.marketData.MarketDataEventVO> marketDataEventMap = this.marketDataCache.getCurrentMarketDataEvents();
         List<MarketDataEventVO> subscribedMarketDataEvent = new ArrayList<>();
 
         // get all subscribed securities
@@ -348,7 +347,7 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
 
                 Security security = subscribedSecurity.getFirst();
                 String feedType = subscribedSecurity.getSecond();
-                ch.algotrader.entity.marketData.MarketDataEventVO marketDataEvent = marketDataEventMap.get(security.getId());
+                ch.algotrader.entity.marketData.MarketDataEventVO marketDataEvent = this.marketDataCache.getCurrentMarketDataEvent(security.getId());
                 subscribedMarketDataEvent.add(convert(marketDataEvent, security, feedType));
             }
         } else {
@@ -359,7 +358,7 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
 
                 Security security = subscription.getSecurity();
                 String feedType = subscription.getFeedType();
-                ch.algotrader.entity.marketData.MarketDataEventVO marketDataEvent = marketDataEventMap.get(security.getId());
+                ch.algotrader.entity.marketData.MarketDataEventVO marketDataEvent = this.marketDataCache.getCurrentMarketDataEvent(security.getId());
                 subscribedMarketDataEvent.add(convert(marketDataEvent, security, feedType));
             }
         }

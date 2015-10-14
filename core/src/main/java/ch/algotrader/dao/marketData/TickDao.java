@@ -38,15 +38,6 @@ public interface TickDao extends ReadWriteDao<Tick> {
     List<Tick> findBySecurity(long securityId);
 
     /**
-     * Finds the first Tick of the defined Security that is before the maxDate (but not earlier than
-     * one minute before that the maxDate).
-     * @param securityId
-     * @param maxDate
-     * @return Tick
-     */
-    Tick findBySecurityAndMaxDate(long securityId, Date maxDate);
-
-    /**
      * Finds all Ticks of the defined Security that are after the {@code minDate} and before {@code
      * minDate} + {@code intervalDays}
      * @param securityId

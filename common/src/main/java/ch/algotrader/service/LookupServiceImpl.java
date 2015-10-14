@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -68,6 +69,7 @@ import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.QueryType;
+import ch.algotrader.util.DateTimeLegacy;
 import ch.algotrader.util.collection.CollectionUtil;
 import ch.algotrader.util.collection.Pair;
 import ch.algotrader.visitor.InitializationVisitor;
@@ -760,18 +762,37 @@ public class LookupServiceImpl implements LookupService {
 
     }
 
+    private List<Tick> getTicksByMaxDate(final int limit, final long securityId, final Date maxDate, int intervalDays) {
+
+        Validate.notNull(maxDate, "Max date is null");
+
+        LocalDateTime maxLocalDateTime = DateTimeLegacy.toLocalDateTime(maxDate);
+        LocalDateTime minLocalDateTime = maxLocalDateTime.minusDays(intervalDays);
+        return this.genericDao.find(Tick.class, "Tick.findTicksBySecurityAndMaxDate", limit, QueryType.BY_NAME,
+                new NamedParam("securityId", securityId),
+                new NamedParam("minDate", DateTimeLegacy.toLocalDateTime(minLocalDateTime)),
+                new NamedParam("maxDate", DateTimeLegacy.toLocalDateTime(maxLocalDateTime)));
+    }
+
+    private List<Tick> getTicksByMinDate(final int limit, final long securityId, final Date minDate, int intervalDays) {
+
+        Validate.notNull(minDate, "Min date is null");
+
+        LocalDateTime minLocalDateTime = DateTimeLegacy.toLocalDateTime(minDate);
+        LocalDateTime maxLocalDateTime = minLocalDateTime.plusDays(intervalDays);
+        return this.genericDao.find(Tick.class, "Tick.findTicksBySecurityAndMinDate", limit, QueryType.BY_NAME,
+                new NamedParam("securityId", securityId),
+                new NamedParam("minDate", DateTimeLegacy.toLocalDateTime(minLocalDateTime)),
+                new NamedParam("maxDate", DateTimeLegacy.toLocalDateTime(maxLocalDateTime)));
+    }
+
     /**
      * {@inheritDoc}
      */
     @Override
     public Tick getLastTick(final long securityId, Date dateTime, int intervalDays) {
 
-        return CollectionUtil.getSingleElementOrNull(
-                this.genericDao.find(Tick.class, "Tick.findTicksBySecurityAndMaxDate", 1, QueryType.BY_NAME,
-                new NamedParam("securityId", securityId),
-                new NamedParam("maxDate", dateTime),
-                new NamedParam("intervalDays", intervalDays)));
-
+        return CollectionUtil.getSingleElementOrNull(getTicksByMaxDate(1, securityId, dateTime, intervalDays));
     }
 
     /**
@@ -780,13 +801,7 @@ public class LookupServiceImpl implements LookupService {
     @Override
     public List<Tick> getTicksByMaxDate(final long securityId, final Date maxDate, int intervalDays) {
 
-        Validate.notNull(maxDate, "Max date is null");
-
-        return this.genericDao.find(Tick.class, "Tick.findTicksBySecurityAndMaxDate", QueryType.BY_NAME,
-                new NamedParam("securityId", securityId),
-                new NamedParam("maxDate", maxDate),
-                new NamedParam("intervalDays",  intervalDays));
-
+        return getTicksByMaxDate(-1, securityId, maxDate, intervalDays);
     }
 
     /**
@@ -795,13 +810,7 @@ public class LookupServiceImpl implements LookupService {
     @Override
     public List<Tick> getTicksByMinDate(final long securityId, final Date minDate, int intervalDays) {
 
-        Validate.notNull(minDate, "Min date is null");
-
-        return this.genericDao.find(Tick.class, "Tick.findTicksBySecurityAndMinDate", QueryType.BY_NAME,
-                new NamedParam("securityId", securityId),
-                new NamedParam("minDate", minDate),
-                new NamedParam("intervalDays", intervalDays));
-
+        return getTicksByMinDate(-1, securityId, minDate, intervalDays);
     }
 
     /**

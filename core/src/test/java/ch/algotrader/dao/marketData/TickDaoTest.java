@@ -19,7 +19,10 @@
 package ch.algotrader.dao.marketData;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
@@ -43,6 +46,7 @@ import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.hibernate.InMemoryDBTest;
+import ch.algotrader.util.DateTimeLegacy;
 
 /**
  * Unit tests for {@link TickDaoImpl}.
@@ -152,38 +156,52 @@ public class TickDaoTest extends InMemoryDBTest {
     }
 
     @Test
-    public void testFindBySecurityAndMaxDate() {
+    public void testFindTicksBySecurityAndInterval() {
 
-        // Could not execute query in test environment
-        // Caused by: org.h2.jdbc.JdbcSQLException: Function "DATE_SUB" not found
-    }
+        this.session.save(this.family1);
+        this.session.save(this.forex1);
 
-    @Test
-    public void testFindTicksBySecurityAndMinDate() {
+        LocalDateTime date = LocalDateTime.of(2015, Month.OCTOBER, 1, 2, 3, 4);
 
-        // Could not execute query in test environment
-        // Caused by: org.h2.jdbc.JdbcSQLException: Function "FROM_UNIXTIME" not found
-    }
+        Tick tick1 = new TickImpl();
+        tick1.setDateTime(DateTimeLegacy.toLocalDateTime(date));
+        tick1.setFeedType(FeedType.BB.name());
+        tick1.setSecurity(this.forex1);
+        this.session.save(tick1);
 
-    @Test
-    public void testFindTicksBySecurityAndMinDateWithLimit() {
+        Tick tick2 = new TickImpl();
+        tick2.setDateTime(DateTimeLegacy.toLocalDateTime(date.plusDays(1)));
+        tick2.setFeedType(FeedType.CNX.name());
+        tick2.setSecurity(this.forex1);
+        this.session.save(tick2);
 
-        // Could not execute query in test environment
-        // Caused by: org.h2.jdbc.JdbcSQLException: Function "FROM_UNIXTIME" not found
-    }
+        Tick tick3 = new TickImpl();
+        tick3.setDateTime(DateTimeLegacy.toLocalDateTime(date.plusDays(2)));
+        tick3.setFeedType(FeedType.CNX.name());
+        tick3.setSecurity(this.forex1);
+        this.session.save(tick3);
+        this.session.flush();
 
-    @Test
-    public void testFindTicksBySecurityAndMaxDate() {
+        final List<Tick> ticks1 = this.dao.findTicksBySecurityAndMinDate(this.forex1.getId(), DateTimeLegacy.toLocalDateTime(date), 2);
+        Assert.assertEquals(Arrays.asList(tick1, tick2), ticks1);
 
-        // Could not execute query in test environment
-        // Caused by: org.h2.jdbc.JdbcSQLException: Function "FROM_UNIXTIME" not found
-    }
+        final List<Tick> ticks2 = this.dao.findTicksBySecurityAndMinDate(this.forex1.getId(), DateTimeLegacy.toLocalDateTime(date), 3);
+        Assert.assertEquals(Arrays.asList(tick1, tick2, tick3), ticks2);
 
-    @Test
-    public void testFindTicksBySecurityAndMaxDateWithLimit() {
+        final List<Tick> ticks3 = this.dao.findTicksBySecurityAndMinDate(this.forex1.getId(), DateTimeLegacy.toLocalDateTime(date), 3);
+        Assert.assertEquals(Arrays.asList(tick1, tick2, tick3), ticks3);
 
-        // Could not execute query in test environment
-        // Caused by: org.h2.jdbc.JdbcSQLException: Function "FROM_UNIXTIME" not found
+        final List<Tick> ticks4 = this.dao.findTicksBySecurityAndMinDate(2, this.forex1.getId(), DateTimeLegacy.toLocalDateTime(date), 3);
+        Assert.assertEquals(Arrays.asList(tick1, tick2), ticks4);
+
+        final List<Tick> ticks5 = this.dao.findTicksBySecurityAndMaxDate(this.forex1.getId(), DateTimeLegacy.toLocalDateTime(date), 3);
+        Assert.assertEquals(Arrays.asList(tick1), ticks5);
+
+        final List<Tick> ticks6 = this.dao.findTicksBySecurityAndMaxDate(this.forex1.getId(), DateTimeLegacy.toLocalDateTime(date.plusDays(1)), 3);
+        Assert.assertEquals(Arrays.asList(tick2, tick1), ticks6);
+
+        final List<Tick> ticks7 = this.dao.findTicksBySecurityAndMaxDate(this.forex1.getId(), DateTimeLegacy.toLocalDateTime(date.plusDays(2)), 2);
+        Assert.assertEquals(Arrays.asList(tick3, tick2), ticks7);
     }
 
     @Test

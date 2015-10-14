@@ -540,24 +540,12 @@
     ]]>
     </query>
     
-    <sql-query name='Tick.findBySecurityAndMaxDate'>
-    <![CDATA[
-        select * 
-        from tick as t 
-        where t.security_fk = :securityId 
-        and date_time <= :maxDate 
-        and date_time > DATE_SUB(:maxDate, INTERVAL 1 MINUTE) 
-        order by t.date_time desc 
-        limit 1 
-    ]]>
-    </sql-query>
-    
     <query name='Tick.findTicksBySecurityAndMinDate'>
     <![CDATA[
         from TickImpl as t 
         where t.security.id = :securityId 
         and t.dateTime >= :minDate 
-        and t.dateTime < FROM_UNIXTIME(UNIX_TIMESTAMP(:minDate) + :intervalDays * 86400) 
+        and t.dateTime < :maxDate
         order by t.dateTime asc 
     ]]>
     </query>
@@ -567,7 +555,7 @@
         from TickImpl as t 
         where t.security.id = :securityId 
         and t.dateTime <= :maxDate 
-        and t.dateTime > FROM_UNIXTIME(UNIX_TIMESTAMP(:maxDate) - :intervalDays * 86400) 
+        and t.dateTime > :minDate
         order by t.dateTime desc 
     ]]>
     </query>
