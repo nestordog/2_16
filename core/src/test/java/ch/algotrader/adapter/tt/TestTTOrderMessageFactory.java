@@ -89,7 +89,7 @@ public class TestTTOrderMessageFactory {
         this.clNov2015.setSymbol("CL NOV/15");
         this.clNov2015.setTtid("00A0KP00CLZ");
         this.clNov2015.setSecurityFamily(futureFamily);
-        this.clNov2015.setExpiration(DateTimeLegacy.toGMTDate(DateTimeUtil.parseLocalDate("2015-11-01")));
+        this.clNov2015.setExpiration(DateTimeLegacy.toLocalDate(DateTimeUtil.parseLocalDate("2015-11-01")));
 
         Exchange iceipe = Exchange.Factory.newInstance();
         iceipe.setName("ICE_IPE");
@@ -106,7 +106,7 @@ public class TestTTOrderMessageFactory {
         this.coffer.setDescription("Coffee \"C\" Futures - NYCC");
         this.coffer.setTtid("92900317");
         this.coffer.setSecurityFamily(optionFamily);
-        this.coffer.setExpiration(DateTimeLegacy.toGMTDate(DateTimeUtil.parseLocalDate("2015-10-09")));
+        this.coffer.setExpiration(DateTimeLegacy.toLocalDate(DateTimeUtil.parseLocalDate("2015-10-09")));
         this.coffer.setType(OptionType.CALL);
         this.coffer.setStrike(new BigDecimal("50.0"));
 

@@ -87,7 +87,7 @@ public class TTFixOrderMessageHandlerTest extends FixApplicationTestBase {
         this.future.setSymbol("CL NOV/16");
         this.future.setTtid("00A0KP00CLZ");
         this.future.setSecurityFamily(futureFamily);
-        this.future.setExpiration(DateTimeLegacy.toGMTDate(DateTimeUtil.parseLocalDate("2015-11-01")));
+        this.future.setExpiration(DateTimeLegacy.toLocalDate(DateTimeUtil.parseLocalDate("2015-11-01")));
 
         this.account = Account.Factory.newInstance();
         this.account.setName("TT_TEST");

@@ -185,7 +185,7 @@ public class RTFixOrderMessageHandlerTest extends FixApplicationTestBase {
 
         Future future = new FutureImpl();
         future.setSecurityFamily(securityFamily);
-        future.setExpiration(DateTimeLegacy.parseAsDateGMT("2014-12-01"));
+        future.setExpiration(DateTimeLegacy.parseAsLocalDate("2014-12-01"));
 
         Account testAccount = new AccountImpl();
         testAccount.setBroker(Broker.RT.name());
