@@ -87,8 +87,13 @@ public class MarketDataCacheImpl implements MarketDataCache, TickEventListener, 
         if (last != null) {
             return last;
         }
-        Tick entity = this.lookupService.getLastTick(securityId, this.engineManager.getCurrentEPTime(), 4);
-        return entity != null ? Tick.Converter.INSTANCE.convert(entity) : null;
+        Tick entity = this.lookupService.getLastTick(securityId, this.engineManager.getCurrentEPTime(), 1);
+        if (entity != null) {
+            onMarketDataEvent(Tick.Converter.INSTANCE.convert(entity));
+            // The market data may have changed in the meantime. Get the latest value.
+            return lastMarketDataEventBySecurityId.get(securityId);
+        }
+        return null;
     }
 
     @Override
