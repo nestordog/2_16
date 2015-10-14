@@ -58,19 +58,9 @@ public class EngineTimeRewritePolicy implements RewritePolicy {
             }
         }
         if (latestTime < Long.MAX_VALUE) {
-            return Log4jLogEvent.createEvent(
-                    source.getLoggerName(),
-                    source.getMarker(),
-                    source.getLoggerFqcn(),
-                    source.getLevel(),
-                    source.getMessage(),
-                    source.getThrown(),
-                    source.getThrownProxy(),
-                    source.getContextMap(),
-                    source.getContextStack(),
-                    source.getThreadName(),
-                    source.getSource(),
-                    latestTime);
+            return new Log4jLogEvent.Builder(source)
+                    .setTimeMillis(latestTime)
+                    .build();
         } else {
             return source;
         }
