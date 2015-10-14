@@ -18,6 +18,7 @@
 
 package ch.algotrader.dao.marketData;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -30,6 +31,7 @@ import ch.algotrader.dao.NamedParam;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.marketData.TickImpl;
 import ch.algotrader.enumeration.QueryType;
+import ch.algotrader.util.DateTimeLegacy;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -50,19 +52,9 @@ public class TickDaoImpl extends AbstractDao<Tick> implements TickDao {
     }
 
     @Override
-    public Tick findBySecurityAndMaxDate(long securityId, Date maxDate) {
-
-        Validate.notNull(maxDate, "maxDate is null");
-
-        return findUniqueCaching("Tick.findBySecurityAndMaxDate", QueryType.BY_NAME, new NamedParam("securityId", securityId), new NamedParam("maxDate", maxDate));
-    }
-
-    @Override
     public List<Tick> findTicksBySecurityAndMinDate(long securityId, Date minDate, int intervalDays) {
 
-        Validate.notNull(minDate, "minDate is null");
-
-        return find("Tick.findTicksBySecurityAndMinDate", QueryType.BY_NAME, new NamedParam("securityId", securityId), new NamedParam("minDate", minDate), new NamedParam("intervalDays", intervalDays));
+        return findTicksBySecurityAndMinDate(-1, securityId, minDate, intervalDays);
     }
 
     @Override
@@ -70,8 +62,12 @@ public class TickDaoImpl extends AbstractDao<Tick> implements TickDao {
 
         Validate.notNull(minDate, "minDate is null");
 
-        return find("Tick.findTicksBySecurityAndMinDate", limit, QueryType.BY_NAME, new NamedParam("securityId", securityId), new NamedParam("minDate", minDate), new NamedParam("intervalDays",
-                intervalDays));
+        LocalDateTime minLocalDateTime = DateTimeLegacy.toLocalDateTime(minDate);
+        LocalDateTime maxLocalDateTime = minLocalDateTime.plusDays(intervalDays);
+        return find("Tick.findTicksBySecurityAndMinDate", limit, QueryType.BY_NAME,
+                new NamedParam("securityId", securityId),
+                new NamedParam("minDate", DateTimeLegacy.toLocalDateTime(minLocalDateTime)),
+                new NamedParam("maxDate", DateTimeLegacy.toLocalDateTime(maxLocalDateTime)));
     }
 
     @Override
@@ -79,7 +75,7 @@ public class TickDaoImpl extends AbstractDao<Tick> implements TickDao {
 
         Validate.notNull(maxDate, "maxDate is null");
 
-        return find("Tick.findTicksBySecurityAndMaxDate", QueryType.BY_NAME, new NamedParam("securityId", securityId), new NamedParam("maxDate", maxDate), new NamedParam("intervalDays", intervalDays));
+        return findTicksBySecurityAndMaxDate(-1, securityId, maxDate, intervalDays);
     }
 
     @Override
@@ -87,8 +83,12 @@ public class TickDaoImpl extends AbstractDao<Tick> implements TickDao {
 
         Validate.notNull(maxDate, "maxDate is null");
 
-        return find("Tick.findTicksBySecurityAndMaxDate", limit, QueryType.BY_NAME, new NamedParam("securityId", securityId), new NamedParam("maxDate", maxDate), new NamedParam("intervalDays",
-                intervalDays));
+        LocalDateTime maxLocalDateTime = DateTimeLegacy.toLocalDateTime(maxDate);
+        LocalDateTime minLocalDateTime = maxLocalDateTime.minusDays(intervalDays);
+        return find("Tick.findTicksBySecurityAndMaxDate", limit, QueryType.BY_NAME,
+                new NamedParam("securityId", securityId),
+                new NamedParam("minDate", DateTimeLegacy.toLocalDateTime(minLocalDateTime)),
+                new NamedParam("maxDate", DateTimeLegacy.toLocalDateTime(maxLocalDateTime)));
     }
 
     @Override
