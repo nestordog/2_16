@@ -9,7 +9,7 @@
            <list>
                 <value>classpath:/META-INF/applicationContext-common.xml</value>
                 <value>classpath:/META-INF/applicationContext-remote.xml</value>
-                <value>classpath:/META-INF/applicationContext-client-services.xml</value>
+                <value>classpath:/META-INF/applicationContext-services-client.xml</value>
                 <value>classpath*:/META-INF/applicationContext-client*.xml</value>
                 <value>classpath*:/META-INF/applicationContext-import-remoteServices.xml</value>
            </list>
