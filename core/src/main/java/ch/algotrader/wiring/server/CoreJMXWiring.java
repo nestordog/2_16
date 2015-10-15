@@ -21,6 +21,7 @@ import javax.management.MBeanServer;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.jmx.support.MBeanServerFactoryBean;
 
 import ch.algotrader.cache.CacheManagerImpl;
@@ -29,6 +30,7 @@ import ch.algotrader.cache.CacheManagerMBean;
 /**
  * Core JMX configuration.
  */
+@Profile(value = "live")
 @Configuration
 public class CoreJMXWiring {
 

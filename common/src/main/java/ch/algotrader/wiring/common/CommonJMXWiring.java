@@ -31,7 +31,7 @@ import org.springframework.jmx.export.annotation.AnnotationMBeanExporter;
 /**
  * Common framework configuration.
  */
-@Profile(value = {"server", "live"})
+@Profile(value = {"live"})
 @Configuration
 public class CommonJMXWiring {
 

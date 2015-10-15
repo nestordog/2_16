@@ -21,21 +21,14 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
-import ch.algotrader.cache.CacheManager;
-import ch.algotrader.cache.CacheManagerImpl;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.ConfigParams;
-import ch.algotrader.dao.GenericDao;
 import ch.algotrader.esper.EngineManager;
-import ch.algotrader.event.dispatch.EventDispatcher;
-import ch.algotrader.lifecycle.LifecycleManager;
-import ch.algotrader.lifecycle.LifecycleManagerImpl;
 import ch.algotrader.service.CombinationService;
-import ch.algotrader.service.MarketDataCache;
 import ch.algotrader.service.LookupService;
-import ch.algotrader.service.LookupServiceImpl;
 import ch.algotrader.service.ManagementService;
 import ch.algotrader.service.ManagementServiceImpl;
+import ch.algotrader.service.MarketDataCache;
 import ch.algotrader.service.MarketDataService;
 import ch.algotrader.service.OrderService;
 import ch.algotrader.service.PortfolioChartService;
@@ -53,7 +46,7 @@ import ch.algotrader.vo.client.ChartDefinitionVO;
  */
 @Profile(value = "live")
 @Configuration
-public class LiveClientServiceWiring {
+public class ClientJMXServiceWiring {
 
     @Bean(name = "managementService")
     public ManagementService createManagementService(
@@ -83,24 +76,4 @@ public class LiveClientServiceWiring {
         return new PortfolioChartServiceImpl(portfolioChartDefinition, engineManager, portfolioService);
     }
 
-    @Bean(name = "lifecycleManager")
-    public static LifecycleManager createLifecycleManager(
-            final EngineManager engineManager,
-            final EventDispatcher eventDispatcher,
-            final SubscriptionService subscriptionService) {
-
-        return new LifecycleManagerImpl(engineManager, eventDispatcher, subscriptionService);
-    }
-
-    @Bean(name = "cacheManager")
-    public CacheManager createCacheManager(final GenericDao genericDao) {
-
-        return new CacheManagerImpl(genericDao);
-    }
-
-    @Bean(name = "lookupService")
-    public LookupService createLookupService(final GenericDao genericDao, final CacheManager cacheManager) {
-
-        return new LookupServiceImpl(genericDao, cacheManager);
-    }
 }

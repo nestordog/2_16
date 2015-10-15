@@ -25,10 +25,10 @@ import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.ConfigParams;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.service.CombinationService;
-import ch.algotrader.service.MarketDataCache;
 import ch.algotrader.service.LookupService;
 import ch.algotrader.service.ManagementService;
 import ch.algotrader.service.ManagementServiceImpl;
+import ch.algotrader.service.MarketDataCache;
 import ch.algotrader.service.MarketDataService;
 import ch.algotrader.service.OrderService;
 import ch.algotrader.service.PortfolioChartService;
@@ -44,7 +44,7 @@ import ch.algotrader.vo.client.ChartDefinitionVO;
  */
 @Profile(value = "live")
 @Configuration
-public class ManagementServiceWiring {
+public class ServerJMXServiceWiring {
 
     @Bean(name = "managementService")
     public ManagementService createManagementService(

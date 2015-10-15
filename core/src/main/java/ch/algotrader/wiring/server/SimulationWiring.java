@@ -46,8 +46,8 @@ import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.EventListenerRegistry;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.ordermgmt.OrderRegistry;
-import ch.algotrader.service.MarketDataCache;
 import ch.algotrader.service.LookupService;
+import ch.algotrader.service.MarketDataCache;
 import ch.algotrader.service.PortfolioService;
 import ch.algotrader.service.PositionService;
 import ch.algotrader.service.ResetService;
@@ -63,10 +63,10 @@ import ch.algotrader.simulation.SimulationExecutorImpl;
 /**
  * Simulation profile configuration.
  */
+@Profile("simulation")
 @Configuration
 public class SimulationWiring {
 
-    @Profile("simulation")
     @Bean(name = "simulationExecutor")
     public SimulationExecutor createSimulationExecutor(
             final CommonConfig commonConfig,
@@ -87,7 +87,6 @@ public class SimulationWiring {
                 lookupService, serverLookupService, eventListenerRegistry, eventDispatcher, engineManager, serverEngine, cacheManager);
     }
 
-    @Profile({ "simulation" })
     @Bean(name = "simulationOrderService")
     public SimulationOrderService createSimulationOrderService(
             final OrderRegistry orderRegistry,
@@ -98,7 +97,6 @@ public class SimulationWiring {
         return new SimulationOrderServiceImpl(orderRegistry, marketDataCache, engineManager, serverEngine);
     }
 
-    @Profile({ "simulation" })
     @Bean(name = "resetService")
     public ResetService createResetService(final CoreConfig coreConfig,
             final OrderDao orderDao,

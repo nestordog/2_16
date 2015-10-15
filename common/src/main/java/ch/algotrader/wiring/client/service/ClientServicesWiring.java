@@ -19,11 +19,19 @@ package ch.algotrader.wiring.client.service;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import ch.algotrader.cache.CacheManager;
+import ch.algotrader.cache.CacheManagerImpl;
 import ch.algotrader.config.CommonConfig;
+import ch.algotrader.dao.GenericDao;
 import ch.algotrader.esper.EngineManager;
+import ch.algotrader.event.dispatch.EventDispatcher;
+import ch.algotrader.lifecycle.LifecycleManager;
+import ch.algotrader.lifecycle.LifecycleManagerImpl;
+import ch.algotrader.service.LookupService;
+import ch.algotrader.service.LookupServiceImpl;
 import ch.algotrader.service.MarketDataCache;
 import ch.algotrader.service.MarketDataCacheImpl;
-import ch.algotrader.service.LookupService;
 import ch.algotrader.service.MarketDataService;
 import ch.algotrader.service.SubscriptionService;
 import ch.algotrader.service.SubscriptionServiceImpl;
@@ -51,6 +59,27 @@ public class ClientServicesWiring {
             final LookupService lookupService) {
 
         return new MarketDataCacheImpl(commonConfig, engineManager, lookupService);
+    }
+
+    @Bean(name = "lifecycleManager")
+    public static LifecycleManager createLifecycleManager(
+            final EngineManager engineManager,
+            final EventDispatcher eventDispatcher,
+            final SubscriptionService subscriptionService) {
+
+        return new LifecycleManagerImpl(engineManager, eventDispatcher, subscriptionService);
+    }
+
+    @Bean(name = "cacheManager")
+    public CacheManager createCacheManager(final GenericDao genericDao) {
+
+        return new CacheManagerImpl(genericDao);
+    }
+
+    @Bean(name = "lookupService")
+    public LookupService createLookupService(final GenericDao genericDao, final CacheManager cacheManager) {
+
+        return new LookupServiceImpl(genericDao, cacheManager);
     }
 
 }
