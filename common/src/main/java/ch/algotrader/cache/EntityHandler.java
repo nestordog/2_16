@@ -146,6 +146,7 @@ public class EntityHandler extends AbstractHandler {
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected Object initialize(Object obj) {
 

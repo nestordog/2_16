@@ -17,7 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.ordermgmt;
 
-import java.util.Collections;
 import java.util.List;
 
 import org.junit.Assert;
@@ -36,7 +35,7 @@ public class DefaultOrderRegistryTest {
 
     @Before
     public void setup() {
-        impl = new DefaultOrderRegistry();
+        this.impl = new DefaultOrderRegistry();
     }
 
     @Test
@@ -46,19 +45,19 @@ public class DefaultOrderRegistryTest {
         order.setIntId("Blah");
         order.setQuantity(123L);
 
-        impl.add(order);
-        final Order order1 = impl.getByIntId("Blah");
+        this.impl.add(order);
+        final Order order1 = this.impl.getByIntId("Blah");
         Assert.assertSame(order, order1);
-        final ExecutionStatusVO status1 = impl.getStatusByIntId("Blah");
+        final ExecutionStatusVO status1 = this.impl.getStatusByIntId("Blah");
         Assert.assertNotNull(status1);
         Assert.assertEquals(Status.OPEN, status1.getStatus());
         Assert.assertEquals("Blah", status1.getIntId());
         Assert.assertEquals(0L, status1.getFilledQuantity());
         Assert.assertEquals(123L, status1.getRemainingQuantity());
 
-        impl.remove("Blah");
-        Assert.assertNull(impl.getByIntId("Blah"));
-        Assert.assertNull(impl.getStatusByIntId("Blah"));
+        this.impl.remove("Blah");
+        Assert.assertNull(this.impl.getByIntId("Blah"));
+        Assert.assertNull(this.impl.getStatusByIntId("Blah"));
     }
 
     @Test(expected = IllegalStateException.class)
@@ -68,8 +67,8 @@ public class DefaultOrderRegistryTest {
         order.setIntId("Blah");
         order.setQuantity(123L);
 
-        impl.add(order);
-        impl.add(order);
+        this.impl.add(order);
+        this.impl.add(order);
     }
 
     @Test
@@ -79,25 +78,25 @@ public class DefaultOrderRegistryTest {
         order.setIntId("Blah");
         order.setQuantity(123L);
 
-        impl.add(order);
-        impl.updateExecutionStatus("Blah", Status.SUBMITTED, 0L, 123L);
-        final ExecutionStatusVO status1 = impl.getStatusByIntId("Blah");
+        this.impl.add(order);
+        this.impl.updateExecutionStatus("Blah", Status.SUBMITTED, 0L, 123L);
+        final ExecutionStatusVO status1 = this.impl.getStatusByIntId("Blah");
         Assert.assertNotNull(status1);
         Assert.assertEquals(Status.SUBMITTED, status1.getStatus());
         Assert.assertEquals("Blah", status1.getIntId());
         Assert.assertEquals(0L, status1.getFilledQuantity());
         Assert.assertEquals(123L, status1.getRemainingQuantity());
 
-        impl.updateExecutionStatus("Blah", Status.PARTIALLY_EXECUTED, 23L, 100L);
-        final ExecutionStatusVO status2 = impl.getStatusByIntId("Blah");
+        this.impl.updateExecutionStatus("Blah", Status.PARTIALLY_EXECUTED, 23L, 100L);
+        final ExecutionStatusVO status2 = this.impl.getStatusByIntId("Blah");
         Assert.assertNotNull(status2);
         Assert.assertEquals(Status.PARTIALLY_EXECUTED, status2.getStatus());
         Assert.assertEquals("Blah", status2.getIntId());
         Assert.assertEquals(23L, status2.getFilledQuantity());
         Assert.assertEquals(100L, status2.getRemainingQuantity());
 
-        impl.updateExecutionStatus("Blah", Status.EXECUTED, 123L, 0L);
-        Assert.assertNull(impl.getStatusByIntId("Blah"));
+        this.impl.updateExecutionStatus("Blah", Status.EXECUTED, 123L, 0L);
+        Assert.assertNull(this.impl.getStatusByIntId("Blah"));
     }
 
     @Test(expected = IllegalStateException.class)
@@ -107,11 +106,11 @@ public class DefaultOrderRegistryTest {
         order.setIntId("Blah");
         order.setQuantity(123L);
 
-        impl.add(order);
-        impl.updateExecutionStatus("Blah", Status.SUBMITTED, 0L, 123L);
-        impl.updateExecutionStatus("Blah", Status.PARTIALLY_EXECUTED, 23L, 100L);
-        impl.updateExecutionStatus("Blah", Status.EXECUTED, 123L, 0L);
-        impl.updateExecutionStatus("Blah", Status.EXECUTED, 123L, 0L);
+        this.impl.add(order);
+        this.impl.updateExecutionStatus("Blah", Status.SUBMITTED, 0L, 123L);
+        this.impl.updateExecutionStatus("Blah", Status.PARTIALLY_EXECUTED, 23L, 100L);
+        this.impl.updateExecutionStatus("Blah", Status.EXECUTED, 123L, 0L);
+        this.impl.updateExecutionStatus("Blah", Status.EXECUTED, 123L, 0L);
     }
 
     @Test
@@ -120,26 +119,26 @@ public class DefaultOrderRegistryTest {
         Order order1 = MarketOrder.Factory.newInstance();
         order1.setIntId("Blah");
         order1.setQuantity(123L);
-        impl.add(order1);
+        this.impl.add(order1);
 
         Order order2 = MarketOrder.Factory.newInstance();
         order2.setIntId("Yada");
         order2.setQuantity(123L);
 
-        impl.add(order2);
+        this.impl.add(order2);
 
-        List<OrderDetailsVO> recentOrderDetails1 = impl.getRecentOrderDetails();
+        List<OrderDetailsVO> recentOrderDetails1 = this.impl.getRecentOrderDetails();
         Assert.assertNotNull(recentOrderDetails1);
         Assert.assertEquals(0, recentOrderDetails1.size());
 
-        impl.updateExecutionStatus("Yada", Status.CANCELED, 123L, 0L);
-        List<OrderDetailsVO> recentOrderDetails2 = impl.getRecentOrderDetails();
+        this.impl.updateExecutionStatus("Yada", Status.CANCELED, 123L, 0L);
+        List<OrderDetailsVO> recentOrderDetails2 = this.impl.getRecentOrderDetails();
         Assert.assertNotNull(recentOrderDetails2);
         Assert.assertEquals(1, recentOrderDetails2.size());
         Assert.assertSame(order2, recentOrderDetails2.get(0).getOrder());
 
-        impl.updateExecutionStatus("Blah", Status.REJECTED, 123L, 0L);
-        List<OrderDetailsVO> recentOrderDetails3 = impl.getRecentOrderDetails();
+        this.impl.updateExecutionStatus("Blah", Status.REJECTED, 123L, 0L);
+        List<OrderDetailsVO> recentOrderDetails3 = this.impl.getRecentOrderDetails();
         Assert.assertNotNull(recentOrderDetails3);
         Assert.assertEquals(2, recentOrderDetails3.size());
         Assert.assertSame(order1, recentOrderDetails3.get(0).getOrder());
@@ -152,30 +151,30 @@ public class DefaultOrderRegistryTest {
         Order order1 = MarketOrder.Factory.newInstance();
         order1.setIntId("Blah");
         order1.setQuantity(123L);
-        impl.add(order1);
+        this.impl.add(order1);
 
         Order order2 = MarketOrder.Factory.newInstance();
         order2.setIntId("Yada");
         order2.setQuantity(123L);
-        impl.add(order2);
+        this.impl.add(order2);
 
         Order order3 = MarketOrder.Factory.newInstance();
         order3.setIntId("Booh");
         order3.setQuantity(123L);
-        impl.add(order3);
+        this.impl.add(order3);
 
-        impl.evictCompleted();
-        Assert.assertSame(order1, impl.getByIntId("Blah"));
-        Assert.assertSame(order2, impl.getByIntId("Yada"));
-        Assert.assertSame(order3, impl.getByIntId("Booh"));
+        this.impl.evictCompleted();
+        Assert.assertSame(order1, this.impl.getByIntId("Blah"));
+        Assert.assertSame(order2, this.impl.getByIntId("Yada"));
+        Assert.assertSame(order3, this.impl.getByIntId("Booh"));
 
-        impl.updateExecutionStatus("Yada", Status.CANCELED, 123L, 0L);
-        impl.updateExecutionStatus("Blah", Status.REJECTED, 123L, 0L);
+        this.impl.updateExecutionStatus("Yada", Status.CANCELED, 123L, 0L);
+        this.impl.updateExecutionStatus("Blah", Status.REJECTED, 123L, 0L);
 
-        impl.evictCompleted();
-        Assert.assertNull(impl.getByIntId("Blah"));
-        Assert.assertNull(impl.getByIntId("Yada"));
-        Assert.assertSame(order3, impl.getByIntId("Booh"));
+        this.impl.evictCompleted();
+        Assert.assertNull(this.impl.getByIntId("Blah"));
+        Assert.assertNull(this.impl.getByIntId("Yada"));
+        Assert.assertSame(order3, this.impl.getByIntId("Booh"));
     }
 
 }

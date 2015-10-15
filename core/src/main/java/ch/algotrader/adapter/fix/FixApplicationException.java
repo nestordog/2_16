@@ -24,6 +24,8 @@ package ch.algotrader.adapter.fix;
  */
 public class FixApplicationException extends RuntimeException {
 
+    private static final long serialVersionUID = -7833579148653485688L;
+
     public FixApplicationException(final String message) {
         super(message);
     }

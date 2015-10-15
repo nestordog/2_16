@@ -116,52 +116,53 @@ public class TradingEsperTest extends EsperTestBase {
         config.getVariables().get("misc_orderAckSeconds").setInitializationValue(10);
         config.getEngineDefaults().getExpression().setMathContext(new MathContext(3, RoundingMode.HALF_EVEN));
 
-        epService = EPServiceProviderManager.getDefaultProvider(config);
-        epRuntime = epService.getEPRuntime();
-        epRuntime.setVariableValue("orderService", orderService);
+        this.epService = EPServiceProviderManager.getDefaultProvider(config);
+        this.epRuntime = this.epService.getEPRuntime();
+        this.epRuntime.setVariableValue("orderService", this.orderService);
 
-        usdFx = SecurityFamily.Factory.newInstance();
-        usdFx.setId(1);
-        usdFx.setSymbolRoot("USD FX");
-        usdFx.setCurrency(Currency.USD);
-        usdFx.setTickSizePattern("0<0.00005");
-        usdFx.setTradeable(true);
-        usdFx.setScale(4);
-        usdFx.setContractSize(10.0d);
-        exchange = Exchange.Factory.newInstance("exchange", "GMT");
-        exchange.setId(5L);
-        usdFx.setExchange(exchange);
+        this.usdFx = SecurityFamily.Factory.newInstance();
+        this.usdFx.setId(1);
+        this.usdFx.setSymbolRoot("USD FX");
+        this.usdFx.setCurrency(Currency.USD);
+        this.usdFx.setTickSizePattern("0<0.00005");
+        this.usdFx.setTradeable(true);
+        this.usdFx.setScale(4);
+        this.usdFx.setContractSize(10.0d);
+        this.exchange = Exchange.Factory.newInstance("exchange", "GMT");
+        this.exchange.setId(5L);
+        this.usdFx.setExchange(this.exchange);
 
-        eurusd = Forex.Factory.newInstance();
-        eurusd.setId(1);
-        eurusd.setSymbol("EUR.USD");
-        eurusd.setBaseCurrency(Currency.EUR);
-        eurusd.setSecurityFamily(usdFx);
+        this.eurusd = Forex.Factory.newInstance();
+        this.eurusd.setId(1);
+        this.eurusd.setSymbol("EUR.USD");
+        this.eurusd.setBaseCurrency(Currency.EUR);
+        this.eurusd.setSecurityFamily(this.usdFx);
 
-        chfusd = Forex.Factory.newInstance();
-        chfusd.setId(2);
-        chfusd.setSymbol("NZD.USD");
-        chfusd.setBaseCurrency(Currency.CHF);
-        chfusd.setSecurityFamily(usdFx);
+        this.chfusd = Forex.Factory.newInstance();
+        this.chfusd.setId(2);
+        this.chfusd.setSymbol("NZD.USD");
+        this.chfusd.setBaseCurrency(Currency.CHF);
+        this.chfusd.setSecurityFamily(this.usdFx);
     }
 
     @After
     public void cleanUpEsper() {
-        if (epService != null) {
-            epService.destroy();
+        if (this.epService != null) {
+            this.epService.destroy();
         }
     }
 
     @Test
     public void testFilledOrderCompletionEvent() throws Exception {
 
-        deployModule(epService,
+        deployModule(this.epService,
                 getClass().getResource("/module-trades.epl"), "INSERT_INTO_ORDER_COMPLETION");
 
         final Queue<OrderCompletionVO> orderStatusQueue = new ConcurrentLinkedQueue<>();
-        EPStatement statement1 = epService.getEPAdministrator().createEPL("select * from OrderCompletionVO");
+        EPStatement statement1 = this.epService.getEPAdministrator().createEPL("select * from OrderCompletionVO");
         Assert.assertNotNull(statement1);
         statement1.setSubscriber(new Object() {
+            @SuppressWarnings("unused")
             public void update(final OrderCompletionVO event) {
                 orderStatusQueue.add(event);
             }
@@ -171,10 +172,10 @@ public class TradingEsperTest extends EsperTestBase {
         order.setIntId("some-int-id");
         order.setQuantity(1000L);
         order.setSide(Side.BUY);
-        order.setSecurity(eurusd);
-        order.setDateTime(new Date(epService.getEPRuntime().getCurrentTime()));
+        order.setSecurity(this.eurusd);
+        order.setDateTime(new Date(this.epService.getEPRuntime().getCurrentTime()));
 
-        epRuntime.sendEvent(order);
+        this.epRuntime.sendEvent(order);
 
         OrderStatus orderStatus1 = OrderStatus.Factory.newInstance();
         orderStatus1.setStatus(Status.SUBMITTED);
@@ -185,7 +186,7 @@ public class TradingEsperTest extends EsperTestBase {
 
         Assert.assertNull(orderStatusQueue.poll());
 
-        epRuntime.sendEvent(orderStatus1);
+        this.epRuntime.sendEvent(orderStatus1);
 
         OrderStatus orderStatus2 = OrderStatus.Factory.newInstance();
         orderStatus2.setStatus(Status.PARTIALLY_EXECUTED);
@@ -194,18 +195,18 @@ public class TradingEsperTest extends EsperTestBase {
         orderStatus2.setFilledQuantity(100L);
         orderStatus2.setRemainingQuantity(900L);
 
-        epRuntime.sendEvent(orderStatus2);
+        this.epRuntime.sendEvent(orderStatus2);
 
         Transaction transaction1 = Transaction.Factory.newInstance();
         transaction1.setIntOrderId("some-int-id");
         transaction1.setQuantity(100L);
-        transaction1.setSecurity(eurusd);
+        transaction1.setSecurity(this.eurusd);
         transaction1.setPrice(new BigDecimal("0.98"));
         transaction1.setType(TransactionType.BUY);
         transaction1.setExecutionCommission(new BigDecimal("0.003"));
-        transaction1.setDateTime(new Date(epService.getEPRuntime().getCurrentTime()));
+        transaction1.setDateTime(new Date(this.epService.getEPRuntime().getCurrentTime()));
 
-        epRuntime.sendEvent(transaction1);
+        this.epRuntime.sendEvent(transaction1);
 
         Assert.assertNull(orderStatusQueue.poll());
 
@@ -216,19 +217,19 @@ public class TradingEsperTest extends EsperTestBase {
         orderStatus3.setFilledQuantity(1000L);
         orderStatus3.setRemainingQuantity(0L);
 
-        epRuntime.sendEvent(orderStatus3);
+        this.epRuntime.sendEvent(orderStatus3);
 
         Transaction transaction2 = Transaction.Factory.newInstance();
         transaction2.setIntOrderId("some-int-id");
         transaction2.setQuantity(900L);
-        transaction2.setSecurity(eurusd);
+        transaction2.setSecurity(this.eurusd);
         transaction2.setPrice(new BigDecimal("0.96"));
         transaction2.setType(TransactionType.BUY);
         transaction2.setClearingCommission(new BigDecimal("0.001"));
         transaction2.setFee(new BigDecimal("0.002"));
-        transaction2.setDateTime(new Date(epService.getEPRuntime().getCurrentTime()));
+        transaction2.setDateTime(new Date(this.epService.getEPRuntime().getCurrentTime()));
 
-        epRuntime.sendEvent(transaction2);
+        this.epRuntime.sendEvent(transaction2);
 
         OrderCompletionVO orderCompletion = orderStatusQueue.poll();
         Assert.assertNotNull(orderCompletion);
@@ -242,13 +243,14 @@ public class TradingEsperTest extends EsperTestBase {
     @Test
     public void testCancelledOrderCompletionEvent() throws Exception {
 
-        deployModule(epService,
+        deployModule(this.epService,
                 getClass().getResource("/module-trades.epl"), "INSERT_INTO_ORDER_COMPLETION");
 
         final Queue<OrderCompletionVO> orderStatusQueue = new ConcurrentLinkedQueue<>();
-        EPStatement statement1 = epService.getEPAdministrator().createEPL("select * from OrderCompletionVO");
+        EPStatement statement1 = this.epService.getEPAdministrator().createEPL("select * from OrderCompletionVO");
         Assert.assertNotNull(statement1);
         statement1.setSubscriber(new Object() {
+            @SuppressWarnings("unused")
             public void update(final OrderCompletionVO event) {
                 orderStatusQueue.add(event);
             }
@@ -258,10 +260,10 @@ public class TradingEsperTest extends EsperTestBase {
         order.setIntId("some-int-id");
         order.setQuantity(1000L);
         order.setSide(Side.BUY);
-        order.setSecurity(eurusd);
-        order.setDateTime(new Date(epService.getEPRuntime().getCurrentTime()));
+        order.setSecurity(this.eurusd);
+        order.setDateTime(new Date(this.epService.getEPRuntime().getCurrentTime()));
 
-        epRuntime.sendEvent(order);
+        this.epRuntime.sendEvent(order);
 
         OrderStatus orderStatus1 = OrderStatus.Factory.newInstance();
         orderStatus1.setStatus(Status.SUBMITTED);
@@ -272,18 +274,18 @@ public class TradingEsperTest extends EsperTestBase {
 
         Assert.assertNull(orderStatusQueue.poll());
 
-        epRuntime.sendEvent(orderStatus1);
+        this.epRuntime.sendEvent(orderStatus1);
 
         Transaction transaction1 = Transaction.Factory.newInstance();
         transaction1.setIntOrderId("some-int-id");
         transaction1.setQuantity(100L);
-        transaction1.setSecurity(eurusd);
+        transaction1.setSecurity(this.eurusd);
         transaction1.setPrice(new BigDecimal("0.98"));
         transaction1.setType(TransactionType.BUY);
         transaction1.setExecutionCommission(new BigDecimal("0.003"));
-        transaction1.setDateTime(new Date(epService.getEPRuntime().getCurrentTime()));
+        transaction1.setDateTime(new Date(this.epService.getEPRuntime().getCurrentTime()));
 
-        epRuntime.sendEvent(transaction1);
+        this.epRuntime.sendEvent(transaction1);
 
         OrderStatus orderStatus2 = OrderStatus.Factory.newInstance();
         orderStatus2.setStatus(Status.PARTIALLY_EXECUTED);
@@ -292,7 +294,7 @@ public class TradingEsperTest extends EsperTestBase {
         orderStatus2.setFilledQuantity(100L);
         orderStatus2.setRemainingQuantity(900L);
 
-        epRuntime.sendEvent(orderStatus2);
+        this.epRuntime.sendEvent(orderStatus2);
 
         Assert.assertNull(orderStatusQueue.poll());
 
@@ -303,7 +305,7 @@ public class TradingEsperTest extends EsperTestBase {
         orderStatus3.setFilledQuantity(100L);
         orderStatus3.setRemainingQuantity(900L);
 
-        epRuntime.sendEvent(orderStatus3);
+        this.epRuntime.sendEvent(orderStatus3);
 
         OrderCompletionVO orderCompletion = orderStatusQueue.poll();
         Assert.assertNotNull(orderCompletion);
@@ -317,13 +319,14 @@ public class TradingEsperTest extends EsperTestBase {
     @Test
     public void testOrderWithAck() throws Exception {
 
-        deployModule(epService,
+        deployModule(this.epService,
                 getClass().getResource("/module-trades.epl"), "NOTIFY_MISSING_ORDER_REPLY");
 
         final Queue<String> notificationQueue = new ConcurrentLinkedQueue<>();
-        EPStatement statement1 = epService.getEPAdministrator().getStatement("NOTIFY_MISSING_ORDER_REPLY");
+        EPStatement statement1 = this.epService.getEPAdministrator().getStatement("NOTIFY_MISSING_ORDER_REPLY");
         Assert.assertNotNull(statement1);
         statement1.setSubscriber(new Object() {
+            @SuppressWarnings("unused")
             public void update(final String event) {
                 notificationQueue.add(event);
             }
@@ -333,7 +336,7 @@ public class TradingEsperTest extends EsperTestBase {
         order.setIntId("some-int-id");
         order.setQuantity(1000L);
         order.setSide(Side.BUY);
-        order.setSecurity(eurusd);
+        order.setSecurity(this.eurusd);
         order.setTif(TIF.DAY);
         order.setDateTime(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:01"));
 
@@ -343,9 +346,9 @@ public class TradingEsperTest extends EsperTestBase {
         orderStatus.setIntId("some-int-id");
         orderStatus.setDateTime(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:10"));
 
-        epRuntime.sendEvent(new CurrentTimeEvent(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:00").getTime()));
+        this.epRuntime.sendEvent(new CurrentTimeEvent(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:00").getTime()));
 
-        AdapterCoordinator coordinator = new AdapterCoordinatorImpl(epService, true, true, true);
+        AdapterCoordinator coordinator = new AdapterCoordinatorImpl(this.epService, true, true, true);
         CollectionInputAdapter inputAdapter = new CollectionInputAdapter(Arrays.asList(order, orderStatus), "dateTime");
         coordinator.coordinate(inputAdapter);
         coordinator.start();
@@ -356,13 +359,14 @@ public class TradingEsperTest extends EsperTestBase {
     @Test
     public void testOrderWithMissingAck() throws Exception {
 
-        deployModule(epService,
+        deployModule(this.epService,
                 getClass().getResource("/module-trades.epl"), "NOTIFY_MISSING_ORDER_REPLY");
 
         final Queue<String> notificationQueue = new ConcurrentLinkedQueue<>();
-        EPStatement statement1 = epService.getEPAdministrator().getStatement("NOTIFY_MISSING_ORDER_REPLY");
+        EPStatement statement1 = this.epService.getEPAdministrator().getStatement("NOTIFY_MISSING_ORDER_REPLY");
         Assert.assertNotNull(statement1);
         statement1.setSubscriber(new Object() {
+            @SuppressWarnings("unused")
             public void update(final String event) {
                 notificationQueue.add(event);
             }
@@ -372,7 +376,7 @@ public class TradingEsperTest extends EsperTestBase {
         order.setIntId("some-int-id");
         order.setQuantity(1000L);
         order.setSide(Side.BUY);
-        order.setSecurity(eurusd);
+        order.setSecurity(this.eurusd);
         order.setTif(TIF.DAY);
         order.setDateTime(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:01"));
 
@@ -381,9 +385,9 @@ public class TradingEsperTest extends EsperTestBase {
         orderStatus.setIntId("some-other-int-id");
         orderStatus.setDateTime(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:11"));
 
-        epRuntime.sendEvent(new CurrentTimeEvent(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:00").getTime()));
+        this.epRuntime.sendEvent(new CurrentTimeEvent(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:00").getTime()));
 
-        AdapterCoordinator coordinator = new AdapterCoordinatorImpl(epService, true, true, true);
+        AdapterCoordinator coordinator = new AdapterCoordinatorImpl(this.epService, true, true, true);
         CollectionInputAdapter inputAdapter = new CollectionInputAdapter(Arrays.asList(order, orderStatus), "dateTime");
         coordinator.coordinate(inputAdapter);
         coordinator.start();
@@ -396,29 +400,30 @@ public class TradingEsperTest extends EsperTestBase {
     @Test
     public void testAlgoOrderInitialOrders() throws Exception {
 
-        deployModule(epService,
+        deployModule(this.epService,
                 getClass().getResource("/module-current-values.epl"), "MARKET_DATA_WINDOW", "INSERT_INTO_CURRENT_MARKET_DATA_EVENT");
-        deployModule(epService,
+        deployModule(this.epService,
                 getClass().getResource("/module-trades.epl"), "SEND_INITIAL_ALGO_ORDERS");
 
         final Queue<Collection<Order>> orderQueue = new ConcurrentLinkedQueue<>();
-        EPStatement statement1 = epService.getEPAdministrator().getStatement("SEND_INITIAL_ALGO_ORDERS");
+        EPStatement statement1 = this.epService.getEPAdministrator().getStatement("SEND_INITIAL_ALGO_ORDERS");
         Assert.assertNotNull(statement1);
         statement1.setSubscriber(new Object() {
+            @SuppressWarnings("unused")
             public void update(final Collection<Order> event) {
                 orderQueue.add(event);
             }
         });
 
-        TickVO tick1 = new TickVO(0L, new Date(), FeedType.IB.name(), eurusd.getId(),
-                new BigDecimal("1.11"), new Date(epService.getEPRuntime().getCurrentTime()), new BigDecimal("1.12"), new BigDecimal("1.1"), 0, 0, 0);
-        epRuntime.sendEvent(tick1);
+        TickVO tick1 = new TickVO(0L, new Date(), FeedType.IB.name(), this.eurusd.getId(),
+                new BigDecimal("1.11"), new Date(this.epService.getEPRuntime().getCurrentTime()), new BigDecimal("1.12"), new BigDecimal("1.1"), 0, 0, 0);
+        this.epRuntime.sendEvent(tick1);
 
         DistributingOrder algoOrder = new DistributingOrder();
-        algoOrder.setSecurity(eurusd);
+        algoOrder.setSecurity(this.eurusd);
         algoOrder.setSide(Side.BUY);
         algoOrder.setQuantity(200);
-        algoOrder.setDateTime(new Date(epService.getEPRuntime().getCurrentTime()));
+        algoOrder.setDateTime(new Date(this.epService.getEPRuntime().getCurrentTime()));
 
         Account account1 = Account.Factory.newInstance();
         account1.setName("acc1");
@@ -435,7 +440,7 @@ public class TradingEsperTest extends EsperTestBase {
         allocation2.setAccount(account2);
         algoOrder.addAllocations(allocation2);
 
-        epRuntime.sendEvent(algoOrder);
+        this.epRuntime.sendEvent(algoOrder);
 
         Collection<Order> orders = orderQueue.poll();
         Assert.assertNotNull(orders);
@@ -445,13 +450,14 @@ public class TradingEsperTest extends EsperTestBase {
     @Test
     public void testAlgoOrderStatusSubmitted() throws Exception {
 
-        deployModule(epService,
+        deployModule(this.epService,
                 getClass().getResource("/module-trades.epl"), "INSERT_INTO_ALGO_ORDER_STATUS_SUBMITTED");
 
         final Queue<OrderStatus> orderQueue = new ConcurrentLinkedQueue<>();
-        EPStatement statement1 = epService.getEPAdministrator().createEPL("select * from OrderStatus");
+        EPStatement statement1 = this.epService.getEPAdministrator().createEPL("select * from OrderStatus");
         Assert.assertNotNull(statement1);
         statement1.setSubscriber(new Object() {
+            @SuppressWarnings("unused")
             public void update(final OrderStatus event) {
                 orderQueue.add(event);
             }
@@ -459,7 +465,7 @@ public class TradingEsperTest extends EsperTestBase {
 
         DistributingOrder algoOrder = new DistributingOrder();
         algoOrder.setIntId("my-algo-order");
-        algoOrder.setSecurity(eurusd);
+        algoOrder.setSecurity(this.eurusd);
         algoOrder.setSide(Side.BUY);
         algoOrder.setQuantity(200);
 
@@ -481,7 +487,7 @@ public class TradingEsperTest extends EsperTestBase {
         MarketOrder childOrder = MarketOrder.Factory.newInstance();
         childOrder.setIntId("my-child-order");
         childOrder.setParentOrder(algoOrder);
-        childOrder.setSecurity(eurusd);
+        childOrder.setSecurity(this.eurusd);
         childOrder.setQuantity(40);
         childOrder.setSide(Side.BUY);
         childOrder.setAccount(account1);
@@ -491,10 +497,10 @@ public class TradingEsperTest extends EsperTestBase {
         orderStatus1.setOrder(childOrder);
         orderStatus1.setStatus(Status.SUBMITTED);
 
-        Mockito.when(orderService.getStatusByIntId("my-algo-order")).thenReturn(
+        Mockito.when(this.orderService.getStatusByIntId("my-algo-order")).thenReturn(
                 new ExecutionStatusVO("my-algo-order", Status.OPEN, 0L, 199L, LocalDateTime.now()));
 
-        epRuntime.sendEvent(orderStatus1);
+        this.epRuntime.sendEvent(orderStatus1);
 
         Assert.assertSame(orderStatus1, orderQueue.poll());
         OrderStatus orderStatus2 = orderQueue.poll();
@@ -508,13 +514,14 @@ public class TradingEsperTest extends EsperTestBase {
     @Test
     public void testAlgoOrderStatusFilled() throws Exception {
 
-        deployModule(epService,
+        deployModule(this.epService,
                 getClass().getResource("/module-trades.epl"), "INSERT_INTO_ALGO_ORDER_STATUS_FROM_FILL");
 
         final Queue<OrderStatus> orderQueue = new ConcurrentLinkedQueue<>();
-        EPStatement statement1 = epService.getEPAdministrator().createEPL("select * from OrderStatus");
+        EPStatement statement1 = this.epService.getEPAdministrator().createEPL("select * from OrderStatus");
         Assert.assertNotNull(statement1);
         statement1.setSubscriber(new Object() {
+            @SuppressWarnings("unused")
             public void update(final OrderStatus event) {
                 orderQueue.add(event);
             }
@@ -522,7 +529,7 @@ public class TradingEsperTest extends EsperTestBase {
 
         DistributingOrder algoOrder = new DistributingOrder();
         algoOrder.setIntId("my-algo-order");
-        algoOrder.setSecurity(eurusd);
+        algoOrder.setSecurity(this.eurusd);
         algoOrder.setSide(Side.BUY);
         algoOrder.setQuantity(200);
 
@@ -544,12 +551,12 @@ public class TradingEsperTest extends EsperTestBase {
         MarketOrder childOrder = MarketOrder.Factory.newInstance();
         childOrder.setIntId("my-child-order");
         childOrder.setParentOrder(algoOrder);
-        childOrder.setSecurity(eurusd);
+        childOrder.setSecurity(this.eurusd);
         childOrder.setQuantity(40);
         childOrder.setSide(Side.BUY);
         childOrder.setAccount(account1);
 
-        Mockito.when(orderService.getStatusByIntId("my-algo-order")).thenReturn(
+        Mockito.when(this.orderService.getStatusByIntId("my-algo-order")).thenReturn(
                 new ExecutionStatusVO("my-algo-order", Status.OPEN, 0L, 199L, LocalDateTime.now()));
 
         Fill fill1 = new Fill();
@@ -557,7 +564,7 @@ public class TradingEsperTest extends EsperTestBase {
         fill1.setSide(Side.BUY);
         fill1.setQuantity(10L);
 
-        epRuntime.sendEvent(fill1);
+        this.epRuntime.sendEvent(fill1);
 
         OrderStatus orderStatus1 = orderQueue.poll();
         Assert.assertNotNull(orderStatus1);
@@ -571,7 +578,7 @@ public class TradingEsperTest extends EsperTestBase {
         fill2.setSide(Side.BUY);
         fill2.setQuantity(199L);
 
-        epRuntime.sendEvent(fill2);
+        this.epRuntime.sendEvent(fill2);
 
         OrderStatus orderStatus2 = orderQueue.poll();
         Assert.assertNotNull(orderStatus2);
@@ -584,13 +591,14 @@ public class TradingEsperTest extends EsperTestBase {
     @Test
     public void testTransactionSummary() throws Exception {
 
-        deployModule(epService,
+        deployModule(this.epService,
                 getClass().getResource("/module-trades.epl"), "LOG_TRANSACTION_SUMMARY");
 
         final Queue<List<Fill>> fillListQueue = new ConcurrentLinkedQueue<>();
-        EPStatement statement1 = epService.getEPAdministrator().getStatement("LOG_TRANSACTION_SUMMARY");
+        EPStatement statement1 = this.epService.getEPAdministrator().getStatement("LOG_TRANSACTION_SUMMARY");
         Assert.assertNotNull(statement1);
         statement1.setSubscriber(new Object() {
+            @SuppressWarnings("unused")
             public void update(Map<?, ?>[] insertStream, Map<?, ?>[] removeStream) {
                 List<Fill> fills = new ArrayList<>();
                 for (Map<?, ?> element : insertStream) {
@@ -603,17 +611,17 @@ public class TradingEsperTest extends EsperTestBase {
 
         MarketOrder order = MarketOrder.Factory.newInstance();
         order.setIntId("my-order");
-        order.setSecurity(eurusd);
+        order.setSecurity(this.eurusd);
         order.setQuantity(40);
         order.setSide(Side.BUY);
 
-        epRuntime.sendEvent(order);
+        this.epRuntime.sendEvent(order);
 
         Fill fill1 = new Fill();
         fill1.setOrder(order);
         fill1.setSide(Side.BUY);
         fill1.setQuantity(10L);
-        epRuntime.sendEvent(fill1);
+        this.epRuntime.sendEvent(fill1);
 
         OrderStatus orderStatus1 = OrderStatus.Factory.newInstance();
         orderStatus1.setIntId("my-order");
@@ -621,7 +629,7 @@ public class TradingEsperTest extends EsperTestBase {
         orderStatus1.setStatus(Status.PARTIALLY_EXECUTED);
         orderStatus1.setFilledQuantity(10L);
         orderStatus1.setRemainingQuantity(30L);
-        epRuntime.sendEvent(orderStatus1);
+        this.epRuntime.sendEvent(orderStatus1);
 
         Assert.assertNull(fillListQueue.poll());
 
@@ -629,7 +637,7 @@ public class TradingEsperTest extends EsperTestBase {
         fill2.setOrder(order);
         fill2.setSide(Side.BUY);
         fill2.setQuantity(10L);
-        epRuntime.sendEvent(fill2);
+        this.epRuntime.sendEvent(fill2);
 
         OrderStatus orderStatus2 = OrderStatus.Factory.newInstance();
         orderStatus2.setIntId("my-order");
@@ -637,7 +645,7 @@ public class TradingEsperTest extends EsperTestBase {
         orderStatus2.setStatus(Status.PARTIALLY_EXECUTED);
         orderStatus2.setFilledQuantity(20L);
         orderStatus2.setRemainingQuantity(20L);
-        epRuntime.sendEvent(orderStatus2);
+        this.epRuntime.sendEvent(orderStatus2);
 
         Assert.assertNull(fillListQueue.poll());
 
@@ -645,7 +653,7 @@ public class TradingEsperTest extends EsperTestBase {
         fill3.setOrder(order);
         fill3.setSide(Side.BUY);
         fill3.setQuantity(10L);
-        epRuntime.sendEvent(fill3);
+        this.epRuntime.sendEvent(fill3);
 
         OrderStatus orderStatus3 = OrderStatus.Factory.newInstance();
         orderStatus3.setIntId("my-order");
@@ -653,7 +661,7 @@ public class TradingEsperTest extends EsperTestBase {
         orderStatus3.setStatus(Status.PARTIALLY_EXECUTED);
         orderStatus3.setFilledQuantity(30L);
         orderStatus3.setRemainingQuantity(10L);
-        epRuntime.sendEvent(orderStatus3);
+        this.epRuntime.sendEvent(orderStatus3);
 
         Assert.assertNull(fillListQueue.poll());
 
@@ -661,7 +669,7 @@ public class TradingEsperTest extends EsperTestBase {
         fill4.setOrder(null);
         fill4.setSide(Side.BUY);
         fill4.setQuantity(10L);
-        epRuntime.sendEvent(fill4);
+        this.epRuntime.sendEvent(fill4);
 
         OrderStatus orderStatus4 = OrderStatus.Factory.newInstance();
         orderStatus4.setIntId("some-other-order");
@@ -669,7 +677,7 @@ public class TradingEsperTest extends EsperTestBase {
         orderStatus4.setStatus(Status.EXECUTED);
         orderStatus4.setFilledQuantity(40L);
         orderStatus4.setRemainingQuantity(0L);
-        epRuntime.sendEvent(orderStatus4);
+        this.epRuntime.sendEvent(orderStatus4);
 
         Assert.assertNull(fillListQueue.poll());
 
@@ -677,7 +685,7 @@ public class TradingEsperTest extends EsperTestBase {
         fill5.setOrder(order);
         fill5.setSide(Side.BUY);
         fill5.setQuantity(10L);
-        epRuntime.sendEvent(fill5);
+        this.epRuntime.sendEvent(fill5);
 
         OrderStatus orderStatus5 = OrderStatus.Factory.newInstance();
         orderStatus5.setIntId("my-order");
@@ -685,7 +693,7 @@ public class TradingEsperTest extends EsperTestBase {
         orderStatus5.setStatus(Status.EXECUTED);
         orderStatus5.setFilledQuantity(40L);
         orderStatus5.setRemainingQuantity(0L);
-        epRuntime.sendEvent(orderStatus5);
+        this.epRuntime.sendEvent(orderStatus5);
 
         List<Fill> fillList = fillListQueue.poll();
         Assert.assertNotNull(fillList);

@@ -38,20 +38,17 @@ public interface EngineManager {
     /**
      * Returns {@code true} if an engine with the given name is available
      * @param engineName
-     * @return
      */
     boolean hasEngine(String engineName);
 
     /**
      * Returns engine with the given name
      * @param engineName
-     * @return
      */
     Engine getEngine(String engineName);
 
     /**
      * Returns SERVER engine.
-     * @return
      */
     Engine getServerEngine();
 
@@ -64,7 +61,6 @@ public interface EngineManager {
     /**
      * Destroys engine with the given name
      * @param engineName
-     * @return
      */
     void destroyEngine(String engineName);
 

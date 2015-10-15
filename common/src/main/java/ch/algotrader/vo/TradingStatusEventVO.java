@@ -24,6 +24,8 @@ import ch.algotrader.enumeration.TradingStatus;
 
 public class TradingStatusEventVO implements Serializable  {
 
+    private static final long serialVersionUID = 8956159082770895558L;
+
     private final TradingStatus status;
     private final long securityId;
     private final String feedType;
@@ -37,11 +39,11 @@ public class TradingStatusEventVO implements Serializable  {
     }
 
     public TradingStatus getStatus() {
-        return status;
+        return this.status;
     }
 
     public long getSecurityId() {
-        return securityId;
+        return this.securityId;
     }
 
     public String getFeedType() {
@@ -55,10 +57,10 @@ public class TradingStatusEventVO implements Serializable  {
     @Override
     public String toString() {
         return "{" +
-                "status=" + status +
-                ", securityId=" + securityId +
-                ", feedType=" + feedType +
-                ", dateTime=" + dateTime +
+                "status=" + this.status +
+                ", securityId=" + this.securityId +
+                ", feedType=" + this.feedType +
+                ", dateTime=" + this.dateTime +
                 '}';
     }
 

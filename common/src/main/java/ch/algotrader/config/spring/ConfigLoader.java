@@ -77,13 +77,13 @@ public final class ConfigLoader {
 
     /**
      * Loads system parameters.
-     * <p/>
-     * <p><tt>/conf.properties</tt><p/>
-     * <p><tt>/conf-core.properties</tt><p/>
-     * <p><tt>/conf-fix.properties</tt><p/>
-     * <p><tt>/conf-ib.properties</tt><p/>
-     * <p><tt>/conf-bb.properties</tt><p/>
-     * <p/>
+     * <ul>
+     * <li>conf.properties</li>
+     * <li>conf-core.properties</li>
+     * <li>conf-fix.properties</li>
+     * <li>conf-ib.properties</li>
+     * <li>conf-bb.properties</li>
+     * <ul>
      */
     public static Map<String, String> load(final ResourceLoader resourceResolver) throws IOException {
 

@@ -63,78 +63,79 @@ public class IBEsperTest extends EsperTestBase {
         config.configure("/META-INF/esper-core.cfg.xml");
         config.getEngineDefaults().getExpression().setMathContext(new MathContext(3, RoundingMode.HALF_EVEN));
 
-        epService = EPServiceProviderManager.getDefaultProvider(config);
-        epRuntime = epService.getEPRuntime();
-        epRuntime.setVariableValue("lookupService", lookupService);
-        epRuntime.setVariableValue("calendarService", calendarService);
-        epRuntime.setVariableValue("marketDataService", marketDataService);
+        this.epService = EPServiceProviderManager.getDefaultProvider(config);
+        this.epRuntime = this.epService.getEPRuntime();
+        this.epRuntime.setVariableValue("lookupService", this.lookupService);
+        this.epRuntime.setVariableValue("calendarService", this.calendarService);
+        this.epRuntime.setVariableValue("marketDataService", this.marketDataService);
 
-        family = SecurityFamily.Factory.newInstance();
-        family.setId(1);
-        family.setSymbolRoot("Stocks");
-        family.setCurrency(Currency.USD);
-        family.setTickSizePattern("0<0.00005");
-        family.setTradeable(true);
-        family.setScale(4);
-        exchange = Exchange.Factory.newInstance("exchange", "GMT");
-        exchange.setId(5L);
-        family.setExchange(exchange);
+        this.family = SecurityFamily.Factory.newInstance();
+        this.family.setId(1);
+        this.family.setSymbolRoot("Stocks");
+        this.family.setCurrency(Currency.USD);
+        this.family.setTickSizePattern("0<0.00005");
+        this.family.setTradeable(true);
+        this.family.setScale(4);
+        this.exchange = Exchange.Factory.newInstance("exchange", "GMT");
+        this.exchange.setId(5L);
+        this.family.setExchange(this.exchange);
 
-        stock = Stock.Factory.newInstance();
-        stock.setId(1);
-        stock.setSymbol("GOOG");
-        stock.setSecurityFamily(family);
+        this.stock = Stock.Factory.newInstance();
+        this.stock.setId(1);
+        this.stock.setSymbol("GOOG");
+        this.stock.setSecurityFamily(this.family);
 
-        Mockito.when(lookupService.getSecurity(1L)).thenReturn(stock);
-        Mockito.when(lookupService.getSecurityFamilyBySecurity(1L)).thenReturn(family);
-        Mockito.when(lookupService.getExchangeBySecurity(1L)).thenReturn(exchange);
+        Mockito.when(this.lookupService.getSecurity(1L)).thenReturn(this.stock);
+        Mockito.when(this.lookupService.getSecurityFamilyBySecurity(1L)).thenReturn(this.family);
+        Mockito.when(this.lookupService.getExchangeBySecurity(1L)).thenReturn(this.exchange);
     }
 
     @After
     public void cleanUpEsper() {
-        if (epService != null) {
-            epService.destroy();
+        if (this.epService != null) {
+            this.epService.destroy();
         }
     }
 
     @Test
     public void testTicksOnIBTicks() throws Exception {
 
-        deployModule(epService, getClass().getResource("/module-market-data.epl"),
+        deployModule(this.epService, getClass().getResource("/module-market-data.epl"),
                 "TICK_WINDOW", "INSERT_INTO_TICK_WINDOW", "INCOMING_TICK", "VALIDATE_TICK");
         final Queue<TickVO> validatedTickQueue = new ConcurrentLinkedQueue<>();
-        EPStatement statement1 = epService.getEPAdministrator().getStatement("VALIDATE_TICK");
+        EPStatement statement1 = this.epService.getEPAdministrator().getStatement("VALIDATE_TICK");
         Assert.assertNotNull(statement1);
         statement1.setSubscriber(new Object() {
+            @SuppressWarnings("unused")
             public void update(final TickVO event) {
                 validatedTickQueue.add(event);
             }
         });
-        deployModule(epService, getClass().getResource("/module-ib.epl"),
+        deployModule(this.epService, getClass().getResource("/module-ib.epl"),
                 "UPDATE_TICK_WINDOW_IB_LAST", "UPDATE_TICK_WINDOW_IB_LAST_TIMESTAMP", "UPDATE_TICK_WINDOW_IB_VOL",
                 "UPDATE_TICK_WINDOW_IB_BID", "UPDATE_TICK_WINDOW_IB_ASK", "UPDATE_TICK_WINDOW_IB_VOL_BID", "UPDATE_TICK_WINDOW_IB_VOL_ASK");
 
-        Mockito.when(calendarService.isOpen(Mockito.anyLong(), Mockito.<Date>any())).thenReturn(true);
-        Mockito.when(marketDataService.isTickValid(Mockito.any())).thenReturn(true);
+        Mockito.when(this.calendarService.isOpen(Mockito.anyLong(), Mockito.<Date>any())).thenReturn(true);
+        Mockito.when(this.marketDataService.isTickValid(Mockito.any())).thenReturn(true);
 
         SubscribeTickVO subscribeEvent1 = new SubscribeTickVO("some-ticker1", 1L, FeedType.IB.name());
-        epRuntime.sendEvent(subscribeEvent1);
+        this.epRuntime.sendEvent(subscribeEvent1);
 
         TickPriceVO tickPrice1 = new TickPriceVO("some-ticker1", TickType.LAST, 1.12222d, 0);
-        epRuntime.sendEvent(tickPrice1);
+        this.epRuntime.sendEvent(tickPrice1);
         TickStringVO tickString1 = new TickStringVO("some-ticker1", TickType.LAST_TIMESTAMP, Long.toString(Instant.now().getEpochSecond()));
-        epRuntime.sendEvent(tickString1);
+        this.epRuntime.sendEvent(tickString1);
 
         TickPriceVO tickPrice2 = new TickPriceVO("some-ticker1", TickType.BID, 1.13333d, 0);
-        epRuntime.sendEvent(tickPrice2);
+        this.epRuntime.sendEvent(tickPrice2);
         TickPriceVO tickPrice3 = new TickPriceVO("some-ticker1", TickType.ASK, 1.10001d, 0);
-        epRuntime.sendEvent(tickPrice3);
+        this.epRuntime.sendEvent(tickPrice3);
         TickSizeVO tickSize1 = new TickSizeVO("some-ticker1", TickType.VOLUME, 10);
-        epRuntime.sendEvent(tickSize1);
+        this.epRuntime.sendEvent(tickSize1);
         TickSizeVO tickSize2 = new TickSizeVO("some-ticker1", TickType.BID_SIZE, 9);
-        epRuntime.sendEvent(tickSize2);
+        this.epRuntime.sendEvent(tickSize2);
         TickSizeVO tickSize3 = new TickSizeVO("some-ticker1", TickType.ASK_SIZE, 11);
-        epRuntime.sendEvent(tickSize3);
+        this.epRuntime.sendEvent(tickSize3);
 
         Assert.assertEquals(8, validatedTickQueue.size());
 
@@ -228,29 +229,30 @@ public class IBEsperTest extends EsperTestBase {
     @Test
     public void testGenericTicksOnIBTicks() throws Exception {
 
-        deployModule(epService, getClass().getResource("/module-market-data.epl"), "TICK_WINDOW", "INSERT_INTO_TICK_WINDOW");
-        deployModule(epService, getClass().getResource("/module-ib.epl"),
+        deployModule(this.epService, getClass().getResource("/module-market-data.epl"), "TICK_WINDOW", "INSERT_INTO_TICK_WINDOW");
+        deployModule(this.epService, getClass().getResource("/module-ib.epl"),
                 "INSERT_INTO_GENERIC_TICK_IB_OPEN", "INSERT_INTO_GENERIC_TICK_IB_CLOSE");
 
-        EPStatement statement1 = epService.getEPAdministrator().createEPL("select * from GenericTickVO");
+        EPStatement statement1 = this.epService.getEPAdministrator().createEPL("select * from GenericTickVO");
         final Queue<GenericTickVO> genericTickQueue = new ConcurrentLinkedQueue<>();
         Assert.assertNotNull(statement1);
         statement1.setSubscriber(new Object() {
+            @SuppressWarnings("unused")
             public void update(final GenericTickVO event) {
                 genericTickQueue.add(event);
             }
         });
 
-        Mockito.when(calendarService.isOpen(Mockito.anyLong(), Mockito.<Date>any())).thenReturn(true);
-        Mockito.when(marketDataService.isTickValid(Mockito.any())).thenReturn(true);
+        Mockito.when(this.calendarService.isOpen(Mockito.anyLong(), Mockito.<Date>any())).thenReturn(true);
+        Mockito.when(this.marketDataService.isTickValid(Mockito.any())).thenReturn(true);
 
         SubscribeTickVO subscribeEvent1 = new SubscribeTickVO("some-ticker1", 1L, FeedType.IB.name());
-        epRuntime.sendEvent(subscribeEvent1);
+        this.epRuntime.sendEvent(subscribeEvent1);
 
         TickPriceVO tickPrice1 = new TickPriceVO("some-ticker1", TickType.OPEN, 1.12222d, 0);
-        epRuntime.sendEvent(tickPrice1);
+        this.epRuntime.sendEvent(tickPrice1);
         TickPriceVO tickPrice2 = new TickPriceVO("some-ticker1", TickType.CLOSE, 1.13333d, 0);
-        epRuntime.sendEvent(tickPrice2);
+        this.epRuntime.sendEvent(tickPrice2);
 
         Assert.assertEquals(2, genericTickQueue.size());
 

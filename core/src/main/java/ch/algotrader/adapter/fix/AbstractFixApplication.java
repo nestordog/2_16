@@ -74,11 +74,11 @@ public abstract class AbstractFixApplication implements Application {
     }
 
     protected SessionID getSessionID() {
-        return sessionID;
+        return this.sessionID;
     }
 
     protected Session getSession() {
-        return Session.lookupSession(sessionID);
+        return Session.lookupSession(this.sessionID);
     }
 
     public void onCreate() {
@@ -142,7 +142,7 @@ public abstract class AbstractFixApplication implements Application {
             if (message.getHeader().getField(new MsgType()).getValue().equals(MsgType.HEARTBEAT)) {
                 return;
             }
-            incomingMessageCracker.crack(message, sessionID);
+            this.incomingMessageCracker.crack(message, sessionID);
         } catch (Exception e) {
             LOGGER.error(e);
         }
@@ -158,7 +158,7 @@ public abstract class AbstractFixApplication implements Application {
             if (message.getHeader().getField(new MsgType()).getValue().equals(MsgType.HEARTBEAT)) {
                 return;
             }
-            outgoingMessageCracker.crack(message, sessionID);
+            this.outgoingMessageCracker.crack(message, sessionID);
         } catch (Exception e) {
             LOGGER.error(e);
         }
@@ -172,7 +172,7 @@ public abstract class AbstractFixApplication implements Application {
         if (interceptIncoming(message)) {
             return;
         }
-        incomingMessageCracker.crack(message, sessionID);
+        this.incomingMessageCracker.crack(message, sessionID);
     }
 
     @Override
@@ -183,7 +183,7 @@ public abstract class AbstractFixApplication implements Application {
             if (interceptOutgoing(message)) {
                 return;
             }
-            outgoingMessageCracker.crack(message, sessionID);
+            this.outgoingMessageCracker.crack(message, sessionID);
         } catch (DoNotSend e) {
             throw e;
         } catch (Exception e) {
@@ -193,7 +193,7 @@ public abstract class AbstractFixApplication implements Application {
 
     @Override
     public String toString() {
-        return sessionID.toString();
+        return this.sessionID.toString();
     }
 
     /**
@@ -201,11 +201,8 @@ public abstract class AbstractFixApplication implements Application {
      */
     static class InternalMessageCracker extends MessageCracker {
 
-        private final boolean incoming;
-
         public InternalMessageCracker(boolean incoming, Object messageHandler) {
             super(messageHandler);
-            this.incoming = incoming;
         }
 
         @Override

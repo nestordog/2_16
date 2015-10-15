@@ -18,7 +18,7 @@
      * returns zero by default).
      * @param marketDataEvent 
      * @param underlyingMarketDataEvent 
-     * @param currentTime
+     * @param currentTime 
      * @return double
      */
     public abstract double getLeverage(ch.algotrader.entity.marketData.MarketDataEventI marketDataEvent, ch.algotrader.entity.marketData.MarketDataEventI underlyingMarketDataEvent, java.util.Date currentTime);
@@ -90,15 +90,14 @@
             <column name="UNDERLYING_FK" not-null="false" sql-type="BIGINT"/>
 
         </many-to-one>
-        <set name="securityReferences" order-by="OWNER_FK" lazy="true" fetch="select" inverse="true" cascade="delete">
+        <set name="subscriptions" order-by="SECURITY_FK" lazy="true" fetch="select" inverse="true">
             <meta attribute="field-description"><![CDATA[The base class of all Securities in the system]]></meta>
-            <meta attribute="field-inverse-name">owner</meta>
             <cache usage="read-write" />
-            <key foreign-key="SECURITY_REFERENCE_OWNER_FKC">
-                <column name="OWNER_FK" sql-type="BIGINT"/>
+            <key foreign-key="SUBSCRIPTION_SECURITY_FKC">
+                <column name="SECURITY_FK" sql-type="BIGINT"/>
 
             </key>
-            <one-to-many class="ch.algotrader.entity.security.SecurityReferenceImpl" not-found="exception"/>
+            <one-to-many class="ch.algotrader.entity.SubscriptionImpl" not-found="exception"/>
         </set>
         <set name="positions" order-by="SECURITY_FK" lazy="true" fetch="select" inverse="true">
             <meta attribute="field-description"><![CDATA[The base class of all Securities in the system]]></meta>
@@ -109,22 +108,23 @@
             </key>
             <one-to-many class="ch.algotrader.entity.PositionImpl" not-found="exception"/>
         </set>
-        <set name="subscriptions" order-by="SECURITY_FK" lazy="true" fetch="select" inverse="true">
-            <meta attribute="field-description"><![CDATA[The base class of all Securities in the system]]></meta>
-            <cache usage="read-write" />
-            <key foreign-key="SUBSCRIPTION_SECURITY_FKC">
-                <column name="SECURITY_FK" sql-type="BIGINT"/>
-
-            </key>
-            <one-to-many class="ch.algotrader.entity.SubscriptionImpl" not-found="exception"/>
-        </set>
         <many-to-one name="securityFamily" class="ch.algotrader.entity.security.SecurityFamilyImpl" foreign-key="SECURITY_SECURITY_FAMILY_FKC" not-null="true" lazy="proxy" fetch="select">
             <meta attribute="property-type">ch.algotrader.entity.security.SecurityFamily</meta>
             <meta attribute="field-description"><![CDATA[Represents an entire family of similar {@link ch.algotrader.entity.security.Security Securities}
-(e.g. All Options of the S&P500)]]></meta>
+(e.g. All Options of the SP500)]]></meta>
             <column name="SECURITY_FAMILY_FK" not-null="true" sql-type="BIGINT"/>
 
         </many-to-one>
+        <set name="securityReferences" order-by="OWNER_FK" lazy="true" fetch="select" inverse="true" cascade="delete">
+            <meta attribute="field-description"><![CDATA[The base class of all Securities in the system]]></meta>
+            <meta attribute="field-inverse-name">owner</meta>
+            <cache usage="read-write" />
+            <key foreign-key="SECURITY_REFERENCE_OWNER_FKC">
+                <column name="OWNER_FK" sql-type="BIGINT"/>
+
+            </key>
+            <one-to-many class="ch.algotrader.entity.security.SecurityReferenceImpl" not-found="exception"/>
+        </set>
         <joined-subclass name="ch.algotrader.entity.security.GenericFutureImpl" table="`generic_future`" dynamic-insert="false" dynamic-update="false" abstract="false">
             <meta attribute="implements">ch.algotrader.entity.security.GenericFutureI</meta>
             <meta attribute="generated-class">ch.algotrader.entity.security.GenericFuture</meta>
@@ -199,7 +199,7 @@
     public abstract long getTimeToExpiration(java.util.Date dateTime);
 
     /**
-     * Gets the Duration of this ExpirableI from the specified {@code dateTime). A Duration of 1
+     * Gets the Duration of this ExpirableI from the specified {@code dateTime}. A Duration of 1
      * means that this is the next Object in the Chain to expire.
      * @param dateTime 
      * @return int
@@ -246,7 +246,7 @@
     public abstract long getTimeToExpiration(java.util.Date dateTime);
 
     /**
-     * Gets the Duration of this ExpirableI from the specified {@code dateTime). A Duration of 1
+     * Gets the Duration of this ExpirableI from the specified {@code dateTime}. A Duration of 1
      * means that this is the next Object in the Chain to expire.
      * @param dateTime 
      * @return int
@@ -337,7 +337,8 @@
             <meta attribute="class-code">
 <![CDATA[
     /**
-     * Returns a {@link LongMap} containing Component Securities and their quantities.
+     * Returns a {@link ch.algotrader.util.collection.LongMap LongMap} containing Component
+     * Securities and their quantities.
      * @return ch.algotrader.util.collection.LongMap<Security>
      */
     public abstract ch.algotrader.util.collection.LongMap<Security> getQuantityMap();
@@ -357,7 +358,8 @@
     public abstract long getComponentQuantity(ch.algotrader.entity.security.Security security);
 
     /**
-     * Get the {@link Direction} of the Component of the specified Security
+     * Get the {@link ch.algotrader.enumeration.Direction Direction} of the Component of the
+     * specified Security
      * @param security 
      * @return ch.algotrader.enumeration.Direction
      */

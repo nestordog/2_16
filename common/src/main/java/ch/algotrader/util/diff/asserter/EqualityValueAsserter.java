@@ -21,8 +21,6 @@ import java.util.Objects;
 
 /**
  * Asserter using object {@link Object#equals(Object) equality} to compare two values.
- *
- * @param <T> the (expected) value type
  */
 public class EqualityValueAsserter implements ValueAsserter {
 

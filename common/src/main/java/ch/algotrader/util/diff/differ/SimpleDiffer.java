@@ -46,8 +46,6 @@ import ch.algotrader.util.diff.reader.CsvReaderUtil;
  * <li>if the actual file ends and the expected file contains more lines</li>
  * <li>if the expected file ends but the actual file has more lines</li>
  * </ul>
- * <p>
- * A {@link #Builder} can be used to add column-pairs and create a {@code SimpleDiffer} instance.
  */
 public class SimpleDiffer implements CsvDiffer {
 
@@ -77,7 +75,7 @@ public class SimpleDiffer implements CsvDiffer {
          * @return this builder for method chaining to add other column asserters
          */
         public Builder add(CsvColumn expectedColumn, CsvColumn actualColumn, ValueAsserter asserter) {
-            asserters.add(new ColumnAsserter(expectedColumn, actualColumn, asserter));
+            this.asserters.add(new ColumnAsserter(expectedColumn, actualColumn, asserter));
             return this;
         }
 
@@ -200,7 +198,7 @@ public class SimpleDiffer implements CsvDiffer {
          *
          * @param expectedColumn    the definition of the expected CSV column
          * @param actualColumn      the definition of the actual CSV column
-         * @param tolerance         the relative tolerance still considered zero difference
+         * @param precision         the relative tolerance still considered zero difference
          * @return this builder for method chaining to add other column asserters
          */
         public Builder assertLongWithRelativeTolerance(CsvColumn expectedColumn, CsvColumn actualColumn, int precision) {
@@ -212,7 +210,7 @@ public class SimpleDiffer implements CsvDiffer {
          * @return a {@link SimpleDiffer} performing the previously defined assertions.
          */
         public SimpleDiffer build() {
-            return new SimpleDiffer(asserters);
+            return new SimpleDiffer(this.asserters);
         }
     }
 
@@ -245,7 +243,7 @@ public class SimpleDiffer implements CsvDiffer {
 
     public void assertLine(CsvReader expReader, CsvLine expLine, CsvReader actReader, CsvLine actLine) {
         List<DiffEntry> diffs = null;
-        for (final ColumnAsserter columnAsserter : asserters) {
+        for (final ColumnAsserter columnAsserter : this.asserters) {
             try {
                 columnAsserter.assertValue(expReader, expLine, actReader, actLine);
             } catch (CsvAssertionError e) {
@@ -272,13 +270,13 @@ public class SimpleDiffer implements CsvDiffer {
         }
 
         public void assertValue(CsvReader expReader, CsvLine expLine, CsvReader actReader, CsvLine actLine) {
-            final Object expVal = expLine.getValues().get(expectedColumn);
-            final Object actVal = actLine.getValues().get(actualColumn);
+            final Object expVal = expLine.getValues().get(this.expectedColumn);
+            final Object actVal = actLine.getValues().get(this.actualColumn);
             try {
-                asserter.assertValue(expVal, actVal);
+                this.asserter.assertValue(expVal, actVal);
             } catch (AssertionError e) {
                 throw new CsvAssertionError(e.getMessage(), Collections.emptyList(),//
-                        expReader.getFile(), expLine, expectedColumn, expVal, actReader.getFile(), actLine, actualColumn, actVal);
+                        expReader.getFile(), expLine, this.expectedColumn, expVal, actReader.getFile(), actLine, this.actualColumn, actVal);
             }
         }
     }

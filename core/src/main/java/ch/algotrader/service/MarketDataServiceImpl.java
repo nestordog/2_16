@@ -290,7 +290,7 @@ public class MarketDataServiceImpl implements MarketDataService {
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public void removeNonPositionSubscriptionsByType(final String strategyName, final Class type) {
+    public void removeNonPositionSubscriptionsByType(final String strategyName, final Class<?> type) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
         Validate.notNull(type, "Type is null");

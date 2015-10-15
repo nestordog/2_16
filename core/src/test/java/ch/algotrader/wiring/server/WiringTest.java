@@ -49,6 +49,8 @@ public class WiringTest extends DefaultConfigTestBase {
         context.refresh();
 
         Assert.assertNotNull(context.getBean(CoreConfig.class));
+
+        context.close();
     }
 
     @Test
@@ -61,6 +63,8 @@ public class WiringTest extends DefaultConfigTestBase {
         Engine serverEngine = context.getBean("serverEngine", Engine.class);
         Assert.assertNotNull(serverEngine);
         serverEngine.destroy();
+
+        context.close();
     }
 
     @Test
@@ -78,6 +82,8 @@ public class WiringTest extends DefaultConfigTestBase {
         serverEngine.destroy();
 
         Assert.assertNotNull(context.getBean(LifecycleManager.class));
+
+        context.close();
     }
 
     @Test
@@ -98,6 +104,8 @@ public class WiringTest extends DefaultConfigTestBase {
         Assert.assertNotNull(context.getBean(SessionFactory.class));
         Assert.assertNotNull(context.getBean(PlatformTransactionManager.class));
         Assert.assertNotNull(context.getBean(TransactionTemplate.class));
+
+        context.close();
     }
 
 }

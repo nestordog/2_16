@@ -83,7 +83,7 @@
 
     /**
      * Returns {@code true}, if the Transaction influences the performance calculation.
-     * For BASE these are DEBIT & CREDIT and for strategies this is only REBALANCE.
+     * For BASE these are DEBIT and CREDIT and for strategies this is only REBALANCE.
      * @return boolean
      */
     public abstract boolean isPerformanceRelevant();
@@ -224,8 +224,8 @@ Example:
 <li>Security: VIX Dec 2012</li>
 <li>Current Bid: 16.50</li>
 <li>Current Ask: 16.60</li>
-<li>Strategy A: quantity +10 -> marketValue: 10 * 1000 * 16.50 = 165'000</li>
-<li>Strategy B: quantity -10 -> marketValue: 10 * 1000 * 16.60 = -166'000</li>
+<li>Strategy A: quantity +10 marketValue: 10 * 1000 * 16.50 = 165'000</li>
+<li>Strategy B: quantity -10 marketValue: 10 * 1000 * 16.60 = -166'000</li>
 </ul>
 <p>
 The sum of above marketValues would be -1'000 which is obviously wrong.

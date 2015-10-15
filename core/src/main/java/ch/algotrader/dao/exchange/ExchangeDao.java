@@ -29,8 +29,7 @@ public interface ExchangeDao extends ReadWriteDao<Exchange> {
 
     /**
      * Finds an Exchange by the specified name.
-     * @param code
-     * @return
+     * @param name
      */
     public Exchange findByName(String name);
 

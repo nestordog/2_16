@@ -36,9 +36,7 @@ public interface ValueAsserter {
      *
      * @param expectedValue the expected value
      * @param actualValue   the actual value
-     * @throws AssertionError if the two values are different, that is, iff
-     *      {@link #assertValue(String, Object, String, Object) assertValue(..)}
-     *      returns false
+     * @throws AssertionError if the two values are different
      */
     void assertValue(Object expectedValue, Object actualValue);
 }

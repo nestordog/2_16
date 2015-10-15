@@ -37,13 +37,13 @@
             <type name="boolean"/>
         </property>
         <property name="broker">
-            <meta attribute="field-description"><![CDATA[The {@link Broker} associated with this Account.]]></meta>
+            <meta attribute="field-description"><![CDATA[The Broker associated with this Account.]]></meta>
             <column name="BROKER" not-null="true" unique="false" sql-type="VARCHAR(255)"/>
 
             <type name="java.lang.String"/>
         </property>
         <property name="orderServiceType">
-            <meta attribute="field-description"><![CDATA[The {@link OrderServiceType} associated with this Account.]]></meta>
+            <meta attribute="field-description"><![CDATA[The order service type associated with this Account.]]></meta>
             <column name="ORDER_SERVICE_TYPE" not-null="true" unique="false" sql-type="VARCHAR(255)"/>
 
             <type name="java.lang.String"/>

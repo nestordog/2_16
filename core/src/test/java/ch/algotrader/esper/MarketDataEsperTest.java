@@ -77,87 +77,89 @@ public class MarketDataEsperTest extends EsperTestBase {
         config.configure("/META-INF/esper-core.cfg.xml");
         config.getEngineDefaults().getExpression().setMathContext(new MathContext(3, RoundingMode.HALF_EVEN));
 
-        epService = EPServiceProviderManager.getDefaultProvider(config);
-        epRuntime = epService.getEPRuntime();
-        epRuntime.setVariableValue("lookupService", lookupService);
-        epRuntime.setVariableValue("calendarService", calendarService);
-        epRuntime.setVariableValue("marketDataService", marketDataService);
+        this.epService = EPServiceProviderManager.getDefaultProvider(config);
+        this.epRuntime = this.epService.getEPRuntime();
+        this.epRuntime.setVariableValue("lookupService", this.lookupService);
+        this.epRuntime.setVariableValue("calendarService", this.calendarService);
+        this.epRuntime.setVariableValue("marketDataService", this.marketDataService);
 
-        usdFx = SecurityFamily.Factory.newInstance();
-        usdFx.setId(1);
-        usdFx.setSymbolRoot("USD FX");
-        usdFx.setCurrency(Currency.USD);
-        usdFx.setTickSizePattern("0<0.00005");
-        usdFx.setTradeable(true);
-        usdFx.setScale(4);
-        exchange = Exchange.Factory.newInstance("exchange", "GMT");
-        exchange.setId(5L);
-        usdFx.setExchange(exchange);
+        this.usdFx = SecurityFamily.Factory.newInstance();
+        this.usdFx.setId(1);
+        this.usdFx.setSymbolRoot("USD FX");
+        this.usdFx.setCurrency(Currency.USD);
+        this.usdFx.setTickSizePattern("0<0.00005");
+        this.usdFx.setTradeable(true);
+        this.usdFx.setScale(4);
+        this.exchange = Exchange.Factory.newInstance("exchange", "GMT");
+        this.exchange.setId(5L);
+        this.usdFx.setExchange(this.exchange);
 
-        eurusd = Forex.Factory.newInstance();
-        eurusd.setId(1);
-        eurusd.setSymbol("EUR.USD");
-        eurusd.setBaseCurrency(Currency.EUR);
-        eurusd.setSecurityFamily(usdFx);
+        this.eurusd = Forex.Factory.newInstance();
+        this.eurusd.setId(1);
+        this.eurusd.setSymbol("EUR.USD");
+        this.eurusd.setBaseCurrency(Currency.EUR);
+        this.eurusd.setSecurityFamily(this.usdFx);
 
-        chfusd = Forex.Factory.newInstance();
-        chfusd.setId(2);
-        chfusd.setSymbol("NZD.USD");
-        chfusd.setBaseCurrency(Currency.CHF);
-        chfusd.setSecurityFamily(usdFx);
+        this.chfusd = Forex.Factory.newInstance();
+        this.chfusd.setId(2);
+        this.chfusd.setSymbol("NZD.USD");
+        this.chfusd.setBaseCurrency(Currency.CHF);
+        this.chfusd.setSecurityFamily(this.usdFx);
 
-        Mockito.when(lookupService.getSecurity(1L)).thenReturn(eurusd);
-        Mockito.when(lookupService.getSecurity(2L)).thenReturn(chfusd);
-        Mockito.when(lookupService.getSecurityFamilyBySecurity(1L)).thenReturn(usdFx);
-        Mockito.when(lookupService.getSecurityFamilyBySecurity(2L)).thenReturn(usdFx);
-        Mockito.when(lookupService.getExchangeBySecurity(1L)).thenReturn(exchange);
-        Mockito.when(lookupService.getExchangeBySecurity(2L)).thenReturn(exchange);
+        Mockito.when(this.lookupService.getSecurity(1L)).thenReturn(this.eurusd);
+        Mockito.when(this.lookupService.getSecurity(2L)).thenReturn(this.chfusd);
+        Mockito.when(this.lookupService.getSecurityFamilyBySecurity(1L)).thenReturn(this.usdFx);
+        Mockito.when(this.lookupService.getSecurityFamilyBySecurity(2L)).thenReturn(this.usdFx);
+        Mockito.when(this.lookupService.getExchangeBySecurity(1L)).thenReturn(this.exchange);
+        Mockito.when(this.lookupService.getExchangeBySecurity(2L)).thenReturn(this.exchange);
     }
 
     @After
     public void cleanUpEsper() {
-        if (epService != null) {
-            epService.destroy();
+        if (this.epService != null) {
+            this.epService.destroy();
         }
     }
 
     @Test
     public void testTicksOnTradeAskBid() throws Exception {
 
-        deployModule(epService,
+        deployModule(this.epService,
                 getClass().getResource("/module-market-data.epl"),
                 "TICK_WINDOW", "INSERT_INTO_TICK_WINDOW",
                 "UPDATE_TICK_WINDOW_FROM_TRADE", "UPDATE_TICK_WINDOW_FROM_BID", "UPDATE_TICK_WINDOW_FROM_ASK",
                 "INCOMING_TICK", "VALIDATE_TICK");
 
         final Queue<Map<?, ?>> unvalidatedTickQueue = new ConcurrentLinkedQueue<>();
-        EPStatement statement1 = epService.getEPAdministrator().getStatement("INCOMING_TICK");
+        EPStatement statement1 = this.epService.getEPAdministrator().getStatement("INCOMING_TICK");
         Assert.assertNotNull(statement1);
         statement1.setSubscriber(new Object() {
+            @SuppressWarnings("unused")
             public void update(final Map<?, ?> event) {
                 unvalidatedTickQueue.add(event);
             }
         });
         final Queue<TickVO> validatedTickQueue = new ConcurrentLinkedQueue<>();
-        EPStatement statement2 = epService.getEPAdministrator().getStatement("VALIDATE_TICK");
+        EPStatement statement2 = this.epService.getEPAdministrator().getStatement("VALIDATE_TICK");
         Assert.assertNotNull(statement2);
         statement2.setSubscriber(new Object() {
+            @SuppressWarnings("unused")
             public void update(final TickVO event) {
                 validatedTickQueue.add(event);
             }
         });
 
-        Mockito.when(calendarService.isOpen(Mockito.anyLong(), Mockito.<Date>any())).thenReturn(true);
-        Mockito.when(marketDataService.isTickValid(Mockito.any())).thenReturn(false);
+        Mockito.when(this.calendarService.isOpen(Mockito.anyLong(), Mockito.<Date>any())).thenReturn(true);
+        Mockito.when(this.marketDataService.isTickValid(Mockito.any())).thenReturn(false);
 
         SubscribeTickVO subscribeEvent1 = new SubscribeTickVO("some-ticker1", 1L, FeedType.IB.name());
-        epRuntime.sendEvent(subscribeEvent1);
+        this.epRuntime.sendEvent(subscribeEvent1);
         SubscribeTickVO subscribeEvent2 = new SubscribeTickVO("some-ticker2", 2L, FeedType.BB.name());
-        epRuntime.sendEvent(subscribeEvent2);
+        this.epRuntime.sendEvent(subscribeEvent2);
         SubscribeTickVO subscribeEvent3 = new SubscribeTickVO("some-ticker3", 1L, FeedType.LMAX.name());
-        epRuntime.sendEvent(subscribeEvent3);
+        this.epRuntime.sendEvent(subscribeEvent3);
 
-        EPOnDemandQueryResult result = epRuntime.executeQuery("select * from TickWindow");
+        EPOnDemandQueryResult result = this.epRuntime.executeQuery("select * from TickWindow");
 
         EventBean[] entries = result.getArray();
         Assert.assertEquals(3, entries.length);
@@ -181,10 +183,10 @@ public class MarketDataEsperTest extends EsperTestBase {
         unvalidatedTickQueue.clear();
         Assert.assertEquals(0, validatedTickQueue.size());
 
-        Mockito.when(marketDataService.isTickValid(Mockito.any())).thenReturn(true);
+        Mockito.when(this.marketDataService.isTickValid(Mockito.any())).thenReturn(true);
 
         TradeVO trade = new TradeVO("some-ticker1", FeedType.IB.name(), new Date(), 1.23d, 567);
-        epRuntime.sendEvent(trade);
+        this.epRuntime.sendEvent(trade);
 
         Assert.assertEquals(1, unvalidatedTickQueue.size());
         unvalidatedTickQueue.clear();
@@ -200,7 +202,7 @@ public class MarketDataEsperTest extends EsperTestBase {
         Assert.assertEquals(0, tick1.getVolBid());
 
         AskVO ask = new AskVO("some-ticker1", FeedType.IB.name(), new Date(), 1.24d, 568);
-        epRuntime.sendEvent(ask);
+        this.epRuntime.sendEvent(ask);
 
         final TickVO tick2 = validatedTickQueue.remove();
         Assert.assertEquals(1l, tick2.getSecurityId());
@@ -213,7 +215,7 @@ public class MarketDataEsperTest extends EsperTestBase {
         Assert.assertEquals(0, tick2.getVolBid());
 
         BidVO bid = new BidVO("some-ticker1", FeedType.IB.name(), new Date(), 1.25d, 569);
-        epRuntime.sendEvent(bid);
+        this.epRuntime.sendEvent(bid);
 
         final TickVO tick3 = validatedTickQueue.remove();
         Assert.assertEquals(1l, tick3.getSecurityId());
@@ -229,66 +231,69 @@ public class MarketDataEsperTest extends EsperTestBase {
     @Test
     public void testMarketNotOpen() throws Exception {
 
-        deployModule(epService,
+        deployModule(this.epService,
                 getClass().getResource("/module-market-data.epl"),
                 "TICK_WINDOW", "INSERT_INTO_TICK_WINDOW", "UPDATE_TICK_WINDOW_FROM_TRADE",  "INCOMING_TICK");
 
         final Queue<Map<?, ?>> unvalidatedTickQueue = new ConcurrentLinkedQueue<>();
-        EPStatement statement1 = epService.getEPAdministrator().getStatement("INCOMING_TICK");
+        EPStatement statement1 = this.epService.getEPAdministrator().getStatement("INCOMING_TICK");
         Assert.assertNotNull(statement1);
         statement1.setSubscriber(new Object() {
+            @SuppressWarnings("unused")
             public void update(final Map<?, ?> event) {
                 unvalidatedTickQueue.add(event);
             }
         });
 
-        Mockito.when(calendarService.isOpen(Mockito.anyLong(), Mockito.<Date>any())).thenReturn(false);
+        Mockito.when(this.calendarService.isOpen(Mockito.anyLong(), Mockito.<Date>any())).thenReturn(false);
 
         SubscribeTickVO subscribeEvent1 = new SubscribeTickVO("some-ticker1", 1L, FeedType.IB.name());
-        epRuntime.sendEvent(subscribeEvent1);
+        this.epRuntime.sendEvent(subscribeEvent1);
 
         TradeVO trade = new TradeVO("some-ticker1", FeedType.IB.name(), new Date(), 1.23d, 567);
-        epRuntime.sendEvent(trade);
+        this.epRuntime.sendEvent(trade);
 
-        Mockito.verify(calendarService, Mockito.times(2)).isOpen(Mockito.eq(exchange.getId()), Mockito.any());
+        Mockito.verify(this.calendarService, Mockito.times(2)).isOpen(Mockito.eq(this.exchange.getId()), Mockito.any());
         Assert.assertEquals(0, unvalidatedTickQueue.size());
     }
 
     @Test
     public void testTickFailedValidation() throws Exception {
 
-        deployModule(epService,
+        deployModule(this.epService,
                 getClass().getResource("/module-market-data.epl"),
                 "TICK_WINDOW", "INSERT_INTO_TICK_WINDOW",
                 "UPDATE_TICK_WINDOW_FROM_TRADE", "UPDATE_TICK_WINDOW_FROM_BID", "UPDATE_TICK_WINDOW_FROM_ASK",
                 "INCOMING_TICK", "VALIDATE_TICK");
 
         final Queue<Map<?, ?>> unvalidatedTickQueue = new ConcurrentLinkedQueue<>();
-        EPStatement statement1 = epService.getEPAdministrator().getStatement("INCOMING_TICK");
+        EPStatement statement1 = this.epService.getEPAdministrator().getStatement("INCOMING_TICK");
         Assert.assertNotNull(statement1);
         statement1.setSubscriber(new Object() {
+            @SuppressWarnings("unused")
             public void update(final Map<?, ?> event) {
                 unvalidatedTickQueue.add(event);
             }
         });
         final Queue<TickVO> validatedTickQueue = new ConcurrentLinkedQueue<>();
-        EPStatement statement2 = epService.getEPAdministrator().getStatement("VALIDATE_TICK");
+        EPStatement statement2 = this.epService.getEPAdministrator().getStatement("VALIDATE_TICK");
         statement2.setSubscriber(new Object() {
+            @SuppressWarnings("unused")
             public void update(final TickVO event) {
                 validatedTickQueue.add(event);
             }
         });
 
-        Mockito.when(calendarService.isOpen(Mockito.anyLong(), Mockito.<Date>any())).thenReturn(true);
-        Mockito.when(marketDataService.isTickValid(Mockito.any())).thenReturn(false);
+        Mockito.when(this.calendarService.isOpen(Mockito.anyLong(), Mockito.<Date>any())).thenReturn(true);
+        Mockito.when(this.marketDataService.isTickValid(Mockito.any())).thenReturn(false);
 
         SubscribeTickVO subscribeEvent1 = new SubscribeTickVO("some-ticker1", 1L, FeedType.IB.name());
-        epRuntime.sendEvent(subscribeEvent1);
+        this.epRuntime.sendEvent(subscribeEvent1);
 
-        Mockito.when(marketDataService.isTickValid(Mockito.any())).thenReturn(true);
+        Mockito.when(this.marketDataService.isTickValid(Mockito.any())).thenReturn(true);
 
         TradeVO trade = new TradeVO("some-ticker1", FeedType.IB.name(), new Date(), 1.23d, 567);
-        epRuntime.sendEvent(trade);
+        this.epRuntime.sendEvent(trade);
 
         Assert.assertEquals(2, unvalidatedTickQueue.size());
         final TickVO tick1 = validatedTickQueue.remove();
@@ -304,41 +309,42 @@ public class MarketDataEsperTest extends EsperTestBase {
     @Test
     public void testMarketDataGap() throws Exception {
 
-        deployModule(epService,
+        deployModule(this.epService,
                 getClass().getResource("/module-market-data.epl"),
                 "CHECK_TICK_GAPS", "PROPAGATE_MARKET_DATA_EVENTS");
         final Queue<Long> securityWithGapQueue = new ConcurrentLinkedQueue<>();
-        EPStatement statement1 = epService.getEPAdministrator().getStatement("CHECK_TICK_GAPS");
+        EPStatement statement1 = this.epService.getEPAdministrator().getStatement("CHECK_TICK_GAPS");
         Assert.assertNotNull(statement1);
         statement1.setSubscriber(new Object() {
+            @SuppressWarnings("unused")
             public void update(final long securityId) {
                 securityWithGapQueue.add(securityId);
             }
         });
 
-        Mockito.when(calendarService.isOpen(Mockito.anyLong(), Mockito.<Date>any())).thenReturn(true);
+        Mockito.when(this.calendarService.isOpen(Mockito.anyLong(), Mockito.<Date>any())).thenReturn(true);
 
-        usdFx.setMaxGap(1);
+        this.usdFx.setMaxGap(1);
 
         LocalDateTime start = LocalDateTime.of(2015, Month.JUNE, 1, 12, 0);
-        TickVO tick1 = new TickVO(0L, DateTimeLegacy.toLocalDateTime(start.plusSeconds(5)), FeedType.IB.name(), usdFx.getId(), 0, 0, 0);
-        TickVO tick2 = new TickVO(0L, DateTimeLegacy.toLocalDateTime(start.plusSeconds(5)), FeedType.IB.name(), chfusd.getId(), 0, 0, 0);
-        TickVO tick3 = new TickVO(0L, DateTimeLegacy.toLocalDateTime(start.plusSeconds(10)), FeedType.IB.name(), usdFx.getId(), 0, 0, 0);
-        TickVO tick4 = new TickVO(0L, DateTimeLegacy.toLocalDateTime(start.plusSeconds(10)), FeedType.IB.name(), chfusd.getId(), 0, 0, 0);
-        TickVO tick5 = new TickVO(0L, DateTimeLegacy.toLocalDateTime(start.plusSeconds(50)), FeedType.IB.name(), chfusd.getId(), 0, 0, 0);
-        TickVO tick6 = new TickVO(0L, DateTimeLegacy.toLocalDateTime(start.plusSeconds(100)), FeedType.IB.name(), chfusd.getId(), 0, 0, 0);
-        TickVO tick7 = new TickVO(0L, DateTimeLegacy.toLocalDateTime(start.plusSeconds(120)), FeedType.IB.name(), usdFx.getId(), 0, 0, 0);
-        TickVO tick8 = new TickVO(0L, DateTimeLegacy.toLocalDateTime(start.plusSeconds(120)), FeedType.IB.name(), chfusd.getId(), 0, 0, 0);
+        TickVO tick1 = new TickVO(0L, DateTimeLegacy.toLocalDateTime(start.plusSeconds(5)), FeedType.IB.name(), this.usdFx.getId(), 0, 0, 0);
+        TickVO tick2 = new TickVO(0L, DateTimeLegacy.toLocalDateTime(start.plusSeconds(5)), FeedType.IB.name(), this.chfusd.getId(), 0, 0, 0);
+        TickVO tick3 = new TickVO(0L, DateTimeLegacy.toLocalDateTime(start.plusSeconds(10)), FeedType.IB.name(), this.usdFx.getId(), 0, 0, 0);
+        TickVO tick4 = new TickVO(0L, DateTimeLegacy.toLocalDateTime(start.plusSeconds(10)), FeedType.IB.name(), this.chfusd.getId(), 0, 0, 0);
+        TickVO tick5 = new TickVO(0L, DateTimeLegacy.toLocalDateTime(start.plusSeconds(50)), FeedType.IB.name(), this.chfusd.getId(), 0, 0, 0);
+        TickVO tick6 = new TickVO(0L, DateTimeLegacy.toLocalDateTime(start.plusSeconds(100)), FeedType.IB.name(), this.chfusd.getId(), 0, 0, 0);
+        TickVO tick7 = new TickVO(0L, DateTimeLegacy.toLocalDateTime(start.plusSeconds(120)), FeedType.IB.name(), this.usdFx.getId(), 0, 0, 0);
+        TickVO tick8 = new TickVO(0L, DateTimeLegacy.toLocalDateTime(start.plusSeconds(120)), FeedType.IB.name(), this.chfusd.getId(), 0, 0, 0);
 
-        epRuntime.sendEvent(new TimerControlEvent(TimerControlEvent.ClockType.CLOCK_EXTERNAL));
-        epRuntime.sendEvent(new CurrentTimeEvent(DateTimeLegacy.toLocalDateTime(start).getTime()));
+        this.epRuntime.sendEvent(new TimerControlEvent(TimerControlEvent.ClockType.CLOCK_EXTERNAL));
+        this.epRuntime.sendEvent(new CurrentTimeEvent(DateTimeLegacy.toLocalDateTime(start).getTime()));
 
-        AdapterCoordinator coordinator = new AdapterCoordinatorImpl(epService, true, true, true);
+        AdapterCoordinator coordinator = new AdapterCoordinatorImpl(this.epService, true, true, true);
         CollectionInputAdapter adapter = new CollectionInputAdapter(Arrays.asList(tick1, tick2, tick3, tick4, tick5, tick6, tick7, tick8), "dateTime");
         coordinator.coordinate(adapter);
         coordinator.start();
 
-        Mockito.verify(calendarService, Mockito.times(1)).isOpen(Mockito.eq(exchange.getId()), Mockito.any());
+        Mockito.verify(this.calendarService, Mockito.times(1)).isOpen(Mockito.eq(this.exchange.getId()), Mockito.any());
         Long securityWithGap = securityWithGapQueue.remove();
         Assert.assertEquals(Long.valueOf(1L), securityWithGap);
         Assert.assertEquals(0, securityWithGapQueue.size());
@@ -347,32 +353,33 @@ public class MarketDataEsperTest extends EsperTestBase {
     @Test
     public void testTradingStatusEvent() throws Exception {
 
-        deployModule(epService,
+        deployModule(this.epService,
                 getClass().getResource("/module-market-data.epl"),
                 "TICK_WINDOW", "INSERT_INTO_TICK_WINDOW",
                 "TRADING_CONTEXT", "TRADING_HALTED", "TRADING_RESUMED");
 
         final Queue<TradingStatusEventVO> tradingStatusEventQueue = new ConcurrentLinkedQueue<>();
-        EPStatement statement = epService.getEPAdministrator().createEPL("select * from TradingStatusEventVO");
+        EPStatement statement = this.epService.getEPAdministrator().createEPL("select * from TradingStatusEventVO");
         statement.setSubscriber(new Object() {
+            @SuppressWarnings("unused")
             public void update(final TradingStatusEventVO event) {
                 tradingStatusEventQueue.add(event);
             }
         });
 
         SubscribeTickVO subscribeEvent1 = new SubscribeTickVO("some-ticker1", 1L, FeedType.IB.name());
-        epRuntime.sendEvent(subscribeEvent1);
+        this.epRuntime.sendEvent(subscribeEvent1);
         SubscribeTickVO subscribeEvent3 = new SubscribeTickVO("some-ticker2", 2L, FeedType.LMAX.name());
-        epRuntime.sendEvent(subscribeEvent3);
+        this.epRuntime.sendEvent(subscribeEvent3);
 
         TradingHaltVO halt1 = new TradingHaltVO("some-ticker1", FeedType.IB.name(), null);
-        epRuntime.sendEvent(halt1);
+        this.epRuntime.sendEvent(halt1);
         TradingHaltVO halt2 = new TradingHaltVO("some-ticker2", FeedType.LMAX.name(), null);
-        epRuntime.sendEvent(halt2);
+        this.epRuntime.sendEvent(halt2);
         TradingHaltVO halt3 = new TradingHaltVO("some-ticker1", FeedType.IB.name(), null);
-        epRuntime.sendEvent(halt3);
+        this.epRuntime.sendEvent(halt3);
         TradingHaltVO halt4 = new TradingHaltVO("some-ticker2", FeedType.LMAX.name(), null);
-        epRuntime.sendEvent(halt4);
+        this.epRuntime.sendEvent(halt4);
 
         TradingStatusEventVO tradingStatusEvent1 = tradingStatusEventQueue.poll();
         Assert.assertNotNull(tradingStatusEvent1);
@@ -399,7 +406,7 @@ public class MarketDataEsperTest extends EsperTestBase {
         Assert.assertEquals(FeedType.LMAX.name(), tradingStatusEvent4.getFeedType());
 
         TradeVO trade1 = new TradeVO("some-ticker1", FeedType.IB.name(), new Date(), 1.23d, 567);
-        epRuntime.sendEvent(trade1);
+        this.epRuntime.sendEvent(trade1);
 
         TradingStatusEventVO tradingStatusEvent5 = tradingStatusEventQueue.poll();
         Assert.assertNotNull(tradingStatusEvent5);
@@ -411,13 +418,13 @@ public class MarketDataEsperTest extends EsperTestBase {
         Assert.assertNull(tradingStatusEvent6);
 
         BidVO bid1 = new BidVO("some-ticker1", FeedType.IB.name(), new Date(), 1.23d, 567);
-        epRuntime.sendEvent(bid1);
+        this.epRuntime.sendEvent(bid1);
 
         TradingStatusEventVO tradingStatusEvent7 = tradingStatusEventQueue.poll();
         Assert.assertNull(tradingStatusEvent7);
 
         AskVO ask1 = new AskVO("some-ticker2", FeedType.LMAX.name(), new Date(), 1.23d, 567);
-        epRuntime.sendEvent(ask1);
+        this.epRuntime.sendEvent(ask1);
 
         TradingStatusEventVO tradingStatusEvent8 = tradingStatusEventQueue.poll();
         Assert.assertNotNull(tradingStatusEvent8);

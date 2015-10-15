@@ -47,7 +47,7 @@ public class SimulationResultVO implements Serializable {
     /**
      * The Strategy specific Simulation Results returned as a Map.
      */
-    private Map strategyResults;
+    private Map<String, Object> strategyResults;
 
     /**
      * A ValueObject representing the performance during a particular period (Month or Year).
@@ -110,7 +110,7 @@ public class SimulationResultVO implements Serializable {
      * @param loosingTradesIn TradesVO A ValueObject representing a collection of Trades related to a Simulation Run. The collection can
      * represent either all winning, all loosing or all trades.
      */
-    public SimulationResultVO(final double minsIn, final String dataSetIn, final double netLiqValueIn, final Map strategyResultsIn, final PerformanceKeysVO performanceKeysIn,
+    public SimulationResultVO(final double minsIn, final String dataSetIn, final double netLiqValueIn, final Map<String, Object> strategyResultsIn, final PerformanceKeysVO performanceKeysIn,
             final MaxDrawDownVO maxDrawDownIn, final TradesVO allTradesIn, final TradesVO winningTradesIn, final TradesVO loosingTradesIn) {
 
         this.mins = minsIn;
@@ -138,7 +138,8 @@ public class SimulationResultVO implements Serializable {
      * @param winningTradesIn TradesVO
      * @param loosingTradesIn TradesVO
      */
-    public SimulationResultVO(final double minsIn, final String dataSetIn, final double netLiqValueIn, final Map strategyResultsIn, final Collection<PeriodPerformanceVO> monthlyPerformancesIn,
+    public SimulationResultVO(final double minsIn, final String dataSetIn, final double netLiqValueIn, final Map<String, Object> strategyResultsIn,
+            final Collection<PeriodPerformanceVO> monthlyPerformancesIn,
             final Collection<PeriodPerformanceVO> yearlyPerformancesIn, final PerformanceKeysVO performanceKeysIn, final MaxDrawDownVO maxDrawDownIn, final TradesVO allTradesIn,
             final TradesVO winningTradesIn, final TradesVO loosingTradesIn) {
 
@@ -234,7 +235,7 @@ public class SimulationResultVO implements Serializable {
      * The Strategy specific Simulation Results returned as a Map.
      * @return strategyResults Map
      */
-    public Map getStrategyResults() {
+    public Map<String, Object> getStrategyResults() {
 
         return this.strategyResults;
     }
@@ -243,7 +244,7 @@ public class SimulationResultVO implements Serializable {
      * The Strategy specific Simulation Results returned as a Map.
      * @param value Map
      */
-    public void setStrategyResults(final Map value) {
+    public void setStrategyResults(final Map<String, Object> value) {
 
         this.strategyResults = value;
     }
@@ -399,27 +400,27 @@ public class SimulationResultVO implements Serializable {
 
         StringBuilder builder = new StringBuilder();
         builder.append("SimulationResultVO [mins=");
-        builder.append(mins);
+        builder.append(this.mins);
         builder.append(", dataSet=");
-        builder.append(dataSet);
+        builder.append(this.dataSet);
         builder.append(", netLiqValue=");
-        builder.append(netLiqValue);
+        builder.append(this.netLiqValue);
         builder.append(", strategyResults=");
-        builder.append(strategyResults);
+        builder.append(this.strategyResults);
         builder.append(", monthlyPerformances=");
-        builder.append(monthlyPerformances);
+        builder.append(this.monthlyPerformances);
         builder.append(", yearlyPerformances=");
-        builder.append(yearlyPerformances);
+        builder.append(this.yearlyPerformances);
         builder.append(", performanceKeys=");
-        builder.append(performanceKeys);
+        builder.append(this.performanceKeys);
         builder.append(", maxDrawDown=");
-        builder.append(maxDrawDown);
+        builder.append(this.maxDrawDown);
         builder.append(", allTrades=");
-        builder.append(allTrades);
+        builder.append(this.allTrades);
         builder.append(", winningTrades=");
-        builder.append(winningTrades);
+        builder.append(this.winningTrades);
         builder.append(", loosingTrades=");
-        builder.append(loosingTrades);
+        builder.append(this.loosingTrades);
         builder.append("]");
 
         return builder.toString();

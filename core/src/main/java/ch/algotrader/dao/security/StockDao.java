@@ -58,7 +58,7 @@ public interface StockDao extends ReadWriteDao<Stock> {
     List<Stock> findBySubIndustry(String code);
 
     /**
-     * Finds all Stocks of the specified {@link SecurityFamily}
+     * Finds all Stocks of the specified {@link ch.algotrader.entity.security.SecurityFamily SecurityFamily}
      * @param securityFamilyId
      * @return List<Stock>
      */

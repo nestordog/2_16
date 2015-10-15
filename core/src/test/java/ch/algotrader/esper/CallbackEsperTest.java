@@ -43,21 +43,21 @@ public class CallbackEsperTest extends EsperTestBase {
         config.configure("/META-INF/esper-common.cfg.xml");
         config.configure("/META-INF/esper-core.cfg.xml");
 
-        epService = EPServiceProviderManager.getDefaultProvider(config);
-        epRuntime = epService.getEPRuntime();
+        this.epService = EPServiceProviderManager.getDefaultProvider(config);
+        this.epRuntime = this.epService.getEPRuntime();
     }
 
     @After
     public void cleanUpEsper() {
-        if (epService != null) {
-            epService.destroy();
+        if (this.epService != null) {
+            this.epService.destroy();
         }
     }
 
     @Test
     public void testFirstTick() throws Exception {
 
-        EPStatement statement = deployPreparedStatement(epService,
+        EPStatement statement = deployPreparedStatement(this.epService,
                 getClass().getResource("/module-prepared.epl"), "ON_FIRST_TICK",
                 2, new long[] {123L, 456L});
 
@@ -71,17 +71,17 @@ public class CallbackEsperTest extends EsperTestBase {
         });
 
         TickVO tick1 = new TickVO(0L, new Date(), FeedType.IB.name(), 123L, new BigDecimal("1.1"), new Date(), new BigDecimal("1.11"), new BigDecimal("1.09"), 0, 0, 0);
-        epRuntime.sendEvent(tick1);
+        this.epRuntime.sendEvent(tick1);
 
         Assert.assertNull(tickListQueue.poll());
 
         TickVO tick2 = new TickVO(0L, new Date(), FeedType.IB.name(), 333L, new BigDecimal("1.2"), new Date(), new BigDecimal("1.21"), new BigDecimal("1.19"), 0, 0, 0);
-        epRuntime.sendEvent(tick2);
+        this.epRuntime.sendEvent(tick2);
 
         Assert.assertNull(tickListQueue.poll());
 
         TickVO tick3 = new TickVO(0L, new Date(), FeedType.IB.name(), 456L, new BigDecimal("1.3"), new Date(), new BigDecimal("1.31"), new BigDecimal("1.29"), 0, 0, 0);
-        epRuntime.sendEvent(tick3);
+        this.epRuntime.sendEvent(tick3);
 
         List<TickVO> ticks = tickListQueue.poll();
         Assert.assertNotNull(ticks);
@@ -93,7 +93,7 @@ public class CallbackEsperTest extends EsperTestBase {
     @Test
     public void testTradeCompleted() throws Exception {
 
-        EPStatement statement = deployPreparedStatement(epService,
+        EPStatement statement = deployPreparedStatement(this.epService,
                 getClass().getResource("/module-prepared.epl"), "ON_TRADE_COMPLETED",
                 2, new String[] {"this-order", "that-order"});
 
@@ -106,22 +106,22 @@ public class CallbackEsperTest extends EsperTestBase {
         });
 
         OrderStatusVO orderStatus1 = new OrderStatusVO(0L, new Date(), Status.EXECUTED, 10L, 20L, 0L, "this-order", 0L, 0L);
-        epRuntime.sendEvent(orderStatus1);
+        this.epRuntime.sendEvent(orderStatus1);
 
         Assert.assertNull(orderStatusListQueue.poll());
 
         OrderStatusVO orderStatus2 = new OrderStatusVO(0L, new Date(), Status.PARTIALLY_EXECUTED, 10L, 20L, 0L, "this-order", 0L, 0L);
-        epRuntime.sendEvent(orderStatus2);
+        this.epRuntime.sendEvent(orderStatus2);
 
         Assert.assertNull(orderStatusListQueue.poll());
 
         OrderStatusVO orderStatus3 = new OrderStatusVO(0L, new Date(), Status.EXECUTED, 10L, 20L, 0L, "blah", 0L, 0L);
-        epRuntime.sendEvent(orderStatus3);
+        this.epRuntime.sendEvent(orderStatus3);
 
         Assert.assertNull(orderStatusListQueue.poll());
 
         OrderStatusVO orderStatus4 = new OrderStatusVO(0L, new Date(), Status.CANCELED, 10L, 20L, 0L, "that-order", 0L, 0L);
-        epRuntime.sendEvent(orderStatus4);
+        this.epRuntime.sendEvent(orderStatus4);
 
         List<OrderStatusVO> orderStati = orderStatusListQueue.poll();
         Assert.assertNotNull(orderStati);
@@ -133,13 +133,13 @@ public class CallbackEsperTest extends EsperTestBase {
     @Test
     public void testInternalTradeCompleted() throws Exception {
 
-        EPStatement statement = deployPreparedStatement(epService,
+        EPStatement statement = deployPreparedStatement(this.epService,
                 getClass().getResource("/module-server-prepared.epl"), "ON_TRADE_COMPLETED",
                 "internal-order");
 
         final Queue<OrderStatus> orderStatusQueue = new ConcurrentLinkedQueue<>();
         statement.setSubscriber(new Object() {
-
+            @SuppressWarnings("unused")
             public void update(final OrderStatus orderStatus) throws Exception {
                 orderStatusQueue.add(orderStatus);
             }
@@ -154,7 +154,7 @@ public class CallbackEsperTest extends EsperTestBase {
         orderStatus1.setIntId("internal-order");
         orderStatus1.setOrder(order);
 
-        epRuntime.sendEvent(orderStatus1);
+        this.epRuntime.sendEvent(orderStatus1);
 
         Assert.assertNull(orderStatusQueue.poll());
 
@@ -162,7 +162,7 @@ public class CallbackEsperTest extends EsperTestBase {
         orderStatus2.setStatus(Status.EXECUTED);
         orderStatus2.setIntId("other-internal-order");
 
-        epRuntime.sendEvent(orderStatus2);
+        this.epRuntime.sendEvent(orderStatus2);
 
         Assert.assertNull(orderStatusQueue.poll());
 
@@ -171,7 +171,7 @@ public class CallbackEsperTest extends EsperTestBase {
         orderStatus3.setIntId("internal-order");
         orderStatus3.setOrder(order);
 
-        epRuntime.sendEvent(orderStatus3);
+        this.epRuntime.sendEvent(orderStatus3);
 
         Assert.assertSame(orderStatus3, orderStatusQueue.poll());
     }
@@ -179,12 +179,12 @@ public class CallbackEsperTest extends EsperTestBase {
     @Test
     public void testPositionOpen() throws Exception {
 
-        EPStatement statement = deployPreparedStatement(epService,
+        EPStatement statement = deployPreparedStatement(this.epService,
                 getClass().getResource("/module-prepared.epl"), "ON_OPEN_POSITION", 123L);
 
         final Queue<OpenPositionVO> openPositionQueue = new ConcurrentLinkedQueue<>();
         statement.setSubscriber(new Object() {
-
+            @SuppressWarnings("unused")
             public void update(final OpenPositionVO position) throws Exception {
                 openPositionQueue.add(position);
             }
@@ -192,12 +192,12 @@ public class CallbackEsperTest extends EsperTestBase {
         });
 
         OpenPositionVO openPosition1 = new OpenPositionVO(0L, 111L, "blah", 10L, Direction.LONG);
-        epRuntime.sendEvent(openPosition1);
+        this.epRuntime.sendEvent(openPosition1);
 
         Assert.assertNull(openPositionQueue.poll());
 
         OpenPositionVO openPosition2 = new OpenPositionVO(0L, 123L, "blah", 10L, Direction.LONG);
-        epRuntime.sendEvent(openPosition2);
+        this.epRuntime.sendEvent(openPosition2);
 
         Assert.assertSame(openPosition2, openPositionQueue.poll());
     }
@@ -205,12 +205,12 @@ public class CallbackEsperTest extends EsperTestBase {
     @Test
     public void testPositionClosed() throws Exception {
 
-        EPStatement statement = deployPreparedStatement(epService,
+        EPStatement statement = deployPreparedStatement(this.epService,
                 getClass().getResource("/module-prepared.epl"), "ON_CLOSE_POSITION", 123L);
 
         final Queue<ClosePositionVO> closedPositionQueue = new ConcurrentLinkedQueue<>();
         statement.setSubscriber(new Object() {
-
+            @SuppressWarnings("unused")
             public void update(final ClosePositionVO position) throws Exception {
                 closedPositionQueue.add(position);
             }
@@ -218,12 +218,12 @@ public class CallbackEsperTest extends EsperTestBase {
         });
 
         ClosePositionVO openPosition1 = new ClosePositionVO(0L, 111L, "blah", 10L, Direction.LONG);
-        epRuntime.sendEvent(openPosition1);
+        this.epRuntime.sendEvent(openPosition1);
 
         Assert.assertNull(closedPositionQueue.poll());
 
         ClosePositionVO openPosition2 = new ClosePositionVO(0L, 123L, "blah", 10L, Direction.LONG);
-        epRuntime.sendEvent(openPosition2);
+        this.epRuntime.sendEvent(openPosition2);
 
         Assert.assertSame(openPosition2, closedPositionQueue.poll());
     }
@@ -231,7 +231,7 @@ public class CallbackEsperTest extends EsperTestBase {
     @Test
     public void testTradePersisted() throws Exception {
 
-        EPStatement statement = deployPreparedStatement(epService,
+        EPStatement statement = deployPreparedStatement(this.epService,
                 getClass().getResource("/module-prepared.epl"), "ON_TRADE_PERSISTED",
                 2, new String[] {"this-order", "that-order"});
 
@@ -244,17 +244,17 @@ public class CallbackEsperTest extends EsperTestBase {
         });
 
         OrderCompletionVO orderCompletion1 = new OrderCompletionVO("this-order", "blah", new Date(), Status.EXECUTED, 10L, 20L, null, null, null, null, 0, 0.0d);
-        epRuntime.sendEvent(orderCompletion1);
+        this.epRuntime.sendEvent(orderCompletion1);
 
         Assert.assertNull(orderComlpetionListQueue.poll());
 
         OrderCompletionVO orderCompletion2 = new OrderCompletionVO("blah", "blah", new Date(), Status.EXECUTED, 10L, 20L, null, null, null, null, 0, 0.0d);
-        epRuntime.sendEvent(orderCompletion2);
+        this.epRuntime.sendEvent(orderCompletion2);
 
         Assert.assertNull(orderComlpetionListQueue.poll());
 
         OrderCompletionVO orderCompletion3 = new OrderCompletionVO("that-order", "blah", new Date(), Status.CANCELED, 10L, 20L, null, null, null, null, 0, 0.0d);
-        epRuntime.sendEvent(orderCompletion3);
+        this.epRuntime.sendEvent(orderCompletion3);
 
         List<OrderCompletionVO> orderCompletionList = orderComlpetionListQueue.poll();
         Assert.assertNotNull(orderCompletionList);

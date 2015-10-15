@@ -491,7 +491,7 @@ public class AbstractDaoTest {
         Query query = this.dao.prepareQuery(null, "select s from GenericItem s where s.id in (:ids)", QueryType.HQL);
         query.setParameterList("ids", Arrays.asList(stuff1.getId(), stuff2.getId(), stuff3.getId()), LongType.INSTANCE);
 
-        List list1 = query.list();
+        List<?> list1 = query.list();
 
         Assert.assertNotNull(list1);
 

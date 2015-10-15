@@ -19,8 +19,6 @@ package ch.algotrader.entity;
 
 import java.util.Objects;
 
-import ch.algotrader.entity.BaseEntityI;
-import ch.algotrader.enumeration.Broker;
 import ch.algotrader.visitor.EntityVisitor;
 
 /**

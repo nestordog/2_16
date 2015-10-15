@@ -25,7 +25,7 @@
             </generator>
         </id>
         <property name="broker">
-            <meta attribute="field-description"><![CDATA[The {@link Broker} which these parameters apply to.]]></meta>
+            <meta attribute="field-description"><![CDATA[The Broker which these parameters apply to.]]></meta>
             <meta attribute="use-in-equals">true</meta>
             <column name="BROKER" not-null="true" unique="false" sql-type="VARCHAR(255)"/>
 
@@ -52,7 +52,7 @@
         <property name="tickSizePattern">
             <meta attribute="field-description"><![CDATA[A {@link java.text.ChoiceFormat} representing a pattern that defines the TickSize at different Price Levels.
 <p>
-For example the pattern "0<0.05 | 3<0.1" says, that the TickSize is 0.05 for prices from 0 to (but not including) 3 and 0.1 for prices above 3.]]></meta>
+For example the pattern "0&lt;0.05 | 3&lt;0.1" says, that the TickSize is 0.05 for prices from 0 to (but not including) 3 and 0.1 for prices above 3.]]></meta>
             <column name="TICK_SIZE_PATTERN" not-null="false" unique="false" sql-type="VARCHAR(255)"/>
 
             <type name="java.lang.String"/>
@@ -84,7 +84,7 @@ For example the pattern "0<0.05 | 3<0.1" says, that the TickSize is 0.05 for pri
         <many-to-one name="securityFamily" class="ch.algotrader.entity.security.SecurityFamilyImpl" cascade="none" foreign-key="BROKER_PARAMETERS_SECURITY_FAC" not-null="true" lazy="proxy" fetch="select">
             <meta attribute="property-type">ch.algotrader.entity.security.SecurityFamily</meta>
             <meta attribute="field-description"><![CDATA[Represents an entire family of similar {@link ch.algotrader.entity.security.Security Securities}
-(e.g. All Options of the S&P500)]]></meta>
+(e.g. All Options of the SP500)]]></meta>
             <meta attribute="use-in-equals">true</meta>
             <column name="SECURITY_FAMILY_FK" not-null="true" sql-type="BIGINT"/>
 

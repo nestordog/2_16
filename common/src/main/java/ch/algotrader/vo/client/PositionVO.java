@@ -95,7 +95,7 @@ public class PositionVO implements Serializable {
      * Any {@link ch.algotrader.entity.property.Property Property Properties} associated with the
      * Position
      */
-    private Map properties;
+    private Map<?, ?> properties;
 
     /**
      * Default Constructor
@@ -122,7 +122,7 @@ public class PositionVO implements Serializable {
      * @param propertiesIn Map
      */
     public PositionVO(final int idIn, final int securityIdIn, final long quantityIn, final String nameIn, final String strategyIn, final Currency currencyIn, final BigDecimal marketPriceIn,
-            final BigDecimal marketValueIn, final BigDecimal averagePriceIn, final BigDecimal costIn, final BigDecimal unrealizedPLIn, final BigDecimal realizedPLIn, final Map propertiesIn) {
+            final BigDecimal marketValueIn, final BigDecimal averagePriceIn, final BigDecimal costIn, final BigDecimal unrealizedPLIn, final BigDecimal realizedPLIn, final Map<?, ?> propertiesIn) {
 
         this.id = idIn;
         this.securityId = securityIdIn;
@@ -384,7 +384,7 @@ public class PositionVO implements Serializable {
      * Any {@link ch.algotrader.entity.property.Property Property Properties} associated with the Position
      * @return properties Map
      */
-    public Map getProperties() {
+    public Map<?, ?> getProperties() {
 
         return this.properties;
     }
@@ -393,7 +393,7 @@ public class PositionVO implements Serializable {
      * Any {@link ch.algotrader.entity.property.Property Property Properties} associated with the Position
      * @param value Map
      */
-    public void setProperties(final Map value) {
+    public void setProperties(final Map<?, ?> value) {
 
         this.properties = value;
     }

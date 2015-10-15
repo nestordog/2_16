@@ -71,7 +71,7 @@ public interface MarketDataService {
      * an open Position.
      * @param type The class for which a potential Subscription should be removed. Example: {@link ch.algotrader.entity.security.Future Future}
      */
-    void removeNonPositionSubscriptionsByType(String strategyName, Class type);
+    void removeNonPositionSubscriptionsByType(String strategyName, Class<?> type);
 
     /**
      * Publishes the latest Market Data Events of all subscribed Securities to the corresponding

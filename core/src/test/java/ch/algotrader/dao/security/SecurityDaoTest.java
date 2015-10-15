@@ -629,7 +629,6 @@ public class SecurityDaoTest extends InMemoryDBTest {
         Assert.assertSame(forex2, forexes3.get(1));
     }
 
-    @SuppressWarnings("rawtypes")
     @Test
     public void testFindSubscribedAndFeedTypeForAutoActivateStrategies() {
 

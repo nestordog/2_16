@@ -45,8 +45,6 @@ import ch.algotrader.service.InitializingServiceI;
 @InitializationPriority(value = InitializingServiceType.BROKER_INTERFACE)
 public final class IBSession extends EClientSocket implements InitializingServiceI, DisposableBean {
 
-    private static final long serialVersionUID = 6821739991866153788L;
-
     private static final Logger LOGGER = LogManager.getLogger(IBSession.class);
 
     private final int clientId;

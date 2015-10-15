@@ -72,7 +72,7 @@
     }
 
     /**
-     * Gets the description of this Order composed of quantity, OrderType, Security, Strategy &
+     * Gets the description of this Order composed of quantity, OrderType, Security, Strategy and
      * Account
      * @return java.lang.String
      */

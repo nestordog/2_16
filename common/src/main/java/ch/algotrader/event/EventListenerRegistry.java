@@ -48,7 +48,6 @@ public interface EventListenerRegistry extends EventBroadcaster {
     /**
      * Returns listeners registered for the given event type.
      * @param eventType
-     * @return
      */
     Set<EventListener<?>> getListeners(Class<?> eventType);
 

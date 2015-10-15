@@ -29,8 +29,6 @@ import ch.algotrader.util.diff.reader.FilterReader;
  * Selects a subset of expected and/or actual lines based on filters criteria similar
  * to a where clause in an SQL statement. Lines that are accepted by the filters
  * are asserted by a delegate asserter.
- * <p>
- * A {@link #Builder} is used to define filters and create a {@code FilterDiffer} instance.
  */
 public class FilterDiffer implements CsvDiffer {
 
@@ -46,9 +44,9 @@ public class FilterDiffer implements CsvDiffer {
 
     @Override
     public int diffLines(CsvReader expectedReader, CsvReader actualReader) throws IOException {
-        final CsvReader expReader = expFilter == null ? expectedReader : new FilterReader(expectedReader, expFilter);
-        final CsvReader actReader = actFilter == null ? actualReader : new FilterReader(actualReader, actFilter);
-        return delegate.diffLines(expReader, actReader);
+        final CsvReader expReader = this.expFilter == null ? expectedReader : new FilterReader(expectedReader, this.expFilter);
+        final CsvReader actReader = this.actFilter == null ? actualReader : new FilterReader(actualReader, this.actFilter);
+        return this.delegate.diffLines(expReader, actReader);
     }
 
     /**
@@ -67,7 +65,7 @@ public class FilterDiffer implements CsvDiffer {
         }
 
         public Builder filterExpected(CsvLineFilter csvLineFilter) {
-            expFilter = and(expFilter, csvLineFilter);
+            this.expFilter = and(this.expFilter, csvLineFilter);
             return this;
         }
 
@@ -80,12 +78,12 @@ public class FilterDiffer implements CsvDiffer {
         }
 
         public Builder filterActual(CsvLineFilter csvLineFilter) {
-            actFilter = and(actFilter, csvLineFilter);
+            this.actFilter = and(this.actFilter, csvLineFilter);
             return this;
         }
 
         public FilterDiffer build(CsvDiffer delegate) {
-            return new FilterDiffer(delegate, expFilter, actFilter);
+            return new FilterDiffer(delegate, this.expFilter, this.actFilter);
         }
 
         private CsvLineFilter createFilter(CsvColumn column, boolean accept, Object[] values) {

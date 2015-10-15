@@ -18,8 +18,6 @@
 package ch.algotrader.adapter.fix.fix42;
 
 import java.math.BigDecimal;
-import java.time.format.DateTimeFormatter;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -85,8 +83,6 @@ public class TestGenericOrderMessageFactory {
     @Test
     public void testMarketOrderOption() throws Exception {
 
-        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
         OptionFamily family = new OptionFamilyImpl();
         family.setCurrency(Currency.BRL);
         family.setSymbolRoot("STUFF");
@@ -129,8 +125,6 @@ public class TestGenericOrderMessageFactory {
 
     @Test
     public void testMarketOrderFuture() throws Exception {
-
-        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
         SecurityFamily family = new SecurityFamilyImpl();
         family.setCurrency(Currency.BRL);
@@ -343,8 +337,6 @@ public class TestGenericOrderMessageFactory {
     @Test
     public void testStopLimitOrderStockGoodUntil() throws Exception {
 
-        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
         SecurityFamily family = new SecurityFamilyImpl();
         family.setCurrency(Currency.USD);
         family.setTickSizePattern("0<0.1");
@@ -386,8 +378,6 @@ public class TestGenericOrderMessageFactory {
     @Test
     public void testModifyMarketOrderOption() throws Exception {
 
-        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
         SecurityFamily family = new SecurityFamilyImpl();
         family.setCurrency(Currency.BRL);
         family.setSymbolRoot("STUFF");
@@ -426,8 +416,6 @@ public class TestGenericOrderMessageFactory {
 
     @Test
     public void testModifyMarketOrderFuture() throws Exception {
-
-        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
         SecurityFamily family = new SecurityFamilyImpl();
         family.setCurrency(Currency.BRL);
@@ -635,8 +623,6 @@ public class TestGenericOrderMessageFactory {
     @Test
     public void testModifyStopLimitOrderStockGoodUntil() throws Exception {
 
-        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
         SecurityFamily family = new SecurityFamilyImpl();
         family.setCurrency(Currency.USD);
         family.setTickSizePattern("0<0.1");
@@ -677,8 +663,6 @@ public class TestGenericOrderMessageFactory {
     @Test
     public void testCancelMarketOrderOption() throws Exception {
 
-        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
         SecurityFamily family = new SecurityFamilyImpl();
         family.setCurrency(Currency.BRL);
         family.setSymbolRoot("STUFF");
@@ -716,8 +700,6 @@ public class TestGenericOrderMessageFactory {
 
     @Test
     public void testCancelMarketOrderFuture() throws Exception {
-
-        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
         SecurityFamily family = new SecurityFamilyImpl();
         family.setCurrency(Currency.BRL);

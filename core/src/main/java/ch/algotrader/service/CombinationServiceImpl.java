@@ -384,7 +384,7 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public void deleteCombinationsWithZeroQty(final String strategyName, final Class type) {
+    public void deleteCombinationsWithZeroQty(final String strategyName, final Class<?> type) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
         Validate.notNull(type, "Type is null");

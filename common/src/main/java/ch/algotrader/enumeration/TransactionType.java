@@ -79,7 +79,7 @@ public enum TransactionType {
     /**
      * CashTransfer between Strategies.
      * <p>
-     * <i>Note: The total of all {@code REBALANCES} of a particular {@code dateTime} has to be 0.<i/>
+     * <i>Note: The total of all {@code REBALANCES} of a particular {@code dateTime} has to be 0.</i>
      */
     REBALANCE("RB");
 

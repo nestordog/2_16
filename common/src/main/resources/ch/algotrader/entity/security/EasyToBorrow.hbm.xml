@@ -31,7 +31,7 @@
             <type name="java.util.Date"/>
         </property>
         <property name="broker">
-            <meta attribute="field-description"><![CDATA[The {@link Broker} which these parameters apply to.]]></meta>
+            <meta attribute="field-description"><![CDATA[The Broker which these parameters apply to.]]></meta>
             <meta attribute="use-in-equals">true</meta>
             <column name="BROKER" not-null="true" unique="false" sql-type="VARCHAR(255)"/>
 

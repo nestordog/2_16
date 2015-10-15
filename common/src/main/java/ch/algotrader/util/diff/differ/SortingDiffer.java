@@ -41,8 +41,6 @@ import ch.algotrader.util.diff.reader.LinkedListReader;
  * Sorting can be applied to the whole file (not recommended) or within a GROUP BY
  * clause defined by a {@link GroupDiffer}. In the latter case sorting is performed
  * repeatedly within each group block which requires substantially less memory.
- * <p>
- * A {@link #Builder} can be used to add ORDER-BY columns and create a {@code SortingDiffer} instance.
  */
 public class SortingDiffer implements CsvDiffer {
 
@@ -65,21 +63,21 @@ public class SortingDiffer implements CsvDiffer {
         private final List<CsvColumn> actualGrouColumns = new ArrayList<>();
 
         public Builder add(CsvColumn expColumn, CsvColumn actColumn) {
-            expectedGrouColumns.add(expColumn);
-            actualGrouColumns.add(actColumn);
+            this.expectedGrouColumns.add(expColumn);
+            this.actualGrouColumns.add(actColumn);
             return this;
         }
 
         public SortingDiffer build(CsvDiffer delegate) {
-            return new SortingDiffer(expectedGrouColumns, actualGrouColumns, delegate);
+            return new SortingDiffer(this.expectedGrouColumns, this.actualGrouColumns, delegate);
         }
     }
 
     @Override
     public int diffLines(CsvReader expectedReader, CsvReader actualReader) throws IOException {
         int comparedLines = 0;
-        final NavigableMap<CsvLine, Integer> expLines = new TreeMap<>(expectedColumnComparator);
-        final NavigableMap<CsvLine, Integer> actLines = new TreeMap<>(actualColumnComparator);
+        final NavigableMap<CsvLine, Integer> expLines = new TreeMap<>(this.expectedColumnComparator);
+        final NavigableMap<CsvLine, Integer> actLines = new TreeMap<>(this.actualColumnComparator);
         readAll(expectedReader, expLines);
         readAll(actualReader, actLines);
         Iterator<Map.Entry<CsvLine, Integer>> expIt = expLines.entrySet().iterator();
@@ -90,19 +88,19 @@ public class SortingDiffer implements CsvDiffer {
             //use sub-reader for only this line to have correct line indexes in assertion errors
             final LinkedListReader expReader = new LinkedListReader(expectedReader, expEntry.getValue(), expEntry.getKey());
             final LinkedListReader actReader = new LinkedListReader(actualReader, actEntry.getValue(), actEntry.getKey());
-            comparedLines += delegate.diffLines(expReader, actReader);
+            comparedLines += this.delegate.diffLines(expReader, actReader);
         }
         while (expIt.hasNext()) {
             final Map.Entry<CsvLine, Integer> expEntry = expIt.next();
             //use sub-reader for only this line to have correct line indexes in assertion errors
             final LinkedListReader expReader = new LinkedListReader(expectedReader, expEntry.getValue(), expEntry.getKey());
-            comparedLines += delegate.diffLines(expReader, actualReader);
+            comparedLines += this.delegate.diffLines(expReader, actualReader);
         }
         while (actIt.hasNext()) {
             final Map.Entry<CsvLine, Integer> actEntry = actIt.next();
             //use sub-reader for only this line to have correct line indexes in assertion errors
             final LinkedListReader actReader = new LinkedListReader(actualReader, actEntry.getValue(), actEntry.getKey());
-            comparedLines += delegate.diffLines(expectedReader, actReader);
+            comparedLines += this.delegate.diffLines(expectedReader, actReader);
         }
         return comparedLines;
     }
@@ -123,7 +121,7 @@ public class SortingDiffer implements CsvDiffer {
 
         @Override
         public int compare(CsvLine o1, CsvLine o2) {
-            for (final CsvColumn column : columns) {
+            for (final CsvColumn column : this.columns) {
                 final Object v1 = o1.getValues().get(column);
                 final Object v2 = o2.getValues().get(column);
                 int result;

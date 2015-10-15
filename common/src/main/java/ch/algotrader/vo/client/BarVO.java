@@ -19,7 +19,6 @@ package ch.algotrader.vo.client;
 
 import java.math.BigDecimal;
 import java.util.Date;
-import java.util.Map;
 
 /**
  * A ValueObject representing a {@link ch.algotrader.entity.marketData.Bar Bar}.
@@ -63,17 +62,15 @@ public class BarVO extends MarketDataEventVO {
      * @param dateTimeIn Date The dateTime of this MarketDataEventVO
      * @param volIn int The current volume
      * @param feedTypeIn String The market data feed that provided this  MarketDataEventVO
-     * @param propertiesIn Map Any {@link ch.algotrader.entity.property.Property Properties} associated with {@link
-     * ch.algotrader.entity.Subscription Subscriptions} of this MarketDataEventVO by the corresponding Strategy
      * @param openIn BigDecimal The opening price of this Bar
      * @param highIn BigDecimal The highest price during this Bar
      * @param lowIn BigDecimal The lowest price during this Bar
      * @param closeIn BigDecimal The closing price of this Bar
      */
-    public BarVO(final int securityIdIn, final String nameIn, final Date dateTimeIn, final int volIn, final String feedTypeIn, final Map propertiesIn, final BigDecimal openIn,
+    public BarVO(final int securityIdIn, final String nameIn, final Date dateTimeIn, final int volIn, final String feedTypeIn, final BigDecimal openIn,
             final BigDecimal highIn, final BigDecimal lowIn, final BigDecimal closeIn) {
 
-        super(securityIdIn, nameIn, dateTimeIn, volIn, feedTypeIn, propertiesIn);
+        super(securityIdIn, nameIn, dateTimeIn, volIn, feedTypeIn);
         this.open = openIn;
         this.high = highIn;
         this.low = lowIn;
@@ -88,16 +85,15 @@ public class BarVO extends MarketDataEventVO {
      * @param volIn int
      * @param currentValueIn BigDecimal
      * @param feedTypeIn String
-     * @param propertiesIn Map
      * @param openIn BigDecimal
      * @param highIn BigDecimal
      * @param lowIn BigDecimal
      * @param closeIn BigDecimal
      */
-    public BarVO(final int securityIdIn, final String nameIn, final Date dateTimeIn, final int volIn, final BigDecimal currentValueIn, final String feedTypeIn, final Map propertiesIn,
-            final BigDecimal openIn, final BigDecimal highIn, final BigDecimal lowIn, final BigDecimal closeIn) {
+    public BarVO(final int securityIdIn, final String nameIn, final Date dateTimeIn, final int volIn, final BigDecimal currentValueIn, final String feedTypeIn, final BigDecimal openIn,
+            final BigDecimal highIn, final BigDecimal lowIn, final BigDecimal closeIn) {
 
-        super(securityIdIn, nameIn, dateTimeIn, volIn, currentValueIn, feedTypeIn, propertiesIn);
+        super(securityIdIn, nameIn, dateTimeIn, volIn, currentValueIn, feedTypeIn);
 
         this.open = openIn;
         this.high = highIn;

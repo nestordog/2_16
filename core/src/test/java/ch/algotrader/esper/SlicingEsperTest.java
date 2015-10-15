@@ -107,52 +107,53 @@ public class SlicingEsperTest extends EsperTestBase {
         config.configure("/META-INF/esper-core.cfg.xml");
         config.getEngineDefaults().getExpression().setMathContext(new MathContext(3, RoundingMode.HALF_EVEN));
 
-        epService = EPServiceProviderManager.getDefaultProvider(config);
-        epRuntime = epService.getEPRuntime();
-        epRuntime.setVariableValue("orderService", orderService);
+        this.epService = EPServiceProviderManager.getDefaultProvider(config);
+        this.epRuntime = this.epService.getEPRuntime();
+        this.epRuntime.setVariableValue("orderService", this.orderService);
 
-        usdFx = SecurityFamily.Factory.newInstance();
-        usdFx.setId(1);
-        usdFx.setSymbolRoot("USD FX");
-        usdFx.setCurrency(Currency.USD);
-        usdFx.setTickSizePattern("0<0.00005");
-        usdFx.setTradeable(true);
-        usdFx.setScale(4);
-        usdFx.setContractSize(10.0d);
-        exchange = Exchange.Factory.newInstance("exchange", "GMT");
-        exchange.setId(5L);
-        usdFx.setExchange(exchange);
+        this.usdFx = SecurityFamily.Factory.newInstance();
+        this.usdFx.setId(1);
+        this.usdFx.setSymbolRoot("USD FX");
+        this.usdFx.setCurrency(Currency.USD);
+        this.usdFx.setTickSizePattern("0<0.00005");
+        this.usdFx.setTradeable(true);
+        this.usdFx.setScale(4);
+        this.usdFx.setContractSize(10.0d);
+        this.exchange = Exchange.Factory.newInstance("exchange", "GMT");
+        this.exchange.setId(5L);
+        this.usdFx.setExchange(this.exchange);
 
-        eurusd = Forex.Factory.newInstance();
-        eurusd.setId(1);
-        eurusd.setSymbol("EUR.USD");
-        eurusd.setBaseCurrency(Currency.EUR);
-        eurusd.setSecurityFamily(usdFx);
+        this.eurusd = Forex.Factory.newInstance();
+        this.eurusd.setId(1);
+        this.eurusd.setSymbol("EUR.USD");
+        this.eurusd.setBaseCurrency(Currency.EUR);
+        this.eurusd.setSecurityFamily(this.usdFx);
 
-        chfusd = Forex.Factory.newInstance();
-        chfusd.setId(2);
-        chfusd.setSymbol("NZD.USD");
-        chfusd.setBaseCurrency(Currency.CHF);
-        chfusd.setSecurityFamily(usdFx);
+        this.chfusd = Forex.Factory.newInstance();
+        this.chfusd.setId(2);
+        this.chfusd.setSymbol("NZD.USD");
+        this.chfusd.setBaseCurrency(Currency.CHF);
+        this.chfusd.setSecurityFamily(this.usdFx);
     }
 
     @After
     public void cleanUpEsper() {
-        if (epService != null) {
-            epService.destroy();
+        if (this.epService != null) {
+            this.epService.destroy();
         }
     }
 
     @Test
     public void testSlicingOrderStatusSubmitted() throws Exception {
 
-        deployModule(epService,
+        deployModule(this.epService,
                 getClass().getResource("/module-trades.epl"), "INSERT_INTO_ALGO_ORDER_STATUS_SUBMITTED");
 
         final Queue<OrderStatus> orderQueue = new ConcurrentLinkedQueue<>();
-        EPStatement statement1 = epService.getEPAdministrator().createEPL("select * from OrderStatus");
+        EPStatement statement1 = this.epService.getEPAdministrator().createEPL("select * from OrderStatus");
         Assert.assertNotNull(statement1);
         statement1.setSubscriber(new Object() {
+            @SuppressWarnings("unused")
             public void update(final OrderStatus event) {
                 orderQueue.add(event);
             }
@@ -160,14 +161,14 @@ public class SlicingEsperTest extends EsperTestBase {
 
         SlicingOrder algoOrder = new SlicingOrder();
         algoOrder.setIntId("my-algo-order");
-        algoOrder.setSecurity(eurusd);
+        algoOrder.setSecurity(this.eurusd);
         algoOrder.setSide(Side.BUY);
         algoOrder.setQuantity(200);
 
         MarketOrder childOrder = MarketOrder.Factory.newInstance();
         childOrder.setIntId("my-child-order");
         childOrder.setParentOrder(algoOrder);
-        childOrder.setSecurity(eurusd);
+        childOrder.setSecurity(this.eurusd);
         childOrder.setQuantity(40);
         childOrder.setSide(Side.BUY);
 
@@ -176,10 +177,10 @@ public class SlicingEsperTest extends EsperTestBase {
         orderStatus1.setOrder(childOrder);
         orderStatus1.setStatus(Status.SUBMITTED);
 
-        Mockito.when(orderService.getStatusByIntId("my-algo-order")).thenReturn(
+        Mockito.when(this.orderService.getStatusByIntId("my-algo-order")).thenReturn(
                 new ExecutionStatusVO("my-algo-order", Status.OPEN, 0L, 199L, LocalDateTime.now()));
 
-        epRuntime.sendEvent(orderStatus1);
+        this.epRuntime.sendEvent(orderStatus1);
 
         Assert.assertSame(orderStatus1, orderQueue.poll());
         OrderStatus orderStatus2 = orderQueue.poll();
@@ -193,13 +194,14 @@ public class SlicingEsperTest extends EsperTestBase {
     @Test
     public void testSlicingOrderStatusFilled() throws Exception {
 
-        deployModule(epService,
+        deployModule(this.epService,
                 getClass().getResource("/module-trades.epl"), "INSERT_INTO_ALGO_ORDER_STATUS_FROM_FILL");
 
         final Queue<OrderStatus> orderQueue = new ConcurrentLinkedQueue<>();
-        EPStatement statement1 = epService.getEPAdministrator().createEPL("select * from OrderStatus");
+        EPStatement statement1 = this.epService.getEPAdministrator().createEPL("select * from OrderStatus");
         Assert.assertNotNull(statement1);
         statement1.setSubscriber(new Object() {
+            @SuppressWarnings("unused")
             public void update(final OrderStatus event) {
                 orderQueue.add(event);
             }
@@ -207,18 +209,18 @@ public class SlicingEsperTest extends EsperTestBase {
 
         SlicingOrder algoOrder = new SlicingOrder();
         algoOrder.setIntId("my-algo-order");
-        algoOrder.setSecurity(eurusd);
+        algoOrder.setSecurity(this.eurusd);
         algoOrder.setSide(Side.BUY);
         algoOrder.setQuantity(200);
 
         MarketOrder childOrder = MarketOrder.Factory.newInstance();
         childOrder.setIntId("my-child-order");
         childOrder.setParentOrder(algoOrder);
-        childOrder.setSecurity(eurusd);
+        childOrder.setSecurity(this.eurusd);
         childOrder.setQuantity(40);
         childOrder.setSide(Side.BUY);
 
-        Mockito.when(orderService.getStatusByIntId("my-algo-order")).thenReturn(
+        Mockito.when(this.orderService.getStatusByIntId("my-algo-order")).thenReturn(
                 new ExecutionStatusVO("my-algo-order", Status.OPEN, 0L, 199L, LocalDateTime.now()));
 
         Fill fill1 = new Fill();
@@ -226,7 +228,7 @@ public class SlicingEsperTest extends EsperTestBase {
         fill1.setSide(Side.BUY);
         fill1.setQuantity(10L);
 
-        epRuntime.sendEvent(fill1);
+        this.epRuntime.sendEvent(fill1);
 
         OrderStatus orderStatus1 = orderQueue.poll();
         Assert.assertNotNull(orderStatus1);
@@ -240,7 +242,7 @@ public class SlicingEsperTest extends EsperTestBase {
         fill2.setSide(Side.BUY);
         fill2.setQuantity(199L);
 
-        epRuntime.sendEvent(fill2);
+        this.epRuntime.sendEvent(fill2);
 
         OrderStatus orderStatus2 = orderQueue.poll();
         Assert.assertNotNull(orderStatus2);
@@ -253,23 +255,24 @@ public class SlicingEsperTest extends EsperTestBase {
     @Test
     public void testSlicingCancelOrder() throws Exception {
 
-        deployModule(epService,
+        deployModule(this.epService,
                 getClass().getResource("/module-algo-slicing.epl"), "SLICING_CANCEL_ORDER");
 
         final Queue<Order> orderQueue = new ConcurrentLinkedQueue<>();
-        EPStatement statement1 = epService.getEPAdministrator().getStatement("SLICING_CANCEL_ORDER");
+        EPStatement statement1 = this.epService.getEPAdministrator().getStatement("SLICING_CANCEL_ORDER");
         Assert.assertNotNull(statement1);
         statement1.setSubscriber(new Object() {
+            @SuppressWarnings("unused")
             public void update(final Order event) {
                 orderQueue.add(event);
             }
         });
 
-        epRuntime.sendEvent(new CurrentTimeEvent(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:00").getTime()));
+        this.epRuntime.sendEvent(new CurrentTimeEvent(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:00").getTime()));
 
         SlicingOrder algoOrder = new SlicingOrder();
         algoOrder.setIntId("my-algo-order");
-        algoOrder.setSecurity(eurusd);
+        algoOrder.setSecurity(this.eurusd);
         algoOrder.setSide(Side.BUY);
         algoOrder.setQuantity(200);
         algoOrder.setDateTime(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:01"));
@@ -279,7 +282,7 @@ public class SlicingEsperTest extends EsperTestBase {
         MarketOrder childOrder = MarketOrder.Factory.newInstance();
         childOrder.setIntId("my-child-order");
         childOrder.setParentOrder(algoOrder);
-        childOrder.setSecurity(eurusd);
+        childOrder.setSecurity(this.eurusd);
         childOrder.setQuantity(40);
         childOrder.setSide(Side.BUY);
         childOrder.setDateTime(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:01"));
@@ -290,7 +293,7 @@ public class SlicingEsperTest extends EsperTestBase {
         orderStatus1.setStatus(Status.SUBMITTED);
         orderStatus1.setDateTime(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:01:00"));
 
-        AdapterCoordinator coordinator = new AdapterCoordinatorImpl(epService, true, true, true);
+        AdapterCoordinator coordinator = new AdapterCoordinatorImpl(this.epService, true, true, true);
         CollectionInputAdapter inputAdapter = new CollectionInputAdapter(Arrays.asList(childOrder, orderStatus1),
                 "dateTime");
         coordinator.coordinate(inputAdapter);
@@ -302,23 +305,24 @@ public class SlicingEsperTest extends EsperTestBase {
     @Test
     public void testSlicingCancelAborted() throws Exception {
 
-        deployModule(epService,
+        deployModule(this.epService,
                 getClass().getResource("/module-algo-slicing.epl"), "SLICING_CANCEL_ORDER");
 
         final Queue<Order> orderQueue = new ConcurrentLinkedQueue<>();
-        EPStatement statement1 = epService.getEPAdministrator().getStatement("SLICING_CANCEL_ORDER");
+        EPStatement statement1 = this.epService.getEPAdministrator().getStatement("SLICING_CANCEL_ORDER");
         Assert.assertNotNull(statement1);
         statement1.setSubscriber(new Object() {
+            @SuppressWarnings("unused")
             public void update(final Order event) {
                 orderQueue.add(event);
             }
         });
 
-        epRuntime.sendEvent(new CurrentTimeEvent(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:00").getTime()));
+        this.epRuntime.sendEvent(new CurrentTimeEvent(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:00").getTime()));
 
         SlicingOrder algoOrder = new SlicingOrder();
         algoOrder.setIntId("my-algo-order");
-        algoOrder.setSecurity(eurusd);
+        algoOrder.setSecurity(this.eurusd);
         algoOrder.setSide(Side.BUY);
         algoOrder.setQuantity(200);
         algoOrder.setDateTime(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:01"));
@@ -328,7 +332,7 @@ public class SlicingEsperTest extends EsperTestBase {
         MarketOrder childOrder = MarketOrder.Factory.newInstance();
         childOrder.setIntId("my-child-order");
         childOrder.setParentOrder(algoOrder);
-        childOrder.setSecurity(eurusd);
+        childOrder.setSecurity(this.eurusd);
         childOrder.setQuantity(40);
         childOrder.setSide(Side.BUY);
         childOrder.setDateTime(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:01"));
@@ -339,7 +343,7 @@ public class SlicingEsperTest extends EsperTestBase {
         orderStatus1.setStatus(Status.CANCELED);
         orderStatus1.setDateTime(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:02"));
 
-        AdapterCoordinator coordinator = new AdapterCoordinatorImpl(epService, true, true, true);
+        AdapterCoordinator coordinator = new AdapterCoordinatorImpl(this.epService, true, true, true);
         CollectionInputAdapter inputAdapter = new CollectionInputAdapter(Arrays.asList(childOrder, orderStatus1),
                 "dateTime");
         coordinator.coordinate(inputAdapter);
@@ -351,23 +355,24 @@ public class SlicingEsperTest extends EsperTestBase {
     @Test
     public void testSlicingIncreaseOffsetTick() throws Exception {
 
-        deployModule(epService,
+        deployModule(this.epService,
                 getClass().getResource("/module-algo-slicing.epl"), "SLICING_INCREASE_OFFSET_TICKS");
 
         final Queue<Boolean> orderQueue = new ConcurrentLinkedQueue<>();
-        EPStatement statement1 = epService.getEPAdministrator().getStatement("SLICING_INCREASE_OFFSET_TICKS");
+        EPStatement statement1 = this.epService.getEPAdministrator().getStatement("SLICING_INCREASE_OFFSET_TICKS");
         Assert.assertNotNull(statement1);
         statement1.setSubscriber(new Object() {
+            @SuppressWarnings("unused")
             public void update(final Map<?, ?> event) {
                 orderQueue.add(Boolean.TRUE);
             }
         });
 
-        epRuntime.sendEvent(new CurrentTimeEvent(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:00").getTime()));
+        this.epRuntime.sendEvent(new CurrentTimeEvent(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:00").getTime()));
 
         SlicingOrder algoOrder = new SlicingOrder();
         algoOrder.setIntId("my-algo-order");
-        algoOrder.setSecurity(eurusd);
+        algoOrder.setSecurity(this.eurusd);
         algoOrder.setSide(Side.BUY);
         algoOrder.setQuantity(200);
         algoOrder.setDateTime(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:01"));
@@ -377,7 +382,7 @@ public class SlicingEsperTest extends EsperTestBase {
         MarketOrder childOrder = MarketOrder.Factory.newInstance();
         childOrder.setIntId("my-child-order");
         childOrder.setParentOrder(algoOrder);
-        childOrder.setSecurity(eurusd);
+        childOrder.setSecurity(this.eurusd);
         childOrder.setQuantity(40);
         childOrder.setSide(Side.BUY);
         childOrder.setDateTime(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:01"));
@@ -388,7 +393,7 @@ public class SlicingEsperTest extends EsperTestBase {
         orderStatus1.setStatus(Status.PARTIALLY_EXECUTED);
         orderStatus1.setDateTime(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:05"));
 
-        AdapterCoordinator coordinator = new AdapterCoordinatorImpl(epService, true, true, true);
+        AdapterCoordinator coordinator = new AdapterCoordinatorImpl(this.epService, true, true, true);
         CollectionInputAdapter inputAdapter = new CollectionInputAdapter(Arrays.asList(childOrder, orderStatus1),
                 "dateTime");
         coordinator.coordinate(inputAdapter);
@@ -400,23 +405,24 @@ public class SlicingEsperTest extends EsperTestBase {
     @Test
     public void testSlicingIncreaseOffsetTickChildCanceled() throws Exception {
 
-        deployModule(epService,
+        deployModule(this.epService,
                 getClass().getResource("/module-algo-slicing.epl"), "SLICING_INCREASE_OFFSET_TICKS");
 
         final Queue<Boolean> orderQueue = new ConcurrentLinkedQueue<>();
-        EPStatement statement1 = epService.getEPAdministrator().getStatement("SLICING_INCREASE_OFFSET_TICKS");
+        EPStatement statement1 = this.epService.getEPAdministrator().getStatement("SLICING_INCREASE_OFFSET_TICKS");
         Assert.assertNotNull(statement1);
         statement1.setSubscriber(new Object() {
+            @SuppressWarnings("unused")
             public void update(final Map<?, ?> event) {
                 orderQueue.add(Boolean.TRUE);
             }
         });
 
-        epRuntime.sendEvent(new CurrentTimeEvent(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:00").getTime()));
+        this.epRuntime.sendEvent(new CurrentTimeEvent(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:00").getTime()));
 
         SlicingOrder algoOrder = new SlicingOrder();
         algoOrder.setIntId("my-algo-order");
-        algoOrder.setSecurity(eurusd);
+        algoOrder.setSecurity(this.eurusd);
         algoOrder.setSide(Side.BUY);
         algoOrder.setQuantity(200);
         algoOrder.setDateTime(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:01"));
@@ -426,7 +432,7 @@ public class SlicingEsperTest extends EsperTestBase {
         MarketOrder childOrder = MarketOrder.Factory.newInstance();
         childOrder.setIntId("my-child-order");
         childOrder.setParentOrder(algoOrder);
-        childOrder.setSecurity(eurusd);
+        childOrder.setSecurity(this.eurusd);
         childOrder.setQuantity(40);
         childOrder.setSide(Side.BUY);
         childOrder.setDateTime(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:01"));
@@ -443,7 +449,7 @@ public class SlicingEsperTest extends EsperTestBase {
         orderStatus2.setStatus(Status.PARTIALLY_EXECUTED);
         orderStatus2.setDateTime(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:04"));
 
-        AdapterCoordinator coordinator = new AdapterCoordinatorImpl(epService, true, true, true);
+        AdapterCoordinator coordinator = new AdapterCoordinatorImpl(this.epService, true, true, true);
         CollectionInputAdapter inputAdapter = new CollectionInputAdapter(Arrays.asList(childOrder, orderStatus1, orderStatus2),
                 "dateTime");
         coordinator.coordinate(inputAdapter);
@@ -455,23 +461,24 @@ public class SlicingEsperTest extends EsperTestBase {
     @Test
     public void testSlicingDecreaseOffsetTick() throws Exception {
 
-        deployModule(epService,
+        deployModule(this.epService,
                 getClass().getResource("/module-algo-slicing.epl"), "SLICING_DECREASE_OFFSET_TICKS");
 
         final Queue<Boolean> orderQueue = new ConcurrentLinkedQueue<>();
-        EPStatement statement1 = epService.getEPAdministrator().getStatement("SLICING_DECREASE_OFFSET_TICKS");
+        EPStatement statement1 = this.epService.getEPAdministrator().getStatement("SLICING_DECREASE_OFFSET_TICKS");
         Assert.assertNotNull(statement1);
         statement1.setSubscriber(new Object() {
+            @SuppressWarnings("unused")
             public void update(final Map<?, ?> event) {
                 orderQueue.add(Boolean.TRUE);
             }
         });
 
-        epRuntime.sendEvent(new CurrentTimeEvent(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:00").getTime()));
+        this.epRuntime.sendEvent(new CurrentTimeEvent(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:00").getTime()));
 
         SlicingOrder algoOrder = new SlicingOrder();
         algoOrder.setIntId("my-algo-order");
-        algoOrder.setSecurity(eurusd);
+        algoOrder.setSecurity(this.eurusd);
         algoOrder.setSide(Side.BUY);
         algoOrder.setQuantity(200);
         algoOrder.setDateTime(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:01"));
@@ -481,7 +488,7 @@ public class SlicingEsperTest extends EsperTestBase {
         MarketOrder childOrder = MarketOrder.Factory.newInstance();
         childOrder.setIntId("my-child-order");
         childOrder.setParentOrder(algoOrder);
-        childOrder.setSecurity(eurusd);
+        childOrder.setSecurity(this.eurusd);
         childOrder.setQuantity(40);
         childOrder.setSide(Side.BUY);
         childOrder.setDateTime(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:01"));
@@ -492,7 +499,7 @@ public class SlicingEsperTest extends EsperTestBase {
         orderStatus1.setStatus(Status.CANCELED);
         orderStatus1.setDateTime(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:05"));
 
-        AdapterCoordinator coordinator = new AdapterCoordinatorImpl(epService, true, true, true);
+        AdapterCoordinator coordinator = new AdapterCoordinatorImpl(this.epService, true, true, true);
         CollectionInputAdapter inputAdapter = new CollectionInputAdapter(Arrays.asList(childOrder, orderStatus1),
                 "dateTime");
         coordinator.coordinate(inputAdapter);
@@ -504,23 +511,24 @@ public class SlicingEsperTest extends EsperTestBase {
     @Test
     public void testSlicingDecreaseOffsetTickChildPartiallyExecuted() throws Exception {
 
-        deployModule(epService,
+        deployModule(this.epService,
                 getClass().getResource("/module-algo-slicing.epl"), "SLICING_DECREASE_OFFSET_TICKS");
 
         final Queue<Boolean> orderQueue = new ConcurrentLinkedQueue<>();
-        EPStatement statement1 = epService.getEPAdministrator().getStatement("SLICING_DECREASE_OFFSET_TICKS");
+        EPStatement statement1 = this.epService.getEPAdministrator().getStatement("SLICING_DECREASE_OFFSET_TICKS");
         Assert.assertNotNull(statement1);
         statement1.setSubscriber(new Object() {
+            @SuppressWarnings("unused")
             public void update(final Map<?, ?> event) {
                 orderQueue.add(Boolean.TRUE);
             }
         });
 
-        epRuntime.sendEvent(new CurrentTimeEvent(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:00").getTime()));
+        this.epRuntime.sendEvent(new CurrentTimeEvent(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:00").getTime()));
 
         SlicingOrder algoOrder = new SlicingOrder();
         algoOrder.setIntId("my-algo-order");
-        algoOrder.setSecurity(eurusd);
+        algoOrder.setSecurity(this.eurusd);
         algoOrder.setSide(Side.BUY);
         algoOrder.setQuantity(200);
         algoOrder.setDateTime(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:01"));
@@ -530,7 +538,7 @@ public class SlicingEsperTest extends EsperTestBase {
         MarketOrder childOrder = MarketOrder.Factory.newInstance();
         childOrder.setIntId("my-child-order");
         childOrder.setParentOrder(algoOrder);
-        childOrder.setSecurity(eurusd);
+        childOrder.setSecurity(this.eurusd);
         childOrder.setQuantity(40);
         childOrder.setSide(Side.BUY);
         childOrder.setDateTime(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:01"));
@@ -547,7 +555,7 @@ public class SlicingEsperTest extends EsperTestBase {
         orderStatus2.setStatus(Status.CANCELED);
         orderStatus2.setDateTime(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:05"));
 
-        AdapterCoordinator coordinator = new AdapterCoordinatorImpl(epService, true, true, true);
+        AdapterCoordinator coordinator = new AdapterCoordinatorImpl(this.epService, true, true, true);
         CollectionInputAdapter inputAdapter = new CollectionInputAdapter(Arrays.asList(childOrder, orderStatus1, orderStatus2),
                 "dateTime");
         coordinator.coordinate(inputAdapter);
@@ -559,33 +567,34 @@ public class SlicingEsperTest extends EsperTestBase {
     @Test
     public void testSlicingInitialOrder() throws Exception {
 
-        deployModule(epService,
+        deployModule(this.epService,
                 getClass().getResource("/module-current-values.epl"), "MARKET_DATA_WINDOW", "INSERT_INTO_CURRENT_MARKET_DATA_EVENT");
-        deployModule(epService,
+        deployModule(this.epService,
                 getClass().getResource("/module-trades.epl"), "SEND_INITIAL_ALGO_ORDERS");
 
         final Queue<Collection<Order>> orderQueue = new ConcurrentLinkedQueue<>();
-        EPStatement statement1 = epService.getEPAdministrator().getStatement("SEND_INITIAL_ALGO_ORDERS");
+        EPStatement statement1 = this.epService.getEPAdministrator().getStatement("SEND_INITIAL_ALGO_ORDERS");
         Assert.assertNotNull(statement1);
         statement1.setSubscriber(new Object() {
+            @SuppressWarnings("unused")
             public void update(final Collection<Order> event) {
                 orderQueue.add(event);
             }
         });
 
-        TickVO tick1 = new TickVO(0L, new Date(), FeedType.IB.name(), eurusd.getId(),
-                new BigDecimal("1.11"), new Date(epService.getEPRuntime().getCurrentTime()), new BigDecimal("1.12"), new BigDecimal("1.1"), 0, 0, 0);
-        epRuntime.sendEvent(tick1);
+        TickVO tick1 = new TickVO(0L, new Date(), FeedType.IB.name(), this.eurusd.getId(),
+                new BigDecimal("1.11"), new Date(this.epService.getEPRuntime().getCurrentTime()), new BigDecimal("1.12"), new BigDecimal("1.1"), 0, 0, 0);
+        this.epRuntime.sendEvent(tick1);
 
         SlicingOrder algoOrder = new SlicingOrder();
         algoOrder.setIntId("my-algo-order");
-        algoOrder.setSecurity(eurusd);
+        algoOrder.setSecurity(this.eurusd);
         algoOrder.setSide(Side.BUY);
         algoOrder.setQuantity(200);
         algoOrder.setMinDuration(5);
         algoOrder.setMaxDuration(10);
 
-        epRuntime.sendEvent(algoOrder);
+        this.epRuntime.sendEvent(algoOrder);
 
         Collection<Order> orders = orderQueue.poll();
         Assert.assertNotNull(orders);
@@ -595,28 +604,29 @@ public class SlicingEsperTest extends EsperTestBase {
     @Test
     public void testSlicingNextOrder() throws Exception {
 
-        deployModule(epService,
+        deployModule(this.epService,
                 getClass().getResource("/module-current-values.epl"), "MARKET_DATA_WINDOW", "INSERT_INTO_CURRENT_MARKET_DATA_EVENT");
-        deployModule(epService,
+        deployModule(this.epService,
                 getClass().getResource("/module-algo-slicing.epl"), "SLICING_NEXT_ORDER");
 
         final Queue<Order> orderQueue = new ConcurrentLinkedQueue<>();
-        EPStatement statement1 = epService.getEPAdministrator().getStatement("SLICING_NEXT_ORDER");
+        EPStatement statement1 = this.epService.getEPAdministrator().getStatement("SLICING_NEXT_ORDER");
         Assert.assertNotNull(statement1);
         statement1.setSubscriber(new Object() {
+            @SuppressWarnings("unused")
             public void update(final Order event) {
                 orderQueue.add(event);
             }
         });
 
-        TickVO tick1 = new TickVO(0L, new Date(), FeedType.IB.name(), eurusd.getId(),
-                new BigDecimal("1.11"), new Date(epService.getEPRuntime().getCurrentTime()), new BigDecimal("1.12"), new BigDecimal("1.1"), 0, 0, 0);
+        TickVO tick1 = new TickVO(0L, new Date(), FeedType.IB.name(), this.eurusd.getId(),
+                new BigDecimal("1.11"), new Date(this.epService.getEPRuntime().getCurrentTime()), new BigDecimal("1.12"), new BigDecimal("1.1"), 0, 0, 0);
 
-        epRuntime.sendEvent(new CurrentTimeEvent(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:00").getTime()));
+        this.epRuntime.sendEvent(new CurrentTimeEvent(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:00").getTime()));
 
         SlicingOrder algoOrder = new SlicingOrder();
         algoOrder.setIntId("my-algo-order");
-        algoOrder.setSecurity(eurusd);
+        algoOrder.setSecurity(this.eurusd);
         algoOrder.setSide(Side.BUY);
         algoOrder.setQuantity(200);
         algoOrder.setDateTime(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:01"));
@@ -626,7 +636,7 @@ public class SlicingEsperTest extends EsperTestBase {
         MarketOrder childOrder = MarketOrder.Factory.newInstance();
         childOrder.setIntId("my-child-order");
         childOrder.setParentOrder(algoOrder);
-        childOrder.setSecurity(eurusd);
+        childOrder.setSecurity(this.eurusd);
         childOrder.setQuantity(40);
         childOrder.setSide(Side.BUY);
         childOrder.setDateTime(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:01"));
@@ -637,10 +647,10 @@ public class SlicingEsperTest extends EsperTestBase {
         orderStatus1.setStatus(Status.EXECUTED);
         orderStatus1.setDateTime(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:07"));
 
-        Mockito.when(orderService.getStatusByIntId("my-algo-order")).thenReturn(
+        Mockito.when(this.orderService.getStatusByIntId("my-algo-order")).thenReturn(
                 new ExecutionStatusVO("my-algo-order", Status.OPEN, 40L, 199L, LocalDateTime.now()));
 
-        AdapterCoordinator coordinator = new AdapterCoordinatorImpl(epService, true, true, true);
+        AdapterCoordinator coordinator = new AdapterCoordinatorImpl(this.epService, true, true, true);
         CollectionInputAdapter inputAdapter = new CollectionInputAdapter(Arrays.asList(tick1, algoOrder, childOrder, orderStatus1),
                 "dateTime");
         coordinator.coordinate(inputAdapter);

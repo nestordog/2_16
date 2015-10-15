@@ -174,7 +174,7 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
         Engine engine;
         Collection<Engine> strategyEngines = this.engineManager.getStrategyEngines();
         if (strategyEngines.isEmpty()) {
-            engine = engineManager.getServerEngine();
+            engine = this.engineManager.getServerEngine();
         } else {
             Iterator<Engine> it = strategyEngines.iterator();
             engine = it.next();
@@ -190,7 +190,7 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
     @Override
     public void onApplicationEvent(final ContextRefreshedEvent contextRefreshedEvent) {
         this.engine = getMainEngine();
-        this.serverMode = engine.getStrategyName().equals(StrategyImpl.SERVER);
+        this.serverMode = this.engine.getStrategyName().equals(StrategyImpl.SERVER);
     }
 
     /**
@@ -332,7 +332,6 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
      * {@inheritDoc}
      */
     @Override
-    @SuppressWarnings("unchecked")
     @ManagedAttribute(description = "Gets the latest MarketDataEvents of all subscribed Securities")
     public Collection<MarketDataEventVO> getMarketDataEvents() {
 

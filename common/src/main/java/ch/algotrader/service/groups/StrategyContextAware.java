@@ -32,7 +32,7 @@ public interface StrategyContextAware<C> {
     /**
      * Sets the name for this service instance in the strategy context.
      * Corresponds to the strategy name in the strategy definition file and is
-     * also used as {@link Engine#getEngineName() engine name}.
+     * also used as {@link Engine#getStrategyName() engine name}.
      *
      * @param strategyName the name for this service in the strategy context
      */
@@ -48,7 +48,7 @@ public interface StrategyContextAware<C> {
 
     /**
      * Sets the engine associated with this strategy service instance. The
-     * {@link Engine#getEngineName() engine name} is the same as the strategy
+     * {@link Engine#getStrategyName() engine name} is the same as the strategy
      * name (see {@link #setStrategyName(String)}).
      *
      * @param engine the engine associated with this strategy service instance

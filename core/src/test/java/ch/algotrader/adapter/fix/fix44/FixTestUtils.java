@@ -17,11 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.fix.fix44;
 
-import java.time.DateTimeException;
-import java.time.LocalDateTime;
-import java.util.Date;
-
-import ch.algotrader.util.DateTimePatterns;
 import quickfix.ConfigError;
 import quickfix.DataDictionary;
 import quickfix.InvalidMessage;

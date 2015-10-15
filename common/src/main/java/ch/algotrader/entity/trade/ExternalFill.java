@@ -33,6 +33,8 @@ import ch.algotrader.util.DateTimeUtil;
  */
 public class ExternalFill implements Serializable {
 
+    private static final long serialVersionUID = -5533585290466610539L;
+
     private Security security;
     private Currency currency;
     private Date dateTime;
@@ -50,7 +52,7 @@ public class ExternalFill implements Serializable {
     private Account account;
 
     public Security getSecurity() {
-        return security;
+        return this.security;
     }
 
     public void setSecurity(Security security) {
@@ -58,7 +60,7 @@ public class ExternalFill implements Serializable {
     }
 
     public Currency getCurrency() {
-        return currency;
+        return this.currency;
     }
 
     public void setCurrency(Currency currency) {
@@ -90,7 +92,7 @@ public class ExternalFill implements Serializable {
     }
 
     public String getExtOrderId() {
-        return extOrderId;
+        return this.extOrderId;
     }
 
     public void setExtOrderId(String extOrderId) {
@@ -154,7 +156,7 @@ public class ExternalFill implements Serializable {
     }
 
     public Strategy getStrategy() {
-        return strategy;
+        return this.strategy;
     }
 
     public void setStrategy(Strategy strategy) {
@@ -162,7 +164,7 @@ public class ExternalFill implements Serializable {
     }
 
     public Account getAccount() {
-        return account;
+        return this.account;
     }
 
     public void setAccount(Account account) {

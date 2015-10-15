@@ -22,6 +22,8 @@ import java.util.Date;
 
 public class TradingHaltVO implements Serializable  {
 
+    private static final long serialVersionUID = 3268296036239451388L;
+
     private final String tickerId;
     private final String feedType;
     private final Date dateTime;
@@ -47,9 +49,9 @@ public class TradingHaltVO implements Serializable  {
     @Override
     public String toString() {
         return "{" +
-                "tickerId='" + tickerId + '\'' +
-                ", feedType=" + feedType +
-                ", dateTime=" + dateTime +
+                "tickerId='" + this.tickerId + '\'' +
+                ", feedType=" + this.feedType +
+                ", dateTime=" + this.dateTime +
                 '}';
     }
 

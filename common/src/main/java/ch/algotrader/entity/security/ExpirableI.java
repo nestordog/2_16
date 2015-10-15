@@ -36,7 +36,7 @@ public interface ExpirableI {
     public long getTimeToExpiration(Date dateTime);
 
     /**
-     * Gets the Duration of this ExpirableI from the specified {@code dateTime). A Duration of 1
+     * Gets the Duration of this ExpirableI from the specified {@code dateTime}. A Duration of 1
      * means that this is the next Object in the Chain to expire.
      * @param dateTime
      * @return int

@@ -743,7 +743,6 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
         return resultVO;
     }
 
-    @SuppressWarnings("unchecked")
     private String convertStatisticsToShortString(SimulationResultVO resultVO) {
 
         StringBuilder buffer = new StringBuilder();
@@ -780,14 +779,13 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
         buffer.append(" avgPPctLoos=" + twoDigitFormat.format(resultVO.getLoosingTrades().getAvgProfitPct() * 100.0) + "%");
         buffer.append(" totalTrds=" + resultVO.getAllTrades().getCount());
 
-        for (Map.Entry<String, Object> entry : ((Map<String, Object>) resultVO.getStrategyResults()).entrySet()) {
+        for (Map.Entry<String, Object> entry : resultVO.getStrategyResults().entrySet()) {
             buffer.append(" " + entry.getKey() + "=" + entry.getValue());
         }
 
         return buffer.toString();
     }
 
-    @SuppressWarnings("unchecked")
     private String convertStatisticsToLongString(SimulationResultVO resultVO) {
 
         StringBuilder buffer = new StringBuilder();
@@ -882,7 +880,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
         buffer.append("AllTrades:");
         buffer.append(printTrades(resultVO.getAllTrades(), resultVO.getAllTrades().getCount()));
 
-        for (Map.Entry<String, Object> entry : ((Map<String, Object>) resultVO.getStrategyResults()).entrySet()) {
+        for (Map.Entry<String, Object> entry : resultVO.getStrategyResults().entrySet()) {
             buffer.append(entry.getKey() + "=" + entry.getValue() + " ");
         }
 

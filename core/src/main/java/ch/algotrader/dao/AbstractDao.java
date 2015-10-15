@@ -348,7 +348,6 @@ public class AbstractDao<E extends BaseEntityI> {
 
     protected Query prepareQuery(final LockOptions lockOptions, final String queryString, final QueryType type) {
 
-        Session currentSession = getCurrentSession();
         Query query = createQuery(queryString, type);
         if (lockOptions != null) {
             query.setLockOptions(lockOptions);
@@ -358,7 +357,6 @@ public class AbstractDao<E extends BaseEntityI> {
 
     protected Query prepareQuery(final LockOptions lockOptions, final String queryString, final QueryType type, final Object... params) {
 
-        Session currentSession = getCurrentSession();
         Query query = createQuery(queryString, type);
         if (lockOptions != null) {
             query.setLockOptions(lockOptions);
@@ -369,7 +367,6 @@ public class AbstractDao<E extends BaseEntityI> {
 
     protected Query prepareQuery(final LockOptions lockOptions, final String queryString, final QueryType type, final NamedParam... params) {
 
-        Session currentSession = getCurrentSession();
         Query query = createQuery(queryString, type);
         if (lockOptions != null) {
             query.setLockOptions(lockOptions);
@@ -717,7 +714,7 @@ public class AbstractDao<E extends BaseEntityI> {
         return (List<E>) findObjects(null, queryString, type, params);
     }
 
-    private <V> List<V> convert(Iterator it, EntityConverter<E, V> converter) {
+    private <V> List<V> convert(Iterator<?> it, EntityConverter<E, V> converter) {
 
         List<V> result = new ArrayList<>();
         while (it.hasNext()) {

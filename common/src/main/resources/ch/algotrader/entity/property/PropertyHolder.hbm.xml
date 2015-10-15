@@ -84,7 +84,7 @@
 
 ]]>   
 	    </meta> 	    
-        <meta attribute="class-description"><![CDATA[Base class of an Entity that can hold {@link Property Properties}.]]></meta>
+        <meta attribute="class-description"><![CDATA[Base class of an Entity that can hold {@link ch.algotrader.entity.property.Property Properties}.]]></meta>
         <cache usage="read-write" />
         <id name="id" type="long" >
             <column name="ID" sql-type="BIGINT"/>
@@ -95,7 +95,7 @@
         </id>
         <version name="version" type="int" column="VERSION"/>
         <map name="props" order-by="PROPERTY_HOLDER_FK" lazy="false" fetch="select" inverse="true" cascade="delete">
-            <meta attribute="field-description"><![CDATA[Base class of an Entity that can hold {@link Property Properties}.]]></meta>
+            <meta attribute="field-description"><![CDATA[Base class of an Entity that can hold {@link ch.algotrader.entity.property.Property Properties}.]]></meta>
             <cache usage="read-write" />
             <key foreign-key="PROPERTY_PROPERTY_HOLDER_FKC">
                 <column name="PROPERTY_HOLDER_FK" sql-type="BIGINT"/>
@@ -108,10 +108,10 @@
             <meta attribute="implements">ch.algotrader.entity.PositionI</meta>
             <meta attribute="generated-class">ch.algotrader.entity.Position</meta>
             <meta attribute="class-code">
-                <![CDATA[
+<![CDATA[
     /**
-     * Gets the current {@link Direction} of this Position ({@code LONG}, {@code SHORT} or {@code
-     * FLAT})
+     * Gets the current {@link ch.algotrader.enumeration.Direction Direction} of this Position
+     * ({@code LONG}, {@code SHORT} or {@code FLAT})
      * @return ch.algotrader.enumeration.Direction
      */
     public abstract ch.algotrader.enumeration.Direction getDirection();
@@ -154,8 +154,8 @@
     /**
      * Gets the current market exposure (market value x leverage).
      * @param marketDataEvent 
-     * @param underlyingMarketDataEvent
-     * @param currentTime
+     * @param underlyingMarketDataEvent 
+     * @param currentTime 
      * @return double
      */
     public abstract double getExposure(ch.algotrader.entity.marketData.MarketDataEventI marketDataEvent, ch.algotrader.entity.marketData.MarketDataEventI underlyingMarketDataEvent, java.util.Date currentTime);
@@ -181,7 +181,7 @@
      */
     public abstract boolean isCashPosition();
 
-]]>
+]]>   
             </meta> 	    
             <property name="quantity">
                 <meta attribute="field-description"><![CDATA[The current quantity of this Position.]]></meta>
@@ -234,10 +234,11 @@ represented by an instance of this class.]]></meta>
                 <meta attribute="field-description"><![CDATA[The market data feed that this Subscription is valid for.]]></meta>
                 <meta attribute="use-in-equals">true</meta>
                 <column name="FEED_TYPE" not-null="true" unique="false" sql-type="VARCHAR(255)"/>
+
                 <type name="java.lang.String"/>
             </property>
             <property name="persistent">
-                <meta attribute="field-description"><![CDATA[A {@code persistent} Subscription will always be delivered to the strategy (i.e. for S&P500). A {@code non-persistent} Subscription requested by a strategy for a specific duration of time (i.e. Options on S&P500). When resetting the database before a simulation run, these Subscriptions will be removed]]></meta>
+                <meta attribute="field-description"><![CDATA[A {@code persistent} Subscription will always be delivered to the strategy (i.e. for SP500). A {@code non-persistent} Subscription requested by a strategy for a specific duration of time (i.e. Options on SP500). When resetting the database before a simulation run, these Subscriptions will be removed]]></meta>
                 <column name="PERSISTENT" not-null="true" unique="false" sql-type="TINYINT"/>
 
                 <type name="boolean"/>

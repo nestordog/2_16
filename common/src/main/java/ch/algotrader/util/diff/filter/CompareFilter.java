@@ -171,7 +171,7 @@ public class CompareFilter implements CsvLineFilter {
      * than or equal to {@code from} and less than or equal to {@code to}.
      *
      * @param from the from-value, inclusive
-     * @param from the to-value, inclusive
+     * @param to the to-value, inclusive
      * @param column the CSV column containing the filter value
      * @return a new filter which accepts (in pseudo code): {@code from <= row[column] <= to}
      */
@@ -182,17 +182,17 @@ public class CompareFilter implements CsvLineFilter {
 
             @Override
             public boolean accept(CsvLine line) {
-                return fromFilter.accept(line) && toFilter.accept(line);
+                return this.fromFilter.accept(line) && this.toFilter.accept(line);
             }
         };
     }
 
     @Override
     public boolean accept(CsvLine line) {
-        final Object value = line.getValues().get(column);
+        final Object value = line.getValues().get(this.column);
         if (value instanceof Object) {
-            final int cmp = comparator.compare(this.value, value);
-            return mode.acceptComparingActualToReference(-cmp);
+            final int cmp = this.comparator.compare(this.value, value);
+            return this.mode.acceptComparingActualToReference(-cmp);
         }
         return false;
     }

@@ -116,7 +116,7 @@ public class HibernateEnumType implements EnhancedUserType, ParameterizedType {
             statement.setNull(index, Types.VARCHAR);
         } else {
             if (value instanceof Enum) {
-                statement.setString(index, ((Enum) value).name());
+                statement.setString(index, ((Enum<?>) value).name());
             } else {
                 statement.setString(index, (String) value);
             }
@@ -151,7 +151,7 @@ public class HibernateEnumType implements EnhancedUserType, ParameterizedType {
      * @see org.hibernate.usertype.EnhancedUserType#fromXMLString(String)
      */
     @Override
-    @SuppressWarnings({"unchecked", "deprecation"})
+    @SuppressWarnings({ "unchecked" })
     public Object fromXMLString(String xmlValue) {
         return Enum.valueOf(this.enumClass, xmlValue);
     }
@@ -169,7 +169,6 @@ public class HibernateEnumType implements EnhancedUserType, ParameterizedType {
      * @see org.hibernate.usertype.EnhancedUserType#toXMLString(Object)
      */
     @Override
-    @SuppressWarnings({"unchecked", "deprecation"})
     public String toXMLString(Object value) {
         return ((Enum) value).name();
     }

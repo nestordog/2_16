@@ -22,6 +22,8 @@ package ch.algotrader.service;
  */
 public class NoServiceResponseException extends ExternalServiceException {
 
+    private static final long serialVersionUID = 1353772559131818352L;
+
     public NoServiceResponseException(final String message) {
         super(message, null);
     }

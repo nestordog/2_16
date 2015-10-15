@@ -25,7 +25,7 @@ import ch.algotrader.util.diff.define.CsvDefinition;
 import ch.algotrader.util.diff.filter.CsvLineFilter;
 
 /**
- * Reader that skips certain lines based on a {@link #CsvLineFilter} criteria.
+ * Reader that skips certain lines based on a {@link ch.algotrader.util.diff.filter.CsvLineFilter CsvLineFilter} criteria.
  */
 public class FilterReader implements CsvReader {
 
@@ -39,37 +39,37 @@ public class FilterReader implements CsvReader {
 
     @Override
     public CsvDefinition getCsvDefinition() {
-        return delegate.getCsvDefinition();
+        return this.delegate.getCsvDefinition();
     }
 
     @Override
     public File getFile() {
-        return delegate.getFile();
+        return this.delegate.getFile();
     }
 
     @Override
     public java.io.BufferedReader getReader() {
-        return delegate.getReader();
+        return this.delegate.getReader();
     }
 
     public CsvReader getDelegate() {
-        return delegate;
+        return this.delegate;
     }
 
     public CsvLineFilter getFilter() {
-        return csvLineFilter;
+        return this.csvLineFilter;
     }
 
     @Override
     public int getLineIndex() {
-        return delegate.getLineIndex();
+        return this.delegate.getLineIndex();
     }
 
     @Override
     public CsvLine readLine() throws IOException {
-        CsvLine line = delegate.readLine();
-        while (line.isValid() && !csvLineFilter.accept(line)) {
-            line = delegate.readLine();
+        CsvLine line = this.delegate.readLine();
+        while (line.isValid() && !this.csvLineFilter.accept(line)) {
+            line = this.delegate.readLine();
         }
         return line;
     }

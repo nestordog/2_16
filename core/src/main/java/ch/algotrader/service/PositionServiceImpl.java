@@ -490,6 +490,7 @@ public class PositionServiceImpl implements PositionService {
                 } else {
                     this.serverEngine.deployStatement("server-prepared", "ON_TRADE_COMPLETED", alias, new Object[]{order.getIntId()}, new Object() {
 
+                        @SuppressWarnings("unused")
                         public void update(final OrderStatus orderStatus) {
 
                             PositionServiceImpl.this.serverEngine.undeployStatement(alias);

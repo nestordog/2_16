@@ -436,7 +436,7 @@ public class EngineImpl extends AbstractEngine {
         } else if (events.size() == 1) {
             Object result = events.get(0);
             if (attributeName != null && result instanceof Map) {
-                return ((Map) result).get(attributeName);
+                return ((Map<?, ?>) result).get(attributeName);
             } else {
                 return result;
             }
@@ -801,8 +801,7 @@ public class EngineImpl extends AbstractEngine {
         for (Annotation annotation : annotations) {
             if (annotation instanceof Subscriber) {
 
-                Subscriber subscriber = (Subscriber) annotation;
-                subscriberResolver.resolve(statement, ((Subscriber) annotation).className());
+                this.subscriberResolver.resolve(statement, ((Subscriber) annotation).className());
 
             } else if (annotation instanceof Listeners) {
 

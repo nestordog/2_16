@@ -37,8 +37,6 @@ import ch.algotrader.util.diff.reader.LinkedListReader;
 /**
  * Groups the underlying expected and actual lines according to some GROUP BY clause
  * and asserts each of those group blocks individually based on a delegate asserter.
- * <p>
- * A {@link #Builder} can be used to add GROUP-BY columns and create a {@code GroupDiffer} instance.
  */
 public class GroupDiffer implements CsvDiffer {
 
@@ -63,13 +61,13 @@ public class GroupDiffer implements CsvDiffer {
         private final List<CsvColumn> actualGrouColumns = new ArrayList<>();
 
         public Builder add(CsvColumn expColumn, CsvColumn actColumn) {
-            expectedGrouColumns.add(expColumn);
-            actualGrouColumns.add(actColumn);
+            this.expectedGrouColumns.add(expColumn);
+            this.actualGrouColumns.add(actColumn);
             return this;
         }
 
         public GroupDiffer build(CsvDiffer delegate) {
-            return new GroupDiffer(expectedGrouColumns, actualGrouColumns, delegate);
+            return new GroupDiffer(this.expectedGrouColumns, this.actualGrouColumns, delegate);
         }
     }
 
@@ -83,15 +81,15 @@ public class GroupDiffer implements CsvDiffer {
         CsvLine expLine = expReader.readLineIntoBuffer();
         while (expLine.isValid()) {
             final List<Object> groupValues = getGroupValues(expLine);
-            final int expSkip = readGroupIntoBuffer(expectedGroupColumns, groupValues, expReader);
-            final int actSkip = readGroupIntoBuffer(actualGroupColumns, groupValues, actReader);
+            final int expSkip = readGroupIntoBuffer(this.expectedGroupColumns, groupValues, expReader);
+            final int actSkip = readGroupIntoBuffer(this.actualGroupColumns, groupValues, actReader);
             final LinkedListReader expSubReader = expReader.readBufferAsReader(expReader.getBufferSize() - expSkip);
             final LinkedListReader actSubReader = actReader.readBufferAsReader(actReader.getBufferSize() - actSkip);
             try {
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("asserting group: {} [exp={}, act={}]", groupValues, getLines(expSubReader), getLines(actSubReader));
                 }
-                linesCompared += delegate.diffLines(expSubReader, actSubReader);
+                linesCompared += this.delegate.diffLines(expSubReader, actSubReader);
             } catch (CsvAssertionError e) {
                 throw e.addGroupValues(groupValues);
                 //            } catch (AssertionError e) {
@@ -115,8 +113,8 @@ public class GroupDiffer implements CsvDiffer {
     }
 
     private List<Object> getGroupValues(CsvLine line) {
-        final List<Object> groupValues = new ArrayList<>(expectedGroupColumns.size());
-        for (CsvColumn col : expectedGroupColumns) {
+        final List<Object> groupValues = new ArrayList<>(this.expectedGroupColumns.size());
+        for (CsvColumn col : this.expectedGroupColumns) {
             groupValues.add(line.getValues().get(col));
         }
         return groupValues;

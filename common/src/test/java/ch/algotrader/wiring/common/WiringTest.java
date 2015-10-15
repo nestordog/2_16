@@ -51,6 +51,8 @@ public class WiringTest extends DefaultConfigTestBase {
 
         Assert.assertNotNull(context.getBean(ConfigParams.class));
         Assert.assertNotNull(context.getBean(CommonConfig.class));
+
+        context.close();
     }
 
     @Test
@@ -66,6 +68,8 @@ public class WiringTest extends DefaultConfigTestBase {
         context.register(CommonConfigWiring.class, EngineManagerWiring.class);
         context.refresh();
         Assert.assertNotNull(context.getBean(EngineManager.class));
+
+        context.close();
     }
 
     @Test
@@ -86,5 +90,7 @@ public class WiringTest extends DefaultConfigTestBase {
         registry.broadcast(new SessionEventVO(ConnectionState.CONNECTED, "blah"));
 
         Mockito.verify(lifecycleEventListener, Mockito.times(1)).onChange(Mockito.any());
+
+        context.close();
     }
 }

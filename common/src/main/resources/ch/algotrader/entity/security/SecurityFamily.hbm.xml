@@ -19,7 +19,7 @@
      * @param broker 
      * @return java.lang.String
      */
-    public abstract java.lang.String getSymbolRoot(String broker);
+    public abstract java.lang.String getSymbolRoot(java.lang.String broker);
 
     /**
      * Gets the {@code contractSize} defined by the corresponding {@link BrokerParameters} or from
@@ -27,7 +27,7 @@
      * @param broker 
      * @return double
      */
-    public abstract double getContractSize(String broker);
+    public abstract double getContractSize(java.lang.String broker);
 
     /**
      * Gets the {@code scale} defined by the corresponding {@link BrokerParameters} or from this
@@ -35,7 +35,7 @@
      * @param broker 
      * @return int
      */
-    public abstract int getScale(String broker);
+    public abstract int getScale(java.lang.String broker);
 
     /**
      * Gets the {@code tickSizePattern} defined by the corresponding {@link BrokerParameters} or
@@ -43,7 +43,7 @@
      * @param broker 
      * @return java.lang.String
      */
-    public abstract java.lang.String getTickSizePattern(String broker);
+    public abstract java.lang.String getTickSizePattern(java.lang.String broker);
 
     /**
      * Gets the {@code executionCommission} defined by the corresponding {@link BrokerParameters} or
@@ -51,7 +51,7 @@
      * @param broker 
      * @return java.math.BigDecimal
      */
-    public abstract java.math.BigDecimal getExecutionCommission(String broker);
+    public abstract java.math.BigDecimal getExecutionCommission(java.lang.String broker);
 
     /**
      * Gets the {@code clearingCommission} defined by the corresponding {@link BrokerParameters} or
@@ -59,7 +59,7 @@
      * @param broker 
      * @return java.math.BigDecimal
      */
-    public abstract java.math.BigDecimal getClearingCommission(String broker);
+    public abstract java.math.BigDecimal getClearingCommission(java.lang.String broker);
 
     /**
      * Gets the {@code fee} defined by the corresponding {@link BrokerParameters} or from this
@@ -67,7 +67,7 @@
      * @param broker 
      * @return java.math.BigDecimal
      */
-    public abstract java.math.BigDecimal getFee(String broker);
+    public abstract java.math.BigDecimal getFee(java.lang.String broker);
 
     /**
      * Gets the {@code totalCharges} defined by the corresponding {@link BrokerParameters} or from
@@ -75,7 +75,7 @@
      * @param broker 
      * @return java.math.BigDecimal
      */
-    public abstract java.math.BigDecimal getTotalCharges(String broker);
+    public abstract java.math.BigDecimal getTotalCharges(java.lang.String broker);
 
     /**
      * Gets the {@code priceMultiplier} defined by the corresponding {@link BrokerParameters} or
@@ -83,7 +83,7 @@
      * @param broker 
      * @return double
      */
-    public abstract double getPriceMultiplier(String broker);
+    public abstract double getPriceMultiplier(java.lang.String broker);
 
     /**
      * Gets the current Spread between {@code bid} and {@code ask} in number of Ticks.
@@ -92,7 +92,7 @@
      * @param ask 
      * @return int
      */
-    public abstract int getSpreadTicks(String broker, java.math.BigDecimal bid, java.math.BigDecimal ask);
+    public abstract int getSpreadTicks(java.lang.String broker, java.math.BigDecimal bid, java.math.BigDecimal ask);
 
     /**
      * Gets the Tick Size (as a double) for prices above (if upwards = true) or below (for upwards =
@@ -102,7 +102,7 @@
      * @param upwards 
      * @return double
      */
-    public abstract double getTickSize(String broker, double price, boolean upwards);
+    public abstract double getTickSize(java.lang.String broker, double price, boolean upwards);
 
     /**
      * Gets the Tick Size (as a Money) for prices above (if upwards = true) or below (for upwards =
@@ -112,7 +112,7 @@
      * @param upwards 
      * @return java.math.BigDecimal
      */
-    public abstract java.math.BigDecimal getTickSize(String broker, java.math.BigDecimal price, boolean upwards);
+    public abstract java.math.BigDecimal getTickSize(java.lang.String broker, java.math.BigDecimal price, boolean upwards);
 
     /**
      * Adjusts the specified price by the number of {@code ticks}
@@ -121,7 +121,7 @@
      * @param ticks 
      * @return java.math.BigDecimal
      */
-    public abstract java.math.BigDecimal adjustPrice(String broker, java.math.BigDecimal price, int ticks);
+    public abstract java.math.BigDecimal adjustPrice(java.lang.String broker, java.math.BigDecimal price, int ticks);
 
     /**
      * Adjusts the specified price by the number of {@code ticks}
@@ -130,7 +130,7 @@
      * @param ticks 
      * @return double
      */
-    public abstract double adjustPrice(String broker, double price, int ticks);
+    public abstract double adjustPrice(java.lang.String broker, double price, int ticks);
 
     /**
      * Rounds the specified price up to the next tick
@@ -138,7 +138,7 @@
      * @param price 
      * @return java.math.BigDecimal
      */
-    public abstract java.math.BigDecimal roundUp(String broker, java.math.BigDecimal price);
+    public abstract java.math.BigDecimal roundUp(java.lang.String broker, java.math.BigDecimal price);
 
     /**
      * Rounds the specified price up to the next tick
@@ -146,7 +146,7 @@
      * @param price 
      * @return double
      */
-    public abstract double roundUp(String broker, double price);
+    public abstract double roundUp(java.lang.String broker, double price);
 
     /**
      * Rounds the specified price down to the next tick
@@ -154,7 +154,7 @@
      * @param price 
      * @return java.math.BigDecimal
      */
-    public abstract java.math.BigDecimal roundDown(String broker, java.math.BigDecimal price);
+    public abstract java.math.BigDecimal roundDown(java.lang.String broker, java.math.BigDecimal price);
 
     /**
      * Rounds the specified price down to the next tick
@@ -162,7 +162,7 @@
      * @param price 
      * @return double
      */
-    public abstract double roundDown(String broker, double price);
+    public abstract double roundDown(java.lang.String broker, double price);
 
 ]]>   
 	    </meta> 	    
@@ -224,7 +224,7 @@
         <property name="tickSizePattern">
             <meta attribute="field-description"><![CDATA[A {@link java.text.ChoiceFormat} representing a pattern that defines the TickSize at different Price Levels.
 <p>
-For example the pattern "0<0.05 | 3<0.1" says, that the TickSize is 0.05 for prices from 0 to (but not including) 3 and 0.1 for prices above 3.]]></meta>
+For example the pattern "0&lt;0.05 | 3&lt;0.1" says, that the TickSize is 0.05 for prices from 0 to (but not including) 3 and 0.1 for prices above 3.]]></meta>
             <column name="TICK_SIZE_PATTERN" not-null="true" unique="false" sql-type="VARCHAR(255)"/>
 
             <type name="java.lang.String"/>
@@ -288,7 +288,7 @@ For example the pattern "0<0.05 | 3<0.1" says, that the TickSize is 0.05 for pri
         </many-to-one>
         <set name="securities" order-by="SECURITY_FAMILY_FK" lazy="true" fetch="select" inverse="true">
             <meta attribute="field-description"><![CDATA[Represents an entire family of similar {@link ch.algotrader.entity.security.Security Securities}
-(e.g. All Options of the S&P500)]]></meta>
+(e.g. All Options of the SP500)]]></meta>
             <cache usage="read-write" />
             <key foreign-key="SECURITY_SECURITY_FAMILY_FKC">
                 <column name="SECURITY_FAMILY_FK" sql-type="BIGINT"/>
@@ -298,7 +298,7 @@ For example the pattern "0<0.05 | 3<0.1" says, that the TickSize is 0.05 for pri
         </set>
         <map name="brokerParameters" order-by="SECURITY_FAMILY_FK" lazy="false" fetch="select" inverse="true" cascade="delete">
             <meta attribute="field-description"><![CDATA[Represents an entire family of similar {@link ch.algotrader.entity.security.Security Securities}
-(e.g. All Options of the S&P500)]]></meta>
+(e.g. All Options of the SP500)]]></meta>
             <cache usage="read-write" />
             <key foreign-key="BROKER_PARAMETERS_SECURITY_FAC">
                 <column name="SECURITY_FAMILY_FK" sql-type="BIGINT"/>

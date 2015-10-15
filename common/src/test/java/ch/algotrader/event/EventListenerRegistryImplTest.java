@@ -20,12 +20,10 @@ package ch.algotrader.event;
 import java.util.Set;
 
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import ch.algotrader.entity.BaseEntityI;

@@ -20,7 +20,6 @@ package ch.algotrader.vo.client;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
-import java.util.Map;
 
 /**
  * A ValueObject representing a {@link ch.algotrader.entity.marketData.MarketDataEvent
@@ -61,13 +60,6 @@ public class MarketDataEventVO implements Serializable {
     private String feedType;
 
     /**
-     * Any {@link ch.algotrader.entity.property.Property Properties} associated with {@link
-     * ch.algotrader.entity.Subscription Subscriptions} of this MarketDataEventVO by the
-     * corresponding Strategy
-     */
-    private Map properties;
-
-    /**
      * Default Constructor
      */
     public MarketDataEventVO() {
@@ -82,17 +74,14 @@ public class MarketDataEventVO implements Serializable {
      * @param dateTimeIn Date The dateTime of this MarketDataEventVO
      * @param volIn int The current volume
      * @param feedTypeIn FeedType The market data feed that provided this  MarketDataEventVO
-     * @param propertiesIn Map Any {@link ch.algotrader.entity.property.Property Properties} associated with {@link
-     * ch.algotrader.entity.Subscription Subscriptions} of this MarketDataEventVO by the corresponding Strategy
      */
-    public MarketDataEventVO(final int securityIdIn, final String nameIn, final Date dateTimeIn, final int volIn, final String feedTypeIn, final Map propertiesIn) {
+    public MarketDataEventVO(final int securityIdIn, final String nameIn, final Date dateTimeIn, final int volIn, final String feedTypeIn) {
 
         this.securityId = securityIdIn;
         this.name = nameIn;
         this.dateTime = dateTimeIn;
         this.vol = volIn;
         this.feedType = feedTypeIn;
-        this.properties = propertiesIn;
     }
 
     /**
@@ -103,9 +92,8 @@ public class MarketDataEventVO implements Serializable {
      * @param volIn int
      * @param currentValueIn BigDecimal
      * @param feedTypeIn String
-     * @param propertiesIn Map
      */
-    public MarketDataEventVO(final int securityIdIn, final String nameIn, final Date dateTimeIn, final int volIn, final BigDecimal currentValueIn, final String feedTypeIn, final Map propertiesIn) {
+    public MarketDataEventVO(final int securityIdIn, final String nameIn, final Date dateTimeIn, final int volIn, final BigDecimal currentValueIn, final String feedTypeIn) {
 
         this.securityId = securityIdIn;
         this.name = nameIn;
@@ -113,7 +101,6 @@ public class MarketDataEventVO implements Serializable {
         this.vol = volIn;
         this.currentValue = currentValueIn;
         this.feedType = feedTypeIn;
-        this.properties = propertiesIn;
     }
 
     /**
@@ -130,7 +117,6 @@ public class MarketDataEventVO implements Serializable {
         this.vol = otherBean.getVol();
         this.currentValue = otherBean.getCurrentValue();
         this.feedType = otherBean.getFeedType();
-        this.properties = otherBean.getProperties();
     }
 
     /**
@@ -241,28 +227,6 @@ public class MarketDataEventVO implements Serializable {
         this.feedType = value;
     }
 
-    /**
-     * Any {@link ch.algotrader.entity.property.Property Properties} associated with {@link
-     * ch.algotrader.entity.Subscription Subscriptions} of this MarketDataEventVO by the
-     * corresponding Strategy
-     * @return properties Map
-     */
-    public Map getProperties() {
-
-        return this.properties;
-    }
-
-    /**
-     * Any {@link ch.algotrader.entity.property.Property Properties} associated with {@link
-     * ch.algotrader.entity.Subscription Subscriptions} of this MarketDataEventVO by the
-     * corresponding Strategy
-     * @param value Map
-     */
-    public void setProperties(final Map value) {
-
-        this.properties = value;
-    }
-
     @Override
     public String toString() {
 
@@ -279,8 +243,6 @@ public class MarketDataEventVO implements Serializable {
         builder.append(this.currentValue);
         builder.append(", feedType=");
         builder.append(this.feedType);
-        builder.append(", properties=");
-        builder.append(this.properties);
         builder.append("]");
 
         return builder.toString();
