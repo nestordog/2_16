@@ -73,7 +73,6 @@ import ch.algotrader.service.ExternalMarketDataService;
 import ch.algotrader.service.MarketDataService;
 import ch.algotrader.service.PositionService;
 import ch.algotrader.service.PropertyService;
-import ch.algotrader.service.TransactionPersistenceService;
 import ch.algotrader.service.TransactionService;
 import ch.algotrader.wiring.DefaultConfigTestBase;
 import ch.algotrader.wiring.common.CommonConfigWiring;
@@ -114,6 +113,7 @@ public class CacheTest extends DefaultConfigTestBase {
         ehCacheManager.shutdown();
 
         context = new AnnotationConfigApplicationContext();
+        context.getEnvironment().setActiveProfiles("embeddedDataSource");
 
         // register in-memory db
         EmbeddedDatabaseFactory dbFactory = new EmbeddedDatabaseFactory();
@@ -122,10 +122,6 @@ public class CacheTest extends DefaultConfigTestBase {
 
         database = dbFactory.getDatabase();
         context.getDefaultListableBeanFactory().registerSingleton("dataSource", database);
-
-        // register mocked services
-        TransactionPersistenceService transactionPersistenceService = Mockito.mock(TransactionPersistenceService.class);
-        context.getDefaultListableBeanFactory().registerSingleton("transactionPersistenceService", transactionPersistenceService);
 
         EngineManager engineManager = Mockito.mock(EngineManager.class);
         context.getDefaultListableBeanFactory().registerSingleton("engineManager", engineManager);
@@ -264,21 +260,47 @@ public class CacheTest extends DefaultConfigTestBase {
 
         TransactionService transactionService = context.getBean(TransactionService.class);
 
+        String queryString = "select p from PositionImpl as p join p.strategy as s where p.security.id = :securityId and s.name = :strategyName";
+
+        Position position1 = cache.findUnique(Position.class, queryString, QueryType.HQL, new NamedParam("strategyName", STRATEGY_NAME), new NamedParam("securityId", securityId2));
+
+        Position position2 = cache.get(PositionImpl.class, position1.getId());
+
+        Assert.assertEquals(222, position1.getQuantity());
+        Assert.assertNotNull(position2);
+        Assert.assertEquals(position1, position2);
+        Assert.assertSame(position1, position2);
+
         txTemplate.execute(txStatus -> {
 
             transactionService.createTransaction(securityId2, STRATEGY_NAME, null, new Date(), 10000, new BigDecimal(1.0), null, null, null, Currency.USD, TransactionType.BUY, ACCOUNT_NAME, null);
             return null;
         });
-        
-        String queryString = "select p from PositionImpl as p join p.strategy as s where p.security.id = :securityId and s.name = :strategyName";
 
-        Position position1 = cache.findUnique(Position.class, queryString, QueryType.HQL, new NamedParam("strategyName", STRATEGY_NAME), new NamedParam("securityId", securityId2));
+        Position position3 = cache.findUnique(Position.class, queryString, QueryType.HQL, new NamedParam("strategyName", STRATEGY_NAME), new NamedParam("securityId", securityId2));
             
-        Position position2 = cache.get(PositionImpl.class, position1.getId());
+        Position position4 = cache.get(PositionImpl.class, position3.getId());
         
-        Assert.assertNotNull(position2);
-        Assert.assertEquals(position1, position2);
-        Assert.assertSame(position1, position2);
+        Assert.assertEquals(10222, position3.getQuantity());
+        Assert.assertNotNull(position4);
+        Assert.assertEquals(position3, position4);
+        Assert.assertSame(position3, position4);
+
+        txTemplate.execute(txStatus -> {
+
+            transactionService.createTransaction(securityId2, STRATEGY_NAME, null, new Date(), 10000, new BigDecimal(1.0), null, null, null, Currency.USD, TransactionType.SELL, ACCOUNT_NAME, null);
+            return null;
+        });
+
+        Position position5 = cache.findUnique(Position.class, queryString, QueryType.HQL, new NamedParam("strategyName", STRATEGY_NAME), new NamedParam("securityId", securityId2));
+
+        Position position6 = cache.get(PositionImpl.class, position5.getId());
+
+        Assert.assertEquals(222, position5.getQuantity());
+        Assert.assertNotNull(position6);
+        Assert.assertEquals(position5, position6);
+        Assert.assertSame(position5, position6);
+
     }
 
     @Test

@@ -62,7 +62,7 @@ public class DefaultConfigTestBase {
         CONFIG_MAP.put("misc.intervalDays", "4");
         CONFIG_MAP.put("misc.rebalanceMinAmount", "1000");
         CONFIG_MAP.put("misc.defaultFeedType", "IB");
-        CONFIG_MAP.put("misc.defaultOrderPreference", "FX");
+        CONFIG_MAP.put("misc.defaultOrderPreference", "DEFAULT");
         CONFIG_MAP.put("fx.futureHedgeEnabled", "false");
         CONFIG_MAP.put("fx.futureHedgeMinTimeToExpiration", "604800000");
         CONFIG_MAP.put("fx.hedgeMinAmount", "8000");
