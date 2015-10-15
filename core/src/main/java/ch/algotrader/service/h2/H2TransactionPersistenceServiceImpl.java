@@ -29,6 +29,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.algotrader.config.CommonConfig;
+import ch.algotrader.dao.HibernateInitializer;
 import ch.algotrader.dao.PositionDao;
 import ch.algotrader.dao.TransactionDao;
 import ch.algotrader.dao.strategy.CashBalanceDao;
@@ -84,6 +85,8 @@ public class H2TransactionPersistenceServiceImpl extends TransactionPersistenceS
     public void ensurePositionAndCashBalance(final Transaction transaction) {
 
         Validate.notNull(transaction, "Transaction is null");
+
+        transaction.initializeSecurity(HibernateInitializer.INSTANCE);
 
         Strategy strategy = transaction.getStrategy();
         Security security = transaction.getSecurity();

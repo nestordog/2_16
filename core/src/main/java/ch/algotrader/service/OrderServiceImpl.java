@@ -179,7 +179,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
 
         OrderPreference orderPreference = this.orderPreferenceDao.findByName(name);
 
-        Validate.notNull(orderPreference, "unknown OrderPreference");
+        Validate.notNull(orderPreference, "unknown OrderPreference" + name == null ? "" : " " + name);
 
         Class<?> orderClazz;
         Order order;

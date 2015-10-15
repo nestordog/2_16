@@ -43,6 +43,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.CoreConfig;
 import ch.algotrader.dao.GenericDao;
+import ch.algotrader.dao.HibernateInitializer;
 import ch.algotrader.dao.NamedParam;
 import ch.algotrader.dao.PositionDao;
 import ch.algotrader.dao.TransactionDao;
@@ -113,7 +114,7 @@ public class PortfolioServiceImpl implements PortfolioService {
         @Override
         public int compare(Currency currency1, Currency currency2) {
             if (currency1 == currency2) {
-                return 1;
+                return 0;
             } else if (currency1 == PortfolioServiceImpl.this.commonConfig.getPortfolioBaseCurrency()) {
                 return Integer.MIN_VALUE;
             } else if (currency2 == PortfolioServiceImpl.this.commonConfig.getPortfolioBaseCurrency()) {
@@ -829,6 +830,8 @@ public class PortfolioServiceImpl implements PortfolioService {
         DoubleMap<Currency> map = new DoubleMap<>();
         for (Transaction transaction : transactions) {
 
+            transaction.initializeSecurity(HibernateInitializer.INSTANCE);
+
             // process all currenyAmounts
             for (CurrencyAmountVO currencyAmount : transaction.getAttributions()) {
                 map.increment(currencyAmount.getCurrency(), currencyAmount.getAmount().doubleValue());
@@ -948,8 +951,11 @@ public class PortfolioServiceImpl implements PortfolioService {
         // sum of all positions
         for (Position position : positions) {
 
+            position.initializeSecurity(HibernateInitializer.INSTANCE);
+
             MarketDataEventVO marketDataEvent = this.marketDataCache.getCurrentMarketDataEvent(position.getSecurity().getId());
             CurrencyAmountVO currencyAmount = position.getAttribution(marketDataEvent);
+
             if (currencyAmount.getAmount() != null) {
                 if (position.isCashPosition()) {
                     cashMap.increment(currencyAmount.getCurrency(), currencyAmount.getAmount().doubleValue());
@@ -1000,6 +1006,8 @@ public class PortfolioServiceImpl implements PortfolioService {
 
         // sum of all positions
         for (Position position : positions) {
+
+            position.initializeSecurity(HibernateInitializer.INSTANCE);
 
             MarketDataEventVO marketDataEvent = this.marketDataCache.getCurrentMarketDataEvent(position.getSecurity().getId());
             CurrencyAmountVO currencyAmount = position.getAttribution(marketDataEvent);

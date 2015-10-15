@@ -30,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ch.algotrader.accounting.PositionTrackerImpl;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.dao.ClosePositionVOProducer;
+import ch.algotrader.dao.HibernateInitializer;
 import ch.algotrader.dao.OpenPositionVOProducer;
 import ch.algotrader.dao.PositionDao;
 import ch.algotrader.dao.TransactionDao;
@@ -156,6 +157,8 @@ public abstract class TransactionPersistenceServiceImpl implements TransactionPe
             }
         }
 
+        transaction.initializeSecurity(HibernateInitializer.INSTANCE);
+
         // add the amount to the corresponding cashBalance
         for (CurrencyAmountVO amount : transaction.getAttributions()) {
 
@@ -228,6 +231,8 @@ public abstract class TransactionPersistenceServiceImpl implements TransactionPe
         Collection<Transaction> transactions = this.transactionDao.loadAll();
         BigDecimalMap<Pair<Strategy, Currency>> map = new BigDecimalMap<>();
         for (Transaction transaction : transactions) {
+
+            transaction.initializeSecurity(HibernateInitializer.INSTANCE);
 
             // process all currenyAmounts
             for (CurrencyAmountVO currencyAmount : transaction.getAttributions()) {
