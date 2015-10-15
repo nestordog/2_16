@@ -577,21 +577,31 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
         order.setSide(sideObject);
 
         // set the account
-        if ("".equals(accountName)) {
-            accountName = this.commonConfig.getDefaultAccountName();
+        if (StringUtils.isEmpty(accountName)) {
+            if (order.getAccount() == null) {
+                accountName = this.commonConfig.getDefaultAccountName();
+                Account accountByName = this.lookupService.getAccountByName(accountName);
+                if (accountByName == null) {
+                    throw new IllegalArgumentException("Account '" + accountName + "' not found");
+                }
+                order.setAccount(accountByName);
+            }
+        } else {
+            Account accountByName = this.lookupService.getAccountByName(accountName);
+            if (accountByName == null) {
+                throw new IllegalArgumentException("Account '" + accountName + "' not found");
+            }
+            order.setAccount(accountByName);
         }
 
-        Account account = this.lookupService.getAccountByName(accountName);
-        order.setAccount(account);
-
         // set the exchange
-        if (!"".equals(exchangeName)) {
+        if (!StringUtils.isEmpty(exchangeName)) {
             Exchange exchange = this.lookupService.getExchangeByName(exchangeName);
             order.setExchange(exchange);
         }
 
         // set additional properties
-        if (!"".equals(properties)) {
+        if (!StringUtils.isEmpty(properties)) {
 
             // get the properties
             Map<String, String> propertiesMap = new HashMap<>();
@@ -748,7 +758,7 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
 
         Validate.notEmpty(security, "Security is empty");
 
-        if (!"".equals(feedType)) {
+        if (!StringUtils.isEmpty(feedType)) {
             this.subscriptionService.subscribeMarketDataEvent(this.engine.getStrategyName(), getSecurityId(security), feedType);
         } else {
             this.subscriptionService.subscribeMarketDataEvent(this.engine.getStrategyName(), getSecurityId(security));
@@ -768,7 +778,7 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
 
         Validate.notEmpty(security, "Security is empty");
 
-        if (!"".equals(feedType)) {
+        if (!StringUtils.isEmpty(feedType)) {
             this.subscriptionService.unsubscribeMarketDataEvent(this.engine.getStrategyName(), getSecurityId(security), feedType);
         } else {
             this.subscriptionService.unsubscribeMarketDataEvent(this.engine.getStrategyName(), getSecurityId(security));
@@ -857,7 +867,7 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
 
         Validate.notEmpty(combinationType, "Combination type is empty");
 
-        if ("".equals(underlying)) {
+        if (StringUtils.isEmpty(underlying)) {
             return this.combinationService.createCombination(CombinationType.valueOf(combinationType), securityFamilyId).getId();
         } else {
             return this.combinationService.createCombination(CombinationType.valueOf(combinationType), securityFamilyId, getSecurityId(underlying)).getId();
