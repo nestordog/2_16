@@ -188,10 +188,18 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
+    public <T extends SecurityFamily> Collection<T> getAllSecurityFamilies(Class<T> familyClass) {
+
+        return this.cacheManager.getAll(familyClass);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Collection<Security> getAllSecurities() {
 
         return this.cacheManager.getAll(Security.class);
-
     }
 
     /**

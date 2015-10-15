@@ -17,6 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.starter;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -24,6 +26,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.ServiceLocator;
+import ch.algotrader.entity.security.FutureFamily;
+import ch.algotrader.entity.security.OptionFamily;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.enumeration.ConnectionState;
 import ch.algotrader.event.EventListenerRegistry;
@@ -48,13 +52,38 @@ public class ReferenceDataStarter {
     public static void main(String[] args) throws Exception {
 
         if (args.length == 0) {
-            LOGGER.error("Please specify a list of security family ids");
+            LOGGER.error("Please specify a list of security family ids, 'futures' for all future families, 'options' for all option families");
             return;
         }
 
         ServiceLocator serviceLocator = ServiceLocator.instance();
         serviceLocator.init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
         try {
+
+            Set<SecurityFamily> securityFamilies = new LinkedHashSet<>();
+
+            LookupService lookupService = serviceLocator.getLookupService();
+            for (String arg : args) {
+
+                if (arg.equalsIgnoreCase("futures")) {
+                    securityFamilies.addAll(lookupService.getAllSecurityFamilies(FutureFamily.class));
+                } else if (arg.equalsIgnoreCase("options")) {
+                    securityFamilies.addAll(lookupService.getAllSecurityFamilies(OptionFamily.class));
+                } else {
+                    long securityFamilyId = Long.parseLong(arg);
+                    SecurityFamily securityFamily = lookupService.getSecurityFamily(securityFamilyId);
+                    if (securityFamily != null) {
+                        securityFamilies.add(securityFamily);
+                    } else {
+                        LOGGER.error("Security family with id {} not found", securityFamilyId);
+                    }
+                }
+            }
+
+            if (securityFamilies.isEmpty()) {
+                LOGGER.info("No security families found");
+                return;
+            }
 
             CountDownLatch latch = new CountDownLatch(1);
 
@@ -76,28 +105,17 @@ public class ReferenceDataStarter {
             }
 
             ReferenceDataService service = serviceLocator.getReferenceDataService();
-            LookupService lookupService = serviceLocator.getLookupService();
-            for (String arg : args) {
-
-                long securityFamilyId = Long.parseLong(arg);
-
-                SecurityFamily securityFamily = lookupService.getSecurityFamily(securityFamilyId);
-                if (securityFamily != null) {
-
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Retrieving security definitions for " + securityFamily);
-                    }
-
-                    try {
-                        service.retrieve(securityFamilyId);
-                    } catch (NoServiceResponseException ex) {
-                        LOGGER.warn(ex.getMessage());
-                    }
-
-                } else {
-                    LOGGER.error("Security family with id {} not found", securityFamilyId);
+            securityFamilies.forEach(securityFamily -> {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Retrieving security definitions for " + securityFamily);
                 }
-            }
+
+                try {
+                    service.retrieve(securityFamily.getId());
+                } catch (NoServiceResponseException ex) {
+                    LOGGER.warn(ex.getMessage());
+                }
+            });
             LOGGER.info("Security definition retrieval completed");
         } finally {
             serviceLocator.shutdown();

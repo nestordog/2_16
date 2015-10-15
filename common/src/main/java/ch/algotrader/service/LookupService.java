@@ -99,6 +99,11 @@ public interface LookupService {
     public List<Security> getSecuritiesByIds(Collection<Long> ids);
 
     /**
+     * Returns all Security families that are defined in the system.
+     */
+    public <T extends SecurityFamily> Collection<T> getAllSecurityFamilies(Class<T> familyClass);
+
+    /**
      * Returns all Securities that are defined in the system.
      */
     public Collection<Security> getAllSecurities();
