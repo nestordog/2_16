@@ -40,15 +40,21 @@ public class GenericStarter {
 
     public static void main(String[] args) throws Exception {
 
-        for (String arg : args) {
-            invoke(arg);
+        ServiceLocator serviceLocator = ServiceLocator.instance();
+        serviceLocator.init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
+        try {
+            for (String arg : args) {
+                invoke(serviceLocator, arg);
+            }
+        } finally {
+            serviceLocator.shutdown();
         }
     }
 
-    public static Object invoke(String arg) {
+    public static Object invoke(final ServiceLocator serviceLocator, final String arg) {
 
         if (arg == null) {
-            throw new IllegalArgumentException("you must specifiy service and method");
+            throw new IllegalArgumentException("you must specify service and method");
         }
 
         StringTokenizer tokenizer = new StringTokenizer(arg, ":");
@@ -61,9 +67,6 @@ public class GenericStarter {
         String serviceName = tokenizer.nextToken();
         String methodName = tokenizer.nextToken();
 
-        ServiceLocator serviceLocator = ServiceLocator.instance();
-
-        serviceLocator.init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
         Object service = serviceLocator.getService(serviceName);
 
         Object result = null;
@@ -113,8 +116,6 @@ public class GenericStarter {
         if (!found) {
             throw new IllegalArgumentException("method does not exist");
         }
-
-        serviceLocator.shutdown();
 
         return result;
     }

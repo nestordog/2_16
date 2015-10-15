@@ -38,17 +38,20 @@ public class RestorePortfolioValueStarter {
 
     public static void main(String[] args) throws ParseException {
 
-        ServiceLocator.instance().init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
-        PortfolioService portfolioService = ServiceLocator.instance().getService("portfolioService", PortfolioService.class);
-        LookupService lookupService = ServiceLocator.instance().getLookupService();
+        ServiceLocator serviceLocator = ServiceLocator.instance();
+        serviceLocator.init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
+        try {
+            PortfolioService portfolioService = serviceLocator.getService("portfolioService", PortfolioService.class);
+            LookupService lookupService = serviceLocator.getLookupService();
 
-        Strategy strategy = lookupService.getStrategyByName(args[0]);
+            Strategy strategy = lookupService.getStrategyByName(args[0]);
 
-        Date fromDate = DateTimeLegacy.parseAsLocalDateTime(args[1]);
-        Date toDate = DateTimeLegacy.parseAsLocalDateTime(args[2]);
+            Date fromDate = DateTimeLegacy.parseAsLocalDateTime(args[1]);
+            Date toDate = DateTimeLegacy.parseAsLocalDateTime(args[2]);
 
-        portfolioService.restorePortfolioValues(strategy, fromDate, toDate);
-
-        ServiceLocator.instance().shutdown();
+            portfolioService.restorePortfolioValues(strategy, fromDate, toDate);
+        } finally {
+            serviceLocator.shutdown();
+        }
     }
 }

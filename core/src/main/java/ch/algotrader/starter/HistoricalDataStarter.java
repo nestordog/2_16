@@ -21,8 +21,8 @@ import java.util.Date;
 import java.util.HashMap;
 
 import ch.algotrader.ServiceLocator;
-import ch.algotrader.enumeration.MarketDataEventType;
 import ch.algotrader.enumeration.Duration;
+import ch.algotrader.enumeration.MarketDataEventType;
 import ch.algotrader.enumeration.TimePeriod;
 import ch.algotrader.service.HistoricalDataService;
 import ch.algotrader.util.DateTimeLegacy;
@@ -58,13 +58,17 @@ public class HistoricalDataStarter {
             securityIds[i] = Long.parseLong(securityIdStrings[i]);
         }
 
-        ServiceLocator.instance().runServices();
+        ServiceLocator serviceLocator = ServiceLocator.instance();
+        serviceLocator.init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
+        try {
+            serviceLocator.runServices();
 
-        HistoricalDataService service = ServiceLocator.instance().getService("historicalDataService", HistoricalDataService.class);
-        for (long securityId : securityIds) {
-            service.storeHistoricalBars(securityId, endDate, timePeriodLength, timePeriod, barSize, marketDataEventType, replace, new HashMap<>());
+            HistoricalDataService service = serviceLocator.getService("historicalDataService", HistoricalDataService.class);
+            for (long securityId : securityIds) {
+                service.storeHistoricalBars(securityId, endDate, timePeriodLength, timePeriod, barSize, marketDataEventType, replace, new HashMap<>());
+            }
+        } finally {
+            serviceLocator.shutdown();
         }
-
-        ServiceLocator.instance().shutdown();
     }
 }

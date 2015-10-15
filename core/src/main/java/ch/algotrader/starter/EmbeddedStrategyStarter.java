@@ -35,9 +35,10 @@ public abstract class EmbeddedStrategyStarter {
 
     public static void main(String[] args) throws Exception {
 
+        ServiceLocator serviceLocator = ServiceLocator.instance();
         try {
             LOGGER.info("Starting Algotrader Server in embedded mode");
-            ServiceLocator.instance().runEmbedded();
+            serviceLocator.runEmbedded();
             LOGGER.info("Algotrader started");
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 LOGGER.info("Algotrader terminated");
@@ -46,7 +47,7 @@ public abstract class EmbeddedStrategyStarter {
         } catch (InterruptedException ignore) {
         } catch (Exception ex) {
             LOGGER.error(ex.getMessage(), ex);
-            ServiceLocator.instance().shutdown();
+            serviceLocator.shutdown();
         }
     }
 

@@ -41,10 +41,10 @@ public class FixSessionInfoStarter {
 
     public static void main(String... args) throws Exception {
 
-        ServiceLocator instance = ServiceLocator.instance();
-        instance.init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
+        ServiceLocator serviceLocator = ServiceLocator.instance();
+        serviceLocator.init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
         try {
-            SessionSettings sessionSettings = instance.getContext().getBean("fixSessionSettings", SessionSettings.class);
+            SessionSettings sessionSettings = serviceLocator.getContext().getBean("fixSessionSettings", SessionSettings.class);
             Iterator<SessionID> it = sessionSettings.sectionIterator();
             System.out.println("Available sessions:");
             System.out.println("-------------------");
@@ -83,7 +83,7 @@ public class FixSessionInfoStarter {
                 }
             }
         } finally {
-            instance.shutdown();
+            serviceLocator.shutdown();
         }
     }
 }

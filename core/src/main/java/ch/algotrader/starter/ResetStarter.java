@@ -40,16 +40,19 @@ public class ResetStarter {
 
     public static void main(String[] args) throws ParseException {
 
-        ServiceLocator.instance().init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
-        ResetService resetService = ServiceLocator.instance().getService("resetService", ResetService.class);
+        ServiceLocator serviceLocator = ServiceLocator.instance();
+        serviceLocator.init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
+        try {
+            ResetService resetService = serviceLocator.getService("resetService", ResetService.class);
 
-        Set<ResetType> resetItems = new HashSet<ResetType>();
-        for (String arg : args) {
-            resetItems.add(ResetType.valueOf(arg));
+            Set<ResetType> resetItems = new HashSet<ResetType>();
+            for (String arg : args) {
+                resetItems.add(ResetType.valueOf(arg));
+            }
+
+            resetService.reset(EnumSet.copyOf(resetItems));
+        } finally {
+            serviceLocator.shutdown();
         }
-
-        resetService.reset(EnumSet.copyOf(resetItems));
-
-        ServiceLocator.instance().shutdown();
     }
 }

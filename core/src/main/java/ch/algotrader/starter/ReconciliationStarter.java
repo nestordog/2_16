@@ -35,16 +35,19 @@ public class ReconciliationStarter {
 
     public static void main(String[] args) throws Exception {
 
-        ServiceLocator.instance().init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
-        ReconciliationService service = ServiceLocator.instance().getService(args[0], ReconciliationService.class);
+        ServiceLocator serviceLocator = ServiceLocator.instance();
+        serviceLocator.init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
+        try {
+            ReconciliationService service = serviceLocator.getService(args[0], ReconciliationService.class);
 
-        for (int i = 1; i < args.length; i++) {
+            for (int i = 1; i < args.length; i++) {
 
-            File file = new File(args[i]);
+                File file = new File(args[i]);
 
-            service.reconcile(file);
+                service.reconcile(file);
+            }
+        } finally {
+            serviceLocator.shutdown();
         }
-
-        ServiceLocator.instance().shutdown();
     }
 }

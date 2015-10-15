@@ -37,15 +37,19 @@ public class StockRetrievalStarter {
 
     public static void main(String[] args) throws ParseException {
 
-        ServiceLocator.instance().runServices();
+        ServiceLocator serviceLocator = ServiceLocator.instance();
+        serviceLocator.init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
+        try {
+            serviceLocator.runServices();
 
-        ReferenceDataService service = ServiceLocator.instance().getService("iBNativeReferenceDataService", ReferenceDataService.class);
-        for (int i = 1; i < args.length; i++) {
+            ReferenceDataService service = serviceLocator.getService("iBNativeReferenceDataService", ReferenceDataService.class);
+            for (int i = 1; i < args.length; i++) {
 
-            long securityFamilyId = Long.parseLong(args[0]);
-            service.retrieveStocks(securityFamilyId, args[i]);
+                long securityFamilyId = Long.parseLong(args[0]);
+                service.retrieveStocks(securityFamilyId, args[i]);
+            }
+        } finally {
+            serviceLocator.shutdown();
         }
-
-        ServiceLocator.instance().shutdown();
     }
 }
