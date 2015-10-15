@@ -414,6 +414,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
 
         // assemble a new OrderStatus Entity
         OrderStatus orderStatus = OrderStatus.Factory.newInstance();
+        orderStatus.setIntId(order.getIntId());
         orderStatus.setStatus(Status.CANCELED);
         orderStatus.setFilledQuantity(executionStatus != null ? executionStatus.getFilledQuantity() : 0L);
         orderStatus.setRemainingQuantity(executionStatus != null ? executionStatus.getRemainingQuantity() : 0L);
