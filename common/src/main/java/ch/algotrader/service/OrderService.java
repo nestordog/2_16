@@ -145,4 +145,9 @@ public interface OrderService {
      */
     Map<Order, OrderStatus> loadPendingOrders();
 
+    /**
+     * Sends a Trade Suggestion via Email / Text Message.
+     */
+    public void suggestOrder(Order order);
+
 }

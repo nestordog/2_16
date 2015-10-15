@@ -87,6 +87,7 @@ import ch.algotrader.util.BeanUtil;
 public class OrderServiceImpl implements OrderService, InitializingServiceI {
 
     private static final Logger LOGGER = LogManager.getLogger(OrderServiceImpl.class);
+    private static final Logger NOTIFICATION_LOGGER = LogManager.getLogger("ch.algotrader.service.NOTIFICATION");
 
     private final CommonConfig commonConfig;
 
@@ -844,6 +845,18 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
     public void modifyOrder(OrderVO order) {
 
         modifySimpleOrder(convert(order));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void suggestOrder(final Order order) {
+
+        Validate.notNull(order, "Order is null");
+
+        NOTIFICATION_LOGGER.info("order " + order);
+
     }
 
 }
