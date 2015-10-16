@@ -841,6 +841,8 @@ public class PortfolioServiceImpl implements PortfolioService {
         // sum of all FX positions
         for (Position openPosition : openPositions) {
 
+            openPosition.initializeSecurity(HibernateInitializer.INSTANCE);
+
             Security security = openPosition.getSecurity();
             if (security instanceof Forex) {
                 int intervalDays = this.coreConfig.getIntervalDays();
@@ -878,6 +880,8 @@ public class PortfolioServiceImpl implements PortfolioService {
         double amount = 0.0;
         for (Position openPosition : openPositions) {
 
+            openPosition.initializeSecurity(HibernateInitializer.INSTANCE);
+
             Security security = openPosition.getSecurity();
             if (!(security instanceof Forex)) {
                 MarketDataEventVO marketDataEvent = this.marketDataCache.getCurrentMarketDataEvent(security.getId());
@@ -893,6 +897,8 @@ public class PortfolioServiceImpl implements PortfolioService {
         DoubleMap<Currency> map = new DoubleMap<>();
 
         for (Position openPosition : openPositions) {
+
+            openPosition.initializeSecurity(HibernateInitializer.INSTANCE);
 
             Security security = openPosition.getSecurity();
             if (!(security instanceof Forex)) {
