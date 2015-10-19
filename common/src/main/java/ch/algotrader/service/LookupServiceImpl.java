@@ -1075,7 +1075,7 @@ public class LookupServiceImpl implements LookupService {
         Validate.notNull(name, "Name is null");
         Validate.notNull(maxDate, "Max date is null");
 
-        List<Measurement> measurements = this.cacheManager.find(Measurement.class, "Measurement.findMeasurementsByMaxDate", QueryType.BY_NAME,
+        List<Measurement> measurements = this.genericDao.find(Measurement.class, "Measurement.findMeasurementsByMaxDate", QueryType.BY_NAME,
                 new NamedParam("strategyName", strategyName),
                 new NamedParam("name", name),
                 new NamedParam("maxDateTime", maxDate));
@@ -1093,7 +1093,7 @@ public class LookupServiceImpl implements LookupService {
         Validate.notNull(strategyName, "Strategy name is null");
         Validate.notNull(maxDate, "Max date is null");
 
-        List<Measurement> measurements = this.cacheManager.find(Measurement.class, "Measurement.findAllMeasurementsByMaxDate", QueryType.BY_NAME,
+        List<Measurement> measurements = this.genericDao.find(Measurement.class, "Measurement.findAllMeasurementsByMaxDate", QueryType.BY_NAME,
                 new NamedParam("strategyName", strategyName),
                 new NamedParam("maxDateTime", maxDate));
 
@@ -1111,7 +1111,7 @@ public class LookupServiceImpl implements LookupService {
         Validate.notNull(name, "Name is null");
         Validate.notNull(minDate, "Min date is null");
 
-        List<Measurement> measurements = this.cacheManager.find(Measurement.class, "Measurement.findMeasurementsByMinDate", QueryType.BY_NAME,
+        List<Measurement> measurements = this.genericDao.find(Measurement.class, "Measurement.findMeasurementsByMinDate", QueryType.BY_NAME,
                 new NamedParam("strategyName", strategyName),
                 new NamedParam("name", name),
                 new NamedParam("minDateTime", minDate));
@@ -1129,7 +1129,7 @@ public class LookupServiceImpl implements LookupService {
         Validate.notNull(strategyName, "Strategy name is null");
         Validate.notNull(minDate, "Min date is null");
 
-        List<Measurement> measurements = this.cacheManager.find(Measurement.class, "Measurement.findAllMeasurementsByMinDate", QueryType.BY_NAME,
+        List<Measurement> measurements = this.genericDao.find(Measurement.class, "Measurement.findAllMeasurementsByMinDate", QueryType.BY_NAME,
                 new NamedParam("strategyName", strategyName),
                 new NamedParam("minDateTime", minDate));
 
@@ -1147,9 +1147,9 @@ public class LookupServiceImpl implements LookupService {
         Validate.notNull(name, "Name is null");
         Validate.notNull(maxDate, "Max date is null");
 
-        Measurement measurement = this.cacheManager.findUnique(Measurement.class, "Measurement.findMeasurementsByMaxDate", QueryType.BY_NAME, new NamedParam("strategyName", strategyName),
+        Measurement measurement = CollectionUtil.getSingleElementOrNull(this.genericDao.find(Measurement.class, "Measurement.findMeasurementsByMaxDate", 1, QueryType.BY_NAME, new NamedParam("strategyName", strategyName),
                 new NamedParam("name", name),
-                new NamedParam("maxDateTime",maxDate));
+                new NamedParam("maxDateTime",maxDate)));
 
         return measurement != null ? measurement.getValue() : null;
 
@@ -1165,9 +1165,9 @@ public class LookupServiceImpl implements LookupService {
         Validate.notNull(name, "Name is null");
         Validate.notNull(minDate, "Min date is null");
 
-        Measurement measurement = this.cacheManager.findUnique(Measurement.class, "Measurement.findMeasurementsByMinDate", QueryType.BY_NAME, new NamedParam("strategyName", strategyName),
+        Measurement measurement = CollectionUtil.getSingleElementOrNull(this.genericDao.find(Measurement.class, "Measurement.findMeasurementsByMinDate", 1, QueryType.BY_NAME, new NamedParam("strategyName", strategyName),
                 new NamedParam("name", name),
-                new NamedParam("minDateTime", minDate));
+                new NamedParam("minDateTime", minDate)));
 
         return measurement != null ? measurement.getValue() : null;
 
@@ -1198,12 +1198,16 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
-    public <T> List<T> get(final Class<T> clazz, final String query, QueryType type, final NamedParam... namedParams) {
+    public <T> List<T> find(final Class<T> clazz, final String query, QueryType type, boolean useCache, final NamedParam... namedParams) {
 
         Validate.notEmpty(query, "Query is empty");
         Validate.notNull(namedParams, "Named parameters is null");
 
-        return this.genericDao.find(clazz, query, type, namedParams);
+        if (useCache) {
+            return this.cacheManager.find(clazz, query, type, namedParams);
+        } else {
+            return this.genericDao.find(clazz, query, type, namedParams);
+        }
 
     }
 
@@ -1211,12 +1215,16 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
-    public <T> List<T> get(final Class<T> clazz, final String query, final int maxResults, QueryType type, final NamedParam... namedParams) {
+    public <T> List<T> find(final Class<T> clazz, final String query, final int maxResults, QueryType type, boolean useCache, final NamedParam... namedParams) {
 
         Validate.notEmpty(query, "Query is empty");
         Validate.notNull(namedParams, "Named parameters is null");
 
-        return this.genericDao.find(clazz, query, maxResults, type, namedParams);
+        if (useCache) {
+            return this.cacheManager.find(clazz, query, maxResults, type, namedParams);
+        } else {
+            return this.genericDao.find(clazz, query, maxResults, type, namedParams);
+        }
 
     }
 
@@ -1224,12 +1232,16 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
-    public <T> T getUnique(final Class<T> clazz, final String query, QueryType type, final NamedParam... namedParams) {
+    public <T> T findUnique(final Class<T> clazz, final String query, QueryType type, boolean useCache, final NamedParam... namedParams) {
 
         Validate.notEmpty(query, "Query is empty");
         Validate.notNull(namedParams, "Named parameters is null");
 
-        return this.genericDao.findUnique(clazz, query, type, namedParams);
+        if (useCache) {
+            return this.cacheManager.findUnique(clazz, query, type, namedParams);
+        } else {
+            return this.genericDao.findUnique(clazz, query, type, namedParams);
+        }
 
     }
 

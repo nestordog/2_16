@@ -298,14 +298,13 @@ public class CacheManagerImpl implements CacheManager, Initializer, EntityCacheE
     }
 
     @Override
-    public Map<String, Integer> getCacheSize() {
+    public int getEntityCacheSize() {
+        return this.entityCache.size();
+    }
 
-        Map<String, Integer> numCached = new HashMap<>();
-
-        numCached.put("entities", this.entityCache.size());
-        numCached.put("queries", this.queryCache.size());
-
-        return numCached;
+    @Override
+    public List<String> getQueries() {
+        return this.queryCache.getQueries();
     }
 
     @Override

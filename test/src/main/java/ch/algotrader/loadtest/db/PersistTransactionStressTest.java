@@ -58,10 +58,10 @@ public class PersistTransactionStressTest {
         for (Currency base: currencies) {
             for (Currency transact: currencies) {
                 if (!base.equals(transact)) {
-                    Forex forex = lookupService.getUnique(Forex.class,
+                    Forex forex = lookupService.findUnique(Forex.class,
                             "from ForexImpl f join fetch f.securityFamily sf " +
                                     "where f.baseCurrency = :baseCurrency and sf.currency = :transactionCurrency",
-                            QueryType.HQL, new NamedParam("baseCurrency", base), new NamedParam("transactionCurrency", transact));
+                            QueryType.HQL, false, new NamedParam("baseCurrency", base), new NamedParam("transactionCurrency", transact));
                     if (forex != null) {
                         forexList.add(forex);
                     }

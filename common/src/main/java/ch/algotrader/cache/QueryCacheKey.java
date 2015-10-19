@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.cache;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 import ch.algotrader.dao.NamedParam;
@@ -34,57 +35,60 @@ public class QueryCacheKey {
     private final int maxResults;
     private final NamedParam[] namedParameters;
 
-    private final int hashCode;
-
     public QueryCacheKey(String queryString, int maxResults, NamedParam... namedParameters) {
 
-        this.queryString = queryString;
+        this.queryString = queryString.replaceAll("\\n", "").replaceAll("\\r", "").replaceAll("\\t", " ").replaceAll("\\s+", " ").trim();
         this.maxResults = maxResults;
         this.namedParameters = namedParameters;
-
-        this.hashCode = generateHashCode();
-    }
-
-    public int generateHashCode() {
-
-        int hashCode = 17;
-        hashCode = 37 * hashCode + this.queryString.hashCode();
-        hashCode = 37 * hashCode + this.maxResults;
-        hashCode = 37 * hashCode + (this.namedParameters == null ? 0 : this.namedParameters.hashCode());
-
-        return hashCode;
     }
 
     public String getQueryString() {
         return this.queryString;
     }
 
-    @Override
-    public String toString() {
+    public int getMaxResults() {
+        return this.maxResults;
+    }
 
-        StringBuilder buffer = new StringBuilder(this.queryString);
-
-        if (this.namedParameters != null) {
-            buffer.append(",namedParameters=").append(this.namedParameters);
-        }
-
-        return buffer.toString();
+    public NamedParam[] getNamedParameters() {
+        return this.namedParameters;
     }
 
     @Override
-    public boolean equals(Object other) {
+    public String toString() {
 
-        if (!(other instanceof QueryCacheKey)) {
-            return false;
+        String result = this.queryString;
+        if (this.namedParameters != null) {
+            for (NamedParam namedParam : this.namedParameters) {
+                result = result.replaceAll(":" + namedParam.getName(), namedParam.getValue().toString());
+            }
         }
 
-        QueryCacheKey that = (QueryCacheKey) other;
-        return this.queryString.equals(that.queryString) && Objects.equals(this.namedParameters, that.namedParameters);
+        return result + (this.maxResults == 0 ? "" : " (" + this.maxResults + ")");
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        } else if (obj == null) {
+            return false;
+        } else if (!(obj instanceof QueryCacheKey)) {
+            return false;
+        } else {
+            QueryCacheKey that = (QueryCacheKey) obj;
+            return Objects.equals(this.getQueryString(), that.getQueryString()) &&
+                    this.getMaxResults() == that.getMaxResults() &&
+                    Arrays.equals(this.getNamedParameters(), that.getNamedParameters());
+        }
     }
 
     @Override
     public int hashCode() {
-
-        return this.hashCode;
+        int hash = 17;
+        hash = hash * 37 + Objects.hashCode(this.queryString);
+        hash = hash * 37 + Objects.hashCode(this.maxResults);
+        hash = hash * 37 + Objects.hashCode(Arrays.hashCode(this.namedParameters));
+        return hash;
     }
 }

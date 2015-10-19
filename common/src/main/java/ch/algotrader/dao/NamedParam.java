@@ -18,6 +18,7 @@
 package ch.algotrader.dao;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import org.apache.commons.lang.Validate;
 
@@ -56,6 +57,29 @@ public class NamedParam implements Serializable {
                 .append(this.name).append(": ").append(this.value)
                 .append(']');
         return sb.toString();
+    }
+
+    @Override
+    public int hashCode() {
+        int hash  = 17;
+        hash = hash * 37 + Objects.hashCode(getName());
+        hash = hash * 37 + Objects.hashCode(getValue());
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        } else if (obj == null) {
+            return false;
+        } else if (!(obj instanceof NamedParam)) {
+            return false;
+        } else {
+            NamedParam that = (NamedParam) obj;
+            return Objects.equals(this.getName(), that.getName()) &&
+            Objects.equals(this.getValue(), that.getValue());
+        }
     }
 
 }

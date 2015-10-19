@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -110,5 +111,9 @@ class QueryCache {
     int size() {
 
         return this.queries.size();
+    }
+
+    List<String> getQueries() {
+        return this.queries.keySet().stream().map(q -> q.toString()).sorted().collect(Collectors.toList());
     }
 }

@@ -293,15 +293,17 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
         Collection<Position> positions;
         if (this.serverMode) {
             if (this.commonConfig.isDisplayClosedPositions()) {
-                positions = this.lookupService.get(Position.class, baseQuery + "order by p.id", QueryType.HQL);
+                positions = this.lookupService.find(Position.class, baseQuery + "order by p.id", QueryType.HQL, true);
             } else {
-                positions = this.lookupService.get(Position.class, baseQuery + "where p.quantity != 0 order by p.id", QueryType.HQL);
+                positions = this.lookupService.find(Position.class, baseQuery + "where p.quantity != 0 order by p.id", QueryType.HQL, true);
             }
         } else {
             if (this.commonConfig.isDisplayClosedPositions()) {
-                positions = this.lookupService.get(Position.class, baseQuery + "where p.strategy.name = :strategyName order by p.id", QueryType.HQL, new NamedParam("strategyName", this.engine.getStrategyName()));
+                positions = this.lookupService.find(Position.class, baseQuery + "where p.strategy.name = :strategyName order by p.id", QueryType.HQL, true,
+                        new NamedParam("strategyName", this.engine.getStrategyName()));
             } else {
-                positions = this.lookupService.get(Position.class, baseQuery + "where p.strategy.name = :strategyName and p.quantity != 0 order by p.id", QueryType.HQL, new NamedParam("strategyName", this.engine.getStrategyName()));
+                positions = this.lookupService.find(Position.class, baseQuery + "where p.strategy.name = :strategyName and p.quantity != 0 order by p.id", QueryType.HQL, true,
+                        new NamedParam("strategyName", this.engine.getStrategyName()));
             }
         }
         PositionVOProducer converter = new PositionVOProducer(this.marketDataCache);

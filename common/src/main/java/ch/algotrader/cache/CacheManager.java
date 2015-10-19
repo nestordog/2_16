@@ -18,8 +18,6 @@
 package ch.algotrader.cache;
 
 import java.util.List;
-import java.util.Map;
-
 import ch.algotrader.dao.NamedParam;
 import ch.algotrader.entity.BaseEntityI;
 import ch.algotrader.entity.Initializer;
@@ -81,7 +79,12 @@ public interface CacheManager extends Initializer {
     public int getDiscriminatorValue(final Class<?> type);
 
     /**
-     * retrieves a map of all caches including their sizes
+     * retrieves the number of cached entities
      */
-    public Map<String, Integer> getCacheSize();
+    public int getEntityCacheSize();
+
+    /**
+     * retrieves a list of cached queries
+     */
+    public List<String> getQueries();
 }

@@ -19,6 +19,8 @@ package ch.algotrader.cache;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.io.Charsets;
 import org.hibernate.Session;
@@ -41,6 +43,8 @@ import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import ch.algotrader.dao.NamedParam;
+import ch.algotrader.entity.Account;
+import ch.algotrader.entity.AccountImpl;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.PositionImpl;
 import ch.algotrader.entity.Subscription;
@@ -60,17 +64,25 @@ import ch.algotrader.entity.security.SecurityFamilyImpl;
 import ch.algotrader.entity.security.SecurityImpl;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.strategy.StrategyImpl;
+import ch.algotrader.entity.trade.Fill;
+import ch.algotrader.entity.trade.LimitOrderVOBuilder;
+import ch.algotrader.entity.trade.OrderVO;
 import ch.algotrader.enumeration.AssetClass;
 import ch.algotrader.enumeration.CombinationType;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.FeedType;
+import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.enumeration.QueryType;
+import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.TransactionType;
+import ch.algotrader.esper.AbstractEngine;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.service.CombinationService;
 import ch.algotrader.service.ExternalMarketDataService;
+import ch.algotrader.service.LookupService;
 import ch.algotrader.service.MarketDataService;
+import ch.algotrader.service.OrderService;
 import ch.algotrader.service.PositionService;
 import ch.algotrader.service.PropertyService;
 import ch.algotrader.service.TransactionService;
@@ -83,6 +95,7 @@ import ch.algotrader.wiring.server.CoreConfigWiring;
 import ch.algotrader.wiring.server.DaoWiring;
 import ch.algotrader.wiring.server.HibernateWiring;
 import ch.algotrader.wiring.server.ServiceWiring;
+import ch.algotrader.wiring.server.SimulationWiring;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -105,15 +118,13 @@ public class CacheTest extends DefaultConfigTestBase {
     private static long securityId1; // EUR.USD
     private static long securityId2; // USD.CHF
     private static long securityId3; // NON_TRADEABLE
+    private static long accountId1;
 
     @BeforeClass
     public static void beforeClass() {
 
-        net.sf.ehcache.CacheManager ehCacheManager = net.sf.ehcache.CacheManager.getInstance();
-        ehCacheManager.shutdown();
-
         context = new AnnotationConfigApplicationContext();
-        context.getEnvironment().setActiveProfiles("embeddedDataSource");
+        context.getEnvironment().setActiveProfiles("embeddedDataSource", "simulation");
 
         // register in-memory db
         EmbeddedDatabaseFactory dbFactory = new EmbeddedDatabaseFactory();
@@ -126,7 +137,19 @@ public class CacheTest extends DefaultConfigTestBase {
         EngineManager engineManager = Mockito.mock(EngineManager.class);
         context.getDefaultListableBeanFactory().registerSingleton("engineManager", engineManager);
 
-        Engine engine = Mockito.mock(Engine.class);
+        AtomicReference<TransactionService> transactionService = new AtomicReference<>();
+        Engine engine = new AbstractEngine(StrategyImpl.SERVER) {
+
+            @Override
+            public void sendEvent(Object obj) {
+                if (obj instanceof Fill) {
+                    Fill fill = (Fill) obj;
+                    fill.setExtDateTime(new Date());
+                    transactionService.get().createTransaction(fill);
+                }
+            }
+        };
+        
         context.getDefaultListableBeanFactory().registerSingleton("serverEngine", engine);
 
         ExternalMarketDataService externalMarketDataService = Mockito.mock(ExternalMarketDataService.class);
@@ -136,9 +159,11 @@ public class CacheTest extends DefaultConfigTestBase {
 
         // register Wirings
         context.register(CommonConfigWiring.class, CoreConfigWiring.class, EventDispatchWiring.class, EventDispatchPostInitWiring.class,
-                HibernateWiring.class, CacheWiring.class, DaoWiring.class, ServiceWiring.class);
+                HibernateWiring.class, CacheWiring.class, DaoWiring.class, ServiceWiring.class, SimulationWiring.class);
 
         context.refresh();
+
+        transactionService.set(context.getBean(TransactionService.class));
 
         cache = context.getBean(CacheManager.class);
         txTemplate = context.getBean(TransactionTemplate.class);
@@ -163,6 +188,8 @@ public class CacheTest extends DefaultConfigTestBase {
         family1.setTickSizePattern("0<0.1");
         family1.setCurrency(Currency.USD);
         family1.setExchange(exchange1);
+        family1.setTradeable(true);
+        family1.setContractSize(1.0);
         session.save(family1);
 
         SecurityFamily family2 = new SecurityFamilyImpl();
@@ -170,6 +197,7 @@ public class CacheTest extends DefaultConfigTestBase {
         family2.setTickSizePattern("0<0.1");
         family2.setCurrency(Currency.USD);
         family2.setTradeable(false);
+        family2.setContractSize(1.0);
         securityFamilyId2 = (Long) session.save(family2);
 
         Forex security1 = new ForexImpl();
@@ -216,6 +244,12 @@ public class CacheTest extends DefaultConfigTestBase {
         property1.setPropertyHolder(strategy1);
         session.save(property1);
         strategy1.getProps().put(PROPERTY_NAME, property1);
+        
+        Account account1 = new AccountImpl();
+        account1.setName("TEST");
+        account1.setBroker("TEST");
+        account1.setOrderServiceType(OrderServiceType.SIMULATION.toString());
+        accountId1 = (Long)session.save(account1);
 
         session.flush();
         session.close();
@@ -302,6 +336,55 @@ public class CacheTest extends DefaultConfigTestBase {
         Assert.assertSame(position5, position6);
 
     }
+    
+
+    @Test
+    public void testOrder() {
+        
+        OrderService orderService = context.getBean(OrderService.class);
+        LookupService lookupService = context.getBean(LookupService.class);
+
+        List<Position> positions1 = lookupService.getOpenPositionsByStrategy(STRATEGY_NAME);
+        Assert.assertEquals(1, positions1.size());
+
+        OrderVO order1 = LimitOrderVOBuilder.create() //
+                .setLimit(new BigDecimal(10.0)) //
+                .setAccountId(accountId1) //
+                .setSecurityId(securityId1) //
+                .setStrategyId(strategyId1) //
+                .setQuantity(1000) //
+                .setSide(Side.BUY) //
+                .build();
+
+        orderService.sendOrder(order1);
+
+        List<Position> positions2 = lookupService.getOpenPositionsByStrategy(STRATEGY_NAME);
+        Assert.assertEquals(2, positions2.size());
+
+        String queryString = "select p from PositionImpl as p join p.strategy as s where p.security.id = :securityId and s.name = :strategyName";
+        Position position1 = cache.findUnique(Position.class, queryString, QueryType.HQL, new NamedParam("strategyName", STRATEGY_NAME), new NamedParam("securityId", securityId1));
+        Assert.assertNotNull(position1);
+        Assert.assertEquals(1000, position1.getQuantity());
+
+        OrderVO order2 = LimitOrderVOBuilder.create() //
+                .setLimit(new BigDecimal(20.0)) //
+                .setAccountId(accountId1) //
+                .setSecurityId(securityId1) //
+                .setStrategyId(strategyId1) //
+                .setQuantity(1000) //
+                .setSide(Side.SELL) //
+                .build();
+        
+        orderService.sendOrder(order2);
+
+        Position position2 = lookupService.getPositionBySecurityAndStrategy(securityId1, STRATEGY_NAME);
+        Assert.assertEquals(0, position2.getQuantity());
+        Assert.assertEquals(10000.0, position2.getRealizedPL(), 0.1);
+        Assert.assertEquals(position1, position2);
+        Assert.assertSame(position1, position2);
+
+    }
+            
 
     @Test
     public void testSubscription() {

@@ -497,7 +497,7 @@ public interface LookupService {
      * from Strategy where name = :strategyName
      * and a NamedParam with {@code name='strategyName'} and {@code value='SERVER'}
      */
-    public <T> List<T> get(Class<T> clazz, String query, QueryType type, NamedParam... namedParams);
+    public <T> List<T> find(Class<T> clazz, String query, QueryType type, boolean useCache, NamedParam... namedParams);
 
     /**
      * Retrieves an arbitrary list of Entities or values based on a Hibernate query.
@@ -505,7 +505,7 @@ public interface LookupService {
      * from Strategy where name = :strategyName
      * and a NamedParam with {@code name='strategyName'} and {@code value='SERVER'}
      */
-    public <T> List<T> get(Class<T> clazz, String query, int maxResults, QueryType type, NamedParam... namedParams);
+    public <T> List<T> find(Class<T> clazz, String query, int maxResults, QueryType type, boolean useCache, NamedParam... namedParams);
 
     /**
      * Retrieves a unique Object based on a Hibernate query.
@@ -513,7 +513,7 @@ public interface LookupService {
      * from Strategy where name = :strategyName
      * and a NamedParam with {@code name='strategyName'} and {@code value='SERVER'}
      */
-    public <T> T getUnique(Class<T> clazz, String query, QueryType type, NamedParam... namedParams);
+    public <T> T findUnique(Class<T> clazz, String query, QueryType type, boolean useCache, NamedParam... namedParams);
 
 
 }

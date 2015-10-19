@@ -19,8 +19,6 @@ package ch.algotrader.cache;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-
 import org.springframework.jmx.export.annotation.ManagedAttribute;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
@@ -53,8 +51,13 @@ public class CacheManagerMBean {
     }
 
     @ManagedAttribute
-    public Map<String, Integer> getLevelZeroCacheSize() {
-        return this.levelZeroCacheManager.getCacheSize();
+    public int getEntityCacheSize() {
+        return this.levelZeroCacheManager.getEntityCacheSize();
+    }
+
+    @ManagedAttribute
+    public List<String> getQueries() {
+        return this.levelZeroCacheManager.getQueries();
     }
 
     @ManagedAttribute

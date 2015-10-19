@@ -27,18 +27,33 @@ import java.util.Map;
 import java.util.TimeZone;
 import java.util.UUID;
 
+import javax.sql.DataSource;
+
+import org.apache.commons.io.Charsets;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.springframework.orm.hibernate4.HibernateTransactionManager;
+import org.mockito.Mockito;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseFactory;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
+import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
+import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
+import org.springframework.orm.hibernate4.SessionHolder;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import ch.algotrader.cache.CacheManager;
-import ch.algotrader.cache.CacheManagerImpl;
 import ch.algotrader.dao.GenericDao;
-import ch.algotrader.dao.GenericDaoImpl;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.AccountImpl;
 import ch.algotrader.entity.Position;
@@ -94,8 +109,14 @@ import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.enumeration.TransactionType;
+import ch.algotrader.esper.EngineManager;
 import ch.algotrader.hibernate.InMemoryDBTest;
 import ch.algotrader.util.collection.Pair;
+import ch.algotrader.wiring.common.CommonConfigWiring;
+import ch.algotrader.wiring.common.EventDispatchPostInitWiring;
+import ch.algotrader.wiring.common.EventDispatchWiring;
+import ch.algotrader.wiring.server.CacheWiring;
+import ch.algotrader.wiring.server.HibernateWiring;
 
 /**
 * Unit tests for {@link ch.algotrader.entity.Transaction}.
@@ -106,7 +127,14 @@ import ch.algotrader.util.collection.Pair;
 */
 public class LookupServiceTest extends InMemoryDBTest {
 
-    private LookupService lookupService;
+    private static LookupService lookupService;
+    private static AnnotationConfigApplicationContext context;
+    private static DataSource dataSource;
+    private static SessionFactory sessionFactory;
+    private static CacheManager cacheManager;
+    private static TransactionTemplate txTemplate;
+
+    protected Session session;
 
     @Rule public ExpectedException exception = ExpectedException.none();
 
@@ -115,17 +143,75 @@ public class LookupServiceTest extends InMemoryDBTest {
         super();
     }
 
+    @BeforeClass
+    public static void beforeClass() {
+
+        context = new AnnotationConfigApplicationContext();
+        context.getEnvironment().setActiveProfiles("embeddedDataSource", "simulation");
+
+        EngineManager engineManager = Mockito.mock(EngineManager.class);
+        context.getDefaultListableBeanFactory().registerSingleton("engineManager", engineManager);
+
+        EmbeddedDatabaseFactory dbFactory = new EmbeddedDatabaseFactory();
+        dbFactory.setDatabaseType(EmbeddedDatabaseType.H2);
+        dbFactory.setDatabaseName("testdb;MODE=MYSQL;DATABASE_TO_UPPER=FALSE");
+
+        dataSource = dbFactory.getDatabase();
+        context.getDefaultListableBeanFactory().registerSingleton("dataSource", dataSource);
+
+        context.register(CommonConfigWiring.class, EventDispatchWiring.class, EventDispatchPostInitWiring.class, HibernateWiring.class, CacheWiring.class);
+
+        context.refresh();
+
+        sessionFactory = context.getBean(SessionFactory.class);
+        txTemplate = context.getBean(TransactionTemplate.class);
+
+        GenericDao genericDao = context.getBean(GenericDao.class);
+        cacheManager = context.getBean(CacheManager.class);
+        lookupService = new LookupServiceImpl(genericDao, cacheManager);
+    }
+
+    @AfterClass
+    public static void afterClass() {
+
+        context.close();
+
+        net.sf.ehcache.CacheManager ehCacheManager = net.sf.ehcache.CacheManager.getInstance();
+        ehCacheManager.shutdown();
+    }
+
     @Override
     @Before
     public void setup() throws Exception {
 
-        super.setup();
+        ResourceDatabasePopulator dbPopulator = new ResourceDatabasePopulator();
+        dbPopulator.addScript(new ClassPathResource("/db/h2/h2.sql"));
+        DatabasePopulatorUtils.execute(dbPopulator, dataSource);
 
-        HibernateTransactionManager transactionManager = new HibernateTransactionManager(this.sessionFactory);
-        GenericDao genericDao = new GenericDaoImpl(this.sessionFactory, new TransactionTemplate(transactionManager));
-        CacheManager cacheManager = new CacheManagerImpl(genericDao);
-        this.lookupService = new LookupServiceImpl(genericDao, cacheManager);
+        this.session = sessionFactory.openSession();
 
+        TransactionSynchronizationManager.bindResource(sessionFactory, new SessionHolder(this.session));
+    }
+
+    @Override
+    @After
+    public void cleanup() throws Exception {
+
+        ResourceDatabasePopulator dbPopulator = new ResourceDatabasePopulator();
+        dbPopulator.addScript(new ByteArrayResource("DROP ALL OBJECTS".getBytes(Charsets.US_ASCII)));
+
+        DatabasePopulatorUtils.execute(dbPopulator, dataSource);
+
+        TransactionSynchronizationManager.unbindResource(sessionFactory);
+
+        if (this.session != null) {
+
+            if (this.session.isOpen()) {
+                this.session.close();
+            }
+        }
+
+        cacheManager.clear();
     }
 
     @Test
@@ -145,11 +231,11 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(forex1);
         this.session.flush();
     
-        Security forex2 = this.lookupService.getSecurity(0);
+        Security forex2 = lookupService.getSecurity(0);
     
         Assert.assertNull(forex2);
     
-        Security forex3 = this.lookupService.getSecurity(forex1.getId());
+        Security forex3 = lookupService.getSecurity(forex1.getId());
     
         Assert.assertNotNull(forex3);
     
@@ -175,11 +261,11 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(forex1);
         this.session.flush();
     
-        Security forex2 = this.lookupService.getSecurityByIsin("NOT_FOUND");
+        Security forex2 = lookupService.getSecurityByIsin("NOT_FOUND");
     
         Assert.assertNull(forex2);
     
-        Security forex3 = this.lookupService.getSecurityByIsin("US0378331005");
+        Security forex3 = lookupService.getSecurityByIsin("US0378331005");
     
         Assert.assertNotNull(forex3);
     
@@ -204,11 +290,11 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(forex1);
         this.session.flush();
     
-        Security forex2 = this.lookupService.getSecurityBySymbol("USD.EUR");
+        Security forex2 = lookupService.getSecurityBySymbol("USD.EUR");
     
         Assert.assertNull(forex2);
     
-        Security forex3 = this.lookupService.getSecurityBySymbol("GBP.EUR");
+        Security forex3 = lookupService.getSecurityBySymbol("GBP.EUR");
     
         Assert.assertNotNull(forex3);
     
@@ -235,11 +321,11 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(forex1);
         this.session.flush();
     
-        Security forex2 = this.lookupService.getSecurityByBbgid("NOT_FOUND");
+        Security forex2 = lookupService.getSecurityByBbgid("NOT_FOUND");
     
         Assert.assertNull(forex2);
     
-        Security forex3 = this.lookupService.getSecurityByBbgid("BBG005Y3Z8B6");
+        Security forex3 = lookupService.getSecurityByBbgid("BBG005Y3Z8B6");
     
         Assert.assertNotNull(forex3);
     
@@ -267,11 +353,11 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(forex1);
         this.session.flush();
     
-        Security forex2 = this.lookupService.getSecurityByRic("NOT_FOUND");
+        Security forex2 = lookupService.getSecurityByRic("NOT_FOUND");
     
         Assert.assertNull(forex2);
     
-        Security forex3 = this.lookupService.getSecurityByRic("RIC");
+        Security forex3 = lookupService.getSecurityByRic("RIC");
     
         Assert.assertNotNull(forex3);
     
@@ -300,11 +386,11 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(forex1);
         this.session.flush();
     
-        Security forex2 = this.lookupService.getSecurityByConid("NOT_FOUND");
+        Security forex2 = lookupService.getSecurityByConid("NOT_FOUND");
     
         Assert.assertNull(forex2);
     
-        Security forex3 = this.lookupService.getSecurityByConid("CONID");
+        Security forex3 = lookupService.getSecurityByConid("CONID");
     
         Assert.assertNotNull(forex3);
     
@@ -347,11 +433,11 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.flush();
         this.session.clear();
     
-        Security forex3 = this.lookupService.getSecurityInclFamilyAndUnderlying(0);
+        Security forex3 = lookupService.getSecurityInclFamilyAndUnderlying(0);
     
         Assert.assertNull(forex3);
     
-        Security forex4 = this.lookupService.getSecurityInclFamilyAndUnderlying(forex2.getId());
+        Security forex4 = lookupService.getSecurityInclFamilyAndUnderlying(forex2.getId());
     
         Assert.assertNotNull(forex4);
     
@@ -389,7 +475,7 @@ public class LookupServiceTest extends InMemoryDBTest {
     
         ids.add(forex1.getId());
     
-        List<Security> forexes1 = this.lookupService.getSecuritiesByIds(ids);
+        List<Security> forexes1 = lookupService.getSecuritiesByIds(ids);
     
         Assert.assertEquals(1, forexes1.size());
     
@@ -398,7 +484,7 @@ public class LookupServiceTest extends InMemoryDBTest {
     
         ids.add(forex2.getId());
     
-        List<Security> forexes2 = this.lookupService.getSecuritiesByIds(ids);
+        List<Security> forexes2 = lookupService.getSecuritiesByIds(ids);
     
         Assert.assertEquals(2, forexes2.size());
     
@@ -437,11 +523,11 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(securityReference1);
         this.session.flush();
 
-        Security reference1 = this.lookupService.getSecurityReferenceTargetByOwnerAndName(forex1.getId(), "DUMMY");
+        Security reference1 = lookupService.getSecurityReferenceTargetByOwnerAndName(forex1.getId(), "DUMMY");
 
         Assert.assertNull(reference1);
 
-        Security reference2 = this.lookupService.getSecurityReferenceTargetByOwnerAndName(forex1.getId(), "INDEX");
+        Security reference2 = lookupService.getSecurityReferenceTargetByOwnerAndName(forex1.getId(), "INDEX");
 
         Assert.assertNotNull(reference2);
         Assert.assertSame(index1, reference2);
@@ -504,14 +590,14 @@ public class LookupServiceTest extends InMemoryDBTest {
     
         this.session.flush();
     
-        List<Security> forexes1 = new ArrayList<Security>(this.lookupService.getSubscribedSecuritiesForAutoActivateStrategies());
+        List<Security> forexes1 = new ArrayList<Security>(lookupService.getSubscribedSecuritiesForAutoActivateStrategies());
     
         Assert.assertEquals(0, forexes1.size());
     
         strategy1.setAutoActivate(Boolean.TRUE);
         this.session.flush();
     
-        List<Security> forexes2 = new ArrayList<Security>(this.lookupService.getSubscribedSecuritiesForAutoActivateStrategies());
+        List<Security> forexes2 = new ArrayList<Security>(lookupService.getSubscribedSecuritiesForAutoActivateStrategies());
     
         Assert.assertEquals(1, forexes2.size());
     
@@ -520,7 +606,7 @@ public class LookupServiceTest extends InMemoryDBTest {
         strategy2.setAutoActivate(Boolean.TRUE);
         this.session.flush();
     
-        List<Security> forexes3 = new ArrayList<Security>(this.lookupService.getSubscribedSecuritiesForAutoActivateStrategies());
+        List<Security> forexes3 = new ArrayList<Security>(lookupService.getSubscribedSecuritiesForAutoActivateStrategies());
     
         Assert.assertEquals(2, forexes3.size());
     
@@ -559,14 +645,14 @@ public class LookupServiceTest extends InMemoryDBTest {
     
         this.session.flush();
     
-        List<Pair<Security, String>> subscribedSecurityList1 = this.lookupService.getSubscribedSecuritiesAndFeedTypeForAutoActivateStrategiesInclComponents();
+        List<Pair<Security, String>> subscribedSecurityList1 = lookupService.getSubscribedSecuritiesAndFeedTypeForAutoActivateStrategiesInclComponents();
     
         Assert.assertEquals(0, subscribedSecurityList1.size());
     
         strategy1.setAutoActivate(Boolean.TRUE);
         this.session.flush();
     
-        List<Pair<Security, String>> subscribedSecurityList2 = this.lookupService.getSubscribedSecuritiesAndFeedTypeForAutoActivateStrategiesInclComponents();
+        List<Pair<Security, String>> subscribedSecurityList2 = lookupService.getSubscribedSecuritiesAndFeedTypeForAutoActivateStrategiesInclComponents();
     
         Assert.assertEquals(1, subscribedSecurityList2.size());
 
@@ -602,11 +688,11 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(stock2);
         this.session.flush();
     
-        List<Stock> stocks1 = (List<Stock>) this.lookupService.getStocksByIndustry("11");
+        List<Stock> stocks1 = (List<Stock>) lookupService.getStocksByIndustry("11");
     
         Assert.assertEquals(0, stocks1.size());
     
-        List<Stock> stocks2 = (List<Stock>) this.lookupService.getStocksByIndustry("123456");
+        List<Stock> stocks2 = (List<Stock>) lookupService.getStocksByIndustry("123456");
     
         Assert.assertEquals(1, stocks2.size());
     
@@ -616,7 +702,7 @@ public class LookupServiceTest extends InMemoryDBTest {
     
         this.session.flush();
     
-        List<Stock> stocks3 = (List<Stock>) this.lookupService.getStocksByIndustry("123456");
+        List<Stock> stocks3 = (List<Stock>) lookupService.getStocksByIndustry("123456");
     
         Assert.assertEquals(2, stocks3.size());
     
@@ -651,11 +737,11 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(stock2);
         this.session.flush();
     
-        List<Stock> stocks1 = (List<Stock>) this.lookupService.getStocksByIndustryGroup("12");
+        List<Stock> stocks1 = (List<Stock>) lookupService.getStocksByIndustryGroup("12");
     
         Assert.assertEquals(0, stocks1.size());
     
-        List<Stock> stocks2 = (List<Stock>) this.lookupService.getStocksByIndustryGroup("1234");
+        List<Stock> stocks2 = (List<Stock>) lookupService.getStocksByIndustryGroup("1234");
     
         Assert.assertEquals(1, stocks2.size());
     
@@ -665,7 +751,7 @@ public class LookupServiceTest extends InMemoryDBTest {
     
         this.session.flush();
     
-        List<Stock> stocks3 = (List<Stock>) this.lookupService.getStocksByIndustryGroup("1234");
+        List<Stock> stocks3 = (List<Stock>) lookupService.getStocksByIndustryGroup("1234");
     
         Assert.assertEquals(2, stocks3.size());
     
@@ -700,11 +786,11 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(stock2);
         this.session.flush();
     
-        List<Stock> stocks1 = (List<Stock>) this.lookupService.getStocksBySector("123");
+        List<Stock> stocks1 = (List<Stock>) lookupService.getStocksBySector("123");
     
         Assert.assertEquals(0, stocks1.size());
     
-        List<Stock> stocks2 = (List<Stock>) this.lookupService.getStocksBySector("12");
+        List<Stock> stocks2 = (List<Stock>) lookupService.getStocksBySector("12");
     
         Assert.assertEquals(1, stocks2.size());
     
@@ -714,7 +800,7 @@ public class LookupServiceTest extends InMemoryDBTest {
     
         this.session.flush();
     
-        List<Stock> stocks3 = (List<Stock>) this.lookupService.getStocksBySector("12");
+        List<Stock> stocks3 = (List<Stock>) lookupService.getStocksBySector("12");
     
         Assert.assertEquals(2, stocks3.size());
     
@@ -749,11 +835,11 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(stock2);
         this.session.flush();
     
-        List<Stock> stocks1 = (List<Stock>) this.lookupService.getStocksBySubIndustry("11");
+        List<Stock> stocks1 = (List<Stock>) lookupService.getStocksBySubIndustry("11");
     
         Assert.assertEquals(0, stocks1.size());
     
-        List<Stock> stocks2 = (List<Stock>) this.lookupService.getStocksBySubIndustry("12345678");
+        List<Stock> stocks2 = (List<Stock>) lookupService.getStocksBySubIndustry("12345678");
     
         Assert.assertEquals(1, stocks2.size());
         Assert.assertSame(stock1, stocks2.get(0));
@@ -762,7 +848,7 @@ public class LookupServiceTest extends InMemoryDBTest {
     
         this.session.flush();
     
-        List<Stock> stocks3 = (List<Stock>) this.lookupService.getStocksBySubIndustry("12345678");
+        List<Stock> stocks3 = (List<Stock>) lookupService.getStocksBySubIndustry("12345678");
     
         Assert.assertEquals(2, stocks3.size());
     
@@ -811,7 +897,7 @@ public class LookupServiceTest extends InMemoryDBTest {
     
         this.session.flush();
     
-        List<Option> options1 = this.lookupService.getSubscribedOptions();
+        List<Option> options1 = lookupService.getSubscribedOptions();
     
         Assert.assertEquals(1, options1.size());
     
@@ -847,7 +933,7 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(future2);
         this.session.flush();
     
-        List<Future> futures1 = this.lookupService.getSubscribedFutures();
+        List<Future> futures1 = lookupService.getSubscribedFutures();
     
         Assert.assertEquals(0, futures1.size());
     
@@ -863,7 +949,7 @@ public class LookupServiceTest extends InMemoryDBTest {
     
         this.session.flush();
     
-        List<Future> futures2 = this.lookupService.getSubscribedFutures();
+        List<Future> futures2 = lookupService.getSubscribedFutures();
     
         Assert.assertEquals(1, futures2.size());
     
@@ -882,7 +968,7 @@ public class LookupServiceTest extends InMemoryDBTest {
     
         this.session.flush();
     
-        List<Future> futures3 = this.lookupService.getSubscribedFutures();
+        List<Future> futures3 = lookupService.getSubscribedFutures();
     
         Assert.assertEquals(2, futures3.size());
     
@@ -935,7 +1021,7 @@ public class LookupServiceTest extends InMemoryDBTest {
     
         this.session.flush();
     
-        List<Combination> combinations1 = (List<Combination>) this.lookupService.getSubscribedCombinationsByStrategy("Strategy1");
+        List<Combination> combinations1 = (List<Combination>) lookupService.getSubscribedCombinationsByStrategy("Strategy1");
     
         Assert.assertEquals(1, combinations1.size());
     
@@ -985,11 +1071,11 @@ public class LookupServiceTest extends InMemoryDBTest {
     
         this.session.flush();
     
-        List<Combination> combinations1 = (List<Combination>) this.lookupService.getSubscribedCombinationsByStrategyAndUnderlying("Strategy1", 0);
+        List<Combination> combinations1 = (List<Combination>) lookupService.getSubscribedCombinationsByStrategyAndUnderlying("Strategy1", 0);
     
         Assert.assertEquals(0, combinations1.size());
     
-        List<Combination> combinations2 = (List<Combination>) this.lookupService.getSubscribedCombinationsByStrategyAndUnderlying("Strategy1", forex1.getId());
+        List<Combination> combinations2 = (List<Combination>) lookupService.getSubscribedCombinationsByStrategyAndUnderlying("Strategy1", forex1.getId());
     
         Assert.assertEquals(1, combinations2.size());
     
@@ -1043,11 +1129,11 @@ public class LookupServiceTest extends InMemoryDBTest {
     
         this.session.flush();
     
-        List<Combination> combinations1 = (List<Combination>) this.lookupService.getSubscribedCombinationsByStrategyAndComponent("Strategy1", 0);
+        List<Combination> combinations1 = (List<Combination>) lookupService.getSubscribedCombinationsByStrategyAndComponent("Strategy1", 0);
     
         Assert.assertEquals(0, combinations1.size());
     
-        List<Combination> combinations2 = (List<Combination>) this.lookupService.getSubscribedCombinationsByStrategyAndComponent("Strategy1", forex1.getId());
+        List<Combination> combinations2 = (List<Combination>) lookupService.getSubscribedCombinationsByStrategyAndComponent("Strategy1", forex1.getId());
     
         Assert.assertEquals(1, combinations2.size());
     
@@ -1101,11 +1187,11 @@ public class LookupServiceTest extends InMemoryDBTest {
     
         this.session.flush();
     
-        List<Combination> combinations1 = (List<Combination>) this.lookupService.getSubscribedCombinationsByStrategyAndComponentClass("Strategy1", Security.class);
+        List<Combination> combinations1 = (List<Combination>) lookupService.getSubscribedCombinationsByStrategyAndComponentClass("Strategy1", Security.class);
     
         Assert.assertEquals(0, combinations1.size());
     
-        List<Combination> combinations2 = (List<Combination>) this.lookupService.getSubscribedCombinationsByStrategyAndComponentClass("Strategy1", ForexImpl.class);
+        List<Combination> combinations2 = (List<Combination>) lookupService.getSubscribedCombinationsByStrategyAndComponentClass("Strategy1", ForexImpl.class);
     
         Assert.assertEquals(1, combinations2.size());
     
@@ -1154,11 +1240,11 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(component1);
         this.session.flush();
     
-        List<Component> components1 = (List<Component>) this.lookupService.getSubscribedComponentsBySecurityInclSecurity(0);
+        List<Component> components1 = (List<Component>) lookupService.getSubscribedComponentsBySecurityInclSecurity(0);
     
         Assert.assertEquals(0, components1.size());
     
-        List<Component> components2 = (List<Component>) this.lookupService.getSubscribedComponentsBySecurityInclSecurity(forex1.getId());
+        List<Component> components2 = (List<Component>) lookupService.getSubscribedComponentsBySecurityInclSecurity(forex1.getId());
     
         Assert.assertEquals(1, components2.size());
     
@@ -1208,15 +1294,15 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(component1);
         this.session.flush();
     
-        List<Component> components1 = (List<Component>) this.lookupService.getSubscribedComponentsByStrategyAndSecurityInclSecurity("Dummy", forex1.getId());
+        List<Component> components1 = (List<Component>) lookupService.getSubscribedComponentsByStrategyAndSecurityInclSecurity("Dummy", forex1.getId());
     
         Assert.assertEquals(0, components1.size());
     
-        List<Component> components2 = (List<Component>) this.lookupService.getSubscribedComponentsByStrategyAndSecurityInclSecurity("Strategy1", 0);
+        List<Component> components2 = (List<Component>) lookupService.getSubscribedComponentsByStrategyAndSecurityInclSecurity("Strategy1", 0);
     
         Assert.assertEquals(0, components2.size());
     
-        List<Component> components3 = (List<Component>) this.lookupService.getSubscribedComponentsByStrategyAndSecurityInclSecurity("Strategy1", forex1.getId());
+        List<Component> components3 = (List<Component>) lookupService.getSubscribedComponentsByStrategyAndSecurityInclSecurity("Strategy1", forex1.getId());
     
         Assert.assertEquals(1, components3.size());
     
@@ -1266,11 +1352,11 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(component1);
         this.session.flush();
     
-        List<Component> components1 = (List<Component>) this.lookupService.getSubscribedComponentsByStrategyInclSecurity("Dummy");
+        List<Component> components1 = (List<Component>) lookupService.getSubscribedComponentsByStrategyInclSecurity("Dummy");
     
         Assert.assertEquals(0, components1.size());
     
-        List<Component> components2 = (List<Component>) this.lookupService.getSubscribedComponentsByStrategyInclSecurity("Strategy1");
+        List<Component> components2 = (List<Component>) lookupService.getSubscribedComponentsByStrategyInclSecurity("Strategy1");
     
         Assert.assertEquals(1, components2.size());
     
@@ -1307,11 +1393,11 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(subscription1);
         this.session.flush();
 
-        Subscription subscription2 = this.lookupService.getSubscriptionByStrategyAndSecurity("Strategy1", 0);
+        Subscription subscription2 = lookupService.getSubscriptionByStrategyAndSecurity("Strategy1", 0);
 
         Assert.assertNull(subscription2);
 
-        Subscription subscription3 = this.lookupService.getSubscriptionByStrategyAndSecurity("Strategy1", forex1.getId());
+        Subscription subscription3 = lookupService.getSubscriptionByStrategyAndSecurity("Strategy1", forex1.getId());
 
         Assert.assertNotNull(subscription3);
 
@@ -1361,7 +1447,7 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(position1);
         this.session.flush();
 
-        List<Subscription> subscriptions1 = (List<Subscription>) this.lookupService.getNonPositionSubscriptions("Strategy1");
+        List<Subscription> subscriptions1 = (List<Subscription>) lookupService.getNonPositionSubscriptions("Strategy1");
 
         Assert.assertEquals(0, subscriptions1.size());
 
@@ -1369,7 +1455,7 @@ public class LookupServiceTest extends InMemoryDBTest {
 
         this.session.flush();
 
-        List<Subscription> subscriptions2 = (List<Subscription>) this.lookupService.getNonPositionSubscriptions("Strategy1");
+        List<Subscription> subscriptions2 = (List<Subscription>) lookupService.getNonPositionSubscriptions("Strategy1");
 
         Assert.assertEquals(2, subscriptions2.size());
     }
@@ -1377,7 +1463,7 @@ public class LookupServiceTest extends InMemoryDBTest {
     @Test
     public void testGetStrategyByName() {
     
-        Strategy strategy1 = this.lookupService.getStrategyByName("blah");
+        Strategy strategy1 = lookupService.getStrategyByName("blah");
         Assert.assertNull(strategy1);
     
         Strategy newStrategy = new StrategyImpl();
@@ -1386,7 +1472,7 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(newStrategy);
         this.session.flush();
     
-        Strategy strategy3 = this.lookupService.getStrategyByName("blah");
+        Strategy strategy3 = lookupService.getStrategyByName("blah");
     
         Assert.assertNotNull(strategy3);
         Assert.assertEquals("blah", strategy3.getName());
@@ -1403,11 +1489,11 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(family1);
         this.session.flush();
     
-        SecurityFamily family2 = this.lookupService.getSecurityFamilyByName("NOT_FOUND");
+        SecurityFamily family2 = lookupService.getSecurityFamilyByName("NOT_FOUND");
     
         Assert.assertNull(family2);
     
-        SecurityFamily family3 = this.lookupService.getSecurityFamilyByName("family1");
+        SecurityFamily family3 = lookupService.getSecurityFamilyByName("family1");
     
         Assert.assertNotNull(family3);
     
@@ -1440,11 +1526,11 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(optionFamily1);
         this.session.flush();
     
-        OptionFamily optionFamily2 = this.lookupService.getOptionFamilyByUnderlying(0);
+        OptionFamily optionFamily2 = lookupService.getOptionFamilyByUnderlying(0);
     
         Assert.assertNull(optionFamily2);
     
-        OptionFamily optionFamily3 = this.lookupService.getOptionFamilyByUnderlying(forex1.getId());
+        OptionFamily optionFamily3 = lookupService.getOptionFamilyByUnderlying(forex1.getId());
     
         Assert.assertNotNull(optionFamily3);
     
@@ -1478,11 +1564,11 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(futureFamily1);
         this.session.flush();
     
-        FutureFamily futureFamily2 = this.lookupService.getFutureFamilyByUnderlying(0);
+        FutureFamily futureFamily2 = lookupService.getFutureFamilyByUnderlying(0);
     
         Assert.assertNull(futureFamily2);
     
-        FutureFamily futureFamily3 = this.lookupService.getFutureFamilyByUnderlying(forex1.getId());
+        FutureFamily futureFamily3 = lookupService.getFutureFamilyByUnderlying(forex1.getId());
     
         Assert.assertNotNull(futureFamily3);
     
@@ -1493,18 +1579,23 @@ public class LookupServiceTest extends InMemoryDBTest {
     @Test
     public void testGetExchangeByName() {
 
-        Exchange exchange1 = this.lookupService.getExchangeByName("NASDAQ");
+        Exchange exchange1 = lookupService.getExchangeByName("NASDAQ");
 
         Assert.assertNull(exchange1);
 
-        Exchange exchange2 = new ExchangeImpl();
-        exchange2.setName("NASDAQ");
-        exchange2.setTimeZone(TimeZone.getDefault().getDisplayName());
+        txTemplate.execute(txStatus -> {
 
-        this.session.save(exchange2);
-        this.session.flush();
+            Exchange exchange2 = new ExchangeImpl();
+            exchange2.setName("NASDAQ");
+            exchange2.setTimeZone(TimeZone.getDefault().getDisplayName());
 
-        Exchange exchange3 = this.lookupService.getExchangeByName("NASDAQ");
+            this.session.save(exchange2);
+            this.session.flush();
+
+            return null;
+        });
+
+        Exchange exchange3 = lookupService.getExchangeByName("NASDAQ");
 
         Assert.assertNotNull(exchange3);
         Assert.assertEquals("NASDAQ", exchange3.getName());
@@ -1538,11 +1629,11 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(position1);
         this.session.flush();
     
-        Position position2 = this.lookupService.getPositionInclSecurityAndSecurityFamily(1);
+        Position position2 = lookupService.getPositionInclSecurityAndSecurityFamily(1);
     
         Assert.assertNull(position2);
     
-        Position position3 = this.lookupService.getPositionInclSecurityAndSecurityFamily(position1.getId());
+        Position position3 = lookupService.getPositionInclSecurityAndSecurityFamily(position1.getId());
     
         Assert.assertEquals(222, position3.getQuantity());
         Assert.assertSame(forex1, position3.getSecurity());
@@ -1602,11 +1693,11 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(position2);
         this.session.flush();
     
-        List<Position> positions1 = this.lookupService.getPositionsByStrategy("Dummy");
+        List<Position> positions1 = lookupService.getPositionsByStrategy("Dummy");
     
         Assert.assertEquals(0, positions1.size());
     
-        List<Position> positions2 = this.lookupService.getPositionsByStrategy("Strategy1");
+        List<Position> positions2 = lookupService.getPositionsByStrategy("Strategy1");
     
         Assert.assertEquals(2, positions2.size());
     
@@ -1649,11 +1740,11 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(position1);
         this.session.flush();
     
-        Position position2 = this.lookupService.getPositionBySecurityAndStrategy(position1.getSecurity().getId(), "Dummy");
+        Position position2 = lookupService.getPositionBySecurityAndStrategy(position1.getSecurity().getId(), "Dummy");
 
         Assert.assertNull(position2);
 
-        Position position3 = this.lookupService.getPositionBySecurityAndStrategy(position1.getSecurity().getId(), "Strategy1");
+        Position position3 = lookupService.getPositionBySecurityAndStrategy(position1.getSecurity().getId(), "Strategy1");
     
         Assert.assertNotNull(position3);
     
@@ -1704,7 +1795,7 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(position1);
         this.session.flush();
     
-        List<Position> positions1 = this.lookupService.getOpenPositions();
+        List<Position> positions1 = lookupService.getOpenPositions();
     
         Assert.assertEquals(0, positions1.size());
     
@@ -1720,7 +1811,7 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(position2);
         this.session.flush();
 
-        List<Position> positions2 = this.lookupService.getOpenPositions();
+        List<Position> positions2 = lookupService.getOpenPositions();
     
         Assert.assertEquals(1, positions2.size());
     
@@ -1758,14 +1849,14 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(position1);
         this.session.flush();
     
-        List<Position> positions1 = this.lookupService.getOpenTradeablePositions();
+        List<Position> positions1 = lookupService.getOpenTradeablePositions();
     
         Assert.assertEquals(0, positions1.size());
     
         family1.setTradeable(true);
         this.session.flush();
     
-        List<Position> positions2 = this.lookupService.getOpenTradeablePositions();
+        List<Position> positions2 = lookupService.getOpenTradeablePositions();
     
         Assert.assertEquals(1, positions2.size());
     
@@ -1803,11 +1894,11 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(position1);
         this.session.flush();
     
-        List<Position> positions1 = this.lookupService.getOpenPositionsByStrategy("Dummy");
+        List<Position> positions1 = lookupService.getOpenPositionsByStrategy("Dummy");
     
         Assert.assertEquals(0, positions1.size());
     
-        List<Position> positions2 = this.lookupService.getOpenPositionsByStrategy("Strategy1");
+        List<Position> positions2 = lookupService.getOpenPositionsByStrategy("Strategy1");
     
         Assert.assertEquals(1, positions2.size());
     
@@ -1845,14 +1936,14 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(position1);
         this.session.flush();
     
-        List<Position> positions1 = this.lookupService.getOpenTradeablePositionsByStrategy("Dummy");
+        List<Position> positions1 = lookupService.getOpenTradeablePositionsByStrategy("Dummy");
     
         Assert.assertEquals(0, positions1.size());
     
         family1.setTradeable(true);
         this.session.flush();
 
-        List<Position> positions2 = this.lookupService.getOpenTradeablePositionsByStrategy("Strategy1");
+        List<Position> positions2 = lookupService.getOpenTradeablePositionsByStrategy("Strategy1");
     
         Assert.assertEquals(1, positions2.size());
     
@@ -1890,11 +1981,11 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(position1);
         this.session.flush();
     
-        List<Position> positions1 = this.lookupService.getOpenPositionsBySecurity(0);
+        List<Position> positions1 = lookupService.getOpenPositionsBySecurity(0);
 
         Assert.assertEquals(0, positions1.size());
     
-        List<Position> positions2 = this.lookupService.getOpenPositionsBySecurity(forex1.getId());
+        List<Position> positions2 = lookupService.getOpenPositionsBySecurity(forex1.getId());
 
         Assert.assertEquals(1, positions2.size());
     
@@ -1932,11 +2023,11 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(position1);
         this.session.flush();
     
-        List<Position> positions1 = this.lookupService.getOpenPositionsByStrategyAndType("Dummy", Security.class);
+        List<Position> positions1 = lookupService.getOpenPositionsByStrategyAndType("Dummy", Security.class);
     
         Assert.assertEquals(0, positions1.size());
     
-        List<Position> positions2 = this.lookupService.getOpenPositionsByStrategyAndType("Strategy1", Forex.class);
+        List<Position> positions2 = lookupService.getOpenPositionsByStrategyAndType("Strategy1", Forex.class);
     
         Assert.assertEquals(1, positions2.size());
     
@@ -1974,11 +2065,11 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(position1);
         this.session.flush();
     
-        List<Position> positions1 = this.lookupService.getOpenPositionsByStrategyTypeAndUnderlyingType("Dummy", Security.class, SecurityFamily.class);
+        List<Position> positions1 = lookupService.getOpenPositionsByStrategyTypeAndUnderlyingType("Dummy", Security.class, SecurityFamily.class);
     
         Assert.assertEquals(0, positions1.size());
     
-        List<Position> positions2 = this.lookupService.getOpenPositionsByStrategyTypeAndUnderlyingType("Strategy1", Forex.class, SecurityFamily.class);
+        List<Position> positions2 = lookupService.getOpenPositionsByStrategyTypeAndUnderlyingType("Strategy1", Forex.class, SecurityFamily.class);
     
         Assert.assertEquals(1, positions2.size());
     
@@ -2016,10 +2107,10 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(position1);
         this.session.flush();
     
-        List<Position> positions1 = this.lookupService.getOpenPositionsByStrategyAndSecurityFamily("Dummy", 1);
+        List<Position> positions1 = lookupService.getOpenPositionsByStrategyAndSecurityFamily("Dummy", 1);
         Assert.assertEquals(0, positions1.size());
     
-        List<Position> positions2 = this.lookupService.getOpenPositionsByStrategyAndSecurityFamily("Strategy1", family1.getId());
+        List<Position> positions2 = lookupService.getOpenPositionsByStrategyAndSecurityFamily("Strategy1", family1.getId());
         Assert.assertEquals(1, positions2.size());
     
         Assert.assertEquals(222, positions2.get(0).getQuantity());
@@ -2056,7 +2147,7 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(position1);
         this.session.flush();
     
-        List<Position> positions1 = this.lookupService.getOpenFXPositions();
+        List<Position> positions1 = lookupService.getOpenFXPositions();
 
         Assert.assertEquals(1, positions1.size());
 
@@ -2094,11 +2185,11 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(position1);
         this.session.flush();
     
-        List<Position> positions1 = this.lookupService.getOpenFXPositionsByStrategy("Dummy");
+        List<Position> positions1 = lookupService.getOpenFXPositionsByStrategy("Dummy");
 
         Assert.assertEquals(0, positions1.size());
 
-        List<Position> positions2 = this.lookupService.getOpenFXPositionsByStrategy("Strategy1");
+        List<Position> positions2 = lookupService.getOpenFXPositionsByStrategy("Strategy1");
     
         Assert.assertEquals(1, positions2.size());
     
@@ -2169,7 +2260,7 @@ public class LookupServiceTest extends InMemoryDBTest {
         transaction2.setType(TransactionType.BUY);
         transaction2.setStrategy(strategy2);
 
-        List<Transaction> transactionVOs1 = this.lookupService.getDailyTransactionsDesc();
+        List<Transaction> transactionVOs1 = lookupService.getDailyTransactionsDesc();
 
         Assert.assertEquals(0, transactionVOs1.size());
     
@@ -2177,7 +2268,7 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(transaction2);
         this.session.flush();
     
-        List<Transaction> transactionVOs2 = this.lookupService.getDailyTransactionsDesc();
+        List<Transaction> transactionVOs2 = lookupService.getDailyTransactionsDesc();
     
         Assert.assertEquals(1, transactionVOs2.size());
     
@@ -2255,11 +2346,11 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(transaction2);
         this.session.flush();
     
-        List<Transaction> transactionVOs1 = this.lookupService.getDailyTransactionsByStrategyDesc("Dummy");
+        List<Transaction> transactionVOs1 = lookupService.getDailyTransactionsByStrategyDesc("Dummy");
     
         Assert.assertEquals(0, transactionVOs1.size());
     
-        List<Transaction> transactionVOs2 = this.lookupService.getDailyTransactionsByStrategyDesc("Strategy1");
+        List<Transaction> transactionVOs2 = lookupService.getDailyTransactionsByStrategyDesc("Strategy1");
     
         Assert.assertEquals(1, transactionVOs2.size());
     
@@ -2273,7 +2364,7 @@ public class LookupServiceTest extends InMemoryDBTest {
     @Test
     public void testGetAccountByName() {
     
-        Account account1 = this.lookupService.getAccountByName("name1");
+        Account account1 = lookupService.getAccountByName("name1");
     
         Assert.assertNull(account1);
     
@@ -2286,7 +2377,7 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(account2);
         this.session.flush();
     
-        Account account3 = this.lookupService.getAccountByName("name2");
+        Account account3 = lookupService.getAccountByName("name2");
     
         Assert.assertNotNull(account3);
         Assert.assertEquals("name2", account3.getName());
@@ -2297,7 +2388,7 @@ public class LookupServiceTest extends InMemoryDBTest {
     @Test
     public void testgetActiveSessionsByOrderServiceType() {
 
-        List<String> activeSessions1 = (List<String>) this.lookupService.getActiveSessionsByOrderServiceType(OrderServiceType.FTX_FIX.name());
+        List<String> activeSessions1 = (List<String>) lookupService.getActiveSessionsByOrderServiceType(OrderServiceType.FTX_FIX.name());
 
         Assert.assertEquals(0, activeSessions1.size());
 
@@ -2330,12 +2421,12 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(account3);
         this.session.flush();
 
-        List<String> activeSessions2 = (List<String>) this.lookupService.getActiveSessionsByOrderServiceType(OrderServiceType.CNX_FIX.name());
+        List<String> activeSessions2 = (List<String>) lookupService.getActiveSessionsByOrderServiceType(OrderServiceType.CNX_FIX.name());
 
         Assert.assertEquals(1, activeSessions2.size());
         Assert.assertEquals(account1.getSessionQualifier(), activeSessions2.get(0));
 
-        List<String> activeSessions3 = (List<String>) this.lookupService.getActiveSessionsByOrderServiceType(OrderServiceType.DC_FIX.name());
+        List<String> activeSessions3 = (List<String>) lookupService.getActiveSessionsByOrderServiceType(OrderServiceType.DC_FIX.name());
 
         Assert.assertEquals(1, activeSessions3.size());
         Assert.assertEquals(account3.getSessionQualifier(), activeSessions3.get(0));
@@ -2418,13 +2509,13 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.flush();
     
         int limit1 = 1;
-        List<Bar> bars1 = this.lookupService.getLastNBarsBySecurityAndBarSize(limit1, forex1.getId(), Duration.MIN_1);
+        List<Bar> bars1 = lookupService.getLastNBarsBySecurityAndBarSize(limit1, forex1.getId(), Duration.MIN_1);
     
         Assert.assertEquals(1, bars1.size());
         Assert.assertSame(bar1, bars1.get(0));
     
         int limit2 = 2;
-        List<Bar> bars2 = this.lookupService.getLastNBarsBySecurityAndBarSize(limit2, forex1.getId(), Duration.MIN_1);
+        List<Bar> bars2 = lookupService.getLastNBarsBySecurityAndBarSize(limit2, forex1.getId(), Duration.MIN_1);
     
         Assert.assertEquals(2, bars2.size());
         Assert.assertSame(bar1, bars2.get(0));
@@ -2477,7 +2568,7 @@ public class LookupServiceTest extends InMemoryDBTest {
         Calendar cal2 = Calendar.getInstance();
         cal2.add(Calendar.DAY_OF_MONTH, -1);
 
-        List<Bar> bars1 = this.lookupService.getBarsBySecurityBarSizeAndMinDate(forex1.getId(), Duration.MIN_1, cal2.getTime());
+        List<Bar> bars1 = lookupService.getBarsBySecurityBarSizeAndMinDate(forex1.getId(), Duration.MIN_1, cal2.getTime());
     
         Assert.assertEquals(1, bars1.size());
         Assert.assertSame(bar1, bars1.get(0));
@@ -2485,7 +2576,7 @@ public class LookupServiceTest extends InMemoryDBTest {
         Calendar cal3 = Calendar.getInstance();
         cal3.add(Calendar.DAY_OF_MONTH, -3);
 
-        List<Bar> bars2 = this.lookupService.getBarsBySecurityBarSizeAndMinDate(forex1.getId(), Duration.MIN_1, cal3.getTime());
+        List<Bar> bars2 = lookupService.getBarsBySecurityBarSizeAndMinDate(forex1.getId(), Duration.MIN_1, cal3.getTime());
     
         Assert.assertEquals(2, bars2.size());
         Assert.assertSame(bar1, bars2.get(0));
@@ -2508,14 +2599,14 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(forex1);
         this.session.flush();
     
-        Forex forex2 = this.lookupService.getForex(Currency.USD, Currency.INR);
+        Forex forex2 = lookupService.getForex(Currency.USD, Currency.INR);
     
         Assert.assertNotNull(forex2);
     
         Assert.assertSame(forex1, forex2);
         Assert.assertSame(family, forex2.getSecurityFamily());
     
-        Forex forex3 = this.lookupService.getForex(Currency.INR, Currency.USD);
+        Forex forex3 = lookupService.getForex(Currency.INR, Currency.USD);
     
         Assert.assertNotNull(forex3);
     
@@ -2541,7 +2632,7 @@ public class LookupServiceTest extends InMemoryDBTest {
     
         this.exception.expect(IllegalStateException.class);
     
-        this.lookupService.getForex(Currency.AUD, Currency.INR);
+        lookupService.getForex(Currency.AUD, Currency.INR);
     }
 
     @Test
@@ -2564,7 +2655,7 @@ public class LookupServiceTest extends InMemoryDBTest {
     
         this.exception.expect(IllegalStateException.class);
     
-        this.lookupService.getForex(Currency.USD, Currency.AUD);
+        lookupService.getForex(Currency.USD, Currency.AUD);
     }
 
     @Test
@@ -2583,7 +2674,7 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(forex1);
         this.session.flush();
     
-        double rate = this.lookupService.getForexRateByDate(Currency.USD, Currency.USD, new Date());
+        double rate = lookupService.getForexRateByDate(Currency.USD, Currency.USD, new Date());
     
         Assert.assertEquals(1.0, rate, 0);
     
@@ -2622,15 +2713,15 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(intrestRate1);
         this.session.flush();
     
-        IntrestRate intrestRate2 = this.lookupService.getInterestRateByCurrencyAndDuration(Currency.USD, Duration.DAY_2);
+        IntrestRate intrestRate2 = lookupService.getInterestRateByCurrencyAndDuration(Currency.USD, Duration.DAY_2);
     
         Assert.assertNull(intrestRate2);
     
-        IntrestRate intrestRate3 = this.lookupService.getInterestRateByCurrencyAndDuration(Currency.INR, Duration.DAY_1);
+        IntrestRate intrestRate3 = lookupService.getInterestRateByCurrencyAndDuration(Currency.INR, Duration.DAY_1);
     
         Assert.assertNull(intrestRate3);
     
-        IntrestRate intrestRate4 = this.lookupService.getInterestRateByCurrencyAndDuration(Currency.INR, Duration.DAY_2);
+        IntrestRate intrestRate4 = lookupService.getInterestRateByCurrencyAndDuration(Currency.INR, Duration.DAY_2);
     
         Assert.assertNotNull(intrestRate4);
     
@@ -2667,7 +2758,7 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(cashBalance2);
         this.session.flush();
     
-        List<Currency> currencies1 = (List<Currency>) this.lookupService.getHeldCurrencies();
+        List<Currency> currencies1 = (List<Currency>) lookupService.getHeldCurrencies();
     
         Assert.assertEquals(1, currencies1.size());
     
@@ -2676,7 +2767,7 @@ public class LookupServiceTest extends InMemoryDBTest {
         cashBalance2.setCurrency(Currency.AUD);
         this.session.flush();
     
-        List<Currency> currencies2 = (List<Currency>) this.lookupService.getHeldCurrencies();
+        List<Currency> currencies2 = (List<Currency>) lookupService.getHeldCurrencies();
     
         Assert.assertEquals(2, currencies2.size());
     
@@ -2709,11 +2800,11 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(cashBalance2);
         this.session.flush();
     
-        List<CashBalance> cashBalances1 = (List<CashBalance>) this.lookupService.getCashBalancesByStrategy("NOT_FOUND");
+        List<CashBalance> cashBalances1 = (List<CashBalance>) lookupService.getCashBalancesByStrategy("NOT_FOUND");
 
         Assert.assertEquals(0, cashBalances1.size());
 
-        List<CashBalance> cashBalances2 = (List<CashBalance>) this.lookupService.getCashBalancesByStrategy("Strategy1");
+        List<CashBalance> cashBalances2 = (List<CashBalance>) lookupService.getCashBalancesByStrategy("Strategy1");
 
         Assert.assertEquals(1, cashBalances2.size());
     
@@ -2724,7 +2815,7 @@ public class LookupServiceTest extends InMemoryDBTest {
     
         this.session.flush();
     
-        List<CashBalance> cashBalances3 = (List<CashBalance>) this.lookupService.getCashBalancesByStrategy("Strategy1");
+        List<CashBalance> cashBalances3 = (List<CashBalance>) lookupService.getCashBalancesByStrategy("Strategy1");
     
         Assert.assertEquals(2, cashBalances3.size());
     
@@ -2762,28 +2853,28 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(measurement2);
         this.session.flush();
     
-        Map<Date, Object> measurements1 = this.lookupService.getMeasurementsByMaxDate("Dummy", "Measurement", cal1.getTime());
+        Map<Date, Object> measurements1 = lookupService.getMeasurementsByMaxDate("Dummy", "Measurement", cal1.getTime());
     
         Assert.assertEquals(0, measurements1.size());
     
-        Map<Date, Object> measurements2 = this.lookupService.getMeasurementsByMaxDate("Strategy1", "Dummy", cal1.getTime());
+        Map<Date, Object> measurements2 = lookupService.getMeasurementsByMaxDate("Strategy1", "Dummy", cal1.getTime());
 
         Assert.assertEquals(0, measurements2.size());
 
         Calendar before = Calendar.getInstance();
         before.add(Calendar.HOUR_OF_DAY, -1);
     
-        Map<Date, Object> measurements3 = this.lookupService.getMeasurementsByMaxDate("Strategy1", "Measurement", before.getTime());
+        Map<Date, Object> measurements3 = lookupService.getMeasurementsByMaxDate("Strategy1", "Measurement", before.getTime());
     
         Assert.assertEquals(0, measurements3.size());
     
-        Map<Date, Object> measurements4 = this.lookupService.getMeasurementsByMaxDate("Strategy1", "Measurement", cal1.getTime());
+        Map<Date, Object> measurements4 = lookupService.getMeasurementsByMaxDate("Strategy1", "Measurement", cal1.getTime());
     
         Assert.assertEquals(1, measurements4.size());
     
         Assert.assertEquals(measurement1.getValue(), measurements4.get(cal1.getTime()));
     
-        Map<Date, Object> measurements5 = this.lookupService.getMeasurementsByMaxDate("Strategy1", "Measurement", cal2.getTime());
+        Map<Date, Object> measurements5 = lookupService.getMeasurementsByMaxDate("Strategy1", "Measurement", cal2.getTime());
     
         Assert.assertEquals(2, measurements5.size());
     
@@ -2819,24 +2910,24 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(measurement2);
         this.session.flush();
     
-        Map<Date, Map<String, Object>> measurements1 = this.lookupService.getAllMeasurementsByMaxDate("Dummy", cal1.getTime());
+        Map<Date, Map<String, Object>> measurements1 = lookupService.getAllMeasurementsByMaxDate("Dummy", cal1.getTime());
     
         Assert.assertEquals(0, measurements1.size());
     
         Calendar before = Calendar.getInstance();
         before.add(Calendar.HOUR_OF_DAY, -1);
     
-        Map<Date, Map<String, Object>> measurements2 = this.lookupService.getAllMeasurementsByMaxDate("Strategy1", before.getTime());
+        Map<Date, Map<String, Object>> measurements2 = lookupService.getAllMeasurementsByMaxDate("Strategy1", before.getTime());
     
         Assert.assertEquals(0, measurements2.size());
     
-        Map<Date, Map<String, Object>> measurements3 = this.lookupService.getAllMeasurementsByMaxDate("Strategy1", cal1.getTime());
+        Map<Date, Map<String, Object>> measurements3 = lookupService.getAllMeasurementsByMaxDate("Strategy1", cal1.getTime());
     
         Assert.assertEquals(1, measurements3.size());
     
         Assert.assertSame(measurement1.getValue(), measurements3.get(cal1.getTime()).get("Measurement1"));
     
-        Map<Date, Map<String, Object>> measurements4 = this.lookupService.getAllMeasurementsByMaxDate("Strategy1", cal2.getTime());
+        Map<Date, Map<String, Object>> measurements4 = lookupService.getAllMeasurementsByMaxDate("Strategy1", cal2.getTime());
     
         Assert.assertEquals(2, measurements4.size());
     
@@ -2872,28 +2963,28 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(measurement2);
         this.session.flush();
     
-        Map<Date, Object> measurements1 = this.lookupService.getMeasurementsByMinDate("Dummy", "Measurement", cal1.getTime());
+        Map<Date, Object> measurements1 = lookupService.getMeasurementsByMinDate("Dummy", "Measurement", cal1.getTime());
 
         Assert.assertEquals(0, measurements1.size());
 
-        Map<Date, Object> measurements2 = this.lookupService.getMeasurementsByMinDate("Strategy1", "Dummy", cal1.getTime());
+        Map<Date, Object> measurements2 = lookupService.getMeasurementsByMinDate("Strategy1", "Dummy", cal1.getTime());
     
         Assert.assertEquals(0, measurements2.size());
     
         Calendar after = Calendar.getInstance();
         after.add(Calendar.HOUR_OF_DAY, 2);
     
-        Map<Date, Object> measurements3 = this.lookupService.getMeasurementsByMinDate("Strategy1", "Measurement", after.getTime());
+        Map<Date, Object> measurements3 = lookupService.getMeasurementsByMinDate("Strategy1", "Measurement", after.getTime());
     
         Assert.assertEquals(0, measurements3.size());
     
-        Map<Date, Object> measurements4 = this.lookupService.getMeasurementsByMinDate("Strategy1", "Measurement", cal2.getTime());
+        Map<Date, Object> measurements4 = lookupService.getMeasurementsByMinDate("Strategy1", "Measurement", cal2.getTime());
     
         Assert.assertEquals(1, measurements4.size());
     
         Assert.assertSame(measurement2.getValue(), measurements4.get(cal2.getTime()));
     
-        Map<Date, Object> measurements5 = this.lookupService.getMeasurementsByMinDate("Strategy1", "Measurement", cal1.getTime());
+        Map<Date, Object> measurements5 = lookupService.getMeasurementsByMinDate("Strategy1", "Measurement", cal1.getTime());
     
         Assert.assertEquals(2, measurements5.size());
     
@@ -2929,24 +3020,24 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(measurement2);
         this.session.flush();
     
-        Map<Date, Map<String, Object>> measurements1 = this.lookupService.getAllMeasurementsByMinDate("Dummy", cal1.getTime());
+        Map<Date, Map<String, Object>> measurements1 = lookupService.getAllMeasurementsByMinDate("Dummy", cal1.getTime());
     
         Assert.assertEquals(0, measurements1.size());
     
         Calendar after = Calendar.getInstance();
         after.add(Calendar.HOUR_OF_DAY, 2);
     
-        Map<Date, Map<String, Object>> measurements2 = this.lookupService.getAllMeasurementsByMinDate("Strategy1", after.getTime());
+        Map<Date, Map<String, Object>> measurements2 = lookupService.getAllMeasurementsByMinDate("Strategy1", after.getTime());
     
         Assert.assertEquals(0, measurements2.size());
     
-        Map<Date, Map<String, Object>> measurements3 = this.lookupService.getAllMeasurementsByMinDate("Strategy1", cal2.getTime());
+        Map<Date, Map<String, Object>> measurements3 = lookupService.getAllMeasurementsByMinDate("Strategy1", cal2.getTime());
     
         Assert.assertEquals(1, measurements3.size());
     
         Assert.assertSame(measurement2.getValue(), measurements3.get(cal2.getTime()).get("Measurement2"));
     
-        Map<Date, Map<String, Object>> measurements4 = this.lookupService.getAllMeasurementsByMinDate("Strategy1", cal1.getTime());
+        Map<Date, Map<String, Object>> measurements4 = lookupService.getAllMeasurementsByMinDate("Strategy1", cal1.getTime());
     
         Assert.assertEquals(2, measurements4.size());
     
@@ -2982,27 +3073,27 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(measurement2);
         this.session.flush();
     
-        Object measurements1 = this.lookupService.getMeasurementByMaxDate("Dummy", "Measurement", cal1.getTime());
+        Object measurements1 = lookupService.getMeasurementByMaxDate("Dummy", "Measurement", cal1.getTime());
     
         Assert.assertNull(measurements1);
     
-        Object measurements2 = this.lookupService.getMeasurementByMaxDate("Strategy1", "Dummy", cal1.getTime());
+        Object measurements2 = lookupService.getMeasurementByMaxDate("Strategy1", "Dummy", cal1.getTime());
     
         Assert.assertNull(measurements2);
     
         Calendar before = Calendar.getInstance();
         before.add(Calendar.HOUR_OF_DAY, -12);
     
-        Object measurements3 = this.lookupService.getMeasurementByMaxDate("Strategy1", "Measurement", before.getTime());
+        Object measurements3 = lookupService.getMeasurementByMaxDate("Strategy1", "Measurement", before.getTime());
     
         Assert.assertNull(measurements3);
     
-        Object measurements4 = this.lookupService.getMeasurementByMaxDate("Strategy1", "Measurement", cal1.getTime());
+        Object measurements4 = lookupService.getMeasurementByMaxDate("Strategy1", "Measurement", cal1.getTime());
     
         Assert.assertNotNull(measurements4);
         Assert.assertEquals(measurement1.getValue(), measurements4);
     
-        Object measurements5 = this.lookupService.getMeasurementByMaxDate("Strategy1", "Measurement", cal2.getTime());
+        Object measurements5 = lookupService.getMeasurementByMaxDate("Strategy1", "Measurement", cal2.getTime());
     
         Assert.assertNotNull(measurements5);
         Assert.assertEquals(measurement2.getValue(), measurements5);
@@ -3036,28 +3127,28 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(measurement2);
         this.session.flush();
     
-        Object measurements1 = this.lookupService.getMeasurementByMinDate("Dummy", "Measurement", cal1.getTime());
+        Object measurements1 = lookupService.getMeasurementByMinDate("Dummy", "Measurement", cal1.getTime());
     
         Assert.assertNull(measurements1);
     
-        Object measurements2 = this.lookupService.getMeasurementByMinDate("Strategy1", "Dummy", cal1.getTime());
+        Object measurements2 = lookupService.getMeasurementByMinDate("Strategy1", "Dummy", cal1.getTime());
     
         Assert.assertNull(measurements2);
     
         Calendar after = Calendar.getInstance();
         after.add(Calendar.HOUR_OF_DAY, 2);
     
-        Object measurements3 = this.lookupService.getMeasurementByMinDate("Strategy1", "Measurement", after.getTime());
+        Object measurements3 = lookupService.getMeasurementByMinDate("Strategy1", "Measurement", after.getTime());
     
         Assert.assertNull(measurements3);
     
-        Object measurements4 = this.lookupService.getMeasurementByMinDate("Strategy1", "Measurement", cal1.getTime());
+        Object measurements4 = lookupService.getMeasurementByMinDate("Strategy1", "Measurement", cal1.getTime());
     
         Assert.assertNotNull(measurements4);
     
         Assert.assertSame(measurement1.getValue(), measurements4);
     
-        Object measurements5 = this.lookupService.getMeasurementByMinDate("Strategy1", "Measurement", cal2.getTime());
+        Object measurements5 = lookupService.getMeasurementByMinDate("Strategy1", "Measurement", cal2.getTime());
     
         Assert.assertNotNull(measurements5);
     
@@ -3101,18 +3192,18 @@ public class LookupServiceTest extends InMemoryDBTest {
     
         this.session.flush();
     
-        List<EasyToBorrow> easyToBorrows1 = (List<EasyToBorrow>) this.lookupService.getEasyToBorrowByDateAndBroker(cal1.getTime(), Broker.DC.name());
+        List<EasyToBorrow> easyToBorrows1 = (List<EasyToBorrow>) lookupService.getEasyToBorrowByDateAndBroker(cal1.getTime(), Broker.DC.name());
     
         Assert.assertEquals(0, easyToBorrows1.size());
     
         Calendar cal2 = Calendar.getInstance();
         cal2.set(Calendar.HOUR, 2);
     
-        List<EasyToBorrow> easyToBorrows2 = (List<EasyToBorrow>) this.lookupService.getEasyToBorrowByDateAndBroker(cal2.getTime(), Broker.CNX.name());
+        List<EasyToBorrow> easyToBorrows2 = (List<EasyToBorrow>) lookupService.getEasyToBorrowByDateAndBroker(cal2.getTime(), Broker.CNX.name());
     
         Assert.assertEquals(2, easyToBorrows2.size());
     
-        List<EasyToBorrow> easyToBorrows3 = (List<EasyToBorrow>) this.lookupService.getEasyToBorrowByDateAndBroker(cal1.getTime(), Broker.CNX.name());
+        List<EasyToBorrow> easyToBorrows3 = (List<EasyToBorrow>) lookupService.getEasyToBorrowByDateAndBroker(cal1.getTime(), Broker.CNX.name());
     
         Assert.assertEquals(2, easyToBorrows3.size());
     
