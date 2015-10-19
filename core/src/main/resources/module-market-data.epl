@@ -22,7 +22,7 @@ as select
     vol,
     volBid,
     volAsk,
-    true as refresh
+    false as refresh
 from
     TickVO;
 

@@ -140,7 +140,7 @@ public class PolymorphicEntityVisitor<R, P> implements EntityVisitor<R, P> {
 
     @Override
     public R visitExchange(Exchange entity, P param) {
-        return visitExchange(entity, param);
+        return visitBaseEntity(entity, param);
     }
 
     @Override

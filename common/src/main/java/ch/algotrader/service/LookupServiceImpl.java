@@ -209,6 +209,7 @@ public class LookupServiceImpl implements LookupService {
     public SecurityFamily getSecurityFamilyBySecurity(long securityId) {
 
         Security security = getSecurity(securityId);
+        security.initializeSecurityFamily(this.cacheManager);
         return security != null ? security.getSecurityFamily() : null;
     }
 
@@ -219,6 +220,8 @@ public class LookupServiceImpl implements LookupService {
     public Exchange getExchangeBySecurity(long securityId) {
 
         Security security = getSecurity(securityId);
+        security.initializeSecurityFamily(this.cacheManager);
+        security.getSecurityFamily().initializeExchange(this.cacheManager);
         return security != null ? security.getSecurityFamily().getExchange() : null;
     }
 
