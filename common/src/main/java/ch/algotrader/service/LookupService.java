@@ -45,6 +45,7 @@ import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.Stock;
 import ch.algotrader.entity.strategy.CashBalance;
 import ch.algotrader.entity.strategy.Strategy;
+import ch.algotrader.entity.trade.Order;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.QueryType;
@@ -338,12 +339,22 @@ public interface LookupService {
     /**
      * Finds all Transactions of the current day in descending {@code dateTime} order.
      */
-    public List<Transaction> getDailyTransactionsDesc();
+    public List<Transaction> getDailyTransactions();
 
     /**
      * Finds all Transactions of the current day of a specific Strategy in descending {@code dateTime} order.
      */
-    public List<Transaction> getDailyTransactionsByStrategyDesc(String strategyName);
+    public List<Transaction> getDailyTransactionsByStrategy(String strategyName);
+
+    /**
+     * Finds all orders of the current day in descending {@code dateTime} order.
+     */
+    public List<Order> getDailyOrders();
+
+    /**
+     * Finds all orders of the current day of a specific Strategy in descending {@code dateTime} order.
+     */
+    public List<Order> getDailyOrdersByStrategy(String strategyName);
 
     /**
      * Gets an Account by its {@code accountName}.

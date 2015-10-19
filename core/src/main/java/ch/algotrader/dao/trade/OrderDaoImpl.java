@@ -18,6 +18,7 @@
 package ch.algotrader.dao.trade;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 import org.apache.commons.lang.Validate;
@@ -29,6 +30,7 @@ import ch.algotrader.dao.NamedParam;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderImpl;
 import ch.algotrader.enumeration.QueryType;
+import ch.algotrader.util.DateTimeLegacy;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -57,6 +59,23 @@ public class OrderDaoImpl extends AbstractDao<Order> implements OrderDao {
         Validate.notEmpty(orderServiceType, "Order service type is empty");
 
         return (BigDecimal) findUniqueObject(null, "Order.findLastIntOrderIdByServiceType", QueryType.BY_NAME, new NamedParam("orderServiceType", orderServiceType));
+    }
+
+    @Override
+    public List<Order> getDailyOrders() {
+
+        LocalDate today = LocalDate.now();
+        return find("Order.findDailyOrders", QueryType.BY_NAME, new NamedParam("curdate", DateTimeLegacy.toLocalDate(today)));
+    }
+
+    @Override
+    public List<Order> getDailyOrdersByStrategy(String strategyName) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+
+        LocalDate today = LocalDate.now();
+        return find("Order.findDailyOrdersByStrategy", QueryType.BY_NAME,
+                new NamedParam("curdate", DateTimeLegacy.toLocalDate(today)), new NamedParam("strategyName", strategyName));
     }
 
     @Override

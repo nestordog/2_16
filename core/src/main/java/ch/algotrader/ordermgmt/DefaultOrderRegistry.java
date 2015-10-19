@@ -42,8 +42,6 @@ import ch.algotrader.enumeration.Status;
 */
 public class DefaultOrderRegistry implements OrderRegistry {
 
-    private static final int MAX_RECENT_COMPLETED_ORDERS = 10;
-
     private final ConcurrentMap<String, Order> orderMap;
     private final ConcurrentMap<String, OrderDetailsVO> orderExecMap;
     private final Deque<OrderDetailsVO> completedOrders;
@@ -124,9 +122,6 @@ public class DefaultOrderRegistry implements OrderRegistry {
         if (status == Status.EXECUTED || status == Status.CANCELED || status == Status.REJECTED) {
             this.completedOrders.addFirst(updatedEntry);
             this.orderExecMap.remove(intId);
-            if (this.completedOrders.size() > MAX_RECENT_COMPLETED_ORDERS) {
-                this.completedOrders.pollLast();
-            }
         } else {
             this.orderExecMap.replace(intId, entry, updatedEntry);
         }

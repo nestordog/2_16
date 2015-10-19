@@ -45,6 +45,16 @@ public interface OrderDao extends ReadWriteDao<Order> {
     BigDecimal findLastIntOrderIdByServiceType(String orderServiceType);
 
     /**
+     * Finds all orders of the current day in descending {@code dateTime} order.
+     */
+    List<Order> getDailyOrders();
+
+    /**
+     * Finds all orders of the current day of a specific Strategy in descending {@code dateTime} order.
+     */
+    List<Order> getDailyOrdersByStrategy(String strategyName);
+
+    /**
      * Finds orders that have not been acknowledged yet, i.e. have not received any OrderStatus yet.
      * @return List<Long>
      */

@@ -397,19 +397,19 @@
     ]]>
     </query>
     
-    <query name='Transaction.findDailyTransactionsDesc'>
+    <query name='Transaction.findDailyTransactions'>
     <![CDATA[
         from TransactionImpl as t
         join fetch t.strategy
         join fetch t.security as s
         join fetch s.securityFamily
         left join fetch t.account
-        where t.dateTime >= curdate()
+        where t.dateTime >= :curdate
         order by t.dateTime desc 
     ]]>
     </query>
     
-    <query name='Transaction.findDailyTransactionsByStrategyDesc'>
+    <query name='Transaction.findDailyTransactionsByStrategy'>
     <![CDATA[
         from TransactionImpl as t 
         join fetch t.strategy
@@ -417,7 +417,7 @@
         join fetch s.securityFamily
         left join fetch t.account
         where t.strategy.name = :strategyName 
-        and t.dateTime >= curdate() 
+        and t.dateTime >= :curdate
         order by t.dateTime desc 
     ]]>
     </query>
@@ -1336,6 +1336,29 @@
     <query name='Order.findByIntId'>
     <![CDATA[
         from OrderImpl where intId = :intId
+    ]]>
+    </query>
+
+    <query name='Order.findDailyOrders'>
+        <![CDATA[
+        from OrderImpl o
+        left outer join fetch o.orderProperties
+        join fetch o.account
+        join fetch o.strategy st
+        where o.dateTime >= :curdate
+        order by o.dateTime desc
+    ]]>
+    </query>
+
+    <query name='Order.findDailyOrdersByStrategy'>
+        <![CDATA[
+        from OrderImpl o
+        left outer join fetch o.orderProperties
+        join fetch o.account
+        join fetch o.strategy st
+        where o.strategy.name = :strategyName
+        and o.dateTime >= :curdate
+        order by o.dateTime desc
     ]]>
     </query>
 

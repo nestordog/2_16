@@ -26,7 +26,6 @@ import java.util.UUID;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.PositionImpl;
@@ -48,12 +47,10 @@ import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.ExpirationType;
 import ch.algotrader.enumeration.TransactionType;
 import ch.algotrader.hibernate.InMemoryDBTest;
-import ch.algotrader.service.MarketDataCache;
 import ch.algotrader.util.HibernateUtil;
 import ch.algotrader.vo.ClosePositionVO;
 import ch.algotrader.vo.ExpirePositionVO;
 import ch.algotrader.vo.OpenPositionVO;
-import ch.algotrader.vo.client.PositionVO;
 
 /**
 * Unit tests for {@link ch.algotrader.entity.Position}.
@@ -316,48 +313,6 @@ public class PositionDaoTest extends InMemoryDBTest {
 
         Assert.assertEquals(222, positions2.get(1).getQuantity());
         Assert.assertEquals("Strategy1", positions2.get(1).getStrategy());
-    }
-
-    @Test
-    public void testFindByStrategyTRANSFORM_POSITIONVO() {
-
-        this.session.save(this.family1);
-        this.session.save(this.forex1);
-        this.session.save(this.strategy1);
-
-        Position position1 = new PositionImpl();
-        position1.setQuantity(0);
-        position1.setSecurity(this.forex1);
-        position1.setStrategy(this.strategy1);
-
-        this.session.save(position1);
-
-        this.session.save(this.family2);
-        this.session.save(this.forex2);
-        this.session.save(this.strategy2);
-
-        Position position2 = new PositionImpl();
-        position2.setQuantity(0);
-        position2.setSecurity(this.forex2);
-        position2.setStrategy(this.strategy1);
-
-        this.session.save(position2);
-        this.session.flush();
-
-        MarketDataCache marketDataCache = Mockito.mock(MarketDataCache.class);
-        PositionVOProducer converter = new PositionVOProducer(marketDataCache);
-
-        List<PositionVO> positions1 = this.dao.findByStrategy("Dummy", converter);
-
-        Assert.assertEquals(0, positions1.size());
-
-        List<PositionVO> positions2 = this.dao.findByStrategy("Strategy1", converter);
-
-        Assert.assertEquals(2, positions2.size());
-
-        Assert.assertEquals(0, positions2.get(0).getQuantity());
-
-        Assert.assertEquals(0, positions2.get(1).getQuantity());
     }
 
     @Test
@@ -1027,40 +982,6 @@ public class PositionDaoTest extends InMemoryDBTest {
         Assert.assertSame(this.forex1, positions1.get(0).getSecurity());
         Assert.assertSame(this.family1, positions1.get(0).getSecurity().getSecurityFamily());
         Assert.assertSame(this.strategy1, positions1.get(0).getStrategy());
-    }
-
-    @Test
-    public void testLoadAllTRANSFORM_POSITIONVO() {
-
-        this.session.save(this.family1);
-        this.session.save(this.forex1);
-        this.session.save(this.strategy1);
-        this.session.save(this.family2);
-        this.session.save(this.forex2);
-        this.session.save(this.strategy2);
-
-        Position position1 = new PositionImpl();
-        position1.setQuantity(0);
-        position1.setSecurity(this.forex1);
-        position1.setStrategy(this.strategy1);
-
-        Position position2 = new PositionImpl();
-        position2.setQuantity(0);
-        position2.setSecurity(this.forex2);
-        position2.setStrategy(this.strategy2);
-
-        this.session.save(position1);
-        this.session.save(position2);
-        this.session.flush();
-
-        MarketDataCache marketDataCache = Mockito.mock(MarketDataCache.class);
-        PositionVOProducer converter = new PositionVOProducer(marketDataCache);
-
-        List<PositionVO> positions1 = this.dao.loadAll(converter);
-
-        Assert.assertEquals(2, positions1.size());
-        Assert.assertEquals(0, positions1.get(0).getQuantity());
-        Assert.assertEquals(0, positions1.get(1).getQuantity());
     }
 
     @Test

@@ -15,19 +15,19 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.dao;
+package ch.algotrader.vo.client;
 
 import java.math.BigDecimal;
 import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 
+import ch.algotrader.dao.EntityConverter;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.marketData.MarketDataEventVO;
 import ch.algotrader.entity.property.Property;
 import ch.algotrader.service.MarketDataCache;
 import ch.algotrader.util.RoundUtil;
-import ch.algotrader.vo.client.PositionVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>

@@ -200,7 +200,7 @@ public class TransactionDaoTest extends InMemoryDBTest {
         transaction2.setType(TransactionType.BUY);
         transaction2.setStrategy(this.strategy2);
 
-        List<Transaction> transactionVOs1 = this.dao.findDailyTransactionsDesc();
+        List<Transaction> transactionVOs1 = this.dao.findDailyTransactions();
 
         Assert.assertEquals(0, transactionVOs1.size());
 
@@ -208,7 +208,7 @@ public class TransactionDaoTest extends InMemoryDBTest {
         this.session.save(transaction2);
         this.session.flush();
 
-        List<Transaction> transactionVOs2 = this.dao.findDailyTransactionsDesc();
+        List<Transaction> transactionVOs2 = this.dao.findDailyTransactions();
 
         Assert.assertEquals(1, transactionVOs2.size());
 
@@ -260,11 +260,11 @@ public class TransactionDaoTest extends InMemoryDBTest {
         this.session.save(transaction2);
         this.session.flush();
 
-        List<Transaction> transactionVOs1 = this.dao.findDailyTransactionsByStrategyDesc("Dummy");
+        List<Transaction> transactionVOs1 = this.dao.findDailyTransactionsByStrategy("Dummy");
 
         Assert.assertEquals(0, transactionVOs1.size());
 
-        List<Transaction> transactionVOs2 = this.dao.findDailyTransactionsByStrategyDesc("Strategy1");
+        List<Transaction> transactionVOs2 = this.dao.findDailyTransactionsByStrategy("Strategy1");
 
         Assert.assertEquals(1, transactionVOs2.size());
 

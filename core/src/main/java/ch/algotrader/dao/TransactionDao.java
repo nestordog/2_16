@@ -39,14 +39,14 @@ public interface TransactionDao extends ReadWriteDao<Transaction> {
      * Finds all Transactions of the current day in descending {@code dateTime} order.
      * @return List<V>
      */
-    List<Transaction> findDailyTransactionsDesc();
+    List<Transaction> findDailyTransactions();
 
     /**
      * Finds all Transactions of the current day of a specific Strategy in descending {@code dateTime} order.
      * @param strategyName
      * @return List<V>
      */
-    List<Transaction> findDailyTransactionsByStrategyDesc(String strategyName);
+    List<Transaction> findDailyTransactionsByStrategy(String strategyName);
 
     /**
      * Finds all Trades (either  {@code BUY}, {@code SELL}, {@code EXPIRATION} or {@code TRANSFER})

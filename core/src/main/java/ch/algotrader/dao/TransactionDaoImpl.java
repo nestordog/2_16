@@ -18,6 +18,7 @@
 
 package ch.algotrader.dao;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -28,6 +29,7 @@ import org.springframework.stereotype.Repository;
 import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.TransactionImpl;
 import ch.algotrader.enumeration.QueryType;
+import ch.algotrader.util.DateTimeLegacy;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -51,17 +53,20 @@ public class TransactionDaoImpl extends AbstractDao<Transaction> implements Tran
     }
 
     @Override
-    public List<Transaction> findDailyTransactionsDesc() {
+    public List<Transaction> findDailyTransactions() {
 
-        return find("Transaction.findDailyTransactionsDesc", QueryType.BY_NAME);
+        LocalDate today = LocalDate.now();
+        return find("Transaction.findDailyTransactions", QueryType.BY_NAME, new NamedParam("curdate", DateTimeLegacy.toLocalDate(today)));
     }
 
     @Override
-    public List<Transaction> findDailyTransactionsByStrategyDesc(String strategyName) {
+    public List<Transaction> findDailyTransactionsByStrategy(String strategyName) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        return find("Transaction.findDailyTransactionsByStrategyDesc", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
+        LocalDate today = LocalDate.now();
+        return find("Transaction.findDailyTransactionsByStrategy", QueryType.BY_NAME,
+                new NamedParam("curdate", DateTimeLegacy.toLocalDate(today)), new NamedParam("strategyName", strategyName));
     }
 
     @Override

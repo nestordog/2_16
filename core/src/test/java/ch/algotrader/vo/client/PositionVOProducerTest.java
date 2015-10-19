@@ -15,7 +15,7 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.dao;
+package ch.algotrader.vo.client;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -38,7 +38,6 @@ import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.service.MarketDataCache;
 import ch.algotrader.util.RoundUtil;
-import ch.algotrader.vo.client.PositionVO;
 
 /**
 * Unit tests for {@link PositionVOProducer}.

@@ -52,8 +52,8 @@ import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.ConfigParams;
 import ch.algotrader.config.ConfigProvider;
 import ch.algotrader.dao.NamedParam;
-import ch.algotrader.dao.PositionVOProducer;
-import ch.algotrader.dao.TransactionVOProducer;
+import ch.algotrader.vo.client.PositionVOProducer;
+import ch.algotrader.vo.client.TransactionVOProducer;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.Subscription;
@@ -321,9 +321,9 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
 
         Collection<Transaction> transactions;
         if (this.serverMode) {
-            transactions = this.lookupService.getDailyTransactionsDesc();
+            transactions = this.lookupService.getDailyTransactions();
         } else {
-            transactions = this.lookupService.getDailyTransactionsByStrategyDesc(this.engine.getStrategyName());
+            transactions = this.lookupService.getDailyTransactionsByStrategy(this.engine.getStrategyName());
         }
 
         TransactionVOProducer converter = new TransactionVOProducer(this.commonConfig);

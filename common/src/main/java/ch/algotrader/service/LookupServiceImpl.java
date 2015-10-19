@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -66,6 +67,7 @@ import ch.algotrader.entity.strategy.CashBalance;
 import ch.algotrader.entity.strategy.Measurement;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.strategy.StrategyImpl;
+import ch.algotrader.entity.trade.Order;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.QueryType;
@@ -736,17 +738,39 @@ public class LookupServiceImpl implements LookupService {
     }
 
     @Override
-    public List<Transaction> getDailyTransactionsDesc() {
+    public List<Transaction> getDailyTransactions() {
 
-        return this.cacheManager.find(Transaction.class, "Transaction.findDailyTransactionsDesc", QueryType.BY_NAME);
+        LocalDate today = LocalDate.now();
+        return this.cacheManager.find(Transaction.class, "Transaction.findDailyTransactions", QueryType.BY_NAME,
+                new NamedParam("curdate", DateTimeLegacy.toLocalDate(today)));
     }
 
     @Override
-    public List<Transaction> getDailyTransactionsByStrategyDesc(String strategyName) {
+    public List<Transaction> getDailyTransactionsByStrategy(String strategyName) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        return this.cacheManager.find(Transaction.class, "Transaction.findDailyTransactionsByStrategyDesc", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
+        LocalDate today = LocalDate.now();
+        return this.cacheManager.find(Transaction.class, "Transaction.findDailyTransactionsByStrategy", QueryType.BY_NAME,
+                new NamedParam("strategyName", strategyName), new NamedParam("curdate", DateTimeLegacy.toLocalDate(today)));
+    }
+
+    @Override
+    public List<Order> getDailyOrders() {
+
+        LocalDate today = LocalDate.now();
+        return this.cacheManager.find(Order.class, "Order.findDailyOrders", QueryType.BY_NAME,
+                new NamedParam("curdate", DateTimeLegacy.toLocalDate(today)));
+    }
+
+    @Override
+    public List<Order> getDailyOrdersByStrategy(String strategyName) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+
+        LocalDate today = LocalDate.now();
+        return this.cacheManager.find(Order.class, "Order.findDailyOrdersByStrategy", QueryType.BY_NAME,
+                new NamedParam("strategyName", strategyName), new NamedParam("curdate", DateTimeLegacy.toLocalDate(today)));
     }
 
     /**

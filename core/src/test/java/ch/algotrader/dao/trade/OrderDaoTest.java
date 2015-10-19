@@ -19,6 +19,7 @@ package ch.algotrader.dao.trade;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -43,6 +44,7 @@ import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.TIF;
 import ch.algotrader.hibernate.InMemoryDBTest;
+import ch.algotrader.util.DateTimeLegacy;
 
 /**
 * Unit tests for {@link OrderDaoImpl}.
@@ -244,45 +246,50 @@ public class OrderDaoTest extends InMemoryDBTest {
     }
 
     @Test
-    public void testFindAllOpenOrders() {
+    public void testFindDailyOrders() {
+        Order order1 = new MarketOrderImpl();
+        order1.setIntId("35");
+        order1.setDateTime(new Date());
+        order1.setSide(Side.BUY);
+        order1.setTif(TIF.ATC);
+        order1.setSecurity(this.forex);
+        order1.setAccount(this.account);
+        order1.setStrategy(this.strategy);
 
-        // Could not test the method due to EngineLocator dependency
-    }
+        Order order2 = new MarketOrderImpl();
+        order2.setIntId("36");
+        order2.setDateTime(DateTimeLegacy.toLocalDateTime(LocalDateTime.now().minusDays(2)));
+        order2.setSide(Side.BUY);
+        order2.setTif(TIF.ATC);
+        order2.setSecurity(this.forex);
+        order2.setAccount(this.account);
+        order2.setStrategy(this.strategy);
 
-    @Test
-    public void testFindOpenOrdersByStrategy() {
+        this.session.save(this.strategy);
+        this.session.save(this.account);
+        this.session.save(this.family);
+        this.session.save(this.forex);
+        this.session.flush();
 
-        // Could not test the method due to EngineLocator dependency
-    }
+        List<Order> dailyOrders1 = this.dao.getDailyOrders();
+        Assert.assertNotNull(dailyOrders1);
+        Assert.assertEquals(0, dailyOrders1.size());
 
-    @Test
-    public void testFindOpenOrdersByStrategyAndSecurity() {
+        this.session.save(order1);
+        this.session.save(order2);
+        this.session.flush();
 
-        // Could not test the method due to EngineLocator dependency
-    }
+        List<Order> dailyOrders2 = this.dao.getDailyOrders();
+        Assert.assertNotNull(dailyOrders2);
+        Assert.assertEquals(1, dailyOrders2.size());
 
-    @Test
-    public void testFindOpenOrderByIntId() {
+        List<Order> dailyOrders3 = this.dao.getDailyOrdersByStrategy("blah");
+        Assert.assertNotNull(dailyOrders3);
+        Assert.assertEquals(0, dailyOrders3.size());
 
-        // Could not test the method due to EngineLocator dependency
-    }
-
-    @Test
-    public void testFindOpenOrderByRootIntId() {
-
-        // Could not test the method due to EngineLocator dependency
-    }
-
-    @Test
-    public void testFindOpenOrderByExtId() {
-
-        // Could not test the method due to EngineLocator dependency
-    }
-
-    @Test
-    public void testFindOpenOrdersByParentIntId() {
-
-        // Could not test the method due to EngineLocator dependency
+        List<Order> dailyOrders4 = this.dao.getDailyOrdersByStrategy("Strategy1");
+        Assert.assertNotNull(dailyOrders4);
+        Assert.assertEquals(1, dailyOrders4.size());
     }
 
 }

@@ -2260,7 +2260,7 @@ public class LookupServiceTest extends InMemoryDBTest {
         transaction2.setType(TransactionType.BUY);
         transaction2.setStrategy(strategy2);
 
-        List<Transaction> transactionVOs1 = lookupService.getDailyTransactionsDesc();
+        List<Transaction> transactionVOs1 = this.lookupService.getDailyTransactions();
 
         Assert.assertEquals(0, transactionVOs1.size());
     
@@ -2268,8 +2268,8 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(transaction2);
         this.session.flush();
     
-        List<Transaction> transactionVOs2 = lookupService.getDailyTransactionsDesc();
-    
+        List<Transaction> transactionVOs2 = this.lookupService.getDailyTransactions();
+
         Assert.assertEquals(1, transactionVOs2.size());
     
         Transaction transactionVO1 = transactionVOs2.get(0);
@@ -2346,12 +2346,12 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(transaction2);
         this.session.flush();
     
-        List<Transaction> transactionVOs1 = lookupService.getDailyTransactionsByStrategyDesc("Dummy");
+        List<Transaction> transactionVOs1 = this.lookupService.getDailyTransactionsByStrategy("Dummy");
     
         Assert.assertEquals(0, transactionVOs1.size());
     
-        List<Transaction> transactionVOs2 = lookupService.getDailyTransactionsByStrategyDesc("Strategy1");
-    
+        List<Transaction> transactionVOs2 = this.lookupService.getDailyTransactionsByStrategy("Strategy1");
+
         Assert.assertEquals(1, transactionVOs2.size());
     
         Assert.assertEquals(222, transactionVOs2.get(0).getQuantity());

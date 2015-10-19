@@ -15,17 +15,17 @@
  * Badenerstrasse 16
  * 8004 Zurich
  ***********************************************************************************/
-package ch.algotrader.dao;
+package ch.algotrader.vo.client;
 
 import java.math.BigDecimal;
 
 import org.apache.commons.lang.Validate;
 
 import ch.algotrader.config.CommonConfig;
+import ch.algotrader.dao.EntityConverter;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.security.Security;
-import ch.algotrader.vo.client.TransactionVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
