@@ -442,7 +442,6 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
             throw new IllegalArgumentException("combination does not exist: " + combinationId);
         }
 
-        String combinationString = combination.toString();
         final Security security = this.securityDao.load(securityId);
 
         if (security == null) {
@@ -495,9 +494,9 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
 
         if (LOGGER.isDebugEnabled()) {
             if (add) {
-                LOGGER.debug("added component quantity {} of {} to combination {}", quantity, component, combinationString);
+                LOGGER.debug("added component quantity {} of {} to combination {}", quantity, component, combination.getId());
             } else {
-                LOGGER.debug("set component quantity {} of {} to combination {}", quantity, component, combinationString);
+                LOGGER.debug("set component quantity {} of {} to combination {}", quantity, component, combination.getId());
             }
         }
 
