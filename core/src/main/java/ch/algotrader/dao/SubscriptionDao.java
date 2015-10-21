@@ -18,8 +18,9 @@
 package ch.algotrader.dao;
 
 import java.util.List;
-
 import ch.algotrader.entity.Subscription;
+import ch.algotrader.entity.security.Security;
+import ch.algotrader.util.collection.Pair;
 
 /**
  * DAO for {@link ch.algotrader.entity.Subscription} objects.
@@ -91,6 +92,14 @@ public interface SubscriptionDao extends ReadWriteDao<Subscription> {
      * @return List<Subscription>
      */
     List<Subscription> findNonPositionSubscriptionsByType(String strategyName, int type);
+
+
+    /**
+     * Finds all Securities and corresponding feed types that are subscribed by at least one
+     * Strategy which is marked as {@code autoActive} and the specified {@code feedType}.
+     * @return List<Map>
+     */
+    List<Pair<Security, String>> findSubscribedAndFeedTypeForAutoActivateStrategies();
 
     // spring-dao merge-point
 }

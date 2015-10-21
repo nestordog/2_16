@@ -19,8 +19,6 @@ package ch.algotrader.dao.security;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.lang.Validate;
 import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
@@ -148,13 +146,6 @@ public class SecurityDaoImpl extends AbstractDao<Security> implements SecurityDa
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
         return findCaching("Security.findSubscribedByFeedTypeAndStrategyInclFamily", QueryType.BY_NAME, new NamedParam("feedType", feedType), new NamedParam("strategyName", strategyName));
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public List<Map<String, Object>> findSubscribedAndFeedTypeForAutoActivateStrategies() {
-
-        return (List<Map<String, Object>>) findObjects(null, "Security.findSubscribedAndFeedTypeForAutoActivateStrategies", QueryType.BY_NAME);
     }
 
     @Override

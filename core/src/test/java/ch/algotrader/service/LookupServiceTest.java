@@ -2260,7 +2260,7 @@ public class LookupServiceTest extends InMemoryDBTest {
         transaction2.setType(TransactionType.BUY);
         transaction2.setStrategy(strategy2);
 
-        List<Transaction> transactionVOs1 = this.lookupService.getDailyTransactions();
+        List<Transaction> transactionVOs1 = lookupService.getDailyTransactions();
 
         Assert.assertEquals(0, transactionVOs1.size());
     
@@ -2268,7 +2268,7 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(transaction2);
         this.session.flush();
     
-        List<Transaction> transactionVOs2 = this.lookupService.getDailyTransactions();
+        List<Transaction> transactionVOs2 = lookupService.getDailyTransactions();
 
         Assert.assertEquals(1, transactionVOs2.size());
     

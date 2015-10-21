@@ -41,6 +41,7 @@ import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.hibernate.InMemoryDBTest;
 import ch.algotrader.util.HibernateUtil;
+import ch.algotrader.util.collection.Pair;
 
 /**
 * Unit tests for {@link ch.algotrader.entity.Subscription}.
@@ -388,6 +389,52 @@ public class SubscriptionDaoTest extends InMemoryDBTest {
 
         Assert.assertSame(subscription1, map.get(FeedType.SIM.name()));
         Assert.assertSame(subscription2, map.get(FeedType.IB.name()));
+    }
+
+    @Test
+    public void testFindSubscribedAndFeedTypeForAutoActivateStrategies() {
+
+        SecurityFamily family1 = new SecurityFamilyImpl();
+        family1.setName("family1");
+        family1.setTickSizePattern("0<0.1");
+        family1.setCurrency(Currency.EUR);
+
+        Forex forex1 = new ForexImpl();
+        forex1.setSymbol("INR.EUR");
+        forex1.setBaseCurrency(Currency.CAD);
+        forex1.setSecurityFamily(family1);
+
+        Strategy strategy1 = new StrategyImpl();
+        strategy1.setName("Strategy1");
+        strategy1.setAutoActivate(Boolean.FALSE);
+
+        Subscription subscription1 = new SubscriptionImpl();
+        subscription1.setFeedType(FeedType.SIM.name());
+        subscription1.setSecurity(forex1);
+        subscription1.setStrategy(strategy1);
+
+        this.session.save(family1);
+        this.session.save(forex1);
+        this.session.save(strategy1);
+        this.session.save(subscription1);
+
+        forex1.addSubscriptions(subscription1);
+
+        this.session.flush();
+
+        List<Pair<Security, String>> maps1 = this.dao.findSubscribedAndFeedTypeForAutoActivateStrategies();
+
+        Assert.assertEquals(0, maps1.size());
+
+        strategy1.setAutoActivate(Boolean.TRUE);
+        this.session.flush();
+
+        List<Pair<Security, String>> maps2 = this.dao.findSubscribedAndFeedTypeForAutoActivateStrategies();
+
+        Assert.assertEquals(1, maps2.size());
+
+        Assert.assertSame(FeedType.SIM.name(), maps2.get(0).getSecond());
+        Assert.assertSame(forex1, maps2.get(0).getFirst());
     }
 
 }

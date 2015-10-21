@@ -43,6 +43,7 @@ import ch.algotrader.entity.BaseEntityI;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.PositionImpl;
 import ch.algotrader.entity.Subscription;
+import ch.algotrader.entity.SubscriptionImpl;
 import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.TransactionImpl;
 import ch.algotrader.entity.exchange.Exchange;
@@ -237,12 +238,11 @@ public class LookupServiceImpl implements LookupService {
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("rawtypes")
     @Override
     public List<Pair<Security, String>> getSubscribedSecuritiesAndFeedTypeForAutoActivateStrategiesInclComponents() {
 
-        List<Map> listOfMaps = this.genericDao.find(Map.class, "Security.findSubscribedAndFeedTypeForAutoActivateStrategies", QueryType.BY_NAME);
-        List<Pair<Security, String>> list = listOfMaps.stream().map(map -> new Pair<>((Security) map.get("security"), (String) map.get("feedType"))).collect(Collectors.toList());
+        List<SubscriptionImpl> subscriptions = this.cacheManager.find(SubscriptionImpl.class, "Subscription.findSubscribedAndFeedTypeForAutoActivateStrategies", QueryType.BY_NAME);
+        List<Pair<Security, String>> list = subscriptions.stream().map(s -> new Pair<>(s.getSecurity(), s.getFeedType())).collect(Collectors.toList());
 
         // initialize components
         for (Pair<Security, String> pair : list) {

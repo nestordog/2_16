@@ -18,6 +18,7 @@
 package ch.algotrader.dao;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.Validate;
 import org.hibernate.SessionFactory;
@@ -25,7 +26,11 @@ import org.springframework.stereotype.Repository;
 
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.SubscriptionImpl;
+import ch.algotrader.entity.security.Combination;
+import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.QueryType;
+import ch.algotrader.util.collection.Pair;
+import ch.algotrader.visitor.InitializationVisitor;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -102,6 +107,21 @@ public class SubscriptionDaoImpl extends AbstractDao<Subscription> implements Su
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
         return findCaching("Subscription.findNonPositionSubscriptionsByType", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("type", type));
+    }
+
+    @Override
+    public List<Pair<Security, String>> findSubscribedAndFeedTypeForAutoActivateStrategies() {
+
+        List<Subscription> subscriptions = findCaching("Subscription.findSubscribedAndFeedTypeForAutoActivateStrategies", QueryType.BY_NAME);
+        List<Pair<Security, String>> list = subscriptions.stream().map(s -> new Pair<>(s.getSecurity(), s.getFeedType())).collect(Collectors.toList());
+
+        for (Pair<Security, String> pair : list) {
+            if (pair.getFirst() instanceof Combination) {
+                pair.getFirst().accept(InitializationVisitor.INSTANCE, HibernateInitializer.INSTANCE);
+            }
+        }
+
+        return list;
     }
 
 }

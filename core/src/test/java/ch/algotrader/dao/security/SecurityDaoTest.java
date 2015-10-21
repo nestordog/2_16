@@ -20,8 +20,6 @@ package ch.algotrader.dao.security;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -627,52 +625,6 @@ public class SecurityDaoTest extends InMemoryDBTest {
 
         Assert.assertSame(forex1, forexes3.get(0));
         Assert.assertSame(forex2, forexes3.get(1));
-    }
-
-    @Test
-    public void testFindSubscribedAndFeedTypeForAutoActivateStrategies() {
-
-        SecurityFamily family1 = new SecurityFamilyImpl();
-        family1.setName("family1");
-        family1.setTickSizePattern("0<0.1");
-        family1.setCurrency(Currency.EUR);
-
-        Forex forex1 = new ForexImpl();
-        forex1.setSymbol("INR.EUR");
-        forex1.setBaseCurrency(Currency.CAD);
-        forex1.setSecurityFamily(family1);
-
-        Strategy strategy1 = new StrategyImpl();
-        strategy1.setName("Strategy1");
-        strategy1.setAutoActivate(Boolean.FALSE);
-
-        Subscription subscription1 = new SubscriptionImpl();
-        subscription1.setFeedType(FeedType.SIM.name());
-        subscription1.setSecurity(forex1);
-        subscription1.setStrategy(strategy1);
-
-        this.session.save(family1);
-        this.session.save(forex1);
-        this.session.save(strategy1);
-        this.session.save(subscription1);
-
-        forex1.addSubscriptions(subscription1);
-
-        this.session.flush();
-
-        List<Map<String, Object>> maps1 = this.dao.findSubscribedAndFeedTypeForAutoActivateStrategies();
-
-        Assert.assertEquals(0, maps1.size());
-
-        strategy1.setAutoActivate(Boolean.TRUE);
-        this.session.flush();
-
-        List<Map<String, Object>> maps2 = this.dao.findSubscribedAndFeedTypeForAutoActivateStrategies();
-
-        Assert.assertEquals(1, maps2.size());
-
-        Assert.assertSame(FeedType.SIM.name(), maps2.get(0).get("feedType"));
-        Assert.assertSame(forex1, maps2.get(0).get("security"));
     }
 
     @Test

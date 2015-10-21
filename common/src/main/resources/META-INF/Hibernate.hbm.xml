@@ -384,6 +384,15 @@
         and s.class = :type 
     ]]>
     </query>
+    
+    <query name='Subscription.findSubscribedAndFeedTypeForAutoActivateStrategies'>
+    <![CDATA[   
+        from SubscriptionImpl as su 
+        join fetch su.security as s
+        where su.strategy.autoActivate = true 
+        order by s.id, su.feedType 
+    ]]>
+    </query>
 
     <!-- Subscription DAO queries ends -->
     
@@ -1059,15 +1068,6 @@
         where su.strategy.name = :strategyName 
         and su.feedType = :feedType 
         order by s.id 
-    ]]>
-    </query>
-    
-    <query name='Security.findSubscribedAndFeedTypeForAutoActivateStrategies'>
-    <![CDATA[   
-        select distinct new map(su.security as security, su.feedType as feedType) 
-        from SubscriptionImpl as su 
-        where su.strategy.autoActivate = true 
-        order by su.security.id, su.feedType 
     ]]>
     </query>
 
