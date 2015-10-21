@@ -102,12 +102,20 @@ public class CombinationImpl extends Combination {
     @Override
     public String toString() {
 
-        return StringUtils.join(CollectionUtils.collect(getComponents(), new Transformer<Component, String>() {
+        String name = StringUtils.join(CollectionUtils.collect(getComponents(), new Transformer<Component, String>() {
             @Override
             public String transform(Component component) {
                 return component.getQuantity() + " " + component.getSecurity();
             }
         }), " + ");
+        if (StringUtils.isNotBlank(name)) {
+            return name;
+        }
+        if (StringUtils.isNotBlank(getSymbol())) {
+            return getSymbol();
+        } else {
+            return "EMPTY_COMBINATION";
+        }
     }
 
 }
