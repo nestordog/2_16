@@ -17,7 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.cache;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -61,9 +60,10 @@ class CollectionHandler extends AbstractHandler {
             // do not process uninitialized PersistentCollections
             if (!col.wasInitialized()) {
                 return CacheResponse.proxyObject();
-            } else {
+            }
 
-                // check stack on Persistent Collections only
+            // check stack on Persistent Collections only
+            if (col.getRole() != null) {
                 EntityCacheSubKey cacheKey = new EntityCacheSubKey((BaseEntityI) col.getOwner(), col.getRole());
                 if (stack.contains(cacheKey)) {
                     return CacheResponse.processedObject();
@@ -165,7 +165,7 @@ class CollectionHandler extends AbstractHandler {
                     FieldUtil.copyAllFields(origCollection, updatedCol);
 
                     // make sure everything is in the cache
-                    this.cacheManager.put(origCollection, new ArrayList<EntityCacheSubKey>());
+                    this.cacheManager.put(origCollection);
 
                     // getInitializedCollection should normally return a PersistentCollection
                 } else {
@@ -204,7 +204,7 @@ class CollectionHandler extends AbstractHandler {
 
             Object initializedObj = this.cacheManager.getGenericDao().getInitializedCollection(col.getRole(), (Long) col.getKey());
 
-            CacheResponse response = this.cacheManager.put(initializedObj, new ArrayList<EntityCacheSubKey>());
+            CacheResponse response = this.cacheManager.put(initializedObj);
 
             if (response.getState() == CacheState.EXISTING) {
                 return response;

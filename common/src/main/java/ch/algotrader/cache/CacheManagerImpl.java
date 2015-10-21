@@ -88,6 +88,14 @@ public class CacheManagerImpl implements CacheManager, Initializer, EntityCacheE
         return this.genericDao;
     }
 
+    CacheResponse put(Object obj) {
+
+        AbstractHandler handler = getHandler(obj.getClass());
+
+        ArrayList<EntityCacheSubKey> stack = new ArrayList<EntityCacheSubKey>();
+        return handler.put(obj, stack);
+    }
+
     CacheResponse put(Object obj, List<EntityCacheSubKey> stack) {
 
         AbstractHandler handler = getHandler(obj.getClass());
@@ -111,7 +119,7 @@ public class CacheManagerImpl implements CacheManager, Initializer, EntityCacheE
             // put into the cache
             if (entity != null) {
 
-                put(entity, new ArrayList<EntityCacheSubKey>());
+                put(entity);
             }
 
         } else {
@@ -218,7 +226,7 @@ public class CacheManagerImpl implements CacheManager, Initializer, EntityCacheE
             this.queryCache.attach(cacheKey, spaceNames, result);
 
             // put the result (potentially replacing objects)
-            put(result, new ArrayList<EntityCacheSubKey>());
+            put(result);
         }
 
         return result;

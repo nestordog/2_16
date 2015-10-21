@@ -18,7 +18,6 @@
 package ch.algotrader.cache;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.Validate;
@@ -234,7 +233,7 @@ public class EntityHandler extends AbstractHandler {
             LazyInitializer initializer = proxy.getHibernateLazyInitializer();
             Object initializedObj = this.cacheManager.getGenericDao().get(initializer.getPersistentClass(), (Long) initializer.getIdentifier());
 
-            CacheResponse response = this.cacheManager.put(initializedObj, new ArrayList<EntityCacheSubKey>());
+            CacheResponse response = this.cacheManager.put(initializedObj);
 
             if (response.getState() == CacheState.EXISTING) {
                 return response;
