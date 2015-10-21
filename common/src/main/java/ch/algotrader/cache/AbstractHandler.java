@@ -17,6 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.cache;
 
+import java.util.List;
+
 /**
  * Abstract Cache Handler class.
  *
@@ -32,17 +34,17 @@ abstract class AbstractHandler {
     protected abstract boolean handles(Class<?> clazz);
 
     /**
-     * Puts this object into the Cache or returns the existingObject if it was already in the Cache
+     * Puts an object into the Cache
      */
-    protected abstract Object put(Object obj);
+    protected abstract CacheResponse put(Object obj, List<EntityCacheSubKey> stack);
 
     /**
-     * Invokes an update of the specified Object. Returns the updated Object
+     * Updates the specified object
      */
-    protected abstract Object update(Object obj);
+    protected abstract CacheResponse update(Object obj);
 
     /**
-     * Lazy-initializes the specified Object. Return null if the obj is not a Proxy or uninitialized PersistentCollection
+     * Lazy-initializes the specified Object.
      */
-    protected abstract Object initialize(Object obj);
+    protected abstract CacheResponse initialize(Object obj);
 }

@@ -22,6 +22,9 @@ import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.collection.spi.PersistentCollection;
+
+import ch.algotrader.entity.BaseEntityI;
 
 /**
  * Cache for Entities based on a HashMap.
@@ -30,22 +33,26 @@ import org.apache.logging.log4j.Logger;
  *
  * @version $Revision$ $Date$
  */
-class EntityCache extends HashMap<EntityCacheKey, Map<String, Object>> {
-
-    private static final long serialVersionUID = -3242571286067822619L;
+class EntityCache {
 
     private static final Logger LOGGER = LogManager.getLogger(EntityCache.class);
+
+    private Map<EntityCacheKey, Map<String, Object>> entries = new HashMap<EntityCacheKey, Map<String, Object>>();
 
     /**
      * attaches an object to the cache
      */
     void attach(EntityCacheKey cacheKey, String key, Object value) {
 
-        Map<String, Object> entry = get(cacheKey);
+        if (!(value instanceof BaseEntityI) && !(value instanceof PersistentCollection)) {
+            throw new IllegalArgumentException("object is neither of type BaseEntityI nor PersistentCollection " + value);
+        }
+
+        Map<String, Object> entry = this.entries.get(cacheKey);
 
         if (entry == null) {
             entry = new HashMap<>();
-            put(cacheKey, entry);
+            this.entries.put(cacheKey, entry);
         }
 
         entry.put(key, value);
@@ -60,7 +67,7 @@ class EntityCache extends HashMap<EntityCacheKey, Map<String, Object>> {
      */
     boolean exists(EntityCacheKey cacheKey, String key) {
 
-        Map<String, Object> entry = get(cacheKey);
+        Map<String, Object> entry = this.entries.get(cacheKey);
         if (entry == null) {
             return false;
         } else {
@@ -73,7 +80,7 @@ class EntityCache extends HashMap<EntityCacheKey, Map<String, Object>> {
      */
     Object find(EntityCacheKey cacheKey, String key) {
 
-        Map<String, Object> entry = get(cacheKey);
+        Map<String, Object> entry = this.entries.get(cacheKey);
         if (entry == null) {
             return null;
         } else {
@@ -86,10 +93,18 @@ class EntityCache extends HashMap<EntityCacheKey, Map<String, Object>> {
      */
     void detach(EntityCacheKey cacheKey) {
 
-        remove(cacheKey);
+        this.entries.remove(cacheKey);
 
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace("detached {}", cacheKey);
         }
+    }
+
+    public void clear() {
+        this.entries.clear();
+    }
+
+    public int size() {
+        return this.entries.size();
     }
 }

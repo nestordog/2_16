@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.cache;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -29,6 +30,7 @@ import org.apache.logging.log4j.Logger;
 import org.hibernate.collection.internal.AbstractPersistentCollection;
 import org.hibernate.proxy.HibernateProxy;
 
+import ch.algotrader.cache.CacheResponse.CacheState;
 import ch.algotrader.dao.GenericDao;
 import ch.algotrader.dao.NamedParam;
 import ch.algotrader.entity.BaseEntityI;
@@ -50,8 +52,6 @@ import ch.algotrader.visitor.InitializationVisitor;
 public class CacheManagerImpl implements CacheManager, Initializer, EntityCacheEventListener, QueryCacheEventListener {
 
     private static final Logger LOGGER = LogManager.getLogger(CacheManagerImpl.class);
-
-    public static final String ROOT = "root";
 
     private final AbstractHandler entityHandler;
     private final AbstractHandler collectionHandler;
@@ -88,12 +88,19 @@ public class CacheManagerImpl implements CacheManager, Initializer, EntityCacheE
         return this.genericDao;
     }
 
+    CacheResponse put(Object obj, List<EntityCacheSubKey> stack) {
+
+        AbstractHandler handler = getHandler(obj.getClass());
+
+        return handler.put(obj, stack);
+    }
+
     @Override
     public <T extends BaseEntityI> T get(Class<T> clazz, long id) {
 
         EntityCacheKey cacheKey = new EntityCacheKey(clazz, id);
 
-        T entity = clazz.cast(this.entityCache.find(cacheKey, ROOT));
+        T entity = clazz.cast(this.entityCache.find(cacheKey, EntityCacheKey.ROOT));
 
         // load the Entity if it is not available in the Cache
         if (entity == null) {
@@ -104,7 +111,7 @@ public class CacheManagerImpl implements CacheManager, Initializer, EntityCacheE
             // put into the cache
             if (entity != null) {
 
-                put(entity);
+                put(entity, new ArrayList<EntityCacheSubKey>());
             }
 
         } else {
@@ -127,19 +134,11 @@ public class CacheManagerImpl implements CacheManager, Initializer, EntityCacheE
     }
 
     @Override
-    public Object put(Object obj) {
-
-        AbstractHandler handler = getHandler(obj.getClass());
-
-        return handler.put(obj);
-    }
-
-    @Override
     public <T extends BaseEntityI> boolean contains(Class<T> clazz, long id) {
 
         EntityCacheKey cacheKey = new EntityCacheKey(clazz, id);
 
-        return this.entityCache.exists(cacheKey, ROOT);
+        return this.entityCache.exists(cacheKey, EntityCacheKey.ROOT);
     }
 
     @Override
@@ -178,19 +177,19 @@ public class CacheManagerImpl implements CacheManager, Initializer, EntityCacheE
 
         AbstractHandler handler = getHandler(obj.getClass());
 
-        Object initializedObj = handler.initialize(obj);
+        CacheResponse response = handler.initialize(obj);
 
         // if the key was already initialized do nothing
-        if (initializedObj != null) {
+        if (response.getState() == CacheState.UPDATED) {
 
-            this.entityCache.attach(cacheKey, key, initializedObj);
+            this.entityCache.attach(cacheKey, key, response.getValue());
 
             if (LOGGER.isTraceEnabled()) {
                 LOGGER.trace("initialized {}: {}", cacheKey, key);
             }
         }
 
-        return initializedObj;
+        return response.getValue();
     }
 
     @Override
@@ -219,7 +218,7 @@ public class CacheManagerImpl implements CacheManager, Initializer, EntityCacheE
             this.queryCache.attach(cacheKey, spaceNames, result);
 
             // put the result (potentially replacing objects)
-            put(result);
+            put(result, new ArrayList<EntityCacheSubKey>());
         }
 
         return result;
@@ -241,7 +240,7 @@ public class CacheManagerImpl implements CacheManager, Initializer, EntityCacheE
 
             AbstractHandler handler = getHandler(obj.getClass());
 
-            if (handler.update(obj) != null) {
+            if (handler.update(obj).getState() == CacheState.UPDATED) {
 
                 if (LOGGER.isTraceEnabled()) {
                     LOGGER.trace("updated {}: {}", cacheKey, key);

@@ -17,16 +17,15 @@
  ***********************************************************************************/
 package ch.algotrader.ehcache;
 
+import org.hibernate.cache.spi.CacheKey;
+
+import ch.algotrader.cache.EntityCacheEvictionEventVO;
+import ch.algotrader.cache.EntityCacheKey;
+import ch.algotrader.event.dispatch.EventDispatcher;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.event.CacheEventListenerAdapter;
-
-import org.hibernate.cache.spi.CacheKey;
-
-import ch.algotrader.cache.CacheManagerImpl;
-import ch.algotrader.cache.EntityCacheEvictionEventVO;
-import ch.algotrader.event.dispatch.EventDispatcher;
 
 /**
 * EhCache CacheEventListener which notifies on Entities being updated in the 2nd level cache.
@@ -51,7 +50,7 @@ public class EntityCacheEventListener extends CacheEventListenerAdapter {
         CacheKey hibernateCacheKey = (CacheKey) element.getObjectKey();
         long id = (Long) hibernateCacheKey.getKey();
 
-        EntityCacheEvictionEventVO event = new EntityCacheEvictionEventVO(this.entityClass, id, CacheManagerImpl.ROOT);
+        EntityCacheEvictionEventVO event = new EntityCacheEvictionEventVO(this.entityClass, id, EntityCacheKey.ROOT);
         this.eventDispatcher.broadcastEventListeners(event);
     }
 

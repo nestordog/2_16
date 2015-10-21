@@ -18,12 +18,16 @@
 package ch.algotrader.cache;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.proxy.HibernateProxy;
 import org.hibernate.proxy.LazyInitializer;
 
+import ch.algotrader.cache.CacheResponse.CacheState;
 import ch.algotrader.entity.BaseEntityI;
 import ch.algotrader.util.FieldUtil;
 
@@ -45,76 +49,145 @@ public class EntityHandler extends AbstractHandler {
     }
 
     @Override
-    protected Object put(Object obj) {
+    protected CacheResponse put(Object obj, List<EntityCacheSubKey> stack) {
 
         // do not process HibernateProxies
         if (obj instanceof HibernateProxy) {
-            return null;
+            return CacheResponse.proxyObject();
+        }
+
+        // check stack
+        BaseEntityI entity = (BaseEntityI) obj;
+        EntityCacheKey rootCacheKey = new EntityCacheKey(entity);
+        EntityCacheSubKey subCacheKey = new EntityCacheSubKey(entity);
+        if (stack.contains(subCacheKey)) {
+            return CacheResponse.processedObject();
+        } else {
+            stack.add(subCacheKey);
         }
 
         synchronized (obj) {
 
-            // check if the IdentifiableI already exists in the cache
-            BaseEntityI entity = (BaseEntityI) obj;
-            EntityCacheKey rootCacheKey = new EntityCacheKey(entity);
-            Object existingObj = null;
-            if (this.cacheManager.getEntityCache().exists(rootCacheKey, CacheManagerImpl.ROOT)) {
+            // check if the object is already exists in the cache
+            if (this.cacheManager.getEntityCache().exists(rootCacheKey, EntityCacheKey.ROOT)) {
 
-                existingObj = this.cacheManager.getEntityCache().find(rootCacheKey, CacheManagerImpl.ROOT);
+                Object existingObj = this.cacheManager.getEntityCache().find(rootCacheKey, EntityCacheKey.ROOT);
+                if (obj != existingObj) {
+                    processFieldsWithExisting(entity.getId(), obj, existingObj, stack);
+                }
+                return CacheResponse.existingObject(existingObj);
 
-                // IndentifiableI is not in the cache already
             } else {
 
-                // attach the object itself
-                this.cacheManager.getEntityCache().attach(rootCacheKey, CacheManagerImpl.ROOT, obj);
-
-                // process all fields
-                for (Field field : FieldUtil.getAllFields(obj.getClass())) {
-
-                    Object value = null;
-                    try {
-                        value = field.get(obj);
-                    } catch (Exception e) {
-                        LOGGER.error("problem getting field", e);
-                    }
-
-                    // nothing to do on simplate attributes
-                    if (FieldUtil.isSimpleAttribute(field) || value == null) {
-                        continue;
-                    }
-
-                    // if the object already existed but does not have the same reference replace it
-                    Object existingValue = this.cacheManager.put(value);
-                    if (existingValue != null && existingValue != value) {
-
-                        try {
-                            field.set(obj, existingValue);
-                        } catch (Exception e) {
-                            LOGGER.error("problem setting field", e);
-                        }
-                    }
-
-                    EntityCacheKey cacheKey = new EntityCacheKey(field.getDeclaringClass(), entity.getId());
-                    this.cacheManager.getEntityCache().attach(cacheKey, field.getName(), value);
-                }
+                this.cacheManager.getEntityCache().attach(rootCacheKey, EntityCacheKey.ROOT, obj);
+                processFields(entity.getId(), obj, stack);
+                return CacheResponse.newObject();
             }
-            return existingObj;
+        }
+    }
+
+    private void processFieldsWithExisting(long entityId, Object obj, Object existingObj, List<EntityCacheSubKey> stack) {
+
+        Validate.notNull(obj, "obj is null");
+        Validate.notNull(existingObj, "existingObj is null");
+
+        for (Field field : FieldUtil.getAllFields(obj.getClass())) {
+
+            Object value = null;
+            try {
+                value = field.get(obj);
+            } catch (Exception e) {
+                LOGGER.error("problem getting field", e);
+            }
+
+            // nothing to do on simple attributes
+            if (FieldUtil.isSimpleAttribute(field) || value == null) {
+                continue;
+            }
+
+            // if the object already existed but does not have the same reference replace it
+            CacheResponse response = this.cacheManager.put(value, stack);
+
+            try {
+                if (response.getState() == CacheState.EXISTING) {
+                    Object existingValue = field.get(existingObj);
+                    if (response.getValue() != existingValue) {
+
+                        field.set(existingObj, response.getValue());
+
+                        EntityCacheKey cacheKey = new EntityCacheKey(field.getDeclaringClass(), entityId);
+                        this.cacheManager.getEntityCache().attach(cacheKey, field.getName(), response.getValue());
+                    }
+                } else if (response.getState() == CacheState.NEW) {
+                    Object existingValue = field.get(existingObj);
+                    if (existingValue != value) {
+
+                        field.set(existingObj, value);
+
+                        EntityCacheKey cacheKey = new EntityCacheKey(field.getDeclaringClass(), entityId);
+                        this.cacheManager.getEntityCache().attach(cacheKey, field.getName(), value);
+                    }
+                }
+            } catch (IllegalArgumentException e) {
+                LOGGER.error("problem update field value", e);
+            } catch (IllegalAccessException e) {
+                LOGGER.error("problem update field value", e);
+            }
+        }
+    }
+
+    private void processFields(long entityId, Object obj, List<EntityCacheSubKey> stack) {
+
+        Validate.notNull(obj, "obj is null");
+
+        for (Field field : FieldUtil.getAllFields(obj.getClass())) {
+
+            Object value = null;
+            try {
+                value = field.get(obj);
+            } catch (Exception e) {
+                LOGGER.error("problem getting field", e);
+            }
+
+            // nothing to do on simple attributes
+            if (FieldUtil.isSimpleAttribute(field) || value == null) {
+                continue;
+            }
+
+            // if the object already existed but does not have the same reference replace it
+            CacheResponse response = this.cacheManager.put(value, stack);
+
+            try {
+                if (response.getState() == CacheState.EXISTING && response.getValue() != value) {
+                    field.set(obj, response.getValue());
+                }
+
+                EntityCacheKey cacheKey = new EntityCacheKey(field.getDeclaringClass(), entityId);
+                this.cacheManager.getEntityCache().attach(cacheKey, field.getName(), value);
+            } catch (IllegalArgumentException e) {
+                LOGGER.error("problem update field value", e);
+            } catch (IllegalAccessException e) {
+                LOGGER.error("problem update field value", e);
+            }
         }
     }
 
     @Override
-    protected Object update(Object obj) {
+    protected CacheResponse update(Object obj) {
 
         synchronized (obj) {
 
             // get the updatedObj
             BaseEntityI origEntity = (BaseEntityI) obj;
             BaseEntityI updatedEntity = this.cacheManager.getGenericDao().get(origEntity.getClass(), origEntity.getId());
+
             // updatedObj does not exist anymore so remove it from the cache
             if (updatedEntity == null) {
 
                 EntityCacheKey cacheKey = new EntityCacheKey(origEntity);
                 this.cacheManager.getEntityCache().detach(cacheKey);
+
+                return CacheResponse.removedObject();
 
             } else {
 
@@ -141,18 +214,18 @@ public class EntityHandler extends AbstractHandler {
                         }
                     }
                 }
+
+                return CacheResponse.updatedObject(updatedEntity);
             }
-            return updatedEntity;
         }
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    protected Object initialize(Object obj) {
+    protected CacheResponse initialize(Object obj) {
 
         if (!(obj instanceof HibernateProxy)) {
-
-            return null;
+            throw new IllegalArgumentException("none HibernateProxy passed " + obj);
         }
 
         synchronized (obj) {
@@ -160,10 +233,14 @@ public class EntityHandler extends AbstractHandler {
             HibernateProxy proxy = (HibernateProxy) obj;
             LazyInitializer initializer = proxy.getHibernateLazyInitializer();
             Object initializedObj = this.cacheManager.getGenericDao().get(initializer.getPersistentClass(), (Long) initializer.getIdentifier());
-            Object existingObj = put(initializedObj);
 
-            // return the exstingObj if it was already in the cache otherwise the newly initialized obj
-            return existingObj != null ? existingObj : initializedObj;
+            CacheResponse response = this.cacheManager.put(initializedObj, new ArrayList<EntityCacheSubKey>());
+
+            if (response.getState() == CacheState.EXISTING) {
+                return response;
+            } else {
+                return CacheResponse.updatedObject(initializedObj);
+            }
         }
     }
 

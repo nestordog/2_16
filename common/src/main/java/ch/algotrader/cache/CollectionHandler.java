@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.cache;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -29,6 +30,7 @@ import org.apache.logging.log4j.Logger;
 import org.hibernate.collection.internal.AbstractPersistentCollection;
 import org.hibernate.collection.spi.PersistentCollection;
 
+import ch.algotrader.cache.CacheResponse.CacheState;
 import ch.algotrader.entity.BaseEntityI;
 import ch.algotrader.util.FieldUtil;
 
@@ -51,11 +53,24 @@ class CollectionHandler extends AbstractHandler {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
-    protected Object put(Object obj) {
+    protected CacheResponse put(Object obj, List<EntityCacheSubKey> stack) {
 
-        // do not process uninitialized PersistenCollections
-        if (obj instanceof AbstractPersistentCollection && !((AbstractPersistentCollection) obj).wasInitialized()) {
-            return null;
+        if (obj instanceof AbstractPersistentCollection) {
+            AbstractPersistentCollection col = (AbstractPersistentCollection) obj;
+
+            // do not process uninitialized PersistentCollections
+            if (!col.wasInitialized()) {
+                return CacheResponse.proxyObject();
+            } else {
+
+                // check stack on Persistent Collections only
+                EntityCacheSubKey cacheKey = new EntityCacheSubKey((BaseEntityI) col.getOwner(), col.getRole());
+                if (stack.contains(cacheKey)) {
+                    return CacheResponse.processedObject();
+                } else {
+                    stack.add(cacheKey);
+                }
+            }
         }
 
         synchronized (obj) {
@@ -67,11 +82,12 @@ class CollectionHandler extends AbstractHandler {
                 for (Object o : map.entrySet()) {
 
                     Map.Entry entry = (Map.Entry) o;
-                    Object existingValue = this.cacheManager.put(entry.getValue());
-                    if (existingValue != null && existingValue != entry.getValue()) {
+                    Object value = entry.getValue();
+                    CacheResponse response = this.cacheManager.put(value, stack);
+                    if (response.getState() == CacheState.EXISTING && response.getValue() != value) {
 
                         // replace the value with the existingValue
-                        entry.setValue(existingValue);
+                        entry.setValue(response.getValue());
                     }
                 }
 
@@ -82,11 +98,11 @@ class CollectionHandler extends AbstractHandler {
                 for (ListIterator it = list.listIterator(); it.hasNext();) {
 
                     Object value = it.next();
-                    Object existingValue = this.cacheManager.put(value);
-                    if (existingValue != null && existingValue != value) {
+                    CacheResponse response = this.cacheManager.put(value, stack);
+                    if (response.getState() == CacheState.EXISTING && response.getValue() != value) {
 
                         // replace the value with the existingValue
-                        it.set(existingValue);
+                        it.set(response.getValue());
                     }
                 }
 
@@ -97,8 +113,8 @@ class CollectionHandler extends AbstractHandler {
                 Set replacements = new HashSet();
                 for (Object value : set) {
 
-                    Object existingValue = this.cacheManager.put(value);
-                    if (existingValue != null && existingValue != value) {
+                    CacheResponse response = this.cacheManager.put(value, stack);
+                    if (response.getState() == CacheState.EXISTING && response.getValue() != value) {
                         replacements.add(value);
                     }
                 }
@@ -111,24 +127,24 @@ class CollectionHandler extends AbstractHandler {
                 throw new IllegalArgumentException("unsupported collection type " + obj.getClass());
             }
         }
-        return null;
+        return CacheResponse.newObject();
     }
 
     @Override
-    protected Object update(Object obj) {
+    protected CacheResponse update(Object obj) {
 
         if (!(obj instanceof PersistentCollection)) {
-            throw new IllegalArgumentException("PersistentCollection needed");
+            throw new IllegalArgumentException("none PersistentCollection passed " + obj);
+        }
+
+        PersistentCollection origCollection = (PersistentCollection) obj;
+
+        // sometimes there is no role so collection initialization will not work
+        if (origCollection.getRole() == null) {
+            throw new IllegalArgumentException("no role defined on collection " + origCollection);
         }
 
         synchronized (obj) {
-
-            PersistentCollection origCollection = (PersistentCollection) obj;
-
-            // sometimes there is no role so collection initialization will not work
-            if (origCollection.getRole() == null) {
-                return null;
-            }
 
             Object updatedCollection = this.cacheManager.getGenericDao().getInitializedCollection(origCollection.getRole(), (Long) origCollection.getKey());
 
@@ -139,18 +155,19 @@ class CollectionHandler extends AbstractHandler {
                 EntityCacheKey cacheKey = new EntityCacheKey((BaseEntityI) owner);
                 this.cacheManager.getEntityCache().detach(cacheKey);
 
+                return CacheResponse.removedObject();
+
             } else {
 
-                // getInitializedCollection should normally return a PersistentCollection
                 if (updatedCollection instanceof PersistentCollection) {
 
                     PersistentCollection updatedCol = (PersistentCollection) updatedCollection;
                     FieldUtil.copyAllFields(origCollection, updatedCol);
 
                     // make sure everything is in the cache
-                    this.cacheManager.put(origCollection);
+                    this.cacheManager.put(origCollection, new ArrayList<EntityCacheSubKey>());
 
-                    // log if PersistentCollection returns a Collection or Map to furhter investigate
+                    // getInitializedCollection should normally return a PersistentCollection
                 } else {
 
                     if (updatedCollection instanceof Collection) {
@@ -165,31 +182,35 @@ class CollectionHandler extends AbstractHandler {
                         }
                     }
                 }
+
+                return CacheResponse.updatedObject(updatedCollection);
             }
-            return updatedCollection;
         }
     }
 
     @Override
-    protected Object initialize(Object obj) {
+    protected CacheResponse initialize(Object obj) {
 
         if (!(obj instanceof AbstractPersistentCollection)) {
-            return null;
+            throw new IllegalArgumentException("none PersistentCollection passed " + obj);
+        }
+
+        AbstractPersistentCollection col = (AbstractPersistentCollection) obj;
+        if (col.wasInitialized()) {
+            throw new IllegalArgumentException("PersistentCollection is already initialized " + obj);
         }
 
         synchronized (obj) {
 
-            AbstractPersistentCollection col = (AbstractPersistentCollection) obj;
-            if (col.wasInitialized()) {
-                return col;
-            }
-
             Object initializedObj = this.cacheManager.getGenericDao().getInitializedCollection(col.getRole(), (Long) col.getKey());
 
-            Object existingObj = put(initializedObj);
+            CacheResponse response = this.cacheManager.put(initializedObj, new ArrayList<EntityCacheSubKey>());
 
-            // return the exstingObj if it was already in the cache otherwise the newly initialized obj
-            return existingObj != null ? existingObj : initializedObj;
+            if (response.getState() == CacheState.EXISTING) {
+                return response;
+            } else {
+                return CacheResponse.updatedObject(initializedObj);
+            }
         }
     }
 

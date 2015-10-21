@@ -57,6 +57,7 @@ import ch.algotrader.cache.CacheManager;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.security.Security;
+import ch.algotrader.entity.security.SecurityImpl;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.enumeration.LifecyclePhase;
 import ch.algotrader.enumeration.MarketDataType;
@@ -330,7 +331,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
         // initialize all securityStrings for subscribed securities
         this.serverLookupService.initSecurityStrings();
         for (Security security : securities) {
-            this.cacheManager.put(security);
+            this.cacheManager.get(SecurityImpl.class, security.getId());
         }
 
         this.serverEngine.startCoordination();

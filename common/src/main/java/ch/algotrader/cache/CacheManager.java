@@ -43,11 +43,6 @@ public interface CacheManager extends Initializer {
     public <T extends BaseEntityI> List<T> getAll(Class<T> clazz);
 
     /**
-     * Adds an object recursively into the Cache and returns the existingObject if it was already in the Cache
-     */
-    public Object put(Object obj);
-
-    /**
      * checks whether an object of the given {@code clazz} and {@code id} is in the cache
      */
     public <T extends BaseEntityI> boolean contains(Class<T> clazz, long id);

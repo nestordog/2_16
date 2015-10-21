@@ -19,74 +19,58 @@ package ch.algotrader.cache;
 
 import java.util.Objects;
 
+import org.apache.commons.lang.StringUtils;
+
 import ch.algotrader.entity.BaseEntityI;
 
 /**
- * A CacheKey for Entities composed of a {@code clazz} and a {@code key}.
+ * Represents a single CacheElement during the traversal of an object graph
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
-public class EntityCacheKey {
+public class EntityCacheSubKey extends EntityCacheKey {
 
-    public static final String ROOT = "root";
+    private final String key;
 
-    private final long id;
-    private final Class<?> clazz;
-    private final Class<?> rootClass;
+    public EntityCacheSubKey(BaseEntityI entity, String roleName) {
 
-    public EntityCacheKey(BaseEntityI entity) {
-
-        this(entity.getClass(), entity.getId());
+        super(entity);
+        this.key = StringUtils.substringAfterLast(roleName, ".");
     }
 
-    public EntityCacheKey(Class<?> clazz, long id) {
-
-        if (!BaseEntityI.class.isAssignableFrom(clazz)) {
-            throw new IllegalArgumentException("must be of type BaseEntityI");
-        }
-
-        this.clazz = clazz;
-        this.id = id;
-
-        // get the top most superclass
-        while (!(clazz.getSuperclass()).equals(Object.class)) {
-            clazz = clazz.getSuperclass();
-        }
-
-        this.rootClass = clazz;
-
+    public EntityCacheSubKey(BaseEntityI entity) {
+        super(entity);
+        this.key = EntityCacheKey.ROOT;
     }
 
-    @Override
-    public String toString() {
-
-        return this.clazz.getName() + '#' + this.id;
+    protected String getKey() {
+        return this.key;
     }
 
     @Override
     public boolean equals(Object obj) {
-
         if (this == obj) {
             return true;
         } else if (obj == null) {
             return false;
-        } else if (!(obj instanceof EntityCacheKey)) {
+        } else if (!(obj instanceof EntityCacheSubKey)) {
             return false;
         } else {
-            EntityCacheKey that = (EntityCacheKey) obj;
-            return Objects.equals(this.rootClass, that.rootClass) && this.id == that.id;
+            EntityCacheSubKey that = (EntityCacheSubKey) obj;
+            return super.equals(that) && Objects.equals(this.key, that.key);
         }
     }
 
     @Override
     public int hashCode() {
-
-        int hash = 17;
-        hash = hash * 37 + this.rootClass.getName().hashCode();
-        hash = hash * 37 + Long.hashCode(this.id);
-
+        int hash = super.hashCode();
+        hash = hash * 37 + Objects.hashCode(this.key);
         return hash;
     }
+
+    @Override
+    public String toString() {
+        return super.toString() + ":" + this.key;
+    }
+
 }

@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.io.Charsets;
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.collection.internal.AbstractPersistentCollection;
@@ -113,6 +114,7 @@ public class CacheTest extends DefaultConfigTestBase {
     private static TransactionTemplate txTemplate;
     private static EmbeddedDatabase database;
 
+    private static long securityFamilyId1; // NON_TRADEABLE
     private static long securityFamilyId2; // NON_TRADEABLE
     private static long strategyId1;
     private static long securityId1; // EUR.USD
@@ -190,7 +192,7 @@ public class CacheTest extends DefaultConfigTestBase {
         family1.setExchange(exchange1);
         family1.setTradeable(true);
         family1.setContractSize(1.0);
-        session.save(family1);
+        securityFamilyId1 = (Long) session.save(family1);
 
         SecurityFamily family2 = new SecurityFamilyImpl();
         family2.setName("NON_TRADEABLE");
@@ -452,6 +454,28 @@ public class CacheTest extends DefaultConfigTestBase {
         });
 
         Assert.assertEquals(0, security.getPositions().size());
+    }
+
+    @Test
+    public void testRefresh() {
+
+        LookupService lookupService = context.getBean(LookupService.class);
+        
+        // expect SecurityFamily with Exchange proxied
+        SecurityFamily securityFamily = cache.get(SecurityFamilyImpl.class, securityFamilyId1);
+        Assert.assertFalse(Hibernate.isInitialized(securityFamily.getExchange()));
+
+        // expect Security / SecurityFamily / Exchange fully initialized
+        Security security1 = lookupService.findUnique(SecurityImpl.class,
+                "from SecurityImpl as s " + //
+                        "left join fetch s.underlying as ul " + //
+                        "join fetch s.securityFamily as f " + //
+                        "join fetch f.exchange as ex " + //
+                        "where s.id = :id", //
+                QueryType.HQL, true, new NamedParam("id", securityId1));
+        
+      Assert.assertTrue(Hibernate.isInitialized(security1.getSecurityFamily()));
+      Assert.assertTrue(Hibernate.isInitialized(security1.getSecurityFamily().getExchange()));
     }
 
     @Test
