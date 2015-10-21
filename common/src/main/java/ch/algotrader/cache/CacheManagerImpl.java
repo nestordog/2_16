@@ -183,6 +183,10 @@ public class CacheManagerImpl implements CacheManager, Initializer, EntityCacheE
 
         Object obj = this.entityCache.find(cacheKey, key);
 
+        if (obj == null) {
+            throw new IllegalArgumentException("requested cacheKey to be initialized is not in the cache: " + cacheKey);
+        }
+
         AbstractHandler handler = getHandler(obj.getClass());
 
         CacheResponse response = handler.initialize(obj);
