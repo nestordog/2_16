@@ -137,17 +137,7 @@ public class IBEsperTest extends EsperTestBase {
         TickSizeVO tickSize3 = new TickSizeVO("some-ticker1", TickType.ASK_SIZE, 11);
         this.epRuntime.sendEvent(tickSize3);
 
-        Assert.assertEquals(8, validatedTickQueue.size());
-
-        final TickVO tick1 = validatedTickQueue.remove();
-        Assert.assertEquals(1l, tick1.getSecurityId());
-        Assert.assertEquals(FeedType.IB.name(), tick1.getFeedType());
-        Assert.assertEquals(null, tick1.getLast());
-        Assert.assertEquals(0, tick1.getVol());
-        Assert.assertEquals(null, tick1.getAsk());
-        Assert.assertEquals(0, tick1.getVolAsk());
-        Assert.assertEquals(null, tick1.getBid());
-        Assert.assertEquals(0, tick1.getVolBid());
+        Assert.assertEquals(7, validatedTickQueue.size());
 
         final TickVO tick2 = validatedTickQueue.remove();
         Assert.assertEquals(1l, tick2.getSecurityId());

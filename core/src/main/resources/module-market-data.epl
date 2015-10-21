@@ -42,7 +42,7 @@ select
     0 as vol,
     0 as volBid,
     0 as volAsk,
-    true as refresh
+    false as refresh
 from
     SubscribeTickEventVO;
 

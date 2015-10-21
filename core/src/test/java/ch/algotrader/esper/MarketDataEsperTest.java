@@ -167,19 +167,19 @@ public class MarketDataEsperTest extends EsperTestBase {
         Assert.assertEquals("some-ticker1", entry1.get("tickerId"));
         Assert.assertEquals(FeedType.IB.name(), entry1.get("feedType"));
         Assert.assertEquals(1L, entry1.get("securityId"));
-        Assert.assertEquals(true, entry1.get("refresh"));
+        Assert.assertEquals(false, entry1.get("refresh"));
         EventBean entry2 = entries[1];
         Assert.assertEquals("some-ticker2", entry2.get("tickerId"));
         Assert.assertEquals(FeedType.BB.name(), entry2.get("feedType"));
         Assert.assertEquals(2L, entry2.get("securityId"));
-        Assert.assertEquals(true, entry2.get("refresh"));
+        Assert.assertEquals(false, entry2.get("refresh"));
         EventBean entry3 = entries[2];
         Assert.assertEquals("some-ticker3", entry3.get("tickerId"));
         Assert.assertEquals(FeedType.LMAX.name(), entry3.get("feedType"));
         Assert.assertEquals(1L, entry3.get("securityId"));
-        Assert.assertEquals(true, entry3.get("refresh"));
+        Assert.assertEquals(false, entry3.get("refresh"));
 
-        Assert.assertEquals(3, unvalidatedTickQueue.size());
+        Assert.assertEquals(0, unvalidatedTickQueue.size());
         unvalidatedTickQueue.clear();
         Assert.assertEquals(0, validatedTickQueue.size());
 
@@ -253,7 +253,7 @@ public class MarketDataEsperTest extends EsperTestBase {
         TradeVO trade = new TradeVO("some-ticker1", FeedType.IB.name(), new Date(), 1.23d, 567);
         this.epRuntime.sendEvent(trade);
 
-        Mockito.verify(this.calendarService, Mockito.times(2)).isOpen(Mockito.eq(this.exchange.getId()), Mockito.any());
+        Mockito.verify(this.calendarService, Mockito.times(1)).isOpen(Mockito.eq(this.exchange.getId()), Mockito.any());
         Assert.assertEquals(0, unvalidatedTickQueue.size());
     }
 
@@ -295,7 +295,7 @@ public class MarketDataEsperTest extends EsperTestBase {
         TradeVO trade = new TradeVO("some-ticker1", FeedType.IB.name(), new Date(), 1.23d, 567);
         this.epRuntime.sendEvent(trade);
 
-        Assert.assertEquals(2, unvalidatedTickQueue.size());
+        Assert.assertEquals(1, unvalidatedTickQueue.size());
         final TickVO tick1 = validatedTickQueue.remove();
 
         Assert.assertEquals(1l, tick1.getSecurityId());
