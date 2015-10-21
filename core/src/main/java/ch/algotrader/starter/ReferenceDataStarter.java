@@ -107,13 +107,15 @@ public class ReferenceDataStarter {
             ReferenceDataService service = serviceLocator.getReferenceDataService();
             securityFamilies.forEach(securityFamily -> {
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Retrieving security definitions for " + securityFamily);
+                    LOGGER.debug("Retrieving security definitions for " + securityFamily.getName());
                 }
 
                 try {
                     service.retrieve(securityFamily.getId());
                 } catch (NoServiceResponseException ex) {
-                    LOGGER.warn(ex.getMessage());
+                    if (LOGGER.isWarnEnabled()) {
+                        LOGGER.warn("Failed to retrieve security definitions for " + securityFamily.getName() + ": " + ex.getMessage());
+                    }
                 }
             });
             LOGGER.info("Security definition retrieval completed");
