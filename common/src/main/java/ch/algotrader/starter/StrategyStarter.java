@@ -17,7 +17,12 @@
  ***********************************************************************************/
 package ch.algotrader.starter;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import ch.algotrader.ServiceLocator;
+import ch.algotrader.config.ConfigLocator;
+import ch.algotrader.config.ConfigParams;
 
 /**
  * Abstract Base Class for starting the AlgoTrader Server in Live Trading Mode
@@ -28,9 +33,27 @@ import ch.algotrader.ServiceLocator;
  */
 public abstract class StrategyStarter {
 
+    private static final Logger LOGGER = LogManager.getLogger(StrategyStarter.class);
+
     public static void main(String[] args) throws Exception {
 
-        ServiceLocator.instance().runStrategy();
+        ConfigParams configParams = ConfigLocator.instance().getConfigParams();
+        String strategyName = configParams.getString("strategyName");
+
+        ServiceLocator serviceLocator = ServiceLocator.instance();
+        try {
+            LOGGER.info("Starting {} strategy in distributed mode", strategyName);
+            serviceLocator.runStrategy();
+            LOGGER.info("{} strategy started", strategyName);
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                LOGGER.info("{} strategy terminated", strategyName);
+            }));
+            Thread.sleep(Long.MAX_VALUE);
+        } catch (InterruptedException ignore) {
+        } catch (Exception ex) {
+            LOGGER.error(ex.getMessage(), ex);
+            serviceLocator.shutdown();
+        }
     }
 
 }
