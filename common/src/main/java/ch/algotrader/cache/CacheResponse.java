@@ -39,8 +39,8 @@ public class CacheResponse {
         return new CacheResponse(CacheState.NEW, null);
     }
 
-    public static CacheResponse proxyObject() {
-        return new CacheResponse(CacheState.PROXY, null);
+    public static CacheResponse skippedObject() {
+        return new CacheResponse(CacheState.SKIPPED, null);
     }
 
     public static CacheResponse processedObject() {
@@ -67,7 +67,7 @@ public class CacheResponse {
     public static enum CacheState {
         NEW, // object newly added to the cache
         EXISTING, // object already existed in the cache
-        PROXY, // object is a proxy
+        SKIPPED, // object was skipped due to being a proxy or persistent collection (uninitialized or without role)
         PROCESSED, // object was already processed by the current stack
         REMOVED, // object does not exist anymore and was removed from the cache
         UPDATED; // updated or newly initialized object

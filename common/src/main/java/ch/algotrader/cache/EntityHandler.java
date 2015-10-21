@@ -52,7 +52,7 @@ public class EntityHandler extends AbstractHandler {
 
         // do not process HibernateProxies
         if (obj instanceof HibernateProxy) {
-            return CacheResponse.proxyObject();
+            return CacheResponse.skippedObject();
         }
 
         // check stack

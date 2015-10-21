@@ -59,10 +59,10 @@ class CollectionHandler extends AbstractHandler {
 
             // do not process uninitialized PersistentCollections
             if (!col.wasInitialized()) {
-                return CacheResponse.proxyObject();
+                return CacheResponse.skippedObject();
             }
 
-            // check stack on Persistent Collections only
+            // check stack on Persistent Collections with role only
             if (col.getRole() != null) {
                 EntityCacheSubKey cacheKey = new EntityCacheSubKey((BaseEntityI) col.getOwner(), col.getRole());
                 if (stack.contains(cacheKey)) {
@@ -141,7 +141,7 @@ class CollectionHandler extends AbstractHandler {
 
         // sometimes there is no role so collection initialization will not work
         if (origCollection.getRole() == null) {
-            throw new IllegalArgumentException("no role defined on collection " + origCollection);
+            return CacheResponse.skippedObject();
         }
 
         synchronized (obj) {
@@ -198,6 +198,10 @@ class CollectionHandler extends AbstractHandler {
         AbstractPersistentCollection col = (AbstractPersistentCollection) obj;
         if (col.wasInitialized()) {
             throw new IllegalArgumentException("PersistentCollection is already initialized " + obj);
+        }
+
+        if (col.getRole() == null) {
+            throw new IllegalArgumentException("missing role on " + obj);
         }
 
         synchronized (obj) {
