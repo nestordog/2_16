@@ -40,16 +40,12 @@
 
     <!-- Spring JMS Template used for generic events (that might be sent from strategy to strategy) -->
     <bean id="genericTemplate" class="org.springframework.jms.core.JmsTemplate">
-        <property name="connectionFactory">
-            <ref bean="jmsActiveMQFactory" />
-        </property>
-        <property name="defaultDestination">
-            <ref bean="genericTopic" />
-        </property>
+        <property name="connectionFactory" ref="jmsActiveMQFactory"/>
+        <property name="defaultDestination" ref="genericTopic"/>
         <property name="timeToLive" value="10000"/>
-          <property name="deliveryPersistent" value="false"/>
-          <property name="messageIdEnabled" value="false"/>
-          <property name="explicitQosEnabled" value="true" />
+        <property name="deliveryPersistent" value="false"/>
+        <property name="messageIdEnabled" value="false"/>
+        <property name="explicitQosEnabled" value="true" />
         <property name="sessionAcknowledgeMode" ref="javax.jms.Session.DUPS_OK_ACKNOWLEDGE"/>
     </bean>
 
