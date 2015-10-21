@@ -92,7 +92,7 @@ public interface LookupService {
      * Gets a Security by its {@code id} incl. In addition the corresponding {@link SecurityFamily}
      * and Underlying {@link Security} are initialized.
      */
-    public Security getSecurityInclFamilyAndUnderlying(long id);
+    public Security getSecurityInclUnderlyingFamilyAndExchange(long id);
 
     /**
      * Gets multiple Securities by their {@code ids}.

@@ -158,7 +158,7 @@ public class MarketDataCacheImpl implements MarketDataCache, TickEventListener, 
     @Override
     public double getForexRate(long securityId, Currency transactionCurrency) {
 
-        final Security security = this.lookupService.getSecurityInclFamilyAndUnderlying(securityId);
+        final Security security = this.lookupService.getSecurityInclUnderlyingFamilyAndExchange(securityId);
 
         return getForexRate(security, transactionCurrency);
     }

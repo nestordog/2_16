@@ -118,7 +118,7 @@ public class SecurityDaoImpl extends AbstractDao<Security> implements SecurityDa
     @Override
     public Security findByIdInclFamilyAndUnderlying(long id) {
 
-        return findUniqueCaching("Security.findByIdInclFamilyAndUnderlying", QueryType.BY_NAME, new NamedParam("id", id));
+        return findUniqueCaching("Security.findByIdInclUnderlyingFamilyAndExchange", QueryType.BY_NAME, new NamedParam("id", id));
     }
 
     @Override

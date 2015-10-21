@@ -1018,11 +1018,12 @@
     ]]>
     </query>
 
-    <query name='Security.findByIdInclFamilyAndUnderlying'>
+    <query name='Security.findByIdInclUnderlyingFamilyAndExchange'>
     <![CDATA[
         from SecurityImpl as s left 
         join fetch s.underlying as ul 
         join fetch s.securityFamily as f 
+        left join fetch f.exchange
         where s.id = :id 
     ]]>
     </query>

@@ -171,9 +171,9 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
-    public Security getSecurityInclFamilyAndUnderlying(final long id) {
+    public Security getSecurityInclUnderlyingFamilyAndExchange(final long id) {
 
-        return this.cacheManager.findUnique(Security.class, "Security.findByIdInclFamilyAndUnderlying", QueryType.BY_NAME, new NamedParam("id", id));
+        return this.cacheManager.findUnique(Security.class, "Security.findByIdInclUnderlyingFamilyAndExchange", QueryType.BY_NAME, new NamedParam("id", id));
 
     }
 
@@ -210,8 +210,7 @@ public class LookupServiceImpl implements LookupService {
     @Override
     public SecurityFamily getSecurityFamilyBySecurity(long securityId) {
 
-        Security security = getSecurity(securityId);
-        security.initializeSecurityFamily(this.cacheManager);
+        Security security = getSecurityInclUnderlyingFamilyAndExchange(securityId);
         return security != null ? security.getSecurityFamily() : null;
     }
 
@@ -221,9 +220,7 @@ public class LookupServiceImpl implements LookupService {
     @Override
     public Exchange getExchangeBySecurity(long securityId) {
 
-        Security security = getSecurity(securityId);
-        security.initializeSecurityFamily(this.cacheManager);
-        security.getSecurityFamily().initializeExchange(this.cacheManager);
+        Security security = getSecurityInclUnderlyingFamilyAndExchange(securityId);
         return security != null ? security.getSecurityFamily().getExchange() : null;
     }
 

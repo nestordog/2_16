@@ -433,11 +433,11 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.flush();
         this.session.clear();
     
-        Security forex3 = lookupService.getSecurityInclFamilyAndUnderlying(0);
+        Security forex3 = lookupService.getSecurityInclUnderlyingFamilyAndExchange(0);
     
         Assert.assertNull(forex3);
     
-        Security forex4 = lookupService.getSecurityInclFamilyAndUnderlying(forex2.getId());
+        Security forex4 = lookupService.getSecurityInclUnderlyingFamilyAndExchange(forex2.getId());
     
         Assert.assertNotNull(forex4);
     
