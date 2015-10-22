@@ -12,15 +12,13 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.entity.security;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public class SecurityReferenceImpl extends SecurityReference {
 

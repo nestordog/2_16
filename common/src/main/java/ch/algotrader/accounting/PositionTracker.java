@@ -12,8 +12,8 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.accounting;
 
@@ -23,8 +23,6 @@ import ch.algotrader.vo.TradePerformanceVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public interface PositionTracker {
 

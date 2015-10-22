@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,8 +12,8 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.adapter.fix.fix44;
 
@@ -43,8 +43,6 @@ import quickfix.fix44.ExecutionReport;
  * Generic Fix44OrderMessageHandler. Can still be overwritten by specific broker interfaces.
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
- *
- * @version $Revision$ $Date$
  */
 public class GenericFix44OrderMessageHandler extends AbstractFix44OrderMessageHandler {
 
