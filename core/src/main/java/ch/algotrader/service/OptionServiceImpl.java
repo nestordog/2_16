@@ -28,7 +28,6 @@ import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.math.util.MathUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.service.spi.ServiceException;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 

@@ -30,7 +30,6 @@ import org.apache.commons.math.util.MathUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.exception.LockAcquisitionException;
-import org.hibernate.service.spi.ServiceException;
 import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
