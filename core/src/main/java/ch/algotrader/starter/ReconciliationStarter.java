@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,8 +12,8 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.starter;
 
@@ -28,23 +28,24 @@ import ch.algotrader.service.ReconciliationService;
  * Usage: {@code ReconciliationStarter serviceName fileName(s)}
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public class ReconciliationStarter {
 
     public static void main(String[] args) throws Exception {
 
-        ServiceLocator.instance().init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
-        ReconciliationService service = ServiceLocator.instance().getService(args[0], ReconciliationService.class);
+        ServiceLocator serviceLocator = ServiceLocator.instance();
+        serviceLocator.init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
+        try {
+            ReconciliationService service = serviceLocator.getService(args[0], ReconciliationService.class);
 
-        for (int i = 1; i < args.length; i++) {
+            for (int i = 1; i < args.length; i++) {
 
-            File file = new File(args[i]);
+                File file = new File(args[i]);
 
-            service.reconcile(file);
+                service.reconcile(file);
+            }
+        } finally {
+            serviceLocator.shutdown();
         }
-
-        ServiceLocator.instance().shutdown();
     }
 }

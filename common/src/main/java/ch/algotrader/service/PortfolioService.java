@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,18 +12,19 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.service;
 
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Date;
-import java.util.Map;
 
+import ch.algotrader.dao.NamedParam;
 import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.strategy.PortfolioValue;
+import ch.algotrader.entity.strategy.PortfolioValueI;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.vo.BalanceVO;
 import ch.algotrader.vo.FxExposureVO;
@@ -31,8 +32,6 @@ import ch.algotrader.vo.PortfolioValueVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public interface PortfolioService {
 
@@ -69,7 +68,7 @@ public interface PortfolioService {
      * <i>Note: The current value of {@link ch.algotrader.entity.security.Forex} Positions will not
      * be taken into account</i>
      */
-    public BigDecimal getCashBalance(String filter, Map namedParameters, Date date);
+    public BigDecimal getCashBalance(String filter, Date date, NamedParam... namedParams);
 
     /**
      * Gets the Cash Balance of the entire System.
@@ -104,7 +103,7 @@ public interface PortfolioService {
      * <i>Note: The current value of {@link ch.algotrader.entity.security.Forex} Positions will not
      * be taken into account</i>
      */
-    public double getCashBalanceDouble(String filter, Map namedParameters, Date date);
+    public double getCashBalanceDouble(String filter, Date date, NamedParam... namedParams);
 
     /**
      * Gets the total Market Value of all non-FX Positions of the entire System.
@@ -140,7 +139,7 @@ public interface PortfolioService {
      * s.gics like '12______'
      * }
      */
-    public BigDecimal getSecuritiesCurrentValue(String filter, Map namedParameters, Date date);
+    public BigDecimal getSecuritiesCurrentValue(String filter, Date date, NamedParam... namedParams);
 
     /**
      * Gets the total Market Value of all Positions of the entire System.
@@ -176,7 +175,7 @@ public interface PortfolioService {
      * s.gics like '12______'
      * }
      */
-    public double getSecuritiesCurrentValueDouble(String filter, Map namedParameters, Date date);
+    public double getSecuritiesCurrentValueDouble(String filter, Date date, NamedParam... namedParams);
 
     /**
      * Gets the total Market Value of all FX Positions of the entire System.
@@ -199,46 +198,6 @@ public interface PortfolioService {
     public double getUnrealizedPLDouble(String strategyName);
 
     /**
-     * Gets the Maintenance Margin of the entire System.
-     */
-    public BigDecimal getMaintenanceMargin();
-
-    /**
-     * Gets the Maintenance Margin of the specified Strategy.
-     */
-    public BigDecimal getMaintenanceMargin(String strategyName);
-
-    /**
-     * Gets the Maintenance Margin of the entire System.
-     */
-    public double getMaintenanceMarginDouble();
-
-    /**
-     * Gets the Maintenance Margin of the specified Strategy.
-     */
-    public double getMaintenanceMarginDouble(String strategyName);
-
-    /**
-     * Gets the Initial Margin of the entire System.
-     */
-    public BigDecimal getInitialMargin();
-
-    /**
-     * Gets the Initial Margin of the specified Strategy.
-     */
-    public BigDecimal getInitialMargin(String strategyName);
-
-    /**
-     * Gets the Initial Margin of the entire System.
-     */
-    public double getInitialMarginDouble();
-
-    /**
-     * Gets the Initial Margin of the specified Strategy.
-     */
-    public double getInitialMarginDouble(String strategyName);
-
-    /**
      * Gets the Net-Liquidation-Value of the entire System.
      */
     public BigDecimal getNetLiqValue();
@@ -257,26 +216,6 @@ public interface PortfolioService {
      * Gets the Net-Liquidation-Value of the specified Strategy.
      */
     public double getNetLiqValueDouble(String strategyName);
-
-    /**
-     * Gets the available Funds of the entire System.
-     */
-    public BigDecimal getAvailableFunds();
-
-    /**
-     * Gets the available Funds of the specified Strategy.
-     */
-    public BigDecimal getAvailableFunds(String strategyName);
-
-    /**
-     * Gets the available Funds of the entire System.
-     */
-    public double getAvailableFundsDouble();
-
-    /**
-     * Gets the available Funds of the specified Strategy.
-     */
-    public double getAvailableFundsDouble(String strategyName);
 
     /**
      * Gets the current Leverage of the entire System.
@@ -356,5 +295,10 @@ public interface PortfolioService {
      * including the {@code toDate}.
      */
     public void restorePortfolioValues(Strategy strategy, Date fromDate, Date toDate);
+
+    /**
+     * Prints portfolio values.
+     */
+    void printPortfolioValue(final PortfolioValueI portfolioValue);
 
 }

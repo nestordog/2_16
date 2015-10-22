@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,28 +12,26 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.esper.callback;
 
 import java.util.Date;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import ch.algotrader.esper.EngineLocator;
-import ch.algotrader.util.MyLogger;
+import ch.algotrader.esper.Engine;
 
 /**
  * Base Esper Callback Class that will be invoked on the give dateTime
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
-public abstract class TimerCallback {
+public abstract class TimerCallback extends AbstractEngineCallback {
 
-    private static Logger logger = MyLogger.getLogger(TimerCallback.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(TimerCallback.class);
 
     /**
      * Called by the "ON_TIMER" statement. Should not be invoked directly.
@@ -41,14 +39,20 @@ public abstract class TimerCallback {
     public void update(String strategyName, Date dateTime, String alias) throws Exception {
 
         // undeploy the statement
-        EngineLocator.instance().getEngine(strategyName).undeployStatement(alias);
+        Engine engine = getEngine();
+        if (engine != null) {
+            engine.undeployStatement(alias);
+        }
 
-        logger.debug(alias + " start");
-
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("{} start", alias);
+        }
         // call orderCompleted
         onTimer(dateTime);
 
-        logger.debug(alias + " end");
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("{} end", alias);
+        }
     }
 
     /**

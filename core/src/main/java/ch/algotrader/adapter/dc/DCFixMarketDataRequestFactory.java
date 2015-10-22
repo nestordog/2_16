@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,11 +12,14 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.adapter.dc;
 
+import org.apache.commons.lang.Validate;
+
+import ch.algotrader.adapter.RequestIdGenerator;
 import ch.algotrader.entity.security.Security;
 import quickfix.field.MDEntryType;
 import quickfix.field.MDReqID;
@@ -30,18 +33,23 @@ import quickfix.fix44.MarketDataRequest;
  * DukasCopy market data request factory.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public class DCFixMarketDataRequestFactory {
 
-    public MarketDataRequest create(Security security, SubscriptionRequestType type) {
+    private final RequestIdGenerator<Security> tickerIdGenerator;
 
-        String dcSymbol = DCUtil.getDCSymbol(security);
+    public DCFixMarketDataRequestFactory(final RequestIdGenerator<Security> tickerIdGenerator) {
+
+        Validate.notNull(tickerIdGenerator, "RequestIdGenerator is null");
+
+        this.tickerIdGenerator = tickerIdGenerator;
+    }
+
+    public MarketDataRequest create(final Security security, final char type) {
 
         MarketDataRequest request = new MarketDataRequest();
-        request.set(type);
-        request.set(new MDReqID(dcSymbol));
+        request.set(new SubscriptionRequestType(type));
+        request.set(new MDReqID(this.tickerIdGenerator.generateId(security)));
 
         MarketDataRequest.NoMDEntryTypes bid = new MarketDataRequest.NoMDEntryTypes();
         bid.set(new MDEntryType(MDEntryType.BID));
@@ -52,7 +60,7 @@ public class DCFixMarketDataRequestFactory {
         request.addGroup(offer);
 
         MarketDataRequest.NoRelatedSym symbol = new MarketDataRequest.NoRelatedSym();
-        symbol.set(new Symbol(dcSymbol));
+        symbol.set(new Symbol(DCUtil.getDCSymbol(security)));
         request.addGroup(symbol);
 
         request.set(new MarketDepth(1));

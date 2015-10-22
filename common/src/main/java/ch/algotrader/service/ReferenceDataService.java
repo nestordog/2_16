@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,15 +12,13 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.service;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public interface ReferenceDataService {
 
@@ -28,12 +26,12 @@ public interface ReferenceDataService {
      * Retrieves the specified {@link ch.algotrader.entity.security.Future Future} or {@link
      * ch.algotrader.entity.security.Option Option} chain.
      */
-    public void retrieve(int securityFamilyId);
+    public void retrieve(long securityFamilyId);
 
     /**
      * Retrieves all {@link ch.algotrader.entity.security.Stock Stocks} of the specified {@code
      * securityFamily}
      */
-    public void retrieveStocks(int securityFamilyId, String symbol);
+    public void retrieveStocks(long securityFamilyId, String symbol);
 
 }

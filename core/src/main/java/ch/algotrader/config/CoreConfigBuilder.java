@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,21 +12,17 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.config;
 
 import java.math.BigDecimal;
 
-import ch.algotrader.enumeration.FeedType;
-
 /**
  * Factory for Algotrader core platform configuration objects.
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
- *
- * @version $Revision$ $Date$
  */
 public final class CoreConfigBuilder {
 
@@ -36,17 +32,23 @@ public final class CoreConfigBuilder {
     private int transactionDisplayCount;
     private int intervalDays;
     private BigDecimal rebalanceMinAmount;
-    private FeedType defaultFeedType;
+    private String defaultFeedType;
+    private String defaultOrderPreference;
     private boolean fxFutureHedgeEnabled;
     private int fxFutureHedgeMinTimeToExpiration;
     private int fxHedgeMinAmount;
     private int fxHedgeBatchSize;
+    private String fxHedgeOrderPreference;
     private int deltaHedgeMinTimeToExpiration;
+    private String deltaHedgeOrderPreference;
     private boolean positionCheckDisabled;
 
     CoreConfigBuilder() {
         this.rebalanceMinAmount = new BigDecimal("1000");
-        this.defaultFeedType = FeedType.IB;
+        this.defaultFeedType = "IB";
+        this.defaultOrderPreference = "FX";
+        this.fxHedgeOrderPreference = "FX";
+        this.deltaHedgeOrderPreference = "OPT";
     }
 
     public static CoreConfigBuilder create() {
@@ -83,8 +85,13 @@ public final class CoreConfigBuilder {
         return this;
     }
 
-    public CoreConfigBuilder setDefaultFeedType(FeedType defaultFeedType) {
+    public CoreConfigBuilder setDefaultFeedType(String defaultFeedType) {
         this.defaultFeedType = defaultFeedType;
+        return this;
+    }
+
+    public CoreConfigBuilder setDefaultOrderPreference(String defaultOrderPreference) {
+        this.defaultOrderPreference = defaultOrderPreference;
         return this;
     }
 
@@ -108,8 +115,18 @@ public final class CoreConfigBuilder {
         return this;
     }
 
+    public CoreConfigBuilder setFXHedgeOrderPreference(String fxHedgeOrderPreference) {
+        this.fxHedgeOrderPreference = fxHedgeOrderPreference;
+        return this;
+    }
+
     public CoreConfigBuilder setDeltaHedgeMinTimeToExpiration(int deltaHedgeMinTimeToExpiration) {
         this.deltaHedgeMinTimeToExpiration = deltaHedgeMinTimeToExpiration;
+        return this;
+    }
+
+    public CoreConfigBuilder setDeltaHedgeOrderPreference(String deltaHedgeOrderPreference) {
+        this.deltaHedgeOrderPreference = deltaHedgeOrderPreference;
         return this;
     }
 
@@ -120,9 +137,9 @@ public final class CoreConfigBuilder {
 
     public CoreConfig build() {
         return new CoreConfig(simulateOptions, simulateFuturesByUnderlying, simulateFuturesByGenericFutures, transactionDisplayCount,
-                intervalDays, rebalanceMinAmount, defaultFeedType,
-                fxFutureHedgeEnabled, fxFutureHedgeMinTimeToExpiration, fxHedgeMinAmount, fxHedgeBatchSize,
-                deltaHedgeMinTimeToExpiration, positionCheckDisabled);
+                intervalDays, rebalanceMinAmount, defaultFeedType, defaultOrderPreference,
+                fxFutureHedgeEnabled, fxFutureHedgeMinTimeToExpiration, fxHedgeMinAmount, fxHedgeBatchSize, fxHedgeOrderPreference,
+                deltaHedgeMinTimeToExpiration, deltaHedgeOrderPreference, positionCheckDisabled);
     }
 
 }

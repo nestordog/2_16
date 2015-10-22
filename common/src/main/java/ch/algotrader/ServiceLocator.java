@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,16 +12,13 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 
 package ch.algotrader;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 
 import org.springframework.beans.factory.access.BeanFactoryLocator;
 import org.springframework.beans.factory.access.BeanFactoryReference;
@@ -30,12 +27,15 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.access.ContextSingletonBeanFactoryLocator;
 import org.springframework.context.support.AbstractApplicationContext;
 
+import ch.algotrader.esper.EngineManager;
+import ch.algotrader.event.EventListenerRegistry;
+import ch.algotrader.event.dispatch.EventDispatcher;
+import ch.algotrader.lifecycle.LifecycleManager;
 import ch.algotrader.service.CalendarService;
 import ch.algotrader.service.ChartProvidingService;
 import ch.algotrader.service.CombinationService;
 import ch.algotrader.service.FutureService;
 import ch.algotrader.service.HistoricalDataService;
-import ch.algotrader.service.InitializingServiceI;
 import ch.algotrader.service.LazyLoaderService;
 import ch.algotrader.service.LookupService;
 import ch.algotrader.service.ManagementService;
@@ -48,7 +48,6 @@ import ch.algotrader.service.PortfolioService;
 import ch.algotrader.service.PositionService;
 import ch.algotrader.service.PropertyService;
 import ch.algotrader.service.ReferenceDataService;
-import ch.algotrader.service.StrategyService;
 import ch.algotrader.service.SubscriptionService;
 
 /**
@@ -67,7 +66,7 @@ public class ServiceLocator {
     public static final String SIMULATION_BEAN_REFERENCE_LOCATION = "Simulation";
 
     // The bean factory reference instance.
-    private BeanFactoryReference beanFactoryReference;
+    private volatile BeanFactoryReference beanFactoryReference;//volatile for Double Check Locking
 
     // The bean factory reference location.
     private String beanFactoryReferenceLocation;
@@ -84,43 +83,42 @@ public class ServiceLocator {
 
         this.beanFactoryReferenceLocation = beanFactoryReferenceLocationIn;
         this.beanFactoryReference = null;
+
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                ServiceLocator serviceLocator = ServiceLocator.instance();
+                if (serviceLocator.isInitialized()) {
+
+                    serviceLocator.shutdown();
+                }
+            }
+        });
     }
 
     /**
      * Gets the Spring ApplicationContext.
      * @return beanFactoryReference.getFactory()
      */
-    public synchronized ApplicationContext getContext() {
+    public ApplicationContext getContext() {
 
         if (this.beanFactoryReference == null) {
 
-            if (this.beanFactoryReferenceLocation == null) {
-                this.beanFactoryReferenceLocation = SERVER_BEAN_REFERENCE_LOCATION;
-            }
-
-            String location = DEFAULT_BEAN_REFERENCE_ID + this.beanFactoryReferenceLocation + ".xml";
-            BeanFactoryLocator beanFactoryLocator = ContextSingletonBeanFactoryLocator.getInstance(location);
-            this.beanFactoryReference = beanFactoryLocator.useBeanFactory(DEFAULT_BEAN_REFERENCE_ID);
-
-            // set the profiles
-            ConfigurableApplicationContext applicationContext = (ConfigurableApplicationContext) this.beanFactoryReference.getFactory();
-            applicationContext.getEnvironment().addActiveProfile(this.beanFactoryReferenceLocation.toLowerCase());
-
-            try {
-                Runtime.getRuntime().addShutdownHook(new Thread() {
-                    @Override
-                    public void run() {
-                        ServiceLocator serviceLocator = ServiceLocator.instance();
-                        if (serviceLocator.isInitialized()) {
-
-                            serviceLocator.shutdown();
-                        }
+            synchronized (this) {
+                if (this.beanFactoryReference == null) {
+                    if (this.beanFactoryReferenceLocation == null) {
+                        this.beanFactoryReferenceLocation = SERVER_BEAN_REFERENCE_LOCATION;
                     }
-                });
-            } catch (IllegalStateException e) {
-                // Shutdown already in progress
-            }
 
+                    String location = DEFAULT_BEAN_REFERENCE_ID + this.beanFactoryReferenceLocation + ".xml";
+                    BeanFactoryLocator beanFactoryLocator = ContextSingletonBeanFactoryLocator.getInstance(location);
+                    this.beanFactoryReference = beanFactoryLocator.useBeanFactory(DEFAULT_BEAN_REFERENCE_ID);
+
+                    // set the profiles
+                    ConfigurableApplicationContext applicationContext = (ConfigurableApplicationContext) this.beanFactoryReference.getFactory();
+                    applicationContext.getEnvironment().addActiveProfile(this.beanFactoryReferenceLocation.toLowerCase());
+                }
+            }
         }
 
         return (ApplicationContext) this.beanFactoryReference.getFactory();
@@ -182,32 +180,6 @@ public class ServiceLocator {
     public <T> Collection<T> getServices(Class<T> clazz) {
 
         return getContext().getBeansOfType(clazz).values();
-    }
-
-    /**
-     * gets all service names
-     */
-    public String[] getServiceNames() {
-
-        return getContext().getBeanDefinitionNames();
-    }
-
-    /**
-     * calls the init method of all services that implement the {@link ch.algotrader.service.InitializingServiceI} interface
-     */
-    public void initInitializingServices() {
-
-        Collection<InitializingServiceI> allServices = getServices(InitializingServiceI.class);
-        if (allServices.isEmpty()) {
-
-            return;
-        }
-        List<InitializingServiceI> allServicesByPriority = new ArrayList<InitializingServiceI>(allServices);
-        Collections.sort(allServicesByPriority, ServicePriorityComparator.INSTANCE);
-        for (InitializingServiceI service: allServicesByPriority) {
-
-            service.init();
-        }
     }
 
     /**
@@ -290,14 +262,6 @@ public class ServiceLocator {
     }
 
     /**
-     * Gets an instance of {@link StrategyService}.
-     * @return StrategyService from getContext().getBean("strategyService")
-     */
-    public StrategyService getStrategyService() {
-        return getContext().getBean("strategyService", StrategyService.class);
-    }
-
-    /**
      * Gets an instance of {@link MarketDataService}.
      * @return MarketDataService from getContext().getBean("marketDataService")
      */
@@ -375,6 +339,58 @@ public class ServiceLocator {
      */
     public CalendarService getCalendarService() {
         return getContext().getBean("calendarService", CalendarService.class);
+    }
+
+    /**
+     * Gets an instance of {@link EngineManager}.
+     * @return EngineManager from getContext().getBean("engineManager")
+     */
+    public EngineManager getEngineManager() {
+        return getContext().getBean("engineManager", EngineManager.class);
+    }
+
+    /**
+     * Gets an instance of {@link EventListenerRegistry}.
+     * @return EventListenerRegistry from getContext().getBean("eventListenerRegistry")
+     */
+    public EventListenerRegistry getEventListenerRegistry() {
+        return getContext().getBean("eventListenerRegistry", EventListenerRegistry.class);
+    }
+
+    /**
+     * Gets an instance of {@link ch.algotrader.event.dispatch.EventDispatcher}.
+     * @return EngineManager from getContext().getBean("eventDispatcher")
+     */
+    public EventDispatcher getEventDispatcher() {
+        return getContext().getBean("eventDispatcher", EventDispatcher.class);
+    }
+
+    /**
+     * Gets an instance of {@link ch.algotrader.lifecycle.LifecycleManager}.
+     * @return LifecycleManager from getContext().getBean("lifecycleManager")
+     */
+    public LifecycleManager getLifecycleManager() {
+        return getContext().getBean("lifecycleManager", LifecycleManager.class);
+    }
+
+    public void runServer() {
+        init(SERVER_BEAN_REFERENCE_LOCATION);
+        getLifecycleManager().runServer();
+    }
+
+    public void runEmbedded() {
+        init(EMBEDDED_BEAN_REFERENCE_LOCATION);
+        getLifecycleManager().runEmbedded();
+    }
+
+    public void runStrategy() {
+        init(CLIENT_BEAN_REFERENCE_LOCATION);
+        getLifecycleManager().runStrategy();
+    }
+
+    public void runServices() {
+        init(LOCAL_BEAN_REFERENCE_LOCATION);
+        getLifecycleManager().runServices();
     }
 
 }

@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,8 +12,8 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.service;
 
@@ -22,49 +22,52 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import org.apache.commons.lang.Validate;
 import org.apache.commons.math.util.MathUtils;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.exception.LockAcquisitionException;
+import org.hibernate.service.spi.ServiceException;
 import org.springframework.dao.CannotAcquireLockException;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.CoreConfig;
+import ch.algotrader.dao.AccountDao;
+import ch.algotrader.dao.HibernateInitializer;
+import ch.algotrader.dao.security.SecurityDao;
+import ch.algotrader.dao.strategy.StrategyDao;
 import ch.algotrader.entity.Account;
-import ch.algotrader.entity.AccountDao;
 import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.security.Security;
-import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.strategy.Strategy;
-import ch.algotrader.entity.strategy.StrategyDao;
-import ch.algotrader.entity.strategy.StrategyImpl;
+import ch.algotrader.entity.trade.ExternalFill;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.Order;
-import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.TransactionType;
-import ch.algotrader.esper.EngineLocator;
-import ch.algotrader.util.DateUtil;
-import ch.algotrader.util.MyLogger;
+import ch.algotrader.esper.Engine;
+import ch.algotrader.esper.EngineManager;
+import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.collection.CollectionUtil;
-import ch.algotrader.util.spring.HibernateSession;
+import ch.algotrader.util.metric.MetricsUtil;
 import ch.algotrader.vo.PositionMutationVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
-@HibernateSession
+@Transactional(propagation = Propagation.SUPPORTS)
 public class TransactionServiceImpl implements TransactionService {
 
-    private static Logger logger = MyLogger.getLogger(TransactionServiceImpl.class.getName());
-    private static Logger mailLogger = MyLogger.getLogger(TransactionServiceImpl.class.getName() + ".MAIL");
+    private static final Logger LOGGER = LogManager.getLogger(TransactionServiceImpl.class);
+    private static final Logger MAIL_LOGGER = LogManager.getLogger(TransactionServiceImpl.class.getName() + ".MAIL");
 
     private static final int MAX_COMMIT_TRANSACTION_RETRIES = 5;
 
@@ -82,6 +85,12 @@ public class TransactionServiceImpl implements TransactionService {
 
     private final AccountDao accountDao;
 
+    private final EventDispatcher eventDispatcher;
+
+    private final EngineManager engineManager;
+
+    private final Engine serverEngine;
+
     public TransactionServiceImpl(
             final CommonConfig commonConfig,
             final CoreConfig coreConfig,
@@ -89,7 +98,10 @@ public class TransactionServiceImpl implements TransactionService {
             final PortfolioService portfolioService,
             final StrategyDao strategyDao,
             final SecurityDao securityDao,
-            final AccountDao accountDao) {
+            final AccountDao accountDao,
+            final EventDispatcher eventDispatcher,
+            final EngineManager engineManager,
+            final Engine serverEngine) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(coreConfig, "CoreConfig is null");
@@ -98,6 +110,9 @@ public class TransactionServiceImpl implements TransactionService {
         Validate.notNull(strategyDao, "StrategyDao is null");
         Validate.notNull(securityDao, "SecurityDao is null");
         Validate.notNull(accountDao, "AccountDao is null");
+        Validate.notNull(eventDispatcher, "PlatformEventDispatcher is null");
+        Validate.notNull(engineManager, "EngineManager is null");
+        Validate.notNull(serverEngine, "Engine is null");
 
         this.commonConfig = commonConfig;
         this.coreConfig = coreConfig;
@@ -106,36 +121,42 @@ public class TransactionServiceImpl implements TransactionService {
         this.strategyDao = strategyDao;
         this.securityDao = securityDao;
         this.accountDao = accountDao;
+        this.eventDispatcher = eventDispatcher;
+        this.engineManager = engineManager;
+        this.serverEngine = serverEngine;
     }
 
     /**
      * {@inheritDoc}
      */
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     @Override
     public void createTransaction(final Fill fill) {
 
         Validate.notNull(fill, "Fill is null");
 
+        long startTime = System.nanoTime();
+        LOGGER.debug("createTransaction start");
+
         Order order = fill.getOrder();
-        Broker broker = order.getAccount().getBroker();
+        order.initializeSecurity(HibernateInitializer.INSTANCE);
+        order.initializeAccount(HibernateInitializer.INSTANCE);
+        order.initializeExchange(HibernateInitializer.INSTANCE);
 
         // reload the strategy and security to get potential changes
         Strategy strategy = this.strategyDao.load(order.getStrategy().getId());
         Security security = this.securityDao.findByIdInclFamilyUnderlyingExchangeAndBrokerParameters(order.getSecurity().getId());
-
-        // and update the strategy and security of the order
-        order.setStrategy(strategy);
-        order.setSecurity(security);
 
         SecurityFamily securityFamily = security.getSecurityFamily();
         TransactionType transactionType = Side.BUY.equals(fill.getSide()) ? TransactionType.BUY : TransactionType.SELL;
         long quantity = Side.BUY.equals(fill.getSide()) ? fill.getQuantity() : -fill.getQuantity();
 
         Transaction transaction = Transaction.Factory.newInstance();
+        transaction.setUuid(UUID.randomUUID().toString());
         transaction.setDateTime(fill.getExtDateTime());
         transaction.setExtId(fill.getExtId());
-        transaction.setIntOrderId(fill.getOrder().getIntId());
-        transaction.setExtOrderId(fill.getOrder().getExtId());
+        transaction.setIntOrderId(order.getIntId());
+        transaction.setExtOrderId(order.getExtId());
         transaction.setQuantity(quantity);
         transaction.setPrice(fill.getPrice());
         transaction.setType(transactionType);
@@ -144,6 +165,7 @@ public class TransactionServiceImpl implements TransactionService {
         transaction.setCurrency(securityFamily.getCurrency());
         transaction.setAccount(order.getAccount());
 
+        String broker = order.getAccount().getBroker();
         if (fill.getExecutionCommission() != null) {
             transaction.setExecutionCommission(fill.getExecutionCommission());
         } else if (securityFamily.getExecutionCommission(broker) != null) {
@@ -164,13 +186,83 @@ public class TransactionServiceImpl implements TransactionService {
 
         processTransaction(transaction);
 
+        LOGGER.debug("createTransaction end");
+        MetricsUtil.accountEnd("CreateTransactionSubscriber", startTime);
     }
 
     /**
      * {@inheritDoc}
      */
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     @Override
-    public void createTransaction(final int securityId, final String strategyName, final String extId, final Date dateTime, final long quantity, final BigDecimal price,
+    public void createTransaction(final ExternalFill fill) {
+
+        long startTime = System.nanoTime();
+        LOGGER.debug("createTransaction start");
+
+
+        Security security = fill.getSecurity();
+        SecurityFamily securityFamily = security != null ? security.getSecurityFamily() : null;
+        Currency currency = securityFamily != null ? securityFamily.getCurrency() : fill.getCurrency();
+        Account account = fill.getAccount();
+        TransactionType transactionType = Side.BUY.equals(fill.getSide()) ? TransactionType.BUY : TransactionType.SELL;
+        long quantity = Side.BUY.equals(fill.getSide()) ? fill.getQuantity() : -fill.getQuantity();
+
+        Transaction transaction = Transaction.Factory.newInstance();
+        transaction.setUuid(UUID.randomUUID().toString());
+        transaction.setDateTime(fill.getExtDateTime());
+        transaction.setExtId(fill.getExtId());
+        transaction.setIntOrderId(null);
+        transaction.setExtOrderId(fill.getExtOrderId());
+        transaction.setQuantity(quantity);
+        transaction.setPrice(fill.getPrice());
+        transaction.setType(transactionType);
+        transaction.setSecurity(security);
+        transaction.setStrategy(fill.getStrategy());
+        transaction.setCurrency(currency);
+        transaction.setAccount(account);
+
+        String broker = account != null ? account.getBroker() : null;
+        if (fill.getExecutionCommission() != null) {
+            transaction.setExecutionCommission(fill.getExecutionCommission());
+        } else if (securityFamily != null) {
+            BigDecimal executionCommission = securityFamily.getExecutionCommission(broker);
+            if (executionCommission != null) {
+                transaction.setExecutionCommission(RoundUtil.getBigDecimal(Math.abs(quantity * executionCommission.doubleValue())));
+            }
+        }
+
+        if (fill.getClearingCommission() != null) {
+            transaction.setClearingCommission(fill.getClearingCommission());
+        } else if (securityFamily != null) {
+            BigDecimal clearingCommission = securityFamily.getClearingCommission(broker);
+            if (clearingCommission != null) {
+                transaction.setClearingCommission(RoundUtil.getBigDecimal(Math.abs(quantity * clearingCommission.doubleValue())));
+            }
+        }
+
+        if (fill.getFee() != null) {
+            transaction.setFee(fill.getFee());
+        } else if (securityFamily != null) {
+            final BigDecimal fee = securityFamily.getFee(broker);
+            if (fee != null) {
+                transaction.setFee(RoundUtil.getBigDecimal(Math.abs(quantity * fee.doubleValue())));
+            }
+        }
+
+        processTransaction(transaction);
+
+        LOGGER.debug("createTransaction end");
+        MetricsUtil.accountEnd("CreateTransactionSubscriber", startTime);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    // This method needs to be non-transaction in ensure correct creation of position and cash balance records in a separate transaction
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    @Override
+    public void createTransaction(final long securityId, final String strategyName, final String extId, final Date dateTime, final long quantity, final BigDecimal price,
             final BigDecimal executionCommission, final BigDecimal clearingCommission, final BigDecimal fee, final Currency currency, final TransactionType transactionType, final String accountName,
             final String description) {
 
@@ -185,11 +277,11 @@ public class TransactionServiceImpl implements TransactionService {
 
         Strategy strategy= this.strategyDao.findByName(strategyName);
         if (strategy == null) {
-            throw new TransactionServiceException("strategy " + strategyName + " was not found", null);
+            throw new ServiceException("strategy " + strategyName + " was not found", null);
         }
 
         int scale = this.commonConfig.getPortfolioDigits();
-        Security security = this.securityDao.findById(securityId);
+        Security security = this.securityDao.get(securityId);
         if (TransactionType.BUY.equals(transactionType) || TransactionType.SELL.equals(transactionType) || TransactionType.EXPIRATION.equals(transactionType)
                 || TransactionType.TRANSFER.equals(transactionType)) {
 
@@ -234,6 +326,7 @@ public class TransactionServiceImpl implements TransactionService {
 
         // create the transaction
         Transaction transaction = Transaction.Factory.newInstance();
+        transaction.setUuid(UUID.randomUUID().toString());
         transaction.setDateTime(dateTime);
         transaction.setExtId(extId);
         transaction.setQuantity(quantityNonFinal);
@@ -252,6 +345,8 @@ public class TransactionServiceImpl implements TransactionService {
 
     }
 
+    // This method needs to be non-transaction in ensure correct creation of position and cash balance records in a separate transaction
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     @Override
     public void persistTransaction(final Transaction transaction) {
 
@@ -270,13 +365,17 @@ public class TransactionServiceImpl implements TransactionService {
 
         Validate.notNull(fill, "Fill is null");
 
+        Order order = fill.getOrder();
         // send the fill to the strategy that placed the corresponding order
-        if (!fill.getOrder().getStrategy().isServer()) {
-            EngineLocator.instance().sendEvent(fill.getOrder().getStrategy().getName(), fill);
+        Strategy strategy = order.getStrategy();
+        if (!strategy.isServer()) {
+            this.eventDispatcher.sendEvent(strategy.getName(), fill.convertToVO());
         }
 
         if (!this.commonConfig.isSimulation()) {
-            logger.info("received fill: " + fill + " for order: " + fill.getOrder());
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("received fill: {} for order: {}", fill, order);
+            }
         }
 
     }
@@ -303,16 +402,29 @@ public class TransactionServiceImpl implements TransactionService {
             SecurityFamily securityFamily = order.getSecurity().getSecurityFamily();
 
             //@formatter:off
-            mailLogger.info("executed transaction: " +
-                    fill.getSide() +
-                    "," + totalQuantity +
-                    "," + order.getSecurity() +
-                    ",avgPrice=" + RoundUtil.getBigDecimal(totalPrice / totalQuantity, securityFamily.getScale()) +
-                    "," + securityFamily.getCurrency() +
-                    ",strategy=" + order.getStrategy());
+            if (MAIL_LOGGER.isInfoEnabled()) {
+                MAIL_LOGGER.info("executed transaction: {},{},{},avgPrice={},{},strategy={}",
+                        fill.getSide(),
+                        totalQuantity,
+                        order.getSecurity(),
+                        RoundUtil.getBigDecimal(totalPrice / totalQuantity, securityFamily.getScale()),
+                        securityFamily.getCurrency(),
+                        order.getStrategy());
+            }
             //@formatter:on
         }
 
+    }
+
+    @Override
+    public void logFillSummary(final Map<?, ?>[] insertStream, Map<?, ?>[] removeStream) {
+
+        List<Fill> fills = new ArrayList<>();
+        for (Map<?, ?> element : insertStream) {
+            Fill fill = (Fill) element.get("fill");
+            fills.add(fill);
+        }
+        logFillSummary(fills);
     }
 
     private PositionMutationVO commitTransaction(final Transaction transaction) {
@@ -325,8 +437,8 @@ public class TransactionServiceImpl implements TransactionService {
                 }
                 return this.transactionPersistenceService.saveTransaction(transaction);
             } catch (LockAcquisitionException|CannotAcquireLockException ex) {
-                if (logger.isEnabledFor(Level.WARN)) {
-                    logger.warn("Retrying transaction due to " + ex.getClass().getName());
+                if (LOGGER.isWarnEnabled()) {
+                    LOGGER.warn("Retrying transaction due to {}", ex.getClass().getName());
                 }
                 if (n >= MAX_COMMIT_TRANSACTION_RETRIES) {
                     throw ex;
@@ -339,25 +451,26 @@ public class TransactionServiceImpl implements TransactionService {
 
         PositionMutationVO positionMutationEvent = commitTransaction(transaction);
 
-        // check if esper is initialized
-        if (EngineLocator.instance().hasServerEngine()) {
-
-            // propagate the positionMutationEvent to the corresponding strategy
-            if (positionMutationEvent != null) {
-                EngineLocator.instance().sendEvent(positionMutationEvent.getStrategy(), positionMutationEvent);
-            }
-
-            // propagate the transaction to the corresponding strategy and AlgoTrader Server
-            if (!transaction.getStrategy().isServer()) {
-                EngineLocator.instance().sendEvent(transaction.getStrategy().getName(), transaction);
-            }
-            EngineLocator.instance().sendEvent(StrategyImpl.SERVER, transaction);
+        // propagate the positionMutationEvent to the corresponding strategy
+        if (positionMutationEvent != null) {
+            this.eventDispatcher.sendEvent(positionMutationEvent.getStrategy(), positionMutationEvent);
         }
+
+        // propagate the transaction to the corresponding strategy and AlgoTrader Server
+        Strategy strategy = transaction.getStrategy();
+        if (!strategy.isServer()) {
+
+            this.eventDispatcher.sendEvent(strategy.getName(), transaction.convertToVO());
+        }
+
+        this.serverEngine.sendEvent(transaction);
     }
 
     /**
      * {@inheritDoc}
      */
+    // This method needs to be non-transaction in ensure correct creation of position and cash balance records in a separate transaction
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     @Override
     public void rebalancePortfolio() {
 
@@ -367,7 +480,7 @@ public class TransactionServiceImpl implements TransactionService {
 
         double totalAllocation = 0.0;
         double totalRebalanceAmount = 0.0;
-        Collection<Transaction> transactions = new ArrayList<Transaction>();
+        Collection<Transaction> transactions = new ArrayList<>();
         for (Strategy strategy : strategies) {
 
             totalAllocation += strategy.getAllocation();
@@ -385,7 +498,8 @@ public class TransactionServiceImpl implements TransactionService {
                 totalRebalanceAmount += rebalanceAmount;
 
                 Transaction transaction = Transaction.Factory.newInstance();
-                transaction.setDateTime(DateUtil.getCurrentEPTime());
+                transaction.setUuid(UUID.randomUUID().toString());
+                transaction.setDateTime(this.engineManager.getCurrentEPTime());
                 transaction.setQuantity(targetNetLiqValue > actualNetLiqValue ? +1 : -1);
                 transaction.setPrice(RoundUtil.getBigDecimal(Math.abs(rebalanceAmount)));
                 transaction.setCurrency(this.commonConfig.getPortfolioBaseCurrency());
@@ -405,7 +519,8 @@ public class TransactionServiceImpl implements TransactionService {
         if (transactions.size() != 0) {
 
             Transaction transaction = Transaction.Factory.newInstance();
-            transaction.setDateTime(DateUtil.getCurrentEPTime());
+            transaction.setUuid(UUID.randomUUID().toString());
+            transaction.setDateTime(this.engineManager.getCurrentEPTime());
             transaction.setQuantity((int) Math.signum(-1.0 * totalRebalanceAmount));
             transaction.setPrice(RoundUtil.getBigDecimal(Math.abs(totalRebalanceAmount)));
             transaction.setCurrency(this.commonConfig.getPortfolioBaseCurrency());
@@ -416,7 +531,9 @@ public class TransactionServiceImpl implements TransactionService {
 
         } else {
 
-            logger.info("no rebalancing is performed because all rebalancing amounts are below min amount " + this.coreConfig.getRebalanceMinAmount());
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("no rebalancing is performed because all rebalancing amounts are below min amount {}", this.coreConfig.getRebalanceMinAmount());
+            }
         }
 
         if (!this.coreConfig.isPositionCheckDisabled()) {

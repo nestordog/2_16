@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,12 +12,13 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.esper.listener;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPStatement;
@@ -25,18 +26,14 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.StatementAwareUpdateListener;
 import com.espertech.esper.client.util.XMLEventRenderer;
 
-import ch.algotrader.util.MyLogger;
-
 /**
  * Prints all values to the Log in XML format.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public class RendererListener implements StatementAwareUpdateListener {
 
-    private static Logger logger = MyLogger.getLogger(RendererListener.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(RendererListener.class);
 
     private static XMLEventRenderer renderer;
 
@@ -49,9 +46,11 @@ public class RendererListener implements StatementAwareUpdateListener {
         }
 
         // print the values
-        for (EventBean event : newEvents) {
-            String eventText = renderer.render(statement.getEventType().getName(), event);
-            logger.info("\n" + eventText);
+        if (LOGGER.isInfoEnabled()) {
+            for (EventBean event : newEvents) {
+                String eventText = renderer.render(statement.getEventType().getName(), event);
+                LOGGER.info("\n{}", eventText);
+            }
         }
     }
 }

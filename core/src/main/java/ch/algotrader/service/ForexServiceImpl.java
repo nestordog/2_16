@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,8 +12,8 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.service;
 
@@ -25,40 +25,39 @@ import java.util.List;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.math.util.MathUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.CoreConfig;
+import ch.algotrader.dao.SubscriptionDao;
+import ch.algotrader.dao.security.ForexDao;
+import ch.algotrader.dao.security.FutureFamilyDao;
+import ch.algotrader.dao.strategy.StrategyDao;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.Subscription;
-import ch.algotrader.entity.SubscriptionDao;
 import ch.algotrader.entity.security.Forex;
-import ch.algotrader.entity.security.ForexDao;
 import ch.algotrader.entity.security.Future;
 import ch.algotrader.entity.security.FutureFamily;
-import ch.algotrader.entity.security.FutureFamilyDao;
 import ch.algotrader.entity.strategy.Strategy;
-import ch.algotrader.entity.strategy.StrategyDao;
 import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Side;
-import ch.algotrader.util.DateUtil;
-import ch.algotrader.util.MyLogger;
+import ch.algotrader.esper.EngineManager;
 import ch.algotrader.util.RoundUtil;
-import ch.algotrader.util.spring.HibernateSession;
 import ch.algotrader.vo.BalanceVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
-@HibernateSession
+@Transactional(propagation = Propagation.SUPPORTS)
 public class ForexServiceImpl implements ForexService {
 
-    private static Logger logger = MyLogger.getLogger(ForexServiceImpl.class.getName());
-    private static Logger notificationLogger = MyLogger.getLogger("ch.algotrader.service.NOTIFICATION");
+    private static final Logger LOGGER = LogManager.getLogger(ForexServiceImpl.class);
+    private static final Logger NOTIFICATION_LOGGER = LogManager.getLogger("ch.algotrader.service.NOTIFICATION");
 
     private final CommonConfig commonConfig;
 
@@ -82,6 +81,8 @@ public class ForexServiceImpl implements ForexService {
 
     private final FutureFamilyDao futureFamilyDao;
 
+    private final EngineManager engineManager;
+
     public ForexServiceImpl(final CommonConfig commonConfig,
             final CoreConfig coreConfig,
             final OrderService orderService,
@@ -92,7 +93,8 @@ public class ForexServiceImpl implements ForexService {
             final ForexDao forexDao,
             final StrategyDao strategyDao,
             final SubscriptionDao subscriptionDao,
-            final FutureFamilyDao futureFamilyDao) {
+            final FutureFamilyDao futureFamilyDao,
+            final EngineManager engineManager) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(coreConfig, "CoreConfig is null");
@@ -105,6 +107,7 @@ public class ForexServiceImpl implements ForexService {
         Validate.notNull(strategyDao, "StrategyDao is null");
         Validate.notNull(subscriptionDao, "SubscriptionDao is null");
         Validate.notNull(futureFamilyDao, "FutureFamilyDao is null");
+        Validate.notNull(engineManager, "EngineManager is null");
 
         this.commonConfig = commonConfig;
         this.coreConfig = coreConfig;
@@ -117,6 +120,7 @@ public class ForexServiceImpl implements ForexService {
         this.strategyDao = strategyDao;
         this.subscriptionDao = subscriptionDao;
         this.futureFamilyDao = futureFamilyDao;
+        this.engineManager = engineManager;
     }
 
     /**
@@ -132,13 +136,13 @@ public class ForexServiceImpl implements ForexService {
         if (coreConfig.isFxFutureHedgeEnabled()) {
 
             // get the closing orders
-            final List<Order> orders = new ArrayList<Order>();
+            final List<Order> orders = new ArrayList<>();
             for (Position position : this.lookupService.getOpenPositionsByStrategyTypeAndUnderlyingType(StrategyImpl.SERVER, Future.class, Forex.class)) {
 
                 // check if expiration is below minimum
-                Future future = (Future) position.getSecurityInitialized();
+                Future future = (Future) position.getSecurity();
 
-                Forex forex = (Forex) future.getUnderlyingInitialized();
+                Forex forex = (Forex) future.getUnderlying();
 
                 Subscription forexSubscription = this.subscriptionDao.findByStrategyAndSecurity(StrategyImpl.SERVER, forex.getId());
                 if (!forexSubscription.hasProperty("hedgingFamily")) {
@@ -151,9 +155,9 @@ public class ForexServiceImpl implements ForexService {
                     continue;
                 }
 
-                if (future.getTimeToExpiration() < coreConfig.getFxFutureHedgeMinTimeToExpiration()) {
+                if (future.getTimeToExpiration(this.engineManager.getCurrentEPTime()) < coreConfig.getFxFutureHedgeMinTimeToExpiration()) {
 
-                    Order order = this.lookupService.getOrderByStrategyAndSecurityFamily(StrategyImpl.SERVER, future.getSecurityFamily().getId());
+                    Order order = this.orderService.createOrderByOrderPreference(coreConfig.getFxHedgeOrderPreference());
                     order.setStrategy(server);
                     order.setSecurity(future);
                     order.setQuantity(Math.abs(position.getQuantity()));
@@ -166,8 +170,9 @@ public class ForexServiceImpl implements ForexService {
             // setup an TradeCallback so that new hedge positions are only setup when existing positions are closed
             if (orders.size() > 0) {
 
-                notificationLogger.info(orders.size() + " fx hedging position(s) have been closed due to approaching expiration, please run equalizeForex again");
-
+                if (NOTIFICATION_LOGGER.isInfoEnabled()) {
+                    NOTIFICATION_LOGGER.info("{} fx hedging position(s) have been closed due to approaching expiration, please run equalizeForex again", orders.size());
+                }
                 // send the orders
                 for (Order order : orders) {
                     this.orderService.sendOrder(order);
@@ -199,7 +204,7 @@ public class ForexServiceImpl implements ForexService {
                 double tradeValue = forex.getBaseCurrency().equals(portfolioBaseCurrency) ? netLiqValueBase : netLiqValue;
 
                 // create the order
-                Order order = this.lookupService.getOrderByStrategyAndSecurityFamily(StrategyImpl.SERVER, forex.getSecurityFamily().getId());
+                Order order = this.orderService.createOrderByOrderPreference(coreConfig.getFxHedgeOrderPreference());
                 order.setStrategy(server);
 
                 // if a hedging family is defined for this Forex use it instead of the Forex directly
@@ -213,7 +218,7 @@ public class ForexServiceImpl implements ForexService {
 
                     FutureFamily futureFamily = this.futureFamilyDao.load(forexSubscription.getIntProperty("hedgingFamily"));
 
-                    Date targetDate = DateUtils.addMilliseconds(DateUtil.getCurrentEPTime(), coreConfig.getFxFutureHedgeMinTimeToExpiration());
+                    Date targetDate = DateUtils.addMilliseconds(this.engineManager.getCurrentEPTime(), coreConfig.getFxFutureHedgeMinTimeToExpiration());
                     Future future = this.futureService.getFutureByMinExpiration(futureFamily.getId(), targetDate);
 
                     // make sure the future is subscriped
@@ -249,8 +254,10 @@ public class ForexServiceImpl implements ForexService {
 
             } else {
 
-                logger.info("no forex hedge is performed on " + balance.getCurrency() + " because amount " + RoundUtil.getBigDecimal(Math.abs(netLiqValueBase)) + " is below "
-                        + coreConfig.getFxHedgeMinAmount());
+                if (LOGGER.isInfoEnabled()) {
+                    LOGGER.info("no forex hedge is performed on {} because amount {} is below {}", balance.getCurrency(), RoundUtil.getBigDecimal(Math.abs(netLiqValueBase)),
+                            coreConfig.getFxHedgeMinAmount());
+                }
                 continue;
             }
         }

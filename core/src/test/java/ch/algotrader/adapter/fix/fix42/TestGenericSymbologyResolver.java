@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,13 +12,12 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.adapter.fix.fix42;
 
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -39,6 +38,7 @@ import ch.algotrader.entity.security.StockImpl;
 import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.OptionType;
+import ch.algotrader.util.DateTimeLegacy;
 import quickfix.field.ContractMultiplier;
 import quickfix.field.MaturityDay;
 import quickfix.field.MaturityMonthYear;
@@ -62,8 +62,6 @@ public class TestGenericSymbologyResolver {
     @Test
     public void testMarketOrderOption() throws Exception {
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-
         OptionFamily family = new OptionFamilyImpl();
         family.setCurrency(Currency.BRL);
         family.setSymbolRoot("STUFF");
@@ -75,11 +73,11 @@ public class TestGenericSymbologyResolver {
         option.setType(OptionType.CALL);
         option.setSecurityFamily(family);
         option.setStrike(new BigDecimal("0.5"));
-        option.setExpiration(dateFormat.parse("2014-12-31"));
+        option.setExpiration(DateTimeLegacy.parseAsDateGMT("2014-12-31"));
 
         NewOrderSingle message = new NewOrderSingle();
 
-        this.symbologyResolver.resolve(message, option, Broker.RT);
+        this.symbologyResolver.resolve(message, option, Broker.RT.name());
 
         Assert.assertEquals(new Symbol("STUFF"), message.getSymbol());
         Assert.assertEquals(new quickfix.field.Currency("BRL"), message.getCurrency());
@@ -93,8 +91,6 @@ public class TestGenericSymbologyResolver {
     @Test
     public void testMarketOrderFuture() throws Exception {
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-
         SecurityFamily family = new SecurityFamilyImpl();
         family.setCurrency(Currency.BRL);
         family.setSymbolRoot("STUFF");
@@ -102,11 +98,11 @@ public class TestGenericSymbologyResolver {
         Future future = new FutureImpl();
         future.setSymbol("SOME_STUFF");
         future.setSecurityFamily(family);
-        future.setExpiration(dateFormat.parse("2014-12-31"));
+        future.setExpiration(DateTimeLegacy.parseAsDateGMT("2014-12-31"));
 
         NewOrderSingle message = new NewOrderSingle();
 
-        this.symbologyResolver.resolve(message, future, Broker.RT);
+        this.symbologyResolver.resolve(message, future, Broker.RT.name());
 
         Assert.assertEquals(new Symbol("STUFF"), message.getSymbol());
         Assert.assertEquals(new quickfix.field.Currency("BRL"), message.getCurrency());
@@ -126,7 +122,7 @@ public class TestGenericSymbologyResolver {
 
         NewOrderSingle message = new NewOrderSingle();
 
-        this.symbologyResolver.resolve(message, stock, Broker.RT);
+        this.symbologyResolver.resolve(message, stock, Broker.RT.name());
 
         Assert.assertEquals(new Symbol("APPL"), message.getSymbol());
         Assert.assertEquals(new quickfix.field.Currency("USD"), message.getCurrency());
@@ -147,7 +143,7 @@ public class TestGenericSymbologyResolver {
 
         NewOrderSingle message = new NewOrderSingle();
 
-        this.symbologyResolver.resolve(message, forex, Broker.RT);
+        this.symbologyResolver.resolve(message, forex, Broker.RT.name());
 
         Assert.assertEquals(new Symbol("EUR"), message.getSymbol());
         Assert.assertEquals(new quickfix.field.Currency("USD"), message.getCurrency());
@@ -156,8 +152,6 @@ public class TestGenericSymbologyResolver {
 
     @Test
     public void testModifyOrderOption() throws Exception {
-
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
         SecurityFamily family = new SecurityFamilyImpl();
         family.setCurrency(Currency.BRL);
@@ -169,11 +163,11 @@ public class TestGenericSymbologyResolver {
         option.setType(OptionType.CALL);
         option.setSecurityFamily(family);
         option.setStrike(new BigDecimal("0.5"));
-        option.setExpiration(dateFormat.parse("2014-12-31"));
+        option.setExpiration(DateTimeLegacy.parseAsDateGMT("2014-12-31"));
 
         OrderCancelReplaceRequest message = new OrderCancelReplaceRequest();
 
-        this.symbologyResolver.resolve(message, option, Broker.RT);
+        this.symbologyResolver.resolve(message, option, Broker.RT.name());
 
         Assert.assertEquals(new Symbol("STUFF"), message.getSymbol());
         Assert.assertEquals(new StrikePrice(0.5d), message.getStrikePrice());
@@ -183,8 +177,6 @@ public class TestGenericSymbologyResolver {
     @Test
     public void testModifyOrderFuture() throws Exception {
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-
         SecurityFamily family = new SecurityFamilyImpl();
         family.setCurrency(Currency.BRL);
         family.setSymbolRoot("STUFF");
@@ -192,11 +184,11 @@ public class TestGenericSymbologyResolver {
         Future future = new FutureImpl();
         future.setSymbol("SOME_STUFF");
         future.setSecurityFamily(family);
-        future.setExpiration(dateFormat.parse("2014-12-31"));
+        future.setExpiration(DateTimeLegacy.parseAsDateGMT("2014-12-31"));
 
         OrderCancelReplaceRequest message = new OrderCancelReplaceRequest();
 
-        this.symbologyResolver.resolve(message, future, Broker.RT);
+        this.symbologyResolver.resolve(message, future, Broker.RT.name());
 
         Assert.assertEquals(new Symbol("STUFF"), message.getSymbol());
         Assert.assertEquals(new MaturityMonthYear("201412"), message.getMaturityMonthYear());
@@ -214,7 +206,7 @@ public class TestGenericSymbologyResolver {
 
         OrderCancelReplaceRequest message = new OrderCancelReplaceRequest();
 
-        this.symbologyResolver.resolve(message, stock, Broker.RT);
+        this.symbologyResolver.resolve(message, stock, Broker.RT.name());
 
         Assert.assertEquals(new Symbol("APPL"), message.getSymbol());
     }
@@ -233,15 +225,13 @@ public class TestGenericSymbologyResolver {
 
         OrderCancelReplaceRequest message = new OrderCancelReplaceRequest();
 
-        this.symbologyResolver.resolve(message, forex, Broker.RT);
+        this.symbologyResolver.resolve(message, forex, Broker.RT.name());
 
         Assert.assertEquals(new Symbol("EUR"), message.getSymbol());
     }
 
     @Test
     public void testCanceOrderOption() throws Exception {
-
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
         SecurityFamily family = new SecurityFamilyImpl();
         family.setCurrency(Currency.BRL);
@@ -253,11 +243,11 @@ public class TestGenericSymbologyResolver {
         option.setType(OptionType.CALL);
         option.setSecurityFamily(family);
         option.setStrike(new BigDecimal("0.5"));
-        option.setExpiration(dateFormat.parse("2014-12-31"));
+        option.setExpiration(DateTimeLegacy.parseAsDateGMT("2014-12-31"));
 
         OrderCancelRequest message = new OrderCancelRequest();
 
-        this.symbologyResolver.resolve(message, option, Broker.RT);
+        this.symbologyResolver.resolve(message, option, Broker.RT.name());
 
         Assert.assertEquals(new Symbol("STUFF"), message.getSymbol());
         Assert.assertEquals(new SecurityType(SecurityType.OPTION), message.getSecurityType());
@@ -268,8 +258,6 @@ public class TestGenericSymbologyResolver {
     @Test
     public void testCanceOrderFuture() throws Exception {
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-
         SecurityFamily family = new SecurityFamilyImpl();
         family.setCurrency(Currency.BRL);
         family.setSymbolRoot("STUFF");
@@ -277,11 +265,11 @@ public class TestGenericSymbologyResolver {
         Future future = new FutureImpl();
         future.setSymbol("SOME_STUFF");
         future.setSecurityFamily(family);
-        future.setExpiration(dateFormat.parse("2014-12-31"));
+        future.setExpiration(DateTimeLegacy.parseAsDateGMT("2014-12-31"));
 
         OrderCancelRequest message = new OrderCancelRequest();
 
-        this.symbologyResolver.resolve(message, future, Broker.RT);
+        this.symbologyResolver.resolve(message, future, Broker.RT.name());
 
         Assert.assertEquals(new Symbol("STUFF"), message.getSymbol());
         Assert.assertEquals(new SecurityType(SecurityType.FUTURE), message.getSecurityType());
@@ -300,7 +288,7 @@ public class TestGenericSymbologyResolver {
 
         OrderCancelRequest message = new OrderCancelRequest();
 
-        this.symbologyResolver.resolve(message, stock, Broker.RT);
+        this.symbologyResolver.resolve(message, stock, Broker.RT.name());
 
         Assert.assertEquals(new Symbol("APPL"), message.getSymbol());
     }
@@ -319,7 +307,7 @@ public class TestGenericSymbologyResolver {
 
         OrderCancelRequest message = new OrderCancelRequest();
 
-        this.symbologyResolver.resolve(message, forex, Broker.RT);
+        this.symbologyResolver.resolve(message, forex, Broker.RT.name());
 
         Assert.assertEquals(new Symbol("EUR"), message.getSymbol());
     }

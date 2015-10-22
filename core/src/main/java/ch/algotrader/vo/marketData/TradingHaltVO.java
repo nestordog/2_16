@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,23 +12,23 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.vo.marketData;
 
 import java.io.Serializable;
 import java.util.Date;
 
-import ch.algotrader.enumeration.FeedType;
-
 public class TradingHaltVO implements Serializable  {
 
+    private static final long serialVersionUID = 3268296036239451388L;
+
     private final String tickerId;
-    private final FeedType feedType;
+    private final String feedType;
     private final Date dateTime;
 
-    public TradingHaltVO(final String tickerId, final FeedType feedType, final Date dateTime) {
+    public TradingHaltVO(final String tickerId, final String feedType, final Date dateTime) {
         this.tickerId = tickerId;
         this.feedType = feedType;
         this.dateTime = dateTime;
@@ -38,7 +38,7 @@ public class TradingHaltVO implements Serializable  {
         return this.tickerId;
     }
 
-    public FeedType getFeedType() {
+    public String getFeedType() {
         return this.feedType;
     }
 
@@ -49,9 +49,9 @@ public class TradingHaltVO implements Serializable  {
     @Override
     public String toString() {
         return "{" +
-                "tickerId='" + tickerId + '\'' +
-                ", feedType=" + feedType +
-                ", dateTime=" + dateTime +
+                "tickerId='" + this.tickerId + '\'' +
+                ", feedType=" + this.feedType +
+                ", dateTime=" + this.dateTime +
                 '}';
     }
 

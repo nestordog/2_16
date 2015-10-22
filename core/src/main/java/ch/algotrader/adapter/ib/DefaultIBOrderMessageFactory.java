@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,19 +12,22 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.adapter.ib;
 
 import java.lang.reflect.Field;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
 import org.apache.commons.beanutils.ConvertUtilsBean;
+
+import com.ib.client.Contract;
+import com.ib.client.Order;
+import com.ib.client.TagValue;
 
 import ch.algotrader.config.IBConfig;
 import ch.algotrader.entity.trade.LimitOrderI;
@@ -33,21 +36,17 @@ import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.entity.trade.StopOrderI;
 import ch.algotrader.enumeration.OrderPropertyType;
 import ch.algotrader.enumeration.TIF;
-import ch.algotrader.service.ib.IBNativeOrderServiceException;
+import ch.algotrader.service.ServiceException;
+import ch.algotrader.util.DateTimeLegacy;
 import ch.algotrader.util.FieldUtil;
-
-import com.ib.client.Contract;
-import com.ib.client.Order;
-import com.ib.client.TagValue;
+import ch.algotrader.util.PriceUtil;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public class DefaultIBOrderMessageFactory implements IBOrderMessageFactory {
 
-    private static DateFormat format = new SimpleDateFormat("yyyyMMdd HH:mm:ss");
+    private static final DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyyMMdd HH:mm:ss");
 
     private final IBConfig iBConfig;
     private final ConvertUtilsBean convertUtils;
@@ -65,6 +64,11 @@ public class DefaultIBOrderMessageFactory implements IBOrderMessageFactory {
         ibOrder.m_action = IBUtil.getIBSide(order.getSide());
         ibOrder.m_orderType = IBUtil.getIBOrderType(order);
         ibOrder.m_transmit = true;
+
+        // overwrite the default exchange (defined by SecurityFamily) in case a different exchange is defined on the order
+        if (order.getExchange() != null) {
+            contract.m_exchange = order.getExchange().getIbCode();
+        }
 
         // handle a potentially defined account
         if (order.getAccount().getExtAccount() != null) {
@@ -123,26 +127,28 @@ public class DefaultIBOrderMessageFactory implements IBOrderMessageFactory {
 
         //set the limit price if order is a limit order or stop limit order
         if (order instanceof LimitOrderI) {
-            ibOrder.m_lmtPrice = ((LimitOrderI) order).getLimit().doubleValue();
+            LimitOrderI limitOrder = (LimitOrderI) order;
+            ibOrder.m_lmtPrice = PriceUtil.denormalizePrice(order, limitOrder.getLimit());
         }
 
         //set the stop price if order is a stop order or stop limit order
         if (order instanceof StopOrderI) {
-            ibOrder.m_auxPrice = ((StopOrderI) order).getStop().doubleValue();
+            StopOrderI stopOrder = (StopOrderI) order;
+            ibOrder.m_auxPrice = PriceUtil.denormalizePrice(order, stopOrder.getStop());
         }
 
         // set Time-In-Force (ATC are set as order types LOC and MOC)
         if (order.getTif() != null && !TIF.ATC.equals(order.getTif())) {
-            ibOrder.m_tif = order.getTif().getValue();
+            ibOrder.m_tif = order.getTif().name();
 
             // set the TIF-Date
             if (order.getTifDateTime() != null) {
-                ibOrder.m_goodTillDate = format.format(order.getTifDateTime());
+                ibOrder.m_goodTillDate = format.format(DateTimeLegacy.toLocalDate(order.getTifDateTime()));
             }
         }
 
         // separate properties that correspond to IB Order fields from the rest
-        Map<String, OrderProperty> propertiesMap = new HashMap<String, OrderProperty>(order.getOrderProperties());
+        Map<String, OrderProperty> propertiesMap = new HashMap<>(order.getOrderProperties());
         for (Field field : FieldUtil.getAllFields(ibOrder.getClass())) {
             String name = field.getName().substring(2);
             OrderProperty orderProperty = propertiesMap.get(name);
@@ -151,14 +157,14 @@ public class DefaultIBOrderMessageFactory implements IBOrderMessageFactory {
                     Object value = this.convertUtils.convert(orderProperty.getValue(), field.getType());
                     field.set(ibOrder, value);
                 } catch (IllegalAccessException e) {
-                    throw new IBNativeOrderServiceException(e.getMessage(), e);
+                    throw new ServiceException(e.getMessage(), e);
                 }
                 propertiesMap.remove(name);
             }
         }
 
         // add remaining params as AlgoParams
-        Vector<TagValue> params = new Vector<TagValue>();
+        Vector<TagValue> params = new Vector<>();
         for (OrderProperty orderProperty : propertiesMap.values()) {
             if (OrderPropertyType.IB.equals(orderProperty.getType())) {
                 params.add(new TagValue(orderProperty.getName(), orderProperty.getValue()));

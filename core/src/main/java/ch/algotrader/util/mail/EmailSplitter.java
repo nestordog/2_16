@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,8 +12,8 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.util.mail;
 
@@ -30,15 +30,13 @@ import org.springframework.integration.support.MessageBuilder;
  * {@link List} of {@link Message Messages} with payload data.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public class EmailSplitter {
 
     @Splitter
     public List<Message<?>> splitIntoMessages(final Message<List<EmailFragment>> message) {
 
-        final List<Message<?>> replyMessages = new ArrayList<Message<?>>();
+        final List<Message<?>> replyMessages = new ArrayList<>();
 
         for (EmailFragment fragement : message.getPayload()) {
 

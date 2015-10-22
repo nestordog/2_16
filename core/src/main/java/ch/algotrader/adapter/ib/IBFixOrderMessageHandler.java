@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,16 +12,19 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.adapter.ib;
 
-import org.apache.log4j.Logger;
+import java.util.concurrent.BlockingQueue;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.adapter.fix.fix42.GenericFix42OrderMessageHandler;
-import ch.algotrader.service.ib.IBFixAccountService;
-import ch.algotrader.util.MyLogger;
+import ch.algotrader.esper.Engine;
+import ch.algotrader.ordermgmt.OrderRegistry;
 import quickfix.FieldNotFound;
 import quickfix.SessionID;
 import quickfix.field.ClOrdID;
@@ -40,76 +43,63 @@ import quickfix.fix42.OrderCancelReject;
  * IB specific Fix42MessageHandler.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public class IBFixOrderMessageHandler extends GenericFix42OrderMessageHandler {
 
-    private static Logger logger = MyLogger.getLogger(IBFixOrderMessageHandler.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(IBFixOrderMessageHandler.class);
 
-    private IBFixAccountService accountService;
+    private final BlockingQueue<IBCustomMessage> allocationMessageQueue;
 
-    public void setAccountService(IBFixAccountService accountService) {
-        this.accountService = accountService;
+    public IBFixOrderMessageHandler(final OrderRegistry orderRegistry, final BlockingQueue<IBCustomMessage> allocationMessageQueue, final Engine serverEngine) {
+        super(orderRegistry, serverEngine);
+        this.allocationMessageQueue = allocationMessageQueue;
     }
 
     @Override
-    public void onMessage(ExecutionReport executionReport, SessionID sessionID) {
+    public void onMessage(ExecutionReport executionReport, SessionID sessionID) throws FieldNotFound {
 
-        try {
-
-            // ignore FA transfer execution reports
-            if (executionReport.getExecID().getValue().startsWith("F-") || executionReport.getExecID().getValue().startsWith("U+")) {
-                return;
-            }
-
-            // ignore FA ExecType=NEW / OrdStatus=FILLED (since they arrive after ExecType=FILL)
-            if (executionReport.getExecType().getValue() == ExecType.NEW && executionReport.getOrdStatus().getValue() == OrdStatus.FILLED) {
-                return;
-            }
-
-            super.onMessage(executionReport, sessionID);
-
-        } catch (FieldNotFound e) {
-            logger.error(e);
+        // ignore FA transfer execution reports
+        if (executionReport.getExecID().getValue().startsWith("F-") || executionReport.getExecID().getValue().startsWith("U+")) {
+            return;
         }
+
+        // ignore FA ExecType=NEW / OrdStatus=FILLED (since they arrive after ExecType=FILL)
+        if (executionReport.getExecType().getValue() == ExecType.NEW && executionReport.getOrdStatus().getValue() == OrdStatus.FILLED) {
+            return;
+        }
+
+        super.onMessage(executionReport, sessionID);
     }
 
     /**
      * updates IB Group definitions
      */
-    public void onMessage(IBFAModification faModification, SessionID sessionID) {
+    public void onMessage(IBFAModification faModification, SessionID sessionID) throws FieldNotFound {
 
-        try {
+        String fARequestID = faModification.get(new FARequestID()).getValue();
+        String xmlContent = faModification.get(new XMLContent()).getValue();
+        FAConfigurationAction fAConfigurationAction = faModification.get(new FAConfigurationAction());
 
-            String fARequestID = faModification.get(new FARequestID()).getValue();
-            String xmlContent = faModification.get(new XMLContent()).getValue();
-            FAConfigurationAction fAConfigurationAction = faModification.get(new FAConfigurationAction());
-
-            if (fAConfigurationAction.valueEquals(FAConfigurationAction.GET_GROUPS)) {
-                this.accountService.updateGroups(fARequestID, xmlContent);
-            } else {
-                throw new UnsupportedOperationException();
-            }
-        } catch (FieldNotFound e) {
-            logger.error(e);
+        if (fAConfigurationAction.valueEquals(FAConfigurationAction.GET_GROUPS)) {
+            IBCustomMessage message = new IBCustomMessage(fARequestID, IBCustomMessage.Type.GET_GROUPS, xmlContent);
+            this.allocationMessageQueue.add(message);
+        } else {
+            throw new UnsupportedOperationException();
         }
     }
 
     @Override
-    public void onMessage(OrderCancelReject orderCancelReject, SessionID sessionID) {
+    public void onMessage(OrderCancelReject orderCancelReject, SessionID sessionID) throws FieldNotFound {
 
-        try {
-            Text text = orderCancelReject.getText();
-            ClOrdID clOrdID = orderCancelReject.getClOrdID();
-            OrigClOrdID origClOrdID = orderCancelReject.getOrigClOrdID();
-            if ("Too late to cancel".equals(text.getValue()) || "Cannot cancel the filled order".equals(text.getValue())) {
-                logger.info("cannot cancel, order has already been executed, clOrdID: " + clOrdID.getValue() + " origOrdID: " + origClOrdID.getValue());
-            } else {
-                super.onMessage(orderCancelReject, sessionID);
+        Text text = orderCancelReject.getText();
+        ClOrdID clOrdID = orderCancelReject.getClOrdID();
+        OrigClOrdID origClOrdID = orderCancelReject.getOrigClOrdID();
+        if ("Too late to cancel".equals(text.getValue()) || "Cannot cancel the filled order".equals(text.getValue())) {
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("cannot cancel, order has already been executed, clOrdID: {} origOrdID: {}", clOrdID.getValue(), origClOrdID.getValue());
             }
-        } catch (FieldNotFound e) {
-            logger.error(e);
+        } else {
+            super.onMessage(orderCancelReject, sessionID);
         }
     }
 }

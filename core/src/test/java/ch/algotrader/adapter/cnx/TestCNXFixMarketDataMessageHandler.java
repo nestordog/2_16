@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,14 +12,13 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.adapter.cnx;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.text.DateFormat;
 import java.util.List;
 
 import org.junit.Assert;
@@ -32,16 +31,14 @@ import org.mockito.MockitoAnnotations;
 
 import ch.algotrader.adapter.fix.fix44.FixTestUtils;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.esper.EngineLocator;
-import ch.algotrader.vo.AskVO;
-import ch.algotrader.vo.BidVO;
+import ch.algotrader.util.DateTimeLegacy;
+import ch.algotrader.vo.marketData.AskVO;
+import ch.algotrader.vo.marketData.BidVO;
 import quickfix.fix44.MarketDataIncrementalRefresh;
 import quickfix.fix44.MarketDataRequestReject;
 
 /**
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
- *
- * @version $Revision$ $Date$
  */
 public class TestCNXFixMarketDataMessageHandler {
 
@@ -54,9 +51,8 @@ public class TestCNXFixMarketDataMessageHandler {
     public void setup() throws Exception {
 
         MockitoAnnotations.initMocks(this);
-        EngineLocator.instance().setEngine("SERVER", this.engine);
 
-        this.impl = new CNXFixMarketDataMessageHandler();
+        this.impl = new CNXFixMarketDataMessageHandler(this.engine);
     }
 
     @Test
@@ -78,15 +74,13 @@ public class TestCNXFixMarketDataMessageHandler {
         Assert.assertNotNull(events);
         Assert.assertEquals(2, events.size());
 
-        DateFormat dateTimeParser = FixTestUtils.getSimpleDateTimeFormat();
-
         Object event1 = events.get(0);
         Assert.assertTrue(event1 instanceof BidVO);
         BidVO bid = (BidVO) event1;
         Assert.assertEquals("EUR/USD", bid.getTickerId());
         Assert.assertEquals(new BigDecimal("1.35259"), new BigDecimal(bid.getBid()).setScale(5, RoundingMode.HALF_EVEN));
         Assert.assertEquals(500000, bid.getVolBid());
-        Assert.assertEquals(dateTimeParser.parse("20140721-08:22:11.550"), bid.getDateTime());
+        Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2014-07-21 08:22:11.550"), bid.getDateTime());
 
         Object event2 = events.get(1);
         Assert.assertTrue(event2 instanceof AskVO);
@@ -95,7 +89,7 @@ public class TestCNXFixMarketDataMessageHandler {
         Assert.assertEquals("EUR/USD", ask.getTickerId());
         Assert.assertEquals(new BigDecimal("1.35271"), new BigDecimal(ask.getAsk()).setScale(5, RoundingMode.HALF_EVEN));
         Assert.assertEquals(15600000, ask.getVolAsk());
-        Assert.assertEquals(dateTimeParser.parse("20140721-08:22:11.550"), ask.getDateTime());
+        Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2014-07-21 08:22:11.550"), ask.getDateTime());
     }
 
     @Test
@@ -119,13 +113,11 @@ public class TestCNXFixMarketDataMessageHandler {
         Object event1 = events.get(0);
         Assert.assertTrue(event1 instanceof AskVO);
 
-        DateFormat dateTimeParser = FixTestUtils.getSimpleDateTimeFormat();
-
         AskVO ask = (AskVO) event1;
         Assert.assertEquals("EUR/USD", ask.getTickerId());
         Assert.assertEquals(new BigDecimal("1.35270"), new BigDecimal(ask.getAsk()).setScale(5, RoundingMode.HALF_EVEN));
         Assert.assertEquals(2100000, ask.getVolAsk());
-        Assert.assertEquals(dateTimeParser.parse("20140721-08:22:11.612"), ask.getDateTime());
+        Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2014-07-21 08:22:11.612"), ask.getDateTime());
     }
 
     @Test

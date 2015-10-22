@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,50 +12,41 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.entity.security;
 
 import java.util.Date;
 
-import ch.algotrader.entity.marketData.Tick;
-import ch.algotrader.future.FutureUtil;
+import ch.algotrader.entity.marketData.MarketDataEventI;
 import ch.algotrader.util.DateUtil;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public class FutureImpl extends Future {
 
     private static final long serialVersionUID = -7436972192801577685L;
 
     @Override
-    public double getLeverage() {
+    public double getLeverage(MarketDataEventI marketDataEvent, MarketDataEventI underlyingMarketDataEvent, Date currentTime) {
 
         return 1.0;
     }
 
     @Override
-    public double getMargin() {
+    public long getTimeToExpiration(Date dateTime) {
 
-        return FutureUtil.getMaintenanceMargin(this) * getSecurityFamily().getContractSize();
+        return getExpiration().getTime() - dateTime.getTime();
     }
 
     @Override
-    public long getTimeToExpiration() {
+    public int getDuration(Date dateTime) {
 
-        return getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime();
-    }
-
-    @Override
-    public int getDuration() {
-
-        FutureFamily family = (FutureFamily) this.getSecurityFamilyInitialized();
-        Date nextExpDate = DateUtil.getExpirationDate(family.getExpirationType(), DateUtil.getCurrentEPTime());
-        return 1 + (int) Math.round(((this.getExpiration().getTime() - nextExpDate.getTime()) / (double)family.getExpirationDistance().value()));
+        FutureFamily family = (FutureFamily) this.getSecurityFamily();
+        Date nextExpDate = DateUtil.getExpirationDate(family.getExpirationType(), dateTime);
+        return 1 + (int) Math.round(((this.getExpiration().getTime() - nextExpDate.getTime()) / (double)family.getExpirationDistance().getValue()));
     }
 
     /**
@@ -70,23 +61,5 @@ public class FutureImpl extends Future {
         } else {
             return expiration;
         }
-    }
-
-    @Override
-    public boolean validateTick(Tick tick) {
-
-        // futures need to have a BID and ASK
-        if (tick.getBid() == null) {
-            return false;
-        } else if (tick.getVolBid() == 0) {
-            return false;
-        } else if (tick.getAsk() == null) {
-            return false;
-        }
-        if (tick.getVolAsk() == 0) {
-            return false;
-        }
-
-        return super.validateTick(tick);
     }
 }

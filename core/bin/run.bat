@@ -3,10 +3,10 @@ cd %mypath:~0,-1%
 cd ..
 
 java.exe ^
--classpath target\* ^
+-cp "conf;lib/*" ^
 -DstrategyName=SERVER ^
 -Dcom.sun.management.jmxremote.port=1099 ^
 -Dcom.sun.management.jmxremote.authenticate=false ^
 -Dcom.sun.management.jmxremote.ssl=false ^
--Dspring.profiles.active=server,pooledDataSource,iBMarketData,iBHistoricalData ^
-ch.algotrader.starter.MarketDataStarter
+-Dspring.profiles.active=live,pooledDataSource,iBMarketData,iBNative,iBHistoricalData ^
+ch.algotrader.starter.ServerStarter

@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,8 +12,8 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.entity.security;
 
@@ -23,14 +23,10 @@ import org.apache.commons.collections15.Transformer;
 import org.apache.commons.lang.StringUtils;
 
 import ch.algotrader.enumeration.Direction;
-import ch.algotrader.util.ObjectUtil;
 import ch.algotrader.util.collection.LongMap;
-import ch.algotrader.util.metric.MetricsUtil;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public class CombinationImpl extends Combination {
 
@@ -39,9 +35,9 @@ public class CombinationImpl extends Combination {
     @Override
     public LongMap<Security> getQuantityMap() {
 
-        LongMap<Security> qtyMap = new LongMap<Security>();
-        for (Component component : getComponentsInitialized()) {
-            qtyMap.increment(component.getSecurityInitialized(), component.getQuantity());
+        LongMap<Security> qtyMap = new LongMap<>();
+        for (Component component : getComponents()) {
+            qtyMap.increment(component.getSecurity(), component.getQuantity());
         }
 
         return qtyMap;
@@ -89,7 +85,7 @@ public class CombinationImpl extends Combination {
     public long getComponentTotalQuantity() {
 
         long quantity = 0;
-        for (Component component : getComponentsInitialized()) {
+        for (Component component : getComponents()) {
             quantity += component.getQuantity();
         }
         return quantity;
@@ -104,52 +100,20 @@ public class CombinationImpl extends Combination {
     @Override
     public String toString() {
 
-        return StringUtils.join(CollectionUtils.collect(getComponentsInitialized(), new Transformer<Component, String>() {
+        String name = StringUtils.join(CollectionUtils.collect(getComponents(), new Transformer<Component, String>() {
             @Override
             public String transform(Component component) {
                 return component.getQuantity() + " " + component.getSecurity();
             }
         }), " + ");
-    }
-
-    @Override
-    public void initialize() {
-
-        if (!isInitialized()) {
-
-            // initialize components
-            long beforeComponents = System.nanoTime();
-
-            getComponentsInitialized();
-
-            MetricsUtil.accountEnd("Combination.components", beforeComponents);
-
-            super.initialize();
-
+        if (StringUtils.isNotBlank(name)) {
+            return name;
         }
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-
-        if (this == obj) {
-            return true;
-        }
-        if (obj instanceof Combination) {
-            Combination that = (Combination) obj;
-            return ObjectUtil.equals(this.getUuid(), that.getUuid());
+        if (StringUtils.isNotBlank(getSymbol())) {
+            return getSymbol();
         } else {
-            return false;
+            return "EMPTY_COMBINATION";
         }
     }
 
-    @Override
-    public int hashCode() {
-
-        int hash = 17;
-        if (this.getUuid() != null) {
-            hash =  hash * 37 + this.getUuid().hashCode();
-        }
-        return hash;
-    }
 }

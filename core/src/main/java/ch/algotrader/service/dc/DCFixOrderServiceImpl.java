@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,8 +12,8 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.service.dc;
 
@@ -22,6 +22,9 @@ import org.apache.commons.lang.Validate;
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.fix.fix44.GenericFix44OrderMessageFactory;
 import ch.algotrader.adapter.fix.fix44.GenericFix44SymbologyResolver;
+import ch.algotrader.config.CommonConfig;
+import ch.algotrader.dao.AccountDao;
+import ch.algotrader.dao.trade.OrderDao;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.trade.LimitOrder;
 import ch.algotrader.entity.trade.SimpleOrder;
@@ -29,8 +32,11 @@ import ch.algotrader.entity.trade.StopLimitOrder;
 import ch.algotrader.entity.trade.StopOrder;
 import ch.algotrader.entity.trade.StopOrderI;
 import ch.algotrader.enumeration.OrderServiceType;
-import ch.algotrader.service.OrderService;
+import ch.algotrader.ordermgmt.OrderRegistry;
+import ch.algotrader.service.OrderPersistenceService;
+import ch.algotrader.service.fix.fix44.Fix44OrderService;
 import ch.algotrader.service.fix.fix44.Fix44OrderServiceImpl;
+import ch.algotrader.util.PriceUtil;
 import quickfix.field.OrdType;
 import quickfix.field.OrderID;
 import quickfix.field.Price;
@@ -46,17 +52,20 @@ import quickfix.fix44.OrderCancelRequest;
  * DukasCopy order service implementation.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
-public class DCFixOrderServiceImpl extends Fix44OrderServiceImpl implements DCFixOrderService {
+public class DCFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fix44OrderService {
 
-    private static final long serialVersionUID = -8251827446524602573L;
+    public DCFixOrderServiceImpl(
+            final FixAdapter fixAdapter,
+            final OrderRegistry orderRegistry,
+            final OrderPersistenceService orderPersistenceService,
+            final OrderDao orderDao,
+            final AccountDao accountDao,
+            final CommonConfig commonConfig) {
 
-    public DCFixOrderServiceImpl(final FixAdapter fixAdapter,
-            final OrderService orderService) {
-
-        super(fixAdapter, orderService, new GenericFix44OrderMessageFactory(new GenericFix44SymbologyResolver()));
+        super(OrderServiceType.DC_FIX.name(), fixAdapter,
+                new GenericFix44OrderMessageFactory(new GenericFix44SymbologyResolver()),
+                orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig);
     }
 
     @Override
@@ -80,8 +89,9 @@ public class DCFixOrderServiceImpl extends Fix44OrderServiceImpl implements DCFi
 
         // Note: DukasCopy uses Price for Stop orders instead of StopPx
         if (order instanceof StopOrder) {
+            StopOrder stopOrder = (StopOrder) order;
             newOrder.removeField(StopPx.FIELD);
-            newOrder.set(new Price(((StopOrderI) order).getStop().doubleValue()));
+            newOrder.set(new Price(PriceUtil.denormalizePrice(order, stopOrder.getStop())));
         }
 
         newOrder.set(new TimeInForce(TimeInForce.GOOD_TILL_CANCEL));
@@ -107,7 +117,8 @@ public class DCFixOrderServiceImpl extends Fix44OrderServiceImpl implements DCFi
         // Note: DukasCopy uses Price for Stop orders instead of StopPx
         if (order instanceof StopOrder) {
             replaceRequest.removeField(StopPx.FIELD);
-            replaceRequest.set(new Price(((StopOrderI) order).getStop().doubleValue()));
+            StopOrderI stopOrder = (StopOrderI) order;
+            replaceRequest.set(new Price(PriceUtil.denormalizePrice(order, stopOrder.getStop())));
         }
 
         replaceRequest.set(new TimeInForce(TimeInForce.GOOD_TILL_CANCEL));
@@ -136,9 +147,4 @@ public class DCFixOrderServiceImpl extends Fix44OrderServiceImpl implements DCFi
 
     }
 
-    @Override
-    public OrderServiceType getOrderServiceType() {
-
-        return OrderServiceType.DC_FIX;
-    }
 }

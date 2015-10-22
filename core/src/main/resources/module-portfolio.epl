@@ -1,87 +1,37 @@
 @Name('SAVE_PORTFOLIO_VALUE')
 @RunTimeOnly()
-@Subscriber(className='ch.algotrader.service.PortfolioService.savePortfolioValues')
+@Subscriber(className='portfolioService#savePortfolioValues')
 select
     null
 from
-    pattern[every timer:at(0, misc_portfolioStartHour:misc_portfolioEndHour, *, *, 1:5)]
+    pattern[every timer:at(0, 0:24, *, *, 1:5)]
 where
-    ServiceUtil.hasCurrentMarketDataEvents();
+	exists(select * from MarketDataWindow);
 
 @Name('INSERT_INTO_PORTFOLIO_VALUE')
 @SimulationOnly
-@Subscriber(className='ch.algotrader.esper.subscriber.PortfolioValueSubscriber')
+@Subscriber(className='portfolioService#printPortfolioValue')
 insert into
     PortfolioValue
 select
-    transpose(ServiceUtil.getPortfolioValue())
+    transpose(portfolioService.getPortfolioValue())
 from
     pattern[every (timer:at (0, 0, *, *, 1:5) or EndOfSimulation)]
 where
-    ServiceUtil.hasCurrentMarketDataEvents();
-
-@Name('SET_MARGINS')
-@Condition(key='statement.setMargins')
-@Subscriber(className='ch.algotrader.service.PositionService.setMargins')
-select
-    null
-from
-    pattern[every timer:at (0, 7, *, *, 1:5)];
+	exists(select * from MarketDataWindow);
 
 @Name('EXPIRE_POSITION')
 @Condition(key='statement.expirePosition')
-@Subscriber(className='ch.algotrader.service.PositionService.expirePositions')
+@Subscriber(className='positionService#expirePositions')
 select
     null
 from
     pattern[every timer:at (0, 13, *, *, *)];
 
-@Name('CLOSE_POSITION')
-@Condition(key='statement.closePosition')
-@Subscriber(className='ch.algotrader.service.PositionService.closePosition')
-@Priority(2)
-select
-    position.id as positionId,
-    false as unsubscribe
-from
-    MarketDataEvent as marketDataEvent,
-    method:LookupUtil.getOpenPositions() as position
-where
-    position.security.id = marketDataEvent.security.id
-and
-    position.exitValue is not null
-and
-    position.direction != Direction.FLAT
-and
-    ((position.direction = Direction.SHORT and (marketDataEvent.currentValue >= position.exitValue))
-    or
-    (position.direction = Direction.LONG and (marketDataEvent.currentValue <= position.exitValue)))
-and
-    // there should not be any open trades from this strategy for the same security
-    position.security.id not in
-        (select
-            security.id
-        from
-            OpenOrderWindow
-        where
-            strategy.id = position.strategy.id)
-and
-    // there should not be any open trades at all from this strategy for combination positions
-    (not instanceof(position.security, ch.algotrader.entity.security.Combination) or not exists
-        (select
-            *
-        from
-            OpenOrderWindow
-        where
-            strategy.id = position.strategy.id))
-group by
-    position.id
-output
-    first every 5 seconds;
 
 @Name('HEDGE_FOREX')
 @Condition(key='statement.hedgeForex')
-@Subscriber(className='ch.algotrader.service.ForexService.hedgeForex')
+@Subscriber(className='forexService#hedgeForex')
 select
     null
 from
@@ -89,7 +39,7 @@ from
 
 @Name('REBALANCE_PORTFOLIO')
 @Condition(key='statement.rebalancePortfolio')
-@Subscriber(className='ch.algotrader.service.TransactionService.rebalancePortfolio')
+@Subscriber(className='transactionService#rebalancePortfolio')
 select
     null
 from

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+          "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping default-cascade="none">
+    <class name="ch.algotrader.entity.trade.OrderPropertyImpl"
+        table="`order_property`" dynamic-insert="false" dynamic-update="false">
+	    <meta attribute="implements">ch.algotrader.entity.trade.OrderPropertyI</meta>      
+	    <meta attribute="generated-class">ch.algotrader.entity.trade.OrderProperty</meta>
+	    <meta attribute="class-code">
+<![CDATA[
+]]>   
+	    </meta> 	    
+        <meta attribute="class-description"><![CDATA[An arbitrary property that can be attached to an Order.]]></meta>
+        <cache usage="read-write" />
+        <id name="id" type="long" >
+            <column name="ID" sql-type="BIGINT"/>
+
+            <generator class="native">
+                <!-- id-generator merge-point -->
+            </generator>
+        </id>
+        <property name="name">
+            <meta attribute="use-in-equals">true</meta>
+            <column name="NAME" not-null="true" unique="false" sql-type="VARCHAR(255)"/>
+
+            <type name="java.lang.String"/>
+        </property>
+        <property name="type">
+            <meta attribute="field-description"><![CDATA[type of the OrderProperty (e.g. internal only, fix property or IB property).]]></meta>
+            <meta attribute="use-in-equals">true</meta>
+            <meta attribute="property-type">ch.algotrader.enumeration.OrderPropertyType</meta>
+            <column name="TYPE" not-null="true" unique="false" sql-type="VARCHAR(255)"/>
+
+            <type name="ch.algotrader.hibernate.HibernateEnumType">
+                 <param name="enumClassName">ch.algotrader.enumeration.OrderPropertyType</param>
+            </type>
+        </property>
+        <property name="value">
+            <column name="VALUE" not-null="true" unique="false" sql-type="VARCHAR(255)"/>
+
+            <type name="java.lang.String"/>
+        </property>
+        <many-to-one name="order" class="ch.algotrader.entity.trade.OrderImpl" cascade="none" foreign-key="ORDER_PROPERTY_ORDER_FKC" not-null="true" lazy="proxy" fetch="select">
+            <meta attribute="property-type">ch.algotrader.entity.trade.Order</meta>
+            <meta attribute="field-description"><![CDATA[Base Class for all Order Types]]></meta>
+            <meta attribute="use-in-equals">true</meta>
+            <column name="ORDER_FK" not-null="true" sql-type="BIGINT"/>
+
+        </many-to-one>
+    </class>
+</hibernate-mapping>

@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+          "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping default-cascade="none">
+    <class name="ch.algotrader.entity.TransactionImpl"
+        table="`transaction`" dynamic-insert="false" dynamic-update="false">
+	    <meta attribute="implements">ch.algotrader.entity.TransactionI</meta>      
+	    <meta attribute="generated-class">ch.algotrader.entity.Transaction</meta>
+	    <meta attribute="class-code">
+<![CDATA[
+    /**
+     * The Transaction Value without Commissions. The cash flow of individual {@link TransactionType
+     * TransactionTypes} is as follows:
+     * <ul>
+     * <li>SELL / CREDIT / INTREST_RECEIVED / DIVIDEND / REFUND: positive cash flow</li>
+     * <li>BUY / EXPIRATION / DEBIT / INTREST_PAID / FEES: negative cash flow</li>
+     * <li>REBALANCE / TRANSFER: depending on sign of quantity</li>
+     * </ul>
+     * @return java.math.BigDecimal
+     */
+    public abstract java.math.BigDecimal getGrossValue();
+
+    /**
+     * @see #getGrossValue
+     * @return double
+     */
+    public abstract double getGrossValueDouble();
+
+    /**
+     * The Transaction Value incl. Commissions and Fees.The cash flow of individual {@link
+     * TransactionType TransactionTypes} is as follows:
+     * <ul>
+     * <li>SELL / CREDIT / INTREST_RECEIVED / DIVIDEND / REFUND: positive cash flow</li>
+     * <li>BUY / EXPIRATION / DEBIT / INTREST_PAID / FEES: negative cash flow</li>
+     * <li>REBALANCE / TRANSFER: depending on sign of quantity</li>
+     * </ul>
+     * @return java.math.BigDecimal
+     */
+    public abstract java.math.BigDecimal getNetValue();
+
+    /**
+     * @see #getNetValue
+     * @return double
+     */
+    public abstract double getNetValueDouble();
+
+    /**
+     * ClearingCommission plus ExecutionCommission plus Fee
+     * @return java.math.BigDecimal
+     */
+    public abstract java.math.BigDecimal getTotalCharges();
+
+    /**
+     * @see #getTotalCharges
+     * @return double
+     */
+    public abstract double getTotalChargesDouble();
+
+    /**
+     * The Currency Attribution of this Transaction.
+     * For all Security Types except Forex, the entire transaction value (price + commission) is
+     * booked in transaction currency. For Forex Attributions are:
+     * <ul>
+     * <li>gross transaction value is booked in transaction currency</li>
+     * <li>execution commission is booked in baseCurrency (this is IB specific!)</li>
+     * <li>clearing commission is booked in transaction currency</li>
+     * </ul>
+     * @return java.util.Collection<ch.algotrader.vo.CurrencyAmountVO>
+     */
+    public abstract java.util.Collection<ch.algotrader.vo.CurrencyAmountVO> getAttributions();
+
+    /**
+     * Returns {@code true} if the Transaction is either a {@code BUY}, {@code SELL}, {@code
+     * EXPIRATION} or {@code TRANSFER}.
+     * @return boolean
+     */
+    public abstract boolean isTrade();
+
+    /**
+     * Returns {@code true}, if the Transaction influences the performance calculation.
+     * For BASE these are DEBIT and CREDIT and for strategies this is only REBALANCE.
+     * @return boolean
+     */
+    public abstract boolean isPerformanceRelevant();
+
+]]>   
+	    </meta> 	    
+        <meta attribute="class-description"><![CDATA[A transaction stored in the database. Each Fill is recorded as a transaction using this entity. In addition the table transaction also stores transactions like intrest, debit, credit  fees.]]></meta>
+        <cache usage="read-write" />
+        <id name="id" type="long" >
+            <column name="ID" sql-type="BIGINT"/>
+
+            <generator class="native">
+                <!-- id-generator merge-point -->
+            </generator>
+        </id>
+        <property name="uuid">
+            <meta attribute="field-description"><![CDATA[auto generated unique identifier. Combinations do not have any other natural identifiers.]]></meta>
+            <meta attribute="use-in-equals">true</meta>
+            <column name="UUID" not-null="true" unique="true" sql-type="VARCHAR(255)"/>
+
+            <type name="java.lang.String"/>
+        </property>
+        <property name="dateTime">
+            <meta attribute="field-description"><![CDATA[The dateTime of the Transaction]]></meta>
+            <column name="DATE_TIME" not-null="true" unique="false" sql-type="TIMESTAMP"/>
+
+            <type name="java.util.Date"/>
+        </property>
+        <property name="settlementDate">
+            <meta attribute="field-description"><![CDATA[The dateTime this Transaction gets settled]]></meta>
+            <column name="SETTLEMENT_DATE" not-null="false" unique="false" sql-type="DATE"/>
+
+            <type name="java.util.Date"/>
+        </property>
+        <property name="extId">
+            <meta attribute="field-description"><![CDATA[The external Transaction Id]]></meta>
+            <column name="EXT_ID" not-null="false" unique="true" sql-type="VARCHAR(255)"/>
+
+            <type name="java.lang.String"/>
+        </property>
+        <property name="intOrderId">
+            <meta attribute="field-description"><![CDATA[The internal Order Id]]></meta>
+            <column name="INT_ORDER_ID" not-null="false" unique="true" sql-type="VARCHAR(255)"/>
+
+            <type name="java.lang.String"/>
+        </property>
+        <property name="extOrderId">
+            <meta attribute="field-description"><![CDATA[The external Order Id]]></meta>
+            <column name="EXT_ORDER_ID" not-null="false" unique="true" sql-type="VARCHAR(255)"/>
+
+            <type name="java.lang.String"/>
+        </property>
+        <property name="quantity">
+            <meta attribute="field-description"><![CDATA[The quantity of the Transaction. For different {@link TransactionType TransactionTypes} quantities are as follows:
+<ul>
+<li>BUY: pos</li>
+<li>SELL: neg</li>
+<li>EXPIRATION: pos/neg</li>
+<li>TRANSFER : pos/neg</li>
+<li>CREDIT: 1</li>
+<li>INTREST_RECEIVED: 1</li>
+<li>REFUND : 1</li>
+<li>DIVIDEND : 1</li>
+<li>DEBIT: -1</li>
+<li>INTREST_PAID: -1</li>
+<li>FEES: -1</li>
+</ul>]]></meta>
+            <column name="QUANTITY" not-null="true" unique="false" sql-type="BIGINT"/>
+
+            <type name="long"/>
+        </property>
+        <property name="price">
+            <meta attribute="field-description"><![CDATA[The price of this Transaction. Is always positive]]></meta>
+            <column name="PRICE" not-null="true" unique="false" sql-type="Decimal(15,6)"/>
+
+            <type name="java.math.BigDecimal"/>
+        </property>
+        <property name="executionCommission">
+            <meta attribute="field-description"><![CDATA[The Execution Commission of this Transaction.]]></meta>
+            <column name="EXECUTION_COMMISSION" not-null="false" unique="false" sql-type="Decimal(15,6)"/>
+
+            <type name="java.math.BigDecimal"/>
+        </property>
+        <property name="clearingCommission">
+            <meta attribute="field-description"><![CDATA[The Clearing Commission of this Transaction.]]></meta>
+            <column name="CLEARING_COMMISSION" not-null="false" unique="false" sql-type="Decimal(15,6)"/>
+
+            <type name="java.math.BigDecimal"/>
+        </property>
+        <property name="fee">
+            <meta attribute="field-description"><![CDATA[The Exchange Fees of this Transaction.]]></meta>
+            <column name="FEE" not-null="false" unique="false" sql-type="Decimal(15,6)"/>
+
+            <type name="java.math.BigDecimal"/>
+        </property>
+        <property name="currency">
+            <meta attribute="field-description"><![CDATA[The {@link Currency} of this Position.]]></meta>
+            <meta attribute="property-type">ch.algotrader.enumeration.Currency</meta>
+            <column name="CURRENCY" not-null="true" unique="false" sql-type="VARCHAR(255)"/>
+
+            <type name="ch.algotrader.hibernate.HibernateEnumType">
+                 <param name="enumClassName">ch.algotrader.enumeration.Currency</param>
+            </type>
+        </property>
+        <property name="type">
+            <meta attribute="field-description"><![CDATA[The {@link TransactionType}]]></meta>
+            <meta attribute="property-type">ch.algotrader.enumeration.TransactionType</meta>
+            <column name="TYPE" not-null="true" unique="false" sql-type="VARCHAR(255)"/>
+
+            <type name="ch.algotrader.hibernate.HibernateEnumType">
+                 <param name="enumClassName">ch.algotrader.enumeration.TransactionType</param>
+            </type>
+        </property>
+        <property name="description">
+            <meta attribute="field-description"><![CDATA[An arbitrary Description of the Transaction]]></meta>
+            <column name="DESCRIPTION" not-null="false" unique="false" sql-type="VARCHAR(255)"/>
+
+            <type name="java.lang.String"/>
+        </property>
+        <many-to-one name="account" class="ch.algotrader.entity.AccountImpl" foreign-key="TRANSACTION_ACCOUNT_FKC" not-null="false" lazy="proxy" fetch="select">
+            <meta attribute="property-type">ch.algotrader.entity.Account</meta>
+            <meta attribute="field-description"><![CDATA[Represents an actual Account / AccountGroup / AllocationProfile with an external Broker / Bank]]></meta>
+            <column name="ACCOUNT_FK" not-null="false" sql-type="BIGINT"/>
+
+        </many-to-one>
+        <many-to-one name="position" class="ch.algotrader.entity.PositionImpl" foreign-key="TRANSACTION_POSITION_FKC" not-null="false" lazy="proxy" fetch="select">
+            <meta attribute="property-type">ch.algotrader.entity.Position</meta>
+            <meta attribute="field-description"><![CDATA[A position of a particular security owned by a particular strategy. For each opening transaction a
+position is created. The position object remains in place even if a corresponding closing
+transaction is carried out and the quantity of the position becomes 0.
+<p>
+Since some values (e.g. {@code marketValue}) depend on whether the position is long or short,
+aggregated position values for the same security (of different strategies) cannot be retrieved just
+by adding position values from the corresponding strategies.
+<p>
+Example:
+<ul>
+<li>Security: VIX Dec 2012</li>
+<li>Current Bid: 16.50</li>
+<li>Current Ask: 16.60</li>
+<li>Strategy A: quantity +10 marketValue: 10 * 1000 * 16.50 = 165'000</li>
+<li>Strategy B: quantity -10 marketValue: 10 * 1000 * 16.60 = -166'000</li>
+</ul>
+<p>
+The sum of above marketValues would be -1'000 which is obviously wrong.
+<p>
+As a consequence the {@code PortfolioDAO} provides lookup-methods that aggregate positions from the
+same security (of different strategies) in the correct manner.]]></meta>
+            <column name="POSITION_FK" not-null="false" sql-type="BIGINT"/>
+
+        </many-to-one>
+        <many-to-one name="security" class="ch.algotrader.entity.security.SecurityImpl" foreign-key="TRANSACTION_SECURITY_FKC" not-null="false" lazy="proxy" fetch="select">
+            <meta attribute="property-type">ch.algotrader.entity.security.Security</meta>
+            <meta attribute="field-description"><![CDATA[The base class of all Securities in the system]]></meta>
+            <column name="SECURITY_FK" not-null="false" sql-type="BIGINT"/>
+
+        </many-to-one>
+        <many-to-one name="strategy" class="ch.algotrader.entity.strategy.StrategyImpl" foreign-key="TRANSACTION_STRATEGY_FKC" not-null="true" lazy="proxy" fetch="select">
+            <meta attribute="property-type">ch.algotrader.entity.strategy.Strategy</meta>
+            <meta attribute="field-description"><![CDATA[Represents a running Strategy within the system. In addition the AlgoTrader Server is also
+represented by an instance of this class.]]></meta>
+            <column name="STRATEGY_FK" not-null="true" sql-type="BIGINT"/>
+
+        </many-to-one>
+    </class>
+</hibernate-mapping>

@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,17 +12,17 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.adapter.fxcm;
 
 import org.apache.commons.lang.Validate;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.adapter.fix.AbstractFixApplication;
-import ch.algotrader.adapter.fix.FixSessionLifecycle;
-import ch.algotrader.util.MyLogger;
+import ch.algotrader.adapter.ExternalSessionStateHolder;
 import quickfix.ConfigError;
 import quickfix.FieldConvertError;
 import quickfix.FieldNotFound;
@@ -46,29 +46,27 @@ import quickfix.fix44.UserResponse;
  * based on {@link quickfix.fix44.UserRequest} / {@link quickfix.fix44.UserResponse} exchange.
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
- *
- * @version $Revision$ $Date$
  */
 public class FXCMFixApplication extends AbstractFixApplication {
 
-    private static final Logger LOGGER = MyLogger.getLogger(FXCMFixApplication.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(FXCMFixApplication.class);
 
     private final SessionSettings settings;
-    private final FixSessionLifecycle lifecycleHandler;
+    private final ExternalSessionStateHolder stateHolder;
 
-    public FXCMFixApplication(SessionID sessionID, Object incomingMessageHandler, SessionSettings settings, FixSessionLifecycle lifecycleHandler) {
+    public FXCMFixApplication(SessionID sessionID, Object incomingMessageHandler, SessionSettings settings, ExternalSessionStateHolder stateHolder) {
         super(sessionID, incomingMessageHandler, null);
 
         Validate.notNull(settings, "Session settings not be null");
         Validate.notNull(sessionID, "Session ID may not be null");
         this.settings = settings;
-        this.lifecycleHandler = lifecycleHandler;
+        this.stateHolder = stateHolder;
     }
 
     @Override
     public void onCreate() {
 
-        lifecycleHandler.create();
+        stateHolder.onCreate();
     }
 
     @Override
@@ -83,7 +81,7 @@ public class FXCMFixApplication extends AbstractFixApplication {
             userRequest.set(new UserRequestType(UserRequestType.LOGONUSER));
             getSession().send(userRequest);
         } catch (ConfigError ex) {
-            LOGGER.error("Session confguration error: " + ex.getMessage());
+            LOGGER.error("Session confguration error: {}", ex.getMessage());
         } catch (FieldConvertError ex) {
             LOGGER.error(ex.getMessage(), ex);
         }
@@ -97,10 +95,10 @@ public class FXCMFixApplication extends AbstractFixApplication {
             UserResponse userResponse = (UserResponse) message;
             UserStatus userStatus = userResponse.getUserStatus();
             if (userStatus.getValue() == UserStatus.LOGGED_IN) {
-                lifecycleHandler.logon();
+                stateHolder.onLogon();
             } else {
                 UserStatusText userStatusText = userResponse.getUserStatusText();
-                LOGGER.error("FXCM logon failed: " + userStatusText.getValue());
+                LOGGER.error("FXCM logon failed: {}", userStatusText.getValue());
             }
 
             return true;
@@ -111,7 +109,7 @@ public class FXCMFixApplication extends AbstractFixApplication {
     @Override
     public void onLogout() {
 
-        lifecycleHandler.logoff();
+        stateHolder.onLogoff();
     }
 
 }

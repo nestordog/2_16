@@ -1,24 +1,38 @@
 package ${package};
 
-import java.math.BigDecimal;
-import ch.algotrader.service.StrategyServiceImpl;
 import org.springframework.beans.factory.annotation.Value;
+
+import ch.algotrader.entity.trade.MarketOrderVO;
+import ch.algotrader.entity.trade.MarketOrderVOBuilder;
+import ch.algotrader.enumeration.Side;
+import ch.algotrader.service.StrategyService;
+import ch.algotrader.vo.LifecycleEventVO;
 
 /**
  * The main service class of the ${serviceName} Strategy
  */
-public class ${serviceName}Service extends StrategyServiceImpl {
+public class ${serviceName}Service extends StrategyService {
 
-    // configuration variables
-    private @Value("${strategyName}") String strategyName;
+    private @Value("#{@testConfigParams.accountId}") long accountId;
+    private @Value("#{@testConfigParams.securityId}") long securityId;
+    private @Value("#{@testConfigParams.orderQuantity}") long orderQuantity;
 
-    public void openPosition(String strategyName, int securityId, BigDecimal price) {
+    public void sendOrder(Side side) {
 
-        //TODO: implement logic
+        MarketOrderVO order = MarketOrderVOBuilder.create()
+            .setStrategyId(getStrategy().getId())
+            .setAccountId(this.accountId)
+            .setSecurityId(this.securityId)
+            .setQuantity(this.orderQuantity)
+            .setSide(side)
+            .build();
+
+        getOrderService().sendOrder(order);
     }
 
-    public String getStrategyName() {
-
-        return this.strategyName;
+    @Override
+    public void onStart(final LifecycleEventVO event) {
+        getSubscriptionService().subscribeMarketDataEvent(getStrategyName(), this.securityId);
     }
+
 }

@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,35 +12,32 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.adapter.fix;
 
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.trade.Order;
-import ch.algotrader.enumeration.OrderServiceType;
 import quickfix.Message;
 
 /**
  * Main entry point to Fix sessions.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public interface FixAdapter {
 
     /**
      * creates an individual session
      */
-    void createSession(OrderServiceType orderServiceType) throws FixApplicationException;
+    void createSessionForService(String orderServiceType) throws FixApplicationException;
 
     /**
      * Makes sure there is an existing session with the given qualifier. New session will be created
      * if there is no session with the given qualifier.
      */
-    void openSession(OrderServiceType orderServiceType) throws FixApplicationException;
+    void openSessionForService(String orderServiceType) throws FixApplicationException;
 
     /**
      * creates an individual session with the given qualifier
@@ -72,5 +69,10 @@ public interface FixAdapter {
      * Gets the next {@code orderIdVersion} based on the specified {@code order}
      */
     String getNextOrderIdVersion(Order order);
+
+    /**
+     * Sets the current order count for the given session qualifier.
+     */
+    void setOrderId(String sessionQualifier, int orderId);
 
 }

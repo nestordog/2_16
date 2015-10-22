@@ -2,17 +2,17 @@
 create window
     ComponentWindow.std:groupwin(componentId).std:lastevent()
 as
-    (componentId int,
+    (componentId long,
     quantity long,
-    securityId int,
-    combinationId int,
+    securityId long,
+    combinationId long,
     componentCount int,
     dateTime java.util.Date,
     volBid int,
     volAsk int,
     bid java.math.BigDecimal,
     ask java.math.BigDecimal,
-    feedType ch.algotrader.enumeration.FeedType);
+    feedType String);
 
 @Name('INSERT_INTO_COMPONENT_WINDOW')
 insert into
@@ -30,12 +30,12 @@ select
     null as bid,
     null as ask
 from
-    InsertComponentEvent;
+    InsertComponentEventVO;
 
 @Name('UPDATE_COMPONENT_WINDOW')
 @Priority(3)
 on
-    Tick as tick
+    TickVO as tick
 update
     ComponentWindow as componentWindow
 set
@@ -46,7 +46,7 @@ set
     componentWindow.ask = tick.ask,
     componentWindow.feedType = tick.feedType
 where
-    componentWindow.securityId = tick.security.id;
+    componentWindow.securityId = tick.securityId;
 
 @Name('INSERT_INTO_COMBINATION_TICK')
 insert into
@@ -75,21 +75,29 @@ order by
 // filter CombinationTicks (must be done in separate statement due to Esper Bug)
 @Name('INSERT_INTO_TICK_FROM_COMPONENT_WINDOW')
 insert into
-    Tick
+    TickVO
 select
+    0L,
     dateTime,
-    volBid,
-    volAsk,
+    FeedType.SIM.name(),
+    combinationId,
+    null,
+    null,
     bid,
     ask,
-    feedType,
-    security
+    volBid,
+    volAsk,
+    0
 from
     CombinationTick(not combinationId is null),
-    method:LookupUtil.getSecurityInitialized(combinationId) as security
+    method:lookupService.getSecurity(combinationId) as security
 where
-    countDiff = 0 // total count of non-ignored components must equal component count of the parent
+    // total count of non-ignored components must equal component count of the parent
+    countDiff = 0
 and
-    ((not simulation) or (timeDiff = 0)) // during simulation generate only one tick per time_stamp
+    // during simulation generate only one tick per time_stamp
+    ((not simulation) or (timeDiff = 0))
 and
-    (simulation or (timeDiff < DateUtil.getDuration('HOUR_1'))); // during live-trading ignore components older hand an hour
+    // during live-trading ignore components older hand an hour
+    (simulation or (timeDiff < DateUtil.getDuration('HOUR_1')));
+

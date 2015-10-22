@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,8 +12,8 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.service;
 
@@ -21,8 +21,6 @@ import ch.algotrader.entity.property.PropertyHolder;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public interface PropertyService {
 
@@ -31,11 +29,11 @@ public interface PropertyService {
      * PropertyHolder. If {@code persistent} is set to {@code false}, the Property will be removed
      * when resetting the database before a simulation run.
      */
-    public PropertyHolder addProperty(int propertyHolderId, String name, Object value, boolean persistent);
+    public PropertyHolder addProperty(long propertyHolderId, String name, Object value, boolean persistent);
 
     /**
      * Removes the specified Property from the specified PropertyHolder.
      */
-    public PropertyHolder removeProperty(int propertyHolderid, String name);
+    public PropertyHolder removeProperty(long propertyHolderid, String name);
 
 }

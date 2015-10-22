@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,8 +12,8 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.util.metric;
 
@@ -21,24 +21,22 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.ClassUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.config.ConfigLocator;
-import ch.algotrader.util.MyLogger;
 
 /**
  * Utility class for recording and logging of performance metrics
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public class MetricsUtil {
 
     private static final boolean isMetricsEnabled = ConfigLocator.instance().getConfigParams().getBoolean("misc.metricsEnabled", false);
-    private static final Logger logger = MyLogger.getLogger(MetricsUtil.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(MetricsUtil.class);
 
-    private static Map<String, Metric> metrics = new HashMap<String, Metric>();
+    private static final Map<String, Metric> metrics = new HashMap<>();
     private static long startMillis = System.nanoTime();
 
     /**
@@ -87,14 +85,14 @@ public class MetricsUtil {
      */
     public static void logMetrics() {
 
-        if (isMetricsEnabled) {
+        if (isMetricsEnabled && LOGGER.isInfoEnabled()) {
 
             if (ConfigLocator.instance().getCommonConfig().isSimulation()) {
-                logger.info("TotalDuration: " + (System.nanoTime() - startMillis) + " millis");
+                LOGGER.info("TotalDuration: {} millis", (System.nanoTime() - startMillis));
             }
 
             for (Metric metric : metrics.values()) {
-                logger.info(metric.getName() + ": " + metric.getTime() + " millis " + metric.getExecutions() + " executions");
+                LOGGER.info("{}: {} millis {} executions", metric.getName(), metric.getTime(), metric.getExecutions());
             }
         }
     }

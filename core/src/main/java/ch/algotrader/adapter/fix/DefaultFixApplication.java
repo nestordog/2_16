@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,53 +12,51 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.adapter.fix;
 
 import org.apache.commons.lang.Validate;
 
+import ch.algotrader.adapter.ExternalSessionStateHolder;
 import quickfix.SessionID;
 
 /**
  * Implementation of {@link quickfix.Application}
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
- *
- * @version $Revision$ $Date$
  */
 public class DefaultFixApplication extends AbstractFixApplication {
 
-    private final FixSessionLifecycle lifecycleHandler;
+    private final ExternalSessionStateHolder stateHolder;
 
-    public DefaultFixApplication(SessionID sessionID, Object incomingMessageHandler, Object outgoingMessageHandler, FixSessionLifecycle lifecycleHandler) {
+    public DefaultFixApplication(SessionID sessionID, Object incomingMessageHandler, Object outgoingMessageHandler, ExternalSessionStateHolder stateHolder) {
         super(sessionID, incomingMessageHandler, outgoingMessageHandler);
-
-        Validate.notNull(sessionID, "Session ID may not be null");
-        this.lifecycleHandler = lifecycleHandler;
+        Validate.notNull(sessionID, "FixSessionStateHolder may not be null");
+        this.stateHolder = stateHolder;
     }
 
-    public DefaultFixApplication(SessionID sessionID, Object incomingMessageHandler, FixSessionLifecycle lifecycleHandler) {
-        this(sessionID, incomingMessageHandler, null, lifecycleHandler);
+    public DefaultFixApplication(SessionID sessionID, Object incomingMessageHandler, ExternalSessionStateHolder stateHolder) {
+        this(sessionID, incomingMessageHandler, null, stateHolder);
     }
 
     @Override
     public void onCreate() {
 
-        lifecycleHandler.create();
+        stateHolder.onCreate();
     }
 
     @Override
     public void onLogon() {
 
-        lifecycleHandler.logon();
+        stateHolder.onLogon();
     }
 
     @Override
     public void onLogout() {
 
-        lifecycleHandler.logoff();
+        stateHolder.onLogoff();
     }
 
 }

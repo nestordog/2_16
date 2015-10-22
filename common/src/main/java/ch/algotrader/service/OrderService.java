@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,26 +12,33 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.service;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
-import ch.algotrader.entity.Account;
+import ch.algotrader.entity.trade.ExecutionStatusVO;
 import ch.algotrader.entity.trade.Order;
-import ch.algotrader.entity.trade.OrderCompletion;
+import ch.algotrader.entity.trade.OrderCompletionVO;
+import ch.algotrader.entity.trade.OrderDetailsVO;
 import ch.algotrader.entity.trade.OrderStatus;
+import ch.algotrader.entity.trade.OrderVO;
 import ch.algotrader.entity.trade.OrderValidationException;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public interface OrderService {
+
+    /**
+     * Creates a new Order based on the {@link ch.algotrader.entity.trade.OrderPreference
+     * OrderPreference} selected by its {@code name}.
+     */
+    public Order createOrderByOrderPreference(final String name);
 
     /**
      * Validates an Order. It is suggested to call this method by itself prior to sending an Order.
@@ -43,6 +50,11 @@ public interface OrderService {
      * Sends an Order.
      */
     public void sendOrder(Order order);
+
+    /**
+     * Sends an Order.
+     */
+    public void sendOrder(OrderVO order);
 
     /**
      * Sends multiple Orders.
@@ -76,14 +88,9 @@ public interface OrderService {
     public void modifyOrder(String intId, Map<String, String> properties);
 
     /**
-     * Persists the Order into the database
+     * Modifies an Order by overwriting the current Order with the Order passed to this method.
      */
-    public void persistOrder(Order order);
-
-    /**
-     * Propagates an Order to the corresponding Strategy.
-     */
-    public void propagateOrder(Order order);
+    public void modifyOrder(OrderVO order);
 
     /**
      * Propagates an {@link OrderStatus} to the corresponding Strategy.
@@ -91,24 +98,40 @@ public interface OrderService {
     public void propagateOrderStatus(OrderStatus orderStatus);
 
     /**
-     * Propagates an {@link OrderCompletion} to the corresponding Strategy.
+     * Propagates an {@link OrderCompletionVO} to the corresponding Strategy.
      */
-    public void propagateOrderCompletion(OrderCompletion orderCompletion);
+    public void propagateOrderCompletion(OrderCompletionVO orderCompletion);
 
     /**
-     * Propagates an {@link OrderStatus} to the corresponding Strategy.
+     * Generates next order intId for the given account.
      */
-    public void updateOrderId(Order order, String intId, String extId);
+    public String getNextOrderId(long accountId);
 
     /**
-     * Sends a Trade Suggestion via Email / Text Message.
+     * Returns details of currently open orders.
      */
-    public void suggestOrder(Order order);
+    public List<OrderDetailsVO> getOpenOrderDetails();
 
     /**
-     * Generates next order id for the given account.
+     * Returns details of recently executed orders.
      */
-    public String getNextOrderId(Account account);
+    public List<OrderDetailsVO> getRecentOrderDetails();
+
+    /**
+     * Returns execution status of the order with the given {@code IntId} or {@code null}
+     * if an order with this {@code IntId} has been fully executed.
+     */
+    ExecutionStatusVO getStatusByIntId(String intId);
+
+    /**
+     * Gets an order (open or completed) by its {@code intId}.
+     */
+    public Order getOrderByIntId(String intId);
+
+    /**
+     * Evicts executed orders from the internal cache.
+     */
+    public void evictExecutedOrders();
 
     /**
      * Loads pending orders. An order is considered pending if the status of the last
@@ -119,5 +142,10 @@ public interface OrderService {
      * or there are no events associated with the order.
      */
     Map<Order, OrderStatus> loadPendingOrders();
+
+    /**
+     * Sends a Trade Suggestion via Email / Text Message.
+     */
+    public void suggestOrder(Order order);
 
 }

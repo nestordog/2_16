@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,8 +12,8 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.client.chart;
 
@@ -29,12 +29,10 @@ import javax.swing.SwingWorker;
 
 import com.sun.tools.jconsole.JConsolePlugin;
 
-import ch.algotrader.vo.ChartDataVO;
+import ch.algotrader.vo.client.ChartDataVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public class ChartPlugin extends JConsolePlugin {
 
@@ -67,8 +65,8 @@ public class ChartPlugin extends JConsolePlugin {
     @Override
     public synchronized Map<String, JPanel> getTabs() {
 
-        Map<String, JPanel> tabs = new LinkedHashMap<String, JPanel>();
-        this.chartTabs = new LinkedHashMap<ObjectName, ChartTab>();
+        Map<String, JPanel> tabs = new LinkedHashMap<>();
+        this.chartTabs = new LinkedHashMap<>();
 
         Set<ObjectInstance> beans = null;
         try {

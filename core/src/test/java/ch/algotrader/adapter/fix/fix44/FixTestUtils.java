@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,17 +12,11 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.adapter.fix.fix44;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
-import ch.algotrader.util.Consts;
 import quickfix.ConfigError;
 import quickfix.DataDictionary;
 import quickfix.InvalidMessage;
@@ -38,8 +32,6 @@ import quickfix.fix44.MessageFactory;
  * FIX 4.4 test utilities.
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
- *
- * @version $Revision$ $Date$
  */
 public class FixTestUtils {
 
@@ -85,16 +77,6 @@ public class FixTestUtils {
 
     public static SessionID fakeFix44Session() {
         return new SessionID(new BeginString("FIX.4.4"), new SenderCompID("test"), new TargetCompID("test"), "FAKE");
-    }
-
-    public static DateFormat getSimpleDateTimeFormat() {
-        SimpleDateFormat f = new SimpleDateFormat("yyyyMMdd-HH:mm:ss.SSS");
-        f.setTimeZone(Consts.UTM);
-        return f;
-    }
-
-    public static Date parseDateTime(final String s) throws ParseException {
-        return getSimpleDateTimeFormat().parse(s);
     }
 
 }

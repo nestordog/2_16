@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,25 +12,23 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.service.fix;
 
-import quickfix.Message;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.service.ExternalOrderService;
+import quickfix.Message;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public interface FixOrderService extends ExternalOrderService {
 
     /**
-     * Sends an Order to the external Broker and propagates the Order to the AlgoTrader Server Esper Engine.
+     * Sends Order to the external Broker.
      */
-    public void sendOrder(Order order, Message message, boolean propagate);
+    void sendOrder(Order order, Message message);
 
 }

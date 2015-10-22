@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,76 +12,28 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.entity.strategy;
 
-import java.math.BigDecimal;
-
-import ch.algotrader.ServiceLocator;
-import ch.algotrader.config.CommonConfig;
-import ch.algotrader.config.ConfigLocator;
-import ch.algotrader.util.ObjectUtil;
-import ch.algotrader.util.RoundUtil;
-
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public class CashBalanceImpl extends CashBalance {
 
     private static final long serialVersionUID = 735304281192548146L;
 
     @Override
-    public double getAmountDouble() {
-
-        return getAmount().doubleValue();
-    }
-
-    @Override
-    public BigDecimal getAmountBase() {
-
-        return RoundUtil.getBigDecimal(getAmountBaseDouble());
-    }
-
-    @Override
-    public double getAmountBaseDouble() {
-
-        CommonConfig commonConfig = ConfigLocator.instance().getCommonConfig();
-        double exchangeRate = ServiceLocator.instance().getLookupService().getForexRateDouble(getCurrency(), commonConfig.getPortfolioBaseCurrency());
-
-        return getAmountDouble() * exchangeRate;
-    }
-
-    @Override
     public String toString() {
 
-        return getStrategy() + "," + getCurrency() + "," + getAmount();
+        StringBuilder buffer = new StringBuilder();
+        buffer.append(getStrategy());
+        buffer.append(",");
+        buffer.append(getCurrency());
+        buffer.append(",");
+        buffer.append(getAmount());
+        return buffer.toString();
     }
 
-    @Override
-    public boolean equals(Object obj) {
-
-        if (this == obj) {
-            return true;
-        }
-        if (obj instanceof CashBalance) {
-            CashBalance that = (CashBalance) obj;
-            return ObjectUtil.equalsNonNull(this.getStrategy(), that.getStrategy()) &&
-                    ObjectUtil.equalsNonNull(this.getCurrency(), that.getCurrency());
-        } else {
-            return false;
-        }
-    }
-
-    @Override
-    public int hashCode() {
-
-        int hash = 17;
-        hash = hash * 37 + ObjectUtil.hashCode(getStrategy());
-        hash = hash * 37 + ObjectUtil.hashCode(getCurrency());
-        return hash;
-    }
 }

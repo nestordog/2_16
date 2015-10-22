@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,8 +12,8 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.esper.aggregation;
 
@@ -49,12 +49,10 @@ import com.tictactec.ta.lib.RetCode;
  * select values.fastk, values.fastd
  * from StochF(values != null);
  * </pre>
- * The following parameters from the com.tictactec.ta.lib.Core methods will be needed:
- * <ul>
- * <li>in...(i.e. inHigh, inLow, inClose)</li>
- * <li>optIn..(i.e. optInFastK_Period, optInFastD_Period, optInFastD_MAType)</li>
- * <li>startIdx, endIdx, outBegIdx & outNBElement can be ignored</li>
- * </ul>
+ * <p>
+ * Please consult <a href="http://doc.algotrader.ch/ta-lib.html">TA-Lib</a> for a list of all TA-Lib methods and their parameters
+ * </p>
+ * <p>
  * If the TA-Lib Function returns just one value, the value is directly exposed by the AggregationFunction.
  * </p>
  * If the TA-Lib Function returns multiple-values, a dynamic class will be generated on the fly, which gives
@@ -72,19 +70,17 @@ import com.tictactec.ta.lib.RetCode;
  * </ul>
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public class GenericTALibFunction implements AggregationMethod {
 
-    private static CoreAnnotated core = new CoreAnnotated();
+    private static final CoreAnnotated core = new CoreAnnotated();
 
-    private Method function;
-    private Class<?> outputClass;
+    private final Method function;
+    private final Class<?> outputClass;
 
-    private List<CircularFifoBuffer<Number>> inputParams;
-    private List<Object> optInputParams;
-    private Map<String, Object> outputParams;
+    private final List<CircularFifoBuffer<Number>> inputParams;
+    private final List<Object> optInputParams;
+    private final Map<String, Object> outputParams;
 
     public GenericTALibFunction(Method function, int inputParamCount, int lookbackPeriod, List<Object> optInputParams, Map<String, Object> outputParams, Class<?> outputClass) {
 
@@ -96,10 +92,10 @@ public class GenericTALibFunction implements AggregationMethod {
         this.optInputParams = optInputParams;
         this.outputParams = outputParams;
 
-        this.inputParams = new ArrayList<CircularFifoBuffer<Number>>();
+        this.inputParams = new ArrayList<>();
 
         for (int i = 0; i < inputParamCount; i++) {
-            this.inputParams.add(new CircularFifoBuffer<Number>(lookbackPeriod));
+            this.inputParams.add(new CircularFifoBuffer<>(lookbackPeriod));
         }
     }
 

@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,151 +12,55 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.service.ib;
 
-import org.apache.commons.lang.Validate;
-
 import ch.algotrader.adapter.fix.FixAdapter;
-import ch.algotrader.adapter.fix.fix42.GenericFix42OrderMessageFactory;
-import ch.algotrader.adapter.fix.fix42.GenericFix42SymbologyResolver;
+import ch.algotrader.adapter.ib.IBFixOrderMessageFactory;
+import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.IBConfig;
-import ch.algotrader.entity.security.Option;
+import ch.algotrader.dao.AccountDao;
+import ch.algotrader.dao.trade.OrderDao;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
-import ch.algotrader.service.OrderService;
+import ch.algotrader.ordermgmt.OrderRegistry;
+import ch.algotrader.service.OrderPersistenceService;
+import ch.algotrader.service.fix.fix42.Fix42OrderService;
 import ch.algotrader.service.fix.fix42.Fix42OrderServiceImpl;
-import quickfix.field.Account;
-import quickfix.field.AllocationGroup;
-import quickfix.field.AllocationMethod;
-import quickfix.field.AllocationProfile;
-import quickfix.field.ClearingAccount;
-import quickfix.field.CustomerOrFirm;
-import quickfix.field.ExDestination;
-import quickfix.field.HandlInst;
-import quickfix.field.OpenClose;
 import quickfix.fix42.NewOrderSingle;
 import quickfix.fix42.OrderCancelReplaceRequest;
 import quickfix.fix42.OrderCancelRequest;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
-public class IBFixOrderServiceImpl extends Fix42OrderServiceImpl implements IBFixOrderService {
+public class IBFixOrderServiceImpl extends Fix42OrderServiceImpl implements Fix42OrderService {
 
-    private static final long serialVersionUID = -537844523983750001L;
-
-    private final IBConfig iBConfig;
-
-    public IBFixOrderServiceImpl(final IBConfig iBConfig,
+    public IBFixOrderServiceImpl(
             final FixAdapter fixAdapter,
-            final OrderService orderService) {
+            final OrderRegistry orderRegistry,
+            final OrderPersistenceService orderPersistenceService,
+            final OrderDao orderDao,
+            final AccountDao accountDao,
+            final CommonConfig commonConfig,
+            final IBConfig iBConfig) {
 
-        super(fixAdapter, orderService, new GenericFix42OrderMessageFactory(new GenericFix42SymbologyResolver()));
-
-        Validate.notNull(iBConfig, "IBConfig is null");
-
-        this.iBConfig = iBConfig;
+        super(OrderServiceType.IB_FIX.name(), fixAdapter, new IBFixOrderMessageFactory(iBConfig),
+                orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig);
     }
 
     @Override
     public void prepareSendOrder(SimpleOrder order, NewOrderSingle newOrder) {
-
-        Validate.notNull(order, "Order is null");
-        Validate.notNull(newOrder, "New order is null");
-
-        newOrder.set(new HandlInst('2'));
-        newOrder.set(new CustomerOrFirm(0));
-        newOrder.set(new ExDestination(order.getSecurity().getSecurityFamily().getExchangeCode(order.getAccount().getBroker()).toString()));
-
-        // handling for accounts
-        if (order.getAccount().getExtAccount() != null) {
-            newOrder.set(new Account(order.getAccount().getExtAccount()));
-        }
-
-        // handling for financial advisor account groups
-        if (order.getAccount().getExtAccountGroup() != null) {
-            newOrder.set(new AllocationGroup(order.getAccount().getExtAccountGroup()));
-            newOrder.set(new AllocationMethod(this.iBConfig.getFaMethod()));
-
-            // handling for financial advisor allocation profiles
-        } else if (order.getAccount().getExtAllocationProfile() != null) {
-            newOrder.set(new AllocationProfile(order.getAccount().getExtAllocationProfile()));
-        }
-
-        // add clearing information
-        if (order.getAccount().getExtClearingAccount() != null) {
-            newOrder.set(new ClearingAccount(order.getAccount().getExtClearingAccount()));
-        }
-
-        if (order.getSecurity() instanceof Option) {
-            newOrder.set(new OpenClose(OpenClose.OPEN));
-        }
-
     }
 
     @Override
     public void prepareModifyOrder(SimpleOrder order, OrderCancelReplaceRequest replaceRequest) {
-
-        Validate.notNull(order, "Order is null");
-        Validate.notNull(replaceRequest, "Replace request is null");
-
-        replaceRequest.set(new HandlInst('2'));
-        replaceRequest.set(new CustomerOrFirm(0));
-        replaceRequest.set(new ExDestination(order.getSecurity().getSecurityFamily().getExchangeCode(order.getAccount().getBroker()).toString()));
-
-        // handling for accounts
-        if (order.getAccount().getExtAccount() != null) {
-            replaceRequest.set(new Account(order.getAccount().getExtAccount()));
-        }
-
-        // handling for financial advisor account groups
-        if (order.getAccount().getExtAccountGroup() != null) {
-            replaceRequest.set(new AllocationGroup(order.getAccount().getExtAccountGroup()));
-            replaceRequest.set(new AllocationMethod(this.iBConfig.getFaMethod()));
-
-            // handling for financial advisor allocation profiles
-        } else if (order.getAccount().getExtAllocationProfile() != null) {
-            replaceRequest.set(new AllocationProfile(order.getAccount().getExtAllocationProfile()));
-        }
-
-        // add clearing information
-        if (order.getAccount().getExtClearingAccount() != null) {
-            replaceRequest.set(new ClearingAccount(order.getAccount().getExtClearingAccount()));
-        }
-
     }
 
     @Override
     public void prepareCancelOrder(SimpleOrder order, OrderCancelRequest cancelRequest) {
-
-        Validate.notNull(order, "Order is null");
-        Validate.notNull(cancelRequest, "Cancel request is null");
-
-        // handling for accounts
-        if (order.getAccount().getExtAccount() != null) {
-            cancelRequest.set(new Account(order.getAccount().getExtAccount()));
-        }
-
-        // handling for financial advisor account groups
-        if (order.getAccount().getExtAccountGroup() != null) {
-            cancelRequest.set(new AllocationGroup(order.getAccount().getExtAccountGroup()));
-            cancelRequest.set(new AllocationMethod(this.iBConfig.getFaMethod()));
-
-            // handling for financial advisor allocation profiles
-        } else if (order.getAccount().getExtAllocationProfile() != null) {
-            cancelRequest.set(new AllocationProfile(order.getAccount().getExtAllocationProfile()));
-        }
-
     }
 
-    @Override
-    public OrderServiceType getOrderServiceType() {
-
-        return OrderServiceType.IB_FIX;
-    }
 }

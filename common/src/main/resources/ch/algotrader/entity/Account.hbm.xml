@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+          "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping default-cascade="none">
+    <class name="ch.algotrader.entity.AccountImpl"
+        table="`account`" dynamic-insert="false" dynamic-update="false">
+	    <meta attribute="implements">ch.algotrader.entity.AccountI</meta>      
+	    <meta attribute="generated-class">ch.algotrader.entity.Account</meta>
+	    <meta attribute="class-code">
+<![CDATA[
+]]>   
+	    </meta> 	    
+        <meta attribute="class-description"><![CDATA[Represents an actual Account / AccountGroup / AllocationProfile with an external Broker / Bank]]></meta>
+        <cache usage="read-write" />
+        <id name="id" type="long" >
+            <column name="ID" sql-type="BIGINT"/>
+
+            <generator class="native">
+                <!-- id-generator merge-point -->
+            </generator>
+        </id>
+        <property name="name">
+            <meta attribute="use-in-equals">true</meta>
+            <column name="NAME" not-null="true" unique="true" sql-type="VARCHAR(255)"/>
+
+            <type name="java.lang.String"/>
+        </property>
+        <property name="active">
+            <meta attribute="field-description"><![CDATA[An {@code active} Account will start a corresponding Session in Live Trading.]]></meta>
+            <column name="ACTIVE" not-null="true" unique="false" sql-type="TINYINT"/>
+
+            <type name="boolean"/>
+        </property>
+        <property name="broker">
+            <meta attribute="field-description"><![CDATA[The Broker associated with this Account.]]></meta>
+            <column name="BROKER" not-null="true" unique="false" sql-type="VARCHAR(255)"/>
+
+            <type name="java.lang.String"/>
+        </property>
+        <property name="orderServiceType">
+            <meta attribute="field-description"><![CDATA[The order service type associated with this Account.]]></meta>
+            <column name="ORDER_SERVICE_TYPE" not-null="true" unique="false" sql-type="VARCHAR(255)"/>
+
+            <type name="java.lang.String"/>
+        </property>
+        <property name="sessionQualifier">
+            <meta attribute="field-description"><![CDATA[The name of the session in place for Live Trading. Primarily used for FIX Connections.]]></meta>
+            <column name="SESSION_QUALIFIER" not-null="false" unique="false" sql-type="VARCHAR(255)"/>
+
+            <type name="java.lang.String"/>
+        </property>
+        <property name="extAccount">
+            <meta attribute="field-description"><![CDATA[External Account Number]]></meta>
+            <column name="EXT_ACCOUNT" not-null="false" unique="true" sql-type="VARCHAR(255)"/>
+
+            <type name="java.lang.String"/>
+        </property>
+        <property name="extAccountGroup">
+            <meta attribute="field-description"><![CDATA[External Account Group]]></meta>
+            <column name="EXT_ACCOUNT_GROUP" not-null="false" unique="true" sql-type="VARCHAR(255)"/>
+
+            <type name="java.lang.String"/>
+        </property>
+        <property name="extAllocationProfile">
+            <meta attribute="field-description"><![CDATA[External Allocation Profile]]></meta>
+            <column name="EXT_ALLOCATION_PROFILE" not-null="false" unique="true" sql-type="VARCHAR(255)"/>
+
+            <type name="java.lang.String"/>
+        </property>
+        <property name="extClearingAccount">
+            <meta attribute="field-description"><![CDATA[External Clearing Account Number]]></meta>
+            <column name="EXT_CLEARING_ACCOUNT" not-null="false" unique="true" sql-type="VARCHAR(255)"/>
+
+            <type name="java.lang.String"/>
+        </property>
+    </class>
+</hibernate-mapping>

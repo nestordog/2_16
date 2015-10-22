@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,8 +12,8 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.util;
 
@@ -21,38 +21,17 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-import ch.algotrader.config.ConfigLocator;
 import ch.algotrader.entity.security.ExpirableFamilyI;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.ExpirationType;
-import ch.algotrader.esper.Engine;
-import ch.algotrader.esper.EngineLocator;
 
 /**
  * Provides Date related Utility Methods.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public class DateUtil {
-
-    private static final String strategyName = ConfigLocator.instance().getCommonConfig().getStartedStrategyName();
-
-    /**
-     * Returns the Time of the local Esper Engine.
-     * If the Esper Engine is not yet initialized or is using internal Clock the current system date is returned.
-     */
-    public static Date getCurrentEPTime() {
-
-        Engine engine = EngineLocator.instance().getEngine(strategyName);
-        if (engine != null && !engine.isInternalClock()) {
-            return engine.getCurrentTime();
-        }
-
-        return new Date();
-    }
 
     /**
      * Returns a Date based on defined milliseconds.
@@ -149,75 +128,6 @@ public class DateUtil {
     public static int compareTime(long firstMillis, long secondMills) {
 
         return compareTime(new Date(firstMillis), new Date(secondMills));
-    }
-
-    /**
-     * Compares a Date to the current Esper Time
-     *
-     * @param time
-     * @return the value 0 if currentTime is equal to time; a value less than 0
-     *         if currenTime is before time; and a value greater than 0 if
-     *         currenTime is after time.
-     */
-    public static int compareToTime(Date time) {
-
-        return compareTime(getCurrentEPTime(), time);
-    }
-
-    /**
-     * compares a Date based on a millisecond value to the current Esper Time
-     */
-    public static int compareToTime(long millis) {
-
-        return compareToTime(new Date(millis));
-    }
-
-    /**
-     * Checks if the specified Date is equal to the current Esper Time
-     */
-    public static boolean isEqualTime(Date time) {
-
-        return compareToTime(time) == 0;
-    }
-
-    /**
-     * Checks if the specified Date based on a millisecond value is equal to the current Esper Time
-     */
-    public static boolean isEqualTime(long millis) {
-
-        return isEqualTime(new Date(millis));
-    }
-
-    /**
-     * Checks if the specified Date is after the current Esper Time
-     */
-    public static boolean isAfterTime(Date time) {
-
-        return compareToTime(time) > 0;
-    }
-
-    /**
-     * Checks if the specified Date based on a millisecond value is after the current Esper Time
-     */
-    public static boolean isAfterTime(long millis) {
-
-        return isAfterTime(new Date(millis));
-    }
-
-    /**
-     * Checks if the specified Date is before the current Esper Time
-     */
-    public static boolean isBeforeTime(Date time) {
-
-        return compareToTime(time) < 0;
-    }
-
-    /**
-     * Checks if the specified Date based on a millisecond value is before the current Esper Time
-     */
-    public static boolean isBeforeTime(long millis) {
-
-        return isBeforeTime(new Date(millis));
     }
 
     /**

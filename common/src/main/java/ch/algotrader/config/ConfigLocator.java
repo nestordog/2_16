@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,35 +12,30 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.config;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.lang.Validate;
-import org.apache.log4j.Logger;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.core.io.support.ResourcePatternResolver;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.core.io.DefaultResourceLoader;
 
-import ch.algotrader.config.spring.DefaultConfigLoader;
+import ch.algotrader.config.spring.ConfigLoader;
 import ch.algotrader.config.spring.DefaultSystemConfigProvider;
-import ch.algotrader.util.MyLogger;
 
 /**
  * Configuration parameter and configuration locator.
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
- *
- * @version $Revision$ $Date$
  */
 public final class ConfigLocator {
 
-    private static final Logger LOGGER = MyLogger.getLogger(ConfigLocator.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(ConfigLocator.class);
 
     private static volatile ConfigLocator INSTANCE;
 
@@ -51,7 +46,7 @@ public final class ConfigLocator {
     private ConfigLocator(final ConfigParams configParams, final CommonConfig commonConfig) {
         this.configParams = configParams;
         this.commonConfig = commonConfig;
-        this.beanMap = new HashMap<Class<?>, Object>();
+        this.beanMap = new HashMap<>();
         this.beanMap.put(CommonConfig.class, this.commonConfig);
     }
 
@@ -87,6 +82,22 @@ public final class ConfigLocator {
         }
     }
 
+    public static void initialize(final Map<String, String> paramMap) {
+
+        Validate.notNull(paramMap, "Map is null");
+
+        synchronized(ConfigLocator.class) {
+            INSTANCE = standaloneInit(paramMap);
+        }
+    }
+
+    public static void reset() {
+
+        synchronized(ConfigLocator.class) {
+            INSTANCE = null;
+        }
+    }
+
     public static ConfigLocator instance() {
 
         if (INSTANCE == null) {
@@ -99,7 +110,7 @@ public final class ConfigLocator {
                         INSTANCE = standaloneInit();
                     } catch (Exception ex) {
 
-                        INSTANCE = new ConfigLocator(new ConfigParams(new NoOpConfigProvider()), CommonConfigBuilder.create().build());
+                        INSTANCE = new ConfigLocator(new ConfigParams(new NoopConfigProvider()), CommonConfigBuilder.create().build());
                         LOGGER.error("Unexpected I/O error reading configuration", ex);
                     }
                 }
@@ -108,26 +119,18 @@ public final class ConfigLocator {
         return INSTANCE;
     }
 
-    private static class NoOpConfigProvider implements ConfigProvider {
+    private static ConfigLocator standaloneInit(final Map<String, String> paramMap) {
 
-        @Override
-        public <T> T getParameter(String name, Class<T> clazz) {
-            return null;
-        }
-
-        @Override
-        public Set<String> getNames() {
-            return Collections.emptySet();
-        }
-    }
-
-    private static ConfigLocator standaloneInit() throws Exception {
-        ResourcePatternResolver patternResolver = new PathMatchingResourcePatternResolver(ConfigLocator.class.getClassLoader());
-        DefaultConfigLoader loader = new DefaultConfigLoader(patternResolver);
-        DefaultSystemConfigProvider configProvider = new DefaultSystemConfigProvider(loader.getParams());
+        DefaultSystemConfigProvider configProvider = new DefaultSystemConfigProvider(paramMap);
         ConfigParams configParams = new ConfigParams(configProvider);
         CommonConfig commonConfig = new ConfigBeanFactory().create(configParams, CommonConfig.class);
         return new ConfigLocator(configParams, commonConfig);
+    }
+
+    private static ConfigLocator standaloneInit() throws Exception {
+
+        DefaultResourceLoader resourceLoader = new DefaultResourceLoader(ConfigLocator.class.getClassLoader());
+        return standaloneInit(ConfigLoader.load(resourceLoader));
     }
 
 }

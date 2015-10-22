@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,88 +12,54 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.service;
 
-import org.apache.commons.lang.Validate;
-import org.apache.log4j.Logger;
-import org.hibernate.Hibernate;
-import org.hibernate.LockOptions;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.collection.AbstractPersistentCollection;
-import org.hibernate.proxy.HibernateProxy;
+import java.util.Collection;
 
-import ch.algotrader.util.MyLogger;
-import ch.algotrader.util.spring.HibernateSession;
+import org.apache.commons.lang.Validate;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import ch.algotrader.dao.HibernateInitializer;
+import ch.algotrader.entity.BaseEntityI;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
-@HibernateSession
+@Transactional(propagation = Propagation.SUPPORTS)
 public class LazyLoaderServiceImpl implements LazyLoaderService {
 
-    private static Logger logger = MyLogger.getLogger(LazyLoaderServiceImpl.class.getName());
-
-    private final SessionFactory sessionFactory;
-
-    public LazyLoaderServiceImpl(final SessionFactory sessionFactory) {
-
-        Validate.notNull(sessionFactory, "SessionFactory is null");
-
-        this.sessionFactory = sessionFactory;
+    public LazyLoaderServiceImpl() {
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public AbstractPersistentCollection lazyLoadCollection(final Object target, final String context, final AbstractPersistentCollection col) {
+    public <T extends BaseEntityI> T lazyLoadProxy(BaseEntityI entity, String context, T proxy) {
 
-        Validate.notNull(target, "Target is null");
-        Validate.notEmpty(context, "Context is empty");
-        Validate.notNull(col, "Col is null");
-
-        Session session = this.sessionFactory.openSession();
-
-        try {
-            session.buildLockRequest(LockOptions.NONE).lock(target);
-            Hibernate.initialize(col);
-
-            logger.debug("loaded collection: " + context);
-        } finally {
-            session.close();
-        }
-        return col;
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Object lazyLoadProxy(final Object target, final String context, final HibernateProxy proxy) {
-
-        Validate.notNull(target, "Target is null");
+        Validate.notNull(entity, "Entity is null");
         Validate.notEmpty(context, "Context is empty");
         Validate.notNull(proxy, "Proxy is null");
 
-        Session session = this.sessionFactory.openSession();
+        return HibernateInitializer.INSTANCE.initializeProxy(entity, context, proxy);
 
-        Object implementation;
-        try {
-            session.buildLockRequest(LockOptions.NONE).lock(target);
-            implementation = proxy.getHibernateLazyInitializer().getImplementation();
+    }
 
-            logger.debug("loaded proxy: " + context);
-        } finally {
-            session.close();
-        }
-        return implementation;
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <T extends BaseEntityI> Collection<T> lazyLoadCollection(BaseEntityI entity, String context, Collection<T> col) {
+
+        Validate.notNull(entity, "Entity is null");
+        Validate.notEmpty(context, "Context is empty");
+        Validate.notNull(col, "Col is null");
+
+        return HibernateInitializer.INSTANCE.initializeCollection(entity, context, col);
 
     }
 

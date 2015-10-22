@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,8 +12,8 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.adapter.cnx;
 
@@ -46,7 +46,7 @@ public class TestCNXMarketDataRequestFactory {
     @Before
     public void setup() throws Exception {
 
-        this.requestFactory = new CNXFixMarketDataRequestFactory();
+        this.requestFactory = new CNXFixMarketDataRequestFactory(new CNXTickerIdGenerator());
     }
 
     @Test
@@ -60,7 +60,7 @@ public class TestCNXMarketDataRequestFactory {
         forex.setBaseCurrency(Currency.EUR);
         forex.setSecurityFamily(family);
 
-        MarketDataRequest marketDataRequest = requestFactory.create(forex, new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES));
+        MarketDataRequest marketDataRequest = requestFactory.create(forex, SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES);
 
         Assert.assertEquals(1, marketDataRequest.getGroupCount(NoRelatedSym.FIELD));
         Group symGroup = marketDataRequest.getGroup(1, NoRelatedSym.FIELD);
@@ -84,7 +84,7 @@ public class TestCNXMarketDataRequestFactory {
         Stock stock = new StockImpl();
         stock.setSymbol("MSFT");
 
-        requestFactory.create(stock, new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES));
+        requestFactory.create(stock, SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES);
     }
 
     @Test
@@ -98,7 +98,7 @@ public class TestCNXMarketDataRequestFactory {
         forex.setBaseCurrency(Currency.EUR);
         forex.setSecurityFamily(family);
 
-        MarketDataRequest marketDataRequest = requestFactory.create(forex, new SubscriptionRequestType(SubscriptionRequestType.DISABLE_PREVIOUS_SNAPSHOT_PLUS_UPDATE_REQUEST));
+        MarketDataRequest marketDataRequest = requestFactory.create(forex, SubscriptionRequestType.DISABLE_PREVIOUS_SNAPSHOT_PLUS_UPDATE_REQUEST);
 
         Assert.assertEquals(1, marketDataRequest.getGroupCount(NoRelatedSym.FIELD));
         Group symGroup = marketDataRequest.getGroup(1, NoRelatedSym.FIELD);

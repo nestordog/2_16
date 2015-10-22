@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,8 +12,8 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.util.diff.reader;
 
@@ -31,7 +31,7 @@ import ch.algotrader.util.diff.define.CsvDefinition;
 public class BufferedReader implements CsvReader {
 
     private final CsvReader delegate;
-    private final LinkedList<CsvLine> buf = new LinkedList<CsvLine>();
+    private final LinkedList<CsvLine> buf = new LinkedList<>();
 
     public BufferedReader(CsvReader delegate) {
         this.delegate = delegate;
@@ -57,8 +57,8 @@ public class BufferedReader implements CsvReader {
     }
 
     @Override
-    public int getLine() {
-        return delegate.getLine() - buf.size();
+    public int getLineIndex() {
+        return delegate.getLineIndex() - buf.size();
     }
 
     @Override
@@ -71,11 +71,10 @@ public class BufferedReader implements CsvReader {
 
     public CsvLine readLineIntoBuffer() throws IOException {
         final CsvLine line = delegate.readLine();
-        if (line != null) {
+        if (line.isValid()) {
             buf.add(line);
-            return line;
         }
-        return null;
+        return line;
     }
 
     public LinkedList<CsvLine> readBuffer() {
@@ -83,7 +82,7 @@ public class BufferedReader implements CsvReader {
     }
     public LinkedList<CsvLine> readBuffer(int count) {
         final List<CsvLine> subList = count == buf.size() ? buf : buf.subList(0, count);
-        final LinkedList<CsvLine> result = new LinkedList<CsvLine>(subList);
+        final LinkedList<CsvLine> result = new LinkedList<>(subList);
         subList.clear();
         return result;
     }
@@ -100,7 +99,7 @@ public class BufferedReader implements CsvReader {
         return readBufferAsReader(buf.size());
     }
     public LinkedListReader readBufferAsReader(int count) {
-        return new LinkedListReader(this, getLine(), readBuffer(count));
+        return new LinkedListReader(this, getLineIndex(), readBuffer(count));
     }
 
     public int getBufferSize() {

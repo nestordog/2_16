@@ -3,37 +3,55 @@
     xmlns="http://www.espertech.com/schema/esper"
     xsi:schemaLocation="http://www.espertech.com/schema/esper http://www.espertech.com/schema/esper/esper-configuration-4-0.xsd">
 
-    <!-- Raw Events -->
-    <event-type name="RawTick" class="ch.algotrader.vo.RawTickVO"/>
-    <event-type name="RawBar" class="ch.algotrader.vo.RawBarVO"/>
+    <!-- Raw market data events -->
+    <event-type name="RawTickVO" class="ch.algotrader.esper.io.RawTickVO"/>
+    <event-type name="RawBarVO" class="ch.algotrader.esper.io.RawBarVO"/>
 
-    <!-- Tick Window -->
-    <event-type name="SubscribeTickEvent" class="ch.algotrader.vo.SubscribeTickVO"/>
-
-    <!-- Trade / Bid / Ask -->
-    <event-type name="Trade" class="ch.algotrader.vo.TradeVO"/>
-    <event-type name="Bid" class="ch.algotrader.vo.BidVO"/>
-    <event-type name="Ask" class="ch.algotrader.vo.AskVO"/>
+    <!-- Internal market data events -->
+    <event-type name="SubscribeTickEventVO" class="ch.algotrader.vo.marketData.SubscribeTickVO"/>
+    <event-type name="TradeVO" class="ch.algotrader.vo.marketData.TradeVO"/>
+    <event-type name="BidVO" class="ch.algotrader.vo.marketData.BidVO"/>
+    <event-type name="AskVO" class="ch.algotrader.vo.marketData.AskVO"/>
     <event-type name="TradingHaltVO" class="ch.algotrader.vo.marketData.TradingHaltVO"/>
 
-    <!-- Combinations / Components -->
-    <event-type name="InsertComponentEvent" class="ch.algotrader.vo.InsertComponentEventVO"/>
+    <!-- Trading entities used internally by the order / transaction services -->
+    <event-type name="Order" class="ch.algotrader.entity.trade.Order"/>
+    <event-type name="Transaction" class="ch.algotrader.entity.Transaction">
+        <legacy-type accessor-style="javabean" code-generation="enabled" property-resolution-style="case_sensitive" factory-method="ch.algotrader.entity.Transaction$Factory.newInstance"/>
+    </event-type>
+    <event-type name="OrderStatus" class="ch.algotrader.entity.trade.OrderStatus">
+        <legacy-type accessor-style="javabean" code-generation="enabled" property-resolution-style="case_sensitive" factory-method="ch.algotrader.entity.trade.OrderStatus$Factory.newInstance"/>
+    </event-type>
+    <event-type name="Fill" class="ch.algotrader.entity.trade.Fill"/>
+    <event-type name="ExternalFill" class="ch.algotrader.entity.trade.ExternalFill"/>
+
+    <!-- Performance entities used internally -->
+    <event-type name="PortfolioValue" class="ch.algotrader.entity.strategy.PortfolioValue"/>
+
+    <!-- Combinations / components events -->
+    <event-type name="InsertComponentEventVO" class="ch.algotrader.vo.InsertComponentEventVO"/>
 
     <!-- Performance -->
-    <event-type name="MonthlyPerformance" class="ch.algotrader.vo.PeriodPerformanceVO"/>
-    <event-type name="PerformanceKeys" class="ch.algotrader.vo.PerformanceKeysVO"/>
-    <event-type name="MaxDrawDown" class="ch.algotrader.vo.MaxDrawDownVO"/>
+    <event-type name="MonthlyPerformance" class="ch.algotrader.vo.performance.PeriodPerformanceVO"/>
+    <event-type name="PerformanceKeys" class="ch.algotrader.vo.performance.PerformanceKeysVO"/>
+    <event-type name="MaxDrawDown" class="ch.algotrader.vo.performance.MaxDrawDownVO"/>
     <event-type name="TradePerformance" class="ch.algotrader.vo.TradePerformanceVO"/>
-    <event-type name="AllTrades" class="ch.algotrader.vo.TradesVO"/>
-    <event-type name="WinningTrades" class="ch.algotrader.vo.TradesVO"/>
-    <event-type name="LoosingTrades" class="ch.algotrader.vo.TradesVO"/>
+    <event-type name="AllTrades" class="ch.algotrader.vo.performance.TradesVO"/>
+    <event-type name="WinningTrades" class="ch.algotrader.vo.performance.TradesVO"/>
+    <event-type name="LoosingTrades" class="ch.algotrader.vo.performance.TradesVO"/>
     <event-type name="EndOfSimulation" class="ch.algotrader.vo.EndOfSimulationVO"/>
 
+    <auto-import import-name="ch.algotrader.esper.ServiceUtil"/>
     <auto-import import-name="ch.algotrader.entity.trade.AlgoOrder"/>
+    <auto-import import-name="ch.algotrader.visitor.TickValidationVisitor"/>
 
     <!-- Constants -->
     <variable name="misc_marketIntrest" type="double" constant="true"/>
     <variable name="misc_defaultRetrievalSeconds" type="double" constant="true"/>
     <variable name="misc_orderAckSeconds" type="long" constant="true"/>
+
+    <!-- Variables -->
+    <variable name="transactionService" type="ch.algotrader.service.TransactionService"/>
+    <variable name="forexService" type="ch.algotrader.service.ForexService"/>
 
 </esper-configuration>

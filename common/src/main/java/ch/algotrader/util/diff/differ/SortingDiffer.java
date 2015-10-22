@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,8 +12,8 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.util.diff.differ;
 
@@ -28,7 +28,6 @@ import java.util.NavigableMap;
 import java.util.Objects;
 import java.util.TreeMap;
 
-import ch.algotrader.util.diff.define.AssertableCsvColumn;
 import ch.algotrader.util.diff.define.CsvColumn;
 import ch.algotrader.util.diff.reader.CsvLine;
 import ch.algotrader.util.diff.reader.CsvReader;
@@ -42,8 +41,6 @@ import ch.algotrader.util.diff.reader.LinkedListReader;
  * Sorting can be applied to the whole file (not recommended) or within a GROUP BY
  * clause defined by a {@link GroupDiffer}. In the latter case sorting is performed
  * repeatedly within each group block which requires substantially less memory.
- * <p>
- * A {@link #Builder} can be used to add ORDER-BY columns and create a {@code SortingDiffer} instance.
  */
 public class SortingDiffer implements CsvDiffer {
 
@@ -51,34 +48,36 @@ public class SortingDiffer implements CsvDiffer {
     private final Comparator<CsvLine> expectedColumnComparator;
     private final Comparator<CsvLine> actualColumnComparator;
 
-    public SortingDiffer(AssertableCsvColumn expectedSortColumn, CsvColumn actualSortColumn, CsvDiffer delegate) {
+    public SortingDiffer(CsvColumn expectedSortColumn, CsvColumn actualSortColumn, CsvDiffer delegate) {
         this(Collections.singletonList(expectedSortColumn), Collections.singletonList(actualSortColumn), delegate);
     }
-    public SortingDiffer(List<AssertableCsvColumn> expectedSortColumns, List<CsvColumn> actualSortColumns, CsvDiffer delegate) {
+
+    public SortingDiffer(List<CsvColumn> expectedSortColumns, List<CsvColumn> actualSortColumns, CsvDiffer delegate) {
         this.delegate = Objects.requireNonNull(delegate, "delegate cannot be null");
         this.expectedColumnComparator = new ColumnComparator(expectedSortColumns);
         this.actualColumnComparator = new ColumnComparator(actualSortColumns);
     }
 
     public static class Builder {
-        private final List<AssertableCsvColumn> expectedGrouColumns = new ArrayList<AssertableCsvColumn>();
-        private final List<CsvColumn> actualGrouColumns = new ArrayList<CsvColumn>();
+        private final List<CsvColumn> expectedGrouColumns = new ArrayList<>();
+        private final List<CsvColumn> actualGrouColumns = new ArrayList<>();
 
-        public Builder add(AssertableCsvColumn expColumn, CsvColumn actColumn) {
-            expectedGrouColumns.add(expColumn);
-            actualGrouColumns.add(actColumn);
+        public Builder add(CsvColumn expColumn, CsvColumn actColumn) {
+            this.expectedGrouColumns.add(expColumn);
+            this.actualGrouColumns.add(actColumn);
             return this;
         }
 
         public SortingDiffer build(CsvDiffer delegate) {
-            return new SortingDiffer(expectedGrouColumns, actualGrouColumns, delegate);
+            return new SortingDiffer(this.expectedGrouColumns, this.actualGrouColumns, delegate);
         }
     }
 
     @Override
-    public void diffLines(CsvReader expectedReader, CsvReader actualReader) throws IOException {
-        final NavigableMap<CsvLine, Integer> expLines = new TreeMap<CsvLine, Integer>(expectedColumnComparator);
-        final NavigableMap<CsvLine, Integer> actLines = new TreeMap<CsvLine, Integer>(actualColumnComparator);
+    public int diffLines(CsvReader expectedReader, CsvReader actualReader) throws IOException {
+        int comparedLines = 0;
+        final NavigableMap<CsvLine, Integer> expLines = new TreeMap<>(this.expectedColumnComparator);
+        final NavigableMap<CsvLine, Integer> actLines = new TreeMap<>(this.actualColumnComparator);
         readAll(expectedReader, expLines);
         readAll(actualReader, actLines);
         Iterator<Map.Entry<CsvLine, Integer>> expIt = expLines.entrySet().iterator();
@@ -89,45 +88,48 @@ public class SortingDiffer implements CsvDiffer {
             //use sub-reader for only this line to have correct line indexes in assertion errors
             final LinkedListReader expReader = new LinkedListReader(expectedReader, expEntry.getValue(), expEntry.getKey());
             final LinkedListReader actReader = new LinkedListReader(actualReader, actEntry.getValue(), actEntry.getKey());
-            delegate.diffLines(expReader, actReader);
+            comparedLines += this.delegate.diffLines(expReader, actReader);
         }
         while (expIt.hasNext()) {
             final Map.Entry<CsvLine, Integer> expEntry = expIt.next();
             //use sub-reader for only this line to have correct line indexes in assertion errors
             final LinkedListReader expReader = new LinkedListReader(expectedReader, expEntry.getValue(), expEntry.getKey());
-            delegate.diffLines(expReader, actualReader);
+            comparedLines += this.delegate.diffLines(expReader, actualReader);
         }
         while (actIt.hasNext()) {
             final Map.Entry<CsvLine, Integer> actEntry = actIt.next();
             //use sub-reader for only this line to have correct line indexes in assertion errors
             final LinkedListReader actReader = new LinkedListReader(actualReader, actEntry.getValue(), actEntry.getKey());
-            delegate.diffLines(expectedReader, actReader);
+            comparedLines += this.delegate.diffLines(expectedReader, actReader);
         }
+        return comparedLines;
     }
 
-    private void readAll(CsvReader reader, NavigableMap<CsvLine, Integer> lines) throws IOException {
-        CsvLine line = null;
-        while ((line = reader.readLine()) != null) {
-            lines.put(line, reader.getLine());
+    private static void readAll(CsvReader reader, NavigableMap<CsvLine, Integer> lines) throws IOException {
+        CsvLine line;
+        while ((line = reader.readLine()).isValid()) {
+            lines.put(line, reader.getLineIndex());
         }
     }
 
     private static class ColumnComparator implements Comparator<CsvLine> {
         private final List<? extends CsvColumn> columns;
+
         public ColumnComparator(List<? extends CsvColumn> columns) {
             this.columns = Objects.requireNonNull(columns, "columns cannot be null");
         }
+
         @Override
         public int compare(CsvLine o1, CsvLine o2) {
-            for (final CsvColumn column : columns) {
-                final Object v1 = column.get(o1);
-                final Object v2 = column.get(o2);
+            for (final CsvColumn column : this.columns) {
+                final Object v1 = o1.getValues().get(column);
+                final Object v2 = o2.getValues().get(column);
                 int result;
                 if (v1 == v2) {
                     result = 0;
                 } else if (v1 instanceof Comparable) {
                     @SuppressWarnings("unchecked")
-                    final int cmp = ((Comparable<Object>)v1).compareTo(v2);
+                    final int cmp = ((Comparable<Object>) v1).compareTo(v2);
                     result = cmp;
                 } else {
                     result = String.valueOf(v1).compareTo(String.valueOf(v2));

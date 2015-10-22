@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,83 +12,57 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.entity.security;
 
 import java.util.Date;
 
+import org.apache.commons.lang.Validate;
 import org.apache.commons.math.MathException;
-import org.apache.log4j.Logger;
 
-import ch.algotrader.entity.marketData.MarketDataEvent;
-import ch.algotrader.entity.marketData.Tick;
+import ch.algotrader.entity.marketData.MarketDataEventI;
 import ch.algotrader.option.OptionUtil;
 import ch.algotrader.util.DateUtil;
-import ch.algotrader.util.MyLogger;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public class OptionImpl extends Option {
 
     private static final long serialVersionUID = -3168298592370987085L;
-    private static Logger logger = MyLogger.getLogger(OptionImpl.class.getName());
 
     @Override
-    public double getLeverage() {
+    public double getLeverage(MarketDataEventI marketDataEvent, MarketDataEventI underlyingMarketDataEvent, Date currentTime) {
+
+        Validate.notNull(marketDataEvent, "MarketDataEvent is null");
+        Validate.notNull(underlyingMarketDataEvent, "Underlying MarketDataEvent is null");
+        Validate.notNull(currentTime, "Current time is null");
+
+        double currentValue = marketDataEvent.getCurrentValueDouble();
+        double underlyingCurrentValue = marketDataEvent.getCurrentValueDouble();
 
         try {
-            double underlyingSpot = getUnderlying().getCurrentMarketDataEvent().getCurrentValueDouble();
-            double currentValue = getCurrentMarketDataEvent().getCurrentValueDouble();
-            double delta = OptionUtil.getDelta(this, currentValue, underlyingSpot);
-
-            return underlyingSpot / currentValue * delta;
-
-        } catch (Exception e) {
-
-            return Double.NaN;
+            double delta = OptionUtil.getDelta(this, currentValue, underlyingCurrentValue, currentTime);
+            return underlyingCurrentValue / currentValue * delta;
+        } catch (MathException e) {
+            throw new RuntimeException(e);
         }
     }
 
     @Override
-    public double getMargin() {
+    public long getTimeToExpiration(Date dateTime) {
 
-        MarketDataEvent optionMarketDataEvent = getCurrentMarketDataEvent();
-        MarketDataEvent underlyingMarketDataEvent = getUnderlying().getCurrentMarketDataEvent();
-
-        double marginPerContract = 0;
-        if (optionMarketDataEvent != null && underlyingMarketDataEvent != null && optionMarketDataEvent.getCurrentValueDouble() > 0.0) {
-
-            double optionSettlement = optionMarketDataEvent.getCurrentValueDouble();
-            double underlyingSettlement = underlyingMarketDataEvent.getCurrentValueDouble();
-            double contractSize = getSecurityFamily().getContractSize();
-            try {
-                marginPerContract = OptionUtil.getMaintenanceMargin(this, optionSettlement, underlyingSettlement) * contractSize;
-            } catch (MathException e) {
-                logger.warn("could not calculate margin for " + this, e);
-            }
-        } else {
-            logger.warn("no last tick available or currentValue to low to set margin on " + this);
-        }
-        return marginPerContract;
+        return getExpiration().getTime() - dateTime.getTime();
     }
 
     @Override
-    public long getTimeToExpiration() {
-
-        return getExpiration().getTime() - DateUtil.getCurrentEPTime().getTime();
-    }
-
-    @Override
-    public int getDuration() {
+    public int getDuration(Date dateTime) {
 
         OptionFamily family = (OptionFamily) this.getSecurityFamily();
-        Date nextExpDate = DateUtil.getExpirationDate(family.getExpirationType(), DateUtil.getCurrentEPTime());
-        return 1 + (int) Math.round(((this.getExpiration().getTime() - nextExpDate.getTime()) / (double) family.getExpirationDistance().value()));
+        Date nextExpDate = DateUtil.getExpirationDate(family.getExpirationType(), dateTime);
+        return 1 + (int) Math.round(((this.getExpiration().getTime() - nextExpDate.getTime()) / (double) family.getExpirationDistance().getValue()));
     }
 
     /**
@@ -103,18 +77,5 @@ public class OptionImpl extends Option {
         } else {
             return expiration;
         }
-    }
-
-    @Override
-    public boolean validateTick(Tick tick) {
-
-        // options need to have an ASK (but might not have a BID just before expiration)
-        if (tick.getVolAsk() == 0) {
-            return false;
-        } else if (tick.getAsk() == null) {
-            return false;
-        }
-
-        return super.validateTick(tick);
     }
 }

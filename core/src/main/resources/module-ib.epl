@@ -3,24 +3,27 @@
 @Name('UPDATE_TICK_WINDOW_IB_LAST')
 @RunTimeOnly()
 on
-    ch.algotrader.adapter.ib.TickPrice as tickPrice
+    ch.algotrader.adapter.ib.TickPriceVO as tickPrice
 update
     TickWindow as tickWindow
 set
     tickWindow.dateTime = current_timestamp.toDate(),
-    tickWindow.last = RoundUtil.getBigDecimal(tickPrice.price, tickWindow.security.securityFamily.scale),
+    tickWindow.last = RoundUtil.getBigDecimal(tickPrice.price, lookupService.getSecurityFamilyBySecurity(tickWindow.securityId).getScale()),
     tickWindow.refresh = true
 where
     tickPrice.field = 4 // TickType.LAST (LAST is a reserved keyword)
 and
-    tickWindow.feedType = FeedType.IB
+    tickWindow.feedType = FeedType.IB.name()
 and
-    tickWindow.tickerId = tickPrice.tickerId;
+    tickWindow.tickerId = tickPrice.tickerId
+and
+    // Issue with variable initialization affecting Esper 5.2 and 5.3
+    lookupService is not null;
 
 @Name('UPDATE_TICK_WINDOW_IB_LAST_TIMESTAMP')
 @RunTimeOnly()
 on
-    ch.algotrader.adapter.ib.TickString as tickString
+    ch.algotrader.adapter.ib.TickStringVO as tickString
 update
     TickWindow as tickWindow
 set
@@ -30,14 +33,17 @@ set
 where
     tickString.field = com.ib.client.TickType.LAST_TIMESTAMP
 and
-    tickWindow.feedType = FeedType.IB
+    tickWindow.feedType = FeedType.IB.name()
 and
-    tickWindow.tickerId = tickString.tickerId;
+    tickWindow.tickerId = tickString.tickerId
+and
+    // Issue with variable initialization affecting Esper 5.2 and 5.3
+    lookupService is not null;
 
 @Name('UPDATE_TICK_WINDOW_IB_VOL')
 @RunTimeOnly()
 on
-    ch.algotrader.adapter.ib.TickSize as tickSize
+    ch.algotrader.adapter.ib.TickSizeVO as tickSize
 update
     TickWindow as tickWindow
 set
@@ -47,77 +53,94 @@ set
 where
     tickSize.field = com.ib.client.TickType.VOLUME
 and
-    tickWindow.feedType = FeedType.IB
+    tickWindow.feedType = FeedType.IB.name()
 and
-    tickWindow.tickerId = tickSize.tickerId;
+    tickWindow.tickerId = tickSize.tickerId
+and
+    // Issue with variable initialization affecting Esper 5.2 and 5.3
+    lookupService is not null;
 
 @Name('UPDATE_TICK_WINDOW_IB_BID')
 @RunTimeOnly()
 on
-    ch.algotrader.adapter.ib.TickPrice as tickPrice
+    ch.algotrader.adapter.ib.TickPriceVO as tickPrice
 update
     TickWindow as tickWindow
 set
     tickWindow.dateTime = current_timestamp.toDate(),
-    tickWindow.bid = (case when tickPrice.price = -1 then null else RoundUtil.getBigDecimal(tickPrice.price, tickWindow.security.securityFamily.scale) end),
+    tickWindow.bid = (case when tickPrice.price = -1 then null
+        else RoundUtil.getBigDecimal(tickPrice.price, lookupService.getSecurityFamilyBySecurity(tickWindow.securityId).getScale()) end),
     tickWindow.refresh = true
 where
     tickPrice.field = com.ib.client.TickType.BID
 and
-    tickWindow.feedType = FeedType.IB
+    tickWindow.feedType = FeedType.IB.name()
 and
-    tickWindow.tickerId = tickPrice.tickerId;
+    tickWindow.tickerId = tickPrice.tickerId
+and
+    // Issue with variable initialization affecting Esper 5.2 and 5.3
+    lookupService is not null;
 
 @Name('UPDATE_TICK_WINDOW_IB_ASK')
 @RunTimeOnly()
 on
-    ch.algotrader.adapter.ib.TickPrice as tickPrice
+    ch.algotrader.adapter.ib.TickPriceVO as tickPrice
 update
     TickWindow as tickWindow
 set
     tickWindow.dateTime = current_timestamp.toDate(),
-    tickWindow.ask = (case when tickPrice.price = -1 then null else RoundUtil.getBigDecimal(tickPrice.price, tickWindow.security.securityFamily.scale) end),
+    tickWindow.ask = (case when tickPrice.price = -1 then null
+        else RoundUtil.getBigDecimal(tickPrice.price, lookupService.getSecurityFamilyBySecurity(tickWindow.securityId).getScale()) end),
     tickWindow.refresh = true
 where
     tickPrice.field = com.ib.client.TickType.ASK
 and
-    tickWindow.feedType = FeedType.IB
+    tickWindow.feedType = FeedType.IB.name()
 and
-    tickWindow.tickerId = tickPrice.tickerId;
+    tickWindow.tickerId = tickPrice.tickerId
+and
+    // Issue with variable initialization affecting Esper 5.2 and 5.3
+    lookupService is not null;
 
 @Name('UPDATE_TICK_WINDOW_IB_VOL_BID')
 @RunTimeOnly()
 on
-    ch.algotrader.adapter.ib.TickSize as tickSize
+    ch.algotrader.adapter.ib.TickSizeVO as tickSize
 update
     TickWindow as tickWindow
 set
     tickWindow.dateTime = current_timestamp.toDate(),
     tickWindow.volBid = tickSize.size,
-    tickWindow.refresh = (case when instanceof(tickWindow.security,ch.algotrader.entity.security.Forex) then false else true end)
+    tickWindow.refresh = (case when instanceof(lookupService.getSecurity(tickWindow.securityId), ch.algotrader.entity.security.Forex) then false else true end)
 where
     tickSize.field = com.ib.client.TickType.BID_SIZE
 and
-    tickWindow.feedType = FeedType.IB
+    tickWindow.feedType = FeedType.IB.name()
 and
-    tickWindow.tickerId = tickSize.tickerId;
+    tickWindow.tickerId = tickSize.tickerId
+and
+    // Issue with variable initialization affecting Esper 5.2 and 5.3
+    lookupService is not null;
 
 @Name('UPDATE_TICK_WINDOW_IB_VOL_ASK')
 @RunTimeOnly()
 on
-    ch.algotrader.adapter.ib.TickSize as tickSize
+    ch.algotrader.adapter.ib.TickSizeVO as tickSize
 update
     TickWindow as tickWindow
 set
     tickWindow.dateTime = current_timestamp.toDate(),
     tickWindow.volAsk = tickSize.size,
-    tickWindow.refresh = (case when instanceof(tickWindow.security,ch.algotrader.entity.security.Forex) then false else true end)
+    tickWindow.refresh = (case when instanceof(lookupService.getSecurity(tickWindow.securityId), ch.algotrader.entity.security.Forex) then false else true end)
 where
     tickSize.field = com.ib.client.TickType.ASK_SIZE
 and
-    tickWindow.feedType = FeedType.IB
+    tickWindow.feedType = FeedType.IB.name()
 and
-    tickWindow.tickerId = tickSize.tickerId;
+    tickWindow.tickerId = tickSize.tickerId
+and
+    // Issue with variable initialization affecting Esper 5.2 and 5.3
+    lookupService is not null;
 
 // ------------------------------GENERIC TICKS--------------------------------
 
@@ -125,15 +148,18 @@ and
 @Condition(key='statement.emitGeneticTicks')
 @RunTimeOnly()
 on
-    ch.algotrader.adapter.ib.TickPrice(field = com.ib.client.TickType.OPEN) as tickPrice
+    ch.algotrader.adapter.ib.TickPriceVO(field = com.ib.client.TickType.OPEN) as tickPrice
 insert into
-    GenericTick
+    GenericTickVO
 select
-    current_timestamp.toDate() as dateTime,
-    FeedType.IB as feedType,
-    TickType.OPEN as tickType,
-    tickPrice.price as doubleValue,
-    LookupUtil.getSecurityInitialized(last(tickWindow.security.id)) as security
+    0L,
+    current_timestamp.toDate(),
+    FeedType.IB.name(),
+    last(tickWindow.securityId),
+    TickType.OPEN,
+    null,
+    tickPrice.price,
+    null
 from
     TickWindow as tickWindow
 where
@@ -145,15 +171,18 @@ and
 @Condition(key='statement.emitGeneticTicks')
 @RunTimeOnly()
 on
-    ch.algotrader.adapter.ib.TickPrice(field = com.ib.client.TickType.CLOSE) as tickPrice
+    ch.algotrader.adapter.ib.TickPriceVO(field = com.ib.client.TickType.CLOSE) as tickPrice
 insert into
-    GenericTick
+    GenericTickVO
 select
-    current_timestamp.toDate() as dateTime,
-    FeedType.IB as feedType,
-    TickType.CLOSE as tickType,
-    tickPrice.price as doubleValue,
-    LookupUtil.getSecurityInitialized(last(tickWindow.security.id)) as security
+    0L,
+    current_timestamp.toDate(),
+    FeedType.IB.name(),
+    last(tickWindow.securityId),
+    TickType.CLOSE,
+    null,
+    tickPrice.price,
+    null
 from
     TickWindow as tickWindow
 where
@@ -161,36 +190,3 @@ where
 and
     tickPrice.price != -1.0;
 
-// ----------------------------------------------- ORDER STATUS ----------------------------------------------
-
-@Name('INSERT_INTO_ORDER_STATUS_IB')
-@RunTimeOnly()
-insert into
-    OrderStatus
-select
-    status,
-    filledQuantity,
-    remainingQuantity,
-     (case when avgFillPrice = 0.0 then null else RoundUtil.getBigDecimal(avgFillPrice, `order`.security.securityFamily.scale) end) as avgPrice,
-     (case when lastFillPrice = 0.0 then null else RoundUtil.getBigDecimal(lastFillPrice, `order`.security.securityFamily.scale) end) as lastPrice,
-    `order`.intId as intId,
-    extId,
-    sequenceNumber,
-    `order`,
-    reason
-from
-    ch.algotrader.adapter.ib.IBOrderStatus.std:groupwin(`order`.intId).win:length(2)
-where
-        (prev(1, status) is null
-    or
-        status != prev(1, status)
-    or
-        filledQuantity != prev(1,filledQuantity)
-    or
-        remainingQuantity != prev(1,remainingQuantity)
-    or
-        extId != prev(1,extId))
-and
-        (filledQuantity != 0
-    or
-        remainingQuantity != 0);

@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,54 +12,72 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.cache;
 
-import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
-
+import ch.algotrader.dao.NamedParam;
 import ch.algotrader.entity.BaseEntityI;
+import ch.algotrader.entity.Initializer;
+import ch.algotrader.enumeration.QueryType;
 
 /**
  * Entry point to the Level-0 Cache
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
-public interface CacheManager {
+public interface CacheManager extends Initializer {
 
     /**
-     * gets an object of the given {@code clazz} by the defined {@code key}.
+     * gets an Entity of the given {@code clazz} by the defined {@code id}.
      */
-    public <T> T get(Class<T> clazz, Serializable key);
+    public <T extends BaseEntityI> T get(Class<T> clazz, long id);
 
     /**
-     * Adds an object recursively into the Cache and returns the existingObject if it was already in the Cache
+     * gets all Entities of the given {@code clazz}.
      */
-    public Object put(Object obj);
+    public <T extends BaseEntityI> List<T> getAll(Class<T> clazz);
 
     /**
-     * checks whether an object of the given {@code clazz} and {@code key} is in the cache
+     * checks whether an object of the given {@code clazz} and {@code id} is in the cache
      */
-    public boolean contains(Class<?> clazz, Serializable key);
-
-    /**
-     * lazy-initializes the give {@code key} of the specified {@code entity}
-     */
-    public Object initialze(BaseEntityI entity, String key);
-
-    /**
-     * performs the given HQL {@code query}
-     */
-    public List<?> query(String queryString);
+    public <T extends BaseEntityI> boolean contains(Class<T> clazz, long id);
 
     /**
      * performs the given HQL {@code query} by passing defined {@code namedParameters}
      */
-    public List<?> query(String queryString, Map<String, Object> namedParameters);
+    public <T> List<T> find(Class<T> clazz, String query, QueryType type, NamedParam... namedParams);
 
+    /**
+     * performs the given HQL {@code query} by passing defined {@code maxResults} (passing zero will return all elements)
+     * and {@code namedParameters}
+     */
+    public <T> List<T> find(Class<T> clazz, String query, int maxResults, QueryType type, NamedParam... namedParams);
+
+    /**
+     * performs the given HQL {@code query} by passing defined {@code namedParameters}
+     */
+    public <T> T findUnique(Class<T> clazz, String query, QueryType type, NamedParam... namedParams);
+
+    /**
+     * clears the entire cache
+     */
+    public void clear();
+
+    /**
+     * Gets the descriminator value based on the given class.
+     */
+    public int getDiscriminatorValue(final Class<?> type);
+
+    /**
+     * retrieves the number of cached entities
+     */
+    public int getEntityCacheSize();
+
+    /**
+     * retrieves a list of cached queries
+     */
+    public List<String> getQueries();
 }

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
+<stringAttribute key="org.eclipse.jdt.launching.CLASSPATH_PROVIDER" value="org.eclipse.m2e.launchconfig.classpathProvider"/>
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="ch.algotrader.starter.SimulationStarter"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="simulateWithCurrentParams"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="${artifactId}"/>
+<stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dsimulation=true &#13;&#10;-DstrategyName=${name.toUpperCase()}&#13;&#10;-DdataSource.dataSetType=TICK&#13;&#10;-DdataSource.dataSet=fx&#13;&#10;-Dspring.profiles.active=simulation,embeddedDataSource"/>
+</launchConfiguration>
+

@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,13 +12,13 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.adapter.cnx;
 
 import ch.algotrader.adapter.fix.DefaultFixApplicationFactory;
-import ch.algotrader.adapter.fix.FixSessionLifecycle;
+import ch.algotrader.adapter.ExternalSessionStateHolder;
 import quickfix.Application;
 import quickfix.SessionID;
 
@@ -26,14 +26,21 @@ import quickfix.SessionID;
  * Creates a {@link ch.algotrader.adapter.cnx.CNXFixApplication} for the specified {@code sessionId}.
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
- *
- * @version $Revision$ $Date$
  */
 public class CNXFixApplicationFactory extends DefaultFixApplicationFactory {
 
-    @Override
-    protected Application createApplication(SessionID sessionID, Object incomingMessageHandler, Object outgoingMessageHandler, FixSessionLifecycle lifecycleHandler) {
-
-        return new CNXFixApplication(sessionID, incomingMessageHandler, outgoingMessageHandler, lifecycleHandler);
+    public CNXFixApplicationFactory(final Object incomingMessageHandler, final Object outgoingMessageHandler, final ExternalSessionStateHolder stateHolder) {
+        super(incomingMessageHandler, outgoingMessageHandler, stateHolder);
     }
+
+    public CNXFixApplicationFactory(final Object incomingMessageHandler, final ExternalSessionStateHolder stateHolder) {
+        super(incomingMessageHandler, null, stateHolder);
+    }
+
+    @Override
+    protected Application createApplication(SessionID sessionID, Object incomingMessageHandler, Object outgoingMessageHandler, ExternalSessionStateHolder stateHolder) {
+
+        return new CNXFixApplication(sessionID, incomingMessageHandler, outgoingMessageHandler, stateHolder);
+    }
+
 }

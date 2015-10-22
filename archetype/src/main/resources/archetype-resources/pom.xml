@@ -4,7 +4,7 @@
     <groupId>${groupId}</groupId>
     <artifactId>${artifactId}</artifactId>
     <version>${version}</version>
-    <name>${artifactId} strategy</name>
+    <name>${name} strategy</name>
 
     <build>
         <plugins>
@@ -21,13 +21,13 @@
     <dependencies>
         <dependency>
             <groupId>algotrader</groupId>
-            <artifactId>algotrader-common</artifactId>
-            <version>2.2.7</version>
+            <artifactId>algotrader-core</artifactId>
+            <version>2.3.0</version>
         </dependency>
     </dependencies>
 
     <properties>
-        <java.version>1.6</java.version>
+        <java.version>1.8</java.version>
     </properties>
 
 </project>

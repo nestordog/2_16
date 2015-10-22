@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,8 +12,8 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.client.chart;
 
@@ -80,41 +80,39 @@ import org.jfree.ui.TextAnchor;
 import ch.algotrader.enumeration.Color;
 import ch.algotrader.enumeration.DatasetType;
 import ch.algotrader.enumeration.TimePeriod;
-import ch.algotrader.vo.AnnotationVO;
-import ch.algotrader.vo.AxisDefinitionVO;
-import ch.algotrader.vo.BarDefinitionVO;
-import ch.algotrader.vo.BarVO;
-import ch.algotrader.vo.BoxAnnotationVO;
-import ch.algotrader.vo.ChartDataVO;
-import ch.algotrader.vo.ChartDefinitionVO;
-import ch.algotrader.vo.DatasetDefinitionVO;
-import ch.algotrader.vo.IndicatorDefinitionVO;
-import ch.algotrader.vo.IndicatorVO;
-import ch.algotrader.vo.IntervalMarkerVO;
-import ch.algotrader.vo.MarkerDefinitionVO;
-import ch.algotrader.vo.MarkerVO;
-import ch.algotrader.vo.PointerAnnotationVO;
-import ch.algotrader.vo.SeriesDefinitionVO;
-import ch.algotrader.vo.ValueMarkerVO;
+import ch.algotrader.vo.client.AnnotationVO;
+import ch.algotrader.vo.client.AxisDefinitionVO;
+import ch.algotrader.vo.client.BarDefinitionVO;
+import ch.algotrader.vo.client.BarVO;
+import ch.algotrader.vo.client.BoxAnnotationVO;
+import ch.algotrader.vo.client.ChartDataVO;
+import ch.algotrader.vo.client.ChartDefinitionVO;
+import ch.algotrader.vo.client.DatasetDefinitionVO;
+import ch.algotrader.vo.client.IndicatorDefinitionVO;
+import ch.algotrader.vo.client.IndicatorVO;
+import ch.algotrader.vo.client.IntervalMarkerVO;
+import ch.algotrader.vo.client.MarkerDefinitionVO;
+import ch.algotrader.vo.client.MarkerVO;
+import ch.algotrader.vo.client.PointerAnnotationVO;
+import ch.algotrader.vo.client.SeriesDefinitionVO;
+import ch.algotrader.vo.client.ValueMarkerVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public class ChartTab extends ChartPanel {
 
     private static final long serialVersionUID = -1511949341697529944L;
-    private static DateFormat formatter = new SimpleDateFormat("EEE dd.MM.yyyy HH:mm:ss");
+    private static final DateFormat formatter = new SimpleDateFormat("EEE dd.MM.yyyy HH:mm:ss");
 
 
     private ChartDefinitionVO chartDefinition;
 
-    private Map<Integer, OHLCSeries> bars;
+    private Map<Long, OHLCSeries> bars;
     private Map<String, TimeSeries> indicators;
     private Map<String, Marker> markers;
     private Map<String, Boolean> markersSelectionStatus;
-    private ChartPlugin chartPlugin;
+    private final ChartPlugin chartPlugin;
 
     public ChartTab(ChartPlugin chartPlugin) {
 
@@ -181,10 +179,10 @@ public class ChartTab extends ChartPanel {
         this.setChart(chart);
 
         // init the maps
-        this.bars = new HashMap<Integer, OHLCSeries>();
-        this.indicators = new HashMap<String, TimeSeries>();
-        this.markers = new HashMap<String, Marker>();
-        this.markersSelectionStatus = new HashMap<String, Boolean>();
+        this.bars = new HashMap<>();
+        this.indicators = new HashMap<>();
+        this.markers = new HashMap<>();
+        this.markersSelectionStatus = new HashMap<>();
 
         // init domain axis
         initDomainAxis(chartDefinition);
@@ -675,7 +673,7 @@ public class ChartTab extends ChartPanel {
 
         java.awt.Color awtColor = java.awt.Color.BLACK; // use black as default
         try {
-            awtColor = (java.awt.Color) java.awt.Color.class.getField(color.getValue()).get(null);
+            awtColor = (java.awt.Color) java.awt.Color.class.getField(color.name()).get(null);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

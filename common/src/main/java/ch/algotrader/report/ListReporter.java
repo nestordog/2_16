@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,8 +12,8 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 
 package ch.algotrader.report;
@@ -28,17 +28,18 @@ import org.supercsv.cellprocessor.ift.CellProcessor;
 import org.supercsv.io.CsvListWriter;
 import org.supercsv.prefs.CsvPreference;
 
+import ch.algotrader.config.CommonConfig;
+import ch.algotrader.config.ConfigLocator;
+
 /**
  * SuperCSV Writer that writes Maps to the specified CSV-File.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public class ListReporter implements Report {
 
-    private CellProcessor[] processor;
-    private CsvListWriter writer;
+    private final CellProcessor[] processor;
+    private final CsvListWriter writer;
 
     public ListReporter(File file, String[] header) throws IOException {
 
@@ -72,7 +73,12 @@ public class ListReporter implements Report {
 
     public ListReporter(String fileName, String[] header, CellProcessor[] processor) {
 
-        this(new File("files" + File.separator + "report" + File.separator + fileName + ".csv"), header, processor);
+        this(new File(getReportLocation(), fileName + ".csv"), header, processor);
+    }
+
+    private static File getReportLocation() {
+        final CommonConfig config = ConfigLocator.instance().getCommonConfig();
+        return config.getReportLocation();
     }
 
     public void write(List<?> row) {

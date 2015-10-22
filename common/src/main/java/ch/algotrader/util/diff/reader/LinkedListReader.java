@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,8 +12,8 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.util.diff.reader;
 
@@ -42,7 +42,7 @@ public class LinkedListReader implements CsvReader {
     public LinkedListReader(CsvReader baseReader, int lineOffset, Collection< ? extends CsvLine> lines) {
         this.baseReader = Objects.requireNonNull(baseReader, "baseReader cannot be null");
         this.lastLine = lineOffset + lines.size();
-        this.lines = new LinkedList<CsvLine>(lines);
+        this.lines = new LinkedList<>(lines);
     }
 
     @Override
@@ -61,7 +61,7 @@ public class LinkedListReader implements CsvReader {
     }
 
     @Override
-    public int getLine() {
+    public int getLineIndex() {
         return lastLine - lines.size();
     }
 
@@ -71,7 +71,7 @@ public class LinkedListReader implements CsvReader {
 
     @Override
     public CsvLine readLine() throws IOException {
-        return lines.isEmpty() ? null : lines.removeFirst();
+        return lines.isEmpty() ? CsvLine.getEofLine(this) : lines.removeFirst();
     }
 
 }

@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,14 +12,15 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.adapter.fxcm;
 
+import org.apache.commons.lang.Validate;
+
 import ch.algotrader.adapter.fix.FixApplicationFactory;
-import ch.algotrader.adapter.fix.FixSessionLifecycle;
-import ch.algotrader.enumeration.ConnectionState;
+import ch.algotrader.adapter.ExternalSessionStateHolder;
 import quickfix.Application;
 import quickfix.ConfigError;
 import quickfix.SessionID;
@@ -29,45 +30,33 @@ import quickfix.SessionSettings;
  * Creates a {@link ch.algotrader.adapter.fxcm.FXCMFixApplication} for the specified {@code sessionId}.
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
- *
- * @version $Revision$ $Date$
  */
 public class FXCMFixApplicationFactory implements FixApplicationFactory {
 
-    private Object incomingMessageHandler;
-    private FixSessionLifecycle lifecycleHandler;
-    private String name;
+    private final Object incomingMessageHandler;
+    private final ExternalSessionStateHolder stateHolder;
 
-    public void setIncomingMessageHandler(Object incomingMessageHandler) {
+    public FXCMFixApplicationFactory(final Object incomingMessageHandler, final ExternalSessionStateHolder stateHolder) {
+        Validate.notNull(incomingMessageHandler, "IncomingMessageHandler may not be null");
+        Validate.notNull(stateHolder, "FixSessionStateHolder may not be null");
+
         this.incomingMessageHandler = incomingMessageHandler;
-    }
-
-    public void setLifecycleHandler(FixSessionLifecycle lifecycleHanlder) {
-        this.lifecycleHandler = lifecycleHanlder;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+        this.stateHolder = stateHolder;
     }
 
     @Override
     public String getName() {
-        return name;
-    }
-
-    @Override
-    public ConnectionState getConnectionState() {
-        return lifecycleHandler.getConnectionState();
+        return stateHolder.getName();
     }
 
     @Override
     public String toString() {
-        return name;
+        return stateHolder.getName() + " FIX application factory";
     }
 
     @Override
     public Application create(SessionID sessionID, SessionSettings settings) throws ConfigError {
 
-        return new FXCMFixApplication(sessionID, incomingMessageHandler, settings, lifecycleHandler);
+        return new FXCMFixApplication(sessionID, incomingMessageHandler, settings, stateHolder);
     }
 }

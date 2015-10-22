@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,54 +12,76 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.service.fix;
 
-import org.apache.commons.lang.Validate;
-import org.apache.log4j.Logger;
+import java.math.BigDecimal;
+import java.util.List;
 
-import ch.algotrader.service.InitializationPriority;
-import ch.algotrader.service.InitializingServiceI;
-import quickfix.FieldNotFound;
-import quickfix.Message;
-import quickfix.StringField;
-import quickfix.field.MsgType;
+import org.apache.commons.lang.Validate;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
 import ch.algotrader.adapter.fix.FixAdapter;
+import ch.algotrader.config.CommonConfig;
+import ch.algotrader.dao.AccountDao;
+import ch.algotrader.dao.trade.OrderDao;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.enumeration.InitializingServiceType;
-import ch.algotrader.service.ExternalOrderServiceImpl;
-import ch.algotrader.service.OrderService;
-import ch.algotrader.util.MyLogger;
+import ch.algotrader.enumeration.SimpleOrderType;
+import ch.algotrader.enumeration.TIF;
+import ch.algotrader.service.ExternalServiceException;
+import ch.algotrader.service.InitializationPriority;
+import ch.algotrader.service.InitializingServiceI;
+import ch.algotrader.service.OrderPersistenceService;
+import quickfix.FieldNotFound;
+import quickfix.Message;
+import quickfix.field.MsgType;
 
 /**
  * Generic FIX order service
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 @InitializationPriority(InitializingServiceType.BROKER_INTERFACE)
-public abstract class FixOrderServiceImpl extends ExternalOrderServiceImpl implements FixOrderService, InitializingServiceI {
+@Transactional(propagation = Propagation.SUPPORTS)
+public abstract class FixOrderServiceImpl implements FixOrderService, InitializingServiceI {
 
-    private static final long serialVersionUID = -1571841567775158540L;
+    private static final Logger LOGGER = LogManager.getLogger(FixOrderServiceImpl.class);
 
-    private static Logger logger = MyLogger.getLogger(FixOrderServiceImpl.class.getName());
-
+    private final String orderServiceType;
     private final FixAdapter fixAdapter;
+    private final OrderPersistenceService orderPersistenceService;
+    private final OrderDao orderDao;
+    private final AccountDao accountDao;
+    private final CommonConfig commonConfig;
 
-    private final OrderService orderService;
+    public FixOrderServiceImpl(
+            final String orderServiceType,
+            final FixAdapter fixAdapter,
+            final OrderPersistenceService orderPersistenceService,
+            final OrderDao orderDao,
+            final AccountDao accountDao,
+            final CommonConfig commonConfig) {
 
-    public FixOrderServiceImpl(final FixAdapter fixAdapter,
-            final OrderService orderService) {
-
+        Validate.notEmpty(orderServiceType, "OrderServiceType is empty");
         Validate.notNull(fixAdapter, "FixAdapter is null");
-        Validate.notNull(orderService, "OrderService is null");
+        Validate.notNull(orderPersistenceService, "OrderPersistenceService is null");
+        Validate.notNull(orderDao, "OrderDao is null");
+        Validate.notNull(accountDao, "AccountDao is null");
+        Validate.notNull(commonConfig, "CommonConfig is null");
 
+        this.orderServiceType = orderServiceType;
         this.fixAdapter = fixAdapter;
-        this.orderService = orderService;
+        this.orderPersistenceService = orderPersistenceService;
+        this.orderDao = orderDao;
+        this.accountDao = accountDao;
+        this.commonConfig = commonConfig;
     }
 
     protected FixAdapter getFixAdapter() {
@@ -73,42 +95,55 @@ public abstract class FixOrderServiceImpl extends ExternalOrderServiceImpl imple
     @Override
     public void init() {
 
-        this.fixAdapter.createSession(getOrderServiceType());
+        List<Account> accounts = this.accountDao.findByByOrderServiceType(this.orderServiceType);
+
+        for (Account account: accounts) {
+            String sessionQualifier = account.getSessionQualifier();
+            BigDecimal orderId = this.orderDao.findLastIntOrderIdBySessionQualifier(sessionQualifier);
+            this.fixAdapter.setOrderId(sessionQualifier, orderId != null ? orderId.intValue() : 0);
+            if (LOGGER.isDebugEnabled() && orderId != null) {
+                LOGGER.debug("Current order count for session {}: {}", sessionQualifier, orderId.intValue());
+            }
+        }
+        this.fixAdapter.createSessionForService(getOrderServiceType());
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void sendOrder(final Order order, final Message message, final boolean propagate) {
+    public void sendOrder(final Order order, final Message message) {
 
         Validate.notNull(order, "Order is null");
         Validate.notNull(message, "Message is null");
 
-        // persist the order into the database
-        this.orderService.persistOrder(order);
+        String msgType;
+        try {
+            msgType = message.getHeader().getString(MsgType.FIELD);
+        } catch (FieldNotFound ex) {
+            throw new ExternalServiceException(ex);
+        }
 
-        // propagate the order to all corresponding Esper engines
-        if (propagate) {
-            this.orderService.propagateOrder(order);
+        if (!this.commonConfig.isSimulation()
+                && (msgType.equals(MsgType.ORDER_SINGLE) || msgType.equals(MsgType.ORDER_CANCEL_REPLACE_REQUEST))) {
+            this.orderPersistenceService.persistOrder(order);
         }
 
         // send the message to the Fix Adapter
         this.fixAdapter.sendMessage(message, order.getAccount());
 
-        StringField msgType;
-        try {
-            msgType = message.getHeader().getField(new MsgType());
-        } catch (FieldNotFound ex) {
-            throw new FixOrderServiceException(ex);
-        }
-
-        if (msgType.getValue().equals(MsgType.ORDER_SINGLE)) {
-            logger.info("sent order: " + order);
-        } else if (msgType.getValue().equals(MsgType.ORDER_CANCEL_REPLACE_REQUEST)) {
-            logger.info("sent order modification: " + order);
-        } else if (msgType.getValue().equals(MsgType.ORDER_CANCEL_REQUEST)) {
-            logger.info("sent order cancellation: " + order);
+        if (msgType.equals(MsgType.ORDER_SINGLE)) {
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("sent order: {}", order);
+            }
+        } else if (msgType.equals(MsgType.ORDER_CANCEL_REPLACE_REQUEST)) {
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("sent order modification: {}", order);
+            }
+        } else if (msgType.equals(MsgType.ORDER_CANCEL_REQUEST)) {
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("sent order cancellation: {}", order);
+            }
         } else {
             throw new IllegalArgumentException("unsupported messagetype: " + msgType);
         }
@@ -118,8 +153,22 @@ public abstract class FixOrderServiceImpl extends ExternalOrderServiceImpl imple
      * {@inheritDoc}
      */
     @Override
-    public String getNextOrderId(final Account account) {
+    public final String getNextOrderId(final Account account) {
         return getFixAdapter().getNextOrderId(account);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public TIF getDefaultTIF(final SimpleOrderType type) {
+        return TIF.DAY;
+    }
+
+    @Override
+    public final String getOrderServiceType() {
+
+        return this.orderServiceType;
     }
 
 }

@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,59 +12,60 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.service.fix;
 
 import org.apache.commons.lang.Validate;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
+import ch.algotrader.adapter.ExternalSessionStateHolder;
+import ch.algotrader.adapter.RequestIdGenerator;
 import ch.algotrader.adapter.fix.FixAdapter;
-import ch.algotrader.adapter.fix.FixSessionLifecycle;
-import ch.algotrader.config.CommonConfig;
-import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.Security;
-import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.enumeration.InitializingServiceType;
-import ch.algotrader.esper.EngineLocator;
-import ch.algotrader.service.ExternalMarketDataServiceImpl;
+import ch.algotrader.esper.Engine;
 import ch.algotrader.service.InitializationPriority;
 import ch.algotrader.service.InitializingServiceI;
-import ch.algotrader.util.MyLogger;
-import ch.algotrader.vo.SubscribeTickVO;
+import ch.algotrader.service.ServiceException;
+import ch.algotrader.vo.marketData.SubscribeTickVO;
 
 /**
  * Generic FIX market data service
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
- *
- * @version $Revision$ $Date$
  */
 @InitializationPriority(InitializingServiceType.BROKER_INTERFACE)
-public abstract class FixMarketDataServiceImpl extends ExternalMarketDataServiceImpl implements FixMarketDataService, InitializingServiceI {
+public abstract class FixMarketDataServiceImpl implements FixMarketDataService, InitializingServiceI {
 
-    private static final long serialVersionUID = 4880040246465806082L;
+    private static final Logger LOGGER = LogManager.getLogger(FixMarketDataServiceImpl.class);
 
-    private static Logger logger = MyLogger.getLogger(FixMarketDataServiceImpl.class.getName());
-
-    private final FixSessionLifecycle lifeCycle;
-
+    private final String feedType;
+    private final ExternalSessionStateHolder stateHolder;
     private final FixAdapter fixAdapter;
+    private final RequestIdGenerator<Security> tickerIdGenerator;
+    private final Engine serverEngine;
 
     public FixMarketDataServiceImpl(
-            final CommonConfig commonConfig,
-            final FixSessionLifecycle lifeCycle,
+            final String feedType,
+            final ExternalSessionStateHolder stateHolder,
             final FixAdapter fixAdapter,
-            final SecurityDao securityDao) {
+            final RequestIdGenerator<Security> tickerIdGenerator,
+            final Engine serverEngine) {
 
-        super(commonConfig, securityDao);
-
-        Validate.notNull(lifeCycle, "FixSessionLifecycle is null");
+        Validate.notEmpty(feedType, "FeedType is null");
+        Validate.notNull(stateHolder, "FixSessionStateHolder is null");
         Validate.notNull(fixAdapter, "FixAdapter is null");
+        Validate.notNull(tickerIdGenerator, "RequestIdGenerator is null");
+        Validate.notNull(serverEngine, "Engine is null");
 
-        this.lifeCycle = lifeCycle;
+        this.feedType = feedType;
+        this.stateHolder = stateHolder;
         this.fixAdapter = fixAdapter;
+        this.tickerIdGenerator = tickerIdGenerator;
+        this.serverEngine = serverEngine;
     }
 
     protected FixAdapter getFixAdapter() {
@@ -82,12 +83,9 @@ public abstract class FixMarketDataServiceImpl extends ExternalMarketDataService
     }
 
     @Override
-    public void initSubscriptions() {
+    public boolean initSubscriptionReady() {
 
-        if (this.lifeCycle.subscribe()) {
-            super.initSubscriptions();
-        }
-
+        return this.stateHolder.onSubscribe();
     }
 
     @Override
@@ -95,30 +93,21 @@ public abstract class FixMarketDataServiceImpl extends ExternalMarketDataService
 
         Validate.notNull(security, "Security is null");
 
-        if (!this.lifeCycle.isLoggedOn()) {
-            throw new FixMarketDataServiceException("Fix session is not logged on to subscribe " + security);
+        if (!this.stateHolder.isLoggedOn()) {
+            throw new ServiceException("Fix session is not logged on to subscribe " + security);
         }
 
-        // make sure SecurityFamily is initialized
-        security.getSecurityFamilyInitialized();
-
-        // create the SubscribeTickEvent (must happen before reqMktData so that Esper is ready to receive marketdata)
-        Tick tick = Tick.Factory.newInstance();
-        tick.setSecurity(security);
-        tick.setFeedType(getFeedType());
-
-        String tickerId = getTickerId(security);
-
         // create the SubscribeTickEvent and propagate it
-        SubscribeTickVO subscribeTickEvent = new SubscribeTickVO();
-        subscribeTickEvent.setTick(tick);
-        subscribeTickEvent.setTickerId(tickerId);
+        String tickerId = getTickerId(security);
+        SubscribeTickVO subscribeTickEvent = new SubscribeTickVO(tickerId, security.getId(), getFeedType());
 
-        EngineLocator.instance().getServerEngine().sendEvent(subscribeTickEvent);
+        this.serverEngine.sendEvent(subscribeTickEvent);
 
         sendSubscribeRequest(security);
 
-        logger.debug("request market data for : " + security);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("request market data for : {}", security);
+        }
 
     }
 
@@ -127,40 +116,35 @@ public abstract class FixMarketDataServiceImpl extends ExternalMarketDataService
 
         Validate.notNull(security, "Security is null");
 
-        if (!this.lifeCycle.isSubscribed()) {
-            throw new FixMarketDataServiceException("Fix session ist not subscribed, security cannot be unsubscribed " + security);
+        if (!this.stateHolder.isSubscribed()) {
+            throw new ServiceException("Fix session ist not subscribed, security cannot be unsubscribed " + security);
         }
 
         sendUnsubscribeRequest(security);
 
-        EngineLocator.instance().getServerEngine().executeQuery("delete from TickWindow where security.id = " + security.getId());
+        this.serverEngine.executeQuery("delete from TickWindow where securityId = " + security.getId());
 
-        logger.debug("cancelled market data for : " + security);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("cancelled market data for : {}", security);
+        }
 
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public abstract void sendSubscribeRequest(Security security);
+    public final String getTickerId(final Security security) {
 
-    /**
-     * {@inheritDoc}
-     */
+        return this.tickerIdGenerator.generateId(security);
+    }
+
     @Override
-    public abstract void sendUnsubscribeRequest(Security security);
+    public final String getFeedType() {
 
-    /**
-     * {@inheritDoc}
-     */
+        return this.feedType;
+    }
+
     @Override
-    public abstract String getSessionQualifier();
+    public final String getSessionQualifier() {
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public abstract String getTickerId(Security security);
-
+        return this.stateHolder.getName();
+    }
 }

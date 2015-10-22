@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,27 +12,36 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.service;
 
 import java.beans.PropertyDescriptor;
 import java.math.BigDecimal;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections15.CollectionUtils;
-import org.apache.commons.collections15.Predicate;
+import org.apache.commons.lang.ClassUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.math.NumberUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.jmx.export.annotation.ManagedAttribute;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedOperationParameter;
@@ -42,18 +51,20 @@ import org.springframework.jmx.export.annotation.ManagedResource;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.ConfigParams;
 import ch.algotrader.config.ConfigProvider;
+import ch.algotrader.dao.NamedParam;
 import ch.algotrader.entity.Account;
+import ch.algotrader.entity.Position;
 import ch.algotrader.entity.Subscription;
-import ch.algotrader.entity.marketData.Bar;
-import ch.algotrader.entity.marketData.MarketDataEvent;
-import ch.algotrader.entity.marketData.Tick;
-import ch.algotrader.entity.property.Property;
+import ch.algotrader.entity.Transaction;
+import ch.algotrader.entity.exchange.Exchange;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.strategy.StrategyImpl;
+import ch.algotrader.entity.trade.ExecutionStatusVO;
 import ch.algotrader.entity.trade.LimitOrder;
 import ch.algotrader.entity.trade.MarketOrder;
 import ch.algotrader.entity.trade.Order;
+import ch.algotrader.entity.trade.OrderDetailsVO;
 import ch.algotrader.entity.trade.OrderProperty;
 import ch.algotrader.entity.trade.SlicingOrder;
 import ch.algotrader.entity.trade.StopLimitOrder;
@@ -61,34 +72,43 @@ import ch.algotrader.entity.trade.StopOrder;
 import ch.algotrader.entity.trade.TickwiseIncrementalOrder;
 import ch.algotrader.entity.trade.VariableIncrementalOrder;
 import ch.algotrader.enumeration.CombinationType;
-import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.enumeration.MarketDataType;
 import ch.algotrader.enumeration.OrderPropertyType;
+import ch.algotrader.enumeration.QueryType;
 import ch.algotrader.enumeration.Side;
-import ch.algotrader.esper.EngineLocator;
+import ch.algotrader.esper.Engine;
+import ch.algotrader.esper.EngineManager;
 import ch.algotrader.util.BeanUtil;
+import ch.algotrader.util.DateTimeUtil;
+import ch.algotrader.util.collection.Pair;
 import ch.algotrader.vo.BalanceVO;
-import ch.algotrader.vo.BarVO;
 import ch.algotrader.vo.FxExposureVO;
-import ch.algotrader.vo.MarketDataEventVO;
-import ch.algotrader.vo.OrderStatusVO;
-import ch.algotrader.vo.PositionVO;
-import ch.algotrader.vo.TickVO;
-import ch.algotrader.vo.TransactionVO;
+import ch.algotrader.vo.client.BarVO;
+import ch.algotrader.vo.client.MarketDataEventVO;
+import ch.algotrader.vo.client.OrderStatusVO;
+import ch.algotrader.vo.client.PositionVO;
+import ch.algotrader.vo.client.PositionVOProducer;
+import ch.algotrader.vo.client.TickVO;
+import ch.algotrader.vo.client.TransactionVO;
+import ch.algotrader.vo.client.TransactionVOProducer;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 @ManagedResource(objectName="ch.algotrader.service:name=ManagementService")
-public class ManagementServiceImpl implements ManagementService {
+public class ManagementServiceImpl implements ManagementService, ApplicationListener<ContextRefreshedEvent> {
+
+    private static final Logger LOGGER = LogManager.getLogger(ManagementServiceImpl.class);
 
     private final CommonConfig commonConfig;
+
+    private final EngineManager engineManager;
 
     private final SubscriptionService subscriptionService;
 
     private final LookupService lookupService;
+
+    private final MarketDataCache marketDataCache;
 
     private final PortfolioService portfolioService;
 
@@ -104,9 +124,15 @@ public class ManagementServiceImpl implements ManagementService {
 
     private final ConfigParams configParams;
 
-    public ManagementServiceImpl(final CommonConfig commonConfig,
+    private volatile boolean serverMode;
+    private volatile Engine engine;
+
+    public ManagementServiceImpl(
+            final CommonConfig commonConfig,
+            final EngineManager engineManager,
             final SubscriptionService subscriptionService,
             final LookupService lookupService,
+            final MarketDataCache marketDataCache,
             final PortfolioService portfolioService,
             final OrderService orderService,
             final PositionService positionService,
@@ -116,8 +142,10 @@ public class ManagementServiceImpl implements ManagementService {
             final ConfigParams configParams) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
+        Validate.notNull(engineManager, "EngineManager is null");
         Validate.notNull(subscriptionService, "SubscriptionService is null");
         Validate.notNull(lookupService, "LookupService is null");
+        Validate.notNull(marketDataCache, "MarketDataCache is null");
         Validate.notNull(portfolioService, "PortfolioService is null");
         Validate.notNull(orderService, "OrderService is null");
         Validate.notNull(positionService, "PositionService is null");
@@ -127,8 +155,10 @@ public class ManagementServiceImpl implements ManagementService {
         Validate.notNull(configParams, "ConfigParams is null");
 
         this.commonConfig = commonConfig;
+        this.engineManager = engineManager;
         this.subscriptionService = subscriptionService;
         this.lookupService = lookupService;
+        this.marketDataCache = marketDataCache;
         this.portfolioService = portfolioService;
         this.orderService = orderService;
         this.positionService = positionService;
@@ -138,6 +168,29 @@ public class ManagementServiceImpl implements ManagementService {
         this.configParams = configParams;
     }
 
+    private Engine getMainEngine() {
+        Engine engine;
+        Collection<Engine> strategyEngines = this.engineManager.getStrategyEngines();
+        if (strategyEngines.isEmpty()) {
+            engine = this.engineManager.getServerEngine();
+        } else {
+            Iterator<Engine> it = strategyEngines.iterator();
+            engine = it.next();
+            if (it.hasNext()) {
+                if (LOGGER.isWarnEnabled()) {
+                    LOGGER.warn("Management services do not support multiple strategies. Using strategy {}", engine.getStrategyName());
+                }
+            }
+        }
+        return engine;
+    }
+
+    @Override
+    public void onApplicationEvent(final ContextRefreshedEvent contextRefreshedEvent) {
+        this.engine = getMainEngine();
+        this.serverMode = this.engine.getStrategyName().equals(StrategyImpl.SERVER);
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -145,8 +198,7 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedAttribute(description = "Gets the current System Time")
     public Date getCurrentTime() {
 
-        String strategyName = this.commonConfig.getStartedStrategyName();
-        return EngineLocator.instance().getEngine(strategyName).getCurrentTime();
+        return this.engine.getCurrentTime();
 
     }
 
@@ -157,11 +209,10 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedAttribute(description = "Gets all available Currency Balances (only available for the AlgoTrader Server)")
     public Collection<BalanceVO> getDataBalances() {
 
-        String strategyName = this.commonConfig.getStartedStrategyName();
-        if (StrategyImpl.SERVER.equals(strategyName)) {
+        if (this.serverMode) {
             return this.portfolioService.getBalances();
         } else {
-            return this.portfolioService.getBalances(strategyName);
+            return this.portfolioService.getBalances(this.engine.getStrategyName());
         }
 
     }
@@ -170,12 +221,18 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedAttribute(description = "Gets the Net FX Currency Exposure of all FX positions")
     public Collection<FxExposureVO> getDataFxExposure() {
 
-        String strategyName = this.commonConfig.getStartedStrategyName();
-        if (StrategyImpl.SERVER.equals(strategyName)) {
+        if (this.serverMode) {
             return this.portfolioService.getFxExposure();
         } else {
-            return this.portfolioService.getFxExposure(strategyName);
+            return this.portfolioService.getFxExposure(this.engine.getStrategyName());
         }
+    }
+
+    private Collection<OrderStatusVO> convert(Collection<OrderDetailsVO> orderDetails) {
+        return orderDetails.stream()
+                .filter(entry -> this.serverMode || entry.getOrder().getStrategy().getName().equals(this.engine.getStrategyName()))
+                .map(this::convert)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -184,9 +241,42 @@ public class ManagementServiceImpl implements ManagementService {
     @Override
     @ManagedAttribute(description = "Gets current open Orders")
     public Collection<OrderStatusVO> getDataOrders() {
+        List<OrderDetailsVO> openOrders = this.orderService.getOpenOrderDetails();
+        Collections.sort(openOrders, (o1, o2) -> Objects.compare(o1.getOrder().getDateTime(), o2.getOrder().getDateTime(), Date::compareTo));
+        return convert(openOrders);
+    }
 
-        return this.lookupService.getOpenOrdersVOByStrategy(this.commonConfig.getStartedStrategyName());
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @ManagedAttribute(description = "Gets recently executed Orders")
+    public Collection<OrderStatusVO> getDataRecentOrders() {
+        return convert(this.orderService.getRecentOrderDetails());
+    }
 
+    private OrderStatusVO convert(final OrderDetailsVO entry) {
+
+        Order order = entry.getOrder();
+        ExecutionStatusVO details = entry.getExecutionStatus();
+
+        OrderStatusVO orderStatusVO = new OrderStatusVO();
+        orderStatusVO.setSide(order.getSide());
+        orderStatusVO.setQuantity(order.getQuantity());
+        orderStatusVO.setType(StringUtils.substringBefore(ClassUtils.getShortClassName(order.getClass()), "OrderImpl"));
+        orderStatusVO.setName(order.getSecurity().toString());
+        orderStatusVO.setStrategy(order.getStrategy().toString());
+        orderStatusVO.setAccount(order.getAccount() != null ? order.getAccount().toString() : "");
+        orderStatusVO.setExchange(order.getEffectiveExchange() != null ? order.getEffectiveExchange().toString() : "");
+        orderStatusVO.setTif(order.getTif() != null ? order.getTif().toString() : "");
+        orderStatusVO.setIntId(order.getIntId());
+        orderStatusVO.setExtId(order.getExtId());
+        orderStatusVO.setStatus(details.getStatus());
+        orderStatusVO.setFilledQuantity(details.getFilledQuantity());
+        orderStatusVO.setRemainingQuantity(details.getRemainingQuantity());
+        orderStatusVO.setDescription(order.getExtDescription());
+
+        return orderStatusVO;
     }
 
     /**
@@ -194,10 +284,28 @@ public class ManagementServiceImpl implements ManagementService {
      */
     @Override
     @ManagedAttribute(description = "Gets current open Positions")
-    public List<PositionVO> getDataPositions() {
+    public Collection<PositionVO> getDataPositions() {
 
-        return this.lookupService.getPositionsVO(this.commonConfig.getStartedStrategyName(), this.commonConfig.isDisplayClosedPositions());
+        String baseQuery = "from PositionImpl as p join fetch p.strategy join fetch p.security as s join fetch s.securityFamily ";
 
+        Collection<Position> positions;
+        if (this.serverMode) {
+            if (this.commonConfig.isDisplayClosedPositions()) {
+                positions = this.lookupService.find(Position.class, baseQuery + "order by p.id", QueryType.HQL, true);
+            } else {
+                positions = this.lookupService.find(Position.class, baseQuery + "where p.quantity != 0 order by p.id", QueryType.HQL, true);
+            }
+        } else {
+            if (this.commonConfig.isDisplayClosedPositions()) {
+                positions = this.lookupService.find(Position.class, baseQuery + "where p.strategy.name = :strategyName order by p.id", QueryType.HQL, true,
+                        new NamedParam("strategyName", this.engine.getStrategyName()));
+            } else {
+                positions = this.lookupService.find(Position.class, baseQuery + "where p.strategy.name = :strategyName and p.quantity != 0 order by p.id", QueryType.HQL, true,
+                        new NamedParam("strategyName", this.engine.getStrategyName()));
+            }
+        }
+        PositionVOProducer converter = new PositionVOProducer(this.marketDataCache);
+        return CollectionUtils.collect(positions, converter::convert);
     }
 
     /**
@@ -205,64 +313,55 @@ public class ManagementServiceImpl implements ManagementService {
      */
     @Override
     @ManagedAttribute(description = "Gets the latest Transactions")
-    public List<TransactionVO> getDataTransactions() {
+    public Collection<TransactionVO> getDataTransactions() {
 
-        return this.lookupService.getTransactionsVO(this.commonConfig.getStartedStrategyName());
+        Validate.notEmpty(this.engine.getStrategyName(), "Strategy name is empty");
 
+        Collection<Transaction> transactions;
+        if (this.serverMode) {
+            transactions = this.lookupService.getDailyTransactions();
+        } else {
+            transactions = this.lookupService.getDailyTransactionsByStrategy(this.engine.getStrategyName());
+        }
+
+        TransactionVOProducer converter = new TransactionVOProducer(this.commonConfig);
+        return CollectionUtils.collect(transactions, converter::convert);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    @SuppressWarnings("unchecked")
     @ManagedAttribute(description = "Gets the latest MarketDataEvents of all subscribed Securities")
-    public List<MarketDataEventVO> getMarketDataEvents() {
+    public Collection<MarketDataEventVO> getMarketDataEvents() {
 
-        String strategyName = this.commonConfig.getStartedStrategyName();
-        List<MarketDataEvent> marketDataEvents = EngineLocator.instance().getEngine(strategyName).executeQuery("select marketDataEvent.* from MarketDataWindow order by securityId");
-
-        List<MarketDataEventVO> marketDataEventVOs = getMarketDataEventVOs(marketDataEvents);
+        List<MarketDataEventVO> subscribedMarketDataEvent = new ArrayList<>();
 
         // get all subscribed securities
-        List<MarketDataEventVO> processedMarketDataEventVOs = new ArrayList<MarketDataEventVO>();
-        if (strategyName.equalsIgnoreCase(StrategyImpl.SERVER)) {
+        if (this.serverMode) {
 
             // for the AlgoTrader Server iterate over a distinct list of subscribed securities and feedType
-            List<Map<String, Object>> subscriptions = this.lookupService.getSubscribedSecuritiesAndFeedTypeForAutoActivateStrategiesInclComponents();
-            for (Map<String, Object> subscription : subscriptions) {
+            List<Pair<Security, String>> subscribedSecurities = this.lookupService.getSubscribedSecuritiesAndFeedTypeForAutoActivateStrategiesInclComponents();
+            for (Pair<Security, String> subscribedSecurity : subscribedSecurities) {
 
-                Security security = (Security) subscription.get("security");
-                FeedType feedType = (FeedType) subscription.get("feedType");
-
-                // try to get the processedMarketDataEvent
-                MarketDataEventVO marketDataEventVO = getMarketDataEventVO(marketDataEventVOs, security, feedType);
-
-                processedMarketDataEventVOs.add(marketDataEventVO);
+                Security security = subscribedSecurity.getFirst();
+                String feedType = subscribedSecurity.getSecond();
+                ch.algotrader.entity.marketData.MarketDataEventVO marketDataEvent = this.marketDataCache.getCurrentMarketDataEvent(security.getId());
+                subscribedMarketDataEvent.add(convert(marketDataEvent, security, feedType));
             }
-
         } else {
 
             // for strategies iterate over all subscriptions
-            List<Subscription> subscriptions = this.lookupService.getSubscriptionsByStrategyInclComponents(strategyName);
+            List<Subscription> subscriptions = this.lookupService.getSubscriptionsByStrategyInclComponentsAndProps(this.engine.getStrategyName());
             for (Subscription subscription : subscriptions) {
 
                 Security security = subscription.getSecurity();
-                FeedType feedType = subscription.getFeedType();
-
-                MarketDataEventVO marketDataEventVO = getMarketDataEventVO(marketDataEventVOs, security, feedType);
-
-                // add properties from this strategies subscription
-                Map<String, Property> properties = subscription.getPropsInitialized();
-                if (!properties.isEmpty()) {
-                    marketDataEventVO.setProperties(properties);
-                }
-
-                processedMarketDataEventVOs.add(marketDataEventVO);
+                String feedType = subscription.getFeedType();
+                ch.algotrader.entity.marketData.MarketDataEventVO marketDataEvent = this.marketDataCache.getCurrentMarketDataEvent(security.getId());
+                subscribedMarketDataEvent.add(convert(marketDataEvent, security, feedType));
             }
         }
-        return processedMarketDataEventVOs;
-
+        return subscribedMarketDataEvent;
     }
 
     /**
@@ -270,11 +369,11 @@ public class ManagementServiceImpl implements ManagementService {
      */
     @Override
     @ManagedAttribute(description = "Gets the Properties that are defined for this Strategy (or AlgoTrader Server)")
-    public Map getProperties() {
+    public Map<String, Object> getProperties() {
 
         ConfigProvider configProvider = this.configParams.getConfigProvider();
         Set<String> names = configProvider.getNames();
-        Map<Object, Object> props = new HashMap<Object, Object>();
+        Map<String, Object> props = new HashMap<>();
         for (String name : names) {
 
             props.put(name, configProvider.getParameter(name, String.class));
@@ -290,8 +389,7 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedAttribute(description = "Gets the Allocation that is assigned to this Strategy (or to the AlgoTrader Server)")
     public double getStrategyAllocation() {
 
-        String strategyName = this.commonConfig.getStartedStrategyName();
-        return this.lookupService.getStrategyByName(strategyName).getAllocation();
+        return this.lookupService.getStrategyByName(this.engine.getStrategyName()).getAllocation();
 
     }
 
@@ -302,11 +400,10 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedAttribute(description = "Gets the Cash Balance of this Strategy (or the entire System if called from the AlgoTrader Server)")
     public BigDecimal getStrategyCashBalance() {
 
-        String strategyName = this.commonConfig.getStartedStrategyName();
-        if (strategyName.equals(StrategyImpl.SERVER)) {
+        if (this.serverMode) {
             return this.portfolioService.getCashBalance();
         } else {
-            return this.portfolioService.getCashBalance(strategyName);
+            return this.portfolioService.getCashBalance(this.engine.getStrategyName());
         }
 
     }
@@ -318,11 +415,10 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedAttribute(description = "Gets the current Leverage of this Strategy")
     public double getStrategyLeverage() {
 
-        String strategyName = this.commonConfig.getStartedStrategyName();
-        if (strategyName.equals(StrategyImpl.SERVER)) {
+        if (this.serverMode) {
             return this.portfolioService.getLeverage();
         } else {
-            return this.portfolioService.getLeverage(strategyName);
+            return this.portfolioService.getLeverage(this.engine.getStrategyName());
         }
 
     }
@@ -334,8 +430,7 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedAttribute(description = "Gets the name of this Strategy")
     public String getStrategyName() {
 
-        return this.commonConfig.getStartedStrategyName();
-
+        return this.engine.getStrategyName();
     }
 
     /**
@@ -345,11 +440,10 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedAttribute(description = "Gets the Net-Liquidation-Value of this Strategy (or the entire System if called from the AlgoTrader Server)")
     public BigDecimal getStrategyNetLiqValue() {
 
-        String strategyName = this.commonConfig.getStartedStrategyName();
-        if (strategyName.equals(StrategyImpl.SERVER)) {
+        if (this.serverMode) {
             return this.portfolioService.getNetLiqValue();
         } else {
-            return this.portfolioService.getNetLiqValue(strategyName);
+            return this.portfolioService.getNetLiqValue(this.engine.getStrategyName());
         }
 
     }
@@ -361,11 +455,10 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedAttribute(description = "Gets the performance since the beginning of the month of this Strategy (or the entire System if called from the AlgoTrader Server)")
     public double getStrategyPerformance() {
 
-        String strategyName = this.commonConfig.getStartedStrategyName();
-        if (strategyName.equals(StrategyImpl.SERVER)) {
+        if (this.serverMode) {
             return this.portfolioService.getPerformance();
         } else {
-            return this.portfolioService.getPerformance(strategyName);
+            return this.portfolioService.getPerformance(this.engine.getStrategyName());
         }
 
     }
@@ -377,11 +470,10 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedAttribute(description = "Gets the total Market Value of all Positions of this Strategy (or the entire System if called from the AlgoTrader Server)")
     public BigDecimal getStrategySecuritiesCurrentValue() {
 
-        String strategyName = this.commonConfig.getStartedStrategyName();
-        if (strategyName.equals(StrategyImpl.SERVER)) {
+        if (this.serverMode) {
             return this.portfolioService.getSecuritiesCurrentValue();
         } else {
-            return this.portfolioService.getSecuritiesCurrentValue(strategyName);
+            return this.portfolioService.getSecuritiesCurrentValue(this.engine.getStrategyName());
         }
 
     }
@@ -393,11 +485,10 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedAttribute(description = "Gets the total UnrealizedPL of all Positions of this Strategy (or the entire System if called from the AlgoTrader Server)")
     public BigDecimal getStrategyUnrealizedPL() {
 
-        String strategyName = this.commonConfig.getStartedStrategyName();
-        if (strategyName.equals(StrategyImpl.SERVER)) {
+        if (this.serverMode) {
             return this.portfolioService.getUnrealizedPL();
         } else {
-            return this.portfolioService.getUnrealizedPL(strategyName);
+            return this.portfolioService.getUnrealizedPL(this.engine.getStrategyName());
         }
 
     }
@@ -414,7 +505,7 @@ public class ManagementServiceImpl implements ManagementService {
         Validate.notEmpty(moduleName, "Module name is empty");
         Validate.notEmpty(statementName, "Statement name is empty");
 
-        EngineLocator.instance().getEngine(this.commonConfig.getStartedStrategyName()).deployStatement(moduleName, statementName);
+        this.engine.deployStatement(moduleName, statementName);
 
     }
 
@@ -428,7 +519,7 @@ public class ManagementServiceImpl implements ManagementService {
 
         Validate.notEmpty(moduleName, "Module name is empty");
 
-        EngineLocator.instance().getEngine(this.commonConfig.getStartedStrategyName()).deployModule(moduleName);
+        this.engine.deployModule(moduleName);
 
     }
 
@@ -442,9 +533,10 @@ public class ManagementServiceImpl implements ManagementService {
             @ManagedOperationParameter(name = "quantity", description = "The requested quantity (positive value)"),
             @ManagedOperationParameter(name = "side", description = "<html>Side: <ul> <li> B (BUY) </li> <li> S (SELL) </li> <li> SS (SELL_SHORT) </li> </ul></html>"),
             @ManagedOperationParameter(name = "type", description = "<html>Order type: <ul> <li> M (Market) </li> <li> L (Limit) </li> <li> S (Stop) </li> <li> SL (StopLimit) </li> <li> TI (TickwiseIncremental) </li> <li> VI (VariableIncremental) </li> <li> SLI (Slicing) </li> </ul> or order preference (e.g. 'FVIX' or 'OVIX')</html>"),
-            @ManagedOperationParameter(name = "accountName", description = "accountName"),
+            @ManagedOperationParameter(name = "accountName", description = "accountName (optional)"),
+            @ManagedOperationParameter(name = "exchangeName", description = "exchangeName (optional)"),
             @ManagedOperationParameter(name = "properties", description = "<html>Additional properties to be set on the order as a comma separated list (e.g. stop=12.0,limit=12.5).<p> In addition custom properties can be set on the order (e.g. FIX123=12, INTERNALportfolio=TEST)</hmlt>") })
-    public void sendOrder(final String security, final long quantity, final String side, final String type, final String accountName, final String properties) {
+    public void sendOrder(final String security, final long quantity, final String side, final String type, String accountName, final String exchangeName, final String properties) {
 
         Validate.notEmpty(security, "Security is empty");
         Validate.notEmpty(side, "Side is empty");
@@ -452,9 +544,7 @@ public class ManagementServiceImpl implements ManagementService {
 
         Side sideObject = Side.fromValue(side);
 
-        String strategyName = this.commonConfig.getStartedStrategyName();
-
-        Strategy strategy = this.lookupService.getStrategyByName(strategyName);
+        Strategy strategy = this.lookupService.getStrategyByName(this.engine.getStrategyName());
         Security securityObject = this.lookupService.getSecurity(getSecurityId(security));
 
         // instantiate the order
@@ -468,15 +558,15 @@ public class ManagementServiceImpl implements ManagementService {
         } else if ("SL".equals(type)) {
             order = StopLimitOrder.Factory.newInstance();
         } else if ("TI".equals(type)) {
-            order = TickwiseIncrementalOrder.Factory.newInstance();
+            order = new TickwiseIncrementalOrder();
         } else if ("VI".equals(type)) {
-            order = VariableIncrementalOrder.Factory.newInstance();
+            order = new VariableIncrementalOrder();
         } else if ("SLI".equals(type)) {
-            order = SlicingOrder.Factory.newInstance();
+            order = new SlicingOrder();
         } else {
 
             // create the order from an OrderPreference
-            order = this.lookupService.getOrderByName(type);
+            order = this.orderService.createOrderByOrderPreference(type);
         }
 
         // set common values
@@ -485,23 +575,41 @@ public class ManagementServiceImpl implements ManagementService {
         order.setQuantity(Math.abs(quantity));
         order.setSide(sideObject);
 
-        // set the account (if defined)
-        if (!"".equals(accountName)) {
-            Account account = this.lookupService.getAccountByName(accountName);
-            order.setAccount(account);
+        // set the account
+        if (StringUtils.isEmpty(accountName)) {
+            if (order.getAccount() == null) {
+                accountName = this.commonConfig.getDefaultAccountName();
+                Account accountByName = this.lookupService.getAccountByName(accountName);
+                if (accountByName == null) {
+                    throw new IllegalArgumentException("Account '" + accountName + "' not found");
+                }
+                order.setAccount(accountByName);
+            }
+        } else {
+            Account accountByName = this.lookupService.getAccountByName(accountName);
+            if (accountByName == null) {
+                throw new IllegalArgumentException("Account '" + accountName + "' not found");
+            }
+            order.setAccount(accountByName);
+        }
+
+        // set the exchange
+        if (!StringUtils.isEmpty(exchangeName)) {
+            Exchange exchange = this.lookupService.getExchangeByName(exchangeName);
+            order.setExchange(exchange);
         }
 
         // set additional properties
-        if (!"".equals(properties)) {
+        if (!StringUtils.isEmpty(properties)) {
 
             // get the properties
-            Map<String, String> propertiesMap = new HashMap<String, String>();
+            Map<String, String> propertiesMap = new HashMap<>();
             for (String nameValue : properties.split(",")) {
                 propertiesMap.put(nameValue.split("=")[0], nameValue.split("=")[1]);
             }
 
             // separate properties that correspond to actual Order fields from the rest
-            Map<String, String> fields = new HashMap<String, String>();
+            Map<String, String> fields = new HashMap<>();
             PropertyDescriptor[] pds = BeanUtil.getPropertyDescriptors(order);
             for (PropertyDescriptor pd : pds) {
                 String name = pd.getName();
@@ -515,7 +623,7 @@ public class ManagementServiceImpl implements ManagementService {
             try {
                 BeanUtil.populate(order, fields);
             } catch (ReflectiveOperationException ex) {
-                throw new ManagementServiceException(ex);
+                throw new ServiceException(ex);
             }
 
             // create OrderProperty Entities for the remaining properties
@@ -573,7 +681,7 @@ public class ManagementServiceImpl implements ManagementService {
         Validate.notEmpty(properties, "Properties are empty");
 
         // get the properties
-        Map<String, String> propertiesMap = new HashMap<String, String>();
+        Map<String, String> propertiesMap = new HashMap<>();
         for (String nameValue : properties.split(",")) {
             propertiesMap.put(nameValue.split("=")[0], nameValue.split("=")[1]);
         }
@@ -586,9 +694,9 @@ public class ManagementServiceImpl implements ManagementService {
      * {@inheritDoc}
      */
     @Override
-    @ManagedOperation(description = "Closes the specified Position by using the defined DefaultOrderPreference")
+    @ManagedOperation(description = "Closes the specified Position by using the defined default OrderPreference")
     @ManagedOperationParameters({ @ManagedOperationParameter(name = "positionId", description = "positionId") })
-    public void closePosition(final int positionId) {
+    public void closePosition(final long positionId) {
 
         this.positionService.closePosition(positionId, false);
 
@@ -598,9 +706,9 @@ public class ManagementServiceImpl implements ManagementService {
      * {@inheritDoc}
      */
     @Override
-    @ManagedOperation(description = "Reduces the Position by the specified amount by using the defined DefaultOrderPreference")
+    @ManagedOperation(description = "Reduces the Position by the specified amount by using the defined default OrderPreference")
     @ManagedOperationParameters({ @ManagedOperationParameter(name = "positionId", description = "positionId"), @ManagedOperationParameter(name = "quantity", description = "quantity") })
-    public void reducePosition(final int positionId, final int quantity) {
+    public void reducePosition(final long positionId, final int quantity) {
 
         this.positionService.reducePosition(positionId, quantity);
 
@@ -618,31 +726,7 @@ public class ManagementServiceImpl implements ManagementService {
 
         Validate.notEmpty(combination, "Combination is empty");
 
-        this.combinationService.reduceCombination(getSecurityId(combination), this.commonConfig.getStartedStrategyName(), ratio);
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @ManagedOperation(description = "Set or modify the ExitValue of the specified Position")
-    @ManagedOperationParameters({ @ManagedOperationParameter(name = "positionId", description = "positionId"), @ManagedOperationParameter(name = "exitValue", description = "exitValue") })
-    public void setExitValue(final int positionId, final double exitValue) {
-
-        this.positionService.setExitValue(positionId, new BigDecimal(exitValue), true);
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @ManagedOperation(description = "Remove the ExitValue from the specified Position")
-    @ManagedOperationParameters({ @ManagedOperationParameter(name = "positionId", description = "positionId") })
-    public void removeExitValue(final int positionId) {
-
-        this.positionService.removeExitValue(positionId);
+        this.combinationService.reduceCombination(getSecurityId(combination), this.engine.getStrategyName(), ratio);
 
     }
 
@@ -657,7 +741,7 @@ public class ManagementServiceImpl implements ManagementService {
         Validate.notEmpty(variableName, "Variable name is empty");
         Validate.notEmpty(value, "Value is empty");
 
-        EngineLocator.instance().getEngine(this.commonConfig.getStartedStrategyName()).setVariableValueFromString(variableName, value);
+        this.engine.setVariableValueFromString(variableName, value);
 
     }
 
@@ -665,7 +749,7 @@ public class ManagementServiceImpl implements ManagementService {
      * {@inheritDoc}
      */
     @Override
-    @ManagedOperation(description = "Subscribe to the specified Security.    ")
+    @ManagedOperation(description = "Subscribe to the specified Security")
     @ManagedOperationParameters({
             @ManagedOperationParameter(name = "security", description = "<html><ul> <li> securityId (e.g. 123) </li> <li> symbol (e.g. GOOG) </li> <li> isin, prefix with &quot;isin:&quot;, (e.g. &quot;isin:EU0009654078&quot;) </li> <li> bbgid, prefix with &quot;bbgid:&quot;, (e.g. &quot;bbgid:BBG005NHP5P9&quot;) </li> <li> ric, prefix with &quot;ric:&quot;, (e.g. &quot;ric:.SPX&quot;) </li> <li> conid, prefix with &quot;conid:&quot;, (e.g. &quot;conid:12087817&quot;) </li> </ul></html>"),
             @ManagedOperationParameter(name = "feedType", description = "The market data feed to use (e.g. IB, BB or DC)") })
@@ -673,11 +757,10 @@ public class ManagementServiceImpl implements ManagementService {
 
         Validate.notEmpty(security, "Security is empty");
 
-        String startedStrategyName = this.commonConfig.getStartedStrategyName();
-        if (!"".equals(feedType)) {
-            this.subscriptionService.subscribeMarketDataEvent(startedStrategyName, getSecurityId(security), FeedType.fromString(feedType));
+        if (!StringUtils.isEmpty(feedType)) {
+            this.subscriptionService.subscribeMarketDataEvent(this.engine.getStrategyName(), getSecurityId(security), feedType);
         } else {
-            this.subscriptionService.subscribeMarketDataEvent(startedStrategyName, getSecurityId(security));
+            this.subscriptionService.subscribeMarketDataEvent(this.engine.getStrategyName(), getSecurityId(security));
         }
 
     }
@@ -694,11 +777,10 @@ public class ManagementServiceImpl implements ManagementService {
 
         Validate.notEmpty(security, "Security is empty");
 
-        String startedStrategyName = this.commonConfig.getStartedStrategyName();
-        if (!"".equals(feedType)) {
-            this.subscriptionService.unsubscribeMarketDataEvent(startedStrategyName, getSecurityId(security), FeedType.fromString(feedType));
+        if (!StringUtils.isEmpty(feedType)) {
+            this.subscriptionService.unsubscribeMarketDataEvent(this.engine.getStrategyName(), getSecurityId(security), feedType);
         } else {
-            this.subscriptionService.unsubscribeMarketDataEvent(startedStrategyName, getSecurityId(security));
+            this.subscriptionService.unsubscribeMarketDataEvent(this.engine.getStrategyName(), getSecurityId(security));
         }
 
     }
@@ -711,8 +793,7 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedOperationParameters({})
     public void requestCurrentTicks() {
 
-        this.marketDataService.requestCurrentTicks(this.commonConfig.getStartedStrategyName());
-
+        this.marketDataService.requestCurrentTicks(this.engine.getStrategyName());
     }
 
     /**
@@ -725,7 +806,7 @@ public class ManagementServiceImpl implements ManagementService {
             @ManagedOperationParameter(name = "name", description = "Name of the Property"),
             @ManagedOperationParameter(name = "value", description = "value"),
             @ManagedOperationParameter(name = "type", description = "<html>Type of the value: <ul> <li> INT </li> <li> DOUBLE </li> <li> MONEY </li> <li> TEXT </li> <li> DATE (Format: dd.mm.yyyy hh:mm:ss) </li> <li> BOOLEAN </li> </ul></html>") })
-    public void addProperty(final int propertyHolderId, final String name, final String value, final String type) {
+    public void addProperty(final long propertyHolderId, final String name, final String value, final String type) {
 
         Validate.notEmpty(name, "Name is empty");
         Validate.notEmpty(value, "Value is empty");
@@ -742,9 +823,10 @@ public class ManagementServiceImpl implements ManagementService {
             obj = value;
         } else if ("DATE".equals(type)) {
             try {
-                obj = (new SimpleDateFormat("dd.MM.yyyy HH:mm:ss")).parse(value);
-            } catch (ParseException ex) {
-                throw new ManagementServiceException(ex);
+                Instant instant = DateTimeUtil.parseLocalDateTime(value, Instant::from);
+                obj = new Date(instant.toEpochMilli());
+            } catch (DateTimeParseException ex) {
+                throw new ServiceException(ex);
             }
         } else if ("BOOLEAN".equals(type)) {
             obj = Boolean.parseBoolean(value);
@@ -763,7 +845,7 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedOperation(description = "Remove the specified property")
     @ManagedOperationParameters({ @ManagedOperationParameter(name = "propertyHolderId", description = "Id of the PropertyHolder (e.g. Subscription, Position or Strategy)"),
             @ManagedOperationParameter(name = "name", description = "name of the property") })
-    public void removeProperty(final int propertyHolderId, final String name) {
+    public void removeProperty(final long propertyHolderId, final String name) {
 
         Validate.notEmpty(name, "Name is empty");
 
@@ -780,14 +862,14 @@ public class ManagementServiceImpl implements ManagementService {
             @ManagedOperationParameter(name = "combinationType", description = "<html><ul> <li> VERTICAL_SPREAD </li> <li> COVERED_CALL </li> <li> RATIO_SPREAD </li> <li> STRADDLE </li> <li> STRANGLE </li> <li> BUTTERFLY </li> <li> CALENDAR_SPREAD </li> <li> IRON_CONDOR </li> </ul></html>"),
             @ManagedOperationParameter(name = "securityFamilyId", description = "securityFamilyId"),
             @ManagedOperationParameter(name = "underlying", description = "<html>Underlying Security: <ul> <li> securityId (e.g. 123) </li> <li> symbol (e.g. GOOG) </li> <li> isin, prefix with &quot;isin:&quot;, (e.g. &quot;isin:EU0009654078&quot;) </li> <li> bbgid, prefix with &quot;bbgid:&quot;, (e.g. &quot;bbgid:BBG005NHP5P9&quot;) </li> <li> ric, prefix with &quot;ric:&quot;, (e.g. &quot;ric:.SPX&quot;) </li> <li> conid, prefix with &quot;conid:&quot;, (e.g. &quot;conid:12087817&quot;) </li> </ul></html>") })
-    public int createCombination(final String combinationType, final int securityFamilyId, final String underlying) {
+    public long createCombination(final String combinationType, final long securityFamilyId, final String underlying) {
 
         Validate.notEmpty(combinationType, "Combination type is empty");
 
-        if ("".equals(underlying)) {
-            return this.combinationService.createCombination(CombinationType.fromString(combinationType), securityFamilyId).getId();
+        if (StringUtils.isEmpty(underlying)) {
+            return this.combinationService.createCombination(CombinationType.valueOf(combinationType), securityFamilyId).getId();
         } else {
-            return this.combinationService.createCombination(CombinationType.fromString(combinationType), securityFamilyId, getSecurityId(underlying)).getId();
+            return this.combinationService.createCombination(CombinationType.valueOf(combinationType), securityFamilyId, getSecurityId(underlying)).getId();
         }
 
     }
@@ -801,7 +883,7 @@ public class ManagementServiceImpl implements ManagementService {
             @ManagedOperationParameter(name = "combinationId", description = "the id of the combination"),
             @ManagedOperationParameter(name = "component", description = "<html>Component: <ul> <li> securityId (e.g. 123) </li> <li> symbol (e.g. GOOG) </li> <li> isin, prefix with &quot;isin:&quot;, (e.g. &quot;isin:EU0009654078&quot;) </li> <li> bbgid, prefix with &quot;bbgid:&quot;, (e.g. &quot;bbgid:BBG005NHP5P9&quot;) </li> <li> ric, prefix with &quot;ric:&quot;, (e.g. &quot;ric:.SPX&quot;) </li> <li> conid, prefix with &quot;conid:&quot;, (e.g. &quot;conid:12087817&quot;) </li> </ul></html>"),
             @ManagedOperationParameter(name = "quantitiy", description = "quantitiy") })
-    public void setComponentQuantity(final int combinationId, final String component, final long quantitiy) {
+    public void setComponentQuantity(final long combinationId, final String component, final long quantitiy) {
 
         Validate.notEmpty(component, "Component is empty");
 
@@ -817,7 +899,7 @@ public class ManagementServiceImpl implements ManagementService {
     @ManagedOperationParameters({
             @ManagedOperationParameter(name = "combinationId", description = "the id of the combination"),
             @ManagedOperationParameter(name = "component", description = "<html>Component: <ul> <li> securityId (e.g. 123) </li> <li> symbol (e.g. GOOG) </li> <li> isin, prefix with &quot;isin:&quot;, (e.g. &quot;isin:EU0009654078&quot;) </li> <li> bbgid, prefix with &quot;bbgid:&quot;, (e.g. &quot;bbgid:BBG005NHP5P9&quot;) </li> <li> ric, prefix with &quot;ric:&quot;, (e.g. &quot;ric:.SPX&quot;) </li> <li> conid, prefix with &quot;conid:&quot;, (e.g. &quot;conid:12087817&quot;) </li> </ul></html>") })
-    public void removeComponent(final int combinationId, final String component) {
+    public void removeComponent(final long combinationId, final String component) {
 
         Validate.notEmpty(component, "Component is empty");
 
@@ -831,7 +913,7 @@ public class ManagementServiceImpl implements ManagementService {
     @Override
     @ManagedOperation(description = "deletes a Combination")
     @ManagedOperationParameters({ @ManagedOperationParameter(name = "combinationId", description = "the id of the combination") })
-    public void deleteCombination(final int combinationId) {
+    public void deleteCombination(final long combinationId) {
 
         this.combinationService.deleteCombination(combinationId);
 
@@ -858,15 +940,13 @@ public class ManagementServiceImpl implements ManagementService {
     public void shutdown() {
 
         // cancel all orders if we called from the AlgoTrader Server
-        if (this.commonConfig.isStartedStrategySERVER()) {
+        if (StrategyImpl.SERVER.equals(this.engine.getStrategyName())) {
             this.orderService.cancelAllOrders();
         }
-        // need to force exit because grafefull shutdown of esper-service (and esper-jmx) does not work
-        System.exit(0);
 
     }
 
-    private int getSecurityId(String securityString) {
+    private long getSecurityId(String securityString) {
 
         if (NumberUtils.isDigits(securityString)) {
             return Integer.parseInt(securityString);
@@ -894,79 +974,54 @@ public class ManagementServiceImpl implements ManagementService {
         }
     }
 
-    private List<MarketDataEventVO> getMarketDataEventVOs(List<MarketDataEvent> marketDataEvents) {
+    private MarketDataEventVO convert(ch.algotrader.entity.marketData.MarketDataEventVO marketDataEvent, Security security, String feedType) {
 
-        // create MarketDataEventVOs based on the MarketDataEvents (have to do this manually since we have no access to the Dao)
-        List<MarketDataEventVO> marketDataEventVOs = new ArrayList<MarketDataEventVO>();
-        for (MarketDataEvent marketDataEvent : marketDataEvents) {
+        MarketDataEventVO marketDataEventVO;
+        if (marketDataEvent instanceof ch.algotrader.entity.marketData.TickVO) {
 
-            MarketDataEventVO marketDataEventVO;
-            if (marketDataEvent instanceof Tick) {
+            ch.algotrader.entity.marketData.TickVO tick = (ch.algotrader.entity.marketData.TickVO) marketDataEvent;
+            TickVO tickVO = new TickVO();
+            tickVO.setLast(tick.getLast());
+            tickVO.setLastDateTime(tick.getLastDateTime());
+            tickVO.setVolBid(tick.getVolBid());
+            tickVO.setVolAsk(tick.getVolAsk());
+            tickVO.setBid(tick.getBid());
+            tickVO.setAsk(tick.getAsk());
+            tickVO.setVol(tick.getVol());
 
-                Tick tick = (Tick) marketDataEvent;
-                TickVO tickVO = new TickVO();
-                tickVO.setLast(tick.getLast());
-                tickVO.setLastDateTime(tick.getLastDateTime());
-                tickVO.setVolBid(tick.getVolBid());
-                tickVO.setVolAsk(tick.getVolAsk());
-                tickVO.setBid(tick.getBid());
-                tickVO.setAsk(tick.getAsk());
-                tickVO.setVol(tick.getVol());
+            marketDataEventVO = tickVO;
 
-                marketDataEventVO = tickVO;
+        } else if (marketDataEvent instanceof ch.algotrader.entity.marketData.BarVO) {
 
-            } else if (marketDataEvent instanceof Bar) {
+            ch.algotrader.entity.marketData.BarVO bar = (ch.algotrader.entity.marketData.BarVO) marketDataEvent;
+            BarVO barVO = new BarVO();
+            barVO.setOpen(bar.getOpen());
+            barVO.setHigh(bar.getHigh());
+            barVO.setLow(bar.getLow());
+            barVO.setClose(bar.getClose());
+            barVO.setVol(bar.getVol());
 
-                Bar bar = (Bar) marketDataEvent;
-                BarVO barVO = new BarVO();
-                barVO.setOpen(bar.getOpen());
-                barVO.setHigh(bar.getHigh());
-                barVO.setLow(bar.getLow());
-                barVO.setClose(bar.getClose());
-                barVO.setVol(bar.getVol());
-
-                marketDataEventVO = barVO;
-
-            } else {
-                continue;
-            }
-
-            marketDataEventVO.setDateTime(marketDataEvent.getDateTime());
-            marketDataEventVO.setSecurityId(marketDataEvent.getSecurity().getId());
-            marketDataEventVO.setCurrentValue(marketDataEvent.getCurrentValue());
-            marketDataEventVO.setFeedType(marketDataEvent.getFeedType());
-
-            marketDataEventVOs.add(marketDataEventVO);
-        }
-
-        return marketDataEventVOs;
-    }
-
-    private MarketDataEventVO getMarketDataEventVO(List<MarketDataEventVO> marketDataEventVOs, final Security security, final FeedType feedType) {
-
-        // get the marketDataEventVO matching the securityId
-        MarketDataEventVO marketDataEventVO = CollectionUtils.find(marketDataEventVOs, new Predicate<MarketDataEventVO>() {
-            @Override
-            public boolean evaluate(MarketDataEventVO marketDataEventVO) {
-                return marketDataEventVO.getSecurityId() == security.getId() && marketDataEventVO.getFeedType().equals(feedType);
-            }
-        });
-
-        // create an empty MarketDataEventVO if non exists
-        if (marketDataEventVO == null) {
+            marketDataEventVO = barVO;
+        } else {
             CommonConfig commonConfig = this.commonConfig;
             if (MarketDataType.TICK.equals(commonConfig.getDataSetType())) {
                 marketDataEventVO = new TickVO();
             } else if (MarketDataType.BAR.equals(commonConfig.getDataSetType())) {
                 marketDataEventVO = new BarVO();
             } else {
-                throw new IllegalStateException("unknown dataSetType " + commonConfig.getDataSetType());
+                throw new IllegalStateException("Unknown dataSetType " + commonConfig.getDataSetType());
             }
         }
-
-        // set db data
         marketDataEventVO.setSecurityId(security.getId());
         marketDataEventVO.setName(security.toString());
+        marketDataEventVO.setFeedType(feedType);
+
+        if (marketDataEvent != null) {
+            marketDataEventVO.setDateTime(marketDataEvent.getDateTime());
+            marketDataEventVO.setSecurityId(marketDataEvent.getSecurityId());
+            marketDataEventVO.setCurrentValue(marketDataEvent.getCurrentValue());
+        }
         return marketDataEventVO;
     }
+
 }

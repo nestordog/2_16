@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,8 +12,8 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.adapter.dc;
 
@@ -22,14 +22,14 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import org.apache.commons.lang.time.DateUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.adapter.fix.fix44.AbstractFix44MarketDataMessageHandler;
 import ch.algotrader.enumeration.FeedType;
-import ch.algotrader.esper.EngineLocator;
-import ch.algotrader.util.MyLogger;
-import ch.algotrader.vo.AskVO;
-import ch.algotrader.vo.BidVO;
+import ch.algotrader.esper.Engine;
+import ch.algotrader.vo.marketData.AskVO;
+import ch.algotrader.vo.marketData.BidVO;
 import quickfix.FieldNotFound;
 import quickfix.Group;
 import quickfix.SessionID;
@@ -45,12 +45,16 @@ import quickfix.fix44.MarketDataSnapshotFullRefresh;
  * DukasCopy specific FIX market data handler.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public class DCFixMarketDataMessageHandler extends AbstractFix44MarketDataMessageHandler {
 
-    private static Logger logger = MyLogger.getLogger(DCFixMarketDataMessageHandler.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(DCFixMarketDataMessageHandler.class);
+
+    private final Engine serverEngine;
+
+    public DCFixMarketDataMessageHandler(Engine serverEngine) {
+        this.serverEngine = serverEngine;
+    }
 
     public void onMessage(MarketDataSnapshotFullRefresh marketData, SessionID sessionID) throws FieldNotFound {
 
@@ -76,22 +80,22 @@ public class DCFixMarketDataMessageHandler extends AbstractFix44MarketDataMessag
                 switch (entryType) {
                     case MDEntryType.BID:
 
-                        if (logger.isTraceEnabled()) {
-                            logger.trace(symbol.getValue() + " BID " + size + "@" + price);
+                        if (LOGGER.isTraceEnabled()) {
+                            LOGGER.trace("{} BID {}@{}", symbol.getValue(), size, price);
                         }
 
-                        BidVO bidVO = new BidVO(tickerId, FeedType.DC, date, price, (int) size);
-                        EngineLocator.instance().getServerEngine().sendEvent(bidVO);
+                        BidVO bidVO = new BidVO(tickerId, FeedType.DC.name(), date, price, (int) size);
+                        this.serverEngine.sendEvent(bidVO);
                         break;
                     case MDEntryType.OFFER:
 
-                        if (logger.isTraceEnabled()) {
-                            logger.trace(symbol.getValue() + " ASK " + size + "@" + price);
+                        if (LOGGER.isTraceEnabled()) {
+                            LOGGER.trace("{} ASK {}@{}", symbol.getValue(), size, price);
                         }
 
-                        AskVO askVO = new AskVO(tickerId, FeedType.DC, date, price, (int) size);
+                        AskVO askVO = new AskVO(tickerId, FeedType.DC.name(), date, price, (int) size);
 
-                        EngineLocator.instance().getServerEngine().sendEvent(askVO);
+                        this.serverEngine.sendEvent(askVO);
                         break;
                 }
             }

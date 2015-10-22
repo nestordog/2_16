@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,8 +12,8 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.esper.aggregation;
 
@@ -55,12 +55,10 @@ import com.tictactec.ta.lib.meta.annotation.OutputParameterType;
  * Factory class needed for {@link GenericTALibFunction}
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public class GenericTALibFunctionFactory implements AggregationFunctionFactory {
 
-    private static CoreAnnotated core = new CoreAnnotated();
+    private static final CoreAnnotated core = new CoreAnnotated();
 
     private Method function;
     private Class<?> outputClass;
@@ -68,9 +66,9 @@ public class GenericTALibFunctionFactory implements AggregationFunctionFactory {
     private int inputParamCount = 0;
     private int lookbackPeriod;
 
-    private List<CircularFifoBuffer<Number>> inputParams = new ArrayList<CircularFifoBuffer<Number>>();
-    private List<Object> optInputParams = new ArrayList<Object>();
-    private Map<String, Object> outputParams = new LinkedHashMap<String, Object>();
+    private final List<CircularFifoBuffer<Number>> inputParams = new ArrayList<>();
+    private final List<Object> optInputParams = new ArrayList<>();
+    private final Map<String, Object> outputParams = new LinkedHashMap<>();
 
     @Override
     public void setFunctionName(String functionName) {
@@ -118,7 +116,7 @@ public class GenericTALibFunctionFactory implements AggregationFunctionFactory {
 
         // get the parameters
         int paramCounter = 1;
-        Map<String, Class<?>> outputParamTypes = new HashMap<String, Class<?>>();
+        Map<String, Class<?>> outputParamTypes = new HashMap<>();
         for (Annotation[] annotations : this.function.getParameterAnnotations()) {
             for (Annotation annotation : annotations) {
 
@@ -130,14 +128,14 @@ public class GenericTALibFunctionFactory implements AggregationFunctionFactory {
                             this.inputParamCount++;
                             paramCounter++;
                         } else {
-                            throw new IllegalArgumentException("param number " + paramCounter + " needs must be of type double");
+                            throw new IllegalArgumentException("param number " + paramCounter + " must be of type double");
                         }
                     } else if (inputParameterInfo.type().equals(InputParameterType.TA_Input_Integer)) {
                         if (paramTypes[paramCounter].equals(int.class) || paramTypes[paramCounter].equals(Integer.class)) {
                             this.inputParamCount++;
                             paramCounter++;
                         } else {
-                            throw new IllegalArgumentException("param number " + paramCounter + " needs must be of type int");
+                            throw new IllegalArgumentException("param number " + paramCounter + " must be of type int");
                         }
                     } else if (inputParameterInfo.type().equals(InputParameterType.TA_Input_Price)) {
 
@@ -148,7 +146,7 @@ public class GenericTALibFunctionFactory implements AggregationFunctionFactory {
                                 this.inputParamCount++;
                                 paramCounter++;
                             } else {
-                                throw new IllegalArgumentException("param number " + paramCounter + " needs must be of type double");
+                                throw new IllegalArgumentException("param number " + paramCounter + " must be of type double");
                             }
                         }
                     }
@@ -214,7 +212,7 @@ public class GenericTALibFunctionFactory implements AggregationFunctionFactory {
 
             // create the fixed size Buffers
             for (int i = 0; i < this.inputParamCount; i++) {
-                this.inputParams.add(new CircularFifoBuffer<Number>(this.lookbackPeriod));
+                this.inputParams.add(new CircularFifoBuffer<>(this.lookbackPeriod));
             }
 
         } catch (Exception e) {

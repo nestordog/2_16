@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,8 +12,8 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.service;
 
@@ -23,33 +23,35 @@ import org.apache.commons.lang.Validate;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import ch.algotrader.dao.strategy.MeasurementDao;
+import ch.algotrader.dao.strategy.StrategyDao;
 import ch.algotrader.entity.strategy.Measurement;
-import ch.algotrader.entity.strategy.MeasurementDao;
 import ch.algotrader.entity.strategy.Strategy;
-import ch.algotrader.entity.strategy.StrategyDao;
-import ch.algotrader.util.DateUtil;
-import ch.algotrader.util.spring.HibernateSession;
+import ch.algotrader.esper.EngineManager;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
-@HibernateSession
+@Transactional(propagation = Propagation.SUPPORTS)
 public class MeasurementServiceImpl implements MeasurementService {
 
     private final MeasurementDao measurementDao;
 
     private final StrategyDao strategyDao;
 
+    private final EngineManager engineManager;
+
     public MeasurementServiceImpl(final MeasurementDao measurementDao,
-            final StrategyDao strategyDao) {
+            final StrategyDao strategyDao,
+            final EngineManager engineManager) {
 
         Validate.notNull(measurementDao, "MeasurementDao is null");
         Validate.notNull(strategyDao, "StrategyDao is null");
+        Validate.notNull(engineManager, "EngineManager is null");
 
         this.measurementDao = measurementDao;
         this.strategyDao = strategyDao;
+        this.engineManager = engineManager;
     }
 
     /**
@@ -63,7 +65,7 @@ public class MeasurementServiceImpl implements MeasurementService {
         Validate.notEmpty(name, "Name is empty");
         Validate.notNull(value, "Value is null");
 
-        return createMeasurement(strategyName, name, DateUtil.getCurrentEPTime(), value);
+        return createMeasurement(strategyName, name, this.engineManager.getCurrentEPTime(), value);
 
     }
 
@@ -93,7 +95,7 @@ public class MeasurementServiceImpl implements MeasurementService {
             measurement.setDateTime(date);
             measurement.setValue(value);
 
-            this.measurementDao.create(measurement);
+            this.measurementDao.save(measurement);
 
         } else {
 
@@ -109,9 +111,9 @@ public class MeasurementServiceImpl implements MeasurementService {
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public void deleteMeasurement(final int measurementId) {
+    public void deleteMeasurement(final long measurementId) {
 
-        this.measurementDao.remove(measurementId);
+        this.measurementDao.deleteById(measurementId);
 
     }
 }

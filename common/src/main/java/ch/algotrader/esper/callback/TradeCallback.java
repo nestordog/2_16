@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,23 +12,23 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.esper.callback;
 
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.TreeSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-import org.apache.commons.collections15.CollectionUtils;
-import org.apache.commons.collections15.Transformer;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import ch.algotrader.entity.trade.OrderStatus;
-import ch.algotrader.esper.EngineLocator;
-import ch.algotrader.util.MyLogger;
+import ch.algotrader.entity.trade.OrderStatusVO;
+import ch.algotrader.esper.Engine;
 import ch.algotrader.util.metric.MetricsUtil;
 
 /**
@@ -36,14 +36,12 @@ import ch.algotrader.util.metric.MetricsUtil;
  * fully executed or cancelled.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
-public abstract class TradeCallback {
+public abstract class TradeCallback extends AbstractEngineCallback {
 
-    private static Logger logger = MyLogger.getLogger(TradeCallback.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(TradeCallback.class);
 
-    private boolean expectFullExecution;
+    private final boolean expectFullExecution;
 
     /**
      * param expectFullExecution if set to true an exception will be thrown unless all {@code orders} have been fully executed.
@@ -56,44 +54,43 @@ public abstract class TradeCallback {
     /**
      * Called by the "ON_TRADE_COMPLETED" statement. Should not be invoked directly.
      */
-    public void update(String strategyName, OrderStatus[] orderStati) throws Exception {
+    public void update(String strategyName, OrderStatusVO[] orderStati) throws Exception {
 
         // check full execution if needed
         if (this.expectFullExecution) {
-            for (OrderStatus orderStatus : orderStati) {
+            for (OrderStatusVO orderStatus : orderStati) {
                 if (orderStatus.getRemainingQuantity() > 0) {
-                    logger.error("order on " + orderStatus.getOrder().getSecurityInitialized() +
-                            " has not been fully executed, filledQty: " + orderStatus.getFilledQuantity() +
-                            " remainingQty: " + orderStatus.getRemainingQuantity());
+                    LOGGER.error("order {} has not been fully executed, filledQty: {} remainingQty: {}", orderStatus.getIntId(), orderStatus.getFilledQuantity(),
+                            orderStatus.getRemainingQuantity());
                 }
             }
         }
 
-        // get the securityIds sorted asscending
-        List<OrderStatus> orderStatusList = Arrays.asList(orderStati);
-        TreeSet<Integer> sortedSecurityIds = new TreeSet<Integer>(CollectionUtils.collect(orderStatusList, new Transformer<OrderStatus, Integer>() {
-            @Override
-            public Integer transform(OrderStatus order) {
-                return order.getOrder().getSecurity().getId();
-            }
-        }));
-
-        String owningStrategyName = orderStati[0].getOrder().getStrategy().getName();
+        // get the securityIds sorted ascending
+        List<OrderStatusVO> orderStatusList = Arrays.asList(orderStati);
+        Set<String> orderIntIds = orderStatusList.stream()
+                .map(OrderStatusVO::getIntId)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
 
         // get the statement alias based on all security ids
-        String alias = "ON_TRADE_COMPLETED_" + StringUtils.join(sortedSecurityIds, "_") + "_" + owningStrategyName;
+        String alias = "ON_TRADE_COMPLETED_" + StringUtils.join(orderIntIds, "_");
 
         // undeploy the statement
-        EngineLocator.instance().getEngine(strategyName).undeployStatement(alias);
+        Engine engine = getEngine();
+        if (engine != null) {
+            engine.undeployStatement(alias);
+        }
 
         long startTime = System.nanoTime();
-        logger.debug("onTradeCompleted start " + sortedSecurityIds + " " + owningStrategyName);
-
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("onTradeCompleted start {} {}", orderIntIds, strategyName);
+        }
         // call orderCompleted
         onTradeCompleted(orderStatusList);
 
-        logger.debug("onTradeCompleted end " + sortedSecurityIds + " " + owningStrategyName);
-
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("onTradeCompleted end {} {}", orderIntIds, strategyName);
+        }
         MetricsUtil.accountEnd("TradeCallback." + strategyName, startTime);
     }
 
@@ -101,5 +98,5 @@ public abstract class TradeCallback {
      * Will be exectued by the Esper Engine as soon as all {@code orders} have been fully exectured or cancelled.
      * Needs to be overwritten by implementing classes.
      */
-    public abstract void onTradeCompleted(List<OrderStatus> orderStatus) throws Exception;
+    public abstract void onTradeCompleted(List<OrderStatusVO> orderStatusList) throws Exception;
 }

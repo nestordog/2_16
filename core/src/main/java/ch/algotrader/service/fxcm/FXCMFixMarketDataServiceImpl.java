@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,45 +12,40 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.service.fxcm;
 
 import org.apache.commons.lang.Validate;
 
+import ch.algotrader.adapter.ExternalSessionStateHolder;
+import ch.algotrader.adapter.RequestIdGenerator;
 import ch.algotrader.adapter.fix.FixAdapter;
-import ch.algotrader.adapter.fix.FixSessionLifecycle;
 import ch.algotrader.adapter.fxcm.FXCMFixMarketDataRequestFactory;
-import ch.algotrader.adapter.fxcm.FXCMUtil;
-import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.security.Security;
-import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.enumeration.FeedType;
-import ch.algotrader.service.fix.fix44.Fix44MarketDataServiceImpl;
+import ch.algotrader.esper.Engine;
+import ch.algotrader.service.fix.FixMarketDataService;
+import ch.algotrader.service.fix.FixMarketDataServiceImpl;
 import quickfix.field.SubscriptionRequestType;
 import quickfix.fix44.MarketDataRequest;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
-public class FXCMFixMarketDataServiceImpl extends Fix44MarketDataServiceImpl implements FXCMFixMarketDataService {
-
-    private static final long serialVersionUID = 4881654181517654955L;
+public class FXCMFixMarketDataServiceImpl extends FixMarketDataServiceImpl implements FixMarketDataService {
 
     private final FXCMFixMarketDataRequestFactory requestFactory;
 
     public FXCMFixMarketDataServiceImpl(
-            final CommonConfig commonConfig,
-            final FixSessionLifecycle lifeCycle,
+            final ExternalSessionStateHolder stateHolder,
             final FixAdapter fixAdapter,
-            final SecurityDao securityDao) {
+            final RequestIdGenerator<Security> tickerIdGenerator,
+            final Engine serverEngine) {
 
-        super(commonConfig, lifeCycle, fixAdapter, securityDao);
-
-        this.requestFactory = new FXCMFixMarketDataRequestFactory();
+        super(FeedType.FXCM.name(), stateHolder, fixAdapter, tickerIdGenerator, serverEngine);
+        this.requestFactory = new FXCMFixMarketDataRequestFactory(tickerIdGenerator);
     }
 
     @Override
@@ -60,23 +55,11 @@ public class FXCMFixMarketDataServiceImpl extends Fix44MarketDataServiceImpl imp
     }
 
     @Override
-    public FeedType getFeedType() {
-
-        return FeedType.FXCM;
-    }
-
-    @Override
-    public String getSessionQualifier() {
-
-        return "FXCM";
-    }
-
-    @Override
     public void sendSubscribeRequest(Security security) {
 
         Validate.notNull(security, "Security is null");
 
-        MarketDataRequest request = this.requestFactory.create(security, new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES));
+        MarketDataRequest request = this.requestFactory.create(security, SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES);
 
         getFixAdapter().sendMessage(request, getSessionQualifier());
     }
@@ -86,17 +69,9 @@ public class FXCMFixMarketDataServiceImpl extends Fix44MarketDataServiceImpl imp
 
         Validate.notNull(security, "Security is null");
 
-        MarketDataRequest request = this.requestFactory.create(security, new SubscriptionRequestType(SubscriptionRequestType.DISABLE_PREVIOUS_SNAPSHOT_PLUS_UPDATE_REQUEST));
+        MarketDataRequest request = this.requestFactory.create(security, SubscriptionRequestType.DISABLE_PREVIOUS_SNAPSHOT_PLUS_UPDATE_REQUEST);
 
         getFixAdapter().sendMessage(request, getSessionQualifier());
     }
 
-    @Override
-    public String getTickerId(Security security) {
-
-        Validate.notNull(security, "Security is null");
-
-        return FXCMUtil.getFXCMSymbol(security);
-
-    }
 }

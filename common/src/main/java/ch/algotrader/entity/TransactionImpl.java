@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,8 +12,8 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.entity;
 
@@ -25,14 +25,11 @@ import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.ConfigLocator;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.enumeration.TransactionType;
-import ch.algotrader.util.ObjectUtil;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.vo.CurrencyAmountVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public class TransactionImpl extends Transaction {
 
@@ -115,7 +112,7 @@ public class TransactionImpl extends Transaction {
     @Override
     public Collection<CurrencyAmountVO> getAttributions() {
 
-        Collection<CurrencyAmountVO> list = new ArrayList<CurrencyAmountVO>();
+        Collection<CurrencyAmountVO> list = new ArrayList<>();
         if (getSecurity() instanceof Forex) {
 
             // gross transaction value is booked in transaction currency
@@ -174,7 +171,7 @@ public class TransactionImpl extends Transaction {
     @Override
     public String toString() {
 
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
 
         if (isTrade()) {
 
@@ -216,28 +213,4 @@ public class TransactionImpl extends Transaction {
         return buffer.toString();
     }
 
-    @Override
-    public boolean equals(Object obj) {
-
-        if (this == obj) {
-            return true;
-        }
-        if (obj instanceof Transaction) {
-            Transaction that = (Transaction) obj;
-            return ObjectUtil.equalsNonZero(this.getId(), that.getId());
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * WARNING: hashCode changes when inserting a new transaction into the database, therefore uncommitted transaction should not be added to a collection
-     */
-    @Override
-    public int hashCode() {
-
-        int hash = 17;
-        hash = hash * 37 + this.getId();
-        return hash;
-    }
 }

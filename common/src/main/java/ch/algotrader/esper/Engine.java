@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,14 +12,16 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.esper;
 
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+
+import com.espertech.esperio.CoordinatedAdapter;
 
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.trade.Order;
@@ -28,22 +30,19 @@ import ch.algotrader.esper.callback.OpenPositionCallback;
 import ch.algotrader.esper.callback.TickCallback;
 import ch.algotrader.esper.callback.TimerCallback;
 import ch.algotrader.esper.callback.TradeCallback;
-
-import com.espertech.esperio.CoordinatedAdapter;
+import ch.algotrader.esper.callback.TradePersistedCallback;
 
 /**
  * Interface representing a CEP Engine.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public interface Engine {
 
     /**
      * returns the name of this strategy
      */
-    public String getName();
+    public String getStrategyName();
 
     /**
      * Destroys the specified Engine.
@@ -108,6 +107,11 @@ public interface Engine {
     public boolean isDeployed(final String statementNameRegex);
 
     /**
+     * Undeploys all statements from the specified Engine.
+     */
+    public void undeployAllStatements();
+
+    /**
      * Undeploys the specified statement from the specified Engine.
      */
     public void undeployStatement(String statementName);
@@ -139,6 +143,15 @@ public interface Engine {
      */
     @SuppressWarnings("rawtypes")
     public List executeQuery(String query);
+
+    /**
+     * Executes an arbitrary EPL query that is supposed to return one single object on the Engine.
+     *
+     * @param query EPL expression
+     * @param attributeName name of the attribute if the query produces a result
+     *                      represented by a map of attributes.
+     */
+    public Object executeSingelObjectQuery(String query, String attributeName);
 
     /**
      * Executes an arbitrary EPL query that is supposed to return one single object on the Engine.
@@ -219,9 +232,15 @@ public interface Engine {
 
     /**
      * Adds a {@link TradeCallback} to the given Engine that will be invoked as soon as all {@code orders} have been
-     * fully exectured or cancelled.
+     * fully executed, rejected or cancelled.
      */
     public void addTradeCallback(Collection<Order> orders, TradeCallback callback);
+
+    /**
+     * Adds a {@link TradePersistedCallback} to the given Engine that will be invoked as soon as all {@code orders}
+     * have been fully executed or cancelled and fully persisted.
+     */
+    public void addTradePersistedCallback(Collection<Order> orders, TradePersistedCallback callback);
 
     /**
      * Adds a {@link TickCallback} to the given Engine that will be invoked as soon as at least one Tick has arrived
@@ -233,13 +252,13 @@ public interface Engine {
      * Adds a {@link OpenPositionCallback} to the given Engine that will be invoked as soon as a new Position
      * on the given Security has been opened.
      */
-    public void addOpenPositionCallback(int securityId, OpenPositionCallback callback);
+    public void addOpenPositionCallback(long securityId, OpenPositionCallback callback);
 
     /**
      * Adds a {@link OpenPositionCallback} to the given Engine that will be invoked as soon as a Position
      * on the given Security has been closed.
      */
-    public void addClosePositionCallback(int securityId, ClosePositionCallback callback);
+    public void addClosePositionCallback(long securityId, ClosePositionCallback callback);
 
     /**
      * Adds a {@link TimerCallback} to the given Engine that will be invoked at the give time.

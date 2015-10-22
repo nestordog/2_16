@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,8 +12,8 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.esper;
 
@@ -24,55 +24,28 @@ import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.lang.annotation.Annotation;
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections15.CollectionUtils;
-import org.apache.commons.collections15.Predicate;
-import org.apache.commons.collections15.Transformer;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-
-import ch.algotrader.ServiceLocator;
-import ch.algotrader.config.CommonConfig;
-import ch.algotrader.config.ConfigLocator;
-import ch.algotrader.config.ConfigParams;
-import ch.algotrader.entity.security.Security;
-import ch.algotrader.entity.strategy.Strategy;
-import ch.algotrader.entity.strategy.StrategyImpl;
-import ch.algotrader.entity.trade.Order;
-import ch.algotrader.esper.annotation.Condition;
-import ch.algotrader.esper.annotation.Listeners;
-import ch.algotrader.esper.annotation.RunTimeOnly;
-import ch.algotrader.esper.annotation.SimulationOnly;
-import ch.algotrader.esper.annotation.Subscriber;
-import ch.algotrader.esper.callback.ClosePositionCallback;
-import ch.algotrader.esper.callback.OpenPositionCallback;
-import ch.algotrader.esper.callback.TickCallback;
-import ch.algotrader.esper.callback.TimerCallback;
-import ch.algotrader.esper.callback.TradeCallback;
-import ch.algotrader.esper.io.CustomSender;
-import ch.algotrader.esper.subscriber.SubscriberCreator;
-import ch.algotrader.util.MyLogger;
-import ch.algotrader.util.collection.CollectionUtil;
-import ch.algotrader.util.metric.MetricsUtil;
+import org.apache.commons.lang.Validate;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.espertech.esper.client.Configuration;
-import com.espertech.esper.client.ConfigurationEngineDefaults.Threading;
 import com.espertech.esper.client.ConfigurationOperations;
 import com.espertech.esper.client.ConfigurationVariable;
 import com.espertech.esper.client.EPAdministrator;
@@ -87,6 +60,7 @@ import com.espertech.esper.client.SafeIterator;
 import com.espertech.esper.client.StatementAwareUpdateListener;
 import com.espertech.esper.client.UpdateListener;
 import com.espertech.esper.client.annotation.Name;
+import com.espertech.esper.client.deploy.DeploymentException;
 import com.espertech.esper.client.deploy.DeploymentInformation;
 import com.espertech.esper.client.deploy.EPDeploymentAdmin;
 import com.espertech.esper.client.deploy.Module;
@@ -94,7 +68,6 @@ import com.espertech.esper.client.deploy.ModuleItem;
 import com.espertech.esper.client.deploy.ParseException;
 import com.espertech.esper.client.soda.AnnotationPart;
 import com.espertech.esper.client.soda.EPStatementObjectModel;
-import com.espertech.esper.client.time.CurrentTimeEvent;
 import com.espertech.esper.client.time.TimerControlEvent;
 import com.espertech.esper.core.deploy.EPLModuleUtil;
 import com.espertech.esper.core.service.EPServiceProviderImpl;
@@ -104,105 +77,106 @@ import com.espertech.esper.epl.core.EngineImportService;
 import com.espertech.esper.epl.spec.AnnotationDesc;
 import com.espertech.esper.epl.spec.StatementSpecMapper;
 import com.espertech.esper.util.JavaClassHelper;
-import com.espertech.esperio.AdapterCoordinator;
 import com.espertech.esperio.AdapterCoordinatorImpl;
 import com.espertech.esperio.CoordinatedAdapter;
+
+import ch.algotrader.config.ConfigParams;
+import ch.algotrader.entity.security.Security;
+import ch.algotrader.entity.strategy.Strategy;
+import ch.algotrader.entity.trade.Order;
+import ch.algotrader.esper.annotation.Condition;
+import ch.algotrader.esper.annotation.Listeners;
+import ch.algotrader.esper.annotation.RunTimeOnly;
+import ch.algotrader.esper.annotation.SimulationOnly;
+import ch.algotrader.esper.annotation.Subscriber;
+import ch.algotrader.esper.callback.ClosePositionCallback;
+import ch.algotrader.esper.callback.EngineAwareCallback;
+import ch.algotrader.esper.callback.OpenPositionCallback;
+import ch.algotrader.esper.callback.TickCallback;
+import ch.algotrader.esper.callback.TimerCallback;
+import ch.algotrader.esper.callback.TradeCallback;
+import ch.algotrader.esper.callback.TradePersistedCallback;
+import ch.algotrader.esper.io.CustomSender;
+import ch.algotrader.util.DateTimeUtil;
+import ch.algotrader.util.collection.CollectionUtil;
+import ch.algotrader.util.metric.MetricsUtil;
 
 /**
  * Esper based implementation of an {@link Engine}
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public class EngineImpl extends AbstractEngine {
 
-    private static final Logger logger = MyLogger.getLogger(EngineImpl.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(EngineImpl.class);
     private static final String newline = System.getProperty("line.separator");
-    private static final SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd_kkmmss");
 
-    private EPServiceProvider serviceProvider;
-    private AdapterCoordinator coordinator;
+    private final SubscriberResolver subscriberResolver;
+    private final String[] initModules;
+    private final String[] runModules;
+    private final ConfigParams configParams;
+    private final boolean simulation;
+    private final EPServiceProvider serviceProvider;
 
-    private ThreadLocal<AtomicBoolean> processing = new ThreadLocal<AtomicBoolean>() {
+    private volatile AdapterCoordinatorImpl coordinator;
+
+    private final ThreadLocal<AtomicBoolean> processing = new ThreadLocal<AtomicBoolean>() {
         @Override
         protected AtomicBoolean initialValue() {
             return new AtomicBoolean(false);
         }
     };
 
-    /**
-     * Initializes a new Engine by the given {@code engineName}.
-     * The following steps are exectued:
-     * <ul>
-     * <li>{@code corresponding esper-xxx.cfg.xml} files are loaded from the classpath</li>
-     * <li>Esper variables are initilized</li>
-     * <li>Esper threading is configured</li>
-     * <li>The {@link Strategy} itself is configured as an Esper variable {@code engineStrategy}</li>
-     * <li>Esper Time is set to zero</li>
-     * </ul>
-     */
-    public EngineImpl(String engineName) {
+    EngineImpl(final String strategyName, final SubscriberResolver subscriberResolver,
+               final Configuration configuration, final String[] initModules, final String[] runModules, final ConfigParams configParams) {
 
-        this.engineName = engineName;
+        super(strategyName);
 
-        Configuration configuration = new Configuration();
+        Validate.notNull(subscriberResolver, "SubscriberResolver is null");
+        Validate.notNull(configuration, "Configuration is null");
+        Validate.notNull(configParams, "ConfigParams is null");
 
-        try {
-            PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
-            Resource[] resources = resolver.getResources("classpath*:/META-INF/esper-**.cfg.xml");
-            for (Resource resource : resources) {
-                if (StrategyImpl.SERVER.equals(engineName)) {
+        this.subscriberResolver = subscriberResolver;
+        this.initModules = initModules;
+        this.runModules = runModules;
+        this.configParams = configParams;
+        this.simulation = configParams.getBoolean("simulation");
 
-                    // for AlgoTrader Server only load esper-common.cfg.xml and esper-core.cfg.xml
-                    if (resource.toString().contains("esper-common.cfg.xml") || resource.toString().contains("esper-core.cfg.xml")) {
-                        configuration.configure(resource.getURL());
+        initVariables(configuration, configParams);
+        configuration.getVariables().get("strategyName").setInitializationValue(strategyName);
+
+        this.serviceProvider = EPServiceProviderManager.getProvider(strategyName, configuration);
+    }
+
+    private void initVariables(final Configuration configuration, final ConfigParams configParams) {
+
+        Map<String, ConfigurationVariable> variables = configuration.getVariables();
+        for (Map.Entry<String, ConfigurationVariable> entry : variables.entrySet()) {
+            String variableName = entry.getKey().replace("_", ".");
+            String value = configParams.getString(variableName);
+            if (value != null) {
+                String type = entry.getValue().getType();
+                try {
+                    Class clazz = Class.forName(type);
+                    Object typedObj;
+                    if (clazz.isEnum()) {
+                        typedObj = Enum.valueOf(clazz, value);
+                    } else if (clazz == BigDecimal.class) {
+                        typedObj = new BigDecimal(value);
+                    } else {
+                        typedObj = JavaClassHelper.parse(clazz, value);
                     }
-                } else {
-
-                    // for Strategies to not load esper-core.cfg.xml
-                    if (!resource.toString().contains("esper-core.cfg.xml")) {
-                        configuration.configure(resource.getURL());
-                    }
+                    entry.getValue().setInitializationValue(typedObj);
+                } catch (ClassNotFoundException ex) {
+                    throw new InternalEngineException("Unknown variable type: " + type);
                 }
             }
-        } catch (IOException e) {
-            throw new RuntimeException("problem loading esper config", e);
         }
-
-        initVariables(configuration);
-
-        CommonConfig commonConfig = ConfigLocator.instance().getCommonConfig();
-        // outbound threading for ALGOTRADER SERVER
-        if (StrategyImpl.SERVER.equals(engineName) && !commonConfig.isSimulation()) {
-
-            ConfigParams configParams = ConfigLocator.instance().getConfigParams();
-            Threading threading = configuration.getEngineDefaults().getThreading();
-
-            threading.setThreadPoolOutbound(true);
-            threading.setThreadPoolOutboundNumThreads(configParams.getInteger("misc.outboundThreads"));
-        }
-
-        Strategy strategy = ServiceLocator.instance().getLookupService().getStrategyByName(engineName);
-        if (strategy == null) {
-            logger.warn("no stratgy found for engineName " + engineName);
-        } else {
-            configuration.getVariables().get("engineStrategy").setInitializationValue(strategy);
-        }
-
-        this.serviceProvider = EPServiceProviderManager.getProvider(engineName, configuration);
-
-        // must send time event before first schedule pattern
-        this.serviceProvider.getEPRuntime().sendEvent(new CurrentTimeEvent(0));
-
-        this.internalClock = false;
-
-        logger.debug("initialized service provider: " + engineName);
     }
 
     @Override
     public boolean isDestroyed() {
-        return serviceProvider.isDestroyed();
+        return this.serviceProvider.isDestroyed();
     }
 
     @Override
@@ -210,17 +184,19 @@ public class EngineImpl extends AbstractEngine {
 
         this.serviceProvider.destroy();
 
-        logger.debug("destroyed service provider: " + this.engineName);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("destroyed service provider: {}", getStrategyName());
+        }
     }
 
     @Override
     public void deployStatement(String moduleName, String statementName) {
 
-        deployStatement(moduleName, statementName, null, new Object[] {}, null);
+        deployStatement(moduleName, statementName, null, new Object[]{}, null);
     }
 
     @Override
-    public void deployStatement(String moduleName, String statementName, String alias, Object[] params) {
+    public void deployStatement(String moduleName, String statementName, String alias, Object... params) {
 
         deployStatement(moduleName, statementName, alias, params, null);
     }
@@ -238,7 +214,9 @@ public class EngineImpl extends AbstractEngine {
         if (!force) {
             EPStatement existingStatement = this.serviceProvider.getEPAdministrator().getStatement(statementName);
             if (existingStatement != null && existingStatement.isStarted()) {
-                logger.warn(statementName + " is already deployed and started");
+                if (LOGGER.isWarnEnabled()) {
+                    LOGGER.warn("{} is already deployed and started", statementName);
+                }
                 return;
             }
         }
@@ -262,9 +240,13 @@ public class EngineImpl extends AbstractEngine {
         }
 
         if (newStatement == null) {
-            logger.warn("statement " + statementName + " was not found");
+            if (LOGGER.isWarnEnabled()) {
+                LOGGER.warn("statement {} was not found", statementName);
+            }
         } else {
-            logger.debug("deployed statement " + newStatement.getName());
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("deployed statement {}", newStatement.getName());
+            }
         }
     }
 
@@ -278,14 +260,8 @@ public class EngineImpl extends AbstractEngine {
     @Override
     public void deployInitModules() {
 
-        Strategy strategy = ServiceLocator.instance().getLookupService().getStrategyByName(this.engineName);
-        if (strategy == null) {
-            throw new IllegalStateException("strategy " + this.engineName + " was not found in database");
-        }
-        String initModules = strategy.getInitModules();
-        if (initModules != null) {
-            String[] modules = initModules.split(",");
-            for (String module : modules) {
+        if (this.initModules != null) {
+            for (String module : this.initModules) {
                 deployModule(module.trim());
             }
         }
@@ -294,14 +270,8 @@ public class EngineImpl extends AbstractEngine {
     @Override
     public void deployRunModules() {
 
-        Strategy strategy = ServiceLocator.instance().getLookupService().getStrategyByName(this.engineName);
-        if (strategy == null) {
-            throw new IllegalStateException("strategy " + this.engineName + " was not found in database");
-        }
-        String runModules = strategy.getRunModules();
-        if (runModules != null) {
-            String[] modules = runModules.split(",");
-            for (String module : modules) {
+        if (this.runModules != null) {
+            for (String module : this.runModules) {
                 deployModule(module.trim());
             }
         }
@@ -323,7 +293,9 @@ public class EngineImpl extends AbstractEngine {
             }
         }
 
-        logger.debug("deployed module " + moduleName);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("deployed module {}", moduleName);
+        }
     }
 
     @Override
@@ -335,7 +307,7 @@ public class EngineImpl extends AbstractEngine {
         if (statementNames.length == 0) {
             return false;
         } else if (statementNames.length > 1) {
-            logger.error("more than one statement matches: " + statementNameRegex);
+            LOGGER.error("more than one statement matches: {}", statementNameRegex);
         }
 
         // get the statement
@@ -350,6 +322,21 @@ public class EngineImpl extends AbstractEngine {
     }
 
     @Override
+    public void undeployAllStatements() {
+
+        for (String statementName : this.serviceProvider.getEPAdministrator().getStatementNames()) {
+
+            EPStatement statement = this.serviceProvider.getEPAdministrator().getStatement(statementName);
+
+            if (statement != null && statement.isStarted()) {
+                statement.destroy();
+            }
+        }
+
+        LOGGER.debug("undeployed all statements");
+    }
+
+    @Override
     public void undeployStatement(String statementName) {
 
         // destroy the statement
@@ -357,7 +344,9 @@ public class EngineImpl extends AbstractEngine {
 
         if (statement != null && statement.isStarted()) {
             statement.destroy();
-            logger.debug("undeployed statement " + statementName);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("undeployed statement {}", statementName);
+            }
         }
     }
 
@@ -370,7 +359,9 @@ public class EngineImpl extends AbstractEngine {
         if (statement != null && statement.isStarted()) {
             statement.stop();
             statement.start();
-            logger.debug("restarted statement " + statementName);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("restarted statement {}", statementName);
+            }
         }
     }
 
@@ -383,13 +374,15 @@ public class EngineImpl extends AbstractEngine {
             if (deploymentInformation.getModule().getName().equals(moduleName)) {
                 try {
                     deployAdmin.undeploy(deploymentInformation.getDeploymentId());
-                } catch (Exception e) {
-                    throw new RuntimeException("module " + moduleName + " could no be undeployed", e);
+                } catch (DeploymentException ex) {
+                    throw new InternalEngineException("module " + moduleName + " could no be undeployed", ex);
                 }
             }
         }
 
-        logger.debug("undeployed module " + moduleName);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("undeployed module {}", moduleName);
+        }
     }
 
     @Override
@@ -415,14 +408,14 @@ public class EngineImpl extends AbstractEngine {
             this.processing.get().set(false);
         }
 
-        MetricsUtil.accountEnd("EngineImpl." + engineName + "." + ClassUtils.getShortClassName(obj.getClass()), startTime);
+        MetricsUtil.accountEnd("EngineImpl." + getStrategyName() + "." + ClassUtils.getShortClassName(obj.getClass()), startTime);
     }
 
     @Override
     @SuppressWarnings("rawtypes")
     public List executeQuery(String query) {
 
-        List<Object> objects = new ArrayList<Object>();
+        List<Object> objects = new ArrayList<>();
         EPOnDemandQueryResult result = this.serviceProvider.getEPRuntime().executeQuery(query);
         for (EventBean row : result.getArray()) {
             Object object = row.getUnderlying();
@@ -433,16 +426,27 @@ public class EngineImpl extends AbstractEngine {
 
     @Override
     @SuppressWarnings("unchecked")
-    public Object executeSingelObjectQuery(String query) {
+    public Object executeSingelObjectQuery(String query, String attributeName) {
 
         List<Object> events = executeQuery(query);
         if (events.size() == 0) {
             return null;
         } else if (events.size() == 1) {
-            return events.get(0);
+            Object result = events.get(0);
+            if (attributeName != null && result instanceof Map) {
+                return ((Map<?, ?>) result).get(attributeName);
+            } else {
+                return result;
+            }
         } else {
             throw new IllegalArgumentException("query returned more than one object");
         }
+    }
+
+    @Override
+    public Object executeSingelObjectQuery(String query) {
+
+        return executeSingelObjectQuery(query, null);
     }
 
     @Override
@@ -499,7 +503,7 @@ public class EngineImpl extends AbstractEngine {
         } else if (!statement.isStarted()) {
             throw new IllegalStateException("statement " + statementName + " is not started");
         } else {
-            List<Object> list = new ArrayList<Object>();
+            List<Object> list = new ArrayList<>();
             SafeIterator<EventBean> it = statement.safeIterator();
             try {
                 while (it.hasNext()) {
@@ -524,7 +528,7 @@ public class EngineImpl extends AbstractEngine {
         } else if (!statement.isStarted()) {
             throw new IllegalStateException("statement " + statementName + " is not started");
         } else {
-            List<Object> list = new ArrayList<Object>();
+            List<Object> list = new ArrayList<>();
             SafeIterator<EventBean> it = statement.safeIterator();
             try {
                 while (it.hasNext()) {
@@ -556,7 +560,9 @@ public class EngineImpl extends AbstractEngine {
 
         setVariableValue("internal_clock", internalClock);
 
-        logger.debug("set internal clock to: " + internalClock);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("set internal clock to: {}", internalClock);
+        }
     }
 
     @Override
@@ -575,8 +581,7 @@ public class EngineImpl extends AbstractEngine {
     public void initCoordination() {
 
         this.coordinator = new AdapterCoordinatorImpl(this.serviceProvider, true, true, true);
-
-        ((AdapterCoordinatorImpl) this.coordinator).setSender(new CustomSender());
+        this.coordinator.setSender(new CustomSender());
     }
 
     @Override
@@ -600,7 +605,6 @@ public class EngineImpl extends AbstractEngine {
         EPRuntime runtime = this.serviceProvider.getEPRuntime();
         if (runtime.getVariableValueAll().containsKey(variableName)) {
             runtime.setVariableValue(variableName, value);
-            logger.debug("set variable " + variableName + " to value " + value);
         }
     }
 
@@ -620,7 +624,6 @@ public class EngineImpl extends AbstractEngine {
                 castedObj = JavaClassHelper.parse(clazz, value);
             }
             runtime.setVariableValue(variableName, castedObj);
-            logger.debug("set variable " + variableName + " to value " + value);
         }
     }
 
@@ -632,36 +635,61 @@ public class EngineImpl extends AbstractEngine {
         return runtime.getVariableValue(variableName);
     }
 
+    private Set<String> collectIntIds(final Collection<Order> orders, final Strategy strategy) {
+        return orders.stream()
+                .map(order -> {
+                    String intId = order.getIntId();
+                    if (intId == null) {
+                        throw new IllegalArgumentException("Cannot add trade callback for orders with null IntId");
+                    }
+                    if (!order.getStrategy().equals(strategy)) {
+                        throw new IllegalArgumentException("Cannot add trade callback for orders of different strategies");
+                    }
+                    return intId;
+                }).collect(Collectors.toCollection(LinkedHashSet::new));
+    }
+
     @Override
     public void addTradeCallback(Collection<Order> orders, TradeCallback callback) {
 
-        // get the securityIds sorted asscending and check that all orders are from the same strategy
-        final Order firstOrder = CollectionUtil.getFirstElement(orders);
-        Set<Integer> sortedSecurityIds = new TreeSet<Integer>(CollectionUtils.collect(orders, new Transformer<Order, Integer>() {
-
-            @Override
-            public Integer transform(Order order) {
-                if (!order.getStrategy().equals(firstOrder.getStrategy())) {
-                    throw new IllegalArgumentException("cannot addTradeCallback for orders of different strategies");
-                }
-                return order.getSecurity().getId();
-            }
-        }));
-
-        if (sortedSecurityIds.size() < orders.size()) {
-            throw new IllegalArgumentException("cannot addTradeCallback for multiple orders on the same security");
-        }
+        Order firstOrder = CollectionUtil.getFirstElement(orders);
+        Strategy strategy = firstOrder.getStrategy();
+        Set<String> orderIntIds = collectIntIds(orders, strategy);
 
         // get the statement alias based on all security ids
-        String alias = "ON_TRADE_COMPLETED_" + StringUtils.join(sortedSecurityIds, "_") + "_" + firstOrder.getStrategy().getName();
+        String alias = "ON_TRADE_COMPLETED_" + StringUtils.join(orderIntIds, "_");
 
         if (isDeployed(alias)) {
 
-            logger.warn(alias + " is already deployed");
+            if (LOGGER.isWarnEnabled()) {
+                LOGGER.warn("{} is already deployed", alias);
+            }
         } else {
 
-            Object[] params = new Object[] { sortedSecurityIds.size(), sortedSecurityIds, firstOrder.getStrategy().getName(), firstOrder.isAlgoOrder() };
+            Object[] params = new Object[] { orderIntIds.size(), orderIntIds };
             deployStatement("prepared", "ON_TRADE_COMPLETED", alias, params, callback);
+        }
+    }
+
+    @Override
+    public void addTradePersistedCallback(Collection<Order> orders, TradePersistedCallback callback) {
+
+        Order firstOrder = CollectionUtil.getFirstElement(orders);
+        Strategy strategy = firstOrder.getStrategy();
+        Set<String> orderIntIds = collectIntIds(orders, strategy);
+
+        // get the statement alias based on all security ids
+        String alias = "ON_TRADE_PERSISTED_" + StringUtils.join(orderIntIds, "_");
+
+        if (isDeployed(alias)) {
+
+            if (LOGGER.isWarnEnabled()) {
+                LOGGER.warn("{} is already deployed", alias);
+            }
+        } else {
+
+            Object[] params = new Object[] { orderIntIds.size(), orderIntIds };
+            deployStatement("prepared", "ON_TRADE_PERSISTED", alias, params, callback);
         }
     }
 
@@ -669,48 +697,50 @@ public class EngineImpl extends AbstractEngine {
     public void addFirstTickCallback(Collection<Security> securities, TickCallback callback) {
 
         // create a list of unique security ids
-        Set<Integer> securityIds = new TreeSet<Integer>();
-        securityIds.addAll(CollectionUtils.collect(securities, new Transformer<Security, Integer>() {
-            @Override
-            public Integer transform(Security security) {
-                return security.getId();
-            }
-        }));
+        Set<Long> securityIds = securities.stream()
+                .map(Security::getId)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
 
         String alias = "ON_FIRST_TICK_" + StringUtils.join(securityIds, "_");
 
         if (isDeployed(alias)) {
 
-            logger.warn(alias + " is already deployed");
+            if (LOGGER.isWarnEnabled()) {
+                LOGGER.warn("{} is already deployed", alias);
+            }
         } else {
 
-            int[] securityIdsArray = ArrayUtils.toPrimitive(securityIds.toArray(new Integer[0]));
-            deployStatement("prepared", "ON_FIRST_TICK", alias, new Object[] { securityIds.size(), securityIdsArray }, callback);
+            long[] securityIdsArray = ArrayUtils.toPrimitive(securityIds.toArray(new Long[0]));
+            deployStatement("prepared", "ON_FIRST_TICK", alias, new Object[]{securityIds.size(), securityIdsArray}, callback);
         }
     }
 
     @Override
-    public void addOpenPositionCallback(int securityId, OpenPositionCallback callback) {
+    public void addOpenPositionCallback(long securityId, OpenPositionCallback callback) {
 
         String alias = "ON_OPEN_POSITION_" + securityId;
 
         if (isDeployed(alias)) {
 
-            logger.warn(alias + " is already deployed");
+            if (LOGGER.isWarnEnabled()) {
+                LOGGER.warn("{} is already deployed", alias);
+            }
         } else {
 
-            deployStatement("prepared", "ON_OPEN_POSITION", alias, new Object[] { securityId }, callback);
+            deployStatement("prepared", "ON_OPEN_POSITION", alias, new Object[]{securityId}, callback);
         }
     }
 
     @Override
-    public void addClosePositionCallback(int securityId, ClosePositionCallback callback) {
+    public void addClosePositionCallback(long securityId, ClosePositionCallback callback) {
 
         String alias = "ON_CLOSE_POSITION_" + securityId;
 
         if (isDeployed(alias)) {
 
-            logger.warn(alias + " is already deployed");
+            if (LOGGER.isWarnEnabled()) {
+                LOGGER.warn("{} is already deployed", alias);
+            }
         } else {
 
             deployStatement("prepared", "ON_CLOSE_POSITION", alias, new Object[] { securityId }, callback);
@@ -720,40 +750,23 @@ public class EngineImpl extends AbstractEngine {
     @Override
     public void addTimerCallback(Date dateTime, String name, TimerCallback callback) {
 
-        String alias = "ON_TIMER_" + format.format(dateTime) + (name != null ? "_" + name : "");
-
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(dateTime);
-
-        Object[] params = { alias, cal.get(Calendar.MINUTE), cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.DAY_OF_MONTH), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.SECOND), cal.get(Calendar.YEAR) };
-
-        deployStatement("prepared", "ON_TIMER", alias, params, callback, true);
-    }
-
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    private void initVariables(Configuration configuration) {
-
-        ConfigParams configParams = ConfigLocator.instance().getConfigParams();
-        try {
-            Map<String, ConfigurationVariable> variables = configuration.getVariables();
-            for (Map.Entry<String, ConfigurationVariable> entry : variables.entrySet()) {
-                String variableName = entry.getKey().replace("_", ".");
-                String value = configParams.getString(variableName);
-                if (value != null) {
-                    Class clazz = Class.forName(entry.getValue().getType());
-                    Object castedObj = null;
-                    if (clazz.isEnum()) {
-                        castedObj = Enum.valueOf(clazz, value);
-                    } else if (clazz == BigDecimal.class) {
-                        castedObj = new BigDecimal(value);
-                    } else {
-                        castedObj = JavaClassHelper.parse(clazz, value);
-                    }
-                    entry.getValue().setInitializationValue(castedObj);
-                }
+        // execute callback immediately if dateTime is in the past
+        if (dateTime.compareTo(getCurrentTime()) < 0) {
+            try {
+                callback.onTimer(getCurrentTime());
+            } catch (Exception e) {
+                LOGGER.error("error executing timer callback", e);
             }
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
+        } else {
+            String alias = "ON_TIMER_" + DateTimeUtil.formatAsGMT(dateTime.toInstant()).replace(" ", "_") + (name != null ? "_" + name : "");
+
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(dateTime);
+
+            Object[] params = { alias, cal.get(Calendar.MINUTE), cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.DAY_OF_MONTH), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.SECOND),
+                    cal.get(Calendar.YEAR) };
+
+            deployStatement("prepared", "ON_TIMER", alias, params, callback, true);
         }
     }
 
@@ -786,13 +799,7 @@ public class EngineImpl extends AbstractEngine {
         for (Annotation annotation : annotations) {
             if (annotation instanceof Subscriber) {
 
-                Subscriber subscriber = (Subscriber) annotation;
-                try {
-                    Object obj = getSubscriber(subscriber.className());
-                    statement.setSubscriber(obj);
-                } catch (Exception e) {
-                    throw new RuntimeException("subscriber " + subscriber.className() + " could not be created for statement " + statement.getName(), e);
-                }
+                this.subscriberResolver.resolve(statement, ((Subscriber) annotation).className());
 
             } else if (annotation instanceof Listeners) {
 
@@ -806,8 +813,8 @@ public class EngineImpl extends AbstractEngine {
                         } else {
                             statement.addListener((UpdateListener) obj);
                         }
-                    } catch (Exception e) {
-                        throw new RuntimeException("listener " + className + " could not be created for statement " + statement.getName(), e);
+                    } catch (ClassNotFoundException | IllegalAccessException | InstantiationException ex) {
+                        throw new InternalEngineException("listener " + className + " could not be created for statement " + statement.getName(), ex);
                     }
                 }
             }
@@ -818,8 +825,10 @@ public class EngineImpl extends AbstractEngine {
         // in live trading stop the statement before attaching (and restart afterwards)
         // to make sure that the subscriber receives the first event
         if (callback != null) {
-            CommonConfig commonConfig = ConfigLocator.instance().getCommonConfig();
-            if (commonConfig.isSimulation()) {
+            if (callback instanceof EngineAwareCallback) {
+                ((EngineAwareCallback) callback).setEngine(this);
+            }
+            if (this.simulation) {
                 statement.setSubscriber(callback);
             } else {
                 statement.stop();
@@ -840,10 +849,8 @@ public class EngineImpl extends AbstractEngine {
                 throw new IllegalArgumentException(fileName + " does not exist");
             }
 
-            BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-
             // process loads
-            try {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream))) {
                 StringWriter buffer = new StringWriter();
                 String strLine;
                 while ((strLine = reader.readLine()) != null) {
@@ -868,14 +875,10 @@ public class EngineImpl extends AbstractEngine {
 
                 return EPLModuleUtil.parseInternal(buffer.toString(), fileName);
 
-            } finally {
-                reader.close();
             }
 
-        } catch (ParseException e) {
-            throw new RuntimeException(moduleName + " could not be deployed", e);
-        } catch (IOException e) {
-            throw new RuntimeException(moduleName + " could not be deployed", e);
+        } catch (ParseException | IOException ex) {
+            throw new InternalEngineException(moduleName + " could not be deployed", ex);
         }
     }
 
@@ -893,11 +896,8 @@ public class EngineImpl extends AbstractEngine {
         EngineImportService engineImportService = ((EPServiceProviderSPI) serviceProvider).getEngineImportService();
         Annotation[] annotations = AnnotationUtil.compileAnnotations(annotationDescs, engineImportService, item.getExpression());
 
-        CommonConfig commonConfig = ConfigLocator.instance().getCommonConfig();
-        ConfigParams configParams = ConfigLocator.instance().getConfigParams();
-
-        String excludeStatements = configParams.getString("misc.moduleDeployExcludeStatements");
-        Set<String> moduleDeployExcludeStatements = new HashSet<String>();
+        String excludeStatements = this.configParams.getString("misc.moduleDeployExcludeStatements");
+        Set<String> moduleDeployExcludeStatements = new HashSet<>();
         if (excludeStatements != null) {
             moduleDeployExcludeStatements.addAll(Arrays.asList(excludeStatements.split(",")));
         }
@@ -912,11 +912,11 @@ public class EngineImpl extends AbstractEngine {
                     return false;
                 }
 
-            } else if (annotation instanceof RunTimeOnly && commonConfig.isSimulation()) {
+            } else if (this.simulation && annotation instanceof RunTimeOnly) {
 
                 return false;
 
-            } else if (annotation instanceof SimulationOnly && !commonConfig.isSimulation()) {
+            } else if (!this.simulation && annotation instanceof SimulationOnly) {
 
                 return false;
 
@@ -924,7 +924,7 @@ public class EngineImpl extends AbstractEngine {
 
                 Condition condition = (Condition) annotation;
                 String key = condition.key();
-                if (!configParams.getBoolean(key)) {
+                if (!this.configParams.getBoolean(key)) {
                     return false;
                 }
             }
@@ -938,27 +938,8 @@ public class EngineImpl extends AbstractEngine {
         EPAdministrator administrator = this.serviceProvider.getEPAdministrator();
 
         // find the first statement that matches the given statementName regex
-        return CollectionUtils.select(Arrays.asList(administrator.getStatementNames()), new Predicate<String>() {
-
-            @Override
-            public boolean evaluate(String statement) {
-                return statement.matches(statementNameRegex);
-            }
-        }).toArray(new String[] {});
-    }
-
-    private Object getSubscriber(String fqdn) throws ClassNotFoundException {
-
-        // try to see if the fqdn represents a class
-        try {
-            Class<?> cl = Class.forName(fqdn);
-            return cl.newInstance();
-        } catch (Exception e) {
-            // do nothin
-        }
-
-        // otherwise the fqdn represents a method, in this case treate a subscriber
-        return SubscriberCreator.createSubscriber(fqdn);
+        Collection<String> names = CollectionUtils.select(Arrays.asList(administrator.getStatementNames()), statement -> statement.matches(statementNameRegex));
+        return names.toArray(new String[names.size()]);
     }
 
 }

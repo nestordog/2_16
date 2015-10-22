@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+          "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping default-cascade="none">
+    <class name="ch.algotrader.entity.strategy.CashBalanceImpl"
+        table="`cash_balance`" dynamic-insert="false" dynamic-update="false">
+	    <meta attribute="implements">ch.algotrader.entity.strategy.CashBalanceI</meta>      
+	    <meta attribute="generated-class">ch.algotrader.entity.strategy.CashBalance</meta>
+	    <meta attribute="class-code">
+<![CDATA[
+]]>   
+	    </meta> 	    
+        <meta attribute="class-description"><![CDATA[Represents the current cash amount of a particular Strategy in a particular {@link ch.algotrader.enumeration.Currency Currency}.]]></meta>
+        <cache usage="read-write" />
+        <id name="id" type="long" >
+            <column name="ID" sql-type="BIGINT"/>
+
+            <generator class="native">
+                <!-- id-generator merge-point -->
+            </generator>
+        </id>
+        <version name="version" type="int" column="VERSION"/>
+        <property name="currency">
+            <meta attribute="use-in-equals">true</meta>
+            <meta attribute="property-type">ch.algotrader.enumeration.Currency</meta>
+            <column name="CURRENCY" not-null="true" unique="false" sql-type="VARCHAR(255)"/>
+
+            <type name="ch.algotrader.hibernate.HibernateEnumType">
+                 <param name="enumClassName">ch.algotrader.enumeration.Currency</param>
+            </type>
+        </property>
+        <property name="amount">
+            <column name="AMOUNT" not-null="true" unique="false" sql-type="Decimal(15,6)"/>
+
+            <type name="java.math.BigDecimal"/>
+        </property>
+        <many-to-one name="strategy" class="ch.algotrader.entity.strategy.StrategyImpl" cascade="none" foreign-key="CASH_BALANCE_STRATEGY_FKC" not-null="true" lazy="proxy" fetch="select">
+            <meta attribute="property-type">ch.algotrader.entity.strategy.Strategy</meta>
+            <meta attribute="field-description"><![CDATA[Represents a running Strategy within the system. In addition the AlgoTrader Server is also
+represented by an instance of this class.]]></meta>
+            <meta attribute="use-in-equals">true</meta>
+            <column name="STRATEGY_FK" not-null="true" sql-type="BIGINT"/>
+
+        </many-to-one>
+    </class>
+</hibernate-mapping>

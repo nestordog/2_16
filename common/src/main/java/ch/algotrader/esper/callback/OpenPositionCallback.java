@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,15 +12,15 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.esper.callback;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import ch.algotrader.esper.EngineLocator;
-import ch.algotrader.util.MyLogger;
+import ch.algotrader.esper.Engine;
 import ch.algotrader.util.metric.MetricsUtil;
 import ch.algotrader.vo.OpenPositionVO;
 
@@ -28,12 +28,10 @@ import ch.algotrader.vo.OpenPositionVO;
  * Base Esper Callback Class that will be invoked as soon as a new Position on the given Security passed to {@link ch.algotrader.esper.Engine#addOpenPositionCallback} has been opened.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
-public abstract class OpenPositionCallback {
+public abstract class OpenPositionCallback extends AbstractEngineCallback {
 
-    private static Logger logger = MyLogger.getLogger(OpenPositionCallback.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(OpenPositionCallback.class);
 
     /**
      * Called by the "ON_OPEN_POSITION" statement. Should not be invoked directly.
@@ -44,16 +42,21 @@ public abstract class OpenPositionCallback {
         String alias = "ON_OPEN_POSITION_" + positionVO.getSecurityId();
 
         // undeploy the statement
-        EngineLocator.instance().getEngine(positionVO.getStrategy()).undeployStatement(alias);
+        Engine engine = getEngine();
+        if (engine != null) {
+            engine.undeployStatement(alias);
+        }
 
         long startTime = System.nanoTime();
-        logger.debug("onOpenPosition start " + positionVO.getSecurityId());
-
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("onOpenPosition start {}", positionVO.getSecurityId());
+        }
         // call orderCompleted
         onOpenPosition(positionVO);
 
-        logger.debug("onOpenPosition end " + positionVO.getSecurityId());
-
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("onOpenPosition end {}", positionVO.getSecurityId());
+        }
         MetricsUtil.accountEnd("OpenPositionCallback." + positionVO.getStrategy(), startTime);
     }
 

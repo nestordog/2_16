@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,8 +12,8 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.util.diff.reader;
 
@@ -22,69 +22,54 @@ import java.io.IOException;
 import java.util.Objects;
 
 import ch.algotrader.util.diff.define.CsvDefinition;
+import ch.algotrader.util.diff.filter.CsvLineFilter;
 
 /**
- * Reader that skips certain lines based on a {@link #Filter} criteria.
+ * Reader that skips certain lines based on a {@link ch.algotrader.util.diff.filter.CsvLineFilter CsvLineFilter} criteria.
  */
 public class FilterReader implements CsvReader {
 
-    /**
-     * Filter to apply to a line. Accepting a line means that it is returned by
-     * the {@link FilterReader#readLine()} method. If accept returns false the
-     * line is suppressed and the next line is read instead.
-     */
-    public static interface Filter {
-        /**
-         * Returns true to accept and return the given line and false if the line
-         * should be suppressed.
-         *
-         * @param line the line to test
-         * @return true to accept and false to reject the line
-         */
-        boolean accept(CsvLine line);
-    }
-
     private final CsvReader delegate;
-    private final Filter filter;
+    private final CsvLineFilter csvLineFilter;
 
-    public FilterReader(CsvReader delegate, Filter filter) {
+    public FilterReader(CsvReader delegate, CsvLineFilter csvLineFilter) {
         this.delegate = Objects.requireNonNull(delegate, "delegate cannot be null");
-        this.filter = Objects.requireNonNull(filter, "filter cannot be null");
+        this.csvLineFilter = Objects.requireNonNull(csvLineFilter, "csvLineFilter cannot be null");
     }
 
     @Override
     public CsvDefinition getCsvDefinition() {
-        return delegate.getCsvDefinition();
+        return this.delegate.getCsvDefinition();
     }
 
     @Override
     public File getFile() {
-        return delegate.getFile();
+        return this.delegate.getFile();
     }
 
     @Override
     public java.io.BufferedReader getReader() {
-        return delegate.getReader();
+        return this.delegate.getReader();
     }
 
     public CsvReader getDelegate() {
-        return delegate;
+        return this.delegate;
     }
 
-    public Filter getFilter() {
-        return filter;
+    public CsvLineFilter getFilter() {
+        return this.csvLineFilter;
     }
 
     @Override
-    public int getLine() {
-        return delegate.getLine();
+    public int getLineIndex() {
+        return this.delegate.getLineIndex();
     }
 
     @Override
     public CsvLine readLine() throws IOException {
-        CsvLine line = delegate.readLine();
-        while (line != null && !filter.accept(line)) {
-            line = delegate.readLine();
+        CsvLine line = this.delegate.readLine();
+        while (line.isValid() && !this.csvLineFilter.accept(line)) {
+            line = this.delegate.readLine();
         }
         return line;
     }

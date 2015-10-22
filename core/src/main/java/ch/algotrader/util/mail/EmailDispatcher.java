@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,8 +12,8 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.util.mail;
 
@@ -23,25 +23,22 @@ import java.util.Set;
 import javax.mail.Address;
 import javax.mail.MessagingException;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.integration.Message;
 import org.springframework.integration.annotation.Transformer;
 import org.springframework.integration.support.MessageBuilder;
-
-import ch.algotrader.util.MyLogger;
 
 /**
  * Dispatches a {link Message} based on the defined {@link Disposition Dispositions}.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public class EmailDispatcher {
 
-    private static Logger logger = MyLogger.getLogger(EmailDispatcher.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(EmailDispatcher.class);
 
-    private Set<Disposition> dispositions = new HashSet<Disposition>();
+    private Set<Disposition> dispositions = new HashSet<>();
 
     public void setDispositions(Set<Disposition> dispositions) {
         this.dispositions = dispositions;
@@ -66,8 +63,9 @@ public class EmailDispatcher {
                 continue;
             }
 
-            logger.info("processing message \"" + mm.getSubject() + "\" from " + mm.getFrom()[0] + " sent on " + mm.getSentDate() + " by disposition " + disposition.getName());
-
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("processing message \"{}\" from {} sent on {} by disposition {}", mm.getSubject(), mm.getFrom()[0], mm.getSentDate(), disposition.getName());
+            }
             // set the headers
             return MessageBuilder.fromMessage(message)
                     .setHeader("directory", disposition.getDirectory())
@@ -75,8 +73,9 @@ public class EmailDispatcher {
                     .build();
         }
 
-        logger.info("ignoring message \"" + mm.getSubject() + "\" from " + mm.getFrom()[0] + " sent on " + mm.getSentDate());
-
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("ignoring message \"{}\" from {} sent on {}", mm.getSubject(), mm.getFrom()[0], mm.getSentDate());
+        }
         // return unmodified message
         return message;
     }

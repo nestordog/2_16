@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,46 +12,43 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.service;
 
 import org.apache.commons.lang.Validate;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import ch.algotrader.dao.trade.LimitOrderDao;
+import ch.algotrader.dao.trade.MarketOrderDao;
+import ch.algotrader.dao.trade.OrderDao;
+import ch.algotrader.dao.trade.OrderPropertyDao;
+import ch.algotrader.dao.trade.OrderStatusDao;
+import ch.algotrader.dao.trade.StopLimitOrderDao;
+import ch.algotrader.dao.trade.StopOrderDao;
 import ch.algotrader.entity.trade.LimitOrder;
-import ch.algotrader.entity.trade.LimitOrderDao;
 import ch.algotrader.entity.trade.MarketOrder;
-import ch.algotrader.entity.trade.MarketOrderDao;
 import ch.algotrader.entity.trade.Order;
-import ch.algotrader.entity.trade.OrderDao;
 import ch.algotrader.entity.trade.OrderProperty;
-import ch.algotrader.entity.trade.OrderPropertyDao;
 import ch.algotrader.entity.trade.OrderStatus;
-import ch.algotrader.entity.trade.OrderStatusDao;
 import ch.algotrader.entity.trade.StopLimitOrder;
-import ch.algotrader.entity.trade.StopLimitOrderDao;
 import ch.algotrader.entity.trade.StopOrder;
-import ch.algotrader.entity.trade.StopOrderDao;
-import ch.algotrader.util.MyLogger;
-import ch.algotrader.util.spring.HibernateSession;
 
 /**
  * {@link OrderPersistenceService} implementation that directly
  * commits orders and order events to a persistent store.
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
- *
- * @version $Revision$ $Date$
  */
-@HibernateSession
+@Transactional(propagation = Propagation.SUPPORTS)
 public class OrderPersistenceServiceImpl implements OrderPersistenceService {
 
-    private static final Logger logger = MyLogger.getLogger(OrderPersistenceServiceImpl.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(OrderPersistenceServiceImpl.class);
 
     private final OrderDao orderDao;
 
@@ -100,29 +97,13 @@ public class OrderPersistenceServiceImpl implements OrderPersistenceService {
 
         try {
             if (order instanceof MarketOrder) {
-                if (order.getId() == 0) {
-                    this.marketOrderDao.create((MarketOrder) order);
-                } else {
-                    this.marketOrderDao.update((MarketOrder) order);
-                }
+                this.marketOrderDao.save((MarketOrder) order);
             } else if (order instanceof LimitOrder) {
-                if (order.getId() == 0) {
-                    this.limitOrderDao.create((LimitOrder) order);
-                } else {
-                    this.limitOrderDao.update((LimitOrder) order);
-                }
+                this.limitOrderDao.save((LimitOrder) order);
             } else if (order instanceof StopOrder) {
-                if (order.getId() == 0) {
-                    this.stopOrderDao.create((StopOrder) order);
-                } else {
-                    this.stopOrderDao.update((StopOrder) order);
-                }
+                this.stopOrderDao.save((StopOrder) order);
             } else if (order instanceof StopLimitOrder) {
-                if (order.getId() == 0) {
-                    this.stopLimitOrderDao.create((StopLimitOrder) order);
-                } else {
-                    this.stopLimitOrderDao.update((StopLimitOrder) order);
-                }
+                this.stopLimitOrderDao.save((StopLimitOrder) order);
             } else {
                 throw new IllegalStateException("Unexpected order type " + order.getClass());
             }
@@ -130,11 +111,11 @@ public class OrderPersistenceServiceImpl implements OrderPersistenceService {
             // save order properties
             if (order.getOrderProperties() != null && !order.getOrderProperties().isEmpty()) {
                 for (OrderProperty orderProperty : order.getOrderProperties().values()) {
-                    this.orderPropertyDao.create(orderProperty);
+                    this.orderPropertyDao.save(orderProperty);
                 }
             }
         } catch (Exception e) {
-            logger.error("problem creating order", e);
+            LOGGER.error("Failed to save Order", e);
         }
     }
 
@@ -143,23 +124,35 @@ public class OrderPersistenceServiceImpl implements OrderPersistenceService {
     @Transactional(propagation = Propagation.REQUIRED)
     public void persistOrderStatus(final OrderStatus orderStatus) {
 
+        if (orderStatus.getId() != 0) {
+            LOGGER.error("OrderStatus may not be updated");
+            return;
+        }
         try {
-            if (orderStatus.getId() == 0) {
-
-                Order order = orderStatus.getOrder();
-                if (order == null) {
-                    logger.error("OrderStatus must have an Order attached");
-                } else if (order.getId() == 0 ) {
-                    // reload persistent order instance
-                    Order persistentOrder = this.orderDao.findByIntId(order.getIntId());
-                    orderStatus.setOrder(persistentOrder);
+            Order order = orderStatus.getOrder();
+            if (order == null) {
+                LOGGER.error("OrderStatus does not have an order associated with it");
+                return;
+            }
+            if (order.getId() == 0 ) {
+                // reload persistent order instance
+                String intId = order.getIntId();
+                Order persistentOrder = this.orderDao.findByIntId(intId);
+                if (persistentOrder == null) {
+                    throw new ServiceException("Order with IntId " + intId + " has not been persisted");
                 }
-                this.orderStatusDao.create(orderStatus);
-            } else {
-                logger.error("OrderStatus may not be updated");
+                orderStatus.setOrder(persistentOrder);
+            }
+            String extId = orderStatus.getExtId();
+            if (extId != null && order.getExtId() == null) {
+                order.setExtId(extId);
+                this.orderDao.persist(order).setExtId(extId);
+            }
+            if (orderStatus.getId() == 0) {
+                this.orderStatusDao.save(orderStatus);
             }
         } catch (Exception e) {
-            logger.error("problem creating orderStatus", e);
+            LOGGER.error("Failed to save OrderStatus", e);
         }
     }
 

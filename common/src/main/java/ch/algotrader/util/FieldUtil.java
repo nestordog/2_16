@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,8 +12,8 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.util;
 
@@ -31,23 +31,22 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.reflect.FieldUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Provides general Class related untility Methods.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  *
- * @version $Revision$ $Date$
- *
  * @see BeanUtil
  */
 public class FieldUtil {
 
-    private static Logger logger = MyLogger.getLogger(FieldUtil.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(FieldUtil.class);
 
     private static final Set<Object> immediates =
-        new HashSet<Object>(Arrays.asList(new Object[]{
+        new HashSet<>(Arrays.asList(new Object[]{
 
                     Boolean.class,
                     Double.class,
@@ -84,7 +83,7 @@ public class FieldUtil {
      */
     public static List<Field> getAllFields(Class<?> type) {
 
-        List<Field> fields = new ArrayList<Field>();
+        List<Field> fields = new ArrayList<>();
 
         while (true) {
 
@@ -115,7 +114,7 @@ public class FieldUtil {
                 Object targetValue = FieldUtils.readField(field, target, true);
                 FieldUtils.writeField(field, source, targetValue, true);
             } catch (IllegalAccessException e) {
-                logger.error("problem copying field", e);
+                LOGGER.error("problem copying field", e);
             }
         }
     }
@@ -125,12 +124,9 @@ public class FieldUtil {
         if (object.isAccessible())
             return;
 
-        AccessController.doPrivileged(new PrivilegedAction<Object>() {
-            @Override
-            public Object run() {
-                object.setAccessible(true);
-                return null;
-            }
+        AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
+            object.setAccessible(true);
+            return null;
         });
     }
 }

@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,20 +12,24 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.service.ftx;
 
-import java.util.Map;
-
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.ftx.FTXFixOrderMessageFactory;
+import ch.algotrader.config.CommonConfig;
+import ch.algotrader.dao.AccountDao;
+import ch.algotrader.dao.trade.OrderDao;
+import ch.algotrader.entity.trade.ExecutionStatusVO;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
-import ch.algotrader.esper.Engine;
-import ch.algotrader.esper.EngineLocator;
-import ch.algotrader.service.OrderService;
+import ch.algotrader.enumeration.SimpleOrderType;
+import ch.algotrader.enumeration.TIF;
+import ch.algotrader.ordermgmt.OrderRegistry;
+import ch.algotrader.service.OrderPersistenceService;
+import ch.algotrader.service.fix.fix44.Fix44OrderService;
 import ch.algotrader.service.fix.fix44.Fix44OrderServiceImpl;
 import quickfix.field.CumQty;
 import quickfix.fix44.NewOrderSingle;
@@ -34,17 +38,22 @@ import quickfix.fix44.OrderCancelRequest;
 
 /**
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
- *
- * @version $Revision$ $Date$
  */
-public class FTXFixOrderServiceImpl extends Fix44OrderServiceImpl implements FTXFixOrderService {
+public class FTXFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fix44OrderService {
 
-    private static final long serialVersionUID = -4332474115892611530L;
+    private final OrderRegistry orderRegistry;
 
-    public FTXFixOrderServiceImpl(final FixAdapter fixAdapter,
-                                  final OrderService orderService) {
+    public FTXFixOrderServiceImpl(
+            final FixAdapter fixAdapter,
+            final OrderRegistry orderRegistry,
+            final OrderPersistenceService orderPersistenceService,
+            final OrderDao orderDao,
+            final AccountDao accountDao,
+            final CommonConfig commonConfig) {
 
-        super(fixAdapter, orderService, new FTXFixOrderMessageFactory());
+        super(OrderServiceType.FTX_FIX.name(), fixAdapter, new FTXFixOrderMessageFactory(),
+                orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig);
+        this.orderRegistry = orderRegistry;
     }
 
     @Override
@@ -54,16 +63,10 @@ public class FTXFixOrderServiceImpl extends Fix44OrderServiceImpl implements FTX
     @Override
     public void prepareModifyOrder(SimpleOrder order, OrderCancelReplaceRequest replaceRequest) {
 
-        Engine serverEngine = EngineLocator.instance().getServerEngine();
-        if (serverEngine != null && serverEngine.isDeployed("OPEN_ORDER_WINDOW")) {
-            String intId = order.getIntId();
-            @SuppressWarnings("unchecked")
-            Map<String, Long> map = (Map<String, Long>) serverEngine.executeSingelObjectQuery(
-                    "select filledQuantity from OpenOrderWindow where intId = '" + intId + "'");
-            Long filledQuantity = map.get("filledQuantity");
-            if (filledQuantity != null) {
-                replaceRequest.setDouble(CumQty.FIELD, filledQuantity);
-            }
+        String intId = order.getIntId();
+        ExecutionStatusVO execStatus = this.orderRegistry.getStatusByIntId(intId);
+        if (execStatus != null) {
+            replaceRequest.setDouble(CumQty.FIELD, execStatus.getFilledQuantity());
         }
     }
 
@@ -72,8 +75,8 @@ public class FTXFixOrderServiceImpl extends Fix44OrderServiceImpl implements FTX
     }
 
     @Override
-    public OrderServiceType getOrderServiceType() {
-
-        return OrderServiceType.FTX_FIX;
+    public TIF getDefaultTIF(final SimpleOrderType type) {
+        return TIF.GTC;
     }
+
 }

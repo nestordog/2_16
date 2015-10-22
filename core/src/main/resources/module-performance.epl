@@ -20,15 +20,13 @@ select
     perf.datapoints as n,
     perf.average as avgM,
     perf.stddev as stdM,
-    Math.pow(factor.geomaverage,12) - 1  as avgY,
+    Math.pow(geom.geomaverage,12) - 1  as avgY,
     perf.stddev * Math.sqrt(12) as stdY,
-    (Math.pow(factor.geomaverage,12) - 1 - misc_marketIntrest) / (perf.stddev * Math.sqrt(12)) as sharpeRatio
+    (Math.pow(geom.geomaverage,12) - 1 - misc_marketIntrest) / (perf.stddev * Math.sqrt(12)) as sharpeRatio
 from
     MonthlyPerformance.win:keepall().stat:uni(value) as perf,
-    MonthlyPerformance.win:keepall().stat:uni(1 + value) as factor
+    MonthlyPerformance.win:keepall().stat:geom(1 + value) as geom
 having
-    factor.stddev != Double.NaN
-and
     perf.stddev != Double.NaN;
 
 @Name('INSERT_INTO_ALL_TRADES')

@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,8 +12,8 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.entity.property;
 
@@ -24,8 +24,6 @@ import java.util.Map;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public abstract class PropertyHolderImpl extends PropertyHolder {
 
@@ -34,7 +32,7 @@ public abstract class PropertyHolderImpl extends PropertyHolder {
     @Override
     public int getIntProperty(String name) {
 
-        Property property = getPropsInitialized().get(name);
+        Property property = getProps().get(name);
         if (property != null) {
             if (property.getIntValue() != null) {
                 return property.getIntValue();
@@ -49,7 +47,7 @@ public abstract class PropertyHolderImpl extends PropertyHolder {
     @Override
     public double getDoubleProperty(String name) {
 
-        Property property = getPropsInitialized().get(name);
+        Property property = getProps().get(name);
         if (property != null) {
             if (property.getDoubleValue() != null) {
                 return property.getDoubleValue();
@@ -64,7 +62,7 @@ public abstract class PropertyHolderImpl extends PropertyHolder {
     @Override
     public BigDecimal getMoneyProperty(String name) {
 
-        Property property = getPropsInitialized().get(name);
+        Property property = getProps().get(name);
         if (property != null) {
             if (property.getMoneyValue() != null) {
                 return property.getMoneyValue();
@@ -79,7 +77,7 @@ public abstract class PropertyHolderImpl extends PropertyHolder {
     @Override
     public String getTextProperty(String name) {
 
-        Property property = getPropsInitialized().get(name);
+        Property property = getProps().get(name);
         if (property != null) {
             if (property.getTextValue() != null) {
                 return property.getTextValue();
@@ -94,7 +92,7 @@ public abstract class PropertyHolderImpl extends PropertyHolder {
     @Override
     public Date getDateProperty(String name) {
 
-        Property property = getPropsInitialized().get(name);
+        Property property = getProps().get(name);
         if (property != null) {
             if (property.getDateTimeValue() != null) {
                 return property.getDateTimeValue();
@@ -109,7 +107,7 @@ public abstract class PropertyHolderImpl extends PropertyHolder {
     @Override
     public boolean getBooleanProperty(String name) {
 
-        Property property = getPropsInitialized().get(name);
+        Property property = getProps().get(name);
         if (property != null) {
             if (property.getBooleanValue() != null) {
                 return property.getBooleanValue();
@@ -130,7 +128,7 @@ public abstract class PropertyHolderImpl extends PropertyHolder {
     @Override
     public Map<String, Object> getPropertyNameValueMap() {
 
-        Map<String, Object> nameValuePairs = new HashMap<String, Object>();
+        Map<String, Object> nameValuePairs = new HashMap<>();
         for (Property property : getProps().values()) {
             nameValuePairs.put(property.getName(), property.getValue());
         }

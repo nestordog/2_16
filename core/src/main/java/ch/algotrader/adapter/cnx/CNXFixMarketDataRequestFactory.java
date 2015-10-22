@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,11 +12,14 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.adapter.cnx;
 
+import org.apache.commons.lang.Validate;
+
+import ch.algotrader.adapter.RequestIdGenerator;
 import ch.algotrader.adapter.fix.FixApplicationException;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.Security;
@@ -33,24 +36,28 @@ import quickfix.fix44.MarketDataRequest;
  * Currenex market data request factory.
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
- *
- * @version $Revision$ $Date$
  */
 public class CNXFixMarketDataRequestFactory {
 
-    public MarketDataRequest create(Security security, SubscriptionRequestType type) {
+    private final RequestIdGenerator<Security> tickerIdGenerator;
+
+    public CNXFixMarketDataRequestFactory(final RequestIdGenerator<Security> tickerIdGenerator) {
+
+        Validate.notNull(tickerIdGenerator, "RequestIdGenerator is null");
+
+        this.tickerIdGenerator = tickerIdGenerator;
+    }
+
+    public MarketDataRequest create(final Security security, final char type) {
 
         if (!(security instanceof Forex)) {
-
-            throw new FixApplicationException("Currenex supports forex orders only");
+            throw new FixApplicationException("Currenex supports Forex only");
         }
         Forex forex = (Forex) security;
 
-        String cnxSymbol = CNXUtil.getCNXSymbol(forex);
-
         MarketDataRequest request = new MarketDataRequest();
-        request.set(new MDReqID(cnxSymbol));
-        request.set(type);
+        request.set(new MDReqID(this.tickerIdGenerator.generateId(forex)));
+        request.set(new SubscriptionRequestType(type));
         request.set(new MarketDepth(1)); // top of the book
         request.set(new MDUpdateType(MDUpdateType.INCREMENTAL_REFRESH));
         request.set(new AggregatedBook(true));
@@ -64,7 +71,7 @@ public class CNXFixMarketDataRequestFactory {
         request.addGroup(offer);
 
         MarketDataRequest.NoRelatedSym symbol = new MarketDataRequest.NoRelatedSym();
-        symbol.set(new Symbol(cnxSymbol));
+        symbol.set(new Symbol(CNXUtil.getCNXSymbol(forex)));
         request.addGroup(symbol);
 
         return request;

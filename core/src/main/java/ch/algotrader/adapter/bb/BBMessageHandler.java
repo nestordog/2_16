@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,19 +12,20 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.adapter.bb;
 
-import org.apache.log4j.Logger;
-
-import ch.algotrader.util.MyLogger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.bloomberglp.blpapi.Event;
 import com.bloomberglp.blpapi.EventHandler;
 import com.bloomberglp.blpapi.Message;
 import com.bloomberglp.blpapi.Session;
+
+import ch.algotrader.adapter.ExternalSessionStateHolder;
 
 /**
  * Abstract Bloomberg MessageHandler.
@@ -35,10 +36,19 @@ import com.bloomberglp.blpapi.Session;
  */
 public abstract class BBMessageHandler implements EventHandler {
 
-    private static Logger logger = MyLogger.getLogger(BBMessageHandler.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(BBMessageHandler.class);
 
+    private final ExternalSessionStateHolder sessionStateHolder;
     private final Object lock = new Object();
     private boolean running;
+
+    public BBMessageHandler(final ExternalSessionStateHolder sessionStateHolder) {
+        this.sessionStateHolder = sessionStateHolder;
+    }
+
+    public BBMessageHandler() {
+        this(null);
+    }
 
     @Override
     public void processEvent(Event event, Session session) {
@@ -46,9 +56,9 @@ public abstract class BBMessageHandler implements EventHandler {
         try {
             internalProcessEvent(session, event);
         } catch (Exception e) {
-            logger.error("problem processing event", e);
+            LOGGER.error("problem processing event", e);
             for (Message msg : event) {
-                logger.error("correlationID: " + msg.correlationID().value() + ", " + msg);
+                LOGGER.error("correlationID: {}, {}", msg.correlationID().value(), msg);
             }
         }
     }
@@ -85,6 +95,14 @@ public abstract class BBMessageHandler implements EventHandler {
                 processResponseEvent(event, session);
                 return true;
             case Event.EventType.Constants.SUBSCRIPTION_STATUS:
+
+                for (Message msg : event) {
+                    if (msg.messageType() == BBConstants.SUBSCRIPTION_STARTED) {
+                        if (this.sessionStateHolder != null) {
+                            this.sessionStateHolder.onSubscribe();
+                        }
+                    }
+                }
                 synchronized (this.lock) {
                     processSubscriptionStatus(event, session);
                 }
@@ -103,17 +121,29 @@ public abstract class BBMessageHandler implements EventHandler {
         for (Message msg : event) {
 
             if (msg.messageType() == BBConstants.SESSION_CONNECTION_UP) {
-                logger.info("session connection up");
+                LOGGER.info("session connection up");
+
+                if (this.sessionStateHolder != null) {
+                    this.sessionStateHolder.onCreate();
+                }
             } else if (msg.messageType() == BBConstants.SESSION_CONNECTION_DOWN) {
-                logger.info("session connection down");
+                LOGGER.info("session connection down");
             } else if (msg.messageType() == BBConstants.SESSION_STARTED) {
                 this.running = true;
-                logger.info("session started");
+                LOGGER.info("session started");
+
+                if (this.sessionStateHolder != null) {
+                    this.sessionStateHolder.onLogon();
+                }
             } else if (msg.messageType() == BBConstants.SESSION_TERMINATED) {
                 this.running = false;
-                logger.info("session terminated");
+                LOGGER.info("session terminated");
+
+                if (this.sessionStateHolder != null) {
+                    this.sessionStateHolder.onLogoff();
+                }
             } else if (msg.messageType() == BBConstants.SESSION_STARTUP_FAILURE) {
-                logger.error(msg);
+                LOGGER.error(msg);
             } else {
                 throw new IllegalStateException("unknown messageType " + msg.messageType());
             }
@@ -125,7 +155,9 @@ public abstract class BBMessageHandler implements EventHandler {
         for (Message msg : event) {
             if (msg.messageType() == BBConstants.SERVICE_OPENED) {
                 String serviceName = msg.getElementAsString("serviceName");
-                logger.info("service has been opened " + serviceName);
+                if (LOGGER.isInfoEnabled()) {
+                    LOGGER.info("service has been opened {}", serviceName);
+                }
             } else {
                 throw new IllegalArgumentException("unknown msgType " + msg.messageType());
             }
@@ -135,7 +167,7 @@ public abstract class BBMessageHandler implements EventHandler {
     private void processAdminEvent(Event event, Session session) {
 
         for (Message msg : event) {
-            logger.info(msg);
+            LOGGER.info(msg);
         }
     }
 

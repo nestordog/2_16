@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,234 +12,252 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.entity.security;
 
 import java.math.BigDecimal;
 import java.text.ChoiceFormat;
 
-import ch.algotrader.entity.exchange.Exchange;
-import ch.algotrader.enumeration.Broker;
-import ch.algotrader.util.ObjectUtil;
+import org.apache.commons.lang.Validate;
+
 import ch.algotrader.util.RoundUtil;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public class SecurityFamilyImpl extends SecurityFamily {
 
     private static final long serialVersionUID = -2318908709333325986L;
 
     @Override
-    public String toString() {
+    public String getSymbolRoot(String broker) {
 
-        return getName();
+        if (broker != null) {
+            BrokerParameters brokerParams = getBrokerParameters().get(broker);
+            if (brokerParams != null && brokerParams.getSymbolRoot() != null) {
+                return brokerParams.getSymbolRoot();
+            }
+        }
+
+        return getSymbolRoot();
     }
 
     @Override
-    public BigDecimal getTickSize(BigDecimal price, boolean upwards) {
+    public double getContractSize(String broker) {
 
-        return RoundUtil.getBigDecimal(getTickSize(price.doubleValue(), upwards), getScale());
+        if (broker != null) {
+            BrokerParameters brokerParams = getBrokerParameters().get(broker);
+            if (brokerParams != null && brokerParams.getContractSize() != null) {
+                return brokerParams.getContractSize();
+            }
+        }
+
+        return getContractSize();
     }
 
     @Override
-    public double getTickSize(double price, boolean upwards) {
+    public int getScale(String broker) {
 
-        // add or subtract a very small amount to the price to get the tickSize just above or below the trigger
-        double adjustedPrice = upwards ? price * 1.00000000001 : price / 1.00000000001;
-        return Double.valueOf(new ChoiceFormat(getTickSizePattern()).format(adjustedPrice));
+        if (broker != null) {
+            BrokerParameters brokerParams = getBrokerParameters().get(broker);
+            if (brokerParams != null && brokerParams.getScale() != null) {
+                return brokerParams.getScale();
+            }
+        }
+
+        return getScale();
     }
 
+    @Override
+    public String getTickSizePattern(String broker) {
+
+        if (broker != null) {
+            BrokerParameters brokerParams = getBrokerParameters().get(broker);
+            if (brokerParams != null && brokerParams.getTickSizePattern() != null) {
+                return brokerParams.getTickSizePattern();
+            }
+        }
+
+        return getTickSizePattern();
+    }
 
     @Override
-    public BigDecimal getTotalCharges() {
+    public BigDecimal getExecutionCommission(String broker) {
+
+        if (broker != null) {
+            BrokerParameters brokerParams = getBrokerParameters().get(broker);
+            if (brokerParams != null && brokerParams.getExecutionCommission() != null) {
+                return brokerParams.getExecutionCommission();
+            }
+        }
+
+        return getExecutionCommission();
+    }
+
+    @Override
+    public BigDecimal getClearingCommission(String broker) {
+
+        if (broker != null) {
+            BrokerParameters brokerParams = getBrokerParameters().get(broker);
+            if (brokerParams != null && brokerParams.getClearingCommission() != null) {
+                return brokerParams.getClearingCommission();
+            }
+        }
+
+        return getClearingCommission();
+    }
+
+    @Override
+    public BigDecimal getFee(String broker) {
+
+        if (broker != null) {
+            BrokerParameters brokerParams = getBrokerParameters().get(broker);
+            if (brokerParams != null && brokerParams.getFee() != null) {
+                return brokerParams.getFee();
+            }
+        }
+
+        return getFee();
+    }
+
+    @Override
+    public BigDecimal getTotalCharges(String broker) {
 
         BigDecimal totalCharges = new BigDecimal(0.0);
 
-        if (getExecutionCommission() != null) {
-            totalCharges.add(getExecutionCommission());
+        BigDecimal executionCommission = getExecutionCommission(broker);
+        if (executionCommission != null) {
+            totalCharges.add(executionCommission);
         }
 
-        if (getClearingCommission() != null) {
-            totalCharges.add(getExecutionCommission());
+        BigDecimal clearingCommission = getClearingCommission(broker);
+        if (clearingCommission != null) {
+            totalCharges.add(executionCommission);
         }
 
-        if (getFee() != null) {
-            totalCharges.add(getFee());
+        BigDecimal fee = getFee(broker);
+        if (fee != null) {
+            totalCharges.add(fee);
         }
 
         return totalCharges;
     }
 
     @Override
-    public String getSymbolRoot(Broker broker) {
+    public double getPriceMultiplier(String broker) {
 
-        BrokerParameters brokerParams = getBrokerParameters().get(broker.toString());
-        if (brokerParams != null && brokerParams.getSymbolRoot() != null) {
-            return brokerParams.getSymbolRoot();
+        Validate.notNull(broker, "String cannot be null");
+
+        BrokerParameters brokerParams = getBrokerParameters().get(broker);
+        if (brokerParams != null && brokerParams.getPriceMultiplier() != null) {
+            return brokerParams.getPriceMultiplier();
         } else {
-            return getSymbolRoot();
+            return 1.0;
         }
+
     }
 
     @Override
-    public String getExchangeCode(Broker broker) {
+    public int getSpreadTicks(String broker, BigDecimal bid, BigDecimal ask) {
 
-        BrokerParameters brokerParams = getBrokerParameters().get(broker.toString());
-        if (brokerParams != null && brokerParams.getExchangeCode() != null) {
-            return brokerParams.getExchangeCode();
-        } else {
-            Exchange exchange = getExchangeInitialized();
-            return exchange != null ? exchange.getCode() : null;
-        }
-    }
-
-    @Override
-    public BigDecimal getExecutionCommission(Broker broker) {
-
-        BrokerParameters brokerParams = getBrokerParameters().get(broker.toString());
-        if (brokerParams != null && brokerParams.getExecutionCommission() != null) {
-            return brokerParams.getExecutionCommission();
-        } else {
-            return getExecutionCommission();
-        }
-    }
-
-    @Override
-    public BigDecimal getClearingCommission(Broker broker) {
-
-        BrokerParameters brokerParams = getBrokerParameters().get(broker.toString());
-        if (brokerParams != null && brokerParams.getClearingCommission() != null) {
-            return brokerParams.getClearingCommission();
-        } else {
-            return getClearingCommission();
-        }
-    }
-
-    @Override
-    public BigDecimal getFee(Broker broker) {
-
-        BrokerParameters brokerParams = getBrokerParameters().get(broker.toString());
-        if (brokerParams != null && brokerParams.getFee() != null) {
-            return brokerParams.getFee();
-        } else {
-            return getFee();
-        }
-    }
-
-    @Override
-    public BigDecimal getTotalCharges(Broker broker) {
-
-        BigDecimal totalCharges = new BigDecimal(0.0);
-
-        if (getExecutionCommission(broker) != null) {
-            totalCharges.add(getExecutionCommission(broker));
-        }
-
-        if (getClearingCommission(broker) != null) {
-            totalCharges.add(getExecutionCommission(broker));
-        }
-
-        if (getFee(broker) != null) {
-            totalCharges.add(getFee(broker));
-        }
-
-        return totalCharges;
-    }
-
-    @Override
-    public int getSpreadTicks(BigDecimal bid, BigDecimal ask) {
+        Validate.notNull(bid, "Bid cannot be null");
+        Validate.notNull(ask, "Ask cannot be null");
 
         int ticks = 0;
         BigDecimal price = bid;
         if (bid.compareTo(ask) <= 0) {
             while (price.compareTo(ask) < 0) {
                 ticks++;
-                price = adjustPrice(price, 1);
+                price = adjustPrice(broker, price, 1);
             }
         } else {
             while (price.compareTo(ask) > 0) {
                 ticks--;
-                price = adjustPrice(price, -1);
+                price = adjustPrice(broker, price, -1);
             }
         }
         return ticks;
     }
 
     @Override
-    public BigDecimal adjustPrice(BigDecimal price, int ticks) {
+    public BigDecimal getTickSize(String broker, BigDecimal price, boolean upwards) {
+
+        Validate.notNull(price, "Price cannot be null");
+
+        return RoundUtil.getBigDecimal(getTickSize(broker, price.doubleValue(), upwards), getScale(broker));
+    }
+
+    @Override
+    public double getTickSize(String broker, double price, boolean upwards) {
+
+        // add or subtract a very small amount to the price to get the tickSize just above or below the trigger
+        double adjustedPrice = upwards ? price * 1.00000000001 : price / 1.00000000001;
+        return Double.valueOf(new ChoiceFormat(getTickSizePattern(broker)).format(adjustedPrice));
+    }
+
+    @Override
+    public BigDecimal adjustPrice(String broker, BigDecimal price, int ticks) {
+
+        Validate.notNull(price, "Price cannot be null");
 
         if (ticks > 0) {
             for (int i = 0; i < ticks; i++) {
-                price = price.add(getTickSize(price, true));
+                price = price.add(getTickSize(broker, price, true));
             }
         } else if (ticks < 0) {
             for (int i = 0; i > ticks; i--) {
-                price = price.subtract(getTickSize(price, false));
+                price = price.subtract(getTickSize(broker, price, false));
             }
         }
         return price;
     }
 
     @Override
-    public double adjustPrice(double price, int ticks) {
+    public double adjustPrice(String broker, double price, int ticks) {
 
         if (ticks > 0) {
             for (int i = 0; i < ticks; i++) {
-                price = price + getTickSize(price, true);
+                price = price + getTickSize(broker, price, true);
             }
         } else if (ticks < 0) {
             for (int i = 0; i > ticks; i--) {
-                price = price - getTickSize(price, false);
+                price = price - getTickSize(broker, price, false);
             }
         }
         return price;
     }
 
     @Override
-    public BigDecimal roundUp(BigDecimal price) {
-        return RoundUtil.roundToNextN(price, getTickSize(price, true), BigDecimal.ROUND_UP);
+    public BigDecimal roundUp(String broker, BigDecimal price) {
+
+        Validate.notNull(price, "Price cannot be null");
+
+        return RoundUtil.roundToNextN(price, getTickSize(broker, price, true), BigDecimal.ROUND_UP);
     }
 
     @Override
-    public double roundUp(double price) {
-        return RoundUtil.roundToNextN(price, getTickSize(price, true), BigDecimal.ROUND_UP);
+    public double roundUp(String broker, double price) {
+        return RoundUtil.roundToNextN(price, getTickSize(broker, price, true), BigDecimal.ROUND_UP);
     }
 
     @Override
-    public BigDecimal roundDown(BigDecimal price) {
-        return RoundUtil.roundToNextN(price, getTickSize(price, false), BigDecimal.ROUND_DOWN);
+    public BigDecimal roundDown(String broker, BigDecimal price) {
+
+        Validate.notNull(price, "Price cannot be null");
+
+        return RoundUtil.roundToNextN(price, getTickSize(broker, price, false), BigDecimal.ROUND_DOWN);
     }
 
     @Override
-    public double roundDown(double price) {
-        return RoundUtil.roundToNextN(price, getTickSize(price, false), BigDecimal.ROUND_DOWN);
+    public double roundDown(String broker, double price) {
+        return RoundUtil.roundToNextN(price, getTickSize(broker, price, false), BigDecimal.ROUND_DOWN);
     }
 
     @Override
-    public boolean equals(Object obj) {
-
-        if (this == obj) {
-            return true;
-        }
-        if (obj instanceof SecurityFamily) {
-            SecurityFamily that = (SecurityFamily) obj;
-            return ObjectUtil.equalsNonNull(this.getName(), that.getName());
-
-        } else {
-            return false;
-        }
+    public String toString() {
+        return getName();
     }
 
-    @Override
-    public int hashCode() {
-
-        int hash = 17;
-        hash = hash * 37 + ObjectUtil.hashCode(getName());
-        return hash;
-    }
 }

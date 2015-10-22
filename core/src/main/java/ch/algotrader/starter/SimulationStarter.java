@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,19 +12,21 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.starter;
 
 import org.apache.commons.math.ConvergenceException;
 import org.apache.commons.math.FunctionEvaluationException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.ServiceLocator;
-import ch.algotrader.service.SimulationService;
-import ch.algotrader.service.SimulationServiceImpl;
-import ch.algotrader.util.MyLogger;
+import ch.algotrader.config.ConfigLocator;
+import ch.algotrader.config.ConfigParams;
+import ch.algotrader.service.groups.StrategyGroup;
+import ch.algotrader.simulation.SimulationExecutor;
 
 /**
  * Main Starter Class for running simulations.
@@ -54,120 +56,129 @@ import ch.algotrader.util.MyLogger;
  * <p>Example: {@code optimizeMultiParam SMI a:85.0 b:150.0}
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public class SimulationStarter {
 
-    public static Logger logger = MyLogger.getLogger(SimulationServiceImpl.class.getName());
+    public static Logger LOGGER = LogManager.getLogger(SimulationExecutor.class);
 
     public static void main(String[] args) throws ConvergenceException, FunctionEvaluationException {
 
-        ServiceLocator.instance().init(ServiceLocator.SIMULATION_BEAN_REFERENCE_LOCATION);
-
-        if (args[0].equals("simulateWithCurrentParams")) {
-
-            ServiceLocator.instance().getService("simulationService", SimulationService.class).simulateWithCurrentParams();
-
-
-        } else if (args[0].equals("simulateBySingleParam")) {
-
-            for (int i = 1; i < args.length; i++) {
-                String[] params = args[i].split(":");
-                ServiceLocator.instance().getService("simulationService", SimulationService.class).simulateBySingleParam(params[0], params[1]);
+        final ServiceLocator serviceLocator = ServiceLocator.instance();
+        serviceLocator.init(ServiceLocator.SIMULATION_BEAN_REFERENCE_LOCATION);
+        try {
+            StrategyGroup strategyGroup;
+            if (serviceLocator.getContext().containsBean("strategyGroup")) {
+                strategyGroup = serviceLocator.getContext().getBean("strategyGroup", StrategyGroup.class);
+            } else {
+                final ConfigParams configParams = ConfigLocator.instance().getConfigParams();
+                strategyGroup = StrategyGroup.single(configParams.getString("strategyName"));
             }
 
-        } else if (args[0].equals("simulateByMultiParam")) {
+            if (args[0].equals("simulateWithCurrentParams")) {
 
-            for (int i = 1; i < args.length; i++) {
-                String[] touples = args[i].split(",");
-                String[] parameters = new String[touples.length];
-                String[] values = new String[touples.length];
-                for (int j = 0; j < touples.length; j++) {
-                    parameters[j] = touples[j].split(":")[0];
-                    values[j] = touples[j].split(":")[1];
-                }
-                ServiceLocator.instance().getService("simulationService", SimulationService.class).simulateByMultiParam(parameters, values);
-            }
+                serviceLocator.getService("simulationExecutor", SimulationExecutor.class).simulateWithCurrentParams(strategyGroup);
 
-        } else if (args[0].equals("optimizeSingleParamLinear")) {
 
-            for (int i = 1; i < args.length; i++) {
-                String[] params = args[i].split(":");
-                String parameter = params[0];
-                double min = Double.parseDouble(params[1]);
-                double max = Double.parseDouble(params[2]);
-                double increment = Double.parseDouble(params[3]);
+            } else if (args[0].equals("simulateBySingleParam")) {
 
-                ServiceLocator.instance().getService("simulationService", SimulationService.class).optimizeSingleParamLinear(parameter, min, max, increment);
-
-            }
-
-        } else if (args[0].equals("optimizeSingleParamByValues")) {
-
-            for (int i = 1; i < args.length; i++) {
-                String[] params = args[i].split(":");
-                String parameter = params[0];
-                double[] values = new double[params.length - 1];
-                for (int j = 1; j < params.length; j++) {
-                    values[j-1] = Double.valueOf(params[j]);
+                for (int i = 1; i < args.length; i++) {
+                    String[] params = args[i].split(":");
+                    serviceLocator.getService("simulationExecutor", SimulationExecutor.class).simulateBySingleParam(strategyGroup, params[0], params[1]);
                 }
 
-                ServiceLocator.instance().getService("simulationService", SimulationService.class).optimizeSingleParamByValues(parameter, values);
+            } else if (args[0].equals("simulateByMultiParam")) {
 
-            }
-        } else if (args[0].equals("optimizeSingleParam")) {
+                for (int i = 1; i < args.length; i++) {
+                    String[] touples = args[i].split(",");
+                    String[] parameters = new String[touples.length];
+                    String[] values = new String[touples.length];
+                    for (int j = 0; j < touples.length; j++) {
+                        parameters[j] = touples[j].split(":")[0];
+                        values[j] = touples[j].split(":")[1];
+                    }
+                    serviceLocator.getService("simulationExecutor", SimulationExecutor.class).simulateByMultiParam(strategyGroup, parameters, values);
+                }
 
-            String[] params = args[1].split(":");
-            String parameter = params[0];
-            double min = Double.valueOf(params[1]);
-            double max = Double.valueOf(params[2]);
-            double accuracy = Double.valueOf(params[3]);
+            } else if (args[0].equals("optimizeSingleParamLinear")) {
 
-            ServiceLocator.instance().getService("simulationService", SimulationService.class).optimizeSingleParam(parameter, min, max, accuracy);
+                for (int i = 1; i < args.length; i++) {
+                    String[] params = args[i].split(":");
+                    String parameter = params[0];
+                    double min = Double.parseDouble(params[1]);
+                    double max = Double.parseDouble(params[2]);
+                    double increment = Double.parseDouble(params[3]);
 
-        } else if (args[0].equals("optimizeMultiParamLinear")) {
+                    serviceLocator.getService("simulationExecutor", SimulationExecutor.class).optimizeSingleParamLinear(strategyGroup, parameter, min, max, increment);
 
-            String[] parameters = new String[args.length - 1];
-            double[] mins = new double[args.length - 1];
-            double[] maxs = new double[args.length - 1];
-            double[] increments = new double[args.length - 1];
-            for (int i = 1; i < args.length; i++) {
+                }
 
-                String[] params = args[i].split(":");
+            } else if (args[0].equals("optimizeSingleParamByValues")) {
+
+                for (int i = 1; i < args.length; i++) {
+                    String[] params = args[i].split(":");
+                    String parameter = params[0];
+                    double[] values = new double[params.length - 1];
+                    for (int j = 1; j < params.length; j++) {
+                        values[j - 1] = Double.valueOf(params[j]);
+                    }
+
+                    serviceLocator.getService("simulationExecutor", SimulationExecutor.class).optimizeSingleParamByValues(strategyGroup, parameter, values);
+
+                }
+            } else if (args[0].equals("optimizeSingleParam")) {
+
+                String[] params = args[1].split(":");
                 String parameter = params[0];
                 double min = Double.valueOf(params[1]);
                 double max = Double.valueOf(params[2]);
-                double increment = Double.valueOf(params[3]);
+                double accuracy = Double.valueOf(params[3]);
 
-                parameters[i - 1] = parameter;
-                mins[i - 1] = min;
-                maxs[i - 1] = max;
-                increments[i - 1] = increment;
+                serviceLocator.getService("simulationExecutor", SimulationExecutor.class).optimizeSingleParam(strategyGroup, parameter, min, max, accuracy);
+
+            } else if (args[0].equals("optimizeMultiParamLinear")) {
+
+                String[] parameters = new String[args.length - 1];
+                double[] mins = new double[args.length - 1];
+                double[] maxs = new double[args.length - 1];
+                double[] increments = new double[args.length - 1];
+                for (int i = 1; i < args.length; i++) {
+
+                    String[] params = args[i].split(":");
+                    String parameter = params[0];
+                    double min = Double.valueOf(params[1]);
+                    double max = Double.valueOf(params[2]);
+                    double increment = Double.valueOf(params[3]);
+
+                    parameters[i - 1] = parameter;
+                    mins[i - 1] = min;
+                    maxs[i - 1] = max;
+                    increments[i - 1] = increment;
+                }
+
+                serviceLocator.getService("simulationExecutor", SimulationExecutor.class).optimizeMultiParamLinear(strategyGroup, parameters, mins, maxs, increments);
+
+            } else if (args[0].equals("optimizeMultiParam")) {
+
+                String[] parameters = new String[args.length - 1];
+                double[] starts = new double[args.length - 1];
+                for (int i = 1; i < args.length; i++) {
+
+                    String[] params = args[i].split(":");
+                    String parameter = params[0];
+                    double start = Double.valueOf(params[1]);
+                    parameters[i - 1] = parameter;
+                    starts[i - 1] = start;
+                }
+
+                serviceLocator.getService("simulationExecutor", SimulationExecutor.class).optimizeMultiParam(strategyGroup, parameters, starts);
+
+            } else {
+                if (LOGGER.isInfoEnabled()) {
+                    LOGGER.info("invalid command {}", args[0]);
+                }
             }
-
-            ServiceLocator.instance().getService("simulationService", SimulationService.class).optimizeMultiParamLinear(parameters, mins, maxs, increments);
-
-        } else if (args[0].equals("optimizeMultiParam")) {
-
-            String[] parameters = new String[args.length - 1];
-            double[] starts = new double[args.length - 1];
-            for (int i = 1; i < args.length; i++) {
-
-                String[] params = args[i].split(":");
-                String parameter = params[0];
-                double start = Double.valueOf(params[1]);
-                parameters[i - 1] = parameter;
-                starts[i - 1] = start;
-            }
-
-            ServiceLocator.instance().getService("simulationService", SimulationService.class).optimizeMultiParam(parameters, starts);
-
-        } else {
-            logger.info("invalid command " + args[0]);
-            return;
+        } finally {
+            serviceLocator.shutdown();
         }
-
-        ServiceLocator.instance().shutdown();
     }
 }

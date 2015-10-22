@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,8 +12,8 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.adapter.fix;
 
@@ -21,10 +21,6 @@ import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 
-import quickfix.FieldMap;
-import quickfix.field.OrdType;
-import quickfix.field.Symbol;
-import quickfix.field.TimeInForce;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.Future;
 import ch.algotrader.entity.security.Option;
@@ -36,17 +32,18 @@ import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderProperty;
 import ch.algotrader.entity.trade.StopLimitOrder;
 import ch.algotrader.entity.trade.StopOrder;
-import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.OrderPropertyType;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.TIF;
+import quickfix.FieldMap;
+import quickfix.field.OrdType;
+import quickfix.field.Symbol;
+import quickfix.field.TimeInForce;
 
 /**
  * Utility class providing conversion methods for Fix specific types.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public class FixUtil {
 
@@ -63,14 +60,14 @@ public class FixUtil {
         }
     }
 
-    public static Symbol getFixSymbol(Security security, Broker broker) {
+    public static Symbol getFixSymbol(Security security, String broker) {
 
         if (security instanceof Option) {
-            return new Symbol(security.getSecurityFamilyInitialized().getSymbolRoot(broker));
+            return new Symbol(security.getSecurityFamily().getSymbolRoot(broker));
         } else if (security instanceof Future) {
-            return new Symbol(security.getSecurityFamilyInitialized().getSymbolRoot(broker));
+            return new Symbol(security.getSecurityFamily().getSymbolRoot(broker));
         } else if (security instanceof Forex) {
-            return new Symbol(((Forex) security).getBaseCurrency().getValue());
+            return new Symbol(((Forex) security).getBaseCurrency().name());
         } else if (security instanceof Stock) {
             return new Symbol(security.getSymbol());
         } else {

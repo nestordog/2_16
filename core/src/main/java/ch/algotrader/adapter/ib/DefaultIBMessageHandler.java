@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,8 +12,8 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.adapter.ib;
 
@@ -21,135 +21,154 @@ import java.io.EOFException;
 import java.io.StringReader;
 import java.math.BigDecimal;
 import java.net.SocketException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.atomic.AtomicLong;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.xpath.XPathAPI;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.traversal.NodeIterator;
 import org.xml.sax.InputSource;
 
-import ch.algotrader.entity.marketData.Bar;
-import ch.algotrader.entity.trade.Fill;
-import ch.algotrader.entity.trade.Order;
-import ch.algotrader.enumeration.Side;
-import ch.algotrader.enumeration.Status;
-import ch.algotrader.esper.EngineLocator;
-import ch.algotrader.service.HistoricalDataServiceException;
-import ch.algotrader.service.LookupService;
-import ch.algotrader.service.ib.IBNativeMarketDataService;
-import ch.algotrader.util.MyLogger;
-import ch.algotrader.util.RoundUtil;
-
 import com.ib.client.Contract;
 import com.ib.client.ContractDetails;
 import com.ib.client.EWrapperMsgGenerator;
 import com.ib.client.Execution;
+
+import ch.algotrader.adapter.AutoIncrementIdGenerator;
+import ch.algotrader.entity.marketData.Bar;
+import ch.algotrader.entity.trade.ExecutionStatusVO;
+import ch.algotrader.entity.trade.Fill;
+import ch.algotrader.entity.trade.Order;
+import ch.algotrader.entity.trade.OrderDetailsVO;
+import ch.algotrader.entity.trade.OrderStatus;
+import ch.algotrader.enumeration.Side;
+import ch.algotrader.enumeration.Status;
+import ch.algotrader.esper.Engine;
+import ch.algotrader.ordermgmt.OrderRegistry;
+import ch.algotrader.service.ExternalServiceException;
+import ch.algotrader.util.DateTimeLegacy;
+import ch.algotrader.util.PriceUtil;
 
 /**
  * Esper specific MessageHandler.
  * Relevant events are sent into the AlgoTrader Server Esper Engine.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
 
-    private static final Logger logger = MyLogger.getLogger(DefaultIBMessageHandler.class.getName());
-    private static final SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyyMMdd  HH:mm:ss");
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+    private final static AtomicLong MSG_SEQ = new AtomicLong(0);
 
-    private int clientId;
-    private IBSessionLifecycle sessionLifecycle;
-    private IBIdGenerator iBIdGenerator;
+    private static final Logger LOGGER = LogManager.getLogger(DefaultIBMessageHandler.class);
+    private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd  HH:mm:ss");
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd");
 
-    private LookupService lookupService;
-    private IBNativeMarketDataService marketDataService;
+    private final int clientId;
+    private final IBSessionStateHolder sessionStateHolder;
+    private final IBPendingRequests pendingRequests;
+    private final AutoIncrementIdGenerator orderIdGenerator;
 
-    private BlockingQueue<Bar> historicalDataQueue;
+    private final OrderRegistry orderRegistry;
+    private final IBExecutions executions;
 
-    private BlockingQueue<AccountUpdate> accountUpdateQueue;
-    private BlockingQueue<Set<String>> accountsQueue;
-    private BlockingQueue<Profile> profilesQueue;
+    private final BlockingQueue<AccountUpdate> accountUpdateQueue;
+    private final BlockingQueue<Set<String>> accountsQueue;
+    private final BlockingQueue<Profile> profilesQueue;
+    private final Engine serverEngine;
 
-    private BlockingQueue<ContractDetails> contractDetailsQueue;
-
-    public void setClientId(int clientId) {
+    public DefaultIBMessageHandler(
+            final int clientId,
+            final IBSessionStateHolder sessionStateHolder,
+            final IBPendingRequests pendingRequests,
+            final AutoIncrementIdGenerator orderIdGenerator,
+            final OrderRegistry orderRegistry,
+            final IBExecutions executions,
+            final BlockingQueue<AccountUpdate> accountUpdateQueue,
+            final BlockingQueue<Set<String>> accountsQueue,
+            final BlockingQueue<Profile> profilesQueue,
+            final Engine serverEngine) {
         this.clientId = clientId;
-    }
-
-    public void setSessionLifecycle(IBSessionLifecycle sessionLifecycle) {
-        this.sessionLifecycle = sessionLifecycle;
-    }
-
-    public void setiBIdGenerator(IBIdGenerator iBIdGenerator) {
-        this.iBIdGenerator = iBIdGenerator;
-    }
-
-    public void setLookupService(LookupService lookupService) {
-        this.lookupService = lookupService;
-    }
-
-    public void setiBNativeMarketDataService(IBNativeMarketDataService iBNativeMarketDataService) {
-        this.marketDataService = iBNativeMarketDataService;
-    }
-
-    public void setHistoricalDataQueue(BlockingQueue<Bar> historicalDataQueue) {
-        this.historicalDataQueue = historicalDataQueue;
-    }
-
-    public void setAccountUpdateQueue(BlockingQueue<AccountUpdate> accountUpdateQueue) {
+        this.sessionStateHolder = sessionStateHolder;
+        this.pendingRequests = pendingRequests;
+        this.orderIdGenerator = orderIdGenerator;
+        this.orderRegistry = orderRegistry;
+        this.executions = executions;
         this.accountUpdateQueue = accountUpdateQueue;
-    }
-
-    public void setAccountsQueue(BlockingQueue<Set<String>> accountsQueue) {
         this.accountsQueue = accountsQueue;
-    }
-
-    public void setProfilesQueue(BlockingQueue<Profile> profilesQueue) {
         this.profilesQueue = profilesQueue;
-    }
-
-    public void setContractDetailsQueue(BlockingQueue<ContractDetails> contractDetailsQueue) {
-        this.contractDetailsQueue = contractDetailsQueue;
+        this.serverEngine = serverEngine;
     }
 
     @Override
     public void execDetails(final int reqId, final Contract contract, final Execution execution) {
 
-        // ignore FA transfer execution reporst
+        // ignore FA transfer execution reports
         if (execution.m_execId.startsWith("F-") || execution.m_execId.startsWith("U+")) {
             return;
         }
 
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(EWrapperMsgGenerator.execDetails(reqId, contract, execution));
+        }
+
         String intId = String.valueOf(execution.m_orderId);
 
-        // get the order from the OpenOrderWindow
-        Order order = this.lookupService.getOpenOrderByIntId(intId);
-        if (order == null) {
-            logger.error("order could not be found " + intId + " for execution " + contract + " " + execution);
+        IBExecution executionEntry;
+        OrderDetailsVO orderDetails = this.orderRegistry.getOpenOrderDetailsByIntId(intId);
+        if (orderDetails != null) {
+            executionEntry = this.executions.getOpen(intId, orderDetails.getExecutionStatus());
+        } else {
+            LOGGER.error("Order with IntId {} could not be found for execution {} {}", intId, contract, execution);
             return;
+        }
+
+        Order order = orderDetails.getOrder();
+        OrderStatus orderStatus = null;
+
+        synchronized (executionEntry) {
+            executionEntry.setLastQuantity(execution.m_shares);
+            if (executionEntry.getStatus() == Status.OPEN) {
+
+                executionEntry.setStatus(Status.SUBMITTED);
+
+                orderStatus = OrderStatus.Factory.newInstance();
+                orderStatus.setStatus(Status.SUBMITTED);
+                orderStatus.setExtId(Integer.toString(execution.m_permId));
+                orderStatus.setIntId(intId);
+                orderStatus.setSequenceNumber(MSG_SEQ.incrementAndGet());
+                orderStatus.setFilledQuantity(0L);
+                orderStatus.setRemainingQuantity(order.getQuantity());
+                orderStatus.setLastQuantity(0L);
+                orderStatus.setOrder(order);
+                orderStatus.setExtDateTime(this.serverEngine.getCurrentTime());
+
+            }
+        }
+
+        if (orderStatus != null) {
+            this.serverEngine.sendEvent(orderStatus);
         }
 
         // get the fields
         Date extDateTime = IBUtil.getExecutionDateTime(execution);
         Side side = IBUtil.getSide(execution);
         long quantity = execution.m_shares;
-        BigDecimal price = RoundUtil.getBigDecimal(execution.m_price, order.getSecurity().getSecurityFamily().getScale());
+        BigDecimal price = PriceUtil.normalizePrice(order, execution.m_price);
         String extExecId = execution.m_execId;
 
         // assemble the fill
-        Fill fill = Fill.Factory.newInstance();
+        Fill fill = new Fill();
         fill.setDateTime(new Date());
         fill.setExtDateTime(extDateTime);
         fill.setSide(side);
@@ -160,87 +179,143 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
         // associate the fill with the order
         fill.setOrder(order);
 
-        logger.debug(EWrapperMsgGenerator.execDetails(reqId, contract, execution));
-
-        EngineLocator.instance().getServerEngine().sendEvent(fill);
+        this.serverEngine.sendEvent(fill);
     }
 
     @Override
-    public void orderStatus(final int orderId, final String statusString, final int filled, final int remaining, final double avgFillPrice, final int permId,
+    public void orderStatus(final int reqId, final String statusString, final int filled, final int remaining, final double avgFillPrice, final int permId,
             final int parentId, final double lastFillPrice, final int clientId, final String whyHeld) {
 
-        // get the order from the OpenOrderWindow
-        Order order = this.lookupService.getOpenOrderByIntId(String.valueOf(orderId));
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(EWrapperMsgGenerator.orderStatus(reqId, statusString, filled, remaining, avgFillPrice, permId, parentId, lastFillPrice, clientId, whyHeld));
+        }
 
+        Status status = IBUtil.getStatus(statusString, filled);
+        if (status == Status.REJECTED) {
+            // Reject status needs to be processed from #handleError method in order to get the reason message
+            return;
+        }
+
+        String intId = String.valueOf(reqId);
+
+        IBExecution executionEntry;
+        OrderDetailsVO orderDetails = this.orderRegistry.getOpenOrderDetailsByIntId(intId);
+        if (orderDetails != null) {
+            executionEntry = this.executions.getOpen(intId, orderDetails.getExecutionStatus());
+        } else {
+            return;
+        }
+
+        long lastQuantity;
+        synchronized (executionEntry) {
+
+            if (executionEntry.getStatus() != status
+                    || executionEntry.getFilledQuantity() != filled
+                    || executionEntry.getRemainingQuantity() != remaining) {
+
+                lastQuantity = executionEntry.getLastQuantity();
+
+                executionEntry.setStatus(status);
+                executionEntry.setLastQuantity(0L);
+                executionEntry.setFilledQuantity(filled);
+                executionEntry.setRemainingQuantity(remaining);
+            } else {
+                return;
+            }
+        }
+
+        Order order = orderDetails.getOrder();
         if (order != null) {
 
-            // get the fields
-            Status status = IBUtil.getStatus(statusString, filled);
-            long filledQuantity = filled;
-            long remainingQuantity = remaining;
-            String extId = String.valueOf(permId);
+            OrderStatus orderStatus = OrderStatus.Factory.newInstance();
+            orderStatus.setStatus(status);
+            orderStatus.setExtId(String.valueOf(permId));
+            orderStatus.setIntId(intId);
+            orderStatus.setSequenceNumber(MSG_SEQ.incrementAndGet());
+            orderStatus.setFilledQuantity(filled);
+            orderStatus.setRemainingQuantity(remaining);
+            orderStatus.setLastQuantity(lastQuantity);
+            orderStatus.setOrder(order);
+            orderStatus.setExtDateTime(this.serverEngine.getCurrentTime());
+            if (lastFillPrice != 0.0) {
+                orderStatus.setLastPrice(PriceUtil.normalizePrice(order, lastFillPrice));
+            }
+            if (avgFillPrice != 0.0) {
+                orderStatus.setAvgPrice(PriceUtil.normalizePrice(order, avgFillPrice));
+            }
 
-            // assemble the IBOrderStatus
-            IBOrderStatus orderStatus = new IBOrderStatus(status, filledQuantity, remainingQuantity, avgFillPrice, lastFillPrice, extId, order);
-
-            logger.debug(EWrapperMsgGenerator.orderStatus(orderId, statusString, filled, remaining, avgFillPrice, permId, parentId, lastFillPrice, clientId, whyHeld));
-
-            EngineLocator.instance().getServerEngine().sendEvent(orderStatus);
+            this.serverEngine.sendEvent(orderStatus);
         }
     }
 
     @Override
     public void tickPrice(final int tickerId, final int field, final double price, final int canAutoExecute) {
 
-        if(logger.isTraceEnabled()) {
-            logger.trace(EWrapperMsgGenerator.tickPrice(tickerId, field, price, canAutoExecute));
+        if(LOGGER.isTraceEnabled()) {
+            LOGGER.trace(EWrapperMsgGenerator.tickPrice(tickerId, field, price, canAutoExecute));
         }
 
-        TickPrice o = new TickPrice(Integer.toString(tickerId), field, price, canAutoExecute);
-        EngineLocator.instance().getServerEngine().sendEvent(o);
+        TickPriceVO o = new TickPriceVO(Integer.toString(tickerId), field, price, canAutoExecute);
+        this.serverEngine.sendEvent(o);
     }
 
     @Override
     public void tickSize(final int tickerId, final int field, final int size) {
 
-        if(logger.isTraceEnabled()) {
-            logger.trace(EWrapperMsgGenerator.tickSize(tickerId, field, size));
+        if(LOGGER.isTraceEnabled()) {
+            LOGGER.trace(EWrapperMsgGenerator.tickSize(tickerId, field, size));
         }
 
-        TickSize o = new TickSize(Integer.toString(tickerId), field, size);
-        EngineLocator.instance().getServerEngine().sendEvent(o);
+        TickSizeVO o = new TickSizeVO(Integer.toString(tickerId), field, size);
+        this.serverEngine.sendEvent(o);
     }
 
     @Override
     public void tickString(final int tickerId, final int tickType, final String value) {
 
-        if(logger.isTraceEnabled()) {
-            logger.trace(EWrapperMsgGenerator.tickString(tickerId, tickType, value));
+        if(LOGGER.isTraceEnabled()) {
+            LOGGER.trace(EWrapperMsgGenerator.tickString(tickerId, tickType, value));
         }
 
-        TickString o = new TickString(Integer.toString(tickerId), tickType, value);
-        EngineLocator.instance().getServerEngine().sendEvent(o);
+        TickStringVO o = new TickStringVO(Integer.toString(tickerId), tickType, value);
+        this.serverEngine.sendEvent(o);
     }
 
     @Override
     public void historicalData(int requestId, String dateString, double open, double high, double low, double close, int volume, int count, double WAP, boolean hasGaps) {
 
-        Bar bar = Bar.Factory.newInstance();
+        IBPendingRequest<Bar> pendingHistoricDataRequest = this.pendingRequests.getHistoricDataRequest(requestId);
+        if (pendingHistoricDataRequest == null) {
+            if (LOGGER.isWarnEnabled()) {
+                LOGGER.warn("Unexpected historic data request id: " + requestId);
+            }
+            return;
+        }
         if (dateString.startsWith("finished")) {
 
-            this.historicalDataQueue.offer(bar);
+            this.pendingRequests.removeHistoricDataRequest(requestId);
 
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Historic data request completed; request id = " + requestId);
+            }
+            pendingHistoricDataRequest.completed();
             return;
         }
 
-        Date date = null;
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Historic data; request id = " + requestId + " (" + dateString + ")");
+        }
+
+        Bar bar = Bar.Factory.newInstance();
+
+        Date date;
         try {
-            date = dateTimeFormat.parse(dateString);
-        } catch (ParseException e) {
+            date = DateTimeLegacy.parseAsLocalDateTime(dateString, DATE_TIME_FORMAT);
+        } catch (DateTimeParseException e) {
             try {
-                date = dateFormat.parse(dateString);
-            } catch (ParseException e1) {
-                throw new RuntimeException(e1);
+                date = DateTimeLegacy.parseAsLocalDateTime(dateString, DATE_FORMAT);
+            } catch (DateTimeParseException e1) {
+                throw new IBSessionException(-1, "Invalid date attribute: " + dateString);
             }
         }
 
@@ -251,7 +326,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
         bar.setClose(BigDecimal.valueOf(close));
         bar.setVol(volume);
 
-        this.historicalDataQueue.offer(bar);
+        pendingHistoricDataRequest.add(bar);
 
         if (hasGaps) {
 
@@ -267,7 +342,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
                     " hasGaps=" + hasGaps;
             // @formatter:on
 
-            logger.error(message, new HistoricalDataServiceException(message));
+            LOGGER.error(message);
         }
     }
 
@@ -292,7 +367,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
 
                 // get accounts
                 Node node;
-                Set<String> accounts = new HashSet<String>();
+                Set<String> accounts = new HashSet<>();
                 while ((node = iterator.nextNode()) != null) {
                     accounts.add(node.getFirstChild().getNodeValue());
                 }
@@ -324,26 +399,52 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
                 }
             }
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new ExternalServiceException(e.getMessage(), e);
         }
     }
 
     @Override
     public void contractDetails(int reqId, ContractDetails contractDetails) {
 
-        this.contractDetailsQueue.offer(contractDetails);
+        IBPendingRequest<ContractDetails> pendingContractRequest = this.pendingRequests.getContractDetailRequest(reqId);
+        if (pendingContractRequest == null) {
+            if (LOGGER.isWarnEnabled()) {
+                LOGGER.warn("Unexpected contract detail request id: " + reqId);
+            }
+            return;
+        }
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Contract details; request id = " + reqId +
+                    " (" + contractDetails.m_longName + ", " + contractDetails.m_contractMonth + ", " + contractDetails.m_summary.m_conId + ")");
+        }
+        pendingContractRequest.add(contractDetails);
     }
 
     @Override
     public void contractDetailsEnd(int reqId) {
 
-        this.contractDetailsQueue.offer(new ContractDetails());
+        IBPendingRequest<ContractDetails> pendingContractRequest = this.pendingRequests.removeContractDetailRequest(reqId);
+        if (pendingContractRequest == null) {
+            if (LOGGER.isWarnEnabled()) {
+                LOGGER.warn("Unexpected contract detail request id: " + reqId);
+            }
+            return;
+        }
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Contract detail request completed; request id = " + reqId);
+        }
+        pendingContractRequest.completed();
     }
 
     @Override
     public void connectionClosed() {
 
-        this.sessionLifecycle.disconnect();
+        // IB client executes this notification from an interrupted thread, which prevents
+        // execution of potentially blocking I/O operations such as publishing to a JMS queue
+        // This makes it necessary to execute #onDisconnect() event on a separate thread
+        final Thread disposableThread = new Thread(null, this.sessionStateHolder::onDisconnect, "IB-disconnect-thread");
+        disposableThread.setDaemon(true);
+        disposableThread.start();
     }
 
     @Override
@@ -351,14 +452,25 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
 
         // we get EOFException and SocketException when TWS is closed
         if (!(e instanceof EOFException || e instanceof SocketException)) {
-            logger.error("ib error", e);
+            LOGGER.error("ib error", e);
         }
     }
 
     @Override
-    public void error(int id, int code, String errorMsg) {
+    public void error(int id, int errorCode, String errorMsg) {
+        try {
+            handleError(id, errorCode, errorMsg);
+        } finally {
+            IBPendingRequest<?> pendingRequest = this.pendingRequests.removeRequest(id);
+            if (pendingRequest != null) {
+                pendingRequest.fail(new IBSessionException(errorCode, errorMsg));
+            }
+        }
+    }
 
-        String message = "client: " + this.clientId + " id: " + id + " code: " + code + " " + errorMsg.replaceAll("\n", " ");
+    private void handleError(int id, int code, String errorMsg) {
+        String message = "client: " + this.clientId + "; request id: " + id + "; error code: " + code +
+                "; error message: " + errorMsg.replaceAll("\n", " ");
 
         switch (code) {
 
@@ -370,36 +482,32 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
 
                 // Can't modify a filled order.
                 // do nothing, we modified the order just a little bit too late
-                logger.warn(message);
+                LOGGER.warn(message);
                 break;
 
             case 161:
 
                 // Cancel attempted when order is not in a cancellable state
                 // do nothing, we cancelled the order just a little bit too late
-                logger.warn(message);
+                LOGGER.warn(message);
                 break;
 
             case 162:
 
-                // Historical market data Service error message.
-                if (this.historicalDataQueue != null) {
-                    this.historicalDataQueue.offer(Bar.Factory.newInstance());
-                }
-                logger.warn(message);
+                LOGGER.warn(message);
                 break;
 
             case 165:
 
                 // Historical data farm is connected
-                logger.debug(message);
+                LOGGER.debug(message);
                 break;
 
             case 200:
 
                 // No security definition has been found for the request
                 orderRejected(id, errorMsg);
-                logger.error(message);
+                LOGGER.error(message);
                 break;
 
             case 201:
@@ -408,7 +516,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
 
                     // Cannot cancel the filled order
                     // do nothing, we cancelled the order just a little bit too late
-                    logger.warn(message);
+                    LOGGER.warn(message);
 
                 } else {
 
@@ -420,7 +528,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
                     // No clearing rule found
                     // etc.
                     orderRejected(id, errorMsg);
-                    logger.error(message);
+                    LOGGER.error(message);
                 }
                 break;
 
@@ -430,10 +538,10 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
                 // Order cancelled
                 if (errorMsg.contains("Order Canceled - reason:")) {
                     // do nothing, since we cancelled the order ourself
-                    logger.debug(message);
+                    LOGGER.debug(message);
                 } else {
                     orderRejected(id, errorMsg);
-                    logger.error(message);
+                    LOGGER.error(message);
                 }
                 break;
 
@@ -441,7 +549,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
 
                 // Order Message: Warning: Your order size is below the EUR 20000 IdealPro minimum and will be routed as an odd lot order.
                 // do nothing, this is ok for small FX Orders
-                logger.info(message);
+                LOGGER.info(message);
                 break;
 
             case 434:
@@ -450,91 +558,70 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
                 // This happens in a closing order using PctChange where the percentage is
                 // small enough to round to zero for each individual client account
                 orderRejected(id, errorMsg);
-                logger.info(message);
+                LOGGER.info(message);
                 break;
 
             case 502:
 
-                // Couldn't connect to TWS
-                this.sessionLifecycle.disconnect();
-                logger.debug(message);
+                // Couldn't onConnect to TWS
+                this.sessionStateHolder.onDisconnect();
+                LOGGER.debug(message);
                 break;
 
             case 1100:
 
                 // Connectivity between IB and TWS has been lost.
-                this.sessionLifecycle.logoff();
-                logger.debug(message);
+                this.sessionStateHolder.onLogoff();
+                LOGGER.debug(message);
                 break;
 
             case 1101:
 
                 // Connectivity between IB and TWS has been restored data lost.
-                if (this.sessionLifecycle.logon(false)) {
-                    // initSubscriptions if there is a marketDataService
-                    if (this.marketDataService != null) {
-                        this.marketDataService.initSubscriptions();
-                    }
-                }
-                logger.debug(message);
+                this.sessionStateHolder.onLogon(false);
+                LOGGER.debug(message);
                 break;
 
             case 1102:
 
                 // Connectivity between IB and TWS has been restored data maintained.
-                if (this.sessionLifecycle.logon(true)) {
-                    // initSubscriptions if there is a marketDataService
-                    if (this.marketDataService != null) {
-                        this.marketDataService.initSubscriptions();
-                    }
-                }
-                logger.debug(message);
+                this.sessionStateHolder.onLogon(true);
+                LOGGER.debug(message);
                 break;
 
             case 2110:
 
                 // Connectivity between TWS and server is broken. It will be restored automatically.
-                this.sessionLifecycle.logoff();
-                logger.debug(message);
+                this.sessionStateHolder.onLogoff();
+                LOGGER.debug(message);
                 break;
 
             case 2104:
 
                 // A market data farm is connected.
-                if (this.sessionLifecycle.logon(true)) {
-                    // initSubscriptions if there is a marketDataService
-                    if (this.marketDataService != null) {
-                        this.marketDataService.initSubscriptions();
-                    }
-                }
-                logger.debug(message);
+                this.sessionStateHolder.onLogon(true);
+                LOGGER.debug(message);
                 break;
 
             case 2105:
 
                 // 2105 A historical data farm is disconnected.
-                if (this.historicalDataQueue != null) {
-                    this.historicalDataQueue.offer(Bar.Factory.newInstance());
-                }
-                logger.warn(message);
+                LOGGER.warn(message);
                 break;
 
             case 2107:
 
                 // 2107 A historical data farm connection has become inactive
                 // but should be available upon demand.
-                if (this.historicalDataQueue != null) {
-                    this.historicalDataQueue.offer(Bar.Factory.newInstance());
-                }
-                logger.warn(message);
+                LOGGER.warn(message);
                 break;
 
             default:
                 if (code < 1000) {
                     orderRejected(id, errorMsg);
-                    logger.error(message);
+                    LOGGER.error(message);
                 } else {
-                    logger.debug(message);
+                    LOGGER.debug(message);
                 }
                 break;
         }
@@ -542,29 +629,53 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
 
     @Override
     public void error(String str) {
-        logger.error(str, new RuntimeException(str));
+        LOGGER.error(str, new RuntimeException(str));
     }
 
     @Override
-    public synchronized void nextValidId(final int orderId) {
+    public void nextValidId(final int orderId) {
 
         if (this.clientId == 0) {
-            this.iBIdGenerator.initializeOrderId(orderId);
-            logger.debug("client: " + this.clientId + " " + EWrapperMsgGenerator.nextValidId(orderId));
+            long currentId = this.orderIdGenerator.updateIfGreater(orderId);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug(EWrapperMsgGenerator.nextValidId((int) (currentId + 1)));
+            }
         }
     }
 
     private void orderRejected(int orderId, String reason) {
 
-        // get the order from the OpenOrderWindow
-        Order order = this.lookupService.getOpenOrderByIntId(String.valueOf(orderId));
+        String intId = String.valueOf(orderId);
+        OrderDetailsVO orderDetails= this.orderRegistry.getOpenOrderDetailsByIntId(intId);
 
-        if (order != null) {
+        if (orderDetails != null) {
 
-            // assemble the IBOrderStatus
-            IBOrderStatus orderStatus = new IBOrderStatus(Status.REJECTED, 0, order.getQuantity(), null, order, reason);
+            ExecutionStatusVO executionStatus = orderDetails.getExecutionStatus();
+            IBExecution executionEntry = this.executions.getOpen(intId, executionStatus);
+            OrderStatus orderStatus = null;
+            synchronized (executionEntry) {
+                if (executionEntry.getStatus() != Status.REJECTED) {
 
-            EngineLocator.instance().getServerEngine().sendEvent(orderStatus);
+                    executionEntry.setStatus(Status.REJECTED);
+
+                    Order order = orderDetails.getOrder();
+                    orderStatus = OrderStatus.Factory.newInstance();
+                    orderStatus.setFilledQuantity(executionEntry.getFilledQuantity());
+                    orderStatus.setRemainingQuantity(executionEntry.getRemainingQuantity());
+                    orderStatus.setStatus(Status.REJECTED);
+                    orderStatus.setIntId(intId);
+                    orderStatus.setSequenceNumber(MSG_SEQ.incrementAndGet());
+                    orderStatus.setOrder(order);
+                    orderStatus.setExtDateTime(this.serverEngine.getCurrentTime());
+                    orderStatus.setReason(reason);
+
+                }
+            }
+
+            if (orderStatus != null) {
+                this.serverEngine.sendEvent(orderStatus);
+            }
         }
     }
+
 }

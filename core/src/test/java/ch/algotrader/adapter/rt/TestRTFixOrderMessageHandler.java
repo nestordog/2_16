@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,8 +12,8 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.adapter.rt;
 
@@ -29,6 +29,8 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import ch.algotrader.adapter.fix.fix44.FixTestUtils;
+import ch.algotrader.entity.Account;
+import ch.algotrader.entity.AccountImpl;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.SecurityFamilyImpl;
 import ch.algotrader.entity.security.Stock;
@@ -37,24 +39,23 @@ import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.MarketOrder;
 import ch.algotrader.entity.trade.MarketOrderImpl;
 import ch.algotrader.entity.trade.OrderStatus;
+import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.esper.EngineLocator;
-import ch.algotrader.service.LookupService;
+import ch.algotrader.ordermgmt.OrderRegistry;
+import ch.algotrader.util.DateTimeLegacy;
 import quickfix.field.ClOrdID;
 import quickfix.field.ExecType;
 import quickfix.fix44.ExecutionReport;
 
 /**
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
- *
- * @version $Revision$ $Date$
  */
 public class TestRTFixOrderMessageHandler {
 
     @Mock
-    private LookupService lookupService;
+    private OrderRegistry orderRegistry;
     @Mock
     private Engine engine;
 
@@ -64,10 +65,8 @@ public class TestRTFixOrderMessageHandler {
     public void setup() throws Exception {
 
         MockitoAnnotations.initMocks(this);
-        EngineLocator.instance().setEngine("SERVER", this.engine);
 
-        this.impl = new RTFixOrderMessageHandler();
-        this.impl.setLookupService(this.lookupService);
+        this.impl = new RTFixOrderMessageHandler(this.orderRegistry, this.engine);
     }
 
     @Test
@@ -88,7 +87,7 @@ public class TestRTFixOrderMessageHandler {
 
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(msft);
-        Mockito.when(this.lookupService.getOpenOrderByRootIntId("14685d97784")).thenReturn(order);
+        Mockito.when(this.orderRegistry.getOpenOrderByIntId("14685d97784")).thenReturn(order);
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
@@ -103,7 +102,7 @@ public class TestRTFixOrderMessageHandler {
         Assert.assertEquals(Status.SUBMITTED, orderStatus1.getStatus());
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(0, orderStatus1.getFilledQuantity());
-        Assert.assertEquals(FixTestUtils.parseDateTime("20140610-12:56:01.000"), orderStatus1.getExtDateTime());
+        Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2014-06-10 12:56:01.000"), orderStatus1.getExtDateTime());
         Assert.assertEquals(null, orderStatus1.getLastPrice());
         Assert.assertEquals(null, orderStatus1.getAvgPrice());
     }
@@ -124,12 +123,17 @@ public class TestRTFixOrderMessageHandler {
         msft.setSymbol("MSFT");
         msft.setSecurityFamily(family);
 
+        Account account = new AccountImpl();
+        account.setName("TEST");
+        account.setBroker(Broker.IB.name());
+
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(msft);
+        order.setAccount(account);
         order.setQuantity(100);
         order.setSide(Side.BUY);
 
-        Mockito.when(this.lookupService.getOpenOrderByRootIntId("1468588c149")).thenReturn(order);
+        Mockito.when(this.orderRegistry.getOpenOrderByIntId("1468588c149")).thenReturn(order);
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
@@ -146,7 +150,7 @@ public class TestRTFixOrderMessageHandler {
         Assert.assertEquals(Status.EXECUTED, orderStatus1.getStatus());
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(100, orderStatus1.getFilledQuantity());
-        Assert.assertEquals(FixTestUtils.parseDateTime("20140610-11:27:52.000"), orderStatus1.getExtDateTime());
+        Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2014-06-10 11:27:52.000"), orderStatus1.getExtDateTime());
         Assert.assertEquals(new BigDecimal("3.142"), orderStatus1.getLastPrice());
         Assert.assertEquals(new BigDecimal("3.142"), orderStatus1.getAvgPrice());
 
@@ -155,7 +159,7 @@ public class TestRTFixOrderMessageHandler {
         Fill fill1 = (Fill) event2;
         Assert.assertEquals("ee54e171-39-07qy-3", fill1.getExtId());
         Assert.assertSame(order, fill1.getOrder());
-        Assert.assertEquals(FixTestUtils.parseDateTime("20140610-11:27:52.000"), fill1.getExtDateTime());
+        Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2014-06-10 11:27:52.000"), fill1.getExtDateTime());
         Assert.assertEquals(Side.BUY, fill1.getSide());
         Assert.assertEquals(100L, fill1.getQuantity());
         Assert.assertEquals(new BigDecimal("3.142"), fill1.getPrice());
@@ -168,11 +172,11 @@ public class TestRTFixOrderMessageHandler {
         executionReport.set(new ExecType(ExecType.NEW));
         executionReport.set(new ClOrdID("123"));
 
-        Mockito.when(this.lookupService.getOpenOrderByRootIntId(Mockito.anyString())).thenReturn(null);
+        Mockito.when(this.orderRegistry.getOpenOrderByIntId(Mockito.anyString())).thenReturn(null);
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
-        Mockito.verify(this.lookupService, Mockito.times(1)).getOpenOrderByRootIntId("123");
+        Mockito.verify(this.orderRegistry, Mockito.times(1)).getOpenOrderByIntId("123");
         Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
     }
 
@@ -185,7 +189,7 @@ public class TestRTFixOrderMessageHandler {
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
-        Mockito.verify(this.lookupService, Mockito.never()).getOpenOrderByRootIntId("123");
+        Mockito.verify(this.orderRegistry, Mockito.never()).getOpenOrderByIntId("123");
         Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
     }
 
@@ -198,7 +202,7 @@ public class TestRTFixOrderMessageHandler {
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
-        Mockito.verify(this.lookupService, Mockito.never()).getOpenOrderByRootIntId("123");
+        Mockito.verify(this.orderRegistry, Mockito.never()).getOpenOrderByIntId("123");
         Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
     }
 
@@ -211,7 +215,7 @@ public class TestRTFixOrderMessageHandler {
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
-        Mockito.verify(this.lookupService, Mockito.never()).getOpenOrderByRootIntId("123");
+        Mockito.verify(this.orderRegistry, Mockito.never()).getOpenOrderByIntId("123");
         Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
     }
 
@@ -236,7 +240,7 @@ public class TestRTFixOrderMessageHandler {
         order.setQuantity(100);
         order.setSide(Side.BUY);
 
-        Mockito.when(this.lookupService.getOpenOrderByRootIntId("146858a5fa7")).thenReturn(order);
+        Mockito.when(this.orderRegistry.getOpenOrderByIntId("146858a5fa7")).thenReturn(order);
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
@@ -251,7 +255,7 @@ public class TestRTFixOrderMessageHandler {
         Assert.assertEquals(Status.REJECTED, orderStatus1.getStatus());
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(0, orderStatus1.getFilledQuantity());
-        Assert.assertEquals(FixTestUtils.parseDateTime("20140610-11:29:36.000"), orderStatus1.getExtDateTime());
+        Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2014-06-10 11:29:36.000"), orderStatus1.getExtDateTime());
         Assert.assertEquals(null, orderStatus1.getLastPrice());
         Assert.assertEquals(null, orderStatus1.getAvgPrice());
     }

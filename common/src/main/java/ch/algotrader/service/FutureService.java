@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,8 +12,8 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.service;
 
@@ -24,15 +24,13 @@ import ch.algotrader.entity.security.Future;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public interface FutureService {
 
     /**
      * Creates the missing Part of the Futures Chain defined by the {@code futureFamilyId}.
      */
-    public void createDummyFutures(int futureFamilyId);
+    public void createDummyFutures(long futureFamilyId);
 
     /**
      * Get the first Future with {@code expirationDate} after the specified {@code
@@ -41,7 +39,7 @@ public interface FutureService {
      * simulateFuturesByGenericFutures} is configured, a dummy Future will be created if none was
      * found.
      */
-    public Future getFutureByMinExpiration(int futureFamilyId, Date targetExpirationDate);
+    public Future getFutureByMinExpiration(long futureFamilyId, Date targetExpirationDate);
 
     /**
      * Gets a Future by its {@link ch.algotrader.entity.security.FutureFamily} and {@code expirationDate}.
@@ -49,7 +47,7 @@ public interface FutureService {
      * simulateFuturesByGenericFutures} is configured, a dummy Future will be created if none was
      * found.
      */
-    public Future getFutureByExpiration(int futureFamilyId, Date expirationDate);
+    public Future getFutureByExpiration(long futureFamilyId, Date expirationDate);
 
     /**
      * Gets a Future by its {@link ch.algotrader.entity.security.FutureFamily}, that is {@code n} durations after the specified
@@ -58,13 +56,13 @@ public interface FutureService {
      * simulateFuturesByGenericFutures} is configured, a dummy Future will be created if none was
      * found.
      */
-    public Future getFutureByDuration(int futureFamilyId, Date targetDate, int duration);
+    public Future getFutureByDuration(long futureFamilyId, Date targetDate, int duration);
 
     /**
      * Gets all Futures with {@code expirationDate} after the specified {@code targetExpirationDate}
      * and {@code futureFamilyId}. The returned Futures are sorted with their {@code expirationDate}
      * in ascending order.
      */
-    public List<Future> getFuturesByMinExpiration(int futureFamilyId, Date minExpirationDate);
+    public List<Future> getFuturesByMinExpiration(long futureFamilyId, Date minExpirationDate);
 
 }

@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,17 +12,17 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.adapter.cnx;
 
 import org.apache.commons.lang.Validate;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.adapter.fix.AbstractFixApplication;
-import ch.algotrader.adapter.fix.FixSessionLifecycle;
-import ch.algotrader.util.MyLogger;
+import ch.algotrader.adapter.ExternalSessionStateHolder;
 import quickfix.FieldNotFound;
 import quickfix.IncorrectDataFormat;
 import quickfix.IncorrectTagValue;
@@ -38,26 +38,24 @@ import quickfix.fix44.TradingSessionStatus;
  * involving {@link quickfix.fix44.TradingSessionStatus} acknowledgement message.
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
- *
- * @version $Revision$ $Date$
  */
 public class CNXFixApplication extends AbstractFixApplication {
 
-    private static final Logger LOGGER = MyLogger.getLogger(CNXFixApplication.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(CNXFixApplication.class);
 
-    private final FixSessionLifecycle lifecycleHandler;
+    private final ExternalSessionStateHolder stateHolder;
 
-    public CNXFixApplication(SessionID sessionID, Object incomingMessageHandler, Object outgoingMessageHandler, FixSessionLifecycle lifecycleHandler) {
+    public CNXFixApplication(SessionID sessionID, Object incomingMessageHandler, Object outgoingMessageHandler, ExternalSessionStateHolder stateHolder) {
         super(sessionID, incomingMessageHandler, outgoingMessageHandler);
 
         Validate.notNull(sessionID, "Session ID may not be null");
-        this.lifecycleHandler = lifecycleHandler;
+        this.stateHolder = stateHolder;
     }
 
     @Override
     public void onCreate() {
 
-        lifecycleHandler.create();
+        stateHolder.onCreate();
     }
 
     @Override
@@ -69,16 +67,16 @@ public class CNXFixApplication extends AbstractFixApplication {
             TradSesStatus status = tradingSessionStatus.getTradSesStatus();
             if (status.getValue() == TradSesStatus.OPEN) {
 
-                lifecycleHandler.logon();
+                stateHolder.onLogon();
             } else {
 
                 if (tradingSessionStatus.isSetText()) {
 
                     Text text = tradingSessionStatus.getText();
-                    LOGGER.error("CNX session failed: " + text.getValue());
+                    LOGGER.error("CNX session failed: {}", text.getValue());
                 } else {
 
-                    LOGGER.error("CNX session failed with status code " + status.getValue());
+                    LOGGER.error("CNX session failed with status code {}", status.getValue());
                 }
             }
 
@@ -90,7 +88,7 @@ public class CNXFixApplication extends AbstractFixApplication {
     @Override
     public void onLogout() {
 
-        lifecycleHandler.logoff();
+        stateHolder.onLogoff();
     }
 
 }

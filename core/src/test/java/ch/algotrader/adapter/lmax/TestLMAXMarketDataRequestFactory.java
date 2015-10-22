@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,8 +12,8 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.adapter.lmax;
 
@@ -47,7 +47,7 @@ public class TestLMAXMarketDataRequestFactory {
     @Before
     public void setup() throws Exception {
 
-        this.requestFactory = new LMAXFixMarketDataRequestFactory();
+        this.requestFactory = new LMAXFixMarketDataRequestFactory(new LMAXTickerIdGenerator());
     }
 
     @Test
@@ -62,7 +62,7 @@ public class TestLMAXMarketDataRequestFactory {
         forex.setBaseCurrency(Currency.EUR);
         forex.setSecurityFamily(family);
 
-        MarketDataRequest marketDataRequest = this.requestFactory.create(forex, new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES));
+        MarketDataRequest marketDataRequest = this.requestFactory.create(forex, SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES);
 
         Assert.assertEquals(1, marketDataRequest.getGroupCount(NoRelatedSym.FIELD));
         Group symGroup = marketDataRequest.getGroup(1, NoRelatedSym.FIELD);
@@ -86,7 +86,7 @@ public class TestLMAXMarketDataRequestFactory {
         idx.setSymbol("NDX");
         idx.setLmaxid("100095");
 
-        MarketDataRequest marketDataRequest = this.requestFactory.create(idx, new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES));
+        MarketDataRequest marketDataRequest = this.requestFactory.create(idx, SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES);
 
         Assert.assertEquals(1, marketDataRequest.getGroupCount(NoRelatedSym.FIELD));
         Group symGroup = marketDataRequest.getGroup(1, NoRelatedSym.FIELD);
@@ -109,7 +109,7 @@ public class TestLMAXMarketDataRequestFactory {
         Stock stock = new StockImpl();
         stock.setSymbol("stuff");
 
-        this.requestFactory.create(stock, new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES));
+        this.requestFactory.create(stock, SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES);
     }
 
 }

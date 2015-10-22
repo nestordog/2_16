@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,15 +12,14 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.config;
 
 import java.io.File;
 import java.math.BigDecimal;
 
-import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.MarketDataType;
@@ -29,12 +28,9 @@ import ch.algotrader.enumeration.MarketDataType;
  * Algotrader common configuration object.
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
- *
- * @version $Revision$ $Date$
  */
 public final class CommonConfig {
 
-    private final String strategyName;
     private final String dataSet;
     private final MarketDataType dataSetType;
     private final File dataSetLocation;
@@ -44,37 +40,37 @@ public final class CommonConfig {
     private final boolean feedGenericEvents;
     private final boolean feedAllMarketDataFiles;
     private final int feedBatchSize;
+    private final File reportLocation;
     private final boolean simulation;
     private final BigDecimal simulationInitialBalance;
     private final boolean simulationLogTransactions;
     private final boolean embedded;
-    private final int portfolioDigits;
     private final Currency portfolioBaseCurrency;
-    private final BigDecimal initialMarginMarkup;
+    private final int portfolioDigits;
+    private final String defaultAccountName;
     private final boolean validateCrossedSpread;
     private final boolean displayClosedPositions;
 
     public CommonConfig(
-            @ConfigName("strategyName") final String strategyName,
             @ConfigName("dataSource.dataSet") final String dataSet,
             @ConfigName("dataSource.dataSetType") final MarketDataType dataSetType,
-            @ConfigName(value = "dataSource.dataSetLocation", optional = true) final File dataSetLocation,
+            @ConfigName("dataSource.dataSetLocation") final File dataSetLocation,
             @ConfigName("dataSource.barSize") final Duration barSize,
             @ConfigName("dataSource.feedCSV") final boolean feedCSV,
             @ConfigName("dataSource.feedDB") final boolean feedDB,
             @ConfigName("dataSource.feedGenericEvents") final boolean feedGenericEvents,
             @ConfigName("dataSource.feedAllMarketDataFiles") final boolean feedAllMarketDataFiles,
             @ConfigName("dataSource.feedBatchSize") final int feedBatchSize,
+            @ConfigName("report.reportLocation") final File reportLocation,
             @ConfigName("simulation") final boolean simulation,
             @ConfigName("simulation.initialBalance") final BigDecimal simulationInitialBalance,
             @ConfigName("simulation.logTransactions") final boolean simulationLogTransactions,
             @ConfigName("misc.embedded") final boolean embedded,
-            @ConfigName("misc.portfolioDigits") final int portfolioDigits,
             @ConfigName("misc.portfolioBaseCurrency") final Currency portfolioBaseCurrency,
-            @ConfigName("misc.initialMarginMarkup") final BigDecimal initialMarginMarkup,
+            @ConfigName("misc.portfolioDigits") final int portfolioDigits,
+            @ConfigName("misc.defaultAccountName") final String defaultAccountName,
             @ConfigName("misc.validateCrossedSpread") final boolean validateCrossedSpread,
             @ConfigName("misc.displayClosedPositions") final boolean displayClosedPositions) {
-        this.strategyName = strategyName;
         this.dataSet = dataSet;
         this.dataSetType = dataSetType;
         this.dataSetLocation = dataSetLocation;
@@ -84,19 +80,16 @@ public final class CommonConfig {
         this.feedGenericEvents = feedGenericEvents;
         this.feedAllMarketDataFiles = feedAllMarketDataFiles;
         this.feedBatchSize = feedBatchSize;
+        this.reportLocation = reportLocation;
         this.simulation = simulation;
         this.simulationInitialBalance = simulationInitialBalance;
         this.simulationLogTransactions = simulationLogTransactions;
         this.embedded = embedded;
-        this.portfolioDigits = portfolioDigits;
         this.portfolioBaseCurrency = portfolioBaseCurrency;
-        this.initialMarginMarkup = initialMarginMarkup;
+        this.portfolioDigits = portfolioDigits;
+        this.defaultAccountName = defaultAccountName;
         this.validateCrossedSpread = validateCrossedSpread;
         this.displayClosedPositions = displayClosedPositions;
-    }
-
-    public String getStrategyName() {
-        return this.strategyName;
     }
 
     public String getDataSet() {
@@ -135,6 +128,10 @@ public final class CommonConfig {
         return this.feedBatchSize;
     }
 
+    public File getReportLocation() {
+        return this.reportLocation;
+    }
+
     public boolean isSimulation() {
         return this.simulation;
     }
@@ -151,16 +148,16 @@ public final class CommonConfig {
         return this.embedded;
     }
 
-    public int getPortfolioDigits() {
-        return this.portfolioDigits;
-    }
-
     public Currency getPortfolioBaseCurrency() {
         return this.portfolioBaseCurrency;
     }
 
-    public BigDecimal getInitialMarginMarkup() {
-        return this.initialMarginMarkup;
+    public int getPortfolioDigits() {
+        return this.portfolioDigits;
+    }
+
+    public String getDefaultAccountName() {
+        return this.defaultAccountName;
     }
 
     public boolean isValidateCrossedSpread() {
@@ -171,23 +168,10 @@ public final class CommonConfig {
         return this.displayClosedPositions;
     }
 
-    public String getStartedStrategyName() {
-        if (this.simulation) {
-            return StrategyImpl.SERVER;
-        } else {
-            return this.strategyName;
-        }
-    }
-
-    public boolean isStartedStrategySERVER() {
-        return StrategyImpl.SERVER.equals(getStartedStrategyName());
-    }
-
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("[");
-        sb.append("strategyName='").append(this.strategyName).append('\'');
-        sb.append(", dataSet='").append(this.dataSet).append('\'');
+        sb.append("dataSet='").append(this.dataSet).append('\'');
         sb.append(", dataSetType=").append(this.dataSetType);
         sb.append(", dataSetLocation=").append(this.dataSetLocation);
         sb.append(", barSize=").append(this.barSize);
@@ -200,9 +184,9 @@ public final class CommonConfig {
         sb.append(", simulationInitialBalance=").append(this.simulationInitialBalance);
         sb.append(", simulationLogTransactions=").append(this.simulationLogTransactions);
         sb.append(", embedded=").append(this.embedded);
-        sb.append(", portfolioDigits=").append(this.portfolioDigits);
         sb.append(", portfolioBaseCurrency=").append(this.portfolioBaseCurrency);
-        sb.append(", initialMarginMarkup=").append(this.initialMarginMarkup);
+        sb.append(", portfolioDigits=").append(this.portfolioDigits);
+        sb.append(", defaultAccountName=").append(this.defaultAccountName);
         sb.append(", validateCrossedSpread=").append(this.validateCrossedSpread);
         sb.append(", displayClosedPositions=").append(this.displayClosedPositions);
         sb.append(']');

@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,8 +12,8 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.config;
 
@@ -25,8 +25,6 @@ import java.net.URL;
  * Typed configuration parameters.
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
- *
- * @version $Revision$ $Date$
  */
 public final class ConfigParams {
 
@@ -64,7 +62,7 @@ public final class ConfigParams {
 
     public int getInteger(final String name, final int defaultValue) {
         Integer value = this.configProvider.getParameter(name, Integer.class);
-        return value != null ? value.intValue() : defaultValue;
+        return value != null ? value : defaultValue;
     }
 
     public Long getLong(String name) {
@@ -73,7 +71,7 @@ public final class ConfigParams {
 
     public long getLong(final String name, final long defaultValue) {
         Long value = this.configProvider.getParameter(name, Long.class);
-        return value != null ? value.longValue() : defaultValue;
+        return value != null ? value : defaultValue;
     }
 
     public Boolean getBoolean(final String name) {
@@ -82,7 +80,7 @@ public final class ConfigParams {
 
     public Boolean getBoolean(final String name, final boolean defaultValue) {
         Boolean value = this.configProvider.getParameter(name, Boolean.class);
-        return value != null ? value.booleanValue() : defaultValue;
+        return value != null ? value : defaultValue;
     }
 
     public Double getDouble(final String name) {
@@ -91,7 +89,7 @@ public final class ConfigParams {
 
     public double getDouble(final String name, final double defaultValue) {
         Double value = this.configProvider.getParameter(name, Double.class);
-        return value != null ? value.doubleValue() : defaultValue;
+        return value != null ? value : defaultValue;
     }
 
     public BigDecimal getBigDecimal(final String name) {

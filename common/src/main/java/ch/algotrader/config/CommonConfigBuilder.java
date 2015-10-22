@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,8 +12,8 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.config;
 
@@ -28,33 +28,30 @@ import ch.algotrader.enumeration.MarketDataType;
  * Factory for Algotrader standard platform configuration objects.
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
- *
- * @version $Revision$ $Date$
  */
 public final class CommonConfigBuilder {
 
-    private String strategyName;
     private String dataSet;
     private MarketDataType dataSetType;
     private File dataSetLocation;
     private Duration barSize;
-    private boolean feedCSV;
-    private boolean feedDB;
+    private final boolean feedCSV;
+    private final boolean feedDB;
     private boolean feedGenericEvents;
     private boolean feedAllMarketDataFiles;
-    private int feedBatchSize;
+    private final int feedBatchSize;
+    private File reportLocation;
     private boolean simulation;
     private BigDecimal simulationInitialBalance;
     private boolean simulationLogTransactions;
     private boolean embedded;
-    private int portfolioDigits;
     private Currency portfolioBaseCurrency;
-    private BigDecimal initialMarginMarkup;
+    private int portfolioDigits;
+    private String defaultAccountName;
     private boolean validateCrossedSpread;
     private boolean displayClosedPositions;
 
     CommonConfigBuilder() {
-        this.strategyName = "SERVER";
         this.dataSet = "current";
         this.dataSetType = MarketDataType.TICK;
         this.barSize = Duration.MIN_1;
@@ -66,18 +63,13 @@ public final class CommonConfigBuilder {
         this.simulation = false;
         this.simulationInitialBalance = new BigDecimal(1000000L);
         this.embedded = false;
-        this.portfolioDigits = 2;
         this.portfolioBaseCurrency = Currency.USD;
-        this.initialMarginMarkup = new BigDecimal("1.25");
+        this.portfolioDigits = 2;
+        this.defaultAccountName = "IB_NATIVE_TEST";
     }
 
     public static CommonConfigBuilder create() {
         return new CommonConfigBuilder();
-    }
-
-    public CommonConfigBuilder setStrategyName(final String strategyName) {
-        this.strategyName = strategyName;
-        return this;
     }
 
     public CommonConfigBuilder setDataSet(final String dataSet) {
@@ -110,6 +102,11 @@ public final class CommonConfigBuilder {
         return this;
     }
 
+    public CommonConfigBuilder setReportLocation(File reportLocation) {
+        this.reportLocation = reportLocation;
+        return this;
+    }
+
     public CommonConfigBuilder setSimulation(final boolean simulation) {
         this.simulation = simulation;
         return this;
@@ -130,18 +127,18 @@ public final class CommonConfigBuilder {
         return this;
     }
 
-    public CommonConfigBuilder setPortfolioDigits(final int portfolioDigits) {
-        this.portfolioDigits = portfolioDigits;
-        return this;
-    }
-
     public CommonConfigBuilder setPortfolioBaseCurrency(final Currency portfolioBaseCurrency) {
         this.portfolioBaseCurrency = portfolioBaseCurrency;
         return this;
     }
 
-    public CommonConfigBuilder setInitialMarginMarkup(BigDecimal initialMarginMarkup) {
-        this.initialMarginMarkup = initialMarginMarkup;
+    public CommonConfigBuilder setPortfolioDigits(final int portfolioDigits) {
+        this.portfolioDigits = portfolioDigits;
+        return this;
+    }
+
+    public CommonConfigBuilder setDefaultAccountName(final String defaultAccountName) {
+        this.defaultAccountName = defaultAccountName;
         return this;
     }
 
@@ -157,9 +154,9 @@ public final class CommonConfigBuilder {
 
     public CommonConfig build() {
         return new CommonConfig(
-                this.strategyName, this.dataSet, this.dataSetType, this.dataSetLocation, this.barSize, this.feedCSV, this.feedDB, this.feedGenericEvents, this.feedAllMarketDataFiles,
-                this.feedBatchSize, this.simulation, this.simulationInitialBalance, this.simulationLogTransactions, this.embedded,
-                this.portfolioDigits, this.portfolioBaseCurrency, this.initialMarginMarkup, this.validateCrossedSpread, this.displayClosedPositions);
+                this.dataSet, this.dataSetType, this.dataSetLocation, this.barSize, this.feedCSV, this.feedDB, this.feedGenericEvents, this.feedAllMarketDataFiles,
+                this.feedBatchSize, this.reportLocation, this.simulation, this.simulationInitialBalance, this.simulationLogTransactions, this.embedded,
+                this.portfolioBaseCurrency, this.portfolioDigits, this.defaultAccountName, this.validateCrossedSpread, this.displayClosedPositions);
     }
 
 }

@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,28 +12,26 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.adapter.ftx;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import ch.algotrader.adapter.fix.DefaultFixApplication;
-import ch.algotrader.adapter.fix.DefaultFixSessionLifecycle;
+import ch.algotrader.adapter.fix.DefaultFixSessionStateHolder;
 import ch.algotrader.adapter.fix.DefaultLogonMessageHandler;
+import ch.algotrader.adapter.fix.FixApplicationTestBase;
 import ch.algotrader.adapter.fix.FixConfigUtils;
-import ch.algotrader.adapter.fix.NoopSessionStateListener;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.AccountImpl;
 import ch.algotrader.entity.security.Forex;
@@ -52,30 +50,22 @@ import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.AbstractEngine;
-import ch.algotrader.esper.EngineLocator;
-import ch.algotrader.service.LookupService;
-import quickfix.CompositeLogFactory;
-import quickfix.DefaultSessionFactory;
-import quickfix.FileLogFactory;
-import quickfix.FileStoreFactory;
-import quickfix.LogFactory;
-import quickfix.ScreenLogFactory;
-import quickfix.Session;
+import ch.algotrader.esper.Engine;
+import ch.algotrader.event.dispatch.EventDispatcher;
+import ch.algotrader.ordermgmt.OrderRegistry;
 import quickfix.SessionID;
 import quickfix.SessionSettings;
-import quickfix.SocketInitiator;
 import quickfix.fix44.NewOrderSingle;
 import quickfix.fix44.OrderCancelReplaceRequest;
 import quickfix.fix44.OrderCancelRequest;
 
-public class FTXFixOrderMessageHandlerTest {
+public class FTXFixOrderMessageHandlerTest extends FixApplicationTestBase {
 
     private LinkedBlockingQueue<Object> eventQueue;
-    private LookupService lookupService;
+    private EventDispatcher eventDispatcher;
+    private OrderRegistry orderRegistry;
     private FTXFixOrderMessageFactory messageFactory;
     private FTXFixOrderMessageHandler messageHandler;
-    private Session session;
-    private SocketInitiator socketInitiator;
 
     @Before
     public void setup() throws Exception {
@@ -83,7 +73,7 @@ public class FTXFixOrderMessageHandlerTest {
         final LinkedBlockingQueue<Object> queue = new LinkedBlockingQueue<Object>();
         this.eventQueue = queue;
 
-        EngineLocator.instance().setEngine(StrategyImpl.SERVER, new AbstractEngine() {
+        Engine engine = new AbstractEngine(StrategyImpl.SERVER) {
 
             @Override
             public void sendEvent(Object obj) {
@@ -98,77 +88,23 @@ public class FTXFixOrderMessageHandlerTest {
             public List executeQuery(String query) {
                 return null;
             }
-        });
+        };
 
+        this.eventDispatcher = Mockito.mock(EventDispatcher.class);
 
         SessionSettings settings = FixConfigUtils.loadSettings();
         SessionID sessionId = FixConfigUtils.getSessionID(settings, "FTXT");
 
-        this.lookupService = Mockito.mock(LookupService.class);
-        FTXFixOrderMessageHandler messageHandlerImpl = new FTXFixOrderMessageHandler();
-        messageHandlerImpl.setLookupService(lookupService);
+        this.orderRegistry = Mockito.mock(OrderRegistry.class);
+        FTXFixOrderMessageHandler messageHandlerImpl = new FTXFixOrderMessageHandler(this.orderRegistry, engine);
         this.messageHandler = Mockito.spy(messageHandlerImpl);
         this.messageFactory = new FTXFixOrderMessageFactory();
 
         DefaultLogonMessageHandler logonMessageHandler = new DefaultLogonMessageHandler(settings);
-        DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, messageHandler, logonMessageHandler, new DefaultFixSessionLifecycle());
+        DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, this.messageHandler, logonMessageHandler,
+                new DefaultFixSessionStateHolder("FTX", this.eventDispatcher));
 
-        LogFactory logFactory = new CompositeLogFactory(new LogFactory[] {
-                new FileLogFactory(settings),
-                new ScreenLogFactory(true, true, true)});
-
-        DefaultSessionFactory sessionFactory = new DefaultSessionFactory(fixApplication, new FileStoreFactory(settings), logFactory);
-
-        SocketInitiator socketInitiator = new SocketInitiator(sessionFactory, settings);
-        socketInitiator.start();
-
-        socketInitiator.createDynamicSession(sessionId);
-
-        this.session = Session.lookupSession(sessionId);
-
-        final CountDownLatch latch = new CountDownLatch(1);
-
-        this.session.addStateListener(new NoopSessionStateListener() {
-
-            @Override
-            public void onDisconnect() {
-                latch.countDown();
-            }
-
-            @Override
-            public void onLogon() {
-                latch.countDown();
-            }
-
-        });
-
-        if (!this.session.isLoggedOn()) {
-            latch.await(30, TimeUnit.SECONDS);
-        }
-
-        if (!this.session.isLoggedOn()) {
-            Assert.fail("Session logon failed");
-        }
-
-        // Purge the queue
-        while (eventQueue.poll(5, TimeUnit.SECONDS) != null) {
-        }
-    }
-
-    @After
-    public void shutDown() throws Exception {
-
-        if (this.session != null) {
-            if (this.session.isLoggedOn()) {
-                this.session.logout("Testing");
-            }
-            this.session.close();
-            this.session = null;
-        }
-        if (this.socketInitiator != null) {
-            this.socketInitiator.stop();
-            this.socketInitiator = null;
-        }
+        setupSession(settings, sessionId, fixApplication);
     }
 
     @Test
@@ -184,7 +120,7 @@ public class FTXFixOrderMessageHandlerTest {
         forex.setSecurityFamily(securityFamily);
 
         Account testAccount = new AccountImpl();
-        testAccount.setBroker(Broker.FTX);
+        testAccount.setBroker(Broker.FTX.name());
         testAccount.setExtAccount("DAMCON_DM_FX");
 
         MarketOrder order = new MarketOrderImpl();
@@ -193,13 +129,13 @@ public class FTXFixOrderMessageHandlerTest {
         order.setSide(Side.BUY);
         order.setQuantity(2000);
 
-        NewOrderSingle message = messageFactory.createNewOrderMessage(order, orderId);
+        NewOrderSingle message = this.messageFactory.createNewOrderMessage(order, orderId);
 
-        Mockito.when(lookupService.getOpenOrderByRootIntId(orderId)).thenReturn(order);
+        Mockito.when(this.orderRegistry.getByIntId(orderId)).thenReturn(order);
 
-        session.send(message);
+        this.session.send(message);
 
-        Object event1 = eventQueue.poll(20, TimeUnit.SECONDS);
+        Object event1 = this.eventQueue.poll(20, TimeUnit.SECONDS);
         Assert.assertTrue(event1 instanceof OrderStatus);
         OrderStatus orderStatus1 = (OrderStatus) event1;
         Assert.assertEquals(orderId, orderStatus1.getIntId());
@@ -208,7 +144,7 @@ public class FTXFixOrderMessageHandlerTest {
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(0, orderStatus1.getFilledQuantity());
 
-        Object event2 = eventQueue.poll(20, TimeUnit.SECONDS);
+        Object event2 = this.eventQueue.poll(20, TimeUnit.SECONDS);
         Assert.assertTrue(event2 instanceof OrderStatus);
         OrderStatus orderStatus2 = (OrderStatus) event2;
         Assert.assertEquals(orderId, orderStatus2.getIntId());
@@ -217,7 +153,7 @@ public class FTXFixOrderMessageHandlerTest {
         Assert.assertSame(order, orderStatus2.getOrder());
         Assert.assertEquals(2000L, orderStatus2.getFilledQuantity());
 
-        Object event3 = eventQueue.poll(20, TimeUnit.SECONDS);
+        Object event3 = this.eventQueue.poll(20, TimeUnit.SECONDS);
         Assert.assertTrue(event3 instanceof Fill);
         Fill fill1 = (Fill) event3;
         Assert.assertSame(order, fill1.getOrder());
@@ -226,7 +162,7 @@ public class FTXFixOrderMessageHandlerTest {
         Assert.assertEquals(2000L, fill1.getQuantity());
         Assert.assertNotNull(fill1.getPrice());
 
-        Object event4 = eventQueue.poll(5, TimeUnit.SECONDS);
+        Object event4 = this.eventQueue.poll(5, TimeUnit.SECONDS);
         Assert.assertNull(event4);
     }
 
@@ -243,7 +179,7 @@ public class FTXFixOrderMessageHandlerTest {
         forex.setSecurityFamily(securityFamily);
 
         Account testAccount = new AccountImpl();
-        testAccount.setBroker(Broker.FTX);
+        testAccount.setBroker(Broker.FTX.name());
         testAccount.setExtAccount("DAMCON_DM_FX");
 
         LimitOrder order = new LimitOrderImpl();
@@ -253,13 +189,13 @@ public class FTXFixOrderMessageHandlerTest {
         order.setSide(Side.BUY);
         order.setLimit(new BigDecimal("1.0"));
 
-        NewOrderSingle message1 = messageFactory.createNewOrderMessage(order, orderId1);
+        NewOrderSingle message1 = this.messageFactory.createNewOrderMessage(order, orderId1);
 
-        Mockito.when(lookupService.getOpenOrderByRootIntId(orderId1)).thenReturn(order);
+        Mockito.when(this.orderRegistry.getByIntId(orderId1)).thenReturn(order);
 
-        session.send(message1);
+        this.session.send(message1);
 
-        Object event1 = eventQueue.poll(20, TimeUnit.SECONDS);
+        Object event1 = this.eventQueue.poll(20, TimeUnit.SECONDS);
         Assert.assertTrue(event1 instanceof OrderStatus);
         OrderStatus orderStatus1 = (OrderStatus) event1;
         Assert.assertEquals(orderId1, orderStatus1.getIntId());
@@ -273,13 +209,13 @@ public class FTXFixOrderMessageHandlerTest {
 
         String orderId2 = Long.toHexString(System.currentTimeMillis());
 
-        OrderCancelRequest message2 = messageFactory.createOrderCancelMessage(order, orderId2);
+        OrderCancelRequest message2 = this.messageFactory.createOrderCancelMessage(order, orderId2);
 
-        Mockito.when(lookupService.getOpenOrderByRootIntId(orderId2)).thenReturn(order);
+        Mockito.when(this.orderRegistry.getByIntId(orderId2)).thenReturn(order);
 
-        session.send(message2);
+        this.session.send(message2);
 
-        Object event2 = eventQueue.poll(20, TimeUnit.SECONDS);
+        Object event2 = this.eventQueue.poll(20, TimeUnit.SECONDS);
 
         Assert.assertTrue(event2 instanceof OrderStatus);
         OrderStatus orderStatus2 = (OrderStatus) event2;
@@ -290,7 +226,7 @@ public class FTXFixOrderMessageHandlerTest {
         Assert.assertEquals(0, orderStatus2.getFilledQuantity());
         Assert.assertEquals(1000, orderStatus2.getRemainingQuantity());
 
-        Object event3 = eventQueue.poll(5, TimeUnit.SECONDS);
+        Object event3 = this.eventQueue.poll(5, TimeUnit.SECONDS);
         Assert.assertNull(event3);
     }
 
@@ -307,7 +243,7 @@ public class FTXFixOrderMessageHandlerTest {
         forex.setSecurityFamily(securityFamily);
 
         Account testAccount = new AccountImpl();
-        testAccount.setBroker(Broker.FTX);
+        testAccount.setBroker(Broker.FTX.name());
         testAccount.setExtAccount("DAMCON_DM_FX");
 
         LimitOrder order = new LimitOrderImpl();
@@ -317,13 +253,13 @@ public class FTXFixOrderMessageHandlerTest {
         order.setSide(Side.BUY);
         order.setLimit(new BigDecimal("1.0"));
 
-        NewOrderSingle message1 = messageFactory.createNewOrderMessage(order, orderId1);
+        NewOrderSingle message1 = this.messageFactory.createNewOrderMessage(order, orderId1);
 
-        Mockito.when(lookupService.getOpenOrderByRootIntId(orderId1)).thenReturn(order);
+        Mockito.when(this.orderRegistry.getByIntId(orderId1)).thenReturn(order);
 
-        session.send(message1);
+        this.session.send(message1);
 
-        Object event1 = eventQueue.poll(20, TimeUnit.SECONDS);
+        Object event1 = this.eventQueue.poll(20, TimeUnit.SECONDS);
         Assert.assertTrue(event1 instanceof OrderStatus);
         OrderStatus orderStatus1 = (OrderStatus) event1;
         Assert.assertEquals(orderId1, orderStatus1.getIntId());
@@ -339,13 +275,13 @@ public class FTXFixOrderMessageHandlerTest {
 
         order.setLimit(new BigDecimal("1.01"));
 
-        OrderCancelReplaceRequest message2 = messageFactory.createModifyOrderMessage(order, orderId2, 0);
+        OrderCancelReplaceRequest message2 = this.messageFactory.createModifyOrderMessage(order, orderId2, 0);
 
-        Mockito.when(lookupService.getOpenOrderByRootIntId(orderId2)).thenReturn(order);
+        Mockito.when(this.orderRegistry.getByIntId(orderId2)).thenReturn(order);
 
-        session.send(message2);
+        this.session.send(message2);
 
-        Object event2 = eventQueue.poll(20, TimeUnit.SECONDS);
+        Object event2 = this.eventQueue.poll(20, TimeUnit.SECONDS);
 
         Assert.assertTrue(event2 instanceof OrderStatus);
         OrderStatus orderStatus2 = (OrderStatus) event2;
@@ -361,13 +297,13 @@ public class FTXFixOrderMessageHandlerTest {
 
         String orderId3 = Long.toHexString(System.currentTimeMillis());
 
-        OrderCancelRequest message3 = messageFactory.createOrderCancelMessage(order, orderId3);
+        OrderCancelRequest message3 = this.messageFactory.createOrderCancelMessage(order, orderId3);
 
-        Mockito.when(lookupService.getOpenOrderByRootIntId(orderId3)).thenReturn(order);
+        Mockito.when(this.orderRegistry.getByIntId(orderId3)).thenReturn(order);
 
-        session.send(message3);
+        this.session.send(message3);
 
-        Object event3 = eventQueue.poll(20, TimeUnit.SECONDS);
+        Object event3 = this.eventQueue.poll(20, TimeUnit.SECONDS);
 
         Assert.assertTrue(event3 instanceof OrderStatus);
         OrderStatus orderStatus3 = (OrderStatus) event3;
@@ -378,7 +314,7 @@ public class FTXFixOrderMessageHandlerTest {
         Assert.assertEquals(0, orderStatus3.getFilledQuantity());
         Assert.assertEquals(1000, orderStatus3.getRemainingQuantity());
 
-        Object event4 = eventQueue.poll(5, TimeUnit.SECONDS);
+        Object event4 = this.eventQueue.poll(5, TimeUnit.SECONDS);
         Assert.assertNull(event4);
     }
 

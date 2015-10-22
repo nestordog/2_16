@@ -1,3 +1,62 @@
+Version 2.3
+Strategy Development
+    support for strategy groups
+    added local MarketDataCache
+    simplified strategy starters 
+Adapters
+    added Trading Technologies Fix interface (trading, market data & reference data)
+    added Fortex Fix interface (trading & market data)
+    added FIX session life cycle events
+    add Trading status events for LMAX
+    redesigned IB interface
+    added suport for fix-jdbc-message-store
+    support custom logging per Fix session 
+Event handling
+    added event dispatch framework
+    added event listeners
+    added strategy life cycle events (INIT, PREFEED, START & EXIT)
+    all events are now ValueObjects 
+Distributed Cache Manager
+    LookupService now uses CacheManager instead of DAO's
+    CacheManager / GenericDao are now available to strategies 
+New entity / VO generation framework
+    added Entity Visitors
+    Entities, Entity Interfaces, Value Objects and Entity to VO Converters are now generated using Hibernate tools
+    Entity identifiers now use long instead of int
+    enhanced equals and hashCode methods 
+New DAO framework
+    AbstractDAO is now base class of all DAO's
+    finders have been moved to Hibernate.hbm.xml 
+Esper Enhancements
+    enhanced syntax for Esper statement subscribers
+    Esper Engine is now configured through Spring
+    replaced EngineLocator with Spring EngineManager
+    strategy initModules and runModules are now configured through Spring
+    Spring Services are now available to Esper statements directly 
+Order Management enhancements
+    replaced Esper based OpenOrderWindow with Java based OrderRegistry
+    SlicingOrder: assure minimum quantity on the last slice
+    Exchange can now be set directly on an Order
+    OrderStatus events now include lastQuantity attribute 
+Miscellaneous enhancements
+    migration to Spring Configuration annotations
+    harmonized date / time formats
+    new Entity Security Reference
+    GoogleFincanceDownloader
+    enhanced reset service
+    new Reports TradeReport & PortfolioReport
+    updated DB sample data
+    remove margin / exit value from position
+    remove support for server side close position
+    trading hour definitions are now optional
+    client now shows unrealizedPnL & FX Exposure 
+3rd party library Upgrades
+    Java 1.8
+    Esper 5.2.0 (5.3.0?)
+    Hibernate 4.x
+    Spring from 3.x to 4.x
+    Log4J 2.x 
+
 Version 2.2
 additional Fix trading and market data interface:
     LMAX

@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,15 +12,15 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.adapter.fix;
 
 import org.apache.commons.lang.Validate;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import ch.algotrader.util.MyLogger;
 import quickfix.Application;
 import quickfix.DoNotSend;
 import quickfix.FieldNotFound;
@@ -41,12 +41,10 @@ import quickfix.field.PossDupFlag;
  * Implementation of {@link quickfix.Application}
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
- *
- * @version $Revision$ $Date$
  */
 public abstract class AbstractFixApplication implements Application {
 
-    private static final Logger logger = MyLogger.getLogger(AbstractFixApplication.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(AbstractFixApplication.class);
 
     private final SessionID sessionID;
     private final MessageCracker incomingMessageCracker;
@@ -74,11 +72,11 @@ public abstract class AbstractFixApplication implements Application {
     }
 
     protected SessionID getSessionID() {
-        return sessionID;
+        return this.sessionID;
     }
 
     protected Session getSession() {
-        return Session.lookupSession(sessionID);
+        return Session.lookupSession(this.sessionID);
     }
 
     public void onCreate() {
@@ -101,8 +99,8 @@ public abstract class AbstractFixApplication implements Application {
     public final void onLogon(SessionID sessionID) {
 
         validateSessionID(sessionID);
-        if (logger.isInfoEnabled()) {
-            logger.info("logon: " + sessionID);
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("logon: {}", sessionID);
         }
         onLogon();
     }
@@ -111,8 +109,8 @@ public abstract class AbstractFixApplication implements Application {
     public final void onLogout(SessionID sessionID)  {
 
         validateSessionID(sessionID);
-        if (logger.isInfoEnabled()) {
-            logger.info("logout: " + sessionID);
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("logout: {}", sessionID);
         }
         onLogout();
     }
@@ -126,7 +124,9 @@ public abstract class AbstractFixApplication implements Application {
         Header header = message.getHeader();
         StringField msgType = header.getField(new MsgType());
         if ((msgType.getValue().equals(MsgType.ORDER_SINGLE) || msgType.getValue().equals(MsgType.ORDER_CANCEL_REPLACE_REQUEST)) && header.isSetField(new PossDupFlag())) {
-            logger.info("prevent order / order replacement to be sent: " + message);
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("prevent order / order replacement to be sent: {}", message);
+            }
             throw new DoNotSend();
         }
         return false;
@@ -140,9 +140,9 @@ public abstract class AbstractFixApplication implements Application {
             if (message.getHeader().getField(new MsgType()).getValue().equals(MsgType.HEARTBEAT)) {
                 return;
             }
-            incomingMessageCracker.crack(message, sessionID);
+            this.incomingMessageCracker.crack(message, sessionID);
         } catch (Exception e) {
-            logger.error(e);
+            LOGGER.error(e);
         }
     }
 
@@ -156,9 +156,9 @@ public abstract class AbstractFixApplication implements Application {
             if (message.getHeader().getField(new MsgType()).getValue().equals(MsgType.HEARTBEAT)) {
                 return;
             }
-            outgoingMessageCracker.crack(message, sessionID);
+            this.outgoingMessageCracker.crack(message, sessionID);
         } catch (Exception e) {
-            logger.error(e);
+            LOGGER.error(e);
         }
     }
 
@@ -170,7 +170,7 @@ public abstract class AbstractFixApplication implements Application {
         if (interceptIncoming(message)) {
             return;
         }
-        incomingMessageCracker.crack(message, sessionID);
+        this.incomingMessageCracker.crack(message, sessionID);
     }
 
     @Override
@@ -181,17 +181,17 @@ public abstract class AbstractFixApplication implements Application {
             if (interceptOutgoing(message)) {
                 return;
             }
-            outgoingMessageCracker.crack(message, sessionID);
+            this.outgoingMessageCracker.crack(message, sessionID);
         } catch (DoNotSend e) {
             throw e;
         } catch (Exception e) {
-            logger.error(e);
+            LOGGER.error(e);
         }
     }
 
     @Override
     public String toString() {
-        return sessionID.toString();
+        return this.sessionID.toString();
     }
 
     /**
@@ -199,11 +199,8 @@ public abstract class AbstractFixApplication implements Application {
      */
     static class InternalMessageCracker extends MessageCracker {
 
-        private boolean incoming;
-
         public InternalMessageCracker(boolean incoming, Object messageHandler) {
             super(messageHandler);
-            this.incoming = incoming;
         }
 
         @Override

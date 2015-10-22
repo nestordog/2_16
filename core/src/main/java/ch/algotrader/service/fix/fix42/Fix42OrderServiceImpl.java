@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,8 +12,8 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.service.fix.fix42;
 
@@ -21,8 +21,12 @@ import org.apache.commons.lang.Validate;
 
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.fix.fix42.Fix42OrderMessageFactory;
+import ch.algotrader.config.CommonConfig;
+import ch.algotrader.dao.AccountDao;
+import ch.algotrader.dao.trade.OrderDao;
 import ch.algotrader.entity.trade.SimpleOrder;
-import ch.algotrader.service.OrderService;
+import ch.algotrader.ordermgmt.OrderRegistry;
+import ch.algotrader.service.OrderPersistenceService;
 import ch.algotrader.service.fix.FixOrderServiceImpl;
 import quickfix.fix42.NewOrderSingle;
 import quickfix.fix42.OrderCancelReplaceRequest;
@@ -32,23 +36,28 @@ import quickfix.fix42.OrderCancelRequest;
  * Generic FIX 4.2 order service
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public abstract class Fix42OrderServiceImpl extends FixOrderServiceImpl implements Fix42OrderService {
 
-    private static final long serialVersionUID = -3694423160435186473L;
-
+    private final OrderRegistry orderRegistry;
     private final Fix42OrderMessageFactory messageFactory;
 
-    public Fix42OrderServiceImpl(final FixAdapter fixAdapter,
-            final OrderService orderService,
-            final Fix42OrderMessageFactory messageFactory) {
+    public Fix42OrderServiceImpl(
+            final String orderServiceType,
+            final FixAdapter fixAdapter,
+            final Fix42OrderMessageFactory messageFactory,
+            final OrderRegistry orderRegistry,
+            final OrderPersistenceService orderPersistenceService,
+            final OrderDao orderDao,
+            final AccountDao accountDao,
+            final CommonConfig commonConfig) {
 
-        super(fixAdapter, orderService);
+        super(orderServiceType, fixAdapter, orderPersistenceService, orderDao, accountDao, commonConfig);
 
-        Validate.notNull(orderService, "Fix42OrderMessageFactory is null");
+        Validate.notNull(orderRegistry, "OpenOrderRegistry is null");
+        Validate.notNull(messageFactory, "Fix42OrderMessageFactory is null");
 
+        this.orderRegistry = orderRegistry;
         this.messageFactory = messageFactory;
     }
 
@@ -75,8 +84,10 @@ public abstract class Fix42OrderServiceImpl extends FixOrderServiceImpl implemen
         // broker-specific settings
         prepareSendOrder(order, message);
 
+        this.orderRegistry.add(order);
+
         // send the message
-        sendOrder(order, message, true);
+        sendOrder(order, message);
 
     }
 
@@ -97,8 +108,10 @@ public abstract class Fix42OrderServiceImpl extends FixOrderServiceImpl implemen
         order.setIntId(clOrdID);
         order.setExtId(null);
 
+        this.orderRegistry.add(order);
+
         // send the message
-        sendOrder(order, replaceRequest, true);
+        sendOrder(order, replaceRequest);
 
     }
 
@@ -116,8 +129,7 @@ public abstract class Fix42OrderServiceImpl extends FixOrderServiceImpl implemen
         prepareCancelOrder(order, cancelRequest);
 
         // send the message
-        sendOrder(order, cancelRequest, false);
-
+        sendOrder(order, cancelRequest);
     }
 
     /**

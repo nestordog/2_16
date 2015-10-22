@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,23 +12,24 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.adapter.bb;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.jmx.export.annotation.ManagedAttribute;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
-import ch.algotrader.config.BBConfig;
-
 import com.bloomberglp.blpapi.SessionOptions;
+
+import ch.algotrader.config.BBConfig;
 
 /**
  * Factory class for Bloomberg Sessions.
@@ -42,34 +43,36 @@ import com.bloomberglp.blpapi.SessionOptions;
 @ManagedResource(objectName = "ch.algotrader.adapter.bb:name=BBAdapter")
 public class BBAdapter {
 
-    private Map<String, BBSession> sessions = new HashMap<String, BBSession>();
     private final BBConfig bbConfig;
+    private final Map<String, BBSession> sessions;
 
-    public BBAdapter(BBConfig bbConfig) {
+    public BBAdapter(final BBConfig bbConfig) {
         this.bbConfig = bbConfig;
+        this.sessions = new ConcurrentHashMap<>();
     }
 
     /**
      * Returns an asynchronous market data session using the {@link BBMarketDataMessageHandler}
      */
-    public BBSession getMarketDataSession() throws IOException, InterruptedException {
+    public BBSession createMarketDataSession(final BBMarketDataMessageHandler messageHandler) throws IOException, InterruptedException {
 
-        return getSession("mktdata", new BBMarketDataMessageHandler());
+        return createSession("mktdata", messageHandler);
     }
 
     /**
      * Returns a synchronous reference data session
      */
-    public BBSession getReferenceDataSession() throws IOException, InterruptedException {
+    public BBSession createReferenceDataSession() throws IOException, InterruptedException {
 
-        return getSession("refdata", null);
+        return createSession("refdata", null);
     }
 
-    private BBSession getSession(String serviceName, BBMessageHandler messageHandler) throws InterruptedException, IOException {
+    private BBSession createSession(final String serviceName, final BBMessageHandler messageHandler) throws InterruptedException, IOException {
 
         // stop eventual session
-        if (this.sessions.containsKey(serviceName)) {
-            this.sessions.get(serviceName).stop();
+        BBSession previousSession = this.sessions.remove(serviceName);
+        if (previousSession != null) {
+            previousSession.stop();
         }
 
         // create the session options
@@ -85,17 +88,6 @@ public class BBAdapter {
             session = new BBSession(serviceName, sessionOptions);
         }
 
-        // start the session
-        if (!session.start()) {
-            throw new IllegalStateException("Failed to start session");
-        }
-
-        // open the service
-        if (!session.openService("//blp/" + serviceName)) {
-            session.stop();
-            throw new IllegalStateException("Failed to open service " + serviceName);
-        }
-
         this.sessions.put(serviceName, session);
 
         return session;
@@ -107,7 +99,7 @@ public class BBAdapter {
     @ManagedAttribute
     public Map<String, Boolean> getSessionLogonStates() {
 
-        Map<String, Boolean> logonStates = new HashMap<String, Boolean>();
+        Map<String, Boolean> logonStates = new HashMap<>();
         for (Map.Entry<String, BBSession> entry : this.sessions.entrySet()) {
             logonStates.put(entry.getKey(), entry.getValue().isRunning());
         }

@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,43 +12,43 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.service;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.Validate;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.CoreConfig;
+import ch.algotrader.dao.security.FutureDao;
+import ch.algotrader.dao.security.FutureFamilyDao;
 import ch.algotrader.entity.security.Future;
-import ch.algotrader.entity.security.FutureDao;
 import ch.algotrader.entity.security.FutureFamily;
-import ch.algotrader.entity.security.FutureFamilyDao;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.Duration;
+import ch.algotrader.esper.EngineManager;
 import ch.algotrader.future.FutureSymbol;
+import ch.algotrader.util.DateTimeLegacy;
 import ch.algotrader.util.DateUtil;
-import ch.algotrader.util.MyLogger;
 import ch.algotrader.util.collection.CollectionUtil;
-import ch.algotrader.util.spring.HibernateSession;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
-@HibernateSession
+@Transactional(propagation = Propagation.SUPPORTS)
 public class FutureServiceImpl implements FutureService {
 
-    private static Logger logger = MyLogger.getLogger(FutureServiceImpl.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(FutureServiceImpl.class);
 
     private final CommonConfig commonConfig;
 
@@ -58,21 +58,26 @@ public class FutureServiceImpl implements FutureService {
 
     private final FutureDao futureDao;
 
+    private final EngineManager engineManager;
+
     public FutureServiceImpl(
             final CommonConfig commonConfig,
             final CoreConfig coreConfig,
             final FutureFamilyDao futureFamilyDao,
-            final FutureDao futureDao) {
+            final FutureDao futureDao,
+            final EngineManager engineManager) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(coreConfig, "CoreConfig is null");
         Validate.notNull(futureFamilyDao, "FutureFamilyDao is null");
         Validate.notNull(futureDao, "FutureDao is null");
+        Validate.notNull(engineManager, "EngineManager is null");
 
         this.commonConfig = commonConfig;
         this.coreConfig = coreConfig;
         this.futureFamilyDao = futureFamilyDao;
         this.futureDao = futureDao;
+        this.engineManager = engineManager;
      }
 
     /**
@@ -80,19 +85,20 @@ public class FutureServiceImpl implements FutureService {
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public void createDummyFutures(final int futureFamilyId) {
+    public void createDummyFutures(final long futureFamilyId) {
 
         FutureFamily family = this.futureFamilyDao.get(futureFamilyId);
         Security underlying = family.getUnderlying();
 
-        Collection<Future> futures = this.futureDao.findByMinExpiration(family.getId(), DateUtil.getCurrentEPTime());
+        Collection<Future> futures = this.futureDao.findByMinExpiration(family.getId(), this.engineManager.getCurrentEPTime());
 
         // create the missing part of the futures chain
         for (int i = futures.size() + 1; i <= family.getLength(); i++) {
 
             int duration = i * (int) (family.getExpirationDistance().getValue() / Duration.MONTH_1.getValue());
 
-            Date expirationDate = DateUtil.getExpirationDateNMonths(family.getExpirationType(), DateUtil.getCurrentEPTime(), duration);
+            Date expiration = DateUtil.getExpirationDateNMonths(family.getExpirationType(), this.engineManager.getCurrentEPTime(), duration);
+            LocalDate expirationDate = DateTimeLegacy.toLocalDate(expiration);
 
             String symbol = FutureSymbol.getSymbol(family, expirationDate);
             String isin = FutureSymbol.getIsin(family, expirationDate);
@@ -102,13 +108,15 @@ public class FutureServiceImpl implements FutureService {
             future.setSymbol(symbol);
             future.setIsin(isin);
             future.setRic(ric);
-            future.setExpiration(expirationDate);
+            future.setExpiration(expiration);
             future.setUnderlying(underlying);
             future.setSecurityFamily(family);
 
-            this.futureDao.create(future);
+            this.futureDao.save(future);
 
-            logger.info("created future " + future);
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("created future {}", future);
+            }
         }
 
     }
@@ -118,22 +126,22 @@ public class FutureServiceImpl implements FutureService {
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public Future getFutureByMinExpiration(final int futureFamilyId, final Date targetExpirationDate) {
+    public Future getFutureByMinExpiration(final long futureFamilyId, final Date targetExpirationDate) {
 
         Validate.notNull(targetExpirationDate, "Target expiration date is null");
 
-        Future future = CollectionUtil.getSingleElementOrNull(this.futureDao.findByMinExpiration(1, 1, futureFamilyId, targetExpirationDate));
+        Future future = CollectionUtil.getSingleElementOrNull(this.futureDao.findByMinExpiration(1, futureFamilyId, targetExpirationDate));
 
         // if no future was found, create the missing part of the future-chain
         if (this.commonConfig.isSimulation() && future == null && (this.coreConfig.isSimulateFuturesByUnderlying() || this.coreConfig.isSimulateFuturesByGenericFutures())) {
 
             createDummyFutures(futureFamilyId);
 
-            future = CollectionUtil.getSingleElementOrNull(this.futureDao.findByMinExpiration(1, 1, futureFamilyId, targetExpirationDate));
+            future = CollectionUtil.getSingleElementOrNull(this.futureDao.findByMinExpiration(1, futureFamilyId, targetExpirationDate));
         }
 
         if (future == null) {
-            throw new LookupServiceException("no future available for expiration " + targetExpirationDate);
+            throw new ServiceException("no future available for expiration " + targetExpirationDate);
         } else {
             return future;
         }
@@ -145,7 +153,7 @@ public class FutureServiceImpl implements FutureService {
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public Future getFutureByExpiration(final int futureFamilyId, final Date expirationDate) {
+    public Future getFutureByExpiration(final long futureFamilyId, final Date expirationDate) {
 
         Validate.notNull(expirationDate, "Expiration date is null");
 
@@ -159,7 +167,7 @@ public class FutureServiceImpl implements FutureService {
         }
 
         if (future == null) {
-            throw new LookupServiceException("no future available targetExpiration " + expirationDate);
+            throw new ServiceException("no future available targetExpiration " + expirationDate);
         } else {
 
             return future;
@@ -172,7 +180,7 @@ public class FutureServiceImpl implements FutureService {
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public Future getFutureByDuration(final int futureFamilyId, final Date targetDate, final int duration) {
+    public Future getFutureByDuration(final long futureFamilyId, final Date targetDate, final int duration) {
 
         Validate.notNull(targetDate, "Target date is null");
 
@@ -189,7 +197,7 @@ public class FutureServiceImpl implements FutureService {
         }
 
         if (future == null) {
-            throw new LookupServiceException("no future available targetExpiration " + targetDate + " and duration " + duration);
+            throw new ServiceException("no future available targetExpiration " + targetDate + " and duration " + duration);
         } else {
             return future;
         }
@@ -200,7 +208,7 @@ public class FutureServiceImpl implements FutureService {
      * {@inheritDoc}
      */
     @Override
-    public List<Future> getFuturesByMinExpiration(final int futureFamilyId, final Date minExpirationDate) {
+    public List<Future> getFuturesByMinExpiration(final long futureFamilyId, final Date minExpirationDate) {
 
         Validate.notNull(minExpirationDate, "Min expiration date is null");
 

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+          "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping default-cascade="none">
+    <class name="ch.algotrader.entity.security.EasyToBorrowImpl"
+        table="`easy_to_borrow`" dynamic-insert="false" dynamic-update="false">
+	    <meta attribute="implements">ch.algotrader.entity.security.EasyToBorrowI</meta>      
+	    <meta attribute="generated-class">ch.algotrader.entity.security.EasyToBorrow</meta>
+	    <meta attribute="class-code">
+<![CDATA[
+]]>   
+	    </meta> 	    
+        <meta attribute="class-description"><![CDATA[Represents the number of shares of the specified Stock that can be borrowed from the specified {@code broker} on the specified {@code date}]]></meta>
+        <cache usage="read-write" />
+        <id name="id" type="long" >
+            <column name="ID" sql-type="BIGINT"/>
+
+            <generator class="native">
+                <!-- id-generator merge-point -->
+            </generator>
+        </id>
+        <property name="date">
+            <meta attribute="use-in-equals">true</meta>
+            <column name="DATE" not-null="true" unique="false" sql-type="DATE"/>
+
+            <type name="java.util.Date"/>
+        </property>
+        <property name="broker">
+            <meta attribute="field-description"><![CDATA[The Broker which these parameters apply to.]]></meta>
+            <meta attribute="use-in-equals">true</meta>
+            <column name="BROKER" not-null="true" unique="false" sql-type="VARCHAR(255)"/>
+
+            <type name="java.lang.String"/>
+        </property>
+        <property name="quantity">
+            <column name="QUANTITY" not-null="true" unique="false" sql-type="BIGINT"/>
+
+            <type name="long"/>
+        </property>
+        <many-to-one name="stock" class="ch.algotrader.entity.security.StockImpl" foreign-key="EASY_TO_BORROW_STOCK_FKC" not-null="true" lazy="false" fetch="select">
+            <meta attribute="property-type">ch.algotrader.entity.security.Stock</meta>
+            <meta attribute="field-description"><![CDATA[A Single Stock]]></meta>
+            <meta attribute="use-in-equals">true</meta>
+            <column name="STOCK_FK" not-null="true" sql-type="BIGINT"/>
+
+        </many-to-one>
+    </class>
+</hibernate-mapping>

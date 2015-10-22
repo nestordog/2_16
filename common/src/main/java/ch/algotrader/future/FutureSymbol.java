@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,25 +12,22 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.future;
 
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.Month;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
 
 import ch.algotrader.entity.security.SecurityFamily;
+import ch.algotrader.util.DateTimePatterns;
 
 /**
  * Utility class to generate symbol, isin and ric for {@link ch.algotrader.entity.security.Future Futures}.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public class FutureSymbol {
 
@@ -38,44 +35,35 @@ public class FutureSymbol {
     private static final String[] yearEnc = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J" };
 
     /**
-     * Generates the symbole for the specified {@link ch.algotrader.entity.security.FutureFamily}.
+     * Generates the symbol for the specified {@link ch.algotrader.entity.security.FutureFamily}.
      */
-    public static String getSymbol(SecurityFamily family, Date expiration) {
+    public static String getSymbol(SecurityFamily family, LocalDate expiration) {
 
-        GregorianCalendar cal = new GregorianCalendar();
-        cal.setTime(expiration);
-
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         buffer.append(family.getSymbolRoot());
         buffer.append(" ");
-        buffer.append(new SimpleDateFormat("MMM").format(cal.getTime()).toUpperCase());
+        buffer.append(DateTimePatterns.MONTH_LONG.format(expiration).toUpperCase());
         buffer.append("/");
-        buffer.append(String.valueOf(cal.get(Calendar.YEAR)).substring(2));
-
+        final String s = DateTimePatterns.YEAR_4_DIGIT.format(expiration);
+        buffer.append(s.substring(s.length() - 2, s.length()));
         return buffer.toString();
     }
 
     /**
      * Generates the ISIN for the specified {@link ch.algotrader.entity.security.FutureFamily}.
      */
-    public static String getIsin(SecurityFamily family, Date expiration) {
+    public static String getIsin(SecurityFamily family, LocalDate expiration) {
 
         int week = 0;
+        Month month = expiration.getMonth();
+        int year = expiration.getYear();                    ;
 
-        String month;
-        Calendar cal = new GregorianCalendar();
-        cal.setTime(expiration);
-        month = monthEnc[cal.get(Calendar.MONTH)];
-
-        int yearIndex = cal.get(Calendar.YEAR) % 10;
-        String year = yearEnc[yearIndex];
-
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         buffer.append(week);
         buffer.append("F");
         buffer.append(family.getIsinRoot() != null ? family.getIsinRoot() : family.getSymbolRoot());
-        buffer.append(month);
-        buffer.append(year);
+        buffer.append(monthEnc[month.getValue() - 1]);
+        buffer.append(yearEnc[year % 10]);
         buffer.append("00000");
 
         return buffer.toString();
@@ -84,15 +72,15 @@ public class FutureSymbol {
     /**
      * Generates the RIC for the specified {@link ch.algotrader.entity.security.FutureFamily}.
      */
-    public static String getRic(SecurityFamily family, Date expiration) {
+    public static String getRic(SecurityFamily family, LocalDate expiration) {
 
-        GregorianCalendar cal = new GregorianCalendar();
-        cal.setTime(expiration);
+        Month month = expiration.getMonth();
+        int year = expiration.getYear();                    ;
 
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         buffer.append(family.getRicRoot() != null ? family.getRicRoot() : family.getSymbolRoot());
-        buffer.append(monthEnc[cal.get(Calendar.MONTH)]);
-        buffer.append(String.valueOf(cal.get(Calendar.YEAR)).substring(3));
+        buffer.append(monthEnc[month.getValue() - 1]);
+        buffer.append(String.valueOf(year).substring(3));
         buffer.append(":VE");
 
         return buffer.toString();

@@ -1,0 +1,1384 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+          "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <import class="ch.algotrader.entity.PositionImpl" rename="Position"/>
+    <import class="ch.algotrader.entity.security.ExpirableI" rename="ExpirableI"/>
+
+    <!-- Strategy DAO queries starts -->
+
+    <query name='Strategy.findServer'>
+    <![CDATA[
+        from StrategyImpl 
+        where name = 'SERVER' 
+    ]]>
+    </query>
+    
+    <query name='Strategy.findByName'>
+    <![CDATA[
+        from StrategyImpl 
+        where name = :name 
+    ]]>
+    </query>
+    
+    <query name='Strategy.findAutoActivateStrategies'>
+    <![CDATA[
+        select s 
+        from StrategyImpl as s 
+        where s.autoActivate = true 
+        order by s.id 
+    ]]>
+    </query>
+    
+    <sql-query name='Strategy.findCurrentDBTime'>
+    <![CDATA[
+        select current_timestamp 
+    ]]>
+    </sql-query>
+
+    <!-- Strategy DAO queries ends -->
+
+    <!-- Account DAO queries starts -->
+    
+    <query name='Account.findByName'>
+    <![CDATA[
+        from AccountImpl 
+        where name = :name 
+    ]]>
+    </query>
+
+    <query name='Account.findAccountsByOrderServiceType'>
+        <![CDATA[
+        select a from AccountImpl a where a.orderServiceType = :orderServiceType
+    ]]>
+    </query>
+
+    <query name='Account.findByExtAccount'>
+        <![CDATA[
+        from AccountImpl
+        where extAccount = :extAccount
+    ]]>
+    </query>
+
+    <query name='Account.findActiveSessionsByOrderServiceType'>
+    <![CDATA[
+        select distinct sessionQualifier 
+        from AccountImpl 
+        where active = true 
+        and orderServiceType = :orderServiceType 
+    ]]>
+    </query>
+
+    <!-- Account DAO queries ends -->
+
+    <!-- Position DAO queries starts-->
+
+    <query name='Position.findByIdInclSecurityAndSecurityFamily'>
+    <![CDATA[
+        from PositionImpl as p 
+        join fetch p.security as s 
+        join fetch s.securityFamily as f 
+        where p.id = :id 
+    ]]>
+    </query>
+
+    <query name='Position.findByStrategy'><![CDATA[
+        from PositionImpl as p 
+        where p.strategy.name = :strategyName 
+        order by p.id 
+    ]]>
+    </query>
+
+    <query name='Position.findBySecurityAndStrategy'>
+    <![CDATA[
+        select p 
+        from PositionImpl as p 
+        join p.strategy as s 
+        where p.security.id = :securityId 
+        and s.name = :strategyName 
+    ]]>
+    </query>
+
+    <query name='Position.findBySecurityAndStrategyIdLocked'>
+    <![CDATA[
+        from PositionImpl as p 
+        where p.security.id = :securityId 
+        and p.strategy.id = :strategyId 
+    ]]>
+    </query>
+
+    <query name='Position.findOpenPositions'>
+    <![CDATA[
+        from PositionImpl as p 
+        where p.quantity != 0 
+        order by p.security.id 
+    ]]>
+    </query>
+    
+    <query name='Position.findOpenPositionsByMaxDateAggregated'>
+    <![CDATA[
+        select new Position(sum(t.quantity), t.security) 
+        from TransactionImpl as t 
+        where t.security != null 
+        and t.dateTime <= :maxDate 
+        group by t.security.id 
+        having sum(t.quantity) != 0 
+        order by t.security.id 
+    ]]>
+    </query>
+
+    <query name='Position.findOpenPositionsByStrategy'>
+    <![CDATA[
+        from PositionImpl as p 
+        where p.strategy.name = :strategyName 
+        and p.quantity != 0 
+        order by p.security.id 
+    ]]>
+    </query>
+
+    <query name='Position.findOpenPositionsByStrategyAndMaxDate'>
+    <![CDATA[
+        select new Position(sum(t.quantity), t.strategy, t.security) 
+        from TransactionImpl as t 
+        where t.security != null 
+        and t.dateTime <= :maxDate 
+        and t.strategy.name = :strategyName 
+        group by t.security.id 
+        having sum(t.quantity) != 0 
+        order by t.security.id 
+    ]]>
+    </query>
+    
+    <query name='Position.findOpenPositionsByStrategyAndType'>   
+    <![CDATA[
+        select p 
+        from PositionImpl as p 
+        join p.security as s 
+        where p.strategy.name = :strategyName 
+        and p.quantity != 0 
+        and s.class = :type 
+        order by p.security.id 
+    ]]>
+    </query>
+    
+    <query name='Position.findOpenPositionsByStrategyTypeAndUnderlyingType'>
+    <![CDATA[
+        select p 
+        from PositionImpl as p 
+        join p.security as s 
+        join s.securityFamily as sf 
+        where p.strategy.name = :strategyName 
+        and p.quantity != 0 
+        and s.class = :type 
+        and sf.class = :underlyingType 
+        order by p.security.id 
+    ]]>
+    </query>
+       
+    <query name='Position.findOpenPositionsByStrategyAndSecurityFamily'>
+    <![CDATA[
+        from PositionImpl as p 
+        where p.strategy.name = :strategyName 
+        and p.quantity != 0 
+        and p.security.securityFamily.id = :securityFamilyId 
+        order by p.security.id 
+    ]]>
+    </query>
+
+    <query name='Position.findOpenPositionsByUnderlying'>
+    <![CDATA[
+        from PositionImpl as p 
+        where p.quantity != 0 
+        and p.security.underlying.id = :underlyingId 
+        order by p.security.id 
+    ]]>
+    </query>
+
+    <query name='Position.findOpenPositionsBySecurity'>
+    <![CDATA[
+        from PositionImpl as p 
+        where p.security.id = :securityId 
+        and p.quantity != 0 
+        order by p.id 
+    ]]>
+    </query>
+
+    <query name='Position.findOpenTradeablePositions'>
+    <![CDATA[
+        select p 
+        from PositionImpl as p 
+        join p.security.securityFamily as f 
+        where p.quantity != 0 
+        and f.tradeable = true 
+        order by p.security.id 
+    ]]>
+    </query>
+   
+    <query name='Position.findOpenTradeablePositionsAggregated'>
+    <![CDATA[
+        select new Position(sum(p.quantity), sum(p.cost), p.security) 
+        from PositionImpl as p 
+        join p.security.securityFamily as f 
+        where f.tradeable = true 
+        group by p.security.id 
+        having sum(p.quantity) != 0 
+        order by p.security.id 
+    ]]>
+    </query>
+
+    <query name='Position.findOpenTradeablePositionsByStrategy'>
+    <![CDATA[
+        from PositionImpl as p 
+        where p.strategy.name = :strategyName 
+        and p.quantity != 0 
+        and p.security.securityFamily.tradeable = true 
+        order by p.security.id 
+    ]]>
+    </query>
+
+    <query name='Position.findOpenFXPositions'>
+    <![CDATA[
+        select p 
+        from PositionImpl as p 
+        join p.security as s 
+        where p.quantity != 0 
+        and s.class  = ForexImpl 
+        order by p.security.id 
+    ]]>
+    </query>
+
+    <query name='Position.findOpenFXPositionsAggregated'>
+    <![CDATA[
+        select new Position(sum(p.quantity), sum(p.cost), p.security) 
+        from PositionImpl as p 
+        join p.security as s 
+        where s.class  = ForexImpl 
+        group by p.security.id 
+        having sum(p.quantity) != 0 
+        order by p.security.id 
+    ]]>
+    </query>
+    
+    <query name='Position.findOpenFXPositionsByStrategy'>
+    <![CDATA[
+        select p 
+        from PositionImpl as p 
+        join p.security as s 
+        where p.strategy.name = :strategyName 
+        and p.quantity != 0 
+        and s.class  = ForexImpl 
+        order by p.security.id 
+    ]]>
+    </query>
+
+    <query name='Position.findExpirablePositions'>
+    <![CDATA[
+        select p 
+        from ExpirableI as e 
+        join e.positions as p 
+        where p.quantity != 0 
+        and e.expiration <= :currentTime 
+    ]]>
+    </query>
+
+    <query name='Position.findPersistent'>
+    <![CDATA[
+        from PositionImpl 
+        where persistent = true 
+    ]]>
+    </query>
+
+    <query name='Position.findNonPersistent'>
+    <![CDATA[
+        from PositionImpl 
+        where persistent = false 
+    ]]>
+    </query>
+
+    <query name='Position.findOpenPositionsAggregated'>
+    <![CDATA[
+        select new Position(sum(p.quantity), sum(p.cost), p.security) 
+        from PositionImpl as p 
+        group by p.security.id 
+        having sum(p.quantity) != 0 
+        order by p.security.id 
+    ]]>
+    </query>
+
+    <!-- Position DAO queries ends-->
+    
+    <!-- Subscription DAO queries starts -->
+    
+    <query name='Subscription.findByStrategy'>
+    <![CDATA[
+        from SubscriptionImpl 
+        where strategy.name = :strategyName 
+        order by security.id 
+    ]]>
+    </query>
+    
+    <query name='Subscription.findByStrategyInclProps'>
+    <![CDATA[
+        from SubscriptionImpl as s left outer join fetch s.props as p where s.strategy.name = :strategyName order by s.security.id
+    ]]>
+    </query>    
+    
+    <query name='Subscription.findByStrategyAndSecurity'>
+    <![CDATA[
+        from SubscriptionImpl 
+        where strategy.name = :strategyName 
+        and security.id = :securityId 
+    ]]>
+    </query>
+
+    <query name='Subscription.findByStrategySecurityAndFeedType'>
+    <![CDATA[
+        from SubscriptionImpl 
+        where strategy.name = :strategyName 
+        and security.id = :securityId 
+        and feedType = :feedType 
+    ]]>
+    </query>
+    
+    <query name='Subscription.findBySecurityAndFeedTypeForAutoActivateStrategies'>
+    <![CDATA[
+        from SubscriptionImpl as s 
+        where s.strategy.autoActivate = true 
+        and s.security.id = :securityId 
+        and s.feedType = :feedType 
+        order by s.id 
+    ]]>
+    </query>
+
+    <query name='Subscription.findNonPersistent'>
+    <![CDATA[
+        from SubscriptionImpl 
+        where persistent = false 
+    ]]>
+    </query>
+
+    <query name='Subscription.findNonPositionSubscriptions'>
+    <![CDATA[
+        from SubscriptionImpl as s 
+        where s.strategy.name = :strategyName 
+        and s.security not in 
+            (select p.security 
+            from PositionImpl as p 
+            where p.strategy.name = :strategyName 
+            and p.quantity != 0) 
+    ]]>
+    </query>
+    
+    <query name='Subscription.findNonPositionSubscriptionsByType'>
+    <![CDATA[
+        select s2 
+        from SubscriptionImpl as s2 
+        join s2.security as s 
+        where s2.strategy.name = :strategyName 
+        and s not in 
+            (select p.security 
+            from PositionImpl as p 
+            where p.strategy.name = :strategyName 
+            and p.quantity != 0) 
+        and s.class = :type 
+    ]]>
+    </query>
+    
+    <query name='Subscription.findSubscribedAndFeedTypeForAutoActivateStrategies'>
+    <![CDATA[   
+        from SubscriptionImpl as su 
+        join fetch su.security as s
+        where su.strategy.autoActivate = true 
+        order by s.id, su.feedType 
+    ]]>
+    </query>
+
+    <!-- Subscription DAO queries ends -->
+    
+    <!-- Transaction DAO queries starts -->
+    
+    <query name='Transaction.findByStrategy'>
+    <![CDATA[
+        from TransactionImpl as t 
+        where t.strategy.name = :strategyName 
+        order by t.id 
+    ]]>
+    </query>
+    
+    <query name='Transaction.findDailyTransactions'>
+    <![CDATA[
+        from TransactionImpl as t
+        join fetch t.strategy
+        join fetch t.security as s
+        join fetch s.securityFamily
+        left join fetch t.account
+        where t.dateTime >= :curdate
+        order by t.dateTime desc 
+    ]]>
+    </query>
+    
+    <query name='Transaction.findDailyTransactionsByStrategy'>
+    <![CDATA[
+        from TransactionImpl as t 
+        join fetch t.strategy
+        join fetch t.security as s
+        join fetch s.securityFamily
+        left join fetch t.account
+        where t.strategy.name = :strategyName 
+        and t.dateTime >= :curdate
+        order by t.dateTime desc 
+    ]]>
+    </query>
+    
+    <query name='Transaction.findAllTradesInclSecurity'>
+    <![CDATA[
+        from TransactionImpl as t 
+        join fetch t.security 
+        where t.type = 'BUY' 
+        or t.type = 'SELL' 
+        or t.type = 'EXPIRATION' 
+        or t.type = 'TRANSFER' 
+        order by t.dateTime 
+    ]]>
+    </query>
+    
+    <query name='Transaction.findCashflowsByStrategyAndMinDate'>
+    <![CDATA[
+        from TransactionImpl as t 
+        where (t.type = 'CREDIT' 
+            or t.type = 'DEBIT' 
+            or t.type = 'INTREST_PAID' 
+            or t.type = 'INTREST_RECEIVED' 
+            or t.type = 'DIVIDEND' 
+            or t.type = 'FEES' 
+            or t.type = 'REFUND' 
+            or t.type = 'REBALANCE') 
+        and t.strategy.name = :strategyName 
+        and t.dateTime > :minDate 
+        order by t.dateTime 
+    ]]>
+    </query>
+    
+    <query name='Transaction.findByMaxDate'>
+    <![CDATA[
+        from TransactionImpl as t 
+        where t.dateTime <= :maxDate 
+        order by t.dateTime 
+    ]]>
+    </query>
+    
+    <query name='Transaction.findByStrategyAndMaxDate'>
+    <![CDATA[
+        from TransactionImpl as t 
+        where t.strategy.name = :strategyName 
+        and t.dateTime <= :maxDate 
+        order by t.dateTime 
+    ]]>
+    </query>
+         
+    <!-- Transaction DAO queries Ends -->
+     
+    <!-- Bar DAO queries Starts -->
+    
+    <sql-query name='Bar.findDailyBarsFromTicks'>
+    <![CDATA[
+        select cast(right(UUID_SHORT(),9) as unsigned) as id, 
+        t.security_fk, 
+        date(t.date_time) as date_time, 
+        'DAY_1' as bar_size, 
+        cast(substring_index(group_concat((case f.tradeable when true then (t.bid + t.ask) / 2 else t.last end) order by t. date_time),',',1) as decimal (12,5)) as open, 
+        max(case f.tradeable when true then (t.bid + t.ask) / 2 else t.last end) as high, 
+        min(case f.tradeable when true then (t.bid + t.ask) / 2 else t.last end) as low, 
+        cast(substring_index(group_concat((case f.tradeable when true then (t.bid + t.ask) / 2 else t.last end) order by t.date_time desc),',',1) as decimal (12,5)) as close, 
+        sum(t.vol) as vol, 
+        0 as open_intrest, 
+        0 as settlement 
+        from tick as t 
+        join security as s on t.security_fk = s.id 
+        join security_family as f on s.security_family_fk = f.id 
+        where t.security_fk = :securityId 
+        and date_time >= :minDate 
+        and date_time <= :maxDate 
+        group by t.security_fk, date(t.date_time) 
+    ]]>
+    </sql-query>
+    
+     <query name='Bar.findBarsBySecurityAndBarSize'>
+    <![CDATA[
+        from BarImpl 
+        where security.id = :securityId 
+        and barSize = :barSize 
+        order by dateTime desc 
+    ]]>
+    </query>
+    
+    <query name='Bar.findBarsBySecurityBarSizeAndMinDate'>
+    <![CDATA[
+        from BarImpl 
+        where security.id = :securityId 
+        and barSize = :barSize 
+        and dateTime >= :minDate 
+        order by dateTime desc 
+    ]]>
+    </query>
+    
+    <query name='Bar.findSubscribedByTimePeriodAndBarSize'>
+    <![CDATA[ 
+        select b 
+        from BarImpl as b 
+        join fetch b.security  
+        join b.security.subscriptions as s
+        where s != null 
+        and b.dateTime >= :minDate 
+        and b.dateTime < :maxDate 
+        and b.barSize = :barSize 
+        order by b.dateTime 
+    ]]>
+    </query>
+    
+    <!-- Bar DAO queries Ends -->
+    
+    <!-- Tick DAO queries Starts -->
+    
+    <query name='Tick.findBySecurity'>
+    <![CDATA[
+        from TickImpl as s 
+        where s.security.id = :securityId 
+        order by s.dateTime 
+    ]]>
+    </query>
+    
+    <query name='Tick.findTicksBySecurityAndMinDate'>
+    <![CDATA[
+        from TickImpl as t 
+        where t.security.id = :securityId 
+        and t.dateTime >= :minDate 
+        and t.dateTime < :maxDate
+        order by t.dateTime asc 
+    ]]>
+    </query>
+    
+    <query name='Tick.findTicksBySecurityAndMaxDate'>
+    <![CDATA[
+        from TickImpl as t 
+        where t.security.id = :securityId 
+        and t.dateTime <= :maxDate 
+        and t.dateTime > :minDate
+        order by t.dateTime desc 
+    ]]>
+    </query>
+    
+    <sql-query name='Tick.findDailyTickIdsBeforeTime'>
+    <![CDATA[
+        select t1.id 
+        from tick as t1 
+        join (select max(id) as id 
+            from tick 
+            where security_fk = :securityId 
+            and time(date_time) <= time(:time) 
+            group by date(date_time)) 
+        as t2 on t1.id = t2.id 
+        order by t1.date_time asc 
+    ]]>
+    </sql-query>
+    
+    <sql-query name='Tick.findDailyTickIdsAfterTime'>
+    <![CDATA[
+        select t1.id 
+        from tick as t1 
+        join (select min(id) as id 
+            from tick 
+            where security_fk = :securityId 
+            and time(date_time) >= time(:time) 
+            group by date(date_time) ) 
+        as t2 on t1.id = t2.id 
+        order by t1.date_time asc 
+    ]]>
+    </sql-query>
+    
+    <sql-query name='Tick.findHourlyTickIdsBeforeMinutesByMinDate'>
+    <![CDATA[
+        select t1.id 
+        from tick as t1 
+        join (select max(id) as id 
+            from tick 
+            where security_fk = :securityId 
+            and MINUTE(date_time) <= :minutes 
+            and date_time >= :minDate 
+            group by DATE_FORMAT(date_time, '%Y-%m-%d-%H') ) 
+        as t2 on t1.id = t2.id 
+        order by t1.date_time asc 
+    ]]>
+    </sql-query>
+    
+    <sql-query name='Tick.findHourlyTickIdsAfterMinutesByMinDate'>
+    <![CDATA[
+        select t1.id 
+        from tick as t1 
+        join (select min(id) as id 
+            from tick 
+            where security_fk = :securityId 
+            and MINUTE(date_time) >= :minutes 
+            and date_time >= :minDate 
+            group by DATE_FORMAT(date_time, '%Y-%m-%d-%H')) 
+        as t2 on t1.id = t2.id 
+        order by t1.date_time asc 
+    ]]>
+    </sql-query>
+    
+    <query name='Tick.findByIdsInclSecurityAndUnderlying'>
+    <![CDATA[
+        from TickImpl as t 
+        left join fetch t.security as s 
+        left join fetch s.underlying as ul 
+        where t.id in (:ids) 
+        order by t.dateTime asc 
+    ]]>
+    </query>
+    
+    <query name='Tick.findSubscribedByTimePeriod'>
+    <![CDATA[
+        select t 
+        from TickImpl as t 
+        join t.security.subscriptions as s 
+        where s != null 
+        and t.dateTime >= :minDate 
+        and t.dateTime < :maxDate 
+        order by t.dateTime 
+    ]]>
+    </query>
+    
+    <!-- Tick DAO queries Ends -->
+    
+    <!-- Property DAO queries Starts -->
+    
+    <query name='Property.findNonPersistent'>
+    <![CDATA[
+        from PropertyImpl 
+        where persistent = false 
+    ]]>
+    </query>
+    
+    <!-- Property DAO queries Ends -->
+    
+    <!-- Combination DAO queries Starts -->
+    
+    <query name='Combination.findSubscribedByStrategy'>
+    <![CDATA[
+        select distinct c 
+        from CombinationImpl as c 
+        join c.subscriptions as s 
+        where s.strategy.name = :strategyName 
+    ]]>
+    </query>
+    
+    <query name='Combination.findSubscribedByStrategyAndUnderlying'>
+    <![CDATA[
+        select distinct c 
+        from CombinationImpl as c 
+        join c.underlying as ul 
+        join c.subscriptions as s 
+        where s.strategy.name = :strategyName 
+        and ul.id = :underlyingId 
+    ]]>
+    </query>
+    
+    <query name='Combination.findSubscribedByStrategyAndComponent'>
+    <![CDATA[
+        select distinct s 
+        from CombinationImpl as s 
+        join s.components as c 
+        join s.subscriptions as su 
+        where su.strategy.name = :strategyName 
+        and c.security.id = :securityId 
+    ]]>
+    </query>
+    
+    <query name='Combination.findSubscribedByStrategyAndComponentType'>
+    <![CDATA[
+        select distinct s 
+        from CombinationImpl as s 
+        join s.components as c 
+        join s.subscriptions as su 
+        join c.security as se 
+        where su.strategy.name = :strategyName 
+        and se.class = :type 
+    ]]>
+    </query>
+    
+    <query name='Combination.findSubscribedByStrategyAndComponentTypeWithZeroQty'>
+    <![CDATA[
+        select distinct s 
+        from CombinationImpl as s 
+        join s.components as c 
+        join s.subscriptions as su 
+        join c.security as se 
+        where su.strategy.name = :strategyName 
+        and se.class = :type 
+        and c.quantity = 0 
+    ]]>
+    </query>
+    
+    <query name='Combination.findNonPersistent'>
+    <![CDATA[
+        from CombinationImpl 
+        where persistent = false 
+    ]]>
+    </query>
+
+    <!-- Combination DAO queries Ends -->
+    
+    <!-- Component DAO queries Starts -->
+    
+    <query name='Component.findSubscribedByStrategyInclSecurity'>
+    <![CDATA[
+        select distinct c 
+        from ComponentImpl as c 
+        join fetch c.security as s 
+        join fetch c.combination as c2 
+        join c2.subscriptions as su 
+        where su.strategy.name = :strategyName 
+    ]]>
+    </query>
+    
+    <query name='Component.findSubscribedBySecurityInclSecurity'>
+    <![CDATA[
+        select distinct c 
+        from ComponentImpl as c 
+        join fetch c.security as s 
+        join fetch c.combination as c2 
+        join c2.subscriptions as su 
+        where su != null 
+        and s.id = :securityId 
+    ]]>
+    </query>
+    
+     <query name='Component.findSubscribedByStrategyAndSecurityInclSecurity'>
+    <![CDATA[
+        select distinct c 
+        from ComponentImpl as c 
+        join fetch c.security as s 
+        join fetch c.combination as c2 
+        join c2.subscriptions as su 
+        where su.strategy.name = :strategyName 
+        and s.id = :securityId 
+    ]]>
+    </query>
+    
+     <query name='Component.findNonPersistent'>
+    <![CDATA[   
+        from ComponentImpl 
+        where persistent = false 
+    ]]>
+    </query>
+    
+    <!-- Component DAO queries Ends -->
+    
+    <!-- EasyToBorrow DAO queries Starts -->
+    
+    <query name='EasyToBorrow.findByDateAndBroker'>
+    <![CDATA[
+        from EasyToBorrowImpl 
+        where date = :date 
+        and broker = :broker 
+    ]]>
+    </query>
+
+    <!-- EasyToBorrow DAO queries Ends -->
+    
+    <!-- Forex DAO queries Starts -->
+    
+    <query name='Forex.findByBaseAndTransactionCurrency'>
+    <![CDATA[
+        from ForexImpl as f 
+        join fetch f.securityFamily
+        where f.baseCurrency = :baseCurrency 
+        and f.securityFamily.currency = :transactionCurrency 
+    ]]>
+    </query>
+    
+    <!-- Forex DAO queries Ends -->
+    
+    <!-- Future DAO queries Starts -->
+    
+    <query name='Future.findByExpirationInclSecurityFamily'>
+    <![CDATA[
+        from FutureImpl f 
+        join fetch f.securityFamily 
+        where f.securityFamily.id = :futureFamilyId 
+        and f.expiration = :expirationDate 
+    ]]>
+    </query>
+
+    <query name='Future.findByMinExpiration'>
+    <![CDATA[
+        select f 
+        from FutureImpl as f 
+        where f.securityFamily.id = :futureFamilyId 
+        and f.expiration >= :targetExpirationDate 
+        order by f.expiration asc 
+    ]]>
+    </query>
+    
+    <query name='Future.findSubscribedFutures'>
+    <![CDATA[
+        select distinct f 
+        from FutureImpl as f 
+        join f.subscriptions as s 
+        where s != null 
+        order by f.id 
+    ]]>
+    </query>
+
+    <query name='Future.findBySecurityFamily'>
+    <![CDATA[   
+        select f 
+        from FutureImpl as f 
+        join f.securityFamily as sf 
+        where sf.id = :securityFamilyId 
+    ]]>
+    </query>
+
+    <query name='Future.findByExpirationMonth'>
+    <![CDATA[
+        from FutureImpl f 
+        where f.securityFamily.id = :futureFamilyId 
+        and last_day(f.expiration) = :expirationMonth 
+    ]]>
+    </query>
+ 
+    <!-- Future DAO queries Ends -->
+
+    <!-- FutureFamily DAO queries Starts -->
+        
+    <query name='FutureFamily.findByUnderlying'>
+    <![CDATA[
+        from FutureFamilyImpl as f 
+        where f.underlying.id = :underlyingId 
+    ]]>
+    </query>
+    
+    <!-- FutureFamily DAO queries Ends -->
+
+    <!-- IntrestRate DAO queries Starts -->
+    
+    <query name='IntrestRate.findByCurrencyAndDuration'>
+    <![CDATA[
+        from IntrestRateImpl as i 
+        where i.securityFamily.currency = :currency 
+        and i.duration =:duration 
+    ]]>
+    </query>
+    
+    <!-- IntrestRate DAO queries Ends -->
+    
+    <!-- Option DAO queries Starts -->
+    
+    <query name='Option.findByMinExpirationAndMinStrikeDistance'>
+    <![CDATA[
+        from OptionImpl as so 
+        where so.underlying.id = :underlyingId 
+        and so.expiration >= :targetExpirationDate 
+        and so.type = :optionType 
+        order by so.expiration asc, abs(:underlyingSpot - so.strike) asc 
+    ]]>
+    </query>
+
+    <query name='Option.findByMinExpirationAndStrikeLimit'>
+    <![CDATA[
+        from OptionImpl as so 
+        where so.underlying.id = :underlyingId
+        and so.expiration >= :targetExpirationDate 
+        and so.type = :optionType
+        and (case so.type when 'PUT' then so.strike else -so.strike end)  <= (case so.type when 'PUT' then 1.0 else -1.0 end) * :underlyingSpot
+        order by so.expiration asc, (case so.type when 'PUT' then -so.strike else so.strike end) asc 
+    ]]>
+    </query>
+
+    <query name='Option.findByMinExpirationAndMinStrikeDistanceWithTicks'>
+    <![CDATA[
+        select so from OptionImpl as so, 
+        TickImpl as t 
+        where so.id = t.security.id
+        and so.underlying.id = :underlyingId
+        and so.expiration >= :targetExpirationDate
+        and so.type = :optionType
+        and t.dateTime = :date
+        order by so.expiration asc, abs(:underlyingSpot - so.strike) asc 
+    ]]>
+    </query>
+
+    <query name='Option.findByMinExpirationAndStrikeLimitWithTicks'>
+    <![CDATA[
+        select so from OptionImpl as so, 
+        TickImpl as t 
+        where so.id = t.security.id
+        and so.underlying.id = :underlyingId
+        and so.expiration >= :targetExpirationDate
+        and so.type = :optionType
+        and t.dateTime = :date
+        and (case so.type when 'PUT' then so.strike else -so.strike end)  <= (case so.type when 'PUT' then 1.0 else -1.0 end) * :underlyingSpot
+        order by so.expiration asc, (case so.type when 'PUT' then -so.strike else so.strike end) asc 
+    ]]>
+    </query>
+    
+    <query name='Option.findSubscribedOptions'>
+    <![CDATA[
+        select distinct s 
+        from OptionImpl as s 
+        join s.subscriptions as s2 
+        where s2 != null 
+        order by s.id 
+    ]]>
+    </query>
+    
+    <query name='Option.findBySecurityFamily'>
+    <![CDATA[
+        select s from OptionImpl as s 
+        join s.securityFamily as sf 
+        where sf.id = :securityFamilyId 
+    ]]>
+    </query>
+    
+    <query name='Option.findExpirationsByUnderlyingAndDate'>
+    <![CDATA[
+        select distinct s.expiration 
+        from TickImpl as t 
+        join t.security as s 
+        where t.dateTime = :dateTime 
+        and s.class = OptionImpl 
+        and s.underlying.id = :underlyingId 
+        order by s.expiration 
+    ]]>
+    </query>
+    
+    <query name='Option.findByExpirationStrikeAndType'>
+    <![CDATA[
+        from OptionImpl o 
+        where o.securityFamily.id = :optionFamilyId 
+        and o.expiration = :expirationDate 
+        and o.strike = :strike 
+        and o.type = :type 
+    ]]>
+    </query>
+
+    <!-- Option DAO queries Ends -->
+    
+    <!-- OptionFamily DAO queries Starts -->
+    
+    <query name='OptionFamily.findByUnderlying'>
+    <![CDATA[
+        from OptionFamilyImpl as f 
+        where f.underlying.id = :underlyingId 
+    ]]>
+    </query>
+
+    <!-- OptionFamily DAO queries Ends -->
+
+    <!-- Security DAO queries Starts --> 
+   
+    <query name='Security.findByIds'>
+    <![CDATA[
+        from SecurityImpl as s 
+        where s.id in (:ids) order by s.id     
+    ]]>
+    </query>
+    
+    <query name='Security.findBySymbol'>
+    <![CDATA[
+        from SecurityImpl as s 
+        where s.symbol = :symbol 
+    ]]>
+    </query>
+    
+    <query name='Security.findByIsin'>
+    <![CDATA[
+        from SecurityImpl as s 
+        where s.isin = :isin 
+    ]]>
+    </query>
+    
+    <query name='Security.findByBbgid'>
+    <![CDATA[
+        from SecurityImpl as s 
+        where s.bbgid = :bbgid 
+    ]]>
+    </query>
+        
+    <query name='Security.findByRic'>
+    <![CDATA[
+        from SecurityImpl as s 
+        where s.ric = :ric 
+    ]]>
+    </query>
+    
+    <query name='Security.findByConid'>
+    <![CDATA[
+        from SecurityImpl as s 
+        where s.conid = :conid 
+    ]]>
+    </query>
+
+    <query name='Security.findByTtid'>
+        <![CDATA[
+        from SecurityImpl as s
+        where s.ttid = :ttid
+    ]]>
+    </query>
+
+    <query name='Security.findByIdInclUnderlyingFamilyAndExchange'>
+    <![CDATA[
+        from SecurityImpl as s left 
+        join fetch s.underlying as ul 
+        join fetch s.securityFamily as f 
+        left join fetch f.exchange
+        where s.id = :id 
+    ]]>
+    </query>
+    
+    <query name='Security.findSubscribedForAutoActivateStrategies'>
+    <![CDATA[
+        select distinct s 
+        from SecurityImpl as s 
+        join s.subscriptions as su 
+        where su.strategy.autoActivate = true 
+        order by s.id 
+    ]]>
+    </query>
+            
+    <query name='Security.findSubscribedByFeedTypeForAutoActivateStrategiesInclFamily'>
+    <![CDATA[
+        select distinct s 
+        from SecurityImpl as s 
+        join fetch s.securityFamily as f 
+        join s.subscriptions as su 
+        where su.strategy.autoActivate = true 
+        and su.feedType = :feedType 
+        order by s.id 
+    ]]>
+    </query>
+
+    <query name='Security.findSubscribedByFeedTypeAndStrategyInclFamily'>
+    <![CDATA[
+        select distinct s 
+        from SecurityImpl as s 
+        join fetch s.securityFamily as f 
+        join s.subscriptions as su 
+        where su.strategy.name = :strategyName 
+        and su.feedType = :feedType 
+        order by s.id 
+    ]]>
+    </query>
+
+    <query name='Security.findSecurityIdByIsin'>
+    <![CDATA[
+        select s.id 
+        from SecurityImpl as s 
+        where s.isin = :isin 
+    ]]>
+    </query>
+
+    <query name='Security.findByIdInclFamilyUnderlyingExchangeAndBrokerParameters'>
+    <![CDATA[
+        from SecurityImpl as s
+        left join fetch s.underlying as ul
+        join fetch s.securityFamily as f
+        left join fetch f.brokerParameters as bp
+        left join fetch f.exchange as ex
+        where s.id = :id
+    ]]>
+    </query>
+
+    <!-- Security DAO queries Ends -->
+    
+    <!-- SecurityFamily DAO queries Starts -->
+    
+    <query name='SecurityFamily.findByName'>
+    <![CDATA[   
+        from SecurityFamilyImpl as sf 
+        where sf.name = :name 
+    ]]>
+    </query>
+    
+    <!-- SecurityFamily DAO queries Ends -->
+    
+    <!-- SecurityReference DAO queries Starts -->
+    
+    <query name='SecurityReference.findByOwnerAndName'>
+    <![CDATA[   
+        from SecurityReferenceImpl as sr 
+        join fetch sr.target as target
+        join fetch target.securityFamily
+        where sr.owner.id = :ownerSecurityId 
+        and sr.name = :name 
+    ]]>
+    </query>
+    
+    <!-- SecurityReference DAO queries Ends -->    
+
+    <!-- Stock DAO queries Starts -->
+
+    <query name='Stock.findBySectory'>
+    <![CDATA[
+        from StockImpl 
+        where gics like concat(:code, '______') 
+    ]]>
+    </query>
+    
+    <query name='Stock.findByIndustryGroup'>
+    <![CDATA[
+        from StockImpl 
+        where gics like concat(:code, '____')  
+    ]]>
+    </query>
+    
+    <query name='Stock.findByIndustry'>
+    <![CDATA[
+        from StockImpl 
+        where gics like concat(:code, '__') 
+    ]]>
+    </query>
+
+    <query name='Stock.findBySubIndustry'>
+    <![CDATA[
+        from StockImpl 
+        where gics = :code 
+    ]]>
+    </query>
+
+    <query name='Stock.findStocksBySecurityFamily'>
+    <![CDATA[
+        select s from StockImpl as s 
+        join s.securityFamily as sf 
+        where sf.id = :securityFamilyId 
+    ]]>
+    </query>
+
+    <!-- Stock DAO queries Ends -->
+    
+    <!-- Exchange DAO queries Starts -->
+    
+    <query name='Exchange.findByName'>
+    <![CDATA[   
+        from ExchangeImpl as e 
+        where e.name = :name
+    ]]>
+    </query>
+    
+    <!-- Exchange DAO queries Ends -->        
+    
+    <!-- CashBalance DAO queries Starts -->
+    
+    <query name='CashBalance.findCashBalancesByStrategy'>
+    <![CDATA[
+        from CashBalanceImpl as c 
+        where c.strategy.name = :strategyName 
+    ]]>
+    </query>
+    
+    <query name='CashBalance.findByStrategyAndCurrency'>
+    <![CDATA[
+        from CashBalanceImpl 
+        where currency = :currency 
+        and strategy = :strategy 
+    ]]>
+    </query>
+    
+    <query name='CashBalance.findByStrategyAndCurrencyLocked'>
+    <![CDATA[
+        from CashBalanceImpl 
+        where currency = :currency 
+        and strategy = :strategy 
+    ]]>
+    </query>
+    
+    <query name='CashBalance.findHeldCurrencies'>
+    <![CDATA[
+        select distinct c.currency 
+        from CashBalanceImpl as c 
+    ]]>
+    </query>
+    
+    <query name='CashBalance.findHeldCurrenciesByStrategy'>
+    <![CDATA[
+        select distinct c.currency 
+        from CashBalanceImpl as c 
+        left join c.strategy as s 
+        where s.name = :strategyName 
+    ]]>
+    </query>
+
+    <!-- CashBalance DAO queries Ends -->
+
+    <!-- Measurement DAO queries Starts -->
+
+    <query name='Measurement.findMeasurementByDate'>
+    <![CDATA[
+        from MeasurementImpl as m 
+        where m.strategy.name = :strategyName 
+        and m.name = :name 
+        and m.dateTime = :dateTime 
+    ]]>
+    </query>
+
+    <query name='Measurement.findMeasurementsByMaxDate'>
+    <![CDATA[
+        from MeasurementImpl as m 
+        where m.strategy.name = :strategyName 
+        and m.name = :name 
+        and m.dateTime <= :maxDateTime 
+        order by m.dateTime desc 
+    ]]>
+    </query>
+
+    <query name='Measurement.findAllMeasurementsByMaxDate'>
+    <![CDATA[
+        from MeasurementImpl as m 
+        where m.strategy.name = :strategyName 
+        and m.dateTime <= :maxDateTime 
+        order by m.dateTime desc 
+    ]]>
+    </query>
+
+    <query name='Measurement.findMeasurementsByMinDate'>
+    <![CDATA[
+        from MeasurementImpl as m 
+        where m.strategy.name = :strategyName 
+        and m.name = :name 
+        and m.dateTime >= :minDateTime 
+        order by m.dateTime 
+    ]]>
+    </query>
+    
+    <query name='Measurement.findAllMeasurementsByMinDate'>
+    <![CDATA[
+        from MeasurementImpl as m 
+        where m.strategy.name = :strategyName 
+        and m.dateTime >= :minDateTime 
+        order by m.dateTime 
+    ]]>
+    </query>
+    
+    <!-- Measurement DAO queries Ends -->
+
+    <!-- OrderPreference DAO queries Starts -->
+
+    <query name='OrderPreference.findByName'>
+        <![CDATA[
+        from OrderPreferenceImpl op
+        left outer join fetch op.defaultAccount
+        where op.name = :name
+    ]]>
+    </query>
+
+    <!-- OrderPreference DAO queries Ends -->
+
+    <!-- PortfolioValue DAO queries Start -->
+
+    <query name='PortfolioValue.findByStrategyAndMinDate'>
+    <![CDATA[
+        from PortfolioValueImpl 
+        where dateTime >= :minDate 
+        and strategy.name = :strategyName 
+        order by dateTime 
+    ]]>
+    </query>
+
+    <!-- PortfolioValue DAO queries Ends -->
+
+    <!-- Order DAO queries Start -->
+
+    <sql-query name='Order.findLastIntOrderIdBySessionQualifier'>
+    <![CDATA[
+        select distinct cast(substring(o.int_id, length(a.`session_qualifier`) + 1) as decimal(12,0)) as order_id
+        from `order` as o 
+        join `account` as a on (o.`account_fk` = a.`id`)
+        where a.`session_qualifier` = :sessionQualifier
+        order by order_id desc 
+        limit 1 
+    ]]>
+    </sql-query>
+
+    <sql-query name='Order.findLastIntOrderIdByServiceType'>
+        <![CDATA[
+        select distinct cast(o.int_id as decimal(12,0)) as order_id
+        from `order` as o
+        join `account` as a on (o.`account_fk` = a.`id`)
+        where a.`order_service_type` = :orderServiceType
+        order by order_id desc
+        limit 1
+    ]]>
+    </sql-query>
+
+    <sql-query name='Order.findUnacknowledgedOrderIds'>
+    <![CDATA[
+        select o.id from `order` o 
+        left join order_status os2 on o.id = os2.order_fk 
+        where os2.id is null 
+    ]]>
+    </sql-query>
+
+    <query name='Order.findByIds'>
+    <![CDATA[
+        select o 
+        from OrderImpl o 
+        left outer join fetch o.orderProperties 
+        join fetch o.security s 
+        join fetch s.securityFamily sf 
+        left outer join fetch sf.brokerParameters 
+        join fetch o.strategy st 
+        left outer join fetch st.props 
+        join fetch o.account 
+        where o.id in :ids 
+    ]]>
+    </query>
+
+    <query name='Order.findByIntId'>
+    <![CDATA[
+        from OrderImpl where intId = :intId
+    ]]>
+    </query>
+
+    <query name='Order.findDailyOrders'>
+        <![CDATA[
+        from OrderImpl o
+        left outer join fetch o.orderProperties
+        join fetch o.account
+        join fetch o.strategy st
+        where o.dateTime >= :curdate
+        order by o.dateTime desc
+    ]]>
+    </query>
+
+    <query name='Order.findDailyOrdersByStrategy'>
+        <![CDATA[
+        from OrderImpl o
+        left outer join fetch o.orderProperties
+        join fetch o.account
+        join fetch o.strategy st
+        where o.strategy.name = :strategyName
+        and o.dateTime >= :curdate
+        order by o.dateTime desc
+    ]]>
+    </query>
+
+    <!-- Order DAO queries Ends -->
+    
+    <!-- OrderStatus DAO queries Starts -->
+
+    <sql-query name='OrderStatus.findPending'>
+    <![CDATA[
+        select os.* 
+        from order_status os 
+        left join order_status os2 on (substring_index(os.int_id, '.', 1) = substring_index(os2.int_id, '.', 1) 
+        and (os.date_time < os2.date_time or (os.date_time = os2.date_time and os.sequence_number < os2.sequence_number))) 
+        where os2.id is null 
+        and (os.status = 'OPEN' or os.status = 'SUBMITTED' or os.status = 'PARTIALLY_EXECUTED') 
+    ]]>
+    </sql-query>
+
+    <!-- OrderStatus DAO queries Ends -->
+
+
+</hibernate-mapping>

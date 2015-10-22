@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,16 +12,17 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.adapter.fix;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.jmx.export.annotation.ManagedAttribute;
@@ -30,8 +31,9 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
+import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.enumeration.ConnectionState;
-import ch.algotrader.ordermgmt.OrderIdGenerator;
+import ch.algotrader.adapter.OrderIdGenerator;
 import ch.algotrader.service.LookupService;
 import ch.algotrader.util.collection.IntegerMap;
 import quickfix.Session;
@@ -43,11 +45,11 @@ import quickfix.SocketInitiator;
  * This class an its public methods are available through JMX.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 @ManagedResource(objectName = "ch.algotrader.adapter.fix:name=FixAdapter")
-public class ManagedFixAdapter extends DefaultFixAdapter implements ApplicationContextAware {
+public class ManagedFixAdapter extends DefaultFixAdapter implements ApplicationContextAware, InitializingBean {
+
+    private final Map<String, ExternalSessionStateHolder> fixSessionStateHolderMap;
 
     private volatile ApplicationContext applicationContext;
 
@@ -57,11 +59,22 @@ public class ManagedFixAdapter extends DefaultFixAdapter implements ApplicationC
             final FixEventScheduler eventScheduler,
             final OrderIdGenerator orderIdGenerator) {
         super(socketInitiator, lookupService, eventScheduler, orderIdGenerator);
+        this.fixSessionStateHolderMap = new ConcurrentHashMap<>();
     }
 
     @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+    public void setApplicationContext(final ApplicationContext applicationContext) throws BeansException {
+
         this.applicationContext = applicationContext;
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        Map<String, ExternalSessionStateHolder> map = applicationContext.getBeansOfType(ExternalSessionStateHolder.class);
+        for (Map.Entry<String, ExternalSessionStateHolder> entry : map.entrySet()) {
+            ExternalSessionStateHolder fixSessionStateHolder = entry.getValue();
+            fixSessionStateHolderMap.put(fixSessionStateHolder.getName(), fixSessionStateHolder);
+        }
     }
 
     /**
@@ -70,11 +83,10 @@ public class ManagedFixAdapter extends DefaultFixAdapter implements ApplicationC
     @ManagedAttribute
     public Map<String, ConnectionState> getApplicationFactoryConnectionStates() {
 
-        Collection<FixApplicationFactory> applicationFactories = this.applicationContext.getBeansOfType(FixApplicationFactory.class).values();
-
-        Map<String, ConnectionState> connectionStates = new HashMap<String, ConnectionState>();
-        for (FixApplicationFactory applicationFactory : applicationFactories) {
-            connectionStates.put(applicationFactory.getName(), applicationFactory.getConnectionState());
+        Map<String, ConnectionState> connectionStates = new HashMap<>(fixSessionStateHolderMap.size());
+        for (Map.Entry<String, ExternalSessionStateHolder> entry : fixSessionStateHolderMap.entrySet()) {
+            ExternalSessionStateHolder fixSessionStateHolder = entry.getValue();
+            connectionStates.put(fixSessionStateHolder.getName(), fixSessionStateHolder.getConnectionState());
         }
         return connectionStates;
     }
@@ -86,7 +98,7 @@ public class ManagedFixAdapter extends DefaultFixAdapter implements ApplicationC
     @ManagedAttribute
     public Map<String, Boolean> getSessionLogonStates() {
 
-        Map<String, Boolean> logonStates = new HashMap<String, Boolean>();
+        Map<String, Boolean> logonStates = new HashMap<>();
         for (SessionID sessionId : getSocketInitiator().getSessions()) {
             Session session = Session.lookupSession(sessionId);
             logonStates.put(sessionId.getSessionQualifier(), session.isLoggedOn());

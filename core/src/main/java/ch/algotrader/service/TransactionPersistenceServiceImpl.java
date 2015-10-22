@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,8 +12,8 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.service;
 
@@ -22,28 +22,31 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.apache.commons.lang.Validate;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.hibernate.service.spi.ServiceException;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import ch.algotrader.accounting.PositionTrackerImpl;
 import ch.algotrader.config.CommonConfig;
+import ch.algotrader.dao.ClosePositionVOProducer;
+import ch.algotrader.dao.HibernateInitializer;
+import ch.algotrader.dao.OpenPositionVOProducer;
+import ch.algotrader.dao.PositionDao;
+import ch.algotrader.dao.TransactionDao;
+import ch.algotrader.dao.strategy.CashBalanceDao;
 import ch.algotrader.entity.Position;
-import ch.algotrader.entity.PositionDao;
 import ch.algotrader.entity.Transaction;
-import ch.algotrader.entity.TransactionDao;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.strategy.CashBalance;
-import ch.algotrader.entity.strategy.CashBalanceDao;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.enumeration.Currency;
-import ch.algotrader.esper.EngineLocator;
+import ch.algotrader.esper.Engine;
 import ch.algotrader.report.TradeReport;
-import ch.algotrader.util.MyLogger;
-import ch.algotrader.util.PositionUtil;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.collection.BigDecimalMap;
 import ch.algotrader.util.collection.Pair;
-import ch.algotrader.util.spring.HibernateSession;
 import ch.algotrader.vo.ClosePositionVO;
 import ch.algotrader.vo.CurrencyAmountVO;
 import ch.algotrader.vo.OpenPositionVO;
@@ -52,13 +55,11 @@ import ch.algotrader.vo.TradePerformanceVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
-@HibernateSession
+@Transactional(propagation = Propagation.SUPPORTS)
 public abstract class TransactionPersistenceServiceImpl implements TransactionPersistenceService {
 
-    private static Logger logger = MyLogger.getLogger(TransactionPersistenceServiceImpl.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(TransactionPersistenceServiceImpl.class);
 
     private final CommonConfig commonConfig;
 
@@ -72,26 +73,30 @@ public abstract class TransactionPersistenceServiceImpl implements TransactionPe
 
     private final TradeReport tradeReport;
 
+    private final Engine serverEngine;
+
     public TransactionPersistenceServiceImpl(
             final CommonConfig commonConfig,
             final PortfolioService portfolioService,
             final PositionDao positionDao,
             final TransactionDao transactionDao,
-            final CashBalanceDao cashBalanceDao) {
+            final CashBalanceDao cashBalanceDao,
+            final Engine serverEngine) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(portfolioService, "PortfolioService is null");
         Validate.notNull(positionDao, "PositionDao is null");
         Validate.notNull(transactionDao, "TransactionDao is null");
         Validate.notNull(cashBalanceDao, "CashBalanceDao is null");
+        Validate.notNull(serverEngine, "Engine is null");
 
         this.commonConfig = commonConfig;
         this.portfolioService = portfolioService;
         this.positionDao = positionDao;
         this.transactionDao = transactionDao;
         this.cashBalanceDao = cashBalanceDao;
-
-        tradeReport = new TradeReport();
+        this.serverEngine = serverEngine;
+        this.tradeReport = new TradeReport();
     }
 
     /**
@@ -119,33 +124,26 @@ public abstract class TransactionPersistenceServiceImpl implements TransactionPe
         if (security != null) {
 
             Position position;
-            if (commonConfig.isSimulation()) {
-                position = positionDao.findBySecurityAndStrategy(security.getId(), strategy.getName());
+            if (this.commonConfig.isSimulation()) {
+                position = this.positionDao.findBySecurityAndStrategy(security.getId(), strategy.getName());
             } else {
-                position = positionDao.findBySecurityAndStrategyIdLocked(security.getId(), strategy.getId());
+                position = this.positionDao.findBySecurityAndStrategyIdLocked(security.getId(), strategy.getId());
             }
             if (position == null) {
-                throw new TransactionServiceException("Position for strategy " + strategy.getName() +
+                throw new ServiceException("Position for strategy " + strategy.getName() +
                         " / security " + security.getId() + " not found ", null);
             }
 
             boolean existingOpenPosition = position.isOpen();
 
             // get the closePositionVO (must be done before closing the position)
-            closePositionVO = positionDao.toClosePositionVO(position);
+            closePositionVO = ClosePositionVOProducer.INSTANCE.convert(position);
 
             // process the transaction (adjust quantity, cost and realizedPL)
-            tradePerformance = PositionUtil.processTransaction(position, transaction);
+            tradePerformance = PositionTrackerImpl.INSTANCE.processTransaction(position, transaction);
 
-            // in case a position was closed reset exitValue and margin
-            if (!position.isOpen()) {
-
-                // set all values to null
-                position.setExitValue(null);
-                position.setMaintenanceMargin(null);
-            } else {
-
-                // reset the closePosition event
+            // in case a position is open reset the closePosition event
+            if (position.isOpen()) {
                 closePositionVO = null;
             }
 
@@ -154,32 +152,34 @@ public abstract class TransactionPersistenceServiceImpl implements TransactionPe
 
             // if no position was open before initialize the openPosition event
             if (!existingOpenPosition) {
-                openPositionVO = positionDao.toOpenPositionVO(position);
+                openPositionVO = OpenPositionVOProducer.INSTANCE.convert(position);
             }
         }
+
+        transaction.initializeSecurity(HibernateInitializer.INSTANCE);
 
         // add the amount to the corresponding cashBalance
         for (CurrencyAmountVO amount : transaction.getAttributions()) {
 
             Currency currency = amount.getCurrency();
             CashBalance cashBalance;
-            if (commonConfig.isSimulation()) {
-                cashBalance = cashBalanceDao.findByStrategyAndCurrency(strategy, currency);
+            if (this.commonConfig.isSimulation()) {
+                cashBalance = this.cashBalanceDao.findByStrategyAndCurrency(strategy, currency);
             } else {
-                cashBalance = cashBalanceDao.findByStrategyAndCurrencyLocked(strategy, currency);
+                cashBalance = this.cashBalanceDao.findByStrategyAndCurrencyLocked(strategy, currency);
             }
             if (cashBalance == null) {
-                throw new TransactionServiceException("Cash balance for strategy " + strategy.getName() +
+                throw new ServiceException("Cash balance for strategy " + strategy.getName() +
                         " / currency " + currency + " not found ", null);
             }
             cashBalance.setAmount(cashBalance.getAmount().add(amount.getAmount()));
         }
 
         // save a portfolioValue (if necessary)
-        portfolioService.savePortfolioValue(transaction);
+        this.portfolioService.savePortfolioValue(transaction);
 
         // create the transaction
-        transactionDao.create(transaction);
+        this.transactionDao.save(transaction);
 
         // prepare log message and propagate tradePerformance
         String logMessage = "executed transaction: " + transaction;
@@ -188,15 +188,13 @@ public abstract class TransactionPersistenceServiceImpl implements TransactionPe
             logMessage += ",profit=" + RoundUtil.getBigDecimal(tradePerformance.getProfit()) + ",profitPct=" + RoundUtil.getBigDecimal(tradePerformance.getProfitPct());
 
             // propagate the TradePerformance event
-            if (commonConfig.isSimulation() && EngineLocator.instance().hasServerEngine()) {
-                EngineLocator.instance().getServerEngine().sendEvent(tradePerformance);
-            }
+            this.serverEngine.sendEvent(tradePerformance);
 
             // log trade report
-            tradeReport.write(transaction, tradePerformance);
+            this.tradeReport.write(transaction, tradePerformance);
         }
 
-        logger.info(logMessage);
+        LOGGER.info(logMessage);
 
         // return PositionMutation event if existent
         return openPositionVO != null ? openPositionVO : closePositionVO != null ? closePositionVO : null;
@@ -226,28 +224,30 @@ public abstract class TransactionPersistenceServiceImpl implements TransactionPe
     public String resetCashBalances() {
 
         // get all existing cashBalances
-        Collection<CashBalance> existingCashBalances = cashBalanceDao.loadAll();
+        Collection<CashBalance> existingCashBalances = this.cashBalanceDao.loadAll();
 
         // sum all transactions
-        Collection<Transaction> transactions = transactionDao.loadAll();
-        BigDecimalMap<Pair<Strategy, Currency>> map = new BigDecimalMap<Pair<Strategy, Currency>>();
+        Collection<Transaction> transactions = this.transactionDao.loadAll();
+        BigDecimalMap<Pair<Strategy, Currency>> map = new BigDecimalMap<>();
         for (Transaction transaction : transactions) {
+
+            transaction.initializeSecurity(HibernateInitializer.INSTANCE);
 
             // process all currenyAmounts
             for (CurrencyAmountVO currencyAmount : transaction.getAttributions()) {
-                map.increment(new Pair<Strategy, Currency>(transaction.getStrategy(), currencyAmount.getCurrency()), currencyAmount.getAmount());
+                map.increment(new Pair<>(transaction.getStrategy(), currencyAmount.getCurrency()), currencyAmount.getAmount());
             }
         }
 
         // create cash balances
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         for (Map.Entry<Pair<Strategy, Currency>, BigDecimal> entry : map.entrySet()) {
 
             Strategy strategy = entry.getKey().getFirst();
             Currency currency = entry.getKey().getSecond();
-            BigDecimal amount = entry.getValue().setScale(commonConfig.getPortfolioDigits(), BigDecimal.ROUND_HALF_UP);
+            BigDecimal amount = entry.getValue().setScale(this.commonConfig.getPortfolioDigits(), BigDecimal.ROUND_HALF_UP);
 
-            CashBalance cashBalance = cashBalanceDao.findByStrategyAndCurrency(strategy, currency);
+            CashBalance cashBalance = this.cashBalanceDao.findByStrategyAndCurrency(strategy, currency);
             if (cashBalance != null) {
 
                 existingCashBalances.remove(cashBalance);
@@ -258,7 +258,7 @@ public abstract class TransactionPersistenceServiceImpl implements TransactionPe
                     cashBalance.setAmount(amount);
 
                     String info = "adjusted cashBalance " + cashBalance + " from " + oldAmount;
-                    logger.info(info);
+                    LOGGER.info(info);
                     buffer.append(info + "\n");
 
                 }
@@ -270,13 +270,13 @@ public abstract class TransactionPersistenceServiceImpl implements TransactionPe
                 cashBalance.setAmount(amount);
                 cashBalance.setStrategy(strategy);
 
-                cashBalanceDao.create(cashBalance);
+                this.cashBalanceDao.save(cashBalance);
 
                 // reverse-associate with strategy (after cashBalance has received an id)
                 strategy.getCashBalances().add(cashBalance);
 
                 String info = "created cashBalance " + cashBalance;
-                logger.info(info);
+                LOGGER.info(info);
                 buffer.append(info + "\n");
 
             }
@@ -289,11 +289,11 @@ public abstract class TransactionPersistenceServiceImpl implements TransactionPe
             strategy.getCashBalances().remove(cashBalance);
 
             String info = "removed cashBalance " + cashBalance;
-            logger.info(info);
+            LOGGER.info(info);
             buffer.append(info + "\n");
         }
 
-        cashBalanceDao.remove(existingCashBalances);
+        this.cashBalanceDao.deleteAll(existingCashBalances);
 
         return buffer.toString();
 

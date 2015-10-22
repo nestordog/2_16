@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,8 +12,8 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.starter;
 
@@ -34,17 +34,15 @@ import quickfix.SessionSettings;
  * Usage: {@code ReferenceDataStarter securityFamilyId1 securityFamilyId2}
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public class FixSessionInfoStarter {
 
     public static void main(String... args) throws Exception {
 
-        ServiceLocator instance = ServiceLocator.instance();
-        instance.init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
+        ServiceLocator serviceLocator = ServiceLocator.instance();
+        serviceLocator.init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
         try {
-            SessionSettings sessionSettings = instance.getContext().getBean("fixSessionSettings", SessionSettings.class);
+            SessionSettings sessionSettings = serviceLocator.getContext().getBean("fixSessionSettings", SessionSettings.class);
             Iterator<SessionID> it = sessionSettings.sectionIterator();
             System.out.println("Available sessions:");
             System.out.println("-------------------");
@@ -83,7 +81,7 @@ public class FixSessionInfoStarter {
                 }
             }
         } finally {
-            instance.shutdown();
+            serviceLocator.shutdown();
         }
     }
 }

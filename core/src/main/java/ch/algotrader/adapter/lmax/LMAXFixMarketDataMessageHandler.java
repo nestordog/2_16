@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,22 +12,21 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.adapter.lmax;
 
 import java.util.Date;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.adapter.fix.fix44.AbstractFix44MarketDataMessageHandler;
 import ch.algotrader.enumeration.FeedType;
-import ch.algotrader.esper.EngineLocator;
-import ch.algotrader.util.MyLogger;
-import ch.algotrader.vo.AskVO;
-import ch.algotrader.vo.BidVO;
+import ch.algotrader.esper.Engine;
+import ch.algotrader.vo.marketData.AskVO;
+import ch.algotrader.vo.marketData.BidVO;
 import ch.algotrader.vo.marketData.TradingHaltVO;
 import quickfix.FieldNotFound;
 import quickfix.Group;
@@ -49,12 +48,16 @@ import quickfix.fix44.MarketDataSnapshotFullRefresh;
  * LMAX specific FIX market data handler.
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
- *
- * @version $Revision$ $Date$
  */
 public class LMAXFixMarketDataMessageHandler extends AbstractFix44MarketDataMessageHandler {
 
-    private static Logger logger = MyLogger.getLogger(LMAXFixMarketDataMessageHandler.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(LMAXFixMarketDataMessageHandler.class);
+
+    private final Engine serverEngine;
+
+    public LMAXFixMarketDataMessageHandler(final Engine serverEngine) {
+        this.serverEngine = serverEngine;
+    }
 
     public void onMessage(final MarketDataSnapshotFullRefresh marketData, final SessionID sessionID) throws FieldNotFound {
 
@@ -65,8 +68,8 @@ public class LMAXFixMarketDataMessageHandler extends AbstractFix44MarketDataMess
         int count = marketData.getGroupCount(NoMDEntries.FIELD);
         if (count == 0) {
 
-            TradingHaltVO suspension = new TradingHaltVO(lmaxId, FeedType.LMAX, marketData.getHeader().getUtcTimeStamp(SendingTime.FIELD));
-            EngineLocator.instance().getServerEngine().sendEvent(suspension);
+            TradingHaltVO suspension = new TradingHaltVO(lmaxId, "LMAX", marketData.getHeader().getUtcTimeStamp(SendingTime.FIELD));
+            this.serverEngine.sendEvent(suspension);
             return;
         }
 
@@ -89,22 +92,22 @@ public class LMAXFixMarketDataMessageHandler extends AbstractFix44MarketDataMess
                 switch (entryType) {
                     case MDEntryType.BID:
 
-                        if (logger.isTraceEnabled()) {
-                            logger.trace(lmaxId + " BID " + size + "@" + price);
+                        if (LOGGER.isTraceEnabled()) {
+                            LOGGER.trace("{} BID {}@{}", lmaxId, size, price);
                         }
 
-                        BidVO bidVO = new BidVO(lmaxId, FeedType.LMAX, date, price, (int) size * LMAXConsts.FOREX_CONTRACT_MULTIPLIER);
-                        EngineLocator.instance().getServerEngine().sendEvent(bidVO);
+                        BidVO bidVO = new BidVO(lmaxId, FeedType.LMAX.name(), date, price, (int) size * LMAXConsts.FOREX_CONTRACT_MULTIPLIER);
+                        this.serverEngine.sendEvent(bidVO);
                         break;
                     case MDEntryType.OFFER:
 
-                        if (logger.isTraceEnabled()) {
-                            logger.trace(lmaxId + " ASK " + size + "@" + price);
+                        if (LOGGER.isTraceEnabled()) {
+                            LOGGER.trace("{} ASK {}@{}", lmaxId, size, price);
                         }
 
-                        AskVO askVO = new AskVO(lmaxId, FeedType.LMAX, date, price, (int) size * LMAXConsts.FOREX_CONTRACT_MULTIPLIER);
+                        AskVO askVO = new AskVO(lmaxId, FeedType.LMAX.name(), date, price, (int) size * LMAXConsts.FOREX_CONTRACT_MULTIPLIER);
 
-                        EngineLocator.instance().getServerEngine().sendEvent(askVO);
+                        this.serverEngine.sendEvent(askVO);
                         break;
                 }
             }
@@ -113,7 +116,7 @@ public class LMAXFixMarketDataMessageHandler extends AbstractFix44MarketDataMess
 
     @Override
     public void onMessage(final MarketDataRequestReject reject, final SessionID sessionID) throws FieldNotFound {
-        if (logger.isEnabledFor(Level.WARN) && reject.isSetField(MDReqRejReason.FIELD)) {
+        if (LOGGER.isWarnEnabled() && reject.isSetField(MDReqRejReason.FIELD)) {
             MDReqID mdReqID = reject.getMDReqID();
             MDReqRejReason reason = reject.getMDReqRejReason();
             StringBuilder buf = new StringBuilder();
@@ -141,7 +144,7 @@ public class LMAXFixMarketDataMessageHandler extends AbstractFix44MarketDataMess
                     buf.append("unspecified problem");
                     break;
             }
-            logger.warn(buf.toString());
+            LOGGER.warn(buf.toString());
         }
     }
 

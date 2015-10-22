@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,8 +12,8 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.config;
 
@@ -30,8 +30,6 @@ import ch.algotrader.enumeration.FeedType;
 
 /**
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
- *
- * @version $Revision$ $Date$
  */
 public class CoreConfigBeanFactoryTest {
 
@@ -39,7 +37,7 @@ public class CoreConfigBeanFactoryTest {
 
     @Before
     public void setup() {
-        map = new HashMap<String, String>();
+        map = new HashMap<>();
         map.put("statement.simulateOptions", "true");
         map.put("statement.simulateFuturesByUnderlying", "true");
         map.put("statement.simulateFuturesByGenericFutures", "true");
@@ -47,11 +45,14 @@ public class CoreConfigBeanFactoryTest {
         map.put("misc.intervalDays", "4");
         map.put("misc.rebalanceMinAmount", "1000");
         map.put("misc.defaultFeedType", "IB");
+        map.put("misc.defaultOrderPreference", "FX");
         map.put("fx.futureHedgeEnabled", "true");
         map.put("fx.futureHedgeMinTimeToExpiration", "604800000");
         map.put("fx.hedgeMinAmount", "8000");
         map.put("fx.hedgeBatchSize", "100");
+        map.put("fx.hedgeOrderPreference", "FX");
         map.put("delta.hedgeMinTimeToExpiration", "5");
+        map.put("delta.hedgeOrderPreference", "FUT");
         map.put("persistence.positionCheckDisabled", "false");
     }
 
@@ -70,7 +71,7 @@ public class CoreConfigBeanFactoryTest {
         Assert.assertEquals(20, coreConfig.getTransactionDisplayCount());
         Assert.assertEquals(4, coreConfig.getIntervalDays());
         Assert.assertEquals(new BigDecimal("1000"), coreConfig.getRebalanceMinAmount());
-        Assert.assertEquals(FeedType.IB, coreConfig.getDefaultFeedType());
+        Assert.assertEquals(FeedType.IB.name(), coreConfig.getDefaultFeedType());
         Assert.assertEquals(true, coreConfig.isFxFutureHedgeEnabled());
         Assert.assertEquals(604800000, coreConfig.getFxFutureHedgeMinTimeToExpiration());
         Assert.assertEquals(8000, coreConfig.getFxHedgeMinAmount());

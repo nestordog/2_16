@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,14 +12,13 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.service;
 
 import java.math.BigDecimal;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.format.DateTimeParseException;
 import java.util.Date;
 
 import org.apache.commons.lang.Validate;
@@ -28,18 +27,15 @@ import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
-import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.Currency;
-import ch.algotrader.enumeration.Status;
 import ch.algotrader.enumeration.TransactionType;
-import ch.algotrader.esper.EngineLocator;
+import ch.algotrader.esper.EngineManager;
+import ch.algotrader.util.DateTimeLegacy;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.metric.MetricsUtil;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 @ManagedResource(objectName = "ch.algotrader.service:name=ServerManagementService")
 public class ServerManagementServiceImpl implements ServerManagementService {
@@ -56,13 +52,16 @@ public class ServerManagementServiceImpl implements ServerManagementService {
 
     private final OrderService orderService;
 
+    private final EngineManager engineManager;
+
     public ServerManagementServiceImpl(
             final PositionService positionService,
             final ForexService forexService,
             final CombinationService combinationService,
             final TransactionService transactionService,
             final OptionService optionService,
-            final OrderService orderService) {
+            final OrderService orderService,
+            final EngineManager engineManager) {
 
         Validate.notNull(positionService, "PositionService is null");
         Validate.notNull(forexService, "ForexService is null");
@@ -70,6 +69,7 @@ public class ServerManagementServiceImpl implements ServerManagementService {
         Validate.notNull(transactionService, "TransactionService is null");
         Validate.notNull(optionService, "OptionService is null");
         Validate.notNull(orderService, "OrderService is null");
+        Validate.notNull(engineManager, "EngineManager is null");
 
         this.positionService = positionService;
         this.forexService = forexService;
@@ -77,6 +77,7 @@ public class ServerManagementServiceImpl implements ServerManagementService {
         this.transactionService = transactionService;
         this.optionService = optionService;
         this.orderService = orderService;
+        this.engineManager = engineManager;
     }
 
     /**
@@ -109,7 +110,7 @@ public class ServerManagementServiceImpl implements ServerManagementService {
             @ManagedOperationParameter(name = "currency", description = "Currency"),
             @ManagedOperationParameter(name = "transactionType", description = "<html>Transaction type: <ul> <li> B (BUY) </li> <li> S (SELL) </li> <li> E (EXPIRATION) </li> <li> T (TRANSFER) </li> <li> C (CREDIT) </li> <li> D (DEBIT) </li> <li> IP (INTREST_PAID) </li> <li> IR (INTREST_RECEIVED) </li> <li> DI (DIVIDEND) </li> <li> F (FEES) </li> <li> RF (REFUND) </li> </ul></html>"),
             @ManagedOperationParameter(name = "accountName", description = "Account Name") })
-    public void recordTransaction(final int securityId, final String strategyName, final String extId, final String dateTime, final long quantity, final double price,
+    public void recordTransaction(final long securityId, final String strategyName, final String extId, final String dateTime, final long quantity, final double price,
             final double executionCommission, final double clearingCommission, final double fee, final String currency, final String transactionType, final String accountName) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
@@ -118,16 +119,16 @@ public class ServerManagementServiceImpl implements ServerManagementService {
 
         Date dateTimeObject;
         try {
-            dateTimeObject = (new SimpleDateFormat("dd.MM.yyyy HH:mm:ss")).parse(dateTime);
-        } catch (ParseException ex) {
-            throw new ServerManagementServiceException(ex);
+            dateTimeObject = DateTimeLegacy.parseAsDateTimeGMT(dateTime);
+        } catch (DateTimeParseException ex) {
+            throw new ServiceException(ex);
         }
         String extIdString = !"".equals(extId) ? extId : null;
         BigDecimal priceDecimal = RoundUtil.getBigDecimal(price);
         BigDecimal executionCommissionDecimal = (executionCommission != 0) ? RoundUtil.getBigDecimal(executionCommission) : null;
         BigDecimal clearingCommissionDecimal = (clearingCommission != 0) ? RoundUtil.getBigDecimal(clearingCommission) : null;
         BigDecimal feeDecimal = (fee != 0) ? RoundUtil.getBigDecimal(fee) : null;
-        Currency currencyObject = !"".equals(currency) ? Currency.fromValue(currency) : null;
+        Currency currencyObject = !"".equals(currency) ? Currency.valueOf(currency) : null;
         TransactionType transactionTypeObject = TransactionType.fromValue(transactionType);
 
         this.transactionService.createTransaction(securityId, strategyName, extIdString, dateTimeObject, quantity, priceDecimal, executionCommissionDecimal, clearingCommissionDecimal, feeDecimal,
@@ -142,23 +143,11 @@ public class ServerManagementServiceImpl implements ServerManagementService {
     @ManagedOperation(description = "Transfers a Position to another Strategy.")
     @ManagedOperationParameters({ @ManagedOperationParameter(name = "positionId", description = "Id of the Position"),
             @ManagedOperationParameter(name = "targetStrategyName", description = "Strategy where the Position should be moved to") })
-    public void transferPosition(final int positionId, final String targetStrategyName) {
+    public void transferPosition(final long positionId, final String targetStrategyName) {
 
         Validate.notEmpty(targetStrategyName, "Target strategy name is empty");
 
         this.positionService.transferPosition(positionId, targetStrategyName);
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @ManagedOperation(description = "Calculates margins for all open positions")
-    @ManagedOperationParameters({})
-    public void setMargins() {
-
-        this.positionService.setMargins();
 
     }
 
@@ -180,7 +169,7 @@ public class ServerManagementServiceImpl implements ServerManagementService {
     @Override
     @ManagedOperation(description = "performs a Delta Hedge of all Securities of the specified underlyingId")
     @ManagedOperationParameters({ @ManagedOperationParameter(name = "underlyingId", description = "underlyingId") })
-    public void hedgeDelta(final int underlyingId) {
+    public void hedgeDelta(final long underlyingId) {
 
         this.optionService.hedgeDelta(underlyingId);
 
@@ -226,25 +215,10 @@ public class ServerManagementServiceImpl implements ServerManagementService {
      * {@inheritDoc}
      */
     @Override
-    @ManagedOperation(description = "Clears the Open Order Window. Should only be called if there are no open orders outstanding with the external Broker")
-    @ManagedOperationParameters({})
-    public void emptyOpenOrderWindow() {
-
-        OrderStatus orderStatus = OrderStatus.Factory.newInstance();
-        orderStatus.setStatus(Status.CANCELED);
-
-        EngineLocator.instance().getServerEngine().sendEvent(orderStatus);
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void logMetrics() {
 
         MetricsUtil.logMetrics();
-        EngineLocator.instance().logStatementMetrics();
+        this.engineManager.logStatementMetrics();
 
     }
 
@@ -255,7 +229,7 @@ public class ServerManagementServiceImpl implements ServerManagementService {
     public void resetMetrics() {
 
         MetricsUtil.resetMetrics();
-        EngineLocator.instance().resetStatementMetrics();
+        this.engineManager.resetStatementMetrics();
 
     }
 

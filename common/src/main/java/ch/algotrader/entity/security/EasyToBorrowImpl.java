@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,54 +12,32 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.entity.security;
 
-import java.text.SimpleDateFormat;
-
-import ch.algotrader.util.ObjectUtil;
+import ch.algotrader.util.DateTimeLegacy;
+import ch.algotrader.util.DateTimeUtil;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public class EasyToBorrowImpl extends EasyToBorrow {
 
     private static final long serialVersionUID = -5341417499112909950L;
-    private static final SimpleDateFormat dayFormat = new SimpleDateFormat("dd.MM.yyyy");
 
     @Override
     public String toString() {
-
-        return dayFormat.format(getDate()) + " " + getBroker() + " " + getStock() + " " + getQuantity();
+        StringBuilder buffer = new StringBuilder();
+        DateTimeUtil.formatLocalDate(DateTimeLegacy.toLocalDate(getDate()), buffer);
+        buffer.append(",");
+        buffer.append(getBroker());
+        buffer.append(",");
+        buffer.append(getStock());
+        buffer.append(",");
+        buffer.append(getQuantity());
+        return buffer.toString();
     }
 
-    @Override
-    public boolean equals(Object obj) {
-
-        if (this == obj) {
-            return true;
-        }
-        if (obj instanceof EasyToBorrow) {
-            EasyToBorrow that = (EasyToBorrow) obj;
-            return ObjectUtil.equalsNonNull(this.getStock(), that.getStock()) &&
-                    ObjectUtil.equalsNonNull(this.getDate(), that.getDate()) &&
-                    ObjectUtil.equalsNonNull(this.getBroker(), that.getBroker());
-        } else {
-            return false;
-        }
-    }
-
-    @Override
-    public int hashCode() {
-
-        int hash = 17;
-        hash = hash * 37 + ObjectUtil.hashCode(getStock());
-        hash = hash * 37 + ObjectUtil.hashCode(getDate());
-        hash = hash * 37 + ObjectUtil.hashCode(getBroker());
-        return hash;
-    }
 }

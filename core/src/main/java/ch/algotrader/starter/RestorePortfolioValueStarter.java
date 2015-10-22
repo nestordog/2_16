@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,21 +12,20 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 
 package ch.algotrader.starter;
 
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.service.LookupService;
 import ch.algotrader.service.PortfolioService;
+import ch.algotrader.util.DateTimeLegacy;
 
 /**
  * Starter Class to restores all PortfolioValues of a specified Strategy
@@ -37,21 +36,22 @@ import ch.algotrader.service.PortfolioService;
  */
 public class RestorePortfolioValueStarter {
 
-    private static DateFormat formatter = new SimpleDateFormat("dd.MM.yyyy_HH:mm:ss");
-
     public static void main(String[] args) throws ParseException {
 
-        ServiceLocator.instance().init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
-        PortfolioService portfolioService = ServiceLocator.instance().getService("portfolioService", PortfolioService.class);
-        LookupService lookupService = ServiceLocator.instance().getLookupService();
+        ServiceLocator serviceLocator = ServiceLocator.instance();
+        serviceLocator.init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
+        try {
+            PortfolioService portfolioService = serviceLocator.getService("portfolioService", PortfolioService.class);
+            LookupService lookupService = serviceLocator.getLookupService();
 
-        Strategy strategy = lookupService.getStrategyByName(args[0]);
+            Strategy strategy = lookupService.getStrategyByName(args[0]);
 
-        Date fromDate = formatter.parse(args[1]);
-        Date toDate = formatter.parse(args[2]);
+            Date fromDate = DateTimeLegacy.parseAsLocalDateTime(args[1]);
+            Date toDate = DateTimeLegacy.parseAsLocalDateTime(args[2]);
 
-        portfolioService.restorePortfolioValues(strategy, fromDate, toDate);
-
-        ServiceLocator.instance().shutdown();
+            portfolioService.restorePortfolioValues(strategy, fromDate, toDate);
+        } finally {
+            serviceLocator.shutdown();
+        }
     }
 }

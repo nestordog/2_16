@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,80 +12,69 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.service.ib;
 
 import java.util.ArrayList;
 
 import org.apache.commons.lang.Validate;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.DisposableBean;
 
-import ch.algotrader.adapter.ib.IBIdGenerator;
-import ch.algotrader.adapter.ib.IBSession;
-import ch.algotrader.adapter.ib.IBUtil;
-import ch.algotrader.config.CommonConfig;
-import ch.algotrader.config.IBConfig;
-import ch.algotrader.entity.marketData.Tick;
-import ch.algotrader.entity.marketData.TickDao;
-import ch.algotrader.entity.security.Security;
-import ch.algotrader.entity.security.SecurityDao;
-import ch.algotrader.enumeration.FeedType;
-import ch.algotrader.esper.EngineLocator;
-import ch.algotrader.service.ExternalMarketDataServiceImpl;
-import ch.algotrader.util.MyLogger;
-import ch.algotrader.vo.SubscribeTickVO;
-
 import com.ib.client.Contract;
-import com.ib.client.TagValue;
+
+import ch.algotrader.adapter.IdGenerator;
+import ch.algotrader.adapter.ib.IBSession;
+import ch.algotrader.adapter.ib.IBSessionStateHolder;
+import ch.algotrader.adapter.ib.IBUtil;
+import ch.algotrader.config.IBConfig;
+import ch.algotrader.entity.security.Security;
+import ch.algotrader.enumeration.FeedType;
+import ch.algotrader.esper.Engine;
+import ch.algotrader.service.ExternalMarketDataService;
+import ch.algotrader.service.NativeMarketDataServiceImpl;
+import ch.algotrader.service.ServiceException;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
-public class IBNativeMarketDataServiceImpl extends ExternalMarketDataServiceImpl implements IBNativeMarketDataService, DisposableBean {
+public class IBNativeMarketDataServiceImpl extends NativeMarketDataServiceImpl implements ExternalMarketDataService, DisposableBean {
 
-    private static Logger logger = MyLogger.getLogger(IBNativeMarketDataServiceImpl.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(IBNativeMarketDataServiceImpl.class);
 
     private final IBSession iBSession;
-
-    private final IBIdGenerator iBIdGenerator;
-
+    private final IdGenerator requestIdGenerator;
+    private final IBSessionStateHolder sessionStateHolder;
     private final IBConfig iBConfig;
 
-    private final TickDao tickDao;
-
     public IBNativeMarketDataServiceImpl(
-            final CommonConfig commonConfig,
             final IBSession iBSession,
-            final IBIdGenerator iBIdGenerator,
+            final IBSessionStateHolder sessionStateHolder,
+            final IdGenerator requestIdGenerator,
             final IBConfig iBConfig,
-            final TickDao tickDao,
-            final SecurityDao securityDao) {
+            final Engine serverEngine) {
 
-        super(commonConfig, securityDao);
+        super(serverEngine);
 
         Validate.notNull(iBSession, "IBSession is null");
-        Validate.notNull(iBIdGenerator, "IBIdGenerator is null");
+        Validate.notNull(sessionStateHolder, "IBSessionStateHolder is null");
+        Validate.notNull(requestIdGenerator, "IdGenerator is null");
         Validate.notNull(iBConfig, "IBConfig is null");
-        Validate.notNull(tickDao, "TickDao is null");
+        Validate.notNull(serverEngine, "Engine is null");
 
         this.iBSession = iBSession;
-        this.iBIdGenerator = iBIdGenerator;
+        this.sessionStateHolder = sessionStateHolder;
+        this.requestIdGenerator = requestIdGenerator;
         this.iBConfig = iBConfig;
-        this.tickDao = tickDao;
     }
 
     @Override
-    public void initSubscriptions() {
+    public boolean initSubscriptionReady() {
 
-        if (this.iBSession.getLifecycle().subscribe()) {
-            super.initSubscriptions();
-        }
-
+        return this.sessionStateHolder.onSubscribe();
     }
 
     @Override
@@ -93,28 +82,22 @@ public class IBNativeMarketDataServiceImpl extends ExternalMarketDataServiceImpl
 
         Validate.notNull(security, "Security is null");
 
-        if (!this.iBSession.getLifecycle().isLoggedOn()) {
-            throw new IBNativeMarketDataServiceException("IB is not logged on to subscribe " + security);
+        if (!this.sessionStateHolder.isLoggedOn()) {
+            throw new ServiceException("IB is not logged on to subscribe " + security);
         }
 
         // create the SubscribeTickEvent (must happen before reqMktData so that Esper is ready to receive marketdata)
-        int tickerId = this.iBIdGenerator.getNextRequestId();
-        Tick tick = Tick.Factory.newInstance();
-        tick.setSecurity(security);
-        tick.setFeedType(FeedType.IB);
-
-        SubscribeTickVO subscribeTickEvent = new SubscribeTickVO();
-        subscribeTickEvent.setTick(tick);
-        subscribeTickEvent.setTickerId(Integer.toString(tickerId));
-
-        EngineLocator.instance().getServerEngine().sendEvent(subscribeTickEvent);
+        int tickerId = (int) this.requestIdGenerator.generateId();
+        esperSubscribe(security, Integer.toString(tickerId));
 
         // requestMarketData from IB
         Contract contract = IBUtil.getContract(security);
 
-        this.iBSession.reqMktData(tickerId, contract, this.iBConfig.getGenericTickList(), false, new ArrayList<TagValue>());
+        this.iBSession.reqMktData(tickerId, contract, this.iBConfig.getGenericTickList(), false, new ArrayList<>());
 
-        logger.debug("requested market data for: " + security + " tickerId: " + tickerId);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("requested market data for: {} tickerId: {}", security, tickerId);
+        }
 
     }
 
@@ -123,28 +106,30 @@ public class IBNativeMarketDataServiceImpl extends ExternalMarketDataServiceImpl
 
         Validate.notNull(security, "Security is null");
 
-        if (!this.iBSession.getLifecycle().isSubscribed()) {
-            throw new IBNativeMarketDataServiceException("IB ist not subscribed, security cannot be unsubscribed " + security);
+        if (!this.sessionStateHolder.isSubscribed()) {
+            throw new ServiceException("IB ist not subscribed, security cannot be unsubscribed " + security);
         }
 
-        // get the tickerId by querying the TickWindow
-        String tickerId = this.tickDao.findTickerIdBySecurity(security.getId());
-        if (tickerId == null) {
-            throw new IBNativeMarketDataServiceException("tickerId for security " + security + " was not found");
-        }
+        String tickerId = esperUnsubscribe(security);
 
         this.iBSession.cancelMktData(Integer.parseInt(tickerId));
 
-        EngineLocator.instance().getServerEngine().executeQuery("delete from TickWindow where security.id = " + security.getId());
-
-        logger.debug("cancelled market data for : " + security);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("cancelled market data for : {}", security);
+        }
 
     }
 
     @Override
-    public FeedType getFeedType() {
+    public String getFeedType() {
 
-        return FeedType.IB;
+        return FeedType.IB.name();
+    }
+
+    @Override
+    public String getSessionQualifier() {
+
+        return this.sessionStateHolder.getName();
     }
 
     @Override

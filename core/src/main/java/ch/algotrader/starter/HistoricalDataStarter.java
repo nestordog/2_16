@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,27 +12,27 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.starter;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 
 import ch.algotrader.ServiceLocator;
-import ch.algotrader.enumeration.BarType;
 import ch.algotrader.enumeration.Duration;
+import ch.algotrader.enumeration.MarketDataEventType;
 import ch.algotrader.enumeration.TimePeriod;
 import ch.algotrader.service.HistoricalDataService;
+import ch.algotrader.util.DateTimeLegacy;
 
 /**
- * Starter Class to download historical bars and update/replace bars in the database
+ * Starter Class to download historical bars and replace/update bars in the database
  * <p>
- * Usage: {@code HistoricalDataStarter updateBars endDate timePeriodLength timePeriod barType barSize securityId(s)}
+ * Usage: {@code HistoricalDataStarter replaceBars endDate timePeriodLength timePeriod marketDataEventType barSize securityId(s)}
  * <p>
- * Examle: {@code HistoricalDataStarter true 20120101 4 WEEK TRADES DAY_1 10:11:12}
+ * Example: {@code HistoricalDataStarter true 2015-10-01 4 WEEK TRADES DAY_1 10:11:12}
  *
  * @author <a href="mailto:andyflury@gmail.com">Andy Flury</a>
  *
@@ -40,39 +40,35 @@ import ch.algotrader.service.HistoricalDataService;
  */
 public class HistoricalDataStarter {
 
-    private static SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
-
     public static void main(String[] args) throws Exception {
 
-        boolean update = Boolean.parseBoolean(args[0]);
+        boolean replace = Boolean.parseBoolean(args[0]);
 
-        Date endDate = format.parse(args[1]);
+        Date endDate = DateTimeLegacy.parseAsLocalDate(args[1]);
 
         int timePeriodLength = Integer.parseInt(args[2]);
-        TimePeriod timePeriod = TimePeriod.fromString(args[3]);
+        TimePeriod timePeriod = TimePeriod.valueOf(args[3]);
 
-        BarType barType = BarType.fromString(args[4]);
-        Duration barSize = Duration.fromString(args[5]);
+        MarketDataEventType marketDataEventType = MarketDataEventType.valueOf(args[4]);
+        Duration barSize = Duration.valueOf(args[5]);
 
         String[] securityIdStrings = args[6].split(":");
-        int[] securityIds = new int[securityIdStrings.length];
+        long[] securityIds = new long[securityIdStrings.length];
         for (int i = 0; i < securityIdStrings.length; i++) {
-            securityIds[i] = Integer.valueOf(securityIdStrings[i]);
+            securityIds[i] = Long.parseLong(securityIdStrings[i]);
         }
 
-        ServiceLocator.instance().init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
+        ServiceLocator serviceLocator = ServiceLocator.instance();
+        serviceLocator.init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
+        try {
+            serviceLocator.runServices();
 
-        ServiceLocator.instance().initInitializingServices();
-
-        HistoricalDataService service = ServiceLocator.instance().getService("historicalDataService", HistoricalDataService.class);
-        for (int securityId : securityIds) {
-            if (update) {
-                service.updateHistoricalBars(securityId, endDate, timePeriodLength, timePeriod, barSize, barType, new HashMap<String, String>());
-            } else {
-                service.replaceHistoricalBars(securityId, endDate, timePeriodLength, timePeriod, barSize, barType, new HashMap<String, String>());
+            HistoricalDataService service = serviceLocator.getService("historicalDataService", HistoricalDataService.class);
+            for (long securityId : securityIds) {
+                service.storeHistoricalBars(securityId, endDate, timePeriodLength, timePeriod, barSize, marketDataEventType, replace, new HashMap<>());
             }
+        } finally {
+            serviceLocator.shutdown();
         }
-
-        ServiceLocator.instance().shutdown();
     }
 }

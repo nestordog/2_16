@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,8 +12,8 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.util.diff.reader;
 
@@ -30,7 +30,7 @@ public class CsvReaderUtil {
      * @return a string with file and current line location of the given {@code reader}
      */
     public static String getFileLocation(CsvReader reader) {
-        return "[line=" + reader.getLine() + ", file=" + reader.getFile().getName() + "]";
+        return "[line=" + reader.getLineIndex() + ", file=" + reader.getFile().getName() + "]";
     }
 
     /**

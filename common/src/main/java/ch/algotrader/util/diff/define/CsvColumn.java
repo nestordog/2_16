@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,25 +12,23 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.util.diff.define;
 
-import ch.algotrader.util.diff.reader.CsvLine;
+import ch.algotrader.util.diff.convert.ValueConverter;
 
 /**
- * Interface usually implemented by an enum that defines the columns of a CSV file.
+ * Interface defining a column of a CSV file.
  */
 public interface CsvColumn {
-    /** The column name, usually the enum constant's name*/
+    /** The column name*/
     String name();
-    /** The column label*/
-    String label();
-    /** The column index, usually the same as the enum constant's ordinal*/
+
+    /** The column index*/
     int index();
-    /** Returns the appropriate value from the given CSV row, or null if it doesn't exist*/
-    Object get(CsvLine row);
-    /** Converts a string value into the appropriate type*/
-    Object convert(String value);
+
+    /** Returns a converter to convert a CSV string value into the appropriate type*/
+    ValueConverter<?> converter();
 }

@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,23 +12,34 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.adapter.fix.fix42;
 
 import java.math.BigDecimal;
 import java.util.Date;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
+import ch.algotrader.adapter.fix.DropCopyAllocationVO;
+import ch.algotrader.adapter.fix.FixApplicationException;
 import ch.algotrader.adapter.fix.FixUtil;
+import ch.algotrader.entity.Account;
+import ch.algotrader.entity.security.Security;
+import ch.algotrader.entity.security.SecurityFamily;
+import ch.algotrader.entity.strategy.Strategy;
+import ch.algotrader.entity.trade.ExternalFill;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderStatus;
+import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
-import ch.algotrader.util.MyLogger;
+import ch.algotrader.esper.Engine;
+import ch.algotrader.ordermgmt.OrderRegistry;
+import ch.algotrader.util.PriceUtil;
 import ch.algotrader.util.RoundUtil;
 import quickfix.FieldNotFound;
 import quickfix.field.AvgPx;
@@ -43,12 +54,14 @@ import quickfix.fix42.ExecutionReport;
  * Generic Fix42OrderMessageHandler. Needs to be overwritten by specific broker interfaces.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public class GenericFix42OrderMessageHandler extends AbstractFix42OrderMessageHandler {
 
-    private static Logger logger = MyLogger.getLogger(GenericFix42OrderMessageHandler.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(GenericFix42OrderMessageHandler.class);
+
+    public GenericFix42OrderMessageHandler(final OrderRegistry orderRegistry, final Engine serverEngine) {
+        super(orderRegistry, serverEngine);
+    }
 
     @Override
     protected boolean discardReport(final ExecutionReport executionReport) throws FieldNotFound {
@@ -65,9 +78,28 @@ public class GenericFix42OrderMessageHandler extends AbstractFix42OrderMessageHa
     }
 
     @Override
+    protected void handleExternal(final ExecutionReport executionReport) throws FieldNotFound {
+    }
+
+    @Override
+    protected void handleUnknown(final ExecutionReport executionReport) throws FieldNotFound {
+
+        if (LOGGER.isErrorEnabled() && executionReport.isSetClOrdID()) {
+            String orderIntId = executionReport.getClOrdID().getValue();
+            LOGGER.error("Cannot find open order with IntID {}", orderIntId);
+        }
+    }
+
+    @Override
     protected boolean isOrderRejected(final ExecutionReport executionReport) throws FieldNotFound {
         ExecType execType = executionReport.getExecType();
         return execType.getValue() == ExecType.REJECTED;
+    }
+
+    @Override
+    protected boolean isOrderReplaced(final ExecutionReport executionReport) throws FieldNotFound {
+        ExecType execType = executionReport.getExecType();
+        return execType.getValue() == ExecType.REPLACE;
     }
 
     @Override
@@ -77,8 +109,10 @@ public class GenericFix42OrderMessageHandler extends AbstractFix42OrderMessageHa
         Status status = getStatus(execType, executionReport.getCumQty());
         long filledQuantity = (long) executionReport.getCumQty().getValue();
         long remainingQuantity = (long) (executionReport.getOrderQty().getValue() - executionReport.getCumQty().getValue());
+        long lastQuantity = executionReport.isSetLastShares() ? (long) executionReport.getLastShares().getValue() : 0L;
+
+        String intId = order.getIntId() != null ? order.getIntId(): executionReport.getClOrdID().getValue();
         String extId = executionReport.getOrderID().getValue();
-        String intId = executionReport.getClOrdID().getValue();
 
         // assemble the orderStatus
         OrderStatus orderStatus = OrderStatus.Factory.newInstance();
@@ -88,6 +122,7 @@ public class GenericFix42OrderMessageHandler extends AbstractFix42OrderMessageHa
         orderStatus.setSequenceNumber(executionReport.getHeader().getInt(MsgSeqNum.FIELD));
         orderStatus.setFilledQuantity(filledQuantity);
         orderStatus.setRemainingQuantity(remainingQuantity);
+        orderStatus.setLastQuantity(lastQuantity);
         orderStatus.setOrder(order);
         if (executionReport.isSetField(TransactTime.FIELD)) {
 
@@ -95,16 +130,16 @@ public class GenericFix42OrderMessageHandler extends AbstractFix42OrderMessageHa
         }
         if (executionReport.isSetField(LastPx.FIELD)) {
 
-            double d = executionReport.getLastPx().getValue();
-            if (d != 0.0) {
-                orderStatus.setLastPrice(RoundUtil.getBigDecimal(d, order.getSecurity().getSecurityFamily().getScale()));
+            double lastPrice = executionReport.getLastPx().getValue();
+            if (lastPrice != 0.0) {
+                orderStatus.setLastPrice(PriceUtil.normalizePrice(order, lastPrice));
             }
         }
         if (executionReport.isSetField(AvgPx.FIELD)) {
 
-            double d = executionReport.getAvgPx().getValue();
-            if (d != 0.0) {
-                orderStatus.setAvgPrice(RoundUtil.getBigDecimal(d, order.getSecurity().getSecurityFamily().getScale()));
+            double avgPrice = executionReport.getAvgPx().getValue();
+            if (avgPrice != 0.0) {
+                orderStatus.setAvgPrice(PriceUtil.normalizePrice(order, avgPrice));
             }
         }
 
@@ -121,11 +156,11 @@ public class GenericFix42OrderMessageHandler extends AbstractFix42OrderMessageHa
             // get the fields
             Side side = FixUtil.getSide(executionReport.getSide());
             long quantity = (long) executionReport.getLastShares().getValue();
-            BigDecimal price = RoundUtil.getBigDecimal(executionReport.getLastPx().getValue(), order.getSecurity().getSecurityFamily().getScale());
+            BigDecimal price = PriceUtil.normalizePrice(order, executionReport.getLastPx().getValue());
             String extId = executionReport.getExecID().getValue();
 
             // assemble the fill
-            Fill fill = Fill.Factory.newInstance();
+            Fill fill = new Fill();
             fill.setDateTime(new Date());
             fill.setExtId(extId);
             fill.setSequenceNumber(executionReport.getHeader().getInt(MsgSeqNum.FIELD));
@@ -135,12 +170,81 @@ public class GenericFix42OrderMessageHandler extends AbstractFix42OrderMessageHa
             if (executionReport.isSetField(TransactTime.FIELD)) {
                 fill.setExtDateTime(executionReport.getTransactTime().getValue());
             }
+            fill.setOrder(order);
 
             return fill;
         } else {
 
             return null;
         }
+    }
+
+    protected ExternalFill createFill(final ExecutionReport executionReport, final DropCopyAllocationVO allocation) throws FieldNotFound {
+
+        char execType = executionReport.getExecType().getValue();
+        if (execType != ExecType.PARTIAL_FILL && execType != ExecType.FILL) {
+            throw new IllegalArgumentException("Unexpected execType: " + execType);
+        }
+
+        Security security = allocation.getSecurity();
+        SecurityFamily securityFamily = security != null ? security.getSecurityFamily() : null;
+
+        Currency currency = null;
+        if (executionReport.isSetCurrency()) {
+            String s = executionReport.getCurrency().getValue();
+            try {
+                currency = Currency.valueOf(s);
+            } catch (IllegalArgumentException ex) {
+                throw new FixApplicationException("Unsupported currency " + s);
+            }
+        }
+        if (securityFamily != null) {
+            if (currency != null) {
+                if (!currency.equals(securityFamily.getCurrency())) {
+                    throw new FixApplicationException("Transaction currency does not match that defined by the security family");
+                }
+            } else {
+                currency = securityFamily.getCurrency();
+            }
+        }
+
+        Side side = FixUtil.getSide(executionReport.getSide());
+        long quantity = (long) executionReport.getLastShares().getValue();
+
+        Account account = allocation.getAccount();
+        String broker = account != null ? account.getBroker() : null;
+
+        double price = executionReport.getLastPx().getValue();
+
+        BigDecimal normalizedPrice;
+        if (securityFamily != null) {
+            double priceMultiplier = securityFamily.getPriceMultiplier(broker);
+            normalizedPrice = RoundUtil.getBigDecimal(price / priceMultiplier, securityFamily.getScale());
+        } else {
+            normalizedPrice = new BigDecimal(price);
+        }
+
+        Strategy strategy = allocation.getStrategy();
+        String extOrderId = executionReport.isSetOrderID() ? executionReport.getOrderID().getValue() : null;
+        String extId = executionReport.getExecID().getValue();
+
+        // assemble the fill
+        ExternalFill fill = new ExternalFill();
+        fill.setSecurity(security);
+        fill.setCurrency(currency);
+        fill.setAccount(account);
+        fill.setStrategy(strategy);
+        fill.setDateTime(new Date());
+        fill.setExtOrderId(extOrderId);
+        fill.setExtId(extId);
+        fill.setSequenceNumber(executionReport.getHeader().getInt(MsgSeqNum.FIELD));
+        fill.setSide(side);
+        fill.setQuantity(quantity);
+        fill.setPrice(normalizedPrice);
+        if (executionReport.isSetField(TransactTime.FIELD)) {
+            fill.setExtDateTime(executionReport.getTransactTime().getValue());
+        }
+        return fill;
     }
 
     private Status getStatus(ExecType execType, CumQty cumQty) {

@@ -2,78 +2,45 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:context="http://www.springframework.org/schema/context"
        xsi:schemaLocation="
-       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd">
 
     <!-- ============================= Configuration Management & Logging ============================================ -->
 
-    <bean id="configParams" class="ch.algotrader.config.spring.ConfigParamsFactoryBean" />
-
-    <bean id="properties" class="ch.algotrader.config.spring.ConfigPropertiesFactoryBean">
-        <constructor-arg index="0" ref="configParams"/>
-    </bean>
-
-    <bean id="configLocator" class="ch.algotrader.config.spring.ConfigLocatorFactoryBean">
-        <constructor-arg index="0" ref="configParams"/>
-    </bean>
-
-    <bean id="commonConfig" class="ch.algotrader.config.spring.ConfigBeanFactoryBean">
-        <constructor-arg index="0" ref="configLocator"/>
-        <constructor-arg index="1" value="ch.algotrader.config.CommonConfig"/>
-    </bean>
-
-    <bean class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor"/>
-
-    <bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-        <property name="properties" ref="properties" />
-        <property name="systemPropertiesModeName"><value>SYSTEM_PROPERTIES_MODE_NEVER</value></property>
-    </bean>
-
-    <bean class="ch.algotrader.util.LogLevelSetter" init-method="init"/>
-
-    <!-- =========================================== JMX ================================================ -->
-
-    <bean id="exporter" class="org.springframework.jmx.export.annotation.AnnotationMBeanExporter"/>
-
-   <!-- Diagrams for Management Service (and PropertyConfigurer for java.util.Date)-->
-    <bean class="org.springframework.beans.factory.config.CustomEditorConfigurer">
-        <property name="propertyEditorRegistrars">
-            <list>
-               <bean class="ch.algotrader.util.spring.DatePropertyEditorRegistrar"/>
-            </list>
-        </property>
-    </bean>
+    <context:component-scan base-package="ch.algotrader.wiring.common"/>
 
     <!-- ================================= Portfolio Chart Definition======================================= -->
 
-    <bean id="portfolioChartDefinition" class="ch.algotrader.vo.ChartDefinitionVO" p:timePeriod="MIN" p:startTime="${misc.portfolioStartHour}:00" p:endTime="${misc.portfolioEndHour}:00" >
+    <bean id="portfolioChartDefinition" class="ch.algotrader.vo.client.ChartDefinitionVO" p:timePeriod="MIN" p:startTime="${misc.portfolioStartHour}:00:00" p:endTime="${misc.portfolioEndHour}:00:00" >
         <property name="axisDefinitions">
             <set>
-                <bean class="ch.algotrader.vo.AxisDefinitionVO" p:label="Balances" p:autoRange="true" p:autoRangeIncludesZero="false">
+                <bean class="ch.algotrader.vo.client.AxisDefinitionVO" p:label="Balances" p:autoRange="true" p:autoRangeIncludesZero="false">
                     <property name="datasetDefinitions">
                         <set>
-                            <bean class="ch.algotrader.vo.DatasetDefinitionVO" p:type="TIME">
+                            <bean class="ch.algotrader.vo.client.DatasetDefinitionVO" p:type="TIME">
                                 <property name="seriesDefinitions">
                                     <set>
-                                        <bean class="ch.algotrader.vo.IndicatorDefinitionVO" p:name="netLiqValue" p:label="NetLiqValue" p:color="RED" p:selected="false" />
-                                        <bean class="ch.algotrader.vo.IndicatorDefinitionVO" p:name="securitiesCurrentValue" p:label="SecuritiesCurrentValue" p:color="BLUE" p:selected="false" />
-                                        <bean class="ch.algotrader.vo.IndicatorDefinitionVO" p:name="cashBalance" p:label="CashBalance" p:color="GREEN" p:selected="false" />
-                                        <bean class="ch.algotrader.vo.IndicatorDefinitionVO" p:name="maintenanceMargin" p:label="MaintenanceMargin" p:color="YELLOW" p:selected="false" />
+                                        <bean class="ch.algotrader.vo.client.IndicatorDefinitionVO" p:name="netLiqValue" p:label="NetLiqValue" p:color="RED" p:selected="false" />
+                                        <bean class="ch.algotrader.vo.client.IndicatorDefinitionVO" p:name="securitiesCurrentValue" p:label="SecuritiesCurrentValue" p:color="BLUE" p:selected="false" />
+                                        <bean class="ch.algotrader.vo.client.IndicatorDefinitionVO" p:name="cashBalance" p:label="CashBalance" p:color="GREEN" p:selected="false" />
+                                        <bean class="ch.algotrader.vo.client.IndicatorDefinitionVO" p:name="maintenanceMargin" p:label="MaintenanceMargin" p:color="YELLOW" p:selected="false" />
                                     </set>
                                 </property>
                             </bean>
                         </set>
                     </property>
                 </bean>
-                <bean class="ch.algotrader.vo.AxisDefinitionVO" p:label="Performance / Leverage / Allocation" p:autoRange="true" p:autoRangeIncludesZero="false" p:numberFormat="##0.00%">
+                <bean class="ch.algotrader.vo.client.AxisDefinitionVO" p:label="Performance / Leverage / Allocation" p:autoRange="true" p:autoRangeIncludesZero="false" p:numberFormat="##0.00%">
                     <property name="datasetDefinitions">
                         <set>
-                            <bean class="ch.algotrader.vo.DatasetDefinitionVO" p:type="TIME">
+                            <bean class="ch.algotrader.vo.client.DatasetDefinitionVO" p:type="TIME">
                                 <property name="seriesDefinitions">
                                     <set>
-                                        <bean class="ch.algotrader.vo.IndicatorDefinitionVO" p:name="performance" p:label="Performance" p:color="BLACK" p:selected="true" />
-                                        <bean class="ch.algotrader.vo.IndicatorDefinitionVO" p:name="leverage" p:label="Leverage" p:color="DARK_GRAY" p:selected="false" />
-                                        <bean class="ch.algotrader.vo.IndicatorDefinitionVO" p:name="allocation" p:label="Allocation" p:color="LIGHT_GRAY" p:selected="false" />
+                                        <bean class="ch.algotrader.vo.client.IndicatorDefinitionVO" p:name="performance" p:label="Performance" p:color="BLACK" p:selected="true" />
+                                        <bean class="ch.algotrader.vo.client.IndicatorDefinitionVO" p:name="leverage" p:label="Leverage" p:color="DARK_GRAY" p:selected="false" />
+                                        <bean class="ch.algotrader.vo.client.IndicatorDefinitionVO" p:name="allocation" p:label="Allocation" p:color="LIGHT_GRAY" p:selected="false" />
                                     </set>
                                 </property>
                             </bean>

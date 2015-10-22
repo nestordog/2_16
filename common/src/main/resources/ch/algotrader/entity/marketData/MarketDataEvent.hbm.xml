@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+          "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping default-cascade="none">
+    <class name="ch.algotrader.entity.marketData.MarketDataEventImpl"
+        table="`market_data_event`" dynamic-insert="false" dynamic-update="false" abstract="true">
+	    <meta attribute="implements">ch.algotrader.entity.marketData.MarketDataEventI</meta>      
+	    <meta attribute="generated-class">ch.algotrader.entity.marketData.MarketDataEvent</meta>
+	    <meta attribute="class-code">
+<![CDATA[
+]]>   
+	    </meta> 	    
+	    <meta attribute="interface-code">
+<![CDATA[
+
+    /**
+     * get the most recent price of this market data event. subclass need to implement this method
+     * with appropriate logic
+     * @return java.math.BigDecimal
+     */
+    public abstract java.math.BigDecimal getCurrentValue();
+
+    /**
+     * @see #getCurrentValue
+     * @return double
+     */
+    public default double getCurrentValueDouble() {
+        java.math.BigDecimal currentValue = getCurrentValue();
+        return currentValue != null ? currentValue.doubleValue() : 0.0d;
+    }
+
+    /**
+     * get the relevant market price that would need to be payed to close a corresponding position
+     * with the specified {@code direction}.
+     * @param direction 
+     * @return java.math.BigDecimal
+     */
+    public abstract java.math.BigDecimal getMarketValue(ch.algotrader.enumeration.Direction direction);
+
+    /**
+     * @see #getMarketValue
+     * @param direction 
+     * @return double
+     */
+    public default double getMarketValueDouble(ch.algotrader.enumeration.Direction direction) {
+        java.math.BigDecimal marketValue = getMarketValue(direction);
+        return marketValue != null ? marketValue.doubleValue() : 0.0d;
+    } 
+
+]]>   
+	    </meta> 	    
+        <meta attribute="class-description"><![CDATA[Any type of market data related to a particular Security]]></meta>
+        <cache usage="read-write" />
+        <id name="id" type="long" >
+            <column name="ID" sql-type="BIGINT"/>
+
+            <generator class="increment">
+                <!-- id-generator merge-point -->
+            </generator>
+        </id>
+        <property name="dateTime">
+            <meta attribute="field-description"><![CDATA[The dateTime of this MarketDataEvent]]></meta>
+            <meta attribute="use-in-equals">true</meta>
+            <column name="DATE_TIME" not-null="true" unique="false" sql-type="TIMESTAMP"/>
+
+            <type name="java.util.Date"/>
+        </property>
+        <property name="feedType">
+            <meta attribute="field-description"><![CDATA[The market data feed that provided this  MarketDataEvent]]></meta>
+            <meta attribute="use-in-equals">true</meta>
+            <column name="FEED_TYPE" not-null="true" unique="false" sql-type="VARCHAR(255)"/>
+
+            <type name="java.lang.String"/>
+        </property>
+        <many-to-one name="security" class="ch.algotrader.entity.security.SecurityImpl" foreign-key="MARKET_DATA_EVENT_SECURITY_FKC" not-null="true" lazy="proxy" fetch="select">
+            <meta attribute="property-type">ch.algotrader.entity.security.Security</meta>
+            <meta attribute="field-description"><![CDATA[The base class of all Securities in the system]]></meta>
+            <meta attribute="use-in-equals">true</meta>
+            <column name="SECURITY_FK" not-null="true" sql-type="BIGINT"/>
+
+        </many-to-one>
+        <union-subclass name="ch.algotrader.entity.marketData.BarImpl" table="`bar`" dynamic-insert="false" dynamic-update="false" abstract="false">
+            <meta attribute="implements">ch.algotrader.entity.marketData.BarI</meta>
+            <meta attribute="generated-class">ch.algotrader.entity.marketData.Bar</meta>
+            <meta attribute="class-code">
+<![CDATA[
+]]>   
+            </meta> 	    
+            <meta attribute="vo-code">
+<![CDATA[
+
+    @Override
+    public BigDecimal getCurrentValue() {
+
+        return getClose();
+    }
+
+    @Override
+    public BigDecimal getMarketValue(ch.algotrader.enumeration.Direction direction) {
+
+        return getClose();
+    }
+
+]]>   
+            </meta> 	    
+            <property name="barSize">
+                <meta attribute="field-description"><![CDATA[The size of this Bar (e.g. 1Min, 15Min, 1Hour, etc..)]]></meta>
+                <meta attribute="use-in-equals">true</meta>
+                <meta attribute="property-type">ch.algotrader.enumeration.Duration</meta>
+                <column name="BAR_SIZE" not-null="true" unique="true" sql-type="BIGINT"/>
+
+                <type name="ch.algotrader.hibernate.HibernateEnumType">
+                 <param name="enumClassName">ch.algotrader.enumeration.Duration</param>
+                </type>
+            </property>
+            <property name="open">
+                <meta attribute="field-description"><![CDATA[The opening price of this Bar]]></meta>
+                <column name="OPEN" not-null="true" unique="false" sql-type="Decimal(15,6)"/>
+
+                <type name="java.math.BigDecimal"/>
+            </property>
+            <property name="high">
+                <meta attribute="field-description"><![CDATA[The highest price during this Bar]]></meta>
+                <column name="HIGH" not-null="true" unique="false" sql-type="Decimal(15,6)"/>
+
+                <type name="java.math.BigDecimal"/>
+            </property>
+            <property name="low">
+                <meta attribute="field-description"><![CDATA[The lowest price during this Bar]]></meta>
+                <column name="LOW" not-null="true" unique="false" sql-type="Decimal(15,6)"/>
+
+                <type name="java.math.BigDecimal"/>
+            </property>
+            <property name="close">
+                <meta attribute="field-description"><![CDATA[The closing price of this Bar]]></meta>
+                <column name="CLOSE" not-null="true" unique="false" sql-type="Decimal(15,6)"/>
+
+                <type name="java.math.BigDecimal"/>
+            </property>
+            <property name="vol">
+                <meta attribute="field-description"><![CDATA[The current volume]]></meta>
+                <column name="VOL" not-null="true" unique="false" sql-type="INTEGER"/>
+
+                <type name="int"/>
+            </property>
+        </union-subclass>
+        <union-subclass name="ch.algotrader.entity.marketData.TickImpl" table="`tick`" dynamic-insert="false" dynamic-update="false" abstract="false">
+            <meta attribute="implements">ch.algotrader.entity.marketData.TickI</meta>
+            <meta attribute="generated-class">ch.algotrader.entity.marketData.Tick</meta>
+            <meta attribute="class-code">
+<![CDATA[
+    /**
+     * gets the difference between the bid and the ask price.
+     * @return java.math.BigDecimal
+     */
+    public abstract java.math.BigDecimal getBidAskSpread();
+
+    /**
+     * @see #getBidAskSpread
+     * @return double
+     */
+    public abstract double getBidAskSpreadDouble();
+
+]]>   
+            </meta> 	    
+            <meta attribute="vo-code">
+<![CDATA[
+
+    @Override
+    public BigDecimal getCurrentValue() {
+
+        if (getBid() != null && getAsk() != null) {
+            int scale = Math.max(getBid().scale(), getAsk().scale());
+            return ch.algotrader.util.RoundUtil.getBigDecimal((getAsk().doubleValue() + getBid().doubleValue()) / 2.0, scale);
+        } else if (getBid() != null) {
+            return getBid();
+        } else if (getAsk() != null) {
+            return getAsk();
+        } else {
+            return getLast();
+        }
+    }
+
+    @Override
+    public BigDecimal getMarketValue(ch.algotrader.enumeration.Direction direction) {
+
+        if (ch.algotrader.enumeration.Direction.LONG.equals(direction)) {
+
+            // bid might be null
+            return getBid() != null ? getBid() : new BigDecimal(0);
+        } else if (ch.algotrader.enumeration.Direction.SHORT.equals(direction)) {
+            return getAsk();
+        } else {
+            return new BigDecimal(0);
+        }
+    }
+
+]]>   
+            </meta> 	    
+            <property name="last">
+                <meta attribute="field-description"><![CDATA[The last price.]]></meta>
+                <column name="LAST" not-null="false" unique="false" sql-type="Decimal(15,6)"/>
+
+                <type name="java.math.BigDecimal"/>
+            </property>
+            <property name="lastDateTime">
+                <meta attribute="field-description"><![CDATA[The dateTime of the last trade.]]></meta>
+                <column name="LAST_DATE_TIME" not-null="false" unique="false" sql-type="TIMESTAMP"/>
+
+                <type name="java.util.Date"/>
+            </property>
+            <property name="bid">
+                <meta attribute="field-description"><![CDATA[The bid price.]]></meta>
+                <column name="BID" not-null="false" unique="false" sql-type="Decimal(15,6)"/>
+
+                <type name="java.math.BigDecimal"/>
+            </property>
+            <property name="ask">
+                <meta attribute="field-description"><![CDATA[The ask price.]]></meta>
+                <column name="ASK" not-null="false" unique="false" sql-type="Decimal(15,6)"/>
+
+                <type name="java.math.BigDecimal"/>
+            </property>
+            <property name="volBid">
+                <meta attribute="field-description"><![CDATA[The volume on the bid side.]]></meta>
+                <column name="VOL_BID" not-null="true" unique="false" sql-type="INTEGER"/>
+
+                <type name="int"/>
+            </property>
+            <property name="volAsk">
+                <meta attribute="field-description"><![CDATA[The volume on the ask side.]]></meta>
+                <column name="VOL_ASK" not-null="true" unique="false" sql-type="INTEGER"/>
+
+                <type name="int"/>
+            </property>
+            <property name="vol">
+                <meta attribute="field-description"><![CDATA[The current volume]]></meta>
+                <column name="VOL" not-null="true" unique="false" sql-type="INTEGER"/>
+
+                <type name="int"/>
+            </property>
+        </union-subclass>
+        <union-subclass name="ch.algotrader.entity.marketData.GenericTickImpl" table="`generic_tick`" dynamic-insert="false" dynamic-update="false" abstract="false">
+            <meta attribute="implements">ch.algotrader.entity.marketData.GenericTickI</meta>
+            <meta attribute="generated-class">ch.algotrader.entity.marketData.GenericTick</meta>
+            <meta attribute="class-code">
+<![CDATA[
+]]>   
+            </meta> 	    
+            <meta attribute="vo-code">
+<![CDATA[
+
+    @Override
+    public BigDecimal getCurrentValue() {
+        if (getMoneyValue() != null) {
+            return getMoneyValue();
+        } else if (getDoubleValue() != null) {
+            return new BigDecimal(getDoubleValue());
+        } else if (getIntValue() != null) {
+            return new BigDecimal(getIntValue());
+        } else {
+            return new BigDecimal(0);
+        }
+    }
+
+    @Override
+    public BigDecimal getMarketValue(ch.algotrader.enumeration.Direction direction) {
+        return getCurrentValue();
+    }
+
+]]>   
+            </meta> 	    
+            <property name="tickType">
+                <meta attribute="use-in-equals">true</meta>
+                <meta attribute="property-type">ch.algotrader.enumeration.TickType</meta>
+                <column name="TICK_TYPE" not-null="true" unique="false" sql-type="VARCHAR(255)"/>
+
+                <type name="ch.algotrader.hibernate.HibernateEnumType">
+                 <param name="enumClassName">ch.algotrader.enumeration.TickType</param>
+                </type>
+            </property>
+            <property name="moneyValue">
+                <column name="MONEY_VALUE" not-null="false" unique="false" sql-type="Decimal(15,6)"/>
+
+                <type name="java.math.BigDecimal"/>
+            </property>
+            <property name="doubleValue">
+                <column name="DOUBLE_VALUE" not-null="false" unique="false" sql-type="DOUBLE"/>
+
+                <type name="java.lang.Double"/>
+            </property>
+            <property name="intValue">
+                <column name="INT_VALUE" not-null="false" unique="false" sql-type="INTEGER"/>
+
+                <type name="java.lang.Integer"/>
+            </property>
+        </union-subclass>
+    </class>
+</hibernate-mapping>

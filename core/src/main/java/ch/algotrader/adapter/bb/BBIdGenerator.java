@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,10 +12,12 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.adapter.bb;
+
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * BB Correlation Id Generator.
@@ -27,7 +29,7 @@ package ch.algotrader.adapter.bb;
 public final class BBIdGenerator {
 
     private static BBIdGenerator instance;
-    private int requestId = 1;
+    private final AtomicLong requestId = new AtomicLong(0);
 
     public static synchronized BBIdGenerator getInstance() {
 
@@ -38,6 +40,6 @@ public final class BBIdGenerator {
     }
 
     public String getNextRequestId() {
-        return Integer.toString(this.requestId++);
+        return Long.toString(this.requestId.incrementAndGet());
     }
 }

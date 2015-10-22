@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,14 +12,16 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.esper;
 
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+
+import com.espertech.esperio.CoordinatedAdapter;
 
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.trade.Order;
@@ -28,25 +30,27 @@ import ch.algotrader.esper.callback.OpenPositionCallback;
 import ch.algotrader.esper.callback.TickCallback;
 import ch.algotrader.esper.callback.TimerCallback;
 import ch.algotrader.esper.callback.TradeCallback;
-
-import com.espertech.esperio.CoordinatedAdapter;
+import ch.algotrader.esper.callback.TradePersistedCallback;
 
 /**
  * Abstract implementation of an {@link Engine}
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public abstract class AbstractEngine implements Engine {
 
-    protected String engineName;
-    protected boolean internalClock;
+    private final String strategyName;
+
+    private volatile boolean internalClock;
+
+    protected AbstractEngine(final String strategyName) {
+        this.strategyName = strategyName;
+    }
 
     @Override
-    public String getName() {
+    public String getStrategyName() {
 
-        return this.engineName;
+        return this.strategyName;
     }
 
     @Override
@@ -106,6 +110,11 @@ public abstract class AbstractEngine implements Engine {
     }
 
     @Override
+    public void undeployAllStatements() {
+
+    }
+
+    @Override
     public void undeployStatement(String statementName) {
 
     }
@@ -133,6 +142,12 @@ public abstract class AbstractEngine implements Engine {
     @SuppressWarnings("rawtypes")
     @Override
     public List executeQuery(String query) {
+
+        return null;
+    }
+
+    @Override
+    public Object executeSingelObjectQuery(String query, String objectName) {
 
         return null;
     }
@@ -230,17 +245,22 @@ public abstract class AbstractEngine implements Engine {
     }
 
     @Override
+    public void addTradePersistedCallback(Collection<Order> orders, TradePersistedCallback callback) {
+
+    }
+
+    @Override
     public void addFirstTickCallback(Collection<Security> securities, TickCallback callback) {
 
     }
 
     @Override
-    public void addOpenPositionCallback(int securityId, OpenPositionCallback callback) {
+    public void addOpenPositionCallback(long securityId, OpenPositionCallback callback) {
 
     }
 
     @Override
-    public void addClosePositionCallback(int securityId, ClosePositionCallback callback) {
+    public void addClosePositionCallback(long securityId, ClosePositionCallback callback) {
 
     }
 
@@ -252,6 +272,6 @@ public abstract class AbstractEngine implements Engine {
     @Override
     public String toString() {
 
-        return this.engineName;
+        return this.strategyName;
     }
 }

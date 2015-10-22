@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,16 +12,21 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.service.fxcm;
 
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.fxcm.FXCMFixOrderMessageFactory;
+import ch.algotrader.config.CommonConfig;
+import ch.algotrader.dao.AccountDao;
+import ch.algotrader.dao.trade.OrderDao;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
-import ch.algotrader.service.OrderService;
+import ch.algotrader.ordermgmt.OrderRegistry;
+import ch.algotrader.service.OrderPersistenceService;
+import ch.algotrader.service.fix.fix44.Fix44OrderService;
 import ch.algotrader.service.fix.fix44.Fix44OrderServiceImpl;
 import quickfix.fix44.NewOrderSingle;
 import quickfix.fix44.OrderCancelReplaceRequest;
@@ -29,23 +34,25 @@ import quickfix.fix44.OrderCancelRequest;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
-public class FXCMFixOrderServiceImpl extends Fix44OrderServiceImpl implements FXCMFixOrderService {
+public class FXCMFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fix44OrderService {
 
-    private static final long serialVersionUID = -3160564098018866170L;
+    public FXCMFixOrderServiceImpl(
+            final FixAdapter fixAdapter,
+            final OrderRegistry orderRegistry,
+            final OrderPersistenceService orderPersistenceService,
+            final OrderDao orderDao,
+            final AccountDao accountDao,
+            final CommonConfig commonConfig) {
 
-    public FXCMFixOrderServiceImpl(final FixAdapter fixAdapter,
-            final OrderService orderService) {
-
-        super(fixAdapter, orderService, new FXCMFixOrderMessageFactory());
+        super(OrderServiceType.FXCM_FIX.name(), fixAdapter, new FXCMFixOrderMessageFactory(),
+                orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig);
     }
 
     @Override
     public void init() {
 
-        getFixAdapter().openSession(getOrderServiceType());
+        getFixAdapter().openSessionForService(getOrderServiceType());
     }
 
     @Override
@@ -60,9 +67,4 @@ public class FXCMFixOrderServiceImpl extends Fix44OrderServiceImpl implements FX
     public void prepareCancelOrder(SimpleOrder order, OrderCancelRequest cancelRequest) {
     }
 
-    @Override
-    public OrderServiceType getOrderServiceType() {
-
-        return OrderServiceType.FXCM_FIX;
-    }
 }

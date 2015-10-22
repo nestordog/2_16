@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,63 +12,101 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.service.ib;
 
-import org.apache.commons.lang.Validate;
-import org.apache.log4j.Logger;
+import java.math.BigDecimal;
 
-import ch.algotrader.adapter.ib.IBIdGenerator;
-import ch.algotrader.adapter.ib.IBOrderMessageFactory;
-import ch.algotrader.adapter.ib.IBOrderStatus;
-import ch.algotrader.adapter.ib.IBSession;
-import ch.algotrader.adapter.ib.IBUtil;
-import ch.algotrader.entity.Account;
-import ch.algotrader.entity.trade.SimpleOrder;
-import ch.algotrader.enumeration.OrderServiceType;
-import ch.algotrader.enumeration.Status;
-import ch.algotrader.esper.EngineLocator;
-import ch.algotrader.service.ExternalOrderServiceImpl;
-import ch.algotrader.service.OrderService;
-import ch.algotrader.util.MyLogger;
+import org.apache.commons.lang.Validate;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.ib.client.Contract;
+import com.ib.client.EWrapperMsgGenerator;
+
+import ch.algotrader.adapter.AutoIncrementIdGenerator;
+import ch.algotrader.adapter.ib.IBExecution;
+import ch.algotrader.adapter.ib.IBExecutions;
+import ch.algotrader.adapter.ib.IBOrderMessageFactory;
+import ch.algotrader.adapter.ib.IBSession;
+import ch.algotrader.adapter.ib.IBUtil;
+import ch.algotrader.config.CommonConfig;
+import ch.algotrader.dao.trade.OrderDao;
+import ch.algotrader.entity.Account;
+import ch.algotrader.entity.trade.SimpleOrder;
+import ch.algotrader.enumeration.InitializingServiceType;
+import ch.algotrader.enumeration.OrderServiceType;
+import ch.algotrader.enumeration.SimpleOrderType;
+import ch.algotrader.enumeration.Status;
+import ch.algotrader.enumeration.TIF;
+import ch.algotrader.ordermgmt.OrderRegistry;
+import ch.algotrader.service.ExternalOrderService;
+import ch.algotrader.service.InitializationPriority;
+import ch.algotrader.service.InitializingServiceI;
+import ch.algotrader.service.OrderPersistenceService;
+import ch.algotrader.service.ServiceException;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
-public class IBNativeOrderServiceImpl extends ExternalOrderServiceImpl implements IBNativeOrderService {
+@InitializationPriority(InitializingServiceType.BROKER_INTERFACE)
+@Transactional(propagation = Propagation.SUPPORTS)
+public class IBNativeOrderServiceImpl implements ExternalOrderService, InitializingServiceI {
 
-    private static Logger logger = MyLogger.getLogger(IBNativeOrderServiceImpl.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(IBNativeOrderServiceImpl.class);
 
     private static boolean firstOrder = true;
 
     private final IBSession iBSession;
-
-    private final IBIdGenerator iBIdGenerator;
-
+    private final AutoIncrementIdGenerator orderIdGenerator;
+    private final OrderRegistry orderRegistry;
+    private final IBExecutions iBExecutions;
     private final IBOrderMessageFactory iBOrderMessageFactory;
-
-    private final OrderService orderService;
+    private final OrderPersistenceService orderPersistenceService;
+    private final OrderDao orderDao;
+    private final CommonConfig commonConfig;
 
     public IBNativeOrderServiceImpl(final IBSession iBSession,
-            final IBIdGenerator iBIdGenerator,
+            final AutoIncrementIdGenerator orderIdGenerator,
+            final OrderRegistry orderRegistry,
+            final IBExecutions iBExecutions,
             final IBOrderMessageFactory iBOrderMessageFactory,
-            final OrderService orderService) {
+            final OrderPersistenceService orderPersistenceService,
+            final OrderDao orderDao,
+            final CommonConfig commonConfig) {
 
         Validate.notNull(iBSession, "IBSession is null");
-        Validate.notNull(iBIdGenerator, "IBIdGenerator is null");
-        Validate.notNull(iBOrderMessageFactory, "IBConfig is null");
-        Validate.notNull(orderService, "OrderService is null");
+        Validate.notNull(orderIdGenerator, "AutoIncrementIdGenerator is null");
+        Validate.notNull(orderRegistry, "OpenOrderRegistry is null");
+        Validate.notNull(iBExecutions, "IBExecutions is null");
+        Validate.notNull(iBOrderMessageFactory, "IBOrderMessageFactory is null");
+        Validate.notNull(orderPersistenceService, "OrderPersistenceService is null");
+        Validate.notNull(orderDao, "OrderDao is null");
+        Validate.notNull(commonConfig, "CommonConfig is null");
 
         this.iBSession = iBSession;
-        this.iBIdGenerator = iBIdGenerator;
+        this.orderIdGenerator = orderIdGenerator;
+        this.orderRegistry = orderRegistry;
+        this.iBExecutions = iBExecutions;
         this.iBOrderMessageFactory = iBOrderMessageFactory;
-        this.orderService = orderService;
+        this.orderPersistenceService = orderPersistenceService;
+        this.orderDao = orderDao;
+        this.commonConfig = commonConfig;
+    }
+
+    @Override
+    public void init() {
+        BigDecimal num = this.orderDao.findLastIntOrderIdByServiceType(OrderServiceType.IB_NATIVE.name());
+        if (num != null) {
+            long currentId = this.orderIdGenerator.updateIfGreater(num.intValue());
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug(EWrapperMsgGenerator.nextValidId((int) (currentId + 1)));
+            }
+        }
     }
 
     @Override
@@ -92,7 +130,25 @@ public class IBNativeOrderServiceImpl extends ExternalOrderServiceImpl implement
 
         // Because of an IB bug only one order can be submitted at a time when
         // first connecting to IB, so wait 100ms after the first order
-        logger.info("before place");
+        LOGGER.info("before place");
+
+        String intId = order.getIntId();
+        if (intId == null) {
+
+            intId = Integer.toString((int) this.orderIdGenerator.generateId());
+            order.setIntId(intId);
+        }
+
+        this.orderRegistry.add(order);
+        IBExecution execution = this.iBExecutions.addNew(intId);
+
+        synchronized (execution) {
+            execution.setStatus(Status.OPEN);
+        }
+
+        if (!this.commonConfig.isSimulation()) {
+            this.orderPersistenceService.persistOrder(order);
+        }
 
         if (firstOrder) {
 
@@ -102,7 +158,7 @@ public class IBNativeOrderServiceImpl extends ExternalOrderServiceImpl implement
                     Thread.sleep(200);
                 } catch (InterruptedException ex) {
                     Thread.currentThread().interrupt();
-                    throw new IBNativeOrderServiceException(ex);
+                    throw new ServiceException(ex);
                 }
                 firstOrder = false;
             }
@@ -115,13 +171,6 @@ public class IBNativeOrderServiceImpl extends ExternalOrderServiceImpl implement
 
     private synchronized void internalSendOrder(SimpleOrder order) {
 
-        String intId = order.getIntId();
-        if (intId == null) {
-
-            intId = this.iBIdGenerator.getNextOrderId();
-            order.setIntId(intId);
-        }
-
         sendOrModifyOrder(order);
 
     }
@@ -131,12 +180,20 @@ public class IBNativeOrderServiceImpl extends ExternalOrderServiceImpl implement
 
         Validate.notNull(order, "Order is null");
 
+        String intId = order.getIntId();
+        this.orderRegistry.remove(intId);
+        this.orderRegistry.add(order);
+
+        IBExecution execution = this.iBExecutions.addNew(intId);
+        synchronized (execution) {
+            execution.setStatus(Status.OPEN);
+        }
+
+        if (!this.commonConfig.isSimulation()) {
+            this.orderPersistenceService.persistOrder(order);
+        }
+
         sendOrModifyOrder(order);
-
-        // send a 0:0 OrderStatus to validate the first SUBMITTED OrderStatus just after the modification
-        IBOrderStatus orderStatus = new IBOrderStatus(Status.SUBMITTED, 0, 0, null, order);
-
-        EngineLocator.instance().getServerEngine().sendEvent(orderStatus);
 
     }
 
@@ -145,14 +202,16 @@ public class IBNativeOrderServiceImpl extends ExternalOrderServiceImpl implement
 
         Validate.notNull(order, "Order is null");
 
-        if (!this.iBSession.getLifecycle().isLoggedOn()) {
-            logger.error("order cannot be cancelled, because IB is not logged on");
+        if (!this.iBSession.isLoggedOn()) {
+            LOGGER.error("order cannot be cancelled, because IB is not logged on");
             return;
         }
 
         this.iBSession.cancelOrder(Integer.parseInt(order.getIntId()));
 
-        logger.info("requested order cancellation for order: " + order);
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("requested order cancellation for order: {}", order);
+        }
 
     }
 
@@ -161,27 +220,24 @@ public class IBNativeOrderServiceImpl extends ExternalOrderServiceImpl implement
      */
     private void sendOrModifyOrder(SimpleOrder order) {
 
-        if (!this.iBSession.getLifecycle().isLoggedOn()) {
-            logger.error("order cannot be sent / modified, because IB is not logged on");
+        if (!this.iBSession.isLoggedOn()) {
+            LOGGER.error("order cannot be sent / modified, because IB is not logged on");
             return;
         }
 
         // get the contract
-        Contract contract = IBUtil.getContract(order.getSecurityInitialized());
+        Contract contract = IBUtil.getContract(order.getSecurity());
 
         // create the IB order object
         com.ib.client.Order iBOrder = this.iBOrderMessageFactory.createOrderMessage(order, contract);
-
-        // persist the order into the database
-        this.orderService.persistOrder(order);
 
         // place the order through IBSession
         this.iBSession.placeOrder(Integer.parseInt(order.getIntId()), contract, iBOrder);
 
         // propagate the order to all corresponding Esper engines
-        this.orderService.propagateOrder(order);
-
-        logger.info("placed or modified order: " + order);
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("placed or modified order: {}", order);
+        }
     }
 
     /**
@@ -190,11 +246,23 @@ public class IBNativeOrderServiceImpl extends ExternalOrderServiceImpl implement
     @Override
     public String getNextOrderId(final Account account) {
 
-        return this.iBIdGenerator.getNextOrderId();
+        return Integer.toString((int) this.orderIdGenerator.generateId());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public OrderServiceType getOrderServiceType() {
-        return OrderServiceType.IB_NATIVE;
+    public String getOrderServiceType() {
+        return OrderServiceType.IB_NATIVE.name();
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public TIF getDefaultTIF(final SimpleOrderType type) {
+        return TIF.DAY;
+    }
+
 }

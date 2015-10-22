@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,8 +12,8 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.adapter.fix.fix42;
 
@@ -27,9 +27,10 @@ import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.trade.LimitOrderI;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.entity.trade.StopOrderI;
-import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.TIF;
+import ch.algotrader.util.PriceUtil;
 import quickfix.field.ClOrdID;
+import quickfix.field.ExDestination;
 import quickfix.field.ExpireTime;
 import quickfix.field.OrderQty;
 import quickfix.field.OrigClOrdID;
@@ -45,8 +46,6 @@ import quickfix.fix42.OrderCancelRequest;
  * Generic FIX/4.2 order message factory implementation.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public class GenericFix42OrderMessageFactory implements Fix42OrderMessageFactory {
 
@@ -65,33 +64,47 @@ public class GenericFix42OrderMessageFactory implements Fix42OrderMessageFactory
     public NewOrderSingle createNewOrderMessage(final SimpleOrder order, final String clOrdID) {
 
         NewOrderSingle message = new NewOrderSingle();
-        Security security = order.getSecurityInitialized();
-        Account account = order.getAccountInitialized();
-        Broker broker = account.getBroker();
+        Security security = order.getSecurity();
+        Account account = order.getAccount();
+        String broker = account.getBroker();
 
         // common info
         message.set(new ClOrdID(clOrdID));
         message.set(new TransactTime(new Date()));
 
-        symbologyResolver.resolve(message, security, broker);
+        this.symbologyResolver.resolve(message, security, broker);
 
         message.set(FixUtil.getFixSide(order.getSide()));
         message.set(new OrderQty(order.getQuantity()));
         message.set(FixUtil.getFixOrderType(order));
 
-        // handling for accounts
+        // exchange
+        String exchangeCode = null;
+        if (order.getExchange() != null) {
+            exchangeCode = order.getExchange().getCode();
+        } else if (security.getSecurityFamily().getExchange() != null) {
+            exchangeCode = security.getSecurityFamily().getExchange().getCode();
+        }
+
+        if (exchangeCode != null) {
+            message.set(new ExDestination(exchangeCode));
+        }
+
+        // account
         if (account.getExtAccount() != null) {
             message.set(new quickfix.field.Account(account.getExtAccount()));
         }
 
-        //set the limit price if order is a limit order or stop limit order
+        // set the limit price if order is a limit order or stop limit order
         if (order instanceof LimitOrderI) {
-            message.set(new Price(((LimitOrderI) order).getLimit().doubleValue()));
+            LimitOrderI limitOrder = (LimitOrderI) order;
+            message.set(new Price(PriceUtil.denormalizePrice(order, limitOrder.getLimit())));
         }
 
-        //set the stop price if order is a stop order or stop limit order
+        // set the stop price if order is a stop order or stop limit order
         if (order instanceof StopOrderI) {
-            message.set(new StopPx(((StopOrderI) order).getStop().doubleValue()));
+            StopOrderI stopOrder = (StopOrderI) order;
+            message.set(new StopPx(PriceUtil.denormalizePrice(order, stopOrder.getStop())));
         }
 
         // set TIF
@@ -102,7 +115,7 @@ public class GenericFix42OrderMessageFactory implements Fix42OrderMessageFactory
             }
         }
 
-        FixUtil.copyOrderProperties(message, order.getOrderPropertiesInitialized());
+        FixUtil.copyOrderProperties(message, order.getOrderProperties());
 
         return message;
     }
@@ -113,16 +126,16 @@ public class GenericFix42OrderMessageFactory implements Fix42OrderMessageFactory
         String origClOrdID = order.getIntId();
 
         OrderCancelReplaceRequest message = new OrderCancelReplaceRequest();
-        Security security = order.getSecurityInitialized();
-        Account account = order.getAccountInitialized();
-        Broker broker = account.getBroker();
+        Security security = order.getSecurity();
+        Account account = order.getAccount();
+        String broker = account.getBroker();
 
         // common info
         message.set(new ClOrdID(clOrdID));
         message.set(new OrigClOrdID(origClOrdID));
         message.set(new TransactTime(new Date()));
 
-        symbologyResolver.resolve(message, security, broker);
+        this.symbologyResolver.resolve(message, security, broker);
 
         message.set(FixUtil.getFixSide(order.getSide()));
         message.set(new OrderQty(order.getQuantity()));
@@ -135,12 +148,14 @@ public class GenericFix42OrderMessageFactory implements Fix42OrderMessageFactory
 
         //set the limit price if order is a limit order or stop limit order
         if (order instanceof LimitOrderI) {
-            message.set(new Price(((LimitOrderI) order).getLimit().doubleValue()));
+            LimitOrderI limitOrder = (LimitOrderI) order;
+            message.set(new Price(PriceUtil.denormalizePrice(order, limitOrder.getLimit())));
         }
 
         //set the stop price if order is a stop order or stop limit order
         if (order instanceof StopOrderI) {
-            message.set(new StopPx(((StopOrderI) order).getStop().doubleValue()));
+            StopOrderI stopOrder = (StopOrderI) order;
+            message.set(new StopPx(PriceUtil.denormalizePrice(order, stopOrder.getStop())));
         }
 
         // set TIF
@@ -151,7 +166,7 @@ public class GenericFix42OrderMessageFactory implements Fix42OrderMessageFactory
             }
         }
 
-        FixUtil.copyOrderProperties(message, order.getOrderPropertiesInitialized());
+        FixUtil.copyOrderProperties(message, order.getOrderProperties());
 
         return message;
     }
@@ -162,16 +177,16 @@ public class GenericFix42OrderMessageFactory implements Fix42OrderMessageFactory
         String origClOrdID = order.getIntId();
 
         OrderCancelRequest message = new OrderCancelRequest();
-        Security security = order.getSecurityInitialized();
-        Account account = order.getAccountInitialized();
-        Broker broker = account.getBroker();
+        Security security = order.getSecurity();
+        Account account = order.getAccount();
+        String broker = account.getBroker();
 
         // common info
         message.set(new ClOrdID(clOrdID));
         message.set(new OrigClOrdID(origClOrdID));
         message.set(new TransactTime(new Date()));
 
-        symbologyResolver.resolve(message, security, broker);
+        this.symbologyResolver.resolve(message, security, broker);
 
         message.set(FixUtil.getFixSide(order.getSide()));
         message.set(new OrderQty(order.getQuantity()));

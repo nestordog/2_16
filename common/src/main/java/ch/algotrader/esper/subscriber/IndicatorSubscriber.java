@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,8 +12,8 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.esper.subscriber;
 
@@ -21,24 +21,23 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-
-import ch.algotrader.util.MyLogger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Prints all values as a comma-separated-list (CSV) to Log. (Headers are not available).
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public class IndicatorSubscriber {
 
-    private static Logger logger = MyLogger.getLogger(IndicatorSubscriber.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(IndicatorSubscriber.class);
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public void update(Map<?, ?> map) {
 
-        logger.info(StringUtils.join((new TreeMap(map)).values(), ","));
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info(StringUtils.join((new TreeMap(map)).values(), ","));
+        }
     }
 }

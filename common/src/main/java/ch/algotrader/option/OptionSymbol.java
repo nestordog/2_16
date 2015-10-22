@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,59 +12,46 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.option;
 
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
 
 import org.apache.commons.lang.StringUtils;
 
 import ch.algotrader.entity.security.OptionFamily;
 import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.util.BaseConverterUtil;
+import ch.algotrader.util.DateTimePatterns;
 
 /**
  * Utility class to generate symbol, isin and ric for {@link ch.algotrader.entity.security.Option Options}.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public class OptionSymbol {
 
     private static final String[] monthCallEnc = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L" };
     private static final String[] monthPutEnc = { "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X" };
     private static final String[] yearEnc = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J" };
-    private static SimpleDateFormat dayMonthYearFormat = new SimpleDateFormat("dd/MMM/yy");
-    private static SimpleDateFormat monthYearFormat = new SimpleDateFormat("MMM/yy");
-    private static SimpleDateFormat dayFormat = new SimpleDateFormat("dd");
-    private static SimpleDateFormat weekFormat = new SimpleDateFormat("W");
 
     /**
      * Generates the symbole for the specified {@link ch.algotrader.entity.security.OptionFamily}.
      */
-    public static String getSymbol(OptionFamily family, Date expiration, OptionType type, BigDecimal strike, boolean includeDay) {
+    public static String getSymbol(OptionFamily family, LocalDate expiration, OptionType type, BigDecimal strike, boolean includeDay) {
 
-        GregorianCalendar cal = new GregorianCalendar();
-        cal.setTime(expiration);
+        String week = family.isWeekly() ? DateTimePatterns.WEEK_OF_MONTH.format(expiration) : "";
 
-        String week = "";
-        if (family.isWeekly()) {
-            week = weekFormat.format(cal.getTime());
-        }
-
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         buffer.append(family.getSymbolRoot());
         buffer.append(week);
         buffer.append(" ");
-        buffer.append(includeDay ? dayMonthYearFormat.format(cal.getTime()) : monthYearFormat.format(cal.getTime()).toUpperCase());
+        buffer.append(includeDay ? DateTimePatterns.OPTION_DAY_MONTH_YEAR.format(expiration) :
+                DateTimePatterns.OPTION_MONTH_YEAR.format(expiration).toUpperCase());
         buffer.append("-");
         buffer.append(type.toString().substring(0, 1));
         buffer.append(" ");
@@ -76,30 +63,24 @@ public class OptionSymbol {
     /**
      * Generates the ISIN for the specified {@link ch.algotrader.entity.security.OptionFamily}.
      */
-    public static String getIsin(OptionFamily family, Date expiration, OptionType type, BigDecimal strike) {
+    public static String getIsin(OptionFamily family, LocalDate expiration, OptionType type, BigDecimal strike) {
 
-        Calendar cal = new GregorianCalendar();
-        cal.setTime(expiration);
-
-        String week = "";
-        if (family.isWeekly()) {
-            week = weekFormat.format(cal.getTime());
-        }
+        String week = family.isWeekly() ? DateTimePatterns.WEEK_OF_MONTH.format(expiration) : "";
 
         String month;
         if (OptionType.CALL.equals(type)) {
-            month = monthCallEnc[cal.get(Calendar.MONTH)];
+            month = monthCallEnc[expiration.getMonthValue() - 1];
         } else {
-            month = monthPutEnc[cal.get(Calendar.MONTH)];
+            month = monthPutEnc[expiration.getMonthValue() - 1];
         }
 
-        int yearIndex = cal.get(Calendar.YEAR) % 10;
+        int yearIndex = expiration.getYear() % 10;
         String year = yearEnc[yearIndex];
 
             String strike36 = BaseConverterUtil.toBase36(strike.multiply(new BigDecimal(10)).intValue());
             String strikeVal = strike.scale() + StringUtils.leftPad(strike36, 4, "0");
 
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         buffer.append("1O");
         buffer.append(family.getIsinRoot() != null ? family.getIsinRoot() : family.getSymbolRoot());
         buffer.append(week);
@@ -113,20 +94,18 @@ public class OptionSymbol {
     /**
      * Generates the RIC for the specified {@link ch.algotrader.entity.security.OptionFamily}.
      */
-    public static String getRic(OptionFamily family, Date expiration, OptionType type, BigDecimal strike) {
+    public static String getRic(OptionFamily family, LocalDate expiration, OptionType type, BigDecimal strike) {
 
-        GregorianCalendar cal = new GregorianCalendar();
-        cal.setTime(expiration);
-
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         buffer.append(family.getRicRoot() != null ? family.getRicRoot() : family.getSymbolRoot());
         if (OptionType.CALL.equals(type)) {
-            buffer.append(monthCallEnc[cal.get(Calendar.MONTH)]);
+            buffer.append(monthCallEnc[expiration.getMonthValue() - 1]);
         } else {
-            buffer.append(monthPutEnc[cal.get(Calendar.MONTH)]);
+            buffer.append(monthPutEnc[expiration.getMonthValue() - 1]);
         }
-        buffer.append(dayFormat.format(cal.getTime()));
-        buffer.append((cal.get(Calendar.YEAR) + "").substring(2));
+        buffer.append(DateTimePatterns.DAY_OF_MONTH.format(expiration));
+        final String s = DateTimePatterns.YEAR_4_DIGIT.format(expiration);
+        buffer.append(s.substring(s.length() - 2, s.length()));
         buffer.append(StringUtils.leftPad(String.valueOf((int) (strike.doubleValue() * 100)), 5, "0"));
         buffer.append(".U");
 

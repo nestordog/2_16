@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,14 +12,13 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.adapter.ftx;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.text.DateFormat;
 import java.util.List;
 
 import org.junit.Assert;
@@ -33,16 +32,14 @@ import org.mockito.MockitoAnnotations;
 import ch.algotrader.adapter.fix.fix44.FixTestUtils;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.esper.EngineLocator;
-import ch.algotrader.vo.AskVO;
-import ch.algotrader.vo.BidVO;
+import ch.algotrader.util.DateTimeLegacy;
+import ch.algotrader.vo.marketData.AskVO;
+import ch.algotrader.vo.marketData.BidVO;
 import quickfix.fix44.Quote;
 import quickfix.fix44.Reject;
 
 /**
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
- *
- * @version $Revision$ $Date$
  */
 public class TestFTXFixMarketDataMessageHandler {
 
@@ -55,9 +52,8 @@ public class TestFTXFixMarketDataMessageHandler {
     public void setup() throws Exception {
 
         MockitoAnnotations.initMocks(this);
-        EngineLocator.instance().setEngine("SERVER", this.engine);
 
-        this.impl = new FTXFixMarketDataMessageHandler();
+        this.impl = new FTXFixMarketDataMessageHandler(engine);
     }
 
     @Test
@@ -79,16 +75,14 @@ public class TestFTXFixMarketDataMessageHandler {
         Assert.assertNotNull(events);
         Assert.assertEquals(2, events.size());
 
-        DateFormat dateTimeParser = FixTestUtils.getSimpleDateTimeFormat();
-
         Object event1 = events.get(0);
         Assert.assertTrue(event1 instanceof BidVO);
         BidVO bid = (BidVO) event1;
         Assert.assertEquals("EUR/USD", bid.getTickerId());
         Assert.assertEquals(new BigDecimal("1.13653"), new BigDecimal(bid.getBid()).setScale(5, RoundingMode.HALF_EVEN));
         Assert.assertEquals(1000000, bid.getVolBid());
-        Assert.assertEquals(FeedType.FTX, bid.getFeedType());
-        Assert.assertEquals(dateTimeParser.parse("20150610-08:03:36.656"), bid.getDateTime());
+        Assert.assertEquals(FeedType.FTX.name(), bid.getFeedType());
+        Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2015-06-10 08:03:36.656"), bid.getDateTime());
 
         Object event2 = events.get(1);
         Assert.assertTrue(event2 instanceof AskVO);
@@ -97,8 +91,8 @@ public class TestFTXFixMarketDataMessageHandler {
         Assert.assertEquals("EUR/USD", ask.getTickerId());
         Assert.assertEquals(new BigDecimal("1.13677"), new BigDecimal(ask.getAsk()).setScale(5, RoundingMode.HALF_EVEN));
         Assert.assertEquals(1000000, ask.getVolAsk());
-        Assert.assertEquals(FeedType.FTX, ask.getFeedType());
-        Assert.assertEquals(dateTimeParser.parse("20150610-08:03:36.656"), ask.getDateTime());
+        Assert.assertEquals(FeedType.FTX.name(), ask.getFeedType());
+        Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2015-06-10 08:03:36.656"), ask.getDateTime());
     }
 
     @Test

@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,8 +12,8 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.service.h2;
 
@@ -23,32 +23,31 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.lang.Validate;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.classic.Session;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.algotrader.config.CommonConfig;
+import ch.algotrader.dao.HibernateInitializer;
+import ch.algotrader.dao.PositionDao;
+import ch.algotrader.dao.TransactionDao;
+import ch.algotrader.dao.strategy.CashBalanceDao;
 import ch.algotrader.entity.Position;
-import ch.algotrader.entity.PositionDao;
 import ch.algotrader.entity.Transaction;
-import ch.algotrader.entity.TransactionDao;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.strategy.CashBalance;
-import ch.algotrader.entity.strategy.CashBalanceDao;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.enumeration.Currency;
+import ch.algotrader.esper.Engine;
 import ch.algotrader.service.PortfolioService;
 import ch.algotrader.service.TransactionPersistenceServiceImpl;
-import ch.algotrader.util.spring.HibernateSession;
 import ch.algotrader.vo.CurrencyAmountVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
-@HibernateSession
+@Transactional(propagation = Propagation.SUPPORTS)
 public class H2TransactionPersistenceServiceImpl extends TransactionPersistenceServiceImpl {
 
     private final SessionFactory sessionFactory;
@@ -62,9 +61,10 @@ public class H2TransactionPersistenceServiceImpl extends TransactionPersistenceS
             final SessionFactory sessionFactory,
             final PositionDao positionDao,
             final TransactionDao transactionDao,
-            final CashBalanceDao cashBalanceDao) {
+            final CashBalanceDao cashBalanceDao,
+            final Engine serverEngine) {
 
-        super(commonConfig, portfolioService, positionDao, transactionDao, cashBalanceDao);
+        super(commonConfig, portfolioService, positionDao, transactionDao, cashBalanceDao, serverEngine);
 
         Validate.notNull(sessionFactory, "SessionFactory is null");
         Validate.notNull(positionDao, "PositionDao is null");
@@ -84,9 +84,11 @@ public class H2TransactionPersistenceServiceImpl extends TransactionPersistenceS
 
         Validate.notNull(transaction, "Transaction is null");
 
+        transaction.initializeSecurity(HibernateInitializer.INSTANCE);
+
         Strategy strategy = transaction.getStrategy();
         Security security = transaction.getSecurity();
-        Set<Currency> currencySet = new HashSet<Currency>();
+        Set<Currency> currencySet = new HashSet<>();
         Collection<CurrencyAmountVO> attributions = transaction.getAttributions();
         for (CurrencyAmountVO attribution : attributions) {
             currencySet.add(attribution.getCurrency());

@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,18 +12,18 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.starter;
 
 import java.lang.reflect.Method;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.format.DateTimeParseException;
 import java.util.Date;
 import java.util.StringTokenizer;
 
 import ch.algotrader.ServiceLocator;
+import ch.algotrader.util.DateTimeLegacy;
 
 /**
  * Generic Starter Class that can be used to invoke any service that has String, Integer, Double or Date based parameters
@@ -33,25 +33,26 @@ import ch.algotrader.ServiceLocator;
  * Example: {@code accountService:restorePortfolioValues:07.01.12:03.12.12}
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public class GenericStarter {
 
-    private static SimpleDateFormat dayFormat = new SimpleDateFormat("dd.MM.yy");
-    private static SimpleDateFormat hourFormat = new SimpleDateFormat("dd.MM.yy hh:mm:ss");
-
     public static void main(String[] args) throws Exception {
 
-        for (String arg : args) {
-            invoke(arg);
+        ServiceLocator serviceLocator = ServiceLocator.instance();
+        serviceLocator.init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
+        try {
+            for (String arg : args) {
+                invoke(serviceLocator, arg);
+            }
+        } finally {
+            serviceLocator.shutdown();
         }
     }
 
-    public static Object invoke(String arg) {
+    public static Object invoke(final ServiceLocator serviceLocator, final String arg) {
 
         if (arg == null) {
-            throw new IllegalArgumentException("you must specifiy service and method");
+            throw new IllegalArgumentException("you must specify service and method");
         }
 
         StringTokenizer tokenizer = new StringTokenizer(arg, ":");
@@ -64,9 +65,6 @@ public class GenericStarter {
         String serviceName = tokenizer.nextToken();
         String methodName = tokenizer.nextToken();
 
-        ServiceLocator serviceLocator = ServiceLocator.instance();
-
-        serviceLocator.init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
         Object service = serviceLocator.getService(serviceName);
 
         Object result = null;
@@ -92,11 +90,11 @@ public class GenericStarter {
                         params[i] = Double.valueOf(param);
                     } else if (parameterType.equals(Date.class)) {
                         try {
-                            params[i] = hourFormat.parse(param);
-                        } catch (ParseException e) {
+                            params[i] = DateTimeLegacy.parseAsLocalDateTime(param);
+                        } catch (DateTimeParseException e) {
                             try {
-                                params[i] = dayFormat.parse(param);
-                            } catch (ParseException e1) {
+                                params[i] = DateTimeLegacy.parseAsLocalDate(param);
+                            } catch (DateTimeParseException e1) {
                                 throw new IllegalStateException(e1);
                             }
                         }
@@ -116,8 +114,6 @@ public class GenericStarter {
         if (!found) {
             throw new IllegalArgumentException("method does not exist");
         }
-
-        serviceLocator.shutdown();
 
         return result;
     }

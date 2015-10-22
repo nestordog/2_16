@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,8 +12,8 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.esper.io;
 
@@ -27,6 +27,7 @@ import org.apache.commons.lang.time.DateUtils;
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.marketData.Bar;
 import ch.algotrader.enumeration.Duration;
+import ch.algotrader.service.ServerLookupService;
 
 import com.espertech.esper.adapter.AdapterState;
 import com.espertech.esper.client.EPException;
@@ -38,23 +39,23 @@ import com.espertech.esperio.SendableEvent;
  * for all subscribed secruitiesin 1-day batches.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public class DBBarInputAdapter extends AbstractCoordinatedAdapter {
 
 
     private Iterator<Bar> iterator = (new ArrayList<Bar>()).iterator();
     private Date startDate;
-    private int batchSize;
-    private Duration barSize;
+    private final int batchSize;
+    private final Duration barSize;
+    private final ServerLookupService serverLookupService;
 
     public DBBarInputAdapter(int batchSize, Duration barSize) {
         super(null, true, true, true);
         this.batchSize = batchSize;
         this.barSize = barSize;
 
-        Bar bar = ServiceLocator.instance().getLookupService().getFirstSubscribedBarByBarSize(this.barSize);
+        this.serverLookupService = ServiceLocator.instance().getService("serverLookupService", ServerLookupService.class);
+        Bar bar = this.serverLookupService.getFirstSubscribedBarByBarSize(this.barSize);
         this.startDate = bar.getDateTime();
     }
 
@@ -91,7 +92,7 @@ public class DBBarInputAdapter extends AbstractCoordinatedAdapter {
             if (!this.iterator.hasNext()) {
                 Date endDate = DateUtils.addDays(this.startDate, this.batchSize);
 
-                List<Bar> bars = ServiceLocator.instance().getLookupService().getSubscribedBarsByTimePeriodAndBarSize(this.startDate, endDate, this.barSize);
+                List<Bar> bars = this.serverLookupService.getSubscribedBarsByTimePeriodAndBarSize(this.startDate, endDate, this.barSize);
 
                 if (bars.size() > 0) {
                     this.iterator = bars.iterator();
@@ -104,6 +105,11 @@ public class DBBarInputAdapter extends AbstractCoordinatedAdapter {
                 Bar bar = this.iterator.next();
                 return new SendableBaseObjectEvent(bar, bar.getDateTime().getTime(), this.scheduleSlot);
             } else {
+                if (this.stateManager.getState() == AdapterState.STARTED) {
+                    stop();
+                } else {
+                    destroy();
+                }
                 return null;
             }
         } else {

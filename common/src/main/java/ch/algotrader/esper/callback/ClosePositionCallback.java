@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,15 +12,15 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.esper.callback;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import ch.algotrader.esper.EngineLocator;
-import ch.algotrader.util.MyLogger;
+import ch.algotrader.esper.Engine;
 import ch.algotrader.util.metric.MetricsUtil;
 import ch.algotrader.vo.ClosePositionVO;
 
@@ -28,12 +28,10 @@ import ch.algotrader.vo.ClosePositionVO;
  * Base Esper Callback Class that will be invoked as soon as a Position on the given Security passed to {@link ch.algotrader.esper.Engine#addClosePositionCallback} has been closed.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
-public abstract class ClosePositionCallback {
+public abstract class ClosePositionCallback extends AbstractEngineCallback {
 
-    private static Logger logger = MyLogger.getLogger(ClosePositionCallback.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(ClosePositionCallback.class);
 
     /**
      * Called by the "ON_CLOSE_POSITION" statement. Should not be invoked directly.
@@ -44,15 +42,21 @@ public abstract class ClosePositionCallback {
         String alias = "ON_CLOSE_POSITION_" + positionVO.getSecurityId();
 
         // undeploy the statement
-        EngineLocator.instance().getEngine(positionVO.getStrategy()).undeployStatement(alias);
+        Engine engine = getEngine();
+        if (engine != null) {
+            engine.undeployStatement(alias);
+        }
 
         long startTime = System.nanoTime();
-        logger.debug("onClosePosition start " + positionVO.getSecurityId());
-
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("onClosePosition start {}", positionVO.getSecurityId());
+        }
         // call orderCompleted
         onClosePosition(positionVO);
 
-        logger.debug("onClosePosition end " + positionVO.getSecurityId());
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("onClosePosition end {}", positionVO.getSecurityId());
+        }
 
         MetricsUtil.accountEnd("ClosePositionCallback." + positionVO.getStrategy(), startTime);
     }

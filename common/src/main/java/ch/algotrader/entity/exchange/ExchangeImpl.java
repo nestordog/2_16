@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,20 +12,16 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 
 package ch.algotrader.entity.exchange;
 
 import java.util.TimeZone;
 
-import ch.algotrader.util.ObjectUtil;
-
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public class ExchangeImpl extends Exchange {
 
@@ -33,29 +29,8 @@ public class ExchangeImpl extends Exchange {
 
     @Override
     public String toString() {
-        return getName() + " " + getCode();
-    }
 
-    @Override
-    public boolean equals(Object obj) {
-
-        if (this == obj) {
-            return true;
-        }
-        if (obj instanceof Exchange) {
-            Exchange that = (Exchange) obj;
-            return ObjectUtil.equalsNonNull(this.getName(), that.getName());
-        } else {
-            return false;
-        }
-    }
-
-    @Override
-    public int hashCode() {
-
-        int hash = 17;
-        hash = hash * 37 + ObjectUtil.hashCode(getName());
-        return hash;
+        return getName();
     }
 
     @Override

@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,8 +12,8 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.service;
 
@@ -33,7 +33,8 @@ import java.util.TreeSet;
 import org.apache.commons.collections15.keyvalue.MultiKey;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.time.DateUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.SessionFactory;
 import org.springframework.scheduling.support.CronSequenceGenerator;
 import org.springframework.transaction.annotation.Propagation;
@@ -41,29 +42,34 @@ import org.springframework.transaction.annotation.Transactional;
 
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.CoreConfig;
+import ch.algotrader.dao.GenericDao;
+import ch.algotrader.dao.HibernateInitializer;
+import ch.algotrader.dao.NamedParam;
+import ch.algotrader.dao.PositionDao;
+import ch.algotrader.dao.TransactionDao;
+import ch.algotrader.dao.marketData.TickDao;
+import ch.algotrader.dao.security.ForexDao;
+import ch.algotrader.dao.strategy.CashBalanceDao;
+import ch.algotrader.dao.strategy.PortfolioValueDao;
+import ch.algotrader.dao.strategy.PortfolioValueVOProducer;
+import ch.algotrader.dao.strategy.StrategyDao;
 import ch.algotrader.entity.Position;
-import ch.algotrader.entity.PositionDao;
 import ch.algotrader.entity.Transaction;
-import ch.algotrader.entity.TransactionDao;
+import ch.algotrader.entity.marketData.MarketDataEventVO;
 import ch.algotrader.entity.marketData.Tick;
-import ch.algotrader.entity.marketData.TickDao;
 import ch.algotrader.entity.security.Forex;
-import ch.algotrader.entity.security.ForexDao;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.strategy.CashBalance;
-import ch.algotrader.entity.strategy.CashBalanceDao;
 import ch.algotrader.entity.strategy.PortfolioValue;
-import ch.algotrader.entity.strategy.PortfolioValueDao;
+import ch.algotrader.entity.strategy.PortfolioValueI;
 import ch.algotrader.entity.strategy.Strategy;
-import ch.algotrader.entity.strategy.StrategyDao;
 import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.enumeration.Currency;
-import ch.algotrader.hibernate.GenericDao;
-import ch.algotrader.util.DateUtil;
-import ch.algotrader.util.MyLogger;
+import ch.algotrader.enumeration.QueryType;
+import ch.algotrader.esper.EngineManager;
+import ch.algotrader.report.PortfolioReport;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.collection.DoubleMap;
-import ch.algotrader.util.spring.HibernateSession;
 import ch.algotrader.vo.BalanceVO;
 import ch.algotrader.vo.CurrencyAmountVO;
 import ch.algotrader.vo.FxExposureVO;
@@ -71,21 +77,19 @@ import ch.algotrader.vo.PortfolioValueVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
-@HibernateSession
+@Transactional(propagation = Propagation.SUPPORTS)
 public class PortfolioServiceImpl implements PortfolioService {
 
-    private static Logger logger = MyLogger.getLogger(PortfolioServiceImpl.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(PortfolioServiceImpl.class);
 
     private final CommonConfig commonConfig;
 
     private final CoreConfig coreConfig;
 
-    private final LookupService lookupService;
-
     private final SessionFactory sessionFactory;
+
+    private final MarketDataCache marketDataCache;
 
     private final GenericDao genericDao;
 
@@ -107,20 +111,26 @@ public class PortfolioServiceImpl implements PortfolioService {
 
         @Override
         public int compare(Currency currency1, Currency currency2) {
-            if (currency1 == PortfolioServiceImpl.this.commonConfig.getPortfolioBaseCurrency()) {
+            if (currency1 == currency2) {
+                return 0;
+            } else if (currency1 == PortfolioServiceImpl.this.commonConfig.getPortfolioBaseCurrency()) {
                 return Integer.MIN_VALUE;
             } else if (currency2 == PortfolioServiceImpl.this.commonConfig.getPortfolioBaseCurrency()) {
                 return Integer.MAX_VALUE;
             } else {
-                return currency1.getValue().compareTo(currency2.getValue());
+                return currency1.compareTo(currency2);
             }
         }
     };
 
+    private final EngineManager engineManager;
+
+    private volatile PortfolioReport portfolioReport;
+
     public PortfolioServiceImpl(final CommonConfig commonConfig,
             final CoreConfig coreConfig,
-            final LookupService lookupService,
             final SessionFactory sessionFactory,
+            final MarketDataCache marketDataCache,
             final GenericDao genericDao,
             final StrategyDao strategyDao,
             final TransactionDao transactionDao,
@@ -128,12 +138,13 @@ public class PortfolioServiceImpl implements PortfolioService {
             final CashBalanceDao cashBalanceDao,
             final PortfolioValueDao portfolioValueDao,
             final TickDao tickDao,
-            final ForexDao forexDao) {
+            final ForexDao forexDao,
+            final EngineManager engineManager) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(coreConfig, "CoreConfig is null");
-        Validate.notNull(lookupService, "LookupService is null");
         Validate.notNull(sessionFactory, "SessionFactory is null");
+        Validate.notNull(marketDataCache, "MarketDataCache is null");
         Validate.notNull(genericDao, "GenericDao is null");
         Validate.notNull(strategyDao, "StrategyDao is null");
         Validate.notNull(transactionDao, "TransactionDao is null");
@@ -142,11 +153,12 @@ public class PortfolioServiceImpl implements PortfolioService {
         Validate.notNull(portfolioValueDao, "PortfolioValueDao is null");
         Validate.notNull(tickDao, "TickDao is null");
         Validate.notNull(forexDao, "ForexDao is null");
+        Validate.notNull(engineManager, "EngineManager is null");
 
         this.commonConfig = commonConfig;
         this.coreConfig = coreConfig;
-        this.lookupService = lookupService;
         this.sessionFactory = sessionFactory;
+        this.marketDataCache = marketDataCache;
         this.genericDao = genericDao;
         this.strategyDao = strategyDao;
         this.transactionDao = transactionDao;
@@ -155,7 +167,7 @@ public class PortfolioServiceImpl implements PortfolioService {
         this.portfolioValueDao = portfolioValueDao;
         this.tickDao = tickDao;
         this.forexDao = forexDao;
-
+        this.engineManager = engineManager;
     }
 
     /**
@@ -209,13 +221,13 @@ public class PortfolioServiceImpl implements PortfolioService {
      * {@inheritDoc}
      */
     @Override
-    public BigDecimal getCashBalance(final String filter, final Map namedParameters, final Date date) {
+    public BigDecimal getCashBalance(final String filter, final Date date, final NamedParam... namedParams) {
 
         Validate.notEmpty(filter, "Filter is empty");
-        Validate.notNull(namedParameters, "Named parameters is null");
+        Validate.notNull(namedParams, "Named parameters is null");
         Validate.notNull(date, "Date is null");
 
-        return RoundUtil.getBigDecimal(getCashBalanceDouble(filter, namedParameters, date));
+        return RoundUtil.getBigDecimal(getCashBalanceDouble(filter, date, namedParams));
 
     }
 
@@ -286,13 +298,16 @@ public class PortfolioServiceImpl implements PortfolioService {
      * {@inheritDoc}
      */
     @Override
-    public double getCashBalanceDouble(final String filter, final Map namedParameters, final Date date) {
+    public double getCashBalanceDouble(final String filter, final Date date, final NamedParam... namedParams) {
 
         Validate.notEmpty(filter, "Filter is empty");
-        Validate.notNull(namedParameters, "Named parameters is null");
+        Validate.notNull(namedParams, "Named parameters is null");
         Validate.notNull(date, "Date is null");
 
-        namedParameters.put("maxDate", date);
+        // add maxDate
+        NamedParam[] copy = new NamedParam[namedParams.length + 1];
+        System.arraycopy(namedParams, 0, copy, 0, namedParams.length);
+        copy[namedParams.length] = new NamedParam("maxDate", date);
 
         //@formatter:off
             String query =
@@ -300,9 +315,9 @@ public class PortfolioServiceImpl implements PortfolioService {
                     + "where " + filter + " "
                     + "and t.dateTime <= :maxDate";
           //@formatter:on
-        Collection<Transaction> transactions = (Collection<Transaction>) this.genericDao.find(query, namedParameters);
+        Collection<Transaction> transactions = this.genericDao.find(Transaction.class, query, QueryType.HQL, copy);
 
-        return getCashBalanceDoubleInternal(transactions, new ArrayList<Position>(), date);
+        return getCashBalanceDoubleInternal(transactions, new ArrayList<>(), date);
 
     }
 
@@ -357,13 +372,13 @@ public class PortfolioServiceImpl implements PortfolioService {
      * {@inheritDoc}
      */
     @Override
-    public BigDecimal getSecuritiesCurrentValue(final String filter, final Map namedParameters, final Date date) {
+    public BigDecimal getSecuritiesCurrentValue(final String filter, final Date date, final NamedParam... namedParams) {
 
         Validate.notEmpty(filter, "Filter is empty");
-        Validate.notNull(namedParameters, "Named parameters is null");
+        Validate.notNull(namedParams, "Named parameters is null");
         Validate.notNull(date, "Date is null");
 
-        return RoundUtil.getBigDecimal(getSecuritiesCurrentValueDouble(filter, namedParameters, date));
+        return RoundUtil.getBigDecimal(getSecuritiesCurrentValueDouble(filter, date, namedParams));
 
     }
 
@@ -426,10 +441,10 @@ public class PortfolioServiceImpl implements PortfolioService {
      * {@inheritDoc}
      */
     @Override
-    public double getSecuritiesCurrentValueDouble(final String filter, final Map namedParameters, final Date date) {
+    public double getSecuritiesCurrentValueDouble(final String filter, final Date date, final NamedParam... namedParams) {
 
         Validate.notEmpty(filter, "Filter is empty");
-        Validate.notNull(namedParameters, "Named parameters is null");
+        Validate.notNull(namedParams, "Named parameters is null");
         Validate.notNull(date, "Date is null");
 
         //@formatter:off
@@ -445,21 +460,14 @@ public class PortfolioServiceImpl implements PortfolioService {
                     + "order by s.id";
             //@formatter:on
 
-        namedParameters.put("maxDate", date);
+        // add maxDate
+        NamedParam[] copy = new NamedParam[namedParams.length + 1];
+        System.arraycopy(namedParams, 0, copy, 0, namedParams.length);
+        copy[namedParams.length] = new NamedParam("maxDate", date);
 
-        List<Position> openPositions = (List<Position>) this.genericDao.find(queryString, namedParameters);
+        List<Position> openPositions = this.genericDao.find(Position.class, queryString, QueryType.HQL, namedParams);
 
         return getSecuritiesCurrentValueDoubleInternal(openPositions, date);
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public BigDecimal getMaintenanceMargin() {
-
-        return RoundUtil.getBigDecimal(getMaintenanceMarginDouble());
 
     }
 
@@ -515,94 +523,6 @@ public class PortfolioServiceImpl implements PortfolioService {
      * {@inheritDoc}
      */
     @Override
-    public BigDecimal getMaintenanceMargin(final String strategyName) {
-
-        Validate.notEmpty(strategyName, "Strategy name is empty");
-
-        return RoundUtil.getBigDecimal(getMaintenanceMarginDouble(strategyName));
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public double getMaintenanceMarginDouble() {
-
-        double margin = 0.0;
-        Collection<Position> positions = this.positionDao.findOpenTradeablePositions();
-        for (Position position : positions) {
-            margin += position.getMaintenanceMarginBaseDouble();
-        }
-        return margin;
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public double getMaintenanceMarginDouble(final String strategyName) {
-
-        Validate.notEmpty(strategyName, "Strategy name is empty");
-
-        double margin = 0.0;
-        List<Position> positions = this.positionDao.findOpenTradeablePositionsByStrategy(strategyName);
-        for (Position position : positions) {
-            margin += position.getMaintenanceMarginBaseDouble();
-        }
-        return margin;
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public BigDecimal getInitialMargin() {
-
-        return RoundUtil.getBigDecimal(getInitialMarginDouble());
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public BigDecimal getInitialMargin(final String strategyName) {
-
-        Validate.notEmpty(strategyName, "Strategy name is empty");
-
-        return RoundUtil.getBigDecimal(getInitialMarginDouble(strategyName));
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public double getInitialMarginDouble() {
-
-        return this.commonConfig.getInitialMarginMarkup().doubleValue() * getMaintenanceMarginDouble();
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public double getInitialMarginDouble(final String strategyName) {
-
-        Validate.notEmpty(strategyName, "Strategy name is empty");
-
-        return this.commonConfig.getInitialMarginMarkup().doubleValue() * getMaintenanceMarginDouble(strategyName);
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public BigDecimal getNetLiqValue() {
 
         return RoundUtil.getBigDecimal(getNetLiqValueDouble());
@@ -647,56 +567,17 @@ public class PortfolioServiceImpl implements PortfolioService {
      * {@inheritDoc}
      */
     @Override
-    public BigDecimal getAvailableFunds() {
-
-        return RoundUtil.getBigDecimal(getAvailableFundsDouble());
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public BigDecimal getAvailableFunds(final String strategyName) {
-
-        Validate.notEmpty(strategyName, "Strategy name is empty");
-
-        return RoundUtil.getBigDecimal(getAvailableFundsDouble(strategyName));
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public double getAvailableFundsDouble() {
-
-        return getNetLiqValueDouble() - getInitialMarginDouble();
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public double getAvailableFundsDouble(final String strategyName) {
-
-        Validate.notEmpty(strategyName, "Strategy name is empty");
-
-        return getNetLiqValueDouble(strategyName) - getInitialMarginDouble(strategyName);
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public double getLeverage() {
 
         double exposure = 0.0;
         Collection<Position> positions = this.positionDao.findOpenTradeablePositions();
         for (Position position : positions) {
-            exposure += position.getExposure();
+            MarketDataEventVO marketDataEvent = this.marketDataCache.getCurrentMarketDataEvent(position.getSecurity().getId());
+            MarketDataEventVO underlyingMarketDataEvent = null;
+            if (position.getSecurity().getUnderlying() != null) {
+                underlyingMarketDataEvent = this.marketDataCache.getCurrentMarketDataEvent(position.getSecurity().getUnderlying().getId());
+            }
+            exposure += position.getExposure(marketDataEvent, underlyingMarketDataEvent, this.engineManager.getCurrentEPTime());
         }
         return exposure / getNetLiqValueDouble();
 
@@ -713,7 +594,12 @@ public class PortfolioServiceImpl implements PortfolioService {
         double exposure = 0.0;
         List<Position> positions = this.positionDao.findOpenTradeablePositionsByStrategy(strategyName);
         for (Position position : positions) {
-            exposure += position.getExposure();
+            MarketDataEventVO marketDataEvent = this.marketDataCache.getCurrentMarketDataEvent(position.getSecurity().getId());
+            MarketDataEventVO underlyingMarketDataEvent = null;
+            if (position.getSecurity().getUnderlying() != null) {
+                underlyingMarketDataEvent = this.marketDataCache.getCurrentMarketDataEvent(position.getSecurity().getUnderlying().getId());
+            }
+            exposure += position.getExposure(marketDataEvent, underlyingMarketDataEvent, this.engineManager.getCurrentEPTime());
         }
 
         return exposure / getNetLiqValueDouble(strategyName);
@@ -772,28 +658,24 @@ public class PortfolioServiceImpl implements PortfolioService {
 
         BigDecimal cashBalance;
         BigDecimal securitiesCurrentValue;
-        BigDecimal maintenanceMargin;
         double leverage;
         if (strategy.isServer()) {
             cashBalance = getCashBalance();
             securitiesCurrentValue = getSecuritiesCurrentValue();
-            maintenanceMargin = getMaintenanceMargin();
             leverage = getLeverage();
 
         } else {
             cashBalance = getCashBalance(strategy.getName());
             securitiesCurrentValue = getSecuritiesCurrentValue(strategy.getName());
-            maintenanceMargin = getMaintenanceMargin(strategy.getName());
             leverage = getLeverage(strategy.getName());
         }
 
         PortfolioValue portfolioValue = PortfolioValue.Factory.newInstance();
 
         portfolioValue.setStrategy(strategy);
-        portfolioValue.setDateTime(DateUtil.getCurrentEPTime());
+        portfolioValue.setDateTime(this.engineManager.getCurrentEPTime());
         portfolioValue.setCashBalance(cashBalance);
         portfolioValue.setSecuritiesCurrentValue(securitiesCurrentValue); // might be null if there was no last tick for a particular security
-        portfolioValue.setMaintenanceMargin(maintenanceMargin);
         portfolioValue.setNetLiqValue(securitiesCurrentValue != null ? cashBalance.add(securitiesCurrentValue) : null); // add here to prevent another lookup
         portfolioValue.setLeverage(Double.isNaN(leverage) ? 0 : leverage);
         portfolioValue.setAllocation(strategy.getAllocation());
@@ -831,7 +713,6 @@ public class PortfolioServiceImpl implements PortfolioService {
         portfolioValue.setCashBalance(cashBalance);
         portfolioValue.setSecuritiesCurrentValue(securitiesCurrentValue);
         portfolioValue.setNetLiqValue(cashBalance.add(securitiesCurrentValue)); // add here to prevent another lookup
-        portfolioValue.setMaintenanceMargin(new BigDecimal(0));
 
         return portfolioValue;
 
@@ -846,7 +727,7 @@ public class PortfolioServiceImpl implements PortfolioService {
         Validate.notEmpty(strategyName, "Strategy name is empty");
         Validate.notNull(date, "Date is null");
 
-        Collection<PortfolioValueVO> portfolioValues = (Collection<PortfolioValueVO>) this.portfolioValueDao.findByStrategyAndMinDate(PortfolioValueDao.TRANSFORM_PORTFOLIOVALUEVO, strategyName, date);
+        Collection<PortfolioValueVO> portfolioValues = this.portfolioValueDao.findByStrategyAndMinDate(strategyName, date, PortfolioValueVOProducer.INSTANCE);
 
         // calculate the performance
         double lastNetLiqValue = 0;
@@ -929,12 +810,13 @@ public class PortfolioServiceImpl implements PortfolioService {
         // sum of all cashBalances
         double amount = 0.0;
         for (CashBalance cashBalance : cashBalances) {
-            amount += cashBalance.getAmountBaseDouble();
+            amount += cashBalance.getAmount().doubleValue() * this.marketDataCache.getForexRateBase(cashBalance.getCurrency());
         }
 
         // sum of all FX positions
         for (Position position : positions) {
-            amount += position.getMarketValueBase();
+            MarketDataEventVO marketDataEvent = this.marketDataCache.getCurrentMarketDataEvent(position.getSecurity().getId());
+            amount += position.getMarketValue(marketDataEvent) * this.marketDataCache.getForexRateBase(position.getSecurity());
         }
 
         return amount;
@@ -943,8 +825,10 @@ public class PortfolioServiceImpl implements PortfolioService {
     private double getCashBalanceDoubleInternal(Collection<Transaction> transactions, Collection<Position> openPositions, Date date) {
 
         // sum of all transactions
-        DoubleMap<Currency> map = new DoubleMap<Currency>();
+        DoubleMap<Currency> map = new DoubleMap<>();
         for (Transaction transaction : transactions) {
+
+            transaction.initializeSecurity(HibernateInitializer.INSTANCE);
 
             // process all currenyAmounts
             for (CurrencyAmountVO currencyAmount : transaction.getAttributions()) {
@@ -955,17 +839,23 @@ public class PortfolioServiceImpl implements PortfolioService {
         // sum of all FX positions
         for (Position openPosition : openPositions) {
 
-            Security security = openPosition.getSecurityInitialized();
+            openPosition.initializeSecurity(HibernateInitializer.INSTANCE);
+
+            Security security = openPosition.getSecurity();
             if (security instanceof Forex) {
                 int intervalDays = this.coreConfig.getIntervalDays();
-                List<Tick> ticks = this.tickDao.findTicksBySecurityAndMaxDate(1, 1, security.getId(), date, intervalDays);
+                List<Tick> ticks = this.tickDao.findTicksBySecurityAndMaxDate(1, security.getId(), date, intervalDays);
                 if (ticks.isEmpty()) {
-                    ticks = this.tickDao.findTicksBySecurityAndMinDate(1, 1, security.getId(), date, intervalDays);
+                    ticks = this.tickDao.findTicksBySecurityAndMinDate(1, security.getId(), date, intervalDays);
                     if (ticks.isEmpty()) {
-                        logger.warn("no tick available for " + security + " on " + date);
+                        if (LOGGER.isWarnEnabled()) {
+                            LOGGER.warn("no tick available for {} on {}", security, date);
+                        }
                         continue;
                     }
-                    logger.info("no prior tick available on " + date + " next tick is " + ((ticks.get(0).getDateTime().getTime() - date.getTime()) / 86400000.0) + " days later for " + security);
+                    if (LOGGER.isInfoEnabled()) {
+                        LOGGER.info("no prior tick available on {} next tick is {} days later for {}", date, ((ticks.get(0).getDateTime().getTime() - date.getTime()) / 86400000.0), security);
+                    }
                 }
 
                 double amount = openPosition.getQuantity() * ticks.get(0).getMarketValueDouble(openPosition.getDirection());
@@ -988,9 +878,12 @@ public class PortfolioServiceImpl implements PortfolioService {
         double amount = 0.0;
         for (Position openPosition : openPositions) {
 
-            Security security = openPosition.getSecurityInitialized();
+            openPosition.initializeSecurity(HibernateInitializer.INSTANCE);
+
+            Security security = openPosition.getSecurity();
             if (!(security instanceof Forex)) {
-                amount += openPosition.getMarketValueBase();
+                MarketDataEventVO marketDataEvent = this.marketDataCache.getCurrentMarketDataEvent(security.getId());
+                amount += openPosition.getMarketValue(marketDataEvent) * this.marketDataCache.getForexRateBase(openPosition.getSecurity());
             }
         }
         return amount;
@@ -999,21 +892,27 @@ public class PortfolioServiceImpl implements PortfolioService {
     private double getSecuritiesCurrentValueDoubleInternal(Collection<Position> openPositions, Date date) {
 
         // sum of all non-FX positions (FX counts as cash)
-        DoubleMap<Currency> map = new DoubleMap<Currency>();
+        DoubleMap<Currency> map = new DoubleMap<>();
 
         for (Position openPosition : openPositions) {
 
-            Security security = openPosition.getSecurityInitialized();
+            openPosition.initializeSecurity(HibernateInitializer.INSTANCE);
+
+            Security security = openPosition.getSecurity();
             if (!(security instanceof Forex)) {
                 int intervalDays = this.coreConfig.getIntervalDays();
-                List<Tick> ticks = this.tickDao.findTicksBySecurityAndMaxDate(1, 1, security.getId(), date, intervalDays);
+                List<Tick> ticks = this.tickDao.findTicksBySecurityAndMaxDate(1, security.getId(), date, intervalDays);
                 if (ticks.isEmpty()) {
-                    ticks = this.tickDao.findTicksBySecurityAndMinDate(1, 1, security.getId(), date, intervalDays);
+                    ticks = this.tickDao.findTicksBySecurityAndMinDate(1, security.getId(), date, intervalDays);
                     if (ticks.isEmpty()) {
-                        logger.warn("no tick available for " + security + " on " + date);
+                        if (LOGGER.isWarnEnabled()) {
+                            LOGGER.warn("no tick available for {} on {}", security, date);
+                        }
                         continue;
                     }
-                    logger.info("no prior tick available on " + date + " next tick is " + ((ticks.get(0).getDateTime().getTime() - date.getTime()) / 86400000.0) + " days later for " + security);
+                    if (LOGGER.isInfoEnabled()) {
+                        LOGGER.info("no prior tick available on {} next tick is {} days later for {}", date, ((ticks.get(0).getDateTime().getTime() - date.getTime()) / 86400000.0), security);
+                    }
                 }
 
                 double marketValue = openPosition.getQuantity() * ticks.get(0).getMarketValueDouble(openPosition.getDirection()) * security.getSecurityFamily().getContractSize();
@@ -1035,35 +934,39 @@ public class PortfolioServiceImpl implements PortfolioService {
         // sum of all positions
         double amount = 0.0;
         for (Position openPosition : openPositions) {
-            amount += openPosition.getUnrealizedPLBase();
+            MarketDataEventVO marketDataEvent = this.marketDataCache.getCurrentMarketDataEvent(openPosition.getSecurity().getId());
+            amount += openPosition.getUnrealizedPL(marketDataEvent) * this.marketDataCache.getForexRateBase(openPosition.getSecurity());
         }
         return amount;
     }
 
     private List<BalanceVO> getBalances(Collection<CashBalance> cashBalances, Collection<Position> positions) {
 
-        DoubleMap<Currency> cashMap = new DoubleMap<Currency>();
-        DoubleMap<Currency> securitiesMap = new DoubleMap<Currency>();
-        DoubleMap<Currency> unrealizedPLMap = new DoubleMap<Currency>();
+        DoubleMap<Currency> cashMap = new DoubleMap<>();
+        DoubleMap<Currency> securitiesMap = new DoubleMap<>();
+        DoubleMap<Currency> unrealizedPLMap = new DoubleMap<>();
 
         // sum of all cashBalances
         for (CashBalance cashBalance : cashBalances) {
             Currency currency = cashBalance.getCurrency();
-            cashMap.increment(currency, cashBalance.getAmountDouble());
+            cashMap.increment(currency, cashBalance.getAmount().doubleValue());
         }
 
         // sum of all positions
         for (Position position : positions) {
 
-            position.getSecurityInitialized();
-            CurrencyAmountVO currencyAmount = position.getAttribution();
+            position.initializeSecurity(HibernateInitializer.INSTANCE);
+
+            MarketDataEventVO marketDataEvent = this.marketDataCache.getCurrentMarketDataEvent(position.getSecurity().getId());
+            CurrencyAmountVO currencyAmount = position.getAttribution(marketDataEvent);
+
             if (currencyAmount.getAmount() != null) {
                 if (position.isCashPosition()) {
                     cashMap.increment(currencyAmount.getCurrency(), currencyAmount.getAmount().doubleValue());
                 } else {
                     securitiesMap.increment(currencyAmount.getCurrency(), currencyAmount.getAmount().doubleValue());
                 }
-                unrealizedPLMap.increment(position.getSecurity().getSecurityFamily().getCurrency(), position.getUnrealizedPL());
+                unrealizedPLMap.increment(position.getSecurity().getSecurityFamily().getCurrency(), position.getUnrealizedPL(marketDataEvent));
             }
         }
 
@@ -1071,14 +974,14 @@ public class PortfolioServiceImpl implements PortfolioService {
         currencies.addAll(cashMap.keySet());
         currencies.addAll(securitiesMap.keySet());
 
-        List<BalanceVO> balances = new ArrayList<BalanceVO>();
+        List<BalanceVO> balances = new ArrayList<>();
         for (Currency currency : currencies) {
 
             double cash = cashMap.containsKey(currency) ? cashMap.get(currency) : 0.0;
             double securities = securitiesMap.containsKey(currency) ? securitiesMap.get(currency) : 0.0;
             double netLiqValue = cash + securities;
+            double exchangeRate = this.marketDataCache.getForexRate(currency, this.commonConfig.getPortfolioBaseCurrency());
             double unrealizedPL = unrealizedPLMap.containsKey(currency) ? unrealizedPLMap.get(currency) : 0.0;
-            double exchangeRate = this.lookupService.getForexRateDouble(currency, this.commonConfig.getPortfolioBaseCurrency());
             double cashBase = cash * exchangeRate;
             double securitiesBase = securities * exchangeRate;
             double netLiqValueBase = netLiqValue * exchangeRate;
@@ -1108,11 +1011,13 @@ public class PortfolioServiceImpl implements PortfolioService {
         // sum of all positions
         for (Position position : positions) {
 
-            position.getSecurityInitialized();
-            CurrencyAmountVO currencyAmount = position.getAttribution();
+            position.initializeSecurity(HibernateInitializer.INSTANCE);
+
+            MarketDataEventVO marketDataEvent = this.marketDataCache.getCurrentMarketDataEvent(position.getSecurity().getId());
+            CurrencyAmountVO currencyAmount = position.getAttribution(marketDataEvent);
             if (currencyAmount.getAmount() != null) {
                 currencyMap.increment(currencyAmount.getCurrency(), currencyAmount.getAmount().doubleValue());
-                currencyMap.increment(position.getSecurity().getSecurityFamily().getCurrency(), -position.getMarketValue());
+                currencyMap.increment(position.getSecurity().getSecurityFamily().getCurrency(), -position.getMarketValue(marketDataEvent));
             }
         }
 
@@ -1123,7 +1028,7 @@ public class PortfolioServiceImpl implements PortfolioService {
         for (Currency currency : currencies) {
 
             double amount = currencyMap.getDouble(currency);
-            double exchangeRate = this.lookupService.getForexRateDouble(currency, this.commonConfig.getPortfolioBaseCurrency());
+            double exchangeRate = this.marketDataCache.getForexRate(currency, this.commonConfig.getPortfolioBaseCurrency());
             double amountBase = amount * exchangeRate;
 
             FxExposureVO exposure = new FxExposureVO();
@@ -1157,7 +1062,7 @@ public class PortfolioServiceImpl implements PortfolioService {
 
             if (portfolioValues.size() > 0) {
 
-                logger.warn("transaction date is in the past, please restore portfolio values");
+                LOGGER.warn("transaction date is in the past, please restore portfolio values");
 
             } else {
 
@@ -1166,7 +1071,7 @@ public class PortfolioServiceImpl implements PortfolioService {
 
                 portfolioValue.setCashFlow(transaction.getGrossValue());
 
-                this.portfolioValueDao.create(portfolioValue);
+                this.portfolioValueDao.save(portfolioValue);
             }
         }
 
@@ -1187,7 +1092,7 @@ public class PortfolioServiceImpl implements PortfolioService {
             // truncate Date to hour
             portfolioValue.setDateTime(DateUtils.truncate(portfolioValue.getDateTime(), Calendar.HOUR));
 
-            this.portfolioValueDao.create(portfolioValue);
+            this.portfolioValueDao.save(portfolioValue);
         }
 
     }
@@ -1208,7 +1113,7 @@ public class PortfolioServiceImpl implements PortfolioService {
 
         if (portfolioValues.size() > 0) {
 
-            this.portfolioValueDao.remove(portfolioValues);
+            this.portfolioValueDao.deleteAll(portfolioValues);
 
             // need to flush since new portfoliovalues will be created with same date and strategy
             this.sessionFactory.getCurrentSession().flush();
@@ -1218,7 +1123,7 @@ public class PortfolioServiceImpl implements PortfolioService {
         CronSequenceGenerator cron = new CronSequenceGenerator("0 0 * * * 1-5", TimeZone.getDefault());
 
         // group PortfolioValues by strategyId and date
-        Map<MultiKey<Long>, PortfolioValue> portfolioValueMap = new HashMap<MultiKey<Long>, PortfolioValue>();
+        Map<MultiKey<Long>, PortfolioValue> portfolioValueMap = new HashMap<>();
 
         // create portfolioValues for all cron time slots
         Date date = cron.next(DateUtils.addHours(fromDate, -1));
@@ -1229,10 +1134,12 @@ public class PortfolioServiceImpl implements PortfolioService {
                 date = cron.next(date);
                 continue;
             } else {
-                MultiKey<Long> key = new MultiKey<Long>((long) strategy.getId(), date.getTime());
+                MultiKey<Long> key = new MultiKey<>(strategy.getId(), date.getTime());
                 portfolioValueMap.put(key, portfolioValue);
 
-                logger.info("processed portfolioValue for " + strategy.getName() + " " + date);
+                if (LOGGER.isInfoEnabled()) {
+                    LOGGER.info("processed portfolioValue for {} {}", strategy.getName(), date);
+                }
 
                 date = cron.next(date);
             }
@@ -1253,7 +1160,7 @@ public class PortfolioServiceImpl implements PortfolioService {
             }
 
             // if there is an existing PortfolioValue, add the cashFlow
-            MultiKey<Long> key = new MultiKey<Long>((long) transaction.getStrategy().getId(), transaction.getDateTime().getTime());
+            MultiKey<Long> key = new MultiKey<>(transaction.getStrategy().getId(), transaction.getDateTime().getTime());
             if (portfolioValueMap.containsKey(key)) {
                 PortfolioValue portfolioValue = portfolioValueMap.get(key);
                 if (portfolioValue.getCashFlow() != null) {
@@ -1267,11 +1174,28 @@ public class PortfolioServiceImpl implements PortfolioService {
                 portfolioValueMap.put(key, portfolioValue);
             }
 
-            logger.info("processed portfolioValue for " + transaction.getStrategy().getName() + " " + transaction.getDateTime() + " cashflow " + transaction.getGrossValue());
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("processed portfolioValue for {} {} cashflow {}", transaction.getStrategy().getName(), transaction.getDateTime(), transaction.getGrossValue());
+            }
         }
 
         // perisist the PortfolioValues
-        this.portfolioValueDao.create(portfolioValueMap.values());
+        this.portfolioValueDao.saveAll(portfolioValueMap.values());
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void printPortfolioValue(final PortfolioValueI portfolioValue) {
+
+        synchronized(this) {
+            if (this.portfolioReport == null) {
+                this.portfolioReport = new PortfolioReport(this.commonConfig.getSimulationInitialBalance());
+            }
+            this.portfolioReport.write(this.engineManager.getCurrentEPTime(), portfolioValue);
+        }
     }
 
 }

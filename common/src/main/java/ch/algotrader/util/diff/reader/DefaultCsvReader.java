@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,8 +12,8 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.util.diff.reader;
 
@@ -57,7 +57,7 @@ public class DefaultCsvReader implements CsvReader {
     public BufferedReader getReader() {
         return bufferedReader;
     }
-    public int getLine() {
+    public int getLineIndex() {
         return lineIndex;
     }
 
@@ -68,9 +68,12 @@ public class DefaultCsvReader implements CsvReader {
         }
         final String rawLine = bufferedReader.readLine();
         final Map<CsvColumn, Object> values = parseLine(rawLine);
-        final CsvLine line = new CsvLine(rawLine, values, lineIndex);
-        lineIndex++;
-        return line;
+        if (values != null) {
+            final CsvLine line = CsvLine.getLine(this, rawLine, values);
+            lineIndex++;
+            return line;
+        }
+        return CsvLine.getEofLine(this);
     }
 
     private Map<CsvColumn, Object> parseLine(String line) {
@@ -79,12 +82,12 @@ public class DefaultCsvReader implements CsvReader {
         }
         final String[] values = line.split(",");
         final List<CsvColumn> cols = csvDefinition.getColumns();
-        final Map<CsvColumn, Object> result = new LinkedHashMap<CsvColumn, Object>();
+        final Map<CsvColumn, Object> result = new LinkedHashMap<>();
         for (final CsvColumn col : cols) {
             final String value = col.index() < values.length ? values[col.index()] : null;
             final Object converted;
             try {
-                converted = col.convert(value);
+                converted = col.converter().convert(col.name(), value);
             } catch (Exception e) {
                 throw new RuntimeException("conversion of value <" + value + "> failed for column " + col + " " + CsvReaderUtil.getFileLocation(this), e);
             }

@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,12 +12,13 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.adapter.dc;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import ch.algotrader.adapter.fix.FixApplicationException;
@@ -38,6 +39,14 @@ import quickfix.fix44.MarketDataRequest;
 
 public class TestDCMarketDataRequestFactory {
 
+    private DCFixMarketDataRequestFactory requestFactory;
+
+    @Before
+    public void setup() throws Exception {
+
+        this.requestFactory = new DCFixMarketDataRequestFactory(new DCTickerIdGenerator());
+    }
+
     @Test
     public void testRequestForex() throws Exception {
 
@@ -49,9 +58,7 @@ public class TestDCMarketDataRequestFactory {
         forex.setBaseCurrency(Currency.EUR);
         forex.setSecurityFamily(family);
 
-        DCFixMarketDataRequestFactory requestFactory = new DCFixMarketDataRequestFactory();
-
-        MarketDataRequest marketDataRequest = requestFactory.create(forex, new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES));
+        MarketDataRequest marketDataRequest = this.requestFactory.create(forex, SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES);
 
         Assert.assertEquals(1, marketDataRequest.getGroupCount(NoRelatedSym.FIELD));
         Group symGroup = marketDataRequest.getGroup(1, NoRelatedSym.FIELD);
@@ -74,9 +81,7 @@ public class TestDCMarketDataRequestFactory {
         Stock stock = new StockImpl();
         stock.setSymbol("MSFT");
 
-        DCFixMarketDataRequestFactory requestFactory = new DCFixMarketDataRequestFactory();
-
-        requestFactory.create(stock, new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES));
+        this.requestFactory.create(stock, SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES);
     }
 
 }

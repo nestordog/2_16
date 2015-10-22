@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,8 +12,8 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.client.chart;
 
@@ -31,16 +31,14 @@ import sun.tools.jconsole.WarningProducer;
 // CHECKSTYLE:ON
 import ch.algotrader.service.ChartProvidingService;
 import ch.algotrader.service.ManagementService;
-import ch.algotrader.vo.ChartDataVO;
+import ch.algotrader.vo.client.ChartDataVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public class ChartWorker extends SwingWorker<Map<ObjectName, ChartDataVO>, Object> {
 
-    private ChartPlugin chartPlugin;
+    private final ChartPlugin chartPlugin;
 
     public ChartWorker(ChartPlugin chartPlugin) {
         this.chartPlugin = chartPlugin;
@@ -90,7 +88,7 @@ public class ChartWorker extends SwingWorker<Map<ObjectName, ChartDataVO>, Objec
                 managementService.checkIsAlive();
             }
 
-            Map<ObjectName, ChartDataVO> chartDataMap = new HashMap<ObjectName, ChartDataVO>();
+            Map<ObjectName, ChartDataVO> chartDataMap = new HashMap<>();
             for (Map.Entry<ObjectName, ChartTab> entry : this.chartPlugin.getChartTabs().entrySet()) {
 
                 // get the managementService

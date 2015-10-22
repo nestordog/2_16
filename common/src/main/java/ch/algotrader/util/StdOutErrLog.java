@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,25 +12,24 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.util;
 
 import java.io.PrintStream;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Redirects all System.out and System.err prints to log4j.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public class StdOutErrLog {
 
-    private static final Logger logger = MyLogger.getLogger(StdOutErrLog.class);
+    private static final Logger LOGGER = LogManager.getLogger(StdOutErrLog.class);
 
     static {
         tieSystemOutAndErrToLog();
@@ -48,36 +47,36 @@ public class StdOutErrLog {
             @Override
             public void print(final String string) {
                 if (err) {
-                    logger.error(string);
+                    LOGGER.error(string);
                 } else {
-                    logger.info(string);
+                    LOGGER.info(string);
                 }
             }
 
             @Override
             public void print(final Object obj) {
                 if (err) {
-                    logger.error(obj);
+                    LOGGER.error(obj);
                 } else {
-                    logger.info(obj);
+                    LOGGER.info(obj);
                 }
             }
 
             @Override
             public void println(final String string) {
                 if (err) {
-                    logger.error(string);
+                    LOGGER.error(string);
                 } else {
-                    logger.info(string);
+                    LOGGER.info(string);
                 }
             }
 
             @Override
             public void println(final Object obj) {
                 if (err) {
-                    logger.error(obj);
+                    LOGGER.error(obj);
                 } else {
-                    logger.info(obj);
+                    LOGGER.info(obj);
                 }
             }
         };

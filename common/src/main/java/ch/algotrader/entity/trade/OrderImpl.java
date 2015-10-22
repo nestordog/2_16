@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,20 +12,18 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.entity.trade;
 
 import org.apache.commons.lang.ClassUtils;
 
+import ch.algotrader.entity.exchange.Exchange;
 import ch.algotrader.enumeration.OrderPropertyType;
-import ch.algotrader.util.ObjectUtil;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public abstract class OrderImpl extends Order {
 
@@ -50,24 +48,9 @@ public abstract class OrderImpl extends Order {
     }
 
     @Override
-    public String toString() {
-
-        StringBuffer buffer = new StringBuffer();
-
-        buffer.append(getDescription());
-
-        if (!"".equals(getExtDescription())) {
-            buffer.append(",");
-            buffer.append(getExtDescription());
-        }
-
-        return buffer.toString();
-    }
-
-    @Override
     public String getDescription() {
 
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
 
         buffer.append(getSide());
         buffer.append(",");
@@ -94,13 +77,28 @@ public abstract class OrderImpl extends Order {
             buffer.append(getAccount());
         }
 
+        if (getExchange() != null) {
+            buffer.append(",exchange=");
+            buffer.append(getExchange());
+        }
+
         return buffer.toString();
+    }
+
+    @Override
+    public Exchange getEffectiveExchange() {
+
+        if (getExchange() != null) {
+            return getExchange();
+        } else {
+            return getSecurity().getSecurityFamily().getExchange();
+        }
     }
 
     @Override
     public void addProperty(String name, String value, OrderPropertyType type) {
 
-        getOrderProperties().put(name, OrderProperty.Factory.newInstance(name, value, type, this));
+        getOrderProperties().put(name, OrderProperty.Factory.newInstance(name, type, value, this));
     }
 
     @Override
@@ -110,24 +108,18 @@ public abstract class OrderImpl extends Order {
     }
 
     @Override
-    public boolean equals(final Object obj) {
+    public String toString() {
 
-        if (this == obj) {
-            return true;
+        StringBuilder buffer = new StringBuilder();
+
+        buffer.append(getDescription());
+
+        if (!"".equals(getExtDescription())) {
+            buffer.append(",");
+            buffer.append(getExtDescription());
         }
-        if (obj instanceof Order) {
-            Order that = (Order) obj;
-            return ObjectUtil.equalsNonNull(this.getIntId(), that.getIntId());
-        } else {
-            return false;
-        }
+
+        return buffer.toString();
     }
 
-    @Override
-    public int hashCode() {
-
-        int hash = 17;
-        hash = hash * 37 + ObjectUtil.hashCode(getIntId());
-        return hash;
-    }
 }

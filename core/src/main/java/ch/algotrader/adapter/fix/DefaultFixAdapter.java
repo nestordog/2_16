@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,8 +12,8 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.adapter.fix;
 
@@ -24,15 +24,13 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.lang.Validate;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
+import ch.algotrader.adapter.OrderIdGenerator;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.trade.Order;
-import ch.algotrader.enumeration.OrderServiceType;
-import ch.algotrader.ordermgmt.OrderIdGenerator;
 import ch.algotrader.service.LookupService;
-import ch.algotrader.util.MyLogger;
 import quickfix.ConfigError;
 import quickfix.FieldConvertError;
 import quickfix.Message;
@@ -44,12 +42,10 @@ import quickfix.SocketInitiator;
  * Default Implementation of ${@link FixAdapter}
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public class DefaultFixAdapter implements FixAdapter {
 
-    private static final Logger LOGGER = MyLogger.getLogger(AbstractFixApplication.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(AbstractFixApplication.class);
 
     private final Lock lock;
     private final SocketInitiator socketInitiator;
@@ -86,14 +82,13 @@ public class DefaultFixAdapter implements FixAdapter {
      * creates an individual session
      */
     @Override
-    public void createSession(OrderServiceType orderServiceType) throws FixApplicationException {
+    public void createSessionForService(String orderServiceType) throws FixApplicationException {
 
         Collection<String> sessionQualifiers = this.lookupService.getActiveSessionsByOrderServiceType(orderServiceType);
         if (sessionQualifiers == null || sessionQualifiers.isEmpty()) {
 
-            if (LOGGER.isEnabledFor(Level.WARN)) {
-
-                LOGGER.warn("There are no active sessions for order service type " + orderServiceType);
+            if (LOGGER.isWarnEnabled()) {
+                LOGGER.warn("There are no active sessions for order service type {}", orderServiceType);
             }
             return;
         }
@@ -103,14 +98,13 @@ public class DefaultFixAdapter implements FixAdapter {
     }
 
     @Override
-    public void openSession(OrderServiceType orderServiceType) throws FixApplicationException {
+    public void openSessionForService(String orderServiceType) throws FixApplicationException {
 
         Collection<String> sessionQualifiers = this.lookupService.getActiveSessionsByOrderServiceType(orderServiceType);
         if (sessionQualifiers == null || sessionQualifiers.isEmpty()) {
 
-            if (LOGGER.isEnabledFor(Level.WARN)) {
-
-                LOGGER.warn("There are no active sessions for order service type " + orderServiceType);
+            if (LOGGER.isWarnEnabled()) {
+                LOGGER.warn("There are no active sessions for order service type {}", orderServiceType);
             }
             return;
         }
@@ -141,9 +135,7 @@ public class DefaultFixAdapter implements FixAdapter {
 
                                 createLogonLogoutStatement(sessionId);
                             }
-                        } catch (FieldConvertError ex) {
-                            throw new FixApplicationException("FIX configuration error: " + ex.getMessage(), ex);
-                        } catch (ConfigError ex) {
+                        } catch (FieldConvertError | ConfigError ex) {
                             throw new FixApplicationException("FIX configuration error: " + ex.getMessage(), ex);
                         }
                     }
@@ -278,6 +270,11 @@ public class DefaultFixAdapter implements FixAdapter {
 
             this.eventScheduler.scheduleLogout(sessionId, new EventPattern(logoutDay, logoutHour, logoutMinute, logoutSecond));
         }
+    }
+
+    public void setOrderId(String sessionQualifier, int orderId) {
+
+        this.orderIdGenerator.setOrderId(sessionQualifier, orderId);
     }
 
 }

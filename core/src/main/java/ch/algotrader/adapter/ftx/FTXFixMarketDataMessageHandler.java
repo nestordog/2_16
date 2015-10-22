@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,21 +12,21 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.adapter.ftx;
 
 import java.util.Date;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.adapter.fix.fix44.AbstractFix44MarketDataMessageHandler;
 import ch.algotrader.enumeration.FeedType;
-import ch.algotrader.esper.EngineLocator;
-import ch.algotrader.util.MyLogger;
-import ch.algotrader.vo.AskVO;
-import ch.algotrader.vo.BidVO;
+import ch.algotrader.esper.Engine;
+import ch.algotrader.vo.marketData.AskVO;
+import ch.algotrader.vo.marketData.BidVO;
 import quickfix.FieldNotFound;
 import quickfix.SessionID;
 import quickfix.UtcTimeStampField;
@@ -40,7 +40,13 @@ import quickfix.fix44.Quote;
  */
 public class FTXFixMarketDataMessageHandler extends AbstractFix44MarketDataMessageHandler {
 
-    private static Logger LOGGER = MyLogger.getLogger(FTXFixMarketDataMessageHandler.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(FTXFixMarketDataMessageHandler.class);
+
+    private final Engine serverEngine;
+
+    public FTXFixMarketDataMessageHandler(final Engine serverEngine) {
+        this.serverEngine = serverEngine;
+    }
 
     public void onMessage(final Quote quote, final SessionID sessionID) throws FieldNotFound {
 
@@ -53,16 +59,16 @@ public class FTXFixMarketDataMessageHandler extends AbstractFix44MarketDataMessa
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace(id + " BID " + bidSize + "@" + bidPx);
         }
-        BidVO bidVO = new BidVO(id, FeedType.FTX, date, bidPx, (int) bidSize);
-        EngineLocator.instance().getServerEngine().sendEvent(bidVO);
+        BidVO bidVO = new BidVO(id, FeedType.FTX.name(), date, bidPx, (int) bidSize);
+        this.serverEngine.sendEvent(bidVO);
 
         final double offerPx = quote.getOfferPx().getValue();
         final double offerSize = quote.getOfferSize().getValue();
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace(id + " ASK " + offerSize + "@" + offerPx);
         }
-        AskVO askVO = new AskVO(id, FeedType.FTX, date, offerPx, (int) offerSize);
-        EngineLocator.instance().getServerEngine().sendEvent(askVO);
+        AskVO askVO = new AskVO(id, FeedType.FTX.name(), date, offerPx, (int) offerSize);
+        this.serverEngine.sendEvent(askVO);
     }
 
 }

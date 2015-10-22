@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,21 +12,21 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.esper.listener;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
-
-import ch.algotrader.report.ListReporter;
-import ch.algotrader.util.metric.MetricsUtil;
 
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.StatementAwareUpdateListener;
+
+import ch.algotrader.report.ListReporter;
+import ch.algotrader.util.DateTimeUtil;
+import ch.algotrader.util.metric.MetricsUtil;
 
 /**
  * Prints all values as a comma-separated-list (CSV) to files/reports/IndicatorReport.csv
@@ -34,12 +34,8 @@ import com.espertech.esper.client.StatementAwareUpdateListener;
  * Headers will be extracted from the supplied {@code statement}.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public class IndicatorListener implements StatementAwareUpdateListener {
-
-    private static SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private String[] propertyNames;
     private ListReporter reporter;
@@ -61,7 +57,7 @@ public class IndicatorListener implements StatementAwareUpdateListener {
             for (int i = 0; i < this.propertyNames.length; i++) {
                 Object obj = bean.get(this.propertyNames[i]);
                 if (obj instanceof Date) {
-                    values[i] = format.format(obj);
+                    values[i] = DateTimeUtil.formatAsGMT(((Date) obj).toInstant());
                 } else {
                     values[i] = obj;
                 }

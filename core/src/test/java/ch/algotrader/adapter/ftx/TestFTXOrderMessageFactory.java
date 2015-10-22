@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,8 +12,8 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.adapter.ftx;
 
@@ -30,8 +30,6 @@ import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.ForexImpl;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.SecurityFamilyImpl;
-import ch.algotrader.entity.security.Stock;
-import ch.algotrader.entity.security.StockImpl;
 import ch.algotrader.entity.trade.LimitOrder;
 import ch.algotrader.entity.trade.LimitOrderImpl;
 import ch.algotrader.entity.trade.MarketOrder;
@@ -50,7 +48,6 @@ import quickfix.field.OrderQty;
 import quickfix.field.OrigClOrdID;
 import quickfix.field.Price;
 import quickfix.field.SecurityType;
-import quickfix.field.StopPx;
 import quickfix.field.Symbol;
 import quickfix.field.TimeInForce;
 import quickfix.fix44.NewOrderSingle;
@@ -68,6 +65,7 @@ public class TestFTXOrderMessageFactory {
 
         SecurityFamily family = new SecurityFamilyImpl();
         family.setCurrency(Currency.USD);
+        family.setTickSizePattern("0<0.001");
 
         this.forex = new ForexImpl();
         this.forex.setSymbol("EUR.USD");
@@ -76,7 +74,7 @@ public class TestFTXOrderMessageFactory {
         this.forex.setSecurityFamily(family);
 
         this.account = new AccountImpl();
-        this.account.setBroker(Broker.FTX);
+        this.account.setBroker(Broker.FTX.name());
 
 
         this.requestFactory = new FTXFixOrderMessageFactory();

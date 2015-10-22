@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,27 +12,26 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.adapter.ftx;
 
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import ch.algotrader.adapter.fix.DefaultFixApplication;
-import ch.algotrader.adapter.fix.DefaultFixSessionLifecycle;
+import ch.algotrader.adapter.fix.DefaultFixSessionStateHolder;
 import ch.algotrader.adapter.fix.DefaultLogonMessageHandler;
+import ch.algotrader.adapter.fix.FixApplicationTestBase;
 import ch.algotrader.adapter.fix.FixConfigUtils;
-import ch.algotrader.adapter.fix.NoopSessionStateListener;
+import ch.algotrader.adapter.fxcm.FXCTickerIdGenerator;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.ForexImpl;
 import ch.algotrader.entity.security.SecurityFamily;
@@ -40,39 +39,33 @@ import ch.algotrader.entity.security.SecurityFamilyImpl;
 import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.esper.AbstractEngine;
-import ch.algotrader.esper.EngineLocator;
-import ch.algotrader.vo.AskVO;
-import ch.algotrader.vo.BidVO;
-import quickfix.CompositeLogFactory;
-import quickfix.DefaultSessionFactory;
-import quickfix.FileLogFactory;
-import quickfix.LogFactory;
-import quickfix.MemoryStoreFactory;
-import quickfix.ScreenLogFactory;
-import quickfix.Session;
+import ch.algotrader.esper.Engine;
+import ch.algotrader.event.dispatch.EventDispatcher;
+import ch.algotrader.vo.marketData.AskVO;
+import ch.algotrader.vo.marketData.BidVO;
 import quickfix.SessionID;
 import quickfix.SessionSettings;
-import quickfix.SocketInitiator;
 import quickfix.field.QuoteReqID;
 import quickfix.field.QuoteRequestType;
-import quickfix.field.Symbol;
 import quickfix.fix44.Quote;
 import quickfix.fix44.QuoteRequest;
 
-public class FTXFixFeedMessageHandlerTest {
+public class FTXFixFeedMessageHandlerTest extends FixApplicationTestBase {
 
+    private FTXFixMarketDataRequestFactory requestFactory;
     private LinkedBlockingQueue<Object> eventQueue;
+    private EventDispatcher eventDispatcher;
     private FTXFixMarketDataMessageHandler messageHandler;
-    private Session session;
-    private SocketInitiator socketInitiator;
 
     @Before
     public void setup() throws Exception {
 
+        this.requestFactory = new FTXFixMarketDataRequestFactory(new FXCTickerIdGenerator());
+
         final LinkedBlockingQueue<Object> queue = new LinkedBlockingQueue<Object>();
         this.eventQueue = queue;
 
-        EngineLocator.instance().setEngine(StrategyImpl.SERVER, new AbstractEngine() {
+        Engine engine = new AbstractEngine(StrategyImpl.SERVER) {
 
             @Override
             public void sendEvent(Object obj) {
@@ -87,68 +80,21 @@ public class FTXFixFeedMessageHandlerTest {
             public List executeQuery(String query) {
                 return null;
             }
-        });
+        };
+
+        this.eventDispatcher = Mockito.mock(EventDispatcher.class);
 
         SessionSettings settings = FixConfigUtils.loadSettings();
         SessionID sessionId = FixConfigUtils.getSessionID(settings, "FTXMD");
 
         DefaultLogonMessageHandler logonMessageHandler = new DefaultLogonMessageHandler(settings);
 
-        this.messageHandler = Mockito.spy(new FTXFixMarketDataMessageHandler());
+        this.messageHandler = Mockito.spy(new FTXFixMarketDataMessageHandler(engine));
 
-        LogFactory logFactory = new ScreenLogFactory(true, true, true);
+        DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, this.messageHandler, logonMessageHandler,
+                new DefaultFixSessionStateHolder("FTX", this.eventDispatcher));
 
-        DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, this.messageHandler, logonMessageHandler, new DefaultFixSessionLifecycle());
-
-        DefaultSessionFactory sessionFactory = new DefaultSessionFactory(fixApplication, new MemoryStoreFactory(), logFactory);
-
-        SocketInitiator socketInitiator = new SocketInitiator(sessionFactory, settings);
-        socketInitiator.start();
-
-        socketInitiator.createDynamicSession(sessionId);
-
-        this.session = Session.lookupSession(sessionId);
-
-        final CountDownLatch latch = new CountDownLatch(1);
-        this.session.addStateListener(new NoopSessionStateListener() {
-
-            @Override
-            public void onDisconnect() {
-                latch.countDown();
-            }
-
-            @Override
-            public void onLogon() {
-                latch.countDown();
-            }
-
-        });
-
-        latch.await(30, TimeUnit.SECONDS);
-
-        if (!this.session.isLoggedOn()) {
-            latch.await(30, TimeUnit.SECONDS);
-        }
-
-        if (!this.session.isLoggedOn()) {
-            Assert.fail("Session logon failed");
-        }
-    }
-
-    @After
-    public void shutDown() throws Exception {
-
-        if (this.session != null) {
-            if (this.session.isLoggedOn()) {
-                this.session.logout("Testing");
-            }
-            this.session.close();
-            this.session = null;
-        }
-        if (this.socketInitiator != null) {
-            this.socketInitiator.stop();
-            this.socketInitiator = null;
-        }
+        setupSession(settings, sessionId, fixApplication);
     }
 
     @Test
@@ -162,8 +108,7 @@ public class FTXFixFeedMessageHandlerTest {
         forex.setBaseCurrency(Currency.EUR);
         forex.setSecurityFamily(family);
 
-        FTXFixMarketDataRequestFactory requestFactory = new FTXFixMarketDataRequestFactory();
-        QuoteRequest request = requestFactory.create(forex, 1);
+        QuoteRequest request = this.requestFactory.create(forex, 1);
 
         this.session.send(request);
 

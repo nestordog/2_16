@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+          "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping default-cascade="none">
+    <class name="ch.algotrader.entity.strategy.MeasurementImpl"
+        table="`measurement`" dynamic-insert="false" dynamic-update="false">
+	    <meta attribute="implements">ch.algotrader.entity.strategy.MeasurementI</meta>      
+	    <meta attribute="generated-class">ch.algotrader.entity.strategy.Measurement</meta>
+	    <meta attribute="class-code">
+<![CDATA[
+    /**
+     * Returns the first non-null value property
+     * @return java.lang.Object
+     */
+    public abstract java.lang.Object getValue();
+
+    /**
+     * sets the correct value property. If the value is not one of {@code int}, {@code double},
+     * {@code money}, {@code text} or {@code boolean} a {@link IllegalArgumentException} is thrown
+     * @param value 
+     */
+    public abstract void setValue(java.lang.Object value);
+
+]]>   
+	    </meta> 	    
+        <meta attribute="class-description"><![CDATA[Custom Measurement of type {@code int}, {@code double}, {@code money}, {@code text} or {@code boolean} related to a Strategy and a particular time]]></meta>
+        <cache usage="read-write" />
+        <id name="id" type="long" >
+            <column name="ID" sql-type="BIGINT"/>
+
+            <generator class="native">
+                <!-- id-generator merge-point -->
+            </generator>
+        </id>
+        <property name="name">
+            <meta attribute="use-in-equals">true</meta>
+            <column name="NAME" not-null="true" unique="false" sql-type="VARCHAR(255)"/>
+
+            <type name="java.lang.String"/>
+        </property>
+        <property name="dateTime">
+            <meta attribute="use-in-equals">true</meta>
+            <column name="DATE_TIME" not-null="true" unique="false" sql-type="TIMESTAMP"/>
+
+            <type name="java.util.Date"/>
+        </property>
+        <property name="intValue">
+            <column name="INT_VALUE" not-null="false" unique="false" sql-type="INTEGER"/>
+
+            <type name="java.lang.Integer"/>
+        </property>
+        <property name="doubleValue">
+            <column name="DOUBLE_VALUE" not-null="false" unique="false" sql-type="DOUBLE"/>
+
+            <type name="java.lang.Double"/>
+        </property>
+        <property name="moneyValue">
+            <column name="MONEY_VALUE" not-null="false" unique="false" sql-type="Decimal(15,6)"/>
+
+            <type name="java.math.BigDecimal"/>
+        </property>
+        <property name="textValue">
+            <column name="TEXT_VALUE" not-null="false" unique="false" sql-type="VARCHAR(255)"/>
+
+            <type name="java.lang.String"/>
+        </property>
+        <property name="booleanValue">
+            <column name="BOOLEAN_VALUE" not-null="false" unique="false" sql-type="TINYINT"/>
+
+            <type name="java.lang.Boolean"/>
+        </property>
+        <many-to-one name="strategy" class="ch.algotrader.entity.strategy.StrategyImpl" cascade="none" foreign-key="MEASUREMENT_STRATEGY_FKC" not-null="true" lazy="proxy" fetch="select">
+            <meta attribute="property-type">ch.algotrader.entity.strategy.Strategy</meta>
+            <meta attribute="field-description"><![CDATA[Represents a running Strategy within the system. In addition the AlgoTrader Server is also
+represented by an instance of this class.]]></meta>
+            <meta attribute="use-in-equals">true</meta>
+            <column name="STRATEGY_FK" not-null="true" sql-type="BIGINT"/>
+
+        </many-to-one>
+    </class>
+</hibernate-mapping>

@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,35 +12,34 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.service;
 
-import org.hibernate.collection.AbstractPersistentCollection;
-import org.hibernate.proxy.HibernateProxy;
+import java.util.Collection;
+
+import ch.algotrader.entity.BaseEntityI;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public interface LazyLoaderService {
 
     /**
-     * Lazy-loads a Hibernate Persistent-Collections.
-     * @param target The target object containing the uninitialized PersistentCollection
-     * @param context An arbitrary String Context (e.g. "Position.getTransactions") that will be used for Logging purposes.
-     * @param col The uninitialized PersistentCollection
-     */
-    public AbstractPersistentCollection lazyLoadCollection(Object target, String context, AbstractPersistentCollection col);
-
-    /**
      * Lazy-loads a Hibernate-Proxy
-     * @param target The target object containing the Hibernate Proxy
+     * @param entity The target object containing the Hibernate Proxy
      * @param context An arbitrary String Context (e.g. "Position.getStrategy") that will be used for Logging purposes.
      * @param proxy The Hibernate Proxy
      */
-    public Object lazyLoadProxy(Object target, String context, HibernateProxy proxy);
+    public <T extends BaseEntityI> T lazyLoadProxy(BaseEntityI entity, String context, T proxy);
+
+    /**
+     * Lazy-loads a Hibernate Persistent-Collections.
+     * @param entity The target entity containing the uninitialized PersistentCollection
+     * @param context An arbitrary String Context (e.g. "Position.getTransactions") that will be used for Logging purposes.
+     * @param col The uninitialized PersistentCollection
+     */
+    public <T extends BaseEntityI> Collection<T> lazyLoadCollection(BaseEntityI entity, String context, Collection<T> col);
 
 }

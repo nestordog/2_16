@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,14 +12,13 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.adapter.fxcm;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.text.DateFormat;
 import java.util.List;
 
 import org.junit.Assert;
@@ -33,9 +32,9 @@ import org.mockito.MockitoAnnotations;
 
 import ch.algotrader.adapter.fix.fix44.FixTestUtils;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.esper.EngineLocator;
-import ch.algotrader.vo.AskVO;
-import ch.algotrader.vo.BidVO;
+import ch.algotrader.util.DateTimeLegacy;
+import ch.algotrader.vo.marketData.AskVO;
+import ch.algotrader.vo.marketData.BidVO;
 import quickfix.DataDictionary;
 import quickfix.fix44.BusinessMessageReject;
 import quickfix.fix44.MarketDataSnapshotFullRefresh;
@@ -43,8 +42,6 @@ import quickfix.fix44.Reject;
 
 /**
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
- *
- * @version $Revision$ $Date$
  */
 public class TestFXCMFixMarketDataMessageHandler {
 
@@ -65,9 +62,8 @@ public class TestFXCMFixMarketDataMessageHandler {
     public void setup() throws Exception {
 
         MockitoAnnotations.initMocks(this);
-        EngineLocator.instance().setEngine("SERVER", engine);
 
-        impl = new FXCMFixMarketDataMessageHandler();
+        impl = new FXCMFixMarketDataMessageHandler(engine);
     }
 
     @Test
@@ -90,15 +86,13 @@ public class TestFXCMFixMarketDataMessageHandler {
         Assert.assertNotNull(events);
         Assert.assertEquals(2, events.size());
 
-        DateFormat dateTimeParser = FixTestUtils.getSimpleDateTimeFormat();
-
         Object event1 = events.get(0);
         Assert.assertTrue(event1 instanceof BidVO);
         BidVO bid = (BidVO) event1;
         Assert.assertEquals("EUR/USD", bid.getTickerId());
         Assert.assertEquals(new BigDecimal("1.37863"), new BigDecimal(bid.getBid()).setScale(5, RoundingMode.HALF_EVEN));
         Assert.assertEquals(0, bid.getVolBid());
-        Assert.assertEquals(dateTimeParser.parse("20140321-20:59:59.000"), bid.getDateTime());
+        Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2014-03-21 20:59:59.000"), bid.getDateTime());
 
         Object event2 = events.get(1);
         Assert.assertTrue(event2 instanceof AskVO);
@@ -106,7 +100,7 @@ public class TestFXCMFixMarketDataMessageHandler {
         Assert.assertEquals("EUR/USD", ask.getTickerId());
         Assert.assertEquals(new BigDecimal("1.38031"), new BigDecimal(ask.getAsk()).setScale(5, RoundingMode.HALF_EVEN));
         Assert.assertEquals(0, ask.getVolAsk());
-        Assert.assertEquals(dateTimeParser.parse("20140321-20:59:59.000"), ask.getDateTime());
+        Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2014-03-21 20:59:59.000"), ask.getDateTime());
     }
 
     @Test

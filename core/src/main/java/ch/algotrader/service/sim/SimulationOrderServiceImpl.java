@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,16 +12,19 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.service.sim;
 
 import java.math.BigDecimal;
+import java.util.Date;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.lang.Validate;
 
 import ch.algotrader.entity.Account;
+import ch.algotrader.entity.marketData.MarketDataEventVO;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.LimitOrderI;
@@ -30,32 +33,41 @@ import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.Direction;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.enumeration.Side;
+import ch.algotrader.enumeration.SimpleOrderType;
 import ch.algotrader.enumeration.Status;
-import ch.algotrader.esper.EngineLocator;
-import ch.algotrader.service.ExternalOrderServiceImpl;
-import ch.algotrader.service.OrderService;
-import ch.algotrader.service.TransactionService;
-import ch.algotrader.util.DateUtil;
+import ch.algotrader.enumeration.TIF;
+import ch.algotrader.esper.Engine;
+import ch.algotrader.esper.EngineManager;
+import ch.algotrader.ordermgmt.OrderRegistry;
+import ch.algotrader.service.MarketDataCache;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
-public class SimulationOrderServiceImpl extends ExternalOrderServiceImpl implements SimulationOrderService {
+public class SimulationOrderServiceImpl implements SimulationOrderService {
 
-    private final TransactionService transactionService;
+    private final MarketDataCache marketDataCache;
+    private final OrderRegistry orderRegistry;
+    private final EngineManager engineManager;
+    private final Engine serverEngine;
+    private final AtomicLong counter;
 
-    private final OrderService orderService;
+    public SimulationOrderServiceImpl(
+            final OrderRegistry orderRegistry,
+            final MarketDataCache marketDataCache,
+            final EngineManager engineManager,
+            final Engine serverEngine) {
 
-    public SimulationOrderServiceImpl(final TransactionService transactionService,
-            final OrderService orderService) {
+        Validate.notNull(orderRegistry, "OpenOrderRegistry is null");
+        Validate.notNull(marketDataCache, "MarketDataCache is null");
+        Validate.notNull(engineManager, "EngineManager is null");
+        Validate.notNull(serverEngine, "Engine is null");
 
-        Validate.notNull(transactionService, "TransactionService is null");
-        Validate.notNull(orderService, "OrderService is null");
-
-        this.transactionService = transactionService;
-        this.orderService = orderService;
+        this.orderRegistry = orderRegistry;
+        this.engineManager = engineManager;
+        this.serverEngine = serverEngine;
+        this.marketDataCache = marketDataCache;
+        this.counter = new AtomicLong(0);
     }
 
     @Override
@@ -63,10 +75,33 @@ public class SimulationOrderServiceImpl extends ExternalOrderServiceImpl impleme
 
         Validate.notNull(order, "Order is null");
 
+        String intId = order.getIntId();
+        if (intId == null) {
+
+            intId = getNextOrderId(order.getAccount());
+            order.setIntId(intId);
+        }
+
+        this.orderRegistry.add(order);
+
+        Date d = this.engineManager.getCurrentEPTime();
+        // create and OrderStatus
+        OrderStatus orderStatus = OrderStatus.Factory.newInstance();
+        orderStatus.setStatus(Status.EXECUTED);
+        orderStatus.setIntId(order.getIntId());
+        orderStatus.setFilledQuantity(order.getQuantity());
+        orderStatus.setRemainingQuantity(0);
+        orderStatus.setExtDateTime(d);
+        orderStatus.setDateTime(d);
+        orderStatus.setOrder(order);
+
+        // send the orderStatus to the AlgoTrader Server
+        this.serverEngine.sendEvent(orderStatus);
+
         // create one fill per order
-        Fill fill = Fill.Factory.newInstance();
-        fill.setDateTime(DateUtil.getCurrentEPTime());
-        fill.setExtDateTime(DateUtil.getCurrentEPTime());
+        Fill fill = new Fill();
+        fill.setDateTime(d);
+        fill.setExtDateTime(d);
         fill.setSide(order.getSide());
         fill.setQuantity(order.getQuantity());
         fill.setPrice(getPrice(order));
@@ -76,23 +111,7 @@ public class SimulationOrderServiceImpl extends ExternalOrderServiceImpl impleme
         fill.setFee(getFee(order));
 
         // propagate the fill
-        this.transactionService.propagateFill(fill);
-
-        // create the transaction
-        this.transactionService.createTransaction(fill);
-
-        // create and OrderStatus
-        OrderStatus orderStatus = OrderStatus.Factory.newInstance();
-        orderStatus.setStatus(Status.EXECUTED);
-        orderStatus.setFilledQuantity(order.getQuantity());
-        orderStatus.setRemainingQuantity(0);
-        orderStatus.setOrder(order);
-
-        // send the orderStatus to the AlgoTrader Server
-        EngineLocator.instance().getServerEngine().sendEvent(orderStatus);
-
-        // propagate the OrderStatus to the strategy
-        this.orderService.propagateOrderStatus(orderStatus);
+        this.serverEngine.sendEvent(fill);
 
     }
 
@@ -114,7 +133,8 @@ public class SimulationOrderServiceImpl extends ExternalOrderServiceImpl impleme
             Security security = order.getSecurity();
 
             // all other orders are executed the the market
-            return security.getCurrentMarketDataEvent().getMarketValue(Side.BUY.equals(order.getSide()) ? Direction.SHORT : Direction.LONG)
+            MarketDataEventVO marketDataEvent = this.marketDataCache.getCurrentMarketDataEvent(security.getId());
+            return marketDataEvent.getMarketValue(Side.BUY.equals(order.getSide()) ? Direction.SHORT : Direction.LONG)
                     .setScale(security.getSecurityFamily().getScale(), BigDecimal.ROUND_HALF_UP);
         }
 
@@ -162,7 +182,8 @@ public class SimulationOrderServiceImpl extends ExternalOrderServiceImpl impleme
     @Override
     public String getNextOrderId(final Account account) {
 
-        throw new UnsupportedOperationException("get next order id not supported in simulation");
+        long n = counter.incrementAndGet();
+        return "sim" + n + ".0";
     }
 
     @Override
@@ -184,8 +205,17 @@ public class SimulationOrderServiceImpl extends ExternalOrderServiceImpl impleme
     }
 
     @Override
-    public OrderServiceType getOrderServiceType() {
+    public String getOrderServiceType() {
 
-        return OrderServiceType.SIMULATION;
+        return OrderServiceType.SIMULATION.name();
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public TIF getDefaultTIF(final SimpleOrderType type) {
+        return TIF.DAY;
+    }
+
 }

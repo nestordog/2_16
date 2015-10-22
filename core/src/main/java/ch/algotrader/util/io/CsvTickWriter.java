@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,8 +12,8 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.util.io;
 
@@ -37,13 +37,11 @@ import ch.algotrader.entity.marketData.Tick;
  * SuperCSV Writer that writes {@link Tick Ticks} to the specified CSV-File.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public class CsvTickWriter {
 
     //@formatter:off
-    private static String[] header = new String[] {
+    private static final String[] header = new String[] {
         "dateTime",
         "last",
         "lastDateTime",
@@ -54,7 +52,7 @@ public class CsvTickWriter {
         "vol"
     };
 
-    private static CellProcessor[] processor = new CellProcessor[] {
+    private static final CellProcessor[] processor = new CellProcessor[] {
         new DateConverter(), //dateTime
         new ConvertNullTo(""), //last
         new DateConverter(), //lastDateTime
@@ -66,7 +64,7 @@ public class CsvTickWriter {
     };
     //@formatter:on
 
-    private CsvBeanWriter writer;
+    private final CsvBeanWriter writer;
 
     public CsvTickWriter(File file) throws IOException {
 
@@ -101,7 +99,7 @@ public class CsvTickWriter {
                 return "";
             }
             final Date date = (Date) value;
-            Long result = Long.valueOf(date.getTime());
+            Long result = date.getTime();
             return this.next.execute(result, context);
         }
     }

@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,17 +12,15 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.service;
 
-import ch.algotrader.enumeration.FeedType;
+import java.util.Set;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public interface SubscriptionService {
 
@@ -30,34 +28,39 @@ public interface SubscriptionService {
      * Subscribes {@link ch.algotrader.entity.marketData.MarketDataEvent MarketDataEvents} of a
      * Security for the defined Strategy. The default {@code feedType} is used.
      */
-    public void subscribeMarketDataEvent(String strategyName, int securityId);
+    public void subscribeMarketDataEvent(String strategyName, long securityId);
 
     /**
      * Subscribes {@link ch.algotrader.entity.marketData.MarketDataEvent MarketDataEvents} of a
-     * Security for the defined Strategy with the specified {@link FeedType}.
+     * Security for the defined Strategy with the specified feed type.
      */
-    public void subscribeMarketDataEvent(String strategyName, int securityId, FeedType feedType);
+    public void subscribeMarketDataEvent(String strategyName, long securityId, String feedType);
 
     /**
      * Unsubscribes {@link ch.algotrader.entity.marketData.MarketDataEvent MarketDataEvents} of a
      * Security for the defined Strategy. The default {@code feedType} is used.
      */
-    public void unsubscribeMarketDataEvent(String strategyName, int securityId);
+    public void unsubscribeMarketDataEvent(String strategyName, long securityId);
 
     /**
      * Unsubscribes {@link ch.algotrader.entity.marketData.MarketDataEvent MarketDataEvents} of a
-     * Security for the defined Strategy with the specified {@link FeedType}
+     * Security for the defined Strategy with the specified feed type
      */
-    public void unsubscribeMarketDataEvent(String strategyName, int securityId, FeedType feedType);
+    public void unsubscribeMarketDataEvent(String strategyName, long securityId, String feedType);
 
     /**
-     * Initializes current Subscriptions
+     * Initializes market data subscriptions
      */
     public void initMarketDataEventSubscriptions();
 
     /**
      * Subscribes Generic Events of the specified class.
      */
-    public void subscribeGenericEvents(Class[] classes);
+    public void subscribeGenericEvents(Set<Class<?>> classes);
+
+    /**
+     * Initializes generic event subscriptions
+     */
+    public void initGenericEventSubscriptions();
 
 }

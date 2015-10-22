@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,8 +12,8 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.service;
 
@@ -23,43 +23,38 @@ import java.util.UUID;
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Predicate;
 import org.apache.commons.lang.Validate;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.SessionFactory;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.algotrader.config.CommonConfig;
+import ch.algotrader.dao.PositionDao;
+import ch.algotrader.dao.security.CombinationDao;
+import ch.algotrader.dao.security.ComponentDao;
+import ch.algotrader.dao.security.SecurityDao;
+import ch.algotrader.dao.security.SecurityFamilyDao;
 import ch.algotrader.entity.Position;
-import ch.algotrader.entity.PositionDao;
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.security.Combination;
-import ch.algotrader.entity.security.CombinationDao;
 import ch.algotrader.entity.security.Component;
-import ch.algotrader.entity.security.ComponentDao;
 import ch.algotrader.entity.security.Security;
-import ch.algotrader.entity.security.SecurityDao;
 import ch.algotrader.entity.security.SecurityFamily;
-import ch.algotrader.entity.security.SecurityFamilyDao;
 import ch.algotrader.enumeration.CombinationType;
 import ch.algotrader.enumeration.InitializingServiceType;
-import ch.algotrader.esper.EngineLocator;
+import ch.algotrader.esper.Engine;
 import ch.algotrader.util.HibernateUtil;
-import ch.algotrader.util.MyLogger;
-import ch.algotrader.util.spring.HibernateSession;
 import ch.algotrader.vo.InsertComponentEventVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
-@HibernateSession
+@Transactional(propagation = Propagation.SUPPORTS)
 @InitializationPriority(InitializingServiceType.CORE)
 public class CombinationServiceImpl implements CombinationService, InitializingServiceI {
 
-    private static final long serialVersionUID = -2720603696641382966L;
-
-    private static Logger logger = MyLogger.getLogger(CombinationServiceImpl.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(CombinationServiceImpl.class);
 
     private final CommonConfig commonConfig;
 
@@ -79,6 +74,8 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
 
     private final SecurityFamilyDao securityFamilyDao;
 
+    private final Engine serverEngine;
+
     public CombinationServiceImpl(final CommonConfig commonConfig,
             final SessionFactory sessionFactory,
             final PositionService positionService,
@@ -87,7 +84,8 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
             final PositionDao positionDao,
             final SecurityDao securityDao,
             final ComponentDao componentDao,
-            final SecurityFamilyDao securityFamilyDao) {
+            final SecurityFamilyDao securityFamilyDao,
+            final Engine serverEngine) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(sessionFactory, "SessionFactory is null");
@@ -98,6 +96,7 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
         Validate.notNull(securityDao, "SecurityDao is null");
         Validate.notNull(componentDao, "ComponentDao is null");
         Validate.notNull(securityFamilyDao, "SecurityFamilyDao is null");
+        Validate.notNull(serverEngine, "Engine is null");
 
         this.commonConfig = commonConfig;
         this.sessionFactory = sessionFactory;
@@ -108,7 +107,7 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
         this.securityDao = securityDao;
         this.componentDao = componentDao;
         this.securityFamilyDao = securityFamilyDao;
-
+        this.serverEngine = serverEngine;
     }
 
     /**
@@ -116,7 +115,7 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public Combination createCombination(final CombinationType type, final int securityFamilyId) {
+    public Combination createCombination(final CombinationType type, final long securityFamilyId) {
 
         Validate.notNull(type, "Type is null");
 
@@ -134,12 +133,14 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
         combination.setSecurityFamily(securityFamily);
 
         // save to DB
-        this.combinationDao.create(combination);
+        this.combinationDao.save(combination);
 
         // reverse-associate security family (after combination has received an id)
         securityFamily.getSecurities().add(combination);
 
-        logger.debug("created combination " + combination);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("created combination {}", combination);
+        }
 
         return combination;
 
@@ -150,7 +151,7 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public Combination createCombination(final CombinationType type, final int securityFamilyId, final int underlyingId) {
+    public Combination createCombination(final CombinationType type, final long securityFamilyId, final long underlyingId) {
 
         Validate.notNull(type, "Type is null");
 
@@ -171,12 +172,14 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public void deleteCombination(final int combinationId) {
+    public void deleteCombination(final long combinationId) {
 
         Combination combination = this.combinationDao.get(combinationId);
 
         if (combination == null) {
-            logger.warn("combination does not exist: " + combinationId);
+            if (LOGGER.isWarnEnabled()) {
+                LOGGER.warn("combination does not exist: {}", combinationId);
+            }
 
         } else {
 
@@ -196,9 +199,11 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
             combination.getSecurityFamily().removeSecurities(combination);
 
             // remove the combination
-            this.combinationDao.remove(combination);
+            this.combinationDao.delete(combination);
 
-            logger.debug("deleted combination " + combination);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("deleted combination {}", combination);
+            }
         }
 
     }
@@ -208,7 +213,7 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public Combination addComponentQuantity(final int combinationId, final int securityId, final long quantity) {
+    public Combination addComponentQuantity(final long combinationId, final long securityId, final long quantity) {
 
         return addOrRemoveComponentQuantity(combinationId, securityId, quantity, true);
     }
@@ -218,7 +223,7 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public Combination setComponentQuantity(final int combinationId, final int securityId, final long quantity) {
+    public Combination setComponentQuantity(final long combinationId, final long securityId, final long quantity) {
 
         return addOrRemoveComponentQuantity(combinationId, securityId, quantity, false);
 
@@ -229,7 +234,7 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public Combination removeComponent(final int combinationId, final int securityId) {
+    public Combination removeComponent(final long combinationId, final long securityId) {
 
         Combination combination = this.combinationDao.get(combinationId);
 
@@ -238,9 +243,8 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
         }
 
         String combinationString = combination.toString();
-        final Security security = this.securityDao.load(securityId);
 
-        if (security == null) {
+        if (this.securityDao.load(securityId) == null) {
             throw new IllegalArgumentException("security does not exist: " + securityId);
         }
 
@@ -248,7 +252,7 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
         Component component = CollectionUtils.find(combination.getComponents(), new Predicate<Component>() {
             @Override
             public boolean evaluate(Component component) {
-                return security.equals(component.getSecurity());
+                return component.getSecurity().getId() == securityId;
             }
         });
 
@@ -258,7 +262,7 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
             combination.getComponents().remove(component);
 
             // delete the component
-            this.componentDao.remove(component);
+            this.componentDao.delete(component);
 
             // remove the component from the ComponentWindow
             removeFromComponentWindow(component);
@@ -271,7 +275,9 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
             throw new IllegalArgumentException("component on securityId " + securityId + " does not exist");
         }
 
-        logger.debug("removed component " + component + " from combination " + combinationString);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("removed component {} from combination {}", component, combinationString);
+        }
 
         return combination;
 
@@ -282,14 +288,16 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public void closeCombination(final int combinationId, final String strategyName) {
+    public void closeCombination(final long combinationId, final String strategyName) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
         Combination combination = this.combinationDao.get(combinationId);
 
         if (combination == null) {
-            logger.warn("combination does not exist: " + combinationId);
+            if (LOGGER.isWarnEnabled()) {
+                LOGGER.warn("combination does not exist: {}", combinationId);
+            }
             return;
         }
 
@@ -301,7 +309,9 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
 
                 Position position = this.positionDao.findBySecurityAndStrategy(component.getSecurity().getId(), strategyName);
 
-                logger.info("reduce position " + position.getId() + " by " + component.getQuantity());
+                if (LOGGER.isInfoEnabled()) {
+                    LOGGER.info("reduce position {} by {}", position.getId(), component.getQuantity());
+                }
 
                 this.positionService.reducePosition(position.getId(), component.getQuantity());
             }
@@ -323,7 +333,7 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public Combination reduceCombination(final int combinationId, final String strategyName, final double ratio) {
+    public Combination reduceCombination(final long combinationId, final String strategyName, final double ratio) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
@@ -353,7 +363,9 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
 
                     Position position = this.positionDao.findBySecurityAndStrategy(component.getSecurity().getId(), strategyName);
 
-                    logger.info("reduce position " + position.getId() + " of combination " + combination + " by " + absQuantity);
+                    if (LOGGER.isInfoEnabled()) {
+                        LOGGER.info("reduce position {} of combination {} by {}", position.getId(), combination, absQuantity);
+                    }
 
                     // reduce the position
                     this.positionService.reducePosition(position.getId(), absQuantity);
@@ -370,7 +382,7 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public void deleteCombinationsWithZeroQty(final String strategyName, final Class type) {
+    public void deleteCombinationsWithZeroQty(final String strategyName, final Class<?> type) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
         Validate.notNull(type, "Type is null");
@@ -384,7 +396,9 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
                 deleteCombination(combination.getId());
             }
 
-            logger.debug("deleted zero quantity combinations: " + combinations);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("deleted zero quantity combinations: {}", combinations);
+            }
         }
 
     }
@@ -418,7 +432,7 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
 
     }
 
-    private Combination addOrRemoveComponentQuantity(int combinationId, final int securityId, long quantity, boolean add) {
+    private Combination addOrRemoveComponentQuantity(long combinationId, final long securityId, long quantity, boolean add) {
 
         Combination combination = this.combinationDao.get(combinationId);
 
@@ -426,7 +440,6 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
             throw new IllegalArgumentException("combination does not exist: " + combinationId);
         }
 
-        String combinationString = combination.toString();
         final Security security = this.securityDao.load(securityId);
 
         if (security == null) {
@@ -437,7 +450,7 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
         Component component = CollectionUtils.find(combination.getComponents(), new Predicate<Component>() {
             @Override
             public boolean evaluate(Component component) {
-                return security.equals(component.getSecurity());
+                return security.getId() == component.getSecurity().getId();
             }
         });
 
@@ -468,7 +481,7 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
             // associate combination
             component.setCombination(combination);
 
-            this.componentDao.create(component);
+            this.componentDao.save(component);
 
             // reverse associate combination (after component has received an id)
             combination.getComponents().add(component);
@@ -477,10 +490,12 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
         // update the ComponentWindow
         insertIntoComponentWindow(combination);
 
-        if (add) {
-            logger.debug("added component quantity " + quantity + " of " + component + " to combination " + combinationString);
-        } else {
-            logger.debug("set component quantity " + quantity + " of " + component + " to combination " + combinationString);
+        if (LOGGER.isDebugEnabled()) {
+            if (add) {
+                LOGGER.debug("added component quantity {} of {} to combination {}", quantity, component, combination.getId());
+            } else {
+                LOGGER.debug("set component quantity {} of {} to combination {}", quantity, component, combination.getId());
+            }
         }
 
         return combination;
@@ -492,12 +507,10 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
     private void removeFromComponentWindow(Component component) {
 
         // if a component is specified remove it, otherwise empty the entire window
-        if (EngineLocator.instance().hasServerEngine()) {
-            if (component != null) {
-                EngineLocator.instance().getServerEngine().executeQuery("delete from ComponentWindow where componentId = " + component.getId());
-            } else {
-                EngineLocator.instance().getServerEngine().executeQuery("delete from ComponentWindow");
-            }
+        if (component != null) {
+            this.serverEngine.executeQuery("delete from ComponentWindow where componentId = " + component.getId());
+        } else {
+            this.serverEngine.executeQuery("delete from ComponentWindow");
         }
     }
 
@@ -515,9 +528,7 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
             insertComponentEvent.setCombinationId(combination.getId());
             insertComponentEvent.setComponentCount(combination.getComponentCount());
 
-            if (EngineLocator.instance().hasServerEngine()) {
-                EngineLocator.instance().getServerEngine().sendEvent(insertComponentEvent);
-            }
+            this.serverEngine.sendEvent(insertComponentEvent);
         }
     }
 }

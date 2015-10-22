@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,18 +12,21 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.adapter.ib;
 
 import java.text.DecimalFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Date;
 
 import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.Validate;
+
+import com.ib.client.Contract;
+import com.ib.client.Execution;
 
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.Future;
@@ -41,22 +44,18 @@ import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.enumeration.TIF;
-
-import com.ib.client.Contract;
-import com.ib.client.Execution;
+import ch.algotrader.util.DateTimeLegacy;
 
 /**
  * Utility class providing conversion methods for IB specific types.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public class IBUtil {
 
-    private static final SimpleDateFormat dayFormat = new SimpleDateFormat("yyyyMMdd");
-    private static final SimpleDateFormat monthFormat = new SimpleDateFormat("yyyyMM");
-    private static final SimpleDateFormat executionFormat = new SimpleDateFormat("yyyyMMdd  HH:mm:ss");
+    private static final DateTimeFormatter dayFormat = DateTimeFormatter.ofPattern("yyyyMMdd");
+    private static final DateTimeFormatter monthFormat = DateTimeFormatter.ofPattern("yyyyMM");
+    private static final DateTimeFormatter executionFormat = DateTimeFormatter.ofPattern("yyyyMMdd  HH:mm:ss");
     private static final DecimalFormat decimalFormat = new DecimalFormat("#.#######");
 
     public static Contract getContract(Security security) {
@@ -65,7 +64,7 @@ public class IBUtil {
         Validate.notNull(securityFamily.getExchange(), "securityFamily.exchange");
 
         Contract contract = new Contract();
-        contract.m_exchange = securityFamily.getExchangeCode(Broker.IB);
+        contract.m_exchange = securityFamily.getExchange().getIbCode();
 
         // use Conid if available
         if (security.getConid() != null) {
@@ -78,33 +77,33 @@ public class IBUtil {
 
             if (security instanceof Option) {
 
-                Validate.notNull(securityFamily.getSymbolRoot(Broker.IB), "securityFamily.baseSymbol");
+                Validate.notNull(securityFamily.getSymbolRoot(Broker.IB.name()), "securityFamily.baseSymbol");
 
                 Option option = (Option) security;
 
                 contract.m_secType = "OPT";
-                contract.m_symbol = securityFamily.getSymbolRoot(Broker.IB);
-                contract.m_primaryExch = securityFamily.getExchangeCode(Broker.IB);
+                contract.m_symbol = securityFamily.getSymbolRoot(Broker.IB.name());
+                contract.m_primaryExch = securityFamily.getExchange().getIbCode();
                 contract.m_strike = option.getStrike().doubleValue();
                 contract.m_right = option.getType().toString();
-                contract.m_multiplier = decimalFormat.format(securityFamily.getContractSize());
-                contract.m_expiry = dayFormat.format(option.getExpiration());
+                contract.m_multiplier = decimalFormat.format(securityFamily.getContractSize(Broker.IB.name()));
+                contract.m_expiry = dayFormat.format(DateTimeLegacy.toLocalDate(option.getExpiration()));
 
             } else if (security instanceof Future) {
 
-                Validate.notNull(securityFamily.getSymbolRoot(Broker.IB), "securityFamily.baseSymbol");
+                Validate.notNull(securityFamily.getSymbolRoot(Broker.IB.name()), "securityFamily.baseSymbol");
 
                 Future future = (Future) security;
 
                 contract.m_secType = "FUT";
-                contract.m_symbol = securityFamily.getSymbolRoot(Broker.IB);
-                contract.m_multiplier = decimalFormat.format(securityFamily.getContractSize());
-                contract.m_expiry = monthFormat.format(future.getExpiration());
+                contract.m_symbol = securityFamily.getSymbolRoot(Broker.IB.name());
+                contract.m_multiplier = decimalFormat.format(securityFamily.getContractSize(Broker.IB.name()));
+                contract.m_expiry = monthFormat.format(DateTimeLegacy.toLocalDate(future.getExpiration()));
 
             } else if (security instanceof Forex) {
 
                 contract.m_secType = "CASH";
-                contract.m_symbol = ((Forex) security).getBaseCurrency().getValue();
+                contract.m_symbol = ((Forex) security).getBaseCurrency().name();
 
             } else if (security instanceof Stock) {
 
@@ -112,7 +111,7 @@ public class IBUtil {
 
                 contract.m_secType = "STK";
                 contract.m_symbol = security.getSymbol();
-                contract.m_primaryExch = securityFamily.getExchangeCode(Broker.IB);
+                contract.m_primaryExch = securityFamily.getExchange().getIbCode();
 
             } else if (security instanceof Index) {
 
@@ -169,8 +168,8 @@ public class IBUtil {
     public static Date getExecutionDateTime(Execution execution) {
 
         try {
-            return executionFormat.parse(execution.m_time);
-        } catch (ParseException e) {
+            return DateTimeLegacy.parseAsLocalDateTime(execution.m_time, executionFormat);
+        } catch (DateTimeParseException e) {
             throw new RuntimeException(e);
         }
     }

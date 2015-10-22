@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,40 +12,42 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.starter;
 
 import java.text.ParseException;
 
 import ch.algotrader.ServiceLocator;
-import ch.algotrader.service.ib.IBNativeReferenceDataService;
+import ch.algotrader.service.ReferenceDataService;
 
 /**
  * Starter Class for downloading {@link ch.algotrader.entity.security.Stock Stocks}
  * <p>
  * Usage: {@code ReferenceDataStarter securityFamilyId symbol1 symbol2 ...}
+ * <p>
+ * E.g. to download all S&P 500 Stocks get the list of symbols from http://www.cboe.com/products/snp500.aspx
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public class StockRetrievalStarter {
 
     public static void main(String[] args) throws ParseException {
 
-        ServiceLocator.instance().init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
-        IBNativeReferenceDataService service = ServiceLocator.instance().getService("iBNativeReferenceDataService", IBNativeReferenceDataService.class);
+        ServiceLocator serviceLocator = ServiceLocator.instance();
+        serviceLocator.init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);
+        try {
+            serviceLocator.runServices();
 
-        ServiceLocator.instance().initInitializingServices();
+            ReferenceDataService service = serviceLocator.getService("iBNativeReferenceDataService", ReferenceDataService.class);
+            for (int i = 1; i < args.length; i++) {
 
-        for (int i = 1; i < args.length; i++) {
-
-            int securityFamilyId = Integer.parseInt(args[0]);
-            service.retrieveStocks(securityFamilyId, args[i]);
+                long securityFamilyId = Long.parseLong(args[0]);
+                service.retrieveStocks(securityFamilyId, args[i]);
+            }
+        } finally {
+            serviceLocator.shutdown();
         }
-
-        ServiceLocator.instance().shutdown();
     }
 }

@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,15 +12,13 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.service;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public interface ServerManagementService {
 
@@ -71,7 +69,7 @@ public interface ServerManagementService {
      * </ul>
      * @param accountName Account Name
      */
-    public void recordTransaction(int securityId, String strategyName, String extId, String dateTime, long quantity, double price, double executionCommission, double clearingCommission, double fee,
+    public void recordTransaction(long securityId, String strategyName, String extId, String dateTime, long quantity, double price, double executionCommission, double clearingCommission, double fee,
             String currency, String transactionType, String accountName);
 
     /**
@@ -79,12 +77,7 @@ public interface ServerManagementService {
      * @param positionId Id of the Position
      * @param targetStrategyName Strategy where the Position should be moved to
      */
-    public void transferPosition(int positionId, String targetStrategyName);
-
-    /**
-     * Calculates margins for all open positions
-     */
-    public void setMargins();
+    public void transferPosition(long positionId, String targetStrategyName);
 
     /**
      * Hedges all non-base currency exposures with a corresponding FX / FX Future Position
@@ -94,7 +87,7 @@ public interface ServerManagementService {
     /**
      * performs a Delta Hedge of all Securities of the specified underlyingId
      */
-    public void hedgeDelta(int underlyingId);
+    public void hedgeDelta(long underlyingId);
 
     /**
      * Creates Rebalance Transactions so that Net-Liquidation-Values of all strategies are in line
@@ -113,12 +106,6 @@ public interface ServerManagementService {
      * components in the DB.
      */
     public void resetComponentWindow();
-
-    /**
-     * Clears the Open Order Window. Should only be called if there are no open orders outstanding
-     * with the external Broker
-     */
-    public void emptyOpenOrderWindow();
 
     /**
      * Logs current Esper / Java Metrics.

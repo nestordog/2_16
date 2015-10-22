@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,10 +12,12 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.adapter.bb;
+
+import java.io.IOException;
 
 import com.bloomberglp.blpapi.Service;
 import com.bloomberglp.blpapi.Session;
@@ -31,7 +33,7 @@ import com.bloomberglp.blpapi.SessionOptions;
 public final class BBSession extends Session {
 
     private Service service;
-    private String serviceName;
+    private final String serviceName;
     private BBMessageHandler messageHandler;
 
     public BBSession(String serviceName, SessionOptions sessionOptions, BBMessageHandler messageHandler) {
@@ -82,4 +84,21 @@ public final class BBSession extends Session {
 
         return this.messageHandler != null && this.messageHandler.isRunning();
     }
+
+    /**
+     * Convenience method to start the BBSession and open the associated service.
+     */
+    public void startService() throws InterruptedException, IOException {
+
+        // start the session
+        if (!start()) {
+            throw new BBSessionException("Failed to start session for service " + this.serviceName);
+        }
+        // open the service
+        if (!openService("//blp/" + this.serviceName)) {
+            stop();
+            throw new BBSessionException("Failed to open service " + this.serviceName);
+        }
+    }
+
 }

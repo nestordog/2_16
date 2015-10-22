@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,8 +12,8 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.service;
 
@@ -22,6 +22,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.NavigableSet;
+import java.util.Objects;
 import java.util.TimeZone;
 import java.util.TreeSet;
 
@@ -29,46 +30,47 @@ import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.collections15.Predicate;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.time.DateUtils;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
+import ch.algotrader.dao.exchange.ExchangeDao;
 import ch.algotrader.entity.exchange.Exchange;
-import ch.algotrader.entity.exchange.ExchangeDao;
 import ch.algotrader.entity.exchange.Holiday;
 import ch.algotrader.entity.exchange.TradingHours;
 import ch.algotrader.enumeration.WeekDay;
-import ch.algotrader.util.DateUtil;
-import ch.algotrader.util.ObjectUtil;
-import ch.algotrader.util.spring.HibernateSession;
+import ch.algotrader.esper.EngineManager;
 
 /**
  * Java (before JDK8) does not have a separate Date and Time class, therefore parameters are named accordingly.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
-@HibernateSession
+@Transactional(propagation = Propagation.SUPPORTS)
 public class CalendarServiceImpl implements CalendarService {
 
     private final ExchangeDao exchangeDao;
+    private final EngineManager engineManager;
 
-    public CalendarServiceImpl(final ExchangeDao exchangeDao) {
+    public CalendarServiceImpl(final ExchangeDao exchangeDao, final EngineManager engineManager) {
 
         Validate.notNull(exchangeDao, "ExchangeDao is null");
+        Validate.notNull(engineManager, "Engine is null");
 
         this.exchangeDao = exchangeDao;
+        this.engineManager = engineManager;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Date getCurrentTradingDate(int exchangeId, Date dateTime) {
+    public Date getCurrentTradingDate(long exchangeId, Date dateTime) {
 
         Validate.notNull(dateTime, "Data time is null");
 
         Exchange exchange = this.exchangeDao.get(exchangeId);
         Date date = DateUtils.addDays(DateUtils.truncate(dateTime, Calendar.DATE), 2);
-        NavigableSet<Date> openTimes = new TreeSet<Date>();
+        NavigableSet<Date> openTimes = new TreeSet<>();
         while ((openTimes.floor(dateTime)) == null) {
             date = DateUtils.addDays(date, -1);
             openTimes.addAll(getOpenTimes(exchange, date));
@@ -78,35 +80,35 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public Date getCurrentTradingDate(int exchangeId) {
-        return getCurrentTradingDate(exchangeId, DateUtil.getCurrentEPTime());
+    public Date getCurrentTradingDate(long exchangeId) {
+        return getCurrentTradingDate(exchangeId, this.engineManager.getCurrentEPTime());
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public boolean isOpen(final int exchangeId, final Date dateTime) {
+    public boolean isOpen(final long exchangeId, final Date dateTime) {
 
         Validate.notNull(dateTime, "Data time is null");
 
         Exchange exchange = this.exchangeDao.get(exchangeId);
         Date date = truncateToDayUsingTimeZone(dateTime, exchange.getTZ());
         TimeIntervals timeIntervals = getTimeIntervalsPlusMinusOneDay(exchange, date);
-        return timeIntervals.contains(dateTime);
+        return timeIntervals.contains(dateTime) || exchange.getTradingHours().size() == 0;
 
     }
 
     @Override
-    public boolean isOpen(int exchangeId) {
-        return isOpen(exchangeId, DateUtil.getCurrentEPTime());
+    public boolean isOpen(long exchangeId) {
+        return isOpen(exchangeId, this.engineManager.getCurrentEPTime());
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public boolean isTradingDay(final int exchangeId, final Date date) {
+    public boolean isTradingDay(final long exchangeId, final Date date) {
 
         Validate.notNull(date, "Date is null");
 
@@ -117,15 +119,15 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public boolean isTradingDay(int exchangeId) {
-        return isTradingDay(exchangeId, DateUtil.getCurrentEPTime());
+    public boolean isTradingDay(long exchangeId) {
+        return isTradingDay(exchangeId, this.engineManager.getCurrentEPTime());
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Date getOpenTime(final int exchangeId, final Date date) {
+    public Date getOpenTime(final long exchangeId, final Date date) {
 
         Validate.notNull(date, "Date is null");
 
@@ -137,15 +139,15 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public Date getOpenTime(int exchangeId) {
-        return getOpenTime(exchangeId, DateUtil.getCurrentEPTime());
+    public Date getOpenTime(long exchangeId) {
+        return getOpenTime(exchangeId, this.engineManager.getCurrentEPTime());
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Date getCloseTime(final int exchangeId, final Date date) {
+    public Date getCloseTime(final long exchangeId, final Date date) {
 
         Validate.notNull(date, "Date is null");
 
@@ -157,19 +159,19 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public Date getCloseTime(int exchangeId) {
-        return getCloseTime(exchangeId, DateUtil.getCurrentEPTime());
+    public Date getCloseTime(long exchangeId) {
+        return getCloseTime(exchangeId, this.engineManager.getCurrentEPTime());
     }
 
     @Override
-    public Date getNextOpenTime(int exchangeId, Date dateTime) {
+    public Date getNextOpenTime(long exchangeId, Date dateTime) {
 
         Validate.notNull(dateTime, "DateTime is null");
 
         Exchange exchange = this.exchangeDao.get(exchangeId);
         Date date = DateUtils.truncate(dateTime, Calendar.DATE);
         Date openTime;
-        NavigableSet<Date> openTimes = new TreeSet<Date>();
+        NavigableSet<Date> openTimes = new TreeSet<>();
         while ((openTime = openTimes.ceiling(dateTime)) == null) {
             openTimes.addAll(getOpenTimes(exchange, date));
             date = DateUtils.addDays(date, 1);
@@ -179,19 +181,19 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public Date getNextOpenTime(int exchangeId) {
-        return getNextOpenTime(exchangeId, DateUtil.getCurrentEPTime());
+    public Date getNextOpenTime(long exchangeId) {
+        return getNextOpenTime(exchangeId, this.engineManager.getCurrentEPTime());
     }
 
     @Override
-    public Date getNextCloseTime(int exchangeId, Date dateTime) {
+    public Date getNextCloseTime(long exchangeId, Date dateTime) {
 
         Validate.notNull(dateTime, "DateTime is null");
 
         Exchange exchange = this.exchangeDao.get(exchangeId);
         Date date = DateUtils.addDays(DateUtils.truncate(dateTime, Calendar.DATE), -1);
         Date closeTime;
-        NavigableSet<Date> closeTimes = new TreeSet<Date>();
+        NavigableSet<Date> closeTimes = new TreeSet<>();
         while ((closeTime = closeTimes.ceiling(dateTime)) == null) {
             closeTimes.addAll(getCloseTimes(exchange, date));
             date = DateUtils.addDays(date, 1);
@@ -201,8 +203,8 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public Date getNextCloseTime(int exchangeId) {
-        return getNextCloseTime(exchangeId, DateUtil.getCurrentEPTime());
+    public Date getNextCloseTime(long exchangeId) {
+        return getNextCloseTime(exchangeId, this.engineManager.getCurrentEPTime());
     }
 
     /**
@@ -210,7 +212,7 @@ public class CalendarServiceImpl implements CalendarService {
      */
     private NavigableSet<Date> getOpenTimes(Exchange exchange, Date date) {
 
-        NavigableSet<Date> openTimes = new TreeSet<Date>();
+        NavigableSet<Date> openTimes = new TreeSet<>();
         for (TradingHours tradingHours : exchange.getTradingHours()) {
             TimeInterval timeInterval = getTimeInterval(date, tradingHours);
             if (timeInterval != null) {
@@ -225,7 +227,7 @@ public class CalendarServiceImpl implements CalendarService {
      */
     private NavigableSet<Date> getCloseTimes(Exchange exchange, Date date) {
 
-        NavigableSet<Date> openTimes = new TreeSet<Date>();
+        NavigableSet<Date> openTimes = new TreeSet<>();
         for (TradingHours tradingHours : exchange.getTradingHours()) {
             TimeInterval timeInterval = getTimeInterval(date, tradingHours);
             if (timeInterval != null) {
@@ -423,7 +425,7 @@ public class CalendarServiceImpl implements CalendarService {
             }
             if (obj instanceof TimeInterval) {
                 TimeInterval that = (TimeInterval) obj;
-                return ObjectUtil.equalsNonNull(this.getFrom(), that.getFrom()) && ObjectUtil.equalsNonNull(this.getTo(), that.getTo());
+                return Objects.equals(this.getFrom(), that.getFrom()) && Objects.equals(this.getTo(), that.getTo());
             } else {
                 return false;
             }
@@ -433,8 +435,8 @@ public class CalendarServiceImpl implements CalendarService {
         public int hashCode() {
 
             int hash = 17;
-            hash = hash * 37 + ObjectUtil.hashCode(getFrom());
-            hash = hash * 37 + ObjectUtil.hashCode(getTo());
+            hash = hash * 37 + Objects.hashCode(getFrom());
+            hash = hash * 37 + Objects.hashCode(getTo());
             return hash;
         }
 

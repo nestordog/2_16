@@ -1,13 +1,14 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>algotrader</groupId>
     <artifactId>algotrader</artifactId>
-    <version>2.2.7</version>
+    <version>2.3.0</version>
     <packaging>pom</packaging>
     <name>AlgoTrader</name>
 
     <prerequisites>
-        <maven>2.0.10</maven>
+        <maven>3.0</maven>
     </prerequisites>
 
     <organization>
@@ -17,7 +18,7 @@
 
     <developers>
         <developer>
-            <id />
+            <id/>
             <name>Andy Flury</name>
             <email>aflury@algotrader.ch</email>
             <roles>
@@ -63,23 +64,23 @@
                         <lifecycleMappingMetadata>
                             <pluginExecutions>
                                 <pluginExecution>
-                                	<pluginExecutionFilter>
-                                		<groupId>
-                                			org.apache.maven.plugins
-                                		</groupId>
-                                		<artifactId>
-                                			maven-checkstyle-plugin
-                                		</artifactId>
-                                		<versionRange>
-                                			[2.9.1,)
-                                		</versionRange>
-                                		<goals>
-                                			<goal>checkstyle</goal>
-                                		</goals>
-                                	</pluginExecutionFilter>
-                                	<action>
-                                        <execute />
-                                	</action>
+                                    <pluginExecutionFilter>
+                                        <groupId>
+                                            org.apache.maven.plugins
+                                        </groupId>
+                                        <artifactId>
+                                            maven-checkstyle-plugin
+                                        </artifactId>
+                                        <versionRange>
+                                            [2.9.1,)
+                                        </versionRange>
+                                        <goals>
+                                            <goal>checkstyle</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <execute/>
+                                    </action>
                                 </pluginExecution>
                             </pluginExecutions>
                         </lifecycleMappingMetadata>
@@ -88,7 +89,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>build-helper-maven-plugin</artifactId>
-                    <version>1.5</version>
+                    <version>1.8</version>
                     <executions>
                         <execution>
                             <id>generated-sources</id>
@@ -98,7 +99,7 @@
                             </goals>
                             <configuration>
                                 <sources>
-                                    <source>target/src/main/java</source>
+                                    <source>target/generated-sources/main/java</source>
                                 </sources>
                             </configuration>
                         </execution>
@@ -119,30 +120,20 @@
                     </executions>
                 </plugin>
                 <plugin>
-                    <groupId>org.andromda.maven.plugins</groupId>
-                    <artifactId>andromda-maven-plugin</artifactId>
-                    <version>${andromda.version}</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.andromda.maven.plugins</groupId>
-                    <artifactId>andromdapp-maven-plugin</artifactId>
-                    <version>${andromda.version}</version>
-                </plugin>
-                <plugin>
                     <artifactId>maven-resources-plugin</artifactId>
-                    <version>2.4.3</version>
+                    <version>2.6</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.7.1</version>
+                    <version>2.17</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-jar-plugin</artifactId>
-                    <version>2.3</version>
+                    <version>2.4</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-source-plugin</artifactId>
-                    <version>2.1.2</version>
+                    <version>2.2.1</version>
                     <executions>
                         <execution>
                             <id>attach-sources</id>
@@ -155,15 +146,15 @@
                 </plugin>
                 <plugin>
                     <artifactId>maven-install-plugin</artifactId>
-                    <version>2.3.1</version>
+                    <version>2.5.1</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-deploy-plugin</artifactId>
-                    <version>2.5</version>
+                    <version>2.8.1</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-release-plugin</artifactId>
-                    <version>2.2.1</version>
+                    <version>2.2.2</version>
                     <configuration>
                         <tagBase>svn+ssh://repo.algotrader.ch/var/svn/repository/tags</tagBase>
                     </configuration>
@@ -172,17 +163,25 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-checkstyle-plugin</artifactId>
-                    <version>2.9.1</version>
+                    <version>2.15</version>
+                    <dependencies>
+                        <dependency>
+                            <groupId>algotrader</groupId>
+                            <artifactId>algotrader-stylecheck</artifactId>
+                            <version>2</version>
+                        </dependency>
+                    </dependencies>
                     <configuration>
                         <encoding>${project.build.sourceEncoding}</encoding>
+                        <includeResources>false</includeResources>
                     </configuration>
                     <executions>
                         <execution>
                             <id>validate</id>
                             <phase>validate</phase>
                             <configuration>
-                                <configLocation>common/src/main/resources/checkstyle/checkstyle.xml</configLocation>
-                                <headerLocation>common/src/main/resources/checkstyle/license.header</headerLocation>
+                                <configLocation>checkstyle/checkstyle.xml</configLocation>
+                                <headerLocation>checkstyle/license.header</headerLocation>
                                 <sourceDirectory>${basedir}/src/main</sourceDirectory>
                                 <consoleOutput>true</consoleOutput>
                                 <failsOnError>true</failsOnError>
@@ -194,12 +193,12 @@
                         </execution>
                     </executions>
                 </plugin>
-                
-	            <plugin>
-	                <groupId>org.flywaydb</groupId>
-	                <artifactId>flyway-maven-plugin</artifactId>
-	                <version>3.0</version>
-	            </plugin>                 
+
+                <plugin>
+                    <groupId>org.flywaydb</groupId>
+                    <artifactId>flyway-maven-plugin</artifactId>
+                    <version>3.2.1</version>
+                </plugin>
 
             </plugins>
         </pluginManagement>
@@ -207,7 +206,7 @@
         <plugins>
             <plugin>
                 <artifactId>maven-enforcer-plugin</artifactId>
-                <version>1.0</version>
+                <version>1.3.1</version>
                 <executions>
                     <execution>
                         <id>enforce-versions</id>
@@ -231,7 +230,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-clean-plugin</artifactId>
-                <version>2.4.1</version>
+                <version>2.6</version>
                 <configuration>
                     <filesets>
                         <fileset>
@@ -253,7 +252,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.1</version>
+                <version>3.3</version>
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
@@ -266,18 +265,14 @@
         <profile>
             <id>all</id>
             <modules>
-                <module>core/bin</module>
-                <module>client/bin</module>
-                <module>crud</module>
                 <module>test</module>
                 <module>archetype</module>
-                <module>eclipse</module>
+                <module>assembly</module>
             </modules>
         </profile>
     </profiles>
 
     <modules>
-        <module>mda</module>
         <module>common</module>
         <module>core</module>
         <module>client</module>
@@ -285,6 +280,11 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>javax.mail</groupId>
+                <artifactId>mail</artifactId>
+                <version>1.4.7</version>
+            </dependency>
             <dependency>
                 <groupId>commons-beanutils</groupId>
                 <artifactId>commons-beanutils</artifactId>
@@ -326,9 +326,231 @@
                 <version>2.2</version>
             </dependency>
             <dependency>
-                <groupId>log4j</groupId>
-                <artifactId>log4j</artifactId>
-                <version>1.2.17-at</version>
+                <groupId>org.jboss.logging</groupId>
+                <artifactId>jboss-logging</artifactId>
+                <version>${jboss-logging.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-core</artifactId>
+                <version>${log4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-1.2-api</artifactId>
+                <version>${log4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-slf4j-impl</artifactId>
+                <version>${log4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-log4j12</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.espertech</groupId>
+                <artifactId>esper</artifactId>
+                <version>${esper.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>com.espertech</groupId>
+                <artifactId>esperee-jmx</artifactId>
+                <version>${esperee.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.espertech</groupId>
+                <artifactId>esperio-csv</artifactId>
+                <version>${esper.version}-at</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>com.interactivebrokers</groupId>
+                <artifactId>ibclient</artifactId>
+                <version>9.7.1.1-at</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.javassist</groupId>
+                <artifactId>javassist</artifactId>
+                <version>3.18.2-GA</version>
+            </dependency>
+            <dependency>
+                <groupId>org.hibernate</groupId>
+                <artifactId>hibernate-core</artifactId>
+                <version>${hibernate.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>xml-apis</groupId>
+                        <artifactId>xml-apis</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.hibernate</groupId>
+                <artifactId>hibernate-ehcache</artifactId>
+                <version>${hibernate.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>net.sf.ehcache</groupId>
+                        <artifactId>ehcache-core</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>net.sf.ehcache</groupId>
+                <artifactId>ehcache-core</artifactId>
+                <version>2.6.10</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-beans</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-core</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-jms</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-orm</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context-support</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.integration</groupId>
+                <artifactId>spring-integration-mail</artifactId>
+                <version>${spring.integration.version}-at</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.integration</groupId>
+                <artifactId>spring-integration-file</artifactId>
+                <version>${spring.integration.version}.RELEASE</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.activemq</groupId>
+                <artifactId>activemq-broker</artifactId>
+                <version>5.10.0</version>
+            </dependency>
+            <dependency>
+                <groupId>net.sourceforge.collections</groupId>
+                <artifactId>collections-generic</artifactId>
+                <version>4.01</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ta-lib</groupId>
+                <artifactId>ta-lib</artifactId>
+                <version>0.4.0</version>
+            </dependency>
+            <dependency>
+                <groupId>net.sf.supercsv</groupId>
+                <artifactId>super-csv</artifactId>
+                <version>2.2.0</version>
+            </dependency>
+            <dependency>
+                <groupId>com.bloomberglp</groupId>
+                <artifactId>blpapi</artifactId>
+                <version>3.7.1.1</version>
+            </dependency>
+            <dependency>
+                <groupId>c3p0</groupId>
+                <artifactId>c3p0</artifactId>
+                <version>0.9.1.2</version>
+            </dependency>
+            <dependency>
+                <groupId>org.hibernate</groupId>
+                <artifactId>jtidy</artifactId>
+                <version>r8-21122004</version>
+            </dependency>
+            <dependency>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>5.1.34</version>
+            </dependency>
+            <dependency>
+                <groupId>com.h2database</groupId>
+                <artifactId>h2</artifactId>
+                <version>1.4.182</version>
+            </dependency>
+            <dependency>
+                <groupId>quickfixj</groupId>
+                <artifactId>quickfixj-core</artifactId>
+                <version>${quickfixj.version}-at</version>
+            </dependency>
+            <dependency>
+                <groupId>quickfixj</groupId>
+                <artifactId>quickfixj-msg-fix42</artifactId>
+                <version>${quickfixj.version}-at</version>
+            </dependency>
+            <dependency>
+                <groupId>quickfixj</groupId>
+                <artifactId>quickfixj-msg-fix44</artifactId>
+                <version>${quickfixj.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>spiffy</groupId>
+                <artifactId>spiffy</artifactId>
+                <version>1.0.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jfree</groupId>
+                <artifactId>jfreechart</artifactId>
+                <version>1.0.14-at</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>xml-apis</groupId>
+                        <artifactId>xml-apis</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>xalan</groupId>
+                <artifactId>xalan</artifactId>
+                <version>2.7.2</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>xml-apis</groupId>
+                        <artifactId>xml-apis</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>junit</groupId>
@@ -341,6 +563,18 @@
                 <artifactId>mockito-core</artifactId>
                 <version>1.10.8</version>
                 <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.dbunit</groupId>
+                <artifactId>dbunit</artifactId>
+                <version>2.4.9</version>
+                <scope>test</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -357,13 +591,17 @@
     </distributionManagement>
 
     <properties>
-        <java.version>1.7</java.version>
-        <andromda.version>3.4</andromda.version>
-        <spring.version>3.2.6.RELEASE</spring.version>
+        <java.version>1.8</java.version>
+        <hibernate.version>4.3.8.Final</hibernate.version>
+        <jboss-logging.version>3.2.1.Final</jboss-logging.version>
+        <spring.version>4.2.1.RELEASE</spring.version>
         <spring.integration.version>3.0.2</spring.integration.version>
-        <esper.version>5.1.0</esper.version>
+        <esper.version>5.3.0</esper.version>
         <esperee.version>4.11.0</esperee.version>
+        <quickfixj.version>1.5.2</quickfixj.version>
         <grails.version>2.2.4</grails.version>
+        <log4j.version>2.4.1</log4j.version>
+        <slf4j.version>1.7.10</slf4j.version>
         <project.build.sourceEncoding>ISO-8859-1</project.build.sourceEncoding>
     </properties>
 

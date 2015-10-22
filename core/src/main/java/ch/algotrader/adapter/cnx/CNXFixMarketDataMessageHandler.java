@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,21 +12,21 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.adapter.cnx;
 
 import java.util.Date;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.adapter.fix.fix44.AbstractFix44MarketDataMessageHandler;
 import ch.algotrader.enumeration.FeedType;
-import ch.algotrader.esper.EngineLocator;
-import ch.algotrader.util.MyLogger;
-import ch.algotrader.vo.AskVO;
-import ch.algotrader.vo.BidVO;
+import ch.algotrader.esper.Engine;
+import ch.algotrader.vo.marketData.AskVO;
+import ch.algotrader.vo.marketData.BidVO;
 import quickfix.FieldNotFound;
 import quickfix.Group;
 import quickfix.SessionID;
@@ -44,12 +44,16 @@ import quickfix.fix44.MarketDataIncrementalRefresh;
  * Currenex specific FIX market data handler.
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
- *
- * @version $Revision$ $Date$
  */
 public class CNXFixMarketDataMessageHandler extends AbstractFix44MarketDataMessageHandler {
 
-    private static Logger LOGGER = MyLogger.getLogger(CNXFixMarketDataMessageHandler.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(CNXFixMarketDataMessageHandler.class);
+
+    private final Engine serverEngine;
+
+    public CNXFixMarketDataMessageHandler(final Engine serverEngine) {
+        this.serverEngine = serverEngine;
+    }
 
     public void onMessage(final MarketDataIncrementalRefresh marketData, final SessionID sessionID) throws FieldNotFound {
 
@@ -78,21 +82,21 @@ public class CNXFixMarketDataMessageHandler extends AbstractFix44MarketDataMessa
                     case MDEntryType.BID:
 
                         if (LOGGER.isTraceEnabled()) {
-                            LOGGER.trace(id + " BID " + size + "@" + price);
+                            LOGGER.trace("{} BID {}@{}", id, size, price);
                         }
 
-                        BidVO bidVO = new BidVO(id, FeedType.CNX, date, price, (int) size);
-                        EngineLocator.instance().getServerEngine().sendEvent(bidVO);
+                        BidVO bidVO = new BidVO(id, FeedType.CNX.name(), date, price, (int) size);
+                        this.serverEngine.sendEvent(bidVO);
                         break;
                     case MDEntryType.OFFER:
 
                         if (LOGGER.isTraceEnabled()) {
-                            LOGGER.trace(id + " ASK " + size + "@" + price);
+                            LOGGER.trace("{} ASK {}@{}", id, size, price);
                         }
 
-                        AskVO askVO = new AskVO(id, FeedType.CNX, date, price, (int) size);
+                        AskVO askVO = new AskVO(id, FeedType.CNX.name(), date, price, (int) size);
 
-                        EngineLocator.instance().getServerEngine().sendEvent(askVO);
+                        this.serverEngine.sendEvent(askVO);
                         break;
                 }
             }

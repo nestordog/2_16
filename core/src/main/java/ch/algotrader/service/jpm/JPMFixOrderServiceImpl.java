@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,96 +12,57 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.service.jpm;
-
-import java.util.Date;
-
-import org.apache.commons.lang.Validate;
 
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.fix.fix42.GenericFix42OrderMessageFactory;
 import ch.algotrader.adapter.fix.fix42.GenericFix42SymbologyResolver;
+import ch.algotrader.config.CommonConfig;
+import ch.algotrader.dao.AccountDao;
+import ch.algotrader.dao.trade.OrderDao;
 import ch.algotrader.entity.trade.SimpleOrder;
-import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.OrderServiceType;
-import ch.algotrader.service.OrderService;
+import ch.algotrader.ordermgmt.OrderRegistry;
+import ch.algotrader.service.OrderPersistenceService;
+import ch.algotrader.service.fix.fix42.Fix42OrderService;
 import ch.algotrader.service.fix.fix42.Fix42OrderServiceImpl;
-import quickfix.field.Account;
-import quickfix.field.ExDestination;
 import quickfix.field.HandlInst;
-import quickfix.field.SecurityExchange;
-import quickfix.field.TransactTime;
 import quickfix.fix42.NewOrderSingle;
 import quickfix.fix42.OrderCancelReplaceRequest;
 import quickfix.fix42.OrderCancelRequest;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
-public class JPMFixOrderServiceImpl extends Fix42OrderServiceImpl implements JPMFixOrderService {
+public class JPMFixOrderServiceImpl extends Fix42OrderServiceImpl implements Fix42OrderService {
 
-    private static final long serialVersionUID = -8881034489922372443L;
+    public JPMFixOrderServiceImpl(
+            final FixAdapter fixAdapter,
+            final OrderRegistry orderRegistry,
+            final OrderPersistenceService orderPersistenceService,
+            final OrderDao orderDao,
+            final AccountDao accountDao,
+            final CommonConfig commonConfig) {
 
-    public JPMFixOrderServiceImpl(final FixAdapter fixAdapter,
-            final OrderService orderService) {
-
-        super(fixAdapter, orderService, new GenericFix42OrderMessageFactory(new GenericFix42SymbologyResolver()));
+        super(OrderServiceType.JPM_FIX.name(), fixAdapter, new GenericFix42OrderMessageFactory(new GenericFix42SymbologyResolver()),
+                orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig);
     }
 
     @Override
     public void prepareSendOrder(SimpleOrder order, NewOrderSingle newOrder) {
-
-        Validate.notNull(order, "Order is null");
-        Validate.notNull(newOrder, "New order is null");
-
-        newOrder.set(new Account(order.getAccount().getExtAccount()));
         newOrder.set(new HandlInst('1'));
-        newOrder.set(new TransactTime(new Date()));
-
-        String exchange = order.getSecurity().getSecurityFamily().getExchangeCode(Broker.JPM);
-        newOrder.set(new ExDestination(exchange));
-        newOrder.set(new SecurityExchange(exchange));
-
     }
 
     @Override
     public void prepareModifyOrder(SimpleOrder order, OrderCancelReplaceRequest replaceRequest) {
-
-        Validate.notNull(order, "Order is null");
-        Validate.notNull(replaceRequest, "Replace request is null");
-
-        replaceRequest.set(new Account(order.getAccount().getExtAccount()));
         replaceRequest.set(new HandlInst('1'));
-        replaceRequest.set(new TransactTime(new Date()));
-
-        String exchange = order.getSecurity().getSecurityFamily().getExchangeCode(Broker.JPM);
-        replaceRequest.set(new ExDestination(exchange));
-        replaceRequest.set(new SecurityExchange(exchange));
-
     }
 
     @Override
     public void prepareCancelOrder(SimpleOrder order, OrderCancelRequest cancelRequest) {
-
-        Validate.notNull(order, "Order is null");
-        Validate.notNull(cancelRequest, "Cancel request is null");
-
-        cancelRequest.set(new Account(order.getAccount().getExtAccount()));
-        cancelRequest.set(new TransactTime(new Date()));
-
-        String exchange = order.getSecurity().getSecurityFamily().getExchangeCode(Broker.JPM);
-        cancelRequest.set(new SecurityExchange(exchange));
-
     }
 
-    @Override
-    public OrderServiceType getOrderServiceType() {
-
-        return OrderServiceType.JPM_FIX;
-    }
 }

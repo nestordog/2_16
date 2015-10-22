@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,39 +12,43 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.service;
 
 import ch.algotrader.entity.security.Security;
-import ch.algotrader.enumeration.FeedType;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public interface ExternalMarketDataService {
 
     /**
-     * Initializes current Subscriptions with the external Market Data Provider.
+     * Returns {@code true} if the external service is ready to accept initial
+     * subscriptions. Returns {@code false} if the external service is not ready
+     * or initial subscriptions have already been activated.
      */
-    public void initSubscriptions();
+    boolean initSubscriptionReady();
 
     /**
-     * Subscribes a Security with the external Market Data Provider.
+     * Subscribes the given security with the external market data provider.
      */
-    public void subscribe(Security security);
+    void subscribe(Security security);
 
     /**
-     * Unsubscribes a Security with the external Market Data Provider.
+     * Un-subscribes the given security with the external market data provider.
      */
-    public void unsubscribe(Security security);
+    void unsubscribe(Security security);
 
     /**
-     * returns the {@link FeedType} for this ExternalMarketDataService
+     * returns the feed type for this for this service
      */
-    public FeedType getFeedType();
+    String getFeedType();
+
+    /**
+     * returns the session qualifier for this service
+     */
+    String getSessionQualifier();
 
 }

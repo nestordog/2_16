@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,24 +12,27 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.adapter.fix;
 
-import java.util.Collection;
+import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.commons.collections15.CollectionUtils;
-import org.apache.commons.collections15.Predicate;
 import org.apache.commons.lang.Validate;
-import org.springframework.context.ApplicationContext;
 
 import quickfix.Application;
 import quickfix.ConfigError;
 import quickfix.DefaultSessionFactory;
+import quickfix.FieldConvertError;
+import quickfix.FileLogFactory;
 import quickfix.LogFactory;
 import quickfix.MessageFactory;
 import quickfix.MessageStoreFactory;
+import quickfix.SLF4JLogFactory;
+import quickfix.ScreenLogFactory;
 import quickfix.Session;
 import quickfix.SessionFactory;
 import quickfix.SessionID;
@@ -45,55 +48,72 @@ import quickfix.SessionSettings;
  * </ul>
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public class FixMultiApplicationSessionFactory implements SessionFactory {
 
     private static final String APPLICATION_FACTORY = "ApplicationFactory";
 
-    private final ApplicationContext applicationContext;
+    private final Map<String, FixApplicationFactory> applicationFactoryMap;
     private final MessageStoreFactory messageStoreFactory;
-    private final LogFactory logFactory;
     private final MessageFactory messageFactory;
 
-    public FixMultiApplicationSessionFactory(ApplicationContext applicationContext, MessageStoreFactory messageStoreFactory, LogFactory logFactory, MessageFactory messageFactory) {
+    public FixMultiApplicationSessionFactory(final Map<String, FixApplicationFactory> applicationFactoryMap, final MessageStoreFactory messageStoreFactory, final MessageFactory messageFactory) {
 
-        Validate.notNull(applicationContext, "ApplicationContext may not be null");
+        Validate.notNull(applicationFactoryMap, "FixApplicationFactory map may not be null");
         Validate.notNull(messageStoreFactory, "MessageStoreFactory may not be null");
-        Validate.notNull(logFactory, "LogFactory may not be null");
         Validate.notNull(messageFactory, "MessageFactory may not be null");
 
-        this.applicationContext = applicationContext;
+        this.applicationFactoryMap = new ConcurrentHashMap<>(applicationFactoryMap);
         this.messageStoreFactory = messageStoreFactory;
-        this.logFactory = logFactory;
         this.messageFactory = messageFactory;
     }
 
     @Override
-    public Session create(SessionID sessionID, SessionSettings settings) throws ConfigError {
-
-        // get all FixApplicationFactories
-        Collection<FixApplicationFactory> applicationFactories = this.applicationContext.getBeansOfType(FixApplicationFactory.class).values();
+    public Session create(final SessionID sessionID, final SessionSettings settings) throws ConfigError {
 
         final String applicationFactoryName;
+        // For backward compatibility see if the session defines "ApplicationFactory" parameter.
+        // If not, use session qualifier to look up FixApplicationFactory
         if (settings.isSetting(sessionID, APPLICATION_FACTORY)) {
             applicationFactoryName = settings.getSessionProperties(sessionID).getProperty(APPLICATION_FACTORY);
         } else {
-            throw new IllegalStateException(APPLICATION_FACTORY + " setting not defined in fix config file");
+            applicationFactoryName = sessionID.getSessionQualifier();
         }
 
         // find the application factory by its name
-        FixApplicationFactory applicationFactory = CollectionUtils.find(applicationFactories, new Predicate<FixApplicationFactory>(){
-            @Override
-            public boolean evaluate(FixApplicationFactory applicationFactory) {
-                return applicationFactoryName.equals(applicationFactory.getName());
-            }});
-
-        Validate.notNull(applicationFactory, "no FixApplicationFactory found for name " + applicationFactoryName);
-
+        FixApplicationFactory applicationFactory = this.applicationFactoryMap.get(applicationFactoryName);
+        if (applicationFactory == null) {
+            throw new FixApplicationException("FixApplicationFactory not found: " + applicationFactoryName);
+        }
+        String logImpl = "";
+        try {
+            logImpl = settings.getString(sessionID, "LogImpl");
+        } catch (ConfigError | FieldConvertError ignore) {
+        }
+        if (logImpl != null) {
+            logImpl = logImpl.toLowerCase(Locale.ROOT);
+        } else {
+            logImpl = "";
+        }
+        LogFactory logFactory;
+        switch (logImpl) {
+            case "slf4j":
+                logFactory = new SLF4JLogFactory(settings);
+                break;
+            case "file":
+                logFactory = new FileLogFactory(settings);
+                break;
+            case "screen":
+                logFactory = new ScreenLogFactory(settings);
+                break;
+            case "none":
+                logFactory = null;
+                break;
+            default:
+                logFactory = new FileLogFactory(settings);
+        }
         Application application = applicationFactory.create(sessionID, settings);
-        DefaultSessionFactory sessionFactory = new DefaultSessionFactory(application, this.messageStoreFactory, this.logFactory, this.messageFactory);
+        DefaultSessionFactory sessionFactory = new DefaultSessionFactory(application, this.messageStoreFactory, logFactory, this.messageFactory);
         return sessionFactory.create(sessionID, settings);
     }
 }

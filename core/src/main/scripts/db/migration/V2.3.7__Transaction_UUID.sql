@@ -1,0 +1,1 @@
+ALTER TABLE `transaction` ADD `UUID` char(36) NOT NULL AFTER `ID`;

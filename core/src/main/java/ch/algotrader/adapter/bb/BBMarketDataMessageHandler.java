@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,37 +12,45 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.adapter.bb;
 
+import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
-import org.apache.log4j.Logger;
-
-import ch.algotrader.enumeration.FeedType;
-import ch.algotrader.esper.EngineLocator;
-import ch.algotrader.util.MyLogger;
-import ch.algotrader.vo.AskVO;
-import ch.algotrader.vo.BidVO;
-import ch.algotrader.vo.TradeVO;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.bloomberglp.blpapi.Element;
 import com.bloomberglp.blpapi.Event;
 import com.bloomberglp.blpapi.Message;
 import com.bloomberglp.blpapi.Session;
 
+import ch.algotrader.adapter.ExternalSessionStateHolder;
+import ch.algotrader.enumeration.FeedType;
+import ch.algotrader.esper.Engine;
+import ch.algotrader.vo.marketData.AskVO;
+import ch.algotrader.vo.marketData.BidVO;
+import ch.algotrader.vo.marketData.TradeVO;
+
 /**
  * Bloomberg MessageHandler for MarketData events.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public class BBMarketDataMessageHandler extends BBMessageHandler {
 
-    private static Logger logger = MyLogger.getLogger(BBMarketDataMessageHandler.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(BBMarketDataMessageHandler.class);
+
+    private final Engine serverEngine;
+
+    public BBMarketDataMessageHandler(final Engine serverEngine, final ExternalSessionStateHolder sessionStateHolder) {
+        super(sessionStateHolder);
+        this.serverEngine = serverEngine;
+    }
 
     @Override
     protected void processSubscriptionStatus(Event event, Session session) {
@@ -52,11 +60,15 @@ public class BBMarketDataMessageHandler extends BBMessageHandler {
             String cid = (String) msg.correlationID().object();
 
             if (msg.messageType() == BBConstants.SUBSCRIPTION_STARTED) {
-                logger.info("subscription for tickerId " + cid + " has started");
+                if (LOGGER.isInfoEnabled()) {
+                    LOGGER.info("subscription for tickerId {} has started", cid);
+                }
             } else if (msg.messageType() == BBConstants.SUBSCRIPTION_TERMINATED) {
-                logger.info("subscription for tickerId " + cid + " has terminated");
+                if (LOGGER.isInfoEnabled()) {
+                    LOGGER.info("subscription for tickerId {} has terminated", cid);
+                }
             } else if (msg.messageType() == BBConstants.SUBSCRIPTION_FAILURE) {
-                logger.warn(msg);
+                LOGGER.warn(msg);
             } else {
                 throw new IllegalStateException("unknown messageType " + msg.messageType());
             }
@@ -75,15 +87,20 @@ public class BBMarketDataMessageHandler extends BBMessageHandler {
             String marketDataEventType = fields.getElementAsString("MKTDATA_EVENT_TYPE");
             String marketDataEventSubType = fields.getElementAsString("MKTDATA_EVENT_SUBTYPE");
 
+            Date lastDateTime = null;
+            if (fields.hasElement("TRADE_UPDATE_STAMP_RT")) {
+                Calendar calendar = fields.getElementAsDate("TRADE_UPDATE_STAMP_RT").calendar();
+                calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
+                lastDateTime = calendar.getTime();
+            }
+
             if ("SUMMARY".equals(marketDataEventType)) {
 
                 if (!"INTRADAY".equals(marketDataEventSubType)) {
 
                     // there might not have been a last trade
-                    Date lastDateTime = null;
                     double last = 0;
                     if (fields.hasElement("LAST_PRICE") && fields.getElement("LAST_PRICE").numValues() == 1) {
-                        lastDateTime = fields.getElementAsDate("TRADE_UPDATE_STAMP_RT").calendar().getTime();
                         last = fields.getElementAsFloat64("LAST_PRICE");
                     }
 
@@ -93,8 +110,8 @@ public class BBMarketDataMessageHandler extends BBMessageHandler {
                         vol = (int) fields.getElementAsInt64("VOLUME");
                     }
 
-                    TradeVO tradeVO = new TradeVO(cid, FeedType.BB, lastDateTime, last, vol);
-                    EngineLocator.instance().getServerEngine().sendEvent(tradeVO);
+                    TradeVO tradeVO = new TradeVO(cid, FeedType.BB.name(), lastDateTime, last, vol);
+                    this.serverEngine.sendEvent(tradeVO);
 
                     // there are no BIDs for indices
                     if (fields.hasElement("BID") && fields.getElement("BID").numValues() == 1) {
@@ -107,8 +124,8 @@ public class BBMarketDataMessageHandler extends BBMessageHandler {
                             volBid = fields.getElementAsInt32("BID_SIZE");
                         }
 
-                        BidVO bidVO = new BidVO(cid, FeedType.BB, lastDateTime, bid, volBid);
-                        EngineLocator.instance().getServerEngine().sendEvent(bidVO);
+                        BidVO bidVO = new BidVO(cid, FeedType.BB.name(), lastDateTime, bid, volBid);
+                        this.serverEngine.sendEvent(bidVO);
                     }
 
                     // there are no ASKs for indices
@@ -122,8 +139,8 @@ public class BBMarketDataMessageHandler extends BBMessageHandler {
                             volAsk = fields.getElementAsInt32("ASK_SIZE");
                         }
 
-                        AskVO askVO = new AskVO(cid, FeedType.BB, lastDateTime, ask, volAsk);
-                        EngineLocator.instance().getServerEngine().sendEvent(askVO);
+                        AskVO askVO = new AskVO(cid, FeedType.BB.name(), lastDateTime, ask, volAsk);
+                        this.serverEngine.sendEvent(askVO);
                     }
                 }
 
@@ -132,7 +149,6 @@ public class BBMarketDataMessageHandler extends BBMessageHandler {
                 // ignore TRADES without a LAST_PRICE
                 if (fields.hasElement("LAST_PRICE")) {
 
-                    Date lastDateTime = fields.getElementAsDate("TRADE_UPDATE_STAMP_RT").calendar().getTime();
                     double last = fields.getElementAsFloat64("LAST_PRICE");
 
                     // ASK_SIZE is null for FX and indices
@@ -141,8 +157,8 @@ public class BBMarketDataMessageHandler extends BBMessageHandler {
                         vol = (int) fields.getElementAsInt64("VOLUME");
                     }
 
-                    TradeVO tradeVO = new TradeVO(cid, FeedType.BB, lastDateTime, last, vol);
-                    EngineLocator.instance().getServerEngine().sendEvent(tradeVO);
+                    TradeVO tradeVO = new TradeVO(cid, "BB", lastDateTime, last, vol);
+                    this.serverEngine.sendEvent(tradeVO);
                 }
 
             } else if ("QUOTE".equals(marketDataEventType)) {
@@ -150,7 +166,9 @@ public class BBMarketDataMessageHandler extends BBMessageHandler {
 
                 if ("BID".equals(marketDataEventSubType)) {
 
-                    Date dateTime = fields.getElementAsDate("BID_UPDATE_STAMP_RT").calendar().getTime();
+                    Calendar bidCalendar = fields.getElementAsDate("BID_UPDATE_STAMP_RT").calendar();
+                    bidCalendar.setTimeZone(TimeZone.getTimeZone("UTC"));
+                    Date dateTime = bidCalendar.getTime();
 
                     // remove existing BID if there is no value
                     double bid = 0;
@@ -164,12 +182,14 @@ public class BBMarketDataMessageHandler extends BBMessageHandler {
                         volBid = fields.getElementAsInt32("BID_SIZE");
                     }
 
-                    BidVO bidVO = new BidVO(cid, FeedType.BB, dateTime, bid, volBid);
-                    EngineLocator.instance().getServerEngine().sendEvent(bidVO);
+                    BidVO bidVO = new BidVO(cid, "BB", dateTime, bid, volBid);
+                    this.serverEngine.sendEvent(bidVO);
 
                 } else if ("ASK".equals(marketDataEventSubType)) {
 
-                    Date dateTime = fields.getElementAsDate("ASK_UPDATE_STAMP_RT").calendar().getTime();
+                    Calendar askCalendar = fields.getElementAsDate("ASK_UPDATE_STAMP_RT").calendar();
+                    askCalendar.setTimeZone(TimeZone.getTimeZone("UTC"));
+                    Date dateTime = askCalendar.getTime();
 
                     // remove existing ASK if there is no value
                     double ask = 0;
@@ -183,8 +203,8 @@ public class BBMarketDataMessageHandler extends BBMessageHandler {
                         volAsk = fields.getElementAsInt32("ASK_SIZE");
                     }
 
-                    AskVO askVO = new AskVO(cid, FeedType.BB, dateTime, ask, volAsk);
-                    EngineLocator.instance().getServerEngine().sendEvent(askVO);
+                    AskVO askVO = new AskVO(cid, "BB", dateTime, ask, volAsk);
+                    this.serverEngine.sendEvent(askVO);
 
                 } else {
                     throw new IllegalArgumentException("unkown marketDataEventSubType " + marketDataEventSubType);

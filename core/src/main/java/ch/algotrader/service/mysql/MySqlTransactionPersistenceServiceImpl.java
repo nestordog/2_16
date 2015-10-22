@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,8 +12,8 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.service.mysql;
 
@@ -24,32 +24,31 @@ import java.util.Set;
 
 import org.apache.commons.lang.Validate;
 import org.hibernate.SQLQuery;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.classic.Session;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.algotrader.config.CommonConfig;
-import ch.algotrader.entity.PositionDao;
+import ch.algotrader.dao.HibernateInitializer;
+import ch.algotrader.dao.PositionDao;
+import ch.algotrader.dao.TransactionDao;
+import ch.algotrader.dao.strategy.CashBalanceDao;
 import ch.algotrader.entity.PositionImpl;
 import ch.algotrader.entity.Transaction;
-import ch.algotrader.entity.TransactionDao;
 import ch.algotrader.entity.security.Security;
-import ch.algotrader.entity.strategy.CashBalanceDao;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.enumeration.Currency;
+import ch.algotrader.esper.Engine;
 import ch.algotrader.service.PortfolioService;
 import ch.algotrader.service.TransactionPersistenceServiceImpl;
 import ch.algotrader.util.HibernateUtil;
-import ch.algotrader.util.spring.HibernateSession;
 import ch.algotrader.vo.CurrencyAmountVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
-@HibernateSession
+@Transactional(propagation = Propagation.SUPPORTS)
 public class MySqlTransactionPersistenceServiceImpl extends TransactionPersistenceServiceImpl {
 
     private final SessionFactory sessionFactory;
@@ -59,9 +58,10 @@ public class MySqlTransactionPersistenceServiceImpl extends TransactionPersisten
             final SessionFactory sessionFactory,
             final PositionDao positionDao,
             final TransactionDao transactionDao,
-            final CashBalanceDao cashBalanceDao) {
+            final CashBalanceDao cashBalanceDao,
+            final Engine serverEngine) {
 
-        super(commonConfig, portfolioService, positionDao, transactionDao, cashBalanceDao);
+        super(commonConfig, portfolioService, positionDao, transactionDao, cashBalanceDao, serverEngine);
 
         Validate.notNull(sessionFactory, "SessionFactory is null");
 
@@ -77,9 +77,11 @@ public class MySqlTransactionPersistenceServiceImpl extends TransactionPersisten
 
         Validate.notNull(transaction, "Transaction is null");
 
+        transaction.initializeSecurity(HibernateInitializer.INSTANCE);
+
         Strategy strategy = transaction.getStrategy();
         Security security = transaction.getSecurity();
-        Set<Currency> currencySet = new HashSet<Currency>();
+        Set<Currency> currencySet = new HashSet<>();
         Collection<CurrencyAmountVO> attributions = transaction.getAttributions();
         for (CurrencyAmountVO attribution : attributions) {
             currencySet.add(attribution.getCurrency());
@@ -105,7 +107,7 @@ public class MySqlTransactionPersistenceServiceImpl extends TransactionPersisten
             SQLQuery sqlQuery = currentSession.createSQLQuery("INSERT IGNORE INTO cash_balance " + "(currency, amount, strategy_fk, version) VALUES (:currency, 0, :strategy_id, 1)");
             for (Currency currency : currencySet) {
 
-                sqlQuery.setParameter("currency", currency.value());
+                sqlQuery.setParameter("currency", currency.name());
                 sqlQuery.setParameter("strategy_id", strategy.getId());
                 sqlQuery.executeUpdate();
             }

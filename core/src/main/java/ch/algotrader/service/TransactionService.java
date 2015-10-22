@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,24 +12,24 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.service;
 
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import ch.algotrader.entity.Transaction;
+import ch.algotrader.entity.trade.ExternalFill;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.TransactionType;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public interface TransactionService {
 
@@ -37,6 +37,11 @@ public interface TransactionService {
      * Creates a Transaction based on a {@link Fill}
      */
     public void createTransaction(Fill fill);
+
+    /**
+     * Creates a Transaction based on a {@link ExternalFill}
+     */
+    public void createTransaction(ExternalFill fill);
 
     /**
      * Creates a Transaction based on the specified parameters.
@@ -55,7 +60,7 @@ public interface TransactionService {
      * <li>FEES: -1</li>
      * </ul>
      */
-    public void createTransaction(int securityId, String strategyName, String extId, Date dateTime, long quantity, BigDecimal price, BigDecimal executionCommission, BigDecimal clearingCommission,
+    public void createTransaction(long securityId, String strategyName, String extId, Date dateTime, long quantity, BigDecimal price, BigDecimal executionCommission, BigDecimal clearingCommission,
             BigDecimal fee, Currency currency, TransactionType transactionType, String accountName, String description);
 
     /**
@@ -76,6 +81,11 @@ public interface TransactionService {
      * Logs aggregated Information of all Fills belonging to one Order.
      */
     public void logFillSummary(List<Fill> fills);
+
+    /**
+     * Logs aggregated Information of all Fills belonging to one Order from the given insert stream.
+     */
+    public void logFillSummary(Map<?, ?>[] insertStream, Map<?, ?>[] removeStream);
 
     /**
      * Creates Rebalance Transactions so that Net-Liquidation-Values of all strategies are in line

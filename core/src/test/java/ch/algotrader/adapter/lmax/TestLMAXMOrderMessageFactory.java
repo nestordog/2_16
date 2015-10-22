@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,8 +12,8 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.adapter.lmax;
 
@@ -24,6 +24,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import ch.algotrader.adapter.fix.FixApplicationException;
+import ch.algotrader.entity.Account;
+import ch.algotrader.entity.AccountImpl;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.ForexImpl;
 import ch.algotrader.entity.security.SecurityFamily;
@@ -38,6 +40,7 @@ import ch.algotrader.entity.trade.StopLimitOrder;
 import ch.algotrader.entity.trade.StopLimitOrderImpl;
 import ch.algotrader.entity.trade.StopOrder;
 import ch.algotrader.entity.trade.StopOrderImpl;
+import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.TIF;
@@ -117,7 +120,7 @@ public class TestLMAXMOrderMessageFactory {
 
         Forex forex = new ForexImpl();
         forex.setSymbol("RUB.USD");
-        forex.setBaseCurrency(Currency.fromString("RUB"));
+        forex.setBaseCurrency(Currency.valueOf("RUB"));
         forex.setSecurityFamily(family);
 
         MarketOrder order = new MarketOrderImpl();
@@ -133,6 +136,7 @@ public class TestLMAXMOrderMessageFactory {
 
         SecurityFamily family = new SecurityFamilyImpl();
         family.setCurrency(Currency.USD);
+        family.setTickSizePattern("0<0.001");
 
         Forex forex = new ForexImpl();
         forex.setSymbol("EUR.USD");
@@ -140,8 +144,13 @@ public class TestLMAXMOrderMessageFactory {
         forex.setBaseCurrency(Currency.EUR);
         forex.setSecurityFamily(family);
 
+        Account account = new AccountImpl();
+        account.setName("TEST");
+        account.setBroker(Broker.IB.name());
+
         LimitOrder order = new LimitOrderImpl();
         order.setSecurity(forex);
+        order.setAccount(account);
         order.setSide(Side.BUY);
         order.setQuantity(2000);
         order.setLimit(new BigDecimal("1.345"));
@@ -165,6 +174,7 @@ public class TestLMAXMOrderMessageFactory {
 
         SecurityFamily family = new SecurityFamilyImpl();
         family.setCurrency(Currency.USD);
+        family.setTickSizePattern("0<0.001");
 
         Forex forex = new ForexImpl();
         forex.setSymbol("EUR.USD");
@@ -172,8 +182,13 @@ public class TestLMAXMOrderMessageFactory {
         forex.setBaseCurrency(Currency.EUR);
         forex.setSecurityFamily(family);
 
+        Account account = new AccountImpl();
+        account.setName("TEST");
+        account.setBroker(Broker.IB.name());
+
         StopOrder order = new StopOrderImpl();
         order.setSecurity(forex);
+        order.setAccount(account);
         order.setSide(Side.BUY);
         order.setQuantity(2000);
         order.setStop(new BigDecimal("1.345"));
@@ -218,6 +233,7 @@ public class TestLMAXMOrderMessageFactory {
 
         SecurityFamily family = new SecurityFamilyImpl();
         family.setCurrency(Currency.USD);
+        family.setTickSizePattern("0<0.001");
 
         Forex forex = new ForexImpl();
         forex.setSymbol("EUR.USD");
@@ -225,9 +241,15 @@ public class TestLMAXMOrderMessageFactory {
         forex.setBaseCurrency(Currency.EUR);
         forex.setSecurityFamily(family);
 
+
+        Account account = new AccountImpl();
+        account.setName("TEST");
+        account.setBroker(Broker.IB.name());
+
         LimitOrder order = new LimitOrderImpl();
         order.setIntId("test-id");
         order.setSecurity(forex);
+        order.setAccount(account);
         order.setSide(Side.BUY);
         order.setQuantity(2000);
         order.setLimit(new BigDecimal("1.345"));

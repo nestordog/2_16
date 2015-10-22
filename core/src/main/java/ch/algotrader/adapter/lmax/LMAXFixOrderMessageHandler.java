@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,12 +12,15 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.adapter.lmax;
 
 import java.util.Date;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.adapter.fix.FixUtil;
 import ch.algotrader.adapter.fix.fix44.AbstractFix44OrderMessageHandler;
@@ -26,7 +29,9 @@ import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
-import ch.algotrader.util.RoundUtil;
+import ch.algotrader.esper.Engine;
+import ch.algotrader.ordermgmt.OrderRegistry;
+import ch.algotrader.util.PriceUtil;
 import quickfix.FieldNotFound;
 import quickfix.field.AvgPx;
 import quickfix.field.CumQty;
@@ -41,12 +46,16 @@ import quickfix.fix44.ExecutionReport;
  * LMFX specific Fix44MessageHandler.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public class LMAXFixOrderMessageHandler extends AbstractFix44OrderMessageHandler {
 
-    private static final double MULTPLIER = 10000.0;
+    private static final double MULTIPLIER = 10000.0;
+
+    private static final Logger LOGGER = LogManager.getLogger(LMAXFixOrderMessageHandler.class);
+
+    public LMAXFixOrderMessageHandler(final OrderRegistry orderRegistry, final Engine serverEngine) {
+        super(orderRegistry, serverEngine);
+    }
 
     @Override
     protected boolean discardReport(final ExecutionReport executionReport) throws FieldNotFound {
@@ -64,6 +73,19 @@ public class LMAXFixOrderMessageHandler extends AbstractFix44OrderMessageHandler
     }
 
     @Override
+    protected void handleExternal(final ExecutionReport executionReport) throws FieldNotFound {
+    }
+
+    @Override
+    protected void handleUnknown(final ExecutionReport executionReport) throws FieldNotFound {
+
+        if (LOGGER.isErrorEnabled() && executionReport.isSetClOrdID()) {
+            String orderIntId = executionReport.getClOrdID().getValue();
+            LOGGER.error("Cannot find open order with IntID {}", orderIntId);
+        }
+    }
+
+    @Override
     protected boolean isOrderRejected(final ExecutionReport executionReport) throws FieldNotFound {
 
         ExecType execType = executionReport.getExecType();
@@ -71,23 +93,33 @@ public class LMAXFixOrderMessageHandler extends AbstractFix44OrderMessageHandler
     }
 
     @Override
+    protected boolean isOrderReplaced(ExecutionReport executionReport) throws FieldNotFound {
+
+        ExecType execType = executionReport.getExecType();
+        return execType.getValue() == ExecType.REPLACE;
+    }
+
+    @Override
     protected OrderStatus createStatus(final ExecutionReport executionReport, final Order order) throws FieldNotFound {
 
         ExecType execType = executionReport.getExecType();
         Status status = getStatus(execType, executionReport.getOrderQty(), executionReport.getCumQty());
-        long filledQuantity = Math.round(executionReport.getCumQty().getValue() * MULTPLIER);
-        long remainingQuantity = Math.round((executionReport.getOrderQty().getValue() - executionReport.getCumQty().getValue()) * MULTPLIER);
+        long filledQuantity = Math.round(executionReport.getCumQty().getValue() * MULTIPLIER);
+        long remainingQuantity = Math.round((executionReport.getOrderQty().getValue() - executionReport.getCumQty().getValue()) * MULTIPLIER);
+        long lastQuantity = executionReport.isSetLastQty() ? (long) executionReport.getLastQty().getValue() : 0L;
+
+        String intId = order.getIntId() != null ? order.getIntId(): executionReport.getClOrdID().getValue();
         String extId = executionReport.getOrderID().getValue();
-        String intId = executionReport.getClOrdID().getValue();
 
         // assemble the orderStatus
         OrderStatus orderStatus = OrderStatus.Factory.newInstance();
         orderStatus.setStatus(status);
-        orderStatus.setExtId(extId);
         orderStatus.setIntId(intId);
+        orderStatus.setExtId(extId);
         orderStatus.setSequenceNumber(executionReport.getHeader().getInt(MsgSeqNum.FIELD));
         orderStatus.setFilledQuantity(filledQuantity);
         orderStatus.setRemainingQuantity(remainingQuantity);
+        orderStatus.setLastQuantity(lastQuantity);
         orderStatus.setOrder(order);
         if (executionReport.isSetField(TransactTime.FIELD)) {
 
@@ -95,16 +127,16 @@ public class LMAXFixOrderMessageHandler extends AbstractFix44OrderMessageHandler
         }
         if (executionReport.isSetField(LastPx.FIELD)) {
 
-            double d = executionReport.getLastPx().getValue();
-            if (d != 0.0) {
-                orderStatus.setLastPrice(RoundUtil.getBigDecimal(d, order.getSecurity().getSecurityFamily().getScale()));
+            double lastPrice = executionReport.getLastPx().getValue();
+            if (lastPrice != 0.0) {
+                orderStatus.setLastPrice(PriceUtil.normalizePrice(order, lastPrice));
             }
         }
         if (executionReport.isSetField(AvgPx.FIELD)) {
 
-            double d = executionReport.getAvgPx().getValue();
-            if (d != 0.0) {
-                orderStatus.setAvgPrice(RoundUtil.getBigDecimal(d, order.getSecurity().getSecurityFamily().getScale()));
+            double avgPrice = executionReport.getAvgPx().getValue();
+            if (avgPrice != 0.0) {
+                orderStatus.setAvgPrice(PriceUtil.normalizePrice(order, avgPrice));
             }
         }
 
@@ -121,19 +153,20 @@ public class LMAXFixOrderMessageHandler extends AbstractFix44OrderMessageHandler
             // get the fields
             Date extDateTime = executionReport.getTransactTime().getValue();
             Side side = FixUtil.getSide(executionReport.getSide());
-            long quantity = Math.round(executionReport.getLastQty().getValue() * MULTPLIER);
+            long quantity = Math.round(executionReport.getLastQty().getValue() * MULTIPLIER);
             double price = executionReport.getLastPx().getValue();
             String extId = executionReport.getExecID().getValue();
 
             // assemble the fill
-            Fill fill = Fill.Factory.newInstance();
+            Fill fill = new Fill();
             fill.setDateTime(new Date());
             fill.setExtDateTime(extDateTime);
             fill.setExtId(extId);
             fill.setSequenceNumber(executionReport.getHeader().getInt(MsgSeqNum.FIELD));
             fill.setSide(side);
             fill.setQuantity(quantity);
-            fill.setPrice(RoundUtil.getBigDecimal(price, order.getSecurity().getSecurityFamily().getScale()));
+            fill.setPrice(PriceUtil.normalizePrice(order,price));
+            fill.setOrder(order);
 
             return fill;
         } else {

@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,15 +12,14 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.adapter.fix.fix44;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import ch.algotrader.util.MyLogger;
 import quickfix.FieldNotFound;
 import quickfix.SessionID;
 import quickfix.field.MDReqID;
@@ -33,16 +32,14 @@ import quickfix.fix44.QuoteStatusReport;
  * Base Fix4.4 market data message handler. Needs to be overwritten by specific broker interfaces.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public abstract class AbstractFix44MarketDataMessageHandler extends AbstractFix44MessageHandler {
 
-    private static Logger LOGGER = MyLogger.getLogger(AbstractFix44MarketDataMessageHandler.class.getName());
+    static Logger LOGGER = LogManager.getLogger(AbstractFix44MarketDataMessageHandler.class);
 
     public void onMessage(MarketDataRequestReject requestReject, SessionID sessionID) throws FieldNotFound {
 
-        if (LOGGER.isEnabledFor(Level.WARN)) {
+        if (LOGGER.isWarnEnabled()) {
 
             StringBuilder buf = new StringBuilder();
             MDReqID reqID = requestReject.getMDReqID();
@@ -63,8 +60,7 @@ public abstract class AbstractFix44MarketDataMessageHandler extends AbstractFix4
     public void onMessage(QuoteStatusReport quoteStatusReport, SessionID sessionID) throws FieldNotFound {
 
         if (LOGGER.isTraceEnabled()) {
-
-            LOGGER.trace("Quote status report: " + quoteStatusReport.getSymbol().getValue());
+            LOGGER.trace("Quote status report: {}", quoteStatusReport.getSymbol().getValue());
         }
     }
 

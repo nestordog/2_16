@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,8 +12,8 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.option;
 
@@ -23,18 +23,14 @@ import org.apache.commons.math.optimization.GoalType;
 import org.apache.commons.math.optimization.RealPointValuePair;
 import org.apache.commons.math.optimization.direct.NelderMead;
 
-import ch.algotrader.vo.SABRSmileVO;
-
 /**
  * Static methods around the SABR Volatility model.
  *
  * @author <a href="mailto:eburgener@algotrader.ch">Emanuel Burgener</a>
- *
- * @version $Revision$ $Date$
  */
 public class SABR {
 
-    private static double beta = 0.999;
+    private static final double beta = 0.999;
 
     /**
      * Perfors a SABR calibartion based on specified volatilities.
@@ -43,27 +39,24 @@ public class SABR {
      */
     public static SABRSmileVO calibrate(final Double[] strikes, final Double[] volatilities, final double atmVol, final double forward, final double years) throws SABRException {
 
-        MultivariateRealFunction estimateRhoAndVol = new MultivariateRealFunction() {
-            @Override
-            public double value(double[] x) {
+        MultivariateRealFunction estimateRhoAndVol = x -> {
 
-                double r = x[0];
-                double v = x[1];
-                double alpha = findAlpha(forward, forward, atmVol, years, beta, x[0], x[1]);
-                double sumErrors = 0;
+            double r = x[0];
+            double v = x[1];
+            double alpha = findAlpha(forward, forward, atmVol, years, beta, x[0], x[1]);
+            double sumErrors = 0;
 
-                for (int i=0; i< volatilities.length; i++) {
+            for (int i=0; i< volatilities.length; i++) {
 
-                    double modelVol = vol(forward, strikes[i], years, alpha, beta, r, v);
-                    sumErrors += Math.pow(modelVol - volatilities[i], 2);
-                }
-
-                if (Math.abs(r) > 1) {
-                    sumErrors = 1e100;
-                }
-
-                return sumErrors;
+                double modelVol = vol(forward, strikes[i], years, alpha, beta, r, v);
+                sumErrors += Math.pow(modelVol - volatilities[i], 2);
             }
+
+            if (Math.abs(r) > 1) {
+                sumErrors = 1e100;
+            }
+
+            return sumErrors;
         };
 
         NelderMead nelderMead = new NelderMead();

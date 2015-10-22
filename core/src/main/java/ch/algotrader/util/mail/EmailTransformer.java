@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,8 +12,8 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.util.mail;
 
@@ -30,31 +30,28 @@ import javax.mail.Part;
 import javax.mail.internet.MimeBodyPart;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.integration.Message;
 import org.springframework.integration.annotation.Transformer;
 import org.springframework.integration.support.MessageBuilder;
-
-import ch.algotrader.util.MyLogger;
 
 /**
  * Parses the E-mail Message and converts each containing message and/or attachment into
  * a {@link List} of {@link EmailFragment EmailFragments}.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public class EmailTransformer {
 
-    private static final Logger logger = MyLogger.getLogger(EmailTransformer.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(EmailTransformer.class);
 
     @Transformer
     public Message<List<EmailFragment>> transform(Message<javax.mail.Message> message) throws MessagingException {
 
         javax.mail.Message mailMessage = message.getPayload();
 
-        final List<EmailFragment> emailFragments = new ArrayList<EmailFragment>();
+        final List<EmailFragment> emailFragments = new ArrayList<>();
 
         handleMessage(mailMessage, emailFragments);
 
@@ -116,19 +113,16 @@ public class EmailTransformer {
             } else if (disposition.equalsIgnoreCase(Part.ATTACHMENT) || disposition.equalsIgnoreCase(Part.INLINE)) {
 
                 try {
-                    BufferedInputStream bis = new BufferedInputStream(bodyPart.getInputStream());
-                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                    try {
+                    try (ByteArrayOutputStream bos = new ByteArrayOutputStream(); BufferedInputStream bis = new BufferedInputStream(bodyPart.getInputStream())) {
 
                         IOUtils.copy(bis, bos);
 
                         emailFragments.add(new EmailFragment(filename, bos.toByteArray()));
 
-                        logger.info(String.format("processing file: %s", new Object[] { filename }));
+                        if (LOGGER.isInfoEnabled()) {
+                            LOGGER.info(String.format("processing file: %s", new Object[] { filename }));
+                        }
 
-                    } finally {
-                        bos.close();
-                        bis.close();
                     }
 
                 } catch (IOException e) {

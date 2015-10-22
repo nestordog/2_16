@@ -1,0 +1,329 @@
+/***********************************************************************************
+ * AlgoTrader Enterprise Trading Framework
+ *
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
+ *
+ * All information contained herein is, and remains the property of AlgoTrader GmbH.
+ * The intellectual and technical concepts contained herein are proprietary to
+ * AlgoTrader GmbH. Modification, translation, reverse engineering, decompilation,
+ * disassembly or reproduction of this material is strictly forbidden unless prior
+ * written permission is obtained from AlgoTrader GmbH
+ *
+ * Fur detailed terms and conditions consult the file LICENSE.txt or contact
+ *
+ * AlgoTrader GmbH
+ * Aeschstrasse 6
+ * 8834 Schindellegi
+ ***********************************************************************************/
+package ch.algotrader.cache;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.lang.ClassUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.hibernate.collection.internal.AbstractPersistentCollection;
+import org.hibernate.proxy.HibernateProxy;
+
+import ch.algotrader.cache.CacheResponse.CacheState;
+import ch.algotrader.dao.GenericDao;
+import ch.algotrader.dao.NamedParam;
+import ch.algotrader.entity.BaseEntityI;
+import ch.algotrader.entity.Initializer;
+import ch.algotrader.enumeration.QueryType;
+import ch.algotrader.event.listener.EntityCacheEventListener;
+import ch.algotrader.event.listener.QueryCacheEventListener;
+import ch.algotrader.util.collection.CollectionUtil;
+import ch.algotrader.util.metric.MetricsUtil;
+import ch.algotrader.visitor.InitializationVisitor;
+
+/**
+ * Main implementation class of the Level-0 Cache
+ *
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
+ */
+public class CacheManagerImpl implements CacheManager, Initializer, EntityCacheEventListener, QueryCacheEventListener {
+
+    private static final Logger LOGGER = LogManager.getLogger(CacheManagerImpl.class);
+
+    private final AbstractHandler entityHandler;
+    private final AbstractHandler collectionHandler;
+
+    private final EntityCache entityCache;
+    private final QueryCache queryCache;
+
+    private final GenericDao genericDao;
+
+    private final Map<String, String> queryStringMap;
+
+    private final Map<Class<?>, Integer> discriminatorValueMap;
+
+    public CacheManagerImpl(GenericDao genericDao) {
+
+        this.collectionHandler = new CollectionHandler(this);
+        this.entityHandler = new EntityHandler(this);
+        this.entityCache = new EntityCache();
+        this.queryCache = new QueryCache();
+        this.genericDao = genericDao;
+        this.queryStringMap = new HashMap<>();
+        this.discriminatorValueMap = new HashMap<>();
+    }
+
+    EntityCache getEntityCache() {
+        return this.entityCache;
+    }
+
+    QueryCache getQueryCache() {
+        return this.queryCache;
+    }
+
+    GenericDao getGenericDao() {
+        return this.genericDao;
+    }
+
+    CacheResponse put(Object obj) {
+
+        AbstractHandler handler = getHandler(obj.getClass());
+
+        ArrayList<EntityCacheSubKey> stack = new ArrayList<EntityCacheSubKey>();
+        return handler.put(obj, stack);
+    }
+
+    CacheResponse put(Object obj, List<EntityCacheSubKey> stack) {
+
+        AbstractHandler handler = getHandler(obj.getClass());
+
+        return handler.put(obj, stack);
+    }
+
+    @Override
+    public <T extends BaseEntityI> T get(Class<T> clazz, long id) {
+
+        EntityCacheKey cacheKey = new EntityCacheKey(clazz, id);
+
+        T entity = clazz.cast(this.entityCache.find(cacheKey, EntityCacheKey.ROOT));
+
+        // load the Entity if it is not available in the Cache
+        if (entity == null) {
+
+            // load the object from the database
+            entity = clazz.cast(this.genericDao.get(clazz, id));
+
+            // put into the cache
+            if (entity != null) {
+
+                put(entity);
+            }
+
+        } else {
+
+            // make sure the entity is initialized
+            entity.accept(InitializationVisitor.INSTANCE, this);
+        }
+
+        return entity;
+    }
+
+    @Override
+    public <T extends BaseEntityI> List<T> getAll(Class<T> clazz) {
+
+        String className = clazz.getSimpleName();
+        if (!className.endsWith("Impl")) {
+            className = className + "Impl";
+        }
+        return find(clazz, "from " + className, QueryType.HQL);
+    }
+
+    @Override
+    public <T extends BaseEntityI> boolean contains(Class<T> clazz, long id) {
+
+        EntityCacheKey cacheKey = new EntityCacheKey(clazz, id);
+
+        return this.entityCache.exists(cacheKey, EntityCacheKey.ROOT);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T extends BaseEntityI> T initializeProxy(BaseEntityI entity, String context, T proxy) {
+
+        if (proxy instanceof HibernateProxy) {
+
+            long before = System.nanoTime();
+            proxy = (T) this.initialize(entity, context);
+            MetricsUtil.account(ClassUtils.getShortClassName(entity.getClass()) + context, (before));
+        }
+
+        return proxy;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T extends BaseEntityI, C extends Collection<T>> C initializeCollection(BaseEntityI entity, String context, C col) {
+
+        if (col instanceof AbstractPersistentCollection && !((AbstractPersistentCollection) col).wasInitialized()) {
+
+            long before = System.nanoTime();
+            col = (C) this.initialize(entity, context);
+            MetricsUtil.account(ClassUtils.getShortClassName(entity.getClass()) + context, (before));
+        }
+
+        return col;
+    }
+
+    private Object initialize(BaseEntityI entity, String key) {
+
+        EntityCacheKey cacheKey = new EntityCacheKey(entity);
+
+        Object obj = this.entityCache.find(cacheKey, key);
+
+        if (obj == null) {
+            throw new IllegalArgumentException("requested cacheKey to be initialized is not in the cache: " + cacheKey);
+        }
+
+        AbstractHandler handler = getHandler(obj.getClass());
+
+        CacheResponse response = handler.initialize(obj);
+
+        // if the key was already initialized do nothing
+        if (response.getState() == CacheState.UPDATED) {
+
+            this.entityCache.attach(cacheKey, key, response.getValue());
+
+            if (LOGGER.isTraceEnabled()) {
+                LOGGER.trace("initialized {}: {}", cacheKey, key);
+            }
+        }
+
+        return response.getValue();
+    }
+
+    @Override
+    public <T> List<T> find(Class<T> clazz, String query, QueryType type, NamedParam... namedParams) {
+        return find(clazz, query, 0, type, namedParams);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> List<T> find(Class<T> clazz, String query, int maxResults, QueryType type, NamedParam... namedParams) {
+
+        String queryString = getQueryString(query, type);
+
+        QueryCacheKey cacheKey = new QueryCacheKey(queryString, maxResults, namedParams);
+
+        List<T> result = (List<T>) this.queryCache.find(cacheKey);
+
+        if (result == null) {
+
+            result = this.genericDao.find(clazz, queryString, maxResults, QueryType.HQL, namedParams);
+
+            // get the spaceNames
+            Set<String> spaceNames = this.genericDao.getQuerySpaces(cacheKey.getQueryString());
+
+            // add the query to the queryCache
+            this.queryCache.attach(cacheKey, spaceNames, result);
+
+            // put the result (potentially replacing objects)
+            put(result);
+        }
+
+        return result;
+    }
+
+    @Override
+    public <T> T findUnique(Class<T> clazz, String query, QueryType type, NamedParam... namedParams) {
+        return CollectionUtil.getSingleElementOrNull(find(clazz, query, 1, type, namedParams));
+    }
+
+    /**
+     * Invokes an update by using the Handlers
+     */
+    public void update(EntityCacheKey cacheKey, String key) {
+
+        Object obj = this.entityCache.find(cacheKey, key);
+
+        if (obj != null) {
+
+            AbstractHandler handler = getHandler(obj.getClass());
+
+            if (handler.update(obj).getState() == CacheState.UPDATED) {
+
+                if (LOGGER.isTraceEnabled()) {
+                    LOGGER.trace("updated {}: {}", cacheKey, key);
+                }
+            }
+        }
+    }
+
+    private AbstractHandler getHandler(Class<?> clazz) {
+
+        if (this.entityHandler.handles(clazz))
+            return this.entityHandler;
+
+        if (this.collectionHandler.handles(clazz))
+            return this.collectionHandler;
+
+        throw new IllegalArgumentException("Can not manage object " + clazz.getName());
+    }
+
+    private String getQueryString(String query, QueryType type) {
+
+        switch (type) {
+            case HQL:
+                return query;
+            case BY_NAME:
+                String queryString = this.queryStringMap.get(query);
+                if (queryString == null) {
+                    queryString = this.genericDao.getNamedQuery(query);
+                    this.queryStringMap.put(query, queryString);
+                }
+                return queryString;
+
+            default:
+                throw new IllegalStateException("Unexpected query type: " + type);
+        }
+    }
+
+    @Override
+    public void clear() {
+
+        this.entityCache.clear();
+        this.queryCache.clear();
+    }
+
+    @Override
+    public int getDiscriminatorValue(final Class<?> type) {
+
+        Integer discriminator = this.discriminatorValueMap.get(type);
+        if (discriminator == null) {
+            discriminator = this.genericDao.getDiscriminatorValue(type);
+            this.discriminatorValueMap.put(type, discriminator);
+        }
+        return discriminator;
+    }
+
+    @Override
+    public int getEntityCacheSize() {
+        return this.entityCache.size();
+    }
+
+    @Override
+    public List<String> getQueries() {
+        return this.queryCache.getQueries();
+    }
+
+    @Override
+    public void onEvent(QueryCacheEvictionEventVO event) {
+        this.queryCache.detach(event.getSpaceName());
+    }
+
+    @Override
+    public void onEvent(EntityCacheEvictionEventVO event) {
+        EntityCacheKey cacheKey = new EntityCacheKey(event.getEntityClass(), event.getId());
+        update(cacheKey, event.getKey());
+    }
+}

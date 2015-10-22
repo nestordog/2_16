@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,26 +12,21 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.entity.marketData;
 
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
-
 import ch.algotrader.enumeration.Direction;
+import ch.algotrader.util.DateTimeUtil;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public class GenericTickImpl extends GenericTick {
 
     private static final long serialVersionUID = 6171811094429421819L;
-
-    private static final SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy kk:mm:ss SSS");
 
     @Override
     public BigDecimal getCurrentValue() {
@@ -54,11 +49,11 @@ public class GenericTickImpl extends GenericTick {
     @Override
     public String toString() {
 
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
 
         buffer.append(getSecurity());
         buffer.append(",");
-        buffer.append(getDateTime() != null ? format.format(getDateTime()) : null);
+        DateTimeUtil.formatLocalZone(getDateTime().toInstant(), buffer);
         buffer.append(",");
         buffer.append(getTickType());
         buffer.append("=");

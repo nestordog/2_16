@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,38 +12,25 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.adapter.rt;
 
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import quickfix.DefaultSessionFactory;
-import quickfix.FileStoreFactory;
-import quickfix.LogFactory;
-import quickfix.ScreenLogFactory;
-import quickfix.Session;
-import quickfix.SessionID;
-import quickfix.SessionSettings;
-import quickfix.SocketInitiator;
-import quickfix.fix44.NewOrderSingle;
-import quickfix.fix44.OrderCancelRequest;
 import ch.algotrader.adapter.fix.DefaultFixApplication;
-import ch.algotrader.adapter.fix.DefaultFixSessionLifecycle;
+import ch.algotrader.adapter.fix.DefaultFixSessionStateHolder;
+import ch.algotrader.adapter.fix.FixApplicationTestBase;
 import ch.algotrader.adapter.fix.FixConfigUtils;
-import ch.algotrader.adapter.fix.NoopSessionStateListener;
 import ch.algotrader.adapter.fix.fix44.GenericFix44SymbologyResolver;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.AccountImpl;
@@ -67,29 +54,30 @@ import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.AbstractEngine;
-import ch.algotrader.esper.EngineLocator;
-import ch.algotrader.service.LookupService;
-import ch.algotrader.util.Consts;
+import ch.algotrader.esper.Engine;
+import ch.algotrader.event.dispatch.EventDispatcher;
+import ch.algotrader.ordermgmt.OrderRegistry;
+import ch.algotrader.util.DateTimeLegacy;
+import quickfix.SessionID;
+import quickfix.SessionSettings;
+import quickfix.fix44.NewOrderSingle;
+import quickfix.fix44.OrderCancelRequest;
 
-public class RTFixOrderMessageHandlerTest {
+public class RTFixOrderMessageHandlerTest extends FixApplicationTestBase {
 
-    private SimpleDateFormat dateFormat;
     private LinkedBlockingQueue<Object> eventQueue;
-    private LookupService lookupService;
+    private EventDispatcher eventDispatcher;
+    private OrderRegistry orderRegistry;
     private RTFixOrderMessageFactory messageFactory;
     private RTFixOrderMessageHandler messageHandler;
-    private Session session;
-    private SocketInitiator socketInitiator;
 
     @Before
     public void setup() throws Exception {
 
-        this.dateFormat = new SimpleDateFormat("yyyy-MM");
-        this.dateFormat.setTimeZone(Consts.UTM);
-        final LinkedBlockingQueue<Object> queue = new LinkedBlockingQueue<Object>();
+        final LinkedBlockingQueue<Object> queue = new LinkedBlockingQueue<>();
         this.eventQueue = queue;
 
-        EngineLocator.instance().setEngine(StrategyImpl.SERVER, new AbstractEngine() {
+        Engine engine = new AbstractEngine(StrategyImpl.SERVER) {
 
             @Override
             public void sendEvent(Object obj) {
@@ -104,75 +92,22 @@ public class RTFixOrderMessageHandlerTest {
             public List executeQuery(String query) {
                 return null;
             }
-        });
+        };
 
+        this.eventDispatcher = Mockito.mock(EventDispatcher.class);
 
         SessionSettings settings = FixConfigUtils.loadSettings();
         SessionID sessionId = FixConfigUtils.getSessionID(settings, "RT");
 
-        this.lookupService = Mockito.mock(LookupService.class);
-        RTFixOrderMessageHandler messageHandlerImpl = new RTFixOrderMessageHandler();
-        messageHandlerImpl.setLookupService(lookupService);
+        this.orderRegistry = Mockito.mock(OrderRegistry.class);
+        RTFixOrderMessageHandler messageHandlerImpl = new RTFixOrderMessageHandler(this.orderRegistry, engine);
         this.messageHandler = Mockito.spy(messageHandlerImpl);
         this.messageFactory = new RTFixOrderMessageFactory(new GenericFix44SymbologyResolver());
 
-        DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, messageHandler, null, new DefaultFixSessionLifecycle());
+        DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, this.messageHandler, null,
+                new DefaultFixSessionStateHolder("RT", this.eventDispatcher));
 
-        LogFactory logFactory = new ScreenLogFactory(true, true, true);
-
-        // RealTick does not support SeqNum reset on logon. Need to use persistent store.
-        DefaultSessionFactory sessionFactory = new DefaultSessionFactory(fixApplication, new FileStoreFactory(settings), logFactory);
-
-        SocketInitiator socketInitiator = new SocketInitiator(sessionFactory, settings);
-        socketInitiator.start();
-
-        socketInitiator.createDynamicSession(sessionId);
-
-        this.session = Session.lookupSession(sessionId);
-
-        final CountDownLatch latch = new CountDownLatch(1);
-
-        this.session.addStateListener(new NoopSessionStateListener() {
-
-            @Override
-            public void onDisconnect() {
-                latch.countDown();
-            }
-
-            @Override
-            public void onLogon() {
-                latch.countDown();
-            }
-
-        });
-
-        if (!this.session.isLoggedOn()) {
-            latch.await(30, TimeUnit.SECONDS);
-        }
-
-        if (!this.session.isLoggedOn()) {
-            Assert.fail("Session logon failed");
-        }
-
-        // Purge the queue
-        while (eventQueue.poll(5, TimeUnit.SECONDS) != null) {
-        }
-    }
-
-    @After
-    public void shutDown() throws Exception {
-
-        if (this.session != null) {
-            if (this.session.isLoggedOn()) {
-                this.session.logout("Testing");
-            }
-            this.session.close();
-            this.session = null;
-        }
-        if (this.socketInitiator != null) {
-            this.socketInitiator.stop();
-            this.socketInitiator = null;
-        }
+        setupSession(settings, sessionId, fixApplication);
     }
 
     @Test
@@ -188,7 +123,7 @@ public class RTFixOrderMessageHandlerTest {
         stock.setSecurityFamily(securityFamily);
 
         Account testAccount = new AccountImpl();
-        testAccount.setBroker(Broker.RT);
+        testAccount.setBroker(Broker.RT.name());
         testAccount.setExtAccount("20580736-2");
 
         MarketOrder order = new MarketOrderImpl();
@@ -197,13 +132,13 @@ public class RTFixOrderMessageHandlerTest {
         order.setQuantity(100);
         order.setSide(Side.BUY);
 
-        NewOrderSingle message = messageFactory.createNewOrderMessage(order, orderId);
+        NewOrderSingle message = this.messageFactory.createNewOrderMessage(order, orderId);
 
-        Mockito.when(lookupService.getOpenOrderByRootIntId(orderId)).thenReturn(order);
+        Mockito.when(this.orderRegistry.getByIntId(orderId)).thenReturn(order);
 
-        session.send(message);
+        this.session.send(message);
 
-        Object event1 = eventQueue.poll(20, TimeUnit.SECONDS);
+        Object event1 = this.eventQueue.poll(20, TimeUnit.SECONDS);
         Assert.assertTrue(event1 instanceof OrderStatus);
         OrderStatus orderStatus1 = (OrderStatus) event1;
         Assert.assertEquals(orderId, orderStatus1.getIntId());
@@ -212,7 +147,7 @@ public class RTFixOrderMessageHandlerTest {
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(0, orderStatus1.getFilledQuantity());
 
-        Object event2 = eventQueue.poll(20, TimeUnit.SECONDS);
+        Object event2 = this.eventQueue.poll(20, TimeUnit.SECONDS);
         Assert.assertTrue(event2 instanceof OrderStatus);
         OrderStatus orderStatus2 = (OrderStatus) event2;
         Assert.assertEquals(orderId, orderStatus2.getIntId());
@@ -221,7 +156,7 @@ public class RTFixOrderMessageHandlerTest {
         Assert.assertSame(order, orderStatus2.getOrder());
         Assert.assertEquals(100, orderStatus2.getFilledQuantity());
 
-        Object event3 = eventQueue.poll(20, TimeUnit.SECONDS);
+        Object event3 = this.eventQueue.poll(20, TimeUnit.SECONDS);
         Assert.assertTrue(event3 instanceof Fill);
         Fill fill1 = (Fill) event3;
         Assert.assertEquals(orderStatus2.getExtId(), fill1.getExtId());
@@ -231,7 +166,7 @@ public class RTFixOrderMessageHandlerTest {
         Assert.assertEquals(100L, fill1.getQuantity());
         Assert.assertNotNull(fill1.getPrice());
 
-        Object event4 = eventQueue.poll(5, TimeUnit.SECONDS);
+        Object event4 = this.eventQueue.poll(5, TimeUnit.SECONDS);
         Assert.assertNull(event4);
     }
 
@@ -250,10 +185,10 @@ public class RTFixOrderMessageHandlerTest {
 
         Future future = new FutureImpl();
         future.setSecurityFamily(securityFamily);
-        future.setExpiration(dateFormat.parse("2014-12"));
+        future.setExpiration(DateTimeLegacy.parseAsLocalDate("2014-12-01"));
 
         Account testAccount = new AccountImpl();
-        testAccount.setBroker(Broker.RT);
+        testAccount.setBroker(Broker.RT.name());
 
         long totalQuantity = 10L;
 
@@ -263,13 +198,13 @@ public class RTFixOrderMessageHandlerTest {
         order.setSide(Side.BUY);
         order.setQuantity(totalQuantity);
 
-        NewOrderSingle message = messageFactory.createNewOrderMessage(order, orderId);
+        NewOrderSingle message = this.messageFactory.createNewOrderMessage(order, orderId);
 
-        Mockito.when(lookupService.getOpenOrderByRootIntId(orderId)).thenReturn(order);
+        Mockito.when(this.orderRegistry.getByIntId(orderId)).thenReturn(order);
 
-        session.send(message);
+        this.session.send(message);
 
-        Object event1 = eventQueue.poll(1, TimeUnit.MINUTES);
+        Object event1 = this.eventQueue.poll(1, TimeUnit.MINUTES);
         Assert.assertTrue(event1 instanceof OrderStatus);
         OrderStatus orderStatus1 = (OrderStatus) event1;
         Assert.assertEquals(orderId, orderStatus1.getIntId());
@@ -281,7 +216,7 @@ public class RTFixOrderMessageHandlerTest {
         long totalFilled = 0;
         while (totalFilled < totalQuantity) {
 
-            Object event2 = eventQueue.poll(1, TimeUnit.MINUTES);
+            Object event2 = this.eventQueue.poll(1, TimeUnit.MINUTES);
 
             Assert.assertTrue(event2 instanceof OrderStatus);
             OrderStatus orderStatus2 = (OrderStatus) event2;
@@ -290,7 +225,7 @@ public class RTFixOrderMessageHandlerTest {
             Assert.assertTrue(orderStatus2.getStatus() == Status.EXECUTED || orderStatus2.getStatus() == Status.PARTIALLY_EXECUTED);
             Assert.assertSame(order, orderStatus2.getOrder());
 
-            Object event3 = eventQueue.poll(1, TimeUnit.MINUTES);
+            Object event3 = this.eventQueue.poll(1, TimeUnit.MINUTES);
 
             Assert.assertTrue(event3 instanceof Fill);
             Fill fill1 = (Fill) event3;
@@ -303,7 +238,7 @@ public class RTFixOrderMessageHandlerTest {
             totalFilled += fill1.getQuantity();
         }
 
-        Object event4 = eventQueue.poll(5, TimeUnit.SECONDS);
+        Object event4 = this.eventQueue.poll(5, TimeUnit.SECONDS);
         Assert.assertNull(event4);
     }
 
@@ -321,7 +256,7 @@ public class RTFixOrderMessageHandlerTest {
         stock.setSecurityFamily(securityFamily);
 
         Account testAccount = new AccountImpl();
-        testAccount.setBroker(Broker.RT);
+        testAccount.setBroker(Broker.RT.name());
         testAccount.setExtAccount("20580736-2");
 
         MarketOrder order = new MarketOrderImpl();
@@ -330,11 +265,11 @@ public class RTFixOrderMessageHandlerTest {
         order.setQuantity(100);
         order.setSide(Side.BUY);
 
-        NewOrderSingle message = messageFactory.createNewOrderMessage(order, orderId);
+        NewOrderSingle message = this.messageFactory.createNewOrderMessage(order, orderId);
 
-        session.send(message);
+        this.session.send(message);
 
-        Object event4 = eventQueue.poll(5, TimeUnit.SECONDS);
+        Object event4 = this.eventQueue.poll(5, TimeUnit.SECONDS);
         Assert.assertNull(event4);
     }
 
@@ -351,7 +286,7 @@ public class RTFixOrderMessageHandlerTest {
         stock.setSecurityFamily(securityFamily);
 
         Account testAccount = new AccountImpl();
-        testAccount.setBroker(Broker.RT);
+        testAccount.setBroker(Broker.RT.name());
         testAccount.setExtAccount("20580736-2");
 
         LimitOrder order = new LimitOrderImpl();
@@ -361,13 +296,13 @@ public class RTFixOrderMessageHandlerTest {
         order.setSide(Side.BUY);
         order.setLimit(new BigDecimal("35.0"));
 
-        NewOrderSingle message1 = messageFactory.createNewOrderMessage(order, orderId1);
+        NewOrderSingle message1 = this.messageFactory.createNewOrderMessage(order, orderId1);
 
-        Mockito.when(lookupService.getOpenOrderByRootIntId(orderId1)).thenReturn(order);
+        Mockito.when(this.orderRegistry.getByIntId(orderId1)).thenReturn(order);
 
-        session.send(message1);
+        this.session.send(message1);
 
-        Object event1 = eventQueue.poll(20, TimeUnit.SECONDS);
+        Object event1 = this.eventQueue.poll(20, TimeUnit.SECONDS);
         Assert.assertTrue(event1 instanceof OrderStatus);
         OrderStatus orderStatus1 = (OrderStatus) event1;
         Assert.assertEquals(orderId1, orderStatus1.getIntId());
@@ -379,13 +314,13 @@ public class RTFixOrderMessageHandlerTest {
         String orderId2 = Long.toHexString(System.currentTimeMillis());
 
         order.setIntId(orderId1);
-        OrderCancelRequest message2 = messageFactory.createOrderCancelMessage(order, orderId2);
+        OrderCancelRequest message2 = this.messageFactory.createOrderCancelMessage(order, orderId2);
 
-        Mockito.when(lookupService.getOpenOrderByRootIntId(orderId2)).thenReturn(order);
+        Mockito.when(this.orderRegistry.getByIntId(orderId2)).thenReturn(order);
 
-        session.send(message2);
+        this.session.send(message2);
 
-        Object event2 = eventQueue.poll(20, TimeUnit.SECONDS);
+        Object event2 = this.eventQueue.poll(20, TimeUnit.SECONDS);
 
         Assert.assertTrue(event2 instanceof OrderStatus);
         OrderStatus orderStatus2 = (OrderStatus) event2;
@@ -396,7 +331,7 @@ public class RTFixOrderMessageHandlerTest {
         Assert.assertEquals(0, orderStatus2.getFilledQuantity());
         Assert.assertEquals(100, orderStatus2.getRemainingQuantity());
 
-        Object event3 = eventQueue.poll(5, TimeUnit.SECONDS);
+        Object event3 = this.eventQueue.poll(5, TimeUnit.SECONDS);
         Assert.assertNull(event3);
     }
 

@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,19 +12,19 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.adapter.ftx;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.adapter.fix.fix44.GenericFix44OrderMessageHandler;
-import ch.algotrader.util.MyLogger;
+import ch.algotrader.esper.Engine;
+import ch.algotrader.ordermgmt.OrderRegistry;
 import quickfix.FieldNotFound;
 import quickfix.SessionID;
-import quickfix.field.ExecType;
 import quickfix.field.RefSeqNum;
 import quickfix.field.SessionRejectReason;
 import quickfix.field.Text;
@@ -36,7 +36,11 @@ import quickfix.fix44.Reject;
  */
 public class FTXFixOrderMessageHandler extends GenericFix44OrderMessageHandler {
 
-    private static Logger LOGGER = MyLogger.getLogger(FTXFixOrderMessageHandler.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(FTXFixOrderMessageHandler.class);
+
+    public FTXFixOrderMessageHandler(final OrderRegistry orderRegistry, final Engine serverEngine) {
+        super(orderRegistry, serverEngine);
+    }
 
     @Override
     protected String getStatusText(final ExecutionReport executionReport) throws FieldNotFound {
@@ -110,18 +114,9 @@ public class FTXFixOrderMessageHandler extends GenericFix44OrderMessageHandler {
     }
 
     @Override
-    protected String resolveIntOrderId(final ExecutionReport executionReport) throws FieldNotFound {
-        ExecType execType = executionReport.getExecType();
-        if (execType.getValue() == ExecType.CANCELED) {
-            return executionReport.getOrigClOrdID().getValue();
-        } else {
-            return super.resolveIntOrderId(executionReport);
-        }
-    }
-
     public void onMessage(final Reject reject, final SessionID sessionID) throws FieldNotFound {
 
-        if (LOGGER.isEnabledFor(Level.ERROR)) {
+        if (LOGGER.isErrorEnabled()) {
             StringBuilder buf = new StringBuilder();
             buf.append("Message rejected as invalid");
             if (reject.isSetField(RefSeqNum.FIELD)) {

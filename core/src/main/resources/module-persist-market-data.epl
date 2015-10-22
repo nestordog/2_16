@@ -1,0 +1,45 @@
+@Name('LAST_TICK_WINDOW')
+@RunTimeOnly()
+create window
+    LastTickWindow.std:unique(securityId, feedType)
+as select
+    *
+from
+    TickVO;
+
+@Name('INSERT_INTO_LAST_TICK_WINDOW')
+@RunTimeOnly()
+insert into
+    LastTickWindow
+select
+    *
+from
+    TickVO;
+
+@Name('PERSIST_HOUR_TICKS')
+@RunTimeOnly()
+@Subscriber(className='tickPersister#persist')
+on pattern
+    [every timer:at(0, *, *, *, *)]
+select
+    *
+from
+    LastTickWindow as tickWindow
+where
+    calendarService.isOpen(lookupService.getExchangeBySecurity(tickWindow.securityId).getId(), current_timestamp.toDate())
+and
+    lookupService.getSecurityFamilyBySecurity(tickWindow.securityId).getPeriodicity() = TimePeriod.valueOf('HOUR'); // (HOUR is a reserved keyword)
+
+@Name('PERSIST_MINUTE_TICKS')
+@RunTimeOnly()
+@Subscriber(className='tickPersister#persist')
+on pattern
+    [every timer:at(*, *, *, *, *)]
+select
+    *
+from
+    LastTickWindow as tickWindow
+where
+    calendarService.isOpen(lookupService.getExchangeBySecurity(tickWindow.securityId).getId(), current_timestamp.toDate())
+and
+    lookupService.getSecurityFamilyBySecurity(tickWindow.securityId).getPeriodicity() = TimePeriod.valueOf('MIN');

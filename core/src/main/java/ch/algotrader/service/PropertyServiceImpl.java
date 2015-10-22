@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,32 +12,29 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.service;
 
 import org.apache.commons.lang.Validate;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import ch.algotrader.dao.property.PropertyDao;
+import ch.algotrader.dao.property.PropertyHolderDao;
 import ch.algotrader.entity.property.Property;
-import ch.algotrader.entity.property.PropertyDao;
 import ch.algotrader.entity.property.PropertyHolder;
-import ch.algotrader.entity.property.PropertyHolderDao;
-import ch.algotrader.util.MyLogger;
-import ch.algotrader.util.spring.HibernateSession;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
-@HibernateSession
+@Transactional(propagation = Propagation.SUPPORTS)
 public class PropertyServiceImpl implements PropertyService {
 
-    private static Logger logger = MyLogger.getLogger(PropertyServiceImpl.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(PropertyServiceImpl.class);
 
     private final PropertyDao propertyDao;
 
@@ -57,7 +54,7 @@ public class PropertyServiceImpl implements PropertyService {
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public PropertyHolder addProperty(final int propertyHolderId, final String name, final Object value, final boolean persistent) {
+    public PropertyHolder addProperty(final long propertyHolderId, final String name, final Object value, final boolean persistent) {
 
         Validate.notEmpty(name, "Name is empty");
         Validate.notNull(value, "Value is null");
@@ -77,7 +74,7 @@ public class PropertyServiceImpl implements PropertyService {
             // associate the propertyHolder
             property.setPropertyHolder(propertyHolder);
 
-            this.propertyDao.create(property);
+            this.propertyDao.save(property);
 
             // reverse-associate the propertyHolder (after property has received an id)
             propertyHolder.getProps().put(name, property);
@@ -87,7 +84,9 @@ public class PropertyServiceImpl implements PropertyService {
             property.setValue(value);
         }
 
-        logger.info("added property " + name + " value " + value + " to " + propertyHolder);
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("added property {} value {} to {}", name, value, propertyHolder);
+        }
 
         return propertyHolder;
 
@@ -98,7 +97,7 @@ public class PropertyServiceImpl implements PropertyService {
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public PropertyHolder removeProperty(final int propertyHolderId, final String name) {
+    public PropertyHolder removeProperty(final long propertyHolderId, final String name) {
 
         Validate.notEmpty(name, "Name is empty");
 
@@ -107,12 +106,14 @@ public class PropertyServiceImpl implements PropertyService {
 
         if (property != null) {
 
-            this.propertyDao.remove(property.getId());
-
             propertyHolder.removeProps(name);
+
+            this.propertyDao.deleteById(property.getId());
         }
 
-        logger.info("removed property " + name + " from " + propertyHolder);
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("removed property {} from {}", name, propertyHolder);
+        }
 
         return propertyHolder;
 

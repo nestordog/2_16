@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-configuration SYSTEM "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+<session-factory>
+    <property name="hibernate.connection.driver_class">org.gjt.mm.mysql.Driver</property>
+    <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
+
+    <property name="hibernate.cache.use_second_level_cache">false</property>
+    <property name="hibernate.cache.use_query_cache">false</property>
+
+    <mapping resource="META-INF/Hibernate.hbm.xml" />
+    <mapping resource="ch/algotrader/entity/Account.hbm.xml" />
+    <mapping resource="ch/algotrader/entity/Transaction.hbm.xml" />
+    <mapping resource="ch/algotrader/entity/marketData/MarketDataEvent.hbm.xml" />
+    <mapping resource="ch/algotrader/entity/property/Property.hbm.xml" />
+    <mapping resource="ch/algotrader/entity/property/PropertyHolder.hbm.xml" />
+    <mapping resource="ch/algotrader/entity/security/Component.hbm.xml" />
+    <mapping resource="ch/algotrader/entity/security/EasyToBorrow.hbm.xml" />
+    <mapping resource="ch/algotrader/entity/security/Security.hbm.xml" />
+    <mapping resource="ch/algotrader/entity/security/SecurityFamily.hbm.xml" />
+    <mapping resource="ch/algotrader/entity/security/SecurityReference.hbm.xml" />
+    <mapping resource="ch/algotrader/entity/security/BrokerParameters.hbm.xml" />
+    <mapping resource="ch/algotrader/entity/exchange/Exchange.hbm.xml" />
+    <mapping resource="ch/algotrader/entity/exchange/Holiday.hbm.xml" />
+    <mapping resource="ch/algotrader/entity/exchange/TradingHours.hbm.xml" />
+    <mapping resource="ch/algotrader/entity/strategy/CashBalance.hbm.xml" />
+    <mapping resource="ch/algotrader/entity/strategy/Measurement.hbm.xml" />
+    <mapping resource="ch/algotrader/entity/strategy/PortfolioValue.hbm.xml" />
+    <mapping resource="ch/algotrader/entity/trade/Allocation.hbm.xml" />
+    <mapping resource="ch/algotrader/entity/trade/Order.hbm.xml" />
+    <mapping resource="ch/algotrader/entity/trade/OrderStatus.hbm.xml" />
+    <mapping resource="ch/algotrader/entity/trade/OrderProperty.hbm.xml" />
+
+</session-factory>
+</hibernate-configuration>

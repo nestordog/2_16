@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,75 +12,90 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.service;
 
+import java.util.Set;
+
 import ch.algotrader.entity.marketData.Tick;
-import ch.algotrader.enumeration.FeedType;
+import ch.algotrader.entity.marketData.TickVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public interface MarketDataService {
 
     /**
      * Persists a Tick to the DB and CSV File.
      */
-    public void persistTick(Tick tick);
+    void persistTick(Tick tick);
 
     /**
      * Initializes current Subscriptions with the external Market Data Provider for the specified
-     * {@link FeedType}
+     * feed type
      */
-    public void initSubscriptions(FeedType feedType);
+    void initSubscriptions(String feedType);
 
     /**
      * Subscribes a Security for the defined Strategy.
      */
-    public void subscribe(String strategyName, int securityId);
+    void subscribe(String strategyName, long securityId);
 
     /**
-     * Subscribes a Security for the defined Strategy and {@link FeedType}.
+     * Subscribes a Security for the defined Strategy and feed type.
      */
-    public void subscribe(String strategyName, int securityId, FeedType feedType);
+    void subscribe(String strategyName, long securityId, String feedType);
 
     /**
      * Unsubscribes a Security for the defined Strategy.
      */
-    public void unsubscribe(String strategyName, int securityId);
+    void unsubscribe(String strategyName, long securityId);
 
     /**
-     * Unsubscribes a Security for the defined Strategy and {@link FeedType}
+     * Unsubscribes a Security for the defined Strategy and feed type
      */
-    public void unsubscribe(String strategyName, int securityId, FeedType feedType);
+    void unsubscribe(String strategyName, long securityId, String feedType);
 
     /**
      * Removes Subscriptions of a particular Strategy for which the Strategy does not have an open
      * Position.
      */
-    public void removeNonPositionSubscriptions(String strategyName);
+    void removeNonPositionSubscriptions(String strategyName);
 
     /**
      * Removes Subscriptions of a particular Strategy and type for which the Strategy does not have
      * an open Position.
      * @param type The class for which a potential Subscription should be removed. Example: {@link ch.algotrader.entity.security.Future Future}
      */
-    public void removeNonPositionSubscriptionsByType(String strategyName, Class type);
+    void removeNonPositionSubscriptionsByType(String strategyName, Class<?> type);
 
     /**
      * Publishes the latest Market Data Events of all subscribed Securities to the corresponding
      * Strategy.
      */
-    public void requestCurrentTicks(String strategyName);
+    void requestCurrentTicks(String strategyName);
 
     /**
      * Called in situations where no Market Data Events have been received for the specified {@code
      * SecurityFamily.maxGap}
      */
-    public void logTickGap(int securityId);
+    void logTickGap(long securityId);
+
+    /**
+     * Returns all supported data feeds.
+     */
+    Set<String> getSupportedFeeds();
+
+    /**
+     * Returns {@code true} if the data feed is supported.
+     */
+    boolean isSupportedFeed(String feedType);
+
+    /**
+     * Verifies if the tick is valid for the security associated with it.
+     */
+    boolean isTickValid(TickVO tick);
 
 }

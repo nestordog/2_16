@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,8 +12,8 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.entity;
 
@@ -29,8 +29,6 @@ import ch.algotrader.enumeration.FeedType;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public class SubscriptionTest {
 
@@ -40,7 +38,7 @@ public class SubscriptionTest {
         Subscription subscription1 = new SubscriptionImpl();
         Subscription subscription2 = new SubscriptionImpl();
 
-        Assert.assertNotEquals(subscription1, subscription2);
+        Assert.assertEquals(subscription1, subscription2);
 
         Strategy strategy = new StrategyImpl();
         strategy.setName("TEST");
@@ -54,14 +52,13 @@ public class SubscriptionTest {
 
         Assert.assertNotEquals(subscription1, subscription2);
 
-        FeedType feedType = FeedType.IB;
-        subscription1.setFeedType(feedType);
+        subscription1.setFeedType(FeedType.IB.name());
 
         Assert.assertNotEquals(subscription1, subscription2);
 
         subscription2.setStrategy(strategy);
         subscription2.setSecurity(security1);
-        subscription2.setFeedType(feedType);
+        subscription2.setFeedType(FeedType.IB.name());
 
         Assert.assertEquals(subscription1, subscription2);
 

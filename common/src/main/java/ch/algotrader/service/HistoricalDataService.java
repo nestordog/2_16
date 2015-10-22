@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,8 +12,8 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.service;
 
@@ -22,14 +22,13 @@ import java.util.List;
 import java.util.Map;
 
 import ch.algotrader.entity.marketData.Bar;
-import ch.algotrader.enumeration.BarType;
+import ch.algotrader.entity.marketData.Tick;
+import ch.algotrader.enumeration.MarketDataEventType;
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.TimePeriod;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public interface HistoricalDataService {
 
@@ -38,43 +37,32 @@ public interface HistoricalDataService {
      * @param endDate The End Date up to which historical Bars should be retrieved.
      * @param timePeriodLength The length of the Time Period for which Bars should be retrieved. Example 10 x 1 Day
      * @param timePeriod The type of the Time Period for which Bars should be retrieved. Example: 1 Day.
-     * See <a href="
-     * http://www.interactivebrokers.com/php/apiUsersGuide/apiguide/api/historical_data_limitations.htm">Historical
-     * Data Limitations</a> for further details.
      * @param barSize The Bar Size for which Bars should be retrieved. Example: MIN_1
-     * @param barType The {@link BarType BarType} that should be retrieved.
+     * @param marketDataEventType The {@link MarketDataEventType MarketDataEventType} that should be retrieved.
      * @param properties Arbitrary properties that should be added to the request
      */
-    public List<Bar> getHistoricalBars(int securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, Duration barSize, BarType barType, Map<String, String> properties);
+    public List<Bar> getHistoricalBars(long securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, Duration barSize, MarketDataEventType marketDataEventType, Map<String, String> properties);
+
+    /**
+     * Gets historical Ticks for the specified Security.
+     * @param endDate The End Date up to which historical Ticks should be retrieved.
+     * @param timePeriodLength The length of the Time Period for which Ticks should be retrieved. Example 10 x 1 Day
+     * @param timePeriod The type of the Time Period for which Ticks should be retrieved. Example: 1 Day.
+     * @param marketDataEventType The {@link MarketDataEventType MarketDataEventType} that should be retrieved.
+     * @param properties Arbitrary properties that should be added to the request
+     */
+    public List<Tick> getHistoricalTicks(long securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, MarketDataEventType marketDataEventType, Map<String, String> properties);
 
     /**
      * Downloads historical Bars for the specified Security and stores them in the database,
-     * existing Bars are not overwritten.
      * @param endDate The End Date up to which historical Bars should be retrieved.
      * @param timePeriodLength The length of the Time Period for which Bars should be retrieved. Example 10 x 1 Day
      * @param timePeriod The type of the Time Period for which Bars should be retrieved. Example: 1 Day.
-     * See <a href="
-     * http://www.interactivebrokers.com/php/apiUsersGuide/apiguide/api/historical_data_limitations.htm">Historical
-     * Data Limitations</a> for further details.
      * @param barSize The Bar Size for which Bars should be retrieved. Example: MIN_1
-     * @param barType The {@link BarType BarType} that should be retrieved.
+     * @param marketDataEventType The {@link MarketDataEventType MarketDataEventType} that should be retrieved.
+     * @param replace should existing Bars be replaced in the database
      * @param properties Arbitrary properties that should be added to the request
      */
-    public void updateHistoricalBars(int securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, Duration barSize, BarType barType, Map<String, String> properties);
-
-    /**
-     * Downloads historical Bars for the specified Security and stores them in the database,
-     * existing Bars are replaced.
-     * @param endDate The End Date up to which historical Bars should be retrieved.
-     * @param timePeriodLength The length of the Time Period for which Bars should be retrieved. Example 10 x 1 Day
-     * @param timePeriod The type of the Time Period for which Bars should be retrieved. Example: 1 Day.
-     * See <a href="
-     * http://www.interactivebrokers.com/php/apiUsersGuide/apiguide/api/historical_data_limitations.htm">Historical
-     * Data Limitations</a> for further details.
-     * @param barSize The Bar Size for which Bars should be retrieved. Example: MIN_1
-     * @param barType The {@link BarType BarType} that should be retrieved.
-     * @param properties Arbitrary properties that should be added to the request
-     */
-    public void replaceHistoricalBars(int securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, Duration barSize, BarType barType, Map<String, String> properties);
+    public void storeHistoricalBars(long securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, Duration barSize, MarketDataEventType marketDataEventType, boolean replace, Map<String, String> properties);
 
 }

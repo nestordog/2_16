@@ -1,7 +1,7 @@
 /***********************************************************************************
  * AlgoTrader Enterprise Trading Framework
  *
- * Copyright (C) 2014 AlgoTrader GmbH - All rights reserved
+ * Copyright (C) 2015 AlgoTrader GmbH - All rights reserved
  *
  * All information contained herein is, and remains the property of AlgoTrader GmbH.
  * The intellectual and technical concepts contained herein are proprietary to
@@ -12,25 +12,21 @@
  * Fur detailed terms and conditions consult the file LICENSE.txt or contact
  *
  * AlgoTrader GmbH
- * Badenerstrasse 16
- * 8004 Zurich
+ * Aeschstrasse 6
+ * 8834 Schindellegi
  ***********************************************************************************/
 package ch.algotrader.entity.strategy;
 
-import java.text.SimpleDateFormat;
-
-import ch.algotrader.util.ObjectUtil;
+import java.util.Date;
+import ch.algotrader.util.DateTimeUtil;
 import ch.algotrader.util.RoundUtil;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- *
- * @version $Revision$ $Date$
  */
 public class PortfolioValueImpl extends PortfolioValue {
 
     private static final long serialVersionUID = -3646704287725745092L;
-    private static SimpleDateFormat format = new SimpleDateFormat("dd.MM.yy hh:mm:ss");
 
     @Override
     public double getNetLiqValueDouble() {
@@ -51,27 +47,20 @@ public class PortfolioValueImpl extends PortfolioValue {
     }
 
     @Override
-    public double getMaintenanceMarginDouble() {
-
-        return getMaintenanceMargin().doubleValue();
-    }
-
-    @Override
     public String toString() {
 
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
 
-        buffer.append(format.format(getDateTime()));
+        Date dateTime = getDateTime();
+        DateTimeUtil.formatLocalZone(dateTime.toInstant(), buffer);
         buffer.append(",");
         buffer.append(getStrategy());
         buffer.append(",netLiqValue=");
         buffer.append(getNetLiqValue());
-        buffer.append(buffer.append(",securitiesCurrentValue="));
+        buffer.append(",securitiesCurrentValue=");
         buffer.append(getSecuritiesCurrentValue());
         buffer.append(",cashBalance=");
         buffer.append(getCashBalance());
-        buffer.append(",maintenanceMargin=");
-        buffer.append(getMaintenanceMargin());
         buffer.append(",leverage=");
         buffer.append(RoundUtil.getBigDecimal(getLeverage()));
         buffer.append(",allocation=");
@@ -85,28 +74,4 @@ public class PortfolioValueImpl extends PortfolioValue {
         return buffer.toString();
     }
 
-
-    @Override
-    public boolean equals(Object obj) {
-
-        if (this == obj) {
-            return true;
-        }
-        if (obj instanceof PortfolioValue) {
-            PortfolioValue that = (PortfolioValue) obj;
-            return ObjectUtil.equalsNonNull(this.getStrategy(), that.getStrategy()) &&
-                    ObjectUtil.equalsNonNull(this.getDateTime(), that.getDateTime());
-        } else {
-            return false;
-        }
-    }
-
-    @Override
-    public int hashCode() {
-
-        int hash = 17;
-        hash = hash * 37 + ObjectUtil.hashCode(getStrategy());
-        hash = hash * 37 + ObjectUtil.hashCode(getDateTime());
-        return hash;
-    }
 }
