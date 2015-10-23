@@ -88,6 +88,7 @@ public class TTFixSecurityDefinitionMessageHandler extends AbstractFix42MessageH
     TTSecurityDefVO parse(final SecurityDefinition securityDefinition) throws FixApplicationException, FieldNotFound {
 
         String symbol = securityDefinition.getSymbol().getValue();
+        String altSymbol = securityDefinition.isSetField(10455) ? securityDefinition.getString(10455) : null;
         String securityId = securityDefinition.getSecurityID().getValue();
         String securityType = securityDefinition.getSecurityType().getValue();
         String securityExchange = securityDefinition.getSecurityExchange().getValue();
@@ -101,14 +102,14 @@ public class TTFixSecurityDefinitionMessageHandler extends AbstractFix42MessageH
         }
         switch (securityType) {
             case SecurityType.FUTURE:
-                return new TTSecurityDefVO(symbol, securityId, securityType, securityExchange, desc, currency,
+                return new TTSecurityDefVO(symbol, altSymbol, securityId, securityType, securityExchange, desc, currency,
                         parseMaturityDate(securityDefinition), parseExpiryDate(securityDefinition));
             case SecurityType.OPTION:
-                return new TTSecurityDefVO(symbol, securityId, securityType, securityExchange, desc, currency,
+                return new TTSecurityDefVO(symbol, altSymbol, securityId, securityType, securityExchange, desc, currency,
                         parseMaturityDate(securityDefinition), parseExpiryDate(securityDefinition),
                         parseOptionType(securityDefinition), securityDefinition.getStrikePrice().getValue());
             default:
-                return new TTSecurityDefVO(symbol, securityId, securityType, securityExchange, desc, currency);
+                return new TTSecurityDefVO(symbol, altSymbol, securityId, securityType, securityExchange, desc, currency);
         }
     }
 

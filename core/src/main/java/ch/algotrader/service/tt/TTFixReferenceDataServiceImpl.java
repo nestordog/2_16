@@ -183,9 +183,9 @@ public class TTFixReferenceDataServiceImpl implements ReferenceDataService, Init
             LocalDate expiryDate = securityDef.getExpiryDate() != null ? securityDef.getExpiryDate() : securityDef.getMaturityDate();
             String desc = securityDef.getDescription();
 
-            String isin = OptionSymbol.getIsin(securityFamily, expiryDate, optionType, strike);
             String symbol = OptionSymbol.getSymbol(securityFamily, expiryDate, optionType, strike, false);
-            String ric = OptionSymbol.getRic(securityFamily, expiryDate, optionType, strike);
+            String isin = securityFamily.getIsinRoot() != null ? OptionSymbol.getIsin(securityFamily, expiryDate, optionType, strike) : null;
+            String ric = securityFamily.getRicRoot() != null ? OptionSymbol.getRic(securityFamily, expiryDate, optionType, strike) : null;
 
             Option option = Option.Factory.newInstance();
             option.setDescription(desc);
@@ -231,9 +231,16 @@ public class TTFixReferenceDataServiceImpl implements ReferenceDataService, Init
 
             Future future = Future.Factory.newInstance();
 
-            String symbol = FutureSymbol.getSymbol(securityFamily, maturityDate);
-            String isin = FutureSymbol.getIsin(securityFamily, maturityDate);
-            String ric = FutureSymbol.getRic(securityFamily, maturityDate);
+            // IPE e-Brent has to be handled as a special case as it happens to have multiple contracts
+            // with the same expiration month
+            String symbol;
+            if ("IPE e-Brent".equalsIgnoreCase(securityFamily.getSymbolRoot()) && securityDef.getAltSymbol() != null) {
+                symbol = securityFamily.getSymbolRoot() + " " + securityDef.getAltSymbol();
+            } else {
+                symbol = FutureSymbol.getSymbol(securityFamily, maturityDate);
+            }
+            String isin = securityFamily.getIsinRoot() != null ? FutureSymbol.getIsin(securityFamily, maturityDate) : null;
+            String ric = securityFamily.getRicRoot() != null ? FutureSymbol.getRic(securityFamily, maturityDate) : null;
 
             future.setSymbol(symbol);
             future.setIsin(isin);
