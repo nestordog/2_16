@@ -17,8 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.cache;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -35,7 +35,7 @@ class EntityCache {
 
     private static final Logger LOGGER = LogManager.getLogger(EntityCache.class);
 
-    private Map<EntityCacheKey, Map<String, Object>> entries = new HashMap<EntityCacheKey, Map<String, Object>>();
+    private Map<EntityCacheKey, Map<String, Object>> entries = new ConcurrentHashMap<EntityCacheKey, Map<String, Object>>();
 
     /**
      * attaches an object to the cache
@@ -49,7 +49,7 @@ class EntityCache {
         Map<String, Object> entry = this.entries.get(cacheKey);
 
         if (entry == null) {
-            entry = new HashMap<>();
+            entry = new ConcurrentHashMap<>();
             this.entries.put(cacheKey, entry);
         }
 

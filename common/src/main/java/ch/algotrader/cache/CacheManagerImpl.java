@@ -19,10 +19,10 @@ package ch.algotrader.cache;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.ClassUtils;
 import org.apache.logging.log4j.LogManager;
@@ -70,8 +70,8 @@ public class CacheManagerImpl implements CacheManager, Initializer, EntityCacheE
         this.entityCache = new EntityCache();
         this.queryCache = new QueryCache();
         this.genericDao = genericDao;
-        this.queryStringMap = new HashMap<>();
-        this.discriminatorValueMap = new HashMap<>();
+        this.queryStringMap = new ConcurrentHashMap<>();
+        this.discriminatorValueMap = new ConcurrentHashMap<>();
     }
 
     EntityCache getEntityCache() {
