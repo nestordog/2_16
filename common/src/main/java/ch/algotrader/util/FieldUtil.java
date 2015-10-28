@@ -108,11 +108,11 @@ public class FieldUtil {
      */
     public static void copyAllFields(Object source, Object target) {
 
-        for (Field field : FieldUtil.getAllFields(source.getClass())) {
+        for (Field field : FieldUtil.getAllFields(target.getClass())) {
 
             try {
-                Object targetValue = FieldUtils.readField(field, target, true);
-                FieldUtils.writeField(field, source, targetValue, true);
+                Object targetValue = FieldUtils.readField(field, source, true);
+                FieldUtils.writeField(field, target, targetValue, true);
             } catch (IllegalAccessException e) {
                 LOGGER.error("problem copying field", e);
             }
