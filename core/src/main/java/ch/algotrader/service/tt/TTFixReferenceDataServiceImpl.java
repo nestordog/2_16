@@ -62,6 +62,7 @@ import ch.algotrader.service.ReferenceDataService;
 import ch.algotrader.service.ServiceException;
 import ch.algotrader.util.DateTimeLegacy;
 import ch.algotrader.util.RoundUtil;
+import quickfix.field.SecurityType;
 import quickfix.fix42.SecurityDefinitionRequest;
 
 /**
@@ -126,7 +127,16 @@ public class TTFixReferenceDataServiceImpl implements ReferenceDataService, Init
         }
 
         String requestId = this.requestIdGenerator.generateId(securityFamily);
-        SecurityDefinitionRequest request = this.requestFactory.create(requestId, securityFamily, "FUT");
+        String securityType;
+        if (securityFamily instanceof OptionFamily) {
+            securityType = SecurityType.OPTION;
+        } else if (securityFamily instanceof FutureFamily) {
+            securityType = SecurityType.FUTURE;
+        } else {
+            securityType = SecurityType.NO_SECURITY_TYPE;
+        }
+
+        SecurityDefinitionRequest request = this.requestFactory.create(requestId, securityFamily, securityType);
 
         PromiseImpl<List<TTSecurityDefVO>> promise = new PromiseImpl<>(null);
         this.pendingRequests.addSecurityDefinitionRequest(requestId, promise);
