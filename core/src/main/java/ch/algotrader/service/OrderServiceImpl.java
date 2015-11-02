@@ -563,6 +563,14 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
 
         this.orderRegistry.updateExecutionStatus(order.getIntId(), orderStatus.getStatus(), orderStatus.getFilledQuantity(), orderStatus.getRemainingQuantity());
 
+        if (orderStatus.getDateTime() == null) {
+            if (orderStatus.getExtDateTime() != null) {
+                orderStatus.setDateTime(orderStatus.getExtDateTime());
+            } else {
+                orderStatus.setDateTime(this.serverEngine.getCurrentTime());
+            }
+        }
+
         // send the fill to the strategy that placed the corresponding order
         Strategy strategy = order.getStrategy();
         if (!strategy.isServer()) {
@@ -578,13 +586,6 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
             // and ignore order status message with synthetic (non-positive) sequence number
             if (orderStatus.getSequenceNumber() > 0 && !(order instanceof AlgoOrder)) {
 
-                if (orderStatus.getDateTime() == null) {
-                    if (orderStatus.getExtDateTime() != null) {
-                        orderStatus.setDateTime(orderStatus.getExtDateTime());
-                    } else {
-                        orderStatus.setDateTime(this.serverEngine.getCurrentTime());
-                    }
-                }
                 this.orderPersistService.persistOrderStatus(orderStatus);
             }
         }
