@@ -19,7 +19,10 @@ package ch.algotrader.service.fix;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -97,8 +100,12 @@ public abstract class FixOrderServiceImpl implements FixOrderService, Initializi
 
         List<Account> accounts = this.accountDao.findByByOrderServiceType(this.orderServiceType);
 
-        for (Account account: accounts) {
-            String sessionQualifier = account.getSessionQualifier();
+        Set<String> sessionQualifiers = accounts.stream()
+                .filter(account -> !StringUtils.isEmpty(account.getSessionQualifier()))
+                .map(Account::getSessionQualifier)
+                .collect(Collectors.toSet());
+
+        for (String sessionQualifier: sessionQualifiers) {
             BigDecimal orderId = this.orderDao.findLastIntOrderIdBySessionQualifier(sessionQualifier);
             this.fixAdapter.setOrderId(sessionQualifier, orderId != null ? orderId.intValue() : 0);
             if (LOGGER.isDebugEnabled() && orderId != null) {
