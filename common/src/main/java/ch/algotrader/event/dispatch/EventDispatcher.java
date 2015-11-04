@@ -36,6 +36,12 @@ public interface EventDispatcher {
     void sendEvent(String strategyName, Object event);
 
     /**
+     * Re-sends past event related to the given strategy to internal recipients such as UI
+     * primarily to restore strategy state upon startup.
+     */
+    void resendPastEvent(String strategyName, Object event);
+
+    /**
      * Registers market data subscription subscription
      */
     void registerMarketDataSubscription(String strategyName, long securityId);

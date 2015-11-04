@@ -109,6 +109,8 @@ import ch.algotrader.service.ServerLookupService;
 import ch.algotrader.service.ServerLookupServiceImpl;
 import ch.algotrader.service.ServerManagementService;
 import ch.algotrader.service.ServerManagementServiceImpl;
+import ch.algotrader.service.ServerStateLoaderService;
+import ch.algotrader.service.ServerStateLoaderServiceImpl;
 import ch.algotrader.service.StrategyPersistenceService;
 import ch.algotrader.service.StrategyPersistenceServiceImpl;
 import ch.algotrader.service.SubscriptionService;
@@ -318,10 +320,8 @@ public class ServiceWiring {
 
     @Bean(name = "orderService")
     public OrderService createOrderService(final CommonConfig commonConfig,
-            final SessionFactory sessionFactory,
             final MarketDataCache marketDataCache,
             final OrderDao orderDao,
-            final OrderStatusDao orderStatusDao,
             final StrategyDao strategyDao,
             final SecurityDao securityDao,
             final AccountDao accountDao,
@@ -337,7 +337,7 @@ public class ServiceWiring {
         Map<String, ExternalOrderService> serviceMap2 = serviceMap1.values().stream()
                 .collect(Collectors.toMap(ExternalOrderService::getOrderServiceType, service -> service));
 
-        return new OrderServiceImpl(commonConfig, sessionFactory, marketDataCache, orderDao, orderStatusDao, strategyDao, securityDao, accountDao, exchangeDao, orderPreferenceDao,
+        return new OrderServiceImpl(commonConfig, marketDataCache, orderDao, strategyDao, securityDao, accountDao, exchangeDao, orderPreferenceDao,
                 orderRegistry, eventDispatcher, engineManager, serverEngine, serviceMap2);
     }
 
@@ -410,6 +410,16 @@ public class ServiceWiring {
             final TickDao tickDao,
             final BarDao barDao) {
         return new ServerLookupServiceImpl(tickDao, securityDao, subscriptionDao, barDao);
+    }
+
+    @Bean(name = "serverStateLoaderService")
+    public ServerStateLoaderService createServerStateLoaderService(
+            final SessionFactory sessionFactory,
+            final OrderDao orderDao,
+            final OrderStatusDao orderStatusDao,
+            final OrderRegistry orderRegistry,
+            final EventDispatcher eventDispatcher) {
+        return new ServerStateLoaderServiceImpl(sessionFactory, orderDao, orderStatusDao, orderRegistry, eventDispatcher);
     }
 
     @Bean(name = "eventPropagator")

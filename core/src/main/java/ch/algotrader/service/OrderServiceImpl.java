@@ -17,10 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -29,7 +26,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.SessionFactory;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,12 +37,10 @@ import ch.algotrader.dao.security.SecurityDao;
 import ch.algotrader.dao.strategy.StrategyDao;
 import ch.algotrader.dao.trade.OrderDao;
 import ch.algotrader.dao.trade.OrderPreferenceDao;
-import ch.algotrader.dao.trade.OrderStatusDao;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.marketData.MarketDataEventVO;
 import ch.algotrader.entity.marketData.TickVO;
 import ch.algotrader.entity.security.Security;
-import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.trade.AlgoOrder;
 import ch.algotrader.entity.trade.Allocation;
@@ -66,7 +60,6 @@ import ch.algotrader.entity.trade.StopLimitOrder;
 import ch.algotrader.entity.trade.StopLimitOrderVO;
 import ch.algotrader.entity.trade.StopOrder;
 import ch.algotrader.entity.trade.StopOrderVO;
-import ch.algotrader.enumeration.InitializingServiceType;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.enumeration.SimpleOrderType;
 import ch.algotrader.enumeration.Status;
@@ -80,21 +73,16 @@ import ch.algotrader.util.BeanUtil;
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  */
 @Transactional(propagation = Propagation.SUPPORTS)
-@InitializationPriority(value = InitializingServiceType.CORE)
-public class OrderServiceImpl implements OrderService, InitializingServiceI {
+public class OrderServiceImpl implements OrderService {
 
     private static final Logger LOGGER = LogManager.getLogger(OrderServiceImpl.class);
     private static final Logger NOTIFICATION_LOGGER = LogManager.getLogger("ch.algotrader.service.NOTIFICATION");
 
     private final CommonConfig commonConfig;
 
-    private final SessionFactory sessionFactory;
-
     private final MarketDataCache marketDataCache;
 
     private final OrderDao orderDao;
-
-    private final OrderStatusDao orderStatusDao;
 
     private final StrategyDao strategyDao;
 
@@ -117,10 +105,8 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
     private final Map<String, ExternalOrderService> externalOrderServiceMap;
 
     public OrderServiceImpl(final CommonConfig commonConfig,
-            final SessionFactory sessionFactory,
             final MarketDataCache marketDataCache,
             final OrderDao orderDao,
-            final OrderStatusDao orderStatusDao,
             final StrategyDao strategyDao,
             final SecurityDao securityDao,
             final AccountDao accountDao,
@@ -133,10 +119,8 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
             final Map<String, ExternalOrderService> externalOrderServiceMap) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
-        Validate.notNull(sessionFactory, "SessionFactory is null");
         Validate.notNull(marketDataCache, "MarketDataCache is null");
         Validate.notNull(orderDao, "OrderDao is null");
-        Validate.notNull(orderStatusDao, "OrderStatusDao is null");
         Validate.notNull(strategyDao, "StrategyDao is null");
         Validate.notNull(securityDao, "SecurityDao is null");
         Validate.notNull(accountDao, "AccountDao is null");
@@ -148,10 +132,8 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
         Validate.notNull(serverEngine, "Engine is null");
 
         this.commonConfig = commonConfig;
-        this.sessionFactory = sessionFactory;
         this.marketDataCache = marketDataCache;
         this.orderDao = orderDao;
-        this.orderStatusDao = orderStatusDao;
         this.strategyDao = strategyDao;
         this.securityDao = securityDao;
         this.accountDao = accountDao;
@@ -637,72 +619,6 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
     public void evictExecutedOrders() {
 
         this.orderRegistry.evictCompleted();
-    }
-
-    @Override
-    public Map<Order, OrderStatus> loadPendingOrders() {
-
-        List<OrderStatus> pendingOrderStati = this.orderStatusDao.findPending();
-        List<Long> unacknowledgedOrderIds = this.orderDao.findUnacknowledgedOrderIds();
-
-        if (pendingOrderStati.isEmpty() && unacknowledgedOrderIds.isEmpty()) {
-            return Collections.emptyMap();
-        }
-
-        List<Long> pendingOrderIds = new ArrayList<>(unacknowledgedOrderIds.size() + pendingOrderStati.size());
-        Map<Long, OrderStatus> orderStatusMap = new HashMap<>(pendingOrderStati.size());
-        for (OrderStatus pendingOrderStatus: pendingOrderStati) {
-
-            long orderId = pendingOrderStatus.getOrder().getId();
-            pendingOrderIds.add(orderId);
-            orderStatusMap.put(orderId, pendingOrderStatus);
-        }
-        pendingOrderIds.addAll(unacknowledgedOrderIds);
-
-        // Clear session to evict Order proxies associated with order stati
-        this.sessionFactory.getCurrentSession().clear();
-
-        List<Order> orderList = this.orderDao.findByIds(pendingOrderIds);
-        Map<Order, OrderStatus> pendingOrderMap = new HashMap<>(pendingOrderIds.size());
-        for (Order pendingOrder: orderList) {
-
-            OrderStatus orderStatus = orderStatusMap.get(pendingOrder.getId());
-            pendingOrderMap.put(pendingOrder, orderStatus);
-        }
-
-        return pendingOrderMap;
-    }
-
-    @Override
-    public void init() {
-
-        final Map<Order, OrderStatus> pendingOrderMap = loadPendingOrders();
-        if (LOGGER.isInfoEnabled() && !pendingOrderMap.isEmpty()) {
-
-            List<Order> orderList  = new ArrayList<>(pendingOrderMap.keySet());
-
-            LOGGER.info("{} order(s) are pending", orderList.size());
-            for (int i = 0; i < orderList.size(); i++) {
-                Order order = orderList.get(i);
-                LOGGER.info("{}: {}", (i + 1), order);
-            }
-        }
-
-        for (Map.Entry<Order, OrderStatus> entry: pendingOrderMap.entrySet()) {
-
-            Order order = entry.getKey();
-            Security security = order.getSecurity();
-            security.initializeSecurityFamily(HibernateInitializer.INSTANCE);
-            SecurityFamily securityFamily = security.getSecurityFamily();
-            securityFamily.initializeExchange(HibernateInitializer.INSTANCE);
-            this.orderRegistry.add(order);
-
-            OrderStatus orderStatus = entry.getValue();
-            if (orderStatus != null) {
-                this.orderRegistry.updateExecutionStatus(order.getIntId(), order.getExtId(), orderStatus.getStatus(),
-                        orderStatus.getFilledQuantity(), orderStatus.getRemainingQuantity());
-            }
-        }
     }
 
     private ExternalOrderService getExternalOrderService(Account account) {

@@ -96,6 +96,14 @@ public class DistributedEventDispatcher implements EventDispatcher, MessageListe
     }
 
     @Override
+    public void resendPastEvent(final String strategyName, final Object event) {
+
+        if (this.internalEventPublisher != null) {
+            this.internalEventPublisher.publishStrategyEvent(event, strategyName);
+        }
+    }
+
+    @Override
     public void registerMarketDataSubscription(final String strategyName, final long securityId) {
     }
 

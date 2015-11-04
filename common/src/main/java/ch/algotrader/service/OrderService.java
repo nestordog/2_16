@@ -24,7 +24,6 @@ import java.util.Map;
 import ch.algotrader.entity.trade.ExecutionStatusVO;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderDetailsVO;
-import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.entity.trade.OrderVO;
 import ch.algotrader.entity.trade.OrderValidationException;
 
@@ -141,16 +140,6 @@ public interface OrderService {
      * Evicts executed orders from the internal cache.
      */
     public void evictExecutedOrders();
-
-    /**
-     * Loads pending orders. An order is considered pending if the status of the last
-     * {@link ch.algotrader.entity.trade.OrderStatus} event associated with the order is either
-     * {@link ch.algotrader.enumeration.Status#OPEN},
-     * {@link ch.algotrader.enumeration.Status#SUBMITTED} or
-     * {@link ch.algotrader.enumeration.Status#PARTIALLY_EXECUTED}
-     * or there are no events associated with the order.
-     */
-    Map<Order, OrderStatus> loadPendingOrders();
 
     /**
      * Sends a Trade Suggestion via Email / Text Message.

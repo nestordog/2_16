@@ -156,4 +156,12 @@ public class LocalEventDispatcher implements EventDispatcher {
         }
     }
 
+    @Override
+    public void resendPastEvent(final String strategyName, final Object event) {
+
+        if (this.internalEventPublisher != null) {
+            this.internalEventPublisher.publishStrategyEvent(event, strategyName);
+        }
+    }
+
 }
