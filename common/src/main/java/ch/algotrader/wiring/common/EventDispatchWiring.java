@@ -20,16 +20,16 @@ package ch.algotrader.wiring.common;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.support.converter.SimpleMessageConverter;
 
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.EventListenerRegistry;
 import ch.algotrader.event.EventListenerRegistryImpl;
-import ch.algotrader.event.dispatch.DistributedEventDispatcherImpl;
+import ch.algotrader.event.EventPublisher;
+import ch.algotrader.event.dispatch.DistributedEventDispatcher;
 import ch.algotrader.event.dispatch.EventDispatcher;
-import ch.algotrader.event.dispatch.LocalEventDispatcherImpl;
+import ch.algotrader.event.dispatch.LocalEventDispatcher;
 
 /**
  * Event dispatch configuration.
@@ -50,15 +50,20 @@ public class EventDispatchWiring {
             final EngineManager engineManager,
             final ApplicationContext applicationContext) {
 
-        if (commonConfig.isSimulation() || commonConfig.isEmbedded() || !applicationContext.containsBean("jmsActiveMQFactory")) {
-            return new LocalEventDispatcherImpl(eventListenerRegistry, engineManager);
+        EventPublisher internalEventPropagator = applicationContext.containsBean("internalEventPropagator")
+                ? applicationContext.getBean("internalEventPropagator", EventPublisher.class) : null;
+
+        if (commonConfig.isSimulation() || commonConfig.isEmbedded()) {
+
+            return new LocalEventDispatcher(eventListenerRegistry, internalEventPropagator, engineManager);
         } else {
-            return new DistributedEventDispatcherImpl(
+
+            EventPublisher remoteEventPropagator = applicationContext.getBean("remoteEventPropagator", EventPublisher.class);
+            return new DistributedEventDispatcher(
                     eventListenerRegistry,
+                    remoteEventPropagator,
+                    internalEventPropagator,
                     engineManager,
-                    applicationContext.containsBean("genericTemplate") ? applicationContext.getBean("genericTemplate", JmsTemplate.class) : null,
-                    applicationContext.containsBean("strategyTemplate") ? applicationContext.getBean("strategyTemplate", JmsTemplate.class) : null,
-                    applicationContext.containsBean("marketDataTemplate") ? applicationContext.getBean("marketDataTemplate", JmsTemplate.class) : null,
                     new SimpleMessageConverter());
         }
     }

@@ -22,7 +22,7 @@ import java.util.Properties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import ch.algotrader.wiring.server.HibernateWiring;
+import ch.algotrader.wiring.core.HibernateWiring;
 
 /**
  * Hibernate configuration with caching disabled.

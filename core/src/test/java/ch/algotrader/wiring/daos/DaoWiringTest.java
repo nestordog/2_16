@@ -74,8 +74,8 @@ import ch.algotrader.dao.trade.StopOrderDao;
 import ch.algotrader.wiring.HibernateNoCachingWiring;
 import ch.algotrader.wiring.DefaultConfigTestBase;
 import ch.algotrader.wiring.common.CommonConfigWiring;
-import ch.algotrader.wiring.server.DaoWiring;
-import ch.algotrader.wiring.server.ServerEngineWiring;
+import ch.algotrader.wiring.core.DaoWiring;
+import ch.algotrader.wiring.core.ServerEngineWiring;
 
 /**
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>

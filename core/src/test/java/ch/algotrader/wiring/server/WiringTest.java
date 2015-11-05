@@ -35,6 +35,9 @@ import ch.algotrader.wiring.DefaultConfigTestBase;
 import ch.algotrader.wiring.common.CommonConfigWiring;
 import ch.algotrader.wiring.common.EngineManagerWiring;
 import ch.algotrader.wiring.common.EventDispatchWiring;
+import ch.algotrader.wiring.core.CoreConfigWiring;
+import ch.algotrader.wiring.core.LifecycleManagerWiring;
+import ch.algotrader.wiring.core.ServerEngineWiring;
 
 /**
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>

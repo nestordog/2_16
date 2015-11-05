@@ -93,12 +93,9 @@ import ch.algotrader.entity.marketData.MarketDataEventVO;
 public interface EventDispatcher {
 
     /**
-     * Sends an Event to the corresponding Esper Engine.
-     * Use this method for situations where the corresponding Engine might be running local or remote,
-     * otherwise use {@link ch.algotrader.esper.Engine#sendEvent}.
-     *
+     * Sends event related to the given strategy to local or remote recipients.
      */
-    void sendEvent(String engineName, Object event);
+    void sendEvent(String strategyName, Object event);
 
     /**
      * broadcasts an event to all local event listeners.
@@ -106,12 +103,12 @@ public interface EventDispatcher {
     void broadcastLocalEventListeners(Object event);
 
     /**
-     * broadcasts an event to all local Strategy Esper Engines and event listeners.
+     * broadcasts an event to all Strategy Esper Engines running locally and local event listeners.
      */
     void broadcastLocalStrategies(Object event);
 
     /**
-     * broadcasts an event to all local Esper Engines (including SERVER if local) and event listeners.
+     * broadcasts an event to all Esper Engines running locally (including SERVER if local) and local event listeners.
      */
     void broadcastLocal(Object event);
 
@@ -131,7 +128,7 @@ public interface EventDispatcher {
     void broadcastAllStrategies(Object event);
 
     /**
-     * broadcasts an event to all local Esper Engines (including SERVER if local) and event listeners as well as remote VM's.
+     * broadcasts an event to all Esper Engines running locally (including SERVER if local), local event listeners as well as remote VM's.
      */
     void broadcast(Object event);
 
@@ -146,8 +143,7 @@ public interface EventDispatcher {
     void unregisterMarketDataSubscription(String strategyName, long securityId);
 
     /**
-     * Sends a MarketDataEvent into the corresponding Esper Engine.
-     * In Live-Trading the {@code marketDataTemplate} will be used.
+     * Sends market data event all subscribed strategies running either locally or remotely.
      */
     void sendMarketDataEvent(MarketDataEventVO marketDataEvent);
 

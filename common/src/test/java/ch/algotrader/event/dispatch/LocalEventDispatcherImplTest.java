@@ -51,7 +51,7 @@ public class LocalEventDispatcherImplTest {
     @Mock
     private Engine engine2;
 
-    private LocalEventDispatcherImpl impl;
+    private LocalEventDispatcher impl;
 
     @Before
     public void setup() {
@@ -67,7 +67,7 @@ public class LocalEventDispatcherImplTest {
         Mockito.when(engineManager.getEngines()).thenReturn(Arrays.asList(serverEngine, engine1, engine2));
         Mockito.when(engineManager.getStrategyEngines()).thenReturn(Arrays.asList(engine1, engine2));
 
-        impl = new LocalEventDispatcherImpl(localEventBroadcaster, engineManager);
+        impl = new LocalEventDispatcher(localEventBroadcaster, null, engineManager);
     }
 
     @Test

@@ -72,7 +72,7 @@ public class LifecycleManagerImpl implements LifecycleManager, ApplicationContex
     }
 
     @Override
-    public void runServices() {
+    public void runServices() throws Exception {
 
         // initialize services
         Map<String, InitializingServiceI> allServices = this.applicationContext.getBeansOfType(InitializingServiceI.class);
@@ -88,7 +88,7 @@ public class LifecycleManagerImpl implements LifecycleManager, ApplicationContex
     }
 
     @Override
-    public void runServer() {
+    public void runServer() throws Exception {
 
         Engine engine = this.engineManager.getServerEngine();
         engine.setInternalClock(true);
@@ -102,7 +102,7 @@ public class LifecycleManagerImpl implements LifecycleManager, ApplicationContex
     }
 
     @Override
-    public void runEmbedded() {
+    public void runEmbedded() throws Exception  {
 
         Engine serverEngine = this.engineManager.getServerEngine();
         serverEngine.setInternalClock(true);

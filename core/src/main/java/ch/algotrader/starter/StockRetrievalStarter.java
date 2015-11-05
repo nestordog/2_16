@@ -17,8 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.starter;
 
-import java.text.ParseException;
-
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.service.ReferenceDataService;
 
@@ -33,7 +31,7 @@ import ch.algotrader.service.ReferenceDataService;
  */
 public class StockRetrievalStarter {
 
-    public static void main(String[] args) throws ParseException {
+    public static void main(String[] args) throws Exception {
 
         ServiceLocator serviceLocator = ServiceLocator.instance();
         serviceLocator.init(ServiceLocator.LOCAL_BEAN_REFERENCE_LOCATION);

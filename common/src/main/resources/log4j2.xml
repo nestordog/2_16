@@ -41,6 +41,7 @@
         <logger name="httpclient" level="warn" />
         <logger name="org.apache.http" level="warn" />
         <logger name="org.apache.activemq" level="warn" />
+        <logger name="org.eclipse.jetty" level="warn" />
         <logger name="org.mortbay" level="warn" />
         <logger name="com.mchange.v2" level="warn" />
         <logger name="quickfix" level="warn" />

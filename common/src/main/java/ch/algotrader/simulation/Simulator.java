@@ -168,6 +168,7 @@ public class Simulator {
 
         // create and OrderStatus
         OrderStatus orderStatus = OrderStatus.Factory.newInstance();
+        orderStatus.setIntId(order.getIntId());
         orderStatus.setDateTime(getCurrentTime());
         orderStatus.setStatus(Status.EXECUTED);
         orderStatus.setFilledQuantity(order.getQuantity());

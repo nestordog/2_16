@@ -19,7 +19,6 @@ package ch.algotrader.event;
 
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -34,11 +33,11 @@ import org.apache.commons.lang.Validate;
  */
 public final class EventListenerRegistryImpl implements EventListenerRegistry {
 
-    private final ConcurrentHashMap<Class<?>, Class<?>[]> eventTypeMap;
+    private final EventTypeCache eventTypeCache;
     private final ConcurrentHashMap<Class<?>, Set<EventListener<?>>> listenerMap;
 
     public EventListenerRegistryImpl() {
-        this.eventTypeMap = new ConcurrentHashMap<>();
+        this.eventTypeCache = new EventTypeCache();
         this.listenerMap = new ConcurrentHashMap<>();
     }
 
@@ -79,40 +78,6 @@ public final class EventListenerRegistryImpl implements EventListenerRegistry {
         return eventListeners != null ? new HashSet<>(eventListeners) : Collections.emptySet();
     }
 
-    static Class<?>[] calculateTypeHierarchy(final Class<?> eventClass) {
-
-        LinkedHashSet<Class<?>> allTypeSet = new LinkedHashSet<>();
-        Class<?> currentClass = eventClass;
-        while (currentClass != null) {
-            allTypeSet.add(currentClass);
-
-            Class<?>[] interfaces = currentClass.getInterfaces();
-            if (interfaces != null) {
-
-                Collections.addAll(allTypeSet, interfaces);
-            }
-            currentClass = currentClass.getSuperclass();
-        }
-        return allTypeSet.toArray(new Class[allTypeSet.size()]);
-    }
-
-    private Class<?>[] getTypeHierarchy(final Class<?> eventClass) {
-
-        Class<?>[] allTypes = this.eventTypeMap.get(eventClass);
-        if (allTypes != null) {
-
-            return allTypes;
-        }
-        Class<?>[] newAllTypes = calculateTypeHierarchy(eventClass);
-        allTypes = this.eventTypeMap.putIfAbsent(eventClass, newAllTypes);
-        if (allTypes == null) {
-
-            allTypes = newAllTypes;
-        }
-
-        return allTypes;
-    }
-
     @Override
     public void broadcast(final Object event) {
 
@@ -121,7 +86,7 @@ public final class EventListenerRegistryImpl implements EventListenerRegistry {
             return;
         }
 
-        Class<?>[] allTypes = getTypeHierarchy(event.getClass());
+        Class<?>[] allTypes = this.eventTypeCache.getTypeHierarchy(event.getClass());
         for (Class<?> type: allTypes) {
 
             Set<EventListener<?>> listeners = this.listenerMap.get(type);

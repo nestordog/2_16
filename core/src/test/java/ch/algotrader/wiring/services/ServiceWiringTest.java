@@ -50,11 +50,11 @@ import ch.algotrader.wiring.DefaultConfigTestBase;
 import ch.algotrader.wiring.HibernateNoCachingWiring;
 import ch.algotrader.wiring.common.CommonConfigWiring;
 import ch.algotrader.wiring.common.EventDispatchWiring;
-import ch.algotrader.wiring.server.CacheWiring;
-import ch.algotrader.wiring.server.CoreConfigWiring;
-import ch.algotrader.wiring.server.DaoWiring;
-import ch.algotrader.wiring.server.ServerEngineWiring;
-import ch.algotrader.wiring.server.ServiceWiring;
+import ch.algotrader.wiring.core.CacheWiring;
+import ch.algotrader.wiring.core.CoreConfigWiring;
+import ch.algotrader.wiring.core.DaoWiring;
+import ch.algotrader.wiring.core.ServerEngineWiring;
+import ch.algotrader.wiring.core.ServiceWiring;
 
 /**
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>

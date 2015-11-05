@@ -28,24 +28,24 @@ public interface LifecycleManager {
     /**
      * Creates and initializes all platform services.
      */
-    void runServices();
+    void runServices() throws Exception;
 
     /**
      * Creates and initializes the platform server runtime which includes the server {@link ch.algotrader.esper.Engine}
      * and all platform services.
      */
-    void runServer();
+    void runServer() throws Exception;
 
     /**
      * Creates and initializes strategy {@link ch.algotrader.esper.Engine}s, strategy specific services
      * and the platform server runtime in one JVM process.
      */
-    void runEmbedded();
+    void runEmbedded() throws Exception;
 
     /**
      * Creates and initializes strategy {@link ch.algotrader.esper.Engine}s and strategy specific services
      * and opens communication channels to a remote platform server runtime.
      */
-    void runStrategy();
+    void runStrategy() throws Exception;
 
 }

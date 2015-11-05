@@ -113,8 +113,8 @@ import ch.algotrader.util.collection.Pair;
 import ch.algotrader.wiring.common.CommonConfigWiring;
 import ch.algotrader.wiring.common.EventDispatchPostInitWiring;
 import ch.algotrader.wiring.common.EventDispatchWiring;
-import ch.algotrader.wiring.server.CacheWiring;
-import ch.algotrader.wiring.server.HibernateWiring;
+import ch.algotrader.wiring.core.CacheWiring;
+import ch.algotrader.wiring.core.HibernateWiring;
 
 /**
 * Unit tests for {@link ch.algotrader.entity.Transaction}.
