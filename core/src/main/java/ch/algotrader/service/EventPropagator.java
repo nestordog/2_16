@@ -26,6 +26,7 @@ import ch.algotrader.entity.trade.OrderCompletionVO;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.LifecyclePhase;
 import ch.algotrader.event.dispatch.EventDispatcher;
+import ch.algotrader.event.dispatch.EventRecipient;
 import ch.algotrader.event.listener.LifecycleEventListener;
 import ch.algotrader.util.metric.MetricsUtil;
 import ch.algotrader.vo.GenericEventVO;
@@ -73,13 +74,13 @@ public class EventPropagator implements LifecycleEventListener {
 
     public void propagateGenericEvent(final GenericEventVO genericEvent) {
 
-        this.eventDispatcher.broadcastAllStrategies(genericEvent);
+        this.eventDispatcher.broadcast(genericEvent, EventRecipient.ALL_STRATEGIES);
     }
 
     public void propagateTradingStatusEvent(final TradingStatusEventVO tradingStatusEvent) {
 
         if (this.active) {
-            this.eventDispatcher.broadcastAllStrategies(tradingStatusEvent);
+            this.eventDispatcher.broadcast(tradingStatusEvent, EventRecipient.ALL_STRATEGIES);
         }
     }
 

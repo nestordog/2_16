@@ -24,6 +24,7 @@ import org.apache.commons.lang.Validate;
 import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.enumeration.ConnectionState;
 import ch.algotrader.event.dispatch.EventDispatcher;
+import ch.algotrader.event.dispatch.EventRecipient;
 import ch.algotrader.vo.SessionEventVO;
 
 /**
@@ -58,7 +59,7 @@ public class BBSessionStateHolder implements ExternalSessionStateHolder {
         if (this.connState.compareAndSet(ConnectionState.DISCONNECTED, ConnectionState.CONNECTED)) {
 
             SessionEventVO event = new SessionEventVO(ConnectionState.CONNECTED, this.name);
-            this.eventDispatcher.broadcast(event);
+            this.eventDispatcher.broadcast(event, EventRecipient.ALL);
         }
     }
 
@@ -68,7 +69,7 @@ public class BBSessionStateHolder implements ExternalSessionStateHolder {
           if (this.connState.compareAndSet(ConnectionState.CONNECTED, ConnectionState.LOGGED_ON)) {
 
               SessionEventVO event = new SessionEventVO(ConnectionState.LOGGED_ON, this.name);
-              this.eventDispatcher.broadcast(event);
+              this.eventDispatcher.broadcast(event, EventRecipient.ALL);
           }
     }
 
@@ -79,7 +80,7 @@ public class BBSessionStateHolder implements ExternalSessionStateHolder {
         if (previousState.compareTo(ConnectionState.LOGGED_ON) >= 0) {
 
             SessionEventVO event = new SessionEventVO(ConnectionState.CONNECTED, this.name);
-            this.eventDispatcher.broadcast(event);
+            this.eventDispatcher.broadcast(event, EventRecipient.ALL);
         }
     }
 
@@ -89,7 +90,7 @@ public class BBSessionStateHolder implements ExternalSessionStateHolder {
         if (this.connState.compareAndSet(ConnectionState.LOGGED_ON, ConnectionState.SUBSCRIBED)) {
 
             SessionEventVO event = new SessionEventVO(ConnectionState.SUBSCRIBED, this.name);
-            this.eventDispatcher.broadcast(event);
+            this.eventDispatcher.broadcast(event, EventRecipient.ALL);
             return true;
         } else {
 

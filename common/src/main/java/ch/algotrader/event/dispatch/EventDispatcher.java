@@ -17,76 +17,14 @@
  ***********************************************************************************/
 package ch.algotrader.event.dispatch;
 
+import java.util.Set;
+
 import ch.algotrader.entity.marketData.MarketDataEventVO;
 
 /**
  * Platform wide communication interface capable of submitting events to multiple
  * {@link ch.algotrader.esper.Engine}s and {@link ch.algotrader.event.EventListener}s
  * both inside and outside of the current JRE.
- * <p>
- * <table border="1" style="border-collapse: collapse;" >
- *  <tr>
- *   <td></td>
- *   <td colspan=3>Local</td>
- *   <td>Remote</td>
- *  </tr>
- *  <tr>
- *   <td></td>
- *   <td>Server Engine</td>
- *   <td>Strategy Engine</td>
- *   <td>Event Listeners</td>
- *   <td>VM's</td>
- *  </tr>
- *  <tr>
- *   <td>broadcastLocalEventListeners</td>
- *   <td></td>
- *   <td></td>
- *   <td>x</td>
- *   <td></td>
- *  </tr>
- *  <tr>
- *   <td>broadcastLocalStrategies</td>
- *   <td></td>
- *   <td>x</td>
- *   <td>x</td>
- *   <td></td>
- *  </tr>
- *  <tr>
- *   <td>broadcastLocal</td>
- *   <td>x</td>
- *   <td>x</td>
- *   <td>x</td>
- *   <td></td>
- *  </tr>
- *  <tr>
- *   <td>broadcastRemote</td>
- *   <td></td>
- *   <td></td>
- *   <td></td>
- *   <td>x</td>
- *  </tr>
- *  <tr>
- *   <td>broadcastEventListeners</td>
- *   <td></td>
- *   <td></td>
- *   <td>x</td>
- *   <td>x</td>
- *  </tr>
- *  <tr>
- *   <td>broadcastAllStrategies</td>
- *   <td></td>
- *   <td>x</td>
- *   <td>x</td>
- *   <td>x</td>
- *  </tr>
- *  <tr>
- *   <td>broadcast</td>
- *   <td>x</td>
- *   <td>x</td>
- *   <td>x</td>
- *   <td>x</td>
- *  </tr>
- * </table>
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  */
@@ -96,41 +34,6 @@ public interface EventDispatcher {
      * Sends event related to the given strategy to local or remote recipients.
      */
     void sendEvent(String strategyName, Object event);
-
-    /**
-     * broadcasts an event to all local event listeners.
-     */
-    void broadcastLocalEventListeners(Object event);
-
-    /**
-     * broadcasts an event to all Strategy Esper Engines running locally and local event listeners.
-     */
-    void broadcastLocalStrategies(Object event);
-
-    /**
-     * broadcasts an event to all Esper Engines running locally (including SERVER if local) and local event listeners.
-     */
-    void broadcastLocal(Object event);
-
-    /**
-     * broadcasts an event to all remote VM's.
-     */
-    void broadcastRemote(Object event);
-
-    /**
-     * broadcasts an event to all local event listeners as well as remote VM's.
-     */
-    void broadcastEventListeners(Object event);
-
-    /**
-     * broadcasts an event to all local Strategy Esper Engines and event listeners as well as remote VM's.
-     */
-    void broadcastAllStrategies(Object event);
-
-    /**
-     * broadcasts an event to all Esper Engines running locally (including SERVER if local), local event listeners as well as remote VM's.
-     */
-    void broadcast(Object event);
 
     /**
      * Registers market data subscription subscription
@@ -146,5 +49,10 @@ public interface EventDispatcher {
      * Sends market data event all subscribed strategies running either locally or remotely.
      */
     void sendMarketDataEvent(MarketDataEventVO marketDataEvent);
+
+    /**
+     * broadcasts a generic event to recipients.
+     */
+    void broadcast(Object event, Set<EventRecipient> recipients);
 
 }

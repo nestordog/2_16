@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.ehcache;
 
+import ch.algotrader.event.dispatch.EventRecipient;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
@@ -53,7 +54,7 @@ public class CollectionCacheEventListener extends CacheEventListenerAdapter {
         long id = (Long) hibernateCacheKey.getKey();
 
         EntityCacheEvictionEventVO event = new EntityCacheEvictionEventVO(this.entityClass, id, this.roleName);
-        this.eventDispatcher.broadcastEventListeners(event);
+        this.eventDispatcher.broadcast(event, EventRecipient.ALL_LISTENERS);
     }
 
     @Override

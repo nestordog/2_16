@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.event.dispatch;
 
+import java.util.Collection;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -58,61 +59,21 @@ public class LocalEventDispatcher implements EventDispatcher {
     }
 
     @Override
-    public void broadcastLocalEventListeners(Object event) {
-
-        this.localEventBroadcaster.broadcast(event);
-    }
-
-    @Override
-    public void broadcastLocalStrategies(final Object event) {
-
-        broadcastLocalEventListeners(event);
-
-        for (Engine engine : this.engineManager.getStrategyEngines()) {
-
-            engine.sendEvent(event);
+    public void broadcast(final Object event, final Set<EventRecipient> recipients) {
+        if (recipients.contains(EventRecipient.LISTENERS)) {
+            this.localEventBroadcaster.broadcast(event);
         }
-    }
-
-    @Override
-    public void broadcastLocal(final Object event) {
-
-        broadcastLocalEventListeners(event);
-
-        for (Engine engine : this.engineManager.getEngines()) {
-
-            engine.sendEvent(event);
+        if (recipients.contains(EventRecipient.STRATEGY_ENGINES)) {
+            Collection<Engine> engines;
+            if (recipients.contains(EventRecipient.SERVER_ENGINE)) {
+                engines = this.engineManager.getEngines();
+            } else {
+                engines = this.engineManager.getStrategyEngines();
+            }
+            for (Engine engine: engines) {
+                engine.sendEvent(event);
+            }
         }
-
-    }
-
-    @Override
-    public void broadcastRemote(final Object event) {
-
-        if (this.internalEventPublisher != null) {
-            this.internalEventPublisher.publishGenericEvent(event);
-        }
-    }
-
-    @Override
-    public void broadcastEventListeners(final Object event) {
-
-        broadcastLocalEventListeners(event);
-        broadcastRemote(event);
-    }
-
-    @Override
-    public void broadcastAllStrategies(final Object event) {
-
-        broadcastLocalStrategies(event);
-        broadcastRemote(event);
-    }
-
-    @Override
-    public void broadcast(final Object event) {
-
-        broadcastLocal(event);
-        broadcastRemote(event);
     }
 
     @Override
@@ -155,23 +116,23 @@ public class LocalEventDispatcher implements EventDispatcher {
     }
 
     @Override
-    public void sendMarketDataEvent(final MarketDataEventVO marketDataEvent) {
+    public void sendMarketDataEvent(final MarketDataEventVO event) {
 
-        this.localEventBroadcaster.broadcast(marketDataEvent);
-        Set<String> strategySet = this.marketDataSubscriptionMap.get(marketDataEvent.getSecurityId());
+        this.localEventBroadcaster.broadcast(event);
+        Set<String> strategySet = this.marketDataSubscriptionMap.get(event.getSecurityId());
         if (strategySet != null && !strategySet.isEmpty()) {
             for (String strategyName: strategySet) {
                 // Do not propagate market data to the SERVER
                 if (!strategyName.equalsIgnoreCase(StrategyImpl.SERVER)) {
                     final Engine engine = this.engineManager.lookup(strategyName);
                     if (engine != null) {
-                        engine.sendEvent(marketDataEvent);
+                        engine.sendEvent(event);
                     }
                 }
             }
         }
         if (this.internalEventPublisher != null) {
-            this.internalEventPublisher.publishMarketDataEvent(marketDataEvent);
+            this.internalEventPublisher.publishMarketDataEvent(event);
         }
     }
 

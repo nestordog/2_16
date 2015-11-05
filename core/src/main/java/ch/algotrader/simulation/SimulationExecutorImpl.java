@@ -72,6 +72,7 @@ import ch.algotrader.esper.io.DBTickInputAdapter;
 import ch.algotrader.esper.io.GenericEventInputAdapterSpec;
 import ch.algotrader.event.EventListenerRegistry;
 import ch.algotrader.event.dispatch.EventDispatcher;
+import ch.algotrader.event.dispatch.EventRecipient;
 import ch.algotrader.report.ReportManager;
 import ch.algotrader.service.LookupService;
 import ch.algotrader.service.PortfolioService;
@@ -286,7 +287,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
     }
 
     private void broadcastLocal(LifecyclePhase phase) {
-        this.eventDispatcher.broadcastLocal(new LifecycleEventVO(OperationMode.SIMULATION, phase, new Date()));
+        this.eventDispatcher.broadcast(new LifecycleEventVO(OperationMode.SIMULATION, phase, new Date()), EventRecipient.ALL_LOCAL);
     }
 
     /**

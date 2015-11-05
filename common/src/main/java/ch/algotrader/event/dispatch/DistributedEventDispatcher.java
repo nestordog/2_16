@@ -17,6 +17,9 @@
  ***********************************************************************************/
 package ch.algotrader.event.dispatch;
 
+import java.util.Collection;
+import java.util.Set;
+
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
@@ -89,62 +92,6 @@ public class DistributedEventDispatcher implements EventDispatcher, MessageListe
     }
 
     @Override
-    public void broadcastLocalEventListeners(final Object event) {
-
-        this.localEventBroadcaster.broadcast(event);
-    }
-
-    @Override
-    public void broadcastLocalStrategies(final Object event) {
-
-        broadcastLocalEventListeners(event);
-
-        for (Engine engine : this.engineManager.getStrategyEngines()) {
-
-            engine.sendEvent(event);
-        }
-
-    }
-
-    @Override
-    public void broadcastLocal(final Object event) {
-
-        broadcastLocalEventListeners(event);
-
-        for (Engine engine : this.engineManager.getEngines()) {
-
-            engine.sendEvent(event);
-        }
-    }
-
-    @Override
-    public void broadcastRemote(final Object event) {
-
-        this.remoteEventPublisher.publishGenericEvent(event);
-    }
-
-    @Override
-    public void broadcastEventListeners(final Object event) {
-
-        broadcastLocalEventListeners(event);
-        broadcastRemote(event);
-    }
-
-    @Override
-    public void broadcastAllStrategies(final Object event) {
-
-        broadcastLocalStrategies(event);
-        broadcastRemote(event);
-    }
-
-    @Override
-    public void broadcast(final Object event) {
-
-        broadcastLocal(event);
-        broadcastRemote(event);
-    }
-
-    @Override
     public void registerMarketDataSubscription(final String strategyName, final long securityId) {
     }
 
@@ -156,10 +103,32 @@ public class DistributedEventDispatcher implements EventDispatcher, MessageListe
     public void sendMarketDataEvent(final MarketDataEventVO event) {
 
         this.remoteEventPublisher.publishMarketDataEvent(event);
+        this.localEventBroadcaster.broadcast(event);
+
         if (this.internalEventPublisher != null) {
             this.internalEventPublisher.publishMarketDataEvent(event);
         }
-        broadcastLocalEventListeners(event);
+    }
+
+    @Override
+    public void broadcast(final Object event, final Set<EventRecipient> recipients) {
+        if (recipients.contains(EventRecipient.LISTENERS)) {
+            this.localEventBroadcaster.broadcast(event);
+        }
+        if (recipients.contains(EventRecipient.STRATEGY_ENGINES)) {
+            Collection<Engine> engines;
+            if (recipients.contains(EventRecipient.SERVER_ENGINE)) {
+                engines = this.engineManager.getEngines();
+            } else {
+                engines = this.engineManager.getStrategyEngines();
+            }
+            for (Engine engine: engines) {
+                engine.sendEvent(event);
+            }
+        }
+        if (recipients.contains(EventRecipient.REMOTE)) {
+            this.remoteEventPublisher.publishGenericEvent(event);
+        }
     }
 
     @Override
@@ -183,7 +152,7 @@ public class DistributedEventDispatcher implements EventDispatcher, MessageListe
                     }
                 }
             }
-            broadcastLocal(event);
+            broadcast(event, EventRecipient.ALL_LOCAL);
         } catch (JMSException ex) {
             throw new EventDispatchException("Failure de-serializing message content", ex);
         }

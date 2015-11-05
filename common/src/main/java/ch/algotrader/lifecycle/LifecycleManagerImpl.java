@@ -34,6 +34,7 @@ import ch.algotrader.enumeration.OperationMode;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.dispatch.EventDispatcher;
+import ch.algotrader.event.dispatch.EventRecipient;
 import ch.algotrader.service.InitializingServiceI;
 import ch.algotrader.service.SubscriptionService;
 import ch.algotrader.vo.LifecycleEventVO;
@@ -159,12 +160,12 @@ public class LifecycleManagerImpl implements LifecycleManager, ApplicationContex
     }
 
     private void broadcastLocal(final LifecyclePhase phase) {
-        this.eventDispatcher.broadcastLocal(new LifecycleEventVO(OperationMode.REAL_TIME, phase, new Date()));
+        this.eventDispatcher.broadcast(new LifecycleEventVO(OperationMode.REAL_TIME, phase, new Date()), EventRecipient.ALL_LOCAL);
     }
 
     private void broadcastLocalOnShutdown(final LifecyclePhase phase) {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            this.eventDispatcher.broadcastLocal(new LifecycleEventVO(OperationMode.REAL_TIME, phase, new Date()));
+            this.eventDispatcher.broadcast(new LifecycleEventVO(OperationMode.REAL_TIME, phase, new Date()), EventRecipient.ALL_LOCAL);
         }));
     }
 
