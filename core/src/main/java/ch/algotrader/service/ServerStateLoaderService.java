@@ -17,8 +17,10 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
+import java.util.List;
 import java.util.Map;
 
+import ch.algotrader.entity.Position;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderStatus;
 
@@ -38,5 +40,10 @@ public interface ServerStateLoaderService {
      * or there are no events associated with the order.
      */
     Map<Order, OrderStatus> loadPendingOrders();
+
+    /**
+     * Load all existing positions.
+     */
+    List<Position> getAllPositions();
 
 }

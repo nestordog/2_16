@@ -31,8 +31,10 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.algotrader.dao.HibernateInitializer;
+import ch.algotrader.dao.PositionDao;
 import ch.algotrader.dao.trade.OrderDao;
 import ch.algotrader.dao.trade.OrderStatusDao;
+import ch.algotrader.entity.Position;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.strategy.Strategy;
@@ -57,6 +59,8 @@ public class ServerStateLoaderServiceImpl implements ServerStateLoaderService, I
 
     private final OrderStatusDao orderStatusDao;
 
+    private final PositionDao positionDao;
+
     private final OrderRegistry orderRegistry;
 
     private final EventDispatcher eventDispatcher;
@@ -65,18 +69,21 @@ public class ServerStateLoaderServiceImpl implements ServerStateLoaderService, I
             final SessionFactory sessionFactory,
             final OrderDao orderDao,
             final OrderStatusDao orderStatusDao,
+            final PositionDao positionDao,
             final OrderRegistry orderRegistry,
             final EventDispatcher eventDispatcher) {
 
         Validate.notNull(sessionFactory, "SessionFactory is null");
         Validate.notNull(orderDao, "OrderDao is null");
         Validate.notNull(orderStatusDao, "OrderStatusDao is null");
+        Validate.notNull(positionDao, "PositionDao is null");
         Validate.notNull(orderRegistry, "OpenOrderRegistry is null");
         Validate.notNull(eventDispatcher, "PlatformEventDispatcher is null");
 
         this.sessionFactory = sessionFactory;
         this.orderDao = orderDao;
         this.orderStatusDao = orderStatusDao;
+        this.positionDao = positionDao;
         this.orderRegistry = orderRegistry;
         this.eventDispatcher = eventDispatcher;
     }
@@ -114,10 +121,21 @@ public class ServerStateLoaderServiceImpl implements ServerStateLoaderService, I
         return pendingOrderMap;
     }
 
+    public List<Position> getAllPositions() {
+
+        return this.positionDao.loadAll();
+    }
+
     @Override
     public void init() {
 
-        final Map<Order, OrderStatus> pendingOrderMap = loadPendingOrders();
+        List<Position> positions = getAllPositions();
+        for (Position position: positions) {
+            Strategy strategy = position.getStrategy();
+            this.eventDispatcher.resendPastEvent(strategy.getName(), position.convertToVO());
+        }
+
+        Map<Order, OrderStatus> pendingOrderMap = loadPendingOrders();
         if (!pendingOrderMap.isEmpty()) {
 
             List<Order> orderList  = new ArrayList<>(pendingOrderMap.keySet());
