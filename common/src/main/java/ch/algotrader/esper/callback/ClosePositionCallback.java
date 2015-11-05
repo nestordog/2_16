@@ -20,9 +20,9 @@ package ch.algotrader.esper.callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import ch.algotrader.entity.PositionVO;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.util.metric.MetricsUtil;
-import ch.algotrader.vo.ClosePositionVO;
 
 /**
  * Base Esper Callback Class that will be invoked as soon as a Position on the given Security passed to {@link ch.algotrader.esper.Engine#addClosePositionCallback} has been closed.
@@ -36,7 +36,7 @@ public abstract class ClosePositionCallback extends AbstractEngineCallback {
     /**
      * Called by the "ON_CLOSE_POSITION" statement. Should not be invoked directly.
      */
-    public void update(ClosePositionVO positionVO) throws Exception {
+    public void update(PositionVO positionVO) throws Exception {
 
         // get the statement alias based on all security ids
         String alias = "ON_CLOSE_POSITION_" + positionVO.getSecurityId();
@@ -58,12 +58,12 @@ public abstract class ClosePositionCallback extends AbstractEngineCallback {
             LOGGER.debug("onClosePosition end {}", positionVO.getSecurityId());
         }
 
-        MetricsUtil.accountEnd("ClosePositionCallback." + positionVO.getStrategy(), startTime);
+        MetricsUtil.accountEnd("ClosePositionCallback." + positionVO.getStrategyId(), startTime);
     }
 
     /**
      * Will be exectued by the Esper Engine as soon as a Position on the given Security has been closed.
      * Needs to be overwritten by implementing classes.
      */
-    public abstract void onClosePosition(ClosePositionVO positionVO) throws Exception;
+    public abstract void onClosePosition(PositionVO positionVO) throws Exception;
 }

@@ -20,9 +20,9 @@ package ch.algotrader.esper.callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import ch.algotrader.entity.PositionVO;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.util.metric.MetricsUtil;
-import ch.algotrader.vo.OpenPositionVO;
 
 /**
  * Base Esper Callback Class that will be invoked as soon as a new Position on the given Security passed to {@link ch.algotrader.esper.Engine#addOpenPositionCallback} has been opened.
@@ -36,7 +36,7 @@ public abstract class OpenPositionCallback extends AbstractEngineCallback {
     /**
      * Called by the "ON_OPEN_POSITION" statement. Should not be invoked directly.
      */
-    public void update(OpenPositionVO positionVO) throws Exception {
+    public void update(PositionVO positionVO) throws Exception {
 
         // get the statement alias based on all security ids
         String alias = "ON_OPEN_POSITION_" + positionVO.getSecurityId();
@@ -57,12 +57,12 @@ public abstract class OpenPositionCallback extends AbstractEngineCallback {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("onOpenPosition end {}", positionVO.getSecurityId());
         }
-        MetricsUtil.accountEnd("OpenPositionCallback." + positionVO.getStrategy(), startTime);
+        MetricsUtil.accountEnd("OpenPositionCallback." + positionVO.getStrategyId(), startTime);
     }
 
     /**
      * Will be exectued by the Esper Engine as soon as a new Position on the given Security has been opened.
      * Needs to be overwritten by implementing classes.
      */
-    public abstract void onOpenPosition(OpenPositionVO positionVO) throws Exception;
+    public abstract void onOpenPosition(PositionVO positionVO) throws Exception;
 }

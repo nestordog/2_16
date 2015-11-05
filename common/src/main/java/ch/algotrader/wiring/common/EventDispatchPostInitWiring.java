@@ -30,15 +30,13 @@ import org.springframework.context.event.ContextRefreshedEvent;
 
 import ch.algotrader.event.EventListenerRegistry;
 import ch.algotrader.event.listener.BarEventListener;
-import ch.algotrader.event.listener.ClosePositionEventListener;
 import ch.algotrader.event.listener.EntityCacheEventListener;
-import ch.algotrader.event.listener.ExpirePositionEventListener;
 import ch.algotrader.event.listener.FillEventListener;
 import ch.algotrader.event.listener.LifecycleEventListener;
-import ch.algotrader.event.listener.OpenPositionEventListener;
 import ch.algotrader.event.listener.OrderCompletionEventListener;
 import ch.algotrader.event.listener.OrderEventListener;
 import ch.algotrader.event.listener.OrderStatusEventListener;
+import ch.algotrader.event.listener.PositionEventListener;
 import ch.algotrader.event.listener.QueryCacheEventListener;
 import ch.algotrader.event.listener.SessionEventListener;
 import ch.algotrader.event.listener.TickEventListener;
@@ -58,9 +56,7 @@ public class EventDispatchPostInitWiring {
             OrderCompletionEventListener.class,
             FillEventListener.class,
             TransactionEventListener.class,
-            OpenPositionEventListener.class,
-            ClosePositionEventListener.class,
-            ExpirePositionEventListener.class,
+            PositionEventListener.class,
             SessionEventListener.class,
             LifecycleEventListener.class,
             EntityCacheEventListener.class,

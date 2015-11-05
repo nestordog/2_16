@@ -17,10 +17,10 @@
  ***********************************************************************************/
 package ch.algotrader.event.listener;
 
-import ch.algotrader.vo.ClosePositionVO;
+import ch.algotrader.entity.PositionVO;
 
-public interface ClosePositionEventListener {
+public interface PositionEventListener {
 
-    void onClosePosition(ClosePositionVO closePosition);
+    void onPositionChange(PositionVO closePosition);
 
 }

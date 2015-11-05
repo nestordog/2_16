@@ -17,19 +17,17 @@ import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPServiceProviderManager;
 import com.espertech.esper.client.EPStatement;
 
+import ch.algotrader.entity.PositionVO;
 import ch.algotrader.entity.marketData.TickVO;
 import ch.algotrader.entity.trade.MarketOrder;
 import ch.algotrader.entity.trade.OrderCompletionVO;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.entity.trade.OrderStatusVO;
-import ch.algotrader.enumeration.Direction;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.callback.TickCallback;
 import ch.algotrader.esper.callback.TradeCallback;
 import ch.algotrader.esper.callback.TradePersistedCallback;
-import ch.algotrader.vo.ClosePositionVO;
-import ch.algotrader.vo.OpenPositionVO;
 
 public class CallbackEsperTest extends EsperTestBase {
 
@@ -182,21 +180,21 @@ public class CallbackEsperTest extends EsperTestBase {
         EPStatement statement = deployPreparedStatement(this.epService,
                 getClass().getResource("/module-prepared.epl"), "ON_OPEN_POSITION", 123L);
 
-        final Queue<OpenPositionVO> openPositionQueue = new ConcurrentLinkedQueue<>();
+        final Queue<PositionVO> openPositionQueue = new ConcurrentLinkedQueue<>();
         statement.setSubscriber(new Object() {
             @SuppressWarnings("unused")
-            public void update(final OpenPositionVO position) throws Exception {
+            public void update(final PositionVO position) throws Exception {
                 openPositionQueue.add(position);
             }
 
         });
 
-        OpenPositionVO openPosition1 = new OpenPositionVO(0L, 111L, "blah", 10L, Direction.LONG);
+        PositionVO openPosition1 = new PositionVO(0L, 111L, 0L, 0L, false, 10L, 111L);
         this.epRuntime.sendEvent(openPosition1);
 
         Assert.assertNull(openPositionQueue.poll());
 
-        OpenPositionVO openPosition2 = new OpenPositionVO(0L, 123L, "blah", 10L, Direction.LONG);
+        PositionVO openPosition2 = new PositionVO(0L, 123L, 0L, 0L, false, 10L, 123L);
         this.epRuntime.sendEvent(openPosition2);
 
         Assert.assertSame(openPosition2, openPositionQueue.poll());
@@ -208,21 +206,21 @@ public class CallbackEsperTest extends EsperTestBase {
         EPStatement statement = deployPreparedStatement(this.epService,
                 getClass().getResource("/module-prepared.epl"), "ON_CLOSE_POSITION", 123L);
 
-        final Queue<ClosePositionVO> closedPositionQueue = new ConcurrentLinkedQueue<>();
+        final Queue<PositionVO> closedPositionQueue = new ConcurrentLinkedQueue<>();
         statement.setSubscriber(new Object() {
             @SuppressWarnings("unused")
-            public void update(final ClosePositionVO position) throws Exception {
+            public void update(final PositionVO position) throws Exception {
                 closedPositionQueue.add(position);
             }
 
         });
 
-        ClosePositionVO openPosition1 = new ClosePositionVO(0L, 111L, "blah", 10L, Direction.LONG);
+        PositionVO openPosition1 = new PositionVO(0L, 0L, 0L, 0L, false, 10L, 111L);
         this.epRuntime.sendEvent(openPosition1);
 
         Assert.assertNull(closedPositionQueue.poll());
 
-        ClosePositionVO openPosition2 = new ClosePositionVO(0L, 123L, "blah", 10L, Direction.LONG);
+        PositionVO openPosition2 = new PositionVO(0L, 0l ,0L, 0L, false, 10L, 123L);
         this.epRuntime.sendEvent(openPosition2);
 
         Assert.assertSame(openPosition2, closedPositionQueue.poll());

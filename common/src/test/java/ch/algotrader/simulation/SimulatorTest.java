@@ -37,6 +37,7 @@ import org.mockito.Mockito;
 import ch.algotrader.accounting.PositionTrackerImpl;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.Position;
+import ch.algotrader.entity.PositionVO;
 import ch.algotrader.entity.TransactionVO;
 import ch.algotrader.entity.exchange.Exchange;
 import ch.algotrader.entity.security.Index;
@@ -53,15 +54,12 @@ import ch.algotrader.entity.trade.OrderStatusVO;
 import ch.algotrader.enumeration.AssetClass;
 import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Currency;
-import ch.algotrader.enumeration.Direction;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.enumeration.TransactionType;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.service.MarketDataCache;
-import ch.algotrader.vo.ClosePositionVO;
-import ch.algotrader.vo.OpenPositionVO;
 import ch.algotrader.vo.TradePerformanceVO;
 
 /**
@@ -164,12 +162,11 @@ public class SimulatorTest {
         Assert.assertEquals(0, orderStatus1.getRemainingQuantity());
         Assert.assertEquals(order1.getLimit(), orderStatus1.getAvgPrice());
 
-        Assert.assertEquals(OpenPositionVO.class, values1.get(3).getClass());
-        OpenPositionVO openPositionVO1 = (OpenPositionVO) values1.get(3);
-        Assert.assertEquals(Direction.LONG, openPositionVO1.getDirection());
-        Assert.assertEquals(order1.getQuantity(), openPositionVO1.getQuantity());
-        Assert.assertEquals(order1.getSecurity().getId(), openPositionVO1.getSecurityId());
-        Assert.assertEquals(order1.getStrategy().getName(), openPositionVO1.getStrategy());
+        Assert.assertEquals(PositionVO.class, values1.get(3).getClass());
+        PositionVO PositionVO1 = (PositionVO) values1.get(3);
+        Assert.assertEquals(order1.getQuantity(), PositionVO1.getQuantity());
+        Assert.assertEquals(order1.getSecurity().getId(), PositionVO1.getSecurityId());
+        Assert.assertEquals(order1.getStrategy().getId(), PositionVO1.getStrategyId());
 
         Assert.assertEquals(TransactionVO.class, values1.get(4).getClass());
         TransactionVO transactionVO1 = (TransactionVO) values1.get(4);
@@ -226,12 +223,11 @@ public class SimulatorTest {
         Assert.assertEquals(0, orderStatus2.getRemainingQuantity());
         Assert.assertEquals(order2.getLimit(), orderStatus2.getAvgPrice());
 
-        Assert.assertEquals(ClosePositionVO.class, values2.get(3).getClass());
-        ClosePositionVO closePositionVO2 = (ClosePositionVO) values2.get(3);
-        Assert.assertEquals(Direction.LONG, closePositionVO2.getDirection());
-        Assert.assertEquals(order2.getQuantity(), closePositionVO2.getQuantity());
+        Assert.assertEquals(PositionVO.class, values2.get(3).getClass());
+        PositionVO closePositionVO2 = (PositionVO) values2.get(3);
+        Assert.assertEquals(0, closePositionVO2.getQuantity());
         Assert.assertEquals(order2.getSecurity().getId(), closePositionVO2.getSecurityId());
-        Assert.assertEquals(order2.getStrategy().getName(), closePositionVO2.getStrategy());
+        Assert.assertEquals(order2.getStrategy().getId(), closePositionVO2.getStrategyId());
 
         Assert.assertEquals(TransactionVO.class, values2.get(4).getClass());
         TransactionVO transactionVO2 = (TransactionVO) values2.get(4);

@@ -33,8 +33,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ch.algotrader.accounting.PositionTrackerImpl;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.CoreConfig;
-import ch.algotrader.dao.ClosePositionVOProducer;
-import ch.algotrader.dao.ExpirePositionVOProducer;
 import ch.algotrader.dao.HibernateInitializer;
 import ch.algotrader.dao.PositionDao;
 import ch.algotrader.dao.TransactionDao;
@@ -42,6 +40,7 @@ import ch.algotrader.dao.security.SecurityDao;
 import ch.algotrader.dao.strategy.StrategyDao;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.Position;
+import ch.algotrader.entity.PositionVO;
 import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.marketData.MarketDataEventVO;
 import ch.algotrader.entity.security.Combination;
@@ -61,8 +60,6 @@ import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.option.OptionUtil;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.collection.Pair;
-import ch.algotrader.vo.ClosePositionVO;
-import ch.algotrader.vo.ExpirePositionVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -266,7 +263,7 @@ public class PositionServiceImpl implements PositionService {
             throw new ServiceException(security + " is tradeable, can only delete non-tradeable positions");
         }
 
-        ClosePositionVO closePositionVO = ClosePositionVOProducer.INSTANCE.convert(position);
+        PositionVO closePositionVO = position.convertToVO();
 
         // propagate the ClosePosition event
         this.eventDispatcher.sendEvent(position.getStrategy().getName(), closePositionVO);
@@ -509,7 +506,7 @@ public class PositionServiceImpl implements PositionService {
 
         Security security = position.getSecurity();
 
-        ExpirePositionVO expirePositionEvent = ExpirePositionVOProducer.INSTANCE.convert(position);
+        PositionVO expirePositionEvent = position.convertToVO();
 
         Transaction transaction = Transaction.Factory.newInstance();
         transaction.setUuid(UUID.randomUUID().toString());

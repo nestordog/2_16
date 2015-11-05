@@ -48,9 +48,6 @@ import ch.algotrader.enumeration.ExpirationType;
 import ch.algotrader.enumeration.TransactionType;
 import ch.algotrader.hibernate.InMemoryDBTest;
 import ch.algotrader.util.HibernateUtil;
-import ch.algotrader.vo.ClosePositionVO;
-import ch.algotrader.vo.ExpirePositionVO;
-import ch.algotrader.vo.OpenPositionVO;
 
 /**
 * Unit tests for {@link ch.algotrader.entity.Position}.
@@ -192,127 +189,6 @@ public class PositionDaoTest extends InMemoryDBTest {
         Assert.assertSame(this.forex2, positions2.get(1).getSecurity());
         Assert.assertSame(this.family2, positions2.get(1).getSecurity().getSecurityFamily());
         Assert.assertSame(this.strategy1, positions2.get(1).getStrategy());
-    }
-
-    @Test
-    public void testFindByStrategyTRANSFORM_CLOSEPOSITIONVO() {
-
-        this.session.save(this.family1);
-        this.session.save(this.forex1);
-        this.session.save(this.strategy1);
-
-        Position position1 = new PositionImpl();
-        position1.setQuantity(222);
-        position1.setSecurity(this.forex1);
-        position1.setStrategy(this.strategy1);
-
-        this.session.save(position1);
-
-        this.session.save(this.family2);
-        this.session.save(this.forex2);
-        this.session.save(this.strategy2);
-
-        Position position2 = new PositionImpl();
-        position2.setQuantity(222);
-        position2.setSecurity(this.forex2);
-        position2.setStrategy(this.strategy1);
-
-        this.session.save(position2);
-        this.session.flush();
-
-        List<ClosePositionVO> positions1 = this.dao.findByStrategy("Dummy", ClosePositionVOProducer.INSTANCE);
-
-        Assert.assertEquals(0, positions1.size());
-
-        List<ClosePositionVO> positions2 = this.dao.findByStrategy("Strategy1", ClosePositionVOProducer.INSTANCE);
-
-        Assert.assertEquals(2, positions2.size());
-
-        Assert.assertEquals(222, positions2.get(0).getQuantity());
-        Assert.assertEquals("Strategy1", positions2.get(0).getStrategy());
-
-        Assert.assertEquals(222, positions2.get(1).getQuantity());
-        Assert.assertEquals("Strategy1", positions2.get(1).getStrategy());
-    }
-
-    @Test
-    public void testFindByStrategyTRANSFORM_EXPIREPOSITIONVO() {
-
-        this.session.save(this.family1);
-        this.session.save(this.forex1);
-        this.session.save(this.strategy1);
-
-        Position position1 = new PositionImpl();
-        position1.setQuantity(222);
-        position1.setSecurity(this.forex1);
-        position1.setStrategy(this.strategy1);
-
-        this.session.save(position1);
-
-        this.session.save(this.family2);
-        this.session.save(this.forex2);
-        this.session.save(this.strategy2);
-
-        Position position2 = new PositionImpl();
-        position2.setQuantity(222);
-        position2.setSecurity(this.forex2);
-        position2.setStrategy(this.strategy1);
-
-        this.session.save(position2);
-        this.session.flush();
-
-        List<ExpirePositionVO> positions1 = this.dao.findByStrategy("Dummy", ExpirePositionVOProducer.INSTANCE);
-
-        Assert.assertEquals(0, positions1.size());
-
-        List<ExpirePositionVO> positions2 = this.dao.findByStrategy("Strategy1", ExpirePositionVOProducer.INSTANCE);
-
-        Assert.assertEquals(2, positions2.size());
-
-        Assert.assertEquals(222, positions2.get(0).getQuantity());
-
-        Assert.assertEquals(222, positions2.get(1).getQuantity());
-    }
-
-    @Test
-    public void testFindByStrategyTRANSFORM_OPENPOSITIONVO() {
-
-        this.session.save(this.family1);
-        this.session.save(this.forex1);
-        this.session.save(this.strategy1);
-
-        Position position1 = new PositionImpl();
-        position1.setQuantity(222);
-        position1.setSecurity(this.forex1);
-        position1.setStrategy(this.strategy1);
-
-        this.session.save(position1);
-
-        this.session.save(this.family2);
-        this.session.save(this.forex2);
-        this.session.save(this.strategy2);
-
-        Position position2 = new PositionImpl();
-        position2.setQuantity(222);
-        position2.setSecurity(this.forex2);
-        position2.setStrategy(this.strategy1);
-
-        this.session.save(position2);
-        this.session.flush();
-
-        List<OpenPositionVO> positions1 = this.dao.findByStrategy("Dummy", OpenPositionVOProducer.INSTANCE);
-
-        Assert.assertEquals(0, positions1.size());
-
-        List<OpenPositionVO> positions2 = this.dao.findByStrategy("Strategy1", OpenPositionVOProducer.INSTANCE);
-
-        Assert.assertEquals(2, positions2.size());
-
-        Assert.assertEquals(222, positions2.get(0).getQuantity());
-        Assert.assertEquals("Strategy1", positions2.get(0).getStrategy());
-
-        Assert.assertEquals(222, positions2.get(1).getQuantity());
-        Assert.assertEquals("Strategy1", positions2.get(1).getStrategy());
     }
 
     @Test

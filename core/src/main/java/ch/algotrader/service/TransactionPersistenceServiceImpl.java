@@ -32,13 +32,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import ch.algotrader.accounting.PositionTrackerImpl;
 import ch.algotrader.config.CommonConfig;
-import ch.algotrader.dao.ClosePositionVOProducer;
 import ch.algotrader.dao.HibernateInitializer;
-import ch.algotrader.dao.OpenPositionVOProducer;
 import ch.algotrader.dao.PositionDao;
 import ch.algotrader.dao.TransactionDao;
 import ch.algotrader.dao.strategy.CashBalanceDao;
 import ch.algotrader.entity.Position;
+import ch.algotrader.entity.PositionVO;
 import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.strategy.CashBalance;
@@ -49,10 +48,7 @@ import ch.algotrader.report.TradeReport;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.collection.BigDecimalMap;
 import ch.algotrader.util.collection.Pair;
-import ch.algotrader.vo.ClosePositionVO;
 import ch.algotrader.vo.CurrencyAmountVO;
-import ch.algotrader.vo.OpenPositionVO;
-import ch.algotrader.vo.PositionMutationVO;
 import ch.algotrader.vo.TradePerformanceVO;
 
 /**
@@ -113,12 +109,11 @@ public abstract class TransactionPersistenceServiceImpl implements TransactionPe
     @Override
     @Retryable(maxAttempts = 5, value = {LockAcquisitionException.class, CannotAcquireLockException.class})
     @Transactional(propagation = Propagation.REQUIRED)
-    public PositionMutationVO saveTransaction(final Transaction transaction) {
+    public PositionVO saveTransaction(final Transaction transaction) {
 
         Validate.notNull(transaction, "Transaction is null");
 
-        OpenPositionVO openPositionVO = null;
-        ClosePositionVO closePositionVO = null;
+        PositionVO positionMutation = null;
         TradePerformanceVO tradePerformance = null;
 
         // position handling (incl ClosePositionVO and TradePerformanceVO)
@@ -137,26 +132,14 @@ public abstract class TransactionPersistenceServiceImpl implements TransactionPe
                         " / security " + security.getId() + " not found ", null);
             }
 
-            boolean existingOpenPosition = position.isOpen();
-
-            // get the closePositionVO (must be done before closing the position)
-            closePositionVO = ClosePositionVOProducer.INSTANCE.convert(position);
-
             // process the transaction (adjust quantity, cost and realizedPL)
             tradePerformance = PositionTrackerImpl.INSTANCE.processTransaction(position, transaction);
-
-            // in case a position is open reset the closePosition event
-            if (position.isOpen()) {
-                closePositionVO = null;
-            }
 
             // associate the position
             transaction.setPosition(position);
 
             // if no position was open before initialize the openPosition event
-            if (!existingOpenPosition) {
-                openPositionVO = OpenPositionVOProducer.INSTANCE.convert(position);
-            }
+            positionMutation = position.convertToVO();
         }
 
         transaction.initializeSecurity(HibernateInitializer.INSTANCE);
@@ -200,7 +183,7 @@ public abstract class TransactionPersistenceServiceImpl implements TransactionPe
         LOGGER.info(logMessage);
 
         // return PositionMutation event if existent
-        return openPositionVO != null ? openPositionVO : closePositionVO != null ? closePositionVO : null;
+        return positionMutation;
 
     }
 

@@ -22,10 +22,8 @@
     <!-- Performance -->
     <event-type name="PortfolioValueVO" class="ch.algotrader.entity.strategy.PortfolioValueVO"/>
 
-    <!-- Value Objects -->
-    <event-type name="OpenPosition" class="ch.algotrader.vo.OpenPositionVO"/>
-    <event-type name="ClosePosition" class="ch.algotrader.vo.ClosePositionVO"/>
-    <event-type name="ExpirePosition" class="ch.algotrader.vo.ExpirePositionVO"/>
+    <!-- Position mutation events -->
+    <event-type name="PositionVO" class="ch.algotrader.entity.PositionVO"/>
 
     <!-- Session events -->
     <event-type name="SessionEventVO" class="ch.algotrader.vo.SessionEventVO"/>

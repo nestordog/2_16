@@ -39,6 +39,7 @@ import ch.algotrader.dao.HibernateInitializer;
 import ch.algotrader.dao.security.SecurityDao;
 import ch.algotrader.dao.strategy.StrategyDao;
 import ch.algotrader.entity.Account;
+import ch.algotrader.entity.PositionVO;
 import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
@@ -55,7 +56,6 @@ import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.collection.CollectionUtil;
 import ch.algotrader.util.metric.MetricsUtil;
-import ch.algotrader.vo.PositionMutationVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -405,11 +405,12 @@ public class TransactionServiceImpl implements TransactionService {
 
             this.transactionPersistenceService.ensurePositionAndCashBalance(transaction);
         }
-        PositionMutationVO positionMutationEvent =  this.transactionPersistenceService.saveTransaction(transaction);
+        PositionVO positionMutationEvent =  this.transactionPersistenceService.saveTransaction(transaction);
 
         // propagate the positionMutationEvent to the corresponding strategy
         if (positionMutationEvent != null) {
-            this.eventDispatcher.sendEvent(positionMutationEvent.getStrategy(), positionMutationEvent);
+            Strategy strategy = transaction.getStrategy();
+            this.eventDispatcher.sendEvent(strategy.getName(), positionMutationEvent);
         }
 
         // propagate the transaction to the corresponding strategy and AlgoTrader Server

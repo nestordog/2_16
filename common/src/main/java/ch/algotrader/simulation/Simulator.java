@@ -32,10 +32,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.accounting.PositionTracker;
-import ch.algotrader.dao.ClosePositionVOProducer;
-import ch.algotrader.dao.OpenPositionVOProducer;
 import ch.algotrader.entity.Position;
-import ch.algotrader.entity.PositionVO;
 import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.marketData.MarketDataEventVO;
 import ch.algotrader.entity.security.Security;
@@ -57,9 +54,7 @@ import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.service.MarketDataCache;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.collection.Pair;
-import ch.algotrader.vo.ClosePositionVO;
 import ch.algotrader.vo.CurrencyAmountVO;
-import ch.algotrader.vo.OpenPositionVO;
 import ch.algotrader.vo.TradePerformanceVO;
 
 /**
@@ -237,12 +232,8 @@ public class Simulator {
      */
     protected Position persistTransaction(final Transaction transaction) {
 
-        OpenPositionVO openPositionVO = null;
-        ClosePositionVO closePositionVO = null;
         TradePerformanceVO tradePerformance = null;
 
-        // create a new position if necessary
-        boolean existingOpenPosition = false;
         Strategy strategy = transaction.getStrategy();
         Position position = findPositionByStrategyAndSecurity(strategy.getName(), transaction.getSecurity());
         if (position == null) {
@@ -259,35 +250,14 @@ public class Simulator {
 
         } else {
 
-            existingOpenPosition = position.isOpen();
-
-            // get the closePositionVO (must be done before closing the position)
-            closePositionVO = ClosePositionVOProducer.INSTANCE.convert(position);
-
             // process the transaction (adjust quantity, cost and realizedPL)
             tradePerformance = this.positionTracker.processTransaction(position, transaction);
-
-            if (position.isOpen()) {
-
-                // reset the closePosition event
-                closePositionVO = null;
-            }
 
             // associate the position
             transaction.setPosition(position);
         }
 
-        // if no position was open before initialize the openPosition event
-        if (!existingOpenPosition) {
-            openPositionVO = OpenPositionVOProducer.INSTANCE.convert(position);
-            this.eventDispatcher.sendEvent(strategy.getName(), openPositionVO);
-        } else if (closePositionVO != null) {
-            this.eventDispatcher.sendEvent(strategy.getName(), closePositionVO);
-        } else {
-            PositionVO positionVO = Position.Converter.INSTANCE.convert(position);
-            this.eventDispatcher.sendEvent(strategy.getName(), positionVO);
-        }
-
+        this.eventDispatcher.sendEvent(strategy.getName(), position.convertToVO());
 
         // add the amount to the corresponding cashBalance
         processTransaction(transaction);
