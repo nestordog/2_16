@@ -31,7 +31,8 @@ import ch.algotrader.adapter.lmax.LMAXFixMarketDataMessageHandler;
 import ch.algotrader.adapter.lmax.LMAXFixOrderMessageHandler;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.event.dispatch.EventDispatcher;
-import ch.algotrader.ordermgmt.OrderRegistry;
+import ch.algotrader.service.OrderExecutionService;
+import ch.algotrader.service.TransactionService;
 import quickfix.SessionSettings;
 
 /**
@@ -60,12 +61,13 @@ public class LMAXFixWiring {
     @Profile("lMAXFix")
     @Bean(name = "lMAXOrderApplicationFactory")
     public FixApplicationFactory createLMAXOrderApplicationFactory(
-            final OrderRegistry orderRegistry,
+            final OrderExecutionService orderExecutionService,
+            final TransactionService transactionService,
             final Engine serverEngine,
             final DefaultLogonMessageHandler lMAXLogonMessageHandler,
             final ExternalSessionStateHolder lMAXOrderSessionStateHolder) {
 
-        LMAXFixOrderMessageHandler lMAXFixOrderMessageHandler = new LMAXFixOrderMessageHandler(orderRegistry, serverEngine);
+        LMAXFixOrderMessageHandler lMAXFixOrderMessageHandler = new LMAXFixOrderMessageHandler(orderExecutionService, transactionService, serverEngine);
         return new DefaultFixApplicationFactory(lMAXFixOrderMessageHandler, lMAXLogonMessageHandler, lMAXOrderSessionStateHolder);
     }
 

@@ -56,7 +56,6 @@ import ch.algotrader.entity.trade.LimitOrderVO;
 import ch.algotrader.entity.trade.MarketOrder;
 import ch.algotrader.entity.trade.MarketOrderVO;
 import ch.algotrader.entity.trade.Order;
-import ch.algotrader.entity.trade.OrderCompletionVO;
 import ch.algotrader.entity.trade.OrderDetailsVO;
 import ch.algotrader.entity.trade.OrderPreference;
 import ch.algotrader.entity.trade.OrderStatus;
@@ -91,8 +90,6 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
 
     private final SessionFactory sessionFactory;
 
-    private final OrderPersistenceService orderPersistService;
-
     private final MarketDataCache marketDataCache;
 
     private final OrderDao orderDao;
@@ -121,7 +118,6 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
 
     public OrderServiceImpl(final CommonConfig commonConfig,
             final SessionFactory sessionFactory,
-            final OrderPersistenceService orderPersistService,
             final MarketDataCache marketDataCache,
             final OrderDao orderDao,
             final OrderStatusDao orderStatusDao,
@@ -138,7 +134,6 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(sessionFactory, "SessionFactory is null");
-        Validate.notNull(orderPersistService, "OrderPersistStrategy is null");
         Validate.notNull(marketDataCache, "MarketDataCache is null");
         Validate.notNull(orderDao, "OrderDao is null");
         Validate.notNull(orderStatusDao, "OrderStatusDao is null");
@@ -154,7 +149,6 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
 
         this.commonConfig = commonConfig;
         this.sessionFactory = sessionFactory;
-        this.orderPersistService = orderPersistService;
         this.marketDataCache = marketDataCache;
         this.orderDao = orderDao;
         this.orderStatusDao = orderStatusDao;
@@ -554,67 +548,6 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
      * {@inheritDoc}
      */
     @Override
-    public void propagateOrderStatus(final OrderStatus orderStatus) {
-
-        Validate.notNull(orderStatus, "Order status is null");
-
-        String intId = orderStatus.getIntId();
-        Order order = this.orderRegistry.getOpenOrderByIntId(intId);
-        if (order == null) {
-            throw new ServiceException("Open order with IntID " + intId + " not found");
-        }
-
-        this.orderRegistry.updateExecutionStatus(order.getIntId(), orderStatus.getStatus(), orderStatus.getFilledQuantity(), orderStatus.getRemainingQuantity());
-
-        if (orderStatus.getDateTime() == null) {
-            if (orderStatus.getExtDateTime() != null) {
-                orderStatus.setDateTime(orderStatus.getExtDateTime());
-            } else {
-                orderStatus.setDateTime(this.serverEngine.getCurrentTime());
-            }
-        }
-
-        // send the fill to the strategy that placed the corresponding order
-        Strategy strategy = order.getStrategy();
-        if (!strategy.isServer()) {
-
-            this.eventDispatcher.sendEvent(strategy.getName(), orderStatus.convertToVO());
-        }
-
-        if (!this.commonConfig.isSimulation()) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("propagated orderStatus: {}", orderStatus);
-            }
-            // only store OrderStatus for non AlgoOrders
-            // and ignore order status message with synthetic (non-positive) sequence number
-            if (orderStatus.getSequenceNumber() > 0 && !(order instanceof AlgoOrder)) {
-
-                this.orderPersistService.persistOrderStatus(orderStatus);
-            }
-        }
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void propagateOrderCompletion(final OrderCompletionVO orderCompletion) {
-
-        Validate.notNull(orderCompletion, "Order completion is null");
-
-        // send the fill to the strategy that placed the corresponding order
-        Strategy strategy = this.strategyDao.findByName(orderCompletion.getStrategy());
-        if (!strategy.isServer()) {
-            this.eventDispatcher.sendEvent(orderCompletion.getStrategy(), orderCompletion);
-        }
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public String getNextOrderId(final long accountId) {
 
         Account account = this.accountDao.load(accountId);
@@ -633,6 +566,14 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
         Validate.notEmpty(intId, "Order IntId is empty");
 
         return this.orderRegistry.getStatusByIntId(intId);
+    }
+
+    @Override
+    public Order getOpenOrderByIntId(final String intId) {
+
+        Validate.notEmpty(intId, "Order IntId is empty");
+
+        return this.orderRegistry.getOpenOrderByIntId(intId);
     }
 
     /**

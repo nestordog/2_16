@@ -73,11 +73,6 @@ public interface TransactionService {
     public void persistTransaction(Transaction transaction);
 
     /**
-     * Propagates a Fill to the corresponding Strategy.
-     */
-    public void propagateFill(Fill fill);
-
-    /**
      * Logs aggregated Information of all Fills belonging to one Order.
      */
     public void logFillSummary(List<Fill> fills);

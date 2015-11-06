@@ -55,8 +55,9 @@ import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.ordermgmt.OrderRegistry;
 import ch.algotrader.service.ExternalServiceException;
+import ch.algotrader.service.OrderExecutionService;
+import ch.algotrader.service.TransactionService;
 import ch.algotrader.util.DateTimeLegacy;
 import ch.algotrader.util.PriceUtil;
 
@@ -79,7 +80,8 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
     private final IBPendingRequests pendingRequests;
     private final AutoIncrementIdGenerator orderIdGenerator;
 
-    private final OrderRegistry orderRegistry;
+    private final OrderExecutionService orderExecutionService;
+    private final TransactionService transactionService;
     private final IBExecutions executions;
 
     private final BlockingQueue<AccountUpdate> accountUpdateQueue;
@@ -92,7 +94,8 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
             final IBSessionStateHolder sessionStateHolder,
             final IBPendingRequests pendingRequests,
             final AutoIncrementIdGenerator orderIdGenerator,
-            final OrderRegistry orderRegistry,
+            final OrderExecutionService orderExecutionService,
+            final TransactionService transactionService,
             final IBExecutions executions,
             final BlockingQueue<AccountUpdate> accountUpdateQueue,
             final BlockingQueue<Set<String>> accountsQueue,
@@ -102,7 +105,8 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
         this.sessionStateHolder = sessionStateHolder;
         this.pendingRequests = pendingRequests;
         this.orderIdGenerator = orderIdGenerator;
-        this.orderRegistry = orderRegistry;
+        this.orderExecutionService = orderExecutionService;
+        this.transactionService = transactionService;
         this.executions = executions;
         this.accountUpdateQueue = accountUpdateQueue;
         this.accountsQueue = accountsQueue;
@@ -125,7 +129,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
         String intId = String.valueOf(execution.m_orderId);
 
         IBExecution executionEntry;
-        OrderDetailsVO orderDetails = this.orderRegistry.getOpenOrderDetailsByIntId(intId);
+        OrderDetailsVO orderDetails = this.orderExecutionService.getOpenOrderDetailsByIntId(intId);
         if (orderDetails != null) {
             executionEntry = this.executions.getOpen(intId, orderDetails.getExecutionStatus());
         } else {
@@ -158,6 +162,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
 
         if (orderStatus != null) {
             this.serverEngine.sendEvent(orderStatus);
+            this.orderExecutionService.handleOrderStatus(orderStatus);
         }
 
         // get the fields
@@ -180,6 +185,8 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
         fill.setOrder(order);
 
         this.serverEngine.sendEvent(fill);
+        this.transactionService.createTransaction(fill);
+        this.orderExecutionService.handleFill(fill);
     }
 
     @Override
@@ -199,7 +206,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
         String intId = String.valueOf(reqId);
 
         IBExecution executionEntry;
-        OrderDetailsVO orderDetails = this.orderRegistry.getOpenOrderDetailsByIntId(intId);
+        OrderDetailsVO orderDetails = this.orderExecutionService.getOpenOrderDetailsByIntId(intId);
         if (orderDetails != null) {
             executionEntry = this.executions.getOpen(intId, orderDetails.getExecutionStatus());
         } else {
@@ -245,6 +252,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
             }
 
             this.serverEngine.sendEvent(orderStatus);
+            this.orderExecutionService.handleOrderStatus(orderStatus);
         }
     }
 
@@ -646,7 +654,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
     private void orderRejected(int orderId, String reason) {
 
         String intId = String.valueOf(orderId);
-        OrderDetailsVO orderDetails= this.orderRegistry.getOpenOrderDetailsByIntId(intId);
+        OrderDetailsVO orderDetails= this.orderExecutionService.getOpenOrderDetailsByIntId(intId);
 
         if (orderDetails != null) {
 
@@ -674,6 +682,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
 
             if (orderStatus != null) {
                 this.serverEngine.sendEvent(orderStatus);
+                this.orderExecutionService.handleOrderStatus(orderStatus);
             }
         }
     }

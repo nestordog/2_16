@@ -109,39 +109,17 @@ from
         (not fill.`order`.parentOrder is null and `order`.intId = fill.`order`.parentOrder.intId) or
         (fill.`order`.parentOrder is null and `order`.intId = fill.`order`.intId))];
 
-@Name('PROPAGATE_ORDER_STATUS')
-@Subscriber(className='orderService#propagateOrderStatus')
+@Name('PROPAGATE_ALGO_ORDER_STATUS')
+@Subscriber(className='eventPropagator#propagateOrderStatus')
 select
     *
 from
-    OrderStatus;
+    OrderStatus(sequenceNumber = 0);
 
 @Name('PROPAGATE_ORDER_COMPLETION')
 @RunTimeOnly()
-@Subscriber(className='orderService#propagateOrderCompletion')
+@Subscriber(className='eventPropagator#propagateOrderCompletion')
 select
     *
 from
     OrderCompletionVO;
-
-@Name('PROPAGATE_FILL')
-@Priority(1)
-@Subscriber(className='transactionService#propagateFill')
-select
-    *
-from
-    Fill;
-
-@Name('CREATE_TRANSACTION_FROM_FILL')
-@Subscriber(className='transactionService#createTransaction')
-select
-    *
-from
-    Fill;
-
-@Name('CREATE_TRANSACTION_FROM_EXTERNAL_FILL')
-@Subscriber(className='transactionService#createTransaction')
-select
-    *
-from
-    ExternalFill;

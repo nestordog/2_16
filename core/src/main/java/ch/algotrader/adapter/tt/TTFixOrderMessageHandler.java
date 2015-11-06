@@ -30,7 +30,8 @@ import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.ordermgmt.OrderRegistry;
+import ch.algotrader.service.OrderExecutionService;
+import ch.algotrader.service.TransactionService;
 import quickfix.FieldNotFound;
 import quickfix.SessionID;
 import quickfix.field.ExecTransType;
@@ -50,13 +51,15 @@ public class TTFixOrderMessageHandler extends GenericFix42OrderMessageHandler {
 
     private static final Logger LOGGER = LogManager.getLogger(TTFixOrderMessageHandler.class);
 
-    private final OrderRegistry orderRegistry;
+    private final OrderExecutionService orderExecutionService;
+    private final TransactionService transactionService;
     private final Engine serverEngine;
     private final DropCopyAllocator dropCopyAllocator;
 
-    public TTFixOrderMessageHandler(final OrderRegistry orderRegistry, final Engine serverEngine, final DropCopyAllocator dropCopyAllocator) {
-        super(orderRegistry, serverEngine);
-        this.orderRegistry = orderRegistry;
+    public TTFixOrderMessageHandler(final OrderExecutionService orderExecutionService, final TransactionService transactionService, final Engine serverEngine, final DropCopyAllocator dropCopyAllocator) {
+        super(orderExecutionService, transactionService, serverEngine);
+        this.orderExecutionService = orderExecutionService;
+        this.transactionService = transactionService;
         this.serverEngine = serverEngine;
         this.dropCopyAllocator = dropCopyAllocator;
     }
@@ -141,6 +144,8 @@ public class TTFixOrderMessageHandler extends GenericFix42OrderMessageHandler {
 
         if (fill != null) {
             this.serverEngine.sendEvent(fill);
+            this.transactionService.createTransaction(fill);
+            this.orderExecutionService.handleFill(fill);
         }
     }
 
@@ -150,7 +155,7 @@ public class TTFixOrderMessageHandler extends GenericFix42OrderMessageHandler {
         String refMsgType = reject.getRefMsgType().getValue();
         if (refMsgType.equalsIgnoreCase(MsgType.ORDER_SINGLE) && reject.isSetBusinessRejectRefID()) {
             String intId = reject.getBusinessRejectRefID().getValue();
-            Order order = this.orderRegistry.getOpenOrderByIntId(intId);
+            Order order = this.orderExecutionService.getOpenOrderByIntId(intId);
             if (order != null) {
                 if (LOGGER.isErrorEnabled()) {
 

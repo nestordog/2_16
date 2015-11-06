@@ -43,7 +43,8 @@ import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.ordermgmt.OrderRegistry;
+import ch.algotrader.service.OrderExecutionService;
+import ch.algotrader.service.TransactionService;
 import ch.algotrader.util.DateTimeLegacy;
 import quickfix.field.ClOrdID;
 import quickfix.field.ExecType;
@@ -55,7 +56,9 @@ import quickfix.fix44.ExecutionReport;
 public class TestRTFixOrderMessageHandler {
 
     @Mock
-    private OrderRegistry orderRegistry;
+    private OrderExecutionService orderExecutionService;
+    @Mock
+    private TransactionService transactionService;
     @Mock
     private Engine engine;
 
@@ -66,7 +69,7 @@ public class TestRTFixOrderMessageHandler {
 
         MockitoAnnotations.initMocks(this);
 
-        this.impl = new RTFixOrderMessageHandler(this.orderRegistry, this.engine);
+        this.impl = new RTFixOrderMessageHandler(this.orderExecutionService, this.transactionService, this.engine);
     }
 
     @Test
@@ -87,7 +90,7 @@ public class TestRTFixOrderMessageHandler {
 
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(msft);
-        Mockito.when(this.orderRegistry.getOpenOrderByIntId("14685d97784")).thenReturn(order);
+        Mockito.when(this.orderExecutionService.getOpenOrderByIntId("14685d97784")).thenReturn(order);
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
@@ -133,7 +136,7 @@ public class TestRTFixOrderMessageHandler {
         order.setQuantity(100);
         order.setSide(Side.BUY);
 
-        Mockito.when(this.orderRegistry.getOpenOrderByIntId("1468588c149")).thenReturn(order);
+        Mockito.when(this.orderExecutionService.getOpenOrderByIntId("1468588c149")).thenReturn(order);
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
@@ -172,11 +175,11 @@ public class TestRTFixOrderMessageHandler {
         executionReport.set(new ExecType(ExecType.NEW));
         executionReport.set(new ClOrdID("123"));
 
-        Mockito.when(this.orderRegistry.getOpenOrderByIntId(Mockito.anyString())).thenReturn(null);
+        Mockito.when(this.orderExecutionService.getOpenOrderByIntId(Mockito.anyString())).thenReturn(null);
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
-        Mockito.verify(this.orderRegistry, Mockito.times(1)).getOpenOrderByIntId("123");
+        Mockito.verify(this.orderExecutionService, Mockito.times(1)).getOpenOrderByIntId("123");
         Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
     }
 
@@ -189,7 +192,7 @@ public class TestRTFixOrderMessageHandler {
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
-        Mockito.verify(this.orderRegistry, Mockito.never()).getOpenOrderByIntId("123");
+        Mockito.verify(this.orderExecutionService, Mockito.never()).getOpenOrderByIntId("123");
         Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
     }
 
@@ -202,7 +205,7 @@ public class TestRTFixOrderMessageHandler {
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
-        Mockito.verify(this.orderRegistry, Mockito.never()).getOpenOrderByIntId("123");
+        Mockito.verify(this.orderExecutionService, Mockito.never()).getOpenOrderByIntId("123");
         Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
     }
 
@@ -215,7 +218,7 @@ public class TestRTFixOrderMessageHandler {
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
-        Mockito.verify(this.orderRegistry, Mockito.never()).getOpenOrderByIntId("123");
+        Mockito.verify(this.orderExecutionService, Mockito.never()).getOpenOrderByIntId("123");
         Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
     }
 
@@ -240,7 +243,7 @@ public class TestRTFixOrderMessageHandler {
         order.setQuantity(100);
         order.setSide(Side.BUY);
 
-        Mockito.when(this.orderRegistry.getOpenOrderByIntId("146858a5fa7")).thenReturn(order);
+        Mockito.when(this.orderExecutionService.getOpenOrderByIntId("146858a5fa7")).thenReturn(order);
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 

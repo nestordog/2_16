@@ -56,7 +56,8 @@ import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.AbstractEngine;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.event.dispatch.EventDispatcher;
-import ch.algotrader.ordermgmt.OrderRegistry;
+import ch.algotrader.service.OrderExecutionService;
+import ch.algotrader.service.TransactionService;
 import ch.algotrader.util.DateTimeLegacy;
 import quickfix.SessionID;
 import quickfix.SessionSettings;
@@ -67,7 +68,8 @@ public class RTFixOrderMessageHandlerTest extends FixApplicationTestBase {
 
     private LinkedBlockingQueue<Object> eventQueue;
     private EventDispatcher eventDispatcher;
-    private OrderRegistry orderRegistry;
+    private OrderExecutionService orderExecutionService;
+    private TransactionService transactionService;
     private RTFixOrderMessageFactory messageFactory;
     private RTFixOrderMessageHandler messageHandler;
 
@@ -99,8 +101,9 @@ public class RTFixOrderMessageHandlerTest extends FixApplicationTestBase {
         SessionSettings settings = FixConfigUtils.loadSettings();
         SessionID sessionId = FixConfigUtils.getSessionID(settings, "RT");
 
-        this.orderRegistry = Mockito.mock(OrderRegistry.class);
-        RTFixOrderMessageHandler messageHandlerImpl = new RTFixOrderMessageHandler(this.orderRegistry, engine);
+        this.orderExecutionService = Mockito.mock(OrderExecutionService.class);
+        this.transactionService = Mockito.mock(TransactionService.class);
+        RTFixOrderMessageHandler messageHandlerImpl = new RTFixOrderMessageHandler(this.orderExecutionService, this.transactionService, engine);
         this.messageHandler = Mockito.spy(messageHandlerImpl);
         this.messageFactory = new RTFixOrderMessageFactory(new GenericFix44SymbologyResolver());
 
@@ -134,7 +137,7 @@ public class RTFixOrderMessageHandlerTest extends FixApplicationTestBase {
 
         NewOrderSingle message = this.messageFactory.createNewOrderMessage(order, orderId);
 
-        Mockito.when(this.orderRegistry.getByIntId(orderId)).thenReturn(order);
+        Mockito.when(this.orderExecutionService.getOpenOrderByIntId(orderId)).thenReturn(order);
 
         this.session.send(message);
 
@@ -200,7 +203,7 @@ public class RTFixOrderMessageHandlerTest extends FixApplicationTestBase {
 
         NewOrderSingle message = this.messageFactory.createNewOrderMessage(order, orderId);
 
-        Mockito.when(this.orderRegistry.getByIntId(orderId)).thenReturn(order);
+        Mockito.when(this.orderExecutionService.getOpenOrderByIntId(orderId)).thenReturn(order);
 
         this.session.send(message);
 
@@ -298,7 +301,7 @@ public class RTFixOrderMessageHandlerTest extends FixApplicationTestBase {
 
         NewOrderSingle message1 = this.messageFactory.createNewOrderMessage(order, orderId1);
 
-        Mockito.when(this.orderRegistry.getByIntId(orderId1)).thenReturn(order);
+        Mockito.when(this.orderExecutionService.getOpenOrderByIntId(orderId1)).thenReturn(order);
 
         this.session.send(message1);
 
@@ -316,7 +319,7 @@ public class RTFixOrderMessageHandlerTest extends FixApplicationTestBase {
         order.setIntId(orderId1);
         OrderCancelRequest message2 = this.messageFactory.createOrderCancelMessage(order, orderId2);
 
-        Mockito.when(this.orderRegistry.getByIntId(orderId2)).thenReturn(order);
+        Mockito.when(this.orderExecutionService.getOpenOrderByIntId(orderId2)).thenReturn(order);
 
         this.session.send(message2);
 

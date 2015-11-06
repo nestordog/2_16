@@ -25,7 +25,8 @@ import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.ordermgmt.OrderRegistry;
+import ch.algotrader.service.OrderExecutionService;
+import ch.algotrader.service.TransactionService;
 import quickfix.FieldNotFound;
 import quickfix.SessionID;
 import quickfix.field.ExecType;
@@ -46,11 +47,13 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
 
     private static final Logger LOGGER = LogManager.getLogger(AbstractFix44OrderMessageHandler.class);
 
-    private final OrderRegistry orderRegistry;
+    private final OrderExecutionService orderExecutionService;
+    private final TransactionService transactionService;
     private final Engine serverEngine;
 
-    protected AbstractFix44OrderMessageHandler(final OrderRegistry orderRegistry, final Engine serverEngine) {
-        this.orderRegistry = orderRegistry;
+    protected AbstractFix44OrderMessageHandler(final OrderExecutionService orderExecutionService, final TransactionService transactionService, final Engine serverEngine) {
+        this.orderExecutionService = orderExecutionService;
+        this.transactionService = transactionService;
         this.serverEngine = serverEngine;
     }
 
@@ -89,7 +92,7 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
             orderIntId = executionReport.getClOrdID().getValue();
         }
 
-        Order order = this.orderRegistry.getOpenOrderByIntId(orderIntId);
+        Order order = this.orderExecutionService.getOpenOrderByIntId(orderIntId);
         if (order == null) {
 
             handleUnknown(executionReport);
@@ -127,6 +130,7 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
             }
 
             this.serverEngine.sendEvent(orderStatus);
+            this.orderExecutionService.handleOrderStatus(orderStatus);
 
             return;
         }
@@ -135,7 +139,7 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
 
             // Send status report for replaced order
             String oldIntId = executionReport.getOrigClOrdID().getValue();
-            Order oldOrder = this.orderRegistry.getOpenOrderByIntId(oldIntId);
+            Order oldOrder = this.orderExecutionService.getOpenOrderByIntId(oldIntId);
 
             if (oldOrder != null) {
 
@@ -143,17 +147,21 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
                 orderStatus.setStatus(Status.CANCELED);
                 orderStatus.setExtId(null);
                 this.serverEngine.sendEvent(orderStatus);
+                this.orderExecutionService.handleOrderStatus(orderStatus);
             }
         }
 
         OrderStatus orderStatus = createStatus(executionReport, order);
 
         this.serverEngine.sendEvent(orderStatus);
+        this.orderExecutionService.handleOrderStatus(orderStatus);
 
         Fill fill = createFill(executionReport, order);
         if (fill != null) {
 
             this.serverEngine.sendEvent(fill);
+            this.transactionService.createTransaction(fill);
+            this.orderExecutionService.handleFill(fill);
         }
     }
 
@@ -197,7 +205,7 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
 
         String orderIntId = reject.getClOrdID().getValue();
 
-        Order order = this.orderRegistry.getOpenOrderByIntId(orderIntId);
+        Order order = this.orderExecutionService.getOpenOrderByIntId(orderIntId);
         if (order != null) {
 
             OrderStatus orderStatus = OrderStatus.Factory.newInstance();
@@ -215,6 +223,7 @@ public abstract class AbstractFix44OrderMessageHandler extends AbstractFix44Mess
             }
 
             this.serverEngine.sendEvent(orderStatus);
+            this.orderExecutionService.handleOrderStatus(orderStatus);
         }
 
     }

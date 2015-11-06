@@ -360,29 +360,6 @@ public class TransactionServiceImpl implements TransactionService {
      * {@inheritDoc}
      */
     @Override
-    public void propagateFill(final Fill fill) {
-
-        Validate.notNull(fill, "Fill is null");
-
-        Order order = fill.getOrder();
-        // send the fill to the strategy that placed the corresponding order
-        Strategy strategy = order.getStrategy();
-        if (!strategy.isServer()) {
-            this.eventDispatcher.sendEvent(strategy.getName(), fill.convertToVO());
-        }
-
-        if (!this.commonConfig.isSimulation()) {
-            if (LOGGER.isInfoEnabled()) {
-                LOGGER.info("received fill: {} for order: {}", fill, order);
-            }
-        }
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void logFillSummary(final List<Fill> fills) {
 
         if (fills.size() > 0 && !this.commonConfig.isSimulation()) {

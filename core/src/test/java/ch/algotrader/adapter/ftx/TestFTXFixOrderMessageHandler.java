@@ -44,7 +44,8 @@ import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.ordermgmt.OrderRegistry;
+import ch.algotrader.service.OrderExecutionService;
+import ch.algotrader.service.TransactionService;
 import ch.algotrader.util.DateTimeLegacy;
 import quickfix.field.ClOrdID;
 import quickfix.field.ExecType;
@@ -58,7 +59,9 @@ import quickfix.fix44.Reject;
 public class TestFTXFixOrderMessageHandler {
 
     @Mock
-    private OrderRegistry orderRegistry;
+    private OrderExecutionService orderExecutionService;
+    @Mock
+    private TransactionService transactionService;
     @Mock
     private Engine engine;
 
@@ -69,7 +72,7 @@ public class TestFTXFixOrderMessageHandler {
 
         MockitoAnnotations.initMocks(this);
 
-        this.impl = new FTXFixOrderMessageHandler(this.orderRegistry, this.engine);
+        this.impl = new FTXFixOrderMessageHandler(this.orderExecutionService, this.transactionService, this.engine);
     }
 
     @Test
@@ -95,7 +98,7 @@ public class TestFTXFixOrderMessageHandler {
         order.setSecurity(forex);
         order.setQuantity(2000);
 
-        Mockito.when(this.orderRegistry.getOpenOrderByIntId("14ddd87a9d2")).thenReturn(order);
+        Mockito.when(this.orderExecutionService.getOpenOrderByIntId("14ddd87a9d2")).thenReturn(order);
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
@@ -142,7 +145,7 @@ public class TestFTXFixOrderMessageHandler {
         order.setSecurity(forex);
         order.setQuantity(2000);
         order.setAccount(account);
-        Mockito.when(this.orderRegistry.getOpenOrderByIntId("14ddd87a9d2")).thenReturn(order);
+        Mockito.when(this.orderExecutionService.getOpenOrderByIntId("14ddd87a9d2")).thenReturn(order);
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
@@ -182,11 +185,11 @@ public class TestFTXFixOrderMessageHandler {
         executionReport.set(new ExecType(ExecType.NEW));
         executionReport.set(new ClOrdID("123"));
 
-        Mockito.when(this.orderRegistry.getOpenOrderByIntId(Mockito.anyString())).thenReturn(null);
+        Mockito.when(this.orderExecutionService.getOpenOrderByIntId(Mockito.anyString())).thenReturn(null);
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
-        Mockito.verify(this.orderRegistry, Mockito.times(1)).getOpenOrderByIntId("123");
+        Mockito.verify(this.orderExecutionService, Mockito.times(1)).getOpenOrderByIntId("123");
         Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
     }
 
@@ -216,7 +219,7 @@ public class TestFTXFixOrderMessageHandler {
         order.setQuantity(2000);
         order.setAccount(account);
 
-        Mockito.when(this.orderRegistry.getOpenOrderByIntId("14ddd84fb8e")).thenReturn(order);
+        Mockito.when(this.orderExecutionService.getOpenOrderByIntId("14ddd84fb8e")).thenReturn(order);
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 

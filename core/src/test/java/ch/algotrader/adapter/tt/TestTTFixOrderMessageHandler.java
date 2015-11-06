@@ -47,7 +47,8 @@ import ch.algotrader.enumeration.ExpirationType;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.ordermgmt.OrderRegistry;
+import ch.algotrader.service.OrderExecutionService;
+import ch.algotrader.service.TransactionService;
 import ch.algotrader.util.DateTimeLegacy;
 import ch.algotrader.util.DateTimeUtil;
 import quickfix.ConfigError;
@@ -76,7 +77,9 @@ public class TestTTFixOrderMessageHandler {
     }
 
     @Mock
-    private OrderRegistry orderRegistry;
+    private OrderExecutionService orderExecutionService;
+    @Mock
+    private TransactionService transactionService;
     @Mock
     private Engine engine;
     @Mock
@@ -115,7 +118,7 @@ public class TestTTFixOrderMessageHandler {
         this.account.setExtAccount("ratkodts2");
         this.account.setBroker(Broker.TT.name());
 
-        this.impl = new TTFixOrderMessageHandler(this.orderRegistry, this.engine, this.dropCopyAllocator);
+        this.impl = new TTFixOrderMessageHandler(this.orderExecutionService, this.transactionService, this.engine, this.dropCopyAllocator);
     }
 
     @Test
@@ -132,7 +135,7 @@ public class TestTTFixOrderMessageHandler {
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(this.future);
         order.setAccount(this.account);
-        Mockito.when(this.orderRegistry.getOpenOrderByIntId("1502848e0fc")).thenReturn(order);
+        Mockito.when(this.orderExecutionService.getOpenOrderByIntId("1502848e0fc")).thenReturn(order);
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix42Session());
 
@@ -167,7 +170,7 @@ public class TestTTFixOrderMessageHandler {
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(this.future);
         order.setAccount(this.account);
-        Mockito.when(this.orderRegistry.getOpenOrderByIntId("1502848e0fc")).thenReturn(order);
+        Mockito.when(this.orderExecutionService.getOpenOrderByIntId("1502848e0fc")).thenReturn(order);
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix42Session());
 
@@ -209,11 +212,11 @@ public class TestTTFixOrderMessageHandler {
         executionReport.set(new OrderID("xxx"));
         executionReport.set(new ExecID("123567"));
 
-        Mockito.when(this.orderRegistry.getOpenOrderByIntId(Mockito.anyString())).thenReturn(null);
+        Mockito.when(this.orderExecutionService.getOpenOrderByIntId(Mockito.anyString())).thenReturn(null);
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix42Session());
 
-        Mockito.verify(this.orderRegistry, Mockito.times(1)).getOpenOrderByIntId("123");
+        Mockito.verify(this.orderExecutionService, Mockito.times(1)).getOpenOrderByIntId("123");
         Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
     }
 
@@ -231,7 +234,7 @@ public class TestTTFixOrderMessageHandler {
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(this.future);
         order.setAccount(this.account);
-        Mockito.when(this.orderRegistry.getOpenOrderByIntId("15036f0c9cb")).thenReturn(order);
+        Mockito.when(this.orderExecutionService.getOpenOrderByIntId("15036f0c9cb")).thenReturn(order);
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix42Session());
 
@@ -266,13 +269,13 @@ public class TestTTFixOrderMessageHandler {
         order1.setIntId("150370a3871");
         order1.setSecurity(this.future);
         order1.setAccount(this.account);
-        Mockito.when(this.orderRegistry.getOpenOrderByIntId("150370a3871")).thenReturn(order1);
+        Mockito.when(this.orderExecutionService.getOpenOrderByIntId("150370a3871")).thenReturn(order1);
 
         MarketOrder order2 = new MarketOrderImpl();
         order2.setIntId("150370a3913");
         order2.setSecurity(this.future);
         order2.setAccount(this.account);
-        Mockito.when(this.orderRegistry.getOpenOrderByIntId("150370a3913")).thenReturn(order2);
+        Mockito.when(this.orderExecutionService.getOpenOrderByIntId("150370a3913")).thenReturn(order2);
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix42Session());
 
@@ -382,7 +385,7 @@ public class TestTTFixOrderMessageHandler {
         order.setSecurity(this.future);
         order.setAccount(this.account);
 
-        Mockito.when(this.orderRegistry.getOpenOrderByIntId("ttt5.0")).thenReturn(order);
+        Mockito.when(this.orderExecutionService.getOpenOrderByIntId("ttt5.0")).thenReturn(order);
 
         this.impl.onMessage(businessMessageReject, FixTestUtils.fakeFix42Session());
 

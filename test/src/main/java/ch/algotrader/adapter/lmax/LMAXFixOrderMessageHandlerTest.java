@@ -46,7 +46,8 @@ import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.AbstractEngine;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.event.dispatch.EventDispatcher;
-import ch.algotrader.ordermgmt.OrderRegistry;
+import ch.algotrader.service.OrderExecutionService;
+import ch.algotrader.service.TransactionService;
 import quickfix.SessionID;
 import quickfix.SessionSettings;
 import quickfix.field.ClOrdID;
@@ -65,7 +66,8 @@ public class LMAXFixOrderMessageHandlerTest extends FixApplicationTestBase {
 
     private LinkedBlockingQueue<Object> eventQueue;
     private EventDispatcher eventDispatcher;
-    private OrderRegistry orderRegistry;
+    private OrderExecutionService orderExecutionService;
+    private TransactionService transactionService;
     private LMAXFixOrderMessageHandler messageHandler;
 
     @Before
@@ -98,8 +100,9 @@ public class LMAXFixOrderMessageHandlerTest extends FixApplicationTestBase {
 
         DefaultLogonMessageHandler logonHandler = new DefaultLogonMessageHandler(settings);
 
-        this.orderRegistry = Mockito.mock(OrderRegistry.class);
-        LMAXFixOrderMessageHandler messageHandlerImpl = new LMAXFixOrderMessageHandler(this.orderRegistry, engine);
+        this.orderExecutionService = Mockito.mock(OrderExecutionService.class);
+        this.transactionService = Mockito.mock(TransactionService.class);
+        LMAXFixOrderMessageHandler messageHandlerImpl = new LMAXFixOrderMessageHandler(this.orderExecutionService, this.transactionService, engine);
         this.messageHandler = Mockito.spy(messageHandlerImpl);
 
         DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, this.messageHandler, logonHandler,
@@ -134,7 +137,7 @@ public class LMAXFixOrderMessageHandlerTest extends FixApplicationTestBase {
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(forex);
 
-        Mockito.when(this.orderRegistry.getByIntId(orderId)).thenReturn(order);
+        Mockito.when(this.orderExecutionService.getOpenOrderByIntId(orderId)).thenReturn(order);
 
         this.session.send(orderSingle);
 
@@ -217,7 +220,7 @@ public class LMAXFixOrderMessageHandlerTest extends FixApplicationTestBase {
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(forex);
 
-        Mockito.when(this.orderRegistry.getByIntId(orderId1)).thenReturn(order);
+        Mockito.when(this.orderExecutionService.getOpenOrderByIntId(orderId1)).thenReturn(order);
 
         this.session.send(orderSingle);
 
@@ -241,7 +244,7 @@ public class LMAXFixOrderMessageHandlerTest extends FixApplicationTestBase {
         cancelRequest.set(new TransactTime(new Date()));
         cancelRequest.set(new OrderQty(10.0d));
 
-        Mockito.when(this.orderRegistry.getByIntId(orderId2)).thenReturn(order);
+        Mockito.when(this.orderExecutionService.getOpenOrderByIntId(orderId2)).thenReturn(order);
 
         this.session.send(cancelRequest);
 

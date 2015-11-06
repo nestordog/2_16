@@ -31,7 +31,8 @@ import ch.algotrader.adapter.ftx.FTXFixMarketDataMessageHandler;
 import ch.algotrader.adapter.ftx.FTXFixOrderMessageHandler;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.event.dispatch.EventDispatcher;
-import ch.algotrader.ordermgmt.OrderRegistry;
+import ch.algotrader.service.OrderExecutionService;
+import ch.algotrader.service.TransactionService;
 import quickfix.SessionSettings;
 
 /**
@@ -60,12 +61,13 @@ public class FTXFixWiring {
     @Profile("fTXFix")
     @Bean(name = "fTXOrderApplicationFactory")
     public FixApplicationFactory createFTXOrderApplicationFactory(
-            final OrderRegistry orderRegistry,
+            final OrderExecutionService orderExecutionService,
+            final TransactionService transactionService,
             final Engine serverEngine,
             final DefaultLogonMessageHandler fTXLogonMessageHandler,
             final ExternalSessionStateHolder fTXOrderSessionStateHolder) {
 
-        FTXFixOrderMessageHandler cnxFixOrderMessageHandler = new FTXFixOrderMessageHandler(orderRegistry, serverEngine);
+        FTXFixOrderMessageHandler cnxFixOrderMessageHandler = new FTXFixOrderMessageHandler(orderExecutionService, transactionService, serverEngine);
         return new DefaultFixApplicationFactory(cnxFixOrderMessageHandler, fTXLogonMessageHandler, fTXOrderSessionStateHolder);
     }
 

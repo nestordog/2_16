@@ -38,7 +38,8 @@ import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.ordermgmt.OrderRegistry;
+import ch.algotrader.service.OrderExecutionService;
+import ch.algotrader.service.TransactionService;
 import ch.algotrader.util.PriceUtil;
 import ch.algotrader.util.RoundUtil;
 import quickfix.FieldNotFound;
@@ -59,8 +60,8 @@ public class GenericFix42OrderMessageHandler extends AbstractFix42OrderMessageHa
 
     private static final Logger LOGGER = LogManager.getLogger(GenericFix42OrderMessageHandler.class);
 
-    public GenericFix42OrderMessageHandler(final OrderRegistry orderRegistry, final Engine serverEngine) {
-        super(orderRegistry, serverEngine);
+    public GenericFix42OrderMessageHandler(final OrderExecutionService orderExecutionService, final TransactionService transactionService, final Engine serverEngine) {
+        super(orderExecutionService, transactionService, serverEngine);
     }
 
     @Override

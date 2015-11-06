@@ -23,7 +23,6 @@ import java.util.Map;
 
 import ch.algotrader.entity.trade.ExecutionStatusVO;
 import ch.algotrader.entity.trade.Order;
-import ch.algotrader.entity.trade.OrderCompletionVO;
 import ch.algotrader.entity.trade.OrderDetailsVO;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.entity.trade.OrderVO;
@@ -93,16 +92,6 @@ public interface OrderService {
     public void modifyOrder(OrderVO order);
 
     /**
-     * Propagates an {@link OrderStatus} to the corresponding Strategy.
-     */
-    public void propagateOrderStatus(OrderStatus orderStatus);
-
-    /**
-     * Propagates an {@link OrderCompletionVO} to the corresponding Strategy.
-     */
-    public void propagateOrderCompletion(OrderCompletionVO orderCompletion);
-
-    /**
      * Generates next order intId for the given account.
      */
     public String getNextOrderId(long accountId);
@@ -122,6 +111,11 @@ public interface OrderService {
      * if an order with this {@code IntId} has been fully executed.
      */
     ExecutionStatusVO getStatusByIntId(String intId);
+
+    /**
+     * Gets an open order by its {@code intId}.
+     */
+    public Order getOpenOrderByIntId(String intId);
 
     /**
      * Gets an order (open or completed) by its {@code intId}.
