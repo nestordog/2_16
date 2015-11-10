@@ -24,12 +24,19 @@ import ch.algotrader.adapter.fix.DropCopyAllocationVO;
 import ch.algotrader.adapter.fix.DropCopyAllocator;
 import ch.algotrader.adapter.fix.fix42.GenericFix42OrderMessageHandler;
 import ch.algotrader.entity.trade.ExternalFill;
+import ch.algotrader.entity.trade.Order;
+import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.ordermgmt.OrderRegistry;
 import quickfix.FieldNotFound;
+import quickfix.SessionID;
 import quickfix.field.ExecTransType;
 import quickfix.field.ExecType;
+import quickfix.field.MsgSeqNum;
+import quickfix.field.MsgType;
+import quickfix.field.SendingTime;
+import quickfix.fix42.BusinessMessageReject;
 import quickfix.fix42.ExecutionReport;
 
 /**
@@ -41,11 +48,13 @@ public class TTFixOrderMessageHandler extends GenericFix42OrderMessageHandler {
 
     private static final Logger LOGGER = LogManager.getLogger(TTFixOrderMessageHandler.class);
 
+    private final OrderRegistry orderRegistry;
     private final Engine serverEngine;
     private final DropCopyAllocator dropCopyAllocator;
 
     public TTFixOrderMessageHandler(final OrderRegistry orderRegistry, final Engine serverEngine, final DropCopyAllocator dropCopyAllocator) {
         super(orderRegistry, serverEngine);
+        this.orderRegistry = orderRegistry;
         this.serverEngine = serverEngine;
         this.dropCopyAllocator = dropCopyAllocator;
     }
@@ -124,6 +133,43 @@ public class TTFixOrderMessageHandler extends GenericFix42OrderMessageHandler {
         if (fill != null) {
             this.serverEngine.sendEvent(fill);
         }
+    }
+
+    @Override
+    public void onMessage(final BusinessMessageReject reject, final SessionID sessionID) throws FieldNotFound {
+
+        String refMsgType = reject.getRefMsgType().getValue();
+        if (refMsgType.equalsIgnoreCase(MsgType.ORDER_SINGLE) && reject.isSetBusinessRejectRefID()) {
+            String intId = reject.getBusinessRejectRefID().getValue();
+            Order order = this.orderRegistry.getOpenOrderByIntId(intId);
+            if (order != null) {
+                if (LOGGER.isErrorEnabled()) {
+
+                    StringBuilder buf = new StringBuilder();
+                    buf.append("Order with IntID ").append(intId).append(" has been rejected");
+                    if (reject.isSetText()) {
+
+                        buf.append("; reason given: ").append(reject.getText().getValue());
+                    }
+                    LOGGER.error(buf.toString());
+                }
+
+                OrderStatus orderStatus = OrderStatus.Factory.newInstance();
+                orderStatus.setStatus(Status.REJECTED);
+                orderStatus.setIntId(intId);
+                orderStatus.setSequenceNumber(reject.getHeader().getInt(MsgSeqNum.FIELD));
+                orderStatus.setOrder(order);
+                orderStatus.setExtDateTime(reject.getHeader().getUtcTimeStamp(SendingTime.FIELD));
+                if (reject.isSetBusinessRejectReason()) {
+
+                    orderStatus.setReason(reject.getText().getValue());
+                }
+
+                this.serverEngine.sendEvent(orderStatus);
+                return;
+            }
+        }
+        super.onMessage(reject, sessionID);
     }
 
     private Status getStatus(final char execType) {

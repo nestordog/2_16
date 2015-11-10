@@ -56,6 +56,7 @@ import quickfix.field.ClOrdID;
 import quickfix.field.ExecID;
 import quickfix.field.ExecType;
 import quickfix.field.OrderID;
+import quickfix.fix42.BusinessMessageReject;
 import quickfix.fix42.ExecutionReport;
 
 /**
@@ -367,6 +368,42 @@ public class TestTTFixOrderMessageHandler {
         Assert.assertEquals(Side.BUY, fill1.getSide());
         Assert.assertEquals(1, fill1.getQuantity());
         Assert.assertEquals(new BigDecimal("4644"), fill1.getPrice());
+    }
+
+    @Test
+    public void testBusinessReject() throws Exception {
+        String s = "8=FIX.4.2|9=00129|35=j|49=TTDEV14O|56=RATKODTS2|50=NONE|57=NONE|34=4|52=20151110-13:21:20.125|" +
+                "379=ttt5.0|372=D|58=Duplicate ClOrdID(11)|45=4|380=0|10=097|";
+
+        BusinessMessageReject businessMessageReject = FixTestUtils.parseFix42Message(s, DATA_DICTIONARY, BusinessMessageReject.class);
+        Assert.assertNotNull(businessMessageReject);
+
+        MarketOrder order = new MarketOrderImpl();
+        order.setSecurity(this.future);
+        order.setAccount(this.account);
+
+        Mockito.when(this.orderRegistry.getOpenOrderByIntId("ttt5.0")).thenReturn(order);
+
+        this.impl.onMessage(businessMessageReject, FixTestUtils.fakeFix42Session());
+
+        ArgumentCaptor<Object> argumentCaptor = ArgumentCaptor.forClass(Object.class);
+        Mockito.verify(this.engine, Mockito.times(1)).sendEvent(argumentCaptor.capture());
+
+        List<Object> events = argumentCaptor.getAllValues();
+        Assert.assertNotNull(events);
+        Assert.assertEquals(1, events.size());
+
+        Object event1 = events.get(0);
+        Assert.assertTrue(event1 instanceof OrderStatus);
+        OrderStatus orderStatus1 = (OrderStatus) event1;
+        Assert.assertEquals("ttt5.0", orderStatus1.getIntId());
+        Assert.assertEquals(null, orderStatus1.getExtId());
+        Assert.assertEquals(Status.REJECTED, orderStatus1.getStatus());
+        Assert.assertSame(order, orderStatus1.getOrder());
+        Assert.assertEquals(0, orderStatus1.getFilledQuantity());
+        Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2015-11-10 13:21:20.125"), orderStatus1.getExtDateTime());
+        Assert.assertEquals(null, orderStatus1.getLastPrice());
+        Assert.assertEquals(null, orderStatus1.getAvgPrice());
     }
 
 }
