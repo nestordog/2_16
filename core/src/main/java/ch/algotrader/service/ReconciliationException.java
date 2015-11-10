@@ -17,18 +17,23 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
-import java.io.File;
-import java.io.IOException;
-
 /**
+ * Signals failure during a reconciliation process.
+ *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  */
-public interface ReconciliationService {
+public class ReconciliationException extends ServiceException {
 
-    /**
-     * invoke the reconciliation process by passing a File.
-     * @param file Name of the File.
-     */
-    void reconcile(File file) throws IOException;
+    public ReconciliationException(String message) {
+        super(message);
+    }
+
+    public ReconciliationException(Exception ex) {
+        super(ex);
+    }
+
+    public ReconciliationException(String message, Throwable ex) {
+        super(message, ex);
+    }
 
 }
