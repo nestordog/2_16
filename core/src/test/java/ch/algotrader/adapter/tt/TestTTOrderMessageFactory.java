@@ -65,7 +65,7 @@ import quickfix.fix42.OrderCancelReplaceRequest;
 public class TestTTOrderMessageFactory {
 
     private Future clNov2015;
-    private Option coffer;
+    private Option coffee;
     private Account account;
     private TTFixOrderMessageFactory requestFactory;
 
@@ -100,15 +100,15 @@ public class TestTTOrderMessageFactory {
         optionFamily.setSymbolRoot("Coffee C");
         optionFamily.setExchange(iceipe);
 
-        this.coffer = Option.Factory.newInstance();
-        this.coffer.setId(2);
-        this.coffer.setSymbol("Coffee C");
-        this.coffer.setDescription("Coffee \"C\" Futures - NYCC");
-        this.coffer.setTtid("92900317");
-        this.coffer.setSecurityFamily(optionFamily);
-        this.coffer.setExpiration(DateTimeLegacy.toLocalDate(DateTimeUtil.parseLocalDate("2015-10-09")));
-        this.coffer.setType(OptionType.CALL);
-        this.coffer.setStrike(new BigDecimal("50.0"));
+        this.coffee = Option.Factory.newInstance();
+        this.coffee.setId(2);
+        this.coffee.setSymbol("Coffee C");
+        this.coffee.setDescription("Coffee \"C\" Futures - NYCC");
+        this.coffee.setTtid("92900317");
+        this.coffee.setSecurityFamily(optionFamily);
+        this.coffee.setExpiration(DateTimeLegacy.toLocalDate(DateTimeUtil.parseLocalDate("2015-10-09")));
+        this.coffee.setType(OptionType.CALL);
+        this.coffee.setStrike(new BigDecimal("50.0"));
 
         this.account = Account.Factory.newInstance();
         this.account.setName("TT_TEST");
@@ -147,7 +147,7 @@ public class TestTTOrderMessageFactory {
     public void testMarketOrderOption() throws Exception {
 
         MarketOrder order = new MarketOrderImpl();
-        order.setSecurity(this.coffer);
+        order.setSecurity(this.coffee);
         order.setSide(Side.BUY);
         order.setQuantity(3);
         order.setAccount(this.account);
@@ -173,7 +173,11 @@ public class TestTTOrderMessageFactory {
     @Test(expected = FixApplicationException.class)
     public void testOrderForexUnsupportedSecurityType() throws Exception {
 
+        Exchange cme = Exchange.Factory.newInstance();
+        cme.setName("CME");
+
         SecurityFamily securityFamily = SecurityFamily.Factory.newInstance();
+        securityFamily.setExchange(cme);
         Stock stock = new StockImpl();
         stock.setSecurityFamily(securityFamily);
         stock.setSymbol("GOOG");
