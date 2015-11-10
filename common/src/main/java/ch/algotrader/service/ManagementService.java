@@ -344,6 +344,6 @@ public interface ManagementService {
     /**
      * Shutdown this JVM
      */
-    public void shutdown();
+    public void cancelAllOrders();
 
 }

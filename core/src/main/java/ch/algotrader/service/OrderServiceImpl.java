@@ -459,6 +459,9 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
     public void cancelAllOrders() {
 
         final List<Order> orders = this.orderRegistry.getAllOpenOrders();
+        if (LOGGER.isInfoEnabled() && !orders.isEmpty()) {
+            LOGGER.info("Canceling {} open orders", orders.size());
+        }
         for (Order order: orders) {
             cancelOrder(order);
         }
