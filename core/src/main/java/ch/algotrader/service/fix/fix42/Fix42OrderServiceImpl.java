@@ -97,7 +97,7 @@ public abstract class Fix42OrderServiceImpl extends FixOrderServiceImpl implemen
         Validate.notNull(order, "Order is null");
 
         // assign a new clOrdID
-        String clOrdID = getFixAdapter().getNextOrderIdVersion(order);
+        String clOrdID = this.orderRegistry.getNextOrderIdRevision(order.getIntId());
 
         OrderCancelReplaceRequest replaceRequest = this.messageFactory.createModifyOrderMessage(order, clOrdID);
 
@@ -121,7 +121,7 @@ public abstract class Fix42OrderServiceImpl extends FixOrderServiceImpl implemen
         Validate.notNull(order, "Order is null");
 
         // assign a new clOrdID
-        String clOrdID = getFixAdapter().getNextOrderIdVersion(order);
+        String clOrdID = this.orderRegistry.getNextOrderIdRevision(order.getIntId());
 
         OrderCancelRequest cancelRequest = this.messageFactory.createOrderCancelMessage(order, clOrdID);
 

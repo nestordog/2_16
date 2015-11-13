@@ -18,7 +18,6 @@
 package ch.algotrader.adapter.fix;
 
 import ch.algotrader.entity.Account;
-import ch.algotrader.entity.trade.Order;
 import quickfix.Message;
 
 /**
@@ -64,11 +63,6 @@ public interface FixAdapter {
      * Gets the next {@code orderId} for the specified {@code account}
      */
     String getNextOrderId(Account account);
-
-    /**
-     * Gets the next {@code orderIdVersion} based on the specified {@code order}
-     */
-    String getNextOrderIdVersion(Order order);
 
     /**
      * Sets the current order count for the given session qualifier.

@@ -29,7 +29,6 @@ import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.adapter.OrderIdGenerator;
 import ch.algotrader.entity.Account;
-import ch.algotrader.entity.trade.Order;
 import ch.algotrader.service.LookupService;
 import quickfix.ConfigError;
 import quickfix.FieldConvertError;
@@ -203,17 +202,6 @@ public class DefaultFixAdapter implements FixAdapter {
 
         String sessionQualifier = account.getSessionQualifier();
         return this.orderIdGenerator.getNextOrderId(sessionQualifier);
-    }
-
-    /**
-     * Gets the next {@code orderIdVersion} based on the specified {@code order}
-     */
-    @Override
-    public String getNextOrderIdVersion(Order order) {
-
-        String[] segments = order.getIntId().split("\\.");
-
-        return segments[0] + "." + (Integer.parseInt(segments[1]) + 1);
     }
 
     /**

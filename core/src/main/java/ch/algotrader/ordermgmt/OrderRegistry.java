@@ -91,6 +91,11 @@ public interface OrderRegistry {
     List<Order> getOpenOrdersByParentIntId(String parentIntId);
 
     /**
+     * Returns next revision {@code IntId} based on the specified {@code IntId}.
+     */
+    String getNextOrderIdRevision(String intId);
+
+    /**
      * Evicts completed orders.
      */
     void evictCompleted();
