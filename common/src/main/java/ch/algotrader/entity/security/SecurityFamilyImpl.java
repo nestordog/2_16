@@ -148,9 +148,7 @@ public class SecurityFamilyImpl extends SecurityFamily {
     @Override
     public double getPriceMultiplier(String broker) {
 
-        Validate.notNull(broker, "String cannot be null");
-
-        BrokerParameters brokerParams = getBrokerParameters().get(broker);
+        BrokerParameters brokerParams = broker != null ? getBrokerParameters().get(broker) : null;
         if (brokerParams != null && brokerParams.getPriceMultiplier() != null) {
             return brokerParams.getPriceMultiplier();
         } else {

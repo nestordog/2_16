@@ -212,7 +212,7 @@ public class GenericFix42OrderMessageHandler extends AbstractFix42OrderMessageHa
         long quantity = (long) executionReport.getLastShares().getValue();
 
         Account account = allocation.getAccount();
-        String broker = account != null ? account.getBroker() : null;
+        String broker = account != null ? account.getBroker() : getDefaultBroker();
 
         double price = executionReport.getLastPx().getValue();
 
@@ -268,4 +268,10 @@ public class GenericFix42OrderMessageHandler extends AbstractFix42OrderMessageHa
             throw new IllegalArgumentException("unknown execType " + execType.getValue());
         }
     }
+
+    @Override
+    protected String getDefaultBroker() {
+        return null;
+    }
+
 }

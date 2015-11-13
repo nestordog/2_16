@@ -22,10 +22,12 @@ import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.adapter.fix.DropCopyAllocationVO;
 import ch.algotrader.adapter.fix.DropCopyAllocator;
+import ch.algotrader.adapter.fix.FixApplicationException;
 import ch.algotrader.adapter.fix.fix42.GenericFix42OrderMessageHandler;
 import ch.algotrader.entity.trade.ExternalFill;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderStatus;
+import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.ordermgmt.OrderRegistry;
@@ -123,6 +125,13 @@ public class TTFixOrderMessageHandler extends GenericFix42OrderMessageHandler {
             }
             return;
         }
+        if (allocation.getStrategy() == null) {
+            throw new FixApplicationException("External (drop-copy) fill could not be allocated to a strategy");
+        }
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("External (drop-copy) fill {} allocated to " +
+                    "strategy {},  account = {}", extId, allocation.getStrategy(), allocation.getAccount());
+        }
 
         ExternalFill fill = createFill(executionReport, allocation);
 
@@ -192,6 +201,11 @@ public class TTFixOrderMessageHandler extends GenericFix42OrderMessageHandler {
             default:
                 throw new IllegalArgumentException("Unexpected execType: " + execType);
         }
+    }
+
+    @Override
+    protected String getDefaultBroker() {
+        return Broker.TT.name();
     }
 
 }

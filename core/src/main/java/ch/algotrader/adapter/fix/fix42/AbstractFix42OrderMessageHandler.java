@@ -68,6 +68,8 @@ public abstract class AbstractFix42OrderMessageHandler extends AbstractFix42Mess
 
     protected abstract Fill createFill(ExecutionReport executionReport, Order order) throws FieldNotFound;
 
+    protected abstract String getDefaultBroker();
+
     public void onMessage(ExecutionReport executionReport, SessionID sessionID) throws FieldNotFound {
 
         if (discardReport(executionReport)) {
