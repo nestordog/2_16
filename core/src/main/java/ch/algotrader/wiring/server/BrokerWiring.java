@@ -41,6 +41,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import ch.algotrader.broker.CoreToUIEventPublisher;
 import ch.algotrader.broker.EmbeddedActiveMQBroker;
 import ch.algotrader.broker.JMSTopicPublisher;
+import ch.algotrader.broker.MarketDataSubscriptionTopicCreator;
 import ch.algotrader.broker.SimpleTopicCreator;
 import ch.algotrader.broker.StrategyTopicCreator;
 import ch.algotrader.broker.TopicPublisher;
@@ -53,6 +54,7 @@ import ch.algotrader.entity.trade.OrderStatusVO;
 import ch.algotrader.entity.trade.OrderVO;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.json.ObjectMapperFactory;
+import ch.algotrader.vo.marketData.MarketDataSubscriptionVO;
 
 @Configuration
 public class BrokerWiring {
@@ -134,6 +136,8 @@ public class BrokerWiring {
                 new StrategyTopicCreator<>(SubscriptionTopic.POSITION.getBaseTopic(), position -> String.valueOf(position.getId())));
         publisher.register(TransactionVO.class,
                 new StrategyTopicCreator<>(SubscriptionTopic.TRANSACTION.getBaseTopic(), TransactionVO::getUuid));
+        publisher.register(MarketDataSubscriptionVO.class,
+                new MarketDataSubscriptionTopicCreator<>(SubscriptionTopic.MARKET_DATA_SUBSCRIPTION.getBaseTopic()));
 
         return publisher;
     }

@@ -50,8 +50,10 @@ import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.dispatch.EventDispatcher;
+import ch.algotrader.event.dispatch.EventRecipient;
 import ch.algotrader.util.HibernateUtil;
 import ch.algotrader.visitor.TickValidationVisitor;
+import ch.algotrader.vo.marketData.MarketDataSubscriptionVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -223,6 +225,9 @@ public class MarketDataServiceImpl implements MarketDataService {
                     if (!security.getSecurityFamily().isSynthetic()) {
                         getExternalMarketDataService(feedType).subscribe(security);
                     }
+
+                    final MarketDataSubscriptionVO event = new MarketDataSubscriptionVO(strategyName, securityId, feedType, true);
+                    this.eventDispatcher.broadcast(event, EventRecipient.ALL_STRATEGIES);
                 }
             }
 
@@ -281,6 +286,9 @@ public class MarketDataServiceImpl implements MarketDataService {
                 if (security.getSubscriptions().size() == 0) {
                     if (!security.getSecurityFamily().isSynthetic()) {
                         getExternalMarketDataService(feedType).unsubscribe(security);
+
+                        final MarketDataSubscriptionVO event = new MarketDataSubscriptionVO(strategyName, securityId, feedType, false);
+                        this.eventDispatcher.broadcast(event, EventRecipient.ALL_STRATEGIES);
                     }
                 }
             }
