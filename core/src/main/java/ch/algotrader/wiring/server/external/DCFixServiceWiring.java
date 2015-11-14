@@ -45,13 +45,14 @@ public class DCFixServiceWiring {
     @Bean(name = "dCFixOrderService")
     public ExternalOrderService createDCFixOrderService(
             final ManagedFixAdapter fixAdapter,
+            final ExternalSessionStateHolder dCOrderSessionStateHolder,
             final OrderRegistry orderRegistry,
             final OrderPersistenceService orderPersistenceService,
             final OrderDao orderDao,
             final AccountDao accountDao,
             final CommonConfig commonConfig) {
 
-        return new DCFixOrderServiceImpl(fixAdapter, orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig);
+        return new DCFixOrderServiceImpl(fixAdapter, dCOrderSessionStateHolder, orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig);
     }
 
     @Profile("dCMarketData")

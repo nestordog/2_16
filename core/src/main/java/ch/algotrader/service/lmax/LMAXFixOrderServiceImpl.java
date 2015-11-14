@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.service.lmax;
 
+import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.lmax.LMAXFixOrderMessageFactory;
 import ch.algotrader.config.CommonConfig;
@@ -41,13 +42,14 @@ public class LMAXFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fi
 
     public LMAXFixOrderServiceImpl(
             final FixAdapter fixAdapter,
+            final ExternalSessionStateHolder stateHolder,
             final OrderRegistry orderRegistry,
             final OrderPersistenceService orderPersistenceService,
             final OrderDao orderDao,
             final AccountDao accountDao,
             final CommonConfig commonConfig) {
 
-        super(OrderServiceType.LMAX_FIX.name(), fixAdapter, new LMAXFixOrderMessageFactory(),
+        super(OrderServiceType.LMAX_FIX.name(), fixAdapter, stateHolder, new LMAXFixOrderMessageFactory(),
                 orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig);
     }
 

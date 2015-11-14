@@ -65,13 +65,14 @@ public class TTFixServiceWiring {
     @Bean(name = "tTFixOrderService")
     public ExternalOrderService createTTFixOrderService(
             final ManagedFixAdapter fixAdapter,
+            final ExternalSessionStateHolder tTOrderSessionStateHolder,
             final OrderRegistry orderRegistry,
             final OrderPersistenceService orderPersistenceService,
             final OrderDao orderDao,
             final AccountDao accountDao,
             final CommonConfig commonConfig) {
 
-        return new TTFixOrderServiceImpl(fixAdapter, orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig);
+        return new TTFixOrderServiceImpl(fixAdapter, tTOrderSessionStateHolder, orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig);
     }
 
     @Profile("tTReferenceData")

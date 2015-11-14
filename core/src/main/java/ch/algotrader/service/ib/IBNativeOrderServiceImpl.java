@@ -203,8 +203,7 @@ public class IBNativeOrderServiceImpl implements ExternalOrderService, Initializ
         Validate.notNull(order, "Order is null");
 
         if (!this.iBSession.isLoggedOn()) {
-            LOGGER.error("order cannot be cancelled, because IB is not logged on");
-            return;
+            throw new ServiceException("IB session is not logged on");
         }
 
         this.iBSession.cancelOrder(Integer.parseInt(order.getIntId()));
@@ -221,8 +220,7 @@ public class IBNativeOrderServiceImpl implements ExternalOrderService, Initializ
     private void sendOrModifyOrder(SimpleOrder order) {
 
         if (!this.iBSession.isLoggedOn()) {
-            LOGGER.error("order cannot be sent / modified, because IB is not logged on");
-            return;
+            throw new ServiceException("IB session is not logged on");
         }
 
         // get the contract

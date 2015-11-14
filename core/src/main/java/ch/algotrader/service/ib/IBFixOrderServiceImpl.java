@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.service.ib;
 
+import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.ib.IBFixOrderMessageFactory;
 import ch.algotrader.config.CommonConfig;
@@ -40,6 +41,7 @@ public class IBFixOrderServiceImpl extends Fix42OrderServiceImpl implements Fix4
 
     public IBFixOrderServiceImpl(
             final FixAdapter fixAdapter,
+            final ExternalSessionStateHolder stateHolder,
             final OrderRegistry orderRegistry,
             final OrderPersistenceService orderPersistenceService,
             final OrderDao orderDao,
@@ -47,7 +49,7 @@ public class IBFixOrderServiceImpl extends Fix42OrderServiceImpl implements Fix4
             final CommonConfig commonConfig,
             final IBConfig iBConfig) {
 
-        super(OrderServiceType.IB_FIX.name(), fixAdapter, new IBFixOrderMessageFactory(iBConfig),
+        super(OrderServiceType.IB_FIX.name(), fixAdapter, stateHolder, new IBFixOrderMessageFactory(iBConfig),
                 orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig);
     }
 

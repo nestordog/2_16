@@ -23,6 +23,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
+import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.adapter.fix.ManagedFixAdapter;
 import ch.algotrader.adapter.ib.IBCustomMessage;
 import ch.algotrader.config.CommonConfig;
@@ -47,6 +48,7 @@ public class IBFixServiceWiring {
     @Bean(name = "iBFixOrderService")
     public ExternalOrderService createIBFixOrderService(
             final ManagedFixAdapter fixAdapter,
+            final ExternalSessionStateHolder iBOrderSessionStateHolder,
             final OrderRegistry orderRegistry,
             final OrderPersistenceService orderPersistenceService,
             final OrderDao orderDao,
@@ -54,7 +56,7 @@ public class IBFixServiceWiring {
             final CommonConfig commonConfig,
             final IBConfig iBConfig) {
 
-        return new IBFixOrderServiceImpl(fixAdapter, orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig, iBConfig);
+        return new IBFixOrderServiceImpl(fixAdapter, iBOrderSessionStateHolder, orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig, iBConfig);
     }
 
     @Bean(name = "iBFixAllocationService")

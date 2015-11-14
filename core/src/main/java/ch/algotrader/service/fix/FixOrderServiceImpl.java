@@ -29,6 +29,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.dao.AccountDao;
@@ -38,10 +39,10 @@ import ch.algotrader.entity.trade.Order;
 import ch.algotrader.enumeration.InitializingServiceType;
 import ch.algotrader.enumeration.SimpleOrderType;
 import ch.algotrader.enumeration.TIF;
-import ch.algotrader.service.ExternalServiceException;
 import ch.algotrader.service.InitializationPriority;
 import ch.algotrader.service.InitializingServiceI;
 import ch.algotrader.service.OrderPersistenceService;
+import ch.algotrader.service.ServiceException;
 import quickfix.FieldNotFound;
 import quickfix.Message;
 import quickfix.field.MsgType;
@@ -59,6 +60,7 @@ public abstract class FixOrderServiceImpl implements FixOrderService, Initializi
 
     private final String orderServiceType;
     private final FixAdapter fixAdapter;
+    private final ExternalSessionStateHolder stateHolder;
     private final OrderPersistenceService orderPersistenceService;
     private final OrderDao orderDao;
     private final AccountDao accountDao;
@@ -67,6 +69,7 @@ public abstract class FixOrderServiceImpl implements FixOrderService, Initializi
     public FixOrderServiceImpl(
             final String orderServiceType,
             final FixAdapter fixAdapter,
+            final ExternalSessionStateHolder stateHolder,
             final OrderPersistenceService orderPersistenceService,
             final OrderDao orderDao,
             final AccountDao accountDao,
@@ -74,6 +77,7 @@ public abstract class FixOrderServiceImpl implements FixOrderService, Initializi
 
         Validate.notEmpty(orderServiceType, "OrderServiceType is empty");
         Validate.notNull(fixAdapter, "FixAdapter is null");
+        Validate.notNull(stateHolder, "ExternalSessionStateHolder is null");
         Validate.notNull(orderPersistenceService, "OrderPersistenceService is null");
         Validate.notNull(orderDao, "OrderDao is null");
         Validate.notNull(accountDao, "AccountDao is null");
@@ -81,6 +85,7 @@ public abstract class FixOrderServiceImpl implements FixOrderService, Initializi
 
         this.orderServiceType = orderServiceType;
         this.fixAdapter = fixAdapter;
+        this.stateHolder = stateHolder;
         this.orderPersistenceService = orderPersistenceService;
         this.orderDao = orderDao;
         this.accountDao = accountDao;
@@ -124,11 +129,15 @@ public abstract class FixOrderServiceImpl implements FixOrderService, Initializi
         Validate.notNull(order, "Order is null");
         Validate.notNull(message, "Message is null");
 
+        if (!this.stateHolder.isLoggedOn()) {
+            throw new ServiceException("Fix session is not logged on");
+        }
+
         String msgType;
         try {
             msgType = message.getHeader().getString(MsgType.FIELD);
         } catch (FieldNotFound ex) {
-            throw new ExternalServiceException(ex);
+            throw new ServiceException(ex);
         }
 
         if (!this.commonConfig.isSimulation()

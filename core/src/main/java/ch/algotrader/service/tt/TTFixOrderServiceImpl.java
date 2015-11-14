@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.service.tt;
 
+import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.tt.TTFixOrderMessageFactory;
 import ch.algotrader.config.CommonConfig;
@@ -39,13 +40,14 @@ public class TTFixOrderServiceImpl extends Fix42OrderServiceImpl implements Fix4
 
     public TTFixOrderServiceImpl(
             final FixAdapter fixAdapter,
+            final ExternalSessionStateHolder stateHolder,
             final OrderRegistry orderRegistry,
             final OrderPersistenceService orderPersistenceService,
             final OrderDao orderDao,
             final AccountDao accountDao,
             final CommonConfig commonConfig) {
 
-        super(OrderServiceType.TT_FIX.name(), fixAdapter, new TTFixOrderMessageFactory(),
+        super(OrderServiceType.TT_FIX.name(), fixAdapter, stateHolder, new TTFixOrderMessageFactory(),
                 orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig);
     }
 
