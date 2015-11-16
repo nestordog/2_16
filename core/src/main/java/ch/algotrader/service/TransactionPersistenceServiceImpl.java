@@ -24,6 +24,9 @@ import java.util.Map;
 import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.exception.LockAcquisitionException;
+import org.springframework.dao.CannotAcquireLockException;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -108,6 +111,7 @@ public abstract class TransactionPersistenceServiceImpl implements TransactionPe
      * {@inheritDoc}
      */
     @Override
+    @Retryable(maxAttempts = 5, value = {LockAcquisitionException.class, CannotAcquireLockException.class})
     @Transactional(propagation = Propagation.REQUIRED)
     public PositionMutationVO saveTransaction(final Transaction transaction) {
 

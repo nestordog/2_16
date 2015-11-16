@@ -29,8 +29,6 @@ import org.apache.commons.lang.Validate;
 import org.apache.commons.math.util.MathUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.exception.LockAcquisitionException;
-import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -67,8 +65,6 @@ public class TransactionServiceImpl implements TransactionService {
 
     private static final Logger LOGGER = LogManager.getLogger(TransactionServiceImpl.class);
     private static final Logger MAIL_LOGGER = LogManager.getLogger(TransactionServiceImpl.class.getName() + ".MAIL");
-
-    private static final int MAX_COMMIT_TRANSACTION_RETRIES = 5;
 
     private final CommonConfig commonConfig;
 
@@ -403,29 +399,13 @@ public class TransactionServiceImpl implements TransactionService {
         logFillSummary(fills);
     }
 
-    private PositionMutationVO commitTransaction(final Transaction transaction) {
-
-        for (int n = 0;; n++) {
-            try {
-                if (!this.coreConfig.isPositionCheckDisabled()) {
-
-                    this.transactionPersistenceService.ensurePositionAndCashBalance(transaction);
-                }
-                return this.transactionPersistenceService.saveTransaction(transaction);
-            } catch (LockAcquisitionException|CannotAcquireLockException ex) {
-                if (LOGGER.isWarnEnabled()) {
-                    LOGGER.warn("Retrying transaction due to {}", ex.getClass().getName());
-                }
-                if (n >= MAX_COMMIT_TRANSACTION_RETRIES) {
-                    throw ex;
-                }
-            }
-        }
-    }
-
     private void processTransaction(final Transaction transaction) {
 
-        PositionMutationVO positionMutationEvent = commitTransaction(transaction);
+        if (!this.coreConfig.isPositionCheckDisabled()) {
+
+            this.transactionPersistenceService.ensurePositionAndCashBalance(transaction);
+        }
+        PositionMutationVO positionMutationEvent =  this.transactionPersistenceService.saveTransaction(transaction);
 
         // propagate the positionMutationEvent to the corresponding strategy
         if (positionMutationEvent != null) {

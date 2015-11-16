@@ -20,6 +20,9 @@ package ch.algotrader.service;
 import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.exception.LockAcquisitionException;
+import org.springframework.dao.CannotAcquireLockException;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -91,6 +94,7 @@ public class OrderPersistenceServiceImpl implements OrderPersistenceService {
     }
 
     @Override
+    @Retryable(maxAttempts = 5, value = {LockAcquisitionException.class, CannotAcquireLockException.class})
     @Async("orderPersistExecutor")
     @Transactional(propagation = Propagation.REQUIRED)
     public void persistOrder(final Order order) {
@@ -120,6 +124,7 @@ public class OrderPersistenceServiceImpl implements OrderPersistenceService {
     }
 
     @Override
+    @Retryable(maxAttempts = 5, value = {LockAcquisitionException.class, CannotAcquireLockException.class})
     @Async("orderPersistExecutor")
     @Transactional(propagation = Propagation.REQUIRED)
     public void persistOrderStatus(final OrderStatus orderStatus) {
