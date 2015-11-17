@@ -140,9 +140,11 @@ public class LocalEventDispatcher implements EventDispatcher {
     public void sendEvent(final String strategyName, final Object event) {
         // check if it is a local engine
         this.localEventBroadcaster.broadcast(event);
-        final Engine engine = this.engineManager.lookup(strategyName);
-        if (engine != null) {
-            engine.sendEvent(event);
+        if (!StrategyImpl.SERVER.equals(strategyName)) {
+            final Engine engine = this.engineManager.lookup(strategyName);
+            if (engine != null) {
+                engine.sendEvent(event);
+            }
         }
         if (this.internalEventPublisher != null) {
             this.internalEventPublisher.publishStrategyEvent(event, strategyName);

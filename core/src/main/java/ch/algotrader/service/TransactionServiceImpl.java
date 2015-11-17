@@ -415,10 +415,7 @@ public class TransactionServiceImpl implements TransactionService {
 
         // propagate the transaction to the corresponding strategy and AlgoTrader Server
         Strategy strategy = transaction.getStrategy();
-        if (!strategy.isServer()) {
-
-            this.eventDispatcher.sendEvent(strategy.getName(), transaction.convertToVO());
-        }
+        this.eventDispatcher.sendEvent(strategy.getName(), transaction.convertToVO());
 
         this.serverEngine.sendEvent(transaction);
     }

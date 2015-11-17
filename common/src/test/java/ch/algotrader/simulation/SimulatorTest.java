@@ -18,6 +18,7 @@
 package ch.algotrader.simulation;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anySetOf;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
@@ -59,6 +60,7 @@ import ch.algotrader.enumeration.Status;
 import ch.algotrader.enumeration.TransactionType;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.dispatch.EventDispatcher;
+import ch.algotrader.event.dispatch.EventRecipient;
 import ch.algotrader.service.MarketDataCache;
 import ch.algotrader.vo.TradePerformanceVO;
 
@@ -204,7 +206,7 @@ public class SimulatorTest {
         verify(this.eventDispatcher, Mockito.atLeastOnce()).sendEvent(any(String.class), argCaptor2.capture());
 
         List<Object> values2 = argCaptor2.getAllValues();
-        Assert.assertEquals(6, values2.size());
+        Assert.assertEquals(5, values2.size());
 
         Assert.assertEquals(LimitOrderVO.class, values2.get(0).getClass());
         LimitOrderVO orderVO2 = (LimitOrderVO) values2.get(0);
@@ -238,8 +240,14 @@ public class SimulatorTest {
         Assert.assertEquals(order2.getStrategy().getId(), transactionVO2.getStrategyId());
         Assert.assertEquals(order2.getAccount().getId(), transactionVO2.getAccountId());
 
-        Assert.assertEquals(TradePerformanceVO.class, values2.get(5).getClass());
-        TradePerformanceVO tradePerformanceVO = (TradePerformanceVO) values2.get(5);
+        ArgumentCaptor<Object> argCaptor3 = ArgumentCaptor.forClass(Object.class);
+        verify(this.eventDispatcher, Mockito.atLeastOnce()).broadcast(argCaptor3.capture(), anySetOf(EventRecipient.class));
+
+        List<Object> values3 = argCaptor3.getAllValues();
+        Assert.assertEquals(1, values3.size());
+
+        Assert.assertEquals(TradePerformanceVO.class, values3.get(0).getClass());
+        TradePerformanceVO tradePerformanceVO = (TradePerformanceVO) values3.get(0);
         Assert.assertEquals(40, tradePerformanceVO.getProfit(), 0.001);
         Assert.assertEquals(true, tradePerformanceVO.isWinning());
 

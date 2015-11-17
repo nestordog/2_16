@@ -40,7 +40,6 @@ import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.strategy.CashBalance;
 import ch.algotrader.entity.strategy.PortfolioValue;
 import ch.algotrader.entity.strategy.Strategy;
-import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.LimitOrderI;
 import ch.algotrader.entity.trade.Order;
@@ -51,6 +50,7 @@ import ch.algotrader.enumeration.Status;
 import ch.algotrader.enumeration.TransactionType;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.dispatch.EventDispatcher;
+import ch.algotrader.event.dispatch.EventRecipient;
 import ch.algotrader.service.MarketDataCache;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.collection.Pair;
@@ -270,7 +270,7 @@ public class Simulator {
         if (tradePerformance != null && tradePerformance.getProfit() != 0.0) {
 
             // propagate the TradePerformance event
-            this.eventDispatcher.sendEvent(StrategyImpl.SERVER, tradePerformance);
+            this.eventDispatcher.broadcast(tradePerformance, EventRecipient.SERVER_ENGINE_ONLY);
         }
 
         if (LOGGER.isInfoEnabled()) {

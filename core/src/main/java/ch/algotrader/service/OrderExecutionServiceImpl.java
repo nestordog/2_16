@@ -23,7 +23,6 @@ import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.strategy.Strategy;
-import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.entity.trade.AlgoOrder;
 import ch.algotrader.entity.trade.ExecutionStatusVO;
 import ch.algotrader.entity.trade.ExternalFill;
@@ -99,10 +98,7 @@ public class OrderExecutionServiceImpl implements OrderExecutionService {
 
         // send the fill to the strategy that placed the corresponding order
         Strategy strategy = order.getStrategy();
-        if (!strategy.isServer()) {
-
-            this.eventDispatcher.sendEvent(strategy.getName(), orderStatus.convertToVO());
-        }
+        this.eventDispatcher.sendEvent(strategy.getName(), orderStatus.convertToVO());
 
         if (!this.commonConfig.isSimulation()) {
             if (LOGGER.isDebugEnabled()) {
@@ -157,9 +153,7 @@ public class OrderExecutionServiceImpl implements OrderExecutionService {
         Order order = fill.getOrder();
         // send the fill to the strategy that placed the corresponding order
         Strategy strategy = order.getStrategy();
-        if (!strategy.isServer()) {
-            this.eventDispatcher.sendEvent(strategy.getName(), fill.convertToVO());
-        }
+        this.eventDispatcher.sendEvent(strategy.getName(), fill.convertToVO());
 
         if (!this.commonConfig.isSimulation()) {
             if (LOGGER.isInfoEnabled()) {
@@ -221,9 +215,7 @@ public class OrderExecutionServiceImpl implements OrderExecutionService {
 
         Validate.notNull(orderCompletion, "OrderCompletionVO is null");
 
-        if (!StrategyImpl.SERVER.equalsIgnoreCase(orderCompletion.getStrategy())) {
-            this.eventDispatcher.sendEvent(orderCompletion.getStrategy(), orderCompletion);
-        }
+        this.eventDispatcher.sendEvent(orderCompletion.getStrategy(), orderCompletion);
     }
 
     /**

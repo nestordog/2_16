@@ -31,6 +31,7 @@ import org.springframework.jms.support.converter.MessageConverter;
 
 import ch.algotrader.cache.CacheEvictionEventVO;
 import ch.algotrader.entity.marketData.MarketDataEventVO;
+import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.EventBroadcaster;
@@ -80,11 +81,14 @@ public class DistributedEventDispatcher implements EventDispatcher, MessageListe
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
         // check if it is a local engine
-        Engine engine = this.engineManager.lookup(strategyName);
-        if (engine != null) {
-            engine.sendEvent(event);
-        } else {
-            this.remoteEventPublisher.publishStrategyEvent(event, strategyName);
+        if (!StrategyImpl.SERVER.equals(strategyName)) {
+            // check if it is a local engine
+            Engine engine = this.engineManager.lookup(strategyName);
+            if (engine != null) {
+                engine.sendEvent(event);
+            } else {
+                this.remoteEventPublisher.publishStrategyEvent(event, strategyName);
+            }
         }
         if (this.internalEventPublisher != null) {
             this.internalEventPublisher.publishStrategyEvent(event, strategyName);
