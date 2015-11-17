@@ -71,6 +71,14 @@ public class FXCMFixOrderMessageHandler extends AbstractFix44OrderMessageHandler
     }
 
     @Override
+    protected void handleRestated(final ExecutionReport executionReport, final Order order) throws FieldNotFound {
+
+        if (LOGGER.isErrorEnabled()) {
+            LOGGER.error("Cannot re-state order with IntID {}", order.getIntId());
+        }
+    }
+
+    @Override
     protected boolean discardReport(final ExecutionReport executionReport) throws FieldNotFound {
 
         // ignore PENDING_NEW, PENDING_CANCEL and PENDING_REPLACE
@@ -99,6 +107,12 @@ public class FXCMFixOrderMessageHandler extends AbstractFix44OrderMessageHandler
 
         ExecType execType = executionReport.getExecType();
         return execType.getValue() == ExecType.REPLACE;
+    }
+
+    @Override
+    protected boolean isOrderRestated(final ExecutionReport executionReport) throws FieldNotFound {
+        ExecType execType = executionReport.getExecType();
+        return execType.getValue() == ExecType.RESTATED;
     }
 
     @Override

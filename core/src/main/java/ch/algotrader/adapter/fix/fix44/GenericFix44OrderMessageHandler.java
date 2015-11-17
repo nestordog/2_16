@@ -94,6 +94,14 @@ public class GenericFix44OrderMessageHandler extends AbstractFix44OrderMessageHa
     }
 
     @Override
+    protected void handleRestated(final ExecutionReport executionReport, final Order order) throws FieldNotFound {
+
+        if (LOGGER.isErrorEnabled()) {
+            LOGGER.error("Cannot re-state order with IntID {}", order.getIntId());
+        }
+    }
+
+    @Override
     protected boolean isOrderRejected(final ExecutionReport executionReport) throws FieldNotFound {
 
         ExecType execType = executionReport.getExecType();
@@ -105,6 +113,12 @@ public class GenericFix44OrderMessageHandler extends AbstractFix44OrderMessageHa
 
         ExecType execType = executionReport.getExecType();
         return execType.getValue() == ExecType.REPLACE;
+    }
+
+    @Override
+    protected boolean isOrderRestated(final ExecutionReport executionReport) throws FieldNotFound {
+        ExecType execType = executionReport.getExecType();
+        return execType.getValue() == ExecType.RESTATED;
     }
 
     @Override
