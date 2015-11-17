@@ -80,18 +80,27 @@ public abstract class AbstractFix42OrderMessageHandler extends AbstractFix42Mess
             return;
         }
 
-        if (!executionReport.isSetClOrdID()) {
-
-            handleExternal(executionReport);
-            return;
-        }
-
         String orderIntId;
         ExecType execType = executionReport.getExecType();
         if (execType.getValue() == ExecType.CANCELED) {
-            orderIntId = executionReport.getOrigClOrdID().getValue();
+            if (executionReport.isSetOrigClOrdID()) {
+                orderIntId = executionReport.getOrigClOrdID().getValue();
+            } else {
+                String orderExtId = executionReport.getOrderID().getValue();
+                orderIntId = this.orderExecutionService.lookupIntId(orderExtId);
+            }
         } else {
-            orderIntId = executionReport.getClOrdID().getValue();
+            if (executionReport.isSetClOrdID()) {
+                orderIntId = executionReport.getClOrdID().getValue();
+            } else {
+                String orderExtId = executionReport.getOrderID().getValue();
+                orderIntId = this.orderExecutionService.lookupIntId(orderExtId);
+            }
+        }
+        if (orderIntId == null) {
+
+            handleUnknown(executionReport);
+            return;
         }
 
         // check ExecTransType

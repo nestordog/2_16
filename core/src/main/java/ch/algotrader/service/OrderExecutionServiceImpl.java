@@ -85,7 +85,8 @@ public class OrderExecutionServiceImpl implements OrderExecutionService {
             throw new ServiceException("Open order with IntID " + intId + " not found");
         }
 
-        this.orderRegistry.updateExecutionStatus(order.getIntId(), orderStatus.getStatus(), orderStatus.getFilledQuantity(), orderStatus.getRemainingQuantity());
+        this.orderRegistry.updateExecutionStatus(order.getIntId(), orderStatus.getExtId(), orderStatus.getStatus(),
+                orderStatus.getFilledQuantity(), orderStatus.getRemainingQuantity());
 
         if (orderStatus.getDateTime() == null) {
             if (orderStatus.getExtDateTime() != null) {
@@ -164,6 +165,15 @@ public class OrderExecutionServiceImpl implements OrderExecutionService {
         if (!StrategyImpl.SERVER.equalsIgnoreCase(orderCompletion.getStrategy())) {
             this.eventDispatcher.sendEvent(orderCompletion.getStrategy(), orderCompletion);
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String lookupIntId(final String extId) {
+
+        return this.orderRegistry.lookupIntId(extId);
     }
 
     /**

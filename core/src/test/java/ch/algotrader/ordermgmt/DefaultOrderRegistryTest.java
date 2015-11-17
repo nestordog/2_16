@@ -201,4 +201,19 @@ public class DefaultOrderRegistryTest {
         Assert.assertSame(order3, this.impl.getByIntId("Booh"));
     }
 
+    @Test
+    public void testExtIdLookup() {
+
+        Order order = MarketOrder.Factory.newInstance();
+        order.setIntId("Blah");
+        order.setQuantity(123L);
+
+        this.impl.add(order);
+        Assert.assertEquals(null, this.impl.lookupIntId("Blah"));
+        this.impl.updateExecutionStatus("Blah", "Blah-Ext", Status.SUBMITTED, 0L, 123L);
+        Assert.assertEquals("Blah", this.impl.lookupIntId("Blah-Ext"));
+        this.impl.updateExecutionStatus("Blah", "---", Status.PARTIALLY_EXECUTED, 23L, 100L);
+        Assert.assertEquals("Blah", this.impl.lookupIntId("Blah-Ext"));
+    }
+
 }

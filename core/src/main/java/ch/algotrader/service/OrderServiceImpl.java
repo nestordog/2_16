@@ -678,7 +678,8 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
 
             OrderStatus orderStatus = entry.getValue();
             if (orderStatus != null) {
-                this.orderRegistry.updateExecutionStatus(order.getIntId(), orderStatus.getStatus(), orderStatus.getFilledQuantity(), orderStatus.getRemainingQuantity());
+                this.orderRegistry.updateExecutionStatus(order.getIntId(), order.getExtId(), orderStatus.getStatus(),
+                        orderStatus.getFilledQuantity(), orderStatus.getRemainingQuantity());
             }
         }
     }

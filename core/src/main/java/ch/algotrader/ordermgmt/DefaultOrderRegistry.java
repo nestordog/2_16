@@ -44,12 +44,14 @@ import ch.algotrader.enumeration.Status;
 public class DefaultOrderRegistry implements OrderRegistry {
 
     private final ConcurrentMap<String, Order> orderMap;
+    private final ConcurrentMap<String, String> extIdToIntIdMap;
     private final ConcurrentMap<String, OrderDetailsVO> orderExecMap;
     private final ConcurrentMap<String, AtomicLong> revisionMap;
     private final Deque<OrderDetailsVO> completedOrders;
 
     public DefaultOrderRegistry() {
         this.orderMap = new ConcurrentHashMap<>();
+        this.extIdToIntIdMap = new ConcurrentHashMap<>();
         this.orderExecMap = new ConcurrentHashMap<>();
         this.revisionMap = new ConcurrentHashMap<>();
         this.completedOrders = new ConcurrentLinkedDeque<>();
@@ -113,7 +115,7 @@ public class DefaultOrderRegistry implements OrderRegistry {
     }
 
     @Override
-    public void updateExecutionStatus(final String intId, final Status status, final long filledQuantity, final long remainingQuantity) {
+    public void updateExecutionStatus(final String intId, final String extId, final Status status, final long filledQuantity, final long remainingQuantity) {
 
         Validate.notNull(intId, "Order IntId is null");
         OrderDetailsVO entry = this.orderExecMap.get(intId);
@@ -128,6 +130,17 @@ public class DefaultOrderRegistry implements OrderRegistry {
         } else {
             this.orderExecMap.replace(intId, entry, updatedEntry);
         }
+        if (status == Status.SUBMITTED && extId != null) {
+            this.extIdToIntIdMap.put(extId, intId);
+        }
+    }
+
+    @Override
+    public String lookupIntId(final String extId) {
+        if (extId != null) {
+            return this.extIdToIntIdMap.get(extId);
+        }
+        return null;
     }
 
     @Override
@@ -165,6 +178,13 @@ public class DefaultOrderRegistry implements OrderRegistry {
         this.revisionMap.clear();
         for (Iterator<Map.Entry<String, Order>> it = this.orderMap.entrySet().iterator(); it.hasNext(); ) {
             Map.Entry<String, Order> entry = it.next();
+            String intId = entry.getKey();
+            if (!this.orderExecMap.containsKey(intId)) {
+                it.remove();
+            }
+        }
+        for (Iterator<Map.Entry<String, String>> it = this.extIdToIntIdMap.entrySet().iterator(); it.hasNext(); ) {
+            Map.Entry<String, String> entry = it.next();
             String intId = entry.getKey();
             if (!this.orderExecMap.containsKey(intId)) {
                 it.remove();

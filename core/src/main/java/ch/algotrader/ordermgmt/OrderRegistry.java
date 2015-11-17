@@ -66,9 +66,18 @@ public interface OrderRegistry {
     ExecutionStatusVO getStatusByIntId(String intId);
 
     /**
-     * Updates execution status of the order with the given {@code IntId}.
+     * Updates execution status of the order with the given {@code IntId} and optional {@code ExtId}.
      */
-    void updateExecutionStatus(String intId, Status status, long filledQuantity, long remainingQuantity);
+    void updateExecutionStatus(String intId, String extId, Status status, long filledQuantity, long remainingQuantity);
+
+    default void updateExecutionStatus(String intId, Status status, long filledQuantity, long remainingQuantity) {
+        updateExecutionStatus(intId, null, status, filledQuantity, remainingQuantity);
+    }
+
+    /**
+     * Looks up  {@code IntId} by {@code ExtId}.
+     */
+    String lookupIntId(String extId);
 
     /**
      * Returns all open orders.

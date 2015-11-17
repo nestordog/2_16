@@ -51,6 +51,11 @@ public interface OrderExecutionService {
     void handleOrderCompletion(final OrderCompletionVO orderCompletion);
 
     /**
+     * Looks up  {@code IntId} by {@code ExtId}.
+     */
+    String lookupIntId(String extId);
+
+    /**
      * Gets an open order details by its {@code intId}.
      */
     OrderDetailsVO getOpenOrderDetailsByIntId(String intId);

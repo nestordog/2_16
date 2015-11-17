@@ -409,4 +409,38 @@ public class TestTTFixOrderMessageHandler {
         Assert.assertEquals(null, orderStatus1.getAvgPrice());
     }
 
+    @Test
+    public void testExecutionReportCancelMissingOrigIntId() throws Exception {
+        String s = "8=FIX.4.2|9=00387|35=8|49=TTDEV14O|56=RATKODTS2|50=TTORDDS202001|57=NONE|34=3|52=20151109-15:53:01.991|" +
+                "55=ES|48=00A0LP00ESZ|10455=ESZ5|167=FUT|207=CME|15=USD|1=RATKODTS2|47=A|204=0|10553=RATKODTS2|11=ttt14.0|" +
+                "18203=CME|16142=US,IL|18216=A49004_-1|198=8K6Q|37=0G5EC7014|17=0G5EC7014:1|200=201512|151=0|14=0|54=1|" +
+                "40=2|77=O|59=0|11028=Y|150=4|20=0|39=4|442=1|44=200000|38=1|6=0|60=20151109-15:53:02.439|146=0|10=039|";
+        ExecutionReport executionReport = FixTestUtils.parseFix42Message(s, DATA_DICTIONARY, ExecutionReport.class);
+        Assert.assertNotNull(executionReport);
+
+        MarketOrder order = new MarketOrderImpl();
+        order.setSecurity(this.future);
+        order.setAccount(this.account);
+
+        Mockito.when(this.orderExecutionService.lookupIntId("0G5EC7014")).thenReturn("ttt14.0");
+        Mockito.when(this.orderExecutionService.getOpenOrderByIntId("ttt14.0")).thenReturn(order);
+
+        this.impl.onMessage(executionReport, FixTestUtils.fakeFix42Session());
+
+        ArgumentCaptor<Object> argumentCaptor = ArgumentCaptor.forClass(Object.class);
+        Mockito.verify(this.engine, Mockito.times(1)).sendEvent(argumentCaptor.capture());
+
+        Object event1 = argumentCaptor.getValue();
+        Assert.assertTrue(event1 instanceof OrderStatus);
+        OrderStatus orderStatus1 = (OrderStatus) event1;
+        Assert.assertEquals("ttt14.0", orderStatus1.getIntId());
+        Assert.assertEquals("0G5EC7014", orderStatus1.getExtId());
+        Assert.assertEquals(Status.CANCELED, orderStatus1.getStatus());
+        Assert.assertSame(order, orderStatus1.getOrder());
+        Assert.assertEquals(0, orderStatus1.getFilledQuantity());
+        Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2015-11-09 15:53:02.439"), orderStatus1.getExtDateTime());
+        Assert.assertEquals(null, orderStatus1.getLastPrice());
+        Assert.assertEquals(null, orderStatus1.getAvgPrice());
+    }
+
 }
