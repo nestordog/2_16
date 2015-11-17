@@ -19,6 +19,7 @@ package ch.algotrader.dao.security;
 
 import java.util.Collection;
 import java.util.List;
+
 import ch.algotrader.dao.ReadWriteDao;
 import ch.algotrader.entity.security.Security;
 
@@ -84,6 +85,13 @@ public interface SecurityDao extends ReadWriteDao<Security> {
      * @return Security
      */
     Security findByTtid(String ttid);
+
+    /**
+     * Finds a Security by its {@code LMAX security ID}
+     * @param ttid
+     * @return Security
+     */
+    Security findByLmaxid(String ttid);
 
     /**
      * Finds a Security by its {@code id} incl. In addition the corresponding {@link ch.algotrader.entity.security.SecurityFamily}

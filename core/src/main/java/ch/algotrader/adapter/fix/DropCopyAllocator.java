@@ -18,10 +18,13 @@
 package ch.algotrader.adapter.fix;
 
 /**
+ * Strategy to allocate external fills with the given external security id and
+ * the external account to an internal security, account and strategy.
+ *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  */
 public interface DropCopyAllocator {
 
-    DropCopyAllocationVO allocate(String extId, String extAccount);
+    DropCopyAllocationVO allocate(String extSecurityId, String extAccount);
 
 }

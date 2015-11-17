@@ -29,6 +29,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import ch.algotrader.adapter.fix.DropCopyAllocationVO;
+import ch.algotrader.adapter.fix.DropCopyAllocator;
 import ch.algotrader.adapter.fix.fix44.FixTestUtils;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.AccountImpl;
@@ -36,6 +38,8 @@ import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.ForexImpl;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.SecurityFamilyImpl;
+import ch.algotrader.entity.strategy.StrategyImpl;
+import ch.algotrader.entity.trade.ExternalFill;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.MarketOrder;
 import ch.algotrader.entity.trade.MarketOrderImpl;
@@ -67,6 +71,8 @@ public class TestLMAXFixOrderMessageHandler {
     private TransactionService transactionService;
     @Mock
     private Engine engine;
+    @Mock
+    private DropCopyAllocator dropCopyAllocator;
 
     private LMAXFixOrderMessageHandler impl;
 
@@ -81,7 +87,7 @@ public class TestLMAXFixOrderMessageHandler {
 
         MockitoAnnotations.initMocks(this);
 
-        this.impl = new LMAXFixOrderMessageHandler(this.orderExecutionService, this.transactionService, this.engine);
+        this.impl = new LMAXFixOrderMessageHandler(this.orderExecutionService, this.transactionService, this.engine, this.dropCopyAllocator);
     }
 
     @Test
@@ -180,21 +186,6 @@ public class TestLMAXFixOrderMessageHandler {
         Assert.assertEquals(Side.BUY, fill1.getSide());
         Assert.assertEquals(100000L, fill1.getQuantity());
         Assert.assertEquals(new BigDecimal("1.393"), fill1.getPrice());
-    }
-
-    @Test
-    public void testExecutionReportOrderNotFound() throws Exception {
-
-        ExecutionReport executionReport = new ExecutionReport();
-        executionReport.set(new ExecType(ExecType.NEW));
-        executionReport.set(new ClOrdID("123"));
-
-        Mockito.when(this.orderExecutionService.getOpenOrderByIntId(Mockito.anyString())).thenReturn(null);
-
-        this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
-
-        Mockito.verify(this.orderExecutionService, Mockito.times(1)).getOpenOrderByIntId("123");
-        Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
     }
 
     @Test
@@ -298,6 +289,67 @@ public class TestLMAXFixOrderMessageHandler {
         this.impl.onMessage(reject, FixTestUtils.fakeFix44Session());
 
         Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
+    }
+
+    @Test
+    public void testRejectedExposureCheck() throws Exception {
+        String s = "8=FIX.4.4|9=228|35=8|49=LMXBD|56=AlgotraderCh|34=3|52=20151117-12:33:44.635|1=1832217517|" +
+                "11=4913180808367339310|17=bTVrrQAAAAAHIzfU|527=0|48=4001|22=8|103=0|58=EXPOSURE_CHECK_FAILURE|150=8|" +
+                "14=0|151=0|6=0|54=7|60=20151117-12:33:44.635|39=8|37=0|10=178|";
+        ExecutionReport executionReport = FixTestUtils.parseFix44Message(s, DATA_DICT, ExecutionReport.class);
+        Assert.assertNotNull(executionReport);
+
+        this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
+
+        Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
+    }
+
+    @Test
+    public void testExternalExecutionReportSubmitted() throws Exception {
+        String s = "8=FIX.4.4|9=226|35=8|49=LMXBD|56=AlgotraderCh|34=4|52=20151117-12:34:13.710|1=1832217517|" +
+                "11=4913180808367339317|48=4001|22=8|54=1|37=AAAESQAAAAACj8Dc|59=3|40=1|60=20151117-12:34:13.710|" +
+                "6=0|17=bTVrrQAAAAAHIzft|527=0|39=0|150=0|14=0|151=1|38=1|10=061|";
+        ExecutionReport executionReport = FixTestUtils.parseFix44Message(s, DATA_DICT, ExecutionReport.class);
+        Assert.assertNotNull(executionReport);
+
+        this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
+
+        Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
+    }
+
+    @Test
+    public void testExternalExecutionReportFilled() throws Exception {
+        String s = "8=FIX.4.4|9=263|35=8|49=LMXBD|56=AlgotraderCh|34=5|52=20151117-12:34:13.710|1=1832217517|" +
+                "11=4913180808367339317|48=4001|22=8|54=1|37=AAAESQAAAAACj8Dc|59=3|40=1|60=20151117-12:34:13.710|" +
+                "6=1.06646|17=bTVrrQAAAAAHIzfu|527=QACESAAAAAFMXKJ2|38=1|39=2|150=F|14=1|151=0|32=1|31=1.06646|10=156|";
+        ExecutionReport executionReport = FixTestUtils.parseFix44Message(s, DATA_DICT, ExecutionReport.class);
+        Assert.assertNotNull(executionReport);
+
+        SecurityFamily family = new SecurityFamilyImpl();
+        family.setCurrency(Currency.USD);
+        family.setScale(3);
+
+        Forex forex = new ForexImpl();
+        forex.setSymbol("EUR.USD");
+        forex.setBaseCurrency(Currency.EUR);
+        forex.setSecurityFamily(family);
+
+        Mockito.when(this.dropCopyAllocator.allocate("4001", "1832217517")).thenReturn(
+                new DropCopyAllocationVO(forex, null, new StrategyImpl()));
+
+        this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
+
+        ArgumentCaptor<Object> argumentCaptor = ArgumentCaptor.forClass(Object.class);
+        Mockito.verify(this.engine, Mockito.times(1)).sendEvent(argumentCaptor.capture());
+
+        Object event1 = argumentCaptor.getValue();
+        Assert.assertTrue(event1 instanceof ExternalFill);
+        ExternalFill fill1 = (ExternalFill) event1;
+        Assert.assertEquals("bTVrrQAAAAAHIzfu", fill1.getExtId());
+        Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2015-11-17 12:34:13.710"), fill1.getExtDateTime());
+        Assert.assertEquals(Side.BUY, fill1.getSide());
+        Assert.assertEquals(10000L, fill1.getQuantity());
+        Assert.assertEquals(new BigDecimal("1.066"), fill1.getPrice());
     }
 
 }

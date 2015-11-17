@@ -26,6 +26,7 @@ import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.adapter.fix.DefaultFixApplicationFactory;
 import ch.algotrader.adapter.fix.DefaultFixSessionStateHolder;
 import ch.algotrader.adapter.fix.DefaultLogonMessageHandler;
+import ch.algotrader.adapter.fix.DropCopyAllocator;
 import ch.algotrader.adapter.fix.FixApplicationFactory;
 import ch.algotrader.adapter.lmax.LMAXFixMarketDataMessageHandler;
 import ch.algotrader.adapter.lmax.LMAXFixOrderMessageHandler;
@@ -65,9 +66,10 @@ public class LMAXFixWiring {
             final TransactionService transactionService,
             final Engine serverEngine,
             final DefaultLogonMessageHandler lMAXLogonMessageHandler,
-            final ExternalSessionStateHolder lMAXOrderSessionStateHolder) {
+            final ExternalSessionStateHolder lMAXOrderSessionStateHolder,
+            final DropCopyAllocator lMAXDropCopyAllocator) {
 
-        LMAXFixOrderMessageHandler lMAXFixOrderMessageHandler = new LMAXFixOrderMessageHandler(orderExecutionService, transactionService, serverEngine);
+        LMAXFixOrderMessageHandler lMAXFixOrderMessageHandler = new LMAXFixOrderMessageHandler(orderExecutionService, transactionService, serverEngine, lMAXDropCopyAllocator);
         return new DefaultFixApplicationFactory(lMAXFixOrderMessageHandler, lMAXLogonMessageHandler, lMAXOrderSessionStateHolder);
     }
 

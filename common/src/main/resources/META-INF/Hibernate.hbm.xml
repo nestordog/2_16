@@ -1020,6 +1020,13 @@
     ]]>
     </query>
 
+    <query name='Security.findByLmaxid'>
+        <![CDATA[
+        from SecurityImpl as s
+        where s.lmaxid = :lmaxid
+    ]]>
+    </query>
+
     <query name='Security.findByTtid'>
         <![CDATA[
         from SecurityImpl as s

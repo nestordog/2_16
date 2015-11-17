@@ -30,6 +30,7 @@ import org.mockito.Mockito;
 import ch.algotrader.adapter.fix.DefaultFixApplication;
 import ch.algotrader.adapter.fix.DefaultFixSessionStateHolder;
 import ch.algotrader.adapter.fix.DefaultLogonMessageHandler;
+import ch.algotrader.adapter.fix.DropCopyAllocator;
 import ch.algotrader.adapter.fix.FixApplicationTestBase;
 import ch.algotrader.adapter.fix.FixConfigUtils;
 import ch.algotrader.entity.security.Forex;
@@ -68,6 +69,7 @@ public class LMAXFixOrderMessageHandlerTest extends FixApplicationTestBase {
     private EventDispatcher eventDispatcher;
     private OrderExecutionService orderExecutionService;
     private TransactionService transactionService;
+    private DropCopyAllocator dropCopyAllocator;
     private LMAXFixOrderMessageHandler messageHandler;
 
     @Before
@@ -102,7 +104,8 @@ public class LMAXFixOrderMessageHandlerTest extends FixApplicationTestBase {
 
         this.orderExecutionService = Mockito.mock(OrderExecutionService.class);
         this.transactionService = Mockito.mock(TransactionService.class);
-        LMAXFixOrderMessageHandler messageHandlerImpl = new LMAXFixOrderMessageHandler(this.orderExecutionService, this.transactionService, engine);
+        this.dropCopyAllocator = Mockito.mock(DropCopyAllocator.class);
+        LMAXFixOrderMessageHandler messageHandlerImpl = new LMAXFixOrderMessageHandler(this.orderExecutionService, this.transactionService, engine, this.dropCopyAllocator);
         this.messageHandler = Mockito.spy(messageHandlerImpl);
 
         DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, this.messageHandler, logonHandler,

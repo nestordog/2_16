@@ -160,6 +160,11 @@ public class DCFixOrderMessageHandler extends AbstractFix44OrderMessageHandler {
         }
     }
 
+    @Override
+    protected String getDefaultBroker() {
+        return null;
+    }
+
     private static Status getStatus(OrdStatus ordStatus, CumQty cumQty) {
 
         // Note: DukasCopy uses CALCULATED instead of NEW

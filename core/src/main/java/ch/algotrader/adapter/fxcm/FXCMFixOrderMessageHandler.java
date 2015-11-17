@@ -180,6 +180,11 @@ public class FXCMFixOrderMessageHandler extends AbstractFix44OrderMessageHandler
         }
     }
 
+    @Override
+    protected String getDefaultBroker() {
+        return null;
+    }
+
     private static Status getStatus(OrdStatus ordStatus, ExecType execType, CumQty cumQty) {
 
         if (ordStatus.getValue() == OrdStatus.NEW || ordStatus.getValue() == OrdStatus.PENDING_NEW || ordStatus.getValue() == OrdStatus.REPLACED) {

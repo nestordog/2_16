@@ -44,7 +44,6 @@ import ch.algotrader.util.PriceUtil;
 import ch.algotrader.util.RoundUtil;
 import quickfix.FieldNotFound;
 import quickfix.field.AvgPx;
-import quickfix.field.CumQty;
 import quickfix.field.ExecType;
 import quickfix.field.LastPx;
 import quickfix.field.MsgSeqNum;
@@ -107,7 +106,7 @@ public class GenericFix42OrderMessageHandler extends AbstractFix42OrderMessageHa
     protected OrderStatus createStatus(final ExecutionReport executionReport, final Order order) throws FieldNotFound {
         // get the other fields
         ExecType execType = executionReport.getExecType();
-        Status status = getStatus(execType, executionReport.getCumQty());
+        Status status = getStatus(execType, (long) executionReport.getCumQty().getValue());
         long filledQuantity = (long) executionReport.getCumQty().getValue();
         long remainingQuantity = (long) (executionReport.getOrderQty().getValue() - executionReport.getCumQty().getValue());
         long lastQuantity = executionReport.isSetLastShares() ? (long) executionReport.getLastShares().getValue() : 0L;
@@ -248,7 +247,12 @@ public class GenericFix42OrderMessageHandler extends AbstractFix42OrderMessageHa
         return fill;
     }
 
-    private Status getStatus(ExecType execType, CumQty cumQty) {
+    @Override
+    protected String getDefaultBroker() {
+        return null;
+    }
+
+    static protected Status getStatus(final ExecType execType, final long cumQty) {
 
         if (execType.getValue() == ExecType.NEW) {
             return Status.SUBMITTED;
@@ -260,7 +264,7 @@ public class GenericFix42OrderMessageHandler extends AbstractFix42OrderMessageHa
                 || execType.getValue() == ExecType.DONE_FOR_DAY || execType.getValue() == ExecType.EXPIRED) {
             return Status.CANCELED;
         } else if (execType.getValue() == ExecType.REPLACE) {
-            if (cumQty.getValue() == 0) {
+            if (cumQty == 0) {
                 return Status.SUBMITTED;
             } else {
                 return Status.PARTIALLY_EXECUTED;
@@ -268,11 +272,6 @@ public class GenericFix42OrderMessageHandler extends AbstractFix42OrderMessageHa
         } else {
             throw new IllegalArgumentException("unknown execType " + execType.getValue());
         }
-    }
-
-    @Override
-    protected String getDefaultBroker() {
-        return null;
     }
 
 }
