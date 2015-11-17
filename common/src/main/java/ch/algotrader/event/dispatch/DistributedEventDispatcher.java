@@ -132,6 +132,10 @@ public class DistributedEventDispatcher implements EventDispatcher, MessageListe
         }
         if (recipients.contains(EventRecipient.REMOTE)) {
             this.remoteEventPublisher.publishGenericEvent(event);
+
+            if (this.internalEventPublisher != null) {
+                this.internalEventPublisher.publishGenericEvent(event);
+            }
         }
     }
 

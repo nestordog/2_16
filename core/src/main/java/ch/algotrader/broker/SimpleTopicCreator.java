@@ -15,23 +15,32 @@
  * Aeschstrasse 6
  * 8834 Schindellegi
  ***********************************************************************************/
-package ch.algotrader.service;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+package ch.algotrader.broker;
 
-import ch.algotrader.enumeration.InitializingServiceType;
+import java.util.Optional;
+import java.util.function.Function;
 
-@Documented
-@Target({ElementType.TYPE})
-@Retention(RetentionPolicy.RUNTIME)
-public @interface InitializationPriority {
+import javax.jms.Destination;
 
-    InitializingServiceType value();
+import org.apache.activemq.command.ActiveMQTopic;
 
-    int priority() default 0;
+public class SimpleTopicCreator<T> implements TopicCreator<T> {
+
+    private final String baseTopic;
+    private final Function<T, String> idExtractor;
+
+    public SimpleTopicCreator(final String baseTopic, final Function<T, String> idExtractor) {
+        this.baseTopic = baseTopic;
+        this.idExtractor = idExtractor;
+    }
+
+    public Destination create(final T vo, final Optional<String> strategyName) {
+        StringBuilder buf = new StringBuilder();
+        buf.append(this.baseTopic);
+        buf.append(SEPARATOR);
+        buf.append(idExtractor.apply(vo));
+        return new ActiveMQTopic(buf.toString());
+    }
 
 }

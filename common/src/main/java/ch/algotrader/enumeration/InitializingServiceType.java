@@ -22,7 +22,7 @@ package ch.algotrader.enumeration;
  */
 public enum InitializingServiceType {
 
-    CORE, STATE_LOADER, BROKER_INTERFACE, USER_INTERFACE;
+    CORE, STATE_LOADER, CONNECTOR, BROKER_INTERFACE;
 
     private static final long serialVersionUID = -7991848187098285788L;
 

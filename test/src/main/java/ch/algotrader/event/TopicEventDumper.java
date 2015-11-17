@@ -18,6 +18,7 @@
 package ch.algotrader.event;
 
 import javax.jms.BytesMessage;
+import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.MessageListener;
 import javax.jms.TextMessage;
@@ -41,7 +42,7 @@ public class TopicEventDumper {
         jmsActiveMQFactory.afterPropertiesSet();
         jmsActiveMQFactory.resetConnection();
 
-        ActiveMQTopic topic = new ActiveMQTopic("order-status.>");
+        ActiveMQTopic topic = new ActiveMQTopic(">");
 
         DefaultMessageListenerContainer messageListenerContainer = new DefaultMessageListenerContainer();
         messageListenerContainer.setDestination(topic);
@@ -51,14 +52,15 @@ public class TopicEventDumper {
 
         messageListenerContainer.setMessageListener((MessageListener) message -> {
             try {
+                Destination destination = message.getJMSDestination();
                 if (message instanceof TextMessage) {
                     TextMessage textMessage = (TextMessage) message;
-                    System.out.println(textMessage.getText());
+                    System.out.println(destination + " -> " + textMessage.getText());
                 } else if (message instanceof BytesMessage) {
                     BytesMessage bytesMessage = (BytesMessage) message;
                     byte[] bytes = new byte[(int) bytesMessage.getBodyLength()];
                     bytesMessage.readBytes(bytes);
-                    System.out.println(new String(bytes, Charsets.UTF_8));
+                    System.out.println(destination + " -> " + new String(bytes, Charsets.UTF_8));
                 }
             } catch (JMSException ex) {
                 throw new UnrecoverableCoreException(ex);
@@ -68,7 +70,7 @@ public class TopicEventDumper {
         messageListenerContainer.initialize();
         messageListenerContainer.start();
 
-        System.out.println("Dumping messages from topic");
+        System.out.println("Dumping messages from all topics");
 
         Runtime.getRuntime().addShutdownHook(new Thread(messageListenerContainer::stop));
 

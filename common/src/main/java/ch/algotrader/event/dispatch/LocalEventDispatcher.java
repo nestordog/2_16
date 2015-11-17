@@ -74,6 +74,11 @@ public class LocalEventDispatcher implements EventDispatcher {
                 engine.sendEvent(event);
             }
         }
+        if (recipients.contains(EventRecipient.REMOTE)) {
+            if (this.internalEventPublisher != null) {
+                this.internalEventPublisher.publishGenericEvent(event);
+            }
+        }
     }
 
     @Override

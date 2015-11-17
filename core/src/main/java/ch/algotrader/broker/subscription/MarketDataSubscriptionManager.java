@@ -15,23 +15,28 @@
  * Aeschstrasse 6
  * 8834 Schindellegi
  ***********************************************************************************/
-package ch.algotrader.service;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+package ch.algotrader.broker.subscription;
 
-import ch.algotrader.enumeration.InitializingServiceType;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-@Documented
-@Target({ElementType.TYPE})
-@Retention(RetentionPolicy.RUNTIME)
-public @interface InitializationPriority {
+public final class MarketDataSubscriptionManager {
 
-    InitializingServiceType value();
+    private final Logger LOGGER = LogManager.getLogger(MarketDataSubscriptionManager.class);
 
-    int priority() default 0;
+    public void onSubscriptionEvent(final SubscriptionEventVO event) {
+
+        if (event.getBaseTopic().equalsIgnoreCase("tick")) {
+
+            if (LOGGER.isDebugEnabled()) {
+                if (event.isSubscribe()) {
+                    LOGGER.debug("Market data subscription requested for security {}", event.getSubscriptionKey());
+                } else {
+                    LOGGER.debug("Market data subscription terminated for security {}", event.getSubscriptionKey());
+                }
+            }
+        }
+    }
 
 }

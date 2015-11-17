@@ -15,23 +15,13 @@
  * Aeschstrasse 6
  * 8834 Schindellegi
  ***********************************************************************************/
-package ch.algotrader.service;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+package ch.algotrader.broker;
 
-import ch.algotrader.enumeration.InitializingServiceType;
+import java.util.Optional;
 
-@Documented
-@Target({ElementType.TYPE})
-@Retention(RetentionPolicy.RUNTIME)
-public @interface InitializationPriority {
+public interface TopicPublisher<T> {
 
-    InitializingServiceType value();
-
-    int priority() default 0;
+    void publish(T event, Optional<String> strategyName);
 
 }

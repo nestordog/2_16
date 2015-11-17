@@ -15,23 +15,30 @@
  * Aeschstrasse 6
  * 8834 Schindellegi
  ***********************************************************************************/
-package ch.algotrader.service;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+package ch.algotrader.broker.subscription;
 
-import ch.algotrader.enumeration.InitializingServiceType;
+/**
+ * @author <a href="mailto:vgolding@algotrader.ch">Vince Golding</a>
+ */
+public enum SubscriptionTopic {
 
-@Documented
-@Target({ElementType.TYPE})
-@Retention(RetentionPolicy.RUNTIME)
-public @interface InitializationPriority {
+    ORDER("order"),
+    ORDER_STATUS("order-status"),
+    TRANSACTION("transaction"),
+    TICK("tick"),
+    POSITION("position"),
+    MARKET_DATA_SUBSCRIPTION("market-data-subscription"),
+    ;
 
-    InitializingServiceType value();
+    final String baseTopic;
 
-    int priority() default 0;
+    SubscriptionTopic(String baseTopic) {
+        this.baseTopic = baseTopic;
+    }
+
+    public String getBaseTopic() {
+        return baseTopic;
+    }
 
 }

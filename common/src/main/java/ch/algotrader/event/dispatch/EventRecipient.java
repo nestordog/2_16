@@ -31,6 +31,8 @@ public enum EventRecipient {
 
     public static Set<EventRecipient> ALL_LOCAL_STRATEGIES = EnumSet.of(STRATEGY_ENGINES, LISTENERS);
 
+    public static Set<EventRecipient> ALL_LOCAL_LISTENERS = EnumSet.of(LISTENERS);
+
     public static Set<EventRecipient> ALL_STRATEGIES = EnumSet.of(STRATEGY_ENGINES, LISTENERS, REMOTE);
 
     public static Set<EventRecipient> ALL_LISTENERS = EnumSet.of(LISTENERS, REMOTE);

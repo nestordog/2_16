@@ -21,12 +21,9 @@ package ch.algotrader.wiring.remote;
 import javax.jms.ConnectionFactory;
 import javax.jms.Session;
 
-import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.command.ActiveMQTopic;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.jms.connection.SingleConnectionFactory;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.support.converter.MessageConverter;
 import org.springframework.jms.support.converter.SimpleMessageConverter;
@@ -36,14 +33,6 @@ import ch.algotrader.event.dispatch.ServerToStrategyEventPublisher;
 
 @Configuration
 public class JMSMessagingWiring {
-
-    @Bean(name = "jmsActiveMQFactory")
-    public ConnectionFactory createRemoteBrokerConnectionFactory(
-            @Value("${activeMQ.host}") final String activeMQHost,
-            @Value("${activeMQ.port}") final int activeMQPort) {
-
-        return new SingleConnectionFactory(new ActiveMQConnectionFactory("failover:tcp://" + activeMQHost + ":" + activeMQPort));
-    }
 
     @Bean(name = "marketDataActiveMQTopic")
     public ActiveMQTopic createMarketDataActiveMQTopic() {

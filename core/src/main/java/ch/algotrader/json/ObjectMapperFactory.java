@@ -15,23 +15,25 @@
  * Aeschstrasse 6
  * 8834 Schindellegi
  ***********************************************************************************/
-package ch.algotrader.service;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+package ch.algotrader.json;
 
-import ch.algotrader.enumeration.InitializingServiceType;
+import java.util.Date;
 
-@Documented
-@Target({ElementType.TYPE})
-@Retention(RetentionPolicy.RUNTIME)
-public @interface InitializationPriority {
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 
-    InitializingServiceType value();
+public class ObjectMapperFactory {
 
-    int priority() default 0;
+    public ObjectMapper create() {
+
+        SimpleModule module = new SimpleModule();
+        module.addDeserializer(Date.class, new InternalDateDeserializer());
+        module.addSerializer(Date.class, new InternalDateSerializer());
+        return new ObjectMapper()
+                .registerModule(module)
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    }
 
 }

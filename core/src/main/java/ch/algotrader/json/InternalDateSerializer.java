@@ -15,23 +15,27 @@
  * Aeschstrasse 6
  * 8834 Schindellegi
  ***********************************************************************************/
-package ch.algotrader.service;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+package ch.algotrader.json;
 
-import ch.algotrader.enumeration.InitializingServiceType;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 
-@Documented
-@Target({ElementType.TYPE})
-@Retention(RetentionPolicy.RUNTIME)
-public @interface InitializationPriority {
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
 
-    InitializingServiceType value();
+class InternalDateSerializer extends JsonSerializer<Date> {
 
-    int priority() default 0;
+    @Override
+    public void serialize(
+            final Date value, final JsonGenerator gen, final SerializerProvider serializers) throws IOException, JsonProcessingException {
+
+        LocalDateTime localDateTime = value.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        gen.writeString(InternalDateDeserializer.DATE_TIME_FORMATTER.format(localDateTime));
+    }
 
 }
