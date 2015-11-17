@@ -321,7 +321,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
             date = DateTimeLegacy.parseAsLocalDateTime(dateString, DATE_TIME_FORMAT);
         } catch (DateTimeParseException e) {
             try {
-                date = DateTimeLegacy.parseAsLocalDateTime(dateString, DATE_FORMAT);
+                date = DateTimeLegacy.parseAsLocalDate(dateString, DATE_FORMAT);
             } catch (DateTimeParseException e1) {
                 throw new IBSessionException(-1, "Invalid date attribute: " + dateString);
             }
