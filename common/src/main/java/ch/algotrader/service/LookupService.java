@@ -205,7 +205,7 @@ public interface LookupService {
      * Gets all Subscriptions by the defined {@code strategyName}. If corresponding Securities are
      * Combinations, all Components will be initialized as well. In additional all Properties are initialized
      */
-    public List<Subscription> getSubscriptionsByStrategyInclComponentsAndProps(String strategyName);
+    public List<Subscription> getSubscriptionsByStrategy(String strategyName);
 
     /**
      * Gets Subscriptions for the specified Strategy that do not have any open {@link Position

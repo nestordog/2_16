@@ -352,7 +352,7 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
         } else {
 
             // for strategies iterate over all subscriptions
-            List<Subscription> subscriptions = this.lookupService.getSubscriptionsByStrategyInclComponentsAndProps(this.engine.getStrategyName());
+            List<Subscription> subscriptions = this.lookupService.getSubscriptionsByStrategy(this.engine.getStrategyName());
             for (Subscription subscription : subscriptions) {
 
                 Security security = subscription.getSecurity();

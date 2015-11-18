@@ -420,11 +420,11 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
-    public List<Subscription> getSubscriptionsByStrategyInclComponentsAndProps(final String strategyName) {
+    public List<Subscription> getSubscriptionsByStrategy(final String strategyName) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        List<Subscription> subscriptions = this.cacheManager.find(Subscription.class, "Subscription.findByStrategyInclProps", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
+        List<Subscription> subscriptions = this.cacheManager.find(Subscription.class, "Subscription.findByStrategy", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
 
         // initialize components
         for (Subscription subscription : subscriptions) {

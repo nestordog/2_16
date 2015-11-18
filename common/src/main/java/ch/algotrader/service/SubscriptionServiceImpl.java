@@ -141,7 +141,7 @@ public class SubscriptionServiceImpl implements SubscriptionService, Application
 
         // assemble the message selector
         List<String> selections = new ArrayList<>();
-        for (Subscription subscription : this.lookupService.getSubscriptionsByStrategyInclComponentsAndProps(engine.getStrategyName())) {
+        for (Subscription subscription : this.lookupService.getSubscriptionsByStrategy(engine.getStrategyName())) {
             selections.add("securityId=" + subscription.getSecurity().getId());
         }
 

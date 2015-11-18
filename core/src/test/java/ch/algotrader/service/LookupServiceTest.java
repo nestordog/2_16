@@ -1408,6 +1408,76 @@ public class LookupServiceTest extends InMemoryDBTest {
     }
 
     @Test
+    public void testGetSubscriptionsByStrategy() {
+
+        Strategy strategy1 = new StrategyImpl();
+        strategy1.setName("Strategy1");
+
+        SecurityFamily family1 = new SecurityFamilyImpl();
+        family1.setName("Forex1");
+        family1.setTickSizePattern("0<0.1");
+        family1.setCurrency(Currency.USD);
+
+        Combination combination1 = new CombinationImpl();
+        combination1.setSymbol("COMBI1");
+        combination1.setUuid(UUID.randomUUID().toString());
+        combination1.setSecurityFamily(family1);
+        combination1.setType(CombinationType.BUTTERFLY);
+
+        this.session.save(strategy1);
+        this.session.save(family1);
+        this.session.save(combination1);
+
+        Forex forex1 = new ForexImpl();
+        forex1.setSymbol("EUR.USD");
+        forex1.setBaseCurrency(Currency.EUR);
+        forex1.setSecurityFamily(family1);
+
+        Component component1 = new ComponentImpl();
+        component1.setQuantity(1);
+        component1.setSecurity(forex1);
+        component1.setCombination(combination1);
+
+        Forex forex2 = new ForexImpl();
+        forex2.setSymbol("EUR.CHF");
+        forex2.setBaseCurrency(Currency.CHF);
+        forex2.setSecurityFamily(family1);
+
+        Component component2 = new ComponentImpl();
+        component2.setQuantity(1);
+        component2.setSecurity(forex2);
+        component2.setCombination(combination1);
+
+        combination1.addComponents(component1);
+        combination1.addComponents(component2);
+
+        Subscription subscription1 = new SubscriptionImpl();
+        subscription1.setFeedType(FeedType.SIM.name());
+        subscription1.setSecurity(combination1);
+        subscription1.setStrategy(strategy1);
+
+        this.session.save(forex1);
+        this.session.save(forex2);
+        this.session.save(component1);
+        this.session.save(component2);
+        this.session.save(combination1);
+
+        this.session.save(subscription1);
+
+        this.session.flush();
+
+        List<Subscription> subscriptions1 = lookupService.getSubscriptionsByStrategy("Strategy1");
+
+        Assert.assertEquals(1, subscriptions1.size());
+
+        Subscription subscription2 = subscriptions1.get(0);
+        Assert.assertEquals(FeedType.SIM.name(), subscription2.getFeedType());
+        Assert.assertSame(combination1, subscription2.getSecurity());
+        Assert.assertSame(family1, subscription2.getSecurity().getSecurityFamily());
+        Assert.assertSame(strategy1, subscription2.getStrategy());
+    }
+
+    @Test
     public void testGetNonPositionSubscriptions() {
 
         SecurityFamily family1 = new SecurityFamilyImpl();
