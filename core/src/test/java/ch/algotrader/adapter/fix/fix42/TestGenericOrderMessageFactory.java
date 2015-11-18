@@ -132,6 +132,7 @@ public class TestGenericOrderMessageFactory {
 
         Future future = new FutureImpl();
         future.setSymbol("SOME_STUFF");
+        future.setRic("COILJ6:VE");
         future.setSecurityFamily(family);
         future.setExpiration(DateTimeLegacy.parseAsDateGMT("2014-12-31"));
 
@@ -156,7 +157,7 @@ public class TestGenericOrderMessageFactory {
         Assert.assertEquals(new OrdType(OrdType.MARKET), message.getOrdType());
         Assert.assertEquals(new quickfix.field.Currency("BRL"), message.getCurrency());
         Assert.assertEquals(new SecurityType(SecurityType.FUTURE), message.getSecurityType());
-        Assert.assertEquals(new MaturityMonthYear("201412"), message.getMaturityMonthYear());
+        Assert.assertEquals(new MaturityMonthYear("201604"), message.getMaturityMonthYear());
     }
 
     @Test
@@ -424,6 +425,7 @@ public class TestGenericOrderMessageFactory {
         Future future = new FutureImpl();
         future.setSymbol("SOME_STUFF");
         future.setSecurityFamily(family);
+        future.setRic("COILJ6:VE");
         future.setExpiration(DateTimeLegacy.parseAsDateGMT("2014-12-31"));
 
         Account account = new AccountImpl();
@@ -446,7 +448,7 @@ public class TestGenericOrderMessageFactory {
         Assert.assertEquals(new quickfix.field.Side(quickfix.field.Side.BUY), message.getSide());
         Assert.assertEquals(new OrderQty(2000), message.getOrderQty());
         Assert.assertEquals(new OrdType(OrdType.MARKET), message.getOrdType());
-        Assert.assertEquals(new MaturityMonthYear("201412"), message.getMaturityMonthYear());
+        Assert.assertEquals(new MaturityMonthYear("201604"), message.getMaturityMonthYear());
     }
 
     @Test
@@ -709,6 +711,7 @@ public class TestGenericOrderMessageFactory {
         future.setSymbol("SOME_STUFF");
         future.setSecurityFamily(family);
         future.setExpiration(DateTimeLegacy.parseAsDateGMT("2014-12-31"));
+        future.setRic("COILJ6:VE");
 
         Account account = new AccountImpl();
         account.setBroker(Broker.RT.name());
@@ -730,7 +733,7 @@ public class TestGenericOrderMessageFactory {
         Assert.assertEquals(new quickfix.field.Side(quickfix.field.Side.BUY), message.getSide());
         Assert.assertEquals(new OrderQty(2000), message.getOrderQty());
         Assert.assertEquals(new SecurityType(SecurityType.FUTURE), message.getSecurityType());
-        Assert.assertEquals(new MaturityMonthYear("201412"), message.getMaturityMonthYear());
+        Assert.assertEquals(new MaturityMonthYear("201604"), message.getMaturityMonthYear());
     }
 
     @Test

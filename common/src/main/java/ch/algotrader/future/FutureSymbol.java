@@ -138,4 +138,14 @@ public class FutureSymbol {
         return Arrays.binarySearch(yearEnc, year);
     }
 
+
+    public static LocalDate getMaturityFromRic(final String ric) {
+
+        String code = ric.substring(ric.length() - 5, ric.length() - 3);
+        int month = Arrays.binarySearch(monthEnc, code.substring(0, 1));
+        int year = Integer.valueOf(code.substring(1));
+        year = year >= 5 ? year + 2010 : year + 2020;
+        return LocalDate.of(year, Month.of(month + 1), 1);
+    }
+
 }

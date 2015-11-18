@@ -30,6 +30,7 @@ import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.Stock;
 import ch.algotrader.enumeration.OptionType;
+import ch.algotrader.future.FutureSymbol;
 import ch.algotrader.util.DateTimeLegacy;
 import quickfix.field.CFICode;
 import quickfix.field.ContractMultiplier;
@@ -108,8 +109,12 @@ public class GenericFix44SymbologyResolver implements Fix44SymbologyResolver {
 
             message.set(new SecurityType(SecurityType.FUTURE));
             message.set(new Currency(securityFamily.getCurrency().toString()));
+            if (future.getRic() != null) {
+                message.set(new MaturityMonthYear(monthFormat.format(FutureSymbol.getMaturityFromRic(future.getRic()))));
+            } else {
+                message.set(new MaturityMonthYear(formatYM(future.getExpiration())));
+            }
             message.set(new ContractMultiplier(securityFamily.getContractSize(broker)));
-            message.set(new MaturityMonthYear(formatYM(future.getExpiration())));
 
         } else if (security instanceof Forex) {
 
@@ -143,7 +148,11 @@ public class GenericFix44SymbologyResolver implements Fix44SymbologyResolver {
             Future future = (Future) security;
 
             message.set(new SecurityType(SecurityType.FUTURE));
-            message.set(new MaturityMonthYear(formatYM(future.getExpiration())));
+            if (future.getRic() != null) {
+                message.set(new MaturityMonthYear(monthFormat.format(FutureSymbol.getMaturityFromRic(future.getRic()))));
+            } else {
+                message.set(new MaturityMonthYear(formatYM(future.getExpiration())));
+            }
 
         } else if (security instanceof Forex) {
 
@@ -174,7 +183,11 @@ public class GenericFix44SymbologyResolver implements Fix44SymbologyResolver {
             Future future = (Future) security;
 
             message.set(new SecurityType(SecurityType.FUTURE));
-            message.set(new MaturityMonthYear(formatYM(future.getExpiration())));
+            if (future.getRic() != null) {
+                message.set(new MaturityMonthYear(monthFormat.format(FutureSymbol.getMaturityFromRic(future.getRic()))));
+            } else {
+                message.set(new MaturityMonthYear(formatYM(future.getExpiration())));
+            }
 
         } else if (security instanceof Forex) {
 
