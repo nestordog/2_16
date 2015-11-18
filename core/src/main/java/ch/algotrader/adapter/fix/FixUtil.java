@@ -103,6 +103,28 @@ public class FixUtil {
         }
     }
 
+    public static TIF getTimeInForce(final TimeInForce tif) {
+
+        switch (tif.getValue()) {
+            case TimeInForce.DAY:
+                return TIF.DAY;
+            case TimeInForce.GOOD_TILL_CANCEL:
+                return TIF.GTC;
+            case TimeInForce.GOOD_TILL_DATE:
+                return TIF.GTD;
+            case TimeInForce.IMMEDIATE_OR_CANCEL:
+                return TIF.IOC;
+            case TimeInForce.FILL_OR_KILL:
+                return TIF.FOK;
+            case TimeInForce.AT_THE_OPENING:
+                return TIF.ATO;
+            case TimeInForce.AT_THE_CLOSE:
+                return TIF.ATC;
+            default:
+                throw new IllegalArgumentException("Unsupported Time-in-Force " + tif);
+        }
+    }
+
     public static TimeInForce getTimeInForce(final TIF tif) {
 
         switch (tif) {
@@ -121,7 +143,7 @@ public class FixUtil {
             case ATC:
                 return new TimeInForce(TimeInForce.AT_THE_CLOSE);
             default:
-                throw new IllegalArgumentException("unknown timeInForce " + tif);
+                throw new IllegalArgumentException("Unsupported Time-in-Force " + tif);
         }
     }
 

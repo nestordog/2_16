@@ -51,6 +51,11 @@ public interface OrderExecutionService {
     void handleOrderCompletion(final OrderCompletionVO orderCompletion);
 
     /**
+     * Handles order restated through external intervention.
+     */
+    void handleRestatedOrder(Order initialOrder, Order restatedOrder);
+
+    /**
      * Looks up  {@code IntId} by {@code ExtId}.
      */
     String lookupIntId(String extId);

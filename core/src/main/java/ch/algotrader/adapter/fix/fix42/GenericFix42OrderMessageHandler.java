@@ -283,6 +283,8 @@ public class GenericFix42OrderMessageHandler extends AbstractFix42OrderMessageHa
             } else {
                 return Status.PARTIALLY_EXECUTED;
             }
+        } else if (execType.getValue() == ExecType.RESTATED) {
+            return Status.SUBMITTED;
         } else {
             throw new IllegalArgumentException("unknown execType " + execType.getValue());
         }

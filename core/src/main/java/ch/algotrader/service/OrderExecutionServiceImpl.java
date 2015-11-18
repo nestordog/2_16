@@ -230,6 +230,31 @@ public class OrderExecutionServiceImpl implements OrderExecutionService {
      * {@inheritDoc}
      */
     @Override
+    public void handleRestatedOrder(final Order initialOrder, final Order restatedOrder) {
+
+        Validate.notNull(initialOrder, "Order is null");
+        Validate.notNull(restatedOrder, "Order is null");
+
+        String previousIntId = initialOrder.getIntId();
+        if (previousIntId != null) {
+            this.orderRegistry.remove(previousIntId);
+        }
+        this.orderRegistry.add(restatedOrder);
+
+        if (!this.commonConfig.isSimulation()) {
+
+            this.orderPersistService.persistOrder(restatedOrder);
+        }
+
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("restated order {}", restatedOrder);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public String lookupIntId(final String extId) {
 
         return this.orderRegistry.lookupIntId(extId);

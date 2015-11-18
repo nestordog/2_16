@@ -17,25 +17,43 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.tt;
 
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
+import java.util.TimeZone;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.adapter.fix.DropCopyAllocationVO;
 import ch.algotrader.adapter.fix.DropCopyAllocator;
 import ch.algotrader.adapter.fix.FixApplicationException;
+import ch.algotrader.adapter.fix.FixUtil;
 import ch.algotrader.adapter.fix.fix42.GenericFix42OrderMessageHandler;
+import ch.algotrader.entity.exchange.Exchange;
 import ch.algotrader.entity.trade.ExternalFill;
+import ch.algotrader.entity.trade.LimitOrder;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderStatus;
+import ch.algotrader.entity.trade.SimpleOrder;
+import ch.algotrader.entity.trade.StopLimitOrder;
+import ch.algotrader.entity.trade.StopOrder;
 import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Status;
+import ch.algotrader.enumeration.TIF;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.service.OrderExecutionService;
+import ch.algotrader.service.ServiceException;
 import ch.algotrader.service.TransactionService;
+import ch.algotrader.util.BeanUtil;
+import ch.algotrader.util.PriceUtil;
 import quickfix.FieldNotFound;
 import quickfix.SessionID;
 import quickfix.field.ExecTransType;
 import quickfix.field.ExecType;
+import quickfix.field.ExpireDate;
 import quickfix.field.MsgSeqNum;
 import quickfix.field.MsgType;
 import quickfix.field.SendingTime;
@@ -50,6 +68,8 @@ import quickfix.fix42.ExecutionReport;
 public class TTFixOrderMessageHandler extends GenericFix42OrderMessageHandler {
 
     private static final Logger LOGGER = LogManager.getLogger(TTFixOrderMessageHandler.class);
+
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd");
 
     private final OrderExecutionService orderExecutionService;
     private final TransactionService transactionService;
@@ -154,6 +174,63 @@ public class TTFixOrderMessageHandler extends GenericFix42OrderMessageHandler {
             this.transactionService.createTransaction(fill);
             this.orderExecutionService.handleFill(fill);
         }
+    }
+
+    @Override
+    protected void handleRestated(final ExecutionReport executionReport, final Order order) throws FieldNotFound {
+
+        SimpleOrder restatedOrder;
+        try {
+            restatedOrder = BeanUtil.clone((SimpleOrder) order);
+            restatedOrder.setId(0);
+        } catch (ReflectiveOperationException ex) {
+            throw new ServiceException(ex);
+        }
+
+        String extId = executionReport.getOrderID().getValue();
+        restatedOrder.setExtId(extId);
+
+        long quantity = (long) executionReport.getOrderQty().getValue();
+        restatedOrder.setQuantity(quantity);
+
+        if (restatedOrder instanceof LimitOrder) {
+            LimitOrder limitOrder = (LimitOrder) restatedOrder;
+            BigDecimal limit = PriceUtil.normalizePrice(order, executionReport.getPrice().getValue());
+            limitOrder.setLimit(limit);
+        } else if (restatedOrder instanceof StopOrder) {
+            StopOrder stopOrder = (StopOrder) restatedOrder;
+            BigDecimal stopPrice = PriceUtil.normalizePrice(order, executionReport.getStopPx().getValue());
+            stopOrder.setStop(stopPrice);
+        } else if (restatedOrder instanceof StopLimitOrder) {
+            StopLimitOrder stopLimitOrder = (StopLimitOrder) restatedOrder;
+            BigDecimal limit = PriceUtil.normalizePrice(order, executionReport.getPrice().getValue());
+            stopLimitOrder.setLimit(limit);
+            BigDecimal stopPrice = PriceUtil.normalizePrice(order, executionReport.getStopPx().getValue());
+            stopLimitOrder.setStop(stopPrice);
+        }
+
+        TIF tif = FixUtil.getTimeInForce(executionReport.getTimeInForce());
+        restatedOrder.setTif(tif);
+        if (tif == TIF.GTD && executionReport.isSetExpireDate()) {
+            ExpireDate expireDate = executionReport.getExpireDate();
+            LocalDate localDate = DATE_FORMAT.parse(expireDate.getValue(), LocalDate::from);
+            Exchange exchange = restatedOrder.getSecurity().getSecurityFamily().getExchange();
+            TimeZone timeZone;
+            if (exchange.getTimeZone() != null) {
+                timeZone = TimeZone.getTimeZone(exchange.getTimeZone());
+            } else {
+                timeZone = TimeZone.getDefault();
+            }
+            Instant instant = localDate.atStartOfDay(timeZone.toZoneId()).toInstant();
+            restatedOrder.setTifDateTime(new Date(instant.toEpochMilli()));
+        }
+
+        this.orderExecutionService.handleRestatedOrder(order, restatedOrder);
+
+        OrderStatus orderStatus = createStatus(executionReport, restatedOrder);
+
+        this.serverEngine.sendEvent(orderStatus);
+        this.orderExecutionService.handleOrderStatus(orderStatus);
     }
 
     @Override

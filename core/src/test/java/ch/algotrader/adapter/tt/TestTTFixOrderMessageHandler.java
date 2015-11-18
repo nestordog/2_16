@@ -18,6 +18,10 @@
 package ch.algotrader.adapter.tt;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.Month;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
 
 import org.junit.Assert;
@@ -38,14 +42,18 @@ import ch.algotrader.entity.security.FutureFamily;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.trade.ExternalFill;
 import ch.algotrader.entity.trade.Fill;
+import ch.algotrader.entity.trade.LimitOrder;
+import ch.algotrader.entity.trade.LimitOrderImpl;
 import ch.algotrader.entity.trade.MarketOrder;
 import ch.algotrader.entity.trade.MarketOrderImpl;
+import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.ExpirationType;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
+import ch.algotrader.enumeration.TIF;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.service.OrderExecutionService;
 import ch.algotrader.service.TransactionService;
@@ -60,6 +68,7 @@ import quickfix.field.ExecType;
 import quickfix.field.OrderID;
 import quickfix.fix42.BusinessMessageReject;
 import quickfix.fix42.ExecutionReport;
+import quickfix.fix42.OrderCancelReject;
 
 /**
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
@@ -324,10 +333,6 @@ public class TestTTFixOrderMessageHandler {
         ExecutionReport executionReport = FixTestUtils.parseFix42Message(s, DATA_DICTIONARY, ExecutionReport.class);
         Assert.assertNotNull(executionReport);
 
-        MarketOrder order = new MarketOrderImpl();
-        order.setSecurity(this.future);
-        order.setAccount(this.account);
-
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix42Session());
 
         Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
@@ -412,6 +417,19 @@ public class TestTTFixOrderMessageHandler {
     }
 
     @Test
+    public void testOrderCancelReject() throws Exception {
+        String s = "8=FIX.4.2|9=00214|35=9|49=TTDEV14O|56=RATKODTS2|57=NONE|50=NONE|34=18|52=20151118-14:26:18.499|" +
+                "37=020VGR013|41=ttt211.0|58=GIS orders are not supported by Exchange.|198=AIVT|10553=RATKODTS2|102=2|" +
+                "434=2|39=0|60=20151118-14:26:18.499|10=021|";
+        OrderCancelReject orderCancelReject = FixTestUtils.parseFix42Message(s, DATA_DICTIONARY, OrderCancelReject.class);
+        Assert.assertNotNull(orderCancelReject);
+
+        this.impl.onMessage(orderCancelReject, FixTestUtils.fakeFix42Session());
+
+        Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
+    }
+
+    @Test
     public void testExecutionReportCancelMissingOrigIntId() throws Exception {
         String s = "8=FIX.4.2|9=00387|35=8|49=TTDEV14O|56=RATKODTS2|50=TTORDDS202001|57=NONE|34=3|52=20151109-15:53:01.991|" +
                 "55=ES|48=00A0LP00ESZ|10455=ESZ5|167=FUT|207=CME|15=USD|1=RATKODTS2|47=A|204=0|10553=RATKODTS2|11=ttt14.0|" +
@@ -441,6 +459,116 @@ public class TestTTFixOrderMessageHandler {
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(0, orderStatus1.getFilledQuantity());
         Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2015-11-09 15:53:02.439"), orderStatus1.getExtDateTime());
+        Assert.assertEquals(null, orderStatus1.getLastPrice());
+        Assert.assertEquals(null, orderStatus1.getAvgPrice());
+    }
+
+    @Test
+    public void testExecutionReportRestated() throws Exception {
+        String s = "8=FIX.4.2|9=00395|35=8|49=TTDEV14O|56=RATKODTS2|50=TTORDDS202001|57=NONE|34=38|" +
+                "52=20151117-16:07:22.339|55=ES|48=00A0CQ00ESZ|10455=ESH6|167=FUT|207=CME|15=USD|1=RATKODTS2|47=A|204=0|" +
+                "10553=RATKODTS2|11=ttt207.0|18203=CME|16142=US,IL|18216=A49004_-1|198=B1OS|37=020AU7009|17=020AU7009:1|" +
+                "200=201603|151=1|14=0|54=1|40=2|77=O|59=0|11028=Y|150=D|20=0|39=0|442=1|378=4|44=200925|38=1|6=0|" +
+                "60=20151117-16:07:22.119|146=0|10=160|";
+        ExecutionReport executionReport = FixTestUtils.parseFix42Message(s, DATA_DICTIONARY, ExecutionReport.class);
+        Assert.assertNotNull(executionReport);
+
+        LimitOrder order = new LimitOrderImpl();
+        order.setSecurity(this.future);
+        order.setAccount(this.account);
+
+        Mockito.when(this.orderExecutionService.getOpenOrderByIntId("ttt207.0")).thenReturn(order);
+
+        this.impl.onMessage(executionReport, FixTestUtils.fakeFix42Session());
+
+        ArgumentCaptor<Order> argumentCaptor1 = ArgumentCaptor.forClass(Order.class);
+        Mockito.verify(this.orderExecutionService, Mockito.times(1)).handleRestatedOrder(Mockito.same(order), argumentCaptor1.capture());
+        ArgumentCaptor<Object> argumentCaptor2 = ArgumentCaptor.forClass(Object.class);
+        Mockito.verify(this.engine, Mockito.times(1)).sendEvent(argumentCaptor2.capture());
+
+        List<Order> orders = argumentCaptor1.getAllValues();
+        Assert.assertNotNull(orders);
+        Assert.assertEquals(1, orders.size());
+
+        Order order2 = orders.get(0);
+        Assert.assertTrue(order2 instanceof LimitOrder);
+        LimitOrder reinstatedOrder = (LimitOrder) order2;
+        Assert.assertNotSame(order, reinstatedOrder);
+        Assert.assertEquals("020AU7009", reinstatedOrder.getExtId());
+        Assert.assertEquals(new BigDecimal("200925"), reinstatedOrder.getLimit());
+        Assert.assertEquals(1, reinstatedOrder.getQuantity());
+        Assert.assertEquals(TIF.DAY, reinstatedOrder.getTif());
+
+        List<Object> events = argumentCaptor2.getAllValues();
+        Assert.assertNotNull(events);
+        Assert.assertEquals(1, events.size());
+        Object event1 = events.get(0);
+        Assert.assertTrue(event1 instanceof OrderStatus);
+        OrderStatus orderStatus1 = (OrderStatus) event1;
+        Assert.assertEquals("ttt207.0", orderStatus1.getIntId());
+        Assert.assertEquals("020AU7009", orderStatus1.getExtId());
+        Assert.assertEquals(Status.SUBMITTED, orderStatus1.getStatus());
+        Assert.assertSame(order2, orderStatus1.getOrder());
+        Assert.assertEquals(0, orderStatus1.getFilledQuantity());
+        Assert.assertEquals(1, orderStatus1.getRemainingQuantity());
+        Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2015-11-17 16:07:22.119"), orderStatus1.getExtDateTime());
+        Assert.assertEquals(null, orderStatus1.getLastPrice());
+        Assert.assertEquals(null, orderStatus1.getAvgPrice());
+    }
+
+    @Test
+    public void testExecutionReportRestatedWithTimeInForce() throws Exception {
+        String s = "8=FIX.4.2|9=00408|35=8|49=TTDEV14O|56=RATKODTS2|50=TTORDDS202001|57=NONE|34=20|52=20151118-13:37:09.956|" +
+                "55=ES|48=00A0CQ00ESZ|10455=ESH6|167=FUT|207=CME|15=USD|1=RATKODTS2|47=A|204=0|10553=RATKODTS2|11=ttt210.0|" +
+                "18203=CME|16142=US,IL|18216=A49004_-1|198=AISL|37=020VGR012|17=020VGR012:1|200=201603|151=1|14=0|54=1|" +
+                "40=2|77=O|59=6|11028=Y|150=D|20=0|39=0|442=1|378=4|44=203675|38=1|6=0|432=20151120|60=20151118-13:37:09.423|" +
+                "146=0|10=085|";
+        ExecutionReport executionReport = FixTestUtils.parseFix42Message(s, DATA_DICTIONARY, ExecutionReport.class);
+        Assert.assertNotNull(executionReport);
+
+        LimitOrder order = new LimitOrderImpl();
+        order.setSecurity(this.future);
+        order.setAccount(this.account);
+
+        Mockito.when(this.orderExecutionService.getOpenOrderByIntId("ttt210.0")).thenReturn(order);
+
+        this.impl.onMessage(executionReport, FixTestUtils.fakeFix42Session());
+
+        ArgumentCaptor<Order> argumentCaptor1 = ArgumentCaptor.forClass(Order.class);
+        Mockito.verify(this.orderExecutionService, Mockito.times(1)).handleRestatedOrder(Mockito.same(order), argumentCaptor1.capture());
+        ArgumentCaptor<Object> argumentCaptor2 = ArgumentCaptor.forClass(Object.class);
+        Mockito.verify(this.engine, Mockito.times(1)).sendEvent(argumentCaptor2.capture());
+
+        List<Order> orders = argumentCaptor1.getAllValues();
+        Assert.assertNotNull(orders);
+        Assert.assertEquals(1, orders.size());
+
+        Order order2 = orders.get(0);
+        Assert.assertTrue(order2 instanceof LimitOrder);
+        LimitOrder reinstatedOrder = (LimitOrder) order2;
+        Assert.assertNotSame(order, reinstatedOrder);
+        Assert.assertEquals("020VGR012", reinstatedOrder.getExtId());
+        Assert.assertEquals(new BigDecimal("203675"), reinstatedOrder.getLimit());
+        Assert.assertEquals(1, reinstatedOrder.getQuantity());
+        Assert.assertEquals(TIF.GTD, reinstatedOrder.getTif());
+
+        Assert.assertEquals(
+                new Date(LocalDate.of(2015, Month.NOVEMBER, 20).atStartOfDay(ZoneId.of("US/Central")).toInstant().toEpochMilli()),
+                reinstatedOrder.getTifDateTime());
+
+        List<Object> events = argumentCaptor2.getAllValues();
+        Assert.assertNotNull(events);
+        Assert.assertEquals(1, events.size());
+        Object event1 = events.get(0);
+        Assert.assertTrue(event1 instanceof OrderStatus);
+        OrderStatus orderStatus1 = (OrderStatus) event1;
+        Assert.assertEquals("ttt210.0", orderStatus1.getIntId());
+        Assert.assertEquals("020VGR012", orderStatus1.getExtId());
+        Assert.assertEquals(Status.SUBMITTED, orderStatus1.getStatus());
+        Assert.assertSame(order2, orderStatus1.getOrder());
+        Assert.assertEquals(0, orderStatus1.getFilledQuantity());
+        Assert.assertEquals(1, orderStatus1.getRemainingQuantity());
+        Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2015-11-18 13:37:09.423"), orderStatus1.getExtDateTime());
         Assert.assertEquals(null, orderStatus1.getLastPrice());
         Assert.assertEquals(null, orderStatus1.getAvgPrice());
     }
