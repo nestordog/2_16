@@ -233,7 +233,7 @@
     <beans profile="jPMFix,iBFix,dCFix,rTFix,dcMarkteData,lMAXFix,lMAXMarketData,fXCMFix,fXCMMarketData,cNXFix,cNXMarketData,fTXFix,fTXMarketData">
     
       <bean id="orderIdGenerator" class="ch.algotrader.ordermgmt.DefaultOrderIdGenerator">
-        <constructor-arg index="0" ref="orderDao"/>
+        <constructor-arg index="0" ref="sessionFactory"/>
       </bean>    
 
       <bean id="fixSessionSettings" class="ch.algotrader.adapter.fix.FixSessionSettingsFactoryBean"/>

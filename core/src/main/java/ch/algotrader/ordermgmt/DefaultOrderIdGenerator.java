@@ -20,29 +20,23 @@ package ch.algotrader.ordermgmt;
 import java.math.BigDecimal;
 
 import org.apache.commons.lang.Validate;
+import org.hibernate.SQLQuery;
+import org.hibernate.SessionFactory;
+import org.hibernate.classic.Session;
 
-import ch.algotrader.entity.trade.OrderDao;
 import ch.algotrader.util.collection.IntegerMap;
 
-/**
- * Default {@link ch.algotrader.ordermgmt.OrderIdGenerator} implementation backed by
- * {@link ch.algotrader.entity.TransactionDao#findLastIntOrderId(String)}..
- *
- * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
- *
- * @version $Revision$ $Date$
- */
 public class DefaultOrderIdGenerator implements OrderIdGenerator {
 
-    private final OrderDao orderDao;
+    private final SessionFactory sessionFactory;
     private final IntegerMap<String> orderIds;
 
-    public DefaultOrderIdGenerator(final OrderDao orderDao) {
+    public DefaultOrderIdGenerator(final SessionFactory sessionFactory) {
 
-        Validate.notNull(orderDao, "orderDao is null");
+        Validate.notNull(sessionFactory, "SessionFactory is null");
 
-        this.orderDao = orderDao;
-        this.orderIds = new IntegerMap<String>();
+        this.sessionFactory = sessionFactory;
+        this.orderIds = new IntegerMap<>();
     }
 
     /**
@@ -55,7 +49,12 @@ public class DefaultOrderIdGenerator implements OrderIdGenerator {
 
         if (!this.orderIds.containsKey(sessionQualifier)) {
 
-            BigDecimal orderId = this.orderDao.findLastIntOrderId(sessionQualifier);
+            final Session currentSession = this.sessionFactory.getCurrentSession();
+            final SQLQuery query = currentSession.createSQLQuery("select distinct convert(substring(o.int_id, length(a.session_qualifier) + 1), decimal) " +
+                "as order_id from `order` as o join account as a on (o.account_fk = a.id) where a.session_qualifier = :sessionQualifier " +
+                "order by order_id desc limit 1");
+            query.setParameter("sessionQualifier", sessionQualifier);
+            final BigDecimal orderId = (BigDecimal) query.uniqueResult();
             this.orderIds.put(sessionQualifier, orderId != null ? orderId.intValue() : 0);
         }
 
