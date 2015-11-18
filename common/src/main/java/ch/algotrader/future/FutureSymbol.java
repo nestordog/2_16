@@ -23,6 +23,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
+import org.apache.commons.lang.time.DateUtils;
+
 import ch.algotrader.entity.security.SecurityFamily;
 
 /**
@@ -133,4 +135,20 @@ public class FutureSymbol {
         String year = symbol.substring(6, 7);
         return Arrays.binarySearch(yearEnc, year) + 2010;
     }
+
+    public static Date getMaturityFromRic(String ric) {
+
+        String code = ric.substring(ric.length() - 5, ric.length() - 3);
+        int month = Arrays.binarySearch(monthEnc, code.substring(0, 1));
+        int year = Integer.valueOf(code.substring(1));
+        year = year >= 5 ? year + 2010 : year + 2020;
+        Calendar cal = new GregorianCalendar();
+        cal.set(Calendar.YEAR, year);
+        cal.set(Calendar.MONTH, month);
+        cal.set(Calendar.DAY_OF_MONTH, 1);
+
+        cal = DateUtils.truncate(cal, Calendar.DAY_OF_MONTH);
+        return cal.getTime();
+    }
+
 }

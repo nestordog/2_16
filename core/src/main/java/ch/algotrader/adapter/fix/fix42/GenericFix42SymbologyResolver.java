@@ -31,6 +31,7 @@ import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.Stock;
 import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.OptionType;
+import ch.algotrader.future.FutureSymbol;
 import quickfix.field.ContractMultiplier;
 import quickfix.field.Currency;
 import quickfix.field.ExDestination;
@@ -109,7 +110,7 @@ public class GenericFix42SymbologyResolver implements Fix42SymbologyResolver {
 
             message.set(new SecurityType(SecurityType.FUTURE));
             message.set(new Currency(securityFamily.getCurrency().toString()));
-            message.set(new MaturityMonthYear(formatYM(future.getExpiration())));
+            message.set(new MaturityMonthYear(formatYM(FutureSymbol.getMaturityFromRic(future.getRic()))));
 
         } else if (security instanceof Forex) {
 
@@ -149,7 +150,7 @@ public class GenericFix42SymbologyResolver implements Fix42SymbologyResolver {
             Future future = (Future) security;
 
             message.set(new SecurityType(SecurityType.FUTURE));
-            message.set(new MaturityMonthYear(formatYM(future.getExpiration())));
+            message.set(new MaturityMonthYear(formatYM(FutureSymbol.getMaturityFromRic(future.getRic()))));
 
         } else if (security instanceof Forex) {
 
@@ -180,7 +181,7 @@ public class GenericFix42SymbologyResolver implements Fix42SymbologyResolver {
             Future future = (Future) security;
 
             message.set(new SecurityType(SecurityType.FUTURE));
-            message.set(new MaturityMonthYear(formatYM(future.getExpiration())));
+            message.set(new MaturityMonthYear(formatYM(FutureSymbol.getMaturityFromRic(future.getRic()))));
 
         } else if (security instanceof Forex) {
 
