@@ -60,6 +60,7 @@ public class DataSourceWiring {
 
         EmbeddedDatabaseFactory databaseFactory = new EmbeddedDatabaseFactory();
         databaseFactory.setDatabaseType(EmbeddedDatabaseType.H2);
+        databaseFactory.setDatabaseName("algotrader;MODE=MYSQL;DATABASE_TO_UPPER=FALSE");
 
         ResourceDatabasePopulator databasePopulator = new ResourceDatabasePopulator();
         databasePopulator.addScript(applicationContext.getResource("/db/h2/h2.sql"));
