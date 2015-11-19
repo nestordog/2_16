@@ -82,6 +82,23 @@
                                         <execute/>
                                     </action>
                                 </pluginExecution>
+        						<pluginExecution>
+        							<pluginExecutionFilter>
+        								<groupId>algotrader</groupId>
+        								<artifactId>
+        									model-codegen-plugin
+        								</artifactId>
+        								<versionRange>
+        									[0.1.5,)
+        								</versionRange>
+        								<goals>
+        									<goal>codegen</goal>
+        								</goals>
+        							</pluginExecutionFilter>
+        							<action>
+        								<ignore/>
+        							</action>
+        						</pluginExecution>                                 
                             </pluginExecutions>
                         </lifecycleMappingMetadata>
                     </configuration>
