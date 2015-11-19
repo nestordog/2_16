@@ -169,6 +169,10 @@ public class MarketDataServiceImpl implements MarketDataService {
                 for (Security security : serverSubscribed) {
 
                     this.eventDispatcher.registerMarketDataSubscription(strategyName, security.getId());
+
+                    final MarketDataSubscriptionVO event = new MarketDataSubscriptionVO(strategyName, security.getId(), feedType, true);
+                    this.eventDispatcher.broadcast(event, EventRecipient.ALL_STRATEGIES);
+
                     securities.add(security);
                 }
                 securities.addAll(securityDao.findSubscribedByFeedTypeForAutoActivateStrategiesInclFamily(feedType));
@@ -207,6 +211,9 @@ public class MarketDataServiceImpl implements MarketDataService {
 
         this.eventDispatcher.registerMarketDataSubscription(strategyName, securityId);
 
+        final MarketDataSubscriptionVO event = new MarketDataSubscriptionVO(strategyName, securityId, feedType, true);
+        this.eventDispatcher.broadcast(event, EventRecipient.ALL_STRATEGIES);
+
         if (this.subscriptionDao.findByStrategySecurityAndFeedType(strategyName, securityId, feedType) == null) {
 
             Strategy strategy = this.strategyDao.findByName(strategyName);
@@ -225,9 +232,6 @@ public class MarketDataServiceImpl implements MarketDataService {
                     if (!security.getSecurityFamily().isSynthetic()) {
                         getExternalMarketDataService(feedType).subscribe(security);
                     }
-
-                    final MarketDataSubscriptionVO event = new MarketDataSubscriptionVO(strategyName, securityId, feedType, true);
-                    this.eventDispatcher.broadcast(event, EventRecipient.ALL_STRATEGIES);
                 }
             }
 
@@ -271,6 +275,9 @@ public class MarketDataServiceImpl implements MarketDataService {
 
         this.eventDispatcher.unregisterMarketDataSubscription(strategyName, securityId);
 
+        final MarketDataSubscriptionVO event = new MarketDataSubscriptionVO(strategyName, securityId, feedType, false);
+        this.eventDispatcher.broadcast(event, EventRecipient.ALL_STRATEGIES);
+
         Subscription subscription = this.subscriptionDao.findByStrategySecurityAndFeedType(strategyName, securityId, feedType);
         if (subscription != null && !subscription.isPersistent()) {
 
@@ -286,9 +293,6 @@ public class MarketDataServiceImpl implements MarketDataService {
                 if (security.getSubscriptions().size() == 0) {
                     if (!security.getSecurityFamily().isSynthetic()) {
                         getExternalMarketDataService(feedType).unsubscribe(security);
-
-                        final MarketDataSubscriptionVO event = new MarketDataSubscriptionVO(strategyName, securityId, feedType, false);
-                        this.eventDispatcher.broadcast(event, EventRecipient.ALL_STRATEGIES);
                     }
                 }
             }
