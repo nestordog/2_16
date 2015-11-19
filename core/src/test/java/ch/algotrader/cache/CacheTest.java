@@ -65,7 +65,6 @@ import ch.algotrader.entity.security.SecurityFamilyImpl;
 import ch.algotrader.entity.security.SecurityImpl;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.strategy.StrategyImpl;
-import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.LimitOrderVOBuilder;
 import ch.algotrader.entity.trade.OrderVO;
 import ch.algotrader.enumeration.AssetClass;
@@ -79,6 +78,7 @@ import ch.algotrader.enumeration.TransactionType;
 import ch.algotrader.esper.AbstractEngine;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
+import ch.algotrader.esper.NoopEngine;
 import ch.algotrader.service.CombinationService;
 import ch.algotrader.service.ExternalMarketDataService;
 import ch.algotrader.service.LookupService;
@@ -135,20 +135,12 @@ public class CacheTest extends DefaultConfigTestBase {
         context.getDefaultListableBeanFactory().registerSingleton("dataSource", database);
 
         EngineManager engineManager = Mockito.mock(EngineManager.class);
+        Mockito.when(engineManager.getCurrentEPTime()).thenReturn(new Date());
+        Mockito.when(engineManager.getCurrentEPTime()).thenReturn(new Date());
         context.getDefaultListableBeanFactory().registerSingleton("engineManager", engineManager);
 
         AtomicReference<TransactionService> transactionService = new AtomicReference<>();
-        Engine engine = new AbstractEngine(StrategyImpl.SERVER) {
-
-            @Override
-            public void sendEvent(Object obj) {
-                if (obj instanceof Fill) {
-                    Fill fill = (Fill) obj;
-                    fill.setExtDateTime(new Date());
-                    transactionService.get().createTransaction(fill);
-                }
-            }
-        };
+        Engine engine = new NoopEngine(StrategyImpl.SERVER);
         
         context.getDefaultListableBeanFactory().registerSingleton("serverEngine", engine);
 

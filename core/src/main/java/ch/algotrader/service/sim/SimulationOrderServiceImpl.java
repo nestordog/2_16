@@ -40,6 +40,8 @@ import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.ordermgmt.OrderRegistry;
 import ch.algotrader.service.MarketDataCache;
+import ch.algotrader.service.OrderExecutionService;
+import ch.algotrader.service.TransactionService;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -48,26 +50,36 @@ public class SimulationOrderServiceImpl implements SimulationOrderService {
 
     private final MarketDataCache marketDataCache;
     private final OrderRegistry orderRegistry;
+    private final OrderExecutionService orderExecutionService;
+    private final TransactionService transactionService;
     private final EngineManager engineManager;
     private final Engine serverEngine;
     private final AtomicLong counter;
+    private final AtomicLong seqnum;
 
     public SimulationOrderServiceImpl(
             final OrderRegistry orderRegistry,
+            final OrderExecutionService orderExecutionService,
+            final TransactionService transactionService,
             final MarketDataCache marketDataCache,
             final EngineManager engineManager,
             final Engine serverEngine) {
 
         Validate.notNull(orderRegistry, "OpenOrderRegistry is null");
+        Validate.notNull(orderExecutionService, "OrderExecutionService is null");
+        Validate.notNull(transactionService, "TransactionService is null");
         Validate.notNull(marketDataCache, "MarketDataCache is null");
         Validate.notNull(engineManager, "EngineManager is null");
         Validate.notNull(serverEngine, "Engine is null");
 
         this.orderRegistry = orderRegistry;
+        this.orderExecutionService = orderExecutionService;
+        this.transactionService = transactionService;
         this.engineManager = engineManager;
         this.serverEngine = serverEngine;
         this.marketDataCache = marketDataCache;
         this.counter = new AtomicLong(0);
+        this.seqnum = new AtomicLong(0);
     }
 
     @Override
@@ -85,6 +97,7 @@ public class SimulationOrderServiceImpl implements SimulationOrderService {
         this.orderRegistry.add(order);
 
         Date d = this.engineManager.getCurrentEPTime();
+
         // create and OrderStatus
         OrderStatus orderStatus = OrderStatus.Factory.newInstance();
         orderStatus.setStatus(Status.EXECUTED);
@@ -94,9 +107,11 @@ public class SimulationOrderServiceImpl implements SimulationOrderService {
         orderStatus.setExtDateTime(d);
         orderStatus.setDateTime(d);
         orderStatus.setOrder(order);
+        orderStatus.setSequenceNumber(this.seqnum.incrementAndGet());
 
         // send the orderStatus to the AlgoTrader Server
         this.serverEngine.sendEvent(orderStatus);
+        this.orderExecutionService.handleOrderStatus(orderStatus);
 
         // create one fill per order
         Fill fill = new Fill();
@@ -112,7 +127,8 @@ public class SimulationOrderServiceImpl implements SimulationOrderService {
 
         // propagate the fill
         this.serverEngine.sendEvent(fill);
-
+        this.transactionService.createTransaction(fill);
+        this.orderExecutionService.handleFill(fill);
     }
 
     /**
