@@ -330,6 +330,11 @@ public interface LookupService {
     public List<Position> getOpenFXPositionsByStrategy(String strategyName);
 
     /**
+     * Returns true if the specified Strategy has an open position on the specified Security
+     */
+    public boolean hasOpenPosition(long securityId, String strategyName);
+
+    /**
      * Gets a Transaction by its {@code id}.
      */
     public Transaction getTransaction(long id);

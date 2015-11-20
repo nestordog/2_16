@@ -70,6 +70,7 @@ import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.enumeration.Currency;
+import ch.algotrader.enumeration.Direction;
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.QueryType;
 import ch.algotrader.util.DateTimeLegacy;
@@ -720,6 +721,16 @@ public class LookupServiceImpl implements LookupService {
 
         return this.cacheManager.find(Position.class, "Position.findOpenFXPositionsByStrategy", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
 
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean hasOpenPosition(long securityId, String strategyName) {
+
+        Position position = getPositionBySecurityAndStrategy(securityId, strategyName);
+        return position != null && position.getDirection() != Direction.FLAT;
     }
 
     /**
