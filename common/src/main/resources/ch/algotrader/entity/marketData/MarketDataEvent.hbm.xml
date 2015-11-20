@@ -186,13 +186,11 @@
     public BigDecimal getMarketValue(ch.algotrader.enumeration.Direction direction) {
 
         if (ch.algotrader.enumeration.Direction.LONG.equals(direction)) {
-
-            // bid might be null
-            return getBid() != null ? getBid() : new BigDecimal(0);
+            return getBid() != null ? getBid() : getLast();
         } else if (ch.algotrader.enumeration.Direction.SHORT.equals(direction)) {
-            return getAsk();
+            return getAsk() != null ? getAsk() : getLast();
         } else {
-            return new BigDecimal(0);
+            return getLast();
         }
     }
 
