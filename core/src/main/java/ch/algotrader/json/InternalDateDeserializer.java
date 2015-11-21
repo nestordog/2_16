@@ -18,25 +18,13 @@
 
 package ch.algotrader.json;
 
-import static java.time.temporal.ChronoField.DAY_OF_MONTH;
-import static java.time.temporal.ChronoField.HOUR_OF_DAY;
-import static java.time.temporal.ChronoField.MINUTE_OF_HOUR;
-import static java.time.temporal.ChronoField.MONTH_OF_YEAR;
-import static java.time.temporal.ChronoField.SECOND_OF_MINUTE;
-
 import java.io.IOException;
 import java.time.DateTimeException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
-import java.time.format.SignStyle;
-import java.time.temporal.ChronoField;
 import java.util.Date;
-import java.util.Locale;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
@@ -46,24 +34,6 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 
 class InternalDateDeserializer extends JsonDeserializer<Date> {
-
-    static final DateTimeFormatter DATE_FORMATTER = new DateTimeFormatterBuilder()
-                .appendValue(ChronoField.YEAR, 4)
-                .appendLiteral('-')
-                .appendValue(MONTH_OF_YEAR, 2, 2, SignStyle.NEVER)
-                .appendLiteral('-')
-                .appendValue(DAY_OF_MONTH, 2, 2, SignStyle.NEVER)
-                .toFormatter(Locale.ROOT);
-    static final DateTimeFormatter DATE_TIME_FORMATTER = new DateTimeFormatterBuilder()
-                .append(DATE_FORMATTER)
-                .appendLiteral(' ')
-                .appendValue(HOUR_OF_DAY, 2, 2, SignStyle.NEVER)
-                .appendLiteral(':')
-                .appendValue(MINUTE_OF_HOUR, 2, 2, SignStyle.NEVER)
-                .optionalStart()
-                .appendLiteral(':')
-                .appendValue(SECOND_OF_MINUTE, 2, 2, SignStyle.NEVER)
-                .toFormatter(Locale.ROOT);
 
     @Override
     public Date deserialize(
@@ -82,7 +52,7 @@ class InternalDateDeserializer extends JsonDeserializer<Date> {
             }
             try {
                 final LocalDateTime localDateTime = parse(text);
-                final Instant instant = localDateTime.atZone(ZoneOffset.systemDefault()).toInstant();
+                final Instant instant = localDateTime.atZone(JsonConsts.UTC).toInstant();
                 return new Date(instant.toEpochMilli());
             } catch (DateTimeParseException ex) {
                 throw new JsonParseException("Unparseable date: '" + text + "'", jsonParser.getCurrentLocation(), ex);
@@ -94,9 +64,9 @@ class InternalDateDeserializer extends JsonDeserializer<Date> {
 
     static LocalDateTime parse(final CharSequence text) {
         try {
-            return DATE_TIME_FORMATTER.parse(text, LocalDateTime::from);
+            return JsonConsts.DATE_TIME_FORMATTER.parse(text, LocalDateTime::from);
         } catch (DateTimeException ex) {
-            return DATE_FORMATTER.parse(text, LocalDate::from).atStartOfDay();
+            return JsonConsts.DATE_FORMATTER.parse(text, LocalDate::from).atStartOfDay();
         }
     }
 

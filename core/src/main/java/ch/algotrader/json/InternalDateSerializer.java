@@ -19,8 +19,6 @@
 package ch.algotrader.json;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.Date;
 
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -34,8 +32,11 @@ class InternalDateSerializer extends JsonSerializer<Date> {
     public void serialize(
             final Date value, final JsonGenerator gen, final SerializerProvider serializers) throws IOException, JsonProcessingException {
 
-        LocalDateTime localDateTime = value.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-        gen.writeString(InternalDateDeserializer.DATE_TIME_FORMATTER.format(localDateTime));
+        if (value != null) {
+            gen.writeNumber(value.getTime());
+        } else {
+            gen.writeNull();
+        }
     }
 
 }

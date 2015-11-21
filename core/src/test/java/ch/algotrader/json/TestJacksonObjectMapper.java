@@ -64,13 +64,13 @@ public class TestJacksonObjectMapper {
 
         ObjectWriter objectWriter = this.objectMapper.writerFor(MarketOrderVO.class);
         MarketOrderVO order = new MarketOrderVO(0L, "this", "that", null, Side.BUY, 1000L,
-                TIF.GTD, DateTimeLegacy.toLocalDateTime(LocalDateTime.of(2015, Month.NOVEMBER, 10, 20, 0, 0)), 0L, 10L, 101L, 1L);
+                TIF.GTD, DateTimeLegacy.toGMTDateTime(LocalDateTime.of(2015, Month.NOVEMBER, 10, 20, 0, 0)), 0L, 10L, 101L, 1L);
         StringWriter writer = new StringWriter();
         objectWriter.writeValue(writer, order);
 
         String s = writer.toString();
         Assert.assertEquals("{\"id\":0,\"intId\":\"this\",\"extId\":\"that\",\"dateTime\":null,\"side\":\"BUY\",\"quantity\":1000," +
-                "\"tif\":\"GTD\",\"tifDateTime\":\"2015-11-10 20:00:00\",\"exchangeId\":0,\"securityId\":10,\"accountId\":101,\"strategyId\":1}", s);
+                "\"tif\":\"GTD\",\"tifDateTime\":1447185600000,\"exchangeId\":0,\"securityId\":10,\"accountId\":101,\"strategyId\":1}", s);
     }
 
 }
