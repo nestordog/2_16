@@ -32,6 +32,7 @@ import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderCompletionVO;
 import ch.algotrader.entity.trade.OrderDetailsVO;
 import ch.algotrader.entity.trade.OrderStatus;
+import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.dispatch.EventDispatcher;
@@ -107,11 +108,39 @@ public class OrderExecutionServiceImpl implements OrderExecutionService {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("propagated orderStatus: {}", orderStatus);
             }
-            // only store OrderStatus for non AlgoOrders
             // and ignore order status message with synthetic (non-positive) sequence number
-            if (orderStatus.getSequenceNumber() > 0 && !(order instanceof AlgoOrder)) {
+            if (orderStatus.getSequenceNumber() > 0) {
 
                 this.orderPersistService.persistOrderStatus(orderStatus);
+            }
+        }
+
+        Order parentOrder = order.getParentOrder();
+        if (parentOrder instanceof AlgoOrder && orderStatus.getStatus() == Status.SUBMITTED) {
+
+            String algoOrderId = parentOrder.getIntId();
+            ExecutionStatusVO execStatus = this.orderRegistry.getStatusByIntId(algoOrderId);
+            if (execStatus != null && execStatus.getStatus() == Status.OPEN) {
+                OrderStatus algoOrderStatus = OrderStatus.Factory.newInstance();
+                algoOrderStatus.setStatus(Status.SUBMITTED);
+                algoOrderStatus.setIntId(algoOrderId);
+                algoOrderStatus.setExtDateTime(this.serverEngine.getCurrentTime());
+                algoOrderStatus.setDateTime(algoOrderStatus.getExtDateTime());
+                algoOrderStatus.setFilledQuantity(0L);
+                algoOrderStatus.setRemainingQuantity(execStatus.getRemainingQuantity());
+                algoOrderStatus.setOrder(parentOrder);
+
+                this.orderRegistry.updateExecutionStatus(algoOrderId, null, algoOrderStatus.getStatus(),
+                        algoOrderStatus.getFilledQuantity(), algoOrderStatus.getRemainingQuantity());
+
+                this.serverEngine.sendEvent(algoOrderStatus);
+                this.eventDispatcher.sendEvent(strategy.getName(), algoOrderStatus.convertToVO());
+
+                if (!this.commonConfig.isSimulation()) {
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("propagated orderStatus: {}", algoOrderStatus);
+                    }
+                }
             }
         }
 
@@ -137,6 +166,36 @@ public class OrderExecutionServiceImpl implements OrderExecutionService {
                 LOGGER.info("received fill {} for order {}", fill, order);
             }
         }
+
+        Order parentOrder = order.getParentOrder();
+        if (parentOrder instanceof AlgoOrder) {
+
+            String algoOrderId = parentOrder.getIntId();
+            ExecutionStatusVO execStatus = this.orderRegistry.getStatusByIntId(algoOrderId);
+            if (execStatus != null) {
+                OrderStatus algoOrderStatus = OrderStatus.Factory.newInstance();
+                algoOrderStatus.setStatus(execStatus.getRemainingQuantity() - fill.getQuantity() > 0 ? Status.PARTIALLY_EXECUTED : Status.EXECUTED);
+                algoOrderStatus.setIntId(algoOrderId);
+                algoOrderStatus.setExtDateTime(this.serverEngine.getCurrentTime());
+                algoOrderStatus.setDateTime(algoOrderStatus.getExtDateTime());
+                algoOrderStatus.setFilledQuantity(execStatus.getFilledQuantity() + fill.getQuantity());
+                algoOrderStatus.setRemainingQuantity(execStatus.getRemainingQuantity() - fill.getQuantity());
+                algoOrderStatus.setOrder(parentOrder);
+
+                this.orderRegistry.updateExecutionStatus(algoOrderId, null, algoOrderStatus.getStatus(),
+                        algoOrderStatus.getFilledQuantity(), algoOrderStatus.getRemainingQuantity());
+
+                this.serverEngine.sendEvent(algoOrderStatus);
+                this.eventDispatcher.sendEvent(strategy.getName(), algoOrderStatus.convertToVO());
+
+                if (!this.commonConfig.isSimulation()) {
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("propagated orderStatus: {}", algoOrderStatus);
+                    }
+                }
+            }
+        }
+
     }
 
     /**

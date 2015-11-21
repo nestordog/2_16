@@ -323,10 +323,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
 
         this.orderRegistry.add(order);
 
-        // progapate the order to all corresponding esper engines
         propagateOrder(order);
-
-        this.serverEngine.sendEvent(order);
     }
 
     private void sendSimpleOrder(final SimpleOrder order) {
@@ -394,29 +391,32 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
 
     private void cancelAlgoOrder(AlgoOrder order) {
 
-        // cancel existing child orders
+        String algoOrderId = order.getIntId();
+        ExecutionStatusVO executionStatus = this.orderRegistry.getStatusByIntId(algoOrderId);
+        if (executionStatus != null) {
+            OrderStatus algoOrderStatus = OrderStatus.Factory.newInstance();
+            algoOrderStatus.setIntId(algoOrderId);
+            algoOrderStatus.setStatus(Status.CANCELED);
+            algoOrderStatus.setFilledQuantity(executionStatus.getFilledQuantity());
+            algoOrderStatus.setRemainingQuantity(executionStatus.getRemainingQuantity());
+            algoOrderStatus.setOrder(order);
+
+            this.orderRegistry.updateExecutionStatus(algoOrderId, null, algoOrderStatus.getStatus(),
+                    algoOrderStatus.getFilledQuantity(), algoOrderStatus.getRemainingQuantity());
+
+            propagateOrderStatus(algoOrderStatus);
+
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("cancelled algo order: {}", order);
+            }
+        }
+
         Collection<Order> openOrders = this.orderRegistry.getOpenOrdersByParentIntId(order.getIntId());
-        openOrders.forEach(childOrder -> {
-            Account account = order.getAccount();
-            Validate.notNull(account, "missing account for order: " + order);
-            getExternalOrderService(account).cancelOrder((SimpleOrder) childOrder);
-        });
-
-        ExecutionStatusVO executionStatus = this.orderRegistry.getStatusByIntId(order.getIntId());
-
-        // assemble a new OrderStatus Entity
-        OrderStatus orderStatus = OrderStatus.Factory.newInstance();
-        orderStatus.setIntId(order.getIntId());
-        orderStatus.setStatus(Status.CANCELED);
-        orderStatus.setFilledQuantity(executionStatus != null ? executionStatus.getFilledQuantity() : 0L);
-        orderStatus.setRemainingQuantity(executionStatus != null ? executionStatus.getRemainingQuantity() : 0L);
-        orderStatus.setOrder(order);
-
-        // send the orderStatus
-        this.serverEngine.sendEvent(orderStatus);
-
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("cancelled algo order: {}", order);
+        for (Order childOrder: openOrders) {
+            if (childOrder instanceof SimpleOrder) {
+                Account account = order.getAccount();
+                getExternalOrderService(account).cancelOrder((SimpleOrder) childOrder);
+            }
         }
     }
 
@@ -531,8 +531,6 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
 
     private void propagateOrder(final Order order) {
 
-        Validate.notNull(order, "Order is null");
-
         // send the order into the AlgoTrader Server engine to be correlated with fills
         this.serverEngine.sendEvent(order);
 
@@ -541,6 +539,20 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
         if (!strategy.isServer()) {
 
             this.eventDispatcher.sendEvent(strategy.getName(), order.convertToVO());
+        }
+    }
+
+    private void propagateOrderStatus(final OrderStatus orderStatus) {
+
+        // send the order into the AlgoTrader Server engine to be correlated with fills
+        this.serverEngine.sendEvent(orderStatus);
+
+        // also send the order to the strategy that placed the order
+        Order order = orderStatus.getOrder();
+        Strategy strategy = order.getStrategy();
+        if (!strategy.isServer()) {
+
+            this.eventDispatcher.sendEvent(strategy.getName(), orderStatus.convertToVO());
         }
     }
 

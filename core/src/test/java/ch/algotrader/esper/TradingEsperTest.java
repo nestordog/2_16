@@ -3,7 +3,6 @@ package ch.algotrader.esper;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -21,7 +20,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import com.espertech.esper.client.Configuration;
@@ -46,7 +44,6 @@ import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.trade.Allocation;
 import ch.algotrader.entity.trade.DistributingOrder;
-import ch.algotrader.entity.trade.ExecutionStatusVO;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.MarketOrder;
 import ch.algotrader.entity.trade.Order;
@@ -445,147 +442,6 @@ public class TradingEsperTest extends EsperTestBase {
         Collection<Order> orders = orderQueue.poll();
         Assert.assertNotNull(orders);
         Assert.assertEquals(2, orders.size());
-    }
-
-    @Test
-    public void testAlgoOrderStatusSubmitted() throws Exception {
-
-        deployModule(this.epService,
-                getClass().getResource("/module-trades.epl"), "INSERT_INTO_ALGO_ORDER_STATUS_SUBMITTED");
-
-        final Queue<OrderStatus> orderQueue = new ConcurrentLinkedQueue<>();
-        EPStatement statement1 = this.epService.getEPAdministrator().createEPL("select * from OrderStatus");
-        Assert.assertNotNull(statement1);
-        statement1.setSubscriber(new Object() {
-            @SuppressWarnings("unused")
-            public void update(final OrderStatus event) {
-                orderQueue.add(event);
-            }
-        });
-
-        DistributingOrder algoOrder = new DistributingOrder();
-        algoOrder.setIntId("my-algo-order");
-        algoOrder.setSecurity(this.eurusd);
-        algoOrder.setSide(Side.BUY);
-        algoOrder.setQuantity(200);
-
-        Account account1 = Account.Factory.newInstance();
-        account1.setName("acc1");
-        Account account2 = Account.Factory.newInstance();
-        account1.setName("acc2");
-
-        Allocation allocation1 = Allocation.Factory.newInstance();
-        allocation1.setValue(0.4);
-        allocation1.setAccount(account1);
-        algoOrder.addAllocations(allocation1);
-
-        Allocation allocation2 = Allocation.Factory.newInstance();
-        allocation2.setValue(0.6);
-        allocation2.setAccount(account2);
-        algoOrder.addAllocations(allocation2);
-
-        MarketOrder childOrder = MarketOrder.Factory.newInstance();
-        childOrder.setIntId("my-child-order");
-        childOrder.setParentOrder(algoOrder);
-        childOrder.setSecurity(this.eurusd);
-        childOrder.setQuantity(40);
-        childOrder.setSide(Side.BUY);
-        childOrder.setAccount(account1);
-
-        OrderStatus orderStatus1 = OrderStatus.Factory.newInstance();
-        orderStatus1.setIntId("my-child-order");
-        orderStatus1.setOrder(childOrder);
-        orderStatus1.setStatus(Status.SUBMITTED);
-
-        Mockito.when(this.orderService.getStatusByIntId("my-algo-order")).thenReturn(
-                new ExecutionStatusVO("my-algo-order", Status.OPEN, 0L, 199L, LocalDateTime.now()));
-
-        this.epRuntime.sendEvent(orderStatus1);
-
-        Assert.assertSame(orderStatus1, orderQueue.poll());
-        OrderStatus orderStatus2 = orderQueue.poll();
-        Assert.assertNotNull(orderStatus2);
-        Assert.assertEquals(Status.SUBMITTED, orderStatus2.getStatus());
-        Assert.assertSame(algoOrder, orderStatus2.getOrder());
-        Assert.assertEquals(0L, orderStatus2.getFilledQuantity());
-        Assert.assertEquals(199L, orderStatus2.getRemainingQuantity());
-    }
-
-    @Test
-    public void testAlgoOrderStatusFilled() throws Exception {
-
-        deployModule(this.epService,
-                getClass().getResource("/module-trades.epl"), "INSERT_INTO_ALGO_ORDER_STATUS_FROM_FILL");
-
-        final Queue<OrderStatus> orderQueue = new ConcurrentLinkedQueue<>();
-        EPStatement statement1 = this.epService.getEPAdministrator().createEPL("select * from OrderStatus");
-        Assert.assertNotNull(statement1);
-        statement1.setSubscriber(new Object() {
-            @SuppressWarnings("unused")
-            public void update(final OrderStatus event) {
-                orderQueue.add(event);
-            }
-        });
-
-        DistributingOrder algoOrder = new DistributingOrder();
-        algoOrder.setIntId("my-algo-order");
-        algoOrder.setSecurity(this.eurusd);
-        algoOrder.setSide(Side.BUY);
-        algoOrder.setQuantity(200);
-
-        Account account1 = Account.Factory.newInstance();
-        account1.setName("acc1");
-        Account account2 = Account.Factory.newInstance();
-        account1.setName("acc2");
-
-        Allocation allocation1 = Allocation.Factory.newInstance();
-        allocation1.setValue(0.4);
-        allocation1.setAccount(account1);
-        algoOrder.addAllocations(allocation1);
-
-        Allocation allocation2 = Allocation.Factory.newInstance();
-        allocation2.setValue(0.6);
-        allocation2.setAccount(account2);
-        algoOrder.addAllocations(allocation2);
-
-        MarketOrder childOrder = MarketOrder.Factory.newInstance();
-        childOrder.setIntId("my-child-order");
-        childOrder.setParentOrder(algoOrder);
-        childOrder.setSecurity(this.eurusd);
-        childOrder.setQuantity(40);
-        childOrder.setSide(Side.BUY);
-        childOrder.setAccount(account1);
-
-        Mockito.when(this.orderService.getStatusByIntId("my-algo-order")).thenReturn(
-                new ExecutionStatusVO("my-algo-order", Status.OPEN, 0L, 199L, LocalDateTime.now()));
-
-        Fill fill1 = new Fill();
-        fill1.setOrder(childOrder);
-        fill1.setSide(Side.BUY);
-        fill1.setQuantity(10L);
-
-        this.epRuntime.sendEvent(fill1);
-
-        OrderStatus orderStatus1 = orderQueue.poll();
-        Assert.assertNotNull(orderStatus1);
-        Assert.assertEquals(Status.PARTIALLY_EXECUTED, orderStatus1.getStatus());
-        Assert.assertSame(algoOrder, orderStatus1.getOrder());
-        Assert.assertEquals(10L, orderStatus1.getFilledQuantity());
-        Assert.assertEquals(189L, orderStatus1.getRemainingQuantity());
-
-        Fill fill2 = new Fill();
-        fill2.setOrder(childOrder);
-        fill2.setSide(Side.BUY);
-        fill2.setQuantity(199L);
-
-        this.epRuntime.sendEvent(fill2);
-
-        OrderStatus orderStatus2 = orderQueue.poll();
-        Assert.assertNotNull(orderStatus2);
-        Assert.assertEquals(Status.EXECUTED, orderStatus2.getStatus());
-        Assert.assertSame(algoOrder, orderStatus2.getOrder());
-        Assert.assertEquals(199L, orderStatus2.getFilledQuantity());
-        Assert.assertEquals(0L, orderStatus2.getRemainingQuantity());
     }
 
     @Test

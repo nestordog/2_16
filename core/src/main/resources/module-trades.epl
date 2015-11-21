@@ -60,42 +60,6 @@ order by
 limit
 	1;
 
-@Name('INSERT_INTO_ALGO_ORDER_STATUS_SUBMITTED')
-@RunTimeOnly()
-insert into
-    OrderStatus
-select
-    0L as id,
-    current_timestamp.toDate() as dateTime,
-    Status.SUBMITTED as status,
-    0L as filledQuantity,
-    orderExec.remainingQuantity as remainingQuantity,
-    `order`.parentOrder.intId as intId,
-    0 as sequenceNumber,
-    `order`.parentOrder as `order`
-from
-    OrderStatus(status = Status.SUBMITTED, `order`.parentOrder.algoOrder) as orderStatus unidirectional,
-    method:orderService.getStatusByIntId(`order`.parentOrder.intId) as orderExec
-where
-    orderExec.status = Status.OPEN;
-
-@Name('INSERT_INTO_ALGO_ORDER_STATUS_FROM_FILL')
-@RunTimeOnly()
-insert into
-    OrderStatus
-select
-    0L as id,
-    current_timestamp.toDate() as dateTime,
-    case when orderExec.remainingQuantity - fill.quantity > 0 then Status.PARTIALLY_EXECUTED else Status.EXECUTED end as status,
-    orderExec.filledQuantity + fill.quantity as filledQuantity,
-    orderExec.remainingQuantity - fill.quantity as remainingQuantity,
-    `order`.parentOrder.intId as intId,
-    0 as sequenceNumber,
-    `order`.parentOrder as `order`
-from
-    Fill(`order`.parentOrder.algoOrder) as fill unidirectional,
-    method:orderService.getStatusByIntId(`order`.parentOrder.intId) as orderExec;
-
 // ------------------------------LOGGING / PROPAGATION--------------------------------
 
 @Name('LOG_TRANSACTION_SUMMARY')
@@ -108,13 +72,6 @@ from
         status = Status.EXECUTED or status = Status.CANCELED,
         (not fill.`order`.parentOrder is null and `order`.intId = fill.`order`.parentOrder.intId) or
         (fill.`order`.parentOrder is null and `order`.intId = fill.`order`.intId))];
-
-@Name('PROPAGATE_ALGO_ORDER_STATUS')
-@Subscriber(className='eventPropagator#propagateOrderStatus')
-select
-    *
-from
-    OrderStatus(sequenceNumber = 0);
 
 @Name('PROPAGATE_ORDER_COMPLETION')
 @RunTimeOnly()
