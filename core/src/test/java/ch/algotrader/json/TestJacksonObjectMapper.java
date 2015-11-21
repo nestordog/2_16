@@ -133,7 +133,7 @@ public class TestJacksonObjectMapper {
         Assert.assertEquals(Side.BUY, order.getSide());
         Assert.assertEquals(1000L, order.getQuantity());
         Assert.assertEquals(TIF.DAY, order.getTif());
-        Assert.assertEquals(DateTimeLegacy.toLocalDateTime(LocalDateTime.of(2015, Month.NOVEMBER, 10, 20, 0, 0)), order.getTifDateTime());
+        Assert.assertEquals(DateTimeLegacy.toGMTDateTime(LocalDateTime.of(2015, Month.NOVEMBER, 10, 20, 0, 0)), order.getTifDateTime());
         Assert.assertEquals(2L, order.getExchangeId());
         Assert.assertEquals(10L, order.getSecurityId());
         Assert.assertEquals(101L, order.getAccountId());
