@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.fix;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.TimeZone;
@@ -77,6 +78,33 @@ public class DefaultFixAdapter implements FixAdapter {
         return orderIdGenerator;
     }
 
+    private SessionID findSessionID(final String sessionQualifier) {
+
+        for (Iterator<SessionID> it = this.socketInitiator.getSettings().sectionIterator(); it.hasNext();) {
+            SessionID sessionId = it.next();
+            if (sessionId.getSessionQualifier().equals(sessionQualifier)) {
+                return sessionId;
+            }
+        }
+        throw new FixApplicationException("FIX configuration error: SessionID missing in settings " + sessionQualifier);
+    }
+
+    @Override
+    public Session getSession(String sessionQualifier) throws FixApplicationException {
+
+        this.lock.lock();
+        try {
+            SessionID sessionId = findSessionID(sessionQualifier);
+            Session session = Session.lookupSession(sessionId);
+            if (session == null) {
+                throw new FixApplicationException("FIX configuration error: session " + sessionId + " not found");
+            }
+            return session;
+        } finally {
+            this.lock.unlock();
+        }
+    }
+
     /**
      * creates an individual session
      */
@@ -112,38 +140,30 @@ public class DefaultFixAdapter implements FixAdapter {
         }
     }
 
-    private void createSessionInternal(String sessionQualifier, boolean createNew) throws FixApplicationException {
+    private Session createSessionInternal(String sessionQualifier, boolean createNew) throws FixApplicationException {
 
         this.lock.lock();
         try {
-            // need to iterate over all sessions definitions in the settings because there is no lookup method
-            for (Iterator<SessionID> i = this.socketInitiator.getSettings().sectionIterator(); i.hasNext();) {
-                SessionID sessionId = i.next();
-                if (sessionId.getSessionQualifier().equals(sessionQualifier)) {
-                    Session session = Session.lookupSession(sessionId);
-                    if (session != null) {
-                        if (createNew) {
-                            throw new IllegalStateException("FIX configuration error: " +
-                                    "existing session with qualifier " + sessionQualifier + " please add 'Inactive=Y' to session config");
-                        }
-                    } else {
+            SessionID sessionId = findSessionID(sessionQualifier);
+            Session session = Session.lookupSession(sessionId);
+            if (session != null) {
+                if (createNew) {
+                    throw new FixApplicationException("FIX configuration error: " +
+                            "existing session with qualifier " + sessionQualifier + " please add 'Inactive=Y' to session config");
+                }
+            } else {
 
-                        try {
-                            this.socketInitiator.createDynamicSession(sessionId);
-                            if (this.eventScheduler != null) {
+                try {
+                    this.socketInitiator.createDynamicSession(sessionId);
+                    if (this.eventScheduler != null) {
 
-                                createLogonLogoutStatement(sessionId);
-                            }
-                        } catch (FieldConvertError | ConfigError ex) {
-                            throw new FixApplicationException("FIX configuration error: " + ex.getMessage(), ex);
-                        }
+                        createLogonLogoutStatement(sessionId);
                     }
-                    return;
+                } catch (FieldConvertError | ConfigError ex) {
+                    throw new FixApplicationException("FIX configuration error: " + ex.getMessage(), ex);
                 }
             }
-
-            throw new FixApplicationException("FIX configuration error: SessionID missing in settings " + sessionQualifier);
-
+            return session;
         } finally {
             this.lock.unlock();
         }
@@ -159,6 +179,23 @@ public class DefaultFixAdapter implements FixAdapter {
     public void openSession(String sessionQualifier) throws FixApplicationException {
 
         createSessionInternal(sessionQualifier, false);
+    }
+
+    @Override
+    public void closeSession(String sessionQualifier) throws FixApplicationException {
+
+        this.lock.lock();
+        try {
+            SessionID sessionId = findSessionID(sessionQualifier);
+            Session session = Session.lookupSession(sessionId);
+            if (session != null) {
+                session.close();
+            }
+        } catch (IOException ex) {
+            throw new FixApplicationException(ex.getMessage(), ex);
+        } finally {
+            this.lock.unlock();
+        }
     }
 
     /**

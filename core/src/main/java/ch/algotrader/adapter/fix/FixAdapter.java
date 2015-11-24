@@ -19,6 +19,7 @@ package ch.algotrader.adapter.fix;
 
 import ch.algotrader.entity.Account;
 import quickfix.Message;
+import quickfix.Session;
 
 /**
  * Main entry point to Fix sessions.
@@ -26,6 +27,11 @@ import quickfix.Message;
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  */
 public interface FixAdapter {
+
+    /**
+     * Returns session with the given identifier.
+     */
+    Session getSession(String sessionQualifier) throws FixApplicationException;
 
     /**
      * creates an individual session
@@ -48,6 +54,11 @@ public interface FixAdapter {
      * if there is no session with the given qualifier.
      */
     void openSession(String sessionQualifier) throws FixApplicationException;
+
+    /**
+     * Closes session with the given identifier if open.
+     */
+    void closeSession(String sessionQualifier) throws FixApplicationException;
 
     /**
      * sends a message to the designated session for the given account
