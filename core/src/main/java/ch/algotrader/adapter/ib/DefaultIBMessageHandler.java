@@ -525,6 +525,13 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
                 LOGGER.error(message);
                 break;
 
+            case 10052:
+
+                // Order rejected un-supported TIF
+                orderRejected(id, errorMsg);
+                LOGGER.error(message);
+                break;
+
             case 201:
 
                 if (errorMsg.contains("Order rejected - reason:Cannot cancel the filled order")) {
