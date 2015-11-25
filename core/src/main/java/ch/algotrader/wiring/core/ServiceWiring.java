@@ -418,9 +418,10 @@ public class ServiceWiring {
             final OrderDao orderDao,
             final OrderStatusDao orderStatusDao,
             final PositionDao positionDao,
+            final CashBalanceDao cashBalanceDao,
             final OrderRegistry orderRegistry,
             final EventDispatcher eventDispatcher) {
-        return new ServerStateLoaderServiceImpl(sessionFactory, orderDao, orderStatusDao, positionDao, orderRegistry, eventDispatcher);
+        return new ServerStateLoaderServiceImpl(sessionFactory, orderDao, orderStatusDao, positionDao, cashBalanceDao, orderRegistry, eventDispatcher);
     }
 
     @Bean(name = "eventPropagator")

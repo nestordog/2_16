@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import ch.algotrader.entity.Position;
+import ch.algotrader.entity.strategy.CashBalance;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderStatus;
 
@@ -45,5 +46,10 @@ public interface ServerStateLoaderService {
      * Load all existing positions.
      */
     List<Position> getAllPositions();
+
+    /**
+     * Load all existing cash balances.
+     */
+    List<CashBalance> getAllCashBalances();
 
 }

@@ -32,11 +32,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import ch.algotrader.dao.HibernateInitializer;
 import ch.algotrader.dao.PositionDao;
+import ch.algotrader.dao.strategy.CashBalanceDao;
 import ch.algotrader.dao.trade.OrderDao;
 import ch.algotrader.dao.trade.OrderStatusDao;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
+import ch.algotrader.entity.strategy.CashBalance;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderStatus;
@@ -61,6 +63,8 @@ public class ServerStateLoaderServiceImpl implements ServerStateLoaderService, I
 
     private final PositionDao positionDao;
 
+    private final CashBalanceDao cashBalanceDao;
+
     private final OrderRegistry orderRegistry;
 
     private final EventDispatcher eventDispatcher;
@@ -70,6 +74,7 @@ public class ServerStateLoaderServiceImpl implements ServerStateLoaderService, I
             final OrderDao orderDao,
             final OrderStatusDao orderStatusDao,
             final PositionDao positionDao,
+            final CashBalanceDao cashBalanceDao,
             final OrderRegistry orderRegistry,
             final EventDispatcher eventDispatcher) {
 
@@ -77,6 +82,7 @@ public class ServerStateLoaderServiceImpl implements ServerStateLoaderService, I
         Validate.notNull(orderDao, "OrderDao is null");
         Validate.notNull(orderStatusDao, "OrderStatusDao is null");
         Validate.notNull(positionDao, "PositionDao is null");
+        Validate.notNull(cashBalanceDao, "CashBalanceDao is null");
         Validate.notNull(orderRegistry, "OpenOrderRegistry is null");
         Validate.notNull(eventDispatcher, "PlatformEventDispatcher is null");
 
@@ -84,6 +90,7 @@ public class ServerStateLoaderServiceImpl implements ServerStateLoaderService, I
         this.orderDao = orderDao;
         this.orderStatusDao = orderStatusDao;
         this.positionDao = positionDao;
+        this.cashBalanceDao = cashBalanceDao;
         this.orderRegistry = orderRegistry;
         this.eventDispatcher = eventDispatcher;
     }
@@ -127,12 +134,24 @@ public class ServerStateLoaderServiceImpl implements ServerStateLoaderService, I
     }
 
     @Override
+    public List<CashBalance> getAllCashBalances() {
+
+        return this.cashBalanceDao.loadAll();
+    }
+
+    @Override
     public void init() {
 
         List<Position> positions = getAllPositions();
         for (Position position: positions) {
             Strategy strategy = position.getStrategy();
             this.eventDispatcher.resendPastEvent(strategy.getName(), position.convertToVO());
+        }
+
+        List<CashBalance> cashBalances = getAllCashBalances();
+        for (CashBalance cashBalance: cashBalances) {
+            Strategy strategy = cashBalance.getStrategy();
+            this.eventDispatcher.resendPastEvent(strategy.getName(), cashBalance.convertToVO());
         }
 
         Map<Order, OrderStatus> pendingOrderMap = loadPendingOrders();
