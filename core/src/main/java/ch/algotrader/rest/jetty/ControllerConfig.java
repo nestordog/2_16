@@ -33,7 +33,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import ch.algotrader.config.ConfigParams;
 import ch.algotrader.entity.security.Security;
+import ch.algotrader.rest.ConfigRestController;
 import ch.algotrader.rest.LookupRestController;
 import ch.algotrader.rest.MarketDataRestController;
 import ch.algotrader.rest.MetaDataRestController;
@@ -55,6 +57,8 @@ public class ControllerConfig extends WebMvcConfigurerAdapter {
     private OrderService orderService;
     @Autowired
     private MarketDataService marketDataService;
+    @Autowired
+    private ConfigParams configParams;
 
     @Override
     public void configureMessageConverters(final List<HttpMessageConverter<?>> converters) {
@@ -97,6 +101,12 @@ public class ControllerConfig extends WebMvcConfigurerAdapter {
     public MarketDataRestController createMarketDataRestController() {
 
         return new MarketDataRestController(this.marketDataService);
+    }
+
+    @Bean(name = "configRestController")
+    public ConfigRestController createConfigRestController() {
+
+        return new ConfigRestController(this.configParams);
     }
 
 }
