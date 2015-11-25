@@ -50,6 +50,7 @@ import ch.algotrader.broker.subscription.TopicSubscriptionHandler;
 import ch.algotrader.entity.PositionVO;
 import ch.algotrader.entity.TransactionVO;
 import ch.algotrader.entity.marketData.TickVO;
+import ch.algotrader.entity.strategy.CashBalanceVO;
 import ch.algotrader.entity.trade.OrderStatusVO;
 import ch.algotrader.entity.trade.OrderVO;
 import ch.algotrader.event.dispatch.EventDispatcher;
@@ -132,10 +133,12 @@ public class BrokerWiring {
                 new StrategyTopicCreator<>(SubscriptionTopic.ORDER.getBaseTopic(), OrderVO::getIntId));
         publisher.register(OrderStatusVO.class,
                 new StrategyTopicCreator<>(SubscriptionTopic.ORDER_STATUS.getBaseTopic(), OrderStatusVO::getIntId));
-        publisher.register(PositionVO.class,
-                new StrategyTopicCreator<>(SubscriptionTopic.POSITION.getBaseTopic(), position -> String.valueOf(position.getId())));
         publisher.register(TransactionVO.class,
                 new StrategyTopicCreator<>(SubscriptionTopic.TRANSACTION.getBaseTopic(), TransactionVO::getUuid));
+        publisher.register(PositionVO.class,
+                new StrategyTopicCreator<>(SubscriptionTopic.POSITION.getBaseTopic(), position -> String.valueOf(position.getId())));
+        publisher.register(CashBalanceVO.class,
+                new StrategyTopicCreator<>(SubscriptionTopic.CASH_BALANCE.getBaseTopic(), cashBalance -> String.valueOf(cashBalance.getId())));
         publisher.register(MarketDataSubscriptionVO.class,
                 new MarketDataSubscriptionTopicCreator<>(SubscriptionTopic.MARKET_DATA_SUBSCRIPTION.getBaseTopic()));
 

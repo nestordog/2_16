@@ -28,6 +28,7 @@ public enum SubscriptionTopic {
     TRANSACTION("transaction"),
     TICK("tick"),
     POSITION("position"),
+    CASH_BALANCE("cash-balance"),
     MARKET_DATA_SUBSCRIPTION("market-data-subscription"),
     ;
 

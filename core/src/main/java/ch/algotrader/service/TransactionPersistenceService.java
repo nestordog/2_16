@@ -19,8 +19,8 @@ package ch.algotrader.service;
 
 import java.util.Collection;
 
-import ch.algotrader.entity.PositionVO;
 import ch.algotrader.entity.Transaction;
+import ch.algotrader.vo.TransactionResultVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -41,7 +41,7 @@ public interface TransactionPersistenceService {
      * {@link ch.algotrader.entity.strategy.PortfolioValue}. If this transaction
      * closes a position, a corresponding {@link ch.algotrader.vo.TradePerformanceVO} is calculated.
      */
-    PositionVO saveTransaction(Transaction transaction);
+    TransactionResultVO saveTransaction(Transaction transaction);
 
     /**
      * Saves given {@link ch.algotrader.entity.Transaction}s, updates
@@ -56,6 +56,6 @@ public interface TransactionPersistenceService {
      * Calculates all Cash Balances based on Transactions in the database and makes adjustments if
      * necessary
      */
-    public String resetCashBalances();
+    String resetCashBalances();
 
 }

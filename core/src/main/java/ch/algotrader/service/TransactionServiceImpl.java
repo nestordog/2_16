@@ -43,6 +43,7 @@ import ch.algotrader.entity.PositionVO;
 import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
+import ch.algotrader.entity.strategy.CashBalanceVO;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.trade.ExternalFill;
 import ch.algotrader.entity.trade.Fill;
@@ -53,9 +54,12 @@ import ch.algotrader.enumeration.TransactionType;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.dispatch.EventDispatcher;
+import ch.algotrader.report.TradeReport;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.collection.CollectionUtil;
 import ch.algotrader.util.metric.MetricsUtil;
+import ch.algotrader.vo.TradePerformanceVO;
+import ch.algotrader.vo.TransactionResultVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -85,6 +89,8 @@ public class TransactionServiceImpl implements TransactionService {
     private final EngineManager engineManager;
 
     private final Engine serverEngine;
+
+    private final TradeReport tradeReport;
 
     public TransactionServiceImpl(
             final CommonConfig commonConfig,
@@ -119,6 +125,7 @@ public class TransactionServiceImpl implements TransactionService {
         this.eventDispatcher = eventDispatcher;
         this.engineManager = engineManager;
         this.serverEngine = serverEngine;
+        this.tradeReport = new TradeReport();
     }
 
     /**
@@ -349,7 +356,39 @@ public class TransactionServiceImpl implements TransactionService {
 
             this.transactionPersistenceService.ensurePositionAndCashBalance(transaction);
         }
-        this.transactionPersistenceService.saveTransaction(transaction);
+        TransactionResultVO transactionResult = this.transactionPersistenceService.saveTransaction(transaction);
+        handleTransactionResult(transaction, transactionResult);
+    }
+
+    private TransactionResultVO handleTransactionResult(final Transaction transaction, final TransactionResultVO transactionResult) {
+
+        TradePerformanceVO tradePerformance = transactionResult.getTradePerformance();
+        if (tradePerformance != null && tradePerformance.getProfit() != 0.0) {
+
+            // propagate the TradePerformance event
+            this.serverEngine.sendEvent(tradePerformance);
+
+            // log trade report
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("executed transaction: {},profit={},profitPct=", transaction,
+                        RoundUtil.getBigDecimal(tradePerformance.getProfit()),
+                        RoundUtil.getBigDecimal(tradePerformance.getProfitPct()));
+            }
+            this.tradeReport.write(transaction, tradePerformance);
+        } else {
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("executed transaction: {}", transaction);
+            }
+        }
+        List<CashBalanceVO> cashBalances = transactionResult.getCashBalances();
+        if (!cashBalances.isEmpty()) {
+            Strategy strategy = transaction.getStrategy();
+            for (CashBalanceVO cashBalance: cashBalances) {
+                this.eventDispatcher.sendEvent(strategy.getName(), cashBalance);
+            }
+        }
+
+        return transactionResult;
     }
 
     /**
@@ -405,12 +444,14 @@ public class TransactionServiceImpl implements TransactionService {
 
             this.transactionPersistenceService.ensurePositionAndCashBalance(transaction);
         }
-        PositionVO positionMutationEvent =  this.transactionPersistenceService.saveTransaction(transaction);
+        TransactionResultVO transactionResult = this.transactionPersistenceService.saveTransaction(transaction);
+        handleTransactionResult(transaction, transactionResult);
+        PositionVO positionMutation = transactionResult.getPositionMutation();
 
-        // propagate the positionMutationEvent to the corresponding strategy
-        if (positionMutationEvent != null) {
+        // propagate the positionMutation to the corresponding strategy
+        if (positionMutation != null) {
             Strategy strategy = transaction.getStrategy();
-            this.eventDispatcher.sendEvent(strategy.getName(), positionMutationEvent);
+            this.eventDispatcher.sendEvent(strategy.getName(), positionMutation);
         }
 
         // propagate the transaction to the corresponding strategy and AlgoTrader Server

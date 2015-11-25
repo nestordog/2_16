@@ -18,7 +18,9 @@
 package ch.algotrader.service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.Validate;
@@ -41,15 +43,14 @@ import ch.algotrader.entity.PositionVO;
 import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.strategy.CashBalance;
+import ch.algotrader.entity.strategy.CashBalanceVO;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.enumeration.Currency;
-import ch.algotrader.esper.Engine;
-import ch.algotrader.report.TradeReport;
-import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.collection.BigDecimalMap;
 import ch.algotrader.util.collection.Pair;
 import ch.algotrader.vo.CurrencyAmountVO;
 import ch.algotrader.vo.TradePerformanceVO;
+import ch.algotrader.vo.TransactionResultVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -69,32 +70,24 @@ public abstract class TransactionPersistenceServiceImpl implements TransactionPe
 
     private final CashBalanceDao cashBalanceDao;
 
-    private final TradeReport tradeReport;
-
-    private final Engine serverEngine;
-
     public TransactionPersistenceServiceImpl(
             final CommonConfig commonConfig,
             final PortfolioService portfolioService,
             final PositionDao positionDao,
             final TransactionDao transactionDao,
-            final CashBalanceDao cashBalanceDao,
-            final Engine serverEngine) {
+            final CashBalanceDao cashBalanceDao) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(portfolioService, "PortfolioService is null");
         Validate.notNull(positionDao, "PositionDao is null");
         Validate.notNull(transactionDao, "TransactionDao is null");
         Validate.notNull(cashBalanceDao, "CashBalanceDao is null");
-        Validate.notNull(serverEngine, "Engine is null");
 
         this.commonConfig = commonConfig;
         this.portfolioService = portfolioService;
         this.positionDao = positionDao;
         this.transactionDao = transactionDao;
         this.cashBalanceDao = cashBalanceDao;
-        this.serverEngine = serverEngine;
-        this.tradeReport = TradeReport.create();
     }
 
     /**
@@ -109,7 +102,7 @@ public abstract class TransactionPersistenceServiceImpl implements TransactionPe
     @Override
     @Retryable(maxAttempts = 5, value = {LockAcquisitionException.class, CannotAcquireLockException.class})
     @Transactional(propagation = Propagation.REQUIRED)
-    public PositionVO saveTransaction(final Transaction transaction) {
+    public TransactionResultVO saveTransaction(final Transaction transaction) {
 
         Validate.notNull(transaction, "Transaction is null");
 
@@ -144,8 +137,10 @@ public abstract class TransactionPersistenceServiceImpl implements TransactionPe
 
         transaction.initializeSecurity(HibernateInitializer.INSTANCE);
 
+        Collection<CurrencyAmountVO> attributions = transaction.getAttributions();
+        List<CashBalanceVO> cashBalances = new ArrayList<>(attributions.size());
         // add the amount to the corresponding cashBalance
-        for (CurrencyAmountVO amount : transaction.getAttributions()) {
+        for (CurrencyAmountVO amount : attributions) {
 
             Currency currency = amount.getCurrency();
             CashBalance cashBalance;
@@ -159,6 +154,7 @@ public abstract class TransactionPersistenceServiceImpl implements TransactionPe
                         " / currency " + currency + " not found ", null);
             }
             cashBalance.setAmount(cashBalance.getAmount().add(amount.getAmount()));
+            cashBalances.add(cashBalance.convertToVO());
         }
 
         // save a portfolioValue (if necessary)
@@ -167,24 +163,7 @@ public abstract class TransactionPersistenceServiceImpl implements TransactionPe
         // create the transaction
         this.transactionDao.save(transaction);
 
-        // prepare log message and propagate tradePerformance
-        String logMessage = "executed transaction: " + transaction;
-        if (tradePerformance != null && tradePerformance.getProfit() != 0.0) {
-
-            logMessage += ",profit=" + RoundUtil.getBigDecimal(tradePerformance.getProfit()) + ",profitPct=" + RoundUtil.getBigDecimal(tradePerformance.getProfitPct());
-
-            // propagate the TradePerformance event
-            this.serverEngine.sendEvent(tradePerformance);
-
-            // log trade report
-            this.tradeReport.write(transaction, tradePerformance);
-        }
-
-        LOGGER.info(logMessage);
-
-        // return PositionMutation event if existent
-        return positionMutation;
-
+        return new TransactionResultVO(positionMutation, tradePerformance, cashBalances);
     }
 
     /**

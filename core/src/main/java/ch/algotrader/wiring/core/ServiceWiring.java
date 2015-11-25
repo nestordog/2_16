@@ -446,10 +446,9 @@ public class ServiceWiring {
             final SessionFactory sessionFactory,
             final PositionDao positionDao,
             final TransactionDao transactionDao,
-            final CashBalanceDao cashBalanceDao,
-            final Engine serverEngine) {
+            final CashBalanceDao cashBalanceDao) {
 
-        return new MySqlTransactionPersistenceServiceImpl(commonConfig, portfolioService, sessionFactory, positionDao, transactionDao, cashBalanceDao, serverEngine);
+        return new MySqlTransactionPersistenceServiceImpl(commonConfig, portfolioService, sessionFactory, positionDao, transactionDao, cashBalanceDao);
     }
 
     @Profile("embeddedDataSource")
@@ -460,10 +459,9 @@ public class ServiceWiring {
             final SessionFactory sessionFactory,
             final PositionDao positionDao,
             final TransactionDao transactionDao,
-            final CashBalanceDao cashBalanceDao,
-            final Engine serverEngine) {
+            final CashBalanceDao cashBalanceDao) {
 
-        return new H2TransactionPersistenceServiceImpl(commonConfig, portfolioService, sessionFactory, positionDao, transactionDao, cashBalanceDao, serverEngine);
+        return new H2TransactionPersistenceServiceImpl(commonConfig, portfolioService, sessionFactory, positionDao, transactionDao, cashBalanceDao);
     }
 
     @Bean(name = "resetService")

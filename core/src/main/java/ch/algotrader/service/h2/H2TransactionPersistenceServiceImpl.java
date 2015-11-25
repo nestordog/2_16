@@ -39,7 +39,6 @@ import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.strategy.CashBalance;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.enumeration.Currency;
-import ch.algotrader.esper.Engine;
 import ch.algotrader.service.PortfolioService;
 import ch.algotrader.service.TransactionPersistenceServiceImpl;
 import ch.algotrader.vo.CurrencyAmountVO;
@@ -61,10 +60,9 @@ public class H2TransactionPersistenceServiceImpl extends TransactionPersistenceS
             final SessionFactory sessionFactory,
             final PositionDao positionDao,
             final TransactionDao transactionDao,
-            final CashBalanceDao cashBalanceDao,
-            final Engine serverEngine) {
+            final CashBalanceDao cashBalanceDao) {
 
-        super(commonConfig, portfolioService, positionDao, transactionDao, cashBalanceDao, serverEngine);
+        super(commonConfig, portfolioService, positionDao, transactionDao, cashBalanceDao);
 
         Validate.notNull(sessionFactory, "SessionFactory is null");
         Validate.notNull(positionDao, "PositionDao is null");
