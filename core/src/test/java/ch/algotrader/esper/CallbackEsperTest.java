@@ -243,17 +243,17 @@ public class CallbackEsperTest extends EsperTestBase {
             }
         });
 
-        OrderCompletionVO orderCompletion1 = new OrderCompletionVO("this-order", "blah", new Date(), Status.EXECUTED, 10L, 20L, null, null, null, null, 0, 0.0d);
+        OrderCompletionVO orderCompletion1 = new OrderCompletionVO("this-order", "blah", 1, new Date(), Status.EXECUTED, 10L, 20L, null, null, null, null, 0, 0.0d);
         this.epRuntime.sendEvent(orderCompletion1);
 
         Assert.assertNull(orderComlpetionListQueue.poll());
 
-        OrderCompletionVO orderCompletion2 = new OrderCompletionVO("blah", "blah", new Date(), Status.EXECUTED, 10L, 20L, null, null, null, null, 0, 0.0d);
+        OrderCompletionVO orderCompletion2 = new OrderCompletionVO("blah", "blah", 1, new Date(), Status.EXECUTED, 10L, 20L, null, null, null, null, 0, 0.0d);
         this.epRuntime.sendEvent(orderCompletion2);
 
         Assert.assertNull(orderComlpetionListQueue.poll());
 
-        OrderCompletionVO orderCompletion3 = new OrderCompletionVO("that-order", "blah", new Date(), Status.CANCELED, 10L, 20L, null, null, null, null, 0, 0.0d);
+        OrderCompletionVO orderCompletion3 = new OrderCompletionVO("that-order", "blah", 1, new Date(), Status.CANCELED, 10L, 20L, null, null, null, null, 0, 0.0d);
         this.epRuntime.sendEvent(orderCompletion3);
 
         List<OrderCompletionVO> orderCompletionList = orderComlpetionListQueue.poll();
