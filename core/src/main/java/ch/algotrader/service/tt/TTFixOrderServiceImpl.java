@@ -59,10 +59,11 @@ public class TTFixOrderServiceImpl extends Fix42OrderServiceImpl implements Fix4
             final OrderPersistenceService orderPersistenceService,
             final OrderDao orderDao,
             final AccountDao accountDao,
+            final BrokerAccountParametersDao brokerAccountParametersDao,
             final CommonConfig commonConfig) {
 
         this(OrderServiceType.TT_FIX.name(), fixAdapter, stateHolder, orderRegistry, orderPersistenceService,
-                orderDao, accountDao, commonConfig);
+                orderDao, accountDao, brokerAccountParametersDao, commonConfig);
     }
 
     @Override
