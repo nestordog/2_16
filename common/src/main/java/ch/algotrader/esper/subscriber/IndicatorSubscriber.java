@@ -17,27 +17,39 @@
  ***********************************************************************************/
 package ch.algotrader.esper.subscriber;
 
+import java.util.Date;
 import java.util.Map;
-import java.util.TreeMap;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import ch.algotrader.report.ListReporter;
+import ch.algotrader.util.DateTimeUtil;
 
 /**
- * Prints all values as a comma-separated-list (CSV) to Log. (Headers are not available).
+ * Prints all values as a comma-separated-list (CSV) to files/reports/IndicatorReport.csv
+ *
+ * Headers will be extracted from the first arriving event {@code statement}.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  */
 public class IndicatorSubscriber {
 
-    private static final Logger LOGGER = LogManager.getLogger(IndicatorSubscriber.class);
+    private ListReporter reporter;
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     public void update(Map<?, ?> map) {
 
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info(StringUtils.join((new TreeMap(map)).values(), ","));
+        if (this.reporter == null) {
+            this.reporter = new ListReporter("IndicatorReport", map.keySet().toArray(new String[] {}));
         }
+
+        Object[] values = new Object[map.entrySet().size()];
+        int i = 0;
+        for (Object obj : map.values()) {
+            if (obj instanceof Date) {
+                values[i++] = DateTimeUtil.formatAsGMT(((Date) obj).toInstant());
+            } else {
+                values[i++] = obj;
+            }
+        }
+
+        this.reporter.write(values);
     }
 }
