@@ -663,7 +663,6 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
         return pendingOrderMap;
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public void init() {
 

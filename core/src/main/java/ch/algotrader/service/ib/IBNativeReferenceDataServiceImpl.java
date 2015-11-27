@@ -121,6 +121,7 @@ public class IBNativeReferenceDataServiceImpl implements ReferenceDataService {
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRED)
     public void retrieve(long securityFamilyId) {
 
         SecurityFamily securityFamily = this.securityFamilyDao.get(securityFamilyId);
@@ -167,6 +168,7 @@ public class IBNativeReferenceDataServiceImpl implements ReferenceDataService {
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRED)
     public void retrieveStocks(long securityFamilyId, String symbol) {
 
         Validate.notEmpty(symbol, "Symbol is empty");

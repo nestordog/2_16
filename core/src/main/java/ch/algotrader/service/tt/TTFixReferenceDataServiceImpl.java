@@ -115,6 +115,7 @@ public class TTFixReferenceDataServiceImpl implements ReferenceDataService, Init
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRED)
     public void retrieve(final long securityFamilyId) {
 
         if (!this.stateHolder.isLoggedOn()) {
