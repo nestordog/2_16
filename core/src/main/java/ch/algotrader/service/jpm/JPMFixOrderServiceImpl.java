@@ -41,6 +41,7 @@ import quickfix.fix42.OrderCancelRequest;
 public class JPMFixOrderServiceImpl extends Fix42OrderServiceImpl implements Fix42OrderService {
 
     public JPMFixOrderServiceImpl(
+            final String orderServiceType,
             final FixAdapter fixAdapter,
             final ExternalSessionStateHolder stateHolder,
             final OrderRegistry orderRegistry,
@@ -49,8 +50,21 @@ public class JPMFixOrderServiceImpl extends Fix42OrderServiceImpl implements Fix
             final AccountDao accountDao,
             final CommonConfig commonConfig) {
 
-        super(OrderServiceType.JPM_FIX.name(), fixAdapter, stateHolder, new GenericFix42OrderMessageFactory(new GenericFix42SymbologyResolver()),
+        super(orderServiceType, fixAdapter, stateHolder, new GenericFix42OrderMessageFactory(new GenericFix42SymbologyResolver()),
                 orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig);
+    }
+
+    public JPMFixOrderServiceImpl(
+            final FixAdapter fixAdapter,
+            final ExternalSessionStateHolder stateHolder,
+            final OrderRegistry orderRegistry,
+            final OrderPersistenceService orderPersistenceService,
+            final OrderDao orderDao,
+            final AccountDao accountDao,
+            final CommonConfig commonConfig) {
+
+        this(OrderServiceType.JPM_FIX.name(), fixAdapter, stateHolder, orderRegistry, orderPersistenceService,
+                orderDao, accountDao, commonConfig);
     }
 
     @Override

@@ -39,6 +39,7 @@ import quickfix.fix42.OrderCancelRequest;
 public class TTFixOrderServiceImpl extends Fix42OrderServiceImpl implements Fix42OrderService {
 
     public TTFixOrderServiceImpl(
+            final String orderServiceType,
             final FixAdapter fixAdapter,
             final ExternalSessionStateHolder stateHolder,
             final OrderRegistry orderRegistry,
@@ -47,8 +48,21 @@ public class TTFixOrderServiceImpl extends Fix42OrderServiceImpl implements Fix4
             final AccountDao accountDao,
             final CommonConfig commonConfig) {
 
-        super(OrderServiceType.TT_FIX.name(), fixAdapter, stateHolder, new TTFixOrderMessageFactory(),
+        super(orderServiceType, fixAdapter, stateHolder, new TTFixOrderMessageFactory(),
                 orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig);
+    }
+
+    public TTFixOrderServiceImpl(
+            final FixAdapter fixAdapter,
+            final ExternalSessionStateHolder stateHolder,
+            final OrderRegistry orderRegistry,
+            final OrderPersistenceService orderPersistenceService,
+            final OrderDao orderDao,
+            final AccountDao accountDao,
+            final CommonConfig commonConfig) {
+
+        this(OrderServiceType.TT_FIX.name(), fixAdapter, stateHolder, orderRegistry, orderPersistenceService,
+                orderDao, accountDao, commonConfig);
     }
 
     @Override

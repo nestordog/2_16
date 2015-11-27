@@ -41,6 +41,7 @@ import quickfix.fix44.OrderCancelRequest;
 public class LMAXFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fix44OrderService {
 
     public LMAXFixOrderServiceImpl(
+            final String orderServiceType,
             final FixAdapter fixAdapter,
             final ExternalSessionStateHolder stateHolder,
             final OrderRegistry orderRegistry,
@@ -49,8 +50,21 @@ public class LMAXFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fi
             final AccountDao accountDao,
             final CommonConfig commonConfig) {
 
-        super(OrderServiceType.LMAX_FIX.name(), fixAdapter, stateHolder, new LMAXFixOrderMessageFactory(),
+        super(orderServiceType, fixAdapter, stateHolder, new LMAXFixOrderMessageFactory(),
                 orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig);
+    }
+
+    public LMAXFixOrderServiceImpl(
+            final FixAdapter fixAdapter,
+            final ExternalSessionStateHolder stateHolder,
+            final OrderRegistry orderRegistry,
+            final OrderPersistenceService orderPersistenceService,
+            final OrderDao orderDao,
+            final AccountDao accountDao,
+            final CommonConfig commonConfig) {
+
+        this(OrderServiceType.LMAX_FIX.name(), fixAdapter, stateHolder,  orderRegistry, orderPersistenceService,
+                orderDao, accountDao, commonConfig);
     }
 
     @Override

@@ -45,6 +45,7 @@ public class FTXFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fix
     private final OrderRegistry orderRegistry;
 
     public FTXFixOrderServiceImpl(
+            final String orderServiceType,
             final FixAdapter fixAdapter,
             final ExternalSessionStateHolder stateHolder,
             final OrderRegistry orderRegistry,
@@ -53,9 +54,22 @@ public class FTXFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fix
             final AccountDao accountDao,
             final CommonConfig commonConfig) {
 
-        super(OrderServiceType.FTX_FIX.name(), fixAdapter, stateHolder, new FTXFixOrderMessageFactory(),
+        super(orderServiceType, fixAdapter, stateHolder, new FTXFixOrderMessageFactory(),
                 orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig);
         this.orderRegistry = orderRegistry;
+    }
+
+    public FTXFixOrderServiceImpl(
+            final FixAdapter fixAdapter,
+            final ExternalSessionStateHolder stateHolder,
+            final OrderRegistry orderRegistry,
+            final OrderPersistenceService orderPersistenceService,
+            final OrderDao orderDao,
+            final AccountDao accountDao,
+            final CommonConfig commonConfig) {
+
+        this(OrderServiceType.FTX_FIX.name(), fixAdapter, stateHolder,
+                orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig);
     }
 
     @Override

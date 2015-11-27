@@ -40,6 +40,7 @@ import quickfix.fix44.OrderCancelRequest;
 public class RTFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fix44OrderService {
 
     public RTFixOrderServiceImpl(
+            final String orderServiceType,
             final FixAdapter fixAdapter,
             final ExternalSessionStateHolder rTOrderSessionStateHolder,
             final OrderRegistry orderRegistry,
@@ -48,8 +49,21 @@ public class RTFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fix4
             final AccountDao accountDao,
             final CommonConfig commonConfig) {
 
-        super(OrderServiceType.RT_FIX.name(), fixAdapter, rTOrderSessionStateHolder, new RTFixOrderMessageFactory(new GenericFix44SymbologyResolver()),
+        super(orderServiceType, fixAdapter, rTOrderSessionStateHolder, new RTFixOrderMessageFactory(new GenericFix44SymbologyResolver()),
                 orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig);
+    }
+
+    public RTFixOrderServiceImpl(
+            final FixAdapter fixAdapter,
+            final ExternalSessionStateHolder rTOrderSessionStateHolder,
+            final OrderRegistry orderRegistry,
+            final OrderPersistenceService orderPersistenceService,
+            final OrderDao orderDao,
+            final AccountDao accountDao,
+            final CommonConfig commonConfig) {
+
+        this(OrderServiceType.RT_FIX.name(), fixAdapter, rTOrderSessionStateHolder, orderRegistry,
+                orderPersistenceService, orderDao, accountDao, commonConfig);
     }
 
     @Override

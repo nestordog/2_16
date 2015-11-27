@@ -39,6 +39,7 @@ import quickfix.fix44.OrderCancelRequest;
 public class FXCMFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fix44OrderService {
 
     public FXCMFixOrderServiceImpl(
+            final String orderServiceType,
             final FixAdapter fixAdapter,
             final ExternalSessionStateHolder stateHolder,
             final OrderRegistry orderRegistry,
@@ -47,7 +48,20 @@ public class FXCMFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fi
             final AccountDao accountDao,
             final CommonConfig commonConfig) {
 
-        super(OrderServiceType.FXCM_FIX.name(), fixAdapter, stateHolder, new FXCMFixOrderMessageFactory(),
+        super(orderServiceType, fixAdapter, stateHolder, new FXCMFixOrderMessageFactory(),
+                orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig);
+    }
+
+    public FXCMFixOrderServiceImpl(
+            final FixAdapter fixAdapter,
+            final ExternalSessionStateHolder stateHolder,
+            final OrderRegistry orderRegistry,
+            final OrderPersistenceService orderPersistenceService,
+            final OrderDao orderDao,
+            final AccountDao accountDao,
+            final CommonConfig commonConfig) {
+
+        this(OrderServiceType.FXCM_FIX.name(), fixAdapter, stateHolder,
                 orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig);
     }
 
