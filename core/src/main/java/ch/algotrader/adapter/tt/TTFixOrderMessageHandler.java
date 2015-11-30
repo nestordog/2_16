@@ -108,7 +108,9 @@ public class TTFixOrderMessageHandler extends GenericFix42OrderMessageHandler {
     private void handleExternalReport(final ExecutionReport executionReport) throws FieldNotFound {
 
         String extId = executionReport.getOrderID().getValue();
-        Status status = getStatus(executionReport.getExecType().getValue());
+
+        ExecType execType = executionReport.getExecType();
+        Status status = getStatus(execType, (long) executionReport.getCumQty().getValue());
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Received order status {} for external order {}", status, extId);
@@ -189,28 +191,6 @@ public class TTFixOrderMessageHandler extends GenericFix42OrderMessageHandler {
             }
         }
         super.onMessage(reject, sessionID);
-    }
-
-    private Status getStatus(final char execType) {
-
-        switch (execType) {
-            case ExecType.NEW:
-                return Status.SUBMITTED;
-            case ExecType.PARTIAL_FILL:
-                return Status.PARTIALLY_EXECUTED;
-            case ExecType.FILL:
-                return Status.EXECUTED;
-            case ExecType.CANCELED:
-            case ExecType.DONE_FOR_DAY:
-            case ExecType.EXPIRED:
-                return Status.CANCELED;
-            case ExecType.REJECTED:
-                return Status.REJECTED;
-            case ExecType.REPLACE:
-                return Status.SUBMITTED;
-            default:
-                throw new IllegalArgumentException("Unexpected execType: " + execType);
-        }
     }
 
     @Override

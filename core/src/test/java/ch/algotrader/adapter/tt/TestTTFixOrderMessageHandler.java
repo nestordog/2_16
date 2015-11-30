@@ -54,6 +54,7 @@ import ch.algotrader.util.DateTimeUtil;
 import quickfix.ConfigError;
 import quickfix.DataDictionary;
 import quickfix.field.ClOrdID;
+import quickfix.field.CumQty;
 import quickfix.field.ExecID;
 import quickfix.field.ExecType;
 import quickfix.field.OrderID;
@@ -211,6 +212,7 @@ public class TestTTFixOrderMessageHandler {
         executionReport.set(new ClOrdID("123"));
         executionReport.set(new OrderID("xxx"));
         executionReport.set(new ExecID("123567"));
+        executionReport.set(new CumQty(0.0d));
 
         Mockito.when(this.orderExecutionService.getOpenOrderByIntId(Mockito.anyString())).thenReturn(null);
 
