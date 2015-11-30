@@ -93,12 +93,13 @@ public class TTFixSecurityDefinitionMessageHandler extends AbstractFix42MessageH
         String securityType = securityDefinition.getSecurityType().getValue();
         String securityExchange = securityDefinition.getSecurityExchange().getValue();
         String desc = securityDefinition.isSetSecurityDesc() ? securityDefinition.getSecurityDesc().getValue() : null;
-        String ccyString = securityDefinition.getCurrency().getValue();
-        Currency currency;
-        try {
-            currency = Currency.valueOf(ccyString);
-        } catch (IllegalArgumentException ex) {
-            currency = null;
+        String ccyString = securityDefinition.isSetCurrency() ? securityDefinition.getCurrency().getValue() : null;
+        Currency currency = null;
+        if (ccyString != null) {
+            try {
+                currency = Currency.valueOf(ccyString);
+            } catch (IllegalArgumentException ex) {
+            }
         }
         switch (securityType) {
             case SecurityType.FUTURE:
