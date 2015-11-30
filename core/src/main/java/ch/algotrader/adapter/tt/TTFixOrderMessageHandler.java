@@ -71,8 +71,13 @@ public class TTFixOrderMessageHandler extends GenericFix42OrderMessageHandler {
             ExecTransType execTransType = executionReport.getExecTransType();
             if (execTransType.getValue() == ExecTransType.STATUS) {
                 if (LOGGER.isInfoEnabled()) {
-                    String orderIntId = executionReport.getClOrdID().getValue();
-                    LOGGER.info("Working order at the TT side: {}", orderIntId);
+                    if (executionReport.isSetClOrdID()) {
+                        String orderIntId = executionReport.getClOrdID().getValue();
+                        LOGGER.info("Working order at the TT side: IntId = {}", orderIntId);
+                    } else {
+                        String orderExtId = executionReport.getOrderID().getValue();
+                        LOGGER.info("Working order at the TT side: ExtId = {}", orderExtId);
+                    }
                 }
                 return true;
             }
