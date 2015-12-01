@@ -40,6 +40,7 @@ import com.fasterxml.jackson.module.jsonSchema.factories.SchemaFactoryWrapper;
 import ch.algotrader.UnrecoverableCoreException;
 import ch.algotrader.entity.PositionVO;
 import ch.algotrader.entity.TransactionVO;
+import ch.algotrader.entity.exchange.ExchangeVO;
 import ch.algotrader.entity.marketData.TickVO;
 import ch.algotrader.entity.security.BondFamilyVO;
 import ch.algotrader.entity.security.BondVO;
@@ -94,6 +95,7 @@ public class MetaDataRestController extends RestControllerBase {
                 new SchemaConfig(OrderStatusVO.class,"OrderStatus"),
                 new SchemaConfig(TransactionVO.class, "Transaction"),
                 new SchemaConfig(StrategyVO.class, "Strategy"),
+                new SchemaConfig(ExchangeVO.class, "Exchange"),
                 new SchemaConfig(PositionValuationVO.class, "PositionValuation"));
 
         meta = configs

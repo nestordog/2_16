@@ -249,6 +249,11 @@ public interface LookupService {
     public FutureFamily getFutureFamilyByUnderlying(long id);
 
     /**
+     * Gets all {@link Exchange}s
+     */
+    public Collection<Exchange> getAllExchanges();
+
+    /**
      * Gets a {@link Exchange} by the {@code name}
      */
     public Exchange getExchangeByName(String name);

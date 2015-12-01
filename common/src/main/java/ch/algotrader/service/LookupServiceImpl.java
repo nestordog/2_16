@@ -540,6 +540,16 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
+    public Collection<Exchange> getAllExchanges() {
+
+        return this.cacheManager.getAll(Exchange.class);
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Exchange getExchangeByName(String name) {
 
         return this.cacheManager.findUnique(Exchange.class, "Exchange.findByName", QueryType.BY_NAME, new NamedParam("name", name));

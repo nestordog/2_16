@@ -36,6 +36,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.AccountVO;
+import ch.algotrader.entity.exchange.Exchange;
+import ch.algotrader.entity.exchange.ExchangeVO;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.SecurityFamilyVO;
@@ -128,6 +130,15 @@ public class LookupRestController extends RestControllerBase {
 
         return lookupService.getAllAccounts().stream()
                 .map(Account::convertToVO)
+                .collect(Collectors.toList());
+    }
+
+    @CrossOrigin
+    @RequestMapping(path = "/exchange", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public Collection<ExchangeVO> getExchanges() {
+
+        return lookupService.getAllExchanges().stream()
+                .map(Exchange::convertToVO)
                 .collect(Collectors.toList());
     }
 
