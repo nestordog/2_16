@@ -33,7 +33,7 @@ import ch.algotrader.vo.marketData.MarketDataSubscriptionVO;
 
 @RestController
 @RequestMapping(path = "/rest")
-public class MarketDataRestController {
+public class MarketDataRestController extends RestControllerBase {
 
     private final MarketDataService marketDataService;
 

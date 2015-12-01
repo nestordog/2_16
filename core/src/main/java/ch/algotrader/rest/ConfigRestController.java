@@ -36,7 +36,7 @@ import ch.algotrader.config.ConfigParams;
 
 @RestController
 @RequestMapping(path = "/rest")
-public class ConfigRestController {
+public class ConfigRestController extends RestControllerBase {
 
     private final ConfigParams configParams;
 

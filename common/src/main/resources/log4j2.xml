@@ -33,6 +33,8 @@
         <logger name="org.hibernate.cache.ReadWriteCache" level="error" />
         <!-- mute ehcache warnings about soft-locked entry expiry -->
         <logger name="org.hibernate.cache.ehcache.internal.strategy.AbstractReadWriteEhcacheAccessStrategy" level="error" />
+        <!-- mute Spring exception handler duplicate warnings-->
+        <logger name="org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver" level="error" />
 
         <logger name="org.apache.commons" level="warn" />
         <logger name="net.sf.ehcache" level="warn" />

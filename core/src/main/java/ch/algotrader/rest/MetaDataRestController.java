@@ -67,7 +67,7 @@ import ch.algotrader.vo.PositionValuationVO;
 
 @RestController
 @RequestMapping(path = "/rest/meta")
-public class MetaDataRestController {
+public class MetaDataRestController extends RestControllerBase {
 
     private static class ClassIgnoringIntrospector extends JacksonAnnotationIntrospector {
 

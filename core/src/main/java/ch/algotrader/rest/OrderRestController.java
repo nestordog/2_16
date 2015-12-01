@@ -40,7 +40,7 @@ import ch.algotrader.service.OrderService;
 
 @RestController
 @RequestMapping(path = "/rest")
-public class OrderRestController {
+public class OrderRestController extends RestControllerBase {
 
     private final OrderService orderService;
 

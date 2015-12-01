@@ -47,7 +47,7 @@ import ch.algotrader.service.LookupService;
 
 @RestController
 @RequestMapping(path = "/rest")
-public class LookupRestController {
+public class LookupRestController extends RestControllerBase {
 
     private final LookupService lookupService;
     private final SecurityIndexer securityIndexer;
