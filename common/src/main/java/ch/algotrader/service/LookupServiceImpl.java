@@ -801,6 +801,15 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
+    public Collection<Account> getAllAccounts() {
+
+        return this.cacheManager.getAll(Account.class);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Account getAccountByName(final String accountName) {
 
         Validate.notEmpty(accountName, "Account name is empty");

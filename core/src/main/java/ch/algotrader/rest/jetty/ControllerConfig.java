@@ -18,9 +18,11 @@
 
 package ch.algotrader.rest.jetty;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -31,12 +33,20 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import ch.algotrader.entity.security.Security;
+import ch.algotrader.rest.LookupRestController;
+import ch.algotrader.rest.MetaDataRestController;
+import ch.algotrader.rest.index.SecurityIndexer;
+import ch.algotrader.service.LookupService;
+
 @Configuration
 @EnableWebMvc
 public class ControllerConfig extends WebMvcConfigurerAdapter {
 
     @Autowired
     private ObjectMapper objectMapper;
+    @Autowired
+    private LookupService lookupService;
 
     @Override
     public void configureMessageConverters(final List<HttpMessageConverter<?>> converters) {
@@ -53,6 +63,20 @@ public class ControllerConfig extends WebMvcConfigurerAdapter {
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
         registry.addViewController("/").setViewName("/index.html");
+    }
+
+    @Bean(name = "metaDataRestController")
+    public MetaDataRestController createMetaDataRestController() {
+        return new MetaDataRestController();
+    }
+
+    @Bean(name = "lookupRestController")
+    public LookupRestController createLookupRestController() {
+
+        SecurityIndexer securityIndexer = new SecurityIndexer();
+        Collection<Security> allSecurities = this.lookupService.getAllSecurities();
+        securityIndexer.init(allSecurities);
+        return new LookupRestController(this.lookupService, securityIndexer);
     }
 
 }

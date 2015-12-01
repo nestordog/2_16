@@ -377,7 +377,7 @@ public class MarketDataServiceImpl implements MarketDataService {
 
         ExternalMarketDataService externalMarketDataService = this.externalMarketDataServiceMap.get(feedType);
         if (externalMarketDataService == null) {
-            throw new ServiceException("No ExternalMarketDataService found for feed type " + feedType);
+            throw new ServiceException("No external market data service found for feed type " + feedType);
         }
         return externalMarketDataService;
     }

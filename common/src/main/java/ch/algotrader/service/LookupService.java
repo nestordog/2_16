@@ -370,12 +370,17 @@ public interface LookupService {
     public List<Order> getDailyOrdersByStrategy(String strategyName);
 
     /**
-     * Gets an Account by its {@code accountName}.
+     * Gets all accounts.
+     */
+    public Collection<Account> getAllAccounts();
+
+    /**
+     * Gets an account by its {@code accountName}.
      */
     public Account getAccountByName(String accountName);
 
     /**
-     * Gets all active Accounts for the specified order service tyoe.
+     * Gets all active Accounts for the specified order service type.
      */
     public Collection<String> getActiveSessionsByOrderServiceType(String orderServiceType);
 
