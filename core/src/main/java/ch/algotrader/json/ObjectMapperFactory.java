@@ -24,6 +24,12 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
+import ch.algotrader.entity.trade.LimitOrderVO;
+import ch.algotrader.entity.trade.MarketOrderVO;
+import ch.algotrader.entity.trade.StopLimitOrderVO;
+import ch.algotrader.entity.trade.StopOrderVO;
+import ch.algotrader.vo.marketData.MarketDataSubscriptionVO;
+
 public class ObjectMapperFactory {
 
     public ObjectMapper create() {
@@ -31,6 +37,11 @@ public class ObjectMapperFactory {
         SimpleModule module = new SimpleModule();
         module.addDeserializer(Date.class, new InternalDateDeserializer());
         module.addSerializer(Date.class, new InternalDateSerializer());
+        module.setMixInAnnotation(MarketOrderVO.class, MarketOrderVOMixIn.class);
+        module.setMixInAnnotation(LimitOrderVO.class, LimitOrderVOMixIn.class);
+        module.setMixInAnnotation(StopOrderVO.class, StopOrderVOMixIn.class);
+        module.setMixInAnnotation(StopLimitOrderVO.class, StopLimitOrderVOMixIn.class);
+        module.setMixInAnnotation(MarketDataSubscriptionVO.class, MarketDataSubscriptionVOMixIn.class);
         return new ObjectMapper()
                 .registerModule(module)
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);

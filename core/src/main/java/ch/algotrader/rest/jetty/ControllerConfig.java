@@ -35,9 +35,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.rest.LookupRestController;
+import ch.algotrader.rest.MarketDataRestController;
 import ch.algotrader.rest.MetaDataRestController;
+import ch.algotrader.rest.OrderRestController;
 import ch.algotrader.rest.index.SecurityIndexer;
 import ch.algotrader.service.LookupService;
+import ch.algotrader.service.MarketDataService;
+import ch.algotrader.service.OrderService;
 
 @Configuration
 @EnableWebMvc
@@ -47,6 +51,10 @@ public class ControllerConfig extends WebMvcConfigurerAdapter {
     private ObjectMapper objectMapper;
     @Autowired
     private LookupService lookupService;
+    @Autowired
+    private OrderService orderService;
+    @Autowired
+    private MarketDataService marketDataService;
 
     @Override
     public void configureMessageConverters(final List<HttpMessageConverter<?>> converters) {
@@ -77,6 +85,18 @@ public class ControllerConfig extends WebMvcConfigurerAdapter {
         Collection<Security> allSecurities = this.lookupService.getAllSecurities();
         securityIndexer.init(allSecurities);
         return new LookupRestController(this.lookupService, securityIndexer);
+    }
+
+    @Bean(name = "orderRestController")
+    public OrderRestController createOrderRestController() {
+
+        return new OrderRestController(this.orderService);
+    }
+
+    @Bean(name = "marketDataRestController")
+    public MarketDataRestController createMarketDataRestController() {
+
+        return new MarketDataRestController(this.marketDataService);
     }
 
 }
