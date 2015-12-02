@@ -167,6 +167,14 @@
         </dependency>
 
         <dependency>
+            <groupId>algotrader</groupId>
+            <artifactId>algotrader-html5</artifactId>
+            <version>${html.content.version}</version>
+            <classifier>bin</classifier>
+            <type>jar</type>
+        </dependency>
+
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
