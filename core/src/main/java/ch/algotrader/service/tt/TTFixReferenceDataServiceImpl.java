@@ -19,8 +19,15 @@ package ch.algotrader.service.tt;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.format.DateTimeParseException;
+import java.time.format.TextStyle;
+import java.time.temporal.ChronoField;
+import java.time.temporal.TemporalAccessor;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutionException;
@@ -73,6 +80,11 @@ import quickfix.fix42.SecurityDefinitionRequest;
 public class TTFixReferenceDataServiceImpl implements ReferenceDataService, InitializingServiceI {
 
     private static final Logger LOGGER = LogManager.getLogger(TTFixReferenceDataServiceImpl.class);
+
+    private static final DateTimeFormatter E_BRENT_SYMBOL = new DateTimeFormatterBuilder()
+            .appendText(ChronoField.MONTH_OF_YEAR, TextStyle.SHORT)
+            .appendValueReduced(ChronoField.YEAR, 2, 2, 2000)
+            .toFormatter(Locale.ROOT);
 
     private final FixAdapter fixAdapter;
     private final ExternalSessionStateHolder stateHolder;
@@ -239,6 +251,7 @@ public class TTFixReferenceDataServiceImpl implements ReferenceDataService, Init
             String id = securityDef.getId();
             LocalDate maturityDate = securityDef.getMaturityDate();
             LocalDate expiryDate = securityDef.getExpiryDate();
+            LocalDate expiration = maturityDate.withDayOfMonth(1);
 
             Future future = Future.Factory.newInstance();
 
@@ -246,7 +259,20 @@ public class TTFixReferenceDataServiceImpl implements ReferenceDataService, Init
             // with the same expiration month
             String symbol;
             if ("IPE e-Brent".equalsIgnoreCase(securityFamily.getSymbolRoot()) && securityDef.getAltSymbol() != null) {
-                symbol = securityFamily.getSymbolRoot() + " " + securityDef.getAltSymbol();
+                String altSymbol = securityDef.getAltSymbol();
+                if (altSymbol.startsWith("Q") || altSymbol.startsWith("Cal")) {
+                    continue;
+                } else {
+                    try {
+                        TemporalAccessor parsed = E_BRENT_SYMBOL.parse(altSymbol);
+                        int year = parsed.get(ChronoField.YEAR);
+                        int month = parsed.get(ChronoField.MONTH_OF_YEAR);
+                        expiration = LocalDate.of(year, month, 1);
+                        symbol = FutureSymbol.getSymbol(securityFamily, expiration);
+                    } catch (DateTimeParseException ex) {
+                        throw new ServiceException("Unable to parse IPE e-Brent expiration month / year: " + altSymbol, ex);
+                    }
+                }
             } else {
                 symbol = FutureSymbol.getSymbol(securityFamily, maturityDate);
             }
@@ -257,7 +283,7 @@ public class TTFixReferenceDataServiceImpl implements ReferenceDataService, Init
             future.setIsin(isin);
             future.setRic(ric);
             future.setTtid(id);
-            future.setExpiration(DateTimeLegacy.toLocalDate(maturityDate));
+            future.setExpiration(DateTimeLegacy.toLocalDate(expiration));
             if (expiryDate != null) {
                 future.setFirstNotice(DateTimeLegacy.toLocalDate(expiryDate));
                 future.setLastTrading(DateTimeLegacy.toLocalDate(expiryDate));
