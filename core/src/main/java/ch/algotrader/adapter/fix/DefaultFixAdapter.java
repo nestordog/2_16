@@ -124,7 +124,9 @@ public class DefaultFixAdapter implements FixAdapter {
             return;
         }
         for (String sessionQualifier : sessionQualifiers) {
-            createSession(sessionQualifier);
+            if (sessionQualifier != null) {
+                createSession(sessionQualifier);
+            }
         }
     }
 
