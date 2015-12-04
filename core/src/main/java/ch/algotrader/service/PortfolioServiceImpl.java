@@ -174,6 +174,70 @@ public class PortfolioServiceImpl implements PortfolioService {
      * {@inheritDoc}
      */
     @Override
+    public Collection<Transaction> getTransactionsByFilter(final String filter, final Date date, final NamedParam... namedParams) {
+
+        Validate.notEmpty(filter, "Filter is empty");
+        Validate.notNull(namedParams, "Named parameters is null");
+        Validate.notNull(date, "Date is null");
+
+        // add maxDate
+        NamedParam[] copy = new NamedParam[namedParams.length + 1];
+        System.arraycopy(namedParams, 0, copy, 0, namedParams.length);
+        copy[namedParams.length] = new NamedParam("maxDate", date);
+
+        //@formatter:off
+            String query =
+                    "from TransactionImpl as t "
+                    + "left join fetch t.strategy "
+                    + "join fetch t.security "
+                    + "join fetch t.position "
+                    + "join fetch t.account "
+                    + "where " + filter + " "
+                    + "and t.dateTime <= :maxDate";
+          //@formatter:on
+        return this.genericDao.find(Transaction.class, query, QueryType.HQL, copy);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED)
+    public List<Position> getOpenPositionsByFilter(final String filter, final Date date, final NamedParam... namedParams) {
+
+        Validate.notEmpty(filter, "Filter is empty");
+        Validate.notNull(namedParams, "Named parameters is null");
+        Validate.notNull(date, "Date is null");
+
+        //@formatter:off
+            String queryString =
+                    "select new Position(sum(t.quantity), s) "
+                    + "from TransactionImpl as t "
+                    + "join t.security as s "
+                    + "where s != null "
+                    + "and t.dateTime <= :date "
+                    + "and " + filter + " "
+                    + "group by s.id "
+                    + "having sum(t.quantity) != 0 "
+                    + "order by s.id";
+            //@formatter:on
+
+        // add maxDate
+        NamedParam[] copy = new NamedParam[namedParams.length + 1];
+        System.arraycopy(namedParams, 0, copy, 0, namedParams.length);
+        copy[namedParams.length] = new NamedParam("date", date);
+
+        List<Position> positions = this.genericDao.find(Position.class, queryString, QueryType.HQL, copy);
+
+        positions.stream().forEach((p) -> p.initializeSecurity(HibernateInitializer.INSTANCE));
+
+        return positions;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public BigDecimal getCashBalance() {
 
         return RoundUtil.getBigDecimal(getCashBalanceDouble());
@@ -300,24 +364,7 @@ public class PortfolioServiceImpl implements PortfolioService {
     @Override
     public double getCashBalanceDouble(final String filter, final Date date, final NamedParam... namedParams) {
 
-        Validate.notEmpty(filter, "Filter is empty");
-        Validate.notNull(namedParams, "Named parameters is null");
-        Validate.notNull(date, "Date is null");
-
-        // add maxDate
-        NamedParam[] copy = new NamedParam[namedParams.length + 1];
-        System.arraycopy(namedParams, 0, copy, 0, namedParams.length);
-        copy[namedParams.length] = new NamedParam("maxDate", date);
-
-        //@formatter:off
-            String query =
-                    "from TransactionImpl as t "
-                    + "where " + filter + " "
-                    + "and t.dateTime <= :maxDate";
-          //@formatter:on
-        Collection<Transaction> transactions = this.genericDao.find(Transaction.class, query, QueryType.HQL, copy);
-
-        return getCashBalanceDoubleInternal(transactions, new ArrayList<>(), date);
+        return getCashBalanceDoubleInternal(getTransactionsByFilter(filter, date, namedParams), new ArrayList<>(), date);
 
     }
 
@@ -443,29 +490,7 @@ public class PortfolioServiceImpl implements PortfolioService {
     @Override
     public double getSecuritiesCurrentValueDouble(final String filter, final Date date, final NamedParam... namedParams) {
 
-        Validate.notEmpty(filter, "Filter is empty");
-        Validate.notNull(namedParams, "Named parameters is null");
-        Validate.notNull(date, "Date is null");
-
-        //@formatter:off
-            String queryString =
-                    "select new Position(sum(t.quantity), s) "
-                    + "from TransactionImpl as t "
-                    + "join t.security as s "
-                    + "where s != null "
-                    + "and t.dateTime <= :maxDate "
-                    + "and " + filter + " "
-                    + "group by s.id "
-                    + "having sum(t.quantity) != 0 "
-                    + "order by s.id";
-            //@formatter:on
-
-        // add maxDate
-        NamedParam[] copy = new NamedParam[namedParams.length + 1];
-        System.arraycopy(namedParams, 0, copy, 0, namedParams.length);
-        copy[namedParams.length] = new NamedParam("maxDate", date);
-
-        List<Position> openPositions = this.genericDao.find(Position.class, queryString, QueryType.HQL, namedParams);
+        List<Position> openPositions = getOpenPositionsByFilter(filter, date, namedParams);
 
         return getSecuritiesCurrentValueDoubleInternal(openPositions, date);
 

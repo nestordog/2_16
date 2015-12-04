@@ -20,8 +20,10 @@ package ch.algotrader.service;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 import ch.algotrader.dao.NamedParam;
+import ch.algotrader.entity.Position;
 import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.strategy.PortfolioValue;
 import ch.algotrader.entity.strategy.PortfolioValueI;
@@ -34,6 +36,35 @@ import ch.algotrader.vo.PortfolioValueVO;
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  */
 public interface PortfolioService {
+
+    /**
+     * Gets all transactions by an arbitrary filter up to the given date.
+     *
+     * The variable {@code t} can be used to reference the Transaction.
+     * Examples:
+     * {@code
+     * t.account.name = 'IB_NATIVE_TEST'
+     * t.account.name = :accountName // //specifying 'accountName' as a namedParameter
+     * t.currency = 'USD'
+     * }
+     */
+    public Collection<Transaction> getTransactionsByFilter(String filter, Date date, NamedParam... namedParams);
+
+    /**
+     * Gets all open positions on the specified Date by an arbitrary filter by
+     * aggregating all relevant transactions.
+     * The variable {@code s} and {@code t} can be used to reference the Security and Transaction.
+     * Examples:
+     * {@code
+     * s.symbol = 'IBM'
+     * s.symbol = :symbol //specifying 'symbol' as a namedParameter
+     * s.class = ForexImpl
+     * s.securityFamily.currency = 'USD'
+     * s.baseCurrency = 'EUR'
+     * s.gics like '12______'
+     * }
+     */
+    public List<Position> getOpenPositionsByFilter(String filter, Date date, NamedParam... namedParams);
 
     /**
      * Gets the Cash Balance of the entire System.
