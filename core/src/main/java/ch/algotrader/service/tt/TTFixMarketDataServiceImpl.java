@@ -36,6 +36,7 @@ import quickfix.fix42.MarketDataRequest;
  */
 public class TTFixMarketDataServiceImpl extends FixMarketDataServiceImpl implements FixMarketDataService {
 
+    private final FixAdapter fixAdapter;
     private final TTFixMarketDataRequestFactory requestFactory;
 
     public TTFixMarketDataServiceImpl(
@@ -45,7 +46,17 @@ public class TTFixMarketDataServiceImpl extends FixMarketDataServiceImpl impleme
             final Engine serverEngine) {
 
         super(FeedType.TT.name(), stateHolder, fixAdapter, tickerIdGenerator, serverEngine);
+        this.fixAdapter = fixAdapter;
         this.requestFactory = new TTFixMarketDataRequestFactory(tickerIdGenerator);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void init() {
+
+        this.fixAdapter.openSession(getSessionQualifier());
     }
 
     @Override
