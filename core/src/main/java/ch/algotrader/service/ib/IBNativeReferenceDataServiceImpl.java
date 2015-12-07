@@ -336,13 +336,7 @@ public class IBNativeReferenceDataServiceImpl implements ReferenceDataService {
         this.stockDao.saveAll(newStocks);
     }
 
-    private static final Comparator<Security> SECURITY_COMPARATOR = (o1, o2) -> {
-        if (o1.getConid() != null && o2.getConid() != null) {
-            return o1.getConid().compareTo(o2.getConid());
-        } else {
-            return o1.getSymbol().compareTo(o2.getSymbol());
-        }
-    };
+    private static final Comparator<Security> SECURITY_COMPARATOR = (o1, o2) -> o1.getConid().compareTo(o2.getConid());
 
     private LocalDate parseYearMonth(final CharSequence s) {
         if (s == null || s.length() == 0) {
